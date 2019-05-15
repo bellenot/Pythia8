@@ -37,9 +37,9 @@ Left-right-symmetry scenarios also contain new gauge bosons,
 but are described 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='LeftRightSymmetryProcesses.php?filepath=".$filepath."' target='page'>";?>separately</a>. 
-  
+ 
 <h3><i>Z'^0</i></h3> 
-   
+ 
 This group only contains one subprocess, with the full 
 <i>gamma^*/Z^0/Z'^0</i> interference structure for couplings 
 to fermion pairs. It is possible to pick only a subset, e.g, only 
@@ -47,7 +47,7 @@ the pure <i>Z'^0</i> piece. No higher-order processes are
 available explicitly, but the ISR showers contain automatic 
 matching to the <i>Z'^0</i> + 1 jet matrix elements, as for 
 the corresponding &nbsp <i>gamma^*/Z^0</i> process. 
-   
+ 
 <br/><br/><strong>NewGaugeBoson:ffbar2gmZZprime</strong>  <input type="radio" name="1" value="on"><strong>On</strong>
 <input type="radio" name="1" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -63,9 +63,9 @@ off, this process is reduced to what already exists among
 so those options are here only for crosschecks. 
 <br/>
 <input type="radio" name="2" value="0" checked="checked"><strong>0 </strong>: full <ei>gamma^*/Z^0/Z'^0</ei> structure,  with interference included.<br/>
-<input type="radio" name="2" value="1"><strong>1 </strong>: full <ei>gamma^*/Z^0/Z'^0</ei> structure,  with interference included.<br/>
-<input type="radio" name="2" value="2"><strong>2 </strong>: full <ei>gamma^*/Z^0/Z'^0</ei> structure,  with interference included.<br/>
-<input type="radio" name="2" value="3"><strong>3 </strong>: full <ei>gamma^*/Z^0/Z'^0</ei> structure,  with interference included.<br/>
+<input type="radio" name="2" value="1"><strong>1 </strong>: only pure <ei>gamma^*</ei> contribution.<br/>
+<input type="radio" name="2" value="2"><strong>2 </strong>: only pure <ei>Z^0</ei> contribution.<br/>
+<input type="radio" name="2" value="3"><strong>3 </strong>: only pure <ei>Z'^0</ei> contribution.<br/>
 <input type="radio" name="2" value="4"><strong>4 </strong>: only the <ei>gamma^*/Z^0</ei> contribution,  including interference.<br/>
 <input type="radio" name="2" value="5"><strong>5 </strong>: only the <ei>gamma^*/Z'^0</ei> contribution,  including interference.<br/>
 <input type="radio" name="2" value="6"><strong>6 </strong>: only the <ei>Z^0/Z'^0</ei> contribution,  including interference.<br/>
@@ -97,8 +97,8 @@ interference effects in cross sections and decay angular
 distributions and generation-dependent couplings; the default values 
 should mainly be viewed as placeholders. The conversion 
 from the coupling conventions in a set of different <i>Z'^0</i> 
-models in the literature to those used in PYTHIA is described in
-[<a href="Bibliography.php" target="page">Cio08</a>].
+models in the literature to those used in PYTHIA is described in 
+[<a href="Bibliography.php" target="page">Cio08</a>]. 
  
 <br/><br/><strong>Zprime:universality</strong>  <input type="radio" name="3" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="3" value="off"><strong>Off</strong>
@@ -234,7 +234,7 @@ Note that this channel only includes the pure <i>Z'</i> part,
 while <i>f fbar &rarr; gamma^*/Z^*0 &rarr; W^+ W^-</i> is available 
 as a separate electroweak process. 
    
-
+ 
 Furthermore, we have left some amount of 
 freedom in the choice of decay angular correlations in this 
 channel, but obviously alternative shapes could be imagined. 
@@ -254,26 +254,27 @@ A massive <i>Z'^0</i> is also likely to decay into Higgs bosons
 and potentially into other now unknown particles. Such possibilities 
 clearly are quite model-dependent, and have not been included 
 for now. 
-
-<p/>
+ 
+<p/> 
 Finally, to allow the exploration of more BSM physics scenarios, 
 we include the possibility of the <i>Z'^0</i> (and hence the 
-<i>gamma</i> and <i>Z^0</i>) coupling to a fourth generation of fermions.
-This provides redundancy with and extensions beyond those processes implemented 
-as <?php $filepath = $_GET["filepath"];
-echo "<a href='Fourth-Generation Processes.php?filepath=".$filepath."' target='page'>";?>fourth-generation processes</a>.
-By default, the decay channels for the fourth-generation and not included.
-They are enabled using:
+<i>gamma</i> and <i>Z^0</i>) coupling to a fourth generation of fermions. 
+This provides redundancy with and extensions beyond those processes 
+implemented as 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='Fourth-Generation Processes.php?filepath=".$filepath."' target='page'>";?>fourth-generation processes</a>. 
+By default, the decay channels for the fourth-generation and not included. 
+They are enabled using: 
 <br/><br/><strong>Zprime:coup2gen4</strong>  <input type="radio" name="30" value="on"><strong>On</strong>
 <input type="radio" name="30" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i> Z'^0 </i> couples to 4th generation fermions.
-  
-
-<p/>
+<i> Z'^0 </i> couples to 4th generation fermions. 
+   
+ 
+<p/> 
 Here are the further couplings that are specific for 
 a scenario with <code>Zprime:universality</code> switched off: 
-
+ 
 <br/><br/><table><tr><td><strong>Zprime:vbPrime </td><td></td><td> <input type="text" name="31" value="-0.693" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-0.693</strong></code>)</td></tr></table>
 vector coupling of <i>b'</i> quarks. 
    
@@ -305,10 +306,10 @@ vector coupling of <i>nu_tau'</i> neutrinos.
 <br/><br/><table><tr><td><strong>Zprime:anutauPrime </td><td></td><td> <input type="text" name="38" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 axial coupling of <i>nu_tau'</i> neutrinos. 
    
-
-
+ 
+ 
 <h3><i>W'^+-</i></h3> 
-   
+ 
 The <i>W'^+-</i> implementation is less ambitious than the 
 <i>Z'^0</i>. Specifically, while indirect detection of a 
 <i>Z'^0</i> through its interference contribution is 
@@ -399,7 +400,7 @@ clearly are quite model-dependent, and have not been included
 for now. 
  
 <h3><i>R^0</i></h3> 
-   
+ 
 The <i>R^0</i> boson (particle code 41) represents one possible 
 scenario for a horizontal gauge boson, i.e. a gauge boson 
 that couples between the generations, inducing processes like 
@@ -410,7 +411,7 @@ the particle: one carries a net positive generation number and
 the other a negative one. This particular model has no new 
 parameters beyond the <i>R^0</i> mass. Decays are assumed isotropic. 
 For further details see [<a href="Bibliography.php" target="page">Ben85</a>]. 
-   
+ 
 <br/><br/><strong>NewGaugeBoson:ffbar2R0</strong>  <input type="radio" name="46" value="on"><strong>On</strong>
 <input type="radio" name="46" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -675,5 +676,5 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

@@ -1,5 +1,5 @@
 // Info.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -147,7 +147,7 @@ void Info::list(ostream& os) const {
     << ", ISR = " << setw(5) << nISRSave << ", FSRproc = " << setw(5)
     << nFSRinProcSave << ", FSRreson = " << setw(5) << nFSRinResSave
     << ".\n";
-       
+
   // Listing finished.
   os << "\n --------  End PYTHIA Info Listing  --------------------"
      << "----------------" << endl;
@@ -161,7 +161,7 @@ void Info::list(ostream& os) const {
 double Info::weight() const { return (abs(lhaStrategySave) == 4)
   ? CONVERTMB2PB * weightSave : weightSave;
 }
-  
+
 double Info::weightSum() const {return (abs(lhaStrategySave) == 4)
   ? CONVERTMB2PB * wtAccSum : wtAccSum;
 }
@@ -179,12 +179,12 @@ vector<int> Info::codesHard() {
 }
 
 //--------------------------------------------------------------------------
-  
+
 // Print a message the first few times. Insert in database.
- 
+
   void Info::errorMsg(string messageIn, string extraIn, bool showAlways,
     ostream& os) {
-   
+
   // Recover number of times message occured. Also inserts new string.
   int times = messages[messageIn];
   ++messages[messageIn];
@@ -301,8 +301,8 @@ void Info::setLHEF3EventInfo( map<string, string> *eventAttributesIn,
 
 // Retrieve events tag information.
 
-string Info::getEventAttribute(string key, bool doRemoveWhitespace) { 
-  if (!eventAttributes) {cout << "aaaa" << endl; return "";}
+string Info::getEventAttribute(string key, bool doRemoveWhitespace) {
+  if (!eventAttributes) return "";
   if ( eventAttributes->find(key) != eventAttributes->end() ) {
     string res = (*eventAttributes)[key];
     if (doRemoveWhitespace)
@@ -342,7 +342,7 @@ string Info::getGeneratorValue(unsigned int n) {
 }
 
 string Info::getGeneratorAttribute( unsigned int n, string key,
-  bool doRemoveWhitespace) { 
+  bool doRemoveWhitespace) {
   if (!generators || generators->size() < n+1) return "";
   string res("");
   if ( key == "name") {

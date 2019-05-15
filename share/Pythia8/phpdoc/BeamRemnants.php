@@ -95,15 +95,15 @@ to be dependent on the hard scale of the central process and on the mass
 of the whole subsystem defined by the two initiators: 
 <br/><i> 
 sigma = (sigma_soft * Q_half + sigma_hard * Q) / (Q_half + Q) 
-  * m / (m_half + m) 
+  * m / (m + m_half * y_damp) 
 </i><br/> 
 Here <i>Q</i> is the hard-process renormalization scale for the 
 hardest process and the <i>pT</i> scale for subsequent multiparton 
 interactions, <i>m</i> the mass of the system, and 
-<i>sigma_soft</i>, <i>sigma_hard</i>, <i>Q_half</i> and 
-<i>m_half</i> parameters defined below. Furthermore each separately 
-defined beam remnant has a distribution of width <i>sigma_remn</i>, 
-independently of kinematical variables. 
+<i>sigma_soft</i>, <i>sigma_hard</i>, <i>Q_half</i>, 
+<i>m_half</i> and <i>y_damp</i> parameters defined below. 
+Furthermore each separately defined beam remnant has a distribution 
+of width <i>sigma_remn</i>, independently of kinematical variables. 
  
 <br/><br/><strong>BeamRemnants:primordialKT</strong>  <input type="radio" name="1" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="1" value="off"><strong>Off</strong>
@@ -112,17 +112,17 @@ Allow or not selection of primordial <i>kT</i> according to the
 parameter values below. 
    
  
-<br/><br/><table><tr><td><strong>BeamRemnants:primordialKTsoft </td><td></td><td> <input type="text" name="2" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:primordialKTsoft </td><td></td><td> <input type="text" name="2" value="0.9" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.9</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The width <i>sigma_soft</i> in the above equation, assigned as a 
 primordial <i>kT</i> to initiators in the soft-interaction limit. 
    
  
-<br/><br/><table><tr><td><strong>BeamRemnants:primordialKThard </td><td></td><td> <input type="text" name="3" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:primordialKThard </td><td></td><td> <input type="text" name="3" value="1.8" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.8</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The width <i>sigma_hard</i> in the above equation, assigned as a 
 primordial <i>kT</i> to initiators in the hard-interaction limit. 
    
  
-<br/><br/><table><tr><td><strong>BeamRemnants:halfScaleForKT </td><td></td><td> <input type="text" name="4" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:halfScaleForKT </td><td></td><td> <input type="text" name="4" value="1.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.5</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The scale <i>Q_half</i> in the equation above, defining the 
 half-way point between hard and soft interactions. 
    
@@ -135,7 +135,18 @@ a primordial <i>kT</i> value higher than its mass, so the
 mass-dampening is intended to reduce some troubles later on.) 
    
  
-<br/><br/><table><tr><td><strong>BeamRemnants:primordialKTremnant </td><td></td><td> <input type="text" name="6" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:reducedKTatHighY </td><td></td><td> <input type="text" name="6" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
+For a system of mass <i>m</i> and energy <i>E</i> the
+dampening factor <i>y_damp</i> above is defined as
+<i>y_damp = pow( E/m, r_red)</i>, where <i>r_red</i> is the
+current parameter. The effect is to reduce the primordial <i>kT</i>
+of low-mass systems extra much if they are at large rapidities (recall 
+that <i>E/m = cosh(y)</i> before <i>kT</i> is added). The reason 
+for this dampening is purely technical, and for reasonable values 
+should not have dramatic consequences overall.
+   
+ 
+<br/><br/><table><tr><td><strong>BeamRemnants:primordialKTremnant </td><td></td><td> <input type="text" name="7" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The width <i>sigma_remn</i>, assigned as a primordial <i>kT</i> 
 to beam-remnant partons. 
    
@@ -157,8 +168,8 @@ for hadrons it holds that <i>&lt;pT^2&gt; = 2 sigma^2</i>.
 The comparison is further complicated by the reduction of 
 primordial <i>kT</i> values by the overall compensation mechanism. 
  
-<br/><br/><strong>BeamRemnants:rescatterRestoreY</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
-<input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>BeamRemnants:rescatterRestoreY</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
+<input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Is only relevant when <?php $filepath = $_GET["filepath"];
 echo "<a href='MultipartonInteractions.php?filepath=".$filepath."' target='page'>";?>rescattering</a> 
@@ -184,61 +195,61 @@ first approach, so the second is always used.
    
  
 <h3>Colour flow</h3> 
-
-The colour in the separate subproccsses are tied together via the assignment
-of colour flow in the beam remnants. The assignment of colour flow is not known
-from first principles and therefore it is not an unambiguous procedure. Thus
-two differnet models have been implemented in <code>Pythia</code>. These 
-will be referred to as new and old, based on the time of the implementation.
-
+ 
+The colour in the separate subproccsses are tied together via the assignment 
+of colour flow in the beam remnants. The assignment of colour flow is not 
+known from first principles and therefore it is not an unambiguous procedure. 
+Thus two different models have been implemented in <code>Pythia</code>. These 
+will be referred to as new and old, based on the time of the implementation. 
+ 
 <p/> 
 The old model tries to reconstruct the colour flow in a way that a LO PS would 
-produce the beam remnants. The starting point is the junction structure of the
+produce the beam remnants. The starting point is the junction structure of the 
 beam particle (if it is a baryon). The gluons are attached to a quark line and 
-quark-antiquark pairs are added as if coming from a gluon splittings. Thus this 
-model captures the qualitative behaviour that is expected from leading colour 
-QCD. The model is described in more detail in [<a href="Bibliography.php" target="page">Sjo04</a>].
-
+quark-antiquark pairs are added as if coming from a gluon splittings. Thus 
+this model captures the qualitative behaviour that is expected from leading 
+colour QCD. The model is described in more detail in [<a href="Bibliography.php" target="page">Sjo04</a>]. 
+ 
 <p/> 
 The new model is built on the full SU(3) colour structure of QCD. The 
-starting point is the scattered partons from the MPI. Each of these are
+starting point is the scattered partons from the MPI. Each of these are 
 initially assumed uncorrelated in colour space, allowing the total outgoing 
-colour configuration to be calculated as an SU(3) product. Since the beam
-particle is a colour singlet, the beam remnant colour configuration has to be
-the inverse of the outgoing colour configuration. The minimum amount of gluons
-are added to the beam remnant in order to obtain this colour configuration.
-
+colour configuration to be calculated as an SU(3) product. Since the beam 
+particle is a colour singlet, the beam remnant colour configuration has to be 
+the inverse of the outgoing colour configuration. The minimum amount of gluons 
+are added to the beam remnant in order to obtain this colour configuration. 
+ 
 <p/> 
-The above assumption of uncorrelated MPIs in colour space is a good
+The above assumption of uncorrelated MPIs in colour space is a good 
 assumption for a few well separated hard MPIs. However if the number of MPIs 
 become large and ISR is included, such that the energy scale becomes lower 
-(and thus distances becomes larger), the assumption loses its validity. This is
-due to saturation effects. The modelling of saturation is done in crude 
-manner, as an exponential suppresion of high multiplet states.
-
+(and thus distances becomes larger), the assumption loses its validity. This 
+is due to saturation effects. The modelling of saturation is done in crude 
+manner, as an exponential suppresion of high multiplet states. 
+ 
 <p/> 
-None of the models above can provide a full description of the colour
+None of the models above can provide a full description of the colour 
 flow in an event, however. Therefore additional colour reconfiguration 
 is needed. This is referred to as colour reconnection. Several different 
 models for colour reconnection are implemented, see 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='ColourReconnection.php?filepath=".$filepath."' target='page'>";?>Colour Reconection</a>.
+echo "<a href='ColourReconnection.php?filepath=".$filepath."' target='page'>";?>Colour Reconection</a>. 
  
-<br/><br/><table><tr><td><strong>BeamRemnants:remnantMode  </td><td></td><td> <input type="text" name="8" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)</td></tr></table>
-Switch to choose between the two different colour models for the beam remnant.
+<br/><br/><table><tr><td><strong>BeamRemnants:remnantMode  </td><td></td><td> <input type="text" name="9" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)</td></tr></table>
+Switch to choose between the two different colour models for the beam remnant. 
 <br/><code>option </code><strong> 0</strong> :  The old beam remnant model.    
 <br/><code>option </code><strong> 1</strong> :  The new beam remnant model.    
-  
-
-<br/><br/><table><tr><td><strong>BeamRemnants:saturation </td><td></td><td> <input type="text" name="9" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 100000</code>)</td></tr></table>
-Controls the suppresion due to saturation in the new model. The exact formula
+   
+ 
+<br/><br/><table><tr><td><strong>BeamRemnants:saturation </td><td></td><td> <input type="text" name="10" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 100000</code>)</td></tr></table>
+Controls the suppresion due to saturation in the new model. The exact formula 
 used is <i>exp(-M / k)</i>, where M is the multiplet size and k is this 
-parameter. Thus a small number will result in a large saturation.
-  
-
+parameter. Thus a small number will result in a large saturation. 
+   
+ 
 <h3>Further variables</h3> 
  
-<br/><br/><table><tr><td><strong>BeamRemnants:maxValQuark  </td><td></td><td> <input type="text" name="10" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:maxValQuark  </td><td></td><td> <input type="text" name="11" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 The maximum valence quark kind allowed in acceptable incoming beams, 
 for which multiparton interactions are simulated. Default is that hadrons 
 may contain <i>u</i>, <i>d</i> and <i>s</i> quarks, 
@@ -246,7 +257,7 @@ but not <i>c</i> and <i>b</i> ones, since sensible
 kinematics has not really been worked out for the latter. 
    
  
-<br/><br/><table><tr><td><strong>BeamRemnants:companionPower  </td><td></td><td> <input type="text" name="11" value="4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:companionPower  </td><td></td><td> <input type="text" name="12" value="4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
 When a sea quark has been found, a companion antisea quark ought to be 
 nearby in <i>x</i>. The shape of this distribution can be derived 
 from the gluon mother distribution convoluted with the 
@@ -275,35 +286,35 @@ particles will fix that.) An additional enhancement of the diquark
 momentum is obtained by its <i>x</i> value being rescaled by the 
 <code>valenceDiqEnhance</code> factor. 
  
-<br/><br/><table><tr><td><strong>BeamRemnants:valencePowerMeson </td><td></td><td> <input type="text" name="12" value="0.8" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.8</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:valencePowerMeson </td><td></td><td> <input type="text" name="13" value="0.8" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.8</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The abovementioned power for valence quarks in mesons. 
    
  
-<br/><br/><table><tr><td><strong>BeamRemnants:valencePowerUinP </td><td></td><td> <input type="text" name="13" value="3.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3.5</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:valencePowerUinP </td><td></td><td> <input type="text" name="14" value="3.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3.5</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The abovementioned power for valence <i>u</i> quarks in protons. 
    
  
-<br/><br/><table><tr><td><strong>BeamRemnants:valencePowerDinP </td><td></td><td> <input type="text" name="14" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:valencePowerDinP </td><td></td><td> <input type="text" name="15" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The abovementioned power for valence <i>d</i> quarks in protons. 
    
  
-<br/><br/><table><tr><td><strong>BeamRemnants:valenceDiqEnhance </td><td></td><td> <input type="text" name="15" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:valenceDiqEnhance </td><td></td><td> <input type="text" name="16" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.</code>)</td></tr></table>
 Enhancement factor for valence diquarks in baryons, relative to the 
 simple sum of the two constituent quarks. 
    
  
-<br/><br/><table><tr><td><strong>BeamRemnants:gluonPower </td><td></td><td> <input type="text" name="16" value="4.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
-The abovementioned power for gluons.
+<br/><br/><table><tr><td><strong>BeamRemnants:gluonPower </td><td></td><td> <input type="text" name="17" value="4.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+The abovementioned power for gluons. 
    
-
-<br/><br/><table><tr><td><strong>BeamRemnants:xGluonCutoff </td><td></td><td> <input type="text" name="17" value="1E-7" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1E-7</strong></code>; <code>minimum = 1E-10</code>; <code>maximum = 1</code>)</td></tr></table>
+ 
+<br/><br/><table><tr><td><strong>BeamRemnants:xGluonCutoff </td><td></td><td> <input type="text" name="18" value="1E-7" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1E-7</strong></code>; <code>minimum = 1E-10</code>; <code>maximum = 1</code>)</td></tr></table>
 The gluon PDF is approximated with <i>g(x) ~ (1 - x)^p / x</i>, which 
 integrates to infinity when integrated from 0 to 1. This cut-off is 
-introduced as a minimum to avoid the problems with infinities.
-  
-
-<br/><br/><strong>BeamRemnants:allowJunction</strong>  <input type="radio" name="18" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="18" value="off"><strong>Off</strong>
+introduced as a minimum to avoid the problems with infinities. 
+   
+ 
+<br/><br/><strong>BeamRemnants:allowJunction</strong>  <input type="radio" name="19" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="19" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 The <code>off</code> option is intended for debug purposes only, as 
 follows. When more than one valence quark is kicked out of a baryon 
@@ -316,24 +327,24 @@ an error message that the remnant flavour setup failed), and the
 multiparton interactions and showers are redone until a 
 junction-free topology is found. 
    
-
-<br/><br/><strong>BeamRemnants:beamJunction</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
-<input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
+ 
+<br/><br/><strong>BeamRemnants:beamJunction</strong>  <input type="radio" name="20" value="on"><strong>On</strong>
+<input type="radio" name="20" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-This parameter is only relevant if the new colour reconnection scheme is used.
+This parameter is only relevant if the new colour reconnection scheme is used. 
 (see  <?php $filepath = $_GET["filepath"];
-echo "<a href='ColourReconnection.php?filepath=".$filepath."' target='page'>";?>colour reconnection</a>)
+echo "<a href='ColourReconnection.php?filepath=".$filepath."' target='page'>";?>colour reconnection</a>) 
 This parameter tells whether to form a junction or a di-quark if more 
 than two valence quarks are found in the beam remnants. If off a di-quark is 
-formed and if on a junction will be formed.
+formed and if on a junction will be formed. 
    
-
-<br/><br/><strong>BeamRemnants:allowBeamJunction</strong>  <input type="radio" name="20" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="20" value="off"><strong>Off</strong>
+ 
+<br/><br/><strong>BeamRemnants:allowBeamJunction</strong>  <input type="radio" name="21" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="21" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
-This parameter is only relevant if the new Beam remnant model is used.
+This parameter is only relevant if the new Beam remnant model is used. 
 This parameter tells whether to allow the formation of junction structures 
-in the colour configuration of the scattered partons.
+in the colour configuration of the scattered partons. 
    
  
 <input type="hidden" name="saved" value="1"/>
@@ -356,17 +367,17 @@ if($_POST["1"] != "on")
 $data = "BeamRemnants:primordialKT = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "0.5")
+if($_POST["2"] != "0.9")
 {
 $data = "BeamRemnants:primordialKTsoft = ".$_POST["2"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["3"] != "2.0")
+if($_POST["3"] != "1.8")
 {
 $data = "BeamRemnants:primordialKThard = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["4"] != "1.")
+if($_POST["4"] != "1.5")
 {
 $data = "BeamRemnants:halfScaleForKT = ".$_POST["4"]."\n";
 fwrite($handle,$data);
@@ -376,79 +387,84 @@ if($_POST["5"] != "1.")
 $data = "BeamRemnants:halfMassForKT = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "0.4")
+if($_POST["6"] != "0.5")
 {
-$data = "BeamRemnants:primordialKTremnant = ".$_POST["6"]."\n";
+$data = "BeamRemnants:reducedKTatHighY = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["7"] != "off")
+if($_POST["7"] != "0.4")
 {
-$data = "BeamRemnants:rescatterRestoreY = ".$_POST["7"]."\n";
+$data = "BeamRemnants:primordialKTremnant = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["8"] != "0")
+if($_POST["8"] != "off")
 {
-$data = "BeamRemnants:remnantMode = ".$_POST["8"]."\n";
+$data = "BeamRemnants:rescatterRestoreY = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "5")
+if($_POST["9"] != "0")
 {
-$data = "BeamRemnants:saturation = ".$_POST["9"]."\n";
+$data = "BeamRemnants:remnantMode = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["10"] != "3")
+if($_POST["10"] != "5")
 {
-$data = "BeamRemnants:maxValQuark = ".$_POST["10"]."\n";
+$data = "BeamRemnants:saturation = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["11"] != "4")
+if($_POST["11"] != "3")
 {
-$data = "BeamRemnants:companionPower = ".$_POST["11"]."\n";
+$data = "BeamRemnants:maxValQuark = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "0.8")
+if($_POST["12"] != "4")
 {
-$data = "BeamRemnants:valencePowerMeson = ".$_POST["12"]."\n";
+$data = "BeamRemnants:companionPower = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "3.5")
+if($_POST["13"] != "0.8")
 {
-$data = "BeamRemnants:valencePowerUinP = ".$_POST["13"]."\n";
+$data = "BeamRemnants:valencePowerMeson = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "2.0")
+if($_POST["14"] != "3.5")
 {
-$data = "BeamRemnants:valencePowerDinP = ".$_POST["14"]."\n";
+$data = "BeamRemnants:valencePowerUinP = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["15"] != "2.0")
 {
-$data = "BeamRemnants:valenceDiqEnhance = ".$_POST["15"]."\n";
+$data = "BeamRemnants:valencePowerDinP = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["16"] != "4.0")
+if($_POST["16"] != "2.0")
 {
-$data = "BeamRemnants:gluonPower = ".$_POST["16"]."\n";
+$data = "BeamRemnants:valenceDiqEnhance = ".$_POST["16"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["17"] != "1E-7")
+if($_POST["17"] != "4.0")
 {
-$data = "BeamRemnants:xGluonCutoff = ".$_POST["17"]."\n";
+$data = "BeamRemnants:gluonPower = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["18"] != "on")
+if($_POST["18"] != "1E-7")
 {
-$data = "BeamRemnants:allowJunction = ".$_POST["18"]."\n";
+$data = "BeamRemnants:xGluonCutoff = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["19"] != "off")
+if($_POST["19"] != "on")
 {
-$data = "BeamRemnants:beamJunction = ".$_POST["19"]."\n";
+$data = "BeamRemnants:allowJunction = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["20"] != "on")
+if($_POST["20"] != "off")
 {
-$data = "BeamRemnants:allowBeamJunction = ".$_POST["20"]."\n";
+$data = "BeamRemnants:beamJunction = ".$_POST["20"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["21"] != "on")
+{
+$data = "BeamRemnants:allowBeamJunction = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -458,4 +474,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

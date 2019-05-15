@@ -305,7 +305,7 @@ end of the run, the cross sections in <i>a</i> should be multiplied
 by <i>&lt;f_impact&gt; sigma_1b / sigma_ND</i> to bring them to 
 the correct overall level, and those in <i>b</i> by 
 <i>&lt;f_impact&gt; sigma_1a / sigma_ND</i>. 
-  
+ 
 <p/> 
 (2) Exactly the same processes <i>a</i> are selected for the 
 first and second interaction. In that case it works as above, 
@@ -315,7 +315,7 @@ is automatically obtained for picking two different subprocesses,
 e.g. if <code>TwoJets</code> is selected for both interactions, 
 then the combination of the two subprocesses <i>q qbar &rarr; g g</i> 
 and <i>g g &rarr; g g</i> can trivially be obtained two ways. 
-  
+ 
 <p/> 
 (3) The list of subprocesses partly but not completely overlap. 
 For instance, the first process is allowed to contain <i>a</i> 
@@ -559,4 +559,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

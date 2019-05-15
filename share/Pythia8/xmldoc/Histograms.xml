@@ -1,5 +1,5 @@
 <chapter name="Histograms"> 
-     
+ 
 <h2>Histograms</h2> 
  
 The <code>Hist</code> class gives a simple implementation of 
@@ -71,7 +71,7 @@ operator, e.g.:
 The printout format is inspired by the old HBOOK one. To understand 
 how to read this format, consider the simplified example 
 <pre> 
-                                     
+ 
         3.50*10^ 2  9 
         3.00*10^ 2  X   7 
         2.50*10^ 2  X  1X 
@@ -128,7 +128,7 @@ can be an integer.
 <h3>The methods</h3> 
  
 We here collect a more complete and formal overview of the methods. 
-    
+ 
 <method name="Hist::Hist()"> 
 declare a histogram, but does not define it. 
 </method> 
@@ -150,18 +150,18 @@ is the lower edge of the histogram,
 is the upper edge of the histogram. 
 </argument> 
 </method> 
-    
+ 
 <method name="Hist::Hist(const Hist& h)"> 
 creates an identical copy of the histogram in the argument, 
 including bin contents. 
 </method> 
-    
+ 
 <method name="Hist::Hist(string title, const Hist& h)"> 
 creates an identical copy of the histogram in the argument, 
 including bin contents, except that a new title is provided 
 as first argument. 
 </method> 
-    
+ 
 <method name="Hist& Hist::operator=(const Hist& h)"> 
 copies all properties of the histogram in the argument, 
 except that the original histogram title is retained. 
@@ -217,9 +217,9 @@ should be a file of its own.
 underflow and overflow contents to be printed. (The arbitrary <ei>x</ei> 
 coordinates for these are placed as if corresponding to same-size bins 
 just below or above the regular histogram bins.) 
-<br/>An optional <code>xMidBin = false</code> argument will have the
-<ei>x</ei> value at the beginning of each bin printed, rather than the
-default midpoint value.
+<br/>An optional <code>xMidBin = false</code> argument will have the 
+<ei>x</ei> value at the beginning of each bin printed, rather than the 
+default midpoint value. 
 </methodmore> 
  
 <method name="friend void table(const Hist& h1, const Hist& h2, 
@@ -232,7 +232,7 @@ each bin and the second and third ones the corresponding bin contents
 of the two histograms. Only works if the two histograms have the same 
 <ei>x</ei> axis (within a tiny tolerance), else nothing will be done. 
 The optional last two arguments allows also underflow and overflow 
-contents to be printed, and the <ei>x</ei> to refer to the beginning
+contents to be printed, and the <ei>x</ei> to refer to the beginning 
 of the bin rather than the center; see above. 
 </methodmore> 
  
@@ -329,4 +329,4 @@ or two histograms by each other, bin by bin.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

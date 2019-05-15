@@ -3,7 +3,7 @@
 <h2>Bibliography</h2> 
  
 <dl> 
-         
+ 
 <dt>Ali10</dt> 
 <dd>S. Alioli, P. Nason, C. Oleari, E. Re, JHEP 1006 (2010) 043, 
 [arXiv:1002.2581 [hep-ph]]</dd> 
@@ -22,7 +22,7 @@ Z. Phys. C45 (1989) 109</dd>
  
 <dt>Alw07</dt> 
 <dd>J. Alwall et al., arXiv:0712.3311 [hep-ph]</dd> 
-
+ 
 <dt>Alw08</dt> 
 <dd>J. Alwall, S. de Visscher, F. Maltoni, 
 JHEP 0902 (2009) 017 [arXiv:0810.5350 [hep-ph]]</dd> 
@@ -32,9 +32,9 @@ JHEP 0902 (2009) 017 [arXiv:0810.5350 [hep-ph]]</dd>
 JHEP 1106 (2011) 128 [arXiv:1106.0522 [hep-ph]]</dd> 
  
 <dt>Alw14</dt> 
-<dd>J. Alwall, R. Frederix, S. Frixione, V. Hirschi,
+<dd>J. Alwall, R. Frederix, S. Frixione, V. Hirschi, 
 F. Maltoni and others, JHEP 1407 (2014) 079 [arXiv:1405.0301 [hep-ph]]</dd> 
-
+ 
 <dt>Arg14</dt> 
 <dd>S. Argyropoulos and T. Sj&ouml;strand, in preparation</dd> 
  
@@ -43,7 +43,10 @@ F. Maltoni and others, JHEP 1407 (2014) 079 [arXiv:1405.0301 [hep-ph]]</dd>
  
 <dt>ATL14</dt> 
 <dd>ATLAS Collaboration, CERN-PH-EP-2014-075 [arXiv:1406.3660 [hep-ex]]</dd> 
-  
+ 
+<dt>ATL14a</dt> 
+<dd>ATLAS Collaboration, ATL-PHYS-PUB-2014-021</dd> 
+ 
 <dt>And83</dt> 
 <dd>B. Andersson, G. Gustafson, G. Ingelman and T. Sj&ouml;strand, 
 Phys. Rep. 97 (1983) 31</dd> 
@@ -63,13 +66,13 @@ JHEP 1201 (2012) 018 [arXiv:1108.2396 [hep-ph]] </dd>
 <dd>G. Azuelos, P.-H. Beauchemin and C.P. Burgess, J. Phys. G31 (2005) 1</dd> 
  
 <dt>Bai83</dt> 
-<dd>R. Baier and R. R&uuml;ckl, Z. Phys. C19 (1983) 251</dd>
+<dd>R. Baier and R. R&uuml;ckl, Z. Phys. C19 (1983) 251</dd> 
  
 <dt>Bar94</dt> 
 <dd>E. Barberio and Z. Was, Comput. Phys.Commun. 79 (1994) 291</dd> 
  
 <dt>Bar07</dt> 
-<dd>M. Bargiotti and V. Vagnoni, public note LHCb-2007-042
+<dd>M. Bargiotti and V. Vagnoni, public note LHCb-2007-042 
  
 <dt>Bau90</dt> 
 <dd>U. Baur, M. Spira and P. M. Zerwas, Phys. Rev. D42 (1990) 815; 
@@ -126,7 +129,7 @@ at TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001
 <dt>Buc11</dt> 
 <dd>A. Buckley et al., Phys. Rep. 504 (2011) 145 
 [arXiv:1101.2599 [hep-ph]]</dd> 
-
+ 
 <dt>But14</dt> 
 <dd>J. Butterworth et al., arXiv:1405.1067 [hep-ph]]</dd> 
  
@@ -160,6 +163,10 @@ Nucl.Phys. B349 (1991) 635</dd>
 <dt>Che07</dt> 
 <dd>K. Cheung, W.-Y. Keung and T.-C. Yuan, 
 Phys. Rev. D76 (2007) 055003</dd> 
+ 
+<dt>Che14</dt> 
+<dd>S.Chekanov, E.May, K. Strand, P. Van Gemmeren,
+Comput. Phys.Commun. 185 (2014) 2629 [arXiv:1311.1229</dd> 
  
 <dt>Cho96</dt> 
 <dd>P. Cho and A. Leibovich, Phys. Rev. D53 (1996) 6203 
@@ -236,10 +243,10 @@ P. Torrielli, Phys.Lett. B701 (2011) 427 [arXiv:1104.5613 [hep-ph]]</dd>
 <dt>Fre12</dt> 
 <dd>R. Frederix, S. Frixione, JHEP 1212 (2012) 061 
 [arXiv:1209.6215 [hep-ph]]</dd> 
-         
+ 
 <dt>Fri02</dt> 
 <dd>S. Frixione and B.R. Webber, JHEP 0206 (2002) 029 [hep-ph/0204244]</dd> 
-  
+ 
 <dt>Fuk11</dt> 
 <dd>B. Fuks, B. Hermann, and M. Klasen, Phys.Rev. D86 (2012) 015002 
 [arXiv:1112.4838]</dd> 
@@ -303,7 +310,7 @@ Tau2012, Nagoya, Japan, 17-21 September 2012
 <dd>G.Ingelman and P. Schlein, Phys. Lett. B152 (1985) 256</dd> 
  
 <dt>Ing97</dt> 
-<dd>P.Bruni, A. Edin and G.Ingelman, unpublished
+<dd>P.Bruni, A. Edin and G.Ingelman, unpublished 
 </dd> 
  
 <dt>Jad90</dt> 
@@ -329,15 +336,15 @@ CERN 89-08 (Geneva, 1989), Vol. 3, p. 143</dd>
  
 <dt>Kra08</dt> 
 <dd>A. Kraan, arXiv:0807.3123 [hep-ex]</dd> 
-  
+ 
 <dt>Kum08</dt> 
 <dd>M.C. Kumar, P. Mathews, V. Ravindran and A. Tripathi, 
 Phys. Rev. D77 (2008) 055013</dd> 
-  
+ 
 <dt>Lai00</dt> 
 <dd>CTEQ Collaboration, H.L. Lai et al., 
 Eur. Phys. J. C12 (2000) 375</dd> 
-  
+ 
 <dt>Lon95</dt> 
 <dd>L. L&ouml;nnblad and T. Sj&ouml;strand, Phys. Lett. B351 (1995) 293, 
 Eur. Phys. J. C2 (1998) 165</dd> 
@@ -374,7 +381,7 @@ arXiv:1211.7278 [hep-ph]</dd>
 <dt>Man03</dt> 
 <dd>M. L. Mangano, M. Moretti, F. Piccinini, R. Pittau and A. D. Polosa, 
 JHEP 0307 (2003) 001 [hep-ph/0206293]</dd> 
-         
+ 
 <dt>Man07</dt> 
 <dd>M.L. Mangano, M. Moretti, F. Piccinini, M. Treccani, 
 JHEP 0701 (2007) 013 [hep-ph/0611129]</dd> 
@@ -409,7 +416,7 @@ eds. G. Altarelli and M.L. Mangano, CERN 2000-004, p. 231
  
 <dt>Ole13</dt> 
 <dd>C. Oleari and P. Nason, [arXiv:1303.3922 [hep-ph]]</dd> 
-   
+ 
 <dt>Pet83</dt> 
 <dd>C. Peterson, D. Schlatter, I. Schmitt and P. Zerwas, 
 Phys. Rev. D27 (1983) 105</dd> 
@@ -468,13 +475,13 @@ CERN-2005-014, p. 575 [hep-ph/0508110]</dd>
 <dt>Yao06</dt> 
 <dd>Particle Data Group, W.-M. Yao et al., 
 J. Phys. G33 (2006) 1</dd> 
-
+ 
 <dt>Yua98</dt> 
-<dd>F. Yuan, C. Qiao and K. Chao, Phys. Rev. D59 (1998) 014009
+<dd>F. Yuan, C. Qiao and K. Chao, Phys. Rev. D59 (1998) 014009 
 [hep-ph/9807329]</dd> 
  
 </dl> 
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

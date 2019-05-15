@@ -34,7 +34,7 @@ and hadronization are kept the same as for normal nondiffractive events,
 with only one exception. This may be questioned, especially for the 
 multiparton interactions, but we do not believe that there are currently 
 enough good diffractive data that would allow detailed separate tunes. 
-  
+ 
 <p/> 
 The above subdivision may not represent the way "physics comes about". 
 For instance, the total diffractive cross section can be viewed as a 
@@ -46,7 +46,7 @@ further multiparton interactions ("cut Pomerons") will screen the rate of
 diffractive systems. In the end, our set of parameters refers to the 
 effective description that emerges out of these effects, rather than 
 to the underlying "bare" parameters. 
-  
+ 
 <p/> 
 In the event record the diffractive system in the case of an excited 
 proton is denoted <code>p_diffr</code>, code 9902210, whereas 
@@ -136,7 +136,7 @@ the Pomeron-proton coupling, and the total Pomeron-proton cross section.
 <parm name="Diffraction:MBRm2Min" default="1.5" min="0.0" max="3.0"> 
 the lowest value of the mass squared of the dissociated system. 
 </parm> 
-
+ 
 <parm name="Diffraction:MBRdyminSDflux" default="2.3" min="0.0" max="5.0"> 
 <parm name="Diffraction:MBRdyminDDflux" default="2.3" min="0.0" max="5.0"> 
 <parm name="Diffraction:MBRdyminCDflux" default="2.3" min="0.0" max="5.0"> 
@@ -232,7 +232,7 @@ separately that is assigned as a primordial <ei>kT</ei> to the two
 beam remnants when a gluon is kicked out of a diffractive system. 
 </parm> 
  
-<parm name="Diffraction:largeMassSuppress" default="2." min="0."> 
+<parm name="Diffraction:largeMassSuppress" default="4." min="0."> 
 The choice of longitudinal and transverse structure of a diffractive 
 beam remnant for a kicked-out gluon implies a remnant mass 
 <ei>m_rem</ei> distribution (i.e. quark plus diquark invariant mass 
@@ -367,4 +367,4 @@ becomes slow and unstable, so the min limit must be respected.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

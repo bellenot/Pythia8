@@ -9,8 +9,8 @@ and of space and time in mm.
  
 <h3>Incoming beams</h3> 
  
-The identities and energies of the two incoming beam particles
-should be specified using the settings in this section.
+The identities and energies of the two incoming beam particles 
+should be specified using the settings in this section. 
 Note that, if nothing is done, you will default to LHC at 14 TeV. 
  
 <p/> 
@@ -38,7 +38,7 @@ here mainly for debug purposes),
 <modeopen name="Beams:idB" default="2212"> 
 The PDG <code>id</code> code for the second incoming particle. 
 </modeopen> 
-  
+ 
 <modepick name="Beams:frameType" default="1" min="1" max="5"> 
 Choice of frame for the two colliding particles. For options 
 1 - 3 the beam identities are specified above, while they are 
@@ -146,31 +146,31 @@ Only used when <code>Beams:frameType</code> = 4 or 5.
 </mode> 
  
 <flag name="Beams:strictLHEFscale" default="off"> 
-Always use the <code>SCALUP</code> value read from LHEF
-as production scale for particles, also including particles
-coming from resonance decays. By default, the production scale
-of resonance decay products (W-, Z-, H-bosons, top quarks) will
-be set to <ei>M/2</ei>, where <ei>M</ei> is the mass of the resonance.
+Always use the <code>SCALUP</code> value read from LHEF 
+as production scale for particles, also including particles 
+coming from resonance decays. By default, the production scale 
+of resonance decay products (W-, Z-, H-bosons, top quarks) will 
+be set to <ei>M/2</ei>, where <ei>M</ei> is the mass of the resonance. 
 </flag> 
  
-<flag name="Beams:setProductionScalesFromLHEF" default="off">
+<flag name="Beams:setProductionScalesFromLHEF" default="off"> 
 If enabled, production scales for all particles in an input Les Houches 
 event will be set by using auxiliary information provided in the 
-input event. Depending on which LHEF version is used, different
-information will be read. For LHEF 1.0, scale information can be
+input event. Depending on which LHEF version is used, different 
+information will be read. For LHEF 1.0, scale information can be 
 transferred by including a line starting with the hashtag 
-(#) character at the end of the event. The hashtag should be
-followed by the sequential scale values of the particles with status 1.
-For LHEF 3.0, the standardised <ei>&lt;scales&gt;</ei> tag is used
+(#) character at the end of the event. The hashtag should be 
+followed by the sequential scale values of the particles with status 1. 
+For LHEF 3.0, the standardised <ei>&lt;scales&gt;</ei> tag is used 
 instead. In this case, please ensure that production scale of 
-the final state particle with position <ei>i</ei> in the input event
-will be transferred as the value of a scales tag attribute which contains
-<ei>i</ei> at the end of the attribute name, separated from the rest of
-the name by an underscore (_). An example <ei>&lt;scales&gt;</ei> tag
-would be <ei>&lt;scales muf="100" pt_start_3="100" pt_start_4="50"&gt;
-&lt;/scales&gt;</ei>. This could be used to set the production scales
-of particles three and four to 100 GeV and 50 GeV, respectively, provided
-that these particles have status 1.
+the final state particle with position <ei>i</ei> in the input event 
+will be transferred as the value of a scales tag attribute which contains 
+<ei>i</ei> at the end of the attribute name, separated from the rest of 
+the name by an underscore (_). An example <ei>&lt;scales&gt;</ei> tag 
+would be <ei>&lt;scales muf="100" pt_start_3="100" pt_start_4="50"&gt; 
+&lt;/scales&gt;</ei>. This could be used to set the production scales 
+of particles three and four to 100 GeV and 50 GeV, respectively, provided 
+that these particles have status 1. 
 </flag> 
  
 <h3>Beam momentum spread</h3> 
@@ -183,7 +183,7 @@ used as is. Currently it can <b>not</b> be used for the more extensive
 energy spread expected at linear <ei>e^+ e^-</ei> colliders. Also, 
 any attempt to combine it with external Les Houches input of 
 parton-level events is at own risk. 
-      
+ 
 <p/> 
 On this page you can set the momentum spread according to a simple 
 Gaussian distribution. If you instead want a more sophisticated 
@@ -326,4 +326,4 @@ The time <ei>t</ei> of the interaction vertex is centered at this value.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

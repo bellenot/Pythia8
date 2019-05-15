@@ -86,11 +86,11 @@ method provides information on the first, i.e. hardest, subprocess
 selected by the multiparton-interactions machinery. 
 <br/><b>Note</b>: this event class is almost equivalent to the 
 minimum-bias component of the total cross section. "Minimum-bias" 
-usually refers to the experimental selection procedure, however,
+usually refers to the experimental selection procedure, however, 
 while "(inelastic) non-diffractive" better relates to the way events 
 are generated in the program code. (Although also what separates 
-diffractive from nondiffractive physics can be a matter of definition,
-especially once colour reconnection is to be modelled.)  
+diffractive from nondiffractive physics can be a matter of definition, 
+especially once colour reconnection is to be modelled.) 
    
  
 <br/><br/><strong>SoftQCD:elastic</strong>  <input type="radio" name="3" value="on"><strong>On</strong>
@@ -159,7 +159,7 @@ processes; there is no sensible default.
 <br/><b>Warning 2</b>: you <b>must not</b> mix processes from the 
 <code>SoftQCD</code> and <code>HardQCD</code> process groups, since 
 this is likely to lead to double-counting. 
-   
+ 
 <br/><br/><strong>HardQCD:all</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
 <input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -296,7 +296,7 @@ the <code>HardQCD:3parton</code> processes in a run or study.
 <br/><b>Warning:</b> this section is still incomplete, e.g. the 
 selection of colour flow is very simple, and so it should only 
 be used with caution. 
-   
+ 
 <br/><br/><strong>HardQCD:3parton</strong>  <input type="radio" name="22" value="on"><strong>On</strong>
 <input type="radio" name="22" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -569,5 +569,5 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

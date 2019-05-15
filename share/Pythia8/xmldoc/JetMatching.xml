@@ -287,7 +287,7 @@ The <ei>coneMatchHeavy</ei> parameter used when
 </parm> 
  
 <h3>Madgraph-specific parameters </h3> 
-
+ 
 <flag name="JetMatching:doShowerKt" default="off"> 
 This switch changes the merging prescription to the shower-kT matching scheme 
 outlined in <ref>Alw08</ref>. This scheme differs from "classical" MLM jet 
@@ -298,7 +298,7 @@ prescription (e.g. Madgraph-style matching with
 <code>JetMatching:doShowerKt = off</code>) and the shower-kT scheme are 
 in preparation. 
 </flag> 
-  
+ 
 <parm name="JetMatching:qCut" default="10.0" min="0.0"> 
 k<sub>T</sub> scale for merging shower products into jets. 
 </parm> 
@@ -322,7 +322,7 @@ for exclusive mode, <ei>clFact</ei> &ge; 0, or
 <br/><ei>|clFact| * min(k<sub>T</sub>(parton))</ei> for exclusive mode, 
 <ei>clFact</ei> &lt; 0. 
 </parm> 
-
+ 
 <p/> 
 A preliminary implementation of the FxFx prescription for combining multiple 
 NLO calculations <ref>Fre12</ref> is available. We would like to stress that 
@@ -566,7 +566,7 @@ the hard process parameters are used to guide the merging procedure,
 events will be matched in the exclusive mode. 
  
 <p/> 
-  
+ 
 <h3>A note on combining UserHooks</h3> 
  
 As have been noted above, the matching is implemented using classes 
@@ -622,4 +622,4 @@ above example, the only shared methods are the constructor and
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

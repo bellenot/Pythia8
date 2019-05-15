@@ -36,7 +36,7 @@ represent four-momentum vectors. Thus one can get or set
 or <i>t</i>. This is only a matter of naming, however; a 
 <code>Vec4</code> can equally well be used to store a space-time 
 four-vector. 
-  
+ 
 <p/> 
 The <code>Particle</code> object contains a <code>Vec4 p</code> that 
 stores the particle four-momentum, and another <code>Vec4 vProd</code> 
@@ -516,4 +516,4 @@ ended with a newline.
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

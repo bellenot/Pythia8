@@ -1,5 +1,5 @@
 // LHEF3.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -18,49 +18,50 @@ namespace Pythia8 {
 
 //==========================================================================
 
-// The XMLTag struct is used to represent all information within an XML tag. 
-// It contains the attributes as a map, any sub-tags as a vector of pointers 
+// The XMLTag struct is used to represent all information within an XML tag.
+// It contains the attributes as a map, any sub-tags as a vector of pointers
 // to other XMLTag objects, and any other information as a single string.
 // The XMLTag struct written by Leif Lonnblad.
 
 struct XMLTag {
 
   // Convenient typdef.
-  typedef std::string::size_type pos_t;
+  typedef string::size_type pos_t;
 
   // Convenient alias for npos.
-  static const pos_t end = std::string::npos;
+  static const pos_t end = string::npos;
 
   // The destructor also destroys any sub-tags.
   ~XMLTag() {
-    for ( int i = 0, N = tags.size(); i < N; ++i ) delete tags[i];
+    for ( int i = 0, N = tags.size(); i < N; ++i )
+      if (tags[i]) delete tags[i];
   }
 
   // The name of this tag.
-  std::string name;
+  string name;
 
   // The attributes of this tag.
-  std::map<std::string,std::string> attr;
+  map<string,string> attr;
 
   // A vector of sub-tags.
-  std::vector<XMLTag*> tags;
+  vector<XMLTag*> tags;
 
   // The contents of this tag.
-  std::string contents;
+  string contents;
 
   // Find an attribute named n and set the double variable v to
   // the corresponding value. Return false if no attribute was found.
-  bool getattr(std::string n, double & v) const {
-    std::map<std::string,std::string>::const_iterator it = attr.find(n);
+  bool getattr(string n, double & v) const {
+    map<string,string>::const_iterator it = attr.find(n);
     if ( it == attr.end() ) return false;
-    v = std::atof(it->second.c_str());
+    v = atof(it->second.c_str());
     return true;
   }
 
   // Find an attribute named n and set the bool variable v to true if the
   // corresponding value is "yes". Return false if no attribute was found.
-  bool getattr(std::string n, bool & v) const {
-    std::map<std::string,std::string>::const_iterator it = attr.find(n);
+  bool getattr(string n, bool & v) const {
+    map<string,string>::const_iterator it = attr.find(n);
     if ( it == attr.end() ) return false;
     if ( it->second == "yes" ) v = true;
     return true;
@@ -68,26 +69,26 @@ struct XMLTag {
 
   // Find an attribute named n and set the long variable v to the
   // corresponding value. Return false if no attribute was found.
-  bool getattr(std::string n, long & v) const {
-    std::map<std::string,std::string>::const_iterator it = attr.find(n);
+  bool getattr(string n, long & v) const {
+    map<string,string>::const_iterator it = attr.find(n);
     if ( it == attr.end() ) return false;
-    v = std::atoi(it->second.c_str());
+    v = atoi(it->second.c_str());
     return true;
   }
 
   // Find an attribute named n and set the long variable v to the
   // corresponding value. Return false if no attribute was found.
-  bool getattr(std::string n, int & v) const {
-    std::map<std::string,std::string>::const_iterator it = attr.find(n);
+  bool getattr(string n, int & v) const {
+    map<string,string>::const_iterator it = attr.find(n);
     if ( it == attr.end() ) return false;
-    v = int(std::atoi(it->second.c_str()));
+    v = int(atoi(it->second.c_str()));
     return true;
   }
 
   // Find an attribute named n and set the string variable v to the
   // corresponding value. Return false if no attribute was found.
-  bool getattr(std::string n, std::string & v) const {
-    std::map<std::string,std::string>::const_iterator it = attr.find(n);
+  bool getattr(string n, string & v) const {
+    map<string,string>::const_iterator it = attr.find(n);
     if ( it == attr.end() ) return false;
     v = it->second;
     return true;
@@ -95,9 +96,9 @@ struct XMLTag {
 
   // Scan the given string and return all XML tags found as a vector
   // of pointers to XMLTag objects.
-  static std::vector<XMLTag*> findXMLTags(std::string str,
-    std::string * leftover = 0) {
-    std::vector<XMLTag*> tags;
+  static vector<XMLTag*> findXMLTags(string str,
+    string * leftover = 0) {
+    vector<XMLTag*> tags;
     pos_t curr = 0;
 
     while ( curr != end ) {
@@ -110,7 +111,7 @@ struct XMLTag {
         pos_t endcom = str.find("-->", begin);
         if ( endcom == end ) {
           if ( leftover ) *leftover += str.substr(curr);
-          return tags;
+             return tags;
         }
         if ( leftover ) *leftover += str.substr(curr, endcom - curr);
         curr = endcom;
@@ -119,7 +120,7 @@ struct XMLTag {
 
       if ( leftover ) *leftover += str.substr(curr, begin - curr);
       if ( begin == end || begin > str.length() - 3 || str[begin + 1] == '/' )
-        return tags; 
+        return tags;
 
       pos_t close = str.find(">", curr);
       if ( close == end ) return tags;
@@ -138,7 +139,7 @@ struct XMLTag {
         pos_t tend = str.find_first_of("= \t\n", curr);
         if ( tend == end || tend >= close ) break;
 
-        std::string name = str.substr(curr, tend - curr);
+        string name = str.substr(curr, tend - curr);
         curr = str.find("=", curr) + 1;
 
         // OK now find the beginning and end of the atribute.
@@ -149,7 +150,7 @@ struct XMLTag {
         while ( curr != end && str[curr - 1] == '\\' )
           curr = str.find("\"", curr + 1);
 
-        std::string value = str.substr(bega, curr == end? end: curr - bega);
+        string value = str.substr(bega, curr == end? end: curr - bega);
 
         tags.back()->attr[name] = value;
 
@@ -169,31 +170,32 @@ struct XMLTag {
         curr = endtag + tags.back()->name.length() + 3;
       }
 
-      std::string leftovers;
+      string leftovers;
       tags.back()->tags = findXMLTags(tags.back()->contents, &leftovers);
       if ( leftovers.find_first_not_of(" \t\n") == end ) leftovers="";
       tags.back()->contents = leftovers;
 
     }
+
     return tags;
 
   }
 
   // Print out this tag to a stream.
-  void print(std::ostream & os) const {
+  void print(ostream & os) const {
     os << "<" << name;
-    for ( std::map<std::string,std::string>::const_iterator it = attr.begin();
+    for ( map<string,string>::const_iterator it = attr.begin();
           it != attr.end(); ++it )
       os << " " << it->first << "=\"" << it->second << "\"";
     if ( contents.empty() && tags.empty() ) {
-      os << "/>" << std::endl;
+      os << "/>" << endl;
       return;
     }
-    os << ">" << std::endl;
+    os << ">" << endl;
     for ( int i = 0, N = tags.size(); i < N; ++i )
       tags[i]->print(os);
 
-    os << "````" << contents << "''''</" << name << ">" << std::endl;
+    os << "````" << contents << "''''</" << name << ">" << endl;
   }
 
 };
@@ -395,7 +397,7 @@ struct LHAweightgroup {
   LHAweightgroup(const XMLTag & tag);
 
   // Print out the corresponding XML-tag.
-  void printweights(ostream & file) const;
+  void print(ostream & file) const;
 
   // Function to reset this object.
   void clear() {
@@ -432,6 +434,9 @@ struct LHArwgt {
   // insert them in the given vector.
   LHArwgt(const XMLTag & tag);
 
+  // Print out the corresponding XML-tag.
+  void print(ostream & file) const;
+
   // Function to reset this object.
   void clear() {
     contents="";
@@ -462,6 +467,9 @@ struct LHAinitrwgt {
   // Construct a group of LHAweightgroup objects from an XML tag and
   // insert them in the given vector.
   LHAinitrwgt(const XMLTag & tag);
+
+  // Print out the corresponding XML-tag.
+  void print(ostream & file) const;
 
   // Function to reset this object.
   void clear() {
@@ -593,7 +601,7 @@ public:
 
 //==========================================================================
 
-// The HEPEUP class is a simple container corresponding to the Les Houches 
+// The HEPEUP class is a simple container corresponding to the Les Houches
 // accord (<A HREF="http://arxiv.org/abs/hep-ph/0109068">hep-ph/0109068</A>)
 // common block with the same name. The members are named in the same
 // way as in the common block. However, fortran arrays are represented
@@ -853,6 +861,142 @@ private:
   Reader & operator=(const Reader &);
 
 };
+
+//==========================================================================
+
+// The Writer class is initialized with a stream to which to write a
+// version 1.0 or 3.0 Les Houches Accord event file. In the init() function of
+// the Writer object the main XML tag, header and init blocks are written,
+// with the corresponding end tag is written by print_end_tag().
+// After a Writer object (in the following called "writer") has been created,
+// it is possible to assign version (3 by default) information by
+//
+//   writer.version = <value>;
+//
+// The header block (called "someHeaderString" below) is assigned by
+//
+//   writer.headerBlock() << someHeaderString;
+//
+// and the init block comments (called "someInitString" below) are assigned via
+//
+//   writer.initComments() << someInitString;
+//
+// The standard init information (including amendments for LHEF 3.0) can
+// be assigned by the heprup member variable:
+//
+//   writer.heprup = heprup;
+//
+// where heprup is an object of type HEPRUP. All of the above information
+// will be writen by calling the init() function.
+//
+// Before each event is written out with the writeEvent() function,
+// the standard event information can be assigned to the hepeup
+// variable by
+//
+//   writer.hepeup = hepeup;
+//
+// where hepeup is of type HEPEUP. Event comments (called
+// "someCommentString" below) can be assigned through
+//
+//   writer.eventComments() << someCommentString;
+//
+// All of this event information is written by the writeEvent() function.
+
+class Writer {
+
+public:
+
+  // Create a Writer object giving a stream to write to.
+  // @param os the stream where the event file is written.
+  Writer(ostream & os)
+    : file(os), version(3) {}
+
+  // Create a Writer object giving a filename to write to.
+  // @param filename the name of the event file to be written.
+  Writer(string filename)
+    : intstream(filename.c_str()), file(intstream), version(3) {}
+
+  // The destructor.
+  ~Writer() {}
+
+  // Add header lines consisting of XML code with this stream.
+  ostream & headerBlock() {
+    return headerStream;
+  }
+
+  // Add comment lines to the init block with this stream.
+  ostream & initComments() {
+    return initStream;
+  }
+
+  // Add comment lines to the next event to be written out with this stream.
+  ostream & eventComments() {
+    return eventStream;
+  }
+
+  // Write out the final XML end-tag.
+  void print_end_tag() {
+    file << "</LesHouchesEvents>" << endl;
+  }
+
+  // Write out an optional header block followed by the standard init
+  // block information together with any comment lines.
+  void init();
+
+  // Write out the event stored in hepeup, followed by optional
+  // comment lines.
+  bool writeEvent(HEPEUP * peup = 0);
+
+protected:
+
+  // Make sure that each line in the string \a s starts with a
+  // #-character and that the string ends with a new-line.
+  string hashline(string s, bool comment = false);
+
+protected:
+
+  // A local stream which is unused if a stream is supplied from the
+  // outside.
+  ofstream intstream;
+
+  // The stream we are writing to. This may be a reference to an
+  // external stream or the internal intstream.
+  ostream & file;
+
+public:
+
+  // Stream to add all lines in the header block.
+  ostringstream headerStream;
+
+  // The standard init information.
+  HEPRUP heprup;
+
+  // Stream to add additional comments to be put in the init block.
+  ostringstream initStream;
+
+  // The standard information about the event we will write next.
+  HEPEUP hepeup;
+
+  // Stream to add additional comments to be written together the next event.
+  ostringstream eventStream;
+
+  // XML file version
+  int version;
+
+private:
+
+  // The default constructor should never be used.
+  Writer();
+
+  // The copy constructor should never be used.
+  Writer(const Writer &);
+
+  // The Writer cannot be assigned to.
+  Writer & operator=(const Writer &);
+
+};
+
+//==========================================================================
 
 } // end namespace Pythia8
 

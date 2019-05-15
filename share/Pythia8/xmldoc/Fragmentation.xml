@@ -34,11 +34,11 @@ only alternative for light quarks. It is of the form
 with the two main free parameters <ei>a</ei> and <ei>b</ei> to be 
 tuned to data. They are stored in 
  
-<parm name="StringZ:aLund" default="0.3" min="0.0" max="2.0"> 
+<parm name="StringZ:aLund" default="0.68" min="0.0" max="2.0"> 
 The <ei>a</ei> parameter of the Lund symmetric fragmentation function. 
 </parm> 
  
-<parm name="StringZ:bLund" default="0.8" min="0.2" max="2.0"> 
+<parm name="StringZ:bLund" default="0.98" min="0.2" max="2.0"> 
 The <ei>b</ei> parameter of the Lund symmetric fragmentation function. 
 </parm> 
  
@@ -56,7 +56,7 @@ allows a larger <ei>a</ei> for s quarks, with total
 <ei>a = aLund + aExtraSQuark</ei>. 
 </parm> 
  
-<parm name="StringZ:aExtraDiquark" default="0.5" min="0.0" max="2.0"> 
+<parm name="StringZ:aExtraDiquark" default="0.97" min="0.0" max="2.0"> 
 allows a larger <ei>a</ei> for diquarks, with total 
 <ei>a = aLund + aExtraDiquark</ei>. 
 </parm> 
@@ -71,11 +71,11 @@ for heavy quarks. To keep some flexibility, a multiplicative factor
 <ei>r_Q</ei> is introduced, which ought to be unity (provided that 
 quark masses were uniquely defined) but can be set in 
  
-<parm name="StringZ:rFactC" default="1.0" min="0.0" max="2.0"> 
+<parm name="StringZ:rFactC" default="1.32" min="0.0" max="2.0"> 
 <ei>r_c</ei>, i.e. the above parameter for <ei>c</ei> quarks. 
 </parm> 
  
-<parm name="StringZ:rFactB" default="0.67" min="0.0" max="2.0"> 
+<parm name="StringZ:rFactB" default="0.855" min="0.0" max="2.0"> 
 <ei>r_b</ei>, i.e. the above parameter for <ei>b</ei> quarks. 
 </parm> 
  
@@ -194,7 +194,7 @@ Then the total squared width is
 </eq> 
 It is this latter number that is stored in 
  
-<parm name="StringPT:sigma" default="0.304" min="0.0" max="1.0"> 
+<parm name="StringPT:sigma" default="0.335" min="0.0" max="1.0"> 
 the width <ei>sigma</ei> in the fragmentation process. 
 </parm> 
  
@@ -368,5 +368,5 @@ junction rest frame).
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

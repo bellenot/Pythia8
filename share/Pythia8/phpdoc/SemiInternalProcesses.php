@@ -608,7 +608,7 @@ be simple to include it as a permanently available process in the
 standard program distribution. The final step of that integration ought to 
 be left for the PYTHIA authors, but here is a description of what is 
 required. 
-  
+ 
 <p/> 
 A flag has to be defined, that allows the process to be switched on; 
 by default it should always be off. The name of the flag should be 
@@ -692,4 +692,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

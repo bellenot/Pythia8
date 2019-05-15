@@ -1,5 +1,5 @@
 // JetMatching.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -104,7 +104,7 @@ protected:
   // Not completely necessary to store all steps, but makes tracking the
   // steps of the algorithm a lot easier.
   Event eventProcessOrig, eventProcess, workEventJet;
- 
+
   // Sort final-state of incoming process into light/heavy jets and 'other'
   vector<int> typeIdx[3];
   set<int>    typeSet[3];
@@ -368,7 +368,7 @@ inline void JetMatchingAlpgen::sortTypeIdx(vector < int > &vecIn) {
       eventProcess[vecIn[i]].eT() :
       eventProcess[vecIn[i]].pT();
     for (size_t j = i + 1; j < vecIn.size(); j++) {
-      double vNow = (jetAlgorithm == 1) 
+      double vNow = (jetAlgorithm == 1)
         ? eventProcess[vecIn[j]].eT() : eventProcess[vecIn[j]].pT();
       if (vNow > vMax) {
         vMax = vNow;
@@ -560,7 +560,8 @@ inline void JetMatchingAlpgen::sortIncomingProcess(const Event &event) {
 
 // Step (2a): pick which particles to pass to the jet algorithm
 
-inline void JetMatchingAlpgen::jetAlgorithmInput(const Event &event, int iType) {
+inline void JetMatchingAlpgen::jetAlgorithmInput(const Event &event, 
+  int iType) {
 
   // Take input from 'workEvent' and put output in 'workEventJet'
   workEventJet = workEvent;
@@ -747,7 +748,7 @@ inline int JetMatchingAlpgen::matchPartonsToJetsLight() {
         if (jetAssigned[j]) continue;
 
         // DeltaR between parton/jet and store if minimum
-        double dR = (jetAlgorithm == 1) 
+        double dR = (jetAlgorithm == 1)
           ? REtaPhi(p1, jetMomenta[j]) : RRapPhi(p1, jetMomenta[j]);
         if (jMin < 0 || dR < dRmin) {
           dRmin = dR;
@@ -852,7 +853,7 @@ inline int JetMatchingAlpgen::matchPartonsToJetsHeavy() {
       int jMin = slowJet->jetAssignment(i);
       if (jMin >= 0) removeJets.insert(jMin);
     }
-      
+
   }
 
   // Remove jets (backwards order to not disturb indices)
@@ -904,7 +905,7 @@ inline bool JetMatchingMadgraph::initAfterBeams() {
     par.parse(parStr);
     par.printParams();
   }
- 
+
   // Set Madgraph merging parameters from the file if requested
   if (setMad) {
     if ( par.haveParam("xqcut")    && par.haveParam("maxjetflavor")
@@ -1045,7 +1046,7 @@ inline bool JetMatchingMadgraph::doVetoProcessLevel(Event& process) {
   // Veto in case the hard input matrix element already has too many partons.
   if ( int(typeIdx[0].size()) > nJetMax ) return true;
 
-  // Done  
+  // Done
   return false;
 
 }
@@ -1122,9 +1123,9 @@ inline bool JetMatchingMadgraph::doShowerKtVeto(double pTfirst) {
   bool doVeto = false;
 
   // Find the (kinematical) pT of the softest (light) parton in the hard
-  // process.	
+  // process.   
   int nParton = typeIdx[0].size();
-  double pTminME=1e10;	
+  double pTminME=1e10;  
   for ( int i = 0; i < nParton; ++i)
     pTminME = min(pTminME,eventProcess[typeIdx[0][i]].pT());
 
@@ -1138,7 +1139,7 @@ inline bool JetMatchingMadgraph::doShowerKtVeto(double pTfirst) {
   // For highest multiplicity sample, veto if the hardest emission is harder
   // than the hard process parton.
   } else if ( !exclusive && nParton > 0 && pTfirst > pTminME ) {
-    doVeto = true;	
+    doVeto = true;      
   }
 
   // Return veto
@@ -1339,7 +1340,8 @@ inline void JetMatchingMadgraph::sortIncomingProcess(const Event &event) {
 
 // Step (2a): pick which particles to pass to the jet algorithm
 
-inline void JetMatchingMadgraph::jetAlgorithmInput(const Event &event, int iType) {
+inline void JetMatchingMadgraph::jetAlgorithmInput(const Event &event, 
+  int iType) {
 
   // Take input from 'workEvent' and put output in 'workEventJet'
   workEventJet = workEvent;
@@ -1421,7 +1423,7 @@ inline bool JetMatchingMadgraph::matchPartonsToJets(int iType) {
   // different veto conditions and for clarity
   if (iType == 0) {
     // Record the jet separations here, also if matchPartonsToJetsLight
-    // returns preemptively. 
+    // returns preemptively.
     SetDJR(workEventJet);
     set_nMEpartons(origTypeIdx[0].size(), typeIdx[0].size());
     // Perform jet matching.
@@ -1566,7 +1568,7 @@ inline int JetMatchingMadgraph::matchPartonsToJetsLight() {
   // partonic jets, or it is not possible to make a match for a hadronic jet.
   int iNow = 0;
   while ( doFxFx && iNow < tempSize ) {
- 
+
     // Check if this shower jet matches any partonic jet.
     Event tempEventJet;
     tempEventJet.init("(tempEventJet)", particleDataPtr);

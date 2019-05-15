@@ -128,7 +128,7 @@ with preserved mass when a small string collapses to one particle,
 but is not yet used for that. 
  
 <h3>The beams</h3> 
-   
+ 
 The different subsystems are tied together by them sharing the same 
 initial beam particles, and thereby being restricted by energy-momentum 
 and flavour conservation issues. The information stored in the two 
@@ -170,7 +170,7 @@ Since the event is constructed in the c.m. frame of the incoming
 beams this implies that <i>x = 2 E / E_cm</i>. 
 If the <i>x</i> values are not defined accordingly or not kept 
 up-to-date the BR treatment will not conserve energy-momentum. 
-  
+ 
 <p/> 
 In return, the <code>BeamParticle</code> objects give access to some 
 useful methods. The <code>beamX.xf( id, x, Q2)</code> returns the 
@@ -181,7 +181,7 @@ Thus <code>iSys</code> is added as an extra argument, and the momentum
 already assigned to the other subsystems is not available for evolution, 
 i.e. the maximal <i>x</i> is correspondingly smaller than unity. 
 Also flavour issues are handled in a similar spirit. 
-  
+ 
 <p/> 
 An additional complication is that a parton can be either valence or 
 sea, and in the latter case the BR treatment also distinguishes 
@@ -195,7 +195,7 @@ or with the <code>beamX[iSys].isValence()</code>,
 whether a parton is valence, unmatched sea or matched sea. 
 This choice should affect the ISR evolution; e.g., a valence quark 
 cannot be constructed back to come from a gluon. 
-  
+ 
 <p/> 
 To keep this info up-to-date, the <code>beamX.pickValSeaComp()</code> 
 method should be called whenever a parton of a new flavour has been 
@@ -209,8 +209,8 @@ the call are the now finally accepted ones for the newly-found mother.
 (Such a call is likely to have been made before, during the evolution, 
 but is not likely to be the most recent one, i.e. still in memory, and 
 therefore had better be redone.) 
-      
+ 
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

@@ -1,15 +1,15 @@
 // PowhegHooks.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Richard Corke, Torbjorn Sjostrand.
+// Copyright (C) 2015 Richard Corke, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Author: Richard Corke.
-// This class is used to perform a vetoed shower, where emissions 
+// This class is used to perform a vetoed shower, where emissions
 // already covered in a POWHEG NLO generator should be omitted.
-// To first approximation the handover should happen at the SCALE 
+// To first approximation the handover should happen at the SCALE
 // of the LHA, but since the POWHEG-BOX uses a different pT definition
-// than PYTHIA, both for ISR and FSR, a more sophisticated treatment 
-// is needed. See the online manual on POWHEG merging for details. 
+// than PYTHIA, both for ISR and FSR, a more sophisticated treatment
+// is needed. See the online manual on POWHEG merging for details.
 
 #ifndef Pythia8_PowhegHooks_H
 #define Pythia8_PowhegHooks_H
@@ -35,15 +35,15 @@ public:
 
   // Initialize settings, detailing merging strategy to use.
   bool initAfterBeams() {
-    nFinal      = settingsPtr->mode("POWHEG:nFinal");   
-    vetoMode    = settingsPtr->mode("POWHEG:veto");   
-    vetoCount   = settingsPtr->mode("POWHEG:vetoCount");   
-    pThardMode  = settingsPtr->mode("POWHEG:pThard");   
-    pTemtMode   = settingsPtr->mode("POWHEG:pTemt");   
-    emittedMode = settingsPtr->mode("POWHEG:emitted");   
-    pTdefMode   = settingsPtr->mode("POWHEG:pTdef");   
+    nFinal      = settingsPtr->mode("POWHEG:nFinal");
+    vetoMode    = settingsPtr->mode("POWHEG:veto");
+    vetoCount   = settingsPtr->mode("POWHEG:vetoCount");
+    pThardMode  = settingsPtr->mode("POWHEG:pThard");
+    pTemtMode   = settingsPtr->mode("POWHEG:pTemt");
+    emittedMode = settingsPtr->mode("POWHEG:emitted");
+    pTdefMode   = settingsPtr->mode("POWHEG:pTdef");
     MPIvetoMode = settingsPtr->mode("POWHEG:MPIveto");
-    return true;   
+    return true;
   }
 
 //--------------------------------------------------------------------------
@@ -54,8 +54,8 @@ public:
   // For the Pythia pT definition, a recoiler (after) must be specified.
 
   // Compute the Pythia pT separation. Based on pTLund function in History.cc
-  inline double pTpythia(const Event &e, int RadAfterBranch, int EmtAfterBranch,
-                  int RecAfterBranch, bool FSR) {
+  inline double pTpythia(const Event &e, int RadAfterBranch, 
+    int EmtAfterBranch, int RecAfterBranch, bool FSR) {
 
     // Convenient shorthands for later
     Vec4 radVec = e[RadAfterBranch].p();
@@ -166,7 +166,7 @@ public:
       } else if (FSR && pTdefMode == 2 && j > 0 && k > 0 && r > 0) {
         pTemt = pTpythia(e, k, j, r, FSR);
 
-      // Otherwise need to try all possible combintations.
+      // Otherwise need to try all possible combinations.
       } else {
         // Start by finding incoming legs to the hard system after
         // branching (radiator after branching, i for ISR).
@@ -192,12 +192,12 @@ public:
             if (!FSR) {
               pTnow = pTpowheg(e, iInA, jNow, (pTdefMode == 0) ? false : FSR);
               if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
-  
+
               // FSR - try all outgoing partons from system before branching
               // as i. Note that for the hard system, there is no
               // "before branching" information.
               } else {
-    
+
                 int outSize = partonSystemsPtr->sizeOut(0);
                 for (int iMem = 0; iMem < outSize; iMem++) {
                   int iNow = partonSystemsPtr->getOut(0, iMem);
@@ -212,26 +212,26 @@ public:
                   if (pTnow > 0.) pTemt = (pTemt < 0)
                     ? pTnow : min(pTemt, pTnow);
                 } // for (iMem)
-  
+
               } // if (!FSR)
-  
+
           // Pythia
           } else if (pTdefMode == 2) {
-  
+
             // ISR - other incoming as recoiler
             if (!FSR) {
               pTnow = pTpythia(e, iInA, jNow, iInB, FSR);
               if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
               pTnow = pTpythia(e, iInB, jNow, iInA, FSR);
               if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
-  
+
             // FSR - try all final-state coloured partons as radiator
             //       after emission (k).
             } else {
               for (int kNow = 0; kNow < e.size(); kNow++) {
                 if (kNow == jNow || !e[kNow].isFinal() ||
                     e[kNow].colType() == 0) continue;
-  
+
                 // For this kNow, need to have a recoiler.
                 // Try two incoming.
                 pTnow = pTpythia(e, kNow, jNow, iInA, FSR);
@@ -249,7 +249,7 @@ public:
                   if (pTnow > 0.) pTemt = (pTemt < 0)
                     ? pTnow : min(pTemt, pTnow);
                 } // for (rNow)
-  
+
               } // for (kNow)
             } // if (!FSR)
           } // if (pTdefMode)
@@ -297,7 +297,7 @@ public:
     // If there is no radiation or if pThardMode is 0 then set pThard = SCALUP.
     if (!isEmt || pThardMode == 0) {
       pThard = infoPtr->scalup();
-      
+
     // If pThardMode is 1 then the pT of the POWHEG emission is checked against
     // all other incoming and outgoing partons, with the minimal value taken
     } else if (pThardMode == 1) {
@@ -358,7 +358,7 @@ public:
     int k        = -1;
     int r        = (pTemtMode == 0) ? iRecAft : -1;
     double pTemt = pTcalc(e, i, j, k, r, xSR);
- 
+
     // Veto if pTemt > pThard
     if (pTemt > pThard) {
       nAcceptSeq = 0;
@@ -419,7 +419,7 @@ public:
       for (int jLoop = 0; jLoop < 2; jLoop++) {
         if      (jLoop == 0) pTemt = pTcalc(e, i, j, k, r, xSR);
         else if (jLoop == 1) pTemt = min(pTemt, pTcalc(e, i, j, k, r, xSR));
-  
+
         // For emittedMode == 3, have tried iRadAft, now try iEmt
         if (emittedMode != 3) break;
         if (k != -1) swap(j, k); else j = iEmt;
@@ -448,7 +448,7 @@ public:
 
   // MPI veto
 
-  inline bool canVetoMPIEmission() { return (MPIvetoMode == 0) ? false : true; }
+  inline bool canVetoMPIEmission() {return (MPIvetoMode == 0) ? false : true;}
   inline bool doVetoMPIEmission(int, const Event &e) {
     if (MPIvetoMode == 1) {
       if (e[e.size() - 1].pT() > pTMPI) return true;

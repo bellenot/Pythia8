@@ -58,7 +58,7 @@ dependence is then parametrized, and behaves roughly like
 (<code>= 5</code>) has its own parametrization. 
 </parm> 
  
-<flag name="SigmaTotal:zeroAXB" default="off"> 
+<flag name="SigmaTotal:zeroAXB" default="on"> 
 several existing <aloc href="Tunes">tunes</aloc> do not include CD. 
 An inclusion of a nonvanishing CD cross section directly affects 
 the nondiffractive phenomenology, even if not dramatically, and so 
@@ -121,7 +121,7 @@ cross sections relative to the default parametrizations. The settings
 here allows one way to introduce a dampening, which is used in some 
 of the existing <aloc href="Tunes">tunes</aloc>. 
  
-<flag name="SigmaDiffractive:dampen" default="no"> 
+<flag name="SigmaDiffractive:dampen" default="on"> 
 Allow a user to dampen diffractive cross sections; on/off = true/false. 
 </flag> 
  
@@ -136,15 +136,15 @@ This reduces to <ei>sigma_old(s)</ei> at low energies and to
 <ei>sigma_max</ei> at high ones. Note that the asymptotic value 
 is approached quite slowly, however. 
  
-<parm name="SigmaDiffractive:maxXB" default="15." min="0."> 
+<parm name="SigmaDiffractive:maxXB" default="65." min="0."> 
 The above <ei>sigma_max</ei> for <ei>A + B &rarr; X + B</ei> in mb. 
 </parm> 
  
-<parm name="SigmaDiffractive:maxAX" default="15." min="0."> 
+<parm name="SigmaDiffractive:maxAX" default="65." min="0."> 
 The above <ei>sigma_max</ei> for <ei>A + B &rarr; A + X</ei> in mb. 
 </parm> 
  
-<parm name="SigmaDiffractive:maxXX" default="15." min="0."> 
+<parm name="SigmaDiffractive:maxXX" default="65." min="0."> 
 The above <ei>sigma_max</ei> for <ei>A + B &rarr; X_1 + X_2</ei> in mb. 
 </parm> 
  
@@ -157,7 +157,7 @@ As above, a reduced diffractive cross section automatically translates
 into an increased nondiffractive one, such that the total (and elastic) 
 cross section remains fixed. 
  
-  
+ 
 <h3>Set elastic cross section</h3> 
  
 <p/> 
@@ -209,4 +209,4 @@ This constant is model dependent <ref>Cah82</ref>.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

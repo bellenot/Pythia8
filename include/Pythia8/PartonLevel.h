@@ -1,5 +1,5 @@
 // PartonLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -33,7 +33,7 @@
 
 
 namespace Pythia8 {
- 
+
 //==========================================================================
 
 // The PartonLevel class contains the top-level routines to generate
@@ -45,7 +45,7 @@ public:
 
   // Constructor.
   PartonLevel() : userHooksPtr(0) {}
- 
+
   // Initialization of all classes at the parton level.
   bool init( Info* infoPtrIn, Settings& settings,
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
@@ -56,7 +56,7 @@ public:
     TimeShower* timesPtrIn, SpaceShower* spacePtrIn,
     RHadrons* rHadronsPtrIn, UserHooks* userHooksPtrIn,
     MergingHooks* mergingHooksPtr, bool useAsTrial);
- 
+
   // Generate the next parton-level process.
   bool next( Event& process, Event& event);
 
@@ -137,7 +137,7 @@ private:
 
   // Pointers to Standard Model couplings.
   Couplings*     couplingsPtr;
-  
+
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
 
@@ -160,7 +160,7 @@ private:
 
   // The generator class to construct beam-remnant kinematics.
   BeamRemnants remnants;
-  
+
   // The RHadrons class is used to fragment off and decay R-hadrons.
   RHadrons*    rHadronsPtr;
 
@@ -169,7 +169,7 @@ private:
 
   // The Colour reconnection class used to do colour reconnection.
   ColourReconnection colourReconnection;
-  
+
   // The Junction splitting class used to split junctions systems.
   JunctionSplitting junctionSplitting;
 

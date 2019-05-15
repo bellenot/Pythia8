@@ -99,12 +99,12 @@ pairs of identical mesons.
    
  
 <p/><code>file&nbsp; </code><strong> ColourReconnection &nbsp;</strong> <br/>
-implements several models that describe how the colour flow between
-outgoing partons can be changed by nonperturbative effects.
+implements several models that describe how the colour flow between 
+outgoing partons can be changed by nonperturbative effects. 
    
  
 <p/><code>file&nbsp; </code><strong> ColourTracing &nbsp;</strong> <br/>
-finds out how partons are colour-connected in (more or less long) chains.
+finds out how partons are colour-connected in (more or less long) chains. 
    
  
 <p/><code>file&nbsp; </code><strong> Event &nbsp;</strong> <br/>
@@ -169,9 +169,9 @@ during program execution.
    
  
 <p/><code>file&nbsp; </code><strong> JunctionSplitting &nbsp;</strong> <br/>
-processes a colour singlet system containing several (anti)junctions
+processes a colour singlet system containing several (anti)junctions 
 such that it can be split into several systems each containing 
-(at most) one junction.
+(at most) one junction. 
    
  
 <p/><code>file&nbsp; </code><strong> LesHouches &nbsp;</strong> <br/>
@@ -400,8 +400,8 @@ performs string fragmentation of a given set of partons.
    
  
 <p/><code>file&nbsp; </code><strong> StringLength &nbsp;</strong> <br/>
-calculates the string-length <i>lambda</i> measure for various
-colour topologies, including junction ones.
+calculates the string-length <i>lambda</i> measure for various 
+colour topologies, including junction ones. 
    
  
 <p/><code>file&nbsp; </code><strong> SusyCouplings &nbsp;</strong> <br/>
@@ -445,4 +445,4 @@ parton showers.
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

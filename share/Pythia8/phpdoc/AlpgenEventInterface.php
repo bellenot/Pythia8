@@ -143,10 +143,10 @@ When switched on, <i>c</i> and <i>b</i> quark masses provided
 by ALPGEN are set in the PYTHIA 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>particle database</a>. 
-Since ALPGEN may set these two masses to vanish, the parton shower
-programs have been provided with some protection, but other parts of
+Since ALPGEN may set these two masses to vanish, the parton shower 
+programs have been provided with some protection, but other parts of 
 the code may not be as fortunate. You should therefore only switch on 
-this option if you know what you are doing.
+this option if you know what you are doing. 
    
  
 <br/><br/><strong>Alpgen:setHeavyMasses</strong>  <input type="radio" name="3" value="on" checked="checked"><strong>On</strong>
@@ -360,4 +360,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

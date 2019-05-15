@@ -79,13 +79,26 @@ to represent a reasonable choice.</li>
 <li>The current value, which differs from the default when the user so 
 requests.</li> 
 <li>An allowed range of values, represented by meaningful 
-minimum and maximum values. This has no sense for a <code>flag</code>,
+minimum and maximum values. This has no sense for a <code>flag</code>, 
 an <code>fvec</code> or a <code>word</code> (and is not used there), is 
 usually rather well-defined for a <code>mode</code> or <code>mvec</code>, 
 but less so for a <code>parm</code> or <code>pvec</code>. Often the allowed 
 range exaggerates the degree of our current knowledge, so as not to restrict 
 too much what the user can do. One may choose not to set the lower or 
-upper limit, in which case the range is open-ended.</li> 
+upper limit, in which case the range is open-ended. 
+<br/>Normally input values outside the allowed range are changed 
+to the be at nearest limit. For <code>mode</code>s only, a further 
+boolean is stored to tell whether this should be allowed, or whether 
+out-of-range inputs should be forbidden, to the extent that the whole 
+PYTHIA initialization would abort. The latter applies to those modes 
+that have been defined with the <code>modepick</code> label in the 
+<code>xmldoc/*.xml</code> files, and where maximal and minimal values 
+have been specified. Such labels are used to represent a discrete set 
+of options, and so any value outside the allowed range is just plain 
+wrong. Also attempts to change <code>modefix</code> fixed-value 
+<code>mode</code>s lead to aborts. By contrast those defined with 
+<code>mode</code> or <code>modeopen</code> follow the normal rules 
+of being reset to fall into the allowed range, without any warnings.</li> 
 </ul> 
  
 <p/> 
@@ -94,7 +107,7 @@ help of seven separate maps, one for each kind of variable, with the
 variable <code>name</code> used as key. 
  
 <h3>Operation</h3> 
-     
+ 
 The normal flow of setting values is: 
  
 <ol> 
@@ -212,16 +225,16 @@ settings are handled by calls to the
 <p/> 
 A file can make use of two extra features that are not available with the 
 <code>readString(...)</code> method. One is the possibility to provide 
-information for several distinct <a href="ProgramFlow.html" target="page">subruns</a>.  
+information for several distinct <a href="ProgramFlow.html" target="page">subruns</a>. 
 The other is the possibility to comment out a section of lines in the file. 
 The first line of the commented section should then begin by <code>/*</code> 
-and the last begin by <code>*/</code>. This is reminiscent of the convention
-used in C++ and other languages, but is not as powerful, in that it is not
+and the last begin by <code>*/</code>. This is reminiscent of the convention 
+used in C++ and other languages, but is not as powerful, in that it is not 
 possible to comment in or out parts of lines. It is only the first two 
-non-blank characters of a line that are checked for a match, and a line
-beginning with <code>*/</code> is counted as part of the commented section.  
+non-blank characters of a line that are checked for a match, and a line 
+beginning with <code>*/</code> is counted as part of the commented section. 
 To avoid mistakes it is best to keep <code>/*</code> and <code>*/</code> 
-on lines of their own, optionally followed by comments, but not by commands.
+on lines of their own, optionally followed by comments, but not by commands. 
 </li> 
  
 <p/> <li> 
@@ -538,4 +551,4 @@ reset the current value to the default one.
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

@@ -48,7 +48,7 @@ see [<a href="Bibliography.php" target="page">Car11</a>].
 For simplicity we assume that the HV contains an unbroken <b>SU(N)</b> 
 gauge symmetry. This is used in the calculation of production cross 
 sections. These could be rescaled by hand for other gauge groups. 
-  
+ 
 <br/><br/><table><tr><td><strong>HiddenValley:Ngauge  </td><td></td><td> <input type="text" name="1" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 1</code>)</td></tr></table>
 is <b>U(1)</b> for <code>Ngauge = 1</code>, is <b>SU(N)</b> if 
 <code>Ngauge &gt; 1</code>. Note that pair production cross sections 
@@ -168,22 +168,22 @@ emission of invisible <i>gv-gv </i> v-glueball bound states.
 <p/> 
 Only the spin of the HV-gluon or HV-photon is determined unambiguously 
 to be unity, for the others you can make your choice. 
-  
+ 
 <br/><br/><table><tr><td><strong>HiddenValley:spinFv  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
 The spin of the HV partners of the SM fermions, e.g. 
 <ei>Dv</ei>, <ei>Uv</ei>, <ei>Ev</ei> and <ei>nuEv</ei>. 
 <br/>
-<input type="radio" name="2" value="0"><strong>0 </strong>: <br/>
-<input type="radio" name="2" value="1" checked="checked"><strong>1 </strong>: <br/>
-<input type="radio" name="2" value="2"><strong>2 </strong>: <br/>
-  
+<input type="radio" name="2" value="0"><strong>0 </strong>: spin 0.<br/>
+<input type="radio" name="2" value="1" checked="checked"><strong>1 </strong>: spin 1/2.<br/>
+<input type="radio" name="2" value="2"><strong>2 </strong>: spin 1.<br/>
+ 
 <br/><br/><table><tr><td><strong>HiddenValley:spinqv  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)</td></tr></table>
 The spin of <ei>qv</ei> when the <ei>Fv</ei> (the HV partners of 
 the SM fermions) have spin 1/2. (While, if they have spin 0 or 1, 
 the <ei>qv</ei> spin is fixed at 1/2.) 
 <br/>
-<input type="radio" name="3" value="0" checked="checked"><strong>0 </strong>: <br/>
-<input type="radio" name="3" value="1"><strong>1 </strong>: <br/>
+<input type="radio" name="3" value="0" checked="checked"><strong>0 </strong>: spin 0.<br/>
+<input type="radio" name="3" value="1"><strong>1 </strong>: spin 1.<br/>
  
 <br/><br/><table><tr><td><strong>HiddenValley:kappa </td><td></td><td> <input type="text" name="4" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 If the <i>Fv</i> have spin 1 then their production 
@@ -201,7 +201,7 @@ allow kinematic mixing or not.
 <br/><br/><table><tr><td><strong>HiddenValley:kinMix </td><td></td><td> <input type="text" name="6" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>)</td></tr></table>
 strength of kinetic mixing. 
    
-  
+ 
 <p/> 
 You should set the <i>Fv</i> and <i>qv</i> masses appropriately, 
 with the latter smaller than the former two to allow decays. 
@@ -213,56 +213,56 @@ mass, so that  <i>m_HVmeson = 2 m_qv</i>. The <i>hvMesonDiag</i>
 decay modes also need to be set. 
  
 <h3>Production processes</h3> 
-   
+ 
 <br/><br/><strong>HiddenValley:all</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
 <input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Common switch for the group of all hard Hidden Valley processes, 
 as listed separately in the following. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:gg2DvDvbar</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
 <input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Pair production <i>g g &rarr; Dv Dvbar</i>. 
 Code 4901. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:gg2UvUvbar</strong>  <input type="radio" name="9" value="on"><strong>On</strong>
 <input type="radio" name="9" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Pair production <i>g g &rarr; Uv Uvbar</i>. 
 Code 4902. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:gg2SvSvbar</strong>  <input type="radio" name="10" value="on"><strong>On</strong>
 <input type="radio" name="10" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Pair production <i>g g &rarr; Sv Svbar</i>. 
 Code 4903. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:gg2CvCvbar</strong>  <input type="radio" name="11" value="on"><strong>On</strong>
 <input type="radio" name="11" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Pair production <i>g g &rarr; Cv Cvbar</i>. 
 Code 4904. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:gg2BvBvbar</strong>  <input type="radio" name="12" value="on"><strong>On</strong>
 <input type="radio" name="12" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Pair production <i>g g &rarr; Bv Bvbar</i>. 
 Code 4905. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:gg2TvTvbar</strong>  <input type="radio" name="13" value="on"><strong>On</strong>
 <input type="radio" name="13" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Pair production <i>g g &rarr; Tv Tvbar</i>. 
 Code 4906. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:qqbar2DvDvbar</strong>  <input type="radio" name="14" value="on"><strong>On</strong>
 <input type="radio" name="14" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -270,7 +270,7 @@ Pair production <i>q qbar &rarr; Dv Dvbar</i>
 via intermediate gluon. 
 Code 4911. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:qqbar2UvUvbar</strong>  <input type="radio" name="15" value="on"><strong>On</strong>
 <input type="radio" name="15" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -278,7 +278,7 @@ Pair production <i>q qbar &rarr; Uv Uvbar</i>
 via intermediate gluon. 
 Code 4912. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:qqbar2SvSvbar</strong>  <input type="radio" name="16" value="on"><strong>On</strong>
 <input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -286,7 +286,7 @@ Pair production <i>q qbar &rarr; Sv Svbar</i>
 via intermediate gluon. 
 Code 4913. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:qqbar2CvCvbar</strong>  <input type="radio" name="17" value="on"><strong>On</strong>
 <input type="radio" name="17" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -294,7 +294,7 @@ Pair production <i>q qbar &rarr; Cv Cvbar</i>
 via intermediate gluon. 
 Code 4914. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:qqbar2BvBvbar</strong>  <input type="radio" name="18" value="on"><strong>On</strong>
 <input type="radio" name="18" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -302,7 +302,7 @@ Pair production <i>q qbar &rarr; Bv Bvbar</i>
 via intermediate gluon. 
 Code 4915. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:qqbar2TvTvbar</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
 <input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -310,7 +310,7 @@ Pair production <i>q qbar &rarr; Tv Tvbar</i>
 via intermediate gluon. 
 Code 4916. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:ffbar2DvDvbar</strong>  <input type="radio" name="20" value="on"><strong>On</strong>
 <input type="radio" name="20" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -318,7 +318,7 @@ Pair production <i>f fbar &rarr; Dv Dvbar</i>
 via intermediate <i>gamma*/Z^*</i>. 
 Code 4921. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:ffbar2UvUvbar</strong>  <input type="radio" name="21" value="on"><strong>On</strong>
 <input type="radio" name="21" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -326,7 +326,7 @@ Pair production <i>f fbar &rarr; Uv Uvbar</i>
 via intermediate <i>gamma*/Z^*</i>. 
 Code 4922. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:ffbar2SvSvbar</strong>  <input type="radio" name="22" value="on"><strong>On</strong>
 <input type="radio" name="22" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -334,7 +334,7 @@ Pair production <i>f fbar &rarr; Sv Svbar</i>
 via intermediate <i>gamma*/Z^*</i>. 
 Code 4923. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:ffbar2CvCvbar</strong>  <input type="radio" name="23" value="on"><strong>On</strong>
 <input type="radio" name="23" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -342,7 +342,7 @@ Pair production <i>f fbar &rarr; Cv Cvbar</i>
 via intermediate <i>gamma*/Z^*</i>. 
 Code 4924. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:ffbar2BvBvbar</strong>  <input type="radio" name="24" value="on"><strong>On</strong>
 <input type="radio" name="24" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -350,7 +350,7 @@ Pair production <i>f fbar &rarr; Bv Bvbar</i>
 via intermediate <i>gamma*/Z^*</i>. 
 Code 4925. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:ffbar2TvTvbar</strong>  <input type="radio" name="25" value="on"><strong>On</strong>
 <input type="radio" name="25" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -358,7 +358,7 @@ Pair production <i>f fbar &rarr; Tv Tvbar</i>
 via intermediate <i>gamma*/Z^*</i>. 
 Code 4926. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:ffbar2EvEvbar</strong>  <input type="radio" name="26" value="on"><strong>On</strong>
 <input type="radio" name="26" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -366,7 +366,7 @@ Pair production <i>f fbar &rarr; Ev Evbar</i>
 via intermediate <i>gamma*/Z^*</i>. 
 Code 4931. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:ffbar2nuEvnuEvbar</strong>  <input type="radio" name="27" value="on"><strong>On</strong>
 <input type="radio" name="27" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -374,7 +374,7 @@ Pair production <i>f fbar &rarr; nuEv nuEvbar</i>
 via intermediate <i>gamma*/Z^*</i>. 
 Code 4932. 
    
-     
+ 
 <br/><br/><strong>HiddenValley:ffbar2MUvMUvbar</strong>  <input type="radio" name="28" value="on"><strong>On</strong>
 <input type="radio" name="28" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -382,7 +382,7 @@ Pair production <i>f fbar &rarr; MUv MUvbar</i>
 via intermediate <i>gamma*/Z^*</i>. 
 Code 4933. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:ffbar2nuMUvnuMUvbar</strong>  <input type="radio" name="29" value="on"><strong>On</strong>
 <input type="radio" name="29" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -398,7 +398,7 @@ Pair production <i>f fbar &rarr; TAUv TAUvbar</i>
 via intermediate <i>gamma*/Z^*</i>. 
 Code 4935. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:ffbar2nuTAUvnuTAUvbar</strong>  <input type="radio" name="31" value="on"><strong>On</strong>
 <input type="radio" name="31" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -406,7 +406,7 @@ Pair production <i>f fbar &rarr; nuTAUv nuTAUvbar</i>
 via intermediate <i>gamma*/Z^*</i>. 
 Code 4936. 
    
-   
+ 
 <br/><br/><strong>HiddenValley:ffbar2Zv</strong>  <input type="radio" name="32" value="on"><strong>On</strong>
 <input type="radio" name="32" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -567,14 +567,14 @@ within alternative scenarios. These parameters are as follows.
 switch on string fragmentation of the HV partonic system. 
 Only relevant for <b>SU(N)</b> scenarios. 
    
-   
+ 
 <br/><br/><table><tr><td><strong>HiddenValley:nFlav  </td><td></td><td> <input type="text" name="37" value="1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 8</code>)</td></tr></table>
 number of different flavours assumed to exist in the hadronization 
 description, leading to approximately <i>1/n_Flav</i> of the 
 produced HV-mesons being flavour-diagonal and capable to decay back 
 to Standard Model particles. 
    
-   
+ 
 <br/><br/><table><tr><td><strong>HiddenValley:probVector </td><td></td><td> <input type="text" name="38" value="0.75" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.75</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
 fraction of HV-mesons that are assigned spin 1 (vector), with the 
 remainder spin 0 (pseudoscalar). Assuming the <i>qv</i> have 
@@ -609,7 +609,7 @@ See the normal <?php $filepath = $_GET["filepath"];
 echo "<a href='Fragmentation.php?filepath=".$filepath."' target='page'>";?>fragmentation 
 <i>pT</i></a> description for conventions for factors of 2. 
    
-  
+ 
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -842,5 +842,5 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

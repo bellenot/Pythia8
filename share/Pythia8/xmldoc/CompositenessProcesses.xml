@@ -27,6 +27,21 @@ when the contact interaction contributions are close to zero, e.g.
 <code>HardQCD:qq2qq</code> and <code>HardQCD:qqbar2qqbarNew</code> in 
 the case of quark scattering. 
  
+<p/> 
+It should also be noted that the <ei>gamma*/Z/Z'</ei> production process
+available with <ei>NewGaugeBoson:ffbar2gmZZprime</ei> is prepared for
+pair-production of excited quarks and leptons, assuming the same gauge 
+couplings as for the non-excited fermions. What is missing is the 
+actual decay channels in the list of <ei>Z'</ei> decay modes, which
+have to be added by hand, e.g. by
+<br/>32:addChannel = 1 1. 100 4000001 -4000001
+<br/>You can use <ei>Zprime:gmZmode</ei> to decide which gauge boson 
+propagators actually are included in the simulation, and thus e.g. 
+switch off the <ei>Z'</ei> part of the propagator. You may also want to
+switch off other decay channels and set the minimal mass to be at the 
+threshold for the studied pair production (or suitably below it, 
+if the excited fermions have a non-negligible width).
+ 
 <h3>Excited fermions, production processes</h3> 
  
 A few different production processes have been implemented, which normally 
@@ -132,6 +147,36 @@ Scatterings <ei>q qbar &rarr; nu_tau^* nu_taubar</ei>.
 Code 4036. 
 </flag> 
  
+<flag name="ExcitedFermion:qqbar2eStareStar" default="off"> 
+Scatterings <ei>q qbar &rarr; e^*+- e^*-+</ei>. 
+Code 4051. 
+</flag> 
+ 
+<flag name="ExcitedFermion:qqbar2nueStarnueStar" default="off"> 
+Scatterings <ei>q qbar &rarr; nu_e^* nu_e^*bar</ei>. 
+Code 4052. 
+</flag> 
+ 
+<flag name="ExcitedFermion:qqbar2muStarmuStar" default="off"> 
+Scatterings <ei>q qbar &rarr; mu^*+- mu^*-+</ei>. 
+Code 4053. 
+</flag> 
+ 
+<flag name="ExcitedFermion:qqbar2numuStarnumuStar" default="off"> 
+Scatterings <ei>q qbar &rarr; nu_mu^* nu_mu^*bar</ei>. 
+Code 4054. 
+</flag> 
+ 
+<flag name="ExcitedFermion:qqbar2tauStartauStar" default="off"> 
+Scatterings <ei>q qbar &rarr; tau^*+- tau^*-+</ei>. 
+Code 4055. 
+</flag> 
+ 
+<flag name="ExcitedFermion:qqbar2nutauStarnutauStar" default="off"> 
+Scatterings <ei>q qbar &rarr; nu_tau^* nu_tau^*bar</ei>. 
+Code 4056. 
+</flag> 
+ 
 <h3>Excited fermions, parameters</h3> 
  
 The basic couplings of the model are 
@@ -150,6 +195,13 @@ Strength <ei>f'</ei> of the <ei>U(1)</ei> coupling.
  
 <parm name="ExcitedFermion:coupFcol" default="1.0" min="0.0"> 
 Strength <ei>f_c</ei> of the <ei>SU(3)</ei> coupling. 
+</parm> 
+ 
+<parm name="ExcitedFermion:contactDec" default="1.0" min="0.0"> 
+Strength of contact-interaction decay channels, implemented as 
+three-body decays <ei>l^* &rarr; l f fbar</ei> for excited leptons 
+and neutrinos, where unity corresponds to the same normalization 
+as for the production channels. 
 </parm> 
  
 <h3>Contact interactions, production processes</h3> 
@@ -223,5 +275,5 @@ Helicity parameter.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

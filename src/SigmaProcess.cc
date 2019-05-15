@@ -1,5 +1,5 @@
 // SigmaProcess.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -365,11 +365,11 @@ double SigmaProcess::sigmaPDF() {
   // Loop over allowed incoming channels.
   sigmaSumSave = 0.;
   for (int i = 0; i < sizePair(); ++i) {
-    
+
     // Evaluate hard-scattering cross section. Include K factor.
     inPair[i].pdfSigma = Kfactor
                        * sigmaHatWrap(inPair[i].idA, inPair[i].idB);
-    
+
     // Multiply by respective parton densities.
     for (int j = 0; j < sizeBeamA(); ++j)
     if (inPair[i].idA == inBeamA[j].id) {
@@ -387,7 +387,7 @@ double SigmaProcess::sigmaPDF() {
     // Sum for all channels.
     sigmaSumSave += inPair[i].pdfSigma;
   }
- 
+
   // Done.
   return sigmaSumSave;
 
@@ -464,7 +464,7 @@ bool SigmaProcess::setupForMEin() {
 
   // Done.
   return allowME;
-  
+
 }
 
 //--------------------------------------------------------------------------
@@ -620,10 +620,10 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
     double vh = 1;
     double ah = higgsEta / pow2( particleDataPtr->m0(23) );
     if (higgsParity == 4) {
-      vh = sin(higgsPhi); 
+      vh = sin(higgsPhi);
       ah = cos(higgsPhi) / pow2( particleDataPtr->m0(23) );
     }
-    
+
     // Normal CP-even decay.
     if (higgsParity == 1) wt = 8. * (1. + va12asym) * p35 * p46
       + 8. * (1. - va12asym) * p36 * p45;
@@ -643,7 +643,7 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
       - 2. * pow2(p35 * p46 - p36 * p45)
       + p34 * p56 * (pow2(p35 + p46) + pow2(p36 + p45))
       + va12asym * p34 * p56 * (p35 + p36 - p45 - p46)
-      * (p35 + p45 - p36 - p46) ) ) 
+      * (p35 + p45 - p36 - p46) ) )
       / ( pow2(vh) + 2. * abs(vh * ah) * mZW1 * mZW2
       + 2. * pow2(ah * mZW1 * mZW2) * (1. + va12asym) );
 
@@ -652,10 +652,10 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
     double vh = 1;
     double ah = higgsEta / pow2( particleDataPtr->m0(24) );
     if (higgsParity == 4) {
-      vh = sin(higgsPhi); 
+      vh = sin(higgsPhi);
       ah = cos(higgsPhi) / pow2( particleDataPtr->m0(24) );
     }
-    
+
     // Normal CP-even decay.
     if (higgsParity == 1) wt = 16. * p35 * p46;
 
@@ -672,7 +672,7 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
       - 2. * pow2(p35 * p46 - p36 * p45)
       + p34 * p56 * (pow2(p35 + p46) + pow2(p36 + p45))
       + p34 * p56 * (p35 + p36 - p45 - p46) * (p35 + p45 - p36 - p46) ) )
-      / ( pow2(vh) + 2. * abs(vh * ah) * mZW1 * mZW2 
+      / ( pow2(vh) + 2. * abs(vh * ah) * mZW1 * mZW2
       + 2. * pow2(ah * mZW1 * mZW2) );
   }
 
@@ -693,7 +693,7 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
 // (c) convert from |M|^2 to d(sigmaHat)/d(tHat) where required.
 
 double Sigma1Process::sigmaHatWrap(int id1in, int id2in) {
-  
+
   id1 = id1in;
   id2 = id2in;
   double sigmaTmp = sigmaHat();
@@ -857,7 +857,7 @@ void Sigma2Process::store2KinMPI( double x1in, double x2in,
 
   // Default ordering of particles 3 and 4.
   swapTU    = false;
- 
+
   // Incoming x values.
   x1Save    = x1in;
   x2Save    = x2in;
@@ -1103,7 +1103,7 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
     double mT3S = s3 + p3cm.pT2();
     double mT4S = s4 + p4cm.pT2();
     double mT5S = s5 + p5cm.pT2();
-    
+
     // Different options for renormalization scale.
     if      (renormScale3 == 1) Q2RenSave = min( mT3S, min(mT4S, mT5S) );
     else if (renormScale3 == 2) Q2RenSave = sqrt( mT3S * mT4S * mT5S
@@ -1114,7 +1114,7 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
     else                        Q2RenSave = sH;
     Q2RenSave                            *= renormMultFac;
     if      (renormScale3 == 6) Q2RenSave = renormFixScale;
-    
+
     // Different options for factorization scale.
     if      (factorScale3 == 1) Q2FacSave = min( mT3S, min(mT4S, mT5S) );
     else if (factorScale3 == 2) Q2FacSave = sqrt( mT3S * mT4S * mT5S
@@ -1143,7 +1143,7 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
     else                          Q2RenSave = sH;
     Q2RenSave                              *= renormMultFac;
     if      (renormScale3VV == 6) Q2RenSave = renormFixScale;
-    
+
     // Different options for factorization scale.
     if      (factorScale3VV == 1) Q2FacSave = max( sV4, sV5);
     else if (factorScale3VV == 2) Q2FacSave = sqrt( mTV4S * mTV5S );
@@ -1197,7 +1197,7 @@ bool Sigma3Process::setupForME() {
     mME[4] = 0.;
     allowME = false;
   }
-  
+
   // Form new average masses if identical particles.
   if (id3Tmp != 0 && id4Tmp == id3Tmp && id5Tmp == id3Tmp) {
     double mAvg = (mME[2] + mME[3] + mME[4]) / 3.;

@@ -1,5 +1,5 @@
 // GeneratorInput.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -96,7 +96,7 @@ public:
 
   // Override setInit/setEvent routines from LHAup.
   bool setInit();
-  bool setEvent(int, double);
+  bool setEvent(int);
 
   // Print list of particles; mainly intended for debugging
   void printParticles();
@@ -295,7 +295,7 @@ inline void AlpgenPar::extractRunParam(string line) {
 
   // Special case: 'mc,mb,...' - split on ',' for name and ' ' for values
   } else if (paramName.find(",") != string::npos) {
-    
+
     // Simple tokeniser
     string        paramNameNow;
     istringstream issName(paramName);
@@ -549,7 +549,7 @@ inline bool LHAupAlpgen::setInit() {
 // setEvent is a virtual method that must be finalised here.
 // Read in an event from the 'unw' file and setup.
 
-inline bool LHAupAlpgen::setEvent(int, double) {
+inline bool LHAupAlpgen::setEvent(int) {
 
   // Read in the first line of the event
   int    nEvent, iProc, nParton;
@@ -1152,7 +1152,7 @@ inline bool MadgraphPar::parse(const string paramStr) {
   string line;
   while ( getline(paramStream, line) ) extractRunParam(line);
   return true;
-  
+
 }
 
 //--------------------------------------------------------------------------
@@ -1213,7 +1213,8 @@ inline void MadgraphPar::printParams() {
 
 // Warn if a parameter is going to be overwriten
 
-inline void MadgraphPar::warnParamOverwrite(const string &paramIn, double val) {
+inline void MadgraphPar::warnParamOverwrite(const string &paramIn, 
+  double val) {
 
   // Check if present and if new value is different
   if (haveParam(paramIn) &&

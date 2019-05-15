@@ -15,7 +15,7 @@ of ISR and FSR in <i>pT</i>-related "hardness" variables, and thus are
 kindred spirits. The hardness definitions differ, however. Frequently we 
 will therefore need to distinguish between POWHEG-hardness and 
 PYTHIA-hardness in the following. 
-
+ 
 <p/> 
 The simplest merging solution, of continuing the PYTHIA shower at the LHA 
 <code>scale</code> hardness where POWHEG leaves off, is obtained if you 
@@ -23,10 +23,10 @@ set <code>SpaceShower:pTmaxMatch = 1</code> and
 <code>TimeShower:pTmaxMatch = 1</code>. But then mismatches are bound to 
 happen: some regions may be doublecounted, while others may not be counted 
 at all. Depending on the choice of hardness, such mismatches might be small. 
-  
+ 
 <p/> 
-There are no guarantees, however, so a (hopefully) more accurate merging
-scheme is coded up in the <code>include/Pythia8Plugins/PowHegHooks.h</code>
+There are no guarantees, however, so a (hopefully) more accurate merging 
+scheme is coded up in the <code>include/Pythia8Plugins/PowHegHooks.h</code> 
 file, with a realistic user example in the <code>examples/main31</code> 
 files. Here we would like to discuss the (POWHEG-specific) input settings 
 for <code>main31.cc</code>, see <code>main31.cmnd</code>, and attempt to 
@@ -48,7 +48,7 @@ the shower sweep over the full phase space, using its PYTHIA-hardness
 ordering, and use the POWHEG-hardness to veto those emissions that POWHEG 
 should already have covered. This is only possible since the 
 POWHEG-hardness criterion and the shower ordering criterion are very 
-similar. In the more general case a truncated showering would be needed
+similar. In the more general case a truncated showering would be needed 
 [<a href="Bibliography.html" target="page">Nas04</a>]. 
  
 <p/> 
@@ -58,9 +58,9 @@ quickly becomes complicated, and allows for different choices. Similar
 decisions have already been made in the implementation of POWHEG, one example 
 being the choice in defining which "hardness value" is transferred as 
 POWHEG-hardness, e.g. by deciding if the "singular regions" of the FKS or the 
-CS approach are used. If the POWHEG-hardness definition were to be changed,
+CS approach are used. If the POWHEG-hardness definition were to be changed, 
 or extended to more objects, the <code>PowhegHooks.h</code> code would need 
-to be modified accordingly.  
+to be modified accordingly. 
  
 <p/> 
 The merging code is designed to be very flexible, and allows access 
@@ -77,13 +77,13 @@ on parton shower emissions for which the POWHEG-hardness separation between
 radiator and emission is above the POWHEG-hardness value of the current input 
 event. The variation <code>POWHEG:veto = 0</code> can be used to assess 
 how much phase space is under- or double-counted. 
-
+ 
 <p/> 
 To define the POWHEG-hardness criterion, use 
 <br/> &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; <code>POWHEG:pTdef = 1</code> 
 <br/> 
 Other values can be used by experts to assess variations. 
-
+ 
 <p/> 
 Both POWHEG-BOX and PYTHIA 8 generate emissions through a parton shower 
 step, meaning that both programs have a clear definition of a radiator 
@@ -95,7 +95,7 @@ called "the emission", use
 More complicated choices can be used by experts. For instance, use 
 <code>POWHEG:emitted = 2</code> to check the POWHEG-hardness of both 
 radiator and emitted. 
-
+ 
 <p/> 
 To exhaustively fix the criterion by which to veto parton shower 
 emissions, it is important to decide which partons/parton pairs 
@@ -136,55 +136,54 @@ recommend setting
 <br/> 
 which will then check up to three allowed emissions. Higher values of 
 <code>POWHEG:vetoCount</code> have not lead to visible differences 
-for the processes which have been tested.  
-
-<h3>The modes</h3>
-
+for the processes which have been tested. 
+ 
+<h3>The modes</h3> 
+ 
 Note that the modes have generally been defined with several default values 
 below corresponding to the "off" state, and thus do not agree with the 
-recommended values described above.  
-  
+recommended values described above. 
+ 
 <p/><code>mode&nbsp; </code><strong> POWHEG:nFinal &nbsp;</strong> 
  (<code>default = <strong>2</strong></code>; <code>minimum = 1</code>)<br/>
-Number of outgoing particles of POWHEG Born level process,
-i.e. not counting additional POWHEG radiation.
+Number of outgoing particles of POWHEG Born level process, 
+i.e. not counting additional POWHEG radiation. 
    
-
+ 
 <p/><code>mode&nbsp; </code><strong> POWHEG:veto &nbsp;</strong> 
- (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
-Master switch to perform vetoing or not.
-<br/><code>option </code><strong> 0</strong> : No vetoing is performed (the user hooks is not loaded).
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)<br/>
+Master switch to perform vetoing or not. 
+<br/><code>option </code><strong> 0</strong> : No vetoing is performed (the user hooks is not loaded). 
    
 <br/><code>option </code><strong> 1</strong> : Showers are started at the kinematical limit. 
-Emissions are vetoed if <i>pTemt > pThard</i>.
+Emissions are vetoed if <i>pTemt > pThard</i>. 
 See also <code>POWHEG:vetoCount</code> below.   
-<br/><code>option </code><strong> 2</strong> : ??   
    
-  
+ 
 <p/><code>mode&nbsp; </code><strong> POWHEG:vetoCount &nbsp;</strong> 
  (<code>default = <strong>3</strong></code>; <code>minimum = 0</code>)<br/>
-After this many accepted emissions in a row, no more emissions
-are checked. Value 0 means that all emissions are checked.
+After this many accepted emissions in a row, no more emissions 
+are checked. Value 0 means that all emissions are checked. 
    
-
+ 
 <p/><code>mode&nbsp; </code><strong> POWHEG:pThard &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
-Selection of the <i>pThard</i> scale. For events where there is no
-radiation, <i>pThard</i> is always set to be the <code>SCALUP</code>
-value of the LHA/LHEF standard.
+Selection of the <i>pThard</i> scale. For events where there is no 
+radiation, <i>pThard</i> is always set to be the <code>SCALUP</code> 
+value of the LHA/LHEF standard. 
 <br/><code>option </code><strong> 0</strong> : Set <i>pThard</i> equal to <code>SCALUP</code>.   
 <br/><code>option </code><strong> 1</strong> : The <i>pT</i> of the POWHEG emission is tested against 
-all other incoming and outgoing partons, with the minimal value chosen.
+all other incoming and outgoing partons, with the minimal value chosen. 
    
 <br/><code>option </code><strong> 2</strong> : The <i>pT</i> of all final-state partons is tested 
 against all other incoming and outgoing partons, with the minimal value 
 chosen.   
    
-
+ 
 <p/><code>mode&nbsp; </code><strong> POWHEG:pTemt &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
-Selection of the <i>pTemt</i> scale.
-<br/><code>option </code><strong> 0</strong> : It is the <i>pT</i> of the emitted parton with respect
+Selection of the <i>pTemt</i> scale. 
+<br/><code>option </code><strong> 0</strong> : It is the <i>pT</i> of the emitted parton with respect 
 to the radiating parton.   
 <br/><code>option </code><strong> 1</strong> : The <i>pT</i> of the emission is checked against all 
 incoming and outgoing partons, and then <i>pTemt</i> is set to the 
@@ -193,18 +192,18 @@ minimum of these values.
 against all other incoming and outgoing partons, with the minimal value 
 chosen.   
 <br/><b>Warning:</b> the choice here can give significant variations 
-in the final distributions, notably in the tail to large <i>pT</i> values.
+in the final distributions, notably in the tail to large <i>pT</i> values. 
    
-
+ 
 <p/><code>mode&nbsp; </code><strong> POWHEG:emitted &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
-Selection of emitted parton for FSR.
+Selection of emitted parton for FSR. 
 <br/><code>option </code><strong> 0</strong> : The PYTHIA definition of emitted.   
 <br/><code>option </code><strong> 1</strong> : The PYTHIA definition of radiator.   
 <br/><code>option </code><strong> 2</strong> : A random selection of emitted or radiator.   
 <br/><code>option </code><strong> 3</strong> : Both emitted and radiator are tried.   
    
-
+ 
 <p/><code>mode&nbsp; </code><strong> POWHEG:pTdef &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
 Use of <i>pT</i> definitions. 
@@ -214,20 +213,20 @@ both ISR and FSR.
 definitions.   
 <br/><code>option </code><strong> 2</strong> : The PYTHIA definitions.   
    
-
+ 
 <p/><code>mode&nbsp; </code><strong> POWHEG:MPIveto &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)<br/>
-MPI vetoing.
+MPI vetoing. 
 <br/><code>option </code><strong> 0</strong> : No MPI vetoing is done.   
-<br/><code>option </code><strong> 1</strong> : When there is no radiation, MPIs with a scale above
+<br/><code>option </code><strong> 1</strong> : When there is no radiation, MPIs with a scale above 
 <i>pT_1</i> are vetoed, else MPIs with a scale above 
 <i>sum_i pT_i / 2 = (pT_1 + pT_2 + pT_3) / 2</i> are vetoed. 
 This option is intended specifically for POWHEG simulations of 
-<i>2 &rarr; 2 + 2 &rarr; 3</i> QCD processes.  
+<i>2 &rarr; 2 + 2 &rarr; 3</i> QCD processes. 
    
    
-
+ 
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

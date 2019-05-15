@@ -1,5 +1,5 @@
 // Pythia.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -38,7 +38,7 @@
 #include "Pythia8/Merging.h"
 
 namespace Pythia8 {
- 
+
 //==========================================================================
 
 // The Pythia class contains the top-level routines to generate an event.
@@ -48,14 +48,14 @@ class Pythia {
 public:
 
   // Constructor. (See Pythia.cc file.)
-  Pythia(string xmlDir = "../xmldoc", bool printBanner = true);
+  Pythia(string xmlDir = "../share/Pythia8/xmldoc", bool printBanner = true);
 
   // Destructor. (See Pythia.cc file.)
   ~Pythia();
 
   // Read in one update for a setting or particle data from a single line.
   bool readString(string, bool warn = true);
- 
+
   // Read in updates for settings or particle data from user-defined file.
   bool readFile(string fileName, bool warn = true,
     int subrun = SUBRUNDEFAULT);
@@ -326,7 +326,7 @@ private:
   bool initSLHA ();
 
 };
- 
+
 //==========================================================================
 
 } // end namespace Pythia8

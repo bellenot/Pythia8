@@ -1,5 +1,5 @@
 // StandardModel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -181,7 +181,7 @@ double AlphaStrong::alphaS( double scale2) {
   // Fix alpha_s.
   if (order == 0) {
     valueNow = valueRef;
-  
+
   // First order alpha_s: differs by mass region.
   } else if (order == 1) {
     if (scale2 > mt2 && nfmax >= 6)
@@ -191,7 +191,7 @@ double AlphaStrong::alphaS( double scale2) {
     else if (scale2 > mc2)
          valueNow = 12. * M_PI / (25. * log(scale2/Lambda4Save2));
     else valueNow = 12. * M_PI / (27. * log(scale2/Lambda3Save2));
-  
+
   // Second order alpha_s: differs by mass region.
   } else {
     double Lambda2, b0, b1, b2;
@@ -247,7 +247,7 @@ double  AlphaStrong::alphaS1Ord( double scale2) {
   // Fix alpha_S.
   if (order == 0) {
     valueNow = valueRef;
-  
+
   // First/second order alpha_s: differs by mass region.
   } else {
     if (scale2 > mt2 && nfmax >= 6)
@@ -276,7 +276,7 @@ double AlphaStrong::alphaS2OrdCorr( double scale2) {
 
   // Only meaningful for second-order calculations.
   if (order < 2) return 1.;
-  
+
   // Second order correction term: differs by mass region.
   double Lambda2, b1, b2;
   if (scale2 > mt2 && nfmax >= 6) {
@@ -484,7 +484,7 @@ void CoupSM::init(Settings& settings, Rndm* rndmPtrIn) {
   // Calculate squares of matrix elements.
   for(int i = 1; i < 5; ++i) for(int j = 1; j < 5; ++j)
     V2CKMsave[i][j] = pow2(VCKMsave[i][j]);
-  
+
   // Sum VCKM^2_out sum for given incoming flavour, excluding top as partner.
   V2CKMout[1] = V2CKMsave[1][1] + V2CKMsave[2][1];
   V2CKMout[2] = V2CKMsave[1][1] + V2CKMsave[1][2] + V2CKMsave[1][3];
@@ -495,7 +495,7 @@ void CoupSM::init(Settings& settings, Rndm* rndmPtrIn) {
   V2CKMout[7] = V2CKMsave[1][4] + V2CKMsave[2][4];
   V2CKMout[8] = V2CKMsave[4][1] + V2CKMsave[4][2] + V2CKMsave[4][3];
   for (int i = 11; i <= 18; ++i) V2CKMout[i] = 1.;
- 
+
 }
 
 //--------------------------------------------------------------------------
@@ -514,7 +514,7 @@ double CoupSM::VCKMid(int id1, int id2) {
   if (id1Abs <= 8 && id2Abs <= 8) return VCKMsave[id1Abs/2][(id2Abs + 1)/2];
   if ( (id1Abs == 12 || id1Abs == 14 || id1Abs == 16 || id1Abs == 18)
     && id2Abs == id1Abs - 1 ) return 1.;
-  
+
   // No more valid cases.
   return 0.;
 
@@ -536,7 +536,7 @@ double CoupSM::V2CKMid(int id1, int id2) {
   if (id1Abs <= 8 && id2Abs <= 8) return V2CKMsave[id1Abs/2][(id2Abs + 1)/2];
   if ( (id1Abs == 12 || id1Abs == 14 || id1Abs == 16 || id1Abs == 18)
     && id2Abs == id1Abs - 1 ) return 1.;
-  
+
   // No more valid cases.
   return 0.;
 
@@ -551,7 +551,7 @@ int CoupSM::V2CKMpick(int id) {
   // Initial values.
   int idIn = abs(id);
   int idOut = 0;
-  
+
   // Quarks: need to make random choice.
   if (idIn >= 1 && idIn <= 8) {
     double V2CKMrndm = rndmPtr->flat() * V2CKMout[idIn];
@@ -567,7 +567,7 @@ int CoupSM::V2CKMpick(int id) {
     else if (idIn == 7) idOut = (V2CKMrndm < V2CKMsave[1][4]) ? 2 : 4;
     else if (idIn == 8) idOut = (V2CKMrndm < V2CKMsave[4][1]) ? 1
       : ( (V2CKMrndm < V2CKMsave[4][1] + V2CKMsave[4][2]) ? 3 : 5 );
-  
+
   // Leptons: unambiguous.
   } else if (idIn >= 11 && idIn <= 18) {
     if (idIn%2 == 1) idOut = idIn + 1;

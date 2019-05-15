@@ -150,9 +150,9 @@ The method <code>ParticleData::isResonance(id)</code> allows you to
 query whether a given particle species is considered a resonance or not. 
 You can also change the default value of this flag in the normal way, 
 e.g. <code>pythia.readString("id:isResonance = true")</code>. 
-
+ 
 <p/> 
-Resonances come in two kinds.
+Resonances come in two kinds. 
 <ul> 
 <li> 
 The standard built-in ones include <i>Z^0</i>, <i>W^+-</i>, 
@@ -161,61 +161,61 @@ formulae encoded, in classes derived from the
 <code><a href="SemiInternalResonances.html" target="page">ResonanceWidths</a></code> 
 base class. The formulae are used, e.g., to calculate all the partial 
 widths as a function of the resonance masses you choose, and at 
-initialization the existing total width values are overwritten.
+initialization the existing total width values are overwritten. 
 This is especially convenient for hypothetical states, like a <i>Z'</i>, 
-where the mass is not known and therefore routinely changed. Often the
+where the mass is not known and therefore routinely changed. Often the 
 partial widths are associated with parameters that can be changed by the 
-user, e.g. for MSSM Higgs states.
+user, e.g. for MSSM Higgs states. 
 </li> 
-<li>  
+<li> 
 If a resonance does not have a class of its own, with hardcoded equations 
 for all relevant partial widths, then a simpler object will be created 
 at initialization. This object will take the total width and branching 
-ratios as is (with the optional variations explained in the next section).
-When you set a particle to be a resonance, and do not provide any
-class to go with its width calculations, this is where it will end up.
+ratios as is (with the optional variations explained in the next section). 
+When you set a particle to be a resonance, and do not provide any 
+class to go with its width calculations, this is where it will end up. 
 </li> 
 </ul> 
-
+ 
 Sometimes experimentalists want to modify the physical width of a 
 resonance, to understand how sensitive analyses are to this width, 
-if at all. For the second, simpler kind of resonances, the  
-<code>id:mWidth</code> can be changed right away, but for the first
-kind any change will be overwritten at initialization. To circumvent
-this problem, the <code>id:doForceWidth</code> flag can be changed from
+if at all. For the second, simpler kind of resonances, the 
+<code>id:mWidth</code> can be changed right away, but for the first 
+kind any change will be overwritten at initialization. To circumvent 
+this problem, the <code>id:doForceWidth</code> flag can be changed from 
 the default <code>off</code> to <code>on</code>. Then the width stored 
 in <code>id:mWidth</code> is strictly used to describe the Breit-Wigner 
-of the resonance. Partial widths are still recalculated to set the
-mass-dependent branching ratios, but then uniformly rescaled to the
+of the resonance. Partial widths are still recalculated to set the 
+mass-dependent branching ratios, but then uniformly rescaled to the 
 requested total width. The width can also run across the lineshape, 
-so that it deviates from the nominal one in the wings of the
-Breit-Wigner.
-
+so that it deviates from the nominal one in the wings of the 
+Breit-Wigner. 
+ 
 <p/> 
 For processes that contain interference terms between resonances, 
-notably <i>gamma^*/Z^0</i> or <i>gamma^*/Z^0/Z'^0</i>, it is not
+notably <i>gamma^*/Z^0</i> or <i>gamma^*/Z^0/Z'^0</i>, it is not 
 obvious how these contributions should be modified consistently. 
-Therefore it is necessary to set <code>WeakZ0:gmZmode = 2</code>
+Therefore it is necessary to set <code>WeakZ0:gmZmode = 2</code> 
 or <code>Zprime:gmZmode = 3</code>, to have a pure <i>Z^0</i> or 
 <i>Z'^0</i>, respectively, for width forcing to be allowed in 
-these cases.  
-
+these cases. 
+ 
 <p/> 
-A warning is that the different processes have cross sections
-that rescale in different ways when the resonance width is varied.
-This depends on them not having been implemented in a guaranteed
-uniform way. To illustrate the point, consider the case of an
+A warning is that the different processes have cross sections 
+that rescale in different ways when the resonance width is varied. 
+This depends on them not having been implemented in a guaranteed 
+uniform way. To illustrate the point, consider the case of an 
 <i>s</i>-channel resonance, where the cross section dependence 
 on the width can be written as 
-<br/><i>
+<br/><i> 
 sigmaHat(sHat) = constant * Gamma_in * Gamma_out 
-/ ((sHat - m^2)^2 + m^2 * Gamma^2)
-</i><br/>
+/ ((sHat - m^2)^2 + m^2 * Gamma^2) 
+</i><br/> 
 Here the <code>doForceWidth = on</code> option ensures that the 
 <i>Gamma</i> in the denominator is rescaled by some factor 
-<i>k</i> relative to the natural width, but does not guarantee
-that <i>Gamma_in</i> and <i>Gamma_out</i> are rescaled as well.
-If all three are rescaled by the same factor <i>k</i>, as they
+<i>k</i> relative to the natural width, but does not guarantee 
+that <i>Gamma_in</i> and <i>Gamma_out</i> are rescaled as well. 
+If all three are rescaled by the same factor <i>k</i>, as they 
 should, then the integrated cross section also scales like <i>k</i>, 
 assuming that the peak is reasonably narrow, so that the variation 
 of PDF's across the Breit-Wigner can be neglected. This is the case 
@@ -224,8 +224,8 @@ and decay vertices can have been hardcoded, based on the coupling
 structure, and thus not scale with <i>k</i>. If only 
 <i>Gamma_out</i> scales with <i>k</i>, say,  the cross section 
 remains (approximately) constant, and if neither scales the cross 
-section will even go like <i>1/k</i>. Such obvious normalization
-imperfections have to be corrected by hand.
+section will even go like <i>1/k</i>. Such obvious normalization 
+imperfections have to be corrected by hand. 
  
 <p/> 
 Mainly for internal usage, the 
@@ -259,7 +259,7 @@ from outstate width).</li>
 These methods actually provide an interface to the classes derived from 
 the <code>ResonanceWidths</code> base class, to describe various 
 resonances. 
-  
+ 
 <h3>Modes for Matrix Element Processing</h3> 
  
 The <code>meMode()</code> value for a decay mode is used to specify 
@@ -361,7 +361,7 @@ that all channels that contribute to the total width are included in the
 above operations. This must be kept separate from the issue of which 
 channels you want to have switched on for a particular study, to be 
 considered next. 
-  
+ 
 <p/> 
  
 In the event-generation process, when an off-shell resonance mass has been 
@@ -383,5 +383,5 @@ stored in a work area.
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

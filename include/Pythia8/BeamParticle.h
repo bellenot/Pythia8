@@ -1,5 +1,5 @@
 // BeamParticle.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -90,9 +90,9 @@ public:
   int    col()         const {return colRes;}
   int    acol()        const {return acolRes;}
   double pTfactor()    const {return factorRes;}
-  bool hasCol()        const {return (idRes == 21 || (idRes > 0 && idRes < 9) 
+  bool hasCol()        const {return (idRes == 21 || (idRes > 0 && idRes < 9)
     || (-idRes > 1000 && -idRes < 10000 && (-idRes/10)%10 == 0));}
-  bool hasAcol()       const {return (idRes == 21 || (-idRes > 0 && -idRes < 9) 
+  bool hasAcol()       const {return (idRes == 21 || (-idRes > 0 && -idRes < 9)
     || (idRes > 1000 && idRes < 10000 && (idRes/10)%10 == 0));}
 
 private:
@@ -160,7 +160,7 @@ public:
   // Special hard-process parton distributions (can agree with standard ones).
   double xfHard(int idIn, double x, double Q2)
     {return pdfHardBeamPtr->xf(idIn, x, Q2);}
-   
+
   // Standard parton distributions.
   double xf(int idIn, double x, double Q2)
     {return pdfBeamPtr->xf(idIn, x, Q2);}
@@ -247,18 +247,18 @@ public:
 
   // Set initial colours.
   void setInitialCol(Event & event);
-  
+
   // Update colours.
   void updateCol(vector<pair<int,int> > colourChanges);
 
   vector<pair <int,int> > getColUpdates() {return colUpdates;}
- 
+
 private:
 
   // Constants: could only be changed in the code itself.
   static const double XMINUNRESOLVED, POMERONMASS;
   static const int NMAX, NRANDOMTRIES;
-  
+
   // Pointer to various information on the generation.
   Info*         infoPtr;
 
@@ -267,7 +267,7 @@ private:
 
   // Pointer to the random number generator.
   Rndm*         rndmPtr;
- 
+
   // Pointers to PDF sets.
   PDF*          pdfBeamPtr;
   PDF*          pdfHardBeamPtr;
@@ -332,12 +332,12 @@ private:
   // Update a single (anti-) colour of the event.
   void updateSingleCol(int oldCol, int newCol);
 
-  // Find a single (anti-) colour in the beam, 
+  // Find a single (anti-) colour in the beam,
   // if a beam remnant is set the new colour.
   int findSingleCol(Event& event, bool isAcol, bool useHardScatters);
 
 };
- 
+
 //==========================================================================
 
 } // end namespace Pythia8

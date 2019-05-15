@@ -149,98 +149,98 @@ Gamma from RPP2006.)
  
 <h3>Tau decays</h3> 
  
-Decays of <i>tau</i> leptons can be performed using helicity
-information from the <i>tau</i> production process and with the
-hadronic current of the <i>tau</i> decay modelled using form factors
-fit to data. The <i>tau</i> decay framework is largely based on the
-corresponding Herwig++ implementation [<a href="Bibliography.php" target="page">Gre07</a>], with some
-input from Tauola [<a href="Bibliography.php" target="page">Jad90</a>]. A short summary can be found in
-[<a href="Bibliography.php" target="page">Ilt12</a>], while the complete writeup is in [<a href="Bibliography.php" target="page">Ilt14</a>].
+Decays of <i>tau</i> leptons can be performed using helicity 
+information from the <i>tau</i> production process and with the 
+hadronic current of the <i>tau</i> decay modelled using form factors 
+fit to data. The <i>tau</i> decay framework is largely based on the 
+corresponding Herwig++ implementation [<a href="Bibliography.php" target="page">Gre07</a>], with some 
+input from Tauola [<a href="Bibliography.php" target="page">Jad90</a>]. A short summary can be found in 
+[<a href="Bibliography.php" target="page">Ilt12</a>], while the complete writeup is in [<a href="Bibliography.php" target="page">Ilt14</a>]. 
  
-<p/>
-The decays of <i>tau</i> leptons are categorized
-as <code>correlated</code>, where a <i>tau</i> pair is produced from
-a single process, or <code>uncorrelated</code>, where only
-one <i>tau</i> is produced. Currently internally
-supported <i>tau</i> production mechanisms include correlated decays
-from <i>gamma</i>, <i>Z^0</i>, <i>gamma^*/Z^0</i>, and Higgs
-bosons (CP-even, odd, or mixed) and uncorrelated decays
-from <i>W^+-</i>, <i>B/D</i> hadrons, and charged Higgs
-bosons. For all mechanisms except <i>B/D</i> hadrons, both the full
-process, e.g. <i>q qbar &rarr; Z^0 &rarr; tau^+ tau^-</i>, as well
-as just the decay of the boson with a given initial polarization, e.g.
-<i>Z^0 &rarr; tau^+ tau^-</i>, can be handled. Note that the CP of
-the various Higgs bosons can be set with the
-options <code>HiggsX:parity</code>, <code>HiggsX:etaParity</code>,
-and <code>HiggsX:phiParity</code> as described
+<p/> 
+The decays of <i>tau</i> leptons are categorized 
+as <code>correlated</code>, where a <i>tau</i> pair is produced from 
+a single process, or <code>uncorrelated</code>, where only 
+one <i>tau</i> is produced. Currently internally 
+supported <i>tau</i> production mechanisms include correlated decays 
+from <i>gamma</i>, <i>Z^0</i>, <i>gamma^*/Z^0</i>, and Higgs 
+bosons (CP-even, odd, or mixed) and uncorrelated decays 
+from <i>W^+-</i>, <i>B/D</i> hadrons, and charged Higgs 
+bosons. For all mechanisms except <i>B/D</i> hadrons, both the full 
+process, e.g. <i>q qbar &rarr; Z^0 &rarr; tau^+ tau^-</i>, as well 
+as just the decay of the boson with a given initial polarization, e.g. 
+<i>Z^0 &rarr; tau^+ tau^-</i>, can be handled. Note that the CP of 
+the various Higgs bosons can be set with the 
+options <code>HiggsX:parity</code>, <code>HiggsX:etaParity</code>, 
+and <code>HiggsX:phiParity</code> as described 
 in <?php $filepath = $_GET["filepath"];
-echo "<a href='HiggsProcesses.php?filepath=".$filepath."' target='page'>";?>Higgs Processes</a>
-where <code>X</code> is either <code>H1</code>, <code>H2</code>,
-or <code>A3</code>.
-
-<p/>
-The <i>tau</i> polarization and <i>tau</i> decay correlation
-mechanism can be determined either using <code>internal</code> matrix
-elements or <code>external</code> SPINUP information provided in the
-event, e.g. via Les Houches Event Files (LHEF). For internal
-determination any <i>tau</i> pair or single <i>tau</i> from the
-processes of the previous list can be handeled. For external
-determination of a single uncorrelated <i>tau</i>, its polarization
-is set to its SPINUP information. When the SPINUP for the <i>tau</i>
-is not valid, e.g. when FSR is applied, the SPINUP for the first copy
-of that <i>tau</i> is used instead unless also invalid. For the
-external determination of a correlated <i>tau</i> pair the following
-options are available.
-
+echo "<a href='HiggsProcesses.php?filepath=".$filepath."' target='page'>";?>Higgs Processes</a> 
+where <code>X</code> is either <code>H1</code>, <code>H2</code>, 
+or <code>A3</code>. 
+ 
+<p/> 
+The <i>tau</i> polarization and <i>tau</i> decay correlation 
+mechanism can be determined either using <code>internal</code> matrix 
+elements or <code>external</code> SPINUP information provided in the 
+event, e.g. via Les Houches Event Files (LHEF). For internal 
+determination any <i>tau</i> pair or single <i>tau</i> from the 
+processes of the previous list can be handeled. For external 
+determination of a single uncorrelated <i>tau</i>, its polarization 
+is set to its SPINUP information. When the SPINUP for the <i>tau</i> 
+is not valid, e.g. when FSR is applied, the SPINUP for the first copy 
+of that <i>tau</i> is used instead unless also invalid. For the 
+external determination of a correlated <i>tau</i> pair the following 
+options are available. 
+ 
 <br/><br/><table><tr><td><strong>TauDecays:externalMode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
-Choice of the external polarization and correlation mechanism for
-correlated <ei>tau</ei> pairs.
+Choice of the external polarization and correlation mechanism for 
+correlated <ei>tau</ei> pairs. 
 <br/>
-<input type="radio" name="13" value="0"><strong>0 </strong>: all correlated pairs are treated as single uncorrelated <ei>tau</ei> leptons. Their polarization is still set via SPINUP.<br/>
-<input type="radio" name="13" value="1"><strong>1 </strong>: the mother of the <ei>tau</ei> pair is found. If the mother is from the list of available internal correlated processes, a correlated decay is performed. If the SPINUP for the mother is valid, this is used to set the mother polarization, otherwise the mother is assumed to be unpolarized.<br/>
+<input type="radio" name="13" value="0"><strong>0 </strong>: all correlated pairs are treated as single  uncorrelated <ei>tau</ei> leptons. Their polarization is still set via  SPINUP.<br/>
+<input type="radio" name="13" value="1"><strong>1 </strong>: the mother of the <ei>tau</ei> pair is found. If the  mother is from the list of available internal correlated processes, a  correlated decay is performed. If the SPINUP for the mother is valid,  this is used to set the mother polarization, otherwise the mother is  assumed to be unpolarized.<br/>
 <input type="radio" name="13" value="2" checked="checked"><strong>2 </strong>: nothing is done.<br/>
-<br/><b>Note</b>: option <code>1</code> has limited functionality as
-SPINUP is intended primarily for particles with 2 spin states. For
-massive vector bosons SPINUP is interpreted here as the transverse
-polarization and so the diagonal for the vector boson helicity density
-matrix is set as <ei>[(1 - SPINUP)/3, 1/3, (1 + SPINUP)/3]</ei>.
-
-<p/>
-A default behaviour is defined when the polarization and decay
-mechanism cannot be determined using either the internal or external
-methods. If the <i>tau</i> is known to be produced from
-a <i>W^+-</i>, <i>gamma</i>, or <i>Z^0</i>, the <i>tau</i>
-or <i>tau</i> pair is assumed to be produced from an unpolarized
-boson of this type. If the mediator is unknown but there is a
-correlated <i>tau</i> pair, the pair is assumed to be produced from
-an unpolarized photon and a warning is issued. Finally, if
-the <i>tau</i> is uncorrelated, an unpolarized and uncorrelated
-decay is performed and a warning is issued.
-
-<p/>
-Both the internal and external determination have advantages and
-disadvantages. For example, if an LHEF <ei Z^0 &rarr; tau^+ tau^-</i>
-event is passed with SPINUP provided for both <i>tau</i>s but
-without SPINUP for the <i>Z^0</i> then
-with <code>TauDecays:externalTau</code> set to <code>0</code> the
-decays of the <i>tau</i>s will be uncorrelated. Using <code>1</code>
-instead will result in correlations, assuming an
-unpolarized <i>Z^0</i>. If using internal determination, then the
-correlation and polarization will be fully calculated using the
-correct production mechanism for the <i>Z^0</i>. Consequently, a
-variety of options on how to determine polarization and correlation
-are available, with a sensible default in place which should catch most
-everything.
-
+<br/><b>Note</b>: option <code>1</code> has limited functionality as 
+SPINUP is intended primarily for particles with 2 spin states. For 
+massive vector bosons SPINUP is interpreted here as the transverse 
+polarization and so the diagonal for the vector boson helicity density 
+matrix is set as <ei>[(1 - SPINUP)/3, 1/3, (1 + SPINUP)/3]</ei>. 
+ 
+<p/> 
+A default behaviour is defined when the polarization and decay 
+mechanism cannot be determined using either the internal or external 
+methods. If the <i>tau</i> is known to be produced from 
+a <i>W^+-</i>, <i>gamma</i>, or <i>Z^0</i>, the <i>tau</i> 
+or <i>tau</i> pair is assumed to be produced from an unpolarized 
+boson of this type. If the mediator is unknown but there is a 
+correlated <i>tau</i> pair, the pair is assumed to be produced from 
+an unpolarized photon and a warning is issued. Finally, if 
+the <i>tau</i> is uncorrelated, an unpolarized and uncorrelated 
+decay is performed and a warning is issued. 
+ 
+<p/> 
+Both the internal and external determination have advantages and 
+disadvantages. For example, if an LHEF <ei Z^0 &rarr; tau^+ tau^-</i> 
+event is passed with SPINUP provided for both <i>tau</i>s but 
+without SPINUP for the <i>Z^0</i> then 
+with <code>TauDecays:externalTau</code> set to <code>0</code> the 
+decays of the <i>tau</i>s will be uncorrelated. Using <code>1</code> 
+instead will result in correlations, assuming an 
+unpolarized <i>Z^0</i>. If using internal determination, then the 
+correlation and polarization will be fully calculated using the 
+correct production mechanism for the <i>Z^0</i>. Consequently, a 
+variety of options on how to determine polarization and correlation 
+are available, with a sensible default in place which should catch most 
+everything. 
+ 
 <br/><br/><table><tr><td><strong>TauDecays:mode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Choice of <ei>tau</ei> decay model. 
 <br/>
-<input type="radio" name="14" value="0"><strong>0 </strong>: <br/>
-<input type="radio" name="14" value="1" checked="checked"><strong>1 </strong>: sophisticated decays where external and then internal determination is applied.<br/>
-<input type="radio" name="14" value="2"><strong>2 </strong>: sophisticated decays as above, but now <ei>tau</ei>s with a mother <code>TauDecays:tauMother</code> are forced into an uncorrelated decay with a polarization set by <code>TauDecays:tauPolarization</code>.<br/>
-<input type="radio" name="14" value="3"><strong>3 </strong>: sophisticated decays where all <ei>tau</ei>s, regardless of mother, are forced into an uncorrelated decay with a polarization set by <code>TauDecays:tauPolarization</code>.<br/>
-<input type="radio" name="14" value="4"><strong>4 </strong>: sophisticated decays where only internal determination is applied.<br/>
-<input type="radio" name="14" value="5"><strong>5 </strong>: sophisticated decays where only external (SPINUP) determination is applied.<br/>
+<input type="radio" name="14" value="0"><strong>0 </strong>: old decay model, with isotropic decays.<br/>
+<input type="radio" name="14" value="1" checked="checked"><strong>1 </strong>: sophisticated decays where external and then  internal determination is applied.<br/>
+<input type="radio" name="14" value="2"><strong>2 </strong>: sophisticated decays as above, but now <ei>tau</ei>s  with a mother <code>TauDecays:tauMother</code> are forced into an  uncorrelated decay with a polarization set  by <code>TauDecays:tauPolarization</code>.<br/>
+<input type="radio" name="14" value="3"><strong>3 </strong>: sophisticated decays where all <ei>tau</ei>s,  regardless of mother, are forced into an uncorrelated decay with a  polarization set  by <code>TauDecays:tauPolarization</code>.<br/>
+<input type="radio" name="14" value="4"><strong>4 </strong>: sophisticated decays where only internal  determination is applied.<br/>
+<input type="radio" name="14" value="5"><strong>5 </strong>: sophisticated decays where only external (SPINUP)  determination is applied.<br/>
 <br/><b>Warning 1</b>: options <code>2</code> and <code>3</code>, 
 to force a specific <ei>tau</ei> polarization, only affect the decay 
 of the <ei>tau</ei>. The angular distribution of the <ei>tau</ei> itself, 
@@ -249,10 +249,10 @@ a righthanded <ei>W</ei>, or a SUSY decay chain, the kinematics should
 be handled by the corresponding cross section class(es), supplemented by 
 the resonance decay one(s). The options here could then still be used 
 to ensure the correct polarization at the <ei>tau</ei> decay stage. 
-<br/><b>Warning 2</b>: for options <code>1</code>
-through <code>5</code>, if the polarization and correlation mechanism
-for the <ei>tau</ei> cannot be determined (internally or externally)
-then the default behaviour described above is applied.
+<br/><b>Warning 2</b>: for options <code>1</code> 
+through <code>5</code>, if the polarization and correlation mechanism 
+for the <ei>tau</ei> cannot be determined (internally or externally) 
+then the default behaviour described above is applied. 
  
 <br/><br/><table><tr><td><strong>TauDecays:tauPolarization </td><td></td><td> <input type="text" name="15" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = -1.</code>; <code>maximum = 1.</code>)</td></tr></table>
 Polarization of the <i>tau</i> when mode <code>2</code> or <code>3</code> of 
@@ -364,7 +364,7 @@ shower to develop from it, before the partonic system is hadronized.
  
 In addition, some variables defined for string fragmentation and for 
 flavour production are used also here. 
-  
+ 
 <h3>Modes for Matrix Element Processing</h3> 
  
 Some decays can be treated better than what pure phase space allows, 
@@ -587,5 +587,5 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

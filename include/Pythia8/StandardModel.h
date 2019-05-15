@@ -1,5 +1,5 @@
 // StandardModel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -32,7 +32,7 @@ public:
     valueRef(0.), valueNow(0.), scale2Now(0.) {}
   AlphaStrong(double valueIn, int orderIn = 1) {
     init( valueIn, orderIn) ;}
-  
+
   // Destructor.
   virtual ~AlphaStrong() {}
 
@@ -164,7 +164,7 @@ public:
   double t3f(int idAbs) {return 0.5*afSave[idAbs];}
   double lf(int idAbs) {return lfSave[idAbs];}
   double rf(int idAbs) {return rfSave[idAbs];}
-  
+
   // Return some squared couplings and other combinations.
   double ef2(int idAbs) {return ef2Save[idAbs];}
   double vf2(int idAbs) {return vf2Save[idAbs];}
@@ -213,7 +213,7 @@ protected:
 class Couplings : public CoupSM {
 
 public:
-  
+
  Couplings() : isSUSY(false) {}
   bool isSUSY;
 

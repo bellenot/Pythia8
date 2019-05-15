@@ -62,11 +62,11 @@ only alternative for light quarks. It is of the form
 with the two main free parameters <i>a</i> and <i>b</i> to be 
 tuned to data. They are stored in 
  
-<br/><br/><table><tr><td><strong>StringZ:aLund </td><td></td><td> <input type="text" name="1" value="0.3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.3</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringZ:aLund </td><td></td><td> <input type="text" name="1" value="0.68" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.68</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
 The <i>a</i> parameter of the Lund symmetric fragmentation function. 
    
  
-<br/><br/><table><tr><td><strong>StringZ:bLund </td><td></td><td> <input type="text" name="2" value="0.8" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.8</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringZ:bLund </td><td></td><td> <input type="text" name="2" value="0.98" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.98</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)</td></tr></table>
 The <i>b</i> parameter of the Lund symmetric fragmentation function. 
    
  
@@ -84,7 +84,7 @@ allows a larger <i>a</i> for s quarks, with total
 <i>a = aLund + aExtraSQuark</i>. 
    
  
-<br/><br/><table><tr><td><strong>StringZ:aExtraDiquark </td><td></td><td> <input type="text" name="4" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringZ:aExtraDiquark </td><td></td><td> <input type="text" name="4" value="0.97" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.97</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
 allows a larger <i>a</i> for diquarks, with total 
 <i>a = aLund + aExtraDiquark</i>. 
    
@@ -99,11 +99,11 @@ for heavy quarks. To keep some flexibility, a multiplicative factor
 <i>r_Q</i> is introduced, which ought to be unity (provided that 
 quark masses were uniquely defined) but can be set in 
  
-<br/><br/><table><tr><td><strong>StringZ:rFactC </td><td></td><td> <input type="text" name="5" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringZ:rFactC </td><td></td><td> <input type="text" name="5" value="1.32" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.32</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
 <i>r_c</i>, i.e. the above parameter for <i>c</i> quarks. 
    
  
-<br/><br/><table><tr><td><strong>StringZ:rFactB </td><td></td><td> <input type="text" name="6" value="0.67" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.67</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringZ:rFactB </td><td></td><td> <input type="text" name="6" value="0.855" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.855</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
 <i>r_b</i>, i.e. the above parameter for <i>b</i> quarks. 
    
  
@@ -234,7 +234,7 @@ Then the total squared width is
 </i><br/> 
 It is this latter number that is stored in 
  
-<br/><br/><table><tr><td><strong>StringPT:sigma </td><td></td><td> <input type="text" name="23" value="0.304" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.304</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringPT:sigma </td><td></td><td> <input type="text" name="23" value="0.335" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.335</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
 the width <i>sigma</i> in the fragmentation process. 
    
  
@@ -418,12 +418,12 @@ if($_POST["saved"] == 1)
 $filepath = $_POST["filepath"];
 $handle = fopen($filepath, 'a');
 
-if($_POST["1"] != "0.3")
+if($_POST["1"] != "0.68")
 {
 $data = "StringZ:aLund = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "0.8")
+if($_POST["2"] != "0.98")
 {
 $data = "StringZ:bLund = ".$_POST["2"]."\n";
 fwrite($handle,$data);
@@ -433,17 +433,17 @@ if($_POST["3"] != "0.0")
 $data = "StringZ:aExtraSQuark = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["4"] != "0.5")
+if($_POST["4"] != "0.97")
 {
 $data = "StringZ:aExtraDiquark = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["5"] != "1.0")
+if($_POST["5"] != "1.32")
 {
 $data = "StringZ:rFactC = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "0.67")
+if($_POST["6"] != "0.855")
 {
 $data = "StringZ:rFactB = ".$_POST["6"]."\n";
 fwrite($handle,$data);
@@ -528,7 +528,7 @@ if($_POST["22"] != "0.005")
 $data = "StringZ:epsilonH = ".$_POST["22"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["23"] != "0.304")
+if($_POST["23"] != "0.335")
 {
 $data = "StringPT:sigma = ".$_POST["23"]."\n";
 fwrite($handle,$data);
@@ -605,5 +605,5 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

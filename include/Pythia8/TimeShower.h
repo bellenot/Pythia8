@@ -1,5 +1,5 @@
 // TimeShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -68,7 +68,7 @@ public:
   int    flavour, iAunt;
   double mRad, m2Rad, mRec, m2Rec, mDip, m2Dip, m2DipCorr,
          pT2, m2, z, mFlavour, asymPol, flexFactor;
-  
+
 } ;
 
 //==========================================================================
@@ -188,7 +188,7 @@ protected:
 private:
 
   // Constants: could only be changed in the code itself.
-  static const double MCMIN, MBMIN, SIMPLIFYROOT, XMARGIN, XMARGINCOMB, 
+  static const double MCMIN, MBMIN, SIMPLIFYROOT, XMARGIN, XMARGINCOMB,
          TINYPDF, LARGEM2, THRESHM2, LAMBDA3MARGIN, WEAKPSWEIGHT, WG2QEXTRA;
   // Rescatter: try to fix up recoil between systems
   static const bool   FIXRESCATTER, VETONEGENERGY;
@@ -200,9 +200,9 @@ private:
          doInterleave, allowBeamRecoil, dampenBeamRecoil, recoilToColoured,
          useFixedFacScale, allowRescatter, canVetoEmission, doHVshower,
          brokenHVsym, globalRecoil, useLocalRecoilNow, doSecondHard,
-         singleWeakEmission, alphaSuseCMW, vetoWeakJets;
+         singleWeakEmission, alphaSuseCMW, vetoWeakJets, allowMPIdipole;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaSnfmax, nGluonToQuark,
-         weightGluonToQuark, alphaEMorder, nGammaToQuark, nGammaToLepton, 
+         weightGluonToQuark, alphaEMorder, nGammaToQuark, nGammaToLepton,
          nCHV, idHV, nMaxGlobalRecoil, weakMode;
   double pTdampFudge, mc, mb, m2c, m2b, renormMultFac, factorMultFac,
          fixedFacScale2, alphaSvalue, alphaS2pi, Lambda3flav, Lambda4flav,

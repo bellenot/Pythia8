@@ -38,7 +38,7 @@ code 42. The leptoquark is assumed to carry specific quark
 and lepton quantum numbers, by default <i>u</i> quark plus electron. 
 These flavour numbers are conserved, i.e. a process such as 
 <i>u e^- &rarr; LQ &rarr; d nu_e</i> is not allowed. 
-   
+ 
 <p/> 
 Although only one leptoquark is implemented, its flavours may be 
 changed arbitrarily to study the different possibilities. The 
@@ -54,7 +54,7 @@ by the program. At initialization, the charge is recalculated as a
 function of the flavours defined; also the leptoquark name is redefined 
 to be of the type <code>LQ_q,l</code>, where actual quark and lepton 
 flavours are displayed. 
-   
+ 
 <p/> 
 The leptoquark is likely to be fairly long-lived, in which case it 
 could have time to fragment into a mesonic- or baryonic-type state, which 
@@ -167,5 +167,5 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

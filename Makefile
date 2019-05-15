@@ -1,5 +1,5 @@
 # Makefile is a part of the PYTHIA event generator.
-# Copyright (C) 2014 Torbjorn Sjostrand.
+# Copyright (C) 2015 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, October 2014.
@@ -20,7 +20,8 @@ ifeq (,$(findstring clean, $(MAKECMDGOALS)))
   -include Makefile.inc
 endif
 LOCAL_BIN=bin
-LOCAL_DOCS=AUTHORS COPYING GUIDELINES examples/Makefile.inc README
+LOCAL_DOCS=AUTHORS COPYING GUIDELINES README ../../examples/Makefile.inc
+LOCAL_EXAMPLE=examples
 LOCAL_INCLUDE=include
 LOCAL_LIB=lib
 LOCAL_SHARE=share/Pythia8
@@ -68,6 +69,8 @@ Makefile.inc:
 -include $(LOCAL_TMP)/*.d
 
 # PYTHIA.
+$(LOCAL_TMP)/Pythia.o: $(LOCAL_SRC)/Pythia.cc Makefile.inc
+	$(CXX) $< -o $@ -c -MD -DXMLDIR=\"$(PREFIX_SHARE)/xmldoc\" $(CXX_COMMON)
 $(LOCAL_TMP)/%.o: $(LOCAL_SRC)/%.cc
 ifeq ($(GZIP_USE),true)
 	$(CXX) $< -o $@ -c -MD -DGZIPSUPPORT -I$(BOOST_INCLUDE) $(CXX_COMMON)
@@ -107,17 +110,16 @@ install: all
 	rsync -a $(LOCAL_INCLUDE)/* $(PREFIX_INCLUDE) --exclude .svn
 	rsync -a $(LOCAL_LIB)/* $(PREFIX_LIB) --exclude .svn
 	rsync -a $(LOCAL_SHARE)/* $(PREFIX_SHARE) --exclude .svn
+	rsync -a $(LOCAL_EXAMPLE) $(PREFIX_SHARE) --exclude .svn
 
 # Clean.
-clean:
+clean:	
 	rm -rf $(LOCAL_TMP) $(LOCAL_LIB)
-	rm -f $(LOCAL_SHARE)/examples/*Dct.*
-	rm -f $(LOCAL_SHARE)/examples/main[0-9][0-9]
-	rm -f $(LOCAL_SHARE)/examples/out[0-9][0-9]
-	rm -f $(LOCAL_SHARE)/examples/mymain[0-9][0-9]
-	rm -f $(LOCAL_SHARE)/examples/myout[0-9][0-9]
-	rm -f $(LOCAL_SHARE)/examples/weakbosons.lhe 
-	rm -f $(LOCAL_SHARE)/examples/hist.root
+	rm -f $(LOCAL_EXAMPLE)/*Dct.*
+	rm -f $(LOCAL_EXAMPLE)/*[0-9]
+	rm -f $(LOCAL_EXAMPLE)/weakbosons.lhe
+	rm -f $(LOCAL_EXAMPLE)/Pythia8.promc
+	rm -f $(LOCAL_EXAMPLE)/hist.root
 
 # Clean all temporary and generated files.
 distclean: clean

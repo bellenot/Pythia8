@@ -1,5 +1,5 @@
 // Event.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -145,7 +145,7 @@ vector<int> Particle::motherList() const {
   int statusSaveAbs = abs(statusSave);
   if  (statusSaveAbs == 11 || statusSaveAbs == 12) ;
   else if (mother1Save == 0 && mother2Save == 0) motherVec.push_back(0);
-    
+
   // One mother or a carbon copy
   else if (mother2Save == 0 || mother2Save == mother1Save)
     motherVec.push_back(mother1Save);
@@ -205,7 +205,7 @@ vector<int> Particle::daughterList() const {
       if (!isIn) daughterVec.push_back(iDau);
     }
   }
-    
+
   // Done.
   return daughterVec;
 
@@ -299,7 +299,7 @@ bool Particle::isAncestor(int iAncestor) const {
 // Convert internal Pythia status codes to the HepMC status conventions.
 
 int Particle::statusHepMC() const {
-  
+
   // Positive codes are final particles. Status -12 are beam particles.
   if (statusSave > 0)    return 1;
   if (statusSave == -12) return 4;
@@ -357,13 +357,13 @@ bool Particle::undoDecay() {
   do {
     for (int j = dauBeg[iRange]; j <= dauEnd[iRange]; ++j)
     if ((*evtPtr)[j].status() < 0) {
-      
+
       // Find new daughter range, if present.
       dau1 = (*evtPtr)[j].daughter1();
       if (dau1 == 0) return false;
       dau2 = (*evtPtr)[j].daughter2();
       if (dau2 == 0) dau2 = dau1;
-       
+
       // Check if the range duplicates or contradicts existing ones.
       bool isNew = true;
       for (int iR = 0; iR < int(dauBeg.size()); ++iR) {
@@ -464,7 +464,7 @@ void Particle::offsetHistory( int minMother, int addMother, int minDaughter,
   if (  mother2Save > minMother  )   mother2Save += addMother;
   if (daughter1Save > minDaughter) daughter1Save += addDaughter;
   if (daughter2Save > minDaughter) daughter2Save += addDaughter;
- 
+
 }
 
 //--------------------------------------------------------------------------
@@ -512,7 +512,7 @@ const int Event::IPERLINE = 20;
 //--------------------------------------------------------------------------
 
 // Copy all information from one event record to another.
-  
+
 Event& Event::operator=( const Event& oldEvent) {
 
   // Do not copy if same.
@@ -571,7 +571,7 @@ int Event::copy(int iCopy, int newStatus) {
     entry[iCopy].statusNeg();
     entry[iNew].mothers(iCopy, iCopy);
     entry[iNew].status(newStatus);
-    
+
   // Set up to make new mother of old.
   } else if (newStatus < 0) {
     entry[iCopy].mothers(iNew,iNew);
@@ -694,7 +694,7 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
 // Erase junction stored in specified slot and move up the ones under.
 
 void Event::eraseJunction(int i) {
- 
+
   for (int j = i; j < int(junction.size()) - 1; ++j)
     junction[j] = junction[j + 1];
   junction.pop_back();
@@ -730,7 +730,7 @@ void Event::listJunctions(ostream& os) const {
 //--------------------------------------------------------------------------
 
 // Operator overloading allows to append one event to an existing one.
-  
+
 Event& Event::operator+=( const Event& addEvent) {
 
   // Find offsets. One less since won't copy line 0.
@@ -763,7 +763,7 @@ Event& Event::operator+=( const Event& addEvent) {
   int begCol, endCol;
   for (int i = 0; i < addEvent.sizeJunction(); ++i) {
     tempJ = addEvent.getJunction(i);
-    
+
     // Add colour offsets to all three legs.
     for (int  j = 0; j < 3; ++j) {
       begCol = tempJ.col(j);

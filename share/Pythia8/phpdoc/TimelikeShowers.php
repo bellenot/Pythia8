@@ -26,7 +26,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 ?>
 
 <form method='post' action='TimelikeShowers.php'>
-     
+ 
 <h2>Timelike Showers</h2> 
  
 The PYTHIA algorithm for timelike final-state showers is based on 
@@ -96,7 +96,7 @@ accuracy. A modification of this behaviour would require you to work with
 <code>UserHooks</code>. However, for Les Houches input the optional 
 <code><aloc href="BeamParameters">Beams:strictLHEFscale = on</aloc></code> 
 setting restricts all emissions, also in resonance decays, to be below 
-the input <code>scale</code> value.
+the input <code>scale</code> value. 
  
 <br/><br/><table><tr><td><strong>TimeShower:pTmaxFudge </td><td></td><td> <input type="text" name="2" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 2.0</code>)</td></tr></table>
 In cases where the above <code>pTmaxMatch</code> rules would imply 
@@ -117,7 +117,7 @@ A multiplicative factor <i>f</i> such that
 non-hardest interactions (when multiparton interactions are allowed). 
    
  
-<br/><br/><table><tr><td><strong>TimeShower:pTdampMatch  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:pTdampMatch  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
 These options only take effect when a process is allowed to radiate up 
 to the kinematical limit by the above <code>pTmaxMatch</code> choice, 
 and no matrix-element corrections are available. Then, in many processes, 
@@ -134,6 +134,8 @@ of the hard process, which is somewhat different from the ISR implementation.
 <input type="radio" name="4" value="0" checked="checked"><strong>0 </strong>: emissions go up to the kinematical limit,  with no special dampening.  <br/>
 <input type="radio" name="4" value="1"><strong>1 </strong>: emissions go up to the kinematical limit,  but dampened by a factor <ei>k^2 Q^2_fac/(pT^2 + k^2 Q^2_fac)</ei>,  where <ei>Q_fac</ei> is the factorization scale and <ei>k</ei> is a  multiplicative fudge factor stored in <code>pTdampFudge</code> below.  <br/>
 <input type="radio" name="4" value="2"><strong>2 </strong>: emissions go up to the kinematical limit,  but dampened by a factor <ei>k^2 Q^2_ren/(pT^2 + k^2 Q^2_ren)</ei>,  where <ei>Q_ren</ei> is the renormalization scale and <ei>k</ei> is a  multiplicative fudge factor stored in <code>pTdampFudge</code> below.  <br/>
+<input type="radio" name="4" value="3"><strong>3 </strong>: as option 1, but in addition to the standard requirements for dampening it is further necessary to have ar least two top or  beyond-the-Standard-Model coloured particles in the final state.  Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production.   <br/>
+<input type="radio" name="4" value="4"><strong>4 </strong>: as option 2, but in addition to the standard requirements for dampening it is further necessary to have ar least two top or  beyond-the-Standard-Model coloured particles in the final state.  Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production.  <br/>
 <br/><b>Note:</b> These options only apply to the hard interaction. 
 Specifically, a "second hard" interaction would not be affected. 
 Emissions off subsequent multiparton interactions are always constrained 
@@ -150,7 +152,7 @@ away from this value could do better in some processes.
  
 <p/> 
 The amount of QCD radiation in the shower is determined by 
-<br/><br/><table><tr><td><strong>TimeShower:alphaSvalue </td><td></td><td> <input type="text" name="6" value="0.1383" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.1383</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:alphaSvalue </td><td></td><td> <input type="text" name="6" value="0.1365" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.1365</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)</td></tr></table>
 The <i>alpha_strong</i> value at scale <i>M_Z^2</i>. The default 
 value corresponds to a crude tuning to LEP data, to be improved. 
    
@@ -163,7 +165,7 @@ The actual value is then regulated by the running to the scale
 Order at which <ei>alpha_strong</ei> runs, 
 <br/>
 <input type="radio" name="7" value="0"><strong>0 </strong>: zeroth order, i.e. <ei>alpha_strong</ei> is kept  fixed.<br/>
-<input type="radio" name="7" value="1" checked="checked"><strong>1 </strong>: zeroth order, i.e. <ei>alpha_strong</ei> is kept  fixed.<br/>
+<input type="radio" name="7" value="1" checked="checked"><strong>1 </strong>: first order, which is the normal value.<br/>
 <input type="radio" name="7" value="2"><strong>2 </strong>: second order. Since other parts of the code do  not go to second order there is no strong reason to use this option,  but there is also nothing wrong with it.<br/>
  
 <p/> 
@@ -185,7 +187,7 @@ timelike showers. Note that tunes using this option need lower values of
 <p/> 
 QED radiation is regulated by the <i>alpha_electromagnetic</i> 
 value at the <i>pT^2</i> scale of a branching. 
-  
+ 
 <br/><br/><table><tr><td><strong>TimeShower:alphaEMorder  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)</td></tr></table>
 The running of <ei>alpha_em</ei>. 
 <br/>
@@ -212,7 +214,7 @@ remain at fixed scales).
 The default <i>pT^2</i> factorization scale is multiplied by 
 this prefactor. 
    
-  
+ 
 <p/> 
 The rate of radiation if divergent in the <i>pT &rarr; 0</i> limit. Here, 
 however, perturbation theory is expected to break down. Therefore an 
@@ -221,11 +223,11 @@ no emissions are allowed. The cutoff may be different for QCD and QED
 radiation off quarks, and is mainly a technical parameter for QED 
 radiation off leptons. 
  
-<br/><br/><table><tr><td><strong>TimeShower:pTmin </td><td></td><td> <input type="text" name="12" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:pTmin </td><td></td><td> <input type="text" name="12" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)</td></tr></table>
 Parton shower cut-off <i>pT</i> for QCD emissions. 
    
  
-<br/><br/><table><tr><td><strong>TimeShower:pTminChgQ </td><td></td><td> <input type="text" name="13" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:pTminChgQ </td><td></td><td> <input type="text" name="13" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)</td></tr></table>
 Parton shower cut-off <i>pT</i> for photon coupling to coloured particle. 
    
  
@@ -347,6 +349,33 @@ by the branching, <i>m2 = pT2/(z(1-z))</i>. Note that
 at 90 degrees without beam recoil. 
    
  
+<p/> 
+When there is no interleaving, a number of MPIs may have been generated
+before FSR is considered. In principle there could be colour correlations 
+between the MPIs, such that a final-state colour of one MPI could be
+matched by the corresponding final-state anticolour of another MPI.
+These thereby would form a colour dipole, but one that does not come out
+from a common vertex, and therefore presumably could not radiate in full.
+Currently the standard procedure is to match colours between MPIs
+only after FSR, so MPI systems would radiate independently, with 
+recoils taken by the beam remnant, where necessary. This could change,
+however, and the following switch would then regulate the choice of 
+behaviour.
+ 
+<br/><br/><strong>TimeShower:allowMPIdipole</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
+<input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+If on, and if interleaving is off, then dipoles are allowed to be
+formed between matching final-state colour-anticolour pairs also
+between two different MPIs. Else dipoles can normally only form
+inside the same MPI, and the could-have-been dipoles between different
+MPIs instead appear as dipoles stretched to the beam remnants. 
+In either case a dipole can still form between two MPIs if a final-state 
+colour cannot be matched inside the same MPI. This should normally
+not happen, except if rescattering is allowed, whereby two or more 
+MPIs get interconnected.
+   
+ 
 <h3>Global recoil</h3> 
  
 The final-state algorithm is based on dipole-style recoils, where 
@@ -394,8 +423,8 @@ a global recoil is requested. (Thus, e.g., a gluon is still bookkept
 as one colour and one anticolour dipole end, with half the charge 
 each, but with global recoil those two ends radiate identically.) 
  
-<br/><br/><strong>TimeShower:globalRecoil</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
-<input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>TimeShower:globalRecoil</strong>  <input type="radio" name="20" value="on"><strong>On</strong>
+<input type="radio" name="20" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Alternative approach as above, where all final-state particles share 
 the recoil of an emission. 
@@ -405,8 +434,8 @@ interaction, and only while the number of particles in the final state
 is at most <code>TimeShower:nMaxGlobalRecoil</code> before the 
 branching. 
    
-   
-<br/><br/><table><tr><td><strong>TimeShower:nMaxGlobalRecoil  </td><td></td><td> <input type="text" name="20" value="2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>)</td></tr></table>
+ 
+<br/><br/><table><tr><td><strong>TimeShower:nMaxGlobalRecoil  </td><td></td><td> <input type="text" name="21" value="2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>)</td></tr></table>
 Represents the maximum number of particles in the final state for which 
 the next final-state emission can be performed with the global recoil 
 strategy. This number counts all particles, whether they are 
@@ -429,26 +458,26 @@ recoil prescription.
 <br/><br/><table><tr><td><strong>TimeShower:globalRecoilMode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
 Choice which splittings are produced with the global recoil approach. 
 <br/>
-<input type="radio" name="21" value="0" checked="checked"><strong>0 </strong>: Global recoil mode as outlined above, i.e. using global  recoils until the number of final state particles exceeds  <code>TimeShower:nMaxGlobalRecoil</code>.<br/>
-<input type="radio" name="21" value="1"><strong>1 </strong>: Global recoil only for the first branching of  final state legs that have an ancestor in the hard process, and  if the maximal number of branchings generated according to the global  recoil scheme (see <code>TimeShower:nMaxGlobalBranch</code> below) has  not yet been reached.<br/>
-<input type="radio" name="21" value="2"><strong>2 </strong>: Global recoil only if the first branching in  the whole evolution is a timelike splitting of a parton in an  event with Born-like kinematics (i.e.\ an S-event).  The impact of global recoils should be minimal in this case.  This option is only sensible for interleaved evolution.  <br/>
+<input type="radio" name="22" value="0" checked="checked"><strong>0 </strong>: Global recoil mode as outlined above, i.e. using global  recoils until the number of final state particles exceeds  <code>TimeShower:nMaxGlobalRecoil</code>.<br/>
+<input type="radio" name="22" value="1"><strong>1 </strong>: Global recoil only for the first branching of  final state legs that have an ancestor in the hard process, and  if the maximal number of branchings generated according to the global  recoil scheme (see <code>TimeShower:nMaxGlobalBranch</code> below) has  not yet been reached.<br/>
+<input type="radio" name="22" value="2"><strong>2 </strong>: Global recoil only if the first branching in  the whole evolution is a timelike splitting of a parton in an  event with Born-like kinematics (i.e.\ an S-event).  The impact of global recoils should be minimal in this case.  This option is only sensible for interleaved evolution.  <br/>
  
-<br/><br/><table><tr><td><strong>TimeShower:nMaxGlobalBranch  </td><td></td><td> <input type="text" name="22" value="-1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:nMaxGlobalBranch  </td><td></td><td> <input type="text" name="23" value="-1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1</strong></code>)</td></tr></table>
 The maximum number of splittings in the final state for which 
 the next final-state emission can be performed with the global recoil 
 strategy. This number has to be set if <code>TimeShower:globalRecoilMode = 1 
 </code> or <code>TimeShower:globalRecoilMode = 2</code> 
    
  
-<br/><br/><table><tr><td><strong>TimeShower:nPartonsInBorn  </td><td></td><td> <input type="text" name="23" value="-1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:nPartonsInBorn  </td><td></td><td> <input type="text" name="24" value="-1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1</strong></code>)</td></tr></table>
 The number of partons for Born-like phase space points. This number needs 
 to be set if a different treatment of S-events (with Born-like kinematics) 
 and H-events (with real-emission kinematics) is desired. This number has 
 to be set if <code>TimeShower:globalRecoilMode = 2</code>. 
    
  
-<br/><br/><strong>TimeShower:limitPTmaxGlobal</strong>  <input type="radio" name="24" value="on"><strong>On</strong>
-<input type="radio" name="24" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>TimeShower:limitPTmaxGlobal</strong>  <input type="radio" name="25" value="on"><strong>On</strong>
+<input type="radio" name="25" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 If on, limit the maximal pT produced in branchings in the global recoil scheme 
 exactly as in the default (local) scheme. This means that the mass of the 
@@ -487,7 +516,7 @@ come to be used. Instead, without ME corrections,  a process-independent
 emission rate is obtained, and  <?php $filepath = $_GET["filepath"];
 echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>user hooks</a> 
 can provide the desired process-specific rejection factors. 
-  
+ 
 <h3>Radiation off octet onium states</h3> 
  
 In the current implementation, charmonium and bottomonium production 
@@ -549,19 +578,19 @@ on the onium mass rather than on the quark mass, as it should be. Gluons
 below the octet-onium scale should only be part of the octet-to-singlet 
 transition. 
  
-<br/><br/><table><tr><td><strong>TimeShower:octetOniumFraction </td><td></td><td> <input type="text" name="25" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:octetOniumFraction </td><td></td><td> <input type="text" name="26" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
 Allow colour-octet charmonium and bottomonium states to radiate gluons. 
 0 means that no octet-onium states radiate, 1 that all do, with possibility 
 to interpolate between these two extremes. 
    
  
-<br/><br/><table><tr><td><strong>TimeShower:octetOniumColFac </td><td></td><td> <input type="text" name="26" value="2." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 4.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:octetOniumColFac </td><td></td><td> <input type="text" name="27" value="2." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 4.</code>)</td></tr></table>
 The colour factor used used in the splitting kernel for those octet onium 
 states that are allowed to radiate, normalized to the <i>q &rarr; q g</i> 
 splitting kernel. Thus the default corresponds to twice the radiation 
 off a quark. The physically preferred range would be between 1 and 9/4. 
    
-  
+ 
 <h3>Weak showers</h3> 
  
 The emission of weak gauge bosons is an integrated part of the initial- 
@@ -572,8 +601,8 @@ weak radiation, while common settings are found in the
 <?php $filepath = $_GET["filepath"];
 echo "<a href='WeakShowers.php?filepath=".$filepath."' target='page'>";?>Weak Showers</a> description. 
  
-<br/><br/><strong>TimeShower:weakShower</strong>  <input type="radio" name="27" value="on"><strong>On</strong>
-<input type="radio" name="27" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>TimeShower:weakShower</strong>  <input type="radio" name="28" value="on"><strong>On</strong>
+<input type="radio" name="28" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Allow a weak shower, yes or no. 
    
@@ -581,11 +610,11 @@ Allow a weak shower, yes or no.
 <br/><br/><table><tr><td><strong>TimeShower:weakShowerMode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
 Determine which branchings are allowed. 
 <br/>
-<input type="radio" name="28" value="0" checked="checked"><strong>0 </strong>:  both <ei>W^+-</ei> and <ei>Z^0</ei> branchings.  <br/>
-<input type="radio" name="28" value="1"><strong>1 </strong>:  both <ei>W^+-</ei> and <ei>Z^0</ei> branchings.  <br/>
-<input type="radio" name="28" value="2"><strong>2 </strong>:  both <ei>W^+-</ei> and <ei>Z^0</ei> branchings.  <br/>
+<input type="radio" name="29" value="0" checked="checked"><strong>0 </strong>:  both <ei>W^+-</ei> and <ei>Z^0</ei> branchings.  <br/>
+<input type="radio" name="29" value="1"><strong>1 </strong>:  only <ei>W^+-</ei> branchings. <br/>
+<input type="radio" name="29" value="2"><strong>2 </strong>:  only <ei>Z^0</ei> branchings. <br/>
  
-<br/><br/><table><tr><td><strong> </td><td></td><td> <input type="text" name="29" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong> </td><td></td><td> <input type="text" name="30" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)</td></tr></table>
 Parton shower cut-off <i>pT</i> for weak branchings. 
    
  
@@ -596,14 +625,14 @@ branching types in the shower, or in other respects simplify the shower.
 These should normally not be touched. Their main function is for 
 cross-checks. 
  
-<br/><br/><strong>TimeShower:QCDshower</strong>  <input type="radio" name="30" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="30" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:QCDshower</strong>  <input type="radio" name="31" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="31" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow a QCD shower, i.e. branchings <i>q &rarr; q g</i>, 
 <i>g &rarr; g g</i> and <i>g &rarr; q qbar</i>; on/off = true/false. 
    
  
-<br/><br/><table><tr><td><strong>TimeShower:nGluonToQuark  </td><td></td><td> <input type="text" name="31" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:nGluonToQuark  </td><td></td><td> <input type="text" name="32" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed quark flavours in <i>g &rarr; q qbar</i> branchings 
 (phase space permitting). A change to 4 would exclude 
 <i>g &rarr; b bbar</i>, etc. 
@@ -613,71 +642,72 @@ Number of allowed quark flavours in <i>g &rarr; q qbar</i> branchings
 Different options to assign kinematics distributions and weights 
 for <ei>g &rarr; q qbar</ei> branchings, notably for charm and bottom 
 quarks. These options also have the corresponding effect on 
-<ei>gamma &rarr; f fbar</ei> branchings. The rationale for the options
-is described in <a href="../pdfdoc/g2qqbarsplit.pdf">this note</a>.
+<ei>gamma &rarr; f fbar</ei> branchings. The rationale for the options 
+is described in <a href="../pdfdoc/g2qqbarsplit.pdf">this note</a>. 
 <br/>Notation: <ei>r_q = m_q^2/m_qq^2</ei>, <ei>beta = sqrt(1 - 4r_q)</ei>, 
 with <ei>m_q</ei> the quark mass and <ei>m_qq</ei> the <ei>q qbar</ei> pair 
 invariant mass. The scale factor <ei>k</ei> is described below, 
-<code>TimeShower:scaleGluonToQuark</code>.
+<code>TimeShower:scaleGluonToQuark</code>. 
 <br/>
-<input type="radio" name="32" value="1"><strong>1 </strong>: same splitting kernel <ei>(1/2) (z^2 + (1-z)^2)</ei> for  massive as massless quarks, only with an extra <ei>beta</ei> phase  space factor.<br/>
-<input type="radio" name="32" value="2"><strong>2 </strong>: a splitting kernel  <ei>(beta/2) (z^2 + (1-z)^2 + 8r_q z(1-z))</ei>.<br/>
-<input type="radio" name="32" value="3"><strong>3 </strong>: a splitting kernel <ei>z^2 + (1-z)^2 + 8r_q z(1-z)</ei>, normalized so that the <ei>z</ei>-integrated rate is <ei>(beta/3) (1 + r/2)</ei>.<br/>
-<input type="radio" name="32" value="4" checked="checked"><strong>4 </strong>: same as 3, but additionally a suppression factor <ei>(1 - m_qq^2/m_dipole^2)^3</ei>, which reduces the rate of high-mass  <ei>q qbar</ei> pairs.<br/>
-<input type="radio" name="32" value="5"><strong>5 </strong>: same as 1, but reweighted to an <ei>alpha_s(k m_qq^2)</ei> rather than the normal <ei>alpha_s(pT^2)</ei>.<br/>
-<input type="radio" name="32" value="6"><strong>6 </strong>: same as 2, but reweighted to an <ei>alpha_s(k m_qq^2)</ei> rather than the normal <ei>alpha_s(pT^2)</ei>.<br/>
-<input type="radio" name="32" value="7"><strong>7 </strong>: same as 3, but reweighted to an <ei>alpha_s(k m_qq^2)</ei> rather than the normal <ei>alpha_s(pT^2)</ei>.<br/>
-<input type="radio" name="32" value="8"><strong>8 </strong>: same as 4, but reweighted to an <ei>alpha_s(k m_qq^2)</ei> rather than the normal <ei>alpha_s(pT^2)</ei>.<br/>
+<input type="radio" name="33" value="1"><strong>1 </strong>: same splitting kernel <ei>(1/2) (z^2 + (1-z)^2)</ei> for  massive as massless quarks, only with an extra <ei>beta</ei> phase  space factor.<br/>
+<input type="radio" name="33" value="2"><strong>2 </strong>: a splitting kernel  <ei>(beta/2) (z^2 + (1-z)^2 + 8r_q z(1-z))</ei>.<br/>
+<input type="radio" name="33" value="3"><strong>3 </strong>: a splitting kernel <ei>z^2 + (1-z)^2 + 8r_q z(1-z)</ei>,  normalized so that the <ei>z</ei>-integrated rate is  <ei>(beta/3) (1 + r/2)</ei>.<br/>
+<input type="radio" name="33" value="4" checked="checked"><strong>4 </strong>: same as 3, but additionally a suppression factor  <ei>(1 - m_qq^2/m_dipole^2)^3</ei>, which reduces the rate of high-mass  <ei>q qbar</ei> pairs.<br/>
+<input type="radio" name="33" value="5"><strong>5 </strong>: same as 1, but reweighted to an <ei>alpha_s(k m_qq^2)</ei>  rather than the normal <ei>alpha_s(pT^2)</ei>.<br/>
+<input type="radio" name="33" value="6"><strong>6 </strong>: same as 2, but reweighted to an <ei>alpha_s(k m_qq^2)</ei>  rather than the normal <ei>alpha_s(pT^2)</ei>.<br/>
+<input type="radio" name="33" value="7"><strong>7 </strong>: same as 3, but reweighted to an <ei>alpha_s(k m_qq^2)</ei>  rather than the normal <ei>alpha_s(pT^2)</ei>.<br/>
+<input type="radio" name="33" value="8"><strong>8 </strong>: same as 4, but reweighted to an <ei>alpha_s(k m_qq^2)</ei>  rather than the normal <ei>alpha_s(pT^2)</ei>.<br/>
  
-<br/><br/><table><tr><td><strong>TimeShower:scaleGluonToQuark </td><td></td><td> <input type="text" name="33" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 1.0</code>)</td></tr></table>
-Extra scale parameter <i>k</i> for <code>TimeShower:weightGluonToQuark</code>
-options 5 - 8. Comes on top of <code>TimeShower:renormMultFac</code>, which
-affects <i>alpha_s(pT^2)</i> alike.
+<br/><br/><table><tr><td><strong>TimeShower:scaleGluonToQuark </td><td></td><td> <input type="text" name="34" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 1.0</code>)</td></tr></table>
+Extra scale parameter <i>k</i> for 
+<code>TimeShower:weightGluonToQuark</code> options 5 - 8. Comes on top of 
+<code>TimeShower:renormMultFac</code>, which affects <i>alpha_s(pT^2)</i> 
+alike. 
    
-
-<br/><br/><strong>TimeShower:QEDshowerByQ</strong>  <input type="radio" name="34" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="34" value="off"><strong>Off</strong>
+ 
+<br/><br/><strong>TimeShower:QEDshowerByQ</strong>  <input type="radio" name="35" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="35" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow quarks to radiate photons, i.e. branchings <i>q &rarr; q gamma</i>; 
 on/off = true/false. 
    
  
-<br/><br/><strong>TimeShower:QEDshowerByL</strong>  <input type="radio" name="35" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="35" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:QEDshowerByL</strong>  <input type="radio" name="36" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="36" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow leptons to radiate photons, i.e. branchings <i>l &rarr; l gamma</i>; 
 on/off = true/false. 
    
  
-<br/><br/><strong>TimeShower:QEDshowerByGamma</strong>  <input type="radio" name="36" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="36" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:QEDshowerByGamma</strong>  <input type="radio" name="37" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="37" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow photons to branch into lepton or quark pairs, i.e. branchings 
 <i>gamma &rarr; l+ l-</i> and <i>gamma &rarr; q qbar</i>; 
 on/off = true/false. 
    
  
-<br/><br/><table><tr><td><strong>TimeShower:nGammaToQuark  </td><td></td><td> <input type="text" name="37" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:nGammaToQuark  </td><td></td><td> <input type="text" name="38" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed quark flavours in <i>gamma &rarr; q qbar</i> branchings 
 (phase space permitting). A change to 4 would exclude 
 <i>g &rarr; b bbar</i>, etc. 
    
  
-<br/><br/><table><tr><td><strong>TimeShower:nGammaToLepton  </td><td></td><td> <input type="text" name="38" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:nGammaToLepton  </td><td></td><td> <input type="text" name="39" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
 Number of allowed lepton flavours in <i>gamma &rarr; l+ l-</i> branchings 
 (phase space permitting). A change to 2 would exclude 
 <i>gamma &rarr; tau+ tau-</i>, and a change to 1 also 
 <i>gamma &rarr; mu+ mu-</i>. 
    
  
-<br/><br/><strong>TimeShower:MEcorrections</strong>  <input type="radio" name="39" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="39" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:MEcorrections</strong>  <input type="radio" name="40" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="40" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Use of matrix element corrections where available; on/off = true/false. 
    
  
-<br/><br/><strong>TimeShower:MEafterFirst</strong>  <input type="radio" name="40" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="40" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:MEafterFirst</strong>  <input type="radio" name="41" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="41" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Use of matrix element corrections also after the first emission, 
 for dipole ends of the same system that did not yet radiate. 
@@ -685,14 +715,14 @@ Only has a meaning if <code>MEcorrections</code> above is
 switched on. 
    
  
-<br/><br/><strong>TimeShower:phiPolAsym</strong>  <input type="radio" name="41" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="41" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:phiPolAsym</strong>  <input type="radio" name="42" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="42" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Azimuthal asymmetry induced by gluon polarization; on/off = true/false. 
    
  
-<br/><br/><strong>TimeShower:recoilToColoured</strong>  <input type="radio" name="42" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="42" value="off"><strong>Off</strong>
+<br/><br/><strong>TimeShower:recoilToColoured</strong>  <input type="radio" name="43" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="43" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 In the decays of coloured resonances, say <i>t &rarr; b W</i>, it is not 
 possible to set up dipoles with matched colours. Originally the 
@@ -711,15 +741,15 @@ would remain recoiler, while in the new (<code>on</code>) instead
 each newly emitted photon becomes the new recoiler. 
    
  
-<br/><br/><strong>TimeShower:useFixedFacScale</strong>  <input type="radio" name="43" value="on"><strong>On</strong>
-<input type="radio" name="43" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>TimeShower:useFixedFacScale</strong>  <input type="radio" name="44" value="on"><strong>On</strong>
+<input type="radio" name="44" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Allow the possibility to use a fixed factorization scale, set by 
 the <code>parm</code> below. This option is unphysical and only 
 intended for toy-model and debug studies. 
    
  
-<br/><br/><table><tr><td><strong>TimeShower:fixedFacScale </td><td></td><td> <input type="text" name="44" value="100." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>100.</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>TimeShower:fixedFacScale </td><td></td><td> <input type="text" name="45" value="100." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>100.</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
 The fixed factorization scale, in GeV, that would be used in the 
 evaluation of parton densities if the <code>flag</code> above is on. 
    
@@ -764,7 +794,7 @@ if($_POST["5"] != "1.0")
 $data = "TimeShower:pTdampFudge = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "0.1383")
+if($_POST["6"] != "0.1365")
 {
 $data = "TimeShower:alphaSvalue = ".$_POST["6"]."\n";
 fwrite($handle,$data);
@@ -794,12 +824,12 @@ if($_POST["11"] != "1.")
 $data = "TimeShower:factorMultFac = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "0.4")
+if($_POST["12"] != "0.5")
 {
 $data = "TimeShower:pTmin = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "0.4")
+if($_POST["13"] != "0.5")
 {
 $data = "TimeShower:pTminChgQ = ".$_POST["13"]."\n";
 fwrite($handle,$data);
@@ -831,132 +861,137 @@ fwrite($handle,$data);
 }
 if($_POST["19"] != "off")
 {
-$data = "TimeShower:globalRecoil = ".$_POST["19"]."\n";
+$data = "TimeShower:allowMPIdipole = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["20"] != "2")
+if($_POST["20"] != "off")
 {
-$data = "TimeShower:nMaxGlobalRecoil = ".$_POST["20"]."\n";
+$data = "TimeShower:globalRecoil = ".$_POST["20"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["21"] != "0")
+if($_POST["21"] != "2")
 {
-$data = "TimeShower:globalRecoilMode = ".$_POST["21"]."\n";
+$data = "TimeShower:nMaxGlobalRecoil = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["22"] != "-1")
+if($_POST["22"] != "0")
 {
-$data = "TimeShower:nMaxGlobalBranch = ".$_POST["22"]."\n";
+$data = "TimeShower:globalRecoilMode = ".$_POST["22"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["23"] != "-1")
 {
-$data = "TimeShower:nPartonsInBorn = ".$_POST["23"]."\n";
+$data = "TimeShower:nMaxGlobalBranch = ".$_POST["23"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["24"] != "off")
+if($_POST["24"] != "-1")
 {
-$data = "TimeShower:limitPTmaxGlobal = ".$_POST["24"]."\n";
+$data = "TimeShower:nPartonsInBorn = ".$_POST["24"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["25"] != "1.")
+if($_POST["25"] != "off")
 {
-$data = "TimeShower:octetOniumFraction = ".$_POST["25"]."\n";
+$data = "TimeShower:limitPTmaxGlobal = ".$_POST["25"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["26"] != "2.")
+if($_POST["26"] != "1.")
 {
-$data = "TimeShower:octetOniumColFac = ".$_POST["26"]."\n";
+$data = "TimeShower:octetOniumFraction = ".$_POST["26"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["27"] != "off")
+if($_POST["27"] != "2.")
 {
-$data = "TimeShower:weakShower = ".$_POST["27"]."\n";
+$data = "TimeShower:octetOniumColFac = ".$_POST["27"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["28"] != "0")
+if($_POST["28"] != "off")
 {
-$data = "TimeShower:weakShowerMode = ".$_POST["28"]."\n";
+$data = "TimeShower:weakShower = ".$_POST["28"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["29"] != "1.0")
+if($_POST["29"] != "0")
 {
-$data = " = ".$_POST["29"]."\n";
+$data = "TimeShower:weakShowerMode = ".$_POST["29"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["30"] != "on")
+if($_POST["30"] != "1.0")
 {
-$data = "TimeShower:QCDshower = ".$_POST["30"]."\n";
+$data = " = ".$_POST["30"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["31"] != "5")
+if($_POST["31"] != "on")
 {
-$data = "TimeShower:nGluonToQuark = ".$_POST["31"]."\n";
+$data = "TimeShower:QCDshower = ".$_POST["31"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["32"] != "4")
+if($_POST["32"] != "5")
 {
-$data = "TimeShower:weightGluonToQuark = ".$_POST["32"]."\n";
+$data = "TimeShower:nGluonToQuark = ".$_POST["32"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["33"] != "1.0")
+if($_POST["33"] != "4")
 {
-$data = "TimeShower:scaleGluonToQuark = ".$_POST["33"]."\n";
+$data = "TimeShower:weightGluonToQuark = ".$_POST["33"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["34"] != "on")
+if($_POST["34"] != "1.0")
 {
-$data = "TimeShower:QEDshowerByQ = ".$_POST["34"]."\n";
+$data = "TimeShower:scaleGluonToQuark = ".$_POST["34"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["35"] != "on")
 {
-$data = "TimeShower:QEDshowerByL = ".$_POST["35"]."\n";
+$data = "TimeShower:QEDshowerByQ = ".$_POST["35"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["36"] != "on")
 {
-$data = "TimeShower:QEDshowerByGamma = ".$_POST["36"]."\n";
+$data = "TimeShower:QEDshowerByL = ".$_POST["36"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["37"] != "5")
+if($_POST["37"] != "on")
 {
-$data = "TimeShower:nGammaToQuark = ".$_POST["37"]."\n";
+$data = "TimeShower:QEDshowerByGamma = ".$_POST["37"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["38"] != "3")
+if($_POST["38"] != "5")
 {
-$data = "TimeShower:nGammaToLepton = ".$_POST["38"]."\n";
+$data = "TimeShower:nGammaToQuark = ".$_POST["38"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["39"] != "on")
+if($_POST["39"] != "3")
 {
-$data = "TimeShower:MEcorrections = ".$_POST["39"]."\n";
+$data = "TimeShower:nGammaToLepton = ".$_POST["39"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["40"] != "on")
 {
-$data = "TimeShower:MEafterFirst = ".$_POST["40"]."\n";
+$data = "TimeShower:MEcorrections = ".$_POST["40"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["41"] != "on")
 {
-$data = "TimeShower:phiPolAsym = ".$_POST["41"]."\n";
+$data = "TimeShower:MEafterFirst = ".$_POST["41"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["42"] != "on")
 {
-$data = "TimeShower:recoilToColoured = ".$_POST["42"]."\n";
+$data = "TimeShower:phiPolAsym = ".$_POST["42"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["43"] != "off")
+if($_POST["43"] != "on")
 {
-$data = "TimeShower:useFixedFacScale = ".$_POST["43"]."\n";
+$data = "TimeShower:recoilToColoured = ".$_POST["43"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["44"] != "100.")
+if($_POST["44"] != "off")
 {
-$data = "TimeShower:fixedFacScale = ".$_POST["44"]."\n";
+$data = "TimeShower:useFixedFacScale = ".$_POST["44"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["45"] != "100.")
+{
+$data = "TimeShower:fixedFacScale = ".$_POST["45"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -966,4 +1001,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

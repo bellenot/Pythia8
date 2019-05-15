@@ -69,7 +69,7 @@ interaction with lowest scale.
 <h4>Cross-section parameters</h4> 
  
 The rate of interactions is determined by 
-<parm name="MultipartonInteractions:alphaSvalue" default="0.127" 
+<parm name="MultipartonInteractions:alphaSvalue" default="0.130" 
 min="0.06" max="0.25"> 
 The value of <ei>alpha_strong</ei> at <ei>m_Z</ei>. Default value is 
 picked equal to the one used in CTEQ 5L. 
@@ -93,7 +93,7 @@ but there is also nothing wrong with it.</option>
 <p/> 
 QED interactions are regulated by the <ei>alpha_electromagnetic</ei> 
 value at the <ei>pT^2</ei> scale of an interaction. 
-  
+ 
 <modepick name="MultipartonInteractions:alphaEMorder" default="1" 
 min="-1" max="1"> 
 The running of <ei>alpha_em</ei> used in hard processes. 
@@ -179,7 +179,7 @@ The actual <ei>pT0</ei> parameter used at a given CM energy scale,
 where <ei>pT0Ref</ei>, <ei>ecmRef</ei> and <ei>ecmPow</ei> are the 
 three parameters below. 
  
-<parm name="MultipartonInteractions:pT0Ref" default="2.15" min="0.5" 
+<parm name="MultipartonInteractions:pT0Ref" default="2.28" min="0.5" 
 max="10.0"> 
 The <ei>pT0Ref</ei> scale in the above formula. 
 <note>Note:</note> <ei>pT0Ref</ei> is one of the key parameters in a 
@@ -188,11 +188,11 @@ choices, such as that of colour flow description, so unfortunately it is
 difficult to give an independent meaning to <ei>pT0Ref</ei>. 
 </parm> 
  
-<parm name="MultipartonInteractions:ecmRef" default="1800.0" min="1."> 
+<parm name="MultipartonInteractions:ecmRef" default="7000.0" min="1."> 
 The <ei>ecmRef</ei> reference energy scale introduced above. 
 </parm> 
  
-<parm name="MultipartonInteractions:ecmPow" default="0.24" min="0.0" 
+<parm name="MultipartonInteractions:ecmPow" default="0.215" min="0.0" 
 max="0.5"> 
 The <ei>ecmPow</ei> energy rescaling pace introduced above. 
 </parm> 
@@ -253,7 +253,7 @@ for the latter provided that <code>SpaceShower:samePTasMPI</code> is on
 </modepick> 
  
 <h4>Impact-parameter dependence</h4> 
-  
+ 
 The choice of impact-parameter dependence is regulated by several 
 parameters. The ones listed here refer to nondiffractive topologies 
 only, while their equivalents for diffractive events are put in the 
@@ -262,7 +262,7 @@ there is currently no <code>bProfile = 4</code> option for diffraction.
 Other parameters are assumed to agree between diffractive and 
 nondiffractive topologies. 
  
-<modepick name="MultipartonInteractions:bProfile" default="1" 
+<modepick name="MultipartonInteractions:bProfile" default="3" 
 min="0" max="4"> 
 Choice of impact parameter profile for the incoming hadron beams. 
 <option value="0">no impact parameter dependence at all.</option> 
@@ -297,7 +297,7 @@ the inner core is assumed to have a fraction <ei>coreFraction</ei>
 of the matter content of the hadron. 
 </parm> 
  
-<parm name="MultipartonInteractions:expPow" default="1." min="0.4" max="10."> 
+<parm name="MultipartonInteractions:expPow" default="1.85" min="0.4" max="10."> 
 When <ei>bProfile = 3</ei> it gives the power of the assumed overlap 
 shape <ei>exp(- b^expPow)</ei>. Default corresponds to a simple 
 exponential drop, which is not too dissimilar from the overlap 
@@ -347,7 +347,7 @@ be associated with the hard process.</option>
 </modepick> 
  
 <h4>Rescattering</h4> 
-  
+ 
 It is possible that a parton may rescatter, i.e. undergo a further 
 interaction subsequent to the first one. The machinery to model this 
 kind of physics has only recently become fully operational 
@@ -573,4 +573,4 @@ interactions.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

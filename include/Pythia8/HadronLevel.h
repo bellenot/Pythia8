@@ -1,5 +1,5 @@
 // HadronLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -29,7 +29,7 @@
 #include "Pythia8/TimeShower.h"
 
 namespace Pythia8 {
- 
+
 //==========================================================================
 
 // The HadronLevel class contains the top-level routines to generate
@@ -51,7 +51,7 @@ public:
 
   // Get pointer to StringFlav instance (needed by BeamParticle).
   StringFlav* getStringFlavPtr() {return &flavSel;}
- 
+
   // Generate the next event.
   bool next(Event& event);
 
@@ -122,12 +122,12 @@ private:
 
   // Special case: colour-octet onium decays, to be done initially.
   bool decayOctetOnia(Event& event);
- 
+
   // Trace colour flow in the event to form colour singlet subsystems.
   bool findSinglets(Event& event);
 
 };
- 
+
 //==========================================================================
 
 } // end namespace Pythia8

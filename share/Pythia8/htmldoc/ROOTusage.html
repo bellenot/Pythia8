@@ -34,13 +34,13 @@ standalone fashion, and only use ROOT to process the completed events.
 Two example programs are provided in the <code>examples</code> 
 directory, with details provided below. 
  
-The examples assume that ROOT is installed, that you have run
+The examples assume that ROOT is installed, that you have run 
 <pre> 
     ./configure --with-root=root-installation-directory 
-</pre>
-where you have to specify which is the ROOT installation directory,
+</pre> 
+where you have to specify which is the ROOT installation directory, 
 and subsequently run <code>make</code>. More fine-grained options are 
-available with <code>configure</code>, if need be.
+available with <code>configure</code>, if need be. 
  
 <h4>Histogramming with ROOT</h4> 
  
@@ -52,12 +52,12 @@ This is now stored in the  <code>hist.root</code> file. If you can
 make this example work, the road should be open to do the same for 
 all other histogramming needs. Specifically, you need to edit the 
 <code>examples/Makefile</code> file to add the other programs to 
-link as <code>main91.cc</code> currently does.
+link as <code>main91.cc</code> currently does. 
  
 <h4>Storing PYTHIA events in ROOT trees</h4> 
  
 Instead of only generating histograms, it is possible to store entire 
-PYTHIA events in ROOT trees. The <code>examples/main92</code> code
+PYTHIA events in ROOT trees. The <code>examples/main92</code> code 
 provides an example of this and is comprised of the following files: 
 <ul> 
   <li><code>main92.cc</code> is the main example program showing how 
@@ -70,24 +70,24 @@ provides an example of this and is comprised of the following files:
 </ul> 
  
 <br/> 
-The example may be compiled and run with as usual. Afterwards, the new
+The example may be compiled and run with as usual. Afterwards, the new 
 <code>pytree.root</code> file will contain the PYTHIA events. Note that 
 files can become quite large when many events are generated. 
  
 <h4>Error notice</h4> 
-
-It appears that ROOTCINT cannot handle the <code>dlfcn.h</code> header
-in the current ROOT version. If you run into this problem with your
-ROOT installation, you could try to insert the following lines in
-your <code>PythiaStdlib.h</code> file:
-<pre>
-   // Stdlib header file for dynamic library loading.
-   #ifndef __CINT__
-   #define dlsym __
-   #include <dlfcn.h>
-   #undef dlsym
-   #endif
-</pre>     
+ 
+It appears that ROOTCINT cannot handle the <code>dlfcn.h</code> header 
+in the current ROOT version. If you run into this problem with your 
+ROOT installation, you could try to insert the following lines in 
+your <code>PythiaStdlib.h</code> file: 
+<pre> 
+   // Stdlib header file for dynamic library loading. 
+   #ifndef __CINT__ 
+   #define dlsym __ 
+   #include <dlfcn.h> 
+   #undef dlsym 
+   #endif 
+</pre> 
  
 <br/><br/><hr/> 
 <h3>PYTHIA as a plugin to ROOT</h3> 
@@ -161,15 +161,15 @@ The two interfaces are
     <li><code>ReadConfigFile(const char* string)</code> &rarr; 
     <code>readFile(...)</code></li> 
     <li><code>Initialize(int idAin, int idBin, double ecms)</code> &rarr; 
-    <code>init()</code>
-    <br/>Warning: this method will have to be updated for the 8.2 version!
+    <code>init()</code> 
+    <br/>Warning: this method will have to be updated for the 8.2 version! 
     </li> 
     <li><code>EventListing()</code> &rarr; 
     <code>event.list()</code></li> 
     <li><code>PrintStatistic()</code> &rarr; 
-    <code>stat()</code>
+    <code>stat()</code> 
     <br/><b>Warning:</b> this method will have to be updated for 
-    the 8.2 version!
+    the 8.2 version! 
     </li> 
   </ul> 
  
@@ -244,10 +244,10 @@ generation.
 <h4>Advanced usage</h4> 
  
 To access the full PYTHIA functionality from the CINT interpreter, 
-a ROOT dictionary must be created. Currently that option has not been
-implemented as a standard option for PYTHIA 8.2, but it should be in
+a ROOT dictionary must be created. Currently that option has not been 
+implemented as a standard option for PYTHIA 8.2, but it should be in 
 the same spirit as what can be found in the 8.1 <code>rootexamples</code> 
-directory. Also note that one dictionary is found in the
+directory. Also note that one dictionary is found in the 
 <code>examples/main92LinkDef.h</code> file. 
  
 This may then be loaded in ROOT giving full access to the full PYTHIA 8 
@@ -257,8 +257,8 @@ functionality, e.g. in an interactive session
     Pythia8::Pythia *p = new Pythia8::Pythia(); 
     p->readString("SoftQCD:nonDiffractive = on"); 
 </pre> 
-
+ 
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

@@ -117,7 +117,7 @@ A multiplicative factor <i>f</i> such that
 non-hardest interactions (when multiparton interactions are allowed). 
    
  
-<br/><br/><table><tr><td><strong>SpaceShower:pTdampMatch  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SpaceShower:pTdampMatch  </td><td>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
 These options only take effect when a process is allowed to radiate up 
 to the kinematical limit by the above <code>pTmaxMatch</code> choice, 
 and no matrix-element corrections are available. Then, in many processes, 
@@ -130,9 +130,11 @@ gluon exchange is likely to dominate. If so, the options below could
 provide a reasonable high-<ei>pT</ei> behaviour without requiring 
 higher-order calculations. 
 <br/>
-<input type="radio" name="4" value="0" checked="checked"><strong>0 </strong>: emissions go up to the kinematical limit,  with no special dampening.  <br/>
+<input type="radio" name="4" value="0"><strong>0 </strong>: emissions go up to the kinematical limit,  with no special dampening.  <br/>
 <input type="radio" name="4" value="1"><strong>1 </strong>: emissions go up to the kinematical limit,  but dampened by a factor <ei>k^2 Q^2_fac/(pT^2 + k^2 Q^2_fac)</ei>,  where <ei>Q_fac</ei> is the factorization scale and <ei>k</ei> is a  multiplicative fudge factor stored in <code>pTdampFudge</code> below.  <br/>
 <input type="radio" name="4" value="2"><strong>2 </strong>: emissions go up to the kinematical limit,  but dampened by a factor <ei>k^2 Q^2_ren/(pT^2 + k^2 Q^2_ren)</ei>,  where <ei>Q_ren</ei> is the renormalization scale and <ei>k</ei> is a  multiplicative fudge factor stored in <code>pTdampFudge</code> below.  <br/>
+<input type="radio" name="4" value="3" checked="checked"><strong>3 </strong>: as option 1, but in addition to the standard requirements for dampening it is further necessary to have ar least two top or  beyond-the-Standard-Model coloured particles in the final state.  Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production.   <br/>
+<input type="radio" name="4" value="4"><strong>4 </strong>: as option 2, but in addition to the standard requirements for dampening it is further necessary to have ar least two top or  beyond-the-Standard-Model coloured particles in the final state.  Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production.  <br/>
 <br/><b>Note:</b> These options only apply to the hard interaction. 
 Specifically, a "second hard" interaction would not be affected. 
 Emissions off subsequent multiparton interactions are always constrained 
@@ -149,7 +151,7 @@ away from this value could do better in some processes.
  
 <p/> 
 The amount of QCD radiation in the shower is determined by 
-<br/><br/><table><tr><td><strong>SpaceShower:alphaSvalue </td><td></td><td> <input type="text" name="6" value="0.137" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.137</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SpaceShower:alphaSvalue </td><td></td><td> <input type="text" name="6" value="0.1365" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.1365</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)</td></tr></table>
 The <i>alpha_strong</i> value at scale <code>M_Z^2</code>. 
 Default value is picked equal to the one used in CTEQ 5L. 
    
@@ -161,7 +163,7 @@ The actual value is then regulated by the running to the scale
 Order at which <ei>alpha_strong</ei> runs, 
 <br/>
 <input type="radio" name="7" value="0"><strong>0 </strong>: zeroth order, i.e. <ei>alpha_strong</ei> is kept  fixed.<br/>
-<input type="radio" name="7" value="1" checked="checked"><strong>1 </strong>: zeroth order, i.e. <ei>alpha_strong</ei> is kept  fixed.<br/>
+<input type="radio" name="7" value="1" checked="checked"><strong>1 </strong>: first order, which is the normal value.<br/>
 <input type="radio" name="7" value="2"><strong>2 </strong>: second order. Since other parts of the code do  not go to second order there is no strong reason to use this option,  but there is also nothing wrong with it.<br/>
  
 <p/> 
@@ -183,7 +185,7 @@ Note that tunes using this option need lower values of
 <p/> 
 QED radiation is regulated by the <i>alpha_electromagnetic</i> 
 value at the <i>pT^2</i> scale of a branching. 
-  
+ 
 <br/><br/><table><tr><td><strong>SpaceShower:alphaEMorder  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)</td></tr></table>
 The running of <ei>alpha_em</ei>. 
 <br/>
@@ -256,7 +258,7 @@ so that <i>pT0Ref</i> is the <i>pT0</i> value for the reference
 cm energy, <i>pT0Ref = pT0(ecmRef)</i>. 
    
  
-<br/><br/><table><tr><td><strong>SpaceShower:ecmRef </td><td></td><td> <input type="text" name="14" value="1800.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1800.0</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SpaceShower:ecmRef </td><td></td><td> <input type="text" name="14" value="7000.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>7000.0</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
 The <i>ecmRef</i> reference energy scale introduced above. 
    
  
@@ -285,15 +287,15 @@ Parton shower cut-off mass for pure QED branchings.
 Assumed smaller than (or equal to) <i>pTminChgQ</i>. 
    
  
-<br/><br/><strong>SpaceShower:rapidityOrder</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
-<input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+<br/><br/><strong>SpaceShower:rapidityOrder</strong>  <input type="radio" name="19" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="19" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Force emissions, after the first,  to be ordered in rapidity, 
 i.e. in terms of decreasing angles in a backwards-evolution sense. 
 Could be used to probe sensitivity to unordered emissions. 
 Only affects QCD emissions. 
    
-  
+ 
 <h3>Weak showers</h3> 
  
 The emission of weak gauge bosons is an integrated part of the initial- 
@@ -480,7 +482,7 @@ if($_POST["3"] != "1.0")
 $data = "SpaceShower:pTmaxFudgeMPI = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["4"] != "0")
+if($_POST["4"] != "3")
 {
 $data = "SpaceShower:pTdampMatch = ".$_POST["4"]."\n";
 fwrite($handle,$data);
@@ -490,7 +492,7 @@ if($_POST["5"] != "1.0")
 $data = "SpaceShower:pTdampFudge = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "0.137")
+if($_POST["6"] != "0.1365")
 {
 $data = "SpaceShower:alphaSvalue = ".$_POST["6"]."\n";
 fwrite($handle,$data);
@@ -530,7 +532,7 @@ if($_POST["13"] != "2.0")
 $data = "SpaceShower:pT0Ref = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "1800.0")
+if($_POST["14"] != "7000.0")
 {
 $data = "SpaceShower:ecmRef = ".$_POST["14"]."\n";
 fwrite($handle,$data);
@@ -555,7 +557,7 @@ if($_POST["18"] != "0.0005")
 $data = "SpaceShower:pTminChgL = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["19"] != "off")
+if($_POST["19"] != "on")
 {
 $data = "SpaceShower:rapidityOrder = ".$_POST["19"]."\n";
 fwrite($handle,$data);
@@ -637,5 +639,5 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

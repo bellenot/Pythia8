@@ -97,12 +97,12 @@ marked as decayed. This means that if you e.g. search for all
 One way to protect yourself from unwanted doublecounting is to 
 use only particles with a positive status code, i.e. ones for which 
 <code>event[i].isFinal()</code> is <code>true</code>. 
-   
+ 
  
 <h3>Main parameters</h3> 
-
-Assuming you have set <code>HadronLevel:BoseEinstein = on</code>,
-you can regulate the detailed behaviour with the following settings.
+ 
+Assuming you have set <code>HadronLevel:BoseEinstein = on</code>, 
+you can regulate the detailed behaviour with the following settings. 
  
 <br/><br/><strong>BoseEinstein:Pion</strong>  <input type="radio" name="1" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="1" value="off"><strong>Off</strong>
@@ -199,5 +199,5 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

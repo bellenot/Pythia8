@@ -66,7 +66,7 @@ dependence is then parametrized, and behaves roughly like
    
  
 <p/><code>flag&nbsp; </code><strong> SigmaTotal:zeroAXB &nbsp;</strong> 
- (<code>default = <strong>off</strong></code>)<br/>
+ (<code>default = <strong>on</strong></code>)<br/>
 several existing <a href="Tunes.html" target="page">tunes</a> do not include CD. 
 An inclusion of a nonvanishing CD cross section directly affects 
 the nondiffractive phenomenology, even if not dramatically, and so 
@@ -137,7 +137,7 @@ here allows one way to introduce a dampening, which is used in some
 of the existing <a href="Tunes.html" target="page">tunes</a>. 
  
 <p/><code>flag&nbsp; </code><strong> SigmaDiffractive:dampen &nbsp;</strong> 
- (<code>default = <strong>no</strong></code>)<br/>
+ (<code>default = <strong>on</strong></code>)<br/>
 Allow a user to dampen diffractive cross sections; on/off = true/false. 
    
  
@@ -153,17 +153,17 @@ This reduces to <i>sigma_old(s)</i> at low energies and to
 is approached quite slowly, however. 
  
 <p/><code>parm&nbsp; </code><strong> SigmaDiffractive:maxXB &nbsp;</strong> 
- (<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)<br/>
+ (<code>default = <strong>65.</strong></code>; <code>minimum = 0.</code>)<br/>
 The above <i>sigma_max</i> for <i>A + B &rarr; X + B</i> in mb. 
    
  
 <p/><code>parm&nbsp; </code><strong> SigmaDiffractive:maxAX &nbsp;</strong> 
- (<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)<br/>
+ (<code>default = <strong>65.</strong></code>; <code>minimum = 0.</code>)<br/>
 The above <i>sigma_max</i> for <i>A + B &rarr; A + X</i> in mb. 
    
  
 <p/><code>parm&nbsp; </code><strong> SigmaDiffractive:maxXX &nbsp;</strong> 
- (<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)<br/>
+ (<code>default = <strong>65.</strong></code>; <code>minimum = 0.</code>)<br/>
 The above <i>sigma_max</i> for <i>A + B &rarr; X_1 + X_2</i> in mb. 
    
  
@@ -177,7 +177,7 @@ As above, a reduced diffractive cross section automatically translates
 into an increased nondiffractive one, such that the total (and elastic) 
 cross section remains fixed. 
  
-  
+ 
 <h3>Set elastic cross section</h3> 
  
 <p/> 
@@ -236,4 +236,4 @@ This constant is model dependent [<a href="Bibliography.html" target="page">Cah8
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

@@ -1,5 +1,5 @@
 // LesHouches.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -305,7 +305,7 @@ bool LHAup::closeLHEF(bool updateInit) {
   if (updateInit) {
     const char* cstring = fileName.c_str();
     osLHEF.open(cstring, ios::in | ios::out);
-  
+
     // Rewrite header; identically with what openLHEF did.
     osLHEF << "<LesHouchesEvents version=\"1.0\">\n"
            << "<!--\n"
@@ -360,79 +360,140 @@ bool LHAup::setInitLHEF(istream& is, bool readHeaders) {
     bool read = true, newKey = false;
     string key = "base";
     vector < string > keyVec;
+
     while (true) {
       if (!getline(is, line)) return false;
-
-      // Check if this line is a tag; '<' as first character,
-      // '>' as last character, exclusing whitespace
-      size_t pos1 = line.find_first_not_of(" \n\t\v\b\r\f\a");
-      size_t pos2 = line.find_last_not_of(" \n\t\v\b\r\f\a");
-      if (pos1 != string::npos && line[pos1] == '<' &&
-          pos2 != string::npos && line[pos2] == '>' &&
-          pos1 < pos2) {
-
-        // Only take the first word of the tag
-        tag = line.substr(pos1 + 1, pos2 - pos1 - 1);
-        istringstream getfirst(tag);
-        getfirst >> tag;
-
-        // Tag present, so handle here
-        if (getfirst) {
-
-          // Exit condition
-          if (tag == "init") break;
-
-          // End of header block; keep reading until <init> tag,
-          // but do not store any further information
-          else if (tag == "/header") {
-            read = false;
-            continue;
-
-          // Opening tag
-          } else if (tag[0] != '/') {
-            keyVec.push_back(tag);
-            newKey = true;
-            continue;
-
-          // Closing tag that matches current key
-          } else if (tag == "/" + keyVec.back()) {
-            keyVec.pop_back();
-            newKey = true;
-            continue;
-          }
-
-        } // if (getfirst)
-      }
-
-      // At this point we have a line that is not a tag; if no longer
-      // reading headers then keep going
-      if (!read) continue;
       
-      // Check for key change
-      if (newKey) {
-        if (keyVec.empty()) key = "base";
-        else                key = keyVec[0];
-        for (size_t i = 1; i < keyVec.size(); i++)
-          key += "." + keyVec[i];
-        newKey = false;
+      // Break lines containing multiple tags into two segments.
+      // (Could be generalized to multiple segments but this is
+      // sufficient to handle at least <tag>info</tag> on same line.
+      size_t firstTagEnd    = line.find_first_of(">");
+      size_t secondTagBegin = line.find_first_of("<",firstTagEnd);
+      vector<string> lineVec;
+      if (firstTagEnd != string::npos && secondTagBegin != string::npos) {
+        lineVec.push_back(line.substr(0,secondTagBegin));
+        lineVec.push_back(line.substr(secondTagBegin,line.size()-secondTagBegin));
+      }
+      else {
+        lineVec.push_back(line);
       }
 
-      // Append information to local storage
-      headerMap[key] += line + "\n";
+      // Loop over segments of current line
+      for (int iVec=0; iVec<int(lineVec.size()); ++iVec) {
+        line = lineVec[iVec];
+        
+        // Clean line to contain only valid characters
+        size_t posBeg = line.find_first_not_of(" \n\t\v\b\r\f\a");
+        size_t posEnd = line.find_last_not_of(" \n\t\v\b\r\f\a");
+        string lineClean = " ";      
+        if (posBeg != string::npos && posEnd != string::npos && posBeg < posEnd) {
+          lineClean = line.substr(posBeg, posEnd - posBeg + 1);
+          posBeg = 0;
+          posEnd = lineClean.size();
+        }
+        
+        // Check for empty line
+        if (lineClean == " " || posBeg >= posEnd) continue;
+        
+        // PZS Jan 2015: Allow multiple open/close tags on a single line.    
+        size_t tagBeg =  lineClean.find_first_of("<");
+        size_t tagEnd =  lineClean.find_first_of(">");
+        
+        while (tagBeg != string::npos && tagBeg < tagEnd) {
+          
+          // Update remainder (non-tag) part of line, for later storage
+          posBeg = tagEnd+1;
+          
+          // Only take the first word of the tag,
+          tag = lineClean.substr(tagBeg + 1, tagEnd - tagBeg - 1);
+          istringstream getfirst(tag);
+          getfirst >> tag;
+                    
+          // Prepare for next while iteration:
+          // Look for next tag on line and update posBeg and posEnd.
+          tagBeg = lineClean.find_first_of("<",tagEnd);
+          tagEnd = lineClean.find_first_of(">",tagBeg+1);
+          
+          // Tag present, so handle here
+          if (getfirst) {
+            
+            // Exit condition
+            if (tag == "init") break;
+            
+            // End of header block; keep reading until <init> tag,
+            // but do not store any further information
+            else if (tag == "/header") {
+              read = false;
+              continue;
+              
+              // Opening tag
+            } else if (tag[0] != '/') {
+              keyVec.push_back(tag);
+              newKey = true;
+              continue;
+              
+              // Closing tag that matches current key
+            } else if (tag == "/" + keyVec.back()) {
+              keyVec.pop_back();
+              newKey = true;
+              continue;
+                          
+              // Also check for forgotten close tag: next-to-last element
+            } else if (keyVec.size() >= 2
+                       && tag == "/" + keyVec[keyVec.size()-2]) {
+              infoPtr->errorMsg("Warning in LHAup::setInitLHEF:"
+                                " corrupt LHEF end tag",keyVec.back());
+              keyVec.pop_back();
+              keyVec.pop_back();
+              newKey = true;
+              continue;
+            }
+            
+          } // if (getfirst)
+          
+        } // Loop over tags
+        
+        // Exit condition
+        if (tag == "init") break;
+        
+        // At this point the (rest of) the line is not a tag;
+        // If no longer reading anything, skip.
+        if (!read) continue;
+        
+        // Check for key change
+        if (newKey) {
+          if (keyVec.empty()) key = "base";
+          else                key = keyVec[0];
+          for (size_t i = 1; i < keyVec.size(); i++)
+            key += "." + keyVec[i];
+          newKey = false;
+        }
+        
+        // Check if anything remains to store of this line
+        posBeg = line.find_first_not_of(" \n\t\v\b\r\f\a",posBeg);
+        if (posBeg == string::npos || posBeg > posEnd) continue;
+        
+        // Append information to local storage
+        headerMap[key] += line.substr(posBeg,posEnd - posBeg + 1) + "\n";
 
+      } // Loop over line segments 
+      
+      // Exit condition
+      if (tag == "init") break;
+      
     } // while (true)
-
+    
     // Copy information to info using LHAup::setInfoHeader
     for (map < string, string >::iterator it = headerMap.begin();
-        it != headerMap.end(); it++)
+         it != headerMap.end(); it++)
       setInfoHeader(it->first, it->second);
-
+    
   } // if (readHeaders == true && tag == headerTag)
 
   // Read in first info line; done if empty.
   if (!getline(is, line)) return false;
   if (line.find("</init") != string::npos) return true;
-  
+
   // Read in beam and strategy info, and store it.
   int idbmupA, idbmupB;
   double ebmupA, ebmupB;
@@ -471,7 +532,7 @@ bool LHAup::setInitLHEF(istream& is, bool readHeaders) {
 // Read in event information from a Les Houches Event File,
 // into a staging area where it can be reused by setOldEventLHEF.
 
-bool LHAup::setNewEventLHEF(istream& is, double mRecalculate ) {
+bool LHAup::setNewEventLHEF(istream& is) {
 
   // Loop over lines until an <event tag is found first on a line.
   string line, tag;
@@ -500,18 +561,12 @@ bool LHAup::setNewEventLHEF(istream& is, double mRecalculate ) {
   // (Recall that process(...) above added empty particle at index 0.)
   int idup, istup, mothup1, mothup2, icolup1, icolup2;
   double pup1, pup2, pup3, pup4, pup5, vtimup, spinup;
-  bool doRecalculate = (mRecalculate > 0.);
   for (int ip = 1; ip <= nupSave; ++ip) {
     if (!getline(is, line)) return false;
     istringstream getall(line);
     getall >> idup >> istup >> mothup1 >> mothup2 >> icolup1 >> icolup2
       >> pup1 >> pup2 >> pup3 >> pup4 >> pup5 >> vtimup >> spinup;
     if (!getall) return false;
-    // Optionally recalculate mass from four-momentum.
-    if (doRecalculate && pup5 > mRecalculate)
-      pup5 = sqrtpos( pup4*pup4 - pup1*pup1 - pup2*pup2 - pup3*pup3);
-    // If not, recalculate energy from three-momentum and mass.
-    else pup4 = sqrt( pup1*pup1 + pup2*pup2 + pup3*pup3 + pup5*pup5);
     particlesSave.push_back( LHAParticle( idup, istup, mothup1, mothup2,
       icolup1, icolup2, pup1, pup2, pup3, pup4, pup5, vtimup, spinup, -1.) );
   }
@@ -537,7 +592,7 @@ bool LHAup::setNewEventLHEF(istream& is, double mRecalculate ) {
               >> scalePDFInSave >> pdf1InSave >> pdf2InSave;
       if (!getinfo) return false;
       getPDFSave = true;
-    
+
     // Extract scale info if present.
     } else if (tag == "#" && !getScale) {
       double scaleIn = 0;
@@ -561,7 +616,7 @@ bool LHAup::setNewEventLHEF(istream& is, double mRecalculate ) {
     pdf1InSave     = 0.;
     pdf2InSave     = 0.;
   }
-  
+
   // Reading worked.
   return true;
 
@@ -678,7 +733,7 @@ bool LHAupLHEF::setInitLHEF( istream & isIn, bool readHead ) {
   // Loop over lines until an <init (or optionally <header>) tag
   // is found first on a line.
   string tag = " ";
-  do { 
+  do {
     if (!getline(iss, line)) return false;
     if (line.find_first_not_of(" \n\t\v\b\r\f\a") != string::npos) {
       istringstream getfirst(line);
@@ -696,76 +751,136 @@ bool LHAupLHEF::setInitLHEF( istream & isIn, bool readHead ) {
     bool read = true, newKey = false;
     string key = "base";
     vector < string > keyVec;
-    while (true) { 
+    while (true) {
       if (!getline(iss, line)) return false;
-
-      // Check if this line is a tag; '<' as first character,
-      // '>' as last character, exclusing whitespace
-      size_t pos1 = line.find_first_not_of(" \n\t\v\b\r\f\a");
-      size_t pos2 = line.find_last_not_of(" \n\t\v\b\r\f\a");
-      if (pos1 != string::npos && line[pos1] == '<' &&
-          pos2 != string::npos && line[pos2] == '>' &&
-          pos1 < pos2) {
-
-        // Only take the first word of the tag
-        tag = line.substr(pos1 + 1, pos2 - pos1 - 1);
-        istringstream getfirst(tag);
-        getfirst >> tag;
-
-        // Tag present, so handle here
-        if (getfirst) {
-
-          // Exit condition 
-          if (tag == "init") break;
-
-          // End of header block; keep reading until <init> tag,
-          // but do not store any further information
-          else if (tag == "/header") {
-            read = false;
-            continue;
-
-          // Opening tag
-          } else if (tag[0] != '/') {
-            keyVec.push_back(tag);
-            newKey = true;
-            continue;
-
-          // Closing tag that matches current key
-          } else if (tag == "/" + keyVec.back()) {
-            keyVec.pop_back();
-            newKey = true;
-            continue;
-          }
-
-        } // if (getfirst)
-      }
-
-      // At this point we have a line that is not a tag; if no longer
-      // reading headers then keep going
-      if (!read) continue;
       
-      // Check for key change
-      if (newKey) {
-        if (keyVec.empty()) key = "base";
-        else                key = keyVec[0];
-        for (size_t i = 1; i < keyVec.size(); i++)
-          key += "." + keyVec[i];
-        newKey = false;
+      // Break lines containing multiple tags into two segments.
+      // (Could be generalized to multiple segments but this is
+      // sufficient to handle at least <tag>info</tag> on same line.
+      size_t firstTagEnd    = line.find_first_of(">");
+      size_t secondTagBegin = line.find_first_of("<",firstTagEnd);
+      vector<string> lineVec;
+      if (firstTagEnd != string::npos && secondTagBegin != string::npos) {
+        lineVec.push_back(line.substr(0,secondTagBegin));
+        lineVec.push_back(line.substr(secondTagBegin,line.size()-secondTagBegin));
+      }
+      else {
+        lineVec.push_back(line);
       }
 
-      // Append information to local storage
-      headerMap[key] += line + "\n";
+      // Loop over segments of current line
+      for (int iVec=0; iVec<int(lineVec.size()); ++iVec) {
+        line = lineVec[iVec];
+        
+        // Clean line to contain only valid characters
+        size_t posBeg = line.find_first_not_of(" \n\t\v\b\r\f\a");
+        size_t posEnd = line.find_last_not_of(" \n\t\v\b\r\f\a");
+        string lineClean = " ";      
+        if (posBeg != string::npos && posEnd != string::npos && posBeg < posEnd) {
+          lineClean = line.substr(posBeg, posEnd - posBeg + 1);
+          posBeg = 0;
+          posEnd = lineClean.size();
+        }
+        
+        // Check for empty line
+        if (lineClean == " " || posBeg >= posEnd) continue;
+        
+        // PZS Jan 2015: Allow multiple open/close tags on a single line.    
+        size_t tagBeg =  lineClean.find_first_of("<");
+        size_t tagEnd =  lineClean.find_first_of(">");
+        
+        while (tagBeg != string::npos && tagBeg < tagEnd) {
+          
+          // Update remainder (non-tag) part of line, for later storage
+          posBeg = tagEnd+1;
+          
+          // Only take the first word of the tag,
+          tag = lineClean.substr(tagBeg + 1, tagEnd - tagBeg - 1);
+          istringstream getfirst(tag);
+          getfirst >> tag;
+                    
+          // Prepare for next while iteration:
+          // Look for next tag on line and update posBeg and posEnd.
+          tagBeg = lineClean.find_first_of("<",tagEnd);
+          tagEnd = lineClean.find_first_of(">",tagBeg+1);
+          
+          // Tag present, so handle here
+          if (getfirst) {
+            
+            // Exit condition
+            if (tag == "init") break;
+            
+            // End of header block; keep reading until <init> tag,
+            // but do not store any further information
+            else if (tag == "/header") {
+              read = false;
+              continue;
+              
+              // Opening tag
+            } else if (tag[0] != '/') {
+              keyVec.push_back(tag);
+              newKey = true;
+              continue;
+              
+              // Closing tag that matches current key
+            } else if (tag == "/" + keyVec.back()) {
+              keyVec.pop_back();
+              newKey = true;
+              continue;
+                          
+              // Also check for forgotten close tag: next-to-last element
+            } else if (keyVec.size() >= 2
+                       && tag == "/" + keyVec[keyVec.size()-2]) {
+              infoPtr->errorMsg("Warning in LHAupLHEF::setInitLHEF:"
+                                " corrupt LHEF end tag",keyVec.back());
+              keyVec.pop_back();
+              keyVec.pop_back();
+              newKey = true;
+              continue;
+            }
+            
+          } // if (getfirst)
+          
+        } // Loop over tags
+        
+        // Exit condition
+        if (tag == "init") break;
+        
+        // At this point the (rest of) the line is not a tag;
+        // If no longer reading anything, skip.
+        if (!read) continue;
+        
+        // Check for key change
+        if (newKey) {
+          if (keyVec.empty()) key = "base";
+          else                key = keyVec[0];
+          for (size_t i = 1; i < keyVec.size(); i++)
+            key += "." + keyVec[i];
+          newKey = false;
+        }
+        
+        // Check if anything remains to store of this line
+        posBeg = line.find_first_not_of(" \n\t\v\b\r\f\a",posBeg);
+        if (posBeg == string::npos || posBeg > posEnd) continue;
+        
+        // Append information to local storage
+        headerMap[key] += line.substr(posBeg,posEnd - posBeg + 1) + "\n";
 
+      } // Loop over line segments 
+      
+      // Exit condition
+      if (tag == "init") break;
+      
     } // while (true)
-
+    
     // Copy information to info using LHAup::setInfoHeader
     for (map < string, string >::iterator it = headerMap.begin();
-        it != headerMap.end(); it++)
+         it != headerMap.end(); it++)
       setInfoHeader(it->first, it->second);
-
+    
   } // if (readHead == true && tag == headerTag)
-
-  // Extract beam and strategy info, and store it. 
+  
+  // Extract beam and strategy info, and store it.
   int idbmupA, idbmupB;
   double ebmupA, ebmupB;
   int pdfgupA, pdfgupB, pdfsupA, pdfsupB, idwtup, nprup;
@@ -789,9 +904,9 @@ bool LHAupLHEF::setInitLHEF( istream & isIn, bool readHead ) {
   double xsecup, xerrup, xmaxup;
   xSecSumSave = 0.;
   xErrSumSave = 0.;
-  int lprup; 
+  int lprup;
   infoPtr->sigmaLHEFSave.resize(0);
-  for (int ip = 0; ip < nprup; ++ip) { 
+  for (int ip = 0; ip < nprup; ++ip) {
     xsecup = reader.heprup.XSECUP[ip];
     xerrup = reader.heprup.XERRUP[ip];
     xmaxup = reader.heprup.XMAXUP[ip];
@@ -819,7 +934,7 @@ bool LHAupLHEF::setInitLHEF( istream & isIn, bool readHead ) {
 
 // Routine for doing the job of reading and setting info on next event.
 
-bool LHAupLHEF::setNewEventLHEF(double mRecalculate ) {
+bool LHAupLHEF::setNewEventLHEF() {
 
   // Done if the reader finished preemptively.
   if(!reader.readEvent()) return false;
@@ -830,7 +945,7 @@ bool LHAupLHEF::setNewEventLHEF(double mRecalculate ) {
   xwgtupSave  = reader.hepeup.XWGTUP;
   scalupSave  = reader.hepeup.SCALUP;
   aqedupSave  = reader.hepeup.AQEDUP;
-  aqcdupSave  = reader.hepeup.AQCDUP; 
+  aqcdupSave  = reader.hepeup.AQCDUP;
 
   // Reset particlesSave vector, add slot-0 empty particle.
   particlesSave.clear();
@@ -841,7 +956,6 @@ bool LHAupLHEF::setNewEventLHEF(double mRecalculate ) {
   // (Recall that process(...) above added empty particle at index 0.)
   int idup, istup, mothup1, mothup2, icolup1, icolup2;
   double pup1, pup2, pup3, pup4, pup5, vtimup, spinup;
-  bool doRecalculate = (mRecalculate > 0.);
   for ( int i = 0; i < reader.hepeup.NUP; ++i ) {
     // Extract information stored in reader.
     idup     = reader.hepeup.IDUP[i];
@@ -857,11 +971,6 @@ bool LHAupLHEF::setNewEventLHEF(double mRecalculate ) {
     pup5     = reader.hepeup.PUP[i][4];
     vtimup   = reader.hepeup.VTIMUP[i];
     spinup   = reader.hepeup.SPINUP[i];
-    // Optionally recalculate mass from four-momentum.
-    if (doRecalculate && pup5 > mRecalculate)
-      pup5 = Pythia8::sqrtpos( pup4*pup4 - pup1*pup1 - pup2*pup2 - pup3*pup3);
-    // If not, recalculate energy from three-momentum and mass.
-    else pup4 = sqrt( pup1*pup1 + pup2*pup2 + pup3*pup3 + pup5*pup5);
     particlesSave.push_back( Pythia8::LHAParticle( idup,istup,mothup1,mothup2,
       icolup1, icolup2, pup1, pup2, pup3, pup4, pup5, vtimup, spinup, -1.) );
   }
@@ -901,9 +1010,8 @@ bool LHAupLHEF::setNewEventLHEF(double mRecalculate ) {
     }
   }
 
-  // Set production scales from <scales> tag. 
+  // Set production scales from <scales> tag.
   if ( setScalesFromLHEF && reader.version > 1 ){
-    if(&reader.hepeup.scales)
     for ( map<string,double>::const_iterator
       it  = reader.hepeup.scales.attributes.begin();
       it != reader.hepeup.scales.attributes.end(); ++it ) {
@@ -933,7 +1041,7 @@ bool LHAupLHEF::setNewEventLHEF(double mRecalculate ) {
   infoPtr->setLHEF3EventInfo();
   // Set everything for 2.0 and 3.0
   if (reader.version > 1) {
-    infoPtr->setLHEF3EventInfo( &reader.hepeup.attributes, 
+    infoPtr->setLHEF3EventInfo( &reader.hepeup.attributes,
       &reader.hepeup.weights_detailed, &reader.hepeup.weights_compressed,
       &reader.hepeup.scales, &reader.hepeup.weights, &reader.hepeup.rwgt);
   // Try to at least set the event attributes for 1.0
@@ -955,7 +1063,7 @@ bool LHAupLHEF::setNewEventLHEF(double mRecalculate ) {
 // Read in initialization information from PYTHIA 8.
 
 bool LHAupFromPYTHIA8::setInit() {
-  
+
   // Read in beam from Info class. Parton density left empty.
   int    idbmupA = infoPtr->idA();
   int    idbmupB = infoPtr->idB();
@@ -988,7 +1096,7 @@ bool LHAupFromPYTHIA8::setInit() {
 
 // Read in event information from PYTHIA 8.
 
-bool LHAupFromPYTHIA8::setEvent( int, double ) {
+bool LHAupFromPYTHIA8::setEvent( int) {
 
   // Read process information from Info class, and store it.
   // Note: renormalization scale here, factorization further down.
@@ -1067,7 +1175,7 @@ bool LHAupFromPYTHIA8::updateSigma() {
   return true;
 
 }
- 
+
 //==========================================================================
 
 } // end namespace Pythia8

@@ -52,7 +52,7 @@ will be used above the <i>t</i> threshold:
 <br/>
 <input type="radio" name="1" value="5"><strong>5 </strong>: Use 5-flavour running for all scales above the  <ei>b</ei> flavour threshold (old default).<br/>
 <input type="radio" name="1" value="6" checked="checked"><strong>6 </strong>: Use 6-flavour running above the <ei>t</ei> threshold  (new default).<br/>
-  
+ 
 <p/> 
 Since we allow <i>alpha_strong</i> to vary separately for 
 hard processes, timelike showers, spacelike showers and  multiparton 
@@ -92,7 +92,7 @@ be aware that the original CMW arguments were derived using two-loop running
 and that the CMW rescaling may need be taken into account in the context of 
 matrix-element matching. Note also that this option has only been made 
 available for timelike and spacelike showers, not for hard processes. 
-  
+ 
 <h3>The electromagnetic coupling</h3> 
  
 The <code>AlphaEM</code> class is used to generate a running 
@@ -460,4 +460,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

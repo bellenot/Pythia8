@@ -103,7 +103,7 @@ to the NLO ones recommended by the LHCXSWG. The multiplicative
 factors have been derived for a 125 GeV Higgs, but should apply for a 
 reasonable mass range around that value. 
    
-
+ 
 <h3>Standard-Model Higgs, basic processes</h3> 
  
 This section provides the standard set of processes that can be 
@@ -273,7 +273,7 @@ expressions are available e.g. in PYTHIA 6.4 but are very lengthy.)
 This provides a reasonably accurate description for "intermediate" 
 <i>pT</i> values, but fails when the <i>pT</i> scale approaches 
 the top mass. 
-  
+ 
 <br/><br/><strong>HiggsSM:gg2Hg(l:t)</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
 <input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -281,7 +281,7 @@ Scattering <i>g g &rarr; H^0 g</i> via loop contributions primarily
 from top. 
 Code 914. 
    
-  
+ 
 <br/><br/><strong>HiggsSM:qg2Hq(l:t)</strong>  <input type="radio" name="20" value="on"><strong>On</strong>
 <input type="radio" name="20" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -290,7 +290,7 @@ from top. Not to be confused with the <code>HiggsSM:qg2Hq</code>
 process above, with its direct fermion-to-Higgs coupling. 
 Code 915. 
    
-  
+ 
 <br/><br/><strong>HiggsSM:qqbar2Hg(l:t)</strong>  <input type="radio" name="21" value="on"><strong>On</strong>
 <input type="radio" name="21" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -723,7 +723,7 @@ Warning: unfortunately this process is rather slow, owing to a
 lengthy cross-section expression and inefficient phase-space selection. 
 Code 1013. 
    
-  
+ 
 <br/><br/><strong>HiggsBSM:gg2H1g(l:t)</strong>  <input type="radio" name="66" value="on"><strong>On</strong>
 <input type="radio" name="66" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -731,7 +731,7 @@ Scattering <i>g g &rarr; h^0 g</i> via loop contributions primarily
 from top. 
 Code 1014. 
    
-  
+ 
 <br/><br/><strong>HiggsBSM:qg2H1q(l:t)</strong>  <input type="radio" name="67" value="on"><strong>On</strong>
 <input type="radio" name="67" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -740,7 +740,7 @@ from top. Not to be confused with the <code>HiggsBSM:qg2H1q</code>
 process above, with its direct fermion-to-Higgs coupling. 
 Code 1015. 
    
-  
+ 
 <br/><br/><strong>HiggsBSM:qqbar2H1g(l:t)</strong>  <input type="radio" name="68" value="on"><strong>On</strong>
 <input type="radio" name="68" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -793,7 +793,7 @@ Warning: unfortunately this process is rather slow, owing to a
 lengthy cross-section expression and inefficient phase-space selection. 
 Code 1033. 
    
-  
+ 
 <br/><br/><strong>HiggsBSM:gg2H2g(l:t)</strong>  <input type="radio" name="72" value="on"><strong>On</strong>
 <input type="radio" name="72" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -801,7 +801,7 @@ Scattering <i>g g &rarr; H^0 g</i> via loop contributions primarily
 from top. 
 Code 1034. 
    
-  
+ 
 <br/><br/><strong>HiggsBSM:qg2H2q(l:t)</strong>  <input type="radio" name="73" value="on"><strong>On</strong>
 <input type="radio" name="73" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -810,7 +810,7 @@ from top. Not to be confused with the <code>HiggsBSM:qg2H1q</code>
 process above, with its direct fermion-to-Higgs coupling. 
 Code 1035. 
    
-  
+ 
 <br/><br/><strong>HiggsBSM:qqbar2H2g(l:t)</strong>  <input type="radio" name="74" value="on"><strong>On</strong>
 <input type="radio" name="74" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -863,7 +863,7 @@ Warning: unfortunately this process is rather slow, owing to a
 lengthy cross-section expression and inefficient phase-space selection. 
 Code 1053. 
    
-  
+ 
 <br/><br/><strong>HiggsBSM:gg2A3g(l:t)</strong>  <input type="radio" name="78" value="on"><strong>On</strong>
 <input type="radio" name="78" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -871,7 +871,7 @@ Scattering <i>g g &rarr; A^0 g</i> via loop contributions primarily
 from top. 
 Code 1054. 
    
-  
+ 
 <br/><br/><strong>HiggsBSM:qg2A3q(l:t)</strong>  <input type="radio" name="79" value="on"><strong>On</strong>
 <input type="radio" name="79" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -880,7 +880,7 @@ from top. Not to be confused with the <code>HiggsBSM:qg2H1q</code>
 process above, with its direct fermion-to-Higgs coupling. 
 Code 1055. 
    
-  
+ 
 <br/><br/><strong>HiggsBSM:qqbar2A3g(l:t)</strong>  <input type="radio" name="80" value="on"><strong>On</strong>
 <input type="radio" name="80" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -1065,22 +1065,22 @@ exclusively for the description of angular distributions in decays.
  
 <br/><br/><table><tr><td><strong>HiggsH1:parity  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
 possibility to modify angular decay correlations in the decay of a 
-<ei>h^0(H_1)</ei> decay <ei>Z^0 Z^0</ei> or <ei>W^+ W^-</ei> to four
-fermions, or <ei>tau^+ tau^-</ei> to any final state. Currently it
-does not affect the partial width of the channels, which is only based
-on the above parameters.
+<ei>h^0(H_1)</ei> decay <ei>Z^0 Z^0</ei> or <ei>W^+ W^-</ei> to four 
+fermions, or <ei>tau^+ tau^-</ei> to any final state. Currently it 
+does not affect the partial width of the channels, which is only based 
+on the above parameters. 
 <br/>
-<input type="radio" name="111" value="0"><strong>0 </strong>: <br/>
+<input type="radio" name="111" value="0"><strong>0 </strong>: isotropic decays.<br/>
 <input type="radio" name="111" value="1" checked="checked"><strong>1 </strong>: assuming the <ei>h^0(H_1)</ei> is a pure scalar  (CP-even), as in the MSSM.<br/>
 <input type="radio" name="111" value="2"><strong>2 </strong>: assuming the <ei>h^0(H_1)</ei> is a pure pseudoscalar  (CP-odd).<br/>
 <input type="radio" name="111" value="3"><strong>3 </strong>: assuming the <ei>h^0(H_1)</ei> is a mixture of the two,  including the CP-violating interference term. The parameter  <ei>eta</ei>, see below, sets the strength of the CP-odd admixture,  with the interference term being proportional to <ei>eta</ei>  and the CP-odd one to <ei>eta^2</ei>.<br/>
-<input type="radio" name="111" value="4"><strong>4 </strong>: same as <code>3</code> but now <ei>phi</ei>, see below, sets the CP-mixing angle. The CP-even term is proportional to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>, and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.<br/>
+<input type="radio" name="111" value="4"><strong>4 </strong>: same as <code>3</code> but now <ei>phi</ei>, see  below, sets the CP-mixing angle. The CP-even term is proportional  to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>,  and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is  pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.<br/>
  
 <br/><br/><table><tr><td><strong>HiggsH1:etaParity </td><td></td><td> <input type="text" name="112" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>eta</i> value of CP-violation in the 
 <code>HiggsH1:parity = 3</code> option. 
    
-
+ 
 <br/><br/><table><tr><td><strong>HiggsH1:phiParity </td><td></td><td> <input type="text" name="113" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>phi</i> value of CP-mixing in the 
 <code>HiggsH1:parity = 4</code> option. 
@@ -1088,45 +1088,45 @@ The <i>phi</i> value of CP-mixing in the
  
 <br/><br/><table><tr><td><strong>HiggsH2:parity  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
 possibility to modify angular decay correlations in the decay of a 
-<ei>H^0(H_2)</ei> decay <ei>Z^0 Z^0</ei> or <ei>W^+ W^-</ei> to four
-fermions, or <ei>tau^+ tau^-</ei> to any final state. Currently it
-does not affect the partial width of the channels, which is only based
-on the above parameters.
+<ei>H^0(H_2)</ei> decay <ei>Z^0 Z^0</ei> or <ei>W^+ W^-</ei> to four 
+fermions, or <ei>tau^+ tau^-</ei> to any final state. Currently it 
+does not affect the partial width of the channels, which is only based 
+on the above parameters. 
 <br/>
-<input type="radio" name="114" value="0"><strong>0 </strong>: <br/>
+<input type="radio" name="114" value="0"><strong>0 </strong>: isotropic decays.<br/>
 <input type="radio" name="114" value="1" checked="checked"><strong>1 </strong>: assuming the <ei>H^0(H_2)</ei> is a pure scalar  (CP-even), as in the MSSM.<br/>
 <input type="radio" name="114" value="2"><strong>2 </strong>: assuming the <ei>H^0(H_2)</ei> is a pure pseudoscalar  (CP-odd).<br/>
 <input type="radio" name="114" value="3"><strong>3 </strong>: assuming the <ei>H^0(H_2)</ei> is a mixture of the two,  including the CP-violating interference term. The parameter  <ei>eta</ei>, see below, sets the strength of the CP-odd admixture,  with the interference term being proportional to <ei>eta</ei>  and the CP-odd one to <ei>eta^2</ei>.<br/>
-<input type="radio" name="114" value="4"><strong>4 </strong>: same as <code>3</code> but now <ei>phi</ei>, see below, sets the CP-mixing angle. The CP-even term is proportional to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>, and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.<br/>
+<input type="radio" name="114" value="4"><strong>4 </strong>: same as <code>3</code> but now <ei>phi</ei>, see  below, sets the CP-mixing angle. The CP-even term is proportional  to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>,  and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is  pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.<br/>
  
 <br/><br/><table><tr><td><strong>HiggsH2:etaParity </td><td></td><td> <input type="text" name="115" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>eta</i> value of CP-violation in the 
 <code>HiggsH2:parity = 3</code> option. 
    
-
+ 
 <br/><br/><table><tr><td><strong>HiggsH2:phiParity </td><td></td><td> <input type="text" name="116" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>phi</i> value of CP-mixing in the 
 <code>HiggsH2:parity = 4</code> option. 
    
-
+ 
 <br/><br/><table><tr><td><strong>HiggsA3:parity  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
 possibility to modify angular decay correlations in the decay of a 
-<ei>A^0(H_3)</ei> decay <ei>Z^0 Z^0</ei> or <ei>W^+ W^-</ei> to four
-fermions, or <ei>tau^+ tau^-</ei> to any final state. Currently it
-does not affect the partial width of the channels, which is only based
-on the above parameters.
+<ei>A^0(H_3)</ei> decay <ei>Z^0 Z^0</ei> or <ei>W^+ W^-</ei> to four 
+fermions, or <ei>tau^+ tau^-</ei> to any final state. Currently it 
+does not affect the partial width of the channels, which is only based 
+on the above parameters. 
 <br/>
-<input type="radio" name="117" value="0"><strong>0 </strong>: <br/>
+<input type="radio" name="117" value="0"><strong>0 </strong>: isotropic decays.<br/>
 <input type="radio" name="117" value="1"><strong>1 </strong>: assuming the <ei>A^0(H_3)</ei> is a pure scalar  (CP-even).<br/>
 <input type="radio" name="117" value="2" checked="checked"><strong>2 </strong>: assuming the <ei>A^0(H_3)</ei> is a pure pseudoscalar  (CP-odd), as in the MSSM.<br/>
 <input type="radio" name="117" value="3"><strong>3 </strong>: assuming the <ei>A^0(H_3)</ei> is a mixture of the two,  including the CP-violating interference term. The parameter  <ei>eta</ei>, see below, sets the strength of the CP-odd admixture,  with the interference term being proportional to <ei>eta</ei>  and the CP-odd one to <ei>eta^2</ei>.<br/>
-<input type="radio" name="117" value="4"><strong>4 </strong>: same as <code>3</code> but now <ei>phi</ei>, see below, sets the CP-mixing angle. The CP-even term is proportional to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>, and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.<br/>
+<input type="radio" name="117" value="4"><strong>4 </strong>: same as <code>3</code> but now <ei>phi</ei>, see  below, sets the CP-mixing angle. The CP-even term is proportional  to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>,  and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is  pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.<br/>
  
 <br/><br/><table><tr><td><strong>HiggsA3:etaParity </td><td></td><td> <input type="text" name="118" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>eta</i> value of CP-violation in the 
 <code>HiggsA3:parity = 3</code> option. 
    
-
+ 
 <br/><br/><table><tr><td><strong>HiggsA3:phiParity </td><td></td><td> <input type="text" name="119" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>phi</i> value of CP-mixing in the 
 <code>HiggsA3:parity = 4</code> option. 
@@ -1749,5 +1749,5 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

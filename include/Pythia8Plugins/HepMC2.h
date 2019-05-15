@@ -1,5 +1,5 @@
 // HepMC2.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -85,8 +85,8 @@ private:
 // Read one event from Pythia8 and fill GenEvent,
 // and return T/F = success/failure.
 
-inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
-  int ievnum, Pythia8::Info* pyinfo, Pythia8::Settings* pyset) {
+inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev, 
+  GenEvent* evt, int ievnum, Pythia8::Info* pyinfo, Pythia8::Settings* pyset) {
 
   // 1. Error if no event passed.
   if (!evt) {
@@ -109,7 +109,7 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev, GenEvent* evt
     evt->momentum_unit());
   double lenFac = HepMC::Units::conversion_factor(HepMC::Units::MM,
     evt->length_unit());
-    
+
   // 2. Create a particle instance for each entry and fill a map, and
   // a vector which maps from the particle index to the GenParticle address.
   std::vector<GenParticle*> hepevt_particles( pyev.size() );
@@ -134,7 +134,7 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev, GenEvent* evt
   // Here we assume that the first two particles in the list
   // are the incoming beam particles.
   evt->set_beam_particles( hepevt_particles[1], hepevt_particles[2] );
- 
+
   // 3. Loop over particles AGAIN, this time creating vertices.
   // We build the production vertex for each entry in hepevt.
   // The HEPEVT pointers are bi-directional, so gives decay vertices as well.

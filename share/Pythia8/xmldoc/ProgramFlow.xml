@@ -22,7 +22,7 @@ At the bottom of this webpage is a complete survey of all public
 <code>Pythia</code> methods and data members, in a more formal style 
 than the task-oriented descriptions found in the preceding sections. 
 This offers complementary information. 
-    
+ 
 <h3>Initialization - normal usage</h3> 
  
 <ol> 
@@ -177,7 +177,7 @@ end of the generation step. It makes sense to allow a few <code>false</code>
 values before a run is aborted, so long as the related faulty 
 events are skipped. 
 </li> 
-  
+ 
 <p/> 
 <li> 
 The generated event is now stored in the <code>event</code> 
@@ -208,7 +208,7 @@ event.
     pythia.stat(); 
 </pre> 
 to get some run statistics, on cross sections and the number of errors 
-and warnings encountered.
+and warnings encountered. 
 </li> 
  
 </ol> 
@@ -905,7 +905,7 @@ list statistics on the event generation, specifically total and partial
 cross sections and the number of different errors. For more details see 
 <aloc href="EventStatistics">here</aloc> and for available options 
 <aloc href="MainProgramSettings">here</aloc>. 
-</method>  
+</method> 
  
 <h3>Interrogate settings</h3> 
  
@@ -928,14 +928,14 @@ read in a boolean variable from the <code>Settings</code> database.
 the name of the variable to be read. 
 </argument> 
 </method> 
-  
+ 
 <method name="int Pythia::mode(string key)"> 
 read in an integer variable from the <code>Settings</code> database. 
 <argument name="key"> 
 the name of the variable to be read. 
 </argument> 
 </method> 
-  
+ 
 <method name="double Pythia::parm(string key)"> 
 read in a double-precision variable from the <code>Settings</code> 
 database. 
@@ -943,20 +943,20 @@ database.
 the name of the variable to be read. 
 </argument> 
 </method> 
-  
+ 
 <method name="string Pythia::word(string key)"> 
 read in a string variable from the <code>Settings</code> database. 
 <argument name="key"> 
 the name of the variable to be read. 
 </argument> 
 </method> 
-   
+ 
 <h3>Get a PDF set</h3> 
  
 <code>Pythia</code> contains an number of parton density sets 
 internally, plus an interface to LHAPDF. With the method below, 
 this machinery is also made available for external usage. 
-  
+ 
 <method name="PDF* getPDFPtr(int id, int sequence = 1)"> 
 get a pointer to a PDF object. Which PDF is returned depends on the 
 <aloc href="PDFSelection">PDF Selection</aloc> settings. 
@@ -969,58 +969,58 @@ selection be determined by the special settings for hard processes
 (<code>PDF:useHard</code> etc.). 
 </argument> 
 </method> 
-   
+ 
 <h3>Data members</h3> 
  
 The <code>Pythia</code> class contains a few public data members, 
 several of which play a central role. We list them here, with 
 links to the places where they are further described. 
-  
+ 
 <method name="Event Pythia::process"> 
 the hard-process event record, see <aloc href="EventRecord">here</aloc> 
 for further details. 
 </method> 
-  
+ 
 <method name="Event Pythia::event"> 
 the complete event record, see <aloc href="EventRecord">here</aloc> 
 for further details. 
 </method> 
-  
+ 
 <method name="Info Pythia::info"> 
 further information on the event-generation process, see 
 <aloc href="EventInformation">here</aloc> for further details. 
 </method> 
-  
+ 
 <method name="Settings Pythia::settings"> 
 the settings database, see <aloc href="SettingsScheme">here</aloc> 
 for further details. 
 </method> 
-  
+ 
 <method name="ParticleData Pythia::particleData"> 
 the particle properties and decay tables database, see 
 <aloc href="ParticleDataScheme">here</aloc> for further details. 
 </method> 
-  
+ 
 <method name="Rndm Pythia::rndm"> 
 the random number generator, see <aloc href="RandomNumberSeed">here</aloc> 
 and <aloc href="RandomNumbers">here</aloc> for further details. 
 </method> 
-  
+ 
 <method name="CoupSM Pythia::coupSM"> 
 Standard Model couplings and mixing matrices, see 
 <aloc href="StandardModelParameters">here</aloc> for further details. 
 </method> 
-  
+ 
 <method name="SusyLesHouches Pythia::slha"> 
 parameters and particle data in the context of supersymmetric models, 
 see <aloc href="SUSYLesHouchesAccord">here</aloc> for further details. 
 </method> 
-  
+ 
 <method name="PartonSystems Pythia::partonSystems"> 
 a grouping of the partons in the event record by subsystem, 
 see <aloc href="AdvancedUsage">here</aloc> for further details. 
 </method> 
-    
+ 
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

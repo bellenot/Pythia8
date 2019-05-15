@@ -107,10 +107,10 @@ files <ei>input_unw.par</ei> and <ei>input.unw</ei>, the value
 When switched on, <ei>c</ei> and <ei>b</ei> quark masses provided 
 by ALPGEN are set in the PYTHIA 
 <aloc href="ParticleDataScheme">particle database</aloc>. 
-Since ALPGEN may set these two masses to vanish, the parton shower
-programs have been provided with some protection, but other parts of
+Since ALPGEN may set these two masses to vanish, the parton shower 
+programs have been provided with some protection, but other parts of 
 the code may not be as fortunate. You should therefore only switch on 
-this option if you know what you are doing.
+this option if you know what you are doing. 
 </flag> 
  
 <flag name="Alpgen:setHeavyMasses" default="on"> 
@@ -261,4 +261,4 @@ present, which are then used to set further PYTHIA settings.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

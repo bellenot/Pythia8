@@ -40,8 +40,7 @@ with the LHC experimental community.
 <p/> 
 The (simple) procedure to translate PYTHIA 8 events into HepMC ones 
 is illustrated in the <code>main41.cc</code>, <code>main42.cc</code> 
-<code>main61.cc</code> and <code>main62.cc</code> 
-main programs. At the core is a call to the 
+and <code>main43.cc</code> main programs. At the core is a call to the 
 <pre> 
 HepMC::Pythia8ToHepMC::fill_next_event( pythia, hepmcevt, ievnum = -1) 
 </pre> 
@@ -217,4 +216,4 @@ like in some Les Houches strategies, this weight is in units of pb.
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

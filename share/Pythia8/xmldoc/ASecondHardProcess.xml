@@ -246,7 +246,7 @@ end of the run, the cross sections in <ei>a</ei> should be multiplied
 by <ei>&lt;f_impact&gt; sigma_1b / sigma_ND</ei> to bring them to 
 the correct overall level, and those in <ei>b</ei> by 
 <ei>&lt;f_impact&gt; sigma_1a / sigma_ND</ei>. 
-  
+ 
 <p/> 
 (2) Exactly the same processes <ei>a</ei> are selected for the 
 first and second interaction. In that case it works as above, 
@@ -256,7 +256,7 @@ is automatically obtained for picking two different subprocesses,
 e.g. if <code>TwoJets</code> is selected for both interactions, 
 then the combination of the two subprocesses <ei>q qbar &rarr; g g</ei> 
 and <ei>g g &rarr; g g</ei> can trivially be obtained two ways. 
-  
+ 
 <p/> 
 (3) The list of subprocesses partly but not completely overlap. 
 For instance, the first process is allowed to contain <ei>a</ei> 
@@ -413,4 +413,4 @@ anyway less relevant, since systematical errors are likely to dominate.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

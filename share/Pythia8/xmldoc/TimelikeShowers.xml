@@ -1,5 +1,5 @@
 <chapter name="Timelike Showers"> 
-     
+ 
 <h2>Timelike Showers</h2> 
  
 The PYTHIA algorithm for timelike final-state showers is based on 
@@ -90,7 +90,7 @@ accuracy. A modification of this behaviour would require you to work with
 <code>UserHooks</code>. However, for Les Houches input the optional 
 <code><aloc href="BeamParameters">Beams:strictLHEFscale = on</aloc></code> 
 setting restricts all emissions, also in resonance decays, to be below 
-the input <code>scale</code> value.
+the input <code>scale</code> value. 
 </modepick> 
  
 <parm name="TimeShower:pTmaxFudge" default="1.0" min="0.25" max="2.0"> 
@@ -111,7 +111,7 @@ A multiplicative factor <ei>f</ei> such that
 non-hardest interactions (when multiparton interactions are allowed). 
 </parm> 
  
-<modepick name="TimeShower:pTdampMatch" default="0" min="0" max="2"> 
+<modepick name="TimeShower:pTdampMatch" default="0" min="0" max="4"> 
 These options only take effect when a process is allowed to radiate up 
 to the kinematical limit by the above <code>pTmaxMatch</code> choice, 
 and no matrix-element corrections are available. Then, in many processes, 
@@ -137,6 +137,16 @@ but dampened by a factor <ei>k^2 Q^2_ren/(pT^2 + k^2 Q^2_ren)</ei>,
 where <ei>Q_ren</ei> is the renormalization scale and <ei>k</ei> is a 
 multiplicative fudge factor stored in <code>pTdampFudge</code> below. 
 </option> 
+<option value="3">as option 1, but in addition to the standard requirements
+for dampening it is further necessary to have ar least two top or 
+beyond-the-Standard-Model coloured particles in the final state. 
+Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production.  
+</option> 
+<option value="4">as option 2, but in addition to the standard requirements
+for dampening it is further necessary to have ar least two top or 
+beyond-the-Standard-Model coloured particles in the final state. 
+Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production. 
+</option> 
 <note>Note:</note> These options only apply to the hard interaction. 
 Specifically, a "second hard" interaction would not be affected. 
 Emissions off subsequent multiparton interactions are always constrained 
@@ -154,7 +164,7 @@ away from this value could do better in some processes.
  
 <p/> 
 The amount of QCD radiation in the shower is determined by 
-<parm name="TimeShower:alphaSvalue" default="0.1383" 
+<parm name="TimeShower:alphaSvalue" default="0.1365" 
 min="0.06" max="0.25"> 
 The <ei>alpha_strong</ei> value at scale <ei>M_Z^2</ei>. The default 
 value corresponds to a crude tuning to LEP data, to be improved. 
@@ -190,7 +200,7 @@ timelike showers. Note that tunes using this option need lower values of
 <p/> 
 QED radiation is regulated by the <ei>alpha_electromagnetic</ei> 
 value at the <ei>pT^2</ei> scale of a branching. 
-  
+ 
 <modepick name="TimeShower:alphaEMorder" default="1" min="-1" max="1"> 
 The running of <ei>alpha_em</ei>. 
 <option value="1">first-order running, constrained to agree with 
@@ -222,7 +232,7 @@ remain at fixed scales).
 The default <ei>pT^2</ei> factorization scale is multiplied by 
 this prefactor. 
 </parm> 
-  
+ 
 <p/> 
 The rate of radiation if divergent in the <ei>pT &rarr; 0</ei> limit. Here, 
 however, perturbation theory is expected to break down. Therefore an 
@@ -231,11 +241,11 @@ no emissions are allowed. The cutoff may be different for QCD and QED
 radiation off quarks, and is mainly a technical parameter for QED 
 radiation off leptons. 
  
-<parm name="TimeShower:pTmin" default="0.4" min="0.1" max="2.0"> 
+<parm name="TimeShower:pTmin" default="0.5" min="0.1" max="2.0"> 
 Parton shower cut-off <ei>pT</ei> for QCD emissions. 
 </parm> 
  
-<parm name="TimeShower:pTminChgQ" default="0.4" min="0.1" max="2.0"> 
+<parm name="TimeShower:pTminChgQ" default="0.5" min="0.1" max="2.0"> 
 Parton shower cut-off <ei>pT</ei> for photon coupling to coloured particle. 
 </parm> 
  
@@ -352,6 +362,31 @@ by the branching, <ei>m2 = pT2/(z(1-z))</ei>. Note that
 at 90 degrees without beam recoil. 
 </flag> 
  
+<p/> 
+When there is no interleaving, a number of MPIs may have been generated
+before FSR is considered. In principle there could be colour correlations 
+between the MPIs, such that a final-state colour of one MPI could be
+matched by the corresponding final-state anticolour of another MPI.
+These thereby would form a colour dipole, but one that does not come out
+from a common vertex, and therefore presumably could not radiate in full.
+Currently the standard procedure is to match colours between MPIs
+only after FSR, so MPI systems would radiate independently, with 
+recoils taken by the beam remnant, where necessary. This could change,
+however, and the following switch would then regulate the choice of 
+behaviour.
+ 
+<flag name="TimeShower:allowMPIdipole" default="off"> 
+If on, and if interleaving is off, then dipoles are allowed to be
+formed between matching final-state colour-anticolour pairs also
+between two different MPIs. Else dipoles can normally only form
+inside the same MPI, and the could-have-been dipoles between different
+MPIs instead appear as dipoles stretched to the beam remnants. 
+In either case a dipole can still form between two MPIs if a final-state 
+colour cannot be matched inside the same MPI. This should normally
+not happen, except if rescattering is allowed, whereby two or more 
+MPIs get interconnected.
+</flag> 
+ 
 <h3>Global recoil</h3> 
  
 The final-state algorithm is based on dipole-style recoils, where 
@@ -408,7 +443,7 @@ interaction, and only while the number of particles in the final state
 is at most <code>TimeShower:nMaxGlobalRecoil</code> before the 
 branching. 
 </flag> 
-   
+ 
 <modeopen name="TimeShower:nMaxGlobalRecoil" default="2" min="1"> 
 Represents the maximum number of particles in the final state for which 
 the next final-state emission can be performed with the global recoil 
@@ -498,7 +533,7 @@ recoiler anyway, so no guarantees are given what prescription would
 come to be used. Instead, without ME corrections,  a process-independent 
 emission rate is obtained, and  <aloc href="UserHooks">user hooks</aloc> 
 can provide the desired process-specific rejection factors. 
-  
+ 
 <h3>Radiation off octet onium states</h3> 
  
 In the current implementation, charmonium and bottomonium production 
@@ -572,7 +607,7 @@ states that are allowed to radiate, normalized to the <ei>q &rarr; q g</ei>
 splitting kernel. Thus the default corresponds to twice the radiation 
 off a quark. The physically preferred range would be between 1 and 9/4. 
 </parm> 
-  
+ 
 <h3>Weak showers</h3> 
  
 The emission of weak gauge bosons is an integrated part of the initial- 
@@ -619,39 +654,40 @@ Number of allowed quark flavours in <ei>g &rarr; q qbar</ei> branchings
 Different options to assign kinematics distributions and weights 
 for <ei>g &rarr; q qbar</ei> branchings, notably for charm and bottom 
 quarks. These options also have the corresponding effect on 
-<ei>gamma &rarr; f fbar</ei> branchings. The rationale for the options
-is described in <a href="../pdfdoc/g2qqbarsplit.pdf">this note</a>.
+<ei>gamma &rarr; f fbar</ei> branchings. The rationale for the options 
+is described in <a href="../pdfdoc/g2qqbarsplit.pdf">this note</a>. 
 <br/>Notation: <ei>r_q = m_q^2/m_qq^2</ei>, <ei>beta = sqrt(1 - 4r_q)</ei>, 
 with <ei>m_q</ei> the quark mass and <ei>m_qq</ei> the <ei>q qbar</ei> pair 
 invariant mass. The scale factor <ei>k</ei> is described below, 
-<code>TimeShower:scaleGluonToQuark</code>.
+<code>TimeShower:scaleGluonToQuark</code>. 
 <option value="1">same splitting kernel <ei>(1/2) (z^2 + (1-z)^2)</ei> for 
 massive as massless quarks, only with an extra <ei>beta</ei> phase 
 space factor.</option> 
 <option value="2">a splitting kernel 
-<ei>(beta/2) (z^2 + (1-z)^2 + 8r_q z(1-z))</ei>.</option>
-<option value="3">a splitting kernel <ei>z^2 + (1-z)^2 + 8r_q z(1-z)</ei>,
-normalized so that the <ei>z</ei>-integrated rate is
-<ei>(beta/3) (1 + r/2)</ei>.</option>
-<option value="4">same as 3, but additionally a suppression factor
+<ei>(beta/2) (z^2 + (1-z)^2 + 8r_q z(1-z))</ei>.</option> 
+<option value="3">a splitting kernel <ei>z^2 + (1-z)^2 + 8r_q z(1-z)</ei>, 
+normalized so that the <ei>z</ei>-integrated rate is 
+<ei>(beta/3) (1 + r/2)</ei>.</option> 
+<option value="4">same as 3, but additionally a suppression factor 
 <ei>(1 - m_qq^2/m_dipole^2)^3</ei>, which reduces the rate of high-mass 
-<ei>q qbar</ei> pairs.</option>
-<option value="5">same as 1, but reweighted to an <ei>alpha_s(k m_qq^2)</ei>
-rather than the normal <ei>alpha_s(pT^2)</ei>.</option>
-<option value="6">same as 2, but reweighted to an <ei>alpha_s(k m_qq^2)</ei>
-rather than the normal <ei>alpha_s(pT^2)</ei>.</option>
-<option value="7">same as 3, but reweighted to an <ei>alpha_s(k m_qq^2)</ei>
-rather than the normal <ei>alpha_s(pT^2)</ei>.</option>
-<option value="8">same as 4, but reweighted to an <ei>alpha_s(k m_qq^2)</ei>
-rather than the normal <ei>alpha_s(pT^2)</ei>.</option>
+<ei>q qbar</ei> pairs.</option> 
+<option value="5">same as 1, but reweighted to an <ei>alpha_s(k m_qq^2)</ei> 
+rather than the normal <ei>alpha_s(pT^2)</ei>.</option> 
+<option value="6">same as 2, but reweighted to an <ei>alpha_s(k m_qq^2)</ei> 
+rather than the normal <ei>alpha_s(pT^2)</ei>.</option> 
+<option value="7">same as 3, but reweighted to an <ei>alpha_s(k m_qq^2)</ei> 
+rather than the normal <ei>alpha_s(pT^2)</ei>.</option> 
+<option value="8">same as 4, but reweighted to an <ei>alpha_s(k m_qq^2)</ei> 
+rather than the normal <ei>alpha_s(pT^2)</ei>.</option> 
 </modepick> 
  
 <parm name="TimeShower:scaleGluonToQuark" default="1.0" min="0.25" max="1.0"> 
-Extra scale parameter <ei>k</ei> for <code>TimeShower:weightGluonToQuark</code>
-options 5 - 8. Comes on top of <code>TimeShower:renormMultFac</code>, which
-affects <ei>alpha_s(pT^2)</ei> alike.
+Extra scale parameter <ei>k</ei> for 
+<code>TimeShower:weightGluonToQuark</code> options 5 - 8. Comes on top of 
+<code>TimeShower:renormMultFac</code>, which affects <ei>alpha_s(pT^2)</ei> 
+alike. 
 </parm> 
-
+ 
 <flag name="TimeShower:QEDshowerByQ" default="on"> 
 Allow quarks to radiate photons, i.e. branchings <ei>q &rarr; q gamma</ei>; 
 on/off = true/false. 
@@ -727,4 +763,4 @@ evaluation of parton densities if the <code>flag</code> above is on.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

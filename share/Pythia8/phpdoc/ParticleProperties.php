@@ -137,8 +137,8 @@ In detail, the list of used or foreseen status codes is:
   <li>62 : outgoing subprocess particle with primordial <i>kT</i> 
            included</li> 
   <li>63 : outgoing beam remnant</li> 
-  <li>64 : copied particle with new colour according to the colour
-           configuration of the beam remnant</li>
+  <li>64 : copied particle with new colour according to the colour 
+           configuration of the beam remnant</li> 
   </ul> 
 <li>71 - 79 : partons in preparation of hadronization process</li> 
   <ul> 
@@ -157,7 +157,7 @@ In detail, the list of used or foreseen status codes is:
   <li>78 : temporary combined diquark end when fragmenting last 
            string in to junction (should disappear again)</li> 
   <li>79 : copy of particle with new colour indices after the 
-           colour reconnection</li>
+           colour reconnection</li> 
   </ul> 
 <li>81 - 89 : primary hadrons produced by hadronization process</li> 
   <ul> 
@@ -172,7 +172,7 @@ In detail, the list of used or foreseen status codes is:
   <li>87, 88 : primary produced baryon from a junction (similar difference 
                as for 83, 84)</li> 
   <li>89 : primary produced baryon from a junction in the ministring 
-           framework</li>
+           framework</li> 
   </ul> 
 <li>91 - 99 : particles produced in decay process, or by Bose-Einstein 
   effects</li> 
@@ -232,7 +232,7 @@ subsequent hadronization. An event may also contain two 20'ies
 perturbative subcollisions if you use the 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>";?>Second Hard Process</a> 
-generation machinery.
+generation machinery. 
    
  
 <a name="method3"></a>
@@ -811,7 +811,7 @@ counted as daughters, with the one in slot 0 being the one leading up
 to the hardest interaction. The "system" in line 0 does not have any 
 daughters, i.e. is not counted as part of the history. Many partons 
 may have the same <code>daughterList</code>. Daughters are listed in 
-ascending order.
+ascending order. 
    
  
 <a name="method67"></a>
@@ -1007,5 +1007,5 @@ particle species.
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

@@ -40,41 +40,41 @@ The fifth gives the possibility to switch off the lepton
 "parton density". More information on PDF classes is found 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='PartonDistributions.php?filepath=".$filepath."' target='page'>";?>here</a>. 
-
+ 
 <br/><br/><strong>PDF:extrapolate</strong>  <input type="radio" name="1" value="on"><strong>On</strong>
 <input type="radio" name="1" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Allow PDF sets to be extrapolated. This is a global flag that affects
-all PDF sets used. However, only LHAPDF5 PDF sets can currently be
-extrapolated so this does not affect internal or LHAPDF6 sets. Parton
-densities have a guaranteed range of validity in <i>x</i>
-and <i>Q^2</i>, and what should be done beyond that range usually is
-not explained by the authors of PDF sets. Nevertheless these
-boundaries very often are exceeded, e.g. minimum-bias studies at LHC
-may sample <i>x</i> values down to <i>10^-8</i>, while many PDF
-sets stop already at <i>10^-5</i>. The default behaviour is then
-that the PDF's are frozen at the boundary, i.e. <i>xf(x,Q^2)</i> is
-fixed at its value at <i>x_min</i> for all values <i>x &lt;
-x_min</i>, and so on. This is a conservative approach. Alternatively,
-if you switch on extrapolation, then parametrizations will be extended
-beyond the boundaries, by some prescription. In some cases this will
-provide a more realistic answer, in others complete rubbish. Another
-problem is that some of the PDF-set codes will write a warning message
-anytime the limits are exceeded, thus swamping your output
-file. Therefore you should study a set seriously before you run it
-with this switch on.
+Allow PDF sets to be extrapolated. This is a global flag that affects 
+all PDF sets used. However, only LHAPDF5 PDF sets can currently be 
+extrapolated so this does not affect internal or LHAPDF6 sets. Parton 
+densities have a guaranteed range of validity in <i>x</i> 
+and <i>Q^2</i>, and what should be done beyond that range usually is 
+not explained by the authors of PDF sets. Nevertheless these 
+boundaries very often are exceeded, e.g. minimum-bias studies at LHC 
+may sample <i>x</i> values down to <i>10^-8</i>, while many PDF 
+sets stop already at <i>10^-5</i>. The default behaviour is then 
+that the PDF's are frozen at the boundary, i.e. <i>xf(x,Q^2)</i> is 
+fixed at its value at <i>x_min</i> for all values <i>x &lt; 
+x_min</i>, and so on. This is a conservative approach. Alternatively, 
+if you switch on extrapolation, then parametrizations will be extended 
+beyond the boundaries, by some prescription. In some cases this will 
+provide a more realistic answer, in others complete rubbish. Another 
+problem is that some of the PDF-set codes will write a warning message 
+anytime the limits are exceeded, thus swamping your output 
+file. Therefore you should study a set seriously before you run it 
+with this switch on. 
    
  
 <h3>Parton densities for protons</h3> 
-
+ 
 PYTHIA comes with a reasonably complete list of recent LO fits built-in, 
-both ones within the normal LO context and ones with modifications for
+both ones within the normal LO context and ones with modifications for 
 better matching to event generators. In addition two older sets are 
 included for backwards reference (most studies to date are based on 
 CTEQ 5L). Therefore there is no real need to link any external PDF sets. 
  
 <p/> 
-If the internal PDF sets are not sufficient, the   
+If the internal PDF sets are not sufficient, the 
 <a href="http://projects.hepforge.org/lhapdf/" target="page">LHAPDF 
 library</a> [<a href="Bibliography.php" target="page">Wha05</a>] gives you access to a much wider selection. 
 <br/><b>Warning 1:</b> owing to previous problems with the behaviour 
@@ -100,7 +100,13 @@ for several reasons [<a href="Bibliography.php" target="page">Kas10</a>]:
 <br/><b>Warning 1:</b> the choice of PDF set affects a number of 
 properties of events. A change of PDF therefore requires a complete 
 retuning e.g.  of the multiparton-interactions model for minimum-bias and 
-underlying events. 
+underlying events. Conversely, the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>pp physics tunes</a> are all made for a specific 
+PDF tune, and the chosen (or default) tune will therefore overwrite 
+the <code>PDF:pSet</code> default value described below. If you want 
+to set <code>PDF:pSet</code> differently it should be done <i>after</i> 
+the <code>Tune:pp</code> value, if any, has been set. 
 <br/><b>Warning 2:</b> People often underestimate the differences 
 between different sets on the market. The sets for the same order are 
 constructed to behave more or less similarly at large <i>x</i> and 
@@ -119,16 +125,16 @@ compensated by positive corrections in the NLO matrix elements.
 Therefore do not blindly assume that an NLO tune has to be better than 
 an LO one when combined with the LO matrix elements in PYTHIA. There are 
 explicit examples where such thinking can lead you down the wrong alley, 
-especially if you study low-<i>pT</i> physics. A longer discussion on
+especially if you study low-<i>pT</i> physics. A longer discussion on 
 this point can be found in <a href="../pdfdoc/pdfwarning.pdf">this note</a>. 
 In the list below you should therefore be extra cautious when using 
 set 6 or set 9. 
  
-<br/><br/><table><tr><td><strong>PDF:pSet  </td><td></td><td> <input type="text" name="2" value="2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>PDF:pSet  </td><td></td><td> <input type="text" name="2" value="13" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>13</strong></code>)</td></tr></table>
 Parton densities to be used for proton beams (and, by implication, 
-antiproton ones). Note that the choice of a string input (rather than
-e.g. an integer) allows to pick either an internal, LHAPDF5 or LHAPDF6
-set in one single setting, by some behind-the-scenes machinations.    
+antiproton ones). Note that the choice of a string input (rather than 
+e.g. an integer) allows to pick either an internal, LHAPDF5 or LHAPDF6 
+set in one single setting, by some behind-the-scenes machinations. 
 <br/><code>option </code><strong> 1</strong> : GRV 94L, LO <i>alpha_s(M_Z) = 0.128</i> 
 (this set is out of date, but retained for historical comparisons).   
 <br/><code>option </code><strong> 2</strong> : CTEQ 5L, LO <i>alpha_s(M_Z) = 0.127</i> 
@@ -149,24 +155,24 @@ NLO <i>alpha_s(M_Z) = 0.1180</i> (NLO, see Warning 3 above).
 <br/><code>option </code><strong> 10</strong> : CT09MC1, LO <i>alpha_s(M_Z) = 0.1300</i>.   
 <br/><code>option </code><strong> 11</strong> : CT09MC2, NLO <i>alpha_s(M_Z) = 0.1180</i>.   
 <br/><code>option </code><strong> 12</strong> : CT09MCS, NLO <i>alpha_s(M_Z) = 0.1180</i>.   
-<br/><code>option </code><strong> 13</strong> : NNPDF2.3 QCD+QED LO <i>alpha_s(M_Z) = 0.130</i>.
+<br/><code>option </code><strong> 13</strong> : NNPDF2.3 QCD+QED LO <i>alpha_s(M_Z) = 0.130</i>. 
    
-<br/><code>option </code><strong> 14</strong> : NNPDF2.3 QCD+QED LO <i>alpha_s(M_Z) = 0.119</i>.
+<br/><code>option </code><strong> 14</strong> : NNPDF2.3 QCD+QED LO <i>alpha_s(M_Z) = 0.119</i>. 
    
-<br/><code>option </code><strong> 15</strong> : NNPDF2.3 QCD+QED NLO <i>alpha_s(M_Z) = 0.119</i>.
+<br/><code>option </code><strong> 15</strong> : NNPDF2.3 QCD+QED NLO <i>alpha_s(M_Z) = 0.119</i>. 
    
 <br/><code>option </code><strong> 16</strong> : NNPDF2.3 QCD+QED NNLO <i>alpha_s(M_Z) = 0.119</i>. 
    
-<br/><code>option </code><strong> LHAPDF5:set/member</strong> : Use an external LHAPDF set
-where <code>set</code> is the name of the set to use
-and <code>member</code> is the member of the set to use. The value
-for <code>set</code> is the name of the PDF set to use while the value
-for <code>member</code> must be an integer and is the member of the
-set to use. If member is not supplied, then <code>0</code> is assumed.
+<br/><code>option </code><strong> LHAPDF5:set/member</strong> : Use an external LHAPDF set 
+where <code>set</code> is the name of the set to use 
+and <code>member</code> is the member of the set to use. The value 
+for <code>set</code> is the name of the PDF set to use while the value 
+for <code>member</code> must be an integer and is the member of the 
+set to use. If member is not supplied, then <code>0</code> is assumed. 
    
-<br/><code>option </code><strong> LHAPDF6:set/member</strong> : Same as
-for <code>LHAPDF5:set/member</code> but now the LHAPDF6 library is
-used instead.
+<br/><code>option </code><strong> LHAPDF6:set/member</strong> : Same as 
+for <code>LHAPDF5:set/member</code> but now the LHAPDF6 library is 
+used instead. 
    
    
 <br/><b>Warning 1:</b> the <i>alpha_s(M_Z)</i> values and the order of the 
@@ -182,23 +188,23 @@ echo "<a href='MultipartonInteractions.php?filepath=".$filepath."' target='page'
 echo "<a href='SpacelikeShowers.php?filepath=".$filepath."' target='page'>";?>initial-state radiation</a>, and 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='TimelikeShowers.php?filepath=".$filepath."' target='page'>";?>final-state radiation</a>. 
-<br/><b>Warning 2:</b> in order for <code>LHAPDF</code> PDF sets to work
-you must have compiled the approriate LHAPDF plugins for PYTHIA and
-have set the <code>LHAPATH</code> environment variable
-(or <code>LHAPDF_DATA_PATH</code>) to provide the data-files directory
-of your local LHAPDF installation. See the README file in
-the <code>examples</code> directory for further instructions.
-<br/><b>Warning 3:</b> it is technically possible to simultaneously
-use <code>LHAPDF5</code> and <code>LHAPDF6</code> PDF sets at the same
-time for the two beams, but such a configuration is not officially
-supported and strongly discouraged.
+<br/><b>Warning 2:</b> in order for <code>LHAPDF</code> PDF sets to work 
+you must have compiled the approriate LHAPDF plugins for PYTHIA and 
+have set the <code>LHAPATH</code> environment variable 
+(or <code>LHAPDF_DATA_PATH</code>) to provide the data-files directory 
+of your local LHAPDF installation. See the README file in 
+the <code>examples</code> directory for further instructions. 
+<br/><b>Warning 3:</b> it is technically possible to simultaneously 
+use <code>LHAPDF5</code> and <code>LHAPDF6</code> PDF sets at the same 
+time for the two beams, but such a configuration is not officially 
+supported and strongly discouraged. 
    
-
+ 
 <br/><br/><table><tr><td><strong>PDF:pSetB  </td><td></td><td> <input type="text" name="3" value="void" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>void</strong></code>)</td></tr></table>
-Parton densities to be used by <i>proton beam B</i>, with the same
-options available as for <code>PDF:pSet</code>. If this option is set
-to <code>void</code> then the same PDF set as <code>PDF:pSet</code> is
-used.
+Parton densities to be used by <i>proton beam B</i>, with the same 
+options available as for <code>PDF:pSet</code>. If this option is set 
+to <code>void</code> then the same PDF set as <code>PDF:pSet</code> is 
+used. 
    
  
 <p/> 
@@ -246,19 +252,19 @@ as already chosen above.
    
  
 <br/><br/><table><tr><td><strong>PDF:pHardSet  </td><td></td><td> <input type="text" name="5" value="void" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>void</strong></code>)</td></tr></table>
-Parton densities to be used by the proton beams of the hard process,
-with the same options available as for <code>PDF:pSet</code>. If this
-option is set to <code>void</code> then the same PDF set
-as <code>PDF:pSet</code> is used.
+Parton densities to be used by the proton beams of the hard process, 
+with the same options available as for <code>PDF:pSet</code>. If this 
+option is set to <code>void</code> then the same PDF set 
+as <code>PDF:pSet</code> is used. 
    
-
+ 
 <br/><br/><table><tr><td><strong>PDF:pHardSetB  </td><td></td><td> <input type="text" name="6" value="void" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>void</strong></code>)</td></tr></table>
-Parton densities to be used by <i>proton beam B</i> of the hard
-process, with the same options available as
-for <code>PDF:pSet</code>. If this option is set to <code>void</code>
-then the same PDF set as <code>PDF:pHardSet</code> is used.
+Parton densities to be used by <i>proton beam B</i> of the hard 
+process, with the same options available as 
+for <code>PDF:pSet</code>. If this option is set to <code>void</code> 
+then the same PDF set as <code>PDF:pHardSet</code> is used. 
    
-
+ 
 <h3>Parton densities for pions</h3> 
  
 The parton densities of the pion are considerably less well known than 
@@ -275,25 +281,28 @@ modifications; therefore the description is briefer. Currently we have
 not seen the need to allow separate parton densities for hard processes. 
 When using LHAPDF the <code>PDF:extrapolateLHAPDF</code> switch of the 
 proton also applies to pions. 
-  
+ 
 <br/><br/><table><tr><td><strong>PDF:piSet  </td><td></td><td> <input type="text" name="7" value="1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>)</td></tr></table>
 Parton densities that can be used for pion beams, currently with 
 only one internal choice. 
 <br/><code>option </code><strong> 1</strong> : GRV 92 L.   
-<br/><code>option </code><strong> LHAPDF5:set/member</strong> : Use an external LHAPDF set
-where <code>set</code> is the name of the set to use
-and <code>member</code> is the member of the set to use. The value
-for <code>set</code> can either be a relative path to the LHAPDF path,
-or an absolute path. The value for <code>member</code> must be an
-integer. Note that LHAPDF6 is purely a proton PDF library, and
-consequently this is only avaliable for LHAPDF5.
+<br/><code>option </code><strong> LHAPDF5:set/member</strong> : Use an external LHAPDF set 
+where <code>set</code> is the name of the set to use 
+and <code>member</code> is the member of the set to use. The value 
+for <code>set</code> can either be a relative path to the LHAPDF path, 
+or an absolute path. The value for <code>member</code> must be an 
+integer.
+   
+<br/><code>option </code><strong> LHAPDF6:set/member</strong> : Same as 
+for <code>LHAPDF5:set/member</code> but now the LHAPDF6 library is 
+used instead. 
    
    
-
+ 
 <br/><br/><table><tr><td><strong>PDF:piSetB  </td><td></td><td> <input type="text" name="8" value="void" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>void</strong></code>)</td></tr></table>
-Parton density for <i>pion beam B</i>. If this option is set
-to <code>void</code> then the same PDF set as <code>PDF:piSet</code>
-is used.
+Parton density for <i>pion beam B</i>. If this option is set 
+to <code>void</code> then the same PDF set as <code>PDF:piSet</code> 
+is used. 
    
  
 <h3>Parton densities for Pomerons</h3> 
@@ -418,7 +427,7 @@ if($_POST["1"] != "off")
 $data = "PDF:extrapolate = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "2")
+if($_POST["2"] != "13")
 {
 $data = "PDF:pSet = ".$_POST["2"]."\n";
 fwrite($handle,$data);
@@ -510,4 +519,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

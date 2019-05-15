@@ -78,7 +78,7 @@ interaction with lowest scale.
 <h4>Cross-section parameters</h4> 
  
 The rate of interactions is determined by 
-<br/><br/><table><tr><td><strong>MultipartonInteractions:alphaSvalue </td><td></td><td> <input type="text" name="2" value="0.127" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.127</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipartonInteractions:alphaSvalue </td><td></td><td> <input type="text" name="2" value="0.130" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.130</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)</td></tr></table>
 The value of <i>alpha_strong</i> at <i>m_Z</i>. Default value is 
 picked equal to the one used in CTEQ 5L. 
    
@@ -91,13 +91,13 @@ The order at which <ei>alpha_strong</ei> runs at scales away from
 <ei>m_Z</ei>. 
 <br/>
 <input type="radio" name="3" value="0"><strong>0 </strong>: zeroth order, i.e. <ei>alpha_strong</ei> is kept  fixed.<br/>
-<input type="radio" name="3" value="1" checked="checked"><strong>1 </strong>: zeroth order, i.e. <ei>alpha_strong</ei> is kept  fixed.<br/>
+<input type="radio" name="3" value="1" checked="checked"><strong>1 </strong>: first order, which is the normal value.<br/>
 <input type="radio" name="3" value="2"><strong>2 </strong>: second order. Since other parts of the code do  not go to second order there is no strong reason to use this option,  but there is also nothing wrong with it.<br/>
  
 <p/> 
 QED interactions are regulated by the <i>alpha_electromagnetic</i> 
 value at the <i>pT^2</i> scale of an interaction. 
-  
+ 
 <br/><br/><table><tr><td><strong>MultipartonInteractions:alphaEMorder  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)</td></tr></table>
 The running of <ei>alpha_em</ei> used in hard processes. 
 <br/>
@@ -167,7 +167,7 @@ The actual <i>pT0</i> parameter used at a given CM energy scale,
 where <i>pT0Ref</i>, <i>ecmRef</i> and <i>ecmPow</i> are the 
 three parameters below. 
  
-<br/><br/><table><tr><td><strong>MultipartonInteractions:pT0Ref </td><td></td><td> <input type="text" name="7" value="2.15" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.15</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipartonInteractions:pT0Ref </td><td></td><td> <input type="text" name="7" value="2.28" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.28</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.0</code>)</td></tr></table>
 The <i>pT0Ref</i> scale in the above formula. 
 <br/><b>Note:</b> <i>pT0Ref</i> is one of the key parameters in a 
 complete PYTHIA tune. Its value is intimately tied to a number of other 
@@ -175,11 +175,11 @@ choices, such as that of colour flow description, so unfortunately it is
 difficult to give an independent meaning to <i>pT0Ref</i>. 
    
  
-<br/><br/><table><tr><td><strong>MultipartonInteractions:ecmRef </td><td></td><td> <input type="text" name="8" value="1800.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1800.0</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipartonInteractions:ecmRef </td><td></td><td> <input type="text" name="8" value="7000.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>7000.0</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
 The <i>ecmRef</i> reference energy scale introduced above. 
    
  
-<br/><br/><table><tr><td><strong>MultipartonInteractions:ecmPow </td><td></td><td> <input type="text" name="9" value="0.24" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.24</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipartonInteractions:ecmPow </td><td></td><td> <input type="text" name="9" value="0.215" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.215</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.5</code>)</td></tr></table>
 The <i>ecmPow</i> energy rescaling pace introduced above. 
    
  
@@ -225,7 +225,7 @@ effective <ei>pT0</ei> for consecutive interactions.
 <input type="radio" name="11" value="2"><strong>2 </strong>: Both MPI and ISR influence and are influenced by the  screening. That is, the dampening is reduced based on the total number  of MPI and ISR steps considered so far, including the current one.  This dampening is implemented both for MPI and for ISR emissions,  for the latter provided that <code>SpaceShower:samePTasMPI</code> is on  (default).  <br/>
  
 <h4>Impact-parameter dependence</h4> 
-  
+ 
 The choice of impact-parameter dependence is regulated by several 
 parameters. The ones listed here refer to nondiffractive topologies 
 only, while their equivalents for diffractive events are put in the 
@@ -235,13 +235,13 @@ there is currently no <code>bProfile = 4</code> option for diffraction.
 Other parameters are assumed to agree between diffractive and 
 nondiffractive topologies. 
  
-<br/><br/><table><tr><td><strong>MultipartonInteractions:bProfile  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipartonInteractions:bProfile  </td><td>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
 Choice of impact parameter profile for the incoming hadron beams. 
 <br/>
-<input type="radio" name="12" value="0"><strong>0 </strong>: <br/>
-<input type="radio" name="12" value="1" checked="checked"><strong>1 </strong>: a simple Gaussian matter distribution;  no free parameters.<br/>
+<input type="radio" name="12" value="0"><strong>0 </strong>: no impact parameter dependence at all.<br/>
+<input type="radio" name="12" value="1"><strong>1 </strong>: a simple Gaussian matter distribution;  no free parameters.<br/>
 <input type="radio" name="12" value="2"><strong>2 </strong>: a double Gaussian matter distribution,  with the two free parameters <ei>coreRadius</ei> and  <ei>coreFraction</ei>.<br/>
-<input type="radio" name="12" value="3"><strong>3 </strong>: an overlap function, i.e. the convolution of  the matter distributions of the two incoming hadrons, of the form  <ei>exp(- b^expPow)</ei>, where <ei>expPow</ei> is a free  parameter.<br/>
+<input type="radio" name="12" value="3" checked="checked"><strong>3 </strong>: an overlap function, i.e. the convolution of  the matter distributions of the two incoming hadrons, of the form  <ei>exp(- b^expPow)</ei>, where <ei>expPow</ei> is a free  parameter.<br/>
 <input type="radio" name="12" value="4"><strong>4 </strong>: a Gaussian matter distribution with a width  that varies according to the selected <ei>x</ei> value of an interaction,  <ei>1. + a1 log (1 / x)</ei>, where <ei>a1</ei> is a free parameter.  Note that once <ei>b</ei> has been selected for the hard process,  it remains fixed for the remainder of the evolution.  <br/>
  
 <br/><br/><table><tr><td><strong>MultipartonInteractions:coreRadius </td><td></td><td> <input type="text" name="13" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 1.</code>)</td></tr></table>
@@ -256,7 +256,7 @@ the inner core is assumed to have a fraction <i>coreFraction</i>
 of the matter content of the hadron. 
    
  
-<br/><br/><table><tr><td><strong>MultipartonInteractions:expPow </td><td></td><td> <input type="text" name="15" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.4</code>; <code>maximum = 10.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipartonInteractions:expPow </td><td></td><td> <input type="text" name="15" value="1.85" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.85</strong></code>; <code>minimum = 0.4</code>; <code>maximum = 10.</code>)</td></tr></table>
 When <i>bProfile = 3</i> it gives the power of the assumed overlap 
 shape <i>exp(- b^expPow)</i>. Default corresponds to a simple 
 exponential drop, which is not too dissimilar from the overlap 
@@ -296,7 +296,7 @@ for MPIs (<code>MultipartonInteractions:pTmaxMatch</code>).
 <input type="radio" name="17" value="3"><strong>3 </strong>: use the same scale as chosen by the rules for  <code>MultipartonInteractions:pTmaxMatch</code>.<br/>
  
 <h4>Rescattering</h4> 
-  
+ 
 It is possible that a parton may rescatter, i.e. undergo a further 
 interaction subsequent to the first one. The machinery to model this 
 kind of physics has only recently become fully operational 
@@ -534,7 +534,7 @@ if($_POST["1"] != "0")
 $data = "MultipartonInteractions:pTmaxMatch = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "0.127")
+if($_POST["2"] != "0.130")
 {
 $data = "MultipartonInteractions:alphaSvalue = ".$_POST["2"]."\n";
 fwrite($handle,$data);
@@ -559,17 +559,17 @@ if($_POST["6"] != "3")
 $data = "MultipartonInteractions:processLevel = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["7"] != "2.15")
+if($_POST["7"] != "2.28")
 {
 $data = "MultipartonInteractions:pT0Ref = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["8"] != "1800.0")
+if($_POST["8"] != "7000.0")
 {
 $data = "MultipartonInteractions:ecmRef = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "0.24")
+if($_POST["9"] != "0.215")
 {
 $data = "MultipartonInteractions:ecmPow = ".$_POST["9"]."\n";
 fwrite($handle,$data);
@@ -584,7 +584,7 @@ if($_POST["11"] != "0")
 $data = "MultipartonInteractions:enhanceScreening = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "1")
+if($_POST["12"] != "3")
 {
 $data = "MultipartonInteractions:bProfile = ".$_POST["12"]."\n";
 fwrite($handle,$data);
@@ -599,7 +599,7 @@ if($_POST["14"] != "0.5")
 $data = "MultipartonInteractions:coreFraction = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["15"] != "1.")
+if($_POST["15"] != "1.85")
 {
 $data = "MultipartonInteractions:expPow = ".$_POST["15"]."\n";
 fwrite($handle,$data);
@@ -656,4 +656,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

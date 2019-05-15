@@ -19,11 +19,20 @@ and separate PDF scale choices. Also, in <i>2 &rarr; 2</i> and
 couplings and thereby their Breit-Wigner shapes are always evaluated 
 with the resonance mass as scale, irrespective of the choices below. 
  
+<p/> 
+We stress that couplings and scales are set separately from the 
+values on this page for 
+<a href="MultipartonInteractions.html" target="page">multiparton interactions</a>, 
+<a href="TimelikeShowers.html" target="page">timelike showers</a>, and 
+<a href="SpacelikeShowers.html" target="page">spacelike showers</a>. 
+This allows a bigger flexibility, but also requires a bit more work 
+e.g. if you insist on using the same <i>alpha_s</i> everywhere. 
+ 
 <h3>Couplings and K factor</h3> 
  
 The size of QCD cross sections is mainly determined by 
 <p/><code>parm&nbsp; </code><strong> SigmaProcess:alphaSvalue &nbsp;</strong> 
- (<code>default = <strong>0.1265</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)<br/>
+ (<code>default = <strong>0.13</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)<br/>
 The <i>alpha_strong</i> value at scale <i>M_Z^2</i>. 
    
  
@@ -79,7 +88,7 @@ The <i>Q^2</i> renormalization scale can be chosen among a few different
 alternatives, separately for <i>2 &rarr; 1</i>, <i>2 &rarr; 2</i> and two 
 different kinds of <i>2 &rarr; 3</i> processes. In addition a common 
 multiplicative factor may be imposed. 
-  
+ 
 <p/><code>mode&nbsp; </code><strong> SigmaProcess:renormScale1 &nbsp;</strong> 
  (<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)<br/>
 The <i>Q^2</i> renormalization scale for <i>2 &rarr; 1</i> processes. 
@@ -93,7 +102,7 @@ proceeding only through an <i>s</i>-channel resonance, by the
 below. 
    
    
-   
+ 
 <p/><code>mode&nbsp; </code><strong> SigmaProcess:renormScale2 &nbsp;</strong> 
  (<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 5</code>)<br/>
 The <i>Q^2</i> renormalization scale for <i>2 &rarr; 2</i> processes. 
@@ -118,7 +127,7 @@ i.e. <i>sHat</i>. Useful for processes dominated by
 below. 
    
    
-   
+ 
 <p/><code>mode&nbsp; </code><strong> SigmaProcess:renormScale3 &nbsp;</strong> 
  (<code>default = <strong>3</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)<br/>
 The <i>Q^2</i> renormalization scale for "normal" <i>2 &rarr; 3</i> 
@@ -147,7 +156,7 @@ i.e. <i>sHat</i>.
 below. 
    
    
-  
+ 
 <p/><code>mode&nbsp; </code><strong> SigmaProcess:renormScale3VV &nbsp;</strong> 
  (<code>default = <strong>3</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)<br/>
 The <i>Q^2</i> renormalization scale for <i>2 &rarr; 3</i> 
@@ -202,7 +211,7 @@ separately. For simplicity we have let the numbering of options agree,
 for each event class separately, between normalization and factorization 
 scales, and the description has therefore been slightly shortened. The 
 default values are <b>not</b> necessarily the same, however. 
-  
+ 
 <p/><code>mode&nbsp; </code><strong> SigmaProcess:factorScale1 &nbsp;</strong> 
  (<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)<br/>
 The <i>Q^2</i> factorization scale for <i>2 &rarr; 1</i> processes. 
@@ -237,7 +246,7 @@ i.e. <i>sHat</i>. Useful for processes dominated by
 below. 
    
    
-   
+ 
 <p/><code>mode&nbsp; </code><strong> SigmaProcess:factorScale3 &nbsp;</strong> 
  (<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)<br/>
 The <i>Q^2</i> factorization scale for "normal" <i>2 &rarr; 3</i> 
@@ -261,7 +270,7 @@ i.e. <i>sHat</i>.
 below. 
    
    
-  
+ 
 <p/><code>mode&nbsp; </code><strong> SigmaProcess:factorScale3VV &nbsp;</strong> 
  (<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)<br/>
 The <i>Q^2</i> factorization scale for <i>2 &rarr; 3</i> 
@@ -308,4 +317,4 @@ above.
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

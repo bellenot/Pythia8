@@ -36,8 +36,8 @@ and of space and time in mm.
  
 <h3>Incoming beams</h3> 
  
-The identities and energies of the two incoming beam particles
-should be specified using the settings in this section.
+The identities and energies of the two incoming beam particles 
+should be specified using the settings in this section. 
 Note that, if nothing is done, you will default to LHC at 14 TeV. 
  
 <p/> 
@@ -65,7 +65,7 @@ here mainly for debug purposes),
 <br/><br/><table><tr><td><strong>Beams:idB  </td><td></td><td> <input type="text" name="2" value="2212" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2212</strong></code>)</td></tr></table>
 The PDG <code>id</code> code for the second incoming particle. 
    
-  
+ 
 <br/><br/><table><tr><td><strong>Beams:frameType  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 5</code>)</td></tr></table>
 Choice of frame for the two colliding particles. For options 
 1 - 3 the beam identities are specified above, while they are 
@@ -167,11 +167,11 @@ Only used when <code>Beams:frameType</code> = 4 or 5.
 <br/><br/><strong>Beams:strictLHEFscale</strong>  <input type="radio" name="17" value="on"><strong>On</strong>
 <input type="radio" name="17" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Always use the <code>SCALUP</code> value read from LHEF
-as production scale for particles, also including particles
-coming from resonance decays. By default, the production scale
-of resonance decay products (W-, Z-, H-bosons, top quarks) will
-be set to <i>M/2</i>, where <i>M</i> is the mass of the resonance.
+Always use the <code>SCALUP</code> value read from LHEF 
+as production scale for particles, also including particles 
+coming from resonance decays. By default, the production scale 
+of resonance decay products (W-, Z-, H-bosons, top quarks) will 
+be set to <i>M/2</i>, where <i>M</i> is the mass of the resonance. 
    
  
 <br/><br/><strong>Beams:setProductionScalesFromLHEF</strong>  <input type="radio" name="18" value="on"><strong>On</strong>
@@ -179,21 +179,21 @@ be set to <i>M/2</i>, where <i>M</i> is the mass of the resonance.
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 If enabled, production scales for all particles in an input Les Houches 
 event will be set by using auxiliary information provided in the 
-input event. Depending on which LHEF version is used, different
-information will be read. For LHEF 1.0, scale information can be
+input event. Depending on which LHEF version is used, different 
+information will be read. For LHEF 1.0, scale information can be 
 transferred by including a line starting with the hashtag 
-(#) character at the end of the event. The hashtag should be
-followed by the sequential scale values of the particles with status 1.
-For LHEF 3.0, the standardised <i>&lt;scales&gt;</i> tag is used
+(#) character at the end of the event. The hashtag should be 
+followed by the sequential scale values of the particles with status 1. 
+For LHEF 3.0, the standardised <i>&lt;scales&gt;</i> tag is used 
 instead. In this case, please ensure that production scale of 
-the final state particle with position <i>i</i> in the input event
-will be transferred as the value of a scales tag attribute which contains
-<i>i</i> at the end of the attribute name, separated from the rest of
-the name by an underscore (_). An example <i>&lt;scales&gt;</i> tag
-would be <i>&lt;scales muf="100" pt_start_3="100" pt_start_4="50"&gt;
-&lt;/scales&gt;</i>. This could be used to set the production scales
-of particles three and four to 100 GeV and 50 GeV, respectively, provided
-that these particles have status 1.
+the final state particle with position <i>i</i> in the input event 
+will be transferred as the value of a scales tag attribute which contains 
+<i>i</i> at the end of the attribute name, separated from the rest of 
+the name by an underscore (_). An example <i>&lt;scales&gt;</i> tag 
+would be <i>&lt;scales muf="100" pt_start_3="100" pt_start_4="50"&gt; 
+&lt;/scales&gt;</i>. This could be used to set the production scales 
+of particles three and four to 100 GeV and 50 GeV, respectively, provided 
+that these particles have status 1. 
    
  
 <h3>Beam momentum spread</h3> 
@@ -206,7 +206,7 @@ used as is. Currently it can <b>not</b> be used for the more extensive
 energy spread expected at linear <i>e^+ e^-</i> colliders. Also, 
 any attempt to combine it with external Les Houches input of 
 parton-level events is at own risk. 
-      
+ 
 <p/> 
 On this page you can set the momentum spread according to a simple 
 Gaussian distribution. If you instead want a more sophisticated 
@@ -565,4 +565,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

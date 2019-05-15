@@ -1089,7 +1089,7 @@ returns a pointer to the <code>ParticleDataEntry</code> object.
 The methods in the next section can then be used to manipulate 
 this object. 
    
-  
+ 
 <h3>The ParticleDataEntry methods</h3> 
  
 Most of the methods that can be applied to a single 
@@ -1641,4 +1641,4 @@ positive and negative particles. For internal use.
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

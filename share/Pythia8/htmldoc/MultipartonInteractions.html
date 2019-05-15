@@ -76,7 +76,7 @@ interaction with lowest scale.
  
 The rate of interactions is determined by 
 <p/><code>parm&nbsp; </code><strong> MultipartonInteractions:alphaSvalue &nbsp;</strong> 
- (<code>default = <strong>0.127</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)<br/>
+ (<code>default = <strong>0.130</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)<br/>
 The value of <i>alpha_strong</i> at <i>m_Z</i>. Default value is 
 picked equal to the one used in CTEQ 5L. 
    
@@ -99,7 +99,7 @@ but there is also nothing wrong with it.
 <p/> 
 QED interactions are regulated by the <i>alpha_electromagnetic</i> 
 value at the <i>pT^2</i> scale of an interaction. 
-  
+ 
 <p/><code>mode&nbsp; </code><strong> MultipartonInteractions:alphaEMorder &nbsp;</strong> 
  (<code>default = <strong>1</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)<br/>
 The running of <i>alpha_em</i> used in hard processes. 
@@ -186,7 +186,7 @@ where <i>pT0Ref</i>, <i>ecmRef</i> and <i>ecmPow</i> are the
 three parameters below. 
  
 <p/><code>parm&nbsp; </code><strong> MultipartonInteractions:pT0Ref &nbsp;</strong> 
- (<code>default = <strong>2.15</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.0</code>)<br/>
+ (<code>default = <strong>2.28</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.0</code>)<br/>
 The <i>pT0Ref</i> scale in the above formula. 
 <br/><b>Note:</b> <i>pT0Ref</i> is one of the key parameters in a 
 complete PYTHIA tune. Its value is intimately tied to a number of other 
@@ -195,12 +195,12 @@ difficult to give an independent meaning to <i>pT0Ref</i>.
    
  
 <p/><code>parm&nbsp; </code><strong> MultipartonInteractions:ecmRef &nbsp;</strong> 
- (<code>default = <strong>1800.0</strong></code>; <code>minimum = 1.</code>)<br/>
+ (<code>default = <strong>7000.0</strong></code>; <code>minimum = 1.</code>)<br/>
 The <i>ecmRef</i> reference energy scale introduced above. 
    
  
 <p/><code>parm&nbsp; </code><strong> MultipartonInteractions:ecmPow &nbsp;</strong> 
- (<code>default = <strong>0.24</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.5</code>)<br/>
+ (<code>default = <strong>0.215</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.5</code>)<br/>
 The <i>ecmPow</i> energy rescaling pace introduced above. 
    
  
@@ -260,7 +260,7 @@ for the latter provided that <code>SpaceShower:samePTasMPI</code> is on
    
  
 <h4>Impact-parameter dependence</h4> 
-  
+ 
 The choice of impact-parameter dependence is regulated by several 
 parameters. The ones listed here refer to nondiffractive topologies 
 only, while their equivalents for diffractive events are put in the 
@@ -270,7 +270,7 @@ Other parameters are assumed to agree between diffractive and
 nondiffractive topologies. 
  
 <p/><code>mode&nbsp; </code><strong> MultipartonInteractions:bProfile &nbsp;</strong> 
- (<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)<br/>
+ (<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)<br/>
 Choice of impact parameter profile for the incoming hadron beams. 
 <br/><code>option </code><strong> 0</strong> : no impact parameter dependence at all.   
 <br/><code>option </code><strong> 1</strong> : a simple Gaussian matter distribution; 
@@ -305,7 +305,7 @@ of the matter content of the hadron.
    
  
 <p/><code>parm&nbsp; </code><strong> MultipartonInteractions:expPow &nbsp;</strong> 
- (<code>default = <strong>1.</strong></code>; <code>minimum = 0.4</code>; <code>maximum = 10.</code>)<br/>
+ (<code>default = <strong>1.85</strong></code>; <code>minimum = 0.4</code>; <code>maximum = 10.</code>)<br/>
 When <i>bProfile = 3</i> it gives the power of the assumed overlap 
 shape <i>exp(- b^expPow)</i>. Default corresponds to a simple 
 exponential drop, which is not too dissimilar from the overlap 
@@ -356,7 +356,7 @@ be associated with the hard process.
    
  
 <h4>Rescattering</h4> 
-  
+ 
 It is possible that a parton may rescatter, i.e. undergo a further 
 interaction subsequent to the first one. The machinery to model this 
 kind of physics has only recently become fully operational 
@@ -588,4 +588,4 @@ interactions.
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

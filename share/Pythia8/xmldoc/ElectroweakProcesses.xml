@@ -180,7 +180,7 @@ excludes graph like
 Common switch for the group of pair production of <ei>gamma^*/Z^0</ei> 
 and <ei>W^+-</ei>. 
 </flag> 
-  
+ 
 <flag name="WeakDoubleBoson:ffbar2gmZgmZ" default="off"> 
 Scattering <ei>f fbar' &rarr; gamma^*/Z^0 gamma^*/Z^0</ei>. 
 Code 231. 
@@ -191,7 +191,7 @@ Scattering <ei>f fbar' &rarr; Z^0 W^+-</ei>. Note that here the
 <ei>gamma^*</ei> contribution is not (currently) included. 
 Code 232. 
 </flag> 
-  
+ 
 <flag name="WeakDoubleBoson:ffbar2WW" default="off"> 
 Scattering <ei>f fbar &rarr; W^+ W^-</ei>. 
 Code 233. 
@@ -211,42 +211,42 @@ gauge-boson production processes (for LHC applications at least
 <ei>pT</ei> > 20 GeV), while the ones in <code>WeakSingleBoson</code> 
 should be used for inclusive production. 
 </flag> 
-  
+ 
 <flag name="WeakBosonAndParton:qqbar2gmZg" default="off"> 
 Scattering <ei>q qbar &rarr; gamma^*/Z^0 g</ei>. 
 Code 241. 
 </flag> 
-  
+ 
 <flag name="WeakBosonAndParton:qg2gmZq" default="off"> 
 Scattering <ei>q g &rarr; gamma^*/Z^0 q </ei>. 
 Code 242. 
 </flag> 
-  
+ 
 <flag name="WeakBosonAndParton:ffbar2gmZgm" default="off"> 
 Scattering <ei>f fbar &rarr; gamma^*/Z^0 gamma</ei>. 
 Code 243. 
 </flag> 
-  
+ 
 <flag name="WeakBosonAndParton:fgm2gmZf" default="off"> 
 Scattering <ei>f gamma &rarr;  gamma^*/Z^0 f</ei>. 
 Code 244. 
 </flag> 
-  
+ 
 <flag name="WeakBosonAndParton:qqbar2Wg" default="off"> 
 Scattering <ei>q qbar &rarr; W^+- g</ei>. 
 Code 251. 
 </flag> 
-  
+ 
 <flag name="WeakBosonAndParton:qg2Wq" default="off"> 
 Scattering <ei>q g &rarr; W^+- q</ei>. 
 Code 252. 
 </flag> 
-  
+ 
 <flag name="WeakBosonAndParton:ffbar2Wgm" default="off"> 
 Scattering <ei>f fbar &rarr; W^+- gamma</ei>. 
 Code 253. 
 </flag> 
-  
+ 
 <flag name="WeakBosonAndParton:fgm2Wf" default="off"> 
 Scattering <ei>f gamma &rarr; W^+- f</ei>. 
 Code 254. 
@@ -296,5 +296,5 @@ Code 266.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

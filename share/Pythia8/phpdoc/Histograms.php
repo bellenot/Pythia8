@@ -26,7 +26,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 ?>
 
 <form method='post' action='Histograms.php'>
-     
+ 
 <h2>Histograms</h2> 
  
 The <code>Hist</code> class gives a simple implementation of 
@@ -99,7 +99,7 @@ operator, e.g.:
 The printout format is inspired by the old HBOOK one. To understand 
 how to read this format, consider the simplified example 
 <pre> 
-                                     
+ 
         3.50*10^ 2  9 
         3.00*10^ 2  X   7 
         2.50*10^ 2  X  1X 
@@ -156,7 +156,7 @@ can be an integer.
 <h3>The methods</h3> 
  
 We here collect a more complete and formal overview of the methods. 
-    
+ 
 <a name="method1"></a>
 <p/><strong>Hist::Hist() &nbsp;</strong> <br/>
 declare a histogram, but does not define it. 
@@ -179,20 +179,20 @@ is the lower edge of the histogram,
 is the upper edge of the histogram. 
    
    
-    
+ 
 <a name="method3"></a>
 <p/><strong>Hist::Hist(const Hist& h) &nbsp;</strong> <br/>
 creates an identical copy of the histogram in the argument, 
 including bin contents. 
    
-    
+ 
 <a name="method4"></a>
 <p/><strong>Hist::Hist(string title, const Hist& h) &nbsp;</strong> <br/>
 creates an identical copy of the histogram in the argument, 
 including bin contents, except that a new title is provided 
 as first argument. 
    
-    
+ 
 <a name="method5"></a>
 <p/><strong>Hist& Hist::operator=(const Hist& h) &nbsp;</strong> <br/>
 copies all properties of the histogram in the argument, 
@@ -252,9 +252,9 @@ should be a file of its own.
 underflow and overflow contents to be printed. (The arbitrary <i>x</i> 
 coordinates for these are placed as if corresponding to same-size bins 
 just below or above the regular histogram bins.) 
-<br/>An optional <code>xMidBin = false</code> argument will have the
-<i>x</i> value at the beginning of each bin printed, rather than the
-default midpoint value.
+<br/>An optional <code>xMidBin = false</code> argument will have the 
+<i>x</i> value at the beginning of each bin printed, rather than the 
+default midpoint value. 
    
  
 <a name="method12"></a>
@@ -266,7 +266,7 @@ each bin and the second and third ones the corresponding bin contents
 of the two histograms. Only works if the two histograms have the same 
 <i>x</i> axis (within a tiny tolerance), else nothing will be done. 
 The optional last two arguments allows also underflow and overflow 
-contents to be printed, and the <i>x</i> to refer to the beginning
+contents to be printed, and the <i>x</i> to refer to the beginning 
 of the bin rather than the center; see above. 
    
  
@@ -377,4 +377,4 @@ or two histograms by each other, bin by bin.
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

@@ -1,5 +1,5 @@
 // LHAFortran.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -78,7 +78,7 @@ public:
   }
 
   // Routine for doing the job of setting info on next event.
-  bool setEvent(int idProcIn = 0, double = -1.) {
+  bool setEvent(int idProcIn = 0) {
     // In some strategies the type of the next event has been set.
     hepeup_.idprup = idProcIn;
     // Call the routine that does the job.

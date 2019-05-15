@@ -1,5 +1,5 @@
 // LHEF3.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,8 +13,8 @@ namespace Pythia8 {
 
 //==========================================================================
 
-// The XMLTag struct is used to represent all information within an XML tag. 
-// It contains the attributes as a map, any sub-tags as a vector of pointers 
+// The XMLTag struct is used to represent all information within an XML tag.
+// It contains the attributes as a map, any sub-tags as a vector of pointers
 // to other XMLTag objects, and any other information as a single string.
 
 //==========================================================================
@@ -86,7 +86,8 @@ void LHAscales::print(ostream & file) const {
   for ( map<string,double>::const_iterator it = attributes.begin();
         it != attributes.end(); ++it )
     file << " " << it->first << "=\"" << it->second << "\"";
-  file << " />" << endl;
+  file << contents;
+  file << "</scales>" << endl;
 }
 
 //==========================================================================
@@ -122,7 +123,7 @@ void LHAgenerator::print(ostream & file) const {
     file << " " << it->first << "=\"" << it->second << "\"";
   file << " >";
   file << contents;
-  file << "<generator" << endl;
+  file << "</generator>" << endl;
 }
 
 //==========================================================================
@@ -213,7 +214,7 @@ LHAweightgroup::LHAweightgroup(const XMLTag & tag) {
   }
 
   contents = tag.contents;
-    
+
   // Now add the weight's step by step.
   string s;
   vector<XMLTag*> tags = XMLTag::findXMLTags(tag.contents, &s);
@@ -228,15 +229,24 @@ LHAweightgroup::LHAweightgroup(const XMLTag & tag) {
     weights.insert(make_pair(wt.id, wt));
   }
 
+  for ( int i = 0, N = tags.size(); i < N; ++i ) if (tags[i]) delete tags[i];
+
 }
 
 //--------------------------------------------------------------------------
 
 // Print out the corresponding XML-tag.
 
-void LHAweightgroup::printweights(ostream & file) const {
+void LHAweightgroup::print(ostream & file) const {
+  file << "<weightgroup";
+  if ( name != "" ) file << " name=\"" << name << "\"";
+  for ( map<string,string>::const_iterator it = attributes.begin();
+        it != attributes.end(); ++it )
+    file << " " << it->first << "=\"" << it->second << "\"";
+  file << " >\n";
   for ( map<string,LHAweight>::const_iterator it = weights.begin();
         it != weights.end(); ++it ) it->second.print(file);
+  file << "</weightgroup>" << endl;
 }
 
 //==========================================================================
@@ -270,6 +280,24 @@ LHArwgt::LHArwgt(const XMLTag & tag) {
     LHAwgt wt(tagnow);
     wgts.insert(make_pair(wt.id, wt));
   }
+
+  for ( int i = 0, N = tags.size(); i < N; ++i ) if (tags[i]) delete tags[i];
+
+}
+
+//--------------------------------------------------------------------------
+
+// Print out the corresponding XML-tag.
+
+void LHArwgt::print(ostream & file) const {
+  file << "<rwgt";
+  for ( map<string,string>::const_iterator it = attributes.begin();
+        it != attributes.end(); ++it )
+    file << " " << it->first << "=\"" << it->second << "\"";
+  file << " >\n";
+  for ( map<string,LHAwgt>::const_iterator it = wgts.begin();
+        it != wgts.end(); ++it ) it->second.print(file);
+  file << "</rgwt>" << endl;
 }
 
 //==========================================================================
@@ -308,6 +336,8 @@ LHAinitrwgt::LHAinitrwgt(const XMLTag & tag) {
           weights.insert(make_pair(wtname, wt));
         }
       }
+      for ( int j = 0, M = tags2.size(); j < M; ++j )
+        if (tags2[j]) delete tags2[j];
     } else if ( tagnow.name == "weight" ) {
       LHAweight wt(tagnow);
       string wtname = wt.id;
@@ -340,12 +370,34 @@ LHAinitrwgt::LHAinitrwgt(const XMLTag & tag) {
           weights.insert(make_pair(wtname, wt));
         }
       }
+      for ( int j = 0, M = tags2.size(); j < M; ++j )
+        if (tags2[j]) delete tags2[j];
     } else if ( tagnow.name == "weight" ) {
       LHAweight wt(tagnow);
       string wtname = wt.id;
       weights.insert(make_pair(wtname, wt));
     }
   }
+
+  for ( int i = 0, N = tags.size(); i < N; ++i ) if (tags[i]) delete tags[i];
+
+}
+
+//--------------------------------------------------------------------------
+
+// Print out the corresponding XML-tag.
+
+void LHAinitrwgt::print(ostream & file) const {
+  file << "<initrwgt";
+  for ( map<string,string>::const_iterator it = attributes.begin();
+        it != attributes.end(); ++it )
+    file << " " << it->first << "=\"" << it->second << "\"";
+  file << " >\n";
+  for ( map<string,LHAweightgroup>::const_iterator it = weightgroups.begin();
+        it != weightgroups.end(); ++it ) it->second.print(file);
+  for ( map<string,LHAweight>::const_iterator it = weights.begin();
+        it != weights.end(); ++it ) it->second.print(file);
+  file << "</initrgwt>" << endl;
 }
 
 //==========================================================================
@@ -465,7 +517,8 @@ bool Reader::init() {
       readingHeader = true;
       headerBlock = currentLine + "\n";
     }
-    else if ( currentLine.find("<init>") != string::npos ) {
+    else if ( currentLine.find("<init>") != string::npos
+      || currentLine.find("<init ") != string::npos ) {
       // We have hit the init block, so we should expect to find the
       // standard information in the following.
       readingInit = true;
@@ -501,7 +554,7 @@ bool Reader::init() {
     }
     else if ( readingHeader ) {
       // We are in the process of reading the header block. Dump the
-      // line to haderBlock.
+      // line to headerBlock.
       headerBlock += currentLine + "\n";
       headerComments += currentLine + "\n";
     }
@@ -560,7 +613,6 @@ bool Reader::init() {
         }
       }
     }
-    delete &tag;
   }
 
   heprup.generators.clear();
@@ -575,8 +627,12 @@ bool Reader::init() {
     if ( tag.name == "generator" ) {
       heprup.generators.push_back(LHAgenerator(tag));
     }
-    delete &tag;
   }
+
+  for ( int i = 0, N = tags1.size(); i < N; ++i ) 
+    if (tags1[i]) delete tags1[i];
+  for ( int i = 0, N = tags2.size(); i < N; ++i ) 
+    if (tags2[i]) delete tags2[i];
 
   // Done
   return true;
@@ -619,6 +675,8 @@ bool Reader::readEvent(HEPEUP * peup) {
       string v = it->second.c_str();
       eup.attributes[it->first] = v;
     }
+    for ( int i = 0, N = evtags.size(); i < N; ++i ) 
+      if (evtags[i]) delete evtags[i];
   }
 
   if ( !getLine()  ) return false;
@@ -657,7 +715,18 @@ bool Reader::readEvent(HEPEUP * peup) {
   vector<XMLTag*> tags = XMLTag::findXMLTags(eventComments, &leftovers);
   if ( leftovers.find_first_not_of(" \t\n") == string::npos )
     leftovers="";
-  eventComments = leftovers;
+
+  eventComments = "";
+  istringstream f(leftovers);
+  string l;
+  while (getline(f, l)) {
+     size_t p = l.find_first_not_of(" \t");
+     l.erase(0, p);
+     p = l.find_last_not_of(" \t");
+     if (string::npos != p) l.erase(p+1);
+     if (l.find_last_not_of("\n") != string::npos)
+       eventComments += l + "\n";
+  }
 
   for ( int i = 0, N = tags.size(); i < N; ++i ) {
     XMLTag & tag = *tags[i];
@@ -694,11 +763,144 @@ bool Reader::readEvent(HEPEUP * peup) {
         }
       }
     }
-    delete &tag;
   }
 
+  for ( int i = 0, N = tags.size(); i < N; ++i ) if (tags[i]) delete tags[i];
+
   return true;
-    
+
+}
+
+//==========================================================================
+
+// The Writer class is initialized with a stream to which to write a
+// version 3.0 Les Houches Accord event file.
+
+//--------------------------------------------------------------------------
+
+// Write out an optional header block followed by the standard init
+// block information together with any comment lines.
+
+void Writer::init() {
+
+  // Write out the standard XML tag for the event file.
+  if ( version == 1 )
+    file << "<LesHouchesEvents version=\"1.0\">" << endl;
+  else
+    file << "<LesHouchesEvents version=\"3.0\">" << endl;
+
+  file << setprecision(8);
+
+  // Print headercomments and header init information.
+  file << "<header>" << endl;
+  file << hashline(headerStream.str(),true) << std::flush;
+  if ( version != 1 ) heprup.initrwgt.print(file);
+  file << "</header>" << endl;
+
+  file << "<init>"<< endl
+       << " " << setw(8) << heprup.IDBMUP.first
+       << " " << setw(8) << heprup.IDBMUP.second
+       << " " << setw(14) << heprup.EBMUP.first
+       << " " << setw(14) << heprup.EBMUP.second
+       << " " << setw(4) << heprup.PDFGUP.first
+       << " " << setw(4) << heprup.PDFGUP.second
+       << " " << setw(4) << heprup.PDFSUP.first
+       << " " << setw(4) << heprup.PDFSUP.second
+       << " " << setw(4) << heprup.IDWTUP
+       << " " << setw(4) << heprup.NPRUP << endl;
+  heprup.resize();
+  for ( int i = 0; i < heprup.NPRUP; ++i )
+    file << " " << setw(14) << heprup.XSECUP[i]
+         << " " << setw(14) << heprup.XERRUP[i]
+         << " " << setw(14) << heprup.XMAXUP[i]
+         << " " << setw(6) << heprup.LPRUP[i] << endl;
+
+  if ( version == 1 ) {
+    file << hashline(initStream.str(),true) << std::flush
+         << "</init>" << endl;
+    initStream.str("");
+    return;
+  }
+
+  for ( int i = 0, N = heprup.generators.size(); i < N; ++i ) {
+    heprup.generators[i].print(file);
+  }
+
+  file << hashline(initStream.str(),true) << std::flush
+       << "</init>" << endl;
+  initStream.str("");
+}
+
+//--------------------------------------------------------------------------
+
+// Write out the event stored in hepeup, followed by optional
+// comment lines.
+
+bool Writer::writeEvent(HEPEUP * peup) {
+
+  HEPEUP & eup = (peup? *peup: hepeup);
+
+  file << "<event";
+  for ( map<string,string>::const_iterator it = eup.attributes.begin();
+        it != eup.attributes.end(); ++it )
+    file << " " << it->first << "=\"" << it->second << "\"";
+  file << ">" << endl;
+  file << " " << setw(4) << eup.NUP
+       << " " << setw(6) << eup.IDPRUP
+       << " " << setw(14) << eup.XWGTUP
+       << " " << setw(14) << eup.SCALUP
+       << " " << setw(14) << eup.AQEDUP
+       << " " << setw(14) << eup.AQCDUP << endl;
+  eup.resize();
+
+  for ( int i = 0; i < eup.NUP; ++i )
+    file << " " << setw(8) << eup.IDUP[i]
+         << " " << setw(2) << eup.ISTUP[i]
+         << " " << setw(4) << eup.MOTHUP[i].first
+         << " " << setw(4) << eup.MOTHUP[i].second
+         << " " << setw(4) << eup.ICOLUP[i].first
+         << " " << setw(4) << eup.ICOLUP[i].second
+         << " " << setw(14) << eup.PUP[i][0]
+         << " " << setw(14) << eup.PUP[i][1]
+         << " " << setw(14) << eup.PUP[i][2]
+         << " " << setw(14) << eup.PUP[i][3]
+         << " " << setw(14) << eup.PUP[i][4]
+         << " " << setw(1) << eup.VTIMUP[i]
+         << " " << setw(1) << eup.SPINUP[i] << endl;
+
+  // Write event comments.
+  file << hashline(eventStream.str()) << std::flush;
+  eventStream.str("");
+
+  if ( version != 1 ) {
+    eup.rwgt.print(file);
+    eup.weights.print(file);
+    eup.scales.print(file);
+  }
+
+  file << "</event>" << endl;
+
+  if ( !file ) return false;
+
+  return true;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Make sure that each line in the string s starts with a
+// #-character and that the string ends with a new-line.
+
+string Writer::hashline(string s, bool comment) {
+  string ret;
+  istringstream is(s);
+  string ss;
+  while ( getline(is, ss) ) {
+    if ( comment )
+        ss = "# " + ss;
+    ret += ss + '\n';
+  }
+  return ret;
 }
 
 //==========================================================================

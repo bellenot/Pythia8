@@ -27,7 +27,7 @@ will be used above the <ei>t</ei> threshold:
 <option value="6">Use 6-flavour running above the <ei>t</ei> threshold 
 (new default).</option> 
 </modepick> 
-  
+ 
 <p/> 
 Since we allow <ei>alpha_strong</ei> to vary separately for 
 hard processes, timelike showers, spacelike showers and  multiparton 
@@ -67,7 +67,7 @@ be aware that the original CMW arguments were derived using two-loop running
 and that the CMW rescaling may need be taken into account in the context of 
 matrix-element matching. Note also that this option has only been made 
 available for timelike and spacelike showers, not for hard processes. 
-  
+ 
 <h3>The electromagnetic coupling</h3> 
  
 The <code>AlphaEM</code> class is used to generate a running 
@@ -325,4 +325,4 @@ possibilities. Unambiguous choice for the lepton-neutrino sector.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

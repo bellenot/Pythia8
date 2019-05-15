@@ -1,5 +1,5 @@
 // HadronScatter.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -143,7 +143,7 @@ public:
 
   // Perform all hadron scatterings
   void scatter(Event&);
- 
+
 private:
 
   // Pointer to various information on the generation.
@@ -192,11 +192,11 @@ private:
   int pTile(Event& event, int idx) {
     return (doTile) ? int((event[idx].phi() + M_PI) / ptSize) : 0;
   }
- 
+
   // Debug
   void debugOutput();
 };
- 
+
 //==========================================================================
 
 

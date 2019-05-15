@@ -40,10 +40,22 @@ and separate PDF scale choices. Also, in <i>2 &rarr; 2</i> and
 couplings and thereby their Breit-Wigner shapes are always evaluated 
 with the resonance mass as scale, irrespective of the choices below. 
  
+<p/> 
+We stress that couplings and scales are set separately from the 
+values on this page for 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='MultipartonInteractions.php?filepath=".$filepath."' target='page'>";?>multiparton interactions</a>, 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='TimelikeShowers.php?filepath=".$filepath."' target='page'>";?>timelike showers</a>, and 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='SpacelikeShowers.php?filepath=".$filepath."' target='page'>";?>spacelike showers</a>. 
+This allows a bigger flexibility, but also requires a bit more work 
+e.g. if you insist on using the same <i>alpha_s</i> everywhere. 
+ 
 <h3>Couplings and K factor</h3> 
  
 The size of QCD cross sections is mainly determined by 
-<br/><br/><table><tr><td><strong>SigmaProcess:alphaSvalue </td><td></td><td> <input type="text" name="1" value="0.1265" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.1265</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaProcess:alphaSvalue </td><td></td><td> <input type="text" name="1" value="0.13" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.13</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)</td></tr></table>
 The <i>alpha_strong</i> value at scale <i>M_Z^2</i>. 
    
  
@@ -54,7 +66,7 @@ renormalization scale, at which <i>alpha_strong</i> is evaluated
 Order at which <ei>alpha_strong</ei> runs, 
 <br/>
 <input type="radio" name="2" value="0"><strong>0 </strong>: zeroth order, i.e. <ei>alpha_strong</ei> is kept  fixed.<br/>
-<input type="radio" name="2" value="1" checked="checked"><strong>1 </strong>: zeroth order, i.e. <ei>alpha_strong</ei> is kept  fixed.<br/>
+<input type="radio" name="2" value="1" checked="checked"><strong>1 </strong>: first order, which is the normal value.<br/>
 <input type="radio" name="2" value="2"><strong>2 </strong>: second order. Since other parts of the code do  not go to second order there is no strong reason to use this option,  but there is also nothing wrong with it.<br/>
  
 <p/> 
@@ -89,7 +101,7 @@ The <i>Q^2</i> renormalization scale can be chosen among a few different
 alternatives, separately for <i>2 &rarr; 1</i>, <i>2 &rarr; 2</i> and two 
 different kinds of <i>2 &rarr; 3</i> processes. In addition a common 
 multiplicative factor may be imposed. 
-  
+ 
 <br/><br/><table><tr><td><strong>SigmaProcess:renormScale1  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)</td></tr></table>
 The <ei>Q^2</ei> renormalization scale for <ei>2 &rarr; 1</ei> processes. 
 The same options also apply for those <ei>2 &rarr; 2</ei> and 
@@ -99,7 +111,7 @@ proceeding only through an <ei>s</ei>-channel resonance, by the
 <br/>
 <input type="radio" name="5" value="1" checked="checked"><strong>1 </strong>: the squared invariant mass, i.e. <ei>sHat</ei>.  <br/>
 <input type="radio" name="5" value="2"><strong>2 </strong>: fix scale set in <code>SigmaProcess:renormFixScale</code>  below.  <br/>
-   
+ 
 <br/><br/><table><tr><td><strong>SigmaProcess:renormScale2  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 5</code>)</td></tr></table>
 The <ei>Q^2</ei> renormalization scale for <ei>2 &rarr; 2</ei> processes. 
 <br/>
@@ -108,7 +120,7 @@ The <ei>Q^2</ei> renormalization scale for <ei>2 &rarr; 2</ei> processes.
 <input type="radio" name="6" value="3"><strong>3 </strong>: the arithmetic mean of the squared transverse masses of  the two outgoing particles, i.e. <ei>(mT_3^2 + mT_4^2) / 2 =  pT^2 + 0.5 * (m_3^2 + m_4^2)</ei>. Useful for comparisons  with PYTHIA 6, where this is the default.  <br/>
 <input type="radio" name="6" value="4"><strong>4 </strong>: squared invariant mass of the system,  i.e. <ei>sHat</ei>. Useful for processes dominated by  <ei>s</ei>-channel exchange.  <br/>
 <input type="radio" name="6" value="5"><strong>5 </strong>: fix scale set in <code>SigmaProcess:renormFixScale</code>  below.  <br/>
-   
+ 
 <br/><br/><table><tr><td><strong>SigmaProcess:renormScale3  </td><td>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)</td></tr></table>
 The <ei>Q^2</ei> renormalization scale for "normal" <ei>2 &rarr; 3</ei> 
 processes, i.e excepting the vector-boson-fusion processes below. 
@@ -123,7 +135,7 @@ implemented, where the "match" criterion holds.)
 <input type="radio" name="7" value="4"><strong>4 </strong>: the arithmetic mean of the squared transverse masses of  the three outgoing particles, i.e. <ei>(mT_3^2 + mT_4^2 + mT_5^2)/3</ei>.  <br/>
 <input type="radio" name="7" value="5"><strong>5 </strong>: squared invariant mass of the system,  i.e. <ei>sHat</ei>.  <br/>
 <input type="radio" name="7" value="6"><strong>6 </strong>: fix scale set in <code>SigmaProcess:renormFixScale</code>  below.  <br/>
-  
+ 
 <br/><br/><table><tr><td><strong>SigmaProcess:renormScale3VV  </td><td>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)</td></tr></table>
 The <ei>Q^2</ei> renormalization scale for <ei>2 &rarr; 3</ei> 
 vector-boson-fusion processes, i.e. <ei>f_1 f_2 &rarr; H^0 f_3 f_4</ei> 
@@ -163,7 +175,7 @@ separately. For simplicity we have let the numbering of options agree,
 for each event class separately, between normalization and factorization 
 scales, and the description has therefore been slightly shortened. The 
 default values are <b>not</b> necessarily the same, however. 
-  
+ 
 <br/><br/><table><tr><td><strong>SigmaProcess:factorScale1  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)</td></tr></table>
 The <ei>Q^2</ei> factorization scale for <ei>2 &rarr; 1</ei> processes. 
 The same options also apply for those <ei>2 &rarr; 2</ei> and 
@@ -181,7 +193,7 @@ The <ei>Q^2</ei> factorization scale for <ei>2 &rarr; 2</ei> processes.
 <input type="radio" name="12" value="3"><strong>3 </strong>: the arithmetic mean of the squared transverse masses of  the two outgoing particles. Useful for comparisons with PYTHIA 6, where  this is the default.  <br/>
 <input type="radio" name="12" value="4"><strong>4 </strong>: squared invariant mass of the system,  i.e. <ei>sHat</ei>. Useful for processes dominated by  <ei>s</ei>-channel exchange.  <br/>
 <input type="radio" name="12" value="5"><strong>5 </strong>: fix scale set in <code>SigmaProcess:factorFixScale</code>  below.  <br/>
-   
+ 
 <br/><br/><table><tr><td><strong>SigmaProcess:factorScale3  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)</td></tr></table>
 The <ei>Q^2</ei> factorization scale for "normal" <ei>2 &rarr; 3</ei> 
 processes, i.e excepting the vector-boson-fusion processes below. 
@@ -192,7 +204,7 @@ processes, i.e excepting the vector-boson-fusion processes below.
 <input type="radio" name="13" value="4"><strong>4 </strong>: the arithmetic mean of the squared transverse masses of  the three outgoing particles.  <br/>
 <input type="radio" name="13" value="5"><strong>5 </strong>: squared invariant mass of the system,  i.e. <ei>sHat</ei>.  <br/>
 <input type="radio" name="13" value="6"><strong>6 </strong>: fix scale set in <code>SigmaProcess:factorFixScale</code>  below.  <br/>
-  
+ 
 <br/><br/><table><tr><td><strong>SigmaProcess:factorScale3VV  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)</td></tr></table>
 The <ei>Q^2</ei> factorization scale for <ei>2 &rarr; 3</ei> 
 vector-boson-fusion processes, i.e. <ei>f_1 f_2 &rarr; H^0 f_3 f_4</ei> 
@@ -236,7 +248,7 @@ if($_POST["saved"] == 1)
 $filepath = $_POST["filepath"];
 $handle = fopen($filepath, 'a');
 
-if($_POST["1"] != "0.1265")
+if($_POST["1"] != "0.13")
 {
 $data = "SigmaProcess:alphaSvalue = ".$_POST["1"]."\n";
 fwrite($handle,$data);
@@ -323,4 +335,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

@@ -50,37 +50,37 @@ echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>tune</a>.
  
 The main parameters of the selection of a new flavour are 
  
-<br/><br/><table><tr><td><strong>StringFlav:probStoUD </td><td></td><td> <input type="text" name="1" value="0.19" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.19</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFlav:probStoUD </td><td></td><td> <input type="text" name="1" value="0.217" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.217</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
 the suppression of <i>s</i> quark production relative to ordinary 
 <i>u</i> or <i>d</i> one. 
    
  
-<br/><br/><table><tr><td><strong>StringFlav:probQQtoQ </td><td></td><td> <input type="text" name="2" value="0.09" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.09</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFlav:probQQtoQ </td><td></td><td> <input type="text" name="2" value="0.081" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.081</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
 the suppression of diquark production relative to quark production, 
 i.e. of baryon relative to meson production. 
    
  
-<br/><br/><table><tr><td><strong>StringFlav:probSQtoQQ </td><td></td><td> <input type="text" name="3" value="1.00" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.00</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFlav:probSQtoQQ </td><td></td><td> <input type="text" name="3" value="0.915" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.915</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
 the suppression of strange diquark production relative to light 
 diquark production, over and above the one already given by 
 <code>probStoU</code>. 
    
-  
-<br/><br/><table><tr><td><strong>StringFlav:probQQ1toQQ0 </td><td></td><td> <input type="text" name="4" value="0.027" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.027</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
+ 
+<br/><br/><table><tr><td><strong>StringFlav:probQQ1toQQ0 </td><td></td><td> <input type="text" name="4" value="0.0275" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0275</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
 the suppression of spin 1 diquark production relative to spin 0 one, 
 apart from the factor of 3 enhancement of spin 1 from counting the 
 number of states. 
    
-
+ 
 <br/><br/><table><tr><td><strong>StringFlav:probQQ1toQQ0join </td><td></td><td> <input type="text" name="5" value="0.5,0.7,0.9,1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5,0.7,0.9,1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)</td></tr></table>
-when two already produced quarks are to be combined to a diquark,
+when two already produced quarks are to be combined to a diquark, 
 e.g. in the junction framework, these numbers give the suppression 
 of spin 1 diquark production relative to spin 0 one, apart from the 
-factor of 3 enhancement of spin 1 from counting the number of states.
-The four components give the suppression when the heaviest quark is
-<i>u/d</i>, <i>s</i>, <i>c</i> or <i>b</i>, respectively.
+factor of 3 enhancement of spin 1 from counting the number of states. 
+The four components give the suppression when the heaviest quark is 
+<i>u/d</i>, <i>s</i>, <i>c</i> or <i>b</i>, respectively. 
 These parameters are seldom used and currently not constrained by any 
-data, so very much a guesswork.
+data, so very much a guesswork. 
    
  
 <h3>Standard-meson production</h3> 
@@ -98,17 +98,17 @@ spin-counting rules, but we expect the real rates to be lower,
 especially for lighter mesons, owing to the vector-pseudoscalar 
 mass splitting. 
  
-<br/><br/><table><tr><td><strong>StringFlav:mesonUDvector </td><td></td><td> <input type="text" name="6" value="0.62" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.62</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFlav:mesonUDvector </td><td></td><td> <input type="text" name="6" value="0.50" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.50</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)</td></tr></table>
 the relative production ratio vector/pseudoscalar for light 
 (<i>u</i>, <i>d</i>) mesons. 
    
-<br/><br/><table><tr><td><strong>StringFlav:mesonSvector </td><td></td><td> <input type="text" name="7" value="0.725" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.725</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFlav:mesonSvector </td><td></td><td> <input type="text" name="7" value="0.55" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.55</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)</td></tr></table>
 the relative production ratio vector/pseudoscalar for strange mesons. 
    
-<br/><br/><table><tr><td><strong>StringFlav:mesonCvector </td><td></td><td> <input type="text" name="8" value="1.06" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.06</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFlav:mesonCvector </td><td></td><td> <input type="text" name="8" value="0.88" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.88</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)</td></tr></table>
 the relative production ratio vector/pseudoscalar for charm mesons. 
    
-<br/><br/><table><tr><td><strong>StringFlav:mesonBvector </td><td></td><td> <input type="text" name="9" value="3.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3.0</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFlav:mesonBvector </td><td></td><td> <input type="text" name="9" value="2.20" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.20</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)</td></tr></table>
 the relative production ratio vector/pseudoscalar for bottom mesons. 
    
  
@@ -146,7 +146,7 @@ with <i>phi</i>.
 Further, the simple model overestimates the production of <i>eta</i> 
 and, in particular, <i>eta'</i> mesons, which can be rectified by 
  
-<br/><br/><table><tr><td><strong>StringFlav:etaSup </td><td></td><td> <input type="text" name="12" value="0.63" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.63</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFlav:etaSup </td><td></td><td> <input type="text" name="12" value="0.60" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.60</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
 the additional suppression of <i>eta</i> production, multiplying the 
 normal production probability. Thus 0 means no <i>eta</i> at all 
 are produced, while 1 means full rate. 
@@ -346,7 +346,7 @@ popcornRate / (0.5 + popcornRate)
 parameters and is therefore not so useful). 
    
  
-<br/><br/><table><tr><td><strong>StringFlav:popcornSpair </td><td></td><td> <input type="text" name="36" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringFlav:popcornSpair </td><td></td><td> <input type="text" name="36" value="0.9" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.9</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.0</code>)</td></tr></table>
 extra suppression for having an <i>s sbar</i> pair shared between 
 the <i>B</i> and <i>Bbar</i> in a <i>B M Bbar</i> configuration. 
    
@@ -377,21 +377,21 @@ below. This suppresses the production of first-rank baryons by the same
 amount. Indirectly also the second-rank and, if popcorn production is 
 switched on, third-rank (anti)baryon production is affected.    
    
-  
+ 
 <br/><br/><table><tr><td><strong>StringFlav:lightLeadingBSup </td><td></td><td> <input type="text" name="39" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.0</code>)</td></tr></table>
 extra suppression of leading-baryon production for a light-quark 
 jet, i.e. <i>d</i>, <i>u</i> or <i>s</i>, when 
 <code>suppressLeadingB = on</code>. Thus 0 means no leading-baryon 
 production at all, while 1 means full rate. 
    
-  
+ 
 <br/><br/><table><tr><td><strong>StringFlav:heavyLeadingBSup </td><td></td><td> <input type="text" name="40" value="0.9" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.9</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.0</code>)</td></tr></table>
 extra suppression of leading-baryon production for a heavy-quark 
 jet, i.e. <i>c</i> or <i>b</i>, when 
 <code>suppressLeadingB = on</code>. Thus 0 means no leading-baryon 
 production at all, while 1 means full rate. 
    
-   
+ 
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -407,22 +407,22 @@ if($_POST["saved"] == 1)
 $filepath = $_POST["filepath"];
 $handle = fopen($filepath, 'a');
 
-if($_POST["1"] != "0.19")
+if($_POST["1"] != "0.217")
 {
 $data = "StringFlav:probStoUD = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "0.09")
+if($_POST["2"] != "0.081")
 {
 $data = "StringFlav:probQQtoQ = ".$_POST["2"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["3"] != "1.00")
+if($_POST["3"] != "0.915")
 {
 $data = "StringFlav:probSQtoQQ = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["4"] != "0.027")
+if($_POST["4"] != "0.0275")
 {
 $data = "StringFlav:probQQ1toQQ0 = ".$_POST["4"]."\n";
 fwrite($handle,$data);
@@ -432,22 +432,22 @@ if($_POST["5"] != "0.5,0.7,0.9,1.0")
 $data = "StringFlav:probQQ1toQQ0join = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "0.62")
+if($_POST["6"] != "0.50")
 {
 $data = "StringFlav:mesonUDvector = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["7"] != "0.725")
+if($_POST["7"] != "0.55")
 {
 $data = "StringFlav:mesonSvector = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["8"] != "1.06")
+if($_POST["8"] != "0.88")
 {
 $data = "StringFlav:mesonCvector = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "3.0")
+if($_POST["9"] != "2.20")
 {
 $data = "StringFlav:mesonBvector = ".$_POST["9"]."\n";
 fwrite($handle,$data);
@@ -462,7 +462,7 @@ if($_POST["11"] != "36.")
 $data = "StringFlav:thetaV = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "0.63")
+if($_POST["12"] != "0.60")
 {
 $data = "StringFlav:etaSup = ".$_POST["12"]."\n";
 fwrite($handle,$data);
@@ -582,7 +582,7 @@ if($_POST["35"] != "0.5")
 $data = "StringFlav:popcornRate = ".$_POST["35"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["36"] != "0.5")
+if($_POST["36"] != "0.9")
 {
 $data = "StringFlav:popcornSpair = ".$_POST["36"]."\n";
 fwrite($handle,$data);
@@ -614,4 +614,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

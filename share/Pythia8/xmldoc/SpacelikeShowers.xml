@@ -109,7 +109,7 @@ A multiplicative factor <ei>f</ei> such that
 non-hardest interactions (when multiparton interactions are allowed). 
 </parm> 
  
-<modepick name="SpaceShower:pTdampMatch" default="0" min="0" max="2"> 
+<modepick name="SpaceShower:pTdampMatch" default="3" min="0" max="4"> 
 These options only take effect when a process is allowed to radiate up 
 to the kinematical limit by the above <code>pTmaxMatch</code> choice, 
 and no matrix-element corrections are available. Then, in many processes, 
@@ -134,6 +134,16 @@ but dampened by a factor <ei>k^2 Q^2_ren/(pT^2 + k^2 Q^2_ren)</ei>,
 where <ei>Q_ren</ei> is the renormalization scale and <ei>k</ei> is a 
 multiplicative fudge factor stored in <code>pTdampFudge</code> below. 
 </option> 
+<option value="3">as option 1, but in addition to the standard requirements
+for dampening it is further necessary to have ar least two top or 
+beyond-the-Standard-Model coloured particles in the final state. 
+Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production.  
+</option> 
+<option value="4">as option 2, but in addition to the standard requirements
+for dampening it is further necessary to have ar least two top or 
+beyond-the-Standard-Model coloured particles in the final state. 
+Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production. 
+</option> 
 <note>Note:</note> These options only apply to the hard interaction. 
 Specifically, a "second hard" interaction would not be affected. 
 Emissions off subsequent multiparton interactions are always constrained 
@@ -151,7 +161,7 @@ away from this value could do better in some processes.
  
 <p/> 
 The amount of QCD radiation in the shower is determined by 
-<parm name="SpaceShower:alphaSvalue" default="0.137" min="0.06" max="0.25"> 
+<parm name="SpaceShower:alphaSvalue" default="0.1365" min="0.06" max="0.25"> 
 The <ei>alpha_strong</ei> value at scale <code>M_Z^2</code>. 
 Default value is picked equal to the one used in CTEQ 5L. 
 </parm> 
@@ -185,7 +195,7 @@ Note that tunes using this option need lower values of
 <p/> 
 QED radiation is regulated by the <ei>alpha_electromagnetic</ei> 
 value at the <ei>pT^2</ei> scale of a branching. 
-  
+ 
 <modepick name="SpaceShower:alphaEMorder" default="1" min="-1" max="1"> 
 The running of <ei>alpha_em</ei>. 
 <option value="1">first-order running, constrained to agree with 
@@ -262,7 +272,7 @@ so that <ei>pT0Ref</ei> is the <ei>pT0</ei> value for the reference
 cm energy, <ei>pT0Ref = pT0(ecmRef)</ei>. 
 </parm> 
  
-<parm name="SpaceShower:ecmRef" default="1800.0" min="1."> 
+<parm name="SpaceShower:ecmRef" default="7000.0" min="1."> 
 The <ei>ecmRef</ei> reference energy scale introduced above. 
 </parm> 
  
@@ -292,13 +302,13 @@ Parton shower cut-off mass for pure QED branchings.
 Assumed smaller than (or equal to) <ei>pTminChgQ</ei>. 
 </parm> 
  
-<flag name="SpaceShower:rapidityOrder" default="off"> 
+<flag name="SpaceShower:rapidityOrder" default="on"> 
 Force emissions, after the first,  to be ordered in rapidity, 
 i.e. in terms of decreasing angles in a backwards-evolution sense. 
 Could be used to probe sensitivity to unordered emissions. 
 Only affects QCD emissions. 
 </flag> 
-  
+ 
 <h3>Weak showers</h3> 
  
 The emission of weak gauge bosons is an integrated part of the initial- 
@@ -438,5 +448,5 @@ photon backwards-evolution in lepton beams.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

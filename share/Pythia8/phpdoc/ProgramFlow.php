@@ -49,7 +49,7 @@ At the bottom of this webpage is a complete survey of all public
 <code>Pythia</code> methods and data members, in a more formal style 
 than the task-oriented descriptions found in the preceding sections. 
 This offers complementary information. 
-    
+ 
 <h3>Initialization - normal usage</h3> 
  
 <ol> 
@@ -211,7 +211,7 @@ end of the generation step. It makes sense to allow a few <code>false</code>
 values before a run is aborted, so long as the related faulty 
 events are skipped. 
 </li> 
-  
+ 
 <p/> 
 <li> 
 The generated event is now stored in the <code>event</code> 
@@ -245,7 +245,7 @@ event.
     pythia.stat(); 
 </pre> 
 to get some run statistics, on cross sections and the number of errors 
-and warnings encountered.
+and warnings encountered. 
 </li> 
  
 </ol> 
@@ -992,7 +992,7 @@ cross sections and the number of different errors. For more details see
 echo "<a href='EventStatistics.php?filepath=".$filepath."' target='page'>";?>here</a> and for available options 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='MainProgramSettings.php?filepath=".$filepath."' target='page'>";?>here</a>. 
-    
+   
  
 <h3>Interrogate settings</h3> 
  
@@ -1017,7 +1017,7 @@ read in a boolean variable from the <code>Settings</code> database.
 the name of the variable to be read. 
    
    
-  
+ 
 <a name="method24"></a>
 <p/><strong>int Pythia::mode(string key) &nbsp;</strong> <br/>
 read in an integer variable from the <code>Settings</code> database. 
@@ -1025,7 +1025,7 @@ read in an integer variable from the <code>Settings</code> database.
 the name of the variable to be read. 
    
    
-  
+ 
 <a name="method25"></a>
 <p/><strong>double Pythia::parm(string key) &nbsp;</strong> <br/>
 read in a double-precision variable from the <code>Settings</code> 
@@ -1034,7 +1034,7 @@ database.
 the name of the variable to be read. 
    
    
-  
+ 
 <a name="method26"></a>
 <p/><strong>string Pythia::word(string key) &nbsp;</strong> <br/>
 read in a string variable from the <code>Settings</code> database. 
@@ -1042,13 +1042,13 @@ read in a string variable from the <code>Settings</code> database.
 the name of the variable to be read. 
    
    
-   
+ 
 <h3>Get a PDF set</h3> 
  
 <code>Pythia</code> contains an number of parton density sets 
 internally, plus an interface to LHAPDF. With the method below, 
 this machinery is also made available for external usage. 
-  
+ 
 <a name="method27"></a>
 <p/><strong>PDF* getPDFPtr(int id, int sequence = 1) &nbsp;</strong> <br/>
 get a pointer to a PDF object. Which PDF is returned depends on the 
@@ -1063,48 +1063,48 @@ selection be determined by the special settings for hard processes
 (<code>PDF:useHard</code> etc.). 
    
    
-   
+ 
 <h3>Data members</h3> 
  
 The <code>Pythia</code> class contains a few public data members, 
 several of which play a central role. We list them here, with 
 links to the places where they are further described. 
-  
+ 
 <a name="method28"></a>
 <p/><strong>Event Pythia::process &nbsp;</strong> <br/>
 the hard-process event record, see <?php $filepath = $_GET["filepath"];
 echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>here</a> 
 for further details. 
    
-  
+ 
 <a name="method29"></a>
 <p/><strong>Event Pythia::event &nbsp;</strong> <br/>
 the complete event record, see <?php $filepath = $_GET["filepath"];
 echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>here</a> 
 for further details. 
    
-  
+ 
 <a name="method30"></a>
 <p/><strong>Info Pythia::info &nbsp;</strong> <br/>
 further information on the event-generation process, see 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
    
-  
+ 
 <a name="method31"></a>
 <p/><strong>Settings Pythia::settings &nbsp;</strong> <br/>
 the settings database, see <?php $filepath = $_GET["filepath"];
 echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>here</a> 
 for further details. 
    
-  
+ 
 <a name="method32"></a>
 <p/><strong>ParticleData Pythia::particleData &nbsp;</strong> <br/>
 the particle properties and decay tables database, see 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
    
-  
+ 
 <a name="method33"></a>
 <p/><strong>Rndm Pythia::rndm &nbsp;</strong> <br/>
 the random number generator, see <?php $filepath = $_GET["filepath"];
@@ -1112,29 +1112,29 @@ echo "<a href='RandomNumberSeed.php?filepath=".$filepath."' target='page'>";?>he
 and <?php $filepath = $_GET["filepath"];
 echo "<a href='RandomNumbers.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
    
-  
+ 
 <a name="method34"></a>
 <p/><strong>CoupSM Pythia::coupSM &nbsp;</strong> <br/>
 Standard Model couplings and mixing matrices, see 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='StandardModelParameters.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
    
-  
+ 
 <a name="method35"></a>
 <p/><strong>SusyLesHouches Pythia::slha &nbsp;</strong> <br/>
 parameters and particle data in the context of supersymmetric models, 
 see <?php $filepath = $_GET["filepath"];
 echo "<a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
    
-  
+ 
 <a name="method36"></a>
 <p/><strong>PartonSystems Pythia::partonSystems &nbsp;</strong> <br/>
 a grouping of the partons in the event record by subsystem, 
 see <?php $filepath = $_GET["filepath"];
 echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>here</a> for further details. 
    
-    
+ 
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

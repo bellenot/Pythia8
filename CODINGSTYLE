@@ -51,7 +51,7 @@ An incomplete list is as follows.
 
  8. Begin each code file with 
 // (filename) is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
     to establish the legal structure. Follow that with specific
@@ -317,14 +317,14 @@ in html):
     with name = value; the min and max values are optional; 
 <option value="..."></option>
     a discrete set of options for a <modepick>, see above;
-<modefix name="..." default="..." min="..." max="..."></modeopen>
+<modefix name="..." default="..." min="..." max="..."></modefix>
     ditto but no interactivity;
 <parm name="..." default="..." min="..." max="..."></parm>
     a double-precision value to be used in the event generation; in php
     shown as a dialogue box where a real number can be typed in, and
     written to file as a line with name = value; the min and max values 
     are optional; 
-<parmfix name="..." default="..." min="..." max="..."></parm>
+<parmfix name="..." default="..." min="..." max="..."></parmfix>
     ditto but no interactivity;
 <word name="..." default="..."></word>
     a character string, without blanks, to be used in the event generation

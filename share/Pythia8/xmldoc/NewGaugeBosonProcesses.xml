@@ -9,9 +9,9 @@ This page contains the production of new <ei>Z'^0</ei> and
 Left-right-symmetry scenarios also contain new gauge bosons, 
 but are described 
 <aloc href"LeftRightSymmetryProcesses">separately</aloc>. 
-  
+ 
 <h3><ei>Z'^0</ei></h3> 
-   
+ 
 This group only contains one subprocess, with the full 
 <ei>gamma^*/Z^0/Z'^0</ei> interference structure for couplings 
 to fermion pairs. It is possible to pick only a subset, e.g, only 
@@ -19,7 +19,7 @@ the pure <ei>Z'^0</ei> piece. No higher-order processes are
 available explicitly, but the ISR showers contain automatic 
 matching to the <ei>Z'^0</ei> + 1 jet matrix elements, as for 
 the corresponding &nbsp <ei>gamma^*/Z^0</ei> process. 
-   
+ 
 <flag name="NewGaugeBoson:ffbar2gmZZprime" default="off"> 
 Scattering <ei>f fbar &rarr;Z'^0</ei>. 
 Code 3001. 
@@ -71,8 +71,8 @@ interference effects in cross sections and decay angular
 distributions and generation-dependent couplings; the default values 
 should mainly be viewed as placeholders. The conversion 
 from the coupling conventions in a set of different <ei>Z'^0</ei> 
-models in the literature to those used in PYTHIA is described in
-<ref>Cio08</ref>.
+models in the literature to those used in PYTHIA is described in 
+<ref>Cio08</ref>. 
  
 <flag name="Zprime:universality" default="on"> 
 If on then you need only set the first-generation couplings 
@@ -206,7 +206,7 @@ Note that this channel only includes the pure <ei>Z'</ei> part,
 while <ei>f fbar &rarr; gamma^*/Z^*0 &rarr; W^+ W^-</ei> is available 
 as a separate electroweak process. 
 </parm> 
-
+ 
 Furthermore, we have left some amount of 
 freedom in the choice of decay angular correlations in this 
 channel, but obviously alternative shapes could be imagined. 
@@ -226,23 +226,24 @@ A massive <ei>Z'^0</ei> is also likely to decay into Higgs bosons
 and potentially into other now unknown particles. Such possibilities 
 clearly are quite model-dependent, and have not been included 
 for now. 
-
-<p/>
+ 
+<p/> 
 Finally, to allow the exploration of more BSM physics scenarios, 
 we include the possibility of the <ei>Z'^0</ei> (and hence the 
-<ei>gamma</ei> and <ei>Z^0</ei>) coupling to a fourth generation of fermions.
-This provides redundancy with and extensions beyond those processes implemented 
-as <aloc href="Fourth-Generation Processes">fourth-generation processes</aloc>.
-By default, the decay channels for the fourth-generation and not included.
-They are enabled using:
-<flag name="Zprime:coup2gen4" default="off">
-<ei> Z'^0 </ei> couples to 4th generation fermions.
-</flag>
-
-<p/>
+<ei>gamma</ei> and <ei>Z^0</ei>) coupling to a fourth generation of fermions. 
+This provides redundancy with and extensions beyond those processes 
+implemented as 
+<aloc href="Fourth-Generation Processes">fourth-generation processes</aloc>. 
+By default, the decay channels for the fourth-generation and not included. 
+They are enabled using: 
+<flag name="Zprime:coup2gen4" default="off"> 
+<ei> Z'^0 </ei> couples to 4th generation fermions. 
+</flag> 
+ 
+<p/> 
 Here are the further couplings that are specific for 
 a scenario with <code>Zprime:universality</code> switched off: 
-
+ 
 <parm name="Zprime:vbPrime" default="-0.693"> 
 vector coupling of <ei>b'</ei> quarks. 
 </parm> 
@@ -274,10 +275,10 @@ vector coupling of <ei>nu_tau'</ei> neutrinos.
 <parm name="Zprime:anutauPrime" default="1."> 
 axial coupling of <ei>nu_tau'</ei> neutrinos. 
 </parm> 
-
-
+ 
+ 
 <h3><ei>W'^+-</ei></h3> 
-   
+ 
 The <ei>W'^+-</ei> implementation is less ambitious than the 
 <ei>Z'^0</ei>. Specifically, while indirect detection of a 
 <ei>Z'^0</ei> through its interference contribution is 
@@ -366,7 +367,7 @@ clearly are quite model-dependent, and have not been included
 for now. 
  
 <h3><ei>R^0</ei></h3> 
-   
+ 
 The <ei>R^0</ei> boson (particle code 41) represents one possible 
 scenario for a horizontal gauge boson, i.e. a gauge boson 
 that couples between the generations, inducing processes like 
@@ -377,7 +378,7 @@ the particle: one carries a net positive generation number and
 the other a negative one. This particular model has no new 
 parameters beyond the <ei>R^0</ei> mass. Decays are assumed isotropic. 
 For further details see <ref>Ben85</ref>. 
-   
+ 
 <flag name="NewGaugeBoson:ffbar2R0" default="off"> 
 Scattering <ei>f_1 fbar_2 &rarr; R^0 &rarr; f_3 fbar_4</ei>, where 
 <ei>f_1</ei> and <ei>fbar_2</ei> are separated by <ei>+-</ei> one 
@@ -390,5 +391,5 @@ Code 3041.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

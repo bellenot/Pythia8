@@ -132,7 +132,7 @@ object to which the event listing will be directed.
    
  
 <h3>Further output methods</h3> 
-
+ 
 Many event properties are accessible via the <code>Info</code> class, 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>see here</a>. Since they are used 
@@ -188,9 +188,9 @@ returns the current maximum colour tag.
 increases the current maximum colour tag by one and returns this 
 new value. This method is used whenever a new colour tag is needed. 
    
-  
+ 
 <h3>Constructors and modifications of the event record</h3> 
-  
+ 
 Although you would not normally need to create your own 
 <code>Event</code> instance, there may be times where that 
 could be convenient. The typical example would be if you want to 
@@ -419,7 +419,7 @@ common interest and so not described here.
 <p/> 
 A listing of current junctions can be obtained with the 
 <code>listJunctions()</code> method. 
-  
+ 
 <h3>Subsystems</h3> 
  
 Separate from the event record as such, but closely tied to it is the 
@@ -460,4 +460,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

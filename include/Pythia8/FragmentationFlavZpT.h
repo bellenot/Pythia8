@@ -1,5 +1,5 @@
 // FragmentationFlavZpT.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -59,7 +59,7 @@ public:
 
   // Stored properties.
   int id, rank, nPop, idPop, idVtx;
-  
+
 };
 
 //==========================================================================
@@ -110,13 +110,13 @@ private:
   bool   suppressLeadingB;
   double probQQtoQ, probStoUD, probSQtoQQ, probQQ1toQQ0, probQandQQ,
          probQandS, probQandSinQQ, probQQ1corr, probQQ1corrInv, probQQ1norm,
-         probQQ1join[4], mesonRate[4][6], mesonRateSum[4], mesonMix1[2][6], 
-         mesonMix2[2][6], etaSup, etaPrimeSup, decupletSup, baryonCGSum[6], 
-         baryonCGMax[6], popcornRate, popcornSpair, popcornSmeson, scbBM[3], 
+         probQQ1join[4], mesonRate[4][6], mesonRateSum[4], mesonMix1[2][6],
+         mesonMix2[2][6], etaSup, etaPrimeSup, decupletSup, baryonCGSum[6],
+         baryonCGMax[6], popcornRate, popcornSpair, popcornSmeson, scbBM[3],
          popFrac, popS[3], dWT[3][7], lightLeadingBSup, heavyLeadingBSup;
 
 };
- 
+
 //==========================================================================
 
 // The StringZ class is used to sample the fragmentation function f(z).
@@ -134,7 +134,7 @@ public:
   // Initialize data members.
   virtual void init(Settings& settings, ParticleData& particleData,
     Rndm* rndmPtrIn);
-  
+
   // Fragmentation function: top-level to determine parameters.
   virtual double zFrag( int idOld, int idNew = 0, double mT2 = 1.);
 
@@ -166,7 +166,7 @@ protected:
   Rndm*  rndmPtr;
 
 };
- 
+
 //==========================================================================
 
 // The StringPT class is used to select select transverse momenta.
@@ -203,7 +203,7 @@ protected:
   Rndm*  rndmPtr;
 
 };
- 
+
 //==========================================================================
 
 } // end namespace Pythia8

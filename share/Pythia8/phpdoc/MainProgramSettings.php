@@ -54,17 +54,17 @@ ones, if any, you actually want to use when you write your main program.
 To further reduce the necessary amount of main-program code, some of 
 the tasks that you can steer from your main program can also be done 
 internally. This in particular relates to some information printing. 
-To give an example, <code>pythia.event.list()</code> can be inserted
-to print an event, i.e. all the particles belonging to it. Given the
+To give an example, <code>pythia.event.list()</code> can be inserted 
+to print an event, i.e. all the particles belonging to it. Given the 
 length of these listings one would list only a few events at the 
 beginning of the run, to get some feeling for the character of events. 
-This could be achieved e.g. with a main-program statement<br/>   
-<code>   if (iEvent < 3) pythia.event.list()</code><br/>
-to list the first three events in a loop over <code>iEvent</code>,
-after <code>pythia.next()</code> has been used to generate the next
+This could be achieved e.g. with a main-program statement<br/> 
+<code>   if (iEvent < 3) pythia.event.list()</code><br/> 
+to list the first three events in a loop over <code>iEvent</code>, 
+after <code>pythia.next()</code> has been used to generate the next 
 event. Alternatively a <code>Next:numberListEvent = 3</code> 
 setting, e.g. in a command file, would achieve the same, by an 
-internal call at the end of <code>pythia.next()</code>.
+internal call at the end of <code>pythia.next()</code>. 
  
 <p/> 
 The settings names on this page thus fall into four main groups 
@@ -181,7 +181,7 @@ In addition to the normal information in the listing of the
 <code>process</code> and <code>event</code> records, further lines 
 list all the mothers and daughters of each particle. 
    
-  
+ 
 <h3>Statistics</h3> 
  
 <br/><br/><strong>Stat:showProcessLevel</strong>  <input type="radio" name="16" value="on" checked="checked"><strong>On</strong>
@@ -219,8 +219,8 @@ is called several times in a (sub)run.
 <h3>Main-program settings</h3> 
  
 The settings in this section <i>must</i> be under the control of the 
-user, i.e. there are no internal equivalents. The first one is especially
-important and would be a standard feature of any separate command file.
+user, i.e. there are no internal equivalents. The first one is especially 
+important and would be a standard feature of any separate command file. 
  
 <br/><br/><table><tr><td><strong>Main:numberOfEvents  </td><td></td><td> <input type="text" name="20" value="1000" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1000</strong></code>; <code>minimum = 0</code>)</td></tr></table>
 The number of events to be generated. 
@@ -229,7 +229,7 @@ The number of events to be generated.
 <br/><br/><table><tr><td><strong>Main:timesAllowErrors  </td><td></td><td> <input type="text" name="21" value="10" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10</strong></code>)</td></tr></table>
 Allow this many times that <code>pythia.next()</code> returns false, 
 i.e. that an event is flawed, before aborting the run. 
-    
+   
  
 <p/> 
 The <code>Main:...</code> options works like this. Once you have used 
@@ -243,9 +243,9 @@ found directly in the <code>Pythia</code> class, and these just send on
 to the <code>Settings</code> ones to do the job, e.g.<br/> 
 <code>   int nEvent = pythia.mode("Main:numberOfEvents"); </code> 
  
-<p/>
+<p/> 
 The area of subruns is covered separately below. A few spares are also 
-defined after that, for unforeseen applications.
+defined after that, for unforeseen applications. 
  
 <h3>Subruns</h3> 
  
@@ -527,4 +527,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

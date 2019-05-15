@@ -817,36 +817,36 @@ achieved by adding the following code at the end of <code>main88.cc</code>.
  
   } 
 </pre> 
-
-<br/><br/><hr/>
-<h3>Further variables</h3>
-
-More advanced manipulations of the merging machinery are of
-course possible, and additional switches can be found at
+ 
+<br/><br/><hr/> 
+<h3>Further variables</h3> 
+ 
+More advanced manipulations of the merging machinery are of 
+course possible, and additional switches can be found at 
 the end of the <?php $filepath = $_GET["filepath"];
-echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L
-tree-level merging</a> documentation. Here, we only document
+echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L 
+tree-level merging</a> documentation. Here, we only document 
 switches that <i>only</i> apply to NLO merging. 
-
+ 
 <br/><br/><strong>Merging:allowIncompleteHistoriesInReal</strong>  <input type="radio" name="17" value="on"><strong>On</strong>
 <input type="radio" name="17" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-If switched on, this will allow to keep states with incomplete parton
-shower histories (i.e. states that cannot be projected onto an allowed
-underlying Born process) in the real contributions of an NLO input sample. By
-default, such configurations will instead be included through
-higher-multiplicity tree-level matrix elements. However, NLO input samples
-can contain a significant number of such configurations if Diagram Subtraction
-(DS) techniques had been applied. In order not to change the DS scheme, it
-is important not to remove incomplete histories from the real-emission
-contribution. Note that furthermore, if this switch turned on, you will
-have to ensure yourself that no double-counting between states with incomplete
-histories will occur between NLO samples and higher-multiplicity tree-level
+If switched on, this will allow to keep states with incomplete parton 
+shower histories (i.e. states that cannot be projected onto an allowed 
+underlying Born process) in the real contributions of an NLO input sample. By 
+default, such configurations will instead be included through 
+higher-multiplicity tree-level matrix elements. However, NLO input samples 
+can contain a significant number of such configurations if Diagram Subtraction 
+(DS) techniques had been applied. In order not to change the DS scheme, it 
+is important not to remove incomplete histories from the real-emission 
+contribution. Note that furthermore, if this switch turned on, you will 
+have to ensure yourself that no double-counting between states with incomplete 
+histories will occur between NLO samples and higher-multiplicity tree-level 
 samples. This might for example entail using the <code>MergingHooks</code> 
 facilities, and the function 
-<code>double MergingHooks::dampenIfFailCuts(const Event& event)"</code> in
-particular.
-  
+<code>double MergingHooks::dampenIfFailCuts(const Event& event)"</code> in 
+particular. 
+   
  
 <input type="hidden" name="saved" value="1"/>
 
@@ -955,4 +955,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

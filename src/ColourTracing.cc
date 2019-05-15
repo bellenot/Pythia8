@@ -1,5 +1,5 @@
 // ColourTracing.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -25,13 +25,16 @@ bool ColourTracing::setupColList(Event& event) {
   iColEnd.resize(0);
   iAcolEnd.resize(0);
   iColAndAcol.resize(0);
-  for (int i = 0; i < event.size(); ++i) 
+  for (int i = 0; i < event.size(); ++i)
     if (event[i].isFinal()) {
       if (event[i].col() > 0 && event[i].acol() > 0) iColAndAcol.push_back(i);
       else if (event[i].col() > 0) iColEnd.push_back(i);
       else if (event[i].acol() > 0) iAcolEnd.push_back(i);
+      // Colour sextets have additional tags (store with negative numbers).
+      if (event[i].col() < 0) iAcolEnd.push_back(-i);
+      else if (event[i].acol() < 0) iColEnd.push_back(-i);
     }
-  
+
   // Return true if zero particles were found.
   if (int(iColEnd.size()) == 0 && int(iAcolEnd.size()) == 0 &&
       int(iColAndAcol.size()) == 0) return true;
@@ -45,7 +48,7 @@ bool ColourTracing::setupColList(Event& event) {
 
 bool ColourTracing::traceFromAcol(int indxCol, Event& event, int iJun,
   int iCol, vector<int>& iParton) {
-  
+
   // Junction kind, if any.
   int kindJun = (iJun >= 0) ? event.kindJunction(iJun) : 0;
 
@@ -58,16 +61,19 @@ bool ColourTracing::traceFromAcol(int indxCol, Event& event, int iJun,
     hasFound= false;
 
     // First check list of matching colour ends.
-    for (int i = 0; i < int(iColEnd.size()); ++i)
-    if (event[ iColEnd[i] ].col() == indxCol) {
-      iParton.push_back( iColEnd[i] );
-      indxCol = 0;
-      iColEnd[i] = iColEnd.back();
-      iColEnd.pop_back();
-      hasFound = true;
-      break;
+    // Also check for sextets (negative anticolour tag = extra colour tag).
+    for (int i = 0; i < int(iColEnd.size()); ++i) {
+      if (event[ abs(iColEnd[i]) ].col() == indxCol
+          || event[ abs(iColEnd[i]) ].acol() == -indxCol) {
+        iParton.push_back( abs(iColEnd[i]) );
+        indxCol = 0;
+        iColEnd[i] = iColEnd.back();
+        iColEnd.pop_back();
+        hasFound = true;
+        break;
+      }
     }
-  
+
     // Then check list of intermediate gluons.
     if (!hasFound)
     for (int i = 0; i < int(iColAndAcol.size()); ++i)
@@ -97,7 +103,7 @@ bool ColourTracing::traceFromAcol(int indxCol, Event& event, int iJun,
     // In a pinch, check list of opposite-sign junction end colours.
     // Store in iParton list as -(10 + 10 * iAntiJun + iLeg).
     // This is for J-g-...-g-J connections; where instead of running both ways,
-    // the second time we just store the two junctions. 
+    // the second time we just store the two junctions.
     if (!hasFound && kindJun % 2 == 1 && event.sizeJunction() > 1)
     for (int iAntiJun = 0; iAntiJun < event.sizeJunction(); ++iAntiJun)
       if (iAntiJun != iJun && event.kindJunction(iAntiJun) % 2 == 0)
@@ -108,7 +114,7 @@ bool ColourTracing::traceFromAcol(int indxCol, Event& event, int iJun,
             hasFound = true;
             break;
           }
-    
+
     // Keep on tracing via gluons until reached end of leg.
   } while (hasFound && indxCol > 0 && loop < loopMax);
 
@@ -130,9 +136,13 @@ bool ColourTracing::traceFromAcol(int indxCol, Event& event, int iJun,
 
 bool ColourTracing::traceFromCol(int indxCol, Event& event, int iJun,
   int iCol, vector<int>& iParton) {
-  
+
+  // If none specified, select next colour tag from back of list.
   if (iJun < 0  && iCol < 0) {
-    indxCol = event[iColEnd.back()].col();
+    int iColEndBack = iColEnd.back();
+    if (iColEndBack > 0) indxCol = event[iColEnd.back()].col();
+    // Negative index implies extra (sextet) colour tag in anticolour slot.
+    else                 indxCol = -event[-iColEnd.back()].acol();
     iParton.push_back(iColEnd.back());
     iColEnd.pop_back();
   }
@@ -149,16 +159,19 @@ bool ColourTracing::traceFromCol(int indxCol, Event& event, int iJun,
     hasFound= false;
 
     // First check list of matching anticolour ends.
-    for (int i = 0; i < int(iAcolEnd.size()); ++i)
-    if (event[ iAcolEnd[i] ].acol() == indxCol) {
-      iParton.push_back( iAcolEnd[i] );
-      indxCol = 0;
-      iAcolEnd[i] = iAcolEnd.back();
-      iAcolEnd.pop_back();
-      hasFound = true;
-      break;
+    // Also check for sextets (negative colour tag = extra anticolour tag).
+    for (int i = 0; i < int(iAcolEnd.size()); ++i) {
+      if (event[ abs(iAcolEnd[i]) ].acol() == indxCol
+          || event[ abs(iAcolEnd[i]) ].col() == -indxCol) {
+        iParton.push_back( abs(iAcolEnd[i]) );
+        indxCol = 0;
+        iAcolEnd[i] = iAcolEnd.back();
+        iAcolEnd.pop_back();
+        hasFound = true;
+        break;
+      }
     }
-  
+
     // Then check list of intermediate gluons.
     if (!hasFound)
     for (int i = 0; i < int(iColAndAcol.size()); ++i)
@@ -189,7 +202,7 @@ bool ColourTracing::traceFromCol(int indxCol, Event& event, int iJun,
     // In a pinch, check list of opposite-sign junction end colours.
     // Store in iParton list as -(10 + 10 * iAntiJun + iAntiLeg).
     // This is for J-g-...-g-J connections; where instead of running both ways,
-    // the second time we just store the two junctions. 
+    // the second time we just store the two junctions.
     if (!hasFound && kindJun % 2 == 0 && event.sizeJunction() > 1)
       for (int iAntiJun = 0; iAntiJun < event.sizeJunction(); ++iAntiJun)
         if (iAntiJun != iJun && event.kindJunction(iAntiJun) %2 == 1)
@@ -200,7 +213,7 @@ bool ColourTracing::traceFromCol(int indxCol, Event& event, int iJun,
               hasFound = true;
               break;
             }
-    
+
   // Keep on tracing via gluons until reached end of leg.
   } while (hasFound && indxCol > 0 && loop < loopMax);
 
@@ -221,7 +234,7 @@ bool ColourTracing::traceFromCol(int indxCol, Event& event, int iJun,
 // Trace a colour loop, from a colour back to the anticolour of the same.
 
 bool ColourTracing::traceInLoop(Event& event, vector<int>& iParton) {
-  
+
   // Add starting gluon.
   iParton.push_back( iColAndAcol[0] );
   int indxCol = event[ iColAndAcol[0] ].col();
@@ -236,7 +249,7 @@ bool ColourTracing::traceInLoop(Event& event, vector<int>& iParton) {
   do {
     ++loop;
     hasFound= false;
-  
+
     // Check list of gluons.
     for (int i = 0; i < int(iColAndAcol.size()); ++i)
       if (event[ iColAndAcol[i] ].acol() == indxCol) {
@@ -271,7 +284,7 @@ vector<vector<int > > ColourTracing::getJunChains(Event& event) {
   // Make list of junction chains and help array.
   vector<vector<int> > junChains;
   vector<bool> usedJuncs(event.sizeJunction(),false);
-  
+
   // Loop over junctions.
   for (int i = 0; i < event.sizeJunction(); ++i) {
     if (usedJuncs[i])
@@ -281,23 +294,23 @@ vector<vector<int > > ColourTracing::getJunChains(Event& event) {
     usedJuncs[i] = true;
     curJun.push_back(i);
     junList.push_back(i);
-    
+
     // Keep looping over connected junctions until no new junctions are found.
     while (!curJun.empty()) {
       for (int iLeg = 0;iLeg < 3; ++iLeg)
-	for (int j = 0;j < event.sizeJunction(); ++j) {
-	  if (usedJuncs[j])
-	    continue;
-	  for (int jLeg = 0;jLeg < 3; ++jLeg) {
-	    if (event.colJunction(curJun.front(),iLeg) == 
+        for (int j = 0;j < event.sizeJunction(); ++j) {
+          if (usedJuncs[j])
+            continue;
+          for (int jLeg = 0;jLeg < 3; ++jLeg) {
+            if (event.colJunction(curJun.front(),iLeg) ==
                 event.colJunction(j,jLeg)) {
-	      curJun.push_back(j);
-	      junList.push_back(j);
-	      usedJuncs[j] = true;
-	      break;
-	    }
-	  }
-	}
+              curJun.push_back(j);
+              junList.push_back(j);
+              usedJuncs[j] = true;
+              break;
+            }
+          }
+        }
       curJun.pop_front();
     }
     junChains.push_back(junList);

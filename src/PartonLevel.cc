@@ -1,5 +1,5 @@
 // PartonLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -8,7 +8,7 @@
 #include "Pythia8/PartonLevel.h"
 
 namespace Pythia8 {
- 
+
 //==========================================================================
 
 // The PartonLevel class.
@@ -179,7 +179,7 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   if (!remnants.init( infoPtr, settings, rndmPtr, beamAPtr, beamBPtr,
     partonSystemsPtr, particleDataPtr, &colourReconnection)) return false;
   resonanceDecays.init( infoPtr, particleDataPtr, rndmPtr);
-  colourReconnection.init( infoPtr, settings, rndmPtr, beamAPtr, beamBPtr, 
+  colourReconnection.init( infoPtr, settings, rndmPtr, beamAPtr, beamBPtr,
     partonSystemsPtr);
   junctionSplitting.init(infoPtr, settings, rndmPtr, particleDataPtr);
 
@@ -235,6 +235,7 @@ bool PartonLevel::next( Event& process, Event& event) {
   isSingleDiff   = isDiff && !isDoubleDiff  && !isCentralDiff;
   isNonDiff      = infoPtr->isNonDiffractive();
   doVeto         = false;
+  infoPtr->setAbortPartonLevel(false);
 
   // nHardLoop counts how many hard-scattering subsystems are to be processed.
   // Almost always 1, but elastic and low-mass diffraction gives 0, while
@@ -286,7 +287,7 @@ bool PartonLevel::next( Event& process, Event& event) {
   if (isDiff) {
     event.saveSize();
     event.saveJunctionSize();
-   
+
     // Allow special treatment of diffractive systems.
     setupResolvedDiff( process);
   }
@@ -503,7 +504,7 @@ bool PartonLevel::next( Event& process, Event& event) {
 
       // If no pT scales above zero then nothing to be done.
       else pTmax = 0.;
-      
+
       // Check for double counting for Drell-Yan weak production.
       // Only look at the second emission.
       if ( (infoPtr->code() == 221 || infoPtr->code() == 222) &&
@@ -514,7 +515,7 @@ bool PartonLevel::next( Event& process, Event& event) {
         Vec4 p1 = event[partonSystemsPtr->getOut(0,0)].p();
         Vec4 p2 = event[partonSystemsPtr->getOut(0,1)].p();
         Vec4 p3 = event[partonSystemsPtr->getOut(0,2)].p();
-        
+
         // Make sure id1 is weak boson, and check that there
         // only is a single weak boson and no photons.
         bool doubleCountEvent = true;
@@ -530,13 +531,13 @@ bool PartonLevel::next( Event& process, Event& event) {
           swap(id1,id3);
           swap(p1,p3);
         }
-        
+
         if (doubleCountEvent) {
           double d = p1.pT2();
           bool cut = true;
           if (p2.pT2() < d) {d = p2.pT2(); cut = false;}
           if (p3.pT2() < d) {d = p3.pT2(); cut = false;}
-    
+
           // Check for angle between weak boson and quarks.
           // (require final state particle to be a fermion)
           if (abs(id2) < 20) {
@@ -556,7 +557,7 @@ bool PartonLevel::next( Event& process, Event& event) {
               cut = true;
             }
           }
-          
+
           // Check for angle between recoiler and radiator,
           // if it is a quark anti-quark pair
           // or if the recoiler is a gluon.
@@ -656,7 +657,7 @@ bool PartonLevel::next( Event& process, Event& event) {
           }
           pTmax = pTtimes;
         }
-    
+
         // If no pT scales above zero then nothing to be done.
         else pTmax = 0.;
 
@@ -711,7 +712,7 @@ bool PartonLevel::next( Event& process, Event& event) {
       if (!wzDecayShowers( event)) return false;
 
       // User hook to reconnect colours specifically in resonance decays.
-      if (canReconResSys && !userHooksPtr->doReconnectResonanceSystems( 
+      if (canReconResSys && !userHooksPtr->doReconnectResonanceSystems(
         oldSizeEvt, event)) return false;
     }
 
@@ -723,7 +724,7 @@ bool PartonLevel::next( Event& process, Event& event) {
     }
 
     // Add beam remnants, including primordial kT kick and colour tracing.
-    if (!doTrial && physical && doRemnants 
+    if (!doTrial && physical && doRemnants
       && !remnants.add( event, iFirst, isDiff)) physical = false;
 
     // If no problems then done.
@@ -754,18 +755,18 @@ bool PartonLevel::next( Event& process, Event& event) {
     for (int i = 0; i < 10; ++i) {
       colourReconnection.next(event, 0);
       if (junctionSplitting.checkColours(event)) {
-	colCorrect = true;
-	break;
+        colCorrect = true;
+        break;
       }
       else event = eventSave;
     }
     if (!colCorrect) {
       infoPtr->errorMsg("Error in PartonLevel::next: "
-	"Colour reconnection failed.");
+        "Colour reconnection failed.");
       return false;
     }
   }
-  
+
   // Perform showers in resonance decay chains after beams & reconnection.
   int oldSizeEvt = event.size();
   if (!earlyResDec) {
@@ -779,7 +780,7 @@ bool PartonLevel::next( Event& process, Event& event) {
     if (!wzDecayShowers( event)) return false;
 
     // User hook to reconnect colours specifically in resonance decays.
-    if (canReconResSys && !userHooksPtr->doReconnectResonanceSystems( 
+    if (canReconResSys && !userHooksPtr->doReconnectResonanceSystems(
       oldSizeEvt, event)) return false;
   }
 
@@ -798,14 +799,14 @@ bool PartonLevel::next( Event& process, Event& event) {
     for (int i = 0; i < 10; ++i) {
       colourReconnection.next(event, oldSizeEvt);
       if (junctionSplitting.checkColours(event)) {
-	colCorrect = true;
-	break;
+        colCorrect = true;
+        break;
       }
       else event = eventSave;
     }
     if (!colCorrect) {
       infoPtr->errorMsg("Error in PartonLevel::next: "
-	"Colour reconnection failed.");
+        "Colour reconnection failed.");
       return false;
     }
   }
@@ -923,7 +924,7 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
       }
      // Update process colours to stay in step.
       process.nextColTag();
-    
+
       // Store partons of diffractive system and mark system decayed.
       int iDauBeg = event.append( id1, 24, iBeam, 0, 0, 0, col1, acol1,
         p1, m1);
@@ -956,7 +957,7 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
       if (!beamSideA) pL1 = -pL1;
       Vec4 p1(pxSys, pySys, pL1, e1);
       Vec4 p2 = pRem - p1;
-  
+
       // Boost and rotate to event cm frame. Improve precision.
       pG.rotbst( MtoCM);
       p1.rotbst( MtoCM);
@@ -983,7 +984,7 @@ bool PartonLevel::setupUnresolvedSys( Event& process, Event& event) {
       // Update process colours to stay in step.
       process.nextColTag();
       process.nextColTag();
-             
+
       // Store partons of diffractive system and mark system decayed.
       int iDauBeg = event.append( 21, 24, iBeam, 0, 0, 0, colG, acolG, pG, 0.);
       event.append( id1, 63, iBeam, 0, 0, 0, col1, acol1, p1, m1);
@@ -1251,7 +1252,7 @@ void PartonLevel::setupShowerSys( Event& process, Event& event) {
     }
     if (doCopy) event.appendJunction( process.getJunction(iJun));
   }
-  
+
   // Done.
 }
 
@@ -1303,7 +1304,7 @@ void PartonLevel::setupResolvedDiff( Event& process) {
 
   // Beams not found in normal slots 1 and 2.
   int beamOffset = (sizeEvent > 0) ? sizeEvent - 1 : 4;
-       
+
   // Reassign beam pointers in other classes.
   timesPtr->reassignBeamPtrs( beamAPtr, beamBPtr, beamOffset);
   spacePtr->reassignBeamPtrs( beamAPtr, beamBPtr, beamOffset);
@@ -1438,6 +1439,16 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
     RotBstMatrix M;
     M.bst( hardMother.p(), aftMother.p());
 
+    // New colour reconnection can not handle late resonance decay
+    // of coloured particles so abort event.
+    if ( (colBef != 0 || acolBef != 0) && doReconnect && reconnectMode == 1
+      && !earlyResDec) {
+      infoPtr->errorMsg("Abort in PartonLevel::resonanceShower: "
+        "new CR can't handle late resonance decay of coloured particles");
+      infoPtr->setAbortPartonLevel(true);
+      return false;
+    }
+
     // Extract next partons from hard event into normal event record.
     vector<bool> doCopyJun;
     for (int i = iBegin; i < process.size(); ++i) {
@@ -1451,7 +1462,7 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
         now.statusPos();
         now.daughters(0, 0);
       }
-      
+
       // Update daughter and mother information.
       if (i == iBegin) event[iAftMother].daughter1( iNow);
       else             event[iAftMother].daughter2( iNow);
@@ -1468,10 +1479,13 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
         for (int iLeg = iLegF1; iLeg <= 2; ++iLeg)
         if (col == process.colJunction(iJun,iLeg)) doCopyJun[iJun] = true;
       }
-  
+
       // Update colour and momentum information.
       if (now.col() == colBef) now.col( colAft);
       if (now.acol() == acolBef) now.acol( acolAft);
+      // Sextet mothers have additional (negative) tag
+      if (now.col() == -acolBef) now.col( -acolAft);
+      if (now.acol() == -colBef) now.acol( -colAft);
       now.rotbst( M);
 
       // Update vertex information.
@@ -1508,7 +1522,7 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
     int iSys = partonSystemsPtr->addSys();
     partonSystemsPtr->setSHat(iSys, pow2(hardMother.m()) );
     partonSystemsPtr->setPTHat(iSys, 0.5 * hardMother.m() );
-    
+
     // Loop over allowed range to find all final-state particles.
     for (int i = iPosBefShow[iBegin]; i <= iPosBefShow[iEnd]; ++i)
     if (event[i].isFinal()) partonSystemsPtr->addOut( iSys, i);
@@ -1560,7 +1574,7 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
           }
           pTmax = pTtimes;
         }
-    
+
         // If no pT scales above zero then nothing to be done.
         else pTmax = 0.;
 
@@ -1798,7 +1812,7 @@ bool PartonLevel::wzDecayShowers( Event& event) {
       MtoNew.bst( event[iWZtop].p(), event[iWZ].p());
       MtoRest.bstback( event[iWZ].p());
       MtoCM.bst( event[iWZ].p());
-        
+
       // Find recoiler.
       int iRecoiler;
       if (event[iMother + 1].statusAbs() == 42) iRecoiler = iMother + 1;
@@ -1818,7 +1832,7 @@ bool PartonLevel::wzDecayShowers( Event& event) {
       pRecoiler.rotbst( MtoRest);
       Vec4 pWZRest = event[iWZ].p();
       pWZRest.rotbst( MtoRest);
-        
+
       // Always choose p1 as the particle and p2 as the anti-particle.
       // If no anti-particles just continue.
       Vec4 p1 = pMother;
@@ -1832,7 +1846,7 @@ bool PartonLevel::wzDecayShowers( Event& event) {
       if (event[sizeSave].id() < 0) swap( pDec1, pDec2);
       pDec1.rotbst( MtoRest);
       pDec2.rotbst( MtoRest);
-        
+
       // Couplings.
       double li2, ri2, lf2, rf2;
       // Z couplings: make use of initial fermion polarization if set.
@@ -1886,7 +1900,7 @@ bool PartonLevel::wzDecayShowers( Event& event) {
         else if (j == 3) { pDec1Test.py( -pAbs12);  pDec1Test.py(  pAbs12);}
         else if (j == 4) { pDec1Test.pz(  pAbs12);  pDec1Test.pz( -pAbs12);}
         else if (j == 5) { pDec1Test.pz( -pAbs12);  pDec1Test.pz(  pAbs12);}
-  
+
         // Evaluate matrix element and compare with current maximum.
         double p1p4Test = p1 * pDec1Test;
         double p1p5Test = p1 * pDec2Test;
@@ -1899,10 +1913,10 @@ bool PartonLevel::wzDecayShowers( Event& event) {
         for (int i = 0; i < 9; ++i) wtTest += con[i] * testValues[i];
         if (wtTest > wtMax) wtMax = wtTest;
       }
-        
+
       // Multiply by four to ensure maximum is an overestimate.
       wtMax *= 4.;
-        
+
       // Iterate with new angles until weighting succeeds.
       int nRot = -1;
       double wt = 0.;
@@ -1915,7 +1929,7 @@ bool PartonLevel::wzDecayShowers( Event& event) {
           pDec1.rotbst(MrndmRot);
           pDec2.rotbst(MrndmRot);
         }
-          
+
         // p2 is decay product, p3 is anti decay product,
         // p4 is dipole particle, p5 is dipole anti particle.
         // So far assumed that we always have qQ-dipole.
@@ -1960,26 +1974,26 @@ bool PartonLevel::wzDecayShowers( Event& event) {
       partonSystemsPtr->setPTHat(iSys, pTmax );
       for (int i = sizeSave; i < event.size(); ++i)
         partonSystemsPtr->addOut( iSys, i);
-        
+
       // Do parton showers inside subsystem.
       if (doFSRinResonances) {
-          
+
         // Let prepare routine do the setup.
         timesDecPtr->prepare( iSys, event);
-     
+
         // Begin evolution down in pT from hard pT scale.
         do {
           double pTtimes = timesDecPtr->pTnext( event, pTmax, 0.);
-            
+
           // Do a final-state emission (if allowed).
           if (pTtimes > 0.) {
             timesDecPtr->branch( event);
             pTmax = pTtimes;
           }
-    
+
           // If no pT scales above zero then nothing to be done.
           else pTmax = 0.;
-    
+
           // Keep on evolving until nothing is left to be done.
         } while (pTmax > 0.);
       }
@@ -1992,7 +2006,7 @@ bool PartonLevel::wzDecayShowers( Event& event) {
   return true;
 
 }
- 
+
 //==========================================================================
 
 } // end namespace Pythia8

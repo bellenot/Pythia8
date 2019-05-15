@@ -113,7 +113,7 @@ presence of a junction, e.g. a baryon beam remnant from which several
 valence quarks have been kicked out, or a neutralino that underwent a 
 baryon-number-violating decay. This particle must have as daughters 
 the three partons that together carry the baryon number. 
-  
+ 
 <p/> 
 The sample program in <code>main21.cc</code> illustrates how you can work 
 with this facility, both for simple parton configurations and for more 
@@ -125,14 +125,14 @@ a <aloc href="LesHouchesAccord">Les Houches Event File</aloc> (LHEF)
 can also provide the configurations, using the "no-beams" extension. 
 For parsing reasons the <code>&lt;init&gt;</code> and 
 <code>&lt;/init&gt;</code> tags need to be present as two separate 
-lines, but there need not be anything between them. If there is,
-then the beam identities should be picked to be 0. A standard
-<code>&lt;LesHouchesEvents version="1.0"&gt;</code> line must also
+lines, but there need not be anything between them. If there is, 
+then the beam identities should be picked to be 0. A standard 
+<code>&lt;LesHouchesEvents version="1.0"&gt;</code> line must also 
 be at the top of the file. For the rest only the 
 <code>&lt;event&gt;....&lt;/event&gt;</code> blocks need to be present, 
-one for each event. You should select <code>Beams:frameType = 4</code>
-and provide the file name in <code>Beams:LHEF</code>, but setting  
-<code>ProcessLevel:all = off</code> here is superfluous since the  
+one for each event. You should select <code>Beams:frameType = 4</code> 
+and provide the file name in <code>Beams:LHEF</code>, but setting 
+<code>ProcessLevel:all = off</code> here is superfluous since the 
 absence of beams is enough to make this apparent. Needless to say, an 
 externally linked <code>LHAup</code> class works as well as an LHEF, 
 with <code>Beams:frameType = 5</code>. 
@@ -148,31 +148,31 @@ Incoming partons, if any, are -1 instead of -21.
  
 With the above scheme, <code>pythia.next()</code> will generate 
 hadronization, i.e. string fragmentation and subsequent decays of 
-normal unstable particles. Alternatively it could be used to
+normal unstable particles. Alternatively it could be used to 
 decay <aloc href="ResonanceDecays">resonances</aloc>, i.e. 
 <ei>W, Z</ei>, top, Higgs, SUSY and other massive particles. 
  
 <p/> 
 The default when a resonance is encountered is to decay it, let the 
-decay products shower, and finally hadronize the partons. Should a
+decay products shower, and finally hadronize the partons. Should a 
 decay sequence already be provided at input, this sequence will 
-be used as input for the showers, which are handled consecutively,
+be used as input for the showers, which are handled consecutively, 
 followed by hadronization. Thus, a Higgs could be provided alone, 
 or decaying to a pair of <ei>W</ei> bosons, or the same with the 
-<ei>W</ei>'s decaying further to fermion pairs. Needless to say,
+<ei>W</ei>'s decaying further to fermion pairs. Needless to say, 
 correct process-specific angular correlations in decays should not 
-be expected when the process is unspecified.  
-
+be expected when the process is unspecified. 
+ 
 <p/> 
 If you do not want resonances to decay then you can use the 
-<code>ProcessLevel:resonanceDecays = off</code> setting.
+<code>ProcessLevel:resonanceDecays = off</code> setting. 
 If instead you want them to decay but not shower, you can 
 use either <code>PartonLevel:FSR = off</code> or 
 <code>PartonLevel:FSRinResonances = off</code>. A warning here 
-is that, generally, it is not a good idea to provide a part of the
-shower history but not all, e.g. <ei> Z^0 &rarr; q qbar g</ei>:
-it is not straightforward to avoid doublecouning or other problems
-within this simpler alternative to a full-scale event generation.
+is that, generally, it is not a good idea to provide a part of the 
+shower history but not all, e.g. <ei> Z^0 &rarr; q qbar g</ei>: 
+it is not straightforward to avoid doublecouning or other problems 
+within this simpler alternative to a full-scale event generation. 
  
 <p/> 
 The input configuration has to follow the rules described above, 
@@ -182,8 +182,8 @@ several resonances, and other coloured or uncoloured particles into
 the same event. Partonic daughters of resonances would then shower, 
 but other partons not. It may be possible to fool the program, 
 however, since this is not a fully tested core functionality, 
-so don't combine wildly if there is no reason to.
-
+so don't combine wildly if there is no reason to. 
+ 
  
 <h3>Repeated hadronization or decay</h3> 
  
@@ -197,7 +197,7 @@ externally generated events it is equivalent to a
  
 <p/> 
 This method truly sticks to the hadron level, and thus cannot handle 
-resonance decays.
+resonance decays. 
  
 <p/> 
 The similarity of names indicates that 
@@ -260,4 +260,4 @@ events.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

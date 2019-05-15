@@ -762,7 +762,7 @@ clustered into the <ei>i</ei>'th jet,
 <method name="vector&lt;int&gt; SlowJet::clusConstituents(int i)"> 
 gives a list of the indices of the particles that have been 
 clustered into the <ei>i</ei>'th cluster, at the current stage of 
-the clustering process,  
+the clustering process, 
 </method> 
  
 <method name="int SlowJet::jetAssignment(int i)"> 
@@ -852,7 +852,7 @@ provides a listing of the above information.
 else only jets. 
 </argument> 
 </method> 
-  
+ 
 <p/> 
 Three further methods can be used to check what will happen next. 
  
@@ -872,14 +872,14 @@ in each new step. When <code>useFJcore = true</code> there are no
 intermediate steps, and thus these methods do not return meaningul 
 information. 
 </methodmore> 
-  
+ 
 <p/> 
 Finally, and separately, the <code>SlowJetHook</code> class can be used 
 for a more smart selection of which particles to include in the analysis. 
 For instance, isolated and/or high-<ei>pT</ei> muons, electrons and 
 photons should presumably be identified separately at an early stage, 
 and then not clustered to jets. 
-  
+ 
 <p/> 
 Technically, it works like with <aloc href="UserHooks">User Hooks</aloc>. 
 That is, PYTHIA contains the base class. You write a derived class. 
@@ -937,4 +937,4 @@ individual particle.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

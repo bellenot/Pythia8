@@ -1,5 +1,5 @@
 // SigmaProcess.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -76,7 +76,7 @@ public:
   double pdfA, pdfB, pdfSigma;
 
 };
- 
+
 //==========================================================================
 
 // SigmaProcess is the base class for cross section calculations.
@@ -226,7 +226,7 @@ public:
 
   // Tell whether tHat and uHat are swapped (= same as swap 3 and 4).
   bool swappedTU()          const {return swapTU;}
-  
+
   // Give back particle properties: flavours, colours, masses, or all.
   int    id(int i)          const {return idSave[i];}
   int    col(int i)         const {return colSave[i];}
@@ -280,7 +280,7 @@ protected:
 
   // Pointer to various information on the generation.
   Info*           infoPtr;
- 
+
   // Pointer to the settings database.
   Settings*       settingsPtr;
 
@@ -296,7 +296,7 @@ protected:
 
   // Pointer to Standard Model couplings, including alphaS and alphaEM.
   Couplings*      couplingsPtr;
-  
+
   // Pointer to the total/elastic/diffractive cross section object.
   SigmaTotal*     sigmaTotPtr;
 
@@ -314,7 +314,8 @@ protected:
 
   // CP violation parameters for Higgs sector, normally only set once.
   int    higgsH1parity, higgsH2parity, higgsA3parity;
-  double higgsH1eta, higgsH2eta, higgsA3eta, higgsH1phi, higgsH2phi, higgsA3phi;
+  double higgsH1eta, higgsH2eta, higgsA3eta, higgsH1phi, higgsH2phi, 
+         higgsA3phi;
 
   // Information on incoming beams.
   int    idA, idB;
@@ -328,7 +329,7 @@ protected:
   void addBeamB(int idIn) {inBeamB.push_back(InBeam(idIn));}
   int sizeBeamA() const {return inBeamA.size();}
   int sizeBeamB() const {return inBeamB.size();}
- 
+
   // Allowed colliding parton pairs, with pdf's.
   vector<InPair> inPair;
   void addPair(int idAIn, int idBIn) {
@@ -390,7 +391,7 @@ protected:
   double weightHiggsDecay( Event& process, int iResBeg, int iResEnd);
 
 };
- 
+
 //==========================================================================
 
 // Sigma0Process is the base class for unresolved and minimum-bias processes.
@@ -424,7 +425,7 @@ protected:
   Sigma0Process() {}
 
 };
- 
+
 //==========================================================================
 
 // Sigma1Process is the base class for 2 -> 1 processes.
@@ -464,7 +465,7 @@ protected:
   virtual bool   setupForME();
 
 };
- 
+
 //==========================================================================
 
 // Sigma2Process is the base class for 2 -> 2 processes.
@@ -529,7 +530,7 @@ protected:
   double tH, uH, tH2, uH2, m3, s3, m4, s4, pT2, runBW3, runBW4;
 
 };
- 
+
 //==========================================================================
 
 // Sigma3Process is the base class for 2 -> 3 processes.
@@ -573,7 +574,7 @@ protected:
   Vec4   p3cm, p4cm, p5cm;
 
 };
- 
+
 //==========================================================================
 
 // SigmaLHAProcess is a wrapper class for Les Houches Accord external input.
@@ -607,7 +608,7 @@ public:
 
   // Number of final-state particles depends on current process choice.
   virtual int    nFinal()   const;
- 
+
   // Answer for these processes not in GeV^-2, so do not do this conversion.
   virtual bool   convert2mb() const {return false;}
 
@@ -621,10 +622,10 @@ public:
 private:
 
 };
- 
+
 //==========================================================================
 
 } // end namespace Pythia8
 
 #endif // Pythia8_SigmaProcess_H
- 
+

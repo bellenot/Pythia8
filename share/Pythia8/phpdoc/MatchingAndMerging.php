@@ -137,7 +137,7 @@ processes are available. The code required for merging the PYTHIA
 showers with POWHEG input can be found in 
 <code>include/Pythia8Plugins/PowHegHooks.h</code>, and is further 
 described on a <?php $filepath = $_GET["filepath"];
-echo "<a href='POWHEGMerging.php?filepath=".$filepath."' target='page'>";?>separate page</a>.
+echo "<a href='POWHEGMerging.php?filepath=".$filepath."' target='page'>";?>separate page</a>. 
 A user example is found in <code>examples/main31</code>. 
 </li> 
  
@@ -146,8 +146,8 @@ MC@NLO one [<a href="Bibliography.php" target="page">Fri02</a>]. In it the showe
 without its Sudakov factor, is subtracted from the real-emission 
 matrix element to regularize divergences. It therefore requires a 
 analytic knowledge of the way the shower populates phase space. 
-The aMC@NLO package [<a href="Bibliography.php" target="page">Fre11</a>] offers an implementation for
-PYTHIA 8, developed by Paolo Torrielli and Stefano Frixione. The
+The aMC@NLO package [<a href="Bibliography.php" target="page">Fre11</a>] offers an implementation for 
+PYTHIA 8, developed by Paolo Torrielli and Stefano Frixione. The 
 global-recoil option of the PYTHIA final-state shower has been 
 constructed to be used for the above-mentioned subtraction. 
 </li> 
@@ -180,7 +180,7 @@ and test programs are documented on a
 <?php $filepath = $_GET["filepath"];
 echo "<a href='NLOMerging.php?filepath=".$filepath."' target='page'>";?>separate page</a>. 
 </li> 
-
+ 
 <li>Next-to-leading order jet matching in the FxFx approach 
 is also available. For details see 
 <?php $filepath = $_GET["filepath"];
@@ -188,141 +188,143 @@ echo "<a href='JetMatching.php?filepath=".$filepath."' target='page'>";?>separat
 </li> 
  
 </ul> 
-
-<br/><br/><hr/> 
-<h3>MC@NLO, jet matching, multi-jet merging and NLO merging with main89.cc</h3> 
  
-A common Pythia main program for MC@NLO NLO+PS matching, MLM jet matching,
-FxFx (NLO) jet matching, CKKW-L merging, UMEPS merging and UNLOPS (NLO)
-merging is available through <code>main89.cc</code>, together with the input
-files <code>main89mlm.cmnd</code>, <code>main89fxfx.cmnd</code>,
-<code>main89ckkwl.cmnd</code>, <code>main89umeps.cmnd</code> and
-<code>main89unlops.cmnd</code>. The interface to MLM jet matching relies
-on MadGraph, while all other options of <code>main89.cc</code> use aMC@NLO
-input.
-
-<code>main89.cc</code> produces HepMC events [<a href="Bibliography.php" target="page">Dob01</a>], that can be
-histogrammed (e.g. using RIVET [<a href="Bibliography.php" target="page">Buc10</a>]), or used as input for a
-detector simulation. If the user is not familiar with HepMC analysis tools, it
-is possible to instead use Pythia's histogramming routines. For this, remove
-the lines referring to HepMC, and histogram events as illustrated (for CKKW-L)
-for the histogram <i>histPTFirstSum</i> in <code>main84.cc</code>, i.e. using 
-<i>weight*normhepmc</i> as weight. 
+<br/><br/><hr/> 
+<h3>MC@NLO, jet matching, multi-jet merging and NLO merging with 
+main89.cc</h3> 
+ 
+A common Pythia main program for MC@NLO NLO+PS matching, MLM jet matching, 
+FxFx (NLO) jet matching, CKKW-L merging, UMEPS merging and UNLOPS (NLO) 
+merging is available through <code>main89.cc</code>, together with the input 
+files <code>main89mlm.cmnd</code>, <code>main89fxfx.cmnd</code>, 
+<code>main89ckkwl.cmnd</code>, <code>main89umeps.cmnd</code> and 
+<code>main89unlops.cmnd</code>. The interface to MLM jet matching relies 
+on MadGraph, while all other options of <code>main89.cc</code> use aMC@NLO 
+input. 
+ 
+<code>main89.cc</code> produces HepMC events [<a href="Bibliography.php" target="page">Dob01</a>], that can be 
+histogrammed (e.g. using RIVET [<a href="Bibliography.php" target="page">Buc10</a>]), or used as input for a 
+detector simulation. If the user is not familiar with HepMC analysis tools, it 
+is possible to instead use Pythia's histogramming routines. For this, remove 
+the lines referring to HepMC, and histogram events as illustrated (for CKKW-L) 
+for the histogram <i>histPTFirstSum</i> in <code>main84.cc</code>, i.e. 
+using <i>weight*normhepmc</i> as weight. 
  
 <p/> 
-All settings can be transferred to <code>main89.cc</code> through an input file.
-The input file is part of the command line input of <code>main89.cc</code>, i.e.
-you can execute <code>main89</code> with the command 
+All settings can be transferred to <code>main89.cc</code> through an input 
+file. The input file is part of the command line input of 
+<code>main89.cc</code>, i.e. you can execute <code>main89</code> with the 
+command 
 </p> 
 <code>./main89 myInputFile.cmnd myhepmc.hepmc</code> 
 </p> 
-
-to read the input <code>myInputFile.cmnd</code> and produce the output file
-<code>myhepmc.hepmc</code> . Since <code>main89.cc</code> is currently a
-"front-end" for different types of matching/merging, we will briefly discuss
+ 
+to read the input <code>myInputFile.cmnd</code> and produce the output file 
+<code>myhepmc.hepmc</code> . Since <code>main89.cc</code> is currently a 
+"front-end" for different types of matching/merging, we will briefly discuss 
 the inputs for this sample program in the following. 
  
 <h4>Inputs</h4> 
-
-In its current form, <code>main89.cc</code> uses LHEF input to transfer (weighted)
-phase space points to Pythia. It is possible to include all parton multiplicities
-in one LHEF sample. If e.g. UMEPS merging for W-boson + up to two additional partons
-is to be performed, one LHE file containing W+zero, W+one and W+two parton events is
-required.
+ 
+In its current form, <code>main89.cc</code> uses LHEF input to transfer 
+(weighted) phase space points to Pythia. It is possible to include all 
+parton multiplicities in one LHEF sample. If e.g. UMEPS merging for 
+W-boson + up to two additional partons is to be performed, one LHE file 
+containing W+zero, W+one and W+two parton events is required. 
  
 <p/> 
 All input settings are handed to <code>main89.cc</code> in the form of an 
 input file. We have included the input settings files 
 <p/> 
- &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; <code>main89mlm.cmnd</code>, which
-illustrates the MLM jet matching interface,
-<p/>  
- &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; <code>main89ckkwl.cmnd</code>, which
-illustrates the CKKW-L multi-jet merging interface,
+ &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; <code>main89mlm.cmnd</code>, which 
+illustrates the MLM jet matching interface, 
 <p/> 
- &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;  <code>main89umeps.cmnd</code>, which
-illustrates the UMEPS multi-jet merging interface, and
+ &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; <code>main89ckkwl.cmnd</code>, which 
+illustrates the CKKW-L multi-jet merging interface, 
+<p/> 
+ &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;  <code>main89umeps.cmnd</code>, which 
+illustrates the UMEPS multi-jet merging interface, and 
  <p/> 
- &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; <code>main89fxfx.cmnd</code>, which
-illustrates the FxFx NLO jet matching interface,
-<p/>
- &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;  <code>main89unlops.cmnd</code>, which
-illustrates the UNLOPS multi-jet NLO merging interface.
+ &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; <code>main89fxfx.cmnd</code>, which 
+illustrates the FxFx NLO jet matching interface, 
 <p/> 
-Other settings (e.g. using <code>main89.cc</code> as simple LO+PS or as MC@NLO
-interface) are of course possible. In the following, we will briefly explain
-how input for the five choices above are generated and handled.
-
+ &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;  <code>main89unlops.cmnd</code>, which 
+illustrates the UNLOPS multi-jet NLO merging interface. 
+<p/> 
+Other settings (e.g. using <code>main89.cc</code> as simple LO+PS or as MC@NLO 
+interface) are of course possible. In the following, we will briefly explain 
+how input for the five choices above are generated and handled. 
+ 
 <h4>MLM jet matching with main89.cc</h4> 
-
-For MLM jet matching, <code>main89.cc</code> currently relies on LHEF input
-from MadGraph. Due to the particular unweighting strategy performed in the
-generation of these inputs, the sample program starts by estimating the
-cross section. After this estimate, MLM jet matching within the Madgraph
-approach is performed in a second Pythia run. Example MLM settings can be
-found in <code>main89mlm.cmnd</code>. Please consult
+ 
+For MLM jet matching, <code>main89.cc</code> currently relies on LHEF input 
+from MadGraph. Due to the particular unweighting strategy performed in the 
+generation of these inputs, the sample program starts by estimating the 
+cross section. After this estimate, MLM jet matching within the Madgraph 
+approach is performed in a second Pythia run. Example MLM settings can be 
+found in <code>main89mlm.cmnd</code>. Please consult 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='JetMatching.php?filepath=".$filepath."' target='page'>";?>Jet Matching</a> for more details.
-
+echo "<a href='JetMatching.php?filepath=".$filepath."' target='page'>";?>Jet Matching</a> for more details. 
+ 
 <h4>CKKW-L merging with main89.cc</h4> 
-
-For CKKW-L merging, <code>main89.cc</code> currently relies on LHEF inputs
-generated with the leading-order mode of aMC@NLO (i.e. events should
-be generated with <code>./bin/generate_events aMC@LO</code>).
-No run to estimate the cross section estimate is needed. Example CKKW-L
-settings can be found in <code>main89ckkwl.cmnd</code>. Please consult
+ 
+For CKKW-L merging, <code>main89.cc</code> currently relies on LHEF inputs 
+generated with the leading-order mode of aMC@NLO (i.e. events should 
+be generated with <code>./bin/generate_events aMC@LO</code>). 
+No run to estimate the cross section estimate is needed. Example CKKW-L 
+settings can be found in <code>main89ckkwl.cmnd</code>. Please consult 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L merging</a> for more details.
-
+echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L merging</a> for more details. 
+ 
 <h4>UMEPS merging with main89.cc</h4> 
-
-For UMEPS merging, <code>main89.cc</code> currently relies on LHEF inputs
-generated with the leading-order mode of aMC@NLO as well (see above).
-<code>main89.cc</code> automatically assigns if an event will be used as
-"standard" event or as "subtractive" contribution. Example UMEPS
-settings can be found in <code>main89umeps.cmnd</code>. Please
+ 
+For UMEPS merging, <code>main89.cc</code> currently relies on LHEF inputs 
+generated with the leading-order mode of aMC@NLO as well (see above). 
+<code>main89.cc</code> automatically assigns if an event will be used as 
+"standard" event or as "subtractive" contribution. Example UMEPS 
+settings can be found in <code>main89umeps.cmnd</code>. Please 
 consult <?php $filepath = $_GET["filepath"];
-echo "<a href='UMEPSMerging.php?filepath=".$filepath."' target='page'>";?>UMEPS merging</a> and
+echo "<a href='UMEPSMerging.php?filepath=".$filepath."' target='page'>";?>UMEPS merging</a> and 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L merging</a> for more details.
-
-<h4>FxFx (NLO) jet matching with main89.cc</h4>
-
-For FxFx jet matching, <code>main89.cc</code> relies on MC@NLO input LHE
-files generated with aMC@NLO. To produce FxFx outputs in aMC@NLO, the settings
-<code>PYTHIA8  = parton_shower</code>, <code>3 = ickkw</code> and
-<code>x = ptj</code> are necessary in your aMC@NLO run card. Here,
-<code>x</code> is the value of the matching scale in FxFx, i.e. has be
-identical to <code>JetMatching:qCutME</code> in the Pythia inputs.
-Example FxFx settings for Pythia can be found in <code>main89fxfx.cmnd</code>.
+echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L merging</a> for more details. 
+ 
+<h4>FxFx (NLO) jet matching with main89.cc</h4> 
+ 
+For FxFx jet matching, <code>main89.cc</code> relies on MC@NLO input LHE 
+files generated with aMC@NLO. To produce FxFx outputs in aMC@NLO, the settings 
+<code>PYTHIA8  = parton_shower</code>, <code>3 = ickkw</code> and 
+<code>x = ptj</code> are necessary in your aMC@NLO run card. Here, 
+<code>x</code> is the value of the matching scale in FxFx, i.e. has be 
+identical to <code>JetMatching:qCutME</code> in the Pythia inputs. 
+Example FxFx settings for Pythia can be found in <code>main89fxfx.cmnd</code>. 
 Please consult <?php $filepath = $_GET["filepath"];
-echo "<a href='JetMatching.php?filepath=".$filepath."' target='page'>";?>Jet Matching</a> and
+echo "<a href='JetMatching.php?filepath=".$filepath."' target='page'>";?>Jet Matching</a> and 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='aMCatNLOMatching.php?filepath=".$filepath."' target='page'>";?>aMC@NLO matching</a> for more details.
-
-
+echo "<a href='aMCatNLOMatching.php?filepath=".$filepath."' target='page'>";?>aMC@NLO matching</a> for more details. 
+ 
+ 
 <h4>UNLOPS (NLO) merging with main89.cc</h4> 
-
-For UNLOPS merging, <code>main89.cc</code> currently relies on LHEF inputs
-generated with the aMC@NLO. The UNLOPS interface in <code>main89.cc</code>
-requires a) leading-order inputs generated with the leading-order mode of
-aMC@NLO, using the UNLOPS prescription, and b) next-to-leading-order inputs
-generated with the NLO mode of aMC@NLO, using the UNLOPS prescription.
-To produce UNLOPS outputs in aMC@NLO, the settings
-<code>PYTHIA8  = parton_shower</code>, <code>4 = ickkw</code> and
-<code>x = ptj</code> are necessary in your aMC@NLO run card. Here,
-<code>x</code> is the value of the merging scale in UNLOPS, i.e.
-has be identical to <code>Merging:TMS</code> in the Pythia inputs.
-<code>main89.cc</code> will then process NLO inputs and LO inputs
-consecutively, and will automatically assign if an event will be used as
-"standard" event or as "subtractive" contribution. Example UNLOPS
-settings can be found in <code>main89umeps.cmnd</code>. Please
+ 
+For UNLOPS merging, <code>main89.cc</code> currently relies on LHEF inputs 
+generated with the aMC@NLO. The UNLOPS interface in <code>main89.cc</code> 
+requires a) leading-order inputs generated with the leading-order mode of 
+aMC@NLO, using the UNLOPS prescription, and b) next-to-leading-order inputs 
+generated with the NLO mode of aMC@NLO, using the UNLOPS prescription. 
+To produce UNLOPS outputs in aMC@NLO, the settings 
+<code>PYTHIA8  = parton_shower</code>, <code>4 = ickkw</code> and 
+<code>x = ptj</code> are necessary in your aMC@NLO run card. Here, 
+<code>x</code> is the value of the merging scale in UNLOPS, i.e. 
+has be identical to <code>Merging:TMS</code> in the Pythia inputs. 
+<code>main89.cc</code> will then process NLO inputs and LO inputs 
+consecutively, and will automatically assign if an event will be used as 
+"standard" event or as "subtractive" contribution. Example UNLOPS 
+settings can be found in <code>main89umeps.cmnd</code>. Please 
 consult <?php $filepath = $_GET["filepath"];
-echo "<a href='UNLOPSMerging.php?filepath=".$filepath."' target='page'>";?>UMEPS merging</a> and
+echo "<a href='UNLOPSMerging.php?filepath=".$filepath."' target='page'>";?>UMEPS merging</a> and 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L merging</a> for more details.
+echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L merging</a> for more details. 
  
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

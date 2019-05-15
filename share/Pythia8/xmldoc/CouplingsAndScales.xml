@@ -13,10 +13,19 @@ and separate PDF scale choices. Also, in <ei>2 &rarr; 2</ei> and
 couplings and thereby their Breit-Wigner shapes are always evaluated 
 with the resonance mass as scale, irrespective of the choices below. 
  
+<p/> 
+We stress that couplings and scales are set separately from the 
+values on this page for 
+<aloc href="MultipartonInteractions">multiparton interactions</aloc>, 
+<aloc href="TimelikeShowers">timelike showers</aloc>, and 
+<aloc href="SpacelikeShowers">spacelike showers</aloc>. 
+This allows a bigger flexibility, but also requires a bit more work 
+e.g. if you insist on using the same <ei>alpha_s</ei> everywhere. 
+ 
 <h3>Couplings and K factor</h3> 
  
 The size of QCD cross sections is mainly determined by 
-<parm name="SigmaProcess:alphaSvalue" default="0.1265" 
+<parm name="SigmaProcess:alphaSvalue" default="0.13" 
 min="0.06" max="0.25"> 
 The <ei>alpha_strong</ei> value at scale <ei>M_Z^2</ei>. 
 </parm> 
@@ -70,7 +79,7 @@ The <ei>Q^2</ei> renormalization scale can be chosen among a few different
 alternatives, separately for <ei>2 &rarr; 1</ei>, <ei>2 &rarr; 2</ei> and two 
 different kinds of <ei>2 &rarr; 3</ei> processes. In addition a common 
 multiplicative factor may be imposed. 
-  
+ 
 <modepick name="SigmaProcess:renormScale1" default="1" min="1" max="2"> 
 The <ei>Q^2</ei> renormalization scale for <ei>2 &rarr; 1</ei> processes. 
 The same options also apply for those <ei>2 &rarr; 2</ei> and 
@@ -83,7 +92,7 @@ proceeding only through an <ei>s</ei>-channel resonance, by the
 below. 
 </option> 
 </modepick> 
-   
+ 
 <modepick name="SigmaProcess:renormScale2" default="2" min="1" max="5"> 
 The <ei>Q^2</ei> renormalization scale for <ei>2 &rarr; 2</ei> processes. 
 <option value="1">the smaller of the squared transverse masses of the two 
@@ -107,7 +116,7 @@ i.e. <ei>sHat</ei>. Useful for processes dominated by
 below. 
 </option> 
 </modepick> 
-   
+ 
 <modepick name="SigmaProcess:renormScale3" default="3" min="1" max="6"> 
 The <ei>Q^2</ei> renormalization scale for "normal" <ei>2 &rarr; 3</ei> 
 processes, i.e excepting the vector-boson-fusion processes below. 
@@ -135,7 +144,7 @@ i.e. <ei>sHat</ei>.
 below. 
 </option> 
 </modepick> 
-  
+ 
 <modepick name="SigmaProcess:renormScale3VV" default="3" min="1" max="6"> 
 The <ei>Q^2</ei> renormalization scale for <ei>2 &rarr; 3</ei> 
 vector-boson-fusion processes, i.e. <ei>f_1 f_2 &rarr; H^0 f_3 f_4</ei> 
@@ -187,7 +196,7 @@ separately. For simplicity we have let the numbering of options agree,
 for each event class separately, between normalization and factorization 
 scales, and the description has therefore been slightly shortened. The 
 default values are <b>not</b> necessarily the same, however. 
-  
+ 
 <modepick name="SigmaProcess:factorScale1" default="1" min="1" max="2"> 
 The <ei>Q^2</ei> factorization scale for <ei>2 &rarr; 1</ei> processes. 
 The same options also apply for those <ei>2 &rarr; 2</ei> and 
@@ -220,7 +229,7 @@ i.e. <ei>sHat</ei>. Useful for processes dominated by
 below. 
 </option> 
 </modepick> 
-   
+ 
 <modepick name="SigmaProcess:factorScale3" default="2" min="1" max="6"> 
 The <ei>Q^2</ei> factorization scale for "normal" <ei>2 &rarr; 3</ei> 
 processes, i.e excepting the vector-boson-fusion processes below. 
@@ -243,7 +252,7 @@ i.e. <ei>sHat</ei>.
 below. 
 </option> 
 </modepick> 
-  
+ 
 <modepick name="SigmaProcess:factorScale3VV" default="2" min="1" max="6"> 
 The <ei>Q^2</ei> factorization scale for <ei>2 &rarr; 3</ei> 
 vector-boson-fusion processes, i.e. <ei>f_1 f_2 &rarr; H^0 f_3 f_4</ei> 
@@ -286,4 +295,4 @@ above.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

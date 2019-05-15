@@ -29,41 +29,41 @@ to be viewed in the context of a complete <a href="Tunes.html" target="page">tun
 The main parameters of the selection of a new flavour are 
  
 <p/><code>parm&nbsp; </code><strong> StringFlav:probStoUD &nbsp;</strong> 
- (<code>default = <strong>0.19</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
+ (<code>default = <strong>0.217</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
 the suppression of <i>s</i> quark production relative to ordinary 
 <i>u</i> or <i>d</i> one. 
    
  
 <p/><code>parm&nbsp; </code><strong> StringFlav:probQQtoQ &nbsp;</strong> 
- (<code>default = <strong>0.09</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
+ (<code>default = <strong>0.081</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
 the suppression of diquark production relative to quark production, 
 i.e. of baryon relative to meson production. 
    
  
 <p/><code>parm&nbsp; </code><strong> StringFlav:probSQtoQQ &nbsp;</strong> 
- (<code>default = <strong>1.00</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
+ (<code>default = <strong>0.915</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
 the suppression of strange diquark production relative to light 
 diquark production, over and above the one already given by 
 <code>probStoU</code>. 
    
-  
+ 
 <p/><code>parm&nbsp; </code><strong> StringFlav:probQQ1toQQ0 &nbsp;</strong> 
- (<code>default = <strong>0.027</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
+ (<code>default = <strong>0.0275</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
 the suppression of spin 1 diquark production relative to spin 0 one, 
 apart from the factor of 3 enhancement of spin 1 from counting the 
 number of states. 
    
-
+ 
 <p/><code>pvec&nbsp; </code><strong> StringFlav:probQQ1toQQ0join &nbsp;</strong> 
  (<code>default = <strong>0.5,0.7,0.9,1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
-when two already produced quarks are to be combined to a diquark,
+when two already produced quarks are to be combined to a diquark, 
 e.g. in the junction framework, these numbers give the suppression 
 of spin 1 diquark production relative to spin 0 one, apart from the 
-factor of 3 enhancement of spin 1 from counting the number of states.
-The four components give the suppression when the heaviest quark is
-<i>u/d</i>, <i>s</i>, <i>c</i> or <i>b</i>, respectively.
+factor of 3 enhancement of spin 1 from counting the number of states. 
+The four components give the suppression when the heaviest quark is 
+<i>u/d</i>, <i>s</i>, <i>c</i> or <i>b</i>, respectively. 
 These parameters are seldom used and currently not constrained by any 
-data, so very much a guesswork.
+data, so very much a guesswork. 
    
  
 <h3>Standard-meson production</h3> 
@@ -82,20 +82,20 @@ especially for lighter mesons, owing to the vector-pseudoscalar
 mass splitting. 
  
 <p/><code>parm&nbsp; </code><strong> StringFlav:mesonUDvector &nbsp;</strong> 
- (<code>default = <strong>0.62</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)<br/>
+ (<code>default = <strong>0.50</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)<br/>
 the relative production ratio vector/pseudoscalar for light 
 (<i>u</i>, <i>d</i>) mesons. 
    
 <p/><code>parm&nbsp; </code><strong> StringFlav:mesonSvector &nbsp;</strong> 
- (<code>default = <strong>0.725</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)<br/>
+ (<code>default = <strong>0.55</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)<br/>
 the relative production ratio vector/pseudoscalar for strange mesons. 
    
 <p/><code>parm&nbsp; </code><strong> StringFlav:mesonCvector &nbsp;</strong> 
- (<code>default = <strong>1.06</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)<br/>
+ (<code>default = <strong>0.88</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)<br/>
 the relative production ratio vector/pseudoscalar for charm mesons. 
    
 <p/><code>parm&nbsp; </code><strong> StringFlav:mesonBvector &nbsp;</strong> 
- (<code>default = <strong>3.0</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)<br/>
+ (<code>default = <strong>2.20</strong></code>; <code>minimum = 0.</code>; <code>maximum = 3.</code>)<br/>
 the relative production ratio vector/pseudoscalar for bottom mesons. 
    
  
@@ -136,7 +136,7 @@ Further, the simple model overestimates the production of <i>eta</i>
 and, in particular, <i>eta'</i> mesons, which can be rectified by 
  
 <p/><code>parm&nbsp; </code><strong> StringFlav:etaSup &nbsp;</strong> 
- (<code>default = <strong>0.63</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)<br/>
+ (<code>default = <strong>0.60</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)<br/>
 the additional suppression of <i>eta</i> production, multiplying the 
 normal production probability. Thus 0 means no <i>eta</i> at all 
 are produced, while 1 means full rate. 
@@ -360,7 +360,7 @@ parameters and is therefore not so useful).
    
  
 <p/><code>parm&nbsp; </code><strong> StringFlav:popcornSpair &nbsp;</strong> 
- (<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.0</code>)<br/>
+ (<code>default = <strong>0.9</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.0</code>)<br/>
 extra suppression for having an <i>s sbar</i> pair shared between 
 the <i>B</i> and <i>Bbar</i> in a <i>B M Bbar</i> configuration. 
    
@@ -391,7 +391,7 @@ below. This suppresses the production of first-rank baryons by the same
 amount. Indirectly also the second-rank and, if popcorn production is 
 switched on, third-rank (anti)baryon production is affected.    
    
-  
+ 
 <p/><code>parm&nbsp; </code><strong> StringFlav:lightLeadingBSup &nbsp;</strong> 
  (<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.0</code>)<br/>
 extra suppression of leading-baryon production for a light-quark 
@@ -399,7 +399,7 @@ jet, i.e. <i>d</i>, <i>u</i> or <i>s</i>, when
 <code>suppressLeadingB = on</code>. Thus 0 means no leading-baryon 
 production at all, while 1 means full rate. 
    
-  
+ 
 <p/><code>parm&nbsp; </code><strong> StringFlav:heavyLeadingBSup &nbsp;</strong> 
  (<code>default = <strong>0.9</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.0</code>)<br/>
 extra suppression of leading-baryon production for a heavy-quark 
@@ -407,8 +407,8 @@ jet, i.e. <i>c</i> or <i>b</i>, when
 <code>suppressLeadingB = on</code>. Thus 0 means no leading-baryon 
 production at all, while 1 means full rate. 
    
-   
+ 
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

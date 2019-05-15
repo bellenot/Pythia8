@@ -1,5 +1,5 @@
 // PartonDistributions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -63,7 +63,7 @@ public:
   // Read out valence and sea part of parton densities.
   virtual double xfVal(int id, double x, double Q2);
   virtual double xfSea(int id, double x, double Q2);
-  
+
 protected:
 
   // Allow the LHAPDF class to access these methods.
@@ -83,7 +83,7 @@ protected:
   virtual void xfUpdate(int id, double x, double Q2) = 0;
 
 };
- 
+
 //==========================================================================
 
 // Gives the GRV 94L (leading order) parton distribution function set
@@ -110,7 +110,7 @@ private:
     double ak, double ag, double b, double d, double e, double es);
 
 };
- 
+
 //==========================================================================
 
 // Gives the CTEQ 5L (leading order) parton distribution function set
@@ -129,7 +129,7 @@ private:
   void xfUpdate(int , double x, double Q2);
 
 };
- 
+
 //==========================================================================
 
 // The MSTWpdf class.
@@ -182,7 +182,7 @@ private:
     double y2, double y3);
 
 };
- 
+
 //==========================================================================
 
 // The CTEQ6pdf class.
@@ -257,7 +257,7 @@ private:
   Info* m_infoPtr;
 
 };
- 
+
 //==========================================================================
 
 // Gives the GRV 1992 pi+ (leading order) parton distribution function set
@@ -308,7 +308,7 @@ private:
   void xfUpdate(int , double x, double);
 
 };
- 
+
 //==========================================================================
 
 // The H1 2006 Fit A and Fit B Pomeron parametrization.
@@ -340,7 +340,7 @@ private:
   void xfUpdate(int , double x, double );
 
 };
- 
+
 //==========================================================================
 
 // The H1 2007 Jets Pomeron parametrization..
@@ -374,11 +374,11 @@ private:
   void xfUpdate(int id, double x, double );
 
 };
- 
+
 //==========================================================================
 
 // Gives electron (or muon, or tau) parton distribution.
- 
+
 class Lepton : public PDF {
 
 public:
@@ -398,11 +398,11 @@ private:
   double m2Lep;
 
 };
- 
+
 //==========================================================================
 
 // Gives electron (or other lepton) parton distribution when unresolved.
- 
+
 class LeptonPoint : public PDF {
 
 public:
@@ -416,12 +416,12 @@ private:
   void xfUpdate(int , double , double ) {xlepton = 1; xgamma = 0.;}
 
 };
- 
+
 //==========================================================================
 
 // Gives neutrino parton distribution when unresolved (only choice for now).
 // Note factor of 2 since only lefthanded implies no spin averaging.
- 
+
 class NeutrinoPoint : public PDF {
 
 public:
@@ -435,7 +435,7 @@ private:
   void xfUpdate(int , double , double ) {xlepton = 2; xgamma = 0.;}
 
 };
- 
+
 //==========================================================================
 
 // The NNPDF class.
@@ -457,7 +457,7 @@ public:
     Info* infoPtr = 0) : PDF(idBeamIn), fPDFGrid(NULL), fXGrid(NULL),
     fLogXGrid(NULL), fQ2Grid(NULL), fLogQ2Grid(NULL), fRes(NULL) {
       init( iFitIn, xmlPath, infoPtr); };
- 
+
   // Destructor.
   ~NNPDF() {
     if (fPDFGrid) {
@@ -479,12 +479,12 @@ private:
 
   // Constants: could only be changed in the code itself.
   static const double fXMINGRID;
- 
+
   // Number of flavors (including photon) and interpolation parameters.
   static const int fNFL = 14;
   static const int fM = 4;
   static const int fN = 2;
-  
+
   // Variables to be set during code initialization.
   int iFit, fNX, fNQ2;
   double ***fPDFGrid;
@@ -493,7 +493,7 @@ private:
   double *fQ2Grid;
   double *fLogQ2Grid;
   double *fRes;
-  
+
   // Initialization of data array.
   void init( int iFitIn, string xmlPath, Info* infoPtr);
 
@@ -502,7 +502,7 @@ private:
 
   // Interpolation in the grid for a given PDF flavour.
   void xfxevolve(double x, double Q2);
- 
+
   // 1D and 2D polynomial interpolation.
   void polint(double xa[], double ya[], int n, double x,
     double& y, double& dy);
@@ -510,7 +510,7 @@ private:
     double x1, double x2, double& y, double& dy);
 
 };
- 
+
 //==========================================================================
 
 // LHAPDF plugin interface class.
@@ -522,7 +522,7 @@ public:
   // Constructor and destructor.
   LHAPDF(int idIn, string pSet, Info* infoPtrIn);
   ~LHAPDF();
- 
+
   // Confirm that PDF has been set up.
   bool isSetup() {if (pdfPtr) return pdfPtr->isSetup(); return false;}
 
@@ -560,14 +560,14 @@ private:
 
   // Acccess a plugin library symbol.
   Symbol symbol(string symName);
-  
+
   // The loaded LHAPDF object, info pointer, and plugin library name.
   PDF   *pdfPtr;
   Info  *infoPtr;
   string libName;
 
 };
- 
+
 //==========================================================================
 
 } // end namespace Pythia8

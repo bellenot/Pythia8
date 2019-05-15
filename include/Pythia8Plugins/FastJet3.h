@@ -1,5 +1,5 @@
 // FastJet3.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -135,7 +135,7 @@ template<class T> class SelectorWorkerPy8 : public SelectorWorker {
 public:
   /// the typedef helps with the notation for member function pointers
   typedef  T (Pythia8::Particle::*Py8ParticleFnPtr)() const;
-  
+
   /// c'tor, which takes the member fn pointer and the return value
   /// that it should be equal to
   SelectorWorkerPy8(Py8ParticleFnPtr member_fn_ptr, T value) :
@@ -206,7 +206,7 @@ inline Selector SelectorStatus   (int i) {return
 inline Selector SelectorStatusAbs(int i) {return
   Selector(new SelectorWorkerPy8<int>(&Pythia8::Particle::statusAbs, i));}
 ///\}
-  
+
 
 FASTJET_END_NAMESPACE
 

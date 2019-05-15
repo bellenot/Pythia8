@@ -59,8 +59,8 @@ output.
  
 <p/> Please note that a detailed tutorial on merging in Pythia is available 
 from 
-<a href="http://home.thep.lu.se/~torbjorn/pythia8/mergingworksheet8160.pdf"> 
-http://home.thep.lu.se/~torbjorn/pythia8/mergingworksheet8160.pdf</a>. 
+<a href="http://home.thep.lu.se/Pythia/pythia8/mergingworksheet8160.pdf"> 
+http://home.thep.lu.se/Pythia/pythia8/mergingworksheet8160.pdf</a>. 
  
 <p/> Three very short LHE files (<code>w+_production_lhc_0.lhe</code>, 
 <code>w+_production_lhc_1.lhe</code>, <code>w+_production_lhc_2.lhe</code>) 
@@ -222,7 +222,7 @@ cos&theta;<sub>ij</sub>] }</ei>, so that this switch will have no effect.
  
 <br/><br/><table><tr><td><strong>Merging:Dparameter </td><td></td><td> <input type="text" name="3" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>)</td></tr></table>
 The value of the <i>D</i> parameter needed in the definition of 
-longitudinally invariant <i>kT</i> separation.
+longitudinally invariant <i>kT</i> separation. 
    
  
 <br/><br/><table><tr><td><strong>Merging:nJetMax  </td><td></td><td> <input type="text" name="4" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)</td></tr></table>
@@ -410,7 +410,7 @@ event is assumed to pass the merging scale cut.
 To perform CKKW-L matrix element merging, the user has to decide on a hard 
 process, and communicate this choice to Pythia. This is done by setting the 
 input <code>Merging:Process</code> 
-  
+ 
 <p/> 
 For single processes in the Standard Model or the MSSM, MG4/ME notation is 
 applicable. However, for some purposes, using a single simple process 
@@ -1339,4 +1339,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

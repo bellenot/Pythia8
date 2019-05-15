@@ -389,9 +389,9 @@ echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>here
  <br/>      channel: onMode="1" bRatio="0.0320250" products="13 -13" 
  <br/>      channel: onMode="1" bRatio="0.0636420" products="14 -14" 
  <br/>      channel: onMode="1" bRatio="0.0320220" products="15 -15" 
- <br/>      channel: onMode="1" bRatio="0.0636420" products="16 -16"
+ <br/>      channel: onMode="1" bRatio="0.0636420" products="16 -16" 
  <br/>      channel: onMode="1" bRatio="0.0000000" products="17 -17" 
- <br/>      channel: onMode="1" bRatio="0.0000000" products="18 -18"  
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="18 -18" 
  <br/>      channel: onMode="1" bRatio="0.0000000" products="24 -24" 
  
 <p/>particle: id="33" name="Z''0" spinType="3" chargeType="0" colType="0" 
@@ -631,10 +631,10 @@ echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>here
  
 <p/>particle: id="45" name="H_3" spinType="1" chargeType="0" colType="0" 
           m0="500.00000" 
-
+ 
 <p/>particle: id="46" name="A_2" spinType="1" chargeType="0" colType="0" 
           m0="500.00000" 
-
+ 
 <p/>particle: id="81" name="specflav" spinType="0" chargeType="0" colType="0" 
           m0="0.00000" 
  
@@ -7497,7 +7497,7 @@ echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>here
  
 <p/>particle: id="1000045" name="~chi_50" spinType="2" chargeType="0" colType="0" 
           m0="500.00000" 
-
+ 
 <p/>particle: id="1000512" name="R0(~b dbar)" antiName="R0(~bbar d)" spinType="2" chargeType="0" colType="0" 
           m0="500.00000" tau0="1e-05" 
  
@@ -8554,33 +8554,105 @@ echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>here
  <br/>      channel: onMode="1" bRatio="0.2944480" products="22 11" 
  <br/>      channel: onMode="1" bRatio="0.1094500" products="23 11" 
  <br/>      channel: onMode="1" bRatio="0.5961020" products="-24 12" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="11 1 -1" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="11 2 -2" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="11 3 -3" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="11 4 -4" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="11 5 -5" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="11 6 -6" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="11 11 -11" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="11 12 -12" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="11 13 -13" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="11 14 -14" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="11 15 -15" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="11 16 -16" 
  
 <p/>particle: id="4000012" name="nu*_e0" antiName="nu*_ebar0" spinType="2" chargeType="0" colType="0" 
           m0="400.00000" mWidth="0.41912" mMin="50.00000" mMax="0.00000" 
  <br/>      channel: onMode="1" bRatio="0.3899060" products="23 12" 
  <br/>      channel: onMode="1" bRatio="0.6100940" products="24 11" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="12 1 -1" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="12 2 -2" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="12 3 -3" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="12 4 -4" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="12 5 -5" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="12 6 -6" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="12 11 -11" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="12 12 -12" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="12 13 -13" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="12 14 -14" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="12 15 -15" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="12 16 -16" 
  
 <p/>particle: id="4000013" name="mu*-" antiName="mu*bar+" spinType="2" chargeType="-3" colType="0" 
           m0="400.00000" mWidth="0.42896" mMin="50.00000" mMax="0.00000" 
  <br/>      channel: onMode="1" bRatio="0.2944480" products="22 13" 
  <br/>      channel: onMode="1" bRatio="0.1094500" products="23 13" 
  <br/>      channel: onMode="1" bRatio="0.5961020" products="-24 14" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="13 1 -1" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="13 2 -2" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="13 3 -3" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="13 4 -4" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="13 5 -5" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="13 6 -6" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="13 11 -11" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="13 12 -12" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="13 13 -13" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="13 14 -14" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="13 15 -15" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="13 16 -16" 
  
 <p/>particle: id="4000014" name="nu*_mu0" antiName="nu*_mubar0" spinType="2" chargeType="0" colType="0" 
           m0="400.00000" mWidth="0.41912" mMin="50.00000" mMax="0.00000" 
  <br/>      channel: onMode="1" bRatio="0.3899060" products="23 14" 
  <br/>      channel: onMode="1" bRatio="0.6100940" products="24 13" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="14 1 -1" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="14 2 -2" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="14 3 -3" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="14 4 -4" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="14 5 -5" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="14 6 -6" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="14 11 -11" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="14 12 -12" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="14 13 -13" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="14 14 -14" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="14 15 -15" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="14 16 -16" 
  
 <p/>particle: id="4000015" name="tau*-" antiName="tau*bar+" spinType="2" chargeType="-3" colType="0" 
           m0="400.00000" mWidth="0.42896" mMin="50.00000" mMax="0.00000" 
  <br/>      channel: onMode="1" bRatio="0.2944480" products="22 15" 
  <br/>      channel: onMode="1" bRatio="0.1094500" products="23 15" 
  <br/>      channel: onMode="1" bRatio="0.5961020" products="-24 16" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="15 1 -1" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="15 2 -2" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="15 3 -3" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="15 4 -4" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="15 5 -5" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="15 6 -6" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="15 11 -11" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="15 12 -12" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="15 13 -13" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="15 14 -14" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="15 15 -15" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="15 16 -16" 
  
 <p/>particle: id="4000016" name="nu*_tau0" antiName="nu*_taubar0" spinType="2" chargeType="0" colType="0" 
           m0="400.00000" mWidth="0.41912" mMin="50.00000" mMax="0.00000" 
  <br/>      channel: onMode="1" bRatio="0.3899060" products="23 16" 
  <br/>      channel: onMode="1" bRatio="0.6100940" products="24 15" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="16 1 -1" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="16 2 -2" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="16 3 -3" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="16 4 -4" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="16 5 -5" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="16 6 -6" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="16 11 -11" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="16 12 -12" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="16 13 -13" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="16 14 -14" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="16 15 -15" 
+ <br/>      channel: onMode="1" bRatio="0.0000000" products="16 16 -16" 
  
 <p/>particle: id="4900001" name="Dv" antiName="Dvbar" spinType="2" chargeType="-1" colType="1" 
           m0="400.00000" mWidth="1.00000" mMin="50.00000" mMax="0.00000" 
@@ -8906,95 +8978,95 @@ echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>here
  
 <p/>particle: id="9902210" name="p_diffr+" antiName="p_diffrbar-" spinType="0" chargeType="3" colType="0" 
           m0="0.00000" 
-
-<p/>particle: id="9940003" name="J/psi[3S1(8)]" spinType="3" chargeType="0" colType="2"
-          m0="3.29692" mWidth="0.0" mMin="3.29692" mMax="3.29692"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="443 21"
-
-<p/>particle: id="9940005" name="chi_2c[3S1(8)]" spinType="3" chargeType="0" colType="2"
-          m0="3.7562" mWidth="0.0" mMin="3.7562" mMax="3.7562"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="445 21"
-
-<p/>particle: id="9940011" name="chi_0c[3S1(8)]" spinType="3" chargeType="0" colType="2"
-          m0="3.61475" mWidth="0.0" mMin="3.61475" mMax="3.61475"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="10441 21"
-
-<p/>particle: id="9940023" name="chi_1c[3S1(8)]" spinType="3" chargeType="0" colType="2"
-          m0="3.71066" mWidth="0.0" mMin="3.71066" mMax="3.71066"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="20443 21"
-
-<p/>particle: id="9940103" name="psi(2S)[3S1(8)]" spinType="3" chargeType="0" colType="2"
-          m0="3.88611" mWidth="0.0" mMin="3.88611" mMax="3.88611"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="100443 21"
-
-<p/>particle: id="9941003" name="J/psi[1S0(8)]" spinType="1" chargeType="0" colType="2"
-          m0="3.29692" mWidth="0.0" mMin="3.29692" mMax="3.29692"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="443 21"
-
-<p/>particle: id="9941103" name="psi(2S)[1S0(8)]" spinType="1" chargeType="0" colType="2"
-          m0="3.88611" mWidth="0.0" mMin="3.88611" mMax="3.88611"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="100443 21"
-
-<p/>particle: id="9942003" name="J/psi[3PJ(8)]" spinType="3" chargeType="0" colType="2"
-          m0="3.29692" mWidth="0.0" mMin="3.29692" mMax="3.29692"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="443 21"
-
-<p/>particle: id="9942033" name="psi(3770)[3PJ(8)]" spinType="3" chargeType="0" colType="2"
-          m0="3.97315" mWidth="0.0" mMin="3.97315" mMax="3.97315"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="30443 21"
-
-<p/>particle: id="9942103" name="psi(2S)[3PJ(8)]" spinType="3" chargeType="0" colType="2"
-          m0="3.88611" mWidth="0.0" mMin="3.88611" mMax="3.88611"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="100443 21"
-
-<p/>particle: id="9950003" name="Upsilon[3S1(8)]" spinType="3" chargeType="0" colType="2"
-          m0="9.6603" mWidth="0.0" mMin="9.6603" mMax="9.6603"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="553 21"
-
-<p/>particle: id="9950005" name="chi_2b[3S1(8)]" spinType="3" chargeType="0" colType="2"
-          m0="10.1122" mWidth="0.0" mMin="10.1122" mMax="10.1122"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="555 21"
-
-<p/>particle: id="9950011" name="chi_0b[3S1(8)]" spinType="3" chargeType="0" colType="2"
-          m0="10.0594" mWidth="0.0" mMin="10.0594" mMax="10.0594"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="10551 21"
-
-<p/>particle: id="9950023" name="chi_1b[3S1(8)]" spinType="3" chargeType="0" colType="2"
-          m0="10.09280" mWidth="0.0" mMin="10.09280" mMax="10.09280"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="20553 21"
-
-<p/>particle: id="9950103" name="Upsilon(2S)[3S1(8)]" spinType="3" chargeType="0" colType="2"
-          m0="10.22326" mWidth="0.0" mMin="10.22326" mMax="10.22326"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="100553 21"
-
-<p/>particle: id="9950203" name="Upsilon(3S)[3S1(8)]" spinType="3" chargeType="0" colType="2"
-          m0="10.5552" mWidth="0.0" mMin="10.5552" mMax="10.5552"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="200553 21"
-
-<p/>particle: id="9951003" name="Upsilon[1S0(8)]" spinType="1" chargeType="0" colType="2"
-          m0="9.6603" mWidth="0.0" mMin="9.6603" mMax="9.6603"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="553 21"
-
-<p/>particle: id="9951103" name="Upsilon(2S)[1S0(8)]" spinType="1" chargeType="0" colType="2"
-          m0="10.22326" mWidth="0.0" mMin="10.22326" mMax="10.22326"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="100553 21"
-
-<p/>particle: id="9951203" name="Upsilon(3S)[1S0(8)]" spinType="1" chargeType="0" colType="2"
-          m0="10.5552" mWidth="0.0" mMin="10.5552" mMax="10.5552"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="200553 21"
-
-<p/>particle: id="9952003" name="Upsilon[3PJ(8)]" spinType="3" chargeType="0" colType="2"
-          m0="9.6603" mWidth="0.0" mMin="9.6603" mMax="9.6603"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="553 21"
-
-<p/>particle: id="9952103" name="Upsilon(2S)[3PJ(8)]" spinType="3" chargeType="0" colType="2"
-          m0="10.22326" mWidth="0.0" mMin="10.22326" mMax="10.22326"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="100553 21"
-
-<p/>particle: id="9952203" name="Upsilon(3S)[3PJ(8)]" spinType="3" chargeType="0" colType="2"
-          m0="10.5552" mWidth="0.0" mMin="10.5552" mMax="10.5552"
- <br/>      channel: onMode="1" bRatio="1.0000000" products="200553 21"
-
+ 
+<p/>particle: id="9940003" name="J/psi[3S1(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="3.29692" mWidth="0.0" mMin="3.29692" mMax="3.29692" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="443 21" 
+ 
+<p/>particle: id="9940005" name="chi_2c[3S1(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="3.7562" mWidth="0.0" mMin="3.7562" mMax="3.7562" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="445 21" 
+ 
+<p/>particle: id="9940011" name="chi_0c[3S1(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="3.61475" mWidth="0.0" mMin="3.61475" mMax="3.61475" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="10441 21" 
+ 
+<p/>particle: id="9940023" name="chi_1c[3S1(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="3.71066" mWidth="0.0" mMin="3.71066" mMax="3.71066" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="20443 21" 
+ 
+<p/>particle: id="9940103" name="psi(2S)[3S1(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="3.88611" mWidth="0.0" mMin="3.88611" mMax="3.88611" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="100443 21" 
+ 
+<p/>particle: id="9941003" name="J/psi[1S0(8)]" spinType="1" chargeType="0" colType="2" 
+          m0="3.29692" mWidth="0.0" mMin="3.29692" mMax="3.29692" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="443 21" 
+ 
+<p/>particle: id="9941103" name="psi(2S)[1S0(8)]" spinType="1" chargeType="0" colType="2" 
+          m0="3.88611" mWidth="0.0" mMin="3.88611" mMax="3.88611" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="100443 21" 
+ 
+<p/>particle: id="9942003" name="J/psi[3PJ(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="3.29692" mWidth="0.0" mMin="3.29692" mMax="3.29692" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="443 21" 
+ 
+<p/>particle: id="9942033" name="psi(3770)[3PJ(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="3.97315" mWidth="0.0" mMin="3.97315" mMax="3.97315" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="30443 21" 
+ 
+<p/>particle: id="9942103" name="psi(2S)[3PJ(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="3.88611" mWidth="0.0" mMin="3.88611" mMax="3.88611" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="100443 21" 
+ 
+<p/>particle: id="9950003" name="Upsilon[3S1(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="9.6603" mWidth="0.0" mMin="9.6603" mMax="9.6603" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="553 21" 
+ 
+<p/>particle: id="9950005" name="chi_2b[3S1(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="10.1122" mWidth="0.0" mMin="10.1122" mMax="10.1122" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="555 21" 
+ 
+<p/>particle: id="9950011" name="chi_0b[3S1(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="10.0594" mWidth="0.0" mMin="10.0594" mMax="10.0594" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="10551 21" 
+ 
+<p/>particle: id="9950023" name="chi_1b[3S1(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="10.09280" mWidth="0.0" mMin="10.09280" mMax="10.09280" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="20553 21" 
+ 
+<p/>particle: id="9950103" name="Upsilon(2S)[3S1(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="10.22326" mWidth="0.0" mMin="10.22326" mMax="10.22326" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="100553 21" 
+ 
+<p/>particle: id="9950203" name="Upsilon(3S)[3S1(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="10.5552" mWidth="0.0" mMin="10.5552" mMax="10.5552" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="200553 21" 
+ 
+<p/>particle: id="9951003" name="Upsilon[1S0(8)]" spinType="1" chargeType="0" colType="2" 
+          m0="9.6603" mWidth="0.0" mMin="9.6603" mMax="9.6603" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="553 21" 
+ 
+<p/>particle: id="9951103" name="Upsilon(2S)[1S0(8)]" spinType="1" chargeType="0" colType="2" 
+          m0="10.22326" mWidth="0.0" mMin="10.22326" mMax="10.22326" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="100553 21" 
+ 
+<p/>particle: id="9951203" name="Upsilon(3S)[1S0(8)]" spinType="1" chargeType="0" colType="2" 
+          m0="10.5552" mWidth="0.0" mMin="10.5552" mMax="10.5552" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="200553 21" 
+ 
+<p/>particle: id="9952003" name="Upsilon[3PJ(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="9.6603" mWidth="0.0" mMin="9.6603" mMax="9.6603" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="553 21" 
+ 
+<p/>particle: id="9952103" name="Upsilon(2S)[3PJ(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="10.22326" mWidth="0.0" mMin="10.22326" mMax="10.22326" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="100553 21" 
+ 
+<p/>particle: id="9952203" name="Upsilon(3S)[3PJ(8)]" spinType="3" chargeType="0" colType="2" 
+          m0="10.5552" mWidth="0.0" mMin="10.5552" mMax="10.5552" 
+ <br/>      channel: onMode="1" bRatio="1.0000000" products="200553 21" 
+ 
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -9062,4 +9134,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

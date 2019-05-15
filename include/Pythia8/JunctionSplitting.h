@@ -1,10 +1,10 @@
 // JunctionSplitting.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This file contains the class JunctionSplitting.
-// JunctionSplitting takes an event and seperate junction chains from 
+// JunctionSplitting takes an event and seperate junction chains from
 // each other, such that no junctions are colour connected to each other.
 
 #ifndef Pythia8_JunctionSplitting_H
@@ -23,7 +23,7 @@ namespace Pythia8 {
 
 //==========================================================================
 
-// JunctionSplitting takes an event and seperate junction chains from 
+// JunctionSplitting takes an event and seperate junction chains from
 // each other, such that no junctions are colour connected to each other.
 
 class JunctionSplitting {
@@ -31,10 +31,10 @@ class JunctionSplitting {
 public:
 
   // Initialization.
-  void init(Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn, 
+  void init(Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn,
     ParticleData* particleDataPtrIn);
-  
-  // Test whether an event has a physical colour configuration. 
+
+  // Test whether an event has a physical colour configuration.
   // It also splits junction pairs into pieces that PYTHIA can hadronize.
   bool checkColours(Event& event);
 
@@ -67,15 +67,15 @@ private:
   StringLength stringLength;
 
   // Split connected junction chains into separated, mainly by splitting
-  // gluons into q-qbar pairs. 
-  bool splitJunGluons(Event& event, vector<vector< int > >& iPartonJun, 
+  // gluons into q-qbar pairs.
+  bool splitJunGluons(Event& event, vector<vector< int > >& iPartonJun,
     vector<vector< int > >& iPartonAntiJun);
 
   // Split multiple (> 2) directly connected junctions.
   bool splitJunChains(Event& event);
 
   // Split junction pairs.
-  bool splitJunPairs(Event& event, vector<vector< int > >& iPartonJun, 
+  bool splitJunPairs(Event& event, vector<vector< int > >& iPartonJun,
     vector<vector< int > >& iPartonAntiJun);
 
   // Get the list of partons connected to the junctions.

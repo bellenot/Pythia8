@@ -72,12 +72,12 @@ pairs of identical mesons.
 </file> 
  
 <file name="ColourReconnection"> 
-implements several models that describe how the colour flow between
-outgoing partons can be changed by nonperturbative effects.
+implements several models that describe how the colour flow between 
+outgoing partons can be changed by nonperturbative effects. 
 </file> 
  
 <file name="ColourTracing"> 
-finds out how partons are colour-connected in (more or less long) chains.
+finds out how partons are colour-connected in (more or less long) chains. 
 </file> 
  
 <file name="Event"> 
@@ -142,9 +142,9 @@ during program execution.
 </file> 
  
 <file name="JunctionSplitting"> 
-processes a colour singlet system containing several (anti)junctions
+processes a colour singlet system containing several (anti)junctions 
 such that it can be split into several systems each containing 
-(at most) one junction.
+(at most) one junction. 
 </file> 
  
 <file name="LesHouches"> 
@@ -373,8 +373,8 @@ performs string fragmentation of a given set of partons.
 </file> 
  
 <file name="StringLength"> 
-calculates the string-length <ei>lambda</ei> measure for various
-colour topologies, including junction ones.
+calculates the string-length <ei>lambda</ei> measure for various 
+colour topologies, including junction ones. 
 </file> 
  
 <file name="SusyCouplings"> 
@@ -417,4 +417,4 @@ parton showers.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

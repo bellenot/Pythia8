@@ -161,15 +161,15 @@ Currently, only <code>SlowJet</code> with the k<sub>T</sub> algorithm (and
 <code>useStandardR = false</code>) is supported for Madgraph-style 
 matching, while there is full freedom for the ALPGEN-style matching. 
 <br/>
-<input type="radio" name="4" value="1" checked="checked"><strong>1 </strong>: <br/>
-<input type="radio" name="4" value="2"><strong>2 </strong>: <br/>
+<input type="radio" name="4" value="1" checked="checked"><strong>1 </strong>: The <code>CellJet</code> cone algorithm.<br/>
+<input type="radio" name="4" value="2"><strong>2 </strong>: The <code>SlowJet</code> clustering algorithm.<br/>
  
 <br/><br/><table><tr><td><strong>JetMatching:slowJetPower  </td><td>  &nbsp;&nbsp;(<code>default = <strong>-1</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)</td></tr></table>
 The power to use in the <code>SlowJet</code> algorithm. 
 <br/>
-<input type="radio" name="5" value="-1" checked="checked"><strong>-1 </strong>: <br/>
-<input type="radio" name="5" value="0"><strong>0 </strong>: <br/>
-<input type="radio" name="5" value="1"><strong>1 </strong>: <br/>
+<input type="radio" name="5" value="-1" checked="checked"><strong>-1 </strong>: The anti-k<sub>T</sub> algorithm.<br/>
+<input type="radio" name="5" value="0"><strong>0 </strong>: The Cambridge/Aachen algorithm.<br/>
+<input type="radio" name="5" value="1"><strong>1 </strong>: The k<sub>T</sub> algorithm.<br/>
  
 <br/><br/><table><tr><td><strong>JetMatching:nEta  </td><td>  &nbsp;&nbsp;(<code>default = <strong>100</strong></code>; <code>minimum = 50</code>)</td></tr></table>
 Specific to the <code>CellJet</code> algorithm, the number of bins 
@@ -286,7 +286,7 @@ The <i>coneMatchHeavy</i> parameter used when
    
  
 <h3>Madgraph-specific parameters </h3> 
-
+ 
 <br/><br/><strong>JetMatching:doShowerKt</strong>  <input type="radio" name="12" value="on"><strong>On</strong>
 <input type="radio" name="12" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -299,7 +299,7 @@ prescription (e.g. Madgraph-style matching with
 <code>JetMatching:doShowerKt = off</code>) and the shower-kT scheme are 
 in preparation. 
    
-  
+ 
 <br/><br/><table><tr><td><strong>JetMatching:qCut </td><td></td><td> <input type="text" name="13" value="10.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 k<sub>T</sub> scale for merging shower products into jets. 
    
@@ -319,7 +319,7 @@ for exclusive mode, <i>clFact</i> &ge; 0, or
 <br/><i>|clFact| * min(k<sub>T</sub>(parton))</i> for exclusive mode, 
 <i>clFact</i> &lt; 0. 
    
-
+ 
 <p/> 
 A preliminary implementation of the FxFx prescription for combining multiple 
 NLO calculations [<a href="Bibliography.php" target="page">Fre12</a>] is available. We would like to stress that 
@@ -570,7 +570,7 @@ the hard process parameters are used to guide the merging procedure,
 events will be matched in the exclusive mode. 
  
 <p/> 
-  
+ 
 <h3>A note on combining UserHooks</h3> 
  
 As have been noted above, the matching is implemented using classes 
@@ -732,4 +732,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

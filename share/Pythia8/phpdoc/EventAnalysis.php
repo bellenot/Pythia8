@@ -825,7 +825,7 @@ clustered into the <i>i</i>'th jet,
 <p/><strong>vector&lt;int&gt; SlowJet::clusConstituents(int i) &nbsp;</strong> <br/>
 gives a list of the indices of the particles that have been 
 clustered into the <i>i</i>'th cluster, at the current stage of 
-the clustering process,  
+the clustering process, 
    
  
 <a name="method47"></a>
@@ -924,7 +924,7 @@ provides a listing of the above information.
 else only jets. 
    
    
-  
+ 
 <p/> 
 Three further methods can be used to check what will happen next. 
  
@@ -945,14 +945,14 @@ in each new step. When <code>useFJcore = true</code> there are no
 intermediate steps, and thus these methods do not return meaningul 
 information. 
    
-  
+ 
 <p/> 
 Finally, and separately, the <code>SlowJetHook</code> class can be used 
 for a more smart selection of which particles to include in the analysis. 
 For instance, isolated and/or high-<i>pT</i> muons, electrons and 
 photons should presumably be identified separately at an early stage, 
 and then not clustered to jets. 
-  
+ 
 <p/> 
 Technically, it works like with <?php $filepath = $_GET["filepath"];
 echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>User Hooks</a>. 
@@ -1013,4 +1013,4 @@ individual particle.
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

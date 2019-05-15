@@ -1,5 +1,5 @@
 // HelicityBasics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2015 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -16,11 +16,11 @@
 namespace Pythia8 {
 
 //==========================================================================
-  
+
 // The Wave4 class provides a class for complex four-vector wave functions.
 // The Wave4 class can be multiplied with the GammaMatrix class to allow
 // for the writing of helicity matrix elements.
-  
+
 class Wave4 {
 
 public:
@@ -57,14 +57,14 @@ public:
 
   // complex * Wave4.
   friend Wave4 operator*(complex s, const Wave4& w);
- 
+
   // Wave4 * double.
   Wave4 operator*(double s) {return Wave4(val[0] * s, val[1] * s,
     val[2] * s, val[3] * s);}
 
   // double * Wave4.
   friend Wave4 operator*(double s, const Wave4& w);
- 
+
   // Wave4 / complex.
   Wave4 operator/(complex s) {return Wave4(val[0] / s, val[1] / s,
     val[2] / s, val[3] / s);}
@@ -82,7 +82,7 @@ public:
   // Invariant squared mass for REAL Wave4 (to save time).
   friend double m2(Wave4 w);
   friend double m2(Wave4 w1, Wave4 w2);
-  
+
   // Wave4 * GammaMatrix multiplication is defined in the GammaMatrix class.
 
   // Print a Wave4 vector.
@@ -114,7 +114,7 @@ ostream& operator<< (ostream& os, Wave4 w);
 // (or subtracting a GammaMatrix from a scalar) subtracts the scalar from
 //each non-zero element of the GammaMatrix. This is designed specifically
 // with the (1 - gamma^5) structure of matrix elements in mind.
- 
+
 class GammaMatrix {
 
 public:
@@ -137,7 +137,7 @@ public:
 
   // Scalar * GammaMatrix.
   friend GammaMatrix operator*(complex s, GammaMatrix g);
-  
+
   // Gamma5 - I * Scalar.
   GammaMatrix operator-(complex s) {val[0] = val[0] - s; val[1] = val[1] - s;
     val[2] = val[2] - s; val[3] = val[3] - s; return *this;}
@@ -178,11 +178,11 @@ ostream& operator<< (ostream& os, GammaMatrix g);
 
 // Helicity particle class containing helicity information, derived from
 // particle base class.
- 
+
 class HelicityParticle : public Particle {
-  
+
 public:
-  
+
   // Constructors.
   HelicityParticle() : Particle() { direction = 1;}
   HelicityParticle(int idIn, int statusIn = 0, int mother1In = 0,
@@ -209,7 +209,7 @@ public:
     if (ptr) setPDEPtr( ptr->particleDataEntryPtr( id()) );
     initRhoD();
     direction = 1; }
- 
+
   // Methods.
   Wave4 wave(int h);
   Wave4 waveBar(int h);
@@ -223,13 +223,13 @@ public:
   // Event record position (redefine from Particle).
   int  index() const {return indexSave;}
   void index(int indexIn) {indexSave = indexIn;}
-  
+
   // Flag for whether particle is incoming (-1) or outgoing (1).
   int direction;
-  
+
   // Helicity density matrix.
   vector< vector<complex> > rho;
-  
+
   // Decay matrix.
   vector< vector<complex> > D;
 
@@ -241,7 +241,7 @@ private:
       vector<complex>(spinStates(), 0));
     D   = vector< vector<complex> >(spinStates(),
       vector<complex>(spinStates(), 0));
-    for (int i = 0; i < spinStates(); i++) { 
+    for (int i = 0; i < spinStates(); i++) {
       rho[i][i] = 1.0 / spinStates(); D[i][i] = 1;}
   }
 
@@ -251,7 +251,7 @@ private:
 };
 
 //==========================================================================
-  
+
 } // end namespace Pythia8
 
 #endif // end Pythia8_HelicityBasics_H

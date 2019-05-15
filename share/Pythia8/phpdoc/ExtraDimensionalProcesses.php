@@ -145,14 +145,14 @@ The formulas for longitudinal bosons should be appropriate up to
    
  
 <br/><br/><table><tr><td><strong>ExtraDimensionsG*:kappaMG </td><td></td><td> <input type="text" name="10" value="0.054" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.054</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-dimensionless coupling, which enters quadratically in all on-shell
+dimensionless coupling, which enters quadratically in all on-shell 
 partial widths of the <i>G^*</i>. Is 
 <i>kappa m_G* = sqrt(2) x_1 k / Mbar_Pl</i>, 
 where <i>x_1 = 3.83</i> is the first zero of the <i>J_1</i> Bessel 
 function and <i>Mbar_Pl</i> is the modified Planck mass. 
 In width and cross section calculations, <i>kappa</i> is fixed by 
-the on-shell <i>G^*</i> mass and <i>kappaMG</i>, i.e.
-<i>kappaMG</i> scales with the off-shell <i>G^*</i> mass.
+the on-shell <i>G^*</i> mass and <i>kappaMG</i>, i.e. 
+<i>kappaMG</i> scales with the off-shell <i>G^*</i> mass. 
    
  
 <br/><br/><table><tr><td><strong>ExtraDimensionsG*:Gll </td><td></td><td> <input type="text" name="11" value="0.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
@@ -220,8 +220,8 @@ Choice of full <ei>g^*/KK-gluon^*</ei> structure or not in relevant
 processes. 
 <br/>
 <input type="radio" name="26" value="0" checked="checked"><strong>0 </strong>: full <ei>g^*/KK-gluon^*</ei> structure, with  interference included.<br/>
-<input type="radio" name="26" value="1"><strong>1 </strong>: full <ei>g^*/KK-gluon^*</ei> structure, with  interference included.<br/>
-<input type="radio" name="26" value="2"><strong>2 </strong>: full <ei>g^*/KK-gluon^*</ei> structure, with  interference included.<br/>
+<input type="radio" name="26" value="1"><strong>1 </strong>: only pure <ei>gluon_{SM}</ei> contribution.<br/>
+<input type="radio" name="26" value="2"><strong>2 </strong>: only pure <ei>gluon_{KK}</ei> contribution.<br/>
  
 <h3>TeV^-1 Sized Extra Dimension, production processes</h3> 
  
@@ -325,13 +325,13 @@ Choice of full <ei>gamma_{KK}/Z_{KK}</ei> structure or not in relevant
 processes. 
 <br/>
 <input type="radio" name="39" value="0"><strong>0 </strong>: full <ei>gamma_{SM}/Z_{SM}</ei> structure, with  interference included.<br/>
-<input type="radio" name="39" value="1"><strong>1 </strong>: full <ei>gamma_{SM}/Z_{SM}</ei> structure, with  interference included.<br/>
-<input type="radio" name="39" value="2"><strong>2 </strong>: full <ei>gamma_{SM}/Z_{SM}</ei> structure, with  interference included.<br/>
+<input type="radio" name="39" value="1"><strong>1 </strong>: only pure <ei>gamma_{SM}</ei> contribution.<br/>
+<input type="radio" name="39" value="2"><strong>2 </strong>: only pure <ei>Z_{SM}</ei> contribution.<br/>
 <input type="radio" name="39" value="3" checked="checked"><strong>3 </strong>: full <ei>gamma_{KK}/Z_{KK}</ei> structure, with  interference included.<br/>
 <input type="radio" name="39" value="4"><strong>4 </strong>: only pure <ei>gamma_{KK}</ei> contribution, with  SM interference included.<br/>
 <input type="radio" name="39" value="5"><strong>5 </strong>: only pure <ei>Z_{KK}</ei> contribution, with SM  interference included.<br/>
  
-<br/><br/><table><tr><td><strong>ExtraDimensionsTEV:nMax </td><td></td><td> <input type="text" name="40" value="10" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10</strong></code>; <code>minimum = 1</code>; <code>maximum = 100</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ExtraDimensionsTEV:nMax  </td><td></td><td> <input type="text" name="40" value="10" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10</strong></code>; <code>minimum = 1</code>; <code>maximum = 100</code>)</td></tr></table>
 The number of included KK excitations. 
    
  
@@ -542,8 +542,8 @@ Allows to change sign of the interference terms in the graviton exchange
 processes, common in connection to using the <ei>Hewett</ei> convention 
 <ref>Hew99</ref>. 
 <br/>
-<input type="radio" name="63" value="0" checked="checked"><strong>0 </strong>: <br/>
-<input type="radio" name="63" value="1"><strong>1 </strong>: <br/>
+<input type="radio" name="63" value="0" checked="checked"><strong>0 </strong>: 1<br/>
+<input type="radio" name="63" value="1"><strong>1 </strong>: -1<br/>
  
 <br/><br/><table><tr><td><strong>ExtraDimensionsLED:CutOffMode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
 Options for when the hard scale of the process (e.g. <ei>sHat</ei>) 
@@ -554,8 +554,8 @@ for the scalar graviton processes.
 <br/>
 <input type="radio" name="64" value="0" checked="checked"><strong>0 </strong>: Do nothing, i.e. all values of <ei>sHat</ei> contribute.  <br/>
 <input type="radio" name="64" value="1"><strong>1 </strong>: Truncate contributing <ei>sHat</ei> region  (<ref>Ask09</ref>).<br/>
-<input type="radio" name="64" value="2"><strong>2 </strong>: Truncate contributing <ei>sHat</ei> region  (<ref>Ask09</ref>).<br/>
-<input type="radio" name="64" value="3"><strong>3 </strong>: Truncate contributing <ei>sHat</ei> region  (<ref>Ask09</ref>).<br/>
+<input type="radio" name="64" value="2"><strong>2 </strong>: Form factor, using <ei>mu = renormScale2</ei> .<br/>
+<input type="radio" name="64" value="3"><strong>3 </strong>: Form factor, using <ei>mu = E_jet</ei>.<br/>
  
 <br/><br/><table><tr><td><strong>ExtraDimensionsLED:t </td><td></td><td> <input type="text" name="65" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.001</code>)</td></tr></table>
 Form factor parameter. 
@@ -724,17 +724,17 @@ emission processes.
 Chiral unparticle couplings, <ei>gXX = gLL = gRR</ei>. Only relevant 
 for lepton production from spin-1 unparticle exchange. 
 <br/>
-<input type="radio" name="86" value="0" checked="checked"><strong>0 </strong>: <br/>
-<input type="radio" name="86" value="1"><strong>1 </strong>: <br/>
-<input type="radio" name="86" value="2"><strong>2 </strong>: <br/>
+<input type="radio" name="86" value="0" checked="checked"><strong>0 </strong>: 1<br/>
+<input type="radio" name="86" value="1"><strong>1 </strong>: -1<br/>
+<input type="radio" name="86" value="2"><strong>2 </strong>: 0<br/>
  
 <br/><br/><table><tr><td><strong>ExtraDimensionsUnpart:gXY  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
 Chiral unparticle couplings, <ei>gXY = gLR = gRL</ei>. Only relevant 
 for lepton production from spin-1 unparticle exchange. 
 <br/>
-<input type="radio" name="87" value="0" checked="checked"><strong>0 </strong>: <br/>
-<input type="radio" name="87" value="1"><strong>1 </strong>: <br/>
-<input type="radio" name="87" value="2"><strong>2 </strong>: <br/>
+<input type="radio" name="87" value="0" checked="checked"><strong>0 </strong>: 1<br/>
+<input type="radio" name="87" value="1"><strong>1 </strong>: -1<br/>
+<input type="radio" name="87" value="2"><strong>2 </strong>: 0<br/>
  
 <input type="hidden" name="saved" value="1"/>
 
@@ -1193,5 +1193,5 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

@@ -52,11 +52,11 @@ method provides information on the first, i.e. hardest, subprocess
 selected by the multiparton-interactions machinery. 
 <note>Note</note>: this event class is almost equivalent to the 
 minimum-bias component of the total cross section. "Minimum-bias" 
-usually refers to the experimental selection procedure, however,
+usually refers to the experimental selection procedure, however, 
 while "(inelastic) non-diffractive" better relates to the way events 
 are generated in the program code. (Although also what separates 
-diffractive from nondiffractive physics can be a matter of definition,
-especially once colour reconnection is to be modelled.)  
+diffractive from nondiffractive physics can be a matter of definition, 
+especially once colour reconnection is to be modelled.) 
 </flag> 
  
 <flag name="SoftQCD:elastic" default="off"> 
@@ -110,7 +110,7 @@ processes; there is no sensible default.
 <note>Warning 2</note>: you <b>must not</b> mix processes from the 
 <code>SoftQCD</code> and <code>HardQCD</code> process groups, since 
 this is likely to lead to double-counting. 
-   
+ 
 <flag name="HardQCD:all" default="off"> 
 Common switch for the group of all hard QCD processes, 
 as listed separately in the following. 
@@ -221,7 +221,7 @@ the <code>HardQCD:3parton</code> processes in a run or study.
 <br/><b>Warning:</b> this section is still incomplete, e.g. the 
 selection of colour flow is very simple, and so it should only 
 be used with caution. 
-   
+ 
 <flag name="HardQCD:3parton" default="off"> 
 Common switch for the group of all hard QCD processes with three 
 partons in the final state, as listed separately in the following. 
@@ -292,5 +292,5 @@ Code 140.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

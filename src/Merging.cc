@@ -1,5 +1,5 @@
 // MergingHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -9,7 +9,7 @@
 #include "Pythia8/Merging.h"
 
 namespace Pythia8 {
- 
+
 //==========================================================================
 
 // The Merging class.
@@ -89,21 +89,36 @@ int Merging::mergeProcess(Event& process){
   mergingHooksPtr->hardProcess.initOnProcess(
     settingsPtr->word("Merging:Process"), particleDataPtr);
 
-  mergingHooksPtr->doUserMergingSave     = settingsPtr->flag("Merging:doUserMerging");
-  mergingHooksPtr->doMGMergingSave       = settingsPtr->flag("Merging:doMGMerging");
-  mergingHooksPtr->doKTMergingSave       = settingsPtr->flag("Merging:doKTMerging");
-  mergingHooksPtr->doPTLundMergingSave   = settingsPtr->flag("Merging:doPTLundMerging");
-  mergingHooksPtr->doCutBasedMergingSave = settingsPtr->flag("Merging:doCutBasedMerging");
-  mergingHooksPtr->doNL3TreeSave         = settingsPtr->flag("Merging:doNL3Tree");
-  mergingHooksPtr->doNL3LoopSave         = settingsPtr->flag("Merging:doNL3Loop");
-  mergingHooksPtr->doNL3SubtSave         = settingsPtr->flag("Merging:doNL3Subt");
-  mergingHooksPtr->doUNLOPSTreeSave      = settingsPtr->flag("Merging:doUNLOPSTree");
-  mergingHooksPtr->doUNLOPSLoopSave      = settingsPtr->flag("Merging:doUNLOPSLoop");
-  mergingHooksPtr->doUNLOPSSubtSave      = settingsPtr->flag("Merging:doUNLOPSSubt");
-  mergingHooksPtr->doUNLOPSSubtNLOSave   = settingsPtr->flag("Merging:doUNLOPSSubtNLO");
-  mergingHooksPtr->doUMEPSTreeSave       = settingsPtr->flag("Merging:doUMEPSTree");
-  mergingHooksPtr->doUMEPSSubtSave       = settingsPtr->flag("Merging:doUMEPSSubt");
-  mergingHooksPtr->nReclusterSave        = settingsPtr->mode("Merging:nRecluster");
+  mergingHooksPtr->doUserMergingSave     
+    = settingsPtr->flag("Merging:doUserMerging");
+  mergingHooksPtr->doMGMergingSave       
+    = settingsPtr->flag("Merging:doMGMerging");
+  mergingHooksPtr->doKTMergingSave       
+    = settingsPtr->flag("Merging:doKTMerging");
+  mergingHooksPtr->doPTLundMergingSave   
+    = settingsPtr->flag("Merging:doPTLundMerging");
+  mergingHooksPtr->doCutBasedMergingSave 
+    = settingsPtr->flag("Merging:doCutBasedMerging");
+  mergingHooksPtr->doNL3TreeSave         
+    = settingsPtr->flag("Merging:doNL3Tree");
+  mergingHooksPtr->doNL3LoopSave         
+    = settingsPtr->flag("Merging:doNL3Loop");
+  mergingHooksPtr->doNL3SubtSave         
+    = settingsPtr->flag("Merging:doNL3Subt");
+  mergingHooksPtr->doUNLOPSTreeSave      
+    = settingsPtr->flag("Merging:doUNLOPSTree");
+  mergingHooksPtr->doUNLOPSLoopSave      
+    = settingsPtr->flag("Merging:doUNLOPSLoop");
+  mergingHooksPtr->doUNLOPSSubtSave      
+    = settingsPtr->flag("Merging:doUNLOPSSubt");
+  mergingHooksPtr->doUNLOPSSubtNLOSave   
+    = settingsPtr->flag("Merging:doUNLOPSSubtNLO");
+  mergingHooksPtr->doUMEPSTreeSave       
+    = settingsPtr->flag("Merging:doUMEPSTree");
+  mergingHooksPtr->doUMEPSSubtSave       
+    = settingsPtr->flag("Merging:doUMEPSSubt");
+  mergingHooksPtr->nReclusterSave        
+    = settingsPtr->mode("Merging:nRecluster");
 
   // Possibility to apply merging scale to an input event.
   bool applyTMSCut = settingsPtr->flag("Merging:doXSectionEstimate");
@@ -306,7 +321,7 @@ int Merging::mergeProcessUMEPS( Event& process) {
   // removed. In this case, reject this event, since it will be handled in
   // lower-multiplicity samples.
   int nRequested = settingsPtr->mode("Merging:nRequested");
-  if (nSteps < nRequested) { 
+  if (nSteps < nRequested) {
     mergingHooksPtr->setWeightCKKWL(0.);
     return -1;
   }
@@ -467,7 +482,7 @@ int Merging::mergeProcessNL3( Event& process) {
   // Too few steps can be possible if a chain of resonance decays has been
   // removed. In this case, reject this event, since it will be handled in
   // lower-multiplicity samples.
-  if (nSteps < nRequested) { 
+  if (nSteps < nRequested) {
     mergingHooksPtr->setWeightCKKWL(0.);
     mergingHooksPtr->setWeightFIRST(0.);
     return -1;
@@ -999,7 +1014,7 @@ bool Merging::cutOnProcess( Event& process) {
   // Remove real emission events without underlying Born configuration from
   // the loop sample, since such states will be taken care of by tree-level
   // samples.
-  bool allowIncompleteReal = 
+  bool allowIncompleteReal =
     settingsPtr->flag("Merging:allowIncompleteHistoriesInReal");
   if ( containsRealKin && !allowIncompleteReal
     && FullHistory.select(RN)->nClusterings() == 0 )

@@ -124,7 +124,7 @@ classified as aborted.
 For each particle the maximum allowed deviation between the mass 
 calculated from energy-momentum and the bookkept mass, as a fraction 
 of the energy. This energy is taken to be at least 1 GeV, in order 
-to avoid harmless problems at very low energies (gluons mainly).
+to avoid harmless problems at very low energies (gluons mainly). 
    
  
 <br/><br/><table><tr><td><strong>Check:mTolWarn </td><td></td><td> <input type="text" name="10" value="1e-4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1e-4</strong></code>)</td></tr></table>
@@ -204,4 +204,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

@@ -1,5 +1,5 @@
 // StringLength.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -38,22 +38,22 @@ public:
   // Calculate string length for two particles given their four-momenta.
   double getStringLength(Vec4 p1, Vec4 p2);
 
-  // Calculate the length of a single junction given the 3 entries in the event.
+  // Calculate the length of a single junction given the 3 entries in event.
   double getJuncLength(Event& event, int i, int j, int k);
 
   // Calculate the length of a single junction given the 3 four-momenta.
   double getJuncLength(Vec4 p1, Vec4 p2, Vec4 p3);
-  
-  // Calculate the length of a double junction given the 4 entries in the event.
-  // The first two are expected to be quarks, the second two to be anti quarks.
+
+  // Calculate the length of a double junction given the 4 entries in event.
+  // The first two are expected to be quarks, the second two to be antiquarks.
   double getJuncLength(Event& event, int i, int j, int k, int l);
 
   // Calculate the length of a double junction given the 4 four-momenta.
-  // The first two are expected to be quarks, the second two to be anti quarks.
+  // The first two are expected to be quarks, the second two to be antiquarks.
   double getJuncLength(Vec4 p1, Vec4 p2, Vec4 p3, Vec4 p4);
 
 private:
-  
+
   static const double MINDELTAR;
 
   double m0, m0sqr, sqrt2;

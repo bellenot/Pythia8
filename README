@@ -71,19 +71,19 @@
          compilation statements. This is equivalent to the GNU
          configuration variable CXXFLAGS, which is not supported here.
      --cxx-shared='FLAGS' : the flags that are passed when building
-     	 shared dynamic libraries. These are only used when building
-     	 "lib/libpythia8.[so,dylib]" and
-     	 "lib/libpythia8lhapdf[5,6].so".
+         shared dynamic libraries. These are only used when building
+         "lib/libpythia8.[so,dylib]" and
+         "lib/libpythia8lhapdf[5,6].so".
      --cxx-soname='FLAGS' : these flags are passed to the linker when
          setting the shared library names. Normally this should not
          need to be changed.
      --lib-suffix=SUF : the shared library suffix to use. This only
          effects the name of "lib/libpythia8.SUF". Typically for *nix
          systems this is ".so" and for OS X this is ".dylib".
-	 
+         
 1.2) All of the options listed above are formatted into
      "Makefile.inc", which is also copied to
-     "share/Pythia8/examples/Makefile.inc" whenever "gmake" is run and
+     "examples/Makefile.inc" whenever "gmake" is run and
      a change has been made. The "Makefile.inc" file can be simply
      modified to change any of these options after "configure" is
      run. Each option corresponds to a variable in this file as
@@ -102,9 +102,9 @@
 3.1) You can set the environment variable PYTHIA8DATA to contain the
      location of the xmldoc directory. In the csh and tcsh shells this
      could e.g. be
-       setenv PYTHIA8DATA /home/myname/pythia81xx/xmldoc
+       setenv PYTHIA8DATA /home/myname/pythia81xx/share/Pythia8/xmldoc
      while in other shells it could be
-       export PYTHIA8DATA=/home/myname/pythia81xx/xmldoc
+       export PYTHIA8DATA=/home/myname/pythia81xx/share/Pythia8/xmldoc
      where xx is the subversion number.
      Recall that environment variables set locally are only defined in
      the current instance of the shell. The above lines should go into
@@ -113,11 +113,12 @@
 
 3.2) You can provide the path as argument to the Pythia constructor in
      your main program, e.g.
-       Pythia pythia("/home/myname/pythia81xx/xmldoc");
+       Pythia pythia("/home/myname/pythia81xx/share/Pythia8/xmldoc");
      where again xx is the subversion number.
 
    When PYTHIA8DATA is set it takes precedence, else the path in the
-   constructor is used, else one defaults to the ../xmldoc directory.
+   constructor is used, else one defaults to the ../share/Pythia8/xmldoc 
+   directory, which works fine when you run the examples/mainNN programs.
 
 ----------------------------------------------------------------------
 
@@ -133,13 +134,13 @@
      arguments that begin with "--with". When an external package
      interface is enabled, "configure" takes the following steps.
      a) It looks for the necessary binaries, headers, and libraries
-     	that are needed for the external package. If no paths for the
-     	package have been defined it looks along the default paths
-     	for the system. If it can not find the necessary files, it
-     	disables the external package and issues a warning as to why.
+        that are needed for the external package. If no paths for the
+        package have been defined it looks along the default paths
+        for the system. If it can not find the necessary files, it
+        disables the external package and issues a warning as to why.
      b) It looks for any external packages that this package might
-     	require, and enables them if needed. It then checks to see if
-     	these packages fulfill a). If not, it disables both packages.
+        require, and enables them if needed. It then checks to see if
+        these packages fulfill a). If not, it disables both packages.
      If any "--with-PACKAGE" option is passed to "configure" it will
      attempt to enable the package. For example, "--with-LHAPDF6" will
      enable LHAPDF6, while "--with-LHAPDF6-lib=/lib/foo" will also
@@ -181,9 +182,8 @@
 2) A variety of external packages can be enabled, with details given here.
    FASTJET3) The industry standard package to build jets,
        http://fastjet.fr/.  An interface to FastJet is provided in the
-       "include/Pythia8Plugins/HepMC2.h" header and a variety of
-       examples in "share/Pythia8/examples" link against the FastJet
-       libraries.
+       "include/Pythia8Plugins/FastJet3.h" header and a variety of
+       examples in "examples" link against the FastJet libraries.
    HEPMC2) An interface to the HepMC event record, version 2:
        http://lcgapp.cern.ch/project/simu/HepMC/. The interface
        between PYTHIA 8 and HepMC is provided via the
@@ -218,7 +218,7 @@
        been tested and is not recommended.
    ROOT) The ROOT HEP package used for data analysis and
        visualization, http://root.cern.ch. This package is only used
-       for the "share/Pythia8/examples/main9[1,2].cc" examples.
+       for the "examples/main9[1,2].cc" examples.
    BOOST) Advanced C++ libraries, http://www.boost.org/, which are needed 
        when using either LHAPDF6 or GZIP.
    GZIP) support for the reading of gzipped LHE files. It relies upon
@@ -229,7 +229,7 @@
        "libboost_iostreams.[so,dylib]" are required.  Note that when
        compiling a final PYTHIA executable, these libraries must also
        be included, e.g.: "-lboost_iostreams -lz". This is done
-       automatically for the examples in "share/Pythia8/examples/"
+       automatically for the examples in "examples/"
        when GZIP support is enabled.
 
 ----------------------------------------------------------------------
@@ -263,7 +263,37 @@ PYTHIA8DATA=`pythia8-config --xmldoc` ./myprog
 
    FOR WINDOWS USERS
 
-Unforunately PYTHIA 8 is not currently supported for Windows platforms.
+PYTHIA 8 is primarily intended to be run in a Unix-based environment,
+such as Linux or Mac OS X. Unfortunately it is not currently supported
+for Windows platforms. If you want to experiment, and do not have the
+knowledge to set everything up from scratch yourself, we are aware of
+three possible approaches to take.
+
+1) Install Linux in a Virtual Machine (VM) on your Windows system,
+and then work within this virtual environment as on any regular
+Linux platform. You could e.g. download the VirtualBox
+    https://www.virtualbox.org/
+and install either Ubuntu or CernVM (Scientific Linux)
+    http://cernvm.cern.ch/
+on it. Make sure your installation includes the g++ compiler.
+
+2) Install the Cygwin package, intended to allow Linux apps to run
+under Windows, see
+    https://www.cygwin.com/
+Be sure to install the Dev tools, which appears in the list of options
+to include, but won't be installed by default. Then put the Pythia
+folder in the Cygwin/home directory, and compile and work with it
+as usual. (The include/Pythia8Plugins/execinfo.h file provides dummy
+versions of methods needed for proper compilation.)
+
+3) The nuget.org website
+    http://www.nuget.org/packages/Pythia8/
+contains pre-built PYTHIA packages ready to be used under Windows
+Visual Studio.
+
+We take no responsibility for either of these solutions. 
+Also note that linking with other libraries may involve further 
+problems, in particular for the dynamic loading of LHAPDF. 
 
 ----------------------------------------------------------------------
 
@@ -272,7 +302,7 @@ Unforunately PYTHIA 8 is not currently supported for Windows platforms.
 To learn more about the current program:
 
 A) A brief self-contained introduction is found in the
-   share/Pythia8/htmldoc/pythia8100.pdf file.
+   share/Pythia8/pdfdoc/pythia8200.pdf file.
 
 B) Details can be found by opening a web browser on the
    share/Pythia8/htmldoc/Welcome.html file, and then navigating among

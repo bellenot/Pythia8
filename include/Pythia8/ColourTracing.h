@@ -1,5 +1,5 @@
 // ColourTracing.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -24,14 +24,14 @@ class ColourTracing {
 public:
 
   void init( Info* infoPtrIn) {infoPtr = infoPtrIn;}
-  
+
   // Setup the colour lists.
   bool setupColList(Event& event);
 
   // Trace a colour line, from a colour, from an anticolour, or in loop.
-  bool traceFromAcol(int indxCol, Event& event, int iJun, int iCol, 
+  bool traceFromAcol(int indxCol, Event& event, int iJun, int iCol,
     vector<int>& iParton);
-  bool traceFromCol(int indxCol, Event& event, int iJun, int iCol, 
+  bool traceFromCol(int indxCol, Event& event, int iJun, int iCol,
     vector<int>& iParton);
   bool traceInLoop(Event& event, vector<int>& iParton);
 

@@ -72,15 +72,15 @@ to be dependent on the hard scale of the central process and on the mass
 of the whole subsystem defined by the two initiators: 
 <br/><i> 
 sigma = (sigma_soft * Q_half + sigma_hard * Q) / (Q_half + Q) 
-  * m / (m_half + m) 
+  * m / (m + m_half * y_damp) 
 </i><br/> 
 Here <i>Q</i> is the hard-process renormalization scale for the 
 hardest process and the <i>pT</i> scale for subsequent multiparton 
 interactions, <i>m</i> the mass of the system, and 
-<i>sigma_soft</i>, <i>sigma_hard</i>, <i>Q_half</i> and 
-<i>m_half</i> parameters defined below. Furthermore each separately 
-defined beam remnant has a distribution of width <i>sigma_remn</i>, 
-independently of kinematical variables. 
+<i>sigma_soft</i>, <i>sigma_hard</i>, <i>Q_half</i>, 
+<i>m_half</i> and <i>y_damp</i> parameters defined below. 
+Furthermore each separately defined beam remnant has a distribution 
+of width <i>sigma_remn</i>, independently of kinematical variables. 
  
 <p/><code>flag&nbsp; </code><strong> BeamRemnants:primordialKT &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
@@ -89,19 +89,19 @@ parameter values below.
    
  
 <p/><code>parm&nbsp; </code><strong> BeamRemnants:primordialKTsoft &nbsp;</strong> 
- (<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>)<br/>
+ (<code>default = <strong>0.9</strong></code>; <code>minimum = 0.</code>)<br/>
 The width <i>sigma_soft</i> in the above equation, assigned as a 
 primordial <i>kT</i> to initiators in the soft-interaction limit. 
    
  
 <p/><code>parm&nbsp; </code><strong> BeamRemnants:primordialKThard &nbsp;</strong> 
- (<code>default = <strong>2.0</strong></code>; <code>minimum = 0.</code>)<br/>
+ (<code>default = <strong>1.8</strong></code>; <code>minimum = 0.</code>)<br/>
 The width <i>sigma_hard</i> in the above equation, assigned as a 
 primordial <i>kT</i> to initiators in the hard-interaction limit. 
    
  
 <p/><code>parm&nbsp; </code><strong> BeamRemnants:halfScaleForKT &nbsp;</strong> 
- (<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)<br/>
+ (<code>default = <strong>1.5</strong></code>; <code>minimum = 0.</code>)<br/>
 The scale <i>Q_half</i> in the equation above, defining the 
 half-way point between hard and soft interactions. 
    
@@ -113,6 +113,18 @@ half-way point between low-mass and high-mass subsystems.
 (Kinematics construction can easily fail if a system is assigned 
 a primordial <i>kT</i> value higher than its mass, so the 
 mass-dampening is intended to reduce some troubles later on.) 
+   
+ 
+<p/><code>parm&nbsp; </code><strong> BeamRemnants:reducedKTatHighY &nbsp;</strong> 
+ (<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)<br/>
+For a system of mass <i>m</i> and energy <i>E</i> the
+dampening factor <i>y_damp</i> above is defined as
+<i>y_damp = pow( E/m, r_red)</i>, where <i>r_red</i> is the
+current parameter. The effect is to reduce the primordial <i>kT</i>
+of low-mass systems extra much if they are at large rapidities (recall 
+that <i>E/m = cosh(y)</i> before <i>kT</i> is added). The reason 
+for this dampening is purely technical, and for reasonable values 
+should not have dramatic consequences overall.
    
  
 <p/><code>parm&nbsp; </code><strong> BeamRemnants:primordialKTremnant &nbsp;</strong> 
@@ -163,59 +175,59 @@ first approach, so the second is always used.
    
  
 <h3>Colour flow</h3> 
-
-The colour in the separate subproccsses are tied together via the assignment
-of colour flow in the beam remnants. The assignment of colour flow is not known
-from first principles and therefore it is not an unambiguous procedure. Thus
-two differnet models have been implemented in <code>Pythia</code>. These 
-will be referred to as new and old, based on the time of the implementation.
-
+ 
+The colour in the separate subproccsses are tied together via the assignment 
+of colour flow in the beam remnants. The assignment of colour flow is not 
+known from first principles and therefore it is not an unambiguous procedure. 
+Thus two different models have been implemented in <code>Pythia</code>. These 
+will be referred to as new and old, based on the time of the implementation. 
+ 
 <p/> 
 The old model tries to reconstruct the colour flow in a way that a LO PS would 
-produce the beam remnants. The starting point is the junction structure of the
+produce the beam remnants. The starting point is the junction structure of the 
 beam particle (if it is a baryon). The gluons are attached to a quark line and 
-quark-antiquark pairs are added as if coming from a gluon splittings. Thus this 
-model captures the qualitative behaviour that is expected from leading colour 
-QCD. The model is described in more detail in [<a href="Bibliography.html" target="page">Sjo04</a>].
-
+quark-antiquark pairs are added as if coming from a gluon splittings. Thus 
+this model captures the qualitative behaviour that is expected from leading 
+colour QCD. The model is described in more detail in [<a href="Bibliography.html" target="page">Sjo04</a>]. 
+ 
 <p/> 
 The new model is built on the full SU(3) colour structure of QCD. The 
-starting point is the scattered partons from the MPI. Each of these are
+starting point is the scattered partons from the MPI. Each of these are 
 initially assumed uncorrelated in colour space, allowing the total outgoing 
-colour configuration to be calculated as an SU(3) product. Since the beam
-particle is a colour singlet, the beam remnant colour configuration has to be
-the inverse of the outgoing colour configuration. The minimum amount of gluons
-are added to the beam remnant in order to obtain this colour configuration.
-
+colour configuration to be calculated as an SU(3) product. Since the beam 
+particle is a colour singlet, the beam remnant colour configuration has to be 
+the inverse of the outgoing colour configuration. The minimum amount of gluons 
+are added to the beam remnant in order to obtain this colour configuration. 
+ 
 <p/> 
-The above assumption of uncorrelated MPIs in colour space is a good
+The above assumption of uncorrelated MPIs in colour space is a good 
 assumption for a few well separated hard MPIs. However if the number of MPIs 
 become large and ISR is included, such that the energy scale becomes lower 
-(and thus distances becomes larger), the assumption loses its validity. This is
-due to saturation effects. The modelling of saturation is done in crude 
-manner, as an exponential suppresion of high multiplet states.
-
+(and thus distances becomes larger), the assumption loses its validity. This 
+is due to saturation effects. The modelling of saturation is done in crude 
+manner, as an exponential suppresion of high multiplet states. 
+ 
 <p/> 
-None of the models above can provide a full description of the colour
+None of the models above can provide a full description of the colour 
 flow in an event, however. Therefore additional colour reconfiguration 
 is needed. This is referred to as colour reconnection. Several different 
 models for colour reconnection are implemented, see 
-<a href="ColourReconnection.html" target="page">Colour Reconection</a>.
+<a href="ColourReconnection.html" target="page">Colour Reconection</a>. 
  
 <p/><code>mode&nbsp; </code><strong> BeamRemnants:remnantMode &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)<br/>
-Switch to choose between the two different colour models for the beam remnant.
+Switch to choose between the two different colour models for the beam remnant. 
 <br/><code>option </code><strong> 0</strong> :  The old beam remnant model.    
 <br/><code>option </code><strong> 1</strong> :  The new beam remnant model.    
-  
-
+   
+ 
 <p/><code>parm&nbsp; </code><strong> BeamRemnants:saturation &nbsp;</strong> 
  (<code>default = <strong>5</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 100000</code>)<br/>
-Controls the suppresion due to saturation in the new model. The exact formula
+Controls the suppresion due to saturation in the new model. The exact formula 
 used is <i>exp(-M / k)</i>, where M is the multiplet size and k is this 
-parameter. Thus a small number will result in a large saturation.
-  
-
+parameter. Thus a small number will result in a large saturation. 
+   
+ 
 <h3>Further variables</h3> 
  
 <p/><code>mode&nbsp; </code><strong> BeamRemnants:maxValQuark &nbsp;</strong> 
@@ -280,16 +292,16 @@ simple sum of the two constituent quarks.
  
 <p/><code>parm&nbsp; </code><strong> BeamRemnants:gluonPower &nbsp;</strong> 
  (<code>default = <strong>4.0</strong></code>; <code>minimum = 0.</code>)<br/>
-The abovementioned power for gluons.
+The abovementioned power for gluons. 
    
-
+ 
 <p/><code>parm&nbsp; </code><strong> BeamRemnants:xGluonCutoff &nbsp;</strong> 
  (<code>default = <strong>1E-7</strong></code>; <code>minimum = 1E-10</code>; <code>maximum = 1</code>)<br/>
 The gluon PDF is approximated with <i>g(x) ~ (1 - x)^p / x</i>, which 
 integrates to infinity when integrated from 0 to 1. This cut-off is 
-introduced as a minimum to avoid the problems with infinities.
-  
-
+introduced as a minimum to avoid the problems with infinities. 
+   
+ 
 <p/><code>flag&nbsp; </code><strong> BeamRemnants:allowJunction &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 The <code>off</code> option is intended for debug purposes only, as 
@@ -303,24 +315,24 @@ an error message that the remnant flavour setup failed), and the
 multiparton interactions and showers are redone until a 
 junction-free topology is found. 
    
-
+ 
 <p/><code>flag&nbsp; </code><strong> BeamRemnants:beamJunction &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
-This parameter is only relevant if the new colour reconnection scheme is used.
-(see  <a href="ColourReconnection.html" target="page">colour reconnection</a>)
+This parameter is only relevant if the new colour reconnection scheme is used. 
+(see  <a href="ColourReconnection.html" target="page">colour reconnection</a>) 
 This parameter tells whether to form a junction or a di-quark if more 
 than two valence quarks are found in the beam remnants. If off a di-quark is 
-formed and if on a junction will be formed.
+formed and if on a junction will be formed. 
    
-
+ 
 <p/><code>flag&nbsp; </code><strong> BeamRemnants:allowBeamJunction &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
-This parameter is only relevant if the new Beam remnant model is used.
+This parameter is only relevant if the new Beam remnant model is used. 
 This parameter tells whether to allow the formation of junction structures 
-in the colour configuration of the scattered partons.
+in the colour configuration of the scattered partons. 
    
  
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

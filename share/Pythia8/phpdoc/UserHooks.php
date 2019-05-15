@@ -65,7 +65,7 @@ at the process level.
 <br/>(vii) Ones that let you set the scale of shower evolution, 
 specifically for matching in resonance decays. 
 <br/>(viii) Ones that allow colour reconnection, notably in connection 
-with resonance decays.
+with resonance decays. 
 <br/>They are described further in the following numbered subsections. 
  
 <p/> 
@@ -889,7 +889,7 @@ The cross section remains unaffected by this veto, for better or worse.
 event record. However, as an extreme measure, parts or the complete decay 
 chain could be overwritten. If so, be very careful. 
    
-  
+ 
 <h3>(vii) Modify scale in shower evolution</h3> 
  
 The choice of maximum shower scale in resonance decays is normally not a 
@@ -923,60 +923,60 @@ generated so far, specifically the decaying resonance and its immediate
 decay products. 
    
    
-  
-<h3>(viii) Allow colour reconnection</h3>
-
+ 
+<h3>(viii) Allow colour reconnection</h3> 
+ 
 PYTHIA contains only a limites set of possibilities for 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='BeamRemnants.php?filepath=".$filepath."' target='page'>";?>colour reconnection</a>, and none of them 
-are geared specifically towards rapidly decaying resonances. Notably,
+are geared specifically towards rapidly decaying resonances. Notably, 
 with the default 
 <code><?php $filepath = $_GET["filepath"];
-echo "<a href='MasterSwitches.php?filepath=".$filepath."' target='page'>";?>PartonLevel:earlyResDec = off</a></code>,
-resonances will only decay after colour reconnection has already been
-considered. Thus a coloured parton like the top may be reconnected
-but, apart from this external connection with the rest of the event,
+echo "<a href='MasterSwitches.php?filepath=".$filepath."' target='page'>";?>PartonLevel:earlyResDec = off</a></code>, 
+resonances will only decay after colour reconnection has already been 
+considered. Thus a coloured parton like the top may be reconnected 
+but, apart from this external connection with the rest of the event, 
 the top decay products undergo no colour reconnection. 
 For <code>PartonLevel:earlyResDec = on</code> the resonance will decay 
-earlier, and thus the decay products may undergo reconnections, but not
+earlier, and thus the decay products may undergo reconnections, but not 
 necessarily by models that are specifically geared towards this kind of 
 events. For tryout purposes, a user hook can be called directly after the 
 resonance decays, and there modify the colour flow. This holds whether the 
-resonance decay is handled early or late, but is especially appropriate
+resonance decay is handled early or late, but is especially appropriate 
 for the latter default possibility. While intended specifically for 
 resonance decays, alternatively it is possible to switch off the built-in 
 colour reconnection and here implement your own reconnection model 
-for the whole event.
-
+for the whole event. 
+ 
 <a name="method38"></a>
 <p/><strong>virtual bool UserHooks::canReconnectResonanceSystems() &nbsp;</strong> <br/>
 In the base class this method returns false. If you redefine it 
 to return true then the method <code>doReconnectResonanceSystems(...)</code> 
-will be called immediately after the resonance decays and their
-associated final-state showers have been added to the event record.
+will be called immediately after the resonance decays and their 
+associated final-state showers have been added to the event record. 
    
  
 <a name="method39"></a>
-<p/><strong>virtual bool UserHooks::doReconnectResonanceSystems(int oldSizeEvent, Event& event) &nbsp;</strong> <br/>
-can optionally be called, as described above, to reconnect colours
+<p/><strong>virtual bool UserHooks::doReconnectResonanceSystems( int oldSizeEvent, Event& event) &nbsp;</strong> <br/>
+can optionally be called, as described above, to reconnect colours 
 in the event. The method should normally return true, but false if the 
 colour-reconnected event is unphysical and to be rejected. 
-(If this is likely to happen, having a safety copy to restore to
+(If this is likely to happen, having a safety copy to restore to 
 is a good idea, so that false can be avoided to the largest extent 
-possible.)
+possible.) 
 <br/><code>argument</code><strong> oldSizeEvent </strong>  :  the size of the event record before 
-resonance decay products and their associated final-state showers
+resonance decay products and their associated final-state showers 
 have been added to the event. Can thus be used to easily separate 
-the resonance-decay partons from those in the rest of the event.
+the resonance-decay partons from those in the rest of the event. 
    
 <br/><code>argument</code><strong> event </strong>  :  the event record contains a list of all particles 
-generated so far. You are allowed to freely modify this record, but with
-freedom comes responsibility. Firstly, it is only meaningful to modify
-the colour indices of final-state (at the time) partons; all other event
-properties had better be left undisturbed. Secondly, it is up to you to
-ensure that the new colour topology is meaningful, e.g. that no gluon
-has obtained the same colour as anticolour index and thereby forms
-a singlet on its own.  
+generated so far. You are allowed to freely modify this record, but with 
+freedom comes responsibility. Firstly, it is only meaningful to modify 
+the colour indices of final-state (at the time) partons; all other event 
+properties had better be left undisturbed. Secondly, it is up to you to 
+ensure that the new colour topology is meaningful, e.g. that no gluon 
+has obtained the same colour as anticolour index and thereby forms 
+a singlet on its own. 
    
    
  
@@ -984,4 +984,4 @@ a singlet on its own.
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

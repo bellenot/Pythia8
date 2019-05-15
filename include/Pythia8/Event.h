@@ -1,5 +1,5 @@
 // Event.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -80,7 +80,7 @@ public:
   // Member functions to set the Event and ParticleDataEntry pointers.
   void setEvtPtr(Event* evtPtrIn) { evtPtr = evtPtrIn; setPDEPtr();}
   void setPDEPtr(ParticleDataEntry* pdePtrIn = 0);
-      
+
   // Member functions for input.
   void id(int idIn) {idSave = idIn; setPDEPtr();}
   void status(int statusIn) {statusSave = statusIn;}
@@ -352,7 +352,7 @@ public:
   int    col(int j)    const {return colSave[j];}
   int    endCol(int j) const {return endColSave[j];}
   int    status(int j) const {return statusSave[j];}
- 
+
 private:
 
   // Kind, positions of the three ends and their status codes.
@@ -366,7 +366,7 @@ private:
 // The Event class holds all info on the generated event.
 
 class Event {
-    
+
 public:
 
   // Constructors.
@@ -512,7 +512,7 @@ public:
 
   // Clear the list of junctions.
   void clearJunctions() {junction.resize(0);}
- 
+
   // Add a junction to the list, study it or extra input.
   int appendJunction( int kind, int col0, int col1, int col2)
     { junction.push_back( Junction( kind, col0, col1, col2) );
@@ -580,7 +580,7 @@ private:
   // Pointer to the particle data table.
   // The //! below is ROOT notation that this member should not be saved.
   ParticleData* particleDataPtr;  //!
-  
+
 };
 
 //==========================================================================

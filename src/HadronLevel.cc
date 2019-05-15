@@ -1,5 +1,5 @@
 // HadronLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -64,7 +64,7 @@ bool HadronLevel::init(Info* infoPtrIn, Settings& settings,
     &flavSel, &pTSel, &zSel);
   ministringFrag.init(infoPtr, settings, particleDataPtr, rndmPtr,
     &flavSel, &pTSel, &zSel);
- 
+
   // Initialize particle decays.
   decays.init(infoPtr, settings, particleDataPtr, rndmPtr, couplingsPtr,
     timesDecPtr, &flavSel, decayHandlePtr, handledParticles);
@@ -139,8 +139,8 @@ bool HadronLevel::next( Event& event) {
         // Low-mass string treated separately. Tell if diffractive system.
         } else {
           bool isDiff = infoPtr->isDiffractiveA() || infoPtr->isDiffractiveB();
-          if (!ministringFrag.fragment( iSub, colConfig, event, isDiff)) 
-	    return false;
+          if (!ministringFrag.fragment( iSub, colConfig, event, isDiff))
+            return false;
         }
       }
     }
@@ -176,7 +176,7 @@ bool HadronLevel::next( Event& event) {
 
     // Fourth part: sequential decays also of long-lived particles.
     if (doDecay) {
-    
+
       // Loop through all entries to find those that should decay.
       int iDec = 0;
       do {
@@ -205,7 +205,7 @@ bool HadronLevel::moreDecays( Event& event) {
 
   // Colour-octet onia states must be decayed to singlet + gluon.
   if (!decayOctetOnia(event)) return false;
-    
+
   // Loop through all entries to find those that should decay.
   int iDec = 0;
   do {
@@ -226,7 +226,7 @@ bool HadronLevel::decayOctetOnia(Event& event) {
 
   // Loop over particles and decay any onia encountered.
   for (int iDec = 0; iDec < event.size(); ++iDec)
-  if (event[iDec].isFinal() 
+  if (event[iDec].isFinal()
     && particleDataPtr->isOctetHadron(event[iDec].id())) {
     if (!decays.decay( iDec, event)) return false;
 
@@ -245,7 +245,7 @@ bool HadronLevel::decayOctetOnia(Event& event) {
 // Trace colour flow in the event to form colour singlet subsystems.
 
 bool HadronLevel::findSinglets(Event& event) {
-  
+
   // Clear up storage.
   colConfig.clear();
 
@@ -269,21 +269,21 @@ bool HadronLevel::findSinglets(Event& event) {
       if (kindJun % 2 == 1 && !colTrace.traceFromAcol(indxCol, event, iJun,
         iCol, iParton)) return false;
       // Antijunctions: find anticolor ends.
-      if (kindJun % 2 == 0 && !colTrace.traceFromCol(indxCol, event, iJun, 
+      if (kindJun % 2 == 0 && !colTrace.traceFromCol(indxCol, event, iJun,
         iCol, iParton)) return false;
     }
 
     // A junction may be eliminated by insert if two quarks are nearby.
     int nJunOld = event.sizeJunction();
     if (!colConfig.insert(iParton, event)) return false;
-    if (event.sizeJunction() < nJunOld) --iJun;   
+    if (event.sizeJunction() < nJunOld) --iJun;
   }
 
   // Open strings: pick up each colour end and trace to its anticolor end.
   while (!colTrace.colFinished()) {
     iParton.resize(0);
     if (!colTrace.traceFromCol( -1, event, -1, -1, iParton)) return false;
-    
+
     // Store found open string system. Analyze its properties.
     if (!colConfig.insert(iParton, event)) return false;
   }

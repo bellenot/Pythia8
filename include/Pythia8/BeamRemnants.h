@@ -1,5 +1,5 @@
 // BeamRemnants.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -40,7 +40,7 @@ public:
   // Initialization.
   bool init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn,
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
-    PartonSystems* partonSystemsPtrIn, ParticleData* particleDataPtrIn, 
+    PartonSystems* partonSystemsPtrIn, ParticleData* particleDataPtrIn,
     ColourReconnection * colourReconnectionPtrIn);
 
   // New beams possible for handling of hard diffraction.
@@ -59,8 +59,8 @@ private:
   // Initialization data, read from Settings.
   bool   doPrimordialKT, allowRescatter, doRescatterRestoreY, doReconnect;
   double primordialKTsoft, primordialKThard, primordialKTremnant,
-         halfScaleForKT, halfMassForKT;
-  int    remnantMode, reconnectMode;  
+         halfScaleForKT, halfMassForKT, reducedKTatHighY;
+  int    remnantMode, reconnectMode;
 
   // Information set for events.
   int    nSys, oldSize, iDS;
@@ -109,7 +109,7 @@ private:
   // Find junction chains.
   vector <vector<int> > findJunChains(vector<vector <int> > iPartonJun,
     vector<vector<int> > iPartonAjun);
-  
+
   // Split junction configuration into smaller parts.
   bool splitJunChains(Event& event, vector<vector<int > >& iPartonJun,
     vector<vector< int > >& ipartonAntiJun);
@@ -118,7 +118,7 @@ private:
   vector<vector<int > > getJunChains(Event& event);
 
 };
- 
+
 //==========================================================================
 
 } // end namespace Pythia8

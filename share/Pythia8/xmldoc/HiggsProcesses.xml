@@ -68,7 +68,7 @@ to the NLO ones recommended by the LHCXSWG. The multiplicative
 factors have been derived for a 125 GeV Higgs, but should apply for a 
 reasonable mass range around that value. 
 </flag> 
-
+ 
 <h3>Standard-Model Higgs, basic processes</h3> 
  
 This section provides the standard set of processes that can be 
@@ -212,20 +212,20 @@ expressions are available e.g. in PYTHIA 6.4 but are very lengthy.)
 This provides a reasonably accurate description for "intermediate" 
 <ei>pT</ei> values, but fails when the <ei>pT</ei> scale approaches 
 the top mass. 
-  
+ 
 <flag name="HiggsSM:gg2Hg(l:t)" default="off"> 
 Scattering <ei>g g &rarr; H^0 g</ei> via loop contributions primarily 
 from top. 
 Code 914. 
 </flag> 
-  
+ 
 <flag name="HiggsSM:qg2Hq(l:t)" default="off"> 
 Scattering <ei>q g &rarr; H^0 q</ei> via loop contributions primarily 
 from top. Not to be confused with the <code>HiggsSM:qg2Hq</code> 
 process above, with its direct fermion-to-Higgs coupling. 
 Code 915. 
 </flag> 
-  
+ 
 <flag name="HiggsSM:qqbar2Hg(l:t)" default="off"> 
 Scattering <ei>q qbar &rarr; H^0 g</ei> via an <ei>s</ei>-channel gluon 
 and loop contributions primarily from top. Is strictly speaking a 
@@ -568,20 +568,20 @@ Warning: unfortunately this process is rather slow, owing to a
 lengthy cross-section expression and inefficient phase-space selection. 
 Code 1013. 
 </flag> 
-  
+ 
 <flag name="HiggsBSM:gg2H1g(l:t)" default="off"> 
 Scattering <ei>g g &rarr; h^0 g</ei> via loop contributions primarily 
 from top. 
 Code 1014. 
 </flag> 
-  
+ 
 <flag name="HiggsBSM:qg2H1q(l:t)" default="off"> 
 Scattering <ei>q g &rarr; h^0 q</ei> via loop contributions primarily 
 from top. Not to be confused with the <code>HiggsBSM:qg2H1q</code> 
 process above, with its direct fermion-to-Higgs coupling. 
 Code 1015. 
 </flag> 
-  
+ 
 <flag name="HiggsBSM:qqbar2H1g(l:t)" default="off"> 
 Scattering <ei>q qbar &rarr; h^0 g</ei> via an <ei>s</ei>-channel gluon 
 and loop contributions primarily from top. Is strictly speaking a 
@@ -626,20 +626,20 @@ Warning: unfortunately this process is rather slow, owing to a
 lengthy cross-section expression and inefficient phase-space selection. 
 Code 1033. 
 </flag> 
-  
+ 
 <flag name="HiggsBSM:gg2H2g(l:t)" default="off"> 
 Scattering <ei>g g &rarr; H^0 g</ei> via loop contributions primarily 
 from top. 
 Code 1034. 
 </flag> 
-  
+ 
 <flag name="HiggsBSM:qg2H2q(l:t)" default="off"> 
 Scattering <ei>q g &rarr; H^0 q</ei> via loop contributions primarily 
 from top. Not to be confused with the <code>HiggsBSM:qg2H1q</code> 
 process above, with its direct fermion-to-Higgs coupling. 
 Code 1035. 
 </flag> 
-  
+ 
 <flag name="HiggsBSM:qqbar2H2g(l:t)" default="off"> 
 Scattering <ei>q qbar &rarr; H^0 g</ei> via an <ei>s</ei>-channel gluon 
 and loop contributions primarily from top. Is strictly speaking a 
@@ -684,20 +684,20 @@ Warning: unfortunately this process is rather slow, owing to a
 lengthy cross-section expression and inefficient phase-space selection. 
 Code 1053. 
 </flag> 
-  
+ 
 <flag name="HiggsBSM:gg2A3g(l:t)" default="off"> 
 Scattering <ei>g g &rarr; A^0 g</ei> via loop contributions primarily 
 from top. 
 Code 1054. 
 </flag> 
-  
+ 
 <flag name="HiggsBSM:qg2A3q(l:t)" default="off"> 
 Scattering <ei>q g &rarr; A^0 q</ei> via loop contributions primarily 
 from top. Not to be confused with the <code>HiggsBSM:qg2H1q</code> 
 process above, with its direct fermion-to-Higgs coupling. 
 Code 1055. 
 </flag> 
-  
+ 
 <flag name="HiggsBSM:qqbar2A3g(l:t)" default="off"> 
 Scattering <ei>q qbar &rarr; A^0 g</ei> via an <ei>s</ei>-channel gluon 
 and loop contributions primarily from top. Is strictly speaking a 
@@ -879,10 +879,10 @@ exclusively for the description of angular distributions in decays.
  
 <modepick name="HiggsH1:parity" default="1" min="0" max="4"> 
 possibility to modify angular decay correlations in the decay of a 
-<ei>h^0(H_1)</ei> decay <ei>Z^0 Z^0</ei> or <ei>W^+ W^-</ei> to four
-fermions, or <ei>tau^+ tau^-</ei> to any final state. Currently it
-does not affect the partial width of the channels, which is only based
-on the above parameters.
+<ei>h^0(H_1)</ei> decay <ei>Z^0 Z^0</ei> or <ei>W^+ W^-</ei> to four 
+fermions, or <ei>tau^+ tau^-</ei> to any final state. Currently it 
+does not affect the partial width of the channels, which is only based 
+on the above parameters. 
 <option value="0">isotropic decays.</option> 
 <option value="1">assuming the <ei>h^0(H_1)</ei> is a pure scalar 
 (CP-even), as in the MSSM.</option> 
@@ -893,18 +893,18 @@ including the CP-violating interference term. The parameter
 <ei>eta</ei>, see below, sets the strength of the CP-odd admixture, 
 with the interference term being proportional to <ei>eta</ei> 
 and the CP-odd one to <ei>eta^2</ei>.</option> 
-<option value="4">same as <code>3</code> but now <ei>phi</ei>, see
-below, sets the CP-mixing angle. The CP-even term is proportional
-to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>,
-and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is
-pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.</option>
-</modepick>
+<option value="4">same as <code>3</code> but now <ei>phi</ei>, see 
+below, sets the CP-mixing angle. The CP-even term is proportional 
+to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>, 
+and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is 
+pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.</option> 
+</modepick> 
  
 <parm name="HiggsH1:etaParity" default="0."> 
 The <ei>eta</ei> value of CP-violation in the 
 <code>HiggsH1:parity = 3</code> option. 
 </parm> 
-
+ 
 <parm name="HiggsH1:phiParity" default="0."> 
 The <ei>phi</ei> value of CP-mixing in the 
 <code>HiggsH1:parity = 4</code> option. 
@@ -912,10 +912,10 @@ The <ei>phi</ei> value of CP-mixing in the
  
 <modepick name="HiggsH2:parity" default="1" min="0" max="4"> 
 possibility to modify angular decay correlations in the decay of a 
-<ei>H^0(H_2)</ei> decay <ei>Z^0 Z^0</ei> or <ei>W^+ W^-</ei> to four
-fermions, or <ei>tau^+ tau^-</ei> to any final state. Currently it
-does not affect the partial width of the channels, which is only based
-on the above parameters.
+<ei>H^0(H_2)</ei> decay <ei>Z^0 Z^0</ei> or <ei>W^+ W^-</ei> to four 
+fermions, or <ei>tau^+ tau^-</ei> to any final state. Currently it 
+does not affect the partial width of the channels, which is only based 
+on the above parameters. 
 <option value="0">isotropic decays.</option> 
 <option value="1">assuming the <ei>H^0(H_2)</ei> is a pure scalar 
 (CP-even), as in the MSSM.</option> 
@@ -926,29 +926,29 @@ including the CP-violating interference term. The parameter
 <ei>eta</ei>, see below, sets the strength of the CP-odd admixture, 
 with the interference term being proportional to <ei>eta</ei> 
 and the CP-odd one to <ei>eta^2</ei>.</option> 
-<option value="4">same as <code>3</code> but now <ei>phi</ei>, see
-below, sets the CP-mixing angle. The CP-even term is proportional
-to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>,
-and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is
-pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.</option>
-</modepick>
+<option value="4">same as <code>3</code> but now <ei>phi</ei>, see 
+below, sets the CP-mixing angle. The CP-even term is proportional 
+to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>, 
+and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is 
+pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.</option> 
+</modepick> 
  
 <parm name="HiggsH2:etaParity" default="0."> 
 The <ei>eta</ei> value of CP-violation in the 
 <code>HiggsH2:parity = 3</code> option. 
 </parm> 
-
+ 
 <parm name="HiggsH2:phiParity" default="0."> 
 The <ei>phi</ei> value of CP-mixing in the 
 <code>HiggsH2:parity = 4</code> option. 
 </parm> 
-
+ 
 <modepick name="HiggsA3:parity" default="2" min="0" max="4"> 
 possibility to modify angular decay correlations in the decay of a 
-<ei>A^0(H_3)</ei> decay <ei>Z^0 Z^0</ei> or <ei>W^+ W^-</ei> to four
-fermions, or <ei>tau^+ tau^-</ei> to any final state. Currently it
-does not affect the partial width of the channels, which is only based
-on the above parameters.
+<ei>A^0(H_3)</ei> decay <ei>Z^0 Z^0</ei> or <ei>W^+ W^-</ei> to four 
+fermions, or <ei>tau^+ tau^-</ei> to any final state. Currently it 
+does not affect the partial width of the channels, which is only based 
+on the above parameters. 
 <option value="0">isotropic decays.</option> 
 <option value="1">assuming the <ei>A^0(H_3)</ei> is a pure scalar 
 (CP-even).</option> 
@@ -959,18 +959,18 @@ including the CP-violating interference term. The parameter
 <ei>eta</ei>, see below, sets the strength of the CP-odd admixture, 
 with the interference term being proportional to <ei>eta</ei> 
 and the CP-odd one to <ei>eta^2</ei>.</option> 
-<option value="4">same as <code>3</code> but now <ei>phi</ei>, see
-below, sets the CP-mixing angle. The CP-even term is proportional
-to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>,
-and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is
-pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.</option>
-</modepick>
+<option value="4">same as <code>3</code> but now <ei>phi</ei>, see 
+below, sets the CP-mixing angle. The CP-even term is proportional 
+to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>, 
+and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is 
+pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.</option> 
+</modepick> 
  
 <parm name="HiggsA3:etaParity" default="0."> 
 The <ei>eta</ei> value of CP-violation in the 
 <code>HiggsA3:parity = 3</code> option. 
 </parm> 
-
+ 
 <parm name="HiggsA3:phiParity" default="0."> 
 The <ei>phi</ei> value of CP-mixing in the 
 <code>HiggsA3:parity = 4</code> option. 
@@ -978,5 +978,5 @@ The <ei>phi</ei> value of CP-mixing in the
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

@@ -1,5 +1,5 @@
 // LHAPDF6.h is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -35,8 +35,8 @@ class LHAPDF6 : public PDF {
 public:
 
   // Constructor.
-  LHAPDF6(int idBeamIn, string setName, int member,  int, 
-	  Info* infoPtr) : PDF(idBeamIn), id (-1), pdf(0), extrapol(false)
+  LHAPDF6(int idBeamIn, string setName, int member,  int,
+          Info* infoPtr) : PDF(idBeamIn), id (-1), pdf(0), extrapol(false)
     {init(setName, member, infoPtr);}
 
   // Destructor.
@@ -86,18 +86,18 @@ void LHAPDF6::init(string setName, int member, Info *info) {
 
   // Initialize the set if not initialized.
   id = ::LHAPDF::lookupLHAPDFID(setName, member);
-  if (id < 0) { 
+  if (id < 0) {
     info->errorMsg("Error in LHAPDF6::init: unknown PDF " + setName);
     return;
-  } else if (LHAPDF6Interface::initializedSets.find(id) == 
-	     LHAPDF6Interface::initializedSets.end()) {
+  } else if (LHAPDF6Interface::initializedSets.find(id) ==
+             LHAPDF6Interface::initializedSets.end()) {
     pdf = ::LHAPDF::mkPDF(id);
     if (!pdf) {
-      info->errorMsg("Error in LHAPDF6::init: could not initilaize PDF "
-		     + setName);
+      info->errorMsg("Error in LHAPDF6::init: could not initialize PDF "
+                     + setName);
       return;
-    } else LHAPDF6Interface::initializedSets[id] = 
-	     pair< ::LHAPDF::PDF*, int>(pdf, 0);
+    } else LHAPDF6Interface::initializedSets[id] =
+             pair< ::LHAPDF::PDF*, int>(pdf, 0);
   } else {
     pair< ::LHAPDF::PDF*, int > &set = LHAPDF6Interface::initializedSets[id];
     pdf = set.first;
@@ -121,18 +121,18 @@ void LHAPDF6::xfUpdate(int, double x, double Q2) {
   xubar  = pdf->xfxQ2(-2, x, Q2);
   xdbar  = pdf->xfxQ2(-1, x, Q2);
   xsbar  = pdf->xfxQ2(-3, x, Q2);
-  xc     = pdf->xfxQ2(4,  x, Q2); 
+  xc     = pdf->xfxQ2(4,  x, Q2);
   xb     = pdf->xfxQ2(5,  x, Q2);
   xgamma = pdf->xfxQ2(22, x, Q2);
 
   // Subdivision of valence and sea.
-  xuVal  = xu - xubar; 
-  xuSea  = xubar; 
-  xdVal  = xd - xdbar; 
+  xuVal  = xu - xubar;
+  xuSea  = xubar;
+  xdVal  = xd - xdbar;
   xdSea  = xdbar;
 
-  // idSav = 9 to indicate that all flavours reset. 
-  idSav = 9; 
+  // idSav = 9 to indicate that all flavours reset.
+  idSav = 9;
 
 }
 
@@ -141,7 +141,7 @@ void LHAPDF6::xfUpdate(int, double x, double Q2) {
 // Define external handles to the plugin for dynamic loading.
 
 extern "C" LHAPDF6* newLHAPDF(int idBeamIn, string setName, int member,
-			       Info* infoPtr) {
+                               Info* infoPtr) {
   return new LHAPDF6(idBeamIn, setName, member, 1, infoPtr);
 
 }

@@ -596,10 +596,10 @@ chosen, but can be gleaned from the <code>pythia.stat()</code> output.
 returns a vector with all the process codes set up for the current run, 
 i.e. the valid nonzero arguments for the five methods below. 
    
-
+ 
 <a name="method51"></a>
 <p/><strong>string Info::nameProc(int i = 0) &nbsp;</strong> <br/>
-returns the process name for process code <code>i</code>.
+returns the process name for process code <code>i</code>. 
    
  
 <a name="method52"></a>
@@ -791,186 +791,187 @@ set/get value of <i>z</i> in latest ISR branching.
 <strong>double Info::pT2NowISR() &nbsp;</strong> <br/>
 set/get value of <i>pT^2</i> in latest ISR branching. 
    
-
+ 
 <h3>Les Houches Event File 3.0 information</h3> 
-
-Les Houches Event files can conform to version 1.0 and version 3.0
-of the standard (version 2.0 having been extended to 3.0). The LHEF version
-of an input file can can be accessed by
+ 
+Les Houches Event files can conform to version 1.0 and version 3.0 
+of the standard (version 2.0 having been extended to 3.0). The LHEF version 
+of an input file can can be accessed by 
 <br/><strong>int Info::LHEFversion() &nbsp;</strong> <br/>
-</methodmorer>
-
+</methodmorer> 
+ 
 <p/> 
-The <code>Info</code> class also provides a suitable interface to
+The <code>Info</code> class also provides a suitable interface to 
 the information stored after reading Les Houches Event files in the 
-updated format [<a href="Bibliography.php" target="page">But14</a>]. An example main program using LHEF 3.0
-information is <code>main38.cc</code>.
-
-</p>
-LHEF 3.0 offers new features both in the initialisation and the event sections
+updated format [<a href="Bibliography.php" target="page">But14</a>]. An example main program using LHEF 3.0 
+information is <code>main38.cc</code>. 
+ 
+</p> 
+LHEF 3.0 offers new features both in the initialisation and the event sections 
 of the input files. Possible information include extended 
 use of XML tags in the <code>&lt;header&gt;</code> and 
-<code>&lt;init&gt;</code> blocks:
-
+<code>&lt;init&gt;</code> blocks: 
+ 
 <p/> 
- -- &nbsp; &nbsp; The <code>&lt;initrwgt&gt;</code> tag is a container
- tag for weight and weightgroup tags. Currently, there is no dedicated
- output for this tag. However, all the information stored in the tag can
+ -- &nbsp; &nbsp; The <code>&lt;initrwgt&gt;</code> tag is a container 
+ tag for weight and weightgroup tags. Currently, there is no dedicated 
+ output for this tag. However, all the information stored in the tag can 
  be retrieved by using the <code>Info</code> class member pointer 
  <code>LHAinitrwgt Info::initrwgt</code>. 
-
+ 
 <p/> 
- -- &nbsp; &nbsp; Multiple <code>&lt;weightgroup&gt;</code> tags:
- Container tag for weight tags. Currently, there is no dedicated
- output for this tag. However, all the information stored in the tag can
+ -- &nbsp; &nbsp; Multiple <code>&lt;weightgroup&gt;</code> tags: 
+ Container tag for weight tags. Currently, there is no dedicated 
+ output for this tag. However, all the information stored in the tag can 
  be retrieved by using the <code>Info</code> class member pointer 
  <code>vector&lt;LHAweightgroups&gt; * Info::weightgroups</code>. 
-
+ 
 <p/> 
- -- &nbsp; &nbsp; Multiple <code>&lt;weight&gt;</code> tags: Tag defining
- auxiliary information on an event weight, e.g. the identifier and information
- on what the weight represents. All the information stored in the tag can
+ -- &nbsp; &nbsp; Multiple <code>&lt;weight&gt;</code> tags: Tag defining 
+ auxiliary information on an event weight, e.g. the identifier and information 
+ on what the weight represents. All the information stored in the tag can 
  be retrieved by using the <code>Info</code> class member pointer 
- <code>vector&lt;LHAweightgroups&gt; * Info::init_weights</code>. This vector
- contains all <code>&lt;weight&gt;</code> tags in the
- <code>&lt;initrwgt&gt;</code> container and its subcontainer
- <code>&lt;weightgroup&gt;</code> tags. The size of the vector can be accessed
- through the method
+ <code>vector&lt;LHAweightgroups&gt; * Info::init_weights</code>. This vector 
+ contains all <code>&lt;weight&gt;</code> tags in the 
+ <code>&lt;initrwgt&gt;</code> container and its subcontainer 
+ <code>&lt;weightgroup&gt;</code> tags. The size of the vector can be accessed 
+ through the method 
 <br/><strong>int Info::getInitrwgtSize() &nbsp;</strong> <br/>
-  
-
+   
+ 
 <p/> 
- -- &nbsp; &nbsp; Multiple <code>&lt;generator&gt;</code> tags: Store
+ -- &nbsp; &nbsp; Multiple <code>&lt;generator&gt;</code> tags: Store 
  information on the generators used in the event generation. All the 
  information stored in the tag can be retrieved by using the 
  <code>Info</code> class member pointer 
- <code>vector&lt;LHAgenerators&gt; * Info::generators</code>. More easy-to-use
+ <code>vector&lt;LHAgenerators&gt; * Info::generators</code>. More easy-to-use 
  output functions are available. The size of this vector can be obtained from 
 <br/><strong>int Info::getGeneratorSize() &nbsp;</strong> <br/>
-  
-
+   
+ 
 <p/> 
 The contents of a <code>&lt;generator&gt;</code> tag can be accessed through 
-the method
+the method 
 <br/><strong>string Info::getGeneratorValue(unsigned int n = 0) &nbsp;</strong> <br/>
-Return the contents of the n'th <code>&lt;generator&gt;</code> tag in
-the vector of tags.
-  
-
+Return the contents of the n'th <code>&lt;generator&gt;</code> tag in 
+the vector of tags. 
+   
+ 
 <p/> 
-Attributes of the <code>&lt;generator&gt;</code> tag (e.g. the generator
-<code>name</code> and <code>version</code>) can be accessed via
+Attributes of the <code>&lt;generator&gt;</code> tag (e.g. the generator 
+<code>name</code> and <code>version</code>) can be accessed via 
 <br/><strong>string Info::getGeneratorAttribute(unsigned int n, string key, bool doRemoveWhitespace = false) &nbsp;</strong> <br/>
 Return the value of the generator attribute named <code>key</code> for 
-the n'th generator in the vector. Setting <code>doRemoveWhitespace</code> to
-true will return the value, stripped of any whitespace. An empty string is
-returned if the attribute named <code>key</code> does not exist.
-  
-
-<p/>
+the n'th generator in the vector. Setting <code>doRemoveWhitespace</code> to 
+true will return the value, stripped of any whitespace. An empty string is 
+returned if the attribute named <code>key</code> does not exist. 
+   
+ 
+<p/> 
 To obtain information on cross sections, the following two methods can be 
-used
+used 
 <br/><strong>int Info::nProcessesLHEF() &nbsp;</strong> <br/>
 return the number of processes for which the cross section is stored. 
    
 <br/><strong>double Info::sigmaLHEF(int iProcess) &nbsp;</strong> <br/>
 return the cross section of the <code>iProcess</code>'th process. 
    
-
-<p/>
-Possible information also includes extended use of XML tags in the 
-<code>&lt;event&gt;</code> blocks:
-
+ 
 <p/> 
- -- &nbsp; &nbsp; The <code>&lt;rwgt&gt;</code> tag is a container
- tag for wgt tags. Currently, there is no dedicated
+Possible information also includes extended use of XML tags in the 
+<code>&lt;event&gt;</code> blocks: 
+ 
+<p/> 
+ -- &nbsp; &nbsp; The <code>&lt;rwgt&gt;</code> tag is a container 
+ tag for wgt tags. Currently, there is no dedicated 
  output for this tag. It can however be retrieved by using the 
  <code>Info</code> class member pointer 
  <code>LHArwgt Info::rwgt</code>. 
-
+ 
 <p/> 
- -- &nbsp; &nbsp; Multiple <code>&lt;wgt&gt;</code> tags: Tag defining
- the event weight in the detailed version of LHEF 3.0.  All the information
- stored in the tag can be retrieved by using the <code>Info</code> class member
- pointer <code>vector&lt;LHAwgt&gt; * Info::weights_detailed</code>. More
- easy-to-use output functions are available. The size of this vector can be
- obtained from
+ -- &nbsp; &nbsp; Multiple <code>&lt;wgt&gt;</code> tags: Tag defining 
+ the event weight in the detailed version of LHEF 3.0.  All the information 
+ stored in the tag can be retrieved by using the <code>Info</code> class 
+ member pointer <code>vector&lt;LHAwgt&gt; * Info::weights_detailed</code>. 
+ More easy-to-use output functions are available. The size of this vector 
+ can be obtained from 
 <br/><strong>unsigned int Info::getWeightsDetailedSize() &nbsp;</strong> <br/>
-  
-
+   
+ 
 <p/> 
 The contents of a <code>&lt;wgt&gt;</code> tag can be accessed through the 
-method
+method 
 <br/><strong>double Info::getWeightsDetailedValue(string n) &nbsp;</strong> <br/>
 Return the value of the n'th <code>&lt;wgt&gt;</code> tag in the 
-event.
-  
-
+event. 
+   
+ 
 <p/> 
-Attributes of the <code>&lt;wgt&gt;</code> tag (e.g. the weight
-<code>id</code>) can be accessed via
+Attributes of the <code>&lt;wgt&gt;</code> tag (e.g. the weight 
+<code>id</code>) can be accessed via 
 <br/><strong>string Info::getWeightsDetailedAttribute(string n, string key, bool doRemoveWhitespace = false) &nbsp;</strong> <br/>
 Return the value of the wgt attribute named <code>key</code> for 
-the n'th wgt in the vector. Setting <code>doRemoveWhitespace</code> to
-true will return the value, stripped of any whitespace. An empty string is
-returned if the attribute named <code>key</code> does not exist.
-  
-
+the n'th wgt in the vector. Setting <code>doRemoveWhitespace</code> to 
+true will return the value, stripped of any whitespace. An empty string is 
+returned if the attribute named <code>key</code> does not exist. 
+   
+ 
 <p/> 
- -- &nbsp; &nbsp; The <code>&lt;weights&gt;</code> tag: Tag containing
- a vector of <code>double</code> entries for weights in the compressed version
- of LHEF 3.0. All the information stored in the tag can be retrieved by using
+ -- &nbsp; &nbsp; The <code>&lt;weights&gt;</code> tag: Tag containing 
+ a vector of <code>double</code> entries for weights in the compressed version 
+ of LHEF 3.0. All the information stored in the tag can be retrieved by using 
  the <code>Info</code> class member pointer <code> LHAweights * 
  Info::weights</code> and the vector <code> vector&lt;double&gt; 
- Info::weights_compressed</code>. More easy-to-use output functions are
- available. The size of this vector can be obtained from
+ Info::weights_compressed</code>. More easy-to-use output functions are 
+ available. The size of this vector can be obtained from 
 <br/><strong>unsigned int Info::getWeightsCompressedSize() &nbsp;</strong> <br/>
-  
-
+   
+ 
 <p/> 
-The n'th weight can be accessed through the method
+The n'th weight can be accessed through the method 
 <br/><strong>double Info::getWeightsCompressedValue(unsigned int n) &nbsp;</strong> <br/>
-  
-
+   
+ 
 <p/> 
-Attributes of the <code>&lt;weights&gt;</code> tag (not normally used) can be
-accessed via
+Attributes of the <code>&lt;weights&gt;</code> tag (not normally used) can be 
+accessed via 
 <br/><strong>string Info::getWeightsCompressedAttribute(string key, bool doRemoveWhitespace = false) &nbsp;</strong> <br/>
-Return the value of the <code>&lt;weights&gt;</code> tag's attribute
-named <code>key</code>. Setting <code>doRemoveWhitespace</code> to
-true will return the value, stripped of any whitespace. An empty string is
-returned if the attribute named <code>key</code> does not exist.
-  
-
+Return the value of the <code>&lt;weights&gt;</code> tag's attribute 
+named <code>key</code>. Setting <code>doRemoveWhitespace</code> to 
+true will return the value, stripped of any whitespace. An empty string is 
+returned if the attribute named <code>key</code> does not exist. 
+   
+ 
 <p/> 
- -- &nbsp; &nbsp; The <code>&lt;scales&gt;</code> tag: Contains information
- on different scales used by the matrix element generator. All the information
- stored in the tag can be retrieved by using the <code>Info</code> class member
- pointer <code> LHAweights * Info::scales</code>. More easy-to-use output
- functions are available. The contents of the scales tag can be obtained from
+ -- &nbsp; &nbsp; The <code>&lt;scales&gt;</code> tag: Contains information 
+ on different scales used by the matrix element generator. All the information 
+ stored in the tag can be retrieved by using the <code>Info</code> class 
+ member pointer <code> LHAweights * Info::scales</code>. More easy-to-use 
+ output functions are available. The contents of the scales tag can be 
+ obtained from 
 <br/><strong>string Info::getScalesValue() &nbsp;</strong> <br/>
-  
-
+   
+ 
 <p/> 
-However, note that the actual scale values are stored as attributes (called
-e.g. <code>muf</code> or <code>mur</code>). Attributes of the
-<code>&lt;scales&gt;</code> tag can be accessed via
+However, note that the actual scale values are stored as attributes (called 
+e.g. <code>muf</code> or <code>mur</code>). Attributes of the 
+<code>&lt;scales&gt;</code> tag can be accessed via 
 <br/><strong>double Info::getScalesAttribute(string key) &nbsp;</strong> <br/>
-Return the value of the <code>&lt;scales&gt;</code> tag's attribute
-named <code>key</code>. Not-a-number will be returned if the attribute
-named <code>key</code> does not exist.
-  
-
-<p/>
+Return the value of the <code>&lt;scales&gt;</code> tag's attribute 
+named <code>key</code>. Not-a-number will be returned if the attribute 
+named <code>key</code> does not exist. 
+   
+ 
+<p/> 
 Finally, arbitrary attributes of the <code>&lt;event&gt;</code> tag are 
 supported. Attributes of the <code>&lt;event&gt;</code> tag can be accessed by 
 <br/><strong>string Info::getEventAttribute(string key, bool doRemoveWhitespace = false) &nbsp;</strong> <br/>
-return the value of the event attribute named <code>key</code>. Setting
-<code>doRemoveWhitespace</code> to true will return the value, stripped of
+return the value of the event attribute named <code>key</code>. Setting 
+<code>doRemoveWhitespace</code> to true will return the value, stripped of 
 any whitespace. An empty string is returned if the attribute named 
-<code>key</code> does not exist.
+<code>key</code> does not exist. 
    
-
+ 
 <h3>Header information</h3> 
  
 A simple string key/value store, mainly intended for accessing 
@@ -1000,4 +1001,4 @@ set the header named <code>key</code> with the contents of <code>val</code>
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

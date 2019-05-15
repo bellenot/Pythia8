@@ -56,10 +56,9 @@ The PYTHIA library itself does not need to be recompiled.
  
 <br/><br/> 
 The <code>examples/main42.cc</code> sample program can then be used to 
-generate events in HepMC format (which <code>examples/main61.cc</code> 
-and <code>examples/main62.cc</code> extends by allowing LHAPDF usage 
-and subruns). When in the <code>examples</code> directory, the main program 
-can be built and used as follows 
+generate events in HepMC format (which <code>examples/main43.cc</code> 
+extends by allowing subruns). When in the <code>examples</code> directory, 
+the main program can be built and used as follows 
 <pre> 
   make main42 
   ./main42 main42.cmnd main42.hepmc 
@@ -96,4 +95,4 @@ Note that <code>main42</code> is run in the background.
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

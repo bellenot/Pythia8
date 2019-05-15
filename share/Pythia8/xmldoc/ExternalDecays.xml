@@ -67,6 +67,17 @@ production.
 A sample test program is available in <code>main17.cc</code>, providing 
 a simple example of how to use this facility. 
  
+<h3>EvtGen</h3> 
+ 
+The external <ei>B</ei> and <ei>C</ei>-hadron decay program EvtGen 
+performs a chain of decays, rather than single particle decays, to 
+propagate helicity information throughout the chain. Consequently, 
+EvtGen cannot be simply interfaced via the <code>DecayHandler</code> 
+class. A special class, <code>EvtGenDecays</code>, is provided 
+in <code>Pythia8Plugins</code> which can be called after an event has 
+been generated, to perform all remaining decays via EvtGen. An example 
+of how to use this class is provided in <code>main48.cc</code>. 
+ 
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

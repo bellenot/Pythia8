@@ -31,8 +31,8 @@ output.
  
 <p/> Please note that a detailed tutorial on merging in Pythia is available 
 from 
-<a href="http://home.thep.lu.se/~torbjorn/pythia8/mergingworksheet8160.pdf"> 
-http://home.thep.lu.se/~torbjorn/pythia8/mergingworksheet8160.pdf</a>. 
+<a href="http://home.thep.lu.se/Pythia/pythia8/mergingworksheet8160.pdf"> 
+http://home.thep.lu.se/Pythia/pythia8/mergingworksheet8160.pdf</a>. 
  
 <p/> Three very short LHE files (<code>w+_production_lhc_0.lhe</code>, 
 <code>w+_production_lhc_1.lhe</code>, <code>w+_production_lhc_2.lhe</code>) 
@@ -224,7 +224,7 @@ for hadronic collisions.
  
 <parm name="Merging:Dparameter" default="1.0"> 
 The value of the <ei>D</ei> parameter needed in the definition of 
-longitudinally invariant <ei>kT</ei> separation.
+longitudinally invariant <ei>kT</ei> separation. 
 </parm> 
  
 <modeopen name="Merging:nJetMax" default="0" min="0"> 
@@ -404,7 +404,7 @@ event is assumed to pass the merging scale cut.
 To perform CKKW-L matrix element merging, the user has to decide on a hard 
 process, and communicate this choice to Pythia. This is done by setting the 
 input <code>Merging:Process</code> 
-  
+ 
 <p/> 
 For single processes in the Standard Model or the MSSM, MG4/ME notation is 
 applicable. However, for some purposes, using a single simple process 
@@ -1095,4 +1095,4 @@ switch should not be used until electro-weak showers become available.
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

@@ -34,16 +34,16 @@ but appear here for documentation purposes, and so that they can
 form part of the standard databases and be queried accordingly. 
  
 <p/><code>parm&nbsp; </code><strong> Pythia:versionNumber &nbsp;</strong> 
- (<code>default = <strong>8.201</strong></code>)<br/>
+ (<code>default = <strong>8.204</strong></code>)<br/>
 Version and subversion number, with three significant decimals. 
    
  
 <p/><code>mode&nbsp; </code><strong> Pythia:versionDate &nbsp;</strong> 
- (<code>default = <strong>20141014</strong></code>)<br/>
+ (<code>default = <strong>20150122</strong></code>)<br/>
 Last date of change of current (sub)version, in format yyyymmdd. 
    
  
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 

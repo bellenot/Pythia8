@@ -1,5 +1,5 @@
 // Pythia.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2014 Torbjorn Sjostrand.
+// Copyright (C) 2015 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -22,7 +22,7 @@ namespace Pythia8 {
 //--------------------------------------------------------------------------
 
 // The current Pythia (sub)version number, to agree with XML version.
-const double Pythia::VERSIONNUMBERCODE = 8.201;
+const double Pythia::VERSIONNUMBERCODE = 8.204;
 
 //--------------------------------------------------------------------------
 
@@ -36,11 +36,11 @@ const int Pythia::NTRY          = 10;
 const int Pythia::SUBRUNDEFAULT = -999;
 
 //--------------------------------------------------------------------------
-  
+
 // Constructor.
 
 Pythia::Pythia(string xmlDir, bool printBanner) {
-    
+
   // Initial values for pointers to PDF's.
   useNewPdfA      = false;
   useNewPdfB      = false;
@@ -86,15 +86,21 @@ Pythia::Pythia(string xmlDir, bool printBanner) {
   spacePtr        = 0;
 
   // Find path to data files, i.e. xmldoc directory location.
-  // Environment variable takes precedence, else use constructor input.
-  xmlPath     = "";
+  // Environment variable takes precedence, then constructor input,
+  // and finally the pre-processor constant XMLDIR.
+  xmlPath = "";
   const char* PYTHIA8DATA = "PYTHIA8DATA";
   char* envPath = getenv(PYTHIA8DATA);
   if (envPath != 0 && *envPath != '\0') {
     int i = 0;
     while (*(envPath+i) != '\0') xmlPath += *(envPath+(i++));
+  } else {
+    if (xmlDir[ xmlDir.length() - 1 ] != '/') xmlDir += "/";
+    xmlPath = xmlDir;
+    ifstream xmlFile((xmlPath + "Index.xml").c_str());
+    if (!xmlFile.good()) xmlPath = XMLDIR;
+    xmlFile.close();
   }
-  else xmlPath = xmlDir;
   if (xmlPath[ xmlPath.length() - 1 ] != '/') xmlPath += "/";
 
   // Read in files with all flags, modes, parms and words.
@@ -133,21 +139,21 @@ Pythia::Pythia(string xmlDir, bool printBanner) {
   // Not initialized until at the end of the init() call.
   isInit = false;
   info.addCounter(0);
- 
+
 }
 
 //--------------------------------------------------------------------------
-  
+
 // Destructor.
 
 Pythia::~Pythia() {
 
   // Delete the PDF's created with new.
-  if (useNewPdfHard && pdfHardAPtr != pdfAPtr) delete pdfHardAPtr; 
-  if (useNewPdfHard && pdfHardBPtr != pdfBPtr) delete pdfHardBPtr; 
-  if (useNewPdfA) delete pdfAPtr; 
-  if (useNewPdfB) delete pdfBPtr; 
-  if (useNewPdfPomA) delete pdfPomAPtr; 
+  if (useNewPdfHard && pdfHardAPtr != pdfAPtr) delete pdfHardAPtr;
+  if (useNewPdfHard && pdfHardBPtr != pdfBPtr) delete pdfHardBPtr;
+  if (useNewPdfA) delete pdfAPtr;
+  if (useNewPdfB) delete pdfBPtr;
+  if (useNewPdfPomA) delete pdfPomAPtr;
   if (useNewPdfPomB) delete pdfPomBPtr;
 
   // Delete the Les Houches object created with new.
@@ -234,7 +240,7 @@ bool Pythia::readFile(istream& is, bool warn, int subrun) {
     if      (commentLine == +1)  isCommented = true;
     else if (commentLine == -1)  isCommented = false;
     else if (isCommented) ;
-   
+
     else {
       // Check whether entered new subrun.
       int subrunLine = readSubrun( line, warn);
@@ -292,21 +298,21 @@ bool Pythia::setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn,
   // By default same pointers for hard-process PDF's.
   pdfHardAPtr   = pdfAPtrIn;
   pdfHardBPtr   = pdfBPtrIn;
-  
+
   // Optionally allow separate pointers for hard process.
   if (pdfHardAPtrIn != 0 && pdfHardBPtrIn != 0) {
     if (pdfHardAPtrIn == pdfHardBPtrIn) return false;
     pdfHardAPtr = pdfHardAPtrIn;
     pdfHardBPtr = pdfHardBPtrIn;
   }
-  
+
   // Optionally allow pointers for Pomerons in the proton.
   if (pdfPomAPtrIn != 0 && pdfPomBPtrIn != 0) {
     if (pdfPomAPtrIn == pdfPomBPtrIn) return false;
     pdfPomAPtr  = pdfPomAPtrIn;
     pdfPomBPtr  = pdfPomBPtrIn;
   }
-  
+
   // Done.
   return true;
 }
@@ -359,7 +365,7 @@ bool Pythia::init() {
     pxB       = parm("Beams:pxB");
     pyB       = parm("Beams:pyB");
     pzB       = parm("Beams:pzB");
-  
+
    // Initialization with a Les Houches Event File or an LHAup object.
   } else {
     doLHA     = true;
@@ -378,7 +384,7 @@ bool Pythia::init() {
       else {
         if (useNewLHA) delete lhaUpPtr;
         // Header is optional, so use NULL pointer to indicate no value.
-        const char* cstring2 = (lhefHeader == "void") 
+        const char* cstring2 = (lhefHeader == "void")
           ? NULL : lhefHeader.c_str();
         lhaUpPtr   = new LHAupLHEF(&info, cstring1, cstring2,
           readHeaders, setScales);
@@ -535,8 +541,8 @@ bool Pythia::init() {
   nErrList         = settings.mode("Check:nErrList");
   epTolErr         = settings.parm("Check:epTolErr");
   epTolWarn        = settings.parm("Check:epTolWarn");
-  mTolErr         = settings.parm("Check:mTolErr");
-  mTolWarn        = settings.parm("Check:mTolWarn");
+  mTolErr          = settings.parm("Check:mTolErr");
+  mTolWarn         = settings.parm("Check:mTolWarn");
 
   // Initialise merging hooks.
   if ( doMerging && (hasMergingHooks || hasOwnMergingHooks) )
@@ -614,7 +620,7 @@ bool Pythia::init() {
   // Do not set up beam kinematics when no process level.
   if (!doProcessLevel) boostType = 1;
   else {
-    
+
     // Set up beam kinematics.
     if (!initKinematics()) {
       info.errorMsg("Abort from Pythia::init: "
@@ -627,7 +633,7 @@ bool Pythia::init() {
       info.errorMsg("Abort from Pythia::init: PDF initialization failed");
       return false;
     }
-  
+
     // Set up the two beams and the common remnant system.
     StringFlav* flavSelPtr = hadronLevel.getStringFlavPtr();
     beamA.init( idA, pzAcm, eA, mA, &info, settings, &particleData, &rndm,
@@ -695,7 +701,7 @@ bool Pythia::init() {
       "hadronLevel initialization failed");
     return false;
   }
-   
+
   // Optionally check particle data table for inconsistencies.
   if ( settings.flag("Check:particleData") )
     particleData.checkTable( settings.mode("Check:levelParticleData") );
@@ -834,7 +840,7 @@ bool Pythia::initKinematics() {
     MtoCM = MfromCM;
     MtoCM.invert();
   }
- 
+
   // Fail if CM energy below beam masses.
   if (eCM < mA + mB) {
     info.errorMsg("Error in Pythia::initKinematics: too low energy");
@@ -1010,6 +1016,12 @@ bool Pythia::next() {
   beamPomA.clear();
   beamPomB.clear();
 
+  // Pick current beam valence flavours (for pi0, K0S, K0L, Pomeron).
+  beamA.newValenceContent();
+  beamB.newValenceContent();
+  beamPomA.newValenceContent();
+  beamPomB.newValenceContent();
+
   // Can only generate event if initialization worked.
   if (!isInit) {
     info.errorMsg("Abort from Pythia::next: "
@@ -1107,6 +1119,10 @@ bool Pythia::next() {
 
       // Parton-level evolution: ISR, FSR, MPI.
       if ( !partonLevel.next( process, event) ) {
+
+        // Abort event generation if parton level is set to abort.
+        if (info.getAbortPartonLevel()) return false;
+        
         // Skip to next hard process for failure owing to deliberate veto,
         // or alternatively retry for the same hard process.
         hasVetoed = partonLevel.hasVetoed();
@@ -1173,7 +1189,7 @@ bool Pythia::next() {
         continue;
       }
       info.addCounter(17);
- 
+
       // Optionally check final event for problems.
       if (checkEvent && !check()) {
         info.errorMsg("Error in Pythia::next: "
@@ -1250,7 +1266,7 @@ bool Pythia::forceHadronLevel(bool findJunctions) {
 
   // Save spare copy of event in case of failure.
   Event spareEvent = event;
-  
+
   // Allow up to ten tries for hadron-level processing.
   bool physical = true;
   for (int iTry = 0; iTry < NTRY; ++ iTry) {
@@ -1279,7 +1295,7 @@ bool Pythia::forceHadronLevel(bool findJunctions) {
     physical = false;
     event    = spareEvent;
   }
-   
+
   // Done for simpler option.
   if (!physical)  {
     info.errorMsg("Abort from Pythia::forceHadronLevel: "
@@ -1444,7 +1460,7 @@ void Pythia::banner(ostream& os) {
   strftime(dateNow,12,"%d %b %Y",localtime(&t));
   char timeNow[9];
   strftime(timeNow,9,"%H:%M:%S",localtime(&t));
-  
+
   os << "\n"
      << " *-------------------------------------------"
      << "-----------------------------------------* \n"
@@ -1535,8 +1551,8 @@ void Pythia::banner(ostream& os) {
      << "                                      |  | \n"
      << " |  |   An archive of program versions and do"
      << "cumentation is found on the web:      |  | \n"
-     << " |  |   http://www.thep.lu.se/~torbjorn/Pythi"
-     << "a.html                                |  | \n"
+     << " |  |   http://www.thep.lu.se/Pythia         "
+     << "                                      |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
      << " |  |   This program is released under the GN"
@@ -1551,7 +1567,7 @@ void Pythia::banner(ostream& os) {
      << " when interpreting results.           |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
-     << " |  |   Copyright (C) 2014 Torbjorn Sjostrand"
+     << " |  |   Copyright (C) 2015 Torbjorn Sjostrand"
      << "                                      |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
@@ -1632,7 +1648,7 @@ int Pythia::readCommented(string line) {
   // If first two nontrivial characters are /* or */ then done.
   if (line.substr(firstChar, 2) == "/*") return +1;
   if (line.substr(firstChar, 2) == "*/") return -1;
-  
+
   // Else done.
   return 0;
 
@@ -1715,8 +1731,8 @@ bool Pythia::check(ostream& os) {
     if (abs(event[i].px()) >= 0. && abs(event[i].py()) >= 0.
       && abs(event[i].pz()) >= 0.  && abs(event[i].e()) >= 0.
       && abs(event[i].m()) >= 0.) {
-      double errMass = abs(event[i].mCalc() - event[i].m()) 
-        / max( 1.0, event[i].e()); 
+      double errMass = abs(event[i].mCalc() - event[i].m())
+        / max( 1.0, event[i].e());
       if (errMass > mTolErr) {
         info.errorMsg("Error in Pythia::check: "
           "unmatched particle energy/momentum/mass");
@@ -1948,15 +1964,15 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam) {
 
   // Proton beam, normal or hard choice. Also used for neutron.
   if (abs(idIn) == 2212 || abs(idIn) == 2112) {
-    string pSet = settings.word("PDF:p" + string(sequence == 1 ? "" : "Hard") + 
-				"Set" + beam);
-    if (pSet == "void" && sequence != 1 && beam == "B") 
+    string pSet = settings.word("PDF:p" 
+      + string(sequence == 1 ? "" : "Hard") + "Set" + beam);
+    if (pSet == "void" && sequence != 1 && beam == "B")
       pSet = settings.word("PDF:pHardSet");
     if (pSet == "void") pSet = settings.word("PDF:pSet");
     istringstream pSetStream(pSet);
     int pSetInt(0);
     pSetStream >> pSetInt;
-    
+
     // Use sets from LHAPDF.
     if (pSetInt == 0)
       tempPDFPtr = new LHAPDF(idIn, pSet, &info);
@@ -2005,7 +2021,7 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam) {
       tempPDFPtr = new PomFix( 990, gluonA, gluonB, quarkA, quarkB,
         quarkFrac, strangeSupp);
     }
-    
+
     // The H1 Q2-dependent parametrizations. Initialization requires files.
     else if (pomSet == 3 || pomSet == 4)
       tempPDFPtr = new PomH1FitAB( 990, pomSet - 2, rescale, xmlPath, &info);
@@ -2023,9 +2039,9 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam) {
   }
 
   // Optionally allow extrapolation beyond x and Q2 limits.
-  if (tempPDFPtr) 
+  if (tempPDFPtr)
     tempPDFPtr->setExtrapolate( settings.flag("PDF:extrapolate") );
-  
+
   // Done.
   return tempPDFPtr;
 }

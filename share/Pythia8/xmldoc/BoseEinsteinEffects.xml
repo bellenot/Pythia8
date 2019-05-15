@@ -69,12 +69,12 @@ marked as decayed. This means that if you e.g. search for all
 One way to protect yourself from unwanted doublecounting is to 
 use only particles with a positive status code, i.e. ones for which 
 <code>event[i].isFinal()</code> is <code>true</code>. 
-   
+ 
  
 <h3>Main parameters</h3> 
-
-Assuming you have set <code>HadronLevel:BoseEinstein = on</code>,
-you can regulate the detailed behaviour with the following settings.
+ 
+Assuming you have set <code>HadronLevel:BoseEinstein = on</code>, 
+you can regulate the detailed behaviour with the following settings. 
  
 <flag name="BoseEinstein:Pion" default="on"> 
 Include effects or not for identical <ei>pi^+</ei>, <ei>pi^-</ei> 
@@ -115,5 +115,5 @@ The default has been picked such that both <ei>rho</ei> and
  
 </chapter> 
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
  

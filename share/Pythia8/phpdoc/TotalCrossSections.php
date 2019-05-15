@@ -85,9 +85,9 @@ dependence is then parametrized, and behaves roughly like
 (<code>= 5</code>) has its own parametrization. 
    
  
-<br/><br/><strong>SigmaTotal:zeroAXB</strong>  <input type="radio" name="2" value="on"><strong>On</strong>
-<input type="radio" name="2" value="off" checked="checked"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+<br/><br/><strong>SigmaTotal:zeroAXB</strong>  <input type="radio" name="2" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="2" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 several existing <?php $filepath = $_GET["filepath"];
 echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>tunes</a> do not include CD. 
 An inclusion of a nonvanishing CD cross section directly affects 
@@ -154,9 +154,9 @@ here allows one way to introduce a dampening, which is used in some
 of the existing <?php $filepath = $_GET["filepath"];
 echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>tunes</a>. 
  
-<br/><br/><strong>SigmaDiffractive:dampen</strong>  <input type="radio" name="10" value="on"><strong>On</strong>
+<br/><br/><strong>SigmaDiffractive:dampen</strong>  <input type="radio" name="10" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="10" value="off"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>no</strong></code>)<br/>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow a user to dampen diffractive cross sections; on/off = true/false. 
    
  
@@ -171,15 +171,15 @@ This reduces to <i>sigma_old(s)</i> at low energies and to
 <i>sigma_max</i> at high ones. Note that the asymptotic value 
 is approached quite slowly, however. 
  
-<br/><br/><table><tr><td><strong>SigmaDiffractive:maxXB </td><td></td><td> <input type="text" name="11" value="15." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaDiffractive:maxXB </td><td></td><td> <input type="text" name="11" value="65." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>65.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The above <i>sigma_max</i> for <i>A + B &rarr; X + B</i> in mb. 
    
  
-<br/><br/><table><tr><td><strong>SigmaDiffractive:maxAX </td><td></td><td> <input type="text" name="12" value="15." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaDiffractive:maxAX </td><td></td><td> <input type="text" name="12" value="65." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>65.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The above <i>sigma_max</i> for <i>A + B &rarr; A + X</i> in mb. 
    
  
-<br/><br/><table><tr><td><strong>SigmaDiffractive:maxXX </td><td></td><td> <input type="text" name="13" value="15." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SigmaDiffractive:maxXX </td><td></td><td> <input type="text" name="13" value="65." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>65.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The above <i>sigma_max</i> for <i>A + B &rarr; X_1 + X_2</i> in mb. 
    
  
@@ -192,7 +192,7 @@ As above, a reduced diffractive cross section automatically translates
 into an increased nondiffractive one, such that the total (and elastic) 
 cross section remains fixed. 
  
-  
+ 
 <h3>Set elastic cross section</h3> 
  
 <p/> 
@@ -264,7 +264,7 @@ if($_POST["1"] != "1.5")
 $data = "SigmaTotal:sigmaAXB2TeV = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "off")
+if($_POST["2"] != "on")
 {
 $data = "SigmaTotal:zeroAXB = ".$_POST["2"]."\n";
 fwrite($handle,$data);
@@ -304,22 +304,22 @@ if($_POST["9"] != "1.")
 $data = "SigmaTotal:sigmaAXB = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["10"] != "no")
+if($_POST["10"] != "on")
 {
 $data = "SigmaDiffractive:dampen = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["11"] != "15.")
+if($_POST["11"] != "65.")
 {
 $data = "SigmaDiffractive:maxXB = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "15.")
+if($_POST["12"] != "65.")
 {
 $data = "SigmaDiffractive:maxAX = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "15.")
+if($_POST["13"] != "65.")
 {
 $data = "SigmaDiffractive:maxXX = ".$_POST["13"]."\n";
 fwrite($handle,$data);
@@ -366,4 +366,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
