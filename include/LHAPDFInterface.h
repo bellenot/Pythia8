@@ -1,5 +1,5 @@
 // LHAPDFInterface.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -37,7 +37,7 @@ class LHAPDFInterface {
 
 public:
 
-  // Initialize set with full parthname, allowing multiple sets.
+  // Initialize set with full pathname, allowing multiple sets.
   static void initPDFsetM( int nSet, string name) {
     const char* cName = name.c_str(); int lenName = name.length();
     initpdfsetm_( nSet, cName, lenName);

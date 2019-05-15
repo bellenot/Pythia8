@@ -1,5 +1,5 @@
 // BeamParticle.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -15,80 +15,63 @@ namespace Pythia8 {
 // The BeamParticle class.
 
 //*********
- 
-// Definitions of static variables.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-
-int          BeamParticle::maxValQuark           = 3;
-double       BeamParticle::valencePowerMeson     = 0.8;
-double       BeamParticle::valencePowerUinP      = 3.5;
-double       BeamParticle::valencePowerDinP      = 2.0;
-double       BeamParticle::valenceDiqEnhance     = 2.0;
-int          BeamParticle::companionPower        = 4;
-bool         BeamParticle::allowJunction         = true;
-double       BeamParticle::pickQuarkNorm         = 5.;
-double       BeamParticle::pickQuarkPower        = 1.;
-double       BeamParticle::diffPrimKTwidth       = 0.5;
-double       BeamParticle::diffLargeMassSuppress = 2.;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
 // A lepton that takes (almost) the full beam energy does not leave a remnant.
-const double BeamParticle::XMINUNRESOLVED        = 1. - 1e-10;
+const double BeamParticle::XMINUNRESOLVED = 1. - 1e-10;
 
 //*********
 
-// Initialize static data members.
-
-void BeamParticle::initStatic() {
-
-  // Maximum quark kind in allowed incoming beam hadrons.
-  maxValQuark       = Settings::mode("Beams:maxValQuark");
-
-  // Power of (1-x)^power/sqrt(x) for remnant valence quark distribution.
-  valencePowerMeson = Settings::parm("Beams:valencePowerMeson");
-  valencePowerUinP  = Settings::parm("Beams:valencePowerUinP");
-  valencePowerDinP  = Settings::parm("Beams:valencePowerDinP");
-
-  // Enhancement factor of x of diquark.
-  valenceDiqEnhance = Settings::parm("Beams:valenceDiqEnhance");
-
-  // Assume g(x) ~ (1-x)^power/x to constrain companion to sea quark.
-  companionPower    = Settings::mode("Beams:companionPower");
-
-  // Assume g(x) ~ (1-x)^power/x to constrain companion to sea quark.
-  companionPower    = Settings::mode("Beams:companionPower");
-
-  // Allow or not more than two valence quarks to be kicked out.
-  allowJunction     = Settings::flag("Beams:allowJunction");
-
-  // For diffractive system kick out q/g = norm / mass^power.
-  pickQuarkNorm     = Settings::parm("Beams:pickQuarkNorm");
-  pickQuarkPower    = Settings::parm("Beams:pickQuarkPower");
-
-  // Width of primordial kT distribution in diffractive systems.
-  diffPrimKTwidth   = Settings::parm("Beams:diffPrimKTwidth");
-
-  // Suppress large masses of beam remnant in diffractive systems. 
-  diffLargeMassSuppress = Settings::parm("Beams:diffLargeMassSuppress");
-}
-
-//*********
-
-// Initialize data on a beam particle.
+// Initialize data on a beam particle and save pointers.
 
 void BeamParticle::init( int idIn, double pzIn, double eIn, double mIn, 
-  PDF* pdfInPtr, PDF* pdfHardInPtr, bool isUnresolvedIn) {
+  Info* infoPtrIn, PDF* pdfInPtr, PDF* pdfHardInPtr, 
+  bool isUnresolvedIn, StringFlav* flavSelPtrIn) {
+
+  // Store input pointers (and one bool) for future use. 
+  infoPtr           = infoPtrIn;
+  pdfBeamPtr        = pdfInPtr;
+  pdfHardBeamPtr    = pdfHardInPtr;
+  isUnresolvedBeam  = isUnresolvedIn; 
+  flavSelPtr        = flavSelPtrIn;
+
+  // Maximum quark kind in allowed incoming beam hadrons.
+  maxValQuark       = Settings::mode("BeamRemnants:maxValQuark");
+
+  // Power of (1-x)^power/sqrt(x) for remnant valence quark distribution.
+  valencePowerMeson = Settings::parm("BeamRemnants:valencePowerMeson");
+  valencePowerUinP  = Settings::parm("BeamRemnants:valencePowerUinP");
+  valencePowerDinP  = Settings::parm("BeamRemnants:valencePowerDinP");
+
+  // Enhancement factor of x of diquark.
+  valenceDiqEnhance = Settings::parm("BeamRemnants:valenceDiqEnhance");
+
+  // Assume g(x) ~ (1-x)^power/x to constrain companion to sea quark.
+  companionPower    = Settings::mode("BeamRemnants:companionPower");
+
+  // Assume g(x) ~ (1-x)^power/x to constrain companion to sea quark.
+  companionPower    = Settings::mode("BeamRemnants:companionPower");
+
+  // Allow or not more than one valence quark to be kicked out.
+  allowJunction     = Settings::flag("BeamRemnants:allowJunction");
+
+  // For diffractive system kick out q/g = norm / mass^power.
+  pickQuarkNorm     = Settings::parm("BeamRemnants:pickQuarkNorm");
+  pickQuarkPower    = Settings::parm("BeamRemnants:pickQuarkPower");
+
+  // Width of primordial kT distribution in diffractive systems.
+  diffPrimKTwidth   = Settings::parm("BeamRemnants:diffPrimKTwidth");
+
+  // Suppress large masses of beam remnant in diffractive systems. 
+  diffLargeMassSuppress = Settings::parm("BeamRemnants:diffLargeMassSuppress");
 
   // Store info on the incoming beam.
-  idBeam           = idIn; 
+  idBeam            = idIn; 
   initBeamKind(); 
-  pBeam            = Vec4( 0., 0., pzIn, eIn); 
-  mBeam            = mIn; 
-  pdfBeamPtr       = pdfInPtr;
-  pdfHardBeamPtr   = pdfHardInPtr;
-  isUnresolvedBeam = isUnresolvedIn; 
+  pBeam             = Vec4( 0., 0., pzIn, eIn); 
+  mBeam             = mIn; 
 
 }
 
@@ -473,7 +456,7 @@ bool BeamParticle::remnantFlavours(Event& event) {
     } 
 
     // Pick spin 0 or 1 according to SU(6) wave function factors.
-    int idDq = StringFlav::makeDiquark( resolved[iQ1].id(),
+    int idDq = flavSelPtr->makeDiquark( resolved[iQ1].id(),
       resolved[iQ2].id(), idBeam);
 
     // Overwrite with diquark flavour and remove one slot. No more junction.
@@ -662,7 +645,7 @@ bool BeamParticle::remnantColours(Event& event, vector<int>& colFrom,
 
   // Any other nonvanishing values indicate failure.
   } else if (colList.size() > 0 || acolList.size() > 0) {
-    ErrorMsg::message("Error in BeamParticle::remnantColours: "
+    infoPtr->errorMsg("Error in BeamParticle::remnantColours: "
       "leftover unmatched colours"); 
     return false;
   }
@@ -784,7 +767,7 @@ bool BeamParticle::isUnresolvedLepton() {
  
   // Require record to consist of lepton with full energy plus a photon. 
   if (!isLeptonBeam || resolved.size() > 2 || resolved[1].id() != 22
-    && resolved[0].x() < XMINUNRESOLVED) return false; 
+    || resolved[0].x() < XMINUNRESOLVED) return false; 
   return true;
   
 }
@@ -826,7 +809,7 @@ int BeamParticle::pickValence() {
   }
 
   // Construct diquark if baryon.
-  if (idVal3 != 0) idVal2 = StringFlav::makeDiquark( idVal2, idVal3);
+  if (idVal3 != 0) idVal2 = flavSelPtr->makeDiquark( idVal2, idVal3);
 
   // Done.
   return idVal1;

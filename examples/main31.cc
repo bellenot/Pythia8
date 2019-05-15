@@ -1,5 +1,5 @@
 // main31.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Mikhail Kirsanov, Torbjorn Sjostrand.
+// Copyright (C) 2008 Mikhail Kirsanov, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -14,7 +14,12 @@
 #include "HepMCInterface.h"
 
 #include "HepMC/GenEvent.h"
+
+// IO_Ascii works both with HepMC version 1 and 2, but does not write PDF info.
 #include "HepMC/IO_Ascii.h"
+// IO_ExtendedAscii.h works only with HepMC version 2, and writes PDF info.
+//#include "HepMC/IO_ExtendedAscii.h" 
+
 //#include "HepMC/IO_AsciiParticles.h"
 
 using namespace Pythia8; 
@@ -24,12 +29,15 @@ int main() {
   //  ToHepMC.set_crash_on_problem();
 
   // Specify file where HepMC events will be stored.
+  // For HepMC version 1 only use IO_Ascii, else free to choose.
   HepMC::IO_Ascii ascii_io("hepmcout31.dat",std::ios::out);
+  //HepMC::IO_ExtendedAscii ascii_io("hepmcout31.dat",std::ios::out);
+
+  // Not used.
   // HepMC::IO_AsciiParticles ascii_io("hepmcout31.dat",std::ios::out);
 
   // Generator. Process selection. LHC initialization. Histogram.
   Pythia pythia;
-  Event& event = pythia.event;
   pythia.readString("HardQCD:all = on");    
   pythia.readString("PhaseSpace:pTHatMin = 20.");    
   pythia.init( 2212, 2212, 14000.);
@@ -45,9 +53,15 @@ int main() {
         ++nCharged; 
     mult.fill( nCharged );
 
-    // Convert event record to HepMC format and output to file.
+    // Convert event record to HepMC format.
     HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
-    ToHepMC.fill_next_event( event, hepmcevt );
+
+    // With this command only the event record is converted (HepMC 1 or 2).
+    ToHepMC.fill_next_event( pythia.event, hepmcevt );
+    // With this command also parton-density information is stored (HepMC 2).
+    //ToHepMC.fill_next_event( pythia, hepmcevt );
+
+    // Output to file.
     ascii_io << hepmcevt;
     delete hepmcevt;
 

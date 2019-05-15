@@ -1,5 +1,5 @@
 // TimeShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,6 +13,7 @@
 #include "Basics.h"
 #include "BeamParticle.h"
 #include "Event.h"
+#include "Info.h"
 #include "ParticleData.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
@@ -32,17 +33,17 @@ public:
   TimeDipoleEnd() : iRadiator(-1), iRecoiler(-1), pTmax(0.), colType(0), 
     chgType(0), gamType(0), isrType(0), system(0), MEtype(0), 
     iMEpartner(-1), isOctetOnium(false), MEmix(0.), MEorder(true), 
-    MEsplit(true), MEgluinoDau(false) { }  
+    MEsplit(true), MEgluinoRec(false) { }  
   TimeDipoleEnd(int iRadiatorIn, int iRecoilerIn, double pTmaxIn = 0., 
     int colIn = 0, int chgIn = 0, int gamIn = 0, int isrIn = 0, 
     int systemIn = 0, int MEtypeIn = 0, int iMEpartnerIn = -1, 
     bool isOctetOniumIn = false, double MEmixIn = 0., bool MEorderIn = true, 
-    bool MEsplitIn = true, bool MEgluinoDauIn = false) : 
+    bool MEsplitIn = true, bool MEgluinoRecIn = false) : 
     iRadiator(iRadiatorIn), iRecoiler(iRecoilerIn), pTmax(pTmaxIn), 
     colType(colIn), chgType(chgIn), gamType(gamIn), isrType(isrIn), 
     system(systemIn), MEtype(MEtypeIn), iMEpartner(iMEpartnerIn), 
     isOctetOnium(isOctetOniumIn), MEmix(MEmixIn), MEorder (MEorderIn), 
-    MEsplit(MEsplitIn), MEgluinoDau(MEgluinoDauIn) { }
+    MEsplit(MEsplitIn), MEgluinoRec(MEgluinoRecIn) { }
 
   // Basic properties related to dipole and matrix element corrections.
   int    iRadiator, iRecoiler;
@@ -50,7 +51,7 @@ public:
   int    colType, chgType, gamType, isrType, system, MEtype, iMEpartner;
   bool   isOctetOnium;
   double MEmix;
-  bool   MEorder, MEsplit, MEgluinoDau;
+  bool   MEorder, MEsplit, MEgluinoRec;
 
   // Properties specific to current trial emission.
   int    flavour, iAunt;
@@ -72,6 +73,10 @@ public:
 
   // Destructor.
   virtual ~TimeShower() {}
+
+  // Initialize pointer to Info for error messages. 
+  // (Separated from rest of init since not virtual.)
+  void initPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;}
 
   // Initialize alphaStrong and related pTmin parameters.
   virtual void init( BeamParticle* beamAPtrIn = 0, 
@@ -103,6 +108,9 @@ public:
 
 protected:
 
+  // Pointer to various information on the generation.
+  Info* infoPtr;
+
   // Pointers to the two incoming beams.
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
@@ -113,7 +121,8 @@ protected:
 private:
 
   // Constants: could only be changed in the code itself.
-  static const double SIMPLIFYROOT, XMARGIN, TINYPDF, LARGEM2;
+  static const double SIMPLIFYROOT, XMARGIN, XMARGINCOMB, TINYPDF, LARGEM2, 
+         THRESHM2, LAMBDA3MARGIN;
 
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, doQEDshowerByGamma, 

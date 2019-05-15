@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Random Numbers</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -96,4 +98,4 @@ generator is provided in <code>main24.cc</code>.
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

@@ -1,5 +1,5 @@
 // main03.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -25,17 +25,14 @@ int main() {
   pythia.readFile("main03.cmnd");    
 
   // Extract settings to be used in the main program.
-  int    idBeamA = pythia.mode("Main:idBeamA");
-  int    idBeamB = pythia.mode("Main:idBeamB");
-  double eCM     = pythia.parm("Main:eCM");
   int    nEvent  = pythia.mode("Main:numberOfEvents");
   int    nList   = pythia.mode("Main:numberToList");
   int    nShow   = pythia.mode("Main:timesToShow");
   bool   showCS  = pythia.flag("Main:showChangedSettings");
   bool   showCPD = pythia.flag("Main:showChangedParticleData");
 
-  // Initialize.
-  pythia.init( idBeamA, idBeamB, eCM);
+  // Initialize. Beam parameters set in .cmnd file.
+  pythia.init();
 
   // List changed data.
   if (showCS) pythia.settings.listChanged();

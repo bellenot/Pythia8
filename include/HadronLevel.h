@@ -1,5 +1,5 @@
 // HadronLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -12,8 +12,9 @@
 #include "Basics.h"
 #include "BoseEinstein.h"
 #include "Event.h"
+#include "FragmentationFlavZpT.h"
 #include "FragmentationSystems.h"
-#include "Information.h"
+#include "Info.h"
 #include "MiniStringFragmentation.h"
 #include "ParticleData.h"
 #include "ParticleDecays.h"
@@ -39,6 +40,9 @@ public:
   // Initialize HadronLevel classes as required.
   bool init(Info* infoPtrIn, TimeShower* timesDecPtr,
     DecayHandler* decayHandlePtr, vector<int> handledParticles);
+
+  // Get pointer to StringFlav instance (needed by BeamParticle).
+  StringFlav* getStringFlavPtr() {return &flavSel;}
  
   // Generate the next event.
   bool next(Event& event); 
@@ -79,6 +83,11 @@ private:
 
   // The generator class for Bose-Einstein effects. 
   BoseEinstein boseEinstein;
+
+  // Classes for flavour, pT and z generation.
+  StringFlav flavSel;
+  StringPT   pTSel;
+  StringZ    zSel;
 
   // Special case: colour-octet onium decays, to be done initially.
   bool decayOctetOnia(Event& event);

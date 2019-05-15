@@ -1,5 +1,5 @@
 // BoseEinstein.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -39,7 +39,10 @@ const int    BoseEinstein::NCOMPSTEP  = 10;
 
 // Find settings. Precalculate table used to find momentum shifts.
 
-bool BoseEinstein::init() {
+bool BoseEinstein::init(Info* infoPtrIn) {
+
+  // Save pointer.
+  infoPtr  = infoPtrIn;
 
   // Main flags.
   doPion   = Settings::flag("BoseEinstein:Pion");
@@ -180,7 +183,7 @@ bool BoseEinstein::shiftEvent( Event& event) {
   // Error if no convergence, and then return without doing BE shift.
   // However, not grave enough to kill event, so return true. 
   if ( abs(eSumShifted - eSumOriginal) > COMPRELERR * eSumOriginal ) {
-    ErrorMsg::message("Warning in BoseEinstein::shiftEvent: "
+    infoPtr->errorMsg("Warning in BoseEinstein::shiftEvent: "
       "no consistent BE shift topology found, so skip BE"); 
     return true;
   }

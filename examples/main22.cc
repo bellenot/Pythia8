@@ -1,5 +1,5 @@
 // main22.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2008 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -22,20 +22,18 @@ int main() {
   pythia.readFile("main22.cmnd");    
 
   // Extract settings to be used in the main program.
-  int idBeamA = settings.mode("Main:idBeamA");
-  int idBeamB = settings.mode("Main:idBeamB");
-  double eCM = settings.parm("Main:eCM");
   int nEvent = settings.mode("Main:numberOfEvents");
-  int nList = settings.mode("Main:numberToList");
-  int nShow = settings.mode("Main:timesToShow");
+  int nList  = settings.mode("Main:numberToList");
+  int nShow  = settings.mode("Main:timesToShow");
   bool showChangedSettings = settings.flag("Main:showChangedSettings");
   bool showAllSettings = settings.flag("Main:showAllSettings");
   bool showChangedParticleData 
     = settings.flag("Main:showChangedParticleData");
   bool showAllParticleData = settings.flag("Main:showAllParticleData");
+  double eCM = settings.parm("Beams:eCM");
 
-  // Initialization.
-  pythia.init( idBeamA, idBeamB, eCM);
+  // Initialize. Beam parameters set in .cmnd file.
+  pythia.init();
 
   // List changed data.
   if (showChangedSettings) settings.listChanged();

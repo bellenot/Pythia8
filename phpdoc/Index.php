@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Index</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -25,27 +27,29 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 <form method='post' action='Index.php'>
 
-<img src='pythiapicture.gif' alt='Pythia picture' hspace=10/>
+<img src='pythia99.gif' alt='Pythia logo' hspace=10/>
 
 <h2>PYTHIA 8 Index</h2>
 
-<h3><a href="pythia8100.pdf" target="page">Brief Introduction</a> (pdf)</h3>
+<h4><a href="pythia8100.pdf" target="page">Brief Introduction</a> (pdf)</h4>
 
-<h3>Program Overview</h3>
+<h4>Program Overview</h4>
 
 <a href='Frontpage.php?filepath=".$filepath."' target='page'>Frontpage</a><br/>
 <a href='ProgramFlow.php?filepath=".$filepath."' target='page'>Program Flow</a><br/>
 <a href='SettingsScheme.php?filepath=".$filepath."' target='page'>Settings Scheme</a><br/>
 <a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>Particle Data Scheme</a><br/>
 <a href='ProgramFiles.php?filepath=".$filepath."' target='page'>Program Files</a><br/>
+<a href='SampleMainPrograms.php?filepath=".$filepath."' target='page'>Sample Main Programs</a><br/>
 
-<h3>Setup Run Tasks</h3>
+<h4>Setup Run Tasks</h4>
 
 <?php
 $filepath = "files/".$_GET["filename"];
 $filename = $_GET["filename"];
 echo "<a href='SaveSettings.php?returning=1&filename=".$filename."' target='page'><b>Save Settings</b></a><br/>
 <a href='MainProgramSettings.php?filepath=".$filepath."' target='page'>Main-Program Settings</a><br/>
+<a href='BeamParameters.php?filepath=".$filepath."' target='page'>Beam Parameters</a><br/>
 <a href='RandomNumberSeed.php?filepath=".$filepath."' target='page'>Random-Number Seed</a><br/>
 <a href='PDFSelection.php?filepath=".$filepath."' target='page'>PDF Selection</a><br/>
 <a href='MasterSwitches.php?filepath=".$filepath."' target='page'>Master Switches</a><br/>
@@ -94,7 +98,7 @@ echo "<a href='SaveSettings.php?returning=1&filename=".$filename."' target='page
 
 ";?>
 
-<h3>Study Output</h3>
+<h4>Study Output</h4>
 
 <?php
 $filepath = "files/".$_GET["filename"];
@@ -110,7 +114,7 @@ echo "<a href='FourVectors.php?filepath=".$filepath."' target='page'>Four-Vector
 
 ";?>
 
-<h3>Link to Other Programs</h3>
+<h4>Link to Other Programs</h4>
 
 <?php
 $filepath = "files/".$_GET["filename"];
@@ -121,6 +125,7 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Ho
 <a href='SemiInternalResonances.php?filepath=".$filepath."' target='page'>Semi-Internal Resonances</a><br/>
 <a href='HadronLevelStandalone.php?filepath=".$filepath."' target='page'>Hadron-Level Standalone</a><br/>
 <a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>SUSY Les Houches Accord</a><br/>
+<a href='BeamShape.php?filepath=".$filepath."' target='page'>Beam Shape</a><br/>
 <a href='PartonDistributions.php?filepath=".$filepath."' target='page'>Parton Distributions</a><br/>
 <a href='ExternalDecays.php?filepath=".$filepath."' target='page'>External Decays</a><br/>
 <a href='UserHooks.php?filepath=".$filepath."' target='page'>User Hooks</a><br/>
@@ -129,16 +134,15 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Ho
 
 ";?>
 
-<h3>Reference Materiel</h3>
+<h4>Reference Materiel</h4>
 
+<a href='PYTHIA6TranslationTable.php?filepath=".$filepath."' target='page'>PYTHIA 6 Translation Table</a><br/>
+<a href='UpdateHistory.php?filepath=".$filepath."' target='page'>Update History</a><br/>
 <a href='Bibliography.php?filepath=".$filepath."' target='page'>Bibliography</a><br/>
-<a href='Glossary.php?filepath=".$filepath."' target='page'>Glossary</a>
-
-<h3>Internal</h3>
-
-<a href='Version.php?filepath=".$filepath."' target='page'>Version</a><br/>
+<a href='Glossary.php?filepath=".$filepath."' target='page'>Glossary</a><br/>
+<a href='Version.php?filepath=".$filepath."' target='page'>Version</a>
 
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

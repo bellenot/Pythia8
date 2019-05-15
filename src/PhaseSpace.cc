@@ -1,5 +1,5 @@
 // PhaseSpace.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -16,20 +16,6 @@ namespace Pythia8 {
 // Base class for phase space generators.
 
 //*********
- 
-// Definitions of static variables and functions.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-
-bool   PhaseSpace::useBreitWigners      = true;
-bool   PhaseSpace::showSearch           = false;
-bool   PhaseSpace::showViolation        = false;
-int    PhaseSpace::gmZmodeGlobal        = 0;
-double PhaseSpace::mHatGlobalMin        = 4.;
-double PhaseSpace::mHatGlobalMax        = -1.;
-double PhaseSpace::pTHatGlobalMin       = 0.;
-double PhaseSpace::pTHatGlobalMax       = -1.;
-double PhaseSpace::pTHatMinDiverge      = 1.;
-double PhaseSpace::minWidthBreitWigners = 0.01;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -92,32 +78,34 @@ const double PhaseSpace::PT2RATMINZ     = 0.0001;
 const double PhaseSpace::WTCORRECTION[11] = { 1., 1., 1., 
   2., 5., 15., 60., 250., 1250., 7000., 50000. };
 
-// Information on incoming beams.
-BeamParticle* PhaseSpace::beamAPtr      = 0;
-BeamParticle* PhaseSpace::beamBPtr      = 0;
-int    PhaseSpace::idA                  = 0;
-int    PhaseSpace::idB                  = 0;
-double PhaseSpace::mA                   = 0.; 
-double PhaseSpace::mB                   = 0.;
-bool   PhaseSpace::hasLeptonBeams       = false;
-bool   PhaseSpace::hasPointLeptons      = false;
-  
-// Pointer to the total/elastic/diffractive cross section object.
-SigmaTotal* PhaseSpace::sigmaTotPtr     = 0;
-
-// Pointer to userHooks object.
-UserHooks* PhaseSpace::userHooksPtr     = 0;
-bool   PhaseSpace::canModifySigma       = false;
-
-// Pointers to LHAinit and LHAevnt for generating external events.
-LHAinit* PhaseSpace::lhaInitPtr;
-LHAevnt* PhaseSpace::lhaEvntPtr;
-
 //*********
 
-// Initialize static data members.
+// Perform simple initialization and store pointers.
 
-void PhaseSpace::initStatic() {
+void PhaseSpace::init(SigmaProcess* sigmaProcessPtrIn, Info* infoPtrIn, 
+  BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+  SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn) {
+
+  // Store input pointers for future use.
+  sigmaProcessPtr = sigmaProcessPtrIn;
+  infoPtr         = infoPtrIn;
+  beamAPtr        = beamAPtrIn;
+  beamBPtr        = beamBPtrIn;
+  sigmaTotPtr     = sigmaTotPtrIn;
+  userHooksPtr    = userHooksPtrIn;
+
+  // Some commonly used beam information.
+  idA             = beamAPtr->id(); 
+  idB             = beamBPtr->id(); 
+  mA              = beamAPtr->m(); 
+  mB              = beamBPtr->m(); 
+  eCM             = infoPtr->eCM();
+  s               = eCM * eCM;
+
+  // Flag if lepton beams, and if non-resolved ones.
+  hasLeptonBeams  = ( beamAPtr->isLepton() || beamBPtr->isLepton() );
+  hasPointLeptons = ( hasLeptonBeams 
+    && (beamAPtr->isUnresolved() || beamBPtr->isUnresolved() ) );
 
   // Standard phase space cuts.
   mHatGlobalMin        = Settings::parm("PhaseSpace:mHatMin");
@@ -130,6 +118,9 @@ void PhaseSpace::initStatic() {
   useBreitWigners      = Settings::flag("PhaseSpace:useBreitWigners");
   minWidthBreitWigners = Settings::parm("PhaseSpace:minWidthBreitWigners");
 
+  // Whether generation is with variable energy.
+  doEnergySpread       = Settings::flag("Beams:allowMomentumSpread");
+
   // Print flag for maximization information.
   showSearch           = Settings::flag("PhaseSpace:showSearch");
   showViolation        = Settings::flag("PhaseSpace:showViolation");
@@ -137,75 +128,35 @@ void PhaseSpace::initStatic() {
   // Know whether a Z0 is pure Z0 or admixed with gamma*.
   gmZmodeGlobal        = Settings::mode("WeakZ0:gmZmode");  
 
-}
+  // Default event-specific kinematics properties.
+  x1H             = 1.;
+  x2H             = 1.;
+  m3              = 0.;
+  m4              = 0.;
+  m5              = 0.;
+  s3              = m3 * m3;
+  s4              = m4 * m4;
+  s5              = m5 * m5;
+  mHat            = eCM;
+  sH              = s;
+  tH              = 0.;
+  uH              = 0.;
+  pTH             = 0.;
+  theta           = 0.;
+  phi             = 0.;
+  runBW3H         = 1.;
+  runBW4H         = 1.;
+  runBW5H         = 1.;
 
-//*********
-
-// Store pointers to beams and SigmaTotal.
- 
-void PhaseSpace::setStaticPtrs( BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn,
-  UserHooks* userHooksPtrIn) {
-
-  // Store input.
-  beamAPtr        = beamAPtrIn;
-  beamBPtr        = beamBPtrIn;
-  sigmaTotPtr     = sigmaTotPtrIn;
-  userHooksPtr    = userHooksPtrIn; 
-
-  // Some commonly used beam information.
-  idA             = beamAPtr->id(); 
-  idB             = beamBPtr->id(); 
-  mA              = beamAPtr->m(); 
-  mB              = beamBPtr->m(); 
-
-  // Flag if lepton beams, and if non-resolved ones.
-  hasLeptonBeams  = ( beamAPtr->isLepton() || beamBPtr->isLepton() );
-  hasPointLeptons = ( hasLeptonBeams 
-    && (beamAPtr->isUnresolved() || beamBPtr->isUnresolved() ) );
+  // Default cross section information.
+  sigmaNw         = 0.;
+  sigmaMx         = 0.;
+  sigmaNeg        = 0.;
+  newSigmaMx      = false;
 
   // Flag if user should be allow to reweight cross section.
   canModifySigma  = (userHooksPtr > 0) 
                   ? userHooksPtr->canModifySigma() : false; 
-
-}
-
-//*********
-
-// Save pointers and values.
-
-void PhaseSpace::initInfo(SigmaProcess* sigmaProcessPtrIn, double eCMIn) {
-
-  // Store input pointers for future use. CM energy.
-  sigmaProcessPtr = sigmaProcessPtrIn;
-  eCM      = eCMIn;
-  s        = eCM * eCM;
-
-  // Default event-specific kinematics properties.
-  x1H      = 1.;
-  x2H      = 1.;
-  m3       = 0.;
-  m4       = 0.;
-  m5       = 0.;
-  s3       = m3 * m3;
-  s4       = m4 * m4;
-  s5       = m5 * m5;
-  mHat     = eCM;
-  sH       = s;
-  tH       = 0.;
-  uH       = 0.;
-  pTH      = 0.;
-  theta    = 0.;
-  phi      = 0.;
-  runBW3H  = 1.;
-  runBW4H  = 1.;
-  runBW5H  = 1.;
-
-  // Default cross section information.
-  sigmaNw  = 0.;
-  sigmaMx  = 0.;
-  sigmaNeg = 0.;
-  newSigmaMx = false;
 
 }
 
@@ -233,9 +184,9 @@ void PhaseSpace::decayKinematics( Event& process) {
 
     // Evaluate matrix element and decide whether to keep kinematics.
     double decWt = sigmaProcessPtr->weightDecay( process, iResBeg, iResEnd);
-    if (decWt < 0.) ErrorMsg::message("Warning in PhaseSpace::decay"
+    if (decWt < 0.) infoPtr->errorMsg("Warning in PhaseSpace::decay"
       "Kinematics: negative angular weight");
-    if (decWt > 1.) ErrorMsg::message("Warning in PhaseSpace::decay"
+    if (decWt > 1.) infoPtr->errorMsg("Warning in PhaseSpace::decay"
       "Kinematics: angular weight above unity");
     while (decWt < Rndm::flat() ) {
 
@@ -255,9 +206,9 @@ void PhaseSpace::decayKinematics( Event& process) {
 
       // Ready to allow new test of matrix element.
       decWt = sigmaProcessPtr->weightDecay( process, iResBeg, iResEnd);
-      if (decWt < 0.) ErrorMsg::message("Warning in PhaseSpace::decay"
+      if (decWt < 0.) infoPtr->errorMsg("Warning in PhaseSpace::decay"
         "Kinematics: negative angular weight");
-      if (decWt > 1.) ErrorMsg::message("Warning in PhaseSpace::decay"
+      if (decWt > 1.) infoPtr->errorMsg("Warning in PhaseSpace::decay"
         "Kinematics: angular weight above unity");
     }
 
@@ -981,6 +932,22 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
 
 bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent, ostream& os) {
 
+  // Allow for possibility that energy varies from event to event.
+  if (doEnergySpread) {
+    eCM       = infoPtr->eCM();
+    s         = eCM * eCM;
+
+    // Find shifted tauRes values.
+    if (idResA !=0 && !hasPointLeptons) {
+      tauResA = mResA * mResA / s;
+      widResA = mResA * GammaResA / s;
+    }
+    if (idResB != 0 && !hasPointLeptons) {
+      tauResB = mResB * mResB / s;
+      widResB = mResB * GammaResB / s;
+    }
+  }
+
   // Choose tau according to h1(tau)/tau, where
   // h1(tau) = c0/I0 + (c1/I1) * 1/tau 
   // + (c2/I2) / (tau + tauResA) 
@@ -1052,7 +1019,7 @@ bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent, ostream& os) {
   // Check if maximum violated.
   newSigmaMx = false;
   if (sigmaNw > sigmaMx) {
-    ErrorMsg::message("Warning in PhaseSpace2to2tauyz::trialKin: "
+    infoPtr->errorMsg("Warning in PhaseSpace2to2tauyz::trialKin: "
       "maximum for cross section violated");
     double violFact = SAFETYMARGIN * sigmaNw / sigmaMx;
     sigmaMx = SAFETYMARGIN * sigmaNw; 
@@ -1070,7 +1037,7 @@ bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent, ostream& os) {
 
   // Check if negative cross section.
   if (sigmaNw < sigmaNeg) {
-    ErrorMsg::message("Warning in PhaseSpace2to2tauyz::trialKin:"
+    infoPtr->errorMsg("Warning in PhaseSpace2to2tauyz::trialKin:"
       " negative cross section set 0", "for " +  sigmaProcessPtr->name() );
     sigmaNeg = sigmaNw;
 
@@ -1955,7 +1922,7 @@ bool PhaseSpace2to2tauyz::finalKin() {
 
   // Check that phase space still open after new mass assignment.
   if (m3 + m4 + MASSMARGIN > mHat) {
-    ErrorMsg::message("Warning in PhaseSpace2to2tauyz::finalKin: "
+    infoPtr->errorMsg("Warning in PhaseSpace2to2tauyz::finalKin: "
       "failed after mass assignment");
     return false; 
   }
@@ -2210,9 +2177,6 @@ const double PhaseSpace2to2elastic::EXPMAX = 50.;
 // Conversion coefficients = 1/(16pi) * (mb <-> GeV^2). 
 const double PhaseSpace2to2elastic::CONVERTEL = 0.0510925;
 
-// Calculation of alpha_em. 
-AlphaEM PhaseSpace2to2elastic::alphaEM;
-
 //*********
 
 // Form of phase space sampling already fixed, so no optimization.
@@ -2427,7 +2391,7 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
   // Loop over attempts to set up masses and t consistently.
   for (int loop = 0; ; ++loop) { 
     if (loop == NTRY) {
-      ErrorMsg::message("Error in PhaseSpace2to2diffractive::trialKin: "
+      infoPtr->errorMsg("Error in PhaseSpace2to2diffractive::trialKin: "
         " quit after repeated tries");
       return false;
     }
@@ -2686,7 +2650,7 @@ bool PhaseSpace2to3tauycyl::finalKin() {
 
   // Check that phase space still open after new mass assignment.
   if (m3 + m4 + m5 + MASSMARGIN > mHat) { 
-    ErrorMsg::message("Warning in PhaseSpace2to3tauycyl::finalKin: "
+    infoPtr->errorMsg("Warning in PhaseSpace2to3tauycyl::finalKin: "
       "failed after mass assignment");
     return false; 
   }
@@ -2771,18 +2735,18 @@ const double PhaseSpaceLHA::CONVERTPB2MB  = 1e-9;
 bool PhaseSpaceLHA::setupSampling() {
 
   // Find which strategy Les Houches events are produced with.
-  strategy = lhaInitPtr->strategy();
+  strategy = lhaUpPtr->strategy();
   stratAbs = abs(strategy);
   if (strategy == 0 || stratAbs > 4) {
     ostringstream stratCode;
     stratCode << strategy;
-    ErrorMsg::message("Error in PhaseSpaceLHA::setupSampling: unknown "
+    infoPtr->errorMsg("Error in PhaseSpaceLHA::setupSampling: unknown "
       "Les Houches Accord weighting stategy", stratCode.str());
     return false;
   }
 
   // Number of contributing processes.
-  nProc = lhaInitPtr->size();
+  nProc = lhaUpPtr->sizeProc();
 
   // Loop over all processes. Read out maximum and cross section.
   xMaxAbsSum = 0.;
@@ -2790,18 +2754,18 @@ bool PhaseSpaceLHA::setupSampling() {
   int    idPr;
   double xMax, xSec, xMaxAbs;
   for (int iProc = 0 ; iProc < nProc; ++iProc) {
-    idPr = lhaInitPtr->idProcess(iProc);    
-    xMax = lhaInitPtr->xMax(iProc);
-    xSec = lhaInitPtr->xSec(iProc);
+    idPr = lhaUpPtr->idProcess(iProc);    
+    xMax = lhaUpPtr->xMax(iProc);
+    xSec = lhaUpPtr->xSec(iProc);
 
     // Check for inconsistencies between strategy and stored values.
     if ( (strategy == 1 || strategy == 2) && xMax < 0.) {   
-      ErrorMsg::message("Error in PhaseSpaceLHA::setupSampling: "
+      infoPtr->errorMsg("Error in PhaseSpaceLHA::setupSampling: "
         "negative maximum not allowed");
       return false;
     }
     if ( ( strategy == 2 || strategy == 3) && xSec < 0.) {
-      ErrorMsg::message("Error in PhaseSpaceLHA::setupSampling: "
+      infoPtr->errorMsg("Error in PhaseSpaceLHA::setupSampling: "
         "negative cross section not allowed");
       return false;
     }
@@ -2843,21 +2807,21 @@ bool PhaseSpaceLHA::trialKin( bool, bool repeatSame ) {
   }
   
   // Generate Les Houches event. Return if fail (= end of file).
-  bool physical = lhaEvntPtr->set(idProcNow);
+  bool physical = lhaUpPtr->setEvent(idProcNow);
   if (!physical) return false;
 
   // Find which process was generated.
-  int    idPr = lhaEvntPtr->idProcess();
+  int    idPr = lhaUpPtr->idProcess();
   int    iProc = 0; 
   for (int iP = 0; iP < int(idProc.size()); ++iP)
     if (idProc[iP] == idPr) iProc = iP;
   idProcSave = idPr;
 
   // Extract cross section and rescale according to strategy. 
-  double wtPr = lhaEvntPtr->weight();
+  double wtPr = lhaUpPtr->weight();
   if      (stratAbs ==  1) sigmaNw = wtPr * CONVERTPB2MB 
     * xMaxAbsSum / xMaxAbsProc[iProc]; 
-  else if (stratAbs ==  2) sigmaNw = (wtPr / abs(lhaInitPtr->xMax(iProc))) 
+  else if (stratAbs ==  2) sigmaNw = (wtPr / abs(lhaUpPtr->xMax(iProc))) 
     * sigmaMx;
   else if (strategy ==  3) sigmaNw = sigmaMx;
   else if (strategy == -3 && wtPr > 0.) sigmaNw =  sigmaMx;

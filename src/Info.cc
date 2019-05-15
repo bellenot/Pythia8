@@ -1,12 +1,11 @@
-// Information.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Info.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Function definitions (not found in the header) for the Info
-// and ErrorMessages classes.
+// Function definitions (not found in the header) for the Info class.
 
-#include "Information.h"
+#include "Info.h"
 
 namespace Pythia8 {
 
@@ -15,6 +14,14 @@ namespace Pythia8 {
 // Info class.
 // This class contains a mixed bag of information on the event generation 
 // activity, especially on the current subprocess properties.
+
+//*********
+
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// Number of times the same error message will be repeated at most.
+const int Info::TIMESTOPRINT = 1; 
 
 //*********
 
@@ -103,43 +110,19 @@ void Info::list(ostream& os) {
 
 }
 
-//**************************************************************************
-
-// ErrorMessages class.
-// This class holds info on all messages received and how many times.
-
-//*********
-
-// Definitions of static variables. 
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-
-int ErrorMsg::timesToPrint = 3;
-map<string, int> ErrorMsg::messages;
-
-//*********
-
-// Initialize static data members.
-
-void ErrorMsg::initStatic() {
-
-  timesToPrint = Settings::mode("ErrorMsg:timesToPrint"); 
-
-}
-
 //*********
   
 // Print a message the first few times. Insert in database.
  
-void ErrorMsg::message(string messageIn, string extraIn, 
-  ostream& os) {
+void Info::errorMsg(string messageIn, string extraIn, ostream& os) {
    
   // Recover number of times message occured. Also inserts new string.
   int times = messages[messageIn];
   ++messages[messageIn];
 
   // Print message the first few times.
-  if (times < timesToPrint) os << " PYTHIA " << messageIn << " " 
-    << extraIn << "\n";
+  if (times < TIMESTOPRINT) os << " PYTHIA " << messageIn << " " 
+    << extraIn << endl;
 
 }
 
@@ -147,7 +130,7 @@ void ErrorMsg::message(string messageIn, string extraIn,
 
 // Provide total number of errors/aborts/warnings experienced to date.
 
-int ErrorMsg::totalNumber() {
+int Info::errorTotalNumber() {
 
   int nTot = 0;
   for ( map<string, int>::iterator messageEntry = messages.begin();
@@ -161,7 +144,7 @@ int ErrorMsg::totalNumber() {
 
 // Print statistics on errors/aborts/warnings.
 
-void ErrorMsg::statistics(ostream& os) {
+void Info::errorStatistics(ostream& os) {
 
   // Header.
   os << "\n *-------  PYTHIA Error and Warning Messages Statistics  "

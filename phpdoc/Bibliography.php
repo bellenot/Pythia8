@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Bibliography</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -178,4 +180,4 @@ J. Phys. G33 (2006) 1</dd>
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

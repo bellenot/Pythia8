@@ -1,5 +1,5 @@
 // MultipleInteractions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,7 +13,7 @@
 #include "Basics.h"
 #include "BeamParticle.h"
 #include "Event.h"
-#include "Information.h"
+#include "Info.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
 #include "SigmaTotal.h"
@@ -89,11 +89,13 @@ public:
   MultipleInteractions() {sudExpPT.resize(NBINS+1);}
 
   // Initialize the generation process for given beams.
-  bool init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+  bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
+    BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn, 
     ostream& os = cout);
 
-  // Reset impact parameter choice.
-  void clear() {bIsSet = false; bSetInFirst = false;}
+  // Reset impact parameter choice and update the CM energy.
+  void clear() {bIsSet = false; bSetInFirst = false;
+    eCM = infoPtr->eCM(); sCM = eCM * eCM;}
 
   // Select first = hardest pT in minbias process.
   void pTfirst(); 
@@ -129,7 +131,7 @@ public:
   // Update and print statistics on number of processes.
   void accumulate( Info* infoPtr) { int iBeg = (infoPtr->isMinBias()) ? 0 : 1; 
     for (int i = iBeg; i < infoPtr->nMI(); ++i) ++nGen[ infoPtr->codeMI(i) ];}
-  void statistics(ostream& os = cout);
+  void statistics(bool reset = false, ostream& os = cout);
   
 private: 
 
@@ -162,12 +164,15 @@ private:
          tau, y, sHat, tHat, uHat, alpS, alpEM, xPDF1now, xPDF2now;
   bool   bIsSet, bSetInFirst, isAtLowB;
 
+  // Pointer to various information on the generation.
+  Info*  infoPtr;
+
   // Pointers to the two incoming beams.
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
 
-  // Total cross section parametrization.
-  SigmaTotal sigmaTot;
+  // Pointer to total cross section parametrization.
+  SigmaTotal* sigmaTotPtr;
 
   // Collections of parton-level 2 -> 2 cross sections. Selected one.
   SigmaMultiple sigma2gg, sigma2qg, sigma2qqbarSame, sigma2qq;

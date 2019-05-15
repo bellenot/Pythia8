@@ -1,5 +1,5 @@
 // ParticleData.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,7 +13,7 @@
 #define Pythia8_ParticleData_H
 
 #include "Basics.h"
-#include "Information.h"
+#include "Info.h"
 #include "PythiaStdlib.h"
 #include "ResonanceWidths.h"
 #include "Settings.h"
@@ -165,6 +165,9 @@ public:
   // Destructor: delete any ResonanceWidths object.
   ~ParticleDataEntry();
 
+  // Initialize static pointer to Info for error messages.
+  static void initPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;}
+
   // Initialize static data members.
   static void initStatic();
 
@@ -307,6 +310,9 @@ private:
   static const double MAXTAU0FORDECAY,MINMASSRESONANCE, NARROWMASS,
                       CONSTITUENTMASSTABLE[6];
 
+  // Pointer to various information on the generation.
+  static Info* infoPtr;
+
   // Particle data.
   int    idSave;
   string nameSave, antiNameSave;
@@ -344,6 +350,9 @@ public:
 
   // Constructor.
   ParticleDataTable() {}
+
+  // Initialize static pointer.
+  static void initPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;}
  
   // Read in database from specific file.
   static bool init(string startFile = "../xmldoc/ParticleData.xml") {
@@ -563,6 +572,9 @@ public:
     ? pdt[abs(idIn)].resWidthChan( mHat, idAbs1, idAbs2) : 0.;}
 
 private:
+
+  // Pointer to various information on the generation.
+  static Info*  infoPtr;
 
   // All particle data stored in a map.
   static map<int, ParticleDataEntry> pdt;

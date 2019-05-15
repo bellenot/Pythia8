@@ -1,5 +1,5 @@
 // StringFragmentation.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -16,11 +16,13 @@ namespace Pythia8 {
 
 //*********
  
-// Definitions of static variables.
 // Constants: could be changed here if desired, but normally should not.
 
 // Avoid unphysical solutions to equation system.
 const double StringEnd::TINY = 1e-6;
+
+// Assume two (eX, eY) regions are related if pT2 differs by less.
+const double StringEnd::PT2SAME = 0.01;
 
 //*********
 
@@ -52,13 +54,13 @@ void StringEnd::newHadron() {
 
   // Pick new flavour and form a new hadron.
   do {
-    flavNew = flavSel.pick( flavOld);
-    idHad   = flavSel.combine( flavOld, flavNew);
+    flavNew = flavSelPtr->pick( flavOld);
+    idHad   = flavSelPtr->combine( flavOld, flavNew);
   } while (idHad == 0);
 
   // Pick its transverse momentum.
-  pxNew = pTsel.px();
-  pyNew = pTsel.py();
+  pxNew = pTSelPtr->px();
+  pyNew = pTSelPtr->py();
   pxHad = pxOld + pxNew;
   pyHad = pyOld + pyNew;
 
@@ -76,7 +78,7 @@ void StringEnd::newHadron() {
 Vec4 StringEnd::kinematicsHadron( StringSystem& system) {
 
   // Pick fragmentation step z and calculate new Gamma.
-  zHad = zSel.zFrag( flavOld.id, flavNew.id, mT2Had);
+  zHad = zSelPtr->zFrag( flavOld.id, flavNew.id, mT2Had);
   GammaNew = (1. - zHad) * (GammaOld + mT2Had / zHad); 
 
   // Set up references that are direction-neutral;
@@ -95,16 +97,18 @@ Vec4 StringEnd::kinematicsHadron( StringSystem& system) {
   // Start search for new breakup in the old region.
   iDirNew = iDirOld;
   iInvNew = iInvOld;
+  Vec4 pTNew;
 
   // Each step corresponds to trying a new string region.
   for (int iStep = 0; ; ++iStep) { 
 
-    // Reference to current string region.
+    // Referance to current string region.
     StringRegion& region = system.region( iPosNew, iNegNew);
 
     // Now begin special section for rapid processing of low region.
-    // A first step within a low region is easy.
     if (iStep == 0 && iPosOld + iNegOld == iMax) { 
+
+      // A first step within a low region is easy.
       if (mT2Had < zHad * xDirOld * (1. - xInvOld) * region.w2) {
 
         // Translate into x coordinates.
@@ -125,12 +129,15 @@ Vec4 StringEnd::kinematicsHadron( StringSystem& system) {
         // Momentum taken by stepping out of region. Continue to next region.
         xInvHad = 1. - xInvOld;
         xDirHad = 0.;
-        pSoFar = region.pHad( xPosHad, xNegHad, pxOld, pyOld);
+        pSoFar  = region.pHad( xPosHad, xNegHad, pxOld, pyOld);
         continue;
       }
 
     // Else, for first step, take into account starting pT.
-    } else if (iStep == 0) pSoFar = region.pHad( 0., 0., pxOld, pyOld);
+    } else if (iStep == 0) {
+      pSoFar = region.pHad( 0., 0., pxOld, pyOld);
+      pTNew  = region.pHad( 0., 0., pxNew, pyNew);
+    }
 
     // Now begin normal treatment of nontrivial regions.
     // Set up four-vectors in a region not visited before.
@@ -149,7 +156,15 @@ Vec4 StringEnd::kinematicsHadron( StringSystem& system) {
       continue;
     }
 
-    // Reexpress pT??
+    // Reexpress pTNew w.r.t. base vectors in new region, if possible.
+    // Recall minus sign from normalization e_x^2 = e_y^2 = -1.
+    double pxNewTemp = -pTNew * region.eX;
+    double pyNewTemp = -pTNew * region.eY;
+    if (abs( pxNewTemp * pxNewTemp + pyNewTemp * pyNewTemp 
+      - pxNew * pxNew - pyNew * pyNew) < PT2SAME) {
+      pxNew = pxNewTemp;
+      pyNew = pyNewTemp;
+    }
 
     // Four-momentum taken so far, including new pT.
     Vec4 pTemp = pSoFar + region.pHad( 0., 0., pxNew, pyNew);
@@ -280,8 +295,8 @@ const double StringFragmentation::EJNWEIGHTMAX = 10.;
 const double StringFragmentation::CONVJNREST   = 1e-5;
 const int    StringFragmentation::NTRYJNREST   = 20; 
 
-// Fail and try again if when two legs combined to diquark (3 loops).
-const int    StringFragmentation::NTRYJNMATCH  = 10;
+// Fail and try again when two legs combined to diquark (3 loops).
+const int    StringFragmentation::NTRYJNMATCH  = 20;
 
 // Consider junction-leg parton as massless if m2 tiny.
 const double StringFragmentation::M2MAXJRF     = 1e-4;
@@ -292,9 +307,16 @@ const int    StringFragmentation::NTRYJRFEQ    = 40;
 
 //*********
 
-// Find settings.
+// Initialize and save pointers. 
 
-void StringFragmentation::init() {
+void StringFragmentation::init(Info* infoPtrIn, StringFlav* flavSelPtrIn, 
+  StringPT* pTSelPtrIn, StringZ* zSelPtrIn) {
+
+  // Save pointers.
+  infoPtr       = infoPtrIn;
+  flavSelPtr    = flavSelPtrIn;
+  pTSelPtr      = pTSelPtrIn;
+  zSelPtr       = zSelPtrIn;
 
   // Initialize the StringFragmentation class.
   stopMass      = Settings::parm("StringFragmentation:stopMass");
@@ -310,6 +332,10 @@ void StringFragmentation::init() {
 
   // Initialize the b parameter of the z spectrum, used when joining jets.
   bLund         = Settings::parm("StringZ:bLund");
+
+  // Send on pointers to the two StringEnd instances.
+  posEnd.init( flavSelPtr, pTSelPtr, zSelPtr);   
+  negEnd.init( flavSelPtr, pTSelPtr, zSelPtr);   
 
 }
 
@@ -327,7 +353,7 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
   int idPos          = event[iPos].id();
   iNeg               = iParton.back();
   int idNeg          = event[iNeg].id();
-  pSum = colConfig[iSub].pSum;
+  pSum               = colConfig[iSub].pSum;
 
   // Reset the local event record.
   hadrons.clear();
@@ -355,7 +381,7 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
   // Fallback loop, when joining in the middle fails.  Bailout if stuck.
   for ( int iTry = 0; ; ++iTry) {
     if (iTry > NTRYJOIN) {
-      ErrorMsg::message("Error in StringFragmentation::fragment: " 
+      infoPtr->errorMsg("Error in StringFragmentation::fragment: " 
         "stuck in joining");
       if (hasJunction) event.popBack(1);
       return false;
@@ -470,21 +496,21 @@ void StringFragmentation::setStartEnds( int idPos, int idNeg,
   // For closed gluon loop need to pick an initial flavour.
   if (isClosed) {
     do {
-      int idTry = flavSel.pickLightQ();
+      int idTry = flavSelPtr->pickLightQ();
       FlavContainer flavTry(idTry, 1);
-      flavTry = flavSel.pick( flavTry);
-      flavTry = flavSel.pick( flavTry);
+      flavTry = flavSelPtr->pick( flavTry);
+      flavTry = flavSelPtr->pick( flavTry);
       idPos   = flavTry.id;
       idNeg   = -idPos;
     } while (idPos == 0);
 
     // Also need pT and breakup vertex position in region.
-    px = pTsel.px();
-    py = pTsel.py();
+    px = pTSelPtr->px();
+    py = pTSelPtr->py();
     double m2Region = systemNow.regionLowPos(0).w2;
     double m2Temp   = min( CLOSEDM2MAX, CLOSEDM2FRAC * m2Region);
     do {
-      double zTemp = zSel.zFrag( idPos, idNeg, m2Temp);
+      double zTemp = zSelPtr->zFrag( idPos, idNeg, m2Temp);
       xPosFromPos  = 1. - zTemp;
       xNegFromPos  = m2Temp / (zTemp * m2Region);
     } while (xNegFromPos > 1.);
@@ -501,8 +527,8 @@ void StringFragmentation::setStartEnds( int idPos, int idNeg,
 
   // For closed gluon loop can allow popcorn on one side but not both.
   if (isClosed) {
-    flavSel.assignPopQ(posEnd.flavOld);
-    flavSel.assignPopQ(negEnd.flavOld);
+    flavSelPtr->assignPopQ(posEnd.flavOld);
+    flavSelPtr->assignPopQ(negEnd.flavOld);
     if (Rndm::flat() < 0.5) posEnd.flavOld.nPop = 0;    
     else                    negEnd.flavOld.nPop = 0;
     posEnd.flavOld.rank = 1;
@@ -562,7 +588,7 @@ bool StringFragmentation::finalTwo(bool fromPos) {
   if (abs(flav1.id) > 8 && abs(flav2.id) > 8) return false;  
   int idHad;
   for (int iTry = 0; iTry < NTRYFLAV; ++iTry) {
-    idHad = flavSel.combine( flav1, flav2);
+    idHad = flavSelPtr->combine( flav1, flav2);
     if (idHad != 0) break;
   } 
   if (idHad == 0) return false;
@@ -821,7 +847,7 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
     + pow2(costheta(pWTinJRF[0], pWTinJRF[2]) + 0.5) 
     + pow2(costheta(pWTinJRF[1], pWTinJRF[2]) + 0.5); 
   if (errInJRF > errInCM) {
-    ErrorMsg::message("Warning in StringFragmentation::fragmentTo" 
+    infoPtr->errorMsg("Warning in StringFragmentation::fragmentTo" 
       "Junction: bad convergence junction rest frame");
     MtoJRF.reset();
     MtoJRF.bstback(pSum); 
@@ -933,7 +959,7 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
         double eUsed = 0.;
         for ( int iTryInner = 0; ; ++iTryInner) { 
           if (iTryInner > NTRYJNMATCH) {
-            ErrorMsg::message("Error in StringFragmentation::fragment" 
+            infoPtr->errorMsg("Error in StringFragmentation::fragment" 
               "ToJunction: caught in junction flavour loop");
             event.popBack( iPartonMin.size() + iPartonMid.size() );
             return false;
@@ -1008,7 +1034,7 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
   
   // Construct and store an effective diquark string end from the 
   // two remnant quark ends, for temporary usage. 
-  int    idDiquark = flavSel.makeDiquark( idMin, idMid);
+  int    idDiquark = flavSelPtr->makeDiquark( idMin, idMid);
   double mDiquark  = pDiquark.mCalc();
   int     iDiquark = event.append( idDiquark, 78, 0, 0, 0, 0, 0, 0,
     pDiquark, mDiquark);  

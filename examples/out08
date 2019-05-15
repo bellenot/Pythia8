@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.100      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 19 Oct 2007  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.105      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 24 Feb 2008  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 19 Oct 2007 at 13:28:25    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 24 Feb 2008 at 09:14:06    |  | 
  |  |                                                                              |  | 
  |  |   Main author: Torbjorn Sjostrand; CERN/PH, CH-1211 Geneva, Switzerland,     |  | 
  |  |     and Department of Theoretical Physics, Lund University, Lund, Sweden;    |  | 
@@ -22,7 +22,7 @@
  |  |     phone: + 41 - 22 - 767 24 59; e-mail: skands@fnal.gov                    |  | 
  |  |                                                                              |  | 
  |  |   The main program reference is the 'Brief Introduction to PYTHIA 8.1',      |  | 
- |  |   T. Sjostrand, S. Mrenna and P. Skands, arXiv/0710.????                     |  | 
+ |  |   T. Sjostrand, S. Mrenna and P. Skands, arXiv:0710.3820                     |  | 
  |  |                                                                              |  | 
  |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
  |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
@@ -36,7 +36,7 @@
  |  |   Disclaimer: this program comes without any guarantees.                     |  | 
  |  |   Beware of errors and use common sense when interpreting results.           |  | 
  |  |                                                                              |  | 
- |  |   Copyright (C) 2007 Torbjorn Sjostrand                                      |  | 
+ |  |   Copyright (C) 2008 Torbjorn Sjostrand                                      |  | 
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  *------------------------------------------------------------------------------*  | 
@@ -384,7 +384,7 @@
  |                                                    |             |
  |------------------------------------------------------------------|
  |                                                    |             |
- | g g -> g g                                     111 |   2.429e-07 |
+ | g g -> g g                                     111 |   2.444e-07 |
  | g g -> q qbar (uds)                            112 |   5.978e-09 |
  | q g -> q g                                     113 |   8.785e-07 |
  | q q(bar)' -> q q(bar)'                         114 |   4.181e-07 |
@@ -431,18 +431,18 @@
  |                                                    |                                   |                        |
  |-----------------------------------------------------------------------------------------------------------------|
  |                                                    |                                   |                        |
- | g g -> g g                                     111 |        9849       1780       1780 |   4.418e-08  5.252e-10 |
- | g g -> q qbar (uds)                            112 |         235         37         37 |   1.025e-09  8.543e-11 |
- | q g -> q g                                     113 |       35335       5501       5501 |   1.354e-07  8.895e-10 |
- | q q(bar)' -> q q(bar)'                         114 |       16922       2550       2550 |   6.232e-08  5.982e-10 |
- | q qbar -> g g                                  115 |         140         37         37 |   9.575e-10  7.209e-11 |
- | q qbar -> q' qbar' (uds)                       116 |          93         34         34 |   7.735e-10  7.573e-11 |
- | g g -> c cbar                                  121 |          74         16         16 |   4.479e-10  6.472e-11 |
- | q qbar -> c cbar                               122 |          27          9          9 |   2.895e-10  4.898e-11 |
- | g g -> b bbar                                  123 |         100         23         23 |   5.079e-10  4.849e-11 |
- | q qbar -> b bbar                               124 |          35         13         13 |   2.625e-10  4.487e-11 |
+ | g g -> g g                                     111 |        9911       1767       1767 |   4.408e-08  5.224e-10 |
+ | g g -> q qbar (uds)                            112 |         230         45         45 |   1.174e-09  8.978e-11 |
+ | q g -> q g                                     113 |       35393       5518       5518 |   1.358e-07  8.903e-10 |
+ | q q(bar)' -> q q(bar)'                         114 |       16883       2534       2534 |   6.223e-08  5.965e-10 |
+ | q qbar -> g g                                  115 |         143         39         39 |   9.520e-10  7.220e-11 |
+ | q qbar -> q' qbar' (uds)                       116 |          90         34         34 |   7.845e-10  7.781e-11 |
+ | g g -> c cbar                                  121 |          71         16         16 |   4.638e-10  6.733e-11 |
+ | q qbar -> c cbar                               122 |          28          9          9 |   2.963e-10  4.957e-11 |
+ | g g -> b bbar                                  123 |         100         26         26 |   5.336e-10  4.839e-11 |
+ | q qbar -> b bbar                               124 |          35         12         12 |   2.510e-10  4.417e-11 |
  |                                                    |                                   |                        |
- | sum                                                |       62810      10000      10000 |   2.462e-07  1.206e-09 |
+ | sum                                                |       62884      10000      10000 |   2.466e-07  1.205e-09 |
  |                                                                                                                 |
  *-------  End PYTHIA Event and Cross Section Statistics ----------------------------------------------------------*
 
@@ -455,7 +455,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2007-10-19 13:28       pTHat distribution, unweighted
+  2008-02-24 09:14       pTHat distribution, unweighted
 
         4.05*10^ 3            X                                                                                         
         3.90*10^ 3            X                                                                                         
@@ -478,29 +478,29 @@
         1.35*10^ 3            XXX  XXX       XX             5                                                           
         1.20*10^ 3            XXX  XXX       XX9            X8                                                          
         1.05*10^ 3            XXX9 XXX8      XXX9           XX5                                                         
-        0.90*10^ 3            XXXX1XXXX2     XXXX6          XXXX2               85                                      
-        0.75*10^ 3            XXXXXXXXXX     XXXXX5         XXXXX2              XX711                                   
+        0.90*10^ 3            XXXX1XXXX2     XXXX6          XXXX2               93                                      
+        0.75*10^ 3            XXXXXXXXXX     XXXXX5         XXXXX2              XX621                                   
         0.60*10^ 3            XXXXXXXXXX92   XXXXXX91       XXXXXXX42           XXXXX51                                 
-        0.45*10^ 3            XXXXXXXXXXXX6  XXXXXXXX81     XXXXXXXXX761        XXXXXXXX4221                            
-        0.30*10^ 3            XXXXXXXXXXXXX85XXXXXXXXXX955  XXXXXXXXXXXX97531   XXXXXXXXXXXX6973431                     
-        0.15*10^ 3            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9XXXXXXXXXXXXXXXXXXX998876666544443333232
+        0.45*10^ 3            XXXXXXXXXXXX6  XXXXXXXX81     XXXXXXXXX761        XXXXXXX9432                             
+        0.30*10^ 3            XXXXXXXXXXXXX85XXXXXXXXXX955  XXXXXXXXXXXX97531   XXXXXXXXXXXX7973431                     
+        0.15*10^ 3            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9XXXXXXXXXXXXXXXXXXX9X9777655544443343232
 
           Contents                                                                                                      
             *10^ 3  0000000000421102111000000111100000000000110000000000000000000000000000000000000000000000000000000000
-            *10^ 2  0000000000055078940754322951086544322211219876654433222111118866654433332221211111110000000000000000
-            *10^ 1  0000000000567360851797973118436861292155767972018191862974527191136453314859196342109888756655453343
-            *10^ 0  0000000001627689358714120558099667125953191984666262005906197883509376474557226621483654193462009686
+            *10^ 2  0000000000055078940754322951086544322211219876654433222111118766654433332221211111110000000000000000
+            *10^ 1  0000000000567360851797973118436861292155767972018191862974528992136463204859097343109887756655353343
+            *10^ 0  0000000001627689358714120558099667125953191984666262005906196954908008668485860550058628273661939687
 
           Low edge                                                                                                      
             *10^ 2  0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
             *10^ 1  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
             *10^ 0  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-   Entries  =       50000    Mean =  3.4758e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
-   All chan =  4.9541e+04    Rms  =  2.1561e+02    Overflow  =  4.5900e+02    High edge =  1.0000e+03
+   Entries  =       50000    Mean =  3.4756e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  4.9536e+04    Rms  =  2.1562e+02    Overflow  =  4.6400e+02    High edge =  1.0000e+03
 
 
-  2007-10-19 13:28       pTHat distribution, weighted
+  2008-02-24 09:14       pTHat distribution, weighted
 
         4.80*10^-5            2                                                                                         
         4.60*10^-5            X                                                                                         
@@ -539,10 +539,10 @@
             *10^ 0  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
    Entries  =       50000    Mean =  1.2950e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
-   All chan =  1.3754e-04    Rms  =  3.6827e+01    Overflow  =  1.1300e-09    High edge =  1.0000e+03
+   All chan =  1.3754e-04    Rms  =  3.6828e+01    Overflow  =  1.1442e-09    High edge =  1.0000e+03
 
 
-  2007-10-19 13:28       pTHat distribution, pT3*weighted
+  2008-02-24 09:14       pTHat distribution, pT3*weighted
 
         5.40*10^ 1            5                                                                                         
         5.20*10^ 1            X                                                                                         
@@ -576,18 +576,18 @@
             *10^ 1  0000000000543222111110000000000000000000000000000000000000000000000000000000000000000000000000000000
             *10^ 0  0000000000345961863209977654443333222211111111111000000000000000000000000000000000000000000000000000
             *10^-1  0000000000030069625068341369727611651378654431100998776655554443433322222222222111111111111111010010
-            *10^-2  0000000001745480990786411001888382297068192112656571769583828729174488993861320786654344201210819819
+            *10^-2  0000000001745480990786411001888382297068192112656571769583828629174398883861330797555333201210819819
 
           Low edge                                                                                                      
             *10^ 2  0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
             *10^ 1  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
             *10^ 0  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-   Entries  =       50000    Mean =  1.9945e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
-   All chan =  3.9605e+02    Rms  =  1.2551e+02    Overflow  =  1.9553e+00    High edge =  1.0000e+03
+   Entries  =       50000    Mean =  1.9947e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  3.9606e+02    Rms  =  1.2557e+02    Overflow  =  1.9814e+00    High edge =  1.0000e+03
 
 
-  2007-10-19 13:28       pTHat distribution, pT5*weighted
+  2008-02-24 09:14       pTHat distribution, pT5*weighted
 
         6.00*10^ 5            13                                                                                        
         5.80*10^ 5            XX                                                                                        
@@ -610,26 +610,26 @@
         2.40*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX6X9X7X                                                 
         2.20*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX8783                                             
         2.00*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX3 92                                        
-        1.80*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7XX792 4                                   
-        1.60*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX8X956  23 52                         
-        1.40*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX67XX XX 861                     
-        1.20*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX39344  13   1      5 
-        1.00*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX98XX727X76 9  X3
-        0.80*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7XX9XX
+        1.80*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7XX972 5                                   
+        1.60*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9X956   1 53                         
+        1.40*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX78XX1XX 783 1                   
+        1.20*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9XXX3X8232      2   2  5 
+        1.00*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX999817X75 X  X5
+        0.80*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX6XX9XX
         0.60*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
         0.40*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
         0.20*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
           Contents                                                                                                      
-            *10^ 5  0000000000555555544444444433333333332322222222222222222111111111111111111111111111110011000100000010
-            *10^ 4  0000000000884262096545702097875534128269675653534341110987987765655533442541332010009900989099798708
-            *10^ 3  0000000000267905871885296921721959169303446692178375365964735735870224350039621687778616433131470897
-            *10^ 2  0000000001854384864670528672885478282240125402066066088758450177922862182691819140195800999345061160
+            *10^ 5  0000000000555555544444444433333333332322222222222222222111111111111111111111111111111000000100010010
+            *10^ 4  0000000000884262096545702097875534128269675653534341110987987765755533442541332021000999989098708708
+            *10^ 3  0000000000267905871885296921721959169303446692178375365964737338070135012058455515354778614439230899
+            *10^ 2  0000000001854384864670528672885478282240125402066066088758450247341992003390421501620065411669362385
 
           Low edge                                                                                                      
             *10^ 2  0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
             *10^ 1  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
             *10^ 0  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-   Entries  =       50000    Mean =  4.0468e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
-   All chan =  2.1983e+07    Rms  =  2.3767e+02    Overflow  =  3.3976e+06    High edge =  1.0000e+03
+   Entries  =       50000    Mean =  4.0488e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  2.1993e+07    Rms  =  2.3783e+02    Overflow  =  3.4384e+06    High edge =  1.0000e+03

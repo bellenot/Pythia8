@@ -1,5 +1,5 @@
 // main51.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -15,7 +15,7 @@ using namespace Pythia8;
 
 // Implement initialization fillHepRup method for Pythia6 example.
 
-bool LHAinitFortran::fillHepRup() { 
+bool LHAupFortran::fillHepRup() { 
 
   // Set process to generate.
   // Example 1: QCD production; must set pTmin.  
@@ -45,7 +45,7 @@ bool LHAinitFortran::fillHepRup() {
 
 // Implement event generation fillHepEup method for Pythia6 example.
 
-bool LHAevntFortran::fillHepEup() { 
+bool LHAupFortran::fillHepEup() { 
 
   // Generate and fill the next Pythia6 event in HEPEUP.
   Pythia6Interface::pyupev();
@@ -65,13 +65,12 @@ int main() {
   Settings& settings = pythia.settings;
 
   // Set Pythia8 generation aspects.
-  pythia.readString("Beams:primordialKThard = 2.");    
+  pythia.readString("BeamRemnants:primordialKThard = 2.");    
   pythia.readString("MultipleInteractions:bProfile = 3");    
 
   // Initialize to access Pythia6 generator by Les Houches interface.
-  LHAinitFortran pythia6Init;
-  LHAevntFortran pythia6Evnt;
-  pythia.init(&pythia6Init, &pythia6Evnt);    
+  LHAupFortran pythia6;
+  pythia.init(&pythia6);    
 
   // Set some generation values.
   int nEvent = 100;

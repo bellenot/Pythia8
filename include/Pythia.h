@@ -1,5 +1,5 @@
 // Pythia.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -12,9 +12,11 @@
 #include "Analysis.h"
 #include "Basics.h"
 #include "BeamParticle.h"
+#include "BeamShape.h"
 #include "Event.h"
+#include "FragmentationFlavZpT.h"
 #include "HadronLevel.h"
-#include "Information.h"
+#include "Info.h"
 #include "LesHouches.h"
 #include "PartonLevel.h"
 #include "ParticleData.h"
@@ -23,6 +25,7 @@
 #include "PythiaStdlib.h"
 #include "ResonanceWidths.h"
 #include "Settings.h"
+#include "SigmaTotal.h"
 #include "SpaceShower.h"
 #include "SusyLesHouches.h"
 #include "TimeShower.h"
@@ -71,6 +74,10 @@ public:
   bool setUserHooksPtr( UserHooks* userHooksPtrIn) 
     { userHooksPtr = userHooksPtrIn; return true;} 
 
+  // Possibility to pass in pointer for beam shape. 
+  bool setBeamShapePtr( BeamShape* beamShapePtrIn) 
+    { beamShapePtr = beamShapePtrIn; return true;} 
+
   // Possibility to pass in pointer(s) for external cross section.
   bool setSigmaPtr( SigmaProcess* sigmaPtrIn) 
     { sigmaPtrs.push_back( sigmaPtrIn); return true;} 
@@ -85,32 +92,39 @@ public:
     { timesDecPtr = timesDecPtrIn; timesPtr = timesPtrIn;
     spacePtr = spacePtrIn; return true;} 
 
-  // Initialization with two beams specified.
-  bool init( int idAin, int idBin, double eAin, double eBin);
-
   // Initialization in the CM frame.
   bool init( int idAin, int idBin, double eCMin);
+
+  // Initialization with two collinear beams, including fixed target.
+  bool init( int idAin, int idBin, double eAin, double eBin);
+
+  // Initialization with two acollinear beams.
+  bool init( int idAin, int idBin, double pxAin, double pyAin, 
+    double pzAin, double pxBin, double pyBin, double pzBin);
+
+  // Initialization by a Les Houches Event File.
+  bool init( string LesHouchesEventFile, bool skipInit = false);
 
   // Initialization using the Main beam variables.
   bool init();
 
   // Initialization according to the Les Houches Accord.
-  bool init( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn);
-
-  // Initialization by a Les Houches Event File.
-  bool init( string LesHouchesEventFile, bool skipInit = false);
+  bool init( LHAup* lhaUpPtrIn);
  
   // Generate the next event.
   bool next(); 
+
+  // Generate only the hadronization/decay stage.
+  bool forceHadronLevel();
 
   // Special routine to allow more decays if on/off switches changed.
   bool moreDecays() {return hadronLevel.moreDecays(event);}
 
   // List the current Les Houches event.
-  void LHAevntList(ostream& os = cout) {lhaEvntPtr->list(os);}
+  void LHAeventList(ostream& os = cout) {lhaUpPtr->listEvent(os);}
 
   // Main routine to provide final statistics on generation.
-  void statistics(bool all = false);
+  void statistics(bool all = false, bool reset = true);
 
   // Read in settings values: shorthand, not new functionality.
   bool   flag(string key) {return settings.flag(key);}
@@ -124,7 +138,7 @@ public:
   // The event record for the complete event history.
   Event event;
 
-  // Information on the generation, especially current subprocess.
+  // Information on the generation: current subprocess and error statistics.
   Info info;
 
   // Settings - is static but declared here for ease of use.
@@ -147,13 +161,16 @@ private:
   double epTolErr, epTolWarn;
 
   // Initialization data, extracted from init(...) call.
-  bool   isConstructed, isInit, inCMframe;
-  int    idA, idB;  
-  double mA, mB, eA, eB, pzA, pzB, eCM, betaZ, gammaZ;
+  bool   isConstructed, isInit;
+  int    idA, idB, frameType;  
+  double mA, mB, pxA, pxB, pyA, pyB, pzA, pzB, eA, eB, 
+         pzAcm, pzBcm, eCM, betaZ, gammaZ;
+  Vec4   pAinit, pBinit, pAnow, pBnow;
+  RotBstMatrix MfromCM, MtoCM;
 
   // information for error checkout.
-  int    nInitCalls, nErrEvent;
-  vector<int> iErrId, iErrNan;
+  int    nErrEvent;
+  vector<int> iErrId, iErrCol, iErrNan;
 
   // Pointers to the parton distributions of the two incoming beams.
   PDF* pdfAPtr;  
@@ -170,18 +187,21 @@ private:
   BeamParticle beamA;
   BeamParticle beamB;
 
-  // LHAinit and LHAevnt objects for generating external events.
+  // LHAup object for generating external events.
   bool doLHA, useNewLHA;
-  LHAinit* lhaInitPtr;
-  LHAevnt* lhaEvntPtr;
+  LHAup* lhaUpPtr;
 
   // Pointer to external decay handler and list of particles it handles.
   DecayHandler* decayHandlePtr;
   vector<int> handledParticles;
 
-  // Pointer to userHooks object for user interaction with program.
+  // Pointer to UserHooks object for user interaction with program.
   UserHooks* userHooksPtr;
   bool hasUserHooks, doVetoProcess, doVetoPartons;
+
+  // Pointer to BeamShape object for beam momentum and interaction vertex.
+  BeamShape* beamShapePtr;
+  bool useNewBeamShape, doMomentumSpread, doVertexSpread;
 
   // Pointers to external processes derived from the Pythia base classes.
   vector<SigmaProcess*> sigmaPtrs;  
@@ -193,8 +213,6 @@ private:
   TimeShower*  timesDecPtr;
   TimeShower*  timesPtr;
   SpaceShower* spacePtr;
-
-  // Keep track when "new" has been used and needs a "delete" for showers.  
   bool useNewTimes, useNewSpace;
 
   // The main generator class to define the core process of the event.
@@ -206,8 +224,8 @@ private:
   // The main generator class to produce the hadron level of the event.
   HadronLevel hadronLevel;
 
-  // ErrorMsg is a static class, so not needed here, except as reminder.
-  ErrorMsg errorMsg; 
+  // The total cross section class is used both on process and parton level.
+  SigmaTotal sigmaTot; 
 
   // Write the Pythia banner, with symbol and version information.
   void banner(ostream& os = cout);
@@ -215,17 +233,20 @@ private:
   // Check for lines in file that mark the beginning of new subrun.
   int readSubrun(string line, bool warn = true, ostream& os = cout);
 
-  // Initialization routine to set up kinematic and more.
+  // Initialization routine to set up the whole generation machinery.
   bool initInternal();
+
+  // Calculate kinematics at initialization.
+  bool initKinematics();
 
   // Initialize tunes to e+e- and pp/ppbar data.
   void initTunes();
 
-  // Initialization routine for SUSY spectra.
-  bool initSLHA();
+  // Recalculate kinematics for each event when beam momentum has a spread.
+  void nextKinematics();
 
-  // Add any junctions to the event record list when no ProcessLevel.
-  void findJunctions();
+  // Boost from CM frame to lab frame, or inverse. Set production vertex.
+  void boostAndVertex(bool toLab, bool setVertex);
 
   // Check that the final event makes sense.
   bool check(ostream& os = cout);

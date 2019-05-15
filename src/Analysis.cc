@@ -1,5 +1,5 @@
 // Analysis.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -23,6 +23,9 @@ namespace Pythia8 {
 // Minimum number of particles to perform study.
 const int    Sphericity::NSTUDYMIN     = 2;
 
+// Maximum number of times that an error warning will be printed.
+const int    Sphericity::TIMESTOPRINT  = 1;
+
 // Assign mimimum squared momentum in weight to avoid division by zero. 
 const double Sphericity::P2MIN         = 1e-20;
 
@@ -33,7 +36,7 @@ const double Sphericity::EIGENVALUEMIN = 1e-10;
  
 // Analyze event.
 
-bool Sphericity::analyze(const Event& event) {
+bool Sphericity::analyze(const Event& event, ostream& os) {
 
   // Initial values, tensor and counters zero.
   eVal1 = eVal2 = eVal3 = 0.;
@@ -67,8 +70,9 @@ bool Sphericity::analyze(const Event& event) {
 
   // Very low multiplicities (0 or 1) not considered.
   if (nStudy < NSTUDYMIN) {
-    ErrorMsg::message("Warning in Sphericity::analyze: "
-    " too few particles"); 
+    if (nFew < TIMESTOPRINT) os << " PYTHIA Error in " << 
+    "Sphericity::analyze: too few particles" << endl; 
+    ++nFew;
     return false;
   }
 
@@ -98,8 +102,9 @@ bool Sphericity::analyze(const Event& event) {
 
     // If all particles are back-to-back then only first axis meaningful.
     if (iVal > 1 && eVal2 < EIGENVALUEMIN) {
-      ErrorMsg::message("Warning in Sphericity::analyze: "
-      " particles too back-to-back"); 
+      if (nBack < TIMESTOPRINT) os << " PYTHIA Error in "
+      "Sphericity::analyze: particles too back-to-back" << endl; 
+      ++nBack;
       return false;
     }
 
@@ -206,16 +211,19 @@ void Sphericity::list(ostream& os) {
 // These are of technical nature, as described for each.
 
 // Minimum number of particles to perform study.
-const int    Thrust::NSTUDYMIN = 2;
+const int    Thrust::NSTUDYMIN    = 2;
+
+// Maximum number of times that an error warning will be printed.
+const int    Thrust::TIMESTOPRINT = 1;
 
 // Major not too low or not possible to find major axis.
-const double Thrust::MAJORMIN  = 1e-10;
+const double Thrust::MAJORMIN     = 1e-10;
 
 //*********
  
 // Analyze event.
 
-bool Thrust::analyze(const Event& event) {
+bool Thrust::analyze(const Event& event, ostream& os) {
 
   // Initial values and counters zero.
   eVal1 = eVal2 = eVal3 = 0.;
@@ -240,8 +248,9 @@ bool Thrust::analyze(const Event& event) {
 
   // Very low multiplicities (0 or 1) not considered.
   if (nStudy < NSTUDYMIN) {
-    ErrorMsg::message("Warning in Thrust::analyze: "
-    " too few particles"); 
+    if (nFew < TIMESTOPRINT) os << " PYTHIA Error in " << 
+    "Thrust::analyze: too few particles" << endl; 
+    ++nFew;
     return false;
   }
 
@@ -358,6 +367,14 @@ void Thrust::list(ostream& os) {
 
 //*********
  
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// Assign minimal pAbs to avoid division by zero.
+const double SingleClusterJet::PABSMIN  = 1e-10; 
+
+//*********
+ 
 // Distance measures between two SingleClusterJet objects.
 
 double dist2Fun(int measure, const SingleClusterJet& j1, 
@@ -388,8 +405,15 @@ double dist2Fun(int measure, const SingleClusterJet& j1,
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
+// Maximum number of times that an error warning will be printed.
+const int    ClusterJet::TIMESTOPRINT   = 1;
+
+// Assign minimal pAbs to avoid division by zero.
+const double ClusterJet::PABSMIN        = 1e-10; 
+
 // Initial pT/m preclustering scale as fraction of clustering one.
 const double ClusterJet::PRECLUSTERFRAC = 0.1; 
+
 // Step with which pT/m is reduced if preclustering gives too few jets.
 const double ClusterJet::PRECLUSTERSTEP = 0.8;
 
@@ -398,7 +422,7 @@ const double ClusterJet::PRECLUSTERSTEP = 0.8;
 // Analyze event.
 
 bool ClusterJet::analyze(const Event& event, double yScaleIn, 
-  double pTscaleIn, int nJetMinIn, int nJetMaxIn) {
+  double pTscaleIn, int nJetMinIn, int nJetMaxIn, ostream& os) {
 
   // Input values. Initial values zero.
   yScale  = yScaleIn;
@@ -430,15 +454,16 @@ bool ClusterJet::analyze(const Event& event, double yScaleIn,
   // Very low multiplicities not considered.
   nParticles = particles.size();
   if (nParticles < nJetMin) {
-    ErrorMsg::message("Warning in ClusterJet::analyze: "
-    " too few particles"); 
+    if (nFew < TIMESTOPRINT) os << " PYTHIA Error in " << 
+    "ClusterJet::analyze: too few particles" << endl; 
+    ++nFew;
     return false;
   }
 
   // Squared maximum distance in GeV^2 for joining.
   double p2Sum = pSum.m2Calc();
   dist2Join = max( yScale * p2Sum, pow2(pTscale));
-  double dist2BigMin = 2. * max( dist2Join, p2Sum);
+  dist2BigMin = 2. * max( dist2Join, p2Sum);
 
   // Do preclustering if desired and possible. 
   if (doPrecluster && nParticles > nJetMin + 2) {
@@ -475,7 +500,7 @@ bool ClusterJet::analyze(const Event& event, double yScaleIn,
 
     // Join two closest jets.
     jets[jMin].pJet         += jets[kMin].pJet;
-    jets[jMin].pAbs          = jets[jMin].pJet.pAbs();
+    jets[jMin].pAbs          = max( PABSMIN, jets[jMin].pJet.pAbs());
     jets[jMin].multiplicity += jets[kMin].multiplicity;
     for (int i = 0; i < nParticles; ++i) 
     if (particles[i].daughter == kMin) particles[i].daughter = jMin;
@@ -608,8 +633,10 @@ void ClusterJet::reassign() {
   }
 
   // Replace old by new jet momenta.
-  for (int j = 0; j < int(jets.size()); ++j) 
+  for (int j = 0; j < int(jets.size()); ++j) {
     jets[j].pJet = jets[j].pTemp;
+    jets[j].pAbs =  max( PABSMIN, jets[j].pJet.pAbs());
+  }
 
   // Check that no empty clusters after reassignments.
   for ( ;  ; ) {
@@ -633,10 +660,11 @@ void ClusterJet::reassign() {
     } 
 
     // Let this particle form new jet and subtract off from existing.
-    int jSplit = particles[iSplit].daughter;    
+    int jSplit         = particles[iSplit].daughter;    
     jets[jEmpty]       = SingleClusterJet( particles[iSplit].pJet ); 
     jets[jSplit].pJet -=  particles[iSplit].pJet;
-    jets[jSplit].pAbs  = jets[jSplit].pJet.pAbs();
+    jets[jSplit].pAbs  =  max( PABSMIN,jets[jSplit].pJet.pAbs());
+    particles[iSplit].daughter = jEmpty;
     --jets[jSplit].multiplicity;
   }      
 
@@ -677,10 +705,18 @@ void ClusterJet::list(ostream& os) {
 
 //*********
  
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// Minimum number of particles to perform study.
+const int CellJet::TIMESTOPRINT = 1;
+
+//*********
+ 
 // Analyze event.
 
 bool CellJet::analyze(const Event& event, double eTjetMinIn, 
-  double coneRadiusIn, double eTseedIn) {
+  double coneRadiusIn, double eTseedIn, ostream& ) {
 
   // Input values. Initial values zero.
   eTjetMin   = eTjetMinIn;

@@ -1,5 +1,5 @@
 // Basics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -147,8 +147,10 @@ public:
   void rotaxis(double phi, const Vec4& n);
   void bst(double betaX, double betaY, double betaZ); 
   void bst(double betaX, double betaY, double betaZ, double gamma); 
-  void bst(const Vec4& vec); 
-  void bstback(const Vec4& vec); 
+  void bst(const Vec4& p); 
+  void bst(const Vec4& p, double m); 
+  void bstback(const Vec4& p); 
+  void bstback(const Vec4& p, double m); 
   void rotbst(const RotBstMatrix& M); 
 
   // Operator overloading with member functions
@@ -315,11 +317,20 @@ public:
   // Fill bin with weight.
   void fill(double x, double w = 1.) ;
 
+  // Return content of specific bin: -1 gives underflow and nBin overflow.
+  double getBinContent(int iBin) ;
+
+  // Return number of entries
+  double getEntries() {return nFill; }
+
   // Print histogram contents as a table (e.g. for Gnuplot).
   void table(ostream& os = cout) const ;
 
   // Check whether another histogram has same size and limits.
   bool sameSize(const Hist& h) const ;
+
+  // Take logarithm (base 10 or e) of bin contents.
+  void takeLog(bool tenLog = true) ;
 
   // Operator overloading with member functions
   Hist& operator+=(const Hist& h) ; 

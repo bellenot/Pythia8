@@ -53,6 +53,16 @@ between the <ei>gamma^*</ei> and <ei>Z^0</ei>.
 Scattering <ei>q qbar' -> W^+-</ei>.
 </flag>
 
+<flag name="SecondHard:GmZAndJet" default="off">
+Scattering <ei>q qbar -> gamma^*/Z^0 g</ei> and
+<ei>q g -> gamma^*/Z^0 q</ei>.
+</flag>
+
+<flag name="SecondHard:WAndJet" default="off">
+Scattering <ei>q qbar' -> W^+- g</ei> and
+<ei>q g -> W^+- q'</ei>.
+</flag>
+
 <p/>
 A further process collection comes with a warning flag:
 
@@ -321,4 +331,4 @@ anyway less relevant, since systematical errors are likely to dominate.
 
 </chapter>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

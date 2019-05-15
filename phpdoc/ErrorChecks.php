@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Error Checks</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -46,15 +48,13 @@ used for these checks, may also be called directly.
   
 
 <br/><br/><table><tr><td><strong>Check:levelParticleData  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>)</td></tr></table>
-<modepick name="Check:levelParticleData" default="1">
 The level of verbosity and checks of particle data, if switched on.
 <br/>
-<input type="radio" name="2" value="0"><strong>0 </strong>: mimimal amount of checks, e.g. that no channels open.<br/>
-<input type="radio" name="2" value="1" checked="checked"><strong>1 </strong>: further warning if individual channels closed,except for resonances.<br/>
-<input type="radio" name="2" value="2"><strong>2 </strong>: also print branching-ratio-averaged threshold massexcept for resonances.<br/>
-<input type="radio" name="2" value="11"><strong>11 </strong>: as 1, but include resonances in detailed checks.<br/>
-<input type="radio" name="2" value="12"><strong>12 </strong>: as 2, but include resonances in detailed checks.<br/>
-</modepick>
+<input type="radio" name="2" value="0"><strong>0 </strong>: mimimal amount of checks, e.g. that no channels open. <br/>
+<input type="radio" name="2" value="1" checked="checked"><strong>1 </strong>: further warning if individual channels closed, except for resonances.<br/>
+<input type="radio" name="2" value="2"><strong>2 </strong>: also print branching-ratio-averaged threshold mass except for resonances.<br/>
+<input type="radio" name="2" value="11"><strong>11 </strong>: as 1, but include resonances in detailed checks. <br/>
+<input type="radio" name="2" value="12"><strong>12 </strong>: as 2, but include resonances in detailed checks. <br/>
 
 <br/><br/><strong>Check:event</strong>  <input type="radio" name="3" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="3" value="off"><strong>Off</strong>
@@ -72,7 +72,7 @@ event listing and other detailed information will be printed.
 After that, only the normal error messages will be issued. 
 Error counters are always updated, and accumulated numbers can be   
 shown with <code>pythia.statistics()</code> at the end of the run.
-</modeopen>
+  
 
 <br/><br/><table><tr><td><strong>Check:epTolErr </td><td></td><td> <input type="text" name="5" value="1e-4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1e-4</strong></code>)</td></tr></table>
 Maximum allowed summed deviation of <i>E</i>, <i>p_x</i>, 
@@ -144,4 +144,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

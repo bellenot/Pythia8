@@ -1,5 +1,5 @@
 // Settings.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -25,6 +25,9 @@ map<string, Mode> Settings::modes;
 map<string, Parm> Settings::parms;
 map<string, Word> Settings::words;
 bool Settings::isInit = false;
+
+// Static copy of Info - not optimal solution??
+Info* Settings::infoPtr = 0;
 
 //*********
 
@@ -270,7 +273,7 @@ bool Settings::writeFile(string toFile, bool writeAll) {
   const char* cstring = toFile.c_str();
   ofstream os(cstring);  
   if (!os) {
-    ErrorMsg::message("Error in Settings::writeFile:"
+    infoPtr->errorMsg("Error in Settings::writeFile:"
       " could not open file", toFile);
     return false;
   }
@@ -537,25 +540,25 @@ void Settings::resetAll() {
 
 bool Settings::flag(string keyIn) {
   if (isFlag(keyIn)) return flags[toLower(keyIn)].valNow; 
-  ErrorMsg::message("Error in Settings::flag: unknown key", keyIn);
+  infoPtr->errorMsg("Error in Settings::flag: unknown key", keyIn);
   return false; 
 }
 
 int Settings::mode(string keyIn) {
   if (isMode(keyIn)) return modes[toLower(keyIn)].valNow; 
-  ErrorMsg::message("Error in Settings::mode: unknown key", keyIn);
+  infoPtr->errorMsg("Error in Settings::mode: unknown key", keyIn);
   return 0; 
 }
 
 double Settings::parm(string keyIn) {
   if (isParm(keyIn)) return parms[toLower(keyIn)].valNow; 
-  ErrorMsg::message("Error in Settings::parm: unknown key", keyIn);
+  infoPtr->errorMsg("Error in Settings::parm: unknown key", keyIn);
   return 0.; 
 }
 
 string Settings::word(string keyIn) {
   if (isWord(keyIn)) return words[toLower(keyIn)].valNow; 
-  ErrorMsg::message("Error in Settings::word: unknown key", keyIn);
+  infoPtr->errorMsg("Error in Settings::word: unknown key", keyIn);
   return " "; 
 }
 

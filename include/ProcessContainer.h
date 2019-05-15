@@ -1,5 +1,5 @@
 // ProcessContainer.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,7 +13,7 @@
 #include "Basics.h"
 #include "BeamParticle.h"
 #include "Event.h"
-#include "Information.h"
+#include "Info.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
 #include "PhaseSpace.h"
@@ -22,6 +22,8 @@
 #include "Settings.h"
 #include "SigmaProcess.h"
 #include "SigmaTotal.h"
+#include "SusyLesHouches.h"
+#include "UserHooks.h"
 
 namespace Pythia8 {
 
@@ -36,21 +38,24 @@ public:
 
   // Constructor. 
   ProcessContainer(SigmaProcess* sigmaProcessPtrIn = 0) 
-    : sigmaProcessPtr(sigmaProcessPtrIn) {} 
+    : sigmaProcessPtr(sigmaProcessPtrIn), phaseSpacePtr(0) {} 
 
   // Destructor.
   ~ProcessContainer() {delete phaseSpacePtr; delete sigmaProcessPtr;}
   
-  // Store pointers to Info and ResonanceDecays.
-  static void initStatic(Info* infoPtrIn, ResonanceDecays* resDecaysPtrIn) 
-    { infoPtr = infoPtrIn; resonanceDecaysPtr = resDecaysPtrIn;}
-
-  // Store or replace Les Houches pointers.
-  static void setLHAPtrs( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn) 
-    { lhaInitPtr = lhaInitPtrIn; lhaEvntPtr = lhaEvntPtrIn;}  
-
   // Initialize phase space and counters.
-  bool init(); 
+  bool init(Info* infoPtrIn, BeamParticle* beamAPtr, BeamParticle* beamBPtr, 
+    AlphaStrong* alphaSPtr, AlphaEM* alphaEMPtr, SigmaTotal* sigmaTotPtr, 
+    ResonanceDecays* resDecaysPtrIn, SusyLesHouches* slhaPtr,
+    UserHooks* userHooksPtr); 
+
+  // Store or replace Les Houches pointer.
+  void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;
+    if (sigmaProcessPtr > 0) sigmaProcessPtr->setLHAPtr(lhaUpPtr); 
+    if (phaseSpacePtr > 0) phaseSpacePtr->setLHAPtr(lhaUpPtr);}
+
+  // Update the CM energy of the event.
+  void newECM(double eCM) {phaseSpacePtr->newECM(eCM);}
 
   // Generate a trial event; accepted or not.
   bool trialProcess(); 
@@ -64,6 +69,9 @@ public:
   // Accumulate statistics after user veto.
   void accumulate() {++nAcc;}
 
+  // Reset statistics on events generated so far.
+  void reset();
+
   // Process name and code, and the number of final-state particles.
   string name()        const {return sigmaProcessPtr->name();}
   int    code()        const {return sigmaProcessPtr->code();}
@@ -76,8 +84,8 @@ public:
   long   nSelected()   const {return nSel;}
   long   nAccepted()   const {return nAcc;}
   double sigmaSelMC()  {if (nTry > nTryStat) sigmaDelta(); return sigmaAvg;}
-  double sigmaMC()  {if (nTry > nTryStat) sigmaDelta(); return sigmaFin;}
-  double deltaMC()  {if (nTry > nTryStat) sigmaDelta(); return deltaFin;} 
+  double sigmaMC()     {if (nTry > nTryStat) sigmaDelta(); return sigmaFin;}
+  double deltaMC()     {if (nTry > nTryStat) sigmaDelta(); return deltaFin;} 
 
   // Some kinematics quantities.
   int    id1()         const {return sigmaProcessPtr->id(1);}
@@ -95,24 +103,23 @@ public:
 
 private:
 
-  // Static pointer to various information on the generation.
-  static Info* infoPtr;
-
-  // Static pointer to ResonanceDecays object for sequential resonance decays.
-  static ResonanceDecays* resonanceDecaysPtr;
-
-  // Static pointers to LHAinit and LHAevnt for generating external events.
-  static LHAinit* lhaInitPtr;
-  static LHAevnt* lhaEvntPtr;
-
   // Constants: could only be changed in the code itself.
   static const int N12SAMPLE, N3SAMPLE;
 
   // Pointer to the subprocess matrix element.
-  SigmaProcess* sigmaProcessPtr;
+  SigmaProcess*    sigmaProcessPtr;
 
   // Pointer to the phase space generator.
-  PhaseSpace* phaseSpacePtr;
+  PhaseSpace*      phaseSpacePtr;
+
+  // Pointer to various information on the generation.
+  Info*            infoPtr;
+
+  // Pointer to ResonanceDecays object for sequential resonance decays.
+  ResonanceDecays* resDecaysPtr;
+
+  // Pointer to LHAup for generating external events.
+  LHAup*           lhaUpPtr;
 
   // Info on process.
   bool   isMinBias, isResolved, isDiffA, isDiffB, isLHA, allowNegSig,

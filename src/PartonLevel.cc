@@ -1,5 +1,5 @@
 // PartonLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -26,9 +26,9 @@ const int PartonLevel::NTRY = 10;
 // Main routine to initialize the parton-level generation process.
 
 bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, TimeShower* timesDecPtrIn,
-  TimeShower* timesPtrIn, SpaceShower* spacePtrIn,  
-  UserHooks* userHooksPtrIn) {
+  BeamParticle* beamBPtrIn,  SigmaTotal* sigmaTotPtr, 
+  TimeShower* timesDecPtrIn, TimeShower* timesPtrIn, 
+  SpaceShower* spacePtrIn, UserHooks* userHooksPtrIn) {
 
   // Store input pointers and modes for future use. 
   infoPtr            = infoPtrIn;
@@ -53,7 +53,7 @@ bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
 
   // Need MI initialization for minbias processes, even if only first MI.
   // But no need to initialize MI if never going to use it.
-  bool doMIinit      = doMI;
+  doMIinit           = doMI;
   if (Settings::flag("SoftQCD:minBias") || Settings::flag("SoftQCD:all"))
     doMIinit = true; 
   if (!Settings::flag("PartonLevel:all")) doMIinit = false;  
@@ -80,7 +80,8 @@ bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   // Set info and initialize the respective program elements.
   timesPtr->init( beamAPtr, beamBPtr);
   if (doISR) spacePtr->init( beamAPtr, beamBPtr);
-  if (doMIinit && !multi.init( beamAPtr, beamBPtr)) doMI = false;
+  if (doMIinit && !multi.init( infoPtr, beamAPtr, beamBPtr, sigmaTotPtr)) 
+    doMI = false;
   remnants.init( infoPtr, beamAPtr, beamBPtr);  
 
   // Succeeded. (Check return values from other classes??)
@@ -97,7 +98,7 @@ bool PartonLevel::next( Event& process, Event& event) {
   if (!infoPtr->isResolved()) return setupUnresolvedSys( process, event);
 
   // Special case if minimum bias: do hardest interaction.
-  multi.clear();
+  if (doMIinit) multi.clear();
   if (infoPtr->isMinBias()) {
     multi.pTfirst();
     multi.setupFirstSys( infoPtr, process);
@@ -157,6 +158,7 @@ bool PartonLevel::next( Event& process, Event& event) {
 
     // Begin evolution down in pT from hard pT scale.  
     do {
+ 
       typeVetoStep = 0;
       nRad         =  nISR + nFSRinProc;
 
@@ -299,7 +301,7 @@ bool PartonLevel::next( Event& process, Event& event) {
       // Keep on evolving until nothing is left to be done.
       } while (pTmax > 0.); 
     }
- 
+    
     // Add beam remnants, including primordial kT kick and colour tracing.
     if (doRemnants && !remnants.add( event)) physical = false;
  

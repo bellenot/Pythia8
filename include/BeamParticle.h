@@ -1,5 +1,5 @@
 // BeamParticle.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,7 +13,7 @@
 #include "Basics.h"
 #include "Event.h"
 #include "FragmentationFlavZpT.h"
-#include "Information.h"
+#include "Info.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
 #include "PythiaStdlib.h"
@@ -108,12 +108,13 @@ public:
   // Constructor.
   BeamParticle() {Q2ValFracSav = -1.;}  
 
-  // Initialize static data members.
-  static void initStatic();
+  // Initialize data on a beam particle and save pointers.
+  void init( int idIn, double pzIn, double eIn, double mIn, 
+    Info* infoPtrIn, PDF* pdfInPtr, PDF* pdfHardInPtr, 
+    bool isUnresolvedIn, StringFlav* flavSelPtrIn);
 
-  // Initialize. Possibility to force re-initialization by hand.
-  void init( int idIn, double pzIn, double eIn, double mIn, PDF* pdfInPtr,
-    PDF* pdfHardInPtr, bool isUnresolvedIn = false);
+  // Set new pZ and E, but keep the rest the same.
+  void newPzE( double pzIn, double eIn) {pBeam = Vec4( 0., 0., pzIn, eIn);}
 
   // Member functions for output.
   int id() const {return idBeam;}
@@ -216,24 +217,30 @@ public:
  
 private: 
 
-  // Static initialization data, normally only set once.
-  static int    maxValQuark, companionPower;
-  static double valencePowerMeson, valencePowerUinP,
-         valencePowerDinP, valenceDiqEnhance;
-  static bool   allowJunction;
-  static double pickQuarkNorm, pickQuarkPower, diffPrimKTwidth,
-         diffLargeMassSuppress;
-
   // Constants: could only be changed in the code itself.
   static const double XMINUNRESOLVED;
+
+  // Pointer to various information on the generation.
+  Info*       infoPtr;
+ 
+  // Pinters to PDF sets.
+  PDF*        pdfBeamPtr;
+  PDF*        pdfHardBeamPtr;
+
+  // Pointer to class for flavour generation.
+  StringFlav* flavSelPtr;
+
+  // Initialization data, normally only set once.
+  bool   allowJunction;
+  int    maxValQuark, companionPower;
+  double valencePowerMeson, valencePowerUinP, valencePowerDinP, 
+         valenceDiqEnhance, pickQuarkNorm, pickQuarkPower, 
+         diffPrimKTwidth, diffLargeMassSuppress;
 
   // Basic properties of a beam particle.
   int    idBeam, idBeamAbs;  
   Vec4   pBeam;
   double mBeam;
-  PDF*   pdfBeamPtr;
-  PDF*   pdfHardBeamPtr;
-
   // Beam kind. Valence flavour content for hadrons.
   bool   isLeptonBeam, isUnresolvedBeam, isHadronBeam, isMesonBeam, 
          isBaryonBeam;

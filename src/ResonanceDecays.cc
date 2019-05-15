@@ -1,5 +1,5 @@
 // ResonanceDecays.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -29,7 +29,7 @@ const int    ResonanceDecays::NTRYMASSES = 10000;
 // Mass above threshold for allowed decays.
 const double ResonanceDecays::MSAFETY   = 0.1; 
 
-// When constrainted kinematics cut high-mass tail of Breit-Wgner.
+// When constrainted kinematics cut high-mass tail of Breit-Wigner.
 const double ResonanceDecays::WIDTHCUT  = 5.;
 
 // Small number (relative to 1) to protect against roundoff errors.
@@ -90,7 +90,7 @@ bool ResonanceDecays::next( Event& process) {
 
       // Failed to find acceptable decays.
       if (!foundChannel) {
-        ErrorMsg::message("Error in ResonanceDecays::next:"
+        infoPtr->errorMsg("Error in ResonanceDecays::next:"
           " failed to find workable decay channel");         
         return false;
       }
@@ -380,7 +380,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
     else if (colTypeNow == -1) iAtriplet.push_back(i);
     else if (colTypeNow ==  2) iOctet.push_back(i);
     else {
-      ErrorMsg::message("Error in ResonanceDecays::pickColours:"
+      infoPtr->errorMsg("Error in ResonanceDecays::pickColours:"
         " unknown colour type encountered");
       return false;
     }
@@ -464,7 +464,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
 
   // If colours and anticolours do not match now then unphysical.
   if (nCol != nAcol) {
-    ErrorMsg::message("Error in ResonanceDecays::pickColours:"
+    infoPtr->errorMsg("Error in ResonanceDecays::pickColours:"
       " inconsistent colour tags");
     return false;
   }
@@ -502,7 +502,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
   // Error checks that amount of leftover colours and anticolours match.
   if ( (iTriplet.size() != iAtriplet.size())
     || (col0 != 0 && acol0 == 0) || (col0 == 0 && acol0 != 0) ) {
-    ErrorMsg::message("Error in ResonanceDecays::pickColours:"
+    infoPtr->errorMsg("Error in ResonanceDecays::pickColours:"
       " inconsistent colour tags");
     return false;
   }
@@ -585,7 +585,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
   
   // Must now have at least two dipoles (no 1 -> 8 or 8 -> 1).
   if (iDipCol.size() < 2) {
-    ErrorMsg::message("Error in ResonanceDecays::pickColours:"
+    infoPtr->errorMsg("Error in ResonanceDecays::pickColours:"
       " inconsistent colour tags");
     return false;
   }

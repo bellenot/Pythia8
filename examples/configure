@@ -24,24 +24,40 @@ for arg in $* ; do
   elif [ "x$arg" = "x--enable-shared" ] ; then
     SHAREDLIBS=yes
   elif [ "x$arg" = "x--help" ] ; then
-    echo -e \
-    "\nUsage: ./configure [options] , where options are:\n\n"\
-    "--help            : prints this help\n"\
-    "--enable-debug    : turns on debugging flags and turns off optimization\n"\
-    "--enable-shared   : use shared library (not yet implem.) (default no)\n"\
-    "--with-pythia6version : pythia6 version (to be taken from CERN afs MCGenerators, e.g. =411)\n"\
-    "--with-lhapdfversion : lhapdf version (to be taken from CERN afs MCGenerators, e.g. =5.3.0)\n"
+    echo "Usage: ./configure [options] , where options are:"
+    echo "--help                   : prints this help"
+    echo "--enable-debug           : turns on debugging flags and turns off optimization"
+    echo "--enable-shared          : use shared library (not yet implemented) (default no)"
+    echo "--with-lhapdf=lhapdfpath : path to LHAPDF libraries (must be version 5.3 or higher)"
+    echo "--with-lhapdfversion=v   : LHAPDF version (simplified alternative when using CERN AFS MCGenerators, e.g. =5.3.0)"
+    echo "--with-lhapdflibname=n   : lhapdf library name line (default is -lLHAPDF)"
+    echo "--with-lhapdfsets=path   : path to LHAPDF data (default is lhapdfpath/../PDFsets, CERN AFS default is lhapdfpath/../../../share/PDFsets)"
+    echo "--with-pythia6=path      : path to pythia6 libraries"
+    echo "--with-pythia6version=v  : pythia6 version (simplified alternative when using CERN AFS MCGenerators, e.g. =413)"
+    echo "--with-pythia6libname=n  : pythia6 library name line (default is GENSER standard: -lpythia6 -lpythia6_dummy -lpythia6_pdfdummy)"
     exit
-  elif [ "x${arg}" != "x${arg/=/}" ] ; then
-    option=${arg/=*/}
-    value=${arg/*=/}
+  elif [ x`echo x${arg} | grep "="` != x ] ; then
+    option=`echo ${arg} | awk -F = '{print $1}'`
+    value=`echo ${arg} | awk -F = '{print $2}'`
     if [ "x${option}" = "x--with-pythia6version" ] ; then
       PYTHIA6VERSION=${value}
+    elif [ "x${option}" = "x--with-pythia6" ] ; then
+      PYTHIA6LOCATION=${value}
+    elif [ "x${option}" = "x--with-pythia6libname" ] ; then
+      PYTHIA6LIBNAME=${value}
     elif [ "x${option}" = "x--with-lhapdfversion" ] ; then
       LHAPDFVERSION=${value}
+    elif [ "x${option}" = "x--with-lhapdf" ] ; then
+      LHAPDFLOCATION=${value}
+    elif [ "x${option}" = "x--with-lhapdflibname" ] ; then
+      LHAPDFLIBNAME=${value}
+    elif [ "x${option}" = "x--with-lhapdfsets" ] ; then
+      LHAPDFSETSLOCATION=${value}
     else
       echo "${arg}: wrong option. Ignored." >&2
     fi
+  else
+    echo "${arg}: wrong option. Ignored." >&2
   fi
 done
 
@@ -53,17 +69,43 @@ echo compilation mode is $COMPMODE
 # the version and/or platform).
 
 if [ x${PYTHIA6VERSION} = x ]; then
-  export PYTHIA6VERSION=410
+  export PYTHIA6VERSION=413
+else
+  if [ x${PYTHIA6LOCATION} = x ]; then
+    export PYTHIA6LOCATION=/afs/cern.ch/sw/lcg/external/MCGenerators/pythia6/${PYTHIA6VERSION}/${MYLCGPLATFORM}/lib/archive
+  fi
 fi
-export PYTHIA6LOCATION=/afs/cern.ch/sw/lcg/external/MCGenerators/pythia6/${PYTHIA6VERSION}/${MYLCGPLATFORM}/lib/archive
-export PYTHIA6LIBNAME="-lpythia6 -lpythia6_dummy -lpythia6_pdfdummy"
+if [ x${PYTHIA6LOCATION} = x ]; then
+  export PYTHIA6LOCATION=/afs/cern.ch/sw/lcg/external/MCGenerators/pythia6/${PYTHIA6VERSION}/${MYLCGPLATFORM}/lib/archive
+fi
+if [ x${PYTHIA6LIBNAME} = x ]; then
+  export PYTHIA6LIBNAME="-lpythia6 -lpythia6_dummy -lpythia6_pdfdummy"
+fi
 
-if [ x${LHAPDFVERSION} = x ]; then
-  export LHAPDFVERSION=5.2.3
+if [ x${LHAPDFLOCATION} != x ]; then
+  if [ x${LHAPDFSETSLOCATION} = x ]; then
+    export LHAPDFSETSLOCATION=${LHAPDFLOCATION}/../PDFsets
+  fi
 fi
-export LHAPDFLOCATION=/afs/cern.ch/sw/lcg/external/MCGenerators/lhapdf/${LHAPDFVERSION}/${MYLCGPLATFORM}/lib/archive
-export LHAPDFLIBNAME="-llhapdf -llhapdf_dummy"
-export LHAPDFSETSLOCATION=/afs/cern.ch/sw/lcg/external/MCGenerators/lhapdf/${LHAPDFVERSION}/share/PDFsets
+if [ x${LHAPDFVERSION} = x ]; then
+  export LHAPDFVERSION=5.3.1
+else
+  if [ x${LHAPDFLOCATION} = x ]; then
+    export LHAPDFLOCATION=/afs/cern.ch/sw/lcg/external/MCGenerators/lhapdf/${LHAPDFVERSION}/${MYLCGPLATFORM}/lib/archive
+    if [ x${LHAPDFSETSLOCATION} = x ]; then
+      export LHAPDFSETSLOCATION=/afs/cern.ch/sw/lcg/external/MCGenerators/lhapdf/${LHAPDFVERSION}/share/PDFsets
+    fi
+  fi
+fi
+if [ x${LHAPDFLOCATION} = x ]; then
+  export LHAPDFLOCATION=/afs/cern.ch/sw/lcg/external/MCGenerators/lhapdf/${LHAPDFVERSION}/${MYLCGPLATFORM}/lib/archive
+fi
+if [ x${LHAPDFLIBNAME} = x ]; then
+  export LHAPDFLIBNAME="-lLHAPDF"
+fi
+if [ x${LHAPDFSETSLOCATION} = x ]; then
+  export LHAPDFSETSLOCATION=/afs/cern.ch/sw/lcg/external/MCGenerators/lhapdf/${LHAPDFVERSION}/share/PDFsets
+fi
 
 #
 # User-changeable part, experts  -----------------------------
@@ -81,8 +123,7 @@ export CXXFLAGS_DBG="-g -ansi -pedantic -W -Wall"
 # Find platform.
 #
 export ARCH="`uname`"
-export theGcc1=`g++ --version | awk '{print$3}'`
-export theGcc=`echo ${theGcc1} | awk -F . '{print $1}'`
+export theGcc=`g++ --version | head -n 1 | awk '{print$3}' | awk -F . '{print $1}'`
 if [ ${theGcc} = 4 ]; then
   export ARCH=${ARCH}-gcc4
 fi
@@ -152,17 +193,20 @@ fi
 if [ $?PYTHIA6LOCATION ]; then
   if [ x${PYTHIA6LOCATION} != x ]; then
     if [ ! -d ${PYTHIA6LOCATION} ]; then
-      echo ERROR in PYTHIA6LOCATION: directory ${PYTHIA6LOCATION} does not exist
+      echo WARNING in PYTHIA6LOCATION: directory ${PYTHIA6LOCATION} does not exist
+      echo ...so you cannot run main programs that use Pythia 6 
     fi
   fi
 fi
 if [ $?LHAPDFLOCATION ]; then
   if [ x${LHAPDFLOCATION} != x ]; then
     if [ ! -d ${LHAPDFLOCATION} ]; then
-      echo ERROR in LHAPDFLOCATION: directory ${LHAPDFLOCATION} does not exist
+      echo WARNING in LHAPDFLOCATION: directory ${LHAPDFLOCATION} does not exist
+      echo ...so you cannot run main programs that use LHAPDF 
     fi
     if [ ! -d ${LHAPDFSETSLOCATION} ]; then
-      echo ERROR in LHAPDFSETSLOCATION: directory ${LHAPDFSETSLOCATION} does not exist
+      echo WARNING in LHAPDFSETSLOCATION: directory ${LHAPDFSETSLOCATION} does not exist
+      echo ...so you cannot run main programs that use LHAPDF 
     fi
   fi
 fi

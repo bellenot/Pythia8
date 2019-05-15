@@ -20,12 +20,12 @@ Main:showChangedParticleData = on  ! print changed particle and decay data
 #PartonLevel:FSR = off              ! no final-state radiation
 #HadronLevel:Hadronize = off        ! no hadronization
 #HadronLevel:Decay = off            ! no decays
-#Beams:allowJunction = off          ! debug only: do not allow junctions 
+#BeamRemnants:allowJunction = off   ! debug only: do not allow junctions 
 #TimeShower:QEDshowerByQ = off      ! no photon radiation off quarks
 #TimeShower:QEDshowerByL = off      ! no photon radiation off leptons   
 
 ! 3) Modify defaults for some key parameters.
-Beams:primordialKThard = 2.        ! modify primordial kT for hard processes
+BeamRemnants:primordialKThard = 2. ! modify primordial kT for hard processes
 MultipleInteractions:bProfile = 3  ! impact parameter profile
 MultipleInteractions:expPow = 1.3  ! profile exp( - b^expPow)
 MultipleInteractions:pT0Ref = 3.5  ! dampening of pT -> 0 divergence

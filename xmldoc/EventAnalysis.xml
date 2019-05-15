@@ -84,6 +84,9 @@ time/energy component.
 <method name="list()"> 
 provides a listing of the above information.
 </method>
+<method name="nError()"> 
+tells the number of times <code>analyze</code> failed to analyze events.
+</method>
 
 <h3>Thrust</h3>
 
@@ -143,6 +146,9 @@ vanishing time/energy component.
 </method>
 <method name="list()"> 
 provides a listing of the above information.
+</method>
+<method name="nError()"> 
+tells the number of times <code>analyze</code> failed to analyze events.
 </method>
 
 <h3>ClusterJet</h3>
@@ -246,6 +252,9 @@ record belongs to,
 </method>
 <method name="list()">
 provides a listing of the reconstructed jets.
+</method>
+<method name="nError()"> 
+tells the number of times <code>analyze</code> failed to analyze events.
 </method>
 
 <h3>CellJet</h3>
@@ -371,7 +380,10 @@ gives the invariant mass of the <ei>i</ei>'th jet, defined by the
 provides a listing of the above information (except <code>pMassless</code>, 
 for reasons of space).
 </method>
+<method name="nError()"> 
+tells the number of times <code>analyze</code> failed to analyze events.
+</method>
 
 </chapter>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

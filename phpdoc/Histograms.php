@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Histograms</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -176,6 +178,11 @@ can be an integer.
 <p/>
 Some further metods are:
 <ul>
+<li><code>getBinContent(iBin)</code> returns the value in bin 
+<code>iBin</code>, ranging from 1 through <code>nBin</code>,
+with <code>0</code> for underflow and <code>nBin + 1</code> for
+overflow.</li>
+<li><code>getEntries()</code> returns the number of entries.</li>
 <li><code>table(ostream& = cout)</code> prints a two-column table,
 where the first gives the center of each bin and the second the
 corresponding bin contents. This may be useful for plotting e.g. with 
@@ -185,9 +192,13 @@ Gnuplot.</li>
 <li><code>sameSize( Hist&)</code> checks that the number of bins and
 upper and lower limits are the same as in the histogram in the 
 argument.</li>
+<li><code>takeLog(true)</code> take 10-logarithm of contents 
+bin by bin.</li>
+<li><code>takeLog(false)</code> take <i>e</i>-logarithm of contents 
+bin by bin.</li>
 </ul>
 
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

@@ -4,6 +4,10 @@
 #
 # Author: M. Kirsanov
 
+if [ x$BASH_VERSION = x ]; then
+  echo warning: you are not using bash shell on which this script is tested
+fi
+
 #
 # User-changeable part -------------------------------
 #
@@ -23,22 +27,24 @@ for arg in $* ; do
   elif [ "x$arg" = "x--enable-shared" ] ; then
     SHAREDLIBS=yes
   elif [ "x$arg" = "x--help" ] ; then
-    echo -e \
-    "\nUsage: ./configure [options] , where options are:\n\n"\
-    "--help            : prints this help\n"\
-    "--enable-debug    : turns on debugging flags and turns off optimization\n"\
-    "--enable-shared   : turns on shared library creation (default no)\n"\
-    "--lcgplatform=lcgplatformname : platform, default is slc4_ia32_gcc34\n"\
-    "--with-hepmcversion : HepMC version (to be taken from CERN afs lcg external, e.g. =1.27.02)\n"\
-    "--with-clhepversion : CLHEP version (to be taken from CERN afs lcg external, e.g. =1.9.2.3-aa)\n"
+    echo "Usage: ./configure [options] , where options are:"
+    echo "--help                : prints this help"
+    echo "--enable-debug        : turns on debugging flags and turns off optimization"
+    echo "--enable-shared       : turns on shared library creation (default no)"
+    echo "--lcgplatform=name    : LCG platform name, default is slc4_ia32_gcc34"
+    echo "--with-hepmc=path     : path to HepMC library to build interface (default is not build)"
+    echo "--with-hepmcversion=v : HepMC version (simplified alternative when using CERN AFS LCG external, e.g. =2.01.08)"
+    echo "--with-clhepversion=v : CLHEP version (needed if HepMC 1.XX.XX is used, to be taken from CERN AFS LCG external, e.g. =1.9.3.2)"
     exit
-  elif [ "x${arg}" != "x${arg/=/}" ] ; then
-    option=${arg/=*/}
-    value=${arg/*=/}
+  elif [ x`echo x${arg} | grep "="` != x ] ; then
+    option=`echo ${arg} | awk -F = '{print $1}'`
+    value=`echo ${arg} | awk -F = '{print $2}'`
     if [ "x${option}" = "x--lcgplatform" ] ; then
       MYLCGPLATFORM=${value}
     elif [ "x${option}" = "x--with-hepmcversion" ] ; then
       HEPMCVERSION=${value}
+    elif [ "x${option}" = "x--with-hepmc" ] ; then
+      HEPMCLOCATION=${value}
     elif [ "x${option}" = "x--with-clhepversion" ] ; then
       CLHEPVERSION=${value}
     else
@@ -52,7 +58,7 @@ echo sharedlibs = $SHAREDLIBS
 
 # Environment variables for building HepMC interface library. Remark: starting
 # from HepMC version 2.00.00 CLHEP is not needed. Note that the HepMC interface
-# library is used by the examples main21, main22. Attention: if you have already
+# library is used by the examples main31, main32. Attention: if you have already
 # run these examples and you change HepMC or CLHEP version, you should
 # reset your LD_LIBRARY_PATH
 # The default values here correspond to CERN AFS lcg external
@@ -69,10 +75,35 @@ if [ "x${CLHEPVERSION}" != "x" ] ; then
 fi
 #   If you want to assign these variables by hand:
 #
-#export HEPMCVERSION=1.27.02
+#export HEPMCVERSION=1.28.02
 #export HEPMCLOCATION=/afs/cern.ch/sw/lcg/external/HepMC/${HEPMCVERSION}/${MYLCGPLATFORM}
-#export CLHEPVERSION=1.9.2.3-aa
+#export CLHEPVERSION=1.9.3.2
 #export CLHEPLOCATION=/afs/cern.ch/sw/lcg/external/clhep/${CLHEPVERSION}/${MYLCGPLATFORM}
+
+
+if [ "x${HEPMCVERSION}" = "x" ] ; then
+  if [ "x${HEPMCLOCATION}" != "x" ] ; then
+#                                            try to find out which HepMC version
+    test1=`echo $HEPMCLOCATION | grep \/1.`
+    test2=`echo $HEPMCLOCATION | grep \/2.`
+    echo $test1
+    echo $test2
+    if [ "x${test1}" != "x" ] ; then
+      export HEPMCVERSION=1.`echo $HEPMCLOCATION | awk -F \/1. '{print $2}' | awk -F \/ '{print $1}'`
+    fi
+    if [ "x${test2}" != "x" ] ; then
+      export HEPMCVERSION=2.`echo $HEPMCLOCATION | awk -F \/2. '{print $2}' | awk -F \/ '{print $1}'`
+    fi
+  fi
+fi
+if [ "x${HEPMCLOCATION}" != "x" ] ; then
+  if [ "x${HEPMCVERSION}" = "x" ] ; then
+    echo hepmc specifyed, but cannot find out which HepMC version
+    echo "please give the HepMC version (as an argument, before the path)"
+    echo exiting
+    exit 1
+  fi
+fi
 
 #
 # User-changeable part, experts  -----------------------------
@@ -90,8 +121,7 @@ export CXXFLAGS_DBG="-g -ansi -pedantic -W -Wall"
 # Find platform.
 #
 export ARCH="`uname`"
-export theGcc1=`g++ --version | awk '{print$3}'`
-export theGcc=`echo ${theGcc1} | awk -F . '{print $1}'`
+export theGcc=`g++ --version | head -n 1 | awk '{print$3}' | awk -F . '{print $1}'`
 if [ ${theGcc} = 4 ]; then
   export ARCH=${ARCH}-gcc4
 fi
@@ -158,13 +188,6 @@ fi
 #
 # Checks
 #
-if [ $?PYTHIA6LOCATION ]; then
-  if [ x${PYTHIA6LOCATION} != x ]; then
-    if [ ! -d ${PYTHIA6LOCATION} ]; then
-      echo ERROR in PYTHIA6LOCATION: directory ${PYTHIA6LOCATION} does not exist
-    fi
-  fi
-fi
 if [ $?HEPMCLOCATION ]; then
   if [ x${HEPMCLOCATION} != x ]; then
     if [ ! -d ${HEPMCLOCATION}/include ]; then
@@ -199,13 +222,6 @@ echo CFLAGS = ${CFLAGS} >> config.mk
 echo CXXFLAGS = ${CXXFLAGS} >> config.mk
 echo FLIBS = ${FLIBS} >> config.mk
 #
-if [ x${PYTHIA6LOCATION} != x ]; then
-  echo PYTHIA6LOCATION = ${PYTHIA6LOCATION} >> config.mk
-fi
-if [ x${PYTHIA6VERSION} != x ]; then
-  echo PYTHIA6VERSION = ${PYTHIA6VERSION} >> config.mk
-  echo PYTHIA6LIBNAME = "${PYTHIA6LIBNAME}" >> config.mk
-fi
 if [ x${HEPMCVERSION} != x ]; then
   echo HEPMCVERSION = ${HEPMCVERSION} >> config.mk
 fi

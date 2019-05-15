@@ -1,5 +1,5 @@
 // main07.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -24,12 +24,6 @@ int main() {
   pythia.readFile("main07.cmnd");    
 
   // Extract settings to be used in the main program.
-  int    idBeamA   = settings.mode("Main:idBeamA");
-  int    idBeamB   = settings.mode("Main:idBeamB");
-  bool   inCMframe = settings.flag("Main:inCMframe");
-  double eCM       = settings.parm("Main:eCM");
-  double eBeamA    = settings.parm("Main:eBeamA");
-  double eBeamB    = settings.parm("Main:eBeamB");
   int    nEvent    = settings.mode("Main:numberOfEvents");
   int    nList     = settings.mode("Main:numberToList");
   int    nShow     = settings.mode("Main:timesToShow");
@@ -40,9 +34,8 @@ int main() {
   bool   showAPD   = settings.flag("Main:showAllParticleData");
   bool   showAStat = settings.flag("Main:showAllStatistics");
  
-  // Initialization.
-  if (inCMframe) pythia.init( idBeamA, idBeamB, eCM);
-  else pythia.init( idBeamA, idBeamB, eBeamA, eBeamB);
+  // Initialize. Beam parameters set in .cmnd file.
+  pythia.init();
 
   // List changed data.
   if (showCS) settings.listChanged();

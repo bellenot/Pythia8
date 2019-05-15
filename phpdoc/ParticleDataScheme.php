@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>The Particle Data Scheme</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -648,4 +650,4 @@ echo "<a href='ErrorChecks.php?filepath=".$filepath."' target='page'>";?>error c
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

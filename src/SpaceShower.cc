@@ -1,5 +1,5 @@
 // SpaceShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -19,48 +19,55 @@ namespace Pythia8 {
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
+// Leftover companion can give PDF > 0 at small Q2 where other PDF's = 0,
+// and then one can end in infinite loop of impossible kinematics.
+const int    SpaceShower::MAXLOOPTINYPDF = 10; 
+
 // Switch to alternative (but equivalent) backwards evolution for
 // g -> Q Qbar (Q = c or b) when below QTHRESHOLD * mQ2.
-const double SpaceShower::CTHRESHOLD    = 2.0; 
-const double SpaceShower::BTHRESHOLD    = 2.0; 
+const double SpaceShower::CTHRESHOLD     = 2.0; 
+const double SpaceShower::BTHRESHOLD     = 2.0; 
 
 // Renew evaluation of PDF's when the pT2 step is bigger than this 
 // (in addition to initial scale and c and b thresholds.)
-const double SpaceShower::EVALPDFSTEP   = 0.1;
+const double SpaceShower::EVALPDFSTEP    = 0.1;
 
 // Lower limit on PDF value in order to avoid division by zero.
-const double SpaceShower::TINYPDF       = 1e-10;
+const double SpaceShower::TINYPDF        = 1e-10;
 
 // Lower limit on estimated evolution rate, below which stop.
-const double SpaceShower::TINYKERNELPDF = 1e-6;
+const double SpaceShower::TINYKERNELPDF  = 1e-6;
 
 // Lower limit on pT2, below which branching is rejected. 
-const double SpaceShower::TINYPT2       = 0.25e-6;
+const double SpaceShower::TINYPT2        = 0.25e-6;
 
 // No attempt to do backwards evolution of a heavy (c or b) quark 
 // if evolution starts at a scale pT2 < HEAVYPT2EVOL * mQ2.
-const double SpaceShower::HEAVYPT2EVOL  = 1.1;
+const double SpaceShower::HEAVYPT2EVOL   = 1.1;
 
 // No attempt to do backwards evolution of a heavy (c or b) quark 
 // if evolution starts at a  x > HEAVYXEVOL * x_max, where 
 // x_max is the largest possible x value for a g -> Q Qbar branching.
-const double SpaceShower::HEAVYXEVOL    = 0.9;
+const double SpaceShower::HEAVYXEVOL     = 0.9;
   
 // When backwards evolution Q -> g + Q creates a heavy quark Q,
 // an earlier branching g -> Q + Qbar will restrict kinematics
 // to  M_{Q Qbar}^2 > EXTRASPACEQ * 4 m_Q^2. (Smarter to be found??) 
-const double SpaceShower::EXTRASPACEQ   = 2.0;
+const double SpaceShower::EXTRASPACEQ    = 2.0;
+
+// Never pick pT so low that alphaS is evaluated too close to Lambda_3. 
+const double SpaceShower::LAMBDA3MARGIN  = 1.1;
 
 // Cutoff for f_e^e at x < 1 - 10^{-10} to be used in z selection.
 // Note: the x_min quantity come from 1 - x_max.
-const double SpaceShower::LEPTONXMIN    = 1e-10;
-const double SpaceShower::LEPTONXMAX    = 1. - 1e-10;
+const double SpaceShower::LEPTONXMIN     = 1e-10;
+const double SpaceShower::LEPTONXMAX     = 1. - 1e-10;
 
 // Stop l -> l gamma evolution slightly above m2l.
-const double SpaceShower::LEPTONPT2MIN  = 1.2;
+const double SpaceShower::LEPTONPT2MIN   = 1.2;
 
 // Enhancement of l -> l gamma trial rate to compensate imperfect modelling.
-const double SpaceShower::LEPTONFUDGE   = 10.;
+const double SpaceShower::LEPTONFUDGE    = 10.;
 
 //*********
 
@@ -84,7 +91,7 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
   pTmaxFudge      = Settings::parm("SpaceShower:pTmaxFudge"); 
   pTdampFudge     = Settings::parm("SpaceShower:pTdampFudge"); 
 
-  // Force emissions tobe ordered in rapidity/angle.
+  // Optionally force emissions to be ordered in rapidity/angle.
   doRapidityOrder = Settings::flag("SpaceShower:rapidityOrder");
 
   // Charm, bottom and lepton mass thresholds.
@@ -124,10 +131,13 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
     pTmin         = Settings::parm("SpaceShower:pTmin");
   }
 
-  // Calculate invariant mass of system. Set current pT0 scale.
+  // Calculate nominal invariant mass of events. Set current pT0 scale.
   sCM             = m2( beamAPtr->p(), beamBPtr->p());
   eCM             = sqrt(sCM);
   pT0             = pT0Ref * pow(eCM / ecmRef, ecmPow);
+
+  // Restrict pTmin to ensure that alpha_s(pTmin^2 + pT_0^2) does not blow up. 
+  pTmin = max( pTmin, sqrtpos(pow2(LAMBDA3MARGIN) * Lambda3flav2 - pT0*pT0) );
 
   // Parameters of alphaEM generation.
   alphaEMorder    = Settings::mode("SpaceShower:alphaEMorder");
@@ -242,6 +252,9 @@ void SpaceShower::prepare( int iSys, Event& event, bool limitPTmax) {
 
 double SpaceShower::pTnext( Event& , double pTbegAll, double pTendAll, 
   int nRadIn) {
+
+  // Current cm energy, in case it varies between events.
+  sCM           = m2( beamAPtr->p(), beamBPtr->p());
 
   // Starting values: no radiating dipole found.
   nRad          = nRadIn;
@@ -374,14 +387,26 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
   bool   needNewPDF     = true;
 
   // Begin evolution loop towards smaller pT values.
+  int    loopTinyPDFdau = 0;
+  bool   hasTinyPDFdau  = false;
   do { 
     wt = 0.;
+
+    // Bad sign if repeated looping with small daughter PDF, so fail.
+    // (Example: if all PDF's = 0 below Q_0, except for c/b companion.)
+    if (hasTinyPDFdau) ++loopTinyPDFdau;  
+    if (loopTinyPDFdau > MAXLOOPTINYPDF) {
+      infoPtr->errorMsg("Warning in SpaceShower::pT2nextQCD: "
+      "small daughter PDF"); 
+      return;
+    }
 
     // Initialize integrals of splitting kernels and evaluate parton 
     // densities at the beginning. Reinitialize after long evolution 
     // in pT2 or when crossing c and b flavour thresholds.
     if (needNewPDF || pT2 < EVALPDFSTEP * pT2PDF) {
-      pT2PDF = pT2;
+      pT2PDF        = pT2;
+      hasTinyPDFdau = false;
 
       // Determine overestimated z range; switch at c and b masses.
       if (pT2 > m2b) {
@@ -413,16 +438,19 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
       } 
 
       // Parton density of daughter at current scale. 
-      xPDFdaughter = max( TINYPDF, 
-        beam.xfISR(iSysNow, idDaughter, xDaughter, pT2) );
+      xPDFdaughter = beam.xfISR(iSysNow, idDaughter, xDaughter, pT2);
+      if (xPDFdaughter < TINYPDF) {
+        xPDFdaughter  = TINYPDF;
+        hasTinyPDFdau = true;
+      }
 
       // Integrals of splitting kernels for gluons: g -> g, q -> g.
       if (isGluon) {
         g2gInt = 6. * log(zMaxAbs * (1.-zMinAbs) 
           / (zMinAbs * (1.-zMaxAbs)));
-        if (doMEcorrections) g2gInt *= calcMEmax(MEtype, 21);
+        if (doMEcorrections) g2gInt *= calcMEmax(MEtype, 21, 21);
         q2gInt = (16./3.) * (1./sqrt(zMinAbs) - 1./sqrt(zMaxAbs));
-        if (doMEcorrections) q2gInt *= calcMEmax(MEtype, 1);
+        if (doMEcorrections) q2gInt *= calcMEmax(MEtype, 1, 21);
 
         // Parton density of potential quark mothers to a g.
         xPDFmotherSum = 0.;
@@ -444,16 +472,16 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
         zRootMin = (1. + sqrt(zMinAbs)) / (1. - sqrt(zMinAbs));
         zRootMax = (1. + sqrt(zMaxAbs)) / (1. - sqrt(zMaxAbs));
         q2qInt = (8./3.) * log( zRootMax / zRootMin );
-        if (doMEcorrections) q2qInt *= calcMEmax(MEtype, 1);
+        if (doMEcorrections) q2qInt *= calcMEmax(MEtype, 1, 1);
         g2qInt = 0.;
         kernelPDF = q2qInt; 
 
       // Integrals of splitting kernels for quarks: q -> q, g -> q.
       } else {
         q2qInt = (8./3.) * log( (1. - zMinAbs) / (1. - zMaxAbs) );
-        if (doMEcorrections) q2qInt *= calcMEmax(MEtype, 1);
+        if (doMEcorrections) q2qInt *= calcMEmax(MEtype, 1, 1);
         g2qInt = 0.5 * (zMaxAbs - zMinAbs);
-        if (doMEcorrections) g2qInt *= calcMEmax(MEtype, 21);
+        if (doMEcorrections) g2qInt *= calcMEmax(MEtype, 21, 1);
 
         // Increase estimated upper weight for g -> Q + Qbar.
         if (isMassive) {
@@ -477,6 +505,7 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
 
     // Pick pT2 (in overestimated z range), for one of three different cases.
     // Assume form alphas(pT0^2 + pT^2) * dpT^2/(pT0^2 + pT^2).
+    double Q2alphaS;
 
     // Fixed alpha_strong.
     if (alphaSorder == 0) {
@@ -490,11 +519,13 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
 
     // For second order reject by second term in alpha_strong expression.
     } else {
-      do pT2 = Lambda2 * pow( (pT2 + pT20) / Lambda2, 
+      do {
+        pT2 = Lambda2 * pow( (pT2 + pT20) / Lambda2,
         pow(Rndm::flat(), b0 / kernelPDF) ) - pT20;
-      while (alphaS.alphaS2OrdCorr(pT2 + pT20) < Rndm::flat() 
+        Q2alphaS = max(pT2 + pT20, pow2(LAMBDA3MARGIN) * Lambda3flav2);
+      } while (alphaS.alphaS2OrdCorr(Q2alphaS) < Rndm::flat()
         && pT2 > pT2minNow);
-    } 
+    }
 
     // Check for pT2 values that prompt special action.
 
@@ -609,8 +640,8 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
     phi = 2. * M_PI * Rndm::flat();
 
     // Evaluation of ME correction.
-    if (doMEcorrections) wt *= calcMEcorr(MEtype, idMother, m2Dip, z, Q2) 
-      / calcMEmax(MEtype, idMother); 
+    if (doMEcorrections) wt *= calcMEcorr(MEtype, idMother, idDaughter, 
+      m2Dip, z, Q2) / calcMEmax(MEtype, idMother, idDaughter); 
 
     // Optional dampening of large pT values in first radiation.
     if (dopTdamp && iSysNow == 0 && MEtype == 0 && nRad == 0) 
@@ -623,7 +654,7 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
     wt *= xPDFmotherNew / xPDFdaughterNew;
 
     // Check that valence step does not cause problem.
-    if (wt > 1.) ErrorMsg::message("Warning in SpaceShower::"
+    if (wt > 1.) infoPtr->errorMsg("Warning in SpaceShower::"
       "pT2nextQCD: weight above unity"); 
 
   // Iterate until acceptable pT (or have fallen below pTmin).
@@ -665,7 +696,7 @@ void SpaceShower::pT2nearQCDthreshold( BeamParticle& beam,
 
     // Check that not caught in infinite loop with impossible kinematics.
     if (++loop > 100) { 
-      ErrorMsg::message("Error in SpaceShower::pT2nearQCDthreshold: "
+      infoPtr->errorMsg("Error in SpaceShower::pT2nearQCDthreshold: "
         "stuck in loop"); 
       return; 
     }
@@ -751,7 +782,7 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
   } else f2fInt  = pow2(dipEndNow->chgType / 3.) * f2fIntA;
 
   // Upper estimate for evolution equation, including fudge factor. 
-  if (doMEcorrections) f2fInt *= calcMEmax(MEtype, 1);
+  if (doMEcorrections) f2fInt *= calcMEmax(MEtype, 1, 1);
   double kernelPDF = alphaEM2pi * f2fInt;
   double fudge = (isLeptonBeam) ? LEPTONFUDGE * log(m2Dip/m2Lepton) : 1.;
   kernelPDF *= fudge;
@@ -814,8 +845,8 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
     if (isLeptonBeam) wt *= log(pT2 / m2Lepton) / fudge;
 
     // Evaluation of ME correction.
-    if (doMEcorrections) wt *= calcMEcorr(MEtype, idMother, m2Dip, z, Q2) 
-      / calcMEmax(MEtype, idMother);
+    if (doMEcorrections) wt *= calcMEcorr(MEtype, idMother, idDaughter, 
+      m2Dip, z, Q2) / calcMEmax(MEtype, idMother, idDaughter);
 
     // Optional dampening of large pT values in first radiation.
     if (dopTdamp && iSysNow == 0 && MEtype == 0 && nRad == 0) 
@@ -1019,6 +1050,7 @@ bool SpaceShower::branch( Event& event) {
         || (mother.isLepton() && doQEDshowerByL) ) 
         dipEnd[iDip].chgType = mother.chargeType();
     }
+    // Kill ME corrections after first emission. 
     dipEnd[iDip].MEtype = 0;
   }
 
@@ -1070,6 +1102,10 @@ int SpaceShower::findMEtype( int iSys, Event& event) {
     if ( (idRes == 25 || idRes == 35 || idRes == 36) 
        && ( ( idIn1 == 21 && idIn2 == 21 ) 
        || ( idIn1 == 22 && idIn2 == 22 ) ) ) MEtype = 2; 
+
+    // f + fbar  -> Higgs boson.
+    if ( (idRes == 25 || idRes == 35 || idRes == 36) 
+       && abs(idIn1) < 20 && abs(idIn2) < 20 ) MEtype = 3; 
   }
 
   // Done.
@@ -1081,10 +1117,10 @@ int SpaceShower::findMEtype( int iSys, Event& event) {
 
 // Provide maximum of expected ME weight; for preweighting of evolution.
 
-double SpaceShower::calcMEmax( int MEtype, int idMother) {
+double SpaceShower::calcMEmax( int MEtype, int idMother, int idDaughter) {
 
-  // Currently only one non-unity case, so simplify.
-  if (MEtype == 1 && idMother > 20 ) return 3.;
+  // Currently only one non-unity case: g(gamma) f -> V f'.
+  if (MEtype == 1 && idMother > 20 && idDaughter < 20) return 3.;
   return 1.;
 
 }  
@@ -1092,30 +1128,49 @@ double SpaceShower::calcMEmax( int MEtype, int idMother) {
 //*********
 
 // Provide actual ME weight for current branching.
+// Note: currently ME corrections are only allowed for first branching 
+// on each side, so idDaughter is essentially known and checks overkill.
 
-double SpaceShower::calcMEcorr(int MEtype, int idMother,
+double SpaceShower::calcMEcorr(int MEtype, int idMother, int idDaughter,
   double M2, double z, double Q2) {
 
-  // Convert to Mandelstam variables.
+  // Convert to Mandelstam variables. Sometimes may need to swap later.
   double sH = M2 / z;
   double tH = -Q2;
   double uH = Q2 - M2 * (1. - z) / z;
+  int idMabs = abs(idMother);
+  int idDabs = abs(idDaughter);
 
   // Corrections for f + fbar -> s-channel vector boson.
   if (MEtype == 1) {
-    if (abs(idMother) < 20) {
+    if (idMabs < 20 && idDabs < 20) {
       return (tH*tH + uH*uH + 2. * M2 * sH) / (sH*sH + M2*M2); 
-    } else {
+    } else if (idDabs < 20) {
+      // g(gamma) f -> V f': -Q2 = (p_g - p_f')^2 in PS while 
+      // tHat = (p_f - p_f')^2 in ME so need to swap tHat <-> uHat.  
+      swap( tH, uH); 
       return (sH*sH + uH*uH + 2. * M2 * tH) / (pow2(sH - M2) + M2*M2); 
     }
 
   // Corrections for g + g -> Higgs boson.
   } else if (MEtype == 2) {
-    if (abs(idMother) < 20) {
+    if (idMabs < 20 && idDabs > 20) {
       return (sH*sH + uH*uH) / (sH*sH + pow2(sH - M2)); 
-    } else {
+    } else if (idDabs > 20) {
       return 0.5 * (pow4(sH) + pow4(tH) + pow4(uH) + pow4(M2)) 
         / pow2(sH*sH - M2 * (sH - M2)); 
+    }    
+
+  // Corrections for f + fbar -> Higgs boson (f = b mainly).
+  } else if (MEtype == 3) {
+    if (idMabs < 20 && idDabs < 20) {
+      // The PS and ME answers agree for f fbar -> H g/gamma. 
+      return 1.; 
+    } else if (idDabs < 20) {
+      // Need to swap tHat <-> uHat, cf. vector-boson production above. 
+      swap( tH, uH); 
+      return (sH*sH + uH*uH + 2. * (M2 - uH) * (M2 - sH)) 
+             / (pow2(sH - M2) + M2*M2); 
     }    
   }
 

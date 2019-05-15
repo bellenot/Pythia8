@@ -32,12 +32,12 @@ behaviour.
 <modepick name="SpaceShower:pTmaxMatch" default="0" min="0" max="2">
 Way in which the maximum shower evolution scale is set to match the 
 scale of the hard process itself.
-<option value="0"><i>(i)</i> if the final state of the hard process 
+<option value="0"><b>(i)</b> if the final state of the hard process 
 (not counting subsequent resonance decays) contains at least one quark 
 (<ei>u, d, s, c ,b</ei>), gluon or photon then <ei>pT_max</ei> 
 is chosen to be the factorization scale for internal processes 
 and the <code>scale</code> value for Les Houches input; 
-<i>(ii)</i> if not, emissions are allowed to go all the way up to 
+<b>(ii)</b> if not, emissions are allowed to go all the way up to 
 the kinematical limit. 
 The reasoning is that in the former set of processes the ISR
 emission of yet another quark, gluon or photon could lead to
@@ -51,6 +51,7 @@ may leave out some emissions that ought to have been simulated.
 <option value="2">always allow emissions up to the kinematical limit.
 This will simulate all possible event topologies, but may lead to
 doublecounting. 
+</option>
 <note>Note 1:</note> These options only apply to the hard interaction.
 Emissions off subsequent multiple interactions are always constrainted
 to be below the factorization scale of the process itself.  
@@ -163,7 +164,7 @@ all ISR QCD radiation, rather than the corresponding parameters below.
 This is a sensible physics ansatz, based on the assumption that colour 
 screening effects influence both MI and ISR in the same way. Photon 
 radiation is regularized separately in either case.
-<note>Warning:</note>if a large <code>pT0</code> is picked for multiple 
+<note>Warning:</note> if a large <code>pT0</code> is picked for multiple 
 interactions, such that the integrated interaction cross section is 
 below the nondiffractive inelastic one, this <code>pT0</code> will 
 automatically be scaled down to cope. Information on such a rescaling 
@@ -219,10 +220,10 @@ Parton shower cut-off mass for pure QED branchings.
 Assumed smaller than (or equal to) <ei>pTminChgQ</ei>.
 </parm>
 
-<flag name="SpaceShower:rapidityOrder" default="on">
+<flag name="SpaceShower:rapidityOrder" default="off">
 Force emissions, after the first,  to be ordered in rapidity,
 i.e. in terms of decreasing angles in a backwards-evolution sense. 
-Motivated by coherence arguments, but not uniquely constrained. 
+Could be used to probe sensitivity to unordered emissions.
 Only affects QCD emissions.
 </flag>
 
@@ -305,5 +306,5 @@ is involved.
 
 </chapter>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
 

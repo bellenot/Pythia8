@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Semi-Internal Processes</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -277,6 +279,7 @@ to work with lepton beams.
 <br/>* <code>ffbarChg</code>: a fermion and an antifermion that combine 
 to give charge +-1.
 <br/>* <code>fgm</code>: a fermion and a photon (gamma).
+<br/>* <code>ggm</code>: a gluon and a photon.
 <br/>* <code>gmgm</code>: two photons.
 
 <p/><code>method&nbsp; </code><strong> bool convert2mb() &nbsp;</strong> <br/>
@@ -432,4 +435,4 @@ a composite <i>d</i>. Obviously these variations may be combined.
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

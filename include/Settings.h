@@ -1,5 +1,5 @@
 // Settings.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,7 +13,7 @@
 #ifndef Pythia8_Settings_H
 #define Pythia8_Settings_H
 
-#include "Information.h"
+#include "Info.h"
 #include "PythiaStdlib.h"
 
 namespace Pythia8 {
@@ -109,6 +109,9 @@ public:
 
   // Constructor.
   Settings() {}
+
+  // Initialize static pointer.
+  static void initPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;}
  
   // Read in database from specific file.
   static bool init(string startFile = "../xmldoc/Index.xml", 
@@ -192,6 +195,9 @@ public:
       = words[toLower(keyIn)].valDefault ; }
 
 private:
+
+  // Pointer to various information on the generation.
+  static Info* infoPtr;
 
   // Map for bool flags.
   static map<string, Flag> flags;

@@ -55,7 +55,7 @@ the <a href="http://projects.hepforge.org/lhapdf/" target="page">LHAPDF
 library</a> <ref>Wha05</ref> you get access to a much wider selection.
 <note>Warning:</note> owing to previous problems with the behaviour of PDF's
 beyond the <ei>x</ei> and <ei>Q^2</ei> boundaries of a set, you should
-only use LHAPDF <i>version 5.3.0 or later</i>.
+only use LHAPDF <b>version 5.3.0 or later</b>.
 
 <flag name="PDF:useLHAPDF" default="off">
 If off then the choice of proton PDF is based on <code>pPDFset</code>
@@ -216,4 +216,4 @@ partons, etc.
 
 </chapter>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

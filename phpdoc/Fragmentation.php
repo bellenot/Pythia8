@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Fragmentation</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -185,7 +187,7 @@ moment we stay with the current recipe, to boost the above <i>pT</i>
 by a factor <i>enhancedWidth</i> for a small fraction 
 <i>enhancedFraction</i> of the breakups, where
 
-<br/><br/><table><tr><td><strong>StringPT:enhancedFraction </td><td></td><td> <input type="text" name="14" value="0.1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.1</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.1</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StringPT:enhancedFraction </td><td></td><td> <input type="text" name="14" value="0.01" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.01</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.1</code>)</td></tr></table>
 <i>enhancedFraction</i>,the fraction of string breaks with enhanced 
 width.
   
@@ -242,13 +244,14 @@ sum of quark/diquark constituent masses for a normal string description,
 else the ministring scenario is used.
   
 
-<br/><br/><table><tr><td><strong>FragmentationSystems:mJoin </td><td></td><td> <input type="text" name="20" value="0.1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.1</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>FragmentationSystems:mJoin </td><td></td><td> <input type="text" name="20" value="0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 1.</code>)</td></tr></table>
 When two colour-connected partons are very nearby, with at least 
 one being a gluon, they can be joined into one, to avoid technical 
 problems of very small string regions. The requirement for joining is 
 that the invariant mass of the pair is below <i>mJoin</i>, where a 
 gluon only counts with half its momentum, i.e. with its contribution 
-to the string region under consideration.
+to the string region under consideration. (Note that, for technical 
+reasons, the 0.2 GeV lower limit is de facto hardcoded.)
   
 
 <br/><br/><table><tr><td><strong>FragmentationSystems:mJoinJunction </td><td></td><td> <input type="text" name="21" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 2.</code>)</td></tr></table>
@@ -287,7 +290,7 @@ After <i>nTry</i> attempts, instead an attempt is made to produce a
 single hadron from the system. Should also this fail, some further
 attempts at obtaining two hadrons will be made before eventually 
 giving up.
-</modeopen>
+  
 
 <h3>Junction treatment</h3>
 
@@ -415,7 +418,7 @@ if($_POST["13"] != "0.36")
 $data = "StringPT:sigma = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "0.1")
+if($_POST["14"] != "0.01")
 {
 $data = "StringPT:enhancedFraction = ".$_POST["14"]."\n";
 fwrite($handle,$data);
@@ -445,7 +448,7 @@ if($_POST["19"] != "1.")
 $data = "HadronLevel:mStringMin = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["20"] != "0.1")
+if($_POST["20"] != "0.2")
 {
 $data = "FragmentationSystems:mJoin = ".$_POST["20"]."\n";
 fwrite($handle,$data);
@@ -487,5 +490,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
 

@@ -1,5 +1,5 @@
 // ProcessContainer.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -28,18 +28,6 @@ namespace Pythia8 {
 // Information allowing the generation of a specific process.
 
 //*********
- 
-// Definitions of static variables and functions.
-
-// Pointer to the information object.
-Info* ProcessContainer::infoPtr;
-
-// Pointer to the resonance decay object.
-ResonanceDecays* ProcessContainer::resonanceDecaysPtr;
-
-// Pointers to LHAinit and LHAevnt for generating external events.
-LHAinit* ProcessContainer::lhaInitPtr;
-LHAevnt* ProcessContainer::lhaEvntPtr;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -52,9 +40,12 @@ const int ProcessContainer::N3SAMPLE  = 1000;
 
 //*********
 
-// Initialize 
+// Initialize phase space and counters.
 
-bool ProcessContainer::init() {
+bool ProcessContainer::init(Info* infoPtrIn, BeamParticle* beamAPtr, 
+  BeamParticle* beamBPtr, AlphaStrong* alphaSPtr, AlphaEM* alphaEMPtr,
+  SigmaTotal* sigmaTotPtr, ResonanceDecays* resDecaysPtrIn, 
+  SusyLesHouches* slhaPtr, UserHooks* userHooksPtr) {
 
   // Extract info about current process from SigmaProcess object.
   isLHA       = sigmaProcessPtr->isLHA();
@@ -63,7 +54,7 @@ bool ProcessContainer::init() {
   isDiffA     = sigmaProcessPtr->isDiffA();
   isDiffB     = sigmaProcessPtr->isDiffB();
   int nFinal  = sigmaProcessPtr->nFinal();
-  lhaStrat    = (isLHA) ? lhaInitPtr->strategy() : 0;
+  lhaStrat    = (isLHA) ? lhaUpPtr->strategy() : 0;
   lhaStratAbs = abs(lhaStrat);
   allowNegSig = sigmaProcessPtr->allowNegativeSigma();
 
@@ -78,9 +69,17 @@ bool ProcessContainer::init() {
   else if (nFinal == 2) phaseSpacePtr = new PhaseSpace2to2tauyz();
   else                  phaseSpacePtr = new PhaseSpace2to3tauycyl();
 
-  // Store common info for PhaseSpace objects.
-  double eCM = infoPtr->eCM();
-  phaseSpacePtr->initInfo( sigmaProcessPtr, eCM);
+  // Store pointers and perform simple initialization.
+  infoPtr      = infoPtrIn;
+  resDecaysPtr = resDecaysPtrIn;
+  if (isLHA) {
+    sigmaProcessPtr->setLHAPtr(lhaUpPtr);
+    phaseSpacePtr->setLHAPtr(lhaUpPtr);
+  }
+  sigmaProcessPtr->init(infoPtr, beamAPtr, beamBPtr, alphaSPtr,
+    alphaEMPtr, sigmaTotPtr, slhaPtr);
+  phaseSpacePtr->init( sigmaProcessPtr, infoPtr, beamAPtr, 
+    beamBPtr, sigmaTotPtr, userHooksPtr);
 
   // Reset cross section statistics.
   nTry      = 0;
@@ -152,7 +151,7 @@ bool ProcessContainer::trialProcess() {
     // Check that not negative cross section when not allowed.
     if (!allowNegSig) {
       if (sigmaNow < sigmaNeg) {
-        ErrorMsg::message("Warning in ProcessContainer::trialProcess: neg"
+        infoPtr->errorMsg("Warning in ProcessContainer::trialProcess: neg"
           "ative cross section set 0", "for " +  sigmaProcessPtr->name() );
         sigmaNeg = sigmaNow;
       }
@@ -256,34 +255,34 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
     // Since LHA partons may be out of order, determine correct one.
     // (Recall that zeroth particle is empty.) 
     vector<int> newPos;
-    newPos.reserve(lhaEvntPtr->size());
+    newPos.reserve(lhaUpPtr->sizePart());
     newPos.push_back(0);
-    for (int iNew = 0; iNew < lhaEvntPtr->size(); ++iNew) {
+    for (int iNew = 0; iNew < lhaUpPtr->sizePart(); ++iNew) {
       // For iNew == 0 look for the two incoming partons, then for
       // partons having them as mothers, and so on layer by layer.
-      for (int i = 1; i < lhaEvntPtr->size(); ++i)
-        if (lhaEvntPtr->mother1(i) == newPos[iNew]) newPos.push_back(i);
+      for (int i = 1; i < lhaUpPtr->sizePart(); ++i)
+        if (lhaUpPtr->mother1(i) == newPos[iNew]) newPos.push_back(i);
       if (int(newPos.size()) <= iNew) break;
     } 
 
     // Find scale from which to begin MI/ISR/FSR evolution.
-    scale = lhaEvntPtr->scale();
+    scale = lhaUpPtr->scale();
     process.scale( scale);
 
     // Copy over info from LHA event to process, in proper order.
-    for (int i = 1; i < lhaEvntPtr->size(); ++i) {
+    for (int i = 1; i < lhaUpPtr->sizePart(); ++i) {
       int iOld = newPos[i];
-      int id = lhaEvntPtr->id(iOld);
+      int id = lhaUpPtr->id(iOld);
 
       // Translate from LHA status codes.
-      int lhaStatus =  lhaEvntPtr->status(iOld);
+      int lhaStatus =  lhaUpPtr->status(iOld);
       int status = -21;
       if (lhaStatus == 2 || lhaStatus == 3) status = -22;
       if (lhaStatus == 1) status = 23;
 
       // Find where mothers have been moved by reordering.
-      int mother1Old = lhaEvntPtr->mother1(iOld);   
-      int mother2Old = lhaEvntPtr->mother2(iOld);   
+      int mother1Old = lhaUpPtr->mother1(iOld);   
+      int mother2Old = lhaUpPtr->mother2(iOld);   
       int mother1 = 0;
       int mother2 = 0; 
       for (int im = 1; im < i; ++im) {
@@ -303,9 +302,9 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       // (Values shifted two steps to account for inserted beams.)
       int daughter1 = 0;
       int daughter2 = 0;
-      for (int im = i + 1; im < lhaEvntPtr->size(); ++im) { 
-        if (lhaEvntPtr->mother1(newPos[im]) == iOld
-          || lhaEvntPtr->mother2(newPos[im]) == iOld) {
+      for (int im = i + 1; im < lhaUpPtr->sizePart(); ++im) { 
+        if (lhaUpPtr->mother1(newPos[im]) == iOld
+          || lhaUpPtr->mother2(newPos[im]) == iOld) {
           if (daughter1 == 0 || im + 2 < daughter1) daughter1 = im + 2;
           if (daughter2 == 0 || im + 2 > daughter2) daughter2 = im + 2;
         }
@@ -316,16 +315,16 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       // Colour trivial, except reset irrelevant colour indices.
       int colType = ParticleDataTable::colType(id);
       int col1   = (colType == 1 || colType == 2) 
-                 ? lhaEvntPtr->col1(iOld) : 0;   
+                 ? lhaUpPtr->col1(iOld) : 0;   
       int col2   = (colType == -1 || colType == 2) 
-                 ?  lhaEvntPtr->col2(iOld) : 0; 
+                 ?  lhaUpPtr->col2(iOld) : 0; 
 
       // Momentum trivial.
-      double px  = lhaEvntPtr->px(iOld);  
-      double py  = lhaEvntPtr->py(iOld);  
-      double pz  = lhaEvntPtr->pz(iOld);  
-      double e   = lhaEvntPtr->e(iOld);  
-      double m   = lhaEvntPtr->m(iOld);
+      double px  = lhaUpPtr->px(iOld);  
+      double py  = lhaUpPtr->py(iOld);  
+      double pz  = lhaUpPtr->pz(iOld);  
+      double e   = lhaUpPtr->e(iOld);  
+      double m   = lhaUpPtr->m(iOld);
 
       // For resonance decay products use resonance mass as scale.
       double scaleNow = scale;
@@ -336,7 +335,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
         daughter2, col1, col2, Vec4(px, py, pz, e), m, scaleNow);
 
       // Check if need to store lifetime.
-      double tau = lhaEvntPtr->tau(iOld);
+      double tau = lhaUpPtr->tau(iOld);
       if (tau > 0.) process[iNow].tau(tau);
     }  
   }
@@ -391,8 +390,8 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   // Les Houches Accord process partly available, partly to be constructed.
   else {
     Q2Fac        = pow2(scale);
-    alphaEM      = lhaEvntPtr->alphaQED();
-    alphaS       = lhaEvntPtr->alphaQCD();
+    alphaEM      = lhaUpPtr->alphaQED();
+    alphaS       = lhaUpPtr->alphaQCD();
     Q2Ren        = Q2Fac;
     x1           = 2. * process[3].e() / infoPtr->eCM();
     x2           = 2. * process[4].e() / infoPtr->eCM();
@@ -400,12 +399,12 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
     sHat         = pSum * pSum;
 
     // Read info on parton densities if provided.
-    if (lhaEvntPtr->pdfIsSet()) {
-      pdf1       = lhaEvntPtr->xpdf1();
-      pdf2       = lhaEvntPtr->xpdf2();
-      Q2Fac      = pow2(lhaEvntPtr->scalePDF());
-      x1         = lhaEvntPtr->x1();
-      x2         = lhaEvntPtr->x2();
+    if (lhaUpPtr->pdfIsSet()) {
+      pdf1       = lhaUpPtr->xpdf1();
+      pdf2       = lhaUpPtr->xpdf2();
+      Q2Fac      = pow2(lhaUpPtr->scalePDF());
+      x1         = lhaUpPtr->x1();
+      x2         = lhaUpPtr->x2();
     }
 
     // Reconstruct kinematics of 2 -> 2 processes from momenta.
@@ -433,7 +432,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
   // For Les Houches event store subprocess classification.
   if (isLHA) {
-    int codeSub  = lhaEvntPtr->idProcess();
+    int codeSub  = lhaUpPtr->idProcess();
     ostringstream nameSub;
     nameSub << "user process " << codeSub; 
     infoPtr->setSubType( nameSub.str(), codeSub, nFin);
@@ -457,7 +456,7 @@ bool ProcessContainer::decayResonances( Event& process) {
 
   // Do sequential chain of uncorrelated isotropic decays.
   do {
-    physical = resonanceDecaysPtr->next( process);
+    physical = resDecaysPtr->next( process);
     if (!physical) return false;
 
     // Check whether flavours should be correlated.
@@ -479,6 +478,25 @@ bool ProcessContainer::decayResonances( Event& process) {
 
   // Done.
   return true;
+
+}
+
+//*********
+
+// Reset event generation statistics; but NOT maximum of cross section.
+
+void ProcessContainer::reset() {
+
+  nTry      = 0;
+  nSel      = 0;
+  nAcc      = 0;
+  nTryStat  = 0;
+  sigmaSum  = 0.;
+  sigma2Sum = 0.;
+  sigmaNeg  = 0.;
+  sigmaAvg  = 0.;
+  sigmaFin  = 0.;
+  deltaFin  = 0.;
 
 }
 
@@ -1565,6 +1583,22 @@ bool SetupContainers::init2(vector<ProcessContainer*>& container2Ptrs) {
   // A single W+-.
   if (Settings::flag("SecondHard:SingleW")) {
     sigmaPtr = new Sigma1ffbar2W;
+    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+
+  // A gamma*/Z0 and a hard jet.
+  if (Settings::flag("SecondHard:GmZAndJet")) {
+    sigmaPtr = new Sigma2qqbar2gmZg;
+    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
+    sigmaPtr = new Sigma2qg2gmZq;
+    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+
+  // A W+- and a hard jet.
+  if (Settings::flag("SecondHard:WAndJet")) {
+    sigmaPtr = new Sigma2qqbar2Wg;
+    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
+    sigmaPtr = new Sigma2qg2Wq;
     container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
 

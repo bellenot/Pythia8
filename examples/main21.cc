@@ -1,5 +1,5 @@
 // main21.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -18,12 +18,18 @@ void fillPartons(int type, double ee, Event& event) {
   // Reset event record to allow for new event.
   event.reset();
 
-  // Information on a q qbar or g g system, to be hadronized.
-  if (type == 1 || type == 2) {
-    int id1 = (type == 1) ?  2 : 21;
-    int id2 = (type == 1) ? -2 : 21;
-    event.append( id1, 1, 101,   0, 0., 0.,  ee, ee); 
-    event.append( id2, 1,   0, 101, 0., 0., -ee, ee);
+  // Information on a q qbar system, to be hadronized.
+  if (type == 1) {
+    int    id = 2;
+    double mm = ParticleDataTable::m0(id);
+    double pp = sqrtpos(ee*ee - mm*mm);
+    event.append(  id, 1, 101,   0, 0., 0.,  pp, ee, mm); 
+    event.append( -id, 1,   0, 101, 0., 0., -pp, ee, mm);
+
+  // Information on a g g system, to be hadronized.
+  } else if (type == 2) {  
+    event.append( 21, 1, 101, 102, 0., 0.,  ee, ee); 
+    event.append( 21, 1, 102, 101, 0., 0., -ee, ee); 
 
   // Information on a g g g system, to be hadronized.
   } else if (type == 3) {  

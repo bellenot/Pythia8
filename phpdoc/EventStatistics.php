@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Event Statistics</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -31,11 +33,27 @@ At the end of the run you will want to write out the final statistics
 on number of events generated, the corresponding cross sections and 
 the number of errors encountered. This is done with
 <pre>
-    pythia.statistics();
- </pre>
+    pythia.statistics(all = false, reset = false);
+</pre>
 assuming <code>pythia</code> is an instance of the <code>Pythia</code>
-class. The <code>statistics</code> method in its turn calls on the 
-methods below.
+class. 
+<ul>
+<li>The optional argument <code>all</code>, if <code>true</code>,
+allows a more extensive listing than the default one, see 
+multiple-interactions statistics below.</li>
+<li>The optional argument <code>reset</code>, if <code>true</code>,
+implies that all counters, e.g on events generated and errors experienced, 
+are reset to zero whenever the routine is called. The default instead is 
+that all stored statistics information is unaffected by the call. 
+Counters are automatically reset in each new <code>pythia.init()</code> 
+call, however, so the only time the <code>reset</code> option makes a 
+difference is if <code>statistics</code> is called several times in a 
+(sub)run.</li>
+</ul> 
+
+<p/>
+The <code>pythia.statistics(...)</code> method in its turn calls on the 
+methods below, for the different kinds of information.
 
 <h3>Cross-section statistics</h3>
 
@@ -49,15 +67,19 @@ points, whereof then not all survive. Rejections are normally done by the
 internal machinery, but can also be obtained by
 <?php $filepath = $_GET["filepath"];
 echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>user hooks</a>. 
-Therefore:<br/>
-(i) tried events reflect the original number of phase-space points 
-probed, as part of the upper estimate;<br/>
-(ii) selected events correspond to those that survive the internal 
-Monte-Carlo selection procedure;<br/> 
-(iii) accepted events are those that also survive the additional 
-user cuts.<br/> 
+Therefore:
+<ul>
+<li><b>tried</b> events reflect the original number of 
+phase-space points probed, as part of the upper estimate;</li>
+<li><b>selected</b> events correspond to those that survive 
+the internal Monte-Carlo selection procedure;</li> 
+<li><b>accepted</b> events are those that also survive 
+the additional user cuts.</li>
+</ul> 
 In most runs there would be no user hooks implemented, and then the 
-numbers of selected and of accepted events will agree.
+numbers of selected and of accepted events will agree. Aborted events 
+(see below) usually appear in the selected statistics but not in the 
+accepted one.
 
 <p/>
 For Les Houches events the total cross section will be correctly
@@ -71,49 +93,43 @@ of them.
 
 When Pythia is run, errors may occur, and give rise to warning messages.
 These may be of varying severity, as follows:
-<br/><b>Abort</b> means things went seriously wrong, and the 
+<ul>
+<li><b>Abort</b> means things went seriously wrong, and the 
 initialization or event generation failed. In the former case it is 
 not possible to generate events at all, in the latter the current
 event is flawed and should be skipped. In either case the respective
 method, <code>pythia.init(...)</code> or <code>pythia.next()</code>,
 then also returns the value <code>false</code>. There are occasions
 where an abort may be deliberate, such as when a file of Les Houches
-Events is read and the end of the file is reached.
-<br/><b>Error</b> normally is less severe. Typically the program will
+Events is read and the end of the file is reached.</li>
+<li><b>Error</b> normally is less severe. Typically the program will
 back up one step and try again. There are cases where this is not possible,
 in particular during the initialization and the generation of a hard
 process, and then the error may be followed by an abort as a direct 
-consequence (with two separate messages).   
-<br/><b>Warning</b> is even less severe. In some cases the program will 
+consequence (with two separate messages).</li>   
+<li><b>Warning</b> is even less severe. In some cases the program will 
 try again, with  good chances of success, in others no measure at all
-need to be taken. 
+need to be taken.</li> 
+</ul>
 
 <p/>
-The <code>ErrorMsg</code> class is rather small. It is handed any 
-abort, error or warning messages during the event generation phase, and 
-will store each distinct message, with a counter for how many times it is 
-issued. Thus it is possible to limit the number of identical messages 
-issued. The summary table printed by <code>pythia.statistics()</code> 
+The error messages is handled by a small part of the <code>Info</code> 
+class. It is handed any abort, error or warning messages during the event 
+generation phase, and will store each distinct message, with a counter 
+for how many times it is issued. Thus it is possible to limit the number 
+of identical messages issued, currently hardcoded so that each kind of 
+error message is only printed once 
+(<code>static const int TIMESTOPRINT = 1</code>). 
+The summary table printed by <code>pythia.statistics()</code> 
 provides a table with all the different messages issued, in 
 alphabetical order, with the total number of times each was generated.
 
-<p/>
-Should you use several <code>pythia.init(...)</code> calls in your code,
-the error counters will be reset for each new one. 
-
-<p/>
-There is only one mode affecting the <code>ErrorMsg</code> operation:
-<br/><br/><table><tr><td><strong>ErrorMsg:timesToPrint  </td><td></td><td> <input type="text" name="1" value="1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>)</td></tr></table>
-The number of times each distinct message is printed. That is, by
-default, each new kind of error/warning is only printed once.
-</modeopen> 
-
 <h3>Multiple-interactions statistics</h3>
 
-If you call <code>pythia.statistics(true)</code>, i.e. with the optional
-argument <code>true</code>, also statistics on multiple interactions
-is printed, comprising a list of all allowed subprocesses with how
-many times each of them has been generated. For the minimum-bias
+If you call <code>pythia.statistics(true)</code>, i.e. with the first
+optional argument <code>true</code>, also statistics on multiple 
+interactions is printed, comprising a list of all allowed subprocesses 
+with how many times each of them has been generated. For the minimum-bias
 process this also includes the hardest interaction, while else the 
 hardest process is excluded from the statistics. (This is because 
 the hardest process is of the same character and generated by the same
@@ -123,35 +139,7 @@ minimum bias as one single process, i.e. does not further specify
 the character of the hardest subprocess, so there is not any overlap 
 between the two.)
 
-<p/>
-Should you use several <code>pythia.init(...)</code> calls in your code,
-the multiple-interactions statistics will be reset for each new one. 
-
-<input type="hidden" name="saved" value="1"/>
-
-<?php
-echo "<input type='hidden' name='filepath' value='".$_GET["filepath"]."'/>"?>
-
-<table width="100%"><tr><td align="right"><input type="submit" value="Save Settings" /></td></tr></table>
-</form>
-
-<?php
-
-if($_POST["saved"] == 1)
-{
-$filepath = $_POST["filepath"];
-$handle = fopen($filepath, 'a');
-
-if($_POST["1"] != "1")
-{
-$data = "ErrorMsg:timesToPrint = ".$_POST["1"]."\n";
-fwrite($handle,$data);
-}
-fclose($handle);
-}
-
-?>
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>New-Gauge-Boson Processes</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -54,21 +56,22 @@ Code 3001.
   
 
 <br/><br/><table><tr><td><strong>Zprime:gmZmode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 6</code>)</td></tr></table>
-<modepick name="Zprime:gmZmode" default="0" min="0" max="6">
 Choice of full <ei>gamma^*/Z^0/Z'^0</ei> structure or not in 
 the above process. Note that, with the <ei>Z'^0</ei> part switched
 off, this process is reduced to what already exists among 
 <aloc href="ElectroweakProcesses">electroweak processes</aloc>, 
 so those options are here only for crosschecks.
 <br/>
-<input type="radio" name="2" value="0" checked="checked"><strong>0 </strong>: full <ei>gamma^*/Z^0/Z'^0</ei> structure,with interference included.<br/>
+<input type="radio" name="2" value="0" checked="checked"><strong>0 </strong>: full <ei>gamma^*/Z^0/Z'^0</ei> structure, with interference included.<br/>
 <input type="radio" name="2" value="1"><strong>1 </strong>: only pure <ei>gamma^*</ei> contribution.<br/>
 <input type="radio" name="2" value="2"><strong>2 </strong>: only pure <ei>Z^0</ei> contribution.<br/>
 <input type="radio" name="2" value="3"><strong>3 </strong>: only pure <ei>Z'^0</ei> contribution.<br/>
-<input type="radio" name="2" value="4"><strong>4 </strong>: only the <ei>gamma^*/Z^0</ei> contribution,including interference.<br/>
-<input type="radio" name="2" value="5"><strong>5 </strong>: only the <ei>gamma^*/Z'^0</ei> contribution,including interference.<br/>
-<input type="radio" name="2" value="6"><strong>6 </strong>: only the <ei>Z^0/Z'^0</ei> contribution,including interference.<br/>
-</modepick>
+<input type="radio" name="2" value="4"><strong>4 </strong>: only the <ei>gamma^*/Z^0</ei> contribution, including interference.<br/>
+<input type="radio" name="2" value="5"><strong>5 </strong>: only the <ei>gamma^*/Z'^0</ei> contribution, including interference.<br/>
+<input type="radio" name="2" value="6"><strong>6 </strong>: only the <ei>Z^0/Z'^0</ei> contribution, including interference.<br/>
+<br/><b>Note</b>: irrespective of the option used, the particle produced 
+will always be assigned code 32 for <ei>Z'^0</ei>, and open decay channels
+is purely dictated by what is set for the <ei>Z'^0</ei>. 
 
 <p/>
 The couplings of the <i>Z'^0</i> to quarks and leptons can
@@ -574,5 +577,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
 

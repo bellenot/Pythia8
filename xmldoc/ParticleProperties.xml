@@ -208,7 +208,7 @@ the colour and anticolour tags, Les Houches Accord <ref>Boo01</ref>
 style (starting from tag 101 by default, see below).
 </method>
 
-<method name="px(), py(), pz(0), e()">
+<method name="px(), py(), pz(), e()">
 the particle four-momentum components, alternatively extracted as a 
 <code>Vec4 p()</code>.
 </method>
@@ -481,5 +481,5 @@ Currently there is no information on polarization states.
 
 </chapter>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
 

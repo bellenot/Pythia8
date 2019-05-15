@@ -1,5 +1,5 @@
 // PartonDistributions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -15,6 +15,7 @@
 #define Pythia8_PartonDistributions_H
 
 #include "Basics.h"
+#include "Info.h"
 #include "ParticleData.h"
 #include "PythiaStdlib.h"
 
@@ -117,8 +118,9 @@ class LHAPDF : public PDF {
 public:
 
   // Constructor.
-  LHAPDF(int idBeamIn, string setName, int member = 0,  int nSetIn = 1) 
-    : PDF(idBeamIn), nSet(nSetIn) {init( setName, member);} 
+  LHAPDF(int idBeamIn, string setName, int member,  int nSetIn = 1, 
+    Info* infoPtr = 0) : PDF(idBeamIn), nSet(nSetIn) 
+    {init( setName, member, infoPtr);} 
 
   // Allow extrapolation beyond boundaries. This is optional.
   void setExtrapolate(bool extrapol); 
@@ -126,7 +128,7 @@ public:
 private:
 
   // Initialization of PDF set.
-  void init(string setName, int member);
+  void init(string setName, int member, Info* infoPtr);
 
   // Update all PDF values.
   void xfUpdate(int , double x, double Q2);

@@ -1,5 +1,5 @@
 C...main53.f is a part of the PYTHIA event generator.
-C...Copyright (C) 2007 Torbjorn Sjostrand.
+C...Copyright (C) 2008 Torbjorn Sjostrand.
 C...PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 C...Please respect the MCnet Guidelines, see GUIDELINES for details.
 

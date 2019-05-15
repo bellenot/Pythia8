@@ -1,5 +1,5 @@
 // main04.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -22,9 +22,6 @@ int main() {
   pythia.readFile("main04.cmnd");    
 
   // Extract settings to be used in the main program.
-  int    idBeamA = settings.mode("Main:idBeamA");
-  int    idBeamB = settings.mode("Main:idBeamB");
-  double eCM     = settings.parm("Main:eCM");
   int    nEvent  = settings.mode("Main:numberOfEvents");
   int    nList   = settings.mode("Main:numberToList");
   int    nShow   = settings.mode("Main:timesToShow");
@@ -32,8 +29,11 @@ int main() {
   bool   showCS  = settings.flag("Main:showChangedSettings");
   bool   showAS  = settings.flag("Main:showAllSettings");
 
-  // Initialization for Pythia6 event input.
-  pythia.init( idBeamA, idBeamB, eCM);
+  // Also need the CM energy.
+  double eCM     = settings.parm("Beams:eCM");
+
+  // Initialization using beam parameters in the .cmnd file.
+  pythia.init();
 
   // List changed or all data.
   if (showCS) settings.listChanged();

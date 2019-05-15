@@ -7,14 +7,13 @@
 // Mikhail.Kirsanov@cern.ch
 // Pythia8 I class
 //
-//    Modified 19.11.2006: "beam particle" (#0) is no more put in the record,
-//                         so particles are shifted by 1 wrt previous version
+//    Modified 17.12.2007: beam particles (# 1 and 2) are put in the record;
+//                         possibility to momentum-energy convert to MeV
 //
 //////////////////////////////////////////////////////////////////////////
 
 #include "HepMCInterface.h"
 #include "HepMC/GenEvent.h"
-#include "Event.h" // Pythia 8
 
 namespace HepMC {
 
@@ -22,7 +21,9 @@ namespace HepMC {
                           m_trust_both_mothers_and_daughters(0),
                           m_print_inconsistency_errors(1),
                           m_internal_event_number(0),
-                          m_crash_on_problem(false)
+                          m_crash_on_problem(false),
+                          m_convert_to_mev(false),
+                          m_mom_scale_factor(1.)
   {;}
 
   I_Pythia8::~I_Pythia8()
@@ -33,6 +34,7 @@ namespace HepMC {
   {
     // read one event from the Pythia8 and fill GenEvent
     // return T/F =success/failure
+    // this method does not fill PDF info
     //
     if ( !evt ) {
       std::cerr << "I_Pythia8::fill_next_event error - passed null event." 
@@ -60,17 +62,22 @@ namespace HepMC {
                                              // due to HEPEVT - HepMC convention
       hepevt_particles[i] = new GenParticle(
 #ifndef HEPMC2
-        HepLorentzVector( pyev[i].p().px(),
+        HepLorentzVector( m_mom_scale_factor*pyev[i].p().px(),
 #else
-              FourVector( pyev[i].p().px(),
+              FourVector( m_mom_scale_factor*pyev[i].p().px(),
 #endif
-                          pyev[i].p().py(),
-                          pyev[i].p().pz(),
-                          pyev[i].p().e()  ),
+                          m_mom_scale_factor*pyev[i].p().py(),
+                          m_mom_scale_factor*pyev[i].p().pz(),
+                          m_mom_scale_factor*pyev[i].p().e()  ),
         pyev[i].id(), istatus                );
       hepevt_particles[i]->suggest_barcode(i);
     }
 
+    //
+    // Here we assume that the first two particles in the list
+    // are the incoming beam particles.
+    evt->set_beam_particles( hepevt_particles[1], hepevt_particles[2] );
+    //
     // 3.+4. loop over particles AGAIN, this time creating vertices
     for ( i = 1; i < pyev.size(); ++i ) {
       // We go through and build EITHER the production or decay
@@ -211,4 +218,39 @@ namespace HepMC {
 
 	return 1;
   }
+
+
+  bool I_Pythia8::fill_next_event( Pythia8::Pythia& pythia, GenEvent* evt,
+                                   int ievnum, bool convertGluonTo0 )
+  {
+    // read one event from the Pythia8 and fill GenEvent
+    // return T/F =success/failure
+    // this method fills also PDF info
+    //
+
+    bool result = fill_next_event( pythia.event, evt, ievnum );
+    if( result ) put_pdf_info(evt, pythia, convertGluonTo0 );
+    return result;
+  }
+
+
+  void I_Pythia8::put_pdf_info( GenEvent* evt, Pythia8::Pythia& pythia,
+                                bool convertGluonTo0 )
+  {
+    int id1 = pythia.info.id1();
+    int id2 = pythia.info.id2();
+    if ( convertGluonTo0 ) {
+      if ( id1 == 21 ) id1 = 0;
+      if ( id2 == 21 ) id2 = 0;
+    }
+    double x1 = pythia.info.x1();
+    double x2 = pythia.info.x2();
+    double Q  = pythia.info.QRen();
+    double pdf1 = pythia.info.pdf1()/pythia.info.x1();
+    double pdf2 = pythia.info.pdf2()/pythia.info.x2();
+    // here f(x) is put as a pdf density, not xf(x)!
+    evt->set_pdf_info( PdfInfo(id1,id2,x1,x2,Q,pdf1,pdf2) ) ;
+  }
+
+
 }

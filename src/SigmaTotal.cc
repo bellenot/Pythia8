@@ -1,5 +1,5 @@
 // SigmaTotal.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -29,20 +29,6 @@ namespace Pythia8 {
 //*********
  
 // Definitions of static variables.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-bool   SigmaTotal::setTotal   = false;
-double SigmaTotal::sigTotOwn  = 80.;
-double SigmaTotal::sigElOwn   = 20.;
-double SigmaTotal::sigXBOwn   = 8.;
-double SigmaTotal::sigAXOwn   = 8.;
-double SigmaTotal::sigXXOwn   = 4.;
-bool   SigmaTotal::setElastic = false;
-double SigmaTotal::bSlope     = 18.;
-double SigmaTotal::rho        = 0.13;
-double SigmaTotal::lambda     = 0.71;
-double SigmaTotal::tAbsMin    = 5e-5;
-double SigmaTotal::alphaEM0   = 0.00729735;
-
 // Note that a lot of parameters are hardcoded as const here, rather 
 // than being interfaced for public change, since any changes would
 // have to be done in a globally consistent manner. Which basically 
@@ -119,9 +105,12 @@ const double SigmaTotal::SPROTON = 0.880;
 
 //*********
 
-// Initialize static data members.
+// Store pointer to Info and initialize data members.
 
-void SigmaTotal::initStatic() {
+void SigmaTotal::init(Info* infoPtrIn) {
+
+  // Store pointer.
+  infoPtr    = infoPtrIn;
 
   // User-set values for cross sections.  
   setTotal   = Settings::flag("SigmaTotal:setOwn");
@@ -144,13 +133,14 @@ void SigmaTotal::initStatic() {
 
 // Function that calculates the relevant properties.
 
-bool SigmaTotal::init( int idA, int idB, double eCM) {
+bool SigmaTotal::calc( int idA, int idB, double eCM) {
 
   // Derived quantities.
   alP2 = 2. * ALPHAPRIME;
   s0   = 1. / ALPHAPRIME;
 
   // Reset everything to zero to begin with.
+  isCalc = false;
   sigTot = sigEl = sigXB = sigAX = sigXX = sigND = bEl = s = bA = bB = 0.;
 
   // Order flavour of incoming hadrons: idAbsA < idAbsB (restore later).
@@ -290,15 +280,16 @@ bool SigmaTotal::init( int idA, int idB, double eCM) {
 
   // Inelastic nondiffractive by unitarity.
   sigND = sigTot - sigEl - sigXB - sigAX - sigXX; 
-  if (sigND < 0.) ErrorMsg::message("Error in SigmaTotal::init: "
+  if (sigND < 0.) infoPtr->errorMsg("Error in SigmaTotal::init: "
     "sigND < 0"); 
-  else if (sigND < 0.4 * sigTot) ErrorMsg::message("Warning in "
+  else if (sigND < 0.4 * sigTot) infoPtr->errorMsg("Warning in "
     "SigmaTotal::init: sigND suspiciously low"); 
 
   // Upper estimate of elastic, including Coulomb term, where appropriate.
   sigEl = sigElMax;
 
   // Done.
+  isCalc = true;
   return true;
 
 }

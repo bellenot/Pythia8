@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Beam Remnants</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -89,29 +91,29 @@ interactions, <i>m</i> the mass of the system, and
 defined beam remnant has a distribution of width <i>sigma_remn</i>, 
 independently of kinematical variables.
 
-<br/><br/><strong>Beams:primordialKT</strong>  <input type="radio" name="1" value="on" checked="checked"><strong>On</strong>
+<br/><br/><strong>BeamRemnants:primordialKT</strong>  <input type="radio" name="1" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="1" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow or not selection of primordial <i>kT</i> according to the
 parameter values below.
   
 
-<br/><br/><table><tr><td><strong>Beams:primordialKTsoft </td><td></td><td> <input type="text" name="2" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:primordialKTsoft </td><td></td><td> <input type="text" name="2" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The width <i>sigma_soft</i> in the above equation, assigned as a 
 primordial <i>kT</i> to initiators in the soft-interaction limit.
   
 
-<br/><br/><table><tr><td><strong>Beams:primordialKThard </td><td></td><td> <input type="text" name="3" value="2.1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.1</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:primordialKThard </td><td></td><td> <input type="text" name="3" value="2.1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.1</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The width <i>sigma_hard</i> in the above equation, assigned as a 
 primordial <i>kT</i> to initiators in the hard-interaction limit.
   
 
-<br/><br/><table><tr><td><strong>Beams:halfScaleForKT </td><td></td><td> <input type="text" name="4" value="7." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>7.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:halfScaleForKT </td><td></td><td> <input type="text" name="4" value="7." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>7.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The scale <i>Q_half</i> in the equation above, defining the 
 half-way point between hard and soft interactions. 
   
 
-<br/><br/><table><tr><td><strong>Beams:halfMassForKT </td><td></td><td> <input type="text" name="5" value="2." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:halfMassForKT </td><td></td><td> <input type="text" name="5" value="2." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The scale <i>m_half</i> in the equation above, defining the 
 half-way point between low-mass and high-mass subsystems.
 (Kinematics construction can easily fail if a system is assigned 
@@ -119,7 +121,7 @@ a primordial <i>kT</i> value higher than its mass, so the
 mass-dampening is intended to reduce some troubles later on.)
   
 
-<br/><br/><table><tr><td><strong>Beams:primordialKTremnant </td><td></td><td> <input type="text" name="6" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:primordialKTremnant </td><td></td><td> <input type="text" name="6" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The width <i>sigma_remn</i>, assigned as a primordial <i>kT</i> 
 to beam-remnant partons.
   
@@ -156,13 +158,13 @@ at the borderline between perturbative and nonperturbative QCD.
 As a simple attempt, an additional step is introduced, wherein the gluons 
 of a lower-<i>pT</i> system are merged with the ones in a higher-pT one. 
 
-<br/><br/><strong>Beams:reconnectColours</strong>  <input type="radio" name="7" value="on" checked="checked"><strong>On</strong>
+<br/><br/><strong>BeamRemnants:reconnectColours</strong>  <input type="radio" name="7" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="7" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Allow or not a system to be merged with another one.
   
 
-<br/><br/><table><tr><td><strong>Beams:reconnectRange </td><td></td><td> <input type="text" name="8" value="2.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 10.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:reconnectRange </td><td></td><td> <input type="text" name="8" value="2.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 10.</code>)</td></tr></table>
 A system with a hard scale <i>pT</i> can be merged with one of a 
 harder scale with a probability that is 
 <i>pT0_Rec^2 / (pT0_Rec^2 + pT^2)</i>, where
@@ -224,15 +226,15 @@ extensions at a later stage, as is the rest of this procedure.
 
 <h3>Further variables</h3>
 
-<br/><br/><table><tr><td><strong>Beams:maxValQuark  </td><td></td><td> <input type="text" name="9" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:maxValQuark  </td><td></td><td> <input type="text" name="9" value="3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 The maximum valence quark kind allowed in acceptable incoming beams,
 for which multiple interactions are simulated. Default is that hadrons
 may contain <i>u</i>, <i>d</i> and <i>s</i> quarks, 
 but not <i>c</i> and <i>b</i> ones, since sensible
 kinematics has not really been worked out for the latter.
-</modeopen>
+  
 
-<br/><br/><table><tr><td><strong>Beams:companionPower  </td><td></td><td> <input type="text" name="10" value="4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:companionPower  </td><td></td><td> <input type="text" name="10" value="4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
 When a sea quark has been found, a companion antisea quark ought to be
 nearby in <i>x</i>. The shape of this distribution can be derived 
 from the gluon mother distribution convoluted with the 
@@ -245,7 +247,7 @@ Since the whole framework is approximate anyway, this should be good
 enough. Note that companions typically are found at small <i>Q^2</i>, 
 if at all, so the form is supposed to represent <i>g(x)</i> at small 
 <i>Q^2</i> scales, close to the lower cutoff for multiple interactions. 
-</modeopen>
+  
 
 <p/>
 When assigning relative momentum fractions to beam-remnant partons,
@@ -261,34 +263,35 @@ particles will fix that.) An additional enhancement of the diquark
 momentum is obtained by its <i>x</i> value being rescaled by the 
 <code>valenceDiqEnhance</code> factor. 
 
-<br/><br/><table><tr><td><strong>Beams:valencePowerMeson </td><td></td><td> <input type="text" name="11" value="0.8" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.8</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:valencePowerMeson </td><td></td><td> <input type="text" name="11" value="0.8" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.8</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The abovementioned power for valence quarks in mesons.
   
 
-<br/><br/><table><tr><td><strong>Beams:valencePowerUinP </td><td></td><td> <input type="text" name="12" value="3.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3.5</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:valencePowerUinP </td><td></td><td> <input type="text" name="12" value="3.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>3.5</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The abovementioned power for valence <i>u</i> quarks in protons.
   
 
-<br/><br/><table><tr><td><strong>Beams:valencePowerDinP </td><td></td><td> <input type="text" name="13" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:valencePowerDinP </td><td></td><td> <input type="text" name="13" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The abovementioned power for valence <i>d</i> quarks in protons.
   
 
-<br/><br/><table><tr><td><strong>Beams:valenceDiqEnhance </td><td></td><td> <input type="text" name="14" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:valenceDiqEnhance </td><td></td><td> <input type="text" name="14" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.</code>)</td></tr></table>
 Enhancement factor for valence diqaurks in baryons, relative to the 
 simple sum of the two constituent quarks.
   
 
-<br/><br/><strong>Beams:allowJunction</strong>  <input type="radio" name="15" value="on" checked="checked"><strong>On</strong>
+<br/><br/><strong>BeamRemnants:allowJunction</strong>  <input type="radio" name="15" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="15" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
-The <code>off</code> option is intended for debug purposes only, as follows.
-When more than one valence quark is kicked out of a baryon beam,
-as part of the multiple interactions scenario, the subsequent
+The <code>off</code> option is intended for debug purposes only, as 
+follows. When more than one valence quark is kicked out of a baryon 
+beam, as part of the multiple interactions scenario, the subsequent
 hadronization is described in terms of a junction string topology.
 This description involves a number of technical complications that
 may make the program more unstable. As an alternative, by switching
-this option off, junction configurations are rejected, and the
-multiple interactions and their showers are redone until a 
+this option off, junction configurations are rejected (which gives 
+an error message that the remnant flavour setup failed), and the
+multiple interactions and showers are redone until a 
 junction-free topology is found. 
    
 
@@ -306,12 +309,12 @@ P_q / P_g = N / m^p
 </i><br/> 
 is assumed.
 
-<br/><br/><table><tr><td><strong>Beams:pickQuarkNorm </td><td></td><td> <input type="text" name="16" value="5.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:pickQuarkNorm </td><td></td><td> <input type="text" name="16" value="5.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The abovementioned normalization <i>N</i> for the relative quark
 rate in diffractive systems.
   
 
-<br/><br/><table><tr><td><strong>Beams:pickQuarkPower </td><td></td><td> <input type="text" name="17" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:pickQuarkPower </td><td></td><td> <input type="text" name="17" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The abovementioned mass-dependence power <i>p</i> for the relative 
 quark rate in diffractive systems.
   
@@ -322,13 +325,13 @@ sharing between the the two remnant partons is determined by the
 same parameters as above. It is plausible that the primordial 
 <i>kT</i> may be lower than in perturbative processes, however:
 
-<br/><br/><table><tr><td><strong>Beams:diffPrimKTwidth </td><td></td><td> <input type="text" name="18" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:diffPrimKTwidth </td><td></td><td> <input type="text" name="18" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The width of Gaussian distributions in <i>p_x</i> and <i>p_y</i> 
 separately that is assigned as a primordial <i>kT</i> to the two 
 beam remnants when a gluon is kicked out of a diffractive system.
   
 
-<br/><br/><table><tr><td><strong>Beams:diffLargeMassSuppress </td><td></td><td> <input type="text" name="19" value="2." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>BeamRemnants:diffLargeMassSuppress </td><td></td><td> <input type="text" name="19" value="2." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The choice of longitudinal and transverse structure of a diffractive
 beam remnant for a kicked-out gluon implies a remnant mass 
 <i>m_rem</i> distribution (i.e. quark plus diquark invariant mass 
@@ -355,97 +358,97 @@ $handle = fopen($filepath, 'a');
 
 if($_POST["1"] != "on")
 {
-$data = "Beams:primordialKT = ".$_POST["1"]."\n";
+$data = "BeamRemnants:primordialKT = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["2"] != "0.4")
 {
-$data = "Beams:primordialKTsoft = ".$_POST["2"]."\n";
+$data = "BeamRemnants:primordialKTsoft = ".$_POST["2"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["3"] != "2.1")
 {
-$data = "Beams:primordialKThard = ".$_POST["3"]."\n";
+$data = "BeamRemnants:primordialKThard = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["4"] != "7.")
 {
-$data = "Beams:halfScaleForKT = ".$_POST["4"]."\n";
+$data = "BeamRemnants:halfScaleForKT = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["5"] != "2.")
 {
-$data = "Beams:halfMassForKT = ".$_POST["5"]."\n";
+$data = "BeamRemnants:halfMassForKT = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["6"] != "0.4")
 {
-$data = "Beams:primordialKTremnant = ".$_POST["6"]."\n";
+$data = "BeamRemnants:primordialKTremnant = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["7"] != "on")
 {
-$data = "Beams:reconnectColours = ".$_POST["7"]."\n";
+$data = "BeamRemnants:reconnectColours = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["8"] != "2.5")
 {
-$data = "Beams:reconnectRange = ".$_POST["8"]."\n";
+$data = "BeamRemnants:reconnectRange = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["9"] != "3")
 {
-$data = "Beams:maxValQuark = ".$_POST["9"]."\n";
+$data = "BeamRemnants:maxValQuark = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["10"] != "4")
 {
-$data = "Beams:companionPower = ".$_POST["10"]."\n";
+$data = "BeamRemnants:companionPower = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["11"] != "0.8")
 {
-$data = "Beams:valencePowerMeson = ".$_POST["11"]."\n";
+$data = "BeamRemnants:valencePowerMeson = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["12"] != "3.5")
 {
-$data = "Beams:valencePowerUinP = ".$_POST["12"]."\n";
+$data = "BeamRemnants:valencePowerUinP = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["13"] != "2.0")
 {
-$data = "Beams:valencePowerDinP = ".$_POST["13"]."\n";
+$data = "BeamRemnants:valencePowerDinP = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["14"] != "2.0")
 {
-$data = "Beams:valenceDiqEnhance = ".$_POST["14"]."\n";
+$data = "BeamRemnants:valenceDiqEnhance = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["15"] != "on")
 {
-$data = "Beams:allowJunction = ".$_POST["15"]."\n";
+$data = "BeamRemnants:allowJunction = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["16"] != "5.0")
 {
-$data = "Beams:pickQuarkNorm = ".$_POST["16"]."\n";
+$data = "BeamRemnants:pickQuarkNorm = ".$_POST["16"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["17"] != "1.0")
 {
-$data = "Beams:pickQuarkPower = ".$_POST["17"]."\n";
+$data = "BeamRemnants:pickQuarkPower = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["18"] != "0.5")
 {
-$data = "Beams:diffPrimKTwidth = ".$_POST["18"]."\n";
+$data = "BeamRemnants:diffPrimKTwidth = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["19"] != "2.")
 {
-$data = "Beams:diffLargeMassSuppress = ".$_POST["19"]."\n";
+$data = "BeamRemnants:diffLargeMassSuppress = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -455,4 +458,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

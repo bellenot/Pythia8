@@ -1,5 +1,5 @@
 // SigmaTotal.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -9,7 +9,7 @@
 #ifndef Pythia8_SigmaTotal_H
 #define Pythia8_SigmaTotal_H
 
-#include "Information.h"
+#include "Info.h"
 #include "ParticleData.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
@@ -25,15 +25,17 @@ class SigmaTotal {
 
 public:
 
-  // Constructor, also with incoming beams and CM energy.
-  SigmaTotal() {};
-  SigmaTotal(int idA, int idB, double eCM) { init(idA, idB, eCM) ;}
+  // Constructor.
+  SigmaTotal() : isCalc(false) {};
 
-  // Initialize static data members.
-  static void initStatic();
+  // Storee pointer to Info and initialize data members.
+  void init(Info* infoPtrIn);
 
   // Calculate, or recalculate for new beams or new energy.
-  bool init(int idA, int idB, double eCM); 
+  bool calc(int idA, int idB, double eCM); 
+
+  // Confirm that initialization worked.
+  bool   hasSigmaTot() const {return isCalc;}
 
   // Read out total and partial cross sections.
   double sigmaTot() const {return sigTot;}
@@ -65,10 +67,10 @@ public:
 
 private:
 
-  // Static initialization data, normally only set once.
-  static bool   setTotal, setElastic;
-  static double sigTotOwn, sigElOwn, sigXBOwn, sigAXOwn, sigXXOwn,
-                bSlope, rho, lambda, tAbsMin, alphaEM0;
+  // Initialization data, normally only set once.
+  bool   isCalc, setTotal, setElastic;
+  double sigTotOwn, sigElOwn, sigXBOwn, sigAXOwn, sigXXOwn,
+         bSlope, rho, lambda, tAbsMin, alphaEM0;
 
   // Constants: could only be changed in the code itself.
   static const int    IHADATABLE[], IHADBTABLE[], ISDTABLE[], IDDTABLE[];
@@ -76,7 +78,10 @@ private:
                       ALPHAPRIME, CONVERTEL, CONVERTSD, CONVERTDD, MMIN0, 
                       CRES, MRES0, CSD[10][8], CDD[10][9], SPROTON;
 
-  // Store values found by init.
+  // Pointer to various information on the generation.
+  Info*  infoPtr;
+
+  // Store values found by calc.
   double sigTot, sigEl, sigXB, sigAX, sigXX, sigND, bEl, s, bA, bB,
          alP2, s0, exp4, mMinXBsave, mMinAXsave, mResXBsave, mResAXsave;
 

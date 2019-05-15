@@ -149,11 +149,11 @@ ifneq (x$(HEPMCLOCATION),x)
  ifneq ($(findstring x2,x$(HEPMCVERSION)),x2)
   ifneq (x$(CLHEPLOCATION),x)
    HEPMCINCLUDE+= -I$(CLHEPLOCATION)/include
+   ifeq ($(wildcard $(CLHEPLOCATION)/include/CLHEP/Vector/*.h),)
+    HEPMCERROR= HepMC interface: ERROR, no CLHEP vector headers found in ${CLHEPLOCATION}/include/CLHEP/Vector
+   endif
   else
    HEPMCERROR= HepMC interface: ERROR, CLHEPLOCATION should be defined with HEPMCLOCATION
-  endif
-  ifeq ($(wildcard $(CLHEPLOCATION)/include/CLHEP/Vector/*.h),)
-   HEPMCERROR= HepMC interface: ERROR, no CLHEP vector headers found in ${CLHEPLOCATION}/include/CLHEP/Vector
   endif
  endif
 
@@ -204,8 +204,10 @@ ifneq (x$(HEPMCLOCATION),x)
 
  else
 
-   $(LIBDIR)/libhepmcinterface.so : hepmcinterface/I_Pythia8.cc
+   $(LIBDIRARCH)/libhepmcinterface.a $(LIBDIR)/libhepmcinterface.so :
 	@echo $(HEPMCERROR)
+
+
 
  endif
 

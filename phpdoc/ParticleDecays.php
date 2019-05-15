@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Particle Decays</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -102,7 +104,7 @@ detector effects.
 
 <br/><br/><table><tr><td><strong>ParticleDecays:rMax </td><td></td><td> <input type="text" name="6" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The above <i>rMax</i>, expressed in mm/c.
-  
+   
 
 <p/>
 (vi) Particles may be requested to decay within a given cylidrical 
@@ -119,11 +121,11 @@ detector effects.
 
 <br/><br/><table><tr><td><strong>ParticleDecays:xyMax </td><td></td><td> <input type="text" name="8" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The above <i>xyMax</i>, expressed in mm/c.
-  
+   
 
 <br/><br/><table><tr><td><strong>ParticleDecays:zMax </td><td></td><td> <input type="text" name="9" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The above <i>zMax</i>, expressed in mm/c.
-  
+   
 
 <h3>Mixing</h3>
 
@@ -136,13 +138,13 @@ Allow or not <i>B^0 - B^0bar</i> and <i>B_s^0 - B_s^0bar</i> mixing.
 <br/><br/><table><tr><td><strong>ParticleDecays:xBdMix </td><td></td><td> <input type="text" name="11" value="0.776" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.776</strong></code>; <code>minimum = 0.74</code>; <code>maximum = 0.81</code>)</td></tr></table>
 The mixing parameter <i>x_d = Delta(m_B^0)/Gamma_B^0</i> in the 
 <i>B^0 - B^0bar</i> system. (Default from RPP2006.)
-  
+   
 
 <br/><br/><table><tr><td><strong>ParticleDecays:xBsMix </td><td></td><td> <input type="text" name="12" value="26.05" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>26.05</strong></code>; <code>minimum = 22.0</code>; <code>maximum = 30.0</code>)</td></tr></table>
 The mixing parameter <i>x_s = Delta(m_B_s^0)/Gamma_B_s^0</i> in the 
 <i>B_s^0 - B_s^0bar</i> system. (Delta-m from CDF hep-ex-0609040,
 Gamma from RPP2006.)
-  
+   
 
 <h3>Other variables</h3>
 
@@ -150,7 +152,7 @@ Gamma from RPP2006.)
 Minimum mass difference required between the decaying mother mass 
 and the sum of the daughter masses, kept as a safety margin to avoid
 numerical problems in the decay generation.
-  
+   
 
 <br/><br/><table><tr><td><strong>ParticleDecays:sigmaSoft </td><td></td><td> <input type="text" name="14" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.</code>)</td></tr></table>
 In semileptonic decays to more than one hadron, such as 
@@ -160,7 +162,7 @@ dampened in momentum by an explicit weight factor
 three-momentum in the rest frame of the decaying particle.
 This takes into account that such further particles come from the
 fragmentation of the spectator parton and thus should be soft.   
-  
+   
 
 <p/>
 When a decay mode is defined in terms of a partonic content, a random 
@@ -183,15 +185,15 @@ the formula above.
 
 <br/><br/><table><tr><td><strong>ParticleDecays:multIncrease </td><td></td><td> <input type="text" name="15" value="4.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4.5</strong></code>; <code>minimum = 3.</code>; <code>maximum = 6.</code>)</td></tr></table>
 The above <i>multIncrease</i> parameter.
-  
+   
 
 <br/><br/><table><tr><td><strong>ParticleDecays:multRefMass </td><td></td><td> <input type="text" name="16" value="0.7" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.7</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)</td></tr></table>
 The above <i>multRefMass</i> parameter.
-  
+   
 
 <br/><br/><table><tr><td><strong>ParticleDecays:multGoffset </td><td></td><td> <input type="text" name="17" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)</td></tr></table>
 The above <i>multGoffset</i> parameter.
-  
+   
 
 <br/><br/><table><tr><td><strong>ParticleDecays:colRearrange </td><td></td><td> <input type="text" name="18" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.0</code>)</td></tr></table>
 When a decay is given as a list of four partons to be turned into
@@ -200,7 +202,7 @@ listed in pairs, as a first and a second colour singlet, which could
 give rise to separate sets of hadrons. Here <i>colRearrange</i> is 
 the probability that this original assignment is not respected, and 
 default corresponds to no memory of this original colour topology.
-  
+   
 
 <br/><br/><strong>ParticleDecays:FSRinDecays</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
 <input type="radio" name="19" value="off"><strong>Off</strong>
@@ -406,5 +408,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
 

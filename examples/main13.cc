@@ -1,16 +1,19 @@
 // main13.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This is a simple test program. 
-// It illustrates how Les Houches Event File input can be used in Pythia8.
+// It illustrates how Les Houches Event File input can be used in PYTHIA.
 // It uses two LHE files, ttbar.lhe and ttbar2.lhe, which are combined in
 // the event generation by a pythia.init( fileName, true) call.
+// Then the second file is viewed as a simple continuation of the first,
+// just split for practical reasons, rather than as a separate new run 
+// with a new set of processes, as it would have been without "true".
 // In the first file top decays have been performed, in the second not,
 // and are instead handled by the internal PYTHIA resonance-decay machinery. 
 // Furthermore the internal top production processes are switched on and
-// mixed in, giving a "double up" total top cross section.
+// mixed in, giving an unrealistic "double up" total top cross section.
 // Much of this of course is not intended to be realistic, 
 // but rather illustrates several tricks that can be useful.
 
@@ -73,7 +76,7 @@ int main() {
   
     // List first few Les Houches and other events.
     if (pythia.info.isLHA() && iPrintLHA < nPrintLHA) {     
-      pythia.LHAevntList();               
+      pythia.LHAeventList();               
       pythia.info.list();          
       pythia.process.list();          
       pythia.event.list();  

@@ -1,5 +1,5 @@
 // SigmaProcess.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -26,7 +26,7 @@
 #include "Basics.h"
 #include "BeamParticle.h"
 #include "Event.h"
-#include "Information.h"
+#include "Info.h"
 #include "LesHouches.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
@@ -85,19 +85,14 @@ public:
   // Destructor.
   virtual ~SigmaProcess() {}
 
-  // Initialize (some) static data members.
-  static void initStatic();
+  // Perform simple initialization and store pointers.
+  void init(Info* infoPtrIn, BeamParticle* beamAPtrIn, 
+    BeamParticle* beamBPtrIn, AlphaStrong* alphaSPtrIn, 
+    AlphaEM* alphaEMPtrIn, SigmaTotal* sigmaTotPtrIn,
+    SusyLesHouches* slhaPtrIn);
 
-  // Store static pointers to beams and to SigmaTotal
-  static void setStaticPtrs( BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn);
-
-  // Store or replace Les Houches pointers.
-  static void setLHAPtrs( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn) 
-    { lhaInitPtr = lhaInitPtrIn; lhaEvntPtr = lhaEvntPtrIn;}  
-
-  // Store pointer to SUSY Les Houches Accord.
-  static void setSlhaPtr(SusyLesHouches* slhaIn) {slha = slhaIn;}
+  // Store or replace Les Houches pointer.
+  void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;}  
 
   // Initialize process. Only used for some processes.
   virtual void initProc() {}
@@ -237,38 +232,43 @@ protected:
   // Constructor.
   SigmaProcess() {for (int i = 0; i < 6; ++i) mSave[i] = 0.;}
 
-  // Static initialization data, normally only set once.
-  static int    alphaSorder, alphaEMorder, nQuarkIn,
-                renormScale1, renormScale2, renormScale3, renormScale3VV, 
-                factorScale1, factorScale2, factorScale3, factorScale3VV;
-  static double alphaSvalue, Kfactor, renormMultFac, renormFixScale, 
-                factorMultFac, factorFixScale;
-
-  // Static alphaStrong and alphaElectromagnetic calculation.
-  static AlphaStrong alphaS;
-  static AlphaEM     alphaEM;
-
   // Constants: could only be changed in the code itself.
   static const double CONVERT2MB, MASSMARGIN;
 
-  // Static pointers to incoming beams.
-  static BeamParticle* beamAPtr;
-  static BeamParticle* beamBPtr;
+  // Pointer to various information on the generation.
+  Info*           infoPtr;
 
-  // Static further information on incoming beams.
-  static int    idA, idB;
-  static double mA, mB; 
-  static bool   isLeptonA, isLeptonB, hasLeptonBeams;
+  // Pointers to incoming beams.
+  BeamParticle*   beamAPtr;
+  BeamParticle*   beamBPtr;
+
+  // Pointers to alphaStrong and alphaElectromagnetic calculation.
+  AlphaStrong*    alphaSPtr;
+  AlphaEM*        alphaEMPtr;
   
-  // Static pointer to the total/elastic/diffractive cross section object.
-  static SigmaTotal* sigmaTotPtr;
+  // Pointer to the total/elastic/diffractive cross section object.
+  SigmaTotal*     sigmaTotPtr;
 
-  // Static pointer to the SLHA object.
-  static SusyLesHouches* slha;
+  // Pointer to LHAup for generating external events.
+  LHAup*          lhaUpPtr;
 
-  // Static pointers to LHAinit and LHAevnt for generating external events.
-  static LHAinit* lhaInitPtr;
-  static LHAevnt* lhaEvntPtr;
+  // Pointer to the SLHA object.
+  SusyLesHouches* slhaPtr;
+
+  // Initialization data, normally only set once.
+  int    nQuarkIn, renormScale1, renormScale2, renormScale3, renormScale3VV, 
+         factorScale1, factorScale2, factorScale3, factorScale3VV;
+  double Kfactor, renormMultFac, renormFixScale, factorMultFac, 
+         factorFixScale;
+
+  // CP violation parameters for Higgs sector, normally only set once.
+  int    higgsH1parity, higgsH2parity, higgsA3parity;
+  double higgsH1eta, higgsH2eta, higgsA3eta;  
+
+  // Information on incoming beams.
+  int    idA, idB;
+  double mA, mB; 
+  bool   isLeptonA, isLeptonB, hasLeptonBeams;
 
   // Partons in beams, with PDF's.
   vector<InBeam> inBeamA;
@@ -321,10 +321,6 @@ protected:
   // Common code for top and Higgs secondary decay angular weights.
   double weightTopDecay( Event& process, int iResBeg, int iResEnd);
   double weightHiggsDecay( Event& process, int iResBeg, int iResEnd);
-
-  // CP violation parameters for Higgs sector.
-  static int    higgsH1parity, higgsH2parity, higgsA3parity;
-  static double higgsH1eta, higgsH2eta, higgsA3eta;  
 
 };
  
@@ -526,7 +522,7 @@ public:
 
   // Special treatment needed if negative cross sections allowed.
   virtual bool   allowNegativeSigma() const {
-    return (lhaInitPtr->strategy() < 0);}
+    return (lhaUpPtr->strategy() < 0);}
 
 private:
 

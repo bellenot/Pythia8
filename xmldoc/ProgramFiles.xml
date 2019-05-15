@@ -95,7 +95,7 @@ the subdirectory <code>hepmcinterface</code> and is used to build a
 separate <code>libhepmcinterface</code> library. 
 </file>
 
-<file name="Information">
+<file name="Info">
 is a simple container that gives access to some information on the
 nature of the current process, such as Mandelstam variables.
 Also contains a small database for errors and warnings encountered 
@@ -104,14 +104,14 @@ during program execution.
 
 <file name="LesHouches">
 gives the possibility to feed in parton configurations for the 
-subsequent event generation. Two containers are defined, one for 
-initialization and one for events, that can be read from 
-<code>Pythia</code>. Should be linked to external programs or files.
+subsequent event generation. One base class is defined, with containers
+for initialization and event information, that can be read from 
+<code>Pythia</code>. Derived classes allow for a few different cases.
 </file>
 
 <file name="LHAFortran">
-is a header file only, for two classes derived from the above LesHouches 
-ones, to be used for runtime interfacing to Fortran programs, such as
+is a header file only, for a class derived from the above LesHouches 
+one, to be used for runtime interfacing to Fortran programs, such as
 PYTHIA 6. 
 </file>
 
@@ -326,4 +326,4 @@ its cross-section weight.
 
 </chapter>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

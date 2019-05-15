@@ -1,5 +1,5 @@
 // MultipleInteractions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -359,12 +359,14 @@ const double MultipleInteractions::CONVERT2MB    = 0.389380;
 
 // Initialize the generation process for given beams.
 
-bool MultipleInteractions::init( BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, ostream& os) {
+bool MultipleInteractions::init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
+  BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn, ostream& os) {
 
   // Store input pointers for future use. 
+  infoPtr      = infoPtrIn;
   beamAPtr     = beamAPtrIn;
   beamBPtr     = beamBPtrIn;
+  sigmaTotPtr  = sigmaTotPtrIn;
 
   // Matching in pT of hard interaction to further interactions.
   pTmaxMatch   = Settings::mode("MultipleInteractions:pTmaxMatch"); 
@@ -426,14 +428,13 @@ bool MultipleInteractions::init( BeamParticle* beamAPtrIn,
   sigma2qq.init( 3, processLevel);
 
   // Calculate invariant mass of system. Set current pT0 scale.
-  sCM  = m2( beamAPtr->p(), beamBPtr->p());
-  eCM  = sqrt(sCM);
+  eCM  = infoPtr->eCM();
+  sCM  = eCM * eCM;
   pT0 = pT0Ref * pow(eCM / ecmRef, ecmPow);
 
   // Get the total inelastic and nondiffractive cross section. Output.
-  bool canDoMI = sigmaTot.init( beamAPtr->id(), beamBPtr->id(), eCM);
-  if (!canDoMI) return false;
-  sigmaND = sigmaTot.sigmaND();
+  if (!sigmaTotPtr->hasSigmaTot()) return false;
+  sigmaND = sigmaTotPtr->sigmaND();
   os << "\n *-------  PYTHIA Multiple Interactions Initialization  --"
      << "-----* \n"
      << " |                                                        "
@@ -483,7 +484,7 @@ bool MultipleInteractions::init( BeamParticle* beamAPtrIn,
     ostringstream osWarn;
     osWarn << "by factor " << fixed << setprecision(3) 
            << pT4dSigmaMax/pT4dSigmaMaxBeg;
-    ErrorMsg::message("Warning in MultipleInteractions::init:"
+    infoPtr->errorMsg("Warning in MultipleInteractions::init:"
       " maximum increased", osWarn.str());
   }
 
@@ -1273,7 +1274,7 @@ void MultipleInteractions::overlapNext(double pTscale) {
 
 // Printe statistics on number of multiple-interactions processes.
 
-void MultipleInteractions::statistics(ostream& os) {
+void MultipleInteractions::statistics(bool reset, ostream& os) {
     
   // Header.
   os << "\n *-------  PYTHIA Multiple Interactions Statistics  --------"
@@ -1335,6 +1336,10 @@ void MultipleInteractions::statistics(ostream& os) {
      << " |\n" 
      << " *-------  End PYTHIA Multiple Interactions Statistics -------"
      << "-*" << endl;
+
+  // Optionally reset statistics contants.
+  if (reset) for ( map<int, int>::iterator iter = nGen.begin(); 
+    iter != nGen.end(); ++iter) iter->second = 0;  
 
 }
 

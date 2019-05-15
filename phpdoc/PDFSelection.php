@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>PDF Selection</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -68,13 +70,11 @@ The simplest option is to pick one
 of the few distributions available internally:
 
 <br/><br/><table><tr><td><strong>PDF:pSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)</td></tr></table>
-<modepick name="PDF:pSet" default="2" min="1" max="2">
 Parton densities to be used for proton beams (and, by implication,
 antiproton ones):
 <br/>
 <input type="radio" name="1" value="1"><strong>1 </strong>: GRV 94 L;<br/>
 <input type="radio" name="1" value="2" checked="checked"><strong>2 </strong>: CTEQ 5 L.<br/>
-</modepick> 
 
 <p/>
 Obviously this choice is mainly intended to get going, and if you link to
@@ -82,7 +82,7 @@ the <a href="http://projects.hepforge.org/lhapdf/" target="page">LHAPDF
 library</a> [<a href="Bibliography.php" target="page">Wha05</a>] you get access to a much wider selection.
 <br/><b>Warning:</b> owing to previous problems with the behaviour of PDF's
 beyond the <i>x</i> and <i>Q^2</i> boundaries of a set, you should
-only use LHAPDF <i>version 5.3.0 or later</i>.
+only use LHAPDF <b>version 5.3.0 or later</b>.
 
 <br/><br/><strong>PDF:useLHAPDF</strong>  <input type="radio" name="2" value="on"><strong>On</strong>
 <input type="radio" name="2" value="off" checked="checked"><strong>Off</strong>
@@ -123,7 +123,7 @@ runs or, as a simplification, save the
 <?php $filepath = $_GET["filepath"];
 echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>pdf weights</a> at the hard scattering
 and do an offline reweighting of events.
-</modeopen>   
+     
 
 <br/><br/><strong>PDF:extrapolateLHAPDF</strong>  <input type="radio" name="5" value="on"><strong>On</strong>
 <input type="radio" name="5" value="off" checked="checked"><strong>Off</strong>
@@ -190,13 +190,11 @@ as already chosen above.
   
 
 <br/><br/><table><tr><td><strong>PDF:pHardSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)</td></tr></table>
-<modepick name="PDF:pHardSet" default="2" min="1" max="2">
 Parton densities to be used for proton beams (and, by implication,
 antiproton ones):
 <br/>
 <input type="radio" name="7" value="1"><strong>1 </strong>: GRV 94 L;<br/>
 <input type="radio" name="7" value="2" checked="checked"><strong>2 </strong>: CTEQ 5 L.<br/>
-</modepick> 
 
 <br/><br/><strong>PDF:useHardLHAPDF</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
 <input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
@@ -212,7 +210,7 @@ Name of proton PDF set from LHAPDF to be used.
 
 <br/><br/><table><tr><td><strong>PDF:hardLHAPDFmember  </td><td></td><td> <input type="text" name="10" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)</td></tr></table>
 Further choice of a specific member from the set picked above. 
-</modeopen>   
+     
 
 <p/>
 Note that there is no separate equivalent of the 
@@ -254,7 +252,7 @@ for multiple interactions and spacelike showers.
 Number of allowed incoming quark flavours in the beams; a change 
 to 4 would thus exclude <i>b</i> and <i>bbar</i> as incoming 
 partons, etc.
-</modeopen>
+  
 
 <input type="hidden" name="saved" value="1"/>
 
@@ -338,4 +336,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

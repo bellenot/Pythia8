@@ -1,5 +1,5 @@
 // SigmaEW.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1402,11 +1402,11 @@ void Sigma2ffbar2gmZgmZ::sigmaKin() {
     - s3 * s4 * (1./tH2 + 1./uH2) );
 
   // Common coupling factors at the resonance masses
-  double alpEM3 = alphaEM.alphaEM(s3);
-  double alpS3  = alphaS.alphaS(s3);
+  double alpEM3 = alphaEMPtr->alphaEM(s3);
+  double alpS3  = alphaSPtr->alphaS(s3);
   double colQ3  = 3. * (1. + alpS3 / M_PI);
-  double alpEM4 = alphaEM.alphaEM(s4);
-  double alpS4  = alphaS.alphaS(s4);
+  double alpEM4 = alphaEMPtr->alphaEM(s4);
+  double alpS4  = alphaSPtr->alphaS(s4);
   double colQ4  = 3. * (1. + alpS4 / M_PI);
 
   // Reset quantities to sum. Declare variables in loop.
@@ -2014,7 +2014,7 @@ void Sigma2ffbargmZggm::initProc() {
 void Sigma2ffbargmZggm::flavSum() {
 
   // Coupling factors for Z0 subsystem. 
-  double alpSZ = alphaS.alphaS(s3);
+  double alpSZ = alphaSPtr->alphaS(s3);
   double colQZ = 3. * (1. + alpSZ / M_PI);
 
   // Reset quantities to sum. Declare variables in loop.

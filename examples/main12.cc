@@ -1,5 +1,5 @@
 // main12.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -49,7 +49,7 @@ int main() {
   
     // List first few events: Les Houches, hard process and complete.
     if (iEvent < nPrint) {     
-      pythia.LHAevntList();               
+      pythia.LHAeventList();               
       pythia.info.list();          
       pythia.process.list();          
       pythia.event.list();           

@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>A Second Hard Process</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -92,11 +94,25 @@ between the <i>gamma^*</i> and <i>Z^0</i>.
 Scattering <i>q qbar' -> W^+-</i>.
   
 
+<br/><br/><strong>SecondHard:GmZAndJet</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
+<input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q qbar -> gamma^*/Z^0 g</i> and
+<i>q g -> gamma^*/Z^0 q</i>.
+  
+
+<br/><br/><strong>SecondHard:WAndJet</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
+<input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q qbar' -> W^+- g</i> and
+<i>q g -> W^+- q'</i>.
+  
+
 <p/>
 A further process collection comes with a warning flag:
 
-<br/><br/><strong>SecondHard:TwoBJets</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
-<input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>SecondHard:TwoBJets</strong>  <input type="radio" name="9" value="on"><strong>On</strong>
+<input type="radio" name="9" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 The <i>q qbar -> b bbar</i> and <i>g g -> b bbar</i> processes.
 These are already included in the <code>TwoJets</code> sample above,
@@ -411,7 +427,17 @@ fwrite($handle,$data);
 }
 if($_POST["7"] != "off")
 {
-$data = "SecondHard:TwoBJets = ".$_POST["7"]."\n";
+$data = "SecondHard:GmZAndJet = ".$_POST["7"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["8"] != "off")
+{
+$data = "SecondHard:WAndJet = ".$_POST["8"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["9"] != "off")
+{
+$data = "SecondHard:TwoBJets = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -421,4 +447,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

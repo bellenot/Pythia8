@@ -5,9 +5,6 @@
 ! The changes here are illustrative, not always physics-motivated.
 
 ! 1) Settings that will be used in a main program.
-Main:idBeamA = 2212                ! identity of first incoming beam
-Main:idBeamB = 2212                ! identity of second incoming beam
-Main:eCM = 14000.                  ! cm energy of collisions
 Main:numberOfEvents = 100          ! number of events to generate
 Main:timesToShow = 10              ! show how far along run is this many times
 Main:timesAllowErrors = 3         ! abort run after this many flawed events
@@ -16,7 +13,12 @@ Main:showChangedSettings = on      ! print changed flags/modes/parameters
 Main:showChangedParticleData = on  ! print changed particle and decay data
 #Main:showAllParticleData = on      ! print all particle and decay data
 
-! 2) Pick processes and kinematics cuts.
+! 2) Beam parameter settings. Values below agree with default ones.
+Beams:idA = 2212                   ! first beam, p = 2212, pbar = -2212
+Beams:idB = 2212                   ! second beam, p = 2212, pbar = -2212
+Beams:eCM = 14000.                 ! CM energy of collision
+
+! 3) Pick processes and kinematics cuts.
 Charmonium:gg2QQbar[3S1(1)]g = on   ! colour singlet charmonium production
 Charmonium:gg2QQbar[3P0(1)]g = on   !  "
 Charmonium:gg2QQbar[3P1(1)]g = on   !  " 

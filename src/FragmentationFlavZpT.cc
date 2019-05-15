@@ -1,5 +1,5 @@
 // FragmentationFlavZpT.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -15,58 +15,27 @@ namespace Pythia8 {
 // The StringFlav class.
 
 //*********
- 
-// Definitions of static variables.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-double StringFlav::probQQtoQ        = 0.1;
-double StringFlav::probStoUD        = 0.3;
-double StringFlav::probSQtoQQ       = 0.4;
-double StringFlav::probQQ1toQQ0     = 0.05;
-double StringFlav::probQandQQ       = 1.1;
-double StringFlav::probQandS        = 2.3;
-double StringFlav::probQandSinQQ    = 2.12;
-double StringFlav::probQQ1corr      = 0.15;
-double StringFlav::probQQ1corrInv   = 6.667;
-double StringFlav::probQQ1norm      = 0.13;
-double StringFlav::mesonRate[4][6]  = {{0.}};
-double StringFlav::mesonRateSum[4]  = {0.};
-double StringFlav::mesonMix1[2][6]  = {{0.}}; 
-double StringFlav::mesonMix2[2][6]  = {{0.}};
-double StringFlav::etaSup           = 1.0;
-double StringFlav::etaPrimeSup      = 0.4;
-double StringFlav::decupletSup      = 1.0;
-double StringFlav::popcornRate      = 0.5;
-double StringFlav::popcornSpair     = 0.5;
-double StringFlav::popcornSmeson    = 0.5;
-bool   StringFlav::suppressLeadingB = false;
-double StringFlav::lightLeadingBSup = 0.5;
-double StringFlav::heavyLeadingBSup = 0.8;
-double StringFlav::scbBM[3]         = {0.};
-double StringFlav::popFrac          = 0.;
-double StringFlav::popS[3]          = {0.};
-double StringFlav::dWT[3][7]        = {{0.}};
+
+// Constants: could be changed here if desired, but normally should not.
+// These are of technical nature, as described for each.
+
+// Offset for different meson multiplet id values.
+const int StringFlav::mesonMultipletCode[6] 
+  = { 1, 3, 10003, 10001, 20003, 5};
 
 // Clebsch-Gordan coefficients for baryon octet and decuplet are
 // fixed once and for all, so only weighted sum needs to be edited.
 // Order: ud0 + u, ud0 + s, uu1 + u, uu1 + d, ud1 + u, ud1 + s.
-double StringFlav::baryonCGOct[6] 
+const double StringFlav::baryonCGOct[6] 
   = { 0.75, 0.5, 0., 0.1667, 0.0833, 0.1667};
-double StringFlav::baryonCGDec[6] 
+const double StringFlav::baryonCGDec[6] 
   = { 0.,  0.,  1., 0.3333, 0.6667, 0.3333};
-double StringFlav::baryonCGSum[6] 
-  = { 0.75, 0.5, 1., 0.5, 0.75, 0.5};
-double StringFlav::baryonCGMax[6]
-  = {0.75, 0.75, 1., 1., 0.75, 0.75};
-
-// Offset for different meson multiplet id values.
-int StringFlav::mesonMultipletCode[6] 
-  = { 1, 3, 10003, 10001, 20003, 5};
 
 //*********
 
-// Initialize static data members of the flavour generation.
+// Initialize data members of the flavour generation.
 
-void StringFlav::initStatic() {
+void StringFlav::init() {
 
   // Basic parameters for generation of new flavour.
   probQQtoQ       = Settings::parm("StringFlav:probQQtoQ");
@@ -529,24 +498,6 @@ int StringFlav::makeDiquark(int id1, int id2, int idHad) {
 // The StringZ class.
 
 //*********
- 
-// Definitions of static variables.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
- 
-bool   StringZ::usePetersonC  = false;
-bool   StringZ::usePetersonB  = false;
-bool   StringZ::usePetersonH  = false;
-double StringZ::mc2           = 2.25;
-double StringZ::mb2           = 25.0;
-double StringZ::aLund         = 0.3;
-double StringZ::bLund         = 0.58;
-double StringZ::aExtraDiquark = 0.5;
-double StringZ::rFactC        = 1.0;
-double StringZ::rFactB        = 1.0;
-double StringZ::rFactH        = 1.0;
-double StringZ::epsilonC      = 0.05;
-double StringZ::epsilonB      = 0.005;
-double StringZ::epsilonH      = 0.005;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -561,9 +512,9 @@ const double StringZ::EXPMAX     = 50.;
 
 //*********
 
-// Initialize static data members of the string z selection.
+// Initialize data members of the string z selection.
 
-void StringZ::initStatic() {
+void StringZ::init() {
 
   // c and b quark masses.
   mc2 = pow2( ParticleDataTable::m0(4)); 
@@ -767,19 +718,10 @@ double StringZ::zPeterson( double epsilon) {
 // The StringPT class.
 
 //*********
- 
-// Definitions of static variables.
-// (Values will be overwritten in init call, so are purely dummy.)
 
-double StringPT::sigmaQ           = 0.25;
-double StringPT::enhancedFraction = 0.01;
-double StringPT::enhancedWidth    = 2.;
+// Initialize data members of the string pT selection.
 
-//*********
-
-// Initialize static data members of the string pT selection.
-
-void StringPT::initStatic() {
+void StringPT::init() {
 
   // Parameters of the pT width and enhancement.
   sigmaQ           = Settings::parm("StringPT:sigma") / sqrt(2.);

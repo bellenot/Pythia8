@@ -32,7 +32,7 @@ load the page are the default values.</li>
 
 <p/><li>
 When you have finished making your changes to a particular page, 
-you <i>must</i> click on <b>Save Settings</b> at the <i>bottom</i> of 
+you <b>must</b> click on <b>Save Settings</b> at the <b>bottom</b> of 
 the page. This will write the changes to your temporary file. If you make 
 a mistake, just repeat the procedure for that category again.<br> 
 
@@ -146,5 +146,5 @@ interrelated.
 
 </chapter>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
 

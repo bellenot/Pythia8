@@ -1,5 +1,5 @@
 // PartonDistributions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -411,9 +411,10 @@ void CTEQ5L::xfUpdate(int id, double x, double Q2) {
       double part1 = af[1] * pow( y, 1. + 0.01 * af[4]) * (1. + af[8] * u);
       double part2 = af[0] * x1 + af[3] * x;
       double part3 = x * x1 * (af[5] + af[6] * x1 + af[7] * x * x1);
-      double part4 = ut1[i] * x1L + af[2] * log(x1 + exp(ut2[i]));
-      answer = x * exp( part1 + part2 + part3 + part4);   
-      answer *= 1. - Qmin[i] / Q;
+      double part4 = (ut2[i] < -100.) ? ut1[i] * x1L + af[2] * x1L
+                   : ut1[i] * x1L + af[2] * log(x1 + exp(ut2[i]));
+      answer       = x * exp( part1 + part2 + part3 + part4);   
+      answer      *= 1. - Qmin[i] / Q;
     }
 
     // Store results. 
@@ -456,7 +457,7 @@ int    LHAPDF::latestNSet    = 0;
 
 // Initialize a parton density function from LHAPDF.
 
-void LHAPDF::init(string setName, int member) {
+void LHAPDF::init(string setName, int member, Info* infoPtr) {
 
   // If already initialized then need not do anything.
   if (setName == latestSetName && member == latestMember 
@@ -469,8 +470,12 @@ void LHAPDF::init(string setName, int member) {
 
   // Check that not dummy library was linked and put nSet negative.
   isSet = (nSet >= 0); 
-  if (!isSet) ErrorMsg::message("Error from LHAPDF::init: "
-    "you try to use LHAPDF but did not link it");    
+  if (!isSet) {
+    if (infoPtr > 0) infoPtr->errorMsg("Error from LHAPDF::init: "
+      "you try to use LHAPDF but did not link it");  
+    else cout << "Error from LHAPDF::init: you try to use LHAPDF "
+      << "but did not link it" << endl;  
+  }
 
   // Initialize member.
   LHAPDFInterface::initPDFM(nSet, member);

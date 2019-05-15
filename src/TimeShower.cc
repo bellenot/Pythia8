@@ -1,5 +1,5 @@
 // TimeShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -22,13 +22,22 @@ namespace Pythia8 {
 const double TimeShower::SIMPLIFYROOT = 1e-8;
 
 // Do not allow x too close to 0 or 1 in matrix element expressions.
-const double TimeShower::XMARGIN      = 1e-10;
+// Warning: cuts into phase space for E_CM > 2 * pTmin * sqrt(1/XMARGIN),
+// i.e. will become problem roughly for E_CM > 10^6 GeV.
+const double TimeShower::XMARGIN      = 1e-12;
+const double TimeShower::XMARGINCOMB  = 1e-4;
 
 // Lower limit on PDF value in order to avoid division by zero.
 const double TimeShower::TINYPDF      = 1e-10;
 
 // Big starting value in search for smallest invariant-mass pair.
 const double TimeShower::LARGEM2      = 1e20;
+
+// In g -> q qbar or gamma -> f fbar require m2_pair > this * m2_q/f. 
+const double TimeShower::THRESHM2      = 4.004;
+
+// Never pick pT so low that alphaS is evaluated too close to Lambda_3. 
+const double TimeShower::LAMBDA3MARGIN = 1.1;
 
 //*********
 
@@ -78,7 +87,7 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   // Parameters of QCD evolution. 
   nGluonToQuark      = Settings::mode("TimeShower:nGluonToQuark");
   pTcolCutMin        = Settings::parm("TimeShower:pTmin"); 
-  pTcolCut           = max( pTcolCutMin, 1.1 * Lambda3flav );
+  pTcolCut           = max( pTcolCutMin, LAMBDA3MARGIN * Lambda3flav );
   pT2colCut          = pow2(pTcolCut);  
        
   // Parameters of alphaEM generation .
@@ -286,7 +295,7 @@ void TimeShower::update( int iSys, Event& event) {
       dipNow.colType = 0;
       dipNow.chgType = 0;
       dipNow.gamType = 0; 
-      ErrorMsg::message("Error in TimeShower::update: "
+      infoPtr->errorMsg("Error in TimeShower::update: "
       "failed to locate new recoiling partner");
     } 
   }
@@ -485,10 +494,12 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
   if (pT2begDip < pT2endDip) return;   
 
   // Upper estimate for matrix element weighting and colour factor.
+  // Special cases for triplet recoiling against gluino and octet onia.
   // Note that g -> g g and g -> q qbar are split on two sides.
   int    colTypeAbs = abs(dip.colType);
   double wtPSglue   = 2.;
   double colFac     = (colTypeAbs == 1) ? 4./3. : 3./2.;
+  if (dip.MEgluinoRec)  colFac  = 3.;  
   if (dip.isOctetOnium) colFac *= 0.5 * octetOniumColFac;
   double wtPSqqbar  = (colTypeAbs == 2) ? 0.25 * nGluonToQuark : 0.;
   
@@ -535,7 +546,7 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
       // Find emission coefficients for X -> X g and g -> q qbar.
       emitCoefGlue = wtPSglue * colFac * log(1. / zMinAbs - 1.);
       emitCoefTot  = emitCoefGlue;
-      if (colTypeAbs == 2) {
+      if (colTypeAbs == 2 && event[dip.iRadiator].id() == 21) {
         emitCoefQqbar = wtPSqqbar * (1. - 2. * zMinAbs);
         emitCoefTot  += emitCoefQqbar;
       }
@@ -602,9 +613,11 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
           dip.mFlavour = ParticleDataTable::m0(dip.flavour);
 	}
 
-        // No z weight if to do matrix element corrections later on.
+        // No z weight, except threshold, if to do ME corrections later on.
         if (dip.MEtype > 0) { 
           wt = 1.;
+          if (dip.flavour < 10 && dip.m2 < THRESHM2 * pow2(dip.mFlavour))
+            wt = 0.; 
 
         // z weight for X -> X g.
         } else if (dip.flavour == 21 && colTypeAbs == 1) {
@@ -743,9 +756,12 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
         dip.mFlavour = ParticleDataTable::m0(dip.flavour);
       }
                       
-      // No z weight if to do matrix element corrections later on.
+
+      // No z weight, except threshold, if to do ME corrections later on.
       if (dip.MEtype > 0) { 
         wt = 1.;
+        if (dip.flavour < 20 && dip.m2 < THRESHM2 * pow2(dip.mFlavour))
+          wt = 0.; 
 
       // z weight for X -> X gamma.
       } else if (hasCharge) {
@@ -867,7 +883,7 @@ bool TimeShower::branch( Event& event) {
     pzEmt *= 1. - dipSel->m2Rad / dipSel->m2;  
   // Kinematics reduction for g -> q qbar or gamma -> f fbar when m_f > 0;
   } else if (abs(dipSel->flavour) < 20) {
-    mEmt = ParticleDataTable::m0(dipSel->flavour);
+    mEmt = dipSel->mFlavour;
     mRad = mEmt;
     double beta = sqrtpos( 1. - 4. * pow2(mEmt) / dipSel->m2 );   
     pTcorr *= beta;
@@ -998,7 +1014,9 @@ bool TimeShower::branch( Event& event) {
     for (int i = 0; i < int(dipEnd.size()); ++i) {
       if (dipEnd[i].iRadiator == iRadBef && abs(dipEnd[i].colType) == 2) {
         dipEnd[i].colType /= 2;
-        dipEnd[i].MEtype = 6;
+        // Note: gluino -> quark + squark gives a deeper radiation dip than
+        // the more obvious alternative photon decay, so is more realistic.
+        dipEnd[i].MEtype = 66;
         if (&dipEnd[i] == dipSel) dipEnd[i].iMEpartner = iRad;
         else                      dipEnd[i].iMEpartner = iEmt;
       }
@@ -1012,12 +1030,14 @@ bool TimeShower::branch( Event& event) {
     dipSel->pTmax     = pTsel;
 
     // Gluon branching to q qbar: also add two charge dipole ends.
+    // Note: gluino -> quark + squark gives a deeper radiation dip than
+    // the more obvious alternative photon decay, so is more realistic.
     if (doQEDshowerByQ) {
       int chgType = event[iRad].chargeType(); 
       dipEnd.push_back( TimeDipoleEnd(iRad, iEmt, pTsel, 
-        0,  chgType, 0, 0, iSysSel, 6, iEmt));
+        0,  chgType, 0, 0, iSysSel, 66, iEmt));
       dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, pTsel, 
-        0, -chgType, 0, 0, iSysSel, 6, iRad));
+        0, -chgType, 0, 0, iSysSel, 66, iRad));
     }
 
   // Photon branching to f fbar: inactivate photon "dipole";
@@ -1026,18 +1046,20 @@ bool TimeShower::branch( Event& event) {
     dipSel->gamType = 0;
     int chgType = event[iRad].chargeType(); 
     int colType = event[iRad].colType();
+    // MEtype = 102 for charge in vector decay.
     if ( chgType != 0 && ( ( doQEDshowerByQ && colType != 0 )  
       || ( doQEDshowerByL && colType == 0 ) ) ) { 
       dipEnd.push_back( TimeDipoleEnd(iRad, iEmt, pTsel, 
-        0,  chgType, 0, 0, iSysSel, 6, iEmt));
+        0,  chgType, 0, 0, iSysSel, 102, iEmt));
       dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, pTsel, 
-        0, -chgType, 0, 0, iSysSel, 6, iRad));
+        0, -chgType, 0, 0, iSysSel, 102, iRad));
     }
+    // MEtype = 11 for colour in vector decay.
     if (colType != 0 && doQCDshower) {
       dipEnd.push_back( TimeDipoleEnd(iRad, iEmt, pTsel, 
-         colType, 0, 0, 0, iSysSel, 6, iEmt));
+         colType, 0, 0, 0, iSysSel, 11, iEmt));
       dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, pTsel, 
-        -colType, 0, 0, 0, iSysSel, 6, iRad));
+        -colType, 0, 0, 0, iSysSel, 11, iRad));
     }
   }
 
@@ -1075,9 +1097,6 @@ void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
   bool setME = true;
   if (!doMEcorrections) setME = false; 
 
-  // Temporary: kill ME corrections for emissions off a gluon or photon.??
-  if (event[dip.iRadiator].id() == 21 || dip.gamType != 0) setME = false;
-
   // No ME corrections in 2 -> n processes.
   int iMother  = event[dip.iRadiator].mother1();
   int iMother2 = event[dip.iRadiator].mother2();
@@ -1086,7 +1105,7 @@ void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
   if (event[dip.iRecoiler].mother2() != iMother2) setME = false;    
 
   // No ME corrections for recoiler in initial state.
-  if (event[dip.iRecoiler].status() < 0) setME = false; 
+  if (event[dip.iRecoiler].status() < 0) setME = false;  
 
   // Done if no ME to be set.
   if (!setME) {
@@ -1101,85 +1120,123 @@ void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
   if (dip.colType != 0) {
 
     // Find daughter types (may or may not be used later on).
-    int dau1Type = findMEparticle(event[dip.iRadiator].id());
-    int dau2Type = findMEparticle(event[dip.iMEpartner].id());
-    int minDauType = min(dau1Type, dau2Type);
-    int maxDauType = max(dau1Type, dau2Type);
-    dip.MEorder = (dau2Type >= dau1Type);
-    dip.MEsplit = (maxDauType <= 2 || maxDauType == 6); 
-    dip.MEgluinoDau = (maxDauType == 6);
+    int idDau1      = event[dip.iRadiator].id();
+    int idDau2      = event[dip.iMEpartner].id();
+    int dau1Type    = findMEparticle(idDau1);
+    int dau2Type    = findMEparticle(idDau2);
+    int minDauType  = min(dau1Type, dau2Type);
+    int maxDauType  = max(dau1Type, dau2Type);
+
+    // Reorder dipole ends in kinematics. Split ME expression in two sides.
+    dip.MEorder     = (dau2Type >= dau1Type);
+    dip.MEsplit     = (maxDauType <= 6); 
+    dip.MEgluinoRec = false;
  
     // If type already set (or set not to have) then done.
     if (minDauType == 0 && dip.MEtype < 0) dip.MEtype = 0;
     if (dip.MEtype >= 0) return;
     dip.MEtype = 0;
 
-    // Find mother type.
+    // For H -> gg -> ggg we found that DGLAP kernels do better than eikonal.
+    if (dau1Type == 4 && dau2Type == 4) return; 
+
+    // Find mother type. 
     int idMother = 0;
     if ( event[dip.iRecoiler].mother1() == iMother && iMother >= 0) 
       idMother = event[iMother].id();
     int motherType = (idMother != 0) ? findMEparticle(idMother) : 0;
 
-    // Now start from default, which is no ME corrections, 
+    // When a mother if not known then use colour and spin content to guess.
+    if (motherType == 0) {
+      int col1  = event[dip.iRadiator].col();
+      int acol1 = event[dip.iRadiator].acol();
+      int col2  = event[dip.iMEpartner].col();
+      int acol2 = event[dip.iMEpartner].acol();
+      // spinT = 0/1 = integer or half-integer.
+      int spinT = ( event[dip.iRadiator].spinType() 
+                + event[dip.iMEpartner].spinType() )%2;
+      // Colour singlet mother.
+      if ( col1 == acol2 && acol1 == col2 ) 
+        motherType = (spinT == 0) ? 7 : 9;
+      // Colour octet mother.
+      else if ( (col1 == acol2 && acol1 != 0 && col2 != 0)
+        || (acol1 == col2 && col1 != 0 && acol2 != 0) )
+        motherType = (spinT == 0) ? 4 : 5; 
+      // Colour triplet mother.
+      else if ( (col1 == acol2 && acol1 != col2)  
+        || (acol1 == col2 && col1 != acol2) ) 
+        motherType = (spinT == 0) ? 2 : 1;
+      // If no colours are matched then cannot have common mother, so done.  
+      else return;      
+    }
+
+    // Now start from default, which is eikonal ME corrections, 
     // and try to find matching ME cases below.
     int MEkind = 0;
     int MEcombi = 4;
     dip.MEmix = 0.5;
 
-    // Vector/axial vector -> q + qbar; q -> q + V.
+    // Triplet recoiling against gluino needs enhanced radiation
+    // to match to matrix elements.
+    dip.MEgluinoRec = (dau1Type >= 1 && dau1Type <= 3 && dau2Type == 5);
+
+    // Vector/axial vector -> q + qbar.
     if (minDauType == 1 && maxDauType == 1 && 
-      (motherType == 3 || motherType == 0) ) {
+      (motherType == 4 || motherType == 7) ) {
       MEkind = 2;
       if (idMother == 21 || idMother == 22) MEcombi = 1;
-      else if (idMother == 23 || idMother == 0) {MEcombi = 3; 
-        dip.MEmix = gammaZmix( event, iMother, dip.iRadiator, 
-          dip.iRecoiler );}
+      else if (idMother == 23 || idDau1 + idDau2 == 0) {
+        MEcombi = 3; 
+        dip.MEmix = gammaZmix( event, iMother, dip.iRadiator, dip.iRecoiler );
+      }
       else if (idMother == 24) MEcombi = 4;
     }
-    // For chi -> chi q qbar, use V/A -> q qbar as first approximation.??
-    else if (minDauType == 1 && maxDauType == 1 && motherType == 5)
-      MEkind =2;
-    else if (minDauType == 1 && maxDauType == 3 && (motherType == 0
-      || motherType == 1)) MEkind = 3;
+    // For chi -> chi q qbar, use V/A -> q qbar as first approximation.
+    else if (minDauType == 1 && maxDauType == 1 && motherType == 9)
+      MEkind = 2;
+
+    // q -> q + V.
+    else if (minDauType == 1 && maxDauType == 7 && motherType == 1) 
+      MEkind = 3;
+      if (idDau1 == 22 || idDau2 == 22) MEcombi = 1;
  
     // Scalar/pseudoscalar -> q + qbar; q -> q + S.
-    else if (minDauType == 1 && maxDauType == 1 && motherType == 4) {
-      MEkind =4;
+    else if (minDauType == 1 && maxDauType == 1 && motherType == 8) {
+      MEkind = 4;
       if (idMother == 25 || idMother == 35 || idMother == 37) MEcombi = 1;
       else if (idMother == 36) MEcombi = 2;
     } 
-    else if (minDauType == 1 && maxDauType == 4 && 
-      (motherType == 0 || motherType == 1) ) MEkind = 5;
+    else if (minDauType == 1 && maxDauType == 8 && motherType == 1)
+      MEkind = 5;
  
     // V -> ~q + ~qbar; ~q -> ~q + V; S -> ~q + ~qbar; ~q -> ~q + S.
-    else if (minDauType == 2 && maxDauType == 2 && 
-      (motherType == 0 || motherType == 3) ) MEkind = 6;
-    else if (minDauType == 2 && maxDauType == 3 && 
-      (motherType == 0 || motherType == 2) ) MEkind = 7;
-    else if (minDauType == 2 && maxDauType == 2 && motherType == 4)
+    else if (minDauType == 2 && maxDauType == 2 && (motherType == 4 
+      || motherType == 7) ) MEkind = 6;
+    else if (minDauType == 2 && (maxDauType == 4 || maxDauType == 7) 
+      && motherType == 2) MEkind = 7;
+    else if (minDauType == 2 && maxDauType == 2 && motherType == 8)
       MEkind = 8;
-    else if (minDauType == 2 && maxDauType == 4 && 
-      (motherType == 0 || motherType == 2) ) MEkind = 9;
+    else if (minDauType == 2 && maxDauType == 8 && motherType == 2)
+      MEkind = 9;
  
     // chi -> q + ~qbar; ~q -> q + chi; q -> ~q + chi.
-    else if (minDauType == 1 && maxDauType == 2 && 
-      (motherType == 0 || motherType == 5) ) MEkind = 10;
-    else if (minDauType == 1 && maxDauType == 5 && 
-      (motherType == 0 || motherType == 2) ) MEkind = 11;
-    else if (minDauType == 2 && maxDauType == 5 && 
-      (motherType == 0 || motherType == 1) ) MEkind = 12;
+    else if (minDauType == 1 && maxDauType == 2 && motherType == 9) 
+      MEkind = 10;
+    else if (minDauType == 1 && maxDauType == 9 && motherType == 2) 
+      MEkind = 11;
+    else if (minDauType == 2 && maxDauType == 9 && motherType == 1) 
+      MEkind = 12;
  
     // ~g -> q + ~qbar; ~q -> q + ~g; q -> ~q + ~g.
-    else if (minDauType == 1 && maxDauType == 2 && motherType == 6)
+    else if (minDauType == 1 && maxDauType == 2 && motherType == 5)
       MEkind = 13;
-    else if (minDauType == 1 && maxDauType == 6 && 
-      (motherType == 0 || motherType == 2) ) MEkind = 14;
-    else if (minDauType == 2 && maxDauType == 6 && 
-      (motherType == 0 || motherType == 1) ) MEkind = 15;
+    else if (minDauType == 1 && maxDauType == 5 && motherType == 2) 
+      MEkind = 14;
+    else if (minDauType == 2 && maxDauType == 5 && motherType == 1) 
+      MEkind = 15;
 
-    // g -> ~g + ~g (eikonal approximation).
-    else if (minDauType == 6 && maxDauType == 6 && motherType == 0)
-      MEkind = 16;
+    // g (+V, S) -> ~g + ~g (eikonal approximation).
+    else if (minDauType == 5 && maxDauType == 5) MEkind = 16;
 
     // Save ME type and gamma_5 admixture. 
     dip.MEtype = 5 * MEkind + MEcombi; 
@@ -1190,7 +1247,6 @@ void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
     // Set defaults for QED case; then possibly done.
     dip.MEorder = true;
     dip.MEsplit = true; 
-    dip.MEgluinoDau = false;
     if (dip.MEtype >= 0) return;
 
     // So far only ME corrections for q qbar or l lbar.
@@ -1211,9 +1267,9 @@ void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
 
 //*********
  
-// Find type of particle for ME type: 0 = unknown, 1 = quark,
-// 2 = squark, 3 = vector boson (also g), 4 = colourless scalar,
-// 5 = colourless neutralino/chargino, 6 = gluino.
+// Find type of particle for ME type: 0 = unknown, 1 = quark, 2 = squark,
+// 3 = spare triplet, 4 = gluon, 5 = gluino, 6 = spare octet, 
+// 7 = vector boson, 8 = colourless scalar, 9 = colourless spin 1/2.
 
 int TimeShower::findMEparticle( int id) {
 
@@ -1225,11 +1281,13 @@ int TimeShower::findMEparticle( int id) {
   // Find particle type from colour and spin.
   if      (colType == 1 && spinType == 2) type = 1;
   else if (colType == 1 && spinType == 1) type = 2;
-  else if (colType == 0 && spinType == 3) type = 3;
-  else if (colType == 2 && spinType == 3) type = 3;
-  else if (colType == 0 && spinType == 1) type = 4;
-  else if (colType == 0 && spinType == 2) type = 5;
-  else if (colType == 2 && spinType == 2) type = 6;
+  else if (colType == 1)                  type = 3;
+  else if (colType == 2 && spinType == 3) type = 4;
+  else if (colType == 2 && spinType == 2) type = 5;
+  else if (colType == 2)                  type = 6;
+  else if (colType == 0 && spinType == 3) type = 7;
+  else if (colType == 0 && spinType == 1) type = 8;
+  else if (colType == 0 && spinType == 2) type = 9;
 
   // Done.
   return type;
@@ -1294,23 +1352,27 @@ double TimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
   Particle& partner, Particle& emt) {
   
   // Initial values and matrix element kind.
+  //cout << "\n enter findMEcorr " << dip->MEtype << "  " << rad.id() 
+  //     << "  " << partner.id() << "  " << emt.id() << endl;
   double wtME    = 1.;
   double wtPS    = 1.; 
   int    MEkind  = dip->MEtype / 5;
   int    MEcombi = dip->MEtype % 5;
 
   // Construct ME variables.
-  Vec4 sum   = rad.p() + partner.p() + emt.p();
-  double eCM = sum.mCalc();
-  double x1  = 2. * (sum * rad.p()) / pow2(eCM);
-  double x2  = 2. * (sum * partner.p()) / pow2(eCM); 
-  double r1  = rad.m() / eCM;
-  double r2  = partner.m() / eCM; 
+  Vec4   sum     = rad.p() + partner.p() + emt.p();
+  double eCMME   = sum.mCalc();
+  double x1      = 2. * (sum * rad.p()) / pow2(eCMME);
+  double x2      = 2. * (sum * partner.p()) / pow2(eCMME); 
+  double r1      = rad.m() / eCMME;
+  double r2      = partner.m() / eCMME; 
 
   // Derived ME variables, suitably protected.
   double x1minus = max(XMARGIN, 1. + r1*r1 - r2*r2 - x1);
   double x2minus = max(XMARGIN, 1. + r2*r2 - r1*r1 - x2) ;
   double x3      = max(XMARGIN, 2. - x1 - x2);
+  //cout << scientific << setprecision(6) << "x_i = " << x1 << "  " << x2 
+  //     << " " << x3 << "  " << r1 << "  " << r2 << endl; 
 
   // Begin processing of QCD dipoles.
   if (dip->colType !=0) {
@@ -1319,13 +1381,16 @@ double TimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
     if (dip->MEorder) 
          wtME = calcMEcorr(MEkind, MEcombi, dip->MEmix, x1, x2, r1, r2);
     else wtME = calcMEcorr(MEkind, MEcombi, dip->MEmix, x2, x1, r2, r1);
+    //cout << " ME direct " << dip->MEorder << "  " << wtME << endl;
 
     // Split up total ME when two radiating particles.
     if (dip->MEsplit) wtME = wtME * x1minus / x3; 
+    //cout << " ME modif " << dip->MEsplit << "  " << wtME << endl;
 
     // Evaluate shower rate to be compared with.
     wtPS = 2. / ( x3 * x2minus );
-    if (dip->MEgluinoDau) wtPS *= 9./4.;
+    if (dip->MEgluinoRec) wtPS *= 9./4.;
+    //cout << " PS " << dip->MEgluinoRec << "  " << wtPS << endl;
   
   // For generic charge combination currently only massless expression.
   // (Masses included only to respect phase space boundaries.)
@@ -1341,6 +1406,8 @@ double TimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
     wtME = calcMEcorr(2, 1, dip->MEmix, x1, x2, r1, r2) * x1minus / x3;
     wtPS = 2. / ( x3 * x2minus );
   }
+  if (wtME > wtPS) infoPtr->errorMsg("Warning in TimeShower::findMEcorr: "
+    "ME weight above PS one");
        
   // Return ratio of actual ME to assumed PS rate of emission.
   return wtME / wtPS; 
@@ -1406,8 +1473,12 @@ double TimeShower::calcMEcorr( int kind, int combiIn, double mixIn,
   if (x1 - 2.*r1 < XMARGIN || prop1 < XMARGIN) return 0.;
   if (x2 - 2.*r2 < XMARGIN || prop2 < XMARGIN) return 0.;
   if (x1 + x2 - 1. - pow2(r1+r2) < XMARGIN) return 0.;
-  if ((x1s - 4.*r1s) * (x2s - 4.*r2s) 
-    - pow2( 2. * (1. - x1 - x2 + r1s + r2s) + x1*x2 ) < XMARGIN) return 0.;
+  // Note: equivalent rewritten form 4. * ( (1. - x1) * (1. - x2) 
+  // * (1. - r1s - r2s - x3) + r1s * (1. - x2s - x3) + r2s 
+  // * (1. - x1s - x3) - pow2(r1s - r2s) ) gives abot same result.
+  if ( (x1s - 4.*r1s) * (x2s - 4.*r2s) 
+    - pow2( 2. * (1. - x1 - x2 + r1s + r2s) + x1*x2 ) 
+    < XMARGIN * (XMARGINCOMB + r1 + r2) ) return 0.;
 
   // Initial values; phase space.
   int combi   = max(1, min(4, combiIn) ); 
@@ -2117,7 +2188,7 @@ void TimeShower::list(ostream& os) {
   os << "\n --------  PYTHIA TimeShower Dipole Listing  ----------------"
      << "----------------------------------- \n \n    i    rad    rec   "
      << "    pTmax  col  chg  gam  oni  isr  sys type  MErec     mix  or"
-     << "d  spl  glu \n" << fixed << setprecision(3);
+     << "d  spl  ~gR \n" << fixed << setprecision(3);
   
   // Loop over dipole list and print it.
   for (int i = 0; i < int(dipEnd.size()); ++i) 
@@ -2128,10 +2199,9 @@ void TimeShower::list(ostream& os) {
      << setw(5) << dipEnd[i].isrType << setw(5) << dipEnd[i].system  
      << setw(5) << dipEnd[i].MEtype << setw(7) << dipEnd[i].iMEpartner 
      << setw(8) << dipEnd[i].MEmix << setw(5) << dipEnd[i].MEorder 
-     << setw(5) << dipEnd[i].MEsplit << setw(5) << dipEnd[i].MEgluinoDau 
+     << setw(5) << dipEnd[i].MEsplit << setw(5) << dipEnd[i].MEgluinoRec 
      << "\n";
  
-
   // Done.
   os << "\n --------  End PYTHIA TimeShower Dipole Listing  ------------"
      << "-----------------------------------" << endl;

@@ -1,5 +1,5 @@
 // FragmentationSystems.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -62,8 +62,8 @@ public:
   // Constructor.
   ColConfig() {}
 
-  // Initialize static data members.
-  static void initStatic();
+  // Initialize and save pointers.
+  void init(StringFlav* flavSelPtrIn);
 
   // Number of colour singlets.
   int size() const {return singlets.size();}
@@ -86,8 +86,11 @@ public:
 
 private:
 
-  // Static initialization data, to be read from Settings.
-  static double mJoin, mJoinJunction, mStringMin;
+  // Pointer to class for flavour generation.
+  StringFlav* flavSelPtr;
+
+  // Initialization data, to be read from Settings.
+  double mJoin, mJoinJunction, mStringMin;
  
   // List of all separate colour singlets.
   vector<ColSinglet> singlets;
@@ -112,14 +115,8 @@ public:
   // Constructor. 
   StringRegion() : isSetUp(false), isEmpty(true) {}
 
-  // Initialize static data members.
-  static void initStatic();
-
-  // Static initialization data, to be read from Settings.
-  static double mJoin, m2Join;
-
   // Constants: could only be changed in the code itself.
-  static const double TINY;
+  static const double MJOIN, TINY;
 
   // Data members.
   bool   isSetUp, isEmpty;
@@ -174,7 +171,8 @@ public:
   vector<StringRegion> system;
 
   // Other data members.
-  int sizePartons, sizeStrings, sizeRegions, indxReg, iMax; 
+  int    sizePartons, sizeStrings, sizeRegions, indxReg, iMax; 
+  double mJoin, m2Join;
 
 };
  

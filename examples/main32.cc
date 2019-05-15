@@ -1,5 +1,5 @@
 // main32.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Mikhail Kirsanov, Torbjorn Sjostrand.
+// Copyright (C) 2008 Mikhail Kirsanov, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -57,9 +57,6 @@ int main(int argc, char* argv[]) {
   pythia.readFile(argv[1]);    
 
   // Extract settings to be used in the main program.
-  int    idBeamA   = pythia.mode("Main:idBeamA");
-  int    idBeamB   = pythia.mode("Main:idBeamB");
-  double eCM       = pythia.parm("Main:eCM");
   int    nEvent    = pythia.mode("Main:numberOfEvents");
   int    nShow     = pythia.mode("Main:timesToShow");
   int    nAbort    = pythia.mode("Main:timesAllowErrors");
@@ -68,8 +65,8 @@ int main(int argc, char* argv[]) {
   bool   showCPD   = pythia.flag("Main:showChangedParticleData");
   bool   showAPD   = pythia.flag("Main:showAllParticleData");
  
-  // Initialization.
-  pythia.init( idBeamA, idBeamB, eCM);
+  // Initialization. Beam parameters set in .cmnd file.
+  pythia.init();
 
   // List settings.
   if (showCS) pythia.settings.listChanged();

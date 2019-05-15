@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Event Analysis</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -88,6 +90,9 @@ time/energy component.
 <p/><code>method&nbsp; </code><strong> list() &nbsp;</strong> <br/>
 provides a listing of the above information.
   
+<p/><code>method&nbsp; </code><strong> nError() &nbsp;</strong> <br/>
+tells the number of times <code>analyze</code> failed to analyze events.
+  
 
 <h3>Thrust</h3>
 
@@ -147,6 +152,9 @@ vanishing time/energy component.
   
 <p/><code>method&nbsp; </code><strong> list() &nbsp;</strong> <br/>
 provides a listing of the above information.
+  
+<p/><code>method&nbsp; </code><strong> nError() &nbsp;</strong> <br/>
+tells the number of times <code>analyze</code> failed to analyze events.
   
 
 <h3>ClusterJet</h3>
@@ -249,6 +257,9 @@ record belongs to,
   
 <p/><code>method&nbsp; </code><strong> list() &nbsp;</strong> <br/>
 provides a listing of the reconstructed jets.
+  
+<p/><code>method&nbsp; </code><strong> nError() &nbsp;</strong> <br/>
+tells the number of times <code>analyze</code> failed to analyze events.
   
 
 <h3>CellJet</h3>
@@ -373,8 +384,11 @@ gives the invariant mass of the <i>i</i>'th jet, defined by the
 provides a listing of the above information (except <code>pMassless</code>, 
 for reasons of space).
   
+<p/><code>method&nbsp; </code><strong> nError() &nbsp;</strong> <br/>
+tells the number of times <code>analyze</code> failed to analyze events.
+  
 
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

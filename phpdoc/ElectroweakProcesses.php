@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Electroweak Processes</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -98,7 +100,7 @@ Number of quark flavours included in the box graphs resposible for
 Owing to the complexity if the massive expressions, quarks are treated 
 as massless. The default value should be applicable in the range of 
 transverse momenta above the <i>b</i> mass but below the <i>t</i> one.
-</modeopen>
+  
 
 <h3>Weak boson processes</h3>
 
@@ -115,14 +117,15 @@ There is one flag that can be used to influence the <i>gamma^*/Z^0</i>
 structure in all the processes below where it is produced, unless 
 otherwise stated. 
 <br/><br/><table><tr><td><strong>WeakZ0:gmZmode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
-<modepick name="WeakZ0:gmZmode" default="0" min="0" max="2">
 Choice of full <ei>gamma^*/Z^0</ei> structure or not in relevant 
 processes.
 <br/>
-<input type="radio" name="8" value="0" checked="checked"><strong>0 </strong>: full <ei>gamma^*/Z^0</ei> structure,with interference included.<br/>
+<input type="radio" name="8" value="0" checked="checked"><strong>0 </strong>: full <ei>gamma^*/Z^0</ei> structure, with interference included.<br/>
 <input type="radio" name="8" value="1"><strong>1 </strong>: only pure <ei>gamma^*</ei> contribution.<br/>
 <input type="radio" name="8" value="2"><strong>2 </strong>: only pure <ei>Z^0</ei> contribution.<br/>
-</modepick>
+<br/><b>Note</b>: irrespective of the option used, the particle produced 
+will always be assigned code 23 for <ei>Z^0</ei>, and open decay channels
+is purely dictated by what is set for the <ei>Z^0</ei>. 
 
 <h4>Boson exchange</h4>
 
@@ -456,5 +459,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
 

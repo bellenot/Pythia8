@@ -1,5 +1,5 @@
 // SigmaSUSY.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -44,35 +44,36 @@ void Sigma2qqbar2chi0chi0::initProc() {
   // Shorthand for SUSY couplings
   // By default, use the tan(beta) given in MINPAR(3)
   // If not found, use the running one in HMIX (or EXTPAR?)
-  //double tanb = slha->minpar.exists(3) ? slha->minpar(3) : slha->hmix(2);
-  //double sinW=sqrt(sin2W);
-  //double cosW=sqrt(1.0-sin2W);
-  //double sinb = sqrt(max(0.0,1.0-cosb*cosb));
-  //double cosb = sqrt( 1.0 / (1.0 + tanb*tanb) );
-  //SusyLesHouches::matrixblock<6> Su(slha->usqmix);
-  //SusyLesHouches::matrixblock<6> Sd(slha->dsqmix);
-  //SusyLesHouches::matrixblock<6> imSu(slha->imusqmix);
-  //SusyLesHouches::matrixblock<6> imSd(slha->imdsqmix);  
+  // double tanb = slhaPtr->minpar.exists(3) ? slhaPtr->minpar(3) 
+  //                                         : slhaPtr->hmix(2);
+  // double sinW=sqrt(sin2W);
+  // double cosW=sqrt(1.0-sin2W);
+  // double sinb = sqrt(max(0.0,1.0-cosb*cosb));
+  // double cosb = sqrt( 1.0 / (1.0 + tanb*tanb) );
+  // SusyLesHouches::matrixblock<6> Su(slhaPtr->usqmix);
+  // SusyLesHouches::matrixblock<6> Sd(slhaPtr->dsqmix);
+  // SusyLesHouches::matrixblock<6> imSu(slhaPtr->imusqmix);
+  // SusyLesHouches::matrixblock<6> imSd(slhaPtr->imdsqmix);  
 
   // Local complex copies of neutralino mixing matrix entries. 
-  complex ni1( slha->nmix(id3chi,1), slha->imnmix(id3chi,1) );
-  complex nj1( slha->nmix(id4chi,1), slha->imnmix(id4chi,1) );
-  complex ni2( slha->nmix(id3chi,2), slha->imnmix(id3chi,2) );
-  complex nj2( slha->nmix(id4chi,2), slha->imnmix(id4chi,2) );
-  complex ni3( slha->nmix(id3chi,3), slha->imnmix(id3chi,3) );
-  complex nj3( slha->nmix(id4chi,3), slha->imnmix(id4chi,3) );
-  complex ni4( slha->nmix(id3chi,4), slha->imnmix(id3chi,4) );
-  complex nj4( slha->nmix(id4chi,4), slha->imnmix(id4chi,4) );
+  complex ni1( slhaPtr->nmix(id3chi,1), slhaPtr->imnmix(id3chi,1) );
+  complex nj1( slhaPtr->nmix(id4chi,1), slhaPtr->imnmix(id4chi,1) );
+  complex ni2( slhaPtr->nmix(id3chi,2), slhaPtr->imnmix(id3chi,2) );
+  complex nj2( slhaPtr->nmix(id4chi,2), slhaPtr->imnmix(id4chi,2) );
+  complex ni3( slhaPtr->nmix(id3chi,3), slhaPtr->imnmix(id3chi,3) );
+  complex nj3( slhaPtr->nmix(id4chi,3), slhaPtr->imnmix(id4chi,3) );
+  complex ni4( slhaPtr->nmix(id3chi,4), slhaPtr->imnmix(id3chi,4) );
+  complex nj4( slhaPtr->nmix(id4chi,4), slhaPtr->imnmix(id4chi,4) );
 
   // Change to positive mass convention.
   complex iRot( 0., 1.);
-  if (slha->mass(id3) < 0.) {
+  if (slhaPtr->mass(id3) < 0.) {
     ni1 *= iRot;
     ni2 *= iRot;
     ni3 *= iRot;
     ni4 *= iRot;
   };
-  if (slha->mass(id4) < 0.) {
+  if (slhaPtr->mass(id4) < 0.) {
     nj1 *= iRot;
     nj2 *= iRot;
     nj3 *= iRot;

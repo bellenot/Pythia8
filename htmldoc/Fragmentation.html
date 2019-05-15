@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Fragmentation</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -171,7 +173,7 @@ by a factor <i>enhancedWidth</i> for a small fraction
 <i>enhancedFraction</i> of the breakups, where
 
 <p/><code>parm&nbsp; </code><strong> StringPT:enhancedFraction &nbsp;</strong> 
- (<code>default = <strong>0.1</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.1</code>)<br/>
+ (<code>default = <strong>0.01</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.1</code>)<br/>
 <i>enhancedFraction</i>,the fraction of string breaks with enhanced 
 width.
   
@@ -234,13 +236,14 @@ else the ministring scenario is used.
   
 
 <p/><code>parm&nbsp; </code><strong> FragmentationSystems:mJoin &nbsp;</strong> 
- (<code>default = <strong>0.1</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)<br/>
+ (<code>default = <strong>0.2</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 1.</code>)<br/>
 When two colour-connected partons are very nearby, with at least 
 one being a gluon, they can be joined into one, to avoid technical 
 problems of very small string regions. The requirement for joining is 
 that the invariant mass of the pair is below <i>mJoin</i>, where a 
 gluon only counts with half its momentum, i.e. with its contribution 
-to the string region under consideration.
+to the string region under consideration. (Note that, for technical 
+reasons, the 0.2 GeV lower limit is de facto hardcoded.)
   
 
 <p/><code>parm&nbsp; </code><strong> FragmentationSystems:mJoinJunction &nbsp;</strong> 
@@ -281,7 +284,7 @@ After <i>nTry</i> attempts, instead an attempt is made to produce a
 single hadron from the system. Should also this fail, some further
 attempts at obtaining two hadrons will be made before eventually 
 giving up.
-</modeopen>
+  
 
 <h3>Junction treatment</h3>
 
@@ -336,5 +339,5 @@ junction rest frame).
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
 

@@ -1,5 +1,5 @@
 // main25.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -143,7 +143,7 @@ int main() {
   // Warning: generation of complete events is much slower than if you use
   // PartonLevel:all = off to only get cross sections, so adjust nEvent.
   int nEvent = 1000;
-  int nList = 1;
+  int nList  = 1;
   int nAbort = 5;
 
   // Pythia generator.

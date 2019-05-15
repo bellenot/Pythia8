@@ -24,8 +24,8 @@ all:
 
 # Create an executable for one of the normal test programs
 main00  main01 main02 main03 main04 main05 main06 main07 main08 main09 main10 \
-	main11 main12 main13 main14 main15 main16 main17 \
-        main21 main22 main23 main24 main25 main26: \
+	main11 main12 main13 main14 main15 main16 main17 main18 main19 main20 \
+        main21 main22 main23 main24 main25 main26 main27: \
 	../$(LIBDIRARCH)/libpythia8.a
 	@mkdir -p ../$(BINDIR)
 	$(CXX) $(CXXFLAGS) -I../$(INCDIR) $@.cc -o ../$(BINDIR)/$@.exe \

@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>External Decays</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -73,7 +75,13 @@ is stored.
 <p/>
 The routine should return <code>true</code> if it managed the decay and 
 <code>false</code> otherwise, in which case <code>Pythia</code> will try 
-to do the decay itself.  
+to do the decay itself. This e.g. means you can choose to do some decay 
+channels yourself, and leave others to <code>Pythia</code>. To avoid
+doublecounting, the channels you want to handle should be switched off
+in the <code>Pythia</code> particle database. In the beginning of the  
+external <code>decay</code> method you should then return 
+<code>false</code> with a probability given by the sum of the branching
+ratios for those channels you do not want to handle yourself.   
 
 <p/>
 Note that the decay vertex is always set by <code>Pythia</code>, and that 
@@ -89,4 +97,4 @@ a simple example of how to use this facility.
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

@@ -1,5 +1,5 @@
 // PartonLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,11 +13,12 @@
 #include "BeamParticle.h"
 #include "BeamRemnants.h"
 #include "Event.h"
-#include "Information.h"
+#include "Info.h"
 #include "MultipleInteractions.h"
 #include "ParticleData.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
+#include "SigmaTotal.h"
 #include "SpaceShower.h"
 #include "TimeShower.h"
 #include "UserHooks.h"
@@ -38,9 +39,9 @@ public:
  
   // Initialization of all classes at the parton level.
   bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn,  TimeShower* timesDecPtrIn,
-    TimeShower* timesPtrIn, SpaceShower* spacePtrIn, 
-    UserHooks* userHooksPtrIn);
+    BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtr, 
+    TimeShower* timesDecPtrIn, TimeShower* timesPtrIn, 
+    SpaceShower* spacePtrIn, UserHooks* userHooksPtrIn);
  
   // Generate the next parton-level process.
   bool next( Event& process, Event& event); 
@@ -50,7 +51,7 @@ public:
 
   // Accumulate and print statistics.
   void accumulate() {multi.accumulate( infoPtr);}
-  void statistics() {if (doMI) multi.statistics();}
+  void statistics(bool reset = false) {if (doMI) multi.statistics(reset);}
 
 private: 
 
@@ -59,7 +60,7 @@ private:
 
   // Initialization data, mainly read from Settings.
   bool   doMI, doISR, doFSRduringProcess, doFSRafterProcess, 
-         doFSRinResonances, doRemnants, doSecondHard, 
+         doFSRinResonances, doRemnants, doSecondHard, doMIinit, 
          hasLeptonBeams, hasPointLeptons, canVetoPT, canVetoStep;
 
   // Event generation strategy. Number of steps. Maximum pT scales.

@@ -1,5 +1,5 @@
 // Event.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -113,27 +113,66 @@ double m2(const Particle& pp1, const Particle& pp2) {
 // This class holds info on the complete event record.
 
 //*********
- 
-// Definitions of static variables.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-
-int  Event::startColTag             = 100;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
 // Maxmimum number of mothers or daughter indices per line in listing.
-const int Event::IPERLINE           = 20;
-
+const int Event::IPERLINE = 20;
 
 //*********
 
-// Initialize parameters of the event record.
+// Copy all information from one event record to another.
+  
+Event& Event::operator=( const Event& oldEvent) {
 
-void Event::initStatic() { 
+  // Do not copy if same.
+  if (this != &oldEvent) {
+
+    // Reset all current info in the event.
+    clear();
+
+    // Copy all the particles one by one.
+    for (int i = 0; i < oldEvent.size(); ++i) append( oldEvent[i] ); 
+
+    // Copy all the junctions one by one. 
+    for (int i = 0; i < oldEvent.sizeJunction(); ++i) 
+      appendJunction( oldEvent.getJunction(i) );  
+
+    // Copy values in the system arrays.
+    for (int i = 0; i < int(oldEvent.beginSys.size()); ++i) 
+      beginSys.push_back( oldEvent.beginSys[i] );
+    for (int i = 0; i < int(oldEvent.sizeSys.size()); ++i) 
+      sizeSys.push_back( oldEvent.sizeSys[i] );
+    for (int i = 0; i < int(oldEvent.memberSys.size()); ++i) 
+      memberSys.push_back( oldEvent.memberSys[i] );
+
+    // Copy all other values.
+    startColTag         = oldEvent.startColTag;
+    maxColTag           = oldEvent.maxColTag;
+    savedSize           = oldEvent.savedSize;
+    savedJunctionSize   = oldEvent.savedJunctionSize;
+    scaleSave           = oldEvent.scaleSave;
+    scaleSecondSave     = oldEvent.scaleSecondSave;
+    headerList          = oldEvent.headerList;
+
+  // Done.
+  }
+  return *this;
+
+}
+
+//*********
+
+// Initialize colour and header specification for event listing.
+
+void Event::init( string headerIn) { 
   
   // The starting colour tag for the event.
-  startColTag             = Settings::mode("Event:startColTag");
+  startColTag = Settings::mode("Event:startColTag");
+
+  // Set header specification for event listing.
+  headerList.replace(0, headerIn.length() + 2, headerIn + "  ");
 
 }
 
@@ -637,6 +676,73 @@ void Event::listSystems(ostream& os) const {
   if (beginSys.size() == 0) os << "    no systems defined \n";
   os << "\n --------  End PYTHIA Systems Listing  ----------------------"
      << "--------------------------" << endl;
+
+}
+
+//*********
+
+// Operator overloading allows to append one event to an existing one.
+  
+Event& Event::operator+=( const Event& addEvent) {
+
+  // Find offsets. One less since won't copy line 0.
+  int offsetIdx = entry.size() - 1;
+  int offsetCol = maxColTag;
+
+  // Add energy to zeroth line and calculate new invariant mass. 
+  entry[0].p( entry[0].p() + addEvent[0].p() );
+  entry[0].m( entry[0].mCalc() );
+
+  // Read out particles from line 1 (not 0) onwards.
+  Particle temp;
+  for (int i = 1; i < addEvent.size(); ++i) {
+    temp = addEvent[i];
+
+    // Add offset to nonzero mother, daughter and colour indices.
+    if (temp.mother1() > 0) temp.mother1( temp.mother1() + offsetIdx );   
+    if (temp.mother2() > 0) temp.mother2( temp.mother2() + offsetIdx );   
+    if (temp.daughter1() > 0) temp.daughter1( temp.daughter1() + offsetIdx );
+    if (temp.daughter2() > 0) temp.daughter2( temp.daughter2() + offsetIdx );
+    if (temp.col() > 0) temp.col( temp.col() + offsetCol );   
+    if (temp.acol() > 0) temp.acol( temp.acol() + offsetCol );   
+
+    // Append particle to summed event.
+    append( temp );
+  }
+
+  // Read out junctions one by one.
+  Junction tempJ;
+  int begCol, endCol;
+  for (int i = 0; i < addEvent.sizeJunction(); ++i) {
+    tempJ = addEvent.getJunction(i);
+    
+    // Add colour offsets to all three legs.
+    for (int  j = 0; j < 3; ++j) {
+      begCol = tempJ.col(j);
+      endCol = tempJ.endCol(j);
+      if (begCol > 0) begCol += offsetCol; 
+      if (endCol > 0) endCol += offsetCol; 
+      tempJ.cols( j, begCol, endCol);
+    }
+
+    // Append junction to summed event.  
+    appendJunction( tempJ );  
+  }
+
+  // Read out systems one by one. Append new system to event.
+  for (int i = 0; i < addEvent.sizeSystems(); ++i) {
+    int iNew = newSystem();
+
+    // Append members in system, with offset.
+    for (int j = 0; j < addEvent.sizeSystem(i); ++j)
+      addToSystem( iNew, addEvent.getInSystem( i, j) + offsetIdx );
+  }
+
+  // Set header that indicates character as sum of events.
+  headerList = "(combination of several events)  -------";
+
+  // Done.
+  return *this;
 
 }
 

@@ -1,5 +1,5 @@
 // ParticleData.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -102,6 +102,9 @@ double ParticleDataEntry::maxEnhanceBW    = 2.5;
 double ParticleDataEntry::mQRun[7]        
   = {0., 0.006, 0.003, 0.095, 1.25, 4.20, 165.};
 double ParticleDataEntry::Lambda5Run      = 0.2;
+
+// Static copy of Info - not optimal solution??
+Info*  ParticleDataEntry::infoPtr         = 0;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -243,7 +246,7 @@ void ParticleDataEntry::initBWmass() {
   if (mThr + NARROWMASS > m0Save) {
     ostringstream osWarn;
     osWarn << "for id = " << idSave;
-    ErrorMsg::message("Warning in ParticleDataEntry::initBWmass:"
+    infoPtr->errorMsg("Warning in ParticleDataEntry::initBWmass:"
     " switching off width", osWarn.str());
     modeBWnow = 0;
   }
@@ -568,6 +571,9 @@ map<int, ParticleDataEntry> ParticleDataTable::pdt;
 bool ParticleDataTable::isInit = false;
 ParticleDataEntry* ParticleDataTable::particlePtr = 0;
 
+// Static copy of Info - not optimal solution??
+Info*  ParticleDataTable::infoPtr         = 0;
+
 //*********
 
 // Initialize the special handling of resonances in ResonanceWidths.
@@ -577,7 +583,7 @@ void ParticleDataTable::initResonances(
   vector<ResonanceWidths*> resonancePtrs, bool reInit) {
 
   // Initialize static resonance properties.
-  ResonanceWidths::initStatic();
+  ResonanceWidths::initStatic(infoPtr);
 
   // Set up new resonance objects. Not necessary if already done.
   if (!reInit) {
@@ -694,7 +700,7 @@ bool ParticleDataTable::readXML(string inFile, bool reset) {
 
     // Check that instream is OK.
     if (!is) {
-      ErrorMsg::message("Error in ParticleDataTable::readXML:"
+      infoPtr->errorMsg("Error in ParticleDataTable::readXML:"
         " did not find file", files[i]);
       return false;
     }
@@ -760,14 +766,14 @@ bool ParticleDataTable::readXML(string inFile, bool reset) {
         prodStream >> prod0 >> prod1 >> prod2 >> prod3 >> prod4 >> prod5 
                    >> prod6 >> prod7;   
         if (prod0 == 0) {
-          ErrorMsg::message("Error in ParticleDataTable::readXML:"
+          infoPtr->errorMsg("Error in ParticleDataTable::readXML:"
             " incomplete decay channel", line);
           return false;
         }
 
         // Store new channel (if particle already known).
         if (particlePtr == 0) {
-          ErrorMsg::message("Error in ParticleDataTable::readXML:"
+          infoPtr->errorMsg("Error in ParticleDataTable::readXML:"
             " orphan decay channel", line);
           return false;
         }
@@ -778,7 +784,7 @@ bool ParticleDataTable::readXML(string inFile, bool reset) {
       } else if (word1 == "<file") {
         string file = attributeValue(line, "name");
         if (file == "") {
-          ErrorMsg::message("Warning in ParticleDataTable::readXML:"
+          infoPtr->errorMsg("Warning in ParticleDataTable::readXML:"
             " skip unrecognized file name", line);
         } else files.push_back(file);
       }
@@ -880,7 +886,7 @@ bool ParticleDataTable::readFF(string inFile, bool reset) {
   const char* cstring = inFile.c_str();
   ifstream is(cstring);  
   if (!is) {
-    ErrorMsg::message("Error in ParticleDataTable::readFF:"
+    infoPtr->errorMsg("Error in ParticleDataTable::readFF:"
       " did not find file", inFile);
     return false;
   }
@@ -916,7 +922,7 @@ bool ParticleDataTable::readFF(string inFile, bool reset) {
 
       // Error printout if something went wrong.
       if (!readLine) {
-        ErrorMsg::message("Error in ParticleDataTable::readFF:"
+        infoPtr->errorMsg("Error in ParticleDataTable::readFF:"
           " incomplete particle", line);
         return false;
       }
@@ -943,7 +949,7 @@ bool ParticleDataTable::readFF(string inFile, bool reset) {
       // Read in data from stream. Need at least one decay product.
       readLine >> onMode >> bRatio >> meMode >> prod0;
       if (!readLine) {
-        ErrorMsg::message("Error in ParticleDataTable::readFF:"
+        infoPtr->errorMsg("Error in ParticleDataTable::readFF:"
           " incomplete decay channel", line);
         return false;
       }
@@ -952,7 +958,7 @@ bool ParticleDataTable::readFF(string inFile, bool reset) {
 
       // Store new channel.
       if (particlePtr == 0) {
-        ErrorMsg::message("Error in ParticleDataTable::readFF:"
+        infoPtr->errorMsg("Error in ParticleDataTable::readFF:"
           " orphan decay channel", line);
         return false;
       }

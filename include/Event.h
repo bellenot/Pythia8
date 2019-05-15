@@ -1,5 +1,5 @@
 // Event.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -203,10 +203,14 @@ public:
   void bst(double betaX, double betaY, double betaZ, double gamma) {
     pSave.bst(betaX, betaY, betaZ, gamma);
     if (hasVertexSave) vProdSave.bst(betaX, betaY, betaZ, gamma);}
-  void bst(const Vec4& vec) {pSave.bst(vec);
-    if (hasVertexSave) vProdSave.bst(vec);}
-  void bstback(const Vec4& vec) {pSave.bstback(vec);
-    if (hasVertexSave) vProdSave.bstback(vec);}
+  void bst(const Vec4& pBst) {pSave.bst(pBst);
+    if (hasVertexSave) vProdSave.bst(pBst);}
+  void bst(const Vec4& pBst, double mBst) {pSave.bst(pBst, mBst);
+    if (hasVertexSave) vProdSave.bst(pBst, mBst);}
+  void bstback(const Vec4& pBst) {pSave.bstback(pBst);
+    if (hasVertexSave) vProdSave.bstback(pBst);}
+  void bstback(const Vec4& pBst, double mBst) {pSave.bstback(pBst, mBst);
+    if (hasVertexSave) vProdSave.bstback(pBst, mBst);}
   void rotbst(const RotBstMatrix& M) {pSave.rotbst(M);
     if (hasVertexSave) vProdSave.rotbst(M);} 
   void offsetHistory( int minMother, int addMother, int minDaughter, 
@@ -275,6 +279,8 @@ public:
   // Set values.
   void remains(bool remainsIn) {remainsSave = remainsIn;}
   void col(int j, int colIn) {colSave[j] = colIn; endColSave[j] = colIn;}
+  void cols(int j, int colIn, int endColIn) {colSave[j] = colIn; 
+    endColSave[j] = endColIn;}
   void endCol(int j, int endColIn) {endColSave[j] = endColIn;}
   void status(int j, int statusIn) {statusSave[j] = statusIn;}
 
@@ -301,16 +307,17 @@ class Event {
     
 public:
 
-  // Constructor.
-  Event(int capacity = 100) {entry.reserve(capacity);
+  // Constructors.
+  Event(int capacity = 100) {entry.reserve(capacity); startColTag = 100; 
     headerList = "----------------------------------------";}
+  Event& operator=(const Event& oldEvent);
 
-  // Initialize static data members.
-  static void initStatic();
+  // Initialize colour and header specification for event listing.
+  void init( string headerIn = "");
 
   // Clear event record.
   void clear() {entry.resize(0); maxColTag = startColTag; 
-    junction.resize(0); clearSystems();}
+    clearJunctions(); clearSystems();}
 
   // Clear event record, and set first particle empty.
   void reset() {clear(); append(90, -11, 0, 0, 0., 0., 0., 0., 0.);}
@@ -373,10 +380,6 @@ public:
   void list(bool showScaleAndVertex, bool showMothersAndDaughters = false, 
     ostream& os = cout);  
 
-  // Set header specification for event listing.
-  void header( string headerIn) {
-    headerList.replace(0, headerIn.length() + 2, headerIn + "  ");}
-
   // Remove last n entries.
   void popBack(int nRemove = 1) { if (nRemove ==1) entry.pop_back();
     else {int newSize = max( 0, size() - nRemove); 
@@ -435,6 +438,9 @@ public:
     {for (int i = 0; i < size(); ++i) entry[i].bst(vec);}
   void rotbst(const RotBstMatrix& M) 
     {for (int i = 0; i < size(); ++i) entry[i].rotbst(M);}
+
+  // Clear the list of junctions.
+  void clearJunctions() {junction.resize(0);}
  
   // Add a junction to the list, study it or extra input.
   void appendJunction( int kind, int col0, int col1, int col2)  
@@ -453,6 +459,7 @@ public:
   void statusJunction( int i, int j, int statusIn) 
     {junction[i].status(j, statusIn);}
   Junction& getJunction(int i) {return junction[i];}
+  const Junction& getJunction(int i) const {return junction[i];}
   void eraseJunction(int i);
 
   // Save or restore the size of the junction list (throwing at the end).
@@ -488,13 +495,17 @@ public:
   // List members in systems; for debug mainly.
   void listSystems(ostream& os = cout) const;
 
-private: 
+  // Operator overloading allows to append one event to an existing one.
+  // Warning: particles should be OK, but some other information unreliable.
+  Event& operator+=(const Event& addEvent);
 
-  // Static initialization data, normally only set once.
-  static int startColTag;
+private: 
 
   // Constants: could only be changed in the code itself.
   static const int IPERLINE;
+
+  // Initialization data, normally only set once.
+  int startColTag;
 
   // The event: a vector containing all particles (entries).
   vector<Particle> entry;

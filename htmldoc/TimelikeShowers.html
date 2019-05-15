@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Timelike Showers</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
     
@@ -62,7 +64,7 @@ fixed.
 <br/><code>option </code><strong> 2</strong> : second order. Since other parts of the code do 
 not go to second order there is no strong reason to use this option, 
 but there is also nothing wrong with it.  
-</modepick>
+  
 
 <p/>
 QED radiation is regulated by the <i>alpha_electromagnetic</i>
@@ -80,7 +82,7 @@ fixed at its value at vanishing momentum transfer.
 fixed, but at <code>StandardModel:alphaEMmZ</code>, i.e. its value
 at the <i>Z^0</i> mass.
    
-</modepick>
+  
 
 <p/>
 The rate of radiation if divergent in the <i>pT -> 0</i> limit. Here, 
@@ -298,7 +300,7 @@ and <i>g -> q qbar</i>; on/off = true/false.
 Number of allowed quark flavours in <i>g -> q qbar</i> branchings
 (phase space permitting). A change to 4 would exclude 
 <i>g -> b bbar</i>, etc. 
-</modeopen>
+  
 
 <p/><code>flag&nbsp; </code><strong> TimeShower:QEDshowerByQ &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
@@ -324,7 +326,7 @@ on/off = true/false.
 Number of allowed quark flavours in <i>gamma -> q qbar</i> branchings
 (phase space permitting). A change to 4 would exclude 
 <i>g -> b bbar</i>, etc. 
-</modeopen>
+  
 
 <p/><code>mode&nbsp; </code><strong> TimeShower:nGammaToLepton &nbsp;</strong> 
  (<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
@@ -332,7 +334,7 @@ Number of allowed lepton flavours in <i>gamma -> l+ l-</i> branchings
 (phase space permitting). A change to 2 would exclude 
 <i>gamma -> tau+ tau-</i>, and a change to 1 also 
 <i>gamma -> mu+ mu-</i>. 
-</modeopen>
+  
 
 <p/><code>flag&nbsp; </code><strong> TimeShower:MEcorrections &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
@@ -347,4 +349,4 @@ Azimuthal asymmetry induced by gluon polarization; on/off = true/false.
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

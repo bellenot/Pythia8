@@ -34,10 +34,8 @@
    will have to do more work. There are two different ways to 
    accomplish this.
 
-1.1) If you have access to the CERN afs filesystem, so that libraries 
-     can be picked up  from the /afs/cern.ch/sw/lcg/external area, you 
-     can run "./configure"  with a suitable combination of the following 
-     command-line arguments: 
+1.1)  You can use command-line arguments to set up the desired library 
+     links. The possible options are:
      --help : prints a brief summary of the options described here.
      --enable-debug : turns on debugging flags and turns off optimization.
          (This makes program execution much slower. If you later want to 
@@ -45,26 +43,35 @@
          this option, since default is to allow optimization.)
      --enable-shared : turns on shared-library creation,
          in addition to the archive libraries always built.
-     --lcgplatform=xxx : allows you to specify the platform assumed for
+     --lcgplatform=name : allows you to specify the platform assumed for
          compilation, which also affects the assumed location of the 
          libraries below; default is slc4_ia32_gcc34 while other supported
-         values for xxx include slc4_amd64_gcc34 and slc3_ia32_gcc323
+         values for name include slc4_amd64_gcc34 and slc3_ia32_gcc323
          (deprecated). 
-     --with-hepmcversion=xxx : allows you later on to link to the HepMC
-         library. A recent "old" version would be 1.27.02, while a 
-         more modern one would be 2.00.02.
-     --with-clhepversion=xxx : if you use HepMC version 1 you also need
-         to link to CLHEP, e.g. HepMC 1.27.02 requires CLHEP 1.9.2.3-aa.
+     --with-hepmc=path : the path to your local copy of the HepMC library.
+         This option is primarily intended for HepMC version 2, where
+         CLHEP is no longer required. If the path does not contain the
+         version number you should also use following option to
+         specify it.
+     --with-hepmcversion=v : a simpler alternative to the above, valid 
+         if you are using the CERN AFS LCG external area. A recent "old" 
+         version would be 1.28.02, while a more modern one would be 2.01.10.
+     --with-clhepversion=v : if you use HepMC version 1 you also need to
+         link to CLHEP, e.g. HepMC 1.28.02 requires CLHEP (e.g. 1.9.2.3).
          HepMC version 2 does not require CLHEP.
+     Note: while HepMC version 1 still works with PYTHIA, it is deprecated, 
+         and will not be supported in the future.
 
-1.2) If you want to use external libraries from some different location, 
+1.2) If you want to use the external CLHEP from some different location, 
+     or it is more convenient to put the paths directly into the script,
      then you have to edit the "configure" file by hand before you run 
-     it, to provide the paths where you have the respective libraries 
-     installed on your local platform. Search in the "configure" file for
+     it. Search in the "configure" file for
        HEPMCLOCATION
        CLHEPLOCATION
+     and provide the paths where you have the respective libraries
+     installed on your local platform.
 
-   Information on the selected paths is stored in the files 
+   Information on the selected paths is stored in the files config.mk,
    examples/config.sh and examples/config.csh when you run "./configure".
 
 2) If you want to change the versions of HepMC and/or CLHEP, you have to

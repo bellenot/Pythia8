@@ -1,5 +1,5 @@
 // main52.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -17,12 +17,12 @@ using namespace Pythia8;
 
 // Implement initialization fillHepRup method for Pythia6 example.
 
-bool LHAinitFortran::fillHepRup() { 
+bool LHAupFortran::fillHepRup() { 
 
   // Open file with commands to Pythia6. Check that it worked.
   ifstream is("main52.fcmnd");  
   if (!is) {
-    ErrorMsg::message("Error in LHAinitFortran::fillHepRup: "
+    infoPtr->errorMsg("Error in LHAupFortran::fillHepRup: "
       "did not find file");
     return false;
   } 
@@ -46,7 +46,7 @@ bool LHAinitFortran::fillHepRup() {
 
 // Implement event generation fillHepEup method for Pythia6 example.
 
-bool LHAevntFortran::fillHepEup() { 
+bool LHAupFortran::fillHepEup() { 
 
   // Generate and fill the next Pythia6 event in HEPEUP.
   Pythia6Interface::pyupev();
@@ -69,9 +69,8 @@ int main() {
   pythia.readFile("main52.ccmnd");    
 
   // Initialize to access Pythia6 generator by Les Houches interface.
-  LHAinitFortran pythia6Init;
-  LHAevntFortran pythia6Evnt;
-  pythia.init(&pythia6Init, &pythia6Evnt);    
+  LHAupFortran pythia6;
+  pythia.init(&pythia6);    
 
   // Extract settings to be used in the main program.
   int  nEvent  = settings.mode("Main:numberOfEvents");

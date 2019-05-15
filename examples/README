@@ -6,7 +6,7 @@
    the README file of the mother directory. For the moment we assume
    that you will NOT use the HepMC, LHAPDF or PYTHIA 6.4 libraries.
 
-2) You are now ready to test run the first thirteen of the mainNN 
+2) You are now ready to test run the first twentyseven of the mainNN 
    examples listed below. Type "gmake mainNN" to build an executable 
    "mainNN.exe". Type "./mainNN.exe > output" to run this executable. 
    Then study the output file. The existing files outNN are examples of 
@@ -31,25 +31,30 @@
 
 2) If you are going to run examples linked with LHAPDF and/or PYTHIA 6.4,
    you should as a first step run the script "configure" in the current 
-   directory. Similarly to what is described in the README file of the 
-   mother directory, two distinct ways exist.
+   directory. You can use command-line arguments to set up the desired 
+   library links. 
 
-2.1) If you have access to the CERN AFS external area you can run
-     "./configure" with command-line arguments to set up the desired 
-     library links. The possible options are:
+   The possible options are:
      --help : prints a brief summary of the options described here.
      --enable-debug : turns on debugging flags and turns off optimization
-     --enable-shared : use shared library (not yet implem.) (default no)
-     --with-lhapdfversion : LHAPDF version (to be taken from CERN AFS 
-       MCGenerators, must be version 5.3 or later, e.g. =5.3.0)
-     --with-pythia6version : PYTHIA 6 version (to be taken from CERN AFS 
-       MCGenerators, should be in 4xx series, e.g. =410)
- 
-2.2) If not, you have to edit the "configure" file by hand before you run 
-     it, to provide the paths where you have the respective libraries 
-     installed on your local platform. Search in the "configure" file for   
-       LHAPDFLOCATION
-       PYTHIA6LOCATION
+     --enable-shared : use shared library (not yet implemented) (default no)
+     --with-lhapdf=lhapdfpath : the path to your local copy of the LHAPDF
+         library (must be version 5.3 or higher)
+     --with-lhapdfversion=v : a simpler alternative to the above, valid 
+         if you are using the CERN AFS MCGenerators area; then you do not 
+         need to specify the full path but only the version, e.g. =5.3.0 
+         (must be version 5.3 or higher) 
+     --with-lhapdflibname=n : lhapdf library name line (default is -lLHAPDF)
+     --with-lhapdfsets=path : path to the LHAPDF data files 
+         (default is lhapdfpath/../PDFsets, CERN AFS default is 
+         lhapdfpath/../../../share/PDFsets)
+     --with-pythia6=path : the path to your local copy of the PYTHIA 6.4
+         library
+     --with-pythia6version=v : a simpler alternative to the above, valid 
+         if you are using the CERN AFS MCGenerators area; then you do not 
+         need to specify the full path but only the version, e.g. =413 
+     --with-pythia6libname=n  : pythia6 library name line: default is the 
+         GENSER standard: -lpythia6 -lpythia6_dummy -lpythia6_pdfdummy
 
    When "configure" is run it will create or append to the config.csh 
    and config.sh files.
@@ -77,7 +82,7 @@
 
    LIST OF TEST PROGRAMS
 
-1) main01 - main17 only use the PYTHIA 8 library
+1) main01 - main20 only use the PYTHIA 8 library
 * main01.cc : brief example with charged multiplicity distribution
 * main02.cc : brief example with Z0 pT spectrum
 * main03.cc & main03.cmnd : simple single-particle analysis in jet events
@@ -91,10 +96,13 @@
 * main11.cc : set two hard interactions in the same event
 * main12.cc & ttbar.lhe : generate events from a Les Houches Event File 
 * main13.cc & ttbar.lhe & ttbar2.lhe : several Les Houches Event Files & more 
-* main14.cc : compare several cross sections with their Pythia 6.4 values. 
-* main15.cc : redo B decays several times for each event
+* main14.cc : compare several cross sections with their PYTHIA 6.4 values. 
+* main15.cc : redo B decays or hadronization several times for each event
 * main16.cc : user analysis class; command-line specification of input file  
 * main17.cc : Pythia wrapper class; command-line specification of input file
+* main18.cc : event filter class to retain a subset of the particles 
+* main19.cc : use two Pythia instances to combine signal and pileup events
+* main20.cc : write a Les Houches Event File with PYTHIA 8-generated events 
 
 2) main21 - main26 are examples how some external programs could be linked
 * main21.cc : external input of parton configurations for hadronization only
@@ -103,6 +111,7 @@
 * main24.cc : how to link an external random number generator
 * main25.cc : how to link an external process to use internally
 * main26.cc : how to link an external resonance and process to use internally
+* main27.cc : how to link an external momentum spread and vertex generator 
 
 3) main31 - main32 require linkage to the HepMC event record library
 * main31.cc & main31.cmnd : simple example output to HepMC 

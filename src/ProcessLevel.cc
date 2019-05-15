@@ -1,5 +1,5 @@
 // ProcessLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -34,36 +34,35 @@ ProcessLevel::~ProcessLevel() {
 // Main routine to initialize generation process.
 
 bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, bool doLHA, UserHooks* userHooksPtrIn,
+  BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn, bool doLHA, 
+  SusyLesHouches* slhaPtrIn, UserHooks* userHooksPtrIn, 
   vector<SigmaProcess*>& sigmaPtrs, ostream& os) {
 
   // Store input pointers for future use. 
   infoPtr       = infoPtrIn;
   beamAPtr      = beamAPtrIn;
   beamBPtr      = beamBPtrIn;
+  sigmaTotPtr   = sigmaTotPtrIn;
   userHooksPtr  = userHooksPtrIn;
+  slhaPtr       = slhaPtrIn;
 
-  // Initialize static data members in other HadronLevel classes.
-  SigmaProcess::initStatic(); 
-  PhaseSpace::initStatic();
-
-  // Send static pointers to ProcessContainer.
-  ProcessContainer::initStatic( infoPtr, &resonanceDecays);
+  // Send on some input pointers.
+  resonanceDecays.init( infoPtr);
 
   // Options to allow second hard interaction and resonance decays.
   doSecondHard  = Settings::flag("SecondHard:generate");
   doResDecays   = Settings::flag("ProcessLevel:resonanceDecays");
 
   // Set up SigmaTotal. Store sigma_nondiffractive for future use.
+  sigmaTotPtr->init( infoPtr);
   int    idA = infoPtr->idA();
   int    idB = infoPtr->idB();
   double eCM = infoPtr->eCM();
-  sigmaTot.init( idA, idB, eCM);
-  sigmaND = sigmaTot.sigmaND();
+  sigmaTotPtr->calc( idA, idB, eCM);
+  sigmaND = sigmaTotPtr->sigmaND();
 
-  // Send beam and cross section info to processes and phase space.
-  SigmaProcess::setStaticPtrs( beamAPtr, beamBPtr, &sigmaTot);
-  PhaseSpace::setStaticPtrs( beamAPtr, beamBPtr, &sigmaTot, userHooksPtr);
+  // Initialize SUSY Les Houches Accord data
+  if (!initSLHA()) return false;
 
   // Set up containers for all the internal hard processes.
   SetupContainers setupContainers;
@@ -79,19 +78,34 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   if (doLHA) {
     SigmaProcess* sigmaPtr = new SigmaLHAProcess();
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+
+    // Store location of this container, and send in LHA pointer.
+    iLHACont = containerPtrs.size() - 1;
+    containerPtrs[iLHACont]->setLHAPtr(lhaUpPtr);
   }     
 
   // If no processes found then refuse to do anything.
   if ( int(containerPtrs.size()) == 0) {
-    ErrorMsg::message("Error in ProcessLevel::init: "
+    infoPtr->errorMsg("Error in ProcessLevel::init: "
       "no process switched on"); 
     return false;
   }
 
+  // Initialize alphaStrong generation for SigmaProcess.
+  double alphaSvalue  = Settings::parm("SigmaProcess:alphaSvalue");
+  int    alphaSorder  = Settings::mode("SigmaProcess:alphaSorder");
+  alphaS.init( alphaSvalue, alphaSorder); 
+
+  // Initialize alphaEM generation for SigmaProcess.
+  int    alphaEMorder = Settings::mode("SigmaProcess:alphaEMorder");
+  alphaEM.init( alphaEMorder); 
+
   // Initialize each process. 
   int numberOn = 0;
   for (int i = 0; i < int(containerPtrs.size()); ++i)
-    if (containerPtrs[i]->init()) ++numberOn;
+    if (containerPtrs[i]->init(infoPtr, beamAPtr, beamBPtr, &alphaS, 
+      &alphaEM, sigmaTotPtr, &resonanceDecays, slhaPtr, userHooksPtr)) 
+      ++numberOn;
 
   // Sum maxima for Monte Carlo choice.
   sigmaMaxSum = 0.;
@@ -103,12 +117,14 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   if (doSecondHard) {
     setupContainers.init2(container2Ptrs);
     if ( int(container2Ptrs.size()) == 0) {
-      ErrorMsg::message("Error in ProcessLevel::init: "
+      infoPtr->errorMsg("Error in ProcessLevel::init: "
         "no second hard process switched on"); 
       return false;
     }
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
-      if (container2Ptrs[i2]->init()) ++number2On;
+      if (container2Ptrs[i2]->init(infoPtr, beamAPtr, beamBPtr, &alphaS, 
+        &alphaEM, sigmaTotPtr, &resonanceDecays, slhaPtr, userHooksPtr)) 
+        ++number2On;
     sigma2MaxSum = 0.;
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
       sigma2MaxSum += container2Ptrs[i2]->sigmaMax();
@@ -174,12 +190,12 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
 
   // If sum of maxima vanishes then refuse to do anything.
   if ( numberOn == 0  || sigmaMaxSum <= 0.) {
-    ErrorMsg::message("Error in ProcessLevel::init: "
+    infoPtr->errorMsg("Error in ProcessLevel::init: "
       "all processes have vanishing cross sections"); 
     return false;
   }
   if ( doSecondHard && (number2On == 0  || sigma2MaxSum <= 0.) ) {
-    ErrorMsg::message("Error in ProcessLevel::init: "
+    infoPtr->errorMsg("Error in ProcessLevel::init: "
       "all second hard processes have vanishing cross sections"); 
     return false;
   }
@@ -337,11 +353,11 @@ void ProcessLevel::accumulate() {
 
 // Print statistics on cross sections and number of events.
 
-void ProcessLevel::statistics(ostream& os) {
+void ProcessLevel::statistics(bool reset, ostream& os) {
 
   // Special processing if two hard interactions selected.
   if (doSecondHard) { 
-    statistics2(os);
+    statistics2(reset, os);
     return;
   } 
     
@@ -413,6 +429,55 @@ void ProcessLevel::statistics(ostream& os) {
      << " *-------  End PYTHIA Event and Cross Section Statistics -----"
      << "-----------------------------------------------------*" << endl;
 
+  // Optionally reset statistics contants.
+  if (reset) for (int i = 0; i < int(containerPtrs.size()); ++i) 
+    containerPtrs[i]->reset();
+
+}
+
+//*********
+
+// Initialize SUSY Les Houches Accord data.
+
+bool ProcessLevel::initSLHA() {
+
+  // Check whether SUSY is on.
+  if ( !Settings::flag("SUSY") ) return true;      
+
+  // Read SUSY Les Houches Accord File.
+  string slhaFile = Settings::word("SUSY:SusyLesHouchesFile");
+  int ifail = slhaPtr->readFile(slhaFile);
+
+  // In case of problems, print error and fail init.
+  if (ifail != 0) {
+    infoPtr->errorMsg("Error from Pythia::initSLHA: "
+      "problem reading SLHA file", slhaFile);
+    return false;
+  };
+
+  // Update particle data.
+  int id = slhaPtr->mass.first();
+  for (int i = 1; i <= slhaPtr->mass.size() ; i++) {
+    double mass = abs(slhaPtr->mass(id));
+    ParticleDataTable::m0(id,mass);
+    id = slhaPtr->mass.next();
+  };
+
+  // Print spectrum 
+  slhaPtr->printSpectrum();
+
+  // Check spectrum for consistency. Switch off SUSY if necessary.
+  ifail = slhaPtr->checkSpectrum();
+  if (ifail != 0) {
+    infoPtr->errorMsg("Warning from Pythia::initSLHA: "
+      "Problem with SLHA spectrum.", 
+      "\n Only using masses and switching off SUSY.");
+    Settings::flag("SUSY", false);
+    return true;
+  };
+
+  return true;
+
 }
 
 //*********
@@ -420,6 +485,11 @@ void ProcessLevel::statistics(ostream& os) {
 // Generate the next event with one interaction.
   
 bool ProcessLevel::nextOne( Event& process) {
+  
+  // Update CM energy for phase space selection.
+  double eCM = infoPtr->eCM();
+  for (int i = 0; i < int(containerPtrs.size()); ++i)
+    containerPtrs[i]->newECM(eCM);
 
   // Loop over tries until trial event succeeds.
   for ( ; ; ) {
@@ -464,6 +534,13 @@ bool ProcessLevel::nextOne( Event& process) {
 // Generate the next event with two hard interactions.
   
 bool ProcessLevel::nextTwo( Event& process) {
+  
+  // Update CM energy for phase space selection.
+  double eCM = infoPtr->eCM();
+  for (int i = 0; i < int(containerPtrs.size()); ++i)
+    containerPtrs[i]->newECM(eCM);
+  for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
+    container2Ptrs[i2]->newECM(eCM);
 
   // Loop over both hard processes to find consistent common kinematics.
   for ( ; ; ) {
@@ -658,20 +735,21 @@ void ProcessLevel::combineProcessRecords( Event& process, Event& process2) {
 //*********
 
 // Add any junctions to the process event record list.
-// First try, so still incomplete. ??
+// First try, so still incomplete. ?? 
+// Also check that do not doublebook if called repeatedly.
 
-void ProcessLevel::findJunctions( Event& process) {
+void ProcessLevel::findJunctions( Event& junEvent) {
 
   // Loop though event; isolate all uncoloured particles.
-  for (int i = 0; i < process.size(); ++i) 
-  if ( process[i].col() == 0 && process[i].acol() == 0) {
+  for (int i = 0; i < junEvent.size(); ++i) 
+  if ( junEvent[i].col() == 0 && junEvent[i].acol() == 0) {
 
     // Find all daughters and store daughter colours and anticolours.
-    vector<int> daughters = process.daughterList(i);
+    vector<int> daughters = junEvent.daughterList(i);
     vector<int> cols, acols;
     for (int j = 0; j < int(daughters.size()); ++j) {
-      int colDau  = process[ daughters[j] ].col();
-      int acolDau = process[ daughters[j] ].acol();
+      int colDau  = junEvent[ daughters[j] ].col();
+      int acolDau = junEvent[ daughters[j] ].acol();
       if (colDau > 0)  cols.push_back( colDau);      
       if (acolDau > 0) acols.push_back( acolDau);      
     }
@@ -696,9 +774,9 @@ void ProcessLevel::findJunctions( Event& process) {
 
     // Store an (anti)junction when three (anti)coloured daughters.
     if (cols.size() == 3 && acols.size() == 0) 
-      process.appendJunction( 1, cols[0], cols[1], cols[2]);
+      junEvent.appendJunction( 1, cols[0], cols[1], cols[2]);
     if (acols.size() == 3 && cols.size() == 0) 
-      process.appendJunction( 2, acols[0], acols[1], acols[2]);
+      junEvent.appendJunction( 2, acols[0], acols[1], acols[2]);
   }
 
   // Done.
@@ -743,7 +821,7 @@ bool ProcessLevel::checkColours( Event& process) {
 
   // Warn and give up if particles did not have the expected colours.
   if (!physical) {
-    ErrorMsg::message("Error in ProcessLevel::checkColours: "
+    infoPtr->errorMsg("Error in ProcessLevel::checkColours: "
       "incorrect colour assignment"); 
     return false;
   }
@@ -802,7 +880,7 @@ bool ProcessLevel::checkColours( Event& process) {
   }
 
   // Error message if problem found. Done.
-  if (!physical) ErrorMsg::message("Error in ProcessLevel::checkColours: "
+  if (!physical) infoPtr->errorMsg("Error in ProcessLevel::checkColours: "
     "unphysical colour flow"); 
   return physical;
 
@@ -812,7 +890,7 @@ bool ProcessLevel::checkColours( Event& process) {
 
 // Print statistics when two hard processes allowed.
 
-void ProcessLevel::statistics2(ostream& os) {
+void ProcessLevel::statistics2(bool reset, ostream& os) {
 
   // Average impact-parameter factor and error.
   double invN          = 1. / max(1, nImpact);
@@ -975,6 +1053,14 @@ void ProcessLevel::statistics2(ostream& os) {
      << "                                                |\n"
      << " *-------  End PYTHIA Event and Cross Section Statistics -----"
      << "------------------------------------------------*" << endl;
+
+  // Optionally reset statistics contants.
+  if (reset) {
+    for (int i = 0; i < int(containerPtrs.size()); ++i) 
+      containerPtrs[i]->reset();
+    for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
+      container2Ptrs[i2]->reset();
+  }
      
 }
 

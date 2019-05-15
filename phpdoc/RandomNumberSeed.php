@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Random-Number Seed</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -25,7 +27,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 <form method='post' action='RandomNumberSeed.php'>
 
-<h2>Random-Numbers Seed</h2>
+<h2>Random-Number Seed</h2>
 
 The seed of the random number generator can be set as follows:
 
@@ -47,7 +49,7 @@ A negative value gives the default seed,<br/>
 a value 0 gives a random seed based on the time, and<br/>
 a value between 1 and 900,000,000 a unique different random number 
 sequence.
-</modeopen>
+  
 
 <p/>
 For more on random numbers see <?php $filepath = $_GET["filepath"];
@@ -85,4 +87,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

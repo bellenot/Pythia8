@@ -1,5 +1,5 @@
 // Basics.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -261,13 +261,13 @@ void Vec4::bst(double betaX, double betaY, double betaZ, double gamma) {
 
 //*********
 
-// Boost given by a Vec4.
+// Boost given by a Vec4 p.
 
-void Vec4::bst(const Vec4& vec) {
+void Vec4::bst(const Vec4& p) {
 
-  double betaX = vec.xx/vec.tt;
-  double betaY = vec.yy/vec.tt;
-  double betaZ = vec.zz/vec.tt;
+  double betaX = p.xx/p.tt;
+  double betaY = p.yy/p.tt;
+  double betaZ = p.zz/p.tt;
   double beta2 = betaX*betaX + betaY*betaY + betaZ*betaZ;
   double gamma = 1. / sqrt(1. - beta2);
   double prod1 = betaX * xx + betaY * yy + betaZ * zz;
@@ -281,15 +281,53 @@ void Vec4::bst(const Vec4& vec) {
 
 //*********
 
-// Boost given by a Vec4; boost in opposite direction.
+// Boost given by a Vec4 p and double m.
 
-void Vec4::bstback(const Vec4& vec) {
+void Vec4::bst(const Vec4& p, double m) {
 
-  double betaX = -vec.xx/vec.tt;
-  double betaY = -vec.yy/vec.tt;
-  double betaZ = -vec.zz/vec.tt;
+  double betaX = p.xx/p.tt;
+  double betaY = p.yy/p.tt;
+  double betaZ = p.zz/p.tt;
+  double gamma = p.tt / m;
+  double prod1 = betaX * xx + betaY * yy + betaZ * zz;
+  double prod2 = gamma * (gamma * prod1 / (1. + gamma) + tt);
+  xx += prod2 * betaX;
+  yy += prod2 * betaY;
+  zz += prod2 * betaZ;
+  tt = gamma * (tt + prod1);
+
+}
+
+//*********
+
+// Boost given by a Vec4 p; boost in opposite direction.
+
+void Vec4::bstback(const Vec4& p) {
+
+  double betaX = -p.xx/p.tt;
+  double betaY = -p.yy/p.tt;
+  double betaZ = -p.zz/p.tt;
   double beta2 = betaX*betaX + betaY*betaY + betaZ*betaZ;
   double gamma = 1. / sqrt(1. - beta2);
+  double prod1 = betaX * xx + betaY * yy + betaZ * zz;
+  double prod2 = gamma * (gamma * prod1 / (1. + gamma) + tt);
+  xx += prod2 * betaX;
+  yy += prod2 * betaY;
+  zz += prod2 * betaZ;
+  tt = gamma * (tt + prod1);
+
+}
+
+//*********
+
+// Boost given by a Vec4 p and double m; boost in opposite direction.
+
+void Vec4::bstback(const Vec4& p, double m) {
+
+  double betaX = -p.xx/p.tt;
+  double betaY = -p.yy/p.tt;
+  double betaZ = -p.zz/p.tt;
+  double gamma = p.tt / m;
   double prod1 = betaX * xx + betaY * yy + betaZ * zz;
   double prod2 = gamma * (gamma * prod1 / (1. + gamma) + tt);
   xx += prod2 * betaX;
@@ -762,6 +800,21 @@ void Hist::fill(double x, double w) {
 
 //*********
 
+// Get content of specific bin.
+// Special values are bin 0 for underflow and bin nBin+1 for overflow.
+// All other bins outside proper histogram range return 0.
+
+double Hist::getBinContent(int iBin) {
+
+  if (iBin > 0 && iBin <= nBin) return res[iBin - 1];
+  else if (iBin == 0) return under; 
+  else if (iBin == nBin + 1) return over;
+  else return 0.;
+
+}
+
+//*********
+
 // Print histogram contents as a table (e.g. for Gnuplot).
 
 void Hist::table(ostream& os) const {
@@ -784,6 +837,35 @@ bool Hist::sameSize(const Hist& h) const {
   if (nBin == h.nBin && abs(xMin - h.xMin) < TOLERANCE * dx &&
     abs(xMax - h.xMax) < TOLERANCE * dx) {return true;}
   else {return false;}
+
+}  
+
+//*********
+
+// Take 10-logarithm or natural logarithm of contents bin by bin.
+
+void Hist::takeLog(bool tenLog) {
+
+  // Find smallest positive bin content, and put min a bit below.
+  double yMin = 1e20;
+  for (int ix = 0; ix < nBin; ++ix) 
+    if (res[ix] > 1e-20 && res[ix] < yMin ) yMin = res[ix];
+  yMin *= 0.8;
+  
+  // Take 10-logarithm bin by bin, but ensure positivity.
+  if (tenLog) { 
+    for (int ix = 0; ix < nBin; ++ix) res[ix] = log10( max( yMin, res[ix]) );
+    under  =  log10( max( yMin, under) ); 
+    inside =  log10( max( yMin, inside) ); 
+    over   =  log10( max( yMin, over) ); 
+  
+  // Take natural logarithm bin by bin, but ensure positivity.
+  } else { 
+    for (int ix = 0; ix < nBin; ++ix) res[ix] = log( max( yMin, res[ix]) );
+    under  =  log( max( yMin, under) ); 
+    inside =  log( max( yMin, inside) ); 
+    over   =  log( max( yMin, over) ); 
+  }
 
 }  
 

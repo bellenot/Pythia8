@@ -1,5 +1,5 @@
 // BeamRemnants.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -54,24 +54,24 @@ bool BeamRemnants::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   beamBPtr            = beamBPtrIn;
 
   // Width of primordial kT distribution.
-  doPrimordialKT      = Settings::flag("Beams:primordialKT");
-  primordialKTsoft    = Settings::parm("Beams:primordialKTsoft");
-  primordialKThard    = Settings::parm("Beams:primordialKThard");
-  primordialKTremnant = Settings::parm("Beams:primordialKTremnant");
-  halfScaleForKT      = Settings::parm("Beams:halfScaleForKT");
-  halfMassForKT       = Settings::parm("Beams:halfMassForKT");
+  doPrimordialKT      = Settings::flag("BeamRemnants:primordialKT");
+  primordialKTsoft    = Settings::parm("BeamRemnants:primordialKTsoft");
+  primordialKThard    = Settings::parm("BeamRemnants:primordialKThard");
+  primordialKTremnant = Settings::parm("BeamRemnants:primordialKTremnant");
+  halfScaleForKT      = Settings::parm("BeamRemnants:halfScaleForKT");
+  halfMassForKT       = Settings::parm("BeamRemnants:halfMassForKT");
 
   // Parameters for colour reconnection scenario, partly borrowed from
   // multiple interactions not to introduce too many new ones.
-  doReconnect         = Settings::flag("Beams:reconnectColours");
-  reconnectRange      = Settings::parm("Beams:reconnectRange");
+  doReconnect         = Settings::flag("BeamRemnants:reconnectColours");
+  reconnectRange      = Settings::parm("BeamRemnants:reconnectRange");
   pT0Ref              = Settings::parm("MultipleInteractions:pT0Ref");
   ecmRef              = Settings::parm("MultipleInteractions:ecmRef");
   ecmPow              = Settings::parm("MultipleInteractions:ecmPow");
 
-  // Total and squared CM energy.
-  sCM                 = m2( beamAPtr->p(), beamBPtr->p());
-  eCM                 = sqrt(sCM);
+  // Total and squared CM energy at nominal energy.
+  eCM                 = infoPtr->eCM();
+  sCM                 = eCM * eCM;
 
   // The MI pT0 smoothening scale and its reconnection-strength combination.
   pT0                 = pT0Ref * pow(eCM / ecmRef, ecmPow);
@@ -90,6 +90,10 @@ bool BeamRemnants::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
 
 bool BeamRemnants::add( Event& event) {
 
+  // Update to current CM energy.
+  eCM     = infoPtr->eCM();
+  sCM     = eCM * eCM;
+
   // Number of scattering subsystems. Size of event record before treatment.
   nSys    = event.sizeSystems();
   oldSize = event.size();
@@ -98,7 +102,7 @@ bool BeamRemnants::add( Event& event) {
   // Start all over if fails (in option where junctions not allowed).
   if ( !beamAPtr->remnantFlavours(event) 
     || !beamBPtr->remnantFlavours(event) ) {
-    ErrorMsg::message("Error in BeamRemnants::add:"
+    infoPtr->errorMsg("Error in BeamRemnants::add:"
       " remnant flavour setup failed"); 
     return false;
   }
@@ -147,7 +151,7 @@ bool BeamRemnants::add( Event& event) {
 
   // If no solution after several tries then failed.
   if (!physical) {
-    ErrorMsg::message("Error in BeamRemnants::add:"
+    infoPtr->errorMsg("Error in BeamRemnants::add:"
       " colour tracing failed"); 
     return false;
   }
@@ -278,7 +282,7 @@ bool BeamRemnants::setKinematics( Event& event) {
 
   // If no solution after ten tries then failed.
   if (!physical) {
-    ErrorMsg::message("Error in BeamRemnants::add:"
+    infoPtr->errorMsg("Error in BeamRemnants::add:"
       " kinematics construction failed"); 
     return false;
   }
@@ -697,7 +701,7 @@ bool BeamRemnants::checkColours( Event& event) {
     if ( (id > 0 && id < 9 && (col <= 0 || acol != 0) )
       || (id < 0 && id > -9 && (col != 0 || acol <= 0) )
       || (id == 21 && (col <= 0 || acol <= 0) ) ) {
-      ErrorMsg::message("Error in BeamRemnants::checkColours: "
+      infoPtr->errorMsg("Error in BeamRemnants::checkColours: "
         "q/qbar/g has wrong colour slots set");
       return false;
     }

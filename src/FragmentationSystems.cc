@@ -1,5 +1,5 @@
 // FragmentationSystems.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -15,22 +15,19 @@ namespace Pythia8 {
 // The ColConfig class.
 
 //*********
- 
-// Definitions of static variables.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
 
-double ColConfig::mJoin         = 0.1;
-double ColConfig::mJoinJunction = 1.0;
-double ColConfig::mStringMin    = 1.0;
+// Initialize and save pointers.
 
-//*********
+void ColConfig::init(StringFlav* flavSelPtrIn) {
 
-// Initialize static data members.
-
-void ColConfig::initStatic() {
+  // Save pointer.
+  flavSelPtr    = flavSelPtrIn;
 
   // Joining of nearby partons along the string.
   mJoin         = Settings::parm("FragmentationSystems:mJoin");
+
+  // For consistency ensure that mJoin is bigger than in StringRegion.
+  mJoin         = max( mJoin, 2. * StringRegion::MJOIN);
 
   // Simplification of q q q junction topology to quark - diquark one.
   mJoinJunction = Settings::parm("FragmentationSystems:mJoinJunction");
@@ -94,19 +91,22 @@ void ColConfig::insert( vector<int>& iPartonIn, Event& event) {
     }
 
     // If sufficiently nearby then join into one new parton.
+    // Note: error sensitivity to mJoin indicates unstable precedure??
     hasJoined = false;
     if (mJoinMin < mJoin) { 
-      int iJoin1 = iPartonIn[iJoinMin];
-      int iJoin2 = iPartonIn[(iJoinMin + 1)%nSize];
-      int idNew = (event[iJoin1].isGluon()) ? event[iJoin2].id() 
-        : event[iJoin1].id();
-      int colNew = event[iJoin1].col();
+      int iJoin1  = iPartonIn[iJoinMin];
+      int iJoin2  = iPartonIn[(iJoinMin + 1)%nSize];
+      int idNew   = (event[iJoin1].isGluon()) ? event[iJoin2].id() 
+                                              : event[iJoin1].id();
+      int colNew  = event[iJoin1].col();
       int acolNew = event[iJoin2].acol();
       if (colNew == acolNew) {
-        colNew = event[iJoin2].col();
-        acolNew = event[iJoin1].acol();
+        colNew    = event[iJoin2].col();
+        acolNew   = event[iJoin1].acol();
       }  
-      Vec4 pNew = event[iJoin1].p() + event[iJoin2].p();
+      Vec4 pNew   = event[iJoin1].p() + event[iJoin2].p();
+
+      // Append joined parton to event record.
       int iNew = event.append( idNew, 73, min(iJoin1, iJoin2), 
         max(iJoin1, iJoin2), 0, 0, colNew, acolNew, pNew, pNew.mCalc() );
 
@@ -237,7 +237,7 @@ bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
   int iQB     = iLegB.back();
   int idQA    = event[iQA].id();
   int idQB    = event[iQB].id();
-  int idNew   = StringFlav::makeDiquark( idQA, idQB ); 
+  int idNew   = flavSelPtr->makeDiquark( idQA, idQB ); 
   // Diquark colour is opposite to parton closest to junction on third leg.
   int colNew  = (idNew > 0) ? 0 : event[ iLegC[0] ].acol();
   int acolNew = (idNew > 0) ? event[ iLegC[0] ].col() : 0;
@@ -328,30 +328,15 @@ void ColConfig::list(ostream& os) {
 // 2) Simplified treatment of pT in stepping and joining.
 
 //*********
- 
-// Definitions of static variables.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-
-double StringRegion::mJoin      = 0.1;
-double StringRegion::m2Join     = 0.01;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
+// If a string region is smaller thsan this it is assumed empty.
+const double StringRegion::MJOIN = 0.1;
+
 // Avoid division by zero.
-const double StringRegion::TINY = 1e-20;
-
-//*********
-
-// Initialize static data members.
-
-void StringRegion::initStatic() {
-
-  // Joining of nearby partons along the string.
-  mJoin  = Settings::parm("FragmentationSystems:mJoin");
-  m2Join = mJoin*mJoin;
-
-}
+const double StringRegion::TINY  = 1e-20;
 
 //*********
 
@@ -364,7 +349,7 @@ void StringRegion::setUp(Vec4 p1, Vec4 p2, bool isMassless) {
  
     // Calculate w2, minimum value. Lightcone directions = input.
     w2 = 2. * (p1 * p2);
-    if (w2 < m2Join) {isSetUp = true; isEmpty = true; return;}
+    if (w2 < MJOIN*MJOIN) {isSetUp = true; isEmpty = true; return;}
     pPos = p1;
     pNeg = p2;
 
@@ -390,7 +375,7 @@ void StringRegion::setUp(Vec4 p1, Vec4 p2, bool isMassless) {
     }
 
     // If still small invariant mass then empty region (e.g. in gg system).
-    if (w2 < m2Join) {isSetUp = true; isEmpty = true; return;}
+    if (w2 < MJOIN*MJOIN) {isSetUp = true; isEmpty = true; return;}
 
     // Find two lightconelike longitudinal four-vector directions.
     double root = sqrt( max(TINY, rootSq) );

@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Hadron-Level Standalone</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -127,7 +129,61 @@ The sample program in <code>main21.cc</code> illustrates how you can work
 with this facility, both for simple parton configurations and for more
 complicated ones with junctions.
 
+<h3>Repeated hadronization or decay</h3>
+
+An alternative approach is possible with the 
+<code>pythia.forceHadronLevel()</code> routine. This method does
+a call to the <code>HadronLevel</code> methods, irrespective of the
+value of the <code>HadronLevel:all</code> flag. If you hadronize
+externally generated events it is equivalent to a 
+<code>pythia.next()</code> call with 
+<code>ProcessLevel:all = off</code>. 
+
+<p/>
+The real application instead is for repeated hadronization of the same
+PYTHIA process- and parton-level event. This may for some studies
+help to save time, given that these two first step are more 
+time-consuming than the hadronization one. 
+
+<p/>
+For repeated hadronization you should first generate an event as usual, 
+but with <code>HadronLevel:all = off</code>. This event you can save
+in a temporary copy, e.g. <code>Event savedEvent = pythia.event</code>.
+Inside a loop you copy back with <code>pythia.event = savedEvent</code>, 
+and call <code>pythia.forceHadronLevel()</code> to obtain a new 
+hadronization history.
+
+<p/>
+A more limited form of repetition is if you want to decay a given kind 
+of particle repeatedly, without having to generate the rest of the event 
+anew. This could be the case e.g. in <i>B</i> physics applications. 
+Then you can use the <code>pythia.moreDecays()</code> method, which 
+decays all particles in the event record that have not been decayed 
+but should have been done so. The 
+<code>ParticleDataTable::mayDecay( id, false/true)</code> method 
+may be used to switch off/on the decays of a particle species 
+<code>id</code>, so that it is not decayed in the 
+<code>pythia.next()</code> call but only inside a loop over a number of
+tries. 
+
+<p/>
+Between each loop the newly produced decay products must be 
+removed and the decayed particle status restored to undecayed.
+The former is simple, since the new products are appended to the
+end of the event record: <code>event.saveSize()</code> saves the
+initial size of the event record, and <code>event.restoreSize()</code>
+can later be used repeatedly to restore this original size, which means
+that the new particles at the end are thrown away. The latter is more
+complicated, and requires the user to identify the positions of all
+particles of the species and restore a positive status code with
+<code>event[i].statusPos()</code>.
+
+<p/>
+The <code>main15.cc</code> program illustrates both these methods,
+i.e. either repeated hadronization or repeated decay of PYTHIA
+events.
+
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

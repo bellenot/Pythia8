@@ -1,5 +1,5 @@
 // MiniStringFragmentation.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,6 +13,7 @@
 #include "Event.h"
 #include "FragmentationFlavZpT.h"
 #include "FragmentationSystems.h"
+#include "Info.h"
 #include "ParticleData.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
@@ -32,8 +33,8 @@ public:
   // Constructor. 
   MiniStringFragmentation() {}
 
-  // Initialize.
-  void init();
+  // Initialize and save pointers.
+  void init(Info* infoPtrIn, StringFlav* flavSelPtrIn);
 
   // Do the fragmentation: driver routine.
   bool fragment( int iSub, ColConfig& colConfig, Event& event, 
@@ -44,6 +45,12 @@ private:
   // Constants: could only be changed in the code itself.
   static const int    NTRYDIFFRACTIVE, NTRYLASTRESORT, NTRYFLAV;
   static const double SIGMAMIN;
+
+  // Pointer to various information on the generation.
+  Info*       infoPtr;
+
+  // Pointer to class for flavour generation.
+  StringFlav* flavSelPtr;
 
   // Initialization data, read from Settings.
   int    nTryMass;
@@ -61,9 +68,6 @@ private:
 
   // Attempt to produce one particle from a cluster.
   bool ministring2one( int iSub, ColConfig& colConfig, Event& event);
-
-  // Class for flavour generation.
-  StringFlav flavSel;
 
 };
 

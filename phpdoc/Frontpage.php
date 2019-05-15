@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Front</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -61,7 +63,7 @@ The overview can be found in the attached PDF file
 <br/><a href="pythia8100.pdf" target="page"><b>A Brief Introduction
 to PYTHIA 8.1</b></a>
 <br/>T. Sj&ouml;strand, S. Mrenna and P. Skands, arXiv:0710.3820,
-submitted to Computer Physics Communications.
+to appear in Computer Physics Communications.
 <br/>You are strongly recommended to read this summary when you 
 start out to learn how to use PYTHIA 8.1. 
 
@@ -112,18 +114,18 @@ Makefiles, configure scripts and HepMC interface by <b>Mikhail Kirsanov</b>.
 
 <p/>
 PYTHIA 8 is licensed under the 
-<a href="../COPYING" target="page"><b>GNU General Public Licence 
+<a href="COPYING" target="page"><b>GNU General Public Licence 
 version 2</b></a>.
 <br/>Please respect the 
-<a href="../GUIDELINES" target="page"><b>MCnet Guidelines</b></a>
+<a href="GUIDELINES" target="page"><b>MCnet Guidelines</b></a>
 for Event Generator Authors and Users.
 
 <p/>
 The program and the documentation is
-Copyright &copy; 2007 Torbj&ouml;rn Sj&ouml;strand 
+Copyright &copy; 2008 Torbj&ouml;rn Sj&ouml;strand 
  
 
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

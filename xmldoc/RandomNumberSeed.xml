@@ -1,6 +1,6 @@
 <chapter name="Random-Number Seed">
 
-<h2>Random-Numbers Seed</h2>
+<h2>Random-Number Seed</h2>
 
 The seed of the random number generator can be set as follows:
 
@@ -27,4 +27,4 @@ For more on random numbers see <aloc href="RandomNumbers">here</aloc>.
 
 </chapter>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

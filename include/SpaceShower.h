@@ -1,5 +1,5 @@
 // SpaceShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -14,7 +14,7 @@
 #include "Basics.h"
 #include "BeamParticle.h"
 #include "Event.h"
-#include "Information.h"
+#include "Info.h"
 #include "ParticleData.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
@@ -72,8 +72,12 @@ public:
   // Destructor.
   virtual ~SpaceShower() {}
 
+  // Initialize pointer to Info for error messages.
+  // (Separated from rest of init since not virtual.)
+  void initPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;}
+
   // Initialize generation. Possibility to force re-initialization by hand.
-  virtual void init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn);
+  virtual void init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn);
 
   // Find whether to limit maximum scale of emissions.
   virtual bool limitPTmax( Event& event, double Q2Fac = 0., 
@@ -104,6 +108,9 @@ public:
 
 protected:
 
+  // Pointer to various information on the generation.
+  Info* infoPtr;
+
   // Pointers to the two incoming beams.
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
@@ -114,9 +121,10 @@ protected:
 private: 
 
   // Constants: could only be changed in the code itself.
+  static const int    MAXLOOPTINYPDF;
   static const double CTHRESHOLD, BTHRESHOLD, EVALPDFSTEP, TINYPDF, 
          TINYKERNELPDF, TINYPT2, HEAVYPT2EVOL, HEAVYXEVOL, EXTRASPACEQ, 
-         LEPTONXMIN, LEPTONXMAX, LEPTONPT2MIN, LEPTONFUDGE;
+         LAMBDA3MARGIN, LEPTONXMIN, LEPTONXMAX, LEPTONPT2MIN, LEPTONFUDGE;
 
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, useSamePTasMI,
@@ -159,10 +167,11 @@ private:
   int findMEtype( int iSys, Event& event);
 
   // Provide maximum of expected ME weight; for preweighting of evolution.
-  double calcMEmax( int MEtype, int idMother);
+  double calcMEmax( int MEtype, int idMother, int idDaughter);
 
   // Provide actual ME weight for current branching.
-  double calcMEcorr(int MEtype, int idMother, double M2, double z, double Q2); 
+  double calcMEcorr(int MEtype, int idMother, int idDaughter, double M2, 
+    double z, double Q2); 
 
   // Find coefficient of azimuthal asymmetry from gluon polarization.
   // void findAsymPol(DipoleEnd*);

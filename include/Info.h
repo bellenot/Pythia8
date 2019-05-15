@@ -1,26 +1,24 @@
-// Information.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Info.h is a part of the PYTHIA event generator.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// This file contains classes that keep track of generic event info.
-// Info: contains information on the generation process.
-// ErrorMessages: table with all warnings and errors encountered.
+// This file contains a class that keep track of generic event info.
+// Info: contains information on the generation process and errors.
 
-#ifndef Pythia8_Information_H
-#define Pythia8_Information_H
+#ifndef Pythia8_Info_H
+#define Pythia8_Info_H
 
 #include "PythiaStdlib.h"
-#include "Settings.h"
 
 namespace Pythia8 {
  
 //**************************************************************************
 
 // The Info class contains a mixed bag of information on the event
-// generation activity, especially on the current subprocess properties. 
-// This is used by the generation machinery, but can also be read
-// by the user.
+// generation activity, especially on the current subprocess properties,
+// and on the number of errors encountered. This is used by the 
+// generation machinery, but can also be read by the user.
 
 class Info {
 
@@ -29,8 +27,8 @@ public:
   // Constructor. 
   Info() {} 
 
-  // Listing of most available information.
-  void list(ostream& os = cout);
+  // Listing of most available information on current event.
+  void   list(ostream& os = cout);
   
   // Beam particles (in rest frame). CM energy of event.
   int    idA()            const {return idASave;}
@@ -123,6 +121,19 @@ public:
   int    nISR()           const {return nISRSave;}
   int    nFSRinProc()     const {return nFSRinProcSave;}
   int    nFSRinRes()      const {return nFSRinResSave;}
+
+  // Reset to empty map of error messages.
+  void errorReset() {messages.clear();}
+  
+  // Print a message the first few times. Insert in database.
+  void errorMsg(string messageIn, string extraIn = " ",
+    ostream& os = cout);
+
+  // Provide total number of errors/aborts/warnings experienced to date.
+  int  errorTotalNumber();
+
+  // Print statistics on errors/aborts/warnings.
+  void errorStatistics(ostream& os = cout);
 
 private:
 
@@ -219,47 +230,16 @@ private:
   // Set event weight; currently only for Les Houches description.
   void setWeight( double weightIn) {weightSave = weightIn;}
 
-};
-
-//**************************************************************************
-
-// This class holds info on all messages received and how many times.
-
-class ErrorMsg {
-
-public:
-
-  // Constructor.
-  ErrorMsg() {}
-
-  // Reset to empty map if second time (or more) that is called.
-  static void init(int nInitCalls) {if (nInitCalls > 1) messages.clear();}
-
-  // Initialize static data members.
-  static void initStatic();
-  
-  // Print a message the first few times. Insert in database.
-  static void message(string messageIn, string extraIn = " ",
-    ostream& os = cout);
-
-  // Provide total number of errors/aborts/warnings experienced to date.
-  static int totalNumber();
-
-  // Print statistics on errors/aborts/warnings.
-  static void statistics(ostream& os = cout);
-
-private:
-
-  // Static initialization data, normally only set once.
-  static int timesToPrint;
+  // Number of times the same error message is repeated.
+  static const int TIMESTOPRINT;
 
   // Map for all error messages.
-  static map<string, int> messages;
- 
+  map<string, int> messages;
+
 };
  
 //**************************************************************************
 
 } // end namespace Pythia8
 
-#endif // Pythia8_Information_H
+#endif // Pythia8_Info_H

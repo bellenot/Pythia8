@@ -17,51 +17,82 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+// Stdlib header files for mathematics.
+#include <cmath>
 
-// Standard containers.
-using std::string; 
-using std::vector; 
-using std::map; 
-// Input/output streams.
-using std::cin; 
-using std::cout; 
-using std::cerr; 
-using std::ios; 
-using std::istream; 
-using std::ostream; 
-using std::ifstream; 
-using std::ofstream; 
-using std::istringstream; 
-using std::ostringstream; 
-// Input/output formatting.
-using std::endl; 
-using std::fixed; 
-using std::scientific; 
-using std::left; 
-using std::right; 
-using std::setw; 
-using std::setprecision; 
-// Generic utilities.
-using std::tolower; 
-using std::swap;
+// Stdlib namespace
+using namespace std;
 
 class SusyLesHouches {
 
 public:
 
   //Constructor, with and without filename.
-  SusyLesHouches(int verboseIn=1) : verbose(verboseIn) {};
-  SusyLesHouches(string filename, int verboseIn=1) : verbose(verboseIn) {
-    readFile(filename);};
+  SusyLesHouches(int verboseIn=1) : verbose(verboseIn), 
+    headerPrinted(false), footerPrinted(false),
+    slhaRead(false), lhefRead(false), lhefSlha(false) {};
+  SusyLesHouches(string filename, int verboseIn=1) : verbose(verboseIn), 
+    headerPrinted(false), footerPrinted(false),
+    slhaRead(true), lhefRead(false), lhefSlha(false) {readFile(filename);};
 
   //***************************** SLHA FILE I/O *****************************//
-  //readFile(string filename) : read SLHA file from filename
-  //writeFile(string filename): write SLHA file on filename
-  //checkSpectrum() : check current blocks for consistency of model
-  int readFile(string="slha.spc");
+  int readFile(string slhaFile="slha.spc");     // read in SLHA file 
+  //int writeFile(string filename): write SLHA file on filename
   int checkSpectrum();
 
+  //Output utilities
+  void printHeader();   // print Header
+  void printFooter();   // print Footer
+  void printSpectrum(); // print Spectrum
+  
+  // Class for SLHA data entry
+  class Entry {
+    
+  public:
+    //Constructor. 
+    Entry() : isIntP(false), isDoubleP(false), 
+      isStringP(false), n(0), d(0.0), s(""), commentP("") {}
+    
+    // Generic functions to inquire whether an int, double, or string
+    bool isInt(){return isIntP;}
+    bool isDouble(){return isDoubleP;}
+    bool isString(){return isStringP;}
+
+    // = Overloading: Set entry to int, double, or string
+    Entry& operator=(double& val)  {
+      d=val;isIntP=false;isDoubleP=true;isStringP=false;
+      return *this;      
+    };
+    Entry& operator=(int& val)  {
+      n=val;isIntP=true;isDoubleP=false;isStringP=false;
+      return *this;
+    };
+    Entry& operator=(string& val)  {
+      s=val;isIntP=false;isDoubleP=false;isStringP=true;
+      return *this;
+    };
+    
+    // Set and Get comment
+    void setComment(string comment) {commentP=comment;}
+    void getComment(string comment) {comment=commentP;}
+
+    // Generic functions to get value
+    bool get(int& val) {val=n; return isIntP;}
+    bool get(double& val) {val=d; return isDoubleP;}
+    bool get(string& val) {val=s; return isStringP;}
+
+  private:
+    bool isIntP, isDoubleP, isStringP;    
+    int n;
+    double d;
+    string s;
+    string commentP;
+    
+  };
+
   //***************************** SLHA CLASSES *****************************//
+
+
   //class block: the generic SLHA block (see below for matrices)
   //Explicit typing required, e.g. block<double> minpar;
   template <class T> class block {    
@@ -100,7 +131,7 @@ public:
     void set(T val) { entry[0]=val; };
 
     // Does entry i already exist in this block?
-    bool exists(int i=0) {return entry.find(i) != entry.end() ? true : false;};
+    bool exists(int i) {return entry.find(i) != entry.end() ? true : false;};
 
     // Indexing with (). Output only.
     T operator()(int i=0) {
@@ -217,6 +248,86 @@ public:
     double val;
   };
 
+  // class tensorblock: the generic SLHA tensor
+  // Explicit sizing required, e.g. tensorblock<3> rvlam;
+  template <int size> class tensor3block {    
+  public: 
+    //Constructor. Set uninitialized and explicitly zero.
+    tensor3block<size>() { 
+      initialized=false; 
+      for (i=1;i<=size;i++) {
+	for (j=1;j<=size;j++) {
+	  for (k=1;k<=size;k++) {
+	    entry[i][j][k]=0.0;
+	  };
+	};
+      };
+    };    
+    
+    // Assignment
+    tensor3block& operator=(const tensor3block& m) { 
+      if (this != &m) { 
+	for (i=0;i<size;i++) for (j=0;j<=size;j++) for (k=0;k<=size;k++) 
+	  entry[i][j][k] = m(i,j,k);
+	qDRbar = m.qDRbar; 
+	initialized = m.initialized; 
+      } 
+      return *this; };
+    
+    // Does this matrix contain any entries?
+    bool exists() { return initialized; };
+    // Clear initialized flag
+    void clear() { initialized=false; };
+    
+    // Set matrix entry
+    int set(int i,int j, int k, double val) { 
+      if (i>0 && j>0 && k>0 && i<=size && j<=size && k<=size) {
+	entry[i][j][k]=val;
+	initialized=true;
+	return 0;
+      } else {
+	return -1;
+      };
+    };
+
+    // Set entry from linestream (used during file read)
+    int set(istringstream& linestream) {
+      linestream >> i >> j >> k >> val;
+      return linestream ? set(i,j,k,val) : -1;
+    };
+
+    // () Overloading: Get entry
+    double operator()(int i, int j, int k) const {
+      return (i <= size && j <= size && k <= size && i > 0 && j > 0 && k > 0) ?
+	entry[i][j][k] : 0.0;
+    };
+
+    // Set and get scale for DRbar running blocks.
+    void setq(double qIn) { qDRbar=qIn; }
+    double q() { return qDRbar; }
+
+    // Simple print utility, to be elaborated on.
+    void print() {
+      for (i=1;i<=size;i++) {	
+	for (j=1;j<=size;j++) {
+	  cout << "   "<<i << " "<<j << " " ;
+	  for (k=1;k<=size;k++) {
+	    cout << entry[i][j][k] << " ";	   
+	    cout << endl; 
+	  };
+	};
+      };
+    };
+
+  private:
+    bool initialized;
+    double entry[size+1][size+1][size+1];
+    double qDRbar;
+    //Auxiliary vars
+    int i,j,k; 
+    double val;
+  };
+
   //*************************** THE SLHA1 BLOCKS ***************************//
   //blocks for model definition:
   block<int> modsel;
@@ -229,6 +340,10 @@ public:
   block<string> spinfo;
   block<string> spinfo3;
   block<string> spinfo4;
+  //blocks for DCY program specific output
+  block<string> dcinfo;
+  block<string> dcinfo3;
+  block<string> dcinfo4;
   //blocks for mass and coupling spectrum
   block<double> mass;
   matrixblock<4> nmix;
@@ -249,34 +364,123 @@ public:
   matrixblock<3> ye;
 
   //*************************** THE SLHA2 BLOCKS ***************************//
-  //Input blocks:
-  matrixblock<3> vckmin; // The input CKM matrix in PDG parm.
+  //Additions to SLHA1
+  block<double> qextpar;  
+
+  //FLV Input
+  block<double> vckmin;  // The input CKM Wolfenstein parms.
+  block<double> upmnsin; // The input PMNS PDG parms.
   matrixblock<3> msq2in; // The input upper off-diagonal msq2
   matrixblock<3> msu2in; // The input upper off-diagonal msu2
   matrixblock<3> msd2in; // The input upper off-diagonal msd2
-  //Output blocks:
-  matrixblock<3> vckm;   // The output DRbar running VCKM at Q
-  matrixblock<3> msq2;   // The output DRbar running msq2 at Q
-  matrixblock<3> msu2;   // The output DRbar running msu2 at Q
-  matrixblock<3> msd2;   // The output DRbar running msd2 at Q
-  matrixblock<6> usqmix; // The up squark mixing matrix
-  matrixblock<6> dsqmix; // The down squark mixing matrix
-  matrixblock<6> imusqmix; // The up squark mixing matrix
-  matrixblock<6> imdsqmix; // The down squark mixing matrix
-  matrixblock<4> imnmix; // The up squark mixing matrix
+  matrixblock<3> msl2in; // The input upper off-diagonal msl2
+  matrixblock<3> mse2in; // The input upper off-diagonal mse2
+  matrixblock<3> tuin;   // The input upper off-diagonal TU
+  matrixblock<3> tdin;   // The input upper off-diagonal TD
+  matrixblock<3> tein;   // The input upper off-diagonal TE
+  //FLV Output
+  matrixblock<3> vckm;    // The output DRbar running Re{VCKM} at Q
+  matrixblock<3> upmns;   // The output DRbar running Re{UPMNS} at Q
+  matrixblock<3> msq2;    // The output DRbar running msq2 at Q
+  matrixblock<3> msu2;    // The output DRbar running msu2 at Q
+  matrixblock<3> msd2;    // The output DRbar running msd2 at Q
+  matrixblock<3> msl2;    // The output DRbar running msl2 at Q
+  matrixblock<3> mse2;    // The output DRbar running mse2 at Q
+  matrixblock<3> tu;      // The output DRbar running TU at Q
+  matrixblock<3> td;      // The output DRbar running TD at Q
+  matrixblock<3> te;      // The output DRbar running TE at Q
+  matrixblock<6> usqmix;  // The Re{} up squark mixing matrix
+  matrixblock<6> dsqmix;   // The Re{} down squark mixing matrix
+  matrixblock<6> selmix;   // The Re{} selectron mixing matrix
+  matrixblock<3> snumix;   // The Re{} sneutrino mixing matrix
+  matrixblock<3> snsmix;   // The scalar sneutrino mixing matrix
+  matrixblock<3> snamix;   // The pseudoscalar neutrino mixing matrix
+
+  //RPV Input
+  tensor3block<3> rvlamllein; // The input LNV lambda couplings
+  tensor3block<3> rvlamlqdin; // The input LNV lambda' couplings
+  tensor3block<3> rvlamuddin; // The input BNV lambda'' couplings
+  tensor3block<3> rvtllein;   // The input LNV T couplings
+  tensor3block<3> rvtlqdin;   // The input LNV T' couplings
+  tensor3block<3> rvtuddin;   // The input BNV T'' couplings
+  block<double> rvkappain;    // The input LNV kappa couplings
+  block<double> rvdin;        // The input LNV D terms
+  block<double> rvm2lh1in;    // The input LNV m2LH1 couplings
+  block<double> rvsnvevin;    // The input LNV sneutrino vevs
+  //RPV Output
+  tensor3block<3> rvlamlle;   // The output LNV lambda couplings
+  tensor3block<3> rvlamlqd;   // The output LNV lambda' couplings
+  tensor3block<3> rvlamudd;   // The output BNV lambda'' couplings
+  tensor3block<3> rvtlle;     // The output LNV T couplings
+  tensor3block<3> rvtlqd;     // The output LNV T' couplings
+  tensor3block<3> rvtudd;     // The output BNV T'' couplings
+  block<double> rvkappa;      // The output LNV kappa couplings
+  block<double> rvd;          // The output LNV D terms
+  block<double> rvm2lh1;      // The output LNV m2LH1 couplings
+  block<double> rvsnvev;      // The output LNV sneutrino vevs
+  matrixblock<7> rvnmix;      // The RPV neutralino mixing matrix
+  matrixblock<5> rvumix;      // The RPV chargino L mixing matrix
+  matrixblock<5> rvvmix;      // The RPV chargino R mixing matrix
+  matrixblock<5> rvhmix;      // The RPV neutral scalar mixing matrix
+  matrixblock<5> rvamix;      // The RPV neutral pseudoscalar mixing matrix
+  matrixblock<7> rvlmix;      // The RPV charged fermion mixing matrix
+
+  //CPV Input
+  block<double> imminpar;
+  block<double> imextpar;
+  //CPV Output
+  matrixblock<4> cvhmix;   // The CPV Higgs mixing matrix
+  matrixblock<4> imcvhmix; // Optional: imaginary components
+  matrixblock<3> imau,imad,imae; // Im{} of AU, AD, AE
+
+  //CPV + FLV Input
+  matrixblock<3> immsq2in;  // The Im{} input upper off-diagonal msq2
+  matrixblock<3> immsu2in;  // The Im{} input upper off-diagonal msu2
+  matrixblock<3> immsd2in;  // The Im{} input upper off-diagonal msd2
+  matrixblock<3> immsl2in;  // The Im{} input upper off-diagonal msl2
+  matrixblock<3> immse2in;  // The Im{} input upper off-diagonal mse2
+  matrixblock<3> imtuin,imtdin,imtein; //  The Im{} input upper off-diagonal T
+  //CPV + FLV Output
+  matrixblock<3> imvckm;  // The output DRbar running Im{VCKM} at Q
+  matrixblock<3> imupmns; // The output DRbar running Im{UPMNS} at Q
+  matrixblock<3> immsq2;  // The output DRbar running msq2 at Q
+  matrixblock<3> immsu2;  // The output DRbar running msu2 at Q
+  matrixblock<3> immsd2;  // The output DRbar running msd2 at Q
+  matrixblock<3> immsl2;  // The output DRbar running msl2 at Q
+  matrixblock<3> immse2;  // The output DRbar running mse2 at Q
+  matrixblock<3> imtu,imtd,imte; // Im{} of TU, TD, TE
+  matrixblock<6> imusqmix;// The Im{} up squark mixing matrix
+  matrixblock<6> imdsqmix; // The Im{} down squark mixing matrix
+  matrixblock<6> imselmix; // The Im{} selectron mixing matrix
+  matrixblock<3> imsnumix; // The Im{} sneutrino mixing matrix
+  matrixblock<4> imnmix;   // The Im{} neutralino mixing matrix
+  matrixblock<4> imumix;   // The Im{} chargino L mixing matrix
+  matrixblock<4> imvmix;   // The Im{} chargino R mixing matrix
+
+  //NMSSM Input
+  //    All input is in EXTPAR
+  //NMSSM Output
+  block<double> nmssmrun;  // The block of NMSSM running parameters
+  matrixblock<3> nmhmix;   // The NMSSM scalar Higgs mixing
+  matrixblock<3> nmamix;   // The NMSSM pseudoscalar Higgs mixing
+  matrixblock<5> nmnmix;   // The NMSSM neutralino mixing
 
   //*************************** SET BLOCK VALUE ****************************//
   template <class T> int set(string,T);
   template <class T> int set(string,int,T);
   template <class T> int set(string,int,int,T);
+  template <class T> int set(string,int,int,int,T);
 
   //***************************** SLHA PRIVATE *****************************//
 private:
   //SLHA I/O
-  string spectrumfile;
-  void message(int, string,string ,int);
+  string spectrumFile;
+  void message(int, string,string ,int line=0);
   int verbose;
+  bool headerPrinted, footerPrinted;
+  bool slhaRead, lhefRead, lhefSlha;
 
 };
 
 #endif
+

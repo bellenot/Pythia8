@@ -1,24 +1,26 @@
 <chapter name="Index">
 
-<img src='pythiapicture.gif' alt='Pythia picture' hspace=10/>
+<img src='pythia99.gif' alt='Pythia logo' hspace=10/>
 
 <h2>PYTHIA 8 Index</h2>
 
-<h3><a href="pythia8100.pdf" target="page">Brief Introduction</a> (pdf)</h3>
+<h4><a href="pythia8100.pdf" target="page">Brief Introduction</a> (pdf)</h4>
 
-<h3>Program Overview</h3>
+<h4>Program Overview</h4>
 
 <aidx href="Frontpage">Frontpage</aidx><br/>
 <aidx href="ProgramFlow">Program Flow</aidx><br/>
 <aidx href="SettingsScheme">Settings Scheme</aidx><br/>
 <aidx href="ParticleDataScheme">Particle Data Scheme</aidx><br/>
 <aidx href="ProgramFiles">Program Files</aidx><br/>
+<aidx href="SampleMainPrograms">Sample Main Programs</aidx><br/>
 
-<h3>Setup Run Tasks</h3>
+<h4>Setup Run Tasks</h4>
 
 <INDEXPHP>
 <aidx href="SaveSettings"><b>Save Settings</b></aidx><br/>
 <aidx href="MainProgramSettings">Main-Program Settings</aidx><br/>
+<aidx href="BeamParameters">Beam Parameters</aidx><br/>
 <aidx href="RandomNumberSeed">Random-Number Seed</aidx><br/>
 <aidx href="PDFSelection">PDF Selection</aidx><br/>
 <aidx href="MasterSwitches">Master Switches</aidx><br/>
@@ -66,7 +68,7 @@
 <aidx href="Tunes">Tunes</aidx><br/>
 </INDEXPHP>
 
-<h3>Study Output</h3>
+<h4>Study Output</h4>
 
 <INDEXPHP>
 <aidx href="FourVectors">Four-Vectors</aidx><br/>
@@ -79,7 +81,7 @@
 <aidx href="HepMCInterface">HepMC Interface</aidx><br/>
 </INDEXPHP>
 
-<h3>Link to Other Programs</h3>
+<h4>Link to Other Programs</h4>
 
 <INDEXPHP>
 <aidx href="LesHouchesAccord">Les Houches Accord</aidx><br/>
@@ -88,6 +90,7 @@
 <aidx href="SemiInternalResonances">Semi-Internal Resonances</aidx><br/>
 <aidx href="HadronLevelStandalone">Hadron-Level Standalone</aidx><br/>
 <aidx href="SUSYLesHouchesAccord">SUSY Les Houches Accord</aidx><br/>
+<aidx href="BeamShape">Beam Shape</aidx><br/>
 <aidx href="PartonDistributions">Parton Distributions</aidx><br/>
 <aidx href="ExternalDecays">External Decays</aidx><br/>
 <aidx href="UserHooks">User Hooks</aidx><br/>
@@ -95,15 +98,14 @@
 <aidx href="ImplementNewShowers">Implement New Showers</aidx><br/>
 </INDEXPHP>
 
-<h3>Reference Materiel</h3>
+<h4>Reference Materiel</h4>
 
+<aidx href="PYTHIA6TranslationTable">PYTHIA 6 Translation Table</aidx><br/>
+<aidx href="UpdateHistory">Update History</aidx><br/>
 <aidx href="Bibliography">Bibliography</aidx><br/>
-<aidx href="Glossary">Glossary</aidx>
-
-<h3>Internal</h3>
-
-<aidx href="Version">Version</aidx><br/>
+<aidx href="Glossary">Glossary</aidx><br/>
+<aidx href="Version">Version</aidx>
 
 </chapter>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

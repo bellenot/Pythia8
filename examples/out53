@@ -11,8 +11,8 @@
  **   *:::::::::!!:::::::::::::::::*       P      Y     T   H   H  I  A   A  **
  **    *::::::::!!::::::::::::::::*!       P      Y     T   H   H III A   A  **
  **      *::::::!!::::::::::::::* !!                                         **
- **      !! *:::!!:::::::::::*    !!       This is PYTHIA version 6.410      **
- **      !!     !* -><- *         !!       Last date of change: 30 Jan 2007  **
+ **      !! *:::!!:::::::::::*    !!       This is PYTHIA version 6.413      **
+ **      !!     !* -><- *         !!       Last date of change: 12 Sep 2007  **
  **      !!     !!                !!                                         **
  **      !!     !!                !!       Now is  0 Jan 2000 at  0:00:00    **
  **      !!                       !!                                         **
@@ -37,12 +37,13 @@
  ** Main author: Torbjorn Sjostrand; CERN/PH, CH-1211 Geneva, Switzerland,   **
  **   and Department of Theoretical Physics, Lund University, Lund, Sweden;  **
  **   phone: + 41 - 22 - 767 82 27; e-mail: torbjorn@thep.lu.se              **
- ** Author: Stephen Mrenna; Computing Division, Simulations Group,           **
+ ** Author: Stephen Mrenna; Computing Division, GDS Group,                   **
  **   Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA; **
  **   phone: + 1 - 630 - 840 - 2556; e-mail: mrenna@fnal.gov                 **
  ** Author: Peter Skands; Theoretical Physics Department,                    **
  **   Fermi National Accelerator Laboratory, MS 106, Batavia, IL 60510, USA; **
- **   phone: + 1 - 630 - 840 - 2270; e-mail: skands@fnal.gov                 **
+ **   and CERN/PH, CH-1211 Geneva, Switzerland;                              **
+ **   phone: + 41 - 22 - 767 24 59; e-mail: skands@fnal.gov                  **
  **                                                                          **
  **                                                                          **
  ******************************************************************************
@@ -69,7 +70,7 @@
            ==========================================================
            I                                      I                 I
            I   81   q + qbar -> Q + Qbar, mass    I    1.0678E-07   I
-           I   82   g + g -> Q + Qbar, massive    I    8.5940E-09   I
+           I   82   g + g -> Q + Qbar, massive    I    8.5918E-09   I
            I   96   Semihard QCD 2 -> 2           I    7.1105E+03   I
            I                                      I                 I
            ==========================================================

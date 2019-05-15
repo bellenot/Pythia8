@@ -1,5 +1,5 @@
 // ResonanceWidths.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -11,6 +11,7 @@
 #define Pythia8_ResonanceWidths_H
 
 #include "Basics.h"
+#include "Info.h"
 #include "ParticleData.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
@@ -39,7 +40,7 @@ public:
   virtual ~ResonanceWidths() {}
 
   // Initialize static data members in base class.
-  static void initStatic();
+  static void initStatic(Info* infoPtrIn);
 
   // Set up standard properties.
   bool initBasic(int idResIn);
@@ -88,6 +89,9 @@ protected:
   // Constants: could only be changed in the code itself.
   static const int    NPOINT;
   static const double MASSMARGIN;
+
+  // Pointer to various information on the generation.
+  static Info* infoPtr;
 
   // Pointer to properties of the particle species.
   ParticleDataEntry* particlePtr;

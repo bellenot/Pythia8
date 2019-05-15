@@ -1,5 +1,5 @@
 // StringFragmentation.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -12,7 +12,7 @@
 
 #include "Basics.h"
 #include "Event.h"
-#include "Information.h"
+#include "Info.h"
 #include "FragmentationFlavZpT.h"
 #include "FragmentationSystems.h"
 #include "ParticleData.h"
@@ -33,6 +33,11 @@ public:
 
   // Constructor. 
   StringEnd() {}
+
+  // Save pointers.
+  void init(StringFlav* flavSelPtrIn, StringPT* pTSelPtrIn, 
+    StringZ* zSelPtrIn) {flavSelPtr = flavSelPtrIn;
+    pTSelPtr = pTSelPtrIn; zSelPtr = zSelPtrIn;}
    
   // Set up initial endpoint values from input.
   void setUp(bool fromPosIn, int iEndIn, int idOldIn, int iMaxIn,
@@ -49,7 +54,12 @@ public:
   void update();
 
   // Constants: could only be changed in the code itself.
-  static const double TINY;
+  static const double TINY, PT2SAME;
+
+  // Pointers to classes for flavour, pT and z generation.
+  StringFlav* flavSelPtr;
+  StringPT*   pTSelPtr;
+  StringZ*    zSelPtr;
  
   // Data members.
   bool   fromPos;
@@ -59,11 +69,6 @@ public:
          xNegHad;
   FlavContainer flavOld, flavNew;
   Vec4   pHad, pSoFar;
-
-  // Classes for flavour, pT and z generation.
-  StringFlav flavSel;
-  StringPT   pTsel;
-  StringZ    zSel;
 
 };
   
@@ -79,15 +84,15 @@ public:
   // Constructor. 
   StringFragmentation() {}
 
-  // Initialize.
-  void init();
+  // Initialize and save pointers.
+  void init(Info* infoPtrIn, StringFlav* flavSelPtrIn, 
+    StringPT* pTSelPtrIn, StringZ* zSelPtrIn);
 
   // Do the fragmentation: driver routine.
   bool fragment( int iSub, ColConfig& colConfig, Event& event);
 
   // Find the boost matrix to the rest frame of a junction.
-  // Also used from HadronLevel so therefore made static.
-  static RotBstMatrix junctionRestFrame(Vec4& p0, Vec4& p1, Vec4& p2);
+  RotBstMatrix junctionRestFrame(Vec4& p0, Vec4& p1, Vec4& p2);
 
 private: 
 
@@ -97,6 +102,14 @@ private:
   static const double FACSTOPMASS, CLOSEDM2MAX, CLOSEDM2FRAC, EXPMAX,
                       MATCHPOSNEG, EJNWEIGHTMAX, CONVJNREST, M2MAXJRF, 
                       CONVJRFEQ;
+
+  // Pointer to various information on the generation.
+  Info*       infoPtr;
+
+  // Pointers to classes for flavour, pT and z generation.
+  StringFlav* flavSelPtr;
+  StringPT*   pTSelPtr;
+  StringZ*    zSelPtr;
 
   // Initialization data, read from Settings.
   double stopMass, stopNewFlav, stopSmear, eNormJunction,
@@ -119,11 +132,6 @@ private:
 
   // Information on the two current endpoints of the fragmenting system.
   StringEnd posEnd, negEnd; 
-
-  // Classes for flavour, pT and z generation.
-  StringFlav flavSel;
-  StringPT   pTsel;
-  StringZ    zSel;
 
   // Find region where to put first string break for closed gluon loop.
   vector<int> findFirstRegion(vector<int>& iPartonIn, Event& event);

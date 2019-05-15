@@ -1,5 +1,5 @@
 // main16.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
   bool   showAPD   = pythia.settings.flag("Main:showAllParticleData");
   bool   showAStat = pythia.settings.flag("Main:showAllStatistics");
  
-  // Initialization with no arguments means that the Main settings are used.
+  // Initialization with no arguments means that the Beams settings are used.
   pythia.init();
 
   // List changed data.

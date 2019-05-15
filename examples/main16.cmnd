@@ -5,9 +5,9 @@
 ! The changes here are illustrative, not always physics-motivated.
 
 ! 1) Beam settings.
-Main:idBeamA = 2212                ! first beam, p = 2212, pbar = -2212
-Main:idBeamB = 2212                ! second beam, p = 2212, pbar = -2212
-Main:eCM = 14000.                  ! CM energy of collision, LHC
+Beams:idA = 2212                   ! first beam, p = 2212, pbar = -2212
+Beams:idB = 2212                   ! second beam, p = 2212, pbar = -2212
+Beams:eCM = 14000.                 ! CM energy of collision, LHC
 
 ! 2) Settings that are used in the main program.
 Main:numberOfEvents = 1000         ! number of events to generate

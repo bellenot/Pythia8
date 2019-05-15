@@ -1,5 +1,5 @@
 // HadronLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -54,21 +54,23 @@ bool HadronLevel::init(Info* infoPtrIn, TimeShower* timesDecPtr,
   widthSepBE     = Settings::parm("BoseEinstein:widthSep");
 
   // Initialize string and ministring fragmentation.
-  stringFrag.init();
-  ministringFrag.init();
+  stringFrag.init(infoPtr, &flavSel, &pTSel, &zSel);
+  ministringFrag.init(infoPtr, &flavSel);
  
-  // Initalize particle decays.  
-  decays.init(timesDecPtr, decayHandlePtr, handledParticles); 
+  // Initialize particle decays.  
+  decays.init(infoPtr, timesDecPtr, &flavSel, decayHandlePtr, 
+    handledParticles); 
 
   // Initialize BoseEinstein. 
-  boseEinstein.init(); 
+  boseEinstein.init(infoPtr); 
 
-  // Initialize static data members in other HadronLevel classes.
-  // Exception: StringFlav used in other places as well so in Pythia.
-  StringZ::initStatic();
-  StringPT::initStatic();
-  ColConfig::initStatic();
-  StringRegion::initStatic();
+  // Initialize auxiliary administrative classes.
+  colConfig.init( &flavSel);
+
+  // Initialize auxiliary fragmentation classes.
+  flavSel.init();
+  pTSel.init();
+  zSel.init();
 
   // Done.
   return true;
@@ -97,7 +99,7 @@ bool HadronLevel::next( Event& event) {
       if (!findSinglets( event)) return false;
 
       // Process all colour singlet (sub)system
-      for (int iSub = 0; iSub < colConfig.size(); ++iSub) { 
+      for (int iSub = 0; iSub < colConfig.size(); ++iSub) {
 
         // Collect sequentially all partons in a colour singlet subsystem.
         colConfig.collect(iSub, event);
@@ -282,7 +284,7 @@ bool HadronLevel::findSinglets(Event& event) {
       colConfig.insert(iPartonAntiJun, event);
   // Error if only one of junction and antijuction left here.
   } else if (iPartonJun.size() > 0 || iPartonAntiJun.size() > 0) {
-    ErrorMsg::message("Error in HadronLevel::findSinglets: "
+    infoPtr->errorMsg("Error in HadronLevel::findSinglets: "
       "unmatched (anti)junction"); 
     return false;
   } 
@@ -378,7 +380,7 @@ bool HadronLevel::traceFromCol(int indxCol, Event& event, int iJun,
 
   // Something went wrong in colour tracing.
   if (!hasFound || loop == loopMax) {
-    ErrorMsg::message("Error in HadronLevel::traceFromCol: "
+    infoPtr->errorMsg("Error in HadronLevel::traceFromCol: "
       "colour tracing failed"); 
     return false;
   } 
@@ -449,7 +451,7 @@ bool HadronLevel::traceFromAcol(int indxCol, Event& event, int iJun,
 
   // Something went wrong in colour tracing.
   if (!hasFound || loop == loopMax) {
-    ErrorMsg::message("Error in HadronLevel::traceFromAcol: "
+    infoPtr->errorMsg("Error in HadronLevel::traceFromAcol: "
       "colour tracing failed"); 
     return false;
   }
@@ -487,7 +489,7 @@ bool HadronLevel::traceInLoop(int indxCol, int indxAcol, Event& event) {
 
   // Something went wrong in colour tracing.
   if (!hasFound || loop == loopMax) {
-    ErrorMsg::message("Error in HadronLevel::traceInLoop: "
+    infoPtr->errorMsg("Error in HadronLevel::traceInLoop: "
       "colour tracing failed"); 
     return false; 
   } 
@@ -562,7 +564,7 @@ bool HadronLevel::splitJunctionPair(Event& event) {
     iAntiLeg.resize(1);
 
    // Pick a new quark at random; for simplicity no diquarks.
-    int idQ = StringFlav::pickLightQ();
+    int idQ = flavSel.pickLightQ();
     int colQ, acolQ;
 
     // If one gluon on leg, split it into a collinear q-qbar pair.
@@ -608,7 +610,7 @@ bool HadronLevel::splitJunctionPair(Event& event) {
       double xPos = 0.5;
       double xNeg = 0.5;
       do {
-        double zTemp = StringZ::zFrag( idQ, 0, m2Temp);
+        double zTemp = zSel.zFrag( idQ, 0, m2Temp);
         xPos = 1. - zTemp;
         xNeg = m2Temp / (zTemp * m2Reg);
       } while (xNeg > 1.);
@@ -673,7 +675,7 @@ bool HadronLevel::splitJunctionPair(Event& event) {
 
   // Should not ever have three empty interjunction legs.
   if (nMatch == 3) {
-    ErrorMsg::message("Error in HadronLevel::splitJunctionPair: "
+    infoPtr->errorMsg("Error in HadronLevel::splitJunctionPair: "
       "three empty junction-junction legs"); 
     return false;
   }
@@ -748,8 +750,7 @@ bool HadronLevel::splitJunctionPair(Event& event) {
         pInRF[2] = wt2 * pInRF[2] + wt3 * pInRF[3];
       
         // Find new junction rest frame from the set of momenta.
-        Mstep = StringFragmentation::junctionRestFrame( pInRF[0], 
-          pInRF[1], pInRF[2]);
+        Mstep = stringFrag.junctionRestFrame( pInRF[0], pInRF[1], pInRF[2]);
         MtoRF.rotbst( Mstep );
       } while (iter < 3 || (Mstep.deviation() > CONVJNREST 
         && iter < NTRYJNREST) );
@@ -845,7 +846,7 @@ bool HadronLevel::splitJunctionPair(Event& event) {
     iAntiLeg1[1] = iNew;
 
    // Pick a new quark at random; for simplicity no diquarks.
-    int idQ = StringFlav::pickLightQ();
+    int idQ = flavSel.pickLightQ();
 
     // Update junction colours for new quark and antiquark.
     int colQ = event.nextColTag();

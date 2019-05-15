@@ -1,5 +1,5 @@
 // MiniStringFragmentation.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -33,17 +33,22 @@ const int MiniStringFragmentation::NTRYFLAV        = 10;
 
 //*********
 
-// Find settings.
+// Initialize and save pointers.
 
-void MiniStringFragmentation::init() {
+void MiniStringFragmentation::init(Info* infoPtrIn, 
+  StringFlav* flavSelPtrIn) {
+
+  // Save pointers.
+  infoPtr    = infoPtrIn;
+  flavSelPtr = flavSelPtrIn;
 
   // Initialize the MiniStringFragmentation class proper.
-  nTryMass  = Settings::mode("MiniStringFragmentation:nTry");
-  sigma     = Settings::parm("StringPT:sigma");
-  sigma2Had = 2. * pow2( max( SIGMAMIN, sigma) );
+  nTryMass   = Settings::mode("MiniStringFragmentation:nTry");
+  sigma      = Settings::parm("StringPT:sigma");
+  sigma2Had  = 2. * pow2( max( SIGMAMIN, sigma) );
 
   // Initialize the b parameter of the z spectrum, used when joining jets.
-  bLund     = Settings::parm("StringZ:bLund");
+  bLund      = Settings::parm("StringZ:bLund");
 
 }
 
@@ -76,6 +81,8 @@ bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig,
   if (ministring2two( NTRYLASTRESORT, event)) return true;  
 
   // Else complete failure.
+  infoPtr->errorMsg("Error in MiniStringFragmentation::fragment: "
+      "no 1- or 2-body state found above mass threshold"); 
   return false;
 
 }
@@ -98,10 +105,10 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
 
     // For closed gluon loop need to pick an initial flavour.
     if (isClosed) do {
-      int idStart = StringFlav::pickLightQ();
+      int idStart = flavSelPtr->pickLightQ();
       FlavContainer flavStart(idStart, 1);
-      flavStart = StringFlav::pick( flavStart);
-      flav1 = StringFlav::pick( flavStart);
+      flavStart = flavSelPtr->pick( flavStart);
+      flav1 = flavSelPtr->pick( flavStart);
       flav2.anti(flav1);
     } while (flav1.id == 0 || flav1.nPop > 0);
    
@@ -110,9 +117,9 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
     do {
       FlavContainer flav3 =
         (abs(flav1.id) > 8 || (abs(flav2.id) < 9 && Rndm::flat() < 0.5) )
-        ? flavSel.pick( flav1) : flavSel.pick( flav2).anti();
-      idHad1 = flavSel.combine( flav1, flav3);
-      idHad2 = flavSel.combine( flav2, flav3.anti());
+        ? flavSelPtr->pick( flav1) : flavSelPtr->pick( flav2).anti();
+      idHad1 = flavSelPtr->combine( flav1, flav3);
+      idHad2 = flavSelPtr->combine( flav2, flav3.anti());
     } while (idHad1 == 0 || idHad2 == 0);
 
     // Check whether the mass sum fits inside the available phase space.  
@@ -221,16 +228,16 @@ bool MiniStringFragmentation::ministring2one( int iSub,
 
   // For closed gluon loop need to pick an initial flavour.
   if (isClosed) do {
-    int idStart = StringFlav::pickLightQ(); 
+    int idStart = flavSelPtr->pickLightQ(); 
     FlavContainer flavStart(idStart, 1);
-    flav1 = StringFlav::pick( flavStart);
+    flav1 = flavSelPtr->pick( flavStart);
     flav2 = flav1.anti();
   } while (abs(flav1.id) > 100);
 
   // Select hadron flavour from available quark flavours.
   int idHad = 0;
   for (int iTryFlav = 0; iTryFlav < NTRYFLAV; ++iTryFlav) {
-    idHad = flavSel.combine( flav1, flav2);
+    idHad = flavSelPtr->combine( flav1, flav2);
     if (idHad != 0) break;
   } 
   if (idHad == 0) return false;

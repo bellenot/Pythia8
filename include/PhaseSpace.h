@@ -1,5 +1,5 @@
 // PhaseSpace.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,7 +13,7 @@
 
 #include "Basics.h"
 #include "BeamParticle.h"
-#include "Information.h"
+#include "Info.h"
 #include "LesHouches.h"
 #include "MultipleInteractions.h"
 #include "ParticleData.h"
@@ -43,20 +43,16 @@ public:
   // Destructor.
   virtual ~PhaseSpace() {}
 
-  // Initialize static data members.
-  static void initStatic();
+  // Perform simple initialization and store pointers.
+  void init(SigmaProcess* sigmaProcessPtrIn, Info* infoPtrIn, 
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
+    SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn);
 
-  // Store static pointers to beams, SigmaTotal and user hooks.
-  static void setStaticPtrs( BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn,
-    UserHooks* userHooksPtrIn = 0);
+  // Update the CM energy of the event.
+  void newECM(double eCMin) {eCM = eCMin; s = eCM * eCM;}
 
-  // Store or replace Les Houches pointers.
-  static void setLHAPtrs( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn) 
-    { lhaInitPtr = lhaInitPtrIn; lhaEvntPtr = lhaEvntPtrIn;}  
-
-  // Give in pointer to cross section and cm energy.
-  void initInfo(SigmaProcess* sigmaProcessPtrIn, double eCMIn);
+  // Store or replace Les Houches pointer.
+  void setLHAPtr(LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;}  
 
   // A pure virtual method, wherein an optimization procedure
   // is used to determine how phase space should be sampled.
@@ -108,12 +104,6 @@ protected:
   // Constructor.
   PhaseSpace() {}
 
-  // Static initialization data, normally only set once.
-  static bool   useBreitWigners, showSearch, showViolation;
-  static int    gmZmodeGlobal;
-  static double mHatGlobalMin, mHatGlobalMax, pTHatGlobalMin, pTHatGlobalMax, 
-                pTHatMinDiverge, minWidthBreitWigners;
-
   // Constants: could only be changed in the code itself.
   static const int    NMAXTRY, NTRY3BODY;
   static const double SAFETYMARGIN, TINY, EVENFRAC, SAMESIGMA, WIDTHMARGIN, 
@@ -122,34 +112,39 @@ protected:
                       LEPTONXLOGMIN, LEPTONXLOGMAX, LEPTONTAUMIN,
                       SHATMINZ, PT2RATMINZ, WTCORRECTION[11];
 
-  // Static information on incoming beams.
-  static BeamParticle* beamAPtr;
-  static BeamParticle* beamBPtr;
-  static int    idA, idB;
-  static double mA, mB; 
-  static bool   hasLeptonBeams, hasPointLeptons;
-  
-  // Static pointer to the total/elastic/diffractive cross section object.
-  static SigmaTotal* sigmaTotPtr;
-
-  // Static pointer to userHooks object for user interaction with program.
-  static UserHooks* userHooksPtr;
-  static bool canModifySigma;
-
-  // Pointers to LHAinit and LHAevnt for generating external events.
-  static LHAinit* lhaInitPtr;
-  static LHAevnt* lhaEvntPtr;
-
-  // Center-of-mass energy.
-  double eCM, s; 
-
-  // Cross section information.
-  bool   newSigmaMx;
-  int    gmZmode;
-  double wtBW, sigmaNw, sigmaMx, sigmaNeg;
-
   // Pointer to cross section. 
   SigmaProcess* sigmaProcessPtr; 
+
+  // Pointer to various information on the generation.
+  Info*         infoPtr;
+
+  // Pointers to incoming beams.
+  BeamParticle* beamAPtr;
+  BeamParticle* beamBPtr;
+  
+  // Pointer to the total/elastic/diffractive cross section object.
+  SigmaTotal*   sigmaTotPtr;
+
+  // Pointer to userHooks object for user interaction with program.
+  UserHooks*    userHooksPtr;
+
+  // Pointer to LHAup for generating external events.
+  LHAup*        lhaUpPtr;
+
+  // Initialization data, normally only set once.
+  bool   useBreitWigners, doEnergySpread, showSearch, showViolation;
+  int    gmZmodeGlobal;
+  double mHatGlobalMin, mHatGlobalMax, pTHatGlobalMin, pTHatGlobalMax, 
+         pTHatMinDiverge, minWidthBreitWigners;
+ 
+  // Information on incoming beams.
+  int    idA, idB;
+  double mA, mB, eCM, s; 
+  bool   hasLeptonBeams, hasPointLeptons;
+ // Cross section information.
+  bool   newSigmaMx, canModifySigma;
+  int    gmZmode;
+  double wtBW, sigmaNw, sigmaMx, sigmaNeg;
 
   // Process-specific kinematics properties, almost always available.
   double mHatMin, mHatMax, sHatMin, sHatMax, pTHatMin, pTHatMax, 
@@ -317,13 +312,13 @@ private:
   // Constants: could only be changed in the code itself.
   static const double EXPMAX, CONVERTEL;
 
- // Static alphaElectromagnetic calculation.
-  static AlphaEM alphaEM;
-
   // Kinematics properties specific to 2 -> 2 elastic.
   bool   useCoulomb;
   double s1, s2, bSlope, lambda12S, tLow, tUpp, tAux, sigmaTot, rho,
          lambda, tAbsMin, phaseCst, alphaEM0, sigmaNuc, sigmaCou, signCou;
+
+ // Calculation of alphaElectromagnetic.
+ AlphaEM alphaEM;
 
 };
  

@@ -153,7 +153,7 @@ moment we stay with the current recipe, to boost the above <ei>pT</ei>
 by a factor <ei>enhancedWidth</ei> for a small fraction 
 <ei>enhancedFraction</ei> of the breakups, where
 
-<parm name="StringPT:enhancedFraction" default="0.1" min="0.0" max="0.1">
+<parm name="StringPT:enhancedFraction" default="0.01" min="0.0" max="0.1">
 <ei>enhancedFraction</ei>,the fraction of string breaks with enhanced 
 width.
 </parm>
@@ -210,13 +210,14 @@ sum of quark/diquark constituent masses for a normal string description,
 else the ministring scenario is used.
 </parm>
 
-<parm name="FragmentationSystems:mJoin" default="0.1" min="0." max="1.">
+<parm name="FragmentationSystems:mJoin" default="0.2" min="0.2" max="1.">
 When two colour-connected partons are very nearby, with at least 
 one being a gluon, they can be joined into one, to avoid technical 
 problems of very small string regions. The requirement for joining is 
 that the invariant mass of the pair is below <ei>mJoin</ei>, where a 
 gluon only counts with half its momentum, i.e. with its contribution 
-to the string region under consideration.
+to the string region under consideration. (Note that, for technical 
+reasons, the 0.2 GeV lower limit is de facto hardcoded.)
 </parm>
 
 <parm name="FragmentationSystems:mJoinJunction" default="1.0"min="0.5" max="2.">
@@ -305,5 +306,5 @@ junction rest frame).
 
 </chapter>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
 

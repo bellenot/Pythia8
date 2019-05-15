@@ -4,10 +4,10 @@
 
 <h3>Introduction</h3>
 
-The main program is up to the user to write. However, sample main
-programs are provided, as documented further down on this page. In one 
-such class of programs, key settings of the run are read in from a 
-"cards file". These commands may be of two types<br/>
+The main program is up to the user to write. However, 
+<aloc href="SampleMainPrograms">sample main programs</aloc> 
+are provided. In one such class of programs, key settings of the run 
+are read in from a "cards file". These commands may be of two types<br/>
 (a) instructions directly to <code>Pythia</code>, like which 
 processes to generate, and<br/>
 (b) instructions to the main program for what it should do, 
@@ -19,9 +19,9 @@ settings are defined on this page, so that they are recognized by
 the <code>Settings</code> machinery. They can thus be put among 
 the other cards without distinction. It is up to you to decide which 
 ones, if any, you actually want to use when you write your main program.
-For convenience, the ones in the first section below, and some in the
-second section, can also be interpreted directly by <code>Pythia</code>, 
-while the subsequent ones really have to be used in your main program. 
+For convenience, some in the second section below can also be interpreted 
+directly by <code>Pythia</code>, while the subsequent ones really have 
+to be used in your main program. 
 
 <p/>
 Once you have used the <code>pythia.readFile(fileName)</code> method to
@@ -35,100 +35,14 @@ in the <code>Pythia</code> class, and just send on to the
 <pre>
   bool   showCS = pythia.flag("Main:showChangedSettings");
   int    nEvent = pythia.mode("Main:numberOfEvents");
-  double eCM    = pythia.parm("Main:eCM");
+  double spare1 = pythia.parm("Main:spareParm1");
   string file   = pythia.word("Main:allSettingsFile"); 
 </pre>
 
-<h3>Incoming beams</h3>
-
-Normally the identities and energies of the two incoming beam particles 
-are given by the arguments of the various forms of the <code>init</code> 
-call. These settings can be stored in an input "cards" file, in the 
-following variables, and thereafter read in the user-written main program. 
-As a shortcut, an <code>init()</code> call with no arguments will make use 
-of the beam values directly. That is, if nothing is set, you will default 
-to LHC at the nominal energy. Usage is purely optional. 
-
-<modeopen name="Main:idBeamA" default="2212">
-The PDG <code>id</code> code for the first incoming particle.
-</modeopen>
-
-<modeopen name="Main:idBeamB" default="2212">
-The PDG <code>id</code> code for the second incoming particle.
-</modeopen>
-
-<flag name="Main:inCMframe" default="on">
-Assume collisions occur in the CM frame.
-</flag>
-
-<parm name="Main:eCM" default="14000." min="10.">
-Collision CM energy, to be given if <code>Main:inCMframe</code> is on. 
-</parm>
-
-<parm name="Main:eBeamA" default="7000." min="0.">
-The energy of the first incoming particle, moving in the 
-<ei>+z </ei>direction, to be given if <code>Main:inCMframe</code> 
-is off. If the particle energy is smaller than its mass
-it is assumed to be at rest. 
-</parm>
-
-<parm name="Main:eBeamB" default="7000." min="0."> 
-The energy of the second incoming particle, moving in the 
-<ei>-z</ei> direction, to be given if <code>Main:inCMframe</code> 
-is off. If the particle energy is smaller than its mass
-it is assumed to be at rest.
-</parm>
-
-<word name="Main:LHEF" default="void">
-The name of a Les Houches Event File. If you initialize with 
-<code>init()</code> without any arguments, and <code>Main:LHEF</code>
-has been set differently from its default value <code>void</code>, the 
-initialization and subsequent run is based on the information stored 
-in this file, overriding the beam-parameter input above.
-</word>
-
-<p/>
-Currently there are no provisions for arbitrary beam directions,
-but you can always rotate and boost the final 
-<aloc href="EventRecord">event record</aloc> appropriately.
-For instance, consider two beams of equal energy but with a slight 
-acollinearity: they are both an angle <ei>chi</ei> away from 
-the <ei>+-z</ei> axis in the  <ei>+x</ei> direction, such that the
-total acollinearity is <ei>2 chi</ei>. Then a boost <ei>beta_x = chi</ei>, 
-achieved by <code>pythia.event.bst( chi, 0., 0.)</code>, moves
-the event to the correct frame. 
-
-<h3>Subruns</h3>
-
-You can use <aloc href="ProgramFlow">subruns</aloc> to carry out
-several tasks in the same run. In that case you will need repeated
-instances of the first setting below in your command file, and could
-additionally use the second and third as well.
-
-<modeopen name="Main:subrun" default="-999", min="0">
-The number of the current subrun, a non-negative integer, put as
-first line in a section of lines to be read for this particular subrun.
-</modeopen>
-
-<flag name="Main:LHEFskipInit" default="off">
-If you read several Les Houches Event Files that you want to see 
-considered as one single combined event sample you can set this flag
-<code>on</code> after the first subrun to skip (most of) the  
-(re-)initialization step.
-</flag>
-
-<modeopen name="Main:numberOfSubruns" default="0", min = "0">
-The number of subruns you intend to use in your current run.  
-Unlike the two settings above, <code>Pythia</code> itself will not
-intepret this number, but you could e.g. have a loop in your main
-program to loop over subruns from 0 through 
-<code>numberOfSubruns - 1</code>. 
-</flag>
-
 <h3>Run settings</h3>
 
-Here further settings related to how many events to generate and whether
-to print some information on data used in run. Again these variables 
+Here settings related to how many events to generate and whether
+to print some information on data used in run. These variables 
 can be set in an input "cards" file, and thereafter read out an used 
 in the user-written main program. Usage is purely optional, but may help
 you reduce the need to recompile your main program. 
@@ -211,149 +125,32 @@ Print all available statistics or only the minimal set at the end
 of the run.
 </flag>
 
-<h3>Sample main programs</h3>
+<h3>Subruns</h3>
 
-To help exemplify what a main program could look like, a few simple
-examples are provided: 
+You can use <aloc href="ProgramFlow">subruns</aloc> to carry out
+several tasks in the same run. In that case you will need repeated
+instances of the first setting below in your command file, and could
+additionally use the second and third as well.
 
-<ul>
+<modeopen name="Main:subrun" default="-999", min="0">
+The number of the current subrun, a non-negative integer, put as
+first line in a section of lines to be read for this particular subrun.
+</modeopen>
 
-<li><code>main01.cc</code> : a simple study of the charged multiplicity
-for jet events at the LHC. (Brief example given in talks.)</li>
+<flag name="Main:LHEFskipInit" default="off">
+If you read several Les Houches Event Files that you want to see 
+considered as one single combined event sample you can set this flag
+<code>on</code> after the first subrun to skip (most of) the  
+(re-)initialization step.
+</flag>
 
-<li><code>main02.cc</code> : a simple study of the <ei>pT</ei> spectrum 
-of Z bosons at the Tevatron. (Brief example given in talks.)</li>
-
-<li><code>main03.cc</code> : a simple single-particle analysis of jet 
-events, where input is set by <code>main03.cmnd</code> "cards file".</li>
-
-<li><code>main04.cc</code> : a simple study of several different kinds 
-of events, with the choice to be made in the <code>main04.cmnd</code> 
-"cards file".</li>
-
-<li><code>main05.cc</code> : generation of QCD jet events at the LHC, 
-with jet analysis using the <code>CellJet</code> cone-jet finder.</li>
-
-<li><code>main06.cc</code> : tests of cross sections for elastic and 
-diffractive topologies, using <code>main06.cmnd</code> to pick process.</li>
-
-<li><code>main07.cc</code> : tests of cross sections for minimum-bias 
-events, using <code>main07.cmnd</code> to pick options.</li>
-
-<li><code>main08.cc</code> : generation of the QCD jet cross section
-by splitting the run into subruns, each in its own <ei>pT</ei> bin,
-and adding the results properly reweighted. Two options, with limits 
-set either in the main program or by subrun specification in the
-<code>main08.cmnd</code> file.</li>
-
-<li><code>main09.cc</code> : generation of LEP1 hadronic events, i.e. 
-<ei>e^+e^- -> gamma*/Z^0 -> q qbar</ei>, with charged multiplicity, 
-sphericity, thrust and jet analysis.</li>
-
-<li><code>main10.cc</code> : illustration how userHooks can be used
-interact directly with the event-generation process.</li>
-
-<li><code>main11.cc</code> : generation of two predetermined hard
-interactions in each event.</li>
-
-<li><code>main12.cc</code> : a study of top events, fed in from the 
-Les Houches Event File <code>ttbar.lhe</code>, here generated by 
-<code>main53.f</code>. This file currently only contains 100 events 
-so as not to make the distributed PYTHIA package too big, and so serves 
-mainly as a demonstration of the principles involved. </li> 
-
-<li><code>main13.cc</code> : a more sophisticated variant of 
-<code>main12.cc</code>, where two Les Houches Event Files
-(<code>ttbar.lhe</code> and <code>ttbar2.lhe</code>) successively
-are used as input. Also illustrating some other aspects, like the
-capability to mix in internally generated events.</li> 
-
-<li><code>main14.cc</code> : a systematic comparison of several 
-cross section values with their corresponding values in PYTHIA 6.4,
-the latter available as a table in the code.</li> 
-
-<li><code>main15.cc</code> : loop over several tries to do B decays
-in an event, while keeping rest of event unchanged, as a way to 
-increase efficiency.</li> 
-
-<li><code>main16.cc</code> : put all user analysis code into a class
-of its own, separate from the main program; provide the "cards file" 
-name as a command-line argument.</li> 
-
-<li><code>main17.cc</code> : collect the Pythia calls in a wrapper class, 
-thereby simplifying the main program; provide the "cards file" name 
-as a command-line argument.</li> 
-
-<li><code>main21.cc</code> : an example how parton-level configurations
-can be input directly for hadronization, without being tied to the
-full process-generation machinery, e.g. to study the hadronization of 
-junction topologies.</li>
-
-<li><code>main22.cc</code> : tests of internally implemented cross sections
-for Supersymmetric particle production, with SYSY spectrum defined in
-<code>main22.spc</code> and settings in <code>main22.cmnd</code>.</li>
-
-<li><code>main23.cc</code> : shows how an external decay handler can 
-be linked to handle the decays of some particles.</li>
-
-<li><code>main24.cc</code> : shows how an external random number 
-generator can be linked to replace the internal one.</li>
-
-<li><code>main25.cc</code> : shows how an external process can be 
-implemented as a new class derived from a PYTHIA base class, and then
-handed in for generation as with a normal internal process.</li>
-
-<li><code>main26.cc</code> : shows how an external resonance can be 
-implemented as a new class derived from a PYTHIA base class, and be 
-used in an external process, both of which are then handed in for 
-generation as with a normal internal resonance and process.</li>
-
-<li><code>main31.cc</code> : similar to main01, except that the 
-event record is output in the HepMC event record format. Requires 
-that HepMC and CLHEP are properly linked.</li>
-
-<li><code>main32.cc</code> : a streamlined version for the generation
-of events that are then stored in HepMC format, without any event 
-analysis. That is, all physics studies will have to be done afterwards.
-The name of the input "cards file" (e.g. <code>main32.cmnd</code>)
-and output HepMC event file are to be provided as command-line arguments.
-Requires that HepMC and CLHEP are properly linked.</li>
-
-<li><code>main41.cc</code> : a test of the shape of parton densities,
-as a check prior to using a given PDF set in a generator.  Requires 
-that LHAPDF is properly linked.</li>
-
-<li><code>main42.cc</code> : compares the charged multiplicity 
-distribution, and a few other aspects, between default PYTHIA PDF and 
-another one. Requires that LHAPDF is properly linked.</li>
-
-<li><code>main51.cc</code> : a simple example how the Les Houches
-Accord interface, plus a few more Fortran-to-C++ commands, allows
-hard processes to be generated by PYTHIA 6.4 and then processed 
-further by PYTHIA 8. Requires that PYTHIA 6.4 is properly linked.</li>
-
-<li><code>main52.cc</code> : a fairly extensive study of 
-event properties, with hard processes generated by PYTHIA 6.4. 
-It reads in a <code>main52.fcmnd</code> file with commands specfically
-for the Fortran PYTHIA 6.4 program and another <code>main52.ccmnd</code> 
-file illustrating several of the settings listed on these pages.
-Requires that PYTHIA 6.4 is properly linked.</li>
-
-<li><code>main53.f</code> : a Fortran program (!) showing how 
-PYTHIA 6.4 can be used to generate a Les Houches Event File 
-<code>ttbar.lhe</code> with top events (which is used as input by
-<code>main12.cc</code>). This program can easily be modified to 
-generate other files, bigger and/or for other processes.
-Requires that PYTHIA 6.4 is properly linked.</li>
-
-<li><code>main54.cc</code> : a final example where PYTHIA 6.4 is used 
-to generate hard processes, which are directly input to be generated
-in full by the internal machinery, using the settings in 
-<code>main54.cmnd</code>, and the output consists of a file with 
-HepMC event records for further analysis. Requires that PYTHIA 6.4, 
-HepMC and CLHEP are properly linked.</li>
-
-</ul>
+<modeopen name="Main:numberOfSubruns" default="0", min = "0">
+The number of subruns you intend to use in your current run.  
+Unlike the two settings above, <code>Pythia</code> itself will not
+intepret this number, but you could e.g. have a loop in your main
+program to loop over subruns from 0 through 
+<code>numberOfSubruns - 1</code>. 
+</flag>
 
 <h3>Spares</h3>
 
@@ -399,4 +196,4 @@ and then use that value in the main program as desired.
 
 </chapter>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Tunes</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -89,23 +91,20 @@ since the values you set before <code>pythia.init(...)</code> would be
 overwritten at that point. 
 
 <br/><br/><table><tr><td><strong>Tune:ee  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>)</td></tr></table>
-<modepick name="Tune:ee" default="0">
 Choice of tune to <ei>e^+e^-</ei> data, mainly for the hadronization
 and timelike-showering aspects of PYTHIA. 
 <br/>
-<input type="radio" name="1" value="0" checked="checked"><strong>0 </strong>: no values are overwritten at initialization, so you can set the individual parameters as you wish.<br/>
-<input type="radio" name="1" value="101"><strong>101 </strong>: a tune by Marc Montull to the LEP 1 particlecomposition, as published in the RPP. The default PYTHIA parameter values tend to produce more vector mesons than observed in data. When more pseudoscalars are produced directly this also leads to a reduced <ei>s/u</ei> ratio and diquark fraction. Also other parameters related to the particle composition obtain changed values. No related (re)tune to event shapes has been performed so far, however.  <br/>
-</modepick>
+<input type="radio" name="1" value="0" checked="checked"><strong>0 </strong>: no values are overwritten at initialization,  so you can set the individual parameters as you wish. <br/>
+<input type="radio" name="1" value="101"><strong>101 </strong>: a tune by Marc Montull to the LEP 1 particle composition, as published in the RPP. The default PYTHIA parameter  values tend to produce more vector mesons than observed in data.  When more pseudoscalars are produced directly this also leads to a  reduced <ei>s/u</ei> ratio and diquark fraction. Also other parameters  related to the particle composition obtain changed values. No related  (re)tune to event shapes has been performed so far, however.   <br/>
 
 <br/><br/><table><tr><td><strong>Tune:pp  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>)</td></tr></table>
-<modepick name="Tune:pp" default="0">
 Choice of tune to <ei>pp / ppbar</ei> data, mainly for the 
 multiple-interactions and initial-state-radiation aspects of PYTHIA. 
 <note>Note:</note> Currently this is only a placeholder, since no
 tunes alternative to the default values exist. 
 <br/>
-<input type="radio" name="2" value="0" checked="checked"><strong>0 </strong>: no values are overwritten at initialization, so you can set the individual parameters as you wish.<br/>
-</modepick>
+<input type="radio" name="2" value="0" checked="checked"><strong>0 </strong>: no values are overwritten at initialization,  so you can set the individual parameters as you wish. <br/>
+
 
 
 <input type="hidden" name="saved" value="1"/>
@@ -140,4 +139,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

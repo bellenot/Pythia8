@@ -75,8 +75,18 @@ in SUSY scenarios, via a well-defined file format</dd>
 <dt>SUSY</dt>
 <dd>SUperSYmmetry</dd>
 
+<dt>units</dt>
+<dd>Normal PYTHIA input, internal operations and output is based on a set of 
+standard units, such as:
+<br/>GeV for all energies, momenta and masses, always with <ei>c = 1</ei>;
+<br/>mm for all distances and mm/<ei>c</ei> for all times, 
+so that again they match for <ei>c = 1</ei>;
+<br/>mb for all cross sections (but input or output via the Les Houches 
+Accord takes into account that the unit there is pb) 
+</dd>
+
 </dl>
 
 </chapter>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

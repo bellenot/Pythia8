@@ -1,5 +1,5 @@
 // SigmaProcess.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -16,35 +16,6 @@ namespace Pythia8 {
 // Base class for cross sections.
 
 //*********
- 
-// Definitions of static variables and functions.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-
-int         SigmaProcess::alphaSorder    = 1;
-int         SigmaProcess::alphaEMorder   = 1;
-int         SigmaProcess::nQuarkIn       = 5;
-int         SigmaProcess::renormScale1   = 1;
-int         SigmaProcess::renormScale2   = 2;
-int         SigmaProcess::renormScale3   = 3;
-int         SigmaProcess::renormScale3VV = 3;
-int         SigmaProcess::factorScale1   = 1;
-int         SigmaProcess::factorScale2   = 1;
-int         SigmaProcess::factorScale3   = 2;
-int         SigmaProcess::factorScale3VV = 2;
-double      SigmaProcess::alphaSvalue    = 0.1265;
-double      SigmaProcess::Kfactor        = 1.;
-double      SigmaProcess::renormMultFac  = 1.;
-double      SigmaProcess::renormFixScale = 10000.;
-double      SigmaProcess::factorMultFac  = 1.;
-double      SigmaProcess::factorFixScale = 10000.;
-AlphaStrong SigmaProcess::alphaS;
-AlphaEM     SigmaProcess::alphaEM;
-int         SigmaProcess::higgsH1parity  = 1;
-int         SigmaProcess::higgsH2parity  = 1;
-int         SigmaProcess::higgsA3parity  = 2;
-double      SigmaProcess::higgsH1eta     = 0.;
-double      SigmaProcess::higgsH2eta     = 0.;
-double      SigmaProcess::higgsA3eta     = 0.;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -55,44 +26,32 @@ const double SigmaProcess::CONVERT2MB    = 0.389380;
 // The sum of outgoing masses must not be too close to the cm energy.
 const double SigmaProcess::MASSMARGIN    = 0.1;
 
-// Pointers to the parton densities of the incoming beams.
-BeamParticle* SigmaProcess::beamAPtr; 
-BeamParticle* SigmaProcess::beamBPtr; 
-  
-// Pointer to the total/elastic/diffractive cross section object.
-SigmaTotal* SigmaProcess::sigmaTotPtr;
-
-// Information on incoming beams.
-int    SigmaProcess::idA,        SigmaProcess::idB;
-double SigmaProcess::mA,         SigmaProcess::mB; 
-bool   SigmaProcess::isLeptonA,  SigmaProcess::isLeptonB; 
-bool   SigmaProcess::hasLeptonBeams     = false;
-
-// Pointer to the SLHA object.
-SusyLesHouches* SigmaProcess::slha;
-
-// Pointers to LHAinit and LHAevnt for generating external events.
-LHAinit* SigmaProcess::lhaInitPtr;
-LHAevnt* SigmaProcess::lhaEvntPtr;
-
 //*********
 
-// Initialize static data members.
+// Perform simple initialization and store pointers.
 
-void SigmaProcess::initStatic() {
+void SigmaProcess::init(Info* infoPtrIn, BeamParticle* beamAPtrIn, 
+  BeamParticle* beamBPtrIn, AlphaStrong* alphaSPtrIn, 
+  AlphaEM* alphaEMPtrIn,SigmaTotal* sigmaTotPtrIn,
+  SusyLesHouches* slhaPtrIn) {
 
-  // Parameters of alphaStrong generation .
-  alphaSvalue     = Settings::parm("SigmaProcess:alphaSvalue");
-  alphaSorder     = Settings::mode("SigmaProcess:alphaSorder");
+  // Store pointers.
+  infoPtr     = infoPtrIn;
+  beamAPtr    = beamAPtrIn;
+  beamBPtr    = beamBPtrIn;
+  alphaSPtr   = alphaSPtrIn;
+  alphaEMPtr  = alphaEMPtrIn;
+  sigmaTotPtr = sigmaTotPtrIn;
+  slhaPtr     = slhaPtrIn;
 
-  // Initialize alphaStrong generation.
-  alphaS.init( alphaSvalue, alphaSorder); 
-
-  // Parameters of alphaEM generation.
-  alphaEMorder    = Settings::mode("SigmaProcess:alphaEMorder");
-
-  // Initialize alphaEM generation.
-  alphaEM.init( alphaEMorder); 
+  // Read out some properties of beams to allow shorthand.
+  idA         = beamAPtr->id();
+  idB         = beamBPtr->id();
+  mA          = beamAPtr->m();
+  mB          = beamBPtr->m();
+  isLeptonA   = beamAPtr->isLepton();
+  isLeptonB   = beamBPtr->isLepton();
+  hasLeptonBeams = isLeptonA || isLeptonB;
 
   // K factor, multiplying resolved processes. (But not here for MI.)
   Kfactor         = Settings::parm("SigmaProcess:Kfactor");
@@ -129,29 +88,6 @@ void SigmaProcess::initStatic() {
     higgsH1parity = 1;
     higgsH1eta    = 0.;
   }
- 
-}
-
-//*********
-
-// Store static pointers to beams and to SigmaTotal
-
-void SigmaProcess::setStaticPtrs( BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn) {
-
-  // Store pointers.
-  beamAPtr    = beamAPtrIn;
-  beamBPtr    = beamBPtrIn;
-  sigmaTotPtr = sigmaTotPtrIn; 
-
-  // Read out some properties of beams to allow shorthand.
-  idA         = beamAPtr->id();
-  idB         = beamBPtr->id();
-  mA          = beamAPtr->m();
-  mB          = beamBPtr->m();
-  isLeptonA   = beamAPtr->isLepton();
-  isLeptonB   = beamBPtr->isLepton();
-  hasLeptonBeams = isLeptonA || isLeptonB;
 
 }
 
@@ -346,6 +282,16 @@ bool SigmaProcess::initFlux() {
   }
 
   // Case with gamma gamma incoming state.
+  else if (fluxType == "ggm") {
+    addBeamA(21);
+    addBeamA(22);
+    addBeamB(21);
+    addBeamB(22);
+    addPair(21, 22);
+    addPair(22, 21);
+  }
+
+  // Case with gamma gamma incoming state.
   else if (fluxType == "gmgm") {
     addBeamA(22);
     addBeamB(22);
@@ -354,7 +300,7 @@ bool SigmaProcess::initFlux() {
 
   // Unrecognized fluxType is bad sign. Else done.
   else {
-    ErrorMsg::message("Error in SigmaProcess::initFlux: "
+    infoPtr->errorMsg("Error in SigmaProcess::initFlux: "
     "unrecognized inFlux type", fluxType);
     return false;
   }
@@ -590,7 +536,7 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
       - 2. * pow2(p35 * p46 - p36 * p45) 
       + p34 * p56 * (pow2(p35 + p46) + pow2(p36 + p45)) 
       + va12asym * p34 * p56 * (p35 + p36 - p45 - p46) 
-      * (p35 + p45 - p36 - p46) ) ) / ( 1. * 2. * etaMod * mZW1 * mZW2 
+      * (p35 + p45 - p36 - p46) ) ) / ( 1. + 2. * etaMod * mZW1 * mZW2 
       + 2. * pow2(etaMod * mZW1 * mZW2) * (1. + va12asym) );
 
   // W+ W- decay.
@@ -651,8 +597,8 @@ void Sigma1Process::store1Kin( double x1in, double x2in, double sHin) {
   if (factorScale1 == 2) Q2RenSave = factorFixScale; 
 
   // Evaluate alpha_strong and alpha_EM.
-  alpS   = alphaS.alphaS(Q2RenSave);  
-  alpEM  = alphaEM.alphaEM(Q2RenSave);  
+  alpS   = alphaSPtr->alphaS(Q2RenSave);  
+  alpEM  = alphaEMPtr->alphaEM(Q2RenSave);  
 
 }
 
@@ -739,8 +685,8 @@ void Sigma2Process::store2Kin( double x1in, double x2in, double sHin,
   }
 
   // Evaluate alpha_strong and alpha_EM.
-  alpS = alphaS.alphaS(Q2RenSave);  
-  alpEM = alphaEM.alphaEM(Q2RenSave);  
+  alpS = alphaSPtr->alphaS(Q2RenSave);  
+  alpEM = alphaEMPtr->alphaEM(Q2RenSave);  
 
 }
 
@@ -814,15 +760,15 @@ bool Sigma2Process::final2KinMI() {
   // Check that masses of outgoing particles not too big.
   m3           = ParticleDataTable::m0(idSave[3]);
   m4           = ParticleDataTable::m0(idSave[4]);
-  double eCM   = sqrt(sH);
-  if (m3 + m4 + MASSMARGIN > eCM) return false;
+  mH           = sqrt(sH);
+  if (m3 + m4 + MASSMARGIN > mH) return false;
   s3           = m3 * m3;
   s4           = m4 * m4;
 
   // Do kinematics of the decay.
-  double eIn   = 0.5 * eCM;
-  double e3    = 0.5 * (sH + s3 - s4) / eCM;
-  double e4    = 0.5 * (sH + s4 - s3) / eCM;
+  double eIn   = 0.5 * mH;
+  double e3    = 0.5 * (sH + s3 - s4) / mH;
+  double e4    = 0.5 * (sH + s4 - s3) / mH;
   double pAbs  = sqrtpos( e3*e3 - s3 );
   phi          = 2. * M_PI * Rndm::flat();
   double pZ    = pAbs * cosTheta;
@@ -968,8 +914,8 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
   }
 
   // Evaluate alpha_strong and alpha_EM.
-  alpS = alphaS.alphaS(Q2RenSave);  
-  alpEM = alphaEM.alphaEM(Q2RenSave);  
+  alpS = alphaSPtr->alphaS(Q2RenSave);  
+  alpEM = alphaEMPtr->alphaEM(Q2RenSave);  
 
 }
 
@@ -986,12 +932,12 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
 int SigmaLHAProcess::nFinal() const {
 
   // At initialization size unknown, so return 0.
-  if (lhaEvntPtr->size() <= 0) return 0;
+  if (lhaUpPtr->sizePart() <= 0) return 0;
 
   // Sum up all particles that has first mother = 1.
   int nFin = 0; 
-  for (int i = 3; i < lhaEvntPtr->size(); ++i) 
-    if (lhaEvntPtr->mother1(i) == 1) ++nFin;
+  for (int i = 3; i < lhaUpPtr->sizePart(); ++i) 
+    if (lhaUpPtr->mother1(i) == 1) ++nFin;
   return nFin;
 
 }

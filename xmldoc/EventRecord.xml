@@ -52,6 +52,12 @@ of <code>iCopy</code>.
 The event record can be emptied for the next event by a 
 <code>clear()</code>. The last <code>n</code> entries can be removed by 
 <code>popBack(n)</code>, where <code>n = 1</code> by default. 
+The <code>=</code> operator is overloaded to allow a copying of 
+an event record, and <code>+=</code> to append an event to an 
+existing one. In the latter case mother, daughter and colour tags are
+shifted to make a consistent record. The zeroth particle of the 
+appended event is not copied, but the zeroth particle of the combined
+event is updated to the full energy-momentum content.
 
 <p/>
 A listing of the whole event is obtained with <code>list()</code>.
@@ -102,7 +108,9 @@ generation of the complete event. Thus one may e.g. call either
 To distinguish those two rapidly at visual inspection, the 
 <code>"Pythia Event Listing"</code> header is printed out differently, 
 in one case adding <code>"(hard process)"</code> and in the other 
-<code>"(complete event)"</code>. This is set by a header(string) method.
+<code>"(complete event)"</code>. When <code>+=</code> is used to 
+append an event, the modified event is printed with 
+<code>"(combination of several events)"</code> as a reminder.
 
 <p/>
 One data member in an <code>Event</code> object is used to keep track of the  
@@ -254,7 +262,7 @@ The possibilities foreseen are:
 <ul>
 <li><code>kind = 1</code> : incoming colourless particle to three 
 outgoing colours (e.g. baryon beam remnant or 
-<code>neutralino -> q q q</code>);</li>
+<ei>neutralino -> q q q</ei>);</li>
 <li><code>kind = 2</code> : incoming colourless particle to three 
 outgoing anticolours;</li>
 <li><code>kind = 3</code> : one incoming anticolor (stored first) 
@@ -299,4 +307,4 @@ A listing of current subsystems can be obtained with the
 
 </chapter>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

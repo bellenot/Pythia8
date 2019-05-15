@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>Spacelike Showers</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -37,12 +39,12 @@ behaviour.
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
 Way in which the maximum shower evolution scale is set to match the 
 scale of the hard process itself.
-<br/><code>option </code><strong> 0</strong> : <i>(i)</i> if the final state of the hard process 
+<br/><code>option </code><strong> 0</strong> : <b>(i)</b> if the final state of the hard process 
 (not counting subsequent resonance decays) contains at least one quark 
 (<i>u, d, s, c ,b</i>), gluon or photon then <i>pT_max</i> 
 is chosen to be the factorization scale for internal processes 
 and the <code>scale</code> value for Les Houches input; 
-<i>(ii)</i> if not, emissions are allowed to go all the way up to 
+<b>(ii)</b> if not, emissions are allowed to go all the way up to 
 the kinematical limit. 
 The reasoning is that in the former set of processes the ISR
 emission of yet another quark, gluon or photon could lead to
@@ -56,6 +58,7 @@ may leave out some emissions that ought to have been simulated.
 <br/><code>option </code><strong> 2</strong> : always allow emissions up to the kinematical limit.
 This will simulate all possible event topologies, but may lead to
 doublecounting. 
+  
 <br/><b>Note 1:</b> These options only apply to the hard interaction.
 Emissions off subsequent multiple interactions are always constrainted
 to be below the factorization scale of the process itself.  
@@ -64,7 +67,7 @@ to the first emission; this is the case notably for single
 <i>gamma^*/Z^0, W^+-</i> and <i>H^0</i> production. Then default
 and option 2 give the correct result, while option 1 should never
 be used. 
-</modepick>
+  
 
 <p/><code>parm&nbsp; </code><strong> SpaceShower:pTmaxFudge &nbsp;</strong> 
  (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 2.0</code>)<br/>
@@ -105,7 +108,7 @@ multiplicative fudge factor stored in <code>pTdampFudge</code> below.
 <br/><b>Note:</b> These options only apply to the hard interaction.
 Emissions off subsequent multiple interactions are always constrainted
 to be below the factorization scale of the process itself.  
-</modepick>
+  
 
 <p/><code>parm&nbsp; </code><strong> SpaceShower:pTdampFudge &nbsp;</strong> 
  (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 4.0</code>)<br/>
@@ -137,7 +140,7 @@ fixed.
 <br/><code>option </code><strong> 2</strong> : second order. Since other parts of the code do 
 not go to second order there is no strong reason to use this option, 
 but there is also nothing wrong with it.  
-</modepick>
+  
 
 <p/>
 QED radiation is regulated by the <i>alpha_electromagnetic</i>
@@ -155,7 +158,7 @@ fixed at its value at vanishing momentum transfer.
 fixed, but at <code>StandardModel:alphaEMmZ</code>, i.e. its value
 at the <i>Z^0</i> mass.
    
-</modepick>
+  
 
 <p/>
 There are two complementary ways of regularizing the small-<i>pT</i> 
@@ -175,7 +178,7 @@ all ISR QCD radiation, rather than the corresponding parameters below.
 This is a sensible physics ansatz, based on the assumption that colour 
 screening effects influence both MI and ISR in the same way. Photon 
 radiation is regularized separately in either case.
-<br/><b>Warning:</b>if a large <code>pT0</code> is picked for multiple 
+<br/><b>Warning:</b> if a large <code>pT0</code> is picked for multiple 
 interactions, such that the integrated interaction cross section is 
 below the nondiffractive inelastic one, this <code>pT0</code> will 
 automatically be scaled down to cope. Information on such a rescaling 
@@ -236,10 +239,10 @@ Assumed smaller than (or equal to) <i>pTminChgQ</i>.
   
 
 <p/><code>flag&nbsp; </code><strong> SpaceShower:rapidityOrder &nbsp;</strong> 
- (<code>default = <strong>on</strong></code>)<br/>
+ (<code>default = <strong>off</strong></code>)<br/>
 Force emissions, after the first,  to be ordered in rapidity,
 i.e. in terms of decreasing angles in a backwards-evolution sense. 
-Motivated by coherence arguments, but not uniquely constrained. 
+Could be used to probe sensitivity to unordered emissions.
 Only affects QCD emissions.
   
 
@@ -286,7 +289,7 @@ Not yet implemented.
 Number of allowed quark flavours in <i>g -> q qbar</i> branchings,
 when kinematically allowed, and thereby also in incoming beams. 
 Changing it to 4 would forbid <i>g -> b bbar</i>, etc.
-</modeopen>
+  
 
 <h3>Technical notes</h3>
 
@@ -329,5 +332,5 @@ is involved.
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->
 

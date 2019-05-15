@@ -1,5 +1,5 @@
 // ResonanceWidths.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -29,6 +29,9 @@ double       ResonanceWidths::minThreshold   = 0.1;
 AlphaStrong  ResonanceWidths::alphaS;
 AlphaEM      ResonanceWidths::alphaEM;
 
+// Static copy of Info - not optimal solution??
+Info*        ResonanceWidths::infoPtr         = 0;
+
 // Number of points in integration direction for numInt routines.
 const int    ResonanceWidths::NPOINT         = 100;
 
@@ -39,7 +42,10 @@ const double ResonanceWidths::MASSMARGIN     = 0.1;
 
 // Initialize static data members.
 
-void ResonanceWidths::initStatic() {
+void ResonanceWidths::initStatic(Info* infoPtrIn) {
+
+  // Save pointer.
+  infoPtr      = infoPtrIn;
 
   // Parameters of alphaStrong generation .
   alphaSvalue  = Settings::parm("SigmaProcess:alphaSvalue");
@@ -325,7 +331,7 @@ bool ResonanceWidths::initBasic(int idResIn) {
   idRes = idResIn;
   particlePtr = ParticleDataTable::particleDataPtr(idRes);
   if (particlePtr == 0) {
-     ErrorMsg::message("Error in ResonanceWidths::initBasic:"
+     infoPtr->errorMsg("Error in ResonanceWidths::initBasic:"
       " unknown resonance identity code"); 
      return false;
   }
@@ -1762,13 +1768,13 @@ void ResonanceLeptoquark::initConstants() {
   int id1 = particlePtr->decay[0].product(0);
   int id2 = particlePtr->decay[0].product(1);
   if (id1 < 1 || id1 > 5) {
-    ErrorMsg::message("Error in ResonanceLeptoquark::init:"
+    infoPtr->errorMsg("Error in ResonanceLeptoquark::init:"
       " unallowed input quark flavour reset to u"); 
     id1   = 2;
     particlePtr->decay[0].product(0, id1);
   }
   if (abs(id2) < 11 || abs(id2) > 16) {
-    ErrorMsg::message("Error in ResonanceLeptoquark::init:"
+    infoPtr->errorMsg("Error in ResonanceLeptoquark::init:"
       " unallowed input lepton flavour reset to e-"); 
     id2   = 11;
     particlePtr->decay[0].product(1, id2);

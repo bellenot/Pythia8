@@ -1,5 +1,5 @@
 // FragmentationFlavZpT.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -62,7 +62,6 @@ public:
 //**************************************************************************
 
 // The StringFlav class is used to select quark and hadron flavours.
-// Purely static, since current values are stored in the calling routines. 
 
 class StringFlav {
 
@@ -71,45 +70,44 @@ public:
   // Constructor. 
   StringFlav() {}
 
-  // Initialize static data members.
-  static void initStatic();
+  // Initialize data members.
+  void init();
 
   // Pick a light d, u or s quark according to fixed ratios.
-  static int pickLightQ() { double rndmFlav = probQandS * Rndm::flat();
+  int pickLightQ() { double rndmFlav = probQandS * Rndm::flat();
     if (rndmFlav < 1.) return 1; if (rndmFlav < 2.) return 2; return 3; }
 
   // Pick a new flavour (including diquarks) given an incoming one.
-  static FlavContainer pick(FlavContainer& flavOld);
+  FlavContainer pick(FlavContainer& flavOld);
 
   // Combine two flavours (including diquarks) to produce a hadron.
-  static int combine(FlavContainer& flav1, FlavContainer& flav2);
+  int combine(FlavContainer& flav1, FlavContainer& flav2);
 
   // Assign popcorn quark inside an original (= rank 0) diquark.
-  static void assignPopQ(FlavContainer& flav);
+  void assignPopQ(FlavContainer& flav);
 
   // Combine two quarks to produce a diquark.
-  static int makeDiquark(int id1, int id2, int idHad = 0);
+  int makeDiquark(int id1, int id2, int idHad = 0);
 
 private: 
 
-  // Static initialization data, to be read from Settings.
-  static double probQQtoQ, probStoUD, probSQtoQQ, probQQ1toQQ0, 
-                probQandQQ, probQandS, probQandSinQQ, probQQ1corr, 
-                probQQ1corrInv, probQQ1norm, mesonRate[4][6], 
-                mesonRateSum[4], mesonMix1[2][6], mesonMix2[2][6], 
-                etaSup, etaPrimeSup, decupletSup, baryonCGOct[6], 
-                baryonCGDec[6], baryonCGSum[6], baryonCGMax[6],
-                popcornRate, popcornSpair, popcornSmeson, scbBM[3], 
-                popFrac, popS[3], dWT[3][7], lightLeadingBSup, 
-                heavyLeadingBSup;
-  static bool   suppressLeadingB;
-  static int    mesonMultipletCode[6];
+  // Constants: could only be changed in the code itself.
+  static const int    mesonMultipletCode[6];
+  static const double baryonCGOct[6], baryonCGDec[6]; 
+
+  // Initialization data, to be read from Settings.
+  bool   suppressLeadingB;
+  double probQQtoQ, probStoUD, probSQtoQQ, probQQ1toQQ0, probQandQQ, 
+         probQandS, probQandSinQQ, probQQ1corr, probQQ1corrInv, probQQ1norm, 
+         mesonRate[4][6], mesonRateSum[4], mesonMix1[2][6], mesonMix2[2][6], 
+         etaSup, etaPrimeSup, decupletSup, baryonCGSum[6], baryonCGMax[6], 
+         popcornRate, popcornSpair, popcornSmeson, scbBM[3], popFrac, 
+         popS[3], dWT[3][7], lightLeadingBSup, heavyLeadingBSup;
 };
  
 //**************************************************************************
 
 // The StringZ class is used to sample the fragmentation function f(z).
-// Purely static, since current values are stored in the calling routines. 
 
 class StringZ {
 
@@ -118,32 +116,31 @@ public:
   // Constructor. 
   StringZ() {}
 
-  // Initialize static data members.
-  static void initStatic();
+  // Initialize data members.
+  void init();
   
   // Fragmentation function: top-level to determine parameters.
-  static double zFrag( int idOld, int idNew = 0, double mT2 = 1.);
+  double zFrag( int idOld, int idNew = 0, double mT2 = 1.);
 
 private: 
 
-  // Static initialization data, to be read from Settings.
-  static bool   usePetersonC, usePetersonB, usePetersonH;
-  static double mc2, mb2, aLund, bLund, aExtraDiquark, rFactC, rFactB, 
-                rFactH, epsilonC, epsilonB, epsilonH;
-
   // Constants: could only be changed in the code itself.
-    static const double CFROMUNITY, AFROMZERO, AFROMC, EXPMAX;
+  static const double CFROMUNITY, AFROMZERO, AFROMC, EXPMAX;
+
+  // Initialization data, to be read from Settings.
+  bool   usePetersonC, usePetersonB, usePetersonH;
+  double mc2, mb2, aLund, bLund, aExtraDiquark, rFactC, rFactB, rFactH, 
+         epsilonC, epsilonB, epsilonH;
 
   // Fragmentation function: select z according to provided parameters.
-  static double zLund( double a, double b, double c = 1.);
-  static double zPeterson( double epsilon);
+  double zLund( double a, double b, double c = 1.);
+  double zPeterson( double epsilon);
 
 };
  
 //**************************************************************************
 
 // The StringPT class is used to select select transverse momenta.
-// Purely static, since current values are stored in the calling routines. 
 
 class StringPT {
 
@@ -152,20 +149,20 @@ public:
   // Constructor. 
   StringPT() {}
 
-  // Initialize static data members.
-  static void initStatic();
+  // Initialize data members.
+  void init();
 
   // Return px and py separately, but really same routine.
-  static double px() {return pxy();}
-  static double py() {return pxy();}
+  double px() {return pxy();}
+  double py() {return pxy();}
 
 private: 
 
-  // Static initialization data, to be read from Settings.
-  static double sigmaQ, enhancedFraction, enhancedWidth;
+  // Initialization data, to be read from Settings.
+  double sigmaQ, enhancedFraction, enhancedWidth;
 
   // pT fragmentation spectrum.
-  static double pxy();
+  double pxy();
 
 };
  

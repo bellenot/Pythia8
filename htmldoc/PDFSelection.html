@@ -1,6 +1,8 @@
 <html>
 <head>
 <title>PDF Selection</title>
+<link rel="stylesheet" type="text/css" href="pythia.css"/>
+<link rel="shortcut icon" href="pythia32.gif"/>
 </head>
 <body>
 
@@ -52,7 +54,7 @@ Parton densities to be used for proton beams (and, by implication,
 antiproton ones):
 <br/><code>option </code><strong> 1</strong> : GRV 94 L;  
 <br/><code>option </code><strong> 2</strong> : CTEQ 5 L.  
-</modepick> 
+   
 
 <p/>
 Obviously this choice is mainly intended to get going, and if you link to
@@ -60,7 +62,7 @@ the <a href="http://projects.hepforge.org/lhapdf/" target="page">LHAPDF
 library</a> [<a href="Bibliography.html" target="page">Wha05</a>] you get access to a much wider selection.
 <br/><b>Warning:</b> owing to previous problems with the behaviour of PDF's
 beyond the <i>x</i> and <i>Q^2</i> boundaries of a set, you should
-only use LHAPDF <i>version 5.3.0 or later</i>.
+only use LHAPDF <b>version 5.3.0 or later</b>.
 
 <p/><code>flag&nbsp; </code><strong> PDF:useLHAPDF &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
@@ -101,7 +103,7 @@ want to sweep over many members you either have to do many separate
 runs or, as a simplification, save the 
 <a href="EventInformation.html" target="page">pdf weights</a> at the hard scattering
 and do an offline reweighting of events.
-</modeopen>   
+     
 
 <p/><code>flag&nbsp; </code><strong> PDF:extrapolateLHAPDF &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
@@ -169,7 +171,7 @@ Parton densities to be used for proton beams (and, by implication,
 antiproton ones):
 <br/><code>option </code><strong> 1</strong> : GRV 94 L;  
 <br/><code>option </code><strong> 2</strong> : CTEQ 5 L.  
-</modepick> 
+   
 
 <p/><code>flag&nbsp; </code><strong> PDF:useHardLHAPDF &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
@@ -186,7 +188,7 @@ Name of proton PDF set from LHAPDF to be used.
 <p/><code>mode&nbsp; </code><strong> PDF:hardLHAPDFmember &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)<br/>
 Further choice of a specific member from the set picked above. 
-</modeopen>   
+     
 
 <p/>
 Note that there is no separate equivalent of the 
@@ -228,9 +230,9 @@ for multiple interactions and spacelike showers.
 Number of allowed incoming quark flavours in the beams; a change 
 to 4 would thus exclude <i>b</i> and <i>bbar</i> as incoming 
 partons, etc.
-</modeopen>
+  
 
 </body>
 </html>
 
-<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2008 Torbjorn Sjostrand -->

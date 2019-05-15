@@ -1,5 +1,5 @@
 // ParticleDecays.h is a part of the PYTHIA event generator.
-// Copyright (C) 2007 Torbjorn Sjostrand.
+// Copyright (C) 2008 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,7 +13,7 @@
 #include "Basics.h"
 #include "Event.h"
 #include "FragmentationFlavZpT.h"
-#include "Information.h"
+#include "Info.h"
 #include "ParticleData.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
@@ -53,7 +53,8 @@ public:
   ParticleDecays() {}
 
   // Initialize: store pointers and find settings
-  void init(TimeShower* timesDecPtrIn, DecayHandler* decayHandlePtrIn, 
+  void init(Info* infoPtrIn, TimeShower* timesDecPtrIn, 
+    StringFlav* flavSelPtrIn, DecayHandler* decayHandlePtrIn, 
     vector<int> handledParticles); 
  
   // Perform a decay of a single particle.
@@ -67,6 +68,18 @@ private:
   // Constants: could only be changed in the code itself.
   static const int    NTRYDECAY, NTRYPICK;
   static const double MSAFEDALITZ, WTCORRECTION[11];
+
+  // Pointer to various information on the generation.
+  Info* infoPtr;
+
+  // Pointers to timelike showers, for decays to partons (e.g. Upsilon).
+  TimeShower* timesDecPtr;
+
+  // Pointer to class for flavour generation; needed when to pick hadrons.
+  StringFlav* flavSelPtr;
+
+  // Pointer to a handler of external decays.
+  DecayHandler* decayHandlePtr;
 
   // Initialization data, read from Settings..
   bool   limitTau0, limitTau, limitRadius, limitCylinder, limitDecay, 
@@ -85,15 +98,6 @@ private:
 
   // Pointer to particle data for currently decaying particle
   ParticleDataEntry* decDataPtr;
-
-  // Pointers to timelike showers, for decays to partons (e.g. Upsilon).
-  TimeShower* timesDecPtr;
-
-  // Pointer to a handler of external decays.
-  DecayHandler* decayHandlePtr;
-
-  // Flavour generator; needed when required to pick hadrons.
-  StringFlav flavSel;
 
   // Check whether a decay is allowed, given the upcoming decay vertex.
   bool checkVertex(Particle& decayer);
