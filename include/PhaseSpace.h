@@ -84,11 +84,11 @@ protected:
   static double mHatMin, mHatMax, pTHatMin, pTHatMax, m3Min, m3Max,
     m4Min, m4Max, sHatMin, sHatMax, pT2HatMin, pT2HatMax, m3SMin, 
     m3SMax, m4SMin, m4SMax;
+  static bool showSearch;
 
   // Constants: could only be changed in the code itself.
   static const double SAFETYMARGIN, TINY, EVENFRAC, SAMESIGMA, 
     WIDTHMARGIN, SAMEMASS;
-  static const bool PRINT;
 
   // Center-of-mass energy.
   double eCM, s; 

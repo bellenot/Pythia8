@@ -12,10 +12,10 @@
  |  |     *:::::::::!!:::::::::::::::::*       P      Y     T   H   H  I  A   A    |  | 
  |  |      *::::::::!!::::::::::::::::*!       P      Y     T   H   H III A   A    |  | 
  |  |        *::::::!!::::::::::::::* !!                                           |  | 
- |  |        !! *:::!!:::::::::::*    !!       This is PYTHIA version 8.052        |  | 
- |  |        !!     !* -><- *         !!       Last date of change: 17 May 2006    |  | 
+ |  |        !! *:::!!:::::::::::*    !!       This is PYTHIA version 8.053        |  | 
+ |  |        !!     !* -><- *         !!       Last date of change:  1 Jun 2006    |  | 
  |  |        !!     !!                !!                                           |  | 
- |  |        !!     !!                !!       Now is 17 May 2006 at 11:06:45      |  | 
+ |  |        !!     !!                !!       Now is 01 Jun 2006 at 16:29:32      |  | 
  |  |        !!                       !!                                           |  | 
  |  |        !!        lh             !!       Disclaimer: this program comes      |  | 
  |  |        !!                       !!       without any guarantees. Beware      |  | 
@@ -1280,7 +1280,7 @@
  Error in Pythia::next: processLevel failed; giving up  
 
 
-  2006-05-17 11:06       final particle multiplicity
+  2006-06-01 16:29       final particle multiplicity
 
         8.10*10^ 0                                       7                                                              
         7.80*10^ 0                                       X                                                              

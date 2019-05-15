@@ -360,6 +360,15 @@ bool ParticleDataTable::readString(string lineIn, bool warn) {
       || may == "ok" || may == "1" ) ? true : false ;
     pdt[id].setMayDecay(mayDecay);
     return true; 
+  }  
+  if (property == "isresonance") {
+    string isres;
+    getWord >> isres;
+    isres = tolower(isres);
+    bool isResonance = (isres == "true" || isres == "on" || isres == "yes" 
+      || isres == "ok" || isres == "1" ) ? true : false ;
+    pdt[id].setIsResonance(isResonance);
+    return true; 
   }
 
     // Rescale all branching ratios by common factor.
@@ -374,16 +383,19 @@ bool ParticleDataTable::readString(string lineIn, bool warn) {
   if (property == "all" || property == "new") {
 
     // Properties to be read. 
-    string name, antiName, may;
+    string name, antiName, may, isres;
     int charge3, col;
     double m0, width, range, tau0;
 
     // Read in data from stream.
     getWord >> name >> antiName >> charge3 >> col >> m0 >> width 
-            >> range >> tau0 >> may;   
+            >> range >> tau0 >> may >> isres;   
     may = tolower(may);
     bool mayDecay = (may == "true" || may == "on" || may == "yes" 
       || may == "ok" || may == "1" ) ? true : false ;
+    isres = tolower(isres);
+    bool isResonance = (isres == "true" || isres == "on" || isres == "yes" 
+      || isres == "ok" || isres == "1" ) ? true : false ;
 
     // Error printout if something went wrong.
     if (!getWord) {
@@ -394,13 +406,13 @@ bool ParticleDataTable::readString(string lineIn, bool warn) {
     // To keep existing decay channels, only overwrite particle data.
     if (property == "all" && isParticle(id)) {
       allParticle( id, name, antiName, charge3, col, m0, width, 
-        range, tau0, mayDecay);   
+        range, tau0, mayDecay, isResonance);   
 
     // Else start over completely from scratch.
     } else {
       if (isParticle(id)) pdt.erase(id);
       addParticle( id, name, antiName, charge3, col, m0, width, 
-        range, tau0, mayDecay);
+        range, tau0, mayDecay, isResonance);
     }
     return true;
   }
@@ -500,7 +512,7 @@ bool ParticleDataTable::readFile(string updateFile, bool warn) {
 bool ParticleDataTable::readParticle(string line) {
 
   // Properties to be read. 
-  string dummy, may;
+  string dummy, may, isres;
   int id;
   string name, antiName;
   int charge3, col;
@@ -509,10 +521,13 @@ bool ParticleDataTable::readParticle(string line) {
   // Read in data from stream.
   istringstream particleDataLine(line);
   particleDataLine >> dummy >> id >> name >> antiName >> charge3 
-    >> col >> m0 >> width >> range >> tau0 >> may;   
+    >> col >> m0 >> width >> range >> tau0 >> may >> isres;   
   may = tolower(may);
   bool mayDecay = (may == "true" || may == "on" || may == "yes" 
     || may == "ok" || may == "1" ) ? true : false ;
+  isres = tolower(isres);
+  bool isResonance = (isres == "true" || isres == "on" || isres == "yes" 
+    || isres == "ok" || isres == "1" ) ? true : false ;
 
   // Error printout if something went wrong.
   if (!particleDataLine) {
@@ -525,7 +540,7 @@ bool ParticleDataTable::readParticle(string line) {
 
   // Store new particle. Save pointer, to be used for decay channels.
   addParticle( id, name, antiName, charge3, col, m0, width, range, 
-    tau0, mayDecay);
+    tau0, mayDecay, isResonance);
   particlePtr = particleDataPtr(id);
 
   // Done.
@@ -584,13 +599,13 @@ void ParticleDataTable::list(bool changedOnly, ostream& os) {
   // Table header; output for bool as off/on.
   if (!changedOnly) {
     os << "\n --------  Pythia Particle Data Table (complete)  --------"
-       << "----------------------------------------------- \n \n";
+       << "----------------------------------------------------- \n \n";
   } else { 
     os << "\n --------  Pythia Particle Data Table (changed only)  ----"
-       << "----------------------------------------------- \n \n";
+       << "----------------------------------------------------- \n \n";
        }
   os << "      id   name            antiname    3*charge colour      m0 "
-     << "       width       range        tau0 decay\n"
+     << "       width       range        tau0 decay reson\n"
      << "             no branchratio mode        products \n" ;
 
   // Iterate through the particle data table. Option to skip unchanged.
@@ -609,7 +624,7 @@ void ParticleDataTable::list(bool changedOnly, ostream& os) {
        << particlePtr->m0() << setw(12) << particlePtr->width() 
        << setw(12) << particlePtr->range() << scientific << setw(12) 
        << particlePtr->tau0() << setw(6) << particlePtr->mayDecay() 
-       << "\n";
+       << setw(6) << particlePtr->isResonance() << "\n";
 
     // Loop through the decay channel table for each particle.
     if (particlePtr->decay.size() > 0) {
@@ -628,7 +643,7 @@ void ParticleDataTable::list(bool changedOnly, ostream& os) {
 
   // End of loop over database contents.
   os << "\n --------  End Particle Data Table  ------------------------"
-     << "--------------------------------------------- \n" << endl;
+     << "--------------------------------------------------- \n" << endl;
 
 }
 
@@ -640,9 +655,9 @@ void ParticleDataTable::list(vector<int> idList, ostream& os) {
 
   // Table header; output for bool as off/on.
   os << "\n --------  Pythia Particle Data Table (partial)  ---------"
-     << "----------------------------------------------- \n \n"
+     << "----------------------------------------------------- \n \n"
      << "      id   name            antiname    3*charge colour      m0 "
-     << "       width       range        tau0 decay\n"
+     << "       width       range        tau0 decay reson\n"
      << "             no branchratio mode        products \n" ;
 
   // Iterate through the given list of input particles.
@@ -657,7 +672,7 @@ void ParticleDataTable::list(vector<int> idList, ostream& os) {
        << particlePtr->m0() << setw(12) << particlePtr->width() 
        << setw(12) << particlePtr->range() << scientific << setw(12) 
        << particlePtr->tau0() << setw(6) << particlePtr->mayDecay() 
-       << "\n";
+       << setw(6) << particlePtr->isResonance() << "\n";
 
     // Loop through the decay channel table for each particle.
     if (particlePtr->decay.size() > 0) {
@@ -676,7 +691,7 @@ void ParticleDataTable::list(vector<int> idList, ostream& os) {
 
   // End of loop over database contents.
   os << "\n --------  End Particle Data Table  ------------------------"
-     << "--------------------------------------------- \n" << endl;
+     << "--------------------------------------------------- \n" << endl;
 
 }
 

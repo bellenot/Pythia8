@@ -27,13 +27,14 @@ bool ProcessContainer::init(Info* infoPtrIn, BeamParticle* beamAPtr,
   isResolved = sigmaProcessPtr->isResolved();
   isDiffA = sigmaProcessPtr->isDiffA();
   isDiffB = sigmaProcessPtr->isDiffB();
+  int nFinal = sigmaProcessPtr->nFinal();
 
   // Pick and create phase space generator. Send pointers where required.
-  if (isMinBias) {
-    phaseSpacePtr = new PhaseSpace2to2minbias();
-  } else if (!isResolved) {
-    phaseSpacePtr = new PhaseSpace2to2eldiff( isDiffA, isDiffB);
-  } else phaseSpacePtr = new PhaseSpace2to2tauyz();
+  if (isMinBias) phaseSpacePtr = new PhaseSpace2to2minbias();
+  else if (!isResolved) phaseSpacePtr = new PhaseSpace2to2eldiff( isDiffA, 
+    isDiffB);
+  else if (nFinal == 1) phaseSpacePtr = new PhaseSpace2to1tauy();
+  else phaseSpacePtr = new PhaseSpace2to2tauyz();
 
   // For total cross section processes need cross section and beam info.
   if (hasSigmaTot) {
@@ -145,6 +146,12 @@ bool ProcessContainer::constructProcess( Event& process) {
 
   // Insert the subprocess partons - resolved processes.
   if (isResolved) {
+
+    // Set subprocess scale for ISR and MI.
+    double scale = sqrt(Q2Fac);
+    process.scale( scale );
+
+    // Loop over incoming and outgoing partons.
     int colOffset = process.lastColTag();
     for (int i = 1; i <= 2 + sigmaProcessPtr->nFinal(); ++i) { 
       int id = sigmaProcessPtr->id(i);
@@ -158,11 +165,8 @@ bool ProcessContainer::constructProcess( Event& process) {
       int acol = sigmaProcessPtr->acol(i);
       if (acol > 0) acol += colOffset;
       process.append( id, status, mother1, mother2, daughter1, daughter2, 
-        col, acol, phaseSpacePtr->p(i), phaseSpacePtr->m(i));
+        col, acol, phaseSpacePtr->p(i), phaseSpacePtr->m(i), scale);
     }
-
-    // Set subprocess scale for ISR and MI.
-    process.scale( sqrt(Q2Fac) );
 
   // Insert the outgoing particles - unresolved processes.
   } else { 
@@ -306,6 +310,17 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
     ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
     containerPtrs.push_back( containerPtr);
   } 
+
+  // Set up requested objects for weak gauge boson processes.
+  bool weakSingleBosons = Settings::flag("WeakSingleBoson:all");
+  if (weakSingleBosons
+    || Settings::flag("WeakSingleBoson:ffbar2W")) {
+    SigmaProcess* sigmaPtr = new Sigma1ffbar2W;
+    ProcessContainer* containerPtr = new ProcessContainer(sigmaPtr);
+    containerPtrs.push_back( containerPtr);
+  } 
+  
+
 
   // Done. 
   return true;

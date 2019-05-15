@@ -76,6 +76,9 @@ private:
   // Generate the next internal event.
   bool getInternalEvnt( Event& process);
 
+  // Do all resonance decays. First draft??
+  bool resonanceDecays( Event& process);
+
   // Read in the hard process from the Les Houches Accord.
   bool getLHAevnt( Event& process);
 

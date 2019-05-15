@@ -345,12 +345,12 @@ bool ParticleDecays::twoBody(Event& event) {
   double m1 = mProd[1];    
   double m2 = mProd[2];    
 
-  // Eenergies and absolute momentum in the rest frame.
+  // Energies and absolute momentum in the rest frame.
   if (m1 + m2 + mSafety > m0) return false;
   double e1 = 0.5 * (m0*m0 + m1*m1 - m2*m2) / m0;
   double e2 = 0.5 * (m0*m0 + m2*m2 - m1*m1) / m0;
   double pAbs = 0.5 * sqrtpos( (m0 - m1 - m2) * (m0 + m1 + m2)
-     * (m0 + m1 - m2) * (m0 - m1 + m2) ) / m0;  
+    * (m0 + m1 - m2) * (m0 - m1 + m2) ) / m0;  
 
   // When mode = 3, for V -> PS2 + PS3 (V = vector, pseudoscalar),
   // need to check if production is PS0 -> PS1/gamma + V.

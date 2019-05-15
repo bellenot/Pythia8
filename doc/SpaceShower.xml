@@ -20,6 +20,42 @@ would be of interest for a tuning exercise, however.
 
 <h3>Main variables</h3>
 
+The maximum <ei>pT</ei> to be allowed in the shower evolution is
+related to the nature of the hard process itself. It involves a
+delicate balance between not doublecounting and not leaving any
+gaps in the coverage. The best procedure may depend on information 
+only the user has: how the events were generated and mixed (e.g. with 
+Les Houches Accord external input), and how they are intended to be 
+used. Therefore a few options are available, with a sensible default 
+behaviour.
+<mode name="SpaceShower:pTmaxMatch" default="0" min="0" max="2">
+Way in which the maximum shower evolution scale is set to match the 
+scale of the hard process itself.
+<option value="0"><i>(i)</i> if the final state of the hard process 
+(not counting subsequent resonance decays) contains at least one quark 
+(<ei>u, d, s, c ,b</ei>), gluon or photon then <ei>pT_max</ei> 
+is chosen to be the factorization scale for internal processes 
+and the <code>scale</code> value for Les Houches input; 
+<i>(ii)</i> if not, emissions are allowed to go all the way up to 
+the kinematical limit. 
+The reasoning is that in the former set of processes the ISR
+emission of yet another quark, gluon or photon could lead to
+doublecounting, while no such danger exists in the latter case.
+</option>
+<option value="1">always use the factorization scale for an internal
+process and the <code>scale</code> value for Les Houches input, 
+i.e. the lower value. This should avoid doublecounting, but
+may leave out some emissions that ought to have been simulated.
+</option>
+<option value="2">always allow emissions up to the kinematical limit.
+This will simulate all possible event topologies, but may lead to
+doublecounting.
+</option>
+<note>Note:</note>These options only apply to the hard interaction.
+Emissions off subsequent multiple interactions are always constrainted
+to be below the factorization scale of the process itself.  
+</mode>
+
 <p/>
 The amount of QCD radiation in the shower is determined by 
 <parameter name="SpaceShower:alphaSvalue" default="0.127" 
@@ -32,7 +68,7 @@ Default value is picked equal to the one used in CTEQ 5L.
 The actual value is then regulated by the running to the scale 
 <ei>pT^2</ei>, at which it is evaluated
 <mode name="SpaceShower:alphaSorder" default="1" min="0" max="2">
-Order at which alpha_strong runs,
+Order at which <ei>alpha_strong</ei> runs,
 <option value="0">zeroth order, i.e. <ei>alpha_strong</ei> is kept 
 fixed.</option>
 <option value="1">first order, which is the normal value.</option>

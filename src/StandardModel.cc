@@ -186,6 +186,56 @@ double AlphaStrong::alphaS2OrdCorr( double scale2) {
 
 //**************************************************************************
 
+// The AlphaEM class.
+
+//*********
+
+// Definitions of static variables.
+
+int AlphaEM::order = 1;
+double AlphaEM::alpEM0 = 0.00729735;
+double AlphaEM::alpEMmZ = 0.00781751;
+double AlphaEM::mZ2 = 8315.;
+double AlphaEM::bRun = 0.70736;
+double AlphaEM::Q2freeze = 0.021;
+
+//*********
+
+// Initialize alpha_EM calculation.
+
+void AlphaEM::initStatic() {
+
+  // Read in alpha_EM value at 0 and m_Z, and mass of Z.
+  order = Settings::mode("StandardModel:alphaEMorder");
+  alpEM0 = Settings::parameter("StandardModel:alphaEM0");
+  alpEMmZ = Settings::parameter("StandardModel:alphaEMmZ");
+  double mZ = ParticleDataTable::m0(23);   
+  mZ2 = mZ*mZ;
+
+  // Coefficient for running; scale for freezing.
+  if (order == 1) { 
+    double charge2Sum = 3. + 3. * (1./9. + 4./9. + 1./9. + 4./9. + 1./9.);  
+    bRun = charge2Sum / (3. * M_PI);
+    Q2freeze = mZ2 * exp( (1./alpEMmZ - 1./alpEM0) / bRun);
+  }
+
+}
+
+//*********
+
+// Calculate alpha_EM value    
+
+double AlphaEM::alphaEM( double scale2) {
+
+  if (order > 0 && scale2 > Q2freeze) 
+    return alpEMmZ / (1. - bRun * alpEMmZ * log(scale2 / mZ2));  
+  else if (order >= 0) return alpEM0;
+  else return alpEMmZ;
+
+}
+
+//**************************************************************************
+
 // The VCKM class.
 
 //*********

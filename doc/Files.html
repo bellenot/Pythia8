@@ -114,8 +114,17 @@ file name="SigmaProcess"
 </strong><br/>
 contains the base class and derived classes for the evaluation of
 different matrix elements. Will have to be split once a bigger 
-number of processes is implemented. Also keeps track of the flux of 
-incoming partons, which the matrix elements have to be multiplied by.
+number of processes is implemented.
+  
+
+<p/><strong>
+file name="InFlux"
+</strong><br/>
+keeps track of the allowed combinations of incoming flavours for a
+process, and stores the in-state-specific factors in a cross section.
+This in particular means the parton densities, but also charges,
+CKM matrix elements, and so on.
+  
   
 
 <p/><strong>

@@ -277,6 +277,10 @@ object.
 In addition, a number of derived quantities can easily be obtained 
 (but cannot be set), such as:
 
+<method name="idAbs">
+the absolute value of the particle identity code.
+</method>
+
 <method name="statusAbs">
 the absolute value of the status code.
 </method>

@@ -46,6 +46,9 @@ public:
   // Set up kinematics for first = hardest pT in minbias process.
   void setupFirstSys( Info* infoPtr, Event& process);
 
+  // Find whether to limit maximum scale of emissions.
+  bool limitPTmax( Event& event);
+
   // Prepare system for evolution.
   void prepare(double pTscale = 1000.) {
     if (!bSetInFirst) overlapNext(pTscale);}
@@ -74,7 +77,7 @@ public:
 private: 
 
   // Static initialization data, normally only set once.
-  static int alphaSorder, bProfile, nQuark, nSample;
+  static int pTmaxMatch, alphaSorder, bProfile, nQuark, nSample;
   static double alphaSvalue, alphaEMfix, Kfactor, pT0Ref, ecmRef, ecmPow, 
     pTmin, coreRadius, coreFraction, expPow;
 

@@ -63,7 +63,7 @@ all:
 
 # Create an executable for one of the normal test programs
 main01 main02 main03 main04 main05 main06 main07 main08 main09 main10 \
-	main12 main13 main14:
+	main12 main13 main14 main15:
 	@mkdir -p ../$(BINDIR)
 	$(CPP) $(CPPFLAGS) -I../$(INCDIR) $@.cc -o ../$(BINDIR)/$@.exe \
 	-L../$(LIBDIR) -lpythia8 -L$(MYPYTHIA6LOCATION) $(MYPYTHIA6LIBNAME) \

@@ -15,6 +15,7 @@ namespace Pythia8 {
 // Definitions of static variables.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
+int MultipleInteractions::pTmaxMatch = 0;
 double MultipleInteractions::alphaSvalue = 0.127;
 int MultipleInteractions::alphaSorder = 1; 
 double MultipleInteractions::alphaEMfix =  0.00729735;
@@ -76,6 +77,9 @@ const double MultipleInteractions::CONVERT2MB = 0.389380;
 // Initialize static data members.
 
 void MultipleInteractions::initStatic() {
+
+  // Matching in pT of hard interaction to further interactions.
+  pTmaxMatch = Settings::mode("MultipleInteractions:pTmaxMatch"); 
 
   //  Parameters of alphaStrong and cross section generation.
   alphaSvalue = Settings::parameter("MultipleInteractions:alphaSvalue");
@@ -304,6 +308,26 @@ void MultipleInteractions::setupFirstSys( Info* infoPtr, Event& process) {
   double phi = dSigmaDtSel->phi(); 
   infoPtr->setKin( x1, x2, sHat, tHat, uHat, sqrt(pT2), m3, m4, theta, phi);
 
+}
+
+//*********
+
+// Find whether to limit maximum scale of emissions.
+
+bool MultipleInteractions::limitPTmax( Event& event) {
+
+  // User-set cases.
+  if (pTmaxMatch == 1) return true;
+  if (pTmaxMatch == 2) return false;
+   
+  // Look if only quarks (u, d, s, c, b), gluons and photons in final state. 
+  bool onlyQGP = true;
+  for (int i = 5; i < event.size(); ++i) {
+    int idAbs=event[i].idAbs();
+    if (idAbs > 5 && idAbs != 21 && idAbs != 22) onlyQGP = false;
+  }
+  return (onlyQGP) ? true : false;
+ 
 }
 
 //*********

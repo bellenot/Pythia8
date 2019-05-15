@@ -2,8 +2,8 @@
 // plus powers of small integers and strings to lowercase. 
 // Copyright C 2006 Torbjorn Sjostrand
 
-#ifndef Pythia8_Stdlib_H
-#define Pythia8_Stdlib_H
+#ifndef Pythia8_PythiaStdlib_H
+#define Pythia8_PythiaStdlib_H
 
 // Stdlib header files for string and character manipulation.
 #include <string>
@@ -22,6 +22,11 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
+
+// Define pi if not yet done.
+#ifndef M_PI
+#define M_PI 3.1415926535897932385
+#endif
 
 // Generic utilities.
 using std::tolower; 
@@ -72,4 +77,4 @@ inline string tolower(const string& name) { string temp(name);
   for (int i = 0; i < int(temp.length()); ++i) temp[i] = tolower(temp[i]); 
   return temp; }
 
-#endif // Pythia8_Stdlib_H
+#endif // Pythia8_PythiaStdlib_H

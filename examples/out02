@@ -12,10 +12,10 @@
  |  |     *:::::::::!!:::::::::::::::::*       P      Y     T   H   H  I  A   A    |  | 
  |  |      *::::::::!!::::::::::::::::*!       P      Y     T   H   H III A   A    |  | 
  |  |        *::::::!!::::::::::::::* !!                                           |  | 
- |  |        !! *:::!!:::::::::::*    !!       This is PYTHIA version 8.052        |  | 
- |  |        !!     !* -><- *         !!       Last date of change: 17 May 2006    |  | 
+ |  |        !! *:::!!:::::::::::*    !!       This is PYTHIA version 8.054        |  | 
+ |  |        !!     !* -><- *         !!       Last date of change:  1 Jun 2006    |  | 
  |  |        !!     !!                !!                                           |  | 
- |  |        !!     !!                !!       Now is 17 May 2006 at 10:51:54      |  | 
+ |  |        !!     !!                !!       Now is 01 Jun 2006 at 16:22:36      |  | 
  |  |        !!                       !!                                           |  | 
  |  |        !!        lh             !!       Disclaimer: this program comes      |  | 
  |  |        !!                       !!       without any guarantees. Beware      |  | 
@@ -1288,7 +1288,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  -----------------------------------------------------* 
 
 
-  2006-05-17 10:51       charged particle multiplicity
+  2006-06-01 16:22       charged particle multiplicity
 
         7.00*10^ 0                                     X                                                                
         6.75*10^ 0                                     X                                                                

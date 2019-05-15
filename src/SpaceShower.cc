@@ -18,6 +18,7 @@ namespace Pythia8 {
 bool SpaceShower::doQCDshower = true;
 bool SpaceShower::doQEDshowerByQ = true;
 bool SpaceShower::doQEDshowerByL = true;
+int SpaceShower::pTmaxMatch = 0;
 double SpaceShower::mc = 1.5;
 double SpaceShower::mb = 4.8;
 double SpaceShower::mc2 = 2.25;
@@ -82,6 +83,9 @@ void SpaceShower::initStatic() {
   doQEDshowerByQ = Settings::flag("SpaceShower:QEDshowerByQ");
   doQEDshowerByL = Settings::flag("SpaceShower:QEDshowerByL");
 
+  // Matching in pT of hard interaction to shower evolution.
+  pTmaxMatch = Settings::mode("SpaceShower:pTmaxMatch"); 
+
   // Charm and bottom mass thresholds.
   mc = ParticleDataTable::m0(4); 
   mb = ParticleDataTable::m0(5); 
@@ -114,7 +118,7 @@ void SpaceShower::initStatic() {
 
   // Various other parameters. 
   doMEcorrections = Settings::flag("SpaceShower:MEcorrections");
-  doPhiPolAsym = Settings::flag("SpaceShower:phiPolAsym"); 
+  doPhiPolAsym = Settings::flag("SpaceShower:phiPolAsym");
   nQuark = Settings::mode("SpaceShower:nQuark");
 
 }
@@ -160,11 +164,23 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
 
 //*********
 
-// Top-level driver routine to do a single space-like shower.
+// Find whether to limit maximum scale of emissions.
 
-//void SpaceShower::shower( Event& event, int in1in, int in2in, 
-//  double pT2max) {
-//}
+bool SpaceShower::limitPTmax( Event& event) {
+
+  // User-set cases.
+  if (pTmaxMatch == 1) return true;
+  if (pTmaxMatch == 2) return false;
+   
+  // Look if any quark (u, d, s, c, b), gluon or photon in final state. 
+  bool hasQGP = false;
+  for (int i = 5; i < event.size(); ++i) {
+    int idAbs=event[i].id();
+    if (idAbs <= 5 || idAbs == 21 || idAbs == 22) hasQGP = true;
+  }
+  return (hasQGP) ? true : false;
+ 
+}
 
 //*********
 
@@ -172,7 +188,7 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
 // Routine may be called after multiple interactions, 
 // skipping part up to sizeOld, which was already processed.
 
-void SpaceShower::prepare( Event& event, int sizeOld) {
+void SpaceShower::prepare( Event& event, bool limitPTmax, int sizeOld) {
 
  // Reset list of (sub)systems first time around.
   if (sizeOld == 0) system.resize(0);
@@ -219,10 +235,10 @@ void SpaceShower::prepare( Event& event, int sizeOld) {
   sysNow->x2 = event[in2].pMinus() / event[0].e();   
 
   // Find dipole ends for QCD radiation.
-  double pTmax1 = event[in1].scale();
+  double pTmax1 = (limitPTmax) ? event[in1].scale() : eCM;
   int colType1 = doQCDshower ? event[in1].colType() : 0;
   sysNow->dipEnd[0] = SpaceDipoleEnd( pTmax1, 1, colType1, 0, -1) ;
-  double pTmax2 = event[in2].scale();
+  double pTmax2 = (limitPTmax) ? event[in2].scale() : eCM;
   int colType2 = doQCDshower ? event[in2].colType() : 0;
   sysNow->dipEnd[1] = SpaceDipoleEnd( pTmax2, 2, colType2, 0, -1) ;
 
@@ -905,23 +921,25 @@ bool SpaceShower::branch( Event& event) {
   Vec4 pSister( pTbranch, 0., pzSister, eSister ); 
   Vec4 pNewRecoiler( 0., 0., -sideSign * eNewRecoiler, eNewRecoiler);
 
+  // Indices of partons involved. Add new sister.
+  int iMother = eventSizeOld + side - 1;
+  int iNewRecoiler = eventSizeOld + 2 - side;
+  int iSister = event.append( idSister, 43, iMother, 0, 0, 0,
+     colSister, acolSister, pSister, mSister, sqrt(pT2) );
+
   // References to the partons involved.
   Particle& daughter = event[iDaughter];
-  int iMother = eventSizeOld + side - 1;
   Particle& mother = event[iMother];
-  int iNewRecoiler = eventSizeOld + 2 - side;
   Particle& newRecoiler = event[iNewRecoiler];
+  Particle& sister = event.back();
 
-  // Replace old by new mother; update new recoiler; add new sister.
+  // Replace old by new mother; update new recoiler.
   mother.id( idMother );
   mother.status( -41);
   mother.cols( colMother, acolMother);
   mother.p( pMother);
   newRecoiler.status( -42);
   newRecoiler.p( pNewRecoiler);
-  int iSister = event.append( idSister, 43, iMother, 0, 0, 0,
-     colSister, acolSister, pSister, mSister, sqrt(pT2) );
-  Particle& sister = event.back();
 
   // Update mother and daughter pointers; also for beams.
   daughter.mothers( iMother, 0);
@@ -960,7 +978,7 @@ bool SpaceShower::branch( Event& event) {
   // The rest from (and to) event cm frame.
   for ( int i = eventSizeOld + 2; i < eventSizeOld + systemSizeOld; ++i) 
     event[i].rotbst(Mtot);  
-
+ 
   // Update list of partons in system; adding newly produced one.
   for ( int iCopy = 0; iCopy < systemSizeOld; ++iCopy) 
     sysSel->iParton[iCopy] = eventSizeOld + iCopy;

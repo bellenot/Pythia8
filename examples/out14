@@ -12,10 +12,10 @@
  |  |     *:::::::::!!:::::::::::::::::*       P      Y     T   H   H  I  A   A    |  | 
  |  |      *::::::::!!::::::::::::::::*!       P      Y     T   H   H III A   A    |  | 
  |  |        *::::::!!::::::::::::::* !!                                           |  | 
- |  |        !! *:::!!:::::::::::*    !!       This is PYTHIA version 8.052        |  | 
- |  |        !!     !* -><- *         !!       Last date of change: 17 May 2006    |  | 
+ |  |        !! *:::!!:::::::::::*    !!       This is PYTHIA version 8.053        |  | 
+ |  |        !!     !* -><- *         !!       Last date of change:  1 Jun 2006    |  | 
  |  |        !!     !!                !!                                           |  | 
- |  |        !!     !!                !!       Now is 17 May 2006 at 11:14:57      |  | 
+ |  |        !!     !!                !!       Now is 01 Jun 2006 at 16:35:53      |  | 
  |  |        !!                       !!                                           |  | 
  |  |        !!        lh             !!       Disclaimer: this program comes      |  | 
  |  |        !!                       !!       without any guarantees. Beware      |  | 
@@ -101,7 +101,7 @@
  It has sHat =  3.892e+03,    tHat = -1.251e+02,    uHat = -3.767e+03,
        pTHat =  1.100e+01,   m3Hat =  0.000e+00,   m4Hat =  0.000e+00,
     thetaHat =  3.605e-01,  phiHat =  8.413e-01.
-     alphaEM =  7.297e-03,  alphaS =  1.878e-01    at Q2 =  1.211e+02.
+     alphaEM =  7.639e-03,  alphaS =  1.878e-01    at Q2 =  1.211e+02.
 
  --------  End PYTHIA Info Listing  ------------------------------------
 
@@ -178,7 +178,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  -----------------------------------------------------* 
 
 
-  2006-05-17 11:14       scattering pT spectrum
+  2006-06-01 16:35       scattering pT spectrum
 
         3.24*10^ 3            3                                                                                         
         3.12*10^ 3            X                                                                                         
@@ -223,7 +223,7 @@
    All chan =  9.9980e+03    Rms  =  4.0408e+00    Overflow  =  2.0000e+00    High edge =  1.0000e+02
 
 
-  2006-05-17 11:14       number of interactions
+  2006-06-01 16:35       number of interactions
 
         1.00*10^ 4  X                                                                                                   
         0.96*10^ 4  X                                                                                                   
@@ -266,7 +266,7 @@
    All chan =  1.0000e+04    Rms  =  0.0000e+00    Overflow  =  0.0000e+00    High edge =  9.9500e+01
 
 
-  2006-05-17 11:14       b enhancement factor
+  2006-06-01 16:35       b enhancement factor
 
         1.00*10^ 4  X                                                                                                   
         0.96*10^ 4  X                                                                                                   
@@ -309,7 +309,7 @@
    All chan =  1.0000e+04    Rms  =  0.0000e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2006-05-17 11:14       number of charged particles
+  2006-06-01 16:35       number of charged particles
 
         1.00*10^ 4  X                                                                                                   
         0.96*10^ 4  X                                                                                                   

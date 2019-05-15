@@ -182,6 +182,32 @@ or large (<ei>pT > m_t</ei>) transverse momenta.
 Code 135.
 </flag>
 
+<h3>Weak boson processes</h3>
+
+Under this heading we group processes involving the production
+of a single electroweak gauge boson, i.e. a <ei>gamma^*/Z^0</ei>
+or a <ei>W^+-</ei>, or a pair of them, or one of them in 
+combination with a jet or a photon. Since the three sets are
+partly conflicting, each is associated with its own group flag.
+
+<flag name="WeakSingleBoson:all" default="off">
+Common switch for the group of a single <ei>gamma^*/Z^0</ei>
+or <ei>W^+-</ei> production.
+</flag>
+
+<flag name="WeakSingleBoson:ffbar2Z" default="off">
+Scattering <ei>f fbar' -> gamma^*/Z^0</ei>, with full interference
+between the <ei>gamma^*</ei> and <ei>Z^0</ei>.
+Code 151.
+</flag>
+
+<flag name="WeakSingleBoson:ffbar2W" default="off">
+Scattering <ei>f fbar' -> W^+-</ei>.
+Code 152.
+</flag>
+
+
+
 </chapter>
 
 <!-- Copyright C 2006 Torbjorn Sjostrand -->

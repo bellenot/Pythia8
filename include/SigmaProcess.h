@@ -1,6 +1,4 @@
 // Header file for hard-process differential cross sections.
-// InFlux: base class for combinations of incoming partons.
-// InFluxgg, InFluxqqAnti, InFluxqg, ...: derived classes.
 // SigmaProcess: base class for cross sections.
 // Sigma0Process: base class for unresolved processes, 
 // derived from SigmaProcess.
@@ -15,6 +13,7 @@
 
 #include "Basics.h"
 #include "Event.h"
+#include "InFlux.h"
 #include "Information.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
@@ -24,197 +23,6 @@
 #include "StandardModel.h"
 
 namespace Pythia8 {
-
-//**************************************************************************
-
-// InFlux is the base class for the combined incoming parton flux.
-
-class InFlux {
-
-public:
-
-  // Destructor.
-  virtual ~InFlux() {}
-
-  // Initialize static data members.
-  static void initStatic();
-
-  // Initialization: store parton-density pointers. Construct channels.
-  void init(PDF* pdfAPtrIn, PDF* pdfBPtrIn) {pdfAPtr = pdfAPtrIn; 
-    pdfBPtr = pdfBPtrIn; initChannels();} 
-
-  // Initialization of process-specific allowed combinations. 
-  virtual void initChannels() = 0; 
-
-  // Add even powers of e to weight.
-  void weightCharge(int ePow = 0);
-
-  // Add even powers of CKM matrix element to weight.
-  void weightCKM(int ckmPow = 0);
-
-  // Calculate products of parton densities for allowed combinations.
-  double flux(double x1, double x2, double Q2);
-
-  // Information on combination of required partons from the two beams.
-  int nAB() const {return weightAB.size();}
-  int idA(int i) const {return idPartonPairA[i];} 
-  int idB(int i) const {return idPartonPairB[i];} 
-  double wtAB(int i) const {return weightAB[i];} 
-  double fluxwtAB(int i) const {return fluxweightAB[i];} 
-
-  // Pick one of the possible channels according to their weight.
-  void pick();
-  int id1() const {return idNow1;}
-  int id2() const {return idNow2;}
-  double pdf1() const {return pdfNow1;}
-  double pdf2() const {return pdfNow2;}
-
-protected:
-
-  // Static initialization data, normally only set once.
-  static int nQuark;
-
-  // Pointers to parton densities. 
-  PDF* pdfAPtr; 
-  PDF* pdfBPtr;  
-
-  // Partons in beams and their allowed combinations with weights.
-  vector<int> idPartonA, idPartonB, idPartonPairA, idPartonPairB;
-  vector<double> pdfA, pdfB, pdfPairA, pdfPairB, weightAB, fluxweightAB;
-  int idNow1, idNow2;
-  double pdfNow1, pdfNow2, fluxwtSum;
-
-};
- 
-//**************************************************************************
-
-// A derived class for g g incoming state.
-
-class InFluxgg : public InFlux {
-
-public:
-
-  // Constructor.
-  InFluxgg() {}
-
-  // Destructor.
-  ~InFluxgg() {}
-
-private:
-
-  // Initialize values.
-  virtual void initChannels();  
-
-};
- 
-//**************************************************************************
-
-// A derived class for q g incoming state.
-
-class InFluxqg : public InFlux {
-
-public:
-
-  // Constructor.
-  InFluxqg() {}
-
-private:
-
-  // Initialize values.
-  virtual void initChannels();  
-
-};
- 
-//**************************************************************************
-
-// A derived class for q qbbar' or q q' (qbar qbar') incoming states, 
-// with q' != q.
-
-class InFluxqqbarqqDiff : public InFlux {
-
-public:
-
-  // Constructor.
-  InFluxqqbarqqDiff() {}
-
-private:
-
-  // Initialize values.
-  virtual void initChannels();  
-
-};
- 
-//**************************************************************************
-
-// A derived class for q q' (qbar qbar') incoming states, with q' != q.
-
-class InFluxqqDiff : public InFlux {
-
-public:
-
-  // Constructor.
-  InFluxqqDiff() {}
-
-private:
-
-  // Initialize values.
-  virtual void initChannels();  
-
-};
- 
-//**************************************************************************
-
-// A derived class for q q (qbar qbar) incoming states.
-
-class InFluxqqSame : public InFlux {
-
-public:
-
-  // Constructor.
-  InFluxqqSame() {}
-
-private:
-
-  // Initialize values.
-  virtual void initChannels();  
-
-};
- 
-//**************************************************************************
-
-// A derived class for q qbar'  incoming state.
-
-class InFluxqqbarDiff : public InFlux {
-
-public:
-
-  // Constructor.
-  InFluxqqbarDiff() {}
-
-private:
-
-  // Initialize values.
-  virtual void initChannels();  
-
-};
- 
-//**************************************************************************
-
-// A derived class for q qbar antiparticle incoming state.
-
-class InFluxqqbarSame : public InFlux {
-
-public:
-
-  // Constructor.
-  InFluxqqbarSame() {}
-
-private:
-
-  // Initialize values.
-  virtual void initChannels();  
-
-};
  
 //**************************************************************************
 
@@ -311,10 +119,11 @@ protected:
 
   // Static initialization data, normally only set once.
   static int alphaSorder, nQuark;
-  static double alphaSvalue, alphaEMfix;
+  static double alphaSvalue, alphaEMfix, sin2thetaW;
 
-  // Static alphaStrong calculation.
+  // Static alphaStrong and alphaElectromagenetic calculation.
   static AlphaStrong alphaScalc;
+  static AlphaEM alphaEMcalc;
 
   // Constants: could only be changed in the code itself.
   static const double CONVERT2MB, MASSMARGIN;
@@ -328,7 +137,7 @@ protected:
   Particle parton[6];
 
   // Set some default values at instantiation.
-  void setDefaults() {alpEM = alphaEMfix; alpS = alphaSvalue;
+  void setDefaults() {alpEM = alphaEMcalc.alphaEM(0.); alpS = alphaSvalue;
     for (int i = 0; i < 6; ++i) mH[i] = 0.;}
 
   // Set flavour, colour and anticolour.
@@ -422,7 +231,7 @@ public:
 protected:
 
   // Constructor.
-  Sigma1Process();
+  Sigma1Process() {}
 
   // Store subprocess kinematics quantities.
   int id1, id2, id3;
@@ -1169,7 +978,7 @@ class Sigma1ffbar2W : public Sigma1Process {
 public:
 
   // Constructor.
-  Sigma1ffbar2W() {}
+  Sigma1ffbar2W() {isInit = false;}
 
   // Destructor.
   ~Sigma1ffbar2W() {}
@@ -1185,11 +994,14 @@ public:
 
   // Info on the subprocess.
   virtual string name() const {return "f fbar' -> W+-";}
-  virtual int code() const {return 151;}
+  virtual int code() const {return 152;}
   virtual int nFinal() const {return 1;}
   virtual int resonanceA() const {return 24;}
 
 private:
+
+  bool isInit;
+  double mW, GammaW, mW2, GmRat;
 
 };
   

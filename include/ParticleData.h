@@ -110,19 +110,23 @@ public:
   // Constructors: for antiparticle exists or not.
   ParticleDataEntry(int idIn = 0, string nameIn = " ", int charge3In = 0, 
     int colTypeIn = 0, double m0In = 0., double widthIn = 0., 
-    double rangeIn = 0., double tau0In = 0., bool mayDecayIn = false) 
+    double rangeIn = 0., double tau0In = 0., bool mayDecayIn = false,
+    bool isResonanceIn = false) 
     : idAbs(abs(idIn)), nameSave(nameIn), antiNameSave("void"),  
-    hasAntiSave(false), mayDecaySave(mayDecayIn), externalDecaySave(false),
+    hasAntiSave(false), mayDecaySave(mayDecayIn), 
+    isResonanceSave(isResonanceIn), externalDecaySave(false),
     charge3Save(charge3In), colTypeSave(colTypeIn), m0Save(m0In), 
     widthSave (widthIn), rangeSave(rangeIn), tau0Save(tau0In), 
     hasChangedSave(true) { constituentMassCalc(); }   
   ParticleDataEntry(int idIn, string nameIn, string antiNameIn, 
     int charge3In = 0, int colTypeIn = 0, double m0In = 0.,  
     double widthIn = 0., double rangeIn = 0., double tau0In = 0., 
-    bool mayDecayIn = false) : idAbs(abs(idIn)), nameSave(nameIn), 
-    antiNameSave(antiNameIn), hasAntiSave(true), mayDecaySave(mayDecayIn), 
-    externalDecaySave(false), charge3Save(charge3In), colTypeSave(colTypeIn), 
-    m0Save(m0In), widthSave (widthIn),  rangeSave(rangeIn), tau0Save(tau0In),
+    bool mayDecayIn = false, bool isResonanceIn = false) 
+    : idAbs(abs(idIn)), nameSave(nameIn), antiNameSave(antiNameIn), 
+    hasAntiSave(true), mayDecaySave(mayDecayIn), 
+    isResonanceSave(isResonanceIn), externalDecaySave(false), 
+    charge3Save(charge3In), colTypeSave(colTypeIn), m0Save(m0In), 
+    widthSave (widthIn), rangeSave(rangeIn), tau0Save(tau0In), 
     hasChangedSave(true) { constituentMassCalc(); 
     if (tolower(antiNameIn) == "void") { hasAntiSave = false; } }
 
@@ -147,14 +151,18 @@ public:
   void setTau0(double tau0In) {tau0Save = tau0In; hasChangedSave = true;}
   void setMayDecay(bool mayDecayIn) {mayDecaySave = mayDecayIn; 
     hasChangedSave = true;}
+  void setIsResonance(bool isResonanceIn) {isResonanceSave = isResonanceIn; 
+    hasChangedSave = true;}
   void setAll(string nameIn, string antiNameIn, int charge3In = 0, 
     int colTypeIn = 0, double m0In = 0., double widthIn = 0., 
-    double rangeIn = 0., double tau0In = 0., bool mayDecayIn = false) 
+    double rangeIn = 0., double tau0In = 0., bool mayDecayIn = false,
+    bool isResonanceIn = false) 
     {nameSave = nameIn; antiNameSave = antiNameIn; hasAntiSave = true; 
     if (tolower(antiNameIn) == "void") hasAntiSave = false;
     charge3Save = charge3In; colTypeSave = colTypeIn; m0Save = m0In; 
     constituentMassCalc(); widthSave = widthIn; rangeSave = rangeIn;
-    tau0Save = tau0In; mayDecaySave = mayDecayIn; hasChangedSave = true;}
+    tau0Save = tau0In; mayDecaySave = mayDecayIn; 
+    isResonanceSave = isResonanceIn; hasChangedSave = true;}
   void setExternalDecay(bool externalDecayIn) 
     {externalDecaySave = externalDecayIn;}
   void setHasChanged(bool hasChangedIn) {hasChangedSave = hasChangedIn;}
@@ -183,6 +191,7 @@ public:
   bool isInvisible() const { return !isVisible();}
   int spinType() const;
   bool mayDecay() const { return mayDecaySave; } 
+  bool isResonance() const { return isResonanceSave; } 
   bool externalDecay() const { return externalDecaySave; } 
   bool hasChanged() const { return hasChangedSave;}
   bool hasChangedAny() const { if (hasChangedSave) return true;
@@ -212,7 +221,7 @@ private:
   // Particle data.
   int idAbs;
   string nameSave, antiNameSave;
-  bool hasAntiSave, mayDecaySave, externalDecaySave;
+  bool hasAntiSave, mayDecaySave, isResonanceSave, externalDecaySave;
   int charge3Save, colTypeSave;
   double m0Save, constituentMassSave, widthSave, rangeSave, tau0Save;
   bool hasChangedSave;
@@ -260,15 +269,16 @@ public:
   // Add new entry.
   static void addParticle(int idIn, string nameIn = " ", int charge3In = 0, 
     int colTypeIn = 0, double m0In = 0., double widthIn = 0., 
-    double rangeIn = 0., double tau0In = 0., bool mayDecayIn = false) 
+    double rangeIn = 0., double tau0In = 0., bool mayDecayIn = false,
+    bool isResonanceIn = false) 
     { pdt[abs(idIn)] = ParticleDataEntry(idIn, nameIn, charge3In, 
-    colTypeIn, m0In, widthIn, rangeIn, tau0In, mayDecayIn); }  
+    colTypeIn, m0In, widthIn, rangeIn, tau0In, mayDecayIn, isResonanceIn); }  
   static void addParticle(int idIn, string nameIn, string antiNameIn, 
     int charge3In = 0, int colTypeIn = 0, double m0In = 0.,
     double widthIn = 0., double rangeIn = 0., double tau0In = 0., 
-    bool mayDecayIn = false) { pdt[abs(idIn)] = ParticleDataEntry(idIn, 
-    nameIn, antiNameIn, charge3In, colTypeIn, m0In, widthIn, rangeIn, 
-    tau0In, mayDecayIn); }  
+    bool mayDecayIn = false, bool isResonanceIn = false) 
+    { pdt[abs(idIn)] = ParticleDataEntry(idIn, nameIn, antiNameIn, charge3In, 
+    colTypeIn, m0In, widthIn, rangeIn, tau0In, mayDecayIn, isResonanceIn); }  
   
   // Return pointer to entry.
   static ParticleDataEntry* particleDataPtr(int idIn) {
@@ -295,12 +305,15 @@ public:
     if (isParticle(idIn)) pdt[abs(idIn)].setTau0(tau0In); }
   static void mayDecay(int idIn, bool mayDecayIn) {
     if (isParticle(idIn)) pdt[abs(idIn)].setMayDecay(mayDecayIn); }
+  static void isResonance(int idIn, bool isResonanceIn) {
+    if (isParticle(idIn)) pdt[abs(idIn)].setIsResonance(isResonanceIn); }
   static void allParticle(int idIn, string nameIn, string antiNameIn, 
     int charge3In = 0, int colTypeIn = 0, double m0In = 0.,
     double widthIn = 0., double rangeIn = 0., double tau0In = 0., 
-    bool mayDecayIn = false) { if (isParticle(idIn)) pdt[abs(idIn)].setAll(
-    nameIn, antiNameIn, charge3In, colTypeIn, m0In, widthIn, rangeIn, 
-    tau0In, mayDecayIn); }  
+    bool mayDecayIn = false, bool isResonanceIn = false) 
+    { if (isParticle(idIn)) pdt[abs(idIn)].setAll( nameIn, antiNameIn, 
+    charge3In, colTypeIn, m0In, widthIn, rangeIn, tau0In, mayDecayIn,
+    isResonanceIn); }  
   static void externalDecay(int idIn, bool externalDecayIn) {
     if (isParticle(idIn)) pdt[abs(idIn)].setExternalDecay(externalDecayIn); }
   static void hasChanged(int idIn, bool hasChangedIn) {
@@ -331,6 +344,8 @@ public:
     return isParticle(idIn) ? pdt[abs(idIn)].tau0() : 0. ; } 
   static bool mayDecay(int idIn) {
     return isParticle(idIn) ? pdt[abs(idIn)].mayDecay() : false ; } 
+  static bool isResonance(int idIn) {
+    return isParticle(idIn) ? pdt[abs(idIn)].isResonance() : false ; } 
   static bool externalDecay(int idIn) {
     return isParticle(idIn) ? pdt[abs(idIn)].externalDecay() : false ; } 
   static bool hasChanged(int idIn) {

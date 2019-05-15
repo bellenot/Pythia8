@@ -251,7 +251,7 @@ void ProcessLevel::initPythia6( int idA, int idB, double eCM) {
 
 // Generate the next internal event.
   
-  bool ProcessLevel::getInternalEvnt( Event& process) {
+bool ProcessLevel::getInternalEvnt( Event& process) {
 
   // Loop over tries until trial event succeeds.
   int iNow;
@@ -270,8 +270,91 @@ void ProcessLevel::initPythia6( int idA, int idB, double eCM) {
   // Construct kinematics of acceptable process.
   containerPtrs[iNow]->constructProcess( process);
 
+  // Do all resonance decays. First draft??
+  resonanceDecays( process);
+   
   // Add any junctions to the process event record list.
   findJunctions( process);
+
+  // Done.
+  return true;
+}
+
+//*********
+
+// Do all resonance decays. First draft??
+  
+bool ProcessLevel::resonanceDecays( Event& process) {
+
+  // Loop over all entries to find resonances that should decay.
+  int iDec = 0;
+  do {
+    Particle& decayer = process[iDec];
+    if (decayer.remains() && decayer.canDecay() && decayer.mayDecay() 
+    && decayer.isResonance() ) {
+
+      // Particle data for decaying particle.
+      int id0 = decayer.id();
+      double m0 = decayer.m();
+
+      // Pick a decay channel; allow up to ten tries.
+      int NTRYDECAY = 10;
+      double mSafety = 1.; 
+      int id1 = 0;
+      int id2 = 0;
+      double m1 = 0.;
+      double m2 = 0.;
+      for (int iTryChannel = 0; iTryChannel < NTRYDECAY; ++iTryChannel) {
+        DecayChannel& channel = decayer.particleData().decay.pick();
+        // int mode = channel.modeME();
+        int mult = channel.multiplicity();
+
+        // Consider for now only two-body decay. Check phase space. 
+        if (mult != 2) continue;
+        id1 = channel.product(0);
+        if (id0 < 0 && ParticleDataTable::hasAnti(id1)) id1 = -id1;
+        id2 = channel.product(1);
+        if (id0 < 0 && ParticleDataTable::hasAnti(id2)) id2 = -id2;
+        m1 = ParticleDataTable::mass(id1);          
+        m2 = ParticleDataTable::mass(id2); 
+        if (m1 + m2 + mSafety > m0) continue;
+
+      // End of loop over tries.
+      }
+
+      // Energies and absolute momentum in the rest frame.
+      double e1 = 0.5 * (m0*m0 + m1*m1 - m2*m2) / m0;
+      double e2 = 0.5 * (m0*m0 + m2*m2 - m1*m1) / m0;
+      double pAbs = 0.5 * sqrtpos( (m0 - m1 - m2) * (m0 + m1 + m2)
+        * (m0 + m1 - m2) * (m0 - m1 + m2) ) / m0;  
+
+      // Isotropic angles give three-momentum.
+      double cosTheta = 2. * Rndm::flat() - 1.;
+      double sinTheta = sqrt(1. - cosTheta*cosTheta);
+      double phi = 2. * M_PI * Rndm::flat();
+      double pX = pAbs * sinTheta * cos(phi);  
+      double pY = pAbs * sinTheta * sin(phi);  
+      double pZ = pAbs * cosTheta;  
+
+      // Fill four-momenta and boost them away from mother rest frame.
+      Vec4 p1( pX, pY, pZ, e1);
+      Vec4 p2( -pX, -pY, -pZ, e2);
+      p1.bst( decayer.p() );
+      p2.bst( decayer.p() );
+
+      // Find colours.
+      int col = (id1 > 0 && id1 < 9) ? process.nextColTag() : 0; 
+
+      // Append decay products to the event record.
+     process.append( id1, 23, iDec, 0, 0, 0, col, 0, p1, m1, m0);
+     process.append( id2, 23, iDec, 0, 0, 0, 0, col, p2, m2, m0);
+
+     // Modify mother status to show it is a decayed resonance.
+     decayer.status(-22);
+                 
+    // End of loop over all entries.
+    }
+  } while (++iDec < process.size());
 
   // Done.
   return true;

@@ -68,7 +68,7 @@ MultipleInteractions:pT0Ref = 2.5  ! dampening of pT -> 0 divergence
 310:1:branchingRatio = 0.3105        ! BR(K0_short -> pi0 pi0) 
 
 ! 7) Completely replace or add new particle. (Here update omega.)
-223:new =  omega  void  0  0  0.78259  0.00849  0.10000  0.0  1 
+223:new =  omega  void  0  0  0.78259  0.00849  0.10000  0.0  1  0 
 223:addChannel = 0.8924000    1      211     -211      111    
 223:addChannel = 0.0892800    0       22      111          
 223:addChannel = 0.0170000    3      211     -211          

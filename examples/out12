@@ -12,10 +12,10 @@
  |  |     *:::::::::!!:::::::::::::::::*       P      Y     T   H   H  I  A   A    |  | 
  |  |      *::::::::!!::::::::::::::::*!       P      Y     T   H   H III A   A    |  | 
  |  |        *::::::!!::::::::::::::* !!                                           |  | 
- |  |        !! *:::!!:::::::::::*    !!       This is PYTHIA version 8.052        |  | 
- |  |        !!     !* -><- *         !!       Last date of change: 17 May 2006    |  | 
+ |  |        !! *:::!!:::::::::::*    !!       This is PYTHIA version 8.053        |  | 
+ |  |        !!     !* -><- *         !!       Last date of change:  1 Jun 2006    |  | 
  |  |        !!     !!                !!                                           |  | 
- |  |        !!     !!                !!       Now is 17 May 2006 at 11:10:36      |  | 
+ |  |        !!     !!                !!       Now is 01 Jun 2006 at 16:32:17      |  | 
  |  |        !!                       !!                                           |  | 
  |  |        !!        lh             !!       Disclaimer: this program comes      |  | 
  |  |        !!                       !!       without any guarantees. Beware      |  | 
@@ -162,7 +162,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  -----------------------------------------------------* 
 
 
-  2006-05-17 11:10       scattering pT spectrum
+  2006-06-01 16:32       scattering pT spectrum
 
         6.75*10^ 2           4                                                                                          
         6.50*10^ 2       138XX                                                                                          
@@ -207,7 +207,7 @@
    All chan =  1.0000e+04    Rms  =  2.0698e-01    Overflow  =  0.0000e+00    High edge =  2.5000e+00
 
 
-  2006-05-17 11:10       elastic |t| spectrum
+  2006-06-01 16:32       elastic |t| spectrum
 
         2.50*10^ 3  X                                                                                                   
         2.40*10^ 3  X                                                                                                   
@@ -250,7 +250,7 @@
    All chan =  4.1840e+03    Rms  =  5.1651e-02    Overflow  =  0.0000e+00    High edge =  5.0000e+00
 
 
-  2006-05-17 11:10       single diffractive |t| spectrum
+  2006-06-01 16:32       single diffractive |t| spectrum
 
         1.20*10^ 3  9                                                                                                   
         1.16*10^ 3  X                                                                                                   
@@ -298,7 +298,7 @@
    All chan =  3.5550e+03    Rms  =  1.3722e-01    Overflow  =  0.0000e+00    High edge =  5.0000e+00
 
 
-  2006-05-17 11:10       double diffractive |t| spectrum
+  2006-06-01 16:32       double diffractive |t| spectrum
 
         2.80*10^ 2   4                                                                                                  
         2.70*10^ 2   X                                                                                                  
@@ -344,7 +344,7 @@
    All chan =  2.2610e+03    Rms  =  4.1148e-01    Overflow  =  0.0000e+00    High edge =  5.0000e+00
 
 
-  2006-05-17 11:10       scattering mass spectrum
+  2006-06-01 16:32       scattering mass spectrum
 
         1.20*10^ 4  8                                                                                                   
         1.16*10^ 4  X                                                                                                   
@@ -392,7 +392,7 @@
    All chan =  1.7998e+04    Rms  =  1.5408e+01    Overflow  =  2.0020e+03    High edge =  1.0000e+02
 
 
-  2006-05-17 11:10       log10(scattering mass spectrum)
+  2006-06-01 16:32       log10(scattering mass spectrum)
 
         2.50*10^ 2     2                                                                                                
         2.40*10^ 2     X                                                                                                
@@ -435,7 +435,7 @@
    All chan =  8.0770e+03    Rms  =  8.5894e-01    Overflow  =  0.0000e+00    High edge =  4.0000e+00
 
 
-  2006-05-17 11:10       number of charged particles
+  2006-06-01 16:32       number of charged particles
 
         4.80*10^ 3    2                                                                                                 
         4.60*10^ 3    X                                                                                                 
@@ -477,7 +477,7 @@
    All chan =  1.0000e+04    Rms  =  1.0044e+01    Overflow  =  0.0000e+00    High edge =  9.9500e+01
 
 
-  2006-05-17 11:10       number of final particles in diffractive system
+  2006-06-01 16:32       number of final particles in diffractive system
 
         8.70*10^ 2     3                                                                                                
         8.40*10^ 2     X                                                                                                

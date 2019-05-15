@@ -127,6 +127,7 @@ public:
   double tau() const {return tauSave;}
 
   // Member functions for output; derived int and bool quantities.
+  int idAbs() const {return abs(idSave);}
   int statusAbs() const {return abs(statusSave);}
   bool remains() const {return (statusSave > 0) ? true : false;}
   bool isQ() const {return (abs(idSave) < 9 && idSave != 0) ? true : false;}
@@ -183,6 +184,7 @@ public:
   int spinType() const {return particlePtr->spinType();}
   bool canDecay() const {return particlePtr->canDecay();}
   bool mayDecay() const {return particlePtr->mayDecay();}
+  bool isResonance() const {return particlePtr->isResonance();}
   ParticleDataEntry& particleData() const {return *particlePtr;}
 
   // Member functions that perform operations.

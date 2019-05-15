@@ -11,11 +11,11 @@ on these pages.
 The version number and version date are defined here, so that they 
 could easily be read out by different programs. 
 
-<parameter name="Pythia:versionNumber" default="8.052">
+<parameter name="Pythia:versionNumber" default="8.053">
 Version and subversion number, with three significant decimals.
 </parameter>
 
-<mode name="Pythia:versionDate" default="20060517">
+<mode name="Pythia:versionDate" default="20060601">
 Last date of change of current (sub)version, in format yyyymmdd.
 </mode>
 

@@ -85,13 +85,12 @@ public:
   // Initialize generation. Possibility to force re-initialization by hand.
   void init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn);
 
-  // Top-level driver routine to do a single space-like shower.
-  // void shower( Event& event, int in1in = -1, int in2in = -1, 
-  //   double pT2max= 0.);
+  // Find whether to limit maximum scale of emissions.
+  bool limitPTmax( Event& event);
 
   // Do it in several steps, for interleaved evolution.
   // Prepare system for evolution; identify ME.
-  void prepare( Event& event, int sizeOld = 0);
+  void prepare( Event& event, bool limitPTmax, int sizeOld = 0);
 
   // Select next pT in downwards evolution.
   double pTnext( double pTbegAll, double pTendAll);
@@ -107,7 +106,7 @@ private:
   // Static initialization data, normally only set once.
   static bool doQCDshower, doQEDshowerByQ, doQEDshowerByL, samePTasMI,
     doMEcorrections, doPhiPolAsym;
-  static int alphaSorder, nQuark;
+  static int pTmaxMatch, alphaSorder, nQuark;
   static double mc, mb, mc2, mb2,  alphaSvalue, pT0Ref, ecmRef, ecmPow, 
     pTmin, alphaEM, pTminChgQ, pTminChgL;
 

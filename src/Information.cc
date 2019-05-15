@@ -48,7 +48,7 @@ void Info::list(ostream& os) {
 
   // Process-type-specific kinematics information.
   if (isRes && nFinalSave == 1) 
-    os << " It has  sHat = " << setw(10) << sH << ".\n";  
+    os << " It has sHat = " << setw(10) << sH << ".\n";  
   else if ( isRes && nFinalSave == 2)  
     os << " It has sHat = " << setw(10) << sH << ",    tHat = " 
        << setw(10) << tH << ",    uHat = " << setw(10) << uH << ",\n"

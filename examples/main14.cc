@@ -2,7 +2,7 @@
 // This is a simple test program. 
 // It illustrates how to use internal Pythia8 processes,
 // with special emphasis on hard processes.
-// All input is specified in the main12.cmnd file.
+// All input is specified in the main14.cmnd file.
 // Copyright C 2006 Torbjorn Sjostrand
 
 #include "Pythia.h"

@@ -8,10 +8,10 @@
 
 <h3>The strong coupling</h3> 
 
-Currently the only class in this category is <code>AlphaStrong</code>, 
-which is used to provide a first- or second-order running 
-<i>alpha_strong</i> (or, trivially, a zeroth-order fixed one). 
-Formulae are the standard ones found in [<a href="References.html" target="page">Eid04</a>]. The starting 
+The <code>AlphaStrong</code> class is used to provide a first- or 
+second-order running <i>alpha_strong</i> (or, trivially, a 
+zeroth-order fixed one). Formulae are the standard ones found in 
+[<a href="References.html" target="page">Eid04</a>]. The starting 
 <i>alpha_strong</i> value is defined at the <i>M_Z</i> mass scale.
 The <i>Lambda</i> values are matched at the <i>b</i> and <i>c</i> 
 flavour thresholds, such that <i>alpha_strong</i> is continuous, 
@@ -37,7 +37,80 @@ second-order <i>Lambda</i>) and the second the correction factor,
 below unity, for the second-order terms. This allows a compact handling 
 of evolution equations.
 
-<h3>The weak mixing matrix</h3>
+<h3>The electromagnetic coupling</h3> 
+
+Currently <i>alpha_electromagnetic</i> is treated in two rather 
+different ways. 
+
+<p/>
+For parton-shower emission of photons, the 
+<code>StandardModel:alphaEMfix</code> fix value is used, as
+relevant for low scales.
+
+<p/><strong>
+parameter name="StandardModel:alphaEMfix" default="0.00729735"
+min="0.0072973" max="0.0072974"
+</strong><br/>
+Fixed <i>alpha_em</i> value used in QED vertices. 
+  
+
+<p/>
+For hard processes (also the ones generated in multiple interactions)
+the <code>AlphaEM</code> class is used, to generate a running
+<i>alpha_em</i>. Since the main application here is for hard
+scales, above <i>m_b$, no attempt is made to provide an accurate 
+description of the running at low scales. Instead, by default,
+the value <code>StandardModel:alphaEMmZ</code>at the <i>M_Z</i> 
+mass scale is input [<a href="References.html" target="page">Eid04</a>]. 
+It is then run from there to different scales, using the first-order 
+expression for three lepton and five quark flavours. It is frozen at 
+the low-energy value <code>StandardModel:alphaEM0</code>, should the 
+running value exceed this. (With the default values, this happens for 
+<i>Q &lt; 0.1</i> GeV.)  
+
+<p/><strong>
+mode name="StandardModel:alphaEMorder" default="1" min="-1" max="1"
+</strong><br/>
+The running of <i>alpha_em</i> used in hard processes.
+<br/><strong>
+option value="1"</strong>: first-order running, constrained to agree with
+<code>StandardModel:alphaEMmZ</code> at the <i>Z^0</i> mass.
+  
+<br/><strong>
+option value="0"</strong>: zeroth order, i.e. <i>alpha_em</i> is kept 
+fixed at its value at vanishing momentum transfer.  
+<br/><strong>
+option value="-1"</strong>: zeroth order, i.e. <i>alpha_em</i> is kept 
+fixed, but at <code>StandardModel:alphaEMmZ</code>, i.e. its value
+at the <i>Z^0</i> mass.
+   
+  
+
+<p/><strong>
+parameter name="StandardModel:alphaEM0" default="0.00729735"
+min="0.0072973" max="0.0072974"
+</strong><br/>
+The <i>alpha_em</i> value at vanishing momentum transfer. 
+  
+
+<p/><strong>
+parameter name="StandardModel:alphaEMmZ" default="0.00781751"
+min="0.00780" max="0.00783"
+</strong><br/>
+The <i>alpha_em</i> value at the <i>m_Z</i> mass scale. 
+  
+
+<h3>Other electroweak couplings</h3> 
+
+<p/><strong>
+parameter name="StandardModel:sin2thetaW" default="0.232" 
+min="0.225" max="0.240"
+</strong><br/>
+The weak mixing angle.
+  
+
+
+<h3>The quark weak-mixing matrix</h3>
 
 The absolute values of the Cabibbo-Kobayashi-Maskawa matrix elements are 
 set by the following nine real values - currently the CP-violating phase 
@@ -97,28 +170,6 @@ parameter name="StandardModel:Vtb" default="0.9991" min="0.998" max="0.9995"
 </strong><br/>
 The <i>V_tb</i> CKM matrix element.
   
-
-<h3>Electroweak couplings</h3> 
-
-In addition, this section contains a few further parameters that should
-normally not be touched.
-
-<p/><strong>
-parameter name="StandardModel:alphaEMfix" default="0.00729735"
-min="0.00729" max="0.00730"
-</strong><br/>
-Fixed <i>alpha_em</i> value used in QED vertices. 
-  
-
-<p/><strong>
-parameter name="StandardModel:sin2thetaW" default="0.232" 
-min="0.225" max="0.240"
-</strong><br/>
-The weak mixing angle.
-  
-
-<p/>
-Eventually will appear a running <i>alpha_em</i>.
 
 </body>
 </html>

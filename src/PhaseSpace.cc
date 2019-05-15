@@ -32,6 +32,7 @@ double PhaseSpace::m3SMin = 4.;
 double PhaseSpace::m3SMax = 1.;
 double PhaseSpace::m4SMin = 4.;
 double PhaseSpace::m4SMax = 1.;
+bool PhaseSpace::showSearch = false;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -53,9 +54,6 @@ const double PhaseSpace::WIDTHMARGIN = 20.;
 
 // Special optimization treatment when two resonances at almost same mass.
 const double PhaseSpace::SAMEMASS = 0.01;
-
-// For debug purposes the maximization procedure can be traced.
-const bool PhaseSpace::PRINT = false;
 
 //*********
 
@@ -83,6 +81,9 @@ void PhaseSpace::initStatic() {
   m4SMin = pow2(m4Min);
   m4SMax = pow2(m4Max);
 
+  // Print flag for maximization information.
+  showSearch = Settings::flag("PhaseSpace:showSearch");
+  
 }
 
 //*********
@@ -121,17 +122,18 @@ void PhaseSpace::initStatic() {
 
 bool PhaseSpace::setupSampling1or2(bool is2) {
 
-  // Debug printout.
-  if (PRINT) cout <<  "\n Optimization printout for "  
-    << sigmaProcessPtr->name() << "\n" << scientific << setprecision(3);
+  // Optional printout.
+  if (showSearch) cout <<  "\n Optimization printout for "  
+    << sigmaProcessPtr->name() << "\n \n" << scientific << setprecision(3);
 
-  // Set masses.
+  // Set masses. Check that open range in tau (+ set tauMin, tauMax).
   if (is2) {
     m3 = sigmaProcessPtr->m(3);
     m3S = m3 * m3;
     m4 = sigmaProcessPtr->m(4);
     m4S = m4 * m4;
   }
+  if (!limitTau(is2)) return false; 
 
   // Reset coefficients and matrices of equation system to solve.
   int binTau[8], binY[8], binZ[8];
@@ -164,15 +166,15 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
   if (idResA != 0) { 
      mResA = ParticleDataTable::m0(idResA);
      GammaResA = ParticleDataTable::width(idResA);
-     if (mHatMin > mResA + WIDTHMARGIN * GammaResA 
-       || mHatMax < mResA - WIDTHMARGIN * GammaResA) idResA = 0; 
+     if (mHatMin > mResA + WIDTHMARGIN * GammaResA || (mHatMax > 0. 
+       && mHatMax < mResA - WIDTHMARGIN * GammaResA) ) idResA = 0; 
   }
-  idResB = sigmaProcessPtr->resonanceA();
+  idResB = sigmaProcessPtr->resonanceB();
   if (idResB != 0) { 
      mResB = ParticleDataTable::m0(idResB);
      GammaResB = ParticleDataTable::width(idResB);
-     if (mHatMin > mResB + WIDTHMARGIN * GammaResB 
-       || mHatMax < mResB - WIDTHMARGIN * GammaResB) idResB = 0; 
+     if (mHatMin > mResB + WIDTHMARGIN * GammaResB || (mHatMax > 0.  
+       && mHatMax < mResB - WIDTHMARGIN * GammaResB) ) idResB = 0; 
   }
   if (idResA == 0 && idResB != 0) {
     idResA = idResB;
@@ -215,8 +217,7 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
   yCoef[1] = 0.5;
   zCoef[0] = 1.; 
 
-  // Set limits on generation. Step through grid in tau. 
-  if (!limitTau(is2)) return false; 
+  // Step through grid in tau. Set limits on y and z generation. 
   for (int iTau = 0; iTau < nTau; ++iTau) {
     double posTau = 0.5;
     if (sameResMass && iTau > 1 && iTau < 6) posTau = (iTau < 4) ? 0.4 : 0.6;
@@ -237,8 +238,8 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
         sigmaNow *= wtTau * wtY * wtZ;
         if (sigmaNow > sigmaMx) sigmaMx = sigmaNow; 
 
-        // Debug printout.
-        if (PRINT) cout << " tau =" << setw(11) << tau << "  y =" 
+        // Optional printout.
+        if (showSearch) cout << " tau =" << setw(11) << tau << "  y =" 
 	  << setw(11) << y << "  z =" << setw(11) << z
 	  << "  sigma =" << setw(11) << sigmaNow << "\n";
 
@@ -301,6 +302,7 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
   solveSys( nTau, binTau, vecTau, matTau, tauCoef);
   solveSys( nY, binY, vecY, matY, yCoef);
   if (is2) solveSys( nZ, binZ, vecZ, matZ, zCoef);
+  if (showSearch) cout << "\n";
 
   // Begin find two most promising maxima among same points as before.
   int iMaxTau[4], iMaxY[4], iMaxZ[4];
@@ -325,8 +327,8 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
         double sigmaNow = sigmaProcessPtr->sigmaPDF();
         sigmaNow *= wtTau * wtY * wtZ;
 
-        // Debug printout.
-        if (PRINT) cout << " tau =" << setw(11) << tau << "  y =" 
+        // Optional printout.
+        if (showSearch) cout << " tau =" << setw(11) << tau << "  y =" 
 	  << setw(11) << y << "  z =" << setw(11) << z
 	  << "  sigma =" << setw(11) << sigmaNow << "\n";
 
@@ -450,8 +452,8 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
             sigmaNow = sigmaProcessPtr->sigmaPDF();
             sigmaNow *= wtTau * wtY * wtZ;
 
-            // Debug printout.
-            if (PRINT) cout << " tau =" << setw(11) << tau << "  y =" 
+            // Optional printout.
+            if (showSearch) cout << " tau =" << setw(11) << tau << "  y =" 
 	      << setw(11) << y << "  z =" << setw(11) << z
 	      << "  sigma =" << setw(11) << sigmaNow << "\n";
           }
@@ -465,8 +467,8 @@ bool PhaseSpace::setupSampling1or2(bool is2) {
   }
   sigmaMx *= SAFETYMARGIN;
 
-  // Debug printout.
-  if (PRINT) cout << " Final maximum = "  << setw(11) << sigmaMx << endl;
+  // Optional printout.
+  if (showSearch) cout << "\n Final maximum = "  << setw(11) << sigmaMx << endl;
 
   // Done.
   return true;
@@ -599,14 +601,14 @@ void PhaseSpace::selectTau(int iTau, double tauVal, bool is2) {
   else if (iTau == 1) tau = tauMax * tauMin 
     / (tauMin + (tauMax - tauMin) * tauVal);  
 
-  // Select according to 1 / (tau + tauRes) or 
-  // tau / ((tau - tauRes)^2 + widRes^2) for resonances A and B.
-  else if (iTau == 2) tau = tauResA * tauMin / ((tauResA + tauMin) 
-    * pow( tRatA, tauVal) - tauMin);
+  // Select according to 1 / (tau * (tau + tauRes)) or 
+  // 1 / ((tau - tauRes)^2 + widRes^2) for resonances A and B.
+  else if (iTau == 2) tau = tauResA * tauMin 
+    / ((tauResA + tauMin) * pow( tRatA, tauVal) - tauMin);
   else if (iTau == 3) tau = tauResA + widResA 
     * tan( aLowA + (aUppA - aLowA) * tauVal);
-  else if (iTau == 4) tau = tauResB * tauMin / ((tauResB + tauMin) 
-    * pow( tRatB, tauVal) - tauMin);
+  else if (iTau == 4) tau = tauResB * tauMin 
+    / ((tauResB + tauMin) * pow( tRatB, tauVal) - tauMin);
   else if (iTau == 5) tau = tauResB + widResB 
     * tan( aLowB + (aUppB - aLowB) * tauVal);
 
@@ -773,8 +775,8 @@ void PhaseSpace::selectZ(int iZ, double zVal) {
 void PhaseSpace::solveSys( int n, int bin[8], 
   double vec[8], double mat[8][8], double coef[8]) {
 
-  // Debug printout.
-  if (PRINT) {
+  // Optional printout.
+  if (showSearch) {
     cout << "\n Equation system: " << setw(5) << bin[0];  
     for (int j = 0; j < n; ++j) cout << setw(12) << mat[0][j];
     cout << setw(12) << vec[0] << "\n";
@@ -835,8 +837,8 @@ void PhaseSpace::solveSys( int n, int bin[8],
     + (1. - EVENFRAC) * 0.5 * (coefTmp[i] / coefSum + vecNor[i] / vecSum); 
   else for (int i = 0; i < n; ++i) coef[i] = 1. / n;
 
-  // Debug printout.
-  if (PRINT) {
+  // Optional printout.
+  if (showSearch) {
     cout << " Solution:             ";  
     for (int i = 0; i < n; ++i) cout << setw(12) << coef[i];
     cout << "\n";

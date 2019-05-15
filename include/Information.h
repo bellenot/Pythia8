@@ -78,6 +78,7 @@ public:
   double m3Hat() const {return m3H;}   
   double m4Hat() const {return m4H;} 
   double thetaHat() const {return thetaH;}   
+  double phiHat() const {return phiH;}   
 
   // Impact parameter picture.
   double bMI() const {return (bIsSet) ? bH : 0.;}

@@ -51,6 +51,32 @@ private:
 
 //**************************************************************************
 
+// The AlphaEM class calculates the alpha_electromagnetic value at an 
+// arbitrary scale, given the value at 0 and m_Z, to zeroth or first order.
+
+class AlphaEM {
+
+public:
+
+  // Constructors.
+  AlphaEM() {}
+
+  // Initialization for given value at M_Z and given order.
+  static void initStatic();
+
+  // alpha_EM value.
+  static double alphaEM(double scale2);
+
+private:
+
+  // Data members.
+  static int order;
+  static double alpEM0, alpEMmZ, mZ2, bRun, Q2freeze;
+
+};
+
+//**************************************************************************
+
 // The VCKM class stores and returns Cabibbo-Kobayashi-Maskawa 
 
 class VCKM {

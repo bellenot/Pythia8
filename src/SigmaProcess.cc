@@ -1,368 +1,10 @@
 // Function definitions (not found in the header) for the 
-// InFlux and SigmaProcess classes, and classes derived from them.
+// SigmaProcess class, and classes derived from them.
 // Copyright C 2006 Torbjorn Sjostrand
 
 #include "SigmaProcess.h"
 
 namespace Pythia8 {
-
-//**************************************************************************
-
-// InFlux class.
-// Base class for the combined incoming parton flux.
-
-//*********
- 
-// Definitions of static variables and functions.
-// (Values will be overwritten in initStatic call, so are purely dummy.)
-
-int InFlux::nQuark = 5;
-
-//*********
-
-// Initialize static data members.
-
-void InFlux::initStatic() {
-
-  // Maximum incoming quark flavour.
-  nQuark = Settings::mode("inFlux:nQuark");
-
-}
-
-//*********
-
-// Weight channels by (two or four) powers of e.
-
-void InFlux::weightCharge(int ePow) {
-
-  for (int i = 0; i < int(weightAB.size()); ++i) {
-    int id = (abs(idPartonPairA[i]) < 9) ? idPartonPairA[i] 
-      : idPartonPairB[i];
-    double e2 = (id%2 == 0) ? 4./9. : 1./9.;
-    if (ePow == 2) weightAB[i] *= e2;
-    if (ePow == 4) weightAB[i] *= e2 * e2;
-  }
-
-}
-
-//*********
-
-// Weight channels by (two or four) powers of CKM matrix elements.
-// Currently assume already known instate is q qbar'.
-
-void InFlux::weightCKM(int ckmPow) {
-
-  for (int i = 0; i < int(weightAB.size()); ++i) {
-
-    // Remove impossible combinations.
-    int idA = idPartonPairA[i];
-    int idB = idPartonPairB[i]; 
-    if (idA * idB > 0 || (idA + idB)%2 == 0) weightAB[i] *= 0.;
-
-    // Find up-type and down-type quarks, and read off CKM value.
-    else { 
-      int idAabs = abs(idA);
-      int idBabs = abs(idB);
-      if (idAabs%2 == 1) swap(idAabs, idBabs);
-      double ckm2 = VCKM::V2( (idAabs/2), (idBabs+1)/2 );
-      if (ckmPow == 2) weightAB[i] *= ckm2;
-      if (ckmPow == 4) weightAB[i] *= ckm2 * ckm2;
-    }
-  }
-
-}
-
-//*********
-
-// Calculate products of parton densities for allowed combinations.
-
-double InFlux::flux(double x1, double x2, double Q2) {
-
-  // Evaluate and store the required parton densities.
-  for (int j = 0; j < int(idPartonA.size()); ++j) 
-    pdfA[j] = pdfAPtr->xf( idPartonA[j], x1, Q2); 
-  for (int j = 0; j < int(idPartonB.size()); ++j) 
-    pdfB[j] = pdfBPtr->xf( idPartonB[j], x2, Q2); 
-
-  // Multiply on these densities for each of the allowed channels. Sum.
-  fluxwtSum = 0.;
-  for (int i = 0; i < int(weightAB.size()); ++i) {
-    for (int j = 0; j < int(idPartonA.size()); ++j) 
-    if (idPartonPairA[i] == idPartonA[j]) {
-      pdfPairA[i] = pdfA[j];
-      break;
-    }
-    for (int j = 0; j < int(idPartonB.size()); ++j) 
-    if (idPartonPairB[i] == idPartonB[j]) {
-      pdfPairB[i] = pdfB[j];
-      break;
-    }
-    fluxweightAB[i] = pdfPairA[i] * pdfPairB[i] * weightAB[i];
-    fluxwtSum += fluxweightAB[i];
-  }
- 
-  // Done.
-  return fluxwtSum;
-
-}
-
-//*********
-
-// Pick one of the possible channels according to their weight.
-
-void InFlux::pick() {
-
-  // Pick channel. Extract channel flavours.
-  double fluxwtRand =  fluxwtSum * Rndm::flat();
-  for (int i = 0; i < int(fluxweightAB.size()); ++i) {
-    fluxwtRand -= fluxweightAB[i];
-    if (fluxwtRand <= 0.) {
-      idNow1 = idPartonPairA[i];
-      idNow2 = idPartonPairB[i];
-      pdfNow1 = pdfPairA[i];
-      pdfNow2 = pdfPairB[i];
-      break;
-    }
-  }
-
-}
-
-//**************************************************************************
-
-// InFluxgg class.
-// Derived class for a g g incoming state.
-
-//*********
-
-// Fill arrays for a g g incoming state at initialization.
-
-void InFluxgg::initChannels() {
-
-  // The beams individually.
-  idPartonA.push_back(21);
-  idPartonB.push_back(21);
-  pdfA.push_back(0.);
-  pdfB.push_back(0.);
- 
-  // The combined channels.
-  idPartonPairA.push_back(21);
-  idPartonPairB.push_back(21);
-  pdfPairA.push_back(0.);
-  pdfPairB.push_back(0.);
-  weightAB.push_back(1.);
-  fluxweightAB.push_back(1.);
-
-}
-
-//**************************************************************************
-
-// InFluxqg class.
-// Derived class for q g incoming states.
-
-//*********
-
-// Fill arrays for a q g incoming state at initialization.
-
-void InFluxqg::initChannels() {
-
-  // The beams individually.
-  for (int i = -nQuark; i <= nQuark; ++i) {
-    int id = (i == 0) ? 21 : i;
-    idPartonA.push_back(id);
-    idPartonB.push_back(id);
-    pdfA.push_back(0.);
-    pdfB.push_back(0.);
-  }
-
-  // The combined channels.
-  for (int id = -nQuark; id <= nQuark; ++id) 
-  if (id != 0) {
-    idPartonPairA.push_back(id);
-    idPartonPairB.push_back(21);
-    pdfPairA.push_back(0.);
-    pdfPairB.push_back(0.);
-    weightAB.push_back(1.);
-    fluxweightAB.push_back(0.);
-    idPartonPairA.push_back(21);
-    idPartonPairB.push_back(id);
-    pdfPairA.push_back(0.);
-    pdfPairB.push_back(0.);
-    weightAB.push_back(1.);
-    fluxweightAB.push_back(1.);
-  }
-
-}
-
-//**************************************************************************
-
-// InFluxqqbarqqDiff class.
-// Derived class for q qbbar' or q q' (qbar qbar') incoming states, 
-// with q' != q.
-
-//*********
-
-// Fill arrays for a q q' incoming states at initialization.
-
-void InFluxqqbarqqDiff::initChannels() {
-
-  // The beams individually.
-  for (int id = -nQuark; id <= nQuark; ++id) 
-  if (id != 0) {
-    idPartonA.push_back(id);
-    idPartonB.push_back(id);
-    pdfA.push_back(0.);
-    pdfB.push_back(0.);
-  }
-
-  // The combined channels.
-  for (int id1 = -nQuark; id1 <= nQuark; ++id1) 
-  if (id1 != 0) 
-  for (int id2 = -nQuark; id2 <= nQuark; ++id2) 
-  if (id2 != 0 && id2 != id1) {
-    idPartonPairA.push_back(id1);
-    idPartonPairB.push_back(id2);
-    pdfPairA.push_back(0.);
-    pdfPairB.push_back(0.);
-    weightAB.push_back(1.);
-    fluxweightAB.push_back(1.);
-  }
-
-}
-
-//**************************************************************************
-
-// InFluxqqDiff class.
-// Derived class for q q' (qbar qbar') incoming states, with q' != q.
-
-//*********
-
-// Fill arrays for a q q' incoming states at initialization.
-
-void InFluxqqDiff::initChannels() {
-
-  // The beams individually.
-  for (int id = -nQuark; id <= nQuark; ++id) 
-  if (id != 0) {
-    idPartonA.push_back(id);
-    idPartonB.push_back(id);
-    pdfA.push_back(0.);
-    pdfB.push_back(0.);
-  }
-
-  // The combined channels.
-  for (int id1 = -nQuark; id1 <= nQuark; ++id1) 
-  if (id1 != 0) 
-  for (int id2 = -nQuark; id2 <= nQuark; ++id2) 
-  if (id2 != 0 && id2 != id1 && id1 * id2 > 0) {
-    idPartonPairA.push_back(id1);
-    idPartonPairB.push_back(id2);
-    pdfPairA.push_back(0.);
-    pdfPairB.push_back(0.);
-    weightAB.push_back(1.);
-    fluxweightAB.push_back(1.);
-  }
-
-}
-//**************************************************************************
-
-// InFluxqqSame class.
-// Derived class for q q (qbar qbar) incoming states.
-
-//*********
-
-// Fill arrays for a q q incoming states at initialization.
-
-void InFluxqqSame::initChannels() {
-
-  // The beams individually.
-  for (int id = -nQuark; id <= nQuark; ++id) 
-  if (id != 0) {
-    idPartonA.push_back(id);
-    idPartonB.push_back(id);
-    pdfA.push_back(0.);
-    pdfB.push_back(0.);
-  }
-
-  // The combined channels.
-  for (int id = -nQuark; id <= nQuark; ++id) 
-  if (id != 0) {
-    idPartonPairA.push_back(id);
-    idPartonPairB.push_back(id);
-    pdfPairA.push_back(0.);
-    pdfPairB.push_back(0.);
-    weightAB.push_back(1.);
-    fluxweightAB.push_back(1.);
-  }
-
-}
-
-//**************************************************************************
-
-// InFluxqqbarDiff class.
-// Derived class for q qbar' incoming states.
-
-//*********
-
-// Fill arrays for a q qbar incoming state at initialization.
-
-void InFluxqqbarDiff::initChannels() {
-
-  // The beams individually.
-  for (int id = -nQuark; id <= nQuark; ++id) 
-  if (id != 0) {
-    idPartonA.push_back(id);
-    idPartonB.push_back(id);
-    pdfA.push_back(0.);
-    pdfB.push_back(0.);
-  }
-
-  // The combined channels.
-  for (int id1 = -nQuark; id1 <= nQuark; ++id1) 
-  if (id1 != 0) 
-  for (int id2 = -nQuark; id2 <= nQuark; ++id2) 
-  if (id2 != 0 && id2 != -id1 && id1 * id2 < 0) {
-    idPartonPairA.push_back(id1);
-    idPartonPairB.push_back(id2);
-    pdfPairA.push_back(0.);
-    pdfPairB.push_back(0.);
-    weightAB.push_back(1.);
-    fluxweightAB.push_back(1.);
-  }
-
-}
-
-//**************************************************************************
-
-// InFluxqqbarSame class.
-// Derived class for q qbar antiparticle incoming states.
-
-//*********
-
-// Fill arrays for a q qbar incoming state at initialization.
-
-void InFluxqqbarSame::initChannels() {
-
-  // The beams individually.
-  for (int id = -nQuark; id <= nQuark; ++id) 
-  if (id != 0) {
-    idPartonA.push_back(id);
-    idPartonB.push_back(id);
-    pdfA.push_back(0.);
-    pdfB.push_back(0.);
-  }
-
-  // The combined channels.
-  for (int id = -nQuark; id <= nQuark; ++id) 
-  if (id != 0) {
-    idPartonPairA.push_back(id);
-    idPartonPairB.push_back(-id);
-    pdfPairA.push_back(0.);
-    pdfPairB.push_back(0.);
-    weightAB.push_back(1.);
-    fluxweightAB.push_back(1.);
-  }
-
-}
 
 //**************************************************************************
 
@@ -377,8 +19,9 @@ void InFluxqqbarSame::initChannels() {
 int SigmaProcess::alphaSorder = 1;
 int SigmaProcess::nQuark = 3;
 double SigmaProcess::alphaSvalue = 0.1265;
-double SigmaProcess::alphaEMfix =  0.00729735;
+double SigmaProcess::sin2thetaW =  0.232;
 AlphaStrong SigmaProcess::alphaScalc;
+AlphaEM SigmaProcess::alphaEMcalc;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -402,9 +45,9 @@ void SigmaProcess::initStatic() {
   // Initialize alphaStrong generation.
   alphaScalc.init( alphaSvalue, alphaSorder); 
 
-  // Maximum new quark flavour, alphaEM.
+  // Maximum new quark flavour, weak mixing angle.
   nQuark = Settings::mode("SigmaProcess:nQuark");
-  alphaEMfix = Settings::parameter("StandardModel:alphaEMfix"); 
+  sin2thetaW = Settings::parameter("StandardModel:sin2thetaW"); 
 
 }
 
@@ -425,9 +68,10 @@ bool Sigma1Process::set1Kin( double x1in, double x2in, double sHin) {
   sH = sHin;
   sH2 = sH * sH;
 
-  // Use sHat as renormalization scale. Evaluate alpha_strong.
+  // Use sHat as renormalization scale. Evaluate alpha_strong and alpha_EM.
   Q2RenH = sH;
   alpS = alphaScalc.alphaS(Q2RenH);  
+  alpEM = alphaEMcalc.alphaEM(Q2RenH);  
 
   // Use sHat as factorization scale.
   Q2FacH = sH;
@@ -465,9 +109,10 @@ bool Sigma2Process::set2Kin( double x1in, double x2in, double sHin,
   pT2 = (masslessKin) ?  tH * uH / sH : (tH * uH - m3S * m4S) / sH;
 
   // Use pT2 as renormalization scale, generalized to m_T3 * m_T4
-  // for massive case. Evaluate alpha_strong.
+  // for massive case. Evaluate alpha_strong and alpha_EM.
   Q2RenH = (masslessKin) ? pT2 : sqrt((pT2 + m3S) * (pT2 + m4S));
   alpS = alphaScalc.alphaS(Q2RenH);  
+  alpEM = alphaEMcalc.alphaEM(Q2RenH);  
 
   // Use pT2 as factorization scale, also in massive case.
   Q2FacH = pT2;
@@ -1482,11 +1127,20 @@ void Sigma2gg2gammagamma::setIdColAcol() {
 
 double Sigma1ffbar2W::sigmaHat() { 
 
+  if (!isInit) {
+    mW = ParticleDataTable::m0(24);
+    GammaW = ParticleDataTable::width(24);
+    mW2 = mW*mW;
+    GmRat = GammaW / mW;
+  }
+
   // Calculate kinematics dependence.
-  double sigS = 1.;
+  double sigIn = (alpEM * sH) / (12. * sin2thetaW);
+  double sigProp = 12. / ( pow2(sH - mW2) + pow2(sH * GmRat) );
+  double sigOut = sH * GmRat; 
 
   // Answer.
-  return CONVERT2MB * (M_PI/sH) * pow2(alpS) * sigS;  
+  return CONVERT2MB * (M_PI/sH) * sigIn * sigProp * sigOut;    
 
 }
 
@@ -1497,9 +1151,12 @@ double Sigma1ffbar2W::sigmaHat() {
 void Sigma1ffbar2W::initFlux( PDF* pdfAPtr, PDF* pdfBPtr) {
 
   // Set up for q qbar initial state and parton densities.
-  inFluxPtr = new InFluxqqbarDiff();
+  inFluxPtr = new InFluxffbarChg();
   inFluxPtr->init( pdfAPtr, pdfBPtr);
+
+  // Multiply by squared CKM matrix elements and colour factor 1/3.
   inFluxPtr->weightCKM(2);
+  inFluxPtr->weightInvCol();
 
 } 
 

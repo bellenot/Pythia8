@@ -82,13 +82,19 @@ bool PartonLevel::next( Event& process, Event& event) {
     // Identify hard interaction system for showers.
     setupHardSys( process, event);
 
+    // Check matching of process scale to maximum ISR/MI scales. 
+    bool limitPTmaxISR = space.limitPTmax( event);
+    bool limitPTmaxMI = multi.limitPTmax( event);
+
     // Set hard scale, maximum for showers and multiple interactions,
     double pTmax = process.scale();
+    double pTmaxISR = (limitPTmaxISR) ? pTmax : infoPtr->eCM();
+    double pTmaxMI = (limitPTmaxMI) ? pTmax : infoPtr->eCM();
 
     // Prepare the classes to begin the generation.
     // Need to redo everything??
-    if  (MI) multi.prepare( pTmax);
-    if (ISR) space.prepare( event);
+    if  (MI) multi.prepare( pTmaxMI);
+    if (ISR) space.prepare( event, limitPTmaxISR);
     //if (FSRinProcess) times.prepare( event);
 
     // Begin evolution down in pT from hard pT scale.  
@@ -103,10 +109,10 @@ bool PartonLevel::next( Event& process, Event& event) {
       //  : -1.;
       double pTtimes = -1.;
       pTgen = max( pTgen, pTtimes);
-      double pTmulti =  (MI) ? multi.pTnext( pTmax, pTgen) 
+      double pTmulti =  (MI) ? multi.pTnext( pTmaxMI, pTgen) 
         : -1.;
       pTgen = max( pTgen, pTmulti);
-      double pTspace = (ISR) ? space.pTnext( pTmax, pTgen) 
+      double pTspace = (ISR) ? space.pTnext( pTmaxISR, pTgen) 
         : -1.;
 
       // One further possibility is that all pT have fallen
@@ -117,9 +123,11 @@ bool PartonLevel::next( Event& process, Event& event) {
       if (pTmulti > 0. && pTmulti > pTspace && pTmulti > pTtimes) {
         multi.scatter( event);  
         ++nMI;
-        if (ISR) space.prepare( event, sizeOld);
+        if (ISR) space.prepare( event, true, sizeOld);
         // times.update( event);
         pTmax = pTmulti;
+        pTmaxMI = pTmulti;
+        pTmaxISR = min( pTmulti, pTmaxISR);
       }
    
       // Do an initial-state emission (if allowed).
@@ -128,6 +136,8 @@ bool PartonLevel::next( Event& process, Event& event) {
         space.branch( event);
         ++nISR;
         pTmax = pTspace;
+        pTmaxISR = pTspace;
+        pTmaxMI = min( pTspace, pTmaxMI);
       }
 
       // Do a final-state emission (if allowed).
