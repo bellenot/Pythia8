@@ -28,9 +28,9 @@ only from here on history tracing works as could be expected. That
 way unassigned mother and daughter indices can be put 0 without 
 ambiguity. Depending on the task at hand, a loop may therefore start 
 at an index 1 without any loss. Specifically, for translation to other 
-event record formats such as HepMC [1], where the first index is 1, 
-the Pythia entry 0 definitely ought to be skipped in order to 
-minimize the danger of errors. 
+event record formats such as HepMC [<a href="References.html" target="page">Dob01</a>], where the first 
+index is 1, the Pythia entry 0 definitely ought to be skipped in order 
+to minimize the danger of errors. 
 
 <p/>
 New particles can be added to the end of the current event record
@@ -141,8 +141,8 @@ latter method thus is used when a new colour tag is needed.
 mode name="Event:startColTag" default="100" min="0" max="1000"
 </strong><br/>
 This sets the initial value used, so that the first one assigned is
-<code>startColTag+1</code>, etc. The Les Houches accord [2] suggests this 
-number to be 500, but 100 works equally well.
+<code>startColTag+1</code>, etc. The Les Houches accord [<a href="References.html" target="page">Boo01</a>] 
+suggests this number to be 500, but 100 works equally well.
   
 
 <p/>
@@ -289,19 +289,6 @@ implemented.
 The kind and colour information in the list of junctions can be set 
 or read with methods of the <code>Event</code> class, but are not of 
 common interest and so not described here.
-
-<h3>References</h3>
-
-<ol>
-
-<li>M. Dobbs and J.B. Hansen, Computer Physics Comm. 134 (2001) 41</li>
-
-<li>E. Boos et al., in the Proceedings of the Workshop on Physics at 
-TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001 [hep-ph/0109068]
-</li>
-
-</ol>
-
 
 </body>
 </html>

@@ -192,7 +192,7 @@ generator <code>Rndm</code>, a four-vector class <code>Vec4</code>, and a
 histogram class <code>Hist</code>.  
 </file>
 
-<file name="Stdlib">
+<file name="PythiaStdlib">
 is only a <code>.h</code> file, containing all the <code>Stdlib</code> 
 headers used in Pythia 8, with <code>using</code> directives. Also 
 inlines <code>pow2(x)</code> - <code>pow5(x)</code> for fast powers of 

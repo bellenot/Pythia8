@@ -6,7 +6,7 @@
 #define Pythia8_StandardModel_H
 
 #include "ParticleData.h"
-#include "Stdlib.h"
+#include "PythiaStdlib.h"
 
 namespace Pythia8 {
 
@@ -46,6 +46,31 @@ private:
   double valueRef, valueNow, scale2Now, Lambda3Save, Lambda4Save, 
     Lambda5Save, Lambda3Save2, Lambda4Save2, Lambda5Save2, mc, mb, mZ, 
     mc2, mb2;
+
+};
+
+//**************************************************************************
+
+// The VCKM class stores and returns Cabibbo-Kobayashi-Maskawa 
+
+class VCKM {
+
+public:
+
+  // Constructor.
+  VCKM() {}
+
+  // Initialize, normally from Pythia::init().
+  static void initStatic();
+
+  // Return value or square: first index 1/2/3 = u/c/t, second 1/2/3 = d/s/b.
+  static double V(int i, int j) {return Vsave[i][j];}
+  static double V2(int i, int j) {return Vsave[i][j] * Vsave[i][j];}
+  
+private:
+
+  // Store VCKM matrix (index 0 not used).
+  static double Vsave[4][4];
 
 };
 

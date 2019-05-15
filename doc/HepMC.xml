@@ -2,20 +2,11 @@
 
 <h2>HepMC Interface</h2>
 
-An interface to the HepMC [1] standard event record format has been
-provided by M. Kirsanov. To use it, the relevant libraires need to
-be linked, as explained in the README file. The (simple) procedure 
-to translate PYTHIA 8 events into HepMC ones is then illustrated 
-in the <code>main11.c</code> main program.
-
-<h3>References</h3>
-
-<ol>
-
-<li>M. Dobbs and J.B. Hansen, Computer Physics Comm. 134 (2001) 41</li>
-
-</ol>
-
+An interface to the HepMC <ref>Dob01</ref> standard event record 
+format has been provided by M. Kirsanov. To use it, the relevant 
+libraires need to be linked, as explained in the README file. The 
+(simple) procedure to translate PYTHIA 8 events into HepMC ones 
+is then illustrated in the <code>main11.c</code> main program.
 
 </chapter>
 

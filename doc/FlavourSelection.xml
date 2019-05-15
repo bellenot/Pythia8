@@ -7,7 +7,7 @@ in the fragmentation process, and the production of a new hadron
 from a set of input flavours. It is mainly used by the string 
 fragmentation machinery (including ministrings), but also e.g.
 in some particle decays and for some beam-remnant cases. The basic
-concepts are in agreement with [1].
+concepts are in agreement with <ref>And83</ref>.
 
 <p/>
 Currently only simple diquark production of baryons is
@@ -67,7 +67,8 @@ i.e. be vectors, with the remainder having spin 0, i.e. pseudoscalars.
 <p/>
 Inside each light-quark meson nonet, an octet-singlet mixing angle
 describes the mixing of the two flavour-diagonal isoscalar = 0 states.
-(For terminology and details see [2], chapter 14 on the quark model.)
+(For terminology and details see <ref>Eid04</ref>, chapter 14 on the 
+quark model.)
 This angle is needed to specify the probability for such a <ei>q qbar</ei> 
 state to project onto a specific meson. More transparent formuale are 
 obtained by introducing the angle <ei>alpha = theta + 54.7</ei> degrees:
@@ -119,18 +120,6 @@ the suppression, relative to default SU(6) factors, of decuplet
 baryon production.
 </parameter> 
    
-<h3>References</h3>
- 
-<ol>
-
-<li>B. Andersson, G. Gustafson, G. Ingelman and T. Sjostrand,
-Phys. Rep. 97 (1983) 31</li>
-
-<li>Particle Data Group, S. Eidelman et al., 
-Phys. Lett. B592 (2004) 1</li>
-
-</ol>
-
 </chapter>
 
 <!-- Copyright C 2006 Torbjorn Sjostrand -->

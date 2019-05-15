@@ -58,9 +58,9 @@ Pythia6:msel = 6                   ! t tbar production
 Beams:primordialKTwidth = 2.       ! modify primordial kT
 MultipleInteractions:bProfile = 3  ! impact parameter profile
 MultipleInteractions:expPow = 1.3  ! profile exp( - b^expPow)
-MultipleInteractions:pT0Ref = 3.5  ! dampening of pT -> 0 divergence
-SpaceShower:samePTasMI = false     ! set pT0Ref separately or not
-SpaceShower:pT0Ref = 3.0           ! dampening of pT -> 0 divergence
+MultipleInteractions:pT0Ref = 2.5  ! dampening of pT -> 0 divergence
+#SpaceShower:samePTasMI = false     ! set pT0Ref separately or not
+#SpaceShower:pT0Ref = 3.0           ! dampening of pT -> 0 divergence
 
 ! 6) Modify particle data properties.
 111:mayDecay = off                  ! switch off pi0 decays

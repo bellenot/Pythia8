@@ -15,7 +15,7 @@ on the <ei>x</ei> and flavours already extracted, and to distinguish
 between valence, sea and companion quarks. Once the perturbative 
 evolution is finished, further beam remnants are added to obtain a 
 consistent set of flavours. The current physics framework is further 
-described in [1]. 
+described in <ref>Sjo04</ref>. 
 
 <p/>
 Much of the above information is stored in a vector of 
@@ -161,12 +161,5 @@ is therefore introduced, where <ei>p</ei> is the
 <code>diffLargeMassSuppress</code> parameter.    
 
 </parameter>
-
-<h3>References</h3>
-
-<ol>
-<li>T. Sjostrand and P.Z. Skands, JHEP 03 (2004) 053</li>
-</ol>
-</chapter>
 
 <!-- Copyright C 2006 Torbjorn Sjostrand -->

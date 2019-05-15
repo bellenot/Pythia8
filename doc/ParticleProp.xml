@@ -26,7 +26,8 @@ From these, a number of further quantities may be derived.
 The following member functions can be used to extract the information:
 
 <method name="id()">
-the identity of a particle, according to the PDG particle codes [1].
+the identity of a particle, according to the PDG particle codes 
+<ref>Eid04</ref>.
 </method>
 
 <method name="status()">
@@ -199,8 +200,8 @@ with the beam as mother, with no further information).
 </method>
 
 <method name="col(), acol()"> 
-the colour and anticolour tags, Les Houches Accord [2] style 
-(starting from tag 101 by default, see below).
+the colour and anticolour tags, Les Houches Accord <ref>Boo01</ref> 
+style (starting from tag 101 by default, see below).
 </method>
 
 <method name="px(), py(), pz(0), e()">
@@ -454,19 +455,6 @@ invariant mass of two particles.
 
 <p/>
 Currently there is no information on polarization states.
-
-<h3>References</h3>
-
-<ol>
-
-<li>Particle Data Group, S. Eidelman et al., 
-Phys. Lett. B592 (2004) 1</li>
-
-<li>E. Boos et al., in the Proceedings of the Workshop on Physics at 
-TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001 [hep-ph/0109068]
-</li>
-
-</ol>
 
 </chapter>
 

@@ -2,11 +2,11 @@
 
 <h2>Fragmentation</h2>
 
-Fragmentation in PYTHIA is based on the Lund string model [1, 2].
-Several different aspects are involved in the physics description,
-which  here therefore is split accordingly. This also, at least
-partly, reflect the set of classes involved in the fragmentation 
-machinery.
+Fragmentation in PYTHIA is based on the Lund string model 
+<ref>And83, Sjo84</ref>. Several different aspects are involved in 
+the physics description, which  here therefore is split accordingly. 
+This also, at least partly, reflect the set of classes involved in 
+the fragmentation machinery.
 
 <p/>
 The variables collected here have a very wide span of usefulness.
@@ -25,8 +25,8 @@ lightcone fraction <ei>z</ei> according to one of two possible
 shape sets.
 
 <p/>
-The Lund symmetric fragmentation function [1] is the only alternative 
-for light quarks. It is of the form
+The Lund symmetric fragmentation function <ref>And83</ref> is the 
+only alternative for light quarks. It is of the form
 <eq> 
     f(z) = (1/z) * (1-z)^a * exp(-b m_T^2 / z)
 </eq>
@@ -57,7 +57,8 @@ allows a larger <ei>i</ei> for diquarks, with total
 </parameter>
 
 <p/>
-Finally, the Bowler modification [3] introduces an extra factor
+Finally, the Bowler modification <ref>Bow81</ref> introduces an extra 
+factor
 <eq>
     1/z^{r_Q * b * m_Q^2}
 </eq>
@@ -79,7 +80,7 @@ or in general any new coloured particle long-lived enough to hadronize.
 
 <p/>
 As an alternative, it is possible to switch over to the 
-Peterson/SLAC formula [4]
+Peterson/SLAC formula <ref>Pet83</ref>
 <eq>
      f(z) = 1 / ( z * (1 - 1/z - epsilon/(1-z))^2 )
 </eq>
@@ -246,10 +247,10 @@ mass of that system. With one exception parameters are the same as
 defined for normal string fragmentation, to the extent that they are 
 at all applicable in this case.
 
-A discussion of the relevant physics is found in [5]. The current
-implementation does not completely abide to the scheme presented 
-there, however, but has in part been simplified. (In part for greater 
-clarity, in part since the class is not quite finished yet.) 
+A discussion of the relevant physics is found in <ref>Nor00</ref>. 
+The current implementation does not completely abide to the scheme 
+presented there, however, but has in part been simplified. (In part 
+for greater clarity, in part since the class is not quite finished yet.) 
 
 <mode name="MiniStringFragmentation:nTry" default="2" min="1" max="10">
 Whenever the machinery is called, first this many attempts are made
@@ -270,8 +271,8 @@ Such topologies can arise if several valence quarks are kicked out
 from a proton beam, or in baryon-number-violating SUSY decays.
 Special attention is necessary to handle the region just around
 the junction, where the baryon number topologically is located. 
-The junction fragmentation scheme is described in [6]. The parameters
-in this section should not be touched except by experts.
+The junction fragmentation scheme is described in <ref>Sjo03</ref>. 
+The parameters in this section should not be touched except by experts.
 
 <parameter name="StringFragmentation:eNormJunction" default="2.0" 
 min="0.5" max="10">
@@ -311,26 +312,6 @@ and the leftover momentum of the first two treated legs falls below
 <ei>eMinLeftJunction</ei> times the energy of the final leg (in the 
 junction rest frame). 
 </parameter>
-   
-<h3>References</h3>
- 
-<ol>
-
-<li>B. Andersson, G. Gustafson, G. Ingelman and T. Sjostrand,
-Phys. Rep. 97 (1983) 31</li>
-
-<li>T. Sjostrand, Nucl. Phys. B248 (1984) 469</li>
-
-<li>M.G. Bowler, Z. Phys. C11 (1981) 169</li>
-   
-<li>C. Peterson, D. Schlatter, I. Schmitt and P. Zerwas, 
-Phys. Rev. D27 (1983) 105</li>
-
-<li>E. Norrbin and T. Sjostrand, Eur. Phys. J. C17 (2000) 137</li> 
-
-<li>T. Sjostrand and P.Z. Skands, Nucl. Phys. B659 (2003) 243</li> 
-
-</ol>
 
 </chapter>
 

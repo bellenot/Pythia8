@@ -8,9 +8,9 @@ how it can be replaced by an external one.
 <h3>Internal random numbers</h3>
 
 The <code>Rndm</code> class generates random numbers, using the 
-Marsaglia-Zaman-Tsang algorithm [1]. It is purely static, i.e. only 
-exists in one copy, so that one cannot run several copies, each with 
-the same random number sequence, by mistake. 
+Marsaglia-Zaman-Tsang algorithm <ref>Mar90</ref>. It is purely static, 
+i.e. only exists in one copy, so that one cannot run several copies, 
+each with the same random number sequence, by mistake. 
 
 <p/>
 Random numbers <code>R</code> uniformly distributed in 
@@ -66,13 +66,6 @@ externally to the <code>Pythia</code> code.
 <p/>
 An example illustrating how to run with an external random number
 generator is provided in <code>main05.cc</code>.
-
-<h3>References</h3>
-
-<ol>
-<li>G. Marsaglia, A. Zaman and W.-W. Tsang, 
-Stat. Prob. Lett. 9 (1990) 35</li>
-</ol>
 
 </chapter>
 

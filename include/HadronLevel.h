@@ -12,8 +12,8 @@
 #include "MiniStringFragmentation.h"
 #include "ParticleData.h"
 #include "ParticleDecays.h"
+#include "PythiaStdlib.h"
 #include "Settings.h"
-#include "Stdlib.h"
 #include "StringFragmentation.h"
 
 namespace Pythia8 {

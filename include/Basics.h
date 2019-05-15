@@ -9,7 +9,7 @@
 #ifndef Pythia8_Basics_H
 #define Pythia8_Basics_H
 
-#include "Stdlib.h"
+#include "PythiaStdlib.h"
 
 namespace Pythia8 {
  

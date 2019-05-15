@@ -44,17 +44,24 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
 
   bool ProcessLevel::next( Event& process) {
 
-  // Generate the next internal event.
+  // Generate the next internal event. 
   if (hasInternal) return getInternalEvnt( process);
 
-  // Generate the next Pythia 6.3 event.
+  // Generate the next Pythia 6.4 event. 
   if (hasPythia6) Pythia6::pyupev();
 
-  // Read in a simple event in the LHAevnt format.
-  if (strategyLHA >= 10) return getSimpleLHAevnt( process);
+  // Read in a simple event in the LHAevnt format. Default info (to be improved??).
+  if (strategyLHA >= 10) {
+    infoPtr->setType( "Simple LHA process", 0, 0, false, true, false, false);
+    return getSimpleLHAevnt( process);
+  }
 
-  // Read in an event in the LHAevnt format.
-  if (hasPythia6 || hasLHA) return getLHAevnt( process);
+  // Read in an event in the LHAevnt format. Default info (to be improved??).
+  if (hasPythia6 || hasLHA) {
+    string name = (hasPythia6) ? "Pythia6 LHA process" : "External LHA process"; 
+    infoPtr->setType( name, 0, 0, false, true, false, false);
+    return getLHAevnt( process);
+  }
 
   // Done.
   return true;

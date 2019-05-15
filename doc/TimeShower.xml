@@ -3,13 +3,14 @@
 <h2>Timelike Showers</h2>
 
 The PYTHIA algorithm for timelike final-state showers is based on
-the recent article [1], where a transverse-momentum-ordered
+the recent article <ref>Sjo05</ref>, where a transverse-momentum-ordered
 evolution scheme is introduced. This algorithm is influenced by
-the previous mass-ordered algorithm in PYTHIA [2] and by the 
-dipole-emission formulation in Ariadne [3]. From the mass-ordered
-algorithm it inherits a merging procedure for first-order 
+the previous mass-ordered algorithm in PYTHIA <ref>Ben87</ref> and by 
+the dipole-emission formulation in Ariadne <ref>Gus86</ref>. From the 
+mass-ordered algorithm it inherits a merging procedure for first-order 
 gluon-emission matrix elements in essentially all two-body decays 
-in the standard model and its minimal supersymmetric extension [4]. 
+in the standard model and its minimal supersymmetric extension 
+<ref>Nor01</ref>. 
 
 <p/>
 The normal user is not expected to call <code>TimeShower</code> directly, 
@@ -24,7 +25,7 @@ The amount of QCD radiation in the shower is determined by
 min="0.06" max="0.25">
 The <ei>alpha_strong</ei> value at scale <ei>M_Z^2</ei>. The default 
 value corresponds to the one tuned to LEP data (using a first-order 
-running), so should be taken rather seriously [5].
+running), so should be taken rather seriously <ref>Rud04</ref>.
 </parameter>
 
 <p/>
@@ -108,18 +109,6 @@ Number of allowed quark flavours in <ei>g -> q qbar</ei> branchings
 (phase space permitting). A change to 4 would exclude 
 <ei>g -> b bbar</ei>, etc. 
 </mode>
-
-<h3>References</h3>
-
-<ol>
-<li>T. Sjostrand and P.Z. Skands, Eur. Phys. J. C39 (2005) 129</li>
-<li>M. Bengtsson and T. Sjostrand, Nucl. Phys. B289 (1987) 810</li>
-<li>G. Gustafson, Phys. Lett. B175 (1986) 453;
-<br/>G. Gustafson and U. Pettersson, Nucl. Phys. B306 (1988) 746;
-<br/>L. Lonnblad, Computer Physics Commun. 71 (1992) 15</li>
-<li>E. Norrbin and T. Sjostrand, Nucl. Phys. B603 (2001) 297</li>
-<li>G. Rudolph, private communication</li>
-</ol>
 
 </chapter>
 

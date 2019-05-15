@@ -5,7 +5,8 @@
 #ifndef Pythia8_Stdlib_H
 #define Pythia8_Stdlib_H
 
-// Stdlib header files for character manipulation.
+// Stdlib header files for string and character manipulation.
+#include <string>
 #include <cctype>
 
 // Stdlib header files for math and time.

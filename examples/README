@@ -11,8 +11,13 @@ Examples how to use Pythia8:
 * main09.cc: LEP events with sphericity analysis
 * main10.cc: cell jet analysis of LHC events
 * main11.cc & main11.cmnd: output to HepMC event record format
-* main12.cc & main12.cmnd: Pythia8 vs. Pythia6 cross sections
+* main12.cc & main12.cmnd: Pythia8 internal elastic/diffractive events
+* main13.cc & main13.cmnd: Pythia8 internal minimum-bias events
+* main14.cc & main14.cmnd: compare Pythia8 vs. Pythia6 jet cross sections
 
 Type "gmake mainNN" (or "gmake main02for") to build an executable.
 Type "./mainNN.exe > outputfile" to run program. 
 Type "gmake clean" to clean up the examples directory (but not output files).
+
+Files outNN are examples of possible output from the respective run.
+(Not available for main11, which only works if you linked HepMC properly.)

@@ -14,8 +14,8 @@
 #include "PartonDistributions.h"
 #include "ProcessContainer.h"
 #include "Pythia6.h"
+#include "PythiaStdlib.h"
 #include "Settings.h"
-#include "Stdlib.h"
 
 namespace Pythia8 {
   

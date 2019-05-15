@@ -6,7 +6,7 @@
 #ifndef Pythia8_Information_H
 #define Pythia8_Information_H
 
-#include "Stdlib.h"
+#include "PythiaStdlib.h"
 #include "Settings.h"
 
 namespace Pythia8 {
@@ -46,10 +46,10 @@ public:
   int nFinal() const {return nFinalSave;}
 
   // Are beam particles resolved, with pdf's? Are they diffractive?
-  bool isMinBias() const {return isMB;};
   bool isResolved() const {return isRes;}
   bool isDiffractiveA() const {return isDiffA;} 
   bool isDiffractiveB() const {return isDiffB;} 
+  bool isMinBias() const {return isMB;}
 
   // For minbias identify hardest subprocess.
   bool hasSub() const {return hasSubSave;}
@@ -83,7 +83,7 @@ public:
   double bMI() const {return (bIsSet) ? bH : 0.;}
   double enhanceMI() const {return (bIsSet) ? enhanceH : 0.;}
 
-  // Number of tims steps have been carried out. (incomplete??)
+  // Number of times steps have been carried out. (incomplete??)
   int nMI() const {return nMIH;}
   int nISR() const {return nISRH;}
   int nFSRinProc() const {return nFSRinProcH;}
@@ -118,8 +118,9 @@ private:
     = alphaEMH = alphaSH = Q2RenH = sH = tH = uH = pTH = m3H = m4H
     = thetaH = phiH = bH = enhanceH = 0.;}
 
-  // Set info on the (sub)process: from ProcessContainer or 
-  // MultipleInteractions class.
+  // Set info on the (sub)process: from ProcessLevel, ProcessContainer or 
+  // MultipleInteractions classes.
+  friend class ProcessLevel;
   friend class ProcessContainer;
   friend class MultipleInteractions;
   void setType( string nameIn, int codeIn, int nFinalIn,  

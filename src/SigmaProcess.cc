@@ -47,6 +47,33 @@ void InFlux::weightCharge(int ePow) {
 
 //*********
 
+// Weight channels by (two or four) powers of CKM matrix elements.
+// Currently assume already known instate is q qbar'.
+
+void InFlux::weightCKM(int ckmPow) {
+
+  for (int i = 0; i < int(weightAB.size()); ++i) {
+
+    // Remove impossible combinations.
+    int idA = idPartonPairA[i];
+    int idB = idPartonPairB[i]; 
+    if (idA * idB > 0 || (idA + idB)%2 == 0) weightAB[i] *= 0.;
+
+    // Find up-type and down-type quarks, and read off CKM value.
+    else { 
+      int idAabs = abs(idA);
+      int idBabs = abs(idB);
+      if (idAabs%2 == 1) swap(idAabs, idBabs);
+      double ckm2 = VCKM::V2( (idAabs/2), (idBabs+1)/2 );
+      if (ckmPow == 2) weightAB[i] *= ckm2;
+      if (ckmPow == 4) weightAB[i] *= ckm2 * ckm2;
+    }
+  }
+
+}
+
+//*********
+
 // Calculate products of parton densities for allowed combinations.
 
 double InFlux::flux(double x1, double x2, double Q2) {
@@ -383,6 +410,35 @@ void SigmaProcess::initStatic() {
 
 //**************************************************************************
 
+// The Sigma1Process class.
+// Base class for resolved 2 -> 1 cross sections; derived from SigmaProcess.
+
+//*********
+
+// Input and complement kinematics for resolved 2 -> 1 process. 
+
+bool Sigma1Process::set1Kin( double x1in, double x2in, double sHin) {
+
+  // Incoming parton momentum fractions and sHat.
+  x1 = x1in;
+  x2 = x2in;
+  sH = sHin;
+  sH2 = sH * sH;
+
+  // Use sHat as renormalization scale. Evaluate alpha_strong.
+  Q2RenH = sH;
+  alpS = alphaScalc.alphaS(Q2RenH);  
+
+  // Use sHat as factorization scale.
+  Q2FacH = sH;
+
+  // Done.
+  return true;
+
+}
+
+//**************************************************************************
+
 // The Sigma2Process class.
 // Base class for resolved 2 -> 2 cross sections; derived from SigmaProcess.
 
@@ -390,7 +446,8 @@ void SigmaProcess::initStatic() {
 
 // Input and complement kinematics for resolved 2 -> 2 process. 
 
-bool Sigma2Process::set2Kin( double x1in, double x2in, double sHin, double tHin) {
+bool Sigma2Process::set2Kin( double x1in, double x2in, double sHin, 
+  double tHin) {
 
   // Incoming parton momentum fractions.
   x1 = x1in;
@@ -1414,6 +1471,55 @@ void Sigma2gg2gammagamma::setIdColAcol() {
 
 }
 
+//**************************************************************************
+
+// Sigma1ffbar2W class.
+// Cross section for f fbar' -> W+- (f is quark or lepton). 
+
+//*********
+
+// Evaluate d(sigmaHat)/d(tHat). 
+
+double Sigma1ffbar2W::sigmaHat() { 
+
+  // Calculate kinematics dependence.
+  double sigS = 1.;
+
+  // Answer.
+  return CONVERT2MB * (M_PI/sH) * pow2(alpS) * sigS;  
+
+}
+
+//*********
+
+// Initialize parton flux object. 
+  
+void Sigma1ffbar2W::initFlux( PDF* pdfAPtr, PDF* pdfBPtr) {
+
+  // Set up for q qbar initial state and parton densities.
+  inFluxPtr = new InFluxqqbarDiff();
+  inFluxPtr->init( pdfAPtr, pdfBPtr);
+  inFluxPtr->weightCKM(2);
+
+} 
+
+//*********
+
+// Select identity, colour and anticolour.
+
+void Sigma1ffbar2W::setIdColAcol() {
+
+  // Sign of outgoing W.
+  int sign = 1 - 2 * (abs(id1)%2);
+  if (id1 < 0) sign = -sign;
+  setId( id1, id2, 24 * sign);
+
+  // Colour flow topologies. Swap when antiquarks.
+  if (abs(id1) < 10) setColAcol( 1, 0, 0, 1, 0, 0);
+  else               setColAcol( 0, 0, 0, 0, 0, 0);
+  if (id1 < 0) swapColAcol();
+
+}
 
 //**************************************************************************
 

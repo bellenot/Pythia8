@@ -12,10 +12,10 @@
 #include "MultipleInteractions.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
+#include "PythiaStdlib.h"
 #include "SigmaProcess.h"
 #include "SigmaTotal.h"
 #include "Settings.h"
-#include "Stdlib.h"
 
 namespace Pythia8 {
  
@@ -86,16 +86,12 @@ protected:
     m3SMax, m4SMin, m4SMax;
 
   // Constants: could only be changed in the code itself.
-  static const double SAFETYMARGIN;
+  static const double SAFETYMARGIN, TINY, EVENFRAC, SAMESIGMA, 
+    WIDTHMARGIN, SAMEMASS;
+  static const bool PRINT;
 
-  // Energy.
+  // Center-of-mass energy.
   double eCM, s; 
-
-  // Event-specific kinematics properties.
-  double x1H, x2H, m3, m4, m3S, m4S, mHat, sH, tH, uH, 
-    pAbs, p2Abs, pTH, theta, phi, betaZ;
-  Vec4 pH[6];
-  double mH[6];
 
   // Cross section information.
   double sigmaNw, sigmaMx;
@@ -103,12 +99,76 @@ protected:
   // Pointer to cross section. 
   SigmaProcess* sigmaProcessPtr; 
 
-  // For elastic/diffractive also need information on incoming beams.
+  // Event-specific kinematics properties, almost always available.
+  double x1H, x2H, m3, m4, m3S, m4S, mHat, sH, tH, uH, 
+    pAbs, p2Abs, pTH, theta, phi, betaZ;
+  Vec4 pH[6];
+  double mH[6];
+
+  // Much common code for normal 2 -> 1 and 2 -> 2 (2 -> 1/2) machineries:
+
+  // Determine how phase space should be sampled.
+  bool setupSampling1or2(bool is2); 
+
+  // Select a trial kinematics phase space point.
+  bool trialKin1or2(bool is2); 
+
+  // Presence and properties of any s-channel resonances.
+  int idResA, idResB;
+  double mResA, mResB, GammaResA, GammaResB, tauResA, tauResB, widResA, 
+    widResB, tRatA, tRatB, aUppA, aUppB, aLowA, aLowB;
+  bool sameResMass;
+
+  // Kinematics properties specific to 2 -> 1/2.
+  double tau, y, z, tauMin, tauMax, yMax, zMin, zMax, ratio34, unity34,
+   zNeg, zPos, wtTau, wtY, wtZ, intTau0, intTau1, intTau2, intTau3, 
+   intTau4, intTau5, intY01, intY2; 
+
+  // Coefficients for optimized selection in 2 -> 1/2.
+  double tauCoef[8], yCoef[8], zCoef[8];
+
+  // Calculate kinematical limits for 2 -> 1/2.
+  bool limitTau(bool is2);
+  bool limitY();
+  bool limitZ();
+
+  // Select kinematical variable between defined limits for 2 -> 1/2.
+  void selectTau(int iTau, double tauVal, bool is2);
+  void selectY(int iY, double yVal);
+  void selectZ(int iZ, double zVal);
+
+  // Solve equation system for better phase space coefficients in 2 -> 1/2.
+  void solveSys( int n, int bin[8], double vec[8], double mat[8][8],
+    double coef[8]); 
+
+  // For elastic/diffractive/minbias need information on incoming beams.
   int idA, idB;
   double mA, mB; 
   
-  // Pointer to the total/elastic/diffractive cross section.
+  // And also pointer to the total/elastic/diffractive cross section.
   SigmaTotal* sigmaTotPtr;
+
+};
+ 
+//**************************************************************************
+
+// A derived class with 2 -> 1 kinematics set up in tau, y.
+
+class PhaseSpace2to1tauy : public PhaseSpace {
+
+public:
+
+  // Constructor.
+  PhaseSpace2to1tauy() {}
+
+  // Construct the trial kinematics, using methods in base class.
+  virtual bool setupSampling() {return setupSampling1or2(false);} 
+  virtual bool trialKin() {return trialKin1or2(false);}
+
+  // Construct the final event kinematics.
+  virtual bool finalKin();
+
+private:
 
 };
  
@@ -123,37 +183,14 @@ public:
   // Constructor.
   PhaseSpace2to2tauyz() {}
 
-  // Construct the trial or final event kinematics.
-  virtual bool setupSampling(); 
-  virtual bool trialKin(); 
-  virtual bool finalKin(); 
+  // Construct the trial kinematics, using methods in base class.
+  virtual bool setupSampling() {return setupSampling1or2(true);} 
+  virtual bool trialKin() {return trialKin1or2(true);}
+
+  // Construct the final event kinematics.
+  virtual bool finalKin();
 
 private:
-
-  // Constants: could only be changed in the code itself.
-  static const double TINY, EVENFRAC, SAMESIGMA;
-  static const bool PRINT;
-
-  // Calculate kinematical limits for 2 -> 2 kinematics.
-  bool limitTau();
-  bool limitY();
-  bool limitZ();
-
-  // Select kinematical variable between defined limits.
-  void selectTau(int iTau, double tauVal);
-  void selectY(int iY, double yVal);
-  void selectZ(int iZ, double zVal);
-
-  // Solve equation system for better phase space coefficients.
-  void solveSys( int n, int bin[8], double vec[8], double mat[8][8],
-    double coef[8]); 
-
-  // Kinematics properties specific to 2 -> 2.
-  double tau, y, z, tauMin, tauMax, yMax, zMin, zMax, ratio34, unity34,
-   zNeg, zPos, wtTau, wtY, wtZ, intTau0, intTau1, intY01, intY2; 
-
- // Coefficients for optimized selection in 2 -> 2.
- double tauCoef[8], yCoef[8], zCoef[8];
 
 };
  

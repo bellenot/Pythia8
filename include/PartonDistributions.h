@@ -10,7 +10,7 @@
 
 #include "Basics.h"
 #include "ParticleData.h"
-#include "Stdlib.h"
+#include "PythiaStdlib.h"
 
 namespace Pythia8 {
 

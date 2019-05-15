@@ -20,9 +20,9 @@
 #include "PhaseSpace.h"
 #include "ProcessLevel.h"
 #include "Pythia6.h"
+#include "PythiaStdlib.h"
 #include "Settings.h"
 #include "SigmaProcess.h"
-#include "Stdlib.h"
 
 namespace Pythia8 {
  

@@ -13,7 +13,7 @@ The management of particle data is based on the four classes:
 <li><code>ParticleDataEntry</code>, which stores the relevant information 
 on a  particle species, and</li>
 <li><code>ParticleDataTable</code>, which is a map of PDG particle 
-<code>id</code> numbers [1] onto the relevant 
+<code>id</code> numbers <ref>Boo01</ref> onto the relevant 
 <code>ParticleDataEntry</code>.</li> 
 <li><code>DecayChannel</code>, which stores info on one particular decay 
 mode.</li>
@@ -323,13 +323,6 @@ the <code>list(...)</code> function.. To list a restricted set of particles,
 give in their <code>id</code> codes to <code>list(...)</code> as a 
 <code>vector&lt;int></code>.</li> 
 
-</ol>
- 
-<h3>References</h3>
-
-<ol>
-<li>Particle Data Group, S. Eidelman et al., 
-Phys. Lett. B592 (2004) 1</li>
 </ol>
 
 </chapter>

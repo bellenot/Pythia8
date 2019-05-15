@@ -263,6 +263,7 @@ void Pythia::initStatic() {
   // Initialize all other accessible static data members.
   ErrorMessages::initStatic();
   ParticleDataEntry::initStatic();
+  VCKM::initStatic(); 
   Event::initStatic();
   BeamParticle::initStatic(); 
   BeamRemnants::initStatic();

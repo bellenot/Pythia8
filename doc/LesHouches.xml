@@ -2,11 +2,11 @@
 
 <h2>The Les Houches Accord</h2>
 
-The Les Houches Accord for user processes [1] is the standard way to 
-input parton-level information from a matrix-elements based generator 
-into PYTHIA. The conventions for which information should be stored
-has been defined in a Fortran context, as two commonblocks. Here a 
-C++ equivalent is defined, as two separate classes.
+The Les Houches Accord for user processes <ref>Boo01</ref> is the 
+standard way to input parton-level information from a matrix-elements 
+based generator into PYTHIA. The conventions for which information 
+should be stored has been defined in a Fortran context, as two 
+commonblocks. Here a C++ equivalent is defined, as two separate classes.
 
 <p/>
 The <code>LHAinit</code> and <code>LHAevnt</code> classes are base classes, 
@@ -219,14 +219,6 @@ beforehand.
 <p/>
 An example how this can be used for toy studies is found in 
 <code>main03.cc</code>.
-
-<h3>References</h3>
-
-<ol>
-<li>E. Boos et al., in the Proceedings of the Workshop on Physics at 
-TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001 
-[hep-ph/0109068]</li>
-</ol>
 
 </chapter>
 

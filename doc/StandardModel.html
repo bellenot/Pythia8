@@ -11,7 +11,7 @@
 Currently the only class in this category is <code>AlphaStrong</code>, 
 which is used to provide a first- or second-order running 
 <i>alpha_strong</i> (or, trivially, a zeroth-order fixed one). 
-Formulae are the standard ones found in [1]. The starting 
+Formulae are the standard ones found in [<a href="References.html" target="page">Eid04</a>]. The starting 
 <i>alpha_strong</i> value is defined at the <i>M_Z</i> mass scale.
 The <i>Lambda</i> values are matched at the <i>b</i> and <i>c</i> 
 flavour thresholds, such that <i>alpha_strong</i> is continuous, 
@@ -37,6 +37,67 @@ second-order <i>Lambda</i>) and the second the correction factor,
 below unity, for the second-order terms. This allows a compact handling 
 of evolution equations.
 
+<h3>The weak mixing matrix</h3>
+
+The absolute values of the Cabibbo-Kobayashi-Maskawa matrix elements are 
+set by the following nine real values - currently the CP-violating phase 
+is not taken into account in this parametrization. It is up to the user 
+to pick a consistent unitary set of new values whenever changes are made.  
+
+<p/><strong>
+parameter name="StandardModel:Vud" default="0.9745" min="0.973" max="0.976"
+</strong><br/>
+The <i>V_ud</i> CKM matrix element.
+  
+
+<p/><strong>
+parameter name="StandardModel:Vus" default="0.224" min="0.218" max="0.230"
+</strong><br/>
+The <i>V_us</i> CKM matrix element.
+  
+
+<p/><strong>
+parameter name="StandardModel:Vub" default="0.0037" min="0.002" max="0.006"
+</strong><br/>
+The <i>V_ub</i> CKM matrix element.
+  
+
+<p/><strong>
+parameter name="StandardModel:Vcd" default="0.224" min="0.218" max="0.230"
+</strong><br/>
+The <i>V_cd</i> CKM matrix element.
+  
+
+<p/><strong>
+parameter name="StandardModel:Vcs" default="0.9737" min="0.972" max="0.975"
+</strong><br/>
+The <i>V_cs</i> CKM matrix element.
+  
+
+<p/><strong>
+parameter name="StandardModel:Vcb" default="0.0415" min="0.033" max="0.040"
+</strong><br/>
+The <i>V_cb</i> CKM matrix element.
+  
+
+<p/><strong>
+parameter name="StandardModel:Vtd" default="0.0094" min="0.004" max="0.020"
+</strong><br/>
+The <i>V_td</i> CKM matrix element.
+  
+
+<p/><strong>
+parameter name="StandardModel:Vts" default="0.040" min="0.030" max="0.050"
+</strong><br/>
+The <i>V_ts</i> CKM matrix element.
+  
+
+<p/><strong>
+parameter name="StandardModel:Vtb" default="0.9991" min="0.998" max="0.9995"
+</strong><br/>
+The <i>V_tb</i> CKM matrix element.
+  
+
 <h3>Electroweak couplings</h3> 
 
 In addition, this section contains a few further parameters that should
@@ -57,14 +118,7 @@ The weak mixing angle.
   
 
 <p/>
-Eventually will appear a running <i>alpha_em</i>, and CKM matrix elements.
-
-<h3>References</h3>
-
-<ol>
-<li>Particle Data Group, S. Eidelman et al., 
-Phys. Lett. B592 (2004) 1</li>
-</ol>
+Eventually will appear a running <i>alpha_em</i>.
 
 </body>
 </html>

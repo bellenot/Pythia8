@@ -2,7 +2,6 @@
 // PhaseSpace and PhaseSpace2to2tauyz classes.
 // Copyright C 2006 Torbjorn Sjostrand
 
-
 #include "PhaseSpace.h"
 
 namespace Pythia8 {
@@ -39,6 +38,24 @@ double PhaseSpace::m4SMax = 1.;
 
 // Maximum cross section increase, just in case true maximum not found.
 const double PhaseSpace::SAFETYMARGIN = 1.05;
+
+// Small number to avoid division by zero.
+const double PhaseSpace::TINY = 1e-20;
+
+// Fraction of total weight that is shared evenly between all shapes.
+const double PhaseSpace::EVENFRAC = 0.4;
+
+// Two cross sections with a small relative error are assumed same.
+const double PhaseSpace::SAMESIGMA = 1e-6;
+
+// Do not include resonances peaked too far outside allowed mass region.
+const double PhaseSpace::WIDTHMARGIN = 20.;
+
+// Special optimization treatment when two resonances at almost same mass.
+const double PhaseSpace::SAMEMASS = 0.01;
+
+// For debug purposes the maximization procedure can be traced.
+const bool PhaseSpace::PRINT = false;
 
 //*********
 
@@ -98,43 +115,23 @@ void PhaseSpace::initStatic() {
 
 }
 
-//**************************************************************************
-
-// PhaseSpace2to2tauyc class.
-// 2 -> 2 kinematics set up in tau, y, z = cos(theta).
-
-//*********
-
-// Constants: could be changed here if desired, but normally should not.
-// These are of technical nature, as described for each.
-
-// Small number to avoid division by zero.
-const double PhaseSpace2to2tauyz::TINY = 1e-20;
-
-// Fraction of total weight that is shared evenly between all shapes.
-const double PhaseSpace2to2tauyz::EVENFRAC = 0.4;
-
-// Two cross sections with a small relative error are assumed same.
-const double PhaseSpace2to2tauyz::SAMESIGMA = 1e-6;
-
-// For debug purposes the maximization procedure can be traced.
-const bool PhaseSpace2to2tauyz::PRINT = false;
-
 //*********
 
 // Determine how phase space should be sampled.
 
-bool PhaseSpace2to2tauyz::setupSampling() {
+bool PhaseSpace::setupSampling1or2(bool is2) {
 
   // Debug printout.
   if (PRINT) cout <<  "\n Optimization printout for "  
     << sigmaProcessPtr->name() << "\n" << scientific << setprecision(3);
 
   // Set masses.
-  m3 = sigmaProcessPtr->m(3);
-  m3S = m3 * m3;
-  m4 = sigmaProcessPtr->m(4);
-  m4S = m4 * m4;
+  if (is2) {
+    m3 = sigmaProcessPtr->m(3);
+    m3S = m3 * m3;
+    m4 = sigmaProcessPtr->m(4);
+    m4S = m4 * m4;
+  }
 
   // Reset coefficients and matrices of equation system to solve.
   int binTau[8], binY[8], binZ[8];
@@ -160,7 +157,57 @@ bool PhaseSpace2to2tauyz::setupSampling() {
   // Number of used coefficients/points for each dimension: tau, y, c.
   int nTau = 2;
   int nY = 3;
-  int nZ = 5; 
+  int nZ = (is2)? 5 : 1; 
+
+  // Identify if any resonances contribute in s-channel.
+  idResA = sigmaProcessPtr->resonanceA();
+  if (idResA != 0) { 
+     mResA = ParticleDataTable::m0(idResA);
+     GammaResA = ParticleDataTable::width(idResA);
+     if (mHatMin > mResA + WIDTHMARGIN * GammaResA 
+       || mHatMax < mResA - WIDTHMARGIN * GammaResA) idResA = 0; 
+  }
+  idResB = sigmaProcessPtr->resonanceA();
+  if (idResB != 0) { 
+     mResB = ParticleDataTable::m0(idResB);
+     GammaResB = ParticleDataTable::width(idResB);
+     if (mHatMin > mResB + WIDTHMARGIN * GammaResB 
+       || mHatMax < mResB - WIDTHMARGIN * GammaResB) idResB = 0; 
+  }
+  if (idResA == 0 && idResB != 0) {
+    idResA = idResB;
+    mResA = mResB;
+    GammaResA = GammaResB;
+    idResB = 0;
+  }
+
+  // More sampling in tau if resonances in s-channel.
+  if (idResA !=0) {
+    nTau += 2;
+    tauResA = mResA * mResA / s;
+    widResA = mResA * GammaResA / s;
+    tRatA = ((tauResA + tauMax) / (tauResA + tauMin)) * (tauMin / tauMax);
+    aUppA = atan( (tauMax - tauResA) / widResA);
+    aLowA = atan( (tauMin - tauResA) / widResA);
+  }
+  if (idResB != 0) {
+    nTau += 2;
+    tauResB = mResB * mResB / s;
+    widResB = mResB * GammaResB / s;
+    tRatB = ((tauResB + tauMax) / (tauResB + tauMin)) * (tauMin / tauMax);
+    aUppB = atan( (tauMax - tauResB) / widResB);
+    aLowB = atan( (tauMin - tauResB) / widResB);
+  }
+
+  // Special case when both resonances have same mass.
+  sameResMass = false;
+  if (idResB != 0 && abs(mResA - mResB) < SAMEMASS * (GammaResA + GammaResB))
+    sameResMass = true;
+    
+  // Default z value and weight required for 2 -> 1. Number of dimensions.
+  z = 0.;
+  wtZ = 1.;
+  int nVar = (is2) ? 3 : 2;
 
   // Initial values, to be modified later.
   tauCoef[0] = 1.;
@@ -169,20 +216,23 @@ bool PhaseSpace2to2tauyz::setupSampling() {
   zCoef[0] = 1.; 
 
   // Set limits on generation. Step through grid in tau. 
-  if (!limitTau()) return false; 
+  if (!limitTau(is2)) return false; 
   for (int iTau = 0; iTau < nTau; ++iTau) {
-    selectTau( iTau, 0.5);
+    double posTau = 0.5;
+    if (sameResMass && iTau > 1 && iTau < 6) posTau = (iTau < 4) ? 0.4 : 0.6;
+    selectTau( iTau, posTau, is2);
     if (!limitY()) continue;
-    if (!limitZ()) continue;
+    if (is2 && !limitZ()) continue;
 
     // Step through grids in y and z. 
     for (int iY = 0; iY < nY; ++iY) {
       selectY( iY, 0.5);
       for (int iZ = 0; iZ < nZ; ++iZ) {
-        selectZ( iZ, 0.5);
+        if (is2) selectZ( iZ, 0.5);
 
         // Calculate cross section. Weight by phase-space volume.
-        sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+        if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+        else     sigmaProcessPtr->set1Kin( x1H, x2H, sH);
         double sigmaNow = sigmaProcessPtr->sigmaPDF();
         sigmaNow *= wtTau * wtY * wtZ;
         if (sigmaNow > sigmaMx) sigmaMx = sigmaNow; 
@@ -197,6 +247,16 @@ bool PhaseSpace2to2tauyz::setupSampling() {
         vecTau[iTau] += sigmaNow;
         matTau[iTau][0] += 1. / intTau0;
         matTau[iTau][1] += (1. /intTau1) / tau;
+        if (idResA != 0) {
+          matTau[iTau][2] += (1. /intTau2) / (tau + tauResA);
+          matTau[iTau][3] += (1. /intTau3) 
+            * tau / ( pow2(tau - tauResA) + pow2(widResA) );
+        }
+        if (idResB != 0) {
+          matTau[iTau][4] += (1. /intTau4) / (tau + tauResB);
+          matTau[iTau][5] += (1. /intTau5) 
+            * tau / ( pow2(tau - tauResB) + pow2(widResB) );
+        }
  
         // Sum up y cross-section pieces in points used.
         binY[iY] += 1;
@@ -206,23 +266,25 @@ bool PhaseSpace2to2tauyz::setupSampling() {
         matY[iY][2] += (1. / intY2) /cosh(y);
 
         // Integrals over z expressions at tauMax, to be used below.
-        double p2AbsMax = 0.25 * (pow2(tauMax * s - m3S - m4S) 
-          - 4. * m3S * m4S) / (tauMax * s);         
-        double zMaxMax = sqrt( max( 0., 1. - pT2HatMin / p2AbsMax) );
-        double zPosMaxMax = max(ratio34, unity34 + zMaxMax);
-        double zNegMaxMax = max(ratio34, unity34 - zMaxMax);
-        double intZ0Max = 2. * zMaxMax;
-        double intZ12Max = log( zPosMaxMax / zNegMaxMax);
-        double intZ34Max = 1. / zNegMaxMax - 1. / zPosMaxMax;  
-
-        // Sum up z cross-section pieces in points used.
-        binZ[iZ] += 1;
-        vecZ[iZ] += sigmaNow;
-        matZ[iZ][0] += 1. / intZ0Max; 
-        matZ[iZ][1] += (1. / intZ12Max) / zNeg;
-        matZ[iZ][2] += (1. / intZ12Max) / zPos;
-        matZ[iZ][3] += (1. / intZ34Max) / pow2(zNeg);
-        matZ[iZ][4] += (1. / intZ34Max) / pow2(zPos);
+        if (is2) {
+          double p2AbsMax = 0.25 * (pow2(tauMax * s - m3S - m4S) 
+            - 4. * m3S * m4S) / (tauMax * s);         
+          double zMaxMax = sqrt( max( 0., 1. - pT2HatMin / p2AbsMax) );
+          double zPosMaxMax = max(ratio34, unity34 + zMaxMax);
+          double zNegMaxMax = max(ratio34, unity34 - zMaxMax);
+          double intZ0Max = 2. * zMaxMax;
+          double intZ12Max = log( zPosMaxMax / zNegMaxMax);
+          double intZ34Max = 1. / zNegMaxMax - 1. / zPosMaxMax;  
+  
+          // Sum up z cross-section pieces in points used.
+          binZ[iZ] += 1;
+          vecZ[iZ] += sigmaNow;
+          matZ[iZ][0] += 1. / intZ0Max; 
+          matZ[iZ][1] += (1. / intZ12Max) / zNeg;
+          matZ[iZ][2] += (1. / intZ12Max) / zPos;
+          matZ[iZ][3] += (1. / intZ34Max) / pow2(zNeg);
+          matZ[iZ][4] += (1. / intZ34Max) / pow2(zPos);
+	}
 
       // End of loops over phase space points. 
       }
@@ -238,7 +300,7 @@ bool PhaseSpace2to2tauyz::setupSampling() {
   // Solve respective equation system for better phase space coefficients.
   solveSys( nTau, binTau, vecTau, matTau, tauCoef);
   solveSys( nY, binY, vecY, matY, yCoef);
-  solveSys( nZ, binZ, vecZ, matZ, zCoef);
+  if (is2) solveSys( nZ, binZ, vecZ, matZ, zCoef);
 
   // Begin find two most promising maxima among same points as before.
   int iMaxTau[4], iMaxY[4], iMaxZ[4];
@@ -247,16 +309,19 @@ bool PhaseSpace2to2tauyz::setupSampling() {
 
   // Scan same grid as before in tau, y, z. 
   for (int iTau = 0; iTau < nTau; ++iTau) {
-    selectTau( iTau, 0.5);
+    double posTau = 0.5;
+    if (sameResMass && iTau > 1 && iTau < 6) posTau = (iTau < 4) ? 0.4 : 0.6;
+    selectTau( iTau, posTau, is2);
     if (!limitY()) continue;
-    if (!limitZ()) continue;
+    if (is2 && !limitZ()) continue;
     for (int iY = 0; iY < nY; ++iY) {
       selectY( iY, 0.5);
       for (int iZ = 0; iZ < nZ; ++iZ) {
-        selectZ( iZ, 0.5);
+        if (is2) selectZ( iZ, 0.5);
 
         // Calculate cross section. Weight by phase-space volume.
-        sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+        if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+        else     sigmaProcessPtr->set1Kin( x1H, x2H, sH);
         double sigmaNow = sigmaProcessPtr->sigmaPDF();
         sigmaNow *= wtTau * wtY * wtZ;
 
@@ -308,7 +373,7 @@ bool PhaseSpace2to2tauyz::setupSampling() {
 
     // Starting point and step size in parameter space.
     for (int iRepeat = 0; iRepeat < 2; ++iRepeat) {
-      for (int iVar = 0; iVar < 3; ++iVar) {
+      for (int iVar = 0; iVar < nVar; ++iVar) {
         if (iVar == 0) varVal = tauVal;
         else if (iVar == 1) varVal = yVal;
         else varVal = zVal;
@@ -360,12 +425,12 @@ bool PhaseSpace2to2tauyz::setupSampling() {
           bool insideLimits = true;
           if (iVar == 0) {
             tauVal = varNew;
-            selectTau( iTau, tauVal);
+            selectTau( iTau, tauVal, is2);
             if (!limitY()) insideLimits = false;
-            if (!limitZ()) insideLimits = false; 
+            if (is2 && !limitZ()) insideLimits = false; 
             if (insideLimits) {
               selectY( iY, yVal);
-              selectZ( iZ, zVal);
+              if (is2) selectZ( iZ, zVal);
 	    }
 	  } else if (iVar == 1) {
             yVal = varNew;
@@ -380,7 +445,8 @@ bool PhaseSpace2to2tauyz::setupSampling() {
           if (insideLimits) {  
 
             // Calculate cross section. Weight by phase-space volume.
-            sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+            if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+            else     sigmaProcessPtr->set1Kin( x1H, x2H, sH);
             sigmaNow = sigmaProcessPtr->sigmaPDF();
             sigmaNow *= wtTau * wtY * wtZ;
 
@@ -412,19 +478,25 @@ bool PhaseSpace2to2tauyz::setupSampling() {
 // Note: by In is meant the integral over the quantity multiplying 
 // coefficient cn. The sum of cn is normalized to unity.
 
-bool PhaseSpace2to2tauyz::trialKin() {
+bool PhaseSpace::trialKin1or2(bool is2) {
 
   // Choose tau according to h1(tau)/tau, where
-  // h1(tau) = c0 + (I0/I1) *c1 * 1/tau. 
-  if (!limitTau()) return false;
+  // h1(tau) = c0/I0 + (c1/I1) * 1/tau 
+  // + (c2/I2) / (tau + tauResA) + (c3/I3) * tau / ((tau - tauResA)^2 + widResA^2) 
+  // + (c4/I4) / (tau + tauResB) + (c5/I5) * tau / ((tau - tauResB)^2 + widResB^2)
+  if (!limitTau(is2)) return false;
   int iTau = 0;
   double rTau = Rndm::flat(); 
   if (rTau > tauCoef[0]) iTau = 1;
-  selectTau( iTau, Rndm::flat());
+  if (rTau > tauCoef[0] +  tauCoef[1]) iTau = 2;
+  if (rTau > tauCoef[0] +  tauCoef[1] + tauCoef[2]) iTau = 3;
+  if (rTau > tauCoef[0] +  tauCoef[1] + tauCoef[2] + tauCoef[3]) iTau = 4;
+  if (rTau > tauCoef[0] +  tauCoef[1] + tauCoef[2] + tauCoef[3] + tauCoef[4]) 
+    iTau = 5;
+  selectTau( iTau, Rndm::flat(), is2);
 
   // Choose y according to h2(y), where
-  // h2(y) = (I/I0) * c0 * (y-ymin) + (I/I1) * c1 * (ymax-y) 
-  // + (I/I2) * c2 * 1/cosh(y), where I = yMax - yMin. 
+  // h2(y) = (c0/I0) * (y-ymin) + (c1/I1) * (ymax-y) + (c2/I2) * 1/cosh(y).
   if (!limitY()) return false;
   int iY = 0;
   double rY = Rndm::flat(); 
@@ -433,20 +505,23 @@ bool PhaseSpace2to2tauyz::trialKin() {
   selectY( iY, Rndm::flat());
 
   // Choose z = cos(thetaHat) according to h3(z), where
-  // h3(z) = c0 + (I0/I1) *c1 * 1/(A - z) + (I0/I2) * c2 * 1/(A + z) 
-  // + (I0/I3) * c3 * 1/(A - z)^2 + (I0/I4) * c4 * 1/(A + z)^2,
+  // h3(z) = c0/I0 + (c1/I1) * 1/(A - z) + (c2/I2) * 1/(A + z) 
+  // + (c3/I3) * 1/(A - z)^2 + (c4/I4) * 1/(A + z)^2,
   // where A = 1 + 2*(m3*m4/sH)^2 (= 1 for massless products).
-  if (!limitZ()) return false;
-  int iZ = 0;
-  double rZ = Rndm::flat(); 
-  if (rZ > zCoef[0]) iZ = 1;
-  if (rZ > zCoef[0] + zCoef[1]) iZ = 2;
-  if (rZ > zCoef[0] + zCoef[1] + zCoef[2]) iZ = 3;
-  if (rZ > zCoef[0] + zCoef[1] + zCoef[2] + zCoef[3]) iZ = 4;
-  selectZ( iZ, Rndm::flat());
-
+  if (is2) {
+    if (!limitZ()) return false;
+    int iZ = 0;
+    double rZ = Rndm::flat(); 
+    if (rZ > zCoef[0]) iZ = 1;
+    if (rZ > zCoef[0] + zCoef[1]) iZ = 2;
+    if (rZ > zCoef[0] + zCoef[1] + zCoef[2]) iZ = 3;
+    if (rZ > zCoef[0] + zCoef[1] + zCoef[2] + zCoef[3]) iZ = 4;
+    selectZ( iZ, Rndm::flat());
+  }
+   
   // Calculate cross section. Weight by phase-space volume.
-  sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+  if (is2) sigmaProcessPtr->set2Kin( x1H, x2H, sH, tH);
+  else     sigmaProcessPtr->set1Kin( x1H, x2H, sH);
   sigmaNw = sigmaProcessPtr->sigmaPDF();
   sigmaNw *= wtTau * wtY * wtZ;
 
@@ -463,52 +538,20 @@ bool PhaseSpace2to2tauyz::trialKin() {
 
 //*********
 
-// Construct the four-vector kinematics from the trial values. 
-
-bool PhaseSpace2to2tauyz::finalKin() {
-
-  // Particle masses; incoming always on mass shell.
-  mH[1] = 0.;
-  mH[2] = 0.;
-  mH[3] = m3;
-  mH[4] = m4;
-
-  // Incoming partons along beam axes.
-  pH[1] = Vec4( 0., 0., 0.5 * eCM * x1H, 0.5 * eCM * x1H); 
-  pH[2] = Vec4( 0., 0., -0.5 * eCM * x2H, 0.5 * eCM * x2H); 
-
-  // Outgoing partons initially in collision CM frame along beam axes.
-  pH[3] = Vec4( 0., 0.,  pAbs, 0.5 * (sH + m3S - m4S) / mHat); 
-  pH[4] = Vec4( 0., 0., -pAbs, 0.5 * (sH + m4S - m3S) / mHat); 
-
-  // Then rotate and boost them to overall CM frame
-  theta = acos(z);
-  phi = 2. * M_PI * Rndm::flat();
-  betaZ = (x1H - x2H)/(x1H + x2H);   
-  pH[3].rot( theta, phi);
-  pH[4].rot( theta, phi);
-  pH[3].bst( 0., 0., betaZ);
-  pH[4].bst( 0., 0., betaZ);
-  pTH = pAbs * sin(theta);
-
-  // Done.
-  return true;
-}
-
-//*********
-
 // Find range of allowed tau values.
 
-bool PhaseSpace2to2tauyz::limitTau() {
+bool PhaseSpace::limitTau(bool is2) {
 
   // Requirements from allowed mHat range.
   tauMin = sHatMin / s; 
   tauMax = (mHatMax <= 0.) ? 1. : min( 1., sHatMax / s); 
 
   // Requirements from allowed pT range and masses.
-  double mT3Min = sqrt(m3S + pT2HatMin);
-  double mT4Min = sqrt(m4S + pT2HatMin);
-  tauMin = max( tauMin, pow2(mT3Min + mT4Min) / s);
+  if (is2) {
+    double mT3Min = sqrt(m3S + pT2HatMin);
+    double mT4Min = sqrt(m4S + pT2HatMin);
+    tauMin = max( tauMin, pow2(mT3Min + mT4Min) / s);
+  }
 
   // Check that there is an open range.
   return (tauMax > tauMin) ? true : false;
@@ -518,7 +561,7 @@ bool PhaseSpace2to2tauyz::limitTau() {
 
 // Find range of allowed y values.
 
-bool PhaseSpace2to2tauyz::limitY() {
+bool PhaseSpace::limitY() {
 
   // Requirements from selected tau value.
   yMax = -0.5 * log(tau); 
@@ -531,7 +574,7 @@ bool PhaseSpace2to2tauyz::limitY() {
 
 // Find range of allowed z = cos(theta) values.
 
-bool PhaseSpace2to2tauyz::limitZ() {
+bool PhaseSpace::limitZ() {
 
   // Default limits.
   zMin = 0.;
@@ -549,30 +592,56 @@ bool PhaseSpace2to2tauyz::limitZ() {
 
 // Select tau according to a choice of shapes.
 
-void PhaseSpace2to2tauyz::selectTau(int iTau, double tauVal) {
+void PhaseSpace::selectTau(int iTau, double tauVal, bool is2) {
 
   // Select according to 1/tau or 1/tau^2.
   if (iTau == 0) tau = tauMin * pow( tauMax / tauMin, tauVal);
   else if (iTau == 1) tau = tauMax * tauMin 
     / (tauMin + (tauMax - tauMin) * tauVal);  
 
-  // Phase space integral in tau.
+  // Select according to 1 / (tau + tauRes) or 
+  // tau / ((tau - tauRes)^2 + widRes^2) for resonances A and B.
+  else if (iTau == 2) tau = tauResA * tauMin / ((tauResA + tauMin) 
+    * pow( tRatA, tauVal) - tauMin);
+  else if (iTau == 3) tau = tauResA + widResA 
+    * tan( aLowA + (aUppA - aLowA) * tauVal);
+  else if (iTau == 4) tau = tauResB * tauMin / ((tauResB + tauMin) 
+    * pow( tRatB, tauVal) - tauMin);
+  else if (iTau == 5) tau = tauResB + widResB 
+    * tan( aLowB + (aUppB - aLowB) * tauVal);
+
+  // Phase space weight in tau.
   intTau0 = log( tauMax / tauMin);
   intTau1 = (tauMax - tauMin) / (tauMax * tauMin);
-  wtTau = 1. / ( (tauCoef[0] / intTau0) + (tauCoef[1] / intTau1) / tau );
+  double invWtTau = (tauCoef[0] / intTau0) + (tauCoef[1] / intTau1) / tau;
+  if (idResA != 0) {
+    intTau2 = -log(tRatA) / tauResA;
+    intTau3 = (aUppA - aLowA) / widResA; 
+    invWtTau += (tauCoef[2] / intTau2) / (tau + tauResA) 
+      + (tauCoef[3] / intTau3) * tau / ( pow2(tau - tauResA) + pow2(widResA) );
+  }
+  if (idResB != 0) {
+    intTau4 = -log(tRatB) / tauResB;
+    intTau5 = (aUppB - aLowB) / widResB; 
+    invWtTau += (tauCoef[4] / intTau4) / (tau + tauResB) 
+      + (tauCoef[5] / intTau5) * tau / ( pow2(tau - tauResB) + pow2(widResB) );
+  }
+  wtTau = 1. / invWtTau;
 
   // Calculate sHat and absolute momentum of outgoing partons.
   sH = tau * s;
   mHat = sqrt(sH);
-  p2Abs = 0.25 * (pow2(sH - m3S - m4S) - 4. * m3S * m4S) / sH; 
-  pAbs = sqrt( max(0., p2Abs) );
+  if (is2) {
+    p2Abs = 0.25 * (pow2(sH - m3S - m4S) - 4. * m3S * m4S) / sH; 
+    pAbs = sqrt( max(0., p2Abs) );
+  }
 }
 
 //*********
 
 // Select y according to a choice of shapes.
 
-void PhaseSpace2to2tauyz::selectY(int iY, double yVal) {
+void PhaseSpace::selectY(int iY, double yVal) {
 
   // y - y_min, y_max - y.
   if (iY <= 1) {
@@ -603,7 +672,7 @@ void PhaseSpace2to2tauyz::selectY(int iY, double yVal) {
 // The selection is split in the positive- and negative-z regions,
 // since a pTmax cut can remove the region around z = 0.
 
-void PhaseSpace2to2tauyz::selectZ(int iZ, double zVal) {
+void PhaseSpace::selectZ(int iZ, double zVal) {
 
   // Mass-dependent dampening of pT -> 0 limit.
   ratio34 = max(TINY, 2. * m3S * m4S / pow2(sH));
@@ -701,7 +770,7 @@ void PhaseSpace2to2tauyz::selectZ(int iZ, double zVal) {
 
 // Solve linear equation system for better phase space coefficients.
   
-void PhaseSpace2to2tauyz::solveSys( int n, int bin[8], 
+void PhaseSpace::solveSys( int n, int bin[8], 
   double vec[8], double mat[8][8], double coef[8]) {
 
   // Debug printout.
@@ -772,6 +841,70 @@ void PhaseSpace2to2tauyz::solveSys( int n, int bin[8],
     for (int i = 0; i < n; ++i) cout << setw(12) << coef[i];
     cout << "\n";
   }
+}
+
+//**************************************************************************
+
+// PhaseSpace2to1tauy class.
+// 2 -> 1 kinematics for normal subprocesses.
+
+//*********
+
+// Construct the four-vector kinematics from the trial values. 
+
+bool PhaseSpace2to1tauy::finalKin() {
+
+  // Particle masses; incoming always on mass shell.
+  mH[1] = 0.;
+  mH[2] = 0.;
+  mH[3] = mHat;
+
+  // Incoming partons along beam axes. Outgoing has sum of momenta.
+  pH[1] = Vec4( 0., 0., 0.5 * eCM * x1H, 0.5 * eCM * x1H); 
+  pH[2] = Vec4( 0., 0., -0.5 * eCM * x2H, 0.5 * eCM * x2H); 
+  pH[3] = pH[1] + pH[2];
+
+  // Done.
+  return true;
+}
+
+//**************************************************************************
+
+// PhaseSpace2to2tauyz class.
+// 2 -> 2 kinematics for normal subprocesses.
+
+//*********
+
+// Construct the four-vector kinematics from the trial values. 
+
+bool PhaseSpace2to2tauyz::finalKin() {
+
+  // Particle masses; incoming always on mass shell.
+  mH[1] = 0.;
+  mH[2] = 0.;
+  mH[3] = m3;
+  mH[4] = m4;
+
+  // Incoming partons along beam axes.
+  pH[1] = Vec4( 0., 0., 0.5 * eCM * x1H, 0.5 * eCM * x1H); 
+  pH[2] = Vec4( 0., 0., -0.5 * eCM * x2H, 0.5 * eCM * x2H); 
+
+  // Outgoing partons initially in collision CM frame along beam axes.
+  pH[3] = Vec4( 0., 0.,  pAbs, 0.5 * (sH + m3S - m4S) / mHat); 
+  pH[4] = Vec4( 0., 0., -pAbs, 0.5 * (sH + m4S - m3S) / mHat); 
+
+  // Then rotate and boost them to overall CM frame
+  theta = acos(z);
+  phi = 2. * M_PI * Rndm::flat();
+  betaZ = (x1H - x2H)/(x1H + x2H);   
+  pH[3].rot( theta, phi);
+  pH[4].rot( theta, phi);
+  pH[3].bst( 0., 0., betaZ);
+  pH[4].bst( 0., 0., betaZ);
+  pTH = pAbs * sin(theta);
+
+  // Done.
+  return true;
 }
 
 //**************************************************************************

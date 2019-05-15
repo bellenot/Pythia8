@@ -50,15 +50,15 @@ classes is tiny:
 <p/>
 For protons:
 <ul>
-<li>GRV94L gives the GRV 94 L parametrization [1].</li>
-<li>CTEQ5L gives the CTEQ 5 L parametrization [2].</li>
+<li>GRV94L gives the GRV 94 L parametrization <ref>Glu95</ref>.</li>
+<li>CTEQ5L gives the CTEQ 5 L parametrization <ref>Lai00</ref>.</li>
 </ul>
 The default is CTEQ 5L, which is the most recent of the two.
 
 <p/>
 For charged leptons (e, mu, tau): 
 <ul>
-<li>Lepton gives a QED parametrization [3].
+<li>Lepton gives a QED parametrization <ref>Kle89</ref>.
 In QED there are not so many ambiguities, so here one set should be 
 enough. On the other hand, there is the problem that the 
 lepton-inside-lepton pdf is integrably divergent for <ei>x -> 1</ei>, 
@@ -67,21 +67,6 @@ made to vanish for <ei>x > 1 - 10^{-10}</ei>, and scaled up in the range
 <ei>1 - 10^{-7} &lt; x &lt; 1 - 10^{-10}</ei> in such a way that the 
 total area under the pdf is preserved.</li>
 </ul>   
-
-<h3>References</h3>
-
-<ol>
- 
-<li>M. Gluck, E. Reya and A. Vogt, Z. Phys. C67 (1995) 433</li>
-
-<li>CTEQ Collaboration, H.L. Lai et al., 
-Eur. Phys. J. C12 (2000) 375</li>
-
-<li>R. Kleiss et al., in `Z physics at LEP 1', 
-eds. G. Altarelli, R. Kleiss and C. Verzegnassi, 
-CERN 89-08 (Geneva, 1989), Vol. 3, p. 143</li>
-
-</ol>
 
 </chapter>
 

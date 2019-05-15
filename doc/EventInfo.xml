@@ -86,8 +86,17 @@ parton densities <ei>x*f(x,Q^2</ei> )evaluated for the two incoming
 partons; could be used e.g. for reweighting purposes. 
 </method>
 
-<method name="Q2pdf()"> 
-the <ei>Q^2</ei> scale at which the densities were evaluated.
+<method name="Q2Fac()"> 
+the <ei>Q^2</ei> factorization scale at which the densities were evaluated.
+</method>
+
+<method name="alphaS()"> 
+the <ei>alpha_strong</ei> value used for the hard process.
+</method>
+
+<method name="Q2Ren()"> 
+the <ei>Q^2</ei> renormalization scale at which <ei>alpha_strong</ei> 
+was evaluated.
 </method>
 
 <method name="mHat(), sHat()">
@@ -111,6 +120,32 @@ the masses of the two outgoing particles in a <ei>2 -> 2</ei> processes.
 <method name="thetaHat(), phiHat()"> 
 the polar and azimuthal scattering angles in the rest frame of 
 a <ei>2 -> 2</ei> process.
+</method>
+
+<method name="bMI()"> 
+the impact parameter <ei>b</ei> assumed for the current collision when
+multiple interactions are simulated. Is not expressed in any physical
+size (like fm), but only rescaled so that the average should be unity 
+for minimum-bias events (meaning less than that for events with hard
+processes). 
+</method>
+
+<method name="enhanceMI()"> 
+The choice of impact parameter implies an enhancement or depletion of
+ the rate of subsequent interactiosn, as given by this number. Again
+the average is normalized be unity for minimum-bias events (meaning 
+more than that for events with hard processes).  
+</method>
+
+<method name="nMI()"> 
+the number of hard interactions in the current event. Is 0 for elastic
+and diffractive events, and else at least 1, with more possible from
+multiple interactions.
+
+<method name="nISR(), nFSRinProc(), nFSRinRES()"> 
+the number of emissions in the initial-state showering, in the final-state
+showering excluding resonance decys, and in the final-state showering
+inside resonance decays, respectively. Not yet fully implemented.  
 </method>
 
 </chapter>

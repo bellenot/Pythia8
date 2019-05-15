@@ -18,10 +18,10 @@
 #include "Information.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
+#include "PythiaStdlib.h"
 #include "Settings.h"
 #include "SigmaTotal.h"
 #include "StandardModel.h"
-#include "Stdlib.h"
 
 namespace Pythia8 {
 
@@ -48,6 +48,9 @@ public:
 
   // Add even powers of e to weight.
   void weightCharge(int ePow = 0);
+
+  // Add even powers of CKM matrix element to weight.
+  void weightCKM(int ckmPow = 0);
 
   // Calculate products of parton densities for allowed combinations.
   double flux(double x1, double x2, double Q2);
@@ -243,6 +246,10 @@ public:
   virtual void initFlux( PDF* pdfAPtr, PDF* pdfBPtr) {
     pdfAPtrDummy = pdfAPtr; pdfBPtrDummy = pdfBPtr;}
 
+  // Input and complement kinematics for resolved 2 -> 1 process.
+  virtual bool set1Kin( double x1in, double x2in, double sHin)
+    {return (x1in + x2in + sHin > 0.) ? true : false;} 
+
   // Input and complement kinematics for resolved 2 -> 2 process.
   virtual bool set2Kin( double x1in, double x2in, double sHin, double tHin)
     {return (x1in + x2in + sHin + tHin > 0.) ? true : false;} 
@@ -273,6 +280,10 @@ public:
   virtual bool isResolved() const {return true;};
   virtual bool isDiffA() const {return false;};
   virtual bool isDiffB() const {return false;};
+
+  // Special treatment needed if process contains an s-channel resonance.
+  virtual int resonanceA() const {return 0;}
+  virtual int resonanceB() const {return 0;}
 
   // Give back particle properties: flavours, colours, masses, or all.
   int id(int i) const {return idH[i];}
@@ -380,6 +391,50 @@ protected:
  
 //**************************************************************************
 
+// Sigma1Process is the base class for 2 -> 1 processes.
+// It is derived from SigmaProcess.
+
+class Sigma1Process : public SigmaProcess {
+
+public:
+
+  // Destructor.
+  virtual ~Sigma1Process() {if (inFluxPtr !=0) delete inFluxPtr;}
+
+  // Evaluate sigmaHat(sHat) for resolved 2 -> 1 processes. 
+  virtual double sigmaHat() {return 0.;}
+
+  // Convolute sigmaHat(sHat) with parton flux. 
+  virtual double sigmaPDF() {
+    return inFluxPtr->flux( x1, x2, Q2FacH) * sigmaHat();}
+
+  // Initialize parton-flux object. 
+  virtual void initFlux( PDF* pdfAPtr, PDF* pdfBPtr) = 0;
+
+  // Input and complement kinematics for resolved 2 -> 2 process.
+  virtual bool set1Kin( double x1in, double x2in, double sHin); 
+
+  // Select incoming parton channel and extract parton densities.
+  void pickInState() {inFluxPtr->pick(); id1 = inFluxPtr->id1();
+    id2 = inFluxPtr->id2(); pdf1H = inFluxPtr->pdf1();
+    pdf2H = inFluxPtr->pdf2();} 
+
+protected:
+
+  // Constructor.
+  Sigma1Process();
+
+  // Store subprocess kinematics quantities.
+  int id1, id2, id3;
+  double x1, x2, sH, sH2;
+
+  // Pointer to the parton-flux object.
+  InFlux* inFluxPtr;
+
+};
+ 
+//**************************************************************************
+
 // Sigma2Process is the base class for 2 -> 2 processes.
 // It is derived from SigmaProcess.
 
@@ -401,7 +456,7 @@ public:
   virtual void initFlux( PDF* pdfAPtr, PDF* pdfBPtr) = 0;
 
   // Input and complement kinematics for resolved 2 -> 2 process.
-  bool set2Kin( double x1in, double x2in, double sHin, double tHin); 
+  virtual bool set2Kin( double x1in, double x2in, double sHin, double tHin); 
 
   // Ditto, but for Multiple Interactions applications, so different input.
   virtual bool set2KinMI( int id1in, int id2in, double x1in, double x2in,
@@ -573,7 +628,7 @@ public:
 private:
 
 };
- 
+
 //**************************************************************************
 
 // A derived class for g g -> g g.
@@ -608,6 +663,7 @@ private:
   double sigTS, sigUS, sigTU, sigSum;
 
 };
+
 //**************************************************************************
 
 // A derived class for g g -> q qbar (q = u, d, s, i.e. almost massless).
@@ -1104,6 +1160,39 @@ private:
 
 };
  
+//**************************************************************************
+
+// A derived class for f fbar' -> W+-.
+
+class Sigma1ffbar2W : public Sigma1Process {
+
+public:
+
+  // Constructor.
+  Sigma1ffbar2W() {}
+
+  // Destructor.
+  ~Sigma1ffbar2W() {}
+
+  // Evaluate d(sigmaHat)/d(tHat). 
+  virtual double sigmaHat();
+
+  // Initialize parton flux object. 
+  virtual void initFlux( PDF* pdfAPtr, PDF* pdfBPtr); 
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Info on the subprocess.
+  virtual string name() const {return "f fbar' -> W+-";}
+  virtual int code() const {return 151;}
+  virtual int nFinal() const {return 1;}
+  virtual int resonanceA() const {return 24;}
+
+private:
+
+};
+  
 //**************************************************************************
 
 } // end namespace Pythia8

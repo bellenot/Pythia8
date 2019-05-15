@@ -8,7 +8,7 @@
 #ifndef Pythia8_Settings_H
 #define Pythia8_Settings_H
 
-#include "Stdlib.h"
+#include "PythiaStdlib.h"
 
 namespace Pythia8 {
 

@@ -186,4 +186,32 @@ double AlphaStrong::alphaS2OrdCorr( double scale2) {
 
 //**************************************************************************
 
+// The VCKM class.
+
+//*********
+
+// Definitions of static variables. Initialize to all elements zero.
+
+double VCKM::Vsave[4][4] = { };
+
+//*********
+
+// Read in matrix element values and store them.
+
+void VCKM::initStatic() { 
+
+  Vsave[1][1] = Settings::parameter("StandardModel:Vud");
+  Vsave[1][2] = Settings::parameter("StandardModel:Vus");
+  Vsave[1][3] = Settings::parameter("StandardModel:Vub");
+  Vsave[2][1] = Settings::parameter("StandardModel:Vcd");
+  Vsave[2][2] = Settings::parameter("StandardModel:Vcs");
+  Vsave[2][3] = Settings::parameter("StandardModel:Vcb");
+  Vsave[3][1] = Settings::parameter("StandardModel:Vtd");
+  Vsave[3][2] = Settings::parameter("StandardModel:Vts");
+  Vsave[3][3] = Settings::parameter("StandardModel:Vtb");
+
+}
+
+//**************************************************************************
+
 } // end namespace Pythia8

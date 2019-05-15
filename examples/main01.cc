@@ -80,6 +80,7 @@ int main() {
  
     // List first few events, both hard process and complete events.
     if (iEvent < nList) { 
+      // pythia.info.list();
       pythia.process.list();
       event.list();
     }
