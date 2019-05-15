@@ -1,21 +1,27 @@
+// SigmaProcess.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for hard-process differential cross sections.
 // SigmaProcess: base class for cross sections.
-// Sigma0Process: base class for unresolved processes, 
-// derived from SigmaProcess.
-// Sigma2Process: base class for 2 -> 2 processes, 
-// derived from SigmaProcess.
+// Sigma0Process: base class for unresolved processes, derived from above.
+// Sigma1Process: base class for 2 -> 1 processes, derived from above.
+// Sigma2Process: base class for 2 -> 2 processes, derived from above.
+// Sigma3Process: base class for 2 -> 3 processes, derived from above.
 // Actual physics processes are found in separate files:
 // SigmaQCD for QCD processes;
 // SigmaEW for electroweak processes (including photon production);
+// SigmaOnia for charmonium and bottomonium processes;
+// SigmaHiggs for Higgs processes;
 // SigmaSUSY for supersymmetric production.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_SigmaProcess_H
 #define Pythia8_SigmaProcess_H
 
 #include "Basics.h"
+#include "BeamParticle.h"
 #include "Event.h"
-#include "InFlux.h"
 #include "Information.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
@@ -27,6 +33,41 @@
 #include "SusyLesHouches.h"
 
 namespace Pythia8 {
+
+//**************************************************************************
+
+// InBeam is a simple helper class for partons and their flux in a beam.
+
+class InBeam {
+
+public:
+
+  // Constructor.
+  InBeam( int idIn = 0) : id(idIn), pdf(0.) {}
+
+  // Values.
+  int    id;
+  double pdf;
+
+};
+
+//**************************************************************************
+
+// InPair is a simple helper class for colliding parton pairs and their flux.
+
+class InPair {
+
+public:
+
+  // Constructor.
+  InPair( int idAIn = 0, int idBIn = 0) : idA(idAIn), idB(idBIn),
+    pdfA(0.), pdfB(0.), pdfSigma(0.) {}
+
+  // Values.
+  int    idA, idB;
+  double pdfA, pdfB, pdfSigma;
+
+};
  
 //**************************************************************************
 
@@ -42,12 +83,9 @@ public:
   // Initialize (some) static data members.
   static void initStatic();
 
-  // Store pointer to SigmaTotal and info on beams.
-  static void setStaticPtrs(SigmaTotal* sigmaTotPtrIn, int idAIn, 
-    int idBIn, double mAIn, double mBIn) { sigmaTotPtr = sigmaTotPtrIn; 
-    idA = idAIn; idB = idBIn; mA = mAIn; mB = mBIn; 
-    hasLeptonBeams = ( ParticleDataTable::isLepton(idA) 
-    || ParticleDataTable::isLepton(idB) ); }
+  // Store static pointers to beams and to SigmaTotal
+  static void setStaticPtrs( BeamParticle* beamAPtrIn, 
+    BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn);
 
   // Store pointer to SUSY Les Houches Accord.
   static void setSlhaPtr(SusyLesHouches* slhaIn) {slha = slhaIn;}
@@ -55,45 +93,57 @@ public:
   // Initialize process. Only used for some processes.
   virtual void initProc() {}
 
-  // Initialize incoming flux. Not used for multiple interactions. 
-  virtual void initFlux() {}
-
-  // Evaluate sigma for unresolved, sigmaHat(sHat) for 2 -> 1 processes, 
-  // and d(sigmaHat)/d(tHat) for (resolved) 2 -> 2 processes. 
-  virtual double sigmaHat() {return 0.;}
-
-  // Convolute above with parton flux. 
-  virtual double sigmaPDF() {return 0.;}
+  // Set up allowed flux of incoming partons.
+  virtual bool initFlux();
 
   // Input and complement kinematics for resolved 2 -> 1 process.
   // Usage: set1Kin( x1in, x2in, sHin).
-  virtual bool set1Kin( double , double , double ) {return false;} 
+  virtual void set1Kin( double , double , double ) {} 
 
   // Input and complement kinematics for resolved 2 -> 2 process.
   // Usage: set2Kin( x1in, x2in, sHin, tHin, m3in, m4in, runBW3in, runBW4in).
-  virtual bool set2Kin( double , double , double , double , double , 
-    double, double, double ) {return false;} 
+  virtual void set2Kin( double , double , double , double , double , 
+    double, double, double ) {} 
 
   // Ditto, but for Multiple Interactions applications, so different input.
-  // Usage: set2KinMI( id1in, id2in, x1in, x2in, sHin, tHin, uHin, 
-  //        alpSin, alpEMin, needMasses, m3in, m4in)
-  virtual bool set2KinMI( int , int , double , double , double , double , 
-    double , double , double , bool , double , double ) {return false;}
+  // Usage: set2KinMI( x1in, x2in, sHin, tHin, uHin, 
+  //                   alpSin, alpEMin, needMasses, m3in, m4in)
+  virtual void set2KinMI( double , double , double , double , 
+    double , double , double , bool , double , double ) {}
+
+  // Input and complement kinematics for resolved 2 -> 3 process.
+  // Usage: set3Kin( x1in, x2in, sHin, p3prel, p4prel, p5prel, 
+  //                 m3in, m4in, m5in, runBW3in, runBW4in, runBW5in); 
+  virtual void set3Kin( double , double , double , Vec4 , Vec4 , Vec4 , 
+    double , double , double , double , double , double ) {}
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin() {}
+
+  // Evaluate sigma for unresolved, sigmaHat(sHat) for 2 -> 1 processes, 
+  // d(sigmaHat)/d(tHat) for (resolved) 2 -> 2 processes, and |M|^2 for 
+  // 2 -> 3 processes. Answer in "native" units, either mb or GeV^-2. 
+  virtual double sigmaHat() {return 0.;}
+
+  // Wrapper to sigmaHat, to (a) store current incoming flavours and 
+  // (b) convert from GeV^-2 to mb where required.
+  double sigmaHatWrap(int id1in = 0, int id2in = 0) {
+    id1 = id1in; id2 = id2in; 
+    return ( convert2mb() ? CONVERT2MB * sigmaHat() : sigmaHat() ); }
+
+  // Convolute above with parton flux and sum over open channels.. 
+  double sigmaPDF();
 
   // Select incoming parton channel and extract parton densities (resolved).
-  virtual void pickInState() {}
+  void pickInState(int id1in = 0, int id2in = 0);
 
   // Select flavour, colour and anticolour.
-  virtual void setIdColAcol() = 0;
+  virtual void setIdColAcol() {}
 
   // Perform kinematics for a Multiple Interaction, in its rest frame.
   virtual bool final2KinMI() {return true;}
 
-  // Remove empty inFlux channels and optionally list remaining ones.
-  void checkChannels() {
-    if (inFluxPtr != 0) inFluxPtr->checkChannels(name());}
-
-  // Evaluate weight for simultaneous flavour choices (only gamma*/Z0 gamma*/Z0).
+  // Evaluate weight for simultaneous flavours (only gamma*/Z0 gamma*/Z0).
   // Usage: weightDecayFlav( process).
   virtual double weightDecayFlav( Event&) {return 1.;} 
 
@@ -103,46 +153,63 @@ public:
   virtual double weightDecay( Event&, int, int) {return 1.;}
 
   // Process name and code, and the number of final-state particles.
-  virtual string name()     const {return "unnamed process";}
-  virtual int    code()     const {return 0;}
-  virtual int    nFinal()   const {return 2;};
+  virtual string name()            const {return "unnamed process";}
+  virtual int    code()            const {return 0;}
+  virtual int    nFinal()          const {return 2;}
+
+  // Need to know which incoming partons to set up interaction for.
+  virtual string inFlux()          const {return "unknown";}
+
+  // Need to know whether to convert cross section answer from GeV^-2 to mb.
+  virtual bool   convert2mb()      const {return true;}
 
   // Special treatment needed for elastic and diffractive processes.
-  virtual bool isMinBias()  const {return false;};
-  virtual bool isResolved() const {return true;};
-  virtual bool isDiffA()    const {return false;};
-  virtual bool isDiffB()    const {return false;};
+  virtual bool   isMinBias()       const {return false;}
+  virtual bool   isResolved()      const {return true;}
+  virtual bool   isDiffA()         const {return false;}
+  virtual bool   isDiffB()         const {return false;}
 
-  // Flavours in 2 -> 2 processes where masses needed from beginning. 
+  // Flavours in 2 -> 2/3 processes where masses needed from beginning. 
   // (For a light quark masses will be used in the final kinematics,
   // but not at the matrix-element level. For a gluon no masses at all.) 
-  virtual int id3Mass()     const {return 0;}
-  virtual int id4Mass()     const {return 0;}
+  virtual int    id3Mass()         const {return 0;}
+  virtual int    id4Mass()         const {return 0;}
+  virtual int    id5Mass()         const {return 0;}
 
   // Special treatment needed if process contains an s-channel resonance.
-  virtual int resonanceA()  const {return 0;}
-  virtual int resonanceB()  const {return 0;}
+  virtual int    resonanceA()      const {return 0;}
+  virtual int    resonanceB()      const {return 0;}
+
+  // 2 -> 2 and 2 -> 3 processes only through s-channel exchange.
+  virtual bool isSChannel()        const {return false;}
+
+  // Special treatment in 2 -> 3 with two massive propagators.
+  virtual int    idTchan1()        const {return 0;}
+  virtual int    idTchan2()        const {return 0;}
+  virtual double tChanFracPow1()   const {return 0.3;}
+  virtual double tChanFracPow2()   const {return 0.3;}
+  virtual bool   useMirrorWeight() const {return false;}
 
   // Special process-specific gamma*/Z0 choice if >=0 (e.g. f fbar -> H0 Z0).
-  virtual int gmZmode()     const {return -1;}
+  virtual int    gmZmode()         const {return -1;}
 
   // Tell whether tHat and uHat are swapped (= same as swap 3 and 4).
   bool swappedTU()          const {return swapTU;}
   
   // Give back particle properties: flavours, colours, masses, or all.
-  int    id(int i)          const {return idH[i];}
-  int    col(int i)         const {return colH[i];} 
-  int    acol(int i)        const {return acolH[i];}
-  double m(int i)           const {return mH[i];}
+  int    id(int i)          const {return idSave[i];}
+  int    col(int i)         const {return colSave[i];} 
+  int    acol(int i)        const {return acolSave[i];}
+  double m(int i)           const {return mSave[i];}
   Particle getParton(int i) const {return parton[i];}
 
   // Give back couplings and parton densities. Not all known for minbias.
-  double Q2Ren()            const {return Q2RenH;}
-  double alphaEMH()         const {return alpEM;}
-  double alphaSH()          const {return alpS;}
-  double Q2Fac()            const {return Q2FacH;}
-  double pdf1()             const {return pdf1H;}
-  double pdf2()             const {return pdf2H;}
+  double Q2Ren()            const {return Q2RenSave;}
+  double alphaEMRen()       const {return alpEM;}
+  double alphaSRen()        const {return alpS;}
+  double Q2Fac()            const {return Q2FacSave;}
+  double pdf1()             const {return pdf1Save;}
+  double pdf2()             const {return pdf2Save;}
 
   // Give back angles; relevant only for multipe-interactions processes.
   double thetaMI()          const {return atan2( sinTheta, cosTheta);}
@@ -153,12 +220,14 @@ public:
 protected:
 
   // Constructor.
-  SigmaProcess() {inFluxPtr = 0; for (int i = 0; i < 6; ++i) mH[i] = 0.;}
+  SigmaProcess() {for (int i = 0; i < 6; ++i) mSave[i] = 0.;}
 
   // Static initialization data, normally only set once.
-  static int    alphaSorder,alphaEMorder, nQuark, renormScale, factorScale,
-                SMHiggsParity;
-  static double alphaSvalue, renormMult, factorMult, SMHiggsEta;
+  static int    alphaSorder, alphaEMorder, nQuarkIn, nQuarkNew, nQuarkLoop, 
+                renormScale1, renormScale2, renormScale3, renormScale3VV, 
+                factorScale1, factorScale2, factorScale3, factorScale3VV;
+  static double alphaSvalue, renormMultFac, renormFixScale, factorMultFac, 
+                factorFixScale;
 
   // Static alphaStrong and alphaElectromagnetic calculation.
   static AlphaStrong alphaS;
@@ -167,10 +236,14 @@ protected:
   // Constants: could only be changed in the code itself.
   static const double CONVERT2MB, MASSMARGIN;
 
-  // Static information on incoming beams.
+  // Static pointers to incoming beams.
+  static BeamParticle* beamAPtr;
+  static BeamParticle* beamBPtr;
+
+  // Static further information on incoming beams.
   static int    idA, idB;
   static double mA, mB; 
-  static bool   hasLeptonBeams;
+  static bool   isLeptonA, isLeptonB, hasLeptonBeams;
   
   // Static pointer to the total/elastic/diffractive cross section object.
   static SigmaTotal* sigmaTotPtr;
@@ -178,48 +251,53 @@ protected:
   // Static pointer to the SLHA object.
   static SusyLesHouches* slha;
 
+  // Partons in beams, with PDF's.
+  vector<InBeam> inBeamA;
+  vector<InBeam> inBeamB;
+  void addBeamA(int id) {inBeamA.push_back(InBeam(id));}
+  void addBeamB(int id) {inBeamB.push_back(InBeam(id));}
+  int sizeBeamA() const {return inBeamA.size();}
+  int sizeBeamB() const {return inBeamB.size();}
+ 
+  // Allowed colliding parton pairs, with pdf's.
+  vector<InPair> inPair;
+  void addPair(int idA, int idB) {inPair.push_back(InPair(idA, idB));}
+  int sizePair() const {return inPair.size();}
+
   // Store Q2 renormalization and factorization scales, and related values.
-  double Q2RenH, alpEM, alpS, Q2FacH, pdf1H, pdf2H;
+  double Q2RenSave, alpEM, alpS, Q2FacSave, x1Save, x2Save, pdf1Save, 
+         pdf2Save, sigmaSumSave;
 
   // Store flavour, colour, anticolour, mass, angles and the whole particle.
-  int      idH[6], colH[6], acolH[6];
-  double   mH[6], cosTheta, sinTheta, phi, sHMass, sHBeta, pT2Mass;
+  int      id1, id2, id3, id4, id5;
+  int      idSave[6], colSave[6], acolSave[6];
+  double   mSave[6], cosTheta, sinTheta, phi, sHMass, sHBeta, pT2Mass;
   Particle parton[6];
-
-  // Pointer to the parton-flux object.
-  InFlux* inFluxPtr;
 
   // Store whether tHat and uHat are swapped (= same as swap 3 and 4).
   bool swapTU;
 
   // Set flavour, colour and anticolour.
   void setId( int id1in = 0, int id2in = 0, int id3in = 0, int id4in = 0,
-    int id5in = 0) {idH[1] = id1in; idH[2] = id2in; idH[3] = id3in; 
-    idH[4] = id4in; idH[5] = id5in;}
-  void swapIdM34() { swap(idH[3], idH[4]); swap(mH[3], mH[4]);}
+    int id5in = 0) {idSave[1] = id1in; idSave[2] = id2in; idSave[3] = id3in; 
+    idSave[4] = id4in; idSave[5] = id5in;}
   void setColAcol( int col1 = 0, int acol1 = 0, 
     int col2 = 0, int acol2 = 0, int col3 = 0, int acol3 = 0, 
     int col4 = 0, int acol4 = 0, int col5 = 0, int acol5 = 0) {
-    colH[1] = col1; acolH[1] = acol1; colH[2] = col2; acolH[2] = acol2;
-    colH[3] = col3; acolH[3] = acol3; colH[4] = col4; acolH[4] = acol4;
-    colH[5] = col5; acolH[5] = acol5; }
-  void swapColAcol() { swap(colH[1], acolH[1]); 
-    swap(colH[2], acolH[2]); swap(colH[3], acolH[3]); 
-    swap(colH[4], acolH[4]); swap(colH[5], acolH[5]);}
-  void swapCol1234() { swap(colH[1], colH[2]); swap(colH[3], colH[4]); 
-    swap(acolH[1], acolH[2]); swap(acolH[3], acolH[4]);}
-  void swapCol12() { swap(colH[1], colH[2]); swap(acolH[1], acolH[2]);}
-  void swapCol34() { swap(colH[3], colH[4]); swap(acolH[3], acolH[4]);}
-
-  // Evaluate weight for W decay distribution in t -> W b -> f fbar b.
-  // Usage: weightTopDecay( process, iResBeg, iResEnd), where 
-  // iResBeg <= i < iResEnd is range of sister partons to test decays of.
-  double weightTopDecay( Event&, int, int);
-
-  // Evaluate weight for Z0/W+- decay distributions in H -> Z0/W+ Z0/W- -> 4f.
-  // Usage: weightHiggsDecay( process, iResBeg, iResEnd), where 
-  // iResBeg <= i < iResEnd is range of sister partons to test decays of.
-  double weightHiggsDecay( Event&, int, int);
+    colSave[1] = col1; acolSave[1] = acol1; colSave[2] = col2; 
+    acolSave[2] = acol2; colSave[3] = col3; acolSave[3] = acol3; 
+    colSave[4] = col4; acolSave[4] = acol4; colSave[5] = col5; 
+    acolSave[5] = acol5; }
+  void swapColAcol() { swap(colSave[1], acolSave[1]); 
+    swap(colSave[2], acolSave[2]); swap(colSave[3], acolSave[3]); 
+    swap(colSave[4], acolSave[4]); swap(colSave[5], acolSave[5]);}
+  void swapCol1234() { swap(colSave[1], colSave[2]); 
+    swap(colSave[3], colSave[4]); swap(acolSave[1], acolSave[2]); 
+    swap(acolSave[3], acolSave[4]);}
+  void swapCol12() { swap(colSave[1], colSave[2]); 
+    swap(acolSave[1], acolSave[2]);}
+  void swapCol34() { swap(colSave[3], colSave[4]); 
+    swap(acolSave[3], acolSave[4]);}
 
 };
  
@@ -238,11 +316,17 @@ public:
   // Number of final-state particles.
   virtual int nFinal() const {return 2;};
 
+  // No parton flux to set up for this kind of processes.
+  virtual bool initFlux() {return true;}
+
   // Evaluate sigma for unresolved processes. 
   virtual double sigmaHat() {return 0.;}
 
   // Since no PDF's there is no difference from above. 
   double sigmaPDF() {return sigmaHat();}
+
+  // Answer for these processes already in mb, so do not convert.
+  virtual bool convert2mb() const {return false;}
 
 protected:
 
@@ -261,36 +345,28 @@ class Sigma1Process : public SigmaProcess {
 public:
 
   // Destructor.
-  virtual ~Sigma1Process() {if (inFluxPtr !=0) delete inFluxPtr;}
+  virtual ~Sigma1Process() {}
 
   // Number of final-state particles.
   virtual int nFinal() const {return 1;};
 
+  // Input and complement kinematics for resolved 2 -> 1 process.
+  virtual void set1Kin( double x1in, double x2in, double sHin) {
+    store1Kin( x1in, x2in, sHin); sigmaKin();} 
+
   // Evaluate sigmaHat(sHat) for resolved 2 -> 1 processes. 
   virtual double sigmaHat() {return 0.;}
-
-  // Convolute sigmaHat(sHat) with parton flux. 
-  virtual double sigmaPDF() {
-    if (inFluxPtr == 0) return 0.;
-    // Note that order is important: sigmaHat may set info for inFlux.
-    return sigmaHat() * inFluxPtr->flux( x1, x2, Q2FacH);}
-
-  // Input and complement kinematics for resolved 2 -> 2 process.
-  virtual bool set1Kin( double x1in, double x2in, double sHin); 
-
-  // Select incoming parton channel and extract parton densities.
-  void pickInState() {inFluxPtr->pick(); id1 = inFluxPtr->id1();
-    id2 = inFluxPtr->id2(); pdf1H = inFluxPtr->pdf1();
-    pdf2H = inFluxPtr->pdf2();} 
 
 protected:
 
   // Constructor.
   Sigma1Process() {}
 
+  // Store kinematics and set scales for resolved 2 -> 1 process.
+  virtual void store1Kin( double x1in, double x2in, double sHin);
+
   // Store subprocess kinematics quantities.
-  int    id1, id2, id3;
-  double x1, x2, sH, sH2;
+  double mH, sH, sH2;
 
 };
  
@@ -304,33 +380,26 @@ class Sigma2Process : public SigmaProcess {
 public:
 
   // Destructor.
-  virtual ~Sigma2Process() {if (inFluxPtr !=0) delete inFluxPtr;}
+  virtual ~Sigma2Process() {}
 
   // Number of final-state particles.
   virtual int nFinal() const {return 2;};
 
-  // Evaluate d(sigmaHat)/d(tHat) for resolved 2 -> 2 processes. 
-  virtual double sigmaHat() {return 0.;}
-
-  // Convolute d(sigmaHat)/d(tHat) with parton flux. 
-  virtual double sigmaPDF() {
-    if (inFluxPtr == 0) return 0.;
-    // Note that order is important: sigmaHat may set info for inFlux.
-    return sigmaHat() * inFluxPtr->flux( x1, x2, Q2FacH);}
-
   // Input and complement kinematics for resolved 2 -> 2 process.
-  virtual bool set2Kin( double x1in, double x2in, double sHin, double tHin,
-    double m3in, double m4in, double runBW3in, double runBW4in); 
+  virtual void set2Kin( double x1in, double x2in, double sHin, double tHin,
+    double m3in, double m4in, double runBW3in, double runBW4in) { 
+    store2Kin( x1in, x2in, sHin, tHin, m3in, m4in, runBW3in, runBW4in);
+    sigmaKin();}
 
   // Ditto, but for Multiple Interactions applications, so different input.
-  virtual bool set2KinMI( int id1in, int id2in, double x1in, double x2in,
-    double sHin, double tHin, double uHin, double alpSin, double alpEMin,
-    bool needMasses, double m3in, double m4in);
+  virtual void set2KinMI( double x1in, double x2in, double sHin, 
+    double tHin, double uHin, double alpSin, double alpEMin, 
+    bool needMasses, double m3in, double m4in) {
+    store2KinMI( x1in, x2in, sHin, tHin, uHin, alpSin, alpEMin, 
+    needMasses, m3in, m4in); sigmaKin();}
 
-  // Select incoming parton channel and extract parton densities.
-  void pickInState() {inFluxPtr->pick(); id1 = inFluxPtr->id1();
-    id2 = inFluxPtr->id2(); pdf1H = inFluxPtr->pdf1();
-    pdf2H = inFluxPtr->pdf2();} 
+  // Evaluate d(sigmaHat)/d(tHat) for resolved 2 -> 2 processes. 
+  virtual double sigmaHat() {return 0.;}
 
   // Perform kinematics for a Multiple Interaction, in its rest frame.
   virtual bool final2KinMI();
@@ -340,11 +409,57 @@ protected:
   // Constructor.
   Sigma2Process() {}
 
+  // Store kinematics and set scales for resolved 2 -> 2 process.
+  virtual void store2Kin( double x1in, double x2in, double sHin, 
+    double tHin, double m3in, double m4in, double runBW3in, 
+    double runBW4in);
+  virtual void store2KinMI( double x1in, double x2in, double sHin, 
+    double tHin, double uHin, double alpSin, double alpEMin, 
+    bool needMasses, double m3in, double m4in);
+
   // Store subprocess kinematics quantities.
-  bool   id12IsSet;
-  int    id1, id2, id3, id4;
-  double x1, x2, sH, tH, uH, sH2, tH2, uH2, m3, s3, m4, s4, pT2,
-         runBW3, runBW4;
+  double mH, sH, tH, uH, sH2, tH2, uH2, m3, s3, m4, s4, pT2, runBW3, runBW4;
+
+};
+ 
+//**************************************************************************
+
+// Sigma3Process is the base class for 2 -> 3 processes.
+// It is derived from SigmaProcess.
+
+class Sigma3Process : public SigmaProcess {
+
+public:
+
+  // Destructor.
+  virtual ~Sigma3Process() {}
+
+  // Number of final-state particles.
+  virtual int nFinal() const {return 3;};
+
+  // Input and complement kinematics for resolved 2 -> 3 process.
+  virtual void set3Kin( double x1in, double x2in, double sHin, 
+    Vec4 p3cmIn, Vec4 p4cmIn, Vec4 p5cmIn, double m3in, double m4in, 
+    double m5in, double runBW3in, double runBW4in, double runBW5in) { 
+    store3Kin( x1in, x2in, sHin, p3cmIn, p4cmIn, p5cmIn, m3in, m4in, m5in,
+    runBW3in, runBW4in, runBW5in); sigmaKin();}
+
+  // Evaluate d(sigmaHat)/d(tHat) for resolved 2 -> 3 processes. 
+  virtual double sigmaHat() {return 0.;}
+
+protected:
+
+  // Constructor.
+  Sigma3Process() {}
+
+  // Store kinematics and set scales for resolved 2 -> 3 process.
+  virtual void store3Kin( double x1in, double x2in, double sHin, 
+    Vec4 p3cmIn, Vec4 p4cmIn, Vec4 p5cmIn, double m3in, double m4in, 
+    double m5in, double runBW3in, double runBW4in, double runBW5in);
+
+  // Store subprocess kinematics quantities.
+  double mH, sH, m3, s3, m4, s4, m5, s5, pT2, runBW3, runBW4, runBW5;
+  Vec4   p3cm, p4cm, p5cm;
 
 };
  

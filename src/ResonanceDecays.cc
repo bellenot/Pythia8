@@ -1,6 +1,10 @@
+// ResonanceDecays.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for 
 // the ResonanceDecays class.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "ResonanceDecays.h"
 
@@ -38,9 +42,10 @@ bool ResonanceDecays::next( Event& process) {
 
       // Pointer to dynamically defined resonances.
       ResonanceProperties* resonancePtr = 0;
+      if (id0Abs ==  6)    resonancePtr = new ResonanceTop;
       if (id0Abs == 23)    resonancePtr = new ResonanceGmZ;
       if (id0Abs == 24)    resonancePtr = new ResonanceW;
-      if (id0Abs == 25)    resonancePtr = new ResonanceH; 
+      if (id0Abs == 25)    resonancePtr = new ResonanceSMH; 
 
       // Prepare decay selection for other resonances.
       if (resonancePtr == 0) decayer.particleData().decay.preparePick(id0);
@@ -55,9 +60,9 @@ bool ResonanceDecays::next( Event& process) {
       // Pick a decay channel; allow up to ten tries.
       for (int iTryChannel = 0; iTryChannel < NTRYDECAY; ++iTryChannel) {
 
-        // Correct dynamic treatment so far only for gamma*/Z0, W+- and H0.
+        // Correct dynamic treatment so far only for top, gamma*/Z0, W+- and H0.
         if (resonancePtr > 0) 
-             channel = &resonancePtr->dynamicDecay(m0, idIn);
+             channel = &resonancePtr->dynamicDecay(m0, id0, idIn);
         else channel = &decayer.particleData().decay.pickChannel();  
 
         // Consider for now only two-body decay.

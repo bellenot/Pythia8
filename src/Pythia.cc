@@ -1,6 +1,9 @@
+// Pythia.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Function definitions (not found in the header) for the Pythia class.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 
@@ -25,7 +28,8 @@ bool   Pythia::doPartonLevel = true;
 bool   Pythia::doHadronLevel = true;
 bool   Pythia::checkEvent    = true;
 int    Pythia::nErrList      = 3;
-double Pythia::epTolerance   = 1e-5;
+double Pythia::epTolErr      = 1e-4;
+double Pythia::epTolWarn     = 1e-6;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -91,6 +95,10 @@ Pythia::Pythia(string xmlDir) {
   // Write the Pythia banner to output. 
   banner();
 
+  // Set headers to distinguish the two event listing kinds.
+  process.header("(hard process)");
+  event.header("(complete event)");
+
   // Default for some flags.
   doLHA         = false;
   isInit        = false;
@@ -123,6 +131,9 @@ bool Pythia::readString(string line, bool warn) {
 
   // Check that constructor worked.
   if (!isConstructed) return false;
+
+  // If empty line then done.
+  if (line.find_first_not_of(" ") == string::npos) return true;
 
   // If first character is not a letter/digit, then taken to be a comment.
   int firstChar = line.find_first_not_of(" ");
@@ -206,14 +217,14 @@ bool Pythia::setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn,
 bool Pythia::init( int idAin, int idBin, double eAin, double eBin) {
 
   // Read in and set values.
-  idA = idAin;
-  idB = idBin;
-  eA  = eAin;
-  eB  = eBin;
+  idA       = idAin;
+  idB       = idBin;
   inCMframe = false;
+  eA        = eAin;
+  eB        = eBin;
 
   // Send on to common initialization. 
-  bool status = init();
+  bool status = initInternal();
   if (!status) ErrorMsg::message("Abort from Pythia::init: "
     "initialization failed");
   return status;
@@ -227,13 +238,35 @@ bool Pythia::init( int idAin, int idBin, double eAin, double eBin) {
 bool Pythia::init( int idAin, int idBin, double eCMin) {
 
   // Read in and set values.
-  idA = idAin;
-  idB = idBin;
-  eCM  = eCMin;
+  idA       = idAin;
+  idB       = idBin;
   inCMframe = true;
+  eCM       = eCMin;
 
   // Send on to common initialization.
-  bool status = init();
+  bool status = initInternal();
+  if (!status) ErrorMsg::message("Abort from Pythia::init: "
+    "initialization failed");
+  return status;
+
+}
+
+//*********
+
+// Routine to initialize with the variable values of the Main kind.
+
+bool Pythia::init() {
+
+  // Read in and set values.
+  idA       = mode("Main:idBeamA");
+  idB       = mode("Main:idBeamB");
+  inCMframe = flag("Main:inCMframe");
+  eCM       = parm("Main:eCM");
+  eA        = parm("Main:eBeamA");
+  eB        = parm("Main:eBeamB");
+
+  // Send on to common initialization.
+  bool status = initInternal();
   if (!status) ErrorMsg::message("Abort from Pythia::init: "
     "initialization failed");
   return status;
@@ -265,7 +298,7 @@ bool Pythia::init( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn) {
   inCMframe = false;
 
   // Now do normal initialization. List info if there.
-  status = init();
+  status = initInternal();
   if (strategyLHA < 10) lhaInitPtr->list();
   if (!status) ErrorMsg::message("Abort from Pythia::init: "
     "initialization failed");
@@ -299,7 +332,7 @@ bool Pythia::init( string LesHouchesEventFile) {
   inCMframe = false;
 
   // Now do normal initialization. List info if there.
-  status = init();
+  status = initInternal();
   if (strategyLHA < 10) lhaInitPtr->list(); 
   if (!status) ErrorMsg::message("Abort from Pythia::init: "
     "initialization failed");
@@ -312,9 +345,10 @@ bool Pythia::init( string LesHouchesEventFile) {
 // Main routine to initialize the generation process.
 // (The alternative init forms end up in this one.)
 
-bool Pythia::init() {
+bool Pythia::initInternal() {
 
   // Check that constructor worked.
+  isInit = false;
   if (!isConstructed) return false;
 
   // Reset error counter.
@@ -329,7 +363,7 @@ bool Pythia::init() {
   int idAabs = abs(idA);
   int idBabs = abs(idB);
   if (idAabs == 2212 && idBabs == 2212) canHandleBeams = true;
-  else if(settings.flag("Pythia:lPDF")) {
+  else if(settings.flag("PDF:lepton")) {
     if ( idA + idB == 0 && (idAabs == 11 || idAabs == 13
       || idAabs == 15) ) canHandleBeams = true;
   } else if (idAabs > 10 && idAabs < 17 && idA * idB < 0) {
@@ -374,10 +408,6 @@ bool Pythia::init() {
 
   // Initialize Breit-Wigner mass selection.
   particleData.initBWmass();
-
-  // Set headers to distinguish the two event listing kinds.
-  process.header("(hard process)");
-  event.header("(complete event)");
 
   // Do not set up beam kinematics when no parton-level processing.
   if (strategyLHA >= 10) inCMframe = true;
@@ -424,7 +454,7 @@ bool Pythia::init() {
     }
 
     // Optionally set up separate PDF's for hard process.
-    if (settings.flag("Pythia:useHardPFD")) {
+    if (settings.flag("PDF:useHard")) {
       pdfHardAPtr = getPDFPtr(idA, 2);      
       if (!pdfHardAPtr->isSetup()) return false;
       pdfHardBPtr = getPDFPtr(idB, 2);      
@@ -434,9 +464,9 @@ bool Pythia::init() {
   
     // Set up the two beams and the common remnant system.
     bool isUnresolvedA = ( ParticleDataTable::isLepton(idA) 
-      && !settings.flag("Pythia:lPDF") );
+      && !settings.flag("PDF:lepton") );
     bool isUnresolvedB = ( ParticleDataTable::isLepton(idB) 
-      && !settings.flag("Pythia:lPDF") );
+      && !settings.flag("PDF:lepton") );
     beamA.init( idA, pzA, eA, mA, pdfAPtr, pdfHardAPtr, isUnresolvedA);
     beamB.init( idB, pzB, eB, mB, pdfBPtr, pdfHardBPtr, isUnresolvedB);
   }
@@ -448,10 +478,10 @@ bool Pythia::init() {
 
   // Set info in and send pointers to the respective program elements.
   ProcessContainer::setInfoPtr( &info);
-  if (!processLevel.init( &info, &beamA, &beamB, 
-    doLHA, lhaInitPtr, lhaEvntPtr, userHooksPtr)) return false;
-  if (!partonLevel.init( &info, &beamA, &beamB, timesDecPtr, timesPtr,
-    spacePtr, strategyLHA, userHooksPtr)) return false;
+  if (!processLevel.init( &info, &beamA, &beamB, doLHA, lhaInitPtr, 
+    lhaEvntPtr, userHooksPtr, sigmaPtrs)) return false;
+  if (!partonLevel.init( &info, &beamA, &beamB, timesDecPtr, 
+    timesPtr, spacePtr, strategyLHA, userHooksPtr)) return false;
   if (!hadronLevel.init( &info, timesDecPtr)) return false;
 
   // Succeeded.
@@ -470,15 +500,16 @@ void Pythia::initStatic() {
   ErrorMsg::initStatic();
 
   // Initialize the random number generator.
-  if ( settings.flag("Pythia:setSeed") )  
-    Rndm::init( settings.mode("Pythia:seed") );
+  if ( settings.flag("Random:setSeed") )  
+    Rndm::init( settings.mode("Random:seed") );
 
   // Initialize static data members in the Pythia class.
-  doPartonLevel = settings.flag("Pythia:partonLevel");
-  doHadronLevel = settings.flag("Pythia:hadronLevel");
-  checkEvent    = settings.flag("Pythia:checkEvent");
-  nErrList      = settings.mode("Pythia:nErrList");
-  epTolerance   = settings.parm("Pythia:epTolerance");
+  doPartonLevel = settings.flag("PartonLevel:all");
+  doHadronLevel = settings.flag("HadronLevel:all");
+  checkEvent    = settings.flag("Check:event");
+  nErrList      = settings.mode("Check:nErrList");
+  epTolErr      = settings.parm("Check:epTolErr");
+  epTolWarn     = settings.parm("Check:epTolWarn");
   
   // Initialize all other accessible static data members.
   ParticleDataEntry::initStatic();
@@ -488,7 +519,6 @@ void Pythia::initStatic() {
   Event::initStatic();
   BeamParticle::initStatic(); 
   BeamRemnants::initStatic();
-  InFlux::initStatic(); 
   SigmaProcess::initStatic(); 
   SigmaTotal::initStatic();
   PhaseSpace::initStatic();
@@ -563,6 +593,9 @@ bool Pythia::next() {
   if (!isInit) {
     ErrorMsg::message("Abort from Pythia::next: "
       "not properly initialized so cannot generate events"); 
+    info.clear();
+    process.clear();
+    event.clear();
     return false;
   }
 
@@ -774,6 +807,12 @@ void Pythia::banner(ostream& os) {
      << "a.html                                |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
+     << " |  |   This program is released under the GN"
+     << "U General Public Licence version 2.   |  | \n"
+     << " |  |   Please respect the MCnet Guidelines f"
+     << "or Event Generator Authors and Users. |  | \n"     
+     << " |  |                                        "
+     << "                                      |  | \n"
      << " |  |   Disclaimer: this program comes withou"
      << "t any guarantees.                     |  | \n"
      << " |  |   Beware of errors and use common sense"
@@ -784,7 +823,7 @@ void Pythia::banner(ostream& os) {
      << "physics studies or production runs.   |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
-     << " |  |   Copyright C 2007 Torbjorn Sjostrand  " 
+     << " |  |   Copyright (C) 2007 Torbjorn Sjostrand" 
      << "                                      |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
@@ -852,10 +891,13 @@ bool Pythia::check(ostream& os) {
   // Check energy-momentum/charge conservation.
   double epDev = abs(pSum.e()) + abs(pSum.px()) + abs(pSum.py())
     + abs(pSum.pz());
-  if (epDev > epTolerance * eLab) { 
+  if (epDev > epTolErr * eLab) { 
     ErrorMsg::message("Error in Pythia::check: "
-      "energy-momentum badly conserved"); 
+      "energy-momentum not conserved"); 
     physical = false;
+  } else if (epDev > epTolWarn * eLab) { 
+    ErrorMsg::message("Warning in Pythia::check: "
+      "energy-momentum not quite conserved"); 
   }
   if (abs(chargeSum) > 0.1) {
     ErrorMsg::message("Error in Pythia::check: "
@@ -881,7 +923,7 @@ bool Pythia::check(ostream& os) {
         os << iErrNan[i] << " ";
       os << "\n";
     }
-    if (epDev > epTolerance * eLab) os << scientific << setprecision(3)
+    if (epDev > epTolErr * eLab) os << scientific << setprecision(3)
       << " total energy-momentum non-conservation = " << epDev << "\n";
     if (abs(chargeSum) > 0.1) os << fixed << setprecision(2) 
       << " total charge non-conservation = " << chargeSum << "\n"; 
@@ -905,27 +947,27 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
 
   // Proton beam, normal choice.
   if (abs(idIn) == 2212 && sequence == 1) {
-    int  pPDFset   = settings.mode("Pythia:pPDFset");
-    bool useLHAPDF = settings.flag("Pythia:useLHAPDF");
+    int  pSet      = settings.mode("PDF:pSet");
+    bool useLHAPDF = settings.flag("PDF:useLHAPDF");
 
     // Use internal sets.
     if (!useLHAPDF) {
-      if (pPDFset == 1) tempPDFPtr = new GRV94L(idIn);
+      if (pSet == 1) tempPDFPtr = new GRV94L(idIn);
       else tempPDFPtr = new CTEQ5L(idIn);
     }
     
     // Use sets from LHAPDF.
     else {
-      string LHAPDFset    = settings.word("Pythia:LHAPDFset");
-      int    LHAPDFmember = settings.mode("Pythia:LHAPDFmember");
+      string LHAPDFset    = settings.word("PDF:LHAPDFset");
+      int    LHAPDFmember = settings.mode("PDF:LHAPDFmember");
       tempPDFPtr = new LHAPDF(idIn, LHAPDFset, LHAPDFmember);
 
       // Set x and Q2 limits.
-      if (settings.flag("Pythia:limitLHAPDF")) {
-        double xMin  = settings.parm("Pythia:xMinLHAPDF");
-        double xMax  = settings.parm("Pythia:xMaxLHAPDF");
-        double Q2Min = settings.parm("Pythia:Q2MinLHAPDF");
-        double Q2Max = settings.parm("Pythia:Q2MaxLHAPDF");
+      if (settings.flag("PDF:limitLHAPDF")) {
+        double xMin  = settings.parm("PDF:xMinLHAPDF");
+        double xMax  = settings.parm("PDF:xMaxLHAPDF");
+        double Q2Min = settings.parm("PDF:Q2MinLHAPDF");
+        double Q2Max = settings.parm("PDF:Q2MaxLHAPDF");
         tempPDFPtr->setLimits( xMin, xMax, Q2Min, Q2Max);
       }
     }
@@ -933,27 +975,27 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
 
   // Proton beam, special choice for the hard process..
   else if (abs(idIn) == 2212) {
-    int  pPDFset   = settings.mode("Pythia:hardpPDFset");
-    bool useLHAPDF = settings.flag("Pythia:useHardLHAPDF");
+    int  pSet      = settings.mode("PDF:pHardSet");
+    bool useLHAPDF = settings.flag("PDF:useHardLHAPDF");
 
     // Use internal sets.
     if (!useLHAPDF) {
-      if (pPDFset == 1) tempPDFPtr = new GRV94L(idIn);
+      if (pSet == 1) tempPDFPtr = new GRV94L(idIn);
       else tempPDFPtr = new CTEQ5L(idIn);
     }
     
     // Use sets from LHAPDF.
     else {
-      string LHAPDFset    = settings.word("Pythia:hardLHAPDFset");
-      int    LHAPDFmember = settings.mode("Pythia:hardLHAPDFmember");
+      string LHAPDFset    = settings.word("PDF:hardLHAPDFset");
+      int    LHAPDFmember = settings.mode("PDF:hardLHAPDFmember");
       tempPDFPtr = new LHAPDF(idIn, LHAPDFset, LHAPDFmember, 2);
 
       // Set x and Q2 limits.
-      if (settings.flag("Pythia:limitHardLHAPDF")) {
-        double xMin  = settings.parm("Pythia:xMinHardLHAPDF");
-        double xMax  = settings.parm("Pythia:xMaxHardLHAPDF");
-        double Q2Min = settings.parm("Pythia:Q2MinHardLHAPDF");
-        double Q2Max = settings.parm("Pythia:Q2MaxHardLHAPDF");
+      if (settings.flag("PDF:limitHardLHAPDF")) {
+        double xMin  = settings.parm("PDF:xMinHardLHAPDF");
+        double xMax  = settings.parm("PDF:xMaxHardLHAPDF");
+        double Q2Min = settings.parm("PDF:Q2MinHardLHAPDF");
+        double Q2Max = settings.parm("PDF:Q2MaxHardLHAPDF");
         tempPDFPtr->setLimits( xMin, xMax, Q2Min, Q2Max);
       }
     }
@@ -961,7 +1003,7 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
 
   // Lepton beam; resolved or not.
   else {
-    if (settings.flag("Pythia:lPDF") && abs(idIn)%2 == 1) 
+    if (settings.flag("PDF:lepton") && abs(idIn)%2 == 1) 
       tempPDFPtr = new Lepton(idIn);
     else tempPDFPtr = new LeptonPoint(idIn);
   }

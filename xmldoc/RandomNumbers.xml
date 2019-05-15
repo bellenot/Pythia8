@@ -37,10 +37,10 @@ the <code>Stdlib time(0)</code> function to provide a "random"
 the default <code>seed</code>.
 
 <p/>
-The <code>Pythia</code> class defines a flag and a mode, that allows 
-the <code>seed</code> to be set in the <code>Pythia::init</code> call. 
-That would be the standard way for a user to the pick random number 
-sequence in a run.
+The <code>Pythia</code> class defines <aloc href="RandomNumberSeed">a 
+flag and a mode</aloc>, that allows the <code>seed</code> to be set in 
+the <code>Pythia::init</code> call. That would be the standard way for a 
+user to pick the random number sequence in a run.
 
 <h3>External random numbers</h3>
 
@@ -65,8 +65,8 @@ externally to the <code>Pythia</code> code.
 
 <p/>
 An example illustrating how to run with an external random number
-generator is provided in <code>main18.cc</code>.
+generator is provided in <code>main24.cc</code>.
 
 </chapter>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

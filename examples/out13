@@ -1,0 +1,787 @@
+
+ *------------------------------------------------------------------------------------* 
+ |                                                                                    | 
+ |  *------------------------------------------------------------------------------*  | 
+ |  |                                                                              |  | 
+ |  |                                                                              |  | 
+ |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.090      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 20 Jul 2007  |  | 
+ |  |   P       Y      T    H   H   I   A   A                                      |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 20 Jul 2007 at 16:26:29    |  | 
+ |  |                                                                              |  | 
+ |  |   Main author: Torbjorn Sjostrand; CERN/PH, CH-1211 Geneva, Switzerland,     |  | 
+ |  |     and Department of Theoretical Physics, Lund University, Lund, Sweden;    |  | 
+ |  |     phone: + 41 - 22 - 767 82 27; e-mail: torbjorn@thep.lu.se                |  | 
+ |  |   Author: Stephen Mrenna; Computing Division, Simulations Group,             |  | 
+ |  |     Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;   |  | 
+ |  |     phone: + 1 - 630 - 840 - 2556; e-mail: mrenna@fnal.gov                   |  | 
+ |  |   Author: Peter Skands; Theoretical Physics Department,                      |  | 
+ |  |     Fermi National Accelerator Laboratory, MS 106, Batavia, IL 60510, USA;   |  | 
+ |  |     phone: + 1 - 630 - 840 - 2270; e-mail: skands@fnal.gov                   |  | 
+ |  |                                                                              |  | 
+ |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
+ |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
+ |  |   In addition, for PYTHIA 8.0, also quote the 'Brief Introduction',          |  | 
+ |  |   T. Sjostrand, CERN-LCGAPP-2007-03.                                         |  | 
+ |  |                                                                              |  | 
+ |  |   An archive of program versions and documentation is found on the web:      |  | 
+ |  |   http://www.thep.lu.se/~torbjorn/Pythia.html                                |  | 
+ |  |                                                                              |  | 
+ |  |   This program is released under the GNU General Public Licence version 2.   |  | 
+ |  |   Please respect the MCnet Guidelines for Event Generator Authors and Users. |  | 
+ |  |                                                                              |  | 
+ |  |   Disclaimer: this program comes without any guarantees.                     |  | 
+ |  |   Beware of errors and use common sense when interpreting results.           |  | 
+ |  |   In addition, the current 8.0 version is intended for tryout and feedback   |  | 
+ |  |   only, and should not be used for any physics studies or production runs.   |  | 
+ |  |                                                                              |  | 
+ |  |   Copyright (C) 2007 Torbjorn Sjostrand                                      |  | 
+ |  |                                                                              |  | 
+ |  |                                                                              |  | 
+ |  *------------------------------------------------------------------------------*  | 
+ |                                                                                    | 
+ *------------------------------------------------------------------------------------* 
+
+ PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | g g -> g g                                111 |   3.856e+00 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 4.890e-01 and in Pythia6 was 4.960e-01,
+ i.e. now is factor 0.986 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | g g -> q qbar (uds)                       112 |   3.615e-02 |
+ | g g -> c cbar                             121 |   1.192e-02 |
+ | g g -> b bbar                             123 |   1.106e-02 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 1.588e-02 and in Pythia6 was 1.627e-02,
+ i.e. now is factor 0.976 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | q g -> q g                                113 |   2.105e+00 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 2.777e-01 and in Pythia6 was 2.790e-01,
+ i.e. now is factor 0.995 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | q q(bar)' -> q q(bar)'                    114 |   2.032e-01 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 2.732e-02 and in Pythia6 was 2.800e-02,
+ i.e. now is factor 0.976 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | q qbar -> g g                             115 |   1.352e-03 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 3.299e-04 and in Pythia6 was 3.310e-04,
+ i.e. now is factor 0.997 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | q qbar -> q' qbar' (uds)                  116 |   5.935e-04 |
+ | q qbar -> c cbar                          122 |   1.967e-04 |
+ | q qbar -> b bbar                          124 |   1.891e-04 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 3.550e-04 and in Pythia6 was 3.653e-04,
+ i.e. now is factor 0.972 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | q g -> q gamma (udscb)                    201 |   6.660e-04 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 1.556e-04 and in Pythia6 was 1.697e-04,
+ i.e. now is factor 0.917 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | q qbar -> g gamma                         202 |   3.861e-05 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 1.170e-05 and in Pythia6 was 1.163e-05,
+ i.e. now is factor 1.006 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | g g -> g gamma                            203 |   2.809e-07 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 1.043e-07 and in Pythia6 was 1.065e-07,
+ i.e. now is factor 0.980 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f fbar -> gamma gamma                     204 |   2.915e-07 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 8.363e-08 and in Pythia6 was 8.259e-08,
+ i.e. now is factor 1.013 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | g g -> gamma gamma                        205 |   2.188e-07 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 8.201e-08 and in Pythia6 was 8.237e-08,
+ i.e. now is factor 0.996 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f f' -> f f' (t-channel gamma*/Z0)        211 |   1.610e-04 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 2.575e-05 and in Pythia6 was 2.544e-05,
+ i.e. now is factor 1.012 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f_1 f_2 -> f_3 f_4 (t-channel W+-)        212 |   7.594e-05 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 5.419e-06 and in Pythia6 was 5.321e-06,
+ i.e. now is factor 1.018 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f fbar -> gamma*/Z0                       221 |   1.295e-04 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 5.632e-05 and in Pythia6 was 5.571e-05,
+ i.e. now is factor 1.011 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f fbar' -> W+-                            222 |   4.152e-04 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 1.645e-04 and in Pythia6 was 1.621e-04,
+ i.e. now is factor 1.015 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f fbar -> gamma*/Z0 gamma*/Z0             231 |   3.111e-07 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 9.255e-09 and in Pythia6 was 9.039e-09,
+ i.e. now is factor 1.024 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f fbar' -> Z0 W+- (no gamma*!)            232 |   4.748e-07 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 2.273e-08 and in Pythia6 was 2.247e-08,
+ i.e. now is factor 1.012 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f fbar -> W+ W-                           233 |   5.061e-07 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 6.035e-08 and in Pythia6 was 5.893e-08,
+ i.e. now is factor 1.024 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | q qbar -> gamma*/Z0 g                     241 |   3.652e-05 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 3.788e-06 and in Pythia6 was 3.781e-06,
+ i.e. now is factor 1.002 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | q g-> gamma*/Z0 q                         242 |   1.331e-04 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 1.088e-05 and in Pythia6 was 1.078e-05,
+ i.e. now is factor 1.009 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f fbar -> gamma*/Z0 gamma                 243 |   4.588e-07 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 4.610e-08 and in Pythia6 was 4.551e-08,
+ i.e. now is factor 1.013 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | q qbar' -> W+- g                          251 |   5.058e-05 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 1.037e-05 and in Pythia6 was 1.025e-05,
+ i.e. now is factor 1.012 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | q g-> W+- q'                              252 |   2.129e-04 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 3.167e-05 and in Pythia6 was 3.208e-05,
+ i.e. now is factor 0.987 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f fbar' -> W+- gamma                      253 |   4.061e-07 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 5.456e-08 and in Pythia6 was 5.435e-08,
+ i.e. now is factor 1.004 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | g g -> ccbar[3S1(1)] g                    401 |   3.780e-08 |
+ | g g -> ccbar[3P0(1)] g                    402 |   4.233e-05 |
+ | g g -> ccbar[3P1(1)] g                    403 |   1.491e-04 |
+ | g g -> ccbar[3P2(1)] g                    404 |   5.473e-05 |
+ | q g -> ccbar[3P0(1)] q                    405 |   1.096e-05 |
+ | q g -> ccbar[3P1(1)] q                    406 |   3.870e-05 |
+ | q g -> ccbar[3P2(1)] q                    407 |   1.417e-05 |
+ | q qbar -> ccbar[3P0(1)] g                 408 |   8.726e-10 |
+ | q qbar -> ccbar[3P1(1)] g                 409 |   3.570e-09 |
+ | q qbar -> ccbar[3P2(1)] g                 410 |   1.200e-09 |
+ | g g -> ccbar[3S1(8)] g                    411 |   5.111e-04 |
+ | g g -> ccbar[1S0(8)] g                    412 |   8.052e-06 |
+ | g g -> ccbar[3PJ(8)] g                    413 |   1.035e-05 |
+ | q g -> ccbar[3S1(8)] q                    414 |   1.373e-04 |
+ | q g -> ccbar[1S0(8)] q                    415 |   2.089e-06 |
+ | q g -> ccbar[3PJ(8)] q                    416 |   2.684e-06 |
+ | q qbar -> ccbar[3S1(8)] g                 417 |   1.775e-07 |
+ | q qbar -> ccbar[1S0(8)] g                 418 |   1.871e-10 |
+ | q qbar -> ccbar[3PJ(8)] g                 419 |   2.375e-10 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 1.017e-04 and in Pythia6 was 1.038e-04,
+ i.e. now is factor 0.980 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | g g -> bbbar[3S1(1)] g                    501 |   5.386e-07 |
+ | g g -> bbbar[3P0(1)] g                    502 |   1.898e-05 |
+ | g g -> bbbar[3P1(1)] g                    503 |   5.793e-05 |
+ | g g -> bbbar[3P2(1)] g                    504 |   2.691e-05 |
+ | q g -> bbbar[3P0(1)] q                    505 |   4.904e-06 |
+ | q g -> bbbar[3P1(1)] q                    506 |   1.516e-05 |
+ | q g -> bbbar[3P2(1)] q                    507 |   9.185e-06 |
+ | q qbar -> bbbar[3P0(1)] g                 508 |   2.480e-10 |
+ | q qbar -> bbbar[3P1(1)] g                 509 |   2.042e-09 |
+ | q qbar -> bbbar[3P2(1)] g                 510 |   7.878e-10 |
+ | g g -> bbbar[3S1(8)] g                    511 |   1.451e-04 |
+ | g g -> bbbar[1S0(8)] g                    512 |   3.388e-06 |
+ | g g -> bbbar[3PJ(8)] g                    513 |   1.237e-05 |
+ | q g -> bbbar[3S1(8)] q                    514 |   3.966e-05 |
+ | q g -> bbbar[1S0(8)] q                    515 |   8.861e-07 |
+ | q g -> bbbar[3PJ(8)] q                    516 |   3.465e-06 |
+ | q qbar -> bbbar[3S1(8)] g                 517 |   7.066e-08 |
+ | q qbar -> bbbar[1S0(8)] g                 518 |   9.668e-11 |
+ | q qbar -> bbbar[3PJ(8)] g                 519 |   3.578e-10 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 3.804e-05 and in Pythia6 was 3.929e-05,
+ i.e. now is factor 0.968 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | g g -> t tbar                             601 |   4.033e-06 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ PYTHIA Error in ResonanceDecays::next: failed to find workable decay channel  
+ PYTHIA Abort from Pythia::next: processLevel failed; giving up  
+ Cross section is 3.999e-07 and in Pythia6 was 4.155e-07,
+ i.e. now is factor 0.962 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | q qbar -> t tbar                          602 |   6.444e-07 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 6.555e-08 and in Pythia6 was 6.685e-08,
+ i.e. now is factor 0.981 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | q q -> t q (t-channel W+-)                603 |   4.465e-06 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 1.929e-07 and in Pythia6 was 1.898e-07,
+ i.e. now is factor 1.016 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f fbar -> t tbar (s-channel gamma*/Z0)    604 |   5.548e-09 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 4.208e-10 and in Pythia6 was 4.240e-10,
+ i.e. now is factor 0.993 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f fbar -> t qbar (s-channel W+-)          605 |   1.103e-07 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ PYTHIA Warning in PhaseSpace2to2tauyz::trialKin: maximum for cross section violated  
+ Cross section is 6.966e-09 and in Pythia6 was 7.142e-09,
+ i.e. now is factor 0.975 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f fbar -> H0 (SM)                         901 |   4.170e-10 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 1.672e-10 and in Pythia6 was 1.547e-10,
+ i.e. now is factor 1.081 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | g g -> H0 (SM)                            902 |   1.903e-08 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 7.702e-09 and in Pythia6 was 7.064e-09,
+ i.e. now is factor 1.090 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f fbar -> H0 Z0 (SM)                      904 |   1.548e-09 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 1.388e-10 and in Pythia6 was 1.316e-10,
+ i.e. now is factor 1.054 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f fbar -> H0 W+- (SM)                     905 |   2.890e-09 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 2.445e-10 and in Pythia6 was 2.332e-10,
+ i.e. now is factor 1.048 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f f -> H0 f f (SM; Z0 Z0 fusion)          906 |   1.303e-08 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 5.317e-10 and in Pythia6 was 5.105e-10,
+ i.e. now is factor 1.042 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | f f -> H0 f f (SM; W+ W- fusion)          907 |   3.185e-08 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 1.346e-09 and in Pythia6 was 1.316e-09,
+ i.e. now is factor 1.023 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | c g -> H0 c (SM)                          911 |   2.751e-11 |
+ | b g -> H0 b (SM)                          911 |   3.192e-10 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 5.000e-11 and in Pythia6 was 4.462e-11,
+ i.e. now is factor 1.121 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | g g -> H0 g (SM; top loop)                914 |   3.416e-08 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 5.886e-09 and in Pythia6 was 5.557e-09,
+ i.e. now is factor 1.059 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | q g -> H0 q (SM; top loop)                915 |   2.961e-08 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 2.079e-09 and in Pythia6 was 1.966e-09,
+ i.e. now is factor 1.057 different.
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | q qbar -> H0 g (SM; top loop)             916 |   1.216e-10 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+ Cross section is 9.151e-12 and in Pythia6 was 8.725e-12,
+ i.e. now is factor 1.049 different.

@@ -205,7 +205,7 @@ the latter.
 
 <p/>
 An example how to generate events from a LHEF is found in 
-<code>main14.cc</code>.
+<code>main12.cc</code>.
 
 <h3>A runtime Fortran interface</h3>
 
@@ -264,8 +264,6 @@ See further
 <?php $filepath = $_GET["filepath"];
 echo "<a href='AccessPYTHIA6Processes.php?filepath=".$filepath."' target='page'>";?>here</a> for 
 information how PYTHIA 6.4 can be linked to make use of this facility. 
-The example <code>main11</code> and <code>main12</code> programs illustrate 
-how it can be used. 
 
 <h3>Other examples</h3>
 
@@ -283,9 +281,9 @@ beforehand.
 
 <p/>
 An example how this can be used for toy studies is found in 
-<code>main15.cc</code>.
+<code>main21.cc</code>.
 
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

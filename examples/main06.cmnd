@@ -19,10 +19,10 @@ Main:showChangedSettings = on      ! print changed flags/modes/parameters
 
 ! 2) Settings for process generation internal to Pythia8.
 SoftQCD:elastic = on               ! elastic scattering
-SoftQCD:singleDiffractive = on      ! single diffractive scattering
-SoftQCD:doubleDiffractive = on      ! double diffractive scattering
+SoftQCD:singleDiffractive = on     ! single diffractive scattering
+SoftQCD:doubleDiffractive = on     ! double diffractive scattering
 
 ! 3) Switch off some key components of the simulation, for comparisons.
-#Pythia:partonLevel = off      ! stop after hard process 
+#PartonLevel:all = off              ! stop after hard process 
 
 

@@ -82,7 +82,7 @@ output of <code>pythia.next()</code>.
 <p/>
 Note that this is different from setting the flag
 <?php $filepath = $_GET["filepath"];
-echo "<a href='MasterSwitches.php?filepath=".$filepath."' target='page'>";?><code>Pythia:partonLevel = off</code></a>. 
+echo "<a href='MasterSwitches.php?filepath=".$filepath."' target='page'>";?><code>PartonLevel:all = off</code></a>. 
 Also in this case the event
 generation will stop after the process level, but an event generated
 up to this point is considered perfectly acceptable, and cross sections
@@ -104,7 +104,7 @@ interactions and beam remnants have been set up, but hadronization and
 decays have not yet been performed. Information is now made available in 
 the <code>event</code> event record. The difference relative to the 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='MasterSwitches.php?filepath=".$filepath."' target='page'>";?><code>Pythia:hadronLevel = off</code></a> 
+echo "<a href='MasterSwitches.php?filepath=".$filepath."' target='page'>";?><code>HadronLevel:all = off</code></a> 
 flag setting follows the same pattern as above.
 
 <p/> 
@@ -309,7 +309,7 @@ All the possibilities above can be combined freely and also be combined
 with the standard flags. An event would then survive only if it survived
 each of the possible veto methods. There are no hidden interdependencies 
 in this game, but of course some combinations may not be particularly 
-meaningful. For instance, if you set <code>Pythia:partonLevel = off</code> 
+meaningful. For instance, if you set <code>PartonLevel:all = off</code> 
 then the <code>doVetoPT(...)</code> and <code>doVetoPartonLevel(...)</code> 
 locations in the code are not even reached, so they would never be called. 
 
@@ -320,4 +320,4 @@ An example how the above methods can be used for toy studies is found in
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

@@ -1,12 +1,17 @@
+// ResonanceProperties.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for resonance properties: dynamical widths etc. 
 // ResonanceProperties: base class for all resonances.
 // ResonanceGmZ, ...: derived classes for individual resonances.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_ResonanceProperties_H
 #define Pythia8_ResonanceProperties_H
 
 #include "Basics.h"
+#include "Event.h"
 #include "ParticleData.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
@@ -29,18 +34,26 @@ public:
   static void initStatic();
  
   // Calculate and store partial and total widths at the nominal mass. 
-  static void widthInit(); 
+  static void widthInit() {} 
 
-  // Calculate the in-state widths: dummy implementation.
-  // Usage: widthIn( mHat, idAbsIn).
-  virtual double widthIn(double, int = 0) {return 1.;}  
+  // For Higgs only: return pretabulated width for particular channel.
+  // Usage: widthChan( mHat, idAbs1, idAbs2).
+  static double widthChan(double, int = 0, int = 0) {return 1.;}  
+
+  // Return fraction of width open for particle and antiparticle.
+  static double openFrac( int , int ) {return 1.;}
  
-  // Calculate the total width at a given energy and/or (relative) outwidths.
-  virtual double width(double mHat, int idIn = 0, bool openOnly = false, 
-    bool setBR = false) = 0; 
+  // Calculate the total/open width for given mass, charge and instate.
+  virtual double width(double mHat, int idResSgn = 1, int idIn = 0, 
+    bool openOnly = false, bool setBR = false) = 0; 
 
-  // Select decay channel for given mass.
-  virtual DecayChannel& dynamicDecay( double mHat, int idIn = 0) = 0;
+  // Select decay channel for given mass, charge and instate.
+  virtual DecayChannel& dynamicDecay( double mHat, int idResSgn, int idIn) = 0;
+  
+  // Evaluate weight for angles in sequential, process-independent decays.
+  // Usage: weightDecayAngles( process, iResBeg, iResEnd), where 
+  // iResBeg <= i < iResEnd is range of sister partons to test decays of.
+  static double weightDecayAngles( Event&, int, int);
 
 protected:
 
@@ -80,24 +93,27 @@ public:
  
   // Calculate and store partial and total widths at the nominal mass. 
   static void widthInit(); 
- 
-  // Calculate the total width at a given energy.
-  virtual double width(double mHat, int idIn = 0, bool openOnly = false, 
-    bool setBR = false); 
 
-  // Select decay channel for given mass and incoming flavour.
-  virtual DecayChannel& dynamicDecay( double mHat, int idIn = 0) {
-    width( mHat, idIn, true, true);
-    return particlePtr->decay.dynamicPick(idRes);}
+  // Return fraction of width open for particle and antiparticle.
+  static double openFrac( int idResSgn1, int idResSgn2 = 0);
+ 
+  // Calculate the total/open width for given mass, charge and instate.
+  virtual double width(double mHat, int = 23, int idIn = 0, 
+    bool openOnly = false, bool setBR = false); 
+
+  // Select decay channel for given mass, charge and instate.
+  virtual DecayChannel& dynamicDecay( double mHat, int idResSgn, int idIn) {
+    width( mHat, idResSgn, idIn, true, true);
+    return particlePtr->decay.dynamicPick(idResSgn);}
 
 private: 
 
   // Identify particle species.
-  static int idRes;
+  static int    idRes;
 
   // Static properties and couplings.
   static int    gmZmode;
-  static double mRes, GammaRes, m2Res, GamMRat, thetaWRat;
+  static double mRes, GammaRes, m2Res, GamMRat, thetaWRat, openPos, openNeg;
 
   // Pointer to properties of the particle species.
   static ParticleDataEntry* particlePtr;
@@ -121,25 +137,25 @@ public:
   // Calculate and store partial and total widths at the nominal mass. 
   static void widthInit(); 
 
-  // Calculate the in-state widths for use in cross sections.
-  virtual double widthIn(double, int = 0);  
+  // Return fraction of width open for particle and antiparticle.
+  static double openFrac( int idResSgn1, int idResSgn2 = 0);
  
-  // Calculate the total width at a given energy.
-  virtual double width(double mHat, int , bool openOnly = false, 
-    bool setBR = false); 
+  // Calculate the total/open width for given mass, charge and instate.
+  virtual double width(double mHat, int idResSgn = 24, int = 0, 
+    bool openOnly = false, bool setBR = false); 
 
-  // Select decay channel for given mass.
-  virtual DecayChannel& dynamicDecay( double mHat, int idIn = 0) {
-    width( mHat, idIn, true, true);
-    return particlePtr->decay.dynamicPick(idRes);}
+  // Select decay channel for given mass, charge and instate.
+  virtual DecayChannel& dynamicDecay( double mHat, int idResSgn, int idIn) {
+    width( mHat, idResSgn, idIn, true, true);
+    return particlePtr->decay.dynamicPick(idResSgn);}
 
 private: 
 
   // Identify particle species.
-  static int idRes;
+  static int    idRes;
 
   // Static properties and couplings.
-  static double mRes, GammaRes, m2Res, GamMRat, thetaWRat;
+  static double mRes, GammaRes, m2Res, GamMRat, thetaWRat, openPos, openNeg;
 
   // Pointer to properties of the particle species.
   static ParticleDataEntry* particlePtr;
@@ -148,14 +164,14 @@ private:
   
 //**************************************************************************
 
-// The ResonanceH class handles the SM Higgs resonance.
+// The ResonanceTop class handles the top/antitop resonance.
 
-class ResonanceH : public ResonanceProperties {
+class ResonanceTop : public ResonanceProperties {
 
 public:
 
   // Constructor. 
-  ResonanceH() {} 
+  ResonanceTop() {} 
  
   // Initialize static data members.
   static void initStatic();
@@ -163,27 +179,84 @@ public:
   // Calculate and store partial and total widths at the nominal mass. 
   static void widthInit(); 
 
-  // Calculate the in-state widths for use in cross sections.
-  virtual double widthIn(double mHat, int idAbs = 0);  
+  // Return fraction of width open for particle and antiparticle.
+  static double openFrac( int idResSgn1, int idResSgn2 = 0);
  
-  // Calculate the total or open width at a given energy.
-  virtual double width(double mHat, int , bool openOnly = false, 
-    bool setBR = false); 
+  // Calculate the total/open width for given mass, charge and instate.
+  virtual double width(double mHat, int idResSgn = 24, int = 0, 
+    bool openOnly = false, bool setBR = false); 
 
-  // Select decay channel for given mass.
-  virtual DecayChannel& dynamicDecay( double mHat, int idIn = 0) {
-    width( mHat, idIn, true, true);
-    return particlePtr->decay.dynamicPick(idRes);}
+  // Select decay channel for given mass, charge and instate.
+  virtual DecayChannel& dynamicDecay( double mHat, int idResSgn, int idIn) {
+    width( mHat, idResSgn, idIn, true, true);
+    return particlePtr->decay.dynamicPick(idResSgn);}
+
+  // Evaluate weight for W decay distribution in t -> W b -> f fbar b.
+  static double weightDecayAngles( Event& process, int iResBeg, 
+    int iResEnd);
 
 private: 
 
   // Identify particle species.
-  static int idRes;
+  static int    idRes;
+
+  // Static properties and couplings.
+  static double mRes, GammaRes, m2Res, GamMRat, thetaWRat, m2W, 
+                openPos, openNeg;
+
+  // Pointer to properties of the particle species.
+  static ParticleDataEntry* particlePtr;
+
+};
+  
+//**************************************************************************
+
+// The ResonanceSMH class handles the SM Higgs resonance.
+
+class ResonanceSMH : public ResonanceProperties {
+
+public:
+
+  // Constructor. 
+  ResonanceSMH() {} 
+ 
+  // Initialize static data members.
+  static void initStatic();
+ 
+  // Calculate and store partial and total widths at the nominal mass. 
+  static void widthInit(); 
+
+  // Return pretabulated width for particular channel.
+  // Usage: widthChan( mHat, idAbs1, idAbs2).
+  static double widthChan(double mHat, int id1Abs = 0, int = 0);  
+
+  // Return fraction of width open for particle and antiparticle.
+  static double openFrac( int idResSgn1, int idResSgn2 = 0);
+ 
+  // Calculate the total/open width for given mass, charge and instate.
+  virtual double width(double mHat, int = 25, int = 0, 
+    bool openOnly = false, bool setBR = false); 
+
+  // Select decay channel for given mass, charge and instate.
+  virtual DecayChannel& dynamicDecay( double mHat, int idResSgn, int idIn) {
+    width( mHat, idResSgn, idIn, true, true);
+    return particlePtr->decay.dynamicPick(idResSgn);}
+
+  // Evaluate weight for Z0/W+- decay distributions in H -> Z0/W+ Z0/W- -> 4f.
+  static double weightDecayAngles( Event& process, int iResBeg, 
+    int iResEnd);
+
+private: 
+
+  // Identify particle species.
+  static int    idRes;
 
   // Static properties and couplings.
   static bool   linearWidthWWZZ; 
+  static int    SMHiggsParity;
   static double mRes, GammaRes, m2Res, GamMRat, sin2tW, cos2tW, mZ, mW,
-                GammaZ, GammaW, GammaT, widIn[25];
+                GammaZ, GammaW, GammaT, widTable[25], SMHiggsEta, 
+                openPos, openNeg;
 
   // Pointer to properties of the particle species.
   static ParticleDataEntry* particlePtr;

@@ -223,10 +223,10 @@ Azimuthal asymmetry induced by gluon polarization; on/off = true/false.
 Not yet implemented. 
   
 
-<br/><br/><table><tr><td><strong>SpaceShower:nQuark  </td><td></td><td> <input type="text" name="18" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>SpaceShower:nQuarkIn  </td><td></td><td> <input type="text" name="18" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed quark flavours in <i>g -> q qbar</i> branchings,
-when kinematically allowed. Changing it to 4 would forbid 
-<i>g -> b bbar</i>, etc.
+when kinematically allowed, and thereby also in incoming beams. 
+Changing it to 4 would forbid <i>g -> b bbar</i>, etc.
 </modeopen>
 
 <h3>Technical notes</h3>
@@ -369,7 +369,7 @@ fwrite($handle,$data);
 }
 if($_POST["18"] != "5")
 {
-$data = "SpaceShower:nQuark = ".$_POST["18"]."\n";
+$data = "SpaceShower:nQuarkIn = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -379,5 +379,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
 

@@ -7,11 +7,14 @@
 The <code>AlphaStrong</code> class is used to provide a first- or 
 second-order running <ei>alpha_strong</ei> (or, trivially, a 
 zeroth-order fixed one). Formulae are the standard ones found in 
-<ref>Yao06</ref>. The starting 
+<ref>Yao06</ref>. The second-order expression used, eq. (9.5),
+may be somewhat different in other approaches (with differences
+formally of higher order), so do not necessarily expect perfect
+agreement, especially not at small <ei>Q^2</ei> scales. The starting 
 <ei>alpha_strong</ei> value is defined at the <ei>M_Z</ei> mass scale.
 The <ei>Lambda</ei> values are matched at the <ei>b</ei> and <ei>c</ei> 
-flavour thresholds, such that <ei>alpha_strong</ei> is continuous, 
-using an approximate iterative method for second-order matching.
+flavour thresholds, such that <ei>alpha_strong</ei> is continuous.
+For second-order matching an approximate iterative method is used.
  
 <p/>
 Since we allow <ei>alpha_strong</ei> to vary separately for 
@@ -185,4 +188,4 @@ again excluding the top quark from the list of possibilities.
 
 </chapter>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

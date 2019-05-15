@@ -1,8 +1,12 @@
+// FragmentationFlavZpT.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This file contains helper classes for fragmentation.
 // StringFlav is used to select quark and hadron flavours.
 // StringPT is used to select transverse momenta.
 // StringZ is used to sample the fragmentation function f(z).
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_FragmentationFlavZpT_H
 #define Pythia8_FragmentationFlavZpT_H

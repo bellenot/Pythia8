@@ -1,232 +1,79 @@
-// File: main12.cc
-// This is a more extensive program linking to Pythia6 for hard processes.
-// It illustrates how input can be provided from external files both for
-// the Fortran and the C++ part, see main12.fcmnd and main12.ccmnd.
-// Copyright C 2007 Torbjorn Sjostrand
+// main12.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
+// This is a simple test program. 
+// It illustrates how Les Houches Event File input can be used in Pythia8.
+// It uses the ttsample.lhe input file, the latter only with 100 events.
+// Other samples could be generated as illustrated by main53.f.
 
 #include "Pythia.h"
-#include "LHAFortran.h"
-#include "Pythia6Interface.h"
-
 using namespace Pythia8; 
-
-//**************************************************************************
-
-// Implement initialization fillHepRup method for Pythia6 example.
-
-bool LHAinitFortran::fillHepRup() { 
-
-  // Open file with commands to Pythia6. Check that it worked.
-  ifstream is("main12.fcmnd");  
-  if (!is) {
-    ErrorMsg::message("Error in LHAinitFortran::fillHepRup: "
-      "did not find file");
-    return false;
-  } 
-
-  // Read in one line at a time and send it on to pygive and Pythia6.
-  string line;
-  while ( getline(is, line) ) Pythia6Interface::pygive( line);
-    
-  // Initialize for 14 TeV pp collider.
-  Pythia6Interface::pyinit("cms","p","p",14000.);   
-
-  // Fill initialization information in HEPRUP.
-  Pythia6Interface::pyupin();
-
-  // Done.
-  return true;
-
-}
-
-//**************************************************************************
-
-// Implement event generation fillHepEup method for Pythia6 example.
-
-bool LHAevntFortran::fillHepEup() { 
-
-  // Generate and fill the next Pythia6 event in HEPEUP.
-  Pythia6Interface::pyupev();
-
-  // Done.
-  return true;
-
-}
-
-//**************************************************************************
-
 int main() {
 
-  // Generator. Shorthand for the event and for settings.
-  Pythia pythia;
-  Event& event = pythia.event;
-  Settings& settings = pythia.settings;
+  // Number of events to print.
+  int nPrint = 1;             
 
-  // Read in Pythia8 commands from external file.
-  pythia.readFile("main12.ccmnd");    
+  // Generator           
+  Pythia pythia;                            
 
-  // Initialize to access Pythia6 generator by Les Houches interface.
-  LHAinitFortran pythia6Init;
-  LHAevntFortran pythia6Evnt;
-  pythia.init(&pythia6Init, &pythia6Evnt);    
+  // Stick with default values, so do not bother with a separate file
+  // for changes. However, do one change, to show readString in action.
+  pythia.readString("PartonLevel:MI = off"); 
 
-  // Extract settings to be used in the main program.
-  int  nEvent  = settings.mode("Main:numberOfEvents");
-  int  nList   = settings.mode("Main:numberToList");
-  int  nShow   = settings.mode("Main:timesToShow");
-  int  nAbort  = settings.mode("Main:timesAllowErrors");
-  bool showCS  = settings.flag("Main:showChangedSettings");
-  bool showAS  = settings.flag("Main:showAllSettings");
-  bool showCPD = settings.flag("Main:showChangedParticleData");
-  bool showAPD = settings.flag("Main:showAllParticleData");
+  // Initialize Les Houches Event File run. List initialization information.
+  pythia.init("ttbar.lhe");      
 
-  // List changed or all settings data.
-  if (showCS) settings.listChanged();
-  if (showAS) settings.listAll();
+  // Book histogram.
+  Hist nCharged("charged particle multiplicity",100,-0.5,399.5); 
+  Hist thetaRatio("ratio of two cos(theta) calculations",100,0.5,1.5); 
 
-  // List changed or all particle data.  
-  if (showCPD) ParticleDataTable::listChanged();
-  if (showAPD) ParticleDataTable::listAll();
+  // Allow for possibility of a few faulty events.
+  int nAbort = 10;
+  int iAbort = 0;
 
-  // Histograms.
-  double eCM = 14000.;
-  double epTol = 1e-7 * eCM;
-  Hist epCons("deviation from energy-momentum conservation",100,0.,epTol);
-  Hist nFinal("final particle multiplicity",100,-0.5,1599.5);
-  Hist nChg("final charged multiplicity",100,-0.5,799.5);
-  Hist nISR("number of ISR emissions for hard system",40,-0.5,39.5);
-  Hist nMI("number of MI (excluding hard system)",100,-0.5,99.5);
-  Hist nISRMI("number of ISR emissions per MI",40,-0.5,39.5);
-  Hist nFSR("total number of FSR emissions",100,-0.5,299.5);
-  Hist nJUN("number of junctions",10,-0.5,9.5);
-  Hist pThard("ISR pT kick to hard system",100,0.,400.);
-  Hist sumETparticle("summed ET of particles",100,0.,2000.);
-  Hist dnCHparticleDy("dn_charged/dy for particles",100,-10.,10.);
-  Hist dETparticleDy("dET/dy for particles",100,-10.,10.);
+  // Begin event loop; generate until none left in input file.     
+  for (int iEvent = 0; ; ++iEvent) {
 
-  // Begin event loop.
-  int nShowPace = max(1,nEvent/nShow); 
-  int iAbort = 0; 
-  for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (iEvent%nShowPace == 0) cout << " Now begin event " 
-      << iEvent << endl;
-
-    // Generate events. Quit if too many failures.
+    // First few failures write off as potentially error, then quit.
+    // (But probably end of file reached already first time.)
     if (!pythia.next()) {
       if (++iAbort < nAbort) continue;
-      cout << " Event generation aborted prematurely, owing to error!\n"; 
       break;
     }
- 
-    // List first few events, both hard process and complete events.
-    if (iEvent < nList) { 
-      pythia.info.list();
-      // This call to Pythia6 is superfluous, but shows it can be done.
-      Pythia6Interface::pylist(1);
-      pythia.process.list();
-      event.list();
-    }
+  
+    // List first few events: Les Houches, hard process and complete.
+    if (iEvent < nPrint) {     
+      pythia.LHAevntList();               
+      pythia.info.list();          
+      pythia.process.list();          
+      pythia.event.list();           
+    }                           
 
-    // Number of ISR for hard subprocess.
-    int nisr = -1;
-    int iNow = 3;
-    do { iNow = event[iNow].mother1(); ++nisr;}
-    while (iNow > 1 && abs(event[iNow].status()) < 50 ); 
-    nISR.fill(nisr);
+    // Sum up final charged multiplicity and fill in histogram.
+    int nChg = 0;                 
+    for (int i = 0; i < pythia.event.size(); ++i) 
+    if (pythia.event[i].isFinal() && pythia.event[i].isCharged()) 
+      ++nChg;
+    nCharged.fill(nChg);               
 
-    // Total pT kick of hard subsystem.
-    Vec4 pHard;
-    for (int i = 0; i < event.size(); ++i) {
-      if (abs(event[i].status()) > 30) break;
-      if (event[i].status() == -22 || event[i].status() == -23) {      
-        int iNow = i;
-        while (event[iNow].daughter2() == event[iNow].daughter1() &&
-          event[iNow].daughter1() > iNow) iNow = event[iNow].daughter1();
-        pHard += event[iNow].p();
-      }
-    }
-    pThard.fill(pHard.pT());
+    // Compare cos(theta) = (tHat - uHat) / (beta_34 * sHat);
+    double cosThe1 = cos(pythia.info.thetaHat());
+    double sH = pythia.info.sHat();    
+    double m3S = pow2( pythia.info.m3Hat() ); 
+    double m4S = pow2( pythia.info.m4Hat() ); 
+    double sHcorr = sqrt( pow2(sH - m3S - m4S) - 4. * m3S * m4S);
+    double cosThe2 = (pythia.info.tHat() - pythia.info.uHat()) / sHcorr;
+    thetaRatio.fill(cosThe2 / cosThe1);
 
-    // Reset quantities to be summed over event.
-    int nfin = 0;
-    int nch = 0;
-    int nmi = 0;
-    int nfsr = 0;
-    int nfinqg = 0;
-    Vec4 pSum = - (event[1].p() + event[2].p());
-    double eTsum = 0.;
+  // End of event loop.        
+  }                                           
 
-    // Loop over particles in the event. 
-    for (int i = 0; i < event.size(); ++i) {
-
-      // Number of MI and of ISR per MI.
-      if (i < event.size() - 1 && event[i].status() == -31 
-        && event[i+1].status() == -31) {
-        ++nmi;
-        int inow = i;
-        int nisrmi = -1;
-        do { inow = event[inow].mother1(); ++ nisrmi;}
-        while (inow > 1 && abs(event[inow].status()) < 50) ; 
-        nISRMI.fill(nisrmi);
-      }
-    
-      // Number of FSR branchings.
-      if (event[i].status() == -52) ++nfsr; 
-
-      // Specialize to final particles. Total multiplicity and momentum.
-      if (event[i].isFinal()) {
-        ++nfin;
-        if (event[i].isQuark() || event[i].isGluon()) ++nfinqg;
-        if (event[i].isCharged()) ++nch;
-        pSum += event[i].p();
-
-        // Final-state particle spectra.
-        double eTnow = event[i].pT();
-        double ynow = event[i].y();
-        eTsum += eTnow;
-        if (event[i].isCharged()) dnCHparticleDy.fill(ynow);
-        dETparticleDy.fill(ynow,eTnow);
-
-      // End of loop over (final/all) particles.
-      }
-    }
-
-    // Energy-momentum deviation.
-    double epDev = abs(pSum.e()) + abs(pSum.px()) + abs(pSum.py())
-      + abs(pSum.pz());
-    epCons.fill(epDev);
-      
-    // Fill summed quantities.
-    nFinal.fill(nfin);
-    nChg.fill(nch);
-    nMI.fill(nmi);
-    nFSR.fill(nfsr);
-    nJUN.fill( event.sizeJunction() );
-    sumETparticle.fill(eTsum);
-
-    // Debug.
-    if (nfinqg > 0) {
-      cout << " Error: number of unframented q/qbar/g = " << nfinqg << "\n";
-      event.list();
-    }
-
-  // End of event loop.
-  }
-
-  // Final statistics. Must do call to Pythia6 explicitly.
+  // Give statistics. Print histogram.
   pythia.statistics();
-  Pythia6Interface::pystat(1);  
+  cout << nCharged << thetaRatio;  
 
-  // Histogram normalization.
-  double factor = 5. / (nEvent - nAbort);  
-  dnCHparticleDy *= factor;
-  dETparticleDy *= factor;
-
-  // Histogram output.
-  cout << epCons << nFinal<< nChg << nISR << nMI << nISRMI << nFSR 
-       << nJUN << pThard << sumETparticle << dnCHparticleDy 
-       << dETparticleDy; 
-
-  // Done.
+  // Done.                           
   return 0;
 }

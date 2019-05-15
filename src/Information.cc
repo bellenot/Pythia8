@@ -1,6 +1,10 @@
+// Information.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the Info
 // and ErrorMessages classes.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Information.h"
 
@@ -22,20 +26,20 @@ void Info::list(ostream& os) {
   os << "\n --------  PYTHIA Info Listing  ------------------------"
      << "---------------- \n \n" 
      << scientific << setprecision(3) 
-     << " Beam A: id = " << setw(6) << idAM << ", pz = " << setw(10) 
-     << pzAM << ", e = " << setw(10) << eAM << ", m = " << setw(10) 
-     << mAM << ".\n"
-     << " Beam B: id = " << setw(6) << idBM << ", pz = " << setw(10) 
-     << pzBM << ", e = " << setw(10) << eBM << ", m = " << setw(10) 
-     << mBM << ".\n\n";
+     << " Beam A: id = " << setw(6) << idASave << ", pz = " << setw(10) 
+     << pzASave << ", e = " << setw(10) << eASave << ", m = " << setw(10) 
+     << mASave << ".\n"
+     << " Beam B: id = " << setw(6) << idBSave << ", pz = " << setw(10) 
+     << pzBSave << ", e = " << setw(10) << eBSave << ", m = " << setw(10) 
+     << mBSave << ".\n\n";
 
   // Colliding parton info.
   if (isRes) 
-    os << " In 1: id = " << setw(4) << id1H << ", x = " << setw(10)
-       << x1H << ", pdf = " << setw(10) << pdf1H << " at Q2 = " 
-       << setw(10) << Q2FacH << ".\n"  
-       << " In 2: id = " << setw(4) << id2H << ", x = " << setw(10)
-       << x2H << ", pdf = " << setw(10) << pdf2H << " at same Q2.\n\n";  
+    os << " In 1: id = " << setw(4) << id1Save << ", x = " << setw(10)
+       << x1Save << ", pdf = " << setw(10) << pdf1Save << " at Q2 = " 
+       << setw(10) << Q2FacSave << ".\n"  
+       << " In 2: id = " << setw(4) << id2Save << ", x = " << setw(10)
+       << x2Save << ", pdf = " << setw(10) << pdf2Save << " at same Q2.\n\n";  
 
   // Process name and code.
   os << ((isRes && !hasSubSave) ? " Subprocess " : " Process ") << nameSave 
@@ -63,22 +67,27 @@ void Info::list(ostream& os) {
        << m3H << ",   m4 = " << setw(10) << m4H << ",\n" 
        << "    theta = " << setw(10) << thetaH << ",  phi = " << setw(10) 
        << phiH << ".\n";
+  else if ( isRes && nFinalSave == 3)  
+    os << " It has sHat = " << setw(10) << sH << ", <pTHat> = " 
+       << setw(10) << pTH << ".\n";  
 
   // Couplings.
-  if (isRes) os << "     alphaEM = " << setw(10) << alphaEMH 
-    << ",  alphaS = " << setw(10) << alphaSH << "    at Q2 = " 
-    << setw(10) << Q2RenH << ".\n"; 
+  if (isRes) os << "     alphaEM = " << setw(10) << alphaEMSave 
+    << ",  alphaS = " << setw(10) << alphaSSave << "    at Q2 = " 
+    << setw(10) << Q2RenSave << ".\n"; 
 
   // Impact parameter.
-  if (bIsSet) os << "\n Impact parameter b =" << setw(10) << bH 
-    << " gives enhancement factor = " << setw(10) << enhanceH << ".\n";
+  if (bIsSet) os << "\n Impact parameter b =" << setw(10) << bMISave 
+    << " gives enhancement factor = " << setw(10) << enhanceMISave 
+    << ".\n";
 
   // Multiple interactions and shower evolution.
-  if (evolIsSet) os << " Max pT scale for MI = " << setw(10) << pTmaxMIH
-    << ", ISR = " << setw(10) << pTmaxISRH << ", FSR = " << setw(10) 
-    << pTmaxISRH << ".\n Number of MI = " << setw(5) << nMIH << ", ISR = " 
-    << setw(5) << nISRH << ", FSRproc = " << setw(5) << nFSRinProcH 
-    << ", FSRreson = " << setw(5) << nFSRinResH << ".\n"; 
+  if (evolIsSet) os << " Max pT scale for MI = " << setw(10) << pTmaxMISave
+    << ", ISR = " << setw(10) << pTmaxISRSave << ", FSR = " << setw(10) 
+    << pTmaxISRSave << ".\n Number of MI = " << setw(5) << nMISave 
+    << ", ISR = " << setw(5) << nISRSave << ", FSRproc = " << setw(5) 
+    << nFSRinProcSave << ", FSRreson = " << setw(5) << nFSRinResSave 
+    << ".\n"; 
        
   // Listing finished.
   os << "\n --------  End PYTHIA Info Listing  --------------------"

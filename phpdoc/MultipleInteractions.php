@@ -217,7 +217,7 @@ Set of processes included in the machinery.
 <br/>
 <input type="radio" name="14" value="0"><strong>0 </strong>: only the simplest <ei>2 -> 2</ei> QCD processesbetween quarks and gluons, giving no new flavours, i.e. dominated by<ei>t</ei>-channel gluon exchange.<br/>
 <input type="radio" name="14" value="1"><strong>1 </strong>: also <ei>2 -> 2</ei> QCD processes giving new flavours(including charm and bottom), i.e. proceeding through <ei>s</ei>-channel gluon exchange.<br/>
-<input type="radio" name="14" value="2"><strong>2 </strong>: also <ei>2 -> 2</ei> processes involving one or twophotons in the final state, and <ei>t</ei>-channel <ei>gamma</ei>boson exchange.<br/>
+<input type="radio" name="14" value="2"><strong>2 </strong>: also <ei>2 -> 2</ei> processes involving one or twophotons in the final state, <ei>s</ei>-channel <ei>gamma</ei>boson exchange and <ei>t</ei>-channel <ei>gamma/Z^0/W^+-</ei>boson exchange.<br/>
 <input type="radio" name="14" value="3" checked="checked"><strong>3 </strong>: also charmonium and bottomonium production, viacolour singlet and colour octet channels.<br/>
 </modepick>
 
@@ -226,7 +226,7 @@ Set of processes included in the machinery.
 These should normally not be touched. Their only function is for
 cross-checks.
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:nQuark  </td><td></td><td> <input type="text" name="15" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:nQuarkIn  </td><td></td><td> <input type="text" name="15" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed incoming quark flavours in the beams; a change 
 to 4 would thus exclude <i>b</i> and <i>bbar</i> as incoming 
 partons, etc.
@@ -466,7 +466,7 @@ fwrite($handle,$data);
 }
 if($_POST["15"] != "5")
 {
-$data = "MultipleInteractions:nQuark = ".$_POST["15"]."\n";
+$data = "MultipleInteractions:nQuarkIn = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["16"] != "1000")
@@ -481,4 +481,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

@@ -11,7 +11,7 @@ pick  the parton distribution set for protons, including from LHAPDF,
 to be used for all proton and antiproton beams. The second is a special
 option that allows a separate PDF set to be used for the hard process
 only, while the first choice would still apply to everything else.
-The third gives the possibility to switch off the electron 
+The third gives the possibility to switch off the lepton 
 "parton density". 
 
 <h3>Parton densities for protons</h3>
@@ -31,7 +31,7 @@ small <i>x</i> and <i>Q2</i>. A good PDF parametrization ought to be
 sensible down to <i>x = 10^{-6}</i> (<i>x = 10^{-7}</i>) and
 <i>Q2 = 1</i> GeV2 for Tevatron (LHC) applications. Unfortunately there
 are distributions on the market that completely derail in that region.
-The <code>main31.cc</code> and <code>main32.cc</code> programs in the 
+The <code>main41.cc</code> and <code>main42.cc</code> programs in the 
 <code>examples</code> subdirectory provide some examples of absolutely
 minimal sanity checks before a new PDF set is put in production.
 <br/><b>Warning 3:</b> Do not blindly assume that an NLO tune has to be 
@@ -43,7 +43,7 @@ wrong alley.
 The simplest option is to pick one 
 of the few distributions available internally:
 
-<p/><code>mode&nbsp; </code><strong> Pythia:pPDFset &nbsp;</strong> 
+<p/><code>mode&nbsp; </code><strong> PDF:pSet &nbsp;</strong> 
  (<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)<br/>
 Parton densities to be used for proton beams (and, by implication,
 antiproton ones):
@@ -56,7 +56,7 @@ Obviously this choice is mainly intended to get going, and if you link to
 the <a href="http://projects.hepforge.org/lhapdf/" target="page">LHAPDF 
 library</a> [<a href="Bibliography.html" target="page">Wha05</a>] you get access to a much wider selection.
 
-<p/><code>flag&nbsp; </code><strong> Pythia:useLHAPDF &nbsp;</strong> 
+<p/><code>flag&nbsp; </code><strong> PDF:useLHAPDF &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 If off then the choice of proton PDF is based on <code>pPDFset</code>
 above. If on then it is instead based on the choice of 
@@ -68,7 +68,7 @@ LHAPDF installation. See the README file in the <code>examples</code>
 directory for further instructions. 
   
 
-<p/><code>word&nbsp; </code><strong> Pythia:LHAPDFset &nbsp;</strong> 
+<p/><code>word&nbsp; </code><strong> PDF:LHAPDFset &nbsp;</strong> 
  (<code>default = <strong>MRST2004FF4lo.LHgrid</strong></code>)<br/>
 Name of proton PDF set from LHAPDF to be used. You have to choose 
 from the 
@@ -84,7 +84,7 @@ slash (/) it is assumed you want to provide the full file path and then
 already set and <code>initPDFsetByNameM(name)</code> is called.
    
 
-<p/><code>mode&nbsp; </code><strong> Pythia:LHAPDFmember &nbsp;</strong> 
+<p/><code>mode&nbsp; </code><strong> PDF:LHAPDFmember &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)<br/>
 Further choice of a specific member from the set picked above. Member 0
 should normally correspond to the central value, with higher values
@@ -108,27 +108,27 @@ may stop unexpectedly. In a near future it will become possible to
 interrogate the limits. Meanwhile you can yourself require that 
 PDF's should only be invoked in a specified range, to avoid problems.
 
-<p/><code>flag&nbsp; </code><strong> Pythia:limitLHAPDF &nbsp;</strong> 
+<p/><code>flag&nbsp; </code><strong> PDF:limitLHAPDF &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 If on then you can set <i>x</i> and <i>Q2</i> limits below.
   
 
-<p/><code>parm&nbsp; </code><strong> Pythia:xMinLHAPDF &nbsp;</strong> 
+<p/><code>parm&nbsp; </code><strong> PDF:xMinLHAPDF &nbsp;</strong> 
  (<code>default = <strong>1e-6</strong></code>)<br/>
 Freeze <i>x f_i(x, Q2)</i> below this <i>x</i> value.
   
 
-<p/><code>parm&nbsp; </code><strong> Pythia:xMaxLHAPDF &nbsp;</strong> 
+<p/><code>parm&nbsp; </code><strong> PDF:xMaxLHAPDF &nbsp;</strong> 
  (<code>default = <strong>0.9999</strong></code>)<br/>
 Set <i>x f_i(x, Q2) = 0</i> above this <i>x</i> value.
   
 
-<p/><code>parm&nbsp; </code><strong> Pythia:Q2MinLHAPDF &nbsp;</strong> 
+<p/><code>parm&nbsp; </code><strong> PDF:Q2MinLHAPDF &nbsp;</strong> 
  (<code>default = <strong>1.</strong></code>)<br/>
 Freeze <i>x f_i(x, Q2)</i> below this <i>Q2</i> value.
   
 
-<p/><code>parm&nbsp; </code><strong> Pythia:Q2MaxLHAPDF &nbsp;</strong> 
+<p/><code>parm&nbsp; </code><strong> PDF:Q2MaxLHAPDF &nbsp;</strong> 
  (<code>default = <strong>1e8</strong></code>)<br/>
 Freeze <i>x f_i(x, Q2)</i> above this <i>Q2</i> value.
   
@@ -167,14 +167,14 @@ where more than one parton is kicked out of the proton [<a href="Bibliography.ht
 The PDF choices that can be made are the same as above, so we do not 
 repeat the detailed discussion.
 
-<p/><code>flag&nbsp; </code><strong> Pythia:useHardPFD &nbsp;</strong> 
+<p/><code>flag&nbsp; </code><strong> PDF:useHard &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 If on then select a separate PDF set for the hard process, using the 
 variables below. If off then use the same PDF set for everything,
 as already chosen above.   
   
 
-<p/><code>mode&nbsp; </code><strong> Pythia:hardpPDFset &nbsp;</strong> 
+<p/><code>mode&nbsp; </code><strong> PDF:pHardSet &nbsp;</strong> 
  (<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)<br/>
 Parton densities to be used for proton beams (and, by implication,
 antiproton ones):
@@ -182,44 +182,44 @@ antiproton ones):
 <br/><code>option </code><strong> 2</strong> : CTEQ 5 L.  
 </modepick> 
 
-<p/><code>flag&nbsp; </code><strong> Pythia:useHardLHAPDF &nbsp;</strong> 
+<p/><code>flag&nbsp; </code><strong> PDF:useHardLHAPDF &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 If off then the choice of proton PDF is based on <code>hardpPDFset</code>
 above. If on then it is instead based on the choice of 
 <code>hardLHAPDFset</code> and <code>hardLHAPDFmember</code> below.
   
 
-<p/><code>word&nbsp; </code><strong> Pythia:hardLHAPDFset &nbsp;</strong> 
+<p/><code>word&nbsp; </code><strong> PDF:hardLHAPDFset &nbsp;</strong> 
  (<code>default = <strong>MRST2004FF4lo.LHgrid</strong></code>)<br/>
 Name of proton PDF set from LHAPDF to be used. 
    
 
-<p/><code>mode&nbsp; </code><strong> Pythia:hardLHAPDFmember &nbsp;</strong> 
+<p/><code>mode&nbsp; </code><strong> PDF:hardLHAPDFmember &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)<br/>
 Further choice of a specific member from the set picked above. 
 </modeopen>   
 
-<p/><code>flag&nbsp; </code><strong> Pythia:limitHardLHAPDF &nbsp;</strong> 
+<p/><code>flag&nbsp; </code><strong> PDF:limitHardLHAPDF &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 If on then you can set <i>x</i> and <i>Q2</i> limits below.
   
 
-<p/><code>parm&nbsp; </code><strong> Pythia:xMinHardLHAPDF &nbsp;</strong> 
+<p/><code>parm&nbsp; </code><strong> PDF:xMinHardLHAPDF &nbsp;</strong> 
  (<code>default = <strong>1e-6</strong></code>)<br/>
 Freeze <i>x f_i(x, Q2)</i> below this <i>x</i> value.
   
 
-<p/><code>parm&nbsp; </code><strong> Pythia:xMaxHardLHAPDF &nbsp;</strong> 
+<p/><code>parm&nbsp; </code><strong> PDF:xMaxHardLHAPDF &nbsp;</strong> 
  (<code>default = <strong>0.9999</strong></code>)<br/>
 Set <i>x f_i(x, Q2) = 0</i> above this <i>x</i> value.
   
 
-<p/><code>parm&nbsp; </code><strong> Pythia:Q2MinHardLHAPDF &nbsp;</strong> 
+<p/><code>parm&nbsp; </code><strong> PDF:Q2MinHardLHAPDF &nbsp;</strong> 
  (<code>default = <strong>1.</strong></code>)<br/>
 Freeze <i>x f_i(x, Q2)</i> below this <i>Q2</i> value.
   
 
-<p/><code>parm&nbsp; </code><strong> Pythia:Q2MaxHardLHAPDF &nbsp;</strong> 
+<p/><code>parm&nbsp; </code><strong> PDF:Q2MaxHardLHAPDF &nbsp;</strong> 
  (<code>default = <strong>1e8</strong></code>)<br/>
 Freeze <i>x f_i(x, Q2)</i> above this <i>Q2</i> value.
   
@@ -233,7 +233,7 @@ However, insofar as e.g. <i>e^+ e^-</i> data often are corrected
 back to a world without any initial-state photon radiation, it is 
 useful to have a corresponding option available here.
 
-<p/><code>flag&nbsp; </code><strong> Pythia:lPDF &nbsp;</strong> 
+<p/><code>flag&nbsp; </code><strong> PDF:lepton &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 Use parton densities for lepton beams or not. If off the colliding
 leptons carry the full beam energy, if on part of the energy is 
@@ -248,4 +248,4 @@ these collinear photons will carry the full radiated energy.
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

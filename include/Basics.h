@@ -1,10 +1,14 @@
+// Basics.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for basic, often-used helper classes.
 // RndmEngine: base class for external random number generators.
 // Rndm: random number generator (static member functions).
 // Vec4: simple four-vectors.
 // RotBstMatrix: matrices encoding rotations and boosts of Vec4 objects.
 // Hist: simple one-dimensional histograms.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_Basics_H
 #define Pythia8_Basics_H
@@ -120,9 +124,9 @@ public:
   double py() const {return yy;}
   double pz() const {return zz;}
   double e() const {return tt;}
-  double m2Calc() const {return tt*tt - xx*xx - yy*yy - zz*zz;}
   double mCalc() const {double temp = tt*tt - xx*xx - yy*yy - zz*zz;
     return (temp >= 0) ? sqrt(temp) : -sqrt(-temp);}
+  double m2Calc() const {return tt*tt - xx*xx - yy*yy - zz*zz;}
   double pT() const {return sqrt(xx*xx + yy*yy);}
   double pT2() const {return xx*xx + yy*yy;}
   double pAbs() const {return sqrt(xx*xx + yy*yy + zz*zz);}
@@ -175,19 +179,16 @@ public:
   friend Vec4 cross3(const Vec4& v1, const Vec4& v2);
 
   // theta is polar angle between v1 and v2.
+  friend double theta(const Vec4& v1, const Vec4& v2);
   friend double costheta(const Vec4& v1, const Vec4& v2);
-  friend double theta(const Vec4& v1, const Vec4& v2) {
-    return acos(costheta(v1, v2)); } 
 
   // phi is azimuthal angle between v1 and v2 around z axis.
+  friend double phi(const Vec4& v1, const Vec4& v2);  
   friend double cosphi(const Vec4& v1, const Vec4& v2);
-  friend double phi(const Vec4& v1, const Vec4& v2) {
-    return acos(cosphi(v1, v2)); } 
 
   // phi is azimuthal angle between v1 and v2 around n axis.
+  friend double phi(const Vec4& v1, const Vec4& v2, const Vec4& n);
   friend double cosphi(const Vec4& v1, const Vec4& v2, const Vec4& n);
-  friend double phi(const Vec4& v1, const Vec4& v2, const Vec4& n) {
-    return acos(cosphi(v1, v2, n)); } 
 
   // Print a four-vector
   friend ostream& operator<<(ostream&, const Vec4& v) ;
@@ -249,10 +250,10 @@ public:
   void bst(const Vec4&);
   void bstback(const Vec4&);
   void bst(const Vec4&, const Vec4&);
-  void rotbst(const RotBstMatrix&);
-  void invert();
   void toCMframe(const Vec4&, const Vec4&);
   void fromCMframe(const Vec4&, const Vec4&);
+  void rotbst(const RotBstMatrix&);
+  void invert();
   void reset();
 
   // Crude estimate deviation from unit matrix.

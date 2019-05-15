@@ -76,7 +76,6 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/FragmentationFlavZpT.obj \
          $(OUTDIR)/FragmentationSystems.obj \
          $(OUTDIR)/HadronLevel.obj \
-         $(OUTDIR)/InFlux.obj \
          $(OUTDIR)/Information.obj \
          $(OUTDIR)/LesHouches.obj \
          $(OUTDIR)/MiniStringFragmentation.obj \
@@ -93,6 +92,7 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/ResonanceProperties.obj \
          $(OUTDIR)/Settings.obj \
          $(OUTDIR)/SigmaEW.obj \
+         $(OUTDIR)/SigmaHiggs.obj \
          $(OUTDIR)/SigmaOnia.obj \
          $(OUTDIR)/SigmaProcess.obj \
          $(OUTDIR)/SigmaQCD.obj \

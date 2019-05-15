@@ -1,6 +1,10 @@
+// SigmaEW.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for electroweak process differential cross sections.
 // Contains classes derived from SigmaProcess via Sigma2Process.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_SigmaEW_H
 #define Pythia8_SigmaEW_H
@@ -23,8 +27,8 @@ public:
   // Constructor.
   Sigma2qg2qgamma() {}
 
-  // Initialize parton-flux object. 
-  virtual void initFlux();
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -33,13 +37,14 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "q g -> q gamma (udscb)";}
-  virtual int code() const {return 201;}
+  virtual string name()   const {return "q g -> q gamma (udscb)";}
+  virtual int    code()   const {return 201;}
+  virtual string inFlux() const {return "qg";}
 
 private:
 
-  // Values stored for colour flow selection.
-  double mNew, m2New, sigUS;
+  // Values stored for later use.
+  double mNew, m2New, sigUS, sigma0;
 
 };
  
@@ -54,8 +59,8 @@ public:
   // Constructor.
   Sigma2qqbar2ggamma() {}
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -64,10 +69,14 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "q qbar -> g gamma";}
-  virtual int code() const {return 202;}
+  virtual string name()   const {return "q qbar -> g gamma";}
+  virtual int    code()   const {return 202;}
+  virtual string inFlux() const {return "qqbarSame";}
 
 private:
+
+  // Values stored for later use.
+  double sigma0;
 
 };
  
@@ -85,38 +94,40 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object for g g initial state. 
-  virtual void initFlux() {inFluxPtr = new InFluxgg();}  
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
-  virtual double sigmaHat();
+  virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "g g -> g gamma";}
-  virtual int code() const {return 203;}
+  virtual string name()   const {return "g g -> g gamma";}
+  virtual int    code()   const {return 203;}
+  virtual string inFlux() const {return "gg";}
 
 private:
-  
-  double chargeSum;
+
+  // Values stored for later use.  
+  double chargeSum, sigma;
 
 };
  
 //**************************************************************************
 
-// A derived class for q qbar -> gamma gamma.
+// A derived class for f fbar -> gamma gamma.
 
-class Sigma2qqbar2gammagamma : public Sigma2Process {
+class Sigma2ffbar2gammagamma : public Sigma2Process {
 
 public:
 
   // Constructor.
-  Sigma2qqbar2gammagamma() {}
+  Sigma2ffbar2gammagamma() {}
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -125,13 +136,14 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "q qbar -> gamma gamma";}
-  virtual int code() const {return 204;}
+  virtual string name()   const {return "f fbar -> gamma gamma";}
+  virtual int    code()   const {return 204;}
+  virtual string inFlux() const {return "ffbarSame";}
 
 private:
 
-  // Values stored for colour flow selection.
-  double sigTU;
+  // Values stored for later use.
+  double sigTU, sigma0;
 
 };
  
@@ -149,22 +161,23 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object for g g initial state. 
-  virtual void initFlux() {inFluxPtr = new InFluxgg();}  
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
-  virtual double sigmaHat();
+  virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "g g -> gamma gamma";}
-  virtual int code() const {return 205;}
+  virtual string name()   const {return "g g -> gamma gamma";}
+  virtual int    code()   const {return 205;}
+  virtual string inFlux() const {return "gg";}
 
 private:
   
-  double charge2Sum;
+  double charge2Sum, sigma;
 
 };
  
@@ -182,8 +195,8 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate sigmaHat(sHat). 
   virtual double sigmaHat();
@@ -192,14 +205,15 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "f f' -> f f' (t-channel gamma*/Z0)";}
-  virtual int code() const {return 211;}
+  virtual string name()   const {return "f f' -> f f' (t-channel gamma*/Z0)";}
+  virtual int    code()   const {return 211;}
+  virtual string inFlux() const {return "ff";}
 
 private:
 
-  //  Z parameters for propagator. Set flux.
+  //  Z parameters for propagator.
   int    gmZmode;
-  double mZ, mZS, thetaWRat;
+  double mZ, mZS, thetaWRat, sigmagmgm, sigmagmZ, sigmaZZ;
 
 };
  
@@ -217,8 +231,8 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate sigmaHat(sHat). 
   virtual double sigmaHat();
@@ -227,13 +241,14 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "f_1 f_2 -> f_3 f_4 (t-channel W+-)";}
-  virtual int code() const {return 212;}
+  virtual string name()   const {return "f_1 f_2 -> f_3 f_4 (t-channel W+-)";}
+  virtual int    code()   const {return 212;}
+  virtual string inFlux() const {return "ff";}
 
 private:
 
-  //  W parameters for propagator. Set flux.
-  double mW, mWS, thetaWRat;
+  //  W parameters for propagator.
+  double mW, mWS, thetaWRat, sigma0;
 
 };
  
@@ -253,8 +268,8 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate sigmaHat(sHat). 
   virtual double sigmaHat();
@@ -266,16 +281,17 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name() const {return nameSave;}
-  virtual int code() const {return codeSave;}
-  virtual int id3Mass() const {return idNew;}
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
+  virtual string inFlux()  const {return "ff";}
+  virtual int    id3Mass() const {return idNew;}
 
 private:
 
   // Values stored for process type. W parameters for propagator.
   int    idNew, codeSave;
   string nameSave;
-  double mW, mWS, thetaWRat;
+  double mW, mWS, thetaWRat, sigma0;
 
 };
  
@@ -293,8 +309,8 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate sigmaHat(sHat). 
   virtual double sigmaHat();
@@ -306,9 +322,10 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name() const {return "f fbar -> gamma*/Z0";}
-  virtual int code() const {return 221;}
-  virtual int resonanceA() const {return 23;}
+  virtual string name()       const {return "f fbar -> gamma*/Z0";}
+  virtual int    code()       const {return 221;}
+  virtual string inFlux()     const {return "ffbarSame";}
+  virtual int    resonanceA() const {return 23;}
 
 private:
 
@@ -336,8 +353,8 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate sigmaHat(sHat). 
   virtual double sigmaHat();
@@ -349,17 +366,18 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name() const {return "f fbar' -> W+-";}
-  virtual int code() const {return 222;}
-  virtual int resonanceA() const {return 24;}
+  virtual string name()       const {return "f fbar' -> W+-";}
+  virtual int    code()       const {return 222;}
+  virtual string inFlux()     const {return "ffbarChg";}
+  virtual int    resonanceA() const {return 24;}
 
 private:
 
-  // A W+- resonance object provides coupling and propagator expressions.
-  ResonanceW WRes;
-
   // Parameters set at initialization. 
-  double mRes, GammaRes, m2Res, GamMRat;
+  double mRes, GammaRes, m2Res, GamMRat, thetaWRat, sigma0Pos, sigma0Neg;
+
+  // Pointer to properties of the particle species, to access decay channels.
+  ParticleDataEntry* particlePtr;
 
 };
 
@@ -375,8 +393,8 @@ public:
   // Constructor.
   Sigma2ffbar2ffbarsgm() {}
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate sigmaHat(sHat). 
   virtual double sigmaHat();
@@ -385,14 +403,17 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {
+  virtual string name()       const {
     return "f fbar -> f' fbar' (s-channel gamma*)";}
-  virtual int code() const {return 223;}
+  virtual int    code()       const {return 223;}
+  virtual string inFlux()     const {return "ffbarSame";}
+  virtual bool   isSChannel() const {return true;}
 
 private:
 
-  // Values stored for colour flow selection.
+  // Values stored for later use.
   int    idNew;
+  double sigma0;
 
 };
 
@@ -412,8 +433,8 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate sigmaHat(sHat). 
   virtual double sigmaHat();
@@ -425,18 +446,22 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name() const {return nameSave;}
-  virtual int code() const {return codeSave;}
-  virtual int id3Mass() const {return idNew;}
-  virtual int id4Mass() const {return idNew;}
-  virtual int resonanceA() const {return 23;}
+  virtual string name()       const {return nameSave;}
+  virtual int    code()       const {return codeSave;}
+  virtual string inFlux()     const {return "ffbarSame";}
+  virtual bool isSChannel()   const {return true;}
+  virtual int    id3Mass()    const {return idNew;}
+  virtual int    id4Mass()    const {return idNew;}
+  virtual int    resonanceA() const {return 23;}
 
 private:
 
   // Values stored for process type. Z parameters for propagator.
   int    idNew, codeSave, gmZmode;
   string nameSave;
-  double ef, vf, af, mRes, GammaRes, m2Res, GamMRat, thetaWRat; 
+  bool physical;
+  double ef, vf, af, mRes, GammaRes, m2Res, GamMRat, thetaWRat,
+     mr, betaf, cosThe, gamProp, intProp, resProp; 
 
 };
 
@@ -456,8 +481,8 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate sigmaHat(sHat). 
   virtual double sigmaHat();
@@ -469,18 +494,21 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name() const {return nameSave;}
-  virtual int code() const {return codeSave;}
-  virtual int id3Mass() const {return idNew;}
-  virtual int id4Mass() const {return idPartner;}
-  virtual int resonanceA() const {return 24;}
+  virtual string name()       const {return nameSave;}
+  virtual int    code()       const {return codeSave;}
+  virtual string inFlux()     const {return "ffbarChg";}
+  virtual bool   isSChannel() const {return true;}
+  virtual int    id3Mass()    const {return idNew;}
+  virtual int    id4Mass()    const {return idPartner;}
+  virtual int    resonanceA() const {return 24;}
 
 private:
 
   // Values stored for process type. W parameters for propagator.
   int    idNew, codeSave, idPartner;
   string nameSave;
-  double V2New, mRes, GammaRes, m2Res, GamMRat, thetaWRat; 
+  bool physical;
+  double V2New, mRes, GammaRes, m2Res, GamMRat, thetaWRat, sigma0; 
 
 };
  
@@ -533,8 +561,8 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -549,16 +577,17 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name() const {return "f fbar -> gamma*/Z0 gamma*/Z0";}
-  virtual int code() const {return 231;}
-  virtual int id3Mass() const {return 23;}
-  virtual int id4Mass() const {return 23;}
+  virtual string name()    const {return "f fbar -> gamma*/Z0 gamma*/Z0";}
+  virtual int    code()    const {return 231;}
+  virtual string inFlux()  const {return "ffbarSame";}
+  virtual int    id3Mass() const {return 23;}
+  virtual int    id4Mass() const {return 23;}
 
 private:
 
   // Parameters set at initialization or for each new event. 
   int    gmZmode, i1, i2, i3, i4, i5, i6;
-  double mRes, GammaRes, m2Res, GamMRat, thetaWRat, 
+  double mRes, GammaRes, m2Res, GamMRat, thetaWRat, sigma0,  
          gamSum3, intSum3, resSum3, gamProp3, intProp3, resProp3,
          gamSum4, intSum4, resSum4, gamProp4, intProp4, resProp4,
          c3LL, c3LR, c3RL, c3RR, c4LL, c4LR, c4RL, c4RR, flavWt;
@@ -582,8 +611,8 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -595,17 +624,18 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name() const {return "f fbar' -> Z0 W+- (no gamma*!)";}
-  virtual int code() const {return 232;}
-  virtual int id3Mass() const {return 23;}
-  virtual int id4Mass() const {return 24;}
-  virtual int resonanceA() const {return 24;}
+  virtual string name()       const {return "f fbar' -> Z0 W+- (no gamma*!)";}
+  virtual int    code()       const {return 232;}
+  virtual string inFlux()     const {return "ffbarChg";}
+  virtual int    id3Mass()    const {return 23;}
+  virtual int    id4Mass()    const {return 24;}
+  virtual int    resonanceA() const {return 24;}
 
 private:
 
   // Store W+- mass and width, and couplings.
   double mW, widW, mWS, mwWS, sin2thetaW, cos2thetaW, thetaWRat, 
-         thetaWpt, thetaWmm, lun, lde;
+         thetaWpt, thetaWmm, lun, lde, sigma0;
 
 };
  
@@ -623,8 +653,8 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -636,16 +666,18 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
 
   // Info on the subprocess.
-  virtual string name() const {return "f fbar -> W+ W-";}
-  virtual int code() const {return 233;}
-  virtual int id3Mass() const {return 24;}
-  virtual int id4Mass() const {return -24;}
-  virtual int resonanceA() const {return 23;}
+  virtual string name()       const {return "f fbar -> W+ W-";}
+  virtual int    code()       const {return 233;}
+  virtual int    id3Mass()    const {return 24;}
+  virtual string inFlux()     const {return "ffbarSame";}
+  virtual int    id4Mass()    const {return -24;}
+  virtual int    resonanceA() const {return 23;}
 
 private:
 
   // Store Z0 mass and width.
-  double mZ, widZ, mZS, mwZS, thetaWRat;
+  double mZ, widZ, mZS, mwZS, thetaWRat, sigma0, cgg, cgZ, cZZ, cfg, 
+    cfZ, cff, gSS, gTT, gST, gUU, gSU;
 
 };
  
@@ -697,8 +729,8 @@ public:
   // Constructor.
   Sigma2qqbar2gmZg() {}
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -707,11 +739,15 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "q qbar -> gamma*/Z0 g";}
-  virtual int code() const {return 241;}
-  virtual int id3Mass() const {return 23;}
+  virtual string name()    const {return "q qbar -> gamma*/Z0 g";}
+  virtual int    code()    const {return 241;}
+  virtual string inFlux()  const {return "qqbarSame";}
+  virtual int    id3Mass() const {return 23;}
 
 private:
+
+  // Values stored for later use.
+  double sigma0;
 
 };
  
@@ -726,8 +762,8 @@ public:
   // Constructor.
   Sigma2qg2gmZq() {}
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -736,11 +772,15 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "q g-> gamma*/Z0 q";}
-  virtual int code() const {return 242;}
-  virtual int id3Mass() const {return 23;}
+  virtual string name()    const {return "q g-> gamma*/Z0 q";}
+  virtual int    code()    const {return 242;}
+  virtual string inFlux()  const {return "qg";}
+  virtual int    id3Mass() const {return 23;}
 
 private:
+
+  // Values stored for later use.
+  double sigma0;
 
 };
  
@@ -755,8 +795,8 @@ public:
   // Constructor.
   Sigma2ffbar2gmZgm() {}
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -765,11 +805,15 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "f fbar -> gamma*/Z0 gamma";}
-  virtual int code() const {return 243;}
-  virtual int id3Mass() const {return 23;}
+  virtual string name()    const {return "f fbar -> gamma*/Z0 gamma";}
+  virtual int    code()    const {return 243;}
+  virtual string inFlux()  const {return "ffbarSame";}
+  virtual int    id3Mass() const {return 23;}
 
 private:
+
+  // Values stored for later use.
+  double sigma0;
 
 };
  
@@ -784,8 +828,8 @@ public:
   // Constructor.
   Sigma2fgm2gmZf() {}
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -794,11 +838,15 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "f gamma -> gamma*/Z0 f";}
-  virtual int code() const {return 244;}
-  virtual int id3Mass() const {return 23;}
+  virtual string name()    const {return "f gamma -> gamma*/Z0 f";}
+  virtual int    code()    const {return 244;}
+  virtual string inFlux()  const {return "fgm";}
+  virtual int    id3Mass() const {return 23;}
 
 private:
+
+  // Values stored for later use.
+  double sigma0;
 
 };
  
@@ -831,8 +879,8 @@ public:
   // Constructor.
   Sigma2qqbar2Wg() {}
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -841,11 +889,15 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "q qbar' -> W+- g";}
-  virtual int code() const {return 251;}
-  virtual int id3Mass() const {return 24;}
+  virtual string name()    const {return "q qbar' -> W+- g";}
+  virtual int    code()    const {return 251;}
+  virtual string inFlux()  const {return "ffbarChg";}
+  virtual int    id3Mass() const {return 24;}
 
 private:
+
+  // Values stored for later use.
+  double sigma0;
 
 };
  
@@ -860,8 +912,8 @@ public:
   // Constructor.
   Sigma2qg2Wq() {}
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -870,11 +922,15 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "q g-> W+- q'";}
-  virtual int code() const {return 252;}
-  virtual int id3Mass() const {return 24;}
+  virtual string name()    const {return "q g-> W+- q'";}
+  virtual int    code()    const {return 252;}
+  virtual string inFlux()  const {return "qg";}
+  virtual int    id3Mass() const {return 24;}
 
 private:
+
+  // Values stored for later use.
+  double sigma0;
 
 };
  
@@ -889,8 +945,8 @@ public:
   // Constructor.
   Sigma2ffbar2Wgm() {}
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -899,11 +955,15 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "f fbar' -> W+- gamma";}
-  virtual int code() const {return 253;}
-  virtual int id3Mass() const {return 24;}
+  virtual string name()    const {return "f fbar' -> W+- gamma";}
+  virtual int    code()    const {return 253;}
+  virtual string inFlux()  const {return "ffbarChg";}
+  virtual int    id3Mass() const {return 24;}
 
 private:
+
+  // Values stored for later use.
+  double sigma0;
 
 };
  
@@ -918,8 +978,8 @@ public:
   // Constructor.
   Sigma2fgm2Wf() {}
 
-  // Initialize parton-flux object. 
-  virtual void initFlux(); 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
   virtual double sigmaHat();
@@ -928,11 +988,15 @@ public:
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return "f gamma -> W+- f'";}
-  virtual int code() const {return 254;}
-  virtual int id3Mass() const {return 24;}
+  virtual string name()    const {return "f gamma -> W+- f'";}
+  virtual int    code()    const {return 254;}
+  virtual string inFlux()  const {return "fgm";}
+  virtual int    id3Mass() const {return 24;}
 
 private:
+
+  // Values stored for later use.
+  double sigma0;
 
 };
  

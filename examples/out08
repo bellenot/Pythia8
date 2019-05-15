@@ -1,0 +1,621 @@
+
+ *------------------------------------------------------------------------------------* 
+ |                                                                                    | 
+ |  *------------------------------------------------------------------------------*  | 
+ |  |                                                                              |  | 
+ |  |                                                                              |  | 
+ |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.090      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 20 Jul 2007  |  | 
+ |  |   P       Y      T    H   H   I   A   A                                      |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 20 Jul 2007 at 15:34:25    |  | 
+ |  |                                                                              |  | 
+ |  |   Main author: Torbjorn Sjostrand; CERN/PH, CH-1211 Geneva, Switzerland,     |  | 
+ |  |     and Department of Theoretical Physics, Lund University, Lund, Sweden;    |  | 
+ |  |     phone: + 41 - 22 - 767 82 27; e-mail: torbjorn@thep.lu.se                |  | 
+ |  |   Author: Stephen Mrenna; Computing Division, Simulations Group,             |  | 
+ |  |     Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;   |  | 
+ |  |     phone: + 1 - 630 - 840 - 2556; e-mail: mrenna@fnal.gov                   |  | 
+ |  |   Author: Peter Skands; Theoretical Physics Department,                      |  | 
+ |  |     Fermi National Accelerator Laboratory, MS 106, Batavia, IL 60510, USA;   |  | 
+ |  |     phone: + 1 - 630 - 840 - 2270; e-mail: skands@fnal.gov                   |  | 
+ |  |                                                                              |  | 
+ |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
+ |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
+ |  |   In addition, for PYTHIA 8.0, also quote the 'Brief Introduction',          |  | 
+ |  |   T. Sjostrand, CERN-LCGAPP-2007-03.                                         |  | 
+ |  |                                                                              |  | 
+ |  |   An archive of program versions and documentation is found on the web:      |  | 
+ |  |   http://www.thep.lu.se/~torbjorn/Pythia.html                                |  | 
+ |  |                                                                              |  | 
+ |  |   This program is released under the GNU General Public Licence version 2.   |  | 
+ |  |   Please respect the MCnet Guidelines for Event Generator Authors and Users. |  | 
+ |  |                                                                              |  | 
+ |  |   Disclaimer: this program comes without any guarantees.                     |  | 
+ |  |   Beware of errors and use common sense when interpreting results.           |  | 
+ |  |   In addition, the current 8.0 version is intended for tryout and feedback   |  | 
+ |  |   only, and should not be used for any physics studies or production runs.   |  | 
+ |  |                                                                              |  | 
+ |  |   Copyright (C) 2007 Torbjorn Sjostrand                                      |  | 
+ |  |                                                                              |  | 
+ |  |                                                                              |  | 
+ |  *------------------------------------------------------------------------------*  | 
+ |                                                                                    | 
+ *------------------------------------------------------------------------------------* 
+
+ PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | g g -> g g                                111 |   1.943e-03 |
+ | g g -> q qbar (uds)                       112 |   4.089e-05 |
+ | q g -> q g                                113 |   2.868e-03 |
+ | q q(bar)' -> q q(bar)'                    114 |   3.857e-04 |
+ | q qbar -> g g                             115 |   4.116e-06 |
+ | q qbar -> q' qbar' (uds)                  116 |   3.150e-06 |
+ | g g -> c cbar                             121 |   1.362e-05 |
+ | q qbar -> c cbar                          122 |   1.050e-06 |
+ | g g -> b bbar                             123 |   1.356e-05 |
+ | q qbar -> b bbar                          124 |   1.047e-06 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+
+ *-------  PYTHIA Flag + Mode + Parm + Word Settings (changes only)  -----------------------------------------* 
+ |                                                                                                            | 
+ | Name                                     |                      Now |      Default         Min         Max | 
+ |                                          |                          |                                      | 
+ | HardQCD:all                              |                       on |          off                         | 
+ | PartonLevel:all                          |                      off |           on                         | 
+ | PhaseSpace:pTHatMax                      |                150.00000 |     -1.00000                         | 
+ | PhaseSpace:pTHatMin                      |                100.00000 |          0.0         0.0             | 
+ |                                                                                                            | 
+ *-------  End PYTHIA Flag + Mode + Parm + Word Settings  ----------------------------------------------------* 
+
+ --------  PYTHIA Event Listing  (hard process)  ----------------------------------------------------------------------------------- 
+ 
+    no        id   name            status     mothers   daughters     colours      p_x        p_y        p_z         e          m 
+     0        90   (system)           -11     0     0     1     2     0     0      0.000      0.000      0.000  14000.000  14000.000
+     1      2212   (p+)               -12     0     0     3     0     0     0      0.000      0.000   7000.000   7000.000      0.938
+     2      2212   (p+)               -12     0     0     4     0     0     0      0.000      0.000  -7000.000   7000.000      0.938
+     3        21   (g)                -21     1     0     5     6   102   101      0.000      0.000     59.316     59.316      0.000
+     4        21   (g)                -21     2     0     5     6   103   102      0.000      0.000   -415.476    415.476      0.000
+     5        21   g                   23     3     4     0     0   104   101     92.133    -50.860     -1.928    105.257      0.000
+     6        21   g                   23     3     4     0     0   103   104    -92.133     50.860   -354.232    369.535      0.000
+                                   Charge sum:  0.000           Momentum sum:      0.000      0.000   -356.160    474.791    313.970
+
+ --------  End PYTHIA Event Listing  -----------------------------------------------------------------------------------------------
+
+ *-------  PYTHIA Event and Cross Section Statistics  --------------------------------------------------------*
+ |                                                                                                            |
+ | Subprocess                               Code |            Number of events       |      sigma +- delta    |
+ |                                               |       Tried   Selected   Accepted |     (estimated) (mb)   |
+ |                                               |                                   |                        |
+ |------------------------------------------------------------------------------------------------------------|
+ |                                               |                                   |                        |
+ | g g -> g g                                111 |       16871       4573       4573 |   5.236e-04  3.270e-06 |
+ | g g -> q qbar (uds)                       112 |         374        108        108 |   1.219e-05  5.736e-07 |
+ | q g -> q g                                113 |       25234       4509       4509 |   5.160e-04  3.554e-06 |
+ | q q(bar)' -> q q(bar)'                    114 |        3444        721        721 |   8.112e-05  1.554e-06 |
+ | q qbar -> g g                             115 |          43          8          8 |   1.213e-06  1.373e-07 |
+ | q qbar -> q' qbar' (uds)                  116 |          28          4          4 |   7.868e-07  1.332e-07 |
+ | g g -> c cbar                             121 |         139         37         37 |   3.647e-06  2.908e-07 |
+ | q qbar -> c cbar                          122 |          10          4          4 |   4.042e-07  9.417e-08 |
+ | g g -> b bbar                             123 |         124         35         35 |   3.877e-06  3.214e-07 |
+ | q qbar -> b bbar                          124 |          10          1          1 |   2.982e-07  2.982e-07 |
+ |                                               |                                   |                        |
+ | sum                                           |       46277      10000      10000 |   1.143e-03  5.137e-06 |
+ |                                                                                                            |
+ *-------  End PYTHIA Event and Cross Section Statistics -----------------------------------------------------*
+
+ *-------  PYTHIA Error and Warning Messages Statistics  -----------------------------------------------------* 
+ |                                                                                                            | 
+ |  times   message                                                                                           | 
+ |                                                                                                            | 
+ |      3   Warning in ParticleDataEntry::initBWmass: switching off width                                     | 
+ |                                                                                                            | 
+ *-------  End PYTHIA Error and Warning Messages Statistics  -------------------------------------------------* 
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | g g -> g g                                111 |   3.239e-04 |
+ | g g -> q qbar (uds)                       112 |   6.338e-06 |
+ | q g -> q g                                113 |   6.028e-04 |
+ | q q(bar)' -> q q(bar)'                    114 |   1.081e-04 |
+ | q qbar -> g g                             115 |   9.667e-07 |
+ | q qbar -> q' qbar' (uds)                  116 |   7.192e-07 |
+ | g g -> c cbar                             121 |   2.112e-06 |
+ | q qbar -> c cbar                          122 |   2.397e-07 |
+ | g g -> b bbar                             123 |   2.108e-06 |
+ | q qbar -> b bbar                          124 |   2.394e-07 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+
+ *-------  PYTHIA Flag + Mode + Parm + Word Settings (changes only)  -----------------------------------------* 
+ |                                                                                                            | 
+ | Name                                     |                      Now |      Default         Min         Max | 
+ |                                          |                          |                                      | 
+ | HardQCD:all                              |                       on |          off                         | 
+ | PartonLevel:all                          |                      off |           on                         | 
+ | PhaseSpace:pTHatMax                      |                250.00000 |     -1.00000                         | 
+ | PhaseSpace:pTHatMin                      |                150.00000 |          0.0         0.0             | 
+ |                                                                                                            | 
+ *-------  End PYTHIA Flag + Mode + Parm + Word Settings  ----------------------------------------------------* 
+
+ --------  PYTHIA Event Listing  (hard process)  ----------------------------------------------------------------------------------- 
+ 
+    no        id   name            status     mothers   daughters     colours      p_x        p_y        p_z         e          m 
+     0        90   (system)           -11     0     0     1     2     0     0      0.000      0.000      0.000  14000.000  14000.000
+     1      2212   (p+)               -12     0     0     3     0     0     0      0.000      0.000   7000.000   7000.000      0.938
+     2      2212   (p+)               -12     0     0     4     0     0     0      0.000      0.000  -7000.000   7000.000      0.938
+     3        21   (g)                -21     1     0     5     6   103   102      0.000      0.000    109.163    109.163      0.000
+     4        -3   (sbar)             -21     2     0     5     6     0   101      0.000      0.000   -324.247    324.247      0.000
+     5        21   g                   23     3     4     0     0   103   101   -169.897     -9.551    -15.112    170.835      0.000
+     6        -3   sbar                23     3     4     0     0     0   102    169.897      9.551   -199.972    262.574      0.500
+                                   Charge sum:  0.333           Momentum sum:      0.000      0.000   -215.084    433.410    376.275
+
+ --------  End PYTHIA Event Listing  -----------------------------------------------------------------------------------------------
+
+ *-------  PYTHIA Event and Cross Section Statistics  --------------------------------------------------------*
+ |                                                                                                            |
+ | Subprocess                               Code |            Number of events       |      sigma +- delta    |
+ |                                               |       Tried   Selected   Accepted |     (estimated) (mb)   |
+ |                                               |                                   |                        |
+ |------------------------------------------------------------------------------------------------------------|
+ |                                               |                                   |                        |
+ | g g -> g g                                111 |       15190       3997       3997 |   8.477e-05  5.875e-07 |
+ | g g -> q qbar (uds)                       112 |         308         89         89 |   1.972e-06  1.076e-07 |
+ | q g -> q g                                113 |       28493       4918       4918 |   1.025e-04  6.770e-07 |
+ | q q(bar)' -> q q(bar)'                    114 |        5139        913        913 |   1.912e-05  3.070e-07 |
+ | q qbar -> g g                             115 |          39         10         10 |   2.673e-07  3.391e-08 |
+ | q qbar -> q' qbar' (uds)                  116 |          32          9          9 |   2.338e-07  3.771e-08 |
+ | g g -> c cbar                             121 |         113         33         33 |   6.017e-07  5.291e-08 |
+ | q qbar -> c cbar                          122 |          16          8          8 |   8.355e-08  1.732e-08 |
+ | g g -> b bbar                             123 |          80         20         20 |   6.505e-07  6.986e-08 |
+ | q qbar -> b bbar                          124 |           7          3          3 |   7.884e-08  2.819e-08 |
+ |                                               |                                   |                        |
+ | sum                                           |       49417      10000      10000 |   2.102e-04  9.595e-07 |
+ |                                                                                                            |
+ *-------  End PYTHIA Event and Cross Section Statistics -----------------------------------------------------*
+
+ *-------  PYTHIA Error and Warning Messages Statistics  -----------------------------------------------------* 
+ |                                                                                                            | 
+ |  times   message                                                                                           | 
+ |                                                                                                            | 
+ |      6   Warning in ParticleDataEntry::initBWmass: switching off width                                     | 
+ |                                                                                                            | 
+ *-------  End PYTHIA Error and Warning Messages Statistics  -------------------------------------------------* 
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | g g -> g g                                111 |   2.725e-05 |
+ | g g -> q qbar (uds)                       112 |   5.740e-07 |
+ | q g -> q g                                113 |   6.282e-05 |
+ | q q(bar)' -> q q(bar)'                    114 |   1.461e-05 |
+ | q qbar -> g g                             115 |   1.342e-07 |
+ | q qbar -> q' qbar' (uds)                  116 |   1.022e-07 |
+ | g g -> c cbar                             121 |   1.913e-07 |
+ | q qbar -> c cbar                          122 |   3.407e-08 |
+ | g g -> b bbar                             123 |   1.912e-07 |
+ | q qbar -> b bbar                          124 |   3.405e-08 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+
+ *-------  PYTHIA Flag + Mode + Parm + Word Settings (changes only)  -----------------------------------------* 
+ |                                                                                                            | 
+ | Name                                     |                      Now |      Default         Min         Max | 
+ |                                          |                          |                                      | 
+ | HardQCD:all                              |                       on |          off                         | 
+ | PartonLevel:all                          |                      off |           on                         | 
+ | PhaseSpace:pTHatMax                      |                400.00000 |     -1.00000                         | 
+ | PhaseSpace:pTHatMin                      |                250.00000 |          0.0         0.0             | 
+ |                                                                                                            | 
+ *-------  End PYTHIA Flag + Mode + Parm + Word Settings  ----------------------------------------------------* 
+
+ --------  PYTHIA Event Listing  (hard process)  ----------------------------------------------------------------------------------- 
+ 
+    no        id   name            status     mothers   daughters     colours      p_x        p_y        p_z         e          m 
+     0        90   (system)           -11     0     0     1     2     0     0      0.000      0.000      0.000  14000.000  14000.000
+     1      2212   (p+)               -12     0     0     3     0     0     0      0.000      0.000   7000.000   7000.000      0.938
+     2      2212   (p+)               -12     0     0     4     0     0     0      0.000      0.000  -7000.000   7000.000      0.938
+     3        21   (g)                -21     1     0     5     6   101   102      0.000      0.000    119.929    119.929      0.000
+     4        21   (g)                -21     2     0     5     6   103   104      0.000      0.000  -1060.297   1060.297      0.000
+     5        21   g                   23     3     4     0     0   101   104   -131.558   -326.510   -375.923    515.009      0.000
+     6        21   g                   23     3     4     0     0   103   102    131.558    326.510   -564.445    665.217      0.000
+                                   Charge sum:  0.000           Momentum sum:      0.000      0.000   -940.368   1180.227    713.192
+
+ --------  End PYTHIA Event Listing  -----------------------------------------------------------------------------------------------
+
+ *-------  PYTHIA Event and Cross Section Statistics  --------------------------------------------------------*
+ |                                                                                                            |
+ | Subprocess                               Code |            Number of events       |      sigma +- delta    |
+ |                                               |       Tried   Selected   Accepted |     (estimated) (mb)   |
+ |                                               |                                   |                        |
+ |------------------------------------------------------------------------------------------------------------|
+ |                                               |                                   |                        |
+ | g g -> g g                                111 |       13719       3285       3285 |   6.528e-06  5.181e-08 |
+ | g g -> q qbar (uds)                       112 |         274         71         71 |   1.517e-07  9.298e-09 |
+ | q g -> q g                                113 |       31380       5306       5306 |   1.051e-05  6.721e-08 |
+ | q q(bar)' -> q q(bar)'                    114 |        7203       1244       1244 |   2.511e-06  3.357e-08 |
+ | q qbar -> g g                             115 |          58         13         13 |   3.946e-08  4.784e-09 |
+ | q qbar -> q' qbar' (uds)                  116 |          45          9          9 |   2.299e-08  4.124e-09 |
+ | g g -> c cbar                             121 |          95         30         30 |   6.145e-08  6.045e-09 |
+ | q qbar -> c cbar                          122 |          22          9          9 |   1.068e-08  2.262e-09 |
+ | g g -> b bbar                             123 |          93         25         25 |   5.121e-08  5.407e-09 |
+ | q qbar -> b bbar                          124 |          20          8          8 |   1.286e-08  1.924e-09 |
+ |                                               |                                   |                        |
+ | sum                                           |       52909      10000      10000 |   1.990e-05  9.236e-08 |
+ |                                                                                                            |
+ *-------  End PYTHIA Event and Cross Section Statistics -----------------------------------------------------*
+
+ *-------  PYTHIA Error and Warning Messages Statistics  -----------------------------------------------------* 
+ |                                                                                                            | 
+ |  times   message                                                                                           | 
+ |                                                                                                            | 
+ |      9   Warning in ParticleDataEntry::initBWmass: switching off width                                     | 
+ |                                                                                                            | 
+ *-------  End PYTHIA Error and Warning Messages Statistics  -------------------------------------------------* 
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | g g -> g g                                111 |   2.302e-06 |
+ | g g -> q qbar (uds)                       112 |   5.339e-08 |
+ | q g -> q g                                113 |   6.798e-06 |
+ | q q(bar)' -> q q(bar)'                    114 |   1.941e-06 |
+ | q qbar -> g g                             115 |   1.908e-08 |
+ | q qbar -> q' qbar' (uds)                  116 |   1.486e-08 |
+ | g g -> c cbar                             121 |   1.779e-08 |
+ | q qbar -> c cbar                          122 |   4.953e-09 |
+ | g g -> b bbar                             123 |   1.779e-08 |
+ | q qbar -> b bbar                          124 |   4.951e-09 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+
+ *-------  PYTHIA Flag + Mode + Parm + Word Settings (changes only)  -----------------------------------------* 
+ |                                                                                                            | 
+ | Name                                     |                      Now |      Default         Min         Max | 
+ |                                          |                          |                                      | 
+ | HardQCD:all                              |                       on |          off                         | 
+ | PartonLevel:all                          |                      off |           on                         | 
+ | PhaseSpace:pTHatMax                      |                600.00000 |     -1.00000                         | 
+ | PhaseSpace:pTHatMin                      |                400.00000 |          0.0         0.0             | 
+ |                                                                                                            | 
+ *-------  End PYTHIA Flag + Mode + Parm + Word Settings  ----------------------------------------------------* 
+
+ --------  PYTHIA Event Listing  (hard process)  ----------------------------------------------------------------------------------- 
+ 
+    no        id   name            status     mothers   daughters     colours      p_x        p_y        p_z         e          m 
+     0        90   (system)           -11     0     0     1     2     0     0      0.000      0.000      0.000  14000.000  14000.000
+     1      2212   (p+)               -12     0     0     3     0     0     0      0.000      0.000   7000.000   7000.000      0.938
+     2      2212   (p+)               -12     0     0     4     0     0     0      0.000      0.000  -7000.000   7000.000      0.938
+     3        21   (g)                -21     1     0     5     6   101   102      0.000      0.000    850.358    850.358      0.000
+     4        21   (g)                -21     2     0     5     6   103   104      0.000      0.000   -419.820    419.820      0.000
+     5        21   g                   23     3     4     0     0   101   104    105.535   -530.923    484.128    726.221      0.000
+     6        21   g                   23     3     4     0     0   103   102   -105.535    530.923    -53.591    543.957      0.000
+                                   Charge sum:  0.000           Momentum sum:      0.000      0.000    430.537   1270.178   1194.985
+
+ --------  End PYTHIA Event Listing  -----------------------------------------------------------------------------------------------
+
+ *-------  PYTHIA Event and Cross Section Statistics  --------------------------------------------------------*
+ |                                                                                                            |
+ | Subprocess                               Code |            Number of events       |      sigma +- delta    |
+ |                                               |       Tried   Selected   Accepted |     (estimated) (mb)   |
+ |                                               |                                   |                        |
+ |------------------------------------------------------------------------------------------------------------|
+ |                                               |                                   |                        |
+ | g g -> g g                                111 |       12079       2543       2543 |   4.867e-07  4.610e-09 |
+ | g g -> q qbar (uds)                       112 |         325         84         84 |   1.303e-08  7.576e-10 |
+ | q g -> q g                                113 |       35588       5518       5518 |   1.052e-06  6.556e-09 |
+ | q q(bar)' -> q q(bar)'                    114 |       10292       1766       1766 |   3.341e-07  3.570e-09 |
+ | q qbar -> g g                             115 |          96         25         25 |   5.467e-09  4.941e-10 |
+ | q qbar -> q' qbar' (uds)                  116 |          68         16         16 |   3.717e-09  4.976e-10 |
+ | g g -> c cbar                             121 |          81         15         15 |   4.346e-09  4.902e-10 |
+ | q qbar -> c cbar                          122 |          18          3          3 |   7.725e-10  2.188e-10 |
+ | g g -> b bbar                             123 |          81         23         23 |   5.244e-09  5.501e-10 |
+ | q qbar -> b bbar                          124 |          28          7          7 |   1.342e-09  2.789e-10 |
+ |                                               |                                   |                        |
+ | sum                                           |       58656      10000      10000 |   1.907e-06  8.872e-09 |
+ |                                                                                                            |
+ *-------  End PYTHIA Event and Cross Section Statistics -----------------------------------------------------*
+
+ *-------  PYTHIA Error and Warning Messages Statistics  -----------------------------------------------------* 
+ |                                                                                                            | 
+ |  times   message                                                                                           | 
+ |                                                                                                            | 
+ |     12   Warning in ParticleDataEntry::initBWmass: switching off width                                     | 
+ |                                                                                                            | 
+ *-------  End PYTHIA Error and Warning Messages Statistics  -------------------------------------------------* 
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | g g -> g g                                111 |   2.429e-07 |
+ | g g -> q qbar (uds)                       112 |   5.978e-09 |
+ | q g -> q g                                113 |   8.785e-07 |
+ | q q(bar)' -> q q(bar)'                    114 |   4.181e-07 |
+ | q qbar -> g g                             115 |   3.423e-09 |
+ | q qbar -> q' qbar' (uds)                  116 |   2.236e-09 |
+ | g g -> c cbar                             121 |   1.982e-09 |
+ | q qbar -> c cbar                          122 |   7.455e-10 |
+ | g g -> b bbar                             123 |   1.982e-09 |
+ | q qbar -> b bbar                          124 |   7.454e-10 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+
+ *-------  PYTHIA Flag + Mode + Parm + Word Settings (changes only)  -----------------------------------------* 
+ |                                                                                                            | 
+ | Name                                     |                      Now |      Default         Min         Max | 
+ |                                          |                          |                                      | 
+ | HardQCD:all                              |                       on |          off                         | 
+ | PartonLevel:all                          |                      off |           on                         | 
+ | PhaseSpace:pTHatMax                      |                      0.0 |     -1.00000                         | 
+ | PhaseSpace:pTHatMin                      |                600.00000 |          0.0         0.0             | 
+ |                                                                                                            | 
+ *-------  End PYTHIA Flag + Mode + Parm + Word Settings  ----------------------------------------------------* 
+
+ --------  PYTHIA Event Listing  (hard process)  ----------------------------------------------------------------------------------- 
+ 
+    no        id   name            status     mothers   daughters     colours      p_x        p_y        p_z         e          m 
+     0        90   (system)           -11     0     0     1     2     0     0      0.000      0.000      0.000  14000.000  14000.000
+     1      2212   (p+)               -12     0     0     3     0     0     0      0.000      0.000   7000.000   7000.000      0.938
+     2      2212   (p+)               -12     0     0     4     0     0     0      0.000      0.000  -7000.000   7000.000      0.938
+     3         2   (u)                -21     1     0     5     6   101     0      0.000      0.000    547.108    547.108      0.000
+     4        21   (g)                -21     2     0     5     6   102   103      0.000      0.000  -1214.439   1214.439      0.000
+     5         2   u                   23     3     4     0     0   102     0    592.870    299.647    176.762    687.407      0.330
+     6        21   g                   23     3     4     0     0   101   103   -592.870   -299.647   -844.094   1074.140      0.000
+                                   Charge sum:  0.667           Momentum sum:      0.000      0.000   -667.331   1761.548   1630.251
+
+ --------  End PYTHIA Event Listing  -----------------------------------------------------------------------------------------------
+
+ *-------  PYTHIA Event and Cross Section Statistics  --------------------------------------------------------*
+ |                                                                                                            |
+ | Subprocess                               Code |            Number of events       |      sigma +- delta    |
+ |                                               |       Tried   Selected   Accepted |     (estimated) (mb)   |
+ |                                               |                                   |                        |
+ |------------------------------------------------------------------------------------------------------------|
+ |                                               |                                   |                        |
+ | g g -> g g                                111 |        9845       1778       1778 |   4.417e-08  5.252e-10 |
+ | g g -> q qbar (uds)                       112 |         234         37         37 |   1.020e-09  8.566e-11 |
+ | q g -> q g                                113 |       35328       5501       5501 |   1.354e-07  8.898e-10 |
+ | q q(bar)' -> q q(bar)'                    114 |       16923       2552       2552 |   6.234e-08  5.982e-10 |
+ | q qbar -> g g                             115 |         140         37         37 |   9.575e-10  7.209e-11 |
+ | q qbar -> q' qbar' (uds)                  116 |          94         34         34 |   7.653e-10  7.537e-11 |
+ | g g -> c cbar                             121 |          73         16         16 |   4.541e-10  6.531e-11 |
+ | q qbar -> c cbar                          122 |          27          9          9 |   2.895e-10  4.898e-11 |
+ | g g -> b bbar                             123 |         100         23         23 |   5.079e-10  4.849e-11 |
+ | q qbar -> b bbar                          124 |          35         13         13 |   2.625e-10  4.487e-11 |
+ |                                               |                                   |                        |
+ | sum                                           |       62799      10000      10000 |   2.462e-07  1.206e-09 |
+ |                                                                                                            |
+ *-------  End PYTHIA Event and Cross Section Statistics -----------------------------------------------------*
+
+ *-------  PYTHIA Error and Warning Messages Statistics  -----------------------------------------------------* 
+ |                                                                                                            | 
+ |  times   message                                                                                           | 
+ |                                                                                                            | 
+ |     15   Warning in ParticleDataEntry::initBWmass: switching off width                                     | 
+ |                                                                                                            | 
+ *-------  End PYTHIA Error and Warning Messages Statistics  -------------------------------------------------* 
+
+
+  2007-07-20 15:34       pTHat distribution, unweighted
+
+        4.05*10^ 3            X                                                                                         
+        3.90*10^ 3            X                                                                                         
+        3.75*10^ 3            X                                                                                         
+        3.60*10^ 3            X                                                                                         
+        3.45*10^ 3            X                                                                                         
+        3.30*10^ 3            X                                                                                         
+        3.15*10^ 3            X                                                                                         
+        3.00*10^ 3            X                                                                                         
+        2.85*10^ 3            X    7                                                                                    
+        2.70*10^ 3            X1   X                                                                                    
+        2.55*10^ 3            XX   X                                                                                    
+        2.40*10^ 3            XX   X                                                                                    
+        2.25*10^ 3            XX   X                                                                                    
+        2.10*10^ 3            XX   X2                                                                                   
+        1.95*10^ 3            XX   XX        8                                                                          
+        1.80*10^ 3            XX   XX        X                                                                          
+        1.65*10^ 3            XX5  XX        X1                                                                         
+        1.50*10^ 3            XXX  XX7       XX                                                                         
+        1.35*10^ 3            XXX  XXX       XX             5                                                           
+        1.20*10^ 3            XXX  XXX       XX9            X8                                                          
+        1.05*10^ 3            XXX9 XXX8      XXX9           XX5                                                         
+        0.90*10^ 3            XXXX1XXXX2     XXXX6          XXXX2               84                                      
+        0.75*10^ 3            XXXXXXXXXX     XXXXX5         XXXXX2              XX711                                   
+        0.60*10^ 3            XXXXXXXXXX92   XXXXXX91       XXXXXXX42           XXXXX51                                 
+        0.45*10^ 3            XXXXXXXXXXXX6  XXXXXXXX81     XXXXXXXXX761        XXXXXXX94221                            
+        0.30*10^ 3            XXXXXXXXXXXXX85XXXXXXXXXX955  XXXXXXXXXXXX97531   XXXXXXXXXXXX6973431                     
+        0.15*10^ 3            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9XXXXXXXXXXXXXXXXXXX9X8876666544443333232
+
+          Contents                                                                                                      
+            *10^ 3  0000000000421102111000000111100000000000110000000000000000000000000000000000000000000000000000000000
+            *10^ 2  0000000000055078940754322951086544322211219876654433222111118866654433332221211111110000000000000000
+            *10^ 1  0000000000567360851797973118436861292155767972018191862974527191127453314859196342109888756655453343
+            *10^ 0  0000000001627689358714120558099667125953191984666262005906197783690276465557225631483664194452009686
+
+          Low edge                                                                                                      
+            *10^ 2  0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
+            *10^ 1  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+            *10^ 0  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+   Entries  =       50000    Mean =  3.4758e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  4.9541e+04    Rms  =  2.1562e+02    Overflow  =  4.5900e+02    High edge =  1.0000e+03
+
+
+  2007-07-20 15:34       pTHat distribution, weighted
+
+        4.80*10^-5            2                                                                                         
+        4.60*10^-5            X                                                                                         
+        4.40*10^-5            X                                                                                         
+        4.20*10^-5            X                                                                                         
+        4.00*10^-5            X                                                                                         
+        3.80*10^-5            X                                                                                         
+        3.60*10^-5            X                                                                                         
+        3.40*10^-5            X                                                                                         
+        3.20*10^-5            X                                                                                         
+        3.00*10^-5            X6                                                                                        
+        2.80*10^-5            XX                                                                                        
+        2.60*10^-5            XX                                                                                        
+        2.40*10^-5            XX                                                                                        
+        2.20*10^-5            XX                                                                                        
+        2.00*10^-5            XX                                                                                        
+        1.80*10^-5            XXX                                                                                       
+        1.60*10^-5            XXX                                                                                       
+        1.40*10^-5            XXX                                                                                       
+        1.20*10^-5            XXX9                                                                                      
+        1.00*10^-5            XXXX4                                                                                     
+        0.80*10^-5            XXXXX                                                                                     
+        0.60*10^-5            XXXXXX1                                                                                   
+        0.40*10^-5            XXXXXXX51                                                                                 
+        0.20*10^-5            XXXXXXXXX8654322211111                                                                    
+
+          Contents                                                                                                      
+            *10^-5  0000000000421100000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+            *10^-6  0000000000698185432111000000000000000000000000000000000000000000000000000000000000000000000000000000
+            *10^-7  0000000000320879101620854332211100000000000000000000000000000000000000000000000000000000000000000000
+            *10^-8  0000000001793481764340278804173298664433222211111111100000000000000000000000000000000000000000000000
+
+          Low edge                                                                                                      
+            *10^ 2  0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
+            *10^ 1  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+            *10^ 0  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+   Entries  =       50000    Mean =  1.2950e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  1.3754e-04    Rms  =  3.6827e+01    Overflow  =  1.1301e-09    High edge =  1.0000e+03
+
+
+  2007-07-20 15:34       pTHat distribution, pT3*weighted
+
+        5.40*10^ 1            5                                                                                         
+        5.20*10^ 1            X                                                                                         
+        5.00*10^ 1            X                                                                                         
+        4.80*10^ 1            X                                                                                         
+        4.60*10^ 1            X2                                                                                        
+        4.40*10^ 1            XX                                                                                        
+        4.20*10^ 1            XX                                                                                        
+        4.00*10^ 1            XX                                                                                        
+        3.80*10^ 1            XX                                                                                        
+        3.60*10^ 1            XX5                                                                                       
+        3.40*10^ 1            XXX                                                                                       
+        3.20*10^ 1            XXX                                                                                       
+        3.00*10^ 1            XXX5                                                                                      
+        2.80*10^ 1            XXXX3                                                                                     
+        2.60*10^ 1            XXXXX                                                                                     
+        2.40*10^ 1            XXXXX                                                                                     
+        2.20*10^ 1            XXXXX9                                                                                    
+        2.00*10^ 1            XXXXXX3                                                                                   
+        1.80*10^ 1            XXXXXXX1                                                                                  
+        1.60*10^ 1            XXXXXXXX                                                                                  
+        1.40*10^ 1            XXXXXXXX7                                                                                 
+        1.20*10^ 1            XXXXXXXXXX3                                                                               
+        1.00*10^ 1            XXXXXXXXXXX97                                                                             
+        0.80*10^ 1            XXXXXXXXXXXXX762                                                                          
+        0.60*10^ 1            XXXXXXXXXXXXXXXX8541                                                                      
+        0.40*10^ 1            XXXXXXXXXXXXXXXXXXXX98663311                                                              
+        0.20*10^ 1            XXXXXXXXXXXXXXXXXXXXXXXXXXXX99887776655554443333332222222211111111111111111111111111 1  1 
+
+          Contents                                                                                                      
+            *10^ 1  0000000000543222111110000000000000000000000000000000000000000000000000000000000000000000000000000000
+            *10^ 0  0000000000345961863209977654443333222211111111111000000000000000000000000000000000000000000000000000
+            *10^-1  0000000000030069625068341369727611651378654431100998776655554443433322222222222111111111111111010010
+            *10^-2  0000000001745480990786411001888382297068192112656571769583828729174388983861320786654344202210819819
+
+          Low edge                                                                                                      
+            *10^ 2  0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
+            *10^ 1  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+            *10^ 0  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+   Entries  =       50000    Mean =  1.9945e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  3.9605e+02    Rms  =  1.2552e+02    Overflow  =  1.9555e+00    High edge =  1.0000e+03
+
+
+  2007-07-20 15:34       pTHat distribution, pT5*weighted
+
+        6.00*10^ 5            13                                                                                        
+        5.80*10^ 5            XX                                                                                        
+        5.60*10^ 5            XX4 X                                                                                     
+        5.40*10^ 5            XXX5X3                                                                                    
+        5.20*10^ 5            XXXXXX4                                                                                   
+        5.00*10^ 5            XXXXXXX9                                                                                  
+        4.80*10^ 5            XXXXXXXX1   6                                                                             
+        4.60*10^ 5            XXXXXXXXX947X                                                                             
+        4.40*10^ 5            XXXXXXXXXXXXX 3                                                                           
+        4.20*10^ 5            XXXXXXXXXXXXX5X5                                                                          
+        4.00*10^ 5            XXXXXXXXXXXXXXXX6 4                                                                       
+        3.80*10^ 5            XXXXXXXXXXXXXXXXX6X6                                                                      
+        3.60*10^ 5            XXXXXXXXXXXXXXXXXXXX6X 5                                                                  
+        3.40*10^ 5            XXXXXXXXXXXXXXXXXXXXXX8X 3 2                                                              
+        3.20*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXX6X X                                                              
+        3.00*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXX5X 7                                                            
+        2.80*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXX X27 3                                                        
+        2.60*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX8X9 5 4 4                                                 
+        2.40*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX6X9X7X                                                 
+        2.20*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX8783                                             
+        2.00*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX3 92                                        
+        1.80*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7XX882 5                                   
+        1.60*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX8X856  23 52                         
+        1.40*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX67XX XX 861                     
+        1.20*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX3X344  13   1      5 
+        1.00*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX98XX728X66 9  X3
+        0.80*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7XX9XX
+        0.60*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        0.40*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        0.20*10^ 5            XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+          Contents                                                                                                      
+            *10^ 5  0000000000555555544444444433333333332322222222222222222111111111111111111111111111110011000100000010
+            *10^ 4  0000000000884262096545702097875534128269675653534341110987987765655533442541332010009900989099798708
+            *10^ 3  0000000000267905871885296921721959169303446692178375365964735635960224350039621697778626435111470897
+            *10^ 2  0000000001854384864670528672885478282240125402066066088758450977295462247691812120195820994375061260
+
+          Low edge                                                                                                      
+            *10^ 2  0000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999
+            *10^ 1  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
+            *10^ 0  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+   Entries  =       50000    Mean =  4.0471e+02    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  2.1985e+07    Rms  =  2.3769e+02    Overflow  =  3.3979e+06    High edge =  1.0000e+03

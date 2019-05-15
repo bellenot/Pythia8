@@ -156,12 +156,21 @@ beam particles, with A (B) assumed moving in the <i>+z (-z)</i>
 direction.<br/>
 
 <p/>
-b) <code>pythia.init( idA, idB, eCM);</code><br/>
+c) <code>pythia.init( idA, idB, eCM);</code><br/>
 is similar, but you specify the CM energy, and you are assumed 
 in the rest frame.<br/>
 
 <p/>
-c) <code>pythia.init( LHAinit*, LHAevnt*);</code> <br/>
+d) <code>pythia.init();</code><br/>
+with no arguments will read the beam parameters from the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='MainProgramSettings.php?filepath=".$filepath."' target='page'>";?><code>Main</code></a> 
+group of variables. If you don't change any of those you will default 
+to proton-proton collisions at 14 TeV, i.e. the nominal LHC values.
+<br/>
+
+<p/>
+e) <code>pythia.init( LHAinit*, LHAevnt*);</code> <br/>
 assumes Les Houches Accord [<a href="Bibliography.php" target="page">Boo01</a>] initialization information 
 is available in an <code>LHAinit</code> class object, and that LHA event 
 information will be provided by the <code>LHAevnt</code> class object,
@@ -206,11 +215,11 @@ You can set the environment variable <code>PYTHIA8DATA</code> to
 contain the location of the <code>xmldoc</code> directory. In the
 <code>csh</code> and <code>tcsh</code> shells this could e.g. be 
 <pre>
-     setenv PYTHIA8DATA /home/myname/pythia8080/xmldoc
+     setenv PYTHIA8DATA /home/myname/pythia8090/xmldoc
 </pre>
 while in other shells it could be
 <pre>
-     export PYTHIA8DATA=/home/myname/pythia8080/xmldoc
+     export PYTHIA8DATA=/home/myname/pythia8090/xmldoc
 </pre>
 Recall that environment variables set locally are only defined in the 
 current instance of the shell. The above lines should go into your 
@@ -223,7 +232,7 @@ if you want a more permanant assignment.
 You can provide the path as argument to the <code>Pythia</code>
 constructor, e.g.
 <pre>
-     Pythia pythia("/home/myname/pythia8080/xmldoc");
+     Pythia pythia("/home/myname/pythia8090/xmldoc");
 </pre>
 </li>
 </ol>
@@ -313,6 +322,21 @@ echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>further i
 
 <p/>
 <li>
+If you want to implement a cross section of your own, but still make use
+of the built-in phase space selection machinery, you can use
+<pre>
+      pythia.setSigmaPtr( sigmaPtr);
+</pre>
+where <code>sigmaPtr</code> of type <code>SigmaProcess*</code> is an
+instance of a class derived from one of the <code>Sigma1Process</code>,
+<code>Sigma2Process</code> and  <code>Sigma3Process</code> base classes
+(<?php $filepath = $_GET["filepath"];
+echo "<a href='SemiInternalProcesses.php?filepath=".$filepath."' target='page'>";?>further instructions</a>). 
+This call can be used repeatedly to hand in several different processes.
+</li>
+
+<p/>
+<li>
 If you are a real expert and want to replace the PYTHIA initial- and 
 final-state showers, you can use
 <pre>
@@ -388,4 +412,4 @@ framework.
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

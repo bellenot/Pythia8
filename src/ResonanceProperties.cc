@@ -1,6 +1,10 @@
+// ResonanceProperties.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for 
 // the ResonanceProperties class and classes derived from it.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "ResonanceProperties.h"
 #include "PythiaComplex.h"
@@ -17,17 +21,17 @@ namespace Pythia8 {
 // Definitions of static variables and functions.
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
-int          ResonanceProperties::alphaSorder  = 1;
-int          ResonanceProperties::alphaEMorder = 1;
-double       ResonanceProperties::alphaSvalue  = 0.1265;
+int          ResonanceProperties::alphaSorder    = 1;
+int          ResonanceProperties::alphaEMorder   = 1;
+double       ResonanceProperties::alphaSvalue    = 0.1265;
 AlphaStrong  ResonanceProperties::alphaS;
 AlphaEM      ResonanceProperties::alphaEM;
 
 // Number of points in integration direction for numInt routines.
-const int    ResonanceProperties::NPOINT       = 100;
+const int    ResonanceProperties::NPOINT         = 100;
 
 // The sum of product masses must not be too close to the resonance mass.
-const double ResonanceProperties::MASSMARGIN   = 0.1;
+const double ResonanceProperties::MASSMARGIN     = 0.1;
 
 //*********
 
@@ -49,12 +53,6 @@ void ResonanceProperties::initStatic() {
   alphaEM.init( alphaEMorder); 
 
 }
-
-//*********
-
-// Dummy in base class.
-
-void ResonanceProperties::widthInit() {}
 
 //*********
 
@@ -250,6 +248,8 @@ double ResonanceGmZ::GammaRes;
 double ResonanceGmZ::m2Res; 
 double ResonanceGmZ::GamMRat; 
 double ResonanceGmZ::thetaWRat; 
+double ResonanceGmZ::openPos = 1.; 
+double ResonanceGmZ::openNeg = 0.; 
 ParticleDataEntry* ResonanceGmZ::particlePtr;
 
 //*********
@@ -276,6 +276,7 @@ void ResonanceGmZ::initStatic() {
 //*********
 
 // Calculate and store partial and total widths at the nominal mass. 
+// Only consider the Z0 part, as appropriate for Breit-Wigner width.
 
 void ResonanceGmZ::widthInit() {
 
@@ -287,14 +288,16 @@ void ResonanceGmZ::widthInit() {
   double colQ   = 3. * (1. + alpS / M_PI);
   double preFac = alpEM * thetaWRat * mHat / 3.;
 
-  // Reset quantities to sum. Declare others.
+  // Reset quantities to sum. Declare variables inside loop.
   double widTot = 0.; 
-  double widNow, mf, m2Rat, betaf, psvec, psaxi;
+  double widPos = 0.;
+  int    idAbs, onMode;
+  double widNow, mf, mr, betaf, psvec, psaxi;
 
   // Loop over all decay channels. 
   for (int i = 0; i < particlePtr->decay.size(); ++i) {
     widNow = 0.;
-    int idAbs = abs( particlePtr->decay[i].product(0) );
+    idAbs  = abs( particlePtr->decay[i].product(0) );
 
     // Only contributions from three fermion generations, except top.
     if ( (idAbs > 0 && idAbs < 6) || ( idAbs > 10 && idAbs < 17)) {
@@ -302,10 +305,10 @@ void ResonanceGmZ::widthInit() {
 
       // Check that above threshold. Phase space.
       if (mHat > 2. * mf + MASSMARGIN) {
-        m2Rat = pow2(mf / mHat);
-        betaf = sqrtpos(1. - 4. * m2Rat); 
-        psvec = betaf * (1. + 2. * m2Rat);
-        psaxi  = pow3(betaf);
+        mr    = pow2(mf / mHat);
+        betaf = sqrtpos(1. - 4. * mr); 
+        psvec = betaf * (1. + 2. * mr);
+        psaxi = pow3(betaf);
 
         // Combine phase space with colour factor and couplings.
         widNow = preFac * (CoupEW::vf2(idAbs) * psvec 
@@ -314,33 +317,53 @@ void ResonanceGmZ::widthInit() {
       }
     }
 
-    // Store partial widths and update sum.
+    // Store partial widths and update sum, also for open channels only.
     particlePtr->decay[i].onShellWidth(widNow); 
     widTot += widNow;    
+    onMode = particlePtr->decay[i].onMode();
+    if (onMode == 1 || onMode == 2) widPos += widNow;
   }
 
   // Update total width and branching ratios.
-  particlePtr->setMWidth(widTot);
+  particlePtr->setMWidth(widTot, false);
   double bRatio;
   for (int i = 0; i < particlePtr->decay.size(); ++i) {
     bRatio = particlePtr->decay[i].onShellWidth() / widTot;
-    particlePtr->decay[i].bRatio( bRatio);
+    particlePtr->decay[i].bRatio( bRatio, false);
   }
+  particlePtr->setIsInitResonance();
 
-  // Update the width in this object itself.
+  // Update the width in this object itself. Secondary widths for open.
   GammaRes = widTot;
   GamMRat  = GammaRes / mRes;  
+  openPos  = widPos / widTot;
     
 
   }
 
 //*********
 
+// Return fraction of width open for one/two-resonance combinations.
+  
+double ResonanceGmZ::openFrac( int idResSgn1, int idResSgn2) {
+  
+  // Only one resonance.
+  if (idResSgn2 == 0) return (idResSgn1 > 0) ? openPos : openNeg;
+
+  // Pair of resonances.
+  if (idResSgn1 * idResSgn2 < 0) return openPos * openNeg;
+  return (idResSgn1 > 0) ? pow2(openPos) : pow2(openNeg);  
+
+}
+
+//*********
+
 // Calculate the total width and store phase-space-weighted coupling sums.
 // For idIn > 0 provides relative weight of specific incoming flavour.
+// Use full gamma*/Z0, as appropriate for final-state flavour choice.
 
-double ResonanceGmZ::width(double mHat, int idIn, bool openOnly, 
-  bool setBR) {
+double ResonanceGmZ::width(double mHat, int , int idIn, 
+  bool openOnly, bool setBR) {
 
   // Common coupling factors.
   double sH     = mHat*mHat;
@@ -366,15 +389,18 @@ double ResonanceGmZ::width(double mHat, int idIn, bool openOnly,
   if (gmZmode == 1) {intNorm = 0.; resNorm = 0.;}
   if (gmZmode == 2) {gamNorm = 0.; intNorm = 0.;}
 
-  // Reset quantities to sum. Declare others.
+  // Reset quantities to sum. Declare variables inside loop.
+  if (setBR) particlePtr->decay.resetDynamicBR(); 
   double widSum = 0.; 
-  double widNow, mf, m2Rat, betaf, psvec, psaxi, vf2af2;
+  int    idAbs, onMode;
+  double widNow, mf, mr, betaf, psvec, psaxi, vf2af2;
 
-  // Loop over all decay channels. 
+  // Loop over all decay channels; optionally only open channels. 
   for (int i = 0; i < particlePtr->decay.size(); ++i) {
     widNow = 0.;
-    if (openOnly && particlePtr->decay[i].onMode() <= 0) continue;
-    int idAbs = abs( particlePtr->decay[i].product(0) );
+    onMode = particlePtr->decay[i].onMode();
+    if (openOnly && onMode !=1 && onMode != 2) continue;
+    idAbs  = abs( particlePtr->decay[i].product(0) );
 
     // Only contributions from three fermion generations, except top.
     if ( (idAbs > 0 && idAbs < 6) || ( idAbs > 10 && idAbs < 17)) {
@@ -382,9 +408,9 @@ double ResonanceGmZ::width(double mHat, int idIn, bool openOnly,
 
       // Check that above threshold. Phase space.
       if (mHat > 2. * mf + MASSMARGIN) {
-        m2Rat = pow2(mf / mHat);
-        betaf = sqrtpos(1. - 4. * m2Rat); 
-        psvec = betaf * (1. + 2. * m2Rat);
+        mr     = pow2(mf / mHat);
+        betaf  = sqrtpos(1. - 4. * mr); 
+        psvec  = betaf * (1. + 2. * mr);
         psaxi  = pow3(betaf);
         vf2af2 = CoupEW::vf2(idAbs) * psvec + CoupEW::af2(idAbs) * psaxi; 
 
@@ -426,6 +452,8 @@ double ResonanceW::GammaRes;
 double ResonanceW::m2Res;
 double ResonanceW::GamMRat;
 double ResonanceW::thetaWRat;
+double ResonanceW::openPos = 1.; 
+double ResonanceW::openNeg = 1.; 
 ParticleDataEntry* ResonanceW::particlePtr;
 
 //*********
@@ -462,8 +490,10 @@ void ResonanceW::widthInit() {
 
   // Reset quantities to sum. Declare others.
   double widTot = 0.; 
-  int    id1Abs, id2Abs;
-  double widNow, mf1, mf2, m2Rat1, m2Rat2, ps;
+  double widPos = 0.;
+  double widNeg = 0.;
+  int    id1Abs, id2Abs, onMode;
+  double widNow, mf1, mf2, mr1, mr2, ps;
 
   // Loop over all decay channels. 
   for (int i = 0; i < particlePtr->decay.size(); ++i) {
@@ -479,10 +509,10 @@ void ResonanceW::widthInit() {
 
       // Check that above threshold. Phase space.
       if (mHat > mf1 + mf2 + MASSMARGIN) {
-        m2Rat1 = pow2(mf1 / mHat);
-        m2Rat2 = pow2(mf2 / mHat);
-        ps = (1. - 0.5 * (m2Rat1 + m2Rat2) - 0.5 * pow2(m2Rat1 - m2Rat2))
-          * sqrtpos( pow2(1. - m2Rat1 - m2Rat2) - 4. * m2Rat1 * m2Rat2 ); 
+        mr1 = pow2(mf1 / mHat);
+        mr2 = pow2(mf2 / mHat);
+        ps = (1. - 0.5 * (mr1 + mr2) - 0.5 * pow2(mr1 - mr2))
+          * sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 ); 
 
         // Combine phase space with colour factor and CKM couplings.
         widNow = preFac * ps;
@@ -490,40 +520,43 @@ void ResonanceW::widthInit() {
       }
     }
 
-    // Store partial widths and update sum.
+    // Store partial widths and update sum, also for open channels only.
     particlePtr->decay[i].onShellWidth(widNow); 
     widTot += widNow;    
+    onMode = particlePtr->decay[i].onMode();
+    if (onMode == 1 || onMode == 2) widPos += widNow;
+    if (onMode == 1 || onMode == 3) widNeg += widNow;
   }
 
   // Update total width and branching ratios.
-  particlePtr->setMWidth(widTot);
+  particlePtr->setMWidth(widTot, false);
   double bRatio;
   for (int i = 0; i < particlePtr->decay.size(); ++i) {
     bRatio = particlePtr->decay[i].onShellWidth() / widTot;
-    particlePtr->decay[i].bRatio( bRatio);
+    particlePtr->decay[i].bRatio( bRatio, false);
   }
+  particlePtr->setIsInitResonance();
 
-  // Update the width in this object itself.
+  // Update the width in this object itself. Secondary widths for open.
   GammaRes = widTot;
   GamMRat  = GammaRes / mRes;  
+  openPos  = widPos / widTot;
+  openNeg  = widNeg / widTot;
 
 }
 
 //*********
- 
-// Calculate the partial width for an incoming fermion state at 
-// a given energy. This width has no phase-space suppression 
-// and is given without colour or CKM factors.
 
-double ResonanceW::widthIn(double mHat, int ) { 
+// Return fraction of width open for one/two-resonance combinations.
+  
+double ResonanceW::openFrac( int idResSgn1, int idResSgn2) {
+  
+  // Only one resonance.
+  if (idResSgn2 == 0) return (idResSgn1 > 0) ? openPos : openNeg;
 
-  // Common coupling factors.
-  double sH     = mHat*mHat;
-  double alpEM  = alphaEM.alphaEM(sH); 
-  double preFac = alpEM * thetaWRat * mHat;
-
-  // Done.
-  return preFac;
+  // Pair of resonances.
+  if (idResSgn1 * idResSgn2 < 0) return openPos * openNeg;
+  return (idResSgn1 > 0) ? pow2(openPos) : pow2(openNeg);  
 
 }
 
@@ -531,7 +564,8 @@ double ResonanceW::widthIn(double mHat, int ) {
 
 // Calculate the total width and store phases-space-weighted coupling sums.
 
-double ResonanceW::width(double mHat, int , bool openOnly, bool setBR) {
+double ResonanceW::width(double mHat, int idResSgn, int , 
+  bool openOnly, bool setBR) {
 
   // Common coupling factors.
   double sH     = mHat*mHat;
@@ -540,15 +574,20 @@ double ResonanceW::width(double mHat, int , bool openOnly, bool setBR) {
   double colQ   = 3. * (1. + alpS / M_PI);
   double preFac = alpEM * thetaWRat * mHat;
 
-  // Reset sum. Declare variables inside loop.
+  // Reset quantities to sum. Declare variables inside loop.
+  if (setBR) particlePtr->decay.resetDynamicBR(); 
   double widSum = 0.; 
-  int    id1Abs, id2Abs;
-  double widNow, mf1, mf2, m2Rat1, m2Rat2, ps;
+  int    id1Abs, id2Abs, onMode;
+  double widNow, mf1, mf2, mr1, mr2, ps;
 
   // Loop over all decay channels; optionally only open channels. 
   for (int i = 0; i < particlePtr->decay.size(); ++i) {
     widNow = 0.;
-    if (openOnly && particlePtr->decay[i].onMode() <= 0) continue;
+    onMode = particlePtr->decay[i].onMode();
+    if (openOnly) {
+      if (idResSgn > 0 && onMode !=1 && onMode != 2) continue;
+      if (idResSgn < 0 && onMode !=1 && onMode != 3) continue;
+    }
     id1Abs = abs( particlePtr->decay[i].product(0) );
     id2Abs = abs( particlePtr->decay[i].product(1) );
 
@@ -560,10 +599,10 @@ double ResonanceW::width(double mHat, int , bool openOnly, bool setBR) {
 
       // Check that above threshold. Phase space.
       if (mHat > mf1 + mf2 + MASSMARGIN) {
-        m2Rat1 = pow2(mf1 / mHat);
-        m2Rat2 = pow2(mf2 / mHat);
-        ps = (1. - 0.5 * (m2Rat1 + m2Rat2) - 0.5 * pow2(m2Rat1 - m2Rat2))
-          * sqrtpos( pow2(1. - m2Rat1 - m2Rat2) - 4. * m2Rat1 * m2Rat2 ); 
+        mr1 = pow2(mf1 / mHat);
+        mr2 = pow2(mf2 / mHat);
+        ps = (1. - 0.5 * (mr1 + mr2) - 0.5 * pow2(mr1 - mr2))
+          * sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 ); 
 
         // Combine phase space with colour factor and CKM couplings.
         widNow = preFac * ps;
@@ -585,45 +624,279 @@ double ResonanceW::width(double mHat, int , bool openOnly, bool setBR) {
  
 //**************************************************************************
 
-// The ResonanceH class.
-// Derived class for SM Higgs properties.
+// The ResonanceTop class.
+// Derived class for top/antitop properties.
 
 //*********
  
 // Definitions of static variables and functions.
-int    ResonanceH::idRes = 25;
-bool   ResonanceH::linearWidthWWZZ;
-double ResonanceH::mRes;
-double ResonanceH::GammaRes;
-double ResonanceH::m2Res;
-double ResonanceH::GamMRat;
-double ResonanceH::sin2tW;
-double ResonanceH::cos2tW;
-double ResonanceH::mZ;
-double ResonanceH::mW;
-double ResonanceH::GammaZ;
-double ResonanceH::GammaW;
-double ResonanceH::GammaT;
-double ResonanceH::widIn[25] = {0.};
-ParticleDataEntry* ResonanceH::particlePtr;
-
-// Minimal mass for W, Z, top in integration over respective Breit-Wigner.
-const double ResonanceH::MASSMIN = 10.;
-
-// Number of widths above threshold where B-W integration not needed.
-const double ResonanceH::GAMMAMARGIN = 10.;
+int    ResonanceTop::idRes = 6;
+double ResonanceTop::mRes;
+double ResonanceTop::GammaRes;
+double ResonanceTop::m2Res;
+double ResonanceTop::GamMRat;
+double ResonanceTop::thetaWRat;
+double ResonanceTop::m2W;
+double ResonanceTop::openPos = 1.; 
+double ResonanceTop::openNeg = 1.; 
+ParticleDataEntry* ResonanceTop::particlePtr;
 
 //*********
 
 // Initialize static data members.
 
-void ResonanceH::initStatic() {
+void ResonanceTop::initStatic() {
+
+  // Set pointer to particle properties and decay table.
+  particlePtr = ParticleDataTable::particleDataPtr(idRes);
+
+  // Top properties and other constants.
+  mRes      = ParticleDataTable::m0(idRes);
+  GammaRes  = ParticleDataTable::mWidth(idRes);
+  m2Res     = mRes*mRes;
+  GamMRat   = GammaRes / mRes;
+  thetaWRat = 1. / (16. * CoupEW::sin2thetaW());
+  m2W       = pow2(ParticleDataTable::m0(24));
+
+}
+
+//*********
+
+// Calculate and store partial and total widths at the nominal mass. 
+
+void ResonanceTop::widthInit() {
+
+  // Common coupling factors.
+  double mHat   = mRes;
+  double sH     = mHat*mHat;
+  double alpEM  = alphaEM.alphaEM(sH);
+  double alpS   = alphaS.alphaS(sH);
+  double colQ   = 1. - 2.5 * alpS / M_PI;
+  double preFac = alpEM * thetaWRat * (sH / m2W) * mHat;
+
+  // Reset quantities to sum. Declare others.
+  double widTot = 0.; 
+  double widPos = 0.;
+  double widNeg = 0.;
+  int    id1Abs, id2Abs, onMode;
+  double widNow, widSecPos, widSecNeg, mf1, mf2, mr1, mr2, ps;
+
+  // Loop over all decay channels. 
+  for (int i = 0; i < particlePtr->decay.size(); ++i) {
+    widNow    = 0.;
+    widSecPos = 1.;
+    widSecNeg = 1.;
+    id1Abs = abs( particlePtr->decay[i].product(0) );
+    id2Abs = abs( particlePtr->decay[i].product(1) );
+    if (id2Abs > id1Abs) swap( id1Abs, id2Abs);
+
+    // Only contributions from W + d/s/b.
+    if ( id1Abs == 24 && (id2Abs == 1 || id2Abs == 3 || id2Abs ==5) ) { 
+      mf1 = ParticleDataTable::m0(id1Abs);
+      mf2 = ParticleDataTable::m0(id2Abs);
+
+      // Check that above threshold. Phase space.
+      if (mHat > mf1 + mf2 + MASSMARGIN) {
+        mr1 = pow2(mf1 / mHat);
+        mr2 = pow2(mf2 / mHat);
+        ps = ( pow2(1. - mr2) + (1. + mr2) * mr1 - 2. * mr1 * mr1 )
+           * sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 ); 
+
+        // Combine phase space with colour factor and CKM couplings.
+        widNow = preFac * ps * colQ * VCKM::V2id(6, id2Abs);
+ 
+        // Secondary width from W+ and W- decay.
+        widSecPos = ResonanceW::openFrac(24); 
+        widSecNeg = ResonanceW::openFrac(-24); 
+      }
+    }
+
+    // Store partial widths and update sum
+    particlePtr->decay[i].onShellWidth(widNow); 
+    widTot += widNow;    
+    onMode = particlePtr->decay[i].onMode();
+    if (onMode == 1 || onMode == 2) widPos += widNow * widSecPos;
+    if (onMode == 1 || onMode == 3) widNeg += widNow * widSecNeg;
+  }
+
+  // Update total width and branching ratios.
+  particlePtr->setMWidth(widTot, false);
+  double bRatio;
+  for (int i = 0; i < particlePtr->decay.size(); ++i) {
+    bRatio = particlePtr->decay[i].onShellWidth() / widTot;
+    particlePtr->decay[i].bRatio( bRatio, false);
+  }
+  particlePtr->setIsInitResonance();
+
+  // Update the width in this object itself. Secondary widths for open.
+  GammaRes = widTot;
+  GamMRat  = GammaRes / mRes;  
+  openPos  = (widPos / widTot);
+  openNeg  = (widNeg / widTot);
+
+}
+
+//*********
+
+// Return fraction of width open for one/two-resonance combinations.
+  
+double ResonanceTop::openFrac( int idResSgn1, int idResSgn2) {
+  
+  // Only one resonance.
+  if (idResSgn2 == 0) return (idResSgn1 > 0) ? openPos : openNeg;
+
+  // Pair of resonances.
+  if (idResSgn1 * idResSgn2 < 0) return openPos * openNeg;
+  return (idResSgn1 > 0) ? pow2(openPos) : pow2(openNeg);  
+
+}
+
+//*********
+
+// Calculate the total width and store phases-space-weighted coupling sums.
+
+double ResonanceTop::width(double mHat, int idResSgn, int , 
+  bool openOnly, bool setBR) {
+
+  // Common coupling factors.
+  double sH     = mHat*mHat;
+  double alpEM  = alphaEM.alphaEM(sH); 
+  double alpS   = alphaS.alphaS(sH);
+  double colQ   = 3. * (1. + alpS / M_PI);
+  double preFac = alpEM * thetaWRat * (sH / m2W) * mHat;
+ 
+  // Reset quantities to sum. Declare variables inside loop.
+  if (setBR) particlePtr->decay.resetDynamicBR(); 
+  double widSum = 0.; 
+  int    id1Abs, id2Abs, onMode;
+  double widNow, mf1, mf2, mr1, mr2, ps;
+
+  // Loop over all decay channels; optionally only open channels. 
+  for (int i = 0; i < particlePtr->decay.size(); ++i) {
+    widNow = 0.;
+    onMode = particlePtr->decay[i].onMode();
+    if (openOnly) {
+      if (idResSgn > 0 && onMode !=1 && onMode != 2) continue;
+      if (idResSgn < 0 && onMode !=1 && onMode != 3) continue;
+    }
+    id1Abs = abs( particlePtr->decay[i].product(0) );
+    id2Abs = abs( particlePtr->decay[i].product(1) );
+    if (id2Abs > id1Abs) swap( id1Abs, id2Abs);
+
+    // Only contributions from W + d/s/b.
+    if ( id1Abs == 24 && (id2Abs == 1 || id2Abs == 3 || id2Abs ==5) ) { 
+      mf1 = ParticleDataTable::m0(id1Abs);
+      mf2 = ParticleDataTable::m0(id2Abs);
+
+      // Check that above threshold. Phase space.
+      if (mHat > mf1 + mf2 + MASSMARGIN) {
+        mr1 = pow2(mf1 / mHat);
+        mr2 = pow2(mf2 / mHat);
+        ps = ( pow2(1. - mr2) + (1. + mr2) * mr1 - 2. * mr1 * mr1 )
+           * sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 ); 
+
+        // Combine phase space with colour factor and CKM couplings.
+        widNow = preFac * ps * colQ * VCKM::V2id(6, id2Abs);
+
+        // Secondary width from W decay.
+        if (openOnly) widNow *= ResonanceW::openFrac(idResSgn); 
+      }
+    }
+
+    // Sum back up.
+    widSum += widNow;
+
+    // Optionally store partial widths for later decay channel choice.
+    if (setBR) particlePtr->decay[i].dynamicBR(widNow); 
+  }
+
+  // Done.
+  return widSum;
+  
+}
+
+//*********
+
+// Evaluate weight for W decay distribution in t -> W b -> f fbar b.
+
+double ResonanceTop::weightDecayAngles( Event& process, int iResBeg, 
+  int iResEnd) {
+
+  // If not pair W d/s/b and mother t then return unit weight.
+  if (iResEnd - iResBeg != 2) return 1.;
+  int iW = iResBeg;
+  int iB = iResBeg + 1;
+  int idW = process[iW].idAbs();
+  int idB = process[iB].idAbs();
+  if (idW != 24) {
+    swap(iW, iB); 
+    swap(idW, idB);
+  } 
+  if (idW != 24 || (idB != 1 && idB != 3 && idB != 5)) return 1.;
+  int iT = process[iW].mother1(); 
+  if (iT <= 0 || process[iT].idAbs() != 6) return 1.;
+
+  // Find sign-matched order of W decay products. 
+  int iF    = process[iW].daughter1(); 
+  int iFbar = process[iW].daughter2();
+  if (iFbar - iF != 1) return 1.; 
+  if (process[iT].id() * process[iF].id() < 0) swap(iF, iFbar);
+
+  // Weight and maximum weight.
+  double wt    = (process[iT].p() * process[iFbar].p()) 
+               * (process[iF].p() * process[iB].p());
+  double wtMax = ( pow4(process[iT].m()) - pow4(process[iW].m()) ) / 8.;  
+
+  // Done.
+  return wt / wtMax;
+
+}
+ 
+//**************************************************************************
+
+// The ResonanceSMH class.
+// Derived class for SM Higgs properties.
+
+//*********
+ 
+// Definitions of static variables and functions.
+int    ResonanceSMH::idRes = 25;
+bool   ResonanceSMH::linearWidthWWZZ;
+double ResonanceSMH::mRes;
+double ResonanceSMH::GammaRes;
+double ResonanceSMH::m2Res;
+double ResonanceSMH::GamMRat;
+double ResonanceSMH::sin2tW;
+double ResonanceSMH::cos2tW;
+double ResonanceSMH::mZ;
+double ResonanceSMH::mW;
+double ResonanceSMH::GammaZ;
+double ResonanceSMH::GammaW;
+double ResonanceSMH::GammaT;
+double ResonanceSMH::widTable[25]     = {0.};
+int    ResonanceSMH::SMHiggsParity = 1;
+double ResonanceSMH::SMHiggsEta    = 0.;
+double ResonanceSMH::openPos = 1.; 
+double ResonanceSMH::openNeg = 0.; 
+ParticleDataEntry* ResonanceSMH::particlePtr;
+
+// Minimal mass for W, Z, top in integration over respective Breit-Wigner.
+const double ResonanceSMH::MASSMIN = 10.;
+
+// Number of widths above threshold where B-W integration not needed.
+const double ResonanceSMH::GAMMAMARGIN = 10.;
+
+//*********
+
+// Initialize static data members.
+
+void ResonanceSMH::initStatic() {
 
   // Set pointer to particle properties and decay table.
   particlePtr = ParticleDataTable::particleDataPtr(idRes);
 
   // Settings.
-  linearWidthWWZZ = Settings::flag("ResonanceH::linearWidthWWZZ");
+  linearWidthWWZZ = Settings::flag("ResonanceSMH:linearWidthWWZZ");
 
   // H properties, or other properties used to derive those.
   mRes      = ParticleDataTable::m0(idRes);
@@ -638,13 +911,17 @@ void ResonanceH::initStatic() {
   GammaW    = ParticleDataTable::mWidth(24);
   GammaT    = ParticleDataTable::mWidth(6);
 
+  // Higgs parity assumption.
+  SMHiggsParity  = Settings::mode("ResonanceSMH:parity");
+  SMHiggsEta     = Settings::parm("ResonanceSMH:etaParity");
+
 }
 
 //*********
 
 // Calculate and store partial and total widths at the nominal mass. 
 
-void ResonanceH::widthInit() {
+void ResonanceSMH::widthInit() {
 
   // Common coupling factors.
   double mHat   = mRes;
@@ -656,19 +933,22 @@ void ResonanceH::widthInit() {
 
   // Reset quantities to sum. Declare others.
   double widTot = 0.; 
-  int    id1Abs, id2Abs;
-  double widNow, mf1, m2Rat1, ps;
+  double widPos = 0.;
+  int    id1Abs, id2Abs, onMode;
+  double widNow, widSec, mf1, mr1, ps;
 
   // Loop over all decay channels.
   for (int i = 0; i < particlePtr->decay.size(); ++i) {
     widNow = 0.;
+    widSec = 1.;
     id1Abs = abs( particlePtr->decay[i].product(0) );
     id2Abs = abs( particlePtr->decay[i].product(1) );
+    mf1    = ParticleDataTable::m0(id1Abs);
+    mr1    = pow2(mf1 / mHat);
 
     // Widths of decays H0 -> f + fbar.
     if ( id2Abs == id1Abs && ( (id1Abs > 0 && id1Abs < 7) 
       || (id1Abs > 10 && id1Abs < 17) ) ) {
-      mf1 = ParticleDataTable::m0(id1Abs);
       ps  = 0.;
 
       // Check that above threshold. Phase space.
@@ -678,94 +958,126 @@ void ResonanceH::widthInit() {
       // For top near threshold use numerical integration.     
       else if (id1Abs == 6 && mHat > 2. * (mf1 - GAMMAMARGIN * GammaT)) 
         ps = ( mHat > 2. * (mf1 + GAMMAMARGIN * GammaT) ) 
-          ? sqrtpos(1. - 4. * m2Rat1) 
+          ? sqrtpos(1. - 4. * mr1) 
           : numInt2BW( mHat, mf1, GammaT, MASSMIN, mf1, GammaT, MASSMIN, 0);
 
       // Combine phase space with colour factor and running masses.
       double ratioRun = pow2(ParticleDataTable::mRun(id1Abs, mHat) / mHat);
       if (ps > 0.) widNow = preFac * ps * ratioRun; 
-      if (id1Abs < 7) widNow *= colQ; 
+      if (id1Abs < 7) widNow *= colQ;
+
+      // Secondary width from top decay.
+      if (id1Abs == 6) widSec = ResonanceTop::openFrac(6, -6); 
 
       // Store widths for in-state: no phase space and no colour factors.
-      widIn[id1Abs] = preFac * ratioRun;
+      widTable[id1Abs] = preFac * ratioRun;
     }
 
     // Widths of decays H0 -> g + g. No colour factor for instate.
     else if (id1Abs == 21 && id2Abs == 21) { 
       widNow    = preFac * pow2(alpS / M_PI) * eta2gg(mHat); 
-      widIn[21] = widNow / 8.;
+      widTable[21] = widNow / 8.;
     }
 
     // Widths of decays H0 -> gamma + gamma.
     else if (id1Abs == 22 && id2Abs == 22) { 
       widNow    = preFac * pow2(alpEM / M_PI) * 0.5 * eta2gaga(mHat); 
-      widIn[22] = widNow;
+      widTable[22] = widNow;
     }
  
     // Widths of decays H0 -> gamma + Z0.
-    else if (id1Abs == 22 && id2Abs == 23 && mHat > mZ)
+    else if (id1Abs == 22 && id2Abs == 23 && mHat > mZ) {
       widNow = preFac * pow2(alpEM / M_PI) * eta2gaZ(mHat)
         * pow3(1. - pow2(mZ / mHat)); 
+
+      // Secondary width from Z0 decay.
+      widSec = ResonanceGmZ::openFrac(23); 
+    }
  
     // Widths of decays H0 -> Z0 + Z0.
     else if (id1Abs == 23 && id2Abs == 23) {
       // If H0 heavy use on-shell expression, else numerical integration.
       widNow = ( mHat > 2. * (mZ + GAMMAMARGIN * GammaZ) ) 
-        ? (1. - 4. * m2Rat1 + 12. * pow2(m2Rat1)) * sqrtpos(1. - 4. * m2Rat1) 
+        ? (1. - 4. * mr1 + 12. * pow2(mr1)) * sqrtpos(1. - 4. * mr1) 
         : numInt2BW( mHat, mZ, GammaZ, MASSMIN, mZ, GammaZ, MASSMIN, 1);
       widNow   *= 0.25 * preFac;
-      widIn[23] = 0.25 * preFac;
+      widTable[23] = 0.25 * preFac;
+
+      // Secondary width from Z0 Z0 decay.
+      widSec = ResonanceGmZ::openFrac(23, 23); 
     }
  
     // Widths of decays H0 -> W+ + W-.
     else if (id1Abs == 24 && id2Abs == 24) {
       // If H0 heavy use on-shell expression, else numerical integration.
       widNow = (mHat > 2. * ( mW + GAMMAMARGIN * GammaW)) 
-        ? (1. - 4. * m2Rat1 + 12. * pow2(m2Rat1)) * sqrtpos(1. - 4. * m2Rat1) 
+        ? (1. - 4. * mr1 + 12. * pow2(mr1)) * sqrtpos(1. - 4. * mr1) 
         : numInt2BW( mHat, mW, GammaW, MASSMIN, mW, GammaW, MASSMIN, 1);
       widNow   *= 0.5 * preFac;
-      widIn[24] = 0.5 * preFac;
+      widTable[24] = 0.5 * preFac;
+
+      // Secondary width from W+ W- decay.
+      widSec = ResonanceW::openFrac(24, -24); 
     }
 
-    // Store partial widths and update sum.
+    // Store partial widths and update sum, also for open channels only.
     particlePtr->decay[i].onShellWidth(widNow); 
     widTot += widNow;    
+    onMode = particlePtr->decay[i].onMode();
+    if (onMode == 1 || onMode == 2) widPos += widNow * widSec;
   }
 
   // Update total width and branching ratios.
-  particlePtr->setMWidth(widTot);
+  particlePtr->setMWidth(widTot, false);
   double bRatio;
   for (int i = 0; i < particlePtr->decay.size(); ++i) {
     bRatio = particlePtr->decay[i].onShellWidth() / widTot;
-    particlePtr->decay[i].bRatio( bRatio);
+    particlePtr->decay[i].bRatio( bRatio, false);
   }
+  particlePtr->setIsInitResonance();
 
-  // Update the width in this object itself.
+  // Update the width in this object itself. Secondary widths for open.
   GammaRes = widTot;
   GamMRat  = GammaRes / mRes;  
+  openPos  = widPos / widTot;
 
 }
 
 //*********
  
-// Calculate the partial width for an incoming state at a given energy.
+// Calculate the partial width for a specific mass and in/out-state.
 // This width has no phase-space suppression and is given without
 // colour factors. Uses pretabulation from widthInit() to speed up.
 
-double ResonanceH::widthIn(double mHat, int idAbs) { 
+double ResonanceSMH::widthChan(double mHat, int id1Abs, int ) { 
 
   // Read out from stored values.
-  double widNow = (idAbs > 0 && idAbs < 25) ? widIn[idAbs] : 0.;
+  double widNow = (id1Abs > 0 && id1Abs < 25) ? widTable[id1Abs] : 0.;
 
   // Simple rescaling with third power of actual mass.
   widNow *= pow3(mHat / mRes);
 
   // Normally replace mHat^3 by mHat * mHiggs^2 for WW/ZZ decays.
-  if ( linearWidthWWZZ && (idAbs == 23 || idAbs == 24) )
+  if ( linearWidthWWZZ && (id1Abs == 23 || id1Abs == 24) )
     widNow *= pow2(mRes / mHat);   
 
   // Done.
   return widNow;
+
+}
+
+//*********
+
+// Return fraction of width open for one/two-resonance combinations.
+  
+double ResonanceSMH::openFrac( int idResSgn1, int idResSgn2) {
+  
+  // Only one resonance.
+  if (idResSgn2 == 0) return (idResSgn1 > 0) ? openPos : openNeg;
+
+  // Pair of resonances.
+  if (idResSgn1 * idResSgn2 < 0) return openPos * openNeg;
+  return (idResSgn1 > 0) ? pow2(openPos) : pow2(openNeg);  
 
 }
 
@@ -775,17 +1087,21 @@ double ResonanceH::widthIn(double mHat, int idAbs) {
 // Has approximate rescaling since the correct width calculation 
 // (in widthInit()) is slow owing to numerical integrations.
 
-double ResonanceH::width(double mHat, int , bool openOnly, bool setBR) { 
+double ResonanceSMH::width(double mHat, int , int , 
+  bool openOnly, bool setBR) { 
 
-  // Reset sum. Declare variables inside loop.
+  // Reset quantities to sum. Declare variables inside loop.
+  if (setBR) particlePtr->decay.resetDynamicBR(); 
   double widSum = 0.; 
-  int    id1Abs, id2Abs;
-  double widNow;
+  int    id1Abs, id2Abs, onMode;
+  double widNow, widSec;
 
   // Loop over all decay channels; optionally only open channels.
   for (int i = 0; i < particlePtr->decay.size(); ++i) {
     widNow = 0.;
-    if (openOnly && particlePtr->decay[i].onMode() <= 0) continue;
+    widSec = 1.;
+    onMode = particlePtr->decay[i].onMode();
+    if (openOnly && onMode !=1 && onMode != 2) continue;
     
     // Start out from on-shell partial width.     
     widNow = particlePtr->decay[i].onShellWidth();
@@ -798,6 +1114,15 @@ double ResonanceH::width(double mHat, int , bool openOnly, bool setBR) {
     id2Abs = abs( particlePtr->decay[i].product(1) );
     if (linearWidthWWZZ && (id1Abs == 23 || id1Abs == 24) 
       && id2Abs == id1Abs) widNow *= pow2(mRes / mHat);   
+
+    // Secondary width from t tbar, gamma Z0, Z0 Z0 and W+ W- decays.
+    if (openOnly) {
+      if (id1Abs  == 6 && id2Abs ==  6) widSec = ResonanceTop::openFrac(6, -6);
+      if (id1Abs == 22 && id2Abs == 23) widSec = ResonanceGmZ::openFrac(23);
+      if (id1Abs == 23 && id2Abs == 23) widSec = ResonanceGmZ::openFrac(23, 23); 
+      if (id1Abs == 24 && id2Abs == 24) widSec = ResonanceW::openFrac(24, -24);
+    }
+    widNow *= widSec;
 
     // Sum back up.
     widSum += widNow;
@@ -813,9 +1138,145 @@ double ResonanceH::width(double mHat, int , bool openOnly, bool setBR) {
 
 //*********
 
+// Evaluate weight for Z0/W+- decay distributions in H -> Z0/W+ Z0/W- -> 4f.
+
+double ResonanceSMH::weightDecayAngles( Event& process, int iResBeg, 
+  int iResEnd) {
+
+  // If not pair Z0 Z0 or W+ W- or not mother Higgs then return unit weight.
+  if (iResEnd - iResBeg != 2) return 1.;
+  int iZW1  = iResBeg;
+  int iZW2  = iResBeg + 1;
+  int idZW1 = process[iZW1].id();
+  int idZW2 = process[iZW2].id();
+  if (idZW1 < 0) {
+    swap(iZW1, iZW2); 
+    swap(idZW1, idZW2);
+  } 
+  if ( (idZW1 != 23 || idZW2 != 23) && (idZW1 != 24 || idZW2 != -24) )
+    return 1.;
+  int iH = process[iZW1].mother1(); 
+  if (iH <= 0 || process[iH].id() != 25) return 1.;
+
+  // Option with isotropic decays.
+  if (SMHiggsParity == 0) return 1.;
+
+  // Maximum and initial weight. 
+  double wtMax = pow4(process[iH].m());
+  double wt    = wtMax; 
+
+  // Find sign-matched order of Z0/W+- decay products. 
+  int i3 = process[iZW1].daughter1();
+  int i4 = process[iZW1].daughter2();
+  if (process[i3].id() < 0) swap( i3, i4); 
+  int i5 = process[iZW2].daughter1();
+  int i6 = process[iZW2].daughter2();
+  if (process[i5].id() < 0) swap( i5, i6); 
+
+  // Evaluate four-vector products and find masses..
+  double p35  = 2. * process[i3].p() * process[i5].p(); 
+  double p36  = 2. * process[i3].p() * process[i6].p(); 
+  double p45  = 2. * process[i4].p() * process[i5].p(); 
+  double p46  = 2. * process[i4].p() * process[i6].p(); 
+  double p34  = 2. * process[i3].p() * process[i4].p(); 
+  double p56  = 2. * process[i5].p() * process[i6].p(); 
+  double mZW1 = process[iZW1].m();
+  double mZW2 = process[iZW2].m();
+
+  // For mixed CP states need epsilon product and gauge boson masses.
+  double epsilonProd = 0.;
+  if (SMHiggsParity == 3) {
+    double p[4][4];
+    for (int i = 0; i < 4; ++i) {
+      int         ii = i3;
+      if (i == 1) ii = i4;
+      if (i == 2) ii = i5;
+      if (i == 3) ii = i6;
+      p[i][0] = process[ii].e();
+      p[i][1] = process[ii].px();
+      p[i][2] = process[ii].py();
+      p[i][3] = process[ii].pz();
+    }     
+    epsilonProd 
+      = p[0][0]*p[1][1]*p[2][2]*p[3][3] - p[0][0]*p[1][1]*p[2][3]*p[3][2] 
+      - p[0][0]*p[1][2]*p[2][1]*p[3][3] + p[0][0]*p[1][2]*p[2][3]*p[3][1]
+      + p[0][0]*p[1][3]*p[2][1]*p[3][2] - p[0][0]*p[1][3]*p[2][2]*p[3][1]
+      - p[0][1]*p[1][0]*p[2][2]*p[3][3] + p[0][1]*p[1][0]*p[2][3]*p[3][2]
+      + p[0][1]*p[1][2]*p[2][0]*p[3][3] - p[0][1]*p[1][2]*p[2][3]*p[3][0]
+      - p[0][1]*p[1][3]*p[2][0]*p[3][2] + p[0][1]*p[1][3]*p[2][2]*p[3][0]
+      + p[0][2]*p[1][0]*p[2][1]*p[3][3] - p[0][2]*p[1][0]*p[2][3]*p[3][1]
+      - p[0][2]*p[1][1]*p[2][0]*p[3][3] + p[0][2]*p[1][1]*p[2][3]*p[3][0] 
+      + p[0][2]*p[1][3]*p[2][0]*p[3][1] - p[0][2]*p[1][3]*p[2][1]*p[3][0]
+      - p[0][3]*p[1][0]*p[2][1]*p[3][2] + p[0][3]*p[1][0]*p[2][2]*p[3][1] 
+      + p[0][3]*p[1][1]*p[2][0]*p[3][2] - p[0][3]*p[1][1]*p[2][2]*p[3][0] 
+      - p[0][3]*p[1][2]*p[2][0]*p[3][1] + p[0][3]*p[1][2]*p[2][1]*p[3][0];
+  }
+
+  // Z0 Z0 decay: vector and axial couplings of two fermion pairs.
+  if (idZW1 == 23) {
+    double vf1 = CoupEW::vf(process[i3].idAbs());
+    double af1 = CoupEW::af(process[i3].idAbs());
+    double vf2 = CoupEW::vf(process[i5].idAbs());
+    double af2 = CoupEW::af(process[i5].idAbs());
+    double va12asym = 4. * vf1 * af1 * vf2 * af2 
+      / ( (vf1*vf1 + af1*af1) * (vf2*vf2 + af2*af2) );
+    double etaMod = SMHiggsEta / pow2( ParticleDataTable::m0(23) );
+    
+    // Normal CP-even decay.
+    if (SMHiggsParity == 1) wt = 8. * (1. + va12asym) * p35 * p46 
+      + 8. * (1. - va12asym) * p36 * p45;
+
+    // CP-odd decay.
+    else if (SMHiggsParity == 2) wt = ( pow2(p35 + p46) 
+      + pow2(p36 + p45) - 2. * p34 * p56
+      - 2. * pow2(p35 * p46 - p36 * p45) / (p34 * p56) 
+      + va12asym * (p35 + p36 - p45 - p46) * (p35 + p45 - p36 - p46) )
+      / (1. +  va12asym);
+
+    // Mixed CP states. 
+    else wt = 32. * ( 0.25 * ( (1. + va12asym) * p35 * p46 
+      + (1. - va12asym) * p36 * p45 ) - 0.5 * etaMod * epsilonProd
+      * ( (1. + va12asym) * (p35 + p46) - (1. - va12asym) * (p36 + p45) )
+      + 0.0625 * etaMod * etaMod * (-2. * pow2(p34 * p56) 
+      - 2. * pow2(p35 * p46 - p36 * p45) 
+      + p34 * p56 * (pow2(p35 + p46) + pow2(p36 + p45)) 
+      + va12asym * p34 * p56 * (p35 + p36 - p45 - p46) 
+      * (p35 + p45 - p36 - p46) ) ) / ( 1. * 2. * etaMod * mZW1 * mZW2 
+      + 2. * pow2(etaMod * mZW1 * mZW2) * (1. + va12asym) );
+
+  // W+ W- decay.
+  } else if (idZW1 == 24) {
+    double etaMod = SMHiggsEta / pow2( ParticleDataTable::m0(24) );
+    
+    // Normal CP-even decay.
+    if (SMHiggsParity == 1) wt = 16. * p35 * p46; 
+
+    // CP-odd decay.
+    else if (SMHiggsParity == 2) wt = 0.5 * ( pow2(p35 + p46) 
+      + pow2(p36 + p45) - 2. * p34 * p56  
+      - 2. * pow2(p35 * p46 - p36 * p45) / (p34 * p56) 
+      + (p35 + p36 - p45 - p46) * (p35 + p45 - p36 - p46) );
+
+    // Mixed CP states. 
+    else wt = 32. * ( 0.25 * 2. * p35 * p46 
+      - 0.5 * etaMod * epsilonProd * 2. * (p35 + p46)
+      + 0.0625 * etaMod * etaMod * (-2. * pow2(p34 * p56) 
+      - 2. * pow2(p35 * p46 - p36 * p45) 
+      + p34 * p56 * (pow2(p35 + p46) + pow2(p36 + p45)) 
+      + p34 * p56 * (p35 + p36 - p45 - p46) * (p35 + p45 - p36 - p46) ) ) 
+      / ( 1. * 2. * etaMod * mZW1 * mZW2 + 2. * pow2(etaMod * mZW1 * mZW2) );
+  }
+
+  // Done.
+  return wt / wtMax;
+
+}
+
+//*********
+
 // Sum up quark loop contributions in H0 -> g + g.
 
-double ResonanceH::eta2gg(double mHat) {
+double ResonanceSMH::eta2gg(double mHat) {
 
   // Initial values.
   complex eta = complex(0., 0.);
@@ -850,7 +1311,7 @@ double ResonanceH::eta2gg(double mHat) {
 
 // Sum up quark, lepton and W+- loop contributions in H0 -> gamma + gamma.
 
-double ResonanceH::eta2gaga(double mHat) {
+double ResonanceSMH::eta2gaga(double mHat) {
 
   // Initial values.
   complex eta = complex(0., 0.);
@@ -900,7 +1361,7 @@ double ResonanceH::eta2gaga(double mHat) {
 
 // Sum up quark, lepton and W+- loop contributions in H0 -> gamma + Z0.
 
-double ResonanceH::eta2gaZ(double mHat) {
+double ResonanceSMH::eta2gaZ(double mHat) {
 
   // Initial values.
   complex eta = complex(0., 0.);

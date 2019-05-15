@@ -17,9 +17,8 @@ method.
 <p/>
 There is only one pure virtual method in <code>DecayHandler</code>, 
 to do the decay: 
-<method name="virtual bool decay(vector&lt;int&gt;&amp; idProd, 
-vector&lt;double&gt;&amp; mProd, vector&lt;Vec4&gt;&amp; pProd, 
-int iDec, const Event&amp; event)">
+<method name="virtual bool decay(vector&lt;int&gt;&amp; idProd, vector&lt;double&gt;&amp; 
+mProd, vector&lt;Vec4&gt;&amp; pProd, int iDec, const Event&amp; event)">
 where 
 <argument name="idProd"> is a list of particle PDG identity codes,
 </argument>
@@ -58,9 +57,9 @@ of <code>event[iDec].id()</code>, where the latter provides the code at
 production.
 
 <p/>
-A sample test program is available in <code>main17.cc</code>, providing 
+A sample test program is available in <code>main23.cc</code>, providing 
 a simple example of how to use this facility.
 
 </chapter>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

@@ -55,7 +55,7 @@ output of <code>pythia.next()</code>.
 
 <p/>
 Note that this is different from setting the flag
-<aloc href="MasterSwitches"><code>Pythia:partonLevel = off</code></aloc>. 
+<aloc href="MasterSwitches"><code>PartonLevel:all = off</code></aloc>. 
 Also in this case the event
 generation will stop after the process level, but an event generated
 up to this point is considered perfectly acceptable, and cross sections
@@ -76,7 +76,7 @@ ones are called after the parton level, i.e. when showers, multiple
 interactions and beam remnants have been set up, but hadronization and
 decays have not yet been performed. Information is now made available in 
 the <code>event</code> event record. The difference relative to the 
-<aloc href="MasterSwitches"><code>Pythia:hadronLevel = off</code></aloc> 
+<aloc href="MasterSwitches"><code>HadronLevel:all = off</code></aloc> 
 flag setting follows the same pattern as above.
 
 <p/> 
@@ -279,7 +279,7 @@ All the possibilities above can be combined freely and also be combined
 with the standard flags. An event would then survive only if it survived
 each of the possible veto methods. There are no hidden interdependencies 
 in this game, but of course some combinations may not be particularly 
-meaningful. For instance, if you set <code>Pythia:partonLevel = off</code> 
+meaningful. For instance, if you set <code>PartonLevel:all = off</code> 
 then the <code>doVetoPT(...)</code> and <code>doVetoPartonLevel(...)</code> 
 locations in the code are not even reached, so they would never be called. 
 
@@ -289,4 +289,4 @@ An example how the above methods can be used for toy studies is found in
 
 </chapter>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

@@ -39,19 +39,68 @@ covering the total cross section. Hard processea are the normal
 Prompt-photon, <ei>gamma^*/Z^0</ei> and <ei>W^+-</ei> production, 
 plus a few processes with <ei>t</ei>-channel boson exchange.
 
-<h3><aloc href="TopProcesses">Top Processes</aloc></h3>
-
-Top production, singly or doubly.
-
 <h3><aloc href="OniaProcesses">Onia Processes</aloc></h3>
 
 Colour singlet and octet production of charmonium and bottomonium.
 
+<h3><aloc href="TopProcesses">Top Processes</aloc></h3>
+
+Top production, singly or doubly.
+
+<h3><aloc href="HiggsProcesses">Higgs Processes</aloc></h3>
+
+Higgs production, currently within the Standard Model but eventually
+also beyond it.
+
 <h3><aloc href="SUSYProcesses">SUSY Processes</aloc></h3>
 
-Production of supersymmetric particles.
+Production of supersymmetric particles, currently barely begun
+
+<h3>Resonance Decays and Cross Sections</h3>
+
+In addition to the switches and parameters in the process machinery
+there also exists the possibility to set the allowed decay channels
+of resonances, as explained in the 
+<aloc href="ParticleDataScheme">Particle Data Scheme</aloc> description.
+For instance, if you study the process <ei>q qbar -> H^0 Z^0</ei>
+you could specify that the <ei>Z^0</ei> should decay only to
+lepton pairs, the <ei>H^0</ei> only to <ei>W^+ W^-</ei>, the 
+<ei>W^+</ei> only to a muon and a neutrino, while the <ei>W^-</ei>
+can decay to anything. Unfortunately there are limits to the 
+flexibility: you cannot set a resonance to have different properties
+in different places of a process, e.g. if instead 
+<ei>H^0 -> Z^0 Z^0</ei> in the above process then the three 
+<ei>Z^0</ei>'s would all obey the same rules.
+
+<p/>
+The restrictions on the allowed final states of a process is directly
+reflected in the cross section of it. That is, if some final states
+are excluded then the cross section is reduced accordingly. Such 
+restrictions are built up recursively in cases of sequential decay 
+chains. The restrictions are also reflected in the compositions of
+those events that actually do get to be generated. For instance,
+the relative rates of <ei>H^0 -> W^+ W^-</ei> and 
+<ei>H^0 -> Z^0 Z^0</ei> are shifted when the allowed sets of 
+<ei>W^+-</ei> and <ei>Z^0</ei> decay channels are changed.
+
+<p/>
+There is one important restriction, however: only those particles that
+Pythia treat as resonances enjoy this property. This includes the
+<ei>W^+-</ei>, <ei>gamma^*/Z^0</ei>, <ei>t/tbar</ei>, <ei>H^0</ei> and 
+other heavy unstable particles in scenarios of Beyond-the-Standard-Model 
+physics. These particles are generated and let to decay as part of the 
+"process level" processing, which is where cross sections are handled.
+It does <i>not</i> concern particle that are produced and/or decay at
+later stages, such as <ei>B</ei> mesons or <ei>tau</ei> leptons, or
+photons that branch as part of the shower evolution. There simply
+would be no way consistently to include the proper bias that should go 
+with changed branching ratios. For instance, if you only are interested
+in a specific <ei>tau</ei> decay channel, this <ei>tau</ei> could come 
+from the decay of a <ei>B</ei> meson that came from a <ei>b</ei> quark 
+produced in the shower evolution, <ei>g -> b bbar</ei>, and thus be 
+many steps removed from the hard process itself.  
 
 </chapter>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
 

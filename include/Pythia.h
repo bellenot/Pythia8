@@ -1,6 +1,10 @@
+// Pythia.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This file contains the main class for event generation.
 // Pythia: provide the main user interface to everything else.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_Pythia_H
 #define Pythia8_Pythia_H
@@ -57,9 +61,13 @@ public:
   bool setRndmEnginePtr( RndmEngine* rndmEnginePtrIn) 
     { return Rndm::rndmEnginePtr( rndmEnginePtrIn);}  
 
-  // Possibility to pass in pointer for user hooks. Usage optional. 
+  // Possibility to pass in pointer for user hooks. 
   bool setUserHooksPtr( UserHooks* userHooksPtrIn) 
     { userHooksPtr = userHooksPtrIn; return true;} 
+
+  // Possibility to pass in pointer(s) for external cross section.
+  bool setSigmaPtr( SigmaProcess* sigmaPtrIn) 
+    { sigmaPtrs.push_back( sigmaPtrIn); return true;} 
 
   // Possibility to pass in pointer for external showers. Usage optional. 
   bool setShowerPtr( TimeShower* timesDecPtrIn, 
@@ -72,6 +80,9 @@ public:
 
   // Initialization in the CM frame.
   bool init( int idAin, int idBin, double eCMin);
+
+  // Initialization using the Main beam variables.
+  bool init();
 
   // Initialization according to the Les Houches Accord.
   bool init( LHAinit* lhaInitPtrIn, LHAevnt* lhaEvntPtrIn);
@@ -120,7 +131,7 @@ private:
   // Static initialization data, normally only set once.
   static bool   doPartonLevel, doHadronLevel, checkEvent;
   static int    nErrList;
-  static double epTolerance;
+  static double epTolErr, epTolWarn;
 
   // Constants: could only be changed in the code itself.
   static const int NTRY;
@@ -129,7 +140,7 @@ private:
   void banner(ostream& os = cout);
 
   // Initialization routine to set up kinematic and more.
-  bool init();
+  bool initInternal();
 
   // Initialization routine for all accessible static data members.
   void initStatic();
@@ -140,7 +151,7 @@ private:
   // Check that the final event makes sense.
   bool check(ostream& os = cout);
 
-  // Keep track when "new" has been used and needs a "delete".  
+  // Keep track when "new" has been used and needs a "delete" for PDF's.  
   bool pdfAnew, pdfBnew, pdfHardNew;
 
   // Pointers to the parton distributions of the two incoming beams.
@@ -168,7 +179,10 @@ private:
   UserHooks* userHooksPtr;
   bool hasUserHooks, doVetoProcess, doVetoPartons;
 
-  // Keep track when "new" has been used and needs a "delete".  
+  // Pointers to external processes derived from the Pythia base classes.
+  vector<SigmaProcess*> sigmaPtrs;  
+
+  // Keep track when "new" has been used and needs a "delete" for showers.  
   bool timesNew, spaceNew;
 
   // Pointers to timelike and spacelike showers.

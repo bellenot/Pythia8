@@ -2,10 +2,14 @@
 
 <h2>Higgs Processes</h2>
 
-This page contains Higgs production within and beyond the Standard Model.
-It is at a very early stage.
+This page contains Higgs production in the Standard Model.
+It should eventually be expanded at least also to cover the MSSM. 
 
-<h3>Standard-Model Higgs</h3>
+<h3>Standard-Model Higgs, basic processes</h3>
+
+This section provides the standard set of processes that can be
+run together to provide a reasonably complete overview of possible
+production channels for a single Standard-Model Higgs.
 
 <flag name="SMHiggs:all" default="off">
 Common switch for the group of Higgs production within the Standard Model.
@@ -13,44 +17,158 @@ Common switch for the group of Higgs production within the Standard Model.
 
 <flag name="SMHiggs:ffbar2H" default="off">
 Scattering <ei>f fbar -> H^0</ei>, where <ei>f</ei> sums over available
-flavours except top.
-Code 801.
+flavours except top. Related to the mass-dependent Higgs point coupling 
+to fermions, so at hadron colliders the bottom contribution will
+dominate.
+Code 901.
 </flag>
 
 <flag name="SMHiggs:gg2H" default="off">
-Scattering <ei>g g -> H^0</ei>.
-Code 802.
+Scattering <ei>g g -> H^0</ei> via loop contributions primarily from
+top.
+Code 902.
 </flag>
 
 <flag name="SMHiggs:gmgm2H" default="off">
-Scattering <ei>gamma gamma -> H^0</ei>.
-Code 803.
+Scattering <ei>gamma gamma -> H^0</ei> via loop contributions primarily 
+from top and <ei>W</ei>.
+Code 903.
 </flag>
 
 <flag name="SMHiggs:ffbar2HZ" default="off">
-Scattering <ei>f fbar -> H^0 Z^0</ei>.
-Code 804.
+Scattering <ei>f fbar -> H^0 Z^0</ei> via <ei>s</ei>-channel <ei>Z^0</ei>
+exchange.
+Code 904.
 </flag>
 
 <flag name="SMHiggs:ffbar2HW" default="off">
-Scattering <ei>f fbar -> H^0 W^+-</ei>.
-Code 805.
+Scattering <ei>f fbar -> H^0 W^+-</ei> via <ei>s</ei>-channel <ei>W^+-</ei>
+exchange.
+Code 905.
 </flag>
 
-<flag name="SMHiggs:qg2Hq" default="off">
-Scattering <ei>q g -> H^0 q</ei>. This process gives first-order 
-corrections to the <ei>f fbar -> H^0</ei> one above (for 
-<ei>f = q </ei>), so both cannot be used simultaneously without 
-unphysical doublecounting. The current one should only be used to study 
-the high-pT tail, while <ei>f g -> H^0 f</ei> should be used for 
-inclusive production. Therefore this process is not switched on by 
-the <code>SMHiggs:all</code> flag.
-Code 806.
+<flag name="SMHiggs:ff2Hff(t:ZZ)" default="off">
+Scattering <ei>f f' -> H^0 f f'</ei> via <ei>Z^0 Z^0</ei> fusion.
+Code 906.
 </flag>
+
+<flag name="SMHiggs:ff2Hff(t:WW)" default="off">
+Scattering <ei>f_1 f_2 -> H^0 f_3 f_4</ei> via <ei>W^+ W^-</ei> fusion.
+Code 907.
+</flag>
+
+<flag name="SMHiggs:gg2Httbar" default="off">
+Scattering <ei>g g -> H^0 t tbar</ei> via <ei>t tbar</ei> fusion
+(or, alternatively put, Higgs radiation off a top line).
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 908.
+</flag>
+
+<flag name="SMHiggs:qqbar2Httbar" default="off">
+Scattering <ei>q qbar -> H^0 t tbar</ei> via <ei>t tbar</ei> fusion
+(or, alternatively put, Higgs radiation off a top line).
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 909.
+</flag>
+
+<h3>Standard-Model Higgs, further processes</h3>
+
+A number of further production processes has been implemented, that 
+are specializations of some of the above ones to the high-<ei>pT</ei> 
+region. The sets therefore could not be used simultaneously
+without unphysical doublecounting, as further explained below. 
+They are not switched on by the <code>SMHiggs:all</code> flag, but 
+have to be switched on for each separate process after due consideration.
+
+<p/>
+The first three processes in this section are related to the Higgs
+point coupling to fermions, and so primarily are of interest for 
+<ei>b</ei> quarks. It is here useful to begin by reminding that 
+a process like <ei>b bbar -> H^0</ei> implies that a <ei>b/bbar</ei> 
+is taken from each incoming hadron, leaving behind its respective
+antiparticle. The initial-state showers will then add one 
+<ei>g -> b bbar</ei> branching on either side, so that effectively
+the process becomes <ei>g g -> H0 b bbar</ei>. This would be the
+same basic process as the <ei>g g -> H^0 t tbar</ei> one used for top.
+The difference is that (a) no PDF's are defined for top and 
+(b) the shower approach would not be good enough to provide sensible
+kinematics for the <ei>H^0 t tbar</ei> subsystem. By contrast, owing 
+to the <ei>b</ei> being much lighter than the Higgs, multiple 
+gluon emissions must be resummed for <ei>b</ei>, as is done by PDF's 
+and showers, in order to obtain a sensible description of the total 
+production rate,  when the <ei>b</ei> quarks predominantly are produced 
+at small <ei>pT</ei> values.
+
+<flag name="SMHiggs:qg2Hq" default="off">
+Scattering <ei>b g -> H^0 b</ei>. This process gives first-order 
+corrections to the <ei>f fbar -> H^0</ei> one above, and should only be 
+used to study  the high-<ei>pT</ei> tail, while <ei>f fbar -> H^0</ei> 
+should be used for inclusive production. Only the dominant <ei>c</ei>c 
+and <ei>b</ei> contributions are included, and generated separately 
+for technical reasons. 
+Code 911.
+
+</flag>
+<flag name="SMHiggs:gg2Hbbbar" default="off">
+Scattering <ei>g g -> H^0 b bbar</ei>. This process is yet one order 
+higher of the <ei>b bbar -> H^0</ei> and <ei>b g -> H^0 b</ei> chain,
+where now two quarks should be required above some large <ei>pT</ei>
+threshold.
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 912.
+</flag>
+
+</flag>
+<flag name="SMHiggs:qqbar2Hbbbar" default="off">
+Scattering <ei>q qbar -> H^0 b bbar</ei> via an <ei>s</ei>-channel
+gluon, so closely related to the previous one, but typically less 
+important owing to the smaller rate of (anti)quarks relative to 
+gluons.
+Warning: unfortunately this process is rather slow, owing to a
+lengthy cross-section expression and inefficient phase-space selection.
+Code 913.
+</flag>
+
+<p/>
+The second set of processes are predominantly first-order corrections 
+to the <ei>g g -> H^0</ei> process, again dominated by the top loop.
+We here only provide the kinematical expressions obtained in the 
+limit that the top quark goes to infinity, but scaled to the 
+finite-top-mass coupling in <ei>g g -> H^0</ei>. (Complete loop
+expressions are available e.g. in PYTHIA 6.4 but are very lengthy.) 
+This provides a reasonably accurate description for "intermediate" 
+<ei>pT</ei> values, but fails when the <ei>pT</ei> scale approaches
+the top mass. 
+ 
+<flag name="SMHiggs:gg2Hg(l:t)" default="off">
+Scattering <ei>g g -> H^0 g</ei> via loop contributions primarily 
+from top.
+Code 914.
+</flag>
+ 
+<flag name="SMHiggs:qg2Hq(l:t)" default="off">
+Scattering <ei>q g -> H^0 q</ei> via loop contributions primarily 
+from top. Not to be confused with the <code>SMHiggs:bg2Hb</code>
+process above, with its direct fermion-to-Higgs coupling.
+Code 915.
+</flag>
+ 
+<flag name="SMHiggs:qqbar2Hg(l:t)" default="off">
+Scattering <ei>q qbar -> H^0 g</ei> via an <ei>s</ei>-channel gluon
+and loop contributions primarily from top. Is strictly speaking a 
+"new" process, not directly derived from <ei>g g -> H^0</ei>, and
+could therefore be included in the standard mix without doublecounting, 
+but is numerically negligible.
+Code 916.
+</flag>
+
 
 <h3>Parameters for Higgs production and decay</h3>
 
-<flag name="ResonanceH::linearWidthWWZZ" default="on">
+<flag name="ResonanceSMH:linearWidthWWZZ" default="on">
 The partial width of a Higgs particle to a pair of gauge bosons,
 <ei>W^+ W^-</ei> or <ei>Z^0 Z^0</ei>, depends cubically on the
 Higgs mass. When selecting the Higgs according to a Breit-Wigner,
@@ -63,7 +181,7 @@ dependence on <ei>mHat</ei>, i.e. a width proportional to
 fermions, which only depends on <ei>mHat</ei>.
 </flag>
 
-<modepick name="SMHiggs:parity" default="1" min="0" max="3">
+<modepick name="ResonanceSMH:parity" default="1" min="0" max="3">
 possibility to modify angular decay correlations in Higgs decay to
 <ei>Z^0 Z^0</ei> or <ei>W^+ W^-</ei> to four fermions. Currently it 
 does not affect the partial width of the channels.
@@ -79,12 +197,12 @@ with the interference term being proportional to <ei>eta</ei>
 and the CP-odd one to <ei>eta^2</ei>.</option>
 </modepick>
 
-<parm name="SMHiggs:etaParity" default="0.">
+<parm name="ResonanceSMH:etaParity" default="0.">
 The <ei>eta</ei> value of CP-violation in the 
-<code>SMHiggs:parity = 2</code> option. 
+<code>ResonanceSMH:parity = 2</code> option. 
 </parm>
 
 </chapter>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
 

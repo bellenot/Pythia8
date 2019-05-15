@@ -1,7 +1,11 @@
+// BeamParticle.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for information on incoming beams.
 // ResolvedParton: an initiator or remnant in beam.
 // BeamParticle: contains partons, parton densities, etc.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_BeamParticle_H
 #define Pythia8_BeamParticle_H
@@ -102,7 +106,7 @@ class BeamParticle {
 public:
 
   // Constructor.
-  BeamParticle() { }  
+  BeamParticle() {Q2ValFracSav = -1.;}  
 
   // Initialize static data members.
   static void initStatic();

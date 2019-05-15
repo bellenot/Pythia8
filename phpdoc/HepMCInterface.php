@@ -36,8 +36,8 @@ This requires some adjustments in the interface code based on which
 version is going to be used. 
 
 The (simple) procedure to translate PYTHIA 8 events into HepMC ones 
-is illustrated in the <code>main21.c</code>, <code>main22.c</code>   
-and <code>main23.c</code> main programs. At the core is a call to
+is illustrated in the <code>main31.cc</code>, <code>main32.cc</code>   
+and <code>main54.cc</code> main programs. At the core is a call to
 the
 <pre>
 HepMC::I_Pythia8::fill_next_event( pythia.event, hepmcevt ) 
@@ -47,4 +47,4 @@ routine, which takes a PYTHIA event as input and returns a HepMC one.
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

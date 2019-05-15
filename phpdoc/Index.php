@@ -29,7 +29,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 <h2>PYTHIA 8 Index</h2>
 
-<h3><a href="pythia8080.pdf" target="page">Brief Introduction</a> (pdf)</h3>
+<h3><a href="pythia8090.pdf" target="page">Brief Introduction</a> (pdf)</h3>
 
 <h3>Program Overview</h3>
 
@@ -46,7 +46,7 @@ $filepath = "files/".$_GET["filename"];
 $filename = $_GET["filename"];
 echo "<a href='SaveSettings.php?returning=1&filename=".$filename."' target='page'><b>Save Settings</b></a><br/>
 <a href='MainProgramSettings.php?filepath=".$filepath."' target='page'>Main-Program Settings</a><br/>
-<a href='GenericSettings.php?filepath=".$filepath."' target='page'>Generic Settings</a><br/>
+<a href='RandomNumberSeed.php?filepath=".$filepath."' target='page'>Random-Number Seed</a><br/>
 <a href='PDFSelection.php?filepath=".$filepath."' target='page'>PDF Selection</a><br/>
 <a href='MasterSwitches.php?filepath=".$filepath."' target='page'>Master Switches</a><br/>
 <a href='ProcessSelection.php?filepath=".$filepath."' target='page'>Process Selection</a><br/>
@@ -75,6 +75,7 @@ echo "<a href='SaveSettings.php?returning=1&filename=".$filename."' target='page
 <a href='FlavourSelection.php?filepath=".$filepath."' target='page'>Flavour Selection</a><br/>
 <a href='ParticleDecays.php?filepath=".$filepath."' target='page'>Particle Decays</a><br/>
 <a href='ParticleData.php?filepath=".$filepath."' target='page'>Particle Data</a><br/>
+<a href='ErrorChecks.php?filepath=".$filepath."' target='page'>Error Checks</a><br/>
 
 ";?>
 
@@ -101,12 +102,13 @@ $filepath = "files/".$_GET["filename"];
 $filename = $_GET["filename"];
 echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Houches Accord</a><br/>
 <a href='AccessPYTHIA6Processes.php?filepath=".$filepath."' target='page'>Access PYTHIA 6 Processes</a><br/>
+<a href='SemiInternalProcesses.php?filepath=".$filepath."' target='page'>Semi-Internal Processes</a><br/>
 <a href='SUSYLesHouchesAccord.php?filepath=".$filepath."' target='page'>SUSY Les Houches Accord</a><br/>
 <a href='PartonDistributions.php?filepath=".$filepath."' target='page'>Parton Distributions</a><br/>
 <a href='ExternalDecays.php?filepath=".$filepath."' target='page'>External Decays</a><br/>
 <a href='UserHooks.php?filepath=".$filepath."' target='page'>User Hooks</a><br/>
 <a href='RandomNumbers.php?filepath=".$filepath."' target='page'>Random Numbers</a><br/>
-<a href='StdlibAndUtilities.php?filepath=".$filepath."' target='page'>Stdlib and Utilities</a><br/>
+<a href='ImplementNewShowers.php?filepath=".$filepath."' target='page'>Implement New Showers</a><br/>
 
 ";?>
 
@@ -117,11 +119,10 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Ho
 
 <h3>Internal</h3>
 
-<a href='ImplementAProcess.php?filepath=".$filepath."' target='page'>Implement a Process</a><br/>
-<a href='ImplementNewShowers.php?filepath=".$filepath."' target='page'>Implement New Showers</a><br/>
+<a href='StdlibAndUtilities.php?filepath=".$filepath."' target='page'>Stdlib and Utilities</a><br/>
 <a href='Version.php?filepath=".$filepath."' target='page'>Version</a><br/>
 
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

@@ -1,8 +1,12 @@
+// Event.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for the Particle and Event classes.
 // Particle: information on an instance of a particle.
 // Junction: information on a junction between three colours.
 // Event: list of particles in the current event.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_Event_H
 #define Pythia8_Event_H
@@ -331,7 +335,8 @@ public:
   Particle& back() {return entry.back();}
 
   // List the particles in an event.
-  void list(ostream& os = cout) const;  
+  void list(bool scaleAndVertex = false, bool mothersAndDaughters = false, 
+    ostream& os = cout) const;  
 
   // Set header specification for event listing.
   void header( string headerIn) {
@@ -419,6 +424,9 @@ public:
   void saveJunctionSize() {savedJunctionSize = junction.size();}
   void restoreJunctionSize() {junction.resize(savedJunctionSize);}   
 
+  // List any junctions in the event; for debug mainly.
+  void listJunctions(ostream& os = cout) const;
+
   // Operations with grouped systems of partons for internal use only.
   // (Used by combined MI, ISR, FSR and BR machinery in PartonLevel.)
 
@@ -449,8 +457,6 @@ private:
 
   // Static initialization data, normally only set once.
   static int startColTag;
-  static bool listFinalOnly, listScaleAndVertex, listMothersAndDaughters, 
-    extraBlankLine, listJunctions; 
 
   // Constants: could only be changed in the code itself.
   static const int IPERLINE;

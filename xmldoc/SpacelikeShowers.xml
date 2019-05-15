@@ -211,10 +211,10 @@ Azimuthal asymmetry induced by gluon polarization; on/off = true/false.
 Not yet implemented. 
 </flag>
 
-<modeopen name="SpaceShower:nQuark" default="5" min="0" max="5">
+<modeopen name="SpaceShower:nQuarkIn" default="5" min="0" max="5">
 Number of allowed quark flavours in <ei>g -> q qbar</ei> branchings,
-when kinematically allowed. Changing it to 4 would forbid 
-<ei>g -> b bbar</ei>, etc.
+when kinematically allowed, and thereby also in incoming beams. 
+Changing it to 4 would forbid <ei>g -> b bbar</ei>, etc.
 </modeopen>
 
 <h3>Technical notes</h3>
@@ -257,5 +257,5 @@ is involved.
 
 </chapter>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
 

@@ -1,6 +1,10 @@
+// ResonanceDecays.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This file contains the main class for performing resonance decays.
 // ResonanceDecays: handles the sequential decay of resonances in process.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_ResonanceDecays_H
 #define Pythia8_ResonanceDecays_H

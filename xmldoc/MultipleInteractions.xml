@@ -221,7 +221,8 @@ between quarks and gluons, giving no new flavours, i.e. dominated by
 (including charm and bottom), i.e. proceeding through <ei>s</ei>-channel 
 gluon exchange.</option>
 <option value="2">also <ei>2 -> 2</ei> processes involving one or two
-photons in the final state, and <ei>t</ei>-channel <ei>gamma</ei>
+photons in the final state, <ei>s</ei>-channel <ei>gamma</ei>
+boson exchange and <ei>t</ei>-channel <ei>gamma/Z^0/W^+-</ei>
 boson exchange.</option>
 <option value="3">also charmonium and bottomonium production, via
 colour singlet and colour octet channels.</option> 
@@ -232,7 +233,7 @@ colour singlet and colour octet channels.</option>
 These should normally not be touched. Their only function is for
 cross-checks.
 
-<modeopen name="MultipleInteractions:nQuark" default="5" min="0" max="5">
+<modeopen name="MultipleInteractions:nQuarkIn" default="5" min="0" max="5">
 Number of allowed incoming quark flavours in the beams; a change 
 to 4 would thus exclude <ei>b</ei> and <ei>bbar</ei> as incoming 
 partons, etc.
@@ -387,4 +388,4 @@ interactions.
 
 </chapter>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

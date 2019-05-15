@@ -1,7 +1,10 @@
-// File: main05.cc
+// main05.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This is a simple test program. 
 // It studies jet production at the LHC, using CellJet.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 using namespace Pythia8;
@@ -19,7 +22,7 @@ int main() {
   pythia.readString("PhaseSpace:pTHatMin = 200.");    
   pythia.init( 2212, 2212, 14000.);
 
-  // Jet finder.
+  // Jet finder. Note that arguments can be used to override defaults. 
   CellJet cellJet;
 
   // Histograms.

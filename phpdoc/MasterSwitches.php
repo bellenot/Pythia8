@@ -44,19 +44,12 @@ the event generation, wherein the basic process is selected. Currently
 this is done either using some of the internal processes, or with 
 Les Houches Accord input.
 
+<p/>
 Since there cannot be any event at all without an initial process,
-there is no possibility to switch off this part of the story. It is
-possible, however, to stop the generation immediately after the
-basic process has been selected:
-
-<br/><br/><strong>Pythia:partonLevel</strong>  <input type="radio" name="1" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="1" value="off"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
-If off then stop the generation after the hard process has been 
-generated, but before the parton-level and hadron-level steps. 
-The <code>process</code> record is filled, but the <code>event</code> 
-one is not.
-  
+there is no possibility to switch off this part of the story.
+It is possible, however, to stop the generation immediately after 
+the basic process has been selected, see <code>PartonLevel:all</code>
+below.
  
 <h3>PartonLevel</h3>
 
@@ -67,9 +60,18 @@ parton-level configuration to be handed on to <code>HadronLevel</code>.
 This step involves the application of initial- and final-state radiation, 
 multiple interactions and the structure of beam remnants.
 
+<br/><br/><strong>PartonLevel:all</strong>  <input type="radio" name="1" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="1" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+If off then stop the generation after the hard process has been 
+generated, but before the parton-level and hadron-level steps. 
+The <code>process</code> record is filled, but the <code>event</code> 
+one is then not.
+  
+
 <p/>
-Some parts of the event generation on this level may be switched off
-individually: 
+For <code>PartonLevel:all = on</code> some parts of the event generation 
+on this level may be switched off individually: 
 
 <br/><br/><strong>PartonLevel:MI</strong>  <input type="radio" name="2" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="2" value="off"><strong>Off</strong>
@@ -114,26 +116,19 @@ subsequent to the hard process itself; on/off = true/false. In addition
   
 
 <p/>
-Switching off all the above switches is <i>not</i> equivalent to 
-setting <code>Pythia:partonLevel = off</code>. In the former case a minimal 
-skeleton of parton-level operations are carried out, such as tying together 
-the scattered partons with the beam remnants into colour singlets, and
-storing this information in the <code>event</code> record. It is therefore
-possible to go on and hadronize the event, if desired. In the latter case
-<i>no</i> operations at all are carried out on the parton level, and 
-therefore it is also not possible to go on to the hadron level.
+Switching off all the above MI/ISR/FSR switches is <b>not</b> equivalent 
+to setting <code>PartonLevel:all = off</code>. In the former case a 
+minimal skeleton of parton-level operations are carried out, such as 
+tying together the scattered partons with the beam remnants into colour 
+singlets, and storing this information in the <code>event</code> record. 
+It is therefore possible to go on and hadronize the event, if desired. 
+In the latter case <b>no</b> operations at all are carried out on the 
+parton level, and therefore it is also not possible to go on to the 
+hadron level.
 
 <p/>
-Finally, it is possible to stop the generation immediately after the
-parton-level step:
-
-<br/><br/><strong>Pythia:hadronLevel</strong>  <input type="radio" name="7" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="7" value="off"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
-If off then stop the generation after the hard process and 
-parton-level activity has been generated, but before the 
-hadron-level steps.
-  
+It is possible to stop the generation immediately after the parton level 
+has been set up, see <code>HadronLevel:all</code> below.
 
 <h3>HadronLevel</h3>
 
@@ -151,9 +146,17 @@ the string between the two, so that the topology can be reduced back
 to two separate one-junction systems, while still preserving the
 expected particle flow in the junction-junction string region(s).
 
+<br/><br/><strong>HadronLevel:all</strong>  <input type="radio" name="7" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="7" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+If off then stop the generation after the hard process and 
+parton-level activity has been generated, but before the 
+hadron-level steps.
+  
+
 <p/>
-Some parts of the event generation on this level may be switched off
-individually: 
+For <code>HadronLevel:all = on</code> some parts of the event generation 
+on this level may be switched off individually: 
 
 <br/><br/><strong>HadronLevel:Hadronize</strong>  <input type="radio" name="8" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="8" value="off"><strong>Off</strong>
@@ -188,7 +191,7 @@ $handle = fopen($filepath, 'a');
 
 if($_POST["1"] != "on")
 {
-$data = "Pythia:partonLevel = ".$_POST["1"]."\n";
+$data = "PartonLevel:all = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["2"] != "on")
@@ -218,7 +221,7 @@ fwrite($handle,$data);
 }
 if($_POST["7"] != "on")
 {
-$data = "Pythia:hadronLevel = ".$_POST["7"]."\n";
+$data = "HadronLevel:all = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["8"] != "on")
@@ -238,4 +241,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

@@ -1,89 +1,68 @@
-// File: main41.cc
-// Generate a predetermined second hard interaction.
-// Copyright C 2007 Torbjorn Sjostrand
+// main41.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
+// Test of LHAPDF interface and whether PDF's behave sensibly.
+// Histogram F(x, Q2) = (9/4) xg(x, Q2) + sum_{i = q, qbar} xf_i(x, Q2)
+// for range 10^{-8} < x < 1 and for Q2 = 4 and 100.
 
 #include "Pythia.h"
 
-using namespace Pythia8;
- 
+using namespace Pythia8; 
+
 int main() {
 
-  // Generator. 
-  Pythia pythia;
-  Event& process = pythia.process;
-  Event& event   = pythia.event;
+  // Pointer to PDF sets: old reference and new to try.
+  PDF* oldPDF = new CTEQ5L(2212);
+  //PDF* newPDF = new LHAPDF(2212, "cteq5l.LHgrid", 0);
+  PDF* newPDF = new LHAPDF(2212, "cteq61.LHgrid", 0);
+  //PDF* newPDF = new LHAPDF(2212, "cteq61.LHpdf", 0);
+  //PDF* newPDF = new LHAPDF(2212, "MRST2004nlo.LHgrid", 0);
+  //PDF* newPDF = new LHAPDF(2212, "Alekhin_100.LHpdf", 0);
 
-  // Select first hard process (just a small sample of possibilities).
-  //pythia.readString("HardQCD:all = on");
-  pythia.readString("Top:all = on");
-  //pythia.readString("WeakSingleBoson:ffbar2gmZ = on");
-  //pythia.readString("WeakSingleBoson:ffbar2W = on");
-
-  // Select second hard process (complete list of options).
-  pythia.readString("SecondHard:generate = on");
-  //pythia.readString("SecondHard:TwoJets = on");
-  pythia.readString("SecondHard:PhotonAndJet = on");
-  //pythia.readString("SecondHard:TwoPhotons = on");
-  //pythia.readString("SecondHard:SingleGmZ = on");
-  //pythia.readString("SecondHard:SingleW = on");
-  //pythia.readString("SecondHard:TwoBJets = on");
-  
-  // Kinematics cuts, common for the two. 
-  pythia.readString("PhaseSpace:mHatMin = 40.");
-  pythia.readString("PhaseSpace:pTHatMin = 20.");
-  
-  // Initialize for LHC.
-  pythia.init( 2212, 2212, 14000.);
-
-  // Show changed settings.
-  pythia.settings.listChanged();
+  // Set x and Q2 limits. May be required to get sensible small-x shape.
+  //newPDF->setLimits( 1e-5, 1., 1., 1e10);
 
   // Histogram.
-  Hist pTfirst("pT first collision",    100, 0., 200.);
-  Hist pTsecond("pT second collision",  100, 0., 200.);
-  Hist pTdiff("pT first-second collision", 100, -100., 100.);
-  Hist nMult("number of multiple interactions", 100, -0.5, 99.5);
-  Hist bMore("b enhancement factor",    100, 0., 10.);
-  Hist nChg("charged multiplicity", 100, -0.5, 999.5);
+  Hist oldF4("F( x, Q2 = 4) old", 80 , -8., 0.);
+  Hist newF4("F( x, Q2 = 4) new", 80 , -8., 0.);
+  Hist ratF4("F( x, Q2 = 4) new/old", 80 , -8., 0.);
+  Hist oldF100("F( x, Q2 = 100) old", 80 , -8., 0.);
+  Hist newF100("F( x, Q2 = 100) new", 80 , -8., 0.);
+  Hist ratF100("F( x, Q2 = 100) new/old", 80 , -8., 0.);
 
-  // Generate events. List first few.
-  for (int iev = 0; iev < 200; ++iev) {
-    pythia.next();
-    if (iev < 1) {
-      pythia.info.list();
-      process.list();
-      event.list();
+  // Loop over two Q2 values.
+  for (int iQ = 0; iQ < 2; ++iQ) {
+    double Q2 = (iQ == 0) ? 4. : 100;
+    
+    // Loop over x values, in a logarithmic scale
+    for (int iX = 0; iX < 80; ++iX) {
+      double xLog = -(0.1 * iX + 0.05);
+      double x = pow( 10., xLog); 
+
+      // Evaluate old summed PDF.
+      double oldSum = 2.25 * oldPDF->xf( 21, x, Q2);   
+      for (int i = 1; i < 6; ++i) 
+        oldSum += oldPDF->xf( i, x, Q2) + oldPDF->xf( -i, x, Q2);  
+      if (iQ == 0) oldF4.fill ( xLog, oldSum ); 
+      else       oldF100.fill ( xLog, oldSum ); 
+
+      // Evaluate new summed PDF.
+      double newSum = 2.25 * newPDF->xf( 21, x, Q2);   
+      for (int i = 1; i < 6; ++i) 
+        newSum += newPDF->xf( i, x, Q2) + newPDF->xf( -i, x, Q2);  
+      if (iQ == 0) newF4.fill ( xLog, newSum ); 
+      else       newF100.fill ( xLog, newSum ); 
+
+    //End loops over x and Q2 values.
     }
+  } 
 
-    // Histogram pT.
-    double pT1 = pythia.info.pTMI(0);
-    double pT2 = pythia.info.pTMI(1);
-    pTfirst.fill( pT1 );
-    pTsecond.fill( pT2 );
-    pTdiff.fill( pT1 - pT2 );
+  // Done.
+  ratF4 = newF4 / oldF4;
+  ratF100 = newF100 / oldF100;
+  cout << oldF4 << newF4 << ratF4 << oldF100 << newF100 << ratF100;
 
-    // Histogram multiple interactions
-    double nMI = pythia.info.nMI();
-    nMult.fill( nMI );
-    bMore.fill( pythia.info.enhanceMI() );
-
-    // Histogram charged multiplicity.
-    int nCharged = 0;
-    for (int i = 0; i < event.size(); ++i) 
-      if (event[i].isFinal() && event[i].isCharged()) ++nCharged; 
-    nChg.fill( nCharged );
-
-  }
-
-  // Compare full statistics listing with what is set in info.
-  pythia.statistics();
-  cout << scientific << setprecision(3) << " pythia.info: sigma = " 
-       << pythia.info.sigmaGen() << " +- " << pythia.info.sigmaErr()
-       << endl;
-
-  // Print histograms.
-  cout << pTfirst << pTsecond << pTdiff << nMult << bMore << nChg;
-
-  // Done. 
   return 0;
 }

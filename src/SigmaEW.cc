@@ -1,6 +1,10 @@
+// SigmaEW.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the 
 // electroweak simulation classes (including photon processes). 
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "SigmaEW.h"
 
@@ -13,34 +17,28 @@ namespace Pythia8 {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2qg2qgamma::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for q qbar initial state, e2-weighted.
-  inFluxPtr = new InFluxqg();
-  inFluxPtr->weightCharge2();
+void Sigma2qg2qgamma::sigmaKin() {  
 
-} 
+  // Calculate kinematics dependence.
+  sigUS  = (1./3.) * (sH2 + uH2) / (-sH * uH);
+
+  // Answer.
+  sigma0 =  (M_PI/sH2) * alpS * alpEM * sigUS;  
+
+  }
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
 double Sigma2qg2qgamma::sigmaHat() {  
 
-  // Calculate kinematics dependence.
-  sigUS = (1./3.) * (sH2+uH2)/(-sH*uH);
-
-  // Flavours and thereby charge already fixed for Multiple Interactions.
-  if (id12IsSet) { 
-    int idNow    = (id2 == 21) ? id1 : id2;    
-    double eNow  = CoupEW::ef(idNow);    
-    sigUS       *= pow2(eNow);
-  }
-
-  // Answer.
-  return CONVERT2MB * (M_PI/sH2) * alpS * alpEM * sigUS;  
+  // Incoming flavour gives charge factor.
+  int idNow    = (id2 == 21) ? id1 : id2;    
+  double eNow  = CoupEW::ef(idNow);    
+  return sigma0 * pow2(eNow);
 
 }
 
@@ -69,33 +67,27 @@ void Sigma2qg2qgamma::setIdColAcol() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2qqbar2ggamma::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for q qbar initial state, e2-weighted.
-  inFluxPtr = new InFluxqqbarSame();
-  inFluxPtr->weightCharge2();
+void Sigma2qqbar2ggamma::sigmaKin() {  
 
-} 
+  // Calculate kinematics dependence.
+  double sigTU = (8./9.) * (tH2 + uH2) / (tH * uH);
+
+  // Answer.
+  sigma0 = (M_PI/sH2) * alpS * alpEM * sigTU;
+
+}
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
 double Sigma2qqbar2ggamma::sigmaHat() { 
 
-  // Calculate kinematics dependence.
-  double sigTU = (8./9.) * (tH2+uH2)/(tH*uH);
-
-  // Flavours and thereby charge already fixed for Multiple Interactions.
-  if (id12IsSet) { 
-    double eNow  = CoupEW::ef( abs(id1) );    
-    sigTU       *= pow2(eNow);
-  }
-
-  // Answer.
-  return CONVERT2MB * (M_PI/sH2) * alpS * alpEM * sigTU;
+  // Incoming flavour gives charge factor.
+  double eNow  = CoupEW::ef( abs(id1) );    
+  return sigma0 * pow2(eNow);
 
 }
 
@@ -127,11 +119,10 @@ void Sigma2qqbar2ggamma::setIdColAcol() {
 void Sigma2gg2ggamma::initProc() {
 
   // Calculate charge factor from the allowed quarks in the box. 
-  int nQuarkInLoop = Settings::mode("SigmaProcess:nQuarkInLoop");
-  chargeSum                         = - 1./3. + 2./3. - 1./3.;
-  if (nQuarkInLoop >= 4) chargeSum += 2./3.;
-  if (nQuarkInLoop >= 5) chargeSum -= 1./3.;
-  if (nQuarkInLoop >= 6) chargeSum += 2./3.;
+  chargeSum                       = - 1./3. + 2./3. - 1./3.;
+  if (nQuarkLoop >= 4) chargeSum += 2./3.;
+  if (nQuarkLoop >= 5) chargeSum -= 1./3.;
+  if (nQuarkLoop >= 6) chargeSum += 2./3.;
 
 } 
 
@@ -139,7 +130,7 @@ void Sigma2gg2ggamma::initProc() {
 
 // Evaluate d(sigmaHat)/d(tHat). 
 
-double Sigma2gg2ggamma::sigmaHat() { 
+void Sigma2gg2ggamma::sigmaKin() { 
 
   // Logarithms of Mandelstam variable ratios.
   double logST = log( -sH / tH );
@@ -167,7 +158,7 @@ double Sigma2gg2ggamma::sigmaHat() {
     + 4. * pow2(b1stuIm) + pow2(b2stuRe) + pow2(b2stuIm);
   
   // Answer.
-  return CONVERT2MB * (5. / (192. * M_PI * sH2)) * pow2(chargeSum) 
+  sigma = (5. / (192. * M_PI * sH2)) * pow2(chargeSum) 
     * pow3(alpS) * alpEM * sigBox;
 
 }
@@ -187,40 +178,33 @@ void Sigma2gg2ggamma::setIdColAcol() {
 
 //**************************************************************************
 
-// Sigma2qqbar2gammagamma class.
+// Sigma2ffbar2gammagamma class.
 // Cross section for q qbar -> gamma gamma.
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2qqbar2gammagamma::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for q qbar initial state, e4-weighted.
-  inFluxPtr = new InFluxqqbarSame();
-  inFluxPtr->weightCharge2();
-  inFluxPtr->weightCharge2();
+void Sigma2ffbar2gammagamma::sigmaKin() { 
 
-} 
+  // Calculate kinematics dependence.
+  sigTU  = 2. * (tH2 + uH2) / (tH * uH);
+
+  // Answer contains factor 1/2 from identical photons.
+  sigma0 = (M_PI/sH2) * pow2(alpEM) * 0.5 * sigTU;
+
+}
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
-double Sigma2qqbar2gammagamma::sigmaHat() { 
+double Sigma2ffbar2gammagamma::sigmaHat() { 
 
-  // Calculate kinematics dependence. Colour factor for quarks in.
-  sigTU = 2. * (tH2+uH2)/(tH*uH);
-  double colFac = 1./3.;
-
-  // Flavours and thereby charge already fixed for Multiple Interactions.
-  if (id12IsSet) { 
-    double eNow  = CoupEW::ef( abs(id1) );    
-    sigTU       *= pow4(eNow);
-  }
-
-  // Answer contains factor 1/2 from identical photons.
-  return CONVERT2MB * (M_PI/sH2) * pow2(alpEM) * 0.5 * sigTU * colFac;
+  // Incoming flavour gives charge and colour factors.
+  double eNow   = CoupEW::ef( abs(id1) );    
+  double colFac = (abs(id1) < 9) ? 1. / 3. : 1.;
+  return  sigma0 * pow4(eNow) * colFac;
 
 }
 
@@ -228,13 +212,14 @@ double Sigma2qqbar2gammagamma::sigmaHat() {
 
 // Select identity, colour and anticolour.
 
-void Sigma2qqbar2gammagamma::setIdColAcol() {
+void Sigma2ffbar2gammagamma::setIdColAcol() {
 
   // Outgoing flavours trivial.
   setId( id1, id2, 22, 22);
 
-  // One colour flow topology. Swap if first is antiquark.
-  setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
+  // No colours at all or one flow topology. Swap if first is antiquark.
+  if (abs(id1) < 9) setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
+  else              setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
   if (id1 < 0) swapColAcol();
 
 }
@@ -252,11 +237,10 @@ void Sigma2qqbar2gammagamma::setIdColAcol() {
 void Sigma2gg2gammagamma::initProc() {
 
   // Calculate charge factor from the allowed quarks in the box. 
-  int nQuarkInLoop = Settings::mode("SigmaProcess:nQuarkInLoop");
-  charge2Sum                         = 1./9. + 4./9. + 1./9.;
-  if (nQuarkInLoop >= 4) charge2Sum += 4./9.;
-  if (nQuarkInLoop >= 5) charge2Sum += 1./9.;
-  if (nQuarkInLoop >= 6) charge2Sum += 4./9.;
+  charge2Sum                       = 1./9. + 4./9. + 1./9.;
+  if (nQuarkLoop >= 4) charge2Sum += 4./9.;
+  if (nQuarkLoop >= 5) charge2Sum += 1./9.;
+  if (nQuarkLoop >= 6) charge2Sum += 4./9.;
 
 } 
 
@@ -264,7 +248,7 @@ void Sigma2gg2gammagamma::initProc() {
 
 // Evaluate d(sigmaHat)/d(tHat). 
 
-double Sigma2gg2gammagamma::sigmaHat() { 
+void Sigma2gg2gammagamma::sigmaKin() { 
 
   // Logarithms of Mandelstam variable ratios.
   double logST = log( -sH / tH );
@@ -292,7 +276,7 @@ double Sigma2gg2gammagamma::sigmaHat() {
     + 4. * pow2(b1stuIm) + pow2(b2stuRe) + pow2(b2stuIm);
 
   // Answer contains factor 1/2 from identical photons.
-  return CONVERT2MB * (0.5 / (16. * M_PI * sH2)) * pow2(charge2Sum) 
+  sigma = (0.5 / (16. * M_PI * sH2)) * pow2(charge2Sum) 
     * pow2(alpS) * pow2(alpEM) * sigBox;
 
 }
@@ -331,83 +315,54 @@ void Sigma2ff2fftgmZ::initProc() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2ff2fftgmZ::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for f f' initial state.
-  inFluxPtr = new InFluxff();
-
-    // Multiply by spin factor 2 for neutrinos.
-  inFluxPtr->weightNeutrinoSpin();
-
-} 
-
-//*********
-
-// Evaluate d(sigmaHat)/d(tHat). 
-// Currently only done for quarks??
-
-double Sigma2ff2fftgmZ::sigmaHat() {
+void Sigma2ff2fftgmZ::sigmaKin() {
 
   // Cross section part common for all incoming flavours.
   double sigma0 = (M_PI / sH2) * pow2(alpEM);
 
   // Kinematical functions for gamma-gamma, gamma-Z and Z-Z parts.   
-  double sigmagmgm = 2. * (sH2 + uH2) / tH2;
-  double sigmagmZ  = 4. * thetaWRat * sH2 / (tH * (tH - mZS));
-  double sigmaZZ   = 2. * pow2(thetaWRat) * sH2 / pow2(tH - mZS);
+  sigmagmgm = sigma0 * 2. * (sH2 + uH2) / tH2;
+  sigmagmZ  = sigma0 * 4. * thetaWRat * sH2 / (tH * (tH - mZS));
+  sigmaZZ   = sigma0 * 2. * pow2(thetaWRat) * sH2 / pow2(tH - mZS);
   if (gmZmode == 1) {sigmagmZ = 0.; sigmaZZ = 0.;}
   if (gmZmode == 2) {sigmagmgm = 0.; sigmagmZ = 0.;} 
+
+}
+
+//*********
+
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
+
+double Sigma2ff2fftgmZ::sigmaHat() {
+
+  // Couplings for current flavour combination.
+  int id1Abs = abs(id1);
+  double  e1 = CoupEW::ef(id1Abs);
+  double  v1 = CoupEW::vf(id1Abs);
+  double  a1 = CoupEW::af(id1Abs);
+  int id2Abs = abs(id2);
+  double  e2 = CoupEW::ef(id2Abs);
+  double  v2 = CoupEW::vf(id2Abs);
+  double  a2 = CoupEW::af(id2Abs);
   
-  // Fix flavours for lepton beams or multiple interactions, else 
-  // three possibilites in Loop over incoming down- or up-type quarks
-  int id1Now, id2Now;
-  double e1, v1, a1, e2, v2, a2, sigmaFlav;
-  int combiMax = (hasLeptonBeams || id12IsSet) ? 1 : 3; 
-  for (int combi = 0; combi < combiMax; ++combi) {
-    if (hasLeptonBeams) {
-      id1Now = abs(idA);
-      id2Now = abs(idB);
-    } else if (id12IsSet) {
-      id1Now = abs(id1);
-      id2Now = abs(id2);
-    } else {
-      id1Now = (combi < 2) ? 1 : 2; 
-      id2Now = (combi < 1) ? 1 : 2; 
-    }
+  // Distinguish same-sign and opposite-sign fermions.
+  double epsi = (id1 * id2 > 0) ? 1. : -1.;
 
-    // Read out couplings for chosen flavour combination.
-    e1 = CoupEW::ef(id1Now);
-    v1 = CoupEW::vf(id1Now);
-    a1 = CoupEW::af(id1Now);
-    e2 = CoupEW::ef(id2Now);
-    v2 = CoupEW::vf(id2Now);
-    a2 = CoupEW::af(id2Now);
-    
-    // Evaluate and store values for same-sign quarks/leptons.
-    sigmaFlav = sigmagmgm * pow2(e1 * e2) + sigmagmZ * e1 * e2 
-      * (v1 * v2 * (1. + uH2 / sH2) + a1 * a2 * (1. - uH2 / sH2)) 
-      + sigmaZZ * ((v1*v1 + a1*a1) * (v2*v2 + a2*a2) * (1. + uH2 / sH2)
-      + 4. * v1 * a1 * v2 * a2 * (1. - uH2 / sH2));
-    if (hasLeptonBeams && idA * idB > 0) sigma0 *= sigmaFlav; 
-    else if (id12IsSet && id1 * id2 > 0) sigma0 *= sigmaFlav;
-    else if (!hasLeptonBeams && !id12IsSet) 
-      inFluxPtr->weightInState(  id1Now,  id2Now, sigmaFlav);
-    
-    // Evaluate and store values for opposite-sign quarks/leptons.
-    sigmaFlav = sigmagmgm * pow2(e1 * e2) + sigmagmZ * e1 * e2 
-      * (v1 * v2 * (1. + uH2 / sH2) + a1 * a2 * (1. - uH2 / sH2)) 
-      + sigmaZZ * ((v1*v1 + a1*a1) * (v2*v2 + a2*a2) * (1. + uH2 / sH2)
-      + 4. * v1 * a1 * v2 * a2 * (1. - uH2 / sH2));
-    if (hasLeptonBeams && idA * idB < 0) sigma0 *= sigmaFlav; 
-    else if (id12IsSet && id1 * id2 < 0) sigma0 *= sigmaFlav;
-    else if (!hasLeptonBeams && !id12IsSet) 
-      inFluxPtr->weightInState(  id1Now, -id2Now, sigmaFlav);
-  }
+  // Flavour-dependent cross section.
+  double sigma = sigmagmgm * pow2(e1 * e2) 
+    + sigmagmZ * e1 * e2 * (v1 * v2 * (1. + uH2 / sH2) 
+      + a1 * a2 * epsi * (1. - uH2 / sH2)) 
+    + sigmaZZ * ((v1*v1 + a1*a1) * (v2*v2 + a2*a2) * (1. + uH2 / sH2) 
+      + 4. * v1 * a1 * v2 * a2 * epsi * (1. - uH2 / sH2));
 
-  // Answer, leaving out flavour-dependent pieces stored above.
-  return CONVERT2MB * sigma0;    
+  // Spin-state extra factor 2 per incoming neutrino.
+  if (id1Abs == 12 || id1Abs == 14 || id1Abs == 16) sigma *= 2.; 
+  if (id2Abs == 12 || id2Abs == 14 || id2Abs == 16) sigma *= 2.; 
+ 
+  // Answer.
+  return sigma;    
 
 }
 
@@ -421,14 +376,14 @@ void Sigma2ff2fftgmZ::setIdColAcol() {
   setId( id1, id2, id1, id2);
 
   // Colour flow topologies. Swap when antiquarks.
-  if (abs(id1) < 10 && abs(id2) < 10 && id1*id2 > 0) 
-    setColAcol( 1, 0, 2, 0, 1, 0, 2, 0);
-  else if (abs(id1) < 10 && abs(id2) < 10)
-    setColAcol( 1, 0, 0, 2, 1, 0, 0, 2); 
-  else if (abs(id1) < 10) setColAcol( 1, 0, 0, 0, 1, 0, 0, 0); 
-  else if (abs(id2) < 10) setColAcol( 0, 0, 1, 0, 0, 0, 1, 0); 
-  else setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
-  if ( (abs(id1) < 10 && id1 < 0) || (abs(id1) > 10 && id2 < 0) ) 
+  if (abs(id1) < 9 && abs(id2) < 9 && id1*id2 > 0) 
+                         setColAcol( 1, 0, 2, 0, 1, 0, 2, 0);
+  else if (abs(id1) < 9 && abs(id2) < 9)
+                         setColAcol( 1, 0, 0, 2, 1, 0, 0, 2); 
+  else if (abs(id1) < 9) setColAcol( 1, 0, 0, 0, 1, 0, 0, 0); 
+  else if (abs(id2) < 9) setColAcol( 0, 0, 1, 0, 0, 0, 1, 0); 
+  else                   setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
+  if ( (abs(id1) < 9 && id1 < 0) || (abs(id1) > 10 && id2 < 0) ) 
     swapColAcol();
 
 }
@@ -454,50 +409,41 @@ void Sigma2ff2fftW::initProc() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2ff2fftW::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for f f' initial state.
-  inFluxPtr = new InFluxff();
+void Sigma2ff2fftW::sigmaKin() {
 
-  // Multiply by sum of relevant squared CKM matrix elements.
-  if (!hasLeptonBeams) inFluxPtr->weightCKM2sum(3);
+  // Cross section part common for all incoming flavours.
+  sigma0 = (M_PI / sH2) * pow2(alpEM * thetaWRat)
+    * 4. * sH2 / pow2(tH - mWS);
 
-  // Multiply by spin factor 2 for neutrinos.
-  inFluxPtr->weightNeutrinoSpin();
-
-} 
+}
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
-// Currently only done for quarks??
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
 double Sigma2ff2fftW::sigmaHat() {
 
-  // Cross section part common for all incoming flavours.
-  double sigma0 = (M_PI / sH2) * pow2(alpEM * thetaWRat)
-    * 4. * sH2 / pow2(tH - mWS);
+  // Some flavour combinations not possible.
+  int id1Abs = abs(id1);
+  int id2Abs = abs(id2);
+  if ( (id1Abs%2 == id2Abs%2 && id1 * id2 > 0)
+    || (id1Abs%2 != id2Abs%2 && id1 * id2 < 0) ) return 0.;
 
-  // Simple answer for lepton beams.
-  if (hasLeptonBeams) {
-    if (abs(idA)%2 == abs(idB)%2) sigma0 *= uH2 / sH2;
-    
-  // Find value for known incoming flavour.
-  } else if (id12IsSet) {
-    if (abs(id1)%2 == abs(id2)%2) sigma0 *= uH2 / sH2;
-    sigma0 *= VCKM::V2sum(id1) *  VCKM::V2sum(id2);
+  // Basic cross section.
+  double sigma = sigma0;
+  if (id1 * id2 < 0) sigma *= uH2 / sH2;
 
-  // Else store values for allowed quark combinations.
-  } else {
-    inFluxPtr->weightInState(  1,  2, 1.);
-    inFluxPtr->weightInState(  1, -1, uH2 / sH2);
-    inFluxPtr->weightInState(  2, -2, uH2 / sH2);
-  }
+  // CKM factors for final states.
+  sigma *= VCKM::V2sum(id1Abs) *  VCKM::V2sum(id2Abs);
 
-  // Answer, leaving out flavour-dependent pieces stored above.
-  return CONVERT2MB * sigma0;    
+  // Spin-state extra factor 2 per incoming neutrino.
+  if (id1Abs == 12 || id1Abs == 14 || id1Abs == 16) sigma *= 2.; 
+  if (id2Abs == 12 || id2Abs == 14 || id2Abs == 16) sigma *= 2.; 
+
+  // Answer.
+  return sigma;    
 
 }
 
@@ -513,14 +459,14 @@ void Sigma2ff2fftW::setIdColAcol() {
   setId( id1, id2, id3, id4);
 
   // Colour flow topologies. Swap when antiquarks.
-  if      (abs(id1) < 10 && abs(id2) < 10 && id1*id2 > 0) 
-                          setColAcol( 1, 0, 2, 0, 1, 0, 2, 0);
-  else if (abs(id1) < 10 && abs(id2) < 10)
-                          setColAcol( 1, 0, 0, 2, 1, 0, 0, 2); 
-  else if (abs(id1) < 10) setColAcol( 1, 0, 0, 0, 1, 0, 0, 0); 
-  else if (abs(id2) < 10) setColAcol( 0, 0, 1, 0, 0, 0, 1, 0); 
-  else setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
-  if ( (abs(id1) < 10 && id1 < 0) || (abs(id1) > 10 && id2 < 0) ) 
+  if      (abs(id1) < 9 && abs(id2) < 9 && id1*id2 > 0) 
+                         setColAcol( 1, 0, 2, 0, 1, 0, 2, 0);
+  else if (abs(id1) < 9 && abs(id2) < 9)
+                         setColAcol( 1, 0, 0, 2, 1, 0, 0, 2); 
+  else if (abs(id1) < 9) setColAcol( 1, 0, 0, 0, 1, 0, 0, 0); 
+  else if (abs(id2) < 9) setColAcol( 0, 0, 1, 0, 0, 0, 1, 0); 
+  else                   setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
+  if ( (abs(id1) < 9 && id1 < 0) || (abs(id1) > 10 && id2 < 0) ) 
     swapColAcol();
 
 }
@@ -547,41 +493,54 @@ void Sigma2qq2QqtW::initProc() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2qq2QqtW::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for f f' initial state.
-  inFluxPtr = new InFluxff();
+void Sigma2qq2QqtW::sigmaKin() {
 
-  // Multiply by sum of relevant squared CKM matrix elements.
-  inFluxPtr->weightCKM2sum(4, idNew);
+  // Cross section part common for all incoming flavours.
+  sigma0 = (M_PI / sH2) * pow2(alpEM * thetaWRat) * 4. / pow2(tH - mWS);
 
-
-} 
+}
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
 double Sigma2qq2QqtW::sigmaHat() {
 
-  // Cross section part common for all incoming flavours.
-  double sigma0 = (M_PI / sH2) * pow2(alpEM * thetaWRat)
-    * 4. / pow2(tH - mWS);
-    
-  // Store values for allowed quark combinations.
-  inFluxPtr->weightInState(  1,  2, sH * (sH - s3));
-  if (idNew%2 == 0) {
-    inFluxPtr->weightInState(  1, -1, uH * (uH - s3));
-    inFluxPtr->weightInState(  2, -2, 0.);
-  } else {
-    inFluxPtr->weightInState(  2, -2, uH * (uH - s3));
-    inFluxPtr->weightInState(  1, -1, 0.);
-  }
+  // Some flavour combinations not possible.
+  int id1Abs  = abs(id1);
+  int id2Abs  = abs(id2);
+  bool diff12 = (id1Abs%2 != id2Abs%2);
+  if ( (!diff12 && id1 * id2 > 0)
+    || ( diff12 && id1 * id2 < 0) ) return 0.;
 
-  // Answer, leaving out flavour-dependent pieces stored above.
-  return CONVERT2MB * sigma0;    
+  // Basic cross section.
+  double sigma = sigma0;
+  sigma *= (id1 * id2 > 0) ? sH * (sH - s3) : uH * (uH - s3);
+
+  // Secondary width if t or tbar produced on either side.
+  double widSec1 = (idNew ==6) ? ResonanceTop::openFrac(id1) : 1.;
+  double widSec2 = (idNew ==6) ? ResonanceTop::openFrac(id2) : 1.;
+
+  // CKM factors for final states; further impossible case.
+  bool diff1N = (id1Abs%2 != idNew%2);
+  bool diff2N = (id2Abs%2 != idNew%2);
+  if (diff1N && diff2N) 
+    sigma *= ( VCKM::V2id(id1Abs, idNew) * widSec1 * VCKM::V2sum(id2Abs)
+             + VCKM::V2sum(id1Abs) * VCKM::V2id(id2Abs, idNew) * widSec2 );
+  else if (diff1N) 
+    sigma *= VCKM::V2id(id1Abs, idNew) * widSec1 * VCKM::V2sum(id2Abs);
+  else if (diff2N) 
+    sigma *= VCKM::V2sum(id1Abs) * VCKM::V2id(id2Abs, idNew) * widSec2;
+  else sigma = 0.;
+
+  // Spin-state extra factor 2 per incoming neutrino.
+  if (id1Abs == 12 || id1Abs == 14 || id1Abs == 16) sigma *= 2.; 
+  if (id2Abs == 12 || id2Abs == 14 || id2Abs == 16) sigma *= 2.; 
+
+  // Answer.
+  return  sigma;    
 
 }
 
@@ -597,7 +556,9 @@ void Sigma2qq2QqtW::setIdColAcol() {
   int side   = 1;
   if ( (id1Abs + idNew)%2 == 1 && (id2Abs + idNew)%2 == 1 ) {
     double prob1 = VCKM::V2id(id1Abs, idNew) * VCKM::V2sum(id2Abs);
+    if (idNew == 6) prob1 *= ResonanceTop::openFrac(id1);
     double prob2 = VCKM::V2id(id2Abs, idNew) * VCKM::V2sum(id1Abs);
+    if (idNew == 6) prob2 *= ResonanceTop::openFrac(id2);
     if (prob2 > Rndm::flat() * (prob1 + prob2)) side = 2;
   } 
   else if ((id2Abs + idNew)%2 == 1) side = 2;
@@ -635,7 +596,7 @@ double Sigma2qq2QqtW::weightDecay( Event& process, int iResBeg,
 
   // For top decay hand over to standard routine, else done.
   if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6) 
-       return weightTopDecay( process, iResBeg, iResEnd);
+       return ResonanceTop::weightDecayAngles( process, iResBeg, iResEnd);
   else return 1.; 
 
 }
@@ -668,51 +629,34 @@ void Sigma1ffbar2gmZ::initProc() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma1ffbar2gmZ::initFlux() {
+// Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxffbarSame();
+void Sigma1ffbar2gmZ::sigmaKin() { 
 
-  // Multiply by colour factor 1/3.
-  inFluxPtr->weightInvCol();
-
-} 
-
-//*********
-
-// Evaluate sigmaHat(sHat). 
-// Note: owing to the interference structure in this process,
-// it is not possible to decouple sigmaHat from the incoming parton 
-// composition. Most of the cross section is therefore put in inFlux. 
-
-double Sigma1ffbar2gmZ::sigmaHat() { 
-
-  // Resonance mass. Common coupling factors.
-  double mHat  = sqrt(sH);
+  // Common coupling factors.
   double colQ = 3. * (1. + alpS / M_PI);
 
   // Reset quantities to sum. Declare variables in loop.
-  double gamSum = 0.;
-  double intSum = 0.;
-  double resSum = 0.;
-  double mf, m2Rat, psvec, psaxi, betaf, ef2, efvf, vf2af2, colf;
+  gamSum = 0.;
+  intSum = 0.;
+  resSum = 0.;
+  int    idAbs, onMode;
+  double mf, mr, psvec, psaxi, betaf, ef2, efvf, vf2af2, colf;
 
   // Loop over all Z0 decay channels. 
   for (int i = 0; i < particlePtr->decay.size(); ++i) {
-    int idAbs = abs( particlePtr->decay[i].product(0) );
+    idAbs = abs( particlePtr->decay[i].product(0) );
 
     // Only contributions from three fermion generations, except top.
     if ( (idAbs > 0 && idAbs < 6) || ( idAbs > 10 && idAbs < 17)) {
       mf = ParticleDataTable::m0(idAbs);
 
       // Check that above threshold. Phase space.
-      if (mHat > 2. * mf + MASSMARGIN) {
-        m2Rat = pow2(mf / mHat);
-        betaf = sqrtpos(1. - 4. * m2Rat); 
-        psvec = betaf * (1. + 2. * m2Rat);
-        psaxi  = pow3(betaf);
+      if (mH > 2. * mf + MASSMARGIN) {
+        mr    = pow2(mf / mH);
+        betaf = sqrtpos(1. - 4. * mr); 
+        psvec = betaf * (1. + 2. * mr);
+        psaxi = pow3(betaf);
 
         // Combine phase space with couplings.
         ef2    = CoupEW::ef2(idAbs) * psvec;
@@ -721,7 +665,8 @@ double Sigma1ffbar2gmZ::sigmaHat() {
         colf   = (idAbs < 6) ? colQ : 1.;
 
         // Store sum of combinations. For outstate only open channels.
-        if (particlePtr->decay[i].onMode() > 0) {
+        onMode = particlePtr->decay[i].onMode();
+        if (onMode == 1 || onMode == 2) {
           gamSum += colf * ef2;
           intSum += colf * efvf;
           resSum += colf * vf2af2;
@@ -743,23 +688,23 @@ double Sigma1ffbar2gmZ::sigmaHat() {
   if (gmZmode == 1) {intProp = 0.; resProp = 0.;}
   if (gmZmode == 2) {gamProp = 0.; intProp = 0.;}
 
-  // Loop over incoming fermion flavour species.
-  for (int i = 0; i < 2; ++i) {
-    int idAbs = i + 1;
-    if (hasLeptonBeams && i == 0) idAbs = abs(idA);
-    else if (hasLeptonBeams) continue;
+}
 
-    // Combine gamma, interference and Z0 parts.
-    double sigma =  CoupEW::ef2(idAbs)    * gamProp * gamSum 
-                  + CoupEW::efvf(idAbs)   * intProp * intSum
-                  + CoupEW::vf2af2(idAbs) * resProp * resSum;
+//*********
 
-    // Send flavour-dependent parts to inFlux.
-    inFluxPtr->weightInState( idAbs, -idAbs, sigma);
-  }
+// Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
-  // Answer here is only the conversion factor, rest in inFlux.
-  return CONVERT2MB;    
+double Sigma1ffbar2gmZ::sigmaHat() { 
+
+  // Combine gamma, interference and Z0 parts.
+  int idAbs = abs(id1); 
+  double sigma = CoupEW::ef2(idAbs)    * gamProp * gamSum 
+               + CoupEW::efvf(idAbs)   * intProp * intSum
+               + CoupEW::vf2af2(idAbs) * resProp * resSum;
+
+  // Colour factor. Answer.
+  if (idAbs < 9) sigma /= 3.;
+  return sigma;    
 
 }
 
@@ -773,8 +718,8 @@ void Sigma1ffbar2gmZ::setIdColAcol() {
   setId( id1, id2, 23);
 
   // Colour flow topologies. Swap when antiquarks.
-  if (abs(id1) < 10) setColAcol( 1, 0, 0, 1, 0, 0);
-  else               setColAcol( 0, 0, 0, 0, 0, 0);
+  if (abs(id1) < 9) setColAcol( 1, 0, 0, 1, 0, 0);
+  else              setColAcol( 0, 0, 0, 0, 0, 0);
   if (id1 < 0) swapColAcol();
 
 }
@@ -800,13 +745,13 @@ double Sigma1ffbar2gmZ::weightDecay( Event& process, int iResBeg, int iResEnd) {
 
   // Phase space factors. (One power of beta left out in formulae.)
   double mf    = process[6].m();
-  double m2Rat = mf*mf / sH;
-  double betaf = sqrtpos(1. - 4. * m2Rat); 
+  double mr    = mf*mf / sH;
+  double betaf = sqrtpos(1. - 4. * mr); 
 
   // Coefficients of angular expression.
   double coefTran = ei*ei * gamProp * ef*ef + ei * vi * intProp * ef * vf
     + (vi*vi + ai*ai) * resProp * (vf*vf + pow2(betaf) * af*af);
-  double coefLong = 4. * m2Rat * ( ei*ei * gamProp * ef*ef 
+  double coefLong = 4. * mr * ( ei*ei * gamProp * ef*ef 
     + ei * vi * intProp * ef * vf + (vi*vi + ai*ai) * resProp * vf*vf );
   double coefAsym = betaf * ( ei * ai * intProp * ef * af 
     + 4. * vi * ai * resProp * vf * af );
@@ -842,40 +787,82 @@ void Sigma1ffbar2W::initProc() {
   GammaRes = ParticleDataTable::mWidth(24);
   m2Res    = mRes*mRes;
   GamMRat  = GammaRes / mRes;
+  thetaWRat = 1. / (12. * CoupEW::sin2thetaW());
+
+  // Set pointer to particle properties and decay table.
+  particlePtr = ParticleDataTable::particleDataPtr(24);
 
 } 
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma1ffbar2W::initFlux() {
+// Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
-  // Set up for f fbar initial state.
-  inFluxPtr = new InFluxffbarChg();
+void Sigma1ffbar2W::sigmaKin() { 
 
-  // Multiply by squared CKM matrix elements and colour factor 1/3.
-  inFluxPtr->weightCKM2();
-  inFluxPtr->weightInvCol();
+  // Common coupling factors.
+  double colQ   = 3. * (1. + alpS / M_PI);
 
-} 
+  // Reset quantities to sum. Declare variables inside loop.
+  double widOutPos = 0.; 
+  double widOutNeg = 0.; 
+  int    id1Abs, id2Abs, onMode;
+  double widNow, mf1, mf2, mr1, mr2, ps;
+
+  // Loop over all W+- decay channels. 
+  for (int i = 0; i < particlePtr->decay.size(); ++i) {
+    widNow = 0.;
+    id1Abs = abs( particlePtr->decay[i].product(0) );
+    id2Abs = abs( particlePtr->decay[i].product(1) );
+
+    // Only contributions from three fermion generations, except top.
+    if ( (id1Abs > 0 && id1Abs < 6 && id2Abs > 0 && id2Abs < 6) 
+      || (id1Abs > 10 && id1Abs < 17 && id2Abs > 10 && id2Abs < 17)) {
+      mf1 = ParticleDataTable::m0(id1Abs);
+      mf2 = ParticleDataTable::m0(id2Abs);
+
+      // Check that above threshold. Phase space.
+      if (mH > mf1 + mf2 + MASSMARGIN) {
+        mr1 = pow2(mf1 / mH);
+        mr2 = pow2(mf2 / mH);
+        ps  = (1. - 0.5 * (mr1 + mr2) - 0.5 * pow2(mr1 - mr2))
+            * sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 ); 
+
+        // Combine phase space with colour factor and CKM couplings.
+        widNow = ps;
+        if (id1Abs < 6) widNow *= colQ * VCKM::V2id(id1Abs, id2Abs);
+
+        // Add weight for channels on for all, W+ and W-, respectively.
+        onMode = particlePtr->decay[i].onMode();
+        if (onMode == 1 || onMode == 2) widOutPos += widNow;
+        if (onMode == 1 || onMode == 3) widOutNeg += widNow;
+
+      // End loop over fermions.
+      }
+    }
+  }
+
+  // Set up Breit-Wigner. Cross section for W+ and W- separately.
+  double sigBW = 12. * M_PI * pow2(alpEM * thetaWRat) * sH
+               / ( pow2(sH - m2Res) + pow2(sH * GamMRat) ); 
+  sigma0Pos = sigBW * widOutPos;    
+  sigma0Neg = sigBW * widOutNeg;    
+
+}
 
 //*********
 
-// Evaluate sigmaHat(sHat). 
+// Evaluate sigmaHat(sHat), including incoming flavour dependence. 
 
 double Sigma1ffbar2W::sigmaHat() {
 
-  // Incoming width, excluding channel-dependent initFlux() factors.
-  double mHat  = sqrt(sH);
-  double widthIn = WRes.widthIn(mHat);
- 
-  // Set up Breit-Wigner. Width out only includes open channels. 
-  double sigBW    = 12. * M_PI / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );    
-  double widthOut = WRes.width( mHat, true);
+  // Secondary width for W+ or W-. CKM and colour factors.
+  int idUp = (abs(id1)%2 == 0) ? id1 : id2;
+  double sigma = (idUp > 0) ? sigma0Pos : sigma0Neg;
+  if (abs(id1) < 9) sigma *= VCKM::V2id(abs(id1), abs(id2)) / 3.;
 
-  // Done.
-  return CONVERT2MB * widthIn * sigBW * widthOut;    
+  // Answer.
+  return sigma;    
 
 }
 
@@ -891,8 +878,8 @@ void Sigma1ffbar2W::setIdColAcol() {
   setId( id1, id2, 24 * sign);
 
   // Colour flow topologies. Swap when antiquarks.
-  if (abs(id1) < 10) setColAcol( 1, 0, 0, 1, 0, 0);
-  else               setColAcol( 0, 0, 0, 0, 0, 0);
+  if (abs(id1) < 9) setColAcol( 1, 0, 0, 1, 0, 0);
+  else              setColAcol( 0, 0, 0, 0, 0, 0);
   if (id1 < 0) swapColAcol();
 
 }
@@ -907,18 +894,18 @@ double Sigma1ffbar2W::weightDecay( Event& process, int iResBeg, int iResEnd) {
   if (iResBeg != 5 || iResEnd != 6) return 1.;
 
   // Phase space factors.
-  double m2Rat1 = pow2(process[6].m()) / sH;
-  double m2Rat2 = pow2(process[7].m()) / sH;
-  double betaf = sqrtpos( pow2(1. - m2Rat1 - m2Rat2) - 4. * m2Rat1 * m2Rat2); 
+  double mr1    = pow2(process[6].m()) / sH;
+  double mr2    = pow2(process[7].m()) / sH;
+  double betaf  = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2); 
    
   // Sign of asymmetry.
-  double eps  = (process[3].id() * process[6].id() > 0) ? 1. : -1.;
+  double eps    = (process[3].id() * process[6].id() > 0) ? 1. : -1.;
 
   // Reconstruct decay angle and weight for it.
   double cosThe = 2. * process[3].p() * (process[7].p() - process[6].p())
     / (sH * betaf);
-  double wtMax = 4.;
-  double wt  = pow2(1. + betaf * eps * cosThe) - pow2(m2Rat1 - m2Rat2); 
+  double wtMax  = 4.;
+  double wt     = pow2(1. + betaf * eps * cosThe) - pow2(mr1 - mr2); 
  
   // Done.
   return (wt / wtMax);
@@ -930,26 +917,12 @@ double Sigma1ffbar2W::weightDecay( Event& process, int iResBeg, int iResEnd) {
 // Sigma2ffbar2ffbarsgm class.
 // Cross section f fbar -> gamma* -> f' fbar', for multiple interactions.
 
-//*********
-
-// Initialize parton-flux object. 
-  
-void Sigma2ffbar2ffbarsgm::initFlux() {
-
-  // Set up for f fbar initial state.
-  inFluxPtr = new InFluxffbarSame();
-
-  // Multiply by colour factor 1/3 and charge factor.
-  inFluxPtr->weightInvCol();
-  inFluxPtr->weightCharge2();
-
-} 
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-double Sigma2ffbar2ffbarsgm::sigmaHat() { 
+void Sigma2ffbar2ffbarsgm::sigmaKin() { 
 
   // Pick new flavour. Allow three leptons and five quarks.
   double colQ     = 1. + (alpS / M_PI);
@@ -977,19 +950,28 @@ double Sigma2ffbar2ffbarsgm::sigmaHat() {
   double sigS = 0.;
   if (sH > 4. * m2New) {
     double beta = sqrt(1. - 4. * m2New / sH);
-    sigS = flavWt * beta * (2.* (tH2 + uH2) 
-      + 4. * (1. - beta * beta) * tH * uH) / sH2; 
-  }
-
-  // Flavours and thereby charge/colour already fixed for MI.
-  if (id12IsSet) { 
-    double eNow = CoupEW::ef( abs(id1) );    
-    sigS *= pow2(eNow);
-    if (abs(id1) < 9) sigS /= 3.;
+    sigS = beta * (2.* (tH2 + uH2) + 4. * (1. - beta * beta) * tH * uH) 
+      / sH2; 
   }
 
   // Answer is proportional to number of outgoing flavours.
-  return CONVERT2MB * (M_PI/sH2) * pow2(alpEM) * sigS;  
+  sigma0 = (M_PI/sH2) * pow2(alpEM) * sigS * flavWt;  
+
+}
+
+//*********
+
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
+
+double Sigma2ffbar2ffbarsgm::sigmaHat() { 
+
+  // Charge and colour factors.
+  double eNow  = CoupEW::ef( abs(id1) );    
+  double sigma = sigma0 * pow2(eNow);
+  if (abs(id1) < 9) sigma /= 3.;
+
+  // Answer.
+  return sigma;    
 
 }
 
@@ -1042,77 +1024,74 @@ void Sigma2ffbar2FFbarsgmZ::initProc() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2ffbar2FFbarsgmZ::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for f fbar initial state.
-  inFluxPtr = new InFluxffbarSame();
-
-  // Multiply by colour factor 1/3.
-  inFluxPtr->weightInvCol();
-
-} 
-
-//*********
-
-// Evaluate d(sigmaHat)/d(tHat). 
-
-double Sigma2ffbar2FFbarsgmZ::sigmaHat() { 
+void Sigma2ffbar2FFbarsgmZ::sigmaKin() { 
 
   // Check that above threshold.
-  double mHat    = sqrt(sH);
-  if (mHat < m3 + m4 + MASSMARGIN) return 0.;
+  physical       = true;
+  if (mH < m3 + m4 + MASSMARGIN) {
+    physical     = false;
+    return;
+  }
 
   // Define average F, Fbar mass so same beta. Phase space.
   double s34Avg  = 0.5 * (s3 + s4) - 0.25 * pow2(s3 - s4) / sH; 
-  double m2Rat   = s34Avg / sH;
-  double betaf   = sqrtpos(1. - 4. * m2Rat);
+  mr             = s34Avg / sH;
+  betaf          = sqrtpos(1. - 4. * mr);
+
+  // Final-state colour factor.
+  double colF    = (idNew < 9) ? 3. * (1. + alpS / M_PI) : 1.;
  
   // Reconstruct decay angle so can reuse 2 -> 1 cross section.
-  double cosThe  = (tH - uH) / (betaf * sH); 
+  cosThe         = (tH - uH) / (betaf * sH); 
 
   // Calculate prefactors for gamma/interference/Z0 cross section terms.
-  double gamProp = M_PI * pow2(alpEM) / sH2; 
-  double intProp = gamProp * 2. * thetaWRat * sH * (sH - m2Res)
-                 / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
-  double resProp = gamProp * pow2(thetaWRat * sH) 
-                 / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
+  gamProp = colF * M_PI * pow2(alpEM) / sH2; 
+  intProp = gamProp * 2. * thetaWRat * sH * (sH - m2Res)
+          / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
+  resProp = gamProp * pow2(thetaWRat * sH) 
+          / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
 
   // Optionally only keep gamma* or Z0 term.
   if (gmZmode == 1) {intProp = 0.; resProp = 0.;}
   if (gmZmode == 2) {gamProp = 0.; intProp = 0.;}
 
-  // Loop over incoming fermion flavour species.
-  for (int i = 0; i < 2; ++i) {
-    int idAbs = i + 1;
-    if (hasLeptonBeams && i == 0) idAbs = abs(idA);
-    else if (hasLeptonBeams) continue;
+}
 
-    // Couplings for in-flavours.
-    double ei    = CoupEW::ef(idAbs);
-    double vi    = CoupEW::vf(idAbs);
-    double ai    = CoupEW::af(idAbs);
+//*********
 
-    // Coefficients of angular expression.
-    double coefTran = ei*ei * gamProp * ef*ef + ei * vi * intProp * ef * vf
-      + (vi*vi + ai*ai) * resProp * (vf*vf + pow2(betaf) * af*af);
-    double coefLong = 4. * m2Rat * ( ei*ei * gamProp * ef*ef 
-      + ei * vi * intProp * ef * vf + (vi*vi + ai*ai) * resProp * vf*vf );
-    double coefAsym = betaf * ( ei * ai * intProp * ef * af 
-      + 4. * vi * ai * resProp * vf * af );
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
-    // Combine gamma, interference and Z0 parts.
-    double sigma    = coefTran * (1. + pow2(cosThe)) 
-     + coefLong * (1. - pow2(cosThe)) + 2. * coefAsym * cosThe; 
+double Sigma2ffbar2FFbarsgmZ::sigmaHat() { 
 
-    // Send flavour-dependent parts to inFlux.
-    inFluxPtr->weightInState( idAbs, -idAbs, sigma);
-  }
+  // Fail if below threshold.
+  if (!physical) return 0.;
 
-  // Answer here is only the colour factor, rest in inFlux.
-  double colF   = (idNew < 9) ? 3. * (1. + alpS / M_PI) : 1.;
-  return CONVERT2MB * colF;    
+  // Couplings for in-flavours.
+  int idAbs       = abs(id1);
+  double ei       = CoupEW::ef(idAbs);
+  double vi       = CoupEW::vf(idAbs);
+  double ai       = CoupEW::af(idAbs);
+
+  // Coefficients of angular expression.
+  double coefTran = ei*ei * gamProp * ef*ef + ei * vi * intProp * ef * vf
+    + (vi*vi + ai*ai) * resProp * (vf*vf + pow2(betaf) * af*af);
+  double coefLong = 4. * mr * ( ei*ei * gamProp * ef*ef 
+    + ei * vi * intProp * ef * vf + (vi*vi + ai*ai) * resProp * vf*vf );
+  double coefAsym = betaf * ( ei * ai * intProp * ef * af 
+    + 4. * vi * ai * resProp * vf * af );
+
+  // Combine gamma, interference and Z0 parts.
+  double sigma    = coefTran * (1. + pow2(cosThe)) 
+   + coefLong * (1. - pow2(cosThe)) + 2. * coefAsym * cosThe; 
+
+  // Top: corrections for closed decay channels.
+  if (idNew == 6) sigma *= ResonanceTop::openFrac(6, -6);
+
+  // Initial-state colour factor. Answer.
+  if (idAbs < 9) sigma /= 3.;
+  return sigma;    
    
 }
 
@@ -1144,7 +1123,7 @@ double Sigma2ffbar2FFbarsgmZ::weightDecay( Event& process, int iResBeg,
 
   // For top decay hand over to standard routine, else done.
   if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6) 
-       return weightTopDecay( process, iResBeg, iResEnd);
+       return ResonanceTop::weightDecayAngles( process, iResBeg, iResEnd);
   else return 1.; 
 
 }
@@ -1177,47 +1156,62 @@ void Sigma2ffbar2FfbarsW::initProc() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2ffbar2FfbarsW::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for f fbar initial state.
-  inFluxPtr = new InFluxffbarChg();
-
-  // Multiply by squared CKM matrix elements and colour factor 1/3.
-  inFluxPtr->weightCKM2();
-  inFluxPtr->weightInvCol();
-
-} 
-
-//*********
-
-// Evaluate d(sigmaHat)/d(tHat). 
-
-double Sigma2ffbar2FfbarsW::sigmaHat() { 
+void Sigma2ffbar2FfbarsW::sigmaKin() { 
 
   // Check that above threshold.
-  double mHat   = sqrt(sH);
-  if (mHat < m3 + m4 + MASSMARGIN) return 0.;
+  physical      = true;
+  if (mH < m3 + m4 + MASSMARGIN) {
+    physical    = false;
+    return;
+  }
 
   // Phase space factors.
-  double m2Rat1 = s3 / sH;
-  double m2Rat2 = s4 / sH;
-  double betaf  = sqrtpos( pow2(1. - m2Rat1 - m2Rat2) - 4. * m2Rat1 * m2Rat2); 
+  double mr1    = s3 / sH;
+  double mr2    = s4 / sH;
+  double betaf  = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2); 
  
   // Reconstruct decay angle so can reuse 2 -> 1 cross section.
   double cosThe = (tH - uH) / (betaf * sH); 
  
   // Set up Breit-Wigner and in- and out-widths.
   double sigBW  = 9. * M_PI * pow2(alpEM * thetaWRat) 
-                / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );    
+                / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
+
+  // Initial-state colour factor.    
   double colF   = (idNew < 9) ? 3. * (1. + alpS / M_PI) * V2New : 1.;
 
   // Angular dependence.
-  double wt     = pow2(1. + betaf * cosThe) - pow2(m2Rat1 - m2Rat2); 
+  double wt     = pow2(1. + betaf * cosThe) - pow2(mr1 - mr2); 
 
-  // Done.
-  return CONVERT2MB * sigBW * colF * wt;    
+  // Temporary answer.
+  sigma0        = sigBW * colF * wt;    
+
+}
+
+//*********
+
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
+
+double Sigma2ffbar2FfbarsW::sigmaHat() { 
+
+  // Fail if below threshold.
+  if (!physical) return 0.;
+
+  // CKM and colour factors.
+  double sigma = sigma0;
+  if (abs(id1) < 9) sigma *= VCKM::V2id(abs(id1), abs(id2)) / 3.;
+
+  // Correction for secondary width in top decay.
+  if (idNew == 6) {
+    int idUp = (abs(id1)%2 == 0) ? id1 : id2;
+    sigma *= ResonanceTop::openFrac(idUp);
+  }
+
+
+  // Answer.
+  return sigma;    
    
 }
 
@@ -1263,7 +1257,7 @@ double Sigma2ffbar2FfbarsW::weightDecay( Event& process, int iResBeg,
 
   // For top decay hand over to standard routine, else done.
   if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6) 
-       return weightTopDecay( process, iResBeg, iResEnd);
+       return ResonanceTop::weightDecayAngles( process, iResBeg, iResEnd);
   else return 1.; 
 
 }
@@ -1386,28 +1380,14 @@ void Sigma2ffbar2gmZgmZ::initProc() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2ffbar2gmZgmZ::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for f fbar initial state.
-  inFluxPtr = new InFluxffbarSame();
-
-  // Multiply by colour factor 1/3.
-  inFluxPtr->weightInvCol();
-
-} 
-
-//*********
-
-// Evaluate d(sigmaHat)/d(tHat). 
-
-double Sigma2ffbar2gmZgmZ::sigmaHat() {
+void Sigma2ffbar2gmZgmZ::sigmaKin() {
 
   // Cross section part common for all incoming flavours.
-  double sigma = (M_PI / sH2) * pow2(alpEM) * 0.5   
-               * ( (tH2 + uH2 + 2. * (s3 + s4) * sH) / (tH * uH)
-                 - s3 * s4 * (1./tH2 + 1./uH2) );
+  sigma0 = (M_PI / sH2) * pow2(alpEM) * 0.5   
+    * ( (tH2 + uH2 + 2. * (s3 + s4) * sH) / (tH * uH)
+    - s3 * s4 * (1./tH2 + 1./uH2) );
 
   // Common coupling factors at the resonance masses
   double alpEM3 = alphaEM.alphaEM(s3);
@@ -1424,7 +1404,8 @@ double Sigma2ffbar2gmZgmZ::sigmaHat() {
   gamSum4 = 0.;
   intSum4 = 0.;
   resSum4 = 0.;
-  double mf, m2Rat, psvec, psaxi, betaf, ef2, efvf, vf2af2, colf;
+  int    onMode;
+  double mf, mr, psvec, psaxi, betaf, ef2, efvf, vf2af2, colf;
 
   // Loop over all Z0 decay channels. 
   for (int i = 0; i < particlePtr->decay.size(); ++i) {
@@ -1432,13 +1413,14 @@ double Sigma2ffbar2gmZgmZ::sigmaHat() {
 
     // Only contributions from three fermion generations, except top.
     if ( (idAbs > 0 && idAbs < 6) || ( idAbs > 10 && idAbs < 17)) {
-      mf = ParticleDataTable::m0(idAbs);
+      mf     = ParticleDataTable::m0(idAbs);
+      onMode = particlePtr->decay[i].onMode();
 
       // First Z0: check that above threshold. Phase space.
       if (m3 > 2. * mf + MASSMARGIN) {
-        m2Rat = pow2(mf / m3);
-        betaf = sqrtpos(1. - 4. * m2Rat); 
-        psvec = betaf * (1. + 2. * m2Rat);
+        mr    = pow2(mf / m3);
+        betaf = sqrtpos(1. - 4. * mr); 
+        psvec = betaf * (1. + 2. * mr);
         psaxi  = pow3(betaf);
 
         // First Z0: combine phase space with couplings.
@@ -1448,7 +1430,7 @@ double Sigma2ffbar2gmZgmZ::sigmaHat() {
         colf   = (idAbs < 6) ? colQ3 : 1.;
 
         // First Z0: store sum of combinations for open outstate channels.
-        if (particlePtr->decay[i].onMode() > 0) {
+        if (onMode == 1 || onMode == 2) {
           gamSum3 += colf * ef2;
           intSum3 += colf * efvf;
           resSum3 += colf * vf2af2;
@@ -1457,10 +1439,10 @@ double Sigma2ffbar2gmZgmZ::sigmaHat() {
 
       // Second Z0: check that above threshold. Phase space.
       if (m4 > 2. * mf + MASSMARGIN) {
-        m2Rat = pow2(mf / m4);
-        betaf = sqrtpos(1. - 4. * m2Rat); 
-        psvec = betaf * (1. + 2. * m2Rat);
-        psaxi  = pow3(betaf);
+        mr    = pow2(mf / m4);
+        betaf = sqrtpos(1. - 4. * mr); 
+        psvec = betaf * (1. + 2. * mr);
+        psaxi = pow3(betaf);
 
         // Second Z0: combine phase space with couplings.
         ef2    = CoupEW::ef2(idAbs) * psvec;
@@ -1469,7 +1451,7 @@ double Sigma2ffbar2gmZgmZ::sigmaHat() {
         colf   = (idAbs < 6) ? colQ4 : 1.;
 
         // Second Z0: store sum of combinations for open outstate channels.
-        if (particlePtr->decay[i].onMode() > 0) {
+        if (onMode == 1 || onMode == 2) {
           gamSum4 += colf * ef2;
           intSum4 += colf * efvf;
           resSum4 += colf * vf2af2;
@@ -1502,43 +1484,43 @@ double Sigma2ffbar2gmZgmZ::sigmaHat() {
   if (gmZmode == 1) {intProp4 = 0.; resProp4 = 0.;}
   if (gmZmode == 2) {gamProp4 = 0.; intProp4 = 0.;}
 
-  // Loop over incoming fermion flavour species.
-  for (int i = 0; i < 2; ++i) {
-    int idAbs = i + 1;
-    if (hasLeptonBeams && i == 0) idAbs = abs(idA);
-    else if (hasLeptonBeams) continue;
+}
 
-    // Charge/2, left- and righthanded couplings for in-fermion.
-    double ei = 0.5 * CoupEW::ef(idAbs);
-    double li =       CoupEW::lf(idAbs);
-    double ri =       CoupEW::rf(idAbs);
+//*********
 
-    // Combine left/right gamma, interference and Z0 parts for each Z0.
-    double left3  = ei * ei * gamProp3 * gamSum3 
-                  + ei * li * intProp3 * intSum3 
-                  + li * li * resProp3 * resSum3;
-    double right3 = ei * ei * gamProp3 * gamSum3 
-                  + ei * ri * intProp3 * intSum3 
-                  + ri * ri * resProp3 * resSum3;
-    double left4  = ei * ei * gamProp4 * gamSum4 
-                  + ei * li * intProp4 * intSum4 
-                  + li * li * resProp4 * resSum4;
-    double right4 = ei * ei * gamProp4 * gamSum4 
-                  + ei * ri * intProp4 * intSum4 
-                  + ri * ri * resProp4 * resSum4; 
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
-    // Combine left- and right-handed couplings for the two Z0's.
-    double wtFlav = left3 * left4 + right3 * right4;    
+double Sigma2ffbar2gmZgmZ::sigmaHat() {
 
-    // Correct for the running-width Z0 propagators weight in PhaseSpace. 
-    wtFlav /= (runBW3 * runBW4);
+  // Charge/2, left- and righthanded couplings for in-fermion.
+  int idAbs = abs(id1);
+  double ei = 0.5 * CoupEW::ef(idAbs);
+  double li =       CoupEW::lf(idAbs);
+  double ri =       CoupEW::rf(idAbs);
 
-    // Send flavour-dependent parts to inFlux.
-    inFluxPtr->weightInState( idAbs, -idAbs, wtFlav);
-  }
+  // Combine left/right gamma, interference and Z0 parts for each Z0.
+  double left3  = ei * ei * gamProp3 * gamSum3 
+                + ei * li * intProp3 * intSum3 
+                + li * li * resProp3 * resSum3;
+  double right3 = ei * ei * gamProp3 * gamSum3 
+                + ei * ri * intProp3 * intSum3 
+                + ri * ri * resProp3 * resSum3;
+  double left4  = ei * ei * gamProp4 * gamSum4 
+                + ei * li * intProp4 * intSum4 
+                + li * li * resProp4 * resSum4;
+  double right4 = ei * ei * gamProp4 * gamSum4 
+                + ei * ri * intProp4 * intSum4 
+                + ri * ri * resProp4 * resSum4; 
 
-  // Answer for hadrons, leaving out flavour-dependent pieces stored above.
-  return CONVERT2MB * sigma;    
+  // Combine left- and right-handed couplings for the two Z0's.
+  double sigma = sigma0 * (left3 * left4 + right3 * right4);    
+
+  // Correct for the running-width Z0 propagators weight in PhaseSpace. 
+  sigma /= (runBW3 * runBW4);
+
+  // Initial-state colour factor. Answer.
+  if (idAbs < 9) sigma /= 3.;
+  return  sigma;    
 
 }
 
@@ -1552,8 +1534,8 @@ void Sigma2ffbar2gmZgmZ::setIdColAcol() {
   setId( id1, id2, 23, 23);
 
   // Colour flow topologies. Swap when antiquarks.
-  if (abs(id1) < 10) setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
-  else               setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
+  if (abs(id1) < 9) setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
+  else              setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
   if (id1 < 0) swapColAcol();
 
 }
@@ -1704,37 +1686,40 @@ void Sigma2ffbar2ZW::initProc() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2ffbar2ZW::initFlux() {
+// Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxffbarChg();
-
-  // Multiply by squared CKM matrix elements and colour factor 1/3.
-  inFluxPtr->weightCKM2();
-  inFluxPtr->weightInvCol();
-
-} 
-
-//*********
-
-// Evaluate d(sigmaHat)/d(tHat). 
-
-double Sigma2ffbar2ZW::sigmaHat() {
+void Sigma2ffbar2ZW::sigmaKin() { 
 
   // Evaluate cross section.
   double resBW = 1. / (pow2(sH - mWS) + mwWS);
-  double sigma = (M_PI / sH2) * 0.5 * pow2(alpEM / sin2thetaW);
-  sigma *= sH * resBW * (thetaWpt * pT2 + thetaWmm * (s3 + s4))
+  sigma0  = (M_PI / sH2) * 0.5 * pow2(alpEM / sin2thetaW);
+  sigma0 *= sH * resBW * (thetaWpt * pT2 + thetaWmm * (s3 + s4))
     + (sH - mWS) * resBW * sH * (pT2 - s3 - s4) * (lun / tH - lde / uH)
     + thetaWRat * sH * pT2 * ( lun*lun / tH2 + lde*lde / uH2 )
     + 2. * thetaWRat * sH * (s3 + s4) * lun * lde / (tH * uH);  
 
-  // Answer, leaving out flavour-dependent pieces stored above.
-  // (Protect against slightly negative cross sections, probably 
-  // caused by addition of width to the W propagator.)
-  return CONVERT2MB * max(0., sigma);    
+  // Protect against slightly negative cross sections,
+  // probably caused by addition of width to the W propagator.
+  sigma0 = max(0., sigma0);    
+
+}
+
+//*********
+
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
+
+double Sigma2ffbar2ZW::sigmaHat() {
+
+  // CKM and colour factors.
+  double sigma = sigma0;
+  if (abs(id1) < 9) sigma *= VCKM::V2id(abs(id1), abs(id2)) / 3.;
+
+  // Corrections for secondary widths in Z0 and W+- decays.
+  int idUp = (abs(id1)%2 == 0) ? id1 : id2;
+  sigma *= ResonanceGmZ::openFrac(23) * ResonanceW::openFrac(idUp);
+
+  // Answer.
+  return sigma;    
 
 }
 
@@ -1754,8 +1739,8 @@ void Sigma2ffbar2ZW::setIdColAcol() {
   if (abs(id1)%2 == 1) swapTU = true;
 
   // Colour flow topologies. Swap when antiquarks.
-  if (abs(id1) < 10) setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
-  else               setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
+  if (abs(id1) < 9) setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
+  else              setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
   if (id1 < 0) swapColAcol();
 
 }
@@ -1842,74 +1827,62 @@ void Sigma2ffbar2WW::initProc() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2ffbar2WW::initFlux() {
+// Evaluate sigmaHat(sHat), part independent of incoming flavour. 
 
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxffbarSame();
-
-  // Multiply by colour factor 1/3.
-  inFluxPtr->weightInvCol();
-
-} 
-
-//*********
-
-// Evaluate d(sigmaHat)/d(tHat). 
-
-double Sigma2ffbar2WW::sigmaHat() {
+void Sigma2ffbar2WW::sigmaKin() { 
 
   // Cross section part common for all incoming flavours.
-  double sigma   = (M_PI / sH2) * pow2(alpEM);
+  sigma0 =  (M_PI / sH2) * pow2(alpEM);
 
   // Z0 propagator and gamma*/Z0 interference.
   double Zprop   = sH2 / (pow2(sH - mZS) + mwZS);
   double Zint    = Zprop * (1. - mZS / sH);
 
   // Common coupling factors (g = gamma*, Z = Z0, f = t-channel fermion).
-  double cgg     = 0.5;
-  double cgZ     = thetaWRat * Zint;
-  double cZZ     = 0.5 * pow2(thetaWRat) * Zprop;
-  double cfg     = thetaWRat;
-  double cfZ     = pow2(thetaWRat) * Zint;
-  double cff     = pow2(thetaWRat);
+  cgg            = 0.5;
+  cgZ            = thetaWRat * Zint;
+  cZZ            = 0.5 * pow2(thetaWRat) * Zprop;
+  cfg            = thetaWRat;
+  cfZ            = pow2(thetaWRat) * Zint;
+  cff            = pow2(thetaWRat);
 
   // Kinematical functions.   
   double rat34   = sH * (2. * (s3 + s4) + pT2) / (s3 * s4);
   double lambdaS = pow2(sH - s3 - s4) - 4. * s3 * s4;
   double intA    = (sH - s3 - s4) * rat34 / sH;
   double intB    = 4. * (s3 + s4 - pT2);
-  double gSS     = (lambdaS * rat34 + 12. * sH * pT2) / sH2;
-  double gTT     = rat34 + 4. * sH * pT2 / tH2;
-  double gST     = intA + intB / tH;
-  double gUU     = rat34 + 4. * sH * pT2 / uH2;
-  double gSU     = intA + intB / uH;   
+  gSS            = (lambdaS * rat34 + 12. * sH * pT2) / sH2;
+  gTT            = rat34 + 4. * sH * pT2 / tH2;
+  gST            = intA + intB / tH;
+  gUU            = rat34 + 4. * sH * pT2 / uH2;
+  gSU            = intA + intB / uH;   
 
-  // Loop over incoming fermion flavour species.
-  for (int i = 0; i < 2; ++i) {
-    int idAbs = i + 1;
-    if (hasLeptonBeams && i == 0) idAbs = abs(idA);
-    else if (hasLeptonBeams) continue;
+}
+
+//*********
+
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
+
+double Sigma2ffbar2WW::sigmaHat() {
  
-    // Flavour-specific couplings.
-    double ei = CoupEW::ef(idAbs);
-    double vi = CoupEW::vf(idAbs); 
-    double ai = CoupEW::af(idAbs); 
+  // Flavour-specific couplings.
+  int idAbs = abs(id1);
+  double ei = CoupEW::ef(idAbs);
+  double vi = CoupEW::vf(idAbs); 
+  double ai = CoupEW::af(idAbs); 
 
-    // Combine, with different cases for up- and down-type in-flavours.
-    double wtFlav = (idAbs%2 == 1)
-      ? (cgg * ei*ei + cgZ * ei * vi + cZZ * (vi*vi + ai*ai)) * gSS
-        + (cfg * ei + cfZ * (vi + ai)) * gST + cff * gTT
-      : (cgg * ei*ei + cgZ * ei * vi + cZZ * (vi*vi + ai*ai)) * gSS
-        - (cfg * ei + cfZ * (vi + ai)) * gSU + cff * gUU;
+  // Combine, with different cases for up- and down-type in-flavours.
+  double sigma = sigma0;
+  sigma *= (idAbs%2 == 1)
+    ? (cgg * ei*ei + cgZ * ei * vi + cZZ * (vi*vi + ai*ai)) * gSS
+      + (cfg * ei + cfZ * (vi + ai)) * gST + cff * gTT
+    : (cgg * ei*ei + cgZ * ei * vi + cZZ * (vi*vi + ai*ai)) * gSS
+      - (cfg * ei + cfZ * (vi + ai)) * gSU + cff * gUU;
 
-    // Send flavour-dependent parts to inFlux.
-    inFluxPtr->weightInState( idAbs, -idAbs, wtFlav );
-  }
-
-  // Answer, leaving out flavour-dependent pieces stored above.
-  return CONVERT2MB * sigma;    
+  // Initial-state colour factor. Correction for secondary widths. Answer.
+  if (idAbs < 9) sigma /= 3.;
+  sigma *= ResonanceW::openFrac(24, -24); 
+  return sigma;    
 
 }
 
@@ -1926,8 +1899,8 @@ void Sigma2ffbar2WW::setIdColAcol() {
   if (id1 < 0) swapTU = true;
 
   // Colour flow topologies. Swap when antiquarks.
-  if (abs(id1) < 10) setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
-  else               setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
+  if (abs(id1) < 9) setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
+  else              setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
   if (id1 < 0) swapColAcol();
 
 }
@@ -2029,7 +2002,8 @@ void Sigma2ffbargmZggm::flavSum() {
   gamSum = 0.;
   intSum = 0.;
   resSum = 0.;
-  double mf, m2Rat, psvec, psaxi, betaf, ef2, efvf, vf2af2, colf;
+  int    onMode;
+  double mf, mr, psvec, psaxi, betaf, ef2, efvf, vf2af2, colf;
 
   // Loop over all Z0 decay channels. 
   for (int i = 0; i < particlePtr->decay.size(); ++i) {
@@ -2041,10 +2015,10 @@ void Sigma2ffbargmZggm::flavSum() {
 
       // Check that above threshold. Phase space.
       if (m3 > 2. * mf + MASSMARGIN) {
-        m2Rat = pow2(mf / m3);
-        betaf = sqrtpos(1. - 4. * m2Rat); 
-        psvec = betaf * (1. + 2. * m2Rat);
-        psaxi  = pow3(betaf);
+        mr    = pow2(mf / m3);
+        betaf = sqrtpos(1. - 4. * mr); 
+        psvec = betaf * (1. + 2. * mr);
+        psaxi = pow3(betaf);
 
         // Combine phase space with couplings.
         ef2    = CoupEW::ef2(idAbs) * psvec;
@@ -2053,7 +2027,8 @@ void Sigma2ffbargmZggm::flavSum() {
         colf   = (idAbs < 6) ? colQZ : 1.;
 
         // Store sum of combinations. For outstate only open channels.
-        if (particlePtr->decay[i].onMode() > 0) {
+        onMode = particlePtr->decay[i].onMode();
+        if (onMode == 1 || onMode == 2) {
           gamSum += colf * ef2;
           intSum += colf * efvf;
           resSum += colf * vf2af2;
@@ -2160,49 +2135,40 @@ double Sigma2ffbargmZggm::weightDecay( Event& process, int iResBeg, int iResEnd)
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2qqbar2gmZg::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxqqbarSame();
-
-} 
-
-//*********
-
-// Evaluate d(sigmaHat)/d(tHat). 
-
-double Sigma2qqbar2gmZg::sigmaHat() {
+void Sigma2qqbar2gmZg::sigmaKin() {
 
   // Cross section part common for all incoming flavours.
-  double sigma = (M_PI / sH2) * (alpEM * alpS) 
+  sigma0 = (M_PI / sH2) * (alpEM * alpS) 
     * (2./9.) * (tH2 + uH2 + 2. * sH * s3) / (tH * uH);
 
   // Calculate flavour sums for final state.
   flavSum();
 
   // Calculate prefactors for gamma/interference/Z0 cross section terms.
-  propTerm();  
+  propTerm(); 
 
-  // Loop over incoming fermion flavour species.
-  for (int i = 0; i < 2; ++i) {
-    int idAbs = i + 1;
+} 
 
-    // Combine gamma, interference and Z0 parts.
-    double wtFlav = CoupEW::ef2(idAbs)    * gamProp * gamSum 
-                  + CoupEW::efvf(idAbs)   * intProp * intSum
-                  + CoupEW::vf2af2(idAbs) * resProp * resSum;
+//*********
 
-    // Correct for the running-width Z0 propagater weight in PhaseSpace. 
-    wtFlav /= runBW3;
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
-    // Send flavour-dependent parts to inFlux.
-    inFluxPtr->weightInState( idAbs, -idAbs, wtFlav);
-  }
+double Sigma2qqbar2gmZg::sigmaHat() {
 
-  // Flavour -independent part of answer.
-  return CONVERT2MB * sigma;    
+  // Combine gamma, interference and Z0 parts.
+  int idAbs    = abs(id1);
+  double sigma = sigma0 
+               * ( CoupEW::ef2(idAbs)    * gamProp * gamSum 
+                 + CoupEW::efvf(idAbs)   * intProp * intSum
+                 + CoupEW::vf2af2(idAbs) * resProp * resSum);
+
+  // Correct for the running-width Z0 propagater weight in PhaseSpace. 
+  sigma       /= runBW3;
+
+  // Answer.
+  return sigma;    
 
 }
 
@@ -2228,23 +2194,12 @@ void Sigma2qqbar2gmZg::setIdColAcol() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2qg2gmZq::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for q g initial state.
-  inFluxPtr = new InFluxqg();
-
-} 
-
-//*********
-
-// Evaluate d(sigmaHat)/d(tHat). 
-
-double Sigma2qg2gmZq::sigmaHat() {
+void Sigma2qg2gmZq::sigmaKin() {
 
   // Cross section part common for all incoming flavours.
-  double sigma = (M_PI / sH2) * (alpEM * alpS) 
+  sigma0 = (M_PI / sH2) * (alpEM * alpS) 
     * (1./12.) * (sH2 + uH2 + 2. * tH * s3) / (-sH * uH);
 
   // Calculate flavour sums for final state.
@@ -2253,24 +2208,26 @@ double Sigma2qg2gmZq::sigmaHat() {
   // Calculate prefactors for gamma/interference/Z0 cross section terms.
   propTerm();  
 
-  // Loop over incoming fermion flavour species.
-  for (int i = 0; i < 2; ++i) {
-    int idAbs = i + 1;
+}
 
-    // Combine gamma, interference and Z0 parts.
-    double wtFlav = CoupEW::ef2(idAbs)    * gamProp * gamSum 
-                  + CoupEW::efvf(idAbs)   * intProp * intSum
-                  + CoupEW::vf2af2(idAbs) * resProp * resSum;
+//*********
 
-    // Correct for the running-width Z0 propagater weight in PhaseSpace. 
-    wtFlav /= runBW3;
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
-    // Send flavour-dependent parts to inFlux.
-    inFluxPtr->weightInState( idAbs, 21, wtFlav);
-  }
+double Sigma2qg2gmZq::sigmaHat() {
+
+  // Combine gamma, interference and Z0 parts.
+  int idAbs    = (id2 == 21) ? abs(id1) : abs(id2);
+  double sigma = sigma0 
+               * ( CoupEW::ef2(idAbs)    * gamProp * gamSum 
+                 + CoupEW::efvf(idAbs)   * intProp * intSum
+                 + CoupEW::vf2af2(idAbs) * resProp * resSum);
+
+  // Correct for the running-width Z0 propagater weight in PhaseSpace. 
+  sigma       /= runBW3;
 
   // Answer.
-  return CONVERT2MB * sigma;    
+  return sigma;    
 
 }
 
@@ -2301,26 +2258,12 @@ void Sigma2qg2gmZq::setIdColAcol() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2ffbar2gmZgm::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxffbarSame();
-
-  // Multiply by colour factor 1/3.
-  inFluxPtr->weightInvCol();
-
-} 
-
-//*********
-
-// Evaluate d(sigmaHat)/d(tHat). 
-
-double Sigma2ffbar2gmZgm::sigmaHat() {
+void Sigma2ffbar2gmZgm::sigmaKin() {
 
   // Cross section part common for all incoming flavours.
-  double sigma = (M_PI / sH2) * (alpEM*alpEM) 
+  sigma0 = (M_PI / sH2) * (alpEM*alpEM) 
     * 0.5 * (tH2 + uH2 + 2. * sH * s3) / (tH * uH);
 
   // Calculate flavour sums for final state.
@@ -2329,27 +2272,28 @@ double Sigma2ffbar2gmZgm::sigmaHat() {
   // Calculate prefactors for gamma/interference/Z0 cross section terms.
   propTerm();  
 
-  // Loop over incoming fermion flavour species.
-  for (int i = 0; i < 2; ++i) {
-    int idAbs = i + 1;
-    if (hasLeptonBeams && i == 0) idAbs = abs(idA);
-    else if (hasLeptonBeams) continue;
 
-    // Combine gamma, interference and Z0 parts.
-    double wtFlav = CoupEW::ef2(idAbs)
-                * ( CoupEW::ef2(idAbs)    * gamProp * gamSum 
-                  + CoupEW::efvf(idAbs)   * intProp * intSum
-                  + CoupEW::vf2af2(idAbs) * resProp * resSum );
+}
 
-    // Correct for the running-width Z0 propagater weight in PhaseSpace. 
-    wtFlav /= runBW3;
+//*********
 
-    // Send flavour-dependent parts to inFlux.
-    inFluxPtr->weightInState( idAbs, -idAbs, wtFlav);
-  }
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
-  // Answer.
-  return CONVERT2MB * sigma;    
+double Sigma2ffbar2gmZgm::sigmaHat() {
+
+  // Combine gamma, interference and Z0 parts.
+  int idAbs    = abs(id1);
+  double sigma = sigma0 * CoupEW::ef2(idAbs) 
+               * ( CoupEW::ef2(idAbs)    * gamProp * gamSum 
+                 + CoupEW::efvf(idAbs)   * intProp * intSum
+                 + CoupEW::vf2af2(idAbs) * resProp * resSum);
+
+  // Correct for the running-width Z0 propagater weight in PhaseSpace. 
+  sigma       /= runBW3;
+
+  // Colour factor. Answer.
+  if (idAbs < 9) sigma /= 3.;
+  return sigma;    
 
 }
 
@@ -2363,8 +2307,8 @@ void Sigma2ffbar2gmZgm::setIdColAcol() {
   setId( id1, id2, 23, 22);
 
   // Colour flow topologies. Swap when antiquarks.
-  if (abs(id1) < 10) setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
-  else               setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
+  if (abs(id1) < 9) setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
+  else              setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
   if (id1 < 0) swapColAcol();
 
 }
@@ -2376,23 +2320,12 @@ void Sigma2ffbar2gmZgm::setIdColAcol() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2fgm2gmZf::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for f gamma initial state.
-  inFluxPtr = new InFluxfgm();
-
-} 
-
-//*********
-
-// Evaluate d(sigmaHat)/d(tHat). 
-
-double Sigma2fgm2gmZf::sigmaHat() {
+void Sigma2fgm2gmZf::sigmaKin() {
 
   // Cross section part common for all incoming flavours.
-  double sigma = (M_PI / sH2) * (alpEM*alpEM) 
+  sigma0 = (M_PI / sH2) * (alpEM*alpEM) 
     * 0.5 * (sH2 + uH2 + 2. * tH * s3) / (- sH * uH);
 
   // Calculate flavour sums for final state.
@@ -2401,25 +2334,26 @@ double Sigma2fgm2gmZf::sigmaHat() {
   // Calculate prefactors for gamma/interference/Z0 cross section terms.
   propTerm();  
 
-  // Loop over incoming fermion flavour species.
-  for (int i = 0; i < 2; ++i) {
-    int idAbs = i + 1;
+}
 
-    // Combine gamma, interference and Z0 parts.
-    double wtFlav = CoupEW::ef2(idAbs)
-                * ( CoupEW::ef2(idAbs)    * gamProp * gamSum 
-                  + CoupEW::efvf(idAbs)   * intProp * intSum
-                  + CoupEW::vf2af2(idAbs) * resProp * resSum );
+//*********
 
-    // Correct for the running-width Z0 propagater weight in PhaseSpace. 
-    wtFlav /= runBW3;
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
-    // Send flavour-dependent parts to inFlux.
-    inFluxPtr->weightInState( idAbs, 22, wtFlav);
-  }
+double Sigma2fgm2gmZf::sigmaHat() {
+
+  // Combine gamma, interference and Z0 parts.
+  int idAbs    = (id2 == 22) ? abs(id1) : abs(id2);
+  double sigma = sigma0 * CoupEW::ef2(idAbs)
+               * ( CoupEW::ef2(idAbs)    * gamProp * gamSum 
+                 + CoupEW::efvf(idAbs)   * intProp * intSum
+                 + CoupEW::vf2af2(idAbs) * resProp * resSum);
+
+  // Correct for the running-width Z0 propagater weight in PhaseSpace. 
+  sigma         /= runBW3;
 
   // Answer.
-  return CONVERT2MB * sigma;    
+  return sigma;    
 
 }
 
@@ -2437,9 +2371,9 @@ void Sigma2fgm2gmZf::setIdColAcol() {
   swapTU = (id2 == 22); 
 
   // Colour flow topologies. Swap when antiquarks.
-  if      (abs(id1) < 10) setColAcol( 1, 0, 0, 0, 0, 0, 1, 0);
-  else if (abs(id2) < 10) setColAcol( 0, 0, 1, 0, 0, 0, 1, 0);
-  else                    setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
+  if      (abs(id1) < 9) setColAcol( 1, 0, 0, 0, 0, 0, 1, 0);
+  else if (abs(id2) < 9) setColAcol( 0, 0, 1, 0, 0, 0, 1, 0);
+  else                   setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
   if (idq < 0) swapColAcol();
 
 }
@@ -2500,30 +2434,29 @@ double Sigma2ffbarWggm::weightDecay( Event& process, int iResBeg, int iResEnd) {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2qqbar2Wg::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxffbarChg();
+void Sigma2qqbar2Wg::sigmaKin() {
 
-  // Multiply by squared CKM matrix elements.
-  inFluxPtr->weightCKM2();
+  // Cross section part common for all incoming flavours.
+  sigma0 = (M_PI / sH2) * (alpEM * alpS / CoupEW::sin2thetaW())
+    * (2./9.) * (tH2 + uH2 + 2. * sH * s3) / (tH * uH);
 
-} 
+}
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
 double Sigma2qqbar2Wg::sigmaHat() {
 
-  // Cross section part common for all incoming flavours.
-  double sigma = (M_PI / sH2) * (alpEM * alpS / CoupEW::sin2thetaW())
-    * (2./9.) * (tH2 + uH2 + 2. * sH * s3) / (tH * uH);
+  // CKM factor. Secondary width for W+ or W-.
+  double sigma = sigma0 * VCKM::V2id(abs(id1), abs(id2));
+  int idUp     = (abs(id1)%2 == 0) ? id1 : id2;
+  sigma       *= ResonanceW::openFrac(idUp);
 
   // Answer.
-  return CONVERT2MB * sigma;    
+  return sigma;    
 
 }
 
@@ -2551,30 +2484,31 @@ void Sigma2qqbar2Wg::setIdColAcol() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2qg2Wq::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for q g initial state.
-  inFluxPtr = new InFluxqg();
+void Sigma2qg2Wq::sigmaKin() {
 
-  // Multiply by sum of relevant squared CKM matrix elements.
-  inFluxPtr->weightCKM2sum(1);
+  // Cross section part common for all incoming flavours.
+  sigma0 = (M_PI / sH2) * (alpEM * alpS / CoupEW::sin2thetaW())
+    * (1./12.) * (sH2 + uH2 + 2. * tH * s3) / (-sH * uH);
 
-} 
+}
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
 double Sigma2qg2Wq::sigmaHat() {
 
-  // Cross section part common for all incoming flavours (3 = W).
-  double sigma = (M_PI / sH2) * (alpEM * alpS / CoupEW::sin2thetaW())
-    * (1./12.) * (sH2 + uH2 + 2. * tH * s3) / (-sH * uH);
+  // CKM factor. Secondary width for W+ or W-.
+  int idAbs    = (id2 == 21) ? abs(id1) : abs(id2);
+  double sigma = sigma0 * VCKM::V2sum(idAbs);
+  int idUp     = (id2 == 21) ? id1 : id2;
+  if (idAbs%2 == 1) idUp = -idUp;
+  sigma       *= ResonanceW::openFrac(idUp);
 
   // Answer.
-  return CONVERT2MB * sigma;    
+  return sigma;    
 
 }
 
@@ -2610,35 +2544,34 @@ void Sigma2qg2Wq::setIdColAcol() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2ffbar2Wgm::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxffbarChg();
+void Sigma2ffbar2Wgm::sigmaKin() {
 
-  // Multiply by squared CKM matrix elements and colour factor 1/3.
-  inFluxPtr->weightCKM2();
-  inFluxPtr->weightInvCol();
-
-} 
+  // Cross section part common for all incoming flavours.
+  sigma0 = (M_PI / sH2) * (alpEM*alpEM / CoupEW::sin2thetaW())
+    * 0.5 * (tH2 + uH2 + 2. * sH * s3) / (tH * uH);
+}
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
 double Sigma2ffbar2Wgm::sigmaHat() {
 
-  // Cross section part common for all incoming flavours.
-  double sigma = (M_PI / sH2) * (alpEM*alpEM / CoupEW::sin2thetaW())
-    * 0.5 * (tH2 + uH2 + 2. * sH * s3) / (tH * uH);
-
   // Extrafactor different for e nu and q qbar' instate.
-  double chgUp = (hasLeptonBeams) ? 0. : 2./3.;
-  sigma *= pow2( chgUp - tH / (tH + uH) );
+  int id1Abs = abs(id1);
+  int id2Abs = abs(id2);  
+  double chgUp = (id1Abs > 10) ? 0. : 2./3.;
+  double sigma = sigma0 * pow2( chgUp - tH / (tH + uH) );
+
+  // CKM and colour factors. Secondary width for W+ or W-.
+  if (id1Abs < 9) sigma *= VCKM::V2id(id1Abs, id2Abs) / 3.;
+  int idUp     = (abs(id1)%2 == 0) ? id1 : id2;
+  sigma       *= ResonanceW::openFrac(idUp);
 
   // Answer.
-  return CONVERT2MB * sigma;    
+  return sigma;    
 
 }
 
@@ -2657,8 +2590,8 @@ void Sigma2ffbar2Wgm::setIdColAcol() {
   swapTU = (sign * id1 > 0);
 
   // Colour flow topologies. Swap when antiquarks.
-  if (abs(id1) < 10) setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
-  else               setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
+  if (abs(id1) < 9) setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
+  else              setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
   if (id1 < 0) swapColAcol();
 
 }
@@ -2670,37 +2603,35 @@ void Sigma2ffbar2Wgm::setIdColAcol() {
 
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2fgm2Wf::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for f gamma initial state.
-  inFluxPtr = new InFluxfgm();
+void Sigma2fgm2Wf::sigmaKin() {
 
-  // Multiply by sum of relevant squared CKM matrix elements.
-  inFluxPtr->weightCKM2sum(1);
+  // Cross section part common for all incoming flavours.
+  sigma0 = (M_PI / sH2) * (alpEM*alpEM / CoupEW::sin2thetaW())
+    * 0.5 * (sH2 + uH2 + 2. * tH * s3) / (pT2 * s3 - sH * uH);
 
-} 
+}
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
 
 double Sigma2fgm2Wf::sigmaHat() {
 
-  // Cross section part common for all incoming flavours.
-  double sigma = (M_PI / sH2) * (alpEM*alpEM / CoupEW::sin2thetaW())
-    * 0.5 * (sH2 + uH2 + 2. * tH * s3) / (pT2 * s3 - sH * uH);
-
   // Extrafactor dependent on charge of incoming fermion.
-  if (hasLeptonBeams) sigma *= pow2( 1. - sH / (sH + uH) );
-  else {
-    inFluxPtr->weightInState( 1, 22, pow2( 1./3. - sH / (sH + uH) ) );
-    inFluxPtr->weightInState( 2, 22, pow2( 2./3. - sH / (sH + uH) ) );
-  }
+  int idAbs     = (id2 == 22) ? abs(id1) : abs(id2);
+  double charge = (idAbs > 10) ? 1. : ( (idAbs%2 == 1) ? 1./3. : 2./3. );
+  double sigma  = sigma0 * pow2( charge  - sH / (sH + uH) );
+
+  // CKM factor. Secondary width for W+ or W-.
+  sigma        *= VCKM::V2sum(idAbs);
+  int idUp      = (id2 == 22) ? id1 : id2;
+  if (idAbs%2 == 1) idUp = -idUp;
+  sigma        *= ResonanceW::openFrac(idUp);
 
   // Answer.
-  return CONVERT2MB * sigma;    
+  return sigma;    
 
 }
 
@@ -2723,9 +2654,9 @@ void Sigma2fgm2Wf::setIdColAcol() {
   swapTU = (id2 == 22); 
 
   // Colour flow topologies. Swap when antiquarks.
-  if      (abs(id1) < 10) setColAcol( 1, 0, 0, 0, 0, 0, 1, 0);
-  else if (abs(id2) < 10) setColAcol( 0, 0, 1, 0, 0, 0, 1, 0);
-  else                    setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
+  if      (abs(id1) < 9) setColAcol( 1, 0, 0, 0, 0, 0, 1, 0);
+  else if (abs(id2) < 9) setColAcol( 0, 0, 1, 0, 0, 0, 1, 0);
+  else                   setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
   if (idq < 0) swapColAcol();
 
 }

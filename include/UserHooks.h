@@ -1,7 +1,11 @@
+// UserHooks.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file to allow user access to program at different stages.
 // UserHooks: almost empty base class, with user to write the rela code. 
 // MyUserHooks: derived class, only intended as an example.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_UserHooks_H
 #define Pythia8_UserHooks_H

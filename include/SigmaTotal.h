@@ -1,6 +1,10 @@
+// SigmaTotal.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This file contains the class for cross section parametrizations.
 // SigmaTotal: total and partial cross section in hadron-hadron collisions.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_SigmaTotal_H
 #define Pythia8_SigmaTotal_H

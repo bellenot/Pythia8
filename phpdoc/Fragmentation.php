@@ -41,7 +41,9 @@ should not be touched except by experts.
 <p/>
 The fragmentation flavour-choice machinery is also used in a few 
 other places of the program, notably particle decays, and is thus
-described on the separate Flavour Selection page.
+described on the separate <?php $filepath = $_GET["filepath"];
+echo "<a href='FlavourSelection.php?filepath=".$filepath."' target='page'>";?>Flavour 
+Selection</a> page.
 
 <h3>Fragmentation functions</h3>
 
@@ -484,5 +486,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
 

@@ -52,4 +52,4 @@ by a <code>typedef std::complex&lt;double&gt;</code>.
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

@@ -1,9 +1,13 @@
+// ParticleData.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for the classes containing particle data.
 // DecayChannel contains info on a single decay channel.
 // DecayTable contains all decay channels of a particle.
 // ParticleDataEntry contains info on a single particle species.
 // ParticleDataTable  collects info on all particles as a map.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_ParticleData_H
 #define Pythia8_ParticleData_H
@@ -34,7 +38,8 @@ public:
 
   // Member functions for input.
   void onMode(int onModeIn) {onModeSave = onModeIn; hasChangedSave = true;}
-  void bRatio(double bRatioIn) {bRatioSave = bRatioIn; hasChangedSave = true;}
+  void bRatio(double bRatioIn, bool countAsChanged = true) {
+    bRatioSave = bRatioIn; if (countAsChanged) hasChangedSave = true;}
   void rescaleBR(double fac) {bRatioSave *= fac; hasChangedSave = true;} 
   void meMode(int meModeIn) {meModeSave = meModeIn; hasChangedSave = true;} 
   void multiplicity(int multIn)  {nProd = multIn; hasChangedSave = true;} 
@@ -111,6 +116,8 @@ public:
   DecayChannel& pickChannel();
 
   // Ditto according to dynamically calculated branching ratios.
+  void resetDynamicBR() {
+    for (int i = 0; i < size(); ++i) channel[i].dynamicBR(0.);}
   DecayChannel& dynamicPick(int idIn);
 
 private:
@@ -141,7 +148,8 @@ public:
     spinTypeSave(spinTypeIn), chargeTypeSave(chargeTypeIn), 
     colTypeSave(colTypeIn), m0Save(m0In), mWidthSave (mWidthIn), 
     mMinSave(mMinIn), mMaxSave(mMaxIn), tau0Save(tau0In), 
-    hasAntiSave(false), hasChangedSave(true) {setDefaults();} 
+    hasAntiSave(false), hasChangedSave(true), isInitResonanceSave(false)
+    {setDefaults();} 
   ParticleDataEntry(int idIn, string nameIn, string antiNameIn, 
     int spinTypeIn = 0, int chargeTypeIn = 0, int colTypeIn = 0, 
     double m0In = 0., double mWidthIn = 0., double mMinIn = 0., 
@@ -150,8 +158,8 @@ public:
     spinTypeSave(spinTypeIn), chargeTypeSave(chargeTypeIn), 
     colTypeSave(colTypeIn), m0Save(m0In), mWidthSave (mWidthIn), 
     mMinSave(mMinIn), mMaxSave(mMaxIn), tau0Save(tau0In), 
-    hasAntiSave(true), hasChangedSave(true) {setDefaults();
-    if (toLower(antiNameIn) == "void") hasAntiSave = false;} 
+    hasAntiSave(true), hasChangedSave(true), isInitResonanceSave(false)
+    {setDefaults(); if (toLower(antiNameIn) == "void") hasAntiSave = false;} 
 
   // Initialize static data members.
   static void initStatic();
@@ -180,8 +188,8 @@ public:
     hasChangedSave = true;}
   void setM0(double m0In) {m0Save = m0In; constituentMassCalc(); 
     hasChangedSave = true;}
-  void setMWidth(double mWidthIn) {mWidthSave = mWidthIn; 
-    hasChangedSave = true;}
+  void setMWidth(double mWidthIn, bool countAsChanged = true) {
+    mWidthSave = mWidthIn; if (countAsChanged) hasChangedSave = true;}
   void setMMin(double mMinIn) {mMinSave = mMinIn; hasChangedSave = true;}
   void setMMax(double mMaxIn) {mMaxSave = mMaxIn; hasChangedSave = true;}
   void setTau0(double tau0In) {tau0Save = tau0In; hasChangedSave = true;}
@@ -211,6 +219,7 @@ public:
   void setHasChanged(bool hasChangedIn) {hasChangedSave = hasChangedIn;
     for (int i = 0; i < decay.size(); ++i) 
       decay[i].setHasChanged(hasChangedIn);}
+  void setIsInitResonance(bool isInit = true) {isInitResonanceSave = isInit;}
   void rescaleBR(double newSumBR = 1.) {decay.rescaleBR(newSumBR);}
 
   // Give back current values. 
@@ -243,6 +252,7 @@ public:
   bool   hasChanged() const { if (hasChangedSave) return true;
          for (int i = 0; i < decay.size(); ++i) 
          if (decay[i].hasChanged()) return true; return false;}
+  bool   isInitResonance() const {return isInitResonanceSave;}
   bool   useBreitWigner() const { return (modeBWnow > 0); }
   bool   canDecay() const { return (decay.size() > 0);} 
   bool   isLepton() const {return (idSave > 10 && idSave < 19);}
@@ -268,7 +278,7 @@ private:
 
   // Static initialization data, normally only set once.
   static int    modeBreitWigner;
-  static double maxEnhanceBW, mQRun[6], Lambda5Run;
+  static double maxEnhanceBW, mQRun[7], Lambda5Run;
 
   // Constants: could only be changed in the code itself.
   static const double MAXTAU0FORDECAY,MINMASSRESONANCE, NARROWMASS;
@@ -280,7 +290,7 @@ private:
   double m0Save, mWidthSave, mMinSave, mMaxSave, tau0Save, 
          constituentMassSave;
   bool   hasAntiSave, isResonanceSave, mayDecaySave, externalDecaySave, 
-         isVisibleSave, hasChangedSave;
+         isVisibleSave, hasChangedSave, isInitResonanceSave;
 
   // Extra data for mass selection according to a Breit-Wigner.
   int    modeBWnow;
@@ -336,9 +346,11 @@ public:
     ostream& os = cout) ; 
 
   // Print out table of whole database, or of only part of it.
-  static void listAll(ostream& os = cout) {list(false, os);} 
-  static void listChanged(ostream& os = cout) {list(true, os);} 
-  static void list(bool changedOnly = false, ostream& os = cout) ; 
+  static void listAll(ostream& os = cout) {list(false, true, os);} 
+  static void listChanged(bool changedRes = false, ostream& os = cout) 
+    {list(true, changedRes, os);} 
+  static void list(bool changedOnly = false, bool changedRes = true, 
+    ostream& os = cout) ; 
   static void list(int idList, ostream& os = cout) {
     vector<int> idListTemp; idListTemp.push_back(idList); 
     list( idListTemp, os);} 

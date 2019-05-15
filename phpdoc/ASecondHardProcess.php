@@ -27,10 +27,6 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 
 <h2>A Second Hard Process</h2>
 
-<b>Warning:</b> This is a new facility, still under construction and
-testing. Be careful if you use it. 
-
-<p/>
 When you have selected a set of hard processes for hadron beams, the 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='MultipleInteractions.php?filepath=".$filepath."' target='page'>";?>multiple interactions</a> 
@@ -425,4 +421,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

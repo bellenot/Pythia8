@@ -32,11 +32,14 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 The <code>AlphaStrong</code> class is used to provide a first- or 
 second-order running <i>alpha_strong</i> (or, trivially, a 
 zeroth-order fixed one). Formulae are the standard ones found in 
-[<a href="Bibliography.php" target="page">Yao06</a>]. The starting 
+[<a href="Bibliography.php" target="page">Yao06</a>]. The second-order expression used, eq. (9.5),
+may be somewhat different in other approaches (with differences
+formally of higher order), so do not necessarily expect perfect
+agreement, especially not at small <i>Q^2</i> scales. The starting 
 <i>alpha_strong</i> value is defined at the <i>M_Z</i> mass scale.
 The <i>Lambda</i> values are matched at the <i>b</i> and <i>c</i> 
-flavour thresholds, such that <i>alpha_strong</i> is continuous, 
-using an approximate iterative method for second-order matching.
+flavour thresholds, such that <i>alpha_strong</i> is continuous.
+For second-order matching an approximate iterative method is used.
  
 <p/>
 Since we allow <i>alpha_strong</i> to vary separately for 
@@ -292,4 +295,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

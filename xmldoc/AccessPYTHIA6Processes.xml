@@ -90,9 +90,10 @@ Finally, note that it is currently not possible to mix processes from
 PYTHIA 6 with those from PYTHIA 8. This will be fixed later.
 
 <p/>
-A simple example is found in <code>main11.cc</code>, and another
-with parsed input in <code>main12.cc</code>. 
+A simple example is found in <code>main51.cc</code>, another with parsed 
+input in <code>main52.cc</code> and a third with HepMC output in
+<code>main54.cc</code>.
 
 </chapter>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

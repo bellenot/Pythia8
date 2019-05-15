@@ -30,8 +30,7 @@ Top:qqbar2ttbar = on               ! q qbar -> t tbar
 ! 3) Settings for the event generation process in the Pythia8 library.
 #PartonLevel:MI = off               ! no multiple interactions
 #PartonLevel:ISR = off              ! no initial-state radiation 
-#PartonLevel:FSRinProcess = off     ! no final-state radiation
-#PartonLevel:FSRinResonances = off  ! no FSR in resonance decays 
+#PartonLevel:FSR = off              ! no final-state radiation
 #HadronLevel:Hadronize = off        ! no hadronization
 #HadronLevel:Decay = off            ! no decays
 SpaceShower:pT0Ref = 2.0           ! dampening of pT -> 0 divergence

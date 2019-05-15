@@ -1,7 +1,11 @@
+// TimeShower.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for the timelike final-state showers.
 // TimeDipoleEnd: data on a radiating dipole end.
 // TimeShower: handles the showering description.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_TimeShower_H
 #define Pythia8_TimeShower_H

@@ -1,6 +1,10 @@
+// ParticleDecays.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the 
 // ParticleDecays class.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "ParticleDecays.h"
 
@@ -988,7 +992,7 @@ bool ParticleDecays::pickHadrons() {
       // Calculate mass excess and from there average multiplicity.
       } else if (nFix == 0) {
         double mDiffPS = mDiff;
-        for (int i = 0; i <= nLeft; ++i) 
+        for (int i = 0; i < nLeft; ++i) 
           mDiffPS -= ParticleDataTable::constituentMass( idPartons[i] );
         double average = 0.5 * (nKnown + nSpec) + 0.25 * nPartons
           + multIncrease * log( max( 1.1, mDiffPS / multRefMass ) );

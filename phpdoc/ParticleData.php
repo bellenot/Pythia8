@@ -62,9 +62,9 @@ opens up for a simpler technical handling of mass selection in options
   
 
 <p/>
-Since running masses are only calculated for the five light quark flavours,
+Since running masses are only calculated for the six quark flavours,
 e.g. to obtain couplings to the Higgs boson(s), there is not an entry
-in the normal tables for each particles, but only the five MSbar mass 
+in the normal tables for each particles, but only the six MSbar mass 
 values below, used as starting point for the running. In addition you
 can pick an <i>alpha_s(M_Z)</i>, which is converted into a first-order
 five-flavour Lambda that is used to determine the rate of the running. 
@@ -87,7 +87,10 @@ the c quark MSbar mass at the mass scale itself.
 <br/><br/><table><tr><td><strong>ParticleData:mbRun </td><td></td><td> <input type="text" name="7" value="4.20" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4.20</strong></code>; <code>minimum = 4.00</code>; <code>maximum = 4.50</code>)</td></tr></table>
 the b quark MSbar mass at the mass scale itself.
 
-<br/><br/><table><tr><td><strong>ParticleData:alphaSvalueMRun </td><td></td><td> <input type="text" name="8" value="0.125" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.125</strong></code>; <code>minimum = 0.10</code>; <code>maximum = 0.20</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>ParticleData:mtRun </td><td></td><td> <input type="text" name="8" value="165.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>165.0</strong></code>; <code>minimum = 150.0</code>; <code>maximum = 175.0</code>)</td></tr></table>
+the t quark MSbar mass at the mass scale itself.
+
+<br/><br/><table><tr><td><strong>ParticleData:alphaSvalueMRun </td><td></td><td> <input type="text" name="9" value="0.125" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.125</strong></code>; <code>minimum = 0.10</code>; <code>maximum = 0.20</code>)</td></tr></table>
 the <i>alpha_s(M_Z)</i> value used to define tha rate at which MSbar
 masses run.
 
@@ -7574,9 +7577,14 @@ if($_POST["7"] != "4.20")
 $data = "ParticleData:mbRun = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["8"] != "0.125")
+if($_POST["8"] != "165.0")
 {
-$data = "ParticleData:alphaSvalueMRun = ".$_POST["8"]."\n";
+$data = "ParticleData:mtRun = ".$_POST["8"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["9"] != "0.125")
+{
+$data = "ParticleData:alphaSvalueMRun = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -7586,4 +7594,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

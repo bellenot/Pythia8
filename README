@@ -82,9 +82,9 @@
 4.1) You can set the environment variable PYTHIA8DATA to contain the 
      location of the xmldoc directory. In the csh and tcsh shells this 
      could e.g. be
-       setenv PYTHIA8DATA /home/myname/pythia8080/xmldoc
+       setenv PYTHIA8DATA /home/myname/pythia8090/xmldoc
      while in other shells it could be
-       export PYTHIA8DATA=/home/myname/pythia8080/xmldoc
+       export PYTHIA8DATA=/home/myname/pythia8090/xmldoc
      Recall that environment variables set locally are only defined in 
      the current instance of the shell. The above lines should go into 
      your .cshrc and .bashrc files, respectively, if you want a more 
@@ -92,7 +92,7 @@
 
 4.2) You can provide the path as argument to the Pythia constructor in 
      your main program, e.g.
-       Pythia pythia("/home/myname/pythia8080/xmldoc");
+       Pythia pythia("/home/myname/pythia8090/xmldoc");
 
    When PYTHIA8DATA is set it takes precedence, else the path in the 
    constructor is used, else one defaults to the ../xmldoc directory.
@@ -114,7 +114,7 @@ so some experimentation may be required.
 To learn more about the current program:
 
 A) A brief self-contained introduction is found in the 
-   htmldoc/pythia8080.pdf file.
+   htmldoc/pythia8090.pdf file.
 
 B) Details can be found by opening a web browser on the 
    htmldoc/Welcome.html file, and then navigating among the pages 

@@ -1,65 +1,59 @@
-// File: main31.cc
-// Test of LHAPDF interface and whether PDF's behave sensibly.
-// Histogram F(x, Q2) = (9/4) xg(x, Q2) + sum_{i = q, qbar} xf_i(x, Q2)
-// for range 10^{-8} < x < 1 and for Q2 = 4 and 100.
-// Copyright C 2007 Torbjorn Sjostrand
+// main31.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Mikhail Kirsanov, Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
+// This is a simple test program.
+// It illustrates how HepMC can be interfaced to Pythia8.
+// It studies the charged multiplicity distribution at the LHC.
+// HepMC events are output to the hepmcout31.dat file.
+// Written by Mikhail Kirsanov based on main01.cc.
 
 #include "Pythia.h"
 
-using namespace Pythia8; 
+#include "HepMCInterface.h"
 
+#include "HepMC/GenEvent.h"
+#include "HepMC/IO_Ascii.h"
+//#include "HepMC/IO_AsciiParticles.h"
+
+using namespace Pythia8; 
 int main() {
 
-  // Pointer to PDF sets: old reference and new to try.
-  PDF* oldPDF = new CTEQ5L(2212);
-  //PDF* newPDF = new LHAPDF(2212, "cteq5l.LHgrid", 0);
-  PDF* newPDF = new LHAPDF(2212, "cteq61.LHgrid", 0);
-  //PDF* newPDF = new LHAPDF(2212, "cteq61.LHpdf", 0);
-  //PDF* newPDF = new LHAPDF(2212, "MRST2004nlo.LHgrid", 0);
-  //PDF* newPDF = new LHAPDF(2212, "Alekhin_100.LHpdf", 0);
+  HepMC::I_Pythia8 ToHepMC;
+  //  ToHepMC.set_crash_on_problem();
 
-  // Set x and Q2 limits. May be required to get sensible small-x shape.
-  //newPDF->setLimits( 1e-5, 1., 1., 1e10);
+  // Specify file where HepMC events will be stored.
+  HepMC::IO_Ascii ascii_io("hepmcout31.dat",std::ios::out);
+  // HepMC::IO_AsciiParticles ascii_io("hepmcout31.dat",std::ios::out);
 
-  // Histogram.
-  Hist oldF4("F( x, Q2 = 4) old", 80 , -8., 0.);
-  Hist newF4("F( x, Q2 = 4) new", 80 , -8., 0.);
-  Hist ratF4("F( x, Q2 = 4) new/old", 80 , -8., 0.);
-  Hist oldF100("F( x, Q2 = 100) old", 80 , -8., 0.);
-  Hist newF100("F( x, Q2 = 100) new", 80 , -8., 0.);
-  Hist ratF100("F( x, Q2 = 100) new/old", 80 , -8., 0.);
+  // Generator. Process selection. LHC initialization. Histogram.
+  Pythia pythia;
+  Event& event = pythia.event;
+  pythia.readString("HardQCD:all = on");    
+  pythia.readString("PhaseSpace:pTHatMin = 20.");    
+  pythia.init( 2212, 2212, 14000.);
+  Hist mult("charged multiplicity", 100, -0.5, 799.5);
+  // Begin event loop. Generate event. Skip if error. List first one.
+  for (int iEvent = 0; iEvent < 100; ++iEvent) {
+    if (!pythia.next()) continue;
+    if (iEvent < 1) {pythia.info.list(); pythia.event.list();} 
+    // Find number of all final charged particles and fill histogram.
+    int nCharged = 0;
+    for (int i = 0; i < pythia.event.size(); ++i) 
+      if (pythia.event[i].isFinal() && pythia.event[i].isCharged()) 
+        ++nCharged; 
+    mult.fill( nCharged );
 
-  // Loop over two Q2 values.
-  for (int iQ = 0; iQ < 2; ++iQ) {
-    double Q2 = (iQ == 0) ? 4. : 100;
-    
-    // Loop over x values, in a logarithmic scale
-    for (int iX = 0; iX < 80; ++iX) {
-      double xLog = -(0.1 * iX + 0.05);
-      double x = pow( 10., xLog); 
+    // Convert event record to HepMC format and output to file.
+    HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
+    ToHepMC.fill_next_event( event, hepmcevt );
+    ascii_io << hepmcevt;
+    delete hepmcevt;
 
-      // Evaluate old summed PDF.
-      double oldSum = 2.25 * oldPDF->xf( 21, x, Q2);   
-      for (int i = 1; i < 6; ++i) 
-        oldSum += oldPDF->xf( i, x, Q2) + oldPDF->xf( -i, x, Q2);  
-      if (iQ == 0) oldF4.fill ( xLog, oldSum ); 
-      else       oldF100.fill ( xLog, oldSum ); 
-
-      // Evaluate new summed PDF.
-      double newSum = 2.25 * newPDF->xf( 21, x, Q2);   
-      for (int i = 1; i < 6; ++i) 
-        newSum += newPDF->xf( i, x, Q2) + newPDF->xf( -i, x, Q2);  
-      if (iQ == 0) newF4.fill ( xLog, newSum ); 
-      else       newF100.fill ( xLog, newSum ); 
-
-    //End loops over x and Q2 values.
-    }
-  } 
-
-  // Done.
-  ratF4 = newF4 / oldF4;
-  ratF100 = newF100 / oldF100;
-  cout << oldF4 << newF4 << ratF4 << oldF100 << newF100 << ratF100;
-
+  // End of event loop. Statistics. Histogram. Done.
+  }
+  pythia.statistics();
+  cout << mult; 
   return 0;
 }

@@ -1,8 +1,12 @@
+// LHAFortran.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for Les Houches Accord user process information.
 // LHAinitFortran: derived class with the HEPRUP Fortran initialization info.
 // LHAevntFortran: derived class with the HEPEUP Fortran event info.
 // You are expected to supply the fillHepRup and fillHepEup methods.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_LHAFortran_H
 #define Pythia8_LHAFortran_H

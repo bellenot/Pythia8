@@ -1,8 +1,11 @@
-// File: main04.cc
+// main04.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This is a simple test program. 
 // It illustrates how different processes can be selected and studied.
 // All input is specified in the main04.cmnd file.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 

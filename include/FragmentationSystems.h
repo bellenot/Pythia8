@@ -1,9 +1,13 @@
+// FragmentationSystems.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This file contains auxiliary classes in the fragmentation process.
 // ColSinglet contains info on an individual singlet.
 // ColConfig describes the colour configuration of the whole event.
 // StringRegion keeps track on string momenta and directions.
 // StringSystem contains all the StringRegions of the colour singlet.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_FragmentationSystems_H
 #define Pythia8_FragmentationSystems_H

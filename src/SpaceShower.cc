@@ -1,6 +1,10 @@
+// SpaceShower.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the
 // SpaceShower class.
-// Copyright C 2007 Torbjorn Sjostrand 
 
 #include "SpaceShower.h"
 
@@ -24,7 +28,7 @@ bool   SpaceShower::doPhiPolAsym    = true;
 int    SpaceShower::pTmaxMatch      = 0;
 int    SpaceShower::alphaSorder     = 1;
 int    SpaceShower::alphaEMorder    = 1;
-int    SpaceShower::nQuark          = 5;
+int    SpaceShower::nQuarkIn        = 5;
 double SpaceShower::pTmaxFudge      = 1.0;
 double SpaceShower::mc              = 1.5;
 double SpaceShower::mb              = 4.8;
@@ -136,7 +140,7 @@ void SpaceShower::initStatic() {
   // Various other parameters. 
   doMEcorrections = Settings::flag("SpaceShower:MEcorrections");
   doPhiPolAsym    = Settings::flag("SpaceShower:phiPolAsym");
-  nQuark          = Settings::mode("SpaceShower:nQuark");
+  nQuarkIn        = Settings::mode("SpaceShower:nQuarkIn");
 
 }
 
@@ -436,7 +440,7 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
 
         // Parton density of potential quark mothers to a g.
         xPDFmotherSum = 0.;
-        for (int i = -nQuark; i <= nQuark; ++i) {
+        for (int i = -nQuarkIn; i <= nQuarkIn; ++i) {
           if (i == 0) {
             xPDFmother[10] = 0.;
           } else {
@@ -544,9 +548,9 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
       } else {
       // q -> g (+ q): also select flavour. 
         double temp = xPDFmotherSum * Rndm::flat();
-        idMother = -nQuark-1;
+        idMother = -nQuarkIn - 1;
         do { temp -= xPDFmother[(++idMother) + 10]; } 
-        while (temp > 0. && idMother < nQuark);  
+        while (temp > 0. && idMother < nQuarkIn);  
         idSister = idMother;
         z = (zMinAbs * zMaxAbs) / pow2( sqrt(zMinAbs) + Rndm::flat() 
           * ( sqrt(zMaxAbs)- sqrt(zMinAbs) ));

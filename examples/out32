@@ -1,0 +1,134 @@
+
+ *------------------------------------------------------------------------------------* 
+ |                                                                                    | 
+ |  *------------------------------------------------------------------------------*  | 
+ |  |                                                                              |  | 
+ |  |                                                                              |  | 
+ |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.090      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 20 Jul 2007  |  | 
+ |  |   P       Y      T    H   H   I   A   A                                      |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 20 Jul 2007 at 16:02:19    |  | 
+ |  |                                                                              |  | 
+ |  |   Main author: Torbjorn Sjostrand; CERN/PH, CH-1211 Geneva, Switzerland,     |  | 
+ |  |     and Department of Theoretical Physics, Lund University, Lund, Sweden;    |  | 
+ |  |     phone: + 41 - 22 - 767 82 27; e-mail: torbjorn@thep.lu.se                |  | 
+ |  |   Author: Stephen Mrenna; Computing Division, Simulations Group,             |  | 
+ |  |     Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;   |  | 
+ |  |     phone: + 1 - 630 - 840 - 2556; e-mail: mrenna@fnal.gov                   |  | 
+ |  |   Author: Peter Skands; Theoretical Physics Department,                      |  | 
+ |  |     Fermi National Accelerator Laboratory, MS 106, Batavia, IL 60510, USA;   |  | 
+ |  |     phone: + 1 - 630 - 840 - 2270; e-mail: skands@fnal.gov                   |  | 
+ |  |                                                                              |  | 
+ |  |   The main physics reference is the 'PYTHIA 6.4 Physics and Manual',         |  | 
+ |  |   T. Sjostrand, S. Mrenna and P. Skands, JHEP05 (2006) 026 [hep-ph/0603175]. |  | 
+ |  |   In addition, for PYTHIA 8.0, also quote the 'Brief Introduction',          |  | 
+ |  |   T. Sjostrand, CERN-LCGAPP-2007-03.                                         |  | 
+ |  |                                                                              |  | 
+ |  |   An archive of program versions and documentation is found on the web:      |  | 
+ |  |   http://www.thep.lu.se/~torbjorn/Pythia.html                                |  | 
+ |  |                                                                              |  | 
+ |  |   This program is released under the GNU General Public Licence version 2.   |  | 
+ |  |   Please respect the MCnet Guidelines for Event Generator Authors and Users. |  | 
+ |  |                                                                              |  | 
+ |  |   Disclaimer: this program comes without any guarantees.                     |  | 
+ |  |   Beware of errors and use common sense when interpreting results.           |  | 
+ |  |   In addition, the current 8.0 version is intended for tryout and feedback   |  | 
+ |  |   only, and should not be used for any physics studies or production runs.   |  | 
+ |  |                                                                              |  | 
+ |  |   Copyright (C) 2007 Torbjorn Sjostrand                                      |  | 
+ |  |                                                                              |  | 
+ |  |                                                                              |  | 
+ |  *------------------------------------------------------------------------------*  | 
+ |                                                                                    | 
+ *------------------------------------------------------------------------------------* 
+
+ PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
+
+ *-------  PYTHIA Process Initialization  ---------------------*
+ |                                                             |
+ | We collide p+ with p+ at a CM energy of 1.400e+04 GeV       |
+ |                                                             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | Subprocess                               Code |   Estimated |
+ |                                               |    max (mb) |
+ |                                               |             |
+ |-------------------------------------------------------------|
+ |                                               |             |
+ | g g -> ccbar[3S1(1)] g                    401 |   3.774e-08 |
+ | g g -> ccbar[3P0(1)] g                    402 |   4.229e-05 |
+ | g g -> ccbar[3P1(1)] g                    403 |   1.490e-04 |
+ | g g -> ccbar[3P2(1)] g                    404 |   5.467e-05 |
+ |                                                             |
+ *-------  End PYTHIA Process Initialization ------------------*
+
+ *-------  PYTHIA Multiple Interactions Initialization  -------* 
+ |                                                             | 
+ |                 sigmaNonDiffractive =   54.71 mb            | 
+ |                                                             | 
+ |  pT0 =  2.99 gives sigmaInteraction =  318.99 mb: accepted  | 
+ |                                                             | 
+ *-------  End PYTHIA Multiple Interactions Initialization  ---* 
+
+ *-------  PYTHIA Flag + Mode + Parm + Word Settings (changes only)  -----------------------------------------* 
+ |                                                                                                            | 
+ | Name                                     |                      Now |      Default         Min         Max | 
+ |                                          |                          |                                      | 
+ | Charmonium:gg2QQbar[3P0(1)]g             |                       on |          off                         | 
+ | Charmonium:gg2QQbar[3P1(1)]g             |                       on |          off                         | 
+ | Charmonium:gg2QQbar[3P2(1)]g             |                       on |          off                         | 
+ | Charmonium:gg2QQbar[3S1(1)]g             |                       on |          off                         | 
+ | Main:numberOfEvents                      |                      100 |         1000           0             | 
+ | Main:showChangedParticleData             |                       on |          off                         | 
+ | Main:timesAllowErrors                    |                        3 |           10           0             | 
+ | Main:timesToShow                         |                       10 |           50           0             | 
+ | PhaseSpace:pTHatMin                      |                 20.00000 |          0.0         0.0             | 
+ |                                                                                                            | 
+ *-------  End PYTHIA Flag + Mode + Parm + Word Settings  ----------------------------------------------------* 
+
+ --------  PYTHIA Particle Data Table (changed only)  --------------------------------------------------------------------------
+ 
+      id   name            antiName         spn chg col      m0        mWidth      mMin       mMax       tau0    res dec ext vis
+             no onMode   bRatio   meMode     products 
+
+ no particle data has been changed from its default value 
+
+ --------  End PYTHIA Particle Data Table  -------------------------------------------------------------------------------------
+
+ Now begin event 0
+ Now begin event 10
+ Now begin event 20
+ Now begin event 30
+ Now begin event 40
+ Now begin event 50
+ Now begin event 60
+ PYTHIA Warning in StringFragmentation::fragmentToJunction: bad convergence junction rest frame  
+ Now begin event 70
+ Now begin event 80
+ Now begin event 90
+
+ *-------  PYTHIA Event and Cross Section Statistics  --------------------------------------------------------*
+ |                                                                                                            |
+ | Subprocess                               Code |            Number of events       |      sigma +- delta    |
+ |                                               |       Tried   Selected   Accepted |     (estimated) (mb)   |
+ |                                               |                                   |                        |
+ |------------------------------------------------------------------------------------------------------------|
+ |                                               |                                   |                        |
+ | g g -> ccbar[3S1(1)] g                    401 |           0          0          0 |   0.000e+00  0.000e+00 |
+ | g g -> ccbar[3P0(1)] g                    402 |         276         10         10 |   1.906e-06  2.367e-07 |
+ | g g -> ccbar[3P1(1)] g                    403 |        1018         74         74 |   1.079e-05  6.216e-07 |
+ | g g -> ccbar[3P2(1)] g                    404 |         372         16         16 |   3.630e-06  3.445e-07 |
+ |                                               |                                   |                        |
+ | sum                                           |        1666        100        100 |   1.633e-05  7.491e-07 |
+ |                                                                                                            |
+ *-------  End PYTHIA Event and Cross Section Statistics -----------------------------------------------------*
+
+ *-------  PYTHIA Error and Warning Messages Statistics  -----------------------------------------------------* 
+ |                                                                                                            | 
+ |  times   message                                                                                           | 
+ |                                                                                                            | 
+ |      3   Warning in ParticleDataEntry::initBWmass: switching off width                                     | 
+ |      1   Warning in StringFragmentation::fragmentToJunction: bad convergence junction rest frame           | 
+ |                                                                                                            | 
+ *-------  End PYTHIA Error and Warning Messages Statistics  -------------------------------------------------* 

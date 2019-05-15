@@ -1,7 +1,10 @@
-// File: main10.cc
+// main10.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Example how you can use UserHooks to trace pT spectrum through program,
 // and veto undesirable jet multiplicities. 
-// Copyright C 2007 Torbjorn Sjostrand.
 
 #include "Pythia.h"
 using namespace Pythia8; 
@@ -123,7 +126,7 @@ int main() {
   //  Process selection. No need to study hadron level.
   pythia.readString("HardQCD:all = on");  
   pythia.readString("PhaseSpace:pTHatMin = 50.");  
-  pythia.readString("Pythia:hadronLevel = off");  
+  pythia.readString("HadronLevel:all = off");  
 
   // Set up to do a user veto and send it in.
   UserHooks* myUserHooks = new MyUserHooks();

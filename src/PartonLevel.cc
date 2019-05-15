@@ -1,5 +1,9 @@
+// PartonLevel.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the PartonLevel class.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "PartonLevel.h"
 
@@ -53,7 +57,7 @@ bool PartonLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   bool doMIinit      = doMI;
   if (Settings::flag("SoftQCD:minBias") || Settings::flag("SoftQCD:all"))
     doMIinit = true; 
-  if (!Settings::flag("Pythia:partonLevel")) doMIinit = false;  
+  if (!Settings::flag("PartonLevel:all")) doMIinit = false;  
 
   // Flag if lepton beams, and if non-resolved ones. May change main flags.
   hasLeptonBeams  = ( beamAPtr->isLepton() || beamBPtr->isLepton() );

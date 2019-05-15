@@ -1,7 +1,10 @@
-// File: main08.cc
+// main08.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This is a simple test program. 
 // It illustrates how to combine subruns in pT bins.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 
@@ -31,7 +34,7 @@ int main() {
 
   // Set up to generate QCD jets.
   pythia.readString("HardQCD:all = on");  
-  pythia.readString("Pythia:partonLevel = off");  
+  pythia.readString("PartonLevel:all = off");  
 
   // Set up five pT bins - last one open-ended.
   double pTlimit[6] = {100., 150., 250., 400., 600., 0.};

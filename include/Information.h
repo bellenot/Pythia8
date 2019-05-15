@@ -1,7 +1,11 @@
+// Information.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This file contains classes that keep track of generic event info.
 // Info: contains information on the generation process.
 // ErrorMessages: table with all warnings and errors encountered.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_Information_H
 #define Pythia8_Information_H
@@ -29,16 +33,16 @@ public:
   void list(ostream& os = cout);
   
   // Beam particles (in rest frame). CM energy of event.
-  int    idA()            const {return idAM;}
-  int    idB()            const {return idBM;}
-  double pzA()            const {return pzAM;}
-  double pzB()            const {return pzBM;}
-  double eA()             const {return eAM;}
-  double eB()             const {return eBM;}
-  double mA()             const {return mAM;}
-  double mB()             const {return mBM;}
-  double eCM()            const {return eCMM;}
-  double s()              const {return sM;}
+  int    idA()            const {return idASave;}
+  int    idB()            const {return idBSave;}
+  double pzA()            const {return pzASave;}
+  double pzB()            const {return pzBSave;}
+  double eA()             const {return eASave;}
+  double eB()             const {return eBSave;}
+  double mA()             const {return mASave;}
+  double mB()             const {return mBSave;}
+  double eCM()            const {return eCMSave;}
+  double s()              const {return sSave;}
 
   // Process name and code, and the number of final-state particles.
   string name()           const {return nameSave;}
@@ -58,22 +62,22 @@ public:
   int    nFinalSub()      const {return nFinalSubSave;}
 
   // Incoming parton flavours and x values.
-  int    id1()            const {return id1H;}
-  int    id2()            const {return id2H;}
-  double x1()             const {return x1H;}
-  double x2()             const {return x2H;}
-  double y()              const {return 0.5 * log( x1H / x2H );}
-  double tau()            const {return x1H * x2H;}
+  int    id1()            const {return id1Save;}
+  int    id2()            const {return id2Save;}
+  double x1()             const {return x1Save;}
+  double x2()             const {return x2Save;}
+  double y()              const {return 0.5 * log( x1Save / x2Save );}
+  double tau()            const {return x1Save * x2Save;}
 
   // Incoming parton densities, hard process couplings, Q2 scales.
-  double pdf1()           const {return pdf1H;}
-  double pdf2()           const {return pdf2H;}
-  double QFac()           const {return sqrtpos(Q2FacH);}
-  double Q2Fac()          const {return Q2FacH;}
-  double alphaS()         const {return alphaSH;}
-  double alphaEM()        const {return alphaEMH;}
-  double QRen()           const {return sqrtpos(Q2RenH);}
-  double Q2Ren()          const {return Q2RenH;}
+  double pdf1()           const {return pdf1Save;}
+  double pdf2()           const {return pdf2Save;}
+  double QFac()           const {return sqrtpos(Q2FacSave);}
+  double Q2Fac()          const {return Q2FacSave;}
+  double alphaS()         const {return alphaSSave;}
+  double alphaEM()        const {return alphaEMSave;}
+  double QRen()           const {return sqrtpos(Q2RenSave);}
+  double Q2Ren()          const {return Q2RenSave;}
 
   // Mandelstam variables (notation as if subcollision).
   double mHat()           const {return sqrt(sH);}   
@@ -95,42 +99,42 @@ public:
   double sigmaErr()       const {return sigErr;}
 
   // Impact parameter picture.
-  double bMI()            const {return (bIsSet) ? bH : 1.;}
-  double enhanceMI()      const {return (bIsSet) ? enhanceH : 1.;}
+  double bMI()            const {return (bIsSet) ? bMISave : 1.;}
+  double enhanceMI()      const {return (bIsSet) ? enhanceMISave : 1.;}
 
   // Maximum pT scales for MI, ISR and FSR (in hard process).
-  double pTmaxMI()        const {return pTmaxMIH;}
-  double pTmaxISR()       const {return pTmaxISRH;}
-  double pTmaxFSR()       const {return pTmaxFSRH;}
+  double pTmaxMI()        const {return pTmaxMISave;}
+  double pTmaxISR()       const {return pTmaxISRSave;}
+  double pTmaxFSR()       const {return pTmaxFSRSave;}
 
   // Number of multiple interactions, with code and pT for them.
-  int    nMI()            const {return nMIH;}
+  int    nMI()            const {return nMISave;}
   int    codeMI(int i)    const {return codeMISave[i];} 
   double pTMI(int i)      const {return pTMISave[i];} 
 
   // Number of times other steps have been carried out.
-  int    nISR()           const {return nISRH;}
-  int    nFSRinProc()     const {return nFSRinProcH;}
-  int    nFSRinRes()      const {return nFSRinResH;}
+  int    nISR()           const {return nISRSave;}
+  int    nFSRinProc()     const {return nFSRinProcSave;}
+  int    nFSRinRes()      const {return nFSRinResSave;}
 
 private:
 
   // Store common beam quantities. 
-  int    idAM, idBM;
-  double pzAM, eAM,mAM, pzBM, eBM, mBM, eCMM, sM;
+  int    idASave, idBSave;
+  double pzASave, eASave,mASave, pzBSave, eBSave, mBSave, eCMSave, sSave;
 
   // Store common integrated cross section quantities.
   long   nTry, nSel, nAcc;
   double sigGen, sigErr;
 
   // Store current-event quantities.
-  string nameSave, nameSubSave;
+  bool   isRes, isDiffA, isDiffB, isMB, hasSubSave, bIsSet, evolIsSet;  
   int    codeSave, codeSubSave, nFinalSave, nFinalSubSave, nTotal, 
-         id1H, id2H, nMIH, nISRH, nFSRinProcH, nFSRinResH;
-  bool   isMB, isRes, isDiffA, isDiffB, hasSubSave, bIsSet, evolIsSet;  
-  double x1H, x2H, pdf1H, pdf2H, Q2FacH, alphaEMH, alphaSH, Q2RenH, 
-         sH, tH, uH, pTH, m3H, m4H, thetaH, phiH, bH, enhanceH, pTmaxMIH,
-         pTmaxISRH, pTmaxFSRH;
+         id1Save, id2Save, nMISave, nISRSave, nFSRinProcSave, nFSRinResSave;
+  double x1Save, x2Save, pdf1Save, pdf2Save, Q2FacSave, alphaEMSave, 
+         alphaSSave, Q2RenSave, sH, tH, uH, pTH, m3H, m4H, thetaH, phiH, 
+         bMISave, enhanceMISave, pTmaxMISave, pTmaxISRSave, pTmaxFSRSave;
+  string nameSave, nameSubSave;
   vector<int>    codeMISave;
   vector<double> pTMISave;
 
@@ -143,18 +147,18 @@ private:
 
   // Set info on the two incoming beams: only from Pythia class.
   void setBeamA( int idAin, double pzAin, double eAin, double mAin) {
-    idAM = idAin; pzAM = pzAin; eAM = eAin; mAM = mAin;}
+    idASave = idAin; pzASave = pzAin; eASave = eAin; mASave = mAin;}
   void setBeamB( int idBin, double pzBin, double eBin, double mBin) {
-    idBM = idBin; pzBM = pzBin; eBM = eBin; mBM = mBin;}
-  void setECM( double eCMin) {eCMM = eCMin; sM = eCMM * eCMM;}
+    idBSave = idBin; pzBSave = pzBin; eBSave = eBin; mBSave = mBin;}
+  void setECM( double eCMin) {eCMSave = eCMin; sSave = eCMSave * eCMSave;}
 
   // Reset info for current event: only from Pythia class.
-  void clear() {nameSave = " "; codeSave = nFinalSave = nTotal = id1H
-    = id2H = nMIH = nISRH = nFSRinProcH = nFSRinResH = 0; isRes = isDiffA
-    = isDiffB = bIsSet = false; x1H = x2H = pdf1H = pdf2H = Q2FacH 
-    = alphaEMH = alphaSH = Q2RenH = sH = tH = uH = pTH = m3H = m4H 
-    = thetaH = phiH = 0.; bH = enhanceH = 1.; codeMISave.resize(0);
-    pTMISave.resize(0);}
+  void clear() { isRes = isDiffA = isDiffB = isMB = bIsSet = false;
+    codeSave = nFinalSave = nTotal = id1Save = id2Save = nMISave = nISRSave 
+    = nFSRinProcSave = nFSRinResSave = 0; x1Save = x2Save = pdf1Save 
+    = pdf2Save = Q2FacSave = alphaEMSave = alphaSSave = Q2RenSave 
+    = sH = tH = uH = pTH = m3H = m4H = thetaH = phiH = 0.; nameSave = " "; 
+    bMISave = enhanceMISave = 1.; codeMISave.resize(0); pTMISave.resize(0);}
 
   // Set info on the (sub)process: from ProcessLevel, ProcessContainer or 
   // MultipleInteractions classes.
@@ -171,12 +175,12 @@ private:
     nFinalSubSave = nFinalSubIn;}
   void setPDFalpha( int id1In, int id2In,  double pdf1In, double pdf2In, 
     double Q2FacIn, double alphaEMIn, double alphaSIn, double Q2RenIn) 
-    {id1H = id1In; id2H = id2In; pdf1H = pdf1In; pdf2H = pdf2In; 
-    Q2FacH = Q2FacIn; alphaEMH = alphaEMIn; alphaSH = alphaSIn; 
-    Q2RenH = Q2RenIn;}
+    {id1Save = id1In; id2Save = id2In; pdf1Save = pdf1In; pdf2Save = pdf2In; 
+    Q2FacSave = Q2FacIn; alphaEMSave = alphaEMIn; alphaSSave = alphaSIn; 
+    Q2RenSave = Q2RenIn;}
   void setKin( double x1In, double x2In, double sHatIn, double tHatIn, 
     double uHatIn, double pTHatIn, double m3HatIn, double m4HatIn, 
-    double thetaHatIn, double phiHatIn) {x1H = x1In; x2H = x2In; 
+    double thetaHatIn, double phiHatIn) {x1Save = x1In; x2Save = x2In; 
     sH = sHatIn; tH = tHatIn; uH = uHatIn; pTH = pTHatIn; m3H = m3HatIn; 
     m4H = m4HatIn; thetaH = thetaHatIn; phiH = phiHatIn;}
   void setTypeMI( int codeMIIn, double pTMIIn) {
@@ -188,15 +192,16 @@ private:
     sigGen = sigGenIn; sigErr = sigErrIn;} 
 
   // Set info on impact parameter: from PartonLevel.
-  void setImpact( double bIn, double enhanceIn) {bH = bIn;
-    enhanceH = enhanceIn, bIsSet = true;} 
+  void setImpact( double bMIIn, double enhanceMIIn) {bMISave = bMIIn;
+    enhanceMISave = enhanceMIIn, bIsSet = true;} 
 
   // Set info on pTmax scales and number of evolution steps: from PartonLevel.
   void setEvolution( double pTmaxMIIn, double pTmaxISRIn, double pTmaxFSRIn, 
     int nMIIn, int nISRIn, int nFSRinProcIn, int nFSRinResIn) { 
-    pTmaxMIH = pTmaxMIIn; pTmaxISRH = pTmaxISRIn; pTmaxFSRH = pTmaxFSRIn; 
-    nMIH = nMIIn; nISRH = nISRIn; nFSRinProcH = nFSRinProcIn; 
-    nFSRinResH = nFSRinResIn; evolIsSet = true;}
+    pTmaxMISave = pTmaxMIIn; pTmaxISRSave = pTmaxISRIn; 
+    pTmaxFSRSave = pTmaxFSRIn; nMISave = nMIIn; nISRSave = nISRIn; 
+    nFSRinProcSave = nFSRinProcIn; nFSRinResSave = nFSRinResIn; 
+    evolIsSet = true;}
 
 };
 

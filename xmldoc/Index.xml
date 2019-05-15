@@ -4,7 +4,7 @@
 
 <h2>PYTHIA 8 Index</h2>
 
-<h3><a href="pythia8080.pdf" target="page">Brief Introduction</a> (pdf)</h3>
+<h3><a href="pythia8090.pdf" target="page">Brief Introduction</a> (pdf)</h3>
 
 <h3>Program Overview</h3>
 
@@ -19,7 +19,7 @@
 <INDEXPHP>
 <aidx href="SaveSettings"><b>Save Settings</b></aidx><br/>
 <aidx href="MainProgramSettings">Main-Program Settings</aidx><br/>
-<aidx href="GenericSettings">Generic Settings</aidx><br/>
+<aidx href="RandomNumberSeed">Random-Number Seed</aidx><br/>
 <aidx href="PDFSelection">PDF Selection</aidx><br/>
 <aidx href="MasterSwitches">Master Switches</aidx><br/>
 <aidx href="ProcessSelection">Process Selection</aidx><br/>
@@ -48,6 +48,7 @@
 <aidx href="FlavourSelection">Flavour Selection</aidx><br/>
 <aidx href="ParticleDecays">Particle Decays</aidx><br/>
 <aidx href="ParticleData">Particle Data</aidx><br/>
+<aidx href="ErrorChecks">Error Checks</aidx><br/>
 </INDEXPHP>
 
 <h3>Study Output</h3>
@@ -68,12 +69,13 @@
 <INDEXPHP>
 <aidx href="LesHouchesAccord">Les Houches Accord</aidx><br/>
 <aidx href="AccessPYTHIA6Processes">Access PYTHIA 6 Processes</aidx><br/>
+<aidx href="SemiInternalProcesses">Semi-Internal Processes</aidx><br/>
 <aidx href="SUSYLesHouchesAccord">SUSY Les Houches Accord</aidx><br/>
 <aidx href="PartonDistributions">Parton Distributions</aidx><br/>
 <aidx href="ExternalDecays">External Decays</aidx><br/>
 <aidx href="UserHooks">User Hooks</aidx><br/>
 <aidx href="RandomNumbers">Random Numbers</aidx><br/>
-<aidx href="StdlibAndUtilities">Stdlib and Utilities</aidx><br/>
+<aidx href="ImplementNewShowers">Implement New Showers</aidx><br/>
 </INDEXPHP>
 
 <h3>Reference Materiel</h3>
@@ -83,10 +85,9 @@
 
 <h3>Internal</h3>
 
-<aidx href="ImplementAProcess">Implement a Process</aidx><br/>
-<aidx href="ImplementNewShowers">Implement New Showers</aidx><br/>
+<aidx href="StdlibAndUtilities">Stdlib and Utilities</aidx><br/>
 <aidx href="Version">Version</aidx><br/>
 
 </chapter>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

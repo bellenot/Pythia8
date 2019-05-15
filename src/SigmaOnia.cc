@@ -1,6 +1,10 @@
+// SigmaOnia.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the 
 // charmonia/bottomonia simulation classes. 
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "SigmaOnia.h"
 
@@ -28,9 +32,9 @@ void Sigma2gg2QQbar3S11g::initProc() {
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat); no explicit flavour dependence. 
 
-double Sigma2gg2QQbar3S11g::sigmaHat() { 
+void Sigma2gg2QQbar3S11g::sigmaKin() { 
 
   // Calculate kinematics dependence.
   double stH = sH + tH;
@@ -40,7 +44,7 @@ double Sigma2gg2QQbar3S11g::sigmaHat() {
     + pow2(tH * usH) + pow2(uH * stH) ) / pow2( stH * tuH * usH );
 
   // Answer.
-  return CONVERT2MB * (M_PI/sH2) * pow3(alpS) * oniumME * sig;  
+  sigma = (M_PI/sH2) * pow3(alpS) * oniumME * sig;  
 
 }
 
@@ -93,9 +97,9 @@ void Sigma2gg2QQbar3PJ1g::initProc() {
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat); no explicit flavour dependence. 
 
-double Sigma2gg2QQbar3PJ1g::sigmaHat() { 
+void Sigma2gg2QQbar3PJ1g::sigmaKin() { 
 
   // Useful derived kinematics quantities.
   double pRat  = (sH * uH + uH * tH + tH * sH)/ sH2;
@@ -135,7 +139,7 @@ double Sigma2gg2QQbar3PJ1g::sigmaHat() {
   }
 
   // Answer.
-  return CONVERT2MB * (M_PI/sH2) * pow3(alpS) * oniumME * sig;  
+  sigma = (M_PI/sH2) * pow3(alpS) * oniumME * sig;  
 
 }
 
@@ -188,9 +192,9 @@ void Sigma2qg2QQbar3PJ1q::initProc() {
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat); no explicit flavour dependence. 
 
-double Sigma2qg2QQbar3PJ1q::sigmaHat() { 
+void Sigma2qg2QQbar3PJ1q::sigmaKin() { 
 
   // Calculate kinematics dependence.
   double usH = uH + sH;
@@ -207,7 +211,7 @@ double Sigma2qg2QQbar3PJ1q::sigmaHat() {
   }
 
   // Answer.
-  return CONVERT2MB * (M_PI/sH2) * pow3(alpS) * oniumME * sig;  
+  sigma = (M_PI/sH2) * pow3(alpS) * oniumME * sig;  
 
 }
 
@@ -265,9 +269,9 @@ void Sigma2qqbar2QQbar3PJ1g::initProc() {
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat); no explicit flavour dependence. 
 
-double Sigma2qqbar2QQbar3PJ1g::sigmaHat() { 
+void Sigma2qqbar2QQbar3PJ1g::sigmaKin() { 
 
   // Calculate kinematics dependence.
   double tuH = tH + uH;
@@ -284,7 +288,7 @@ double Sigma2qqbar2QQbar3PJ1g::sigmaHat() {
   }
 
   // Answer.
-  return CONVERT2MB * (M_PI/sH2) * pow3(alpS) * oniumME * sig;  
+  sigma = (M_PI/sH2) * pow3(alpS) * oniumME * sig;  
 
 }
 
@@ -341,9 +345,9 @@ void Sigma2gg2QQbarX8g::initProc() {
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat); no explicit flavour dependence. 
 
-double Sigma2gg2QQbarX8g::sigmaHat() { 
+void Sigma2gg2QQbarX8g::sigmaKin() { 
 
   // Calculate kinematics dependence.
   double stH = sH + tH;
@@ -396,7 +400,7 @@ double Sigma2gg2QQbarX8g::sigmaHat() {
   } 
 
   // Answer.
-  return CONVERT2MB * (M_PI/sH2) * pow3(alpS) * oniumME * sig;  
+  sigma = (M_PI/sH2) * pow3(alpS) * oniumME * sig;  
 
 }
 
@@ -467,9 +471,9 @@ void Sigma2qg2QQbarX8q::initProc() {
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat); no explicit flavour dependence. 
 
-double Sigma2qg2QQbarX8q::sigmaHat() { 
+void Sigma2qg2QQbarX8q::sigmaKin() { 
 
   // Calculate kinematics dependence.
   double stH  = sH + tH;
@@ -491,7 +495,7 @@ double Sigma2qg2QQbarX8q::sigmaHat() {
   } 
 
   // Answer.
-  return CONVERT2MB * (M_PI/sH2) * pow3(alpS) * oniumME * sig;  
+  sigma = (M_PI/sH2) * pow3(alpS) * oniumME * sig;  
 
 }
 
@@ -563,9 +567,9 @@ void Sigma2qqbar2QQbarX8g::initProc() {
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat); no explicit flavour dependence. 
 
-double Sigma2qqbar2QQbarX8g::sigmaHat() { 
+void Sigma2qqbar2QQbarX8g::sigmaKin() { 
 
   // Calculate kinematics dependence.
   double stH  = sH + tH;
@@ -587,7 +591,7 @@ double Sigma2qqbar2QQbarX8g::sigmaHat() {
   } 
 
   // Answer.
-  return CONVERT2MB * (M_PI/sH2) * pow3(alpS) * oniumME * sig;  
+  sigma = (M_PI/sH2) * pow3(alpS) * oniumME * sig;  
 
 }
 

@@ -1,3 +1,8 @@
+// PartonDistributions.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for parton densities.
 // PDF: base class.
 // GRV94L: derived class for the GRV 94L parton densities.
@@ -5,7 +10,6 @@
 // LHAPDFinterface: derived class for interface to the LHAPDF library.
 // Lepton: derived class for parton densities inside a lepton.
 // LeptonPoint: derived class for unresolved lepton (mainly dummy).
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_PartonDistributions_H
 #define Pythia8_PartonDistributions_H

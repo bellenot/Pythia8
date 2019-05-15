@@ -1,6 +1,10 @@
+// SigmaSUSY.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the 
 // supersymmetry simulation classes. 
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "SigmaSUSY.h"
 
@@ -87,78 +91,70 @@ void Sigma2qqbar2chi0chi0::initProc() {
   }
 
 }
+
 //*********
 
-// Initialize parton-flux object. 
-  
-void Sigma2qqbar2chi0chi0::initFlux() {
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-  // Set up for q qbar initial state.
-  inFluxPtr = new InFluxqqbarSame();
+void Sigma2qqbar2chi0chi0::sigmaKin() {
 
-  // Multiply by colour factor 1/3.
-  inFluxPtr->weightInvCol();
+  // Common flavour-independent factor.
+  sigma0 = (M_PI / sH2) * pow2(alpEM) / pow2(sin2W * (1 - sin2W)); 
 
-  // Identical-fermion factor
-  if (id3chi == id4chi) inFluxPtr->weightFixed(0.5);
+  // Factor 1/2 for identical final particles.
+  if (id3chi == id4chi) sigma0 *= 0.5;
+
+  // Auxiliary factors for use below
+  ui     = uH - s3;
+  uj     = uH - s4;
+  ti     = tH - s3;
+  tj     = tH - s4;
+  sz     = sH - pow2(mZ);
+  d      = pow2(sz) + pow2(mZ * wZ);
+  propZ  = complex( sz / d, mZ * wZ / d);
 
 }
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
+// (NB: will eventually need also sum over non-diagonal flavours??)
 
 double Sigma2qqbar2chi0chi0::sigmaHat() {
 
-  // Common flavour-independent factor
-  double sigma = (M_PI / sH2) * pow2(alpEM) / pow2(sin2W * (1 - sin2W)); 
-
-  // Auxiliary factors for use below
-  double ui = uH - s3;
-  double uj = uH - s4;
-  double ti = tH - s3;
-  double tj = tH - s4;
-  double sz = sH - pow2(mZ);
-  double d  = pow2(sz) + pow2(mZ * wZ);
-  complex propZ( sz / d, mZ * wZ / d);
- 
-  // Flavour-dependent factors. Sum over diagonal in-flavours.
-  // (NB: will eventually need also class for non-diagonal)
-  for (int iq = 1; iq <= 2; ++iq) {
-
-    // Flavour-dependent kinematics-dependent couplings
-    complex QuLL = LqqZ[iq] * OL/2.0 * propZ;
-    complex QtLL = LqqZ[iq] * OR/2.0 * propZ;
-    complex QuRR = RqqZ[iq] * OR/2.0 * propZ;
-    complex QtRR = RqqZ[iq] * OL/2.0 * propZ;
-    complex QuLR = 0.0;
-    complex QtLR = 0.0;
-    complex QuRL = 0.0;
-    complex QtRL = 0.0;
+  // Flavour-dependent kinematics-dependent couplings.
+  int idAbs    = abs(id1);  
+  complex QuLL = LqqZ[idAbs] * OL/2.0 * propZ;
+  complex QtLL = LqqZ[idAbs] * OR/2.0 * propZ;
+  complex QuRR = RqqZ[idAbs] * OR/2.0 * propZ;
+  complex QtRR = RqqZ[idAbs] * OL/2.0 * propZ;
+  complex QuLR = 0.0;
+  complex QtLR = 0.0;
+  complex QuRL = 0.0;
+  complex QtRL = 0.0;
   
-    // Compute matrix element weight
-    double weight = 0;
-    // Average over separate helicity contributions
-    // LL (ha = -1, hb = +1) (divided by 4 for average)            
-    weight += norm(QuLL) * ui * uj + norm(QtLL) * ti * tj
-      + 2 * real(conj(QuLL) * QtLL) * m3 * m4 * sH;
-    // RR (ha =  1, hb = -1) (divided by 4 for average)        
-    weight += norm(QtRR) * ti * tj + norm(QuRR) * ui * uj  
-      + 2 * real(conj(QuRR) * QtRR) * m3 * m4 * sH;
-    // RL (ha =  1, hb =  1) (divided by 4 for average)        
-    weight += norm(QuRL) * ui * uj + norm(QtRL) * ti * tj
-      - real(conj(QuRL) * QtRL) * (uH * tH - s3 * s4);
-    // LR (ha = -1, hb = -1) (divided by 4 for average)        
-    weight += norm(QuLR) * ui * uj + norm(QtLR) * ti * tj
-      - real(conj(QuLR) * QtLR) * (uH * tH - s3 * s4);
-    
-    // Apply weight to inFlux. First-generation results automatically
-    // extend also to second and third (so far, with no squark contribution).  
-    inFluxPtr->weightInState( iq, -iq, weight);
-  
-  }
-  // Answer, leaving out flavour-dependent pieces stored above.
-  return CONVERT2MB * sigma;    
+  // Compute matrix element weight
+  double weight = 0;
+  // Average over separate helicity contributions
+  // LL (ha = -1, hb = +1) (divided by 4 for average)            
+  weight += norm(QuLL) * ui * uj + norm(QtLL) * ti * tj
+    + 2 * real(conj(QuLL) * QtLL) * m3 * m4 * sH;
+  // RR (ha =  1, hb = -1) (divided by 4 for average)        
+  weight += norm(QtRR) * ti * tj + norm(QuRR) * ui * uj  
+    + 2 * real(conj(QuRR) * QtRR) * m3 * m4 * sH;
+  // RL (ha =  1, hb =  1) (divided by 4 for average)        
+  weight += norm(QuRL) * ui * uj + norm(QtRL) * ti * tj
+    - real(conj(QuRL) * QtRL) * (uH * tH - s3 * s4);
+  // LR (ha = -1, hb = -1) (divided by 4 for average)        
+  weight += norm(QuLR) * ui * uj + norm(QtLR) * ti * tj
+    - real(conj(QuLR) * QtLR) * (uH * tH - s3 * s4);
+
+  // Cross section, including colour factor.
+  double sigma = sigma0 * weight;
+  if (idAbs < 9) sigma /= 3.;
+
+  // Answer.
+  return sigma;    
 
 }
 
@@ -172,8 +168,8 @@ void Sigma2qqbar2chi0chi0::setIdColAcol() {
   setId( id1, id2, id3, id4);
 
   // Colour flow topologies. Swap when antiquarks.
-  if (abs(id1) < 10) setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
-  else               setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
+  if (abs(id1) < 9) setColAcol( 1, 0, 0, 1, 0, 0, 0, 0);
+  else              setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
   if (id1 < 0) swapColAcol();
 
 }

@@ -1,7 +1,11 @@
+// MultipleInteractions.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This file contains the main classes for multiple interactions physics.
 // SigmaMultiple stores allowed processes by in-flavour combination.
 // MultipleInteractions: generates multiple parton-parton interactions.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_MultipleInteractions_H
 #define Pythia8_MultipleInteractions_H
@@ -134,7 +138,7 @@ private:
 
   // Static initialization data, normally only set once.
   static int    pTmaxMatch, alphaSorder, alphaEMorder, bProfile, 
-                processLevel, nQuark, nSample;
+                processLevel, nQuarkIn, nSample;
   static double alphaSvalue, Kfactor, pT0Ref, ecmRef, ecmPow, 
                 pTmin, coreRadius, coreFraction, expPow;
 
@@ -169,8 +173,7 @@ private:
   SigmaTotal sigmaTot;
 
   // Collections of parton-level 2 -> 2 cross sections. Selected one.
-  SigmaMultiple sigma2gg, sigma2qg, sigma2qqSame, sigma2qqbarSame, 
-    sigma2qqDiff;
+  SigmaMultiple sigma2gg, sigma2qg, sigma2qqbarSame, sigma2qq;
   SigmaProcess* dSigmaDtSel;
 
   // Statistics on generated 2 -> 2 processes.

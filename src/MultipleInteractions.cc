@@ -1,6 +1,10 @@
+// MultipleInteractions.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the
 // SigmaMultiple and MultipleInteractions classes.
-// Copyright C 2007 Torbjorn Sjostrand
   
 #include "MultipleInteractions.h"
 
@@ -54,20 +58,10 @@ bool SigmaMultiple::init(int inState, int processLevel) {
     sigmaT.push_back( new Sigma2qg2qg() );
     sigmaU.push_back( new Sigma2qg2qg() );
 
-  // Quark-quark instate, identical flavours.
-  } else if (inState == 2) { 
-    sigmaT.push_back( new Sigma2qq2qqSame() );
-    sigmaU.push_back( new Sigma2qq2qqSame() );
-
-  // Quark-antiquark instate, identical flavours.
-  } else if (inState == 3) { 
-    sigmaT.push_back( new Sigma2qqbar2qqbarSame() );
-    sigmaU.push_back( new Sigma2qqbar2qqbarSame() );
-
-  // Quark-quark or quark-antiquark instate, different flavours.
-  } else if (inState == 4) { 
-    sigmaT.push_back( new Sigma2qq2qqDiff() );
-    sigmaU.push_back( new Sigma2qq2qqDiff() );
+  // Quark-(anti)quark instate.
+  } else { 
+    sigmaT.push_back( new Sigma2qq2qq() );
+    sigmaU.push_back( new Sigma2qq2qq() );
   }
 
   // Normally store QCD processes to new flavour.
@@ -79,7 +73,7 @@ bool SigmaMultiple::init(int inState, int processLevel) {
       sigmaU.push_back( new Sigma2gg2QQbar(4, 121) );   
       sigmaT.push_back( new Sigma2gg2QQbar(5, 123) );
       sigmaU.push_back( new Sigma2gg2QQbar(5, 123) );   
-    } else if (inState == 3) { 
+    } else if (inState == 2) { 
       sigmaT.push_back( new Sigma2qqbar2gg() );
       sigmaU.push_back( new Sigma2qqbar2gg() );
       sigmaT.push_back( new Sigma2qqbar2qqbarNew() );
@@ -101,11 +95,11 @@ bool SigmaMultiple::init(int inState, int processLevel) {
     } else if (inState == 1) { 
       sigmaT.push_back( new Sigma2qg2qgamma() );
       sigmaU.push_back( new Sigma2qg2qgamma() );
-    } else if (inState == 3) { 
+    } else if (inState == 2) { 
       sigmaT.push_back( new Sigma2qqbar2ggamma() );
       sigmaU.push_back( new Sigma2qqbar2ggamma() );
-      sigmaT.push_back( new Sigma2qqbar2gammagamma() );
-      sigmaU.push_back( new Sigma2qqbar2gammagamma() );
+      sigmaT.push_back( new Sigma2ffbar2gammagamma() );
+      sigmaU.push_back( new Sigma2ffbar2gammagamma() );
       sigmaT.push_back( new Sigma2ffbar2ffbarsgm() );
       sigmaU.push_back( new Sigma2ffbar2ffbarsgm() );
     }
@@ -173,7 +167,7 @@ bool SigmaMultiple::init(int inState, int processLevel) {
       sigmaU.push_back( new Sigma2qg2QQbarX8q(5, 1, 515) );
       sigmaT.push_back( new Sigma2qg2QQbarX8q(5, 2, 516) );
       sigmaU.push_back( new Sigma2qg2QQbarX8q(5, 2, 516) );
-    } else if (inState == 3) { 
+    } else if (inState == 2) { 
       sigmaT.push_back( new Sigma2qqbar2QQbar3PJ1g(4, 0, 408) );
       sigmaU.push_back( new Sigma2qqbar2QQbar3PJ1g(4, 0, 408) );
       sigmaT.push_back( new Sigma2qqbar2QQbar3PJ1g(4, 1, 409) );
@@ -257,9 +251,10 @@ double SigmaMultiple::sigma( int id1, int id2, double x1, double x2,
 
     // t-channel-sampling contribution. 
     if (sHat > sHatMin[i]) { 
-      sigmaT[i]->set2KinMI( id1, id2, x1, x2, sHat, tHat, uHat, 
+      sigmaT[i]->set2KinMI( x1, x2, sHat, tHat, uHat, 
         alpS, alpEM, needMasses[i], m3Fix[i], m4Fix[i]);
-      sigmaTval[i] = sigmaT[i]->sigmaHat();
+      sigmaTval[i] = sigmaT[i]->sigmaHatWrap(id1, id2);
+      sigmaT[i]->pickInState(id1, id2);
       // Correction factor for tHat rescaling in massive kinematics.
       if (needMasses[i]) sigmaTval[i] *= sigmaT[i]->sHBetaMI() / sHat;
       sigmaTsum += sigmaTval[i];
@@ -267,9 +262,10 @@ double SigmaMultiple::sigma( int id1, int id2, double x1, double x2,
    
     // u-channel-sampling contribution.
     if (sHat > sHatMin[i]) { 
-      sigmaU[i]->set2KinMI( id1, id2, x1, x2, sHat, uHat, tHat, 
+      sigmaU[i]->set2KinMI( x1, x2, sHat, uHat, tHat, 
         alpS, alpEM, needMasses[i], m3Fix[i], m4Fix[i]);
-      sigmaUval[i] = sigmaU[i]->sigmaHat();
+      sigmaUval[i] = sigmaU[i]->sigmaHatWrap( id1, id2);
+      sigmaU[i]->pickInState(id1, id2);
       // Correction factor for tHat rescaling in massive kinematics.
       if (needMasses[i]) sigmaUval[i] *= sigmaU[i]->sHBetaMI() / sHat;
       sigmaUsum += sigmaUval[i];
@@ -335,7 +331,7 @@ double MultipleInteractions::coreRadius   = 0.4;
 double MultipleInteractions::coreFraction = 0.5; 
 double MultipleInteractions::expPow       = 1.; 
 int    MultipleInteractions::processLevel = 1; 
-int    MultipleInteractions::nQuark       = 5; 
+int    MultipleInteractions::nQuarkIn     = 5; 
 int    MultipleInteractions::nSample      = 1000; 
 
 // Constants: could be changed here if desired, but normally should not.
@@ -415,7 +411,7 @@ void MultipleInteractions::initStatic() {
   processLevel = Settings::mode("MultipleInteractions:processLevel");
 
   // Various other parameters. 
-  nQuark       = Settings::mode("MultipleInteractions:nQuark");
+  nQuarkIn     = Settings::mode("MultipleInteractions:nQuarkIn");
   nSample      = Settings::mode("MultipleInteractions:nSample");
 
 }
@@ -458,9 +454,8 @@ bool MultipleInteractions::init( BeamParticle* beamAPtrIn,
   if (!reInit) {
     sigma2gg.init( 0, processLevel);
     sigma2qg.init( 1, processLevel);
-    sigma2qqSame.init( 2, processLevel);
-    sigma2qqbarSame.init( 3, processLevel);
-    sigma2qqDiff.init( 4, processLevel);
+    sigma2qqbarSame.init( 2, processLevel);
+    sigma2qq.init( 3, processLevel);
   }
 
   // Calculate invariant mass of system. Set current pT0 scale.
@@ -530,12 +525,11 @@ bool MultipleInteractions::init( BeamParticle* beamAPtrIn,
 
   // Ensure that process list is complete, and reset statistics.
   SigmaMultiple* dSigma;
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < 4; ++i) {
     if      (i == 0) dSigma = &sigma2gg; 
     else if (i == 1) dSigma = &sigma2qg;
-    else if (i == 2) dSigma = &sigma2qqSame;
-    else if (i == 3) dSigma = &sigma2qqbarSame;
-    else             dSigma = &sigma2qqDiff;
+    else if (i == 2) dSigma = &sigma2qqbarSame;
+    else             dSigma = &sigma2qq;
     int nProc = dSigma->nProc();
     for (int iProc = 0; iProc < nProc; ++iProc)
       nGen[ dSigma->codeProc(iProc) ] = 0;
@@ -764,11 +758,11 @@ void MultipleInteractions::upperEnvelope() {
 
     // Evaluate parton density sums at x1 = x2 = xT.
     double xPDF1sumMax = (9./4.) * beamAPtr->xf(21, xT, pT2Fac);
-    for (int id = 1; id <= nQuark; ++id) 
+    for (int id = 1; id <= nQuarkIn; ++id) 
       xPDF1sumMax += beamAPtr->xf(id, xT, pT2Fac) 
         + beamAPtr->xf(-id, xT, pT2Fac);
     double xPDF2sumMax = (9./4.) * beamBPtr->xf(21, xT, pT2Fac);
-    for (int id = 1; id <= nQuark; ++id)
+    for (int id = 1; id <= nQuarkIn; ++id)
       xPDF2sumMax += beamBPtr->xf(id, xT, pT2Fac) 
         + beamBPtr->xf(-id, xT, pT2Fac);
 
@@ -924,12 +918,12 @@ double MultipleInteractions::sigmaPT2(bool isFirst) {
 
   // For first interaction use normal densities.
   if (isFirst) {
-    for (int id = -nQuark; id <= nQuark; ++id) {
+    for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
       if (id == 0) xPDF1[10] = (9./4.) * beamAPtr->xf(21, x1, pT2Fac);
       else xPDF1[id+10] = beamAPtr->xf(id, x1, pT2Fac);
       xPDF1sum += xPDF1[id+10];
     }
-    for (int id = -nQuark; id <= nQuark; ++id) {
+    for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
       if (id == 0) xPDF2[10] = (9./4.) * beamBPtr->xf(21, x2, pT2Fac);
       else xPDF2[id+10] = beamBPtr->xf(id, x2, pT2Fac);
       xPDF2sum += xPDF2[id+10];
@@ -937,12 +931,12 @@ double MultipleInteractions::sigmaPT2(bool isFirst) {
   
   // For subsequent interactions use rescaled densities.
   } else {
-    for (int id = -nQuark; id <= nQuark; ++id) {
+    for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
       if (id == 0) xPDF1[10] = (9./4.) * beamAPtr->xfMI(21, x1, pT2Fac);
       else xPDF1[id+10] = beamAPtr->xfMI(id, x1, pT2Fac);
       xPDF1sum += xPDF1[id+10];
     }
-    for (int id = -nQuark; id <= nQuark; ++id) {
+    for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
       if (id == 0) xPDF2[10] = (9./4.) * beamBPtr->xfMI(21, x2, pT2Fac);
       else xPDF2[id+10] = beamBPtr->xfMI(id, x2, pT2Fac);
       xPDF2sum += xPDF2[id+10];
@@ -950,28 +944,30 @@ double MultipleInteractions::sigmaPT2(bool isFirst) {
   }
 
   // Select incoming flavours according to actual PDF's.
-  id1 = -nQuark-1;
+  id1 = -nQuarkIn - 1;
   double temp = xPDF1sum * Rndm::flat();
   do { xPDF1now = xPDF1[(++id1) + 10]; temp -= xPDF1now; } 
-  while (temp > 0. && id1 < nQuark);
+  while (temp > 0. && id1 < nQuarkIn);
   if (id1 == 0) id1 = 21; 
-  id2 = -nQuark-1;
+  id2 = -nQuarkIn-1;
   temp = xPDF2sum * Rndm::flat();
   do { xPDF2now = xPDF2[(++id2) + 10]; temp -= xPDF2now;} 
-  while (temp > 0. && id2 < nQuark);  
+  while (temp > 0. && id2 < nQuarkIn);  
   if (id2 == 0) id2 = 21; 
 
   // Assign pointers to processes relevant for incoming flavour choice:
-  // g + g, q + g, q + q (same flavour), q + qbar (same flavour), 
-  // q + q or q + qbar (different flavours).  
+  // g + g, q + g, q + qbar (same flavour), q + q(bar) (the rest).  
   // Factor 4./9. per incoming gluon to compensate for preweighting.  
   SigmaMultiple* dSigma;
   double gluFac = 1.;
-  if (id1 == 21 && id2 == 21) { dSigma = &sigma2gg; gluFac = 16. / 81.;}
-  else if (id1 == 21 || id2 == 21) { dSigma = &sigma2qg; gluFac = 4. / 9.;}
-  else if (id1 == id2) dSigma = &sigma2qqSame;
-  else if (id1 == -id2) dSigma = &sigma2qqbarSame;
-  else dSigma = &sigma2qqDiff;
+  if (id1 == 21 && id2 == 21) { 
+    dSigma = &sigma2gg; 
+    gluFac = 16. / 81.;
+  } else if (id1 == 21 || id2 == 21) { 
+    dSigma = &sigma2qg; 
+    gluFac = 4. / 9.;
+  } else if (id1 == -id2) dSigma = &sigma2qqbarSame;
+  else dSigma = &sigma2qq;
 
   // Prepare to generate differential cross sections.
   sHat = tau * sCM;
@@ -1343,12 +1339,11 @@ void MultipleInteractions::statistics(ostream& os) {
     string name = " ";
     bool foundName = false;
     SigmaMultiple* dSigma;
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 4; ++i) {
       if      (i == 0) dSigma = &sigma2gg; 
       else if (i == 1) dSigma = &sigma2qg;
-      else if (i == 2) dSigma = &sigma2qqSame;
-      else if (i == 3) dSigma = &sigma2qqbarSame;
-      else             dSigma = &sigma2qqDiff;
+      else if (i == 2) dSigma = &sigma2qqbarSame;
+      else             dSigma = &sigma2qq;
       int nProc = dSigma->nProc();
       for (int iProc = 0; iProc < nProc; ++iProc)
       if (dSigma->codeProc(iProc) == code) {

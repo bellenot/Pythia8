@@ -1,8 +1,11 @@
-// File: main03.cc
+// main03.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This is a simple test program. 
 // It illustrates a simple analysis of QCD jet events.
 // All input is specified in the main03.cmnd file.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 

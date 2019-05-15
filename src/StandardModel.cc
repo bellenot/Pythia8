@@ -1,5 +1,9 @@
+// StandardModel.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the AlphaStrong class.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "StandardModel.h"
 
@@ -46,38 +50,55 @@ void AlphaStrong::init( double valueIn, int orderIn) {
 
   // Second order alpha_s: iterative match at flavour thresholds.
   } else {
+    double b15 = 348. / 529.;
+    double b14 = 462. / 625.;
+    double b13 = 64. / 81.;    
+    double b25 = 224687. / 242208.;      
+    double b24 = 548575. / 426888.;
+    double b23 = 938709. / 663552.;
+    double logScale, loglogScale, correction, valueIter;
 
     // Find Lambda_5 at m_Z.
     Lambda5Save = mZ * exp( -6. * M_PI / (23. * valueRef) );
     for (int iter = 0; iter < NITER; ++iter) {
-      double logScale   = 2. * log(mZ/Lambda5Save);
-      double correction = 1. - (348./529.) * log(logScale) / logScale;
-      double valueIter  = valueRef / correction; 
-      Lambda5Save       = mZ * exp( -6. * M_PI / (23. * valueIter) );
+      logScale    = 2. * log(mZ/Lambda5Save);
+      loglogScale = log(logScale);
+      correction  = 1. - b15 * loglogScale / logScale 
+        + pow2(b15 / logScale) * (pow2(loglogScale - 0.5) + b25 - 1.25);
+      valueIter   = valueRef / correction; 
+      Lambda5Save = mZ * exp( -6. * M_PI / (23. * valueIter) );
     }
 
     // Find Lambda_4 at m_b.
     double logScaleB    = 2. * log(mb/Lambda5Save);
+    double loglogScaleB = log(logScaleB);
     double valueB       = 12. * M_PI / (23. * logScaleB) 
-        * (1. - (348./529.) * log(logScaleB) / logScaleB);
+      * (1. - b15 * loglogScaleB / logScaleB
+        + pow2(b15 / logScaleB) * (pow2(loglogScaleB - 0.5) + b25- 1.25) ); 
     Lambda4Save         = Lambda5Save;
     for (int iter = 0; iter < NITER; ++iter) {
-      double logScale   = 2. * log(mb/Lambda4Save);
-      double correction = 1. - (462./625.) * log(logScale) / logScale;
-      double valueIter  = valueB / correction; 
-      Lambda4Save       = mb * exp( -6. * M_PI / (25. * valueIter) );
+      logScale    = 2. * log(mb/Lambda4Save);
+      loglogScale = log(logScale);
+      correction  = 1. - b14 * loglogScale / logScale 
+        + pow2(b14 / logScale) * (pow2(loglogScale - 0.5) + b24 - 1.25);
+      valueIter   = valueB / correction; 
+      Lambda4Save = mb * exp( -6. * M_PI / (25. * valueIter) );
     }
 
     // Find Lambda_3 at m_c.
     double logScaleC    = 2. * log(mc/Lambda4Save);
+    double loglogScaleC = log(logScaleC);
     double valueC       = 12. * M_PI / (25. * logScaleC) 
-        * (1. - (462./625.) * log(logScaleC) / logScaleC);
+      * (1. - b14 * loglogScaleC / logScaleC
+        + pow2(b14 / logScaleC) * (pow2(loglogScaleC - 0.5) + b24 - 1.25) ); 
     Lambda3Save = Lambda4Save;
     for (int iter = 0; iter < NITER; ++iter) {
-      double logScale   = 2. * log(mc/Lambda3Save);
-      double correction = 1. - (64./81.) * log(logScale) / logScale;
-      double valueIter  = valueC / correction; 
-      Lambda3Save       = mc * exp( -6. * M_PI / (27. * valueIter) );
+      logScale    = 2. * log(mc/Lambda3Save);
+      loglogScale = log(logScale);
+      correction  = 1. - b13 * loglogScale / logScale 
+        + pow2(b13 / logScale) * (pow2(loglogScale - 0.5) + b23 - 1.25);
+      valueIter   = valueC / correction; 
+      Lambda3Save = mc * exp( -6. * M_PI / (27. * valueIter) );
     }
   }
 
@@ -111,23 +132,36 @@ double AlphaStrong::alphaS( double scale2) {
   
   // First order alpha_s: differs by mass region.  
   } else if (order == 1) {
-    if (scale2 > mb2) valueNow 
-      = 12. * M_PI / (23. * log(scale2/Lambda5Save2));
-    else if (scale2 > mc2) valueNow 
-      = 12. * M_PI / (25. * log(scale2/Lambda4Save2));
+    if (scale2 > mb2) 
+         valueNow = 12. * M_PI / (23. * log(scale2/Lambda5Save2));
+    else if (scale2 > mc2) 
+         valueNow = 12. * M_PI / (25. * log(scale2/Lambda4Save2));
     else valueNow = 12. * M_PI / (27. * log(scale2/Lambda3Save2));
   
   // Second order alpha_s: differs by mass region.  
   } else {
-    if (scale2 > mb2) { double logScale = log(scale2/Lambda5Save2);
-      valueNow = 12. * M_PI / (23. * logScale) 
-        * (1. - (348./529.) * log(logScale) / logScale); }
-    else if (scale2 > mc2) { double logScale = log(scale2/Lambda4Save2); 
-      valueNow = 12. * M_PI / (25. * logScale)
-        * (1. - (462./625.) * log(logScale) / logScale); }
-    else { double logScale = log(scale2/Lambda3Save2); 
-      valueNow = 12. * M_PI / (27. * logScale)
-        * (1. - (64./81.) * log(logScale) / logScale); }
+    double Lambda2, b0, b1, b2;
+    if (scale2 > mb2) {
+      Lambda2 = Lambda5Save2;
+      b0      = 23.;
+      b1      = 348. / 529.; 
+      b2      = 224687. / 242208.;      
+    } else if (scale2 > mc2) {     
+      Lambda2 = Lambda4Save2;
+      b0      = 25.;
+      b1      = 462. / 625.;
+      b2      = 548575. / 426888.;
+    } else {       
+      Lambda2 = Lambda3Save2;
+      b0      = 27.;
+      b1      = 64. / 81.;
+      b2      = 938709. / 663552.;
+    }
+    double logScale    = log(scale2/Lambda2);
+    double loglogScale = log(logScale);
+    valueNow = 12. * M_PI / (b0 * logScale) 
+      * ( 1. - b1 * loglogScale / logScale 
+        + pow2(b1 / logScale) * (pow2(loglogScale - 0.5) + b2 - 1.25) ); 
   }
 
   // Done.
@@ -154,10 +188,10 @@ double  AlphaStrong::alphaS1Ord( double scale2) {
   
   // First/second order alpha_s: differs by mass region.  
   } else {
-    if (scale2 > mb2) valueNow 
-      = 12. * M_PI / (23. * log(scale2/Lambda5Save2));
-    else if (scale2 > mc2) valueNow 
-      = 12. * M_PI / (25. * log(scale2/Lambda4Save2));
+    if (scale2 > mb2) 
+         valueNow = 12. * M_PI / (23. * log(scale2/Lambda5Save2));
+    else if (scale2 > mc2) 
+         valueNow = 12. * M_PI / (25. * log(scale2/Lambda4Save2));
     else valueNow = 12. * M_PI / (27. * log(scale2/Lambda3Save2));
   }
 
@@ -177,12 +211,28 @@ double AlphaStrong::alphaS2OrdCorr( double scale2) {
   if (order < 2) return 1.; 
   
   // Second order correction term: differs by mass region.  
-  if (scale2 > mb2) { double logScale = log(scale2/Lambda5Save2);
-    return 1. - (348./529.) * log(logScale) / logScale; }
-  if (scale2 > mc2) { double logScale = log(scale2/Lambda4Save2); 
-    return 1. - (462./625.) * log(logScale) / logScale; }
-  double logScale = log(scale2/Lambda3Save2); 
-    return 1. - (64./81.) * log(logScale) / logScale; 
+  double Lambda2, b0, b1, b2;
+  if (scale2 > mb2) {
+    Lambda2 = Lambda5Save2;
+    b0      = 23.;
+    b1      = 348. / 529.;       
+    b2      = 224687. / 242208.;      
+  } else if (scale2 > mc2) {     
+    Lambda2 = Lambda4Save2;
+    b0      = 25.;
+    b1      = 462. / 625.;
+    b2      = 548575. / 426888.;
+  } else {       
+    Lambda2 = Lambda3Save2;
+    b0      = 27.;
+    b1      = 64. / 81.;
+    b2      = 938709. / 663552.;
+  }
+  double logScale    = log(scale2/Lambda2);
+  double loglogScale = log(logScale);
+  return ( 1. - b1 * loglogScale / logScale 
+    + pow2(b1 / logScale) * (pow2(loglogScale - 0.5) + b2 - 1.25) ); 
+
 } 
 
 //**************************************************************************

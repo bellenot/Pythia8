@@ -1,7 +1,10 @@
-// File: main09.cc
+// main09.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This is a simple test program. 
 // It studies event properties of LEP1 events.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
 
@@ -13,7 +16,7 @@ int main() {
   Pythia pythia;
 
   // Allow no substructure in e+- beams: normal for corrected LEP data.
-  pythia.readString("Pythia:lPDF = off"); 
+  pythia.readString("PDF:lepton = off"); 
   // Process selection.
   pythia.readString("WeakSingleBoson:ffbar2gmZ = on");    
   // Switch off all Z0 decays and then switch back on those to quarks.
@@ -43,7 +46,7 @@ int main() {
   Hist eDifJade("Jade e_i - e_{i+1}", 100, -5.,45.);
   Hist eDifDurham("Durham e_i - e_{i+1}", 100, -5.,45.);
 
-  // Set up Sphericity, "Linearity", Thurst and cluster jet analyses.
+  // Set up Sphericity, "Linearity", Thrust and cluster jet analyses.
   Sphericity sph;  
   Sphericity lin(1.);
   Thrust thr;

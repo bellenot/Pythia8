@@ -1,7 +1,11 @@
-// File: main02.cc
+// main02.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This is a simple test program. It fits on one slide in a talk.
 // It studies the pT_Z spectrum at the Tevatron.
-// Copyright C 2007 Torbjorn Sjostrand
+
 #include "Pythia.h"
 using namespace Pythia8; 
 int main() {

@@ -1,10 +1,14 @@
+// Settings.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for the settings database; and for error statistics.
 // Flag: helper class with bool flags.
 // Mode: helper class with int modes.
 // Parm: (short for parameter) helper class with double parameters.
 // Word: helper class with string words.
 // Settings: maps of flags, modes, parms and words with input/output.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_Settings_H
 #define Pythia8_Settings_H

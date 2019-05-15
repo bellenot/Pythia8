@@ -1,6 +1,10 @@
+// Pythia6Interface.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for the Pythia 6.4 f77 external linkage to C++.
 // All required code is contained here, i.e. there is no matching .cc file.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_Pythia6Interface_H
 #define Pythia8_Pythia6Interface_H

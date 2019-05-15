@@ -212,4 +212,4 @@ the accepted event sample above, i.e. after any user veto.
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

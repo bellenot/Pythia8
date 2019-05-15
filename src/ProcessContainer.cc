@@ -1,6 +1,10 @@
+// ProcessContainer.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the 
 // ProcessContainer and SetupContainers classes.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "ProcessContainer.h"
 
@@ -32,7 +36,10 @@ ResonanceDecays* ProcessContainer::resonanceDecaysPtr;
 // These are of technical nature, as described for each.
 
 // Number of event tries to check maximization finding reliability.
-const int ProcessContainer::NSAMPLE = 100;
+const int ProcessContainer::N12SAMPLE = 100;
+
+// Ditto, but increased for 2 -> 3 processes.
+const int ProcessContainer::N3SAMPLE  = 1000;
 
 //*********
 
@@ -52,7 +59,8 @@ bool ProcessContainer::init() {
   else if (!isResolved) phaseSpacePtr = new PhaseSpace2to2eldiff( isDiffA, 
     isDiffB);
   else if (nFinal == 1) phaseSpacePtr = new PhaseSpace2to1tauy();
-  else phaseSpacePtr = new PhaseSpace2to2tauyz();
+  else if (nFinal == 2) phaseSpacePtr = new PhaseSpace2to2tauyz();
+  else                  phaseSpacePtr = new PhaseSpace2to3tauycyl();
 
   // Store common info for PhaseSpace objects.
   double eCM = infoPtr->eCM();
@@ -71,10 +79,9 @@ bool ProcessContainer::init() {
   sigmaFin  = 0.;
   deltaFin  = 0.;
 
-  // Initialize process. Remove empty inFlux channels and optionally list.
+  // Initialize process and allowed incoming partons.
   sigmaProcessPtr->initProc();
-  sigmaProcessPtr->initFlux();
-  sigmaProcessPtr->checkChannels();
+  if (!sigmaProcessPtr->initFlux()) return false;
 
   // Find maximum of differential cross section * phasespace.
   bool physical       = phaseSpacePtr->setupSampling();
@@ -83,9 +90,10 @@ bool ProcessContainer::init() {
 
   // Check maximum by a few events, and extrapolate a further increase.
   if (physical) {
-    for (int sample = 0; sample < NSAMPLE; ++sample) 
+    int nSample = (nFinal < 3) ? N12SAMPLE : N3SAMPLE;
+    for (int iSample = 0; iSample < nSample; ++iSample) 
     while (!phaseSpacePtr->trialKin(false)) { 
-      if (sample == NSAMPLE/2) sigmaHalfWay = phaseSpacePtr->sigmaMax();
+      if (iSample == nSample/2) sigmaHalfWay = phaseSpacePtr->sigmaMax();
     }   
     sigmaMx = pow2(phaseSpacePtr->sigmaMax()) / sigmaHalfWay;
     phaseSpacePtr->setSigmaMax(sigmaMx);
@@ -117,13 +125,14 @@ bool ProcessContainer::trialProcess() {
   }
   if (sigmaNow < 0.) sigmaNow = 0.;
 
-  // Update statistics and maximum.
+  // Update statistics. Check if maximum violated.
   sigmaSum  += sigmaNow;
   sigma2Sum += pow2(sigmaNow);
-  sigmaMx    = phaseSpacePtr->sigmaMax();
+  newSigmaMx = phaseSpacePtr->newSigmaMax();
+  if (newSigmaMx) sigmaMx = phaseSpacePtr->sigmaMax();
 
   // Select or reject trial point.
-  bool select = (sigmaNow > Rndm::flat() * sigmaMx);  
+  bool select = (newSigmaMx || sigmaNow > Rndm::flat() * sigmaMx);  
   if (select) ++nSel;
   return select;
 
@@ -164,8 +173,8 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   double pdf1    = sigmaProcessPtr->pdf1();
   double pdf2    = sigmaProcessPtr->pdf2();
   double Q2Fac   = sigmaProcessPtr->Q2Fac();
-  double alphaEM = sigmaProcessPtr->alphaEMH();
-  double alphaS  = sigmaProcessPtr->alphaSH();
+  double alphaEM = sigmaProcessPtr->alphaEMRen();
+  double alphaS  = sigmaProcessPtr->alphaSRen();
   double Q2Ren   = sigmaProcessPtr->Q2Ren();
   double x1      = phaseSpacePtr->x1();
   double x2      = phaseSpacePtr->x2();
@@ -346,19 +355,15 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
   if (hardQCD || Settings::flag("HardQCD:qq2qq")) {
-    sigmaPtr = new Sigma2qq2qqDiff;
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qq2qqSame;
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2qqbarSame;
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  } 
-  if (hardQCD || Settings::flag("HardQCD:qqbar2qqbarNew")) {
-    sigmaPtr = new Sigma2qqbar2qqbarNew;
+    sigmaPtr = new Sigma2qq2qq;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
   if (hardQCD || Settings::flag("HardQCD:qqbar2gg")) {
     sigmaPtr = new Sigma2qqbar2gg;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (hardQCD || Settings::flag("HardQCD:qqbar2qqbarNew")) {
+    sigmaPtr = new Sigma2qqbar2qqbarNew;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
   
@@ -398,8 +403,8 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
   if (promptPhotons 
-    || Settings::flag("PromptPhoton:qqbar2gammagamma")) {
-    sigmaPtr = new Sigma2qqbar2gammagamma;
+    || Settings::flag("PromptPhoton:ffbar2gammagamma")) {
+    sigmaPtr = new Sigma2ffbar2gammagamma;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
   if (promptPhotons
@@ -707,35 +712,73 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs) {
     sigmaPtr = new Sigma2ffbar2HW;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
-  // This process not included in "all" so as not to doublecount.
-  if (Settings::flag("SMHiggs:qg2Hq")) {
-    sigmaPtr = new Sigma2qg2Hq;
+  if (SMHiggses || Settings::flag("SMHiggs:ff2Hff(t:ZZ)")) {
+    sigmaPtr = new Sigma3ff2HfftZZ;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (SMHiggses || Settings::flag("SMHiggs:ff2Hff(t:WW)")) {
+    sigmaPtr = new Sigma3ff2HfftWW;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (SMHiggses || Settings::flag("SMHiggs:gg2Httbar")) {
+    sigmaPtr = new Sigma3gg2HQQbar(6, 908, "g g -> H0 t tbar (SM)");
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (SMHiggses || Settings::flag("SMHiggs:qqbar2Httbar")) {
+    sigmaPtr = new Sigma3qqbar2HQQbar(6, 909, "q qbar -> H0 t tbar (SM)");
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
 
+  // Further Standard-Model Higgs processes, not included in "all".
+  if (Settings::flag("SMHiggs:qg2Hq")) {
+    sigmaPtr = new Sigma2qg2Hq(4, 911, "c g -> H0 c (SM)");
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    sigmaPtr = new Sigma2qg2Hq(5, 911, "b g -> H0 b (SM)");
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (Settings::flag("SMHiggs:gg2Hbbbar")) {
+    sigmaPtr = new Sigma3gg2HQQbar(5, 912, "g g -> H0 b bbar (SM)");
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (Settings::flag("SMHiggs:qqbar2Hbbbar")) {
+    sigmaPtr = new Sigma3qqbar2HQQbar(5, 913, "q qbar -> H0 b bbar (SM)");
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (Settings::flag("SMHiggs:gg2Hg(l:t)")) {
+    sigmaPtr = new Sigma2gg2Hglt;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (Settings::flag("SMHiggs:qg2Hq(l:t)")) {
+    sigmaPtr = new Sigma2qg2Hqlt;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
+  if (Settings::flag("SMHiggs:qqbar2Hg(l:t)")) {
+    sigmaPtr = new Sigma2qqbar2Hglt;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  } 
 
   // Set up requested objects for neutralino pair processes.
   bool SUSYs = Settings::flag("SUSY:all");
   if (SUSYs || Settings::flag("SUSY:qqbar2chi0chi0")) {
-    sigmaPtr = new Sigma2qqbar2chi0chi0(1, 1, 1001);
+    sigmaPtr = new Sigma2qqbar2chi0chi0(1, 1, 1201);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(1, 2, 1002); 
+    sigmaPtr = new Sigma2qqbar2chi0chi0(1, 2, 1202); 
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(1, 3, 1003); 
+    sigmaPtr = new Sigma2qqbar2chi0chi0(1, 3, 1203); 
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(1, 4, 1004);
+    sigmaPtr = new Sigma2qqbar2chi0chi0(1, 4, 1204);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(2, 2, 1005);
+    sigmaPtr = new Sigma2qqbar2chi0chi0(2, 2, 1205);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(2, 3, 1006);
+    sigmaPtr = new Sigma2qqbar2chi0chi0(2, 3, 1206);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(2, 4, 1007);
+    sigmaPtr = new Sigma2qqbar2chi0chi0(2, 4, 1207);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(3, 3, 1008); 
+    sigmaPtr = new Sigma2qqbar2chi0chi0(3, 3, 1208); 
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(3, 4, 1009);
+    sigmaPtr = new Sigma2qqbar2chi0chi0(3, 4, 1209);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2chi0chi0(4, 4, 1010); 
+    sigmaPtr = new Sigma2qqbar2chi0chi0(4, 4, 1210); 
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
 
@@ -766,15 +809,11 @@ bool SetupContainers::init2(vector<ProcessContainer*>& container2Ptrs) {
     container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
     sigmaPtr = new Sigma2qg2qg;
     container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qq2qqDiff;
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qq2qqSame;
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2qqbarSame;
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2qqbarNew;
+    sigmaPtr = new Sigma2qq2qq;
     container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
     sigmaPtr = new Sigma2qqbar2gg;
+    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
+    sigmaPtr = new Sigma2qqbar2qqbarNew;
     container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
     sigmaPtr = new Sigma2gg2QQbar(4, 121);
     container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
@@ -798,7 +837,7 @@ bool SetupContainers::init2(vector<ProcessContainer*>& container2Ptrs) {
 
   // Two prompt photons.
   if (Settings::flag("SecondHard:TwoPhotons")) {
-    sigmaPtr = new Sigma2qqbar2gammagamma;
+    sigmaPtr = new Sigma2ffbar2gammagamma;
     container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
     sigmaPtr = new Sigma2gg2gammagamma;
     container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );

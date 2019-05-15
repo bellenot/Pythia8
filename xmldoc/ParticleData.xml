@@ -59,9 +59,9 @@ opens up for a simpler technical handling of mass selection in options
 </parm>
 
 <p/>
-Since running masses are only calculated for the five light quark flavours,
+Since running masses are only calculated for the six quark flavours,
 e.g. to obtain couplings to the Higgs boson(s), there is not an entry
-in the normal tables for each particles, but only the five MSbar mass 
+in the normal tables for each particles, but only the six MSbar mass 
 values below, used as starting point for the running. In addition you
 can pick an <ei>alpha_s(M_Z)</ei>, which is converted into a first-order
 five-flavour Lambda that is used to determine the rate of the running. 
@@ -83,6 +83,9 @@ the c quark MSbar mass at the mass scale itself.
 
 <parm name="ParticleData:mbRun" default="4.20" min="4.00" max="4.50">
 the b quark MSbar mass at the mass scale itself.
+
+<parm name="ParticleData:mtRun" default="165.0" min="150.0" max="175.0">
+the t quark MSbar mass at the mass scale itself.
 
 <parm name="ParticleData:alphaSvalueMRun" default="0.125" min="0.10" max="0.20">
 the <ei>alpha_s(M_Z)</ei> value used to define tha rate at which MSbar
@@ -7838,4 +7841,4 @@ The meaning of the various properties and the format used are explained
 
 </chapter>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

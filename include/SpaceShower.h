@@ -1,8 +1,12 @@
+// SpaceShower.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for the spacelike initial-state showers.
 // SpaceDipoleEnd: radiating dipole end in ISR.
 // SpaceSystem: info on one interaction (among multiple ones).
 // SpaceShower: handles the showering description.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_SpaceShower_H
 #define Pythia8_SpaceShower_H
@@ -103,7 +107,7 @@ protected:
   // Static initialization data, normally only set once.
   static bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, samePTasMI,
                 doMEcorrections, doPhiPolAsym;
-  static int    pTmaxMatch, alphaSorder, alphaEMorder, nQuark;
+  static int    pTmaxMatch, alphaSorder, alphaEMorder, nQuarkIn;
   static double pTmaxFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
                 pT0Ref, ecmRef, ecmPow, pTmin, pTminChgQ, pTminChgL;
 

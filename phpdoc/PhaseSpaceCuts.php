@@ -111,6 +111,16 @@ echo "<a href='ParticleDataScheme.php?filepath=".$filepath."' target='page'>";?>
 and <code>mMax(id)</code></a> methods restrict the allowed mass range
 of the particle, just like for the <i>2 -> 1 </i> processes.   
 
+<h3>Cuts in <i>2 -> 3</i> processes</h3>
+
+Currently no further cuts have been introduced for <i>2 -> 3</i>
+processes than those already available for <i>2 -> 2</i> ones.
+A <i>2 -> 3</i> process in principle would allow to define a
+separate <i>pT</i> range for each of the three particles (with some
+correlations), but for now all three are restricted exactly the
+same way by <code>pTHatMin</code> and <code>pTHatMax</code>.  
+As above, Breit-Wigner mass ranges can be restricted.
+
 <h3>Documentation</h3>
 
 <br/><br/><strong>PhaseSpace:showSearch</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
@@ -200,4 +210,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

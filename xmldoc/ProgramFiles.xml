@@ -29,12 +29,34 @@ contents in a web browser, and an <code>.php</code> one in
 <code>phpdoc</code>, for more sophisticated interactivity
 if that subdirectory is installed on a web server.
 
-<file name="Pythia"> 
-is the main class, that administrates the whole event generation 
-process by making use of all the others classes. Objects of most
-other classes reside (directly or indirectly) inside <code>Pythia</code>, 
-so only a <code>Pythia</code> object needs to be explicitly instantiated 
-and addressed   by the user.
+<p/>
+Here is the current list of files, ordered alphabetically, with a brief
+description of contents.
+
+<file name="Analysis">
+contains routines to analyze events. Currently it can do sphericity, 
+thrust, Lund/Jade/Durham jet clustering, and cone-jet finding.
+</file>
+
+<file name="Basics">
+contains some basic facilities of general use: a random number
+generator <code>Rndm</code>, a four-vector class <code>Vec4</code>, and a 
+histogram class <code>Hist</code>.  
+</file>
+
+<file name="BeamParticle"> 
+contains information on all partons extracted from one of the two
+beams. Defines modified parton distributions accordingly during the
+showering and multiple interactions processing, thereby extending on 
+the one-particle-inclusive distributions defined by the previous class.
+Finds the internal structure for a beam remnant.
+</file>
+
+<file name="BeamRemnants"> 
+adds primordial <ei>kT</ei> to the set of hard subsystems,
+and combines these subsystems with the two beam remnants to provide 
+the overall energy-momentum picture. Also ties together all the 
+colour lines into consistent singlets. 
 </file>
 
 <file name="Event"> 
@@ -45,30 +67,14 @@ objects, one for the process-level record (<code>process</code>) and
 one for the complete event (<code>event</code>).
 </file>
 
-<file name="Information">
-is a simple container that gives access to some information on the
-nature of the current process, such as Mandelstam variables.
-Also contains a small database for errors and warnings encountered 
-during program execution.
+<file name="FragmentationFlavZpT">
+contains the classes for describing the fragmentation steps in
+flavour and in longitudinal and transverse momentum.
 </file>
 
-<file name="Analysis">
-contains routines to analyze events. Currently it can do sphericity, 
-thrust, Lund/Jade/Durham jet clustering, and cone-jet finding.
-</file>
-
-<file name="ProcessLevel">
-handles the generation of the (hard) process that sets the character 
-of the event. This involves either using internally implemented 
-processes  (few so far), using a runtime interface to the Fortran 
-PYTHIA 6 process library, or using routines for reading in 
-LHA events. 
-</file>
-
-<file name="PartonLevel">
-turns the (hard) process above into a complete set of partons, by 
-adding initial- and final-state radiation, multiple parton--parton
-interactions, and beam remnants.
+<file name="FragmentationSystems">
+defines some containers of parton systems, for use in 
+the fragmentation routines.
 </file>
 
 <file name="HadronLevel">
@@ -77,84 +83,18 @@ by applying string fragmentation (with special treatment for low-mass
 systems) and secondary decays.
 </file>
 
-<file name="ProcessContainer">
-packages the information on a given subprocess, combining the 
-phase-space selection and cross-section evaluation machineries
-with some statistics information. Also sets up the list of processes
-to be studied in a run.  
+<file name="HepMCInterface">
+contains an interface to convert the PYTHIA 8 event record into the 
+HepMC format. The <code>HepMCInterface.cc</code> file is located in
+the subdirectory <code>hepmcinterface</code> and is used to build a 
+separate <code>libhepmcinterface</code> library. 
 </file>
 
-<file name="SigmaTotal"> 
-contains parametrizations of total, elastic and diffractive hadronic 
-cross sections.
-</file>
-
-<file name="SigmaProcess">
-contains the base class and derived classes for the evaluation of
-different matrix elements. In order to keep this file from becoming 
-too big, actual cross sections are found in the following four files
-of derived classes.
-</file>
-
-<file name="SigmaQCD">
-contains the cross sections and matrix elements for soft and hard
-QCD processes.
-</file>
-
-<file name="SigmaEW">
-contains the cross sections and matrix elements for electroweak
-processes involving photons, <ei>Z^0</ei>'s and <ei>W^+-</ei>'s .
-</file>
-
-<file name="SigmaOnia">
-contains the cross sections and matrix elements charmonium and 
-bottomonium production.
-</file>
-
-<file name="SigmaSUSY">
-contains the cross sections and matrix elements for Supersymmetric
-processes.
-</file>
-
-<file name="SusyLesHouches">
-contains information on SUSY parameters and particle data as specified
-by the SUSY Les Houches Accord.
-</file>
-
-<file name="InFlux">
-keeps track of the allowed combinations of incoming flavours for a
-process, and stores the in-state-specific factors in a cross section.
-This in particular means the parton densities, but also charges,
-CKM matrix elements, and so on.
-</file>
-
-<file name="PhaseSpace">
-selects a point in phase space for the hard-process generation,
-optimized to give improved Monte Carlo efficiency.
-</file>
-
-<file name="PartonDistributions"> 
-contains parton distribution functions for the proton and electron. 
-Currently very simple, with only two <ei>p</ei> parametrizations 
-and one <ei>e</ei> ditto available, but it is possible to link in 
-external sets.
-</file>
-
-<file name="LHAPDFInterface"> 
-is a header file only, with interfaces to the key LHAPDF routines,
-as needed for a runtime interface. There is a file
-<code>lhapdfdummy/LHAPDFdummy.cc</code> with matching dummy
-implementations, however. This file is used to build a separate 
-<code>liblhapdfdummy</code> library, to be linked when the LHAPDF 
-library is not used, so as to avoid problems with undefined references. 
-</file>
-
-<file name="BeamParticle"> 
-contains information on all partons extracted from one of the two
-beams. Defines modified parton distributions accordingly during the
-showering and multiple interactions processing, thereby extending on 
-the one-particle-inclusive distributions defined by the previous class.
-Finds the internal structure for a beam remnant.
+<file name="Information">
+is a simple container that gives access to some information on the
+nature of the current process, such as Mandelstam variables.
+Also contains a small database for errors and warnings encountered 
+during program execution.
 </file>
 
 <file name="LesHouches">
@@ -170,9 +110,91 @@ ones, to be used for runtime interfacing to Fortran programs, such as
 PYTHIA 6. 
 </file>
 
+<file name="LHAPDFInterface"> 
+is a header file only, with interfaces to the key LHAPDF routines,
+as needed for a runtime interface. There is a file
+<code>lhapdfdummy/LHAPDFdummy.cc</code> with matching dummy
+implementations, however. This file is used to build a separate 
+<code>liblhapdfdummy</code> library, to be linked when the LHAPDF 
+library is not used, so as to avoid problems with undefined references. 
+</file>
+
+<file name="MiniStringFragmentation"> 
+performs string fragmentation in cases where the colour singlet
+subsystem mass is so small that one or at most two primary hadrons 
+should be produced from it.
+</file>
+
+<file name="MultipleInteractions"> 
+performs multiple parton-parton interactions.
+</file>
+
+<file name="ParticleData">
+contains a database of all necessary particle data (masses, names, ..)
+and decay channels.
+</file>
+
+<file name="ParticleDecays">
+performs the decays of all normal unstable hadrons and leptons, i.e. 
+in mass up to and including <ei>b bbar</ei> systems. It is not 
+intended for decays of electroweak resonances, like <ei>Z^0</ei>.  
+</file>
+
+<file name="PartonDistributions"> 
+contains parton distribution functions for the proton and electron. 
+Currently very simple, with only two <ei>p</ei> parametrizations 
+and one <ei>e</ei> ditto available, but it is possible to link in 
+external sets.
+</file>
+
+<file name="PartonLevel">
+turns the (hard) process above into a complete set of partons, by 
+adding initial- and final-state radiation, multiple parton--parton
+interactions, and beam remnants.
+</file>
+
+<file name="PhaseSpace">
+selects a point in phase space for the hard-process generation,
+optimized to give improved Monte Carlo efficiency.
+</file>
+
+<file name="ProcessContainer">
+packages the information on a given subprocess, combining the 
+phase-space selection and cross-section evaluation machineries
+with some statistics information. Also sets up the list of processes
+to be studied in a run.  
+</file>
+
+<file name="ProcessLevel">
+handles the generation of the (hard) process that sets the character 
+of the event. This involves either using internally implemented 
+processes  (few so far), using a runtime interface to the Fortran 
+PYTHIA 6 process library, or using routines for reading in 
+LHA events. 
+</file>
+
+<file name="Pythia"> 
+is the main class, that administrates the whole event generation 
+process by making use of all the others classes. Objects of most
+other classes reside (directly or indirectly) inside <code>Pythia</code>, 
+so only a <code>Pythia</code> object needs to be explicitly instantiated 
+and addressed   by the user.
+</file>
+
 <file name="Pythia6Interface">
 is a header file only, with interfaces to the key PYTHIA 6 routines,
 as needed for a runtime interface. 
+</file>
+
+<file name="PythiaComplex">
+is only a <code>.h</code> file, containing a <code>typedef</code> for 
+double precision complex numbers.
+</file>
+
+<file name="PythiaStdlib">
+is only a <code>.h</code> file, containing most of the <code>Stdlib</code> 
+headers used in Pythia 8, with <code>using</code> directives. Also 
+a few simple inline methods.
 </file>
 
 <file name="ResonanceDecays"> 
@@ -185,51 +207,55 @@ encodes some properties of resonances, such as the dynamic calculation
 of widths.
 </file>
 
-<file name="TimeShower"> 
-performs timelike final-state transverse-momentum-ordered 
-shower evolution.
+<file name="Settings"> 
+contains a database of all flags, modes and parameters that determine 
+the performance of the generator. Initial values are set from the 
+contents of the <code>.xml</code> files, but these values can then 
+be changed by the user.
+</file>
+
+<file name="SigmaEW">
+contains the cross sections and matrix elements for electroweak
+processes involving photons, <ei>Z^0</ei>'s and <ei>W^+-</ei>'s .
+</file>
+
+<file name="SigmaHiggs">
+contains the cross sections and matrix elements for Higgs production.
+</file>
+
+<file name="SigmaOnia">
+contains the cross sections and matrix elements for charmonium and 
+bottomonium production.
+</file>
+
+<file name="SigmaProcess">
+contains the base class and derived classes for the evaluation of
+different matrix elements. Also keeps track of allowed incoming
+parton configurations and their cross sections, including parton
+densities. In order to keep this file from becoming too big, actual 
+cross sections are found in several separate files of derived classes:
+<code>SigmaQCD</code>, <code>SigmaEW</code>, <code>SigmaOnia</code>, 
+<code>SigmaHiggs</code> and <code>SigmaSUSY</code>. 
+</file>
+
+<file name="SigmaQCD">
+contains the cross sections and matrix elements for soft and hard
+QCD processes.
+</file>
+
+<file name="SigmaSUSY">
+contains the cross sections and matrix elements for Supersymmetric
+processes.
+</file>
+
+<file name="SigmaTotal"> 
+contains parametrizations of total, elastic and diffractive hadronic 
+cross sections.
 </file>
 
 <file name="SpaceShower"> 
 performs spacelike initial-state transverse-momentum-ordered 
 shower evolution.
-</file>
-
-<file name="MultipleInteractions"> 
-performs multiple parton-parton interactions.
-</file>
-
-<file name="BeamRemnants"> 
-adds primordial <ei>kT</ei> to the set of hard subsystems,
-and combines these subsystems with the two beam remnants to provide 
-the overall energy-momentum picture. Also ties together all the 
-colour lines into consistent singlets. 
-</file>
-
-<file name="StringFragmentation"> 
-performs string fragmentation of a given set of partons.
-</file>
-
-<file name="MiniStringFragmentation"> 
-performs string fragmentation in cases where the colour singlet
-subsystem mass is so small that one or at most two primary hadrons 
-should be produced from it.
-</file>
-
-<file name="FragmentationFlavZpT">
-contains the classes for describing the fragmentation steps in
-flavour and in longitudinal and transverse momentum.
-</file>
-
-<file name="FragmentationSystems">
-defines some containers of parton systems, for use in 
-the fragmentation routines.
-</file>
-
-<file name="ParticleDecays">
-performs the decays of all normal unstable hadrons and leptons, i.e. 
-in mass up to and including <ei>b bbar</ei> systems. It is not 
-intended for decays of electroweak resonances, like <ei>Z^0</ei>.  
 </file>
 
 <file name="StandardModel"> 
@@ -239,48 +265,26 @@ CKM mixing matrices, and a few other parameters such as
 <ei>sin^2(theta_W)</ei>.
 </file>
 
+<file name="StringFragmentation"> 
+performs string fragmentation of a given set of partons.
+</file>
+
+<file name="SusyLesHouches">
+contains information on SUSY parameters and particle data as specified
+by the SUSY Les Houches Accord.
+</file>
+
+<file name="TimeShower"> 
+performs timelike final-state transverse-momentum-ordered 
+shower evolution.
+</file>
+
 <file name="UserHooks"> 
 Provides a way for a user to study the event at a few intermediate
 stages of evolution, to reject the event as a whole or to modify
 it cross-section weight. 
 </file>
 
-<file name="HepMCInterface">
-contains an interface to convert the PYTHIA 8 event record into the 
-HepMC format. The <code>HepMCInterface.cc</code> file is located in
-the subdirectory <code>hepmcinterface</code> and is used to build a 
-separate <code>libhepmcinterface</code> library. 
-</file>
-
-<file name="Settings"> 
-contains a database of all flags, modes and parameters that determine 
-the performance of the generator. Initial values are set from the 
-contents of the <code>.xml</code> files, but these values can then 
-be changed by the user.
-</file>
-
-<file name="ParticleData">
-contains a database of all necessary particle data (masses, names, ..)
-and decay channels.
-</file>
-
-<file name="Basics">
-contains some basic facilities of general use: a random number
-generator <code>Rndm</code>, a four-vector class <code>Vec4</code>, and a 
-histogram class <code>Hist</code>.  
-</file>
-
-<file name="PythiaStdlib">
-is only a <code>.h</code> file, containing most of the <code>Stdlib</code> 
-headers used in Pythia 8, with <code>using</code> directives. Also 
-a few simple inline methods.
-</file>
-
-<file name="PythiaComplex">
-is only a <code>.h</code> file, containing a <code>typedef</code> for 
-double precision complex numbers.
-</file>
-
 </chapter>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

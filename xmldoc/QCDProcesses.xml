@@ -79,7 +79,8 @@ Code 111.
 </flag>
 
 <flag name="HardQCD:gg2qqbar" default="off">
-Scatterings <ei>g g -> q qbar</ei>.
+Scatterings <ei>g g -> q qbar</ei>, where <ei>q</ei> by default
+is a light quark (<ei>u, d, s</ei>).
 Code 112.
 </flag>
 
@@ -92,18 +93,18 @@ Code 113.
 Scatterings <ei>q q' -> q q'</ei>, <ei>q qbar' -> q qbar'</ei>, 
 <ei>qbar qbar' -> qbar qbar'</ei>, where <ei>q'</ei> and <ei>q</ei> 
 may agree, but the outgoing flavours equals the incoming ones 
-Codes 114, 115 and 116.
-</flag>
-
-<flag name="HardQCD:qqbar2qqbarNew" default="off">
-Scatterings <ei>q qbar -> q' qbar'</ei>, where the outgoing flavours 
-are different from the incoming ones. 
-Code 117.
+Code 114.
 </flag>
 
 <flag name="HardQCD:qqbar2gg" default="off">
 Scatterings <ei>q qbar -> g g</ei>. 
-Code 118.
+Code 115.
+</flag>
+
+<flag name="HardQCD:qqbar2qqbarNew" default="off">
+Scatterings <ei>q qbar -> q' qbar'</ei>, where <ei>q'</ei> 
+by default is a light quark (<ei>u, d, s</ei>). 
+Code 116.
 </flag>
 
 <h3>Hard QCD processes: heavy-flavour subset</h3>
@@ -138,5 +139,5 @@ Code 124.
 
 </chapter>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
 

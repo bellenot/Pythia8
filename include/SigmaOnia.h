@@ -1,6 +1,10 @@
+// SigmaOnia.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for charmonia/bottomonia process differential cross sections.
 // Contains classes derived from SigmaProcess via Sigma2Process.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_SigmaOnia_H
 #define Pythia8_SigmaOnia_H
@@ -24,26 +28,27 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object for g g initial state. 
-  virtual void initFlux() {inFluxPtr = new InFluxgg();}
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
-  virtual double sigmaHat();
+  virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return nameSave;}
-  virtual int code() const {return codeSave;}
-  virtual int id3Mass() const {return idHad;}
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
+  virtual string inFlux()  const {return "gg";}
+  virtual int    id3Mass() const {return idHad;}
 
  private:
 
   // Values stored for process type and colour flow selection.
   int    idNew, idHad, codeSave;
   string nameSave;
-  double oniumME;
+  double oniumME, sigma;
 
 };
  
@@ -62,26 +67,27 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object for g g initial state. 
-  virtual void initFlux() {inFluxPtr = new InFluxgg();}
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
-  virtual double sigmaHat();
+  virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return nameSave;}
-  virtual int code() const {return codeSave;}
-  virtual int id3Mass() const {return idHad;}
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
+  virtual string inFlux()  const {return "gg";}
+  virtual int    id3Mass() const {return idHad;}
 
  private:
 
   // Values stored for process type and colour flow selection.
   int    idNew, idHad, jSave, codeSave;
   string nameSave;
-  double oniumME;
+  double oniumME, sigma;
 
 };
  
@@ -100,26 +106,27 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object for q g initial state. 
-  virtual void initFlux() {inFluxPtr = new InFluxqg();}
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
-  virtual double sigmaHat();
+  virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return nameSave;}
-  virtual int code() const {return codeSave;}
-  virtual int id3Mass() const {return idHad;}
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
+  virtual string inFlux()  const {return "qg";}
+  virtual int    id3Mass() const {return idHad;}
 
  private:
 
   // Values stored for process type and colour flow selection.
   int    idNew, idHad, jSave, codeSave;
   string nameSave;
-  double oniumME;
+  double oniumME, sigma;
 
 };
  
@@ -138,26 +145,27 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object for q qbar initial state. 
-  virtual void initFlux() {inFluxPtr = new InFluxqqbarSame();}
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
-  virtual double sigmaHat();
+  virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return nameSave;}
-  virtual int code() const {return codeSave;}
-  virtual int id3Mass() const {return idHad;}
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
+  virtual string inFlux()  const {return "qqbarSame";}
+  virtual int    id3Mass() const {return idHad;}
 
  private:
 
   // Values stored for process type and colour flow selection.
   int    idNew, idHad, jSave, codeSave;
   string nameSave;
-  double oniumME;
+  double oniumME, sigma;
 
 };
  
@@ -176,26 +184,27 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object for g g initial state. 
-  virtual void initFlux() {inFluxPtr = new InFluxgg();}
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
-  virtual double sigmaHat();
+  virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return nameSave;}
-  virtual int code() const {return codeSave;}
-  virtual int id3Mass() const {return idHad;}
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
+  virtual string inFlux()  const {return "gg";}
+  virtual int    id3Mass() const {return idHad;}
 
  private:
 
   // Values stored for process type and colour flow selection.
   int    idNew, idHad, stateSave, codeSave;
   string nameSave;
-  double oniumME;
+  double oniumME, sigma;
 
 };
  
@@ -214,26 +223,27 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object for q g initial state. 
-  virtual void initFlux() {inFluxPtr = new InFluxqg();}
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
-  virtual double sigmaHat();
+  virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return nameSave;}
-  virtual int code() const {return codeSave;}
-  virtual int id3Mass() const {return idHad;}
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
+  virtual string inFlux()  const {return "qg";}
+  virtual int    id3Mass() const {return idHad;}
 
  private:
 
   // Values stored for process type and colour flow selection.
   int    idNew, idHad, stateSave, codeSave;
   string nameSave;
-  double oniumME;
+  double oniumME, sigma;
 
 };
  
@@ -253,26 +263,27 @@ public:
   // Initialize process. 
   virtual void initProc(); 
 
-  // Initialize parton-flux object for q g initial state. 
-  virtual void initFlux() {inFluxPtr = new InFluxqqbarSame();}
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
 
   // Evaluate d(sigmaHat)/d(tHat). 
-  virtual double sigmaHat();
+  virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Info on the subprocess.
-  virtual string name() const {return nameSave;}
-  virtual int code() const {return codeSave;}
-  virtual int id3Mass() const {return idHad;}
+  virtual string name()    const {return nameSave;}
+  virtual int    code()    const {return codeSave;}
+  virtual string inFlux()  const {return "qqbarSame";}
+  virtual int    id3Mass() const {return idHad;}
 
  private:
 
   // Values stored for process type and colour flow selection.
   int    idNew, idHad, stateSave, codeSave;
   string nameSave;
-  double oniumME;
+  double oniumME, sigma;
 
 };
 

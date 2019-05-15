@@ -73,7 +73,7 @@ or large (<i>pT > m_t</i>) transverse momenta.
 Code 203.
   
 
-<br/><br/><strong>PromptPhoton:qqbar2gammagamma</strong>  <input type="radio" name="5" value="on"><strong>On</strong>
+<br/><br/><strong>PromptPhoton:ffbar2gammagamma</strong>  <input type="radio" name="5" value="on"><strong>On</strong>
 <input type="radio" name="5" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>q qbar -> gamma gamma</i>.
@@ -161,12 +161,10 @@ Code 222.
 Scattering <i>f fbar -> gamma^* -> f' fbar'</i>. Subset of 
 process 221, but written as a <i>2 -> 2</i> process, so that 
 <i>pT</i> can be used as ordering variable, e.g. in multiple 
-interactions. As a consequence the scale for pdf's is <i>pT</i>
-rather than <i>m</i>, so results will not be identical even 
-for the same phase space cuts. Hardcoded for the final state 
-being either of the five quark flavours or three lepton ones. 
-Not included in the <code>WeakSingleBoson:all</code> set, but
-included in the multiple-interactions framework. 
+interactions. Hardcoded for the final state being either of the 
+five quark flavours or three lepton ones. Not included in the 
+<code>WeakSingleBoson:all</code> set, but included in the 
+multiple-interactions framework. 
 Code 223.
   
 
@@ -311,7 +309,7 @@ fwrite($handle,$data);
 }
 if($_POST["5"] != "off")
 {
-$data = "PromptPhoton:qqbar2gammagamma = ".$_POST["5"]."\n";
+$data = "PromptPhoton:ffbar2gammagamma = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["6"] != "off")
@@ -426,5 +424,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
 

@@ -55,8 +55,8 @@ particles with R-parity -1.
 <input type="radio" name="2" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Pair production of neutralinos by quark-antiquark annihilation. With
-four neutralino species this gives ten separate processes, codes 1001
-- 1010. The current implementation is in a development stage and does
+four neutralino species this gives ten separate processes, codes 1201
+- 1210. The current implementation is in a development stage and does
 not include contributions from diagrams with intermediate squarks,
 hence the correct answer is only obtained in the limit of infinitely heavy
 squarks. As yet, there are also no sparticle decays implemented - 
@@ -96,5 +96,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
 

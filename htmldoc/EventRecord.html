@@ -53,58 +53,31 @@ and the status code of <code>iCopy</code> is negated. With a negative
 of <code>iCopy</code>.
 
 <p/>
-A listing of the whole event is obtained with <code>list()</code>. This 
-function takes an <code>ostream</code> object as an optional argument.
-The basic id, status, mother, daughter, colour, four-momentum
-and mass data are always given, but the following switches can be 
-set to provide further information, or restrict the set of particles
-listed:
-
-<p/><code>flag&nbsp; </code><strong> Event:listFinalOnly &nbsp;</strong> 
- (<code>default = <strong>off</strong></code>)<br/>
-The alternative mode, with this option on, omits all intermediate
-particles, so that only ones with status > 0 are shown. 
-  
-
-<p/><code>flag&nbsp; </code><strong> Event:listScaleAndVertex &nbsp;</strong> 
- (<code>default = <strong>off</strong></code>)<br/>
-The alternative mode, with this option on, gives a second line
-for each particle, with the production scale (in GeV), the
-production vertex (in mm or mm/c) and the invariant lifetime
-(also in mm/c).
-  
-
-<p/><code>flag&nbsp; </code><strong> Event:listMothersAndDaughters &nbsp;</strong> 
- (<code>default = <strong>off</strong></code>)<br/>
-The alternative mode, with this option on, gives a list of all
-daughters and mothers of a particle, as defined by the 
-<code>motherList(i)</code> and <code>daughterList(i)</code> methods 
-described below. It is purely intended for debug purposes, 
-e.g. when writing an interface to another event record format. 
-  
-
-<p/><code>flag&nbsp; </code><strong> Event:extraBlankLine &nbsp;</strong> 
- (<code>default = <strong>off</strong></code>)<br/>
-With this option on, an extra blank line is inserted after each 
-particle. There is a tradeoff between improved legibility, in 
-particular for <code>Event:listMothersAndDaughters</code> on, and a 
-longer listing. 
-  
-
-<p/><code>flag&nbsp; </code><strong> Event:listJunctions &nbsp;</strong> 
- (<code>default = <strong>off</strong></code>)<br/>
-With this option on, a list of all junctions in the event is 
-displayed after the normal particle list.
-  
-
-These choices are stored at the initialization stage of the event.
-If you want to change values later, you have to execcute an
-<code>Event::initStatic()</code> yourself for them to take effect.  
-
-<p/>
 The event record can be emptied for the next event by a 
 <code>clear()</code>. The last <code>n</code> entries can be removed by 
 <code>popBack(n)</code>, where <code>n = 1</code> by default. 
+
+<p/>
+A listing of the whole event is obtained with <code>list()</code>.
+The basic id, status, mother, daughter, colour, four-momentum
+and mass data are always given, but the method can also be called with 
+a few optional arguments for further information:
+<p/><code>method&nbsp; </code><strong> list(scaleAndVertex, mothersAndDaughters, os) &nbsp;</strong> <br/>
+where
+<br/><code>argument</code><strong> scaleAndVertex </strong> (<code>default = <strong>off</strong></code>) :  optionally give a 
+second line for each particle, with the production scale (in GeV), the
+production vertex (in mm or mm/c) and the invariant lifetime
+(also in mm/c).
+  
+<br/><code>argument</code><strong> mothersAndDaughters </strong> (<code>default = <strong>off</strong></code>) : 
+gives a list of all daughters and mothers of a particle, as defined by 
+the <code>motherList(i)</code> and <code>daughterList(i)</code> methods 
+described below. It is mainly intended for debug purposes. 
+  
+<br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) :  a reference to the <code>ostream</code>
+object to which the event listing will be directed.
+  
+  
 
 <p/>
 Each particle in the event record has a pointer to the corresponding
@@ -289,6 +262,10 @@ implemented.
 The kind and colour information in the list of junctions can be set 
 or read with methods of the <code>Event</code> class, but are not of 
 common interest and so not described here.
+
+<p/>
+A listing of current junctions can be obtained with the 
+<code>listJunctions()</code> method.
  
 <h3>Subsystems</h3>
 
@@ -299,7 +276,11 @@ and beam remnants. It could also be used in other places. It is intended
 to be accessed only by experts, such as implementors of 
 <a href="ImplementNewShowers.html" target="page">new showering models</a>.
 
+<p/>
+A listing of current subsystems can be obtained with the 
+<code>listSystems()</code> method.
+
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

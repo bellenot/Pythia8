@@ -1,10 +1,14 @@
+// LesHouches.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for Les Houches Accord user process information.
 // LHAinit: base class for initialization information.
 // LHEevnt: Base class for event information. 
 // LHAinitLHEF: derived class for initilization from Les Houches Event File.
 // LHAevntLHEF: derived class for events from Les Houches Evewnt File.
 // Code for interfacing with Fortran commonblocks is found in LHAFortran.h.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_LesHouches_H
 #define Pythia8_LesHouches_H

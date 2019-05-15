@@ -121,7 +121,8 @@ Code 111.
 <br/><br/><strong>HardQCD:gg2qqbar</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
 <input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scatterings <i>g g -> q qbar</i>.
+Scatterings <i>g g -> q qbar</i>, where <i>q</i> by default
+is a light quark (<i>u, d, s</i>).
 Code 112.
   
 
@@ -138,22 +139,22 @@ Code 113.
 Scatterings <i>q q' -> q q'</i>, <i>q qbar' -> q qbar'</i>, 
 <i>qbar qbar' -> qbar qbar'</i>, where <i>q'</i> and <i>q</i> 
 may agree, but the outgoing flavours equals the incoming ones 
-Codes 114, 115 and 116.
+Code 114.
   
 
-<br/><br/><strong>HardQCD:qqbar2qqbarNew</strong>  <input type="radio" name="11" value="on"><strong>On</strong>
+<br/><br/><strong>HardQCD:qqbar2gg</strong>  <input type="radio" name="11" value="on"><strong>On</strong>
 <input type="radio" name="11" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scatterings <i>q qbar -> q' qbar'</i>, where the outgoing flavours 
-are different from the incoming ones. 
-Code 117.
+Scatterings <i>q qbar -> g g</i>. 
+Code 115.
   
 
-<br/><br/><strong>HardQCD:qqbar2gg</strong>  <input type="radio" name="12" value="on"><strong>On</strong>
+<br/><br/><strong>HardQCD:qqbar2qqbarNew</strong>  <input type="radio" name="12" value="on"><strong>On</strong>
 <input type="radio" name="12" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scatterings <i>q qbar -> g g</i>. 
-Code 118.
+Scatterings <i>q qbar -> q' qbar'</i>, where <i>q'</i> 
+by default is a light quark (<i>u, d, s</i>). 
+Code 116.
   
 
 <h3>Hard QCD processes: heavy-flavour subset</h3>
@@ -261,12 +262,12 @@ fwrite($handle,$data);
 }
 if($_POST["11"] != "off")
 {
-$data = "HardQCD:qqbar2qqbarNew = ".$_POST["11"]."\n";
+$data = "HardQCD:qqbar2gg = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["12"] != "off")
 {
-$data = "HardQCD:qqbar2gg = ".$_POST["12"]."\n";
+$data = "HardQCD:qqbar2qqbarNew = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["13"] != "off")
@@ -296,5 +297,5 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
 

@@ -40,7 +40,7 @@ or large (<ei>pT > m_t</ei>) transverse momenta.
 Code 203.
 </flag>
 
-<flag name="PromptPhoton:qqbar2gammagamma" default="off">
+<flag name="PromptPhoton:ffbar2gammagamma" default="off">
 Scattering <ei>q qbar -> gamma gamma</ei>.
 Code 204.
 </flag>
@@ -110,12 +110,10 @@ Code 222.
 Scattering <ei>f fbar -> gamma^* -> f' fbar'</ei>. Subset of 
 process 221, but written as a <ei>2 -> 2</ei> process, so that 
 <ei>pT</ei> can be used as ordering variable, e.g. in multiple 
-interactions. As a consequence the scale for pdf's is <ei>pT</ei>
-rather than <ei>m</ei>, so results will not be identical even 
-for the same phase space cuts. Hardcoded for the final state 
-being either of the five quark flavours or three lepton ones. 
-Not included in the <code>WeakSingleBoson:all</code> set, but
-included in the multiple-interactions framework. 
+interactions. Hardcoded for the final state being either of the 
+five quark flavours or three lepton ones. Not included in the 
+<code>WeakSingleBoson:all</code> set, but included in the 
+multiple-interactions framework. 
 Code 223.
 </flag>
 
@@ -199,5 +197,5 @@ Code 254.
 
 </chapter>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
 

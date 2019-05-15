@@ -49,26 +49,27 @@ ones, if any, you actually want to use when you write your main program.
 Once you have used the <code>pythia.readFile(...)</code> method to
 read in the cards file, you can interrogate the <code>Settings</code>
 database to make the values available in your main program. A slight
-complication is that you need to use a different method for each of 
-the four possible return types that you want to extract, e.g.:
+complication is that you need to use a different  <code>Settings</code>
+method for each of the four possible return types that you want to 
+extract. To save some typing the same method names are found directly 
+in the <code>Pythia</code> class, and just send on to the
+<code>Settings</code> ones to do the job, e.g.
 <pre>
-  bool   showCS = pythia.settings.flag("Main:showChangedSettings");
-  int    nEvent = pythia.settings.mode("Main:numberOfEvents");
-  double eCM    = pythia.settings.parm("Main:eCM");
-  string file   = pythia.settings.word("Main:allSettingsFile"); 
+  bool   showCS = pythia.flag("Main:showChangedSettings");
+  int    nEvent = pythia.mode("Main:numberOfEvents");
+  double eCM    = pythia.parm("Main:eCM");
+  string file   = pythia.word("Main:allSettingsFile"); 
 </pre>
-To save some typing, the same method names are found directly in the
-<code>Pythia</code> class, and just send on to <code>Settings</code>
-to do the job, so that you can use <code>pythia.flag(...)</code> 
-instead of <code>pythia.settings.flag(...)</code>, etc.
 
 <h3>Incoming beams</h3>
 
 Normally the identities and energies of the two incoming beam particles 
-are given by the arguments of the init call. These settings can be
-stored in an input "cards" file, in the following variables, and 
-thereafter read in the user-written main program. Usage is purely 
-optional. 
+are given by the arguments of the <code>init</code> call. These settings 
+can be stored in an input "cards" file, in the following variables, and 
+thereafter read in the user-written main program. Alternatively, as a
+shortcut, an <code>init()</code> call with no arguments will make use of 
+the values directly. That is, if nothing is done, you will default to
+LHC at the nominal energy. Usage is purely optional. 
 
 <br/><br/><table><tr><td><strong>Main:idBeamA  </td><td></td><td> <input type="text" name="1" value="2212" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2212</strong></code>)</td></tr></table>
 The PDG <code>id</code> code for the first incoming particle.
@@ -84,19 +85,21 @@ The PDG <code>id</code> code for the second incoming particle.
 Assume collisions occur in the CM frame.
   
 
-<br/><br/><table><tr><td><strong>Main:eCM </td><td></td><td> <input type="text" name="4" value="1960." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1960.</strong></code>; <code>minimum = 10.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Main:eCM </td><td></td><td> <input type="text" name="4" value="14000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>14000.</strong></code>; <code>minimum = 10.</code>)</td></tr></table>
 Collision CM energy, to be given if <code>Main:inCMframe</code> is on. 
   
 
 <br/><br/><table><tr><td><strong>Main:eBeamA </td><td></td><td> <input type="text" name="5" value="7000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>7000.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The energy of the first incoming particle, moving in the 
-<i>+z </i>direction. If the particle energy is smaller than its mass
+<i>+z </i>direction, to be given if <code>Main:inCMframe</code> 
+is off. If the particle energy is smaller than its mass
 it is assumed to be at rest. 
   
 
 <br/><br/><table><tr><td><strong>Main:eBeamB </td><td></td><td> <input type="text" name="6" value="7000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>7000.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
 The energy of the second incoming particle, moving in the 
-<i>-z</i> direction. If the particle energy is smaller than its mass
+<i>-z</i> direction, to be given if <code>Main:inCMframe</code> 
+is off. If the particle energy is smaller than its mass
 it is assumed to be at rest.
   
 
@@ -208,13 +211,11 @@ of events, with the choice to be made in the <code>main04.cmnd</code>
 <li><code>main05.cc</code> : generation of QCD jet events at the LHC, 
 with jet analysis using the <code>CellJet</code> cone-jet finder.</li>
 
-<li><code>main06.cc</code> : tests of internally implemented 
-cross sections for elastic and diffractive topologies, using 
-<code>main06.cmnd</code> to pick process.</li>
+<li><code>main06.cc</code> : tests of cross sections for elastic and 
+diffractive topologies, using <code>main06.cmnd</code> to pick process.</li>
 
-<li><code>main07.cc</code> : tests of internally implemented 
-cross sections for minimum-bias events, using 
-<code>main07.cmnd</code> to pick options.</li>
+<li><code>main07.cc</code> : tests of cross sections for minimum-bias 
+events, using <code>main07.cmnd</code> to pick options.</li>
 
 <li><code>main08.cc</code> : generation of the QCD jet cross section
 by splitting the run into subruns, each in its own <i>pT</i> bin,
@@ -227,64 +228,81 @@ sphericity, thrust and jet analysis. </li>
 <li><code>main10.cc</code> : illustration how userHooks can be used
 interact directly with the event-generation process.</li>
 
-<li><code>main11.cc</code> : a simple example how the Les Houches
-Accord interface, plus a few more Fortran-to-C++ commands, allows
-hard processes to be generated by PYTHIA 6.4 and then processed 
-further by PYTHIA 8.</li>
+<li><code>main11.cc</code> : generation of two predetermined hard
+interactions in each event.</li>
 
-<li><code>main12.cc</code> : a fairly extensive study of 
-event properties, with hard processes generated by PYTHIA 6.4. 
-It reads in a <code>main12.fcmnd</code> file with commands specfically
-for the Fortran PYTHIA 6.4 program and another <code>main12.ccmnd</code> 
-file illustrating several of the settings listed on these pages.</li>
+<li><code>main12.cc</code> : a study of top events, fed in from the 
+Les Houches Event File <code>ttbar.lhe</code>, here generated by 
+<code>main53.f</code>. This file currently only contains 100 events 
+so as not to make the distributed PYTHIA package too big, and so serves 
+mainly as a demonstration of the principles involved. </li> 
 
-<li><code>main13.f</code> : a Fortran program (!) showing how 
-PYTHIA 6.4 can be used to generate a Les Houches Event File 
-<code>ttbar.lhe</code> with top events. This program can easily be 
-modified to generate other files, bigger and/or for other processes.</li>
+<li><code>main13.cc</code> : a systematic comparison of several 
+cross section values with their corresponding values in PYTHIA 6.4,
+the latter available as a table in the code.
 
-<li><code>main14.cc</code> : a study of top events, fed in from the 
-Les Houches Event File generated by <code>main13.f</code>. This file 
-currently only contains 100 events so as not to make the distributed
-PYTHIA package too big, and so serves mainly as a demonstration of 
-the principles involved. </li> 
-
-<li><code>main15.cc</code> : an example how the Les Houches Accord 
+<li><code>main21.cc</code> : an example how the Les Houches Accord 
 interface can be used to input various toy parton-level configurations,
 e.g. to study the hadronization of junction topologies.</li>
 
-<li><code>main16.cc</code> : tests of internally implemented cross sections
+<li><code>main22.cc</code> : tests of internally implemented cross sections
 for Supersymmetric particle production, with SYSY spectrum defined in
-<code>main16.spc</code> and settings in <code>main16.cmnd</code>.</li>
+<code>main22.spc</code> and settings in <code>main22.cmnd</code>.</li>
 
-<li><code>main17.cc</code> : shows how an external decay handler can 
+<li><code>main23.cc</code> : shows how an external decay handler can 
 be linked to handle the decays of some particles.</li>
 
-<li><code>main18.cc</code> : shows how an external random number 
-generator can be linked to handle this task.</li>
+<li><code>main24.cc</code> : shows how an external random number 
+generator can be linked to replace the internal one.</li>
 
-<li><code>main21.cc</code> : similar to main01, except that the 
+<li><code>main25.cc</code> : shows how an external process can be 
+implemented as a new class derived from a PYTHIA base class, and then
+handed in for generation as with a normal internal process.</li>
+
+<li><code>main31.cc</code> : similar to main01, except that the 
 event record is output in the HepMC event record format. Requires 
 that HepMC and CLHEP are properly linked.</li>
 
-<li><code>main22.cc</code> : similar to main12, except that the 
-event record is output in the HepMC event record format. Requires 
-that PYTHIA 6.4, HepMC and CLHEP are properly linked.</li>
-
-<li><code>main23.cc</code> : a streamlined version, where all input on
-the event generation is taken from the <code>main23.cmnd</code> file,
+<li><code>main32.cc</code> : a streamlined version, where all input on
+the event generation is taken from the <code>main32.cmnd</code> file,
 and the ony thing done is to generate events and store them in a
 file in the HepMC event record format. All physics studies will have
 to be done afterwards. Requires that HepMC and CLHEP are properly 
 linked.</li>
 
-<li><code>main31.cc</code> : a test of the shape of parton densities,
+<li><code>main41.cc</code> : a test of the shape of parton densities,
 as a check prior to using a given PDF set in a generator.  Requires 
 that LHAPDF is properly linked.</li>
 
-<li><code>main32.cc</code> : compares the charged multiplicity 
+<li><code>main42.cc</code> : compares the charged multiplicity 
 distribution, and a few other aspects, between default PYTHIA PDF and 
 another one. Requires that LHAPDF is properly linked.</li>
+
+<li><code>main51.cc</code> : a simple example how the Les Houches
+Accord interface, plus a few more Fortran-to-C++ commands, allows
+hard processes to be generated by PYTHIA 6.4 and then processed 
+further by PYTHIA 8. Requires that PYTHIA 6.4 is properly linked.</li>
+
+<li><code>main52.cc</code> : a fairly extensive study of 
+event properties, with hard processes generated by PYTHIA 6.4. 
+It reads in a <code>main52.fcmnd</code> file with commands specfically
+for the Fortran PYTHIA 6.4 program and another <code>main52.ccmnd</code> 
+file illustrating several of the settings listed on these pages.
+Requires that PYTHIA 6.4 is properly linked.</li>
+
+<li><code>main53.f</code> : a Fortran program (!) showing how 
+PYTHIA 6.4 can be used to generate a Les Houches Event File 
+<code>ttbar.lhe</code> with top events (which is used as input by
+<code>main12.cc</code>). This program can easily be modified to 
+generate other files, bigger and/or for other processes.
+Requires that PYTHIA 6.4 is properly linked.</li>
+
+<li><code>main54.cc</code> : a final example where PYTHIA 6.4 is used 
+to generate hard processes, which are directly input to be generated
+in full by the internal machinery, using the settings in 
+<code>main54.cmnd</code>, and the output consists of a file with 
+HepMC event records for further analysis. Requires that PYTHIA 6.4, 
+HepMC and CLHEP are properly linked.</li>
 
 </ul>
 
@@ -366,7 +384,7 @@ if($_POST["3"] != "on")
 $data = "Main:inCMframe = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["4"] != "1960.")
+if($_POST["4"] != "14000.")
 {
 $data = "Main:eCM = ".$_POST["4"]."\n";
 fwrite($handle,$data);
@@ -513,4 +531,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

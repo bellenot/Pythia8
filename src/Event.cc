@@ -1,6 +1,10 @@
+// Event.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the 
 // Particle and Event classes, and some related global functions.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Event.h"
 
@@ -104,11 +108,6 @@ double m2(const Particle& pp1, const Particle& pp2) {
 // (Values will be overwritten in initStatic call, so are purely dummy.)
 
 int  Event::startColTag             = 100;
-bool Event::listFinalOnly           = false;
-bool Event::listScaleAndVertex      = false;
-bool Event::listMothersAndDaughters = false;
-bool Event::extraBlankLine          = false;
-bool Event::listJunctions           = false;
 
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
@@ -125,13 +124,6 @@ void Event::initStatic() {
   
   // The starting colour tag for the event.
   startColTag             = Settings::mode("Event:startColTag");
-
-  // Flags for event listing modes.
-  listFinalOnly           = Settings::flag("Event:listFinalOnly");
-  listScaleAndVertex      = Settings::flag("Event:listScaleAndVertex");
-  listMothersAndDaughters = Settings::flag("Event:listMothersAndDaughters");
-  extraBlankLine          = Settings::flag("Event:extraBlankLine");
-  listJunctions           = Settings::flag("Event:listJunctions");
 
 }
 
@@ -172,24 +164,23 @@ int Event::copy(int iCopy, int newStatus) {
 
 // Print an event.
 
-void Event::list(ostream& os) const {
+void Event::list(bool scaleAndVertex, bool mothersAndDaughters, ostream& os) 
+  const {
 
   // Header.
   os << "\n --------  PYTHIA Event Listing  " << headerList << "----------"
      << "------------------------------------------------- \n \n    no    "
      << "    id   name            status     mothers   daughters     colou"
      << "rs      p_x        p_y        p_z         e          m \n";
-  if (listScaleAndVertex) 
+  if (scaleAndVertex) 
     os << "                                    scale                      "
        << "                   xProd      yProd      zProd      tProd      "
        << " tau\n";  
-  if (extraBlankLine) os << "\n";
 
   // Listing of complete event.
   Vec4 pSum;
   double chargeSum = 0.;
-  for (int i = 0; i < int(entry.size()); ++i) 
-  if (!listFinalOnly || entry[i].status() > 0) {
+  for (int i = 0; i < int(entry.size()); ++i) {
     const Particle& pt = entry[i];
 
     // Basic line for a particle, always printed.
@@ -203,7 +194,7 @@ void Event::list(ostream& os) const {
        << setw(11) << pt.m() << "\n";
 
     // Optional extra line for scale value and production vertex.
-    if (listScaleAndVertex) 
+    if (scaleAndVertex) 
       os << "                              " << setw(11) << pt.scale() 
          << "                                    " << scientific 
          << setprecision(3) << setw(11) << pt.xProd() << setw(11) 
@@ -211,7 +202,7 @@ void Event::list(ostream& os) const {
          << pt.tProd() << setw(11) << pt.tau() << "\n";
 
     // Optional extra line, giving a complete list of mothers and daughters.
-    if (listMothersAndDaughters) {
+    if (mothersAndDaughters) {
       int linefill = 2;
       os << "                mothers:";
       vector<int> allMothers = motherList(i);
@@ -228,9 +219,6 @@ void Event::list(ostream& os) const {
       if (linefill !=0) os << "\n";
     }
 
-    // Optional extra blank line after each particle, for better readability.
-    if (extraBlankLine) os << "\n";
-
     // Statistics on momentum and charge.
     if (entry[i].status() > 0) {
       pSum += entry[i].p(); 
@@ -244,19 +232,6 @@ void Event::list(ostream& os) const {
      << setw(11) << pSum.px() << setw(11) << pSum.py() << setw(11) 
      << pSum.pz() << setw(11) << pSum.e() << setw(11) << pSum.mCalc() 
      << "\n";
-
-  // Optional listing of all junctions in the event.
-  if (listJunctions && sizeJunction() > 0) {
-    os << "               Junctions\n    no  kind  col0  col1  col2" 
-       << " endc0 endc1 endc2 stat0 stat1 stat2\n";
-    for (int i = 0; i < sizeJunction(); ++i) 
-    os << setw(6) << i << setw(6) << kindJunction(i) << setw(6)
-       << colJunction(i, 0) << setw(6) << colJunction(i, 1) << setw(6) 
-       << colJunction(i, 2) << setw(6) << endColJunction(i, 0) << setw(6) 
-       << endColJunction(i, 1) << setw(6) << endColJunction(i, 2) << setw(6)
-       << statusJunction(i, 0) << setw(6) << statusJunction(i, 1) << setw(6) 
-       << statusJunction(i, 2) << "\n";
-  } 
 
   // Listing finished.
   os << "\n --------  End PYTHIA Event Listing  ----------------------------"
@@ -559,6 +534,32 @@ void Event::eraseJunction(int i) {
 
 //*********
 
+// Print the junctions in an event.
+
+void Event::listJunctions(ostream& os) const {
+
+  // Header.
+  os << "\n --------  PYTHIA Junction Listing  " 
+     << headerList.substr(0,30) << "\n \n    no  kind  col0  col1  col2 "
+     << "endc0 endc1 endc2 stat0 stat1 stat2\n";
+
+  // Loop through junctions in event and list them.
+  for (int i = 0; i < sizeJunction(); ++i) 
+    os << setw(6) << i << setw(6) << kindJunction(i) << setw(6)
+       << colJunction(i, 0) << setw(6) << colJunction(i, 1) << setw(6) 
+       << colJunction(i, 2) << setw(6) << endColJunction(i, 0) << setw(6) 
+       << endColJunction(i, 1) << setw(6) << endColJunction(i, 2) << setw(6)
+       << statusJunction(i, 0) << setw(6) << statusJunction(i, 1) << setw(6) 
+       << statusJunction(i, 2) << "\n"; 
+
+  // Alternative if no junctions. Listing finished.
+  if (sizeJunction() == 0) os << "    no junctions present \n";
+  os << "\n --------  End PYTHIA Junction Listing  --------------------"
+     << "------" << endl;
+}
+
+//*********
+
 // Add parton to system, by shifting everything below to make room.
  
 void Event::addToSystem(int iSys, int iPos) {
@@ -586,16 +587,16 @@ void Event::replaceInSystem(int iSys, int iPosOld, int iPosNew) {
 
 //*********
 
-// List members in systems; for debug mainly.
+// Print members in systems; for debug mainly.
 
 void Event::listSystems(ostream& os) const {
 
 
   // Header.
-  os << "\n --------  PYTHIA Systems Listing (in Event)  ---------------"
-     << "-------------------------- \n \n system  members  \n";
+  os << "\n --------  PYTHIA Systems Listing  " << headerList 
+     << "------------ \n \n    no   members  \n";
   
-  // Loop over dipole list and print it.
+  // Loop over system list and over members in each system.
   for (int iSys = 0; iSys < int(beginSys.size()); ++iSys) {
     os << " " << setw(5) << iSys << " ";
     for (int iMem = 0; iMem < sizeSys[iSys]; ++iMem) {
@@ -605,8 +606,9 @@ void Event::listSystems(ostream& os) const {
     os << "\n";
   }
 
-  // Done.
-  os << "\n --------  End PYTHIA Systems Listing (in Event)  -----------"
+  // Alternative if no systems. Done.
+  if (beginSys.size() == 0) os << "    no systems defined \n";
+  os << "\n --------  End PYTHIA Systems Listing  ----------------------"
      << "--------------------------" << endl;
 
 }

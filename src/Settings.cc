@@ -1,5 +1,9 @@
+// Settings.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the Settings class.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Settings.h"
 
@@ -171,6 +175,9 @@ bool Settings::reInit(string startFile) {
 // Is used by readString (and readFile) in Pythia.
 
 bool Settings::readString(string line, bool warn, ostream& os) {
+
+  // If empty line then done.
+  if (line.find_first_not_of(" ") == string::npos) return true;
 
   // If first character is not a letter, then taken to be a comment line.
   string lineNow = line;

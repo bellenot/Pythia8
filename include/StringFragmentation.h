@@ -1,7 +1,11 @@
+// StringFragmentation.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This file contains the classes for string fragmentation.
 // StringEnd: keeps track of the fragmentation step.
 // StringFragmentation: is the top-level class.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_StringFragmentation_H
 #define Pythia8_StringFragmentation_H

@@ -1,5 +1,9 @@
+// UserHooks.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the UserHooks class.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "UserHooks.h"
 
@@ -34,8 +38,8 @@ double UserHooks::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
 
   // Renormalization scale and assumed alpha_strong and alpha_EM.
   //double Q2Ren   = sigmaProcessPtr->Q2Ren();
-  //double alphaS  = sigmaProcessPtr->alphaSH();
-  //double alphaEM = sigmaProcessPtr->alphaEMH();
+  //double alphaS  = sigmaProcessPtr->alphaSRen();
+  //double alphaEM = sigmaProcessPtr->alphaEMRen();
   
   // Subprocess mass-square.
   //double sHat = phaseSpacePtr->sHat();
@@ -138,7 +142,7 @@ double SuppressSmallPT::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
   if (numberAlphaS > 0) {
     // Renormalization scale and assumed alpha_strong.
     double Q2RenOld  = sigmaProcessPtr->Q2Ren();
-    double alphaSOld = sigmaProcessPtr->alphaSH();
+    double alphaSOld = sigmaProcessPtr->alphaSRen();
 
     // Reweight to new alpha_strong at new scale.
     double Q2RenNew  = pT20 + Q2RenOld;

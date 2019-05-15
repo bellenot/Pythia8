@@ -1,9 +1,29 @@
+// ProcessLevel.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the ProcessLevel class.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "ProcessLevel.h"
 
 namespace Pythia8 {
+
+//*********
+  
+// Destructor.
+
+ProcessLevel::~ProcessLevel() { 
+
+  // Run through list of first hard processes and delete them.
+  for (int i = 0; i < int(containerPtrs.size()); ++i)
+    delete containerPtrs[i];
+
+  // Run through list of second hard processes and delete them.
+  for (int i =0; i < int(container2Ptrs.size()); ++i)
+    delete container2Ptrs[i];
+
+} 
  
 //**************************************************************************
 
@@ -11,7 +31,8 @@ namespace Pythia8 {
 
 bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
   BeamParticle* beamBPtrIn, bool doLHAin, LHAinit* lhaInitPtrIn, 
-  LHAevnt* lhaEvntPtrIn, UserHooks* userHooksPtrIn) {
+  LHAevnt* lhaEvntPtrIn, UserHooks* userHooksPtrIn,
+  vector<SigmaProcess*>& sigmaPtrs) {
 
   // Store input pointers for future use. 
   infoPtr       = infoPtrIn;
@@ -33,9 +54,9 @@ bool ProcessLevel::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
 
   // If not Les Houches then internal machinery.
   doInternal    = !doLHA;
-  if (doInternal) return initInternal();
+  if (doInternal) return initInternal(sigmaPtrs);
 
-  // Done. (Check return values from other classes??)
+  // Done.
   return true;
 }
 
@@ -228,12 +249,14 @@ bool ProcessLevel::initResonances() {
   // Initialize static data members for each resonance.
   ResonanceGmZ::initStatic();
   ResonanceW::initStatic();
-  ResonanceH::initStatic();
+  ResonanceTop::initStatic();
+  ResonanceSMH::initStatic();
 
   // Recalculate widths for current masses.
   ResonanceGmZ::widthInit();
   ResonanceW::widthInit();
-  ResonanceH::widthInit();
+  ResonanceTop::widthInit();
+  ResonanceSMH::widthInit();
 
   // Send ResonanceDecays pointer to ProcessContainer.
   ProcessContainer::setResonanceDecaysPtr( &resonanceDecays);
@@ -247,7 +270,8 @@ bool ProcessLevel::initResonances() {
 
 // Initialize the internal event generation machinery.
   
-bool ProcessLevel::initInternal( ostream& os) {
+bool ProcessLevel::initInternal( vector<SigmaProcess*>& sigmaPtrs,
+  ostream& os) {
 
   // Set up SigmaTotal. Store sigma_nondiffractive for future use.
   int    idA = infoPtr->idA();
@@ -256,16 +280,19 @@ bool ProcessLevel::initInternal( ostream& os) {
   sigmaTot.init( idA, idB, eCM);
   sigmaND = sigmaTot.sigmaND();
 
-  // Send cross section and beam info to influx, processes and phase space.
-  double mA = beamAPtr->m();
-  double mB = beamBPtr->m();
-  InFlux::setStaticPtrs( beamAPtr, beamBPtr); 
-  SigmaProcess::setStaticPtrs( &sigmaTot, idA, idB, mA, mB);
+  // Send beam and cross section info to processes and phase space.
+  SigmaProcess::setStaticPtrs( beamAPtr, beamBPtr, &sigmaTot);
   PhaseSpace::setStaticPtrs( beamAPtr, beamBPtr, &sigmaTot, userHooksPtr);
 
-  // Sets up containers for all the hard processes.
+  // Set up containers for all the internal hard processes.
   SetupContainers setupContainers;
   setupContainers.init(containerPtrs);
+
+  // Append containers for external hard processes, if any.
+  if (sigmaPtrs.size() > 0) {
+    for (int iSig = 0; iSig < int(sigmaPtrs.size()); ++iSig)
+      containerPtrs.push_back( new ProcessContainer(sigmaPtrs[iSig]) );
+  }  
 
   // If no processes found then refuse to do anything.
   if ( int(containerPtrs.size()) == 0) {
@@ -416,6 +443,13 @@ bool ProcessLevel::nextInternal( Event& process) {
     if (containerPtrs[iContainer]->trialProcess()) break;
   }
 
+  // Update sum of maxima if current maximum violated.
+  if (containerPtrs[iContainer]->newSigmaMax()) {
+    sigmaMaxSum = 0.;
+    for (int i = 0; i < int(containerPtrs.size()); ++i)
+      sigmaMaxSum += containerPtrs[i]->sigmaMax();
+  }
+
   // Construct kinematics of acceptable process.
   containerPtrs[iContainer]->constructProcess( process);
 
@@ -452,6 +486,13 @@ bool ProcessLevel::next2Internal( Event& process) {
       if (containerPtrs[iContainer]->trialProcess()) break;
     }
 
+    // Update sum of maxima if current maximum violated.
+    if (containerPtrs[iContainer]->newSigmaMax()) {
+      sigmaMaxSum = 0.;
+      for (int i = 0; i < int(containerPtrs.size()); ++i)
+        sigmaMaxSum += containerPtrs[i]->sigmaMax();
+    }
+
     // Loop internally over tries for second hardest process until succeeds.
     for ( ; ; ) {
 
@@ -464,6 +505,13 @@ bool ProcessLevel::next2Internal( Event& process) {
     
       // Do a trial event of this subprocess; accept or not.
       if (container2Ptrs[i2Container]->trialProcess()) break;
+    }
+
+    // Update sum of maxima if current maximum violated.
+    if (container2Ptrs[i2Container]->newSigmaMax()) {
+      sigma2MaxSum = 0.;
+      for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
+        sigma2MaxSum += container2Ptrs[i2]->sigmaMax();
     }
 
     // Check whether common set of x values is kinematically possible.

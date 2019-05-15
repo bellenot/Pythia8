@@ -74,63 +74,31 @@ and the status code of <code>iCopy</code> is negated. With a negative
 of <code>iCopy</code>.
 
 <p/>
-A listing of the whole event is obtained with <code>list()</code>. This 
-function takes an <code>ostream</code> object as an optional argument.
-The basic id, status, mother, daughter, colour, four-momentum
-and mass data are always given, but the following switches can be 
-set to provide further information, or restrict the set of particles
-listed:
-
-<br/><br/><strong>Event:listFinalOnly</strong>  <input type="radio" name="1" value="on"><strong>On</strong>
-<input type="radio" name="1" value="off" checked="checked"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-The alternative mode, with this option on, omits all intermediate
-particles, so that only ones with status > 0 are shown. 
-  
-
-<br/><br/><strong>Event:listScaleAndVertex</strong>  <input type="radio" name="2" value="on"><strong>On</strong>
-<input type="radio" name="2" value="off" checked="checked"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-The alternative mode, with this option on, gives a second line
-for each particle, with the production scale (in GeV), the
-production vertex (in mm or mm/c) and the invariant lifetime
-(also in mm/c).
-  
-
-<br/><br/><strong>Event:listMothersAndDaughters</strong>  <input type="radio" name="3" value="on"><strong>On</strong>
-<input type="radio" name="3" value="off" checked="checked"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-The alternative mode, with this option on, gives a list of all
-daughters and mothers of a particle, as defined by the 
-<code>motherList(i)</code> and <code>daughterList(i)</code> methods 
-described below. It is purely intended for debug purposes, 
-e.g. when writing an interface to another event record format. 
-  
-
-<br/><br/><strong>Event:extraBlankLine</strong>  <input type="radio" name="4" value="on"><strong>On</strong>
-<input type="radio" name="4" value="off" checked="checked"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-With this option on, an extra blank line is inserted after each 
-particle. There is a tradeoff between improved legibility, in 
-particular for <code>Event:listMothersAndDaughters</code> on, and a 
-longer listing. 
-  
-
-<br/><br/><strong>Event:listJunctions</strong>  <input type="radio" name="5" value="on"><strong>On</strong>
-<input type="radio" name="5" value="off" checked="checked"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-With this option on, a list of all junctions in the event is 
-displayed after the normal particle list.
-  
-
-These choices are stored at the initialization stage of the event.
-If you want to change values later, you have to execcute an
-<code>Event::initStatic()</code> yourself for them to take effect.  
-
-<p/>
 The event record can be emptied for the next event by a 
 <code>clear()</code>. The last <code>n</code> entries can be removed by 
 <code>popBack(n)</code>, where <code>n = 1</code> by default. 
+
+<p/>
+A listing of the whole event is obtained with <code>list()</code>.
+The basic id, status, mother, daughter, colour, four-momentum
+and mass data are always given, but the method can also be called with 
+a few optional arguments for further information:
+<p/><code>method&nbsp; </code><strong> list(scaleAndVertex, mothersAndDaughters, os) &nbsp;</strong> <br/>
+where
+<br/><code>argument</code><strong> scaleAndVertex </strong> (<code>default = <strong>off</strong></code>) :  optionally give a 
+second line for each particle, with the production scale (in GeV), the
+production vertex (in mm or mm/c) and the invariant lifetime
+(also in mm/c).
+  
+<br/><code>argument</code><strong> mothersAndDaughters </strong> (<code>default = <strong>off</strong></code>) : 
+gives a list of all daughters and mothers of a particle, as defined by 
+the <code>motherList(i)</code> and <code>daughterList(i)</code> methods 
+described below. It is mainly intended for debug purposes. 
+  
+<br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) :  a reference to the <code>ostream</code>
+object to which the event listing will be directed.
+  
+  
 
 <p/>
 Each particle in the event record has a pointer to the corresponding
@@ -169,7 +137,7 @@ last tag assigned, i.e. largest value in the current event, and
 <code>nextColTag()</code> ups it by one before returing the value. The 
 latter method thus is used when a new colour tag is needed.  
 
-<br/><br/><table><tr><td><strong>Event:startColTag  </td><td></td><td> <input type="text" name="6" value="100" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>100</strong></code>; <code>minimum = 0</code>; <code>maximum = 1000</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Event:startColTag  </td><td></td><td> <input type="text" name="1" value="100" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>100</strong></code>; <code>minimum = 0</code>; <code>maximum = 1000</code>)</td></tr></table>
 This sets the initial value used, so that the first one assigned is
 <code>startColTag+1</code>, etc. The Les Houches accord [<a href="Bibliography.php" target="page">Boo01</a>] 
 suggests this number to be 500, but 100 works equally well.
@@ -314,6 +282,10 @@ implemented.
 The kind and colour information in the list of junctions can be set 
 or read with methods of the <code>Event</code> class, but are not of 
 common interest and so not described here.
+
+<p/>
+A listing of current junctions can be obtained with the 
+<code>listJunctions()</code> method.
  
 <h3>Subsystems</h3>
 
@@ -324,6 +296,10 @@ and beam remnants. It could also be used in other places. It is intended
 to be accessed only by experts, such as implementors of 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='ImplementNewShowers.php?filepath=".$filepath."' target='page'>";?>new showering models</a>.
+
+<p/>
+A listing of current subsystems can be obtained with the 
+<code>listSystems()</code> method.
 
 <input type="hidden" name="saved" value="1"/>
 
@@ -340,34 +316,9 @@ if($_POST["saved"] == 1)
 $filepath = $_POST["filepath"];
 $handle = fopen($filepath, 'a');
 
-if($_POST["1"] != "off")
+if($_POST["1"] != "100")
 {
-$data = "Event:listFinalOnly = ".$_POST["1"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["2"] != "off")
-{
-$data = "Event:listScaleAndVertex = ".$_POST["2"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["3"] != "off")
-{
-$data = "Event:listMothersAndDaughters = ".$_POST["3"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["4"] != "off")
-{
-$data = "Event:extraBlankLine = ".$_POST["4"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["5"] != "off")
-{
-$data = "Event:listJunctions = ".$_POST["5"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["6"] != "100")
-{
-$data = "Event:startColTag = ".$_POST["6"]."\n";
+$data = "Event:startColTag = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -377,4 +328,4 @@ fclose($handle);
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

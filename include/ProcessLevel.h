@@ -1,6 +1,10 @@
+// ProcessLevel.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This file contains the main class for process-level event generation.
 // ProcessLevel: administrates the selection of "hard" process.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_ProcessLevel_H
 #define Pythia8_ProcessLevel_H
@@ -31,12 +35,15 @@ public:
 
   // Constructor. 
   ProcessLevel() {} 
+
+  // Destructor to delete processes in containers.
+  ~ProcessLevel();
  
   // Initialization assuming all necessary data already read.
   bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn, bool doLHAin = false, 
-    LHAinit* lhaInitPtrIn = 0, LHAevnt* lhaEvntPtrIn = 0, 
-    UserHooks* userHooksPtrIn = 0);
+    BeamParticle* beamBPtrIn, bool doLHAin, LHAinit* lhaInitPtrIn, 
+    LHAevnt* lhaEvntPtrIn, UserHooks* userHooksPtrIn, 
+    vector<SigmaProcess*>& sigmaPtrs);
  
   // Generate the next "hard" process.
   bool next( Event& process); 
@@ -90,7 +97,7 @@ private:
   bool initResonances();
 
   // Initialize the internal event generation machinery.
-  bool initInternal( ostream& os = cout);
+  bool initInternal( vector<SigmaProcess*>& sigmaPtrs, ostream& os = cout);
 
   // Generate the next internal event with one interaction.
   bool nextInternal( Event& process);
@@ -99,7 +106,7 @@ private:
   bool next2Internal( Event& process);
 
   // Append the second to the first process list.
-  void combineProcessRecords( Event& process,  Event& process2);
+  void combineProcessRecords( Event& process, Event& process2);
 
   // Read in the hard process from the Les Houches Accord.
   bool nextLHA( Event& process);

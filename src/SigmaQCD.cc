@@ -1,6 +1,10 @@
+// SigmaQCD.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the 
 // QCD simulation classes. 
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "SigmaQCD.h"
 
@@ -88,18 +92,21 @@ void Sigma0AB2XX::setIdColAcol() {
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat).
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence.
 
-double Sigma2gg2gg::sigmaHat() {
+void Sigma2gg2gg::sigmaKin() {
 
   // Calculate kinematics dependence.
-  sigTS  = (9./4.) * (tH2/sH2 + 2.*tH/sH + 3. + 2.*sH/tH + sH2/tH2);
-  sigUS  = (9./4.) * (uH2/sH2 + 2.*uH/sH + 3. + 2.*sH/uH + sH2/uH2);
-  sigTU  = (9./4.) * (tH2/uH2 + 2.*tH/uH + 3. + 2.*uH/tH + uH2/tH2);
+  sigTS  = (9./4.) * (tH2 / sH2 + 2. * tH / sH + 3. + 2. * sH / tH 
+           + sH2 / tH2);
+  sigUS  = (9./4.) * (uH2 / sH2 + 2. * uH / sH + 3. + 2. * sH / uH 
+           + sH2 / uH2);
+  sigTU  = (9./4.) * (tH2 / uH2 + 2. * tH / uH + 3. + 2. * uH / tH 
+           + uH2 / tH2);
   sigSum = sigTS + sigUS + sigTU;
 
   // Answer contains factor 1/2 from identical gluons.
-  return CONVERT2MB * (M_PI/sH2) * pow2(alpS) * 0.5 * sigSum;  
+  sigma  = (M_PI / sH2) * pow2(alpS) * 0.5 * sigSum;  
 
 }
 
@@ -129,12 +136,12 @@ void Sigma2gg2gg::setIdColAcol() {
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
 
-double Sigma2gg2qqbar::sigmaHat() { 
+void Sigma2gg2qqbar::sigmaKin() { 
 
   // Pick new flavour.
-  idNew = 1 + int( nQuark * Rndm::flat() ); 
+  idNew = 1 + int( nQuarkNew * Rndm::flat() ); 
   mNew  = ParticleDataTable::m0(idNew);
   m2New = mNew*mNew;
   
@@ -142,13 +149,13 @@ double Sigma2gg2qqbar::sigmaHat() {
   sigTS = 0.;
   sigUS = 0.;
   if (sH > 4. * m2New) {
-    sigTS = (1./6.) * uH/tH - (3./8.) * uH2/sH2;
-    sigUS = (1./6.) * tH/uH - (3./8.) * tH2/sH2; 
+    sigTS = (1./6.) * uH / tH - (3./8.) * uH2 / sH2;
+    sigUS = (1./6.) * tH / uH - (3./8.) * tH2 / sH2; 
   }
   sigSum = sigTS + sigUS;
 
   // Answer is proportional to number of outgoing flavours.
-  return CONVERT2MB * (M_PI/sH2) * pow2(alpS) * nQuark * sigSum;  
+  sigma  = (M_PI / sH2) * pow2(alpS) * nQuarkNew * sigSum;  
 
 }
 
@@ -175,17 +182,17 @@ void Sigma2gg2qqbar::setIdColAcol() {
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
 
-double Sigma2qg2qg::sigmaHat() { 
+void Sigma2qg2qg::sigmaKin() { 
 
   // Calculate kinematics dependence.
-  sigTS  = uH2/tH2 - (4./9.) * uH/sH;
-  sigTU  = sH2/tH2 - (4./9.) * sH/uH;
+  sigTS  = uH2 / tH2 - (4./9.) * uH / sH;
+  sigTU  = sH2 / tH2 - (4./9.) * sH / uH;
   sigSum = sigTS + sigTU;
 
   // Answer.
-  return CONVERT2MB * (M_PI/sH2) * pow2(alpS) * sigSum;  
+  sigma  = (M_PI / sH2) * pow2(alpS) * sigSum;  
 
 }
 
@@ -209,21 +216,38 @@ void Sigma2qg2qg::setIdColAcol() {
 
 //**************************************************************************
 
-// Sigma2qq2qqDiff class.
+// Sigma2qq2qq class.
 // Cross section for q qbar' -> q qbar' or q q' -> q q' 
-// (qbar qbar' -> qbar qbar'), q' != q.
+// (qbar qbar' -> qbar qbar'), q' may be same as q.
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
 
-double Sigma2qq2qqDiff::sigmaHat() { 
+void Sigma2qq2qq::sigmaKin() { 
 
-  // Calculate kinematics dependence.
-  sigT = (4./9.) * (sH2+uH2)/tH2;
+  // Calculate kinematics dependence for different terms.
+  sigT   = (4./9.) * (sH2 + uH2) / tH2;
+  sigU   = (4./9.) * (sH2 + tH2) / uH2;
+  sigTU  = - (8./27.) * sH2 / (tH * uH);
+  sigST  = - (8./27.) * uH2 / (sH * tH);
+
+}
+
+//*********
+
+
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
+
+double Sigma2qq2qq::sigmaHat() {  
+
+  // Combine cross section terms; factor 1/2 when identical quarks.
+  if      (id2 ==  id1) sigSum = 0.5 * (sigT + sigU + sigTU);
+  else if (id2 == -id1) sigSum = sigT + sigST;
+  else                      sigSum = sigT;
 
   // Answer.
-  return CONVERT2MB * (M_PI/sH2) * pow2(alpS) * sigT;  
+  return (M_PI/sH2) * pow2(alpS) * sigSum;  
 
 }
 
@@ -231,128 +255,16 @@ double Sigma2qq2qqDiff::sigmaHat() {
 
 // Select identity, colour and anticolour.
 
-void Sigma2qq2qqDiff::setIdColAcol() {
+void Sigma2qq2qq::setIdColAcol() {
 
   // Outgoing = incoming flavours.
   setId( id1, id2, id1, id2);
 
   // Colour flow topologies. Swap when antiquarks.
-  if (id1 * id2 > 0) setColAcol( 1, 0, 2, 0, 2, 0, 1, 0);
-  else               setColAcol( 1, 0, 0, 1, 2, 0, 0, 2);
-  if (id1 < 0) swapColAcol();
-
-}
-
-//**************************************************************************
-
-// Sigma2qq2qqSame class.
-// Cross section for q q -> q q (qbar qbar -> qbar qbar).
-
-//*********
-
-// Evaluate d(sigmaHat)/d(tHat). 
-
-double Sigma2qq2qqSame::sigmaHat() { 
-
-  // Calculate kinematics dependence.
-  sigT   = (4./9.) * (sH2+uH2)/tH2;
-  sigU   = (4./9.) * (sH2+tH2)/uH2;
-  sigTU  = - (8./27.) * sH2/(tH*uH);
-  sigSum = sigT + sigU + sigTU;
-
-  // Answer contains factor 1/2 from identical quarks.
-  return CONVERT2MB * (M_PI/sH2) * pow2(alpS) * 0.5 * sigSum;  
-
-}
-
-//*********
-
-// Select identity, colour and anticolour.
-
-void Sigma2qq2qqSame::setIdColAcol() {
-
-  // Outgoing = incoming flavours.
-  setId( id1, id2, id1, id2);
-
-  // Two colour flow topologies. Swap if first is antiquark.
-  double sigRand = (sigT + sigU) * Rndm::flat();
-  if (sigRand < sigT) setColAcol( 1, 0, 2, 0, 2, 0, 1, 0);
-  else                setColAcol( 1, 0, 2, 0, 1, 0, 2, 0); 
-  if (id1 < 0) swapColAcol();
-
-}
-
-//**************************************************************************
-
-// Sigma2qqbar2qqbarSame class.
-// Cross section q qbar -> q qbar.
-
-//*********
-
-// Evaluate d(sigmaHat)/d(tHat). 
-
-double Sigma2qqbar2qqbarSame::sigmaHat() {
-
-  // Calculate kinematics dependence.
-  sigT = (4./9.) * (sH2+uH2)/tH2 - (8./27.) * uH2/(sH*tH);
-
-  // Answer.
-  return CONVERT2MB * (M_PI/sH2) * pow2(alpS) * sigT;  
-
-}
-
-//*********
-
-// Select identity, colour and anticolour.
-
-void Sigma2qqbar2qqbarSame::setIdColAcol() {
-
-  // Outgoing = incoming flavours.
-  setId( id1, id2, id1, id2);
-
-  // Colour flow topologies. Swap when antiquarks.
-  setColAcol( 1, 0, 0, 1, 2, 0, 0, 2);
-  if (id1 < 0) swapColAcol();
-
-}
-
-//**************************************************************************
-
-// Sigma2qqbar2qqbarNew class.
-// Cross section q qbar -> q' qbar'.
-
-//*********
-
-// Evaluate d(sigmaHat)/d(tHat). 
-
-double Sigma2qqbar2qqbarNew::sigmaHat() { 
-
-  // Pick new flavour.
-  idNew = 1 + int( nQuark * Rndm::flat() ); 
-  mNew  = ParticleDataTable::m0(idNew);
-  m2New = mNew*mNew;
-
-  // Calculate kinematics dependence.
-  sigS                      = 0.;
-  if (sH > 4. * m2New) sigS = (4./9.) * (tH2+uH2)/sH2; 
-
-  // Answer is proportional to number of outgoing flavours.
-  return CONVERT2MB * (M_PI/sH2) * pow2(alpS) * nQuark * sigS;  
-
-}
-
-//*********
-
-// Select identity, colour and anticolour.
-
-void Sigma2qqbar2qqbarNew::setIdColAcol() {
-
-  // Set outgoing flavours ones.
-  id3 = (id1 > 0) ? idNew : -idNew;
-  setId( id1, id2, id3, -id3);
-
-  // Colour flow topologies. Swap when antiquarks.
-  setColAcol( 1, 0, 0, 2, 1, 0, 0, 2);
+  if (id1 * id2 > 0)  setColAcol( 1, 0, 2, 0, 2, 0, 1, 0);
+  else                setColAcol( 1, 0, 0, 1, 2, 0, 0, 2);
+  if (id2 == id1 && (sigT + sigU) * Rndm::flat() > sigT)
+                      setColAcol( 1, 0, 2, 0, 1, 0, 2, 0);
   if (id1 < 0) swapColAcol();
 
 }
@@ -364,17 +276,17 @@ void Sigma2qqbar2qqbarNew::setIdColAcol() {
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
 
-double Sigma2qqbar2gg::sigmaHat() { 
+void Sigma2qqbar2gg::sigmaKin() { 
 
   // Calculate kinematics dependence.
-  sigTS  = (32./27.) * uH/tH - (8./3.) * uH2/sH2;
-  sigUS  = (32./27.) * tH/uH - (8./3.) * tH2/sH2;
+  sigTS  = (32./27.) * uH / tH - (8./3.) * uH2 / sH2;
+  sigUS  = (32./27.) * tH / uH - (8./3.) * tH2 / sH2;
   sigSum = sigTS + sigUS;
 
   // Answer contains factor 1/2 from identical gluons.
-  return CONVERT2MB * (M_PI/sH2) * pow2(alpS) * 0.5 * sigSum;  
+  sigma  = (M_PI / sH2) * pow2(alpS) * 0.5 * sigSum;  
 
 }
 
@@ -391,6 +303,47 @@ void Sigma2qqbar2gg::setIdColAcol() {
   double sigRand = sigSum * Rndm::flat();
   if (sigRand < sigTS) setColAcol( 1, 0, 0, 2, 1, 3, 3, 2);
   else                 setColAcol( 1, 0, 0, 2, 3, 2, 1, 3); 
+  if (id1 < 0) swapColAcol();
+
+}
+
+//**************************************************************************
+
+// Sigma2qqbar2qqbarNew class.
+// Cross section q qbar -> q' qbar'.
+
+//*********
+
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
+
+void Sigma2qqbar2qqbarNew::sigmaKin() { 
+
+  // Pick new flavour.
+  idNew = 1 + int( nQuarkNew * Rndm::flat() ); 
+  mNew  = ParticleDataTable::m0(idNew);
+  m2New = mNew*mNew;
+
+  // Calculate kinematics dependence.
+  sigS                      = 0.;
+  if (sH > 4. * m2New) sigS = (4./9.) * (tH2 + uH2) / sH2; 
+
+  // Answer is proportional to number of outgoing flavours.
+  sigma = (M_PI / sH2) * pow2(alpS) * nQuarkNew * sigS;  
+
+}
+
+//*********
+
+// Select identity, colour and anticolour.
+
+void Sigma2qqbar2qqbarNew::setIdColAcol() {
+
+  // Set outgoing flavours ones.
+  id3 = (id1 > 0) ? idNew : -idNew;
+  setId( id1, id2, id3, -id3);
+
+  // Colour flow topologies. Swap when antiquarks.
+  setColAcol( 1, 0, 0, 2, 1, 0, 0, 2);
   if (id1 < 0) swapColAcol();
 
 }
@@ -421,9 +374,9 @@ void Sigma2gg2QQbar::initProc() {
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
 
-double Sigma2gg2QQbar::sigmaHat() { 
+void Sigma2gg2QQbar::sigmaKin() { 
 
   // Modified Mandelstam variables for massive kinematics with m3 = m4.
   double s34Avg = 0.5 * (s3 + s4) - 0.25 * pow2(s3 - s4) / sH; 
@@ -443,7 +396,10 @@ double Sigma2gg2QQbar::sigmaHat() {
   sigSum = sigTS + sigUS;
 
   // Answer.
-  return CONVERT2MB * (M_PI/sH2) * pow2(alpS) * sigSum;  
+  sigma = (M_PI / sH2) * pow2(alpS) * sigSum;  
+
+  // Top: corrections for closed decay channels.
+  if (idNew == 6) sigma *= ResonanceTop::openFrac(6, -6);
 
 }
 
@@ -472,7 +428,7 @@ double Sigma2gg2QQbar::weightDecay( Event& process, int iResBeg,
 
   // For top decay hand over to standard routine, else done.
   if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6) 
-       return weightTopDecay( process, iResBeg, iResEnd);
+       return ResonanceTop::weightDecayAngles( process, iResBeg, iResEnd);
   else return 1.; 
 
 }
@@ -503,9 +459,9 @@ void Sigma2qqbar2QQbar::initProc() {
 
 //*********
 
-// Evaluate d(sigmaHat)/d(tHat). 
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
 
-double Sigma2qqbar2QQbar::sigmaHat() { 
+void Sigma2qqbar2QQbar::sigmaKin() { 
 
   // Modified Mandelstam variables for massive kinematics with m3 = m4.
   double s34Avg = 0.5 * (s3 + s4) - 0.25 * pow2(s3 - s4) / sH; 
@@ -518,7 +474,10 @@ double Sigma2qqbar2QQbar::sigmaHat() {
   double sigS = (4./9.) * ((tHQ2 + uHQ2) / sH2 + 2. * s34Avg / sH); 
 
   // Answer.
-  return CONVERT2MB * (M_PI/sH2) * pow2(alpS) * sigS;  
+  sigma = (M_PI / sH2) * pow2(alpS) * sigS;  
+
+  // Top: corrections for closed decay channels.
+  if (idNew == 6) sigma *= ResonanceTop::openFrac(6, -6);
 
 }
 
@@ -547,7 +506,7 @@ double Sigma2qqbar2QQbar::weightDecay( Event& process, int iResBeg,
 
   // For top decay hand over to standard routine, else done.
   if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6) 
-       return weightTopDecay( process, iResBeg, iResEnd);
+       return ResonanceTop::weightDecayAngles( process, iResBeg, iResEnd);
   else return 1.; 
 
 }

@@ -1,144 +1,66 @@
-// File: main22.cc
+// main22.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Peter Skands, Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This is a simple test program. 
-// It illustrates the chain Pythia6 -> Pythia8 -> HepMC.
+// It illustrates how to run SUSY processes in Pythia8.
 // All input is specified in the main22.cmnd file.
-// HepMC events are output to the hepmcout22.dat file.
-// Written by Mikhail Kirsanov based on main12.cc.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Pythia.h"
-#include "LHAFortran.h"
-#include "Pythia6Interface.h"
-
-#include "HepMCInterface.h"
-
-#include "HepMC/GenEvent.h"
-#include "HepMC/IO_Ascii.h"
-//#include "HepMC/IO_AsciiParticles.h"
-
-//#include "HepMC/PythiaWrapper.h" // incompatible with Pythia8
 
 using namespace Pythia8; 
 
-//**************************************************************************
-
-// Implement initialization fillHepRup method for Pythia6 example.
-
-bool LHAinitFortran::fillHepRup() { 
-
-  // Set process to generate.
-  // Example: Z+jet production, must set pTmin, canset mMin.
-  Pythia6Interface::pygive("msel = 13"); 
-  Pythia6Interface::pygive("ckin(3) = 20."); 
-  Pythia6Interface::pygive("ckin(1) = 50."); 
-
-  // Switch off everything but Z0 -> leptons. 
-  // Warning: only works with version Pythia 6.411 onwards.
-  Pythia6Interface::pygive("23:alloff"); 
-  Pythia6Interface::pygive("23:onifany = 11 13 15"); 
-
-  // Speed up initialization: multiple interactions only in C++ code.
-  Pythia6Interface::pygive("mstp(81)=0");
-    
-  // Initialize for 14 TeV pp collider.
-  Pythia6Interface::pyinit("cms","p","p",14000.);   
-
-  // Fill initialization information in HEPRUP.
-  Pythia6Interface::pyupin();
-
-  // Done.
-  return true;
-
-}
-
-//**************************************************************************
-
-// Implement event generation fillHepEup method for Pythia6 example.
-
-bool LHAevntFortran::fillHepEup() { 
-
-  // Generate and fill the next Pythia6 event in HEPEUP.
-  Pythia6Interface::pyupev();
-
-  // Done.
-  return true;
-
-}
-
-//**************************************************************************
-
 int main() {
 
-  //  ToHepMC.set_crash_on_problem();
-  HepMC::I_Pythia8 ToHepMC;
-
-  // Specify file where HepMC events will be stored.
-  HepMC::IO_Ascii ascii_io("hepmcout22.dat",std::ios::out);
-//  HepMC::IO_AsciiParticles ascii_io("hepmcout22.dat",std::ios::out);
-
-  // Generator. Shorthand for the event and for settings.
-  Pythia8::Pythia pythia;
+  // Generator. Shorthand for the event and the (static) Settings.
+  Pythia pythia;
   Event& event = pythia.event;
   Settings& settings = pythia.settings;
 
   // Read in commands from external file.
-  pythia.readFile("main22.cmnd");
+  pythia.readFile("main22.cmnd");    
 
   // Extract settings to be used in the main program.
-  int  nEvent  = settings.mode("Main:numberOfEvents");
-  int  nList   = settings.mode("Main:numberToList");
-  int  nShow   = settings.mode("Main:timesToShow");
-  int  nAbort  = settings.mode("Main:timesAllowErrors");
-  bool showCS  = settings.flag("Main:showChangedSettings");
-  bool showAS  = settings.flag("Main:showAllSettings");
-  bool showCPD = settings.flag("Main:showChangedParticleData");
-  bool showAPD = settings.flag("Main:showAllParticleData");
+  int idBeamA = settings.mode("Main:idBeamA");
+  int idBeamB = settings.mode("Main:idBeamB");
+  double eCM = settings.parm("Main:eCM");
+  int nEvent = settings.mode("Main:numberOfEvents");
+  int nList = settings.mode("Main:numberToList");
+  int nShow = settings.mode("Main:timesToShow");
+  bool showChangedSettings = settings.flag("Main:showChangedSettings");
+  bool showAllSettings = settings.flag("Main:showAllSettings");
+  bool showChangedParticleData 
+    = settings.flag("Main:showChangedParticleData");
+  bool showAllParticleData = settings.flag("Main:showAllParticleData");
 
-  // Initialize to access Pythia6 generator by Les Houches interface.
-  LHAinitFortran pythia6Init;
-  LHAevntFortran pythia6Evnt;
-  pythia.init(&pythia6Init, &pythia6Evnt);    
+  // Initialization.
+  pythia.init( idBeamA, idBeamB, eCM);
 
   // List changed data.
-  if (showCS) settings.listChanged();
-  if (showAS) settings.listAll();
+  if (showChangedSettings) settings.listChanged();
+  if (showAllSettings) settings.listAll();
 
   // List particle data.  
-  if (showCPD) ParticleDataTable::listChanged();
-  if (showAPD) ParticleDataTable::listAll();
+  if (showChangedParticleData) ParticleDataTable::listChanged();
+  if (showAllParticleData) ParticleDataTable::listAll();
 
   // Histograms.
-  double eCM   = 14000.;
-  double epTol = 1e-7 * eCM;
+  double epTol = 1e-6 * eCM;
   Hist epCons("deviation from energy-momentum conservation",100,0.,epTol);
-  Hist nFinal("final particle multiplicity",100,-0.5,1599.5);
-  Hist nChg("final charged multiplicity",100,-0.5,799.5);
-  Hist nISR("number of ISR emissions for hard system",40,-0.5,39.5);
-  Hist nMI("number of MI (excluding hard system)",100,-0.5,99.5);
-  Hist nISRMI("number of ISR emissions per MI",40,-0.5,39.5);
-  Hist nFSR("total number of FSR emissions",100,-0.5,299.5);
-  Hist nJUN("number of junctions",10,-0.5,9.5);
-  Hist pThard("ISR pT kick to hard system",100,0.,400.);
-  Hist sumETparticle("summed ET of particles",100,0.,2000.);
-  Hist dnCHparticleDy("dn_charged/dy for particles",100,-10.,10.);
-  Hist dETparticleDy("dET/dy for particles",100,-10.,10.);
+  Hist nFinal("final particle multiplicity",100,-0.5,799.5);
+  Hist dnparticledy("dn/dy for particles",100,-10.,10.);
 
   // Begin event loop.
-  int nShowPace = max(1,nEvent/nShow); 
-  int iAbort = 0; 
-  bool generated;
+  int nPace = max(1,nEvent/nShow); 
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
-    if (iEvent%nShowPace == 0) cout << " Now begin event " 
-      << iEvent << endl;
+    if (iEvent%nPace == 0) cout << " Now begin event " << iEvent << "\n";
 
-    // Generate events. Quit if too many failures.
-    generated = pythia.next();
-    if (!generated) {
-      if (++iAbort < nAbort) continue;
+    // Generate events. Quit if failure.
+    if (!pythia.next()) {
       cout << " Event generation aborted prematurely, owing to error!\n"; 
       break;
     }
-    cout << " successfully generated = " << generated << endl;
  
     // List first few events, both hard process and complete events.
     if (iEvent < nList) { 
@@ -146,103 +68,62 @@ int main() {
       event.list();
     }
 
-    // Convert event record to HepMC format and output to file.
-    HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
-    ToHepMC.fill_next_event( event, hepmcevt );
-    ascii_io << hepmcevt;
-    delete hepmcevt;
-
-    // Number of ISR for hard subprocess.
-    int nisr = -1;
-    int iNow = 3;
-    do { iNow = event[iNow].mother1(); ++nisr;}
-    while (iNow > 1 && abs(event[iNow].status()) < 50 ); 
-    nISR.fill(nisr);
-
-    // Total pT kick of hard subsystem.
-    Vec4 pHard;
-    for (int i = 0; i < event.size(); ++i) {
-      if (abs(event[i].status()) > 30) break;
-      if (event[i].status() == -22 || event[i].status() == -23) {      
-        int iNow = i;
-        while (event[iNow].daughter2() == event[iNow].daughter1() &&
-          event[iNow].daughter1() > iNow) iNow = event[iNow].daughter1();
-        pHard += event[iNow].p();
-      }
-    }
-    pThard.fill(pHard.pT());
-
-    // Reset quantities to be summed over event.
-    int nfin = 0;
-    int nch = 0;
-    int nmi = 0;
-    int nfsr = 0;
-    Vec4 pSum = - (event[1].p() + event[2].p());
-    double eTsum = 0.;
-
-    // Loop over particles in the event. 
-    for (int i = 0; i < event.size(); ++i) {
-
-      // Number of MI and of ISR per MI.
-      if (i < event.size() - 1 && event[i].status() == -31 
-        && event[i+1].status() == -31) {
-        ++nmi;
-        int inow = i;
-        int nisrmi = -1;
-        do { inow = event[inow].mother1(); ++ nisrmi;}
-        while (inow > 1 && abs(event[inow].status()) < 50) ; 
-        nISRMI.fill(nisrmi);
-      }
-    
-      // Number of FSR branchings.
-      if (event[i].status() == -52) ++nfsr; 
-
-      // Specialize to final particles. Total multiplicity and momentum.
-      if (event[i].status() > 0) {
-        ++nfin;
-        if (event[i].isCharged()) ++nch;
-        pSum += event[i].p();
-
-        // Final-state particle spectra.
-        double eTnow = event[i].pT();
-        double ynow = event[i].y();
-        eTsum += eTnow;
-        if (event[i].isCharged()) dnCHparticleDy.fill(ynow);
-        dETparticleDy.fill(ynow,eTnow);
-
-      // End of loop over (final/all) particles.
-      }
+    // Loop over final particles in the event. 
+    int nFin = 0;
+    Vec4 pSum;
+    for (int i = 0; i < event.size(); ++i) if (event[i].isFinal()) {
+      nFin++;
+      pSum += event[i].p();
+      dnparticledy.fill(event[i].y());
     }
 
-    // Energy-momentum deviation.
-    double epDev = abs(pSum.e()) + abs(pSum.px()) + abs(pSum.py())
+    // Check and print event with too big energy-momentum deviation.
+    nFinal.fill(nFin);
+    double epDev = abs(pSum.e() - eCM) + abs(pSum.px()) + abs(pSum.py())
       + abs(pSum.pz());
     epCons.fill(epDev);
-      
-    // Fill summed quantities.
-    nFinal.fill(nfin);
-    nChg.fill(nch);
-    nMI.fill(nmi);
-    nFSR.fill(nfsr);
-    nJUN.fill( event.sizeJunction() );
-    sumETparticle.fill(eTsum);
+    if (epDev > epTol) {
+      cout << " Warning! Event with epDev = " << scientific 
+           << setprecision(4) << epDev << " now listed:";
+      event.list();
+    }
 
   // End of event loop.
   }
 
-  // Final statistics.
+  // Final statistics and histogram output.
   pythia.statistics();
+  cout << epCons << nFinal << dnparticledy; 
 
-  // Histogram normalization.
-  double factor = 5. / (nEvent - nAbort);  
-  dnCHparticleDy *= factor;
-  dETparticleDy *= factor;
-
-  // Histogram output.
-  cout << epCons << nFinal<< nChg << nISR << nMI << nISRMI << nFSR 
-       << nJUN << pThard << sumETparticle << dnCHparticleDy 
-       << dETparticleDy; 
-
-  // Done.
   return 0;
 }
+
+/*
+
+Pythia8060 with main16.spc (heavy squarks, msq ~ 5e9)
+
+ | q qbar -> ~chi_10 ~chi_10                1001 |        3975        357 |   1.890e-13  4.864e-15 |
+ | q qbar -> ~chi_10 ~chi_20                1002 |        6629        525 |   2.827e-13  5.940e-15 |
+ | q qbar -> ~chi_10 ~chi_30                1003 |       35950       3633 |   1.855e-12  1.576e-14 |
+ | q qbar -> ~chi_10 ~chi_40                1004 |        3114        210 |   1.264e-13  4.117e-15 |
+ | q qbar -> ~chi_20 ~chi_20                1005 |        3162        257 |   1.390e-13  4.147e-15 |
+ | q qbar -> ~chi_20 ~chi_30                1006 |      110289      10862 |   5.731e-12  2.743e-14 |
+ | q qbar -> ~chi_20 ~chi_40                1007 |        2184        170 |   9.396e-14  3.580e-15 |
+ | q qbar -> ~chi_30 ~chi_30                1008 |          47          5 |   1.190e-15  2.815e-16 |
+ | q qbar -> ~chi_30 ~chi_40                1009 |      346486      33969 |   1.769e-11  4.793e-14 |
+ | q qbar -> ~chi_40 ~chi_40                1010 |         158         12 |   7.890e-15  9.946e-16 |
+ 
+Pythia 6 with same spectrum and neutralinos forced stable. 
+
+ I 216 f + fbar -> ~chi1 + ~chi1    I          369          1716 I  1.822E-13 I
+ I 217 f + fbar -> ~chi2 + ~chi2    I          255          1211 I  1.399E-13 I
+ I 218 f + fbar -> ~chi3 + ~chi3    I            6            20 I  2.475E-15 I
+ I 219 f + fbar -> ~chi4 + ~chi4    I           11            59 I  6.165E-15 I
+ I 220 f + fbar -> ~chi1 + ~chi2    I          572          2824 I  2.819E-13 I
+ I 221 f + fbar -> ~chi1 + ~chi3    I         3451         14329 I  1.803E-12 I
+ I 222 f + fbar -> ~chi1 + ~chi4    I          233          1182 I  1.368E-13 I
+ I 223 f + fbar -> ~chi2 + ~chi3    I        10808         45052 I  5.690E-12 I
+ I 224 f + fbar -> ~chi2 + ~chi4    I          189           906 I  9.563E-14 I
+ I 225 f + fbar -> ~chi3 + ~chi4    I        34106        142123 I  1.755E-11 I
+
+*/

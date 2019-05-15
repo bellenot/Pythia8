@@ -30,8 +30,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <h2>Welcome to PYTHIA - The Lund Monte Carlo!</h2>
 
 <p/>
-PYTHIA 8 is still incomplete, in particular with respect to the 
-intended process library, and not yet tuned up for production runs. 
+PYTHIA 8 is still incomplete, and not yet tuned up for production runs. 
 What is offered here is a snapshot, to allow testing and feedback. 
 The program is under active development, however, and is intended to 
 replace the existing PYTHIA 6 as the official version by the end of 2007.
@@ -39,7 +38,7 @@ replace the existing PYTHIA 6 as the official version by the end of 2007.
 <p/>
 Use the left-hand index to navigate in the existing documentation.
 Also note that there is a separate
-<a href="pythia8080.pdf" target="page"><b>Brief Introduction</b></a>
+<a href="pythia8090.pdf" target="page"><b>Brief Introduction</b></a>
 (as a pdf file), 
 that offers the best way to get to understand the basic structure of 
 PYTHIA 8. The current pages offer the more detailed picture, 
@@ -80,6 +79,14 @@ Makefiles, configure scripts and HepMC interface by <b>Mikhail Kirsanov</b>.
 Conversion to PHP files by <b>Ben Lloyd</b>.
 
 <p/>
+PYTHIA 8 is licensed under the 
+<a href="../COPYING" target="page"><b>GNU General Public Licence 
+version 2</b></a>.
+<br/>Please respect the 
+<a href="../GUIDELINES" target="page"><b>MCnet Guidelines</b></a>
+for Event Generator Authors and Users.
+
+<p/>
 The program and the documentation is
 Copyright &copy; 2007 Torbj&ouml;rn Sj&ouml;strand 
  
@@ -87,4 +94,4 @@ Copyright &copy; 2007 Torbj&ouml;rn Sj&ouml;strand
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->

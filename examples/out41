@@ -1,0 +1,275 @@
+ *************************************
+ *       LHAPDF Version 5.2.2          *
+ *************************************
+
+ >>>>>> PDF description: <<<<<<
+ CTEQ6.1                                                         
+ Reference:                                                      
+ J. Pumplin, D.R. Stump, J. Huston, H.L. Lai                     
+ W.K. Tung, S. Kuhlmann, J. Owens                                
+ hep-ph/0303013                                                  
+ This set has 41 member PDFs.                                    
+     mem=0 --> central value (cteq61m)                           
+     mem=1-40 --> 20 sets of +ve/-ve error values                
+ >>>>>>                   <<<<<<
+
+
+
+  2007-07-20 16:04       F( x, Q2 = 4) old
+
+        2.16*10^ 2  55555555555555555555                                                            
+        2.08*10^ 2  XXXXXXXXXXXXXXXXXXXX7                                                           
+        2.00*10^ 2  XXXXXXXXXXXXXXXXXXXXX1                                                          
+        1.92*10^ 2  XXXXXXXXXXXXXXXXXXXXXX                                                          
+        1.84*10^ 2  XXXXXXXXXXXXXXXXXXXXXX7                                                         
+        1.76*10^ 2  XXXXXXXXXXXXXXXXXXXXXXX3                                                        
+        1.68*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXX                                                        
+        1.60*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXX                                                       
+        1.52*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXX8                                                      
+        1.44*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXX6                                                     
+        1.36*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXX5                                                    
+        1.28*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXX5                                                   
+        1.20*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXX5                                                  
+        1.12*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX6                                                 
+        1.04*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX8                                                
+        0.96*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX92                                              
+        0.88*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5                                             
+        0.80*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX82                                           
+        0.72*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX6                                          
+        0.64*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5                                        
+        0.56*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX51                                     
+        0.48*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX63                                   
+        0.40*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX962                                
+        0.32*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9641                            
+        0.24*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX97531                       
+        0.16*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9865421                
+        0.08*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX987665433211   
+
+          Contents                                                                                  
+            *10^ 2  22222222222222222222211111111111000000000000000000000000000000000000000000000000
+            *10^ 1  11111111111111111111098755432100988776655544433332222211111111000000000000000000
+            *10^ 0  11111111111111111111521090024682593838495285296319753198654310998765543322110000
+            *10^-1  77777777777777777777393391920291657335078052124952112583952199901358158372627310
+
+          Low edge  --------------------------------------------------------------------------------
+            *10^ 0  87777777777666666666655555555554444444444333333333322222222221111111111000000000
+            *10^-1  09876543210987654321098765432109876543210987654321098765432109876543210987654321
+            *10^-2  00000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+   Entries  =          80    Mean = -6.0309e+00    Underflow =  0.0000e+00    Low edge  = -8.0000e+00
+   All chan =  7.3343e+03    Rms  =  1.4142e+00    Overflow  =  0.0000e+00    High edge =  0.0000e+00
+
+
+  2007-07-20 16:04       F( x, Q2 = 4) new
+
+        0.96*10^ 2  2                                                                               
+        0.92*10^ 2  X3                                                                              
+        0.88*10^ 2  XX4                                                                             
+        0.84*10^ 2  XXX5                                                                            
+        0.80*10^ 2  XXXX5                                                                           
+        0.76*10^ 2  XXXXX7                                                                          
+        0.72*10^ 2  XXXXXX8                                                                         
+        0.68*10^ 2  XXXXXXX91                                                                       
+        0.64*10^ 2  XXXXXXXXX3                                                                      
+        0.60*10^ 2  XXXXXXXXXX6                                                                     
+        0.56*10^ 2  XXXXXXXXXXX92                                                                   
+        0.52*10^ 2  XXXXXXXXXXXXX6                                                                  
+        0.48*10^ 2  XXXXXXXXXXXXXX94                                                                
+        0.44*10^ 2  XXXXXXXXXXXXXXXX83                                                              
+        0.40*10^ 2  XXXXXXXXXXXXXXXXXX84                                                            
+        0.36*10^ 2  XXXXXXXXXXXXXXXXXXXXX52                                                         
+        0.32*10^ 2  XXXXXXXXXXXXXXXXXXXXXXX852                                                      
+        0.28*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXX863                                                   
+        0.24*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX8631                                              
+        0.20*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX986431                                        
+        0.16*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX876543211                              
+        0.12*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX99888776654321               
+        0.08*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX97532          
+        0.04*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX8764321  
+
+          Contents                                                                                  
+            *10^ 1  98887776665555444433333322222222221111111111111111111111111110000000000000000000
+            *10^ 0  29518417418520753197542198765432109987765544333222211111000009988766543322110000
+            *10^-1  71581617433572743235816286421112357036048384952852075310865206272581369372738410
+            *10^-2  14039013745092992742197380056363635115349782981757176682580818892750524154706662
+
+          Low edge  --------------------------------------------------------------------------------
+            *10^ 0  87777777777666666666655555555554444444444333333333322222222221111111111000000000
+            *10^-1  09876543210987654321098765432109876543210987654321098765432109876543210987654321
+            *10^-2  00000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+   Entries  =          80    Mean = -5.9276e+00    Underflow =  0.0000e+00    Low edge  = -8.0000e+00
+   All chan =  2.0725e+03    Rms  =  1.8073e+00    Overflow  =  0.0000e+00    High edge =  0.0000e+00
+
+
+  2007-07-20 16:04       F( x, Q2 = 4) new/old
+
+        5.20*10^ 0                                                                                 6
+        5.00*10^ 0                                                                                 X
+        4.80*10^ 0                                                                                 X
+        4.60*10^ 0                                                                                 X
+        4.40*10^ 0                                                                                 X
+        4.20*10^ 0                                                                                 X
+        4.00*10^ 0                                                                                 X
+        3.80*10^ 0                                                                                 X
+        3.60*10^ 0                                                                                 X
+        3.40*10^ 0                                                                                 X
+        3.20*10^ 0                                                                                 X
+        3.00*10^ 0                                                                                 X
+        2.80*10^ 0                                                                                 X
+        2.60*10^ 0                                                                                 X
+        2.40*10^ 0                                                                                 X
+        2.20*10^ 0                                                                                 X
+        2.00*10^ 0                                                                                 X
+        1.80*10^ 0                                                                                7X
+        1.60*10^ 0                                                                                XX
+        1.40*10^ 0                                                                               6XX
+        1.20*10^ 0                                                                  122322111246XXXX
+        1.00*10^ 0                                                              2479XXXXXXXXXXXXXXXX
+        0.80*10^ 0                                                          2479XXXXXXXXXXXXXXXXXXXX
+        0.60*10^ 0  21                                               123568XXXXXXXXXXXXXXXXXXXXXXXXX
+        0.40*10^ 0  XXX9887654432211              111122233445567789XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        0.20*10^ 0  XXXXXXXXXXXXXXXXXX9999999XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+          Contents                                                                                  
+            *10^ 0  00000000000000000000000000000000000000000000000000000000000000001111111111111115
+            *10^-1  44433333322222222111111111112222222222222233333334444556667788990000000000011371
+            *10^-2  32086532097643210987778889990011223455678901346892469260483838371345432124729242
+            *10^-3  81469260406297655567470371493838396308655579273090398942497788571580433720334439
+
+          Low edge  --------------------------------------------------------------------------------
+            *10^ 0  87777777777666666666655555555554444444444333333333322222222221111111111000000000
+            *10^-1  09876543210987654321098765432109876543210987654321098765432109876543210987654321
+            *10^-2  00000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+   Entries  =         160    Mean = -2.4347e+00    Underflow =  0.0000e+00    Low edge  = -8.0000e+00
+   All chan =  2.8258e-01    Rms  =  2.3236e+00    Overflow  =  0.0000e+00    High edge =  0.0000e+00
+
+
+  2007-07-20 16:04       F( x, Q2 = 100) old
+
+        0.96*10^ 3  XXXXXXXXXXXXXXXXXXXX1                                                           
+        0.92*10^ 3  XXXXXXXXXXXXXXXXXXXXX                                                           
+        0.88*10^ 3  XXXXXXXXXXXXXXXXXXXXX3                                                          
+        0.84*10^ 3  XXXXXXXXXXXXXXXXXXXXXX                                                          
+        0.80*10^ 3  XXXXXXXXXXXXXXXXXXXXXX7                                                         
+        0.76*10^ 3  XXXXXXXXXXXXXXXXXXXXXXX1                                                        
+        0.72*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXX                                                        
+        0.68*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXX7                                                       
+        0.64*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXX4                                                      
+        0.60*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXXX2                                                     
+        0.56*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXXXX1                                                    
+        0.52*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                    
+        0.48*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXXXXXX                                                   
+        0.44*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1                                                 
+        0.40*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX3                                                
+        0.36*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5                                               
+        0.32*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX81                                             
+        0.28*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5                                            
+        0.24*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5                                          
+        0.20*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX51                                       
+        0.16*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX741                                    
+        0.12*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX8531                                
+        0.08*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX875321                          
+        0.04*10^ 3  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9877654433222111111       
+
+          Contents                                                                                  
+            *10^ 2  99999999999999999999987766554443332222111111110000000000000000000000000000000000
+            *10^ 1  55555555555555555555258261628407418631986432109876554433222211110000000000000000
+            *10^ 0  99999999999999999999216596720151125188814953101246937273963075319876543221100000
+            *10^-1  33333333333333333333284504744439039480818793692205748696831374459410013716174200
+
+          Low edge  --------------------------------------------------------------------------------
+            *10^ 0  87777777777666666666655555555554444444444333333333322222222221111111111000000000
+            *10^-1  09876543210987654321098765432109876543210987654321098765432109876543210987654321
+            *10^-2  00000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+   Entries  =          80    Mean = -6.2614e+00    Underflow =  0.0000e+00    Low edge  = -8.0000e+00
+   All chan =  3.0169e+04    Rms  =  1.2123e+00    Overflow  =  0.0000e+00    High edge =  0.0000e+00
+
+
+  2007-07-20 16:04       F( x, Q2 = 100) new
+
+        7.00*10^ 2    242                                                                           
+        6.75*10^ 2   5XXX82                                                                         
+        6.50*10^ 2  3XXXXXX4                                                                        
+        6.25*10^ 2  XXXXXXXX5                                                                       
+        6.00*10^ 2  XXXXXXXXX5                                                                      
+        5.75*10^ 2  XXXXXXXXXX5                                                                     
+        5.50*10^ 2  XXXXXXXXXXX5                                                                    
+        5.25*10^ 2  XXXXXXXXXXXX4                                                                   
+        5.00*10^ 2  XXXXXXXXXXXXX4                                                                  
+        4.75*10^ 2  XXXXXXXXXXXXXX4                                                                 
+        4.50*10^ 2  XXXXXXXXXXXXXXX4                                                                
+        4.25*10^ 2  XXXXXXXXXXXXXXXX4                                                               
+        4.00*10^ 2  XXXXXXXXXXXXXXXXX5                                                              
+        3.75*10^ 2  XXXXXXXXXXXXXXXXXX6                                                             
+        3.50*10^ 2  XXXXXXXXXXXXXXXXXXX8                                                            
+        3.25*10^ 2  XXXXXXXXXXXXXXXXXXXXX2                                                          
+        3.00*10^ 2  XXXXXXXXXXXXXXXXXXXXXX5                                                         
+        2.75*10^ 2  XXXXXXXXXXXXXXXXXXXXXXX82                                                       
+        2.50*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXX6                                                      
+        2.25*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXX5                                                    
+        2.00*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXX5                                                  
+        1.75*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX62                                               
+        1.50*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX841                                            
+        1.25*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX842                                         
+        1.00*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9641                                     
+        0.75*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX97532                                
+        0.50*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX9765321                        
+        0.25*10^ 2  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX99876554433221111      
+
+          Contents                                                                                  
+            *10^ 2  66666666655554444333332222221111111111100000000000000000000000000000000000000000
+            *10^ 1  36788753186318531864208754219876543211099877665554433332222111111000000000000000
+            *10^ 0  33941045283705940754458150529754445781370483838406396308531975320876543221100000
+            *10^-1  15891581851190578777880121835389697192905462127446176793853334604964345827285210
+
+          Low edge  --------------------------------------------------------------------------------
+            *10^ 0  87777777777666666666655555555554444444444333333333322222222221111111111000000000
+            *10^-1  09876543210987654321098765432109876543210987654321098765432109876543210987654321
+            *10^-2  00000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+   Entries  =          80    Mean = -6.3781e+00    Underflow =  0.0000e+00    Low edge  = -8.0000e+00
+   All chan =  1.5932e+04    Rms  =  1.3319e+00    Overflow  =  0.0000e+00    High edge =  0.0000e+00
+
+
+  2007-07-20 16:04       F( x, Q2 = 100) new/old
+
+        2.16*10^ 0                                                                                 X
+        2.08*10^ 0                                                                                 X
+        2.00*10^ 0                                                                                 X
+        1.92*10^ 0                                                                                 X
+        1.84*10^ 0                                                                                 X
+        1.76*10^ 0                                                                                 X
+        1.68*10^ 0                                                                                 X
+        1.60*10^ 0                                                                                 X
+        1.52*10^ 0                                                                                 X
+        1.44*10^ 0                                                                                 X
+        1.36*10^ 0                                                                                 X
+        1.28*10^ 0                                                                                6X
+        1.20*10^ 0                                                                              13XX
+        1.12*10^ 0                                                                  133332223579XXXX
+        1.04*10^ 0                                                              258XXXXXXXXXXXXXXXXX
+        0.96*10^ 0                                                           259XXXXXXXXXXXXXXXXXXXX
+        0.88*10^ 0                                                        258XXXXXXXXXXXXXXXXXXXXXXX
+        0.80*10^ 0                                                     369XXXXXXXXXXXXXXXXXXXXXXXXXX
+        0.72*10^ 0  26999753                                       358XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        0.64*10^ 0  XXXXXXXXX73                               2468XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        0.56*10^ 0  XXXXXXXXXXXX73                     124579XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        0.48*10^ 0  XXXXXXXXXXXXXXX741         12345789XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        0.40*10^ 0  XXXXXXXXXXXXXXXXXX85456789XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+          Contents                                                                                  
+            *10^ 0  00000000000000000000000000000000000000000000000000000000000001111111111111111112
+            *10^-1  66777666665555444433333333344444444445555555666667777788889990000000000000011121
+            *10^-2  69011986318630752085556788901234567891234679124680246914692570235666665667913445
+            *10^-3  02940932937036938419296419865443445680369484064211236051853060182155308079650569
+
+          Low edge  --------------------------------------------------------------------------------
+            *10^ 0  87777777777666666666655555555554444444444333333333322222222221111111111000000000
+            *10^-1  09876543210987654321098765432109876543210987654321098765432109876543210987654321
+            *10^-2  00000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+   Entries  =         160    Mean = -3.2774e+00    Underflow =  0.0000e+00    Low edge  = -8.0000e+00
+   All chan =  5.2810e-01    Rms  =  2.4294e+00    Overflow  =  0.0000e+00    High edge =  0.0000e+00

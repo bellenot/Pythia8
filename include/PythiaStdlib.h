@@ -1,6 +1,10 @@
+// PythiaStdlib.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Header file for functionality pulled in from Stdlib,
 // plus a few useful utilities (small powers).
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_PythiaStdlib_H
 #define Pythia8_PythiaStdlib_H

@@ -1,106 +1,84 @@
-// File: test32.cc
-// Studies of Prob(n_ch) and <pT>(n_ch),
-// comparing internal default PDF with one from LHAPDF.
-// Major differences indicate need for major retuning. 
-// Copyright C 2007 Torbjorn Sjostrand.
+// main32.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Mikhail Kirsanov, Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
+// This is a simple test program.
+// It illustrates how HepMC can be interfaced to Pythia8.
+// It takes input from main32.cmnd and puts events on a HepMC file,
+// with all analysis intended to happen afterwards.
 
 #include "Pythia.h"
-using namespace Pythia8; 
 
+#include "HepMCInterface.h"
+
+#include "HepMC/GenEvent.h"
+#include "HepMC/IO_Ascii.h"
+//#include "HepMC/IO_AsciiParticles.h"
+
+using namespace Pythia8; 
 int main() {
 
-  // Machine: 1 = Tevatron, 2 = LHC. Statistics.
-  int machine = 2;
-  int nEvent  = 1000;
+  // Interface for conversion from Pythia8::Event to HepMC one. 
+  HepMC::I_Pythia8 ToHepMC;
+  //  ToHepMC.set_crash_on_problem();
 
-  // Histograms.
-  double nMax = (machine == 1) ? 199.5 : 399.5;
-  Hist nChargedOld("n_charged old PDF", 100, -0.5, nMax);
-  Hist nChargedNew("n_charged new PDF", 100, -0.5, nMax);
-  Hist avgPTnChOld("<pT>(n_charged) old PDF", 100, -0.5, nMax);  
-  Hist avgPTnChNew("<pT>(n_charged) new PDF", 100, -0.5, nMax);  
-  Hist xDistOld("log(x) distribution old PDF", 100, -8., 0.); 
-  Hist xDistNew("log(x) distribution new PDF", 100, -8., 0.); 
-  Hist pTDistOld("pT (=Q) distribution old PDF", 100, 0., 20.); 
-  Hist pTDistNew("pT (=Q) distribution new PDF", 100, 0., 20.); 
+  // Specify file where HepMC events will be stored.
+  HepMC::IO_Ascii ascii_io("hepmcout32.dat",std::ios::out);
+  // HepMC::IO_AsciiParticles ascii_io("hepmcout32.dat",std::ios::out);
 
-  // Loop over default run and one with new PDF.
-  for (int iRun = 0; iRun < 2; ++iRun) {
+  // Generator. 
+  Pythia pythia;
 
-    // Generator.
-    Pythia pythia;
-    Event& event = pythia.event;
+  // Read in commands from external file.
+  pythia.readFile("main32.cmnd");    
 
-    // Generate minimum-bias events 
-    pythia.readString("SoftQCD:minBias = on");  
-    //pythia.readString("SoftQCD:doubleDiffractive = on"); 
+  // Extract settings to be used in the main program.
+  int    idBeamA   = pythia.mode("Main:idBeamA");
+  int    idBeamB   = pythia.mode("Main:idBeamB");
+  double eCM       = pythia.parm("Main:eCM");
+  int    nEvent    = pythia.mode("Main:numberOfEvents");
+  int    nShow     = pythia.mode("Main:timesToShow");
+  int    nAbort    = pythia.mode("Main:timesAllowErrors");
+  bool   showCS    = pythia.flag("Main:showChangedSettings");
+  bool   showAS    = pythia.flag("Main:showAllSettings");
+  bool   showCPD   = pythia.flag("Main:showChangedParticleData");
+  bool   showAPD   = pythia.flag("Main:showAllParticleData");
+ 
+  // Initialization.
+  pythia.init( idBeamA, idBeamB, eCM);
 
-    // In second run pick new PDF set.
-    if (iRun == 1) {
-      pythia.readString("Pythia:useLHAPDF = on");
-      //pythia.readString("Pythia:LHAPDFset = cteq5l.LHgrid");
-      pythia.readString("Pythia:LHAPDFset = cteq61.LHpdf");
-      //pythia.readString("Pythia:LHAPDFset = cteq61.LHgrid");
-      //pythia.readString("Pythia:LHAPDFset = MRST2004nlo.LHgrid");
+  // List settings.
+  if (showCS) pythia.settings.listChanged();
+  if (showAS) pythia.settings.listAll();
+
+  // List particle data.  
+  if (showCPD) pythia.particleData.listChanged();
+  if (showAPD) pythia.particleData.listAll();
+
+  // Begin event loop.
+  int nShowPace = max(1,nEvent/nShow); 
+  int iAbort = 0; 
+  for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
+    if (iEvent%nShowPace == 0) cout << " Now begin event " 
+      << iEvent << endl;
+
+    // Generate event. Skip if erroneous. Quit if too many failures.   
+    if (!pythia.next()) {
+      if (++iAbort < nAbort) continue;
+      cout << " Event generation aborted prematurely, owing to error!\n"; 
+      break;
     }
 
-    // Tevatron/LHC initialization. 
-    double eCM = (machine == 1) ? 1960. : 14000.;
-    if (machine == 1) pythia.init( 2212, -2212, eCM);
-    else              pythia.init( 2212,  2212, eCM);
-    pythia.settings.listChanged();
-   
-    // Begin event loop.
-    for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
+    // Convert event record to HepMC format and output to file.
+    HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
+    ToHepMC.fill_next_event( pythia.event, hepmcevt );
+    ascii_io << hepmcevt;
+    delete hepmcevt;
 
-      // Generate events.  Skip if error.
-      if (!pythia.next()) continue;
-
-      // Statistics on multiplicity and pT.
-      int    nCh   = 0;
-      double pTsum = 0.;
-      for (int i = 0; i < event.size(); ++i) 
-      if (event[i].isFinal() && event[i].isCharged()) {
-        ++nCh;
-        pTsum += event[i].pT();
-      }
-      
-      // Fill histograms.
-      if (iRun == 0) {
-        nChargedOld.fill( nCh );
-        avgPTnChOld.fill( nCh, pTsum / max(1, nCh) );
-      } else {
-        nChargedNew.fill( nCh );
-        avgPTnChNew.fill( nCh, pTsum / max(1, nCh) );
-      }
-
-      // Loop through event record and fill x of all incoming partons.
-      for (int i = 1; i < event.size(); ++i) 
-      if (event[i].status() == -21 || event[i].status() == -31) {
-        double x = 2. * event[i].e() / eCM;
-        if (iRun == 0) xDistOld.fill( log10(x) );
-        else           xDistNew.fill( log10(x) );
-      }
-
-      // Loop through multiple interactions list and fill pT of all MI's.
-      for (int i = 0; i < pythia.info.nMI(); ++i) {
-        double pT = pythia.info.pTMI(i);
-        if (iRun == 0) pTDistOld.fill( pT );
-        else           pTDistNew.fill( pT );
-      }
-
-    // End of event loop.
-    }
-
-  // Statistics. End of loop over two runs.
-  pythia.statistics( true );
+  // End of event loop. Statistics. 
   }
-
-  // Histograms.
-  avgPTnChOld /= nChargedOld;
-  avgPTnChNew /= nChargedNew;
-  cout << nChargedOld << nChargedNew << avgPTnChOld << avgPTnChNew
-       << xDistOld << xDistNew << pTDistOld << pTDistNew;
+  pythia.statistics();
 
   // Done.
   return 0;

@@ -1,6 +1,10 @@
+// StandardModel.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This file gives access to some Standard Model parameters.
 // AlphaStrong: fix or first- or second-order running alpha_strong.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_StandardModel_H
 #define Pythia8_StandardModel_H

@@ -1,6 +1,10 @@
+// MiniStringFragmentation.h is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // This file contains the class for "cluster" fragmentation.
 // MiniStringFragmentation: handle the fragmentation of low-mass systems.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #ifndef Pythia8_MiniStringFragmentation_H
 #define Pythia8_MiniStringFragmentation_H

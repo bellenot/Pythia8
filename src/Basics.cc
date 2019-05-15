@@ -1,6 +1,10 @@
+// Basics.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2007 Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
 // Function definitions (not found in the header) for the Rndm, Vec4, 
 // RotBstMatrix and Hist classes, and some related global functions.
-// Copyright C 2007 Torbjorn Sjostrand
 
 #include "Basics.h"
 
@@ -350,6 +354,18 @@ Vec4 cross3(const Vec4& v1, const Vec4& v2) {
 
 //*********
 
+// Opening angle between two three-vectors.
+
+double theta(const Vec4& v1, const Vec4& v2) {
+  double cthe = (v1.xx * v2.xx + v1.yy * v2.yy + v1.zz * v2.zz)
+    / sqrt( (v1.xx*v1.xx + v1.yy*v1.yy + v1.zz*v1.zz) 
+    * (v2.xx*v2.xx + v2.yy*v2.yy + v2.zz*v2.zz) );
+  cthe = max(-1., min(1., cthe));
+  return acos(cthe); 
+} 
+
+//*********
+
 // Cosine of the opening angle between two three-vectors.
 
 double costheta(const Vec4& v1, const Vec4& v2) {
@@ -362,6 +378,17 @@ double costheta(const Vec4& v1, const Vec4& v2) {
 
 //*********
 
+// Azimuthal angle between two three-vectors.
+
+double phi(const Vec4& v1, const Vec4& v2) {
+  double cphi = (v1.xx * v2.xx + v1.yy * v2.yy) / sqrt( max( Vec4::TINY, 
+    (v1.xx*v1.xx + v1.yy*v1.yy) * (v2.xx*v2.xx + v2.yy*v2.yy) ));  
+  cphi = max(-1., min(1., cphi));
+  return acos(cphi); 
+}
+
+//*********
+
 // Cosine of the azimuthal angle between two three-vectors.
 
 double cosphi(const Vec4& v1, const Vec4& v2) {
@@ -369,6 +396,25 @@ double cosphi(const Vec4& v1, const Vec4& v2) {
     (v1.xx*v1.xx + v1.yy*v1.yy) * (v2.xx*v2.xx + v2.yy*v2.yy) ));  
   cphi = max(-1., min(1., cphi));
   return cphi; 
+}
+
+//*********
+
+// Azimuthal angle between two three-vectors around a third.
+
+double phi(const Vec4& v1, const Vec4& v2, const Vec4& n) {
+  double nx = n.xx; double ny = n.yy; double nz = n.zz;
+  double norm = 1. / sqrt(nx*nx + ny*ny + nz*nz);
+  nx *= norm; ny *=norm; nz *=norm; 
+  double v1s = v1.xx * v1.xx + v1.yy * v1.yy + v1.zz * v1.zz;
+  double v2s = v2.xx * v2.xx + v2.yy * v2.yy + v2.zz * v2.zz;
+  double v1v2 = v1.xx * v2.xx + v1.yy * v2.yy + v1.zz * v2.zz;
+  double v1n = v1.xx * nx + v1.yy * ny + v1.zz * nz;
+  double v2n = v2.xx * nx + v2.yy * ny + v2.zz * nz;
+  double cphi = (v1v2 - v1n * v2n) / sqrt( max( Vec4::TINY, 
+    (v1s - v1n*v1n) * (v2s - v2n*v2n) ));  
+  cphi = max(-1., min(1., cphi));
+  return acos(cphi); 
 }
 
 //*********
@@ -528,6 +574,38 @@ void RotBstMatrix::bst(const Vec4& p1, const Vec4& p2) {
 
 //*********
 
+// Boost and rotation that transforms from p1 and p2 
+// to their rest frame with p1 along +z axis.
+
+void RotBstMatrix::toCMframe(const Vec4& p1, const Vec4& p2) {
+  Vec4 pSum = p1 + p2; 
+  Vec4 dir = p1;
+  dir.bstback(pSum);
+  double theta = dir.theta();
+  double phi = dir.phi();
+  bstback(pSum);
+  rot(0., -phi);
+  rot(-theta, phi);
+}
+
+//*********
+
+// Rotation and boost that transforms from rest frame of p1 and p2
+// with p1 along +z axis to actual frame of p1 and p2. (Inverse of above.)
+
+void RotBstMatrix::fromCMframe(const Vec4& p1, const Vec4& p2) {
+  Vec4 pSum = p1 + p2;
+  Vec4 dir = p1;
+  dir.bstback(pSum);
+  double theta = dir.theta();
+  double phi = dir.phi();
+  rot(0., -phi);
+  rot(theta, phi);
+  bst(pSum);
+}
+
+//*********
+
 // Combine existing rotation/boost matrix with another one.
 
 void RotBstMatrix::rotbst(const RotBstMatrix& Mrb) {
@@ -562,38 +640,6 @@ void RotBstMatrix::invert() {
         ? - Mtmp[j][i] : Mtmp[j][i]; 
     } 
   } 
-}
-
-//*********
-
-// Boost and rotation that transforms from p1 and p2 
-// to their rest frame with p1 along +z axis.
-
-void RotBstMatrix::toCMframe(const Vec4& p1, const Vec4& p2) {
-  Vec4 pSum = p1 + p2; 
-  Vec4 dir = p1;
-  dir.bstback(pSum);
-  double theta = dir.theta();
-  double phi = dir.phi();
-  bstback(pSum);
-  rot(0., -phi);
-  rot(-theta, phi);
-}
-
-//*********
-
-// Rotation and boost that transforms from rest frame of p1 and p2
-// with p1 along +z axis to actual frame of p1 and p2. (Inverse of above.)
-
-void RotBstMatrix::fromCMframe(const Vec4& p1, const Vec4& p2) {
-  Vec4 pSum = p1 + p2;
-  Vec4 dir = p1;
-  dir.bstback(pSum);
-  double theta = dir.theta();
-  double phi = dir.phi();
-  rot(0., -phi);
-  rot(theta, phi);
-  bst(pSum);
 }
 
 //*********

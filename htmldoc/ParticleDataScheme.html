@@ -226,8 +226,12 @@ The following properties are stored for each decay channel:
 1 if on,<br/>
 2 if on for a particle but off for an antiparticle,<br/>
 3 if on for an antiparticle but off for a particle.<br/>
-If a particle is its own antiparticle then 2 is on and 3 off.<br/>
-This option can be used e.g. to encode CP violation in B decays.
+If a particle is its own antiparticle then 2 is on and 3 off 
+but, of course, for such particles it is much simpler and safer 
+to use only 1 and 0.<br/>
+The 2 and 3 options can be used e.g. to encode CP violation in 
+B decays, or to let the <i>W</i>'s in a <i>q qbar -> W^+ W^-</i> 
+process decay in different channels.
   
 
 <p/><code>method&nbsp; </code><strong> bRatio() &nbsp;</strong> <br/>
@@ -430,31 +434,39 @@ given particle, to switch them on or off as desired. The
 will set the <code>onMode</code> property of all channels to the 
 desired value. The 
 <pre> 
-    id:onIfAny  = product1 product2 .... 
-    id:offIfAny = product1 product2 .... 
+    id:offIfAny   = product1 product2 .... 
+    id:onIfAny    = product1 product2 .... 
+    id:onPosIfAny = product1 product2 .... 
+    id:onNegIfAny = product1 product2 .... 
 </pre>
-will set the <code>onMode</code> 1 or 0, respectively, for all channels
-which contain any of the enumerated products, where the matching 
-is done without distinction of particles and antiparticles. 
+will set the <code>onMode</code> 0, 1, 2 or 3, respectively, for all 
+channels which contain any of the enumerated products, where the matching 
+to these products is done without distinction of particles and 
+antiparticles. Note that "<code>Pos</code>" and "<code>Neg</code>" 
+are slightly misleading since it refers to the particle and antiparticle 
+of the <code>id</code> species rather than charge, but should still be 
+simpler to remember and understand than alternative notations. 
 Correspondingly
 <pre> 
-    id:onIfAll  = product1 product2 .... 
-    id:offIfAll = product1 product2 .... 
+    id:offIfAll   = product1 product2 .... 
+    id:onIfAll    = product1 product2 .... 
+    id:onPosIfAll = product1 product2 .... 
+    id:onNegIfAll = product1 product2 .... 
 </pre>
-will set the <code>onMode</code> 1 or 0, respectively, for all channels
-which contain all of the enumerated products, again without distinction 
-of particles and antiparticles. If the same product appears twice in the
-list it must also appear twice in the decay channel, and so on. 
-The decay channel is allowed to contain further particles, beyond the 
-product list. By contrast,
+will set the <code>onMode</code> 0, 1, 2 or 3, respectively, for all 
+channels which contain all of the enumerated products, again without 
+distinction of particles and antiparticles. If the same product appears 
+twice in the list it must also appear twice in the decay channel, and 
+so on. The decay channel is allowed to contain further particles, 
+beyond the product list. By contrast,
 <pre> 
-    id:onIfMatch  = product1 product2 .... 
-    id:offIfMatch = product1 product2 .... 
+    id:offIfMatch   = product1 product2 .... 
+    id:onIfMatch    = product1 product2 .... 
+    id:onPosIfMatch = product1 product2 .... 
+    id:onPosIfMatch = product1 product2 .... 
 </pre>
 requires the decay-channel multiplicity to agree with that of the product
 list, but otherwise works as the <code>onIfAll/offIfAll</code> methods.
-Neither of these methods can be used to set different decays for 
-particles and antiparticles.
 
 <p/>
 Note that the action of several of the commands depends on the order
@@ -538,6 +550,9 @@ listing will not tell what property or decay channel was changed), instead use
 (This info is based on a further <code>hasChanged</code> flag of a particle
 or a channel, set <code>true</code> whenever any of the changing methods are 
 used. It is possible to manipulate this value, but this is not recommended.) 
+By default the internal initialization of the widths of resonances such as 
+<i>gamma^*/Z^0, W^+-, t/tbar, H^0</i> do not count as changes; if you want
+to list also those changes instead call <code>listChanged(true)</code>.
 <br/>
 
 To list only one particle, give its <code>id</code> code as argument to
@@ -599,4 +614,4 @@ indicate a true problem, and also not all problems may be caught.
 </body>
 </html>
 
-<!-- Copyright C 2007 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2007 Torbjorn Sjostrand -->
