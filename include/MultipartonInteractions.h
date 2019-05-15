@@ -100,7 +100,7 @@ public:
   MultipartonInteractions() : bIsSet(false) {}
 
   // Initialize the generation process for given beams.
-  bool init( bool doMPIinit, int diffractiveModeIn, Info* infoPtrIn, 
+  bool init( bool doMPIinit, int iDiffSysIn, Info* infoPtrIn, 
     Settings& settings, ParticleData* particleDataPtr, Rndm* rndmPtrIn, 
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
     Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn, 
@@ -151,6 +151,7 @@ public:
   int    getVSC2()   const {return vsc2;}
 
   // Update and print statistics on number of processes.
+  // Note: currently only valid for MB systems, not diffraction??
   void accumulate() { int iBeg = (infoPtr->isMinBias()) ? 0 : 1; 
     for (int i = iBeg; i < infoPtr->nMPI(); ++i) 
     ++nGen[ infoPtr->codeMPI(i) ];}
@@ -164,7 +165,7 @@ private:
   static const bool   SHIFTFACSCALE, PREPICKRESCATTER;
   static const double SIGMAFUDGE, RPT20, PT0STEP, SIGMASTEP, PT0MIN,
                       EXPPOWMIN, PROBATLOWB, BSTEP, BMAX, EXPMAX, 
-                      KCONVERGE, CONVERT2MB, ROOTMIN, ECMDEV;
+                      KCONVERGE, CONVERT2MB, ROOTMIN, ECMDEV, WTACCWARN;
 
   // Initialization data, read from Settings.
   bool   allowRescatter, allowDoubleRes, canVetoMPI;
@@ -208,7 +209,7 @@ private:
 
   // Other initialization data.
   bool   hasBaryonBeams, hasLowPow, globalRecoilFSR;
-  int    diffractiveMode, nMaxGlobalRecoilFSR;
+  int    iDiffSys, nMaxGlobalRecoilFSR;
   double eCM, sCM, pT0, pT20, pT2min, pTmax, pT2max, pT20R, pT20minR, 
          pT20maxR, pT20min0maxR, pT2maxmin, sigmaND, pT4dSigmaMax, 
          pT4dProbMax, dSigmaApprox, sigmaInt, sudExpPT[101], 

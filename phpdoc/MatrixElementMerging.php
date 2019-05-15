@@ -55,6 +55,11 @@ inbuilt PDF,  as outlined in the
 HepMC dependence can be removed by erasing the code allowing for HepMC
 output.
 
+<p/> Please note that a detailed tutorial on merging in Pythia is available
+from
+<strong>http://home.thep.lu.se/~torbjorn/pythia8/mergingworksheet8160.pdf
+</strong>
+
 <p/> Three very short LHE files (<code>w+_production_lhc_0.lhe</code>,
 <code>w+_production_lhc_1.lhe</code>, <code>w+_production_lhc_2.lhe</code>)
 are included in the distribution. These files are not intended for
@@ -69,25 +74,44 @@ value <i>&alpha;<sub>s</sub>(M<sub>Z</sub>)</i>)  used to evaluate
 <i>&alpha;<sub>s</sub></i>. Coupling and scale choices by the user 
 will be transferred to the merging routines.
 
-<p/> LHE files should be regularised with a jet measure, and
-additional cuts on  the partons in the LHEF generation avoided as much
-as possible. This means  that the merging scale is always a more
-stringent cut than all other cuts  on the partons. Of course, if the
-hard process itself is divergent, a cut  needs to be made. However,
-this should be chosen in such a way as to not  exclude regions that
-will be available to the matrix elements with additional jets. An
-example is QCD  di-jet production with additional jets: Say the 
-<i>2 -> 2</i> process is regularised with a <i>pTmin</i> cut
-of <code>pTminCut = 100</code> GeV, and the 
-<i>2 - >3</i> sample is regularised with a <i>kTmin</i>-cut of 
-<code>kTminCut = 50</code> GeV. This would mean that when reclustering
-the  emission in the <i>2 -> 3</i> sample, we could end up with a 
-<i>pT = pTminNow</i> of the <i>2 -> 2</i> configuration with 
+<p/> Multi-jet events can suffer from infrared divergences in the 
+calculation. Sensible matrix element generator (MEG) outputs should not 
+contain phase space points in which the calculation is ill-defined, meaning 
+infrared regions need to be removed by cuts. This is most conveniently done 
+by disallowing the MEG to produce partons below a 
+minimal parton-parton separation in a certain jet algorithm. Using
+dedicated cuts to regularise MEG output is of course possible as well. Any
+regularisation criterion defines the matrix element region: The parts of 
+phase space in which the fixed order calculation is considered valid and 
+preferable to the parton shower. Matrix element merging is combining
+MEG events in the matrix element region with parton shower events in regions
+outside the regularisation cut (often called parton shower region). Because 
+the regularisation cut defines a boundary between the matrix element
+and parton shower regions, i.e. the regions to be merged into one inclusive
+sample, it is usually called <i> merging scale </i>. Since many different
+cut choices may regularise the MEG calculation, many different merging scale
+definitions are possible. A few standard choices are listed below, as well as
+documentation on how to use a user-defined cut criterion. In combining matrix 
+element and parton shower regions, the CKKW-L prescription tries to minimise
+the dependence on the merging scale. This can only be achieved if the 
+combination of MEG events and parton shower populates the whole phase space. 
+Additional cuts on the partons in the LHEF generation should hence be 
+avoided as much as possible, meaning that the merging scale cut should always
+pose a more stringent cut than all other cuts on the partons. Of course, if 
+the hard process itself is divergent, cuts need to be made. However, this
+should be chosen in such a way as to not exclude regions that will be
+available to the matrix elements with additional jets. An example is QCD 
+di-jet production with additional jets: Say the <i>2 -> 2</i> process is
+regularised with a <i>pTmin</i> cut of pTminCut = 100 GeV, and
+the <i>2 - >3</i> sample is regularised with a <i>kTmin</i>-cut of 
+kTminCut = 50 GeV. This would mean that when reclustering
+the  emission in the 2 -> 3 sample, we could end up with a 
+pT value <i>pTminNow</i> of the 2 -> 2 configuration with 
 <i>pTminCut > pTminNow</i>, which is excluded in the 
-<i>2 -> 2</i>  sample. Thus, the <i>2 -> 3</i> sample will include a
-Sudakov factor  not included in the <i>2 -> 2</i> sample, resulting
+2 -> 2 sample. Thus, the 2 -> 3 sample will include a
+Sudakov factor  not included in the 2 -> 2 sample, resulting
 in merging scale  dependencies. Such dependencies can be avoided if
-the cuts on the hard  process are minimal. 
+the additional cuts on the hard process are minimal. 
 
 <p/> Of course, additional cuts on electroweak particles are
 allowed. These  should be the same for all samples with
@@ -99,7 +123,7 @@ order to decide how much influence to attribute to parton shower
 histories in which the reclustered lowest multiplicity process does
 not pass the matrix element cuts. This is  described below.
 
-<p/> When generating LHE files, please refrain from explicitly putting
+<p/> When generating LHE files, we advise against putting
 unstable  particles (e.g. massive gauge bosons) in the final state. 
 Rather, specify a  resonance by its decay products, e.g. if Les Houches 
 events for the <i>pp &rarr; Z + jets &rarr; e+e- + jets</i> process
@@ -117,9 +141,12 @@ generators choose to put additional information on  intermediate
 bosons into Les Houches events, depending on if they pass a certain
 criterion (e.g. being close to the mass shell), without exact
 knowledge of this  criterion, the only feasible way of bookkeeping the
-hard process is by  identifying outgoing decay products. The code
-implemented in PYTHIA8 uses this  strategy and may become unreliable
-otherwise.
+hard process is by  identifying outgoing decay products.
+
+<p/> Despite these considerations, (massive) gauge bosons in the final state
+are allowed in the hard process definition. This is useful particularly for 
+Higgs physics, when different decays of the Higgs boson need to be simulated 
+after the LHEF generation.
 
 <p/> For all merging purposes, processes with different charge of
 outgoing leptons are considered different processes. That means
@@ -128,7 +155,9 @@ e.g. that <i>e+&nu;<sub>e</sub>+ jets</i> and
 are considered independent processes. If the user wishes to generate
 distributions including effects of more than one  process, merged
 samples for all independent processes should be generated  separately
-and added afterwards.
+and added afterwards. Alternatively, to combine simple processes, 
+combined LHE files can be used in conjunction with flexible containers (see
+below).
 
 <p/> When the matrix element merging is used to produce HepMC
 [<a href="Bibliography.php" target="page">Dob01</a>] files to be analysed  with RIVET [<a href="Bibliography.php" target="page">Buc10</a>], 
@@ -138,7 +167,7 @@ special care  needs to taken in how the cross section is read by RIVET
 <p/> To specify the merging conditions, additionally information on
 the merging scale value and the functional definition of the merging
 scale is needed. A few  standard definitions of merging scales are
-available. This makes the user  interface less cumbersome.
+available. We hope this makes the user interface less cumbersome.
 
 <p/> Different choices intrinsic to the CKKW-L merging procedure might
 be relevant for the user as well. The base
@@ -148,11 +177,18 @@ the usage of the merging machinery to consistently include LHE files
 with additional jets into PYTHIA  will be discussed.
 
 <br/><br/><hr/>
-<h3>Merging with merging scale defined in kT</h3>
+<h3>Merging scale definitions</h3>
 
 <p/> The quickest way to include processes with additional jets is to
 produce LHE files with one of the standard ways to define the merging
-scale. The following switches are provided:
+scale. Three standard ways to define a merging scale (minimal <i>kT</i>,
+minimal evolution <i>pT</i> and by three cuts) are implemented. All of these
+prescriptions are equivalent - different definitions have only been introduced
+for the convenience of users, who might be limited by which cuts can be used
+in the generation of LHE files. Below, we describe how to switch on and use
+these different merging scale definitions.
+
+<h4>Merging with merging scale defined in kT:</h4>
 
 <br/><br/><strong>Merging:doKTMerging</strong>  <input type="radio" name="1" value="on"><strong>On</strong>
 <input type="radio" name="1" value="off" checked="checked"><strong>Off</strong>
@@ -161,13 +197,15 @@ If the additional jets in the LHE files have been regulated by
 a <i>kT</i> cut, the user can supply the merging scale definition by
 setting this flag to on. <i>kT</i> here and below means cutting on
 Durham <i>kT</i> for <i>e+e-</i>  collisions, and cutting on 
-longitudinally invariant <i>kT</i> for hadronic  collisions.
+longitudinally invariant <i>kT</i> for hadronic  collisions. Please note 
+that this particular merging scale definition will check <i>kT</i> between
+all pairs of <i>u,d,c,s,b,g</i> partons. 
   
 
 </p>
-Since currently, a few slightly different definitions of
-longitudinally invariant <i>kT</i> are considered, a specific form
-can be chosen by setting the switch
+Currently, the name longitudinally invariant <i>kT</i> is used
+for a few jet recombination algorithms with slightly different
+jet measures. A specific form can be chosen by setting the switch
 
 <br/><br/><table><tr><td><strong>Merging:ktType  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 3</code>)</td></tr></table>
 Precise functional definition of longitudinally
@@ -176,9 +214,9 @@ always defined by the square root of <ei>min{ 2*min[ </sub>
 E<sub>i</sub><sup>2</sup>, E<sub>j</sub><sup>2</sup>] * [ 1 -
 cos&theta;<sub>ij</sub>] }</ei>, so that this switch will have no effect.
 <br/>
-<input type="radio" name="2" value="1" checked="checked"><strong>1 </strong>:  Longitudinally invariant <ei>kT</ei> is defined by the  square root of the minimum of minimal jet kinematic <ei>pT</ei> (<ei>p<sub>Tkin,min</sub> = min{ p<sub>T,i</sub> } </ei>) and <ei>p<sub>Tlon,min</sub> =  min{ min[ p<sub>T,i</sub><sup>2</sup>, p<sub>T,j</sub><sup>2</sup>] * [ (&Delta;y<sub>ij</sub>)<sup>2</sup> + (&Delta;&phi;<sub>ij</sub>)<sup>2</sup> ] / D<sup>2</sup> }</ei> ,  i.e.  <ei>kT = min{ &radic;p<sub>Tkin,min</sub>, &radic;p<sub>Tlon,min</sub> }</ei>  for hadronic collisions. Note that the true rapidity of partons is used. <br/>
-<input type="radio" name="2" value="2"><strong>2 </strong>: Longitudinally invariant <ei>kT</ei> is defined by the  square root of the minimum of minimal jet kinematic <ei>pT</ei> (<ei>p<sub>Tkin,min</sub> = min{ p<sub>T,i</sub> } </ei>) and <ei>p<sub>Tlon,min</sub> =  min{ min[ p<sub>T,i</sub><sup>2</sup>, p<sub>T,j</sub><sup>2</sup>] * [ (&Delta;&eta;<sub>ij</sub>)<sup>2</sup> + (&Delta;&phi;<sub>ij</sub>)<sup>2</sup> ] / D<sup>2</sup> }</ei>, i.e.  <ei>kT = min{ &radic;p<sub>Tkin,min</sub>, &radic;p<sub>Tlon,min</sub> }</ei>  for hadronic collisions. Note that the pseudorapidity of partons is used. <br/>
-<input type="radio" name="2" value="3"><strong>3 </strong>:  Longitudinally invariant <ei>kT</ei> is defined by the  square root of the minimum of minimal jet kinematic <ei>pT</ei> (<ei>p<sub>Tkin,min</sub> = min{ p<sub>T,i</sub> } </ei>) and <ei>p<sub>Tlon,min</sub> =  min{ min[ p<sub>T,i</sub><sup>2</sup>, p<sub>T,j</sub><sup>2</sup>] * [ cosh(&Delta;&eta;<sub>ij</sub>) - cos(&Delta;&phi;<sub>ij</sub>) ] / D<sup>2</sup> } </ei>,  i.e.  <ei>kT = min{ &radic;p<sub>Tkin,min</sub>, &radic;p<sub>Tlon,min</sub> }</ei>  for hadronic collisions. <br/>
+<input type="radio" name="2" value="1" checked="checked"><strong>1 </strong>:  Longitudinally invariant <ei>kT</ei> is defined by the  square root of the minimum of minimal jet kinematic <ei>pT</ei> (<ei>p<sub>Tkin,min</sub><sup>2</sup> = min{ p<sub>T,i</sub><sup>2</sup> }  </ei>) and <ei>p<sub>Tlon,min</sub><sup>2</sup> =   min{ min[ p<sub>T,i</sub><sup>2</sup>, p<sub>T,j</sub><sup>2</sup>] *  [ (&Delta;y<sub>ij</sub>)<sup>2</sup> +  (&Delta;&phi;<sub>ij</sub>)<sup>2</sup> ] / D<sup>2</sup> }</ei> , i.e.  <ei>kT = min{ &radic;p<sub>Tkin,min</sub><sup>2</sup>,  &radic;p<sub>Tlon,min</sub><sup>2</sup> }</ei> for hadronic collisions. Note  that the true rapidity of partons is used. <br/>
+<input type="radio" name="2" value="2"><strong>2 </strong>: Longitudinally invariant <ei>kT</ei> is defined by the  square root of the minimum of minimal jet kinematic <ei>pT</ei> (<ei>p<sub>Tkin,min</sub><sup>2</sup> = min{ p<sub>T,i</sub><sup>2</sup>  } </ei>) and <ei>p<sub>Tlon,min</sub><sup>2</sup> =   min{ min[ p<sub>T,i</sub><sup>2</sup>, p<sub>T,j</sub><sup>2</sup>] * [ (&Delta;&eta;<sub>ij</sub>)<sup>2</sup> + (&Delta;&phi;<sub>ij</sub>)<sup>2</sup> ] / D<sup>2</sup> }</ei>, i.e.  <ei>kT = min{ &radic;p<sub>Tkin,min</sub><sup>2</sup>,  &radic;p<sub>Tlon,min</sub><sup>2</sup> }</ei>  for hadronic collisions. Note that the pseudorapidity of partons is used. <br/>
+<input type="radio" name="2" value="3"><strong>3 </strong>:  Longitudinally invariant <ei>kT</ei> is defined by the  square root of the minimum of minimal jet kinematic <ei>pT</ei> (<ei>p<sub>Tkin,min</sub><sup>2</sup> = min{ p<sub>T,i</sub><sup>2</sup>  } </ei>) and <ei>p<sub>Tlon,min</sub><sup>2</sup> =   min{ min[ p<sub>T,i</sub><sup>2</sup>, p<sub>T,j</sub><sup>2</sup>] * [ cosh(&Delta;&eta;<sub>ij</sub>) - cos(&Delta;&phi;<sub>ij</sub>) ] / D<sup>2</sup> } </ei>,  i.e.  <ei>kT = min{ &radic;p<sub>Tkin,min</sub><sup>2</sup> , &radic;p<sub>Tlon,min</sub><sup>2</sup> }</ei>  for hadronic collisions. <br/>
 
 <br/><br/><table><tr><td><strong>Merging:nJetMax  </td><td></td><td> <input type="text" name="3" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)</td></tr></table>
 Maximal number of additional jets in the matrix element
@@ -194,13 +232,21 @@ scale.
   
 
 <br/><br/><table><tr><td><strong>Merging:Process  </td><td></td><td> <input type="text" name="5" value="void" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>void</strong></code>)</td></tr></table>
-The string specifying the hard core process, in MG/ME notation. If
-e.g. <i>W + jets</i> merging should be performed, set this to 
+The string specifying the hard core process, in MG4/ME notation. 
+  
+
+</p>
+If e.g. <i>W + jets</i> merging should be performed, set this to 
 <code>pp>e+ve</code> (<i>without white spaces or  quotation marks</i>). 
 This string may contain resonances in the MG/ME notation, e.g. for merging 
 <i>pp&rarr;Z W<sup>+</sup>&rarr;q q&#772; e+&nu;<sub>e</sub> + jets</i>, 
-the string <code>pp>(z>jj)(w+>e+ve)</code> would be applicable. 
-  
+the string <code>pp>(z>jj)(w+>e+ve)</code> would be applicable.
+
+<p/>
+A lot more flexible hard process definitions are possible. To not dwell too
+much on these details here, we will come back to the process string at the end
+of this section.
+
 
 <br/><br/><strong>Merging:doMGMerging</strong>  <input type="radio" name="6" value="on"><strong>On</strong>
 <input type="radio" name="6" value="off" checked="checked"><strong>Off</strong>
@@ -217,24 +263,286 @@ For this to work, PYTHIA should be initialised on LHE files called
 <code>NameOfYourLesHouchesFile_0.lhe</code> (+0 jet sample) and
 <code>NameOfYourLesHouchesFile_1.lhe</code> (+1 jet sample) and the
 same naming convention for LHE files with two or more additional jets.
+Since for this option, the merging scale value is read from the
+LHEF, no merging scale value needs to be supplied by setting <code>
+Merging:TMS </code>.  Also, the hard process is read from LHEF, the
+input <code>Merging::Process</code> does not have to be defined.
+However, the maximal number of merged jets still has to be supplied by
+setting <code>Merging:nJetMax</code>.
   
 
-<p/> Since for this option, the merging scale value is read from the
-LHEF, no merging scale value needs to be supplied by setting <strong>
-Merging:TMS </strong>.  Also, the hard process is read from LHEF, the
-input <strong>  Merging::Process</strong> does not have to be defined.
-However, the maximal number of merged jets still has to be supplied by
-setting <strong>Merging:nJetMax</strong>.
 
-<h4>Histogramming the events</h4> After the event has been processed,
-histograms for observables of interest need to be filled. In order to
-achieve good statistical accuracy for all jet  multiplicities and all
-subprocesses contributing to one jet multiplicity,  generally a fixed
-number of unit-weighted events is read from each Les Houches  Event
-file. To then arrive at the correct prediction, for each of these
-events,  histogram bins should be filled with the corresponding cross
-section, or  weighted with unit weight and normalised at the end to
-the generated cross  section for each jet multiplicity separately.
+<h4>Merging with merging scale defined in Pythia evolution pT:</h4>
+
+If the LHE file has been regularised by cutting on the minimal Pythia evolution
+pT in the state, this can also be used as a merging scale right away. For this,
+change the switch
+
+<br/><br/><strong>Merging:doPTLundMerging</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
+<input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+The merging scale is then defined by finding the minimal Pythia evolution pT
+between sets of radiator, emitted an recoiler partons. For this
+particular merging scale definition, <i>u,d,c,s,b,g</i> are considered
+partons. The Pythia evolution pT of a single three-parton set is defined by
+<p/>
+<i>pT<sub>evol</sub> = z<sub>ijk</sub>(1-z<sub>ijk</sub>)
+   Q<sub>ij</sub><sup>2</sup></i> for FSR, where <i>i</i> is the radiating
+   parton, <i>j</i> is the emitted parton and <i>k</i> is the recoiler, and
+   <i> Q<sub>ij</sub><sup>2</sup> =
+      (p<sub>i</sub> + p<sub>j</sub>)<sup>2</sup> </i>, and
+   <i>z<sub>ijk</sub> = 
+      x<sub>i,jk</sub> / (x<sub>i,jk</sub> + x<sub>j,ik</sub>)</i> with
+   <i>x<sub>i,jk</sub> =
+      2 p<sub>i</sub> (p<sub>i</sub> + p<sub>j</sub> + p<sub>k</sub>)
+        / (p<sub>i</sub> + p<sub>j</sub> + p<sub>k</sub>)<sup>2</sup> </i>
+<p/>
+<i>pT<sub>evol</sub> = (1-z<sub>ijk</sub>)
+   Q<sub>ij</sub><sup>2</sup></i> for ISR, where <i>i</i> is the radiating
+   parton, <i>j</i> is the emitted parton and <i>k</i> is the second initial
+   state parton, and
+   <i> Q<sub>ij</sub><sup>2</sup> =
+     -(p<sub>i</sub> - p<sub>j</sub>)<sup>2</sup> </i>, and
+   <i>z<sub>ijk</sub> =
+     (p<sub>i</sub> - p<sub>j</sub> + p<sub>k</sub>)<sup>2</sup>
+   / (p<sub>i</sub> + p<sub>k</sub>)<sup>2</sup> </i>.
+
+<p/>
+When using this option, the merging scale is defined by the minimum 
+<i>pT<sub>evol</sub></i> for all combinations of three partons in the event, 
+irrespectively of flavour or colour-connections. The merging scale value will
+be read from the <code>Merging:TMS</code> parameter, so that this needs to be 
+set just as in the case of the <i>kT</i>-merging prescription. Of course you 
+will also need to set <code>Merging:Process</code> and the maximal number of 
+additional matrix element jets <code>Merging:nJetMax</code>.
+  
+
+<h4>Merging with merging scale defined by a combination of cuts:</h4>
+
+It is possible to regularise QCD divergences in a LHE file by applying cuts
+to the kinematical pT of jets (<i>pT<sub>i</sub></i>), combined with a cut on 
+<i> &Delta;R<sub>ij</sub></i> between jets and a cut on invariant mass
+<i> Q<sub>ij</sub></i> of jet pairs. The combination of these standard cuts
+can also serve as a merging scale. For this, use this setting
+
+<br/><br/><strong>Merging:doCutBasedMerging</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
+<input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+This switch will use cuts on (<i>pT<sub>i</sub></i>), 
+<i> &Delta;R<sub>ij</sub></i>  and
+<i> Q<sub>ij</sub></i> to define when parton shower emissions are allowed.
+Please note for this particular merging scale definition, only light jets
+(<i>u,d,c,s,g</i>) are checked.
+  
+
+<p/>
+The values of the cuts will then be read from
+
+<br/><br/><table><tr><td><strong>Merging:QijMS </td><td></td><td> <input type="text" name="9" value="0.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0</strong></code>)</td></tr></table>
+The value of the invariant mass cut <i> Q<sub>ij</sub></i> of pairs of final
+state partons used in the matrix element generation.
+  
+
+<br/><br/><table><tr><td><strong>Merging:pTiMS </td><td></td><td> <input type="text" name="10" value="0.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0</strong></code>)</td></tr></table>
+The value of the minimal transverse momentum cut <i> pT<sub>i</sub></i> on 
+final state partons, as used in the matrix element generation. 
+  
+
+<br/><br/><table><tr><td><strong>Merging:dRijMS </td><td></td><td> <input type="text" name="11" value="0.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0</strong></code>)</td></tr></table>
+The value of the minimal <i> &Delta;R<sub>ij</sub></i> separation between
+pairs of final state partons used in the matrix element generation, where
+<i> &Delta;R<sub>ij</sub><sup>2</sup> = (&Delta;y<sub>ij</sub>)<sup>2</sup> + 
+(&Delta;&phi;<sub>ij</sub>)<sup>2</sup></i>.
+  
+
+<p/>
+With knowledge of these values, and <code>Merging:doCutBasedMerging</code>,
+Pythia will use these cuts as a separation between matrix element phase space 
+and parton shower region. If e.g. the Les Houches Events have been generated 
+with the cuts <i> &Delta;R<sub>ij</sub> = 0.1 </i>, 
+<i>pT<sub>i</sub>= 20 GeV</i> and <i> Q<sub>ij</sub> = 40 GeV</i>, set
+<code>Merging:QijMS=40.</code>, 
+<code>Merging:pTjMS=20.</code>,
+<code>Merging:dRijMS=0.1</code> to perform a cut-based merging. Of course 
+you will also need to set <code>Merging:Process</code> and the
+maximal number of additional matrix element jets
+<code>Merging:nJetMax</code>.
+
+<h4>Les Houches events outside the matrix element region</h4>
+
+</p>
+Before continuing, we would like to point out that in general, the user 
+should make sure that the events in the Les Houches file are actually
+calculated using the regularisation cut definition and value(s) supplied to
+Pythia as merging scale definition and value(s). However, if LH files with
+a large number of events and loose merging scale cuts are available, it 
+might be useful to choose a higher merging scale value, e.g. for merging
+scale variations as part of uncertainty assessments. If CKKW-L merging is
+enabled, Pythia will by default check if events read from Les Houches file
+are in the matrix element region as defined by the merging scale definition
+and merging scale value. Events outside the matrix element region will be
+discarded. To change this default behaviour, use the flag
+
+<br/><br/><strong>Merging:enforceCutOnLHE</strong>  <input type="radio" name="12" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="12" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+This will check if the events read from LHE file are in the matrix element
+region as defined by the merging scale definition and value(s). If on, LHE
+input outside the matrix element region will be rejected. If off, every 
+event is assumed to pass the merging scale cut. 
+  
+
+<h4>Defining the hard process</h4>
+
+To perform CKKW-L matrix element merging, the user has to decide on a hard 
+process, and communicate this choice to Pythia. This is done by setting the
+input <strong>Merging:Process</strong>
+ 
+<p/>
+For single processes in the Standard Model or the MSSM, MG4/ME notation is
+applicable. However, for some purposes, using a single simple process 
+string is not satisfactory. Mixed W<sup>+</sup> and W<sup>-</sup> events
+in a single LHE file is a common example. For this case, it would of course 
+be perfectly allowed to perform twice, once for W<sup>+</sup> production and
+once for W<sup>-</sup> production, and then add the results. Nevertheless, it
+seems reasonable to alleviate difficulties by allowing for less restrictive 
+hard process definitions. Two generalisations of the process tag are
+available: Containers and user-defined particle tags. The syntax of these 
+settings is described below.
+
+<p/>
+In case you want multiple processes in a LHE file to be treated on equal
+footing (e.g. <i>W<sup>+</sup> + jets</i> and <i>W<sup>-</sup> + jets</i>),
+you should use flexible containers do specify the hard process. So far, we
+allow the use of the containers <code>LEPTONS</code>, <code>NEUTRINOS</code>,
+<code>BQUARKS</code>. If you use these containers, the hard process definition
+is relatively flexible, meaning that Pythia will attempt a merging of QCD jets
+for each event in the LHE file, and assume that all particles matching one of
+the containers are products of the hard process. This is best explained by
+examples. If you want to have both <i>pp &rarr; e+ &nu;<sub>e</sub> + jets</i>
+ and <i>pp &rarr; e- &nu;&#772;<sub>e</sub> + jets</i> events in a single
+file, you can set <code>Merging:Process=pp>LEPTONS,NEUTRINOS</code> as hard
+process (note that for readability, you are allowed to use commata to separate
+container names). Combining e.g. the processes
+<i>pp &rarr; e+ &nu;<sub>e</sub></i> and
+<i>pp &rarr; &mu;+ &nu;<sub>&mu;</sub></i> is possible with the hard process
+definition <code>pp>LEPTONS,NEUTRINOS</code>.
+
+<p/>
+For maximal flexibility, the definition of the hard process by these containers
+does not mean that each Les Houches event needs to contain particles to match
+each container. It is enough if one container is matched. This means that 
+with the string <code>pp>LEPTONS,NEUTRINOS</code>, you can immediately process 
+<i>pp &rarr; e+ e- </i> events mixed with 
+<i>pp &rarr; e+ &nu;<sub>e</sub></i> events, since particles matching at
+least one container can be found in both cases. Another example for the usage
+of containers is mixing <i>pp &rarr; e+ &nu;<sub>e</sub></i> and
+<i>pp &rarr; tt&#772; &rarr; e+ &nu;<sub>e</sub> e- &nu;&#772;<sub>e</sub>
+  bb&#772;</i>. This can be accommodated by the hard process string
+<code>Merging:Process=pp>LEPTONS,NEUTRINOS,BQUARKS</code>.
+
+<p/>
+There is however a conceptual limitation to containers: The hard process
+definition is necessary to ensure that when constructing lower multiplicity
+states (that will be used to calculate the correct merging weight), the
+structure of the hard process will be preserved. If e.g. we want the hard process
+to be <i>pp &rarr; Z &rarr; bb&#772; </i>, we should ensure that the lowest
+multiplicity state contains a colour-singlet bb&#772;-pair. When
+reconstructing intermediate lower multiplicity states from multi-jet matrix
+elements, we should thus always be able to find at least one bb&#772;-pair. By
+mixing different processes in a LHE file, this requirement might already be 
+violated at the level of Les Houches events. Flexible containers cannot give 
+strong conditions which flavours should be preserved in the construction of 
+the hard process. In order to avoid non-sensible results, it is hence <i>
+assumed that all</i> particles matching any of the containers will be part 
+of the lowest multiplicity process. This implies that if you decide to use the
+<code>BQUARKS</code> container, all b-quarks in the LHE file will be 
+interpreted as hard process particles, and never as additional radiation.
+
+<p/>
+Another way to specify the hard process particles is to explicitly define the
+particle names and identifiers. This is necessary if the matrix element merging
+in Pythia does not contain the particles of interest. To make sure that the
+hard process is still treated correctly, it is possible to define particles
+in the process string. If you e.g. want the hard process to contain a particle
+"zeta~" with PDG identifier "12345", produced in proton collisions, you
+have to include a user-defined particle tag by setting the process string to
+<code>pp>{zeta~,12345}</code>. The  user-defined particle is enclosed in
+curly brackets, with syntax 
+<code>{particle_name,particle_identifier}</code>, where "particle_name"
+and "particle_identifier" are the particle name and particle identifier used 
+for this particle in the input LHE file. User-defined particles are only 
+allowed in the final state. You are free to fix user-defined particles with 
+more common ones, as long as user-defined particles are put before more common
+particles in the process string. This means that if you e.g. wanted the hard 
+process to contain a graviton in association with a positron and an 
+electron-neutrino, you have to define the hard process as 
+<code>pp>{G,39}e+ve</code>.
+
+<p/>
+Below you can find a list of particles predefined in the merging. If you wish
+to include a hard process with different final state particles, you may use
+the "curly bracket notation" outlined above.
+
+<p/>
+The set of incoming particles us limited to:
+<code>e-</code> (electron), <code>e+</code> (positron), <code>mu-</code> (muon), 
+<code>mu+</code> (antimuon), <code>p</code> (proton, container to hold all 
+initial state coloured particles),  <code>p~</code> (identical to 
+<code>p</code> container).
+
+<p/>
+The following intermediate particles are allowed:
+<code>a</code> (photon), <code>z</code> (Z boson),
+<code>w-</code> (W<sup>-</sup> boson), <code>w+</code> (W<sup>+</sup> boson),
+<code>h</code> (scalar Higgs boson), <code>W</code> (container to hold both
+W<sup>-</sup> and W<sup>+</sup> boson), <code>t</code> (top quark), 
+<code>t~</code> (anti-top),
+<code>dl</code>, <code>dl~</code>, <code>ul</code>, <code>ul~</code>,
+<code>sl</code>, <code>sl~</code>, <code>cl</code>, <code>cl~</code>,
+<code>b1</code>, <code>b1~</code>, <code>t1</code>, <code>t1~</code>,
+<code>dr</code>, <code>dr~</code>, <code>ur</code>, <code>ur~</code>,
+<code>sr</code>, <code>sr~</code>, <code>cr</code>, <code>cr~</code>,
+<code>b2</code>, <code>b2~</code>, <code>t2</code>, <code>t2~</code> (all MSSM
+squarks). 
+
+<p/>
+We have pre-defined the outgoing particles:
+<code>e+</code>, <code>e-</code>, <code>ve~</code>,
+<code>ve</code>, <code>mu+</code>, <code>mu-</code>,
+<code>vm~</code>, <code>vm</code>, <code>ta+</code>, <code>ta-</code>,
+<code>vt~</code>, <code>vt</code> (all SM leptons and neutrinos),
+<code>j~</code> (container to hold all final state coloured particles),
+<code>j</code> (container to hold all final state coloured particles),
+<code>NEUTRINOS</code> (container to hold all final state neutrinos and 
+anti-neutrinos), <code>LEPTONS</code> (container to hold all final state 
+leptons and anti-leptons), <code>BQUARKS</code> (container to hold final 
+state b-quarks), <code>d~</code>, <code>d</code>, <code>u~</code>, 
+<code>u</code>, <code>s~</code>, <code>s</code>, <code>c~</code>,
+<code>c</code>, <code>b~</code>, <code>b</code>, <code>t~</code>,
+<code>t</code> (all SM quarks), <code>a</code>, <code>z</code>,
+<code>w-</code>, <code>w+</code> (all SM electro-weak bosons),
+<code>h</code> (scalar Higgs boson), <code>W</code> (container to hold both 
+W<sup>-</sup> and W<sup>+</sup> boson), <code>n1</code> (MSSM neutralino),
+<code>dl~</code>, <code>dl</code>, <code>ul~</code>, <code>ul</code>,
+<code>sl~</code>, <code>sl</code>, <code>cl~</code>, <code>cl</code>,
+<code>b1~</code>, <code>b1</code>, <code>t1~</code>, <code>t1</code>,
+<code>dr~</code>, <code>dr</code>, <code>ur~</code>, <code>ur</code>,
+<code>sr~</code>, <code>sr</code>, <code>cr~</code>, <code>cr</code>,
+<code>b2~</code>, <code>b2</code>, <code>t2~</code>, <code>t2</code>
+(all MSSM squarks). Other outgoing particles are possible if you use the
+"curly bracket notation" described earlier.
+
+<br/><br/><hr/>
+<h3>Histogramming the events</h3>
+After the event has been processed, histograms for observables of interest 
+need to be filled. In order to achieve good statistical accuracy for all jet 
+multiplicities and all subprocesses contributing to one jet multiplicity,
+generally a fixed number of unit-weighted events is read from each Les 
+Houches Event file. To then arrive at the correct prediction, for each of these
+events, histogram bins should be filled with the corresponding cross
+section, or weighted with unit weight and normalised at the end to
+the generated cross section for each jet multiplicity separately.
 
 <p/> Still another, even more important, event weight that has to
 applied on an  event-by-event basis is the CKKW-L-weight. This
@@ -263,7 +571,7 @@ the  effect of vetoes generating Sudakov form factors for the matrix
 elements, and  is in general only known after the run.
 
 <p/> This final step can of course be skipped if the accepted cross
-section had been estimated before the histgramming run, and  histogram
+section had been estimated before the histogramming run, and  histogram
 bins had instead been filled with the weight
 <strong>Info::mergingWeight() * &sigma;<sub>est</sub>(number of
 additional jets in current ME sample)</strong>. This is the way HepMC
@@ -283,8 +591,8 @@ slightly more  complicated, since the user has to write a small piece
 of code defining the  merging scale. To allow for a user defined
 procedure, set the input
 
-<br/><br/><strong>Merging:doUserMerging</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
-<input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>Merging:doUserMerging</strong>  <input type="radio" name="13" value="on"><strong>On</strong>
+<input type="radio" name="13" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 General user defined merging on/off.
   
@@ -459,9 +767,10 @@ all possible histories of the matrix element state.
 This routine will be supplied internally with every possible reclustered 
 event that can be reached by reclustering any number of partons in
 the matrix element input state. The new, reclustered, states can then be 
-analysed. If the method returns false, no further clusterings of the 
-reclustered state will be attempted, thus disallowing all history branches
-which contain the disallowed state.   
+analysed. If the method returns false, the history to which the state belongs
+will be treated as if it were unordered, i.e. this path will only be chosen
+if no other histories are available. In this way, the number of histories 
+not fulfilling the user criterion will be minimised. 
   
 
 <p/> 
@@ -471,6 +780,7 @@ this method could be useful is if cuts on the core <i>2 -> 2</i> processes
 have to be checked, and the method 
 <code>MergingHooks::dampenIfFailCuts(const Event& event)</code> is not 
 sufficiently effective.
+
 
 <br/><br/><hr/>
 <h3>Matrix element merging and HepMC output for RIVET</h3>
@@ -492,7 +802,7 @@ HepMC file has to be taken as the  full merged cross section
 <i>sigma_merge = Sum_{i=0}^N Sum_{j=0}*^{nEvents} 
 sigma_est(i)*wckkwl(j)</i>.
 
-<p/> This procedure is outlined in <code>main84.cc</code>. 
+<p/> This procedure is outlined in <code>main84.cc</code>.
 
 <br/><br/><hr/>
 <h3>Further variables</h3>
@@ -506,8 +816,8 @@ the switches.
 assessment of the merging prescription. Apart from this, we advise the
 non-expert user to keep the default values.
 
-<br/><br/><strong>Merging:includeMassive</strong>  <input type="radio" name="8" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="8" value="off"><strong>Off</strong>
+<br/><br/><strong>Merging:includeMassive</strong>  <input type="radio" name="14" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="14" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 If on, use the correct massive evolution variable and massive
 splitting kernels in the reconstruction and picking of parton shower
@@ -516,8 +826,8 @@ scales, kinematics and splitting kernels  as if all partons were
 massless.
   
 
-<br/><br/><strong>Merging:enforceStrongOrdering</strong>  <input type="radio" name="9" value="on"><strong>On</strong>
-<input type="radio" name="9" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>Merging:enforceStrongOrdering</strong>  <input type="radio" name="15" value="on"><strong>On</strong>
+<input type="radio" name="15" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 If on, preferably pick parton shower histories of the matrix element
 which  have strongly ordered consecutive splittings, i.e. paths in
@@ -525,43 +835,43 @@ which consecutive reclustered evolution scales are separated by a
 user-defined factor.
   
 
-<br/><br/><table><tr><td><strong>Merging:scaleSeparationFactor </td><td></td><td> <input type="text" name="10" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 1.0</code>; <code>maximum = 10.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Merging:scaleSeparationFactor </td><td></td><td> <input type="text" name="16" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 1.0</code>; <code>maximum = 10.0</code>)</td></tr></table>
 The factor by which scales should differ to be classified as strongly
 ordered.
   
 
-<br/><br/><strong>Merging:orderInRapidity</strong>  <input type="radio" name="11" value="on"><strong>On</strong>
-<input type="radio" name="11" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>Merging:orderInRapidity</strong>  <input type="radio" name="17" value="on"><strong>On</strong>
+<input type="radio" name="17" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 If on, preferably pick parton shower histories of the matrix element
 with  consecutive splittings ordered in rapidity and <i>pT</i>.
   
 
-<br/><br/><strong>Merging:pickByFullP</strong>  <input type="radio" name="12" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="12" value="off"><strong>Off</strong>
+<br/><br/><strong>Merging:pickByFullP</strong>  <input type="radio" name="18" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="18" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 If on, pick parton shower histories of the matrix element by the full
 shower  splitting kernels, including potential ME corrections and
 Jacobians from joined evolution measures.
   
 
-<br/><br/><strong>Merging:pickByPoPT2</strong>  <input type="radio" name="13" value="on"><strong>On</strong>
-<input type="radio" name="13" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>Merging:pickByPoPT2</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
+<input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 If on, pick parton shower histories of the matrix element by the
 shower  splitting kernels divided by the evolution <i>pT</i>.
   
 
-<br/><br/><strong>Merging:pickBySumPT</strong>  <input type="radio" name="14" value="on"><strong>On</strong>
-<input type="radio" name="14" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>Merging:pickBySumPT</strong>  <input type="radio" name="20" value="on"><strong>On</strong>
+<input type="radio" name="20" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 If on, exclusively pick parton shower histories of the matrix element
 for which have the smallest sum of scalar evolution <i>pT</i> for consecutive
 splittings has been calculated.
   
 
-<br/><br/><strong>Merging:includeRedundant</strong>  <input type="radio" name="15" value="on"><strong>On</strong>
-<input type="radio" name="15" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>Merging:includeRedundant</strong>  <input type="radio" name="21" value="on"><strong>On</strong>
+<input type="radio" name="21" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 If on, then also include PDF ratios and <i>&alpha;<sub>s</sub></i> 
 factors in the  splitting probabilities used for picking a parton shower 
@@ -573,23 +883,23 @@ sensitive the results  are to the prescription on how to choose PS
 histories.
   
 
-<br/><br/><table><tr><td><strong>Merging:nonJoinedNorm </td><td></td><td> <input type="text" name="16" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 10.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Merging:nonJoinedNorm </td><td></td><td> <input type="text" name="22" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 10.0</code>)</td></tr></table>
 Normalisation factor with which to multiply splitting probability for
 splittings without joined evolution equation.
   
 
-<br/><br/><table><tr><td><strong>Merging:fsrInRecNorm </td><td></td><td> <input type="text" name="17" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 10.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Merging:fsrInRecNorm </td><td></td><td> <input type="text" name="23" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 10.0</code>)</td></tr></table>
 Normalisation factor with which to multiply splitting probability for
 final state splittings with an initial state recoiler.
   
 
-<br/><br/><table><tr><td><strong>Merging:aCollFSR </td><td></td><td> <input type="text" name="18" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 10.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Merging:aCollFSR </td><td></td><td> <input type="text" name="24" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 10.0</code>)</td></tr></table>
 Factor with which to multiply the scalar <i>pT</i> of a final state
 splitting, when choosing the history by the smallest sum of scalar
 <i>pT</i>. Default value taken from Herwig++ [<a href="Bibliography.php" target="page">Tul09</a>].
   
 
-<br/><br/><table><tr><td><strong>Merging:aCollISR </td><td></td><td> <input type="text" name="19" value="0.9" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.9</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 10.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Merging:aCollISR </td><td></td><td> <input type="text" name="25" value="0.9" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.9</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 10.0</code>)</td></tr></table>
 Factor with which to multiply the scalar <i>pT</i> of an initial state
 splitting, when choosing the history by the smallest sum of scalar
 <i>pT</i>. Default value taken from Herwig++ [<a href="Bibliography.php" target="page">Tul09</a>].
@@ -603,16 +913,24 @@ emission. Then, a decision on which starting scale for trial emissions
 off reconstructed states in this sequence of unordered splittings has
 to be made. Two options are available:
 <br/>
-<input type="radio" name="20" value="0" checked="checked"><strong>0 </strong>:  Use larger of the two reconstructed (unordered) scales as  starting scale. <br/>
-<input type="radio" name="20" value="1"><strong>1 </strong>:  Use smaller of the two reconstructed (unordered) scales as  starting scale. <br/>
+<input type="radio" name="26" value="0" checked="checked"><strong>0 </strong>:  Use larger of the two reconstructed (unordered) scales as  starting scale. <br/>
+<input type="radio" name="26" value="1"><strong>1 </strong>:  Use smaller of the two reconstructed (unordered) scales as  starting scale. <br/>
 
 <br/><br/><table><tr><td><strong>Merging:unorderedASscalePrescrip  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)</td></tr></table>
 Prescription which scale to use to evaluate <ei>&alpha;<sub>s</sub></ei> 
 weight for  splittings in a sequence of splittings which are not ordered 
 in evolution <ei>pT</ei>.
 <br/>
-<input type="radio" name="21" value="0"><strong>0 </strong>:  Use the combined splitting scale as argument in <ei>&alpha;<sub>s</sub></ei>, for both splittings. <br/>
-<input type="radio" name="21" value="1" checked="checked"><strong>1 </strong>:  Use the true reconstructed scale  as as argument in <ei>&alpha;<sub>s</sub></ei>, for each splitting separately. <br/>
+<input type="radio" name="27" value="0"><strong>0 </strong>:  Use the combined splitting scale as argument in <ei>&alpha;<sub>s</sub></ei>, for both splittings. <br/>
+<input type="radio" name="27" value="1" checked="checked"><strong>1 </strong>:  Use the true reconstructed scale  as as argument in <ei>&alpha;<sub>s</sub></ei>, for each splitting separately. <br/>
+
+<br/><br/><table><tr><td><strong>Merging:unorderedPDFscalePrescrip  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)</td></tr></table>
+Prescription which scale to use to evaluate ratios of parton distibutions 
+for splittings in a sequence of splittings which are not ordered 
+in evolution <ei>pT</ei>.
+<br/>
+<input type="radio" name="28" value="0" checked="checked"><strong>0 </strong>:  Use the combined splitting scale as argument in PDF ratios, for both splittings. <br/>
+<input type="radio" name="28" value="1"><strong>1 </strong>:  Use the true reconstructed scale as argument in PDF ratios, for each splitting separately. <br/>
 
 <br/><br/><table><tr><td><strong>Merging:incompleteScalePrescrip  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
 When no complete parton shower history (i.e. starting from a 
@@ -623,12 +941,12 @@ determined by clusterings, a prescription for setting the starting scale
 of trial showers in incomplete histories is needed. Three options are 
 provided.
 <br/>
-<input type="radio" name="22" value="0" checked="checked"><strong>0 </strong>:  Use factorisation scale as shower starting scale for  incomplete histories. <br/>
-<input type="radio" name="22" value="1"><strong>1 </strong>:  Use <ei>sHat</ei> as shower starting scale for   incomplete histories. <br/>
-<input type="radio" name="22" value="2"><strong>2 </strong>:  Use <ei>s</ei> as shower starting scale for   incomplete histories. <br/>
+<input type="radio" name="29" value="0" checked="checked"><strong>0 </strong>:  Use factorisation scale as shower starting scale for  incomplete histories. <br/>
+<input type="radio" name="29" value="1"><strong>1 </strong>:  Use <ei>sHat</ei> as shower starting scale for   incomplete histories. <br/>
+<input type="radio" name="29" value="2"><strong>2 </strong>:  Use <ei>s</ei> as shower starting scale for   incomplete histories. <br/>
 
-<br/><br/><strong>Merging:allowColourShuffling</strong>  <input type="radio" name="23" value="on"><strong>On</strong>
-<input type="radio" name="23" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>Merging:allowColourShuffling</strong>  <input type="radio" name="30" value="on"><strong>On</strong>
+<input type="radio" name="30" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 If on, this will allow the algorithm to swap one colour index in the state,
 when trying to find all possible clusterings, if no clustering has been
@@ -639,6 +957,32 @@ the radiation pattern. To however study the sensitivity of the predictions on
 these effects, allowing for colour reshuffling can be useful.
   
 
+<br/><br/><strong>Merging:usePythiaQRenHard</strong>  <input type="radio" name="31" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="31" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+If on, this will allow the algorithm to use a dynamical renormalisation scale
+to evaluate the strong couplings of the core hard process in dijet and 
+prompt photon events.
+This means that the value of <i>&alpha;<sub>s</sub></i> used as coupling
+of the hard process in the matrix element generation will be replaced with
+a running coupling evaluated at the geometric mean of the squared transverse 
+masses of the two outgoing particles, as is the default prescription in 
+Pythia.
+  
+
+<br/><br/><strong>Merging:usePythiaQFacHard</strong>  <input type="radio" name="32" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="32" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+If on, this will allow the algorithm to use a dynamical factorisation scale
+to evaluate parton distributions associated with the hadronic cross section
+of the core hard process in dijet and prompt photon events.
+In the calculation of PDF ratios as part of the CKKW-L weight of an event, 
+parton distributions that should be evaluated at the scale of the core 
+2 - >2 process will be evaluated using the dynamical factorisation scale 
+Pythia would attribute to this process. This means that the hard process
+factorisation scale is set to the smaller of the squared transverse masses 
+of the two outgoing particles. 
+  
 
 <input type="hidden" name="saved" value="1"/>
 
@@ -687,87 +1031,132 @@ fwrite($handle,$data);
 }
 if($_POST["7"] != "off")
 {
-$data = "Merging:doUserMerging = ".$_POST["7"]."\n";
+$data = "Merging:doPTLundMerging = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["8"] != "on")
+if($_POST["8"] != "off")
 {
-$data = "Merging:includeMassive = ".$_POST["8"]."\n";
+$data = "Merging:doCutBasedMerging = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "off")
+if($_POST["9"] != "0.0")
 {
-$data = "Merging:enforceStrongOrdering = ".$_POST["9"]."\n";
+$data = "Merging:QijMS = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["10"] != "1.0")
+if($_POST["10"] != "0.0")
 {
-$data = "Merging:scaleSeparationFactor = ".$_POST["10"]."\n";
+$data = "Merging:pTiMS = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["11"] != "off")
+if($_POST["11"] != "0.0")
 {
-$data = "Merging:orderInRapidity = ".$_POST["11"]."\n";
+$data = "Merging:dRijMS = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["12"] != "on")
 {
-$data = "Merging:pickByFullP = ".$_POST["12"]."\n";
+$data = "Merging:enforceCutOnLHE = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["13"] != "off")
 {
-$data = "Merging:pickByPoPT2 = ".$_POST["13"]."\n";
+$data = "Merging:doUserMerging = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "off")
+if($_POST["14"] != "on")
 {
-$data = "Merging:pickBySumPT = ".$_POST["14"]."\n";
+$data = "Merging:includeMassive = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["15"] != "off")
 {
-$data = "Merging:includeRedundant = ".$_POST["15"]."\n";
+$data = "Merging:enforceStrongOrdering = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["16"] != "1.0")
 {
-$data = "Merging:nonJoinedNorm = ".$_POST["16"]."\n";
+$data = "Merging:scaleSeparationFactor = ".$_POST["16"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["17"] != "1.0")
+if($_POST["17"] != "off")
 {
-$data = "Merging:fsrInRecNorm = ".$_POST["17"]."\n";
+$data = "Merging:orderInRapidity = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["18"] != "1.0")
+if($_POST["18"] != "on")
 {
-$data = "Merging:aCollFSR = ".$_POST["18"]."\n";
+$data = "Merging:pickByFullP = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["19"] != "0.9")
+if($_POST["19"] != "off")
 {
-$data = "Merging:aCollISR = ".$_POST["19"]."\n";
+$data = "Merging:pickByPoPT2 = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["20"] != "0")
+if($_POST["20"] != "off")
 {
-$data = "Merging:unorderedScalePrescrip = ".$_POST["20"]."\n";
+$data = "Merging:pickBySumPT = ".$_POST["20"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["21"] != "1")
+if($_POST["21"] != "off")
 {
-$data = "Merging:unorderedASscalePrescrip = ".$_POST["21"]."\n";
+$data = "Merging:includeRedundant = ".$_POST["21"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["22"] != "0")
+if($_POST["22"] != "1.0")
 {
-$data = "Merging:incompleteScalePrescrip = ".$_POST["22"]."\n";
+$data = "Merging:nonJoinedNorm = ".$_POST["22"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["23"] != "off")
+if($_POST["23"] != "1.0")
 {
-$data = "Merging:allowColourShuffling = ".$_POST["23"]."\n";
+$data = "Merging:fsrInRecNorm = ".$_POST["23"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["24"] != "1.0")
+{
+$data = "Merging:aCollFSR = ".$_POST["24"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["25"] != "0.9")
+{
+$data = "Merging:aCollISR = ".$_POST["25"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["26"] != "0")
+{
+$data = "Merging:unorderedScalePrescrip = ".$_POST["26"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["27"] != "1")
+{
+$data = "Merging:unorderedASscalePrescrip = ".$_POST["27"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["28"] != "0")
+{
+$data = "Merging:unorderedPDFscalePrescrip = ".$_POST["28"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["29"] != "0")
+{
+$data = "Merging:incompleteScalePrescrip = ".$_POST["29"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["30"] != "off")
+{
+$data = "Merging:allowColourShuffling = ".$_POST["30"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["31"] != "on")
+{
+$data = "Merging:usePythiaQRenHard = ".$_POST["31"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["32"] != "on")
+{
+$data = "Merging:usePythiaQFacHard = ".$_POST["32"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

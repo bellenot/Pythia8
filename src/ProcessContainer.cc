@@ -48,7 +48,7 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   Settings& settings, ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
   BeamParticle* beamAPtr, BeamParticle* beamBPtr, Couplings* couplingsPtr, 
   SigmaTotal* sigmaTotPtr, ResonanceDecays* resDecaysPtrIn, 
-  SusyLesHouches* slhaPtr, UserHooks* userHooksPtr) {
+  SusyLesHouches* slhaPtr, UserHooks* userHooksPtrIn) {
 
   // Extract info about current process from SigmaProcess object.
   isLHA       = sigmaProcessPtr->isLHA();
@@ -85,6 +85,9 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   particleDataPtr = particleDataPtrIn;
   rndmPtr         = rndmPtrIn;
   resDecaysPtr    = resDecaysPtrIn;
+  userHooksPtr    = userHooksPtrIn;
+  canVetoResDecay = (userHooksPtr != 0) 
+                  ? userHooksPtr->canVetoResonanceDecays() : false;
   if (isLHA) {
     sigmaProcessPtr->setLHAPtr(lhaUpPtr);
     phaseSpacePtr->setLHAPtr(lhaUpPtr);
@@ -202,16 +205,26 @@ bool ProcessContainer::trialProcess() {
  
 }
 
-
 //--------------------------------------------------------------------------
   
-// Give the hard subprocess.
+// Pick flavours and colour flow of process.
 
-bool ProcessContainer::constructProcess( Event& process, bool isHardest) { 
+bool ProcessContainer::constructState() { 
 
   // Construct flavour and colours for selected event.
   if (isResolved && !isMinBias) sigmaProcessPtr->pickInState();
   sigmaProcessPtr->setIdColAcol();
+
+  // Done.
+  return true;
+
+}
+
+//--------------------------------------------------------------------------
+  
+// Give the hard subprocess with kinematics.
+
+bool ProcessContainer::constructProcess( Event& process, bool isHardest) { 
 
   // Construct kinematics from selected phase space point.
   if (!phaseSpacePtr->finalKin()) return false;
@@ -238,10 +251,10 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   process[2].daughter1(4);
   double scale = 0.;
   
-  // For DiffC also Entry 5 comes from 1 and 2.
+  // For DiffC entries 3 - 5 come jointly from 1 and 2 (to keep HepMC happy).
   if (isDiffC) {
-    process[1].daughter2(5);
-    process[2].daughter2(5);
+    process[1].daughters(3, 5);
+    process[2].daughters(3, 5);
   }
 
   // Insert the subprocess partons - resolved processes.
@@ -340,11 +353,13 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       phaseSpacePtr->p(4), phaseSpacePtr->m(4));
 
     // For central diffraction: two scattered protons inserted so far,
-    // add also centrally-produced hadronic system
+    // but modify mothers, add also centrally-produced hadronic system.
     if (isDiffC) {
+      process[3].mothers( 1, 2);
+      process[4].mothers( 1, 2);   
       int id5     = sigmaProcessPtr->id(5);
       int status5 = 15;
-      process.append( id5, status5, 0, 0, 0, 0, 0, 0, 
+      process.append( id5, status5, 1, 2, 0, 0, 0, 0, 
 	phaseSpacePtr->p(5), phaseSpacePtr->m(5));
     }
   }
@@ -549,9 +564,9 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
   // Store information.
   if (isHardest) {
-    infoPtr->setPDFalpha( id1pdf, id2pdf, x1pdf, x2pdf, pdf1, pdf2, 
+    infoPtr->setPDFalpha( 0, id1pdf, id2pdf, x1pdf, x2pdf, pdf1, pdf2, 
       Q2FacNow, alphaEM, alphaS, Q2Ren);
-    infoPtr->setKin( id1Now, id2Now, x1Now, x2Now, sHat, tHat, uHat, 
+    infoPtr->setKin( 0, id1Now, id2Now, x1Now, x2Now, sHat, tHat, uHat, 
       pTHatL, m3, m4, theta, phi);
   }
   infoPtr->setTypeMPI( code(), pTHatL);
@@ -561,9 +576,132 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
     int codeSub  = lhaUpPtr->idProcess();
     ostringstream nameSub;
     nameSub << "user process " << codeSub; 
-    infoPtr->setSubType( nameSub.str(), codeSub, nFin);
+    infoPtr->setSubType( 0, nameSub.str(), codeSub, nFin);
   }
 
+  // Done.
+  return true;
+
+}
+
+//--------------------------------------------------------------------------
+  
+// Give the hard resonance decay chain from Les Houches input.
+// Note: mildly modified copy of some constructProcess code; to streamline.
+
+bool ProcessContainer::constructDecays( Event& process) { 
+
+  // Let hard process record begin with the event as a whole. 
+  process.clear(); 
+  process.append( 90, -11, 0, 0, 0, 0, 0, 0, Vec4(0., 0., 0., 0.), 0., 0. ); 
+
+  // Since LHA partons may be out of order, determine correct one.
+  // (Recall that zeroth particle is empty.) 
+  vector<int> newPos;
+  newPos.reserve(lhaUpPtr->sizePart());
+  newPos.push_back(0);
+  for (int iNew = 0; iNew < lhaUpPtr->sizePart(); ++iNew) {
+    // For iNew == 0 look for the two incoming partons, then for
+    // partons having them as mothers, and so on layer by layer.
+    for (int i = 1; i < lhaUpPtr->sizePart(); ++i)
+      if (lhaUpPtr->mother1(i) == newPos[iNew]) newPos.push_back(i);
+    if (int(newPos.size()) <= iNew) break;
+  } 
+
+  // Find scale from which to begin MPI/ISR/FSR evolution.
+  double scale = lhaUpPtr->scale();
+  process.scale( scale);
+  Vec4 pSum;
+
+  // Copy over info from LHA event to process, in proper order.
+  for (int i = 1; i < lhaUpPtr->sizePart(); ++i) {
+    int iOld = newPos[i];
+    int id = lhaUpPtr->id(iOld);
+
+    // Translate from LHA status codes.
+    int lhaStatus =  lhaUpPtr->status(iOld);
+    int status = -21;
+    if (lhaStatus == 2 || lhaStatus == 3) status = -22;
+    if (lhaStatus == 1) status = 23;
+
+    // Find where mothers have been moved by reordering.
+    int mother1Old = lhaUpPtr->mother1(iOld);   
+    int mother2Old = lhaUpPtr->mother2(iOld);   
+    int mother1 = 0;
+    int mother2 = 0; 
+    for (int im = 1; im < i; ++im) {
+      if (mother1Old == newPos[im]) mother1 = im; 
+      if (mother2Old == newPos[im]) mother2 = im; 
+    } 
+
+    // Ensure that second mother = 0 except for bona fide carbon copies.
+    if (mother1 > 0 && mother2 == mother1) { 
+      int sister1 = process[mother1].daughter1();
+      int sister2 = process[mother1].daughter2();
+      if (sister2 != sister1 && sister2 != 0) mother2 = 0;
+    } 
+
+    // Find daughters and where they have been moved by reordering. 
+    int daughter1 = 0;
+    int daughter2 = 0;
+    for (int im = i + 1; im < lhaUpPtr->sizePart(); ++im) { 
+      if (lhaUpPtr->mother1(newPos[im]) == iOld
+        || lhaUpPtr->mother2(newPos[im]) == iOld) {
+        if (daughter1 == 0 || im < daughter1) daughter1 = im;
+        if (daughter2 == 0 || im > daughter2) daughter2 = im;
+      }
+    }
+    // For 2 -> 1 hard scatterings reset second daughter to 0.
+    if (daughter2 == daughter1) daughter2 = 0;
+
+    // Colour trivial, except reset irrelevant colour indices.
+    int colType = particleDataPtr->colType(id);
+    int col1   = (colType == 1 || colType == 2 || abs(colType) == 3) 
+               ? lhaUpPtr->col1(iOld) : 0;   
+    int col2   = (colType == -1 || colType == 2 || abs(colType) == 3) 
+               ?  lhaUpPtr->col2(iOld) : 0; 
+
+    // Momentum trivial.
+    double px  = lhaUpPtr->px(iOld);  
+    double py  = lhaUpPtr->py(iOld);  
+    double pz  = lhaUpPtr->pz(iOld);  
+    double e   = lhaUpPtr->e(iOld);  
+    double m   = lhaUpPtr->m(iOld);
+    if (status > 0) pSum += Vec4( px, py, pz, e);
+
+    // Polarization.
+    double pol = lhaUpPtr->spin(iOld);
+
+    // For resonance decay products use resonance mass as scale.
+    double scaleNow = scale;
+    if (mother1 > 0) scaleNow = process[mother1].m();
+
+    // Store Les Houches Accord partons.
+    int iNow = process.append( id, status, mother1, mother2, daughter1, 
+      daughter2, col1, col2, Vec4(px, py, pz, e), m, scaleNow, pol);
+      
+    // Check if need to store lifetime.
+    double tau = lhaUpPtr->tau(iOld);
+    if (tau > 0.) process[iNow].tau(tau);
+  } 
+
+  // Update four-momentum of system as a whole.
+  process[0].p( pSum);
+  process[0].m( pSum.mCalc());
+
+  // Loop through decay chains and set secondary vertices when needed.
+  for (int i = 1; i < process.size(); ++i) {
+    int iMother  = process[i].mother1();
+    
+    // If sister to already assigned vertex then assign same.
+    if ( process[i - 1].mother1() == iMother && process[i - 1].hasVertex() 
+      && i > 1) process[i].vProd( process[i - 1].vProd() ); 
+
+    // Else if mother already has vertex and/or lifetime then assign.
+    else if ( process[iMother].hasVertex() || process[iMother].tau() > 0.)
+      process[i].vProd( process[iMother].vDec() ); 
+  }
+  
   // Done.
   return true;
 
@@ -575,32 +713,54 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
 bool ProcessContainer::decayResonances( Event& process) {
 
-  // Save current event-record size.
+  // Save current event-record size and status codes.
   process.saveSize();
+  vector<int> statusSave( process.size());
+  for (int i = 0; i < process.size(); ++i) 
+    statusSave[i] = process[i].status();
   bool physical    = true;
+  bool newChain    = false;
   bool newFlavours = false;
 
-  // Do sequential chain of uncorrelated isotropic decays.
+  // Do loop over user veto.
   do {
-    physical = resDecaysPtr->next( process);
-    if (!physical) return false;
 
-    // Check whether flavours should be correlated.
-    // (Currently only relevant for f fbar -> gamma*/Z0 gamma*/Z0.)
-    newFlavours = ( sigmaProcessPtr->weightDecayFlav( process) 
-                  < rndmPtr->flat() ); 
+    // Do sequential chain of uncorrelated isotropic decays.
+    do {
+      physical = resDecaysPtr->next( process);
+      if (!physical) return false;
+
+      // Check whether flavours should be correlated.
+      // (Currently only relevant for f fbar -> gamma*/Z0 gamma*/Z0.)
+      newFlavours = ( sigmaProcessPtr->weightDecayFlav( process) 
+                    < rndmPtr->flat() ); 
+
+      // Reset the decay chains if have to redo.
+      if (newFlavours) {
+        process.restoreSize();
+        for (int i = 0; i < process.size(); ++i) 
+          process[i].status( statusSave[i]);
+      } 
+
+    // Loop back where required to generate new decays with new flavours.    
+    } while (newFlavours);
+
+    // Correct to nonisotropic decays.
+    phaseSpacePtr->decayKinematics( process); 
+
+    // Optionally user hooks check/veto on decay chain.
+    if (canVetoResDecay) 
+      newChain = userHooksPtr->doVetoResonanceDecays( process);
 
     // Reset the decay chains if have to redo.
-    if (newFlavours) {
+    if (newChain) {
       process.restoreSize();
-      for (int i = 5; i < process.size(); ++i) process[i].statusPos();
+      for (int i = 0; i < process.size(); ++i) 
+        process[i].status( statusSave[i]);
     } 
 
-  // Loop back where required to generate new decays with new flavours.    
-  } while (newFlavours);
-
-  // Correct to nonisotropic decays.
-  phaseSpacePtr->decayKinematics( process); 
+  // Loop back where required to generate new decay chain.    
+  } while(newChain); 
 
   // Done.
   return true;
@@ -651,9 +811,10 @@ void ProcessContainer::sigmaDelta() {
   if (nAcc == 1) return;
 
   // Estimated error. Quadratic sum of cross section term and
-  // binomial from accept/reject step.
-  double delta2Sig   = (sigma2Sum * nTryInv - pow2(sigmaAvg)) * nTryInv
-    / pow2(sigmaAvg);
+  // binomial from accept/reject step. 
+  double delta2Sig   = (lhaStratAbs != 3) 
+    ? (sigma2Sum * nTryInv - pow2(sigmaAvg)) * nTryInv / pow2(sigmaAvg) 
+    : pow2( lhaUpPtr->xErrSum() / lhaUpPtr->xSecSum());
   double delta2Veto  = (nSel - nAcc) * nAccInv * nSelInv;
   double delta2Sum   = delta2Sig + delta2Veto;
   deltaFin           = sqrtpos(delta2Sum) * sigmaFin; 
@@ -701,11 +862,8 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
   if (softQCD || settings.flag("SoftQCD:centralDiffractive")) {
-    // Central diffraction currently only available for MBR model.
-    if (settings.mode("Diffraction:PomFlux") == 5) {
-      sigmaPtr = new Sigma0AB2AXB;
-      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-    }
+    sigmaPtr = new Sigma0AB2AXB;
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
   
   // Set up requested objects for hard QCD processes.

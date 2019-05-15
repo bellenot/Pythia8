@@ -45,6 +45,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td> </td>
+<td><a href="AlpgenAndMLM.php#method9" target="page">AlpgenHooks(...)</a></td>
+<td>Alpgen And M L M</td>
+</tr>
+
+<tr>
 <td>friend double</td>
 <td><a href="FourVectors.php#method23" target="page">cosphi(...)</a></td>
 <td>Four-Vectors</td>
@@ -72,6 +78,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <td>friend double</td>
 <td><a href="FourVectors.php#method20" target="page">dot3(...)</a></td>
 <td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="AlpgenAndMLM.php#method10" target="page">initAfterBeams()</a></td>
+<td>Alpgen And M L M</td>
 </tr>
 
 <tr>
@@ -264,6 +276,36 @@ Many of them are only intended for experts, while undocumented ones are only for
 <td>friend double</td>
 <td><a href="FourVectors.php#method22" target="page">theta(...)</a></td>
 <td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td> </td>
+<td><a href="AlpgenAndMLM.php#method4" target="page">AlpgenPar::AlpgenPar(...)</a></td>
+<td>Alpgen And M L M</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="AlpgenAndMLM.php#method7" target="page">AlpgenPar::getParam(...)</a></td>
+<td>Alpgen And M L M</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="AlpgenAndMLM.php#method7" target="page">AlpgenPar::getParamAsInt(...)</a></td>
+<td>Alpgen And M L M</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="AlpgenAndMLM.php#method6" target="page">AlpgenPar::haveParam(...)</a></td>
+<td>Alpgen And M L M</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="AlpgenAndMLM.php#method5" target="page">AlpgenPar::parse(...)</a></td>
+<td>Alpgen And M L M</td>
 </tr>
 
 <tr>
@@ -1395,6 +1437,18 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>string</td>
+<td><a href="EventInformation.php#method55" target="page">Info::header(...)</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>vector &lt;string&gt;</td>
+<td><a href="EventInformation.php#method56" target="page">Info::headerKeys()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
 <td>int</td>
 <td><a href="EventInformation.php#method45" target="page">Info::iAMPI(...)</a></td>
 <td>Event Information</td>
@@ -1540,7 +1594,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method47" target="page">Info::nAccepted()</a></td>
+<td><a href="EventInformation.php#method47" target="page">Info::nAccepted(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1594,13 +1648,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method47" target="page">Info::nSelected()</a></td>
+<td><a href="EventInformation.php#method47" target="page">Info::nSelected(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method47" target="page">Info::nTried()</a></td>
+<td><a href="EventInformation.php#method47" target="page">Info::nTried(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1725,6 +1779,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>void</td>
+<td><a href="EventInformation.php#method57" target="page">Info::setHeader(...)</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
 <td>double</td>
 <td><a href="EventInformation.php#method28" target="page">Info::sHat()</a></td>
 <td>Event Information</td>
@@ -1732,13 +1792,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method48" target="page">Info::sigmaErr()</a></td>
+<td><a href="EventInformation.php#method48" target="page">Info::sigmaErr(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method48" target="page">Info::sigmaGen()</a></td>
+<td><a href="EventInformation.php#method48" target="page">Info::sigmaGen(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1828,7 +1888,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="LesHouchesAccord.php#method18" target="page">LHAup::addParticle(...)</a></td>
+<td><a href="LesHouchesAccord.php#method20" target="page">LHAup::addParticle(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -1840,121 +1900,127 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method21" target="page">LHAup::alphaQCD()</a></td>
+<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::alphaQCD()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method21" target="page">LHAup::alphaQED()</a></td>
+<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::alphaQED()</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="LesHouchesAccord.php#method38" target="page">LHAup::closeFile(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method37" target="page">LHAup::closeLHEF(...)</a></td>
+<td><a href="LesHouchesAccord.php#method43" target="page">LHAup::closeLHEF(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::col1(...)</a></td>
+<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::col1(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::col2(...)</a></td>
+<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::col2(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::e(...)</a></td>
+<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::e(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method11" target="page">LHAup::eBeamA()</a></td>
+<td><a href="LesHouchesAccord.php#method12" target="page">LHAup::eBeamA()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method11" target="page">LHAup::eBeamB()</a></td>
+<td><a href="LesHouchesAccord.php#method12" target="page">LHAup::eBeamB()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method36" target="page">LHAup::eventLHEF()</a></td>
+<td><a href="LesHouchesAccord.php#method42" target="page">LHAup::eventLHEF(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method30" target="page">LHAup::fileFound()</a></td>
+<td><a href="LesHouchesAccord.php#method35" target="page">LHAup::fileFound()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::id(...)</a></td>
+<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::id(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::id1()</a></td>
+<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::id1()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::id1pdf()</a></td>
+<td><a href="LesHouchesAccord.php#method29" target="page">LHAup::id1pdf()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::id2()</a></td>
+<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::id2()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::id2pdf()</a></td>
+<td><a href="LesHouchesAccord.php#method29" target="page">LHAup::id2pdf()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method11" target="page">LHAup::idBeamA()</a></td>
+<td><a href="LesHouchesAccord.php#method12" target="page">LHAup::idBeamA()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method11" target="page">LHAup::idBeamB()</a></td>
+<td><a href="LesHouchesAccord.php#method12" target="page">LHAup::idBeamB()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method19" target="page">LHAup::idProcess()</a></td>
+<td><a href="LesHouchesAccord.php#method21" target="page">LHAup::idProcess()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method14" target="page">LHAup::idProcess(...)</a></td>
+<td><a href="LesHouchesAccord.php#method15" target="page">LHAup::idProcess(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method35" target="page">LHAup::initLHEF()</a></td>
+<td><a href="LesHouchesAccord.php#method41" target="page">LHAup::initLHEF()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -1966,109 +2032,121 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="LesHouchesAccord.php#method28" target="page">LHAup::listEvent(...)</a></td>
+<td><a href="LesHouchesAccord.php#method30" target="page">LHAup::listEvent(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="LesHouchesAccord.php#method15" target="page">LHAup::listInit(...)</a></td>
+<td><a href="LesHouchesAccord.php#method17" target="page">LHAup::listInit(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::m(...)</a></td>
+<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::m(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::mother1(...)</a></td>
+<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::mother1(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::mother2(...)</a></td>
+<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::mother2(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method34" target="page">LHAup::openLHEF(...)</a></td>
+<td><a href="LesHouchesAccord.php#method37" target="page">LHAup::newEventFile(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
-<td>double</td>
-<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::pdf1()</a></td>
-<td>Les Houches Accord</td>
-</tr>
-
-<tr>
-<td>double</td>
-<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::pdf2()</a></td>
-<td>Les Houches Accord</td>
-</tr>
-
-<tr>
-<td>int</td>
-<td><a href="LesHouchesAccord.php#method11" target="page">LHAup::pdfGroupBeamA()</a></td>
-<td>Les Houches Accord</td>
-</tr>
-
-<tr>
-<td>int</td>
-<td><a href="LesHouchesAccord.php#method11" target="page">LHAup::pdfGroupBeamB()</a></td>
+<td>istream*</td>
+<td><a href="LesHouchesAccord.php#method38" target="page">LHAup::openFile(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::pdfIsSet()</a></td>
+<td><a href="LesHouchesAccord.php#method40" target="page">LHAup::openLHEF(...)</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="LesHouchesAccord.php#method29" target="page">LHAup::pdf1()</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="LesHouchesAccord.php#method29" target="page">LHAup::pdf2()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method11" target="page">LHAup::pdfSetBeamA()</a></td>
+<td><a href="LesHouchesAccord.php#method12" target="page">LHAup::pdfGroupBeamA()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method11" target="page">LHAup::pdfSetBeamB()</a></td>
+<td><a href="LesHouchesAccord.php#method12" target="page">LHAup::pdfGroupBeamB()</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="LesHouchesAccord.php#method29" target="page">LHAup::pdfIsSet()</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="LesHouchesAccord.php#method12" target="page">LHAup::pdfSetBeamA()</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="LesHouchesAccord.php#method12" target="page">LHAup::pdfSetBeamB()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::px(...)</a></td>
+<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::px(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::py(...)</a></td>
+<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::py(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::pz(...)</a></td>
+<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::pz(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method21" target="page">LHAup::scale()</a></td>
+<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::scale()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::scalePDF()</a></td>
+<td><a href="LesHouchesAccord.php#method29" target="page">LHAup::scalePDF()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -2086,13 +2164,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="LesHouchesAccord.php#method16" target="page">LHAup::setEvent(...)</a></td>
+<td><a href="LesHouchesAccord.php#method18" target="page">LHAup::setEvent(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="LesHouchesAccord.php#method24" target="page">LHAup::setIdX(...)</a></td>
+<td><a href="LesHouchesAccord.php#method26" target="page">LHAup::setIdX(...)</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="LesHouchesAccord.php#method11" target="page">LHAup::setInfoHeader(...)</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="LesHouchesAccord.php#method36" target="page">LHAup::setInfoHeader(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -2104,31 +2194,31 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method31" target="page">LHAup::setInitLHEF(...)</a></td>
+<td><a href="LesHouchesAccord.php#method32" target="page">LHAup::setInitLHEF(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method32" target="page">LHAup::setNewEventLHEF(...)</a></td>
+<td><a href="LesHouchesAccord.php#method33" target="page">LHAup::setNewEventLHEF(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="LesHouchesAccord.php#method33" target="page">LHAup::setOldEventLHEF()</a></td>
+<td><a href="LesHouchesAccord.php#method34" target="page">LHAup::setOldEventLHEF()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="LesHouchesAccord.php#method26" target="page">LHAup::setPdf(...)</a></td>
+<td><a href="LesHouchesAccord.php#method28" target="page">LHAup::setPdf(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="LesHouchesAccord.php#method17" target="page">LHAup::setProcess(...)</a></td>
+<td><a href="LesHouchesAccord.php#method19" target="page">LHAup::setProcess(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -2164,97 +2254,133 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method22" target="page">LHAup::sizePart()</a></td>
+<td><a href="LesHouchesAccord.php#method24" target="page">LHAup::sizePart()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method13" target="page">LHAup::sizeProc()</a></td>
+<td><a href="LesHouchesAccord.php#method14" target="page">LHAup::sizeProc()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="LesHouchesAccord.php#method29" target="page">LHAup::skipEvent(...)</a></td>
+<td><a href="LesHouchesAccord.php#method31" target="page">LHAup::skipEvent(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::spin(...)</a></td>
+<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::spin(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::status(...)</a></td>
+<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::status(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="LesHouchesAccord.php#method12" target="page">LHAup::strategy()</a></td>
+<td><a href="LesHouchesAccord.php#method13" target="page">LHAup::strategy()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method23" target="page">LHAup::tau(...)</a></td>
+<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::tau(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method20" target="page">LHAup::weight()</a></td>
+<td><a href="LesHouchesAccord.php#method22" target="page">LHAup::weight()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::x1()</a></td>
+<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::x1()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::x1pdf()</a></td>
+<td><a href="LesHouchesAccord.php#method29" target="page">LHAup::x1pdf()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method25" target="page">LHAup::x2()</a></td>
+<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::x2()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method27" target="page">LHAup::x2pdf()</a></td>
+<td><a href="LesHouchesAccord.php#method29" target="page">LHAup::x2pdf()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method14" target="page">LHAup::xErr(...)</a></td>
+<td><a href="LesHouchesAccord.php#method15" target="page">LHAup::xErr(...)</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method14" target="page">LHAup::xMax(...)</a></td>
+<td><a href="LesHouchesAccord.php#method16" target="page">LHAup::xErrSum()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="LesHouchesAccord.php#method14" target="page">LHAup::xSec(...)</a></td>
+<td><a href="LesHouchesAccord.php#method15" target="page">LHAup::xMax(...)</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="LesHouchesAccord.php#method15" target="page">LHAup::xSec(...)</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="LesHouchesAccord.php#method16" target="page">LHAup::xSecSum()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
 <tr>
 <td>virtual</td>
 <td><a href="LesHouchesAccord.php#method2" target="page">LHAup::~LHAup()</a></td>
+<td>Les Houches Accord</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="AlpgenAndMLM.php#method2" target="page">LHAupAlpgen::addResonances()</a></td>
+<td>Alpgen And M L M</td>
+</tr>
+
+<tr>
+<td> </td>
+<td><a href="AlpgenAndMLM.php#method1" target="page">LHAupAlpgen::LHAupAlpgen(...)</a></td>
+<td>Alpgen And M L M</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="AlpgenAndMLM.php#method3" target="page">LHAupAlpgen::rescaleMomenta()</a></td>
+<td>Alpgen And M L M</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="LesHouchesAccord.php#method39" target="page">LHAupLHEF::closeAllFiles()</a></td>
 <td>Les Houches Accord</td>
 </tr>
 
@@ -3933,6 +4059,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>void AlpgenPar::void</td>
+<td><a href="AlpgenAndMLM.php#method8" target="page">printParams()</a></td>
+<td>Alpgen And M L M</td>
+</tr>
+
+<tr>
 <td>CoupSM</td>
 <td><a href="ProgramFlow.php#method39" target="page">Pythia::coupSM</a></td>
 <td>Program Flow</td>
@@ -4780,43 +4912,49 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventAnalysis.php#method52" target="page">SlowJet::dNext()</a></td>
+<td><a href="EventAnalysis.php#method54" target="page">SlowJet::dNext()</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="EventAnalysis.php#method48" target="page">SlowJet::doNSteps(...)</a></td>
+<td><a href="EventAnalysis.php#method50" target="page">SlowJet::doNSteps(...)</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="EventAnalysis.php#method47" target="page">SlowJet::doStep()</a></td>
+<td><a href="EventAnalysis.php#method49" target="page">SlowJet::doStep()</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventAnalysis.php#method52" target="page">SlowJet::iNext()</a></td>
+<td><a href="EventAnalysis.php#method54" target="page">SlowJet::iNext()</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventAnalysis.php#method52" target="page">SlowJet::jNext()</a></td>
+<td><a href="EventAnalysis.php#method45" target="page">SlowJet::jetAssignment(...)</a></td>
+<td>Event Analysis</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="EventAnalysis.php#method54" target="page">SlowJet::jNext()</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventAnalysis.php#method45" target="page">SlowJet::list()</a></td>
+<td><a href="EventAnalysis.php#method47" target="page">SlowJet::list()</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventAnalysis.php#method51" target="page">SlowJet::list(...)</a></td>
+<td><a href="EventAnalysis.php#method53" target="page">SlowJet::list(...)</a></td>
 <td>Event Analysis</td>
 </tr>
 
@@ -4851,14 +4989,20 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>void</td>
+<td><a href="EventAnalysis.php#method46" target="page">SlowJet::removeJet(...)</a></td>
+<td>Event Analysis</td>
+</tr>
+
+<tr>
 <td>bool</td>
-<td><a href="EventAnalysis.php#method46" target="page">SlowJet::setup(...)</a></td>
+<td><a href="EventAnalysis.php#method48" target="page">SlowJet::setup(...)</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventAnalysis.php#method50" target="page">SlowJet::sizeAll()</a></td>
+<td><a href="EventAnalysis.php#method52" target="page">SlowJet::sizeAll()</a></td>
 <td>Event Analysis</td>
 </tr>
 
@@ -4882,7 +5026,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="EventAnalysis.php#method49" target="page">SlowJet::stopAtN(...)</a></td>
+<td><a href="EventAnalysis.php#method51" target="page">SlowJet::stopAtN(...)</a></td>
 <td>Event Analysis</td>
 </tr>
 
@@ -4894,19 +5038,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="EventAnalysis.php#method54" target="page">SlowJetHook::include(...)</a></td>
+<td><a href="EventAnalysis.php#method56" target="page">SlowJetHook::include(...)</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="EventAnalysis.php#method53" target="page">SlowJetHook::SlowJetHook()</a></td>
+<td><a href="EventAnalysis.php#method55" target="page">SlowJetHook::SlowJetHook()</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>virtual</td>
-<td><a href="EventAnalysis.php#method53" target="page">SlowJetHook::~SlowJetHook()</a></td>
+<td><a href="EventAnalysis.php#method55" target="page">SlowJetHook::~SlowJetHook()</a></td>
 <td>Event Analysis</td>
 </tr>
 
@@ -5038,7 +5182,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td> </td>
-<td><a href="UserHooks.php#method27" target="page">SuppressSmallPT::SuppressSmallPT(...)</a></td>
+<td><a href="UserHooks.php#method30" target="page">SuppressSmallPT::SuppressSmallPT(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -5194,127 +5338,157 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual double</td>
-<td><a href="UserHooks.php#method30" target="page">UserHooks::biasedSelectionWeight()</a></td>
+<td><a href="UserHooks.php#method33" target="page">UserHooks::biasedSelectionWeight()</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual double</td>
-<td><a href="UserHooks.php#method29" target="page">UserHooks::biasSelectionBy(...)</a></td>
+<td><a href="UserHooks.php#method32" target="page">UserHooks::biasSelectionBy(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method28" target="page">UserHooks::canBiasSelection()</a></td>
+<td><a href="UserHooks.php#method31" target="page">UserHooks::canBiasSelection()</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method25" target="page">UserHooks::canModifySigma()</a></td>
+<td><a href="UserHooks.php#method28" target="page">UserHooks::canModifySigma()</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method31" target="page">UserHooks::canSetResonanceScale()</a></td>
+<td><a href="UserHooks.php#method36" target="page">UserHooks::canSetResonanceScale()</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method21" target="page">UserHooks::canVetoFSREmission()</a></td>
+<td><a href="UserHooks.php#method24" target="page">UserHooks::canVetoFSREmission()</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method19" target="page">UserHooks::canVetoISREmission()</a></td>
+<td><a href="UserHooks.php#method22" target="page">UserHooks::canVetoISREmission()</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method23" target="page">UserHooks::canVetoMPIEmission()</a></td>
+<td><a href="UserHooks.php#method26" target="page">UserHooks::canVetoMPIEmission()</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method16" target="page">UserHooks::canVetoMPIStep()</a></td>
+<td><a href="UserHooks.php#method19" target="page">UserHooks::canVetoMPIStep()</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method8" target="page">UserHooks::canVetoPartonLevel()</a></td>
+<td><a href="UserHooks.php#method9" target="page">UserHooks::canVetoPartonLevel()</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method6" target="page">UserHooks::canVetoProcessLevel()</a></td>
+<td><a href="UserHooks.php#method11" target="page">UserHooks::canVetoPartonLevelEarly()</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method10" target="page">UserHooks::canVetoPT()</a></td>
+<td><a href="UserHooks.php#method7" target="page">UserHooks::canVetoProcessLevel()</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method13" target="page">UserHooks::canVetoStep()</a></td>
+<td><a href="UserHooks.php#method13" target="page">UserHooks::canVetoPT()</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method22" target="page">UserHooks::doVetoFSREmission(...)</a></td>
+<td><a href="UserHooks.php#method34" target="page">UserHooks::canVetoResonanceDecays()</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method20" target="page">UserHooks::doVetoISREmission(...)</a></td>
+<td><a href="UserHooks.php#method16" target="page">UserHooks::canVetoStep()</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method24" target="page">UserHooks::doVetoMPIEmission(...)</a></td>
+<td><a href="UserHooks.php#method25" target="page">UserHooks::doVetoFSREmission(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method18" target="page">UserHooks::doVetoMPIStep(...)</a></td>
+<td><a href="UserHooks.php#method23" target="page">UserHooks::doVetoISREmission(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method9" target="page">UserHooks::doVetoPartonLevel(...)</a></td>
+<td><a href="UserHooks.php#method27" target="page">UserHooks::doVetoMPIEmission(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method7" target="page">UserHooks::doVetoProcessLevel(...)</a></td>
+<td><a href="UserHooks.php#method21" target="page">UserHooks::doVetoMPIStep(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method12" target="page">UserHooks::doVetoPT(...)</a></td>
+<td><a href="UserHooks.php#method10" target="page">UserHooks::doVetoPartonLevel(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.php#method15" target="page">UserHooks::doVetoStep(...)</a></td>
+<td><a href="UserHooks.php#method12" target="page">UserHooks::doVetoPartonLevelEarly(...)</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="UserHooks.php#method8" target="page">UserHooks::doVetoProcessLevel(...)</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="UserHooks.php#method15" target="page">UserHooks::doVetoPT(...)</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="UserHooks.php#method35" target="page">UserHooks::doVetoResonanceDecays(...)</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="UserHooks.php#method18" target="page">UserHooks::doVetoStep(...)</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="UserHooks.php#method6" target="page">UserHooks::initAfterBeams()</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -5326,19 +5500,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual double</td>
-<td><a href="UserHooks.php#method26" target="page">UserHooks::multiplySigmaBy(...)</a></td>
+<td><a href="UserHooks.php#method29" target="page">UserHooks::multiplySigmaBy(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual int</td>
-<td><a href="UserHooks.php#method17" target="page">UserHooks::numberVetoMPIStep()</a></td>
+<td><a href="UserHooks.php#method20" target="page">UserHooks::numberVetoMPIStep()</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual int</td>
-<td><a href="UserHooks.php#method14" target="page">UserHooks::numberVetoStep()</a></td>
+<td><a href="UserHooks.php#method17" target="page">UserHooks::numberVetoStep()</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -5350,13 +5524,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual double</td>
-<td><a href="UserHooks.php#method32" target="page">UserHooks::scaleResonance(...)</a></td>
+<td><a href="UserHooks.php#method37" target="page">UserHooks::scaleResonance(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual double</td>
-<td><a href="UserHooks.php#method11" target="page">UserHooks::scaleVetoPT()</a></td>
+<td><a href="UserHooks.php#method14" target="page">UserHooks::scaleVetoPT()</a></td>
 <td>User Hooks</td>
 </tr>
 

@@ -54,7 +54,8 @@ public:
   // Set a fermion line.
   void setFermionLine(int, HelicityParticle&, HelicityParticle&);
 
-  // Calculate Breit-Wigner's with running widths.
+  // Calculate Breit-Wigner's with running widths and fixed.
+  virtual complex  breitWigner(double s, double M, double G);
   virtual complex sBreitWigner(double m0, double m1, double s,
     double M, double G);
   virtual complex pBreitWigner(double m0, double m1, double s,
@@ -205,6 +206,27 @@ private:
   
   HMETwoFermions2Z2TwoFermions     zHME;
   HMETwoFermions2Gamma2TwoFermions gHME;
+
+};
+
+//==========================================================================
+
+// Helicity matrix element for the hard process of Z -> two fermions.
+  
+class HMEZ2TwoFermions : public HelicityMatrixElement {
+    
+public:
+  
+  void initConstants();
+  
+  void initWaves(vector<HelicityParticle>&);
+  
+  complex calculateME(vector<int>);
+
+private:
+  
+  // Vector and axial couplings.
+  double p2CA, p2CV;
 
 };
 
@@ -381,17 +403,63 @@ private:
 
 //==========================================================================
 
-// Helicity matrix element for a tau decay into three pions.
-   
-class HMETau2ThreePions : public HMETauDecay {
+// Helicity matrix element for a tau decay into three mesons (base class).
 
+class HMETau2ThreeMesons : public HMETauDecay {
+    
 public:
 
   void initConstants();
 
-  void initHadronicCurrent(vector<HelicityParticle>& p);
+  void initHadronicCurrent(vector<HelicityParticle>&);
+
+protected:
+
+  // Decay mode of the tau.
+  enum Mode{Pi0Pi0Pim, PimPimPip, Pi0PimK0b, PimPipKm, Pi0PimEta, PimKmKp,
+	    Pi0K0Km, KlPimKs, Pi0Pi0Km, KlKlPim, PimKsKs, PimK0bK0, Uknown};
+  Mode mode;
+
+  // Initialize decay mode and resonance constants (called by initConstants).
+  virtual void initMode();
+  virtual void initResonances() {;}
+
+  // Initialize the momenta.
+  virtual void initMomenta(vector<HelicityParticle>&);
+
+  // Center of mass energies and momenta.
+  double s1, s2, s3, s4;
+  Wave4  q, q2, q3, q4;
+  
+  // Stored a1 Breit-Wigner (for speed).
+  complex a1BW;
+
+  // Form factors.
+  virtual complex F1() {return complex(0, 0);}
+  virtual complex F2() {return complex(0, 0);}
+  virtual complex F3() {return complex(0, 0);}
+  virtual complex F4() {return complex(0, 0);}
+
+  // Phase space and Breit-Wigner for the a1.
+  virtual double  a1PhaseSpace(double);
+  virtual complex a1BreitWigner(double);
+
+  // Sum running p and fixed width Breit-Wigner resonances.
+  complex T(double m0, double m1, double s,
+	    vector<double>& M, vector<double>& G, vector<double>& W);
+  complex T(double s, vector<double>& M, vector<double>& G, vector<double>& W);
+
+};
+
+//==========================================================================
+
+// Helicity matrix element for a tau decay into three pions.
+   
+class HMETau2ThreePions : public HMETau2ThreeMesons {
 
 private:
+
+  void initResonances();
 
   // Resonance masses, widths, and weights.
   vector<double>  rhoM, rhoG, rhoPp, rhoAp, rhoPd, rhoAd;
@@ -400,17 +468,85 @@ private:
   vector<complex> rhoWp, rhoWd;
   complex         f0W, f2W, sigW;
 
-  // Center of mass energies.
-  double s1, s2, s3, s4;
-  
   // Form factors.
   complex F1();
   complex F2();
   complex F3();
-  
+
   // Running width and Breit-Wigner for the a1.
-  double  a1Width(double);
+  double  a1PhaseSpace(double);
   complex a1BreitWigner(double);
+
+};
+
+//==========================================================================
+
+// Helicity matrix element for a tau decay into three mesons with kaons.
+   
+class HMETau2ThreeMesonsWithKaons : public HMETau2ThreeMesons {
+
+private:
+
+  void initResonances();
+
+  // Resonance masses, widths, and weights.
+  vector<double> rhoMa, rhoGa, rhoWa, rhoMv, rhoGv, rhoWv;
+  vector<double> kstarMa, kstarGa, kstarWa, kstarMv, kstarGv, kstarWv;
+  vector<double> k1Ma, k1Ga, k1Wa, k1Mb, k1Gb, k1Wb;
+  vector<double> omegaM, omegaG, omegaW;
+  double kM, piM, piW;
+
+  // Form factors.
+  complex F1();
+  complex F2();
+  complex F4();
+  
+};
+
+//==========================================================================
+
+// Helicity matrix element for a tau decay into generic three mesons.
+   
+class HMETau2ThreeMesonsGeneric : public HMETau2ThreeMesons {
+
+private:
+
+  void initResonances();
+
+  // Resonance masses, widths, and weights.
+  vector<double> rhoMa, rhoGa, rhoWa, rhoMv, rhoGv, rhoWv;
+  vector<double> kstarM, kstarG, kstarW, k1M, k1G, k1W;
+  double kM, piM, piW;
+
+  // Form factors.
+  complex F1();
+  complex F2();
+  complex F4();
+  
+};
+
+//==========================================================================
+
+// Helicity matrix element for a tau decay into two pions and a photon.
+
+class HMETau2TwoPionsGamma : public HMETauDecay {
+    
+public:
+
+  void initConstants();
+
+  void initWaves(vector<HelicityParticle>&);
+
+  complex calculateME(vector<int>);
+
+protected:
+
+  // Resonance masses, widths, and weights.
+  vector<double>  rhoM, rhoG, rhoW, omegaM, omegaG, omegaW;
+  double piM;
+
+  // Form factor.
+  complex F(double s, vector<double> M, vector<double> G, vector<double> W);
 
 };
 
@@ -432,9 +568,9 @@ private:
   double G(int i, double s);
 
   // T-vector functions.
-  Wave4 t1(int, int, int, int);
-  Wave4 t2(int, int, int, int);
-  Wave4 t3(int, int, int, int);
+  Wave4 t1(Wave4&, Wave4&, Wave4&, Wave4&, Wave4&);
+  Wave4 t2(Wave4&, Wave4&, Wave4&, Wave4&, Wave4&);
+  Wave4 t3(Wave4&, Wave4&, Wave4&, Wave4&, Wave4&);
 
   // Breit-Wigner denominators for the intermediate mesons.
   complex  a1D(double s);
@@ -460,6 +596,32 @@ private:
   
   // Cut-off for a1 form factor.
   double lambda2;
+
+};
+
+//==========================================================================
+
+// Helicity matrix element for a tau decaying into five pions.
+  
+class HMETau2FivePions : public HMETauDecay {
+
+public:
+
+  void initConstants();
+
+  void initHadronicCurrent(vector<HelicityParticle>&);
+
+private:
+
+  // Hadronic currents.
+  Wave4 Ja(Wave4 &q, Wave4 &q1, Wave4 &q2, Wave4 &q3, Wave4 &q4, Wave4 &q5); 
+  Wave4 Jb(Wave4 &q, Wave4 &q1, Wave4 &q2, Wave4 &q3, Wave4 &q4, Wave4 &q5);
+
+  // Simplified s-wave Breit-Wigner assuming massless products.
+  complex breitWigner(double s, double M, double G);
+  
+  // Masses and widths of intermediates.
+  double a1M, a1G, rhoM, rhoG, omegaM, omegaG, omegaW, sigmaM, sigmaG, sigmaW;
 
 };
 

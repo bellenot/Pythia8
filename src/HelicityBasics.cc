@@ -27,6 +27,16 @@ Wave4 operator*(complex s, const Wave4& w) {
 
 //--------------------------------------------------------------------------
 
+// double * Wave4.
+
+Wave4 operator*(double s, const Wave4& w) {
+ 
+  return Wave4( s * w.val[0], s * w.val[1], s * w.val[2], s * w.val[3]); 
+
+}
+
+//--------------------------------------------------------------------------
+
 // Complex conjugate.
 
 Wave4 conj(Wave4 w) {
@@ -41,7 +51,37 @@ Wave4 conj(Wave4 w) {
 
 //--------------------------------------------------------------------------
 
+// Permutation operator.
+
+Wave4 epsilon(Wave4 w1, Wave4 w2, Wave4 w3) {
+
+  Wave4 w4;
+  w4(0) = -(w1(1) * w2(2) * w3(3)) + (w1(1) * w2(3) * w3(2)) 
+    + (w1(2) * w2(1) * w3(3)) - (w1(2) * w2(3) * w3(1)) 
+    - (w1(3) * w2(1) * w3(2)) + (w1(3) * w2(2) * w3(1));
+  w4(1) = -(w1(0) * w2(2) * w3(3)) + (w1(0) * w2(3) * w3(2)) 
+    + (w1(2) * w2(0) * w3(3)) - (w1(2) * w2(3) * w3(0)) 
+    - (w1(3) * w2(0) * w3(2)) + (w1(3) * w2(2) * w3(0));
+  w4(2) = (w1(0) * w2(1) * w3(3)) - (w1(0) * w2(3) * w3(1)) 
+    - (w1(1) * w2(0) * w3(3)) + (w1(1) * w2(3) * w3(0)) 
+    + (w1(3) * w2(0) * w3(1)) - (w1(3) * w2(1) * w3(0));
+  w4(3) = -(w1(0) * w2(1) * w3(2)) + (w1(0) * w2(2) * w3(1)) 
+    + (w1(1) * w2(0) * w3(2)) - (w1(1) * w2(2) * w3(0)) 
+    - (w1(2) * w2(0) * w3(1)) + (w1(2) * w2(1) * w3(0));
+  return w4;
+
+}
+
+//--------------------------------------------------------------------------
+
 // Invariant squared mass for REAL Wave4 (to save time).
+
+double m2(Wave4 w) {
+
+  return real(w(0)) * real(w(0)) - real(w(1)) * real(w(1)) 
+    - real(w(2)) * real(w(2)) - real(w(3)) * real(w(3));
+
+}
 
 double m2(Wave4 w1, Wave4 w2) {
 
@@ -311,6 +351,19 @@ void HelicityParticle::normalize(vector< vector<complex> >& matrix) {
   }
 
 }
+
+//--------------------------------------------------------------------------
+
+// Return the number of spin states.
+
+  int HelicityParticle::spinStates() {
+
+    int sT = spinType();
+    if (sT == 0) return 0;
+    else if (sT != 2 && m() < TOLERANCE) return sT - 1;
+    else return sT;
+
+  }
 
 //==========================================================================
 

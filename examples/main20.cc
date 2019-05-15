@@ -48,6 +48,7 @@ int main() {
     myLHA.setEvent();
 
     // Write out this event info on the file. 
+    // With optional argument (verbose =) false the file is smaller.
     myLHA.eventLHEF();
   }
 

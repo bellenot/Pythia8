@@ -106,7 +106,7 @@ private:
                       NTRYJNMATCH, NTRYJRFEQ;
   static const double FACSTOPMASS, CLOSEDM2MAX, CLOSEDM2FRAC, EXPMAX,
                       MATCHPOSNEG, EJNWEIGHTMAX, CONVJNREST, M2MAXJRF, 
-                      CONVJRFEQ;
+                      EEXTRAJNMATCH, MDIQUARKMIN, CONVJRFEQ;
 
   // Pointer to various information on the generation.
   Info*         infoPtr;
@@ -124,7 +124,8 @@ private:
 
   // Initialization data, read from Settings.
   double stopMass, stopNewFlav, stopSmear, eNormJunction,
-         eBothLeftJunction, eMaxLeftJunction, eMinLeftJunction, bLund;
+         eBothLeftJunction, eMaxLeftJunction, eMinLeftJunction, 
+         mJoin, bLund;
 
   // Data members.
   bool   hasJunction, isClosed;
@@ -164,6 +165,9 @@ private:
 
   // Fragment off two of the string legs in to a junction. 
   bool fragmentToJunction(Event& event);
+
+  // Join extra nearby partons when stuck.
+  int extraJoin(double facExtra, Event& event);
 
 };  
  

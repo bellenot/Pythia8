@@ -39,18 +39,39 @@ HepMC::I_Pythia8::pdf_put_info( hepmcevt, pythia, convertGluonTo0 = false )
 or not, as wished.
 
 <p/>
-The translation routine stores momenta, energies and masses in units 
-of GeV, and distances and times in units of mm, with <ei>c = 1</ei>,
-exactly as used in PYTHIA. This only works seamlessly for HepMC 2.04
-or later, where the choice of units can (and should) be specified in 
-the <code>HepMC::GenEvent</code> call. To work also with older HepMC
-versions, where normally momenta are stored in MeV, the 
-<code>HEPMC_HAS_UNITS</code> environment variable is tested. If not 
-defined, i.e. if with an earlier HepMC version, conversion from 
-GeV to MeV is done in <code>fill_next_event</code>.
+While PYTHIA stores momenta in units of GeV, with <ei>c = 1</ei>, 
+the HepMC standard originally did not specify which units to use, 
+unfortunately. Later versions allow units to be specified either as
+MeV or as GeV. The dividing line goes with the introduction of the
+<code>HEPMC_HAS_UNITS</code> environment variable in HepMC 2.04.
+When PYTHIA is linked to older versions, which do not have this
+environment variable, the default behaviour of 
+<code>fill_next_event</code> is to convert momenta to MeV. 
+To store momenta in GeV instead, you must call 
+<pre>
+HepMC::I_Pythia8::set_convert_to_mev( false ) 
+</pre>
+beforehand. When linked to newer HepMC versions, PYTHIA will adapt
+to the unit specified for the HepMC event record. A default unit
+is chosen when HepMC is built, but this choice can be overridden
+in the constructor of a <code>HepMC::GenEvent</code>, to be either
+GeV or MeV. The <code>main41.cc</code> code illustrates these 
+possibilities. 
 
 <p/>
-The status code is now based on the proposed standard for HepMC 2.05,
+Also for length units there could exist ambiguities, but the mm
+choice of PYTHIA seems to be shared by most other programs. 
+When linked to older HepMC versions there is never a conversion, 
+while for newer versions the PYTHIA interface will convert to the 
+units set for the HepMC event record, as for momenta.
+
+<p/>
+By agreement with the LHC experimental community, support for the
+older behaviour will be dropped for all versions released after 
+the end of 2012.
+
+<p/>
+The status code is now based on the new standard for HepMC 2.05,
 see the <aloc href="EventRecord">Event::statusHepMC(...)</aloc> 
 conversion routine for details. The earlier behaviour, where all
 final particles had status 1 and all initial or intermediate ones 
@@ -66,7 +87,7 @@ possibility exists and, if it does the current values from
 <code>pythia.info.sigmaGen()</code> and 
 <code>pythia.info.sigmaErr()</code> are stored for each event,
 multiplied by <ei>10^9</ei> to convert from mb to pb. Note that
-PYTHIA improves it accuracy by Monte Carlo integration in the course
+PYTHIA improves its accuracy by Monte Carlo integration in the course
 of the run, so the values associated with the last generated event
 should be the most accurate ones. (If events also come with a dimensional 
 weight, like in some Les Houches strategies, conversion from mb to fb 

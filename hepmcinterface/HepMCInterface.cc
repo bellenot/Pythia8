@@ -35,7 +35,9 @@ I_Pythia8::I_Pythia8():
   m_freepartonwarnings(true),
   m_convert_to_mev(false),
   m_mom_scale_factor(1.),
-  m_internal_event_number(0) {;}
+  m_internal_event_number(0),
+  hasSetConvert(false),
+  lengthScaleFactor(1.) {;}
 
 I_Pythia8::~I_Pythia8() {;}
 
@@ -66,9 +68,16 @@ bool I_Pythia8::fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
 
   // Decide whether conversion from GeV to MeV is necessary.
 #ifdef HEPMC_HAS_UNITS
-  set_convert_to_mev(false);
+  m_mom_scale_factor = HepMC::Units::conversion_factor(HepMC::Units::GEV, 
+    evt->momentum_unit());
+  lengthScaleFactor  = HepMC::Units::conversion_factor(HepMC::Units::MM, 
+    evt->length_unit());
 #else
-  set_convert_to_mev(true);
+  if (!hasSetConvert) {
+    m_convert_to_mev   = true; 
+    m_mom_scale_factor = 1000.;
+  }
+  lengthScaleFactor  = 1.;
 #endif
     
   // 2. Create a particle instance for each entry and fill a map, and 
@@ -85,12 +94,14 @@ bool I_Pythia8::fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
 
     // Fill the particle.
     hepevt_particles[i] = new GenParticle(
-      FourVector( m_mom_scale_factor*pyev[i].p().px(),
-                  m_mom_scale_factor*pyev[i].p().py(),
-                  m_mom_scale_factor*pyev[i].p().pz(),
-                  m_mom_scale_factor*pyev[i].p().e()  ),
+      FourVector( m_mom_scale_factor * pyev[i].p().px(),
+                  m_mom_scale_factor * pyev[i].p().py(),
+                  m_mom_scale_factor * pyev[i].p().pz(),
+                  m_mom_scale_factor * pyev[i].p().e()  ),
       pyev[i].id(), istatus );
     hepevt_particles[i]->suggest_barcode(i);
+    hepevt_particles[i]->set_generated_mass( 
+                  m_mom_scale_factor * pyev[i].m() );
 
     // Colour flow uses index 1 and 2.
     int colType = pyev[i].colType();
@@ -131,8 +142,10 @@ bool I_Pythia8::fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
 
       // 3b. If no suitable production vertex exists - and the particle has
       // at least one mother or position information to store - make one.
-      FourVector prod_pos( pyev[i].xProd(), pyev[i].yProd(),
-                           pyev[i].zProd(), pyev[i].tProd() );
+      FourVector prod_pos( lengthScaleFactor * pyev[i].xProd(), 
+                           lengthScaleFactor * pyev[i].yProd(),
+                           lengthScaleFactor * pyev[i].zProd(), 
+                           lengthScaleFactor * pyev[i].tProd() );
       unsigned int nparents = mothers.size();
       if ( !prod_vtx && ( nparents > 0 || prod_pos != FourVector() ) ) {
         prod_vtx = new GenVertex();

@@ -110,6 +110,7 @@ int main() {
 
   // Switch off unnecessary parts.
   pythia.readString("PartonLevel:all = off");
+  pythia.readString("ProcessLevel:resonanceDecays = off");
 
   // No printing of settings, particle data or events.
   pythia.readString("Init:showProcesses = off"); 

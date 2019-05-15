@@ -49,6 +49,8 @@ int main() {
   // Use hacked sps1a file, with stop (+su) and gluino made long-lived.
   // This is based on the width being less than 0.2 GeV by default.
   pythia.readString("SLHA:file = sps1aNarrowStopGluino.spc");
+  // Further hacked file, to test R-parity violating gluino decay.  
+  //pythia.readString("SLHA:file = sps1aNarrowStopGluinoRPV.spc");
 
   // Allow R-hadron formation.
   pythia.readString("Rhadrons:allow = on");

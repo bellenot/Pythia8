@@ -163,9 +163,10 @@ protected:
   bool   hasLeptonBeams, hasPointLeptons;
 
  // Cross section information.
-  bool   newSigmaMx, canModifySigma, canBiasSelection;
+  bool   newSigmaMx, canModifySigma, canBiasSelection, canBias2Sel;
   int    gmZmode;
-  double wtBW, sigmaNw, sigmaMx, sigmaPos, sigmaNeg, biasWt;
+  double bias2SelPow, bias2SelRef, wtBW, sigmaNw, sigmaMx, sigmaPos, 
+         sigmaNeg, biasWt;
 
   // Process-specific kinematics properties, almost always available.
   double mHatMin, mHatMax, sHatMin, sHatMax, pTHatMin, pTHatMax, 
@@ -368,7 +369,7 @@ private:
 
   // Constants: could only be changed in the code itself.
   static const int    NTRY;
-  static const double EXPMAX, DIFFMASSMAX;
+  static const double EXPMAX, DIFFMASSMARGIN;
 
   // Initialization data, in constructor or read from Settings.
   bool   isDiffA, isDiffB;
@@ -409,17 +410,17 @@ public:
  private:
   
   // Constants: could only be changed in the code itself.
-  static const int  NTRY;
-  static const int  NINTEG2;
+  static const int    NTRY, NINTEG2;
+  static const double EXPMAX, DIFFMASSMIN, DIFFMASSMARGIN;
     
   // Local variables to calculate DPE kinematics.
   int    PomFlux;
-  double dpepmax, dymin0,dymax, s1, s2, lambda12S, t1, pt1, pz1, phi1,
-         t2, pt2, pz2, phi2;
+  double epsilonPF, alphaPrimePF, s1, s2, m5min, s5min, tLow[2], tUpp[2], 
+         bMin[2], tAux[2], bSlope1, bSlope2, probSlope1[2], tAux1[2], 
+         tAux2[2], bSlope, xIntPF, xIntInvPF, xtCorPF, mp24DL, coefDL, 
+         epsMBR, alphMBR, m2minMBR, dyminMBR, dyminSigMBR, dyminInvMBR, 
+         dpepmax, t1, t2;
   Vec4   p1, p2, p3, p4, p5;
-
-  // Parameters for MBR model.
-  double eps, alph, m2min, dyminCD, dyminSigCD;
 
 };
  

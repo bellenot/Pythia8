@@ -32,7 +32,7 @@ class BeamRemnants {
 public:
 
   // Constructor.
-  BeamRemnants() { }  
+  BeamRemnants() : iDS(0) { }  
 
   // Initialization.
   bool init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn, 
@@ -40,8 +40,8 @@ public:
     PartonSystems* partonSystemsPtrIn);
 
   // New beams possible for handling of hard diffraction.
-  void reassignBeamPtrs( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) 
-    {beamAPtr = beamAPtrIn; beamBPtr = beamBPtrIn;}
+  void reassignBeamPtrs( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
+    int iDSin) {beamAPtr = beamAPtrIn; beamBPtr = beamBPtrIn; iDS = iDSin;}
 
   // Select the flavours/kinematics/colours of the two beam remnants. 
   bool add( Event& event);
@@ -59,7 +59,7 @@ private:
          pT0Ref, ecmRef, ecmPow;
 
   // Information set for events.
-  int    nSys, oldSize;
+  int    nSys, oldSize, iDS;
   double eCM, sCM, pT0, pT20Rec;
 
   // Colour collapses (when one colour is mapped onto another).

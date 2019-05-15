@@ -932,6 +932,7 @@ void ResonanceH::calcPreFac(bool) {
   alpS      = couplingsPtr->alphaS(mHat * mHat);
   colQ      = 3. * (1. + alpS / M_PI);
   preFac    = (alpEM / (8. * sin2tW)) * pow3(mHat) / pow2(mW); 
+
 }
 
 //--------------------------------------------------------------------------

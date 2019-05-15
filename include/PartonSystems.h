@@ -29,7 +29,7 @@ public:
   // Stored quantities. 
   int         iInA, iInB; 
   vector<int> iOut;
-  double      sHat;
+  double      sHat, pTHat;
   
 };
  
@@ -59,6 +59,7 @@ public:
   void setOut(int iSys, int iMem, int iPos) {systems[iSys].iOut[iMem] = iPos;} 
   void replace(int iSys, int iPosOld, int iPosNew);
   void setSHat(int iSys, double sHatIn) {systems[iSys].sHat = sHatIn;}
+  void setPTHat(int iSys, double pTHatIn) {systems[iSys].pTHat = pTHatIn;}
 
   // Get info on one system.
   bool hasInAB(int iSys)         const {return ( (systems[iSys].iInA > 0)   
@@ -71,6 +72,7 @@ public:
     ? systems[iSys].iOut.size() + 2 : systems[iSys].iOut.size();}
   int getAll(int iSys, int iMem) const; 
   double getSHat(int iSys)       const {return systems[iSys].sHat;} 
+  double getPTHat(int iSys)      const {return systems[iSys].pTHat;} 
 
   // Find system of given outgoing parton, optionally also incoming one.
   int getSystemOf(int iPos, bool alsoIn = false) const;  

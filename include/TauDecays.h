@@ -30,7 +30,7 @@ public:
   // Constructor and destructor.
   TauDecays() {};
   ~TauDecays() {}
-  
+
   // Initializer.
   void init(Info* infoPtrIn, Settings* settingsPtrIn, 
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
@@ -72,6 +72,7 @@ private:
   HMETwoFermions2Z2TwoFermions      hmeTwoFermions2Z2TwoFermions;
   HMETwoFermions2Gamma2TwoFermions  hmeTwoFermions2Gamma2TwoFermions;
   HMETwoFermions2GammaZ2TwoFermions hmeTwoFermions2GammaZ2TwoFermions;
+  HMEZ2TwoFermions                  hmeZ2TwoFermions;
   HMEHiggsEven2TwoFermions          hmeHiggsEven2TwoFermions;
   HMEHiggsOdd2TwoFermions           hmeHiggsOdd2TwoFermions;
   HMEHiggsCharged2TwoFermions       hmeHiggsCharged2TwoFermions;
@@ -83,7 +84,11 @@ private:
   HMETau2TwoMesonsViaVector       hmeTau2TwoMesonsViaVector;
   HMETau2TwoMesonsViaVectorScalar hmeTau2TwoMesonsViaVectorScalar;
   HMETau2ThreePions               hmeTau2ThreePions;
+  HMETau2ThreeMesonsWithKaons     hmeTau2ThreeMesonsWithKaons;
+  HMETau2ThreeMesonsGeneric       hmeTau2ThreeMesonsGeneric;
+  HMETau2TwoPionsGamma            hmeTau2TwoPionsGamma;
   HMETau2FourPions                hmeTau2FourPions;
+  HMETau2FivePions                hmeTau2FivePions;
   HMETau2PhaseSpace               hmeTau2PhaseSpace;
 
   // Particles of the hard process.

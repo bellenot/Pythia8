@@ -66,7 +66,13 @@ bool ResonanceDecays::next( Event& process) {
       int idIn = process[decayer.mother1()].id();
 
       // Prepare decay selection.
-      decayer.particleDataEntry().preparePick(id0, m0, idIn);
+      if (!decayer.particleDataEntry().preparePick(id0, m0, idIn)) {
+        ostringstream osWarn;
+        osWarn << "for id = " << id0;
+        infoPtr->errorMsg("Error in ResonanceDecays::next:"
+          " no open decay channel", osWarn.str());         
+        return false;        
+      }
 
       // Pick a decay channel; allow up to ten tries.
       bool foundChannel = false;
@@ -93,8 +99,10 @@ bool ResonanceDecays::next( Event& process) {
 
       // Failed to find acceptable decays.
       if (!foundChannel) {
+        ostringstream osWarn;
+        osWarn << "for id = " << id0;
         infoPtr->errorMsg("Error in ResonanceDecays::next:"
-          " failed to find workable decay channel");         
+          " failed to find workable decay channel", osWarn.str());         
         return false;
       }
 
@@ -437,9 +445,11 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
   else if (colType0 == -3) nAcol -= 2;
 
   // If net creation of three colours then find junction kind:
-  // mother is 1 = singlet, 3 = antitriplet, 5 = octet.
+  // mother is 1 = singlet, triplet, or sextet (no incoming RPV tags)
+  //           3 = antitriplet, octet, or anti-sextet (acol0 = incoming RPV tag)
+  //           5 = not applicable to decays (needs two incoming RPV tags)
   if (nCol - nAcol == 3) {
-    int kindJun = (col0 == 0) ? ((acol0 == 0) ? 1 : 3) : 5;
+    int kindJun = (colType0 == 0 || colType0 == 1 || colType0 == 3) ? 1 : 3;
 
     // Set colours in three junction legs and store junction. 
     int colJun[3];
@@ -472,9 +482,11 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
   }
 
   // If net creation of three anticolours then find antijunction kind:
-  // mother is 2 = singlet, 4 = triplet, 6 = octet.
+  // mother is 2 = singlet, antitriplet, or antisextet (no incoming RPV tags)
+  //           4 = triplet, octet, or sextet (col0 = incoming RPV tag)
+  //           6 = not applicable to decays (needs two incoming RPV tags)
   if (nAcol - nCol == 3) {
-    int kindJun = (acol0 == 0) ? ((col0 == 0) ? 2 : 4) : 6;
+    int kindJun = (colType0 == 0 || colType0 == -1 || colType0 == -3) ? 2 : 4;
 
     // Set anticolours in three antijunction legs and store antijunction. 
     int acolJun[3];

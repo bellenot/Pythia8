@@ -121,7 +121,9 @@ public:
            ParticleData* particleDataPtrIn,
            Info* infoPtrIn,
            bool isOrdered,
+           bool isUnordered,
            bool isStronglyOrdered,
+           bool isAllowed,
            double probin,
            History * mothin);
 
@@ -129,6 +131,9 @@ public:
   ~History() {
     for ( int i = 0, N = children.size(); i < N; ++i ) delete children[i];
   }
+
+  // Function to project paths onto desired paths.
+  bool projectOntoDesiredHistories();
 
   // In the initial history node, select one of the paths according to
   // the probabilities. This function should be called for the initial
@@ -142,8 +147,26 @@ public:
   double weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
                     AlphaStrong * asISR, double RN);
 
+  // Function to check if any allowed histories were found
+  bool foundAllowedHistories() {
+    return (children.size() > 0 && foundAllowedPath); }
+  // Function to check if any ordered histories were found
+  bool foundOrderedHistories() {
+    return (children.size() > 0 && foundOrderedPath); }
+  // Function to check if any unordered histories were found
+  bool foundUnorderedHistories() {
+    return (children.size() > 0 && foundUnorderedPath); }
+  // Function to check if any ordered histories were found
+  bool foundCompleteHistories() {
+    return (children.size() > 0 && foundCompletePath); }
+
   // Function to set the state with complete scales for evolution 
   void getStartingConditions( const double RN, Event& outState );
+
+  // Function to set the state with complete scales for evolution 
+  bool getClusteredEvent( const double RN, Event& outState, int nSteps);
+
+  int nClusterings();
 
   // Function to get the lowest multiplicity reclustered event
   Event lowestMultProc( const double RN) {
@@ -155,6 +178,9 @@ public:
   double getPDFratio( int side, bool forSudakov,
                       int flavNum, double xNum, double muNum,
                       int flavDen, double xDen, double muDen);
+
+  // Make Pythia class friend
+  friend class Pythia;
 
 private:
 
@@ -200,19 +226,39 @@ private:
   //                       unchanged copies of iPart in subsequent steps
   void scaleCopies(int iPart, const Event& refEvent, double rho);
 
-  // Functions to set the OVERALL EVENT SCALES [=state.scale()] to
+  // Function to set the OVERALL EVENT SCALES [=state.scale()] to
   // the scale of the last clustering
   // NO INPUT
   // NO OUTPUT
   void setEventScales();
 
-  void printScales() {
-    if( mother ) mother->printScales();
-    cout << " scale " << scale
-         << " clusterIn " << clusterIn.pT()
-         << " state.scale() " << state.scale()
-         << endl;
-  }
+  // Function to print information on the reconstructed scales in one path.
+  // For debug only.
+  void printScales() { if ( mother ) mother->printScales();
+    cout << " size " << state.size() << " scale " << scale << " clusterIn "
+      << clusterIn.pT() << " state.scale() " << state.scale() << endl; }
+
+  // Function to project paths onto desired paths.
+  bool trimHistories();
+  // Function to tag history for removal.
+  void remove(){ doInclude = false; }
+  // Function to return flag of allowed histories to choose from.
+  bool keep(){ return doInclude; }
+  // Function implementing checks on a paths, for deciding if the path should
+  // be considered valid or not.
+  bool keepHistory();
+  // Function to check if a path is ordered in evolution pT.
+  bool isOrderedPath( double maxscale );
+  // Function to check if all reconstucted states in a path pass the merging
+  // scale cut.
+  bool allIntermediateAboveRhoMS( double rhoms );
+  // Function to check if reconstucted states in a path are ordered in the
+  // merging scale variable.
+  bool intermediateRhoMSOrdered( double maxscale );
+  // Function to check if any ordered paths were found (and kept).
+  bool foundAnyOrderedPaths();
+  // Function to check if any unordered paths were found (and kept).
+  bool foundAnyUnorderedPaths();
 
   // Functions to return the z value of the last ISR splitting
   // NO INPUT
@@ -234,6 +280,12 @@ private:
   // OUTPUT double : pT scale of last FSR splitting in history 
   double pTFSR();
 
+  // Functions to return the event with nSteps additional partons
+  // INPUT  int   : Number of splittings in the event,
+  //                as counted from core 2->2 process
+  // OUTPUT Event : event with nSteps additional partons 
+  Event clusteredState( int nSteps);
+
   // Function to choose a path from all paths in the tree
   // according to their splitting probabilities
   // IN double    : Random number
@@ -248,14 +300,18 @@ private:
   //                  trial shower
   //     double     : alpha_s value used in ME calculation
   //     double     : Maximal mass scale of the problem (e.g. E_CM)
-  //     AlphaStrong: Initialised shower alpha_s object for FSR alpha_s 
+  //     AlphaStrong: Initialised shower alpha_s object for FSR alpha_s
   //                  ratio calculation
-  //     AlphaStrong: Initialised shower alpha_s object for ISR alpha_s 
+  //     AlphaStrong: Initialised shower alpha_s object for ISR alpha_s
   //                  ratio calculation (can be different from previous)
   double weightTree(PartonLevel* trial, double as0, double maxscale,
-    AlphaStrong * asFSR, AlphaStrong * asISR, double& asWeight,
-    double& pdfWeight);
+    double pdfScale, AlphaStrong * asFSR, AlphaStrong * asISR,
+    double& asWeight, double& pdfWeight);
 
+  // Function to return the default factorisation scale of the hard process.
+  double hardFacScale();
+  // Function to return the default renormalisation scale of the hard process.
+  double hardRenScale();
 
   // Perform a trial shower using the \a pythia object between
   // maxscale down to this scale and return the corresponding Sudakov
@@ -265,17 +321,27 @@ private:
   // OUT  0.0       : trial shower emission outside allowed pT range
   //      1.0       : trial shower successful (any emission was below
   //                  the minimal scale )
-  double doTrialShower(PartonLevel* trial, double maxscale);
+  double doTrialShower(PartonLevel* trial, double maxscale, 
+    double minscale = 0.);
 
-  // Check if a ordered (and complete) path has been found in the
-  // initial node, in which case we will no longer be interested in
+  // Default: Check if a ordered (and complete) path has been found in
+  // the initial node, in which case we will no longer be interested in
   // any unordered paths.
   bool onlyOrderedPaths();
+  // Alternative: Check if a unordered (and complete) path has been found in
+  // the initial node, in which case we will no longer be interested in
+  // any ordered paths.
+  bool onlyUnorderedPaths();
 
   // Check if a strongly ordered (and complete) path has been found in the
   // initial node, in which case we will no longer be interested in
   // any unordered paths.
   bool onlyStronglyOrderedPaths();
+
+  // Check if an allowed (according to user-criterion) path has been found in 
+  // the initial node, in which case we will no longer be interested in
+  // any forbidden paths.
+  bool onlyAllowedPaths();
 
   // When a full path has been found, register it with the initial
   // history node.
@@ -284,18 +350,18 @@ private:
   //     bool    : Specifying if path is complete down to 2->2 process
   // OUT true if History object forms a plausible path (eg prob>0 ...)
   bool registerPath(History & l, bool isOrdered, bool isStronglyOrdered,
-         bool isComplete);
+         bool isUnordered, bool isAllowed, bool isComplete);
 
   // For the history-defining state (and if necessary interfering
   // states), find all possible clusterings.
   // NO INPUT
   // OUT vector of all (rad,rec,emt) systems
-  vector<Clustering> getAllClusterings();
+  vector<Clustering> getAllQCDClusterings();
 
   // For one given state, find all possible clusterings.
   // IN  Event : state to be investigated
   // OUT vector of all (rad,rec,emt) systems in the state
-  vector<Clustering> getClusterings( const Event& event);
+  vector<Clustering> getQCDClusterings( const Event& event);
 
   // Function to construct (rad,rec,emt) triples from the event
   // IN  int   : Position of Emitted in event record for which
@@ -306,10 +372,14 @@ private:
   //              causing a 2 -> 3 dipole splitting
   //     Event : event record to be checked for ptential partners
   // OUT vector of all allowed radiator+recoiler+emitted triples
-  vector<Clustering> findTriple (int EmtTagIn, int colTopIn, 
-                        const Event& event,
-                        vector<int> PosFinalPartn,
-                        vector <int> PosInitPartn );
+  vector<Clustering> findQCDTriple (int EmtTagIn, int colTopIn, 
+                       const Event& event, vector<int> PosFinalPartn,
+                       vector <int> PosInitPartn );
+
+  vector<Clustering> getAllEWClusterings();
+  vector<Clustering> getEWClusterings( const Event& event);
+  vector<Clustering> findEWTriple( int EmtTagIn, const Event& event,
+                       vector<int> PosFinalPartn );
 
   // Calculate and return the probability of a clustering.
   // IN  Clustering : rad,rec,emt - System for which the splitting
@@ -460,7 +530,8 @@ private:
   //     Event    : Event to be searched in
   // OUT int      : > 0 : Position of matching particle in event
   //                < 0 : No match in event
-  int FindParticle(const Particle& particle, const Event& event);
+  int FindParticle( const Particle& particle, const Event& event,
+    bool checkStatus = true );
 
   // Function to check if rad,emt,rec triple is allowed for clustering
   // IN int rad,emt,rec,partner : Positions (in event record) of the three
@@ -505,8 +576,12 @@ private:
   double getCurrentZ(const int rad, const int rec, const int emt) const;
 
   // Function to compute "pythia pT separation" from Particle input
-  double pTLund(const Particle& RadAfterBranch, const Particle& EmtAfterBranch,
+  double pTLund(const Particle& RadAfterBranch,const Particle& EmtAfterBranch,
                 const Particle& RecAfterBranch, int ShowerType);
+
+  // Function to return the position of the initial line before (or after)
+  // a single (!) splitting.
+  int posChangedIncoming(const Event& event, bool before);
 
 private:
 
@@ -532,13 +607,26 @@ private:
   // unless this is the initial step (mother == 0).
   double sumpath;
 
+  // The different allowed paths after projection, indexed with
+  // the (incremental) corresponding probability. This map is empty
+  // unless this is the initial step (mother == 0).
+  map<double,History *> goodBranches, badBranches;
+  // The sum of the probabilities of allowed paths after projection. This is
+  // zero unless this is the initial step (mother == 0).
+  double sumGoodBranches, sumBadBranches;
+
   // This is set true if an ordered (and complete) path has been found
   // and inserted in paths.
   bool foundOrderedPath;
+  bool foundUnorderedPath;
 
   // This is set true if a strongly ordered (and complete) path has been found
   // and inserted in paths.
   bool foundStronglyOrderedPath;
+
+  // This is set true if an allowed (according to a user criterion) path has 
+  // been found and inserted in paths.
+  bool foundAllowedPath;
 
   // This is set true if a complete (with the required number of
   // clusterings) path has been found and inserted in paths.
@@ -552,10 +640,14 @@ private:
   // The probability associated with this step and the previous steps.
   double prob;
 
-  // The partons and scale of the last clustering
+  // The partons and scale of the last clustering.
   Clustering clusterIn;
+  int iReclusteredOld, iReclusteredNew;
 
-  // Pointer to MergingHooks object to get all the settings
+  // Flag to include the path amongst allowed paths.
+  bool doInclude;
+
+  // Pointer to MergingHooks object to get all the settings.
   MergingHooks* mergingHooksPtr;
 
    // The default constructor is private.
@@ -588,4 +680,4 @@ private:
 
 } // end namespace Pythia8
 
-#endif // end Pythia8_History_H 
+#endif // end Pythia8_History_H

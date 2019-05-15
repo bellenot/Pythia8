@@ -93,8 +93,10 @@ int main() {
   clock_t start, stop;
   double t = 0.0;
   // Depending on operating system, either of lines below gives warning.
-  assert((start = clock()) != -1); // Start timer; clock_t signed.
+  //assert((start = clock()) != -1); // Start timer; clock_t signed.
   //assert((start = clock()) != -1u); // Start timer; clock_t unsigned.
+  // Simpler option, not using assert.
+  start = clock();
   
   // Begin event loop. Generate event. Skip if error. List first one.
   for (int iEvent = 0 ; iEvent < 500 ; ++iEvent) {

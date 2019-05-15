@@ -455,6 +455,8 @@ bool RHadrons::splitOffJunction( ColConfig& colConfig, Event& event) {
 
     // Copy down recoling partons and boost their momenta.
     int iNewSP  = event.copy( iBef, 101);
+    event[iNewSP].mother2(0);
+    event[iBef].daughter1(iNewG);
     event[iNewSP].rotbst( MSP);
     leg1[iPosSP]   = iNewSP;
     if (iBefRHad[0] == iBef) iBefRHad[0] = iNewSP;
@@ -1195,7 +1197,7 @@ bool RHadrons::produceGluino( ColConfig& colConfig, Event& event) {
     int colG  = event[iG1].col()  + event[iG2].col();  
     int acolG = event[iG1].acol() + event[iG2].acol();  
     Vec4 pG   = event[iG1].p()    + event[iG2].p(); 
-    int iG12  = event.append( 21, 105, iG1, iG2, 0, 0, colG, acolG, 
+    int iG12  = event.append( 21, 107, iG1, iG2, 0, 0, colG, acolG, 
       pG, pG.mCalc(), 0.);
 
     // Temporary gluons no longer needed, but new colour to avoid warnings.
@@ -1203,6 +1205,8 @@ bool RHadrons::produceGluino( ColConfig& colConfig, Event& event) {
     event[iG2].id( 21);
     event[iG1].statusNeg();
     event[iG2].statusNeg();
+    event[iG1].daughter1( iG12);
+    event[iG2].daughter1( iG12);
     int colBridge = event.nextColTag();
     if (event[iG1].col() == 0) {
       event[iG1].col(  colBridge);

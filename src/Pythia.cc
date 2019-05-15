@@ -14,10 +14,15 @@
 #include <cctype>
 
 namespace Pythia8 {
- 
+
 //==========================================================================
 
 // The Pythia class.
+
+//--------------------------------------------------------------------------
+
+// The current Pythia (sub)version number, to agree with XML version.
+const double Pythia::VERSIONNUMBERCODE = 8.170;
 
 //--------------------------------------------------------------------------
 
@@ -98,6 +103,18 @@ Pythia::Pythia(string xmlDir) {
   isConstructed = settings.init( initFile);
   if (!isConstructed) { 
     info.errorMsg("Abort from Pythia::Pythia: settings unavailable");
+    return;
+  }
+
+  // Check that XML version number matches code version number.
+  double versionNumberXML = parm("Pythia:versionNumber");
+  isConstructed = (abs(versionNumberXML - VERSIONNUMBERCODE) < 0.0005);
+  if (!isConstructed) { 
+    ostringstream errCode;
+    errCode << fixed << setprecision(3) << ": in code " << VERSIONNUMBERCODE
+            << " but in XML " << versionNumberXML;
+    info.errorMsg("Abort from Pythia::Pythia: unmatched version numbers",
+      errCode.str());
     return;
   }
 
@@ -323,15 +340,24 @@ bool Pythia::init() {
   } else {
     doLHA     = true;
     boostType = 2;
-    string lhef   = word("Beams:LHEF");
-    bool skipInit = flag("Beams:newLHEFsameInit");
+    string lhef        = word("Beams:LHEF");
+    string lhefHeader  = word("Beams:LHEFheader");
+    bool   readHeaders = flag("Beams:readLHEFheaders");
+    bool   skipInit    = flag("Beams:newLHEFsameInit");
+    int    nSkipAtInit = mode("Beams:nSkipLHEFatInit");
 
-    // For file input: delete any old LHAup object and create new one.
+    // For file input: renew file stream or (re)new Les Houches object.
     if (frameType == 4) {
-      if (useNewLHA) delete lhaUpPtr;
-      const char* cstring = lhef.c_str();
-      lhaUpPtr   = new LHAupLHEF(cstring);
-      useNewLHA  = true;
+      const char* cstring1 = lhef.c_str();
+      if (useNewLHA && skipInit) lhaUpPtr->newEventFile(cstring1);
+      else {
+        if (useNewLHA) delete lhaUpPtr;
+        // Header is optional, so use NULL pointer to indicate no value.
+        const char* cstring2 = (lhefHeader == "void") ?
+                               NULL : lhefHeader.c_str();
+        lhaUpPtr   = new LHAupLHEF(cstring1, cstring2, readHeaders);
+        useNewLHA  = true;
+      }
 
       // Check that file was properly opened.
       if (!lhaUpPtr->fileFound()) {
@@ -342,41 +368,64 @@ bool Pythia::init() {
 
     // For object input: at least check that not null pointer.
     } else {
-       if (lhaUpPtr == 0) {
+      if (lhaUpPtr == 0) {
         info.errorMsg("Abort from Pythia::init: "
           "LHAup object not found");
         return false;
       }
-    } 
 
+      // LHAup object generic abort using fileFound() routine
+      if (!lhaUpPtr->fileFound()) {
+        info.errorMsg("Abort from Pythia::init: "
+          "LHAup initialisation error");
+        return false;
+      }
+    } 
+ 
     // Send in pointer to info. Store or replace LHA pointer in other classes.
     lhaUpPtr->setPtr( &info);
     processLevel.setLHAPtr( lhaUpPtr);
 
     // If second time around, only with new file, then simplify.
+    // Optionally skip ahead a number of events at beginning of file.
     if (skipInit) {
       isInit = true;
       info.addCounter(2);
+      if (nSkipAtInit > 0) lhaUpPtr->skipEvent(nSkipAtInit);
       return true;
     }
 
-    // Set up values related to user hooks.
+    // Set up values related to merging hooks.
     if (frameType == 4) {
-      doUserMerging = settings.flag("Merging:doUserMerging");
-      doMGMerging   = settings.flag("Merging:doMGMerging");
-      doKTMerging   = settings.flag("Merging:doKTMerging");
-      doMerging     = doUserMerging || doMGMerging || doKTMerging;
+      // Set up values related to CKKW-L merging.
+      doUserMerging     = settings.flag("Merging:doUserMerging");
+      doMGMerging       = settings.flag("Merging:doMGMerging");
+      doKTMerging       = settings.flag("Merging:doKTMerging");
+      doPTLundMerging   = settings.flag("Merging:doPTLundMerging");
+      doCutBasedMerging = settings.flag("Merging:doCutBasedMerging");
+      doMerging         = doUserMerging || doMGMerging || doKTMerging
+                       || doPTLundMerging || doCutBasedMerging;
+      // Set up MergingHooks object
       if (!doUserMerging){
-        if (mergingHooksPtr) delete mergingHooksPtr;
+        if (hasOwnMergingHooks && mergingHooksPtr) delete mergingHooksPtr;
         mergingHooksPtr = new MergingHooks();
         hasOwnMergingHooks = true;
       }
-      hasMergingHooks  = (mergingHooksPtr > 0);
-      if (hasMergingHooks) mergingHooksPtr->setLHEInputFile( lhef);
+      hasMergingHooks  = (mergingHooksPtr != 0);
+      // Merging hooks required for merging. If no merging hooks pointer is
+      // available, exit.
+      if (!hasMergingHooks) {
+        info.errorMsg("Abort from Pythia::init: "
+          "no merging hooks object has been provided");
+        return false;
+      } else mergingHooksPtr->setLHEInputFile( lhef);
+      // Initialise counting of Les Houches Events significantly above the
+      // merging scale.
+      info.setCounter(41,0);
     }
 
     // Set LHAinit information (in some external program).
-    if (!lhaUpPtr->setInit()) {
+    if (settings.flag("ProcessLevel:all") && !lhaUpPtr->setInit()) {
       info.errorMsg("Abort from Pythia::init: "
         "Les Houches initialization failed");
       return false;
@@ -387,13 +436,31 @@ bool Pythia::init() {
     idB = lhaUpPtr->idBeamB();
     eA  = lhaUpPtr->eBeamA();
     eB  = lhaUpPtr->eBeamB();
+    // Optionally skip ahead a number of events at beginning of file.
+    if (nSkipAtInit > 0) lhaUpPtr->skipEvent(nSkipAtInit);
+  }
+
+  // Set up values related to user hooks.
+  hasUserHooks  = (userHooksPtr != 0);
+  doVetoProcess = false;
+  doVetoPartons = false;
+  if (hasUserHooks) {
+    userHooksPtr->initPtr( &info, &settings, &particleData, &rndm,
+        &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr, &partonSystems, 
+        &sigmaTot); 
+    if (!userHooksPtr->initAfterBeams()) {
+      info.errorMsg("Abort from Pythia::init: could not initialise UserHooks");
+      return false;
+    }
+    doVetoProcess = userHooksPtr->canVetoProcessLevel();
+    doVetoPartons = userHooksPtr->canVetoPartonLevel();
   }
 
   // Back to common initialization. Reset error counters. 
   nErrEvent = 0;
   info.errorReset();
   info.setTooLowPTmin(false);
-  info.setSigma( 0, 0, 0, 0., 0., 0.);
+  info.sigmaReset();
 
   // Initialize data members extracted from database.
   doProcessLevel   = settings.flag("ProcessLevel:all");
@@ -403,17 +470,22 @@ bool Pythia::init() {
                   || settings.flag("SoftQCD:singleDiffractive") 
                   || settings.flag("SoftQCD:doubleDiffractive")
                   || settings.flag("SoftQCD:centralDiffractive");
+  doResDec         = settings.flag("Standalone:allowResDec");
+  doFSRinRes       = doPartonLevel && settings.flag("PartonLevel:FSR") 
+                  && settings.flag("PartonLevel:FSRinResonances");
   decayRHadrons    = settings.flag("RHadrons:allowDecay");
   doMomentumSpread = settings.flag("Beams:allowMomentumSpread");
   doVertexSpread   = settings.flag("Beams:allowVertexSpread");
   abortIfVeto      = settings.flag("Check:abortIfVeto");
   checkEvent       = settings.flag("Check:event");
+  checkHistory     = settings.flag("Check:history");
   nErrList         = settings.mode("Check:nErrList");
   epTolErr         = settings.parm("Check:epTolErr");
   epTolWarn        = settings.parm("Check:epTolWarn");
 
+
   // Initialise merging hooks.
-  if (hasMergingHooks && doMerging)
+  if (hasMergingHooks && doMerging )
     mergingHooksPtr->init( settings, &info, &particleData );
 
   // Initialize the random number generator.
@@ -450,16 +522,6 @@ bool Pythia::init() {
 
   // Set up R-hadrons particle data, where relevant.
   rHadrons.init( &info, settings, &particleData, &rndm);
-
-  // Set up values related to user hooks.
-  hasUserHooks  = (userHooksPtr > 0);
-  doVetoProcess = (hasUserHooks) 
-                ? userHooksPtr->canVetoProcessLevel() : false;
-  doVetoPartons = (hasUserHooks) 
-                ? userHooksPtr->canVetoPartonLevel() : false;
-  if (hasUserHooks) userHooksPtr->initPtr( &info, &settings, &particleData,
-    &rndm, &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr, &partonSystems, 
-    &sigmaTot); 
 
   // Set up objects for timelike and spacelike showers.
   if (timesDecPtr == 0 || timesPtr == 0) {
@@ -538,6 +600,10 @@ bool Pythia::init() {
     return false;
   }
 
+  // Optionally only initialize resonance decays.
+  if ( !doProcessLevel && doResDec) processLevel.initDecays( &info, 
+    &particleData, &rndm, lhaUpPtr);
+
   // Send info/pointers to parton level for initialization.
   if ( doPartonLevel && doProcessLevel && !partonLevel.init( &info, settings, 
     &particleData, &rndm, &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr, 
@@ -548,16 +614,22 @@ bool Pythia::init() {
     return false;
   }
 
+  // Optionally only initialize final-state showers in resonance decays.
+  if ( (!doProcessLevel || !doPartonLevel) && doFSRinRes) partonLevel.init( 
+    &info, settings, &particleData, &rndm, 0, 0, 0, 0, couplingsPtr, 
+    &partonSystems, 0, timesDecPtr, 0, 0, &rHadrons, 0, 0, false);
+
   // Send info/pointers to parton level for trial shower initialization.
-  if ( doMerging && !trialPartonLevel.init( &info, settings, &particleData, 
-    &rndm, &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr, &partonSystems, 
-    &sigmaTot, timesDecPtr, timesPtr, spacePtr, &rHadrons, NULL,
-    mergingHooksPtr, true) ) {
+  if ( doMerging
+    && !trialPartonLevel.init( &info, settings, &particleData, 
+      &rndm, &beamA, &beamB, &beamPomA, &beamPomB, couplingsPtr,
+      &partonSystems, &sigmaTot, timesDecPtr, timesPtr, spacePtr, &rHadrons,
+      NULL, mergingHooksPtr, true) ) {
     info.errorMsg("Abort from Pythia::init: "
       "trialPartonLevel initialization failed");
     return false;
   }
- 
+
   // Send info/pointers to hadron level for initialization.
   // Note: forceHadronLevel() can come, so we must always initialize. 
   if ( !hadronLevel.init( &info, settings, &particleData, &rndm,  
@@ -730,11 +802,11 @@ bool Pythia::checkBeams() {
   if (isLeptonA && isLeptonB && isUnresolvedA == isUnresolvedB) return true;
 
   // MBR model only implemented for pp/ppbar/pbarp collisions.
-  int PomFlux    = settings.mode("Diffraction:PomFlux");
+  int PomFlux     = settings.mode("Diffraction:PomFlux");
   if (PomFlux == 5) {
     bool ispp       = (idAabs == 2212 && idBabs == 2212);
     bool ispbarpbar = (idA == -2212 && idB == -2212);    
-    if(ispp && !ispbarpbar) return true;
+    if (ispp && !ispbarpbar) return true;
     info.errorMsg("Error in Pythia::init: cannot handle this beam combination"
       " with PomFlux == 5");
     return false;
@@ -931,8 +1003,15 @@ bool Pythia::next() {
   info.addCounter(3);
   for (int i = 10; i < 13; ++i) info.setCounter(i);
 
-  // Simpler option when only HadronLevel to be generated.
+  // Simpler option when no hard process, i.e. mainly hadron level.
   if (!doProcessLevel) {
+
+    // Optionally fetch in resonance decays from LHA interface.
+    if (doLHA && !processLevel.nextLHAdec( event)) {
+      if (info.atEndOfFile()) info.errorMsg("Abort from Pythia::next:"
+        " reached end of Les Houches Events File"); 
+      return false;
+    }
 
     // Reset info array (while event record contains data).
     info.clear();
@@ -993,18 +1072,18 @@ bool Pythia::next() {
 
     info.addCounter(11);
 
-    // Possiblility to perform CKKWL merging on this event
-    if(doMerging) {
-      hasVetoed = mergeProcess();
+    // Possibility for a user veto of the process-level event.
+    if (doVetoProcess) {
+      hasVetoed = userHooksPtr->doVetoProcessLevel( process);
       if (hasVetoed) {
         if (abortIfVeto) return false; 
         continue;
       } 
     }
 
-    // Possibility for a user veto of the process-level event.
-    if (doVetoProcess) {
-      hasVetoed = userHooksPtr->doVetoProcessLevel( process);
+    // Possibility to perform CKKW-L merging on this event.
+    if(doMerging) {
+      hasVetoed = mergeProcess();
       if (hasVetoed) {
         if (abortIfVeto) return false; 
         continue;
@@ -1024,6 +1103,7 @@ bool Pythia::next() {
 
     // Save spare copy of process record in case of problems.
     Event processSave = process;
+    int sizeMPI       = info.sizeMPIarrays();
     info.addCounter(12);
     for (int i = 14; i < 19; ++i) info.setCounter(i);
   
@@ -1035,6 +1115,7 @@ bool Pythia::next() {
 
       // Restore original process record if problems.
       if (iTry > 0) process = processSave;
+      if (iTry > 0) info.resizeMPIarrays( sizeMPI);
 
       // Reset event record and (extracted partons from) beam remnants.
       event.clear();
@@ -1185,6 +1266,23 @@ bool Pythia::forceHadronLevel(bool findJunctions) {
   for (int iTry = 0; iTry < NTRY; ++ iTry) {
     physical = true;
 
+    // Check whether any resonances need to be handled at process level.
+    if (doResDec) {
+      process = event;
+      processLevel.nextDecays( process);
+      bool hasDecays = false;
+      for (int i = 1; i < process.size(); ++i) 
+        if (process[i].status() < 0) hasDecays = true;
+
+      // Allow for showers if decays happened at process level.
+      if (hasDecays) { 
+        if (doFSRinRes) {
+          partonLevel.setupShowerSys( process, event);
+          partonLevel.resonanceShowers( process, event, false);
+        } else event = process;
+      }
+    }    
+
     // Hadron-level: hadronization, decays.
     if (hadronLevel.next( event)) break;
 
@@ -1332,6 +1430,14 @@ void Pythia::stat() {
   if (showPaL) partonLevel.statistics(false);  
   if (reset)   partonLevel.resetStatistics();   
 
+  // Warning if significant part of events considerably above the
+  // merging scale value.
+  if (hasMergingHooks && doMerging && mergingHooksPtr->stats() ) {
+    string message="Warning in MergingHooks::stats: Most LH";
+    message+=" Events significantly above Merging:TMS cut. Please check.";
+    info.errorMsg(message);
+  }
+
   // Summary of which and how many warnings/errors encountered.
   if (showErr) info.errorStatistics();
   if (reset)   info.errorReset();
@@ -1349,6 +1455,14 @@ void Pythia::statistics(bool all, bool reset) {
 
   // Statistics from other classes, e.g. multiparton interactions.
   if (all) partonLevel.statistics(reset);  
+
+  // Warning if significant part of events considerably above the
+  // merging scale value.
+  if (hasMergingHooks && doMerging && mergingHooksPtr->stats() ) {
+    string message="Warning in MergingHooks::stats: Most LH";
+    message+=" Events significantly above Merging:TMS cut. Please check.";
+    info.errorMsg(message);
+  }
 
   // Summary of which and how many warnings/errors encountered.
   info.errorStatistics();
@@ -1413,10 +1527,10 @@ void Pythia::banner(ostream& os) {
      << "ve., Cambridge CB3 0HE, UK;           |  | \n"
      << " |  |      phone: + 41 - 22 - 767 6707; e-mai"
      << "l: Stefan.Ask@cern.ch                 |  | \n"
-     << " |  |   Richard Corke;  Department of Astrono" 
-     << "my and Theoretical Physics,           |  | \n"
-     << " |  |      Lund University, Solvegatan 14A, S"
-     << "E-223 62 Lund, Sweden;                |  | \n"
+     << " |  |   Richard Corke;  Niels Bohr Institute," 
+     << " University of Copenhagen,            |  | \n"
+     << " |  |      Blegdamsvej 17, 2100 Copenhagen, D"
+     << "enmark;                               |  | \n"
      << " |  |      e-mail: richard.corke@thep.lu.se  "
      << "                                      |  | \n"
      << " |  |   Stephen Mrenna;  Computing Division, "
@@ -1425,7 +1539,7 @@ void Pythia::banner(ostream& os) {
      << "ory, MS 234, Batavia, IL 60510, USA;  |  | \n"
      << " |  |      phone: + 1 - 630 - 840 - 2556; e-m"
      << "ail: mrenna@fnal.gov                  |  | \n"
-     << " |  |   Stefan Prestel;  Department of Astron" 
+     << " |  |   Stefan Prestel;  Department of Astron"
      << "omy and Theoretical Physics,          |  | \n"
      << " |  |      Lund University, Solvegatan 14A, S"
      << "E-223 62 Lund, Sweden;                |  | \n"
@@ -1545,6 +1659,7 @@ bool Pythia::check(ostream& os) {
   // Reset. 
   bool physical     = true;
   bool listVertices = false;
+  bool listHistory  = false;
   bool listSystems  = false;
   bool listBeams    = false;
   iErrId.resize(0);
@@ -1581,7 +1696,7 @@ bool Pythia::check(ostream& os) {
     int id = event[i].id();
     if (id == 0 || !particleData.isParticle(id)) {
       ostringstream errCode;
-      errCode << ", id = " << id;
+      errCode << ", i = " << i << ", id = " << id;
       info.errorMsg("Error in Pythia::check: "
         "unknown particle code", errCode.str()); 
       physical = false;
@@ -1597,7 +1712,8 @@ bool Pythia::check(ostream& os) {
         || (colType == -1 && (col  > 0 || acol <= 0))    
         || (colType ==  2 && (col <= 0 || acol <= 0)) ) {
         ostringstream errCode;
-        errCode << ", id = " << id << " cols = " << col << " " << acol;
+        errCode << ", i = " << i << ", id = " << id << " cols = " << col 
+                << " " << acol;
         info.errorMsg("Error in Pythia::check: "
           "incorrect colours", errCode.str()); 
         physical = false;
@@ -1609,7 +1725,7 @@ bool Pythia::check(ostream& os) {
     if (abs(event[i].px()) >= 0. && abs(event[i].py()) >= 0. 
       && abs(event[i].pz()) >= 0.  && abs(event[i].e()) >= 0. 
       && abs(event[i].m()) >= 0.) ;
-    else {   
+    else {
       info.errorMsg("Error in Pythia::check: "
         "not-a-number energy/momentum/mass"); 
       physical = false;
@@ -1669,12 +1785,83 @@ bool Pythia::check(ostream& os) {
     }
   }
 
+  // Check that mother and daughter information match for each particle.
+  vector<int> noMot;
+  vector<int> noDau;
+  vector< pair<int,int> > noMotDau;
+  if (checkHistory) { 
+
+    // Loop through the event and check that there are beam particles.
+    bool hasBeams = false;
+    for (int i = 0; i < event.size(); ++i) {
+      int status = event[i].status();
+      if (abs(status) == 12) hasBeams = true;
+ 
+      // Check that mother and daughter lists not empty where not expected to.
+      vector<int> mList = event.motherList(i);
+      vector<int> dList = event.daughterList(i);
+      if (mList.size() == 0 && abs(status) != 11 && abs(status) != 12) 
+        noMot.push_back(i);
+      if (dList.size() == 0 && status < 0 && status != -11) 
+        noDau.push_back(i);
+
+      // Check that the particle appears in the daughters list of each mother.
+      for (int j = 0; j < int(mList.size()); ++j) {
+        vector<int> dmList = event.daughterList( mList[j] );
+        bool foundMatch = false;
+        for (int k = 0; k < int(dmList.size()); ++k) 
+        if (dmList[k] == i) {
+          foundMatch = true;
+          break;
+        }
+        if (!hasBeams && mList.size() == 1 && mList[0] == 0) foundMatch = true;
+        if (!foundMatch) {
+          bool oldPair = false;
+          for (int k = 0; k < int(noMotDau.size()); ++k) 
+          if (noMotDau[k].first == mList[j] && noMotDau[k].second == i) {
+            oldPair = true;
+            break;
+          }
+          if (!oldPair) noMotDau.push_back( make_pair( mList[j], i) ); 
+        }
+      } 
+
+      // Check that the particle appears in the mothers list of each daughter.
+      for (int j = 0; j < int(dList.size()); ++j) {
+        vector<int> mdList = event.motherList( dList[j] );
+        bool foundMatch = false;
+        for (int k = 0; k < int(mdList.size()); ++k) 
+        if (mdList[k] == i) {
+          foundMatch = true;
+          break;
+        }
+        if (!foundMatch) {
+          bool oldPair = false;
+          for (int k = 0; k < int(noMotDau.size()); ++k) 
+          if (noMotDau[k].first == i && noMotDau[k].second == dList[j]) {
+            oldPair = true;
+            break;
+          }
+          if (!oldPair) noMotDau.push_back( make_pair( i, dList[j]) ); 
+        }
+      } 
+    }
+
+    // Warn if any errors were found.
+    if (noMot.size() > 0 || noDau.size() > 0 || noMotDau.size() > 0) {
+      info.errorMsg("Error in Pythia::check: "
+        "mismatch in daughter and mother lists"); 
+      physical    = false;
+      listHistory = true;
+    }
+  }
+
   // Done for sensible events.
   if (physical) return true;
 
-  // Print (the first few) flawed events.
+  // Print (the first few) flawed events: local info.
   if (nErrEvent < nErrList) {
-    os << " PYTHIA erroneous event info: \n";
+    os << "\n PYTHIA erroneous event info: \n";
     if (iErrId.size() > 0) {
       os << " unknown particle codes in lines ";
       for (int i = 0; i < int(iErrId.size()); ++i) 
@@ -1703,15 +1890,33 @@ bool Pythia::check(ostream& os) {
       << " total energy-momentum non-conservation = " << epDev << "\n";
     if (abs(chargeSum) > 0.1) os << fixed << setprecision(2) 
       << " total charge non-conservation = " << chargeSum << "\n"; 
+    if (noMot.size() > 0) {
+      os << " missing mothers for particles ";
+      for (int i = 0; i < int(noMot.size()); ++i) os << noMot[i] << " ";
+      os << "\n";
+    }
+    if (noDau.size() > 0) {
+      os << " missing daughters for particles ";
+      for (int i = 0; i < int(noDau.size()); ++i) os << noDau[i] << " ";
+      os << "\n";
+    }
+    if (noMotDau.size() > 0) {
+      os << " inconsistent history for (mother,daughter) pairs ";
+      for (int i = 0; i < int(noMotDau.size()); ++i) 
+        os << "(" << noMotDau[i].first << "," << noMotDau[i].second << ") ";
+      os << "\n";
+    }
+
+    // Print (the first few) flawed events: standard listings.
     info.list();
-    event.list(listVertices);
+    event.list(listVertices, listHistory);
     if (listSystems) partonSystems.list();
     if (listBeams) beamA.list();
     if (listBeams) beamB.list();
   }
 
   // Update error counter. Done also for flawed event.
-  ++nErrEvent;
+  ++nErrEvent; 
   return false;
 
 }
@@ -1851,6 +2056,7 @@ bool Pythia::initSLHA() {
   int    ifailSpc    = 1;
   int    readFrom    = settings.mode("SLHA:readFrom");
   string lhefFile    = settings.word("Beams:LHEF");
+  string lhefHeader  = settings.word("Beams:LHEFheader");
   string slhaFile    = settings.word("SLHA:file");
   int    verboseSLHA = settings.mode("SLHA:verbose");
   bool   slhaUseDec  = settings.flag("SLHA:useDecayTable");
@@ -1862,8 +2068,11 @@ bool Pythia::initSLHA() {
   if (readFrom == 0) return true;  
 
   // First check LHEF header (if reading from LHEF)
-  if (readFrom == 1 && lhefFile != "void") {
-    ifailLHE = slha.readFile(lhefFile, verboseSLHA, slhaUseDec );    
+  if (readFrom == 1) {
+    if (lhefHeader != "void") 
+      ifailLHE = slha.readFile(lhefHeader, verboseSLHA, slhaUseDec );    
+    else if (lhefFile != "void")
+      ifailLHE = slha.readFile(lhefFile, verboseSLHA, slhaUseDec );    
   }
 
   // If LHEF read successful, everything needed should already be ready
@@ -1957,7 +2166,7 @@ bool Pythia::initSLHA() {
 	      antiName.replace(antiName.find("+"),1,"-");
 	    } else if (name.find("-") != string::npos) {
 	      antiName = name;
-	      antiName.replace(antiName.find("+"),1,"-");
+	      antiName.replace(antiName.find("-"),1,"+");
 	    } else {
 	      antiName = name+"bar";
 	    }
@@ -2108,53 +2317,82 @@ bool Pythia::initSLHA() {
 
 //--------------------------------------------------------------------------
 
-// Function to perform CKKWL merging on the input event.
+// Function to perform CKKW-L merging on the input event.
 
 bool Pythia::mergeProcess() {
 
   // Reset weight of the event.
-  mergingHooksPtr->setWeight(1.);
-  info.setMergingWeight(1.);
+  mergingHooksPtr->setWeightCKKWL(1.);
+  info.setWeightCKKWL(1.);
   double wgt = 1.0;
 
   // Store candidates for the splitting V -> qqbar'.
   mergingHooksPtr->storeHardProcessCandidates( process);
 
   // Calculate number of clustering steps.
-  int nSteps = mergingHooksPtr->getNumberOfClusteringSteps( process);
+  int nSteps   = mergingHooksPtr->getNumberOfClusteringSteps( process);
 
-  // Save number of hard final state quarks / leptons.
-  int nQuarks     = mergingHooksPtr->nHardOutPartons();
-  int nLeptons    = mergingHooksPtr->nHardOutLeptons();
-  bool isHadronic = (mergingHooksPtr->nHardInLeptons() == 0);
+  // Check if event passes the merging scale cut.
+  double tms   = mergingHooksPtr->tms();
+  // Get merging scale in current event.
+  double tnow  = 0.;
+  // Use KT/Durham merging scale definition.
+  if ( mergingHooksPtr->doKTMerging() || mergingHooksPtr->doMGMerging() )
+    tnow       = mergingHooksPtr->kTms( process );
+  // Use Lund PT merging scale definition.
+  else if ( mergingHooksPtr->doPTLundMerging() )
+    tnow       = mergingHooksPtr->rhoms( process, false );
+   // Use DeltaR_{ij}, pT_i, Q_{ij} combination merging scale definition.
+  else if ( mergingHooksPtr->doCutBasedMerging() )
+    tnow       = mergingHooksPtr->cutbasedms( process );
+  // Use user-defined merging scale.
+  else
+    tnow       = mergingHooksPtr->tmsDefinition( process );
 
-  // Set QCD 2->2 starting scale different from arbirtrary scale in LHEF!
-  // --> Set to pT of partons.
-  double pT = 0.;
-  for( int i=0; i < process.size(); ++i)
-  if(process[i].isFinal() && process[i].colType() != 0) {
-    pT = process[i].pT();
-    break;
+  bool enforceCutOnLHE  = settings.flag("Merging:enforceCutOnLHE");
+  // Enfore merging scale cut if the event did not pass the merging scale
+  // criterion.
+  if ( enforceCutOnLHE && nSteps > 0 && tnow < tms ) {
+    string message="Warning in Pythia::mergeProcess: Les Houches Event";
+    message+=" fails merging scale cut. Cut by rejecting event.";
+    info.errorMsg(message);
+    return true;
   }
 
-  // Count number of top quarks to distinguish process with stable top pair
-  // from pure QCD di-jets.
-  int nTops = 0;
-  for( int i=0; i < process.size(); ++i)
-    if(process[i].isFinal() && process[i].idAbs() == 6) ++nTops;
+  double TMSMISMATCHPOS = tms / 2. ;
+  // Remember if event is significantly above the merging scale.
+  if ( enforceCutOnLHE && nSteps > 0 && tms > 0. 
+    && tnow > tms && (tnow-tms > TMSMISMATCHPOS) ) {
+    stringstream tmsmis;
+    tmsmis << int(TMSMISMATCHPOS);
+    string message="Warning in Pythia::mergeProcess: Les Houches event";
+    message+=" more than ";
+    message+=tmsmis.str();
+    message+=" GeV above desired merging scale value.";
+    info.errorMsg(message);
+    info.addCounter(41);
+  }
+
+  // For now, prefer construction of ordered histories.
+  mergingHooksPtr->orderHistories(true);
 
   // Declare pdfWeight and alpha_s weight.
   double RN = rndm.flat();
-  process.scale(0.0);
 
+  process.scale(0.0);
   // Generate all histories.
   History FullHistory( nSteps, 0.0, process, Clustering(), mergingHooksPtr,
-            beamA, beamB, &particleData, &info, true, true, 1.0, 0);
+            beamA, beamB, &particleData, &info, true, true, true, true,
+            1.0, 0);
 
+  // Project histories onto desired branches, e.g. only ordered paths.
+  FullHistory.projectOntoDesiredHistories();
+
+  // Calculate CKKWL weight:
   // Perform reweighting with Sudakov factors, save alpha_s ratios and
   // PDF ratio weights.
   wgt = FullHistory.weightTREE( &trialPartonLevel,
-    mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(), RN);
+      mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(), RN);
 
   // Event with production scales set for further (trial) showering
   // and starting conditions for the shower.
@@ -2170,14 +2408,26 @@ bool Pythia::mergeProcess() {
   // multiplicity event (= in doVetoStep).
   wgt *= dampWeight;
 
+  // Set QCD 2->2 starting scale different from arbitrary scale in LHEF!
+  // --> Set to minimal mT of partons.
+  int nFinal = 0;
+  double muf = process[0].e();
+  for ( int i=0; i < process.size(); ++i )
+  if ( process[i].isFinal()
+    && (process[i].colType() != 0 || process[i].id() == 22 ) ) {
+    nFinal++;
+    muf = min( muf, abs(process[i].mT()) );
+  }
   // For pure QCD dijet events (only!), set the process scale to the
   // transverse momentum of the outgoing partons.
-  if ( isHadronic && nQuarks == 2 && nLeptons == 0 && nTops == 0
-    && nSteps == 0 ) process.scale(pT);
+  if ( nSteps == 0 && nFinal == 2
+    && ( mergingHooksPtr->getProcessString().compare("pp>jj") == 0
+      || mergingHooksPtr->getProcessString().compare("pp>aj") == 0) )
+    process.scale(muf);
 
   // Save the weight of the event for histogramming.
-  mergingHooksPtr->setWeight(wgt);
-  info.setMergingWeight(wgt);
+  mergingHooksPtr->setWeightCKKWL(wgt);
+  info.setWeightCKKWL(wgt);
 
   // If the weight of the event is zero, do not continue evolution.
   if(wgt == 0.) return true;

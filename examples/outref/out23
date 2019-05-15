@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.160      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 23 Jan 2012  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.170      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 21 Sep 2012  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 23 Jan 2012 at 11:23:59    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 21 Sep 2012 at 21:34:11    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -16,8 +16,8 @@
  |  |   Stefan Ask;  Department of Physics, University of Cambridge,               |  | 
  |  |      Cavendish Laboratory, JJ Thomson Ave., Cambridge CB3 0HE, UK;           |  | 
  |  |      phone: + 41 - 22 - 767 6707; e-mail: Stefan.Ask@cern.ch                 |  | 
- |  |   Richard Corke;  Department of Astronomy and Theoretical Physics,           |  | 
- |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
+ |  |   Richard Corke;  Niels Bohr Institute, University of Copenhagen,            |  | 
+ |  |      Blegdamsvej 17, 2100 Copenhagen, Denmark;                               |  | 
  |  |      e-mail: richard.corke@thep.lu.se                                        |  | 
  |  |   Stephen Mrenna;  Computing Division, Simulations Group,                    |  | 
  |  |      Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;  |  | 
@@ -51,9 +51,6 @@
  |                                                                                    | 
  *------------------------------------------------------------------------------------* 
 
- PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
- PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
- PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
 
  *-------  PYTHIA Process Initialization  --------------------------*
  |                                                                  |
@@ -112,6 +109,7 @@
  | SigmaDiffractive:maxXB                        |                 65.00000 |     15.00000         0.0             | 
  | SigmaDiffractive:maxXX                        |                 65.00000 |     15.00000         0.0             | 
  | SigmaProcess:alphaSvalue                      |                  0.13500 |      0.12650   0.0600000     0.25000 | 
+ | SigmaTotal:zeroAXB                            |                       on |          off                         | 
  | SpaceShower:rapidityOrder                     |                       on |          off                         | 
  |                                                                                                                 | 
  *-------  End PYTHIA Flag + Mode + Parm + Word Settings  ---------------------------------------------------------* 
@@ -200,12 +198,12 @@
  |                                                                                                                 | 
  |  times   message                                                                                                | 
  |                                                                                                                 | 
- |      3   Warning in ParticleDataEntry::initBWmass: switching off width                                          | 
+ |      0   no errors or warnings to report                                                                        | 
  |                                                                                                                 | 
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2012-01-23 11:24       center-of-mass energy deviation
+  2012-09-21 21:34       center-of-mass energy deviation
 
         5.60*10^ 2                                                    5                                                 
         5.40*10^ 2                                                 6  X 1                                               
@@ -251,7 +249,7 @@
    All chan =  1.0000e+04    Rms  =  2.8836e+00    Overflow  =  0.0000e+00    High edge =  2.0000e+01
 
 
-  2012-01-23 11:24       net pX offset
+  2012-09-21 21:34       net pX offset
 
         6.00*10^ 2                                                     5                                                
         5.80*10^ 2                                                     X                                                
@@ -299,7 +297,7 @@
    All chan =  1.0000e+04    Rms  =  1.3987e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2012-01-23 11:24       net pY offset
+  2012-09-21 21:34       net pY offset
 
         6.00*10^ 2                                                    3                                                 
         5.80*10^ 2                                                    X                                                 
@@ -347,7 +345,7 @@
    All chan =  1.0000e+04    Rms  =  1.4156e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2012-01-23 11:24       net pZ offset
+  2012-09-21 21:34       net pZ offset
 
         3.00*10^ 2                                                       2                                              
         2.90*10^ 2                                                  7 1 6X                                              
@@ -395,7 +393,7 @@
    All chan =  1.0000e+04    Rms  =  2.8985e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2012-01-23 11:24       individual abs(pZ) offset
+  2012-09-21 21:34       individual abs(pZ) offset
 
         8.40*10^ 2                                                    8                                                 
         8.10*10^ 2                                                   1X                                                 
@@ -441,7 +439,7 @@
    All chan =  2.0000e+04    Rms  =  2.0437e+00    Overflow  =  0.0000e+00    High edge =  1.0000e+01
 
 
-  2012-01-23 11:24       vertex x position
+  2012-09-21 21:34       vertex x position
 
         2.90*10^ 2                                                  7                                                   
         2.80*10^ 2                                                X5X3  3                                               
@@ -488,7 +486,7 @@
    All chan =  9.9910e+03    Rms  =  3.0013e-01    Overflow  =  3.0000e+00    High edge =  1.0000e+00
 
 
-  2012-01-23 11:24       vertex y position
+  2012-09-21 21:34       vertex y position
 
         2.90*10^ 2                                                    3                                                 
         2.80*10^ 2                                                   7X                                                 
@@ -535,7 +533,7 @@
    All chan =  9.9910e+03    Rms  =  2.9668e-01    Overflow  =  6.0000e+00    High edge =  1.0000e+00
 
 
-  2012-01-23 11:24       vertex z position
+  2012-09-21 21:34       vertex z position
 
         4.05*10^ 2                                                   1 5                                                
         3.90*10^ 2                                                   X X                                                
@@ -580,7 +578,7 @@
    All chan =  1.0000e+04    Rms  =  2.0433e+01    Overflow  =  0.0000e+00    High edge =  1.0000e+02
 
 
-  2012-01-23 11:24       vertex time
+  2012-09-21 21:34       vertex time
 
         4.05*10^ 2                                                   X 2                                                
         3.90*10^ 2                                                   X5X4                                               
@@ -625,7 +623,7 @@
    All chan =  1.0000e+04    Rms  =  2.0365e+01    Overflow  =  0.0000e+00    High edge =  1.0000e+02
 
 
-  2012-01-23 11:24       vertex |x| + |t|
+  2012-09-21 21:34       vertex |x| + |t|
 
         4.20*10^ 2                                                   1                                                  
         4.05*10^ 2                                                   X                                                  
@@ -671,7 +669,7 @@
    All chan =  1.0000e+04    Rms  =  1.1810e+01    Overflow  =  0.0000e+00    High edge =  1.0000e+02
 
 
-  2012-01-23 11:24       standard random number distribution
+  2012-09-21 21:34       standard random number distribution
 
        10.64*10^ 2                                                 8                                                    
        10.60*10^ 2                                                 X                                                    
@@ -720,7 +718,7 @@
    All chan =  1.0000e+05    Rms  =  2.8882e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2012-01-23 11:24       standard random number correlation
+  2012-09-21 21:34       standard random number correlation
 
         2.00*10^ 3  746                                                                                                 
         1.92*10^ 3  XXXXX55   1                                                                                         
@@ -763,7 +761,7 @@
    All chan =  1.0000e+05    Rms  =  2.3638e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2012-01-23 11:24       stupid random number distribution
+  2012-09-21 21:34       stupid random number distribution
 
        10.70*10^ 2                                     6                                                                
        10.65*10^ 2                                     X                                                                
@@ -809,7 +807,7 @@
    All chan =  1.0000e+05    Rms  =  2.8886e-01    Overflow  =  0.0000e+00    High edge =  1.0000e+00
 
 
-  2012-01-23 11:24       stupid random number correlation
+  2012-09-21 21:34       stupid random number correlation
 
         2.08*10^ 3  9                                                                                                   
         2.00*10^ 3  X8 33                                                                                               

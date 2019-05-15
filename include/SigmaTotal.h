@@ -65,6 +65,7 @@ public:
   // Read out parameters of diffractive mass spectra.
   double mMinXB()  const {return mMinXBsave;}
   double mMinAX()  const {return mMinAXsave;}
+  double mMinAXB() const {return mMinAXBsave;}
   double cRes()    const {return CRES;}
   double mResXB()  const {return mResXBsave;}
   double mResAX()  const {return mResAXsave;}
@@ -91,10 +92,10 @@ private:
   static const double HBARC2, FFA1, FFA2,FFB1, FFB2; 
 
   // Initialization data, normally only set once.
-  bool   isCalc, setTotal, doDampen, setElastic;
-  double sigTotOwn, sigElOwn, sigXBOwn, sigAXOwn, sigXXOwn, sigAXBOwn,
-         maxXBOwn, maxAXOwn, maxXXOwn, bSlope, rho, lambda, tAbsMin, 
-         alphaEM0, sigmaPomP, mPomP, pPomP;
+  bool   isCalc, setTotal, zeroAXB, doDampen, setElastic;
+  double sigAXB2TeV, sigTotOwn, sigElOwn, sigXBOwn, sigAXOwn, sigXXOwn, 
+         sigAXBOwn, maxXBOwn, maxAXOwn, maxXXOwn, maxAXBOwn, bSlope, rho, 
+         lambda, tAbsMin, alphaEM0, sigmaPomP, mPomP, pPomP;
   
   // Parameters of MBR model.
   double MBReps, MBRalpha, MBRbeta0, MBRsigma0, m2min, dyminSDflux, 
@@ -109,7 +110,8 @@ private:
 
   // Store values found by calc.
   double sigTot, sigEl, sigXB, sigAX, sigXX, sigAXB, sigND, bEl, s, bA, bB,
-         alP2, s0, exp4, mMinXBsave, mMinAXsave, mResXBsave, mResAXsave;
+         alP2, s0, exp4, mMinXBsave, mMinAXsave, mMinAXBsave, mResXBsave, 
+         mResAXsave;
 
 };
  

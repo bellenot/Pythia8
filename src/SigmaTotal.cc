@@ -125,6 +125,10 @@ void SigmaTotal::init(Info* infoPtrIn, Settings& settings,
   infoPtr         = infoPtrIn;
   particleDataPtr = particleDataPtrIn;
 
+  // Normalization of central diffractive cross section.
+  zeroAXB    = settings.flag("SigmaTotal:zeroAXB");
+  sigAXB2TeV = settings.parm("SigmaTotal:sigmaAXB2TeV");
+
   // User-set values for cross sections.  
   setTotal   = settings.flag("SigmaTotal:setOwn");
   sigTotOwn  = settings.parm("SigmaTotal:sigmaTot");
@@ -139,6 +143,7 @@ void SigmaTotal::init(Info* infoPtrIn, Settings& settings,
   maxXBOwn   = settings.parm("SigmaDiffractive:maxXB");
   maxAXOwn   = settings.parm("SigmaDiffractive:maxAX");
   maxXXOwn   = settings.parm("SigmaDiffractive:maxXX");
+  maxAXBOwn  = settings.parm("SigmaDiffractive:maxAXB");
 
   // User-set values for handling of elastic sacattering. 
   setElastic = settings.flag("SigmaElastic:setOwn");
@@ -154,7 +159,7 @@ void SigmaTotal::init(Info* infoPtrIn, Settings& settings,
   pPomP      = settings.parm("Diffraction:mPowPomP");
   
   // Parameters for MBR model.
- PomFlux      = settings.mode("Diffraction:PomFlux"); 
+  PomFlux     = settings.mode("Diffraction:PomFlux"); 
   MBReps      = settings.parm("Diffraction:MBRepsilon");
   MBRalpha    = settings.parm("Diffraction:MBRalpha");
   MBRbeta0    = settings.parm("Diffraction:MBRbeta0");
@@ -314,11 +319,21 @@ bool SigmaTotal::calc( int idA, int idB, double eCM) {
     / max( 0.1, alP2 * log( s * s0 / (sRMavgAX * sRMavgXB) ) + BcorrXX);
   sigXX  = CONVERTDD * X[iProc] * max( 0., sum1 + sum2 + sum3 + sum4);
 
+  // Central diffractive scattering A + B -> A + X + B, only p and pbar.
+  mMinAXBsave = 1.;
+  if (idAbsA == 2212 && idAbsB == 2212 && !zeroAXB) {
+    double sMinAXB = pow2(mMinAXBsave);
+    double sRefAXB = pow2(2000.);
+    sigAXB = sigAXB2TeV * pow( log(0.06 * s / sMinAXB), 1.5 )
+           / pow( log(0.06 * sRefAXB / sMinAXB), 1.5 );
+  }
+
   // Option with user-requested damping of diffractive cross sections.
   if (doDampen) {
-    sigXB = sigXB * maxXBOwn / (sigXB + maxXBOwn);
-    sigAX = sigAX * maxAXOwn / (sigAX + maxAXOwn);
-    sigXX = sigXX * maxXXOwn / (sigXX + maxXXOwn);
+    sigXB  = sigXB  * maxXBOwn  / (sigXB  + maxXBOwn);
+    sigAX  = sigAX  * maxAXOwn  / (sigAX  + maxAXOwn);
+    sigXX  = sigXX  * maxXXOwn  / (sigXX  + maxXXOwn);
+    sigAXB = sigAXB * maxAXBOwn / (sigAXB + maxAXBOwn);
   }
   
   // Calculate cross sections in MBR model.

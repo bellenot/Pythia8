@@ -60,6 +60,8 @@ void HardProcess::translateLHEFString( string LHEpath){
   string lineGenerator;
   while( iLine < nLinesMax
         && lineGenerator.find("SHERPA", 0) == string::npos
+        && lineGenerator.find("POWHEG-BOX", 0) == string::npos
+        && lineGenerator.find("Pythia8", 0) == string::npos
         && lineGenerator.find("MadGraph", 0) == string::npos){
     iLine++;
     lineGenerator = " ";
@@ -98,7 +100,7 @@ void HardProcess::translateLHEFString( string LHEpath){
   // Declare intermediate particle identifiers
   int interParticleNumbers[] = {
          // Electroweak gauge bosons
-         22,23,-24,24,
+         22,23,-24,24,25,2400,
          // Top quarks
          -6,6,
          // Dummy index as back-up
@@ -110,7 +112,7 @@ void HardProcess::translateLHEFString( string LHEpath){
   // Declare names of intermediate particles
   string interParticleNamesMG[] = {
         // Electroweak gauge bosons
-        "a","z","w-","w+",
+        "a","z","w-","w+","h","W",
          // Top quarks
          "t~","t",
         // Dummy index as back-up
@@ -123,10 +125,12 @@ void HardProcess::translateLHEFString( string LHEpath){
   int outParticleNumbers[] = {
         // Leptons
         -11,11,-12,12,-13,13,-14,14,-15,15,-16,16,
-        // Jet container
-        2212,2212,0,0,0,0,
+        // Jet container and lepton containers
+        2212,2212,0,0,0,0,1200,1100,5000,
         // Quarks
         -1,1,-2,2,-3,3,-4,4,-5,5,-6,6,
+        // SM uncoloured bosons
+        22,23,-24,24,25,2400,
         // Neutralino in SUSY
         1000022,
         // All squarks
@@ -137,10 +141,12 @@ void HardProcess::translateLHEFString( string LHEpath){
   string outParticleNamesMG[] =  {
         // Leptons
         "e+","e-","ve~","ve","mu+","mu-","vm~","vm","ta+","ta-","vt~","vt",
-        // Jet container
-        "j~","j","l+","l-","vl~","vl",
+        // Jet container and lepton containers
+        "j~","j","l+","l-","vl~","vl","NEUTRINOS","LEPTONS","BQUARKS",
         // Quarks
         "d~","d","u~","u","s~","s","c~","c","b~","b","t~","t",
+        // SM uncoloured bosons
+        "a","z","w-","w+","h","W",
         // Neutralino in SUSY
         "n1",
         // All squarks
@@ -150,10 +156,12 @@ void HardProcess::translateLHEFString( string LHEpath){
   string outParticleNamesSH[] = {
         // Leptons
         "-11","11","-12","12","-13","13","-14","14","-15","15","-16","16",
-        // Jet container
-        "-93","93","-90","90","-91","91",
+        // Jet container and lepton containers
+        "-93","93","-90","90","-91","91","0","0","0",
         // Quarks
         "-1","1","-2","2","-3","3","-4","4","-5","5","-6","6",
+        // SM uncoloured bosons
+        "22","23","-24","24","25","0",
         // Neutralino in SUSY
         "1000022",
         // All squarks
@@ -166,15 +174,18 @@ void HardProcess::translateLHEFString( string LHEpath){
 
   // Declare size of particle name arrays
   int nIn   = 30;
-  int nInt  = 31;
-  int nOut  = 55;
+  int nInt  = 33;
+  int nOut  = 64;
 
   // Save type of the generator, in order to be able to extract
   // the tms definition
-  meGenType = (lineGenerator.find("MadGraph", 0) != string::npos) ? -1
-              : (lineGenerator.find("SHERPA", 0) != string::npos) ? -2 : 0;
+  meGenType = (lineGenerator.find("MadGraph", 0) != string::npos)     ? -1
+              : (lineGenerator.find("SHERPA", 0) != string::npos)     ? -2
+              : (lineGenerator.find("POWHEG-BOX", 0) != string::npos) ? -3
+              : (lineGenerator.find("Pythia8", 0) != string::npos)    ? -4
+              : 0;
 
-  if(meGenType == -2){
+  if (meGenType == -2){
     // Now read merging scale
     // Open path to LHEF and extract merging scale
     infile.open( (char*)( LHEpath +"_1.lhe").c_str());
@@ -190,7 +201,7 @@ void HardProcess::translateLHEFString( string LHEpath){
     while(lineTMS.find(" ", 0) != string::npos)
       lineTMS.erase(lineTMS.begin()+lineTMS.find(" ",0));
     // Replace d with e
-    if( lineTMS.find("d", 0) != string::npos)
+    if ( lineTMS.find("d", 0) != string::npos)
       lineTMS.replace(lineTMS.find("d", 0),1,1,'e');
     tms = atof((char*)lineTMS.c_str());
 
@@ -239,22 +250,29 @@ void HardProcess::translateLHEFString( string LHEpath){
       }
     }
 
-  } else if(meGenType == -1){
+  } else if (meGenType == -1 || meGenType == -3 || meGenType == -4){
+
     // Now read merging scale
-    // Open path to LHEF and extract merging scale
-    infile.open( (char*)( LHEpath +"_1.lhe").c_str());
     string lineTMS;
-    while(lineTMS.find("ktdurham", 0) == string::npos){
-      lineTMS = " ";
-      getline(infile,lineTMS);
+
+    if (meGenType == -1) {
+      // Open path to LHEF and extract merging scale
+      infile.open( (char*)( LHEpath +"_1.lhe").c_str());
+      while(lineTMS.find("ktdurham", 0) == string::npos){
+        lineTMS = " ";
+        getline(infile,lineTMS);
+      }
+      lineTMS = lineTMS.substr(0,lineTMS.find("=",0));
+      infile.close();
+    } else {
+      lineTMS = "30.";
     }
-    lineTMS = lineTMS.substr(0,lineTMS.find("=",0));
-    infile.close();
+
     // Remove whitespaces
     while(lineTMS.find(" ", 0) != string::npos)
       lineTMS.erase(lineTMS.begin()+lineTMS.find(" ",0));
     // Replace d with e
-    if( lineTMS.find("d", 0) != string::npos)
+    if ( lineTMS.find("d", 0) != string::npos)
       lineTMS.replace(lineTMS.find("d", 0),1,1,'e');
     tms = atof((char*)lineTMS.c_str());
 
@@ -285,14 +303,14 @@ void HardProcess::translateLHEFString( string LHEpath){
       line = line.substr(n+1,line.size());
     }
     // Cut last resonance from rest
-    if(appearances > 0) {
+    if (appearances > 0) {
       pieces.push_back( line.substr(0,line.find(")",0)) );
       pieces.push_back( line.substr(line.find(")",0)+1,line.size()) );
     }
 
     // If the string was not cut into pieces, i.e. no resonance was
     // required, cut string using '>' as delimiter
-    if(pieces.empty() ){
+    if (pieces.empty() ){
       appearances = 0;
       for(int n = line.find(">", 0); n != int(string::npos);
               n = line.find(">", n)) {
@@ -307,8 +325,8 @@ void HardProcess::translateLHEFString( string LHEpath){
         line = line.substr(n+1,line.size());
       }
 
-      if(appearances == 1) pieces.push_back(line);
-      if(appearances > 1) {
+      if (appearances == 1) pieces.push_back(line);
+      if (appearances > 1) {
         pieces.push_back( line.substr(0,line.find(">",0)) );
         pieces.push_back( line.substr(line.find(">",0)+1,line.size()) );
       }
@@ -361,12 +379,26 @@ void HardProcess::translateLHEFString( string LHEpath){
       }
 
       // For arbitrary or non-existing intermediate, remember zero for each 
-      // two outgoing particles
-      if(inter.empty()) {
-        int nZeros = outgo.size()/2;
+      // two outgoing particles, without bosons.
+      if (inter.empty()) {
+
+        // For final state bosons, bookkeep the final state boson as
+        // intermediate as well.
+        int nBosons = 0;
+        for(int l=0; l < int(outgo.size()); ++l)
+          if ( (abs(outgo[l]) > 20 && abs(outgo[l]) <= 25) || outgo[l] == 2400)
+            nBosons++;
+
+        int nZeros = (outgo.size() - nBosons)/2;
         for(int l=0; l < nZeros; ++l)
           inter.push_back(0);
       }
+
+      // For final state bosons, bookkeep the final state boson as
+      // intermediate as well.
+      for(int l=0; l < int(outgo.size()); ++l)
+        if ( (abs(outgo[l]) > 20 && abs(outgo[l]) <= 25) || outgo[l] == 2400)
+          inter.push_back(outgo[l]);
 
     }
 
@@ -379,7 +411,7 @@ void HardProcess::translateLHEFString( string LHEpath){
     cin >> tempInt;
     cout << endl;
 
-    if(tempInt == 0){
+    if (tempInt == 0){
       tempInt = 0;
       double tempDouble  = 0.0;
       cout << "Please specify merging scale (kT Durham, in GeV): ";
@@ -409,7 +441,7 @@ void HardProcess::translateLHEFString( string LHEpath){
         cout << "Please specify outgoing particle ";
         cout << "(jet=2212, else PDG code, exit with 99): ";
         cin >> tempInt;
-        if(tempInt != 99) outgo.push_back(tempInt);
+        if (tempInt != 99) outgo.push_back(tempInt);
       } while(tempInt != 99);
       cout << endl;
     } else {
@@ -431,39 +463,79 @@ void HardProcess::translateLHEFString( string LHEpath){
     hardIntermediate.push_back(inter[i]);
 
   // Set the incoming particle tags
-  if(incom.size() != 2)
+  if (incom.size() != 2)
     cout << "Only two incoming particles allowed" << endl;
   else {
     hardIncoming1 = incom[0];
     hardIncoming2 = incom[1];
   }
 
+  // Remember final state bosons
+  int nBosons = 0;
+  for(int i=0; i < int(outgo.size()); ++i)
+    if ( (abs(outgo[i]) > 20 && abs(outgo[i]) <= 25) || outgo[i] == 2400)
+      nBosons++;
+  // Remember b-quark container
+  int nBQuarks = 0;
+  for(int i=0; i < int(outgo.size()); ++i)
+    if ( outgo[i] == 5000)
+      nBQuarks++;
+  // Remember jet container
+  int nJets = 0;
+  for(int i=0; i < int(outgo.size()); ++i)
+    if ( outgo[i] == 2212)
+      nJets++;
+  // Remember lepton container
+  int nLeptons = 0;
+  for(int i=0; i < int(outgo.size()); ++i)
+    if ( outgo[i] == 1100)
+      nLeptons++;
+  // Remember lepton container
+  int nNeutrinos = 0;
+  for(int i=0; i < int(outgo.size()); ++i)
+    if ( outgo[i] == 1200)
+      nNeutrinos++;
+  int nContainers = nLeptons + nNeutrinos + nJets + nBQuarks;
+
   // Set final particle identifiers
-  if(outgo.size()%2 == 1) {
-    cout << "Only even number of outgoing particles allowed" << endl;
+  if ( (outgo.size() - nBosons - nContainers)%2 == 1) {
+    cout << "Only even number of outgoing particles allowed" << endl;  
     for(int i=0; i < int(outgo.size()); ++i)
       cout << outgo[i] << endl;
   } else {
 
     // Push back particles / antiparticles
     for(int i=0; i < int(outgo.size()); ++i)
-      if(outgo[i] > 0
+      if (outgo[i] > 0
         && outgo[i] != 2212
+        && outgo[i] != 5000
+        && outgo[i] != 1100
+        && outgo[i] != 1200
+        && outgo[i] != 2400
         && outgo[i] != 1000022)
         hardOutgoing2.push_back( outgo[i]);
       else if (outgo[i] < 0)
         hardOutgoing1.push_back( outgo[i]);
 
+    // Save final state W-boson container as particle
+    for(int i=0; i < int(outgo.size()); ++i)
+      if ( outgo[i] == 2400)
+        hardOutgoing2.push_back( outgo[i]);
+
     // Push back jets, distribute evenly amongst particles / antiparticles
     // Push back majorana particles, distribute evenly
     int iNow = 0;
     for(int i=0; i < int(outgo.size()); ++i)
-      if( (outgo[i] == 2212
+      if ( (outgo[i] == 2212
+        || outgo[i] == 5000
+        || outgo[i] == 1200
         || outgo[i] == 1000022)
         && iNow%2 == 0 ){
         hardOutgoing2.push_back( outgo[i]);
         iNow++;
-      } else if( (outgo[i] == 2212
+      } else if ( (outgo[i] == 2212
+               || outgo[i] == 5000
+               || outgo[i] == 1100
                || outgo[i] == 1000022)
                && iNow%2 == 1 ){
         hardOutgoing1.push_back( outgo[i]);
@@ -505,7 +577,7 @@ void HardProcess::translateProcessString( string process){
   // Declare intermediate particle identifiers
   int interParticleNumbers[] = {
          // Electroweak gauge bosons
-         22,23,-24,24,
+         22,23,-24,24,25,2400,
          // Top quarks
          -6,6,
          // Dummy index as back-up
@@ -517,7 +589,7 @@ void HardProcess::translateProcessString( string process){
   // Declare names of intermediate particles
   string interParticleNamesMG[] = {
         // Electroweak gauge bosons
-        "a","z","w-","w+",
+        "a","z","w-","w+","h","W",
          // Top quarks
          "t~","t",
         // Dummy index as back-up
@@ -530,10 +602,12 @@ void HardProcess::translateProcessString( string process){
   int outParticleNumbers[] = {
         // Leptons
         -11,11,-12,12,-13,13,-14,14,-15,15,-16,16,
-        // Jet container
-        2212,2212,0,0,0,0,
+        // Jet container and lepton containers
+        2212,2212,0,0,0,0,1200,1100,5000,
         // Quarks
         -1,1,-2,2,-3,3,-4,4,-5,5,-6,6,
+        // SM uncoloured bosons
+        22,23,-24,24,25,2400,
         // Neutralino in SUSY
         1000022,
         // All squarks
@@ -544,10 +618,12 @@ void HardProcess::translateProcessString( string process){
   string outParticleNamesMG[] =  {
         // Leptons
         "e+","e-","ve~","ve","mu+","mu-","vm~","vm","ta+","ta-","vt~","vt",
-        // Jet container
-        "j~","j","l+","l-","vl~","vl",
+        // Jet container and lepton containers
+        "j~","j","l+","l-","vl~","vl","NEUTRINOS","LEPTONS","BQUARKS",
         // Quarks
         "d~","d","u~","u","s~","s","c~","c","b~","b","t~","t",
+        // SM uncoloured bosons
+        "a","z","w-","w+","h","W",
         // Neutralino in SUSY
         "n1",
         // All squarks
@@ -556,15 +632,89 @@ void HardProcess::translateProcessString( string process){
 
   // Declare size of particle name arrays
   int nIn   = 30;
-  int nInt  = 31;
-  int nOut  = 55;
+  int nInt  = 33;
+  int nOut  = 64;
 
-  string line = process;
+  // Start mapping user-defined particles onto particle ids.
+  //string fullProc = "pp>{blaa,124}LEPTONS,NEUTRINOS";
+  string fullProc = process;
+
+  // Find user-defined hard process content
+  // Count number of user particles
+  int nUserParticles = 0;
+  for(int n = fullProc.find("{", 0); n != int(string::npos);
+          n = fullProc.find("{", n)) {
+    nUserParticles++;
+    n++;
+  }
+  // Cut user-defined particles from remaining process 
+  vector <string> userParticleStrings;
+  for(int i =0; i < nUserParticles;++i) {
+    int n = fullProc.find("{", 0);
+    userParticleStrings.push_back(fullProc.substr(0,n));
+    fullProc = fullProc.substr(n+1,fullProc.size());
+  }
+  // Cut remaining process string from rest
+  if (nUserParticles > 0)
+    userParticleStrings.push_back(
+      fullProc.substr( 0, fullProc.find("}",0) ) );
+  // Remove curly brackets and whitespace
+  for(int i =0; i < int(userParticleStrings.size());++i) {
+    while(userParticleStrings[i].find("{", 0) != string::npos)
+      userParticleStrings[i].erase(userParticleStrings[i].begin()
+                                  +userParticleStrings[i].find("{", 0));
+    while(userParticleStrings[i].find("}", 0) != string::npos)
+      userParticleStrings[i].erase(userParticleStrings[i].begin()
+                                  +userParticleStrings[i].find("}", 0));
+    while(userParticleStrings[i].find(" ", 0) != string::npos)
+      userParticleStrings[i].erase(userParticleStrings[i].begin()
+                                  +userParticleStrings[i].find(" ", 0));
+  }
+  // Convert particle numbers in user particle to integers
+  vector<int>userParticleNumbers;
+  if ( int(userParticleStrings.size()) > 1) {
+    for( int i = 1; i < int(userParticleStrings.size()); ++i) {
+      userParticleNumbers.push_back( 
+        atoi((char*)userParticleStrings[i].substr(
+          userParticleStrings[i].find(",",0)+1, 
+          userParticleStrings[i].size()).c_str() ) );
+    }
+  }
+
+  // Save remaining process string
+  if (nUserParticles > 0)
+    userParticleStrings.push_back(
+      fullProc.substr(
+        fullProc.find("}",0)+1, fullProc.size() ) );
+  // Remove curly brackets and whitespace
+  for( int i = 0; i < int(userParticleStrings.size()); ++i) {
+    while(userParticleStrings[i].find("{", 0) != string::npos)
+      userParticleStrings[i].erase(userParticleStrings[i].begin()
+                                  +userParticleStrings[i].find("{", 0));
+    while(userParticleStrings[i].find("}", 0) != string::npos)
+      userParticleStrings[i].erase(userParticleStrings[i].begin()
+                                  +userParticleStrings[i].find("}", 0));
+    while(userParticleStrings[i].find(" ", 0) != string::npos)
+      userParticleStrings[i].erase(userParticleStrings[i].begin()
+                                  +userParticleStrings[i].find(" ", 0));
+  }
+
+  // Start mapping residual process string onto particle IDs.
+  // Declare leftover process after user-defined particles have been converted
+  string residualProc;
+  if ( int(userParticleStrings.size()) > 1 )
+    residualProc = userParticleStrings.front() + userParticleStrings.back();
+  else
+    residualProc = fullProc;
+
+  // Remove comma separation
+  while(residualProc.find(",", 0) != string::npos)
+    residualProc.erase(residualProc.begin()+residualProc.find(",",0));
 
   // Count number of resonances
   int appearances = 0;
-  for(int n = line.find("(", 0); n != int(string::npos);
-          n = line.find("(", n)) {
+  for(int n = residualProc.find("(", 0); n != int(string::npos);
+          n = residualProc.find("(", n)) {
     appearances++;
     n++;
   }
@@ -572,37 +722,39 @@ void HardProcess::translateProcessString( string process){
   // Cut string in incoming, resonance+decay and outgoing pieces 
   vector <string> pieces;
   for(int i =0; i < appearances;++i) {
-    int n = line.find("(", 0);
-    pieces.push_back(line.substr(0,n));
-    line = line.substr(n+1,line.size());
+    int n = residualProc.find("(", 0);
+    pieces.push_back(residualProc.substr(0,n));
+    residualProc = residualProc.substr(n+1,residualProc.size());
   }
   // Cut last resonance from rest
-  if(appearances > 0) {
-    pieces.push_back( line.substr(0,line.find(")",0)) );
-    pieces.push_back( line.substr(line.find(")",0)+1,line.size()) );
+  if (appearances > 0) {
+    pieces.push_back( residualProc.substr(0,residualProc.find(")",0)) );
+    pieces.push_back( residualProc.substr(
+      residualProc.find(")",0)+1, residualProc.size()) );
   }
 
   // If the string was not cut into pieces, i.e. no resonance was
   // required, cut string using '>' as delimiter
-  if(pieces.empty() ){
+  if (pieces.empty() ){
     appearances = 0;
-    for(int n = line.find(">", 0); n != int(string::npos);
-            n = line.find(">", n)) {
+    for(int n = residualProc.find(">", 0); n != int(string::npos);
+            n = residualProc.find(">", n)) {
       appearances++;
       n++;
     }
 
     // Cut string in incoming and outgoing pieces 
     for(int i =0; i < appearances;++i) {
-      int n = line.find(">", 0);
-      pieces.push_back(line.substr(0,n));
-      line = line.substr(n+1,line.size());
+      int n = residualProc.find(">", 0);
+      pieces.push_back(residualProc.substr(0,n));
+      residualProc = residualProc.substr(n+1,residualProc.size());
     }
 
-    if(appearances == 1) pieces.push_back(line);
-    if(appearances > 1) {
-      pieces.push_back( line.substr(0,line.find(">",0)) );
-      pieces.push_back( line.substr(line.find(">",0)+1,line.size()) );
+    if (appearances == 1) pieces.push_back(residualProc);
+    if (appearances > 1) {
+      pieces.push_back( residualProc.substr(0,residualProc.find(">",0)) );
+      pieces.push_back( residualProc.substr(
+        residualProc.find(">",0)+1, residualProc.size()) );
     }
   }
 
@@ -653,12 +805,26 @@ void HardProcess::translateProcessString( string process){
     }
 
     // For arbitrary or non-existing intermediate, remember zero for each 
-    // two outgoing particles
-    if(inter.empty()) {
-      int nZeros = outgo.size()/2;
+    // two outgoing particles, without bosons.
+    if (inter.empty()) {
+
+      // For final state bosons, bookkeep the final state boson as
+      // intermediate as well.
+      int nBosons = 0;
+      for(int l=0; l < int(outgo.size()); ++l)
+        if ( (abs(outgo[l]) > 20 && abs(outgo[l]) <= 25) || outgo[l] == 2400)
+          nBosons++;
+
+      int nZeros = (outgo.size() - nBosons)/2;
       for(int l=0; l < nZeros; ++l)
         inter.push_back(0);
     }
+
+    // For final state bosons, bookkeep the final state boson as
+    // intermediate as well.
+    for(int l=0; l < int(outgo.size()); ++l)
+      if ( (abs(outgo[l]) > 20 && abs(outgo[l]) <= 25) || outgo[l] == 2400)
+        inter.push_back(outgo[l]);
 
   }
 
@@ -668,39 +834,91 @@ void HardProcess::translateProcessString( string process){
     hardIntermediate.push_back(inter[i]);
 
   // Set the incoming particle tags
-  if(incom.size() != 2)
+  if (incom.size() != 2)
     cout << "Only two incoming particles allowed" << endl;
   else {
     hardIncoming1 = incom[0];
     hardIncoming2 = incom[1];
   }
 
+  // Remember final state bosons
+  int nBosons = 0;
+  for(int i=0; i < int(outgo.size()); ++i)
+    if ( (abs(outgo[i]) > 20 && abs(outgo[i]) <= 25) || outgo[i] == 2400)
+      nBosons++;
+  // Remember b-quark container
+  int nBQuarks = 0;
+  for(int i=0; i < int(outgo.size()); ++i)
+    if ( outgo[i] == 5000)
+      nBQuarks++;
+  // Remember jet container
+  int nJets = 0;
+  for(int i=0; i < int(outgo.size()); ++i)
+    if ( outgo[i] == 2212)
+      nJets++;
+  // Remember lepton container
+  int nLeptons = 0;
+  for(int i=0; i < int(outgo.size()); ++i)
+    if ( outgo[i] == 1100)
+      nLeptons++;
+  // Remember lepton container
+  int nNeutrinos = 0;
+  for(int i=0; i < int(outgo.size()); ++i)
+    if ( outgo[i] == 1200)
+      nNeutrinos++;
+  int nContainers = nLeptons + nNeutrinos + nJets + nBQuarks;
+
   // Set final particle identifiers
-  if(outgo.size()%2 == 1) {
+  if ( (outgo.size() - nBosons - nContainers)%2 == 1) {
     cout << "Only even number of outgoing particles allowed" << endl;  
     for(int i=0; i < int(outgo.size()); ++i)
       cout << outgo[i] << endl;
   } else {
 
+    // Start with user-defined particles.
+    for( int i = 0; i < int(userParticleNumbers.size()); ++i)
+      if (userParticleNumbers[i] > 0) {
+        hardOutgoing2.push_back( userParticleNumbers[i]);
+        hardIntermediate.push_back(0);
+        // For non-existing intermediate, remember zero.
+      } else if (userParticleNumbers[i] < 0) {
+        hardOutgoing1.push_back( userParticleNumbers[i]);
+        // For non-existing intermediate, remember zero.
+        hardIntermediate.push_back(0);
+      }
+
     // Push back particles / antiparticles
     for(int i=0; i < int(outgo.size()); ++i)
-      if(outgo[i] > 0
+      if (outgo[i] > 0
         && outgo[i] != 2212
+        && outgo[i] != 5000
+        && outgo[i] != 1100
+        && outgo[i] != 1200
+        && outgo[i] != 2400
         && outgo[i] != 1000022)
         hardOutgoing2.push_back( outgo[i]);
       else if (outgo[i] < 0)
         hardOutgoing1.push_back( outgo[i]);
 
+    // Save final state W-boson container as particle
+    for(int i=0; i < int(outgo.size()); ++i)
+      if ( outgo[i] == 2400)
+        hardOutgoing2.push_back( outgo[i]);
+
     // Push back jets, distribute evenly among particles / antiparticles
     // Push back majorana particles, distribute evenly
     int iNow = 0;
     for(int i=0; i < int(outgo.size()); ++i)
-      if( (outgo[i] == 2212
+      if ( (outgo[i] == 2212
+        || outgo[i] == 5000
+        || outgo[i] == 1200
         || outgo[i] == 1000022)
         && iNow%2 == 0 ){
         hardOutgoing2.push_back( outgo[i]);
         iNow++;
-      } else if( (outgo[i] == 2212
+      } else if ( (outgo[i] == 2212
+               || outgo[i] == 5000
+               || outgo[i] == 1100
                || outgo[i] == 1000022)
                && iNow%2 == 1 ){
         hardOutgoing1.push_back( outgo[i]);
@@ -713,9 +931,82 @@ void HardProcess::translateProcessString( string process){
 
 //--------------------------------------------------------------------------
 
+// Function to check if the candidates stored in Pos1 and Pos2, together with
+// a proposed candidate iPos are allowed.
+
+bool HardProcess::allowCandidates(int iPos, vector<int> Pos1, 
+  vector<int> Pos2, const Event& event){
+
+  bool allowed = true;
+
+  // Find colour-partner of new candidate
+  int type = (event[iPos].col() > 0) ? 1 : (event[iPos].acol() > 0) ? -1 : 0;
+
+  if (type == 0) return true;
+
+  if (type == 1){
+    int col = event[iPos].col();
+    int iPartner = 0;
+    for(int i=0; i < int(event.size()); ++i)
+      if ( i != iPos
+        && (( event[i].isFinal() && event[i].acol() == col)
+          ||( event[i].status() == -21 && event[i].col() == col) ))
+      iPartner = i;
+
+    vector<int> partners;
+    for(int i=0; i < int(event.size()); ++i)
+      for(int j=0; j < int(Pos1.size()); ++j)
+        if ( Pos1[j] != 0 && i != Pos1[j] && event[Pos1[j]].colType() != 0
+        && (( event[i].isFinal() && event[i].col() == event[Pos1[j]].acol())
+          ||( event[i].status() == -21
+           && event[i].acol() == event[Pos1[j]].acol()) ))
+         partners.push_back(i);
+
+    // Never allow equal initial partners!
+    if (event[iPartner].status() == -21){
+      for(int i=0; i < int(partners.size()); ++i)
+        if ( partners[i] == iPartner)
+          allowed = false;
+    }
+
+  } else {
+    int col = event[iPos].acol();
+    int iPartner = 0;
+    for(int i=0; i < int(event.size()); ++i)
+      if ( i != iPos
+        && (( event[i].isFinal() && event[i].col()  == col)
+          ||(!event[i].isFinal() && event[i].acol() == col) ))
+      iPartner = i;
+
+    vector<int> partners;
+    for(int i=0; i < int(event.size()); ++i)
+      for(int j=0; j < int(Pos2.size()); ++j)
+        if ( Pos2[j] != 0 && i != Pos2[j] && event[Pos2[j]].colType() != 0
+        && (( event[i].isFinal() && event[i].acol() == event[Pos2[j]].col())
+          ||( event[i].status() == -21
+           && event[i].col() == event[Pos2[j]].col()) ))
+         partners.push_back(i);
+
+
+    // Never allow equal initial partners!
+    if (event[iPartner].status() == -21){
+      for(int i=0; i < int(partners.size()); ++i){
+        if ( partners[i] == iPartner)
+          allowed = false;
+      }
+    }
+
+  }
+
+  return allowed;
+
+}
+
+//--------------------------------------------------------------------------
+
 // Function to identify the hard subprocess in the current event
 
-void HardProcess::storeCandidates( const Event& event){
+void HardProcess::storeCandidates( const Event& event, string process){
 
   // Store the reference event
   state.clear();
@@ -745,22 +1036,11 @@ void HardProcess::storeCandidates( const Event& event){
   for(int i =0; i < int(hardOutgoing2.size());++i)
     PosOutgoing2.push_back(0);
 
-  // If the hard process only consists of jets, and no intermediate
-  // particle is required, then no candidates need to be fixed, since
-  // all clusterings to the 2 -> 2 process should be allowed.
-  // Check if hard process contains only jets
-  bool hasOnlyJets = true;
-  for(int i =0; i < int(hardOutgoing1.size());++i)
-    if(hardOutgoing1[i] != 2212)
-      hasOnlyJets = false;
-  for(int i =0; i < int(hardOutgoing2.size());++i)
-    if(hardOutgoing2[i] != 2212)
-      hasOnlyJets = false;
-
-  // If the hard process contains only of non-specified jets,
-  // do not store any candidates, as to not discrimintate
-  // clusterings
-  if(hasOnlyJets){
+  // For QCD dijet or e+e- > jets hard process, do not store any candidates,
+  // as to not discrimintate clusterings
+  if (  process.compare("pp>jj") == 0
+    || process.compare("e+e->jj") == 0
+    || process.compare("e+e->(z>jj)") == 0 ){
     for(int i =0; i < int(hardOutgoing1.size());++i)
       PosOutgoing1[i] = 0;
     for(int i =0; i < int(hardOutgoing2.size());++i)
@@ -773,17 +1053,178 @@ void HardProcess::storeCandidates( const Event& event){
   // hard process particles
   vector<int> iPosChecked;
 
-  // First try to find particles coupled to intermediate bosons
+  // If the hard process is specified only by containers, then add all
+  // particles matching with the containers to the hard process.
+  bool hasOnlyContainers = true;
+  for(int i =0; i < int(hardOutgoing1.size());++i)
+    if (  hardOutgoing1[i] != 1100
+      && hardOutgoing1[i] != 1200
+      && hardOutgoing1[i] != 5000)
+      hasOnlyContainers = false;
+  for(int i =0; i < int(hardOutgoing2.size());++i)
+    if (  hardOutgoing2[i] != 1100
+      && hardOutgoing2[i] != 1200
+      && hardOutgoing2[i] != 5000)
+      hasOnlyContainers = false;
+
+  if (hasOnlyContainers){
+
+    PosOutgoing1.resize(0);
+    PosOutgoing2.resize(0);
+
+    // Try to find all unmatched hard process leptons.
+    // Loop through event to find outgoing lepton
+    for(int i=0; i < int(event.size()); ++i){
+
+      // Skip non-final particles
+      if ( !event[i].isFinal() ) continue;
+
+      // Skip all particles that have already been identified
+      bool skip = false;
+      for(int k=0; k < int(iPosChecked.size()); ++k){
+        if (i == iPosChecked[k])
+          skip = true;
+      }
+      if (skip) continue;
+
+      for(int j=0; j < int(outgoing2.size()); ++j){
+
+        // If the particle matches an outgoing neutrino, save it
+        if ( outgoing2[j] == 1100
+          && ( event[i].idAbs() == 11
+            || event[i].idAbs() == 13
+            || event[i].idAbs() == 15) ){
+          PosOutgoing2.push_back(i);
+          iPosChecked.push_back(i);
+        }
+
+        // If the particle matches an outgoing lepton, save it
+        if ( outgoing2[j] == 1200
+          && ( event[i].idAbs() == 12
+            || event[i].idAbs() == 14
+            || event[i].idAbs() == 16) ){
+          PosOutgoing2.push_back(i);
+          iPosChecked.push_back(i);
+        }
+
+        // If the particle matches an outgoing b-quark, save it
+        if ( outgoing2[j] == 5000 && event[i].idAbs() == 5 ){
+          PosOutgoing2.push_back(i);
+          iPosChecked.push_back(i);
+        }
+
+      }
+
+      // Skip all particles that have already been identified
+      skip = false;
+      for(int k=0; k < int(iPosChecked.size()); ++k){
+        if (i == iPosChecked[k])
+          skip = true;
+      }
+      if (skip) continue;
+
+      for(int j=0; j < int(outgoing1.size()); ++j){
+
+        // If the particle matches an outgoing neutrino, save it
+        if ( outgoing1[j] == 1100
+          && ( event[i].idAbs() == 11
+            || event[i].idAbs() == 13
+            || event[i].idAbs() == 15) ){
+          PosOutgoing1.push_back(i);
+          iPosChecked.push_back(i);
+        }
+
+        // If the particle matches an outgoing lepton, save it
+        if ( outgoing1[j] == 1200
+          && ( event[i].idAbs() == 12
+            || event[i].idAbs() == 14
+            || event[i].idAbs() == 16) ){
+          PosOutgoing1.push_back(i);
+          iPosChecked.push_back(i);
+        }
+
+        // If the particle matches an outgoing b-quark, save it
+        if ( outgoing1[j] == 5000 && event[i].idAbs() == 5 ){
+          PosOutgoing1.push_back(i);
+          iPosChecked.push_back(i);
+        }
+
+      }
+    }
+
+    // Done
+    return;
+  }
+
+  // Now begin finding candidates when not only containers are used.
+
+  // First try to find final state bosons
   for(int i=0; i < int(intermediates.size()); ++i){
 
     // Do nothing if the intermediate boson is absent
-    if(intermediates[i] == 0) continue;
+    if (intermediates[i] == 0) continue;
+
+    // Do nothing if this boson does not match any final state boson
+    bool matchesFinalBoson = false;
+    for(int j =0; j< int(outgoing1.size()); ++j){
+      if ( intermediates[i] == outgoing1[j] )
+        matchesFinalBoson = true;
+    }
+    for(int j =0; j< int(outgoing2.size()); ++j){
+      if ( intermediates[i] == outgoing2[j] )
+        matchesFinalBoson = true;
+    }
+    if (!matchesFinalBoson) continue;
+
+    // Loop through event
+    for(int j=0; j < int(event.size()); ++j) {
+      // If the particle has a requested intermediate id, check if
+      // if is a final state boson
+      if ( (event[j].id() == intermediates[i])
+        ||(event[j].idAbs() == 24 && intermediates[i] == 2400) ) {
+        PosIntermediate[i] = j;
+        intermediates[i] = 0;
+
+        for(int k=0; k < int(outgoing1.size()); ++k) {
+          if (event[j].id() == outgoing1[k]){
+            PosOutgoing1[k] = j;
+            outgoing1[k] = 99;
+          }
+        }
+
+        for(int k=0; k < int(outgoing2.size()); ++k) {
+          if (event[j].id() == outgoing2[k]){
+            PosOutgoing2[k] = j;
+            outgoing2[k] = 99;
+          }
+        }
+
+        // Check for W-boson container
+        for(int k=0; k < int(outgoing2.size()); ++k) {
+          if (event[j].idAbs() == 24 && outgoing2[k] == 2400){
+            PosOutgoing2[k] = j;
+            outgoing2[k] = 99;
+          }
+        }
+
+        iPosChecked.push_back(j);
+
+      }
+    }
+  }
+
+  // Second try to find particles coupled to intermediate bosons
+  for(int i=0; i < int(intermediates.size()); ++i){
+
+    // Do nothing if the intermediate boson is absent
+    if (intermediates[i] == 0) continue;
 
     // Loop through event
     for(int j=0; j < int(event.size()); ++j) {
       // If the particle has a requested intermediate id, check if
       // daughters are hard process particles
-      if(event[j].id() == intermediates[i]) {
+      if ( (event[j].id() == intermediates[i])
+        ||(event[j].idAbs() == 24 && intermediates[i] == 2400) ) {
         // If this particle is a potential intermediate
         PosIntermediate[i] = j;
         intermediates[i] = 0;
@@ -798,9 +1239,9 @@ void HardProcess::storeCandidates( const Event& event){
 
           // Check if daughter is hard outgoing particle
           for(int l=0; l < int(outgoing2.size()); ++l)
-            if( outgoing2[l] != 99 ){
+            if ( outgoing2[l] != 99 ){
                 // Found particle id
-              if(id == outgoing2[l]
+              if (id == outgoing2[l]
                 // Found jet
                 || (id > 0 && abs(id) < 10 && outgoing2[l] == 2212) ){
                 // Store position
@@ -810,13 +1251,14 @@ void HardProcess::storeCandidates( const Event& event){
                 iPosChecked.push_back(k);
                 break;
               }
+
             }
  
           // Check if daughter is hard outgoing antiparticle
           for(int l=0; l < int(outgoing1.size()); ++l)
-            if( outgoing1[l] != 99 ){
+            if ( outgoing1[l] != 99 ){
                 // Found particle id
-              if(id == outgoing1[l]
+              if (id == outgoing1[l]
                 // Found jet
                 || (id < 0 && abs(id) < 10 && outgoing1[l] == 2212) ){
                 // Store position
@@ -826,6 +1268,7 @@ void HardProcess::storeCandidates( const Event& event){
                 iPosChecked.push_back(k);
                 break;
             }
+
           }
 
         } // End loop through daughters
@@ -836,40 +1279,40 @@ void HardProcess::storeCandidates( const Event& event){
   // If all outgoing particles were found, done
   bool done = true;
   for(int i=0; i < int(outgoing1.size()); ++i)
-    if(outgoing1[i] != 99)
+    if (outgoing1[i] != 99)
       done = false;
   for(int i=0; i < int(outgoing2.size()); ++i)
-    if(outgoing2[i] != 99)
+    if (outgoing2[i] != 99)
       done = false;
   // Return 
-  if(done) return;
+  if (done) return;
 
   // Leptons not associated with resonance are allowed.
   // Try to find all unmatched hard process leptons.
   // Loop through event to find outgoing lepton
   for(int i=0; i < int(event.size()); ++i){
     // Skip non-final particles and final partons
-    if( !event[i].isFinal() || event[i].colType() != 0)
+    if ( !event[i].isFinal() || event[i].colType() != 0)
       continue;
     // Skip all particles that have already been identified
     bool skip = false;
     for(int k=0; k < int(iPosChecked.size()); ++k){
-      if(i == iPosChecked[k])
+      if (i == iPosChecked[k])
         skip = true;
     }
-    if(skip) continue;
+    if (skip) continue;
 
     // Check if any hard outgoing leptons remain
     for(int j=0; j < int(outgoing2.size()); ++j){
       // Do nothing if this particle has already be found,
       // or if this particle is a jet or quark
-      if(  outgoing2[j] == 99
+      if (  outgoing2[j] == 99
         || outgoing2[j] == 2212
         || abs(outgoing2[j]) < 10)
         continue;
 
       // If the particle matches an outgoing lepton, save it
-      if(event[i].id() == outgoing2[j]){
+      if (  event[i].id() == outgoing2[j] ){
         PosOutgoing2[j] = i;
         outgoing2[j] = 99;
         iPosChecked.push_back(i);
@@ -880,16 +1323,99 @@ void HardProcess::storeCandidates( const Event& event){
     for(int j=0; j < int(outgoing1.size()); ++j){
       // Do nothing if this particle has already be found,
       // or if this particle is a jet or quark
-      if(  outgoing1[j] == 99
+      if (  outgoing1[j] == 99
         || outgoing1[j] == 2212
         || abs(outgoing1[j]) < 10)
         continue;
 
       // If the particle matches an outgoing lepton, save it
-      if(event[i].id() == outgoing1[j]){
+      if (event[i].id() == outgoing1[j] ){
         PosOutgoing1[j] = i;
         outgoing1[j] = 99;
         iPosChecked.push_back(i);
+      }
+    }
+  }
+
+  multimap<int,int> out2copy;
+  for(int i=0; i < int(event.size()); ++i)
+    for(int j=0; j < int(outgoing2.size()); ++j)
+      // Do nothing if this particle has already be found,
+      // or if this particle is a jet, lepton container or lepton
+      if (  outgoing2[j] != 99
+        && outgoing2[j] != 2212
+        && abs(outgoing2[j]) < 10
+        && event[i].isFinal()
+        && event[i].id() == outgoing2[j] ){
+        out2copy.insert(make_pair(j, i));
+      }
+
+  multimap<int,int> out1copy;
+  for(int i=0; i < int(event.size()); ++i)
+    for(int j=0; j < int(outgoing1.size()); ++j)
+      // Do nothing if this particle has already be found,
+      // or if this particle is a jet, lepton container or lepton
+      if (  outgoing1[j] != 99
+        && outgoing1[j] != 2212
+        && abs(outgoing1[j]) < 10
+        && event[i].isFinal()
+        && event[i].id() == outgoing1[j] ){
+        out1copy.insert(make_pair(j, i));
+      }
+
+  if ( out1copy.size() >  out2copy.size()){
+
+    for ( multimap<int, int>::iterator it = out2copy.begin(); 
+      it != out2copy.end(); ++it ) {
+      if ( allowCandidates(it->second, PosOutgoing1, PosOutgoing2, event) ){
+
+        // Save parton
+        PosOutgoing2[it->first] = it->second;
+        // remove entry form lists
+        outgoing2[it->first] = 99;
+        iPosChecked.push_back(it->second);
+
+      }
+    }
+
+    for ( multimap<int, int>::iterator it = out1copy.begin(); 
+      it != out1copy.end(); ++it ) {
+      if ( allowCandidates(it->second, PosOutgoing1, PosOutgoing2, event) ){
+
+        // Save parton
+        PosOutgoing1[it->first] = it->second;
+        // remove entry form lists
+        outgoing1[it->first] = 99;
+        iPosChecked.push_back(it->second);
+
+      }
+    }
+
+  } else {
+
+    for ( multimap<int, int>::iterator it = out1copy.begin(); 
+      it != out1copy.end(); ++it ) {
+      if ( allowCandidates(it->second, PosOutgoing1, PosOutgoing2, event) ){
+
+        // Save parton
+        PosOutgoing1[it->first] = it->second;
+        // remove entry form lists
+        outgoing1[it->first] = 99;
+        iPosChecked.push_back(it->second);
+
+      }
+    }
+
+    for ( multimap<int, int>::iterator it = out2copy.begin(); 
+      it != out2copy.end(); ++it ) {
+      if ( allowCandidates(it->second, PosOutgoing1, PosOutgoing2, event) ){
+
+        // Save parton
+        PosOutgoing2[it->first] = it->second;
+        // remove entry form lists
+        outgoing2[it->first] = 99;
+        iPosChecked.push_back(it->second);
+
       }
     }
   }
@@ -902,27 +1428,27 @@ void HardProcess::storeCandidates( const Event& event){
   for(int i=0; i < int(event.size()); ++i){
 
     // Skip non-final particles and final partons
-    if( !event[i].isFinal() || event[i].colType() == 0)
+    if ( !event[i].isFinal() || event[i].colType() == 0)
       continue;
 
     // Skip all particles that have already been identified
     bool skip = false;
     for(int k=0; k < int(iPosChecked.size()); ++k){
-      if(i == iPosChecked[k])
+      if (i == iPosChecked[k])
         skip = true;
     }
-    if(skip) continue;
+    if (skip) continue;
 
-    // Check if any hard outgoing leptons remain
+    // Check if any hard outgoing quarks remain
     for(int j=0; j < int(outgoing2.size()); ++j){
       // Do nothing if this particle has already be found,
-      // or if this particle is a jet or quark
-      if(  outgoing2[j] == 99
+      // or if this particle is a jet, lepton container or lepton
+      if (  outgoing2[j] == 99
         || outgoing2[j] == 2212
         || abs(outgoing2[j]) > 10)
         continue;
-      // If the particle matches an outgoing quarks, save it
-      if(event[i].id() == outgoing2[j]){
+      // If the particle matches an outgoing quark, save it
+      if (event[i].id() == outgoing2[j]){
         // Save parton
         PosOutgoing2[j] = i;
         // remove entry form lists
@@ -934,13 +1460,13 @@ void HardProcess::storeCandidates( const Event& event){
     // Check if any hard outgoing antiquarks remain
     for(int j=0; j < int(outgoing1.size()); ++j){
       // Do nothing if this particle has already be found,
-      // or if this particle is a jet or quark
-      if(  outgoing1[j] == 99
+      // or if this particle is a jet, lepton container or lepton
+      if (  outgoing1[j] == 99
         || outgoing1[j] == 2212
         || abs(outgoing1[j]) > 10)
         continue;
-      // If the particle matches an outgoing lepton, save it
-      if(event[i].id() == outgoing1[j]){
+      // If the particle matches an outgoing antiquark, save it
+      if (event[i].id() == outgoing1[j]){
         // Save parton
         PosOutgoing1[j] = i;
         // Remove parton from list
@@ -972,7 +1498,7 @@ bool HardProcess::matchesAnyOutgoing(int iPos, const Event& event){
   // Check outgoing candidates
   for(int i=0; i < int(PosOutgoing1.size()); ++i)
     // Compare particle properties
-    if( event[iPos].id()         == state[PosOutgoing1[i]].id()
+    if ( event[iPos].id()         == state[PosOutgoing1[i]].id()
      && event[iPos].colType()    == state[PosOutgoing1[i]].colType() 
      && event[iPos].chargeType() == state[PosOutgoing1[i]].chargeType() 
      && event[iPos].col()        == state[PosOutgoing1[i]].col() 
@@ -983,7 +1509,7 @@ bool HardProcess::matchesAnyOutgoing(int iPos, const Event& event){
   // Check outgoing candidates
   for(int i=0; i < int(PosOutgoing2.size()); ++i)
     // Compare particle properties
-    if( event[iPos].id()         == state[PosOutgoing2[i]].id()
+    if ( event[iPos].id()         == state[PosOutgoing2[i]].id()
      && event[iPos].colType()    == state[PosOutgoing2[i]].colType() 
      && event[iPos].chargeType() == state[PosOutgoing2[i]].chargeType() 
      && event[iPos].col()        == state[PosOutgoing2[i]].col() 
@@ -993,7 +1519,7 @@ bool HardProcess::matchesAnyOutgoing(int iPos, const Event& event){
 
   // Check if maps to hard process:
   // Check that particle is in hard process
-  if( event[iPos].mother1()*event[iPos].mother2() == 12
+  if ( event[iPos].mother1()*event[iPos].mother2() == 12
       // Or particle has taken recoil from first splitting
       || (  event[iPos].status() == 44
          && event[event[iPos].mother1()].mother1()
@@ -1012,7 +1538,7 @@ bool HardProcess::matchesAnyOutgoing(int iPos, const Event& event){
       matchHP = true;
 
   // Done
-  return matchHP && ( matchQN1 || matchQN2 );
+  return ( matchHP && (matchQN1 || matchQN2) );
 
 }
 
@@ -1031,9 +1557,23 @@ int HardProcess::MEgenType(){ return meGenType;}
 int HardProcess::nQuarksOut(){
   int nFin =0;
   for(int i =0; i< int(hardOutgoing1.size()); ++i){
-    if(hardOutgoing1[i] == 2212 || abs(hardOutgoing1[i]) < 10) nFin++;
-    if(hardOutgoing2[i] == 2212 || abs(hardOutgoing2[i]) < 10) nFin++;
+    if (hardOutgoing1[i] == 2212 || abs(hardOutgoing1[i]) < 10) nFin++;
   }
+  for(int i =0; i< int(hardOutgoing2.size()); ++i){
+    if (hardOutgoing2[i] == 2212 || abs(hardOutgoing2[i]) < 10) nFin++;
+  }
+  // For very loose hard process definition, check number of hard process
+  // b-quarks explicitly.
+  for(int i =0; i< int(hardOutgoing1.size()); ++i)
+    if (hardOutgoing1[i] == 5000)
+      for(int j =0; j< int(PosOutgoing1.size()); ++j)
+        if (state[PosOutgoing1[j]].idAbs() == 5)
+          nFin++;
+  for(int i =0; i< int(hardOutgoing2.size()); ++i)
+    if (hardOutgoing2[i] == 5000)
+      for(int j =0; j< int(PosOutgoing2.size()); ++j)
+        if (state[PosOutgoing2[j]].idAbs() == 5)
+          nFin++;
   return nFin;
 }
 
@@ -1045,11 +1585,48 @@ int HardProcess::nQuarksOut(){
 int HardProcess::nLeptonOut(){
   int nFin =0;
   for(int i =0; i< int(hardOutgoing1.size()); ++i){
-    if(abs(hardOutgoing1[i]) > 10 && abs(hardOutgoing1[i]) < 20) nFin++;
-    if(abs(hardOutgoing2[i]) > 10 && abs(hardOutgoing2[i]) < 20) nFin++;
+    if (abs(hardOutgoing1[i]) > 10 && abs(hardOutgoing1[i]) < 20) nFin++;
     // Bookkeep MSSM neutralinos as leptons
-    if(abs(hardOutgoing1[i]) == 1000022) nFin++;
-    if(abs(hardOutgoing2[i]) == 1000022) nFin++;
+    if (abs(hardOutgoing1[i]) == 1000022) nFin++;
+  }
+  for(int i =0; i< int(hardOutgoing2.size()); ++i){
+    if (abs(hardOutgoing2[i]) > 10 && abs(hardOutgoing2[i]) < 20) nFin++;
+    // Bookkeep MSSM neutralinos as leptons
+    if (abs(hardOutgoing2[i]) == 1000022) nFin++;
+  }
+  // For very loose hard process definition, check number of hard process
+  // lepton explicitly.
+  // Check lepton / neutrino containers as leptons
+  for(int i =0; i< int(hardOutgoing1.size()); ++i)
+    if (hardOutgoing1[i] == 1100)
+      for(int j =0; j< int(PosOutgoing1.size()); ++j)
+        if (  abs(state[PosOutgoing1[j]].id()) == 11
+          || abs(state[PosOutgoing1[j]].id()) == 13
+          || abs(state[PosOutgoing1[j]].id()) == 15 )
+          nFin++;
+  for(int i =0; i< int(hardOutgoing2.size()); ++i)
+    if (hardOutgoing2[i] == 1200)
+      for(int j =0; j< int(PosOutgoing2.size()); ++j)
+        if (  abs(state[PosOutgoing2[j]].id()) == 12
+          || abs(state[PosOutgoing2[j]].id()) == 14
+          || abs(state[PosOutgoing2[j]].id()) == 16 )
+          nFin++;
+  return nFin;
+}
+
+//--------------------------------------------------------------------------
+
+// Function to get the number of uncoloured final state particles in the
+// hard process
+
+int HardProcess::nBosonsOut(){
+  int nFin =0;
+  for(int i =0; i< int(hardOutgoing1.size()); ++i){
+    if (abs(hardOutgoing1[i]) > 20 && abs(hardOutgoing1[i]) <= 25) nFin++;
+  }
+  for(int i =0; i< int(hardOutgoing2.size()); ++i){
+    if (abs(hardOutgoing2[i]) > 20 && abs(hardOutgoing2[i]) <= 25) nFin++;
+    if ( hardOutgoing2[i] == 2400) nFin++;
   }
   return nFin;
 }
@@ -1061,8 +1638,8 @@ int HardProcess::nLeptonOut(){
 
 int HardProcess::nQuarksIn(){
   int nIn =0;
-  if(hardIncoming1 == 2212 || abs(hardIncoming1) < 10) nIn++;
-  if(hardIncoming2 == 2212 || abs(hardIncoming2) < 10) nIn++;
+  if (hardIncoming1 == 2212 || abs(hardIncoming1) < 10) nIn++;
+  if (hardIncoming2 == 2212 || abs(hardIncoming2) < 10) nIn++;
   return nIn;
 }
 
@@ -1073,8 +1650,8 @@ int HardProcess::nQuarksIn(){
 
 int HardProcess::nLeptonIn(){
   int nIn =0;
-  if(abs(hardIncoming1) > 10 && abs(hardIncoming1) < 20) nIn++;
-  if(abs(hardIncoming2) > 10 && abs(hardIncoming2) < 20) nIn++;
+  if (abs(hardIncoming1) > 10 && abs(hardIncoming1) < 20) nIn++;
+  if (abs(hardIncoming2) > 10 && abs(hardIncoming2) < 20) nIn++;
   return nIn;
 }
 
@@ -1085,7 +1662,18 @@ int HardProcess::nLeptonIn(){
 
 int HardProcess::hasResInCurrent(){
   for(int i =0; i< int(PosIntermediate.size()); ++i)
-    if(PosIntermediate[i] == 0) return 0;
+    if (PosIntermediate[i] == 0) return 0;
+  // Do not count final state bosons as resonaces
+  for(int i =0; i< int(PosIntermediate.size()); ++i){
+    for(int j =0; j< int(PosOutgoing1.size()); ++j){
+      if ( PosIntermediate[i] == PosOutgoing1[j] )
+        return 0;
+    }
+    for(int j =0; j< int(PosOutgoing2.size()); ++j){
+      if ( PosIntermediate[i] == PosOutgoing2[j] )
+        return 0;
+    }
+  }
   return 1;
 }
 
@@ -1097,7 +1685,18 @@ int HardProcess::hasResInCurrent(){
 int HardProcess::nResInCurrent(){
   int nRes = 0;
   for(int i =0; i< int(PosIntermediate.size()); ++i){
-    if(PosIntermediate[i] != 0) nRes++;
+    if (PosIntermediate[i] != 0) {
+      bool matchesFinalBoson = false;
+      for(int j =0; j< int(PosOutgoing1.size()); ++j){
+        if ( PosIntermediate[i] == PosOutgoing1[j] )
+          matchesFinalBoson = true;
+      }
+      for(int j =0; j< int(PosOutgoing2.size()); ++j){
+        if ( PosIntermediate[i] == PosOutgoing2[j] )
+          matchesFinalBoson = true;
+      }
+      if (!matchesFinalBoson) nRes++;
+    }
   }
   return nRes;
 }
@@ -1108,8 +1707,20 @@ int HardProcess::nResInCurrent(){
 // 2->2 hard core process
 
 bool HardProcess::hasResInProc(){
+
   for(int i =0; i< int(hardIntermediate.size()); ++i)
-    if(hardIntermediate[i] == 0) return false;
+    if (hardIntermediate[i] == 0) return false;
+  // Do not count final state bosons as resonaces
+  for(int i =0; i< int(hardIntermediate.size()); ++i){
+    for(int j =0; j< int(hardOutgoing1.size()); ++j){
+      if ( hardIntermediate[i] == hardOutgoing1[j] )
+        return false;
+    }
+    for(int j =0; j< int(hardOutgoing2.size()); ++j){
+      if ( hardIntermediate[i] == hardOutgoing2[j] )
+        return false;
+    }
+  }
   return true;
 }
 
@@ -1124,10 +1735,10 @@ void HardProcess::list() const {
   for(int i =0; i < int(hardIntermediate.size());++i)
     cout << hardIntermediate[i] << " "; 
   cout << " \t -----> \t ";
-  for(int i =0; i < int(hardOutgoing1.size());++i) {
+  for(int i =0; i < int(hardOutgoing1.size());++i)
     cout << hardOutgoing1[i] << " ";
+  for(int i =0; i < int(hardOutgoing2.size());++i)
     cout << hardOutgoing2[i] << " ";
-  }
   cout << endl;
 }
 
@@ -1143,10 +1754,10 @@ void HardProcess::listCandidates() const {
   for(int i =0; i < int(PosIntermediate.size());++i)
     cout << PosIntermediate[i] << " "; 
   cout << " \t -----> \t ";
-  for(int i =0; i < int(PosOutgoing1.size());++i) {
+  for(int i =0; i < int(PosOutgoing1.size());++i)
     cout << PosOutgoing1[i] << " ";
+  for(int i =0; i < int(PosOutgoing2.size());++i)
     cout << PosOutgoing2[i] << " ";
-  }
   cout << endl;
 }
 
@@ -1204,6 +1815,10 @@ void MergingHooks::init( Settings& settings, Info* infoPtrIn,
   int    alphaSorderISR = settings.mode("SpaceShower:alphaSorder");
   AlphaS_ISRSave.init(alphaSvalueISR,alphaSorderISR);
 
+  // Initialise AlphaS objects for reweighting
+  int    alphaEMFSRorder = settings.mode("TimeShower:alphaEMorder");
+  AlphaEM_FSRSave.init(alphaEMFSRorder, &settings);
+
   // Initialise merging switches
   doUserMergingSave     =  settings.flag("Merging:doUserMerging");
 
@@ -1212,6 +1827,12 @@ void MergingHooks::init( Settings& settings, Info* infoPtrIn,
 
   // Initialise kT merging
   doKTMergingSave       =  settings.flag("Merging:doKTMerging");
+
+  // Initialise evolution-pT merging
+  doPTLundMergingSave   =  settings.flag("Merging:doPTLundMerging");
+
+  // Initialise \Delta_R_{ij}, pT_i Q_{ij} merging
+  doCutBasedMergingSave =  settings.flag("Merging:doCutBasedMerging");
 
   // Initialise exact definition of kT
   ktTypeSave            =  settings.mode("Merging:ktType");
@@ -1222,17 +1843,20 @@ void MergingHooks::init( Settings& settings, Info* infoPtrIn,
   // Clear hard process
   hardProcess.clear();
 
+  bool doStandardMerging = doUserMergingSave || doKTMergingSave 
+         || doPTLundMergingSave || doCutBasedMergingSave;
+
   // Initialise the hard process
-  if(doUserMergingSave || doKTMergingSave)
+  if ( doStandardMerging )
     hardProcess.initOnProcess(processSave, particleDataPtr);
   else
     hardProcess.initOnLHEF(lheInputFile, particleDataPtr);
-   
+
   // Parameters for reconstruction of evolution scales
-  includeMassiveSave    = settings.flag("Merging:includeMassive");
+  includeMassiveSave        = settings.flag("Merging:includeMassive");
   enforceStrongOrderingSave = settings.flag("Merging:enforceStrongOrdering");
   scaleSeparationFactorSave = settings.parm("Merging:scaleSeparationFactor");
-  orderInRapiditySave   = settings.flag("Merging:orderInRapidity");
+  orderInRapiditySave       = settings.flag("Merging:orderInRapidity");
 
   // Parameters for choosing history probabilistically
   nonJoinedNormSave     = settings.parm("Merging:nonJoinedNorm");
@@ -1246,12 +1870,19 @@ void MergingHooks::init( Settings& settings, Info* infoPtrIn,
     settings.mode("Merging:unorderedScalePrescrip");
   unorderedASscalePrescipSave =
     settings.mode("Merging:unorderedASscalePrescrip");
+  unorderedPDFscalePrescipSave =
+    settings.mode("Merging:unorderedPDFscalePrescrip");
   incompleteScalePrescipSave  =
     settings.mode("Merging:incompleteScalePrescrip");
 
   // Parameter for allowing swapping of one colour index while reclustering
   allowColourShufflingSave  =
     settings.flag("Merging:allowColourShuffling");
+
+  // Parameters to allow setting hard process scales to default (dynamical)
+  // Pythia values.
+  resetHardQRenSave     =  settings.flag("Merging:usePythiaQRenHard");
+  resetHardQFacSave     =  settings.flag("Merging:usePythiaQFacHard");
 
   // Parameters for choosing history by sum(|pT|)
   pickBySumPTSave       = settings.flag("Merging:pickBySumPT");
@@ -1265,36 +1896,68 @@ void MergingHooks::init( Settings& settings, Info* infoPtrIn,
 
   // Initialise CKKWL weight
   weightSave = 1.;
+  weightCKKWLSave = 1.;
+
+  // Initialise merging scale
+  tmsValueSave = 0.;
+  tmsListSave.resize(0);
 
   // Save merging scale on maximal number of jets
-  // (Note: Not used at the moment)
-  if(doKTMergingSave) {
-    tmsValueSave = settings.parm("Merging:TMS");
-    nJetMaxSave  = settings.mode("Merging:nJetMax");
+  if (  doKTMergingSave || doUserMergingSave || doPTLundMergingSave ) {
+    // Read merging scale (defined in kT) from input parameter.
+    tmsValueSave    = settings.parm("Merging:TMS");
+    nJetMaxSave     = settings.mode("Merging:nJetMax");
   } else if (doMGMergingSave) {
-    tmsValueSave = hardProcess.tms;
-    nJetMaxSave  = settings.mode("Merging:nJetMax");
-  } else {
-    tmsValueSave = settings.parm("Merging:TMS");
-    nJetMaxSave  = settings.mode("Merging:nJetMax");
+    // Read merging scale (defined in kT) from LHE file.
+    tmsValueSave    = hardProcess.tms;
+    nJetMaxSave     = settings.mode("Merging:nJetMax");
+  } else if (doCutBasedMergingSave) { 
+    // Save list of cuts defining the merging scale.
+    nJetMaxSave     = settings.mode("Merging:nJetMax");
+    // Write tms cut values to list of cut values,
+    // ordered by DeltaR_{ij}, pT_{i}, Q_{ij}.
+    tmsListSave.resize(0);
+    double drms     = settings.parm("Merging:dRijMS");
+    double ptms     = settings.parm("Merging:pTiMS");
+    double qms      = settings.parm("Merging:QijMS");
+    tmsListSave.push_back(drms);
+    tmsListSave.push_back(ptms);
+    tmsListSave.push_back(qms);
   }
+
+  bool writeBanner =  doKTMergingSave || doMGMergingSave || doUserMergingSave
+                   || doPTLundMergingSave || doCutBasedMergingSave;
+
+  if (!writeBanner) return;
 
   // Write banner
   os << "\n"
      << " *---------- MEPS Merging Initialization  -----------------------*"
-     << "\n"
-     << " | We merge  " << processSave << "  with up to  " << nJetMaxSave
-     << " additional jets \n";
-  if(doKTMergingSave)
+     << "\n";
+  if ( doKTMergingSave || doMGMergingSave || doUserMergingSave
+    || doPTLundMergingSave || doCutBasedMergingSave )
+     os << " | CKKW-L tree-level merging:\n"
+        << " | We merge  " << processSave << "  with up to  " << nJetMaxSave
+        << " additional jets \n";
+  if ( doKTMergingSave )
     os << " | Merging scale is defined in kT with the value ktMS = "
        << tmsValueSave << " GeV";
-  else if(doMGMergingSave)
+  else if ( doMGMergingSave )
     os << " | Perform automanted MG/ME merging \n"
        << " | Merging scale is defined in kT with the value ktMS = "
        << tmsValueSave << " GeV";
-  else
+  else if ( doUserMergingSave )
     os << " | Merging scale is defined by the user, with the value tMS = "
        << tmsValueSave;
+  else if ( doPTLundMergingSave )
+    os << " | Merging scale is defined by Lund pT, with the value tMS = "
+       << tmsValueSave;
+  else if ( doCutBasedMergingSave )
+    os << " | Merging scale is defined by combination of Delta R_{ij}, pT_i\n"
+       << " | and Q_{ij} cut, with values \n"
+       << " | Delta R_{ij,min} = " << tmsListSave[0] << "\n"
+       << " | pT_{i,min} = " << tmsListSave[1] << "\n"
+       << " | Q_{ij,min} = " << tmsListSave[2];
   os << "\n *---------- END MEPS Merging Initialization  -------------------*"
      << "\n\n";
 
@@ -1309,86 +1972,150 @@ int MergingHooks::getNumberOfClusteringSteps(const Event& event){
   // Count the number of final state partons
   int nFinalPartons = 0;
   for( int i=0; i < event.size(); ++i)
-    if( event[i].isFinal() && event[i].isParton())
-      nFinalPartons++;
-
-  // Add tops to number of partons
-  for( int i=0; i < event.size(); ++i)
-    if( event[i].isFinal() && event[i].idAbs() == 6)
+    if ( event[i].isFinal() && (event[i].isQuark() || event[i].isGluon()) )
       nFinalPartons++;
 
   // Count the number of final state leptons
   int nFinalLeptons = 0;
   for( int i=0; i < event.size(); ++i)
-    if( event[i].isFinal() && event[i].isLepton())
+    if ( event[i].isFinal() && event[i].isLepton())
       nFinalLeptons++;
 
   // Add neutralinos to number of leptons
   for( int i=0; i < event.size(); ++i)
-    if( event[i].isFinal()
-      && event[i].idAbs() == 1000022)
+    if ( event[i].isFinal()
+       && event[i].idAbs() == 1000022)
       nFinalLeptons++;
 
   // Count the number of final state electroweak bosons
   int nFinalBosons = 0;
   for( int i=0; i < event.size(); ++i)
-    if( event[i].isFinal()
-      && ( event[i].idAbs() == 24
-        || event[i].idAbs() == 23 ) )
+    if ( event[i].isFinal()
+      && ( event[i].idAbs() == 22
+        || event[i].idAbs() == 23
+        || event[i].idAbs() == 24
+        || event[i].idAbs() == 25 ) )
       nFinalBosons++;
 
   // Save sum of all final state particles
-  int nFinal = nFinalPartons + nFinalLeptons + 2*nFinalBosons;
+  int nFinal = nFinalPartons + nFinalLeptons
+             + 2*(nFinalBosons - nHardOutBosons() );
 
   // Return the difference to the core process outgoing particles
-  return (nFinal - nHardOutPartons() - nHardOutLeptons());
-
+  return (nFinal - nHardOutPartons() - nHardOutLeptons() );
 }
 
 //--------------------------------------------------------------------------
 
-double MergingHooks::kTms(const Event& event) {
+// Function to check if event contains an emission not present in the hard
+// process.
 
-  // Cut only on QCD partons!
+bool MergingHooks::isFirstEmission(const Event& event ) {
+
+  // Check that only one additional parton has been produced.
+  // If not, we're already in the PS region (e.g. in MI).
+  // Then, do not veto.
+  int nMPI = infoPtr->nMPI();
+  if (nMPI > 1) return false;
+
   // Count particle types
-  int nFinalColoured = 0;
-  int nFinalNow =0;
+  int nFinalQuarks   = 0;
+  int nFinalGluons   = 0;
+  int nFinalLeptons  = 0;
+  int nFinalBosons   = 0;
+  int nFinalPhotons  = 0;
+  int nFinal         = 0;
   for( int i=0; i < event.size(); ++i) {
-    if(event[i].isFinal()){
-      if(event[i].id() != 23 && abs(event[i].id()) != 24)
-        nFinalNow++;
-      if( event[i].colType() != 0)
-        nFinalColoured++;
+    if (event[i].isFinal()){
+      if (  event[i].id() != 21
+        && event[i].id() != 22
+        && event[i].id() != 23
+        && event[i].idAbs() != 24
+        && event[i].id() != 25
+        && event[i].colType() == 0)
+        nFinalLeptons++;
+      if (  event[i].id() == 23
+        || event[i].idAbs() == 24
+        || event[i].id() == 25)
+        nFinalBosons++;
+      if (  event[i].id() == 22)
+        nFinalPhotons++;
+      if ( event[i].isQuark())
+        nFinalQuarks++;
+      if ( event[i].isGluon())
+        nFinalGluons++;
+      if ( !event[i].isDiquark() )
+        nFinal++;
     }
   }
 
-  // Use MergingHooks in-built functions to get information on the hard
-  // process
-  int nLeptons = nHardOutLeptons();
-  int nQuarks  = nHardOutPartons();
-  int nResNow  = nResInCurrent();
+  // Return highest value if the event does not contain any final state
+  // coloured particles.
+  if (nFinalQuarks + nFinalGluons == 0) return false;
 
-  // Check if photons, electrons etc. have been produced. If so, do not veto
-  if(nFinalNow - ( (nLeptons+nQuarks)/2 - nResNow)*2 != nFinalColoured){
-    // Sometimes, Pythia detaches the decay products even though no
-    // resonance was put into the LHE file, to catch this, add another
-    // if statement
-    if(nFinalNow != nFinalColoured) return 0.;
+  // Use MergingHooks functions to get information on the hard process.
+  int nLeptons      = nHardOutLeptons();
+
+  // The state is already in the PS region if the number of leptons had been
+  // increased bt QED splittings.
+  if (nFinalLeptons > nLeptons) return false;
+
+  // If the mumber of photons if larger than in the hard process, QED
+  // radiation has pushed the state into the PS region.
+  int nPhotons = 0;
+  for(int i =0; i< int(hardProcess.hardOutgoing1.size()); ++i)
+    if (hardProcess.hardOutgoing1[i] == 22)
+      nPhotons++;
+  for(int i =0; i< int(hardProcess.hardOutgoing2.size()); ++i)
+    if (hardProcess.hardOutgoing2[i] == 22)
+      nPhotons++;
+  if (nFinalPhotons > nPhotons) return false;
+
+  // Done
+  return true;
+}
+
+//--------------------------------------------------------------------------
+
+// Function to return the minimal kT in the event. If doKTMerging = true, this
+// function will be used as a merging scale definition.
+
+double MergingHooks::kTms(const Event& event) {
+
+  // Only check first emission.
+  if (!isFirstEmission(event)) return 0.;
+
+  // Find all electroweak decayed bosons in the state.
+  vector<int> ewResonancePos;
+  ewResonancePos.clear();
+  for (int i=0; i < event.size(); ++i)
+    if ( abs(event[i].status()) == 22 )
+      ewResonancePos.push_back(i);
+
+  // Declare final parton vectors
+  vector <int> FinalPartPos;
+  FinalPartPos.clear();
+  // Search inEvent record for final state partons.
+  // Exclude decay products of ew resonance.
+  for (int i=0; i < event.size(); ++i){
+    if ( event[i].isFinal()
+      && event[i].colType() != 0
+      && event[i].idAbs()   != 6 ){
+      bool isDecayProduct = false;
+      for(int j=0; j < int(ewResonancePos.size()); ++j)
+        if ( event.isAncestor(i, ewResonancePos[j])
+          && event[i].mother2() == 0 )
+          isDecayProduct = true;
+      // Except for e+e- -> jets, do not check radiation in resonance decays.
+      if ( !isDecayProduct
+        || getProcessString().compare("e+e->jj") == 0 
+        || getProcessString().compare("e+e->(z>jj)") == 0 )
+        FinalPartPos.push_back(i);
+    }
   }
-
-  // Check that one parton has been produced. If not (e.g. in MPI), do not veto
-  int nMPI = infoPtr->nMPI();
-  if(nMPI > 1) return 0.;
 
   // Declare kT algorithm parameters
   double Dparam = 0.4;
-  // Declare final parton vector
-  vector <int> FinalPartPos;
-  FinalPartPos.clear();
-  // Search event record for final state partons
-  for (int i=0; i < event.size(); ++i)
-    if(event[i].isFinal() && event[i].colType() != 0)
-      FinalPartPos.push_back(i);
 
   // Find minimal Durham kT in event, using own function: Check
   // definition of separation
@@ -1399,7 +2126,7 @@ double MergingHooks::kTms(const Event& event) {
   for(int i=0; i < int(FinalPartPos.size()); ++i){
     double kt12  = ktmin;
     // Compute separation to the beam axis for hadronic collisions
-    if(type == 1 || type == 2) {
+    if (type == 1 || type == 2) {
       double temp = event[FinalPartPos[i]].pT();
       kt12 = min(kt12, temp);
     }
@@ -1420,7 +2147,7 @@ double MergingHooks::kTms(const Event& event) {
 
 //--------------------------------------------------------------------------
 
-// Function to compute durham y separation from Particle input
+// Function to compute durham y separation from Particle input.
 
 double MergingHooks::kTdurham(const Particle& RadAfterBranch,
   const Particle& EmtAfterBranch, int Type, double D ){
@@ -1431,7 +2158,7 @@ double MergingHooks::kTdurham(const Particle& RadAfterBranch,
   Vec4 jet1 = RadAfterBranch.p();
   Vec4 jet2 = EmtAfterBranch.p();
 
-  if( Type == -1) {
+  if ( Type == -1) {
     // Get angle between jets for e+e- collisions, make sure that
     // -1 <= cos(theta) <= 1
     double costh;
@@ -1441,24 +2168,24 @@ double MergingHooks::kTdurham(const Particle& RadAfterBranch,
     }
     // Calculate kt durham separation between jets for e+e- collisions
     ktdur = 2.0*min( pow(jet1.e(),2) , (pow(jet2.e(),2)) )*(1.0 - costh);
-  } else if( Type == 1 ){
+  } else if ( Type == 1 ){
     // Get delta_y for hadronic collisions:
     // Get mT of first jet
     double mT1sq = jet1.m2Calc() + jet1.pT2();
     double mT1 = 0.;
-    if(mT1sq < 0) mT1 = - sqrt(-mT1sq);
+    if (mT1sq < 0) mT1 = - sqrt(-mT1sq);
     else mT1 = sqrt(mT1sq);
     // Get mT of second jet
     double mT2sq = jet2.m2Calc() + jet2.pT2();
     double mT2 = 0.;
-    if(mT2sq < 0) mT2 = - sqrt(-mT2sq);
+    if (mT2sq < 0) mT2 = - sqrt(-mT2sq);
     else mT2 = sqrt(mT2sq);
     // Get rapidity of first jet
     double y1 = log( ( jet1.e() + abs(jet1.pz()) ) / mT1 );
-    if(jet1.pz() < 0) y1 *= -1.;
+    if (jet1.pz() < 0) y1 *= -1.;
     // Get rapidity of second jet
     double y2 = log( ( jet2.e() + abs(jet2.pz()) ) / mT2 );
-    if(jet2.pz() < 0) y2 *= -1.;
+    if (jet2.pz() < 0) y2 *= -1.;
     // Get delta_phi for hadronic collisions
     double pt1 = sqrt( pow(jet1.px(),2) + pow(jet1.py(),2) );
     double pt2 = sqrt( pow(jet2.px(),2) + pow(jet2.py(),2) );  
@@ -1468,7 +2195,7 @@ double MergingHooks::kTdurham(const Particle& RadAfterBranch,
     // but with rapidity instead of pseudo-rapidity
     ktdur = min( pow(pt1,2),pow(pt2,2) )
           * ( pow(y1-y2,2) + pow(dPhi,2) ) / pow(D,2);
-  } else if( Type == 2 ){
+  } else if ( Type == 2 ){
     // Get delta_eta for hadronic collisions
     double eta1 = 0.5*log( (jet1.e() + jet1.pz()) / (jet1.e() - jet1.pz()) );
     double eta2 = 0.5*log( (jet2.e() + jet2.pz()) / (jet2.e() - jet2.pz()) );
@@ -1480,7 +2207,7 @@ double MergingHooks::kTdurham(const Particle& RadAfterBranch,
     // Calculate kT durham like fastjet
     ktdur = min( pow(pt1,2),pow(pt2,2) )
           * ( pow(eta1-eta2,2) + pow(dPhi,2) ) / pow(D,2);
-  } else if( Type == 3 ){
+  } else if ( Type == 3 ){
     // Get cosh(Delta_eta) for hadronic collisions
     double eta1 = 0.5*log( (jet1.e() + jet1.pz()) / (jet1.e() - jet1.pz()) );
     double eta2 = 0.5*log( (jet2.e() + jet2.pz()) / (jet2.e() - jet2.pz()) );
@@ -1501,15 +2228,420 @@ double MergingHooks::kTdurham(const Particle& RadAfterBranch,
 
 //--------------------------------------------------------------------------
 
-// Function to set the path to the LHE file, so that more automated merging
-// can be used
+// Find the minimal Lund pT between coloured partons in the input
+// event. If doPTLundMerging = true, this function will be used as a merging
+// scale definition.
 
-void MergingHooks::setLHEInputFile( string lheFile){
-  // Remove "_1.lhe" suffix from LHE file name.
-  // This is done so that the HarsProcess class can access both the +0 and +1
-  // LHE files to find both the merging scale and the core process string
-  // Store.
-  lheInputFile = lheFile.substr(0,lheFile.size()-6);
+double MergingHooks::rhoms( const Event& event, bool withColour){
+
+  // Only check first emission.
+  if (!isFirstEmission(event)) return 0.;
+
+  // Find all electroweak decayed bosons in the state.
+  vector<int> ewResonancePos;
+  ewResonancePos.clear();
+  for (int i=0; i < event.size(); ++i)
+    if ( abs(event[i].status()) == 22 )
+      ewResonancePos.push_back(i);
+
+  // Declare final parton vectors
+  vector <int> FinalPartPos;
+  FinalPartPos.clear();
+  // Search inEvent record for final state partons.
+  // Exclude decay products of ew resonance.
+  for (int i=0; i < event.size(); ++i){
+    if ( event[i].isFinal()
+      && event[i].colType() != 0
+      && event[i].idAbs()   != 6 ){
+      bool isDecayProduct = false;
+      for(int j=0; j < int(ewResonancePos.size()); ++j)
+        if ( event.isAncestor(i, ewResonancePos[j])
+          && event[i].mother2() == 0 )
+          isDecayProduct = true;
+      // Except for e+e- -> jets, do not check radiation in resonance decays.
+      if ( !isDecayProduct
+        || getProcessString().compare("e+e->jj") == 0 
+        || getProcessString().compare("e+e->(z>jj)") == 0 )
+        FinalPartPos.push_back(i);
+    }
+  }
+
+  // Get index of first incoming
+  int in1 = 0;
+  for (int i=0; i < event.size(); ++i)
+    if (abs(event[i].status()) == 41 ){
+      in1 = i;
+      break;
+    }
+
+  // Get index of second incoming
+  int in2 = 0;
+  for (int i=0; i < event.size(); ++i)
+    if (abs(event[i].status()) == 42 ){
+      in2 = i;
+      break;
+    }
+
+  // If no incoming of the cascade are found, try incoming
+  if (in1 == 0 || in2 == 0){
+    // Find current incoming partons
+    for(int i=0; i < int(event.size()); ++i){
+      if (event[i].mother1() == 1) in1 = i;
+      if (event[i].mother1() == 2) in2 = i;
+    }
+  }
+
+  // Find minimal pythia pt in event
+  double ptmin = event[0].e();
+  for(int i=0; i < int(FinalPartPos.size()); ++i){
+    double pt12  = ptmin;
+    // Compute pythia ISR separation i-jet and first incoming
+    if (event[in1].colType() != 0) {
+      double temp = rhoPythia( event[in1],
+                      event[FinalPartPos[i]], event[in2], -1 );
+      pt12 = min(pt12, temp);
+    }
+    // Compute pythia ISR separation i-jet and second incoming
+    if ( event[in2].colType() != 0) {
+      double temp = rhoPythia( event[in2],
+                      event[FinalPartPos[i]], event[in1], -1 );
+      pt12 = min(pt12, temp);
+    }
+
+    if (withColour) {
+      // Compute pythia FSR separation between two jets,
+      // with knowledge of colour connections
+      for(int j=0; j < int(FinalPartPos.size()); ++j) {
+
+        // Find recoiler in event
+        if ( i!=j ){
+          bool isHard = false;
+          int radAcl = event[FinalPartPos[i]].acol();
+          int radCol = event[FinalPartPos[i]].col();
+          int emtAcl = event[FinalPartPos[j]].acol();
+          int emtCol = event[FinalPartPos[j]].col();
+          int iRec = -1;
+          // Check in final state
+          if (iRec <= 0 && radAcl > 0 && radAcl != emtCol)
+            iRec = findColour(radAcl, FinalPartPos[i], FinalPartPos[j],
+                     event,1, isHard);
+          if (iRec <= 0 && radCol > 0 && radCol != emtAcl)
+            iRec = findColour(radCol, FinalPartPos[i], FinalPartPos[j],
+                     event,1, isHard);
+          if (iRec <= 0 && emtAcl > 0 && emtAcl != radCol)
+            iRec = findColour(emtAcl, FinalPartPos[i], FinalPartPos[j],
+                     event,1, isHard);
+          if (iRec <= 0 && emtCol > 0 && emtCol != radAcl)
+            iRec = findColour(emtCol, FinalPartPos[i], FinalPartPos[j],
+                     event,1, isHard);
+
+          // Check in initial state
+          if (iRec <= 0 && radAcl > 0 && radAcl != emtCol)
+            iRec = findColour(radAcl, FinalPartPos[i], FinalPartPos[j],
+                     event,2, isHard);
+          if (iRec <= 0 && radCol > 0 && radCol != emtAcl)
+            iRec = findColour(radCol, FinalPartPos[i], FinalPartPos[j],
+                     event,2, isHard);
+          if (iRec <= 0 && emtAcl > 0 && emtAcl != radCol)
+            iRec = findColour(emtAcl, FinalPartPos[i], FinalPartPos[j],
+                     event,2, isHard);
+          if (iRec <= 0 && emtCol > 0 && emtCol != radAcl)
+            iRec = findColour(emtCol, FinalPartPos[i], FinalPartPos[j],
+                     event,2, isHard);
+
+          if (iRec > 0) {
+            double temp = rhoPythia( event[FinalPartPos[i]],
+                                     event[FinalPartPos[j]],
+                                     event[iRec], 1 );
+            pt12 = min(pt12, temp);
+          }
+        }
+
+        // If minimal pT below shower cut-off, return
+        if (pt12 < 0.4) return pt12;
+
+      }
+
+    } else {
+      // Compute pythia FSR separation between two jets,
+      // without any knowledge of colour connections
+      for(int j=0; j < int(FinalPartPos.size()); ++j) {
+        for(int k=0; k < int(FinalPartPos.size()); ++k) {
+          // Allow any parton as recoiler
+          if ( (i != j) && (i != k) && (j != k) ){
+
+            double temp = 0.;
+            // Only check splittings allowed by flavour, e.g.
+            // only q -> qg and g -> qqbar
+            temp = rhoPythia( event[FinalPartPos[i]],
+                              event[FinalPartPos[j]],
+                              event[FinalPartPos[k]], 1 );
+            pt12 = min(pt12, temp);
+          }
+        }
+        // If minimal pT below shower cut-off, return
+        if (pt12 < 0.4) return pt12;
+      }
+
+      // Compute pythia FSR separation between two jets, with initial recoiler
+      // without any knowledge of colour connections
+      if ( event[in1].colType() != 0 && event[in2].colType() != 0) {
+        for(int j=0; j < int(FinalPartPos.size()); ++j) {
+          // Allow both initial partons as recoiler
+          if ( i != j ){
+            // Check with first initial as recoiler
+            double temp = rhoPythia( event[FinalPartPos[i]],
+                                     event[FinalPartPos[j]],
+                                     event[in1], 1 );
+            pt12 = min(pt12, temp);
+            // Check with second initial as recoiler
+            temp        = rhoPythia( event[FinalPartPos[i]],
+                                     event[FinalPartPos[j]],
+                                     event[in2], 1 );
+            pt12 = min(pt12, temp);
+          }
+
+          // If minimal pT below shower cut-off, return
+          if (pt12 < 0.4) return pt12;
+        }
+      }
+
+    }
+    // Reset minimal y separation
+    ptmin = min(ptmin,pt12);
+  }
+
+  return ptmin;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Function to compute "pythia pT separation" from Particle input, as a helper
+// for rhoms(...).
+
+double MergingHooks::rhoPythia(const Particle& RadAfterBranch,
+              const Particle& EmtAfterBranch,
+              const Particle& RecAfterBranch, int ShowerType){
+
+  // Save type: 1 = FSR pT definition, else ISR definition
+  int Type   = ShowerType;
+  // Calculate virtuality of splitting
+  int sign = (Type==1) ? 1 : -1;
+  Vec4 Q(RadAfterBranch.p() + sign*EmtAfterBranch.p());
+  double Qsq = sign * Q.m2Calc();
+  // Mass term of radiator
+  double m2Rad = ( includeMassive()
+               && abs(RadAfterBranch.id()) >= 4
+               && abs(RadAfterBranch.id()) < 7)
+               ? pow(particleDataPtr->m0(RadAfterBranch.id()), 2)
+               : 0.;
+  // Construct 2->3 variables for FSR
+  Vec4   sum     = RadAfterBranch.p() + RecAfterBranch.p()
+                 + EmtAfterBranch.p();
+  double m2Dip = sum.m2Calc();
+  double x1 = 2. * (sum * RadAfterBranch.p()) / m2Dip;
+  double x3 = 2. * (sum * EmtAfterBranch.p()) / m2Dip;
+  // Construct momenta of dipole before/after splitting for ISR 
+  Vec4 qBR(RadAfterBranch.p() - EmtAfterBranch.p() + RecAfterBranch.p());
+  Vec4 qAR(RadAfterBranch.p() + RecAfterBranch.p());
+  // Calculate z of splitting, different for FSR and ISR
+  double z = (Type==1) ? x1/(x1+x3)
+                     : (qBR.m2Calc())/( qAR.m2Calc());
+  // Separation of splitting, different for FSR and ISR
+  double pTpyth = (Type==1) ? z*(1.-z) : (1.-z);
+  // pT^2 = separation*virtuality
+  pTpyth *= (Qsq - sign*m2Rad);
+  if (pTpyth < 0.) pTpyth = 0.;
+  // Return pT
+  return sqrt(pTpyth);
+}
+
+//--------------------------------------------------------------------------
+
+// Function to find a colour (anticolour) index in the input event.
+// Helper for rhoms
+// IN  int col       : Colour tag to be investigated
+//     int iExclude1 : Identifier of first particle to be excluded
+//                     from search
+//     int iExclude2 : Identifier of second particle to be excluded
+//                     from  search
+//     Event event   : event to be searched for colour tag
+//     int type      : Tag to define if col should be counted as
+//                      colour (type = 1) [->find anti-colour index
+//                                         contracted with col]
+//                      anticolour (type = 2) [->find colour index
+//                                         contracted with col]
+// OUT int           : Position of particle in event record
+//                     contraced with col [0 if col is free tag]
+
+int MergingHooks::findColour(int col, int iExclude1, int iExclude2,
+      const Event& event, int type, bool isHardIn){
+
+  bool isHard = isHardIn;
+  int index = 0;
+
+  if (isHard){
+    // Search event record for matching colour & anticolour
+    for(int n = 0; n < event.size(); ++n) {
+      if ( n != iExclude1 && n != iExclude2
+        && event[n].colType() != 0
+        &&(   event[n].status() > 0          // Check outgoing
+           || event[n].status() == -21) ) {  // Check incoming
+         if ( event[n].acol() == col ) {
+          index = -n;
+          break;
+        }
+        if ( event[n].col()  == col ){
+          index =  n;
+          break;
+        }
+      }
+    }
+  } else {
+
+    // Search event record for matching colour & anticolour
+    for(int n = 0; n < event.size(); ++n) {
+      if (  n != iExclude1 && n != iExclude2
+        && event[n].colType() != 0
+        &&(   event[n].status() == 43        // Check outgoing from ISR
+           || event[n].status() == 51        // Check outgoing from FSR
+           || event[n].status() == 52        // Check outgoing from FSR
+           || event[n].status() == -41       // first initial
+           || event[n].status() == -42) ) {  // second initial
+        if ( event[n].acol() == col ) {
+          index = -n;
+          break;
+        }
+        if ( event[n].col()  == col ){
+          index =  n;
+          break;
+        }
+      }
+    }
+  }
+  // if no matching colour / anticolour has been found, return false
+  if ( type == 1 && index < 0) return abs(index);
+  if ( type == 2 && index > 0) return abs(index);
+
+  return 0;
+}
+
+//--------------------------------------------------------------------------
+
+// Function to check if the properties of the input particle should be
+// checked against the cut-based merging scale defintion.
+
+bool MergingHooks::checkAgainstCut( const Particle& particle){
+
+  // Do not check uncoloured particles.
+  if (particle.colType() == 0)
+    return false;
+  // Do not check tops and bottoms.
+  if (particle.idAbs() == 5 || particle.idAbs() == 6)
+    return false;
+  // Done
+  return true;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Find the if the event passes the Delta R_{ij}, pT_{i} and Q_{ij} cuts on
+// the matrix element, as needed for cut-based merging scale definition.
+
+double MergingHooks::cutbasedms( const Event& event ){
+
+  // Only check first emission.
+  if (!isFirstEmission(event)) return -1.;
+
+  // Save allowed final state particles
+  vector<int> partons;
+  for( int i=0; i < event.size(); ++i)
+    if ( event[i].isFinal() && checkAgainstCut(event[i]) )
+      partons.push_back(i);
+
+  // Declare overall veto
+  bool doVeto = false;
+  // Declare vetoes
+  bool vetoPT  = false;
+  bool vetoRjj = false;
+  bool vetoMjj = false;
+  // Declare cuts used in matrix element
+  double pTjmin = pTiMS();
+  double mjjmin = QijMS();
+  double rjjmin = dRijMS();
+
+  // Declare minimum values
+  double minPT  = event[0].e();
+  double minRJJ = 10.;
+  double minMJJ = event[0].e();
+
+  // Check matrix element cuts
+  for( int i=0; i < int(partons.size()); ++i){
+    // Save pT value
+    minPT = min(minPT,event[partons[i]].pT());
+
+    // Check two-parton cuts
+    for( int j=0; j < int(partons.size()); ++j){
+      if (i!=j){
+
+        // Save delta R value
+        minRJJ = min(minRJJ, deltaRij( event[partons[i]].p(),
+              event[partons[j]].p()) );
+        // Save delta R value
+        minMJJ = min(minMJJ, ( event[partons[i]].p()
+                              +event[partons[j]].p() ).mCalc() );
+
+      }
+    }
+  // Done with cut evaluation
+  }
+
+  // Check if all partons are in the matrix element region
+  if (minPT  > pTjmin) vetoPT  = true;
+  if (minRJJ > rjjmin) vetoRjj = true;
+  if (minMJJ > mjjmin) vetoMjj = true;
+
+  // In the matrix element calculation, we have rejected the events if any of 
+  // the cuts had not been fulfilled,
+  // i.e. we are in the matrix element domain if all cuts are fulfilled.
+  // We veto any emission in the ME region.
+  // Disregard the two-parton cuts if only one parton in the final state
+  if (int(partons.size() == 1))
+    doVeto = vetoPT;
+  else
+  // Veto if the combination of cuts would be in the ME region
+    doVeto = vetoPT && vetoRjj && vetoMjj;
+
+  // If event is above merging scale, veto
+  if (doVeto) return 1.;
+
+  // Else, do nothing
+  return -1.;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Function to compute Delta R separation from 4-vector input.
+
+double MergingHooks::deltaRij(Vec4 jet1, Vec4 jet2){
+
+  // Declare return variable
+  double deltaR = 0.;
+  // Get delta_eta and cosh(Delta_eta) for hadronic collisions
+  double eta1 = 0.5*log( (jet1.e() + jet1.pz()) / (jet1.e() - jet1.pz()) );
+  double eta2 = 0.5*log( (jet2.e() + jet2.pz()) / (jet2.e() - jet2.pz()) );
+  // Get delta_phi and cos(Delta_phi) for hadronic collisions
+  double pt1 = sqrt( pow(jet1.px(),2) + pow(jet1.py(),2) );
+  double pt2 = sqrt( pow(jet2.px(),2) + pow(jet2.py(),2) );  
+  double cosdPhi = ( jet1.px()*jet2.px() + jet1.py()*jet2.py() ) / (pt1*pt2);
+  double dPhi = acos( cosdPhi );
+  // Calculate kT durham like fastjet
+  deltaR = sqrt(pow(eta1-eta2,2) + pow(dPhi,2));
+  // Return kT
+  return deltaR;
 }
 
 //==========================================================================

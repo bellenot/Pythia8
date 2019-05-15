@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.160      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 23 Jan 2012  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.170      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 21 Sep 2012  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 23 Jan 2012 at 11:23:04    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 21 Sep 2012 at 21:33:14    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
@@ -16,8 +16,8 @@
  |  |   Stefan Ask;  Department of Physics, University of Cambridge,               |  | 
  |  |      Cavendish Laboratory, JJ Thomson Ave., Cambridge CB3 0HE, UK;           |  | 
  |  |      phone: + 41 - 22 - 767 6707; e-mail: Stefan.Ask@cern.ch                 |  | 
- |  |   Richard Corke;  Department of Astronomy and Theoretical Physics,           |  | 
- |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
+ |  |   Richard Corke;  Niels Bohr Institute, University of Copenhagen,            |  | 
+ |  |      Blegdamsvej 17, 2100 Copenhagen, Denmark;                               |  | 
  |  |      e-mail: richard.corke@thep.lu.se                                        |  | 
  |  |   Stephen Mrenna;  Computing Division, Simulations Group,                    |  | 
  |  |      Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;  |  | 
@@ -51,9 +51,6 @@
  |                                                                                    | 
  *------------------------------------------------------------------------------------* 
 
- PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10313
- PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10323
- PYTHIA Warning in ParticleDataEntry::initBWmass: switching off width for id = 10333
 
  *-------  PYTHIA Process Initialization  --------------------------*
  |                                                                  |
@@ -67,8 +64,8 @@
  |------------------------------------------------------------------|
  |                                                    |             |
  | f fbar -> gamma*/Z0 gamma*/Z0                  231 |   2.815e-07 |
- | f fbar' -> Z0 W+- (no gamma*!)                 232 |   3.933e-07 |
- | f fbar -> W+ W-                                233 |   4.235e-07 |
+ | f fbar' -> Z0 W+- (no gamma*!)                 232 |   3.934e-07 |
+ | f fbar -> W+ W-                                233 |   4.239e-07 |
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
 
@@ -90,6 +87,7 @@
  | SigmaDiffractive:maxXB                        |                 65.00000 |     15.00000         0.0             | 
  | SigmaDiffractive:maxXX                        |                 65.00000 |     15.00000         0.0             | 
  | SigmaProcess:alphaSvalue                      |                  0.13500 |      0.12650   0.0600000     0.25000 | 
+ | SigmaTotal:zeroAXB                            |                       on |          off                         | 
  | SpaceShower:rapidityOrder                     |                       on |          off                         | 
  | WeakDoubleBoson:all                           |                       on |          off                         | 
  |                                                                                                                 | 
@@ -110,19 +108,19 @@
               6     1   0.0666593    0       12      -12 
               7     1   0.0335119    0       13      -13 
               8     1   0.0666593    0       14      -14 
-              9     1   0.0334362    0       15      -15 
+              9     1   0.0334363    0       15      -15 
              10     1   0.0666593    0       16      -16 
 
-      24  W+               W-                 3   3   0   80.40300    2.09502   50.00000    0.00000  0.00000e+00   1   1   0   1   0
-              0     1   0.3206874    0       -1        2 
+      24  W+               W-                 3   3   0   80.38500    2.09454   50.00000    0.00000  0.00000e+00   1   1   0   1   0
+              0     1   0.3206876    0       -1        2 
               1     1   0.0174315    0       -1        4 
               2     1   0.0174549    0       -3        2 
-              3     1   0.3199452    0       -3        4 
+              3     1   0.3199453    0       -3        4 
               4     1   0.0000053    0       -5        2 
               5     1   0.0005990    0       -5        4 
-              6     1   0.1079854    0      -11       12 
-              7     1   0.1079851    0      -13       14 
-              8     1   0.1079063    0      -15       16 
+              6     1   0.1079853    0      -11       12 
+              7     1   0.1079850    0      -13       14 
+              8     1   0.1079062    0      -15       16 
 
  --------  End PYTHIA Particle Data Table  -----------------------------------------------------------------------------------------
 
@@ -132,14 +130,14 @@
  Beam A: id =   2212, pz =  4.000e+03, e =  4.000e+03, m =  9.383e-01.
  Beam B: id =   2212, pz = -4.000e+03, e =  4.000e+03, m =  9.383e-01.
 
- In 1: id =   -2, x =  2.691e-02, pdf =  2.754e-01 at Q2 =  7.523e+03.
- In 2: id =    2, x =  7.695e-02, pdf =  5.689e-01 at same Q2.
+ In 1: id =   -2, x =  2.691e-02, pdf =  2.754e-01 at Q2 =  7.519e+03.
+ In 2: id =    2, x =  7.693e-02, pdf =  5.689e-01 at same Q2.
 
  Subprocess f fbar -> W+ W- with code 233 is 2 -> 2.
- It has sHat =  1.325e+05,    tHat = -1.508e+03,    uHat = -1.172e+05,
-       pTHat =  3.118e+01,   m3Hat =  8.094e+01,   m4Hat =  8.548e+01,
+ It has sHat =  1.325e+05,    tHat = -1.507e+03,    uHat = -1.171e+05,
+       pTHat =  3.117e+01,   m3Hat =  8.092e+01,   m4Hat =  8.546e+01,
     thetaHat =  1.938e-01,  phiHat =  1.501e-01.
-     alphaEM =  7.815e-03,  alphaS =  1.356e-01    at Q2 =  7.892e+03.
+     alphaEM =  7.815e-03,  alphaS =  1.356e-01    at Q2 =  7.888e+03.
 
  --------  End PYTHIA Info Listing  ------------------------------------
 
@@ -149,15 +147,15 @@
      0        90   (system)           -11     0     0     0     0     0     0      0.000      0.000      0.000   8000.000   8000.000
      1      2212   (p+)               -12     0     0     3     0     0     0      0.000      0.000   4000.000   4000.000      0.938
      2      2212   (p+)               -12     0     0     4     0     0     0      0.000      0.000  -4000.000   4000.000      0.938
-     3        -2   (ubar)             -21     1     0     5     6     0   101      0.000      0.000    107.652    107.652      0.000
-     4         2   (u)                -21     2     0     5     6   101     0      0.000      0.000   -307.787    307.787      0.000
-     5       -24   (W-)               -22     3     4     7     8     0     0     30.825      4.661     81.778    119.207     80.936
-     6        24   (W+)               -22     3     4     9    10     0     0    -30.825     -4.661   -281.913    296.232     85.480
-     7         3   s                   23     5     0     0     0   102     0    -22.074     20.177     18.069     34.944      0.500
-     8        -4   cbar                23     5     0     0     0     0   102     52.899    -15.516     63.710     84.263      1.500
-     9        -3   sbar                23     6     0     0     0     0   103     25.518      0.448   -157.462    159.518      0.500
-    10         4   c                   23     6     0     0     0   103     0    -56.343     -5.110   -124.451    136.715      1.500
-                                   Charge sum: -0.000           Momentum sum:      0.000      0.000   -200.135    415.439    364.055
+     3        -2   (ubar)             -21     1     0     5     6     0   101      0.000      0.000    107.632    107.632      0.000
+     4         2   (u)                -21     2     0     5     6   101     0      0.000      0.000   -307.734    307.734      0.000
+     5       -24   (W-)               -22     3     4     7     8     0     0     30.817      4.660     81.766    119.184     80.918
+     6        24   (W+)               -22     3     4     9    10     0     0    -30.817     -4.660   -281.867    296.183     85.461
+     7         3   s                   23     5     0     0     0   102     0    -22.069     20.172     18.067     34.938      0.500
+     8        -4   cbar                23     5     0     0     0     0   102     52.886    -15.512     63.699     84.246      1.500
+     9        -3   sbar                23     6     0     0     0     0   103     25.512      0.448   -157.437    159.492      0.500
+    10         4   c                   23     6     0     0     0   103     0    -56.330     -5.109   -124.430    136.690      1.500
+                                   Charge sum: -0.000           Momentum sum:     -0.000     -0.000   -200.102    415.366    363.990
 
  --------  End PYTHIA Event Listing  -----------------------------------------------------------------------------------------------
 
@@ -169,10 +167,10 @@
  |-----------------------------------------------------------------------------------------------------------------|
  |                                                    |                                   |                        |
  | f fbar -> gamma*/Z0 gamma*/Z0                  231 |         565         11         11 |   5.030e-09  8.097e-10 |
- | f fbar' -> Z0 W+- (no gamma*!)                 232 |         807         22         22 |   1.295e-08  1.167e-09 |
- | f fbar -> W+ W-                                233 |         816         67         67 |   3.610e-08  2.034e-09 |
+ | f fbar' -> Z0 W+- (no gamma*!)                 232 |         807         22         22 |   1.295e-08  1.168e-09 |
+ | f fbar -> W+ W-                                233 |         816         67         67 |   3.613e-08  2.036e-09 |
  |                                                    |                                   |                        |
- | sum                                                |        2188        100        100 |   5.408e-08  2.481e-09 |
+ | sum                                                |        2188        100        100 |   5.410e-08  2.483e-09 |
  |                                                                                                                 |
  *-------  End PYTHIA Event and Cross Section Statistics ----------------------------------------------------------*
 
@@ -180,6 +178,6 @@
  |                                                                                                                 | 
  |  times   message                                                                                                | 
  |                                                                                                                 | 
- |      3   Warning in ParticleDataEntry::initBWmass: switching off width                                          | 
+ |      0   no errors or warnings to report                                                                        | 
  |                                                                                                                 | 
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 

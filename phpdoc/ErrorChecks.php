@@ -80,7 +80,22 @@ If this check fails, then <code>pythia.next()</code> obtains the
 value <code>false</code>, i.e. the event is counted as aborted.
   
 
-<br/><br/><table><tr><td><strong>Check:nErrList  </td><td></td><td> <input type="text" name="5" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>)</td></tr></table>
+<br/><br/><strong>Check:history</strong>  <input type="radio" name="5" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="5" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+When <code>Check:event = on</code> and the event is checked as above,
+further checks are made that all mother and daughter pointers are
+consistently set. Specifically that all daughters in the 
+<code>daughterlist</code> (or <code>motherList</code>) have the 
+particle in their respective <code>motherList</code>
+(or <code>daughterlist</code>). This operation takes a bit more
+time than the other error tests (of the order of 10% of what it takes 
+to generate the event in the first place), and so could be switched off 
+to save time.
+  
+
+
+<br/><br/><table><tr><td><strong>Check:nErrList  </td><td></td><td> <input type="text" name="6" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>)</td></tr></table>
 The number of erroneous events, in the above check, for which 
 event listing and other detailed information will be printed. 
 After that, only the normal error messages will be issued. 
@@ -88,7 +103,7 @@ Error counters are always updated, and accumulated numbers can be
 shown with <code>pythia.statistics()</code> at the end of the run.
   
 
-<br/><br/><table><tr><td><strong>Check:epTolErr </td><td></td><td> <input type="text" name="6" value="1e-4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1e-4</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Check:epTolErr </td><td></td><td> <input type="text" name="7" value="1e-4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1e-4</strong></code>)</td></tr></table>
 Maximum allowed summed deviation of <i>E</i>, <i>p_x</i>, 
 <i>p_y</i> and <i>p_z</i> between the incoming beams and the 
 final state, as a fraction of the initial energy, above which the 
@@ -100,7 +115,7 @@ any fundamental bug if also the default tolerance above is violated
 occasionally.)
   
 
-<br/><br/><table><tr><td><strong>Check:epTolWarn </td><td></td><td> <input type="text" name="7" value="1e-6" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1e-6</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Check:epTolWarn </td><td></td><td> <input type="text" name="8" value="1e-6" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1e-6</strong></code>)</td></tr></table>
 A check on the same summed deviation as above, but counted as a 
 warning rather than an error, and not leading to the event being
 classified as aborted.
@@ -141,19 +156,24 @@ if($_POST["4"] != "on")
 $data = "Check:event = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["5"] != "0")
+if($_POST["5"] != "on")
 {
-$data = "Check:nErrList = ".$_POST["5"]."\n";
+$data = "Check:history = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "1e-4")
+if($_POST["6"] != "0")
 {
-$data = "Check:epTolErr = ".$_POST["6"]."\n";
+$data = "Check:nErrList = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["7"] != "1e-6")
+if($_POST["7"] != "1e-4")
 {
-$data = "Check:epTolWarn = ".$_POST["7"]."\n";
+$data = "Check:epTolErr = ".$_POST["7"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["8"] != "1e-6")
+{
+$data = "Check:epTolWarn = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

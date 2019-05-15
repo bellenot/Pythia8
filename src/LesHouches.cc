@@ -204,47 +204,86 @@ bool LHAup::initLHEF() {
 //--------------------------------------------------------------------------
 
 // Write event information to a Les Houches Event File.
+// Normal mode is to line up event info in columns, but the non-verbose
+// altnernative saves space at the expense of human readability.
 
-bool LHAup::eventLHEF() {
+bool LHAup::eventLHEF(bool verbose) {
 
-  // Write information on process as such. 
-  osLHEF << "<event>\n" << scientific << setprecision(6)
-         << " " << setw(5) << particles.size() - 1 
-         << " " << setw(5) << idProc
-         << " " << setw(13) << weightProc 
-         << " " << setw(13) << scaleProc
-         << " " << setw(13) << alphaQEDProc
-         << " " << setw(13) << alphaQCDProc << "\n";
+  // Default verbose option.
+  if (verbose) { 
 
-  // Write information on the particles, excluding zeroth. 
-  for (int ip = 1; ip < int(particles.size()); ++ip) {
-    osLHEF << " " << setw(8) << particles[ip].idPart 
-           << " " << setw(5) << particles[ip].statusPart 
-           << " " << setw(5) << particles[ip].mother1Part
-           << " " << setw(5) << particles[ip].mother2Part 
-           << " " << setw(5) << particles[ip].col1Part
-           << " " << setw(5) << particles[ip].col2Part << setprecision(10)
-           << " " << setw(17) << particles[ip].pxPart
-           << " " << setw(17) << particles[ip].pyPart
-           << " " << setw(17) << particles[ip].pzPart 
-           << " " << setw(17) << particles[ip].ePart 
-           << " " << setw(17) <<  particles[ip].mPart << setprecision(6);
-    if (particles[ip].tauPart == 0.) osLHEF << " 0.";
-    else osLHEF << " " << setw(13) << particles[ip].tauPart;
-    if (particles[ip].spinPart == 9.) osLHEF << " 9.";
-    else osLHEF << " " << setw(13) << particles[ip].spinPart;
-    osLHEF << "\n";
+    // Write information on process as such. 
+    osLHEF << "<event>\n" << scientific << setprecision(6)
+           << " " << setw(5) << particles.size() - 1 
+           << " " << setw(5) << idProc
+           << " " << setw(13) << weightProc 
+           << " " << setw(13) << scaleProc
+           << " " << setw(13) << alphaQEDProc
+           << " " << setw(13) << alphaQCDProc << "\n";
+
+    // Write information on the particles, excluding zeroth. 
+    for (int ip = 1; ip < int(particles.size()); ++ip) {
+      LHAParticle& ptNow = particles[ip];
+      osLHEF << " " << setw(8) << ptNow.idPart 
+             << " " << setw(5) << ptNow.statusPart 
+             << " " << setw(5) << ptNow.mother1Part
+             << " " << setw(5) << ptNow.mother2Part 
+             << " " << setw(5) << ptNow.col1Part
+             << " " << setw(5) << ptNow.col2Part << setprecision(10)
+             << " " << setw(17) << ptNow.pxPart
+             << " " << setw(17) << ptNow.pyPart
+             << " " << setw(17) << ptNow.pzPart 
+             << " " << setw(17) << ptNow.ePart 
+             << " " << setw(17) <<  ptNow.mPart << setprecision(6);
+      if (ptNow.tauPart == 0.) osLHEF << " 0.";
+      else osLHEF << " " << setw(13) << ptNow.tauPart;
+      if (ptNow.spinPart == 9.) osLHEF << " 9.";
+      else osLHEF << " " << setw(13) << ptNow.spinPart;
+      osLHEF << "\n";
+    }
+
+    // Optionally write information on PDF values at hard interaction.
+    if (pdfIsSetSave) osLHEF << "#pdf" 
+             << " " << setw(4) << id1pdfSave
+             << " " << setw(4) << id2pdfSave
+             << " " << setw(13) << x1pdfSave 
+             << " " << setw(13) << x2pdfSave 
+             << " " << setw(13) << scalePDFSave 
+             << " " << setw(13) << pdf1Save 
+             << " " << setw(13) << pdf2Save << "\n"; 
+
+  // Alternative non-verbose option. 
+  } else {
+
+    // Write information on process as such. 
+    osLHEF << "<event>\n" << scientific << setprecision(6)
+           << particles.size() - 1 << " " << idProc       << " "
+           << weightProc           << " " << scaleProc    << " "
+           << alphaQEDProc         << " " << alphaQCDProc << "\n";
+
+    // Write information on the particles, excluding zeroth. 
+    for (int ip = 1; ip < int(particles.size()); ++ip) {
+      LHAParticle& ptNow = particles[ip];
+      osLHEF        << ptNow.idPart      << " " << ptNow.statusPart 
+             << " " << ptNow.mother1Part << " " << ptNow.mother2Part 
+             << " " << ptNow.col1Part    << " " << ptNow.col2Part 
+             << setprecision(10)         << " " << ptNow.pxPart
+             << " " << ptNow.pyPart      << " " << ptNow.pzPart 
+             << " " << ptNow.ePart       << " " << ptNow.mPart 
+             << setprecision(6);
+      if (ptNow.tauPart == 0.) osLHEF << " 0.";
+      else osLHEF << " " << setw(13) << ptNow.tauPart;
+      if (ptNow.spinPart == 9.) osLHEF << " 9.";
+      else osLHEF << " " << setw(13) << ptNow.spinPart;
+      osLHEF << "\n";
+    }
+
+    // Optionally write information on PDF values at hard interaction.
+    if (pdfIsSetSave) osLHEF << "#pdf" << " " << id1pdfSave
+             << " " << id2pdfSave << " " << x1pdfSave << " " << x2pdfSave 
+             << " " << scalePDFSave << " " << pdf1Save << " " << pdf2Save 
+             << "\n"; 
   }
-
-  // Optionally write information on PDF values at hard interaction.
-  if (pdfIsSetSave) osLHEF << "#pdf" 
-           << " " << setw(4) << id1pdfSave
-           << " " << setw(4) << id2pdfSave
-           << " " << setw(13) << x1pdfSave 
-           << " " << setw(13) << x2pdfSave 
-           << " " << setw(13) << scalePDFSave 
-           << " " << setw(13) << pdf1Save 
-           << " " << setw(13) << pdf2Save << "\n"; 
 
   // Done.
   osLHEF << "</event>" << endl;
@@ -288,15 +327,20 @@ bool LHAup::closeLHEF(bool updateInit) {
 
 // Read in initialization information from a Les Houches Event File.
 
-bool LHAup::setInitLHEF(istream& is) {
+bool LHAup::setInitLHEF(istream& is, bool readHeaders) {
 
   // Check that first line is consistent with proper LHEF file.
   string line;
   if (!getline(is, line)) return false;
   if (line.find("<LesHouchesEvents") == string::npos) return false;  
   if (line.find("version=\"1.0\"" ) == string::npos ) return false;
- 
-  // Loop over lines until an <init tag is found first on a line.
+
+  // What to search for if reading headers; if not reading
+  // headers then return to default behaviour
+  string headerTag = (readHeaders) ? "<header>" : "<init";
+
+  // Loop over lines until an <init (or optionally <header>) tag
+  // is found first on a line.
   string tag = " ";
   do { 
     if (!getline(is, line)) return false;
@@ -305,7 +349,85 @@ bool LHAup::setInitLHEF(istream& is) {
       getfirst >> tag;
       if (!getfirst) return false;
     }
-  } while (tag != "<init>" && tag != "<init"); 
+  } while (tag != "<init>" && tag != "<init" && tag != headerTag);
+
+  // If header tag found, process if required
+  if (readHeaders == true && tag == headerTag) {
+    // Temporary local storage
+    map < string, string > headerMap;
+
+    // Loop over lines until an <init> tag is found.
+    bool read = true, newKey = false;
+    string key = "base";
+    vector < string > keyVec;
+    while (true) { 
+      if (!getline(is, line)) return false;
+
+      // Check if this line is a tag; '<' as first character,
+      // '>' as last character, exclusing whitespace
+      size_t pos1 = line.find_first_not_of(" \n\t\v\b\r\f\a");
+      size_t pos2 = line.find_last_not_of(" \n\t\v\b\r\f\a");
+      if (pos1 != string::npos && line[pos1] == '<' &&
+          pos2 != string::npos && line[pos2] == '>' &&
+          pos1 < pos2) {
+
+        // Only take the first word of the tag
+        tag = line.substr(pos1 + 1, pos2 - pos1 - 1);
+        istringstream getfirst(tag);
+        getfirst >> tag;
+
+        // Tag present, so handle here
+        if (getfirst) {
+
+          // Exit condition 
+          if (tag == "init") break;
+
+          // End of header block; keep reading until <init> tag,
+          // but do not store any further information
+          else if (tag == "/header") {
+            read = false;
+            continue;
+
+          // Opening tag
+          } else if (tag[0] != '/') {
+            keyVec.push_back(tag);
+            newKey = true;
+            continue;
+
+          // Closing tag that matches current key
+          } else if (tag == "/" + keyVec.back()) {
+            keyVec.pop_back();
+            newKey = true;
+            continue;
+          }
+
+        } // if (getfirst)
+      }
+
+      // At this point we have a line that is not a tag; if no longer
+      // reading headers then keep going
+      if (!read) continue;
+      
+      // Check for key change
+      if (newKey) {
+        if (keyVec.empty()) key = "base";
+        else                key = keyVec[0];
+        for (size_t i = 1; i < keyVec.size(); i++)
+          key += "." + keyVec[i];
+        newKey = false;
+      }
+
+      // Append information to local storage
+      headerMap[key] += line + "\n";
+
+    } // while (true)
+
+    // Copy information to info using LHAup::setInfoHeader
+    for (map < string, string >::iterator it = headerMap.begin();
+        it != headerMap.end(); it++)
+      setInfoHeader(it->first, it->second);
+
+  } // if (readHeaders == true && tag == headerTag)
   
   // Read in beam and strategy info, and store it. 
   int idbmupA, idbmupB;
@@ -322,6 +444,8 @@ bool LHAup::setInitLHEF(istream& is) {
 
   // Read in process info, one process at a time, and store it.
   double xsecup, xerrup, xmaxup;
+  xSecSumSave = 0.;
+  xErrSumSave = 0.;
   int lprup; 
   for (int ip = 0; ip < nprup; ++ip) { 
     if (!getline(is, line)) return false;
@@ -329,7 +453,10 @@ bool LHAup::setInitLHEF(istream& is) {
     getpro >> xsecup >> xerrup >> xmaxup >> lprup ;
     if (!getpro) return false;
     addProcess(lprup, xsecup, xerrup, xmaxup);
+    xSecSumSave += xsecup;
+    xErrSumSave += pow2(xerrup);
   }
+  xErrSumSave = sqrt(xErrSumSave);
 
   // Reading worked.
   return true;
@@ -383,8 +510,8 @@ bool LHAup::setNewEventLHEF(istream& is) {
   // Flavour and x values of hard-process initiators.
   id1InSave = particlesSave[1].idPart;
   id2InSave = particlesSave[2].idPart;
-  x1InSave  = particlesSave[1].ePart / eBeamASave; 
-  x2InSave  = particlesSave[2].ePart / eBeamBSave; 
+  x1InSave  = (eBeamASave > 0.) ? particlesSave[1].ePart / eBeamASave : 0.; 
+  x2InSave  = (eBeamBSave > 0.) ? particlesSave[2].ePart / eBeamBSave : 0.; 
 
   // Continue parsing till </event>. Extract pdf info if present.
   getPDFSave = false;
@@ -435,22 +562,29 @@ bool LHAup::setOldEventLHEF() {
 
 }
 
-//==========================================================================
-
-// LHAupLHEF class.
-
 //--------------------------------------------------------------------------
 
-// Constructor.
+// Open a file using provided ifstream and return a pointer to an istream
+// that can be used to process the file. This is designed to handle
+// GZIPSUPPORT in a transparent manner:
+//  - no GZIPSUPPORT, the istream pointer is exactly the ifstream object.
+//  - with GZIPSUPPORT, the istream pointer is a Boost filtering istream
+//    (memory allocated), which reads from the ifstream and decompresses.
+// The companion 'closeFile' can be used to correctly close a file and
+// deallocate memory if needed. Note that a gzip filter is only applied
+// if the final three characters of the filename are '.gz'.
 
-LHAupLHEF::LHAupLHEF(const char* fileIn) : ifs(fileIn), is(NULL) {
+istream* LHAup::openFile(const char *fn, ifstream &ifs) {
+  // Open the file
+  ifs.open(fn);
 
-// Construct istream without gzip support.
+// No gzip support, so just return pointer to the istream
 #ifndef GZIPSUPPORT
-  is = (istream *) &ifs;
+  return (istream *) &ifs;
 
-// Construct istream with gzip support.
+// Gzip support, so construct istream with gzip support
 #else
+  // Boost filtering istream
   boost::iostreams::filtering_istream *fis =
     new boost::iostreams::filtering_istream();
 
@@ -459,14 +593,49 @@ LHAupLHEF::LHAupLHEF(const char* fileIn) : ifs(fileIn), is(NULL) {
 
   // Check filename ending to decide which filters to apply.
   else {
-    const char *last = strrchr(fileIn, '.');
+    const char *last = strrchr(fn, '.');
     if (last && strncmp(last, ".gz", 3) == 0)
       fis->push(boost::iostreams::gzip_decompressor());
     fis->push(ifs);
   }
-  is = (istream *) fis;
-#endif
+  return (istream *) fis;
 
+#endif // GZIPSUPPORT
+}
+
+//--------------------------------------------------------------------------
+
+// Companion method to 'openFile', above.
+// Correctly deallocates memory if required before closing the file.
+
+void LHAup::closeFile(istream *&is, ifstream &ifs) {
+  // If the istream pointer is not NULL and is not the
+  // same as the ifstream, then delete pointer.
+  if (is && is != &ifs) delete is;
+  is = NULL;
+
+  // Close the file
+  if (ifs.is_open()) ifs.close();
+}
+
+
+//==========================================================================
+
+// LHAupLHEF class.
+
+//--------------------------------------------------------------------------
+
+// Constructor.
+
+LHAupLHEF::LHAupLHEF(const char* fileIn, const char* headerIn,
+                     bool readHeadersIn)
+    : is(NULL), isHead(NULL), readHeaders(readHeadersIn) {
+
+  // Open LHEF and optionally header file as well. Note that both
+  // are opened here so that initialisation can be aborted if
+  // either of the files is missing, see fileFound().
+  is     = openFile(fileIn, ifs);
+  isHead = (headerIn == NULL) ? is : openFile(headerIn, ifsHead);
 }
 
 //--------------------------------------------------------------------------
@@ -474,12 +643,8 @@ LHAupLHEF::LHAupLHEF(const char* fileIn) : ifs(fileIn), is(NULL) {
 // Destructor.
 
 LHAupLHEF::~LHAupLHEF() {
-
-// Delete istream if constructed.
-#ifdef GZIPSUPPORT
-  if (is) delete is;
-#endif
-
+  // Close files
+  closeAllFiles();
 }
 
 //==========================================================================

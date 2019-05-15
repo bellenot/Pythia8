@@ -61,6 +61,20 @@ If this check fails, then <code>pythia.next()</code> obtains the
 value <code>false</code>, i.e. the event is counted as aborted.
   
 
+<p/><code>flag&nbsp; </code><strong> Check:history &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+When <code>Check:event = on</code> and the event is checked as above,
+further checks are made that all mother and daughter pointers are
+consistently set. Specifically that all daughters in the 
+<code>daughterlist</code> (or <code>motherList</code>) have the 
+particle in their respective <code>motherList</code>
+(or <code>daughterlist</code>). This operation takes a bit more
+time than the other error tests (of the order of 10% of what it takes 
+to generate the event in the first place), and so could be switched off 
+to save time.
+  
+
+
 <p/><code>mode&nbsp; </code><strong> Check:nErrList &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>)<br/>
 The number of erroneous events, in the above check, for which 

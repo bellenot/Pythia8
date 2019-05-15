@@ -299,12 +299,15 @@ bool HadronLevel::findSinglets(Event& event) {
     }
 
     // Reject triple- and higher-junction systems (physics not implemented).
-    int nJun = 0;
-    for (unsigned int i=0; i<iParton.size(); ++i) if (iParton[i]<0) ++nJun;
-    if (nJun >= 5) {
-      infoPtr->errorMsg("Error in HadronLevel::findSinglets: "
-        "too many junction-junction connections"); 
-      return false;
+    int otherJun = 0;
+    for (int i = 0; i < int(iParton.size()); ++i) 
+    if (iParton[i] < 0 && abs(iParton[i]) / 10 != iJun + 1) {
+      if (otherJun == 0) otherJun = abs(iParton[i]) / 10; 
+      else if (abs(iParton[i]) / 10 != otherJun) {
+        infoPtr->errorMsg("Error in HadronLevel::findSinglets: "
+          "too many junction-junction connections"); 
+        return false;
+      }
     }
 
     // Keep in memory a junction hooked up with an antijunction,
@@ -852,7 +855,7 @@ bool HadronLevel::splitJunctionPair(Event& event) {
       * (2. * pLabJ[1] * pLabA[0]);
 
     // Case when either topology without junctions is the shorter one.
-    if (LambdaJA > min( Lambda00, Lambda01)) {      
+    if (LambdaJA > min( Lambda00, Lambda01)) {  
       vector<int>& iAntiMatch0 = (Lambda00 < Lambda01) 
         ? iAntiLeg0 : iAntiLeg1;
       vector<int>& iAntiMatch1 = (Lambda00 < Lambda01) 
@@ -896,38 +899,50 @@ bool HadronLevel::splitJunctionPair(Event& event) {
     double fracA1 = min(0.5, eShift / pInARF[0].e());
     Vec4 pFromAnti = fracA0 * pAntiLeg0 + fracA1 * pAntiLeg1; 
 
-    // Copy partons with scaled-down momenta and update legs.
-    int iNew = event.copy(iJunLeg0[1], 76);
-    event[iNew].rescale5(1. - fracJ0);
-    iJunLeg0[1] = iNew;
-    iNew = event.copy(iJunLeg1[1], 76);
-    event[iNew].rescale5(1. - fracJ1);
-    iJunLeg1[1] = iNew;
-    iNew = event.copy(iAntiLeg0[1], 76);
-    event[iNew].rescale5(1. - fracA0);
-    iAntiLeg0[1] = iNew;
-    iNew = event.copy(iAntiLeg1[1], 76);
-    event[iNew].rescale5(1. - fracA1);
-    iAntiLeg1[1] = iNew;
-
-   // Pick a new quark at random; for simplicity no diquarks.
+    // Pick a new quark at random; for simplicity no diquarks.
     int idQ = flavSel.pickLightQ();
 
-    // Update junction colours for new quark and antiquark.
-    int colQ = event.nextColTag();
-    int acolQ = event.nextColTag(); 
-    event.endColJunction(identJun - 1, legJun[0], colQ);
-    event.endColJunction(identAnti - 1, legAnti[0], acolQ);
-
-    // Store new quark and antiquark with momentum from other junction.
+    // Copy junction partons with scaled-down momenta and update legs.
     int mother1 = min(iJunLeg0[1], iJunLeg1[1]);
-    int mother2 = max(iJunLeg0[1], iJunLeg1[1]);
+    int mother2 = max(iJunLeg0[1], iJunLeg1[1]); 
+    int iNew1 = event.copy(iJunLeg0[1], 76);
+    event[iNew1].rescale5(1. - fracJ0);
+    iJunLeg0[1] = iNew1;
+    int iNew2 = event.copy(iJunLeg1[1], 76);
+    event[iNew2].rescale5(1. - fracJ1);
+    iJunLeg1[1] = iNew2;
+
+    // Update junction colour and store quark with antijunction momentum.
+    // Store history as 2 -> 3  step for consistency.
+    int colQ = event.nextColTag();
+    event.endColJunction(identJun - 1, legJun[0], colQ);
     int iNewJ = event.append( idQ, 76, mother1, mother2, 0, 0, 
       colQ, 0, pFromAnti, pFromAnti.mCalc() );
+    event[mother1].daughters( iNew1, iNewJ);
+    event[mother2].daughters( iNew1, iNewJ);
+    event[iNew1].mothers( mother1, mother2);    
+    event[iNew2].mothers( mother1, mother2);    
+
+    // Copy anti junction partons with scaled-down momenta and update legs.
     mother1 = min(iAntiLeg0[1], iAntiLeg1[1]);
     mother2 = max(iAntiLeg0[1], iAntiLeg1[1]);
+    iNew1 = event.copy(iAntiLeg0[1], 76);
+    event[iNew1].rescale5(1. - fracA0);
+    iAntiLeg0[1] = iNew1;
+    iNew2 = event.copy(iAntiLeg1[1], 76);
+    event[iNew2].rescale5(1. - fracA1);
+    iAntiLeg1[1] = iNew2;
+
+    // Update antijunction anticolour and store antiquark with junction 
+    // momentum. Store history as 2 -> 3  step for consistency. 
+    int acolQ = event.nextColTag(); 
+    event.endColJunction(identAnti - 1, legAnti[0], acolQ);
     int iNewA = event.append( -idQ, 76, mother1, mother2, 0, 0, 
       0, acolQ, pFromJun, pFromJun.mCalc() );
+    event[mother1].daughters( iNew1, iNewA);
+    event[mother2].daughters( iNew1, iNewA);
+    event[iNew1].mothers( mother1, mother2);    
+    event[iNew2].mothers( mother1, mother2);    
 
     // Bookkeep new quark and antiquark on third legs.
     if (legJun[0] == 0) iJunLegA[1] = iNewJ;

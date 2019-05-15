@@ -4,7 +4,7 @@
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This is a simple test program. 
-// It illustrates how to feed in a single particle 
+// It illustrates how to feed in a single particle (including a resonance)
 // or a toy parton-level configurations.
 
 #include "Pythia.h"
@@ -15,9 +15,10 @@ using namespace Pythia8;
 // Single-particle gun. The particle must be a colour singlet.
 // Input: flavour, energy, direction (theta, phi).
 // If theta < 0 then random choice over solid angle. 
+// Optional final argument to put particle at rest => E = m.
 
 void fillParticle(int id, double ee, double thetaIn, double phiIn, 
-		  Event& event, ParticleData& pdt, Rndm& rndm) {
+  Event& event, ParticleData& pdt, Rndm& rndm, bool atRest = false) {
 
   // Reset event record to allow for new event.
   event.reset();
@@ -25,6 +26,12 @@ void fillParticle(int id, double ee, double thetaIn, double phiIn,
   // Select particle mass; where relevant according to Breit-Wigner. 
   double mm = pdt.mass(id);
   double pp = sqrtpos(ee*ee - mm*mm);
+
+  // Special case when particle is supposed to be at rest.
+  if (atRest) {
+    ee = mm;
+    pp = 0.;
+  } 
 
   // Angles as input or uniform in solid angle.
   double cThe, sThe, phi;
@@ -41,6 +48,7 @@ void fillParticle(int id, double ee, double thetaIn, double phiIn,
   // Store the particle in the event record.
   event.append( id, 1, 0, 0, pp * sThe * cos(phi), pp * sThe * sin(phi), 
     pp * cThe, ee, mm); 
+
 }
 
 //==========================================================================
@@ -187,11 +195,13 @@ int main() {
   // 5 = q q q junction topology with gluons on the strings.
   // 6 = q q qbar qbar dijunction topology, no gluons.
   // 7 - 10 : ditto, but with 1 - 4 gluons on string between junctions.
-  int type = 0;
+  // 11 : single-resonance gun.
+  int type = 11;
 
   // Set particle species and energy for single-particle gun.
-  int    idGun = 15;
-  double eeGun = 20.; 
+  int    idGun  = (type == 0) ? 15 : 25;
+  double eeGun  = (type == 0) ? 20. : 125.;
+  bool   atRest = (type == 0) ? false : true; 
 
   // Set typical energy per parton.
   double ee = 20.0;
@@ -207,6 +217,9 @@ int main() {
 
   // Key requirement: switch off ProcessLevel, and thereby also PartonLevel.
   pythia.readString("ProcessLevel:all = off");
+
+  // Also allow resonance decays, with showers in them
+  pythia.readString("Standalone:allowResDec = on");
 
   // Optionally switch off decays.
   //pythia.readString("HadronLevel:Decay = off");
@@ -239,8 +252,8 @@ int main() {
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
 
     // Set up single particle, with random direction in solid angle.
-    if (type == 0) fillParticle( idGun, eeGun, -1., 0., event, pdt, 
-      pythia.rndm);
+    if (type == 0 || type == 11) fillParticle( idGun, eeGun, -1., 0., 
+      event, pdt, pythia.rndm, atRest);
 
     // Set up parton-level configuration.
     else fillPartons( type, ee, event, pdt, pythia.rndm); 

@@ -75,6 +75,8 @@ private:
   bool   m_convert_to_mev;
   double m_mom_scale_factor;
   int    m_internal_event_number;
+  bool   hasSetConvert;
+  double lengthScaleFactor;
 
 };
 
@@ -102,7 +104,8 @@ inline void I_Pythia8::set_crash_on_problem( bool b  )
   { m_crash_on_problem = b; }
 
 inline void I_Pythia8::set_convert_to_mev( bool b  )
-  { m_convert_to_mev = b; m_mom_scale_factor = (b) ? 1000. : 1.; }
+  { m_convert_to_mev = b; m_mom_scale_factor = (b) ? 1000. : 1.; 
+  hasSetConvert = true;}
 
 inline void I_Pythia8::set_freepartonwarnings( bool b  )
   { m_freepartonwarnings = b; }

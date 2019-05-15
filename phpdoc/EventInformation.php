@@ -171,7 +171,7 @@ information for such particular subcollisions.
 <h3>Hard process initiators</h3>
 
 The methods in this sections refer to the two initial partons of the
-hard <i>2 -> n</i> process.
+hard <i>2 -> n</i> process (diffraction excluded; see below).
 
 <a name="method18"></a>
 <p/><strong>int Info::id1() &nbsp;</strong> <br/>
@@ -209,7 +209,10 @@ Information is not set if you switch off parton-level processing.
 
 The methods in this section refer to the partons for which parton 
 densities have been defined, in order to calculate the cross section
-of the hard process. These partons would normally agree with the 
+of the hard process (diffraction excluded; see below). 
+
+<p/>
+These partons would normally agree with the 
 ones above, the initiators of the <i>2 -> n</i> process, but it 
 does not have to be so. Currently the one counterexample is POWHEG 
 events [<a href="Bibliography.php" target="page">Ali10</a>]. Here the original hard process could be
@@ -286,6 +289,10 @@ the <i>Q</i> or <i>Q^2</i> renormalization scale at which
 
 <h3>Hard process kinematics</h3>
 
+The methods in this section provide info on the kinematics of the hard 
+processes, with special emphasis on <i>2 -> 2</i> (diffraction excluded; 
+see below). 
+
 <a name="method28"></a>
 <p/><strong>double Info::mHat() &nbsp;</strong> <br/>
   
@@ -323,6 +330,54 @@ the masses of the two outgoing particles in a <i>2 -> 2</i> processes.
 the polar and azimuthal scattering angles in the rest frame of 
 a <i>2 -> 2</i> process.
   
+
+<h3>Diffraction</h3>
+
+Information on the primary elastic or 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='Diffraction.php?filepath=".$filepath."' target='page'>";?>diffractive</a> process
+(<i>A B -> A B, X1 B, A X2, X1 X2, A X B</i>) can be obtained with 
+the methods in the "Hard process kinematics" section above. The 
+variables here obviously are <i>s, t, u, ...</i> rather than 
+<i>sHat, tHat, uHat, ...</i>, but the method names remain to avoid 
+unnecessary duplication. Most other methods are irrelevant for a 
+primary elastic/diffractive process.
+
+<p/>Central diffraction <i>A B -> A X B</i> is a <i>2 -> 3</i>
+process, and therefore most of the <i>2 -> 2</i> variables are 
+no longer relevant. The <code>tHat()</code> and <code>uHat()</code> 
+methods instead return the two <i>t</i> values at the <i>A -> A</i> 
+and <i>B -> B</i> vertices, and <code>pTHat()</code> the average 
+transverse momentum of the three outgoing "particles", while 
+<code>thetaHat()</code> and <code>phiHat()</code> are undefined.
+
+<p/>
+While the primary interaction does not contain a hard process,
+the diffractive subsystems can contain them, but need not. 
+Specifically, double diffraction can contain two separate hard 
+subprocesses, which breaks the methods above. Most of them have been 
+expanded with an optional argument to address properties of diffractive 
+subsystems. This argument can take four values:
+<ul>
+<li>0 : default argument, used for normal nondiffractive events or 
+the primary elastic/diffractive process (see above);
+<li>1 : the <i>X1</i> system in single diffraction <i>A B -> X1 B</i>
+or double diffraction <i>A B -> X1 X2</i>;
+<li>2 : the <i>X2</i> system in single diffraction <i>A B -> A X2</i>
+or double diffraction <i>A B -> X1 X2</i>;
+<li>3 : the <i>X</i> system in central diffraction <i>A B -> A X B</i>.
+</ul>
+The argument is defined for all of the methods in the three sections above,
+"Hard process initiators", "Hard process parton densities and scales" and
+"Hard process kinematics", with the exception of the <code>isValence</code>
+methods. Also the four final methods of "The event type" section, the 
+<code>...Sub()</code> methods, take this argument. But recall that they
+will only provide meaningful answers, firstly if there is a system of the 
+requested type, and secondly if there is a hard subprocess in this system. 
+A simple check for this is that <code>id1()</code> has to be nonvanishing. 
+The methods below this section do not currently provide information 
+specific to diffractive subsystems, e.g. the MPI information is not 
+bookkept in such cases.    
 
 <h3>Event weight and activity</h3>
 
@@ -450,9 +505,9 @@ information already provided above.
   
 
 <a name="method45"></a>
-<p/><strong>int Info::iAMPI(i) &nbsp;</strong> <br/>
+<p/><strong>int Info::iAMPI(int i) &nbsp;</strong> <br/>
   
-<strong>int Info::iBMPI(i) &nbsp;</strong> <br/>
+<strong>int Info::iBMPI(int i) &nbsp;</strong> <br/>
 are normally zero. However, if the <code>i</code>'th subprocess is
 a rescattering, i.e. either or both incoming partons come from the 
 outgoing state of previous scatterings, they give the position in the
@@ -462,7 +517,7 @@ the first or second beam, respectively.
   
 
 <a name="method46"></a>
-<p/><strong>double Info::eMPI(i) &nbsp;</strong> <br/>
+<p/><strong>double Info::eMPI(int i) &nbsp;</strong> <br/>
 The enhancement or depletion of the rate of the <code>i</code>'th 
 subprocess. Is primarily of interest for the 
 <code>MultipartonInteractions:bProfile = 4</code> option, where the 
@@ -473,18 +528,26 @@ partons. Note that <code>eMPI(0) = enhanceMPI()</code>.
 <h3>Cross sections</h3>
 
 Here are the currently available methods related to the event sample 
-as a whole. While continuously updated during the run, it is recommended
-only to study these properties at the end of the event generation, 
-when the full statistics is available.
+as a whole, for the default value <code>i = 0</code>, and otherwise for 
+the specific process code provided as argument. This is the number 
+obtained with <code>Info::code()</code>, while the further subdivision
+given by <code>Info::codeSub()</code> is not bookkept. While continuously 
+updated during the run, it is recommended only to study these properties 
+at the end of the event generation, when the full statistics is available.
+The individual process results are not available if 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>";?>a second hard process</a> has beeen 
+chosen, but can be gleaned from the <code>pythia.stat()</code> output.
 
 <a name="method47"></a>
-<p/><strong>long Info::nTried() &nbsp;</strong> <br/>
+<p/><strong>long Info::nTried(int i = 0) &nbsp;</strong> <br/>
   
-<strong>long Info::nSelected() &nbsp;</strong> <br/>
+<strong>long Info::nSelected(int i = 0) &nbsp;</strong> <br/>
   
-<strong>long Info::nAccepted() &nbsp;</strong> <br/>
+<strong>long Info::nAccepted(int i = 0) &nbsp;</strong> <br/>
 the total number of tried phase-space points, selected hard processes
-and finally accepted events, summed over all allowed subprocesses.
+and finally accepted events, summed over all allowed processes
+(<code>i = 0</code>) or for the given process.
 The first number is only intended for a study of the phase-space selection
 efficiency. The last two numbers usually only disagree if the user introduces 
 some veto during the event-generation process; then the former is the number 
@@ -495,12 +558,13 @@ second hard process</a> there may also be a mismatch.
   
 
 <a name="method48"></a>
-<p/><strong>double Info::sigmaGen() &nbsp;</strong> <br/>
+<p/><strong>double Info::sigmaGen(int i = 0) &nbsp;</strong> <br/>
   
-<strong>double Info::sigmaErr() &nbsp;</strong> <br/>
+<strong>double Info::sigmaErr(int i = 0) &nbsp;</strong> <br/>
 the estimated cross section and its estimated error,
-summed over all allowed subprocesses, in units of mb. The numbers refer to
-the accepted event sample above, i.e. after any user veto. 
+summed over all allowed processes (<code>i = 0</code>) or for the given
+process, in units of mb. The numbers refer to the accepted event sample 
+above, i.e. after any user veto. 
   
 
 <h3>Loop counters</h3>
@@ -663,6 +727,32 @@ set/get value of <i>z</i> in latest ISR branching.
   
 <strong>double Info::pT2NowISR() &nbsp;</strong> <br/>
 set/get value of <i>pT^2</i> in latest ISR branching.
+  
+
+<h3>Header information</h3>
+
+A simple string key/value store, mainly intended for accessing
+information that is stored in the header block of Les Houches Event
+(LHE) files. In principle, any <code>LHAup</code> derived class can set
+this header information, which can then be read out later. Although the
+naming convention is arbitrary, in practice, it is dictated by the
+XML-like format of LHE files, see <?php $filepath = $_GET["filepath"];
+echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>
+Les Houches Accord</a> for more details.
+
+<a name="method55"></a>
+<p/><strong>string Info::header(string key) &nbsp;</strong> <br/>
+return the header named <code>key</code>
+  
+
+<a name="method56"></a>
+<p/><strong>vector &lt;string&gt; Info::headerKeys() &nbsp;</strong> <br/>
+return a vector of all header key names
+  
+
+<a name="method57"></a>
+<p/><strong>void Info::setHeader(string key, string val) &nbsp;</strong> <br/>
+set the header named <code>key</code> with the contents of <code>val</code>
   
 
 </body>

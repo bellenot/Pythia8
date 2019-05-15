@@ -33,7 +33,9 @@ event as a whole.
 <br/>(v) Ones that give you access to the properties of the trial 
 hard process, so that you can modify the internal Pythia cross section,
 alternatively the phase space sampling, by your own correction factors.
-<br/>(vi) Ones that let you set the scale of shower evolution, 
+<br/>(vi) Ones that allow you to reject the decay sequence of resonances
+at the process level.
+<br/>(vii) Ones that let you set the scale of shower evolution, 
 specifically for matching in resonance decays.
 <br/>They are described further in the following numbered subsections. 
 
@@ -55,7 +57,7 @@ found acceptable by the internal Pythia machinery, whereas the "Accepted"
 one are the events that also survived the user cuts. The cross section
 is based on the latter number, and so is reduced by the amount associated 
 by the vetoed events. Also type (v) modifies the cross section, while
-types (iv) and (vi) do not.
+types (iv), (vi) and (vii) do not.
 
 <p/>
 A warning. When you program your own derived class, do remember that you 
@@ -126,7 +128,8 @@ decide whether or not to veto. Often the event record can be quite
 lengthy and difficult to overview. The following methods and data member 
 can then come in handy. 
 
-<method name="void UserHooks::omitResonanceDecays(const Event& process)"> 
+<method name="void UserHooks::omitResonanceDecays(const Event& process, 
+bool finalOnly = false)"> 
 is a protected method that you can make use of in your own methods to 
 extract a simplified list of the hard process, where all resonance decay 
 chains are omitted. Intended for the <code>can/doVetoProcessLevel</code> 
@@ -145,29 +148,43 @@ Instead the combined MPI, ISR and FSR evolution is done with the top
 above as final particle. Only afterwards will the resonance decay chains 
 be copied over, with kinematics changes reflecting those of the top, and 
 showers in the decays carried out.)
-<br/>
+<br/>For the default <code>finalOnly = false</code> the beam particles
+and incoming partons are retained, so the event looks like a normal
+event record up to the point of resonance decays, with a normal history
+setup.
+<br/>With <code>finalOnly = true</code> only the final-state partons 
+are retained in the list. It therefore becomes similar in functionality 
+to the <code>subEvent</code> method below, with the difference that 
+<code>subEvent</code> counts the decay products of the resonances 
+as the final state, whereas here the resonances themselves are the
+final state. Since the history has been removed in this option, 
+<code>mother1()</code> and <code>mother2()</code> return 0, while 
+<code>daughter1()</code> and <code>daughter2()</code> both return the 
+index of the same parton in the original event record.
 </method>
-
 
 <method name="void UserHooks::subEvent(const Event& event, 
 bool isHardest = true)">
 is a protected method that you can make use of in your own methods to 
-extract a brief list of the current 
-partons of interest, with all irrelevant ones omitted. For the default 
-<code>isHardest = true</code> only the outgoing partons from the hardest 
-interaction (including the partons added to it by ISR and FSR) are 
-extracted, as relevant e.g. for <code>doVetoPT( iPos, event)</code> with 
-<code>iPos = 0 - 4</code>. With <code>isHardest = false</code> instead 
+extract a brief list of the current partons of interest, with all 
+irrelevant ones omitted. It is primarily intended to track the evolution
+at the parton level, notably the shower evolution of the hardest 
+(i.e. first) interaction. 
+<br/>For the default <code>isHardest = true</code> only the outgoing partons 
+from the hardest interaction (including the partons added to it by ISR and 
+FSR) are extracted, as relevant e.g. for <code>doVetoPT( iPos, event)</code> 
+with <code>iPos = 0 - 4</code>. With <code>isHardest = false</code> instead 
 the outgoing partons of the latest "subprocess" are extracted, as relevant 
 when <code>iPos = 5</code>, where it corresponds to the outgoing partons 
-in the currently considered decay. The resut is stored in 
-<code>workEvent</code> below. The partons are stored in slots 0 through 
-<code>workEvent.size() - 1</code>. The <code>mother1()</code> and 
-<code>mother2()</code> indices of a particle in this list both return 0. 
-The <code>daughter1()</code> and <code>daughter2()</code> indices both 
+in the currently considered decay. 
+<br/>The method also works at the process level, but there simply extracts 
+all final-state partons in the event, and thus offers no extra functionality.
+<br/>The result is stored in <code>workEvent</code> below. Since the 
+history has been removed, <code>mother1()</code> and <code>mother2()</code> 
+return 0, while <code>daughter1()</code> and <code>daughter2()</code> both 
 return the index of the same parton in the original event record 
-(<code>event</code>; possibly <code>process</code>), 
-so that you can trace the full history, if of interest. 
+(<code>event</code>; possibly <code>process</code>), so that you can 
+trace the full history, if of interest. 
 </method>
 
 <method name="Event UserHooks::workEvent">
@@ -181,6 +198,18 @@ The <code>workEvent</code> can also be sent on to a
 <aloc href="EventAnalysis">jet clustering algorithm</aloc>.
 
 <h3>(i) Interrupt between the main generation levels</h3>
+
+<method name="virtual bool UserHooks::initAfterBeams()">
+This routine is called by Pythia::init(), after the beams have been
+set up, but before any other initialisation. Therefore, at this stage,
+it is still possible to modifiy settings (apart from
+<code>Beams:*</code>) and particle data. This is mainly intended
+to be used in conjunction with Les Houches Event files, where
+headers are read in during beam initialisation, see the header
+functions in the <aloc href="EventInformation">Info</aloc> class.
+In the base class this method returns true. By returning false,
+PYTHIA initialisation will be aborted.
+</method>
 
 <method name="virtual bool UserHooks::canVetoProcessLevel()">
 In the base class this method returns false. If you redefine it
@@ -267,6 +296,22 @@ uninteresting events to save time that way, but those events that
 do survive the veto are allowed to develop into complete final states 
 (unless flags have been set otherwise). 
 </method>
+
+<method name="virtual bool UserHooks::canVetoPartonLevelEarly()">
+is very similar to <code>canVetoPartonLevel()</code> above, except 
+that the chance to veto appears somewhat earlier in the generation
+chain, after showers and multiparton interactions, but before the 
+beam remnants and resonance decays have been added. It is therefore
+somewhat more convenient for many matrix element strategies, where
+the primordial <ei>kT</ei> added along with the beam remnants should
+not be included.
+</method>
+
+<method name="virtual bool UserHooks::doVetoPartonLevelEarly(const 
+Event& event)">
+is very similar to <code>doVetoPartonLevel(...)</code> above, but
+the veto can be done earier, as described for 
+<code>canVetoPartonLevelEarly()</code>.
 
 <h3>(ii) Interrupt during the parton-level evolution, at a 
 <ei>pT</ei> scale</h3>
@@ -729,8 +774,53 @@ in the <code>selBias</code> member variable, such that this routine
 can return <code>1/selBias</code>. The weight is also returned by the
 <code>Info::weight()</code> method, which may be more convenient to use.
 </method>
+
+<h3>(vi) Reject the decay sequence of resonances</h3>
+
+Resonance decays are performed already at the process level, as 
+an integrated second step of the hard process itself. One reason is 
+that the matrix element of many processes encode nontrivial decay 
+angular distributions. Another is to have equivalence with Les Houches 
+input, where resonance decays typically are provided from the onset. 
+The methods in this section allow you to veto that decay sequence and 
+try a new one. Unlike the veto of the whole process-level step, 
+in point (i), the first step of the hard process is retained, i.e.
+where the resonances are produced. For this reason the cross section 
+is not affected here but, depending on context, you may want to introduce 
+your own counters to check how often a new set of decay modes and 
+kinematics is selected, and correct accordingly. 
+
+<p/>The main method below is applied after all decays. For the production
+of a <ei>t tbar</ei> pair this typically means after four decays,
+namely those of the <ei>t</ei>, the <ei>tbar</ei>, the <ei>W+</ei> 
+and the <ei>W-</ei>. If Les Houches events are processed, the rollback
+is to the level of the originally read events. For top, that might mean
+either to the tops, or to the <ei>W</ei> bosons, or no rollback at all,
+depending on how the process generation was set up.
+
+<method name="virtual bool UserHooks::canVetoResonanceDecays()">
+In the base class this method returns false. If you redefine it
+to return true then the method <code>doVetoResonanceDecays(...)</code>
+will be called immediately after the resonance decays have been 
+selected and stored in the <code>process</code> event record,
+as described above for <code>canVetoProcessLevel()</code>.
+</method>
+
+<method name="virtual bool UserHooks::doVetoResonanceDecays(Event& process)">
+can optionally be called, as described above. You can study the 
+<code>process</code> event record of the hard process. 
+Based on that you can decide whether to reject the sequence of 
+resonance decays that was not already fixed by the production step
+of the hard process (which can vary depending on how a process has 
+been set up, see above). If you veto, then a new resonance decay 
+sequence is selected, but the production step remains unchanged.
+The cross section remains unaffected by this veto, for better or worse.
+<note>Warning:</note> Normally you should not modify the <code>process</code>
+event record. However, as an extreme measure, parts or the complete decay 
+chain could be overwritten. If so, be very careful.  
+</method>
  
-<h3>(vi) Modify scale in shower evolution</h3>
+<h3>(vii) Modify scale in shower evolution</h3>
 
 The choice of maximum shower scale in resonance decays is normally not a
 big issue, since the shower here is expected to cover the full phase

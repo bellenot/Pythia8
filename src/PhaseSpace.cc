@@ -152,6 +152,17 @@ void PhaseSpace::init(bool isFirst, SigmaProcess* sigmaProcessPtrIn,
   // Know whether a Z0 is pure Z0 or admixed with gamma*.
   gmZmodeGlobal        = settingsPtr->mode("WeakZ0:gmZmode");  
 
+  // Flags if user should be allowed to reweight cross section.
+  canModifySigma   = (userHooksPtr != 0) 
+                   ? userHooksPtr->canModifySigma() : false; 
+  canBiasSelection = (userHooksPtr != 0) 
+                   ? userHooksPtr->canBiasSelection() : false; 
+
+  // Parameters for simplified reweighting of 2 -> 2 processes.
+  canBias2Sel      = settingsPtr->flag("PhaseSpace:bias2Selection");
+  bias2SelPow      = settingsPtr->parm("PhaseSpace:bias2SelectionPow");
+  bias2SelRef      = settingsPtr->parm("PhaseSpace:bias2SelectionRef");
+
   // Default event-specific kinematics properties.
   x1H             = 1.;
   x2H             = 1.;
@@ -179,12 +190,6 @@ void PhaseSpace::init(bool isFirst, SigmaProcess* sigmaProcessPtrIn,
   sigmaNeg        = 0.;
   newSigmaMx      = false;
   biasWt          = 1.;
-
-  // Flags if user should be allowed to reweight cross section.
-  canModifySigma   = (userHooksPtr > 0) 
-                   ? userHooksPtr->canModifySigma() : false; 
-  canBiasSelection = (userHooksPtr > 0) 
-                   ? userHooksPtr->canBiasSelection() : false; 
 
 }
 
@@ -630,6 +635,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
            *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
         if (canBiasSelection) sigmaTmp 
            *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, false);
+        if (canBias2Sel) sigmaTmp *= pow( pTH / bias2SelRef, bias2SelPow);
 
         // Check if current maximum exceeded.
         if (sigmaTmp > sigmaMx) sigmaMx = sigmaTmp; 
@@ -782,6 +788,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
            *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
         if (canBiasSelection) sigmaTmp 
            *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, false);
+        if (canBias2Sel) sigmaTmp *= pow( pTH / bias2SelRef, bias2SelPow);
 
         // Optional printout. Protect against negative cross section.
         if (showSearch) os << " tau =" << setw(11) << tau << "  y =" 
@@ -939,6 +946,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3, ostream& os) {
               *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
             if (canBiasSelection) sigmaTmp 
               *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, false);
+            if (canBias2Sel) sigmaTmp *= pow( pTH / bias2SelRef, bias2SelPow);
 
             // Optional printout. Protect against negative cross section.
             if (showSearch) os << " tau =" << setw(11) << tau << "  y =" 
@@ -1058,6 +1066,7 @@ bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent, ostream& os) {
     *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, inEvent);
   if (canBiasSelection) sigmaNw 
     *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, inEvent);
+  if (canBias2Sel) sigmaNw *= pow( pTH / bias2SelRef, bias2SelPow);
 
   // Check if maximum violated.
   newSigmaMx = false;
@@ -1104,6 +1113,7 @@ bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent, ostream& os) {
 
   // Set event weight, where relevant.
   biasWt = (canBiasSelection) ? userHooksPtr->biasedSelectionWeight() : 1.;  
+  if (canBias2Sel) biasWt /= pow( pTH / bias2SelRef, bias2SelPow);
 
   // Done.
   return true;
@@ -2011,7 +2021,7 @@ bool PhaseSpace2to2tauyz::finalKin() {
   pH[3] = Vec4( 0., 0.,  pAbs, 0.5 * (sH + s3 - s4) / mHat); 
   pH[4] = Vec4( 0., 0., -pAbs, 0.5 * (sH + s4 - s3) / mHat); 
 
-  // Then rotate and boost them to overall CM frame
+  // Then rotate and boost them to overall CM frame.
   theta = acos(z);
   phi = 2. * M_PI * rndmPtr->flat();
   betaZ = (x1H - x2H)/(x1H + x2H);   
@@ -2256,9 +2266,11 @@ bool PhaseSpace2to2elastic::setupSampling() {
   sigmaNw    = sigmaProcessPtr->sigmaHatWrap();
   sigmaMx    = sigmaNw;
 
-  // Squared masses of particles.
+  // Squared and outgoing masses of particles.
   s1         = mA * mA;
   s2         = mB * mB;
+  m3         = mA;
+  m4         = mB;
 
   // Elastic slope.
   bSlope     = sigmaTotPtr->bSlopeEl();
@@ -2399,7 +2411,7 @@ const int PhaseSpace2to2diffractive::NTRY = 500;
 const double PhaseSpace2to2diffractive::EXPMAX = 50.;
 
 // Safety margin so sum of diffractive masses not too close to eCM.
-const double PhaseSpace2to2diffractive::DIFFMASSMAX = 1e-8;
+const double PhaseSpace2to2diffractive::DIFFMASSMARGIN = 0.2;
 
 //--------------------------------------------------------------------------
 
@@ -2528,11 +2540,11 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
         rndmPtr->flat()) : m3ElDiff;  
       m4 = (isDiffB) ? m4ElDiff * pow( max(mB, eCM - m3ElDiff) / m4ElDiff,
         rndmPtr->flat()) : m4ElDiff;
+      if (m3 + m4 + DIFFMASSMARGIN >= eCM) continue; 
       s3 = m3 * m3;
       s4 = m4 * m4; 
 
       // Additional mass factors, including resonance enhancement.
-      if (m3 + m4 >= eCM) continue; 
       if (isDiffA && !isDiffB) {
         double facXB = (1. - s3 / s)  
           * (1. + cRes * sResXB / (sResXB + s3));
@@ -2566,6 +2578,7 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
         rndmPtr->flat()) : m3ElDiff;  
       m4 = (isDiffB) ? m4ElDiff * pow( max(mB, eCM - m3ElDiff) / m4ElDiff,
         rndmPtr->flat()) : m4ElDiff;
+      if (m3 + m4 + DIFFMASSMARGIN >= eCM) continue; 
       s3 = m3 * m3;
       s4 = m4 * m4; 
 
@@ -2592,6 +2605,7 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
         m4 = pow( s4MinPow + rndmPtr->flat() * (s4MaxPow - s4MinPow), 
                   1. / xIntPF );
       }
+      if (m3 + m4 + DIFFMASSMARGIN >= eCM) continue; 
       s3 = m3 * m3;
       s4 = m4 * m4; 
  
@@ -2620,6 +2634,7 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
         m4 = pow( s4MinPow + rndmPtr->flat() * (s4MaxPow - s4MinPow), 
                   1. / xIntPF );
       }
+      if (m3 + m4 + DIFFMASSMARGIN >= eCM) continue; 
       s3 = m3 * m3;
       s4 = m4 * m4; 
  
@@ -2641,7 +2656,7 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
       m4 = mB;      
       double xi, P, yRnd, dy;
       
-      // Double diffractive.
+      // MBR double diffractive.
       if (isDiffA && isDiffB) {	
 	dymin0 = 0.;
 	dymax  = log(s/pow2(m2min));
@@ -2679,7 +2694,7 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
       	m4       = am2;
 	tH       = t;	
 	
-      // Single diffractive.
+      // MBR single diffractive.
       } else if (isDiffA || isDiffB) {
 	dymin0 = 0.;
 	dymax  = log(s/m2min);
@@ -2726,7 +2741,6 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
     lambda34 = sqrtpos( pow2( s - s3 - s4) - 4. * s3 * s4 );
     double tempA = s - (s1 + s2 + s3 + s4) + (s1 - s2) * (s3 - s4) / s;
     double tempB = lambda12 *  lambda34 / s;
-    if (tempB < DIFFMASSMAX) continue;
     double tempC = (s3 - s1) * (s4 - s2) + (s1 + s4 - s2 - s3)
       * (s1 * s4 - s2 * s3) / s;
     double tLowNow = -0.5 * (tempA + tempB); 
@@ -2774,15 +2788,15 @@ bool PhaseSpace2to2diffractive::finalKin() {
   pH[3].rot( theta, phi);
   pH[4].rot( theta, phi);
 
-  // Set some further info for completeness.
-  x1H = 1.;
-  x2H = 1.;
-  sH = s;
-  uH = s1 + s2 + s3 + s4 - sH - tH;
-  mHat = eCM;
+  // Set some further info for completeness (but Info can be for subprocess).
+  x1H   = 1.;
+  x2H   = 1.;
+  sH    = s;
+  uH    = s1 + s2 + s3 + s4 - sH - tH;
+  mHat  = eCM;
   p2Abs = pAbs * pAbs;
   betaZ = 0.;
-  pTH = pAbs * sin(theta);
+  pTH   = pAbs * sin(theta);
 
   // Done.
   return true;
@@ -2803,44 +2817,134 @@ bool PhaseSpace2to2diffractive::finalKin() {
 const int PhaseSpace2to3diffractive::NTRY = 500;
 const int PhaseSpace2to3diffractive::NINTEG2 = 40;
 
+// Maximum positive/negative argument for exponentiation.
+const double PhaseSpace2to3diffractive::EXPMAX = 50.;
+
+// Minimal mass of central diffractive system.
+const double PhaseSpace2to3diffractive::DIFFMASSMIN = 0.8;
+
+// Safety margin so sum of diffractive masses not too close to eCM.
+const double PhaseSpace2to3diffractive::DIFFMASSMARGIN = 0.2;
+
 //--------------------------------------------------------------------------
+
+// Set up for phase space sampling.
 
 bool PhaseSpace2to3diffractive::setupSampling() {
   
+  // Pomeron flux parametrization, and parameters of some options.
   PomFlux      = settingsPtr->mode("Diffraction:PomFlux");
+  epsilonPF    = settingsPtr->parm("Diffraction:PomFluxEpsilon");
+  alphaPrimePF = settingsPtr->parm("Diffraction:PomFluxAlphaPrime");
   
-  if (PomFlux == 5) {   
-    eps        = settingsPtr->parm("Diffraction:MBRepsilon");
-    alph       = settingsPtr->parm("Diffraction:MBRalpha");    
-    m2min      = settingsPtr->parm("Diffraction:MBRm2Min");    
-    dyminCD    = settingsPtr->parm("Diffraction:MBRdyminCD");  
-    dyminSigCD = settingsPtr->parm("Diffraction:MBRdyminSigCD");
-    
-    // Find maximum = value of cross section.
-    sigmaNw    = sigmaProcessPtr->sigmaHatWrap();
-    sigmaMx    = sigmaNw;
+  // Find maximum = value of cross section.
+  sigmaNw      = sigmaProcessPtr->sigmaHatWrap();
+  sigmaMx      = sigmaNw;
 
-    // Max f(dy) for Von Neumann method, dpepmax from SigmaTot.
-    dpepmax    = sigmaTotPtr->dpepMax();    
-  } 
-
-  // Squared masses of incoming particles.
+  // Squared masses of particles and minimal mass of diffractive states.
   s1           = mA * mA;
   s2           = mB * mB;
+  m5min        = sigmaTotPtr->mMinAXB(); 
+  s5min        = m5min * m5min; 
 
-  lambda12S    = pow2(s - s1 - s2) - 4. * s1 * s2 ;
-  pAbs         = 0.5 * sqrtpos(lambda12S) / eCM;
+  // Loop over two cases: s4 = (X + B)^2 and s3 = (A + X)^2.
+  for (int i = 0; i < 2; ++i) {
+    s3 = (i == 0) ? s1 : pow2(mA + m5min);
+    s4 = (i == 0) ? pow2(mB + m5min) : s2;
 
+    // Determine maximum possible t range and coefficient of generation.
+    double lambda12 = sqrtpos( pow2( s - s1 - s2) - 4. * s1 * s2 );
+    double lambda34 = sqrtpos( pow2( s - s3 - s4) - 4. * s3 * s4 );
+    double tempA    = s - (s1 + s2 + s3 + s4) + (s1 - s2) * (s3 - s4) / s;
+    double tempB    = lambda12 *  lambda34 / s;
+    double tempC    = (s3 - s1) * (s4 - s2) + (s1 + s4 - s2 - s3)
+                    * (s1 * s4 - s2 * s3) / s;
+    tLow[i]         = -0.5 * (tempA + tempB); 
+    tUpp[i]         = tempC / tLow[i]; 
+  }  
+  s3 = s1;
+  s4 = s2;
+
+  // Default for all parametrization-specific parameters. 
+  bSlope1 = bSlope2 = bSlope = xIntPF = xIntInvPF = xtCorPF = mp24DL 
+    = coefDL = 0.;
+  for (int i = 0; i < 2; ++i) 
+    bMin[i] = tAux[i] = probSlope1[i] = tAux1[i] = tAux2[i] = 0.;
+  
+  // Schuler&Sjostrand: lower limit diffractive slope. 
+  if (PomFlux == 1) {
+    bMin[0] = sigmaTotPtr->bMinSlopeAX(); 
+    tAux[0] = exp( max(-EXPMAX, bMin[0] * (tLow[0] - tUpp[0])) ) - 1.; 
+    bMin[1] = sigmaTotPtr->bMinSlopeXB(); 
+    tAux[1] = exp( max(-EXPMAX, bMin[1] * (tLow[1] - tUpp[1])) ) - 1.; 
+
+  // Bruni&Ingelman: relative weight of two diffractive slopes.
+  } else if (PomFlux == 2) {   
+    bSlope1     = 8.0;
+    bSlope2     = 3.0;
+    for (int i = 0; i < 2; ++i) {
+      probSlope1[i]  = 6.38 * ( exp(max(-EXPMAX, bSlope1 * tUpp[i])) 
+                     -  exp(max(-EXPMAX, bSlope1 * tLow[i])) ) / bSlope1;
+      double pS2     = 0.424 * ( exp(max(-EXPMAX, bSlope2 * tUpp[i])) 
+                     -  exp(max(-EXPMAX, bSlope2 * tLow[i])) ) / bSlope2;
+      probSlope1[i] /= probSlope1[i] + pS2; 
+      tAux1[i] = exp( max(-EXPMAX, bSlope1 * (tLow[i] - tUpp[i])) ) - 1.; 
+      tAux2[i] = exp( max(-EXPMAX, bSlope2 * (tLow[i] - tUpp[i])) ) - 1.; 
+    }
+
+  // Streng&Berger (RapGap): diffractive slope, power of mass spectrum.
+  } else if (PomFlux == 3) {   
+    bSlope        = 4.7; 
+    double xPowPF = 1. - 2. * (1. + epsilonPF);
+    xIntPF        = 1. + xPowPF;
+    xIntInvPF     = 1. / xIntPF;
+    xtCorPF       = 2. * alphaPrimePF; 
+    tAux[0]       = exp( max(-EXPMAX, bSlope  * (tLow[0] - tUpp[0])) ) - 1.; 
+    tAux[1]       = exp( max(-EXPMAX, bSlope  * (tLow[1] - tUpp[1])) ) - 1.; 
+
+  // Donnachie&Landshoff (RapGap):  power of mass spectrum.
+  } else if (PomFlux == 4) {   
+    mp24DL        = 4. * pow2(particleDataPtr->m0(2212));
+    double xPowPF = 1. - 2. * (1. + epsilonPF);
+    xIntPF        = 1. + xPowPF;
+    xIntInvPF     = 1. / xIntPF;
+    xtCorPF       = 2. * alphaPrimePF; 
+    // Upper estimate of t dependence, for preliminary choice.
+    coefDL        = 0.85;
+    tAux1[0]      = 1. / pow3(1. - coefDL * tLow[0]);
+    tAux2[0]      = 1. / pow3(1. - coefDL * tUpp[0]);
+    tAux1[1]      = 1. / pow3(1. - coefDL * tLow[1]);
+    tAux2[1]      = 1. / pow3(1. - coefDL * tUpp[1]);
+
+  // Setup for the MBR model.  
+  } else if (PomFlux == 5) {   
+    epsMBR        = settingsPtr->parm("Diffraction:MBRepsilon");
+    alphMBR       = settingsPtr->parm("Diffraction:MBRalpha");    
+    m2minMBR      = settingsPtr->parm("Diffraction:MBRm2Min");    
+    dyminMBR      = settingsPtr->parm("Diffraction:MBRdyminCD");  
+    dyminSigMBR   = settingsPtr->parm("Diffraction:MBRdyminSigCD");
+    dyminInvMBR   = sqrt(2.) / dyminSigMBR;    
+    // Max f(dy) for Von Neumann method, dpepmax from SigmaTot.
+    dpepmax       = sigmaTotPtr->dpepMax();    
+  } 
+
+  // Done.
   return true;
 
 }
 
 //--------------------------------------------------------------------------
 
+// Select a trial kinematics phase space point. Perform full
+// Monte Carlo acceptance/rejection at this stage.
+
 bool PhaseSpace2to3diffractive::trialKin( bool, bool ) {
 
-  // So far, DPE generated in MBR only.
-  if (PomFlux != 5) return false;
+  // Trivial kinematics of incoming hadrons.
+  double lambda12 = sqrtpos( pow2( s - s1 - s2) - 4. * s1 * s2 );
+  pAbs            = 0.5 * lambda12 / eCM;
+  p1.p( 0., 0.,  pAbs, 0.5 * (s + s1 - s2) / eCM); 
+  p2.p( 0., 0., -pAbs, 0.5 * (s + s2 - s1) / eCM); 
   
   // Loop over attempts to set up mass, t1, t2 consistently.
   for (int loop = 0; ; ++loop) { 
@@ -2849,97 +2953,235 @@ bool PhaseSpace2to3diffractive::trialKin( bool, bool ) {
       " quit after repeated tries");
       return false;
     }
+    double xi1 = 0.;
+    double xi2 = 0.;
+    double tVal[2] = { 0., 0.}; 
+  
+    // Schuler and Sjostrand:
+    if (PomFlux == 1) {
+ 
+      // Select mass according to dxi_1/xi_1 * dxi_2/xi_2 * (1 - m^2/s).
+      do {
+        xi1 = pow( s5min / s, rndmPtr->flat());  
+        xi2 = pow( s5min / s, rndmPtr->flat());  
+        s5 = xi1 * xi2 * s;
+      } while (s5 < s5min || xi1 * xi2 > rndmPtr->flat());
+      if (mA + mB + sqrt(s5) + DIFFMASSMARGIN >= eCM) continue; 
 
-    dymin0 = 0.;
-    dymax  = log(s/m2min);    
-    double f1, f2, step2, dy, yc, ycmin, ycmax, dy1, dy2, xi1, xi2,
-           P, P1, P2, yRnd, yRnd1, yRnd2;
-    
-    // Von Neumann method to generate dy, uses dpepmax from SigmaTot.
-    do {
-      dy    = dymin0 + (dymax - dymin0) * rndmPtr->flat();     
-      P     = 0.;
-      step2 = (dy - dymin0) / NINTEG2;      
-      for (int j = 0; j < NINTEG2 ; ++j) {
-	yc  = -(dy - dymin0) / 2. + (j + 0.5) * step2;
-	dy1 = dy / 2. - yc;
-	dy2 = dy / 2. + yc;
-	f1  = exp(eps * dy1) * ( (FFA1 / (FFB1 + 2. * alph * dy1) )
-            + (FFA2 / (FFB2 + 2. * alph * dy1) ) );
-	f2  = exp(eps * dy2) * ( (FFA1 / (FFB1 + 2. * alph * dy2) ) 
-            + (FFA2 / (FFB2 + 2. * alph * dy2) ) );
-	f1 *= 0.5 * (1. + erf( (dy1 - dyminCD / 2.) / (dyminSigCD / sqrt(2)) ));
-	f2 *= 0.5 * (1. + erf( (dy2 - dyminCD / 2.) / (dyminSigCD / sqrt(2)) ));
-	P  += f1 * f2 * step2;      
+      // Select t according to exp(bMin*t) and correct to right slope.
+      bool tryAgain = false;
+      for (int i = 0; i < 2; ++i) {
+        tVal[i] = tUpp[i] + log(1. + tAux[i] * rndmPtr->flat()) / bMin[i];
+        double bDiff = (i == 0) ? sigmaTotPtr->bSlopeAX(s2 + xi1 * s)
+                                : sigmaTotPtr->bSlopeXB(s1 + xi2 * s);
+        bDiff = max(0., bDiff - bMin[i]);
+        if (exp( max(-EXPMAX, bDiff * (tVal[i] - tUpp[i])) ) 
+          < rndmPtr->flat()) tryAgain = true; 
       }
-      if (P > dpepmax) { 
-        ostringstream osWarn;
-        osWarn << "dpepmax = " << scientific << setprecision(3) 
-               << dpepmax << " " << P << " " << dy << endl;
-        infoPtr->errorMsg("Warning in PhaseSpace2to2diffractive::"
-          "trialKin for central diffraction:", osWarn.str());
-      }
-      yRnd = dpepmax * rndmPtr->flat();      
-      
-      // Generate dyc.
-      ycmax = (dy - dymin0) / 2.;
-      ycmin = -ycmax;
-      yc    = ycmin + (ycmax - ycmin) * rndmPtr->flat();
-      
-      // xi1,xi2 from dy and dy0.
-      dy1 = dy / 2. + yc;
-      dy2 = dy / 2. - yc;
-      P1  = 0.5 * (1. + erf( (dy1 - dyminCD / 2.) / (dyminSigCD / sqrt(2)) ));
-      P2  = 0.5 * (1. + erf( (dy2 - dyminCD / 2.) / (dyminSigCD / sqrt(2)) ));
-      yRnd1 = rndmPtr->flat();
-      yRnd2 = rndmPtr->flat();
-      
-    } while( !(yRnd < P && yRnd1 < P1 && yRnd2 < P2) );
-    xi1 = exp( -dy1 );
-    xi2 = exp( -dy2 );
-    
-    // Generate t1 at vertex1. First exponent, then FF*exp.
-    double tmin  = -s1 * xi1 * xi1 / (1. - xi1);
-    do {
-      t1         = tmin + log(1. - rndmPtr->flat());
-      double pFF = (4. * s1 - 2.8 * t1) / ( (4. * s1 - t1) 
-                 * pow2(1. - t1 / 0.71));
-      P          = pow2(pFF) * exp(2. * alph * dy1 * t1);
-      yRnd       = exp(t1) * rndmPtr->flat();
-    } while (yRnd > P);
+      if (tryAgain) continue;
 
-    // Generate t2 at vertex2. First exponent, then FF*exp.
-    tmin         = -s2 * xi2 * xi2 / (1. - xi2);
-    do {
-      t2         = tmin + log(1. - rndmPtr->flat());
-      double pFF = (4. * s2 - 2.8 * t2) / ((4. * s2 - t2) 
-                 * pow2(1. - t2 / 0.71));
-      P          = pow2(pFF) * exp(2. * alph * dy2 * t2);
-      yRnd       = exp(t2) * rndmPtr->flat();
-    } while (yRnd > P);
+    // Bruni and Ingelman:
+    } else if (PomFlux == 2) {
+ 
+      // Select mass according to dxi_1/xi_1 * dxi_2/xi_2.
+      do {
+        xi1 = pow( s5min / s, rndmPtr->flat());  
+        xi2 = pow( s5min / s, rndmPtr->flat());  
+        s5 = xi1 * xi2 * s;
+      } while (s5 < s5min);
+      if (mA + mB + sqrt(s5) + DIFFMASSMARGIN >= eCM) continue;
+
+      // Select t according to exp(bSlope*t) with two possible slopes.
+      for (int i = 0; i < 2; ++i)
+        tVal[i] = (rndmPtr->flat() < probSlope1[i]) 
+                ? tUpp[i] + log(1. + tAux1[i] * rndmPtr->flat()) / bSlope1
+                : tUpp[i] + log(1. + tAux2[i] * rndmPtr->flat()) / bSlope2;
+ 
+    // Streng and Berger et al. (RapGap):
+    } else if (PomFlux == 3) { 
+
+      // Select mass by dxi_1 * dxi_2 / (xi_1 * xi_2)^(1 + 2 epsilon).
+      double sMinPow = pow( s5min / s, xIntPF);
+      do {
+        xi1 = pow( sMinPow + rndmPtr->flat() * (1. - sMinPow), xIntInvPF );
+        xi2 = pow( sMinPow + rndmPtr->flat() * (1. - sMinPow), xIntInvPF );
+        s5 = xi1 * xi2 * s;
+      } while (s5 < s5min);
+      if (mA + mB + sqrt(s5) + DIFFMASSMARGIN >= eCM) continue;
+
+      // Select t according to exponential and weigh by x_P^(2 alpha' |t|).
+      bool tryAgain = false;
+      for (int i = 0; i < 2; ++i) {
+        tVal[i] = tUpp[i] + log(1. + tAux[i] * rndmPtr->flat()) / bSlope;
+        double xi = (i == 0) ? xi1 : xi2;
+        if ( pow( xi, xtCorPF * abs(tVal[i]) ) < rndmPtr->flat() ) 
+          tryAgain = true;
+      }
+      if (tryAgain) continue;
+ 
+    // Donnachie and Landshoff (RapGap):
+    } else if (PomFlux == 4) { 
+ 
+      // Select mass by dxi_1 * dxi_2 / (xi_1 * xi_2)^(1 + 2 epsilon).
+      double sMinPow = pow( s5min / s, xIntPF);
+      do {
+        xi1 = pow( sMinPow + rndmPtr->flat() * (1. - sMinPow), xIntInvPF );
+        xi2 = pow( sMinPow + rndmPtr->flat() * (1. - sMinPow), xIntInvPF );
+        s5 = xi1 * xi2 * s;
+      } while (s5 < s5min);
+      if (mA + mB + sqrt(s5) + DIFFMASSMARGIN >= eCM) continue;
+ 
+      // Select t according to power and weigh by x_P^(2 alpha' |t|).
+      bool tryAgain = false;
+      for (int i = 0; i < 2; ++i) {
+        tVal[i] = - (1. / pow( tAux1[i] + rndmPtr->flat() 
+                * (tAux2[i] - tAux1[i]), 1./3.) - 1.) / coefDL;
+        double wDL = pow2( (mp24DL - 2.8 * tVal[i]) / (mp24DL - tVal[i]) )
+                   / pow4( 1. - tVal[i] / 0.7);
+        double wMX = 1. / pow4( 1. - coefDL * tVal[i]);
+        if (wDL < rndmPtr->flat() * wMX) tryAgain = true;
+        double xi = (i == 0) ? xi1 : xi2;
+        if ( pow( xi, xtCorPF * abs(tVal[i]) ) < rndmPtr->flat() ) 
+          tryAgain = true;
+      }
+      if (tryAgain) continue;
+
+    // The MBR model (PomFlux == 5).  
+    } else {   
+      double dymin0 = 0.;
+      double dymax  = log(s/m2minMBR);    
+      double f1, f2, step2, dy, yc, ycmin, ycmax, dy1, dy2,
+             P, P1, P2, yRnd, yRnd1, yRnd2;
     
-    // Incoming protons.
-    p1.p( 0., 0.,  pAbs, 0.5 * (s + s1 - s2) / eCM); 
-    p2.p( 0., 0., -pAbs, 0.5 * (s + s2 - s1) / eCM); 
+      // Von Neumann method to generate dy, uses dpepmax from SigmaTot.
+      do {
+        dy    = dymin0 + (dymax - dymin0) * rndmPtr->flat();     
+        P     = 0.;
+        step2 = (dy - dymin0) / NINTEG2;      
+        for (int j = 0; j < NINTEG2 ; ++j) {
+	  yc  = -(dy - dymin0) / 2. + (j + 0.5) * step2;
+          dy1 = 0.5 * dy - yc;
+          dy2 = 0.5 * dy + yc;
+	  f1  = exp(epsMBR * dy1) * ( (FFA1 / (FFB1 + 2. * alphMBR * dy1) )
+              + (FFA2 / (FFB2 + 2. * alphMBR * dy1) ) );
+	  f2  = exp(epsMBR * dy2) * ( (FFA1 / (FFB1 + 2. * alphMBR * dy2) ) 
+              + (FFA2 / (FFB2 + 2. * alphMBR * dy2) ) );
+	  f1 *= 0.5 * (1. + erf( (dy1 - 0.5 * dyminMBR) * dyminInvMBR ));
+	  f2 *= 0.5 * (1. + erf( (dy2 - 0.5 * dyminMBR) * dyminInvMBR )); 
+	  P  += f1 * f2 * step2;      
+        }
+        if (P > dpepmax) { 
+          ostringstream osWarn;
+          osWarn << "dpepmax = " << scientific << setprecision(3) 
+                 << dpepmax << " " << P << " " << dy << endl;
+          infoPtr->errorMsg("Warning in PhaseSpace2to2diffractive::"
+            "trialKin for central diffraction:", osWarn.str());
+        }
+        yRnd = dpepmax * rndmPtr->flat();      
+      
+        // Generate dyc.
+        ycmax = (dy - dymin0) / 2.;
+        ycmin = -ycmax;
+        yc    = ycmin + (ycmax - ycmin) * rndmPtr->flat();
+      
+        // xi1, xi2 from dy and dy0.
+        dy1 = 0.5 * dy + yc;
+        dy2 = 0.5 * dy - yc;
+        P1  = 0.5 * (1. + erf( (dy1 - 0.5 * dyminMBR) * dyminInvMBR )); 
+        P2  = 0.5 * (1. + erf( (dy2 - 0.5 * dyminMBR) * dyminInvMBR ));
+        yRnd1 = rndmPtr->flat();
+        yRnd2 = rndmPtr->flat();      
+      } while( !(yRnd < P && yRnd1 < P1 && yRnd2 < P2) );
+      xi1 = exp( -dy1 );
+      xi2 = exp( -dy2 );
     
-    // Outgoing protons
-    pz1 =  pAbs*(1. - xi1);
-    pz2 = -pAbs*(1. - xi2);
-    pt1 = sqrt( (1. - xi1) * abs(t1) - s1 * pow2(xi1) );
-    pt2 = sqrt( (1. - xi2) * abs(t2) - s2 * pow2(xi2) );
-    phi1 = rndmPtr->flat() *2. * M_PI;
-    phi2 = rndmPtr->flat() * 2. * M_PI;
-    p3.p( pt1 * cos(phi1), pt1 * sin(phi1), pz1, 
-          sqrt(pz1 * pz1 + pt1 * pt1 + s1) ); 
-    p4.p( pt2 * cos(phi2), pt2 * sin(phi2), pz2, 
-          sqrt(pz2 * pz2 + pt2 * pt2 + s2) ); 
+      // Generate t1 at vertex1. First exponent, then FF*exp.
+      double tmin  = -s1 * xi1 * xi1 / (1. - xi1);
+      do {
+        t1         = tmin + log(1. - rndmPtr->flat());
+        double pFF = (4. * s1 - 2.8 * t1) / ( (4. * s1 - t1) 
+                   * pow2(1. - t1 / 0.71));
+        P          = pow2(pFF) * exp(2. * alphMBR * dy1 * t1);
+        yRnd       = exp(t1) * rndmPtr->flat();
+      } while (yRnd > P);
+
+      // Generate t2 at vertex2. First exponent, then FF*exp.
+      tmin         = -s2 * xi2 * xi2 / (1. - xi2);
+      do {
+        t2         = tmin + log(1. - rndmPtr->flat());
+        double pFF = (4. * s2 - 2.8 * t2) / ((4. * s2 - t2) 
+                   * pow2(1. - t2 / 0.71));
+        P          = pow2(pFF) * exp(2. * alphMBR * dy2 * t2);
+        yRnd       = exp(t2) * rndmPtr->flat();
+      } while (yRnd > P);
+    }
+
+    // Checks and kinematics construction four first options.
+    double pz3 = 0.;
+    double pz4 = 0.;
+    double pT3 = 0.;
+    double pT4 = 0.;
+    if (PomFlux < 5) {
+
+      // Check whether m^2 (i.e. xi) and t choices are consistent.
+      bool tryAgain   = false;
+      for (int i = 0; i < 2; ++i) {
+        double sx1 = (i == 0) ? s1 : s2;
+        double sx2 = (i == 0) ? s2 : s1;
+        double sx3 = sx1;
+        double sx4 = (i == 0) ? s2 + xi1 * s : s1 + xi2 * s;
+        if (sqrt(sx3) + sqrt(sx4) + DIFFMASSMARGIN > eCM) tryAgain = true;
+        double lambda34 = sqrtpos( pow2( s - sx3 - sx4) - 4. * sx3 * sx4 );
+        double tempA    = s - (sx1 + sx2 + sx3 + sx4) 
+                        + (sx1 - sx2) * (sx3 - sx4) / s;
+        double tempB    = lambda12 * lambda34 / s;
+        double tempC    = (sx3 - sx1) * (sx4 - sx2) + (sx1 + sx4 - sx2 - sx3)
+                        * (sx1 * sx4 - sx2 * sx3) / s;
+        double tLowNow  = -0.5 * (tempA + tempB); 
+        double tUppNow  = tempC / tLowNow; 
+        if (tVal[i] < tLowNow || tVal[i] > tUppNow) tryAgain = true;
+
+        // Careful reconstruction of scattering angle.
+        double cosTheta = min(1., max(-1., (tempA + 2. * tVal[i]) / tempB));
+        double sinTheta = 2. * sqrtpos( -(tempC + tempA * tVal[i] 
+                        + tVal[i] * tVal[i]) ) / tempB;
+        theta           = asin( min(1., sinTheta));
+        if (cosTheta < 0.) theta = M_PI - theta;
+        double pAbs34   = 0.5 * lambda34 / eCM;
+        if (i == 0) {
+          pz3   =  pAbs34 * cos(theta);
+          pT3   =  pAbs34 * sin(theta);
+        } else {
+          pz4   = -pAbs34 * cos(theta);
+          pT4   =  pAbs34 * sin(theta);
+        }
+      }
+      if (tryAgain) continue;
+      t1        = tVal[0]; 
+      t2        = tVal[1];
+
+    // Kinematics construction in the MBR model.
+    } else {
+      pz3       =  pAbs * (1. - xi1);
+      pz4       = -pAbs * (1. - xi2);
+      pT3       =  sqrt( (1. - xi1) * abs(t1) - s1 * pow2(xi1) );
+      pT4       =  sqrt( (1. - xi2) * abs(t2) - s2 * pow2(xi2) );
+    }
+
+    // Common final steps of kinematics.
+    double phi3 = 2. * M_PI * rndmPtr->flat();
+    double phi4 = 2. * M_PI * rndmPtr->flat();
+    p3.p( pT3 * cos(phi3), pT3 * sin(phi3), pz3, 
+          sqrt(pz3 * pz3 + pT3 * pT3 + s1) ); 
+    p4.p( pT4 * cos(phi4), pT4 * sin(phi4), pz4, 
+          sqrt(pz4 * pz4 + pT4 * pT4 + s2) );      
     
     // Central dissociated system, from Pomeron-Pomeron 4 vectors.
-    p5 = p1 - p3 + p2 - p4;
-    double mX = p5.mCalc();
+    p5   = (p1 - p3) + (p2 - p4);
+    mHat = p5.mCalc();
     
-    // Found acceptable kinematics, so no more looping. Done
-    if ( mX > 0 ) break;
+    // If acceptable diffractive mass then no more looping.
+    if (mHat > DIFFMASSMIN) break;
   }
   return true;
   
@@ -2951,31 +3193,29 @@ bool PhaseSpace2to3diffractive::trialKin( bool, bool ) {
 
 bool PhaseSpace2to3diffractive::finalKin() {
   
-  // Particle masses.
-  mH[1] = mA;
-  mH[2] = mB;
-  mH[3] = mA;
-  mH[4] = mB;
-  mH[5] = p5.mCalc();
-  
+  // Particle four-momenta and masses.
   pH[1] = p1; 
   pH[2] = p2; 
   pH[3] = p3; 
   pH[4] = p4; 
   pH[5] = p5; 
+  mH[1] = mA;
+  mH[2] = mB;
+  mH[3] = mA;
+  mH[4] = mB;
+  mH[5] = mHat;
   
-  // Set some further info for completeness.
-  // need to improve here?
-  x1H = 1.;
-  x2H = 1.;
-  sH = s;
-  uH = -999.;
-  tH = -999.;
-  mHat = eCM;
+  // Set some further info for completeness (but Info can be for subprocess).
+  x1H   = 1.;
+  x2H   = 1.;
+  sH    = s;
+  tH    = (p1 - p3).m2Calc();
+  uH    = (p2 - p4).m2Calc();
+  mHat  = eCM;
   p2Abs = pAbs * pAbs;
   betaZ = 0.;
   // Store average pT of three final particles for documentation.
-  pTH = (p3.pT() + p4.pT() + p5.pT()) / 3.;
+  pTH   = (p3.pT() + p4.pT() + p5.pT()) / 3.;
   
   // Done.
   return true;
@@ -3413,6 +3653,7 @@ bool PhaseSpace2to3yyycyl::trialKin(bool inEvent, bool) {
     *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, inEvent);
   if (canBiasSelection) sigmaNw 
     *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, inEvent);
+  if (canBias2Sel) sigmaNw *= pow( pTH / bias2SelRef, bias2SelPow);
 
   // Check if maximum violated.
   newSigmaMx = false;

@@ -298,6 +298,93 @@ echo "<a href='RandomNumbers.php?filepath=".$filepath."' target='page'>";?>rando
 state</a> for debugging purposes.  
   
 
+<h3>Reweighting of <i>2 -> 2</i> processes</h3>
+
+Events normally come with unit weight, i.e. are distributed across
+the allowed phase space region according to the appropriate differential
+cross sections. Sometimes it may be convenient to have an uneven 
+distribution of events. The classical example here is that many cross
+sections drop off with transverse momentum <i>pT</i>, such that few
+events are generated at large <i>pT</i> scales. If one wants to 
+plot the <i>pT</i> cross section, and all that comes with it, the 
+statistical error will then degrade with increasing <i>pT</i> 
+where fewer events end up. 
+
+<p/>
+One solution is to split the full <i>pT</i> range into several 
+separate subranges, where the events of each subsample obtains a 
+different overall normalization. Specifically, if you generate a
+comparable number of events in each <i>pT</i> bin, such that 
+larger <i>pT</i> bins are oversampled, these bins come with a
+correspondingly reduced overall weight, that needs to be taken into
+account when the bins are combined. The other is to have a continuously
+increasing oversampling of events at larger <i>pT</i> scales, which
+is compensated by a continuously decreasing weight for the event.
+
+<p/>
+Both of these solutions are supported. Specifically, for 
+<i>2 -> 2</i> processes, the <i>pTHat</i> scale offers a 
+convenient classification of the event. (Of course, two events 
+starting out from the same <i>pTHat</i> scale will experience
+different parton shower evolutions, etc., and may therefore look 
+quite different at the end.) The two cuts 
+<code>PhaseSpace:pTHatMin</code> and <code>PhaseSpace:pTHatMax</code>
+therefore offers a way to slice a <i>pT</i> range into subranges,
+see e.g. <code>main08.cc</code>. Alternatively the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>User Hooks</a> machinery offers the 
+possibility for you to define your own reweighting of phase space
+sampling, with a corresponding event weight, with 
+<code>UserHooks::canBiasSelection</code> and related methods.
+
+<p/>
+As a simplified option, we here offer the possibility to bias the 
+<i>2 -> 2</i> sampling by a power of <i>pTHat</i>, then with     
+events having a weight the inverse of this. This fast track will only
+work under a number of strict conditions, implemented to reduce the 
+risk of abuse. (Whereas a <code>UserHooks</code> setup can be more 
+flexible.) Specifically it will work if only high-<i>pT</i>
+<i>2 -> 2</i> processes already implemented in PYTHIA are requested,
+notably the <code>HardQCD</code> ones. That is, you cannot mix with 
+<i>2 -> 1</i> or <i>2 -> 3</i> processes, nor with external 
+processes (notably Les Houches input) or <code>SoftQCD</code> ones, 
+and  you cannot use the option to define a 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>";?>second hard process</a> in
+the same event. Furthermore you have to be careful about the choice 
+of <code>PhaseSpace:pTHatMin</code>, since a <i>pTHat = 0</i> 
+event would come with an infinite weight. 
+
+<br/><br/><strong>PhaseSpace:bias2Selection</strong>  <input type="radio" name="21" value="on"><strong>On</strong>
+<input type="radio" name="21" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Possibility to switch on a biased phase space sampling, 
+with compensatingly weighted events, for <i>2 -> 2</i> processes. 
+Can only be used under the specific conditions explained in 
+the paragraph above; under other conditions the initialization 
+will abort. 
+  
+
+<br/><br/><table><tr><td><strong>PhaseSpace:bias2SelectionPow </td><td></td><td> <input type="text" name="22" value="4." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>4.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 10.</code>)</td></tr></table>
+If the above flag is on, then a <i>2 -> 2</i> process at a scale 
+<i>pTHat</i> will be oversampled in phase space by an amount
+<i>(pTHat/pTRef)^pow</i>, where you set the power <i>pow</i>
+here. Events are assigned a compensating 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>weight</a> the inverse of this,
+i.e. <code>Info::weight()</code> will return <i>(pTRef/pTHat)^pow</i>.
+This weight should then be used in the histogramming of event properties.
+The final overall normalization also involves the 
+<code>Info::weightSum()</code> value.  
+  
+
+<br/><br/><table><tr><td><strong>PhaseSpace:bias2SelectionRef </td><td></td><td> <input type="text" name="23" value="10." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
+The reference scale <i>pTRef</i> introduced above, such that events
+with this <i>pTHat</i> obtain unit weight in the reweighting procedure.
+The value of this parameter has no impact on the final result of the
+reweighting procedure, but is only there for convenience, i.e. to
+give "reasonably-sized" weights.  
+  
 
 <input type="hidden" name="saved" value="1"/>
 
@@ -412,6 +499,21 @@ fwrite($handle,$data);
 if($_POST["20"] != "off")
 {
 $data = "PhaseSpace:increaseMaximum = ".$_POST["20"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["21"] != "off")
+{
+$data = "PhaseSpace:bias2Selection = ".$_POST["21"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["22"] != "4.")
+{
+$data = "PhaseSpace:bias2SelectionPow = ".$_POST["22"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["23"] != "10.")
+{
+$data = "PhaseSpace:bias2SelectionRef = ".$_POST["23"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

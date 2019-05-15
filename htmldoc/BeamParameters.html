@@ -140,11 +140,35 @@ The name of a Les Houches Event File,
 to be set if <code>Beams:frameType</code> = 4. 
   
 
+<p/><code>word&nbsp; </code><strong> Beams:LHEFheader &nbsp;</strong> 
+ (<code>default = <strong>void</strong></code>)<br/>
+As some information in a Les Houches Event File init block is only known
+at the end of generation, some programs choose to output this as a
+separate file. If <code>Beams:LHEFheader</code> is given, information up
+till the end of the init block is read from this file, with
+the events themselves read as usual from the file given in
+<code>Beams:LHEF</code>.
+  
+
 <p/><code>flag&nbsp; </code><strong> Beams:newLHEFsameInit &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 Allow to begin reading events from a new LHEF or or a new 
 <code>LHAup</code> instance without a completely new initialization. 
 Only useful when <code>Beams:frameType</code> = 4 or 5.
+  
+
+<p/><code>flag&nbsp; </code><strong> Beams:readLHEFheaders &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+Read in LHEF header blocks and store them in the
+<a href="EventInformation.html" target="page">Info</a> class. See also
+<a href="LesHouchesAccord.html" target="page">LHAupLHEF</a> for more information.
+  
+
+<p/><code>mode&nbsp; </code><strong> Beams:nSkipLHEFatInit &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>)<br/>
+Skip the first <i>nSkip</i> events of the input stream 
+(cf. the <code>LHAup::skipEvent(nSkip)</code> method).
+Only used when <code>Beams:frameType</code> = 4 or 5.
   
 
 <h3>Beam momentum spread</h3>

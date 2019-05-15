@@ -267,7 +267,9 @@ public:
 protected:
 
   // Constructor.
-  SigmaProcess() {for (int i = 0; i < 6; ++i) mSave[i] = 0.;}
+  SigmaProcess() : infoPtr(0), settingsPtr(0), particleDataPtr(0),
+    rndmPtr(0), beamAPtr(0), beamBPtr(0), couplingsPtr(0), sigmaTotPtr(0),
+    slhaPtr(0), lhaUpPtr(0) {for (int i = 0; i < 6; ++i) mSave[i] = 0.;}
 
   // Constants: could only be changed in the code itself.
   static const double CONVERT2MB, MASSMARGIN, COMPRELERR;
@@ -506,7 +508,8 @@ public:
 protected:
 
   // Constructor.
-  Sigma2Process() {}
+  Sigma2Process() : tH(0.), uH(0.), tH2(0.), uH2(0.), m3(0.), s3(0.), 
+    m4(0.), s4(0.), pT2(0.), runBW3(0.), runBW4(0.) {}
 
   // Store kinematics and set scales for resolved 2 -> 2 process.
   virtual void   store2Kin( double x1in, double x2in, double sHin, 

@@ -56,13 +56,14 @@ public:
   bool next( Event& process, Event& event); 
 
   // Perform showers in resonance decay chains. (For special cases.)
+  void setupShowerSys( Event& process, Event& event);
   bool resonanceShowers( Event& process, Event& event, bool skipForR); 
 
   // Tell whether failure was due to vetoing.
   bool hasVetoed() const {return doVeto;}
 
   // Accumulate, print and reset statistics.
-  void accumulate() {multiPtr->accumulate();}
+  void accumulate() {if (isResolved && !isDiff) multiPtr->accumulate();}
   void statistics(bool reset = false) {
     if (doMPI) multiMB.statistics(reset);}
     // For now no separate statistics for diffraction??
@@ -87,7 +88,7 @@ private:
          doMPICD, doMPIinit, doISR, doFSRduringProcess, doFSRafterProcess,  
          doFSRinResonances, doRemnants, doSecondHard, hasLeptonBeams, 
          hasPointLeptons, canVetoPT, canVetoStep, canVetoMPIStep, 
-         canSetScale, allowRH;
+         canVetoEarly, canSetScale, allowRH;
   double mMinDiff, mWidthDiff, pMaxDiff;
 
   // Event generation strategy. Number of steps. Maximum pT scales.
@@ -100,7 +101,7 @@ private:
   bool   isMinBias, isDiffA, isDiffB, isDiffC, isDiff, isSingleDiff, 
          isDoubleDiff, isCentralDiff, isResolved, isResolvedA, 
          isResolvedB, isResolvedC;
-  int    sizeProcess, sizeEvent, nHardDone, nHardDoneRHad;
+  int    sizeProcess, sizeEvent, nHardDone, nHardDoneRHad, iDS;
   double eCMsave; 
   vector<bool> inRHadDecay;
   vector<int>  iPosBefShow;
@@ -162,13 +163,13 @@ private:
   bool setupUnresolvedSys( Event& process, Event& event);
 
   // Set up the hard process, excluding subsequent resonance decays.
-  void setupHardSys( int iHardLoop, Event& process, Event& event);
+  void setupHardSys( Event& process, Event& event);
 
   // Resolved diffraction: pick whether to have it and set up for it.
-  void setupResolvedDiff( int iHardLoop, Event& process);
+  void setupResolvedDiff( Event& process);
 
   // Resolved diffraction: restore normal behaviour.
-  void leaveResolvedDiff( int iHardLoop, Event& event);
+  void leaveResolvedDiff( int iHardLoop, Event& process, Event& event);
 
   // Pointer to MergingHooks object for user interaction with the merging.
   MergingHooks* mergingHooksPtr;

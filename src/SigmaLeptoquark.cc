@@ -158,7 +158,7 @@ void Sigma2qg2LeptoQuarkl::setIdColAcol() {
   // Flavour set up for q g -> H q.
   int idq = (id2 == 21) ? id1 : id2;
   int idLQ = (idq > 0) ? 42 : -42;
-  int idlp = (idq > 0) ? idLepton : -idLepton;
+  int idlp = (idq > 0) ? -idLepton : idLepton;
   setId( id1, id2, idLQ, idlp);
 
   // tH defined between f and f': must swap tHat <-> uHat if q g in.

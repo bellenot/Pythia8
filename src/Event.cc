@@ -123,6 +123,9 @@ Event& Event::operator=( const Event& oldEvent) {
     // Reset all current info in the event.
     clear();
 
+    // Copy particle data table; needed for individual particles.
+    particleDataPtr     = oldEvent.particleDataPtr;
+
     // Copy all the particles one by one.
     for (int i = 0; i < oldEvent.size(); ++i) append( oldEvent[i] ); 
 
@@ -138,7 +141,6 @@ Event& Event::operator=( const Event& oldEvent) {
     scaleSave           = oldEvent.scaleSave;
     scaleSecondSave     = oldEvent.scaleSecondSave;
     headerList          = oldEvent.headerList;
-    particleDataPtr     = oldEvent.particleDataPtr;
 
   // Done.
   }
@@ -310,7 +312,8 @@ vector<int> Event::motherList(int i) const {
   else if (mother2 == 0 || mother2 == mother1) mothers.push_back(mother1); 
 
   // A range of mothers from string fragmentation.
-  else if ( statusAbs > 80 &&  statusAbs < 90) 
+  else if ( (statusAbs >  80 && statusAbs <  90)  
+         || (statusAbs > 100 && statusAbs < 107) )  
     for (int iRange = mother1; iRange <= mother2; ++iRange) 
       mothers.push_back(iRange); 
 
@@ -357,7 +360,7 @@ vector<int> Event::daughterList(int i) const {
   // Special case for two incoming beams: attach further 
   // initiators and remnants that have beam as mother.
   if (entry[i].statusAbs() == 12 || entry[i].statusAbs() == 13)
-  for (int iDau = 3; iDau < size(); ++iDau) 
+  for (int iDau = i + 1; iDau < size(); ++iDau) 
   if (entry[iDau].mother1() == i) {
     bool isIn = false;
     for (int iIn = 0; iIn < int(daughters.size()); ++iIn) 

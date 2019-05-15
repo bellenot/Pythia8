@@ -732,6 +732,7 @@ void Settings::resetMode(string keyIn) {
   if (keyLower == "tune:pp") {
     resetMode("PDF:pSet");  
     resetParm("SigmaProcess:alphaSvalue");  
+    resetFlag("SigmaTotal:zeroAXB");
     resetFlag("SigmaDiffractive:dampen");  
     resetFlag("TimeShower:dampenBeamRecoil");  
     resetFlag("TimeShower:phiPolAsym");  
@@ -884,6 +885,7 @@ void Settings::initTunePP( int ppTune) {
     resetMode("PDF:pSet");  
     resetFlag("PDF:useLHAPDF");   
     resetParm("SigmaProcess:alphaSvalue");  
+    resetFlag("SigmaTotal:zeroAXB");
     resetFlag("SigmaDiffractive:dampen");  
     resetParm("SigmaDiffractive:maxXB");
     resetParm("SigmaDiffractive:maxAX");
@@ -919,6 +921,7 @@ void Settings::initTunePP( int ppTune) {
   if (ppTune == 1) {
     mode("PDF:pSet",                            2     );  
     parm("SigmaProcess:alphaSvalue",            0.1265);  
+    flag("SigmaTotal:zeroAXB",                  true  );  
     flag("SigmaDiffractive:dampen",             false );  
     flag("TimeShower:dampenBeamRecoil",         false );  
     flag("TimeShower:phiPolAsym",               false );  
@@ -946,6 +949,7 @@ void Settings::initTunePP( int ppTune) {
   else if (ppTune == 2) {
     mode("PDF:pSet",                            2     );  
     parm("SigmaProcess:alphaSvalue",            0.1265);   
+    flag("SigmaTotal:zeroAXB",                  true  );  
     flag("SigmaDiffractive:dampen",             false );  
     flag("TimeShower:dampenBeamRecoil",         false );  
     flag("TimeShower:phiPolAsym",               false );  
@@ -973,6 +977,7 @@ void Settings::initTunePP( int ppTune) {
   else if (ppTune == 3) {
     mode("PDF:pSet",                            8     );  
     parm("SigmaProcess:alphaSvalue",            0.135 );  
+    flag("SigmaTotal:zeroAXB",                  true  );  
     flag("SigmaDiffractive:dampen",             false );  
     flag("TimeShower:dampenBeamRecoil",         true  );  
     flag("TimeShower:phiPolAsym",               true  );  
@@ -1001,6 +1006,7 @@ void Settings::initTunePP( int ppTune) {
   else if (ppTune == 4) {
     mode("PDF:pSet",                            4     );  
     parm("SigmaProcess:alphaSvalue",            0.1265);  
+    flag("SigmaTotal:zeroAXB",                  true  );  
     flag("SigmaDiffractive:dampen",             false );  
     flag("TimeShower:dampenBeamRecoil",         true  );  
     flag("TimeShower:phiPolAsym",               true  );  
@@ -1029,6 +1035,7 @@ void Settings::initTunePP( int ppTune) {
   else if (ppTune == 5) {
     mode("PDF:pSet",                            8     );  
     parm("SigmaProcess:alphaSvalue",            0.135 );  
+    flag("SigmaTotal:zeroAXB",                  true  );  
     flag("SigmaDiffractive:dampen",             true  );
     parm("SigmaDiffractive:maxXB",              65.0  );
     parm("SigmaDiffractive:maxAX",              65.0  );
@@ -1060,6 +1067,7 @@ void Settings::initTunePP( int ppTune) {
   else if (ppTune == 6) {
     mode("PDF:pSet",                            8     );  
     parm("SigmaProcess:alphaSvalue",            0.135 );  
+    flag("SigmaTotal:zeroAXB",                  true  );  
     flag("SigmaDiffractive:dampen",             true  );
     parm("SigmaDiffractive:maxXB",              65.0  );
     parm("SigmaDiffractive:maxAX",              65.0  );
@@ -1087,13 +1095,11 @@ void Settings::initTunePP( int ppTune) {
     parm("BeamRemnants:reconnectRange",         1.5   );  
   }
 
-  // ATLAS tune A2, November 2011 (Deepak Kar).
-  else if (ppTune == 7) {
-    if (preferLHAPDF) {
-      flag("PDF:useLHAPDF",                     true  );   
-      word("PDF:LHAPDFset",            "cteq6ll.LHpdf");
-    } else mode("PDF:pSet",                     8     );  
+  // Several ATLAS tunes in the A2 and AU2 series, see
+  // ATLAS note ATL-PHYS-PUB-2012-003 (August 2012).
+  else if (ppTune < 14) {
     parm("SigmaProcess:alphaSvalue",            0.135 );  
+    flag("SigmaTotal:zeroAXB",                  true  );  
     flag("SigmaDiffractive:dampen",             true  );
     parm("SigmaDiffractive:maxXB",              65.0  );
     parm("SigmaDiffractive:maxAX",              65.0  );
@@ -1105,160 +1111,100 @@ void Settings::initTunePP( int ppTune) {
     parm("SpaceShower:pT0Ref",                  2.0   );  
     parm("SpaceShower:ecmRef",                  1800.0);  
     parm("SpaceShower:ecmPow",                  0.0   );  
-    flag("SpaceShower:rapidityOrder",           false ); 
+    flag("SpaceShower:rapidityOrder",           false );  
     flag("SpaceShower:phiPolAsym",              true  );  
     flag("SpaceShower:phiIntAsym",              true  );  
     parm("MultipartonInteractions:alphaSvalue", 0.135 );   
-    parm("MultipartonInteractions:pT0Ref",      2.18  );  
     parm("MultipartonInteractions:ecmRef",      1800. );  
-    parm("MultipartonInteractions:ecmPow",      0.22  );   
     mode("MultipartonInteractions:bProfile",    4     );
-    parm("MultipartonInteractions:a1",          0.06  ); 
     parm("BeamRemnants:primordialKTsoft",       0.5   );  
     parm("BeamRemnants:primordialKThard",       2.0   );  
     parm("BeamRemnants:halfScaleForKT",         1.0   );  
-    parm("BeamRemnants:halfMassForKT",          1.0   );  
-    parm("BeamRemnants:reconnectRange",         1.55  );  
-  }
- 
-  // ATLAS tune A2-minbias-mstw2008lo, May 2012 (James Monk). 
-  else if (ppTune == 8) {
-    if (preferLHAPDF) {
-      flag("PDF:useLHAPDF",                     true  );   
-      word("PDF:LHAPDFset",    "MSTW2008lo68cl.LHgrid");
-    } else mode("PDF:pSet",                     5     );  
-    parm("SigmaProcess:alphaSvalue",            0.135 );  
-    flag("SigmaDiffractive:dampen",             true  );
-    parm("SigmaDiffractive:maxXB",              65.0  );
-    parm("SigmaDiffractive:maxAX",              65.0  );
-    parm("SigmaDiffractive:maxXX",              65.0  );  
-    flag("TimeShower:dampenBeamRecoil",         true  );  
-    flag("TimeShower:phiPolAsym",               true  );  
-    parm("SpaceShower:alphaSvalue",             0.137 );  
-    flag("SpaceShower:samePTasMPI",             false );  
-    parm("SpaceShower:pT0Ref",                  2.0   );  
-    parm("SpaceShower:ecmRef",                  1800.0);  
-    parm("SpaceShower:ecmPow",                  0.0   );  
-    flag("SpaceShower:rapidityOrder",           false );  
-    flag("SpaceShower:phiPolAsym",              true  );  
-    flag("SpaceShower:phiIntAsym",              true  );  
-    parm("MultipartonInteractions:alphaSvalue", 0.135 );   
-    parm("MultipartonInteractions:pT0Ref",      1.90  );  
-    parm("MultipartonInteractions:ecmRef",      1800. );  
-    parm("MultipartonInteractions:ecmPow",      0.30  );  
-    mode("MultipartonInteractions:bProfile",    4     );  
-    parm("MultipartonInteractions:expPow",      2.0   );  
-    parm("MultipartonInteractions:a1",          0.03  );  
-    parm("BeamRemnants:primordialKTsoft",       0.5   );  
-    parm("BeamRemnants:primordialKThard",       2.0   );  
-    parm("BeamRemnants:halfScaleForKT",         1.0   );  
-    parm("BeamRemnants:halfMassForKT",          1.0   );  
-    parm("BeamRemnants:reconnectRange",         2.28  );  
-  }
- 
-  // ATLAS tune AU2-cteq6l1, May 2012 (James Monk).
-  else if (ppTune == 9) {
-    if (preferLHAPDF) {
-      flag("PDF:useLHAPDF",                     true  );   
-      word("PDF:LHAPDFset",            "cteq6ll.LHpdf");
-    } else mode("PDF:pSet",                     8     );  
-    parm("SigmaProcess:alphaSvalue",            0.135 );  
-    flag("SigmaDiffractive:dampen",             true  );
-    parm("SigmaDiffractive:maxXB",              65.0  );
-    parm("SigmaDiffractive:maxAX",              65.0  );
-    parm("SigmaDiffractive:maxXX",              65.0  );  
-    flag("TimeShower:dampenBeamRecoil",         true  );  
-    flag("TimeShower:phiPolAsym",               true  );  
-    parm("SpaceShower:alphaSvalue",             0.137 );  
-    flag("SpaceShower:samePTasMPI",             false );  
-    parm("SpaceShower:pT0Ref",                  2.0   );  
-    parm("SpaceShower:ecmRef",                  1800.0);  
-    parm("SpaceShower:ecmPow",                  0.0   );  
-    flag("SpaceShower:rapidityOrder",           false );  
-    flag("SpaceShower:phiPolAsym",              true  );  
-    flag("SpaceShower:phiIntAsym",              true  );  
-    parm("MultipartonInteractions:alphaSvalue", 0.135 );   
-    parm("MultipartonInteractions:pT0Ref",      2.13  );  
-    parm("MultipartonInteractions:ecmRef",      1800. );  
-    parm("MultipartonInteractions:ecmPow",      0.21  );  
-    mode("MultipartonInteractions:bProfile",    4     );  
-    parm("MultipartonInteractions:expPow",      2.0   );  
-    parm("MultipartonInteractions:a1",          0.0   );  
-    parm("BeamRemnants:primordialKTsoft",       0.5   );  
-    parm("BeamRemnants:primordialKThard",       2.0   );  
-    parm("BeamRemnants:halfScaleForKT",         1.0   );  
-    parm("BeamRemnants:halfMassForKT",          1.0   );  
-    parm("BeamRemnants:reconnectRange",         2.21  );  
-  }
- 
-  // ATLAS tune AU2-mstw2008lo, May 2012 (James Monk).
-  else if (ppTune == 10) {
-    if (preferLHAPDF) {
-      flag("PDF:useLHAPDF",                     true  );   
-      word("PDF:LHAPDFset",    "MSTW2008lo68cl.LHgrid");
-    } else mode("PDF:pSet",                     5     );  
-    parm("SigmaProcess:alphaSvalue",            0.135 );  
-    flag("SigmaDiffractive:dampen",             true  );
-    parm("SigmaDiffractive:maxXB",              65.0  );
-    parm("SigmaDiffractive:maxAX",              65.0  );
-    parm("SigmaDiffractive:maxXX",              65.0  );  
-    flag("TimeShower:dampenBeamRecoil",         true  );  
-    flag("TimeShower:phiPolAsym",               true  );  
-    parm("SpaceShower:alphaSvalue",             0.137 );  
-    flag("SpaceShower:samePTasMPI",             false );  
-    parm("SpaceShower:pT0Ref",                  2.0   );  
-    parm("SpaceShower:ecmRef",                  1800.0);  
-    parm("SpaceShower:ecmPow",                  0.0   );  
-    flag("SpaceShower:rapidityOrder",           false );  
-    flag("SpaceShower:phiPolAsym",              true  );  
-    flag("SpaceShower:phiIntAsym",              true  );  
-    parm("MultipartonInteractions:alphaSvalue", 0.135 );   
-    parm("MultipartonInteractions:pT0Ref",      1.87 );  
-    parm("MultipartonInteractions:ecmRef",      1800. );  
-    parm("MultipartonInteractions:ecmPow",      0.28  );  
-    mode("MultipartonInteractions:bProfile",    4     );  
-    parm("MultipartonInteractions:expPow",      2.0   );  
-    parm("MultipartonInteractions:a1",          0.01  );  
-    parm("BeamRemnants:primordialKTsoft",       0.5   );  
-    parm("BeamRemnants:primordialKThard",       2.0   );  
-    parm("BeamRemnants:halfScaleForKT",         1.0   );  
-    parm("BeamRemnants:halfMassForKT",          1.0   );  
-    parm("BeamRemnants:reconnectRange",         5.32  );  
-  }
- 
-  //  ATLAS tune AU2-ct10, May 2012 (James Monk).
-  else if (ppTune == 11) {
-    flag("PDF:useLHAPDF",                       true  );   
-    word("PDF:LHAPDFset",                "CT10.LHgrid");
-    parm("SigmaProcess:alphaSvalue",            0.135 );  
-    flag("SigmaDiffractive:dampen",             true  );
-    parm("SigmaDiffractive:maxXB",              65.0  );
-    parm("SigmaDiffractive:maxAX",              65.0  );
-    parm("SigmaDiffractive:maxXX",              65.0  );  
-    flag("TimeShower:dampenBeamRecoil",         true  );  
-    flag("TimeShower:phiPolAsym",               true  );  
-    parm("SpaceShower:alphaSvalue",             0.137 );  
-    flag("SpaceShower:samePTasMPI",             false );  
-    parm("SpaceShower:pT0Ref",                  2.0   );  
-    parm("SpaceShower:ecmRef",                  1800.0);  
-    parm("SpaceShower:ecmPow",                  0.0   );  
-    flag("SpaceShower:rapidityOrder",           false );  
-    flag("SpaceShower:phiPolAsym",              true  );  
-    flag("SpaceShower:phiIntAsym",              true  );  
-    parm("MultipartonInteractions:alphaSvalue", 0.135 );   
-    parm("MultipartonInteractions:pT0Ref",      1.70 );  
-    parm("MultipartonInteractions:ecmRef",      1800. );  
-    parm("MultipartonInteractions:ecmPow",      0.16  );  
-    mode("MultipartonInteractions:bProfile",    4     );  
-    parm("MultipartonInteractions:expPow",      2.0   );  
-    parm("MultipartonInteractions:a1",          0.10  );  
-    parm("BeamRemnants:primordialKTsoft",       0.5   );  
-    parm("BeamRemnants:primordialKThard",       2.0   );  
-    parm("BeamRemnants:halfScaleForKT",         1.0   );  
-    parm("BeamRemnants:halfMassForKT",          1.0   );  
-    parm("BeamRemnants:reconnectRange",         4.67  );  
-  }
+    parm("BeamRemnants:halfMassForKT",          1.0   ); 
 
+    // ATLAS MB tune A2-CTEQ6L1.
+    if (ppTune == 7) { 
+      if (preferLHAPDF) {
+        flag("PDF:useLHAPDF",                   true  );   
+        word("PDF:LHAPDFset",          "cteq6ll.LHpdf");
+      } else mode("PDF:pSet",                   8     );  
+      parm("MultipartonInteractions:pT0Ref",    2.18  );  
+      parm("MultipartonInteractions:ecmPow",    0.22  );  
+      parm("MultipartonInteractions:a1",        0.06  );
+      parm("BeamRemnants:reconnectRange",       1.55  );  
+    }
+
+    // ATLAS MB tune A2-MSTW2008LO.
+    else if (ppTune == 8) { 
+      if (preferLHAPDF) {
+        flag("PDF:useLHAPDF",                   true  );   
+        word("PDF:LHAPDFset",  "MSTW2008lo68cl.LHgrid");
+      } else mode("PDF:pSet",                   5     );  
+      parm("MultipartonInteractions:pT0Ref",    1.90  );  
+      parm("MultipartonInteractions:ecmPow",    0.30  );  
+      parm("MultipartonInteractions:a1",        0.03  );
+      parm("BeamRemnants:reconnectRange",       2.28  );  
+    }
+
+    // ATLAS UE tune AU2-CTEQ6L1.
+    if (ppTune == 9) { 
+      if (preferLHAPDF) {
+        flag("PDF:useLHAPDF",                   true  );   
+        word("PDF:LHAPDFset",          "cteq6ll.LHpdf");
+      } else mode("PDF:pSet",                   8     );  
+      parm("MultipartonInteractions:pT0Ref",    2.13  );  
+      parm("MultipartonInteractions:ecmPow",    0.21  );  
+      parm("MultipartonInteractions:a1",        0.00  );
+      parm("BeamRemnants:reconnectRange",       2.21  );  
+    }
+
+    // ATLAS UE tune AU2-MSTW2008LO.
+    else if (ppTune == 10) { 
+      if (preferLHAPDF) {
+        flag("PDF:useLHAPDF",                   true  );   
+        word("PDF:LHAPDFset",  "MSTW2008lo68cl.LHgrid");
+      } else mode("PDF:pSet",                   5     );  
+      parm("MultipartonInteractions:pT0Ref",    1.87  );  
+      parm("MultipartonInteractions:ecmPow",    0.28  );  
+      parm("MultipartonInteractions:a1",        0.01  );
+      parm("BeamRemnants:reconnectRange",       5.32  );  
+    }
+
+    // ATLAS UE tune AU2-CT10.
+    else if (ppTune == 11) { 
+      flag("PDF:useLHAPDF",                     true  );   
+      word("PDF:LHAPDFset",              "CT10.LHgrid");
+      parm("MultipartonInteractions:pT0Ref",    1.70  );  
+      parm("MultipartonInteractions:ecmPow",    0.16  );  
+      parm("MultipartonInteractions:a1",        0.10  );
+      parm("BeamRemnants:reconnectRange",       4.67  );  
+    }
+
+    // ATLAS UE tune AU2-MRST2007LO*.
+    else if (ppTune == 12) { 
+      if (preferLHAPDF) {
+        flag("PDF:useLHAPDF",                   true  );   
+        word("PDF:LHAPDFset",   "MRST2007lomod.LHgrid");
+      } else mode("PDF:pSet",                   3     );  
+      parm("MultipartonInteractions:pT0Ref",    2.39  );  
+      parm("MultipartonInteractions:ecmPow",    0.24  );  
+      parm("MultipartonInteractions:a1",        0.01  );
+      parm("BeamRemnants:reconnectRange",       1.76  );  
+    }
+
+    // ATLAS UE tune AU2-MRST2007LO**.
+    else if (ppTune == 13) { 
+      if (preferLHAPDF) {
+        flag("PDF:useLHAPDF",                   true  );   
+        word("PDF:LHAPDFset",        "MRSTMCal.LHgrid");
+      } else mode("PDF:pSet",                   4     );  
+      parm("MultipartonInteractions:pT0Ref",    2.57  );  
+      parm("MultipartonInteractions:ecmPow",    0.23  );  
+      parm("MultipartonInteractions:a1",        0.01  );
+      parm("BeamRemnants:reconnectRange",       1.47  );  
+    }
+  }
+ 
 }
 
 //--------------------------------------------------------------------------

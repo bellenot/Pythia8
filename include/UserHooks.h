@@ -47,6 +47,9 @@ public:
     sigmaTotPtr = sigmaTotPtrIn;
     workEvent.init("(work event)", particleDataPtr);}
 
+  // Initialisation after beams have been set by Pythia::init()
+  virtual bool initAfterBeams() { return true; }
+
   // Possibility to modify cross section of process.
   virtual bool canModifySigma() {return false;}
 
@@ -70,6 +73,13 @@ public:
   // Decide whether to veto current process or not, based on process record.
   // Usage: doVetoProcessLevel( process).
   virtual bool doVetoProcessLevel(Event& ) {return false;}
+
+  // Possibility to veto resonance decay chain.
+  virtual bool canVetoResonanceDecays() {return false;}
+
+  // Decide whether to veto current resonance decay chain or not, based on 
+  // process record. Usage: doVetoProcessLevel( process).
+  virtual bool doVetoResonanceDecays(Event& ) {return false;}
 
   // Possibility to veto MPI + ISR + FSR evolution and kill event, 
   // making decision at a fixed pT scale. Useful for MLM-style matching.
@@ -106,6 +116,14 @@ public:
   // Decide whether to veto current event or not, based on event record.
   // Usage: doVetoMPIStep( nMPI, event), where nMPI is number of MPI's so far.
   virtual bool doVetoMPIStep( int , const Event& ) {return false;} 
+   
+  // Possibility to veto event after ISR + FSR + MPI in parton level,
+  // but before beam remnants and resonance decays.
+  virtual bool canVetoPartonLevelEarly() {return false;}
+
+  // Decide whether to veto current partons or not, based on event record.
+  // Usage: doVetoPartonLevelEarly( event).
+  virtual bool doVetoPartonLevelEarly( const Event& ) {return false;} 
    
   // Possibility to veto event after parton-level selection.
   virtual bool canVetoPartonLevel() {return false;}
@@ -154,7 +172,9 @@ public:
 protected:
 
   // Constructor.
-  UserHooks() {}
+  UserHooks() : infoPtr(0), settingsPtr(0), particleDataPtr(0), rndmPtr(0),
+    beamAPtr(0), beamBPtr(0), beamPomAPtr(0), beamPomBPtr(0), coupSMPtr(0),
+    partonSystemsPtr(0), sigmaTotPtr(0) {}
 
   // Pointer to various information on the generation.
   Info*          infoPtr;
@@ -184,7 +204,7 @@ protected:
   SigmaTotal*    sigmaTotPtr;
 
   // omitResonanceDecays omits resonance decay chains from process record.
-  void omitResonanceDecays(const Event& process); 
+  void omitResonanceDecays(const Event& process, bool finalOnly = false); 
 
   // subEvent extracts currently resolved partons in the hard process.
   void subEvent(const Event& event, bool isHardest = true); 
@@ -210,7 +230,7 @@ public:
 
   // Constructor.
   SuppressSmallPT( double pT0timesMPIIn = 1., int numberAlphaSIn = 0, 
-    bool useSameAlphaSasMPIIn = true) {isInit = false; 
+    bool useSameAlphaSasMPIIn = true) : pT20(0.) {isInit = false; 
     pT0timesMPI = pT0timesMPIIn; numberAlphaS = numberAlphaSIn; 
     useSameAlphaSasMPI = useSameAlphaSasMPIIn;}
 

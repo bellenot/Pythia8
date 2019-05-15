@@ -246,17 +246,17 @@ double Sigma2qqbar2charchi0::sigmaHat() {
   // dbar u , d ubar : swap 1<->2 and t<->u
 
   int iGu = abs(id1)/2;
-  int iGd = abs(id2+1)/2;
+  int iGd = (abs(id2)+1)/2;
 
   if (idAbs1 % 2 != 0) {
     swapTU = true;
     iGu = abs(id2)/2;
-    iGd = abs(id1+1)/2;
+    iGd = (abs(id1)+1)/2;
   }
 
   // s-channel W contribution
   QuLL = conj(coupSUSYPtr->LudW[iGu][iGd]) 
-    * conj(coupSUSYPtr->OL[iNeut][abs(iChar)])
+    * conj(coupSUSYPtr->OL[iNeut][iChar])
     * propW / sqrt(2.0);
   QtLL = conj(coupSUSYPtr->LudW[iGu][iGd]) 
     * conj(coupSUSYPtr->OR[iNeut][iChar])
@@ -311,7 +311,6 @@ double Sigma2qqbar2charchi0::sigmaHat() {
 
   // Cross section, including colour factor.
   double sigma = sigma0 * weight;
-  if (idAbs1 < 9) sigma /= 3.; 
 
   // Answer.
   return sigma;    

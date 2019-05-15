@@ -153,8 +153,11 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
 
     //Move comment to separate string
     if (line.find("#") != string::npos) {
-      comment=line.substr(line.find("#")+1,line.length()-line.find("#")-1);
-      line.erase(line.find("#"),line.length()-line.find("#"));
+      if (line.find("#") + 1 < line.length() )
+	comment = line.substr(line.find("#")+1,line.length()-line.find("#")-2);
+      else 
+	comment = "";
+      line.erase(line.find("#"),line.length()-line.find("#")-1);
     }
 
     // Remove blanks before and after an = sign.
@@ -216,10 +219,10 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
 	    if ( comment.find(" ",secondCommentBeg+1) == string::npos)
 	      secondCommentEnd = comment.length();
 	    else 
-	      secondCommentEnd = comment.find(" ",secondCommentBeg+1);
-	  if (secondCommentEnd > secondCommentBeg) 
-	    newAntiName = comment.substr(secondCommentBeg,
-					 secondCommentEnd-secondCommentBeg);
+	      secondCommentEnd = comment.find(" ",secondCommentBeg+1);	    
+	    if (secondCommentEnd > secondCommentBeg) 
+	      newAntiName = comment.substr(secondCommentBeg,
+					   secondCommentEnd-secondCommentBeg);
 	  }	  
 	} 
 	// If name given without specific antiname, set antiname to ""
@@ -655,9 +658,9 @@ void SusyLesHouches::printHeader() {
   if (verbose == 0) return;
   setprecision(3);
   if (! headerPrinted) {
-    cout << " *--------------------  SusyLesHouches v1.1 SUSY/BSM"
-         << " Interface  ---------------------*\n";
-    message(0,"","Last Change 12 Jan 2012 - P. Skands",0);
+    cout << " *-----------------------  SusyLesHouches SUSY/BSM"
+         << " Interface  ------------------------*\n";
+    message(0,"","Last Change 01 Aug 2012 - P. Skands",0);
     if (!filePrinted) {
       message(0,"","Parsing: "+slhaFile,0);
       filePrinted=true;
@@ -1107,9 +1110,9 @@ int SusyLesHouches::checkSpectrum() {
 
   // Step 1) Check MODSEL. Assign default values where applicable.
   if (!modsel.exists(1)) {
-    message(1,"checkSpectrum","MODSEL(1) undefined. Assuming =0.",0);
+    message(1,"checkSpectrum","MODSEL(1) undefined. Assuming = 0",0);
     modsel.set(1,0);
-    ifail=-1;
+    ifail=0;
   }
   if (!modsel.exists(3)) modsel.set(3,0);
   if (!modsel.exists(4)) modsel.set(4,0);
@@ -1586,7 +1589,7 @@ int SusyLesHouches::checkSpectrum() {
       for (int i=1;i<=5;i++) {
         double cn1=0.0;
         double cn2=0.0;
-        for (int j=1;j<=4;j++) {
+        for (int j=1;j<=5;j++) {
           cn1 += pow(nmnmix(i,j),2);
           cn2 += pow(nmnmix(j,i),2);
         }

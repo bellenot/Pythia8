@@ -32,7 +32,7 @@ ProcessLevel::~ProcessLevel() {
     delete containerPtrs[i];
 
   // Run through list of second hard processes and delete them.
-  for (int i =0; i < int(container2Ptrs.size()); ++i)
+  for (int i = 0; i < int(container2Ptrs.size()); ++i)
     delete container2Ptrs[i];
 
 } 
@@ -138,6 +138,24 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
       "no process switched on"); 
     return false;
   }
+
+  // Check whether pT-based weighting in 2 -> 2 is requested.
+  if (settings.flag("PhaseSpace:bias2Selection")) {
+    bool bias2Sel = false;
+    if (sigmaPtrs.size() == 0 && !doLHA && !doSecondHard) {
+      bias2Sel = true;
+      for (int i = 0; i < int(containerPtrs.size()); ++i) {
+        if (containerPtrs[i]->nFinal() != 2) bias2Sel = false;
+        int code = containerPtrs[i]->code();
+        if (code > 100 && code < 110) bias2Sel = false;
+      }
+    }
+    if (!bias2Sel) {
+      infoPtr->errorMsg("Error in ProcessLevel::init: "
+        "requested event weighting not possible"); 
+      return false;
+    }
+  } 
 
   // Check that SUSY couplings were indeed initialized where necessary.
   bool hasSUSY = false;
@@ -324,6 +342,26 @@ bool ProcessLevel::next( Event& process) {
 
 //--------------------------------------------------------------------------
 
+// Generate (= read in) LHA input of resonance decay only.
+  
+bool ProcessLevel::nextLHAdec( Event& process) {
+ 
+  // Read resonance decays from LHA interface.
+  infoPtr->setEndOfFile(false);
+  if (!lhaUpPtr->setEvent()) {
+    infoPtr->setEndOfFile(true);
+    return false;
+  }
+
+  // Store LHA output in standard event record format.
+  containerLHAdec.constructDecays( process); 
+
+  // Done.
+  return true;
+}
+
+//--------------------------------------------------------------------------
+
 // Accumulate and update statistics (after possible user veto).
   
 void ProcessLevel::accumulate() {
@@ -339,15 +377,28 @@ void ProcessLevel::accumulate() {
   double delta2Sum  = 0.;
   double sigSelSum  = 0.;
   double weightSum  = 0.;
+  int    codeNow;
+  long   nTryNow, nSelNow, nAccNow;
+  double sigmaNow, deltaNow, sigSelNow, weightNow;
   for (int i = 0; i < int(containerPtrs.size()); ++i) 
   if (containerPtrs[i]->sigmaMax() != 0.) {
-    nTrySum        += containerPtrs[i]->nTried();
-    nSelSum        += containerPtrs[i]->nSelected();
-    nAccSum        += containerPtrs[i]->nAccepted();
-    sigmaSum       += containerPtrs[i]->sigmaMC();
-    delta2Sum      += pow2(containerPtrs[i]->deltaMC()); 
-    sigSelSum      += containerPtrs[i]->sigmaSelMC();
-    weightSum      += containerPtrs[i]->weightSum();
+    codeNow         =  containerPtrs[i]->code();
+    nTryNow         = containerPtrs[i]->nTried();
+    nSelNow         = containerPtrs[i]->nSelected();
+    nAccNow         = containerPtrs[i]->nAccepted();
+    sigmaNow        = containerPtrs[i]->sigmaMC();
+    deltaNow        = containerPtrs[i]->deltaMC(); 
+    sigSelNow       = containerPtrs[i]->sigmaSelMC();
+    weightNow       = containerPtrs[i]->weightSum();
+    nTrySum        += nTryNow;
+    nSelSum        += nSelNow;
+    nAccSum        += nAccNow;
+    sigmaSum       += sigmaNow;
+    delta2Sum      += pow2(deltaNow);
+    sigSelSum      += sigSelNow;
+    weightSum      += weightNow;
+    if (!doSecondHard) infoPtr->setSigma( codeNow, nTryNow, nSelNow, 
+      nAccNow, sigmaNow, deltaNow, weightNow); 
   }
 
   // For Les Houches events find subprocess type and update counter.
@@ -375,8 +426,10 @@ void ProcessLevel::accumulate() {
   // Normally only one hard interaction. Then store info and done.
   if (!doSecondHard) {
     double deltaSum = sqrtpos(delta2Sum);
-    infoPtr->setSigma( nTrySum, nSelSum, nAccSum, sigmaSum, deltaSum, 
+    infoPtr->setSigma( 0, nTrySum, nSelSum, nAccSum, sigmaSum, deltaSum, 
       weightSum); 
+   
+
     return;
   }
 
@@ -411,7 +464,7 @@ void ProcessLevel::accumulate() {
   double deltaComb  = sqrtpos(2. / nAccSum + impactErr2) * sigmaComb;
 
   // Store info and done.
-  infoPtr->setSigma( nTrySum, nSelSum, nAccSum, sigmaComb, deltaComb, 
+  infoPtr->setSigma( 0, nTrySum, nSelSum, nAccSum, sigmaComb, deltaComb, 
     weightSum); 
  
 }
@@ -603,6 +656,7 @@ bool ProcessLevel::nextOne( Event& process) {
     }
 
     // Construct kinematics of acceptable process.
+    containerPtrs[iContainer]->constructState();
     if ( !containerPtrs[iContainer]->constructProcess( process) )
       physical = false;
 
@@ -688,6 +742,10 @@ bool ProcessLevel::nextTwo( Event& process) {
         for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
           sigma2MaxSum += container2Ptrs[i2]->sigmaMax();
       }
+
+      // Pick incoming flavours (etc), needed for PDF reweighting.
+      containerPtrs[iContainer]->constructState();
+      container2Ptrs[i2Container]->constructState();
 
       // Check whether common set of x values is kinematically possible.
       double xA1      = containerPtrs[iContainer]->x1();

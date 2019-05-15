@@ -19,9 +19,6 @@ namespace Pythia8 {
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
-// Turn to true to allow debug printout. 
-const bool   SpaceShower::DEBUG          = false; 
-
 // Leftover companion can give PDF > 0 at small Q2 where other PDF's = 0,
 // and then one can end in infinite loop of impossible kinematics.
 const int    SpaceShower::MAXLOOPTINYPDF = 10; 
@@ -60,6 +57,9 @@ const double SpaceShower::EXTRASPACEQ    = 2.0;
 
 // Never pick pT so low that alphaS is evaluated too close to Lambda_3. 
 const double SpaceShower::LAMBDA3MARGIN  = 1.1;
+
+// Do not warn for large PDF ratios at small pT2 scales.
+const double SpaceShower::PT2MINWARN = 1.;
 
 // Cutoff for f_e^e at x < 1 - 10^{-10} to be used in z selection.
 // Note: the x_min quantity come from 1 - x_max.
@@ -104,6 +104,10 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
   m2c             = pow2(mc);
   m2b             = pow2(mb);
 
+  // Parameters of scale choices.
+  renormMultFac     = settingsPtr->parm("SpaceShower:renormMultFac");
+  factorMultFac     = settingsPtr->parm("SpaceShower:factorMultFac");
+
   // Parameters of alphaStrong generation.
   alphaSvalue     = settingsPtr->parm("SpaceShower:alphaSvalue");
   alphaSorder     = settingsPtr->mode("SpaceShower:alphaSorder");
@@ -141,7 +145,8 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
   pT0             = pT0Ref * pow(eCM / ecmRef, ecmPow);
 
   // Restrict pTmin to ensure that alpha_s(pTmin^2 + pT_0^2) does not blow up.
-  double pTminAbs = sqrtpos(pow2(LAMBDA3MARGIN) * Lambda3flav2 - pT0*pT0);
+  double pTminAbs = sqrtpos(pow2(LAMBDA3MARGIN) * Lambda3flav2 / renormMultFac
+                  - pT0*pT0);
   if (pTmin < pTminAbs) { 
     pTmin         = pTminAbs;
     ostringstream newPTmin;
@@ -181,8 +186,8 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
   if (!useSamePTasMPI) enhanceScreening = 0;
 
   // Possibility to allow user veto of emission step.
-  canVetoEmission = (userHooksPtr > 0) ? userHooksPtr->canVetoISREmission() 
-    : false;
+  canVetoEmission = (userHooksPtr != 0) 
+                  ? userHooksPtr->canVetoISREmission() : false;
 
 } 
 
@@ -485,7 +490,9 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
         b0        = 27./6.;
         Lambda2   = Lambda3flav2;
       }
-      zMaxAbs = 1. - 0.5 * (pT2minNow / m2Dip) *
+      // A change of renormalization scale expressed by a change of Lambda. 
+      Lambda2    /= renormMultFac;
+      zMaxAbs     = 1. - 0.5 * (pT2minNow / m2Dip) *
         ( sqrt( 1. + 4. * m2Dip / pT2minNow ) - 1. );
       if (isMassive) zMaxAbs = min( zMaxAbs, zMaxMassive); 
 
@@ -498,7 +505,8 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
       } 
 
       // Parton density of daughter at current scale. 
-      xPDFdaughter = beam.xfISR(iSysNow, idDaughter, xDaughter, pT2);
+      xPDFdaughter = beam.xfISR(iSysNow, idDaughter, xDaughter, 
+        factorMultFac * pT2);
       if (xPDFdaughter < TINYPDF) {
         xPDFdaughter  = TINYPDF;
         hasTinyPDFdau = true;
@@ -518,7 +526,8 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
           if (i == 0) {
             xPDFmother[10] = 0.;
           } else {
-            xPDFmother[i+10] = beam.xfISR(iSysNow, i, xDaughter, pT2); 
+            xPDFmother[i+10] = beam.xfISR(iSysNow, i, xDaughter, 
+              factorMultFac * pT2); 
             xPDFmotherSum += xPDFmother[i+10]; 
           }
         } 
@@ -555,7 +564,7 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
         }
 
         // Parton density of a potential gluon mother to a q.
-        xPDFgMother = beam.xfISR(iSysNow, 21, xDaughter, pT2);
+        xPDFgMother = beam.xfISR(iSysNow, 21, xDaughter, factorMultFac * pT2);
 
         // Total QCD evolution coefficient for a quark.
         kernelPDF = q2qInt + g2qInt * xPDFgMother / xPDFdaughter;
@@ -584,8 +593,9 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
     } else {
       do {
         pT2 = Lambda2 * pow( (pT2 + pT20) / Lambda2,
-        pow(rndmPtr->flat(), b0 / kernelPDF) ) - pT20;
-        Q2alphaS = max(pT2 + pT20, pow2(LAMBDA3MARGIN) * Lambda3flav2);
+          pow(rndmPtr->flat(), b0 / kernelPDF) ) - pT20;
+        Q2alphaS = renormMultFac * max( pT2 + pT20, 
+          pow2(LAMBDA3MARGIN) * Lambda3flav2);
       } while (alphaS.alphaS2OrdCorr(Q2alphaS) < rndmPtr->flat()
         && pT2 > pT2minNow);
     }
@@ -725,13 +735,14 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
 
     // Evaluation of new daughter and mother PDF's.
     double xPDFdaughterNew = max ( TINYPDF, 
-      beam.xfISR(iSysNow, idDaughter, xDaughter, pT2) );
-    double xPDFmotherNew = beam.xfISR(iSysNow, idMother, xMother, pT2);
+      beam.xfISR(iSysNow, idDaughter, xDaughter, factorMultFac * pT2) );
+    double xPDFmotherNew = 
+      beam.xfISR(iSysNow, idMother, xMother, factorMultFac * pT2);
     wt *= xPDFmotherNew / xPDFdaughterNew;
 
     // Check that valence step does not cause problem.
-    if (wt > 1.) infoPtr->errorMsg("Warning in SpaceShower::"
-      "pT2nextQCD: weight above unity"); 
+    if (wt > 1. && pT2 > PT2MINWARN) infoPtr->errorMsg("Warning in "
+      "SpaceShower::pT2nextQCD: weight above unity"); 
 
   // Iterate until acceptable pT (or have fallen below pTmin).
   } while (wt < rndmPtr->flat()) ;
@@ -755,8 +766,10 @@ void SpaceShower::pT2nearQCDthreshold( BeamParticle& beam,
 
   // Initial values, to be used in kinematics and weighting.
   double Lambda2       = (abs(idDaughter) == 4) ? Lambda4flav2 : Lambda5flav2;
+  Lambda2             /= renormMultFac;
   double logM2Lambda2  = log( m2Massive / Lambda2 );
-  double xPDFmotherOld = beam.xfISR(iSysNow, 21, xDaughter, m2Threshold);
+  double xPDFmotherOld = beam.xfISR(iSysNow, 21, xDaughter, 
+    factorMultFac * m2Threshold);
 
   // Variables used inside evolution loop. (Mainly dummy start values.)
   int    loop    = 0;
@@ -804,7 +817,8 @@ void SpaceShower::pT2nearQCDthreshold( BeamParticle& beam,
     if (xMother > xMaxAbs) { wt = 0.; continue; }
 
     // Correction factor for gluon density.
-    double xPDFmotherNew = beam.xfISR(iSysNow, 21, xMother, pT2);
+    double xPDFmotherNew = beam.xfISR(iSysNow, 21, xMother, 
+      factorMultFac * pT2);
     wt *= xPDFmotherNew / xPDFmotherOld;
 
   // Iterate until acceptable pT and z.
@@ -829,14 +843,14 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
   int    MEtype       = dipEndNow->MEtype;
   bool   isPhoton     = (idDaughter == 22);
   double pT2          = pT2begDip;
-  double m2Lepton = (isLeptonBeam) ? pow2(beam.m()) : 0.; 
+  double m2Lepton     = (isLeptonBeam) ? pow2(beam.m()) : 0.; 
   if (isLeptonBeam && pT2begDip < m2Lepton) return;
 
   // Currently no f -> gamma branching implemented for lepton beams
   if (isPhoton && isLeptonBeam) return;
 
   // alpha_em at maximum scale provides upper estimate.
-  double alphaEMmax  = alphaEM.alphaEM(pT2begDip);
+  double alphaEMmax  = alphaEM.alphaEM(renormMultFac * pT2begDip);
   double alphaEM2pi  = alphaEMmax / (2. * M_PI);
 
   // Maximum x of mother implies minimum z = xDaughter / xMother.
@@ -959,13 +973,14 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
         wt *= pT2damp / (pT2 + pT2damp);
 
       // Correct to current value of alpha_EM.
-      double alphaEMnow = alphaEM.alphaEM(pT2);
+      double alphaEMnow = alphaEM.alphaEM(renormMultFac * pT2);
       wt *= (alphaEMnow / alphaEMmax);
       
       // Evaluation of new daughter and mother PDF's.
       double xPDFdaughterNew = max ( TINYPDF, 
-         beam.xfISR(iSysNow, idDaughter, xDaughter, pT2) );
-      double xPDFmotherNew   = beam.xfISR(iSysNow, idMother, xMother, pT2);
+         beam.xfISR(iSysNow, idDaughter, xDaughter, factorMultFac * pT2) );
+      double xPDFmotherNew   = 
+         beam.xfISR(iSysNow, idMother, xMother, factorMultFac * pT2);
       wt *= xPDFmotherNew / xPDFdaughterNew;
 
     // Iterate until acceptable pT (or have fallen below pTmin).
@@ -1024,7 +1039,8 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
           ( sqrt( 1. + 4. * m2Dip / pT2minNow ) - 1. );
 
         // Parton density of daughter at current scale. 
-        xPDFdaughter = beam.xfISR(iSysNow, idDaughter, xDaughter, pT2);
+        xPDFdaughter = beam.xfISR(iSysNow, idDaughter, xDaughter, 
+          factorMultFac * pT2);
         if (xPDFdaughter < TINYPDF) {
           xPDFdaughter  = TINYPDF;
           hasTinyPDFdau = true;
@@ -1042,7 +1058,7 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
             xPDFmother[10] = 0.;
           } else {
             xPDFmother[i+10] = pow2((abs(i+1) % 2 + 1)/3.0) 
-              * beam.xfISR(iSysNow, i, xDaughter, pT2); 
+              * beam.xfISR(iSysNow, i, xDaughter, factorMultFac * pT2); 
             xPDFmotherSum += xPDFmother[i+10]; 
           }
         } 
@@ -1095,7 +1111,7 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
       wt = 0.5 * (1. + pow2(1. - z)) * sqrt(z);
       
       // Trial weight: running alpha_EM
-      double alphaEMnow = alphaEM.alphaEM(pT2);
+      double alphaEMnow = alphaEM.alphaEM(renormMultFac * pT2);
       wt *= (alphaEMnow / alphaEMmax);
       
       // Derive Q2 and x of mother from pT2 and z
@@ -1124,29 +1140,21 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
         wt *= pT2damp / (pT2 + pT2damp);
 
       // Evaluation of new daughter PDF 
-      double xPDFdaughterNew = beam.xfISR(iSysNow, idDaughter, xDaughter, pT2);
+      double xPDFdaughterNew = beam.xfISR(iSysNow, idDaughter, xDaughter, 
+        factorMultFac * pT2);
       if (xPDFdaughterNew < TINYPDF) {
         xPDFdaughterNew = TINYPDF;
       }
       
       // Evaluation of new charge-weighted mother PDF 
       double xPDFmotherNew = pow2( (abs(idMother+1) % 2 + 1)/3.0 ) 
-        * beam.xfISR(iSysNow, idMother, xMother, pT2);
+        * beam.xfISR(iSysNow, idMother, xMother, factorMultFac * pT2);
       
       // Trial weight: divide out old pdf ratio
       wt *= xPDFdaughter / xPDFmother[idMother + 10];
       
       // Trial weight: new pdf ratio
       wt *= xPDFmotherNew / xPDFdaughterNew;
-
-      // Debug information.
-      if (DEBUG) cout << " Trial weight is  : " << wt << "\n   pT2 = " 
-        << pT2 << " z = " << z << " alpha/alphahat = " << alphaEMnow 
-        << "/" << alphaEMmax << " idMother = " << idMother 
-        << " xPDFd/xPDFm = " << xPDFdaughter << "/" << xPDFmother[idMother+10] 
-        << " xPDFmNew/xPDFdNew " << xPDFmotherNew << "/" << xPDFdaughterNew 
-        << " pT2damp = " << pT2damp << " Q2 = " << Q2 << " pT2corr = "
-        << pT2corr << endl;
 
     // Iterate until acceptable pT (or have fallen below pTmin).
     } while (wt < rndmPtr->flat()) ;    
@@ -1239,8 +1247,10 @@ bool SpaceShower::branch( Event& event) {
   int systemSizeOld = partonSystemsPtr->sizeAll(iSysSel);
 
   // Save properties to be restored in case of user-hook veto of emission.
-  int ev1dau1V = event[1].daughter1();
-  int ev2dau1V = event[2].daughter1();
+  int beamOff1 = 1 + beamOffset;
+  int beamOff2 = 2 + beamOffset;
+  int ev1Dau1V = event[beamOff1].daughter1();
+  int ev2Dau1V = event[beamOff2].daughter1();
   vector<int> statusV, mother1V, mother2V, daughter1V, daughter2V;
   if (canVetoEmission) {
     for ( int iCopy = 0; iCopy < systemSizeOld; ++iCopy) {
@@ -1335,8 +1345,8 @@ bool SpaceShower::branch( Event& event) {
   daughter.mothers( iMother, 0);
   mother.daughters( iSister, iDaughter); 
   if (iSysSel == 0) {
-    event[1].daughter1( (side == 1) ? iMother : iNewRecoiler ); 
-    event[2].daughter1( (side == 2) ? iMother : iNewRecoiler ); 
+    event[beamOff1].daughter1( (side == 1) ? iMother : iNewRecoiler ); 
+    event[beamOff2].daughter1( (side == 2) ? iMother : iNewRecoiler ); 
   }
 
   // Find boost to old rest frame.
@@ -1442,8 +1452,8 @@ bool SpaceShower::branch( Event& event) {
   if ( canVetoEmission 
     && userHooksPtr->doVetoISREmission(eventSizeOld, event, iSysSel) ) {
     event.popBack( event.size() - eventSizeOld); 
-    event[1].daughter1( ev1dau1V);
-    event[2].daughter1( ev2dau1V);
+    event[beamOff1].daughter1( ev1Dau1V);
+    event[beamOff2].daughter1( ev2Dau1V);
     for ( int iCopy = 0; iCopy < systemSizeOld; ++iCopy) {
       int iOldCopy = partonSystemsPtr->getAll(iSysSel, iCopy);
       event[iOldCopy].status( statusV[iCopy]);
@@ -1493,7 +1503,7 @@ bool SpaceShower::branch( Event& event) {
   beamNow[iSysSel].update( iMother, idMother, xNew);
   // Redo choice of companion kind whenever new flavour.
   if (idMother != idDaughterNow) {
-    beamNow.xfISR( iSysSel, idMother, xNew, pT2);
+    beamNow.xfISR( iSysSel, idMother, xNew, factorMultFac * pT2);
     beamNow.pickValSeaComp();
   }
   BeamParticle& beamRec = (side == 1) ? *beamBPtr : *beamAPtr;

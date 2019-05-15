@@ -171,6 +171,8 @@ In detail, the list of used or foreseen status codes is:
   <li>106 : subdivision of an R-hadron into its flavour content, with
            momentum split accordingly, in preparation of the decay of 
            the heavy new particle, if it is unstable</li>
+  <li>107 : two temporary leftover gluons joined into one in the formation
+          of a gluino-gluon R-hadron.</li>
   </ul>
 <li>111 - 199 : reserved for future expansion</li>
 <li>201 - : free to be used by anybody</li>   
@@ -198,7 +200,8 @@ in a shower or decay;</li>
 <code>abs(status) = 81 - 86</code>: primary hadrons produced from the 
 fragmentation of a string spanning the range from <code>mother1</code> 
 to <code>mother2</code>, so that all partons in this range should be 
-considered mothers;</li>
+considered mothers; and analogously for 
+<code>abs(status) = 101 - 106</code>, the formation of R-hadrons;</li>
 <li><code>mother1 &lt; mother2</code>, both > 0, except case 4: particles 
 with two truly different mothers, in particular the particles emerging 
 from a hard <i>2 -> n</i> interaction.</li>

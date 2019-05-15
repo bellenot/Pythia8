@@ -55,9 +55,11 @@ public:
     UserHooks* userHooksPtr); 
 
   // Store or replace Les Houches pointer.
-  void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;
-    if (sigmaProcessPtr > 0) sigmaProcessPtr->setLHAPtr(lhaUpPtr); 
-    if (phaseSpacePtr > 0) phaseSpacePtr->setLHAPtr(lhaUpPtr);}
+  void setLHAPtr( LHAup* lhaUpPtrIn,  ParticleData* particleDataPtrIn = 0) 
+    {lhaUpPtr = lhaUpPtrIn; 
+    if (particleDataPtrIn != 0) particleDataPtr = particleDataPtrIn;
+    if (sigmaProcessPtr != 0) sigmaProcessPtr->setLHAPtr(lhaUpPtr); 
+    if (phaseSpacePtr != 0) phaseSpacePtr->setLHAPtr(lhaUpPtr);}
 
   // Update the CM energy of the event.
   void newECM(double eCM) {phaseSpacePtr->newECM(eCM);}
@@ -65,8 +67,14 @@ public:
   // Generate a trial event; accepted or not.
   bool trialProcess(); 
   
+  // Pick flavours and colour flow of process.
+  bool constructState(); 
+  
   // Give the hard subprocess (with option for a second hard subprocess).
   bool constructProcess( Event& process, bool isHardest = true); 
+  
+  // Give the Les Houches decay chain for external resonance.
+  bool constructDecays( Event& process); 
 
   // Do resonance decays.
   bool decayResonances( Event& process); 
@@ -135,12 +143,16 @@ private:
   // Pointer to ResonanceDecays object for sequential resonance decays.
   ResonanceDecays* resDecaysPtr;
 
+  // Pointer to userHooks object for user interaction with program.
+  UserHooks*       userHooksPtr;
+
   // Pointer to LHAup for generating external events.
   LHAup*           lhaUpPtr;
 
   // Info on process.
   bool   isLHA, isMinBias, isResolved, isDiffA, isDiffB, isDiffC, isQCD3body,
-         allowNegSig, hasOctetOnium, isSameSave, increaseMaximum;
+         allowNegSig, hasOctetOnium, isSameSave, increaseMaximum, 
+         canVetoResDecay;
   int    lhaStrat, lhaStratAbs;
 
   // Statistics on generation process. (Long integers just in case.)

@@ -1,0 +1,68 @@
+! 1) Settings used in the main program.
+Main:numberOfEvents   = -1           ! no. of events to generate (-1 for all)
+Main:timesAllowErrors = 3            ! how many aborts before run stops
+
+! 2) Settings related to output in init(), next() and stat().
+Init:showChangedSettings     = on    ! list changed settings
+Init:showChangedParticleData = on    ! list changed particle data
+Next:numberCount             = 1000  ! print message every n events
+Next:numberShowInfo          = 1     ! print event information n times
+Next:numberShowProcess       = 1     ! print process record n times
+Next:numberShowEvent         = 1     ! print event record n times
+
+! 3) ALPGEN input file (note: no file extension given)
+Alpgen:file = main32                 ! read 'main32_unw.par' and 'main32.unw'
+
+! 4) MLM master settings
+MLM:merge   = on                     ! switch on MLM merging
+MLM:nJetMax = 3                      ! merging up to three jets
+
+! 5) Other settings (demonstration only, change for full run)
+PartonLevel:MPI = off                ! switch off MPI
+HadronLevel:all = off                ! switch off hadronisation
+! Note that for an e.g. W+0 jet samples, both ISR and MPI would
+! by default start at the kinematical limit. Use options below
+! to always start at the factorization scale instead.
+SpaceShower:pTmaxMatch             = 1
+MultipartonInteractions:pTmaxMatch = 1
+
+! 6) Further MLM settings (see 'Alpgen and MLM Merging' manual page)
+
+! Default is CellJet algorithm with merging parameters set based on
+! read in matrix element cuts. Exclusive/inclusive mode is set
+! based on the read in value of 'MLM:nJet', and 'MLM:nJetMax' above.
+
+! Pick custom merging parameters
+!Alpgen:setMLM       = off
+!MLM:eTjetMin        = 30.
+!MLM:coneRadius      = 1.0
+!MLM:etaJetMax       = 2.0
+
+! Force inclusive mode
+!MLM:exclusive       = 0
+! Force exclusive mode
+!MLM:exclusive       = 1
+! Override 'MLM:nJet'
+!Alpgen:setNjet      = off
+!MLM:nJet            = 2
+
+! Disable automatic setting of Alpgen masses
+!Alpgen:setMasses    = off
+
+! Anti-kT algorithm with ghost particle jet matching
+!MLM:jetAlgorithm    = 2
+!MLM:slowJetPower    = -1
+!MLM:jetMatch        = 2
+! Do not explicitly disallow any particles in the clustering
+!MLM:jetAllow        = 2
+
+! Anti-kT algorithm with deltaR matching with factor 1.
+!MLM:jetAlgorithm    = 2
+!MLM:slowJetPower    = -1
+!MLM:coneMatchLight  = 1.0
+!MLM:coneMatchHeavy  = 1.0
+
+! kT algorithm with ghost particle jet matching
+!MLM:jetAlgorithm    = 2
+!MLM:slowJetPower    = 1
+!MLM:jetMatch        = 2

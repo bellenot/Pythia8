@@ -779,6 +779,18 @@ gives the number of particles clustered into the <i>i</i>'th jet,
   
 
 <a name="method45"></a>
+<p/><strong>int SlowJet::jetAssignment(int i) &nbsp;</strong> <br/>
+gives the index of the jet that the particle <i>i</i> of the event
+record belongs to, or -1 if there is no jet containing particle
+<i>i</i>,
+  
+
+<a name="method46"></a>
+<p/><strong>void SlowJet::removeJet(int i) &nbsp;</strong> <br/>
+removes the <i>i</i>'th jet,
+  
+
+<a name="method47"></a>
 <p/><strong>void SlowJet::list() &nbsp;</strong> <br/>
 provides a listing of the above information.
   
@@ -794,7 +806,7 @@ before the joining actually is performed. Alternatively you can take
 several steps in one go, or take steps down to a predetermined number 
 of jets plus remaining clusters. 
 
-<a name="method46"></a>
+<a name="method48"></a>
 <p/><strong>bool SlowJet::setup( const Event& event) &nbsp;</strong> <br/>
 selects the particles to be analyzed, calculates initial distances,
 and finds the initial smallest distance.
@@ -805,7 +817,7 @@ most likely the <code>pythia.event</code> one.
 but currently this is not foreseen ever to happen.
   
 
-<a name="method47"></a>
+<a name="method49"></a>
 <p/><strong>bool SlowJet::doStep() &nbsp;</strong> <br/>
 do the next step of the clustering. This can either be that two 
 clusters are joined to one, or that a cluster is promoted to a jet
@@ -815,7 +827,7 @@ clusters are joined to one, or that a cluster is promoted to a jet
 clusters left.
   
 
-<a name="method48"></a>
+<a name="method50"></a>
 <p/><strong>bool SlowJet::doNSteps(int nStep) &nbsp;</strong> <br/>
 calls the <code>doStep()</code> method <code>nStep</code> times,
 if possible. Will return <code>false</code> if the list of clusters
@@ -823,7 +835,7 @@ is emptied before then. The stored jet information is still perfectly
 fine; it is only the number of steps that is wrong. 
   
 
-<a name="method49"></a>
+<a name="method51"></a>
 <p/><strong>bool SlowJet::stopAtN(int nStop) &nbsp;</strong> <br/>
 calls the <code>doStep()</code> method until a total of <code>nStop</code>
 jet and cluster objects remain. Will return <code>false</code> if this 
@@ -833,7 +845,7 @@ cluster information is still perfectly fine; it only does not have the
 expected multiplicity.
   
 
-<a name="method50"></a>
+<a name="method52"></a>
 <p/><strong>int SlowJet::sizeAll() &nbsp;</strong> <br/>
 gives the total current number of jets and clusters. The jets are 
 numbered 0 through <code>sizeJet() - 1</code>, while the clusters 
@@ -850,7 +862,7 @@ With this extension, the methods <code>double pT(int i)</code>,
 <code>int multiplicity(int i)</code> can be used as before.
 Furthermore, <code>list()</code> generalizes
 
-<a name="method51"></a>
+<a name="method53"></a>
 <p/><strong>void SlowJet::list(bool listAll = false, ostream& os = cout) &nbsp;</strong> <br/>
 provides a listing of the above information.
 <br/><code>argument</code><strong> listAll </strong>  :  lists both jets and clusters if <code>true</code>,
@@ -861,7 +873,7 @@ else only jets.
 <p/>
 Three further methods can be used to check what will happen next.
 
-<a name="method52"></a>
+<a name="method54"></a>
 <p/><strong>int SlowJet::iNext() &nbsp;</strong> <br/>
   
 <strong>int SlowJet::jNext() &nbsp;</strong> <br/>
@@ -895,7 +907,7 @@ constructor.
 <p/> 
 The following methods should be defined in your derived class.
 
-<a name="method53"></a>
+<a name="method55"></a>
 <p/><strong>SlowJetHook::SlowJetHook() &nbsp;</strong> <br/>
   
 <strong>virtual SlowJetHook::~SlowJetHook() &nbsp;</strong> <br/>
@@ -903,7 +915,7 @@ the constructor and destructor need not do anything, and if so you
 need not write your own destructor.
   
 
-<a name="method54"></a>
+<a name="method56"></a>
 <p/><strong>virtual bool SlowJetHook::include(int iSel, const Event& event, Vec4& pSel, double& mSel) &nbsp;</strong> <br/>
 is the main method that you will need to write. It will be called 
 once for each final-state particle in an event, subject to the 

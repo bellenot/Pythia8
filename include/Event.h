@@ -78,7 +78,7 @@ public:
 
   // Member functions to set the ParticleData and ParticleDataEntry pointers.
   void setPDTPtr(ParticleData* pdtPtrIn) { pdtPtr = pdtPtrIn; setPDEPtr();}
-  void setPDEPtr() {pdePtr = (pdtPtr > 0) 
+  void setPDEPtr() {pdePtr = (pdtPtr != 0) 
     ? pdtPtr->particleDataEntryPtr( idSave) : 0;}
       
   // Member functions for input.
@@ -187,56 +187,56 @@ public:
 
   // Further output, based on a pointer to a ParticleDataEntry object.
   string name()      const {
-    return (pdePtr > 0) ? pdePtr->name(idSave) : " ";}
+    return (pdePtr != 0) ? pdePtr->name(idSave) : " ";}
   string nameWithStatus(int maxLen = 20) const;
   int    spinType()  const {
-    return (pdePtr > 0) ? pdePtr->spinType() : 0;}
+    return (pdePtr != 0) ? pdePtr->spinType() : 0;}
   int    chargeType() const {
-    return (pdePtr > 0) ? pdePtr->chargeType(idSave) : 0;}
+    return (pdePtr != 0) ? pdePtr->chargeType(idSave) : 0;}
   double charge()    const {
-    return (pdePtr > 0) ?  pdePtr->charge(idSave) : 0;}
+    return (pdePtr != 0) ?  pdePtr->charge(idSave) : 0;}
   bool   isCharged() const {
-    return (pdePtr > 0) ? (pdePtr->chargeType(idSave) != 0) : false;}
+    return (pdePtr != 0) ? (pdePtr->chargeType(idSave) != 0) : false;}
   bool   isNeutral() const {
-    return (pdePtr > 0) ? (pdePtr->chargeType(idSave) == 0) : false;}
+    return (pdePtr != 0) ? (pdePtr->chargeType(idSave) == 0) : false;}
   int    colType()   const {
-    return (pdePtr > 0) ? pdePtr->colType(idSave) : 0;}
+    return (pdePtr != 0) ? pdePtr->colType(idSave) : 0;}
   double m0()        const {
-    return (pdePtr > 0) ? pdePtr->m0() : 0.;}
+    return (pdePtr != 0) ? pdePtr->m0() : 0.;}
   double mWidth()    const {
-    return (pdePtr > 0) ? pdePtr->mWidth() : 0.;}
+    return (pdePtr != 0) ? pdePtr->mWidth() : 0.;}
   double mMin()      const {
-    return (pdePtr > 0) ? pdePtr->mMin() : 0.;}
+    return (pdePtr != 0) ? pdePtr->mMin() : 0.;}
   double mMax()      const {
-    return (pdePtr > 0) ? pdePtr->mMax() : 0.;}
+    return (pdePtr != 0) ? pdePtr->mMax() : 0.;}
   double mass()      const {
-    return (pdePtr > 0) ? pdePtr->mass() : 0.;}
+    return (pdePtr != 0) ? pdePtr->mass() : 0.;}
   double constituentMass() const {
-    return (pdePtr > 0) ? pdePtr->constituentMass() : 0.;}
+    return (pdePtr != 0) ? pdePtr->constituentMass() : 0.;}
   double tau0()      const {
-    return (pdePtr > 0) ? pdePtr->tau0() : 0.;}
+    return (pdePtr != 0) ? pdePtr->tau0() : 0.;}
   bool   mayDecay()  const {
-    return (pdePtr > 0) ? pdePtr->mayDecay() : false;}
+    return (pdePtr != 0) ? pdePtr->mayDecay() : false;}
   bool   canDecay()  const {
-    return (pdePtr > 0) ? pdePtr->canDecay() : false;}
+    return (pdePtr != 0) ? pdePtr->canDecay() : false;}
   bool   doExternalDecay() const {
-    return (pdePtr > 0) ? pdePtr->doExternalDecay() : false;}
+    return (pdePtr != 0) ? pdePtr->doExternalDecay() : false;}
   bool   isResonance() const {
-    return (pdePtr > 0) ? pdePtr->isResonance() : false;}
+    return (pdePtr != 0) ? pdePtr->isResonance() : false;}
   bool   isVisible() const {
-    return (pdePtr > 0) ? pdePtr->isVisible() : false;}
+    return (pdePtr != 0) ? pdePtr->isVisible() : false;}
   bool   isLepton()  const {
-    return  (pdePtr > 0) ? pdePtr->isLepton() : false;}
+    return (pdePtr != 0) ? pdePtr->isLepton() : false;}
   bool   isQuark()   const {
-    return  (pdePtr > 0) ? pdePtr->isQuark() : false;}
+    return (pdePtr != 0) ? pdePtr->isQuark() : false;}
   bool   isGluon()   const {
-    return (pdePtr > 0) ? pdePtr->isGluon() : false;}
+    return (pdePtr != 0) ? pdePtr->isGluon() : false;}
   bool   isDiquark()   const {
-    return  (pdePtr > 0) ? pdePtr->isDiquark() : false;}
+    return (pdePtr != 0) ? pdePtr->isDiquark() : false;}
   bool   isParton()   const {
-    return (pdePtr > 0) ? pdePtr->isParton() : false;}
+    return (pdePtr != 0) ? pdePtr->isParton() : false;}
   bool   isHadron()  const {
-    return (pdePtr > 0) ? pdePtr->isHadron() : false;}
+    return (pdePtr != 0) ? pdePtr->isHadron() : false;}
   ParticleDataEntry& particleDataEntry() const {return *pdePtr;}
 
   // Member functions that perform operations.
@@ -357,9 +357,10 @@ class Event {
 public:
 
   // Constructors.
-  Event(int capacity = 100) {entry.reserve(capacity); startColTag = 100; 
-    headerList = "----------------------------------------"; 
-    particleDataPtr = 0;}
+  Event(int capacity = 100) : startColTag(100), maxColTag(100), 
+    savedSize(0), savedJunctionSize(0), scaleSave(0.), scaleSecondSave(0.),
+    headerList("----------------------------------------"), 
+    particleDataPtr(0) { entry.reserve(capacity); }
   Event& operator=(const Event& oldEvent);
 
   // Initialize header for event listing, particle data table, and colour.

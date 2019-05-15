@@ -10,9 +10,12 @@
 
 The <code>SigmaTotal</code> class returns the total, elastic, diffractive 
 and nondiffractive cross sections in hadronic collisions, and also the
-slopes of the <i>d(sigma)/dt</i> distributions. The parametrizations 
+slopes of the <i>d(sigma)/dt</i> distributions. Most of the parametrizations 
 used are from [<a href="Bibliography.html" target="page">Sch94, Sch97</a>] which borrows some of the total cross 
-sections from [<a href="Bibliography.html" target="page">Don92</a>].
+sections from [<a href="Bibliography.html" target="page">Don92</a>]. If you use the MBR (Minimum Bias Rockefeller) 
+model [<a href="Bibliography.html" target="page">Cie12</a>], <code>Diffraction:PomFlux = 5</code>, this model 
+contains its own parametrizations of all cross sections in <i>p p</i> 
+and <i>pbar p</i> collisions.
 
 <p/>
 There are strong indications that the currently implemented diffractive 
@@ -37,6 +40,42 @@ Vector Dominance Model framework (which will not be available for some
 time to come, so this is a bit of overkill). Nevertheless, the sections
 below, with allowed variations, are mainly intended to make sense for
 <i>p + p</i>.
+
+<h3>Central diffraction</h3>
+
+Central diffraction (CD), a.k.a. double Pomeron exchange (DPE), was not 
+part of the framework in [<a href="Bibliography.html" target="page">Sch94</a>]. It has now been added for 
+multiparticle states, i.e. excluding the resonance region below 1 GeV 
+mass, as well as other exclusive states, but only for <i>p p</i> or 
+<i>pbar p</i>. It uses the same proton-Pomeron vertex as in single 
+diffraction, twice, to describe <i>x_Pomeron</i> and <i>t</i> spectra. 
+This fixes the energy dependence, which has been integrated and 
+parametrized. The absolute normalization has been left open, however.
+Furthermore, since CD has not been included in previous tunes to data,
+a special flag is available to reproduce the old behaviour (with due
+complications when one does not want to do this).
+
+<p/><code>parm&nbsp; </code><strong> SigmaTotal:sigmaAXB2TeV &nbsp;</strong> 
+ (<code>default = <strong>1.5</strong></code>; <code>minimum = 0.</code>)<br/>
+The CD cross section for <i>p p</i> and <i>pbar p</i> collisions, 
+normalized to its value at 2 TeV CM energy, expressed in mb. The energy 
+dependence is then parametrized, and behaves roughly like 
+<i>ln^1.5(s)</i>. Is used for the options
+<code>Diffraction:PomFlux = 1 - 4</code>, while the MBR model 
+(<code>= 5</code>) has its own parametrization.
+  
+
+<p/><code>flag&nbsp; </code><strong> SigmaTotal:zeroAXB &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+several existing <a href="Tunes.html" target="page">tunes</a> do not include CD. 
+An inclusion of a nonvanishing CD cross section directly affects 
+the minbias phenomenology (even if not dramatically), and so
+this flag is used to switch off the CD cross section in such tunes.
+You can switch it back on <i>after</i> the selection of a tune, if you
+so wish. This option has no effect for the MBR model 
+(<code>Diffraction:PomFlux = 5</code>), where the CD cross section 
+has been included from the onset.  
+  
 
 <h3>Set cross sections</h3>
 
@@ -75,7 +114,7 @@ Double Diffractive cross section <i>A + B -> X_1 + X_2</i> in mb.
   
 
 <p/><code>parm&nbsp; </code><strong> SigmaTotal:sigmaAXB &nbsp;</strong> 
- (<code>default = <strong>0.</strong></code>; <code>minimum = 0.</code>)<br/>
+ (<code>default = <strong>1.</strong></code>; <code>minimum = 0.</code>)<br/>
 Central Diffractive cross section <i>A + B -> A + X + B</i> in mb.
   
 
@@ -90,6 +129,11 @@ in the description of multiparton interactions, it is important that a
 consistent set is used. 
 
 <h3>Dampen diffractive cross sections</h3>
+
+As already noted, unitarization effects may dampen the rise of diffractive
+cross sections relative to the default parametrizations. The settings
+here allows one way to introduce a dampening, which is used in some 
+of the existing <a href="Tunes.html" target="page">tunes</a>.
 
 <p/><code>flag&nbsp; </code><strong> SigmaDiffractive:dampen &nbsp;</strong> 
  (<code>default = <strong>no</strong></code>)<br/>
@@ -114,12 +158,17 @@ The above <i>sigma_max</i> for <i>A + B -> X + B</i> in mb.
 
 <p/><code>parm&nbsp; </code><strong> SigmaDiffractive:maxAX &nbsp;</strong> 
  (<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)<br/>
-The above <i>sigma_max</i> for <i>A + B -> X + B</i> in mb.
+The above <i>sigma_max</i> for <i>A + B -> A + X</i> in mb.
   
 
 <p/><code>parm&nbsp; </code><strong> SigmaDiffractive:maxXX &nbsp;</strong> 
  (<code>default = <strong>15.</strong></code>; <code>minimum = 0.</code>)<br/>
-The above <i>sigma_max</i> for <i>A + B -> X + B</i> in mb.
+The above <i>sigma_max</i> for <i>A + B -> X_1 + X_2</i> in mb.
+  
+
+<p/><code>parm&nbsp; </code><strong> SigmaDiffractive:maxAXB &nbsp;</strong> 
+ (<code>default = <strong>3.</strong></code>; <code>minimum = 0.</code>)<br/>
+The above <i>sigma_max</i> for <i>A + B -> A + X + B</i> in mb.
   
 
 <p/>

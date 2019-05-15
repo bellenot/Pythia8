@@ -71,30 +71,36 @@ critical Pomeron, giving a mass spectrum roughly like <ei>dm^2/m^2</ei>;
 a mass-dependent exponential <ei>t</ei> slope that reduces the rate 
 of low-mass states; partly compensated by a very-low-mass (resonance region) 
 enhancement. Is currently the only one that contains a separate 
-<ei>t</ei> spectrum for double diffraction and separate parameters
-for pion beams.</option>
+<ei>t</ei> spectrum for double diffraction (along with MBR) and 
+separate parameters for pion beams.</option>
 <option value="2">Bruni and Ingelman <ref>Bru93</ref>: also a critical
 Pomeron giving close to <ei>dm^2/m^2</ei>,  with a <ei>t</ei> distribution 
-the sum of two exponentials.  </option>
+the sum of two exponentials. The original model only covers single
+diffraction, but is here expanded by analogy to double and central 
+diffraction.</option>
 <option value="3">a conventional Pomeron description, in the RapGap
 manual <ref>Jun95</ref> attributed to Berger et al. and Streng 
 <ref>Ber87a</ref>, but there (and here) with values updated to a 
 supercritical Pomeron with <ei>epsilon &gt; 0</ei> (see below), 
 which gives a stronger peaking towards low-mass diffractive states, 
 and with a mass-dependent (the <ei>alpha'</ei> below) exponential 
-<ei>t</ei> slope.</option>
+<ei>t</ei> slope. The original model only covers single diffraction, 
+but is here expanded by analogy to double and central diffraction.
+</option>
 <option value="4">a conventional Pomeron description, attributed to
 Donnachie and Landshoff <ref>Don84</ref>, again with supercritical Pomeron, 
 with the same two parameters as option 3 above, but this time with a 
-power-law <ei>t</ei> distribution.</option>
+power-law <ei>t</ei> distribution. The original model only covers single
+diffraction, but is here expanded by analogy to double and central 
+diffraction.</option>
 <option value="5"> the MBR (Minimum Bias Rockefeller) simulation of 
 (anti)proton-proton interactions <ref>Cie12</ref>. The event 
 generation follows a renormalized-Regge-theory model, sucessfully tested 
-using CDF data. The simulation includes the central diffractive 
-(double-Pomeron exchange) process (106). Only <ei>p p</ei>, <ei>pbar p</ei>
-and <ei>p pbar</ei> beam combinations are allowed for this option. 
-Several parameters of this model are listed below. 
-</option>
+using CDF data. The simulation includes single and double diffraction,
+as well as the central diffractive (double-Pomeron exchange) process (106). 
+Only <ei>p p</ei>, <ei>pbar p</ei> and <ei>p pbar</ei> beam combinations 
+are allowed for this option. Several parameters of this model are listed 
+below. </option>
 </modepick> 
 
 <p/>

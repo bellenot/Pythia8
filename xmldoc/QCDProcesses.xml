@@ -71,9 +71,13 @@ for details. Code 105.
 
 <flag name="SoftQCD:centralDiffractive" default="off">
 Central diffractive scattering <ei>A B -> A X B</ei> 
-(a.k.a. double-Pomeron exchange, DPE).
-See page on <aloc href="Diffraction">Diffraction</aloc>
-for details. Code 106.
+(a.k.a. double-Pomeron exchange, DPE). See pages on 
+<aloc href="TotalCrossSections">Total Cross Sections</aloc>
+and on <aloc href="Diffraction">Diffraction</aloc> for details. 
+In particular note the <code>SigmaTotal:zeroAXB</code> flag,
+which is off in most tunes, and that therefore would need to 
+be reset to on after the selection of a tune (even the default one). 
+Code 106.
 </flag>
 
 <h3>Hard QCD processes</h3>

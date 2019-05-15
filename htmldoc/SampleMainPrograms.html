@@ -49,13 +49,17 @@ of (two-body) decay modes to a variety of final states. Also traces
 decay chains down to truly stable particles: gamma, e+-, p/pbar and
 neutrinos. Suitable for astroparticle applications, like neutralino 
 pair annihilation, where cross sections are calculated separately 
-in another program.
+in another program.</li>
 
 <li><code>main08.cc</code> : generation of the QCD jet cross section
-by splitting the run into subruns, each in its own <i>pT</i> bin,
-and adding the results properly reweighted. Two options, with limits 
-set either in the main program or by subrun specification in the
-<code>main08.cmnd</code> file.</li>
+biased towards higher pT values, by two different techniques.
+Firstly, by splitting the run into subruns, each in its own <i>pT</i> 
+bin, and adding the results properly reweighted. Two suboptions, with 
+limits set either in the main program or by subrun specification in the
+<code>main08.cmnd</code> file. Secondly, by a continuous reweighting
+with a <i>pT^4</i> bias in the selection, compensated by a  
+<i>1/pT^4</i> event weight. Also inclusion of soft processes is
+illustrated, with subruns and weighted events.</li>
 
 <li><code>main09.cc</code> : generation of two predetermined hard
 interactions in each event.</li>
@@ -112,7 +116,8 @@ to write an LHEF.</li>
 <li><code>main21.cc</code> : an example how a single particle or various
 parton-level configurations can be input directly for hadronization, 
 without being tied to the full process-generation machinery, e.g. to 
-study the hadronization of junction topologies. </li>
+study the hadronization of junction topologies. Can also be used for 
+single-resonance decays, with showers.</li>
 
 <li><code>main22.cc</code> : shows how an external resonance can be 
 implemented as a new class derived from a PYTHIA base class, and be 
@@ -133,8 +138,8 @@ available, <code>sps1aWithDecays.spc</code>, which contains a decay
 table in SLHA format.</li>
 
 <li><code>main25.cc</code> : input RPV-SUSY events from an LHEF file that
-contains an SLHA spectrum inside its <code><header></code>. The
-event file, <code>main25.lhe</code>, contains a sample events that 
+contains an SLHA spectrum inside its header. The event file, 
+<code>main25.lhe</code>, contains a sample events that 
 illustrate how to arrange color tags in the presence of the
 color-space epsilon tensors that accompany baryon number violating
 event topologies. </li>
@@ -157,6 +162,16 @@ in this case either for the POWHEG-hvq program applied to top
 pair production [<a href="Bibliography.html" target="page">Cor10</a>] or for QCD 2+3-jet events. The small 
 samples of input events are stored in the <code>powheg-hvq.lhe</code> 
 and <code>powheg-dijets.lhe</code> files, respectively.
+</li>
+
+<li><code>main32.cc</code> : exemplifies MLM merging for ALPGEN events,
+see <a href="AlpgenAndMLM.html" target="page">ALPGEN and MLM merging</a> for further
+details. Traditionally the ALPGEN output is split into one file with 
+events and another with parameters and cross sections (unlike in LHEF).
+Here a sample of <i>W + 3 jets</i> events is stored in 
+<code>main32.unw</code> and the parameters to go with it in 
+<code>main32_unw.par</code>, while normal PYTHIA control cards are in
+<code>main32.cmnd</code>. 
 </li>
 
 <li><code>main41.cc</code> : similar to <code>main01</code>, except that 
@@ -250,7 +265,7 @@ in the <code>rootexamples</code> subdirectory:
 in a program that for the rest is structured like a normal PYTHIA run.
 </li>
 
-<li><code>hist.cc</code> : shows how PYTHIA events can be stored as
+<li><code>tree.cc</code> : shows how PYTHIA events can be stored as
 ROOT trees.</li>
 
 </ul>

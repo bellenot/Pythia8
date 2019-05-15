@@ -58,6 +58,13 @@ public:
   // complex * Wave4.
   friend Wave4 operator*(complex s, const Wave4& w);
  
+  // Wave4 * double.
+  Wave4 operator*(double s) {return Wave4(val[0] * s, val[1] * s,
+    val[2] * s, val[3] * s);}
+
+  // double * Wave4.
+  friend Wave4 operator*(double s, const Wave4& w);
+ 
   // Wave4 / complex.
   Wave4 operator/(complex s) {return Wave4(val[0] / s, val[1] / s,
     val[2] / s, val[3] / s);}
@@ -67,9 +74,13 @@ public:
     val[2]/s, val[3]/s);}
 
   // Complex conjugate.
-  friend Wave4 conj(Wave4 w) ;
+  friend Wave4 conj(Wave4 w);
+
+  // Permutation operator.
+  friend Wave4 epsilon(Wave4 w1, Wave4 w2, Wave4 w3);
 
   // Invariant squared mass for REAL Wave4 (to save time).
+  friend double m2(Wave4 w);
   friend double m2(Wave4 w1, Wave4 w2);
   
   // Wave4 * GammaMatrix multiplication is defined in the GammaMatrix class.
@@ -88,6 +99,8 @@ protected:
 // Namespace function declarations; friends of Wave4 class.
 Wave4 operator*(complex s, const Wave4& w);
 Wave4 conj(Wave4 w);
+Wave4 epsilon(Wave4 w1, Wave4 w2, Wave4 w3);
+double m2(Wave4 w);
 double m2(Wave4 w1, Wave4 w2);
 ostream& operator<< (ostream& os, Wave4 w);
 
@@ -179,11 +192,11 @@ public:
     : Particle(idIn, statusIn, mother1In, mother2In, daughter1In, daughter2In,
     colIn, acolIn, pxIn, pyIn, pzIn, eIn, mIn, scaleIn) {
     if (ptr) { setPDTPtr(ptr); setPDEPtr(); }
-    rho = vector< vector<complex> >(spinType(), 
-      vector<complex>(spinType(), 0));
-    D   = vector< vector<complex> >(spinType(), 
-      vector<complex>(spinType(), 0));
-    for (int i = 0; i < spinType(); i++) { rho[i][i] = 0.5; D[i][i] = 1.;}
+    rho = vector< vector<complex> >(spinStates(), 
+      vector<complex>(spinStates(), 0));
+    D   = vector< vector<complex> >(spinStates(), 
+      vector<complex>(spinStates(), 0));
+    for (int i = 0; i < spinStates(); i++) { rho[i][i] = 0.5; D[i][i] = 1.;}
     direction = 1; }
   HelicityParticle(int idIn, int statusIn, int mother1In, int mother2In,
     int daughter1In, int daughter2In, int colIn, int acolIn, Vec4 pIn, 
@@ -191,26 +204,27 @@ public:
     : Particle(idIn, statusIn, mother1In, mother2In, daughter1In, daughter2In,
     colIn, acolIn, pIn, mIn, scaleIn) {
     if (ptr) { setPDTPtr(ptr); setPDEPtr();}
-    rho = vector< vector<complex> >(spinType(), 
-      vector<complex>(spinType(), 0));
-    D   = vector< vector<complex> >(spinType(), 
-      vector<complex>(spinType(), 0));
-    for (int i = 0; i < spinType(); i++) { rho[i][i] = 0.5; D[i][i] = 1;}
+    rho = vector< vector<complex> >(spinStates(), 
+      vector<complex>(spinStates(), 0));
+    D   = vector< vector<complex> >(spinStates(), 
+      vector<complex>(spinStates(), 0));
+    for (int i = 0; i < spinStates(); i++) { rho[i][i] = 0.5; D[i][i] = 1;}
     direction = 1; }
   HelicityParticle(const Particle& ptIn, ParticleData* ptr = 0) 
     : Particle(ptIn) {
     if (ptr) { setPDTPtr(ptr); setPDEPtr();}
-    rho = vector< vector<complex> >(spinType(), 
-      vector<complex>(spinType(), 0));
-    D   = vector< vector<complex> >(spinType(), 
-      vector<complex>(spinType(), 0));
-    for (int i = 0; i < spinType(); i++) { rho[i][i] = 0.5; D[i][i] = 1;}
+    rho = vector< vector<complex> >(spinStates(), 
+      vector<complex>(spinStates(), 0));
+    D   = vector< vector<complex> >(spinStates(), 
+      vector<complex>(spinStates(), 0));
+    for (int i = 0; i < spinStates(); i++) { rho[i][i] = 0.5; D[i][i] = 1;}
     direction = 1; }
  
   // Methods.
   Wave4 wave(int h);
   Wave4 waveBar(int h);
   void normalize(vector< vector<complex> >& m);
+  int spinStates();
   
   // Event record position.
   int idx;

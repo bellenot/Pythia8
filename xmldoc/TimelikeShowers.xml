@@ -133,7 +133,7 @@ value corresponds to a crude tuning to LEP data, to be improved.
 
 <p/>
 The actual value is then regulated by the running to the scale 
-<ei>pT^2</ei>, at which the shower evaluates <ei>alpha_strong</ei>
+<ei>pT^2</ei>, at which the shower evaluates <ei>alpha_strong</ei>.
 
 <modepick name="TimeShower:alphaSorder" default="1" min="0" max="2">
 Order at which <ei>alpha_strong</ei> runs,
@@ -162,6 +162,25 @@ at the <ei>Z^0</ei> mass.
 </option> 
 </modepick>
 
+<p/>
+The natural scale for couplings, and PDFs for dipoles stretching out
+to the beam remnants, is <ei>pT^2</ei>. To explore uncertainties it 
+is possibly to vary around this value, however, in analogy with what
+can be done for <aloc href="CouplingsAndScales">hard processes</aloc>.
+
+<parm name="TimeShower:renormMultFac" default="1." min="0.1" max="10.">
+The default <ei>pT^2</ei> renormalization scale is multiplied by 
+this prefactor. For QCD this is equivalent to a change of 
+<ei>Lambda^2</ei> in the opposite direction, i.e. to a change of 
+<ei>alpha_strong(M_Z^2)</ei> (except that flavour thresholds 
+remain at fixed scales).
+</parm>
+
+<parm name="TimeShower:factorMultFac" default="1." min="0.1" max="10.">
+The default <ei>pT^2</ei> factorization scale is multiplied by 
+this prefactor. 
+</parm>
+ 
 <p/>
 The rate of radiation if divergent in the <ei>pT -> 0</ei> limit. Here, 
 however, perturbation theory is expected to break down. Therefore an 

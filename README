@@ -48,15 +48,24 @@
          (is automatic on many 64-bit installations, but just in case).
      --lcgplatform=name : allows you to specify the platform assumed for
          compilation, which also affects the assumed location of the 
-         libraries below; default is slc4_ia32_gcc34 while other supported
-         values for name include slc4_amd64_gcc34 and slc3_ia32_gcc323
-         (deprecated). 
+         libraries below; default is x86_64-slc5-gcc43-opt while other 
+         supported values for name include slc4_ia32_gcc34, 
+         slc4_amd64_gcc34 and slc3_ia32_gcc323 (deprecated). 
+     --installdir=name : absolute path to a directory where the compiled
+         library and header file directories will be copied, by a 
+         "gmake install" command subsequent to the "gmake" one. 
+         Note that the files in the current working directory are kept. 
+     --prefix=name : equivalent alternative to --installdir=name.
+     --datadir=name : absolute path to a directory where the xmldoc
+         data directory will be copied, by a "gmake install" command 
+         subsequent to the "gmake" one. Defaults to the same as 
+         --installdir=name if not set separately.
      --with-hepmc=path : the path to your local copy of the HepMC library.
          Please note that HepMC version 1 is no more supported. If the path
          does not contain the version number you will be warned about it.    
      --with-hepmcversion=v : a simpler alternative to the above, valid 
          if you are using the CERN AFS LCG external area. See the HepMC
-         WEB site for the information about the versions currently
+         web site for the information about the versions currently
          "in production"
      --enable-gzip     : enable support for gzipped LHE file reading
      --with-boost=path   see GZIP SUPPORT section below for

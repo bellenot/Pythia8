@@ -140,6 +140,7 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Ho
 <a href='RandomNumbers.php?filepath=".$filepath."' target='page'>Random Numbers</a><br/>
 <a href='UserHooks.php?filepath=".$filepath."' target='page'>User Hooks</a><br/>
 <a href='MatrixElementMerging.php?filepath=".$filepath."' target='page'>Matrix Element Merging</a><br/>
+<a href='AlpgenAndMLM.php?filepath=".$filepath."' target='page'>ALPGEN and MLM Merging</a><br/>
 <a href='ImplementNewShowers.php?filepath=".$filepath."' target='page'>Implement New Showers</a><br/>
 
 ";?>

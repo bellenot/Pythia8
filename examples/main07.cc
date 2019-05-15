@@ -10,6 +10,8 @@
 // In the accompanying main29.cmnd file the decay channels of this
 // blob can be set up. Furthermore, only gamma, e+-, p/pbar and
 // neutrinos are stable, everything else is set to decay.
+// (The "single-particle gun" of main21.cc offers another possible 
+// approach to the same problem.) 
 
 #include "Pythia.h"
 

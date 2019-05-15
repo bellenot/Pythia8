@@ -12,7 +12,6 @@
 
 #include "Basics.h"
 #include "Info.h"
-#include "ParticleData.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
 #include "StandardModel.h"

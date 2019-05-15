@@ -14,13 +14,15 @@ fi
 
 #LCG platform. Can be needed if external libraries are specified
 if [ x$MYLCGPLATFORM = x ]; then
-  export MYLCGPLATFORM=slc4_ia32_gcc34
+  export MYLCGPLATFORM=x86_64-slc5-gcc43-opt
 fi
 
 # Defaults
 export COMPMODE=OPT
 export SHAREDLIBS=no
 export ENABLEGZIP=no
+export INSTALLDIR=.
+export DATADIR=
 
 for arg in $* ; do
   if [ "x$arg" = "x--enable-debug" ] ; then
@@ -37,7 +39,10 @@ for arg in $* ; do
     echo "--enable-debug        : turns on debugging flags and turns off optimization"
     echo "--enable-shared       : turns on shared library creation (default no)"
     echo "--enable-64bits       : turns on 64 bits compilation flags"
-    echo "--lcgplatform=name    : LCG platform name, default is slc4_ia32_gcc34"
+    echo "--lcgplatform=name    : LCG platform name, default is x86_64-slc5-gcc43-opt"
+    echo "--installdir=name     : install directory, default is . "
+    echo "--prefix=name         : install directory (equivalent to --installdir)"
+    echo "--datadir=name        : data directory (for xmldoc), default is install directory"
     echo "--with-hepmc=path     : path to HepMC library to build interface (default is not build)"
     echo "--with-hepmcversion=v : HepMC version (simplified alternative when using CERN AFS LCG external, e.g. =2.04.00)"
     echo "--enable-gzip         : turns on support for reading in gzipped files (default no)"
@@ -56,6 +61,12 @@ for arg in $* ; do
     value=`echo ${arg} | awk -F = '{print $2}'`
     if [ "x${option}" = "x--lcgplatform" ] ; then
       MYLCGPLATFORM=${value}
+    elif [ "x${option}" = "x--installdir" ] ; then
+      INSTALLDIR=${value}
+    elif [ "x${option}" = "x--prefix" ] ; then
+      INSTALLDIR=${value}
+    elif [ "x${option}" = "x--datadir" ] ; then
+      DATADIR=${value}
     elif [ "x${option}" = "x--with-hepmcversion" ] ; then
       HEPMCVERSION=${value}
     elif [ "x${option}" = "x--with-hepmc" ] ; then
@@ -73,8 +84,12 @@ done
 echo compilation mode is $COMPMODE
 echo sharedlibs = $SHAREDLIBS
 
+if [ "x${DATADIR}" = "x" ] ; then
+  DATADIR=${INSTALLDIR}
+fi
+
 # Environment variables for building HepMC interface library. Note that
-# the HepMC interface library is used by the examples main31, main32.
+# the HepMC interface library is used by the examples main41, main42, ..  .
 # Attention: if you have already run these examples and you change HepMC
 # version you should reset your LD_LIBRARY_PATH
 # The default values here correspond to CERN AFS lcg external
@@ -346,6 +361,8 @@ echo FLIBS = ${FLIBS} >> config.mk
 echo LDFLAGSSHARED = ${LDFLAGSSHARED} >> config.mk
 echo LDFLAGLIBNAME = ${LDFLAGLIBNAME} >> config.mk
 echo SHAREDSUFFIX = ${SHAREDSUFFIX} >> config.mk
+echo INSTALLDIR = ${INSTALLDIR} >> config.mk
+echo DATADIR = ${DATADIR} >> config.mk
 #
 if [ x${HEPMCLOCATION} != x ]; then
   if [ x${HEPMCVERSION} != x ]; then

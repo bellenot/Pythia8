@@ -86,8 +86,12 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   mb                 = particleDataPtr->m0(5); 
   m2c                = mc * mc;
   m2b                = mb * mb;
+
+  // Parameters of scale choices.
+  renormMultFac     = settingsPtr->parm("TimeShower:renormMultFac");
+  factorMultFac     = settingsPtr->parm("TimeShower:factorMultFac");
        
-  // Parameters of alphaStrong generation .
+  // Parameters of alphaStrong generation.
   alphaSvalue        = settingsPtr->parm("TimeShower:alphaSvalue");
   alphaSorder        = settingsPtr->mode("TimeShower:alphaSorder");
   alphaS2pi          = 0.5 * alphaSvalue / M_PI;
@@ -106,10 +110,10 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   // Parameters of QCD evolution. Warn if pTmin must be raised.
   nGluonToQuark      = settingsPtr->mode("TimeShower:nGluonToQuark");
   pTcolCutMin        = settingsPtr->parm("TimeShower:pTmin");
-  if (pTcolCutMin > LAMBDA3MARGIN * Lambda3flav) 
+  if (pTcolCutMin > LAMBDA3MARGIN * Lambda3flav / sqrt(renormMultFac)) 
     pTcolCut         = pTcolCutMin;
   else { 
-    pTcolCut         = LAMBDA3MARGIN * Lambda3flav;
+    pTcolCut         = LAMBDA3MARGIN * Lambda3flav / sqrt(renormMultFac);
     ostringstream newPTcolCut;
     newPTcolCut << fixed << setprecision(3) << pTcolCut;
     infoPtr->errorMsg("Warning in TimeShower::init: pTmin too low",
@@ -167,8 +171,8 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   brokenHVsym        = (nCHV == 1 && mHV > 0.);
 
   // Possibility to allow user veto of emission step.
-  canVetoEmission = (userHooksPtr > 0) ? userHooksPtr->canVetoFSREmission() 
-    : false;
+  canVetoEmission    = (userHooksPtr != 0) 
+                     ? userHooksPtr->canVetoFSREmission() : false;
 
 }
 
@@ -262,6 +266,9 @@ void TimeShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
   int iInB = partonSystemsPtr->getInB(iSys); 
   if (iSys == 0 || iInA == 0) dipEnd.resize(0);
   int dipEndSizeBeg = dipEnd.size();
+
+  // No dipoles for 2 -> 1 processes.
+  if (partonSystemsPtr->sizeOut(iSys) < 2) return;
  
   // Loop through final state of system to find possible dipole ends.
   for (int i = 0; i < partonSystemsPtr->sizeOut(iSys); ++i) {
@@ -1291,6 +1298,8 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
         b0       = 27./6.;
         Lambda2  = Lambda3flav2;
       }
+      // A change of renormalization scale expressed by a change of Lambda. 
+      Lambda2 /= renormMultFac;
       zMinAbs = 0.5 - sqrtpos( 0.25 - pT2min / dip.m2DipCorr );
       if (zMinAbs < SIMPLIFYROOT) zMinAbs = pT2min / dip.m2DipCorr;
 
@@ -1320,7 +1329,7 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
     } else {
       do dip.pT2 = Lambda2 * pow( dip.pT2 / Lambda2, 
         pow( rndmPtr->flat(), b0 / emitCoefTot) );
-      while (alphaS.alphaS2OrdCorr(dip.pT2) < rndmPtr->flat() 
+      while (alphaS.alphaS2OrdCorr(renormMultFac * dip.pT2) < rndmPtr->flat() 
         && dip.pT2 > pT2min);
     }
     wt = 0.;
@@ -1402,8 +1411,9 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
           else {
             int idRec     = event[dip.iRecoiler].id();
             double pdfOld = max ( TINYPDF, 
-                            beam.xfISR( iSysRec, idRec, xOld, dip.pT2) ); 
-            double pdfNew = beam.xfISR( iSysRec, idRec, xNew, dip.pT2); 
+              beam.xfISR( iSysRec, idRec, xOld, factorMultFac * dip.pT2) ); 
+            double pdfNew = 
+              beam.xfISR( iSysRec, idRec, xNew, factorMultFac * dip.pT2); 
             wt *= min( 1., pdfNew / pdfOld); 
           }
 
@@ -1446,7 +1456,7 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
   double emitCoefTot = 0.;
 
   // alpha_em at maximum scale provides upper estimate.
-  double alphaEMmax  = alphaEM.alphaEM(pT2begDip);
+  double alphaEMmax  = alphaEM.alphaEM(renormMultFac * pT2begDip);
   double alphaEM2pi  = alphaEMmax / (2. * M_PI);
 
   // Emission: upper estimate for matrix element weighting; charge factor.
@@ -1520,8 +1530,7 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
           else                  dip.flavour = 5;
         }
         dip.mFlavour = particleDataPtr->m0(dip.flavour);
-      }
-                      
+      }                      
 
       // No z weight, except threshold, if to do ME corrections later on.
       if (dip.MEtype > 0) { 
@@ -1540,7 +1549,7 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
       }
 
       // Correct to current value of alpha_EM.
-      double alphaEMnow = alphaEM.alphaEM(dip.pT2);
+      double alphaEMnow = alphaEM.alphaEM(renormMultFac * dip.pT2);
       wt *= (alphaEMnow / alphaEMmax);
 
       // Suppression factors for dipole to beam remnant.
@@ -1562,8 +1571,9 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
         else {
           int idRec     = event[dip.iRecoiler].id();
           double pdfOld = max ( TINYPDF, 
-                          beam.xfISR( iSys, idRec, xOld, dip.pT2) ); 
-          double pdfNew = beam.xfISR( iSys, idRec, xNew, dip.pT2); 
+            beam.xfISR( iSys, idRec, xOld, factorMultFac * dip.pT2) ); 
+          double pdfNew = 
+            beam.xfISR( iSys, idRec, xNew, factorMultFac * dip.pT2); 
           wt *= min( 1., pdfNew / pdfOld); 
         }
 

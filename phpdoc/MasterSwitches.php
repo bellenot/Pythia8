@@ -126,7 +126,7 @@ echo "<a href='SpacelikeShowers.php?filepath=".$filepath."' target='page'>";?>he
 <br/><br/><strong>PartonLevel:FSR</strong>  <input type="radio" name="6" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="6" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
-Master switch for initial-state radiation; on/off = true/false.
+Master switch for final-state radiation; on/off = true/false.
 Further options are found <?php $filepath = $_GET["filepath"];
 echo "<a href='TimelikeShowers.php?filepath=".$filepath."' target='page'>";?>here</a>.
 If you leave this switch on, the following two switches allow 

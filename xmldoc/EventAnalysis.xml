@@ -717,6 +717,16 @@ the invariant mass of this four-vector,
 gives the number of particles clustered into the <ei>i</ei>'th jet,
 </method>
 
+<method name="int SlowJet::jetAssignment(int i)">
+gives the index of the jet that the particle <ei>i</ei> of the event
+record belongs to, or -1 if there is no jet containing particle
+<ei>i</ei>,
+</method>
+
+<method name="void SlowJet::removeJet(int i)">
+removes the <ei>i</ei>'th jet,
+</method>
+
 <method name="void SlowJet::list()">
 provides a listing of the above information.
 </method>

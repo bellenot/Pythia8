@@ -244,7 +244,7 @@ sum of quark/diquark constituent masses for a normal string description,
 else the ministring scenario is used.
   
 
-<br/><br/><table><tr><td><strong>FragmentationSystems:mJoin </td><td></td><td> <input type="text" name="20" value="0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>FragmentationSystems:mJoin </td><td></td><td> <input type="text" name="20" value="0.3" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.3</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 1.</code>)</td></tr></table>
 When two colour-connected partons are very nearby, with at least 
 one being a gluon, they can be joined into one, to avoid technical 
 problems of very small string regions. The requirement for joining is 
@@ -448,7 +448,7 @@ if($_POST["19"] != "1.")
 $data = "HadronLevel:mStringMin = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["20"] != "0.2")
+if($_POST["20"] != "0.3")
 {
 $data = "FragmentationSystems:mJoin = ".$_POST["20"]."\n";
 fwrite($handle,$data);

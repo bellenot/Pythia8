@@ -317,6 +317,14 @@ bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
 
 void ColConfig::collect(int iSub, Event& event, bool skipTrivial) {
 
+  // Check that all partons have positive energy.
+  for (int i = 0; i < singlets[iSub].size(); ++i) {
+    int iNow = singlets[iSub].iParton[i];
+    if (iNow > 0 && event[iNow].e() < 0.) 
+    infoPtr->errorMsg("Warning in ColConfig::collect: "
+      "negative-energy parton encountered");
+  }
+
   // Partons may already have been collected, e.g. at ministring collapse.
   if (singlets[iSub].isCollected) return;
   singlets[iSub].isCollected = true;

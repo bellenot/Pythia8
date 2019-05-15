@@ -90,6 +90,10 @@ const int ParticleDataEntry::INVISIBLETABLE[50] = { 12, 14, 16, 18, 23, 25,
   4900211, 4900213, 4900991, 5000039, 5100039, 9900012, 9900014, 9900016, 
   9900023 };     
 
+// For some particles we know it is necessary to switch off width,
+// although they do have one, so do not warn.
+const int ParticleDataEntry::KNOWNNOWIDTH[3] = {10313, 10323, 10333}; 
+
 // Particles with a read-in tau0 (in mm/c) below this mayDecay by default.
 const double ParticleDataEntry::MAXTAU0FORDECAY = 1000.;
 
@@ -279,11 +283,16 @@ void ParticleDataEntry::initBWmass() {
 
   // Switch off Breit-Wigner if very close to threshold.
   if (mThr + NARROWMASS > m0Save) {
-    ostringstream osWarn;
-    osWarn << "for id = " << idSave;
-    particleDataPtr->infoPtr->errorMsg("Warning in ParticleDataEntry::"
-      "initBWmass: switching off width", osWarn.str(), true);
     modeBWnow = 0;
+    bool knownProblem = false;
+    for (int i = 0; i < 3; ++i) if (idSave == KNOWNNOWIDTH[i]) 
+      knownProblem = true;
+    if (!knownProblem) {
+      ostringstream osWarn;
+      osWarn << "for id = " << idSave;
+      particleDataPtr->infoPtr->errorMsg("Warning in ParticleDataEntry::"
+        "initBWmass: switching off width", osWarn.str(), true);
+    }
   }
 
 }
@@ -392,7 +401,7 @@ bool ParticleDataEntry::preparePick(int idSgn, double mHat, int idInFlav) {
   currentBRSum = 0.;
 
   // For resonances the widths are calculated dynamically.
-  if (resonancePtr != 0) {
+  if (isResonanceSave && resonancePtr != 0) {
     resonancePtr->widthStore(idSgn, mHat, idInFlav);
     for (int i = 0; i < int(channels.size()); ++i) 
       currentBRSum += channels[i].currentBR();

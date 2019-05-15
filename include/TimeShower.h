@@ -188,12 +188,13 @@ private:
   int    pTmaxMatch, pTdampMatch, alphaSorder, nGluonToQuark, 
          alphaEMorder, nGammaToQuark, nGammaToLepton, nCHV, idHV,
          nMaxGlobalRecoil;
-  double pTdampFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
-         Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
-         Lambda5flav2, pTcolCutMin, pTcolCut, pT2colCut, pTchgQCut, 
-         pT2chgQCut, pTchgLCut, pT2chgLCut, mMaxGamma, m2MaxGamma, 
-         octetOniumFraction, octetOniumColFac, mZ, gammaZ, thetaWRat,
-         CFHV, alphaHVfix, pThvCut, pT2hvCut, mHV, pTmaxFudgeMPI;
+  double pTdampFudge, mc, mb, m2c, m2b, renormMultFac, factorMultFac,
+         alphaSvalue, alphaS2pi, Lambda3flav, Lambda4flav, Lambda5flav, 
+         Lambda3flav2, Lambda4flav2, Lambda5flav2, pTcolCutMin, pTcolCut, 
+         pT2colCut, pTchgQCut, pT2chgQCut, pTchgLCut, pT2chgLCut, 
+         mMaxGamma, m2MaxGamma, octetOniumFraction, octetOniumColFac, 
+         mZ, gammaZ, thetaWRat, CFHV, alphaHVfix, pThvCut, pT2hvCut, 
+         mHV, pTmaxFudgeMPI;
 
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;

@@ -27,129 +27,129 @@ class Info {
 public:
 
   // Constructor. 
-  Info() : lowPTmin(false), a0MPISave(0.), mergingWeightSave(1.) {
+  Info() : eCMSave(0.), lowPTmin(false), a0MPISave(0.), weightCKKWLSave(1.) {
     for (int i = 0; i < 40; ++i) counters[i] = 0;} 
 
   // Listing of most available information on current event.
   void   list(ostream& os = cout) const;
   
   // Beam particles (in rest frame). CM energy of event.
-  int    idA()            const {return idASave;}
-  int    idB()            const {return idBSave;}
-  double pzA()            const {return pzASave;}
-  double pzB()            const {return pzBSave;}
-  double eA()             const {return eASave;}
-  double eB()             const {return eBSave;}
-  double mA()             const {return mASave;}
-  double mB()             const {return mBSave;}
-  double eCM()            const {return eCMSave;}
-  double s()              const {return sSave;}
+  int    idA()                const {return idASave;}
+  int    idB()                const {return idBSave;}
+  double pzA()                const {return pzASave;}
+  double pzB()                const {return pzBSave;}
+  double eA()                 const {return eASave;}
+  double eB()                 const {return eBSave;}
+  double mA()                 const {return mASave;}
+  double mB()                 const {return mBSave;}
+  double eCM()                const {return eCMSave;}
+  double s()                  const {return sSave;}
 
   // Warnings from initialization.
-  bool   tooLowPTmin()    const {return lowPTmin;}
+  bool   tooLowPTmin()        const {return lowPTmin;}
 
   // Process name and code, and the number of final-state particles.
-  string name()           const {return nameSave;}
-  int    code()           const {return codeSave;}    
-  int    nFinal()         const {return nFinalSave;}
+  string name()               const {return nameSave;}
+  int    code()               const {return codeSave;}    
+  int    nFinal()             const {return nFinalSave;}
 
   // Are beam particles resolved, with pdf's? Are they diffractive? 
-  bool   isResolved()     const {return isRes;}
-  bool   isDiffractiveA() const {return isDiffA;} 
-  bool   isDiffractiveB() const {return isDiffB;} 
-  bool   isDiffractiveC() const {return isDiffC;} 
-  bool   isMinBias()      const {return isMB;}
+  bool   isResolved()         const {return isRes;}
+  bool   isDiffractiveA()     const {return isDiffA;} 
+  bool   isDiffractiveB()     const {return isDiffB;} 
+  bool   isDiffractiveC()     const {return isDiffC;} 
+  bool   isMinBias()          const {return isMB;}
 
   // Information for Les Houches Accord and reading files.
-  bool   isLHA()          const {return isLH;}
-  bool   atEndOfFile()    const {return atEOF;}
+  bool   isLHA()              const {return isLH;}
+  bool   atEndOfFile()        const {return atEOF;}
 
   // For minbias and Les Houches Accord identify hardest subprocess.
-  bool   hasSub()         const {return hasSubSave;}
-  string nameSub()        const {return nameSubSave;}
-  int    codeSub()        const {return codeSubSave;}    
-  int    nFinalSub()      const {return nFinalSubSave;}
+  bool   hasSub(int i = 0)    const {return hasSubSave[i];}
+  string nameSub(int i = 0)   const {return nameSubSave[i];}
+  int    codeSub(int i = 0)   const {return codeSubSave[i];}    
+  int    nFinalSub(int i = 0) const {return nFinalSubSave[i];}
 
   // Incoming parton flavours and x values.
-  int    id1()            const {return id1Save;}
-  int    id2()            const {return id2Save;}
-  double x1()             const {return x1Save;}
-  double x2()             const {return x2Save;}
-  double y()              const {return 0.5 * log( x1Save / x2Save );}
-  double tau()            const {return x1Save * x2Save;}
+  int    id1(int i = 0)       const {return id1Save[i];}
+  int    id2(int i = 0)       const {return id2Save[i];}
+  double x1(int i = 0)        const {return x1Save[i];}
+  double x2(int i = 0)        const {return x2Save[i];}
+  double y(int i = 0)         const {return 0.5 * log( x1Save[i] / x2Save[i] );}
+  double tau(int i = 0)       const {return x1Save[i] * x2Save[i];}
 
   // Hard process flavours, x values, parton densities, couplings, Q2 scales.
-  int    id1pdf()         const {return id1pdfSave;}
-  int    id2pdf()         const {return id2pdfSave;}
-  double x1pdf()          const {return x1pdfSave;}
-  double x2pdf()          const {return x2pdfSave;}
-  double pdf1()           const {return pdf1Save;}
-  double pdf2()           const {return pdf2Save;}
-  double QFac()           const {return sqrtpos(Q2FacSave);}
-  double Q2Fac()          const {return Q2FacSave;}
-  bool   isValence1()     const {return isVal1;}
-  bool   isValence2()     const {return isVal2;}
-  double alphaS()         const {return alphaSSave;}
-  double alphaEM()        const {return alphaEMSave;}
-  double QRen()           const {return sqrtpos(Q2RenSave);}
-  double Q2Ren()          const {return Q2RenSave;}
+  int    id1pdf(int i = 0)    const {return id1pdfSave[i];}
+  int    id2pdf(int i = 0)    const {return id2pdfSave[i];}
+  double x1pdf(int i = 0)     const {return x1pdfSave[i];}
+  double x2pdf(int i = 0)     const {return x2pdfSave[i];}
+  double pdf1(int i = 0)      const {return pdf1Save[i];}
+  double pdf2(int i = 0)      const {return pdf2Save[i];}
+  double QFac(int i = 0)      const {return sqrtpos(Q2FacSave[i]);}
+  double Q2Fac(int i = 0)     const {return Q2FacSave[i];}
+  bool   isValence1()         const {return isVal1;}
+  bool   isValence2()         const {return isVal2;}
+  double alphaS(int i = 0)    const {return alphaSSave[i];}
+  double alphaEM(int i = 0)   const {return alphaEMSave[i];}
+  double QRen(int i = 0)      const {return sqrtpos(Q2RenSave[i]);}
+  double Q2Ren(int i = 0)     const {return Q2RenSave[i];}
 
   // Mandelstam variables (notation as if subcollision).
-  double mHat()           const {return sqrt(sH);}   
-  double sHat()           const {return sH;}   
-  double tHat()           const {return tH;}   
-  double uHat()           const {return uH;}   
-  double pTHat()          const {return pTH;} 
-  double pT2Hat()         const {return pTH*pTH;} 
-  double m3Hat()          const {return m3H;}   
-  double m4Hat()          const {return m4H;} 
-  double thetaHat()       const {return thetaH;}   
-  double phiHat()         const {return phiH;}   
+  double mHat(int i = 0)      const {return sqrt(sH[i]);}   
+  double sHat(int i = 0)      const {return sH[i];}   
+  double tHat(int i = 0)      const {return tH[i];}   
+  double uHat(int i = 0)      const {return uH[i];}   
+  double pTHat(int i = 0)     const {return pTH[i];} 
+  double pT2Hat(int i = 0)    const {return pTH[i] * pTH[i];} 
+  double m3Hat(int i = 0)     const {return m3H[i];}   
+  double m4Hat(int i = 0)     const {return m4H[i];} 
+  double thetaHat(int i = 0)  const {return thetaH[i];}   
+  double phiHat(int i = 0)    const {return phiH[i];}   
 
   // Weight of current event; normally 1, but used for Les Houches events
   // or when reweighting phase space selection. Conversion from mb to pb
   // for LHA strategy +-4. Also cumulative sum.
-  double weight()         const; 
-  double weightSum()      const; 
-  double lhaStrategy()    const {return lhaStrategySave;}   
+  double weight()             const; 
+  double weightSum()          const; 
+  double lhaStrategy()        const {return lhaStrategySave;}   
 
   // Number of times other steps have been carried out.
-  int    nISR()           const {return nISRSave;}
-  int    nFSRinProc()     const {return nFSRinProcSave;}
-  int    nFSRinRes()      const {return nFSRinResSave;}
+  int    nISR()               const {return nISRSave;}
+  int    nFSRinProc()         const {return nFSRinProcSave;}
+  int    nFSRinRes()          const {return nFSRinResSave;}
 
   // Maximum pT scales for MPI, ISR and FSR (in hard process).
-  double pTmaxMPI()       const {return pTmaxMPISave;}
-  double pTmaxISR()       const {return pTmaxISRSave;}
-  double pTmaxFSR()       const {return pTmaxFSRSave;}
+  double pTmaxMPI()           const {return pTmaxMPISave;}
+  double pTmaxISR()           const {return pTmaxISRSave;}
+  double pTmaxFSR()           const {return pTmaxFSRSave;}
 
   // Current evolution scale (for UserHooks).
-  double pTnow()          const {return pTnowSave;}
+  double pTnow()              const {return pTnowSave;}
 
   // Impact parameter picture, global information
-  double a0MPI()          const {return a0MPISave;}
+  double a0MPI()              const {return a0MPISave;}
 
   // Impact parameter picture, as set by hardest interaction.
-  double bMPI()           const {return (bIsSet) ? bMPISave : 1.;}
-  double enhanceMPI()     const {return (bIsSet) ? enhanceMPISave : 1.;}
-  double eMPI(int i)      const {return (bIsSet) ? eMPISave[i] : 1.;}
+  double bMPI()               const {return (bIsSet) ? bMPISave : 1.;}
+  double enhanceMPI()         const {return (bIsSet) ? enhanceMPISave : 1.;}
+  double eMPI(int i)          const {return (bIsSet) ? eMPISave[i] : 1.;}
 
   // Number of multiparton interactions, with code and pT for them.
-  int    nMPI()           const {return nMPISave;}
-  int    codeMPI(int i)   const {return codeMPISave[i];} 
-  double pTMPI(int i)     const {return pTMPISave[i];} 
-  int    iAMPI(int i)     const {return iAMPISave[i];} 
-  int    iBMPI(int i)     const {return iBMPISave[i];} 
+  int    nMPI()               const {return nMPISave;}
+  int    codeMPI(int i)       const {return codeMPISave[i];} 
+  double pTMPI(int i)         const {return pTMPISave[i];} 
+  int    iAMPI(int i)         const {return iAMPISave[i];} 
+  int    iBMPI(int i)         const {return iBMPISave[i];} 
 
   // Cross section estimate.
-  long   nTried()         const {return nTry;}
-  long   nSelected()      const {return nSel;}
-  long   nAccepted()      const {return nAcc;}
-  double sigmaGen()       const {return sigGen;}
-  double sigmaErr()       const {return sigErr;}
+  long   nTried(int i = 0)    {return (i == 0) ? nTry : nTryM[i];}
+  long   nSelected(int i = 0) {return (i == 0) ? nSel : nSelM[i];}
+  long   nAccepted(int i = 0) {return (i == 0) ? nAcc : nAccM[i];}
+  double sigmaGen(int i = 0)  {return (i == 0) ? sigGen : sigGenM[i];}
+  double sigmaErr(int i = 0)  {return (i == 0) ? sigErr : sigErrM[i];}
 
   // Counters for number of loops in various places.
-  int    getCounter( int i)  const {return counters[i];}    
+  int    getCounter( int i)   const {return counters[i];}    
 
   // Set or increase the value stored in a counter.
   void   setCounter( int i, int value = 0) {counters[i]  = value;}
@@ -184,8 +184,27 @@ public:
   void   pT2NowISR( double pT2NowIn) {pT2NowISRSave = pT2NowIn;}
   double pT2NowISR() {return pT2NowISRSave;}
 
-  // Return merging weight
-  double mergingWeight() const { return mergingWeightSave;} 
+  // Return CKKW-L weight.
+  double getWeightCKKWL() const { return weightCKKWLSave;}
+  // Set CKKW-L weight.
+  void setWeightCKKWL( double weightIn) { weightCKKWLSave = weightIn;}
+  // Return merging weight.
+  double mergingWeight() const { return getWeightCKKWL();} 
+
+  // Return an LHEF header
+  string header(const string &key) {
+    if (headers.find(key) == headers.end()) return "";
+    else return headers[key];
+  }
+
+  // Return a list of all header key names
+  vector < string > headerKeys() {
+    vector < string > keys;
+    for (map < string, string >::iterator it = headers.begin();
+        it != headers.end(); it++)
+      keys.push_back(it->first);
+    return keys;
+  }
 
 private:
 
@@ -205,22 +224,26 @@ private:
   // Store common integrated cross section quantities.
   long   nTry, nSel, nAcc;
   double sigGen, sigErr, wtAccSum;
+  map<int, long> nTryM, nSelM, nAccM;
+  map<int, double> sigGenM, sigErrM;
   int    lhaStrategySave;
 
   // Store common MPI information.
   double a0MPISave;
 
   // Store current-event quantities.
-  bool   isRes, isDiffA, isDiffB, isDiffC, isMB, isLH, hasSubSave, bIsSet, 
-         evolIsSet, atEOF, isVal1, isVal2, hasHistorySave;  
-  int    codeSave, codeSubSave, nFinalSave, nFinalSubSave, nTotal, 
-         id1Save, id2Save, id1pdfSave, id2pdfSave, nMPISave, nISRSave, 
-         nFSRinProcSave, nFSRinResSave;
-  double x1Save, x2Save, x1pdfSave, x2pdfSave, pdf1Save, pdf2Save, Q2FacSave, 
-         alphaEMSave, alphaSSave, Q2RenSave, sH, tH, uH, pTH, m3H, m4H, 
-         thetaH, phiH, weightSave, bMPISave, enhanceMPISave, pTmaxMPISave, 
-         pTmaxISRSave, pTmaxFSRSave, pTnowSave, zNowISRSave, pT2NowISRSave;
-  string nameSave, nameSubSave;
+  bool   isRes, isDiffA, isDiffB, isDiffC, isMB, isLH, hasSubSave[4], 
+         bIsSet, evolIsSet, atEOF, isVal1, isVal2, hasHistorySave;  
+  int    codeSave, codeSubSave[4], nFinalSave, nFinalSubSave[4], nTotal, 
+         id1Save[4], id2Save[4], id1pdfSave[4], id2pdfSave[4], nMPISave, 
+         nISRSave, nFSRinProcSave, nFSRinResSave;
+  double x1Save[4], x2Save[4], x1pdfSave[4], x2pdfSave[4], pdf1Save[4], 
+         pdf2Save[4], Q2FacSave[4], alphaEMSave[4], alphaSSave[4], 
+         Q2RenSave[4], sH[4], tH[4], uH[4], pTH[4], m3H[4], m4H[4], 
+         thetaH[4], phiH[4], weightSave, bMPISave, enhanceMPISave, 
+         pTmaxMPISave, pTmaxISRSave, pTmaxFSRSave, pTnowSave, 
+         zNowISRSave, pT2NowISRSave;
+  string nameSave, nameSubSave[4];
   vector<int>    codeMPISave, iAMPISave, iBMPISave;
   vector<double> pTMPISave, eMPISave;
 
@@ -230,12 +253,16 @@ private:
   // Map for all error messages.
   map<string, int> messages;
 
+  // Map for LHEF headers
+  map<string, string> headers;
+
   // Friend classes allowed to set info.
   friend class Pythia;
   friend class ProcessLevel;
   friend class ProcessContainer;
   friend class PartonLevel;
   friend class MultipartonInteractions;
+  friend class LHAup;
 
   // Set info on the two incoming beams: only from Pythia class.
   void setBeamA( int idAin, double pzAin, double eAin, double mAin) {
@@ -245,20 +272,33 @@ private:
   void setECM( double eCMin) {eCMSave = eCMin; sSave = eCMSave * eCMSave;}
 
   // Reset info for current event: only from Pythia class.
-  void clear() { isRes = isDiffA = isDiffB = isDiffC = isMB = isLH = hasSubSave 
-    = bIsSet = evolIsSet = atEOF = isVal1 =isVal2 = hasHistorySave = false; 
-    codeSave = codeSubSave = nFinalSave = nFinalSubSave = nTotal = id1Save 
-    = id2Save = id1pdfSave = id2pdfSave = nMPISave = nISRSave 
-    = nFSRinProcSave = nFSRinResSave = 0; 
-    x1Save = x2Save = x1pdfSave = x2pdfSave = pdf1Save = pdf2Save 
-    = Q2FacSave = alphaEMSave = alphaSSave = Q2RenSave = sH = tH = uH 
-    = pTH = m3H = m4H = thetaH = phiH = 0.; 
-    weightSave = bMPISave = enhanceMPISave = mergingWeightSave = 1.; 
+  void clear() { 
+    isRes = isDiffA = isDiffB = isDiffC = isMB = isLH = bIsSet 
+      = evolIsSet = atEOF = isVal1 = isVal2 = hasHistorySave = false; 
+    codeSave = nFinalSave = nTotal = nMPISave = nISRSave = nFSRinProcSave 
+      = nFSRinResSave = 0; 
+    weightSave = bMPISave = enhanceMPISave = weightCKKWLSave = 1.; 
     pTmaxMPISave = pTmaxISRSave = pTmaxFSRSave = pTnowSave = zNowISRSave 
-    = pT2NowISRSave = 0.; 
-    nameSave = nameSubSave = " "; 
+      = pT2NowISRSave = 0.; 
+    nameSave = " ";
+    for (int i = 0; i < 4; ++i) {
+      hasSubSave[i] = false; 
+      codeSubSave[i] = nFinalSubSave[i] = id1pdfSave[i] = id2pdfSave[i]
+        = id1Save[i] = id2Save[i] = 0;
+      x1pdfSave[i] = x2pdfSave[i] = pdf1Save[i] = pdf2Save[i] 
+        = Q2FacSave[i] = alphaEMSave[i] = alphaSSave[i] = Q2RenSave[i] 
+        = x1Save[i] = x2Save[i] = sH[i] = tH[i] = uH[i] = pTH[i] 
+        = m3H[i] = m4H[i] = thetaH[i] = phiH[i] = 0.;
+      nameSubSave[i] = " ";
+    }
     codeMPISave.resize(0); iAMPISave.resize(0); iBMPISave.resize(0);  
     pTMPISave.resize(0); eMPISave.resize(0); }
+
+  // Reset info arrays only for parton and hadron level.
+  int sizeMPIarrays() const { return codeMPISave.size(); }
+  void resizeMPIarrays(int newSize) { codeMPISave.resize(newSize); 
+    iAMPISave.resize(newSize); iBMPISave.resize(newSize);  
+    pTMPISave.resize(newSize); eMPISave.resize(newSize); }  
 
   // Set info on the (sub)process: from ProcessLevel, ProcessContainer or 
   // MultipartonInteractions classes.
@@ -269,37 +309,47 @@ private:
     nameSave = nameIn; codeSave = codeIn; nFinalSave = nFinalIn; 
     isMB = isMinBiasIn; isRes = isResolvedIn; isDiffA = isDiffractiveAin; 
     isDiffB = isDiffractiveBin; isDiffC = isDiffractiveCin; isLH = isLHAin;
-    nTotal = 2 + nFinalSave; bIsSet = false; hasSubSave = false; 
-    nameSubSave = " "; codeSubSave = 0; nFinalSubSave = 0; evolIsSet = false;}
-  void setSubType( string nameSubIn, int codeSubIn, int nFinalSubIn) {  
-    hasSubSave = true; nameSubSave = nameSubIn; codeSubSave = codeSubIn; 
-    nFinalSubSave = nFinalSubIn;}
-  void setPDFalpha( int id1pdfIn, int id2pdfIn, double x1pdfIn, double x2pdfIn, 
-    double pdf1In, double pdf2In, double Q2FacIn, double alphaEMIn, 
-    double alphaSIn, double Q2RenIn) {id1pdfSave = id1pdfIn; 
-    id2pdfSave = id2pdfIn; x1pdfSave = x1pdfIn; x2pdfSave = x2pdfIn;
-    pdf1Save = pdf1In; pdf2Save = pdf2In; Q2FacSave = Q2FacIn; 
-    alphaEMSave = alphaEMIn; alphaSSave = alphaSIn; Q2RenSave = Q2RenIn;}
-  void setKin( int id1In, int id2In, double x1In, double x2In, double sHatIn, 
-    double tHatIn, double uHatIn, double pTHatIn, double m3HatIn, 
-    double m4HatIn, double thetaHatIn, double phiHatIn) {id1Save = id1In;
-    id2Save = id2In; x1Save = x1In; x2Save = x2In; sH = sHatIn; tH = tHatIn; 
-    uH = uHatIn; pTH = pTHatIn; m3H = m3HatIn; m4H = m4HatIn; 
-    thetaH = thetaHatIn; phiH = phiHatIn;}
+    nTotal = 2 + nFinalSave; bIsSet = false; hasSubSave[0] = false; 
+    nameSubSave[0] = " "; codeSubSave[0] = 0; nFinalSubSave[0] = 0; 
+    evolIsSet = false;}
+  void setSubType( int iDS, string nameSubIn, int codeSubIn, 
+    int nFinalSubIn) { hasSubSave[iDS] = true; nameSubSave[iDS] = nameSubIn; 
+    codeSubSave[iDS] = codeSubIn; nFinalSubSave[iDS] = nFinalSubIn;}
+  void setPDFalpha( int iDS, int id1pdfIn, int id2pdfIn, double x1pdfIn, 
+    double x2pdfIn, double pdf1In, double pdf2In, double Q2FacIn, 
+    double alphaEMIn, double alphaSIn, double Q2RenIn) {
+    id1pdfSave[iDS] = id1pdfIn; id2pdfSave[iDS] = id2pdfIn; 
+    x1pdfSave[iDS] = x1pdfIn; x2pdfSave[iDS] = x2pdfIn;
+    pdf1Save[iDS] = pdf1In; pdf2Save[iDS] = pdf2In; Q2FacSave[iDS] = Q2FacIn; 
+    alphaEMSave[iDS] = alphaEMIn; alphaSSave[iDS] = alphaSIn; 
+    Q2RenSave[iDS] = Q2RenIn;}
+  void setKin( int iDS, int id1In, int id2In, double x1In, double x2In, 
+    double sHatIn, double tHatIn, double uHatIn, double pTHatIn, 
+    double m3HatIn, double m4HatIn, double thetaHatIn, double phiHatIn) {
+    id1Save[iDS] = id1In; id2Save[iDS] = id2In; x1Save[iDS] = x1In; 
+    x2Save[iDS] = x2In; sH[iDS] = sHatIn; tH[iDS] = tHatIn; 
+    uH[iDS] = uHatIn; pTH[iDS] = pTHatIn; m3H[iDS] = m3HatIn; 
+    m4H[iDS] = m4HatIn; thetaH[iDS] = thetaHatIn; phiH[iDS] = phiHatIn;}
   void setTypeMPI( int codeMPIIn, double pTMPIIn, int iAMPIIn = 0, 
     int iBMPIIn = 0, double eMPIIn = 1.) {codeMPISave.push_back(codeMPIIn); 
     pTMPISave.push_back(pTMPIIn); iAMPISave.push_back(iAMPIIn); 
     iBMPISave.push_back(iBMPIIn); eMPISave.push_back(eMPIIn); }
 
-  // Set info on cross section: from ProcessLevel.
-  void setSigma( long nTryIn, long nSelIn, long nAccIn, double sigGenIn, 
-    double sigErrIn, double wtAccSumIn) { nTry = nTryIn; nSel = nSelIn; 
-    nAcc = nAccIn; sigGen = sigGenIn; sigErr = sigErrIn; 
-    wtAccSum = wtAccSumIn; } 
+  // Set info on cross section: from ProcessLevel (reset in Pythia).
+  void sigmaReset() { nTry = nSel = nAcc = 0; sigGen = sigErr = wtAccSum = 0.;
+    nTryM.clear(); nSelM.clear(); nAccM.clear(); sigGenM.clear(); 
+    sigErrM.clear();}
+  void setSigma( int i, long nTryIn, long nSelIn, long nAccIn, 
+    double sigGenIn, double sigErrIn, double wtAccSumIn) { 
+    if (i == 0) {nTry = nTryIn; nSel = nSelIn; nAcc = nAccIn; 
+      sigGen = sigGenIn; sigErr = sigErrIn; wtAccSum = wtAccSumIn;} 
+    else { nTryM[i] = nTryIn; nSelM[i] = nSelIn; nAccM[i] = nAccIn; 
+      sigGenM[i] = sigGenIn; sigErrM[i] = sigErrIn;} } 
 
   // Set info on impact parameter: from PartonLevel.
-  void setImpact( double bMPIIn, double enhanceMPIIn) {bMPISave = bMPIIn;
-    enhanceMPISave = eMPISave[0] = enhanceMPIIn, bIsSet = true;} 
+  void setImpact( double bMPIIn, double enhanceMPIIn, bool bIsSetIn = true) {
+    bMPISave = bMPIIn; enhanceMPISave = eMPISave[0] = enhanceMPIIn, 
+    bIsSet = bIsSetIn;} 
 
   // Set info on pTmax scales and number of evolution steps: from PartonLevel.
   void setPartEvolved( int nMPIIn, int nISRIn) {
@@ -324,9 +374,12 @@ private:
   void setWeight( double weightIn, int lhaStrategyIn) {
     weightSave = weightIn; lhaStrategySave = lhaStrategyIn; }
 
-  // Set merging weight for event
-  double mergingWeightSave;
-  void setMergingWeight( double weightIn) { mergingWeightSave = weightIn;}
+  // Save merging weight / CKKW-L weight weight
+  double weightCKKWLSave;
+
+  // Set LHEF headers
+  void setHeader(const string &key, const string &val)
+    { headers[key] = val; }
 
 };
  

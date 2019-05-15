@@ -121,10 +121,31 @@ The name of a Les Houches Event File,
 to be set if <code>Beams:frameType</code> = 4. 
 </word>
 
+<word name="Beams:LHEFheader" default="void">
+As some information in a Les Houches Event File init block is only known
+at the end of generation, some programs choose to output this as a
+separate file. If <code>Beams:LHEFheader</code> is given, information up
+till the end of the init block is read from this file, with
+the events themselves read as usual from the file given in
+<code>Beams:LHEF</code>.
+</word>
+
 <flag name="Beams:newLHEFsameInit" default="off">
 Allow to begin reading events from a new LHEF or or a new 
 <code>LHAup</code> instance without a completely new initialization. 
 Only useful when <code>Beams:frameType</code> = 4 or 5.
+</flag>
+
+<flag name="Beams:readLHEFheaders" default="on">
+Read in LHEF header blocks and store them in the
+<aloc href="EventInformation">Info</aloc> class. See also
+<aloc href="LesHouchesAccord">LHAupLHEF</aloc> for more information.
+</flag>
+
+<mode name="Beams:nSkipLHEFatInit" default="0">
+Skip the first <ei>nSkip</ei> events of the input stream 
+(cf. the <code>LHAup::skipEvent(nSkip)</code> method).
+Only used when <code>Beams:frameType</code> = 4 or 5.
 </flag>
 
 <h3>Beam momentum spread</h3>

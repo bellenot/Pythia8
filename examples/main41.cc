@@ -65,11 +65,13 @@ int main() {
 #ifdef HEPMC_HAS_UNITS
     // This form with arguments is only meaningful for HepMC 2.04 onwards, 
     // and even then unnecessary if HepMC was built with GeV and mm as units.
-    HepMC::GenEvent* hepmcevt = new HepMC::GenEvent( 
+    HepMC::GenEvent* hepmcevt = new HepMC::GenEvent(
       HepMC::Units::GEV, HepMC::Units::MM);
 #else
     // This form is needed for backwards compatibility. 
     // In HepMCInterface.cc a conversion from GeV to MeV will be done.
+    // To retain units in GeV uncomment line below.
+    //ToHepMC.set_convert_to_mev( false);
     HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
 #endif
 

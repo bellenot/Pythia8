@@ -37,6 +37,7 @@ int main() {
 
   // Begin event loop; generate until none left in input file.     
   for (int iEvent = 0; ; ++iEvent) {
+    cout << endl << "Begin event # " << iEvent << endl;
 
     // Generate events, and check whether generation failed.
     if (!pythia.next()) {

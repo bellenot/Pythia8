@@ -53,54 +53,87 @@ void Info::list(ostream& os) const {
 
   // Colliding parton info.
   if (isRes) {
-    os << " In 1: id = " << setw(4) << id1pdfSave << ", x = " << setw(10)
-       << x1pdfSave << ", pdf = " << setw(10) << pdf1Save << " at Q2 = " 
-       << setw(10) << Q2FacSave << ".\n"  
-       << " In 2: id = " << setw(4) << id2pdfSave << ", x = " << setw(10)
-       << x2pdfSave << ", pdf = " << setw(10) << pdf2Save << " at same Q2.\n";  
+    os << " In 1: id = " << setw(4) << id1pdfSave[0] << ", x = "
+       << setw(10) << x1pdfSave[0] << ", pdf = " << setw(10) << pdf1Save[0] 
+       << " at Q2 = " << setw(10) << Q2FacSave[0] << ".\n"  
+       << " In 2: id = " << setw(4) << id2pdfSave[0] << ", x = " 
+       << setw(10) << x2pdfSave[0] << ", pdf = " << setw(10) << pdf2Save[0] 
+       << " at same Q2.\n";  
     bool matchIdX = true;
-    if (id1pdfSave != id1Save || id2pdfSave != id2Save) matchIdX = false;
-    if (abs(x1pdfSave - x1Save) > 1e-4 * x1Save) matchIdX = false;
-    if (abs(x2pdfSave - x2Save) > 1e-4 * x2Save) matchIdX = false;
+    if (id1pdfSave[0] != id1Save[0] || id2pdfSave[0] != id2Save[0]) 
+      matchIdX = false;
+    if (abs(x1pdfSave[0] - x1Save[0]) > 1e-4 * x1Save[0]) matchIdX = false;
+    if (abs(x2pdfSave[0] - x2Save[0]) > 1e-4 * x2Save[0]) matchIdX = false;
     if (!matchIdX) os << " Warning: above flavour/x info does not match"
        << " incoming partons in event!\n";
     os << "\n";
   }
 
   // Process name and code.
-  os << ((isRes && !hasSubSave) ? " Subprocess " : " Process ") << nameSave 
+  os << ((isRes && !hasSubSave[0]) ? " Subprocess " : " Process ") << nameSave 
      << " with code " << codeSave << " is 2 -> " << nFinalSave << ".\n";
 
   // Subprocess name and code for minimum bias processes.
-  if (hasSubSave)
-    os << " Subprocess " << nameSubSave << " with code " << codeSubSave 
-       << " is 2 -> " << nFinalSubSave << ".\n";
+  if (hasSubSave[0])
+    os << " Subprocess " << nameSubSave[0] << " with code " << codeSubSave[0] 
+       << " is 2 -> " << nFinalSubSave[0] << ".\n";
 
   // Process-type-specific kinematics information.
-  if (isRes && nFinalSave == 1) 
-    os << " It has sHat = " << setw(10) << sH << ".\n";  
+  if ( isRes && nFinalSave == 1) 
+    os << " It has sHat = " << setw(10) << sH[0] << ".\n";  
   else if ( isRes && nFinalSave == 2)  
-    os << " It has sHat = " << setw(10) << sH << ",    tHat = " 
-       << setw(10) << tH << ",    uHat = " << setw(10) << uH << ",\n"
-       << "       pTHat = " << setw(10) << pTH << ",   m3Hat = " 
-       << setw(10) << m3H << ",   m4Hat = " << setw(10) << m4H << ",\n"
-       << "    thetaHat = " << setw(10) << thetaH << ",  phiHat = " 
-       << setw(10) << phiH << ".\n";  
+    os << " It has sHat = " << setw(10) << sH[0] << ",    tHat = " 
+       << setw(10) << tH[0] << ",    uHat = " << setw(10) << uH[0] << ",\n"
+       << "       pTHat = " << setw(10) << pTH[0] << ",   m3Hat = " 
+       << setw(10) << m3H[0] << ",   m4Hat = " << setw(10) << m4H[0] << ",\n"
+       << "    thetaHat = " << setw(10) << thetaH[0] << ",  phiHat = " 
+       << setw(10) << phiH[0] << ".\n";  
   else if ( nFinalSave == 2)  
-    os << " It has s = " << setw(10) << sH << ",    t = " << setw(10) 
-       << tH << ",    u = " << setw(10) << uH << ",\n"
-       << "       pT = " << setw(10) << pTH << ",   m3 = " << setw(10) 
-       << m3H << ",   m4 = " << setw(10) << m4H << ",\n" 
-       << "    theta = " << setw(10) << thetaH << ",  phi = " << setw(10) 
-       << phiH << ".\n";
+    os << " It has s = " << setw(10) << sH[0] << ",    t = " << setw(10) 
+       << tH[0] << ",    u = " << setw(10) << uH[0] << ",\n"
+       << "       pT = " << setw(10) << pTH[0] << ",   m3 = " << setw(10) 
+       << m3H[0] << ",   m4 = " << setw(10) << m4H[0] << ",\n" 
+       << "    theta = " << setw(10) << thetaH[0] << ",  phi = " << setw(10) 
+       << phiH[0] << ".\n";
   else if ( isRes && nFinalSave == 3)  
-    os << " It has sHat = " << setw(10) << sH << ", <pTHat> = " 
-       << setw(10) << pTH << ".\n";  
+    os << " It has sHat = " << setw(10) << sH[0] << ", <pTHat> = " 
+       << setw(10) << pTH[0] << ".\n";  
+  else if ( nFinalSave == 3)  
+    os << " It has s = " << setw(10) << sH[0] << ",  t_A = " << setw(10) 
+       << tH[0] << ",  t_B = " << setw(10) << uH[0] << ",\n" 
+       << "     <pT> = " << setw(10) << pTH[0] << ".\n";    
 
   // Couplings.
-  if (isRes) os << "     alphaEM = " << setw(10) << alphaEMSave 
-    << ",  alphaS = " << setw(10) << alphaSSave << "    at Q2 = " 
-    << setw(10) << Q2RenSave << ".\n"; 
+  if (isRes) os << "     alphaEM = " << setw(10) << alphaEMSave[0] 
+    << ",  alphaS = " << setw(10) << alphaSSave[0] << "    at Q2 = " 
+    << setw(10) << Q2RenSave[0] << ".\n"; 
+
+  // Diffractive subsystems.
+  for (int iDS = 1; iDS < 4; ++iDS) if (id1Save[iDS] != 0) {
+    if (iDS == 1) os << "\n Diffractive system on side A: \n";
+    if (iDS == 2) os << "\n Diffractive system on side B: \n";
+    if (iDS == 3) os << "\n Central diffractive system: \n";
+    os << " In 1: id = " << setw(4) << id1pdfSave[iDS] << ", x = "
+       << setw(10) << x1pdfSave[iDS] << ", pdf = " << setw(10) 
+       << pdf1Save[iDS] << " at Q2 = " << setw(10) << Q2FacSave[iDS] 
+       << ".\n" << " In 2: id = " << setw(4) << id2pdfSave[iDS] 
+       << ", x = " << setw(10) << x2pdfSave[iDS] << ", pdf = " 
+       << setw(10) << pdf2Save[iDS] << " at same Q2.\n";  
+    os << " Subprocess " << nameSubSave[iDS] << " with code " 
+       << codeSubSave[iDS] << " is 2 -> " << nFinalSubSave[iDS] << ".\n";
+    if (nFinalSubSave[iDS] == 1) 
+      os << " It has sHat = " << setw(10) << sH[iDS] << ".\n";  
+    else if (nFinalSubSave[iDS] == 2)  
+      os << " It has sHat = " << setw(10) << sH[iDS] << ",    tHat = " 
+         << setw(10) << tH[iDS] << ",    uHat = " << setw(10) << uH[iDS] 
+         << ",\n" << "       pTHat = " << setw(10) << pTH[iDS] 
+         << ",   m3Hat = " << setw(10) << m3H[iDS] << ",   m4Hat = " 
+         << setw(10) << m4H[iDS] << ",\n" << "    thetaHat = " << setw(10) 
+         << thetaH[iDS] << ",  phiHat = "  << setw(10) << phiH[iDS] << ".\n";
+      os << "     alphaEM = " << setw(10) << alphaEMSave[iDS] 
+      << ",  alphaS = " << setw(10) << alphaSSave[iDS] << "    at Q2 = " 
+      << setw(10) << Q2RenSave[iDS] << ".\n";  
+  }
 
   // Impact parameter.
   if (bIsSet) os << "\n Impact parameter b = " << setw(10) << bMPISave 
@@ -207,4 +240,3 @@ void Info::errorStatistics(ostream& os) {
 //==========================================================================
 
 } // end namespace Pythia8
-

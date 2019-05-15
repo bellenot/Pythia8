@@ -220,6 +220,9 @@ An incomplete list is as follows.
     only interrogated during initializations, so is usually passad as
     reference settings rather than pointer settingsPtr.
 
+44. Only use == and != for comparisons between two pointers,  
+    or a pointer and 0. Thus comparisons like (Xptr > 0) are forbidden.
+
 -----------------------------------------------------------------------
 
 Remember to update the xmldoc documentation in parallel with the 

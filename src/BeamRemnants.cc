@@ -247,7 +247,8 @@ bool BeamRemnants::setKinematics( Event& event) {
     if (doPrimordialKT) {
       double mHat     = sqrt(sHatNow);
       mHatDamp        = mHat / (mHat + halfMassForKT);
-      double scale    = (iSys == 0) ? infoPtr->QRen() : infoPtr->pTMPI(iSys);
+      double scale    = (iSys == 0) ? infoPtr->QRen(iDS) 
+                      : partonSystemsPtr->getPTHat(iSys);
       kTwidthNow      = ( (halfScaleForKT * primordialKTsoft
       + scale * primordialKThard) / (halfScaleForKT + scale) ) * mHatDamp;
     }
@@ -695,7 +696,7 @@ bool BeamRemnants::reconnectColours( Event&  event) {
   for (int iRec = nSys - 1; iRec > 0; --iRec) {
 
     // Determine reconnection strength from pT scale of system.
-    double pT2Rec  = pow2( infoPtr->pTMPI(iRec) );
+    double pT2Rec  = pow2( partonSystemsPtr->getPTHat(iRec) );
     double probRec = pT20Rec / (pT20Rec + pT2Rec); 
 
     // Loop over other systems iSys at higher pT scale and 

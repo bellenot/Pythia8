@@ -178,6 +178,13 @@ update the <code>xMax</code> value of the <code>i</code>'th process
 added with <code>addProcess</code> method.
 </method>
 
+<method name="void LHAup::setInfoHeader(string &key, string &val)">
+set the header <code>key</code> to have value <code>val</code>.
+This is a wrapper function to the
+<aloc href="EventInformation">Info::setHeader</aloc> function that
+should be used in any classes derived from LHAup.
+</method>
+
 <p/>
 Information is handed back by the following methods 
 (that normally you would not need to touch):
@@ -213,6 +220,13 @@ for the number of subprocesses.
 <methodmore name="double LHAup::xMax(i)"> 
 for process <code>i</code> in the range <code>0 &lt;= i &lt; 
 sizeProc()</code>.   
+
+</method>
+<method name="double LHAup::xSecSum()"> 
+</methodmore>
+<methodmore name="double LHAup::xErrSum()"> 
+the sum of the cross sections and errors (the latter added quadratically).
+Note that cross section errors are only meaningful for strategies +-3.
 </methodmore>
 
 <method name="void LHAup::listInit(ostream& os = cout)"> 
@@ -220,6 +234,9 @@ prints the above initialization information. This method is
 automatically called from <code>Pythia::init(...)</code>, 
 so would normally not need to be called directly by the user.
 </method>
+
+<p/>
+
 
 <h3>Event input</h3>
 
@@ -446,6 +463,66 @@ Internally this name is then used to create an instance of the derived
 class <code>LHAupLHEF</code>, which can do the job of reading an LHEF.
 
 <p/>
+The LHEF reader can also read in and store header blocks. By default
+this option is switched on, but may be controlled through the
+<aloc href="BeamParameters">Beams:readLHEFheaders</aloc> flag if
+necessary. The information can later be read out through the
+<aloc href="EventInformation">Info</aloc> class for further processing.
+Due to the non-standard nature of the information in these blocks they
+are stored whole, and PYTHIA itself makes no further attempt to process
+their meaning.
+
+<p/>
+Because Les Houches Event files tend not to adhere strictly to XML
+conventions, to consistently read in header information, certain
+choices must be made. The primary goal is to make as much information
+available as possible. First, information sitting directly in the
+&lt;header&gt; block is stored under the key "base". Second, the tags
+starting and ending each sub block must be on their own line. Finally,
+the contents of comment blocks, &lt;!-- --&gt;, are still stored. The
+header keys are formed hierarchically from the names of the header
+blocks. This behaviour is illustrated in the following example:
+<pre>
+  &lt;header&gt;
+    BaseA
+    &lt;hblock1&gt;
+      1A
+      &lt;hblock11&gt;
+        11A &lt;hblock111&gt;
+        &lt;/hblock111&gt; 11B
+      &lt;/hblock11&gt;
+      1B
+    &lt;/hblock1&gt;
+    &lt;hblock2&gt;
+      2A
+      &lt;!-- 2B --&gt;
+    &lt;/hblock2&gt;
+    BaseB
+  &lt;/header&gt;
+</pre>
+which would lead to the following information being stored in the
+<aloc href="EventInformation">Info</aloc> class:
+<table border="1">
+  <tr> <th>Key</th> <th>Value</th> </tr>
+  <tr>
+    <td>base</td>
+    <td>BaseA<br/>BaseB</td>
+  </tr>
+  <tr>
+    <td>hblock1</td>
+    <td>1A<br/>1B</td>
+  </tr>
+  <tr>
+    <td>hblock1.hblock11</td>
+    <td>11A &lt;hblock111&gt;<br/>&lt;/hblock111&gt; 11B</td>
+  </tr>
+  <tr>
+    <td>hblock2</td>
+    <td>2A<br/>&lt;!-- 2B --&gt;</td>
+  </tr>
+</table> 
+<br/>
+<p/>
 Normally the LHEF would be in uncompressed format, and thus human-readable
 if opened in a text editor. A possibility to read gzipped files has 
 been added, based on the Boost and zlib libraries, which therefore
@@ -474,22 +551,47 @@ and the option to mix with internal processes, is found in
 is given in <code>main13.cc</code>.
 
 <p/>
+In C++, real numbers are printed with an 'E' to denote the exponent part, 
+e.g. 1.23E+04, and are read in accordingly. Other languges may use other
+letters, e.g. Fortran allows either 'E' or 'D'. A file using
+the latter convention would not be readable by the standard routines.
+In case you have such an "incorrectly formatted" file, a conversion to 
+a new corrected file could be done e.g. using <code>sed</code>, as a
+one-line command
+<pre>
+  sed -e 's/\([0-9]\.\{0,1\}\)[dD]\([+-]\{0,1\}[0-9]\)/\1E\2/g' old.lhe &gt; new.lhe
+</pre>
+This replaces a 'd' or 'D' with an 'E' only when it occurs in the combination
+<br/><ei>(digit) ('.' or absent) ('d' or 'D') ('+', '-' or absent) (digit)</ei>
+<br/>It will work on all parts of the file, also inside a 
+<code>&lt;header&gt;...&lt;/header&gt;</code> block. For conversion only 
+inside the <code>&lt;init&gt;...&lt;/init&gt;</code> and
+<code>&lt;event&gt;...&lt;/event&gt;</code> blocks, create a file 
+<code>convert.sed</code> containing
+<pre>
+  /&lt;init&gt;/,/&lt;\/init&gt;/bconv
+  /&lt;event&gt;/,/&lt\/event&gt;/bconv
+  b
+  :conv
+  s/\([0-9]\.\{0,1\}\)[dD]\([+-]\{0,1\}[0-9]\)/\1E\2/g
+</pre>
+and run it with
+<pre>
+  sed -f convert.sed old.lhe &gt; new.lhe
+</pre>
+
+<p/>
 The workhorses of the <code>LHAupLHEF</code> class are three methods
 found in the base class, so as to allow them to be reused in other
 contexts. Specifically, it allows derived classes where one parton-level 
 configuration can be reused several times, e.g. in the context of 
 matrix-element-to-parton-shower matching (example in preparation).
-To begin with also a small utility routine.
+Also two small utility routines.
 
-<method name="bool LHAup::fileFound()"> 
-always returns true in the base class, but in <code>LHAupLHEF</code>
-it returns false if the LHEF provided in the constructor is not
-found and opened correctly.
-</method>
-
-<method name="bool LHAup::setInitLHEF(ifstream& is)">
+<method name="bool LHAup::setInitLHEF(ifstream& is, bool readHeaders = false)">
 read in and set all required initialization information from the 
-specified stream. Return false if it fails.
+specified stream. With second argument true it will also read and store
+header information, as described above. Return false if it fails.
 </method>
 
 <method name="bool LHAup::setNewEventLHEF(ifstream& is)">
@@ -505,8 +607,40 @@ process the same configuration several times. This method currently
 only returns true, i.e. any errors should be caught by the preceding 
 <code>setNewEventLHEF</code> call.
 </method>
- 
 
+<method name="bool LHAup::fileFound()"> 
+always returns true in the base class, but in <code>LHAupLHEF</code>
+it returns false if the LHEF provided in the constructor is not
+found and opened correctly.
+</method>
+
+<method name="void LHAup::setInfoHeader(const string &key, const string &val)"> 
+is used to send header information on to the <code>Info</code> class. 
+</method>
+
+<p/>
+A few other methods, most of them derived from the base class, 
+streamlines file opening and closing, e.g. if several LHE files are 
+to be read consecutively, without the need for a complete 
+reinitialization. This presupposes that the events are of the same 
+kind, only split e.g. to limit file sizes.
+
+<method name="bool LHAup::newEventFile(const char* fileIn)">
+close current event input file/stream and open a new one, to
+continue reading events of the same kind as before.
+</method>
+
+<method name="istream* LHAup::openFile(const char *fn, ifstream &ifs)">
+</method>
+<methodmore name="void LHAup::closeFile(istream *&is, ifstream &ifs)">
+open and close a file, also gzip files, where an intermediate
+decompression layer is needed.
+</methodmore>
+
+<method name="void LHAupLHEF::closeAllFiles()">
+close main event file (LHEF) and, if present, separate header file.
+</method>
+ 
 <h3>A runtime Fortran interface</h3>
 
 The runtime Fortran interface requires linking to an external Fortran
@@ -570,11 +704,13 @@ already have been set with the methods described in the "Initialization"
 section above.
 </method>
 
-<method name="bool LHAup::eventLHEF()">
+<method name="bool LHAup::eventLHEF(bool verbose = true)">
 Writes event information to the file above. Such information should
 already have been set with the methods described in the "Event input"
 section above. This call should be repeated once for each event to be 
-stored. 
+stored. By default the event information is lined up in columns.
+To save space, the alternative <code>verbose = false</code> only 
+leaves a single blank between the information fields.
 </method>
 
 <method name="bool LHAup::closeLHEF(bool updateInit = false)">

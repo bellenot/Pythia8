@@ -159,6 +159,26 @@ at the <ei>Z^0</ei> mass.
 </modepick>
 
 <p/>
+The natural scale for couplings and PDFs is <ei>pT^2</ei>. To explore 
+uncertainties it is possibly to vary around this value, however, in 
+analogy with what can be done for 
+<aloc href="CouplingsAndScales">hard processes</aloc>.
+
+<parm name="SpaceShower:renormMultFac" default="1." min="0.1" max="10.">
+The default <ei>pT^2</ei> renormalization scale is multiplied by 
+this prefactor. For QCD this is equivalent to a change of 
+<ei>Lambda^2</ei> in the opposite direction, i.e. to a change of 
+<ei>alpha_strong(M_Z^2)</ei> (except that flavour thresholds 
+remain at fixed scales). Below, when <ei>pT^2 + pT_0^2</ei> is used
+as scale, it is this whole expression that is multiplied by the prefactor.
+</parm>
+
+<parm name="SpaceShower:factorMultFac" default="1." min="0.1" max="10.">
+The default <ei>pT^2</ei> factorization scale is multiplied by 
+this prefactor. 
+</parm>
+
+<p/>
 There are two complementary ways of regularizing the small-<ei>pT</ei> 
 divergence, a sharp cutoff and a smooth dampening. These can be 
 combined as desired but it makes sense to coordinate with how the 

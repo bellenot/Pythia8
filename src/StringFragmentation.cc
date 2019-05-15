@@ -272,39 +272,41 @@ void StringEnd::update() {
 // These are of technical nature, as described for each.
 
 // Maximum number of tries to (flavour-, energy) join the two string ends.
-const int    StringFragmentation::NTRYFLAV     = 10; 
-const int    StringFragmentation::NTRYJOIN     = 25; 
+const int    StringFragmentation::NTRYFLAV      = 10; 
+const int    StringFragmentation::NTRYJOIN      = 30; 
 
 // The last few times gradually increase the stop mass to make it easier.
-const int    StringFragmentation::NSTOPMASS    = 10; 
-const double StringFragmentation::FACSTOPMASS  = 1.05; 
+const int    StringFragmentation::NSTOPMASS     = 15; 
+const double StringFragmentation::FACSTOPMASS   = 1.05; 
 
 // For closed string, pick a Gamma by taking a step with fictitious mass.
-const double StringFragmentation::CLOSEDM2MAX  = 25.; 
-const double StringFragmentation::CLOSEDM2FRAC = 0.1; 
+const double StringFragmentation::CLOSEDM2MAX   = 25.; 
+const double StringFragmentation::CLOSEDM2FRAC  = 0.1; 
 
 // Do not allow too large argument to exp function.
-const double StringFragmentation::EXPMAX       = 50.;
+const double StringFragmentation::EXPMAX        = 50.;
 
 // Matching criterion that p+ and p- not the same (can happen in gg loop).
-const double StringFragmentation::MATCHPOSNEG  = 1e-6;
+const double StringFragmentation::MATCHPOSNEG   = 1e-6;
 
 // For pull on junction, do not trace too far down each leg.
-const double StringFragmentation::EJNWEIGHTMAX = 10.;
+const double StringFragmentation::EJNWEIGHTMAX  = 10.;
 
 // Iterate junction rest frame boost until convergence or too many tries.
 const double StringFragmentation::CONVJNREST   = 1e-5;
 const int    StringFragmentation::NTRYJNREST   = 20; 
 
 // Fail and try again when two legs combined to diquark (3 loops).
-const int    StringFragmentation::NTRYJNMATCH  = 20;
+const int    StringFragmentation::NTRYJNMATCH   = 20;
+const double StringFragmentation::EEXTRAJNMATCH = 0.5;
+const double StringFragmentation::MDIQUARKMIN   = -2.0;
 
 // Consider junction-leg parton as massless if m2 tiny.
-const double StringFragmentation::M2MAXJRF     = 1e-4;
+const double StringFragmentation::M2MAXJRF      = 1e-4;
 
 // Iterate junction rest frame equation until convergence or too many tries. 
-const double StringFragmentation::CONVJRFEQ    = 1e-12;
-const int    StringFragmentation::NTRYJRFEQ    = 40; 
+const double StringFragmentation::CONVJRFEQ     = 1e-12;
+const int    StringFragmentation::NTRYJRFEQ     = 40; 
 
 //--------------------------------------------------------------------------
 
@@ -333,6 +335,9 @@ void StringFragmentation::init(Info* infoPtrIn, Settings& settings,
     = settings.parm("StringFragmentation:eMaxLeftJunction");
   eMinLeftJunction 
     = settings.parm("StringFragmentation:eMinLeftJunction");
+
+  // Joining of nearby partons along the string.
+  mJoin           = settings.parm("FragmentationSystems:mJoin");
 
   // Initialize the b parameter of the z spectrum, used when joining jets.
   bLund           = zSelPtr->bAreaLund();
@@ -384,15 +389,21 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
   // Set up kinematics of string evolution ( = motion).
   system.setUp(iParton, event);
   stopMassNow = stopMass;
+  int nExtraJoin = 0;
 
   // Fallback loop, when joining in the middle fails.  Bailout if stuck.
   for ( int iTry = 0; ; ++iTry) {
     if (iTry > NTRYJOIN) {
       infoPtr->errorMsg("Error in StringFragmentation::fragment: " 
         "stuck in joining");
-      if (hasJunction) event.popBack(1);
+      if (hasJunction) ++nExtraJoin;
+      if (nExtraJoin > 0) event.popBack(nExtraJoin);
       return false;
     } 
+ 
+    // After several failed tries join some (extra) nearby partons.
+    if (iTry == NTRYJOIN / 3) nExtraJoin = extraJoin( 2., event);   
+    if (iTry == 2 * NTRYJOIN / 3) nExtraJoin += extraJoin( 4., event);   
 
     // After several failed tries gradually allow larger stop mass.
     if (iTry > NTRYJOIN - NSTOPMASS) stopMassNow *= FACSTOPMASS;
@@ -436,9 +447,10 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
     hadrons.popBack(newHadrons);
   }
 
-  // Junctions: remove fictitious end, restore original parton list
-  if (hasJunction) {
-    event.popBack(1);
+  // Junctions & extra joins: remove fictitious end, restore original partons.
+  if (hasJunction) ++nExtraJoin;
+  if (nExtraJoin > 0) {
+    event.popBack(nExtraJoin);
     iParton = colConfig[iSub].iParton;
   }
 
@@ -976,17 +988,19 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
           : event[ iPartonMid.back() ].id();
         double eInJRF = pInJRF[legNow].e();
         int statusHad = (legLoop == 0) ? 85 : 86; 
-
+ 
         // Inner fallback loop, when a diquark comes in to junction.
         double eUsed = 0.;
         for ( int iTryInner = 0; ; ++iTryInner) { 
-          if (iTryInner > NTRYJNMATCH) {
+          if (iTryInner > 2 * NTRYJNMATCH) {
             infoPtr->errorMsg("Error in StringFragmentation::fragment" 
               "ToJunction: caught in junction flavour loop");
             event.popBack( iPartonMin.size() + iPartonMid.size() );
             return false;
           }
-
+          bool needBaryon = (abs(idPos) > 10 && iTryInner > NTRYJNMATCH); 
+          double eExtra   = (iTryInner > NTRYJNMATCH) ? EEXTRAJNMATCH : 0.;
+ 
           // Set up two string ends, and begin fragmentation loop.
           setStartEnds(idPos, idOppose, systemNow);
           eUsed = 0.;
@@ -1002,7 +1016,12 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
             if (pHad.e() < 0. ) { noNegE = false; break; }
   
             // Break if passed system midpoint ( = junction) in energy.
-            if (eUsed + pHad.e() > eInJRF) break;
+            // Exceptions: small systems, and/or with diquark end.
+            bool delayedBreak = false;
+            if (eUsed + pHad.e() + eExtra > eInJRF) {
+              if (nHadrons > 0 || !needBaryon) break;
+              delayedBreak = true;
+            } 
 
             // Else construct kinematics of the new hadron and store it.
             hadrons.append( posEnd.idHad, statusHad, iPos, iNeg, 
@@ -1011,6 +1030,12 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
             // Update string end and remaining momentum.
             posEnd.update();
             eUsed += pHad.e();
+
+            // Delayed break in small systems, and/or with diquark end.
+            if (delayedBreak) {
+              ++nHadrons;
+              break;
+            }
           }
 
           // End of fragmentation loop. Inner loopback if ends on a diquark.
@@ -1046,11 +1071,12 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
       pJunctionHadrons += hadrons[i].p();
     }
 
-    // Outer loopback if too little energy left in third leg.
+    // Outer loopback if combined diquark mass too negative 
+    // or too little energy left in third leg.
     pDiquark = pInLeg[legMin] + pInLeg[legMid] - pJunctionHadrons; 
     double m2Left = m2( pInLeg[legMax], pDiquark);
-    if (iTryOuter >  NTRYJNMATCH
-      || m2Left > eMinLeftJunction * pInLeg[legMax].e() ) break;
+    if (iTryOuter >  NTRYJNMATCH || (pDiquark.mCalc() > MDIQUARKMIN 
+      && m2Left > eMinLeftJunction * pInLeg[legMax].e()) ) break;
     hadrons.clear();
     pJunctionHadrons = 0.;  
   }
@@ -1062,7 +1088,7 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
   // two remnant quark ends, for temporary usage. 
   int    idDiquark = flavSelPtr->makeDiquark( idMin, idMid);
   double mDiquark  = pDiquark.mCalc();
-  int     iDiquark = event.append( idDiquark, 78, 0, 0, 0, 0, 0, 0,
+  int    iDiquark  = event.append( idDiquark, 78, 0, 0, 0, 0, 0, 0,
     pDiquark, mDiquark);  
 
   // Find the partons on the last leg, again in reverse order.
@@ -1070,6 +1096,21 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
   for (int i = legEnd[legMax]; i >= legBeg[legMax]; --i)
     iPartonMax.push_back( iParton[i] ); 
   iPartonMax.push_back( iDiquark ); 
+
+  // Recluster gluons nearby to diquark end when taken too much energy.
+  int iPsize       = iPartonMax.size();
+  double m0Diquark = event[iDiquark].m0();
+  while (iPsize > 2) {
+    Vec4 pGluNear = event[ iPartonMax[iPsize - 2] ].p();
+    if ( pDiquark.mCalc() > 0. 
+      && (pDiquark + 0.5 * pGluNear).mCalc() > m0Diquark + mJoin ) break; 
+    pDiquark += pGluNear;
+    event[iDiquark].p( pDiquark );
+    event[iDiquark].m( pDiquark.mCalc() );
+    iPartonMax.pop_back();
+    --iPsize;
+    iPartonMax[iPsize - 1] = iDiquark; 
+  }
 
   // Modify parton list to remaining leg + remnant of the first two.
   iParton = iPartonMax;
@@ -1231,6 +1272,65 @@ RotBstMatrix StringFragmentation::junctionRestFrame(Vec4& p0, Vec4& p1,
   Mmove.bst(vJunction); 
   return Mmove;
 
+}
+
+//--------------------------------------------------------------------------
+
+// When string fragmentation has failed several times, 
+// try to join some more nearby partons. 
+
+int StringFragmentation::extraJoin(double facExtra, Event& event) {
+
+  // Keep on looping while pairs found below joining threshold.
+  int nJoin  = 0;
+  int iPsize = iParton.size();
+  while (iPsize > 2) {
+
+    // Look for the pair of neighbour partons (along string) with 
+    // the smallest invariant mass (subtracting quark masses).
+    int iJoinMin    = -1;
+    double mJoinMin = 2. * facExtra * mJoin;
+    for (int i = 0; i < iPsize - 1; ++i) {
+      Particle& parton1 = event[ iParton[i] ];
+      Particle& parton2 = event[ iParton[i + 1] ];
+      Vec4 pSumNow;
+      pSumNow += (parton2.isGluon()) ? 0.5 * parton1.p() : parton1.p();  
+      pSumNow += (parton2.isGluon()) ? 0.5 * parton2.p() : parton2.p();  
+      double mJoinNow = pSumNow.mCalc(); 
+      if (!parton1.isGluon()) mJoinNow -= parton1.m0();
+      if (!parton2.isGluon()) mJoinNow -= parton2.m0();
+      if (mJoinNow < mJoinMin) { iJoinMin = i; mJoinMin = mJoinNow; }
+    }
+
+    // Decide whether to join, if not finished.
+    if (iJoinMin < 0 || mJoinMin > facExtra * mJoin) return nJoin;
+    ++nJoin;
+
+    // Create new joined parton. 
+    int iJoin1  = iParton[iJoinMin];
+    int iJoin2  = iParton[iJoinMin + 1];
+    int idNew   = (event[iJoin1].isGluon()) ? event[iJoin2].id() 
+                                            : event[iJoin1].id();
+    int colNew  = event[iJoin1].col();
+    int acolNew = event[iJoin2].acol();
+    if (colNew == acolNew) {
+      colNew    = event[iJoin2].col();
+      acolNew   = event[iJoin1].acol();
+    }  
+    Vec4 pNew   = event[iJoin1].p() + event[iJoin2].p();
+
+    // Append joined parton to event record and reduce parton list.
+    int iNew = event.append( idNew, 73, min(iJoin1, iJoin2), 
+      max(iJoin1, iJoin2), 0, 0, colNew, acolNew, pNew, pNew.mCalc() );
+    iParton[iJoinMin] = iNew;
+    for (int i = iJoinMin + 1; i < iPsize - 1; ++i) 
+      iParton[i] = iParton[i + 1];
+    iParton.pop_back();
+    --iPsize;
+  
+  // Done.
+  }
+  return nJoin;
 }
   
 //==========================================================================

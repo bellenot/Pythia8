@@ -37,13 +37,14 @@ const double AlphaStrong::SAFETYMARGIN2 = 1.33;
 
 void AlphaStrong::init( double valueIn, int orderIn) {
 
-  // Order of alpha_s evaluation.
+  // Order of alpha_s evaluation.Default values.
   valueRef = valueIn;
   order    = max( 0, min( 2, orderIn ) );
+  lastCallToFull = false;
+  Lambda3Save = Lambda4Save = Lambda5Save = scale2Min = 0.;
 
   // Fix alpha_s.
   if (order == 0) {
-    Lambda3Save = Lambda4Save = Lambda5Save = scale2Min = 0.;
 
   // First order alpha_s: match at flavour thresholds.
   } else if (order == 1) {
@@ -108,14 +109,14 @@ void AlphaStrong::init( double valueIn, int orderIn) {
   }
 
   // Save squares of mass and Lambda values as well.
-  mc2          = pow2(MC);
-  mb2          = pow2(MB);
   Lambda3Save2 = pow2(Lambda3Save);
   Lambda4Save2 = pow2(Lambda4Save);
   Lambda5Save2 = pow2(Lambda5Save);
+  mc2          = pow2(MC);
+  mb2          = pow2(MB);
   valueNow     = valueIn;
   scale2Now    = MZ * MZ;
-  isInit = true;
+  isInit       = true;
 
 }
 

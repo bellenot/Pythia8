@@ -52,12 +52,12 @@ void SigmaProcess::init(Info* infoPtrIn, Settings* settingsPtrIn,
   slhaPtr         = slhaPtrIn;
 
   // Read out some properties of beams to allow shorthand.
-  idA             = (beamAPtr > 0) ? beamAPtr->id() : 0;
-  idB             = (beamBPtr > 0) ? beamBPtr->id() : 0;
-  mA              = (beamAPtr > 0) ? beamAPtr->m() : 0.;
-  mB              = (beamBPtr > 0) ? beamBPtr->m() : 0.;
-  isLeptonA       = (beamAPtr > 0) ? beamAPtr->isLepton() : false;
-  isLeptonB       = (beamBPtr > 0) ? beamBPtr->isLepton() : false;
+  idA             = (beamAPtr != 0) ? beamAPtr->id() : 0;
+  idB             = (beamBPtr != 0) ? beamBPtr->id() : 0;
+  mA              = (beamAPtr != 0) ? beamAPtr->m() : 0.;
+  mB              = (beamBPtr != 0) ? beamBPtr->m() : 0.;
+  isLeptonA       = (beamAPtr != 0) ? beamAPtr->isLepton() : false;
+  isLeptonB       = (beamBPtr != 0) ? beamBPtr->isLepton() : false;
   hasLeptonBeams  = isLeptonA || isLeptonB;
 
   // K factor, multiplying resolved processes. (But not here for MPI.)
@@ -483,32 +483,42 @@ double SigmaProcess::weightTopDecay( Event& process, int iResBeg,
 
 }
 
-
 //--------------------------------------------------------------------------
 
-// Evaluate weight for Z0/W+- decay distributions in H -> Z0/W+ Z0/W- -> 4f.
+// Evaluate weight for Z0/W+- decay distributions in H -> Z0/W+ Z0/W- -> 4f
+// and H -> gamma Z0 -> gamma f fbar.
 
 double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg, 
   int iResEnd) {
 
-  // If not pair Z0 Z0 or W+ W- then return unit weight.
+  // If not pair Z0 Z0, W+ W- or gamma Z0 then return unit weight.
   if (iResEnd - iResBeg != 1) return 1.;
   int iZW1  = iResBeg;
   int iZW2  = iResBeg + 1;
   int idZW1 = process[iZW1].id();
   int idZW2 = process[iZW2].id();
-  if (idZW1 < 0) {
+  if (idZW1 < 0 || idZW2 == 22) {
     swap(iZW1, iZW2); 
     swap(idZW1, idZW2);
   } 
-  if ( (idZW1 != 23 || idZW2 != 23) && (idZW1 != 24 || idZW2 != -24) )
-    return 1.;
+  if ( (idZW1 != 23 || idZW2 != 23) && (idZW1 != 24 || idZW2 != -24) 
+    && (idZW1 != 22 || idZW2 != 23) ) return 1.;
 
   // If mother is not Higgs then return unit weight.
   int iH  = process[iZW1].mother1(); 
   if (iH <= 0) return 1.;
   int idH = process[iH].id();
   if (idH != 25 && idH != 35 && idH !=36) return 1.;
+
+  // H -> gamma Z0 -> gamma f fbar is 1 + cos^2(theta) in Z rest frame.
+  if (idZW1 == 22) {
+    int i5 = process[iZW2].daughter1();
+    int i6 = process[iZW2].daughter2();
+    double pgmZ = process[iZW1].p() * process[iZW2].p(); 
+    double pgm5 = process[iZW1].p() * process[i5].p(); 
+    double pgm6 = process[iZW1].p() * process[i6].p(); 
+    return (pow2(pgm5) + pow2(pgm6)) / pow2(pgmZ);    
+  }
 
   // Parameters depend on Higgs type: H0(H_1), H^0(H_2) or A^0(H_3).
   int    higgsParity = higgsH1parity; 

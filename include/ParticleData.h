@@ -288,7 +288,7 @@ public:
 private:
 
   // Constants: could only be changed in the code itself.
-  static const int    INVISIBLENUMBER, INVISIBLETABLE[50];
+  static const int    INVISIBLENUMBER, INVISIBLETABLE[50], KNOWNNOWIDTH[3];
   static const double MAXTAU0FORDECAY,MINMASSRESONANCE, NARROWMASS,
                       CONSTITUENTMASSTABLE[10];
 
@@ -334,7 +334,8 @@ class ParticleData {
 public:
 
   // Constructor.
-  ParticleData() : isInit(false) {}
+  ParticleData() : infoPtr(0), settingsPtr(0), rndmPtr(0), couplingsPtr(0), 
+    particlePtr(0), isInit(false) {}
 
   // Initialize pointers.
   void initPtr(Info* infoPtrIn, Settings* settingsPtrIn, Rndm* rndmPtrIn, 

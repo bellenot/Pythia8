@@ -127,7 +127,7 @@ information for such particular subcollisions.
 <h3>Hard process initiators</h3>
 
 The methods in this sections refer to the two initial partons of the
-hard <ei>2 -> n</ei> process.
+hard <ei>2 -> n</ei> process (diffraction excluded; see below).
 
 <method name="int Info::id1()"> 
 </method>
@@ -161,7 +161,10 @@ Information is not set if you switch off parton-level processing.
 
 The methods in this section refer to the partons for which parton 
 densities have been defined, in order to calculate the cross section
-of the hard process. These partons would normally agree with the 
+of the hard process (diffraction excluded; see below). 
+
+<p/>
+These partons would normally agree with the 
 ones above, the initiators of the <ei>2 -> n</ei> process, but it 
 does not have to be so. Currently the one counterexample is POWHEG 
 events <ref>Ali10</ref>. Here the original hard process could be
@@ -232,6 +235,10 @@ the <ei>Q</ei> or <ei>Q^2</ei> renormalization scale at which
 
 <h3>Hard process kinematics</h3>
 
+The methods in this section provide info on the kinematics of the hard 
+processes, with special emphasis on <ei>2 -> 2</ei> (diffraction excluded; 
+see below). 
+
 <method name="double Info::mHat()">
 </method>
 <methodmore name="double Info::sHat()">
@@ -264,6 +271,53 @@ the masses of the two outgoing particles in a <ei>2 -> 2</ei> processes.
 the polar and azimuthal scattering angles in the rest frame of 
 a <ei>2 -> 2</ei> process.
 </methodmore>
+
+<h3>Diffraction</h3>
+
+Information on the primary elastic or 
+<aloc href="Diffraction">diffractive</aloc> process
+(<ei>A B -> A B, X1 B, A X2, X1 X2, A X B</ei>) can be obtained with 
+the methods in the "Hard process kinematics" section above. The 
+variables here obviously are <ei>s, t, u, ...</ei> rather than 
+<ei>sHat, tHat, uHat, ...</ei>, but the method names remain to avoid 
+unnecessary duplication. Most other methods are irrelevant for a 
+primary elastic/diffractive process.
+
+<p/>Central diffraction <ei>A B -> A X B</ei> is a <ei>2 -> 3</ei>
+process, and therefore most of the <ei>2 -> 2</ei> variables are 
+no longer relevant. The <code>tHat()</code> and <code>uHat()</code> 
+methods instead return the two <ei>t</ei> values at the <ei>A -> A</ei> 
+and <ei>B -> B</ei> vertices, and <code>pTHat()</code> the average 
+transverse momentum of the three outgoing "particles", while 
+<code>thetaHat()</code> and <code>phiHat()</code> are undefined.
+
+<p/>
+While the primary interaction does not contain a hard process,
+the diffractive subsystems can contain them, but need not. 
+Specifically, double diffraction can contain two separate hard 
+subprocesses, which breaks the methods above. Most of them have been 
+expanded with an optional argument to address properties of diffractive 
+subsystems. This argument can take four values:
+<ul>
+<li>0 : default argument, used for normal nondiffractive events or 
+the primary elastic/diffractive process (see above);
+<li>1 : the <ei>X1</ei> system in single diffraction <ei>A B -> X1 B</ei>
+or double diffraction <ei>A B -> X1 X2</ei>;
+<li>2 : the <ei>X2</ei> system in single diffraction <ei>A B -> A X2</ei>
+or double diffraction <ei>A B -> X1 X2</ei>;
+<li>3 : the <ei>X</ei> system in central diffraction <ei>A B -> A X B</ei>.
+</ul>
+The argument is defined for all of the methods in the three sections above,
+"Hard process initiators", "Hard process parton densities and scales" and
+"Hard process kinematics", with the exception of the <code>isValence</code>
+methods. Also the four final methods of "The event type" section, the 
+<code>...Sub()</code> methods, take this argument. But recall that they
+will only provide meaningful answers, firstly if there is a system of the 
+requested type, and secondly if there is a hard subprocess in this system. 
+A simple check for this is that <code>id1()</code> has to be nonvanishing. 
+The methods below this section do not currently provide information 
+specific to diffractive subsystems, e.g. the MPI information is not 
+bookkept in such cases.    
 
 <h3>Event weight and activity</h3>
 
@@ -374,9 +428,9 @@ subprocess, with <code>i</code> in the range from 0 to
 information already provided above.  
 </methodmore>
 
-<method name="int Info::iAMPI(i)"> 
+<method name="int Info::iAMPI(int i)"> 
 </method>
-<methodmore name="int Info::iBMPI(i)">
+<methodmore name="int Info::iBMPI(int i)">
 are normally zero. However, if the <code>i</code>'th subprocess is
 a rescattering, i.e. either or both incoming partons come from the 
 outgoing state of previous scatterings, they give the position in the
@@ -385,7 +439,7 @@ event record of the outgoing-state parton that rescatters.
 the first or second beam, respectively.
 </methodmore>
 
-<method name="double Info::eMPI(i)"> 
+<method name="double Info::eMPI(int i)"> 
 The enhancement or depletion of the rate of the <code>i</code>'th 
 subprocess. Is primarily of interest for the 
 <code>MultipartonInteractions:bProfile = 4</code> option, where the 
@@ -396,17 +450,24 @@ partons. Note that <code>eMPI(0) = enhanceMPI()</code>.
 <h3>Cross sections</h3>
 
 Here are the currently available methods related to the event sample 
-as a whole. While continuously updated during the run, it is recommended
-only to study these properties at the end of the event generation, 
-when the full statistics is available.
+as a whole, for the default value <code>i = 0</code>, and otherwise for 
+the specific process code provided as argument. This is the number 
+obtained with <code>Info::code()</code>, while the further subdivision
+given by <code>Info::codeSub()</code> is not bookkept. While continuously 
+updated during the run, it is recommended only to study these properties 
+at the end of the event generation, when the full statistics is available.
+The individual process results are not available if 
+<aloc href="ASecondHardProcess">a second hard process</aloc> has beeen 
+chosen, but can be gleaned from the <code>pythia.stat()</code> output.
 
-<method name="long Info::nTried()">
+<method name="long Info::nTried(int i = 0)">
 </method>
-<methodmore name="long Info::nSelected()">
+<methodmore name="long Info::nSelected(int i = 0)">
 </methodmore>
-<methodmore name="long Info::nAccepted()">
+<methodmore name="long Info::nAccepted(int i = 0)">
 the total number of tried phase-space points, selected hard processes
-and finally accepted events, summed over all allowed subprocesses.
+and finally accepted events, summed over all allowed processes
+(<code>i = 0</code>) or for the given process.
 The first number is only intended for a study of the phase-space selection
 efficiency. The last two numbers usually only disagree if the user introduces 
 some veto during the event-generation process; then the former is the number 
@@ -415,12 +476,13 @@ were approved by the user. If you set <aloc href="ASecondHardProcess">a
 second hard process</aloc> there may also be a mismatch. 
 </methodmore>
 
-<method name="double Info::sigmaGen()">
+<method name="double Info::sigmaGen(int i = 0)">
 </method>
-<methodmore name="double Info::sigmaErr()">
+<methodmore name="double Info::sigmaErr(int i = 0)">
 the estimated cross section and its estimated error,
-summed over all allowed subprocesses, in units of mb. The numbers refer to
-the accepted event sample above, i.e. after any user veto. 
+summed over all allowed processes (<code>i = 0</code>) or for the given
+process, in units of mb. The numbers refer to the accepted event sample 
+above, i.e. after any user veto. 
 </methodmore>
 
 <h3>Loop counters</h3>
@@ -577,6 +639,28 @@ set/get value of <ei>z</ei> in latest ISR branching.
 <methodmore name="double Info::pT2NowISR()">
 set/get value of <ei>pT^2</ei> in latest ISR branching.
 </methodmore>
+
+<h3>Header information</h3>
+
+A simple string key/value store, mainly intended for accessing
+information that is stored in the header block of Les Houches Event
+(LHE) files. In principle, any <code>LHAup</code> derived class can set
+this header information, which can then be read out later. Although the
+naming convention is arbitrary, in practice, it is dictated by the
+XML-like format of LHE files, see <aloc href="LesHouchesAccord">
+Les Houches Accord</aloc> for more details.
+
+<method name="string Info::header(string key)">
+return the header named <code>key</code>
+</method>
+
+<method name="vector &lt;string&gt; Info::headerKeys()">
+return a vector of all header key names
+</method>
+
+<method name="void Info::setHeader(string key, string val)">
+set the header named <code>key</code> with the contents of <code>val</code>
+</method>
 
 </chapter>
 

@@ -24,7 +24,10 @@ class AlphaStrong {
 public:
 
   // Constructors.
-  AlphaStrong() : isInit(false) {}
+  AlphaStrong() : isInit(false), lastCallToFull(false), order(0),
+    valueRef(0.), valueNow(0.), scale2Now(0.), Lambda3Save(0.), 
+    Lambda4Save(0.), Lambda5Save(0.), scale2Min(0.), Lambda3Save2(0.),
+    Lambda4Save2(0.), Lambda5Save2(0.), mc2(0.), mb2(0.) {}
   AlphaStrong(double valueIn, int orderIn = 1) { 
     init( valueIn, orderIn) ;}
 
@@ -53,9 +56,9 @@ private:
   // Data members.
   bool   lastCallToFull;
   int    order;
-  double valueRef, valueNow, scale2Now, scale2Min, Lambda3Save, 
-         Lambda4Save, Lambda5Save, Lambda3Save2, Lambda4Save2, 
-         Lambda5Save2, mc, mb, mZ, mc2, mb2;
+  double valueRef, valueNow, scale2Now, Lambda3Save, Lambda4Save, 
+         Lambda5Save, scale2Min, Lambda3Save2, Lambda4Save2, 
+         Lambda5Save2, mc2, mb2;
 
 };
 

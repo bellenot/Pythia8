@@ -766,7 +766,7 @@ bool CellJet::analyze(const Event& event, double eTjetMinIn,
   }
 
   // Smear true bin content by calorimeter resolution.
-  if (smear > 0 && rndmPtr > 0) 
+  if (smear > 0 && rndmPtr != 0) 
   for (int j = 0; j < int(cells.size()); ++j) {
     double eTeConv = (smear < 2) ? 1. : cosh( cells[j].etaCell );
     double eBef = cells[j].eTcell * eTeConv; 
@@ -956,7 +956,7 @@ bool SlowJet::setup(const Event& event) {
             ? log( max( TINY, pTemp.e() + pTemp.pz() ) / mTTemp )
             : log( mTTemp / max( TINY, pTemp.e() - pTemp.pz() ) );
     phiTemp = pTemp.phi();
-    clusters.push_back( SingleSlowJet(pTemp, pT2Temp, yTemp, phiTemp) );
+    clusters.push_back( SingleSlowJet(pTemp, pT2Temp, yTemp, phiTemp, i) );
   }
 
   // Resize arrays to store distances between clusters.
@@ -1020,7 +1020,7 @@ bool SlowJet::doStep() {
 
   // When distance between two clusters is smallest they are joined.
   else {
-     
+
     // Add iMin cluster to jMin.
     clusters[jMin].p  += clusters[iMin].p;
     clusters[jMin].pT2 = max( TINY*TINY, clusters[jMin].p.pT2());
@@ -1031,6 +1031,8 @@ bool SlowJet::doStep() {
       / max( TINY, clusters[jMin].p.e() - clusters[jMin].p.pz() ) );
     clusters[jMin].phi = clusters[jMin].p.phi();
     clusters[jMin].mult += clusters[iMin].mult;
+    clusters[jMin].idx.insert(clusters[iMin].idx.begin(),
+                              clusters[iMin].idx.end());
 
     // Update distances for and to new jMin.
     if (isAnti)    diB[jMin] = 1. / clusters[jMin].pT2;
@@ -1055,7 +1057,7 @@ bool SlowJet::doStep() {
       dij[iMin*(iMin-1)/2 + j] = dij[clLast*(clLast-1)/2 + j];
     for (int j = iMin + 1; j < clLast; ++j)
       dij[j*(j-1)/2 + iMin] = dij[clLast*(clLast-1)/2 + j];
-  }       
+  }
     
   // Shrink cluster list by one.
   clusters.pop_back();

@@ -128,6 +128,13 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   keepPartons = false;
   if (limitDecay && !checkVertex(decayer)) return true; 
 
+  // Do not allow resonance decays (beyond handling capability).
+  if (decayer.isResonance()) {
+    infoPtr->errorMsg("Warning in ParticleDecays::decay: "
+      "resonance left undecayed"); 
+    return true;
+  }
+
   // Fill the decaying particle in slot 0 of arrays.  
   idDec = decayer.id();
   iProd.resize(0);
@@ -179,7 +186,7 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   if (!doneExternally) {
 
     // Allow up to ten tries to pick a channel. 
-    if (!decDataPtr->preparePick(idDec)) return false;
+    if (!decDataPtr->preparePick(idDec, decayer.m())) return false;
     bool foundChannel = false;
     bool hasStored    = false;
     for (int iTryChannel = 0; iTryChannel < NTRYDECAY; ++iTryChannel) {

@@ -33,7 +33,7 @@ int main() {
   // Kinematics cuts, common for the two. 
   pythia.readString("PhaseSpace:mHatMin = 40.");
   pythia.readString("PhaseSpace:pTHatMin = 20.");
-  
+
   // Initialize for LHC at 8 TeV.
   pythia.readString("Beams:eCM = 8000.");  
   pythia.init();

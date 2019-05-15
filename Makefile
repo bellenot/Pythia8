@@ -196,6 +196,30 @@ ifneq (x$(HEPMCLOCATION),x)
 
 endif
 
+
+# Install targets:
+
+ifneq (x$(INSTALLDIR),x.)
+ install: installmain installdata
+ installmain:
+	cp -r include $(INSTALLDIR)/.
+	cp -r lib $(INSTALLDIR)/.
+	cp -p config.mk $(INSTALLDIR)/.
+
+ ifneq ($(DATADIR),$(INSTALLDIR))
+  installdata:
+	cp -r xmldoc $(DATADIR)/.
+	ln -fs $(DATADIR)/xmldoc $(INSTALLDIR)/xmldoc
+ else
+  installdata:
+	cp -r xmldoc $(INSTALLDIR)/.
+ endif
+else
+ install:
+	@echo "everything is already installed"
+endif
+
+
 # Clean up: remove (almost?) everything that cannot be recreated.
 
 .PHONY: clean distclean

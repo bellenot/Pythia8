@@ -413,7 +413,8 @@ double Sigma1ll2Hchgchg::weightDecay( Event& process, int iResBeg,
 //==========================================================================
 
 // Sigma2lgm2Hchgchgl class.
-// Cross section for l l -> H_L^++-- or H_R^++-- (doubly charged Higgs).
+// Cross section for l gamma -> H_L^++-- l or H_R^++-- l 
+// (doubly charged Higgs).
 
 //--------------------------------------------------------------------------
 
@@ -733,7 +734,7 @@ double Sigma2ffbar2HchgchgHchgchg::sigmaHat() {
   double vi      = couplingsPtr->vf(idAbs); 
   double ai      = couplingsPtr->af(idAbs); 
 
-  // Part via gamma^*/Z^0 propagator.No Z^0 coupling to H_R.
+  // Part via gamma^*/Z^0 propagator. No Z^0 coupling to H_R.
   double resProp = 1. / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
   double sigma   = 8. * pow2(alpEM) * ei*ei / sH2;
   if (leftRight == 1) sigma += 8. * pow2(alpEM) 

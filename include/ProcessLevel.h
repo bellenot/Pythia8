@@ -57,6 +57,9 @@ public:
   // Generate the next "hard" process.
   bool next( Event& process); 
 
+  // Special case: LHA input of resonance decay only.
+  bool nextLHAdec( Event& process); 
+
   // Accumulate and update statistics (after possible user veto).
   void accumulate();
 
@@ -68,6 +71,13 @@ public:
 
   // Add any junctions to the process event record list. 
   void findJunctions( Event& junEvent);
+
+  // Initialize and call resonance decays separately.
+  void initDecays( Info* infoPtrIn, ParticleData* particleDataPtrIn, 
+    Rndm* rndmPtrIn, LHAup* lhaUpPtrIn) { infoPtr = infoPtrIn;
+    resonanceDecays.init( infoPtrIn, particleDataPtrIn, rndmPtrIn); 
+    containerLHAdec.setLHAPtr(lhaUpPtrIn, particleDataPtrIn); }
+  bool nextDecays( Event& process) { return resonanceDecays.next( process);}  
 
 private: 
 
@@ -90,6 +100,9 @@ private:
   vector<ProcessContainer*> container2Ptrs;
   int    i2Container;
   double sigma2MaxSum;
+
+  // Single half-dummy container for LHA input of resonance decay only.
+  ProcessContainer containerLHAdec;
 
   // Pointer to various information on the generation.
   Info*           infoPtr;

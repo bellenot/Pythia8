@@ -1891,6 +1891,258 @@ not use <code>UserHooks::canVetoMPIStep()</code> properly.</li>
 
 </ul>
 </li>
+
+<li>8.170: 21 September 2012
+<ul>
+
+<li>Streamline default behaviour and options for choice of GeV or MeV
+for output to the HepMC event format, see 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='HepMCInterface.php?filepath=".$filepath."' target='page'>";?>HepMC Interface</a>. 
+Also set the mass of HepMC particles explicitly, rather than having 
+it calculated implicitly. Thanks to James Monk and Andy Buckley.</li>
+
+<li>The <i>tau</i> decay machinery has been further augmented with
+matrix elements and form factors for a variety of decay modes, such 
+that all modes with a branching ratio above 0.1% are fully modelled.
+Several new classes and methods have been added to this end,
+Also, a <i>tau</i> pair coming from a <i>Z^0</i> decay is now 
+handled by assuming the <i>Z^0</i> to be unpolarized when neither 
+of the existing matrix elements apply. Taus coming from B baryons are
+handed as for B mesons.</li>
+
+<li>Flavour violating decays have been added to the squark, gluino,
+neutralino and chargino decay tables.</li>
+
+<li>Extend the <code>UserHooks::subEvent(...)</code> method so that it 
+also works passably at the process level. Also new option for 
+<code>UserHooks::omitResonanceDecays(...)</code>.</li>
+
+<li>New methods <code>UserHooks::canVetoPartonLevelEarly()</code> 
+and <code>UserHooks::doVetoPartonLevelEarly( const Event&)</code>  
+are intended to be used the same way as the existing ones without 
+<code>Early</code> in their names, but allow veto right after 
+the ISR + FSR + MPI evolution, before beam remnants are added and 
+resonance decays are considered.</li>
+
+<li>Central diffraction now available for all 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='Diffraction.php?filepath=".$filepath."' target='page'>";?>PomFlux</a></code> 
+options, not only the MBR model. This has been constructed by analogy
+with the respective assumptions made for single diffraction, but 
+includes some arbitrariness. Therefore the cross section is left
+easily rescaleable and, for backwards compatibility with tunes
+that does not contain it, easily possible to switch off, see
+the <?php $filepath = $_GET["filepath"];
+echo "<a href='TotalCrossSections.php?filepath=".$filepath."' target='page'>";?>relevant section</a>.
+</li> 
+
+<li>Reading of ALPGEN parameter and event files has been added,
+see <?php $filepath = $_GET["filepath"];
+echo "<a href='AlpgenAndMLM.php?filepath=".$filepath."' target='page'>";?>ALPGEN and MLM Merging</a>. 
+</li>
+
+<li>MLM matching has been added, as a first step for ALPGEN events,
+see <?php $filepath = $_GET["filepath"];
+echo "<a href='AlpgenAndMLM.php?filepath=".$filepath."' target='page'>";?>ALPGEN and MLM Merging</a>. 
+</li>
+
+<li>The CKKW-L merging machinery has been upgraded in a number of respects.
+<br/>- More thorough treatment of <code>pp>bb~e+e-veve~</code> with 
+additional <i>b</i>-jets.
+<br/>- Corrected hard <i>mu_r</i> and <i>mu_f</i> choices for 
+dijet and promt photon.
+<br/>- More ways to define a hard process, e.g. with the LEPTONS and 
+NEUTRINO tags. The merging will understand LHE files for mixed processes 
+(e.g. <i>W+</i> and <i>W-</i> production together).
+<br/>- More merging scale definitions.
+<br/>- More freedom to generate all possible histories.
+<br/>- Internal check (and cut) on Les Houches events in 
+<code>Pythia::mergeProcess</code> if merging scale value of the events 
+is below the value given to Pythia by setting <code>Merging::TMS</code>.
+</li>
+
+<li>It now works to have R-parity violating decays of R-hadrons,
+i.e. baryon number violation in a vertex displaced from the primary
+one.</li>
+
+<li>The documentation of diffractive processes by the 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>Info</a></code> 
+methods has been expanded and corrected. This also include the 
+<code>list()</code> method.</li> 
+
+<li>Particle masses and widths have been updated to agree with the 
+2012 RPP values [<a href="Bibliography.php" target="page">Ber12</a>]. Thanks to Piotr Zyla for data file
+and James Catmore for program to update the PYTHIA tables from this
+input.</li>
+
+<li>New methods <code>jetAssignment</code> and <code>removeJet</code>
+added to the <code>SlowJet</code> class.</li>
+
+<li>Introduce angular correlation in decay chain 
+<i>H -> gamma Z0 -> gamma f fbar</i>. Thanks to Tim Barklow and
+Michael Peskin.</li>
+
+<li>Introduce simple way to bias the selection of <i>2 -> 2</i> 
+processes towards larger <i>pT</i> values, with a compensatingly
+decreasing event weight, see 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='PhaseSpaceCuts.php?filepath=".$filepath."' target='page'>";?>Phase Space Cuts</a>. Only offers a
+subset of the possibilities allowed by <code>UserHooks</code>,
+but simpler to use. The <code>main08.cc</code> program has been
+expanded to illustrate this possibility, and also expanded to 
+include low-<i>pT</i> subsamples.</li>
+
+<li>The two remaining non-NLO tunes from [<a href="Bibliography.php" target="page">ATL12</a>] are now
+included.</li>
+
+<li>The <code><?php $filepath = $_GET["filepath"];
+echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>Info</a></code> methods 
+<code>nTried, nSelected, nAccepted, sigmaGen</code> and 
+<code>SigmaErr</code> now takes the code of an individual process 
+as an optional argument.</li>
+
+<li>It is now possible to generate resonance decays, followed by 
+showers and hadronization, without having them associated with any 
+specific process. This is part of an expanded  
+<?php $filepath = $_GET["filepath"];
+echo "<a href='HadronLevelStandalone.php?filepath=".$filepath."' target='page'>";?>Hadron-Level Standalone</a>
+machinery, as before triggered by <code>ProcessLevel = off</code>,
+but additionally requiring <code>Standalone:allowResDec = on</code>. 
+Input can either be directly into the <code>event</code> 
+event record or via a (simplified) Les Houches Event File.</li>
+
+<li>New <code>configure</code> script options <code>--installdir</code>,
+<code>--prefix</code> and <code>--datadir</code> can be used to set the
+location(s) to which the library, header and data directories 
+will be copied by a <code>make install</code> subsequent to the
+<code>make</code>. Thanks to Mikhail Kirsanov.</li>
+
+<li>Fix charge in antiparticle name when particle read in from SLHA 
+file. Thanks to Johan Alwall.</li>
+
+<li>Pointers now only compared with == and != (not e.g. > 0), to avoid 
+warnings in gcc 4.7.</li>
+
+<li>New check that version number of the code matches that of the 
+XML files. If not, no events can be generated. Thanks to James Monk 
+for suggestion.</li>
+ 
+<li>New check that mother and daughter indices have been set to give
+a consistent event history. Can be switched on/off with the new 
+<code>Check:history</code> flag.</li>
+
+<li>A new method <code>LHAup::newEventFile</code> has been added to 
+switch to reading in events from another LHE file without having to 
+reinitialize the whole class. Lower-level routines like 
+<code>openFile</code> and <code>closeFile</code> have been added to 
+handle correct order of operations also when an intermediate gzip
+decompression step is involved.</li>
+
+<li><code>LHAup::eventLHEF()</code> can now be called with an optional 
+argument <code>false</code>, to make event files somewhat smaller by 
+reducing the amount of blanks.</li>
+
+<li>A new mode <code>Beams:nSkipLHEFatInit</code> introduced to 
+skip ahead the first few events in a Les Houches Event File (cf. the
+<code>LHAup::skipEvent(nSkip)</code> method).</li>
+
+<li>Introduce a new pair of user hooks that can be used to reject
+the sequence of hard-process resonance decays, without rejecting
+the production of the primary resonances.</li>
+
+<li>The possibility of separate multiplicative prefactors to the 
+renormalization and factorization default <i>pT^2</i> scale has been 
+introduced for both timelike and spacelike showers.</li>
+
+<li>Bug fixes in history information for R-hadron production, which also 
+fixes HepMC conversion in this case.</li>
+
+<li>Bug corrected in <code>SigmaSusy.cc</code>, for chargino+neutralino 
+production. Indexing error for incoming quark states in the process 
+<code>Sigma2qqbar2charchi0</code>, resulted in incorrect CKM factors.</li>
+
+<li>Corrected a bug in <code>SusyLesHouches.cc</code>, for NMSSM spectra. 
+The unitarity check on the neutralino mixing matrix was faulty, leading 
+to erroneous messages about unitarity violations and SUSY being switched 
+off.</li>
+
+<li>Bug fixes in the handling of resolved and unresolved diffractive events.
+Thanks to Robert Ciesielski for debug.</li>
+
+<li>Do not set up FSR dipoles for <i>2 -> 1</i> processes.</li>
+
+<li>Check that some channel open for resonance decays. Also further
+check whether resonance decay treatment should be invoked.</li>
+
+<li>Bug fix in reading of particle names from SLHA input.</li>
+
+<li>Change mass, width and decay mode(s) of D*_s(10431). Thanks to 
+Michal Petran.</li>
+
+<li>Bug fix in leptoquark production (lepton sign in 
+<i>q g -> LQ l</i>).</li>
+
+<li>New argument added to <code>SpaceShower::reassignBeamPtrs</code>
+for diffractive event processing, as already available for 
+<code>TimeShower</code>.</li>
+
+<li>Do not write warnings in <code>SpaceShower</code> for weights 
+above unity if the evolution scale is below 1 GeV^2.</li>
+
+<li>Add default values for member variables in some constructors,
+and some related changes for <code>AlphaStrong</code> code.</li>
+
+<li>Warn if negative-energy parton in hadronization.</li>
+
+<li>The MPI <i>pT</i> values assumed in the beam remnant setting
+of primordial <i>kT</i> and colour reconnection probability were
+incorrect for diffractive events.</li>
+
+<li>The arrays with MPI information were not reset when parton or 
+hadron level fails and a new try is made. Only affected few events.</li>
+
+<li>MPI statistics can not yet be accumulated for diffractive events,
+and therefore the relevant routine is no longer called.</li>
+
+<li>Bug fix in the double parton scattering suppression from
+energy-momentum conservation.</li>
+
+<li>Outgoing proton masses were not set in the event record for 
+elastic scattering (but kinematics handling was correct).</li>
+
+<li>Bug fixes in the identification and documentation of junctions,
+previously leading to some unnecessarily rejected events. Also 
+other improvements leading to fewer errors.</li>
+
+<li>Slightly increased values for FragmentationSystems:mJoin and
+StringFragmentation::FACSTOPMASS to reduce failure rate, without
+noticeably affecting event properties.</li>
+
+<li>The Les Houches cross section error is now taken into account 
+in the final Pythia error for strategies +-3.  New methods 
+<code>LHAup::xSecSum()</code> and <code>LHAup::xErrSum()</code>
+provide the necessary information.
+</li>
+
+<li>When a tau pair comes from a massless photon, in dipole shower
+evolution, for the decay description the mother photon is reassigned
+to have the sum of the tau momenta.</li>
+
+<li>Minor change in initialization sequence for user hooks,
+to allow for more flexibility.</li>
+
+<li>Do not print warnings when multiparton interaction weights are
+only slightly above unity.</li>
+
+<li>Do not write warnings for three known particles that are so close
+to threshold that widths are switched off to avoid trouble.</li>
+
+<li>Some minor typographical changes.</li>
+
+</ul>
+</li>
 </ul>
 
 </body>

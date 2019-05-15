@@ -116,10 +116,15 @@ for details. Code 105.
 <input type="radio" name="6" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Central diffractive scattering <i>A B -> A X B</i> 
-(a.k.a. double-Pomeron exchange, DPE).
-See page on <?php $filepath = $_GET["filepath"];
-echo "<a href='Diffraction.php?filepath=".$filepath."' target='page'>";?>Diffraction</a>
-for details. Code 106.
+(a.k.a. double-Pomeron exchange, DPE). See pages on 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='TotalCrossSections.php?filepath=".$filepath."' target='page'>";?>Total Cross Sections</a>
+and on <?php $filepath = $_GET["filepath"];
+echo "<a href='Diffraction.php?filepath=".$filepath."' target='page'>";?>Diffraction</a> for details. 
+In particular note the <code>SigmaTotal:zeroAXB</code> flag,
+which is off in most tunes, and that therefore would need to 
+be reset to on after the selection of a tune (even the default one). 
+Code 106.
   
 
 <h3>Hard QCD processes</h3>

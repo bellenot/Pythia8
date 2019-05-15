@@ -127,7 +127,7 @@ public:
 
   // Deprecated: initialization according to the Les Houches Accord.
   bool init( LHAup* lhaUpPtrIn);
- 
+
   // Generate the next event.
   bool next(); 
 
@@ -136,7 +136,7 @@ public:
     { return timesDecPtr->shower( iBeg, iEnd, event, pTmax, nBranchMax); }
 
   // Generate only the hadronization/decay stage.
-  bool forceHadronLevel(bool findJunctions = true);
+  bool forceHadronLevel( bool findJunctions = true);
 
   // Special routine to allow more decays if on/off switches changed.
   bool moreDecays() {return hadronLevel.moreDecays(event);}
@@ -146,11 +146,11 @@ public:
 
   // List the current Les Houches event.
   void LHAeventList(ostream& os = cout) {
-    if (lhaUpPtr > 0) lhaUpPtr->listEvent(os);}
+    if (lhaUpPtr != 0) lhaUpPtr->listEvent(os);}
 
   // Skip a number of Les Houches events at input.
   bool LHAeventSkip(int nSkip) {
-    if (lhaUpPtr > 0) return lhaUpPtr->skipEvent(nSkip); return false;}
+    if (lhaUpPtr != 0) return lhaUpPtr->skipEvent(nSkip); return false;}
 
   // Main routine to provide final statistics on generation.
   void stat();
@@ -196,12 +196,14 @@ public:
 private: 
 
   // Constants: could only be changed in the code itself.
-  static const int NTRY, SUBRUNDEFAULT;
+  static const double VERSIONNUMBERCODE;
+  static const int    NTRY, SUBRUNDEFAULT;
 
   // Initialization data, extracted from database.
   string xmlPath;
-  bool   doProcessLevel, doPartonLevel, doHadronLevel, abortIfVeto, 
-         checkEvent, doDiffraction, decayRHadrons;
+  bool   doProcessLevel, doPartonLevel, doHadronLevel, doDiffraction, 
+         doResDec, doFSRinRes, decayRHadrons, abortIfVeto, checkEvent, 
+         checkHistory;
   int    nErrList;
   double epTolErr, epTolWarn;
 
@@ -282,8 +284,8 @@ private:
   // Pointer to MergingHooks object for user interaction with the merging.
   MergingHooks* mergingHooksPtr;
   bool       hasMergingHooks, hasOwnMergingHooks, doUserMerging, 
-             doMGMerging, doKTMerging, doMerging;
-
+             doMGMerging, doKTMerging, doMerging, doPTLundMerging,
+             doCutBasedMerging;
   // The main generator class to produce the hadron level of the event.
   HadronLevel hadronLevel;
 
@@ -329,7 +331,7 @@ private:
   // Initialization of SLHA data.
   bool initSLHA ();
 
-  // Function to perform the merging of the history.
+  // Function to perform CKKW-L merging of the history.
   bool mergeProcess();
 
 };

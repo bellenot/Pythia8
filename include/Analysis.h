@@ -390,20 +390,21 @@ public:
 
   // Constructors.
   SingleSlowJet( Vec4 pIn = 0., double pT2In = 0., double yIn = 0., 
-    double phiIn = 0.) : p(pIn), pT2(pT2In), y(yIn), phi(phiIn), 
-    mult(1) { }
+      double phiIn = 0., int idxIn = 0) : p(pIn), pT2(pT2In), y(yIn),
+      phi(phiIn), mult(1) { idx.insert(idxIn); }
   SingleSlowJet(const SingleSlowJet& ssj) : p(ssj.p), pT2(ssj.pT2),
-    y(ssj.y), phi(ssj.phi), mult(ssj.mult) { }
+    y(ssj.y), phi(ssj.phi), mult(ssj.mult), idx(ssj.idx) { }
   SingleSlowJet& operator=(const SingleSlowJet& ssj) { if (this != &ssj)
     { p = ssj.p; pT2 = ssj.pT2; y = ssj.y; phi = ssj.phi; 
-    mult = ssj.mult;} return *this; }
+    mult = ssj.mult; idx = ssj.idx; } return *this; }
 
   // Properties of jet.
-  Vec4   p;  
-  double pT2, y, phi;
-  int    mult;
+  Vec4     p;  
+  double   pT2, y, phi;
+  int      mult;
+  set<int> idx;
 
-} ;
+};
 
 //==========================================================================
 
@@ -470,6 +471,23 @@ public:
 
   // Provide a listing of the info.
   void list(bool listAll = false, ostream& os = cout) const;
+
+  // Give the index of the jet that the particle i of
+  // the event record belongs to. Returns -1 if particle i
+  // is not found in a jet.
+  int jetAssignment(int i) {
+    for (int j = 0; j < sizeJet(); j++)
+      if (jets[j].idx.find(i) != jets[j].idx.end())
+        return j;
+    return -1;
+  }
+
+  // Remove a jet.
+  void removeJet(int i) {
+    if (i < 0 || i >= jtSize) return;
+    jets.erase(jets.begin() + i);
+    jtSize--;
+  }
 
 private: 
 

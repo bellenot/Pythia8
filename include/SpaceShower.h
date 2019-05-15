@@ -71,7 +71,7 @@ class SpaceShower {
 public:
 
   // Constructor.
-  SpaceShower() {}
+  SpaceShower() {beamOffset = 0;}
 
   // Destructor.
   virtual ~SpaceShower() {}
@@ -89,8 +89,9 @@ public:
   virtual void init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn);
 
   // New beams possible for handling of hard diffraction. (Not virtual.)
-  void reassignBeamPtrs( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) 
-    {beamAPtr = beamAPtrIn; beamBPtr = beamBPtrIn;}
+  void reassignBeamPtrs( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
+    int beamOffsetIn = 0) {beamAPtr = beamAPtrIn; beamBPtr = beamBPtrIn;
+    beamOffset = beamOffsetIn;}
 
   // Find whether to limit maximum scale of emissions, and whether to dampen.
   virtual bool limitPTmax( Event& event, double Q2Fac = 0., 
@@ -136,9 +137,10 @@ protected:
   // Pointer to the random number generator.
   Rndm*          rndmPtr;
 
-  // Pointers to the two incoming beams.
+  // Pointers to the two incoming beams. Offset their location in event.
   BeamParticle*  beamAPtr;
   BeamParticle*  beamBPtr;
+  int            beamOffset;
 
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
@@ -154,11 +156,11 @@ protected:
 private: 
 
   // Constants: could only be changed in the code itself.
-  static const bool   DEBUG;
   static const int    MAXLOOPTINYPDF;
   static const double CTHRESHOLD, BTHRESHOLD, EVALPDFSTEP, TINYPDF, 
          TINYKERNELPDF, TINYPT2, HEAVYPT2EVOL, HEAVYXEVOL, EXTRASPACEQ, 
-         LAMBDA3MARGIN, LEPTONXMIN, LEPTONXMAX, LEPTONPT2MIN, LEPTONFUDGE;
+         LAMBDA3MARGIN, PT2MINWARN, LEPTONXMIN, LEPTONXMAX, LEPTONPT2MIN, 
+         LEPTONFUDGE;
 
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, useSamePTasMPI,
@@ -166,11 +168,11 @@ private:
          doRapidityOrder, canVetoEmission;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaEMorder, nQuarkIn, 
          enhanceScreening;
-  double pTdampFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
-         Lambda3flav, Lambda4flav, Lambda5flav, Lambda3flav2, Lambda4flav2, 
-         Lambda5flav2, pT0Ref, ecmRef, ecmPow, pTmin, sCM, eCM, pT0, 
-         pTminChgQ, pTminChgL, pT20, pT2min, pT2minChgQ, pT2minChgL, 
-         pTmaxFudgeMPI, strengthIntAsym; 
+  double pTdampFudge, mc, mb, m2c, m2b, renormMultFac, factorMultFac, 
+         alphaSvalue, alphaS2pi, Lambda3flav, Lambda4flav, Lambda5flav, 
+         Lambda3flav2, Lambda4flav2, Lambda5flav2, pT0Ref, ecmRef, ecmPow, 
+         pTmin, sCM, eCM, pT0, pTminChgQ, pTminChgL, pT20, pT2min, 
+         pT2minChgQ, pT2minChgL, pTmaxFudgeMPI, strengthIntAsym; 
 
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;

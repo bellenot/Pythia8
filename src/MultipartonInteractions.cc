@@ -336,7 +336,7 @@ const bool   MultipartonInteractions::SHIFTFACSCALE = false;
 const bool   MultipartonInteractions::PREPICKRESCATTER = true;
 
 // Naive upper estimate of cross section too pessimistic, so reduce by this.
-const double MultipartonInteractions::SIGMAFUDGE    = 0.7; 
+const double MultipartonInteractions::SIGMAFUDGE    = 0.8; 
 
 // The r value above, picked to allow a flatter correct/trial cross section.
 const double MultipartonInteractions::RPT20         = 0.25;
@@ -392,18 +392,21 @@ const double MultipartonInteractions::XDEP_CUTOFF   = 1e-4;
 // a0 is calculated in units of sqrt(mb), so convert to fermi.
 const double MultipartonInteractions::XDEP_SMB2FM   = sqrt(0.1);
 
+// Only write warning when weight clearly above unity.
+const double MultipartonInteractions::WTACCWARN     = 1.1;
+
 //--------------------------------------------------------------------------
 
 // Initialize the generation process for given beams.
 
-bool MultipartonInteractions::init( bool doMPIinit, int diffractiveModeIn,
+bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
   Info* infoPtrIn, Settings& settings, ParticleData* particleDataPtr,  
   Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
   Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn,  
   SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn, ostream& os) {
 
   // Store input pointers for future use. Done if no initialization. 
-  diffractiveMode  = diffractiveModeIn;
+  iDiffSys         = iDiffSysIn;
   infoPtr          = infoPtrIn;
   rndmPtr          = rndmPtrIn;
   beamAPtr         = beamAPtrIn;
@@ -437,7 +440,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int diffractiveModeIn,
   pTmin          = settings.parm("MultipartonInteractions:pTmin");
 
   // Impact parameter profile: nondiffractive topologies.
-  if (diffractiveMode == 0) {
+  if (iDiffSys == 0) {
     bProfile     = settings.mode("MultipartonInteractions:bProfile");
     coreRadius   = settings.parm("MultipartonInteractions:coreRadius");
     coreFraction = settings.parm("MultipartonInteractions:coreFraction");
@@ -487,7 +490,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int diffractiveModeIn,
   mMinPertDiff   = settings.parm("Diffraction:mMinPert");
 
   // Possibility to allow user veto of MPI
-  canVetoMPI = (userHooksPtr > 0) ? userHooksPtr->canVetoMPIEmission() : false;
+  canVetoMPI = (userHooksPtr != 0) ? userHooksPtr->canVetoMPIEmission() : false;
 
   // Some common combinations for double Gaussian, as shorthand.
   if (bProfile == 2) {
@@ -528,7 +531,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int diffractiveModeIn,
 
   // Get the total inelastic and nondiffractive cross section.
   if (!sigmaTotPtr->hasSigmaTot()) return false;
-  bool isNonDiff = (diffractiveMode == 0);
+  bool isNonDiff = (iDiffSys == 0);
   sigmaND = sigmaTotPtr->sigmaND(); 
   double sigmaMaxViol = 0.;
 
@@ -542,13 +545,13 @@ bool MultipartonInteractions::init( bool doMPIinit, int diffractiveModeIn,
     if (isNonDiff)
       os << " |            minbias,   sigmaNonDiffractive = " << fixed 
          << setprecision(2) << setw(7) << sigmaND << " mb           | \n";
-    else if (diffractiveMode == 1) 
+    else if (iDiffSys == 1) 
       os << " |                          diffraction XB                "
          << "          | \n";
-    else if (diffractiveMode == 2) 
+    else if (iDiffSys == 2) 
       os << " |                          diffraction AX                "
          << "          | \n";
-    else if (diffractiveMode == 3) 
+    else if (iDiffSys == 3) 
       os << " |                          diffraction AXB               "
          << "          | \n";
     os << " |                                                        "
@@ -556,7 +559,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int diffractiveModeIn,
   }
 
   // For diffraction need to cover range of diffractive masses.
-  nStep = (diffractiveMode == 0) ? 1 : 5;
+  nStep     = (iDiffSys == 0) ? 1 : 5;
   eStepSize = (nStep < 2) ? 1. 
             : log(mMaxPertDiff / mMinPertDiff) / (nStep - 1.);
   for (int iStep = 0; iStep < nStep; ++iStep) {
@@ -822,7 +825,7 @@ void MultipartonInteractions::pTfirst() {
       // Else pick complete kinematics and evaluate cross-section correction.
       } else {
         WTacc = sigmaPT2scatter(true) / dSigmaApprox;
-        if (WTacc > 1.) infoPtr->errorMsg("Warning in "
+        if (WTacc > WTACCWARN) infoPtr->errorMsg("Warning in "
             "MultipartonInteractions::pTfirst: weight above unity");
       }
     
@@ -846,7 +849,7 @@ void MultipartonInteractions::pTfirst() {
         if (bProfile != 4) WTacc *= sudakov( pT2, enhanceB);
       
         // Warn for weight above unity
-        if (WTacc > 1.) infoPtr->errorMsg("Warning in "
+        if (WTacc > WTACCWARN) infoPtr->errorMsg("Warning in "
             "MultipartonInteractions::pTfirst: weight above unity");
 
       // Loop until acceptable pT and acceptable kinematics.
@@ -992,18 +995,19 @@ void MultipartonInteractions::setupFirstSys( Event& process) {
   int codeSub    = dSigmaDtSel->code();
   int nFinalSub  = dSigmaDtSel->nFinal();
   double pTMPI   = dSigmaDtSel->pTMPIFin();
-  infoPtr->setSubType( nameSub, codeSub, nFinalSub);
-  infoPtr->setTypeMPI( codeSub, pTMPI, 0, 0, enhanceB / zeroIntCorr);
+  infoPtr->setSubType( iDiffSys, nameSub, codeSub, nFinalSub);
+  if (iDiffSys == 0) infoPtr->setTypeMPI( codeSub, pTMPI, 0, 0, 
+    enhanceB / zeroIntCorr);
 
   // Further standard info on process.
-  infoPtr->setPDFalpha( id1, id2, x1, x2, xPDF1now, xPDF2now, pT2Fac, 
-    alpEM, alpS, pT2Ren);
+  infoPtr->setPDFalpha( iDiffSys, id1, id2, x1, x2, xPDF1now, xPDF2now, 
+    pT2Fac, alpEM, alpS, pT2Ren);
   double m3    = dSigmaDtSel->m(3);
   double m4    = dSigmaDtSel->m(4); 
   double theta = dSigmaDtSel->thetaMPI(); 
   double phi   = dSigmaDtSel->phiMPI(); 
-  infoPtr->setKin( id1, id2, x1, x2, sHat, tHat, uHat, sqrt(pT2), m3, m4, 
-    theta, phi);
+  infoPtr->setKin( iDiffSys, id1, id2, x1, x2, sHat, tHat, uHat, sqrt(pT2), 
+    m3, m4, theta, phi);
 
 }
 
@@ -1106,8 +1110,8 @@ double MultipartonInteractions::pTnext( double pTbegAll, double pTendAll,
 
       // Normalize to dSigmaApprox, which was set in fastPT2 above.
       WTacc = (dSigmaScatter + dSigmaRescatter) / dSigmaApprox;
-      if (WTacc > 1.) infoPtr->errorMsg("Warning in MultipartonInteractions::"
-        "pTnext: weight above unity");
+      if (WTacc > WTACCWARN) infoPtr->errorMsg("Warning in "
+        "MultipartonInteractions::pTnext: weight above unity");
 
       // Idea suggested by Gosta Gustafson: increased screening in events
       // with large activity can be simulated by pT0_eff = sqrt(n) * pT0. 
@@ -1126,8 +1130,8 @@ double MultipartonInteractions::pTnext( double pTbegAll, double pTendAll,
         // Correct enhancement factor and weight
         enhanceBnow = sigmaND / M_PI / fac * exp( - b2now / fac);
         double oWgt = enhanceBnow / enhanceBmax;
-        if (oWgt > 1.) infoPtr->errorMsg("Warning in MultipartonInteractions::"
-                         "pTnext: overlap weight above unity");
+        if (oWgt > 1.0000000001) infoPtr->errorMsg("Warning in Multiparton"
+          "Interactions::pTnext: overlap weight above unity");
         WTacc *= oWgt;
       }
 
@@ -1317,8 +1321,9 @@ bool MultipartonInteractions::scatter( Event& event) {
   // Store info on subprocess code and rescattered partons.
   int    codeMPI = dSigmaDtSel->code();
   double pTMPI   = dSigmaDtSel->pTMPIFin();
-  infoPtr->setTypeMPI( codeMPI, pTMPI, i1Sel, i2Sel, 
+  if (iDiffSys == 0) infoPtr->setTypeMPI( codeMPI, pTMPI, i1Sel, i2Sel,
     enhanceBnow / zeroIntCorr);
+  partonSystemsPtr->setPTHat(iSys, pTMPI);
 
   // Done.
   return true;

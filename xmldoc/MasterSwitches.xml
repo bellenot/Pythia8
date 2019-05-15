@@ -84,7 +84,7 @@ Further options are found <aloc href="SpacelikeShowers">here</aloc>.
 </flag>
 
 <flag name="PartonLevel:FSR" default="on">
-Master switch for initial-state radiation; on/off = true/false.
+Master switch for final-state radiation; on/off = true/false.
 Further options are found <aloc href="TimelikeShowers">here</aloc>.
 If you leave this switch on, the following two switches allow 
 more detailed control to switch off only parts of the showers. 

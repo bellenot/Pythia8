@@ -82,6 +82,7 @@ public:
   void setPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;}
  
   // Method to be used for LHAupLHEF derived class.
+  virtual void newEventFile(const char*) {} 
   virtual bool fileFound() {return true;} 
  
   // A pure virtual method setInit, wherein all initialization information 
@@ -108,6 +109,8 @@ public:
   double xSec(int proc)  const {return processes[proc].xSecProc;}    
   double xErr(int proc)  const {return processes[proc].xErrProc;}    
   double xMax(int proc)  const {return processes[proc].xMaxProc;} 
+  double xSecSum()       const {return xSecSumSave;}    
+  double xErrSum()       const {return xErrSumSave;}    
    
   // Print the initialization info; useful to check that setting it worked.
   void   listInit(ostream& os = cout);  
@@ -172,7 +175,7 @@ public:
   // Four routines to write a Les Houches Event file in steps.
   bool   openLHEF(string fileNameIn);
   bool   initLHEF();
-  bool   eventLHEF();
+  bool   eventLHEF(bool verbose = true);
   bool   closeLHEF(bool updateInit = false);
 
 protected:
@@ -238,13 +241,28 @@ protected:
     pdf2Save = pdf2In; pdfIsSetSave = pdfIsSetIn;}
 
   // Three routines for LHEF files, but put here for flexibility.
-  bool setInitLHEF(istream& is);
+  bool setInitLHEF(istream& is, bool readHeaders = false);
   bool setNewEventLHEF(istream& is);
   bool setOldEventLHEF();
 
+  // Helper routines to open and close a file handling GZIPSUPPORT:
+  //   ifstream ifs;
+  //   istream *is = openFile("myFile.txt", ifs);
+  //   -- Process file using is --
+  //   closeFile(is, ifs);
+  istream* openFile(const char *fn, ifstream &ifs);
+  void     closeFile(istream *&is, ifstream &ifs);
+
+  // LHAup is a friend class to infoPtr, but derived classes
+  // are not. This wrapper function can be used by derived classes
+  // to set headers in the Info class.
+  void setInfoHeader(const string &key, const string &val) {
+    infoPtr->setHeader(key, val); }
+
   // Event properties from LHEF files, for repeated use.
   int    nupSave, idprupSave;
-  double xwgtupSave, scalupSave, aqedupSave, aqcdupSave;
+  double xwgtupSave, scalupSave, aqedupSave, aqcdupSave, xSecSumSave,
+         xErrSumSave;
   vector<LHAParticle> particlesSave;
   bool   getPDFSave;
   int    id1InSave, id2InSave, id1pdfInSave, id2pdfInSave;
@@ -294,16 +312,35 @@ class LHAupLHEF : public LHAup {
 public:
 
   // Constructor.
-  LHAupLHEF(const char* fileIn);
+  LHAupLHEF(const char* fileIn, const char* headerIn = NULL,
+            bool readHeaders = false);
 
   // Destructor.
   ~LHAupLHEF();
 
+  // Helper routine to correctly close files
+  void closeAllFiles() {
+    // Close header file if separate, and close main file
+    if (isHead != is) closeFile(isHead, ifsHead);
+    closeFile(is, ifs);
+  }
+
+  // Want to use new file with events, but without reinitialization.
+  void newEventFile(const char* fileIn) {
+    // Close files and then open new file
+    closeAllFiles();
+    is = openFile(fileIn, ifs);
+
+    // Set isHead to is to keep expected behaviour in
+    // fileFound() and closeAllFiles()
+    isHead = is;
+  }
+
   // Confirm that file was found and opened as expected.
-  bool fileFound() {return is->good();} 
+  bool fileFound() { return (isHead->good() && is->good()); }
 
   // Routine for doing the job of reading and setting initialization info.  
-  bool setInit() {return setInitLHEF(*is);} 
+  bool setInit() {return setInitLHEF(*isHead, readHeaders);} 
 
   // Routine for doing the job of reading and setting info on next event.  
   bool setEvent(int = 0) {if (!setNewEventLHEF(*is)) return false;
@@ -316,13 +353,12 @@ public:
 private:
 
   // File from which to read (or a stringstream).
-  // Note: for GZIP support, use a pointer to an istream to avoid #ifdef's 
-  //   in the header file. Without gzip support, is = (istream *) &ifs .
-  //   With gzip support, is = boost::iostreams::filtering_istream ,
-  //   with ifs as a source.
-  ifstream  ifs;
-  istream  *is;
+  // Optionally also a file from which to read the LHEF header.
+  ifstream  ifs,  ifsHead;
+  istream  *is,  *isHead;
 
+  // Flag to read headers or not
+  bool readHeaders;
 };
 
 //==========================================================================
