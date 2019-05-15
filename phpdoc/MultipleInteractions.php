@@ -50,6 +50,8 @@ echo "<a href='BeamRemnants.php?filepath=".$filepath."' target='page'>";?>beam r
 
 <h3>Main variables</h3>
 
+<h4>Matching to hard process</h4>
+
 The maximum <i>pT</i> to be allowed for multiple interactions is
 related to the nature of the hard process itself. It involves a
 delicate balance between not doublecounting and not leaving any
@@ -66,7 +68,8 @@ to match the scale of the hard process itself.
 <input type="radio" name="1" value="1"><strong>1 </strong>: always use the factorization scale for an internal process and the <code>scale</code> value for Les Houches input,  i.e. the lower value. This should avoid doublecounting, but may leave out some interactions that ought to have been simulated. <br/>
 <input type="radio" name="1" value="2"><strong>2 </strong>: always allow multiple interactions up to the  kinematical limit. This will simulate all possible event topologies,  but may lead to doublecounting. <br/>
 
-<p/>
+<h4>Cross-section parameters</h4>
+
 The rate of interactions is determined by 
 <br/><br/><table><tr><td><strong>MultipleInteractions:alphaSvalue </td><td></td><td> <input type="text" name="2" value="0.127" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.127</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)</td></tr></table>
 The value of <i>alpha_strong</i> at <i>m_Z</i>. Default value is 
@@ -109,7 +112,25 @@ changed <i>alpha_strong</i>, since <i>alpha_strong</i> runs)
 Multiply all cross sections by this fix factor.
   
 
-<p/>
+<p/> 
+The processes used to generate multiple interactions form a subset
+of the standard library of hard processes. The input is slightly
+different from the standard hard-process machinery, however, 
+since incoming flavours, the <i>alpha_strong</i> value and most
+of the kinematics are aready fixed when the process is called.
+It is possible to regulate the set of processes that are included in the
+multiple-interactions framework.
+
+<br/><br/><table><tr><td><strong>MultipleInteractions:processLevel  </td><td>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
+Set of processes included in the machinery.
+<br/>
+<input type="radio" name="6" value="0"><strong>0 </strong>: only the simplest <ei>2 -> 2</ei> QCD processes between quarks and gluons, giving no new flavours, i.e. dominated by <ei>t</ei>-channel gluon exchange.<br/>
+<input type="radio" name="6" value="1"><strong>1 </strong>: also <ei>2 -> 2</ei> QCD processes giving new flavours (including charm and bottom), i.e. proceeding through <ei>s</ei>-channel  gluon exchange.<br/>
+<input type="radio" name="6" value="2"><strong>2 </strong>: also <ei>2 -> 2</ei> processes involving one or two photons in the final state, <ei>s</ei>-channel <ei>gamma</ei> boson exchange and <ei>t</ei>-channel <ei>gamma/Z^0/W^+-</ei> boson exchange.<br/>
+<input type="radio" name="6" value="3" checked="checked"><strong>3 </strong>: also charmonium and bottomonium production, via colour singlet and colour octet channels.<br/>
+
+<h4>Cross-section regularization</h4>
+
 There are two complementary ways of regularizing the small-<i>pT</i> 
 divergence, a sharp cutoff and a smooth dampening. These can be 
 combined as desired, but it makes sense to coordinate with how the 
@@ -131,15 +152,15 @@ below the nondiffractive inelastic one, this <i>pT0</i> will
 automatically be scaled down to cope.
 
 <p/>
-The actual pT0 parameter used at a given cm energy scale, <i>ecmNow</i>,
-is obtained as
+The actual <i>pT0</i> parameter used at a given cm energy scale, 
+<i>ecmNow</i>, is obtained as
 <br/><i>
      pT0 = pT0(ecmNow) = pT0Ref * (ecmNow / ecmRef)^ecmPow 
 </i><br/>
 where <i>pT0Ref</i>, <i>ecmRef</i> and <i>ecmPow</i> are the 
 three parameters below.
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:pT0Ref </td><td></td><td> <input type="text" name="6" value="2.15" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.15</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:pT0Ref </td><td></td><td> <input type="text" name="7" value="2.15" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.15</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.0</code>)</td></tr></table>
 The <i>pT0Ref</i> scale in the above formula.
 <br/><b>Note:</b> <i>pT0Ref</i> is one of the key parameters in a
 complete PYTHIA tune. Its value is intimately tied to a number of other
@@ -147,17 +168,17 @@ choices, such as that of colour flow description, so unfortunately it is
 difficult to give an independent meaning to <i>pT0Ref</i>.
   
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:ecmRef </td><td></td><td> <input type="text" name="7" value="1800.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1800.0</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:ecmRef </td><td></td><td> <input type="text" name="8" value="1800.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1800.0</strong></code>; <code>minimum = 1.</code>)</td></tr></table>
 The <i>ecmRef</i> reference energy scale introduced above.
   
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:ecmPow </td><td></td><td> <input type="text" name="8" value="0.16" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.16</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:ecmPow </td><td></td><td> <input type="text" name="9" value="0.16" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.16</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 0.5</code>)</td></tr></table>
 The <i>ecmPow</i> energy rescaling pace introduced above.
   
 
 <p/>
 Alternatively, or in combination, a sharp cut can be used.
-<br/><br/><table><tr><td><strong>MultipleInteractions:pTmin </td><td></td><td> <input type="text" name="9" value="0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 10.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:pTmin </td><td></td><td> <input type="text" name="10" value="0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 10.0</code>)</td></tr></table>
 Lower cutoff in <i>pT</i>, below which no further interactions 
 are allowed. Normally <i>pT0</i> above would be used to provide 
 the main regularization of the cross section for <i>pT -> 0</i>, 
@@ -168,31 +189,60 @@ combine them in intermediate approaches. Currently <i>pTmin</i>
 is taken to be energy-independent.  
   
 
-<p/> 
+<p/>
+G&ouml;sta Gustafson has proposed (private communication, unpublished)
+that the amount of screening, as encapsulated in the <i>pT0</i> 
+parameter, fluctuates from one event to the next. Specifically, 
+high-activity event are more likely to lead to interactions at large 
+<i>pT</i> scales, but the high activity simultaneously leads to a 
+larger screening of interactions at smaller <i>pT</i>. Such a scenario 
+can approximately be simulated by scaling up the <i>pT0</i> by a 
+factor <i>sqrt(n)</i>, where <i>n</i> is the number of interactions 
+considered so far, including the current one. That is, for the first 
+interaction the dampening factor is <i>pT^4 / (pT0^2 + pT^2)^2</i>, 
+for the second <i>pT^4 / (2 pT0^2 + pT^2)^2</i>, for the third
+<i>pT^4 / (3 pT0^2 + pT^2)^2</i>, and so on. Optionally the scheme
+may also be applied to ISR emissions. For simplicity the same 
+<i>alpha_s(pT0^2 + pT^2)</i> is used throughout. Note that, in this 
+scenario the <i>pT0</i> scale must be lower than in the normal case 
+to begin with, since it later is increased back up. Also note that the 
+idea with this scenario is to propose an alternative to colour 
+reconnection to understand the rise of <i>&lt;pT&gt;(n_ch)</i>, 
+so that the amount of colour reconnection should be reduced.
+<br/><br/><table><tr><td><strong>MultipleInteractions:enhanceScreening  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
+Choice to activate the above screening scenario, i.e. an increasing
+effective <ei>pT0</ei> for consecutive interactions.
+<br/>
+<input type="radio" name="11" value="0" checked="checked"><strong>0 </strong>: No activity-dependent screening, i.e. <ei>pT0</ei> is fixed.<br/>
+<input type="radio" name="11" value="1"><strong>1 </strong>: The <ei>pT0</ei> scale is increased as a function of the number of MI's, as explained above. ISR is not affected, but note that, if <code>SpaceShower:samePTasMI</code> is on (default), then <code>MultipleInteractions:pT0Ref</code> is used also for ISR,  which may or may not be desirable.  <br/>
+<input type="radio" name="11" value="2"><strong>2 </strong>: Both MI and ISR influence and are influenced by the screening. That is, the dampening is reduced based on the total number  of MI and ISR steps considered so far, including the current one. This dampening is implemented both for MI and for ISR emissions,  for the latter provided that <code>SpaceShower:samePTasMI</code> is on  (default).   <br/>
+
+<h4>Impact-parameter dependence</h4>
+ 
 The choice of impact-parameter dependence is regulated by several
 parameters.
 
 <br/><br/><table><tr><td><strong>MultipleInteractions:bProfile  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
 Choice of impact parameter profile for the incoming hadron beams.
 <br/>
-<input type="radio" name="10" value="0"><strong>0 </strong>: no impact parameter dependence at all.<br/>
-<input type="radio" name="10" value="1"><strong>1 </strong>: a simple Gaussian matter distribution;  no free parameters.<br/>
-<input type="radio" name="10" value="2" checked="checked"><strong>2 </strong>: a double Gaussian matter distribution,  with the two free parameters <ei>coreRadius</ei> and  <ei>coreFraction</ei>.<br/>
-<input type="radio" name="10" value="3"><strong>3 </strong>: an overlap function, i.e. the convolution of  the matter distributions of the two incoming hadrons, of the form <ei>exp(- b^expPow)</ei>, where <ei>expPow</ei> is a free  parameter.<br/>
+<input type="radio" name="12" value="0"><strong>0 </strong>: no impact parameter dependence at all.<br/>
+<input type="radio" name="12" value="1"><strong>1 </strong>: a simple Gaussian matter distribution;  no free parameters.<br/>
+<input type="radio" name="12" value="2" checked="checked"><strong>2 </strong>: a double Gaussian matter distribution,  with the two free parameters <ei>coreRadius</ei> and  <ei>coreFraction</ei>.<br/>
+<input type="radio" name="12" value="3"><strong>3 </strong>: an overlap function, i.e. the convolution of  the matter distributions of the two incoming hadrons, of the form <ei>exp(- b^expPow)</ei>, where <ei>expPow</ei> is a free  parameter.<br/>
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:coreRadius </td><td></td><td> <input type="text" name="11" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:coreRadius </td><td></td><td> <input type="text" name="13" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 1.</code>)</td></tr></table>
 When assuming a double Gaussian matter profile, <i>bProfile = 2</i>,
 the inner core is assumed to have a radius that is a factor
 <i>coreRadius</i> smaller than the rest.
    
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:coreFraction </td><td></td><td> <input type="text" name="12" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:coreFraction </td><td></td><td> <input type="text" name="14" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
 When assuming a double Gaussian matter profile, <i>bProfile = 2</i>,
 the inner core is assumed to have a fraction <i>coreFraction</i> 
 of the matter content of the hadron.
    
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:expPow </td><td></td><td> <input type="text" name="13" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.4</code>; <code>maximum = 10.</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:expPow </td><td></td><td> <input type="text" name="15" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.4</code>; <code>maximum = 10.</code>)</td></tr></table>
 When <i>bProfile = 3</i> it gives the power of the assumed overlap 
 shape <i>exp(- b^expPow)</i>. Default corresponds to a simple 
 exponential drop, which is not too dissimilar from the overlap 
@@ -203,30 +253,75 @@ at all, <i>bProfile = 0</i>. For small <i>expPow</i> the program
 becomes slow and unstable, so the min limit must be respected.
    
 
-<p/> 
-It is possible to regulate the set of processes that are included in the
-multiple-interactions framework.
+<h4>Rescattering</h4>
+ 
+It is possible that a parton may rescatter, i.e. undergo a further
+interaction subsequent to the first one. The machinery to model this
+kind of physics is still under development, and should not be used.
+The switch below is therefore only intended for people directly involved
+in the development and tryout. Any other usage is likely to lead to a 
+program crash, or at least unphysical results.
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:processLevel  </td><td>  &nbsp;&nbsp;(<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)</td></tr></table>
-Set of processes included in the machinery.
+<br/><br/><strong>MultipleInteractions:allowRescatter</strong>  <input type="radio" name="16" value="on"><strong>On</strong>
+<input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Switch to allow rescattering of partons; on/off = true/false.
+<b>Warning: not yet operational! Do not use!</b>
+  
+
+<br/><br/><strong>MultipleInteractions:allowDoubleRescatter</strong>  <input type="radio" name="17" value="on"><strong>On</strong>
+<input type="radio" name="17" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Switch to allow rescattering of partons, where both incoming partons 
+have already rescattered; on/off = true/false. Is only used if 
+<code>MultipleInteractions:allowRescatter</code> is switched on.
+<b>Warning: not yet operational! Do not use!</b>
+  
+
+<br/><br/><table><tr><td><strong>MultipleInteractions:rescatterMode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
+Selection of which partons rescatter against unscattered partons
+from the incoming beams A and B, based on their rapidity value 
+<ei>y</ei> in the collision rest frame. Here <ei>ySep</ei> is
+shorthand for <code>MultipleInteractions:ySepRescatter</code> and
+<ei>deltaY</ei> for <code>MultipleInteractions:deltaYRescatter</code>,
+defined below. The description is symmetric between the two beams,
+so only one case is described below. 
 <br/>
-<input type="radio" name="14" value="0"><strong>0 </strong>: only the simplest <ei>2 -> 2</ei> QCD processes between quarks and gluons, giving no new flavours, i.e. dominated by <ei>t</ei>-channel gluon exchange.<br/>
-<input type="radio" name="14" value="1"><strong>1 </strong>: also <ei>2 -> 2</ei> QCD processes giving new flavours (including charm and bottom), i.e. proceeding through <ei>s</ei>-channel  gluon exchange.<br/>
-<input type="radio" name="14" value="2"><strong>2 </strong>: also <ei>2 -> 2</ei> processes involving one or two photons in the final state, <ei>s</ei>-channel <ei>gamma</ei> boson exchange and <ei>t</ei>-channel <ei>gamma/Z^0/W^+-</ei> boson exchange.<br/>
-<input type="radio" name="14" value="3" checked="checked"><strong>3 </strong>: also charmonium and bottomonium production, via colour singlet and colour octet channels.<br/>
+<input type="radio" name="18" value="0" checked="checked"><strong>0 </strong>: only scattered partons with <ei>y > 0</ei>  can collide with unscattered partons from beam B.<br/>
+<input type="radio" name="18" value="1"><strong>1 </strong>: only scattered partons with <ei>y > ySep</ei>  can collide with unscattered partons from beam B.<br/>
+<input type="radio" name="18" value="2"><strong>2 </strong>: the probability for a scattered parton to be considered  as a potential rescatterer against unscattered partons in beam B increases  linearly from zero at <ei>y = ySep - deltaY</ei> to unity at  <ei>y = ySep + deltaY</ei>.<br/>
+<input type="radio" name="18" value="3"><strong>3 </strong>: the probability for a scattered parton to be considered  as a potential rescatterer against unscattered partons in beam B increases  with <ei>y</ei> according to  <ei>(1/2) * (1 + tanh( (y - ySep) / deltaY))</ei>.<br/>
+<input type="radio" name="18" value="4"><strong>4 </strong>: all partons are potential rescatterers against both  beams.<br/>
+
+<br/><br/><table><tr><td><strong>MultipleInteractions:ySepRescatter </td><td></td><td> <input type="text" name="19" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
+used for some of the <code>MultipleInteractions:rescatterMode</code>
+options above, as the rapidity for which a scattered parton has a 50%
+probability to be considered as a potential rescatterer. 
+A <i>ySep > 0</i> generally implies that some central partons cannot
+rescatter at all, while a <i>ySep < 0</i>  instead allows central 
+partons to scatter against either beam.
+   
+
+<br/><br/><table><tr><td><strong>MultipleInteractions:deltaYRescatter </td><td></td><td> <input type="text" name="20" value="1." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.</strong></code>; <code>minimum = 0.1</code>)</td></tr></table>
+used for some of the <code>MultipleInteractions:rescatterMode</code>
+options above, as the width of the rapidity transition region, where the 
+probability rises from zero to unity that a scattered parton is considered 
+as a potential rescatterer.
+   
+
 
 <h3>Further variables</h3>
 
 These should normally not be touched. Their only function is for
 cross-checks.
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:nQuarkIn  </td><td></td><td> <input type="text" name="15" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:nQuarkIn  </td><td></td><td> <input type="text" name="21" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed incoming quark flavours in the beams; a change 
 to 4 would thus exclude <i>b</i> and <i>bbar</i> as incoming 
 partons, etc.
   
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:nSample  </td><td></td><td> <input type="text" name="16" value="1000" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1000</strong></code>; <code>minimum = 100</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:nSample  </td><td></td><td> <input type="text" name="22" value="1000" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1000</strong></code>; <code>minimum = 100</code>)</td></tr></table>
 The allowed <i>pT</i> range is split (unevenly) into 100 bins, 
 and in each of these the interaction cross section is evaluated in 
 <i>nSample</i> random phase space points. The full integral is used 
@@ -234,14 +329,6 @@ at initialization, and the differential one during the run as a
 "Sudakov form factor" for the choice of the hardest interaction.
 A larger number implies increased accuracy of the calculations.
   
-
-<h3>The process library</h3>
-
-The processes used to generate multiple interactions form a subset
-of the standard library of hard processes. The input is slightly
-different from the standard hard-process machinery, however, 
-since incoming flavours, the <i>alpha_strong</i> value and most
-of the kinematics are aready fixed when the process is called.
 
 <h3>Technical notes</h3>
 
@@ -413,59 +500,89 @@ if($_POST["5"] != "1.0")
 $data = "MultipleInteractions:Kfactor = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "2.15")
+if($_POST["6"] != "3")
 {
-$data = "MultipleInteractions:pT0Ref = ".$_POST["6"]."\n";
+$data = "MultipleInteractions:processLevel = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["7"] != "1800.0")
+if($_POST["7"] != "2.15")
 {
-$data = "MultipleInteractions:ecmRef = ".$_POST["7"]."\n";
+$data = "MultipleInteractions:pT0Ref = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["8"] != "0.16")
+if($_POST["8"] != "1800.0")
 {
-$data = "MultipleInteractions:ecmPow = ".$_POST["8"]."\n";
+$data = "MultipleInteractions:ecmRef = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "0.2")
+if($_POST["9"] != "0.16")
 {
-$data = "MultipleInteractions:pTmin = ".$_POST["9"]."\n";
+$data = "MultipleInteractions:ecmPow = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["10"] != "2")
+if($_POST["10"] != "0.2")
 {
-$data = "MultipleInteractions:bProfile = ".$_POST["10"]."\n";
+$data = "MultipleInteractions:pTmin = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["11"] != "0.4")
+if($_POST["11"] != "0")
 {
-$data = "MultipleInteractions:coreRadius = ".$_POST["11"]."\n";
+$data = "MultipleInteractions:enhanceScreening = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "0.5")
+if($_POST["12"] != "2")
 {
-$data = "MultipleInteractions:coreFraction = ".$_POST["12"]."\n";
+$data = "MultipleInteractions:bProfile = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "1.")
+if($_POST["13"] != "0.4")
 {
-$data = "MultipleInteractions:expPow = ".$_POST["13"]."\n";
+$data = "MultipleInteractions:coreRadius = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "3")
+if($_POST["14"] != "0.5")
 {
-$data = "MultipleInteractions:processLevel = ".$_POST["14"]."\n";
+$data = "MultipleInteractions:coreFraction = ".$_POST["14"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["15"] != "5")
+if($_POST["15"] != "1.")
 {
-$data = "MultipleInteractions:nQuarkIn = ".$_POST["15"]."\n";
+$data = "MultipleInteractions:expPow = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["16"] != "1000")
+if($_POST["16"] != "off")
 {
-$data = "MultipleInteractions:nSample = ".$_POST["16"]."\n";
+$data = "MultipleInteractions:allowRescatter = ".$_POST["16"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["17"] != "off")
+{
+$data = "MultipleInteractions:allowDoubleRescatter = ".$_POST["17"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["18"] != "0")
+{
+$data = "MultipleInteractions:rescatterMode = ".$_POST["18"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["19"] != "0.")
+{
+$data = "MultipleInteractions:ySepRescatter = ".$_POST["19"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["20"] != "1.")
+{
+$data = "MultipleInteractions:deltaYRescatter = ".$_POST["20"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["21"] != "5")
+{
+$data = "MultipleInteractions:nQuarkIn = ".$_POST["21"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["22"] != "1000")
+{
+$data = "MultipleInteractions:nSample = ".$_POST["22"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

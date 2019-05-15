@@ -113,6 +113,29 @@ for hadrons it holds that <ei>&lt;pT^2&gt; = 2 sigma^2</ei>.
 The comparison is further complicated by the reduction of 
 primordial <ei>kT</ei> values by the overall compensation mechanism. 
 
+<flag name="BeamRemnants:rescatterRestoreY" default="off">
+Is only relevant when <aloc href="MultipleInteractions">rescattering</aloc> 
+is switched on in the multiple interactions scenario. For a normal 
+interaction the rapidity and mass of a system is preserved when
+primordial <ei>kT</ei> is introduced, by appropriate modification of the
+incoming parton momenta. Kinematics construction is more complicated for 
+a rescattering, and two options are offered. Differences between these 
+can be used to explore systematic uncertainties in the rescattering 
+framework.<br/>
+The default behaviour is to keep the incoming rescattered parton as is, 
+but to modify the unrescattered incoming parton so as to preserve the 
+invariant mass of the system. Thereby the rapidity of the rescattering 
+is modified.<br/> 
+The alternative is to retain the rapidity (and mass) of the rescattered 
+system when primordial <ei>kT</ei> is introduced. This is made at the 
+expense of a modified longitudinal momentum of the incoming rescattered 
+parton, so that it does not agree with the momentum it ought to have had 
+by the kinematics of the previous interaction.<br/> 
+For a double rescattering, when both incoming partons have already scattered, 
+there is no obvious way to retain the invariant mass of the system in the
+first approach, so the second is always used. 
+</flag>
+
 <h3>Colour flow</h3>
 
 The colour flows in the separate subprocesses defined in the 

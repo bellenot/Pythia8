@@ -1,0 +1,35 @@
+! File: botinfile
+! Purpose: input for a run to generate b bbar events at LHC.
+! This file contains commands to be read in for a Pythia8 run. 
+! Lines not beginning with a letter or digit are comments.
+! Names are case-insensitive  -  but spellings-sensitive!
+
+! 1) Settings that will be used in a main program.
+Main:numberOfEvents = 100          ! number of events to generate
+Main:numberToList = 5              ! number of events to list
+Main:timesToShow = 10              ! show how far along run is this many times
+Main:showChangedSettings = on      ! print changed flags/modes/parameters
+
+! 2) Beam parameter settings. Values below agree with default ones.
+Beams:idA = 2212                   ! first beam, p = 2212, pbar = -2212
+Beams:idB = 2212                   ! second beam, p = 2212, pbar = -2212
+Beams:eCM = 14000.                 ! CM energy of collision
+
+! 3) Pick processes.
+HardQCD:gg2bbbar = on                  ! g g -> b bbar
+HardQCD:qqbar2bbbar = on               ! q qbar -> b bbar
+PhaseSpace:pTHatMin = 20.        
+
+! 4) Force decay chain B0 -> psi(2s) -> gamma g g.
+511:onMode = off
+511:onIfAny = 100443
+100443:onMode = off
+100443:onIfMatch = 22 21 21
+Main:showChangedParticleData = on  ! list particle data for changed top
+
+! 5) Optionally switch off some parts of the simulation.
+#PartonLevel:FSR = off              ! switch off final-state radiation 
+#PartonLevel:ISR = off              ! switch off initial-state radiation 
+#PartonLevel:MI = off               ! switch off multiple interactions 
+#BeamRemnants:primordialKT = off    ! switch off primordial kT
+#HadronLevel:all = off              ! switch off hadronization

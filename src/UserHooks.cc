@@ -74,11 +74,11 @@ void UserHooks::subEvent(const Event& event, bool isHardest) {
 
   // Find which subsystem to study.
   int iSys = 0;
-  if (!isHardest) iSys = event.sizeSystems() - 1;
+  if (!isHardest) iSys = partonSystemsPtr->sizeSys() - 1;
 
   // Loop through all the final partons of the given subsystem.
-  for (int i = 2; i < event.sizeSystem(iSys); ++i) {
-    int iOld = event.getInSystem( iSys, i);
+  for (int i = 0; i < partonSystemsPtr->sizeOut(iSys); ++i) {
+    int iOld = partonSystemsPtr->getOut( iSys, i);
 
     // Copy partons to work event.
     int iNew = workEvent.append( event[iOld]); 

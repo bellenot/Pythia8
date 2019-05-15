@@ -145,7 +145,8 @@ public:
   virtual void setIdColAcol() {}
 
   // Perform kinematics for a Multiple Interaction, in its rest frame.
-  virtual bool final2KinMI() {return true;}
+  virtual bool final2KinMI( int = 0, int = 0, Vec4 = 0., Vec4 = 0.,
+    double = 0., double = 0.) {return true;}
 
   // Evaluate weight for simultaneous flavours (only gamma*/Z0 gamma*/Z0).
   // Usage: weightDecayFlav( process).
@@ -191,7 +192,11 @@ public:
   virtual int    resonanceB()      const {return 0;}
 
   // 2 -> 2 and 2 -> 3 processes only through s-channel exchange.
-  virtual bool isSChannel()        const {return false;}
+  virtual bool   isSChannel()      const {return false;}
+
+  // Insert an intermediate resonance in 2 -> 1 -> 2 listings.
+  // Not coded yet; proposed by Noam Hod and Mark Sutton.
+  //virtual int    resonanceToList() const {return 0;}
 
   // Special treatment in 2 -> 3 with two massive propagators.
   virtual int    idTchan1()        const {return 0;}
@@ -226,6 +231,7 @@ public:
   double phiMI()            const {return phi;}
   double sHBetaMI()         const {return sHBeta;}
   double pT2MI()            const {return pT2Mass;}
+  double pTMIFin()          const {return pTFin;}
 
 protected:
 
@@ -291,7 +297,7 @@ protected:
   // Store flavour, colour, anticolour, mass, angles and the whole particle.
   int      id1, id2, id3, id4, id5;
   int      idSave[6], colSave[6], acolSave[6];
-  double   mSave[6], cosTheta, sinTheta, phi, sHMass, sHBeta, pT2Mass;
+  double   mSave[6], cosTheta, sinTheta, phi, sHMass, sHBeta, pT2Mass, pTFin;
   Particle parton[6];
 
   // Store whether tHat and uHat are swapped (= same as swap 3 and 4).
@@ -426,7 +432,8 @@ public:
   virtual double sigmaHat() {return 0.;}
 
   // Perform kinematics for a Multiple Interaction, in its rest frame.
-  virtual bool   final2KinMI();
+  virtual bool   final2KinMI( int i1Res = 0, int i2Res = 0, Vec4 p1Res = 0., 
+    Vec4 p2Res = 0., double m1Res = 0., double m2Res = 0.);
 
 protected:
 

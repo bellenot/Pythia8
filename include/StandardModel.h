@@ -39,6 +39,11 @@ public:
   double Lambda4() const { return Lambda4Save; }
   double Lambda5() const { return Lambda5Save; }
 
+protected:
+
+  // Initialization data member; protected to allow inheritance.
+  bool   isInit;
+
 private:
 
   // Constants: could only be changed in the code itself.
@@ -46,7 +51,7 @@ private:
   static const double SAFETYMARGIN1, SAFETYMARGIN2;
 
   // Data members.
-  bool   isInit, lastCallToFull;
+  bool   lastCallToFull;
   int    order;
   double valueRef, valueNow, scale2Now, scale2Min, Lambda3Save, 
          Lambda4Save, Lambda5Save, Lambda3Save2, Lambda4Save2, 

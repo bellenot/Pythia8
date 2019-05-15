@@ -321,6 +321,9 @@ SigmaProcess* SigmaMultiple::sigmaSel() {
 // (A priori possible, but problems for flavour threshold interpretation.)
 const bool   MultipleInteractions::SHIFTFACSCALE = false;
 
+// Pick one parton to represent rescattering cross section to speed up.
+const bool   MultipleInteractions::PREPICKRESCATTER = true;
+
 // Naive upper estimate of cross section too pessimistic, so reduce by this.
 const double MultipleInteractions::SIGMAFUDGE    = 0.7; 
 
@@ -355,66 +358,81 @@ const double MultipleInteractions::KCONVERGE     = 1e-7;
 // Conversion of GeV^{-2} to mb for cross section.
 const double MultipleInteractions::CONVERT2MB    = 0.389380; 
 
+// Stay away from division by zero in Jacobian for tHat -> pT2.
+const double MultipleInteractions::ROOTMIN       = 0.01; 
+
 //*********
 
 // Initialize the generation process for given beams.
 
 bool MultipleInteractions::init( bool doMIinit, Info* infoPtrIn, 
   BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
-  SigmaTotal* sigmaTotPtrIn, ostream& os) {
+  PartonSystems* partonSystemsPtrIn, SigmaTotal* sigmaTotPtrIn, 
+  ostream& os) {
 
   // Store input pointers for future use. Done if no initialization. 
-  infoPtr      = infoPtrIn;
-  beamAPtr     = beamAPtrIn;
-  beamBPtr     = beamBPtrIn;
-  sigmaTotPtr  = sigmaTotPtrIn;
+  infoPtr          = infoPtrIn;
+  beamAPtr         = beamAPtrIn;
+  beamBPtr         = beamBPtrIn;
+  partonSystemsPtr = partonSystemsPtrIn;
+  sigmaTotPtr      = sigmaTotPtrIn;
   if (!doMIinit) return false;
 
   // Matching in pT of hard interaction to further interactions.
-  pTmaxMatch   = Settings::mode("MultipleInteractions:pTmaxMatch"); 
+  pTmaxMatch     = Settings::mode("MultipleInteractions:pTmaxMatch"); 
 
   //  Parameters of alphaStrong generation.
-  alphaSvalue  = Settings::parm("MultipleInteractions:alphaSvalue");
-  alphaSorder  = Settings::mode("MultipleInteractions:alphaSorder");
+  alphaSvalue    = Settings::parm("MultipleInteractions:alphaSvalue");
+  alphaSorder    = Settings::mode("MultipleInteractions:alphaSorder");
 
   // Parameters of alphaEM generation.
-  alphaEMorder = Settings::mode("MultipleInteractions:alphaEMorder");
+  alphaEMorder   = Settings::mode("MultipleInteractions:alphaEMorder");
 
   //  Parameters of cross section generation.
-  Kfactor      = Settings::parm("MultipleInteractions:Kfactor");
+  Kfactor        = Settings::parm("MultipleInteractions:Kfactor");
 
   // Regularization of QCD evolution for pT -> 0. 
-  pT0Ref       = Settings::parm("MultipleInteractions:pT0Ref");
-  ecmRef       = Settings::parm("MultipleInteractions:ecmRef");
-  ecmPow       = Settings::parm("MultipleInteractions:ecmPow");
-  pTmin        = Settings::parm("MultipleInteractions:pTmin");
+  pT0Ref         = Settings::parm("MultipleInteractions:pT0Ref");
+  ecmRef         = Settings::parm("MultipleInteractions:ecmRef");
+  ecmPow         = Settings::parm("MultipleInteractions:ecmPow");
+  pTmin          = Settings::parm("MultipleInteractions:pTmin");
 
   // Impact parameter profile.
-  bProfile     = Settings::mode("MultipleInteractions:bProfile");
-  coreRadius   = Settings::parm("MultipleInteractions:coreRadius");
-  coreFraction = Settings::parm("MultipleInteractions:coreFraction");
-  expPow       = Settings::parm("MultipleInteractions:expPow");
-  expPow       = max(EXPPOWMIN, expPow);
+  bProfile       = Settings::mode("MultipleInteractions:bProfile");
+  coreRadius     = Settings::parm("MultipleInteractions:coreRadius");
+  coreFraction   = Settings::parm("MultipleInteractions:coreFraction");
+  expPow         = Settings::parm("MultipleInteractions:expPow");
+  expPow         = max(EXPPOWMIN, expPow);
 
   // Process sets to include in machinery.
-  processLevel = Settings::mode("MultipleInteractions:processLevel");
+  processLevel   = Settings::mode("MultipleInteractions:processLevel");
+
+  // Parameters of rescattering description.
+  allowRescatter = Settings::flag("MultipleInteractions:allowRescatter");
+  allowDoubleRes = Settings::flag("MultipleInteractions:allowDoubleRescatter");
+  rescatterMode  = Settings::mode("MultipleInteractions:rescatterMode");
+  ySepResc       = Settings::parm("MultipleInteractions:ySepRescatter");
+  deltaYResc     = Settings::parm("MultipleInteractions:deltaYRescatter");
 
   // Various other parameters. 
-  nQuarkIn     = Settings::mode("MultipleInteractions:nQuarkIn");
-  nSample      = Settings::mode("MultipleInteractions:nSample");
+  nQuarkIn       = Settings::mode("MultipleInteractions:nQuarkIn");
+  nSample        = Settings::mode("MultipleInteractions:nSample");
+
+  // Optional dampening at small pT's when large multiplicities.
+  enhanceScreening = Settings::mode("MultipleInteractions:enhanceScreening");
 
   // Some common combinations for double Gaussian, as shorthand.
   if (bProfile == 2) {
-    fracA      = pow2(1. - coreFraction);
-    fracB      = 2. * coreFraction * (1. - coreFraction);
-    fracC      = pow2(coreFraction); 
-    radius2B   = 0.5 * (1. + pow2(coreRadius));
-    radius2C   = pow2(coreRadius);
+    fracA        = pow2(1. - coreFraction);
+    fracB        = 2. * coreFraction * (1. - coreFraction);
+    fracC        = pow2(coreFraction); 
+    radius2B     = 0.5 * (1. + pow2(coreRadius));
+    radius2C     = pow2(coreRadius);
 
   // Some common combinations for exp(b^pow), as shorthand.
   } else if (bProfile == 3) {
-    hasLowPow  = (expPow < 2.);
-    expRev     = 2. / expPow - 1.;
+    hasLowPow    = (expPow < 2.);
+    expRev       = 2. / expPow - 1.;
   } 
 
   // Initialize alpha_strong generation.
@@ -535,7 +553,7 @@ void MultipleInteractions::pTfirst() {
         WTacc = 0.;
 
       // Else pick complete kinematics and evaluate cross-section correction.
-      } else WTacc = sigmaPT2(true) / dSigmaApprox;
+      } else WTacc = sigmaPT2scatter(true) / dSigmaApprox;
     
     // Loop until acceptable pT and acceptable kinematics.
     } while (WTacc < Rndm::flat() || !dSigmaDtSel->final2KinMI()); 
@@ -549,7 +567,7 @@ void MultipleInteractions::pTfirst() {
       dSigmaApprox = pT4dSigmaMax / pow2(pT2 + pT20R);
 
       // Pick complete kinematics and evaluate cross-section correction.
-      WTacc = sigmaPT2(true) / dSigmaApprox;
+      WTacc = sigmaPT2scatter(true) / dSigmaApprox;
 
       // Evaluate and include Sudakov factor.
       WTacc *= sudakov( pT2, enhanceB);
@@ -574,7 +592,6 @@ void MultipleInteractions::setupFirstSys( Event& process) {
 
   // Loop over four partons and offset info relative to subprocess itself.
   int colOffset = process.lastColTag();
-  double pTMI= 0.;
   for (int i = 1; i <= 4; ++i) {
     Particle parton = dSigmaDtSel->getParton(i);
     if (i <= 2 ) parton.mothers( i, 0);  
@@ -588,7 +605,6 @@ void MultipleInteractions::setupFirstSys( Event& process) {
 
     // Put the partons into the event record.
     process.append(parton);
-    if (i == 3) pTMI = parton.pT();
   }
 
   // Set scale from which to begin evolution.
@@ -598,6 +614,7 @@ void MultipleInteractions::setupFirstSys( Event& process) {
   string nameSub = dSigmaDtSel->name();
   int codeSub    = dSigmaDtSel->code();
   int nFinalSub  = dSigmaDtSel->nFinal();
+  double pTMI    = dSigmaDtSel->pTMIFin();
   infoPtr->setSubType( nameSub, codeSub, nFinalSub);
   infoPtr->setTypeMI( codeSub, pTMI);
 
@@ -637,24 +654,86 @@ bool MultipleInteractions::limitPTmax( Event& event) {
 
 // Select next pT in downwards evolution.
 
-double MultipleInteractions::pTnext( double pTbegAll, double pTendAll) {
+double MultipleInteractions::pTnext( double pTbegAll, double pTendAll,
+  Event& event) {
 
-  // Pick a pT using a quick-and-dirty cross section estimate.
-  double WTacc;
+  // Initial values.
+  bool   pickRescatter, acceptKin; 
+  double dSigmaScatter, dSigmaRescatter, WTacc;
   double pT2end = pow2( max(pTmin, pTendAll) );
   pT2 = pow2(pTbegAll);
-  do {
-    pT2 = fastPT2(pT2);
-    if (pT2 < pT2end) return 0.;
 
-    // Pick complete kinematics and evaluate cross-section correction.
-    // Note: dSigmaApprox was set in fastPT2 above. 
-    WTacc = sigmaPT2(false) / dSigmaApprox;
-    if (WTacc > 1.) infoPtr->errorMsg("Warning in MultipleInteractions::"
-      "pTnext: weight above unity");
+  // Find the set of already scattered partons on the two sides.
+  if (allowRescatter) findScatteredPartons( event);
+
+  // Pick a pT2 using a quick-and-dirty cross section estimate.
+  do {
+    do {
+      pT2 = fastPT2(pT2);
+      if (pT2 < pT2end) return 0.;
+
+      // Initial values: no rescattering.
+      i1Sel           = 0;
+      i2Sel           = 0;
+      dSigmaSum       = 0.;
+      pickRescatter   = false;
+
+      // Pick complete kinematics and evaluate interaction cross-section.
+      dSigmaScatter   = sigmaPT2scatter(false); 
+
+      // Also cross section from rescattering if allowed.
+      dSigmaRescatter = (allowRescatter) ? sigmaPT2rescatter( event) : 0.;
+
+      // Normalize to dSigmaApprox, which was set in fastPT2 above.
+      WTacc = (dSigmaScatter + dSigmaRescatter) / dSigmaApprox;
+      if (WTacc > 1.) infoPtr->errorMsg("Warning in MultipleInteractions::"
+        "pTnext: weight above unity");
+
+      // Idea suggested by Gosta Gustafson: increased screening in events
+      // with large activity can be simulated by pT0_eff = sqrt(n) * pT0. 
+      if (enhanceScreening > 0) {
+        int nSysNow     = infoPtr->nMI() + 1;
+        if (enhanceScreening == 2) nSysNow += infoPtr->nISR();
+        double WTscreen = pow2( (pT2 + pT20) / (pT2 + nSysNow * pT20) );
+        WTacc          *= WTscreen;
+      } 
  
-    // Decide whether to keep the event.
-  } while (WTacc < Rndm::flat() || !dSigmaDtSel->final2KinMI()); 
+      // Decide whether to keep the event based on weight.
+    } while (WTacc < Rndm::flat());
+
+    // When rescattering possible: new interaction or rescattering?
+    if (allowRescatter) {
+      pickRescatter = (i1Sel > 0 || i2Sel > 0);
+
+      // Restore kinematics for selected scattering/rescattering. 
+      id1      = id1Sel;
+      id2      = id2Sel;
+      x1       = x1Sel;
+      x2       = x2Sel;
+      sHat     = sHatSel;
+      tHat     = tHatSel;
+      uHat     = uHatSel;
+      sigma2Sel->sigma( id1, id2, x1, x2, sHat, tHat, uHat, alpS, alpEM);
+    }
+
+    // Pick one of the possible channels summed above. 
+    dSigmaDtSel = sigma2Sel->sigmaSel();
+    if (sigma2Sel->swapTU()) swap( tHat, uHat);
+
+    // Decide to keep event based on kinematics (normally always OK).
+    // Rescattering: need to provide incoming four-vectors and masses. 
+    if (pickRescatter) {
+      Vec4 p1Res = (i1Sel == 0) ? 0.5 * eCM * x1Sel * Vec4( 0., 0.,  1., 1.)
+                         	: event[i1Sel].p();
+      Vec4 p2Res = (i2Sel == 0) ? 0.5 * eCM * x2Sel * Vec4( 0., 0., -1., 1.)
+                           	: event[i2Sel].p();
+      double m1Res = (i1Sel == 0) ? 0. :  event[i1Sel].m();
+      double m2Res = (i2Sel == 0) ? 0. :  event[i2Sel].m();
+      acceptKin = dSigmaDtSel->final2KinMI( i1Sel, i2Sel, p1Res, p2Res,
+        m1Res, m2Res);
+    // New interaction: already stored values enough.
+    } else acceptKin = dSigmaDtSel->final2KinMI();
+  } while (!acceptKin); 
 
   // Done.
   return sqrt(pT2);
@@ -671,7 +750,6 @@ void MultipleInteractions::scatter( Event& event) {
   // Loop over four partons and offset info relative to subprocess itself.
   int motherOffset = event.size();
   int colOffset = event.lastColTag();
-  double pTMI= 0.;
   for (int i = 1; i <= 4; ++i) {
     Particle parton = dSigmaDtSel->getParton(i);
     if (i <= 2 ) parton.mothers( i, 0);  
@@ -685,26 +763,114 @@ void MultipleInteractions::scatter( Event& event) {
 
     // Put the partons into the event record.
     event.append(parton);
-    if (i == 3) pTMI = parton.pT();
   }
 
   // Store participating partons as a new set in list of all systems.
-  int iSys = event.newSystem();
-  for (int i = 0; i < 4; ++i) event.addToSystem(iSys, motherOffset + i); 
+  int iSys = partonSystemsPtr->addSys();
+  partonSystemsPtr->setInA(iSys, motherOffset);
+  partonSystemsPtr->setInB(iSys, motherOffset + 1);
+  partonSystemsPtr->addOut(iSys, motherOffset + 2);
+  partonSystemsPtr->addOut(iSys, motherOffset + 3);
+  partonSystemsPtr->setSHat(iSys, sHat);
 
-  // Add scattered partons to list in beam remnants.
-  int iA = beamAPtr->append( motherOffset, id1, x1);
-  int iB = beamBPtr->append( motherOffset + 1, id2, x2);
+  // Tag double rescattering graphs that annihilate one initial colour.
+  bool annihil1 = false;
+  bool annihil2 = false;
+  if (i1Sel > 0 && i2Sel > 0) {
+    if (event[motherOffset].col() == event[motherOffset + 1].acol()
+      && event[motherOffset].col() > 0) annihil1 = true;
+    if (event[motherOffset].acol() == event[motherOffset + 1].col()
+      && event[motherOffset].acol() > 0) annihil2 = true;
+  }
+
+  // Beam remnant A: add scattered partons to list.
+  BeamParticle& beamA = *beamAPtr;
+  int iA = beamA.append( motherOffset, id1, x1);
 
   // Find whether incoming partons are valence or sea, so prepared for ISR.
-  beamAPtr->xfISR( iA, id1, x1, pT2);
-  beamAPtr->pickValSeaComp(); 
-  beamBPtr->xfISR( iB, id2, x2, pT2);
-  beamBPtr->pickValSeaComp(); 
+  if (i1Sel == 0) {
+    beamA.xfISR( iA, id1, x1, pT2);
+    beamA.pickValSeaComp(); 
 
-  // Store info on subprocess code.
-  int codeMI = dSigmaDtSel->code();
-  infoPtr->setTypeMI( codeMI, pTMI);
+  // Remove rescattered parton from final state and change history.
+  // Propagate existing colour labels throught graph. 
+  } else {
+    beamA[iA].companion(-10);
+    event[i1Sel].statusNeg();
+    event[i1Sel].daughters( motherOffset, motherOffset);
+    event[motherOffset].mothers( i1Sel, i1Sel);
+    int colOld = event[i1Sel].col();
+    if (colOld > 0) {
+      int colNew = event[motherOffset].col();
+      for (int i = motherOffset; i < motherOffset + 4; ++i) {
+        if (event[i].col() == colNew) event[i].col( colOld); 
+        if (event[i].acol() == colNew) event[i].acol( colOld); 
+      }
+    }
+    int acolOld = event[i1Sel].acol();
+    if (acolOld > 0) {
+      int acolNew = event[motherOffset].acol();
+      for (int i = motherOffset; i < motherOffset + 4; ++i) {
+        if (event[i].col() == acolNew) event[i].col( acolOld); 
+        if (event[i].acol() == acolNew) event[i].acol( acolOld); 
+      }
+    }
+  }
+
+  // Beam remnant B: add scattered partons to list.
+  BeamParticle& beamB = *beamBPtr;
+  int iB = beamB.append( motherOffset + 1, id2, x2);
+
+  // Find whether incoming partons are valence or sea, so prepared for ISR.
+  if (i2Sel == 0) {
+    beamB.xfISR( iB, id2, x2, pT2);
+    beamB.pickValSeaComp(); 
+
+  // Remove rescattered parton from final state and change history.
+  // Propagate existing colour labels throught graph. 
+  } else {
+    beamB[iB].companion(-10);
+    event[i2Sel].statusNeg();
+    event[i2Sel].daughters( motherOffset + 1, motherOffset + 1);
+    event[motherOffset + 1].mothers( i2Sel, i2Sel);
+    int colOld = event[i2Sel].col();
+    if (colOld > 0) {
+      int colNew = event[motherOffset + 1].col();
+      for (int i = motherOffset; i < motherOffset + 4; ++i) {
+        if (event[i].col() == colNew) event[i].col( colOld); 
+        if (event[i].acol() == colNew) event[i].acol( colOld); 
+      }
+    }
+    int acolOld = event[i2Sel].acol();
+    if (acolOld > 0) {
+      int acolNew = event[motherOffset + 1].acol();
+      for (int i = motherOffset; i < motherOffset + 4; ++i) {
+        if (event[i].col() == acolNew) event[i].col( acolOld); 
+        if (event[i].acol() == acolNew) event[i].acol( acolOld); 
+      }
+    }
+  }
+
+  // Annihilating colour in double rescattering requires relabelling
+  // of one colour into the other in the whole preceding event.
+  if (annihil1 || annihil2) {
+    int colLeft = (annihil1) ? event[motherOffset].col() 
+                : event[motherOffset].acol();
+    int mother1 = event[motherOffset].mother1();
+    int mother2 = event[motherOffset + 1].mother1();
+    int colLost = (annihil1) 
+                ? event[mother1].col() + event[mother2].acol() - colLeft
+                : event[mother1].acol() + event[mother2].col() - colLeft;
+    for (int i = 0; i < motherOffset; ++i) { 
+      if (event[i].col()  == colLost) event[i].col(  colLeft );
+      if (event[i].acol() == colLost) event[i].acol( colLeft );
+    }
+  }
+
+  // Store info on subprocess code and rescattered partons.
+  int    codeMI = dSigmaDtSel->code();
+  double pTMI   = dSigmaDtSel->pTMIFin();
+  infoPtr->setTypeMI( codeMI, pTMI, i1Sel, i2Sel);
 
   // Done.
 } 
@@ -782,7 +948,7 @@ void MultipleInteractions::jetCrossSection() {
       pT2 = pT20min0maxR / (pT20minR + mappedPT2 * pT2maxmin) - pT20R;
 
       // Evaluate cross section dSigma/dpT2 in phase space point.
-      double dSigma = sigmaPT2(true);
+      double dSigma = sigmaPT2scatter(true);
 
      // Multiply by (pT2 + r * pT20)^2 to compensate for pT sampling. Sum.
       dSigma   *= pow2(pT2 + pT20R);
@@ -851,12 +1017,16 @@ double MultipleInteractions::fastPT2( double pT2beg) {
 // Select flavours and kinematics for interaction at given pT.
 // Slightly different treatment for first interaction and subsequent ones.
 
-double MultipleInteractions::sigmaPT2(bool isFirst) {
+double MultipleInteractions::sigmaPT2scatter(bool isFirst) {
  
-  // Derive shifted pT2 and rapidity limits from chosen pT2.
+  // Derive recormalization and factorization scales, amd alpha_strong/em.
   pT2shift = pT2 + pT20;
   pT2Ren   = pT2shift;
   pT2Fac   = (SHIFTFACSCALE) ? pT2shift : pT2;
+  alpS  = alphaS.alphaS(pT2Ren);
+  alpEM = alphaEM.alphaEM(pT2Ren);
+
+  // Derive rapidity limits from chosen pT2.
   xT       = 2. * sqrt(pT2) / eCM;
   if (xT >= 1.) return 0.;
   xT2      = xT*xT;   
@@ -930,46 +1100,411 @@ double MultipleInteractions::sigmaPT2(bool isFirst) {
   // Assign pointers to processes relevant for incoming flavour choice:
   // g + g, q + g, q + qbar (same flavour), q + q(bar) (the rest).  
   // Factor 4./9. per incoming gluon to compensate for preweighting.  
-  SigmaMultiple* dSigma;
+  SigmaMultiple* sigma2Tmp;
   double gluFac = 1.;
   if (id1 == 21 && id2 == 21) { 
-    dSigma = &sigma2gg; 
+    sigma2Tmp = &sigma2gg; 
     gluFac = 16. / 81.;
   } else if (id1 == 21 || id2 == 21) { 
-    dSigma = &sigma2qg; 
+    sigma2Tmp = &sigma2qg; 
     gluFac = 4. / 9.;
-  } else if (id1 == -id2) dSigma = &sigma2qqbarSame;
-  else dSigma = &sigma2qq;
+  } else if (id1 == -id2) sigma2Tmp = &sigma2qqbarSame;
+  else sigma2Tmp = &sigma2qq;
 
   // Prepare to generate differential cross sections.
-  alpS  = alphaS.alphaS(pT2Ren);
-  alpEM = alphaEM.alphaEM(pT2Ren);
-  sHat  = tau * sCM;
+  sHat        = tau * sCM;
   double root = sqrtpos(1. - xT2 / tau);
-  tHat  = -0.5 * sHat * (1. - root);
-  uHat  = -0.5 * sHat * (1. + root);
+  tHat        = -0.5 * sHat * (1. - root);
+  uHat        = -0.5 * sHat * (1. + root);
 
   // Evaluate cross sections, include possibility of K factor.
   // Use kinematics for two symmetrical configurations (tHat <-> uHat).
   // (Not necessary, but makes for better MC efficiency.)
   double dSigmaPartonCorr = Kfactor * gluFac 
-    * dSigma->sigma( id1, id2, x1, x2, sHat, tHat, uHat, alpS, alpEM);
-
-  // Pick one of the possible channels summed above.
-  dSigmaDtSel = dSigma->sigmaSel();
-  if (dSigma->swapTU()) swap( tHat, uHat);
+    * sigma2Tmp->sigma( id1, id2, x1, x2, sHat, tHat, uHat, alpS, alpEM);
 
   // Combine cross section, pdf's and phase space integral.
   double volumePhSp = pow2(2. * yMax) / WTy;
-  double dSigmaCorr = dSigmaPartonCorr * xPDF1sum * xPDF2sum * volumePhSp;
+  double dSigmaScat = dSigmaPartonCorr * xPDF1sum * xPDF2sum * volumePhSp;
 
   // Dampen cross section at small pT values; part of formalism.
-  // Use pT2 corrected for massive kinematics at this step.
-  double pT2massive = dSigmaDtSel->pT2MI();
-  dSigmaCorr *= pow2( pT2massive / (pT2massive + pT20) );
+  // Use pT2 corrected for massive kinematics at this step.??
+  // double pT2massive = dSigmaDtSel->pT2MI();
+  double pT2massive = pT2;
+  dSigmaScat *= pow2( pT2massive / (pT2massive + pT20) );
+
+  // Sum up total contribution for all scatterings and rescatterings.  
+  dSigmaSum  += dSigmaScat;
+
+  // Save values for comparison with rescattering processes.
+  i1Sel       = 0;
+  i2Sel       = 0;
+  id1Sel      = id1;
+  id2Sel      = id2;
+  x1Sel       = x1;
+  x2Sel       = x2;
+  sHatSel     = sHat;
+  tHatSel     = tHat;
+  uHatSel     = uHat;
+  sigma2Sel   = sigma2Tmp;
+
+  // For first interaction: pick one of the possible channels summed above.
+  if (isFirst) {
+    dSigmaDtSel = sigma2Tmp->sigmaSel();
+    if (sigma2Tmp->swapTU()) swap( tHat, uHat);
+  }
 
   // Done.
-  return dSigmaCorr;
+  return dSigmaScat;
+}
+
+//*********
+
+// Find the partons that are allowed to rescatter.
+
+void MultipleInteractions::findScatteredPartons( Event& event) {
+
+  // Reset arrays.
+  scatteredA.resize(0);
+  scatteredB.resize(0);
+  double yTmp, probA, probB;
+
+  // Loop though the event record and catch "final" partons.
+  for (int i = 0; i < event.size(); ++i) 
+  if (event[i].isFinal() && (event[i].idAbs() <= nQuarkIn 
+  || event[i].id() == 21)) {  
+    yTmp = event[i].y();
+
+    // Different strategies to determine which partons may rescatter.
+    switch(rescatterMode) {
+
+    // Case 0: step function at origin
+    case 0:
+      if ( yTmp > 0.) scatteredA.push_back( i);
+      if (-yTmp > 0.) scatteredB.push_back( i);
+      break;
+
+    // Case 1: step function as ySepResc. 
+    case 1:
+      if ( yTmp > ySepResc) scatteredA.push_back( i);
+      if (-yTmp > ySepResc) scatteredB.push_back( i);
+      break;
+
+    // Case 2: linear rise from ySep - deltaY to ySep + deltaY. 
+    case 2:
+      probA = 0.5 * ( yTmp - ySepResc) / deltaYResc;
+      if (probA > Rndm::flat()) scatteredA.push_back( i);
+      probB = 0.5 * (-yTmp - ySepResc) / deltaYResc;
+      if (probB > Rndm::flat()) scatteredB.push_back( i);
+      break;
+
+    // Case 3: rise like (1/2) * ( 1 + tanh((y - ySep) / deltaY) ).
+    // Use that (1/2) (1 + tanh(x)) = 1 / (1 + exp(-2x)).    
+    case 3:
+      probA = 1. / (1. + exp(-2. * ( yTmp - ySepResc) / deltaYResc));
+      if (probA > Rndm::flat()) scatteredA.push_back( i);
+      probB = 1. / (1. + exp(-2. * (-yTmp - ySepResc) / deltaYResc));
+      if (probB > Rndm::flat()) scatteredB.push_back( i);
+      break;
+ 
+    // Case 4 and undefined values: all partons can rescatter.
+    default:
+      scatteredA.push_back( i);
+      scatteredB.push_back( i);
+      break;
+
+    // End of loop over partons. Done.
+    }
+  }
+
+}
+
+//*********
+
+// Rescattering contribution summed over all already scattered partons.
+// Calculate the actual cross section to decide whether fast choice is OK.
+// Select flavours and kinematics for interaction at given pT.
+
+double MultipleInteractions::sigmaPT2rescatter( Event& event) {
+ 
+  // Derive xT scale from chosen pT2.
+  xT       = 2. * sqrt(pT2) / eCM;
+  if (xT >= 1.) return 0.;
+  xT2      = xT*xT;   
+
+  //  Pointer to cross section and total rescatter contribution.
+  SigmaMultiple* sigma2Tmp;
+  double dSigmaResc = 0.;
+
+  // Normally save time by picking one random scattered parton from side A.
+  int nScatA = scatteredA.size();
+  int iScatA = -1;
+  if (PREPICKRESCATTER && nScatA > 0) iScatA = min( nScatA - 1,
+    int( Rndm::flat() * double(nScatA) ) );   
+
+  // Loop over all already scattered partons from side A.
+  for (int iScat = 0; iScat < nScatA; ++iScat) {
+    if (PREPICKRESCATTER && iScat != iScatA) continue;
+    int iA         = scatteredA[iScat];
+    int id1Tmp     = event[iA].id();
+    
+    // Calculate maximum possible sHat and check whether big enough.
+    double x1Tmp   = event[iA].pPlus() / eCM;
+    double sHatMax = x1Tmp * beamBPtr->xMax() * sCM;
+    if (sHatMax < 4. * pT2) continue;
+
+    // Select rapidity separation between two produced partons.
+    double dyMax   = log( sqrt(0.25 * sHatMax / pT2) 
+                   * (1. + sqrtpos(1. - 4. * pT2 / sHatMax)) );
+    double dy      = dyMax * (2. * Rndm::flat() - 1.);
+
+    // Reconstruct kinematical variables, especially x2.
+    // Incoming c/b masses handled better if tau != x1 * x2.
+    double m2Tmp   = event[iA].m2();
+    double sHatTmp = m2Tmp + 4. * pT2 * pow2(cosh(dy));
+    double x2Tmp   = (sHatTmp - m2Tmp) /(x1Tmp * sCM); 
+    double tauTmp  = sHatTmp / sCM;
+    double root    = sqrtpos(1. - xT2 / tauTmp);
+    double tHatTmp = -0.5 * sHatTmp * (1. - root);
+    double uHatTmp = -0.5 * sHatTmp * (1. + root);
+
+    // Begin evaluate parton densities at actual x2.
+    double xPDF2[21];
+    double xPDF2sum = 0.;
+  
+    // Use rescaled densities, with preweighting 9/4 for gluons.
+    for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
+      if (id == 0) xPDF2[10] = (9./4.) * beamBPtr->xfMI(21, x2Tmp, pT2Fac);
+      else xPDF2[id+10] = beamBPtr->xfMI(id, x2Tmp, pT2Fac);
+      xPDF2sum += xPDF2[id+10];
+    }
+
+    // Select incoming flavour according to actual PDF's.
+    int id2Tmp = -nQuarkIn - 1;
+    double temp = xPDF2sum * Rndm::flat();
+    do { xPDF2now = xPDF2[(++id2Tmp) + 10]; temp -= xPDF2now;} 
+    while (temp > 0. && id2Tmp < nQuarkIn);  
+    if (id2Tmp == 0) id2Tmp = 21; 
+
+    // Assign pointers to processes relevant for incoming flavour choice:
+    // g + g, q + g, q + qbar (same flavour), q + q(bar) (the rest).  
+    // Factor 4./9. for incoming gluon 2 to compensate for preweighting.  
+    if      (id1Tmp == 21 && id2Tmp == 21) sigma2Tmp = &sigma2gg; 
+    else if (id1Tmp == 21 || id2Tmp == 21) sigma2Tmp = &sigma2qg; 
+    else if (id1Tmp == -id2Tmp)            sigma2Tmp = &sigma2qqbarSame;
+    else                                   sigma2Tmp = &sigma2qq;
+    double gluFac = (id2Tmp == 21) ? 4. / 9. : 1.;
+
+    // Evaluate cross sections, include possibility of K factor.
+    // Use kinematics for two symmetrical configurations (tHat <-> uHat).
+    // (Not necessary, but makes for better MC efficiency.)
+    double dSigmaPartonCorr = Kfactor * gluFac 
+      * sigma2Tmp->sigma( id1Tmp, id2Tmp, x1Tmp, x2Tmp, sHatTmp, tHatTmp, 
+        uHatTmp, alpS, alpEM);
+
+    // Combine cross section, pdf's and phase space integral.
+    double volumePhSp = 4. *dyMax;
+    double dSigmaCorr = dSigmaPartonCorr * xPDF2sum * volumePhSp;
+
+    // Dampen cross section at small pT values; part of formalism.
+    // Use pT2 corrected for massive kinematics at this step.
+    //?? double pT2massive = dSigmaDtSel->pT2MI();
+    double pT2massive = pT2;
+    dSigmaCorr *= pow2( pT2massive / (pT2massive + pT20) );
+
+    // Compensate for prepicked rescattering if appropriate.
+    if (PREPICKRESCATTER) dSigmaCorr *= nScatA;
+
+    // Sum up total contribution for all scatterings or rescattering only.
+    dSigmaSum  += dSigmaCorr;
+    dSigmaResc += dSigmaCorr;
+
+    // Determine whether current rescattering should be selected.
+    if (dSigmaCorr > Rndm::flat() * dSigmaSum) {
+      i1Sel     = iA;
+      i2Sel     = 0;
+      id1Sel    = id1Tmp;
+      id2Sel    = id2Tmp;
+      x1Sel     = x1Tmp;
+      x2Sel     = x2Tmp;
+      sHatSel   = sHatTmp;
+      tHatSel   = tHatTmp;
+      uHatSel   = uHatTmp;
+      sigma2Sel = sigma2Tmp;
+    }
+  }
+
+  // Normally save time by picking one random scattered parton from side B.
+  int nScatB = scatteredB.size();
+  int iScatB = -1;
+  if (PREPICKRESCATTER && nScatB > 0) iScatB = min( nScatB - 1,
+    int( Rndm::flat() * double(nScatB) ) );   
+
+  // Loop over all already scattered partons from side B.
+  for (int iScat = 0; iScat < nScatB; ++iScat) {
+    if (PREPICKRESCATTER && iScat != iScatB) continue;
+    int iB         = scatteredB[iScat];
+    int id2Tmp     = event[iB].id();
+    
+    // Calculate maximum possible sHat and check whether big enough.
+    double x2Tmp   = event[iB].pMinus() / eCM;
+    double sHatMax = beamAPtr->xMax() * x2Tmp * sCM;
+    if (sHatMax < 4. * pT2) continue;
+
+    // Select rapidity separation between two produced partons.
+    double dyMax   = log( sqrt(0.25 * sHatMax / pT2) 
+                   * (1. + sqrtpos(1. - 4. * pT2 / sHatMax)) );
+    double dy      = dyMax * (2. * Rndm::flat() - 1.);
+
+    // Reconstruct kinematical variables, especially x1.
+    // Incoming c/b masses handled better if tau != x1 * x2.
+    double m2Tmp   = event[iB].m2();
+    double sHatTmp = m2Tmp + 4. * pT2 * pow2(cosh(dy));
+    double x1Tmp   = (sHatTmp - m2Tmp) /(x2Tmp * sCM); 
+    double tauTmp  = sHatTmp / sCM;
+    double root    = sqrtpos(1. - xT2 / tauTmp);
+    double tHatTmp = -0.5 * sHatTmp * (1. - root);
+    double uHatTmp = -0.5 * sHatTmp * (1. + root);
+
+    // Begin evaluate parton densities at actual x1.
+    double xPDF1[21];
+    double xPDF1sum = 0.;
+  
+    // Use rescaled densities, with preweighting 9/4 for gluons.
+    for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
+      if (id == 0) xPDF1[10] = (9./4.) * beamAPtr->xfMI(21, x1Tmp, pT2Fac);
+      else xPDF1[id+10] = beamAPtr->xfMI(id, x1Tmp, pT2Fac);
+      xPDF1sum += xPDF1[id+10];
+    }
+
+    // Select incoming flavour according to actual PDF's.
+    int id1Tmp = -nQuarkIn - 1;
+    double temp = xPDF1sum * Rndm::flat();
+    do { xPDF1now = xPDF1[(++id1Tmp) + 10]; temp -= xPDF1now;} 
+    while (temp > 0. && id1Tmp < nQuarkIn);  
+    if (id1Tmp == 0) id1Tmp = 21; 
+
+    // Assign pointers to processes relevant for incoming flavour choice:
+    // g + g, q + g, q + qbar (same flavour), q + q(bar) (the rest).  
+    // Factor 4./9. for incoming gluon 2 to compensate for preweighting.  
+    if      (id1Tmp == 21 && id2Tmp == 21) sigma2Tmp = &sigma2gg; 
+    else if (id1Tmp == 21 || id2Tmp == 21) sigma2Tmp = &sigma2qg; 
+    else if (id1Tmp == -id2Tmp)            sigma2Tmp = &sigma2qqbarSame;
+    else                                   sigma2Tmp = &sigma2qq;
+    double gluFac = (id1Tmp == 21) ? 4. / 9. : 1.;
+
+    // Evaluate cross sections, include possibility of K factor.
+    // Use kinematics for two symmetrical configurations (tHat <-> uHat).
+    // (Not necessary, but makes for better MC efficiency.)
+    double dSigmaPartonCorr = Kfactor * gluFac 
+      * sigma2Tmp->sigma( id1Tmp, id2Tmp, x1Tmp, x2Tmp, sHatTmp, tHatTmp, 
+        uHatTmp, alpS, alpEM);
+
+    // Combine cross section, pdf's and phase space integral.
+    double volumePhSp = 4. *dyMax;
+    double dSigmaCorr = dSigmaPartonCorr * xPDF1sum * volumePhSp;
+
+    // Dampen cross section at small pT values; part of formalism.
+    // Use pT2 corrected for massive kinematics at this step.
+    //?? double pT2massive = dSigmaDtSel->pT2MI();
+    double pT2massive = pT2;
+    dSigmaCorr *= pow2( pT2massive / (pT2massive + pT20) );
+
+    // Compensate for prepicked rescattering if appropriate.
+    if (PREPICKRESCATTER) dSigmaCorr *= nScatB;
+
+    // Sum up total contribution for all scatterings or rescattering only.
+    dSigmaSum  += dSigmaCorr;
+    dSigmaResc += dSigmaCorr;
+
+    // Determine whether current rescattering should be selected.
+    if (dSigmaCorr > Rndm::flat() * dSigmaSum) {
+      i1Sel     = 0;
+      i2Sel     = iB;
+      id1Sel    = id1Tmp;
+      id2Sel    = id2Tmp;
+      x1Sel     = x1Tmp;
+      x2Sel     = x2Tmp;
+      sHatSel   = sHatTmp;
+      tHatSel   = tHatTmp;
+      uHatSel   = uHatTmp;
+      sigma2Sel = sigma2Tmp;
+    }
+  }
+
+  // Double rescatter: loop over already scattered partons from both sides.
+  // As before, allow to use only one parton per side to speed up.
+  if (allowDoubleRes) {
+    for (int iScat1 = 0; iScat1 < nScatA; ++iScat1) {
+      if (PREPICKRESCATTER && iScat1 != iScatA) continue;
+      int iA           = scatteredA[iScat1];
+      int id1Tmp       = event[iA].id();
+      for (int iScat2 = 0; iScat2 < nScatB; ++iScat2) {
+        if (PREPICKRESCATTER && iScat2 != iScatB) continue;
+        int iB         = scatteredB[iScat2];
+        int id2Tmp     = event[iB].id();
+    
+        // Calculate current sHat and check whether big enough.
+        double sHatTmp = (event[iA].p() + event[iB].p()).m2Calc();
+        if (sHatTmp < 4. * pT2) continue;
+
+        // Reconstruct other kinematical variables. (x values not needed.)
+        double x1Tmp   = event[iA].pPlus() / eCM;
+        double x2Tmp   = event[iB].pMinus() / eCM;
+        double tauTmp  = sHatTmp / sCM;
+        double root    = sqrtpos(1. - xT2 / tauTmp);
+        double tHatTmp = -0.5 * sHatTmp * (1. - root);
+        double uHatTmp = -0.5 * sHatTmp * (1. + root);
+
+        // Assign pointers to processes relevant for incoming flavour choice:
+        // g + g, q + g, q + qbar (same flavour), q + q(bar) (the rest).  
+        if      (id1Tmp == 21 && id2Tmp == 21) sigma2Tmp = &sigma2gg; 
+        else if (id1Tmp == 21 || id2Tmp == 21) sigma2Tmp = &sigma2qg; 
+        else if (id1Tmp == -id2Tmp)            sigma2Tmp = &sigma2qqbarSame;
+        else                                   sigma2Tmp = &sigma2qq;
+
+        // Evaluate cross sections, include possibility of K factor.
+        // Use kinematics for two symmetrical configurations (tHat <-> uHat).
+        // (Not necessary, but makes for better MC efficiency.)
+        double dSigmaPartonCorr = Kfactor  
+          * sigma2Tmp->sigma( id1Tmp, id2Tmp, x1Tmp, x2Tmp, sHatTmp, tHatTmp, 
+            uHatTmp, alpS, alpEM);
+
+        // Combine cross section and Jacobian tHat -> pT2 (with safety minvalue).
+        double dSigmaCorr = dSigmaPartonCorr / max(ROOTMIN, root);
+  
+        // Dampen cross section at small pT values; part of formalism.
+        // Use pT2 corrected for massive kinematics at this step.
+        //?? double pT2massive = dSigmaDtSel->pT2MI();
+        double pT2massive = pT2;
+        dSigmaCorr *= pow2( pT2massive / (pT2massive + pT20) );
+
+        // Compensate for prepicked rescattering if appropriate.
+        if (PREPICKRESCATTER) dSigmaCorr *= nScatA * nScatB;
+
+        // Sum up total contribution for all scatterings or rescattering only.
+        dSigmaSum  += dSigmaCorr;
+        dSigmaResc += dSigmaCorr;
+
+        // Determine whether current rescattering should be selected.
+        if (dSigmaCorr > Rndm::flat() * dSigmaSum) {
+          i1Sel     = iA;
+          i2Sel     = iB;
+          id1Sel    = id1Tmp;
+          id2Sel    = id2Tmp;
+          x1Sel     = x1Tmp;
+          x2Sel     = x2Tmp;
+          sHatSel   = sHatTmp;
+          tHatSel   = tHatTmp;
+          uHatSel   = uHatTmp;
+          sigma2Sel = sigma2Tmp;
+	}
+      }
+    }
+  }
+
+  // Done.
+  return dSigmaResc;
 }
 
 

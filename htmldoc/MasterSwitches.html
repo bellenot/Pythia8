@@ -125,6 +125,15 @@ In the latter case <b>no</b> operations at all are carried out on the
 parton level, and therefore it is also not possible to go on to the 
 hadron level.
 
+<p/><code>flag&nbsp; </code><strong> PartonLevel:Remnants &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+Master switch for addition of beam remnants; on/off = true/false.  
+Only intended for very special applications, and cannot be used to 
+generate complete events. Specifically, unlike the other switches above,
+the program will complain and possibly crash unlike you also set 
+<code>HadronLevel:all = off</code> and <code>Check:event = off</code>.
+  
+
 <p/>
 It is possible to stop the generation immediately after the parton level 
 has been set up, see <code>HadronLevel:all</code> below.

@@ -158,6 +158,16 @@ In the latter case <b>no</b> operations at all are carried out on the
 parton level, and therefore it is also not possible to go on to the 
 hadron level.
 
+<br/><br/><strong>PartonLevel:Remnants</strong>  <input type="radio" name="9" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="9" value="off"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
+Master switch for addition of beam remnants; on/off = true/false.  
+Only intended for very special applications, and cannot be used to 
+generate complete events. Specifically, unlike the other switches above,
+the program will complain and possibly crash unlike you also set 
+<code>HadronLevel:all = off</code> and <code>Check:event = off</code>.
+  
+
 <p/>
 It is possible to stop the generation immediately after the parton level 
 has been set up, see <code>HadronLevel:all</code> below.
@@ -178,8 +188,8 @@ the string between the two, so that the topology can be reduced back
 to two separate one-junction systems, while still preserving the
 expected particle flow in the junction-junction string region(s).
 
-<br/><br/><strong>HadronLevel:all</strong>  <input type="radio" name="9" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="9" value="off"><strong>Off</strong>
+<br/><br/><strong>HadronLevel:all</strong>  <input type="radio" name="10" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="10" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 If off then stop the generation after the hard process and 
 parton-level activity has been generated, but before the 
@@ -190,24 +200,24 @@ hadron-level steps.
 For <code>HadronLevel:all = on</code> some parts of the event generation 
 on this level may be switched off individually: 
 
-<br/><br/><strong>HadronLevel:Hadronize</strong>  <input type="radio" name="10" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="10" value="off"><strong>Off</strong>
+<br/><br/><strong>HadronLevel:Hadronize</strong>  <input type="radio" name="11" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="11" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Master switch for hadronization; on/off = true/false.
 Further options are found <?php $filepath = $_GET["filepath"];
 echo "<a href='Fragmentation.php?filepath=".$filepath."' target='page'>";?>here</a>.
   
 
-<br/><br/><strong>HadronLevel:Decay</strong>  <input type="radio" name="11" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="11" value="off"><strong>Off</strong>
+<br/><br/><strong>HadronLevel:Decay</strong>  <input type="radio" name="12" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="12" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Master switch for decays; on/off = true/false.
 Further options are found <?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>here</a>.
   
 
-<br/><br/><strong>HadronLevel:BoseEinstein</strong>  <input type="radio" name="12" value="on"><strong>On</strong>
-<input type="radio" name="12" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>HadronLevel:BoseEinstein</strong>  <input type="radio" name="13" value="on"><strong>On</strong>
+<input type="radio" name="13" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Master switch for the simulation of Bose-Einstein effects; 
 on/off = true/false. Further options are found 
@@ -274,22 +284,27 @@ fwrite($handle,$data);
 }
 if($_POST["9"] != "on")
 {
-$data = "HadronLevel:all = ".$_POST["9"]."\n";
+$data = "PartonLevel:Remnants = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["10"] != "on")
 {
-$data = "HadronLevel:Hadronize = ".$_POST["10"]."\n";
+$data = "HadronLevel:all = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["11"] != "on")
 {
-$data = "HadronLevel:Decay = ".$_POST["11"]."\n";
+$data = "HadronLevel:Hadronize = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "off")
+if($_POST["12"] != "on")
 {
-$data = "HadronLevel:BoseEinstein = ".$_POST["12"]."\n";
+$data = "HadronLevel:Decay = ".$_POST["12"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["13"] != "off")
+{
+$data = "HadronLevel:BoseEinstein = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

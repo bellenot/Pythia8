@@ -14,6 +14,7 @@
 #include "BeamParticle.h"
 #include "Event.h"
 #include "Info.h"
+#include "PartonSystems.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
 #include "SigmaTotal.h"
@@ -90,8 +91,8 @@ public:
 
   // Initialize the generation process for given beams.
   bool init( bool doMIinit, Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn, SigmaTotal* sigmaTotPtrIn, 
-    ostream& os = cout);
+    BeamParticle* beamBPtrIn, PartonSystems* partonSystemsPtrIn,
+    SigmaTotal* sigmaTotPtrIn, ostream& os = cout);
 
   // Reset impact parameter choice and update the CM energy.
   void clear() {bIsSet = false; bSetInFirst = false;
@@ -111,7 +112,7 @@ public:
     if (!bSetInFirst) overlapNext(pTscale);}
 
   // Select next pT in downwards evolution.
-  double pTnext( double pTbegAll, double pTendAll);
+  double pTnext( double pTbegAll, double pTendAll, Event& event);
 
   // Set up kinematics of acceptable interaction.
   void scatter( Event& event); 
@@ -136,17 +137,18 @@ public:
 private: 
 
   // Constants: could only be changed in the code itself.
-  static const bool   SHIFTFACSCALE;
+  static const bool   SHIFTFACSCALE, PREPICKRESCATTER;
   static const int    NBINS;
   static const double SIGMAFUDGE, RPT20, PT0STEP, SIGMASTEP, EXPPOWMIN,
                       PROBATLOWB, BSTEP, BMAX, EXPMAX, KCONVERGE, 
-                      CONVERT2MB;
+                      CONVERT2MB, ROOTMIN;
 
   // Initialization data, read from Settings.
-  int    pTmaxMatch, alphaSorder, alphaEMorder, bProfile, 
-         processLevel, nQuarkIn, nSample;
-  double alphaSvalue, Kfactor, pT0Ref, ecmRef, ecmPow, 
-         pTmin, coreRadius, coreFraction, expPow;
+  bool   allowRescatter, allowDoubleRes;
+  int    pTmaxMatch, alphaSorder, alphaEMorder, bProfile, processLevel, 
+         rescatterMode, nQuarkIn, nSample, enhanceScreening;
+  double alphaSvalue, Kfactor, pT0Ref, ecmRef, ecmPow, pTmin, coreRadius, 
+         coreFraction, expPow, ySepResc, deltaYResc;
 
   // Other initialization data.
   bool   hasLowPow;
@@ -159,10 +161,11 @@ private:
   vector<double> sudExpPT;
 
   // Properties specific to current system.
-  int    id1, id2;
-  double bNow, enhanceB, pT2, pT2shift, pT2Ren, pT2Fac, x1, x2, xT, xT2, 
-         tau, y, sHat, tHat, uHat, alpS, alpEM, xPDF1now, xPDF2now;
   bool   bIsSet, bSetInFirst, isAtLowB;
+  int    id1, id2, i1Sel, i2Sel, id1Sel, id2Sel;
+  double bNow, enhanceB, pT2, pT2shift, pT2Ren, pT2Fac, x1, x2, xT, xT2, 
+         tau, y, sHat, tHat, uHat, alpS, alpEM, xPDF1now, xPDF2now,
+         dSigmaSum, x1Sel, x2Sel, sHatSel, tHatSel, uHatSel;
 
   // Pointer to various information on the generation.
   Info*  infoPtr;
@@ -171,12 +174,16 @@ private:
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
 
+  // Pointer to information on subcollision parton locations.
+  PartonSystems* partonSystemsPtr;
+
   // Pointer to total cross section parametrization.
   SigmaTotal* sigmaTotPtr;
 
   // Collections of parton-level 2 -> 2 cross sections. Selected one.
-  SigmaMultiple sigma2gg, sigma2qg, sigma2qqbarSame, sigma2qq;
-  SigmaProcess* dSigmaDtSel;
+  SigmaMultiple  sigma2gg, sigma2qg, sigma2qqbarSame, sigma2qq;
+  SigmaMultiple* sigma2Sel;
+  SigmaProcess*  dSigmaDtSel;
 
   // Statistics on generated 2 -> 2 processes.
   map<int, int> nGen;
@@ -184,6 +191,9 @@ private:
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;
   AlphaEM alphaEM;
+
+  // Scattered partons.
+  vector<int> scatteredA, scatteredB;
 
   // Determine constant in d(Prob)/d(pT2) < const / (pT2 + r * pT20)^2.  
   void upperEnvelope();
@@ -199,7 +209,13 @@ private:
 
   // Calculate the actual cross section, either for the first interaction
   // (including at initialization) or for any subsequent in the sequence. 
-  double sigmaPT2(bool isFirst = false);
+  double sigmaPT2scatter(bool isFirst = false);
+
+  // Find the partons that may rescatter.
+  void findScatteredPartons( Event& event); 
+
+  // Calculate the actual cross section for a rescattering. 
+  double sigmaPT2rescatter( Event& event);
 
   // Calculate factor relating matter overlap and interaction rate.
   void overlapInit();

@@ -185,7 +185,7 @@ Code 914.
  
 <flag name="HiggsSM:qg2Hq(l:t)" default="off">
 Scattering <ei>q g -> H^0 q</ei> via loop contributions primarily 
-from top. Not to be confused with the <code>HiggsSM:bg2Hb</code>
+from top. Not to be confused with the <code>HiggsSM:qg2Hq</code>
 process above, with its direct fermion-to-Higgs coupling.
 Code 915.
 </flag>
@@ -538,7 +538,7 @@ Code 1014.
  
 <flag name="HiggsBSM:qg2H1q(l:t)" default="off">
 Scattering <ei>q g -> h^0 q</ei> via loop contributions primarily 
-from top. Not to be confused with the <code>HiggsBSM:bg2H1b</code>
+from top. Not to be confused with the <code>HiggsBSM:qg2H1q</code>
 process above, with its direct fermion-to-Higgs coupling.
 Code 1015.
 </flag>
@@ -596,7 +596,7 @@ Code 1034.
  
 <flag name="HiggsBSM:qg2H2q(l:t)" default="off">
 Scattering <ei>q g -> H^0 q</ei> via loop contributions primarily 
-from top. Not to be confused with the <code>HiggsBSM:bg2H1b</code>
+from top. Not to be confused with the <code>HiggsBSM:qg2H1q</code>
 process above, with its direct fermion-to-Higgs coupling.
 Code 1035.
 </flag>
@@ -654,7 +654,7 @@ Code 1054.
  
 <flag name="HiggsBSM:qg2A3q(l:t)" default="off">
 Scattering <ei>q g -> A^0 q</ei> via loop contributions primarily 
-from top. Not to be confused with the <code>HiggsBSM:bg2H1b</code>
+from top. Not to be confused with the <code>HiggsBSM:qg2H1q</code>
 process above, with its direct fermion-to-Higgs coupling.
 Code 1055.
 </flag>

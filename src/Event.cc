@@ -139,14 +139,6 @@ Event& Event::operator=( const Event& oldEvent) {
     for (int i = 0; i < oldEvent.sizeJunction(); ++i) 
       appendJunction( oldEvent.getJunction(i) );  
 
-    // Copy values in the system arrays.
-    for (int i = 0; i < int(oldEvent.beginSys.size()); ++i) 
-      beginSys.push_back( oldEvent.beginSys[i] );
-    for (int i = 0; i < int(oldEvent.sizeSys.size()); ++i) 
-      sizeSys.push_back( oldEvent.sizeSys[i] );
-    for (int i = 0; i < int(oldEvent.memberSys.size()); ++i) 
-      memberSys.push_back( oldEvent.memberSys[i] );
-
     // Copy all other values.
     startColTag         = oldEvent.startColTag;
     maxColTag           = oldEvent.maxColTag;
@@ -627,61 +619,6 @@ void Event::listJunctions(ostream& os) const {
 
 //*********
 
-// Add parton to system, by shifting everything below to make room.
- 
-void Event::addToSystem(int iSys, int iPos) {
-
-  int newPos = beginSys[iSys] + sizeSys[iSys];
-  memberSys.push_back(0);
-  for (int i = int(memberSys.size()) - 2; i >= newPos; --i)
-    memberSys[i+1] = memberSys[i];
-  memberSys[newPos] = iPos;
-  ++sizeSys[iSys];
-  for (int i = iSys + 1; i < int(beginSys.size()); ++i) ++beginSys[i];
-
-}
-
-//*********
-
-// Replace existing value by new one in given system but unknown member.
- 
-void Event::replaceInSystem(int iSys, int iPosOld, int iPosNew) {
-
-  for (int i = beginSys[iSys]; i < beginSys[iSys] + sizeSys[iSys]; ++i) 
-  if (memberSys[i] == iPosOld) memberSys[i] = iPosNew;
-
-}
-
-//*********
-
-// Print members in systems; for debug mainly.
-
-void Event::listSystems(ostream& os) const {
-
-
-  // Header.
-  os << "\n --------  PYTHIA Systems Listing  " << headerList 
-     << "------------ \n \n    no   members  \n";
-  
-  // Loop over system list and over members in each system.
-  for (int iSys = 0; iSys < int(beginSys.size()); ++iSys) {
-    os << " " << setw(5) << iSys << " ";
-    for (int iMem = 0; iMem < sizeSys[iSys]; ++iMem) {
-      if (iMem%16 == 0 && iMem > 0) os << "\n       ";
-      os << " " << setw(4) << memberSys[beginSys[iSys] + iMem];
-    }
-    os << "\n";
-  }
-
-  // Alternative if no systems. Done.
-  if (beginSys.size() == 0) os << "    no systems defined \n";
-  os << "\n --------  End PYTHIA Systems Listing  ----------------------"
-     << "--------------------------" << endl;
-
-}
-
-//*********
-
 // Operator overloading allows to append one event to an existing one.
   
 Event& Event::operator+=( const Event& addEvent) {
@@ -728,15 +665,6 @@ Event& Event::operator+=( const Event& addEvent) {
 
     // Append junction to summed event.  
     appendJunction( tempJ );  
-  }
-
-  // Read out systems one by one. Append new system to event.
-  for (int i = 0; i < addEvent.sizeSystems(); ++i) {
-    int iNew = newSystem();
-
-    // Append members in system, with offset.
-    for (int j = 0; j < addEvent.sizeSystem(i); ++j)
-      addToSystem( iNew, addEvent.getInSystem( i, j) + offsetIdx );
   }
 
   // Set header that indicates character as sum of events.

@@ -65,7 +65,7 @@ bool HadronLevel::init(Info* infoPtrIn, TimeShower* timesDecPtr,
   boseEinstein.init(infoPtr); 
 
   // Initialize auxiliary administrative classes.
-  colConfig.init( &flavSel);
+  colConfig.init(infoPtr, &flavSel);
 
   // Initialize auxiliary fragmentation classes.
   flavSel.init();
@@ -270,7 +270,7 @@ bool HadronLevel::findSinglets(Event& event) {
     } else {
       // A junction may be eliminated by insert if two quarks are nearby.
       int nJunOld = event.sizeJunction(); 
-      colConfig.insert(iParton, event);
+      if (!colConfig.insert(iParton, event)) return false;
       if (event.sizeJunction() < nJunOld) --iJun; 
     }
   }
@@ -279,9 +279,9 @@ bool HadronLevel::findSinglets(Event& event) {
   // (Only one system in extreme cases, and then second empty.)
   if (iPartonJun.size() > 0 && iPartonAntiJun.size() > 0) {
     if (!splitJunctionPair(event)) return false;
-    colConfig.insert(iPartonJun, event);
+    if (!colConfig.insert(iPartonJun, event)) return false;
     if (iPartonAntiJun.size() > 0) 
-      colConfig.insert(iPartonAntiJun, event);
+      if (!colConfig.insert(iPartonAntiJun, event)) return false;
   // Error if only one of junction and antijuction left here.
   } else if (iPartonJun.size() > 0 || iPartonAntiJun.size() > 0) {
     infoPtr->errorMsg("Error in HadronLevel::findSinglets: "
@@ -297,7 +297,7 @@ bool HadronLevel::findSinglets(Event& event) {
     if (!traceFromCol(indxCol, event)) return false;
 
     // Store found open string system. Analyze its properties.
-    colConfig.insert(iParton, event);
+    if (!colConfig.insert(iParton, event)) return false;
   }
 
   // Closed strings : begin at any gluon and trace until back at it. 
@@ -311,7 +311,7 @@ bool HadronLevel::findSinglets(Event& event) {
     if (!traceInLoop(indxCol, indxAcol, event)) return false;
 
     // Store found closed string system. Analyze its properties.
-    colConfig.insert(iParton, event);
+    if (!colConfig.insert(iParton, event)) return false;
   }
     
   // Done. 

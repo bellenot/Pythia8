@@ -15,6 +15,7 @@
 #include "Basics.h"
 #include "Event.h"
 #include "FragmentationFlavZpT.h"
+#include "Info.h"
 #include "ParticleData.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
@@ -60,10 +61,10 @@ class ColConfig {
 public:
 
   // Constructor.
-  ColConfig() {}
+  ColConfig() {singlets.resize(0);}
 
   // Initialize and save pointers.
-  void init(StringFlav* flavSelPtrIn);
+  void init(Info* infoPtrIn, StringFlav* flavSelPtrIn);
 
   // Number of colour singlets.
   int size() const {return singlets.size();}
@@ -76,7 +77,7 @@ public:
 
   // Insert a new colour singlet system in ascending mass order. 
   // Calculate its properties. Join nearby partons.
-  void insert( vector<int>& iPartonIn, Event& event); 
+  bool insert( vector<int>& iPartonIn, Event& event); 
 
   // Collect all partons of singlet to be consecutively ordered.
   void collect(int iSub, Event& event); 
@@ -85,6 +86,9 @@ public:
   void list(ostream& os = cout);
 
 private:
+
+  // Pointer to various information on the generation.
+  Info* infoPtr;
 
   // Pointer to class for flavour generation.
   StringFlav* flavSelPtr;

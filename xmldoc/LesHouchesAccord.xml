@@ -407,10 +407,10 @@ specifically the <code>process</code> event record and the
 generic information stored in <code>info</code>. Therefore, if you
 are working with an instance <code>pythia</code> of the 
 <code>Pythia</code> class, you have to instantiate
-<code>LHAupFromPYTHIA8<code> with pointers to the 
+<code>LHAupFromPYTHIA8</code> with pointers to the 
 <code>process</code> and <code>info</code> objects of 
 <code>pythia</code>:
-<br/>LHAupFromPYTHIA8 myLHA(&pythia.process, &pythia.info);
+<br/><code>LHAupFromPYTHIA8 myLHA(&pythia.process, &pythia.info);</code>
 
 <p/>
 The method <code>setInit()</code> should be called to store the

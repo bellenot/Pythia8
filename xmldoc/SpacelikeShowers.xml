@@ -47,10 +47,12 @@ doublecounting, while no such danger exists in the latter case.
 process and the <code>scale</code> value for Les Houches input, 
 i.e. the lower value. This should avoid doublecounting, but
 may leave out some emissions that ought to have been simulated.
+(Also known as wimpy showers.)
 </option>
 <option value="2">always allow emissions up to the kinematical limit.
 This will simulate all possible event topologies, but may lead to
 doublecounting. 
+(Also known as power showers.)
 </option>
 <note>Note 1:</note> These options only apply to the hard interaction.
 Emissions off subsequent multiple interactions are always constrainted

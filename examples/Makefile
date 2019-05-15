@@ -85,6 +85,25 @@ main53: ../$(LIBDIRARCH)/libpythia8.a
 	-L$(PYTHIA6LOCATION) $(PYTHIA6LIBNAME) $(FLIBS)
 	@ln -fs ../$(BINDIR)/$@.exe $@.exe
 
+# Create an executable that links to Fastjet
+ifneq (x$(FASTJETLOCATION),x)
+  main61 main62: ../$(LIBDIRARCH)/libpythia8.a
+	@mkdir -p ../$(BINDIR)
+    # Note: $(CXXFLAGS) is after Fastjet flags as Fastjet includes
+    #       optimisation/debug flags which may be unwanted (e.g. -g -O2)
+	$(CXX) -I../$(INCDIR) -c $@.cc -o $@.o \
+	`$(FASTJETLOCATION)/bin/fastjet-config --cxxflags --plugins` \
+    $(CXXFLAGS)
+	$(CXX) $(CXXFLAGS) -I../$(INCDIR) $@.cc -o ../$(BINDIR)/$@.exe \
+	-L../$(LIBDIRARCH) -lpythia8 -llhapdfdummy \
+	`$(FASTJETLOCATION)/bin/fastjet-config --libs --plugins`
+	@ln -fs ../$(BINDIR)/$@.exe $@.exe
+	@rm -f $@.o
+else
+  main61 main62:
+	@echo ERROR, this target needs Fastjet, variable FASTJETLOCATION
+endif
+
 # Clean up: remove executables and outdated files.
 .PHONY: clean
 clean:

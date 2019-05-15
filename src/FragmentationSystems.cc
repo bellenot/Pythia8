@@ -18,9 +18,10 @@ namespace Pythia8 {
 
 // Initialize and save pointers.
 
-void ColConfig::init(StringFlav* flavSelPtrIn) {
+void ColConfig::init(Info* infoPtrIn, StringFlav* flavSelPtrIn) {
 
-  // Save pointer.
+  // Save pointers.
+  infoPtr       = infoPtrIn;
   flavSelPtr    = flavSelPtrIn;
 
   // Joining of nearby partons along the string.
@@ -40,7 +41,7 @@ void ColConfig::init(StringFlav* flavSelPtrIn) {
 // Insert a new colour singlet system in ascending mass order. 
 // Calculate its properties. Join nearby partons.
 
-void ColConfig::insert( vector<int>& iPartonIn, Event& event) {
+bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
 
   // Find momentum and invariant mass of system, minus endpoint masses.
   Vec4 pSumIn;
@@ -57,6 +58,14 @@ void ColConfig::insert( vector<int>& iPartonIn, Event& event) {
   } 
   double massIn = pSumIn.mCalc(); 
   double massExcessIn = massIn - mSumIn;
+
+  // Debug: not-a-numbers to be solved eventually??
+  if (abs(massExcessIn) >= 0.);
+  else {
+    infoPtr->errorMsg("Error in ColConfig::insert: "
+      "not-a-number system mass");
+    return false; 
+  }   
 
   // Identify closed gluon loop. Assign "endpoint" masses as light quarks.
   bool isClosedIn = (iPartonIn[0] >= 0 && event[ iPartonIn[0] ].isGluon());
@@ -143,6 +152,8 @@ void ColConfig::insert( vector<int>& iPartonIn, Event& event) {
     ColSinglet(iPartonIn, pSumIn, massIn, massExcessIn, 
     hasJunctionIn, isClosedIn);
 
+  // Done.
+  return true;
 }
 
 //*********

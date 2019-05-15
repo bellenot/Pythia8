@@ -296,16 +296,14 @@ A listing of current junctions can be obtained with the
  
 <h3>Subsystems</h3>
 
-The event record also contains a few vectors where parton indices can be 
-stored, classified by subsystem. Such information is needed to interleave
-multiple interactions, initial-state showers, final-state showers 
-and beam remnants. It could also be used in other places. It is intended
-to be accessed only by experts, such as implementors of 
+Separate from the event record as such, but closely tied to it is the 
+<aloc href="AdvancedUsage"><code>PartonSystems</code></aloc> class, 
+which mainly stores the parton indices of incoming and outgoing partons, 
+classified by collision subsystem. Such information is needed to 
+interleave multiple interactions, initial-state showers and final-state 
+showers, and append beam remnants. It could also be used in other places. 
+It is intended to be accessed only by experts, such as implementors of 
 <aloc href="ImplementNewShowers">new showering models</aloc>.
-
-<p/>
-A listing of current subsystems can be obtained with the 
-<code>listSystems()</code> method.
 
 </chapter>
 

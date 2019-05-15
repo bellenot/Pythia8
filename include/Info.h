@@ -118,6 +118,8 @@ public:
   int    nMI()            const {return nMISave;}
   int    codeMI(int i)    const {return codeMISave[i];} 
   double pTMI(int i)      const {return pTMISave[i];} 
+  int    iAMI(int i)      const {return iAMISave[i];} 
+  int    iBMI(int i)      const {return iBMISave[i];} 
 
   // Number of times other steps have been carried out.
   int    nISR()           const {return nISRSave;}
@@ -157,7 +159,7 @@ private:
          weightSave, bMISave, enhanceMISave, pTmaxMISave, pTmaxISRSave, 
          pTmaxFSRSave;
   string nameSave, nameSubSave;
-  vector<int>    codeMISave;
+  vector<int>    codeMISave, iAMISave, iBMISave;
   vector<double> pTMISave;
 
   // Friend classes allowed to set info.
@@ -181,7 +183,8 @@ private:
     x1Save = x2Save = pdf1Save = pdf2Save = Q2FacSave = alphaEMSave 
     = alphaSSave = Q2RenSave = sH = tH = uH = pTH = m3H = m4H = thetaH 
     = phiH = 0.; nameSave = " "; weightSave = bMISave = enhanceMISave = 1.; 
-    codeMISave.resize(0); pTMISave.resize(0);}
+    codeMISave.resize(0); pTMISave.resize(0); iAMISave.resize(0);
+    iBMISave.resize(0); }
 
   // Set info on the (sub)process: from ProcessLevel, ProcessContainer or 
   // MultipleInteractions classes.
@@ -206,8 +209,9 @@ private:
     double thetaHatIn, double phiHatIn) {x1Save = x1In; x2Save = x2In; 
     sH = sHatIn; tH = tHatIn; uH = uHatIn; pTH = pTHatIn; m3H = m3HatIn; 
     m4H = m4HatIn; thetaH = thetaHatIn; phiH = phiHatIn;}
-  void setTypeMI( int codeMIIn, double pTMIIn) {
-    codeMISave.push_back(codeMIIn); pTMISave.push_back(pTMIIn);}
+  void setTypeMI( int codeMIIn, double pTMIIn, int iAMIIn = 0, int iBMIIn = 0) {
+    codeMISave.push_back(codeMIIn); pTMISave.push_back(pTMIIn);
+    iAMISave.push_back(iAMIIn); iBMISave.push_back(iBMIIn);}
 
   // Set info on cross section: from ProcessLevel.
   void setSigma( long nTryIn, long nSelIn, long nAccIn, double sigGenIn, 
@@ -223,6 +227,8 @@ private:
     enhanceMISave = enhanceMIIn, bIsSet = true;} 
 
   // Set info on pTmax scales and number of evolution steps: from PartonLevel.
+  void setPartEvolved( int nMIIn, int nISRIn) {
+    nMISave = nMIIn; nISRSave = nISRIn;} 
   void setEvolution( double pTmaxMIIn, double pTmaxISRIn, double pTmaxFSRIn, 
     int nMIIn, int nISRIn, int nFSRinProcIn, int nFSRinResIn) { 
     pTmaxMISave = pTmaxMIIn; pTmaxISRSave = pTmaxISRIn; 

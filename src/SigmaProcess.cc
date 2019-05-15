@@ -750,9 +750,10 @@ void Sigma2Process::store2KinMI( double x1in, double x2in,
 
 //*********
 
-// Perform kinematics for a Multiple Interaction.
+// Perform kinematics for a Multiple Interaction, including a rescattering.
 
-bool Sigma2Process::final2KinMI() {
+bool Sigma2Process::final2KinMI( int i1Res, int i2Res, Vec4 p1Res, Vec4 p2Res,
+  double m1Res, double m2Res) {
 
   // Have to set flavours and colours.
   setIdColAcol();
@@ -765,30 +766,52 @@ bool Sigma2Process::final2KinMI() {
   s3           = m3 * m3;
   s4           = m4 * m4;
 
+  // Do kinematics of the production; without or with masses.  
+  double e1In  = 0.5 * mH;
+  double e2In  = e1In;
+  double pzIn  = e1In;
+  if (i1Res > 0 || i2Res > 0) {
+    double s1  = m1Res * m1Res;
+    double s2  = m2Res * m2Res;
+    e1In       = 0.5 * (sH + s1 - s2) / mH;
+    e2In       = 0.5 * (sH + s2 - s1) / mH;
+    pzIn       = sqrtpos( e1In*e1In - s1 );
+  }
+
   // Do kinematics of the decay.
-  double eIn   = 0.5 * mH;
   double e3    = 0.5 * (sH + s3 - s4) / mH;
   double e4    = 0.5 * (sH + s4 - s3) / mH;
   double pAbs  = sqrtpos( e3*e3 - s3 );
   phi          = 2. * M_PI * Rndm::flat();
   double pZ    = pAbs * cosTheta;
-  double pX    = pAbs * sinTheta * sin(phi);
-  double pY    = pAbs * sinTheta * cos(phi);
-  double scale = eIn * sinTheta;
+  pTFin        = pAbs * sinTheta;
+  double pX    = pTFin * sin(phi);
+  double pY    = pTFin * cos(phi);
+  double scale = 0.5 * mH * sinTheta;
 
   // Fill particle info.
-  parton[1] = Particle( idSave[1], -31, 0, 0, 3, 4, colSave[1], acolSave[1],
-    0., 0., eIn, eIn, 0., scale);
-  parton[2] = Particle( idSave[2], -31, 0, 0, 3, 4, colSave[2], acolSave[2],
-    0., 0., -eIn, eIn, 0., scale);
-  parton[3] = Particle( idSave[3],  33, 1, 2, 0, 0, colSave[3], acolSave[3],
-    pX, pY, pZ, e3, m3, scale);
-  parton[4] = Particle( idSave[4],  33, 1, 2, 0, 0, colSave[4], acolSave[4],
-    -pX, -pY, -pZ, e4, m4, scale);
+  int status1  = (i1Res == 0) ? -31 : -34; 
+  int status2  = (i2Res == 0) ? -31 : -34; 
+  parton[1]    = Particle( idSave[1], status1, 0, 0, 3, 4, 
+    colSave[1], acolSave[1],  0.,  0.,  pzIn, e1In, m1Res, scale);
+  parton[2]    = Particle( idSave[2], status2, 0, 0, 3, 4, 
+    colSave[2], acolSave[2],  0.,  0., -pzIn, e2In, m2Res, scale);
+  parton[3]    = Particle( idSave[3],      33, 1, 2, 0, 0, 
+    colSave[3], acolSave[3],  pX,  pY,    pZ,   e3,    m3, scale);
+  parton[4]    = Particle( idSave[4],      33, 1, 2, 0, 0, 
+    colSave[4], acolSave[4], -pX, -pY,   -pZ,   e4,    m4, scale);
 
   // Boost particles from subprocess rest frame to event rest frame.
-  double betaZ = (x1Save - x2Save) / (x1Save + x2Save);
-  for (int i = 1; i <= 4; ++i) parton[i].bst(0., 0., betaZ);
+  // Normal multiple interaction: only longitudinal boost.
+  if (i1Res == 0 && i2Res == 0) {
+    double betaZ = (x1Save - x2Save) / (x1Save + x2Save);
+    for (int i = 1; i <= 4; ++i) parton[i].bst(0., 0., betaZ);
+  // Rescattering: generic rotation and boost required. 
+  } else {
+    RotBstMatrix M;
+    M.fromCMframe( p1Res, p2Res);
+    for (int i = 1; i <= 4; ++i) parton[i].rotbst(M);
+  }
 
   // Done.
   return true;

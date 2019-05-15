@@ -68,6 +68,7 @@ In detail, the list of used or foreseen status codes is:
   <li>31 : incoming</li>
   <li>32 : intermediate (intended to have preserved mass)</li> 
   <li>33 : outgoing</li> 
+  <li>34 : incoming that has already scattered</li> 
   </ul>
 <li>41 - 49 : particles produced by initial-state-showers</li>
   <ul>

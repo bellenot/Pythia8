@@ -321,8 +321,7 @@ public:
   void init( string headerIn = "");
 
   // Clear event record.
-  void clear() {entry.resize(0); maxColTag = startColTag; 
-    clearJunctions(); clearSystems();}
+  void clear() {entry.resize(0); maxColTag = startColTag; clearJunctions();}
 
   // Clear event record, and set first particle empty.
   void reset() {clear(); append(90, -11, 0, 0, 0., 0., 0., 0., 0.);}
@@ -474,32 +473,6 @@ public:
   // List any junctions in the event; for debug mainly.
   void listJunctions(ostream& os = cout) const;
 
-  // Operations with grouped systems of partons for internal use only.
-  // (Used by combined MI, ISR, FSR and BR machinery in PartonLevel.)
-
-  // Reset all systems and system number to empty.
-  void clearSystems() {beginSys.resize(0); sizeSys.resize(0); 
-    memberSys.resize(0);}
-  
-  // Get number of systems or number of members in a system. 
-  int sizeSystems() const {return beginSys.size();}
-  int sizeSystem(int iSys) const {return sizeSys[iSys];}
-
-  // New system or new parton in system.
-  int newSystem() {beginSys.push_back(memberSys.size()); 
-    sizeSys.push_back(0); return (beginSys.size() - 1);}
-  void addToSystem(int iSys, int iPos);
-
-  // Get or set value of given member in given system. Replace value by new.
-  int getInSystem(int iSys, int iMem) const {
-    return memberSys[beginSys[iSys] + iMem];}
-  void setInSystem(int iSys, int iMem, int iPos) {
-    memberSys[beginSys[iSys] + iMem] = iPos;}
-  void replaceInSystem(int iSys, int iPosOld, int iPosNew);
-
-  // List members in systems; for debug mainly.
-  void listSystems(ostream& os = cout) const;
-
   // Operator overloading allows to append one event to an existing one.
   // Warning: particles should be OK, but some other information unreliable.
   Event& operator+=(const Event& addEvent);
@@ -529,9 +502,6 @@ private:
 
   // Header specification in event listing (at most 40 characters wide).
   string headerList;
-
-  // Offsets, sizes and values of systems.
-  vector<int> beginSys, sizeSys, memberSys;
   
 };
 

@@ -120,10 +120,10 @@ double PDF::xfSea(int id, double x, double Q2) {
 
 void GRV94L::xfUpdate(int id, double x, double Q2) {
  
-  // Common expressions.
+  // Common expressions. Constrain Q2 for which parametrization is valid.
   double mu2  = 0.23;
   double lam2 = 0.2322 * 0.2322;
-  double s    = log (log(Q2/lam2) / log(mu2/lam2));
+  double s    = (Q2 > mu2) ? log (log(Q2/lam2) / log(mu2/lam2)) : 0.;
   double ds   = sqrt(s);
   double s2   = s * s;
   double s3   = s2 * s;

@@ -21,6 +21,7 @@
 #include "PartonLevel.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
+#include "PartonSystems.h"
 #include "ProcessLevel.h"
 #include "PythiaStdlib.h"
 #include "ResonanceWidths.h"
@@ -51,9 +52,13 @@ public:
   bool readString(string, bool warn = true); 
  
   // Read in updates for settings or particle data from user-defined file.
-  bool readFile(string, bool warn = true, int subrun = SUBRUNDEFAULT);
+  bool readFile(string fileName, bool warn = true, int subrun = SUBRUNDEFAULT);
   bool readFile(string fileName, int subrun) {
     return readFile(fileName, true, subrun);}
+  bool readFile(istream& is = cin, bool warn = true, 
+    int subrun = SUBRUNDEFAULT);
+  bool readFile(istream& is, int subrun) {
+    return readFile(is, true, subrun);}
 
   // Possibility to pass in pointers to PDF's.
   bool setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn = 0, 
@@ -138,6 +143,9 @@ public:
   // The event record for the complete event history.
   Event event;
 
+  // The partonic content of each subcollision system (auxiliary to event).
+  PartonSystems partonSystems; 
+
   // Information on the generation: current subprocess and error statistics.
   Info info;
 
@@ -170,7 +178,7 @@ private:
 
   // information for error checkout.
   int    nErrEvent;
-  vector<int> iErrId, iErrCol, iErrNan;
+  vector<int> iErrId, iErrCol, iErrNan, iErrNanVtx;
 
   // Pointers to the parton distributions of the two incoming beams.
   PDF* pdfAPtr;  

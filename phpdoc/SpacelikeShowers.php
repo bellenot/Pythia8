@@ -61,8 +61,8 @@ Way in which the maximum shower evolution scale is set to match the
 scale of the hard process itself.
 <br/>
 <input type="radio" name="1" value="0" checked="checked"><strong>0 </strong>: <b>(i)</b> if the final state of the hard process  (not counting subsequent resonance decays) contains at least one quark  (<ei>u, d, s, c ,b</ei>), gluon or photon then <ei>pT_max</ei>  is chosen to be the factorization scale for internal processes  and the <code>scale</code> value for Les Houches input;  <b>(ii)</b> if not, emissions are allowed to go all the way up to  the kinematical limit.  The reasoning is that in the former set of processes the ISR emission of yet another quark, gluon or photon could lead to doublecounting, while no such danger exists in the latter case. <br/>
-<input type="radio" name="1" value="1"><strong>1 </strong>: always use the factorization scale for an internal process and the <code>scale</code> value for Les Houches input,  i.e. the lower value. This should avoid doublecounting, but may leave out some emissions that ought to have been simulated. <br/>
-<input type="radio" name="1" value="2"><strong>2 </strong>: always allow emissions up to the kinematical limit. This will simulate all possible event topologies, but may lead to doublecounting.  <br/>
+<input type="radio" name="1" value="1"><strong>1 </strong>: always use the factorization scale for an internal process and the <code>scale</code> value for Les Houches input,  i.e. the lower value. This should avoid doublecounting, but may leave out some emissions that ought to have been simulated. (Also known as wimpy showers.) <br/>
+<input type="radio" name="1" value="2"><strong>2 </strong>: always allow emissions up to the kinematical limit. This will simulate all possible event topologies, but may lead to doublecounting.  (Also known as power showers.) <br/>
 <br/><b>Note 1:</b> These options only apply to the hard interaction.
 Emissions off subsequent multiple interactions are always constrainted
 to be below the factorization scale of the process itself.  

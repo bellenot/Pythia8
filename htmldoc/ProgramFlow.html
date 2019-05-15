@@ -118,7 +118,11 @@ Again, an optional second argument <code>false</code> allows
 you to switch off warning messages for unknown variables.<br/>
 This approach is better suited for more extensive changes than a direct
 usage of <code>readString(string)</code>, and can also avoid having to
-recompile and relink your main program between runs.
+recompile and relink your main program between runs.<br/>
+It is also possible to read input from an <code>istream</code>, by
+default <code>cin</code>, rather than from a file. This may be convenient
+if information is generated on-the-fly, within the same run.
+<br/> 
 </li>
 
 <p/>
@@ -454,10 +458,11 @@ previous subrun, only affected by the specific changes you introduced in
 the meantime. You can put those changes in the main program, with
 <code>pythia.readString(string)</code>, using your own logic to decide
 which ones to execute in which subrun. A corresponding possibility 
-exists with <code>pythia.readFile(fileName, subrun)</code>, which 
-as second argument can take a non-negative subrun number. (Or, 
-alternatively use the longer form 
-<code>pythia.readFile(fileName, warn, subrun)</code>.) Then only those 
+exists with <code>pythia.readFile(fileName, subrun)</code> (or an
+<code>istream</code> instead of a <code>fileName</code>), which as second 
+argument can take a non-negative subrun number. (Or, alternatively use the 
+longer forms <code>pythia.readFile(fileName, warn, subrun)</code> or
+<code>pythia.readFile(istream, warn, subrun)</code>.) Then only those 
 sections of the file before any <code>Main:subrun = ...</code> line
 or with matching <code>subrun</code> number will be read. That is, the
 file could have a structure like

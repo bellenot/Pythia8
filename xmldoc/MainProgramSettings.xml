@@ -25,7 +25,8 @@ to be used in your main program.
 
 <p/>
 Once you have used the <code>pythia.readFile(fileName)</code> method to
-read in the cards file, you can interrogate the <code>Settings</code>
+read in the cards file (alternatively with an <code>istream</code> instead 
+of a <code>fileName</code>), you can interrogate the <code>Settings</code>
 database to make the values available in your main program. A slight
 complication is that you need to use a different  <code>Settings</code>
 method for each of the four possible return types that you want to 

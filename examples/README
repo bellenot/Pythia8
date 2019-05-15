@@ -4,7 +4,7 @@
 
 1) You are supposed to have already compiled PYTHIA 8, as described in 
    the README file of the mother directory. For the moment we assume
-   that you will NOT use the HepMC, LHAPDF or PYTHIA 6.4 libraries.
+   that you will NOT use the HepMC, LHAPDF, FastJet or PYTHIA 6.4 libraries.
 
 2) You are now ready to test run the first twentyseven of the mainNN 
    examples listed below. Type "gmake mainNN" to build an executable 
@@ -29,10 +29,10 @@
    directory. If not, you can go back and do it now. This will create 
    files "config.csh" and "config.sh" in the current directory.
 
-2) If you are going to run examples linked with LHAPDF and/or PYTHIA 6.4,
-   you should as a first step run the script "configure" in the current 
-   directory. You can use command-line arguments to set up the desired 
-   library links. 
+2) If you are going to run examples linked with LHAPDF, FastJet and/or 
+   PYTHIA 6.4, you should as a first step run the script "configure" in 
+   the current directory. You can use command-line arguments to set up 
+   the desired library links. 
 
    The possible options are:
      --help : prints a brief summary of the options described here.
@@ -55,6 +55,9 @@
          need to specify the full path but only the version, e.g. =413 
      --with-pythia6libname=n  : pythia6 library name line: default is the 
          GENSER standard: -lpythia6 -lpythia6_dummy -lpythia6_pdfdummy
+     --with-fastjet=path : path to FastJet (default = /usr/local)
+     --with-fastjetversion=v : FastJet version 
+         (simplified alternative when using CERN AFS external, e.g. =2.3.3)
 
    When "configure" is run it will create or append to the config.csh 
    and config.sh files.
@@ -63,16 +66,16 @@
    time, type "source config.csh" if you use the csh or tcsh shell, or 
    "source config.sh" otherwise. (Use "echo $SHELL" if uncertain.)
    This will set or append the environment variables LD_LIBRARY_PATH,
-   needed to find the HepMC libraries. (Eventually also LHAPDF
+   needed to find the HepMC libraries. (Eventually also LHAPDF, FastJet
    and PYTHIA 6.4 libraries, if shared ones are used. Default, if taken
    from CERN AFS MCGenerators, is archive.) It will also set the variable 
    LHAPATH, needed to find the LHAPDF data files.
 
-4) If you want to change to other LHAPDF or PYTHIA 6 versions, you have
-   to rerun the script "configure" and again "source" one of the config.*
-   files. In case of using shared libraries (these will  be taken if both 
-   shared and archive ones are on the same path) pay attention to the 
-   variable LD_LIBRARY_PATH: subsequent commands "source" will add new 
+4) If you want to change to other LHAPDF, FastJet or PYTHIA 6 versions, 
+   you have to rerun the script "configure" and again "source" one of the 
+   config.* files. In case of using shared libraries (these will  be taken 
+   if both shared and archive ones are on the same path) pay attention to 
+   the variable LD_LIBRARY_PATH: subsequent commands "source" will add new 
    items to it, not substitute the old ones. As a result, the wrong 
    version can still be loaded at runtime, which can cause relocation 
    errors. A simple solution is to repeat the "configure" and "source" 
@@ -127,6 +130,9 @@
 * main53.f (Fortran!) : have PYTHIA 6.4 generate a Les Houches Event File 
 * main54.cc & main54.cmnd : input from PYTHIA 6.4 and output to HepMC
 
+5) main61 requires linkage to FastJet
+* main61.cc : rate of W + jets events using kT-clustering for jets 
+ 
 Note 1: main31, main32 and main54 save HepMC-formatted events on 
 hepmcoutNN.dat; these files become so big that they have not been included 
 in the distribution. 

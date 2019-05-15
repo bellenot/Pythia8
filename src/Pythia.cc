@@ -170,13 +170,28 @@ bool Pythia::readFile(string fileName, bool warn, int subrun) {
   // Check that constructor worked.
   if (!isConstructed) return false;
 
-  // Open file with updates.
+  // Open file for reading.
   const char* cstring = fileName.c_str();
   ifstream is(cstring);  
   if (!is) {
     info.errorMsg("Error in Pythia::readFile: did not find file", fileName);
     return false;
   }
+
+  // Hand over real work to next method.
+  return readFile( is, warn, subrun);
+
+}
+
+//*********
+
+// Read in updates for settings or particle data
+// from user-defined stream (or file).
+
+bool Pythia::readFile(istream& is, bool warn, int subrun) {
+
+  // Check that constructor worked.
+  if (!isConstructed) return false;
 
   // Read in one line at a time.
   string line;
@@ -195,6 +210,7 @@ bool Pythia::readFile(string fileName, bool warn, int subrun) {
   // Reached end of input file.
   };
   return accepted;
+
 }
 
 //*********
@@ -457,7 +473,8 @@ bool Pythia::initInternal() {
   doVetoProcess = (hasUserHooks) 
                 ? userHooksPtr->canVetoProcessLevel() : false;
   doVetoPartons = (hasUserHooks) 
-                ? userHooksPtr->canVetoPartonLevel() : false; 
+                ? userHooksPtr->canVetoPartonLevel() : false;
+  if (hasUserHooks) userHooksPtr->initPtr( &partonSystems); 
 
   // Set up values related to beam shape.
   if (beamShapePtr == 0) {
@@ -479,9 +496,9 @@ bool Pythia::initInternal() {
   }
 
   // Initialize showers, especially for simple showers in decays. 
-  timesPtr->initPtr( &info);
-  timesDecPtr->initPtr( &info);
-  spacePtr->initPtr( &info);
+  timesPtr->initPtr( &info, &partonSystems);
+  timesDecPtr->initPtr( &info, &partonSystems);
+  spacePtr->initPtr( &info, &partonSystems);
   timesDecPtr->init( 0, 0);
 
   // Check that beams and beam combination can be handled.
@@ -555,8 +572,8 @@ bool Pythia::initInternal() {
 
   // Send info/pointers to parton level for initialization.
   if ( doPartonLevel && !partonLevel.init( &info, &beamA, &beamB, 
-    &sigmaTot, timesDecPtr, timesPtr, spacePtr, userHooksPtr) ) 
-    return false;
+    &partonSystems, &sigmaTot, timesDecPtr, timesPtr, spacePtr, 
+    userHooksPtr) ) return false;
 
   // Send info/pointers to hadron level for initialization.
   // Note: forceHadronLevel() can come, so we must always initialize. 
@@ -699,6 +716,7 @@ bool Pythia::next() {
   info.clear();
   process.clear();
   event.clear();
+  partonSystems.clear();
 
   // Can only generate event if initialization worked.
   if (!isInit) {
@@ -756,6 +774,7 @@ bool Pythia::next() {
       event.clear();
       beamA.clear();
       beamB.clear();
+      partonSystems.clear();
    
       // Parton-level evolution: ISR, FSR, MI.
       if ( !partonLevel.next( process, event) ) {
@@ -1027,10 +1046,10 @@ void Pythia::banner(ostream& os) {
      << "    Now is " << dateNow << " at " << timeNow << "    |  | \n"
      << " |  |                                        " 
      << "                                      |  | \n"
-     << " |  |   Main author: Torbjorn Sjostrand; CERN" 
-     << "/PH, CH-1211 Geneva, Switzerland,     |  | \n"
-     << " |  |     and Department of Theoretical Physi"
-     << "cs, Lund University, Lund, Sweden;    |  | \n"
+     << " |  |   Main author: Torbjorn Sjostrand; Depa" 
+     << "rtment of Theoretical Physics,        |  | \n"
+     << " |  |     Lund University, Solvegatan 14A, SE"
+     << "-223 62 Lund, Sweden;                 |  | \n"
      << " |  |     phone: + 41 - 22 - 767 82 27; e-mai"
      << "l: torbjorn@thep.lu.se                |  | \n"
      << " |  |   Author: Stephen Mrenna; Computing Div"
@@ -1039,20 +1058,20 @@ void Pythia::banner(ostream& os) {
      << "ry, MS 234, Batavia, IL 60510, USA;   |  | \n"
      << " |  |     phone: + 1 - 630 - 840 - 2556; e-ma"
      << "il: mrenna@fnal.gov                   |  | \n"
-     << " |  |   Author: Peter Skands; CERN/PH, CH-121" 
-     << "1 Geneva, Switzerland,                |  | \n"
-     << " |  |     and Theoretical Physics Department,"
-     << "                                      |  | \n"
+     << " |  |   Author: Peter Skands; Theoretical Phy"
+     << "sics Department,                      |  | \n"
      << " |  |     Fermi National Accelerator Laborato"
      << "ry, MS 106, Batavia, IL 60510, USA;   |  | \n"
-     << " |  |     phone: + 41 - 22 - 767 24 59; e-mai"
-     << "l: skands@fnal.gov                    |  | \n"
+     << " |  |     phone: + 1 - 630 - 840 - 2270; e-ma"
+     << "il: skands@fnal.gov                   |  | \n"
      << " |  |                                        " 
      << "                                      |  | \n"
      << " |  |   The main program reference is the 'Br"
      << "ief Introduction to PYTHIA 8.1',      |  | \n"
      << " |  |   T. Sjostrand, S. Mrenna and P. Skands"
-     << ", arXiv:0710.3820                     |  | \n"
+     << ", Comput. Phys. Comm. 178 (2008) 85   |  | \n"
+     << " |  |   [arXiv:0710.3820]                    " 
+     << "                                      |  | \n"
      << " |  |                                        "
      << "                                      |  | \n"
      << " |  |   The main physics reference is the 'PY"
@@ -1152,16 +1171,20 @@ int Pythia::readSubrun(string line, bool warn, ostream& os) {
 bool Pythia::check(ostream& os) {
 
   // Reset. 
-  bool physical = true;
+  bool physical     = true;
+  bool listVertices = false;
+  bool listSystems  = false;
+  bool listBeams    = false;
   iErrId.resize(0);
   iErrCol.resize(0);
   iErrNan.resize(0);
+  iErrNanVtx.resize(0);
   Vec4 pSum;
-  double chargeSum = 0.;
+  double chargeSum  = 0.;
 
   // Incoming beams counted with negative momentum and charge.
   if (doProcessLevel) {
-    pSum = - (event[1].p() + event[2].p());
+    pSum      = - (event[1].p() + event[2].p());
     chargeSum = - (event[1].charge() + event[2].charge());
 
   // If no ProcessLevel then sum momentum and charge in initial state.
@@ -1214,9 +1237,21 @@ bool Pythia::check(ostream& os) {
       iErrNan.push_back(i);
     }
 
+    // Look for particles with not-a-number vertex/lifetime.
+    if (abs(event[i].xProd()) >= 0. && abs(event[i].yProd()) >= 0. 
+      && abs(event[i].zProd()) >= 0.  && abs(event[i].tProd()) >= 0. 
+      && abs(event[i].tau()) >= 0.) ;
+    else {   
+      info.errorMsg("Error in Pythia::check: "
+        "not-a-number vertex/lifetime"); 
+      physical     = false;
+      listVertices = true;
+      iErrNanVtx.push_back(i);
+    }
+
     // Add final-state four-momentum and charge.      
     if (event[i].isFinal()) {
-      pSum += event[i].p();
+      pSum      += event[i].p();
       chargeSum += event[i].charge();
     }
 
@@ -1236,6 +1271,21 @@ bool Pythia::check(ostream& os) {
   if (abs(chargeSum) > 0.1) {
     info.errorMsg("Error in Pythia::check: charge not conserved"); 
     physical = false;
+  }
+
+  // Check that beams and event records agree on incoming partons.
+  for (int iSys = 0; iSys < beamA.sizeInit(); ++iSys) {
+    int eventANw  = partonSystems.getInA(iSys);
+    int eventBNw  = partonSystems.getInB(iSys); 
+    int beamANw   = beamA[iSys].iPos();  
+    int beamBNw   = beamB[iSys].iPos(); 
+    if (eventANw != beamANw || eventBNw != beamBNw) {
+      info.errorMsg("Error in Pythia::check: "
+        "event and beams records disagree"); 
+      physical    = false;
+      listSystems = true;
+      listBeams   = true;
+    }
   }
 
   // Done for sensible events.
@@ -1262,12 +1312,21 @@ bool Pythia::check(ostream& os) {
         os << iErrNan[i] << " ";
       os << "\n";
     }
+    if (iErrNanVtx.size() > 0) {
+      os << " not-a-number vertex/lifetime in lines ";
+      for (int i = 0; i < int(iErrNanVtx.size()); ++i) 
+        os << iErrNanVtx[i] << " ";
+      os << "\n";
+    }
     if (epDev > epTolErr * eLab) os << scientific << setprecision(3)
       << " total energy-momentum non-conservation = " << epDev << "\n";
     if (abs(chargeSum) > 0.1) os << fixed << setprecision(2) 
       << " total charge non-conservation = " << chargeSum << "\n"; 
     info.list();
-    event.list();
+    event.list(listVertices);
+    if (listSystems) partonSystems.list();
+    if (listBeams) beamA.list();
+    if (listBeams) beamB.list();
   }
 
   // Update error counter. Done also for flawed event.

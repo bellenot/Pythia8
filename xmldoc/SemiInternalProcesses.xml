@@ -324,13 +324,14 @@ weights, <code>true</code>.
 
 <method name="int gmZmode()">
 allows a possibility to override the global mode 
-<aloc href="ElectroweakProcesses"><code>WeakZ0:gmZmode</code></aloc> 
+<code><aloc href="ElectroweakProcesses">WeakZ0:gmZmode</aloc></code> 
 for a specific process. The global mode normally is used to switch off 
 parts of the <ei>gamma^*/Z^0</ei> propagator for test purposes. The
 above local mode is useful for processes where a <ei>Z^0</ei> really is
 that and nothing more, such as <ei>q qbar -> H^0 Z^0</ei>. The default
 value -1 returned by <code>gmZmode()</code> ensures that the global
-mode is used. 
+mode is used, while 0 gives full <ei>gamma^*/Z^0</ei> interference,
+1 <ei>gamma^*</ei> only and 2 <ei>Z^0</ei> only. 
 
 <h3>Access to a process</h3> 
 

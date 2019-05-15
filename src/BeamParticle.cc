@@ -530,10 +530,11 @@ bool BeamParticle::remnantColours(Event& event, vector<int>& colFrom,
 
   // Find number and position of valence quarks, of gluons, and
   // of sea-companion pairs (counted as gluons) in the beam remnants.
-  // Skip gluons with same colour as anticolour.
+  // Skip gluons with same colour as anticolour and rescattering partons.
   vector<int> iVal;
   vector<int> iGlu;
-  for (int i = 0; i < size(); ++i) {
+  for (int i = 0; i < size(); ++i) 
+  if (resolved[i].isFromBeam()) {
     if ( resolved[i].isValence() ) iVal.push_back(i);
     else if ( resolved[i].isCompanion() && resolved[i].companion() > i ) 
       iGlu.push_back(i);
@@ -606,6 +607,7 @@ bool BeamParticle::remnantColours(Event& event, vector<int>& colFrom,
   vector<int> colList;
   vector<int> acolList;
   for (int i = 0; i < size(); ++i) 
+  if ( resolved[i].isFromBeam() )
   if ( resolved[i].col() != resolved[i].acol() ) {  
     if (resolved[i].col() > 0) colList.push_back( resolved[i].col() ); 
     if (resolved[i].acol() > 0) acolList.push_back( resolved[i].acol() ); 
@@ -618,9 +620,12 @@ bool BeamParticle::remnantColours(Event& event, vector<int>& colFrom,
     for (int iCol = 0; iCol < int(colList.size()); ++iCol) {
       for (int iAcol = 0; iAcol < int(acolList.size()); ++iAcol) {
 	if (acolList[iAcol] == colList[iCol]) { 
-          colList[iCol] = colList.back(); colList.pop_back();     
-          acolList[iAcol] = acolList.back(); acolList.pop_back();     
-          foundPair = true; break;
+          colList[iCol] = colList.back(); 
+          colList.pop_back();     
+          acolList[iAcol] = acolList.back(); 
+          acolList.pop_back();     
+          foundPair = true; 
+          break;
 	}
       } if (foundPair) break;
     }
@@ -630,7 +635,8 @@ bool BeamParticle::remnantColours(Event& event, vector<int>& colFrom,
   if (colList.size() == 1 && acolList.size() == 1) {
     int finalFrom = max( colList[0], acolList[0]);
     int finalTo   = min( colList[0], acolList[0]);
-    for (int i = 0; i < size(); ++i) {  
+    for (int i = 0; i < size(); ++i) 
+    if ( resolved[i].isFromBeam() ) {
       if (resolved[i].col()  == finalFrom) resolved[i].col(finalTo); 
       if (resolved[i].acol() == finalFrom) resolved[i].acol(finalTo); 
     }
@@ -715,7 +721,7 @@ double BeamParticle::xRemnant( int i) {
     // Find rescaled x value of companion.
     double xLeft = 1.;
     for (int iInit = 0; iInit < nInit; ++iInit) 
-      xLeft -= resolved[iInit].x();
+      if (resolved[iInit].isFromBeam()) xLeft -= resolved[iInit].x();
     double xCompanion = resolved[ resolved[i].companion() ].x();
     xCompanion /= (xLeft + xCompanion);  
 
@@ -755,8 +761,10 @@ void BeamParticle::list(ostream& os) {
        << res.pz() << setw(11) << res.e() << setw(11) << res.m() << "\n";
 
     // Also find and print sum of x and p values. Endline.
-    xSum += res.x();  
-    pSum += res.p();
+    if (res.companion() != -10) {
+      xSum += res.x();  
+      pSum += res.p();
+    }
   }
   os << setprecision(6) << "             x sum:" << setw(10) << xSum 
      << setprecision(3) << "                      p sum:" << setw(11) 

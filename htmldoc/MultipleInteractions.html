@@ -28,6 +28,8 @@ rearrangement is found as part of the
 
 <h3>Main variables</h3>
 
+<h4>Matching to hard process</h4>
+
 The maximum <i>pT</i> to be allowed for multiple interactions is
 related to the nature of the hard process itself. It involves a
 delicate balance between not doublecounting and not leaving any
@@ -63,7 +65,8 @@ but may lead to doublecounting.
   
   
 
-<p/>
+<h4>Cross-section parameters</h4>
+
 The rate of interactions is determined by 
 <p/><code>parm&nbsp; </code><strong> MultipleInteractions:alphaSvalue &nbsp;</strong> 
  (<code>default = <strong>0.127</strong></code>; <code>minimum = 0.06</code>; <code>maximum = 0.25</code>)<br/>
@@ -119,7 +122,34 @@ changed <i>alpha_strong</i>, since <i>alpha_strong</i> runs)
 Multiply all cross sections by this fix factor.
   
 
-<p/>
+<p/> 
+The processes used to generate multiple interactions form a subset
+of the standard library of hard processes. The input is slightly
+different from the standard hard-process machinery, however, 
+since incoming flavours, the <i>alpha_strong</i> value and most
+of the kinematics are aready fixed when the process is called.
+It is possible to regulate the set of processes that are included in the
+multiple-interactions framework.
+
+<p/><code>mode&nbsp; </code><strong> MultipleInteractions:processLevel &nbsp;</strong> 
+ (<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
+Set of processes included in the machinery.
+<br/><code>option </code><strong> 0</strong> : only the simplest <i>2 -> 2</i> QCD processes
+between quarks and gluons, giving no new flavours, i.e. dominated by
+<i>t</i>-channel gluon exchange.  
+<br/><code>option </code><strong> 1</strong> : also <i>2 -> 2</i> QCD processes giving new flavours
+(including charm and bottom), i.e. proceeding through <i>s</i>-channel 
+gluon exchange.  
+<br/><code>option </code><strong> 2</strong> : also <i>2 -> 2</i> processes involving one or two
+photons in the final state, <i>s</i>-channel <i>gamma</i>
+boson exchange and <i>t</i>-channel <i>gamma/Z^0/W^+-</i>
+boson exchange.  
+<br/><code>option </code><strong> 3</strong> : also charmonium and bottomonium production, via
+colour singlet and colour octet channels.   
+  
+
+<h4>Cross-section regularization</h4>
+
 There are two complementary ways of regularizing the small-<i>pT</i> 
 divergence, a sharp cutoff and a smooth dampening. These can be 
 combined as desired, but it makes sense to coordinate with how the 
@@ -140,8 +170,8 @@ below the nondiffractive inelastic one, this <i>pT0</i> will
 automatically be scaled down to cope.
 
 <p/>
-The actual pT0 parameter used at a given cm energy scale, <i>ecmNow</i>,
-is obtained as
+The actual <i>pT0</i> parameter used at a given cm energy scale, 
+<i>ecmNow</i>, is obtained as
 <br/><i>
      pT0 = pT0(ecmNow) = pT0Ref * (ecmNow / ecmRef)^ecmPow 
 </i><br/>
@@ -181,7 +211,49 @@ combine them in intermediate approaches. Currently <i>pTmin</i>
 is taken to be energy-independent.  
   
 
-<p/> 
+<p/>
+G&ouml;sta Gustafson has proposed (private communication, unpublished)
+that the amount of screening, as encapsulated in the <i>pT0</i> 
+parameter, fluctuates from one event to the next. Specifically, 
+high-activity event are more likely to lead to interactions at large 
+<i>pT</i> scales, but the high activity simultaneously leads to a 
+larger screening of interactions at smaller <i>pT</i>. Such a scenario 
+can approximately be simulated by scaling up the <i>pT0</i> by a 
+factor <i>sqrt(n)</i>, where <i>n</i> is the number of interactions 
+considered so far, including the current one. That is, for the first 
+interaction the dampening factor is <i>pT^4 / (pT0^2 + pT^2)^2</i>, 
+for the second <i>pT^4 / (2 pT0^2 + pT^2)^2</i>, for the third
+<i>pT^4 / (3 pT0^2 + pT^2)^2</i>, and so on. Optionally the scheme
+may also be applied to ISR emissions. For simplicity the same 
+<i>alpha_s(pT0^2 + pT^2)</i> is used throughout. Note that, in this 
+scenario the <i>pT0</i> scale must be lower than in the normal case 
+to begin with, since it later is increased back up. Also note that the 
+idea with this scenario is to propose an alternative to colour 
+reconnection to understand the rise of <i>&lt;pT&gt;(n_ch)</i>, 
+so that the amount of colour reconnection should be reduced.
+<p/><code>mode&nbsp; </code><strong> MultipleInteractions:enhanceScreening &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
+Choice to activate the above screening scenario, i.e. an increasing
+effective <i>pT0</i> for consecutive interactions.
+<br/><code>option </code><strong> 0</strong> : No activity-dependent screening, i.e. <i>pT0</i>
+is fixed.  
+<br/><code>option </code><strong> 1</strong> : The <i>pT0</i> scale is increased as a function
+of the number of MI's, as explained above. ISR is not affected,
+but note that, if <code>SpaceShower:samePTasMI</code> is on (default),
+then <code>MultipleInteractions:pT0Ref</code> is used also for ISR, 
+which may or may not be desirable.
+   
+<br/><code>option </code><strong> 2</strong> : Both MI and ISR influence and are influenced by the
+screening. That is, the dampening is reduced based on the total number 
+of MI and ISR steps considered so far, including the current one.
+This dampening is implemented both for MI and for ISR emissions, 
+for the latter provided that <code>SpaceShower:samePTasMI</code> is on 
+(default).  
+  
+  
+
+<h4>Impact-parameter dependence</h4>
+ 
 The choice of impact-parameter dependence is regulated by several
 parameters.
 
@@ -226,26 +298,72 @@ at all, <i>bProfile = 0</i>. For small <i>expPow</i> the program
 becomes slow and unstable, so the min limit must be respected.
    
 
-<p/> 
-It is possible to regulate the set of processes that are included in the
-multiple-interactions framework.
+<h4>Rescattering</h4>
+ 
+It is possible that a parton may rescatter, i.e. undergo a further
+interaction subsequent to the first one. The machinery to model this
+kind of physics is still under development, and should not be used.
+The switch below is therefore only intended for people directly involved
+in the development and tryout. Any other usage is likely to lead to a 
+program crash, or at least unphysical results.
 
-<p/><code>mode&nbsp; </code><strong> MultipleInteractions:processLevel &nbsp;</strong> 
- (<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
-Set of processes included in the machinery.
-<br/><code>option </code><strong> 0</strong> : only the simplest <i>2 -> 2</i> QCD processes
-between quarks and gluons, giving no new flavours, i.e. dominated by
-<i>t</i>-channel gluon exchange.  
-<br/><code>option </code><strong> 1</strong> : also <i>2 -> 2</i> QCD processes giving new flavours
-(including charm and bottom), i.e. proceeding through <i>s</i>-channel 
-gluon exchange.  
-<br/><code>option </code><strong> 2</strong> : also <i>2 -> 2</i> processes involving one or two
-photons in the final state, <i>s</i>-channel <i>gamma</i>
-boson exchange and <i>t</i>-channel <i>gamma/Z^0/W^+-</i>
-boson exchange.  
-<br/><code>option </code><strong> 3</strong> : also charmonium and bottomonium production, via
-colour singlet and colour octet channels.   
+<p/><code>flag&nbsp; </code><strong> MultipleInteractions:allowRescatter &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Switch to allow rescattering of partons; on/off = true/false.
+<b>Warning: not yet operational! Do not use!</b>
   
+
+<p/><code>flag&nbsp; </code><strong> MultipleInteractions:allowDoubleRescatter &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Switch to allow rescattering of partons, where both incoming partons 
+have already rescattered; on/off = true/false. Is only used if 
+<code>MultipleInteractions:allowRescatter</code> is switched on.
+<b>Warning: not yet operational! Do not use!</b>
+  
+
+<p/><code>mode&nbsp; </code><strong> MultipleInteractions:rescatterMode &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)<br/>
+Selection of which partons rescatter against unscattered partons
+from the incoming beams A and B, based on their rapidity value 
+<i>y</i> in the collision rest frame. Here <i>ySep</i> is
+shorthand for <code>MultipleInteractions:ySepRescatter</code> and
+<i>deltaY</i> for <code>MultipleInteractions:deltaYRescatter</code>,
+defined below. The description is symmetric between the two beams,
+so only one case is described below. 
+<br/><code>option </code><strong> 0</strong> : only scattered partons with <i>y > 0</i> 
+can collide with unscattered partons from beam B.   
+<br/><code>option </code><strong> 1</strong> : only scattered partons with <i>y > ySep</i> 
+can collide with unscattered partons from beam B.  
+<br/><code>option </code><strong> 2</strong> : the probability for a scattered parton to be considered 
+as a potential rescatterer against unscattered partons in beam B increases 
+linearly from zero at <i>y = ySep - deltaY</i> to unity at 
+<i>y = ySep + deltaY</i>.  
+<br/><code>option </code><strong> 3</strong> : the probability for a scattered parton to be considered 
+as a potential rescatterer against unscattered partons in beam B increases 
+with <i>y</i> according to 
+<i>(1/2) * (1 + tanh( (y - ySep) / deltaY))</i>.  
+<br/><code>option </code><strong> 4</strong> : all partons are potential rescatterers against both 
+beams.  
+  
+
+<p/><code>parm&nbsp; </code><strong> MultipleInteractions:ySepRescatter &nbsp;</strong> 
+ (<code>default = <strong>0.</strong></code>)<br/>
+used for some of the <code>MultipleInteractions:rescatterMode</code>
+options above, as the rapidity for which a scattered parton has a 50%
+probability to be considered as a potential rescatterer. 
+A <i>ySep > 0</i> generally implies that some central partons cannot
+rescatter at all, while a <i>ySep < 0</i>  instead allows central 
+partons to scatter against either beam.
+   
+
+<p/><code>parm&nbsp; </code><strong> MultipleInteractions:deltaYRescatter &nbsp;</strong> 
+ (<code>default = <strong>1.</strong></code>; <code>minimum = 0.1</code>)<br/>
+used for some of the <code>MultipleInteractions:rescatterMode</code>
+options above, as the width of the rapidity transition region, where the 
+probability rises from zero to unity that a scattered parton is considered 
+as a potential rescatterer.
+   
+
 
 <h3>Further variables</h3>
 
@@ -268,14 +386,6 @@ at initialization, and the differential one during the run as a
 "Sudakov form factor" for the choice of the hardest interaction.
 A larger number implies increased accuracy of the calculations.
   
-
-<h3>The process library</h3>
-
-The processes used to generate multiple interactions form a subset
-of the standard library of hard processes. The input is slightly
-different from the standard hard-process machinery, however, 
-since incoming flavours, the <i>alpha_strong</i> value and most
-of the kinematics are aready fixed when the process is called.
 
 <h3>Technical notes</h3>
 

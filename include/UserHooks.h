@@ -11,6 +11,7 @@
 #define Pythia8_UserHooks_H
 
 #include "Event.h"
+#include "PartonSystems.h"
 #include "PhaseSpace.h"
 #include "PythiaStdlib.h"
 #include "SigmaProcess.h"
@@ -32,6 +33,10 @@ public:
 
   // Destructor.
   virtual ~UserHooks() {}
+
+  // Initialize pointer to PartonSystems. Note: not virtual.
+  void initPtr(PartonSystems* partonSystemsPtrIn) 
+    {partonSystemsPtr = partonSystemsPtrIn;}
 
   // Possibility to modify cross section of process.
   virtual bool canModifySigma() {return false;}
@@ -83,6 +88,9 @@ protected:
 
   // Constructor.
   UserHooks() {}
+
+  // Pointer to information on subcollision parton locations.
+  PartonSystems* partonSystemsPtr;
 
   // subEvent extracts currently resolved partons in the hard process.
   void subEvent(const Event& event, bool isHardest = true); 
@@ -152,8 +160,8 @@ public:
   virtual double scaleVetoEvolution() {return pTcheck;} 
 
   // Decide whether to veto current event or not.
-  virtual bool doVetoEvolution(const Event& event) {
-    subEvent( event); return (workEvent.size() > nMax);}  
+  virtual bool doVetoEvolution(const Event& event) {subEvent( event ); 
+    return (workEvent.size() > nMax);}  
 
 private:
 

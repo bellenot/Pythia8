@@ -246,7 +246,7 @@ Code 914.
 <input type="radio" name="17" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>q g -> H^0 q</i> via loop contributions primarily 
-from top. Not to be confused with the <code>HiggsSM:bg2Hb</code>
+from top. Not to be confused with the <code>HiggsSM:qg2Hq</code>
 process above, with its direct fermion-to-Higgs coupling.
 Code 915.
   
@@ -693,7 +693,7 @@ Code 1014.
 <input type="radio" name="64" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>q g -> h^0 q</i> via loop contributions primarily 
-from top. Not to be confused with the <code>HiggsBSM:bg2H1b</code>
+from top. Not to be confused with the <code>HiggsBSM:qg2H1q</code>
 process above, with its direct fermion-to-Higgs coupling.
 Code 1015.
   
@@ -763,7 +763,7 @@ Code 1034.
 <input type="radio" name="70" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>q g -> H^0 q</i> via loop contributions primarily 
-from top. Not to be confused with the <code>HiggsBSM:bg2H1b</code>
+from top. Not to be confused with the <code>HiggsBSM:qg2H1q</code>
 process above, with its direct fermion-to-Higgs coupling.
 Code 1035.
   
@@ -833,7 +833,7 @@ Code 1054.
 <input type="radio" name="76" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>q g -> A^0 q</i> via loop contributions primarily 
-from top. Not to be confused with the <code>HiggsBSM:bg2H1b</code>
+from top. Not to be confused with the <code>HiggsBSM:qg2H1q</code>
 process above, with its direct fermion-to-Higgs coupling.
 Code 1055.
   

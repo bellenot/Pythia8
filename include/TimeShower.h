@@ -15,6 +15,7 @@
 #include "Event.h"
 #include "Info.h"
 #include "ParticleData.h"
+#include "PartonSystems.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
 #include "StandardModel.h"
@@ -31,7 +32,7 @@ public:
 
   // Constructors.
   TimeDipoleEnd() : iRadiator(-1), iRecoiler(-1), pTmax(0.), colType(0), 
-    chgType(0), gamType(0), isrType(0), system(0), MEtype(0), 
+    chgType(0), gamType(0), isrType(0), system(0), systemRec(0), MEtype(0), 
     iMEpartner(-1), isOctetOnium(false), MEmix(0.), MEorder(true), 
     MEsplit(true), MEgluinoRec(false) { }  
   TimeDipoleEnd(int iRadiatorIn, int iRecoilerIn, double pTmaxIn = 0., 
@@ -41,14 +42,15 @@ public:
     bool MEsplitIn = true, bool MEgluinoRecIn = false) : 
     iRadiator(iRadiatorIn), iRecoiler(iRecoilerIn), pTmax(pTmaxIn), 
     colType(colIn), chgType(chgIn), gamType(gamIn), isrType(isrIn), 
-    system(systemIn), MEtype(MEtypeIn), iMEpartner(iMEpartnerIn), 
-    isOctetOnium(isOctetOniumIn), MEmix(MEmixIn), MEorder (MEorderIn), 
-    MEsplit(MEsplitIn), MEgluinoRec(MEgluinoRecIn) { }
+    system(systemIn), systemRec(systemIn) , MEtype(MEtypeIn), 
+    iMEpartner(iMEpartnerIn), isOctetOnium(isOctetOniumIn), MEmix(MEmixIn), 
+    MEorder (MEorderIn), MEsplit(MEsplitIn), MEgluinoRec(MEgluinoRecIn) { }
 
   // Basic properties related to dipole and matrix element corrections.
   int    iRadiator, iRecoiler;
   double pTmax;
-  int    colType, chgType, gamType, isrType, system, MEtype, iMEpartner;
+  int    colType, chgType, gamType, isrType, system, systemRec,
+         MEtype, iMEpartner;
   bool   isOctetOnium;
   double MEmix;
   bool   MEorder, MEsplit, MEgluinoRec;
@@ -76,7 +78,8 @@ public:
 
   // Initialize pointer to Info for error messages. 
   // (Separated from rest of init since not virtual.)
-  void initPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;}
+  void initPtr(Info* infoPtrIn, PartonSystems* partonSystemsPtrIn) 
+   {infoPtr = infoPtrIn; partonSystemsPtr = partonSystemsPtrIn;}
 
   // Initialize alphaStrong and related pTmin parameters.
   virtual void init( BeamParticle* beamAPtrIn = 0, 
@@ -90,6 +93,9 @@ public:
 
   // Prepare system for evolution after each new interaction; identify ME.
   virtual void prepare( int iSys, Event& event);
+
+  // Update dipole list after a multiple interactions rescattering.
+  virtual void rescatterUpdate( int iSys, Event& event);
 
   // Update dipole list after each ISR emission.  
   virtual void update( int iSys, Event& event);
@@ -115,6 +121,9 @@ protected:
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
 
+  // Pointer to information on subcollision parton locations.
+  PartonSystems* partonSystemsPtr;
+
   // Store index of last processed system.
   int iSysSel;
 
@@ -126,7 +135,7 @@ private:
 
   // Initialization data, normally only set once.
   bool   doQCDshower, doQEDshowerByQ, doQEDshowerByL, doQEDshowerByGamma, 
-         doMEcorrections, doPhiPolAsym, allowBeamRecoil;
+         doMEcorrections, doPhiPolAsym, doInterleave, allowBeamRecoil;
   int    alphaSorder, nGluonToQuark, alphaEMorder, nGammaToQuark, 
          nGammaToLepton;
   double pTmaxFudge, mc, mb, m2c, m2b, alphaSvalue, alphaS2pi, 
@@ -142,6 +151,7 @@ private:
   // All dipole ends and a pointer to the selected hardest dipole end.
   vector<TimeDipoleEnd> dipEnd;
   TimeDipoleEnd* dipSel;
+  int iDipSel;
 
   // Setup a dipole end, either QCD or QED/photon one.
   void setupQCDdip( int iSys, int i, int colTag,  int colSign, Event& event,

@@ -9,7 +9,7 @@
 #include "BeamRemnants.h"
 
 namespace Pythia8 {
-
+ 
 //**************************************************************************
 
 // The BeamDipole class is purely internal to reconnectColours.
@@ -37,21 +37,33 @@ public:
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
+// If same (anti)colour appears twice in final state, repair or reject.
+const bool   BeamRemnants::ALLOWCOLOURTWICE = true; 
+
 // Maximum number of tries to match colours and kinematics in the event.
-const int    BeamRemnants::NTRYCOLMATCH   = 10; 
-const int    BeamRemnants::NTRYKINMATCH   = 10;  
+const int    BeamRemnants::NTRYCOLMATCH     = 10; 
+const int    BeamRemnants::NTRYKINMATCH     = 10;  
+
+// Overall correction step for energy-momentum conservation; only
+// becomes relevant in rescattering scenarios when FSR dipole emissions
+// and primordial kT is added. Switch off for debug purposes only.
+const bool   BeamRemnants::CORRECTMISMATCH  = true; 
+const double BeamRemnants::PTMISMATCH       = 0.0001;
+const double BeamRemnants::PLMISMATCH       = 1e-7;
+
 
 //*********
 
 // Initialization.
 
 bool BeamRemnants::init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-  BeamParticle* beamBPtrIn) {
+  BeamParticle* beamBPtrIn, PartonSystems* partonSystemsPtrIn) {
 
   // Save pointers.
   infoPtr             = infoPtrIn;
   beamAPtr            = beamAPtrIn;
   beamBPtr            = beamBPtrIn;
+  partonSystemsPtr    = partonSystemsPtrIn;
 
   // Width of primordial kT distribution.
   doPrimordialKT      = Settings::flag("BeamRemnants:primordialKT");
@@ -60,6 +72,9 @@ bool BeamRemnants::init( Info* infoPtrIn, BeamParticle* beamAPtrIn,
   primordialKTremnant = Settings::parm("BeamRemnants:primordialKTremnant");
   halfScaleForKT      = Settings::parm("BeamRemnants:halfScaleForKT");
   halfMassForKT       = Settings::parm("BeamRemnants:halfMassForKT");
+
+  // Handling of rescattering kinematics uncertainties from primodial kT.
+  doRescatterRestoreY = Settings::flag("BeamRemnants:rescatterRestoreY");
 
   // Parameters for colour reconnection scenario, partly borrowed from
   // multiple interactions not to introduce too many new ones.
@@ -95,7 +110,7 @@ bool BeamRemnants::add( Event& event) {
   sCM     = eCM * eCM;
 
   // Number of scattering subsystems. Size of event record before treatment.
-  nSys    = event.sizeSystems();
+  nSys    = partonSystemsPtr->sizeSys();
   oldSize = event.size();
 
   // Add required extra remnant flavour content. 
@@ -107,7 +122,7 @@ bool BeamRemnants::add( Event& event) {
     return false;
   }
 
-  // Do the kinematics of the collision subsystems and two beam remnants
+  // Do the kinematics of the collision subsystems and two beam remnants.
   if (!setKinematics(event)) return false;
 
   // Allow colour reconnections.
@@ -147,12 +162,14 @@ bool BeamRemnants::add( Event& event) {
     for (int i = oldSize; i < event.size(); ++i) 
       event[i].cols( colSave[i - oldSize], acolSave[i - oldSize] );
     event.restoreJunctionSize();
+    infoPtr->errorMsg("Warning in BeamRemnants::add:"
+      " colour tracing failed; will try again"); 
   }
 
   // If no solution after several tries then failed.
   if (!physical) {
     infoPtr->errorMsg("Error in BeamRemnants::add:"
-      " colour tracing failed"); 
+      " colour tracing failed after several attempts"); 
     return false;
   }
 
@@ -176,30 +193,53 @@ bool BeamRemnants::setKinematics( Event& event) {
   if ( beamA.isUnresolvedLepton() && beamB.isUnresolvedLepton() ) 
     return true;  
 
-  // Allow primordial kT reduction for small-mass and small-pT systems
-  // (for hardest interaction pT -> renormalization scale so also 2 -> 1).
-  vector<double> kTwidth;
-  vector<double> kTcomp;
-  double kTcompSumSys = 0.;
+  // Reserve space for extra information on the systems and beams.
+  int nMaxBeam = max( beamA.size(), beamB.size() );
+  vector<double> sHatSys(nMaxBeam);
+  vector<double> kTwidth(nMaxBeam);
+  vector<double> kTcomp(nMaxBeam);
+  vector<RotBstMatrix> Msys(nSys);
+
+  // Loop over all subsystems. Default values. Find invariant mass.
+  double kTcompSumA   = 0.;
+  double kTcompSumB   = 0.;
   for (int iSys = 0; iSys < nSys; ++iSys) { 
     double kTwidthNow = 0.;
     double mHatDamp   = 1.;
-    if (doPrimordialKT) {    
-      double mHat     = sqrtpos( beamA[iSys].x() * beamB[iSys].x() * sCM );
+    int iInA          = partonSystemsPtr->getInA(iSys);  
+    int iInB          = partonSystemsPtr->getInB(iSys);  
+    double sHatNow    = (event[iInA].p() + event[iInB].p()).m2Calc();
+
+    // Allow primordial kT reduction for small-mass and small-pT systems
+    // (for hardest interaction pT -> renormalization scale so also 2 -> 1).
+    if (doPrimordialKT) {
+      double mHat     = sqrt(sHatNow);
       mHatDamp        = mHat / (mHat + halfMassForKT);
       double scale    = (iSys == 0) ? infoPtr->QRen() : infoPtr->pTMI(iSys);
       kTwidthNow      = ( (halfScaleForKT * primordialKTsoft
       + scale * primordialKThard) / (halfScaleForKT + scale) ) * mHatDamp;
     }
-    kTwidth.push_back( kTwidthNow );
-    kTcomp.push_back( mHatDamp );
-    kTcompSumSys += mHatDamp;
+
+    // Store properties of compensation systems and total compensation power.
+    // Rescattered partons do not compensate, but may be massive.
+    sHatSys[iSys] = sHatNow;
+    kTwidth[iSys] = kTwidthNow ;
+    kTcomp[iSys]  = mHatDamp;
+    if (beamA[iSys].isFromBeam()) kTcompSumA += mHatDamp;
+    else beamA[iSys].m( event[iInA].m() );
+    if (beamB[iSys].isFromBeam()) kTcompSumB += mHatDamp;
+    else beamB[iSys].m( event[iInB].m() );
   } 
+
+  // Primordial kT and compensation power among remnants.
   double kTwidthNow = (doPrimordialKT) ? primordialKTremnant : 0.;    
-  for (int iRem = nSys; iRem < max( beamA.size(), beamB.size() ); ++iRem) { 
-    kTwidth.push_back( kTwidthNow );     
-    kTcomp.push_back( 1. );
+  for (int iRem = nSys; iRem < nMaxBeam; ++iRem) { 
+    sHatSys[iRem] = 0.;
+    kTwidth[iRem] = kTwidthNow ;
+    kTcomp[iRem]  = 1.;
   }     
+  kTcompSumA += beamA.size() - nSys;
+  kTcompSumB += beamB.size() - nSys;
 
   // Allow ten tries to construct kinematics (but normally works first).
   bool physical;
@@ -207,43 +247,56 @@ bool BeamRemnants::setKinematics( Event& event) {
   for (int iTry = 0; iTry < NTRYKINMATCH; ++iTry) {
     physical = true;
 
-    // Loop over the two beams. Sum px and py separately within each. 
+    // Loop over the two beams. 
     for (int iBeam = 0; iBeam < 2; ++iBeam) {
       BeamParticle& beam = (iBeam == 0) ? beamA : beamB;
       int nPar = beam.size();
-      double pxSum = 0.;
-      double pySum = 0.;
  
-      // Loop over the partons in a beam. Generate Gaussian pT for hadrons.
-      for (int iPar = 0; iPar < nPar; ++iPar) { 
-        double px = 0.;
-        double py = 0.;
-        if (beam.isHadron() && doPrimordialKT) {
-          px = kTwidth[iPar] * Rndm::gauss();
-          py = kTwidth[iPar] * Rndm::gauss();
-	}
-        beam[iPar].px(px);
-        beam[iPar].py(py);
-        pxSum += px;
-        pySum += py;
-      }  
+      // Generate Gaussian pT for initiator partons inside hadrons.
+      // Store/restore rescattered parton momenta before primordial kT. 
+      if (beam.isHadron() && doPrimordialKT) { 
+        double pxSum = 0.;
+        double pySum = 0.;
+        for (int iPar = 0; iPar < nPar; ++iPar) { 
+          if ( beam[iPar].isFromBeam() ) {
+            double px = kTwidth[iPar] * Rndm::gauss();
+            double py = kTwidth[iPar] * Rndm::gauss();
+            beam[iPar].px(px);
+            beam[iPar].py(py);
+            pxSum += px;
+            pySum += py;
+          } else {
+            int iInAB = (iBeam == 0) ? partonSystemsPtr->getInA(iPar)    
+                                     : partonSystemsPtr->getInB(iPar);    
+            beam[iPar].p( event[iInAB].p() );
+	  }
+        }  
 
-      // Share recoil between all partons.
-      if (doPrimordialKT) {    
-        double kTcompSum = kTcompSumSys + (nPar - nSys);
-        for (int iPar = 0; iPar < nPar; ++iPar) {
+        // Share recoil between all initiator partons, rescatterers excluded.
+	double kTcompSum = (iBeam == 0) ? kTcompSumA : kTcompSumB;
+        for (int iPar = 0; iPar < nPar; ++iPar) 
+	if (beam[iPar].isFromBeam() ) {
           beam[iPar].px( beam[iPar].px() - pxSum * kTcomp[iPar] / kTcompSum );
           beam[iPar].py( beam[iPar].py() - pySum * kTcomp[iPar] / kTcompSum );
         }
+
+      // Without primordial kT: still need to store rescattered partons.
+      } else if (beam.isHadron()) {
+        for (int iPar = 0; iPar < nPar; ++iPar)  
+        if ( !beam[iPar].isFromBeam() ) {
+          int iInAB = (iBeam == 0) ? partonSystemsPtr->getInA(iPar)    
+                                   : partonSystemsPtr->getInB(iPar);       
+          beam[iPar].p( event[iInAB].p() );
+	}   
       }
 
       // Pick unrescaled x values for remnants. Sum up (unscaled) p+ and p-.
-      xSum[iBeam] = 0.;
+      xSum[iBeam]  = 0.;
       xInvM[iBeam] = 0.;
       for (int iRem = nSys; iRem < nPar; ++iRem) {
         double xPrel = beam.xRemnant( iRem);
         beam[iRem].x(xPrel);
-        xSum[iBeam] += xPrel;
+        xSum[iBeam]  += xPrel;
         xInvM[iBeam] += beam[iRem].mT2()/xPrel;     
       }
 
@@ -257,23 +310,182 @@ bool BeamRemnants::setKinematics( Event& event) {
     wPosRem = eCM;
     wNegRem = eCM;
     for (int iSys = 0; iSys < nSys; ++iSys) { 
-      double sHat = beamA[iSys].x() * beamB[iSys].x() * sCM;
-      double sHatT = sHat 
-        + pow2( beamA[iSys].px() + beamB[iSys].px()) 
-        + pow2( beamA[iSys].py() + beamB[iSys].py()); 
-      double rescale = sqrt( sHatT / sHat);
-      wPosRem -= rescale * beamA[iSys].x() * eCM;
-      wNegRem -= rescale * beamB[iSys].x() * eCM;
+      int iA          = beamA[iSys].iPos();
+      int iB          = beamB[iSys].iPos();
+      double sHat     = sHatSys[iSys];
 
-      // Kinematics forbids too large primordial kT.
-      if (sqrt(sHatT) < beamA[iSys].pT() + beamB[iSys].pT()) 
-        physical = false;
+      // Begin kinematics of partons after primordial kT has been added.
+      double sHatTAft = sHat + pow2( beamA[iSys].px() + beamB[iSys].px()) 
+                             + pow2( beamA[iSys].py() + beamB[iSys].py()); 
+      double w2A      = beamA[iSys].mT2();
+      double w2B      = beamB[iSys].mT2();
+      double w2Diff   = sHatTAft - w2A - w2B;
+      double lambda   = pow2(w2Diff) - 4. * w2A * w2B;
+
+      // Too large transverse momenta means that kinematics will not work.
+      if (lambda <= 0.) {
+	physical      = false;
+        break;
+      }  
+      double lamRoot  = sqrtpos( lambda );
+
+      // Two procedures, which agree for normal scattering, separate here.
+      // First option keeps rapidity (and mass) of system unchanged by 
+      // primordial kT, by modification of rescattered parton. 
+      bool normalSys  =  beamA[iSys].isFromBeam() &&  beamB[iSys].isFromBeam();
+      bool doubleRes  = !beamA[iSys].isFromBeam() && !beamB[iSys].isFromBeam();
+      if (normalSys || doRescatterRestoreY || doubleRes) {
+
+        // Find kinematics of initial system: transverse mass, and 
+        // longitudinal momentum carried by all or rescattered partons.
+        double sHatTBef = sHat;
+        double wPosBef, wNegBef, wPosBefRes, wNegBefRes;
+        // Normal scattering.
+        if (normalSys) {
+          wPosBef       = beamA[iSys].x() * eCM;
+          wNegBef       = beamB[iSys].x() * eCM;
+          wPosBefRes    = 0.;
+          wNegBefRes    = 0.;      
+        // Rescattering on side A.
+        } else if (beamB[iSys].isFromBeam()) {
+          sHatTBef     += event[iA].pT2();
+          wPosBef       = event[iA].pPlus();
+          wNegBef       = event[iA].pMinus() + beamB[iSys].x() * eCM;
+          wPosBefRes    = beamA[iSys].e() + beamA[iSys].pz();
+          wNegBefRes    = beamA[iSys].e() - beamA[iSys].pz();
+        // Rescattering on side B.
+        } else if (beamA[iSys].isFromBeam()) {
+          sHatTBef     += event[iB].pT2(); 
+          wPosBef       = beamA[iSys].x() * eCM + event[iB].pPlus();
+          wNegBef       = event[iB].pMinus();
+          wPosBefRes    = beamB[iSys].e() + beamB[iSys].pz();
+          wNegBefRes    = beamB[iSys].e() - beamB[iSys].pz();
+        // Rescattering on both sides.
+        } else {
+          sHatTBef     += pow2( event[iA].px() + event[iB].px())
+                        + pow2( event[iA].py() + event[iB].py());
+          wPosBef       = event[iA].pPlus()  + event[iB].pPlus();
+          wNegBef       = event[iA].pMinus() + event[iB].pMinus();
+          wPosBefRes    = beamA[iSys].e() + beamA[iSys].pz()
+                        + beamB[iSys].e() + beamB[iSys].pz();
+          wNegBefRes    = beamA[iSys].e() - beamA[iSys].pz()
+                        + beamB[iSys].e() - beamB[iSys].pz();
+        }
+
+        // Rescale outgoing momenta to keep same mass and rapidity of system
+        // as originally, and solve for kinematics.
+        double rescale  = sqrt(sHatTAft / sHatTBef);
+        double wPosAft  = rescale * wPosBef;
+        double wNegAft  = rescale * wNegBef;
+        wPosRem        -= wPosAft - wPosBefRes;
+        wNegRem        -= wNegAft - wNegBefRes; 
+        double wPosA    = 0.5 * (sHatTAft + w2A - w2B + lamRoot) / wNegAft;
+        double wNegB    = 0.5 * (sHatTAft + w2B - w2A + lamRoot) / wPosAft;
+  
+        // Store modified beam parton momenta.
+        beamA[iSys].e(  0.5 * (wPosA + w2A / wPosA) );
+        beamA[iSys].pz( 0.5 * (wPosA - w2A / wPosA) );        
+        beamB[iSys].e(  0.5 * (w2B / wNegB + wNegB) );
+        beamB[iSys].pz( 0.5 * (w2B / wNegB - wNegB) );
+
+      // Second option keeps rescattered parton (and system mass) unchanged
+      // by primordial kT, by modification of system rapidity. 
+      } else {
+
+        // Rescattering on side A: preserve already scattered parton.
+        if (beamB[iSys].isFromBeam()) {
+	  double wPosA  = beamA[iSys].e() + beamA[iSys].pz(); 
+          double wNegB  = 0.5 * (w2Diff + lamRoot) / wPosA;
+          beamB[iSys].e(  0.5 * (w2B / wNegB + wNegB) );
+          beamB[iSys].pz( 0.5 * (w2B / wNegB - wNegB) );
+	  wPosRem      -= w2B / wNegB;
+          wNegRem      -= wNegB; 
+     
+
+        // Rescattering on side B: preserve already scattered parton.
+        } else if (beamA[iSys].isFromBeam()) {
+	  double wNegB  = beamB[iSys].e() - beamB[iSys].pz(); 
+          double wPosA  = 0.5 * (w2Diff + lamRoot) / wNegB;
+          beamA[iSys].e(  0.5 * (wPosA + w2A / wPosA) );
+          beamA[iSys].pz( 0.5 * (wPosA - w2A / wPosA) );
+	  wPosRem      -= wPosA;
+          wNegRem      -= w2A / wPosA; 
+
+        // Primordial kT in double rescattering does change the mass of 
+        // the system without any possible fix in this framework, which 
+        // leads to incorrect boosts. Current choice is therefore always
+        // to handle it with the first procedure, where mass is retained.
+        } else {
+        }
+      }
+
+      // Rescale primordial kT if there is a lightcone imbalance caused
+      // by rescattering and FSR in combination.
+      if (!normalSys && CORRECTMISMATCH) {
+        Vec4 pFinal;
+        for (int iMem = 0; iMem < partonSystemsPtr->sizeOut(iSys); ++iMem) {
+          int iAB      = partonSystemsPtr->getOut(iSys, iMem);
+          if (event[iAB].isFinal()) pFinal += event[iAB].p();
+        }
+        double ppFinal = pFinal.e() + pFinal.pz();
+        double pmFinal = pFinal.e() - pFinal.pz();
+
+        if (beamA[iSys].isFromBeam()) {
+          double ppIn = beamA[iSys].e() + beamA[iSys].pz()
+                      + beamB[iSys].e() + beamB[iSys].pz();
+          double ppRatio = ppIn / ppFinal;
+          if (ppRatio < 1.0) {
+            beamA[iSys].px(ppRatio * beamA[iSys].px());
+            beamA[iSys].py(ppRatio * beamA[iSys].py());
+          }
+        }
+ 
+        if (beamB[iSys].isFromBeam()) {
+          double pmIn = beamB[iSys].e() - beamB[iSys].pz();
+                      + (beamA[iSys].e() - beamA[iSys].pz());
+          double pmRatio = pmIn / pmFinal;
+          if (pmRatio < 1.0) {
+            beamB[iSys].px(pmRatio * beamB[iSys].px());
+            beamB[iSys].py(pmRatio * beamB[iSys].py());
+          }
+        }
+      } 
+      // End of primordial kT rescaling section.
+
+      // Construct system rotation and boost caused by primordial kT.
+      Msys[iSys].reset();
+      Msys[iSys].toCMframe( event[iA].p(), event[iB].p() );
+      Msys[iSys].fromCMframe( beamA[iSys].p(), beamB[iSys].p() );
+
+      // Boost rescattered partons in subsequent beam A list.
+      for (int iSys2 = iSys + 1; iSys2 < nSys; ++iSys2) { 
+        if (!beamA[iSys2].isFromBeam()) {
+          int iBefResc = event[ beamA[iSys2].iPos() ].mother1();     
+          for (int iMem = 0; iMem < partonSystemsPtr->sizeOut(iSys); ++iMem)
+          if (partonSystemsPtr->getOut(iSys, iMem) == iBefResc) {
+	    Vec4 pTemp = event[iBefResc].p();
+            pTemp.rotbst( Msys[iSys] );
+            beamA[iSys2].p( pTemp );
+          }
+        } 
+
+        // Boost rescattered partons in subsequent beam B list.
+        if (!beamB[iSys2].isFromBeam()) {
+          int iBefResc = event[ beamB[iSys2].iPos() ].mother1();
+          for (int iMem = 0; iMem < partonSystemsPtr->sizeOut(iSys); ++iMem)
+          if (partonSystemsPtr->getOut(iSys, iMem) == iBefResc) {
+	    Vec4 pTemp = event[iBefResc].p();
+            pTemp.rotbst( Msys[iSys] );
+            beamB[iSys2].p( pTemp );
+          }
+        } 
+      }
     }
 
     // Check that remaining momentum is enough for remnants.
     if (wPosRem < 0. || wNegRem < 0.) physical = false;
     w2Rem = wPosRem * wNegRem;
-    if (sqrtpos(w2Rem) < sqrt(w2Beam[0]) + sqrt(w2Beam[1])) 
+    if (sqrtpos(w2Rem) < sqrt(w2Beam[0]) + sqrt(w2Beam[1]))
       physical = false;
 
     // End of loop over ten tries. Do not loop when solution found.  
@@ -282,68 +494,105 @@ bool BeamRemnants::setKinematics( Event& event) {
 
   // If no solution after ten tries then failed.
   if (!physical) {
-    infoPtr->errorMsg("Error in BeamRemnants::add:"
+    infoPtr->errorMsg("Error in BeamRemnants::setKinematics:"
       " kinematics construction failed"); 
     return false;
   }
 
-  // Construct energy and pz for each initiator pair.
-  for (int iSys = 0; iSys < nSys; ++iSys) { 
-    double sHat = beamA[iSys].x() * beamB[iSys].x() * sCM;
-    double sHatT = sHat + pow2( beamA[iSys].px() + beamB[iSys].px()) 
-      + pow2( beamA[iSys].py() + beamB[iSys].py()); 
-    double rescale = sqrt( sHatT / sHat);
-    double wPos = rescale * beamA[iSys].x() * eCM;
-    double wNeg = rescale * beamB[iSys].x() * eCM;
-    double w2A = beamA[iSys].mT2();
-    double w2B = beamB[iSys].mT2();
-    double lambdaRoot = sqrtpos( pow2( sHatT - w2A - w2B) - 4. * w2A * w2B );
-    double pPosA = 0.5 * (sHatT + w2A - w2B + lambdaRoot) / sHatT * wPos;
-    beamA[iSys].e( 0.5 * (pPosA + w2A / pPosA) );
-    beamA[iSys].pz( 0.5 * (pPosA - w2A / pPosA) );
-    double pNegB = 0.5 * (sHatT + w2B - w2A + lambdaRoot) / sHatT * wNeg;
-    beamB[iSys].e( 0.5 * (pNegB + w2B / pNegB) );
-    beamB[iSys].pz( 0.5 * (w2B / pNegB - pNegB) );
-
-    // Construct rotations and boosts caused by primordial kT.
-    int iA = beamA[iSys].iPos();
-    int iB = beamB[iSys].iPos();
-    RotBstMatrix M;
-    M.toCMframe( event[iA].p(), event[iB].p() );
-    M.fromCMframe( beamA[iSys].p(), beamB[iSys].p() );
+  // For successful initiator kinematics process whole systems.
+  Vec4 pSumIn, pSumOut;
+  for (int iSys = 0; iSys < nSys; ++iSys) {
  
     // Copy initiators and their systems and boost them accordingly.
     // Update subsystem and beams info on new positions of partons.
-    int iAcopy = event.copy(iA, -61);
-    event[iAcopy].rotbst(M);
-    event.setInSystem(iSys, 0, iAcopy);
-    beamA[iSys].iPos( iAcopy);
-    int iBcopy = event.copy(iB, -61);
-    event[iBcopy].rotbst(M);
-    event.setInSystem(iSys, 1, iBcopy);
-    beamB[iSys].iPos( iBcopy);
-    for (int iABsys = 2; iABsys < event.sizeSystem(iSys); ++iABsys) {
-      int iAB = event.getInSystem(iSys, iABsys);
-      int iABcopy = event.copy(iAB, 62);
-      event[iABcopy].rotbst(M); 
-      event.setInSystem(iSys, iABsys, iABcopy);
+    // Update daughter info of mothers, i.e. of beams, for hardest interaction.
+    if (beamA[iSys].isFromBeam()) {
+      int iA       = beamA[iSys].iPos();
+      int iAcopy   = event.copy(iA, -61);
+      event[iAcopy].rotbst(Msys[iSys]);
+      partonSystemsPtr->setInA(iSys, iAcopy);
+      beamA[iSys].iPos( iAcopy);
+      if (iSys == 0) { 
+        int mother = event[iAcopy].mother1();
+        event[mother].daughter1(iAcopy);      
+      }   
+      pSumIn      += event[iAcopy].p(); 
+    }
+    if (beamB[iSys].isFromBeam()) {
+      int iB       = beamB[iSys].iPos();
+      int iBcopy   = event.copy(iB, -61);
+      event[iBcopy].rotbst(Msys[iSys]);
+      partonSystemsPtr->setInB(iSys, iBcopy);
+      beamB[iSys].iPos( iBcopy);
+      if (iSys == 0) { 
+        int mother = event[iBcopy].mother1();
+        event[mother].daughter1(iBcopy);      
+      }    
+      pSumIn      += event[iBcopy].p(); 
+    }
+    for (int iMem = 0; iMem < partonSystemsPtr->sizeOut(iSys); ++iMem) {
+      int iAB      = partonSystemsPtr->getOut(iSys, iMem);
+      if (event[iAB].isFinal()) {
+        int iABcopy = event.copy(iAB, 62);
+        event[iABcopy].rotbst(Msys[iSys]); 
+        partonSystemsPtr->setOut(iSys, iMem, iABcopy);
+        pSumOut   += event[iABcopy].p();
+      }
+    }
+  }
+
+  // Colour dipoles spanning systems gives mismatch between FSR recoils
+  // and primordial kT boosts. First check for transverse mismatch.
+  Vec4 pMismatch   = pSumOut - pSumIn;
+  if ( CORRECTMISMATCH && pMismatch.pT2() > pow2(PTMISMATCH)) { 
+
+    // Find wanted summed transverse momentum.
+    double pxBeams = 0.;
+    double pyBeams = 0.;
+    for (int iRem = nSys; iRem < beamA.size(); ++iRem) { 
+      pxBeams     += beamA[iRem].px();
+      pyBeams     += beamA[iRem].py();
+    }
+    for (int iRem = nSys; iRem < beamB.size(); ++iRem) { 
+      pxBeams     += beamB[iRem].px();
+      pyBeams     += beamB[iRem].py();
     }
 
-    // Update daughter info of mothers, i.e. of beams, for hardest interaction.
-    if (iSys == 0) { 
-      int mother = event[iAcopy].mother1();
-      event[mother].daughter1(iAcopy);      
-      mother = event[iBcopy].mother1();
-      event[mother].daughter1(iBcopy);      
-    }    
+    // Boost all final partons transversely, and also their sum.
+    Vec4 pSumTo( -pxBeams, -pyBeams, pSumOut.pz(), sqrt( pow2(pxBeams) 
+      + pow2(pyBeams) + pow2(pSumOut.pz()) + pSumOut.m2Calc() ) ); 
+    RotBstMatrix Mmismatch;
+    Mmismatch.bst( pSumOut, pSumTo);  
+    for (int iSys = 0; iSys < nSys; ++iSys)  
+    for (int iMem = 0; iMem < partonSystemsPtr->sizeOut(iSys); ++iMem) {
+      int iAB = partonSystemsPtr->getOut(iSys, iMem);
+      if (event[iAB].isFinal()) event[iAB].rotbst(Mmismatch);      
+    }
+    pSumOut.rotbst(Mmismatch);
+    pMismatch      = pSumOut - pSumIn;
+  }
+
+  // Check for energy and pz mismatch, to be compensated by beam remnants.
+  // Would it be simpler always to (re)set wPosRem and wNegRem here??
+  if ( CORRECTMISMATCH && ( abs(pMismatch.pz()) > PLMISMATCH * pSumIn.e()
+    || abs(pMismatch.e())  > PLMISMATCH * pSumIn.e() ) ) {
+    wPosRem = eCM - (pSumOut.e() + pSumOut.pz());
+    wNegRem = eCM - (pSumOut.e() - pSumOut.pz());
+    w2Rem    = wPosRem * wNegRem;
+    if ( wPosRem < 0. || wNegRem < 0. 
+      || sqrtpos(w2Rem) < sqrt(w2Beam[0]) + sqrt(w2Beam[1])) {
+      infoPtr->errorMsg("Error in BeamRemnants::setKinematics:"
+        " kinematics construction failed owing to recoil mismatch"); 
+      return false;
+    }
   }
 
   // Construct x rescaling factors for the two remants.
   double lambdaRoot = sqrtpos( pow2(w2Rem - w2Beam[0] - w2Beam[1])
     - 4. * w2Beam[0] * w2Beam[1] );
-  double rescaleA = (w2Rem + w2Beam[0] - w2Beam[1] + lambdaRoot)
+  double rescaleA   = (w2Rem + w2Beam[0] - w2Beam[1] + lambdaRoot)
     / (2. * w2Rem * xSum[0]) ;
-  double rescaleB = (w2Rem + w2Beam[1] - w2Beam[0] + lambdaRoot)
+  double rescaleB   = (w2Rem + w2Beam[1] - w2Beam[0] + lambdaRoot)
     / (2. * w2Rem * xSum[1]) ;
 
   // Construct energy and pz for remnants in first beam.
@@ -386,27 +635,33 @@ bool BeamRemnants::setKinematics( Event& event) {
 // where minimal pT (or equivalently Lambda) is used to pick location.
 // Therefore all dipoles in iSys have to be found, and all gluons in iRec.
 // Matching q-qbar pairs are treated by analogy with gluons.
+// Note: owing to rescatterings some outgoing partons must be skipped.
 
 bool BeamRemnants::reconnectColours( Event&  event) {
 
+  // References to beams to simplify indexing.
+  BeamParticle& beamA = *beamAPtr;  
+  BeamParticle& beamB = *beamBPtr;  
+
   // Prepare record of which systems should be merged onto another.
   // The iSys system must have colour in final state to attach to it.
-  vector<int>  iMerge;
-  vector<bool> hasColour;
+  vector<int>  iMerge(nSys);
+  vector<bool> hasColour(nSys);
   for (int iSys = 0; iSys < nSys; ++iSys) {
-    iMerge.push_back( iSys );
+    iMerge[iSys] = iSys;
     bool hasCol = false;
-    for (int iMem = 2; iMem < event.sizeSystem( iSys); ++iMem) {
-      int iNow = event.getInSystem( iSys, iMem);
-      if (event[iNow].col() > 0 || event[iNow].acol() > 0) {
+    for (int iMem = 0; iMem < partonSystemsPtr->sizeOut(iSys); ++iMem) {
+      int iNow = partonSystemsPtr->getOut( iSys, iMem);
+      if (event[iNow].isFinal() && (event[iNow].col() > 0 
+        || event[iNow].acol() > 0) ) {
         hasCol = true;
         break;
       }    
     }
-    hasColour.push_back( hasCol );
+    hasColour[iSys] = hasCol;
   }
 
-  // Loop over system that may be reconnected. 
+  // Loop over systems to decide which should be reconnected. 
   for (int iRec = nSys - 1; iRec > 0; --iRec) {
 
     // Determine reconnection strength from pT scale of system.
@@ -430,32 +685,37 @@ bool BeamRemnants::reconnectColours( Event&  event) {
 
   // Loop over systems. Check whether other systems to be merged with it.
   for (int iSys = 0; iSys < nSys; ++iSys) {
-
     int nMerge = 0;
     for (int iRec = iSys + 1; iRec < nSys; ++iRec)
     if (iMerge[iRec] == iSys) ++nMerge;
     if (nMerge == 0) continue; 
 
+    // Incoming partons not counted if rescattered.
+    int  iInASys = partonSystemsPtr->getInA(iSys);
+    bool hasInA  = (beamA[iSys].isFromBeam());   
+    int  iInBSys = partonSystemsPtr->getInB(iSys);    
+    bool hasInB  = (beamB[iSys].isFromBeam()); 
+
     // Begin find dipoles in iSys system.
     vector<BeamDipole> dipoles;
-    int sizeSys = event.sizeSystem( iSys);
-    int iInASys = event.getInSystem( iSys, 0);
-    int iInBSys = event.getInSystem( iSys, 1);    
-    for (int iMem = 2; iMem < sizeSys; ++iMem) {
+    int sizeOut = partonSystemsPtr->sizeOut(iSys);
+    for (int iMem = 0; iMem < sizeOut; ++iMem) {
 
       // Find colour dipoles to beam remnant.
-      int iNow = event.getInSystem( iSys, iMem);
+      int iNow = partonSystemsPtr->getOut( iSys, iMem);
+      if (!event[iNow].isFinal()) continue;
       int col = event[iNow].col();  
       if (col > 0) {
-        if (event[iInASys].col() == col)
+        if      (hasInA && event[iInASys].col() == col)
           dipoles.push_back( BeamDipole( col, iNow, iInASys ) );
-        else if (event[iInBSys].col() == col)
+        else if (hasInB && event[iInBSys].col() == col)
           dipoles.push_back( BeamDipole( col, iNow, iInBSys ) );
  
         // Find colour dipole between final-state partons.
-        else for (int iMem2 = 2; iMem2 < sizeSys; ++iMem2) 
+        else for (int iMem2 = 0; iMem2 < sizeOut; ++iMem2) 
         if (iMem2 != iMem) {
-          int iNow2 = event.getInSystem( iSys, iMem2); 
+          int iNow2 = partonSystemsPtr->getOut( iSys, iMem2); 
+          if (!event[iNow2].isFinal()) continue;
           if (event[iNow2].acol() == col) {
             dipoles.push_back( BeamDipole( col, iNow, iNow2) );
             break;
@@ -466,12 +726,15 @@ bool BeamRemnants::reconnectColours( Event&  event) {
       // Find anticolour dipoles to beam remnant.
       int acol = event[iNow].acol();  
       if (acol > 0) {
-        if (event[iInASys].acol() == acol)
+        if      (hasInA && event[iInASys].acol() == acol)
           dipoles.push_back( BeamDipole( acol, iInASys, iNow ) );
-        else if (event[iInBSys].acol() == acol)
+        else if (hasInB && event[iInBSys].acol() == acol)
           dipoles.push_back( BeamDipole( acol, iInBSys, iNow ) ); 
       }
     }
+   
+    // Skip mergings if no dipoles found.
+    if (dipoles.size() == 0) continue; 
 
     // Find dipole sizes.
     for (int iDip = 0; iDip < int(dipoles.size()); ++iDip) 
@@ -483,9 +746,9 @@ bool BeamRemnants::reconnectColours( Event&  event) {
       if (iMerge[iRec] != iSys) continue;
 
       // Information on iRec. Vectors for gluons and anything else.
-      int sizeRec = event.sizeSystem( iRec);
-      int iInARec = event.getInSystem( iRec, 0);
-      int iInBRec = event.getInSystem( iRec, 1);    
+      int sizeRec = partonSystemsPtr->sizeOut(iRec);
+      int iInARec = partonSystemsPtr->getInA(iRec);
+      int iInBRec = partonSystemsPtr->getInB(iRec);   
       int nGluRec = 0;
       vector<int>    iGluRec;
       vector<double> pT2GluRec;
@@ -494,8 +757,9 @@ bool BeamRemnants::reconnectColours( Event&  event) {
       vector<bool>   freeAnyRec;
 
       // Copy of gluon positions in descending order. 
-      for (int iMem = 2; iMem < sizeRec; ++iMem) {
-        int iNow = event.getInSystem( iRec, iMem);
+      for (int iMem = 0; iMem < sizeRec; ++iMem) {
+        int iNow = partonSystemsPtr->getOut( iRec, iMem);
+        if (!event[iNow].isFinal()) continue;
         if (event[iNow].isGluon()) {
           ++nGluRec;
           iGluRec.push_back( iNow );  
@@ -544,20 +808,14 @@ bool BeamRemnants::reconnectColours( Event&  event) {
         dipoles.push_back( BeamDipole( colGlu, iGlu, iAcolDip ) );
         dipoles.back().p1p2 = pGlu * event[iAcolDip].p();
      
-        // Remove gluon from old system: reconnect colours. 
-        if      (event[iInARec].col() == colGlu) 
-          event[iInARec].col( acolGlu );
-        else if (event[iInBRec].col() == colGlu) 
-          event[iInBRec].col( acolGlu );
-        else for (int i = iGRec + 1; i < nGluRec; ++i) 
-        if (event[iGluRec[i]].acol() == colGlu) {
-          event[iGluRec[i]].acol( acolGlu );
-          break;
-	}
-        for (int i = 0; i < nAnyRec; ++i) 
-        if (event[iAnyRec[i]].acol() == colGlu) {
-          event[iAnyRec[i]].acol( acolGlu );
-          break;
+        // Remove gluon from old system: reconnect colours.
+        for (int i = oldSize; i < event.size(); ++i)
+	if (i != iGlu && i != iAcolDip) { 
+	  if (event[i].isFinal()) {     
+	    if (event[i].acol() == colGlu) event[i].acol( acolGlu ); 
+          } else {      
+  	    if (event[i].col()  == colGlu) event[i].col( acolGlu );  
+	  }       
 	}
       }
 
@@ -571,11 +829,13 @@ bool BeamRemnants::reconnectColours( Event&  event) {
           if (freeAnyRec[iQbarRec] && event[iQbar].id() == -idQ) {
 
             // Check that these can be traced back to same gluon splitting.
+            // For now also avoid qqbar pairs produced in rescatterings.??
             int iTopQ    = event.iTopCopyId(iQ);
             int iTopQbar = event.iTopCopyId(iQbar);
             int iMother  = event[iTopQ].mother1();
-            if (event[iTopQbar].mother1() == iMother 
-              && event[iMother].isGluon()) {
+           if (event[iTopQbar].mother1() == iMother 
+              && event[iMother].isGluon() && event[iMother].status() != -34
+              && event[iMother + 1].status() != -34 ) {
 
               // Now find the dipole that gives the smallest
               // ((pQ + pQbar) * pI) ((pQ + pQbar) * pJ) / (pI * pJ). 
@@ -610,16 +870,15 @@ bool BeamRemnants::reconnectColours( Event&  event) {
               // Remove q-qbar pair from old system: reconnect colours. 
               freeAnyRec[iQRec]    = false;
               freeAnyRec[iQbarRec] = false;
-              if      (event[iInARec].col() == colGlu) 
-                event[iInARec].col( acolGlu );
-              else if (event[iInBRec].col() == colGlu) 
-                event[iInBRec].col( acolGlu );
-              else for (int i = 0; i < nAnyRec; ++i) 
-              if (freeAnyRec[i] && event[iAnyRec[i]].acol() == colGlu) {
-                event[iAnyRec[i]].acol( acolGlu );
-                break;
+              for (int i = oldSize; i < event.size(); ++i)
+	      if (i != iQRec && i != iQbarRec && i != iColDip && i != iAcolDip) { 
+         	if (event[i].isFinal()) {     
+	          if (event[i].acol() == colGlu) event[i].acol( acolGlu ); 
+                } else {      
+  	          if (event[i].col()  == colGlu) event[i].col( acolGlu );  
+	        }       
 	      }
-
+	      
             // Done with processing of q-qbar pairs.
 	    }
 	  }
@@ -692,7 +951,7 @@ bool BeamRemnants::checkColours( Event& event) {
 
   // Find current colours and anticolours in the event record.
   for (int i = oldSize; i < event.size(); ++i) 
-  if (event[i].status() > 0) {
+  if (event[i].isFinal()) {
     int id   = event[i].id();
     int col  = event[i].col();
     int acol = event[i].acol(); 
@@ -742,12 +1001,20 @@ bool BeamRemnants::checkColours( Event& event) {
   for (int iCol = 0; iCol < int(colList.size()) - 1; ++iCol) {
     int col = colList[iCol];
     for (int iCol2 = iCol + 1; iCol2 < int(colList.size()); ++iCol2) 
-      if (colList[iCol2] == col) return false;
+    if (colList[iCol2] == col) { 
+      infoPtr->errorMsg("Warning in BeamRemnants::checkColours:"
+        " colour appears twice"); 
+      if (!ALLOWCOLOURTWICE) return false;
+    }
   }
   for (int iAcol = 0; iAcol < int(acolList.size()) - 1; ++iAcol) {
     int acol = acolList[iAcol];
     for (int iAcol2 = iAcol + 1; iAcol2 < int(acolList.size()); ++iAcol2) 
-      if (acolList[iAcol2] == acol) return false;
+    if (acolList[iAcol2] == acol) {
+      infoPtr->errorMsg("Warning in BeamRemnants::checkColours:"
+        " anticolour appears twice"); 
+      if (!ALLOWCOLOURTWICE) return false;
+    }
   }
 
   // Remove all matching colour-anticolour pairs.
@@ -796,6 +1063,31 @@ bool BeamRemnants::checkColours( Event& event) {
       }
 
     // End junction check. More junction cases to come??
+    }
+  }
+
+
+  // Repair step - sometimes needed when rescattering allowed.
+  if (colList.size() > 0 || acolList.size() > 0)    
+    infoPtr->errorMsg("Warning in BeamRemnants::checkColours:"
+    " need to repair unmatched colours"); 
+  while (colList.size() > 0 && acolList.size() > 0) {
+
+    // Replace one colour and one anticolour index by a new common one.
+    int  colMatch =  colList.back();
+    int acolMatch = acolList.back();
+    int  colNew   = event.nextColTag();
+    colList.pop_back();     
+    acolList.pop_back();     
+    for (int i = oldSize; i < event.size(); ++i) 
+    if (event[i].isFinal() > 0 && event[i].col() == colMatch) {
+      event[i].col( colNew);
+      break;
+    }
+    for (int i = oldSize; i < event.size(); ++i) 
+    if (event[i].isFinal() > 0 && event[i].acol() == acolMatch) {
+      event[i].acol( colNew);
+      break;
     }
   }
 

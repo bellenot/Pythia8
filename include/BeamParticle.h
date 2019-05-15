@@ -31,6 +31,9 @@ namespace Pythia8 {
 // sea quark, is >= 0 for a matched sea quark, with the number giving the 
 // companion position, and is -3 for a valence quark.
 
+// Rescattering partons properly do not belong here, but bookkeeping is
+// simpler with them, so they are stored with companion code -10.
+
 class ResolvedParton {
 
 public:
@@ -61,24 +64,25 @@ public:
     {colRes = colIn; acolRes = acolIn;}  
 
   // Get info on initiator or remnant parton.
-  int iPos() const {return iPosRes;} 
-  int id() const {return idRes;} 
-  double x() const {return xRes;} 
-  int companion() const {return companionRes;} 
-  bool isValence() const {return (companionRes == -3);}
-  bool isUnmatched() const {return (companionRes == -2);}
-  bool isCompanion() const {return (companionRes >= 0);}
+  int iPos()           const {return iPosRes;} 
+  int id()             const {return idRes;} 
+  double x()           const {return xRes;} 
+  int companion()      const {return companionRes;} 
+  bool isValence()     const {return (companionRes == -3);}
+  bool isUnmatched()   const {return (companionRes == -2);}
+  bool isCompanion()   const {return (companionRes >= 0);}
+  bool isFromBeam()    const {return (companionRes > -10);}
   double xqCompanion() const {return xqCompRes;} 
-  Vec4 p() const {return pRes;}
-  double px() const {return pRes.px();}
-  double py() const {return pRes.py();}
-  double pz() const {return pRes.pz();}
-  double e() const {return pRes.e();}
-  double m() const {return mRes;}
-  double pT() const {return pRes.pT();}
-  double mT2() const {return mRes*mRes + pRes.pT2();}
-  int col() const {return colRes;}
-  int acol() const {return acolRes;}
+  Vec4 p()             const {return pRes;}
+  double px()          const {return pRes.px();}
+  double py()          const {return pRes.py();}
+  double pz()          const {return pRes.pz();}
+  double e()           const {return pRes.e();}
+  double m()           const {return mRes;}
+  double pT()          const {return pRes.pT();}
+  double mT2()         const {return mRes*mRes + pRes.pT2();}
+  int col()            const {return colRes;}
+  int acol()           const {return acolRes;}
  
 private:
 

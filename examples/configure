@@ -29,12 +29,14 @@ for arg in $* ; do
     echo "--enable-debug           : turns on debugging flags and turns off optimization"
     echo "--enable-shared          : use shared library (not yet implemented) (default no)"
     echo "--with-lhapdf=lhapdfpath : path to LHAPDF libraries (must be version 5.3 or higher)"
-    echo "--with-lhapdfversion=v   : LHAPDF version (simplified alternative when using CERN AFS MCGenerators, e.g. =5.3.0)"
+    echo "--with-lhapdfversion=v   : LHAPDF version (simplified alternative when using CERN AFS MCGenerators, e.g. =5.5.1.a)"
     echo "--with-lhapdflibname=n   : lhapdf library name line (default is -lLHAPDF)"
     echo "--with-lhapdfsets=path   : path to LHAPDF data (default is lhapdfpath/../PDFsets, CERN AFS default is lhapdfpath/../../../share/PDFsets)"
     echo "--with-pythia6=path      : path to pythia6 libraries"
-    echo "--with-pythia6version=v  : pythia6 version (simplified alternative when using CERN AFS MCGenerators, e.g. =413)"
+    echo "--with-pythia6version=v  : pythia6 version (simplified alternative when using CERN AFS MCGenerators, e.g. =418)"
     echo "--with-pythia6libname=n  : pythia6 library name line (default is GENSER standard: -lpythia6 -lpythia6_dummy -lpythia6_pdfdummy)"
+    echo "--with-fastjet=path      : path to fastjet (default = /usr/local)"
+    echo "--with-fastjetversion=v  : fastjet version (simplified alternative when using CERN AFS external, e.g. =2.3.3)"
     exit
   elif [ x`echo x${arg} | grep "="` != x ] ; then
     option=`echo ${arg} | awk -F = '{print $1}'`
@@ -53,6 +55,10 @@ for arg in $* ; do
       LHAPDFLIBNAME=${value}
     elif [ "x${option}" = "x--with-lhapdfsets" ] ; then
       LHAPDFSETSLOCATION=${value}
+    elif [ "x${option}" = "x--with-fastjetversion" ] ; then
+      FASTJETVERSION=${value}
+    elif [ "x${option}" = "x--with-fastjet" ] ; then
+      FASTJETLOCATION=${value}
     else
       echo "${arg}: wrong option. Ignored." >&2
     fi
@@ -69,7 +75,7 @@ echo compilation mode is $COMPMODE
 # the version and/or platform).
 
 if [ x${PYTHIA6VERSION} = x ]; then
-  export PYTHIA6VERSION=413
+  export PYTHIA6VERSION=418
 else
   if [ x${PYTHIA6LOCATION} = x ]; then
     export PYTHIA6LOCATION=/afs/cern.ch/sw/lcg/external/MCGenerators/pythia6/${PYTHIA6VERSION}/${MYLCGPLATFORM}/lib/archive
@@ -88,7 +94,7 @@ if [ x${LHAPDFLOCATION} != x ]; then
   fi
 fi
 if [ x${LHAPDFVERSION} = x ]; then
-  export LHAPDFVERSION=5.3.1
+  export LHAPDFVERSION=5.5.1.a
 else
   if [ x${LHAPDFLOCATION} = x ]; then
     export LHAPDFLOCATION=/afs/cern.ch/sw/lcg/external/MCGenerators/lhapdf/${LHAPDFVERSION}/${MYLCGPLATFORM}/lib/archive
@@ -105,6 +111,14 @@ if [ x${LHAPDFLIBNAME} = x ]; then
 fi
 if [ x${LHAPDFSETSLOCATION} = x ]; then
   export LHAPDFSETSLOCATION=/afs/cern.ch/sw/lcg/external/MCGenerators/lhapdf/${LHAPDFVERSION}/share/PDFsets
+fi
+
+# Fastjet
+if [ x${FASTJETVERSION} != x ]; then
+  export FASTJETLOCATION=/afs/cern.ch/sw/lcg/external/fastjet/${FASTJETVERSION}/${MYLCGPLATFORM}
+fi
+if [ x${FASTJETLOCATION} = x ]; then
+  export FASTJETLOCATION=/usr/local
 fi
 
 #
@@ -211,6 +225,16 @@ if [ $?LHAPDFLOCATION ]; then
   fi
 fi
 
+# Fastjet
+if [ -x ${FASTJETLOCATION}/bin/fastjet-config ]; then
+  FASTJETVERSION1=`${FASTJETLOCATION}/bin/fastjet-config --version`
+  echo Found fastjet version ${FASTJETVERSION1} at ${FASTJETLOCATION}
+else
+  echo WARNING: FastJet not found, the corresponding examples will not work
+  echo ...so you cannot run main programs that use FastJet
+  export FASTJETLOCATION=
+fi
+
 rm -f config.mk
 
 echo SHELL = /bin/sh > config.mk
@@ -240,6 +264,13 @@ fi
 if [ "x${LHAPDFLIBNAME}" != "x" ]; then
   echo "LHAPDFLIBNAME = ${LHAPDFLIBNAME}" >> config.mk
 fi
+
+# Fastjet
+if [ "x${FASTJETVERSION}" != "x" ]; then
+  echo "FASTJETLOCATION = ${FASTJETLOCATION}" >> config.mk
+fi
+
+
 #
 #
 # For the moment we take archive libraries of lhapdf, so actions with

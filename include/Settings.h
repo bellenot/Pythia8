@@ -125,8 +125,8 @@ public:
     ostream& os = cout) ; 
  
   // Write updates or everything to user-defined file.
-  static bool writeFile(ostream& os = cout, bool writeAll = false) ;
   static bool writeFile(string toFile, bool writeAll = false) ;
+  static bool writeFile(ostream& os = cout, bool writeAll = false) ;
 
   // Print out table of database, either all or only changed ones,
   // or ones containing a given string.

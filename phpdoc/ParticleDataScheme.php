@@ -559,7 +559,8 @@ The file can be read by the
     pythia.readFile(fileName); 
 </pre>
 method, where <code>fileName</code> is a string, e.g.
-<code>pythia.readFile("main.cmnd")</code>. Each line is process as 
+<code>pythia.readFile("main.cmnd")</code> (or an <code>istream</code> 
+instead of a <code>fileName</code>). Each line is processed as 
 described for the string in 2a). This file can freely mix commands to 
 the <code>Settings</code> and <code>ParticleData</code> classes.
 </li> 

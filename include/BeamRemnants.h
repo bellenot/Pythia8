@@ -16,6 +16,7 @@
 #include "Info.h"
 #include "ParticleData.h"
 #include "PartonDistributions.h"
+#include "PartonSystems.h"
 #include "PythiaStdlib.h"
 #include "Settings.h"
 
@@ -35,7 +36,7 @@ public:
 
   // Initialization.
   bool init( Info* infoPtrIn, BeamParticle* beamAPtrIn, 
-    BeamParticle* beamBPtrIn);
+    BeamParticle* beamBPtrIn, PartonSystems* partonSystemsPtrIn);
 
   // Select the flavours/kinematics/colours of the two beam remnants. 
   bool add( Event& event);
@@ -43,10 +44,12 @@ public:
 private: 
 
   // Constants: could only be changed in the code itself.
+  static const bool   ALLOWCOLOURTWICE, CORRECTMISMATCH;
   static const int    NTRYCOLMATCH, NTRYKINMATCH;
+  static const double PTMISMATCH, PLMISMATCH;
 
   // Initialization data, read from Settings.
-  bool   doPrimordialKT, doReconnect;
+  bool   doPrimordialKT, doRescatterRestoreY, doReconnect;
   double primordialKTsoft, primordialKThard, primordialKTremnant,
          halfScaleForKT, halfMassForKT, reconnectRange, 
          pT0Ref, ecmRef, ecmPow;
@@ -64,6 +67,9 @@ private:
   // Pointers to the two incoming beams.
   BeamParticle* beamAPtr;
   BeamParticle* beamBPtr;
+
+  // Pointer to information on subcollision parton locations.
+  PartonSystems* partonSystemsPtr;
 
   // Do the kinematics of the collision subsystems and two beam remnants. 
   bool setKinematics( Event& event);

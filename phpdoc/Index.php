@@ -111,6 +111,7 @@ echo "<a href='FourVectors.php?filepath=".$filepath."' target='page'>Four-Vector
 <a href='Histograms.php?filepath=".$filepath."' target='page'>Histograms</a><br/>
 <a href='EventAnalysis.php?filepath=".$filepath."' target='page'>Event Analysis</a><br/>
 <a href='HepMCInterface.php?filepath=".$filepath."' target='page'>HepMC Interface</a><br/>
+<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>Advanced Usage</a><br/>
 
 ";?>
 

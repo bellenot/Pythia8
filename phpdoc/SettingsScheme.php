@@ -225,8 +225,9 @@ The file can be read by the
 <pre>
     pythia.readFile(fileName); 
 </pre>
-method. The file can freely mix commands to the <code>Settings</code>
-and <code>ParticleData</code> classes, and so is preferable. Lines with 
+method (or an <code>istream</code> instead of a <code>fileName</code>). 
+The file can freely mix commands to the <code>Settings</code> and 
+<code>ParticleData</code> classes, and so is preferable. Lines with 
 settings are handled by calls to the 
 <code>pythia.settings.readString(string)</code> method. Again, an optional 
 second argument <code>false</code> allows you to switch off warning 

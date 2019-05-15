@@ -354,14 +354,15 @@ weights, <code>true</code>.
 
 <p/><code>method&nbsp; </code><strong> int gmZmode() &nbsp;</strong> <br/>
 allows a possibility to override the global mode 
-<?php $filepath = $_GET["filepath"];
-echo "<a href='ElectroweakProcesses.php?filepath=".$filepath."' target='page'>";?><code>WeakZ0:gmZmode</code></a> 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='ElectroweakProcesses.php?filepath=".$filepath."' target='page'>";?>WeakZ0:gmZmode</a></code> 
 for a specific process. The global mode normally is used to switch off 
 parts of the <i>gamma^*/Z^0</i> propagator for test purposes. The
 above local mode is useful for processes where a <i>Z^0</i> really is
 that and nothing more, such as <i>q qbar -> H^0 Z^0</i>. The default
 value -1 returned by <code>gmZmode()</code> ensures that the global
-mode is used. 
+mode is used, while 0 gives full <i>gamma^*/Z^0</i> interference,
+1 <i>gamma^*</i> only and 2 <i>Z^0</i> only. 
 
 <h3>Access to a process</h3> 
 

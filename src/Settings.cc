@@ -277,13 +277,15 @@ bool Settings::writeFile(string toFile, bool writeAll) {
       " could not open file", toFile);
     return false;
   }
+
+  // Hand over real work to next method.
   return writeFile( os, writeAll);
 
 }
 
 //*********
  
-// Write updates or everything to user-defined file.
+// Write updates or everything to user-defined stream (or file).
 
 bool Settings::writeFile(ostream& os, bool writeAll) {
 
