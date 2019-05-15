@@ -1,0 +1,59 @@
+<chapter name="External Decays">
+
+<h1>External Decays</h1>
+
+<ci>DecayHandler</ci> is a base class for the external handling of decays.
+The user-written derived class is called if a pointer to it has
+been given with the <ci>pythia.decayPtr()</ci> method, where it also is
+specified which particles it will be called for.  
+
+<p/>
+There is only one pure virtual method in <ci>DecayHandler</ci>, 
+to do the decay: 
+<method name="virtual bool decay(vector&lt;int>&amp; idProd, 
+vector&lt;double>&amp; mProd, vector&lt;Vec4>&amp; pProd, 
+int iDec, const Event&amp; event)">
+where 
+<argument name="idProd"> is a list of particle PDG identity codes,
+</argument>
+<argument name="mProd"> is a list of their respective masses (in GeV), and
+</argument>
+<argument name="pProd"> is a list of their respective four-momenta.
+</argument>
+</method>
+
+<p/>
+At input, these vectors each have size one, so that <ci>idProd[0]</ci>, 
+<ci>mProd[0]</ci> and <ci>pProd[0]</ci> contains information on the 
+particle that is to be decayed. At output, the vectors should have 
+increased by the addition of all the decay products. Even if initially 
+defined in the rest frame of the mother, the products should have been 
+boosted so that their four-momenta add up to the <ci>pProd[0]</ci> of 
+the decaying particle. 
+
+<p/>
+Should it be of interest to know the prehistory of the decaying 
+particle, e.g. to set some helicity information affecting the 
+decay angular distribution, the full event record is available 
+read-only, with info in which slot <ci>iDec</ci> the decaying particle 
+is stored.
+
+<p/>
+The routine should return <ci>true</ci> if it managed the decay and 
+<ci>false</ci> otherwise, in which case Pythia will try to do the decay 
+itself.  
+
+<p/>
+Note that the decay vertex is always set by Pythia, and that 
+<ei>B-Bbar</ei> oscillations have already been taken into account, 
+if they were switched on. Thus <ci>idProd[0]</ci> may be the opposite 
+of <ci>event[iDec].id()</ci>, where the latter provides the code at 
+production.
+
+<p/>
+A sample test program is available in <ci>main04.cc</ci>, providing 
+a simple example of how to use thing facility.
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

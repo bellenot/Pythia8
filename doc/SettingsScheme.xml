@@ -1,0 +1,221 @@
+<chapter name="The Settings Scheme">
+
+<h1>The Settings Scheme</h1>
+
+The <ci>Settings</ci> class keeps track of all the flags, modes and 
+parameters in the program. As such, it serves the other program elements 
+from one central repository. It allows the user to modify the behaviour of 
+the program. The <ci>Settings</ci> class is purely static, i.e. you can 
+interact with it directly by <ci>Settings::command(argument)</ci>. 
+However, a <ci>settings</ci> object of the <ci>Settings</ci> class 
+is a public member of the <ci>Pythia</ci> class, so an alternative 
+notation would be <ci>pythia.settings.command(argument)</ci>,
+assuming that <ci>pythia</ci> is an instance of the <ci>Pythia</ci> 
+class. Further, for the most frequent user tasks, <ci>Pythia</ci> 
+methods have been defined, so that <ci>pythia.command(argument)</ci> 
+would work, see further below.
+
+<h2>Concepts</h2>
+
+We distiguish three kinds of user-modifiable variables, by the way
+they have to be stored:
+<ol>
+<li>Flags are on/off switches, and are stored as <ci>bool</ci>.</li>
+<li>Modes corresponds to a finite enumeration of separate options,
+   and are stored as <ci>int</ci>.</li>
+<li>Parameters take a continuum of values, and are stored as 
+<ci>double</ci>.</li>
+</ol>
+One could imagine also strings, but so far there has been no need.
+
+<p/>
+In general, each variable stored in <ci>Settings</ci> is associated 
+with four kinds of information:
+<ul>
+<li>The variable name, of the form <ci>class:name</ci> 
+(or <ci>file:name</ci>, usually these agree), e.g. 
+<ci>TimeShower:pTmin</ci>. The class/file part usually identifies 
+the <ci>.xml</ci> file where the variable is defined, and the part of 
+the program where it is used, but such a connection cannot be strictly
+upheld, since e.g. the same variable may be used in a few different
+cases (even if most of them are not).</li> 
+<li>The default value, set in the original declaration, and intended
+to represent a reasonable choice.</li> 
+<li>The current value, which differs from the default when the user so 
+requests.</li>
+<li>An allowed range of values, represented by meaningful
+minimum and maximum values. This has no sense for a <ci>flag</ci> 
+(and is not used there), is usually rather well-defined for a 
+<ci>mode</ci>, but less so for a <ci>parameter</ci>. Often the allowed 
+range exaggerates the degree of our current knowledge, so as not to 
+restrict too much what the user can do. One may choose not to set the 
+lower or upper limit, in which case the range is open-ended.</li>   
+</ul>
+
+<p/>
+Technically, the <ci>Settings</ci> class is implemented with the help of
+three separate maps, one for each kind of variable, with the 
+variable <ci>name</ci> used as key. 
+
+<h2>Operation</h2>
+    
+The normal flow of setting value is:
+
+<ol>
+
+<li>When a <ci>Pythia</ci> object <ci>pythia </ci>is created, 
+the member <ci>pythia.settings</ci> is asked to scan the files
+listed in the <ci>Index.xml</ci> file in this directory.
+</li>
+
+<li>In all of the files scanned, lines beginning with 
+<ci>&lt;flag></ci>, <ci>&lt;mode></ci> or <ci>&lt;parameter></ci> 
+are identified, and the information on such a line is used to define 
+a new flag, mode or parameter. To exemplify, consider a line
+<code>
+&lt;parameter name="TimeShower:pTmin" default="0.5" min="0.1" max="2.0">
+</code> 
+whic appears in the <ci>TimeShower.xml</ci> file, and there
+defines a parameter <ci>TimeShower:pTmin</ci> with default value 
+0.5 GeV and allowed variation in the range 0.1 - 2.0 GeV. The min 
+and max values are optional.<br/>
+<note>Important:</note> the values in the <ci>.xml</ci> files should 
+not be changed, except by the Pythia authors. Any changes should be 
+done with the help of the methods described below.</li>
+
+<li>Between the creation of the <ci>Pythia</ci> object and the 
+<ci>init</ci> call for it, you may use the methods of the 
+<ci>Settings</ci> class to modify some of the default values. 
+Several different methods can be used for this.
+
+<p/> 
+a) Inside your main program you can directly set values with
+<code>
+    pythia.settings.readString(string) 
+</code>
+where both the variable name and the value are contained inside
+the character string, separated by blanks and/or a =, e.g. 
+<code>
+    pythia.settings.readString("TimeShower:pTmin = 1.0"); 
+</code>
+The match of the name to the database is case-insensitive. Names 
+that do not match an existing variable are ignored. A warning is
+printed, however, unless an optional second argument <ci>false</ci> 
+is used. Values below the minimum or above the maximum are set at 
+the respective border. For <ci>bool</ci> values, the following 
+notation may be used interchangeably: <ci>true = on = yes = ok = 1</ci>, 
+while everything else gives <ci>false</ci> (including but not limited to 
+<ci>false</ci>, <ci>off</ci>, <ci>no</ci> and 0).<br/> 
+
+The <ci>Pythia</ci> class contains a <ci>readString</ci> method that 
+hands on to this method, or to corresponding methods in 
+<ci>ParticleData</ci> or <ci>Pythia6</ci>, and therefore may offer 
+the most convenient form:
+<code>
+    pythia.readString("TimeShower:pTmin = 1.0"); 
+</code>
+
+<p/> 
+b) Underlying this are the settings-type-sensitive commands in 
+<ci>Settings</ci>, that are split by names containing <ci>flag</ci>, 
+<ci>mode</ci> or <ci>parameter.</ci> Thus, the example now reads
+<code>
+    pythia.settings.parameter("TimeShower:pTmin", 1.0); 
+</code>
+Boolean values should here be given as <ci>true</ci> or 
+<ci>false</ci> i.e. there is less flexibility in the lower-level 
+methods.<br/> 
+
+There are several different further methods, like 
+<method name="mode( name)"> 
+gives the current value,
+</method>
+<method name="mode( name, value)"> 
+sets the current value,
+</method>
+<method name="isMode( name)"> 
+tells whether a mode has been defined or not,
+</method>
+<method name="addMode( name, default, min, max)"> 
+defines a new mode,
+</method>
+<method name="forceMode( name, value)"> 
+sets the value, also when outside the recommended bounds (and it is 
+completely up to you to face the consequences),
+</method>
+<method name="resetMode( name)"> 
+resets the current value to the default one.
+</method>
+Corresponding methods exist for flags and parameters.
+Again name comparisons are case-insensitive.
+<br/> 
+
+Normally the user should have no need for these methods. The 
+main exception is if some of the variables defined on 
+Main Program Parameters page are used to set run-specific information 
+(like the CM energy or the number of events to generate) in an external 
+file (see 3c below) and these variables are then read into the main 
+program. Then the <ci>flag( name)</ci>, <ci>mode( name)</ci> and 
+<ci>parameter( name)</ci> methods are to be used, see <ci>main01.cc</ci> 
+as an example how it could work.
+
+<p/>
+c) A simpler and more useful way is to collect all your changes
+in a separate file, with one line per change, e.g. 
+<code>
+    TimeShower:pTmin = 1.0
+</code>
+Each line is process as described for the string in 3a). Since names 
+that do not match an existing variable are ignored, you can easily 
+comment out lines. The recommended way would be to add a special 
+character like # or ! in the first column. 
+
+The file can be read by the 
+<code>
+    pythia.settings.readFile("filename") 
+</code>
+method, alternatively by the 
+<code>
+    pythia.readFile("filename") 
+</code>
+method. The latter has the advantage that it allows you to freely mix 
+commands to the <ci>Settings</ci>, <ci>ParticleData</ci> and 
+<ci>Pythia6</ci> classes, and so is preferable. Again, an optional 
+second argument <ci>false</ci> allows you to switch off warning messages 
+for unknown variables.</li>
+
+<li>In the <ci>Pythia init</ci> call, many of the various other program  
+elements are initialized, making use of the values in the database. 
+Once initialized, the common <ci>Settings</ci> database may not be 
+consulted again. It is therefore not productive to do further changes in 
+mid-run. 
+
+<p/>
+A routine <ci>reInit("filename")</ci> is provided, and can be used to 
+zero all the maps and reinitialize  from scratch. Such a call might be 
+required if several <ci>Pythia</ci> objects are created in the same run, 
+and requested to have different values - by default the <ci>init()</ci> 
+call is only made the first time. However, a more economical solution 
+is then offered by <ci>resetAll()</ci>, which sets all variables to 
+their default values.</li> 
+
+<li>You may at any time obtain a listing of all variables in the 
+database by calling  
+<code>
+    pythia.settings.listAll();
+</code>
+The listing is strictly alphabetical, which at least means that names
+from the same file are kept together, but otherwise may not be so 
+well-structured: important and unimportant ones will appear mixed.
+A more relevant alternative is 
+<code>
+    pythia.settings.listChanged();
+</code>
+where you will only get those variables that differ from their 
+defaults.</li>
+
+</ol>
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

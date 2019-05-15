@@ -1,151 +1,155 @@
-# Makefile for Pythia8 classes, and a main program.
-# Still primitive; should be improved to build a proper library.
-# Copyright C 2006 Torbjorn Sjostrand
+#
+# Libraries Makefile. Some ideas from Geant4 Makefiles
+#
+#                  M. Kirsanov 07.04.2006
 
-# Main program
-MAIN = main01.cc
+SHELL = /bin/sh
 
-# C++ compiler
-CC = g++
-CFLAGS = -g -ansi -pedantic -O -W -Wall   
+# Compilers and compiler options.
+# Default.
+FC   = g77
+CC   = gcc
+CPP  = g++
+FFLAGS= -O
+CCFLAGS= -O
+CPPFLAGS= -g -ansi -pedantic -O -W -Wall
+# Linux platform with gcc3: as default.
+ifeq ($(ARCH), Linux)
+ FC   = g77
+ CC   = gcc
+ CPP  = g++
+ FFLAGS= -O
+ CCFLAGS= -O
+ CPPFLAGS= -g -ansi -pedantic -O -W -Wall
+endif
+# Linux platform with gcc4: new Fortran90 compiler.
+ifeq ($(ARCH), Linux-gcc4)
+ FC   = gfortran
+ CC   = gcc
+ CPP  = g++
+ FFLAGS= -O
+ CCFLAGS= -O
+ CPPFLAGS= -g -ansi -pedantic -O -W -Wall
+endif
 
-# f77 compiler.
-FF = g77
-FFLAGS = -O
-FLIBS = -L/usr/lib/gcc-lib/ -lfrtbegin -lg2c
+# Location of directories.
+TMPDIR=tmp
+TOPDIR=$(shell \pwd)
+INCDIR=include
+SRCDIR=src
+LIBDIR=lib
+BINDIR=bin
 
-# Pythia 8 library components.
-SRCS = Basics.cc Settings.cc ParticleData.cc StandardModel.cc\
-	PartonDistributions.cc Event.cc Pythia.cc ProcessLevel.cc\
-	PartonLevel.cc HadronLevel.cc LesHouches.cc TimeShower.cc\
-	SpaceShower.cc MultipleInteractions.cc SigmaProcess.cc\
-	SigmaTotal.cc Beams.cc FragmentationSystems.cc\
-	FragmentationFlavZpT.cc StringFragmentation.cc\
-	MiniStringFragmentation.cc ParticleDecays.cc Analysis.cc
+# Location of libraries to be built.
+targets=$(LIBDIR)/libpythia8.a
+ifneq (x$(HEPMCLOCATION),x)
+ targets+=$(LIBDIR)/libhepmcinterface.a
+endif
+ifeq (x$(PYTHIA6LOCATION),x)
+ targets+=$(LIBDIR)/libpythia6.a
+endif
 
-# Legacy Pythia 6.3 library.
-FSRC = Pythia6.f
+# Main part: build Pythia8 library. 
 
-# One header file for each library file, and in addition Stdlib only header.
-HDRS = $(SRCS:.cc=.h) $(SRCS:.f=.h) Stdlib.h
+$(TMPDIR)/%.o : $(SRCDIR)/%.cc
+	@mkdir -p $(TMPDIR)
+	$(CPP) $(CPPFLAGS) -c -I$(INCDIR) $< -o $@
 
-# One compiled file for each library file.
-OBJS = $(SRCS:.cc=.o)
-FOBJ = $(FSRC:.f=.o)
+# Creating the dependency files *.d
+# The compiler with option -M is used to build the dependency strings. They
+# are further edited with sed (stream editor). The first sed command adds the
+# dependency for the *.d files themselves, the second one is needed because
+# object files are put in the directory different from src. The last line
+# removes empty *.d files produced in case of error.
 
-# Compile main program
-a.out : $(MAIN) $(OBJS) $(HDRS) $(FOBJ)
-	$(CC) $(CFLAGS) $(MAIN) $(OBJS) $(FOBJ) $(FLIBS)
+$(TMPDIR)/%.d : $(SRCDIR)/%.cc
+	@echo Making dependency for file $<; \
+	mkdir -p $(TMPDIR); \
+	$(CC) -M -I$(INCDIR) $< | \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' | \
+	sed 's/$*.o/$(TMPDIR)\/$*.o/' > $@; \
+	[ -s $@ ] || rm -f $@
 
-# Compile each of the C++ classes in Pythia 8. 
+all: $(targets)
 
-Basics.o : Basics.cc Basics.h Stdlib.h
-	$(CC) $(CFLAGS) -c Basics.cc
+objects := $(patsubst $(SRCDIR)/%.cc,$(TMPDIR)/%.o,$(wildcard $(SRCDIR)/*.cc))
 
-Settings.o : Settings.cc Settings.h Stdlib.h
-	$(CC) $(CFLAGS) -c Settings.cc
+$(LIBDIR)/libpythia8.a: $(objects)
+	@mkdir -p $(LIBDIR)
+	ar cru $(LIBDIR)/libpythia8.a $(objects)
 
-ParticleData.o : ParticleData.cc ParticleData.h Stdlib.h Basics.h Settings.h
-	$(CC) $(CFLAGS) -c ParticleData.cc
+deps := $(patsubst $(SRCDIR)/%.cc,$(TMPDIR)/%.d,$(wildcard $(SRCDIR)/*.cc))
 
-StandardModel.o : StandardModel.cc StandardModel.h Stdlib.h Basics.h\
-	Settings.h ParticleData.h
-	$(CC) $(CFLAGS) -c StandardModel.cc
+# The "if" below is needed in order to avoid producing the dependency files
+# when you want to just clean
 
-PartonDistributions.o : PartonDistributions.cc PartonDistributions.h\
-	Stdlib.h Basics.h Settings.h ParticleData.h
-	$(CC) $(CFLAGS) -c PartonDistributions.cc
+ifneq ($(MAKECMDGOALS),clean)
+-include $(deps)
+endif
 
-Beams.o : Beams.cc Beams.h Stdlib.h Basics.h Settings.h ParticleData.h\
-	PartonDistributions.h Event.h FragmentationFlavZpT.h
-	$(CC) $(CFLAGS) -c Beams.cc
+# Build Pythia6 library if a location with existing Pythia6 is not set
 
-Event.o : Event.cc Event.h Stdlib.h Basics.h Settings.h ParticleData.h
-	$(CC) $(CFLAGS) -c Event.cc
+ifeq (x$(PYTHIA6LOCATION),x)
 
-Pythia.o : Pythia.cc Pythia.h Stdlib.h Basics.h Settings.h\
-	ParticleData.h StandardModel.h PartonDistributions.h Beams.h Event.h\
-	ProcessLevel.h PartonLevel.h HadronLevel.h LesHouches.h TimeShower.h\
-	SpaceShower.h MultipleInteractions.h SigmaProcess.h SigmaTotal.h\
-	FragmentationSystems.h FragmentationFlavZpT.h StringFragmentation.h\
-	MiniStringFragmentation.h ParticleDecays.h
-	$(CC) $(CFLAGS) -c Pythia.cc
+ $(TMPDIR)/%.o : pythia6/%.f
+	@mkdir -p $(TMPDIR)
+	$(FC) $(FFLAGS) -c $< -o $@
 
-ProcessLevel.o : ProcessLevel.cc ProcessLevel.h Stdlib.h Basics.h Settings.h\
-	ParticleData.h Event.h PartonDistributions.h Beams.h LesHouches.h\
-	Pythia6.h
-	$(CC) $(CFLAGS) -c ProcessLevel.cc
+ objectsP6 := $(patsubst pythia6/%.f,$(TMPDIR)/%.o,$(wildcard pythia6/*.f))
 
-PartonLevel.o : PartonLevel.cc PartonLevel.h Stdlib.h Basics.h Settings.h\
-	ParticleData.h Event.h PartonDistributions.h Beams.h TimeShower.h\
-	SpaceShower.h MultipleInteractions.h
-	$(CC) $(CFLAGS) -c PartonLevel.cc
+ $(LIBDIR)/libpythia6.a : $(objectsP6)
+	@mkdir -p $(LIBDIR)
+	ar cru $(LIBDIR)/libpythia6.a $(objectsP6)
 
-HadronLevel.o : HadronLevel.cc HadronLevel.h Stdlib.h Basics.h Settings.h\
-	ParticleData.h Event.h FragmentationSystems.h FragmentationFlavZpT.h\
-	StringFragmentation.h MiniStringFragmentation.h ParticleDecays.h
-	$(CC) $(CFLAGS) -c HadronLevel.cc 
+endif
 
-LesHouches.o : LesHouches.cc LesHouches.h
-	$(CC) $(CFLAGS) -c LesHouches.cc
+# Build HepMC interface part if HepMC and CLHEP locations are set.
 
-TimeShower.o : TimeShower.cc TimeShower.h Stdlib.h Basics.h\
-	Settings.h ParticleData.h StandardModel.h Event.h 
-	$(CC) $(CFLAGS) -c TimeShower.cc
+ifneq (x$(HEPMCLOCATION),x)
+ ifneq (x$(CLHEPLOCATION),x)
 
-SpaceShower.o : SpaceShower.cc SpaceShower.h Stdlib.h Basics.h\
-	Settings.h ParticleData.h StandardModel.h Event.h\
-	PartonDistributions.h Beams.h 
-	$(CC) $(CFLAGS) -c SpaceShower.cc
+  $(TMPDIR)/%.o : hepmcinterface/%.cc
+	@mkdir -p $(TMPDIR)
+	$(CPP) $(CPPFLAGS) -c -I$(INCDIR) -I$(HEPMCLOCATION)/include \
+	-I$(CLHEPLOCATION)/include $< -o $@
 
-MultipleInteractions.o : MultipleInteractions.cc MultipleInteractions.h\
-	Stdlib.h Basics.h Settings.h ParticleData.h Event.h\
-	PartonDistributions.h Beams.h SigmaTotal.h SigmaProcess.h
-	$(CC) $(CFLAGS) -c MultipleInteractions.cc
+  $(TMPDIR)/%.d : hepmcinterface/%.cc
+	@echo Making dependency for file $<; \
+	mkdir -p $(TMPDIR); \
+	$(CC) -M -I$(INCDIR) -I$(HEPMCLOCATION)/include -I$(CLHEPLOCATION)/include $< | \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' | \
+	sed 's/$*.o/$(TMPDIR)\/$*.o/' > $@; \
+	[ -s $@ ] || rm -f $@
 
-SigmaProcess.o : SigmaProcess.cc SigmaProcess.h Stdlib.h Basics.h\
-	Settings.h ParticleData.h StandardModel.h Event.h
-	$(CC) $(CFLAGS) -c SigmaProcess.cc
+  objectsI := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/%.o,$(wildcard hepmcinterface/*.cc))
 
-SigmaTotal.o : SigmaTotal.cc SigmaTotal.h Stdlib.h Settings.h\
-	ParticleData.h 
-	$(CC) $(CFLAGS) -c SigmaTotal.cc
+  $(LIBDIR)/libhepmcinterface.a : $(objectsI)
+	@mkdir -p $(LIBDIR)
+	ar cru $(LIBDIR)/libhepmcinterface.a $(objectsI)
 
-FragmentationSystems.o : FragmentationSystems.cc FragmentationSystems.h\
-	Stdlib.h Basics.h Settings.h ParticleData.h Event.h
-	$(CC) $(CFLAGS) -c FragmentationSystems.cc 
+  depsI := $(patsubst hepmcinterface/%.cc,$(TMPDIR)/%.d,$(wildcard hepmcinterface/*.cc))
 
-FragmentationFlavZpT.o : FragmentationFlavZpT.cc FragmentationFlavZpT.h\
-	Stdlib.h Basics.h Settings.h ParticleData.h
-	$(CC) $(CFLAGS) -c FragmentationFlavZpT.cc 
+  ifneq ($(MAKECMDGOALS),clean)
+  -include $(depsI)
+  endif
 
-StringFragmentation.o : StringFragmentation.cc StringFragmentation.h\
-	Stdlib.h Basics.h Settings.h ParticleData.h Event.h\
-	 FragmentationSystems.h FragmentationFlavZpT.h
-	$(CC) $(CFLAGS) -c StringFragmentation.cc 
+ else
+  $(LIBDIR)/libhepmcinterface.a : hepmcinterface/I_Pythia8.cc
+	@echo ERROR, CLHEPLOCATION should be defined with HEPMCLOCATION
+ endif
+endif
 
-MiniStringFragmentation.o : MiniStringFragmentation.cc\
-	MiniStringFragmentation.h Stdlib.h Basics.h Settings.h\
-	ParticleData.h Event.h  FragmentationSystems.h\
-	FragmentationFlavZpT.h
-	$(CC) $(CFLAGS) -c MiniStringFragmentation.cc 
+# Clean up: remove (almost?) everything that cannot be recreated.
 
-ParticleDecays.o : ParticleDecays.cc ParticleDecays.h Stdlib.h Basics.h\
-	Settings.h ParticleData.h Event.h TimeShower.h\
-	FragmentationFlavZpT.h
-	$(CC) $(CFLAGS) -c ParticleDecays.cc 
-
-Analysis.o : Analysis.cc Analysis.h Stdlib.h Basics.h Settings.h Event.h
-	$(CC) $(CFLAGS) -c Analysis.cc 
-
-# Compile Pythia 6.3 legacy f77 library.
-$(FOBJ) : $(FSRC)
-	$(FF) $(FFLAGS) -c $(FSRC)
-
-# Clean up current directory.
-clean :
-	rm -f *~
-	rm -f \#*
-	rm -f out*
-	rm -f core*
+.PHONY: clean
+clean:
+	rm -f *~; rm -f \#*;
+	rm -rf $(TMPDIR)
+	rm -rf $(LIBDIR)
+	rm -rf $(BINDIR)
+	cd $(SRCDIR); rm -f *~; rm -f \#*; cd -
+	cd $(INCDIR); rm -f *~; rm -f \#*; cd -
+	cd doc; rm -f *~; rm -f \#*; cd -
+	cd pythia6; rm -f *~; rm -f \#*; cd -
+	cd examples; rm -rf *.exe; rm -f *~; rm -f \#*; rm -f core*; cd -
 

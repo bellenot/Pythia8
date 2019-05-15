@@ -1,0 +1,208 @@
+<chapter name="Event Analysis">
+
+<h1>Event Analysis</h1>
+
+<h2>Introduction</h2>
+
+The routines in this section are intended to be used to analyze
+event properties. As such they are not part of the main event
+generation chain, but can be used in comparisons between Monte
+Carlo events and real data. They are rather free-standing, but 
+assume that input is provided in the Pythia8 <ci>Event</ci> 
+format, and use a few basic facilities such as four-vectors.
+
+<h2>Sphericity</h2>
+
+The standard sphericity tensor is
+<eq>
+    S^{ab} = (sum_i p_i^a p_i^b) / (sum_i p_i^2)
+</eq>
+where the <ei>sum i</ei> runs over the particles in the event,
+<ei>a, b = x, y, z,</ei> and <ei>p</ei> without such an index is 
+the absolute size of the three-momentum . This tensor can be 
+diagonalized to find eigenvalues and eigenvectors.
+
+<p/>
+The above tensor can be generalized by introducing a power 
+<ei>r</ei>, such that
+<eq>
+    S^{ab} = = (sum_i p_i^a p_i^b p_i^{r-2}) / (sum_i p_i^r)
+</eq>
+In particular, <ei>r = 1</ei> gives a linear dependende on momenta 
+and thus a collinear safe definition, unlike sphericity.
+
+<p/>
+A sphericity analysis object is declared by
+<class name="Sphericity sph( power, select)">
+where 
+<argument name="power" default="2."> 
+is the power <ei>r</ei> defined above, i.e. 
+<argoption value="2.">gives Spericity, and</argoption> 
+<argoption value="1.">gives the linear form.</argoption>
+</argument>
+<argument name="select" default="2"> 
+tells which particles are analyzed,
+<argoption value="1">all final-state particles,</argoption>
+<argoption value="2">all observable final-state particles, 
+i.e. excluding neutrinos and other particles without strong or
+electromagnetic interactions (the <ci>isInvisible()</ci> 
+particle method), 
+and</argoption>
+<argoption value="3">only charged final-state particles.</argoption>
+</argument>
+</class>
+
+<p/>
+The analysis is performed by a
+<code>
+   sph.analyze( event)
+</code>
+where <ci>event</ci> is an object of the <ci>Event</ci> class, 
+most likely the <ci>pythia.event</ci> one. If the routine returns 
+<ci>false</ci> the analysis failed, e.g. if too few particles are 
+present to analyze.
+
+<p/>
+After the analysis has been performed, a few <ci>Sphericity</ci> 
+class methods are available to return the result of the analysis:
+<method name="sph()">
+gives the sphericity (or equivalent if <ei>r</ei> is not 2),
+</method>
+<method name="apl()"> 
+gives the aplanarity (with the same comment),
+</method>
+<method name="eigenValue(i)"> 
+gives one of the three eigenvalues for <ei>i = 1, 2 or 3</ei>, in 
+descending order,
+</method>
+<method name="EigenVector(i)"> gives the matching eigenvector, 
+as a <ci>Vec4</ci> with vanishing time/energy component.
+</method>
+<method name="list()"> provides a listing of the above 
+information.
+</method>
+
+<h2>CellJet</h2>
+
+CellJet (a.k.a. PYCELL) is a simple cone jet finder in the UA1 spirit, 
+see the Pythia6 manual. It works in an <ei>(eta, phi, eT)</ei> space, 
+where <ei>eta</ei> is pseudorapidity, <ei>phi</ei> azimuthal angle 
+and <ei>eT</ei> transverse energy.
+It will draw cones in <ei>R = sqrt(Delta-eta^2 + Delta-phi^2)</ei> 
+around seed cells. If the total <ei>eT</ei> inside the cone exceeds 
+the threshold, a jet is formed, and the cells are removed from further 
+analysis. There are no split or merge procedures, so later-found jet 
+may be missing some of the edge regions already used up by previous 
+ones.   
+
+<p/>
+A cell jet analysis object is declared by
+<class name="CellJet cellJet( eTjetMin, coneRadius, select, etaMax, 
+nEta, nPhi, eTseed, smear, resolution, upperCut, threshold)">
+where 
+<argument name="eTjetMin" default="20. GeV"> 
+is the minimum transverse energy inside a cone for this to be 
+accepted as a jet.
+</argument>
+<argument name="coneRadius" default="0.7"> 
+ is the size of the cone in <ei>(eta, phi)</ei> space drawn around 
+the geometric center of the jet.
+</argument>
+<argument name="select" default="2"> 
+<argoption value="1">all final-state particles,</argoption>
+<argoption value="2">all observable final-state particles, 
+i.e. excluding neutrinos and other particles without strong or
+electromagnetic interactions (the <ci>isInvisible()</ci> particle 
+method), 
+and</argoption>
+<argoption value="3">only charged final-state particles.</argoption>
+</argument>
+<argument name="etaMax" default="5."> 
+the maximum +-pseudorapidity that the detector is assumed to cover.
+</argument>
+<argument name="nEta" default="50"> 
+the number of equal-sized bins that the <ei>+-etaMax</ei> range 
+is assumed to be divided into.
+</argument>
+<argument name="nPhi" default="32"> 
+the number of equal-sized bins that the <ei>phi</ei> range 
+<ei>+-pi</ei> is assumed to be divided into. 
+</argument>
+<argument name="eTseed" default="1.5 GeV"> 
+the mimimum <ei>eT</ei> in a cell for this to be acceptable as 
+the trial center of a jet. 
+</argument>
+<argument name="smear" default="0">
+strategy to smear the actual <ei>eT</ei> bin by bin, 
+<argoption value="0">no smearing,</argoption>
+<argoption value="1">smear the <ei>eT</ei> according to a Gaussian 
+with width <ei>resolution * sqrt(eT)</ei>, with the Gaussian truncated 
+at 0 and <ei>upperCut * eT</ei>,</argoption>
+<argoption value="2">smear the <ei>e = eT * cosh(eta)</ei> according 
+to a Gaussian with width <ei>resolution * sqrt(e)</ei>, with the 
+Gaussian truncated at 0 and <ei>upperCut * e</ei>.</argoption>
+</argument>
+<argument name="resolution" default="0.5">
+see above
+</argument>
+<argument name="upperCut" default="2.">
+see above
+</argument>
+<argument name="threshold" default="0 GeV">
+completely neglect all bins with an <ei>eT &lt; threshold</ei>.
+</argument>
+</class>
+
+<p/>
+The analysis is performed by a
+<code>
+   cellJet.analyze( event)
+</code>
+where event is an object of the <ci>Event</ci> class, most likely 
+the <ci>pythia.event</ci> one. If the routine returns 
+<ci>false</ci> the analysis failed, but currently this is not 
+foreseen ever to happen.
+
+<p/>
+After the analysis has been performed, a few <ci>CellJet</ci> 
+class methods are available to return the result of the analysis:
+<method name="size()">
+gives the number of jets found,
+</method>
+<method name="eT(i)">
+gives the <ei>eT</ei> of the <ei>i</ei>'th jet, where jets have been
+ordered with decreasing <ei>eT</ei> values,
+</method>
+<method name="etaCenter(i), phiCenter(i)">
+gives the <ei>eta</ei> and <ei>phi</ei> coordinates of the geometrical 
+center of the <ei>i</ei>'th jet,
+</method>
+<method name="etaWeighted(i), phiWeighted(i)">
+gives the <ei>eta</ei> and <ei>phi</ei> coordinates of the 
+<ei>eT</ei>-weighted center of the <ei>i</ei>'th jet,
+</method>
+<method name="multiplicity(i)">
+gives the number of particles clustered into the <ei>i</ei>'th jet,
+</method>
+<method name="pMassless(i)">
+gives a Vec4 corresponding to the four-momentum defined by the 
+<ei>eT</ei> and the weighted center of the <ei>i</ei>'th jet,
+</method>
+<method name="pMassive(i)">
+gives a <ci>Vec4</ci> corresponding to the four-momentum defined by the sum 
+of all the contributing cells to the <ei>i</ei>'th jet, where each cell 
+contributes a four-momentum as if all the <ei>eT</ei> is deposited in the 
+center of the cell,
+</method>
+<method name="m(i)">
+gives the invariant mass of the <ei>i</ei>'th jet, defined by the 
+<ci>pMassive</ci> above,
+</method>
+<method name="list()">
+provides a listing of the above information (except <ci>pMassless</ci>, 
+for reasons of space).
+</method>
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

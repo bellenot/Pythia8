@@ -1,0 +1,25 @@
+<chapter name="Further Comments">
+
+<h1>Further Comments</h1>
+
+This page contains a few further comments on scattered topics, that
+(so far) did not find a better place to be located.
+
+<h2>Stdlib</h2> 
+
+<ci>Stdlib</ci> only exists as a header file, collecting all the 
+<ci>include</ci> and <ci>using</ci> statements that are required 
+by most other classes to access the C++ <ci>Stdlib</ci> containers 
+and methods.
+
+In addition, the file contains inline functions <ci>pow2(x)</ci>, 
+<ci>pow3(x)</ci>, <ci>pow4(x)</ci> and <ci>pow5(x)</ci>, for small 
+integer powers, <ci>sqrtpos(x)</ci> where a <ci>max(0., x)</ci> 
+ensures one does not take the square root of a negative
+number, and <ci>tolower(string)</ci> that converts a whole string 
+to lowercase characters (extending on the <ci>tolower</ci> fuction 
+for a single character).
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

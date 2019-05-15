@@ -1,0 +1,210 @@
+<chapter name="Program Files">
+
+<h1>Program Files</h1>
+
+The code is subdivided into a set of files, mainly by physics 
+task. Each file typically contains one main class, but often
+with a few related helper classes that are not used elsewhere in 
+the program. Normally the files come in pairs.
+<ul>
+<li>A header file, <ci>.h</ci> in the <ci>include</ci> subdirectory, 
+where the public interface of the class is declared, and inline 
+methods are defined.</li>
+<li>A source code file, <ci>.cc</ci> in the <ci>src</ci> subdirectory, 
+where most of the methods are implemented.</li>
+</ul>
+During compilation, related dependency files, <ci>.d</ci>, and 
+compiled code, <ci>.o</ci> are created in the <ci>tmp</ci>
+subdirectory.
+
+<p/>
+In part the <ci>.xml</ci> documentation files in the <ci>doc</ci>
+subdirectory have matching names, but the match is broken by the
+desire to group topics more by user interaction than internal 
+operation. On this page, however, the function of the different
+code files is summarized, in case one needs to track down some
+particular piece of code.  
+
+<method name="Pythia"> 
+is the main class, that administrates the whole event generation 
+process by making use of all the others classes. Objects of most
+other classes reside (directly or indirectly) inside <ci>Pythia</ci>, 
+so only a <ci>Pythia</ci> object needs to be explicitly instantiated 
+and addressed   by the user.
+</method>
+
+<method name="Event"> 
+contains the event record, which basically is a vector of particles.
+This file also contains the <ci>Particle</ci> class, used by 
+<ci>Event</ci>. <ci>Pythia</ci> uses two <ci>Event</ci> objects, 
+one for the process-level record (<ci>process</ci>) and one for the 
+complete event (<ci>event</ci>).
+</method>
+
+<method name="Information">
+is a simple container that gives access to some information on the
+nature of the current process, such as Mandelstam variables.
+Also contains a small database for errors and warnings encountered 
+during program execution.
+</method>
+
+<method name="Analysis">
+contains routines to analyze events. Currently it can do sphericity 
+and cone-jet finding.
+</method>
+
+<method name="ProcessLevel">
+handles the generation of the (hard) process that sets the character 
+of the event. This involves either using internally implemented 
+processes  (few so far), using a runtime interface to the Fortran 
+Pythia process library, or using routines for reading in LHA events. 
+</method>
+
+<method name="PartonLevel">
+turns the (hard) process above into a complete set of partons, by 
+adding initial- and final-state radiation, multiple parton--parton
+interactions, and beam remnants.
+</method>
+
+<method name="HadronLevel">
+turns the parton-level event above into a set of outgoing particles,
+by applying string fragmentation (with special treatment for low-mass
+systems) and secondary decays.
+</method>
+
+<method name="ProcessContainer">
+packages the information on a given subprocess, combining the 
+phase-space selection and cross-section evaluation machineries
+with some statistics information. Also sets up the list of processes
+to be studied in a run.  
+</method>
+
+<method name="SigmaHat">
+contains the base class and derived classes for the evaluation of
+different matrix elements. Will have to be split once a bigger 
+number of processes is implemented. Also keeps track of the flux of 
+incoming partons, which the matrix elements have to be multiplied by.
+</method>
+
+<method name="PhaseSpace">
+selects a point in phase space for the hard-process generation,
+optimized to give improved Monte Carlo efficiency.
+</method>
+
+<method name="Pythia6">
+is an anomaly, namely the ``good old'' Fortran Pythia 6.4 program, 
+used as the main process library until further notice. Thus there 
+is no <ci>Pythia6.cc</ci> file but instead a <ci>Pythia6.f</ci> one,
+located in the <ci>pythia6</ci> subdirectory. The header file contains 
+the required wrappers to access the relevant parts of the Fortran code 
+from C++.
+</method>
+
+<method name="LesHouches">
+gives the possibility to feed in parton configurations for the 
+subsequent event generation. Two containers are defined, one for 
+initialization and one for events, that can be read from 
+<ci>Pythia</ci>. Should be linked to external programs or files.
+</method>
+
+<method name="TimeShower"> 
+performs timelike final-state transverse-momentum-ordered 
+shower evolution.
+</method>
+
+<method name="SpaceShower"> 
+performs spacelike initial-state transverse-momentum-ordered 
+shower evolution.
+</method>
+
+<method name="MultipleInteractions"> 
+performs multiple parton--parton interactions.
+</method>
+
+<method name="SigmaProcess"> 
+contains the differential cross section for QCD <ei>2 \to 2</ei> 
+processes. Currently only used by <ci>MultipleInteractions</ci>. 
+It is not clear how this class should evolve in the future, if it
+may be absorbed into <ci>SigmaHat</ci>.
+</method>
+
+<method name="SigmaTotal"> 
+contains parametrizations of total, elastic and diffractive hadronic 
+cross sections.
+</method>
+
+<method name="Beams"> 
+contains information on all partons extracted from the beams.
+Defines modified parton distributions accordingly during the
+showering and multiple interactions processing, and afterwards
+sets up beam remnants.
+</method>
+
+<method name="PartonDistributions"> 
+contains parton distribution functions for the proton and electron. 
+Currently very simple, with only two <ei>p</ei> parametrizations 
+available, but it is possible to link in external sets.
+</method>
+
+<method name="StringFragmentation"> 
+performs string fragmentation of a given set of partons.
+</method>
+
+<method name="MiniStringFragmentation"> 
+performs string fragmentation in cases where the colour singlet
+subsystem mass is so small that one or at most two primary hadrons 
+should be produced from it.
+</method>
+
+<method name="FragmentationFlavZpT">
+contains the classes for describing the fragmentation steps in
+flavour and in longitudinal and transverse momentum.
+</method>
+
+<method name="FragmentationSystems">
+defines some containers of parton systems, for use in 
+the fragmentation routines.
+</method>
+
+<method name="ParticleDecays">
+performs the decays of all normal unstable hadrons and leptons, i.e. 
+in mass up to and including <ei>b bbar</ei> systems. It is not 
+intended for decays of electroweak resonances, like <ei>\Z^0</ei>.  
+</method>
+
+<method name="StandardModel"> 
+contains the running <ei>\alpha_strong</ei>, with <ei>Lambda</ei> 
+matching at flavour thresholds, and also a few other parameters 
+such as <ei>alpha_em</ei> and <ei>sin^2(theta_W)</ei>.
+</method>
+
+<method name="Settings"> 
+contains a database of all flags, modes and parameters that determine 
+the performance of the generator. Initial values are set from the 
+contents of the <ci>.xml</ci> files, but these values can then 
+be changed by the user.
+</method>
+
+<method name="ParticleData">
+contains a database of all necessary particle data (masses, names, ..)
+and decay channels.
+</method>
+
+<method name="Basics">
+contains some basic facilities of general use: a random number
+generator <ci>Rndm</ci>, a four-vector class <ci>Vec4</ci>, and a 
+histogram class <ci>Hist</ci>.  
+</method>
+
+<method name="Stdlib">
+is only a <ci>.h</ci> file, containing all the <ci>Stdlib</ci> headers 
+used in Pythia 8, with <ci>using</ci> directives. Also inlines 
+<ci>pow2(x)</ci> - <ci>pow5(x)</ci> for fast powers of small integers, 
+<ci>sqrtpos(x)</ci> to avoid that roundoff gives the square root of a
+negative number, and <ci>tolower(string)</ci> for producing a lowercase 
+string.
+</method>
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

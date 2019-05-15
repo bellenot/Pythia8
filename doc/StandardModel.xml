@@ -1,0 +1,63 @@
+<chapter name="Standard-Model Parameters">
+
+<h1>Standard-Model Parameters</h1>
+
+<h2>The strong coupling</h2> 
+
+Currently the only class in this category is <ci>AlphaStrong</ci>, 
+which is used to provide a first- or second-order running 
+<ei>alpha_strong</ei> (or, trivially, a zeroth-order fixed one). 
+Formulae are the standard ones found in [1]. The starting 
+<ei>alpha_strong</ei> value is defined at the <ei>M_Z</ei> mass scale.
+The <ei>Lambda</ei> values are matched at the <ei>b</ei> and <ei>c</ei> 
+flavour thresholds, such that <ei>alpha_strong</ei> is continuous, 
+using an approximate iterative method for second-order matching.
+Since we allow <ei>alpha_strong</ei> to vary separately for timelike 
+showers, spacelike showers and  multiple interactions, the relevant 
+values are to be set in each of these classes. 
+ 
+<p/>
+The <ei>alpha_strong</ei> calculation is initialized by 
+<ci>AlphaStrong::init( value, order)</ci>, where <ci>value</ci> 
+is the <ei>alpha_strong</ei> value at <ei>M_Z</ei> and <ci>order</ci> 
+is the order of the running, 0, 1 or 2.   Thereafter the value can be 
+calculated by <ci>alphaS(scale)</ci>, where 
+<ci>scale</ci> is the <ei>Q^2</ei> scale in GeV^2>. 
+
+<p/>
+For applications inside shower programs, a second-order <ci>alpha_s</ci> 
+value can be obtained as the product of the two functions 
+<ci>alphaS1Ord(scale)</ci> and <ci>alphaS2OrdCorr(scale)</ci>, where the 
+first gives a simple first-order running (but with the second-order 
+<ei>Lambda</ei>) and the second the correction factor, below unity, 
+for the second-order terms. This allows a compact handling of evolution 
+equations.
+
+<h2>Electroweak couplings</h2> 
+
+In addition, this section contains a few further parameters that should
+normally not be touched.
+
+<parameter name="StandardModel:alphaEMfix" default="0.00729735"
+min="0.00729" max="0.00730">
+Fixed <ei>alpha_em</ei> value used in QED vertices. 
+</parameter>
+
+<parameter name="StandardModel:sin2thetaW" default="0.232" 
+min="0.225" max="0.240">
+The weak mixing angle.
+</parameter>
+
+<p/>
+Eventually will appear a running <ei>alpha_em</ei>, and CKM matrix elements.
+
+<h2>References</h2>
+
+<ol>
+<li>Particle Data Group, S. Eidelman et al., 
+Phys. Lett. B592 (2004) 1</li>
+</ol>
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

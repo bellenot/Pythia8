@@ -1,0 +1,79 @@
+<chapter name="Event Information">
+
+<h1>Event Information</h1>
+
+The <ci>Info</ci> class collects various one-of-a-kind information, 
+some relevant for all events and others for the current event. 
+An object <ci>info</ci> is a public member of the <ci>Pythia</ci>
+class, so if you e.g. have declared <ci>Pythia pythia</ci>, the
+<ci>Info</ci> methods can be accessed by 
+<ci>pythia.info.method()</ci>. Most of this is information that 
+could also be obtained e.g. from the event record, but is here more
+directly available. It is intended for processes generated internally
+in Pythia8, not for ones read in e.g. via the Les Houches Accord.
+
+Here are the currently available methods:
+<method name="list()">
+a listing of most of the information set for the current event. 
+</method>
+<method name="idA(), idB()">
+the identities of the two beam particles. 
+</method>
+<method name="pzA(), pzB()"> 
+the longitudinal momenta of the two beam particles.
+</method>
+<method name="eA(), eB()"> 
+the energies of the two beam particles.
+</method>
+<method name="mA(), mB()"> 
+the masses of the two beam particles.
+</method>
+<method name="eCM(), s()"> 
+the cm energy and its square for the two beams. 
+</method>
+<method name="name(), code()"> 
+the name and code of the subprocess that occured.
+</method>
+<method name="nFinal()"> 
+the number of final-state partons in the hard subprocess.
+</method>
+<method name="isResolved()"> 
+are beam particles resolved, i.e. were PDF's used for the subprocess?
+</method>
+<method name="isDiffractiveA(), isDiffractiveB()"> 
+is either beam diffractively excited?
+</method>
+<method name="id1(), id2()"> 
+the identities of the two partons coming in to the hard subprocess.
+</method>
+<method name="x1(), x2()"> 
+<ei>x</ei> fractions of the two partons coming in to the hard subprocess.
+</method>
+<method name="pdf1(), pdf2()"> 
+parton densities <ei>x*f(x,Q^2</ei> )evaluated for the two incoming 
+partons; could be used e.g. for reweighting purposes. 
+</method>
+<method name="Q2pdf()"> 
+the <ei>Q^2</ei> scale at which the densities were evaluated.
+</method>
+<method name="mHat(), sHat()">
+ the invariant mass and its square for the hard subprocess.
+</method>
+<method name="tHat(), uHat()"> 
+the remaining two Mandelstam variables; only defined for <ei>2 -> 2</ei>
+processes. 
+<method name="pTHat(), pT2Hat()"> 
+transverse momentum and its square in the rest frame of a <ei>2 -> 2</ei>
+processes. 
+</method>
+<method name="m3Hat(), m4Hat()"> 
+the masses of the two outgoing particles in a <ei>2 -> 2</ei> processes. 
+</method>
+<method name="thetaHat(), phiHat()"> 
+the polar and azimuthal scattering angles in the rest frame of 
+a <ei>2 -> 2</ei> process.
+</method>
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

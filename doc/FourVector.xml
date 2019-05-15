@@ -1,0 +1,44 @@
+<chapter name="Four-Vectors">
+
+<h1>Four-Vectors</h1>
+
+The <ci>Vec4</ci> class gives an implementation of four-vectors. 
+The member function names are based on the assumption that these 
+represent momentum vectors. Thus one can get or set 
+<ci>px()</ci>, <ci>py()</ci>, <ci>pz()</ci> and <ci>()e</ci>, but not 
+x, y, z or t. (When production vertices are defined in the particle 
+class, this is partly circumvented by new methods that hide a 
+<ci>Vec4</ci>.) Derived quantities like the <ci>pT()</ci>, 
+the <ci>pAbs()</ci>, and the <ci>theta()</ci> and <ci>phi()</ci> angles 
+may be read out. The names should be self-explanatory, so we refer 
+to the header class.
+
+<p/>
+A set of overloaded operators are defined for four-vectors, so that 
+one may naturally add, subtract, multiply or divide four-vectors with 
+each other or with double numbers, for all the cases that are 
+meaningful.
+
+<p/>
+The <ci>Particle</ci> object contains a <ci>Vec4 p</ci> that stores the 
+particle four-momentum, and another <ci>Vec4 vProd</ci> for the 
+production vertex. Therefore a user would not normally access the 
+<ci>Vec4</ci> class directly, but by using the similarly-named methods 
+of the <ci>Particle</ci> class. (The latter also stores the particle mass 
+separately, offering an element of redundancy, helpful in avoiding some 
+roundoff errors.) However, for simple analysis tasks it may be convenient 
+to use <ci>Vec4</ci>, e.g., to define the four-vector sum of a set of 
+particles.
+
+<p/>
+Simple rotations and boosts of the four-vectors are easily obtained
+with member functions. For a longer sequence of rotations and boosts, 
+and where several <ci>Vec4</ci> are involved for the same set of operations, 
+a more efficient approach is to define a <ci>RotBstMatrix</ci>, which 
+forms a separate auxiliary class. This matrix can be built up from the 
+successive set of operations to be performed and, once defined, 
+it can be applied on as many <ci>Vec4</ci> as required. 
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

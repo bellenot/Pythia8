@@ -1,0 +1,63 @@
+! File: main12.cmnd
+! This file contains commands to be read in for a Pythia8 run. 
+! Lines not beginning with a letter, digit or < are comments.
+! Names are case-insensitive  -  but spellings-sensitive!
+! The changes here are illustrative, not always physics-motivated.
+
+! 1) Settings that could be used in a main program, if desired.
+Main:idBeamA = 2212                ! first beam, p = 2212, pbar = -2212
+Main:idBeamB = 2212                ! second beam, p = 2212, pbar = -2212
+Main:eCM = 14000.                  ! CM energy of collision, LHC
+Main:numberOfEvents = 10000        ! number of events to generate
+Main:numberToList = 2              ! number of events to print
+Main:timesToShow = 20              ! show how far along run is this many times
+Main:timesAllowErrors = 10         ! abort run after this many flawed events
+Main:showChangedSettings = on      ! print changed flags/modes/parameters
+#Main:showAllSettings = on          ! print all flags/modes/parameters
+#Main:showChangedParticleData = on  ! print changed particle and decay data
+#Main:showAllParticleData = on      ! print all particle and decay data
+
+! 3) Settings for hard-process generation internal to Pythia8.
+PhaseSpace:pTHatMin = 10.           ! minimum pT in hard process
+#SoftQCD:all = on                   ! all soft QCD processes (not yet complete)
+HardQCD:all = on                   ! all hard QCD processes
+#HardQCD:gg2gg = on                 ! g g -> g g
+#HardQCD:gg2qqbar = on              ! g g -> q qbar
+#HardQCD:qg2qg = on                 ! q g -> q g
+#HardQCD:qq2qq = on                 ! q q' -> q q'
+#HardQCD:qqbar2qqbarNew = on        ! q qbar -> q' qbar'
+#HardQCD:qqbar2gg = on              ! q qbar -> g g
+#HardQCD:qqbar2ccbar = on           ! q qbar -> c cbar
+#HardQCD:qqbar2bbbar = on           ! q qbar -> b bbar
+#PromptPhoton:all = on              ! all prompt photon processes 
+#PromptPhoton:qg2qgamma = on        ! q g -> q gamma
+#PromptPhoton:qqbar2ggamma = on     ! q qbar -> g gamma
+#PromptPhoton:gg2ggamma = on        ! g g -> g gamma
+#PromptPhoton:qqbar2gammagamma = on ! q qbar -> gamma gamma
+#PromptPhoton:gg2gammagamma = on    ! g g -> gamma gamma
+
+! 4) Settings for hard-process generation external in Pythia6.
+! Can be used to compare process by process with above.
+#Pythia6:msel = 0                    ! QCD processes
+#Pythia6:ckin(3) = 10.               ! minimum pT in hard process
+#Pythia6:msub(11) = 1                ! q q -> q q
+#Pythia6:msub(12) = 1                ! q qbar -> q' qbar'
+#Pythia6:msub(13) = 1                ! q qbar -> g g 
+#Pythia6:msub(28) = 1                ! q g -> q g
+#Pythia6:msub(53) = 1                ! g g -> q qbar
+#Pythia6:msub(68) = 1                ! g g -> g g
+#Pythia6:msub(29) = 1                ! q g -> q gamma
+#Pythia6:msub(14) = 1                ! q qbar -> g gamma 
+#Pythia6:msub(115) = 1               ! g g -> g gamma 
+#Pythia6:msub(18) = 1                ! q qbar -> gamma gamma 
+#Pythia6:msub(114) = 1               ! g g -> gamma gamma 
+#Pythia6:mstp(122) = 2               ! maximization printout
+
+! 5) Switch off some key components of the simulation, for comparisons.
+#Pythia:afterProcessLevel = off      ! stop after hard process 
+#PartonLevel:MI = off               ! no multiple interactions
+#PartonLevel:ISR = off              ! no initial-state radiation 
+#PartonLevel:FSRinProcess = off     ! no final-state radiation
+#PartonLevel:FSRinResonances = off  ! no FSR in resonance decays 
+#HadronLevel:Hadronize = off        ! no hadronization
+#HadronLevel:Decay = off            ! no decays

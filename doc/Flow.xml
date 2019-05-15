@@ -1,0 +1,208 @@
+<chapter name="Program Flow">
+
+<h1>Program Flow</h1>
+
+Recall that, to first order, the event generation process can be 
+subdivided into three stages:
+<ol>
+<li>Initialization.</li>
+<li>The event loop.</li>
+<li>Finishing.</li>
+</ol>
+This is reflected in how the top-level <ci>Pythia</ci> class should 
+be used in the user-supplied main program, further outlined in the 
+following.
+
+<h2>Initialization</h2>
+
+<ol>
+
+<li>Already at the top of the main program file, you need to
+include the proper header file
+<code>
+    #include "Pythia.h"
+</code>
+To simplify typing, it also makes sense to declare
+<code>
+    using namespace Pythia8; 
+</code></li>
+
+<li>(compulsory) The first step is to create a generator object, 
+e.g. with
+<code>
+     Pythia pythia;
+</code>
+It is this object that we will use from now on. Normally a run
+will only contain one <ci>Pythia</ci> object, but hypothetically 
+you  could use several.<br/>
+All output from <ci>Pythia</ci> will be on the <ci>cout</ci> stream. 
+If this is not convenient, you can give a reference to another stream 
+as an optional argument
+<code>
+    Pythia pythia(ostream);
+</code>
+but this does not work so far! (??)</li>  
+
+<li>(optional) The <ci>Pythia</ci> constructor will initialize the 
+default values for the <ci>Settings</ci> and the 
+<ci>ParticleDataTable</ci>. Both of these are static, but for 
+covenience are also defined as <ci>Pythia</ci> members, so that 
+<ci>pythia.settings.method()</ci> is the same as 
+<ci>Settings::method()</ci>, and similarly for 
+<ci>pythia.particleData.method()</ci> and 
+<ci>ParticleDataTable::method()</ci>.
+A third static class is the interface to the old Fortran 77 
+<ci>Pythia6</ci>, currently used for generating hard processes, but 
+not provided with a corresponding alias since it is slated for 
+eventual deletion.<br/> 
+You can use the methods of each class to change the default values 
+to fit the needs of your current run. However, the
+<code>
+    pythia.readString(string)
+</code>
+method provides a covenient uniform interface to all three of them.
+The information in the string is case-insensitive, but upper- and
+lowercase can be combined for clarity. The rules are that<br/>
+(i) if the first nonblank character of the string is not a 
+letter or a digit nothing will be done;<br/>
+(ii) if the string begins with <ci>Pythia6:</ci>, this part is peeled 
+off, and the rest is sent on to Fortran <ci>Pythia 6</ci>, using the 
+<ci>pygive</ci> method in that package;<br/>
+(iii) if the string begins with a digit it is assumed to contain 
+particle data updates, and so sent on to 
+<ci>pythia.particleData.readString(string)</ci>;
+(iv) if none of the above, the string is assumed to contain a  
+setting, and is sent on to <ci>pythia.settings.readString(string)</ci>. 
+In the latter two cases, a warning is issued whenever a string
+cannot be recognized (maybe because of a spelling mistake),
+unless an optional second argument <ci>false</ci> is used to switch off
+warnings.<br/>
+Some examples would be
+<code>
+    pythia.readString("Pythia6:msel = 6");
+    pythia.readString("111:mayDecay = false");
+    pythia.readString("TimeShower:pTmin = 1.0");
+</code>
+The methods in this paragraph are intended for small changes; for more 
+extensive ones it is better to store all the changes in a file, see next.
+</li>
+
+<li>(optional) You can read in a file containing a list of those
+variables you want to see changed, with a 
+<code>
+    pythia.readFile(fileName);
+</code>
+Each line in this file with be processes by the 
+<ci>pythia.readString()</ci> method introduced above. You can thus 
+freely mix comment lines and lines handed on to <ci>Settings</ci>, 
+<ci>ParticleDataTable</ci> and <ci>Pythia 6</ci>.   
+This would be the normal way to set up what a run is supposed 
+to do. Again, an optional second argument <ci>false</ci> allows you to 
+switch off warning messages for unknown variables.<br/>
+Of course, if your file is also supposed to contain commands 
+to other libraries, so you have to build your own parser, the 
+readString method above may be more appropriate.</li>
+
+<li>(optional) If you are not satisfied with the (short) list of 
+parton density functions that are implemented internally in 
+<ci>Pythia</ci>, you can suppy your own by a call to the <ci>PDFptr</ci> 
+method
+<code>
+      pythia.PDFptr( pdfA, pdfB); 
+</code>
+where <ci>pdfA</ci> and <ci>pdfB</ci> are pointers to two <ci>Pythia</ci>  
+PDF objects (see the Parton Distributions page for further instructions). 
+Note that <ci>pdfA</ci> and <ci>pdfB</ci> cannot point to the same object; 
+even if the PDF set is the same, two copies are needed to keep track of
+two separate sets of <ei>x </ei>and density values.</li>
+
+<li>(optional) If you want to perform some particle decays with an
+external generator, you can call the <ci>decayPtr</ci> method
+<code>
+      pythia.decayPtr( decayHandler, particles)
+</code>
+where the <ci>decayHandler</ci> derives from the <ci>DecayHandler</ci> 
+base class, see the Particle Decays page, and <ci>particles</ci> is a 
+vector of particle codes to be handled. (Only to contain particle codes;
+antiparticles are included automatically.)</li>
+
+<li>(optional) If you want to use an external random number generator, 
+you can call the <ci>rndmEnginePtr</ci> method
+<code>
+      pythia.rndmEnginePtr( rndmEngine) 
+</code>
+where <ci>rndmEngine</ci> derives from the <ci>RndmEngine</ci> base 
+class, see ???. The Pythia default random number generator is 
+perfectly good, so this is only intended for consistency in 
+bigger frameworks.</li>
+
+<li>(compulsory) Next comes the initialization stage, where all 
+remaining details of the generation are to be specified. The 
+<ci>init</ci> method allows a few different input formats, so you can 
+pick the one convenient for you:<br/>
+a) pythia.init( idA, idB, eA, eB);<br/>
+lets you specify the identities and energies of the two incoming
+beam particles, with A (B) assumed moving in the <ei>+z (-z)</ei> 
+direction.<br/>
+b) pythia.init( idA, idB, eCM);<br/>
+is similar, but you specify the CM energy, and you are assumed 
+in the rest frame.<br/>
+c) pythia.init( LHAinit*, LHAevnt*); <br/>
+assumes Les Houches Accord initialization information is available 
+in an <ci>LHAinit</ci> class object, and that LHA event information 
+will be provided by the <ci>LHAevnt</ci> class object.</li>
+
+<li>(optional) If you want to have a list of the generator and
+particle data used, either only what has been changed or everything, 
+you can use 
+<code>
+    pythia.settings.listChanged();
+    pythia.settings.listAll();
+    pythia.particleData.listChanged(); 
+    pythia.particleData.listAll(); 
+</code></li>
+</ol>
+
+<h2>The event loop</h2>
+
+<ol>
+<li>(compulsory) Inside the event generation loop you generate the 
+next event using the <ci>next</ci> method,
+<code>
+    pythia.next();
+</code>
+This method takes no arguments; everything has already been specified. 
+It does return a bool value, however, <ci>false</ci> when the
+generation failed. This can be a "programmed death" when the
+supply of input parton-level configurations on file is exhausted,
+but also caused by a failure of Pythia to generate an event,
+or that an event was generated but something strange was detected
+in it.</li>  
+ 
+<li>(optional) The generated event is now stored in the <ci>event</ci> 
+object, of type <ci>Event</ci>, which is a public member of 
+<ci>pythia</ci>. You therefore have access to all the tools described
+on the Event Record page. For instance, an event can be listed with 
+<ci>pythia.event.list()</ci>, the identity of the <ei>i</ei>'th particle 
+is given by <ci>pythia.event[i].id()</ci>, and so on.<br/> 
+Furthermore, the hard process - roughly the information normally 
+stored in the Les Houches Accord event record - is available as 
+a second object, <ci>process</ci>, also of type <ci>Event</ci>.</li> 
+
+</ol>
+
+<h2>Finishing</h2>
+
+<ol>
+
+<li>(optional) At the end of the generation process, you can call
+<code>
+    pythia.statistics(); 
+</code>
+to get some run statistics.</li> 
+
+</ol>
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

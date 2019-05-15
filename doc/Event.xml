@@ -1,0 +1,274 @@
+<chapter name="The Event Record">
+
+<h1>The Event Record</h1>
+
+The <ci>Event</ci> class for event records basically is a vector of 
+<ci>Particle</ci>s, so that it can expand to fit the event size.
+The index operator is overloaded, so that <ci>event[i]</ci> corresponds 
+to the <ci>i</ci>'th particle of an <ci>Event</ci> object <ci>event</ci>. 
+Thus <ci>event[i].id()</ci> returns the identity of the <ci>i</ci>'th 
+particle. References to the first, <ci>i</ci>'th and last particle are 
+obtained with <ci>event.front()</ci>, <ci>event.at(i)</ci> and 
+<ci>event.back()</ci>, respectively.
+
+<p/>
+The event size can be found with <ci>size()</ci>, i.e. valid particles 
+are stored in <ci>0 &lt;= i &lt; event.size()</ci>.
+
+<p/>
+Line 0 is used to represent the event as a whole, with its total
+four-momentum and invariant mass, but does nto form part of the
+event history. Lines 1 and 2 contains the two incoming beams, and 
+only from here on history tracing works as could be expected. That 
+way unassigned mother and daughter indices can be put 0 without 
+ambiguity. Depending on the task at hand, a loop may therefore start 
+at an index 1 without any loss. Specifically, for translation to other 
+event record formats such as HepMC [1], where the first index is 1, 
+the Pythia entry 0 definitely ought to be skipped in order to 
+minimize the danger of errors. 
+
+<p/>
+New particles can be added to the end of the current event record
+with <ci>append(Particle)</ci>, or 
+<ci>append(id, status, mother1, mother2, daughter1, daughter2, 
+col, acol, p, m, scale)</ci>
+where <ci>p</ci> is the four-momentum vector, and everything except 
+<ci>id</ci> defaults to 0. The <ci>append</ci> method returns the index 
+of the new particle position. 
+  
+<p/>
+The existing particle at index <ci>iCopy</ci> can be copied to the end 
+with <ci>copy(iCopy, newStatus = 0)</ci>. By default, i.e. with 
+<ci>newStatus = 0</ci>, everything is copied precisely as it is, 
+which means that history information has to be modified further by hand 
+to make sense. With a positive <ci>newStatus</ci>, the new copy is set 
+up to be the daughter of the old, with status code <ci>newStatus</ci>, 
+and the status code of <ci>iCopy</ci> is negated. With a negative 
+<ci>newStatus</ci>, the new copy is instead set up to be the mother 
+of <ci>iCopy</ci>.
+
+<p/>
+A listing of the whole event is obtained with <ci>list()</ci>. This 
+function takes an <ci>ostream</ci> object as an optional argument.
+The basic id, status, mother, daughter, colour, four-momentum
+and mass data are always given, but the following switches can be 
+set to provide further information, or restrict the set of particles
+listed:
+
+<flag name="Event:listFinalOnly" default="off">
+The alternative mode, with this option on, omits all intermediate
+particles, so that only ones with status > 0 are shown. 
+</flag>
+
+<flag name="Event:listScaleAndVertex" default="off">
+The alternative mode, with this option on, gives a second line
+for each particle, with the production scale (in GeV), the
+production vertex (in mm or mm/c) and the invariant lifetime
+(also in mm/c).
+</flag>
+
+<flag name="Event:listMothersAndDaughters" default="off">
+The alternative mode, with this option on, gives a list of all
+daughters and mothers of a particle, as defined by the 
+<ci>motherList(i)</ci> and <ci>daughterList(i)</ci> methods 
+described below. It is purely intended for debug purposes, 
+e.g. when writing an interface to another event record format. 
+</flag>
+
+<flag name="Event:extraBlankLine" default="off">
+With this option on, an extra blank line is inserted after each 
+particle. There is a tradeoff between improved legibility, in 
+particular for <ci>Event:listMothersAndDaughters</ci> on, and a 
+longer listing. 
+</flag>
+
+<flag name="Event:listJunctions" default="off">
+With this option on, a list of all junctions in the event is 
+displayed after the normal particle list.
+</flag>
+
+These choices are stored at the initialization stage of the event.
+If you want to change values later, you have to execcute an
+<ci>Event::initStatic()</ci> yourself for them to take effect.  
+
+<p/>
+The event record can be emptied for the next event by a 
+<ci>clear()</ci>. The last <ci>n</ci> entries can be removed by 
+<ci>popBack(n)</ci>, where <ci>n = 1</ci> by default. 
+
+<p/>
+The user would normally be concerned with the <ci>Event</ci> object 
+that is a public member <ci>event</ci> of the <ci>Pythia</ci> class. 
+Thus, having declared a <ci>Pythia</ci> object <ci>pythia</ci>, 
+<ci>pythia.event[i].id()</ci> would be used to return the identity 
+of the <ci>i</ci>'th particle, and <ci>pythia.event.size()</ci> to 
+give the size of the event record. 
+
+<p/>
+A <ci>Pythia</ci> object contains a second event record for the 
+hard process alone, called <ci>process</ci>, used as input for the 
+generation of the complete event. Thus one may e.g. call either 
+<ci>pythia.process.list()</ci> or <ci>pythia.event.list()</ci>. 
+To distinguish those two rapidly at visual inspection, the 
+<ci>"Pythia Event Listing"</ci> header is printed out differently, 
+in one case adding <ci>"(hard process)"</ci> and in the other 
+<ci>"(complete event)"</ci>. This is set by a header(string) method.
+
+<p/>
+One data member in an <ci>Event</ci> object is used to keep track of the  
+largest <ci>col()</ci> or <ci>acol()</ci> tag set so far, so that 
+new ones do not clash. The <ci>lastcolTag()</ci> method returns the 
+last tag assigned, i.e. largest value in the current event, and 
+<ci>nextColTag()</ci> ups it by one before returing the value. The 
+latter method thus is used when a new colour tag is needed.  
+
+<mode name="Event:startColTag" default="100" min="0" max="1000">
+This sets the initial value used, so that the first one assigned is
+<ci>startColTag+1</ci>, etc. The Les Houches accord [2] suggests this 
+number to be 500, but 100 works equally well.
+</mode>
+
+<p/>
+The <ci>scale()</ci> methods can be used to set or get the scale 
+(in GeV) of the event as a whole. Further methods for event properties 
+may be added in the future.
+
+<p/>
+There are also a few methods with an individual particle index <ci>i</ci> 
+as input, but requiring some search operations in the event record, and
+therefore not possible to define inside the <ci>Particle</ci> class:
+
+<method name="motherList(i)"> 
+returns a <ci>vector&lt;int></ci> containing a list of all the
+mothers of a particle. This list is empty for entry 0 , while 
+normally it contains one, two or many mothers. The latter case 
+applies e.g. to string fragmentation, where the whole fragmenting 
+system is counted as mothers. Mothers are listed in ascending order.
+</method>
+
+<method name="daughterList(i)">
+returns a <ci>vector&lt;int></ci> containing a list of all the
+daughters of a particle. This list is empty for a particle that did 
+not decay (or, if the evolution is stopped early enough, a parton
+that did not branch), while otherwise it can contain a list of 
+varying length, from one to many. Many partons may have the same 
+<ci>daughterList</ci>, e.g. in the hard process and fragmentation steps.
+For the two incoming beam particles, all shower initiators and beam 
+remnants are counted as daughters, with the one in slot 0 being
+the one leading up to the hardest interaction. 
+</method>
+
+<method name="iTopCopy(i), iBotCopy(i)"> 
+are used to trace carbon copies of the particle at index <ci>i</ci> up 
+to its top mother or down to its bottom daughter. If there are no such 
+carbon copies, <ci>i</ci> itself will be returned.
+</method>
+
+<method name="iTopCopyId(i), iBotCopyId(i)"> 
+also trace top mother and bottom daughter, but do not require carbon 
+copies, only that one can find an unbroken chain, of mothers or daughters, 
+with the same flavour <ci>id</ci> code. The behaviour when trying to 
+trace a gluon through a shower, with its <ei>g -> g g</ei> branchings, 
+is then rather unpredictable. Similarly, a hard scattering such as 
+<ei>u u -> u u</ei> is better avoided. It should work well for "rare" 
+particles, not found in the beams, so that the program is not fooled 
+by ambiguities. 
+</method>
+
+<method name="sisterList(i)"> 
+returns a <ci>vector&lt;int></ci> containing a list of all the 
+sisters of a particle, i.e. all the daughters of the first mother,
+except the particle itself. 
+</method>
+
+<method name="sisterListTopBot(i)">
+ returns a <ci>vector&lt;int></ci> containing a list of all the sisters 
+of a particle, tracking up and back down through carbon copies if 
+required. That is, the particle is first traced up with <ci>iTopCopy()</ci> 
+before its mother is found, and then all the particles in the 
+<ci>daughterList()</ci> of this mother are traced down with 
+<ci>iBotCopy()</ci>, omitting the original particle itself. 
+</method>
+
+<method name="isAncestor(i, iAncestor)"> 
+traces the particle <ci>i</ci> upwards through mother, grandmother, 
+and so on, until either <ci>iAncestor</ci> is found or the top of 
+the record is reached. Normally one unique mother is required,
+as is the case e.g. in decay chains or in parton showers, so that
+e.g. the tracing through a hard scattering would not work. For
+hadronization, currently first-rank hadrons are identified with the
+respective string endpoint quark, which may be useful e.g. for <ei>b</ei>
+physics. However, currently ministrings or junction topologies give 
+<ci>false</ci>. (??)  
+</method>
+ 
+<h2>The Junction Class</h2>
+
+The event record also contains a vector of junctions, which often
+is empty or else contains only a very few per event. Methods are
+available to add further junctions or query the current junction list.
+This is only for the expert user, however, and is not discussed
+further here, but only the main points..  
+
+<p/>
+A junction stores the properites associated with a baryon number that
+is fully resolved, i.e. where three different colour indices are 
+involved. There are two main applications,
+<ol> 
+<li>baryon beams, where at least two valence quarks are kicked out,
+and so the motion of the baryon number is notrivial;</li>
+<li>baryon-number violating processes, e.g. in SUSY with broken
+<ei>R</ei>-parity.</li>
+</ol>
+Information on junctions is set, partly in the process generation,
+partly in the beam remnants machinery, and used by the fragmentation 
+routines, but the normal user does not have to know the details. 
+
+<p/>
+For each junction, information is stored on the kind of junction, and 
+on the three (anti)colour indices that are involved in the junction.
+The possibilities foreseen are:
+<ul>
+<li><ci>kind = 1</ci> : incoming colourless particle to three outgoing 
+colours (e.g. baryon beam remnant or <ci>neutralino -> q q q</ci>);</li>
+<li><ci>kind = 2</ci> : incoming colourless particle to three outgoing 
+anticolours;</li>
+<li><ci>kind = 3</ci> : one incoming anticolor (stored first) and two 
+outgoing  colours (e.g. antisquark decaying to quark);</li>
+<li><ci>kind = 4</ci> : one incoming color (stored first) and two 
+outgoing anticolours;</li>
+<li><ci>kind = 5</ci> : incoming colour octet to three colours, 
+where the incoming colour passes through unchanged and so need not 
+be bokkept here, while the incoming anticolor (stored first) and the 
+two outgoing colours are (e.g. gluino decay to three quarks);</li>
+<li><ci>kind = 6</ci> : incoming colour octet to three anticolours, 
+where the incoming anticolour passes through unchanged and so need not 
+be bookkept here, while the incoming color (stored first) and the two 
+outgoing colours are.</li>
+</ul>
+The odd (even) <ci>kind</ci> codes corresponds to a +1 (-1) change in 
+baryon number across the junction.
+<note>Warning:</note>Currently only <ci>kind = 1, 2</ci> are 
+implemented.
+
+<p/>
+The kind and colour information in the list of junctions can be set 
+or read with methods of the <ci>Event</ci> class, but are not of 
+common interest and so not described here.
+
+<h2>References</h2>
+
+<ol>
+
+<li>M. Dobbs and J.B. Hansen, Computer Physics Comm. 134 (2001) 41</li>
+
+<li>E. Boos et al., in the Proceedings of the Workshop on Physics at 
+TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001 [hep-ph/0109068]
+</li>
+
+</ol>
+
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

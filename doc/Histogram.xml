@@ -1,0 +1,81 @@
+<chapter name="Histograms">
+    
+<h1>Histograms</h1>
+
+The <ci>Hist</ci> class gives a simple implementation of 
+one-dimensional histograms, useful for quick-and-dirty testing, 
+without the need to link to more sophisticated packages. 
+A Histogram is declared by a    
+<class name="Hist name( title, numberOfBins, xMin, xMax)">
+where
+<argument name="title"> 
+is a string with the title of the histogram at output,
+</argument>
+<argument name="numberOfBins"> 
+is the number of bin the <ei>x</ei> range will be subdivided into, 
+</argument>
+<argument name="xMin"> 
+is the lower edge of the histogram,
+</argument>
+<argument name="xMax"> 
+is the upper edge of the histogram.
+</argument>
+</class>
+
+<p/>
+For instance
+<code>
+   Hist ZpT( "Z0 pT spectrum", 100, 0., 100.);
+</code>
+Alternatively you can first declare it and later define it:
+<code>
+   Hist ZpT;
+   ZpT.book( "Z0 pT spectrum", 100, 0., 100.);
+</code>
+
+Once declared, its contents can be added by repeated calls to fill
+<method name="fill( xValue, weight)">
+where
+<argument name="xValue">
+is the <ei>x</ei> position where the filling should occur, and
+</argument>
+<argument name="weight" default="1.">
+is the amount of weight to be added at this <ei>x</ei> value.
+</argument>
+</method>
+
+<p/>
+For instance
+<code>
+   ZpT.fill( 22.7, 1.); 
+</code>
+Since the weight defaults to 1 the last argument could have been 
+omitted in this case.   
+
+<p/>
+A histogram can be printed by making use of the overloaded &lt;&lt; 
+operator, e.g.:
+<code>
+   cout &lt;&lt; ZpT;
+</code>
+
+<p/>
+A set of overloaded operators have been defined, so that histograms can 
+be added, divided by each other (bin by bin) and so on. Also overloaded 
+operations with double real numbers are available, so that e.g. 
+histograms easily can be rescaled. Thus one may write e.g.
+<code>
+  allpT = ZpT + 2. * HpT
+</code>
+assuming that <ci>allpT</ci>, <ci>ZpT</ci> and <ci>HpT</ci> have been 
+booked with the same number of bins and <ei>x</ei> range. That 
+responsibility rests on the user; some checks are made for compatibility, 
+but not enough to catch all possible mistakes. 
+
+<p/>
+Some further possibilities are included, like writing out histogram 
+contents as a table, for plotting e.g. with Gnuplot.
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

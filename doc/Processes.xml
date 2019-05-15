@@ -1,0 +1,150 @@
+<chapter name="Process Selection">
+
+<h1>Process Selection</h1>
+
+By default all processes are switched off. You should switch on 
+those you want to simulate. This may be done at two levels, either
+for each individual process or for a group of processes. That is,
+a process is going to be generated either if its own flag or its 
+group flag is on. There is no built-in construction to switch on
+a group and then switch off a few of its members.
+
+<p/>
+Each process is assigned an integer code. This code is not used in
+the internal administration of events (so having the same code for
+two completely different processes would not be a problem), but only 
+intended to allow a simpler user separation of different processes. 
+Also the process name is available, as a string.
+
+<h2>Soft QCD processes</h2>
+
+<note>Warning:</note> the minBias process in this group is not yet 
+implemented. 
+
+<flag name="SoftQCD:all" default="off">
+Common switch for the group of all soft QCD processes, 
+as listed separately in the following.
+</flag>
+
+<flag name="SoftQCD:minBias" default="off">
+Eikonalized description of all the hard QCD processes, 
+so includes them in combinationation with low-<ei>pT</ei> events. 
+Code 101.
+</flag>
+
+<flag name="SoftQCD:elastic" default="off">
+Elastic scattering <ei>A B -> A B</ei>.
+Code 102.
+</flag>
+
+<flag name="SoftQCD:singleDiffractive" default="off">
+Single diffractive scattering <ei>A B -> X B</ei> and 
+<ei>A B -> A X</ei>. 
+Codes 103 and 104.
+</flag>
+
+<flag name="SoftQCD:doubleDiffractive" default="off">
+Double diffractive scattering <ei>A B -> X_1 X_2</ei>.
+Code 105.
+</flag>
+
+<h2>Hard QCD processes</h2>
+  
+<flag name="HardQCD:all" default="off">
+Common switch for the group of all hard QCD processes, 
+as listed separately in the following.
+</flag>
+
+<flag name="HardQCD:gg2gg" default="off">
+Scatterings <ei>g g -> g g</ei>.
+Code 111.
+</flag>
+
+<flag name="HardQCD:gg2qqbar" default="off">
+Scatterings <ei>g g -> q qbar</ei>.
+Code 112.
+</flag>
+
+<flag name="HardQCD:qg2qg" default="off">
+Scatterings <ei>q g -> q g</ei> and <ei>qbar g -> qbar g</ei>.
+Code 113.
+</flag>
+
+<flag name="HardQCD:qq2qq" default="off">
+Scatterings <ei>q q' -> q q'</ei>, <ei>q qbar' -> q qbar'</ei>, 
+<ei>qbar qbar' -> qbar qbar'</ei>, where <ei>q'</ei> and <ei>q</ei> 
+may agree, but the outgoing flavours equals the incoming ones 
+Codes 114, 115 and 116.
+</flag>
+
+<flag name="HardQCD:qqbar2qqbarNew" default="off">
+Scatterings <ei>q qbar -> q' qbar'</ei>, where the outgoing flavours 
+are different from the incoming ones. 
+Code 117.
+</flag>
+
+<flag name="HardQCD:qqbar2gg" default="off">
+Scatterings <ei>q qbar -> g g</ei>. 
+Code 118.
+</flag>
+
+<h2>Hard QCD processes: heavy-flavour subset</h2>
+
+<flag name="HardQCD:qqbar2ccbar" default="off">
+Scatterings <ei>q qbar -> c cbar</ei>. 
+Code 122.
+Warning: not yet ready for use: no masses in phase space!
+</flag>
+
+<flag name="HardQCD:qqbar2bbbar" default="off">
+Scatterings <ei>q qbar -> b bbar</ei>. 
+Code 124.
+Warning: not yet ready for use: no masses in phase space!
+</flag>
+
+<h2>Prompt photon processes</h2>
+
+<flag name="PromptPhoton:all" default="off">
+Common switch for the group of all prompt photon processes, 
+as listed separately in the following.
+</flag>
+
+<flag name="PromptPhoton:qg2qgamma" default="off">
+Scattering <ei>q g -> q gamma</ei>.
+Code 131.
+</flag>
+
+<flag name="PromptPhoton:qqbar2ggamma" default="off">
+Scattering <ei>q qbar -> g gamma</ei>.
+Code 132.
+</flag>
+
+<flag name="PromptPhoton:gg2ggamma" default="off">
+Scattering <ei>g g -> g gamma</ei>.
+<note>Note:</note> This is a box graph. The full quark-mass 
+dependence in the loop leads to very complicated expressions. 
+The current implementation is based on assuming five massless 
+quarks, and thus is questionable at small (<ei>pT &lt; m_b</ei>) 
+or large (<ei>pT > m_t</ei>) transverse momenta.
+Code 133.
+</flag>
+
+<flag name="PromptPhoton:qqbar2gammagamma" default="off">
+Scattering <ei>q qbar -> gamma gamma</ei>.
+Code 134. Not yet implemented.
+</flag>
+
+<flag name="PromptPhoton:gg2gammagamma" default="off">
+Scattering <ei>g g -> gamma gamma</ei>.
+<note>Note:</note> This is a box graph. The full quark-mass 
+dependence in the loop leads to very complicated expressions. 
+The current implementation is based on assuming five massless 
+quarks, and thus is questionable at small (<ei>pT &lt; m_b</ei>) 
+or large (<ei>pT > m_t</ei>) transverse momenta.
+Code 135. Not yet implemented.
+</flag>
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->
+

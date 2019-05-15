@@ -1,0 +1,111 @@
+<chapter name="Partial Generation">
+
+<h1>Partial Generation</h1>
+
+Sometimes it may be convenient to omit certain aspects of the event 
+generation chain. This cannot be motivated in a full-blown production
+run, but can often be convenient for own understanding and for
+debug purposes. The flags on this page allow just that.
+
+<p/>
+The event generation is subdivided into three levels: the process
+level, the parton level and the hadron level, and flags are grouped
+accordingly. 
+
+<h2>Process Level</h2>
+
+The <ci>ProcessLevel</ci> class administrates the initial step of 
+the event generation, wherein the basic process is selected. Currently 
+this is done either using some of the internal processes, or with 
+Les Houches Accord input, or from the Fortran Pythia 6.3 code, the 
+latter also using the Les Houches Accord standard.
+
+Since there cannot be any event at all without an initial process,
+there is no possibility to switch off this part of the story. It is
+possible, however, to stop the generation immediately after the
+basic process has been selected:
+
+<flag name="Pythia:afterProcessLevel" default="on">
+If off then stop the generation after the hard process has been 
+generated, but before the parton-level and hadron-level steps. 
+The <ci>process</ci> record is filled, but the <ci>event</ci> 
+one is not.
+</flag>
+ 
+<h2>PartonLevel</h2>
+
+The <ci>PartonLevel</ci> class administrates the middle step of the 
+event generation, i.e. the evolution from an input (hard) process from
+<ci>ProcessLevel</ci>, containing a few partons only, to a complete 
+parton-level configuration to be handed on to <ci>HadronLevel</ci>. 
+This step involves the application of initial- and final-state radiation, 
+multiple interactions and the structure of beam remnants.
+
+<p/>
+Some parts of the event generation on this level may be switched off
+individually: 
+
+<flag name="PartonLevel:MI" default="on">
+Master switch for multiple interactions; on/off = true/false.
+Further options are found on the Multiple Interactions page.
+</flag>
+
+<flag name="PartonLevel:ISR" default="on">
+Master switch for initial-state radiation; on/off = true/false.
+Further options are found on the Spacelike Showers page.
+</flag>
+
+<flag name="PartonLevel:FSRinProcess" default="on">
+Master switch for final-state radiation in association with the
+hard process itself; on/off = true/false.
+Further options are found on the Timelike Showers page.
+</flag>
+
+<flag name="PartonLevel:FSRinResonances" default="on">
+Master switch for final-state radiation in any resonance decays 
+subsequent to the hard process itself; on/off = true/false.
+Further options are found on the Timelike Showers page.
+</flag>
+
+It is also possible to stop the generation immediately after this step:
+
+<flag name="Pythia:afterPartonLevel" default="on">
+If off then stop the generation after the hard process and 
+parton-level activity has been generated, but before the 
+hadron-level steps.
+</flag>
+
+
+<h2>HadronLevel</h2>
+
+The <ci>HadronLevel</ci> class administrates the final step of the 
+event generation, wherein the partonic configuration from 
+<ci>PartonLevel</ci> is hadronized, including string fragmentation 
+and secondary decays.
+
+<p/>
+Most of the code in this class deals with subdividing the partonic
+content of the event into separate colour singlets, that can be
+treated individually by the string fragmentation machinery. When a
+junction and an antijunction are directly connected, it also breaks 
+the string between the two, so that the topology can be reduced back 
+to two separate one-junction systems, while still preserving the
+expected particle flow in the junction-junction string region(s).
+
+<p/>
+Some parts of the event generation on this level may be switched off
+individually: 
+
+<flag name="HadronLevel:Hadronize" default="on">
+Master switch for hadronization; on/off = true/false.
+Further options are found on the Fragmentation page.
+</flag>
+
+<flag name="HadronLevel:Decay" default="on">
+Master switch for decays; on/off = true/false.
+Further options are found on the Particle Decays page.
+</flag>
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

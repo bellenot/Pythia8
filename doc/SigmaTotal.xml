@@ -1,0 +1,79 @@
+<chapter name="Total Cross Sections">
+
+<h1>Total Cross Sections</h1>
+
+The <ci>SigmaTotal</ci> class returns the total, elastic, diffractive 
+and nondiffractive cross sections in hadronic collisions, and also the
+slopes of the <ei>d(sigma)/dt</ei> distributions. The parametrizations 
+used are from [1] which borrows some of the total cross sections from
+[2].
+
+<p/>
+The allowed combinations of incoming particles are <ei>p + p</ei>, 
+<ei>pbar + p</ei>, <ei>pi+ + p</ei>, <ei>pi- + p</ei>, 
+<ei>pi0/rho0 + p</ei>, <ei>phi + p</ei>, <ei>J/psi + p</ei>, 
+<ei>rho + rho</ei>, <ei>rho + phi</ei>, <ei>rho + J/psi</ei>, 
+<ei>phi + phi</ei>, <ei>phi + J/psi</ei>, <ei>J/psi + J/psi</ei>.   
+The strong emphasis on vector mesons is related to the description
+of <ei>gamma + p</ei> and <ei>gamma + gamma</ei> interactions in a 
+Vector Dominance Model framework (which will not be available for some 
+time to come, so this is a bit of overkill).
+
+<h2>Variables</h2>
+
+If the internally implemented cross section parametrizations are not 
+satisfactory, it is possible to override the cross section values 
+(but currently not the <ei>t</ei> slopes), with 
+
+<flag name="SigmaTotal:setOwn" default="no">
+Allow a user to set own cross sections by hand; yes/no = true/false.
+</flag>
+
+<p/>
+When <ci>SigmaTotal:setOwn = yes</ci>, the user is expected to set 
+values for the corresponding cross sections:
+
+<parameter name="SigmaTotal:sigmaTot" default="80." min="0.">
+Total cross section in mb.
+</parameter>
+
+<parameter name="SigmaTotal:sigmaEl" default="20." min="0.">
+Elastic cross section in mb.
+</parameter>
+
+<parameter name="SigmaTotal:sigmaXB" default="8." min="0.">
+Single Diffractive cross section <ei>A + B -> X + B</ei> in mb.
+</parameter>
+
+<parameter name="SigmaTotal:sigmaAX" default="8." min="0.">
+Single Diffractive cross section <ei>A + B -> A + X</ei> in mb.
+</parameter>
+
+<parameter name="SigmaTotal:sigmaXX" default="4." min="0.">
+Double Diffractive cross section <ei>A + B -> X_1 + X_2</ei> in mb.
+</parameter>
+
+<p/>
+Note that the total cross section subtracted by the elastic and various 
+diffractive ones gives the inelastic nondiffractive cross section, 
+which therefore is not set separately. If this cross section evaluates 
+to be negative the internal parametrizations are used instead of the 
+ones here. However, since the nondiffractive inelastic cross section 
+is what makes up (most) minimum bias events, and plays a major role in 
+the description of multiple interactions, it is important that a 
+consistent set is used. 
+
+<h2>References</h2>
+
+<ol>
+ 
+<li>G.A. Schuler and T. Sjostrand, Phys. Rev. D49 (1994) 2257,
+Z. Phys. C73 (1997) 677</li> 
+
+<li>A. Donnachie and P.V. Landshoff, Phys. Lett. B296 (1992) 227</li>
+
+</ol>
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

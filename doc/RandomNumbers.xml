@@ -1,0 +1,77 @@
+<chapter name="Random Numbers">
+    
+<h1>Random Numbers</h1>
+
+This page describes the random-number generator in Pythia and how it can 
+be replaced by an external one.
+ 
+<h2>Internal random numbers</h2>
+
+The <ci>Rndm</ci> class generates random numbers, using the 
+Marsaglia-Zaman-Tsang algorithm [1]. It is purely static, i.e. only 
+exists in one copy, so that one cannot run several copies, each with 
+the same random number sequence, by mistake. 
+
+<p/>
+Random numbers <ci>R</ci> uniformly distributed in <ci>0 &lt; R &lt; 1</ci> 
+are obtained with
+<code>
+   Rndm::flat();
+</code>
+There are also methods to generate according to an exponential, to 
+<ei>x * exp(-x)</ei>, to a Gaussian, or picked among a set of 
+possibilites, which make use of <ci>flat()</ci>.
+
+<p/>
+If the random number generator is not initialized before, it will be
+so the first time it is asked to generate a random number, and then
+with the default seed, 19780503. You can initialize, or reinitialize,
+with your own choice of seed with a 
+<code>
+   Rndm::init(seed);
+</code>
+Here values <ci>0 &lt; seed &lt; 900 000 000</ci> gives so many 
+different random number sequences, while <ci>seed = 0</ci> will call 
+the <ci>Stdlib time(0)</ci> function to provide a "random" <ci>seed</ci>, 
+and <ci>seed &lt; 0</ci> will revert back to the default <ci>seed</ci>.
+
+<p/>
+The <ci>Pythia</ci> class defines a flag and a mode, that allows the 
+<ci>seed</ci> to be set in the <ci>Pythia::init</ci> call. That would be 
+the standard way for a user to the pick random number sequence in a run.
+
+<h2>External random numbers</h2>
+
+<ci>RndmEngine</ci> is a base class for the external handling of 
+random-number generation. The user-written derived class is called 
+if a pointer to it has been handed in with the 
+<ci>pythia.rndmEnginePtr()</ci> method. Since the default 
+Marsaglia-Zaman-Tsang algorithm is quite good, chances are that any 
+replacement would be a step down, but this may still be required by 
+consistency with other program elements in big experimental frameworks.
+
+<p/>
+There is only one pure virtual method in <ci>RndmEngine</ci>, to generate 
+one random number flat in the range between 0 and 1: 
+<code>
+  virtual double flat() = 0;
+</code>
+Note that methods for initialization are not provided in the base 
+class, in part since input parameters may be specific to the generator
+used, in part since initialization can as well be taken care of 
+externally to Pythia.
+
+<p/>
+An example illustrating how to run with an external random number
+generator is provided in <ci>main05.cc</ci>.
+
+<h2>References</h2>
+
+<ol>
+<li>G. Marsaglia, A. Zaman and W.-W. Tsang, 
+Stat. Prob. Lett. 9 (1990) 35</li>
+</ol>
+
+</chapter>
+
+<!-- Copyright C 2006 Torbjorn Sjostrand -->

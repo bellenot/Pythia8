@@ -1,0 +1,18 @@
+Examples how to use Pythia8:
+* main01.cc & main01.cmnd: extensive tests and event properties
+* main02.cc & ttsample.init & ttsample.evnt & main02for.f: 
+    input of LHA events from files
+* main03.cc: LHA tricked to study fixed parton configurations
+* main04.cc: how to link an external decay handler
+* main05.cc: how to link an external random number generator
+* main06.cc: brief example with Z0 pT spectrum
+* main07.cc & main07.cmnd: simplified copy of main01
+* main08.cc & ttsample.init & ttsample.evnt: simplified copy of main02 
+* main09.cc: LEP events with sphericity analysis
+* main10.cc: cell jet analysis of LHC events
+* main11.cc & main11.cmnd: output to HepMC event record format
+* main12.cc & main12.cmnd: Pythia8 vs. Pythia6 cross sections
+
+Type "gmake mainNN" (or "gmake main02for") to build an executable.
+Type "./mainNN.exe > outputfile" to run program. 
+Type "gmake clean" to clean up the examples directory (but not output files).
