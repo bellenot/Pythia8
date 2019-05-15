@@ -341,7 +341,8 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
   Info* infoPtrIn, Settings& settings, ParticleData* particleDataPtr,
   Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
   Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn,
-  SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn, bool hasGammaIn) {
+  SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn,
+  PartonVertex* partonVertexPtrIn, bool hasGammaIn) {
 
   // Store input pointers for future use. Done if no initialization.
   iDiffSys         = iDiffSysIn;
@@ -353,6 +354,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
   partonSystemsPtr = partonSystemsPtrIn;
   sigmaTotPtr      = sigmaTotPtrIn;
   userHooksPtr     = userHooksPtrIn;
+  partonVertexPtr  = partonVertexPtrIn;
   hasGamma         = hasGammaIn;
   if (!doMPIinit) return false;
 
@@ -443,9 +445,13 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
   // Beam particles might not be found from the usual positions.
   beamOffset = 0;
 
-  // Possibility to allow user veto of MPI
+  // Possibility to allow user veto of MPI.
   canVetoMPI = (userHooksPtr != 0) ? userHooksPtr->canVetoMPIEmission()
              : false;
+
+  // Possibility to set parton vertex information.
+  doPartonVertex = settings.flag("PartonVertex:setVertex")
+                && (partonVertexPtr != 0);
 
   // Some common combinations for double Gaussian, as shorthand.
   if (bProfile == 2) {
@@ -550,6 +556,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
       else eCM = mGmGmMin * pow( mGmGmMax / mGmGmMin, iStep / (nStep - 1.) );
       sCM = eCM * eCM;
 
+
       // MPI for Diffractive events.
       if (!hasGamma) {
         sigmaND = sigmaPomP * pow( eCM / mPomP, pPomP);
@@ -557,6 +564,15 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
           << setprecision(3) << setw(9) << eCM << " GeV and sigmaNorm = "
           << fixed << setw(6) << sigmaND << " mb    | \n";
 
+        // Keep track of pomeron momentum fraction.
+        if ( beamAPtr->id() == 990 && beamBPtr->id() == 990 ) {
+          beamAPtr->xPom(eCM/eCMsave);
+          beamBPtr->xPom(eCM/eCMsave);
+        }
+        else if ( beamAPtr->id() == 990 )
+          beamAPtr->xPom(pow2(eCM/eCMsave));
+        else if ( beamBPtr->id() == 990 )
+          beamBPtr->xPom(pow2(eCM/eCMsave));
       // MPI with photons from leptons.
       } else {
 
@@ -680,6 +696,10 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
 
   // End of loop over diffractive/invariant gamma+gamma masses.
   }
+
+  // Reset pomeron momentum fraction.
+  beamAPtr->xPom();
+  beamBPtr->xPom();
 
   // Output details for x-dependent matter profile.
   if (bProfile == 4 && showMPI)
@@ -1241,13 +1261,14 @@ bool MultipartonInteractions::scatter( Event& event) {
     if (col > 0) parton.col( col + colOffset);
     int acol = parton.acol();
     if (acol > 0) parton.acol( acol + colOffset);
-    // Allow setting of parton production vertex.
-    if (userHooksPtr && userHooksPtr->canSetProductionVertex())
-      parton.vProd(userHooksPtr->vertexForMPI(parton, bNow));
 
     // Put the partons into the event record.
     event.append(parton);
   }
+
+  // Allow setting of new parton production vertices.
+  if (doPartonVertex)
+    partonVertexPtr->vertexMPI( sizeProc, 4, bNow, event);
 
   // Allow veto of MPI. If so restore event record to before scatter.
   if (canVetoMPI && userHooksPtr->doVetoMPIEmission(sizeProc, event)) {
@@ -2208,7 +2229,7 @@ void MultipartonInteractions::overlapInit() {
     zeroIntCorr = probOverlapInt / overlapInt;
     normOverlap = normPi * zeroIntCorr / avgOverlap;
     bAvg = bProbInt / probInt;
-    enhanceBavg = (overlap2Int * probInt) / (probOverlapInt * overlapInt);
+    enhanceBavg = (overlap2Int * probInt) / pow2(overlapInt);
 
   // Values for x-dependent matter profile.
   } else if (bProfile == 4) {

@@ -15,6 +15,9 @@
 
 namespace Pythia8 {
 
+// Forard declaration of HIInfo class.
+class HIInfo;
+
 //==========================================================================
 
 // The Info class contains a mixed bag of information on the event
@@ -32,7 +35,8 @@ public:
   Info() : LHEFversionSave(0), initrwgt(NULL), generators(NULL),
     weightgroups(NULL), init_weights(NULL), eventAttributes(NULL),
     weights_detailed(NULL), weights_compressed(NULL), scales(NULL),
-    weights(NULL), rwgt(NULL), eCMSave(0.), lowPTmin(false), a0MPISave(0.),
+    weights(NULL), rwgt(NULL), hiinfo(0), eCMSave(0.),
+    lowPTmin(false), a0MPISave(0.),
     abortPartonLevel(false), weightCKKWLSave(1.), weightFIRSTSave(0.) {
     for (int i = 0; i < 40; ++i) counters[i] = 0;
     setNWeights(1);}
@@ -161,11 +165,11 @@ public:
   // Impact parameter picture, as set by hardest interaction.
   double bMPI()               const {return (bIsSet) ? bMPISave : 1.;}
   double enhanceMPI()         const {return (bIsSet) ? enhanceMPISave : 1.;}
-  double enhanceMPIavg()     const {return (bIsSet) ? enhanceMPIavgSave : 1.;}
+  double enhanceMPIavg()      const {return (bIsSet) ? enhanceMPIavgSave : 1.;}
   double eMPI(int i)          const {return (bIsSet) ? eMPISave[i] : 1.;}
   double bMPIold()            const {return (bIsSet) ? bMPIoldSave : 1.;}
   double enhanceMPIold()      const {return (bIsSet) ? enhanceMPIoldSave : 1.;}
-  double enhanceMPIoldavg()  const {return (bIsSet)
+  double enhanceMPIoldavg()   const {return (bIsSet)
                                      ? enhanceMPIoldavgSave : 1.;}
 
   // Number of multiparton interactions, with code and pT for them.
@@ -380,7 +384,12 @@ public:
   void setWeak2to2lines(vector<int> weak2to2linesIn)
     {weak2to2lines = weak2to2linesIn;}
 
-private:
+  // Access to a HIInfo object containing information about a
+  // HeavyIons run and the current Event. (Is NULL if HeavyIons object
+  // is inactive.
+  HIInfo * hiinfo;
+
+  private:
 
   // Number of times the same error message is repeated, unless overridden.
   static const int TIMESTOPRINT;
@@ -459,6 +468,7 @@ private:
   friend class TimeShower;
   friend class SpaceShower;
   friend class GammaKinematics;
+  friend class HeavyIons;
 
   // Set info on the two incoming beams: only from Pythia class.
   void setBeamA( int idAin, double pzAin, double eAin, double mAin) {

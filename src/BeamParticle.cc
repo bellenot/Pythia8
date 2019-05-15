@@ -45,6 +45,9 @@ const double BeamParticle::POMERONMASS = 1.;
 // Avoid numerical instability in the x -> 1 limit for companion quark.
 const double BeamParticle::XMAXCOMPANION = 0.99;
 
+// Avoid too extremely uneven momentum sharing.
+const double BeamParticle::TINYZREL = 1e-8;
+
 // Maximum number of tries to find a suitable colour.
 const int BeamParticle::NMAX = 1000;
 
@@ -1356,7 +1359,7 @@ double BeamParticle::zShare( double mDiff, double m1, double m2) {
   do {
     double x1 = xRemnant(0);
     double x2 = xRemnant(0);
-    zRel = x1 / (x1 + x2);
+    zRel = max( TINYZREL, min( 1. - TINYZREL, x1 / (x1 + x2) ) );
     pair<double, double> gauss2 = rndmPtr->gauss2();
     pxRel = diffPrimKTwidth * gauss2.first;
     pyRel = diffPrimKTwidth * gauss2.second;

@@ -180,8 +180,8 @@ public:
   void rotbst(const RotBstMatrix& M);
 
   // Operator overloading with member functions
-  inline Vec4 operator-() {Vec4 tmp; tmp.xx = -xx; tmp.yy = -yy; tmp.zz = -zz;
-    tmp.tt = -tt; return tmp;}
+  inline Vec4 operator-() const {Vec4 tmp; tmp.xx = -xx; tmp.yy = -yy;
+    tmp.zz = -zz; tmp.tt = -tt; return tmp;}
   inline Vec4& operator+=(const Vec4& v) {xx += v.xx; yy += v.yy; zz += v.zz;
     tt += v.tt; return *this;}
   inline Vec4& operator-=(const Vec4& v) {xx -= v.xx; yy -= v.yy; zz -= v.zz;
@@ -237,7 +237,7 @@ public:
   // Shift four-momenta within pair from old to new masses.
   friend bool pShift( Vec4& p1Move, Vec4& p2Move, double m1New, double m2New);
 
-  // Create two vectors that are perpendicular to the both input vectors.
+  // Create two vectors that are perpendicular to both input vectors.
   friend pair<Vec4,Vec4> getTwoPerpendicular(const Vec4& v1, const Vec4& v2);
 
 private:
@@ -269,10 +269,6 @@ Vec4 cross3(const Vec4& v1, const Vec4& v2);
 // Cross-product of three 4-vectors ( p_i = epsilon_{iabc} p_a p_b p_c).
 Vec4 cross4(const Vec4& a, const Vec4& b, const Vec4& c);
 
-// Function to create two vectors that are perpendicular to the both
-// input vectors.
-pair<Vec4,Vec4> getTwoPerpendicular(const Vec4& v1, const Vec4& v2);
-
 // theta is polar angle between v1 and v2.
 double theta(const Vec4& v1, const Vec4& v2);
 double costheta(const Vec4& v1, const Vec4& v2);
@@ -294,6 +290,9 @@ ostream& operator<<(ostream&, const Vec4& v) ;
 
 // Shift four-momenta within pair from old to new masses.
 bool pShift( Vec4& p1Move, Vec4& p2Move, double m1New, double m2New);
+
+// Create two vectors that are perpendicular to both input vectors.
+pair<Vec4,Vec4> getTwoPerpendicular(const Vec4& v1, const Vec4& v2);
 
 //==========================================================================
 
@@ -327,6 +326,9 @@ public:
   void rotbst(const RotBstMatrix&);
   void invert();
   void reset();
+
+  // Return value of matrix element.
+  double value(int i, int j) { return M[i][j];}
 
   // Crude estimate deviation from unit matrix.
   double deviation() const;

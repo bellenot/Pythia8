@@ -107,10 +107,13 @@ public:
   // Inform whether beam particles are resolved in partons or scatter directly.
   virtual bool isResolved() const {return true;}
 
-  // Functions to rescale momenta and cross section for new sHat.
+  // Functions to rescale momenta and cross section for new sHat
   // Currently implemented only for PhaseSpace2to2tauyz class.
   virtual void rescaleSigma( double){}
   virtual void rescaleMomenta( double){}
+
+  // Calculate the weight for over-estimated cross section.
+  virtual double weightGammaPDFApprox(){ return 1.;}
 
   // Set the GammaKinematics pointer. Implemented for non-diffractive gm+gm.
   virtual void setGammaKinPtr( GammaKinematics*){}
@@ -322,6 +325,9 @@ public:
   // Recalculates cross section with rescaled sHat.
   virtual void rescaleSigma ( double sHatNew);
 
+  // Calculate the weight for over-estimated cross section.
+  virtual double weightGammaPDFApprox();
+
 private:
 
   // Set up for fixed or Breit-Wigner mass selection.
@@ -501,7 +507,7 @@ private:
 
   // Parameters.
   int    idAin, idBin;
-  bool   gammaA, gammaB;
+  bool   gammaA, gammaB, externalFlux, sampleQ2;
   double Q2maxGamma, Wmin, sigmaNDestimate, sigmaNDmax, sCM, alphaEM,
     m2BeamA, m2BeamB, m2sA, m2sB, log2xMinA, log2xMaxA, log2xMinB, log2xMaxB,
     xGamma1, xGamma2, Q2gamma1, Q2gamma2, mGmGm, Q2min1, Q2min2;

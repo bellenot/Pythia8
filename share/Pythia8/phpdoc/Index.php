@@ -30,6 +30,15 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 <img src="pythia99.gif" alt="Pythia logo" hspace="10"/> 
  
 <h2>PYTHIA 8 Index</h2> 
+<script>function link(href) {top.frames['page'].location.href = href}</script> 
+<script src="Underscore.js"></script> 
+<script src="Jquery.js" ></script> 
+<script src="Search.js"></script> 
+<form> 
+  <input id="search-input" type="search" placeholder="Search" 
+         style="color:#000000"/> 
+  <ul id="search-result" style="list-style-type:none;padding:0"></ul> 
+</form> 
  
 <h4>Program Overview</h4> 
  
@@ -97,11 +106,14 @@ echo "<a href='SaveSettings.php?returning=1&filename=".$filename."' target='page
 <a href='ColourReconnection.php?filepath=".$filepath."' target='page'>Colour Reconnection</a><br/> 
 <a href='Diffraction.php?filepath=".$filepath."' target='page'>Diffraction</a><br/> 
 <a href='Fragmentation.php?filepath=".$filepath."' target='page'>Fragmentation</a><br/> 
+<a href='RopeHadronization.php?filepath=".$filepath."' target='page'>Rope Hadronization</a><br/> 
+<a href='VertexInformation.php?filepath=".$filepath."' target='page'>Vertex Information</a><br/> 
 <a href='FlavourSelection.php?filepath=".$filepath."' target='page'>Flavour Selection</a><br/> 
 <a href='ParticleDecays.php?filepath=".$filepath."' target='page'>Particle Decays</a><br/> 
 <a href='RHadrons.php?filepath=".$filepath."' target='page'>R-hadrons</a><br/> 
 <a href='BoseEinsteinEffects.php?filepath=".$filepath."' target='page'>Bose-Einstein Effects</a><br/> 
 <a href='Photoproduction.php?filepath=".$filepath."' target='page'>Photoproduction</a><br/> 
+<a href='HeavyIons.php?filepath=".$filepath."' target='page'>Heavy Ion Collisions</a><br/> 
 <a href='HadronScattering.php?filepath=".$filepath."' target='page'>Hadron Scattering</a><br/> 
 <a href='ParticleData.php?filepath=".$filepath."' target='page'>Particle Data</a><br/> 
 <a href='ErrorChecks.php?filepath=".$filepath."' target='page'>Error Checks</a><br/> 

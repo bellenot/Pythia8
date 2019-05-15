@@ -30,8 +30,9 @@ public:
   bool init(Info* infoPtrIn, Settings* settingsPtrIn, Rndm* rndmPtrIn,
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn);
   bool sampleKTgamma();
-  bool sampleKin(double xGamma, double m2beam, double eCM2);
+  bool deriveKin(double xGamma, double Q2gamma, double m2beam, double eCM2);
   bool finalize();
+  double fluxWeight();
 
   // Calculate and return rescaled sHat according to the process.
   double calcNewSHat( double sHatOld);
@@ -66,13 +67,13 @@ private:
   double Q2maxGamma, Wmin, Wmax, eCM, sCM, m2BeamA, m2BeamB, Q2min1, Q2min2,
          xGamma1, xGamma2, Q2gamma1, Q2gamma2, phi1, phi2, kT1, kT2, kz1, kz2,
          mGmGm, m2GmGm, theta1, theta2, theta1Max, theta2Max, eCM2A, eCM2B,
-         sHatNew, Q2min, Q2gamma, kT, kz, phi, theta;
+         sHatNew, kT, kz, phi, theta, xGammaMax1, xGammaMax2, m2eA, m2eB;
 
   // Direct or resolved processes.
   int    gammaMode;
 
   // Sample one or two photon kinematics.
-  bool sample1Gamma, sample2Gamma, sideGammaA;
+  bool hasGammaA, hasGammaB, externalFlux, sampleQ2;
 
 };
 

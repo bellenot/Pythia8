@@ -10,8 +10,8 @@
 #define Pythia8_Pythia_H
 
 // Version number defined for use in macros and for consistency checks.
-#define PYTHIA_VERSION 8.226
-#define PYTHIA_VERSION_INTEGER 8226
+#define PYTHIA_VERSION 8.230
+#define PYTHIA_VERSION_INTEGER 8230
 
 // Header files for the Pythia class and for what else the user may need.
 #include "Pythia8/Analysis.h"
@@ -32,10 +32,12 @@
 #include "Pythia8/ParticleData.h"
 #include "Pythia8/PartonDistributions.h"
 #include "Pythia8/PartonSystems.h"
+#include "Pythia8/PartonVertex.h"
 #include "Pythia8/ProcessLevel.h"
 #include "Pythia8/PythiaStdlib.h"
 #include "Pythia8/ResonanceWidths.h"
 #include "Pythia8/RHadrons.h"
+#include "Pythia8/Ropewalk.h"
 #include "Pythia8/Settings.h"
 #include "Pythia8/SigmaTotal.h"
 #include "Pythia8/SpaceShower.h"
@@ -47,6 +49,9 @@
 namespace Pythia8 {
 
 //==========================================================================
+
+// Forward declaration of HeavyIons class.
+class HeavyIons;
 
 // The Pythia class contains the top-level routines to generate an event.
 
@@ -95,6 +100,12 @@ public:
     PDF* pdfHardGamBPtrIn = 0, PDF* pdfUnresAPtrIn = 0,
     PDF* pdfUnresBPtrIn = 0, PDF* pdfUnresGamAPtrIn = 0,
     PDF* pdfUnresGamBPtrIn = 0);
+
+  // Set photon fluxes externally. Used with option "PDF:lepton2gammaSet = 2".
+  bool setPhotonFluxPtr( PDF* photonFluxAIn, PDF* photonFluxBIn) {
+    if ( photonFluxAIn != 0 ) pdfGamFluxAPtr = photonFluxAIn;
+    if ( photonFluxBIn != 0 ) pdfGamFluxBPtr = photonFluxBIn;
+    return true;}
 
   // Possibility to pass in pointer to external LHA-interfaced generator.
   bool setLHAupPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn; return true;}
@@ -153,6 +164,18 @@ public:
     TimeShower* timesPtrIn = 0, SpaceShower* spacePtrIn = 0)
     { timesDecPtr = timesDecPtrIn; timesPtr = timesPtrIn;
     spacePtr = spacePtrIn; return true;}
+
+  // Possibility to pass in pointer for modelling of heavy ion collisions.
+  bool setHeavyIonsPtr( HeavyIons* heavyIonsPtrIn)
+    { heavyIonsPtr = heavyIonsPtrIn; return true;}
+
+  // Possibility to get the pointer to a object modelling heavy ion
+  // collisions.
+  HeavyIons* getHeavyIonsPtr() { return heavyIonsPtr;}
+
+  // Possibility to pass in pointer for setting of parton space-time vertices.
+  bool setPartonVertexPtr( PartonVertex* partonVertexPtrIn)
+    { partonVertexPtr = partonVertexPtrIn; return true;}
 
   // Initialize.
   bool init();
@@ -230,6 +253,9 @@ public:
   // MergingHooks also more generally steers the matrix element merging.
   MergingHooks*  mergingHooksPtr;
 
+  // Pointer to a HeavyIons object for generating heavy ion collisions
+  HeavyIons* heavyIonsPtr;
+
   // The two incoming beams.
   BeamParticle beamA;
   BeamParticle beamB;
@@ -297,6 +323,10 @@ private:
   PDF* pdfUnresGamAPtr;
   PDF* pdfUnresGamBPtr;
 
+  // PDF pointers to externally provided photon fluxes.
+  PDF* pdfGamFluxAPtr;
+  PDF* pdfGamFluxBPtr;
+
   // Keep track when "new" has been used and needs a "delete" for PDF's etc.
   bool useNewPdfA, useNewPdfB, useNewPdfHard, useNewPdfPomA, useNewPdfPomB,
     useNewPdfGamA, useNewPdfGamB, useNewPdfHardGamA, useNewPdfHardGamB,
@@ -343,6 +373,10 @@ private:
   SpaceShower* spacePtr;
   bool         useNewTimesDec, useNewTimes, useNewSpace;
 
+  // Pointer to assign space-time vertices during parton evolution.
+  PartonVertex* partonVertexPtr;
+  bool          useNewPartonVertex;
+
   // The main generator class to define the core process of the event.
   ProcessLevel processLevel;
 
@@ -370,6 +404,9 @@ private:
 
   // The RHadrons class is used both at PartonLevel and HadronLevel.
   RHadrons   rHadrons;
+
+  // Flags for handling generation of heavy ion collisons.
+  bool        hasHeavyIons, hasOwnHeavyIons, doHeavyIons;
 
   // Write the Pythia banner, with symbol and version information.
   void banner();

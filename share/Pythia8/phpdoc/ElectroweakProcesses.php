@@ -113,6 +113,16 @@ In addition, <i>t</i>-channel exchange of such a boson
 between two fermions form a separate group. 
  
 <p/> 
+Note that the <i>Z^0</i> and <i>W^+-</i> decay modes generated with 
+the processes below only include those Standard-Model ones that are 
+allowed for on-shell decays. Thus several other processes that receive 
+contributions from off-shell resonances are listed separately, e.g. 
+for <?php $filepath = $_GET["filepath"];
+echo "<a href='TopProcesses.php?filepath=".$filepath."' target='page'>";?>top</a> or 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='FourthGenerationProcesses.php?filepath=".$filepath."' target='page'>";?>fourth generation fermions</a>. 
+ 
+<p/> 
 There is one flag that can be used to influence the <i>gamma^*/Z^0</i> 
 structure in all the processes below where it is produced, unless 
 otherwise stated. 
@@ -227,7 +237,7 @@ Code 225.
 Note that, in the decay of the two vector bosons produced by an 
 <i>f fbar &rarr; V V</i> process, the full four-fermion correlations 
 from the leading-order <i>f fbar &rarr; V V &rarr; 4f</i> matrix elements 
-are included [<a href="Bibliography.php" target="page">Gun86</a>] (with some extensions by the authors). 
+are included [<a href="Bibliography.php#refGun86" target="page">Gun86</a>] (with some extensions by the authors). 
 The matrix elements are provided in the double-resonant approach, i.e. 
 excludes graph like 
 <i>f fbar &rarr; V &rarr; f fbar &rarr; f fbar V &rarr; 4f</i>. 

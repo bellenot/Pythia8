@@ -6,6 +6,7 @@
 // Function definitions (not found in the header) for the Pythia class.
 
 #include "Pythia8/Pythia.h"
+#include "Pythia8/HeavyIons.h"
 
 // Access time information.
 #include <ctime>
@@ -23,7 +24,7 @@ namespace Pythia8 {
 
 // The current Pythia (sub)version number, to agree with XML version.
 const double Pythia::VERSIONNUMBERHEAD = PYTHIA_VERSION;
-const double Pythia::VERSIONNUMBERCODE = 8.226;
+const double Pythia::VERSIONNUMBERCODE = 8.230;
 
 //--------------------------------------------------------------------------
 
@@ -93,6 +94,8 @@ Pythia::Pythia(string xmlDir, bool printBanner) {
   // Not initialized until at the end of the init() call.
   isInit = false;
   info.addCounter(0);
+
+  HeavyIons::addSpecialSettings(settings);
 
 }
 
@@ -212,6 +215,9 @@ Pythia::~Pythia() {
   // Delete the MergingHooks object created with new.
   if (hasOwnMergingHooks) delete mergingHooksPtr;
 
+  // Delete the HeavyIons object created with new.
+  if (hasOwnHeavyIons) delete heavyIonsPtr;
+
   // Delete the BeamShape object created with new.
   if (useNewBeamShape) delete beamShapePtr;
 
@@ -219,6 +225,9 @@ Pythia::~Pythia() {
   if (useNewTimesDec) delete timesDecPtr;
   if (useNewTimes && !useNewTimesDec) delete timesPtr;
   if (useNewSpace) delete spacePtr;
+
+  // Delete the parton vertex object created with new.
+  if (useNewPartonVertex) delete partonVertexPtr;
 
 }
 
@@ -257,6 +266,10 @@ void Pythia::initPtrs() {
   pdfUnresGamAPtr    = 0;
   pdfUnresGamBPtr    = 0;
 
+  // Initial pointers to externally provided photon fluxes.
+  pdfGamFluxAPtr    = 0;
+  pdfGamFluxBPtr    = 0;
+
   // Initial values for pointers to Les Houches Event objects.
   doLHA              = false;
   useNewLHA          = false;
@@ -281,6 +294,12 @@ void Pythia::initPtrs() {
   hasOwnMergingHooks = false;
   mergingHooksPtr    = 0;
 
+  // Initial value for pointer to HeavyIons objects.
+  doHeavyIons        = false;
+  hasHeavyIons       = false;
+  hasOwnHeavyIons    = false;
+  heavyIonsPtr       = 0;
+
   // Initial value for pointer to beam shape.
   useNewBeamShape    = false;
   beamShapePtr       = 0;
@@ -292,6 +311,10 @@ void Pythia::initPtrs() {
   timesDecPtr        = 0;
   timesPtr           = 0;
   spacePtr           = 0;
+
+  // Initial values for pointer parton-vertex setting.
+  useNewPartonVertex = false;
+  partonVertexPtr    = 0;
 
 }
 
@@ -550,6 +573,17 @@ bool Pythia::init() {
     return false;
   }
 
+  // Early catching of heavy ion mode.
+  doHeavyIons = HeavyIons::isHeavyIon(settings) ||
+                settings.mode("HeavyIon:mode") == 2;
+  if ( doHeavyIons ) {
+    if ( !heavyIonsPtr ) {
+      heavyIonsPtr = new Angantyr(*this);
+      hasOwnHeavyIons = true;
+    }
+    if ( !heavyIonsPtr->init() ) doHeavyIons = false;
+  }
+
   // Early readout, if return false or changed when no beams.
   doProcessLevel = settings.flag("ProcessLevel:all");
 
@@ -628,12 +662,7 @@ bool Pythia::init() {
     mergingPtr = new Merging();
     hasOwnMerging = true;
   }
-
   hasMerging  = (mergingPtr != 0);
-
-  // Initialise counting of events significantly above the
-  // merging scale.
-  info.setCounter(41,0);
 
   // Initialization with internal processes: read in and set values.
   if (frameType < 4 ) {
@@ -843,6 +872,16 @@ bool Pythia::init() {
   // Set up R-hadrons particle data, where relevant.
   rHadrons.init( &info, settings, &particleData, &rndm);
 
+  // Set up and initialize setting of parton production vertices.
+  if (settings.flag("PartonVertex:setVertex")) {
+    if (partonVertexPtr == 0) {
+      partonVertexPtr    = new PartonVertex();
+      useNewPartonVertex = true;
+    }
+    partonVertexPtr->initPtr( &info, &settings, &rndm);
+    partonVertexPtr->init();
+  }
+
   // Set up objects for timelike and spacelike showers.
   if (timesDecPtr == 0 || timesPtr == 0) {
     TimeShower* timesNow = new TimeShower();
@@ -862,11 +901,11 @@ bool Pythia::init() {
 
   // Initialize pointers in showers.
   timesPtr->initPtr( &info, &settings, &particleData, &rndm, couplingsPtr,
-    &partonSystems, userHooksPtr, mergingHooksPtr);
+    &partonSystems, userHooksPtr, mergingHooksPtr, partonVertexPtr);
   timesDecPtr->initPtr( &info, &settings, &particleData, &rndm, couplingsPtr,
-    &partonSystems, userHooksPtr, mergingHooksPtr);
+    &partonSystems, userHooksPtr, mergingHooksPtr, partonVertexPtr);
   spacePtr->initPtr( &info, &settings, &particleData, &rndm, couplingsPtr,
-    &partonSystems, userHooksPtr, mergingHooksPtr);
+    &partonSystems, userHooksPtr, mergingHooksPtr, partonVertexPtr);
 
   // Set up values related to beam shape.
   if (beamShapePtr == 0) {
@@ -978,7 +1017,8 @@ bool Pythia::init() {
   if ( doPartonLevel && doProcessLevel && !partonLevel.init( &info, settings,
     &particleData, &rndm, &beamA, &beamB, &beamPomA, &beamPomB, &beamGamA,
     &beamGamB, couplingsPtr, &partonSystems, &sigmaTot, timesDecPtr, timesPtr,
-    spacePtr, &rHadrons, userHooksPtr, mergingHooksPtr, false) ) {
+    spacePtr, &rHadrons, userHooksPtr, mergingHooksPtr, partonVertexPtr,
+    false) ) {
     info.errorMsg("Abort from Pythia::init: "
       "partonLevel initialization failed" );
     return false;
@@ -991,13 +1031,14 @@ bool Pythia::init() {
   // Alternatively only initialize final-state showers in resonance decays.
   if ( !doProcessLevel || !doPartonLevel) partonLevel.init( &info, settings,
     &particleData, &rndm, 0, 0, 0, 0, 0, 0, couplingsPtr, &partonSystems, 0,
-    timesDecPtr, 0, 0, &rHadrons, 0, 0, false);
+    timesDecPtr, 0, 0, &rHadrons, 0, 0, partonVertexPtr, false);
 
   // Send info/pointers to parton level for trial shower initialization.
   if ( doMerging && !trialPartonLevel.init( &info, settings, &particleData,
       &rndm, &beamA, &beamB, &beamPomA, &beamPomB, &beamGamA, &beamGamB,
       couplingsPtr, &partonSystems, &sigmaTot, timesDecPtr, timesPtr,
-      spacePtr, &rHadrons, userHooksPtr, mergingHooksPtr, true) ) {
+      spacePtr, &rHadrons, userHooksPtr, mergingHooksPtr, partonVertexPtr,
+      true) ) {
     info.errorMsg("Abort from Pythia::init: "
       "trialPartonLevel initialization failed");
     return false;
@@ -1493,6 +1534,28 @@ bool Pythia::initPDFs() {
     useNewPdfHard = true;
   }
 
+  // Optionally use nuclear modifications for hard process PDFs.
+  if (settings.flag("PDF:useHardNPDFA")) {
+    int idANucleus = settings.mode("PDF:nPDFBeamA");
+    pdfHardAPtr = getPDFPtr(idANucleus, 2, "A");
+    if (!pdfHardAPtr->isSetup()) {
+      info.errorMsg("Error in Pythia::init: "
+        "could not set up nuclear PDF for beam A");
+      return false;
+    }
+    useNewPdfHard = true;
+  }
+  if (settings.flag("PDF:useHardNPDFB")) {
+    int idBNucleus = settings.mode("PDF:nPDFBeamB");
+    pdfHardBPtr = getPDFPtr(idBNucleus, 2, "B");
+    if (!pdfHardBPtr->isSetup()) {
+      info.errorMsg("Error in Pythia::init: "
+        "could not set up nuclear PDF for beam B");
+      return false;
+    }
+    useNewPdfHard = true;
+  }
+
   // Optionally set up additional unresolved PDFs for photon beams.
   if ( (idA == 22 || idB == 22) && gammaMode != 1 ) {
     if ( idA == 22 && pdfUnresAPtr == 0 ) {
@@ -1550,6 +1613,16 @@ bool Pythia::next() {
 
   // Check that constructor worked.
   if (!isConstructed) return false;
+
+  // Check if we the generation is taken over by the HeavyIons object.
+  // Allows HeavyIons::next to call next for this Pythia object
+  // without going into a loop.
+  if ( doHeavyIons ) {
+    doHeavyIons = false;
+    bool ok = heavyIonsPtr->next();
+    doHeavyIons = true;
+    return ok;
+  }
 
   // Regularly print how many events have been generated.
   int nPrevious = info.getCounter(3);
@@ -2068,6 +2141,11 @@ bool Pythia::doRHadronDecays( ) {
 
 void Pythia::stat() {
 
+  if ( doHeavyIons ) {
+    heavyIonsPtr->stat();
+    return;
+  }
+
   // Read out settings for what to include.
   bool showPrL = settings.flag("Stat:showProcessLevel");
   bool showPaL = settings.flag("Stat:showPartonLevel");
@@ -2138,12 +2216,12 @@ void Pythia::banner() {
        << "    Now is " << dateNow << " at " << timeNow << "    |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
-       << " |  |   Torbjorn Sjostrand;  Department of As"
+       << " |  |   Christian Bierlich;  Department of As"
        << "tronomy and Theoretical Physics,      |  | \n"
        << " |  |      Lund University, Solvegatan 14A, S"
        << "E-223 62 Lund, Sweden;                |  | \n"
-       << " |  |      e-mail: torbjorn@thep.lu.se       "
-       << "                                      |  | \n"
+       << " |  |      e-mail: christian.bierlich@thep.lu"
+       << ".se                                   |  | \n"
        << " |  |   Nishita Desai;  Laboratoire Charles C"
        << "oulomb (L2C),                         |  | \n"
        << " |  |      CNRS-Universite de Montpellier, 34"
@@ -2162,10 +2240,10 @@ void Pythia::banner() {
        << "nstelle 14, 72076 Tuebingen, Germany; |  | \n"
        << " |  |      e-mail: ilkka.helenius@uni-tuebing"
        << "en.de                                 |  | \n"
-       << " |  |   Philip Ilten;  Massachusetts Institut"
-       << "e of Technology,                      |  | \n"
-       << " |  |      77 Massachusetts Ave, Cambridge, M"
-       << "A 02139, USA;                         |  | \n"
+       << " |  |   Philip Ilten;  School of Physics and "
+       << "Astronomy,                            |  | \n"
+       << " |  |      University of Birmingham, Birmingh"
+       << "am, B152 2TT, UK;                     |  | \n"
        << " |  |      e-mail: philten@cern.ch           "
        << "                                      |  | \n"
        << " |  |   Leif Lonnblad;  Department of Astrono"
@@ -2192,6 +2270,12 @@ void Pythia::banner() {
        << "E-223 62 Lund, Sweden;                |  | \n"
        << " |  |      e-mail: christine.rasmussen@thep.l"
        << "u.se                                  |  | \n"
+       << " |  |   Torbjorn Sjostrand;  Department of As"
+       << "tronomy and Theoretical Physics,      |  | \n"
+       << " |  |      Lund University, Solvegatan 14A, S"
+       << "E-223 62 Lund, Sweden;                |  | \n"
+       << " |  |      e-mail: torbjorn@thep.lu.se       "
+       << "                                      |  | \n"
        << " |  |   Peter Skands;  School of Physics,    "
        << "                                      |  | \n"
        << " |  |      Monash University, PO Box 27, 3800"
@@ -2659,7 +2743,7 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam, bool resolved) {
       tempPDFPtr = new CTEQ6pdf(idIn, pSet - 6, 1., xmlPath, &info);
     else if (pSet <= 16)
       tempPDFPtr = new NNPDF(idIn, pSet - 12, xmlPath, &info);
-    else if (pSet <= 20)
+    else if (pSet <= 21)
       tempPDFPtr = new LHAGrid1(idIn, pWord, xmlPath, &info);
     else tempPDFPtr = 0;
   }
@@ -2728,6 +2812,24 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam, bool resolved) {
       settings.parm("Diffraction:PomFluxEpsilon", pomFluxEps);
       settings.parm("Diffraction:PomFluxAlphaPrime", 0.25);
     }
+    else if ( pomSet == 11 ) {
+      tempPDFPtr = new PomHISASD(990, getPDFPtr(2212), settings, &info);
+    }
+    else tempPDFPtr = 0;
+  }
+
+  // Set up nuclear PDFs.
+  else if (idIn > 100000000) {
+
+    // Which nPDF set to use.
+    int nPDFSet = (beam == "B") ? settings.mode("PDF:nPDFSetB")
+                                : settings.mode("PDF:nPDFSetA");
+
+    // Temporary pointer for storing proton PDF pointer.
+    PDF* tempProtonPDFPtr = (beam == "B") ? pdfHardBPtr : pdfHardAPtr;
+    if (nPDFSet == 0) tempPDFPtr = new Isospin(idIn, tempProtonPDFPtr);
+    if (nPDFSet == 1 || nPDFSet == 2) tempPDFPtr = new EPS09(idIn, nPDFSet, 1,
+      xmlPath, tempProtonPDFPtr, &info);
     else tempPDFPtr = 0;
   }
 
@@ -2781,7 +2883,7 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam, bool resolved) {
     if (abs(idIn)%2 == 0) tempPDFPtr = new NeutrinoPoint(idIn);
 
     // Set up resolved photon inside lepton for beam A.
-    if  ( beamAhasResGamma && !(beam == "B") && resolved ) {
+    if ( beamAhasResGamma && !(beam == "B") && resolved ) {
 
       // Find the pre-set photon PDF, hard or normal.
       PDF* tempGammaPDFPtr = 0;
@@ -2789,14 +2891,25 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam, bool resolved) {
       else                tempGammaPDFPtr = pdfGamAPtr;
 
       // Get the mass of lepton and maximum virtuality of the photon.
-      double m2lepton   = pow2(particleData.m0(idIn));
+      double m2beam     = pow2(particleData.m0(idIn));
       double Q2maxGamma = settings.parm("Photon:Q2max");
 
-      // Initialize the gamma-inside-lepton PDFs.
-      int lepton2gammaSet = settings.mode("PDF:lepton2gammaSet");
-      if (lepton2gammaSet == 1) {
-        tempPDFPtr = new Lepton2gamma(idIn, m2lepton, Q2maxGamma,
+      // Initialize the gamma-inside-lepton PDFs with internal photon flux.
+      if (settings.mode("PDF:lepton2gammaSet") == 1) {
+        tempPDFPtr = new Lepton2gamma(idIn, m2beam, Q2maxGamma,
           tempGammaPDFPtr, &info, &rndm);
+
+      // Initialize the gamma-inside-lepton PDFs with external photon flux.
+      // Requires that the pointer to the flux set.
+      } else if ( settings.mode("PDF:lepton2gammaSet") == 2 ) {
+        PDF* tempGammaFluxPtr = pdfGamFluxAPtr;
+        if ( tempGammaFluxPtr != 0) tempPDFPtr = new EPAexternal(idIn, m2beam,
+          tempGammaFluxPtr, tempGammaPDFPtr, &settings, &info, &rndm );
+        else {
+          tempPDFPtr = 0;
+          info.errorMsg("Error in Pythia::getPDFPtr: "
+            "No external photon flux provided with PDF:lepton2gammaSet == 2");
+        }
       } else tempPDFPtr = 0;
 
     // Set up resolved photon inside lepton for beam B.
@@ -2808,19 +2921,46 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam, bool resolved) {
       else                tempGammaPDFPtr = pdfGamBPtr;
 
       // Get the mass of lepton and maximum virtuality of the photon.
-      double m2lepton   = pow2(particleData.m0(idIn));
+      double m2beam     = pow2(particleData.m0(idIn));
       double Q2maxGamma = settings.parm("Photon:Q2max");
 
-      // Initialize the gamma-inside-lepton PDFs.
-      int lepton2gammaSet  = settings.mode("PDF:lepton2gammaSet");
-      if (lepton2gammaSet == 1) {
-        tempPDFPtr = new Lepton2gamma(idIn, m2lepton, Q2maxGamma,
+      // Initialize the gamma-inside-lepton PDFs with internal photon flux.
+      if (settings.mode("PDF:lepton2gammaSet") == 1) {
+        tempPDFPtr = new Lepton2gamma(idIn, m2beam, Q2maxGamma,
           tempGammaPDFPtr, &info, &rndm);
+
+      // Initialize the gamma-inside-lepton PDFs with external photon flux.
+      } else if ( settings.mode("PDF:lepton2gammaSet") == 2 ) {
+        PDF* tempGammaFluxPtr = pdfGamFluxBPtr;
+        if ( tempGammaFluxPtr != 0) tempPDFPtr = new EPAexternal(idIn, m2beam,
+          tempGammaFluxPtr, tempGammaPDFPtr, &settings, &info, &rndm );
+        else {
+          tempPDFPtr = 0;
+          info.errorMsg("Error in Pythia::getPDFPtr: "
+            "No external photon flux provided with PDF:lepton2gammaSet == 2");
+        }
       } else tempPDFPtr = 0;
 
+    // Usual lepton PDFs.
     } else if (settings.flag("PDF:lepton")) {
+      double m2beam = pow2(particleData.m0(idIn));
       double Q2maxGamma = settings.parm("Photon:Q2max");
-      tempPDFPtr = new Lepton(idIn, Q2maxGamma, &info);
+      if (settings.mode("PDF:lepton2gammaSet") == 1 ) {
+        tempPDFPtr = new Lepton(idIn, Q2maxGamma, &info, &rndm);
+
+      // External photon flux for direct-photon processes.
+      } else if (settings.mode("PDF:lepton2gammaSet") == 2 ) {
+        PDF* tempGammaPDFPtr  = 0;
+        PDF* tempGammaFluxPtr = (beam == "B") ?
+          pdfGamFluxBPtr : pdfGamFluxAPtr;
+        if ( tempGammaFluxPtr != 0) tempPDFPtr = new EPAexternal(idIn, m2beam,
+          tempGammaFluxPtr, tempGammaPDFPtr, &settings, &info, &rndm );
+        else {
+          tempPDFPtr = 0;
+          info.errorMsg("Error in Pythia::getPDFPtr: "
+            "No external photon flux provided with PDF:lepton2gammaSet == 2");
+        }
+      } else tempPDFPtr = 0;
     }
     else tempPDFPtr = new LeptonPoint(idIn);
 

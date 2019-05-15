@@ -3,14 +3,213 @@
 <h2>Update History</h2> 
  
 These update notes describe major updates relative to the 
-PYTHIA 8.186 version, which was the last regular 8.1 release. 
-(Minor bug fixes will continue to appear.) The step from 
-8.1 to 8.2 gave an occasion to break backwards compatibility, 
+PYTHIA 8.186 version, which was the last 8.1 release. The step 
+from 8.1 to 8.2 gave an occasion to break backwards compatibility, 
 but this should only affect a small part of the user code. 
  
 <h3>Main news by version</h3> 
  
 <ul> 
+ 
+<li>8.230: 6 October 2017 
+<ul> 
+ 
+<li>Christian Bierlich joins as co-author. Philip Ilten has new 
+affiliation.</li> 
+ 
+<li>New dipole-shower option for initial-state radiation 
+contributed by Baptiste Cabouat, see 
+<code><aloc href="SpacelikeShowers">SpaceShower:dipoleRecoil</aloc></code>. 
+More specifically, a unified description of initial-final and 
+final-initial dipole ends is introduced, as described in 
+<ref>Cab17</ref>. This allows a description of showers in Deeply 
+Inelastic Scattering, illustrated by <code>main36.cc</code>.</li> 
+ 
+<li>A new <aloc href="HeavyIons">Heavy Ions</aloc> machinery has been 
+added, that allows PYTHIA to generate pA and AA collisions within a 
+simple model. This entails significant additions to the PYTHIA code, 
+and some changes. Some of the key points are: 
+<ul> 
+<li>A new <code>HeavyIons</code> base class is introduced, which 
+exists inside <code>Pythia</code> but itself can contain several 
+<code>Pythia</code> instances to handle different subcollision types.</li> 
+<li>A new derived class <code>Angantyr</code> provides the default 
+heavy-ion description. It is inspired by the old <code>Fritiof</code> 
+model <ref>And86</ref> with recent improvements <ref>Bie16a</ref>.</li> 
+<li>A number of utilities that are used by <code>Angantyr</code>, but 
+could also be used by an external Heavy ion generator, such as the 
+nucleon distribution inside a nucleus.</li> 
+<li>Particle data have been introduced for a few heavy ions, 
+notably 208Pb, code 1000822080.</li> 
+<li>A new <code>PomHISASD</code> pomeron PDF that is actually a rescaled 
+copy of the default proton PDF. New code inserted to keep track of 
+pomeron momentum fractions for such rescaling.</li> 
+<li>The new capabilities are illustrated in <code>main111.cc</code>, 
+<code>main112.cc</code> and <code>main113.cc</code>, for pp, pPb and 
+PbPb collisions, respectively.</li> 
+</ul></li> 
+ 
+<li>New <aloc href="RopeHadronization">Rope Hadronization</aloc> 
+framework made available. This introduces the possibility to enable 
+string shoving as described in <ref>Bie16b</ref> and flavour ropes as 
+described in <ref>Bie14</ref>. Both models attempt to model 
+collective effects at a microscopic level, with inspiration 
+from lattice QCD and the dual superconductor picture. These methods 
+are still being actively developed, and users should expect changes 
+in coming versions of Pythia. User feedback is encouraged.</li> 
+ 
+<li>New framework for setting partonic production vertices in MPI, 
+FSR and ISR, see further <aloc href="VertexInformation">here</aloc>. 
+Still at a primitive stage, and currenly only used for the 
+rope hadronization framework. It replaces a previous setup with 
+UserHooks. The <code>main65.cc</code> example has been removed.</li> 
+ 
+<li>New search function introduced in the <code>html</code> documentation. 
+You can type a word or phrase in the new "Search" box near the top of the 
+left-hand index field, and immediately get up a list of links to places 
+where it occurs.</li> 
+ 
+<li>New processes for <ei>3S1</ei> charmonium or bottomonium production 
+in association with a photon, accessible through the new switches 
+<code>Charmonium:gg2ccbar(3S1)[3S1(1)]gm</code> and 
+<code>Bottomonium:gg2ccbar(3S1)[3S1(1)]gm</code>.</li> 
+ 
+<li>In <code>configure</code> the plugin option for LHAPDF6 is removed, 
+such that now LHAPDF5 uses LHAPDF5.h and LHAPDF6 always uses LHAPDF6.h. 
+Previously LHAPDF6 used the LHAPDF5.h Fortran wrapper by default. 
+Since LHAPDF 6.2 no longer requires BOOST this dependency has been 
+removed. People using earlier LHAPDF versions must now explicitly 
+enable BOOST. The "-std=c++98" flag has been removed to simplify 
+compilation together with programs using later C++ standards. 
+An "--enable-optdebug" alternative has been added for debug with 
+optimization allowed.</li> 
+ 
+<li><code>Makefile</code> is updated to handle the removal of the 
+LHAPDF plugin option, slightly improved for better compatibility across 
+platforms, and an old shared library will be removed also when a 
+compilation only generates a new static library.</li> 
+ 
+<li>Fix up the extrapolation procedure of external PDFs, notably the 
+ones accessed by the LHAPDF5 interface (previously also available for 
+LHAPDF6). PDFs are now explicitly frozen at borders, except that 
+<code>PDF:extrapolate</code> can be switched on to allow extrapolation 
+to low <ei>x</ei>. Note that, as a consequence, results can change if 
+you have used external PDFs for the MPI description. The native LHAPDF6 
+interface already froze at borders, but now optionally allows 
+low-<ei>x</ei> extrapolation. Thanks to Radek Zlebcik.</li> 
+ 
+<li>Implementation of nuclear PDFs for hard processes. See 
+<code><aloc href="PDFSelection">PDF Selection</aloc></code> for more 
+details.</li> 
+ 
+<li>A new proton PDF added, which sets out to combine a NNLO behaviour 
+at high <ei>x</ei> values with a sensible LO low-<ei>x</ei> one, see 
+<code><aloc href="PDFSelection">PDF Selection</aloc></code> for more 
+details.</li> 
+ 
+<li>The <code>main51.cc</code>, <code>main52.cc</code> and 
+<code>main53.cc</code> PDF examples have been modified to use 
+LHAPDF6 by default rather than LHAPDF5.</li> 
+ 
+<li>A new method to provide an external photon flux to study 
+photoproduction with different fluxes. Still optimized for lepton beams, 
+but also other fluxes can be studied. See new sample main program 
+<code>main70.cc</code> for examples.</li> 
+ 
+<li>The machinery for 
+<aloc href="Variations">Automated Shower Variations</aloc> 
+has been extended to also take into account the PDF variations 
+inside a PDF family, using the LHAPDF6 machinery for this. 
+It is now also possible to stop variation uncertainty evaluation 
+below some scale, so as to better correlate the event weighting 
+with the harder part of the event evolution. The new 
+<code>main121.cc</code> example illustrates how to set up the 
+variations.</li> 
+ 
+<li>The MixMax random number generator <ref>Sav15,Sav16</ref> is made 
+available as a plugin distributed with PYTHIA, in the new 
+<code>include/Pythia8Plugin/MixMax.h</code> file, see the 
+<aloc href="RandomNumbers">Random Numbers</aloc> description. Some minor 
+modifications are needed for linking, see <code>examples/Makefile</code> 
+and the <code>main23.cc</code> example. The latter has been updated 
+to include a comparison of execution time between the default and 
+the MixMax generator.</li> 
+ 
+<li>Improved junction colour tracing to fix some problems e.g. in 
+processes with Baryon Number Violation (BNV). Specifically, it is ensured 
+that in- and out-colours are labelled differently for a particle 
+with a BNV vertex both in production and at decay, to avoid colour 
+lines being shortcut. Further examples have been added to 
+<code>main25.lhe</code>. Thanks to A. Monteyx, M. Buckley and F. Jimenez. 
+</li> 
+ 
+<li>Further processes have been added for Dark Matter production, 
+either by a scalar or by a vector <ei>s</ei>-channel mediator, see 
+the <aloc href="DarkMatterProcesses">Dark Matter Processes</aloc> 
+description. Also a new <code>main75.cc</code> example.</li> 
+ 
+<li>Fix minor (order 5%) normalization error of the impact-parameter 
+enhancement factor for two preselected hard processes in the MPI 
+framework, see <code>Info::enhanceMPIavg()</code>. Thanks to Jonathan 
+Gaunt.</li> 
+ 
+<li>Minor fix in <code>pythia8-config</code> to solve some parsing issues. 
+Thanks to Gavin Salam, Dmitry Konstantinov and Emanuel Hoogeveen.</li> 
+ 
+<li>Fix typo in reweighting machinery in <code>SpaceShower.cc</code>.</li> 
+ 
+<li>Several minor fixes to protect from rare occasions of division by zero. 
+Thanks to Steffen Weber.</li> 
+ 
+<li>New option in the single-particle gun in <code>main21.cc</code>, 
+to allow the input particle have a lifetime and thus decay some distance 
+away from the origin. Thanks to Graham W. Wilson.</li> 
+ 
+<li>Maximal number of histogram bins increased to 10000 and a warning is 
+printed if this limit is exceeded. Thanks to Roberto Franceschini.</li> 
+ 
+<li>Ensure that the "thermal string fragmentation" is not inadvertently 
+used for Hidden Valley fragmentation.</li> 
+ 
+<li>Correct so that the <code>TimeShower:MEafterFirst</code> option takes 
+effect in <ei>g &rarr; q qbar</ei> branchings. Does not change the default 
+behaviour. Thanks to Keith Hamilton.</li> 
+ 
+<li>New particle methods <code>y( double mCut)</code> and 
+<code>y(double mCut, RotBstMatrix& M)</code> to calculate rapidity 
+assuming a minimum mass, and optionally after a rotation/boost 
+operation.</li> 
+ 
+<li>A minor bug fix to set up correctly the internal indices for the 
+initiators from emitted photons. Thanks to Aaron Angerami.</li> 
+ 
+<li>A new interface simplifying the usage of <code>Rivet</code> is 
+found in <code>include/Pythia8Plugins/Pythia8Rivet.h</code> and its 
+usage illustrated in the <code>main111.cc</code> example, see 
+<aloc href="RIVETusage">here</aloc>.</li> 
+ 
+<li>A new utility to keep track of progress and time remaining in a run, 
+see <code>include/Pythia8Plugins/ProgressLog.h</code>, and an example 
+in <code>main111.cc</code>.</li> 
+ 
+<li>New method <code>RotBstMatrix::value(int i, int j)</code> returns the 
+value stored in the <ei>(i,j)</ei> element of the matrix.</li> 
+ 
+<li>Dummy class added in <code>Streams.h</code> and <code>.cc</code> 
+to avoid harmless warning message.</li> 
+ 
+<li>One more digit for PDG identity codes in event listings, at the 
+expense of a shorter separation to the particle name.</li> 
+ 
+<li>The bibliography now comes with anchor points for each article, 
+and is directed to these from the text references.</li> 
+ 
+<li>PYTHIA author list rearranged alphabetically.</li> 
+ 
+<li>Several minor updates and improvements of the documentation.</li> 
+ 
+</ul> 
+</li> 
  
 <li>8.226: 26 April 2017 
 <ul> 

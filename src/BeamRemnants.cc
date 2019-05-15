@@ -37,7 +37,8 @@ const bool   BeamRemnants::CORRECTMISMATCH  = false;
 
 bool BeamRemnants::init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn,
   BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
-  PartonSystems* partonSystemsPtrIn, ParticleData* particleDataPtrIn,
+  PartonSystems* partonSystemsPtrIn, PartonVertex* partonVertexPtrIn,
+  ParticleData* particleDataPtrIn,
   ColourReconnection* colourReconnectionPtrIn) {
 
   // Save pointers.
@@ -46,6 +47,7 @@ bool BeamRemnants::init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn,
   beamAPtr              = beamAPtrIn;
   beamBPtr              = beamBPtrIn;
   partonSystemsPtr      = partonSystemsPtrIn;
+  partonVertexPtr       = partonVertexPtrIn;
   colourReconnectionPtr = colourReconnectionPtrIn;
   particleDataPtr       = particleDataPtrIn;
 
@@ -83,6 +85,10 @@ bool BeamRemnants::init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn,
 
   // Initialize junction splitting class.
   junctionSplitting.init(infoPtr, settings, rndmPtr, particleDataPtrIn);
+
+  // Possibility to set parton vertex information.
+  doPartonVertex      = settings.flag("PartonVertex:setVertex")
+                     && (partonVertexPtr != 0);
 
   // Done.
   return true;
@@ -164,6 +170,26 @@ bool BeamRemnants::add( Event& event, int iFirst, bool doDiffCR) {
       if (junctionSplitting.checkColours(event))
         colCorrect = true;
       break;
+    }
+  }
+
+  // Possibility to add vertex information to beam particles.
+  if (doPartonVertex) {
+    BeamParticle* beamPtr = beamAPtr;
+    // Add vertex information for both beams.
+    for (int beam = 0; beam < 2; ++beam) {
+      for (int i = 0; i < beamPtr->size(); ++i) {
+        int j = (*beamPtr)[i].iPos();
+        // We might have daughters.
+        vector<int> dList = event[j].daughterList();
+        // First the beam remnant particle itself.
+        partonVertexPtr->vertexBeam(j, beam, event);
+        // Then possible daughters.
+        for(int k = 0, N = dList.size(); k < N; ++k )
+                partonVertexPtr->vertexBeam(dList[k],beam,event);
+      }
+      // Switch beam.
+      beamPtr = beamBPtr;
     }
   }
 

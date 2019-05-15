@@ -90,9 +90,9 @@ private:
   // Generic info for process generation.
   bool   doSecondHard, doSameCuts, allHardSame, noneHardSame,
          someHardSame, cutsAgree, cutsOverlap, doResDecays, doISR, doMPI;
-  int    nImpact, startColTag;
+  int    startColTag;
   double mHatMin1, mHatMax1, pTHatMin1, pTHatMax1, mHatMin2, mHatMax2,
-         pTHatMin2, pTHatMax2, sigmaND, sumImpactFac, sum2ImpactFac;
+         pTHatMin2, pTHatMax2, sigmaND;
 
   // Info for process generation with photon beams.
   bool   beamHasGamma;

@@ -85,6 +85,9 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   int gammaMode      = settings.mode("Photon:ProcessType");
   bool resolvedGamma = beamHasGamma && (gammaMode < 2);
 
+  // Use external photon flux.
+  externalFlux = (settings.mode("PDF:lepton2gammaSet") == 2);
+
   // Pick and create phase space generator. Send pointers where required.
   if (phaseSpacePtr != 0) ;
   else if (isLHA)       phaseSpacePtr = new PhaseSpaceLHA();
@@ -218,6 +221,10 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
 
 bool ProcessContainer::trialProcess() {
 
+  // Weights for photon flux oversampling with external flux.
+  double wtPDF  = 1.;
+  double wtFlux = 1.;
+
   // For photon beams set PDF pointer to resolved or unresolved.
   if ( beamAPtr->isGamma() || beamBPtr->isGamma() || beamHasGamma )
     setBeamModes();
@@ -247,6 +254,13 @@ bool ProcessContainer::trialProcess() {
         phaseSpacePtr->rescaleSigma( sHatNew);
         phaseSpacePtr->rescaleMomenta( sHatNew);
       }
+
+      // With external photon flux calculate weight wrt. approximated fluxes.
+      if ( beamHasGamma && externalFlux ) {
+        wtPDF  = phaseSpacePtr->weightGammaPDFApprox();
+        wtFlux = gammaKinPtr->fluxWeight();
+      }
+
     }
 
     // Flag to check if more events should be generated.
@@ -292,6 +306,9 @@ bool ProcessContainer::trialProcess() {
     // Possibly fail, else cross section.
     if (!physical) return false;
     double sigmaNow = phaseSpacePtr->sigmaNow();
+
+    // For photons with external flux correct the cross section.
+    if (beamHasGamma && externalFlux) sigmaNow *= wtFlux * wtPDF;
 
     // Tell if this event comes with weight from cross section.
     double sigmaWeight = 1.;
@@ -881,8 +898,8 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   }
 
   // Further info on process. Reset quantities that may or may not be known.
-  int    id1Now  = process[3].id();
-  int    id2Now  = process[4].id();
+  int    id1Now  = process[3 + nOffsetGamma].id();
+  int    id2Now  = process[4 + nOffsetGamma].id();
   int    id1pdf  = 0;
   int    id2pdf  = 0;
   double x1pdf   = 0.;
@@ -1528,35 +1545,43 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
 
   // Set up requested objects for photon collision processes.
   bool photonCollisions = settings.flag("PhotonCollision:all");
-  if (photonCollisions || settings.flag("PhotonCollision:gmgm2qqbar")) {
+  bool hasGamma      = settings.flag("PDF:lepton2gamma");
+  int  photonMode    = settings.mode("Photon:ProcessType");
+  bool initGmGm      = ( ( (photonMode == 4) || (photonMode == 0) )
+                     && hasGamma ) || !hasGamma;
+  if ( initGmGm && ( photonCollisions
+    || settings.flag("PhotonCollision:gmgm2qqbar") ) ) {
     sigmaPtr = new Sigma2gmgm2ffbar(1, 261);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
-  if (photonCollisions || settings.flag("PhotonCollision:gmgm2ccbar")) {
+  if ( initGmGm && ( photonCollisions
+    || settings.flag("PhotonCollision:gmgm2ccbar") ) ) {
     sigmaPtr = new Sigma2gmgm2ffbar(4, 262);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
-  if (photonCollisions || settings.flag("PhotonCollision:gmgm2bbbar")) {
+  if ( initGmGm && ( photonCollisions
+    || settings.flag("PhotonCollision:gmgm2bbbar") ) ) {
     sigmaPtr = new Sigma2gmgm2ffbar(5, 263);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
-  if (photonCollisions || settings.flag("PhotonCollision:gmgm2ee")) {
+  if ( initGmGm && ( photonCollisions
+    || settings.flag("PhotonCollision:gmgm2ee") ) ) {
     sigmaPtr = new Sigma2gmgm2ffbar(11, 264);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
-  if (photonCollisions || settings.flag("PhotonCollision:gmgm2mumu")) {
+  if ( initGmGm && ( photonCollisions
+    || settings.flag("PhotonCollision:gmgm2mumu") ) ) {
     sigmaPtr = new Sigma2gmgm2ffbar(13, 265);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
-  if (photonCollisions || settings.flag("PhotonCollision:gmgm2tautau")) {
+  if ( initGmGm && ( photonCollisions
+    || settings.flag("PhotonCollision:gmgm2tautau") ) ) {
     sigmaPtr = new Sigma2gmgm2ffbar(15, 266);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
 
   // Read in settings related to photon beams.
-  bool hasGamma      = settings.flag("PDF:lepton2gamma");
   bool photonParton  = settings.flag("PhotonParton:all");
-  int  photonMode    = settings.mode("Photon:ProcessType");
   bool beamAisHadron = abs(infoPtr->idA()) > 100;
   bool beamBisHadron = abs(infoPtr->idB()) > 100;
   bool isGammaGamma  = infoPtr->idA() == 22 && infoPtr->idB() == 22;
@@ -2158,7 +2183,7 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
                       ? 1000000+2*(idx-1) : 2000000+2*(idx-4));
               int id2 = jso + ((jdx <= 3)
                       ? 1000000+2*(jdx-1) : 2000000+2*(jdx-4));
-              // Skip if outgoing codes not asked for
+              // Skip if outgoing codes not asked for.
               if (!allowIdVals( id1, id2)) continue;
               sigmaPtr = new Sigma2qq2squarksquark(id1,id2,iproc);
               containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
@@ -2886,6 +2911,18 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   // Set up requested objects for Dark Matter processes.
   if (settings.flag("DM:ffbar2Zp2XX")) {
     sigmaPtr = new Sigma2ffbar2Zp2XX();
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (settings.flag("DM:ffbar2Zp2XXj")) {
+    sigmaPtr = new Sigma3ffbar2Zp2XXj();
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (settings.flag("DM:gg2S2XX")) {
+    sigmaPtr = new Sigma2gg2S2XX();
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (settings.flag("DM:gg2S2XXj")) {
+    sigmaPtr = new Sigma3gg2S2XXj();
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
 

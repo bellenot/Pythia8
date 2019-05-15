@@ -35,7 +35,7 @@ CXX_COMMON:=-I$(LOCAL_INCLUDE) $(CXX_COMMON)
 
 # PYTHIA.
 OBJECTS=$(patsubst $(LOCAL_SRC)/%.cc,$(LOCAL_TMP)/%.o,\
-	$(wildcard $(LOCAL_SRC)/*.cc))
+	$(sort $(wildcard $(LOCAL_SRC)/*.cc)))
 TARGETS=$(LOCAL_LIB)/libpythia8.a
 ifeq ($(ENABLE_SHARED),true)
   TARGETS+=$(LOCAL_LIB)/libpythia8$(LIB_SUFFIX)
@@ -101,15 +101,16 @@ $(LOCAL_TMP)/Pythia.o: $(LOCAL_SRC)/Pythia.cc Makefile.inc
 $(LOCAL_TMP)/%.o: $(LOCAL_SRC)/%.cc
 	$(CXX) $< -o $@ -c $(OBJ_COMMON)
 $(LOCAL_LIB)/libpythia8.a: $(OBJECTS)
+	rm -f $(LOCAL_LIB)/libpythia8$(LIB_SUFFIX)
 	ar cru $@ $^
 $(LOCAL_LIB)/libpythia8$(LIB_SUFFIX): $(OBJECTS)
 	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME)$(notdir $@)\
 	  $(LIB_COMMON)
 
 # LHAPDF (turn off all warnings for readability).
-$(LOCAL_TMP)/LHAPDF%Plugin.o: $(LOCAL_INCLUDE)/Pythia8Plugins/$$(LHAPDF%_PLUGIN)
-	$(CXX) -x c++ $< -o $@ -c -MD -w -I$(LHAPDF$*_INCLUDE)\
-	 -I$(BOOST_INCLUDE) $(CXX_COMMON)
+$(LOCAL_TMP)/LHAPDF%Plugin.o: $(LOCAL_INCLUDE)/Pythia8Plugins/LHAPDF%.h
+	$(CXX) -x c++ $< -o $@ -c -MD -w $(CXX_COMMON) -I$(LHAPDF$*_INCLUDE)\
+	 -I$(BOOST_INCLUDE) 
 $(LOCAL_LIB)/libpythia8lhapdf5.so: $(LOCAL_TMP)/LHAPDF5Plugin.o\
 	$(LOCAL_LIB)/libpythia8.a
 	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME)$(notdir $@)\
@@ -144,6 +145,7 @@ $(LOCAL_LIB)/_pythia8.so: $(LOCAL_INCLUDE)/Pythia8Plugins/PythonWrapper.h\
 # Install (rsync is used for finer control).
 install: all
 	mkdir -p $(PREFIX_BIN) $(PREFIX_INCLUDE) $(PREFIX_LIB) $(PREFIX_SHARE)
+	rm -f $(PREFIX_LIB)/libpythia8$(LIB_SUFFIX)
 	rsync -a $(LOCAL_BIN)/* $(PREFIX_BIN) --exclude .svn
 	rsync -a $(LOCAL_INCLUDE)/* $(PREFIX_INCLUDE) --exclude .svn
 	rsync -a $(LOCAL_LIB)/* $(PREFIX_LIB) --exclude .svn

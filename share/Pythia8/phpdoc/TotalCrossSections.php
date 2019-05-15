@@ -32,9 +32,9 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 The <code>SigmaTotal</code> class returns the total, elastic, diffractive 
 and nondiffractive cross sections in hadronic collisions, and also the 
 slopes of the <i>d(sigma)/dt</i> distributions. Most of the parametrizations 
-used are from [<a href="Bibliography.php" target="page">Sch94, Sch97</a>] which borrows some of the total cross 
-sections from [<a href="Bibliography.php" target="page">Don92</a>]. If you use the MBR (Minimum Bias Rockefeller) 
-model [<a href="Bibliography.php" target="page">Cie12</a>], <code>Diffraction:PomFlux = 5</code>, this model 
+used are from [<a href="Bibliography.php#refSch94" target="page">Sch94</a>, <a href="Bibliography.php#refSch97" target="page">Sch97</a>] which borrows some of the total cross 
+sections from [<a href="Bibliography.php#refDon92" target="page">Don92</a>]. If you use the MBR (Minimum Bias Rockefeller) 
+model [<a href="Bibliography.php#refCie12" target="page">Cie12</a>], <code>Diffraction:PomFlux = 5</code>, this model 
 contains its own parametrizations of all cross sections in <i>p p</i> 
 and <i>pbar p</i> collisions. 
  
@@ -65,7 +65,7 @@ below, with allowed variations, are mainly intended to make sense for
 <h3>Central diffraction</h3> 
  
 Central diffraction (CD), a.k.a. double Pomeron exchange (DPE), was not 
-part of the framework in [<a href="Bibliography.php" target="page">Sch94</a>]. It has now been added for 
+part of the framework in [<a href="Bibliography.php#refSch94" target="page">Sch94</a>]. It has now been added for 
 multiparticle states, i.e. excluding the resonance region below 1 GeV 
 mass, as well as other exclusive states, but only for <i>p p</i> or 
 <i>pbar p</i>. It uses the same proton-Pomeron vertex as in single 
@@ -149,7 +149,7 @@ consistent set is used.
 <h3>Modify diffractive cross sections</h3> 
  
 The default description of diffractive interactions was 
-parameterized and fit in [<a href="Bibliography.php" target="page">Sch94, Sch97</a>]. The following 
+parameterized and fit in [<a href="Bibliography.php#refSch94" target="page">Sch94</a>, <a href="Bibliography.php#refSch97" target="page">Sch97</a>]. The following 
 parameters allow for some modification of the mass distribution of 
 the diffractive system, which then integrates to a modified diffractive 
 cross section. Note that these parameters have no effect on the MBR model. 
@@ -161,13 +161,13 @@ Lowest mass of a diffractive system is set to be <i>mHadron + mMin</i>.
 <br/><br/><table><tr><td><strong> </td><td></td><td> <input type="text" name="11" value="2.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 Normalization factor for the contribution of low-mass resonances 
 to the diffractive cross section (<i>cRes</i> in eq. (22) of 
-[<a href="Bibliography.php" target="page">Sch94</a>]). 
+[<a href="Bibliography.php#refSch94" target="page">Sch94</a>]). 
    
  
 <br/><br/><table><tr><td><strong> </td><td></td><td> <input type="text" name="12" value="1.062" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.062</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 The contribution of low-mass resonances is dampened at around the 
 scale <i>mHadron + mResMax</i> (the sum is <i>Mres</i> in eq. (22) 
-of [<a href="Bibliography.php" target="page">Sch94</a>]). To make sense, we should have 
+of [<a href="Bibliography.php#refSch94" target="page">Sch94</a>]). To make sense, we should have 
 <i>mResMax > mMin</i>. 
    
  
@@ -227,7 +227,7 @@ to the elastic (or total) cross section, which of course becomes
 infinite if this contribution is included. If you have switched on 
 <code>SigmaTotal:setOwn</code> you can further switch on a machinery 
 to include the Coulomb term, including interference with the conventional 
-strong-interaction Pomeron one [<a href="Bibliography.php" target="page">Ber87</a>]. Then the elastic cross 
+strong-interaction Pomeron one [<a href="Bibliography.php#refBer87" target="page">Ber87</a>]. Then the elastic cross 
 section is no longer taken from <code>SigmaTotal:sigmaEl</code> but 
 derived from the parameters below and <code>SigmaTotal:sigmaTot</code>, 
 using the optical theorem. The machinery is only intended to be used for 
@@ -266,7 +266,7 @@ in units of GeV^2.
 The Coulomb term is taken to contain a phase factor 
 <i>exp(+- i alpha phi(t))</i>, with + for <i>p p</i> and - for 
 <i>pbar p</i>, where <i>phi(t) = - phaseConst - ln(-B t/2)</i>. 
-This constant is model dependent [<a href="Bibliography.php" target="page">Cah82</a>]. 
+This constant is model dependent [<a href="Bibliography.php#refCah82" target="page">Cah82</a>]. 
    
  
 <input type="hidden" name="saved" value="1"/>

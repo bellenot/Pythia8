@@ -21,6 +21,7 @@
 #include "Pythia8/MultipartonInteractions.h"
 #include "Pythia8/ParticleData.h"
 #include "Pythia8/PartonSystems.h"
+#include "Pythia8/PartonVertex.h"
 #include "Pythia8/PythiaStdlib.h"
 #include "Pythia8/ResonanceDecays.h"
 #include "Pythia8/RHadrons.h"
@@ -56,7 +57,8 @@ public:
     SigmaTotal* sigmaTotPtr, TimeShower* timesDecPtrIn,
     TimeShower* timesPtrIn, SpaceShower* spacePtrIn,
     RHadrons* rHadronsPtrIn, UserHooks* userHooksPtrIn,
-    MergingHooks* mergingHooksPtr, bool useAsTrial);
+    MergingHooks* mergingHooksPtr, PartonVertex* partonVertexPtrIn,
+    bool useAsTrial);
 
   // Generate the next parton-level process.
   bool next( Event& process, Event& event);
@@ -169,6 +171,9 @@ private:
 
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
+
+  // Pointer to assign space-time vertices during parton evolution.
+  PartonVertex*  partonVertexPtr;
 
   // The generator classes for multiparton interactions.
   MultipartonInteractions  multiMB;

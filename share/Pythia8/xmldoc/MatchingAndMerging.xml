@@ -365,7 +365,7 @@ internal classes (e.g. to instances of the <code>Info</code> and
 <code>ParticleData</code> classes) have been set up. 
 </method> 
  
-<method name="virtual void statistics()"> 
+<method name="virtual void MyMerging::statistics()"> 
 This function can be used to collect and print merging information at the 
 end of the event generation. Pythia will call this function in the execution 
 of a <code>Pythia::stat()</code> call. 
@@ -503,10 +503,10 @@ Event& )">
 </method> 
 <method name="  virtual double hardProcessME( const Event& inEvent )"> 
 </method> 
-<method name="virtual double MyMergingHooks::tmsDefinition( const Event& 
+<method name="virtual double tmsDefinition( const Event& 
 event)"> 
 </method> 
-<method name="virtual int MyMergingHooks::getNumberOfClusteringSteps(const 
+<method name="virtual int getNumberOfClusteringSteps(const 
 Event& event, bool resetNjetMax = false)"> 
 </method> 
 <method name="  virtual bool useShowerPlugin()"> 

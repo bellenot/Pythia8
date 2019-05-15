@@ -34,7 +34,8 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn,
   SigmaTotal* sigmaTotPtr, TimeShower* timesDecPtrIn, TimeShower* timesPtrIn,
   SpaceShower* spacePtrIn, RHadrons* rHadronsPtrIn, UserHooks* userHooksPtrIn,
-  MergingHooks* mergingHooksPtrIn, bool useAsTrial ) {
+  MergingHooks* mergingHooksPtrIn, PartonVertex* partonVertexPtrIn,
+  bool useAsTrial ) {
 
   // Store input pointers and modes for future use.
   infoPtr            = infoPtrIn;
@@ -56,6 +57,7 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   rHadronsPtr        = rHadronsPtrIn;
   userHooksPtr       = userHooksPtrIn;
   mergingHooksPtr    = mergingHooksPtrIn;
+  partonVertexPtr    = partonVertexPtrIn;
 
   // Min bias and diffraction processes need special treatment.
   bool doSQ          = settings.flag("SoftQCD:all")
@@ -209,18 +211,21 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   if (doISR) spacePtr->init( beamAPtr, beamBPtr);
   doMPIMB  =  multiMB.init( doMPIinit, 0, infoPtr, settings, particleDataPtr,
     rndmPtr, beamAPtr, beamBPtr, couplingsPtr, partonSystemsPtr, sigmaTotPtr,
-    userHooksPtr);
+    userHooksPtr, partonVertexPtr);
   if (doSD || doDD || doSQ || doHardDiff) doMPISDA = multiSDA.init( doMPIinit,
     1, infoPtr, settings, particleDataPtr, rndmPtr, beamAPtr, beamPomBPtr,
-    couplingsPtr, partonSystemsPtr, sigmaTotPtr, userHooksPtr);
+    couplingsPtr, partonSystemsPtr, sigmaTotPtr, userHooksPtr,
+    partonVertexPtr);
   if (doSD || doDD || doSQ || doHardDiff) doMPISDB = multiSDB.init( doMPIinit,
     2, infoPtr, settings, particleDataPtr, rndmPtr, beamPomAPtr, beamBPtr,
-    couplingsPtr, partonSystemsPtr, sigmaTotPtr, userHooksPtr);
+    couplingsPtr, partonSystemsPtr, sigmaTotPtr, userHooksPtr,
+    partonVertexPtr);
   if (doCD || doSQ) doMPICD = multiCD.init( doMPIinit, 3, infoPtr, settings,
     particleDataPtr, rndmPtr, beamPomAPtr, beamPomBPtr, couplingsPtr,
-    partonSystemsPtr, sigmaTotPtr, userHooksPtr);
+    partonSystemsPtr, sigmaTotPtr, userHooksPtr, partonVertexPtr);
   if (!remnants.init( infoPtr, settings, rndmPtr, beamAPtr, beamBPtr,
-    partonSystemsPtr, particleDataPtr, &colourReconnection)) return false;
+    partonSystemsPtr, partonVertexPtr, particleDataPtr, &colourReconnection))
+    return false;
   resonanceDecays.init( infoPtr, particleDataPtr, rndmPtr);
   colourReconnection.init( infoPtr, settings, rndmPtr, particleDataPtr,
     beamAPtr, beamBPtr, partonSystemsPtr);
@@ -228,24 +233,24 @@ bool PartonLevel::init( Info* infoPtrIn, Settings& settings,
   if (doHardDiff) hardDiffraction.init(infoPtr, settings, rndmPtr, beamAPtr,
     beamBPtr, beamPomAPtr, beamPomBPtr);
 
-  // Initialize a MPI instance for photons from leptons.
+  // Initialize an MPI instance for photons from leptons.
   if ( beamHasResGamma && (doMPI || doNDgamma) ){
     doMPIinit = true;
     // Lepton-hadron.
     if (beamAPtr->isLepton() && beamBPtr->isHadron() ) {
       doMPIgmgm = multiGmGm.init( doMPIinit, 0, infoPtr, settings,
         particleDataPtr, rndmPtr, beamGamAPtr, beamBPtr, couplingsPtr,
-        partonSystemsPtr, sigmaTotPtr, userHooksPtr, true);
+        partonSystemsPtr, sigmaTotPtr, userHooksPtr, partonVertexPtr, true);
     // Hadron-lepton.
     } else if (beamBPtr->isLepton() && beamAPtr->isHadron() ) {
       doMPIgmgm = multiGmGm.init( doMPIinit, 0, infoPtr, settings,
         particleDataPtr, rndmPtr, beamAPtr, beamGamBPtr, couplingsPtr,
-        partonSystemsPtr, sigmaTotPtr, userHooksPtr, true);
+        partonSystemsPtr, sigmaTotPtr, userHooksPtr, partonVertexPtr, true);
     // Lepton-lepton.
     } else {
       doMPIgmgm = multiGmGm.init( doMPIinit, 0, infoPtr, settings,
         particleDataPtr, rndmPtr, beamGamAPtr, beamGamBPtr, couplingsPtr,
-        partonSystemsPtr, sigmaTotPtr, userHooksPtr, true);
+        partonSystemsPtr, sigmaTotPtr, userHooksPtr, partonVertexPtr, true);
     }
     doMPIMB = doMPIgmgm;
   }
@@ -1477,7 +1482,9 @@ void PartonLevel::setupHardSys( Event& process, Event& event) {
         if (!colFound) doCopy = false;
       }
     }
-    if (doCopy) event.appendJunction( process.getJunction(iJun));
+    if (doCopy) {
+      event.appendJunction( process.getJunction(iJun));
+    }
   }
 
   // Done.
@@ -1539,7 +1546,9 @@ void PartonLevel::setupShowerSys( Event& process, Event& event) {
         if (!colFound) doCopy = false;
       }
     }
-    if (doCopy) event.appendJunction( process.getJunction(iJun));
+    if (doCopy) {
+      event.appendJunction( process.getJunction(iJun));
+    }
   }
 
   // Done.
@@ -1591,6 +1600,12 @@ void PartonLevel::setupResolvedDiff( Event& process) {
   beamAPtr->newPzE(  pzDiff, eDiffA);
   beamBPtr->newPzE( -pzDiff, eDiffB);
 
+  // Keep track of pomeron momentum fraction.
+  if ( beamAPtr->id() == 990 )
+    beamAPtr->xPom(pow2(mDiff/eCMsave));
+  if ( beamBPtr->id() == 990 )
+    beamBPtr->xPom(pow2(mDiff/eCMsave));
+
   // Beams not found in normal slots 1 and 2.
   int beamOffset = (sizeEvent > 0) ? sizeEvent - 1 : 4;
 
@@ -1636,6 +1651,9 @@ void PartonLevel::leaveResolvedDiff( int iHardLoop, Event& process,
   infoPtr->setECM( eCMsave);
   beamAPtr->newPzE( event[1].pz(), event[1].e());
   beamBPtr->newPzE( event[2].pz(), event[2].e());
+  // Keeping track of pomeron momentum fraction.
+  beamAPtr->xPom();
+  beamBPtr->xPom();
 
   // Restore beam pointers to incoming hadrons.
   beamAPtr = beamHadAPtr;
@@ -2274,16 +2292,44 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
       else             event[iAftMother].daughter2( iNow);
       now.mother1(iAftMother);
 
-      // Check if this parton carries a junction color in hard event.
+      // Check if this parton came from a BNV (junction) decay in hard event.
       for (int iJun = 0; iJun < process.sizeJunction(); ++iJun) {
         if (iJun >= int(doCopyJun.size())) doCopyJun.push_back(false);
+        // Skip if we already decided we're going to copy this junction
+        if (doCopyJun[iJun]) continue;
         // Only consider junctions that can appear in decays.
         int kindJunction = process.kindJunction(iJun);
-        if (kindJunction >= 5) continue;
-        int col = (kindJunction % 2 == 1) ? now.col() : now.acol();
-        int iLegF1 = (kindJunction - 1) / 2;
-        for (int iLeg = iLegF1; iLeg <= 2; ++iLeg)
-        if (col == process.colJunction(iJun,iLeg)) doCopyJun[iJun] = true;
+        if (kindJunction <= 2) {
+          // Junction Kinds 1 and 2: all legs in final state
+          int nMatch = 0;
+          // Loop over resonance-decay daughters
+          int iDau1 = hardMother.daughter1();
+          int iDau2 = hardMother.daughter2();
+          // Must have at least 3 decay products
+          if (iDau1 == 0 || iDau2 - iDau1 < 2) continue;
+          for (int iDau=iDau1; iDau<=iDau2; ++iDau) {
+            int colDau = (kindJunction == 1 ? process[iDau].col()
+              : process[iDau].acol());
+            for (int iLeg = 0; iLeg <= 2; ++iLeg)
+              if ( process.colJunction(iJun,iLeg) == colDau ) nMatch += 1;
+          }
+          // If three legs match
+          if (nMatch == 3) doCopyJun[iJun] = true;
+        } else if (kindJunction <= 4) {
+          // Junction Kinds 3 and 4: copy if initial-state leg matches
+          // this resonance.
+          int col = (kindJunction == 3 ? hardMother.acol() : hardMother.col());
+          if ( process.colJunction(iJun,0) == col ) doCopyJun[iJun] = true;
+        }
+        // Extra safety: Check if this junction has already been copied
+        // (e.g., in setupHardSys). If so, do not copy again.
+        for (int kJun = 0; kJun < event.sizeJunction(); ++kJun) {
+          int nMatch = 0;
+          for (int iLeg = 0; iLeg <= 2; ++iLeg)
+            if (event.colJunction(kJun,iLeg) == process.colJunction(iJun,iLeg))
+              ++nMatch;
+          if (nMatch == 3) doCopyJun[iJun] = false;
+        }
       }
 
       // Update colour and momentum information.

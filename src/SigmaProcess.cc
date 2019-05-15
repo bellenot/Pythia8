@@ -405,8 +405,11 @@ bool SigmaProcess::initFlux() {
 
 // Convolute matrix-element expression(s) with parton flux and K factor.
 // Possibly different PDFs for the phase-space initialization.
+// Can also take new values for x's to correct for oversampling, as
+// needed with external photon flux.
 
-double SigmaProcess::sigmaPDF(bool initPS, bool samexGamma) {
+double SigmaProcess::sigmaPDF(bool initPS, bool samexGamma,
+    bool useNewXvalues, double x1New, double x2New) {
 
   // Evaluate and store the required parton densities.
   for (int j = 0; j < sizeBeamA(); ++j) {
@@ -414,6 +417,8 @@ double SigmaProcess::sigmaPDF(bool initPS, bool samexGamma) {
       inBeamA[j].pdf = beamAPtr->xfMax( inBeamA[j].id, x1Save, Q2FacSave);
     else if ( samexGamma)
       inBeamA[j].pdf = beamAPtr->xfSame( inBeamA[j].id, x1Save, Q2FacSave);
+    else if ( useNewXvalues && x1New > 0.)
+      inBeamA[j].pdf = beamAPtr->xfGamma( inBeamA[j].id, x1New, Q2FacSave);
     else
       inBeamA[j].pdf = beamAPtr->xfHard( inBeamA[j].id, x1Save, Q2FacSave);
   }
@@ -422,13 +427,18 @@ double SigmaProcess::sigmaPDF(bool initPS, bool samexGamma) {
       inBeamB[j].pdf = beamBPtr->xfMax( inBeamB[j].id, x2Save, Q2FacSave);
     else if ( samexGamma)
       inBeamB[j].pdf = beamBPtr->xfSame( inBeamB[j].id, x2Save, Q2FacSave);
+    else if ( useNewXvalues && x2New > 0.)
+      inBeamB[j].pdf = beamBPtr->xfGamma( inBeamB[j].id, x2New, Q2FacSave);
     else
       inBeamB[j].pdf = beamBPtr->xfHard( inBeamB[j].id, x2Save, Q2FacSave);
   }
 
-  // Save the x_gamma values after PDFs are called if new value is sampled.
-  if ( !samexGamma && beamAPtr->hasResGamma() ) beamAPtr->xGammaPDF();
-  if ( !samexGamma && beamBPtr->hasResGamma() ) beamBPtr->xGammaPDF();
+  // Save the x_gamma values after PDFs are called if new value is sampled
+  // if using internal photon flux from leptons.
+  if ( !useNewXvalues && !samexGamma && beamAPtr->hasResGamma() )
+    beamAPtr->xGammaPDF();
+  if ( !useNewXvalues && !samexGamma && beamBPtr->hasResGamma() )
+    beamBPtr->xGammaPDF();
 
   // Loop over allowed incoming channels.
   sigmaSumSave = 0.;

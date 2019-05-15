@@ -74,6 +74,14 @@ In addition, <ei>t</ei>-channel exchange of such a boson
 between two fermions form a separate group. 
  
 <p/> 
+Note that the <ei>Z^0</ei> and <ei>W^+-</ei> decay modes generated with 
+the processes below only include those Standard-Model ones that are 
+allowed for on-shell decays. Thus several other processes that receive 
+contributions from off-shell resonances are listed separately, e.g. 
+for <aloc href="TopProcesses">top</aloc> or 
+<aloc href="FourthGenerationProcesses">fourth generation fermions</aloc>. 
+ 
+<p/> 
 There is one flag that can be used to influence the <ei>gamma^*/Z^0</ei> 
 structure in all the processes below where it is produced, unless 
 otherwise stated. 

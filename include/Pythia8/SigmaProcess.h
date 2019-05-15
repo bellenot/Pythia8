@@ -142,7 +142,8 @@ public:
   // Convolute above with parton flux and K factor. Sum over open channels.
   // Possibly different PDF in initialization phase or no sampling for x_gamma
   // (photons in leptons).
-  virtual double sigmaPDF(bool initPS = false, bool samexGamma = false);
+  virtual double sigmaPDF(bool initPS = false, bool samexGamma = false,
+    bool useNewXvalues = false, double x1New = 0., double x2New = 0.);
 
   // Select incoming parton channel and extract parton densities (resolved).
   void pickInState(int id1in = 0, int id2in = 0);
@@ -416,7 +417,8 @@ public:
   virtual double sigmaHat() {return 0.;}
 
   // Since no PDF's there is no difference from above.
-  virtual double sigmaPDF(bool, bool ) {return sigmaHat();}
+  virtual double sigmaPDF(bool, bool, bool, double, double )
+    {return sigmaHat();}
 
   // Answer for these processes already in mb, so do not convert.
   virtual bool convert2mb() const {return false;}
@@ -597,7 +599,7 @@ public:
   virtual bool   initFlux() {return true;}
 
   // Dummy function: action is put in PhaseSpaceLHA.
-  virtual double sigmaPDF(bool, bool ) {return 1.;}
+  virtual double sigmaPDF(bool, bool, bool, double, double ) {return 1.;}
 
   // Evaluate weight for decay angular configuration, where relevant.
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd);

@@ -29,7 +29,7 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
  
 <h2>HelacOnia Processes</h2> 
  
-HelacOnia [<a href="Bibliography.php" target="page">Sha15</a>] is an external package which provides 
+HelacOnia [<a href="Bibliography.php#refSha15" target="page">Sha15</a>] is an external package which provides 
 automated calculations for heavy quarkonia production using NRQCD, 
 similar in style to <?php $filepath = $_GET["filepath"];
 echo "<a href='MadGraph5Processes.php?filepath=".$filepath."' target='page'>";?>MadGraph5</a> 
@@ -82,7 +82,7 @@ processes from within Pythia becomes straightforward. An explicit
 example is provided in <code>main35.cc</code>. We describe some of the 
 key elements used there and in the general case. 
  
-<a name="method1"></a>
+<a name="anchor1"></a>
 <p/><strong>LHAupHelaconia::LHAupHelaconia(Pythia* pythia, string dir = &quot;helaconiarun&quot;, string exe = &quot;ho_cluster&quot;) &nbsp;</strong> <br/>
 creates an instance of the <code>LHAupHelaconia</code> class. 
 <br/><code>argument</code><strong> pythia </strong>  :  pointer to the <code>Pythia</code> instance, 
@@ -98,7 +98,7 @@ it may be necessary to prepend the full pathname of the executable:
    
    
  
-<a name="method2"></a>
+<a name="anchor2"></a>
 <p/><strong>bool LHAupHelaconia::readString(string line) &nbsp;</strong> <br/>
 allows the user to send commands to HelacOnia. 
 <br/><code>argument</code><strong> line </strong>  :  the command to be sent to HelacOnia. For 
@@ -123,13 +123,13 @@ colour-singlet state.
    
    
  
-<a name="method3"></a>
+<a name="anchor3"></a>
 <p/><strong>void LHAupHelaconia::setEvents(int events) &nbsp;</strong> <br/>
 the number of events to generate per HelacOnia run. Normally does not 
 need to be set, but defaults to 10000. 
    
  
-<a name="method4"></a>
+<a name="anchor4"></a>
 <p/><strong>void LHAupHelaconia::setSeed(int seed, int runs = 30081) &nbsp;</strong> <br/>
 the random seed (sequence), normally not needed to be set explicitly. 
 If the random seed is negative (default of -1), then the HelacOnia 

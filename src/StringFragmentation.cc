@@ -246,6 +246,7 @@ Vec4 StringEnd::kinematicsHadron( StringSystem& system) {
     double root  = sqrtpos( r1*r1 - 4. * r2 * r0 );
     if (abs(r2) < TINY || root < TINY) return Vec4(0., 0., 0., -1.);
     xInvHad      = 0.5 * (root / abs(r2) - r1 / r2);
+    if (abs(cM2 + cM4 * xInvHad) < TINY) return Vec4(0., 0., 0., -1.);
     xDirHad      = (cM0 - cM3 * xInvHad) / (cM2 + cM4 * xInvHad);
 
     // Define position of new trial vertex.
@@ -564,7 +565,8 @@ const int    StringFragmentation::NTRYJRFEQ     = 40;
 
 void StringFragmentation::init(Info* infoPtrIn, Settings& settings,
   ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, StringFlav* flavSelPtrIn,
-  StringPT* pTSelPtrIn, StringZ* zSelPtrIn, UserHooks* userHooksPtrIn) {
+  StringPT* pTSelPtrIn, StringZ* zSelPtrIn, FlavourRope* flavRopePtrIn,
+  UserHooks* userHooksPtrIn) {
 
   // Save pointers.
   infoPtr         = infoPtrIn;
@@ -573,6 +575,7 @@ void StringFragmentation::init(Info* infoPtrIn, Settings& settings,
   flavSelPtr      = flavSelPtrIn;
   pTSelPtr        = pTSelPtrIn;
   zSelPtr         = zSelPtrIn;
+  flavRopePtr     = flavRopePtrIn;
   userHooksPtr    = userHooksPtrIn;
 
   // Initialize the StringFragmentation class.
@@ -586,6 +589,21 @@ void StringFragmentation::init(Info* infoPtrIn, Settings& settings,
     = settings.parm("StringFragmentation:eMaxLeftJunction");
   eMinLeftJunction
     = settings.parm("StringFragmentation:eMinLeftJunction");
+
+  // Flavour Rope treatment.
+  doFlavRope      = settings.flag("Ropewalk:RopeHadronization")
+                 && settings.flag("Ropewalk:doFlavour");
+
+  // Sanity check of flavour rope and vertex information.
+  if (doFlavRope) {
+    // Flavour ropes requires vertex information, unless an effective
+    // string tension is supplied by hand.
+    if (!settings.flag("PartonVertex:setVertex") &&
+      !settings.flag("Ropewalk:setFixedKappa")) {
+        infoPtr->errorMsg("Error in StringFragmentation::init: "
+          "failed initialization of flavour ropes");
+    }
+  }
 
   // Joining of nearby partons along the string.
   mJoin           = settings.parm("FragmentationSystems:mJoin");
@@ -646,6 +664,9 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
     pSum  -= pJunctionHadrons;
   }
 
+  // Set a pointer to the event in Flavour Ropes.
+  if (doFlavRope) flavRopePtr->setEventPtr(event);
+
   // Set up kinematics of string evolution ( = motion).
   system.setUp(iParton, event);
   stopMassNow = stopMass;
@@ -690,6 +711,14 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
       // Check how many nearby string pieces there are for the next hadron.
       double nNSP = (closePacking) ? nearStringPieces(nowEnd, rapPairs) : 0.;
 
+      // The FlavourRope treatment changes the fragmentation parameters.
+      if (doFlavRope) {
+        if (!flavRopePtr->doChangeFragPar(flavSelPtr, zSelPtr, pTSelPtr,
+          (fromPos ? hadMomPos.m2Calc() : hadMomNeg.m2Calc()), iParton) )
+          infoPtr->errorMsg("Error in StringFragmentation::fragment: "
+            "FlavourRope failed to change fragmentation parameters.");
+      }
+
       // Possibility for a user to change the fragmentation parameters.
       if ( (userHooksPtr != 0) && userHooksPtr->canChangeFragPar() ) {
          if ( !userHooksPtr->doChangeFragPar( flavSelPtr, zSelPtr, pTSelPtr,
@@ -730,11 +759,13 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
         if ( userHooksPtr->doVetoFragmentation( Particle( nowEnd.idHad,
           statusHad, iPos, iNeg, 0, 0, 0, 0, pHad, nowEnd.mHad) ) )
           continue;
-        // Bookkeeping of momentum taken away.
-        if (fromPos) hadMomPos += pHad;
-        else         hadMomNeg += pHad;
       }
 
+      // Bookkeeping of momentum taken away.
+      if (fromPos) hadMomPos += pHad;
+      else         hadMomNeg += pHad;
+
+      // Append produced hadron.
       hadrons.append( nowEnd.idHad, statusHad, iPos, iNeg,
         0, 0, 0, 0, pHad, nowEnd.mHad);
       if (pHad.e() < 0.) break;
@@ -1395,6 +1426,14 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
           // Keep track of hadron momentum.
           Vec4 hadMom;
           for ( ; ; ++nHadrons) {
+
+            // The FlavourRope treatment changes the fragmentation parameters.
+            if (doFlavRope) {
+              if (!flavRopePtr->doChangeFragPar(flavSelPtr, zSelPtr, pTSelPtr,
+                hadMom.m2Calc(), iParton) ) infoPtr->errorMsg("Error in "
+                  "StringFragmentation::fragmentToJunction: FlavourRope "
+                  "failed to change fragmentation parameters.");
+            }
 
             // Possibility for a user to change the fragmentation parameters.
             if ( (userHooksPtr != 0) && userHooksPtr->canChangeFragPar() ) {

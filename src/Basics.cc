@@ -293,6 +293,7 @@ void Vec4::rotaxis(double phiIn, const Vec4& n) {
 void Vec4::bst(double betaX, double betaY, double betaZ) {
 
   double beta2 = betaX*betaX + betaY*betaY + betaZ*betaZ;
+  if (beta2 >= 1.) return;
   double gamma = 1. / sqrt(1. - beta2);
   double prod1 = betaX * xx + betaY * yy + betaZ * zz;
   double prod2 = gamma * (gamma * prod1 / (1. + gamma) + tt);
@@ -324,10 +325,12 @@ void Vec4::bst(double betaX, double betaY, double betaZ, double gamma) {
 
 void Vec4::bst(const Vec4& pIn) {
 
+  if (abs(pIn.tt) < Vec4::TINY) return;
   double betaX = pIn.xx / pIn.tt;
   double betaY = pIn.yy / pIn.tt;
   double betaZ = pIn.zz / pIn.tt;
   double beta2 = betaX*betaX + betaY*betaY + betaZ*betaZ;
+  if (beta2 >= 1.) return;
   double gamma = 1. / sqrt(1. - beta2);
   double prod1 = betaX * xx + betaY * yy + betaZ * zz;
   double prod2 = gamma * (gamma * prod1 / (1. + gamma) + tt);
@@ -344,6 +347,7 @@ void Vec4::bst(const Vec4& pIn) {
 
 void Vec4::bst(const Vec4& pIn, double mIn) {
 
+  if (abs(pIn.tt) < Vec4::TINY) return;
   double betaX = pIn.xx / pIn.tt;
   double betaY = pIn.yy / pIn.tt;
   double betaZ = pIn.zz / pIn.tt;
@@ -363,10 +367,12 @@ void Vec4::bst(const Vec4& pIn, double mIn) {
 
 void Vec4::bstback(const Vec4& pIn) {
 
+  if (abs(pIn.tt) < Vec4::TINY) return;
   double betaX = -pIn.xx / pIn.tt;
   double betaY = -pIn.yy / pIn.tt;
   double betaZ = -pIn.zz / pIn.tt;
   double beta2 = betaX*betaX + betaY*betaY + betaZ*betaZ;
+  if (beta2 >= 1.) return;
   double gamma = 1. / sqrt(1. - beta2);
   double prod1 = betaX * xx + betaY * yy + betaZ * zz;
   double prod2 = gamma * (gamma * prod1 / (1. + gamma) + tt);
@@ -383,6 +389,7 @@ void Vec4::bstback(const Vec4& pIn) {
 
 void Vec4::bstback(const Vec4& pIn, double mIn) {
 
+  if (abs(pIn.tt) < Vec4::TINY) return;
   double betaX = -pIn.xx / pIn.tt;
   double betaY = -pIn.yy / pIn.tt;
   double betaZ = -pIn.zz / pIn.tt;
@@ -615,7 +622,7 @@ bool pShift( Vec4& p1Move, Vec4& p2Move, double m1New, double m2New) {
 
 //--------------------------------------------------------------------------
 
-// Create two vectors that are perpendicular to the both input vectors.
+// Create two vectors that are perpendicular to both input vectors.
 
 pair<Vec4,Vec4> getTwoPerpendicular(const Vec4& v1, const Vec4& v2) {
 
@@ -865,7 +872,7 @@ ostream& operator<<(ostream& os, const RotBstMatrix& M) {
 // These are of technical nature, as described for each.
 
 // Maximum number of bins in a histogram.
-const int    Hist::NBINMAX   = 1000;
+const int    Hist::NBINMAX   = 10000;
 
 // Maximum number of columns that can be printed for a histogram.
 const int    Hist::NCOLMAX   = 100;
@@ -899,7 +906,11 @@ void Hist::book(string titleIn, int nBinIn, double xMinIn,
   titleSave = titleIn;
   nBin  = nBinIn;
   if (nBinIn < 1) nBin = 1;
-  if (nBinIn > NBINMAX) nBin = NBINMAX;
+  if (nBinIn > NBINMAX) {
+    nBin = NBINMAX;
+    cout << " Warning: number of bins for histogram " << titleIn
+         << " reduced to " << NBINMAX << endl;
+  }
   xMin  = xMinIn;
   xMax  = xMaxIn;
   dx    = (xMax - xMin)/nBin;

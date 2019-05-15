@@ -686,6 +686,8 @@ void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
   // Mediators for Dark Matter.
   resonancePtr = new ResonanceZp(55);
   setResonancePtr( 55, resonancePtr);
+  resonancePtr = new ResonanceS(54);
+  setResonancePtr( 54, resonancePtr);
 
   // 93 = Z0copy and 94 = W+-copy used to pick decay channels
   // for W/Z production in parton showers.

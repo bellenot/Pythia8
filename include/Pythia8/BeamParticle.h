@@ -173,6 +173,14 @@ public:
   double xfMax(int idIn, double x, double Q2)
     {return pdfHardBeamPtr->xfMax(idIn, x, Q2);}
 
+  // Accurate and approximated photon flux and PDFs.
+  double xfFlux(int idIn, double x, double Q2)
+    {return pdfHardBeamPtr->xfFlux(idIn, x, Q2);}
+  double xfApprox(int idIn, double x, double Q2)
+    {return pdfHardBeamPtr->xfApprox(idIn, x, Q2);}
+  double xfGamma(int idIn, double x, double Q2)
+    {return pdfHardBeamPtr->xfGamma(idIn, x, Q2);}
+
   // Do not sample the x_gamma value to get correct cross section with
   // possible second call.
   double xfSame(int idIn, double x, double Q2)
@@ -205,6 +213,14 @@ public:
   // Return quark masses used in the PDF fit (LHAPDF6 only).
   double mQuarkPDF(int idIn) {return pdfBeamPtr->mQuarkPDF(idIn);}
 
+  // Calculate envelope of PDF predictions
+  void calcPDFEnvelope(int idNow, double xNow, double Q2Now, int valSea) {
+    pdfBeamPtr->calcPDFEnvelope(idNow,xNow,Q2Now,valSea);}
+  void calcPDFEnvelope(pair<int,int> idNows, pair<double,double> xNows,
+    double Q2Now, int valSea) {
+    pdfBeamPtr->calcPDFEnvelope(idNows,xNows,Q2Now,valSea);}
+  PDF::PDFEnvelope getPDFEnvelope() { return pdfBeamPtr->getPDFEnvelope(); }
+
   // Decide whether chosen quark is valence, sea or companion.
   int pickValSeaComp();
 
@@ -220,7 +236,7 @@ public:
   int sizeInit() const {return nInit;}
 
   // Clear list of resolved partons.
-  void clear() {resolved.resize(0); nInit = 0;;}
+  void clear() {resolved.resize(0); nInit = 0;}
 
   // Reset variables related to photon beam.
   void resetGamma() {iGamVal = -1; iPosVal = -1; pT2gm2qqbar = 0.;
@@ -340,6 +356,11 @@ public:
   void newGammaKTPhi(double kTIn, double phiIn)
     { kTgamma = kTIn; phiGamma = phiIn; }
 
+  // Get the kinematic limits for photons emitted by the beam.
+  double Q2minPDF()     { return pdfHardBeamPtr->getQ2min(); }
+  double xGammaMin()    { return pdfHardBeamPtr->getXmin(); }
+  double xGammaHadr()   { return pdfHardBeamPtr->getXhadr(); }
+
   // Get the kinematics related photons form lepton beams.
   double xGamma()   const { return xGm; }
   double Q2Gamma()  const { return Q2gm; }
@@ -348,10 +369,20 @@ public:
   double gammaKT()  const { return kTgamma; }
   double gammaPhi() const { return phiGamma; }
 
+  // Keep track of pomeron momentum fraction.
+  void xPom(double xpom = -1.0)
+    { if ( pdfBeamPtr ) pdfBeamPtr->xPom(xpom); }
+
+  // Sample x and Q2 for emitted photons according to flux.
+  double sampleXgamma()
+    { xGm = pdfHardBeamPtr->sampleXgamma(); return xGm; }
+  double sampleQ2gamma(double Q2min)
+    { Q2gm = pdfHardBeamPtr->sampleQ2gamma(Q2min); return Q2gm;}
+
 private:
 
   // Constants: could only be changed in the code itself.
-  static const double XMINUNRESOLVED, POMERONMASS, XMAXCOMPANION;
+  static const double XMINUNRESOLVED, POMERONMASS, XMAXCOMPANION, TINYZREL;
   static const int NMAX, NRANDOMTRIES;
 
   // Pointer to various information on the generation.

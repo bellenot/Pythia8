@@ -525,6 +525,14 @@ angle in the <ei>(p_x, p_z)</ei> plane, between <ei>-pi</ei> and
 rapidity and pseudorapidity. 
 </methodmore> 
  
+<method name="double Particle::y(double mCut)"> 
+</method> 
+<methodmore name="double Particle::y(double mCut, RotBstMatrix& M)"> 
+rapidity, but calculated assuming that the particle transverse mass 
+is at least <ei>mCut</ei>, and optionally if the particle were first 
+to be boosted and rotated by <ei>M</ei>. 
+</methodmore> 
+ 
 <method name="double Particle::xDec()"> 
 </method> 
 <methodmore name="double Particle::yDec()"> 

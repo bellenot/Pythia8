@@ -448,6 +448,10 @@ of rotations and boosts.
 reset to no rotation/boost; i.e. the default at creation. 
 </method> 
  
+<method name="double RotBstMatrix::value(int i, int j)"> 
+return the value of the (i,j) = [i][j] matrix element. 
+</method> 
+ 
 <method name="double RotBstMatrix::deviation()"> 
 crude estimate how much a matrix deviates from the unit matrix: 
 the sum of the absolute values of all non-diagonal matrix elements 

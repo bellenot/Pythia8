@@ -60,6 +60,10 @@ $(PREFIX_LIB)/libpythia8.a :
 main% : main%.cc $(PREFIX_LIB)/libpythia8.a
 	$(CXX) $< -o $@ $(CXX_COMMON)
 
+# MixMax.
+main23: $$@.cc $(PREFIX_LIB)/libpythia8.a
+	$(CXX) $< -o $@ -std=c++11 -w $(CXX_COMMON)
+
 # GZIP (required).
 main34: $$@.cc $(PREFIX_LIB)/libpythia8.a
 ifeq ($(GZIP_USE),true)
@@ -100,7 +104,7 @@ else
 endif
 
 # FASTJET3.
-main71 main72: $$@.cc $(PREFIX_LIB)/libpythia8.a
+main71 main72 main75: $$@.cc $(PREFIX_LIB)/libpythia8.a
 ifeq ($(FASTJET3_USE),true)
 	$(CXX) $< -o $@ -I$(FASTJET3_INCLUDE) $(CXX_COMMON)\
 	 -L$(FASTJET3_LIB) -Wl,-rpath,$(FASTJET3_LIB) -lfastjet
@@ -162,7 +166,8 @@ test% : test%.cc $(PREFIX_LIB)/libpythia8.a
 # Clean.
 clean:
 	@rm -f main[0-9][0-9]; rm -f out[0-9][0-9];\
+	rm -f main[0-9][0-9][0-9]; rm -f out[0-9][0-9][0-9];\
 	rm -f mymain[0-9][0-9]; rm -f myout[0-9][0-9];\
-	rm -f test[0-9][0-9][0-9]; rm -f out[0-9][0-9][0-9];\
+	rm -f test[0-9][0-9][0-9]; rm -f *.dat\
 	rm -f weakbosons.lhe; rm -f Pythia8.promc; rm -f hist.root;\
 	rm -f *~; rm -f \#*; rm -f core*; rm -f *Dct.*; rm -f *.so;

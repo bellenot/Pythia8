@@ -199,6 +199,9 @@ private:
   bool   beamAhasResGamma, beamBhasResGamma, beamHasResGamma, beamHasGamma;
   int    beamAgammaMode, beamBgammaMode, gammaModeEvent;
 
+  // Use external photon flux.
+  bool   externalFlux;
+
   // Statistics for Les Houches event classification.
   vector<int> codeLHA;
   vector<long> nTryLHA, nSelLHA, nAccLHA;

@@ -210,23 +210,6 @@ public:
  // Do a veto on a hadron just before it is added to the final state.
   virtual bool doVetoFragmentation( Particle) { return false;}
 
-  // Possiblity to give vertex information to produced partons
-  // in MPI framework, space shower and time shower.
-  virtual bool canSetProductionVertex() { return false;}
-
-  // Give vertex to particle produced in MPI.
-  // Input: a copy of the particle just before it is added to
-  // the event record (momenta, etc.) and impact parameter.
-  virtual Vec4 vertexForMPI( Particle, double ) { return Vec4();}
-
-  // Give vertex to particle produced in time shower.
-  // Input: The mother particle.
-  virtual Vec4 vertexForFSR( Particle& ) { return Vec4();}
-
-  // Give vertex to particle produced in space shower.
-  // Input: The mother particle.
-  virtual Vec4 vertexForISR( Particle& ) { return Vec4();}
-
 protected:
 
   // Constructor.

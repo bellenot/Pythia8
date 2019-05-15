@@ -15,6 +15,7 @@
 #include "Pythia8/Event.h"
 #include "Pythia8/Info.h"
 #include "Pythia8/PartonSystems.h"
+#include "Pythia8/PartonVertex.h"
 #include "Pythia8/PythiaStdlib.h"
 #include "Pythia8/Settings.h"
 #include "Pythia8/SigmaTotal.h"
@@ -105,7 +106,7 @@ public:
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
     Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn,
     SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn,
-    bool hasGammaIn = false);
+    PartonVertex* partonVertexPtrIn, bool hasGammaIn = false);
 
   // Reset impact parameter choice and update the CM energy.
   void reset();
@@ -176,7 +177,7 @@ private:
                       KCONVERGE, CONVERT2MB, ROOTMIN, ECMDEV, WTACCWARN;
 
   // Initialization data, read from Settings.
-  bool   allowRescatter, allowDoubleRes, canVetoMPI;
+  bool   allowRescatter, allowDoubleRes, canVetoMPI, doPartonVertex;
   int    pTmaxMatch, alphaSorder, alphaEMorder, alphaSnfmax, bProfile,
          processLevel, bSelScale, rescatterMode, nQuarkIn, nSample,
          enhanceScreening;
@@ -269,6 +270,9 @@ private:
 
   // Pointer to user hooks.
   UserHooks*     userHooksPtr;
+
+  // Pointer to assign space-time vertices during parton evolution.
+  PartonVertex*  partonVertexPtr;
 
   // Collections of parton-level 2 -> 2 cross sections. Selected one.
   SigmaMultiparton  sigma2gg, sigma2qg, sigma2qqbarSame, sigma2qq;

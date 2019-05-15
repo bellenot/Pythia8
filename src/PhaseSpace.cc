@@ -2478,6 +2478,51 @@ void PhaseSpace2to2tauyz::rescaleMomenta( double sHatNew){
   }
 }
 
+//--------------------------------------------------------------------------
+
+// Calculates the cross-section weight for overestimated photon flux.
+
+double PhaseSpace2to2tauyz::weightGammaPDFApprox(){
+
+  // No need for reweighting if only direct photons.
+  if (beamAPtr->getGammaMode() == 2 && beamBPtr->getGammaMode() == 2)
+    return 1.;
+  if ( (beamAPtr->getGammaMode() == 2 && beamBPtr->isHadron())
+       || (beamBPtr->getGammaMode() == 2 && beamAPtr->isHadron()) )
+    return 1.;
+
+  // Get the combined x and x_gamma values and derive x'.
+  double x1GammaHadr = beamAPtr->xGammaHadr();
+  double x2GammaHadr = beamBPtr->xGammaHadr();
+  double x1Gamma     = beamAPtr->xGamma();
+  double x2Gamma     = beamBPtr->xGamma();
+  double x1Hadr      = x1GammaHadr / x1Gamma;
+  double x2Hadr      = x2GammaHadr / x2Gamma;
+
+  // For photon-hadron case do not reweight the hadron side.
+  if ( beamAPtr->isHadron() || beamAPtr->getGammaMode() == 2 ) {
+    x1GammaHadr = -1.;
+    x1Gamma     = -1.;
+  }
+  if ( beamBPtr->isHadron() || beamBPtr->getGammaMode() == 2 ) {
+    x2GammaHadr = -1.;
+    x2Gamma     = -1.;
+  }
+
+  // Calculate the over-estimated PDF convolution and the current one.
+  double sigmaOver = sigmaProcessPtr->sigmaPDF(false, false, true,
+                                               x1GammaHadr, x2GammaHadr);
+  double sigmaCorr = sigmaProcessPtr->sigmaPDF(false, false, true,
+                                               x1Hadr, x2Hadr);
+
+  // Make sure that the over estimate is finite.
+  if (sigmaOver < TINY) return 0.;
+
+  // Return weight.
+  return sigmaCorr / sigmaOver;
+
+}
+
 //==========================================================================
 
 // PhaseSpace2to2elastic class.
@@ -3572,6 +3617,8 @@ bool PhaseSpace2to2nondiffractiveGamma::setupSampling() {
   Q2maxGamma    = settingsPtr->parm("Photon:Q2max");
   Wmin          = settingsPtr->parm("Photon:Wmin");
   bool hasGamma = settingsPtr->flag("PDF:lepton2gamma");
+  externalFlux  = settingsPtr->mode("PDF:lepton2gammaSet") == 2;
+  sampleQ2      = settingsPtr->flag("Photon:sampleQ2");
 
   // Save relevant parameters and calculate sigmaND.
   alphaEM = couplingsPtr->alphaEM(Q2maxGamma);
@@ -3605,29 +3652,55 @@ bool PhaseSpace2to2nondiffractiveGamma::setupSampling() {
   if (gammaA) {
     xGamAMax = Q2maxGamma / (2. * m2BeamA)
       * (sqrt( (1. + 4. * m2BeamA / Q2maxGamma) * (1. - m2sA) ) - 1.);
-    log2xMinA = pow2( log( Q2maxGamma/ ( m2BeamA * pow2(xGamAMin) ) ) );
-    log2xMaxA = pow2( log( Q2maxGamma/ ( m2BeamA * pow2(xGamAMax) ) ) );
+    if ( !externalFlux) {
+      log2xMinA = pow2( log( Q2maxGamma/ ( m2BeamA * pow2(xGamAMin) ) ) );
+      log2xMaxA = pow2( log( Q2maxGamma/ ( m2BeamA * pow2(xGamAMax) ) ) );
+    }
   }
 
   // Calculate limit for x2 (if applicable) and derive useful logs.
   if (gammaB) {
-    xGamBMax   = Q2maxGamma / (2. * m2BeamB)
+    xGamBMax = Q2maxGamma / (2. * m2BeamB)
       * (sqrt( (1. + 4. * m2BeamB / Q2maxGamma) * (1. - m2sB) ) - 1.);
-    log2xMinB = pow2( log( Q2maxGamma/ ( m2BeamB * pow2(xGamBMin) ) ) );
-    log2xMaxB = pow2( log( Q2maxGamma/ ( m2BeamB * pow2(xGamBMax) ) ) );
+    if ( !externalFlux) {
+      log2xMinB = pow2( log( Q2maxGamma/ ( m2BeamB * pow2(xGamBMin) ) ) );
+      log2xMaxB = pow2( log( Q2maxGamma/ ( m2BeamB * pow2(xGamBMax) ) ) );
+    }
   }
 
-
   // Derive the overestimate for sigmaND integral with l+l-/p -> gm+gm/p.
-  if ( gammaA && gammaB)
-    sigmaNDestimate = pow2( 0.5 * alphaEM / M_PI )
-      * 0.25 * (log2xMinA - log2xMaxA) * (log2xMinB - log2xMaxB) * sigmaNDmax;
-  else if (gammaA)
-    sigmaNDestimate = 0.5 * alphaEM / M_PI
-      * 0.5 * (log2xMinA - log2xMaxA) * sigmaNDmax;
-  else if (gammaB)
-    sigmaNDestimate = 0.5 * alphaEM / M_PI
-      * 0.5 * (log2xMinB - log2xMaxB) * sigmaNDmax;
+  if ( !externalFlux) {
+    if ( gammaA && gammaB) {
+      sigmaNDestimate = pow2( 0.5 * alphaEM / M_PI ) * 0.25
+        * (log2xMinA - log2xMaxA) * (log2xMinB - log2xMaxB) * sigmaNDmax;
+    } else if (gammaA) {
+      sigmaNDestimate = 0.5 * alphaEM / M_PI
+        * 0.5 * (log2xMinA - log2xMaxA) * sigmaNDmax;
+    } else if (gammaB) {
+      sigmaNDestimate = 0.5 * alphaEM / M_PI
+        * 0.5 * (log2xMinB - log2xMaxB) * sigmaNDmax;
+    }
+
+  // Slightly different overestimate for externally provided fluxes.
+  } else {
+
+    // Get the minimum virtualities.
+    double Q2minA = beamAPtr->Q2minPDF();
+    double Q2minB = beamBPtr->Q2minPDF();
+
+    // Calculated Overestimated sigmaND.
+    if ( gammaA && gammaB) {
+      sigmaNDestimate = pow2( alphaEM / M_PI ) * sigmaNDmax
+        * log(xGamAMax / xGamAMin) * log(xGamBMax / xGamBMin)
+        * log(Q2maxGamma / Q2minA) * log(Q2maxGamma / Q2minB);
+    } else if (gammaA) {
+      sigmaNDestimate = alphaEM / M_PI * sigmaNDmax
+        * log(xGamAMax / xGamAMin) * log(Q2maxGamma / Q2minA);
+    } else if (gammaB) {
+      sigmaNDestimate = alphaEM / M_PI * sigmaNDmax
+        * log(xGamBMax / xGamBMin) * log(Q2maxGamma / Q2minB);
+    }
+  }
 
   // Save the cross-section estimate.
   sigmaNw = sigmaNDestimate;
@@ -3647,18 +3720,26 @@ bool PhaseSpace2to2nondiffractiveGamma::trialKin(bool , bool) {
   // Current weight.
   double wt = 1.0;
 
-  // Sample x_gamma's.
-  if (gammaA) xGamma1 = sqrt( (Q2maxGamma / m2BeamA) * exp( -sqrt( log2xMinA
+  // Sample x_gamma's when using internal photon flux.
+  if ( !externalFlux) {
+    if (gammaA) xGamma1 = sqrt( (Q2maxGamma / m2BeamA) * exp( -sqrt( log2xMinA
                       + rndmPtr->flat() * (log2xMaxA - log2xMinA) ) ) );
-  if (gammaB) xGamma2 = sqrt( (Q2maxGamma / m2BeamB) * exp( -sqrt( log2xMinB
+    if (gammaB) xGamma2 = sqrt( (Q2maxGamma / m2BeamB) * exp( -sqrt( log2xMinB
                       + rndmPtr->flat() * (log2xMaxB - log2xMinB) ) ) );
 
-  // Save the x_gamma values to beam particles for further use.
-  beamAPtr->xGamma(xGamma1);
-  beamBPtr->xGamma(xGamma2);
+    // Save the x_gamma values to beam particles for further use.
+    beamAPtr->xGamma(xGamma1);
+    beamBPtr->xGamma(xGamma2);
+  }
 
   // Sample the kT of photons.
   if ( !(gammaKinPtr->sampleKTgamma() ) ) return false;
+
+  // Save the sampled x_gamma values with external flux.
+  if (externalFlux) {
+    xGamma1 = beamAPtr->xGamma();
+    xGamma2 = beamBPtr->xGamma();
+  }
 
   // Obtain the sampled values.
   Q2gamma1 = gammaKinPtr->getQ2gamma1();
@@ -3668,12 +3749,38 @@ bool PhaseSpace2to2nondiffractiveGamma::trialKin(bool , bool) {
   mGmGm    = gammaKinPtr->eCMsub();
 
   // Correct for x1 and x2 oversampling.
-  double wt1 = gammaA ?
-    ( 0.5 * ( 1. + pow2(1 - xGamma1) ) ) * log( Q2maxGamma/Q2min1 )
-    / log( Q2maxGamma / ( m2BeamA * pow2( xGamma1 ) ) ) : 1.0;
-  double wt2 = gammaB ?
-    ( 0.5 * ( 1. + pow2(1 - xGamma2) ) ) * log( Q2maxGamma/Q2min2 )
-    / log( Q2maxGamma / ( m2BeamB * pow2( xGamma2 ) ) ) : 1.0;
+  double wt1 = 1.;
+  double wt2 = 1.;
+
+  // Calculate the weight for beam A from oversampling.
+  if ( gammaA) {
+    if ( !externalFlux) {
+      wt1 = ( 0.5 * ( 1. + pow2(1 - xGamma1) ) ) * log( Q2maxGamma/Q2min1 )
+        / log( Q2maxGamma / ( m2BeamA * pow2( xGamma1 ) ) );
+
+    // For external flux weight depends whether Q2 is sampled.
+    } else {
+      wt1 = sampleQ2 ? beamAPtr->xfFlux(22, xGamma1, Q2gamma1)
+        / beamAPtr->xfApprox(22, xGamma1, Q2gamma1) :
+        beamAPtr->xfFlux(22, xGamma1, Q2gamma1)
+        / beamAPtr->xf(22, xGamma1, Q2gamma1);
+    }
+  }
+
+  // Calculate the weight for beam B from oversampling.
+  if ( gammaB) {
+    if ( !externalFlux) {
+      wt2 = ( 0.5 * ( 1. + pow2(1 - xGamma2) ) ) * log( Q2maxGamma/Q2min2 )
+        / log( Q2maxGamma / ( m2BeamB * pow2( xGamma2 ) ) );
+
+    // For external flux weight depends whether Q2 is sampled.
+    } else {
+      wt2 = sampleQ2 ? beamBPtr->xfFlux(22, xGamma2, Q2gamma2)
+        / beamBPtr->xfApprox(22, xGamma2, Q2gamma2) :
+        beamBPtr->xfFlux(22, xGamma2, Q2gamma2)
+        / beamBPtr->xf(22, xGamma2, Q2gamma2);
+    }
+  }
 
   // Correct for the estimated sigmaND.
   sigmaTotPtr->calc( idAin, idBin, mGmGm );

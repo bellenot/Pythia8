@@ -161,6 +161,7 @@ echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>In
 echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>LHAupLHEF</a> for more information. 
    
  
+<a name="anchor1"></a>
 <p/><code>mode&nbsp; </code><strong> Beams:nSkipLHEFatInit &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>)<br/>
 Skip the first <i>nSkip</i> events of the input stream 

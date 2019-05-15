@@ -305,7 +305,8 @@ event than the ones being used for everything else, the extended form
       pythia.setPDFptr( pdfAPtr, pdfBPtr, pdfHardAPtr, pdfHardBPtr); 
 </pre> 
 allows you to specify those separately, and then the first two sets 
-would only be used for the showers and for multiparton interactions. 
+would only be used for the showers and for multiparton interactions.<br/> 
+There is a further method to set photon fluxes in a similar spirit. 
 </li> 
  
 <p/> 
@@ -434,6 +435,22 @@ the PYTHIA initial- and final-state showers</aloc>, you can use
 where <code>timesDecPtr</code> and <code>timesPtr</code> 
 derive from the <code>TimeShower</code> base class, and 
 <code>spacePtr</code> from <code>SpaceShower</code>. 
+</li> 
+ 
+<p/> 
+<li> 
+With even bigger expertise you can plug in your own 
+<aloc href="HeavyIons">Heavy Ions</aloc> generator, to replace the 
+default Angantyr one, with 
+<pre> 
+      pythia.setHeavyIonsPtr( heavyIonsPtr); 
+</pre> 
+Maybe more useful is the possibility to get back a pointer to the 
+generator used, e.g. to probe various quantities that are not 
+available with the normal Pythia methods: 
+<pre> 
+      pythia.getHeavyIonsPtr(); 
+</pre> 
 </li> 
  
 </ol> 
@@ -708,6 +725,19 @@ to the normal internal PDF selection you must call
 <code>setPDFPtr(0, 0)</code> before <code>Pythia::init()</code>. 
 </method> 
  
+<method name="bool Pythia::setPhotonFluxPtr( PDF* photonFluxAIn, 
+PDF* photonFluxBIn)"> 
+offers the possibility to link in external photon fluxes for usage 
+inside the program. The rules for constructing your own class from 
+the <code>PDF</code> base class are described 
+<aloc href="PartonDistributions">here</aloc>. 
+<argument name="photonFluxAIn, photonFluxBIn"> 
+pointers to two <code>PDF</code>-derived objects, one for each of 
+the incoming beams. The two objects have to be instantiated by you 
+in your program. 
+</argument> 
+</method> 
+ 
 <method name="bool Pythia::setLHAupPtr( LHAup* lhaUpPtrIn)"> 
 offers linkage to an external generator that feeds in events 
 in the LHA format, see 
@@ -871,6 +901,35 @@ all spacelike shower evolution, which is normally interleaved
 with multiparton interactions and timelike showers. If you retain 
 the default value 0 then the internal shower routine will be used. 
 </argument> 
+<note>Note:</note> The method currently always returns true. 
+</method> 
+ 
+<method name="bool Pythia::setHeavyIonsPtr( HeavyIons* heavyIonsPtr)"> 
+offers the possibility to feed in an external Heavy Ion generator that 
+can use the internal <code>Pythia</code> machinery for its tasks, 
+see further <aloc href="HeavyIons">here</aloc>. 
+<argument name="heavyIonsPtr"> 
+pointer to a <code>HeavyIons</code>-derived object for doing 
+Heavy Ions collisions. 
+</argument> 
+<note>Note:</note> The method currently always returns true. 
+</method> 
+ 
+<method name="HeavyIons* Pythia::getHeavyIonsPtr()"> 
+gives access to the current <aloc href="HeavyIons">Heavy Ions</aloc> 
+generator, either the default internal Angantyr one or an external 
+one fed in by the method above this. This way a number of further 
+event properties can be interrogated. 
+</method> 
+ 
+<method name="bool Pythia::setPartonVertexPtr( PartonVertex* 
+partonVertexPtrIn)"> 
+offers the possibility to set production vertices for the MPI, 
+FSR and ISR parton-level evolution, instead of the default framework, 
+see further <aloc href="VertexInformation">here</aloc>. 
+This part of the program is still in the early stages, and is 
+likely to evolve further. Currently it is only used for the 
+<aloc href="RopeHadronization">Rope Hadronization</aloc> framework. 
 <note>Note:</note> The method currently always returns true. 
 </method> 
  
@@ -1069,7 +1128,7 @@ the name of the variable to be read.
 <h3>Get a PDF set</h3> 
  
 <code>Pythia</code> contains an number of parton density sets 
-internally, plus an interface to LHAPDF. With the method below, 
+internally, plus an interface to LHAPDF (5 or 6). With the method below, 
 this machinery is also made available for external usage. 
  
 <method name="PDF* getPDFPtr(int id, int sequence = 1)"> 

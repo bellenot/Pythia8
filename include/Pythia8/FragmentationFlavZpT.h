@@ -166,8 +166,6 @@ protected:
   // Pointer to event information.
   Info* infoPtr;
 
-private:
-
   // Constants: could only be changed in the code itself.
   static const int    mesonMultipletCode[6];
   static const double baryonCGOct[6], baryonCGDec[6];

@@ -230,8 +230,10 @@ the upper limit for the <ei>k_T</ei> of the photon, which in turn will
 be the same as the <ei>k_T</ei> of the scattered lepton. Also some other 
 cuts can be imposed. 
  
-<parm name="Photon:Q2max" default="1.0" min="0.01" max="2.0"> 
-Upper limit for (quasi-)real photon virtuality in <ei>GeV^2</ei>. 
+<parm name="Photon:Q2max" default="1.0" max="2.0"> 
+Upper limit for (quasi-)real photon virtuality in <ei>GeV^2</ei>. Too low 
+value might cause problems, e.g. if the lower <ei>Q^2</ei> limit derived from 
+kinematics becomes larger than upper limit. 
 </parm> 
  
 <parm name="Photon:Wmin" default="10.0" min="5.0"> 
@@ -259,6 +261,15 @@ restrictive unless a very small angle is used.
 As above but for lepton B. 
 </parm> 
  
+<flag name="Photon:sampleQ2" default="on"> 
+Determines whether the sampling for the photon virtuality is done. This can 
+be used only with <code>PDF:lepton2gammaSet = 2</code> option where 
+<ei>Q^2</ei>-integrated photon is provided by the user with 
+<code>Pythia::setPhotonFluxPtr(PDF*, PDF*)</code> method. In this case the 
+virtuality and the transverse momentum of the photon (and recoiling particle) 
+is set to zero which strictly speaking is kinematically not possible. The 
+error here is, however, very small for the cases where the virtualities 
+are negligible (e.g. photons from heavy ions).</flag> 
 </p> 
  
 <h4>MPIs with lepton beams</h4> 
