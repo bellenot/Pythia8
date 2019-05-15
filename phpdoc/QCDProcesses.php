@@ -66,10 +66,12 @@ Common switch for the group of all soft QCD processes,
 as listed separately in the following.
   
 
-<br/><br/><strong>SoftQCD:minBias</strong>  <input type="radio" name="2" value="on"><strong>On</strong>
+<br/><br/><strong>SoftQCD:nonDiffractive</strong>  <input type="radio" name="2" value="on"><strong>On</strong>
 <input type="radio" name="2" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Minimum-bias events, based on an <?php $filepath = $_GET["filepath"];
+The inelastic nondiffrative part of the total cross section, i.e. 
+what would often be called the "minimum-bias component".
+The formalism is based on an <?php $filepath = $_GET["filepath"];
 echo "<a href='MultipartonInteractions.php?filepath=".$filepath."' target='page'>";?>
 eikonalized description</a> of all the hard QCD processes, so 
 includes them in combination with low-<i>pT</i> events. 
@@ -82,6 +84,16 @@ Fortunately, in this case a special
 echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>codeSub()</a></code> 
 method provides information on the first, i.e. hardest, subprocess 
 selected by the multiparton-interactions machinery.
+<br/><b>Note</b>: this flag was precviously named 
+<code>SoftQCD:minBias</code>, since it is almost equivalent to 
+the minimum-bias component of the total cross section. It has invited
+some confusion, however, since "minimum-bias" usually refers to the
+experimental procedure, while "(inelastic) non-diffractive" better
+relates to the way events are generated in the program code. 
+(Although also what separates diffractive from nondiffractive physics
+can be a matter of definition.)  For backwards compatibility the
+<code>SoftQCD:minBias</code> name can be used as an alternative to 
+<code>SoftQCD:nonDiffractive</code> for some time yet. 
   
 
 <br/><br/><strong>SoftQCD:elastic</strong>  <input type="radio" name="3" value="on"><strong>On</strong>
@@ -142,7 +154,7 @@ This is because the divergent perturbative QCD cross section is used
 in this process group, without any regularization modifications. 
 An eikonalized description, intended to be valid at all <i>pT</i>,
 is instead included as part of the multiparton-interactions framework, 
-specifically in <code>SoftQCD:minBias</code> above.
+specifically in <code>SoftQCD:nonDiffractive</code> above.
 <br/><b>Warning 1</b>: you <b>must</b> remember to set the 
 <code>PhaseSpace:pTHatMin</code> value if you use any of these 
 processes; there is no sensible default.
@@ -226,8 +238,8 @@ Also as above, an eikonalized description, intended to be valid at all
 <br/>Note that the processes below only represent the "tip of the iceberg"
 of charm and bottom production at high energies, where flavour excitation
 and shower branchings provide major additional sources. All these sources
-come together in the descriptions offered by <code>SoftQCD:minBias</code>
-and <code>HardQCD:all</code>.
+come together in the descriptions offered by 
+<code>SoftQCD:nonDiffractive</code> and <code>HardQCD:all</code>.
 
 <br/><br/><strong>HardQCD:gg2ccbar</strong>  <input type="radio" name="16" value="on"><strong>On</strong>
 <input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
@@ -399,7 +411,7 @@ fwrite($handle,$data);
 }
 if($_POST["2"] != "off")
 {
-$data = "SoftQCD:minBias = ".$_POST["2"]."\n";
+$data = "SoftQCD:nonDiffractive = ".$_POST["2"]."\n";
 fwrite($handle,$data);
 }
 if($_POST["3"] != "off")

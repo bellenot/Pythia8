@@ -149,7 +149,7 @@ the partonic content extracted from the beams. This information
 is stored in the 
 <code><?php $filepath = $_GET["filepath"];
 echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>BeamParticle</a></code>  
-class.  
+class.
 
 <h3>The TimeShower interface</h3>
 
@@ -255,7 +255,15 @@ were no branchings. Can be useful for matching studies.
   
 
 <a name="method10"></a>
-<p/><strong>virtual void TimeShower::prepare( int iSys, Event& event) &nbsp;</strong> <br/>
+<p/><strong>virtual void TimeShower::prepareGlobal( Event& event) &nbsp;</strong> <br/>
+This method resets some counters and extracts the locations of
+outgoing partons, in preparation of using the optional global recoil 
+scheme. Unlike <code>prepare(...)</code> below it is only called
+once during the parton-level evolution, since it only relates to
+the hardest interaction. Is probably of no use to most people.
+
+<a name="method11"></a>
+<p/><strong>virtual void TimeShower::prepare( int iSys, Event& event, bool limitPTmaxIn = true, double pTfirstTrialIn = 1e9) &nbsp;</strong> <br/>
 This method is called immediately after a new interaction (or the
 products of a resonance decay) has been added, and should then be used 
 to prepare the subsystem of partons for subsequent evolution. In
@@ -269,9 +277,24 @@ treated, with rules as described in the above section on subsystems.
 Specifically, the first two partons represent the incoming state,
 or are 0 for resonance decays unrelated to the beams, while the 
 rest are not required to be in any particular order.
+<br/>The <code>limitPTmaxIn</code> switch conveys the choice made 
+on maximum scale for the dipole-ends evolution associated with the
+hard interaction of the event (while scales for subsequent MPIs by
+default are set to respect <i>pT</i> ordering). If <code>true</code> 
+then this scale is set by the user choice options,
+see the <code>TimeShower::limitPTmax</code> method above, 
+while if <code>false</code> emissions are allowed to go up to the 
+kinematical limit. For the two-hard-interactions scenario, the two 
+class variables <code>dopTlimit1</code> and <code>dopTlimit2</code> 
+instead convey the choice made. 
+<br/>The <code>pTfirstTrialIn</code> parameter is tentatively used in
+the new weak-shower part of the code. It is related to the option to
+shift the weak-shower evolution scale up by (some factor times) the gauge
+boson mass, without this backfiring on the QCD/QED evolution. Still
+under evolution, and normally not used. 
   
 
-<a name="method11"></a>
+<a name="method12"></a>
 <p/><strong>virtual void TimeShower::rescatterUpdate( int iSys, Event& event) &nbsp;</strong> <br/>
 This method is called immediately after rescattering in the description
 of multiparton interactions. Thus the information on one or several 
@@ -281,7 +304,7 @@ of new showers will want to touch the technicalities involved
 in obtaining a description of rescattering.
   
 
-<a name="method12"></a>
+<a name="method13"></a>
 <p/><strong>virtual void TimeShower::update( int iSys, Event& event) &nbsp;</strong> <br/>
 This method is called immediately after a spacelike branching in the 
 <code>iSys</code>'th subsystem. Thus the information for that system is 
@@ -291,8 +314,8 @@ free to throw away all information for the affected subsystem and call
 you may choose only to update the information that has changed.
   
 
-<a name="method13"></a>
-<p/><strong>virtual double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll) &nbsp;</strong> <br/>
+<a name="method14"></a>
+<p/><strong>virtual double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll, bool isFirstTrialIn = false) &nbsp;</strong> <br/>
 This is the main driver routine for the downwards evolution. A new 
 <i>pT</i> is to be selected based on the current information set up 
 by the routines above, and along with that a branching parton or dipole.
@@ -313,9 +336,12 @@ for each pick its possible branching scale and then pick the one
 with largest scale as possible winner. At this stage no branching should
 actually be carried out, since MPI, ISR and FSR still have to be compared
 to assign the winner.
+<br/>The <code>isFirstTrialIn</code> is <code>true</code> only for the
+very first emission, and can then optionally be used to switch the 
+weak-shower evolution scale up by (some factor times) the gauge boson mass. 
   
 
-<a name="method14"></a>
+<a name="method15"></a>
 <p/><strong>virtual bool TimeShower::branch( Event& event, bool isInterleaved = false) &nbsp;</strong> <br/>
 This method will be called once FSR has won the competition with 
 MPI and ISR to do the next branching. The candidate branching found 
@@ -335,7 +361,7 @@ More precisely, it separates calls to the <code>timesDecPtr</code>
 and the <code>timesPtr</code> instances.
   
 
-<a name="method15"></a>
+<a name="method16"></a>
 <p/><strong>virtual bool TimeShower::rescatterPropogateRecoil( Event& event, Vec4& pNew) &nbsp;</strong> <br/>
 This method is only called if rescattering is switched on in the 
 description of multiparton interactions. It then propagates a recoil
@@ -344,7 +370,7 @@ As for <code>rescatterUpdate</code> above, this is not likely to be
 of interest to most implementors of new showers.
   
 
-<a name="method16"></a>
+<a name="method17"></a>
 <p/><strong>int TimeShower::system() &nbsp;</strong> <br/>
 This method is not virtual. If a branching is constructed by the 
 previous routine this tiny method should be able to return the number 
@@ -354,7 +380,7 @@ if necessary. Therefore <code>iSysSel</code> must be set in
 <code>branch</code> (or already in <code>pTnext</code>).  
   
 
-<a name="method17"></a>
+<a name="method18"></a>
 <p/><strong>virtual void TimeShower::list( ostream& os = cout) &nbsp;</strong> <br/>
 This method is not at all required. In the current implementation it 
 outputs a list of all the dipole ends, with information on the
@@ -373,24 +399,24 @@ description is simpler, since there are no special cases for resonance
 decays and non-interleaved evolution. Thus there is no correspondence 
 to the <code>TimeShower::shower(...)</code> routine.  
 
-<a name="method18"></a>
+<a name="method19"></a>
 <p/><strong>SpaceShower::SpaceShower() &nbsp;</strong> <br/>
 The constructor does not need to do anything.
   
 
-<a name="method19"></a>
+<a name="method20"></a>
 <p/><strong>virtual SpaceShower::~SpaceShower() &nbsp;</strong> <br/>
 Also the destructor does not need to do anything.
   
 
-<a name="method20"></a>
-<p/><strong>void SpaceShower::initPtr(Info* infoPtr, Settings* settingsPtr, ParticleData* particleDataPtr, Rndm* rndmPtr, PartonSystems* partonSystemsPtr, UserHooks* userHooksPtr) &nbsp;</strong> <br/>
+<a name="method21"></a>
+<p/><strong>void SpaceShower::initPtr(Info* infoPtrIn, Settings* settingsPtrIn, ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, CoupSM* coupSMPtrIn, PartonSystems* partonSystemsPtrIn, UserHooks* userHooksPtrIn, MergingHooks* mergingHooksPtrIn = 0) &nbsp;</strong> <br/>
 This method only imports pointers to standard facilities, 
 and is not virtual.
   
 
-<a name="method21"></a>
-<p/><strong>virtual void SpaceShower::init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) &nbsp;</strong> <br/>
+<a name="method22"></a>
+<p/><strong>virtual void SpaceShower::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) &nbsp;</strong> <br/>
 You have to store your local copy of the pointers to these objects,
 since they have to be used during the generation, as explained above.
 This is also the place to do initialization of whatever parameters 
@@ -398,7 +424,7 @@ you plan to use, e.g. by reading in them from a user-accessible
 database like the <code>Settings</code> one.
   
 
-<a name="method22"></a>
+<a name="method23"></a>
 <p/><strong>virtual bool SpaceShower::limitPTmax( Event& event, double Q2Fac = 0.,  double Q2Ren = 0.) &nbsp;</strong> <br/>
 The question is whether the ISR should be allowed to occur at larger
 scales than the hard process it surrounds. This is process-dependent.
@@ -417,7 +443,7 @@ the factorization or renormalization scale. Therefore the (square of the)
 latter two are provided as optional input parameters.  
   
 
-<a name="method23"></a>
+<a name="method24"></a>
 <p/><strong>virtual double SpaceShower::enhancePTmax() &nbsp;</strong> <br/>
 When the above method limits <i>pT_max</i> to the scale of the process,
 it may still be convenient to vary the matching slightly for the hardest
@@ -426,8 +452,8 @@ base-class implementation returns the value of the
 <code>SpaceShower:pTmaxFudge</code> parameter.
   
 
-<a name="method24"></a>
-<p/><strong>virtual void SpaceShower::prepare( int iSys, Event& event, bool limitPTmax = true) &nbsp;</strong> <br/>
+<a name="method25"></a>
+<p/><strong>virtual void SpaceShower::prepare( int iSys, Event& event, bool limitPTmaxIn = true, double pTfirstTrialIn = 1e9) &nbsp;</strong> <br/>
 This method is called immediately after a new interaction has been 
 added, and should then be used to prepare the subsystem of partons
 for subsequent evolution. In the current code this involves identifying 
@@ -442,9 +468,14 @@ the scales at which they were produced.
 previous method for the hardest process, and is always true for
 subsequent MPI, since there an unlimited <i>pT</i> for sure
 would lead to double-counting.
+<br/>The <code>pTfirstTrialIn</code> parameter is tentatively used in
+the new weak-shower part of the code. It is related to the option to
+shift the weak-shower evolution scale up by (some factor times) the gauge
+boson mass, without this backfiring on the QCD/QED evolution. Still
+under evolution, and normally not used. 
   
 
-<a name="method25"></a>
+<a name="method26"></a>
 <p/><strong>virtual void SpaceShower::update( int iSys, Event& event) &nbsp;</strong> <br/>
 This method is called immediately after a timelike branching in the 
 <code>iSys</code>'th subsystem. Thus the information for that system may 
@@ -453,8 +484,8 @@ this routine does not need to do anything, but that may be different
 in another implementation.
   
 
-<a name="method26"></a>
-<p/><strong>virtual double SpaceShower::pTnext( Event& event, double pTbegAll, double pTendAll, int nRadIn = -1) &nbsp;</strong> <br/>
+<a name="method27"></a>
+<p/><strong>virtual double SpaceShower::pTnext( Event& event, double pTbegAll, double pTendAll, int nRadIn = -1, bool isFirstTrial = false) &nbsp;</strong> <br/>
 This is the main driver routine for the downwards evolution. A new 
 <i>pT</i> is to be selected based on the current information set up 
 by the routines above, and along with that a branching parton or dipole.
@@ -475,15 +506,18 @@ for each pick its possible branching scale and then pick the one
 with largest scale as possible winner. At this stage no branching should
 actually be carried out, since MPI, ISR and FSR still have to be compared
 to assign the winner.
-<br/>The final input <code>nRadIn</code> provides the total number of 
+<br/>The input <code>nRadIn</code> provides the total number of 
 ISR and FSR emissions already generated in the event, and so allows a 
 special treatment for the very first emission, if desired.
+<br/>The <code>isFirstTrialIn</code> is <code>true</code> only for the
+very first emission, and can then optionally be used to switch the 
+weak-shower evolution scale up by (some factor times) the gauge boson mass. 
   
 
-<a name="method27"></a>
+<a name="method28"></a>
 <p/><strong>virtual bool SpaceShower::branch( Event& event) &nbsp;</strong> <br/>
-This method will be called once FSR has won the competition with 
-MPI and ISR to do the next branching. The candidate branching found 
+This method will be called once ISR has won the competition with
+MPI and FSR to do the next branching. The candidate branching found
 in the previous step should here be carried out in full. The 
 pre-branching partons should get a negative status code and new
 replacement ones added to the end of the event record. Also the  
@@ -496,7 +530,7 @@ could be carried out. Also a complete restart of the parton-level
 description may be necessary, see <code>doRestart()</code> below.  
   
 
-<a name="method28"></a>
+<a name="method29"></a>
 <p/><strong>int SpaceShower::system() &nbsp;</strong> <br/>
 This method is not virtual. If a branching is constructed by the 
 previous routine this tiny method should be able to return the number 
@@ -506,7 +540,7 @@ if necessary. Therefore <code>iSysSel</code> must be set in
 <code>branch</code> (or already in <code>pTnext</code>).  
   
 
-<a name="method29"></a>
+<a name="method30"></a>
 <p/><strong>bool SpaceShower::doRestart() &nbsp;</strong> <br/>
 This method is not virtual. If <code>branch(...)</code> above fails
 to construct a branching, and the conditions are such that the whole
@@ -516,7 +550,7 @@ this kind of failures, and so the internal <code>rescatterFail</code>
 boolean must be set true when this should happen, and else false.
   
 
-<a name="method30"></a>
+<a name="method31"></a>
 <p/><strong>virtual void SpaceShower::list( ostream& os = cout) &nbsp;</strong> <br/>
 This method is not at all required. In the current implementation it 
 outputs a list of all the dipole ends, with information on the

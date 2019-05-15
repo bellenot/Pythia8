@@ -10,7 +10,7 @@
 // Once you have linked the main program you can run it with a command line
 // ./main16.exe main16.cmnd > out16
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
 
@@ -38,7 +38,7 @@ private:
 
   // Declare variables and objects that span init - analyze - finish.
   int  nEvt;
-  Hist yH, etaChg, mult; 
+  Hist brH, yH, etaChg, mult; 
 
 };
 
@@ -52,6 +52,7 @@ void MyAnalysis::init() {
   nEvt = 0;
 
   // Book histograms.
+  brH.book("Higgs branching ratios by flavour", 30, -0.5, 29.5);
   yH.book("Higgs rapidity", 100, -10., 10.);
   etaChg.book("charged pseudorapidity", 100, -10., 10.);
   mult.book( "charged multiplicity", 100, -0.5, 799.5);
@@ -72,6 +73,14 @@ void MyAnalysis::analyze(Event& event) {
   for (int i = 0; i < event.size(); ++i) 
     if (event[i].id() == 25) iH = i;
   yH.fill( event[iH].y() );
+
+  // Plot flavour of decay channel.
+  int idDau1 = event[ event[iH].daughter1() ].idAbs();
+  int idDau2 = event[ event[iH].daughter2() ].idAbs();
+  int iChan  = 29;
+  if (idDau2 == idDau1 && idDau1 < 25) iChan = idDau1;
+  if (min( idDau1, idDau2) == 22 && max( idDau1, idDau2) == 23) iChan = 26;
+  brH.fill( iChan);
 
   // Plot pseudorapidity distribution. Sum up charged multiplicity.
   int nChg = 0;
@@ -96,7 +105,7 @@ void MyAnalysis::finish() {
   etaChg *= binFactor;
 
   // Print histograms.
-  cout << yH << etaChg << mult;
+  cout << brH << yH << etaChg << mult;
 
 } 
 
@@ -140,6 +149,7 @@ int main(int argc, char* argv[]) {
   // Read in number of event and maximal number of aborts.
   int nEvent = pythia.mode("Main:numberOfEvents");
   int nAbort = pythia.mode("Main:timesAllowErrors");
+  bool hasPL = pythia.flag("PartonLevel:all");
 
   // Begin event loop.
   int iAbort = 0; 
@@ -153,7 +163,7 @@ int main(int argc, char* argv[]) {
     }
 
     // User Analysis of current event.
-    myAnalysis.analyze( pythia.event);
+    myAnalysis.analyze( (hasPL ? pythia.event : pythia.process) );
 
   // End of event loop.
   }

@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for physics classes
 // used in tau decays.
 
-#include "HelicityMatrixElements.h"
+#include "Pythia8/HelicityMatrixElements.h"
 
 namespace Pythia8 {
 
@@ -2191,13 +2191,11 @@ double HMETau2FourPions::a1FormFactor(double s) {
 
 double HMETau2FourPions::rhoFormFactor1(double s) {
 
-  double f = sqrtpos(1 - 4*picM*picM/s);
-  if (s > 4*picM*picM)
-    f =  f * log((1 + f) / (1 - f)) * (s - 4*picM*picM) / M_PI;
-  else if (s < 0.0000001)
-    f = -8 * picM*picM / M_PI;
-  else
-    f = 0;
+  double f = 0.;
+  if (s > 4. * picM * picM) {
+    double thr = sqrtpos(1 - 4. * picM * picM / s);
+    f = thr * log((1. + thr) / (1. - thr)) * (s - 4. * picM * picM) / M_PI;
+  } else if (s < 0.0000001) f = -8. * picM * picM / M_PI;
   return f;
 
 }

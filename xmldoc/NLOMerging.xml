@@ -151,6 +151,11 @@ have been generated with the POWHEG-BOX program, since this program prints
 the transverse momentum scale of the real emission into the LH events.).
 If the value is not set, the <code>SCALUP</code> variable of the current LH
 event will be used instead.
+If wimpy showers (see <aloc href="TimelikeShowers">Timelike Showers</aloc> and
+<aloc href="SpacelikeShowers">Spacelike Showers</aloc>) are used together
+with multi-jet merging, then this scale further sets the 
+parton shower starting scale (<ei>&mu;<sub>Q</sub></ei>) for the core hard 
+process.
 </parm>
 
 <parm name="Merging:muRen" default="-1.0">

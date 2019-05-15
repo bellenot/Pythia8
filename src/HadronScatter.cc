@@ -3,7 +3,7 @@
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-#include "HadronScatter.h"
+#include "Pythia8/HadronScatter.h"
 
 namespace Pythia8 {
 

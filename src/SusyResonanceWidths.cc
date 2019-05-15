@@ -7,10 +7,10 @@
 // Function definitions (not found in the header) for the 
 // SUSY Resonance widths classes. 
 
-#include "SusyResonanceWidths.h"
-#include "SusyCouplings.h"
-#include "ParticleData.h"
-#include "PythiaComplex.h"
+#include "Pythia8/SusyResonanceWidths.h"
+#include "Pythia8/SusyCouplings.h"
+#include "Pythia8/ParticleData.h"
+#include "Pythia8/PythiaComplex.h"
 
 namespace Pythia8 {
 

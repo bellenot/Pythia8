@@ -145,7 +145,7 @@ if [ "x${ENABLEGZIP}" = "xyes" ]; then
 fi
 
 # export FFLAGS_OPT="-O2 -Wuninitialized"
-# -Wuninitialized outputs many irrelevant warnings and therefore obscurs 
+# -Wuninitialized outputs many irrelevant warnings and therefore obscurs
 export FFLAGS_OPT="-O2"
 export FFLAGS_DBG=-g
 export CFLAGS_OPT="-O2"
@@ -330,7 +330,7 @@ if [ "x${ENABLEGZIP}" = "xyes" ]; then
     fi
 
     # Some systems have Boost only under lib64?
-    for i in lib lib64; do 
+    for i in lib lib64; do
       if [ -f "${BOOSTLOCATION}/$i/libboost_iostreams.${SHAREDSUFFIX}" ]; then
         BOOSTLIBLOCATION=${BOOSTLOCATION}/$i
         break
@@ -423,3 +423,14 @@ if [ "x${ENABLEGZIP}" = "xyes" ] ; then
   echo "BOOSTLIBLOCATION = ${BOOSTLIBLOCATION}" >> config.mk
   echo "ZLIBLOCATION = ${ZLIBLOCATION}" >> config.mk
 fi
+
+# Substitute into pythia8-config script
+mkdir -p bin
+sed -e "s:@prefix@:$INSTALLDIR:" -e "s:@datadir@:$DATADIR:" \
+    -e "s:@HEPMCPATH@:$HEPMCLOCATION:" \
+    -e "s:@ENABLEGZIP@:$ENABLEGZIP:" \
+    -e "s:@ZLIBPATH@:$ZLIBLOCATION:" \
+    -e "s:@BOOSTINCPATH@:$BOOSTLOCATION:" \
+    -e "s:@BOOSTLIBPATH@:$BOOSTLIBLOCATION:" \
+    pythia8-config.in > bin/pythia8-config
+chmod +x bin/pythia8-config

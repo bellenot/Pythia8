@@ -5,7 +5,7 @@
 
 // Function definitions (not found in the header) for the TimeShower class. 
 
-#include "TimeShower.h"
+#include "Pythia8/TimeShower.h"
 
 namespace Pythia8 {
 
@@ -95,10 +95,12 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   // Parameters of alphaStrong generation.
   alphaSvalue        = settingsPtr->parm("TimeShower:alphaSvalue");
   alphaSorder        = settingsPtr->mode("TimeShower:alphaSorder");
+  alphaSnfmax        = settingsPtr->mode("StandardModel:alphaSnfmax");
+  alphaSuseCMW       = settingsPtr->flag("TimeShower:alphaSuseCMW");
   alphaS2pi          = 0.5 * alphaSvalue / M_PI;
 
   // Initialize alphaStrong generation.
-  alphaS.init( alphaSvalue, alphaSorder); 
+  alphaS.init( alphaSvalue, alphaSorder, alphaSnfmax, alphaSuseCMW); 
   
   // Lambda for 5, 4 and 3 flavours.
   Lambda3flav        = alphaS.Lambda3(); 
@@ -146,6 +148,7 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   weakEnhancement    = settingsPtr->parm("TimeShower:weakShowerEnhancement");
   singleWeakEmission = settingsPtr->flag("TimeShower:singleWeakEmission");
   extraScaleTerm     = settingsPtr->parm("TimeShower:extraScaleTerm");
+  dopTdampMass       = settingsPtr->flag("TimeShower:dopTDampMass");
 
   // Consisteny check for gamma -> f fbar variables.
   if (nGammaToQuark <= 0 && nGammaToLepton <= 0) doQEDshowerByGamma = false; 
@@ -153,6 +156,14 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   // Possibility of a global recoil stategy, e.g. for MC@NLO.
   globalRecoil       = settingsPtr->flag("TimeShower:globalRecoil");
   nMaxGlobalRecoil   = settingsPtr->mode("TimeShower:nMaxGlobalRecoil");
+  // Number of splittings produced with global recoil.
+  nMaxGlobalBranch   = settingsPtr->mode("TimeShower:nMaxGlobalBranch");
+  // Number of partons in Born-like events, to distinguish between S and H.
+  nFinalBorn         = settingsPtr->mode("TimeShower:nPartonsInBorn");
+  // Flag to allow to start from a scale smaller than scalup.
+  globalRecoilMode   = settingsPtr->mode("TimeShower:globalRecoilMode");
+  // Flag to allow to start from a scale smaller than scalup.
+  limitMUQ           = settingsPtr->flag("TimeShower:limitPTmaxGlobal");
 
   // Fraction and colour factor of gluon emission off onium octat state.
   octetOniumFraction = settingsPtr->parm("TimeShower:octetOniumFraction");
@@ -251,6 +262,10 @@ int TimeShower::shower( int iBeg, int iEnd, Event& event, double pTmax,
   partonSystemsPtr->setSHat( iSys, pSum.m2Calc() );
 
   // Let prepare routine do the setup.    
+  dopTlimit1        = true;
+  dopTlimit2        = true;
+  dopTdamp          = false;
+  hasWeaklyRadiated = false;
   prepare( iSys, event, true);
 
   // Begin evolution down in pT from hard pT scale. 
@@ -456,10 +471,40 @@ int TimeShower::showerQED( int i1, int i2, Event& event, double pTmax) {
 
 //--------------------------------------------------------------------------
 
+// Global recoil: reset counters and store locations of outgoing partons.
+
+void TimeShower::prepareGlobal( Event& event) {
+
+  // Global recoils: reset some counters.
+  nGlobal    = 0;
+  nHard      = 0;
+  nProposed  = 0;
+  hardPartons.resize(0);
+
+  // Global recoils: store positions of hard outgoing partons.
+  // No global recoil for H events.
+  if (globalRecoil) {
+    for (int i = 0; i < event.size(); ++i)
+      if (event[i].isFinal() && event[i].colType() != 0) 
+        hardPartons.push_back(i);
+    nHard = hardPartons.size();
+    if (nFinalBorn > 0 && nHard > nFinalBorn) {
+      hardPartons.resize(0);
+      nHard = 0;
+    }
+  }
+
+}
+
+//--------------------------------------------------------------------------
+
 // Prepare system for evolution; identify ME.
 
 void TimeShower::prepare( int iSys, Event& event, bool limitPTmaxIn, 
   double pTfirstTrialIn) {
+
+  // Reset number of proposed splittings.
+  nProposed = 0;
 
   // Reset W/Z radiation flag at first call for new event.
   if (iSys == 0) hasWeaklyRadiated = false;
@@ -1577,6 +1622,34 @@ double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll,
     // Check if global recoil should be used.
     useLocalRecoilNow = !(globalRecoil && dip.system == 0 
       && partonSystemsPtr->sizeOut(0) <= nMaxGlobalRecoil);
+
+    // Do not use global recoil if the radiator line has already branched.
+    if (globalRecoilMode == 1) {
+      if (globalRecoil) useLocalRecoilNow = true;
+      for (int iHard = 0; iHard < int(hardPartons.size()); ++iHard)
+        if ( event[dip.iRadiator].isAncestor(hardPartons[iHard]) )
+          useLocalRecoilNow = false;
+      // Check if global recoil should be used.
+      if ( !globalRecoil || nGlobal >= nMaxGlobalBranch )
+        useLocalRecoilNow = true;
+
+    // Switch off global recoil after first trial emission.
+    } else if (globalRecoilMode == 2) {
+      useLocalRecoilNow = !(globalRecoil && dip.system == 0 
+        && nGlobal <= nMaxGlobalBranch);
+      int nFinal = 0;
+      for (int k = 0; k < int(event.size()); ++k)
+        if ( event[k].isFinal() && event[k].colType() != 0) nFinal++;
+      bool isFirst = (nHard == nFinal);
+      // Switch off global recoil after first emission
+      if ( globalRecoil && doInterleave && !isFirst )
+        useLocalRecoilNow = true;
+      if ( globalRecoil && nProposed > 0 )
+        useLocalRecoilNow = true;
+      // No global recoil for H-events.
+      if ( nFinalBorn > 0 && nHard > nFinalBorn )
+        useLocalRecoilNow = true;
+    }
    
     // Dipole properties; normal local recoil. 
     dip.mRad   = event[dip.iRadiator].m(); 
@@ -1626,8 +1699,30 @@ double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll,
     }
     double pT2begDip = min( pow2(pTbegDip), 0.25 * dip.m2DipCorr);
 
-    // Do QCD, QED, weak or HV evolution if it makes sense.
+    // For global recoil, always set the starting scale for first emission.
+    bool isFirstWimpy = !useLocalRecoilNow && (pTmaxMatch == 1)
+                      && (nProposed == 0 || isFirstTrial);
+    double muQ        = (infoPtr->scalup() > 0.) ? infoPtr->scalup() 
+                      : infoPtr->QFac();
+    if (isFirstWimpy && !limitMUQ) pT2begDip = pow2(muQ);
+    else if (isFirstWimpy && limitMUQ) {
+      // Find mass of colour dipole.
+      double mS   = event[dip.iRecoiler].m();
+      double mD   = m( event[dip.iRadiator], event[dip.iRecoiler] );
+      double m2DC = pow2(mD - mS) - pow2(dip.mRad);
+      // Choose minimal scale.
+      pT2begDip = min( pow2(muQ), min(pow2(pTbegDip), 0.25 * m2DC) );
+    }
+
+    // Do not try splitting if the corrected dipole mass is negative.
     dip.pT2 = 0.;
+    if (dip.m2DipCorr < 0.) {
+      infoPtr->errorMsg("Warning in TimeShower::pTnext: "
+      "negative dipole mass.");
+      continue;
+    }
+
+    // Do QCD, QED, weak or HV evolution if it makes sense.
     if (pT2begDip > pT2sel) {
       if      (dip.colType != 0) 
         pT2nextQCD(pT2begDip, pT2sel, dip, event);
@@ -1664,6 +1759,9 @@ double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll,
       if (isFirstTrial) pTbegAll = sqrt(pow2(pTbegAll) - weakCorrection);
     }
   }
+
+  // Update the number of proposed timelike emissions.
+  if (dipSel != 0) ++nProposed;
   
   // Return nonvanishing value if found pT bigger than already found.
   return (dipSel == 0) ? 0. : sqrt(pT2sel); 
@@ -1942,9 +2040,9 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
     // Do not accept branching if outside allowed z range.
     double zMin = 0.5 - sqrtpos( 0.25 - dip.pT2 / dip.m2DipCorr ); 
     if (zMin < SIMPLIFYROOT) zMin = dip.pT2 / dip.m2DipCorr;
+    if (dip.z <= zMin || dip.z >= 1. - zMin) continue; 
     dip.m2 = dip.m2Rad + dip.pT2 / (dip.z * (1. - dip.z));
-    if (dip.z > zMin && dip.z < 1. - zMin 
-      && dip.m2 * dip.m2Dip < dip.z * (1. - dip.z) 
+    if (dip.m2 * dip.m2Dip < dip.z * (1. - dip.z) 
         * pow2(dip.m2Dip + dip.m2 - dip.m2Rec) 
       // For gamma -> f fbar also impose maximum mass.
       && (hasCharge || dip.m2 < m2MaxGamma) ) {
@@ -2105,7 +2203,7 @@ void TimeShower::pT2nextWeak(double pT2begDip, double pT2sel,
       } else if (dip.weakType == 2) dip.flavour = 23;
  
      // Set mass of emitted particle, with Breit-Wigner distribution. 
-      dip.mFlavour = particleDataPtr->mass( dip.flavour);
+      dip.mFlavour = particleDataPtr->mSel( dip.flavour);
       
       // No z weight, except threshold, if to do ME corrections later on.
       // Here no pure shower mode exists, always needs ME corrections.
@@ -2148,9 +2246,12 @@ void TimeShower::pT2nextWeak(double pT2begDip, double pT2sel,
     }
     
     // Optional dampening of large pT values in hard system.
-    if (dopTdamp && dip.system == 0 && dip.MEtype == 0) 
-      wt *= pT2damp / (dip.pT2 + pT2damp);
-    
+    if (dopTdamp && dip.system == 0) wt *= pT2damp / (dip.pT2 + pT2damp);
+
+    // Extra dampening of low pT values.
+    if (dopTdampMass) wt *= (dip.pT2 + 0.25 * pow2(dip.mFlavour)) 
+      / (dip.pT2 + 1. * pow2(dip.mFlavour));
+
     // Iterate until acceptable pT (or have fallen below pTmin).
   } while (wt < rndmPtr->flat());  
 
@@ -2235,6 +2336,33 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   // Check if global recoil should be used.
   useLocalRecoilNow = !(globalRecoil && dipSel->system == 0 
     && partonSystemsPtr->sizeOut(0) <= nMaxGlobalRecoil);
+
+  // Do not use global recoil if the radiator line has already branched.
+  if (globalRecoilMode == 1) {
+    if ( globalRecoil ) useLocalRecoilNow = true;
+    for (int iHard = 0; iHard < int(hardPartons.size()); ++iHard)
+      if ( event[dipSel->iRadiator].isAncestor(hardPartons[iHard]) )
+        useLocalRecoilNow = false;
+    // Check if global recoil should be used.
+    if ( !globalRecoil || nGlobal >= nMaxGlobalBranch )
+      useLocalRecoilNow = true;
+
+  // Switch off global recoil after first trial emission
+  } else if (globalRecoilMode == 2) {
+    useLocalRecoilNow = !(globalRecoil && dipSel->system == 0 
+      && nGlobal <= nMaxGlobalBranch);
+    int nFinal = 0;
+    for (int i = 0; i < int(event.size()); ++i)
+      if ( event[i].isFinal() && event[i].colType() != 0) nFinal++;
+    bool isFirst = (nHard == nFinal);
+    if ( globalRecoil && doInterleave && !isFirst )
+      useLocalRecoilNow = true;
+    if ( globalRecoil && nProposed > 1 )
+      useLocalRecoilNow = true;
+    // No global recoil for H-events.
+    if ( nFinalBorn > 0 && nHard > nFinalBorn )
+      useLocalRecoilNow = true;
+  }
 
   // Check if the first emission should be studied for removal.
   bool canMergeFirst = (mergingHooksPtr != 0)
@@ -2433,8 +2561,10 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
     : Particle(recBef.id(), -53, 0, 0, iRecBef, iRecBef, 
       recBef.col(), recBef.acol(), pRec, 0., 0.); 
   
-  // Special checks to set weak particle status equal to 56.
-  // This is needed for decaying the particle. Also set polarisation.
+  // Special checks to set weak particles status equal to 56.
+  // This is needed for decaying the particles. Also set polarisation.
+  if (rec.idAbs() == 23 || rec.idAbs() == 24) rec.status(56);
+  if (rad.idAbs() == 23 || rad.idAbs() == 24) rad.status(56);
   if (emt.idAbs() == 23 || emt.idAbs() == 24) {
     emt.status(56);
     event[iRadBef].pol( dipSel->weakPol );
@@ -2563,6 +2693,25 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
     partonSystemsPtr->setSHat( iSysSelRec,
     partonSystemsPtr->getSHat(iSysSelRec) * xRec / xOld);
   }
+
+  // For global recoil: if everything went as expected, remove the line 
+  // from the list of "hard lines" that are allowed to use global recoil.
+  if ( !useLocalRecoilNow || nGlobal >= nMaxGlobalBranch) { 
+    bool doRemove=true;
+    while ( doRemove ) {
+      bool hasRemoved = false;
+      for (int iHard = 0; iHard < int(hardPartons.size()); ++iHard)
+        if ( event[dipSel->iRadiator].isAncestor(hardPartons[iHard]) ) {
+          hardPartons.erase( hardPartons.begin() + iHard );
+          hasRemoved = true;
+          break;
+        }
+      doRemove = hasRemoved;
+    }
+  }
+
+  // Update number of splittings that have been produced with global recoil.
+  if ( !useLocalRecoilNow ) ++nGlobal;
 
   // Photon emission: update to new dipole ends; add new photon "dipole".
   if (dipSel->flavour == 22) { 

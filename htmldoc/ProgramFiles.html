@@ -109,13 +109,6 @@ basic classes for the handling of helicities in tau lepton decays.
 helicity-dependent decay matrix elements for the tau lepton.
   
 
-<p/><code>file&nbsp; </code><strong> HepMCInterface &nbsp;</strong> <br/>
-contains an interface to convert the PYTHIA 8 event record into the 
-HepMC format. The <code>HepMCInterface.cc</code> file is located in
-the subdirectory <code>hepmcinterface</code> and is used to build a 
-separate <code>libhepmcinterface</code> library. 
-  
-
 <p/><code>file&nbsp; </code><strong> HiddenValleyFragmentation &nbsp;</strong> <br/>
 hadronization in models with a hidden sector that contains an unbroken
 <i>SU(N)</i>, which gives confinement. The model and code is largely
@@ -230,6 +223,13 @@ process by making use of all the others classes. Objects of most
 other classes reside (directly or indirectly) inside <code>Pythia</code>, 
 so only a <code>Pythia</code> object needs to be explicitly instantiated 
 and addressed   by the user.
+  
+
+<p/><code>file&nbsp; </code><strong> Pythia8ToHepMC &nbsp;</strong> <br/>
+contains an interface to convert the PYTHIA 8 event record into the 
+HepMC format. The <code>Pythia8ToHepMC.cc</code> file is located in
+the subdirectory <code>pythia8tohepmc</code> and is used to build a 
+separate <code>libpythia8tohepmc</code> library. 
   
 
 <p/><code>file&nbsp; </code><strong> PythiaComplex &nbsp;</strong> <br/>

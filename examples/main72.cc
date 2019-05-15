@@ -4,9 +4,9 @@
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This is a simple test program. 
-// It compares SlowJet and FastJet, showing that they find the same jets.
+// It compares SlowJet, FJcore and FastJet, showing that they find the same jets.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 // The FastJet3.h header enables automatic initialisation of 
 // fastjet::PseudoJet objects from Pythia8 Particle and Vec4 objects, 
@@ -15,7 +15,7 @@
 // and fastjet selectors that make use of the Particle properties.
 // See the extensive comments in the header file for further details 
 // and examples.
-#include "FastJet3.h"
+#include "Pythia8/FastJet3.h"
 
 using namespace Pythia8;
  
@@ -50,8 +50,12 @@ int main() {
   pythia.readString("Beams:eCM = 14000.");  
   pythia.init();
 
-  // Set up SlowJet jet finder.
-  SlowJet slowJet( power, R, pTMin, etaMax, select, massSet);
+  // Set up SlowJet jet finder in native mode.
+  SlowJet slowJet( power, R, pTMin, etaMax, select, massSet, 0, false);
+  
+  // Set up SlowJet jet finder as a wrapper to the fjcore package.
+  // Note that this is now the default SlowJet constructor choice.
+  SlowJet fjCore( power, R, pTMin, etaMax, select, massSet, 0, true);
 
   // Set up FastJet jet finder.
   //   one can use either explicitly use antikt, cambridge, etc., or
@@ -66,24 +70,30 @@ int main() {
   std::vector <fastjet::PseudoJet> fjInputs;
 
   // Histograms.
-  Hist nJetsS("number of jets, SlowJet", 100, -0.5, 99.5);
-  Hist nJetsF("number of jets, FastJet", 100, -0.5, 99.5);
-  Hist nJetsD("number of jets, SlowJet-FastJet", 99, -49.5, 49.5);
-  Hist pTjetsS("pT for jets, SlowJet", 100, 0., 500.);
-  Hist pTjetsF("pT for jets, FastJet", 100, 0., 500.);
-  Hist pTjetsD("pT for jets, SlowJet - FastJet", 100, 0., 500.);
-  Hist RdistD("R distance SlowJet to FastJet", 100, 0., 1.);
-  Hist etaJets("eta for jets", 100, -5., 5.);
-  Hist phiJets("phi for jets", 100, -M_PI, M_PI);  
+  Hist nJetsS("number of jets (SlowJet)", 100, -0.5, 99.5);
+  Hist nJetsC("number of jets, FJcore - SlowJet ", 99, -49.5, 49.5);
+  Hist nJetsF("number of jets, FastJet - SlowJet", 99, -49.5, 49.5);
+  Hist pTjetsS("pT for jets (SlowJet)", 100, 0., 500.);
+  Hist pTjetsC("pT for jets, FJcore - SlowJet ", 100, -10., 10.);
+  Hist pTjetsF("pT for jets, FastJet - SlowJet", 100, -10., 10.);
+  Hist etaJetsS("eta for jets (SlowJet)", 100, -5., 5.);
+  Hist phiJetsS("phi for jets (SlowJet)", 100, -M_PI, M_PI);  
+  Hist RdistC("R distance FJcore to SlowJet ", 100, 0., 1.);
+  Hist RdistF("R distance FastJet to SlowJet", 100, 0., 1.);
   Hist distJets("R distance between jets", 100, 0., 10.);
   Hist pTdiff("pT difference between consecutive jets", 100, -100., 400.);
   Hist nAna("multiplicity of analyzed event", 100, -0.5, 999.5);
   Hist tGen("generation time as fn of multiplicity", 100, -0.5, 999.5);
   Hist tSlow("SlowJet time as fn of multiplicity", 100, -0.5, 999.5);
+  Hist tCore("FJcore time as fn of multiplicity ", 100, -0.5, 999.5);
   Hist tFast("FastJet time as fn of multiplicity", 100, -0.5, 999.5);
   Hist tSlowGen("SlowJet/generation time as fn of multiplicity", 
     100, -0.5, 999.5);
+  Hist tCoreGen("FJcore/generation time as fn of multiplicity", 
+    100, -0.5, 999.5);
   Hist tFastGen("FastJet/generation time as fn of multiplicity", 
+    100, -0.5, 999.5);
+  Hist tFastCore("FastJet/FJcore time as fn of multiplicity", 
     100, -0.5, 999.5);
 
   // Begin event loop. Generate event. Skip if error.
@@ -103,8 +113,8 @@ int main() {
     nJetsS.fill( nSlow );
     for (int i = 0; i < nSlow; ++i) {
       pTjetsS.fill( slowJet.pT(i) );
-      etaJets.fill( slowJet.y(i) );
-      phiJets.fill( slowJet.phi(i) );
+      etaJetsS.fill( slowJet.y(i) );
+      phiJetsS.fill( slowJet.phi(i) );
     }
 
     // Fill distance between SlowJet jets.
@@ -120,6 +130,24 @@ int main() {
     // Fill pT-difference between SlowJet jets (to check ordering of list).
     for (int i = 1; i < nSlow; ++i) 
       pTdiff.fill( slowJet.pT(i-1)- slowJet.pT(i) );
+
+    // Begin FJcore analysis of jet properties. List first few. 
+    clock_t befCore = clock();
+    fjCore.analyze( pythia.event );
+    clock_t aftCore = clock();
+    if (iEvent < nListJets) fjCore.list();
+
+    // Fill distribution of fjCore jets relative to SlowJet ones.
+    int nCore = fjCore.sizeJet();
+    nJetsC.fill( nCore - nSlow);
+    if (nCore == nSlow) {
+      for (int i = 0; i < nCore; ++i) {
+        pTjetsC.fill( fjCore.pT(i) - slowJet.pT(i) ); 
+        double dist2 = pow2( fjCore.y(i) - slowJet.y(i))
+          + pow2( fjCore.phi(i) - slowJet.phi(i) ); 
+        RdistC.fill( sqrt(dist2) );    
+      }
+    }
 
     // Begin FastJet analysis: extract particles from event record. 
     clock_t befFast = clock();
@@ -193,19 +221,15 @@ int main() {
            << "---------------------------------" << endl;
     }
  
-    // Fill inclusive FastJet jet distributions.
-    int nFast         = sortedJets.size();  
-    nJetsF.fill( nFast );
-    for (int i = 0; i < int(sortedJets.size()); ++i) 
-      pTjetsF.fill( sortedJets[i].perp() );
-
-    // Comparison of SlowJet and FastJet.
-    nJetsD.fill( nSlow - nFast);
+    // Fill distribution of FastJet jets relative to SlowJet ones.
+    int nFast = sortedJets.size();  
+    nJetsF.fill( nFast - nSlow);
     if (nFast == nSlow) {
-      for (int i = 0; i < nSlow; ++i) {
-        double dist2 = pow2( slowJet.y(i) - sortedJets[i].rap())
-          + pow2( slowJet.phi(i) - sortedJets[i].phi_std()); 
-        RdistD.fill( sqrt(dist2) );    
+      for (int i = 0; i < nFast; ++i) {
+        pTjetsF.fill( sortedJets[i].perp() - slowJet.pT(i) ); 
+        double dist2 = pow2( sortedJets[i].rap() - slowJet.y(i))
+          + pow2( sortedJets[i].phi_std() - slowJet.phi(i)); 
+        RdistF.fill( sqrt(dist2) );    
       }
     }
     
@@ -213,6 +237,7 @@ int main() {
     nAna.fill( nAnalyze);
     tGen.fill( nAnalyze, aftGen - befGen); 
     tSlow.fill( nAnalyze, aftSlow - befSlow); 
+    tCore.fill( nAnalyze, aftCore - befCore); 
     tFast.fill( nAnalyze, aftFast - befFast); 
 
   // End of event loop.
@@ -220,16 +245,18 @@ int main() {
 
   // Statistics. Histograms. 
   pythia.stat();
-  pTjetsD = pTjetsS - pTjetsF;
-  tSlowGen = tSlow / tGen; 
-  tFastGen = tFast / tGen; 
-  tGen  /= nAna;
-  tSlow /= nAna;
-  tFast /= nAna;
-
-  cout << nJetsS << nJetsF << nJetsD << pTjetsS << pTjetsF << pTjetsD 
-       << RdistD << etaJets << phiJets << distJets << pTdiff
-       << nAna << tGen << tSlow << tFast << tSlowGen << tFastGen;
+  tSlowGen  = tSlow / tGen; 
+  tCoreGen  = tCore / tGen; 
+  tFastGen  = tFast / tGen; 
+  tFastCore = tFast / tCore; 
+  tGen     /= nAna;
+  tSlow    /= nAna;
+  tCore    /= nAna;
+  tFast    /= nAna;
+  cout << nJetsS << nJetsC << nJetsF << pTjetsS << pTjetsC << pTjetsF 
+       << etaJetsS << phiJetsS << RdistC << RdistF << distJets << pTdiff
+       << nAna << tGen << tSlow << tCore << tFast << tSlowGen << tCoreGen 
+       << tFastGen << tFastCore;
 
   // Done. 
   return 0;

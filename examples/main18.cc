@@ -8,7 +8,7 @@
 // No new functionality is involved - all could be done in the main program 
 // - but the division of tasks may be more convenient for recurrent cuts.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
 

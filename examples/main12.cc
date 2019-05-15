@@ -17,7 +17,7 @@
 // Much of this of course is not intended to be realistic, 
 // but rather illustrates several tricks that can be useful.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 using namespace Pythia8; 
 int main() {
 

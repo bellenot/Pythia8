@@ -5,7 +5,7 @@
 
 // Function definitions (not found in the header) for the AlphaStrong class.
 
-#include "StandardModel.h"
+#include "Pythia8/StandardModel.h"
 
 namespace Pythia8 {
 
@@ -19,11 +19,13 @@ namespace Pythia8 {
 // These are of technical nature, as described for each.
 
 // Number of iterations to determine Lambda from given alpha_s.
-const int AlphaStrong::NITER           = 10;
+const int AlphaStrong::NITER           = 10;  
 
-// Masses: m_c, m_b, m_Z. Used for flavour thresholds and normalization scale.
+// Masses: m_c, m_b, m_t, m_Z. 
+// Used for flavour thresholds and normalization scale.
 const double AlphaStrong::MC           = 1.5;
 const double AlphaStrong::MB           = 4.8;
+const double AlphaStrong::MT           = 171.0;
 const double AlphaStrong::MZ           = 91.188;
 
 // Always evaluate running alpha_s above Lambda3 to avoid disaster.
@@ -31,17 +33,26 @@ const double AlphaStrong::MZ           = 91.188;
 const double AlphaStrong::SAFETYMARGIN1 = 1.07;
 const double AlphaStrong::SAFETYMARGIN2 = 1.33;
 
+// CMW factor for 3, 4, 5, and 6 flavours.
+const double AlphaStrong::FACCMW3         = 1.661;
+const double AlphaStrong::FACCMW4         = 1.618;
+const double AlphaStrong::FACCMW5         = 1.569;
+const double AlphaStrong::FACCMW6         = 1.513;
+
 //--------------------------------------------------------------------------
 
 // Initialize alpha_strong calculation by finding Lambda values etc.
 
-void AlphaStrong::init( double valueIn, int orderIn) {
+void AlphaStrong::init( double valueIn, int orderIn, int nfmaxIn, 
+  bool useCMWIn) {
 
   // Order of alpha_s evaluation.Default values.
   valueRef = valueIn;
   order    = max( 0, min( 2, orderIn ) );
+  nfmax    = max(5,min(6,nfmaxIn));
+  useCMW   = useCMWIn;
   lastCallToFull = false;
-  Lambda3Save = Lambda4Save = Lambda5Save = scale2Min = 0.;
+  Lambda3Save = Lambda4Save = Lambda5Save = Lambda6Save = scale2Min = 0.;
 
   // Fix alpha_s.
   if (order == 0) {
@@ -49,20 +60,24 @@ void AlphaStrong::init( double valueIn, int orderIn) {
   // First order alpha_s: match at flavour thresholds.
   } else if (order == 1) {
     Lambda5Save = MZ * exp( -6. * M_PI / (23. * valueRef) );
+    Lambda6Save = Lambda5Save * pow(Lambda5Save/MT, 2./21.); 
     Lambda4Save = Lambda5Save * pow(MB/Lambda5Save, 2./25.); 
     Lambda3Save = Lambda4Save * pow(MC/Lambda4Save, 2./27.); 
-    scale2Min   = pow2(SAFETYMARGIN1 * Lambda3Save);
 
   // Second order alpha_s: iterative match at flavour thresholds.
   } else {
+    // The one-loop coefficients: b1 / b0^2
+    double b16 = 234. / 441.;
     double b15 = 348. / 529.;
     double b14 = 462. / 625.;
-    double b13 = 64. / 81.;    
+    double b13 = 576. / 729.; 
+    // The two-loop coefficients: b2 * b0 / b1^2
+    double b26 = -36855. / 109512.;
     double b25 = 224687. / 242208.;      
     double b24 = 548575. / 426888.;
     double b23 = 938709. / 663552.;
-    double logScale, loglogScale, correction, valueIter;
 
+    double logScale, loglogScale, correction, valueIter;
     // Find Lambda_5 at m_Z.
     Lambda5Save = MZ * exp( -6. * M_PI / (23. * valueRef) );
     for (int iter = 0; iter < NITER; ++iter) {
@@ -72,6 +87,22 @@ void AlphaStrong::init( double valueIn, int orderIn) {
         + pow2(b15 / logScale) * (pow2(loglogScale - 0.5) + b25 - 1.25);
       valueIter   = valueRef / correction; 
       Lambda5Save = MZ * exp( -6. * M_PI / (23. * valueIter) );
+    }
+
+    // Find Lambda_6 at m_t.
+    double logScaleT    = 2. * log(MT/Lambda5Save);
+    double loglogScaleT = log(logScaleT);
+    double valueT       = 12. * M_PI / (21. * logScaleT) 
+      * (1. - b16 * loglogScaleT / logScaleT
+        + pow2(b16 / logScaleT) * (pow2(loglogScaleT - 0.5) + b26 - 1.25) ); 
+    Lambda6Save         = Lambda5Save;
+    for (int iter = 0; iter < NITER; ++iter) {
+      logScale    = 2. * log(MT/Lambda6Save);
+      loglogScale = log(logScale);
+      correction  = 1. - b15 * loglogScale / logScale 
+        + pow2(b15 / logScale) * (pow2(loglogScale - 0.5) + b25 - 1.25);
+      valueIter   = valueT / correction; 
+      Lambda6Save = MT * exp( -6. * M_PI / (21. * valueIter) );
     }
 
     // Find Lambda_4 at m_b.
@@ -89,7 +120,6 @@ void AlphaStrong::init( double valueIn, int orderIn) {
       valueIter   = valueB / correction; 
       Lambda4Save = MB * exp( -6. * M_PI / (25. * valueIter) );
     }
-
     // Find Lambda_3 at m_c.
     double logScaleC    = 2. * log(MC/Lambda4Save);
     double loglogScaleC = log(logScaleC);
@@ -105,15 +135,28 @@ void AlphaStrong::init( double valueIn, int orderIn) {
       valueIter   = valueC / correction; 
       Lambda3Save = MC * exp( -6. * M_PI / (27. * valueIter) );
     }
-    scale2Min     = pow2(SAFETYMARGIN2 * Lambda3Save);
   }
+
+  // Optionally rescale Lambda values by CMW factor.
+  if (useCMW) {
+    Lambda3Save *= FACCMW3;
+    Lambda4Save *= FACCMW4;
+    Lambda5Save *= FACCMW5;
+    Lambda6Save *= FACCMW6;
+  }
+
+  // Impose SAFETYMARGINs to prevent getting too close to LambdaQCD.
+  if (order == 1) scale2Min = pow2(SAFETYMARGIN1 * Lambda3Save);
+  else if (order == 2) scale2Min = pow2(SAFETYMARGIN2 * Lambda3Save);
 
   // Save squares of mass and Lambda values as well.
   Lambda3Save2 = pow2(Lambda3Save);
   Lambda4Save2 = pow2(Lambda4Save);
   Lambda5Save2 = pow2(Lambda5Save);
+  Lambda6Save2 = pow2(Lambda6Save);
   mc2          = pow2(MC);
   mb2          = pow2(MB);
+  mt2          = pow2(MT);
   valueNow     = valueIn;
   scale2Now    = MZ * MZ;
   isInit       = true;
@@ -122,7 +165,7 @@ void AlphaStrong::init( double valueIn, int orderIn) {
 
 //--------------------------------------------------------------------------
 
-// Calculate alpha_s value    
+// Calculate alpha_s value.    
 
 double AlphaStrong::alphaS( double scale2) {
 
@@ -141,7 +184,9 @@ double AlphaStrong::alphaS( double scale2) {
   
   // First order alpha_s: differs by mass region.  
   } else if (order == 1) {
-    if (scale2 > mb2) 
+    if (scale2 > mt2 && nfmax >= 6)
+         valueNow = 12. * M_PI / (21. * log(scale2/Lambda6Save2));
+    else if (scale2 > mb2) 
          valueNow = 12. * M_PI / (23. * log(scale2/Lambda5Save2));
     else if (scale2 > mc2) 
          valueNow = 12. * M_PI / (25. * log(scale2/Lambda4Save2));
@@ -150,7 +195,12 @@ double AlphaStrong::alphaS( double scale2) {
   // Second order alpha_s: differs by mass region.  
   } else {
     double Lambda2, b0, b1, b2;
-    if (scale2 > mb2) {
+    if (scale2 > mt2 && nfmax >= 6) {
+      Lambda2 = Lambda6Save2;
+      b0      = 21.;
+      b1      = 234. / 441.; 
+      b2      = -36855. / 109512.;
+    } else if (scale2 > mb2) {
       Lambda2 = Lambda5Save2;
       b0      = 23.;
       b1      = 348. / 529.; 
@@ -200,7 +250,9 @@ double  AlphaStrong::alphaS1Ord( double scale2) {
   
   // First/second order alpha_s: differs by mass region.  
   } else {
-    if (scale2 > mb2) 
+    if (scale2 > mt2 && nfmax >= 6) 
+         valueNow = 12. * M_PI / (21. * log(scale2/Lambda6Save2));
+    else if (scale2 > mb2) 
          valueNow = 12. * M_PI / (23. * log(scale2/Lambda5Save2));
     else if (scale2 > mc2) 
          valueNow = 12. * M_PI / (25. * log(scale2/Lambda4Save2));
@@ -222,12 +274,16 @@ double AlphaStrong::alphaS2OrdCorr( double scale2) {
   if (!isInit) return 1.;
   if (scale2 < scale2Min) scale2 = scale2Min;
 
-  // Only meaningful for second order calculations.
+  // Only meaningful for second-order calculations.
   if (order < 2) return 1.; 
   
   // Second order correction term: differs by mass region.  
   double Lambda2, b1, b2;
-  if (scale2 > mb2) {
+  if (scale2 > mt2 && nfmax >= 6) {
+    Lambda2 = Lambda6Save2;
+    b1      = 234. / 441.;       
+    b2      = -36855. / 109512.;      
+  } else if (scale2 > mb2) {
     Lambda2 = Lambda5Save2;
     b1      = 348. / 529.;       
     b2      = 224687. / 242208.;      
@@ -246,6 +302,44 @@ double AlphaStrong::alphaS2OrdCorr( double scale2) {
     + pow2(b1 / logScale) * (pow2(loglogScale - 0.5) + b2 - 1.25) ); 
 
 } 
+
+//--------------------------------------------------------------------------
+
+// muThres(2): tell what values of flavour thresholds are being used. 
+
+double AlphaStrong::muThres( int idQ) {
+  int idAbs = abs(idQ);
+  // Return the scale of each flavour threshold included in running.
+  if (idAbs == 4) return MC;
+  else if (idAbs == 5) return MB;
+  else if (idAbs == 6 && nfmax >= 6) return MT;
+  // Else return -1 (indicates no such threshold is included in running).
+  return -1.;
+}
+
+double AlphaStrong::muThres2( int idQ) {
+  int idAbs = abs(idQ);
+  // Return the scale of each flavour threshold included in running.
+  if (idAbs == 4) return mc2;
+  else if (idAbs == 5) return mb2;
+  else if (idAbs == 6 && nfmax >=6) return mt2;
+  // Else return -1 (indicates no such threshold is included in running).
+  return -1.;
+}
+
+//--------------------------------------------------------------------------
+
+// facCMW: tells what values of the CMW factors are being used (if any).
+
+double AlphaStrong::facCMW( int NFIn) {
+  // Return unity if we are not doing CMW rescaling..
+  if (!isInit || !useCMW) return 1.0;
+  // Else return the NF-dependent value of the CMW rescaling factor.
+  else if (NFIn <= 3) return FACCMW3;
+  else if (NFIn == 4) return FACCMW4;
+  else if (NFIn == 5) return FACCMW5;
+  else return FACCMW6;
+}
 
 //==========================================================================
 
@@ -341,8 +435,9 @@ void CoupSM::init(Settings& settings, Rndm* rndmPtrIn) {
 
   // Initialize the local AlphaStrong instance.
   double alphaSvalue  = settings.parm("SigmaProcess:alphaSvalue");
-  int    alphaSorder  = settings.mode("SigmaProcess:alphaSorder");
-  alphaSlocal.init( alphaSvalue, alphaSorder); 
+  int    alphaSorder  = settings.mode("SigmaProcess:alphaSorder");  
+  int    alphaSnfmax  = settings.mode("StandardModel:alphaSnfmax");
+  alphaSlocal.init( alphaSvalue, alphaSorder, alphaSnfmax, false); 
 
   // Initialize the local AlphaEM instance.
   int order = settings.mode("SigmaProcess:alphaEMorder");

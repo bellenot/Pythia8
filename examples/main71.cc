@@ -22,7 +22,7 @@
  *   mT(W)        > 20GeV
  */
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 // This is the minimal interface needed to access FastJet. 
 // A more sophisticated interface is demonstrated in main72.cc.

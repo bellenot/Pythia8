@@ -10,7 +10,7 @@
 // parameters and user options.
 
 // Includes and namespace
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 #include "CombineMatchingInput.h"
 using namespace Pythia8;
 

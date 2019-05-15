@@ -142,7 +142,9 @@ may decay or not, offering the main user switch. Whether a given particle
 of this kind then actually will decay also depends on it having allowed 
 decay channels, and on other flags for 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>particle decays</a>. 
+echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>particle decays</a> 
+(or <?php $filepath = $_GET["filepath"];
+echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?>resonance decays</a>).
 All particles with <code>tau0</code> below 1000 mm are 
 by default initialized to allow decays.</li> 
 
@@ -194,13 +196,29 @@ The 2 and 3 options can be used e.g. to encode CP violation in
 B decays, or to let the <i>W</i>'s in a <i>q qbar -> W^+ W^-</i> 
 process decay in different channels. </li>
 
-<li><code>bRatio</code>: the branching ratio of the channel.</li>
+<li><code>bRatio</code>: the branching ratio of the channel
+(with some reservations for resonances, see <code>meMode</code>
+below).</li>
 
 <li><code>meMode</code>: the mode of processing this channel, possibly 
 with matrix elements; see the 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>particle decays</a> description</li>
-for the list of possibilities.
+echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>particle decays</a> and
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?>resonance decays</a> 
+descriptions for the list of possibilities.
+Notably the default code 0 for a particle means pure phase space
+decays according to the given branching ratios, while for a resonance 
+it means that code exists for the dynamic calculations of partial
+widths and thereby branching ratios as a function of the resonance mass
+(which is done e.g. at initialization based on the mass set by the user).
+Then codes 1 - 99 are reserved for various matrix-element-improved
+ordinary particle decays, and 100 - 103 for resonances where the
+partial width of a given channel is calculated from the total width 
+and the stored branching ratio. Thus, to enforce a new branching ratio 
+for a resonance channel (with its own partial-width calculation code) 
+it is not sufficient only to change the <code>bRatio</code> but also
+to set e.g. <code>meMode = 100</code>. </li>
 
 <li><code>multiplicity</code>: the number of decay products of the 
 channel. Can be at most 8.</li>
@@ -852,7 +870,9 @@ a flag telling whether a particle species may decay or not, offering
 the main user switch. Whether a given particle of this kind then actually 
 will decay also depends on it having allowed decay channels, and on
 other flags for <?php $filepath = $_GET["filepath"];
-echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>particle decays</a>. 
+echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>particle decays</a> 
+(or <?php $filepath = $_GET["filepath"];
+echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?>resonance decays</a>). 
 All particles with <code>tau0</code> below 1000 mm are 
 by default initialized to allow decays.
   
@@ -926,7 +946,7 @@ masses, and for everything else the same as the ordinary mass.
   
 
 <a name="method37"></a>
-<p/><strong>double ParticleData::mass(int id) &nbsp;</strong> <br/>
+<p/><strong>double ParticleData::mSel(int id) &nbsp;</strong> <br/>
 returns a mass distributed according to a truncated Breit-Wigner, 
 with parameters as described here. Is equal to <code>m0(id)</code> for 
 particles without width. 
@@ -1255,7 +1275,9 @@ a flag telling whether a particle species may decay or not, offering
 the main user switch. Whether a given particle of this kind then actually 
 will decay also depends on it having allowed decay channels, and on
 other flags for <?php $filepath = $_GET["filepath"];
-echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>particle decays</a>. 
+echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>particle decays</a>
+(or <?php $filepath = $_GET["filepath"];
+echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?>resonance decays</a>). 
 All particles with <code>tau0</code> below 1000 mm are 
 by default initialized to allow decays.
   
@@ -1326,7 +1348,7 @@ masses, and for everything else the same as the ordinary mass.
   
 
 <a name="method88"></a>
-<p/><strong>double ParticleDataEntry::mass() &nbsp;</strong> <br/>
+<p/><strong>double ParticleDataEntry::mSel() &nbsp;</strong> <br/>
 give the mass of a particle, either at the nominal value
 or picked according to a (linear or quadratic) Breit-Wigner. 
   
@@ -1557,7 +1579,8 @@ multiply the current branching ratio by <code>fac</code>.
 set or get the mode of processing this channel, possibly with matrix 
 elements (see the <?php $filepath = $_GET["filepath"];
 echo "<a href='ParticleDecays.php?filepath=".$filepath."' target='page'>";?>particle decays</a> 
-description).
+and <?php $filepath = $_GET["filepath"];
+echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?>resonance decays</a> descriptions).
   
 
 <a name="method123"></a>

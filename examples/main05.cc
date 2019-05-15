@@ -9,7 +9,7 @@
 // jet properties, but provides output in slightly different format, 
 // and have here not been optimized to show maximum possible agreement.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 using namespace Pythia8;
  
 int main() {

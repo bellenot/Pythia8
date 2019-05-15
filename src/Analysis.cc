@@ -6,7 +6,8 @@
 // Function definitions (not found in the header) for the 
 // Sphericity, Thrust, ClusJet, CellJet and SlowJet classes.
 
-#include "Analysis.h"
+#include "Pythia8/Analysis.h"
+#include "Pythia8/FJcore.h"
 
 namespace Pythia8 {
 
@@ -100,12 +101,14 @@ bool Sphericity::analyze(const Event& event, ostream& os) {
   for (int iVal = 0; iVal < 2; ++iVal) {
     double eVal = (iVal == 0) ? eVal1 : eVal3;
 
-    // If all particles are back-to-back then only first axis meaningful.
-    if (iVal > 1 && eVal2 < EIGENVALUEMIN) {
-      if (nBack < TIMESTOPRINT) os << " PYTHIA Error in "
-      "Sphericity::analyze: particles too back-to-back" << endl; 
-      ++nBack;
-      return false;
+    // If all particles are back-to-back then simpleminded third axis.
+    if (iVal > 0 && eVal2 < EIGENVALUEMIN) {
+      if ( abs(eVec1.pz()) > 0.5) eVec3 = Vec4( 1., 0., 0., 0.);
+      else                        eVec3 = Vec4( 0., 0., 1., 0.); 
+      eVec3 -= dot3( eVec1, eVec3) * eVec1;
+      eVec3 /= eVec3.pAbs();
+      eVec2  = cross3( eVec1, eVec3);
+      return true;
     }
 
     // Set up matrix to diagonalize.
@@ -958,9 +961,12 @@ bool SlowJet::setup(const Event& event) {
     phiTemp = pTemp.phi();
     clusters.push_back( SingleSlowJet(pTemp, pT2Temp, yTemp, phiTemp, i) );
   }
+  origSize = clusters.size();
+
+  // Done here for FJcore machinery.
+  if (useFJcore) return true;
 
   // Resize arrays to store distances between clusters.
-  origSize = clusters.size();
   clSize = origSize; 
   clLast = clSize - 1; 
   diB.resize(clSize);
@@ -1001,7 +1007,8 @@ bool SlowJet::setup(const Event& event) {
 
 bool SlowJet::doStep() {
 
-  // Fail if no possibility to take a step.
+  // Fail if using FJcore or if no possibility to take a step.
+  if (useFJcore) return false;
   if (clSize == 0) return false;
 
   // When distance to beam is smallest the cluster is promoted to jet.
@@ -1083,15 +1090,16 @@ bool SlowJet::doStep() {
 void SlowJet::list(bool listAll, ostream& os) const {
 
   // Header.
-  os << "\n --------  PYTHIA SlowJet Listing, p = " << setw(2) 
-     << power << ", R = " << fixed << setprecision(3) << setw(5) << R 
-     << ", pTjetMin =" << setw(8) << pTjetMin << ", etaMax = " << setw(6) 
-     << etaMax << "  --- \n \n  no      pTjet      y       phi   mult   "
-     << "   p_x        p_y        p_z         e          m \n";
+  if (useFJcore) os << "\n --  PYTHIA SlowJet(fjcore) Listing, p = "; 
+  else           os << "\n --  PYTHIA SlowJet(native) Listing, p = "; 
+  os << setw(2) << power << ", R = " << fixed << setprecision(3) << setw(5) 
+     << R << ", pTjetMin =" << setw(8) << pTjetMin << ", etaMax = " 
+     << setw(6) << etaMax << "  -- \n \n   no      pTjet      y       phi"
+     << "   mult      p_x        p_y        p_z         e          m \n";
 
   // The jets.
   for (int i = 0; i < jtSize; ++i) {
-    os << setw(4) << i << setw(11) << sqrt(jets[i].pT2) << setw(9) 
+    os << setw(5) << i << setw(11) << sqrt(jets[i].pT2) << setw(9) 
        << jets[i].y << setw(9) << jets[i].phi << setw(6) 
        << jets[i].mult << setw(11) << jets[i].p.px() << setw(11) 
        << jets[i].p.py() << setw(11) << jets[i].p.pz() << setw(11) 
@@ -1103,7 +1111,7 @@ void SlowJet::list(bool listAll, ostream& os) const {
     os << " --------  Below this line follows remaining clusters,"
        << " still pT-unordered  -------------------\n";  
     for (int i = 0; i < clSize; ++i) {
-      os << setw(4) << i + jtSize << setw(11) << sqrt(clusters[i].pT2) 
+      os << setw(5) << i + jtSize << setw(11) << sqrt(clusters[i].pT2) 
          << setw(9) << clusters[i].y << setw(9) << clusters[i].phi 
          << setw(6) << clusters[i].mult << setw(11) << clusters[i].p.px() 
          << setw(11) << clusters[i].p.py() << setw(11) << clusters[i].p.pz() 
@@ -1114,7 +1122,7 @@ void SlowJet::list(bool listAll, ostream& os) const {
 
   // Listing finished.
   os << "\n --------  End PYTHIA SlowJet Listing  ------------------"
-     << "-------------------------------------" << endl;
+     << "--------------------------------------" << endl;
 
 }
 
@@ -1150,6 +1158,65 @@ void SlowJet::findNext() {
     jMin = -1;
     dMin = 0.;
   } 
+
+}
+
+//--------------------------------------------------------------------------
+  
+// Use FJcore interface to perform clustering.
+  
+bool SlowJet::clusterFJ() {
+
+  // Read in input configuration of particles.
+  vector<fjcore::PseudoJet> inFJ;
+  for (int i = 0; i < int(clusters.size()); ++i) {
+    inFJ.push_back( fjcore::PseudoJet( clusters[i].p.px(),  
+      clusters[i].p.py(),  clusters[i].p.pz(),  clusters[i].p.e() ) );
+    set<int>::iterator idxTmp = clusters[i].idx.begin(); 
+    inFJ[i].set_user_index( *idxTmp);
+  }
+
+  // Create a jet definition = jet algorithm + radius parameter.
+  fjcore::JetAlgorithm  jetAlg = fjcore::cambridge_algorithm;
+  if (isAnti)           jetAlg = fjcore::antikt_algorithm;
+  if (isKT)             jetAlg = fjcore::kt_algorithm;
+  fjcore::JetDefinition jetDef( jetAlg, R);
+
+  // Run the jet clustering with the above jet definition.
+  fjcore::ClusterSequence clust_seq( inFJ, jetDef);
+
+  // Get the resulting jets above pTmin, ordered in pT.
+  vector<fjcore::PseudoJet> outFJ 
+    = sorted_by_pt( clust_seq.inclusive_jets( pTjetMin) );
+
+  // Store the FJcore output in the standard SlowJet format.
+  Vec4   pTemp;
+  double pT2Temp, yTemp, phiTemp;
+  for (int i = 0; i < int(outFJ.size()); ++i) {
+    pTemp = Vec4( outFJ[i].px(), outFJ[i].py(), outFJ[i].pz(), outFJ[i].e() );
+    pT2Temp = outFJ[i].pt2();
+    yTemp   = outFJ[i].rap();
+    phiTemp = outFJ[i].phi_std();
+    jets.push_back( SingleSlowJet(pTemp, pT2Temp, yTemp, phiTemp, 0) );
+
+    // Also find constituents of jet.
+    jets[i].idx.clear();
+    vector<fjcore::PseudoJet> constFJ = outFJ[i].constituents(); 
+    for (int j = 0; j < int(constFJ.size()); ++j) 
+      jets[i].idx.insert( constFJ[j].user_index() );
+    jets[i].mult = constFJ.size();
+  }  
+
+  // Set counters and some dummy (for FJcore) information.
+  clSize = 0;
+  clLast = 0;
+  jtSize = outFJ.size(); 
+  iMin   = -1;
+  jMin   = -1;
+  dMin   = 0.;
+
+  // Done.
+  return true;
 
 }
 

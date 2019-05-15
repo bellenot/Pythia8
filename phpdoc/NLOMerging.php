@@ -183,6 +183,13 @@ have been generated with the POWHEG-BOX program, since this program prints
 the transverse momentum scale of the real emission into the LH events.).
 If the value is not set, the <code>SCALUP</code> variable of the current LH
 event will be used instead.
+If wimpy showers (see <?php $filepath = $_GET["filepath"];
+echo "<a href='TimelikeShowers.php?filepath=".$filepath."' target='page'>";?>Timelike Showers</a> and
+<?php $filepath = $_GET["filepath"];
+echo "<a href='SpacelikeShowers.php?filepath=".$filepath."' target='page'>";?>Spacelike Showers</a>) are used together
+with multi-jet merging, then this scale further sets the 
+parton shower starting scale (<i>&mu;<sub>Q</sub></i>) for the core hard 
+process.
   
 
 <br/><br/><table><tr><td><strong>Merging:muRen </td><td></td><td> <input type="text" name="3" value="-1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1.0</strong></code>)</td></tr></table>

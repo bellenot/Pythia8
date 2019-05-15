@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the LHAup and
 // LHAupLHEF classes.
 
-#include "LesHouches.h"
+#include "Pythia8/LesHouches.h"
 
 // Access time information.
 #include <ctime>

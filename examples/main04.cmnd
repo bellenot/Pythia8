@@ -28,7 +28,7 @@ SoftQCD:all = on                   ! Allow total sigma = elastic/SD/DD/ND
 #SoftQCD:singleDiffractive = on     ! Single diffractive
 #SoftQCD:doubleDiffractive = on     ! Double diffractive
 #SoftQCD:centralDiffractive = on    ! Central diffractive
-#SoftQCD:minbias = on               ! Nondiffractive inelastic
+#SoftQCD:nonDiffractive = on        ! Nondiffractive (inelastic)
 #SoftQCD:inelastic = on             ! All inelastic
 
 ! 5) Optionally switch on hand-set cross section and Coulomb term.

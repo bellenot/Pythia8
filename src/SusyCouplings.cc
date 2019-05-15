@@ -7,8 +7,8 @@
 // Function definitions (not found in the header) for the 
 // supersymmetric couplings class. 
 
-#include "ParticleData.h"
-#include "SusyCouplings.h"
+#include "Pythia8/ParticleData.h"
+#include "Pythia8/SusyCouplings.h"
 
 namespace Pythia8 {
 
@@ -92,12 +92,12 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
   if(slhaPtr->hmix.exists(2)) 
     tanb = slhaPtr->hmix(2);
   else{ 
-    slhaPtr->minpar(3);
+    tanb = slhaPtr->minpar(3);
     slhaPtr->message(1,"initSUSY",
       "Block HMIX not found or incomplete; using MINPAR tan(beta)");
   }
   cosb = sqrt( 1.0 / (1.0 + tanb*tanb) );
-  sinb = sqrt(max(0.0,1.0-cosb*cosb));
+  sinb = sqrt( max(0.0, 1.0 - cosb*cosb));
 
   double beta = acos(cosb);
   
@@ -132,6 +132,11 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
   if(slhaPtr->hmix.exists(1) && slhaPtr->hmix.exists(4)){
     muHiggs = slhaPtr->hmix(1);
     mAHiggs = sqrt(slhaPtr->hmix(4));
+  } else if (slhaPtr->rvamix.exists()){
+    mAHiggs = particleDataPtr->m0(36);
+    muHiggs = 0.0;
+    slhaPtr->message(1,"initSUSY",
+      "Block HMIX not found or incomplete; setting mu = 0.");
   } else{
     slhaPtr->message(1,"initSUSY",
       "Block HMIX not found or incomplete; setting mu = mA = 0.");
@@ -322,6 +327,24 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
         "Note: sneutrino-Higgs mixing not supported in PYTHIA");
   }
 
+  if(DBSUSY){
+    cout<<"Rsl"<<endl;
+    for(int i=1;i<=6;i++){
+      for(int j=1;j<=6;j++){
+	cout << scientific << setw(10) << Rsl(i,j)<<"  ";
+      }
+      cout<<endl;
+    }
+    cout<<"Rsv"<<endl;
+    for(int i=1;i<=6;i++){
+      for(int j=1;j<=6;j++){
+	cout << scientific << setw(10) << Rsv(i,j)<<"  ";
+      }
+      cout<<endl;
+    }
+  }
+
+
   // Construct llZ couplings; 
   for (int i=11 ; i<=16 ; i++) {
     
@@ -345,15 +368,15 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       RslslZ[i][j] = 0.0;
 
       for (int k=1;k<=3;k++) {
-	LsdsdZ[i][j] += LllZ[1] * Rsl(i,k) * Rsl(j,k);
-	RsdsdZ[i][j] += RllZ[1] * Rsl(i,k+3) * Rsl(j,k+3);
+	LslslZ[i][j] += LllZ[1] * Rsl(i,k) * Rsl(j,k);
+	RslslZ[i][j] += RllZ[1] * Rsl(i,k+3) * Rsl(j,k+3);
       }
       
       // ~v[i] ~v[j] Z
       LsvsvZ[i][j] = 0.0;
       RsvsvZ[i][j] = 0.0; 
       for (int k=1;k<=3;k++) 
-	LsusuZ[i][j] += LllZ[2] * Rsv(i,k)*Rsv(j,k); 
+	LsvsvZ[i][j] += LllZ[2] * Rsv(i,k)*Rsv(j,k); 
     }
   }
  
@@ -472,7 +495,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
 
       if(l<=3) // Only left-handed sneutrinos
 	for(int i=1;i<=3;i++)
-	  LslsvW[k][l] += sqrt(2.0) * cosW * Rsl(k,i) * Rsl(l,i);
+	  LslsvW[k][l] += sqrt(2.0) * cosW * Rsl(k,i) * Rsv(l,i);
 
 
       // tmp: verbose output
@@ -507,7 +530,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     // Ni1, Ni2, Ni3, Ni4, Ni5
     complex ni1,ni2,ni3,ni4,ni5;
     
-    // In RPV, ignore neutralino-neutralino mixing 
+    // In RPV, ignore neutrino-neutralino mixing 
     if (slhaPtr->modsel(4) >= 1 && slhaPtr->rvnmix.exists()) {
       ni1=complex( slhaPtr->rvnmix(i+3,4), 0.0 );
       ni2=complex( slhaPtr->rvnmix(i+3,5), 0.0 );

@@ -7,6 +7,8 @@
 #                  N. Lavesson 28.04.2009 clean/distclean separated
 #                  M. Kirsanov 21.07.2009 Mac-OSX flags added
 
+.PHONY: all install installit installmain installdata clean distclean
+
 SHELL = /bin/sh
 
 -include config.mk
@@ -46,19 +48,21 @@ else
 endif
 
 ifneq (x$(HEPMCLOCATION),x)
- targets+=$(LIBDIRARCH)/libhepmcinterface.a
+ targets+=$(LIBDIRARCH)/libpythia8tohepmc.a
  ifeq ($(SHAREDLIBS),yes)
-  targets+=$(LIBDIR)/libhepmcinterface.$(SHAREDSUFFIX)
+  targets+=$(LIBDIR)/libpythia8tohepmc.$(SHAREDSUFFIX)
  endif
 endif
 
 
 all: $(targets) config.mk
 
-config.mk: ./configure
+# This default run of configure should only happen if configure 
+# has not already been explicitly run.
+config.mk:
 	./configure
 
-# Main part: build Pythia8 library. 
+# Main part: build Pythia8 library.
 
 $(MYTMPDIR)/%.o : $(SRCDIR)/%.cc
 	@mkdir -p $(MYTMPDIR)
@@ -142,15 +146,15 @@ ifneq (x$(HEPMCLOCATION),x)
 
  ifeq (x$(HEPMCERROR),x)
 
-   $(MYTMPDIR)/%.o : hepmcinterface/%.cc config.mk
+   $(MYTMPDIR)/%.o : pythia8tohepmc/%.cc config.mk
 	@mkdir -p $(MYTMPDIR)
 	$(CXX) $(CXXFLAGS) $(CXXFLAGSSHARED) $(HEPMCVFLAG) -c -I$(INCDIR) $(HEPMCINCLUDE) $< -o $@
 
-   $(MYTMPDIR)/archive/%.o : hepmcinterface/%.cc config.mk
+   $(MYTMPDIR)/archive/%.o : pythia8tohepmc/%.cc config.mk
 	@mkdir -p $(MYTMPDIR)/archive
 	$(CXX) $(CXXFLAGS) $(HEPMCVFLAG) -c -I$(INCDIR) $(HEPMCINCLUDE) $< -o $@
 
-   $(MYTMPDIR)/%.d : hepmcinterface/%.cc
+   $(MYTMPDIR)/%.d : pythia8tohepmc/%.cc
 	@echo Making dependency for file $<; \
 	mkdir -p $(MYTMPDIR); \
 	$(CC) -M -I$(INCDIR) $(HEPMCINCLUDE) $< | \
@@ -158,7 +162,7 @@ ifneq (x$(HEPMCLOCATION),x)
 	sed 's/$*.o/$(MYTMPDIR)\/$*.o/' > $@; \
 	[ -s $@ ] || rm -f $@
 
-   $(MYTMPDIR)/archive/%.d : hepmcinterface/%.cc
+   $(MYTMPDIR)/archive/%.d : pythia8tohepmc/%.cc
 	@echo Making dependency for file $<; \
 	mkdir -p $(MYTMPDIR)/archive; \
 	$(CC) -M -I$(INCDIR) $(HEPMCINCLUDE) $< | \
@@ -166,19 +170,19 @@ ifneq (x$(HEPMCLOCATION),x)
 	sed 's/$*.o/$(MYTMPDIR)\/archive\/$*.o/' > $@; \
 	[ -s $@ ] || rm -f $@
 
-   objectsI := $(patsubst hepmcinterface/%.cc,$(MYTMPDIR)/%.o,$(wildcard hepmcinterface/*.cc))
-   objectsIarch := $(patsubst hepmcinterface/%.cc,$(MYTMPDIR)/archive/%.o,$(wildcard hepmcinterface/*.cc))
+   objectsI := $(patsubst pythia8tohepmc/%.cc,$(MYTMPDIR)/%.o,$(wildcard pythia8tohepmc/*.cc))
+   objectsIarch := $(patsubst pythia8tohepmc/%.cc,$(MYTMPDIR)/archive/%.o,$(wildcard pythia8tohepmc/*.cc))
 
-   $(LIBDIR)/libhepmcinterface.$(SHAREDSUFFIX) : $(objectsI)
+   $(LIBDIR)/libpythia8tohepmc.$(SHAREDSUFFIX) : $(objectsI)
 	@mkdir -p $(LIBDIR)
 	$(CXX) $(LDFLAGSSHARED) $(objectsI) -o $@ $(LDFLAGLIBNAME),$(notdir $@)
 
-   $(LIBDIRARCH)/libhepmcinterface.a : $(objectsIarch)
+   $(LIBDIRARCH)/libpythia8tohepmc.a : $(objectsIarch)
 	@mkdir -p $(LIBDIRARCH)
-	ar cru $(LIBDIRARCH)/libhepmcinterface.a $(objectsIarch)
+	ar cru $(LIBDIRARCH)/libpythia8tohepmc.a $(objectsIarch)
 
-   depsI := $(patsubst hepmcinterface/%.cc,$(MYTMPDIR)/%.d,$(wildcard hepmcinterface/*.cc))
-   depsIarch := $(patsubst hepmcinterface/%.cc,$(MYTMPDIR)/archive/%.d,$(wildcard hepmcinterface/*.cc))
+   depsI := $(patsubst pythia8tohepmc/%.cc,$(MYTMPDIR)/%.d,$(wildcard pythia8tohepmc/*.cc))
+   depsIarch := $(patsubst pythia8tohepmc/%.cc,$(MYTMPDIR)/archive/%.d,$(wildcard pythia8tohepmc/*.cc))
 
    ifeq (,$(findstring clean, $(MAKECMDGOALS)))
    -include $(depsI)
@@ -187,7 +191,7 @@ ifneq (x$(HEPMCLOCATION),x)
 
  else
 
-   $(LIBDIRARCH)/libhepmcinterface.a $(LIBDIR)/libhepmcinterface.$(SHAREDSUFFIX) :
+   $(LIBDIRARCH)/libpythia8tohepmc.a $(LIBDIR)/libpythia8tohepmc.$(SHAREDSUFFIX) :
 	@echo $(HEPMCERROR)
 
 
@@ -202,6 +206,7 @@ endif
 ifneq (x$(INSTALLDIR),x.)
  install: all
 	mkdir -p $(INSTALLDIR)
+	mkdir -p $(INSTALLDIR)/bin
 	mkdir -p $(DATADIR)
 	make installit
  installit: installmain installdata
@@ -209,6 +214,7 @@ ifneq (x$(INSTALLDIR),x.)
 	cp -r include $(INSTALLDIR)/.
 	cp -r lib $(INSTALLDIR)/.
 	cp -p config.mk $(INSTALLDIR)/.
+	cp -p bin/pythia8-config $(INSTALLDIR)/bin/
 
  ifneq ($(DATADIR),$(INSTALLDIR))
   installdata:
@@ -229,24 +235,23 @@ endif
 
 # Clean up: remove (almost?) everything that cannot be recreated.
 
-.PHONY: clean distclean
-
 clean:
 	rm -rf $(MYTMPDIR)
 	rm -rf $(LIBDIR)
-	rm -rf $(BINDIR)
+	rm -rf $(BINDIR)/*.exe
 	cd examples; rm -rf bin; rm -f *.exe; cd -
 	cd rootexamples; rm -f *.exe; cd -
 
 distclean: clean
 	rm -f config.mk
 	rm -f *~; rm -f \#*;
+	rm -rf $(BINDIR)
 	cd $(SRCDIR); rm -f *~; rm -f \#*; cd -
-	cd $(INCDIR); rm -f *~; rm -f \#*; cd -
+	cd $(INCDIR)/Pythia8; rm -f *~; rm -f \#*; cd -
 	cd xmldoc; rm -f *~; rm -f \#*; cd -
 	cd htmldoc; rm -f *~; rm -f \#*; cd -
 	cd phpdoc; rm -f *~; rm -f \#*; cd -
-	cd hepmcinterface; rm -f *~; rm -f \#*; cd -
+	cd pythia8tohepmc; rm -f *~; rm -f \#*; cd -
 	cd lhapdfdummy; rm -f *~; rm -f \#*; cd -
 	cd examples; rm -f *~; rm -f \#*; rm -f core*; rm -f config.*; cd -
 	cd rootexamples; rm -f *~; rm -f \#*; rm -f core*; rm -f config.*; cd -

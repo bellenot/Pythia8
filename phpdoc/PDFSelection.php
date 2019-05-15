@@ -75,7 +75,7 @@ should therefore be extra cautious when using set 6 or set 9.
 The simplest option is to pick one 
 of the distributions available internally:
 
-<br/><br/><table><tr><td><strong>PDF:pSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 12</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>PDF:pSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 16</code>)</td></tr></table>
 Parton densities to be used for proton beams (and, by implication,
 antiproton ones):
 <br/>
@@ -91,6 +91,10 @@ antiproton ones):
 <input type="radio" name="1" value="10"><strong>10 </strong>: CT09MC1, LO <ei>alpha_s(M_Z) = 0.1300</ei>.<br/>
 <input type="radio" name="1" value="11"><strong>11 </strong>: CT09MC2, NLO <ei>alpha_s(M_Z) = 0.1180</ei>.<br/>
 <input type="radio" name="1" value="12"><strong>12 </strong>: CT09MCS, NLO <ei>alpha_s(M_Z) = 0.1180</ei>.<br/>
+<input type="radio" name="1" value="13"><strong>13 </strong>: NNPDF2.3 QCD+QED LO <ei>alpha_s(M_Z) = 0.130</ei>.<br/>
+<input type="radio" name="1" value="14"><strong>14 </strong>: NNPDF2.3 QCD+QED LO <ei>alpha_s(M_Z) = 0.119</ei>.<br/>
+<input type="radio" name="1" value="15"><strong>15 </strong>: NNPDF2.3 QCD+QED NLO <ei>alpha_s(M_Z) = 0.119</ei>.<br/>
+<input type="radio" name="1" value="16"><strong>16 </strong>: NNPDF2.3 QCD+QED NNLO <ei>alpha_s(M_Z) = 0.119</ei>.<br/>
 <br/><b>Note:</b> the <i>alpha_s(M_Z)</i> values and the order of the
 running in the description above is purely informative, and does not 
 affect any other parts of the program. Instead you have the freedom to
@@ -235,7 +239,7 @@ variables below. If off then use the same PDF set for everything,
 as already chosen above.   
   
 
-<br/><br/><table><tr><td><strong>PDF:pHardSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 12</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>PDF:pHardSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 16</code>)</td></tr></table>
 Parton densities to be used for proton beams (and, by implication,
 antiproton ones):
 <br/>
@@ -251,6 +255,10 @@ antiproton ones):
 <input type="radio" name="7" value="10"><strong>10 </strong>: CT09MC1, LO <ei>alpha_s(M_Z) = 0.1300</ei>.<br/>
 <input type="radio" name="7" value="11"><strong>11 </strong>: CT09MC2, NLO <ei>alpha_s(M_Z) = 0.1180</ei>.<br/>
 <input type="radio" name="7" value="12"><strong>12 </strong>: CT09MCS, NLO <ei>alpha_s(M_Z) = 0.1180</ei>.<br/>
+<input type="radio" name="7" value="13"><strong>13 </strong>: NNPDF2.3 QCD+QED LO <ei>alpha_s(M_Z) = 0.130</ei>.<br/>
+<input type="radio" name="7" value="14"><strong>14 </strong>: NNPDF2.3 QCD+QED LO <ei>alpha_s(M_Z) = 0.119</ei>.<br/>
+<input type="radio" name="7" value="15"><strong>15 </strong>: NNPDF2.3 QCD+QED NLO <ei>alpha_s(M_Z) = 0.119</ei>.<br/>
+<input type="radio" name="7" value="16"><strong>16 </strong>: NNPDF2.3 QCD+QED NNLO <ei>alpha_s(M_Z) = 0.119</ei>.<br/>
 
 <br/><br/><strong>PDF:useHardLHAPDF</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
 <input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>

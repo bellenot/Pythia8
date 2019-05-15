@@ -9,7 +9,7 @@
 // and how to write a derived class for external parton distributions.
 // Warning: the parameters are not realistic. 
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
  

@@ -1,7 +1,7 @@
 #ifdef PYTHIA8_COMPLETE_ROOT_DICTIONARY
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 #else
-#include "Event.h"
+#include "Pythia8/Event.h"
 #endif
 
 using namespace Pythia8;

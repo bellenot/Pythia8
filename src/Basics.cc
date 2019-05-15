@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the Rndm, Vec4, 
 // RotBstMatrix and Hist classes, and some related global functions.
 
-#include "Basics.h"
+#include "Pythia8/Basics.h"
 
 // Access time information.
 #include <ctime>
@@ -804,8 +804,9 @@ const int    Hist::NLINES    = 30;
 // Tolerance in deviation of xMin and xMax between two histograms.
 const double Hist::TOLERANCE = 0.001;
 
-// Small number to avoid division by zero.
+// Small and large numbers to avoid division by zero and overflow.
 const double Hist::TINY      = 1e-20;
+const double Hist::LARGE     = 1e20;
 
 // When minbin/maxbin < SMALLFRAC the y scale goes down to zero.
 const double Hist::SMALLFRAC = 0.1;
@@ -879,6 +880,7 @@ ostream& operator<<(ostream& os, const Hist& h) {
   os << "\n\n  " << date << "       " << h.title << "\n\n";
 
   // Group bins, where required, to make printout have fewer columns.
+  // Avoid overflow.
   int nGroup = 1 + (h.nBin - 1) / Hist::NCOLMAX;
   int nCol   = 1 + (h.nBin - 1) / nGroup;
   vector<double> resCol(nCol);
@@ -886,6 +888,7 @@ ostream& operator<<(ostream& os, const Hist& h) {
     resCol[iCol] = 0.;
     for (int ix = nGroup * iCol; ix < min( h.nBin, nGroup * (iCol + 1)); ++ix)
       resCol[iCol] += h.res[ix];
+    resCol[iCol] = max( -Hist::LARGE, min( Hist::LARGE, resCol[iCol] ) );
   }
 
   // Find minimum and maximum bin content.
@@ -1073,9 +1076,9 @@ bool Hist::sameSize(const Hist& h) const {
 void Hist::takeLog(bool tenLog) {
 
   // Find smallest positive bin content, and put min a bit below.
-  double yMin = 1e20;
+  double yMin = Hist::LARGE;
   for (int ix = 0; ix < nBin; ++ix) 
-    if (res[ix] > 1e-20 && res[ix] < yMin ) yMin = res[ix];
+    if (res[ix] > Hist::TINY && res[ix] < yMin ) yMin = res[ix];
   yMin *= 0.8;
   
   // Take 10-logarithm bin by bin, but ensure positivity.
@@ -1193,7 +1196,7 @@ Hist& Hist::operator-=(double f) {
 
 //--------------------------------------------------------------------------
 
-// Multiply histogram by constant
+// Multiply histogram by constant.
 
 Hist& Hist::operator*=(double f) {
   under  *= f;
@@ -1205,13 +1208,21 @@ Hist& Hist::operator*=(double f) {
 
 //--------------------------------------------------------------------------
 
-// Divide histogram by constant
+// Divide histogram by constant.
 
 Hist& Hist::operator/=(double f) {
-  under  /= f;
-  inside /= f;
-  over   /= f;
-  for (int ix = 0; ix < nBin; ++ix) res[ix] /= f;    
+  if (abs(f) > Hist::TINY) {
+    under  /= f;
+    inside /= f;
+    over   /= f;
+    for (int ix = 0; ix < nBin; ++ix) res[ix] /= f;
+  // Set empty contents when division by zero.
+  } else {    
+    under  = 0.;
+    inside = 0.;
+    over   = 0.;
+    for (int ix = 0; ix < nBin; ++ix) res[ix] = 0.;
+  }
   return *this;
 }
 

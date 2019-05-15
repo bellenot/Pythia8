@@ -116,6 +116,16 @@ subsequent to the hard process itself; on/off = true/false. In addition
 <code>PartonLevel:FSR</code> must be on for these emissions to occur.
   
 
+<p/><code>flag&nbsp; </code><strong> PartonLevel:earlyResDec &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+If on then do resonance decays early, before beam handling including
+colour reconnection. If off then decays are done afterwards, and so 
+are unaffected by colour reconnection. The early-decay option is still 
+primitive, for some first studies. Eventually the choice should be
+made individually for each resonance based on lifetime (and the 
+environment).
+  
+
 <p/>
 Switching off all the above MPI/ISR/FSR switches is <b>not</b> equivalent 
 to setting <code>PartonLevel:all = off</code>. In the former case a 

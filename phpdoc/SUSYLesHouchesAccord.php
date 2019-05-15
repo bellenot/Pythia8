@@ -96,6 +96,66 @@ derived quantities of direct application to SUSY processes is done in the
 <code>CoupSUSY</code>, <code>SigmaSUSY</code>,
 and <code>SUSYResonanceWidths</code> classes.
 
+<h3>Sanity Checks</h3>
+
+As an aid for basic validation, some checks and ranges are imposed
+ on SLHA input during initialization, as follows: 
+<ul>
+<li>Several parameters (<code>SLHA:keepSM</code>, <code>minMassSM</code>, 
+and <code>SLHA:allowUserOverride</code>) provide some safety against 
+unintentionally overwriting PYTHIA's Standard-Model information. 
+These parameters can be altered to hand over more or less control to the SLHA 
+interface. In particular, 
+a lot of mass and decay-table information may be included by default in some
+SLHA files, without it being the explicit intention of the user to overwrite 
+the corresponding PYTHIA information. The default 
+values of the SLHA safety parameters have been chosen so as to eliminate 
+at least the most obvious causes of Garbage In Garbage Out. 
+(E.g., there is usually no reason to modify the masses of well-measured SM 
+particles, like the W and Z bosons, nor to replace their sophisticated 
+internal decay treatments by the simplified isotropic treatment used for 
+SLHA DECAY tables.)
+</li>
+<li>For SLHA SUSY spectra, the interface checks  the mass-ordering of the Higgs,
+Neutralino, and  Chargino sectors, and the unitarity/orthogonality of the 
+mixing matrices. It also performs some additional self-consistency checks on 
+whether the correct SLHA BLOCKs for the given SUSY model have been included, 
+and whether all required entries have been defined. 
+</li>
+<li>If MASS or DECAY information for a particle has been changed by SLHA input,
+the following sanity checks will be carried out. The particle will be declared
+stable unless there is at least one on-shell decay channel open (regardless of 
+the presence of any DECAY information). In particular, massless particles will 
+always be declared stable. A lower cutoff is imposed on the Breit-Wigner shape 
+of the particle, requiring its mass to remain above the sum of masses for the 
+lightest decay channel. Subject to that constraint, the lower cutoff will 
+normally be placed at 5 times the width (so that the default gives a decent 
+sampling of the shape), but the user is allowed to use the <code>mMin</code> 
+parameter to choose a larger sampling range if so desired (still subject to 
+the on-shell constraint). 
+</li>
+<li>For each decay channel in an SLHA DECAY table, PYTHIA will checks the 
+available phase space. If the channel is on shell (sum of daughter masses is 
+less than mass of decaying particle), then the threshold dependence is given 
+by <code>SLHA:meMode</code>. If the channel is off shell, then an 
+<code>meMode</code> of 100 is always used. As a further protection against GIGO,
+ if the channel appears to be physically impossible (defined as requiring 
+fluctuations of more than more than 100 times the effective combined widths), 
+it is switched of and a warning message is printed. 
+</li>
+<li>DECAY table branching fractions are always interpreted as positive. However,
+ a negative sign for one or more channels can be given, and will then be 
+interpreted to mean that the corresponding channel(s) should be switched off 
+for the current run. This furnishes a simple way to switch SLHA DECAY channels 
+on and off while preserving the sum of branching fractions equal to unity.
+</li>
+</ul>
+Note that these sanity checks will not catch all possible cases of 
+Garbage In Garbage Out, so human verification of the input files is always a 
+good idea, as is taking a look at any warnings or error messages printed by 
+the SLHA interface during initialization. It is ultimately up to the user to 
+ensure that sensible input is being given. 
+
 <h3>SLHA Switches and Parameters</h3>
 
 <p/><code>mode&nbsp; </code><strong> SLHA:readFrom &nbsp;</strong> 
@@ -151,6 +211,15 @@ allowed to be modified by the user, using PYTHIA's standard
 
 <h3>SLHA DECAY Tables</h3>
 
+In addition to SUSY spectra, the SLHA also defines a set of conventions for 
+decay tables. These are not restricted to SUSY models, but can be used for 
+arbitrary particles, either in combination with or independently of 
+the SUSY parts of the Accord. The settings in this section control whether and 
+how PYTHIA will make use of such tables. See also the comments under 
+sanity checks above. 
+<br/><b>Note</b>: the PYTHIA SLHA interface is limited to at most 
+<code>1&rarr;8</code> decays. 
+
 <br/><br/><strong>SLHA:useDecayTable</strong>  <input type="radio" name="5" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="5" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
@@ -167,13 +236,38 @@ particle, or you may include an SLHA <code>DECAY</code> table for it,
 with the width set explicitly to zero.)
   
 
-<br/><br/><table><tr><td><strong>SLHA:minDecayDeltaM </td><td></td><td> <input type="text" name="6" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>)</td></tr></table>
-This parameter sets the smallest allowed mass difference (in GeV,
-between the mass of the mother and the sum of the daughter masses) 
-for a decay mode in a DECAY table to be switched on inside PYTHIA. The
-default is to require at least 1 GeV of open phase space, but this can
-be reduced (at the user's risk) for instance to be able to treat
-decays in  models with very small mass splittings.
+<p/><code>mode&nbsp; </code><strong> SLHA:meMode &nbsp;</strong> 
+ (<code>default = <strong>100</strong></code>; <code>minimum = 100</code>; <code>maximum = 103</code>)<br/>
+This value specifies how threshold, off-shell, and phase-space
+weighting effects for SLHA decay channels should be treated, using the same 
+numbering scheme as for <?php $filepath = $_GET["filepath"];
+echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?>resonances</a>. 
+The default (100) is to use the branching fraction given in the SLHA
+DECAY tables without any modifications. The 
+corresponding partial widths remain unchanged
+when the resonance fluctuates in mass. Specifically there are no
+threshold corrections. That is, if the resonance fluctuates down in
+mass, to below the nominal threshold for some decay mode, 
+it is assumed that one of the
+daughters could also fluctuate down to keep the channel open. (If not,
+there may be problems later on.)  
+Alternative options (with values 101+) documented under 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?>resonances</a> allow for some flexibility to
+apply threshold factors expressing the closing of the on-shell phase space
+when the daughter masses approach or exceed the parent one. 
+Note that modes that are extremely far off shell 
+(defined as needing a fluctuation of more than 100 times the
+root-sum-square of the widths of the mother and daughter particles)
+will always be assigned <code>meMode = 100</code> and should be
+switched off by hand if so desired. 
+It is up
+to the user to ensure that the final behaviour is consistent with what
+is desired (and/or to apply suitable post facto reweightings). 
+Plotting the generator-level resonance and decay-product mass
+distributions (and e.g., mass differences), effective branching
+fractions, etc, may be of assistance to validate the behaviour of the
+program. 
   
 
 <h3>Internal SLHA Variables</h3>
@@ -188,8 +282,8 @@ The following variables are used internally by PYTHIA as local copies
 of SLHA information. User changes will generally have no effect, since
 these variables will be reset by the SLHA reader during initialization.
 
-<br/><br/><strong>SLHA:NMSSM</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
-<input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>SLHA:NMSSM</strong>  <input type="radio" name="6" value="on"><strong>On</strong>
+<input type="radio" name="6" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Corresponds to SLHA block MODSEL entry 3.
   
@@ -223,21 +317,11 @@ The contents of both standard and user-defined SLHA blocks can be accessed
 in any class inheriting from PYTHIA 8's <code>SigmaProcess</code>
 class (i.e., in particular, from any semi-internal process written by
 a user), through its SLHA pointer, <code>slhaPtr</code>, by using the 
-following methods: 
-<a name="method1"></a>
-<p/><strong> &nbsp;</strong> <br/>
-  bool slhaPtr->getEntry(string blockName, double& val); 
-  
-<strong> &nbsp;</strong> <br/>
-  bool slhaPtr->getEntry(string blockName, int indx, double& val); 
-  
-<strong> &nbsp;</strong> <br/>
-  bool slhaPtr->getEntry(string blockName, int indx, int jndx, double& val); 
-  
-<strong> &nbsp;</strong> <br/>
-  bool slhaPtr->getEntry(string blockName, int indx, int jndx, int
-  kndx, double& val); 
-  
+following methods:<br/> 
+bool slhaPtr->getEntry(string blockName, double& val);<br/> 
+bool slhaPtr->getEntry(string blockName, int indx, double& val);<br/> 
+bool slhaPtr->getEntry(string blockName, int indx, int jndx, double& val);<br/> 
+bool slhaPtr->getEntry(string blockName, int indx, int jndx, int kndx, double& val); 
 </p>
 
 <p>
@@ -315,14 +399,9 @@ if($_POST["5"] != "on")
 $data = "SLHA:useDecayTable = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "1.0")
+if($_POST["6"] != "off")
 {
-$data = "SLHA:minDecayDeltaM = ".$_POST["6"]."\n";
-fwrite($handle,$data);
-}
-if($_POST["7"] != "off")
-{
-$data = "SLHA:NMSSM = ".$_POST["7"]."\n";
+$data = "SLHA:NMSSM = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

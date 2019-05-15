@@ -116,7 +116,8 @@ to increase efficiency.</li>
 
 <li><code>main16.cc</code> : put all user analysis code into a class
 of its own, separate from the main program; provide the "cards file" 
-name as a command-line argument.</li> 
+name as a command-line argument. Also exemplifies how Higgs mass,
+width and branching ratios can be set by hand.</li> 
 
 <li><code>main17.cc</code> : shows (a) how to use UserHooks to 
 regularize onium cross section for pT -> 0, and (b) how decays 
@@ -212,6 +213,11 @@ and output HepMC event file (e.g. <code>hepmcout42.dat</code>) are to
 be provided as command-line arguments. Requires that HepMC is properly 
 linked. Note that the HepMC output file can become quite big; so no 
 example is included in this distribution.</li>
+
+<li><code>main46.cc</code> : illustrates how to write a ProMC file with 
+PYTHIA events. Note that this example cannot (yet) be built by the PYTHIA
+Makefile, but a relevant Makefile is available on the ProMC webpage 
+<code>http://atlaswww.hep.anl.gov/asc/promc/</code>.</li>
 
 <li><code>main51.cc</code> : a test of the shape of parton densities,
 as a check prior to using a given PDF set in a generator.  Requires 
@@ -323,11 +329,6 @@ See <?php $filepath = $_GET["filepath"];
 echo "<a href='NLOMerging.php?filepath=".$filepath."' target='page'>";?>NLO Merging</a> (UNLOPS section) for further 
 details.
 </li>
-
-<li><code>main91.cc</code> : exemplifies how you can link in runtime
-generation of hard processes from PYTHIA 6, using the Les Houches
-Accord facilities. This example is deprecated, since PYTHIA 8 by now
-contains essentially all hard processes found in PYTHIA 6.</li>
 
 </ul>
 

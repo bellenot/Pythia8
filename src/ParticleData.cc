@@ -6,10 +6,10 @@
 // Function definitions (not found in the header) for the
 // DecayChannel, ParticleDataEntry and ParticleData classes.
 
-#include "ParticleData.h"
-#include "ResonanceWidths.h"
-#include "StandardModel.h"
-#include "SusyResonanceWidths.h"
+#include "Pythia8/ParticleData.h"
+#include "Pythia8/ResonanceWidths.h"
+#include "Pythia8/StandardModel.h"
+#include "Pythia8/SusyResonanceWidths.h"
 
 // Allow string and character manipulation.
 #include <cctype>
@@ -247,6 +247,7 @@ void ParticleDataEntry::initBWmass() {
 
   // Find Breit-Wigner mode for current particle.
   modeBWnow = particleDataPtr->modeBreitWigner;
+  if ( m0Save < NARROWMASS ) mWidthSave = 0.;
   if ( mWidthSave < NARROWMASS || (mMaxSave > mMinSave      
     && mMaxSave - mMinSave < NARROWMASS) ) modeBWnow = 0;
   if (modeBWnow == 0) return;
@@ -303,10 +304,10 @@ void ParticleDataEntry::initBWmass() {
 // Function to give mass of a particle, either at the nominal value
 // or picked according to a (linear or quadratic) Breit-Wigner. 
 
-double ParticleDataEntry::mass() {
+double ParticleDataEntry::mSel() {
 
-  // Nominal value.
-  if (modeBWnow == 0) return m0Save;
+  // Nominal value. (Width check should not be needed, but just in case.) 
+  if (modeBWnow == 0 || mWidthSave < NARROWMASS) return m0Save;
   double mNow, m2Now;
 
   // Mass according to a Breit-Wigner linear in m.
@@ -553,7 +554,7 @@ void ParticleData::initCommon() {
   // Find Lambda5 value to use in running of MSbar masses.
   double alphaSvalue = settingsPtr->parm("ParticleData:alphaSvalueMRun");
   AlphaStrong alphaS;
-  alphaS.init( alphaSvalue, 1); 
+  alphaS.init( alphaSvalue, 1, 5, false); 
   Lambda5Run = alphaS.Lambda5();  
 
 }
@@ -752,8 +753,12 @@ void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
     }
   }
 
-  // Initialize the resonances in ascending mass order.
-  for (int i = 0; i < int(idOrdered.size()); ++i) resInit( idOrdered[i]);
+  // Initialize the resonances in ascending mass order. Reset mass generation.
+  for (int i = 0; i < int(idOrdered.size()); ++i) {
+    resInit( idOrdered[i]);
+    ParticleDataEntry* pdtPtrNow = particleDataEntryPtr( idOrdered[i]);
+    pdtPtrNow->initBWmass(); 
+  }
   
 }
 

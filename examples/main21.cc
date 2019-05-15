@@ -7,7 +7,7 @@
 // It illustrates how to feed in a single particle (including a resonance)
 // or a toy parton-level configurations.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 using namespace Pythia8; 
 
 //==========================================================================
@@ -24,7 +24,7 @@ void fillParticle(int id, double ee, double thetaIn, double phiIn,
   event.reset();
 
   // Select particle mass; where relevant according to Breit-Wigner. 
-  double mm = pdt.mass(id);
+  double mm = pdt.mSel(id);
   double pp = sqrtpos(ee*ee - mm*mm);
 
   // Special case when particle is supposed to be at rest.

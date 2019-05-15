@@ -19,13 +19,6 @@ Block QNUMBERS 9000006 # sextet
         4 1  # Particle/Antiparticle distinction (0=own anti)
 DECAY 9000006 1.0 
     1.0 2 2 2  
-BLOCK DCINFO  # Decay Program information
-     1   SDECAY      # decay calculator
-     2   1.1a        # version number
-#
-BLOCK SPINFO  # Spectrum calculator information
-     1   SOFTSUSY                                          
-     2   2.0.5                                             
 #
 BLOCK MODSEL  # Model selection
      1     1   #                                                 
@@ -49,7 +42,7 @@ BLOCK MINPAR  # Input parameters - minimal models
 BLOCK MASS  # Mass Spectrum
 # PDG code           mass       particle
          5     4.83960131E+00   # b-quark pole mass calculated from mb(mb)_Msbar
-         6     1.0E+01
+         6     1.75000000E+02   # t-quark 
         24     7.98255860E+01   # W+
         25     1.10864387E+02   # h
         35     3.98301591E+02   # H
@@ -78,9 +71,9 @@ BLOCK MASS  # Mass Spectrum
    1000016     2.84540383E+04   # ~nu_tauL
    1000021     7.00000000E+01   # ~g
    1000022     4.00000000E+01   # ~chi_10
-   1000023     0.00000000E+00   # ~chi_20
-   1000025     0.00000000E+00   # ~chi_30
-   1000035     0.00000000E+00   # ~chi_40
+   1000023     6.00000000E+01   # ~chi_20
+   1000025     7.00000000E+01   # ~chi_30
+   1000035     8.00000000E+01   # ~chi_40
    1000024     1.81692495E+04   # ~chi_1+
    1000037     2.78328056E+04   # ~chi_2+
    9000006 5.000000e+02 # MSIX 

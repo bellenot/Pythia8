@@ -5,7 +5,7 @@
 // Copyright (C) 2013 Torbjorn Sjostrand
 
 // Header file to access Pythia 8 program elements.
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 // ROOT, for saving Pythia events as trees in a file.
 #include "TTree.h"

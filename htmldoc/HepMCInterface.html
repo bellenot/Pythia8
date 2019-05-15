@@ -21,7 +21,7 @@ is illustrated in the <code>main41.cc</code>, <code>main42.cc</code>
 <code>main61.cc</code> and <code>main62.cc</code>   
 main programs. At the core is a call to the
 <pre>
-HepMC::I_Pythia8::fill_next_event( pythia, hepmcevt, ievnum = -1) 
+HepMC::Pythia8ToHepMC::fill_next_event( pythia, hepmcevt, ievnum = -1) 
 </pre>
 which takes a reference of the generator object and uses it, on the one
 hand, to read out and convert the event record in <code>pythia.event</code> 
@@ -62,18 +62,18 @@ weight, like in some Les Houches strategies, this weight is in units of pb.
 <h2>The public methods</h2>
 
 Here comes a complete list of all public methods of the 
-<code>I_Pythia8</code> class in the <code>HepMC</code> 
+<code>Pythia8ToHepMC</code> class in the <code>HepMC</code> 
 (<i>not</i> <code>Pythia8</code>!) namespace.
 
 <a name="method1"></a>
-<p/><strong>I_Pythia8::I_Pythia8() &nbsp;</strong> <br/>
+<p/><strong>Pythia8ToHepMC::Pythia8ToHepMC() &nbsp;</strong> <br/>
   
-<strong>virtual I_Pythia8::~I_Pythia8() &nbsp;</strong> <br/>
+<strong>virtual Pythia8ToHepMC::~Pythia8ToHepMC() &nbsp;</strong> <br/>
 the constructor and destructor take no arguments.
   
 
 <a name="method2"></a>
-<p/><strong>bool I_Pythia8::fill_next_event( Pythia8::Pythia& pythia, GenEvent* evt, int ievnum = -1) &nbsp;</strong> <br/>
+<p/><strong>bool Pythia8ToHepMC::fill_next_event( Pythia8::Pythia& pythia, GenEvent* evt, int ievnum = -1) &nbsp;</strong> <br/>
 convert a <code>Pythia</code> event to a <code>HepMC</code> one.
 Will return true if succeeded.
 <br/><code>argument</code><strong> pythia </strong>  : 
@@ -91,7 +91,7 @@ each new event.
   
 
 <a name="method3"></a>
-<p/><strong>bool I_Pythia8::fill_next_event( Pythia8::Event& pyev, GenEvent* evt, int ievnum = -1, Pythia8::Info* pyinfo = 0, Pythia8::Settings* pyset = 0) &nbsp;</strong> <br/>
+<p/><strong>bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev, GenEvent* evt, int ievnum = -1, Pythia8::Info* pyinfo = 0, Pythia8::Settings* pyset = 0) &nbsp;</strong> <br/>
 convert a <code>Pythia</code> event to a <code>HepMC</code> one.
 Will return true if succeeded.
 <br/><code>argument</code><strong> pyev </strong>  : 
@@ -130,34 +130,34 @@ the internal initialization ones, so that a call without an argument
 (re)stores the default.
 
 <a name="method4"></a>
-<p/><strong>void I_Pythia8::set_print_inconsistency(bool b = true) &nbsp;</strong> <br/>
+<p/><strong>void Pythia8ToHepMC::set_print_inconsistency(bool b = true) &nbsp;</strong> <br/>
   
-<strong>bool I_Pythia8::print_inconsistency() &nbsp;</strong> <br/>
+<strong>bool Pythia8ToHepMC::print_inconsistency() &nbsp;</strong> <br/>
 print a warning line, on <code>cerr</code>, when inconsistent mother 
 and daughter information is encountered.
   
 
 <a name="method5"></a>
-<p/><strong>void I_Pythia8::set_free_parton_warnings(bool b = true) &nbsp;</strong> <br/>
+<p/><strong>void Pythia8ToHepMC::set_free_parton_warnings(bool b = true) &nbsp;</strong> <br/>
   
-<strong>bool I_Pythia8::free_parton_warnings() &nbsp;</strong> <br/>
+<strong>bool Pythia8ToHepMC::free_parton_warnings() &nbsp;</strong> <br/>
 check and print a warning line when unhadronized gluons or quarks are 
 encountered in the event record. Does not apply when Pythia hadronization 
 is switched off. Default is to do this check.
   
 
 <a name="method6"></a>
-<p/><strong>void I_Pythia8::set_crash_on_problem(bool b = false) &nbsp;</strong> <br/>
+<p/><strong>void Pythia8ToHepMC::set_crash_on_problem(bool b = false) &nbsp;</strong> <br/>
   
-<strong>bool I_Pythia8::crash_on_problem() &nbsp;</strong> <br/>
+<strong>bool Pythia8ToHepMC::crash_on_problem() &nbsp;</strong> <br/>
 if problems (like the free partons above) are encountered then the run 
 is interrupted by an <code>exit(1)</code> command. Default is not to crash.
   
 
 <a name="method7"></a>
-<p/><strong>void I_Pythia8::set_convert_gluon_to_0(bool b = false) &nbsp;</strong> <br/>
+<p/><strong>void Pythia8ToHepMC::set_convert_gluon_to_0(bool b = false) &nbsp;</strong> <br/>
   
-<strong>bool I_Pythia8::convert_gluon_to_0() &nbsp;</strong> <br/>
+<strong>bool Pythia8ToHepMC::convert_gluon_to_0() &nbsp;</strong> <br/>
 the normal gluon identity code 21 is used also when parton density
 information is stored, unless this optional argument is set true to
 have gluons represented by a 0. This choice does not affect the 
@@ -165,27 +165,27 @@ normal event record, where a gluon is always 21.
   
 
 <a name="method8"></a>
-<p/><strong>void I_Pythia8::set_store_pdf(bool b = true) &nbsp;</strong> <br/>
+<p/><strong>void Pythia8ToHepMC::set_store_pdf(bool b = true) &nbsp;</strong> <br/>
   
-<strong>bool I_Pythia8::store_pdf() &nbsp;</strong> <br/>
+<strong>bool Pythia8ToHepMC::store_pdf() &nbsp;</strong> <br/>
 for each event store information on the two incoming flavours, their
 x values and common factorization scale, and the values of the two 
 parton distributions, <i>xf(x,Q)</i>.
   
 
 <a name="method9"></a>
-<p/><strong>void I_Pythia8::set_store_proc(bool b = true) &nbsp;</strong> <br/>
+<p/><strong>void Pythia8ToHepMC::set_store_proc(bool b = true) &nbsp;</strong> <br/>
   
-<strong>bool I_Pythia8::store_proc() &nbsp;</strong> <br/>
+<strong>bool Pythia8ToHepMC::store_proc() &nbsp;</strong> <br/>
 for each event store information on the Pythia process code, the 
 renormalization scale, and <i>alpha_em</i> and <i>alpha_s</i>
 values used for the hard process. 
   
 
 <a name="method10"></a>
-<p/><strong>void I_Pythia8::set_store_xsec(bool b = true) &nbsp;</strong> <br/>
+<p/><strong>void Pythia8ToHepMC::set_store_xsec(bool b = true) &nbsp;</strong> <br/>
   
-<strong>bool I_Pythia8::store_xsec() &nbsp;</strong> <br/>
+<strong>bool Pythia8ToHepMC::store_xsec() &nbsp;</strong> <br/>
 for each event store information on the Pythia cross section and its error,
 in pb, and the event weight. If events also come with a dimensional weight, 
 like in some Les Houches strategies, this weight is in units of pb.

@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the 
 // Particle and Event classes, and some related global functions.
 
-#include "Event.h"
+#include "Pythia8/Event.h"
 
 namespace Pythia8 {
 
@@ -389,17 +389,19 @@ bool Particle::undoDecay() {
   } while (++iRange < int(dauBeg.size())); 
 
   // Join adjacent ranges to reduce number of erase steps.
-  int iRJ = 0;
-  do {
-    if (dauEnd[iRJ] + 1 == dauBeg[iRJ + 1]) {
-      for (int iRB = iRJ + 1; iRB < int(dauBeg.size()) - 1; ++iRB)
-        dauBeg[iRB] = dauBeg[iRB + 1];
-      for (int iRE = iRJ; iRE < int(dauEnd.size()) - 1; ++iRE)
-        dauEnd[iRE] = dauEnd[iRE + 1];
-      dauBeg.pop_back();
-      dauEnd.pop_back();
-    } else ++iRJ;
-  } while (iRJ < int(dauBeg.size()) - 1);
+  if (int(dauBeg.size()) > 1) { 
+    int iRJ = 0;
+    do {
+      if (dauEnd[iRJ] + 1 == dauBeg[iRJ + 1]) {
+        for (int iRB = iRJ + 1; iRB < int(dauBeg.size()) - 1; ++iRB)
+          dauBeg[iRB] = dauBeg[iRB + 1];
+        for (int iRE = iRJ; iRE < int(dauEnd.size()) - 1; ++iRE)
+          dauEnd[iRE] = dauEnd[iRE + 1];
+        dauBeg.pop_back();
+        dauEnd.pop_back();
+      } else ++iRJ;
+    } while (iRJ < int(dauBeg.size()) - 1);
+  }
 
   // Iterate over relevant ranges, from bottom up.
   for (int iR = int(dauBeg.size()) - 1; iR >= 0; --iR) {
@@ -750,17 +752,19 @@ bool Event::undoDecay(int i) {
   } while (++iRange < int(dauBeg.size())); 
 
   // Join adjacent ranges to reduce number of erase steps.
-  int iRJ = 0;
-  do {
-    if (dauEnd[iRJ] + 1 == dauBeg[iRJ + 1]) {
-      for (int iRB = iRJ + 1; iRB < int(dauBeg.size()) - 1; ++iRB)
-        dauBeg[iRB] = dauBeg[iRB + 1];
-      for (int iRE = iRJ; iRE < int(dauEnd.size()) - 1; ++iRE)
-        dauEnd[iRE] = dauEnd[iRE + 1];
-      dauBeg.pop_back();
-      dauEnd.pop_back();
-    } else ++iRJ;
-  } while (iRJ < int(dauBeg.size()) - 1);
+  if (int(dauBeg.size()) > 1) { 
+     int iRJ = 0;
+    do {
+      if (dauEnd[iRJ] + 1 == dauBeg[iRJ + 1]) {
+        for (int iRB = iRJ + 1; iRB < int(dauBeg.size()) - 1; ++iRB)
+          dauBeg[iRB] = dauBeg[iRB + 1];
+        for (int iRE = iRJ; iRE < int(dauEnd.size()) - 1; ++iRE)
+          dauEnd[iRE] = dauEnd[iRE + 1];
+        dauBeg.pop_back();
+        dauEnd.pop_back();
+      } else ++iRJ;
+    } while (iRJ < int(dauBeg.size()) - 1);
+  }
 
   // Iterate over relevant ranges, from bottom up.
   for (int iR = int(dauBeg.size()) - 1; iR >= 0; --iR) {

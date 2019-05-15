@@ -6,7 +6,7 @@
 // Example how you can use UserHooks to trace pT spectrum through program,
 // and veto undesirable jet multiplicities. 
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 using namespace Pythia8; 
 
 //==========================================================================

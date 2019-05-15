@@ -7,7 +7,7 @@
 // It illustrates how to run SUSY processes in Pythia8.
 // All input is specified in the main22.cmnd file.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
 

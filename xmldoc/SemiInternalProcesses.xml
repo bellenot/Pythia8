@@ -364,11 +364,16 @@ time. Currently allowed options are:
 <br/>* <code>qg</code>: one (anti)quark and one gluon.
 <br/>* <code>qq</code>: any combination of two quarks, two antiquarks or
 a quark and an antiquark.
+<br/>* <code>qqbar</code>: any combination of a quark and an antiquark;
+a subset of the <code>qq</code> option.
 <br/>* <code>qqbarSame</code>: a quark and its antiquark;
-this is a subset of the above <code>qq</code> option.
+a subset of the <code>qqbar</code> option.
 <br/>* <code>ff</code>: any combination of two fermions, two antifermions 
 or a fermion and an antifermion; is the same as <code>qq</code> for 
 hadron beams but also allows processes to work with lepton beams.
+<br/>* <code>ffbar</code>: any combination of a fermion and an antifermion; 
+is the same as <code>qqbar</code> for hadron beams but also allows processes 
+to work with lepton beams.
 <br/>* <code>ffbarSame</code>: a fermion and its antifermion; is the 
 same as <code>qqbarSame</code> for hadron beams but also allows processes 
 to work with lepton beams.

@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the 
 // leptoquark simulation classes. 
 
-#include "SigmaLeptoquark.h"
+#include "Pythia8/SigmaLeptoquark.h"
 
 namespace Pythia8 {
 

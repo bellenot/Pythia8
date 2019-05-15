@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the 
 // ParticleDecays class.
 
-#include "ParticleDecays.h"
+#include "Pythia8/ParticleDecays.h"
 
 namespace Pythia8 {
 
@@ -218,7 +218,7 @@ bool ParticleDecays::decay( int iDec, Event& event) {
             || idAbs == 83 || (idAbs > 1000 && idAbs < 10000 
             && (idAbs/10)%10 == 0) ) hasPartons = true;
           if (idDec < 0 && particleDataPtr->hasAnti(idNow)) idNow = -idNow;
-          double mNow = particleDataPtr->mass(idNow);
+          double mNow = particleDataPtr->mSel(idNow);
           idProd.push_back( idNow);
           mProd.push_back( mNow);
         }  
@@ -1020,7 +1020,7 @@ bool ParticleDecays::pickHadrons() {
       int idHad; 
       do idHad = flavSelPtr->combine( flav1, flav2); 
       while (idHad == 0);
-      double mHad = particleDataPtr->mass(idHad);
+      double mHad = particleDataPtr->mSel(idHad);
       mDiff -= mHad;
       idProd.push_back( idHad);
       mProd.push_back( mHad);
@@ -1147,7 +1147,7 @@ bool ParticleDecays::pickHadrons() {
 
       // Find masses of the new hadrons.
       for (int i = nFilled; i < int(idProd.size()) ; ++i) {
-        double mHad = particleDataPtr->mass(idProd[i]);
+        double mHad = particleDataPtr->mSel(idProd[i]);
         mProd.push_back( mHad);
         mDiff -= mHad;
       } 

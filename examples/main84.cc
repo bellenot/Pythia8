@@ -8,8 +8,8 @@
 // see the Matrix Element Merging page in the online manual. 
 
 #include <time.h>
-#include "Pythia.h"
-#include "HepMCInterface.h"
+#include "Pythia8/Pythia.h"
+#include "Pythia8/Pythia8ToHepMC.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_GenEvent.h"
 
@@ -110,7 +110,7 @@ int main( int argc, char* argv[] ){
   // Interface for conversion from Pythia8::Event to HepMC event. 
   // Will fill cross section and event weight directly in this program,
   // so switch it off for normal conversion routine.
-  HepMC::I_Pythia8 ToHepMC;
+  HepMC::Pythia8ToHepMC ToHepMC;
   ToHepMC.set_store_xsec(false);
 
   // Specify file where HepMC events will be stored.

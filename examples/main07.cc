@@ -13,7 +13,7 @@
 // (The "single-particle gun" of main21.cc offers another possible 
 // approach to the same problem.) 
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
  

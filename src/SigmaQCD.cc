@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the 
 // QCD simulation classes. 
 
-#include "SigmaQCD.h"
+#include "Pythia8/SigmaQCD.h"
 
 namespace Pythia8 {
 

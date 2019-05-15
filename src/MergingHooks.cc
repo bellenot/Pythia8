@@ -7,7 +7,7 @@
 // Function definitions (not found in the header) for the HardProcess and
 // MergingHooks classes.
 
-#include "MergingHooks.h"
+#include "Pythia8/MergingHooks.h"
 
 namespace Pythia8 {
  
@@ -838,90 +838,56 @@ void HardProcess::translateProcessString( string process){
     hardIncoming2 = incom[1];
   }
 
-  // Remember final state bosons
-  int nBosons = 0;
-  for(int i=0; i < int(outgo.size()); ++i)
-    if ( (abs(outgo[i]) > 20 && abs(outgo[i]) <= 25) || outgo[i] == 2400)
-      nBosons++;
-  // Remember b-quark container
-  int nBQuarks = 0;
-  for(int i=0; i < int(outgo.size()); ++i)
-    if ( outgo[i] == 5000)
-      nBQuarks++;
-  // Remember jet container
-  int nJets = 0;
-  for(int i=0; i < int(outgo.size()); ++i)
-    if ( outgo[i] == 2212)
-      nJets++;
-  // Remember lepton container
-  int nLeptons = 0;
-  for(int i=0; i < int(outgo.size()); ++i)
-    if ( outgo[i] == 1100)
-      nLeptons++;
-  // Remember lepton container
-  int nNeutrinos = 0;
-  for(int i=0; i < int(outgo.size()); ++i)
-    if ( outgo[i] == 1200)
-      nNeutrinos++;
-  int nContainers = nLeptons + nNeutrinos + nJets + nBQuarks;
+  // Now store final particle identifiers
+  // Start with user-defined particles.
+  for( int i = 0; i < int(userParticleNumbers.size()); ++i)
+    if (userParticleNumbers[i] > 0) {
+      hardOutgoing2.push_back( userParticleNumbers[i]);
+      hardIntermediate.push_back(0);
+      // For non-existing intermediate, remember zero.
+    } else if (userParticleNumbers[i] < 0) {
+      hardOutgoing1.push_back( userParticleNumbers[i]);
+      // For non-existing intermediate, remember zero.
+      hardIntermediate.push_back(0);
+    }
 
-  // Set final particle identifiers
-  if ( (outgo.size() - nBosons - nContainers)%2 == 1) {
-    cout << "Only even number of outgoing particles allowed" << endl;  
-    for(int i=0; i < int(outgo.size()); ++i)
-      cout << outgo[i] << endl;
-  } else {
+  // Push back particles / antiparticles
+  for(int i=0; i < int(outgo.size()); ++i)
+    if (outgo[i] > 0
+      && outgo[i] != 2212
+      && outgo[i] != 5000
+      && outgo[i] != 1100
+      && outgo[i] != 1200
+      && outgo[i] != 2400
+      && outgo[i] != 1000022)
+      hardOutgoing2.push_back( outgo[i]);
+    else if (outgo[i] < 0)
+      hardOutgoing1.push_back( outgo[i]);
 
-    // Start with user-defined particles.
-    for( int i = 0; i < int(userParticleNumbers.size()); ++i)
-      if (userParticleNumbers[i] > 0) {
-        hardOutgoing2.push_back( userParticleNumbers[i]);
-        hardIntermediate.push_back(0);
-        // For non-existing intermediate, remember zero.
-      } else if (userParticleNumbers[i] < 0) {
-        hardOutgoing1.push_back( userParticleNumbers[i]);
-        // For non-existing intermediate, remember zero.
-        hardIntermediate.push_back(0);
-      }
+  // Save final state W-boson container as particle
+  for(int i=0; i < int(outgo.size()); ++i)
+    if ( outgo[i] == 2400)
+      hardOutgoing2.push_back( outgo[i]);
 
-    // Push back particles / antiparticles
-    for(int i=0; i < int(outgo.size()); ++i)
-      if (outgo[i] > 0
-        && outgo[i] != 2212
-        && outgo[i] != 5000
-        && outgo[i] != 1100
-        && outgo[i] != 1200
-        && outgo[i] != 2400
-        && outgo[i] != 1000022)
-        hardOutgoing2.push_back( outgo[i]);
-      else if (outgo[i] < 0)
-        hardOutgoing1.push_back( outgo[i]);
-
-    // Save final state W-boson container as particle
-    for(int i=0; i < int(outgo.size()); ++i)
-      if ( outgo[i] == 2400)
-        hardOutgoing2.push_back( outgo[i]);
-
-    // Push back jets, distribute evenly among particles / antiparticles
-    // Push back majorana particles, distribute evenly
-    int iNow = 0;
-    for(int i=0; i < int(outgo.size()); ++i)
-      if ( (outgo[i] == 2212
-        || outgo[i] == 5000
-        || outgo[i] == 1200
-        || outgo[i] == 1000022)
-        && iNow%2 == 0 ){
-        hardOutgoing2.push_back( outgo[i]);
-        iNow++;
-      } else if ( (outgo[i] == 2212
-               || outgo[i] == 5000
-               || outgo[i] == 1100
-               || outgo[i] == 1000022)
-               && iNow%2 == 1 ){
-        hardOutgoing1.push_back( outgo[i]);
-        iNow++;
-      }
-  }
+  // Push back jets, distribute evenly among particles / antiparticles
+  // Push back majorana particles, distribute evenly
+  int iNow = 0;
+  for(int i=0; i < int(outgo.size()); ++i)
+    if ( (outgo[i] == 2212
+      || outgo[i] == 5000
+      || outgo[i] == 1200
+      || outgo[i] == 1000022)
+      && iNow%2 == 0 ){
+      hardOutgoing2.push_back( outgo[i]);
+      iNow++;
+    } else if ( (outgo[i] == 2212
+             || outgo[i] == 5000
+             || outgo[i] == 1100
+             || outgo[i] == 1000022)
+             && iNow%2 == 1 ){
+      hardOutgoing1.push_back( outgo[i]);
+      iNow++;
+    }
 
   // Done
 }
@@ -983,7 +949,6 @@ bool HardProcess::allowCandidates(int iPos, vector<int> Pos1,
           ||( event[i].status() == -21
            && event[i].col() == event[Pos2[j]].col()) ))
          partners.push_back(i);
-
 
     // Never allow equal initial partners!
     if (event[iPartner].status() == -21){
@@ -1175,32 +1140,45 @@ void HardProcess::storeCandidates( const Event& event, string process){
 
     // Loop through event
     for(int j=0; j < int(event.size()); ++j) {
+
+      // Skip all particles that have already been identified
+      bool skip = false;
+      for(int m=0; m < int(iPosChecked.size()); ++m)
+        if (j == iPosChecked[m]) skip = true;
+      if (skip) continue;
+
       // If the particle has a requested intermediate id, check if
       // if is a final state boson
       if ( (event[j].id() == intermediates[i])
         ||(event[j].idAbs() == 24 && intermediates[i] == 2400) ) {
+
         PosIntermediate[i] = j;
         intermediates[i] = 0;
+        // Be careful only to replace one index at a time!
+        bool indexSet = false;
 
         for(int k=0; k < int(outgoing1.size()); ++k) {
-          if (event[j].id() == outgoing1[k]){
+          if (event[j].id() == outgoing1[k] && !indexSet){
             PosOutgoing1[k] = j;
             outgoing1[k] = 99;
+            indexSet = true;
           }
         }
 
         for(int k=0; k < int(outgoing2.size()); ++k) {
-          if (event[j].id() == outgoing2[k]){
+          if (event[j].id() == outgoing2[k] && !indexSet){
             PosOutgoing2[k] = j;
             outgoing2[k] = 99;
+            indexSet = true;
           }
         }
 
         // Check for W-boson container
         for(int k=0; k < int(outgoing2.size()); ++k) {
-          if (event[j].idAbs() == 24 && outgoing2[k] == 2400){
+          if (event[j].idAbs() == 24 && outgoing2[k] == 2400 && !indexSet ){
             PosOutgoing2[k] = j;
             outgoing2[k] = 99;
+            indexSet = true;
           }
         }
 
@@ -1233,6 +1211,12 @@ void HardProcess::storeCandidates( const Event& event, string process){
         // outgoing particles
         for( int k=iPos1; k <= iPos2; ++k){
           int id = event[k].id();
+
+          // Skip all particles that have already been identified
+          bool skip = false;
+          for(int m=0; m < int(iPosChecked.size()); ++m)
+            if (k == iPosChecked[m]) skip = true;
+          if (skip) continue;
 
           // Check if daughter is hard outgoing particle
           for(int l=0; l < int(outgoing2.size()); ++l)
@@ -1338,10 +1322,12 @@ void HardProcess::storeCandidates( const Event& event, string process){
   for(int i=0; i < int(event.size()); ++i)
     for(int j=0; j < int(outgoing2.size()); ++j)
       // Do nothing if this particle has already be found,
-      // or if this particle is a jet, lepton container or lepton
-      if (  outgoing2[j] != 99
+      // or if this particle is a jet.
+      if ( outgoing2[j] != 99
         && outgoing2[j] != 2212
-        && abs(outgoing2[j]) < 10
+        && ( abs(outgoing2[j]) < 10
+          || (abs(outgoing2[j]) > 1000000 && abs(outgoing2[j]) < 1000010)
+          || (abs(outgoing2[j]) > 2000000 && abs(outgoing2[j]) < 2000010) )
         && event[i].isFinal()
         && event[i].id() == outgoing2[j] ){
         out2copy.insert(make_pair(j, i));
@@ -1351,10 +1337,12 @@ void HardProcess::storeCandidates( const Event& event, string process){
   for(int i=0; i < int(event.size()); ++i)
     for(int j=0; j < int(outgoing1.size()); ++j)
       // Do nothing if this particle has already be found,
-      // or if this particle is a jet, lepton container or lepton
-      if (  outgoing1[j] != 99
+      // or if this particle is a jet.
+      if ( outgoing1[j] != 99
         && outgoing1[j] != 2212
-        && abs(outgoing1[j]) < 10
+        && ( abs(outgoing1[j]) < 10
+          || (abs(outgoing1[j]) > 1000000 && abs(outgoing1[j]) < 1000010)
+          || (abs(outgoing1[j]) > 2000000 && abs(outgoing1[j]) < 2000010) )
         && event[i].isFinal()
         && event[i].id() == outgoing1[j] ){
         out1copy.insert(make_pair(j, i));
@@ -1362,57 +1350,101 @@ void HardProcess::storeCandidates( const Event& event, string process){
 
   if ( out1copy.size() >  out2copy.size()){
 
+    // In case the index of the multimap is filled twice, make sure not to
+    // arbitrarily overwrite set values.
+    vector<int> indexWasSet;
     for ( multimap<int, int>::iterator it = out2copy.begin(); 
       it != out2copy.end(); ++it ) {
       if ( allowCandidates(it->second, PosOutgoing1, PosOutgoing2, event) ){
+
+        // Skip all particles that have already been identified
+        bool skip = false;
+        for(int k=0; k < int(iPosChecked.size()); ++k)
+          if (it->second == iPosChecked[k]) skip = true;
+        // Skip all indices that have already been identified
+        for(int k=0; k < int(indexWasSet.size()); ++k)
+          if (it->first == indexWasSet[k]) skip = true;
+        if (skip) continue;
 
         // Save parton
         PosOutgoing2[it->first] = it->second;
         // remove entry form lists
         outgoing2[it->first] = 99;
         iPosChecked.push_back(it->second);
-
+        indexWasSet.push_back(it->first);
       }
     }
 
+    indexWasSet.resize(0);
     for ( multimap<int, int>::iterator it = out1copy.begin(); 
       it != out1copy.end(); ++it ) {
       if ( allowCandidates(it->second, PosOutgoing1, PosOutgoing2, event) ){
+
+        // Skip all particles that have already been identified
+        bool skip = false;
+        for(int k=0; k < int(iPosChecked.size()); ++k)
+          if (it->second == iPosChecked[k]) skip = true;
+        // Skip all indices that have already been identified
+        for(int k=0; k < int(indexWasSet.size()); ++k)
+          if (it->first == indexWasSet[k]) skip = true;
+        if (skip) continue;
 
         // Save parton
         PosOutgoing1[it->first] = it->second;
         // remove entry form lists
         outgoing1[it->first] = 99;
         iPosChecked.push_back(it->second);
-
+        indexWasSet.push_back(it->first);
       }
     }
 
   } else {
 
+    // In case the index of the multimap is filled twice, make sure not to
+    // arbitraryly overwrite set values.
+    vector<int> indexWasSet;
     for ( multimap<int, int>::iterator it = out1copy.begin(); 
       it != out1copy.end(); ++it ) {
       if ( allowCandidates(it->second, PosOutgoing1, PosOutgoing2, event) ){
+
+        // Skip all particles that have already been identified
+        bool skip = false;
+        for(int k=0; k < int(iPosChecked.size()); ++k)
+          if (it->second == iPosChecked[k]) skip = true;
+        // Skip all indices that have already been identified
+        for(int k=0; k < int(indexWasSet.size()); ++k)
+          if (it->first == indexWasSet[k]) skip = true;
+        if (skip) continue;
 
         // Save parton
         PosOutgoing1[it->first] = it->second;
         // remove entry form lists
         outgoing1[it->first] = 99;
         iPosChecked.push_back(it->second);
-
+        indexWasSet.push_back(it->first);
       }
     }
 
+    indexWasSet.resize(0);
     for ( multimap<int, int>::iterator it = out2copy.begin(); 
       it != out2copy.end(); ++it ) {
       if ( allowCandidates(it->second, PosOutgoing1, PosOutgoing2, event) ){
+
+        // Skip all particles that have already been identified
+        bool skip = false;
+        for(int k=0; k < int(iPosChecked.size()); ++k)
+          if (it->second == iPosChecked[k]) skip = true;
+        // Skip all indices that have already been identified
+        for(int k=0; k < int(indexWasSet.size()); ++k)
+          if (it->first == indexWasSet[k]) skip = true;
+        if (skip) continue;
 
         // Save parton
         PosOutgoing2[it->first] = it->second;
         // remove entry form lists
         outgoing2[it->first] = 99;
         iPosChecked.push_back(it->second);
-
+        indexWasSet.push_back(it->first);
       }
     }
   }
@@ -1536,6 +1568,126 @@ bool HardProcess::matchesAnyOutgoing(int iPos, const Event& event){
 
   // Done
   return ( matchHP && (matchQN1 || matchQN2) );
+
+}
+
+
+//--------------------------------------------------------------------------
+
+// Function to check if instead of the particle event[iCandidate], another
+// particle could serve as part of the hard process. Assumes that iCandidate
+// is already stored as part of the hard process.
+
+bool HardProcess::findOtherCandidates(int iPos, const Event& event,
+    bool doReplace){
+
+  // Return value
+  bool foundCopy = false;
+
+  // Save stored candidates' properties.
+  int id  = event[iPos].id();
+  int col = event[iPos].col();
+  int acl = event[iPos].acol();
+
+  // Find candidate amongst the already stored ME process candidates.
+  vector<int> candidates1;
+  vector<int> candidates2;
+  // Check outgoing candidates
+  for(int i=0; i < int(PosOutgoing1.size()); ++i)
+    // Compare particle properties
+    if ( id  == state[PosOutgoing1[i]].id()
+      && col == state[PosOutgoing1[i]].col() 
+      && acl == state[PosOutgoing1[i]].acol() )
+      candidates1.push_back(i);
+  // Check outgoing candidates
+  for(int i=0; i < int(PosOutgoing2.size()); ++i)
+    // Compare particle properties
+    if ( id  == state[PosOutgoing2[i]].id()
+      && col == state[PosOutgoing2[i]].col() 
+      && acl == state[PosOutgoing2[i]].acol() )
+      candidates2.push_back(i);
+
+  // If more / less than one stored candidate for iPos has been found, exit.
+  if ( candidates1.size() + candidates2.size() != 1 ) return false;
+
+  // Now check for other allowed candidates.
+  map<int,int> further1;
+  for(int i=0; i < int(state.size()); ++i)
+    for(int j=0; j < int(PosOutgoing1.size()); ++j)
+      // Do nothing if this particle has already be found,
+      // or if this particle is a jet, lepton container or lepton
+      if ( state[i].isFinal()
+        && i != PosOutgoing1[j]
+        && state[PosOutgoing1[j]].id() == id
+        && state[i].id() == id ){
+        // Declare vector of already existing candiates.
+        vector<int> newPosOutgoing1;
+        for(int k=0; k < int(PosOutgoing1.size()); ++k)
+          if ( k != j ) newPosOutgoing1.push_back( PosOutgoing1[k] ); 
+        // If allowed, remember replacment parton.
+        if ( allowCandidates(i, newPosOutgoing1, PosOutgoing2, state) )
+          further1.insert(make_pair(j, i));
+      }
+
+  // Now check for other allowed candidates. 
+  map<int,int> further2;
+  for(int i=0; i < int(state.size()); ++i)
+    for(int j=0; j < int(PosOutgoing2.size()); ++j)
+      // Do nothing if this particle has already be found,
+      // or if this particle is a jet, lepton container or lepton
+      if ( state[i].isFinal()
+        && i != PosOutgoing2[j]
+        && state[PosOutgoing2[j]].id() == id
+        && state[i].id() == id ){
+        // Declare vector of already existing candidates.
+        vector<int> newPosOutgoing2;
+        for(int k=0; k < int(PosOutgoing2.size()); ++k)
+          if ( k != j ) newPosOutgoing2.push_back( PosOutgoing2[k] ); 
+        // If allowed, remember replacment parton.
+        if ( allowCandidates(i, PosOutgoing1, newPosOutgoing2, state) )
+          further2.insert(make_pair(j, i));
+      }
+
+  // Decide of a replacment candidate has been found.
+  foundCopy = (doReplace)
+            ? exchangeCandidates(candidates1, candidates2, further1, further2)
+            : (further1.size() + further2.size() > 0);
+
+  // Done
+  return foundCopy;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Function to exchange hard process candidates.
+
+bool HardProcess::exchangeCandidates( vector<int> candidates1,
+    vector<int> candidates2, map<int,int> further1, map<int,int> further2) {
+
+  int nOld1 = candidates1.size();
+  int nOld2 = candidates2.size();
+  int nNew1 = further1.size();
+  int nNew2 = further2.size();
+  bool exchanged = false;
+  // Replace, if one-to-one correspondence exists.
+  if ( nOld1 == 1 && nOld2 == 0 && nNew1 == 1 && nNew2 == 0){
+    PosOutgoing1[further1.begin()->first] = further1.begin()->second;
+    exchanged = true;
+  } else if ( nOld1 == 0 && nOld2 == 1 && nNew1 == 0 && nNew2 == 1){
+    PosOutgoing2[further2.begin()->first] = further2.begin()->second;
+    exchanged = true;
+  // Else simply swap with the first candidate.
+  } else if ( nNew1 >  1 && nNew2 == 0 ) {
+    PosOutgoing1[further1.begin()->first] = further1.begin()->second;
+    exchanged = true;
+  } else if ( nNew1 == 0 && nNew2 >  0 ) {
+    PosOutgoing2[further2.begin()->first] = further2.begin()->second;
+    exchanged = true;
+  }
+
+  // Done
+  return exchanged;
 
 }
 
@@ -1810,33 +1962,38 @@ void MergingHooks::init( Settings settings, Info* infoPtrIn,
   // Initialise AlphaS objects for reweighting
   double alphaSvalueFSR = settings.parm("TimeShower:alphaSvalue");
   int    alphaSorderFSR = settings.mode("TimeShower:alphaSorder");
-  AlphaS_FSRSave.init(alphaSvalueFSR,alphaSorderFSR);
+  int    alphaSnfmax    = settings.mode("StandardModel:alphaSnfmax");
+  int    alphaSuseCMWFSR= settings.flag("TimeShower:alphaSuseCMW");
+  AlphaS_FSRSave.init(alphaSvalueFSR, alphaSorderFSR, alphaSnfmax,
+    alphaSuseCMWFSR);
   double alphaSvalueISR = settings.parm("SpaceShower:alphaSvalue");
   int    alphaSorderISR = settings.mode("SpaceShower:alphaSorder");
-  AlphaS_ISRSave.init(alphaSvalueISR,alphaSorderISR);
+  int    alphaSuseCMWISR= settings.flag("SpaceShower:alphaSuseCMW");
+  AlphaS_ISRSave.init(alphaSvalueISR, alphaSorderISR, alphaSnfmax,
+    alphaSuseCMWISR);
 
-  // Initialise AlphaS objects for reweighting
+  // Initialise AlphaEM objects for reweighting
   int    alphaEMFSRorder = settings.mode("TimeShower:alphaEMorder");
   AlphaEM_FSRSave.init(alphaEMFSRorder, &settings);
 
   // Initialise merging switches
-  doUserMergingSave     =  settings.flag("Merging:doUserMerging");
+  doUserMergingSave      = settings.flag("Merging:doUserMerging");
   // Initialise automated MadGraph kT merging
-  doMGMergingSave       =  settings.flag("Merging:doMGMerging");
+  doMGMergingSave        = settings.flag("Merging:doMGMerging");
   // Initialise kT merging
-  doKTMergingSave       =  settings.flag("Merging:doKTMerging");
+  doKTMergingSave        = settings.flag("Merging:doKTMerging");
   // Initialise evolution-pT merging
-  doPTLundMergingSave   =  settings.flag("Merging:doPTLundMerging");
+  doPTLundMergingSave    = settings.flag("Merging:doPTLundMerging");
   // Initialise \Delta_R_{ij}, pT_i Q_{ij} merging
-  doCutBasedMergingSave =  settings.flag("Merging:doCutBasedMerging");
+  doCutBasedMergingSave  = settings.flag("Merging:doCutBasedMerging");
   // Initialise exact definition of kT
-  ktTypeSave            =  settings.mode("Merging:ktType");
+  ktTypeSave             = settings.mode("Merging:ktType");
 
   // Initialise NL3 switches.
-  doNL3TreeSave         =  settings.flag("Merging:doNL3Tree");
-  doNL3LoopSave         =  settings.flag("Merging:doNL3Loop");
-  doNL3SubtSave         =  settings.flag("Merging:doNL3Subt");
-  bool doNL3            = doNL3TreeSave || doNL3LoopSave || doNL3SubtSave;
+  doNL3TreeSave          = settings.flag("Merging:doNL3Tree");
+  doNL3LoopSave          = settings.flag("Merging:doNL3Loop");
+  doNL3SubtSave          = settings.flag("Merging:doNL3Subt");
+  bool doNL3             = doNL3TreeSave || doNL3LoopSave || doNL3SubtSave;
 
   // Initialise UNLOPS switches.
   doUNLOPSTreeSave      =  settings.flag("Merging:doUNLOPSTree");
@@ -1850,6 +2007,7 @@ void MergingHooks::init( Settings settings, Info* infoPtrIn,
   doUMEPSTreeSave      =  settings.flag("Merging:doUMEPSTree");
   doUMEPSSubtSave      =  settings.flag("Merging:doUMEPSSubt");
   nReclusterSave       =  settings.mode("Merging:nRecluster");
+  nQuarksMergeSave     =  settings.mode("Merging:nQuarksMerge");
   bool doUMEPS         =  doUMEPSTreeSave || doUMEPSSubtSave;
 
   // Flag to only do phase space cut.
@@ -1978,91 +2136,113 @@ void MergingHooks::init( Settings settings, Info* infoPtrIn,
   if (!writeBanner) return;
 
   // Write banner
-  os << "\n"
-     << " *---------- MEPS Merging Initialization  -----------------------*"
-     << "\n";
+  os << "\n *------------------ MEPS Merging Initialization  ---------------"
+     << "---*";
+  os << "\n |                                                               "
+     << "   |\n";
   if ( doKTMergingSave || doMGMergingSave || doUserMergingSave
     || doPTLundMergingSave || doCutBasedMergingSave )
-     os << " | CKKW-L tree-level merging:\n"
-        << " | We merge  " << processSave << "  with up to  " << nJetMaxSave
-        << " additional jets \n";
+    os << " | CKKW-L merge                                                  "
+       << "   |\n"
+       << " |"<< setw(34) << processSave << "  with up to"
+       << setw(3) << nJetMaxSave << " additional jets |\n";
   else if ( doNL3 )
-     os << " | NL3 NLO merging:\n"
-        << " | We merge  " << processSave << "  with jets up to "
-        << nJetMaxNLOSave
-        << " correct to NLO\n"
-        << " | and up to  " << nJetMaxSave
-        << " additional jets included by CKKW-L merging at LO\n";
+    os << " | NL3 merge                                                     "
+       << "   |\n"
+       << " |" << setw(31) << processSave << " with jets up to"
+       << setw(3) << nJetMaxNLOSave << " correct to NLO |\n"
+       << " | and up to" << setw(3) << nJetMaxSave
+       << " additional jets included by CKKW-L merging at LO    |\n";
   else if ( doUNLOPS )
-     os << " | UNLOPS NLO merging:\n"
-        << " | We merge  " << processSave << "  with jets up to "
-        << nJetMaxNLOSave
-        << " correct to NLO\n"
-        << " | and up to  " << nJetMaxSave
-        << " additional jets included by UMEPS merging at LO\n";
+    os << " | UNLOPS merge                                                  "
+       << "   |\n"
+       << " |" << setw(31) << processSave << " with jets up to"
+       << setw(3)<< nJetMaxNLOSave << " correct to NLO |\n"
+       << " | and up to" << setw(3) << nJetMaxSave
+       << " additional jets included by UMEPS merging at LO     |\n";
   else if ( doUMEPS )
-     os << " | UMEPS tree-level merging:\n"
-        << " | We merge  " << processSave << "  with up to  " << nJetMaxSave
-        << " additional jets \n";
+    os << " | UMEPS merge                                                   "
+       << "   |\n"
+       << " |" << setw(34) << processSave << "  with up to"
+       << setw(3) << nJetMaxSave << " additional jets |\n";
 
   if ( doKTMergingSave )
-    os << " | Merging scale is defined in kT with the value ktMS = "
+    os << " | Merging scale is defined in kT, with value ktMS = "
        << tmsValueSave << " GeV";
   else if ( doMGMergingSave )
     os << " | Perform automanted MG/ME merging \n"
-       << " | Merging scale is defined in kT with the value ktMS = "
-       << tmsValueSave << " GeV";
+       << " | Merging scale is defined in kT, with value ktMS = "
+       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doUserMergingSave )
-    os << " | Merging scale is defined by the user, with the value tMS = "
-       << tmsValueSave;
+    os << " | Merging scale is defined by the user, with value tMS = "
+       << setw(6) << fixed << setprecision(1) << tmsValueSave << "     |";
   else if ( doPTLundMergingSave )
-    os << " | Merging scale is defined by Lund pT, with the value tMS = "
-       << tmsValueSave;
+    os << " | Merging scale is defined by Lund pT, with value tMS = "
+       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doCutBasedMergingSave )
-    os << " | Merging scale is defined by combination of Delta R_{ij}, pT_i\n"
-       << " | and Q_{ij} cut, with values \n"
-       << " | Delta R_{ij,min} = " << tmsListSave[0] << "\n"
-       << " | pT_{i,min} = " << tmsListSave[1] << "\n"
-       << " | Q_{ij,min} = " << tmsListSave[2];
+    os << " | Merging scale is defined by combination of Delta R_{ij}, pT_i "
+       << "   |\n"
+       << " | and Q_{ij} cut, with values                                   "
+       << "   |\n"
+       << " | Delta R_{ij,min} = "
+       << setw(7) << scientific << setprecision(2) << tmsListSave[0]
+       << "                                      |\n"
+       << " | pT_{i,min}       = "
+       << setw(6) << fixed << setprecision(1) << tmsListSave[1]
+       << " GeV                                    |\n"
+       << " | Q_{ij,min}       = "
+       << setw(6) << fixed << setprecision(1) << tmsListSave[2]
+       << " GeV                                    |";
   else if ( doNL3TreeSave )
-    os << " | Generate tree-level O(alpha_s)-subtracted events \n"
-       << " | Merging in the evolution variable, with the value tMS = "
-       << tmsValueSave;
+    os << " | Generate tree-level O(alpha_s)-subtracted events              "
+       << "   |\n"
+       << " | Merging scale is defined by Lund pT, with value tMS = "
+       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doNL3LoopSave )
-    os << " | Generate virtual correction unit-weight events \n"
-       << " | Merging in the evolution variable, with the value tMS = "
-       << tmsValueSave;
+    os << " | Generate virtual correction unit-weight events                "
+       << "   |\n"
+       << " | Merging scale is defined by Lund pT, with value tMS = "
+       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doNL3SubtSave )
-    os << " | Generate reclustered tree-level events \n"
-       << " | Merging in the evolution variable, with the value tMS = "
-       << tmsValueSave;
+    os << " | Generate reclustered tree-level events                        "
+       << "   |\n"
+       << " | Merging scale is defined by Lund pT, with value tMS = "
+       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doUNLOPSTreeSave )
-    os << " | Generate tree-level O(alpha_s)-subtracted events \n"
-       << " | Merging in the evolution variable, with the value tMS = "
-       << tmsValueSave;
+    os << " | Generate tree-level O(alpha_s)-subtracted events              "
+       << "   |\n"
+       << " | Merging scale is defined by Lund pT, with value tMS = "
+       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doUNLOPSLoopSave )
-    os << " | Generate virtual correction unit-weight events \n"
-       << " | Merging in the evolution variable, with the value tMS = "
-       << tmsValueSave;
+    os << " | Generate virtual correction unit-weight events                "
+       << "   |\n"
+       << " | Merging scale is defined by Lund pT, with value tMS = "
+       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doUNLOPSSubtSave )
-    os << " | Generate reclustered tree-level events \n"
-       << " | Merging in the evolution variable, with the value tMS = "
-       << tmsValueSave;
+    os << " | Generate reclustered tree-level events                        "
+       << "   |\n"
+       << " | Merging scale is defined by Lund pT, with value tMS = "
+       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doUNLOPSSubtNLOSave )
-    os << " | Generate reclustered loop-level events \n"
-       << " | Merging in the evolution variable, with the value tMS = "
-       << tmsValueSave;
+    os << " | Generate reclustered loop-level events                        "
+       << "   |\n"
+       << " | Merging scale is defined by Lund pT, with value tMS = "
+       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doUMEPSTreeSave )
-    os << " | Generate tree-level events \n"
-       << " | Merging in the evolution variable, with the value tMS = "
-       << tmsValueSave;
+    os << " | Generate tree-level events                                    "
+       << "   |\n"
+       << " | Merging scale is defined by Lund pT, with value tMS = "
+       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
   else if ( doUMEPSSubtSave )
-    os << " | Generate reclustered tree-level events \n"
-       << " | Merging in the evolution variable, with the value tMS = "
-       << tmsValueSave;
+    os << " | Generate reclustered tree-level events                        "
+       << "   |\n"
+       << " | Merging scale is defined by Lund pT, with value tMS = "
+       << setw(6) << fixed << setprecision(1) << tmsValueSave << " GeV |";
 
-  os << "\n *---------- END MEPS Merging Initialization  -------------------*"
-     << "\n\n";
+  os << "\n |                                                               "
+     << "   |";
+  os << "\n *-------------- END MEPS Merging Initialization  ---------------"
+     << "---*\n\n";
 
 }
 
@@ -2378,89 +2558,110 @@ bool MergingHooks::reattachResonanceDecays(Event& process ) {
   if ( doRemoveDecayProducts && inputEvent.size() > 0 ) {
 
     int sizeBef = process.size();
+    // Vector of resonances for which the decay products were already attached.
+    vector<int> iAftChecked;
     // Reset daughters and status of intermediate particles.
     for ( int i = 0; i < int(resonances.size()); ++i ) {
       for (int j = 0; j < sizeBef; ++j ) {
         if ( j != resonances[i].first ) continue;
-          int iOldDaughter1 = inputEvent[resonances[i].second].daughter1();
-          int iOldDaughter2 = inputEvent[resonances[i].second].daughter2();
 
-          // Get momenta in case of reclustering.
-          int iHardMother      = resonances[i].second;
-          Particle& hardMother = inputEvent[iHardMother];
-          int iAftMother       = resonances[i].first;
-          Particle& aftMother  = process[iAftMother];
+        int iOldDaughter1 = inputEvent[resonances[i].second].daughter1();
+        int iOldDaughter2 = inputEvent[resonances[i].second].daughter2();
 
-          // Resonance can have been moved by clustering, 
-          // so prepare to update colour and momentum information for system.
-          int colBef  = hardMother.col();
-          int acolBef = hardMother.acol();
-          int colAft  = aftMother.col();
-          int acolAft = aftMother.acol();
-          RotBstMatrix M;
-          M.bst( hardMother.p(), aftMother.p());
-
-          // Attach resonance decay products.
-          int iNewDaughter1 = 0;
-          int iNewDaughter2 = 0;
-          for ( int k = iOldDaughter1; k <= iOldDaughter2; ++k ) {
-            if ( k == iOldDaughter1 )
-              iNewDaughter1 = process.append(inputEvent[k] );
-            else
-              iNewDaughter2 = process.append(inputEvent[k] );
-            Particle& now = process.back();
-            // Update colour and momentum information.
-            if (now.col() == colBef) now.col( colAft);
-            if (now.acol() == acolBef) now.acol( acolAft);
-            now.rotbst( M);  
-            // Update vertex information.
-            if (now.hasVertex()) now.vProd( aftMother.vDec() );
-            // Update mothers.
-            now.mothers(j,0);
+        // Get momenta in case of reclustering.
+        int iHardMother      = resonances[i].second;
+        Particle& hardMother = inputEvent[iHardMother];
+        // Find current mother copy (after clustering).
+        int iAftMother       = 0;
+        for ( int k = 0; k < process.size(); ++k )
+          if ( process[k].id() == inputEvent[resonances[i].second].id() ) {
+            // Only attempt if decays of this resonance were not attached.
+            bool checked = false;
+            for ( int l = 0; l < int(iAftChecked.size()); ++l )
+              if ( k == iAftChecked[l] )
+                checked = true;
+            if ( !checked ) {
+              iAftChecked.push_back(k);
+              iAftMother = k;
+              break;
+            }
           }
 
-          process[j].daughters( iNewDaughter1, iNewDaughter2 );
-          process[j].statusNeg();
+        Particle& aftMother  = process[iAftMother];
 
-          // Now attach daughters of decay products.
-          for ( int l = iNewDaughter1; l <= iNewDaughter2; ++l ) {
-            // Get properties of current particle.
-            int iOldDaughter12 = process[l].daughter1();
-            int iOldDaughter22 = process[l].daughter2();
-            int colBef2        = hardMother.col();
-            int acolBef2       = hardMother.acol();
-            int colAft2        = aftMother.col();
-            int acolAft2       = aftMother.acol();
+        // Resonance can have been moved by clustering, 
+        // so prepare to update colour and momentum information for system.
+        int colBef  = hardMother.col();
+        int acolBef = hardMother.acol();
+        int colAft  = aftMother.col();
+        int acolAft = aftMother.acol();
+        RotBstMatrix M;
+        M.bst( hardMother.p(), aftMother.p());
+
+        // Attach resonance decay products.
+        int iNewDaughter1 = 0;
+        int iNewDaughter2 = 0;
+        for ( int k = iOldDaughter1; k <= iOldDaughter2; ++k ) {
+          if ( k == iOldDaughter1 )
+            iNewDaughter1 = process.append(inputEvent[k] );
+          else
+            iNewDaughter2 = process.append(inputEvent[k] );
+          process.back().statusPos();
+          Particle& now = process.back();
+          // Update colour and momentum information.
+          if (now.col()  != 0 && now.col()  == colBef ) now.col(colAft);
+          if (now.acol() != 0 && now.acol() == acolBef) now.acol(acolAft);
+          now.rotbst( M);  
+          // Update vertex information.
+          if (now.hasVertex()) now.vProd( aftMother.vDec() );
+          // Update mothers.
+          now.mothers(iAftMother,0);
+        }
+
+        process[iAftMother].daughters( iNewDaughter1, iNewDaughter2 );
+        process[iAftMother].statusNeg();
+
+        // Loop through event and attach remaining decays
+        int iDec = 0;
+        do {
+          if ( process[iDec].isFinal() && process[iDec].canDecay()
+            && process[iDec].mayDecay() && process[iDec].isResonance() ) {
+
+            int iD1 = process[iDec].daughter1();
+            int iD2 = process[iDec].daughter2();
 
             // Done if no daughters exist.
-            if ( iOldDaughter12 == 0 || iOldDaughter22 == 0 ) continue;
+            if ( iD1 == 0 || iD2 == 0 ) continue;
 
             // Attach daughters.
             int iNewDaughter12 = 0;
             int iNewDaughter22 = 0;
-            for ( int k = iOldDaughter12; k <= iOldDaughter22; ++k ) {
-              if ( k == iOldDaughter12 )
+            for ( int k = iD1; k <= iD2; ++k ) {
+              if ( k == iD1 )
                 iNewDaughter12 = process.append(inputEvent[k] );
               else
                 iNewDaughter22 = process.append(inputEvent[k] );
+              process.back().statusPos();
               Particle& now = process.back();
               // Update colour and momentum information.
-              if (now.col() == colBef2) now.col( colAft2);
-              if (now.acol() == acolBef2) now.acol( acolAft2);
+              if (now.col() != 0 && now.col() == colBef ) now.col(colAft);
+              if (now.acol()!= 0 && now.acol()== acolBef) now.acol(acolAft);
               now.rotbst( M);  
               // Update vertex information.
-              if (now.hasVertex()) now.vProd( process[l].vDec() );
+              if (now.hasVertex()) now.vProd( process[iDec].vDec() );
               // Update mothers.
-              now.mothers(l,0);
+              now.mothers(iDec,0);
             }
 
-            process[l].daughters( iNewDaughter12, iNewDaughter22 );
-            process[l].statusNeg();
+            // Modify mother status and daughters.
+            process[iDec].status(-22);
+            process[iDec].daughters(iNewDaughter12, iNewDaughter22);
 
-         }
-
-      }
-    }
+          // End of loop over all entries.
+          }
+        } while (++iDec < process.size());
+      } // End loop over process entries.
+    } // End loop over resonances.
 
     // Update event colour tag to maximum in whole process.
     int maxColTag = 0;
@@ -2635,18 +2836,13 @@ bool MergingHooks::isFirstEmission(const Event& event ) {
   int nFinal         = 0;
   for( int i=0; i < event.size(); ++i) {
     if (event[i].isFinal() && isInHard(i, event) ){
-      if (  event[i].id() != 21
-        && event[i].id() != 22
-        && event[i].id() != 23
-        && event[i].idAbs() != 24
-        && event[i].id() != 25
-        && event[i].colType() == 0)
+      if ( event[i].spinType() == 2 && event[i].colType() == 0)
         nFinalLeptons++;
-      if (  event[i].id() == 23
+      if ( event[i].id()    == 23
         || event[i].idAbs() == 24
-        || event[i].id() == 25)
+        || event[i].id()    == 25)
         nFinalBosons++;
-      if (  event[i].id() == 22)
+      if (  event[i].id()   == 22)
         nFinalPhotons++;
       if ( event[i].isQuark())
         nFinalQuarks++;
@@ -2707,6 +2903,8 @@ bool MergingHooks::setShowerStartingScales( bool isTrial,
   if ( isTrial ) {
     // Reset shower scales.
     pTmaxISRIn = pTmaxFSRIn = scale;
+    if ( limitPTmaxISRIn ) pTmaxISRIn = min(scale,muF());
+    if ( limitPTmaxFSRIn ) pTmaxFSRIn = min(scale,muF());
     // Reset MPI scale.
     if ( !isPureQCD ) pTmaxMPIIn = scale;
     else  pTmaxMPIIn = infoPtr->eCM();
@@ -2732,12 +2930,20 @@ bool MergingHooks::setShowerStartingScales( bool isTrial,
     // Set correct shower starting scales.
     if ( nSteps == 0 && !doRecluster ) {
       pTscaleIn = infoPtr->eCM();
-      limitPTmaxISRIn = limitPTmaxFSRIn = limitPTmaxMPIIn = false;
+      limitPTmaxMPIIn = false;
     }
+    if ( limitPTmaxISRIn ) pTscaleIn = min(scale,muF());
+    if ( limitPTmaxFSRIn ) pTscaleIn = min(scale,muF());
     pTmaxISRIn = pTmaxFSRIn = pTscaleIn;
     // Reset MPI starting scale. Standard treatment
-    if ( pTscaleIn < infoPtr->eCM() ) {
+    if ( pTscaleIn < infoPtr->eCM()
+      &&  !(nSteps == 0 && !doRecluster
+        && (limitPTmaxISRIn || limitPTmaxFSRIn)) ) {
       pTmaxMPIIn = pTscaleIn;
+      limitPTmaxMPIIn = true;
+    }
+    if (doRecluster) {
+      pTmaxMPIIn = muMI();
       limitPTmaxMPIIn = true;
     }
   }
@@ -2783,6 +2989,23 @@ double MergingHooks::tmsNow( const Event& event ) {
 
 //--------------------------------------------------------------------------
 
+// Function to check if the properties of the input particle should be
+// checked against the cut-based merging scale defintion.
+
+bool MergingHooks::checkAgainstCut( const Particle& particle){
+
+  // Do not check uncoloured particles.
+  if (particle.colType() == 0) return false;
+  // By default, use u-, d-, c-, s- and b-quarks.
+  if ( particle.idAbs() != 21 && particle.idAbs() > nQuarksMergeSave )
+    return false;
+  // Done
+  return true;
+
+}
+
+//--------------------------------------------------------------------------
+
 // Function to return the minimal kT in the event. If doKTMerging = true, this
 // function will be used as a merging scale definition.
 
@@ -2812,7 +3035,7 @@ double MergingHooks::kTms(const Event& event) {
     if ( event[i].isFinal()
       && isInHard( i, event )
       && event[i].colType() != 0
-      && event[i].idAbs()   != 6 ){
+      && checkAgainstCut(event[i]) ){
       bool isDecayProduct = false;
       for(int j=0; j < int(ewResonancePos.size()); ++j)
         if ( event.isAncestor(i, ewResonancePos[j]) )
@@ -2987,7 +3210,7 @@ double MergingHooks::rhoms( const Event& event, bool withColour){
     if ( event[i].isFinal()
       && isInHard( i, event )
       && event[i].colType() != 0
-      && event[i].idAbs()   != 6 ){
+      && checkAgainstCut(event[i]) ){
       bool isDecayProduct = false;
       for(int j=0; j < int(ewResonancePos.size()); ++j)
         if ( event.isAncestor(i, ewResonancePos[j]) )
@@ -3252,24 +3475,6 @@ int MergingHooks::findColour(int col, int iExclude1, int iExclude2,
   if ( type == 2 && index > 0) return abs(index);
 
   return 0;
-}
-
-//--------------------------------------------------------------------------
-
-// Function to check if the properties of the input particle should be
-// checked against the cut-based merging scale defintion.
-
-bool MergingHooks::checkAgainstCut( const Particle& particle){
-
-  // Do not check uncoloured particles.
-  if (particle.colType() == 0)
-    return false;
-  // Do not check tops and bottoms.
-  if (particle.idAbs() == 5 || particle.idAbs() == 6)
-    return false;
-  // Done
-  return true;
-
 }
 
 //--------------------------------------------------------------------------

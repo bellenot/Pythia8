@@ -6,12 +6,12 @@
 // Function definitions (not found in the header) for the
 // SigmaMultiparton and MultipartonInteractions classes.
   
-#include "MultipartonInteractions.h"
+#include "Pythia8/MultipartonInteractions.h"
 
 // Internal headers for special processes.
-#include "SigmaQCD.h"
-#include "SigmaEW.h"
-#include "SigmaOnia.h"
+#include "Pythia8/SigmaQCD.h"
+#include "Pythia8/SigmaEW.h"
+#include "Pythia8/SigmaOnia.h"
 
 namespace Pythia8 {
 
@@ -426,6 +426,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
   //  Parameters of alphaStrong generation.
   alphaSvalue    = settings.parm("MultipartonInteractions:alphaSvalue");
   alphaSorder    = settings.mode("MultipartonInteractions:alphaSorder");
+  alphaSnfmax    = settings.mode("StandardModel:alphaSnfmax");
 
   // Parameters of alphaEM generation.
   alphaEMorder   = settings.mode("MultipartonInteractions:alphaEMorder");
@@ -511,7 +512,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
   } 
 
   // Initialize alpha_strong generation.
-  alphaS.init( alphaSvalue, alphaSorder); 
+  alphaS.init( alphaSvalue, alphaSorder, alphaSnfmax, false); 
   double Lambda3 = alphaS.Lambda3(); 
 
   // Initialize alphaEM generation.
@@ -547,8 +548,8 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
        << " |                                                        "
        << "          | \n";
     if (isNonDiff)
-      os << " |            minbias,   sigmaNonDiffractive = " << fixed 
-         << setprecision(2) << setw(7) << sigmaND << " mb           | \n";
+      os << " |                   sigmaNonDiffractive = " << fixed 
+         << setprecision(2) << setw(7) << sigmaND << " mb               | \n";
     else if (iDiffSys == 1) 
       os << " |                          diffraction XB                "
          << "          | \n";
@@ -801,7 +802,7 @@ void MultipartonInteractions::reset( ) {
 
 //--------------------------------------------------------------------------
 
-// Select first = hardest pT in minbias process.
+// Select first = hardest pT in nondiffractive process.
 // Requires separate treatment at low and high b values.
 
 void MultipartonInteractions::pTfirst() {
@@ -950,7 +951,7 @@ void MultipartonInteractions::pTfirst() {
 
 //--------------------------------------------------------------------------
 
-// Set up kinematics for first = hardest pT in minbias process.
+// Set up kinematics for first = hardest pT in nondiffractive process.
 
 void MultipartonInteractions::setupFirstSys( Event& process) { 
 

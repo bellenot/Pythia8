@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the 
 // BeamRemnants class.
 
-#include "BeamRemnants.h"
+#include "Pythia8/BeamRemnants.h"
 
 namespace Pythia8 {
 

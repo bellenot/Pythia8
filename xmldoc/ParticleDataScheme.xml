@@ -113,7 +113,8 @@ initialized to be considered as resonances.</li>
 may decay or not, offering the main user switch. Whether a given particle 
 of this kind then actually will decay also depends on it having allowed 
 decay channels, and on other flags for 
-<aloc href="ParticleDecays">particle decays</aloc>. 
+<aloc href="ParticleDecays">particle decays</aloc> 
+(or <aloc href="ResonanceDecays">resonance decays</aloc>).
 All particles with <code>tau0</code> below 1000 mm are 
 by default initialized to allow decays.</li> 
 
@@ -163,12 +164,27 @@ The 2 and 3 options can be used e.g. to encode CP violation in
 B decays, or to let the <ei>W</ei>'s in a <ei>q qbar -> W^+ W^-</ei> 
 process decay in different channels. </li>
 
-<li><code>bRatio</code>: the branching ratio of the channel.</li>
+<li><code>bRatio</code>: the branching ratio of the channel
+(with some reservations for resonances, see <code>meMode</code>
+below).</li>
 
 <li><code>meMode</code>: the mode of processing this channel, possibly 
 with matrix elements; see the 
-<aloc href="ParticleDecays">particle decays</aloc> description</li>
-for the list of possibilities.
+<aloc href="ParticleDecays">particle decays</aloc> and
+<aloc href="ResonanceDecays">resonance decays</aloc> 
+descriptions for the list of possibilities.
+Notably the default code 0 for a particle means pure phase space
+decays according to the given branching ratios, while for a resonance 
+it means that code exists for the dynamic calculations of partial
+widths and thereby branching ratios as a function of the resonance mass
+(which is done e.g. at initialization based on the mass set by the user).
+Then codes 1 - 99 are reserved for various matrix-element-improved
+ordinary particle decays, and 100 - 103 for resonances where the
+partial width of a given channel is calculated from the total width 
+and the stored branching ratio. Thus, to enforce a new branching ratio 
+for a resonance channel (with its own partial-width calculation code) 
+it is not sufficient only to change the <code>bRatio</code> but also
+to set e.g. <code>meMode = 100</code>. </li>
 
 <li><code>multiplicity</code>: the number of decay products of the 
 channel. Can be at most 8.</li>
@@ -807,7 +823,8 @@ initialized to be considered as resonances.
 a flag telling whether a particle species may decay or not, offering 
 the main user switch. Whether a given particle of this kind then actually 
 will decay also depends on it having allowed decay channels, and on
-other flags for <aloc href="ParticleDecays">particle decays</aloc>. 
+other flags for <aloc href="ParticleDecays">particle decays</aloc> 
+(or <aloc href="ResonanceDecays">resonance decays</aloc>). 
 All particles with <code>tau0</code> below 1000 mm are 
 by default initialized to allow decays.
 </methodmore>
@@ -872,7 +889,7 @@ and <ei>m_b = 5.0</ei> GeV, for a diquark the sum of quark constituent
 masses, and for everything else the same as the ordinary mass.
 </method>
 
-<method name="double ParticleData::mass(int id)">
+<method name="double ParticleData::mSel(int id)">
 returns a mass distributed according to a truncated Breit-Wigner, 
 with parameters as described here. Is equal to <code>m0(id)</code> for 
 particles without width. 
@@ -1172,7 +1189,8 @@ initialized to be considered as resonances.
 a flag telling whether a particle species may decay or not, offering 
 the main user switch. Whether a given particle of this kind then actually 
 will decay also depends on it having allowed decay channels, and on
-other flags for <aloc href="ParticleDecays">particle decays</aloc>. 
+other flags for <aloc href="ParticleDecays">particle decays</aloc>
+(or <aloc href="ResonanceDecays">resonance decays</aloc>). 
 All particles with <code>tau0</code> below 1000 mm are 
 by default initialized to allow decays.
 </methodmore>
@@ -1235,7 +1253,7 @@ and <ei>m_b = 5.0</ei> GeV, for a diquark the sum of quark constituent
 masses, and for everything else the same as the ordinary mass.
 </method>
 
-<method name="double ParticleDataEntry::mass()">
+<method name="double ParticleDataEntry::mSel()">
 give the mass of a particle, either at the nominal value
 or picked according to a (linear or quadratic) Breit-Wigner. 
 </method>
@@ -1445,7 +1463,7 @@ multiply the current branching ratio by <code>fac</code>.
 <methodmore name="int DecayChannel::meMode()">
 set or get the mode of processing this channel, possibly with matrix 
 elements (see the <aloc href="ParticleDecays">particle decays</aloc> 
-description).
+and <aloc href="ResonanceDecays">resonance decays</aloc> descriptions).
 </methodmore>
 
 <method name="void DecayChannel::multiplicity(int multiplicity)"> 

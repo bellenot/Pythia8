@@ -10,7 +10,7 @@
 // Note that the "total" cross section does NOT include 
 // the Coulomb contribution to elastic scattering, as switched on here.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
 
@@ -63,7 +63,7 @@ int main() {
   Hist mSpec("diffractive mass spectrum",           100, 0., 100.); 
   Hist mLogSpec("log10(diffractive mass spectrum)", 100, 0., 4.); 
 
-  // Book histograms: inelastic nondiffractive "minbias".
+  // Book histograms: inelastic nondiffractive.
   double pTmax = 20.;
   double bMax  = 4.;
   Hist pTspec("total pT_hard spectrum",             100, 0., pTmax); 

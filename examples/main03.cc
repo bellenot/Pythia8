@@ -7,7 +7,7 @@
 // It illustrates how different processes can be selected and studied.
 // All input is specified in the main03.cmnd file.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
 

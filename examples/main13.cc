@@ -8,7 +8,7 @@
 // just like in main12.cc, but here with the difference that information is
 // stored in main13.cmnd and read out using the subruns possibility.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 using namespace Pythia8; 
 int main() {
 

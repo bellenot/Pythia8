@@ -2466,6 +2466,255 @@ handling of simple cases.</li>
 
 </ul>
 </li>
+
+<li>8.180: 22 September 2013
+<ul>
+
+<li>Nishita Desai joins as new author.</li>
+
+<li>All the header files <code>include/*.h</code> have been moved to 
+<code>include/Pythia8/*.h</code> to better comply with conventions 
+in other libraries (<code>*</code> = generic name). Thus also all 
+code lines <code>#include "*.h"</code> that refer to PYTHIA files 
+have been changed to <code>#include "Pythia8/*.h"</code>. Thanks to 
+Andy Buckley for suggestion.</li>
+
+<li>The class that converts PYTHIA events to the HepMC format
+is renamed from <code>I_Pythia8</code> to <code>Pythia8ToHepMC</code>,
+the files where the class resides from <code>HepMCInterface.h/.cc</code>
+to <code>Pythia8ToHepMC.h/.cc</code>, and the subdirectory of the 
+<code>.cc</code> file from <code>hepmcinterface</code> to
+<code>pythia8tohepmc</code>. This clarifies the role of the class 
+and avoids potential future name clashes with other interfaces.
+Makefiles and example main runs have been modified accordingly.
+Thanks to Andy Buckley.</li>
+
+<li>The configure/Makefile step has been extended such that a 
+<code>bin/pythia8-config</code> script is constructed, to simplify
+subsequent linking of PYTHIA 8 and other libraries to your main
+program. See the <code>README</code> file for further instructions,
+the new "Compling programs against PYTHIA 8" section.
+Thanks to Andy Buckley for code and text.</li>
+
+<li>The "minbias" event class has been renamed into the 
+(inelastic) "nondiffractive" one, since the "minbias" denomination
+should be reserved for an experimental procedure. Needless to say,
+also the separation into diffraction or not could be made by 
+experimental procedures, but here it is more generally accepted that 
+there is an underlying theoretical description that takes precedence
+in cases of conflict. Thus the <code>SoftQCD:minBias</code> flag
+has been remaned <code>SoftQCD:nonDiffractive</code>, and the
+<code>Info::isMinBias()</code> method has been renamed 
+<code>Info::isNonDiffractive()</code>. The old names have been retained 
+as alternatives for now. Thanks to Andy Buckley.</li>
+
+<li>Four PDF sets have been added from the NNPDF2.3 QCD+QED family:
+the central sets for LO with <i>alpha_s(M_Z) = 0.130</i>,
+LO with <i>alpha_s(M_Z) = 0.119</i>, NLO with <i>alpha_s(M_Z) = 0.119</i>,
+and NNLO with <i>alpha_s(M_Z) = 0.119</i>.
+Thanks to Juan Rojo and Stefano Carrazza for providing the code.</li>
+
+<li>The <code>fjcore</code> version 3.0.5 code from <code>FastJet</code> 
+has been included with the PYTHIA distribution. <code>SlowJet</code> now 
+by default becomes a front end to <code>fjcore</code>, but the old
+behaviour is retained as an option. The new approach is faster,
+but the older one still offers a few extra possibilities. Note that
+the new <code>useFJcore</code> argument to the <code>SlowJet</code>
+constructor has been included as a new last-but-one argument,
+since the last one is likely to be used much more infrequently
+and logically depends on the value set for <code>useFJcore</code>.
+Thanks to Matteo Cacciari, Gavin Salam and Gregory Soyez for making
+the <code>fjcore</code> code freely distributable.</li>
+
+<li>New method <code>constituents(i)</code> in <code>FastJet</code>
+returns a vector with the indices of the particles belonging to the
+<i>i</i>'th jet.</li> 
+
+<li>The global recoil option for final-state showers has been extended
+with a few more options to improve possibility for matching to
+output from other programs, such as aMC@NLO.</li> 
+
+<li>Further extensions of the weak-showering machinery, but still
+experimental. Now also includes <i>W/Z</i> emission in the initial 
+state.</li>
+
+<li>Introduce new <code>qqbar</code> option for 
+<code>SigmaProcess::inFlux()</code> and update documentation.</li>
+
+<li>Improve the description of <code>meMode</code> for resonances 
+and illustrate how to force specific Higgs branching ratios in
+<code>main16.cmnd</code>.</li>
+
+<li>Added two previously missing SUSY processes for associated
+production of a gluino with a neutralino or chargino:
+<code>SUSY:qqbar2chi0gluino</code> and 
+<code>SUSY:qqbar2chi+-gluino</code>, using the cross section 
+expressions in [<a href="Bibliography.php" target="page">Fuk11</a>]. Validated against PYTHIA 6 and
+XSUSY.</li>
+
+<li>Added direct slepton production from <i>q qbar</i> annihilation,
+<code>SUSY:qqbar2sleptonantislepton</code>. Validated against 
+PYTHIA 6.</li>
+
+<li>Corrected some slepton and squark EW couplings in
+<code>SusyCouplings</code>.</li>
+
+<li>Generalized the cross section formulae for
+<code>SUSY:qg2squarkgluino</code> to the case of non-minimal flavor 
+violation, using the expressions in [<a href="Bibliography.php" target="page">Fuk11</a>]. Validated 
+against PYTHIA 6 and XSUSY. The new implementation is compatible 
+with both SLHA2 and SLHA1, whereas the older was only compatible 
+with SLHA1.</li>
+
+<li>Generalized the cross section formulae for
+<code>SUSY:qqbar2gluinogluino</code> to the case of non-minimal 
+flavour violation, using the expressions in [<a href="Bibliography.php" target="page">Fuk11</a>]. 
+(Also corrected a factor 2 in that paper on the color factor for 
+<i>st</i> and <i>su</i> interference terms.) The new 
+implementation is compatible with both SLHA2 and SLHA1, whereas 
+the older was only compatible with SLHA1.</li>
+
+<li>Changed the default <code>meMode</code> for SLHA DECAY modes to 100, 
+to allow off-shell decays. Enabled the user to choose a different 
+<code>meMode</code> if desired, via a new mode, <code>SLHA:meMode</code>. 
+If values different from 100 are selected (e.g., 103), modes that are 
+extremely far off shell (defined as needing a fluctuation of more than 
+100 times the root-sum-square of the widths of the mother and daughter 
+particles) will still default back to 100, though the user may of course 
+still switch them off if so desired. Added documentation about this in
+<code>SusyLesHouchesAccord.xml</code>. Deleted the parameter 
+<code>SLHA:minDecayDeltaM</code>, which would prevent the possibility 
+of off-shell decays unless set to a large negative value.</li>
+
+<li>Added calculation of decay lengths to SLHA DECAY modes.</li>
+
+<li>Updated documentation of SUSY processes and SLHA-related
+parameters. Additional reference to the new cross sections included in
+the bibliography.</li>
+
+<li>Allow six-flavour running of <i>alpha_s</i> above the top threshold, 
+and implement option with CMW rescaling of the Lambda values, for use 
+in coherent showers.</li>
+
+<li>The merging code has been updated, with corrected handling of massive
+partons. This amends problems in <i>tt&#772;</i>, and makes clusterings of
+massive emissions <i>W, Z, ~g</i> possible. The bookkeeping for the hard
+process has been upgraded to accommodate more general BSM processes. The
+treatment of incomplete histories has been upgraded, so that histories which
+allow for at least one clustering will be used in the unitarisation. Also,
+states that do not allow for any clustering will not be subject to the
+(internal, optional) cut on the input events any longer, to guarantee full
+phase space coverage. This is important for processes for which a
+non-negligible fraction of states lead to incomplete histories, e.g.
+<i>tt&#772;W</i> production. Further, functionality for reclustering 
+FSR off SUSY particles has been added. A new setting allows more easily
+to switch between 4-flavour and 5-flavour merging schemes.</li>
+
+<li>The <code>main85.cc</code> - <code>main88.cc</code> have obtained
+support for zipped LHE input files, and have nicer printing of the 
+inclusive cross section at the end.</li>
+
+<li>Introduced new mode <code>LesHouches:setLifetime</code> so that
+the lifetime information in Les Houches input can be replaced by
+the standard PYTHIA selection procedure. By default this is applied to 
+<i>tau</i> leptons, since some matrix-element generators do not set 
+this lifetime. Thanks to James Monk and Thorsten Kuhl.</li> 
+
+<li>A new <code>examples/main46.cc</code> illustrates how to write a
+ProMC file with PYTHIA events. Thanks to Sergei Chekanov.</li> 
+
+<li>The <code>Vect</code> class has been renamed <code>PVec</code>
+and a new <code>MVec</code> class has been introduced along the same
+lines, see the <?php $filepath = $_GET["filepath"];
+echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>Settings</a> database. 
+They can be used to store a vector of double-precision real or integer
+values, respectively, i.e. of parms or modes, hence the names. 
+Thanks to Abram Krislock.</li>
+
+<li>Two new vectors of integers <code>SUSY:idVecA</code> and
+<code>SUSY:idVecB</code> have been introduced to allow a more flexible
+selection of final states in SUSY processes, see the
+<?php $filepath = $_GET["filepath"];
+echo "<a href='SUSYProcesses.php?filepath=".$filepath."' target='page'>";?>SUSY process selection</a> page.
+The selection machinery has been expanded to cope. 
+Thanks to Abram Krislock.</li>
+
+<li>New switch <code>PartonLevel:earlyResDec</code> to give
+first simple option where resonances are allowed ro decay before
+colour reconnection and beam remnants are added.</li>
+
+<li>Renamed the <code>mass(...)</code> methods to <code>mSel(...)</code>
+in the <code>Particle</code>, <code>ParticleData</code> and
+<code>ParticleDataEntry</code> classes, to avoid users mistaking 
+<code>Particle::mass()</code> for <code>Particle::m()</code>.</li>
+
+<li>Fixed a missing (unused) argument in some derived classes when
+the <code>mRecalculate</code> parameter was introduced in Les Houches
+code in version 8.176.</li>
+
+<li>Removed several unused class variables from header files, based
+on new compiler information.</li>
+
+<li>Fixed a bug in <code>Sigma2ffbar2HposHneg</code>, where 
+<code>int(...)</code> was used instead of <code>abs.(...)</code>.
+Thanks to Vittorio Zecca.</li>
+
+<li>Fixed missing re-initialization of Breit-Wigner mass generation
+parameters for externally set new resonance widths. 
+Thanks to Vittorio Zecca.</li>
+
+<li>Fixed several places where division by zero or adressing of
+arrays out-of-bounds could occur. While some were trivial, others 
+revealed underlying errors, notably in the handling of some SUSY 
+processes and resonances. New checks against unphysical SLHA input 
+have been implemented. Also some bug fixes in the new weak-shower 
+ISR component, the sphericity analysis, the event undo-decay option,
+and more. Thanks to Vittorio Zecca.</li>
+
+<li>Bug fix in the <i>tau</i> decay description for decay chains like
+<i>H0 -> A0 A0 -> 4 tau</i>, caused by an erroneous assignment of 
+the number of spin states. Thanks to Brock Tweedie.</li>
+
+<li>Add setting of some <code>TimeShower</code> variables that might
+remain uninitialized. Thanks to Christian Pulvermacher.
+</li>
+
+<li>Extra check in <code>TimeShower</code> for incoming massive 
+particles, where a recalculation of kinematics to an equivalent
+massless case could give a slightly negative effective dipole mass
+(with endpoint masses subtracted). Thanks to Paolo Torrielli.
+</li>
+
+<li>Updated manual on how to implement new showers, mainly detailing
+new optional method arguments. Thanks to Mathias Ritzmann.
+</li>
+
+<li>Corrected bug in <code>SigmaSUSY</code> which caused flavour violating 
+slepton production (for R-parity conserving cases too).</li>
+
+<li>Corrected bug in <code>SusyCouplings</code> where <i>tan(beta)</i> 
+was not read from LHA file for RPV spectrum.</li>
+
+<li>Modified the contact interaction term normalization of the 
+<i>f fbar -> l lbar</i> process to agree with the one used in 
+PYTHIA 6. Documentation of the <code>ContactInteractions:Lambda</code>
+updated to reflect this. Thanks to Daniel Hayden.</li>
+
+<li>Introduced copy constroctor for the <code>Event</code> class.</li>
+
+<li>Reset the Higgs mass range when its mass is changed in 
+<code>examples/main14.cc</code>.</li>
+
+<li>Remove obsolete <code>examples/main91.cc</code> and associated
+<code>Makefile</code> code.
+</li>
+
+<li>Catch cases where junction topologies are sent to the ministring
+machinery, which is not set up to handle it, and therefore could 
+give segmentation faults. Very rare.</li>
+
+</ul>
+</li>
 </ul>
 
 </body>

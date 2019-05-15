@@ -5,7 +5,7 @@
 
 // Function definitions (not found in the header) for the ProcessLevel class.
 
-#include "ProcessLevel.h"
+#include "Pythia8/ProcessLevel.h"
 
 namespace Pythia8 {
  

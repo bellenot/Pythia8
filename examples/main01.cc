@@ -6,7 +6,7 @@
 // This is a simple test program. It fits on one slide in a talk. 
 // It studies the charged multiplicity distribution at the LHC.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 using namespace Pythia8; 
 int main() {
   // Generator. Process selection. LHC initialization. Histogram.

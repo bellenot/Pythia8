@@ -5,7 +5,7 @@
 
 // Function definitions (not found in the header) for the Pythia class.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 // Access time information.
 #include <ctime>
@@ -22,7 +22,7 @@ namespace Pythia8 {
 //--------------------------------------------------------------------------
 
 // The current Pythia (sub)version number, to agree with XML version.
-const double Pythia::VERSIONNUMBERCODE = 8.176;
+const double Pythia::VERSIONNUMBERCODE = 8.180;
 
 //--------------------------------------------------------------------------
 
@@ -575,7 +575,7 @@ bool Pythia::init() {
     &partonSystems, userHooksPtr, mergingHooksPtr);
   timesDecPtr->initPtr( &info, &settings, &particleData, &rndm, couplingsPtr, 
     &partonSystems, userHooksPtr, mergingHooksPtr);
-  spacePtr->initPtr( &info, &settings, &particleData, &rndm,
+  spacePtr->initPtr( &info, &settings, &particleData, &rndm, couplingsPtr,
     &partonSystems, userHooksPtr, mergingHooksPtr);
   timesDecPtr->init( 0, 0);
 
@@ -1133,6 +1133,10 @@ bool Pythia::next() {
         continue;
       // Exit because of vanishing no-emission probability. 
       } else if ( veto == 0 ) break;
+
+      // Redo resonance decays after the merging, in case the resonance 
+      // structure has been changed because of reclusterings.
+      if (veto == 2 ) processLevel.nextDecays( process);
     }
 
     // Possibility to stop the generation at this stage.
@@ -1568,11 +1572,17 @@ void Pythia::banner(ostream& os) {
      << " |  |      phone: + 46 - 46 - 222 48 16; e-ma"
      << "il: torbjorn@thep.lu.se               |  | \n"
      << " |  |   Jesper Roy Christiansen;  Department " 
-     << "of Astronomy and Theoretical Physics  |  | \n"
+     << "of Astronomy and Theoretical Physics, |  | \n"
      << " |  |      Lund University, Solvegatan 14A, S"
      << "E-223 62 Lund, Sweden;                |  | \n"
      << " |  |      e-mail: Jesper.Roy.Christiansen@th"
      << "ep.lu.se                              |  | \n"
+     << " |  |   Nishita Desai;  Department of Physics" 
+     << " and Astronomy, University College    |  | \n"
+     << " |  |      London, Gower Street, London, WC1E"
+     << " 6BT, United Kingdom;                 |  | \n"
+     << " |  |      e-mail: Nishita.Desai@cern.ch     "
+     << "                                      |  | \n"
      << " |  |   Philip Ilten;  School of Physics, Uni" 
      << "iversity College Dublin,              |  | \n"
      << " |  |      Belfield, Dublin 4, Ireland;      "
@@ -1585,11 +1595,11 @@ void Pythia::banner(ostream& os) {
      << "ory, MS 234, Batavia, IL 60510, USA;  |  | \n"
      << " |  |      phone: + 1 - 630 - 840 - 2556; e-m"
      << "ail: mrenna@fnal.gov                  |  | \n"
-     << " |  |   Stefan Prestel;  Department of Astron"
-     << "omy and Theoretical Physics,          |  | \n"
-     << " |  |      Lund University, Solvegatan 14A, S"
-     << "E-223 62 Lund, Sweden;                |  | \n"
-     << " |  |      phone: + 46 - 46 - 222 06 64; e-ma"
+     << " |  |   Stefan Prestel;  Theory Group, DESY, "
+     << "                                      |  | \n"
+     << " |  |      Notkestrasse 85, D-22607 Hamburg, "
+     << "Germany;                              |  | \n"
+     << " |  |      phone: + 49 - 40 - 8998-4250; e-ma"
      << "il: stefan.prestel@thep.lu.se         |  | \n"
      << " |  |   Peter Skands;  Theoretical Physics, C"
      << "ERN, CH-1211 Geneva 23, Switzerland;  |  | \n"
@@ -2013,7 +2023,9 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
       else if (pSet == 2) tempPDFPtr = new CTEQ5L(idIn);
       else if (pSet <= 6) 
            tempPDFPtr = new MSTWpdf(idIn, pSet - 2, xmlPath, &info);
-      else tempPDFPtr = new CTEQ6pdf(idIn, pSet - 6, xmlPath, &info);
+      else if (pSet <= 12)
+           tempPDFPtr = new CTEQ6pdf(idIn, pSet - 6, xmlPath, &info);
+      else tempPDFPtr = new NNPDF(idIn, pSet - 12, xmlPath, &info);
     }
     
     // Use sets from LHAPDF.
@@ -2040,7 +2052,9 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence) {
       else if (pSet == 2) tempPDFPtr = new CTEQ5L(idIn);
       else if (pSet <= 6) 
            tempPDFPtr = new MSTWpdf(idIn, pSet - 2, xmlPath, &info);
-      else tempPDFPtr = new CTEQ6pdf(idIn, pSet - 6, xmlPath, &info);
+      else if (pSet <= 12)
+           tempPDFPtr = new CTEQ6pdf(idIn, pSet - 6, xmlPath, &info);
+      else tempPDFPtr = new NNPDF(idIn, pSet - 12, xmlPath, &info);
     }
     
     // Use sets from LHAPDF.

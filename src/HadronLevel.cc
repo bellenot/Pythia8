@@ -5,7 +5,7 @@
 
 // Function definitions (not found in the header) for the HadronLevel class.
 
-#include "HadronLevel.h"
+#include "Pythia8/HadronLevel.h"
 
 namespace Pythia8 {
 

@@ -105,6 +105,12 @@ S&ouml;lvegatan 14A, SE-223 62 Lund, Sweden<br/>
 e-mail: Jesper.Roy.Christiansen@thep.lu.se   
 
 <p/>
+<b>Nishita Desai</b><br/> 
+Department of Physics and Astronomy, University College London,
+Gower Street, London, WC1E 6BT, United Kingdom<br/>
+e-mail: Nishita.Desai@cern.ch  
+
+<p/>
 <b>Philip Ilten</b><br/> 
 School of Physics, University College Dublin, 
 Belfield, Dublin 4, Ireland<br/>
@@ -119,9 +125,8 @@ phone: + 1 - 630 - 840 - 2556, e-mail: mrenna@fnal.gov
 
 <p/>
 <b>Stefan Prestel</b><br/> 
-Department of Astronomy and Theoretical Physics, Lund University, 
-S&ouml;lvegatan 14A, SE-223 62 Lund, Sweden<br/>
-phone: + 46 - 46 - 222 06 64, e-mail: stefan.prestel@thep.lu.se   
+Theory Group, DESY, Notkestrasse 85, D-22607 Hamburg, Germany<br/>
+phone: + 49 - 40 - 8998-4250, e-mail: stefan.prestel@thep.lu.se 
 
 <p/>
 <b>Peter Skands</b><br/> 
@@ -159,11 +164,17 @@ especially <b>Paul Newman</b>.
 <b>Noam Hod</b> and <b>Mark Sutton</b>.
 <br/>Code for equivalent photon flux around an unresolved proton by 
 <b>Oystein Alvestad</b>.
-<br/>Part of the SUSY code by <b>Nishita Desai</b>.
 <br/>The MBR diffractive model and central diffraction by 
 <b>Robert Ciesielski</b>.
 <br/>2012 branching ratios for most light hadrons, and the tau lepton,
 by <b>Anil Pratap Singh</b>.
+<br/>The pythia8-config script has been contributed by 
+<b>Andy Buckley</b>, along with many other helpful suggestions.
+<br/>Code and data for several of the NNPDF2.3 QCD+QED sets provided by 
+<b>Juan Rojo</b> and <b>Stefano Carrazza</b>.
+<br/>The fjcore code from FastJet provided by <b>Matteo Cacciari</b>, 
+<b>Gavin Salam</b> and <b>Gregory Soyez</b>.
+
 <br/><b>Note</b>: in several cases modifications have been made to
 the original code, in order to integrate it with PYTHIA. In these cases
 the blame for any mistakes has to rest with the regular authors.

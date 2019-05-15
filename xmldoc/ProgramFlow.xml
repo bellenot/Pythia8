@@ -31,7 +31,7 @@ This offers complementary information.
 Already at the top of the main program file, you need to include the proper 
 header file
 <pre>
-    #include "Pythia.h"
+    #include "Pythia8/Pythia.h"
 </pre>
 To simplify typing, it also makes sense to declare
 <pre>

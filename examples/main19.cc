@@ -19,7 +19,7 @@
 //    Thus it is not a good idea to use LHAPDF to set different PDF's
 //    in different instances.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 using namespace Pythia8; 
 
 //==========================================================================

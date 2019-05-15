@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the 
 // Higgs simulation classes. 
 
-#include "SigmaHiggs.h"
+#include "Pythia8/SigmaHiggs.h"
 
 namespace Pythia8 {
 
@@ -2476,7 +2476,7 @@ void Sigma2ffbar2HposHneg::sigmaKin() {
 double Sigma2ffbar2HposHneg::sigmaHat() { 
 
   // Couplings for incoming flavour.
-  int idAbs    = int(id1);
+  int idAbs    = abs(id1);
   double eIn   = couplingsPtr->ef(idAbs);
   double lIn   = couplingsPtr->lf(idAbs);
   double rIn   = couplingsPtr->rf(idAbs);

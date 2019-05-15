@@ -181,6 +181,20 @@ but there is also nothing wrong with it.
   
 
 <p/>
+The CMW rescaling of <i>Lambda_QCD</i> (see the section on 
+<a href="StandardModelParameters.html" target="page">StandardModelParameters</a>) 
+can be applied to the <i>alpha_strong</i> values used for 
+timelike showers. Note that tunes using this option need lower values of 
+<i>alpha_strong(m_Z^2)</i> than tunes that do not.
+<p/><code>flag&nbsp; </code><strong> TimeShower:alphaSuseCMW &nbsp;</strong> 
+ (<code>default = <strong>false</strong></code>)<br/>
+<br/><code>option </code><strong> false</strong> : Do not apply the CMW rescaling.   
+<br/><code>option </code><strong> true</strong> : Apply the CMW rescaling, increasing  
+ <i>Lambda_QCD</i> for timelike showers by a factor roughly 1.6.
+  
+  
+
+<p/>
 QED radiation is regulated by the <i>alpha_electromagnetic</i>
 value at the <i>pT^2</i> scale of a branching.
  
@@ -426,6 +440,66 @@ radiation before the first final-state one, and then there is not
 likely to be any matrix elements available for matching.
   
 
+<p/>
+Two variations of the scheme outlined above are also available,
+(motivated by comparative studies within aMC@NLO). These studies indicate
+that global recoils should be used as sparsely as possible, in order to
+retain desirable features of the radiation pattern produced with the local
+recoil prescription.
+
+<p/><code>mode&nbsp; </code><strong> TimeShower:globalRecoilMode &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
+Choice which splittings are produced with the global recoil approach.
+<br/><code>option </code><strong> 0</strong> : Global recoil mode as outlined above, i.e. using global
+recoils until the number of final state particles exceeds 
+<code>TimeShower:nMaxGlobalRecoil</code>.  
+<br/><code>option </code><strong> 1</strong> : Global recoil only for the first branching of
+final state legs that have an ancestor in the hard process, and
+if the maximal number of branchings generated according to the global
+recoil scheme (see <code>TimeShower:nMaxGlobalBranch</code> below) has
+not yet been reached.  
+<br/><code>option </code><strong> 2</strong> : Global recoil only if the first branching in 
+the whole evolution is a timelike splitting of a parton in an 
+event with Born-like kinematics (i.e.\ an S-event).
+The impact of global recoils should be minimal in this case.
+This option is only sensible for interleaved evolution.
+  
+  
+
+<p/><code>mode&nbsp; </code><strong> TimeShower:nMaxGlobalBranch &nbsp;</strong> 
+ (<code>default = <strong>-1</strong></code>)<br/>
+The maximum number of splittings in the final state for which
+the next final-state emission can be performed with the global recoil
+strategy. This number has to be set if <code>TimeShower:globalRecoilMode = 1
+</code> or <code>TimeShower:globalRecoilMode = 2</code>
+  
+
+<p/><code>mode&nbsp; </code><strong> TimeShower:nPartonsInBorn &nbsp;</strong> 
+ (<code>default = <strong>-1</strong></code>)<br/>
+The number of partons for Born-like phase space points. This number needs
+to be set if a different treatment of S-events (with Born-like kinematics)
+and H-events (with real-emission kinematics) is desired. This number has
+to be set if <code>TimeShower:globalRecoilMode = 2</code>.
+  
+
+<p/><code>flag&nbsp; </code><strong> TimeShower:limitPTmaxGlobal &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+If on, limit the maximal pT produced in branchings in the global recoil scheme
+exactly as in the default (local) scheme. This means that the mass of the
+splitting dipole will set an upper bound for the pT of an emission. To be more
+explicit, this disallows emissions with pT larger than <i>min{&mu;<sub>start
+</sub><sup>2</sup>, m<sub>D</sub><sup>2</sup>/4}</i>, with <i>m<sub>D</sub>
+<sup>2</sup> =
+(&radic;<span style="text-decoration:overline;color:green">&nbsp;(p<sub>r
+</sub>+p<sub>s</sub>)<sup>2</sup>&nbsp;</span>-m<sub>0,s</sub>)<sup>2</sup>
+- m<sub>0,r</sub><sup>2</sup> </i>, where
+the shower starting scale is <i>&mu;<sub>start</sub></i> (i.e. SCALUP when
+reading LHE files, and <code> Info.QFac()</code> otherwise), <i>r</i> the
+radiating parton, and <i>s</i> the recoiling particle that would have been
+used in the local recoil scheme. This option is only used if wimpy showers are
+enabled.
+  
+
 <p/> 
 The global-recoil machinery does not work well with rescattering in the
 MPI machinery, since then the recoiling system is not uniquely defined.
@@ -528,8 +602,8 @@ off a quark. The physically preferred range would be between 1 and 9/4.
 The emission of <i>W^+-</i> and <i>Z^0</i> gauge bosons off fermions 
 is intended to become an integrated part of the initial- and final-state
 radiation frameworks, and is fully interleaved with QCD and QED emissions. 
-Currently it is under development, with only the FSR machinery available 
-in the public version, and off by default. Another restriction is that
+Currently it is under development, and off by default. 
+Another restriction is that
 there is no simulation of the full <i>gamma^*/Z^0</i> interference:
 at low masses the QED shower involves a pure <i>gamma^*</i> component, 
 whereas the weak shower generates a pure <i>Z^0</i>. 
@@ -610,10 +684,11 @@ Allow a weak shower, yes or no.
 
 <p/><code>mode&nbsp; </code><strong> TimeShower:weakShowerMode &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
-<br/><code>option </code><strong> 0</strong> :  Allow both <i>W^+-</i> and <i>Z^0</i> branchings. 
+Determine which branchings are allowed.
+<br/><code>option </code><strong> 0</strong> :  both <i>W^+-</i> and <i>Z^0</i> branchings. 
   
-<br/><code>option </code><strong> 1</strong> :  Allow only <i>W^+-</i> branchings.   
-<br/><code>option </code><strong> 2</strong> :  Allow only <i>Z^0</i> branchings.   
+<br/><code>option </code><strong> 1</strong> :  only <i>W^+-</i> branchings.   
+<br/><code>option </code><strong> 2</strong> :  only <i>Z^0</i> branchings.   
   
 
 <p/><code>parm&nbsp; </code><strong> TimeShower:pTminWeak &nbsp;</strong> 
@@ -621,18 +696,17 @@ Allow a weak shower, yes or no.
 Parton shower cut-off <i>pT</i> for weak branchings.
 
 <p/><code>parm&nbsp; </code><strong> TimeShower:weakShowerEnhancement &nbsp;</strong> 
- (<code>default = <strong>1.</strong></code>; <code>minimum = 1.</code>; <code>maximum = 10.</code>)<br/>
+ (<code>default = <strong>1.</strong></code>; <code>minimum = 1.</code>; <code>maximum = 1000.</code>)<br/>
 Enhancement factor for the weak shower. This is used to increase the statistics 
 of weak shower emissions. Remember afterwards to correct for the additional 
-weak emissions (i.e. divide the weak emissions by the same factor), and recall
-the warnings above. 
+weak emissions (i.e. divide the rate of weak emissions by the same factor).
   
 
 <p/><code>flag&nbsp; </code><strong> TimeShower:singleWeakEmission &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 This parameter allows to stop the weak shower after a single emission.
-If on, only a single weak emission is allowed.
-If off, an unlimited number of weak emissions possible.
+<br/>If on, only a single weak emission is allowed.
+<br/>If off, an unlimited number of weak emissions possible.
   
 
 <p/><code>parm&nbsp; </code><strong> TimeShower:extraScaleTerm &nbsp;</strong> 
@@ -642,6 +716,14 @@ massive particles it could be preferred to use <i>pT^2 + M^2</i>
 instead. This parameter allows to use <i>pT^2 + k * M^2</i> for 
 weak showers, thus <i>k = 0</i> is the standard ordering and 
 is used as default.
+  
+
+<p/><code>flag&nbsp; </code><strong> TimeShower:dopTDampMass &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+Add an extra dampening to the weak shower to lower the production
+of low-<i>pT</i> <i>W/Z</i>'s. The dampening is given by
+<i>(pT^2 + 0.25 M^2)/ (pT^2 + M^2)</i>, where <i>M^2</i> is the 
+squared mass of the <i>W/Z</i>.
   
 
 <h3>Further variables</h3>

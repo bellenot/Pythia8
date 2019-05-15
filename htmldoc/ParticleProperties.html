@@ -92,6 +92,8 @@ In detail, the list of used or foreseen status codes is:
            owing to ISR in the mother system (cf. status 34)</li>
   <li>46 : incoming copy of recoiler when this is a rescattered 
            parton (cf. status 42)</li>
+  <li>47 : a <i>W</i> or <i>Z</i> gauge boson produced in the
+           shower evolution</li>
   </ul>
 <li>51 - 59 : particles produced by final-state-showers</li>
   <ul>
@@ -597,7 +599,7 @@ for particles with a width, according to the data tables.
   
 
 <a name="method47"></a>
-<p/><strong>double Particle::mass() &nbsp;</strong> <br/>
+<p/><strong>double Particle::mSel() &nbsp;</strong> <br/>
 the mass of the particle, picked according to a Breit-Wigner 
 distribution for particles with width. It is different each time called, 
 and is therefore only used once per particle to set its mass

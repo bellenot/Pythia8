@@ -8,7 +8,7 @@
 // (a) how to use UserHooks to regularize onium cross section for pT -> 0, 
 // (b) how decays could be handled externally.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
 

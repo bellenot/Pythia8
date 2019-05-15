@@ -73,6 +73,12 @@ of low nominal mass may still acquire a non-negligible high-end tail.
 The validity of the calculation may be questioned in these wings. 
 With this option on, the <code>Higgs:wingsFac</code> value is used to 
 cut away the wings.
+<br/><b>Warning:</b> with this option on, the allowed mass range is 
+shrunk, but never widened. This can lead to inconsistencies if a run 
+consists of several subruns with different Higgs masses. The 
+<code>id:mMin</code> and <code>id:mMax</code> values should therefore be 
+reset (e.g. to the defaults 50. and 0.) when <code>id:m0</code> is
+changed.
   
 
 <br/><br/><table><tr><td><strong>Higgs:wingsFac </td><td></td><td> <input type="text" name="4" value="50." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>50.</strong></code>; <code>minimum = 0.</code>)</td></tr></table>
@@ -80,8 +86,9 @@ With <code>Higgs:clipWings</code> on, all Higgs masses which deviate
 from the nominal one by more than <code>Higgs:wingsFac</code>
 times the nominal width are forbidden. This is achieved by setting
 the <code>mMin</code> and <code>mMax</code> values of the Higgs states
-at initialization (but never so as to allow a wider range than already
-set by the user, alternatively by the default values).   
+at initialization. These changes never  allow a wider range than already
+set by the user, alternatively by the current default values, see 
+warning above.   
   
 
 <h3>Standard-Model Higgs, basic processes</h3>

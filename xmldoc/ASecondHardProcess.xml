@@ -159,7 +159,8 @@ or else first a <ei>b</ei> and then an <ei>a</ei>.
 To translate this language into cross-sections for high-energy 
 events, we assume that interactions can occur at different <ei>pT</ei>
 values independently of each other inside inelastic nondiffractive
-(= "minbias") events. Then the above probabilities translate into
+(sometimes equated with "minbias") events. Then the above probabilities 
+translate into
 <ei>P_n = sigma_n / sigma_ND</ei> where <ei>sigma_ND</ei> is the
 total nondiffractive cross section. Again we want to assume that
 <ei>exp(-&lt;n&gt;)</ei> is close to unity, i.e. that the total 

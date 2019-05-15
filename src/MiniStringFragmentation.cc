@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the .
 // MiniStringFragmentation class
 
-#include "MiniStringFragmentation.h"
+#include "Pythia8/MiniStringFragmentation.h"
 
 namespace Pythia8 {
 
@@ -59,8 +59,15 @@ void MiniStringFragmentation::init(Info* infoPtrIn, Settings& settings,
 bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig, 
   Event& event, bool isDiff) {
 
-  // Read in info on system to be treated.
+  // Junction topologies not yet considered - is very rare.
   iParton  = colConfig[iSub].iParton;
+  if (iParton.front() < 0) {
+    infoPtr->errorMsg("Error in MiniStringFragmentation::fragment: "
+      "very low-mass junction topologies not yet handled"); 
+    return false;
+  }
+
+  // Read in info on system to be treated.
   flav1    = FlavContainer( event[ iParton.front() ].id() );
   flav2    = FlavContainer( event[ iParton.back() ].id() ); 
   pSum     = colConfig[iSub].pSum;
@@ -123,8 +130,8 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
     } while (idHad1 == 0 || idHad2 == 0);
 
     // Check whether the mass sum fits inside the available phase space.  
-    mHad1 = particleDataPtr->mass(idHad1);
-    mHad2 = particleDataPtr->mass(idHad2);
+    mHad1 = particleDataPtr->mSel(idHad1);
+    mHad2 = particleDataPtr->mSel(idHad2);
     mHadSum = mHad1 + mHad2;
     if (mHadSum < mSum) break;
   } 
@@ -242,7 +249,7 @@ bool MiniStringFragmentation::ministring2one( int iSub,
   if (idHad == 0) return false;
 
   // Find mass.  
-  double mHad = particleDataPtr->mass(idHad);
+  double mHad = particleDataPtr->mSel(idHad);
   
   // Find the untreated parton system which combines to the largest 
   // squared mass above mimimum required. 

@@ -177,6 +177,20 @@ but there is also nothing wrong with it.
   
 
 <p/>
+The CMW rescaling of <i>Lambda_QCD</i> (see the section on 
+<a href="StandardModelParameters.html" target="page">StandardModelParameters</a>)
+can be applied to the <i>alpha_strong</i> values used for spacelike showers. 
+Note that tunes using this option need lower values of 
+<i>alpha_strong(m_Z^2)</i> than tunes that do not.
+<p/><code>flag&nbsp; </code><strong> SpaceShower:alphaSuseCMW &nbsp;</strong> 
+ (<code>default = <strong>false</strong></code>)<br/>
+<br/><code>option </code><strong> false</strong> : Do not apply the CMW rescaling.   
+<br/><code>option </code><strong> true</strong> : Apply the CMW rescaling, increasing 
+<i>Lambda_QCD</i> for spacelike showers by a factor roughly 1.6.
+  
+  
+
+<p/>
 QED radiation is regulated by the <i>alpha_electromagnetic</i>
 value at the <i>pT^2</i> scale of a branching.
  
@@ -300,6 +314,82 @@ Force emissions, after the first,  to be ordered in rapidity,
 i.e. in terms of decreasing angles in a backwards-evolution sense. 
 Could be used to probe sensitivity to unordered emissions.
 Only affects QCD emissions.
+  
+ 
+<h3>Weak showers</h3>
+
+The description of <i>W^+-</i> and <i>Z^0</i> gauge boson emission
+in ISR closely parallels that of such emissions in 
+<a href="TimelikeShowers.html" target="page">FSR</a>. We therefore will not repeat
+the discussion here, but only report on the settings names, which again
+are similar to the FSR ones. 
+
+<p/><code>flag&nbsp; </code><strong> SpaceShower:weakShower &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Allow a weak shower, yes or no.
+  
+
+<p/><code>mode&nbsp; </code><strong> SpaceShower:weakShowerMode &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
+Determine which branchings are allowed.
+<br/><code>option </code><strong> 0</strong> :  both <i>W^+-</i> and <i>Z^0</i> branchings. 
+  
+<br/><code>option </code><strong> 1</strong> :  only <i>W^+-</i> branchings.   
+<br/><code>option </code><strong> 2</strong> :  only <i>Z^0</i> branchings.   
+  
+
+<p/><code>parm&nbsp; </code><strong> SpaceShower:pTminWeak &nbsp;</strong> 
+ (; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)<br/>
+Parton shower cut-off <i>pT</i> for weak branchings.
+
+<p/><code>parm&nbsp; </code><strong> SpaceShower:weakShowerEnhancement &nbsp;</strong> 
+ (<code>default = <strong>1.</strong></code>; <code>minimum = 1.</code>; <code>maximum = 1000.</code>)<br/>
+Enhancement factor for the weak shower. This is used to increase the statistics 
+of weak shower emissions. Remember afterwards to correct for the additional 
+weak emissions (i.e. divide the weak emissions by the same factor).
+  
+
+<p/><code>flag&nbsp; </code><strong> SpaceShower:singleWeakEmission &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+This parameter allows to stop the weak shower after a single emission.
+<br/>on = only a single weak emission is allowed.
+<br/>off = unlimited number of weak emissions possible.
+  
+
+<p/><code>parm&nbsp; </code><strong> SpaceShower:extraScaleTerm &nbsp;</strong> 
+ (<code>default = <strong>0.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 200.</code>)<br/>
+The normal showers uses <i>pT^2</i> as ordering variable, but for 
+massive particles it could be preferred to use <i>pT^2 + M^2</i> 
+instead. This parameter allows to use <i>pT^2 + k * M^2</i> for 
+weak showers, thus <i>k = 0</i> is the standard ordering and 
+is used as default.
+  
+
+<p/><code>flag&nbsp; </code><strong> SpaceShower:dopTDampMass &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+Add an extra dampening to the weak shower to lower the production
+of low-<i>pT</i> <i>W/Z</i>'s. The dampening is given by
+<i>(pT^2 + 0.25 M^2)/ (pT^2 + M^2)</i>, where <i>M^2</i> is the 
+squared mass of the <i>W/Z</i>.
+  
+
+<p/><code>flag&nbsp; </code><strong> SpaceShower:vetoWeakJets &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+This flag will veto the 2nd emission on the same side of the process 
+if it has too high "<i>pT</i>" if the primary process was weak production 
+(code 221, 222, 223). This is too avoid doubling counting with 
+dijet production followed by an emission of a <i>W/Z</i> boson. 
+The <i>pT</i> definition used is the <i>pT</i> in the rest frame 
+of the two emitted partons with respect to the incoming parton. 
+This <i>pT</i> definition should be close to the <i>pT</i> 
+definition of a dijet event.
+  
+
+<p/><code>parm&nbsp; </code><strong> SpaceShower:vetoWeakJetspTcut &nbsp;</strong> 
+ (<code>default = <strong>20.0</strong></code>; <code>minimum = 1.0</code>; <code>maximum = 1e9</code>)<br/>
+This parameter determines the cut-off <i>pT</i> used for the veto 
+of emissions for weak production. For more information see 
+<code>vetoWeakJets</code>.
   
 
 <h3>Further variables</h3>

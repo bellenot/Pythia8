@@ -146,6 +146,10 @@ at TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001
 <dd>M. Cacciari, G.P. Salam and G. Soyez, JHEP 04 (2008) 063
 [arXiv:0802.1189 [hep-ph]]</dd>
 
+<dt>Cac12</dt>
+<dd>M. Cacciari, G.P. Salam and G. Soyez, Eur. Phys. J. C72 (2012) 1896
+[arXiv:1111.6097 [hep-ph]]</dd>
+
 <dt>Cah82</dt>
 <dd>R. Cahn, Z. Physik C15 (1982) 253</dd>
 
@@ -156,6 +160,10 @@ at TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001
 <dt>Car11</dt>
 <dd>L. Carloni, J. Rathsman and T. Sj&ouml;strand,
 JHEP 1104 (2011) 091 [arXiv:1102.3795 [hep-ph]]</dd>
+
+<dt>Cat91</dt>
+<dd>S. Catani, G. Marchesini and B.R. Webber, 
+Nucl.Phys. B349 (1991) 635</dd>
 
 <dt>Che07</dt> 
 <dd>K. Cheung, W.-Y. Keung and T.-C. Yuan, 
@@ -216,8 +224,12 @@ JHEP 1105 (2011) 092 [arXiv:1101.4919 [hep-ph]] </dd>
 P. Torrielli, Phys.Lett. B701 (2011) 427 [arXiv:1104.5613 [hep-ph]]</dd>  
 	
 <dt>Fri02</dt>
-<dd>S Frixione and B.R. Webber, JHEP 0206 (2002) 029 [hep-ph/0204244]</dd> 
+<dd>S. Frixione and B.R. Webber, JHEP 0206 (2002) 029 [hep-ph/0204244]</dd> 
  
+<dt>Fuk11</dt>
+<dd>B. Fuks, B. Hermann, and M. Klasen, Phys.Rev. D86 (2012) 015002
+[arXiv:1112.4838]</dd>
+
 <dt>Glu95</dt>
 <dd>M. Gl&uuml;ck, E. Reya and A. Vogt, Z. Phys. C67 (1995) 433</dd>
 

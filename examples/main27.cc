@@ -9,7 +9,7 @@
 #include <time.h>
 #include <sstream>
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 using namespace Pythia8; 
 
 int main() {

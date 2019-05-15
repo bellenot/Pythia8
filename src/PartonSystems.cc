@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the
 // PartonSystem and PartonSystems classes.
 
-#include "PartonSystems.h"
+#include "Pythia8/PartonSystems.h"
 
 namespace Pythia8 {
 

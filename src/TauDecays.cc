@@ -5,7 +5,7 @@
 
 // Function definitions (not found in the header) for the TauDecays class.
 
-#include "TauDecays.h"
+#include "Pythia8/TauDecays.h"
 
 namespace Pythia8 {
 
@@ -458,7 +458,7 @@ vector<HelicityParticle> TauDecays::createChildren(HelicityParticle parent) {
         if (parent.id() < 0 && particleDataPtr->hasAnti(childId))
 	  childId = -childId;
 	// Grab child mass.
-        double childMass = particleDataPtr->mass(childId);  
+        double childMass = particleDataPtr->mSel(childId);  
 	// Push back the child into the children vector.
 	children.push_back( HelicityParticle(childId, 91, parent.idx, 0, 0, 
 	  0, 0, 0, 0., 0., 0., 0.,childMass, 0., particleDataPtr) );

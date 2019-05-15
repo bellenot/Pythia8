@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the 
 // BeamParticle class.
 
-#include "BeamParticle.h"
+#include "Pythia8/BeamParticle.h"
 
 namespace Pythia8 {
  

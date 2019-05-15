@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the 
 // left-right-symmetry simulation classes. 
 
-#include "SigmaLeftRightSym.h"
+#include "Pythia8/SigmaLeftRightSym.h"
 
 namespace Pythia8 {
 

@@ -885,6 +885,16 @@ the switches.
 assessment of the merging prescription. Apart from this, we advise the
 non-expert user to keep the default values.
 
+<modeopen name="Merging:nQuarksMerge" default="5" min="2" max="5">
+This switch controls which quarks flavours (labelled by PDG id's) are
+considered additional partons. If e.g. set to 4, then u-, d-, c- and s-quarks
+will be merged, while b-quarks will not be considered in the merging
+(corresponding to a 4-flavour merging scheme). We advise caution when
+changing this number. In particular, please ensure that the allowed flavour
+for additional partons in the input LHE file does not exceed this value, since
+unnecessary double-counting might occur otherwise.
+</modeopen>
+
 <flag name="Merging:includeMassive" default="on">
 If on, use the correct massive evolution variable and massive
 splitting kernels in the reconstruction and picking of parton shower

@@ -6,20 +6,20 @@
 // Function definitions (not found in the header) for the 
 // ProcessContainer and SetupContainers classes.
 
-#include "ProcessContainer.h"
+#include "Pythia8/ProcessContainer.h"
 
 // Internal headers for special processes.
-#include "SigmaCompositeness.h"
-#include "SigmaEW.h"
-#include "SigmaExtraDim.h"
-#include "SigmaGeneric.h"
-#include "SigmaHiggs.h"
-#include "SigmaLeftRightSym.h"
-#include "SigmaLeptoquark.h"
-#include "SigmaNewGaugeBosons.h"
-#include "SigmaOnia.h"
-#include "SigmaQCD.h"
-#include "SigmaSUSY.h"
+#include "Pythia8/SigmaCompositeness.h"
+#include "Pythia8/SigmaEW.h"
+#include "Pythia8/SigmaExtraDim.h"
+#include "Pythia8/SigmaGeneric.h"
+#include "Pythia8/SigmaHiggs.h"
+#include "Pythia8/SigmaLeftRightSym.h"
+#include "Pythia8/SigmaLeptoquark.h"
+#include "Pythia8/SigmaNewGaugeBosons.h"
+#include "Pythia8/SigmaOnia.h"
+#include "Pythia8/SigmaQCD.h"
+#include "Pythia8/SigmaSUSY.h"
 
 namespace Pythia8 {
 
@@ -52,7 +52,7 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
 
   // Extract info about current process from SigmaProcess object.
   isLHA       = sigmaProcessPtr->isLHA();
-  isMinBias   = sigmaProcessPtr->isMinBias();
+  isNonDiff   = sigmaProcessPtr->isNonDiff();
   isResolved  = sigmaProcessPtr->isResolved();
   isDiffA     = sigmaProcessPtr->isDiffA();
   isDiffB     = sigmaProcessPtr->isDiffB();
@@ -68,7 +68,7 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
 
   // Pick and create phase space generator. Send pointers where required.
   if      (isLHA)       phaseSpacePtr = new PhaseSpaceLHA();
-  else if (isMinBias)   phaseSpacePtr = new PhaseSpace2to2minbias();
+  else if (isNonDiff)   phaseSpacePtr = new PhaseSpace2to2nondiffractive();
   else if (!isResolved && !isDiffA  && !isDiffB  && !isDiffC )
                         phaseSpacePtr = new PhaseSpace2to2elastic();
   else if (!isResolved && !isDiffA  && !isDiffB && isDiffC)
@@ -137,6 +137,9 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
                                   : sigmaFullWay;
     phaseSpacePtr->setSigmaMax(sigmaMx);
   }
+
+  // Allow Pythia to overwrite Les Houches lifetime input.
+  setLifetime = settings.mode("LesHouches:setLifetime");
 
   // Done.
   return physical;
@@ -268,7 +271,7 @@ void ProcessContainer::accumulate() {
 bool ProcessContainer::constructState() { 
 
   // Construct flavour and colours for selected event.
-  if (isResolved && !isMinBias) sigmaProcessPtr->pickInState();
+  if (isResolved && !isNonDiff) sigmaProcessPtr->pickInState();
   sigmaProcessPtr->setIdColAcol();
 
   // Done.
@@ -287,7 +290,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   int nFin = sigmaProcessPtr->nFinal();
 
   // Basic info on process.
-  if (isHardest) infoPtr->setType( name(), code(), nFin, isMinBias, 
+  if (isHardest) infoPtr->setType( name(), code(), nFin, isNonDiff, 
     isResolved, isDiffA, isDiffB, isDiffC, isLHA);
 
   // Let hard process record begin with the event as a whole and
@@ -299,8 +302,8 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   process.append( infoPtr->idB(), -12, 0, 0, 0, 0, 0, 0, 
     Vec4(0., 0., infoPtr->pzB(), infoPtr->eB()), infoPtr->mB(), 0. ); 
 
-  // For minbias process no interaction selected so far, so done.
-  if (isMinBias) return true;
+  // For nondiffractive process no interaction selected so far, so done.
+  if (isNonDiff) return true;
 
   // Entries 3 and 4, now to be added, come from 1 and 2.
   process[1].daughter1(3);
@@ -517,6 +520,8 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
       // Check if need to store lifetime.
       double tau = lhaUpPtr->tau(iOld);
+      if ( (setLifetime == 1 && abs(id) == 15) || setLifetime == 2)
+         tau = process[iNow].tau0() * rndmPtr->exp(); 
       if (tau > 0.) process[iNow].tau(tau);
     }  
   }
@@ -744,6 +749,8 @@ bool ProcessContainer::constructDecays( Event& process) {
       
     // Check if need to store lifetime.
     double tau = lhaUpPtr->tau(iOld);
+    if ( (setLifetime == 1 && abs(id) == 15) || setLifetime == 2)
+       tau = process[iNow].tau0() * rndmPtr->exp(); 
     if (tau > 0.) process[iNow].tau(tau);
   } 
 
@@ -906,8 +913,8 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   // Set up requested objects for soft QCD processes.
   bool softQCD = settings.flag("SoftQCD:all");
   bool inelastic = settings.flag("SoftQCD:inelastic");
-  if (softQCD || inelastic || settings.flag("SoftQCD:minBias")) {
-    sigmaPtr = new Sigma0minBias;
+  if (softQCD || inelastic || settings.flag("SoftQCD:nonDiffractive")) {
+    sigmaPtr = new Sigma0nonDiffractive;
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   } 
   if (softQCD || settings.flag("SoftQCD:elastic")) {
@@ -1727,17 +1734,14 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   }
 
   // Set up requested objects for SUSY pair processes.
-  if(couplings->isSUSY){ 
+  if (couplings->isSUSY) { 
     CoupSUSY* coupSUSY = (CoupSUSY *) couplings;
 
     bool SUSYs = settings.flag("SUSY:all");
     bool nmssm = settings.flag("SLHA:NMSSM");
 
-    // Preselected SUSY codes
-    int codeA = max( abs(settings.mode("SUSY:idA")),
-		     abs(settings.mode("SUSY:idB")));
-    int codeB = min( abs(settings.mode("SUSY:idA")),
-		     abs(settings.mode("SUSY:idB")));
+    // Preselected SUSY codes.
+    setupIdVecs( settings);
 
     // MSSM: 4 neutralinos
     int nNeut = 4;
@@ -1745,21 +1749,17 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
     
     // Gluino-gluino
     if (SUSYs || settings.flag("SUSY:gg2gluinogluino")) {
-      // Skip if specific codes not asked for 
-      if (codeA == 0 || codeA == 1000021) {
-	if (codeB == 0 || codeB == 1000021 ) {
-	  sigmaPtr = new Sigma2gg2gluinogluino();
-	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-	}
+      // Skip if outgoing codes not asked for 
+      if (allowIdVals( 1000021, 1000021)) {
+	sigmaPtr = new Sigma2gg2gluinogluino();
+        containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
       }
     }
     if (SUSYs || settings.flag("SUSY:qqbar2gluinogluino")) {
-      // Skip if specific codes not asked for 
-      if (codeA == 0 || codeA == 1000021) {
-	if (codeB == 0 || codeB == 1000021 ) {
-	  sigmaPtr = new Sigma2qqbar2gluinogluino();
-	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-	}
+      // Skip if outgoing codes not asked for 
+      if (allowIdVals( 1000021, 1000021)) {
+	sigmaPtr = new Sigma2qqbar2gluinogluino();
+        containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
       }
     }
     
@@ -1772,10 +1772,8 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
 	  int id3 = iso + ((idx <= 3) 
                   ? 1000000+2*(idx-1) : 2000000+2*(idx-4));
 	  int id4 = 1000021;
-	  // Skip if specific codes not asked for
-	  if (codeA != 0 && codeA != abs(id3) && codeA != abs(id4)) continue;
-	  if (codeB != 0 && ( codeA != max(abs(id3),abs(id4)) 
-			      || codeB != min(abs(id3),abs(id4)) ) ) continue;
+	  // Skip if outgoing codes not asked for
+          if (!allowIdVals( id3, id4)) continue;
 	  sigmaPtr = new Sigma2qg2squarkgluino(id3,iproc);
 	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
 	}
@@ -1790,9 +1788,8 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
 	  iproc++;
 	  int id = iso + ((idx <= 3) 
                  ? 1000000+2*(idx-1) : 2000000+2*(idx-4)); 	  
-	  // Skip if specific codes not asked for
-	  if (codeA != 0 && codeA != abs(id)) continue;
-	  if (codeA != 0 && codeB != 0 && codeB != abs(id)) continue;
+	  // Skip if outgoing codes not asked for
+          if (!allowIdVals( id, id)) continue;
 	  sigmaPtr = new Sigma2gg2squarkantisquark(id,iproc);
 	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) ); 	
 	}
@@ -1815,11 +1812,8 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
 	      //if (iproc == 1302) iproc=1310;
 	      iproc++;
 	      if (iso == jso && id1 != id2) iproc++;
-	      // Skip if specific codes not asked for
-	      if (codeA != 0 && codeA != abs(id1) 
-                && codeA != abs(id2)) continue;
-	      if (codeB != 0 && ( codeA != max(abs(id1),abs(id2)) 
-                || codeB != min(abs(id1),abs(id2)) ) ) continue;
+	      // Skip if outgoing codes not asked for
+              if (!allowIdVals( id1, id2)) continue;
 	      if (iso == jso && id1 != id2) {
 		sigmaPtr = new Sigma2qqbar2squarkantisquark(id1,-id2,iproc-1);
 		containerPtrs.push_back( new ProcessContainer(sigmaPtr) );   
@@ -1848,11 +1842,8 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
                       ? 1000000+2*(idx-1) : 2000000+2*(idx-4));
               int id2 = jso + ((jdx <= 3) 
                       ? 1000000+2*(jdx-1) : 2000000+2*(jdx-4));
-	      // Skip if specific codes not asked for
-              if (codeA != 0 && codeA != abs(id1) && codeA != abs(id2)) 
-                continue;
-              if (codeB != 0 && ( codeA != max(abs(id1),abs(id2)) 
-                || codeB != min(abs(id1),abs(id2)) ) ) continue;
+	      // Skip if outgoing codes not asked for
+              if (!allowIdVals( id1, id2)) continue;
 	      sigmaPtr = new Sigma2qq2squarksquark(id1,id2,iproc);
 	      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );    
 	    }
@@ -1873,10 +1864,8 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
 	    int id3 = coupSUSY->idNeut(iNeut);
             int id4 = iso + ((idx <= 3) 
                     ? 1000000+2*(idx-1) : 2000000+2*(idx-4));
-	    // Skip if specific codes not asked for
-	    if (codeA != 0 && codeA != abs(id3) && codeA != abs(id4)) continue;
-	    if (codeB != 0 && codeB != min(abs(id3),abs(id4)) ) continue;
-	    if (codeA != 0 && codeA == codeB) continue;
+	    // Skip if outgoing codes not asked for
+            if (!allowIdVals( id3, id4)) continue;
 	    sigmaPtr = new Sigma2qg2chi0squark(iNeut,idx,isUp,iproc);
 	    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
 	  }
@@ -1896,10 +1885,8 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
 	    int id3 = coupSUSY->idChar(iChar);
 	    int id4 = iso + ((idx <= 3) 
                     ? 1000000+2*(idx-1) : 2000000+2*(idx-4));
-	    // Skip if specific codes not asked for
-	    if (codeA != 0 && codeA != abs(id3) && codeA != abs(id4)) continue;
-	    if (codeB != 0 && codeB != min(abs(id3),abs(id4)) ) continue;
-	    if (codeA != 0 && codeA == codeB) continue;
+	    // Skip if outgoing codes not asked for
+            if (!allowIdVals( id3, id4)) continue;
 	    sigmaPtr = new Sigma2qg2charsquark(iChar,idx,isUp,iproc);
 	    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
 	  }
@@ -1913,12 +1900,9 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
       for (int iNeut2 = 1; iNeut2 <= nNeut; iNeut2++) {
 	for (int iNeut1 = 1; iNeut1 <= iNeut2; iNeut1++) {
 	  iproc++;
-	  if (codeA != 0 && codeA != abs(coupSUSY->idNeut(iNeut1)) && 
-	      codeA != abs(coupSUSY->idNeut(iNeut2))) continue;
-	  if (codeB != 0 && (codeA != max(abs(coupSUSY->idNeut(iNeut1)),
-			     abs(coupSUSY->idNeut(iNeut2))) 
-                         ||  codeB != min(abs(coupSUSY->idNeut(iNeut1)),
-			     abs(coupSUSY->idNeut(iNeut2)))) ) continue;
+	  // Skip if outgoing codes not asked for
+          if (!allowIdVals( coupSUSY->idNeut(iNeut1), 
+            coupSUSY->idNeut(iNeut2) ) ) continue;
 	  sigmaPtr = new Sigma2qqbar2chi0chi0(iNeut1, iNeut2,iproc);
 	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
 	}
@@ -1931,12 +1915,9 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
       for (int iNeut = 1; iNeut <= nNeut; iNeut++) {
 	for (int iChar = 1; iChar <= 2; ++iChar) {
 	  iproc += 2;
-	  if (codeA != 0 && codeA != coupSUSY->idNeut(iNeut)
-	      && codeA != coupSUSY->idChar(iChar)) continue;
-	  if (codeB != 0 
-	    && ( codeA != max(coupSUSY->idNeut(iNeut),coupSUSY->idChar(iChar))
-	      || codeB != min(coupSUSY->idNeut(iNeut),coupSUSY->idChar(iChar))
-	      ) ) continue;
+	  // Skip if outgoing codes not asked for
+          if (!allowIdVals( coupSUSY->idNeut(iNeut), 
+            coupSUSY->idChar(iChar) ) ) continue;
 	  sigmaPtr = new Sigma2qqbar2charchi0( iChar, iNeut, iproc-1);
 	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
 	  sigmaPtr = new Sigma2qqbar2charchi0(-iChar, iNeut, iproc); 
@@ -1951,12 +1932,9 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
       for (int i = 1; i <= 2; ++i) {
 	for (int j = 1; j <= 2; ++j) {
 	  iproc++;	
-	  if (codeA != 0 && codeA != abs(coupSUSY->idChar(i)) 
-	      && codeA != abs(coupSUSY->idChar(j))) continue;
-	  if (codeB != 0 
-	      && ( codeA != max(coupSUSY->idChar(i),coupSUSY->idChar(j))
-		   || codeB != min(coupSUSY->idChar(i),coupSUSY->idChar(j)) ) ) 
-	    continue;
+          // Skip if outgoing codes not asked for
+          if (!allowIdVals( coupSUSY->idChar(i), 
+            coupSUSY->idChar(j) ) ) continue;
 	  sigmaPtr = new Sigma2qqbar2charchar( i,-j, iproc);
 	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
 	}
@@ -1968,14 +1946,71 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
       for (int idx = 1; idx <= 6; ++idx) {
 	for (int iso = 1; iso <= 2; ++iso) {
 	  int id1 = iso + ((idx <= 3) ? 1000000+2*(idx-1) : 2000000+2*(idx-4));
-	  if(codeA !=0 && codeA != abs(id1)) continue;
+	  // Skip if outgoing code not asked for
+          if (!allowIdVals( id1, 0)) continue;
 	  sigmaPtr = new Sigma1qq2antisquark(id1);
 	  containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
 	}
       }
     }
     
-  }
+    // Neutralino-gluino
+    if (SUSYs || settings.flag("SUSY:qqbar2chi0gluino")) {
+      int iproc = 1600;
+      for (int iNeut = 1; iNeut <= nNeut; iNeut++) {
+	iproc++;
+	// Skip if outgoing codes not asked for
+        if (!allowIdVals( coupSUSY->idNeut(iNeut), 1000021)) continue;
+	sigmaPtr = new Sigma2qqbar2chi0gluino(iNeut, iproc);
+	containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+      }
+    }
+    
+    // Chargino-Gluino
+    if (SUSYs || settings.flag("SUSY:qqbar2chi+-gluino")) {
+      int iproc = 1620;
+      for (int iChar = 1; iChar <= 2; ++iChar) {
+	iproc ++;
+	// Skip if outgoing codes not asked for
+        if (!allowIdVals( coupSUSY->idChar(iChar), 1000021)) continue;
+	sigmaPtr = new Sigma2qqbar2chargluino( iChar, iproc);
+        containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+      }
+    }
+    
+    // Slepton-antislepton (qqbar initiated); Currently no RH sneutrinos
+    if (SUSYs || settings.flag("SUSY:qqbar2sleptonantislepton")) {
+      int iproc = 1650;
+      for (int idx = 1; idx <= 6; ++idx) {
+	for (int iso = 1; iso <= 2; ++iso) {
+	  for (int jso = iso; jso >= 1; --jso) {
+	    for (int jdx = 1; jdx <= 6; ++jdx) {
+	      if (iso == jso && jdx < idx) continue;	    
+	      int id1 = iso + ((idx <= 3) ? 1000010+2*(idx-1) 
+			       : 2000010+2*(idx-4));
+	      int id2 = jso + ((jdx <= 3) ? 1000010+2*(jdx-1) 
+			       : 2000010+2*(jdx-4));
+	      // Update process number counter 
+	      iproc++;
+	      if (iso == jso && id1 != id2) iproc++;
+	      // Skip if outgoing codes not asked for
+              if (!allowIdVals( id1, id2)) continue;
+	      if (iso == jso && id1 != id2) {
+		sigmaPtr = new Sigma2qqbar2sleptonantislepton(id1,-id2,iproc-1);
+		containerPtrs.push_back( new ProcessContainer(sigmaPtr) );   
+		sigmaPtr = new Sigma2qqbar2sleptonantislepton(id2,-id1,iproc);
+		containerPtrs.push_back( new ProcessContainer(sigmaPtr) ); 
+	      } else {
+		sigmaPtr = new Sigma2qqbar2sleptonantislepton(id1,-id2,iproc);
+		containerPtrs.push_back( new ProcessContainer(sigmaPtr) );   
+	      }
+	    }
+	  }
+	}
+      }
+    }
+
+  } // End of SUSY processes.
 
   // Set up requested objects for New-Gauge-Boson processes.
   if (settings.flag("NewGaugeBoson:ffbar2gmZZprime")) {
@@ -2699,6 +2734,80 @@ bool SetupContainers::init2(vector<ProcessContainer*>& container2Ptrs,
 
   // Done. 
   return true;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Set up arrays of allowed outgoing SUSY particles.
+
+void SetupContainers::setupIdVecs( Settings& settings) {
+
+  // First array either none, one or many particles.
+  idVecA.resize(0);
+  if (settings.mode("SUSY:idA") != 0) {
+    idVecA.push_back( abs(settings.mode("SUSY:idA")) );
+  } else {  
+    vector<int> idTmpA = settings.mvec("SUSY:idVecA");
+    for (int i = 0; i < int(idTmpA.size()); ++i) 
+      if (idTmpA[i] != 0) idVecA.push_back( abs(idTmpA[i]) ); 
+  }
+  nVecA = idVecA.size();   
+
+  // Second array either none, one or many particles.
+  idVecB.resize(0);
+  if (settings.mode("SUSY:idB") != 0) {
+    idVecB.push_back( abs(settings.mode("SUSY:idB")) );
+  } else {  
+    vector<int> idTmpB = settings.mvec("SUSY:idVecB");
+    for (int i = 0; i < int(idTmpB.size()); ++i) 
+    if (idTmpB[i] != 0) idVecB.push_back( abs(idTmpB[i]) ); 
+  }  
+  nVecB = idVecB.size();   
+
+}
+
+//--------------------------------------------------------------------------
+
+// Check final state for allowed outgoing SUSY particles.
+// Normally check two codes, but allow for only one.
+
+bool SetupContainers::allowIdVals( int idCheck1, int idCheck2) {
+
+  // If empty arrays or id's no need for checks. Else need absolute values.
+  if (nVecA == 0 && nVecB == 0) return true;
+  if (idCheck1 == 0 && idCheck2 == 0) return true;
+  int idChk1 = abs(idCheck1);
+  int idChk2 = abs(idCheck2);
+
+  // If only one outgoing particle then check idVecA and idVecB.
+  if (idChk1 == 0) swap(idChk1, idChk2);
+  if (idChk2 == 0) {
+    for (int i = 0; i < nVecA; ++i) if (idChk1 == idVecA[i]) return true;
+    for (int i = 0; i < nVecB; ++i) if (idChk1 == idVecB[i]) return true;
+    return false;  
+  }
+
+  // If empty array idVecB then compare with idVecA.
+  if (nVecB == 0) {
+    for (int i = 0; i < nVecA; ++i) 
+      if (idChk1 == idVecA[i] || idChk2 == idVecA[i]) return true;
+    return false;
+  }
+
+  // If empty array idVecA then compare with idVecB.
+  if (nVecA == 0) {
+    for (int i = 0; i < nVecB; ++i) 
+      if (idChk1 == idVecB[i] || idChk2 == idVecB[i]) return true;
+    return false;
+  }
+
+  // Else check that pair matches allowed combinations.
+  for (int i = 0; i < nVecA; ++i) 
+  for (int j = 0; j < nVecB; ++j) 
+    if ( (idChk1 == idVecA[i] && idChk2 == idVecB[j])
+      || (idChk2 == idVecA[i] && idChk1 == idVecB[j]) ) return true;
+  return false;
 
 }
 

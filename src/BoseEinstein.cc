@@ -5,7 +5,7 @@
 
 // Function definitions (not found in the header) for the BoseEinsten class.
 
-#include "BoseEinstein.h"
+#include "Pythia8/BoseEinstein.h"
 
 namespace Pythia8 {
 

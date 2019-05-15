@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the 
 // SigmaProcess class, and classes derived from it.
 
-#include "SigmaProcess.h"
+#include "Pythia8/SigmaProcess.h"
 
 namespace Pythia8 {
 
@@ -161,6 +161,20 @@ bool SigmaProcess::initFlux() {
       addPair(id1Now, id2Now);
   }
 
+  // Case with q qbar' incoming state.
+  else if (fluxType == "qqbar") {
+    for (int idNow = -nQuarkIn; idNow <= nQuarkIn; ++idNow) 
+    if (idNow != 0) {
+      addBeamA(idNow);
+      addBeamB(idNow);
+    }
+    for (int id1Now = -nQuarkIn; id1Now <= nQuarkIn; ++id1Now) 
+    if (id1Now != 0) 
+    for (int id2Now = -nQuarkIn; id2Now <= nQuarkIn; ++id2Now) 
+    if (id2Now != 0 && id1Now * id2Now < 0) 
+      addPair(id1Now, id2Now);
+  }
+
   // Case with q qbar incoming state.
   else if (fluxType == "qqbarSame") {
     for (int idNow = -nQuarkIn; idNow <= nQuarkIn; ++idNow) 
@@ -211,6 +225,28 @@ bool SigmaProcess::initFlux() {
     }
   }
 
+  // Case with f fbar' generic incoming state.
+  else if (fluxType == "ffbar") {
+    // If beams are leptons then also colliding partons.
+    if (isLeptonA && isLeptonB && idA * idB < 0) {
+      addBeamA(idA);
+      addBeamB(idB);
+      addPair(idA, idB);
+    // Hadron beams gives quarks.
+    } else {
+      for (int idNow = -nQuarkIn; idNow <= nQuarkIn; ++idNow) 
+      if (idNow != 0) {
+        addBeamA(idNow);
+        addBeamB(idNow);
+      }
+      for (int id1Now = -nQuarkIn; id1Now <= nQuarkIn; ++id1Now) 
+      if (id1Now != 0) 
+      for (int id2Now = -nQuarkIn; id2Now <= nQuarkIn; ++id2Now) 
+      if (id2Now != 0 && id1Now * id2Now < 0) 
+        addPair(id1Now, id2Now);
+    }
+  }
+
   // Case with f fbar incoming state.
   else if (fluxType == "ffbarSame") {
     // If beams are antiparticle pair and leptons then also colliding partons.
@@ -251,28 +287,6 @@ bool SigmaProcess::initFlux() {
       for (int id2Now = -nQuarkIn; id2Now <= nQuarkIn; ++id2Now) 
       if (id2Now != 0 && id1Now * id2Now < 0 
         && (abs(id1Now) + abs(id2Now))%2 == 1) addPair(id1Now, id2Now);
-    }
-  }
-
-  // Case with f fbar' generic incoming state.
-  else if (fluxType == "ffbar") {
-    // If beams are leptons then also colliding partons.
-    if (isLeptonA && isLeptonB && idA * idB < 0) {
-      addBeamA(idA);
-      addBeamB(idB);
-      addPair(idA, idB);
-    // Hadron beams gives quarks.
-    } else {
-      for (int idNow = -nQuarkIn; idNow <= nQuarkIn; ++idNow) 
-      if (idNow != 0) {
-        addBeamA(idNow);
-        addBeamB(idNow);
-      }
-      for (int id1Now = -nQuarkIn; id1Now <= nQuarkIn; ++id1Now) 
-      if (id1Now != 0) 
-      for (int id2Now = -nQuarkIn; id2Now <= nQuarkIn; ++id2Now) 
-      if (id2Now != 0 && id1Now * id2Now < 0) 
-        addPair(id1Now, id2Now);
     }
   }
 

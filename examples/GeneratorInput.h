@@ -23,7 +23,7 @@
 #define Pythia8_GeneratorInput_H 
 
 // Includes and namespace
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 using namespace Pythia8;
 
 //==========================================================================
@@ -95,7 +95,7 @@ public:
 
   // Override setInit/setEvent routines from LHAup.
   bool setInit();
-  bool setEvent(int);
+  bool setEvent(int, double);
 
   // Print list of particles; mainly intended for debugging
   void printParticles();
@@ -548,7 +548,7 @@ bool LHAupAlpgen::setInit() {
 // setEvent is a virtual method that must be finalised here.
 // Read in an event from the 'unw' file and setup.
 
-bool LHAupAlpgen::setEvent(int) {
+bool LHAupAlpgen::setEvent(int, double) {
 
   // Read in the first line of the event
   int    nEvent, iProc, nParton;

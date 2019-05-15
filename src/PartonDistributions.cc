@@ -5,10 +5,10 @@
 
 // Function definitions (not found in the header) for the PDF, LHAPDF, 
 // GRV94L, CTEQ5L,  MSTWpdf, CTEQ6pdf, GRVpiL, PomFix, PomH1FitAB, 
-// PomH1Jets and Lepton classes.
+// PomH1Jets, Lepton and NNPDF classes.
 
-#include "PartonDistributions.h"
-#include "LHAPDFInterface.h"
+#include "Pythia8/PartonDistributions.h"
+#include "Pythia8/LHAPDFInterface.h"
 
 namespace Pythia8 {
  
@@ -242,9 +242,13 @@ int LHAPDF::freeNSet() {
 
 void LHAPDF::init(string setName, int member, Info* infoPtr) {
   
-  // Determine whether the pdf set contains the photon or not
-  // (so far only MRST2004qed).
-  if (setName == "MRST2004qed.LHgrid") hasPhoton = true;
+  // Determine whether the pdf set contains the photon or not.
+  // So far only MRST2004QED and  NNPDF2.3QED.
+  if ( setName == "MRST2004qed.LHgrid" 
+    || setName == "NNPDF23_lo_as_0130_qed.LHgrid"  
+    || setName == "NNPDF23_lo_as_0119_qed.LHgrid"  
+    || setName == "NNPDF23_nlo_as_0119_qed.LHgrid" 
+    || setName == "NNPDF23_nnlo_as_0119_qed.LHgrid" ) hasPhoton = true;
   else                                 hasPhoton = false;
   
   // If already initialized then need not do anything further.
@@ -2197,7 +2201,285 @@ void Lepton::xfUpdate(int id, double x, double Q2) {
   idSav = 9;
 
 }
+
+//==========================================================================
+
+// The NNPDF class.
+// Code for handling NNPDF2.3 QCD+QED LO
+// Code provided by Juan Rojo and Stefano Carrazza.
+
+//--------------------------------------------------------------------------
+  
+// Freeze PDFs below XMINGRID
+const double NNPDF::fXMINGRID = 1e-7;
+
+//--------------------------------------------------------------------------
+
+// Initialize PDF: read in data grid from file.
+  
+void NNPDF::init(int iFitIn, string xmlPath, Info* infoPtr) {
+
+  // Choice of fit among possibilities.
+  iFit = iFitIn;
+  
+  // Select which data file to read for current fit.  
+  if (xmlPath[ xmlPath.length() - 1 ] != '/') xmlPath += "/";
+  string fileName = "  "; 
+  // NNPDF2.3 LO QCD+QED, for two values of alphas
+  if (iFit == 1) fileName = "NNPDF23_lo_as_0130_qed.grid";
+  if (iFit == 2) fileName = "NNPDF23_lo_as_0119_qed.grid";
+  // NNPDF2.3 NLO QCD+QED
+  if (iFit == 3) fileName = "NNPDF23_nlo_as_0119_qed.grid";
+  // NNPDF2.4 NLO QCD+QED
+  if (iFit == 4) fileName = "NNPDF23_nnlo_as_0119_qed.grid";
+
+  // Open data file.
+  fstream f;
+  f.open( (xmlPath + fileName).c_str(),ios::in);
+  if (f.fail()) {
+    if (infoPtr != 0) infoPtr->errorMsg("Error from NNPDF::init: "
+      "did not find data file ", fileName);  
+    else cout << "Error: cannot open file " << (xmlPath + fileName) << endl;
+    isSet = false;
+    return;
+  }
+  
+  // Reading grid: removing header.
+  string tmp;
+  for (;;) {
+    getline(f,tmp);
+    if (tmp.find("NNPDF20intqed") != string::npos) {
+      getline(f,tmp);
+      break;	
+    }
+  }
+
+  // Get nx and x grid.
+  f >> fNX;
+  fXGrid = new double[fNX];
+  for (int ix = 0; ix < fNX; ix++) f >> fXGrid[ix];
+  fLogXGrid = new double[fNX];
+  for (int ix = 0; ix < fNX; ix++) fLogXGrid[ix] = log(fXGrid[ix]);
+
+  // Get nQ2 and Q2 grid (ignorming first value).
+  f >> fNQ2;
+  f >> tmp;
+  fQ2Grid = new double[fNQ2];
+  for (int iq = 0; iq < fNQ2; iq++) f >> fQ2Grid[iq];
+  fLogQ2Grid = new double[fNQ2];
+  for (int iq = 0; iq < fNQ2; iq++) fLogQ2Grid[iq] = log(fQ2Grid[iq]);
+
+  // Prepare grid array.  
+  fPDFGrid = new double**[fNFL];
+  for (int i = 0; i < fNFL; i++) {
+    fPDFGrid[i] = new double*[fNX];
+    for (int j = 0; j < fNX; j++) {
+      fPDFGrid[i][j] = new double[fNQ2];
+      for (int z = 0; z < fNQ2; z++) fPDFGrid[i][j][z] = 0.0;
+    }
+  }  
+
+  // Check values of number of grid entries.
+  if (fNX<= 0 || fNX>100 || fNQ2<=0 || fNQ2>50) {
+    cout << "Error in NNPDF::init, Invalid grid values" << endl
+         << "fNX = " << fNX << endl << "fNQ2 = " << fNQ2 << endl
+         << "fNFL = " <<fNFL << endl;
+    isSet = false;
+    return;
+  }
+
+  // Ignore replica number. Read PDF grid points. 
+  f >> tmp;
+  for (int ix = 0; ix < fNX; ix++)
+    for (int iq = 0; iq < fNQ2; iq++)
+      for (int fl = 0; fl < fNFL; fl++)
+	f >> fPDFGrid[fl][ix][iq];      
+  f.close();
+
+  // Other vectors.
+  fRes = new double[fNFL];
+
+}
+
+//--------------------------------------------------------------------------
+  
+void NNPDF::xfUpdate(int , double x, double Q2) {
+    
+  // Update using NNPDF routine, within allowed (x, q) range.
+  xfxevolve(x,Q2);
+
+  // Then transfer to Pythia8 notation.  
+  xg     = fRes[6];
+  xu     = fRes[8];
+  xd     = fRes[7];
+  xubar  = fRes[4];
+  xdbar  = fRes[5];
+  xs     = fRes[9];
+  xsbar  = fRes[3];
+  xc     = fRes[10];
+  xb     = fRes[11];
+  xgamma = fRes[13];
+  
+  // Subdivision of valence and sea.
+  xuVal  = xu - xubar;
+  xuSea  = xubar;
+  xdVal  = xd - xdbar;
+  xdSea  = xdbar;
+  
+  // idSav = 9 to indicate that all flavours reset.  
+  idSav  = 9; 
+  
+}
+
+//--------------------------------------------------------------------------
+  
+void NNPDF::xfxevolve(double x, double Q2) {
+    
+  // Freeze outside x-Q2 grid.
+  if (x < fXMINGRID || x > fXGrid[fNX-1]) {
+    if (x < fXMINGRID)  x = fXMINGRID;
+    if (x > fXGrid[fNX-1]) x = fXGrid[fNX-1];
+  }
+  if (Q2 < fQ2Grid[0] || Q2 > fQ2Grid[fNQ2-1]) {
+    if (Q2 < fQ2Grid[0]) Q2 = fQ2Grid[0];
+    if (Q2 > fQ2Grid[fNQ2-1]) Q2 = fQ2Grid[fNQ2-1];
+  }
+    
+  // Find nearest points in the x-Q2 grid.
+  int minx = 0;
+  int maxx = fNX;  
+  while (maxx-minx > 1) {
+    int midx = (minx+maxx)/2;
+    if (x < fXGrid[midx]) maxx = midx;
+    else minx = midx;      
+  }
+  int ix = minx;    
+  int minq = 0;
+  int maxq = fNQ2;
+  while (maxq-minq > 1) {
+    int midq = (minq+maxq)/2;
+    if (Q2 < fQ2Grid[midq]) maxq = midq;
+    else minq = midq;      
+  }
+  int iq2 = minq;
+  
+  // Assign grid for interpolation. M,N -> order of polyN interpolation.
+  int    ix1a[fM], ix2a[fN];
+  double x1a[fM], x2a[fN];
+  double ya[fM][fN];
+  
+  for (int i = 0; i < fM; i++) {
+    if (ix+1 >= fM/2 && ix+1 <= (fNX-fM/2)) ix1a[i] = ix+1 - fM/2 + i;
+    if (ix+1 < fM/2) ix1a[i] = i;
+    if (ix+1 > (fNX-fM/2)) ix1a[i] = (fNX-fM) + i;      
+    // Check grids.
+    if (ix1a[i] < 0 || ix1a[i] >= fNX) {
+      cout << "Error in grids! i, ixia[i] = " << i << "\t" << ix1a[i] << endl;
+      return;
+    }
+  }
+  
+  for (int j = 0; j < fN; j++) {
+    if (iq2+1 >= fN/2 && iq2+1 <= (fNQ2-fN/2)) ix2a[j] = iq2+1 - fN/2 + j;
+    if (iq2+1 < fN/2) ix2a[j] = j;
+    if (iq2+1 > (fNQ2-fN/2)) ix2a[j] = (fNQ2-fN) + j;   
+    // Check grids.
+    if (ix2a[j] < 0 || ix2a[j] >= fNQ2) {
+      cout << "Error in grids! j, ix2a[j] = " << j << "\t" << ix2a[j] << endl;
+      return;
+    }
+  }
+  
+  const double xch = 1e-1;
+  double x1;
+  if (x < xch) x1 = log(x);
+  else x1 = x;
+  double x2 = log(Q2);
+  
+  for (int ipdf = 0; ipdf < fNFL; ipdf++) {
+    fRes[ipdf] = 0.0;
+    for (int i = 0; i < fM; i++) {
+      if (x < xch) x1a[i] = fLogXGrid[ix1a[i]];	  
+      else         x1a[i] = fXGrid[ix1a[i]];
+	  
+      for (int j = 0; j < fN; j++) {
+	x2a[j] = fLogQ2Grid[ix2a[j]];
+	ya[i][j] = fPDFGrid[ipdf][ix1a[i]][ix2a[j]];
+      }
+    }
+  
+    // 2D polynomial interpolation.
+    double y = 0, dy = 0;
+    polin2(x1a,x2a,ya,x1,x2,y,dy);
+    fRes[ipdf] = y;
+  }
+  
+}  
  
+//--------------------------------------------------------------------------
+
+// 1D polynomial interpolation.
+
+void NNPDF::polint(double xa[], double yal[], int n, double x, 
+  double& y, double& dy) {
+
+  int ns = 0;  
+  double dif = abs(x-xa[0]);    
+  double c[fM > fN ? fM : fN];
+  double d[fM > fN ? fM : fN];
+  
+  for (int i = 0; i < n; i++) {
+    double dift = abs(x-xa[i]);
+    if (dift < dif) {
+      ns = i;
+      dif = dift;
+    }
+    c[i] = yal[i];
+    d[i] = yal[i];
+  }
+  y = yal[ns];
+  ns--;
+  for (int m = 1; m < n; m++) {
+    for (int i = 0; i < n-m; i++) {
+      double ho = xa[i]-x;
+      double hp = xa[i+m]-x;
+      double w = c[i+1]-d[i];
+      double den = ho-hp;
+      if (den == 0) {
+	cout << "NNPDF::polint, failure" << endl;
+	return;
+      }
+      den = w/den;
+      d[i] = hp*den;
+      c[i] = ho*den;
+    }
+    if (2*(ns+1) < n-m) dy = c[ns+1];
+    else {
+      dy = d[ns];
+      ns--;
+    }
+    y+=dy;
+  }
+}
+
+//--------------------------------------------------------------------------
+
+// 2D polynomial interpolation.
+
+void NNPDF::polin2(double x1al[], double x2al[], double yal[][fN], 
+  double x1, double x2, double& y, double& dy) {
+
+  double yntmp[fN];
+  double ymtmp[fM];
+
+  for (int j = 0; j < fM; j++) {
+    for (int k = 0; k < fN; k++) yntmp[k] = yal[j][k];  
+    polint(x2al,yntmp,fN,x2,ymtmp[j],dy);
+  }
+  polint(x1al,ymtmp,fM,x1,y,dy);
+  
+}
+
 //==========================================================================
 
 } // end namespace Pythia8

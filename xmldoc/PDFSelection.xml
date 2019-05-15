@@ -47,7 +47,7 @@ should therefore be extra cautious when using set 6 or set 9.
 The simplest option is to pick one 
 of the distributions available internally:
 
-<modepick name="PDF:pSet" default="2" min="1" max="12">
+<modepick name="PDF:pSet" default="2" min="1" max="16">
 Parton densities to be used for proton beams (and, by implication,
 antiproton ones):
 <option value="1">GRV 94L, LO <ei>alpha_s(M_Z) = 0.128</ei>
@@ -70,6 +70,10 @@ NLO <ei>alpha_s(M_Z) = 0.1180</ei> (NLO, see Warning 3 above).</option>
 <option value="10">CT09MC1, LO <ei>alpha_s(M_Z) = 0.1300</ei>.</option>
 <option value="11">CT09MC2, NLO <ei>alpha_s(M_Z) = 0.1180</ei>.</option>
 <option value="12">CT09MCS, NLO <ei>alpha_s(M_Z) = 0.1180</ei>.</option>
+<option value="13">NNPDF2.3 QCD+QED LO <ei>alpha_s(M_Z) = 0.130</ei>.</option>
+<option value="14">NNPDF2.3 QCD+QED LO <ei>alpha_s(M_Z) = 0.119</ei>.</option>
+<option value="15">NNPDF2.3 QCD+QED NLO <ei>alpha_s(M_Z) = 0.119</ei>.</option>
+<option value="16">NNPDF2.3 QCD+QED NNLO <ei>alpha_s(M_Z) = 0.119</ei>.</option>
 </modepick> 
 <note>Note:</note> the <ei>alpha_s(M_Z)</ei> values and the order of the
 running in the description above is purely informative, and does not 
@@ -202,7 +206,7 @@ variables below. If off then use the same PDF set for everything,
 as already chosen above.   
 </flag>
 
-<modepick name="PDF:pHardSet" default="2" min="1" max="12">
+<modepick name="PDF:pHardSet" default="2" min="1" max="16">
 Parton densities to be used for proton beams (and, by implication,
 antiproton ones):
 <option value="1">GRV 94L, LO <ei>alpha_s(M_Z) = 0.128</ei>
@@ -224,6 +228,10 @@ NLO <ei>alpha_s(M_Z) = 0.1180</ei>.</option>
 <option value="10">CT09MC1, LO <ei>alpha_s(M_Z) = 0.1300</ei>.</option>
 <option value="11">CT09MC2, NLO <ei>alpha_s(M_Z) = 0.1180</ei>.</option>
 <option value="12">CT09MCS, NLO <ei>alpha_s(M_Z) = 0.1180</ei>.</option>
+<option value="13">NNPDF2.3 QCD+QED LO <ei>alpha_s(M_Z) = 0.130</ei>.</option>
+<option value="14">NNPDF2.3 QCD+QED LO <ei>alpha_s(M_Z) = 0.119</ei>.</option>
+<option value="15">NNPDF2.3 QCD+QED NLO <ei>alpha_s(M_Z) = 0.119</ei>.</option>
+<option value="16">NNPDF2.3 QCD+QED NNLO <ei>alpha_s(M_Z) = 0.119</ei>.</option>
 </modepick> 
 
 <flag name="PDF:useHardLHAPDF" default="off">

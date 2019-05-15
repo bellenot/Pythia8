@@ -5,26 +5,29 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.175      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 16 Feb 2013  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.180      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 20 Sep 2013  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 16 Feb 2013 at 11:28:04    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 20 Sep 2013 at 16:00:13    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      phone: + 46 - 46 - 222 48 16; e-mail: torbjorn@thep.lu.se               |  | 
- |  |   Jesper Roy Christiansen;  Department of Astronomy and Theoretical Physics  |  | 
+ |  |   Jesper Roy Christiansen;  Department of Astronomy and Theoretical Physics, |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: Jesper.Roy.Christiansen@thep.lu.se                              |  | 
+ |  |   Nishita Desai;  Department of Physics and Astronomy, University College    |  | 
+ |  |      London, Gower Street, London, WC1E 6BT, United Kingdom;                 |  | 
+ |  |      e-mail: Nishita.Desai@cern.ch                                           |  | 
  |  |   Philip Ilten;  School of Physics, Uniiversity College Dublin,              |  | 
  |  |      Belfield, Dublin 4, Ireland;                                            |  | 
  |  |      e-mail: philten@cern.ch                                                 |  | 
  |  |   Stephen Mrenna;  Computing Division, Simulations Group,                    |  | 
  |  |      Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;  |  | 
  |  |      phone: + 1 - 630 - 840 - 2556; e-mail: mrenna@fnal.gov                  |  | 
- |  |   Stefan Prestel;  Department of Astronomy and Theoretical Physics,          |  | 
- |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
- |  |      phone: + 46 - 46 - 222 06 64; e-mail: stefan.prestel@thep.lu.se         |  | 
+ |  |   Stefan Prestel;  Theory Group, DESY,                                       |  | 
+ |  |      Notkestrasse 85, D-22607 Hamburg, Germany;                              |  | 
+ |  |      phone: + 49 - 40 - 8998-4250; e-mail: stefan.prestel@thep.lu.se         |  | 
  |  |   Peter Skands;  Theoretical Physics, CERN, CH-1211 Geneva 23, Switzerland;  |  | 
  |  |      phone: + 41 - 22 - 767 2447; e-mail: peter.skands@cern.ch               |  | 
  |  |   Stefan Ask; former author; e-mail: ask.stefan@gmail.com                    |  | 
@@ -71,13 +74,13 @@
 
  *-------  PYTHIA Multiparton Interactions Initialization  ---------* 
  |                                                                  | 
- |            minbias,   sigmaNonDiffractive =   40.89 mb           | 
+ |                   sigmaNonDiffractive =   40.89 mb               | 
  |                                                                  | 
  |    pT0 =  2.12 gives sigmaInteraction =  136.80 mb: accepted     | 
  |                                                                  | 
  *-------  End PYTHIA Multiparton Interactions Initialization  -----* 
 
- *-------  PYTHIA Flag + Mode + Parm + Vect + Word Settings (changes only)  ---------------------------------------* 
+ *-------  PYTHIA Flag + Mode + Parm + Word + MVec + PVec Settings (changes only)  --------------------------------* 
  |                                                                                                                 | 
  | Name                                          |                      Now |      Default         Min         Max | 
  |                                               |                          |                                      | 
@@ -89,7 +92,7 @@
  | MultipartonInteractions:ecmPow                |                  0.19000 |      0.24000         0.0     0.50000 | 
  | MultipartonInteractions:expPow                |                  2.00000 |      1.00000     0.40000    10.00000 | 
  | MultipartonInteractions:pT0Ref                |                  2.08500 |      2.15000     0.50000    10.00000 | 
- | PDF:pSet                                      |                        8 |            2           1          12 | 
+ | PDF:pSet                                      |                        8 |            2           1          16 | 
  | PhaseSpace:mHatMax                            |                120.00000 |     -1.00000                         | 
  | PhaseSpace:mHatMin                            |                 80.00000 |      4.00000         0.0             | 
  | SigmaDiffractive:dampen                       |                       on |          off                         | 
@@ -101,7 +104,7 @@
  | SpaceShower:rapidityOrder                     |                       on |          off                         | 
  | WeakSingleBoson:ffbar2gmZ                     |                       on |          off                         | 
  |                                                                                                                 | 
- *-------  End PYTHIA Flag + Mode + Parm + Vect + Word Settings  --------------------------------------------------* 
+ *-------  End PYTHIA Flag + Mode + Parm + Word + MVec + PVec Settings  -------------------------------------------* 
 
  --------  PYTHIA Particle Data Table (changed only)  ------------------------------------------------------------------------------
  
@@ -983,9 +986,9 @@
                                    Charge sum:  0.000           Momentum sum:      0.000      0.000      0.000   1960.000   1960.000
 
  --------  End PYTHIA Event Listing  -----------------------------------------------------------------------------------------------
- PYTHIA Warning in StringFragmentation::fragmentToJunction: bad convergence junction rest frame  
- PYTHIA Error in StringFragmentation::fragment: stuck in joining  
+ PYTHIA Error in StringFragmentation::fragmentToJunction: caught in junction flavour loop  
  PYTHIA Error in Pythia::next: hadronLevel failed; try again  
+ PYTHIA Warning in StringFragmentation::fragmentToJunction: bad convergence junction rest frame  
 
  *-------  PYTHIA Event and Cross Section Statistics  -------------------------------------------------------------*
  |                                                                                                                 |
@@ -994,9 +997,9 @@
  |                                                    |                                   |                        |
  |-----------------------------------------------------------------------------------------------------------------|
  |                                                    |                                   |                        |
- | f fbar -> gamma*/Z0                            221 |        4125       1000       1000 |   5.324e-06  1.018e-07 |
+ | f fbar -> gamma*/Z0                            221 |        4539       1000       1000 |   4.856e-06  9.444e-08 |
  |                                                    |                                   |                        |
- | sum                                                |        4125       1000       1000 |   5.324e-06  1.018e-07 |
+ | sum                                                |        4539       1000       1000 |   4.856e-06  9.444e-08 |
  |                                                                                                                 |
  *-------  End PYTHIA Event and Cross Section Statistics ----------------------------------------------------------*
 
@@ -1004,48 +1007,47 @@
  |                                                                                                                 | 
  |  times   message                                                                                                | 
  |                                                                                                                 | 
- |      2   Error in Pythia::next: hadronLevel failed; try again                                                   | 
- |      2   Error in StringFragmentation::fragment: stuck in joining                                               | 
- |      6   Warning in StringFragmentation::fragmentToJunction: bad convergence junction rest frame                | 
+ |      1   Error in Pythia::next: hadronLevel failed; try again                                                   | 
+ |      1   Error in StringFragmentation::fragmentToJunction: caught in junction flavour loop                      | 
+ |      4   Warning in StringFragmentation::fragmentToJunction: bad convergence junction rest frame                | 
  |                                                                                                                 | 
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2013-02-16 11:28       dN/dpTZ
+  2013-09-20 16:00       dN/dpTZ
 
-        8.70*10^ 1    X7                                                                                                
-        8.40*10^ 1    XX                                                                                                
-        8.10*10^ 1    XX                                                                                                
-        7.80*10^ 1    XX                                                                                                
-        7.50*10^ 1    XX                                                                                                
-        7.20*10^ 1    XX7                                                                                               
-        6.90*10^ 1   3XXX                                                                                               
-        6.60*10^ 1   XXXX7                                                                                              
-        6.30*10^ 1   XXXXX                                                                                              
-        6.00*10^ 1   XXXXX                                                                                              
-        5.70*10^ 1   XXXXX                                                                                              
-        5.40*10^ 1   XXXXX                                                                                              
-        5.10*10^ 1   XXXXX3                                                                                             
-        4.80*10^ 1   XXXXXX                                                                                             
-        4.50*10^ 1   XXXXXX7                                                                                            
-        4.20*10^ 1   XXXXXXXX                                                                                           
-        3.90*10^ 1   XXXXXXXX7  3                                                                                       
-        3.60*10^ 1  3XXXXXXXXX  X3                                                                                      
-        3.30*10^ 1  XXXXXXXXXX  XX                                                                                      
-        3.00*10^ 1  XXXXXXXXXXX XX                                                                                      
-        2.70*10^ 1  XXXXXXXXXXXXXX3                                                                                     
-        2.40*10^ 1  XXXXXXXXXXXXXXX                                                                                     
-        2.10*10^ 1  XXXXXXXXXXXXXXX      7                                                                              
-        1.80*10^ 1  XXXXXXXXXXXXXXX      X  3                                                                           
-        1.50*10^ 1  XXXXXXXXXXXXXXXX733 7X  X                                                                           
-        1.20*10^ 1  XXXXXXXXXXXXXXXXXXXXXX  X                                                                           
-        0.90*10^ 1  XXXXXXXXXXXXXXXXXXXXXX73X 7 7  33                                                                   
-        0.60*10^ 1  XXXXXXXXXXXXXXXXXXXXXXXXXXX3X33XX3 X77 333                                                          
-        0.30*10^ 1  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7XXX7773   773 77 X773377 33     37 7 3    3      3      3    
+        8.40*10^ 1     7                                                                                                
+        8.10*10^ 1   X3X                                                                                                
+        7.80*10^ 1   XXX7                                                                                               
+        7.50*10^ 1   XXXX                                                                                               
+        7.20*10^ 1   XXXX                                                                                               
+        6.90*10^ 1   XXXX                                                                                               
+        6.60*10^ 1   XXXX                                                                                               
+        6.30*10^ 1   XXXX                                                                                               
+        6.00*10^ 1   XXXX                                                                                               
+        5.70*10^ 1   XXXX                                                                                               
+        5.40*10^ 1   XXXXX7                                                                                             
+        5.10*10^ 1   XXXXXX  3                                                                                          
+        4.80*10^ 1   XXXXXX  X                                                                                          
+        4.50*10^ 1   XXXXXX3 X                                                                                          
+        4.20*10^ 1   XXXXXXX3X                                                                                          
+        3.90*10^ 1   XXXXXXXXX3                                                                                         
+        3.60*10^ 1   XXXXXXXXXX                                                                                         
+        3.30*10^ 1   XXXXXXXXXX33                                                                                       
+        3.00*10^ 1   XXXXXXXXXXXX    3                                                                                  
+        2.70*10^ 1   XXXXXXXXXXXX3   X                                                                                  
+        2.40*10^ 1   XXXXXXXXXXXXX3  X                                                                                  
+        2.10*10^ 1   XXXXXXXXXXXXXX7 X     7                                                                            
+        1.80*10^ 1  3XXXXXXXXXXXXXXX3X     X                                                                            
+        1.50*10^ 1  XXXXXXXXXXXXXXXXXXX3 3XX    3                                                                       
+        1.20*10^ 1  XXXXXXXXXXXXXXXXXXXX3XXX  3 X                                                                       
+        0.90*10^ 1  XXXXXXXXXXXXXXXXXXXXXXXX 7XXXX                                                                      
+        0.60*10^ 1  XXXXXXXXXXXXXXXXXXXXXXXX3XXXXX73 77      3                                                          
+        0.30*10^ 1  XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX7XXXXXX33  333X373 3   3 3 3 73337     3 3    37        3  333 3 
 
           Contents                                                                                                      
-            *10^ 1  3688764443323321111112001000000000000000000000000000000000000000000000000000000000000000000000000000
-            *10^ 0  4776159428077455433240876684844774365524442221000221022032211220110000012020100001000000100000010000
+            *10^ 1  1878755444333222121111120010100000000000000000000000000000000000000000000000000000000000000000000000
+            *10^ 0  6193743309711520685303504809395435523333341100111312101000101010211120000010100001200000000100111010
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
             *10^-2  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
@@ -1054,5 +1056,5 @@
             *10^ 0  0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789
             *10^-1  0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 
-   Entries  =        1000    Mean =  1.2451e+01    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
-   All chan =  9.9300e+02    Rms  =  1.3461e+01    Overflow  =  7.0000e+00    High edge =  1.0000e+02
+   Entries  =        1000    Mean =  1.2549e+01    Underflow =  0.0000e+00    Low edge  =  0.0000e+00
+   All chan =  1.0000e+03    Rms  =  1.3548e+01    Overflow  =  0.0000e+00    High edge =  1.0000e+02

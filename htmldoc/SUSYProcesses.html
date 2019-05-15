@@ -12,31 +12,33 @@ Here is collected processes involving supersymmetric particle
 production, with the exception of the (extended) Higgs sector.
 Since the number of separate but closely related processes is so big,
 there will not be switches for each separate process but only for a
-reasonable set of subgroups. However, the general 
-switches <code>SUSY:idA</code> and <code>SUSY:idB</code> may be used in
-conjunction with any of these groups to provide some additional
-flexibility to concentrate on processes involving only specific (s)particle
-final states, see below. 
+reasonable set of subgroups. However, the general switches 
+<code>SUSY:idA</code> and <code>SUSY:idB</code>,valternatively 
+vectors <code>SUSY:idVecA</code> and <code>SUSY:idVecB</code>,
+may be used in conjunction with any of these groups to provide 
+some additional flexibility to concentrate on processes involving 
+only specific (s)particle final states, see below. 
 </p>
 
 <p>
 Most of the SUSY implementation in PYTHIA 8 has been written by
-N. Desai, in combination with an MCnet studentship at CERN in
-2010, with further work having been carried out during 2011. 
-The implementation is documented in [<a href="Bibliography.html" target="page">Des11</a>]. Please give due
+N. Desai and is documented in [<a href="Bibliography.html" target="page">Des11</a>]. Please give due
 credit to external contributions to PYTHIA 8, such as this one, by
 including the original work in your list of references when using this
-implementation. 
+implementation. The cross section formulae are mostly taken from 
+[<a href="Bibliography.html" target="page">Boz07</a>] and [<a href="Bibliography.html" target="page">Fuk11</a>].
 </p>
 
 <p>Since the implementation of SUSY processes was only recently
 completed [<a href="Bibliography.html" target="page">Des11</a>], case-by-case validations against other codes 
-are still recommended. In all cases, a set of default validations have 
-already been carried out by the authors. These validations compared to 
-the PYTHIA 6 SUSY implementation, using an sps1a spectrum. Most of the
-SLHA2-specific extensions have  not been explicitly validated,
-however, with the exception of the R-parity violating single-sparticle
-production cross sections.
+are still recommended. A set of default validations have 
+already been carried out by the authors, comparing to 
+the PYTHIA 6 SUSY implementation and to the XSUSY code, 
+using an sps1a spectrum. Explicit
+validations of the non-trivial SLHA2-specific extensions have
+generally not been carried out yet, with the exception of the R-parity
+violating single-sparticle production cross sections. Please report
+the results of any user validations you may carry out to the authors. 
 </p>
 
 <br/><b>Important Note on SLHA:</b> 
@@ -64,10 +66,7 @@ some squark(s) are sufficiently long-lived to hadronize. See
 
 <br/><b>Note 3:</b> lepton- and photon-initial states are not yet available. 
 Only quark/gluon-initiated <i>2 -> 2</i> and <i>2 -> 1</i> (RPV) 
-processes have been implemented. Likewise, direct slepton production 
-has not yet been implemented (i.e., <i>2 -> 2</i> processes
-involving sleptons in the final state). Sleptons will of course still be
-produced through cascade decays of heavier (s)particles. 
+processes have been implemented. 
 
 <br/><b>Note 4:</b> cross sections will be correctly folded with open
 branching fractions of cascade decays, but at present any difference between
@@ -87,9 +86,9 @@ Option to limit the sum over possible outgoing states in SUSY
 identity code. The default corresponds to summing over all possible 
 indices. A non-zero value of <code>SUSY:idA</code> selects only processes 
 that contain the state corresponding to that particular particle identity 
-code in the fundamental <i>2 -> 2</i> scattering process (symmetrized 
+code in the fundamental <i>2 -> 2</i> scattering process (summed
 over particle/antiparticle). It is the user's responsibility to ensure 
-that (a subset of) the processes be to simulated actually include this 
+that (a subset of) the processes to be simulated actually include this 
 particle at the <i>2 -> 2</i> level; thus, asking for the lightest 
 neutralino (code 1000021) to be present in a squark-squark production 
 process will give no match. 
@@ -102,6 +101,37 @@ with PDG code <code>SUSY:idB</code> to be present in the <i>2 -> 2</i>
 process. Thus, using  <code>SUSY:idA</code> and  <code>SUSY:idB</code> 
 a specific subprocess can be selected. Again only the absolute sign is 
 used, i.e. the summation over particle and antiparticle is retained.
+Also the order of <code>SUSY:idA</code> and <code>SUSY:idB</code> is
+irrelevant; since both possible orderings are checked for a match 
+with the two outgoing particles. (Although not recommended, should 
+<code>SUSY:idA</code> be zero and <code>SUSY:idB</code> nonzero
+a match is searched for just like in the normal case with 
+<code>SUSY:idA</code> nonzero and <code>SUSY:idB</code> zero.)  
+  
+
+<p/><code>mvec&nbsp; </code><strong> SUSY:idVecA &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)<br/>
+As for <code>SUSY:idA</code>, but as a vector of PDG codes. 
+(Character-string input of such vectors should be as a 
+comma-separated list, without any blanks.) Thus, it selects only 
+processes that have a final-state particle corresponding to one 
+of the identity codes in this vector. Note that, to activate this, 
+<code>SUSY:idA</code> must be equal to zero; if not then the match 
+to <code>SUSY:idA</code> takes precedence. 
+  
+
+<p/><code>mvec&nbsp; </code><strong> SUSY:idVecB &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)<br/>
+As for <code>SUSY:idB</code>, but as a vector of PDG codes. 
+(Character-string input of such vectors should be as a 
+comma-separated list, without any blanks.) As above, to activate this, 
+<code>SUSY:idB</code> must be equal to zero; if not then the match to 
+<code>SUSY:idB</code> takes precedence. For the matching, either of 
+<code>SUSY:idA</code> and <code>SUSY:idVecA</code> may be combined with 
+either of <code>SUSY:idB</code> and <code>SUSY:idVecB</code>.
+As above one of the two outgoing SUSY particles must match one of the
+particles in <code>SUSY:id(Vec)A</code> and the other one of the 
+particles in <code>SUSY:id(Vec)B</code> when both are nonzero.
   
 
 <p/><code>mode&nbsp; </code><strong> SUSY:sin2thetaWMode &nbsp;</strong> 
@@ -129,21 +159,20 @@ Pair production of gluinos by gluon-gluon initial states.
 <p/><code>flag&nbsp; </code><strong> SUSY:qqbar2gluinogluino &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 Pair production of gluinos by quark-antiquark annihilation and
-<i>t</i>-channel squark exchange. So far, these cross sections assume the
-squark CKM is aligned with the quark CKM and that all quantities are
-real, so effects of non-minimal flavour violation and/or CP violation
-are not yet included.
+<i>t</i>-channel squark exchange.  The cross section
+expression follows [<a href="Bibliography.html" target="page">Fuk11</a>] and include the possibility 
+of non-minimal flavour violation through misalignment of quarks with
+squarks. Only the MFV case has been explicitly validated. 
   
 
 <h4>Associated Squark-Gluino Production</h4>
 
 <p/><code>flag&nbsp; </code><strong> SUSY:qg2squarkgluino &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
-Associated production of a squark with a gluino. Only implemented for the
-flavor-diagonal case. So far, these cross sections assume the
-squark CKM is aligned with the quark CKM and that all quantities are
-real, so effects of non-minimal flavour violation and/or CP violation
-are not yet included.
+Associated production of a squark with a gluino. The cross section
+expression follows [<a href="Bibliography.html" target="page">Fuk11</a>] and include the possibility 
+of non-minimal flavour violation through misalignment of quarks with
+squarks. Only the MFV case has been explicitly validated. 
   
 
 <h4>Squark Pair Production</h4>
@@ -154,7 +183,7 @@ Pair production of a scalar quark together with a scalar antiquark by
 gluon annihilation via <i>s</i>-channel gluon exchange, <i>t</i>- and 
 <i>u</i>-channel squark exchange, and the direct 4-point coupling. 
 The cross section expression follows [<a href="Bibliography.html" target="page">Boz07</a>]. 
-Validation of the FLV and CPV cases has not yet been completed.
+Only the MFV case has been explicitly validated. 
   
 
 <p/><code>flag&nbsp; </code><strong> SUSY:qqbar2squarkantisquark &nbsp;</strong> 
@@ -170,7 +199,7 @@ are neglected). For opposite-isospin <i>~q~q*</i> production
 and <i>t</i>-channel gluino contributions have been implemented 
 (i.e., the <i>t</i>-channel neutralino contributions are neglected). 
 The cross section expressions follow [<a href="Bibliography.html" target="page">Boz07</a>]. 
-Validation of the FLV and CPV cases has not yet been completed.
+Only the MFV case has been explicitly validated. 
 (Note to PYTHIA 6 users: 
 in older PYTHIA 6 versions, a bug caused the <i>~t1~t2*</i> cross to be
 overcounted by a factor of 2. Starting from version 6.4.24, that
@@ -193,7 +222,7 @@ Pair production of scalar quarks (squark-squark and its charge
 conjugate process; for squark-antisquark production see above) 
 by <i>t</i>- and <i>u</i>-channel gluino, neutralino, and 
 chargino exchange. The cross section expressions follow [<a href="Bibliography.html" target="page">Boz07</a>]. 
-Validation of the FLV and CPV cases has not yet been completed.
+Only the MFV case has been explicitly validated. 
 (Note to PYTHIA 6 users: PYTHIA 6 only included the gluino exchange
 contribution, which typically dominates due to the size of the strong
 coupling; for counterchecks, 
@@ -218,7 +247,7 @@ leave this flag in the <code>off</code> position.
 Pair production of neutralinos by quark-antiquark annihilation. With
 four neutralino species this gives ten separate processes, codes 
 1201 - 1210. The cross section expressions follow [<a href="Bibliography.html" target="page">Boz07</a>].
-Validation of the FLV and CPV cases has not yet been completed.
+Only the MFV case has been explicitly validated. 
   
 
 <p/><code>flag&nbsp; </code><strong> SUSY:qqbar2chi+-chi0 &nbsp;</strong> 
@@ -228,7 +257,7 @@ annihilation. With four neutralino species, two chargino ones, and
 maintaining charge conjugate processes separate, this gives 16 
 separate processes, codes 1221 - 1236. The cross section expressions 
 follow [<a href="Bibliography.html" target="page">Boz07</a>].
-Validation of the FLV and CPV cases has not yet been completed.
+Only the MFV case has been explicitly validated. 
   
 
 <p/><code>flag&nbsp; </code><strong> SUSY:qqbar2chi+chi- &nbsp;</strong> 
@@ -237,7 +266,7 @@ Pair production of charginos by quark-antiquark annihilation. With
 two chargino species and maintaining mutually charge conjugate
 processes separate, this gives four separate processes, codes 
 1241 - 1244. The cross section expressions follow [<a href="Bibliography.html" target="page">Boz07</a>]. 
-Validation of the FLV and CPV cases has not yet been completed.
+Only the MFV case has been explicitly validated. 
   
 
 <h4>Associated Neutralino/Chargino + Squark/Gluino Production</h4>
@@ -246,7 +275,7 @@ Validation of the FLV and CPV cases has not yet been completed.
  (<code>default = <strong>off</strong></code>)<br/>
 Pair production of neutralinos from quark-gluon initial states.
 The cross section expressions follow [<a href="Bibliography.html" target="page">Boz07</a>].
-Validation of the FLV and CPV cases has not yet been completed.
+Only the MFV case has been explicitly validated. 
   
 
 <p/><code>flag&nbsp; </code><strong> SUSY:qg2chi+-squark &nbsp;</strong> 
@@ -254,25 +283,37 @@ Validation of the FLV and CPV cases has not yet been completed.
 Associated chargino-squark production from quark-gluon initial states.
 annihilation. The cross section expressions
 follow [<a href="Bibliography.html" target="page">Boz07</a>].
-Validation of the FLV and CPV cases has not yet been completed.
+Only the MFV case has been explicitly validated. 
   
 
 <p/><code>flag&nbsp; </code><strong> SUSY:qqbar2chi0gluino &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 Associated neutralino-gluino production by quark-antiquark
-annihilation. Status: not implemented yet.
+annihilation. 
+The cross section expressions follow 
+[<a href="Bibliography.html" target="page">Fuk11</a>]. Only the MFV case has been explicitly validated.  
   
 
 <p/><code>flag&nbsp; </code><strong> SUSY:qqbar2chi+-gluino &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 Associated chargino-gluino production by quark-antiquark
-annihilation. Status: not implemented yet.
+annihilation. The cross section expressions follow 
+[<a href="Bibliography.html" target="page">Fuk11</a>]. Only the MFV case has been explicitly
+validated. (Note to PYTHIA 6 users: small differences between
+this implementation and PYTHIA 6 arise due 
+to slightly different treatments of the weak mixing angle, 
+which is fixed in PYTHIA 6, while it is computed from the SLHA input
+in PYTHIA 8; see <code>SUSY:sin2thetaWMode</code> above.)
   
 
 <h4>Slepton Production</h4>
+<p/><code>flag&nbsp; </code><strong> SUSY:qqbar2sleptonantislepton &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Pair production of slepton-antislepton via s-channel W, Z and gamma
+exchange.  Includes both charged sleptons and sneutrinos but right
+handed sneutrinos currently not supported.
+  
 
-No 2->2 slepton pair production or associated slepton production 
-cross sections have been implemented yet. 
 
 <h4>R-parity violating squark production</h4>
 
@@ -312,8 +353,8 @@ are: 3-body decays of charginos (via RPV), and 2-body decays of squarks and
 gauginos with Higgs as one of the decay products. 
 
 Some 3-body decays have been implemented with Matrix Element weighting.  
-In particular, those for a neutralino to a lighter neutralino and a fermion pair 
-can be enabled.
+In particular, those for a neutralino to a lighter neutralino and a
+fermion pair can be enabled.
 
 <p/><code>flag&nbsp; </code><strong> SUSYResonance:3BodyMatrixElement &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>

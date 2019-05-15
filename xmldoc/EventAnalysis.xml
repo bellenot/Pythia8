@@ -528,7 +528,7 @@ events, i.e. returned <code>false</code>.
 <code>SlowJet</code> is a simple program for doing jet finding according
 to either of the <ei>kT</ei>, anti-<ei>kT</ei>, and Cambridge/Aachen
 algorithms, in a cylindrical coordinate frame. The name is obviously 
-an homage to the <code>FastJet</code> program <ref>Cac06</ref>. 
+an homage to the <code>FastJet</code> program <ref>Cac06, Cac12</ref>. 
 That package contains many more algorithms, with many more options,
 and, above all, is <i>much</i> faster. Therefore <code>SlowJet</code>
 is not so much intended for massive processing of data or Monte Carlo
@@ -541,6 +541,18 @@ for large multiplicities, so obviously <code>SlowJet</code> can not
 be used for tricks like distributing a dense grid of pseudoparticles 
 to be able to define jet areas, like <code>FastJet</code> can, and also 
 not for events with much pileup or other noise. 
+
+<p/> 
+The recent introduction of <code>fjcore</code>, containing the core
+functionality of <code>FastJet</code> in a very much smaller package,
+has changed the conditions. It now is possible (even encouraged by the 
+authors) to distribute the two <code>fjcore</code> files as part of the
+PYTHIA package. Therefore the <code>SlowJet</code> class doubles as a 
+convenient front end to <code>fjcore</code>, managing the conversion 
+back and forth between PYTHIA and <code>FastJet</code> variables. Some 
+applications may still benefit from using the native codes, but the default 
+now is to let <code>SlowJet</code> call on <code>fjcore</code> for the 
+jet finding.   
 
 <p/> 
 The first step is to decide which particles should be included in the
@@ -614,9 +626,9 @@ Information on the resulting jets can be extracted by a few different methods.
 The minimal procedure only requires one call per event to do the analysis.
 We will begin by presenting it, and only afterwards some extensions.
 
-<method name="SlowJet::SlowJet(double power, double R, double pTjetMin = 0.,
+<method name="SlowJet::SlowJet(int power, double R, double pTjetMin = 0.,
 double etaMax = 25., int select = 2, int massSet = 2, 
-SlowJetHook* sjHookPtr = 0, bool useStandardR = true)">
+SlowJetHook* sjHookPtr = 0, bool useFJcore = true, bool useStandardR = true)">
 create a <code>SlowJet</code> instance, where 
 <argument name="power"> 
 tells (half) the power of the transverse-momentum dependence of the 
@@ -659,7 +671,7 @@ assigned the <ei>pi+-</ei> mass, and
 </argoption>
 <argoption value="2">all given their correct masses.</argoption>
 </argument>
-<<argument name="sjHookPtr" default="0"> 
+<argument name="sjHookPtr" default="0"> 
 gives the possibility to send in your own selection routine for which
 particles should be part of the analysis; see further below on the
 <code>SlowJetHook</code> class. If this pointer is sent in nonzero, 
@@ -667,8 +679,21 @@ particles should be part of the analysis; see further below on the
 and <code>select</code> only gives the basic selection, to which
 the user can add further requirements.
 </argument>
+<argument name="useFJcore" default="true">choice of code used for finding 
+the jets. Does not affect the outcome of the analysis, but only the speed,
+and some more specialized options.
+<argoption value="true">use the <code>fjcore</code> package of 
+<code>FastJet 3.0.5</code>.
+</argoption>
+<argoption value="false">use the native <code>SlowJet</code> implementation,
+which gives a slower jet finding, but allows some extra options of
+step-by-step jet joining.
+</argoption>
+</argument>
 <argument name="useStandardR" default="true">definition of <ei>R</ei>
-distance between two jets.
+distance between two jets. This switch is only meaningful for 
+<code>useFJcore = false</code>; within the <code>fjcore</code> package
+the standard option below is always used.
 <argoption value="true">standard, as described above, 
 <ei>DeltaR_ij^2 = (y_i - y_j)^2 + (phi_i - phi_j)^2.</ei> 
 </argoption>
@@ -676,7 +701,7 @@ distance between two jets.
 <ei>DeltaR_ij^2 = 2 (cosh(y_i - y_j) - cos(phi_i - phi_j))</ei>,
 which corresponds to the rim of the "deformed cone" giving a constant
 invariant mass between the two partons considered (for fixed
-masses and transverse momenta).
+masses and transverse momenta). 
 </argoption>
 </argument>
 </method>
@@ -729,6 +754,11 @@ the invariant mass of this four-vector,
 gives the number of particles clustered into the <ei>i</ei>'th jet,
 </method>
 
+<method name="vector&lt;int&gt; SlowJet::constituents(int i)">
+gives a list of the indices of the particles that have been
+clustered into the <ei>i</ei>'th jet,
+</method>
+
 <method name="int SlowJet::jetAssignment(int i)">
 gives the index of the jet that the particle <ei>i</ei> of the event
 record belongs to, or -1 if there is no jet containing particle
@@ -740,19 +770,20 @@ removes the <ei>i</ei>'th jet,
 </method>
 
 <method name="void SlowJet::list()">
-provides a listing of the above information.
+provides a listing of the basic jet information from above.
 </method>
 
 <p/> 
 These are the basic methods. For more sophisticated usage
-it is possible to trace the clustering, one step at a time. If so, the
-<code>setup</code> method should be used to read in the event and find
-the initial smallest distance. Each subsequent <code>doStep</code>
-will then do one cluster joining and find the new smallest distance.
-You can therefore interrogate which clusters will be joined next
-before the joining actually is performed. Alternatively you can take
-several steps in one go, or take steps down to a predetermined number 
-of jets plus remaining clusters. 
+it is possible to trace the clustering, one step at a time. 
+It requires the native jet finding code, <code>useFJcore = false</code>
+in the constructor. If so, the <code>setup</code> method should be used 
+to read in the event and find the initial smallest distance. Each subsequent 
+<code>doStep</code> will then do one cluster joining and find the new 
+smallest distance. You can therefore interrogate which clusters will be 
+joined next before the joining actually is performed. Alternatively you 
+can take several steps in one go, or take steps down to a predetermined 
+number of jets plus remaining clusters. 
 
 <method name="bool SlowJet::setup( const Event& event)"> 
 selects the particles to be analyzed, calculates initial distances,
@@ -770,14 +801,15 @@ clusters are joined to one, or that a cluster is promoted to a jet
 (which is discarded if its <ei>pT</ei> value is below 
 <code>pTjetMin</code>).
 <br/>The routine will only return <code>false</code> if there are no
-clusters left.
+clusters left, or if <code>useFJcore = true</code>.
 </method>
 
 <method name="bool SlowJet::doNSteps(int nStep)"> 
 calls the <code>doStep()</code> method <code>nStep</code> times,
 if possible. Will return <code>false</code> if the list of clusters
 is emptied before then. The stored jet information is still perfectly
-fine; it is only the number of steps that is wrong. 
+fine; it is only the number of steps that is wrong. Will also return 
+<code>false</code> if <code>useFJcore = true</code>.
 </method>
 
 <method name="bool SlowJet::stopAtN(int nStop)"> 
@@ -786,7 +818,8 @@ jet and cluster objects remain. Will return <code>false</code> if this
 is not possible, specifically if the number of objects already is smaller 
 than <code>nStop</code> when the method is called. The stored jet and 
 cluster information is still perfectly fine; it only does not have the 
-expected multiplicity.
+expected multiplicity. Will also return <code>false</code> if 
+<code>useFJcore = true</code>.
 </method>
 
 <method name="int SlowJet::sizeAll()">
@@ -796,6 +829,8 @@ are numbered <code>sizeJet()</code> through <code>sizeAll() - 1</code>.
 (Internally jets and clusters are represented by two separate arrays,
 but are here presented in one flat range.) Note that the jets are ordered 
 in decreasing <ei>pT</ei>, while the clusters are not ordered.
+When <code>useFJcore = true</code> there are no intermediate steps, and 
+thus the number of clusters is zero (after jet finding).
 </method>
 
 <p/>
@@ -827,7 +862,9 @@ If no clusters remain then <ei>(-1, -1, 0.)</ei>. Note that
 the cluster numbers are offset as described above, i.e. they begin at
 <code>sizeJet()</code>, which of course easily could be subtracted off.
 Also note that the jet and cluster lists are (moderately) reshuffled 
-in each new step.
+in each new step. When <code>useFJcore = true</code> there are no 
+intermediate steps, and thus these methods do not return meaningul
+information.
 </methodmore>
  
 <p/>

@@ -5,7 +5,7 @@
 
 // Test of LHAPDF interface and whether PDF's behave sensibly.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
 

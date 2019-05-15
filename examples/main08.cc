@@ -6,7 +6,7 @@
 // This is a simple test program. 
 // It illustrates methods to emphasize generation at high pT.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
 
@@ -85,11 +85,11 @@ int main() {
   // Loop over number of bins, i.e. number of subruns.
   for (int iBin = 0; iBin < nBin; ++iBin) {
 
-    // Normally HardQCD, but in two cases minBias.
-    // Need MPI on in minBias to get first interaction, but not else.
+    // Normally HardQCD, but in two cases nonDiffractive.
+    // Need MPI on in nonDiffractive to get first interaction, but not else.
     if (mode > 3 && iBin == 0) {
       pythia.readString("HardQCD:all = off");  
-      pythia.readString("SoftQCD:minBias = on"); 
+      pythia.readString("SoftQCD:nonDiffractive = on"); 
       if (!completeEvents) { 
       pythia.readString("PartonLevel:all = on"); 
         pythia.readString("PartonLevel:ISR = off");  
@@ -98,7 +98,7 @@ int main() {
       }  
     } else { 
       pythia.readString("HardQCD:all = on");  
-      pythia.readString("SoftQCD:minBias = off");  
+      pythia.readString("SoftQCD:nonDiffractive = off");  
       if (!completeEvents) pythia.readString("PartonLevel:all = off");  
     } 
 
@@ -157,7 +157,7 @@ int main() {
       // with hard events, and the overlap must be removed by hand.
       // No overlap for elastic/diffraction, which is only part of soft.
       double pTHat  = info.pTHat();
-      if (mode > 3 && iBin == 0 && info.isMinBias() 
+      if (mode > 3 && iBin == 0 && info.isNonDiffractive() 
         && pTHat > pTlimitLow[1]) continue;
 
       // Fill hard scale of event.

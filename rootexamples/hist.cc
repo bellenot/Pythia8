@@ -9,7 +9,7 @@
 #include <iostream>
 
 // Header file to access Pythia 8 program elements.
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 // ROOT, for histogramming.
 #include "TH1.h"

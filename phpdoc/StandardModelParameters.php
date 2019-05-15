@@ -39,22 +39,33 @@ may be somewhat different in other approaches (with differences
 formally of higher order), so do not necessarily expect perfect
 agreement, especially not at small <i>Q^2</i> scales. The starting 
 <i>alpha_strong</i> value is defined at the <i>M_Z</i> mass scale.
-The <i>Lambda</i> values are matched at the <i>b</i> and <i>c</i> 
-flavour thresholds, such that <i>alpha_strong</i> is continuous.
-For second-order matching an approximate iterative method is used.
+The <i>Lambda</i> values are matched at the <i>c</i>, <i>b</i> 
+and <i>t</i> flavour thresholds, 
+such that <i>alpha_strong</i> is continuous. 
+For second-order matching an approximate iterative method is used. 
+
+<p/>
+For backwards compatibility, 
+the following global switch determines whether 5- or 6-flavour running 
+will be used above the <i>t</i> threshold: 
+<br/><br/><table><tr><td><strong>StandardModel:alphaSnfmax  </td><td>  &nbsp;&nbsp;(<code>default = <strong>6</strong></code>; <code>minimum = 5</code>; <code>maximum = 6</code>)</td></tr></table>
+<br/>
+<input type="radio" name="1" value="5"><strong>5 </strong>: Use 5-flavour running for all scales above the  <ei>b</ei> flavour threshold (old default).<br/>
+<input type="radio" name="1" value="6" checked="checked"><strong>6 </strong>: Use 6-flavour running above the <ei>t</ei> threshold  (new default).<br/>
  
 <p/>
 Since we allow <i>alpha_strong</i> to vary separately for 
 hard processes, timelike showers, spacelike showers and  multiparton 
-interactions, the relevant values can be set in each of these classes. 
-The default behaviour is everywhere first-order running.
- 
+interactions, all other relevant values are set in each of these classes.
+The default behaviour is everywhere first-order running. 
+
 <p/>
 The <i>alpha_strong</i> calculation is initialized by 
-<code>init( value, order)</code>, where <code>value</code> 
-is the <i>alpha_strong</i> value at <i>M_Z</i> and <code>order</code> 
-is the order of the running, 0, 1 or 2.   Thereafter the value can be 
-calculated by <code>alphaS(scale2)</code>, where 
+<code>init( value, order, nfmax)</code>, where <code>value</code> 
+is the <i>alpha_strong</i> value at <i>M_Z</i>, <code>order</code> 
+is the order of the running, 0, 1 or 2, and <code>nfmax</code> 
+is the highest number of flavours to include in the running. Thereafter 
+the value can be calculated by <code>alphaS(scale2)</code>, where 
 <code>scale2</code> is the <i>Q^2</i> scale in GeV^2. 
 
 <p/>
@@ -66,6 +77,22 @@ second-order <i>Lambda</i>) and the second the correction factor,
 below unity, for the second-order terms. This allows a compact handling 
 of evolution equations.
 
+<p/>
+Resummation arguments [<a href="Bibliography.php" target="page">Cat91</a>] show that a set of 
+universal QCD corrections can be absorbed in coherent parton showers by 
+applying the so-called CMW rescaling of the MSbar value of <i>Lambda_QCD</i>.
+This can be accomplished via a fourth (optional) boolean 
+argument to <code>init( value, order, nfmax, useCMW)</code>, with default value 
+<code>useCMW = false</code>. When set to <code>true</code>, the 
+translation amounts to an <i>N_F</i>-dependent 
+rescaling of <i>Lambda_QCD</i>, relative to its MSbar value, by 
+a factor 1.661 for NF=3, 1.618 for NF=4, 1.569 for NF=5, 
+and 1.513 for NF=6. When using this option, 
+be aware that the original CMW arguments were derived using two-loop running  
+and that the CMW rescaling may need be taken into account in the context of 
+matrix-element matching. Note also that this option has only been made
+available for timelike and spacelike showers, not for hard processes.
+ 
 <h3>The electromagnetic coupling</h3> 
 
 The <code>AlphaEM</code> class is used to generate a running
@@ -85,12 +112,12 @@ The default behaviour is everywhere first-order running.
 The actual values assumed at zero momentum transfer and 
 at <i>M_Z</i> are only set here, however. 
 
-<br/><br/><table><tr><td><strong>StandardModel:alphaEM0 </td><td></td><td> <input type="text" name="1" value="0.00729735" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.00729735</strong></code>; <code>minimum = 0.0072973</code>; <code>maximum = 0.0072974</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:alphaEM0 </td><td></td><td> <input type="text" name="2" value="0.00729735" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.00729735</strong></code>; <code>minimum = 0.0072973</code>; <code>maximum = 0.0072974</code>)</td></tr></table>
 The <i>alpha_em</i> value at vanishing momentum transfer
 (and also below <i>m_e</i>). 
   
 
-<br/><br/><table><tr><td><strong>StandardModel:alphaEMmZ </td><td></td><td> <input type="text" name="2" value="0.00781751" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.00781751</strong></code>; <code>minimum = 0.00780</code>; <code>maximum = 0.00783</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:alphaEMmZ </td><td></td><td> <input type="text" name="3" value="0.00781751" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.00781751</strong></code>; <code>minimum = 0.00780</code>; <code>maximum = 0.00783</code>)</td></tr></table>
 The <i>alpha_em</i> value at the <i>M_Z</i> mass scale. 
 Default is taken from [<a href="Bibliography.php" target="page">Yao06</a>].
   
@@ -108,14 +135,14 @@ calculated by <code>alphaEM(scale2)</code>, where
 There are two degrees of freedom that can be set, related to the 
 electroweak mixing angle:
 
-<br/><br/><table><tr><td><strong>StandardModel:sin2thetaW </td><td></td><td> <input type="text" name="3" value="0.2312" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2312</strong></code>; <code>minimum = 0.225</code>; <code>maximum = 0.240</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:sin2thetaW </td><td></td><td> <input type="text" name="4" value="0.2312" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2312</strong></code>; <code>minimum = 0.225</code>; <code>maximum = 0.240</code>)</td></tr></table>
 The sine-squared of the weak mixing angle, as used in all <i>Z^0</i> 
 and <i>W^+-</i> masses and couplings, except for the vector couplings 
 of fermions to the <i>Z^0</i>, see below. Default is the MSbar value 
 from [<a href="Bibliography.php" target="page">Yao06</a>].
   
 
-<br/><br/><table><tr><td><strong>StandardModel:sin2thetaWbar </td><td></td><td> <input type="text" name="4" value="0.2315" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2315</strong></code>; <code>minimum = 0.225</code>; <code>maximum = 0.240</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:sin2thetaWbar </td><td></td><td> <input type="text" name="5" value="0.2315" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2315</strong></code>; <code>minimum = 0.225</code>; <code>maximum = 0.240</code>)</td></tr></table>
 The sine-squared of the weak mixing angle, as used to derive the vector 
 couplings of fermions to the <i>Z^0</i>, in the relation 
 <i>v_f = a_f - 4 e_f sin^2(theta_W)bar</i>. Default is the
@@ -126,7 +153,7 @@ effective-angle value from [<a href="Bibliography.php" target="page">Yao06</a>].
 The Fermi constant is not much used in the currently coded matrix elements,
 since it is redundant, but it is available:
 
-<br/><br/><table><tr><td><strong>StandardModel:GF </td><td></td><td> <input type="text" name="5" value="1.16637e-5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.16637e-5</strong></code>; <code>minimum = 1.0e-5</code>; <code>maximum = 1.3e-5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:GF </td><td></td><td> <input type="text" name="6" value="1.16637e-5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.16637e-5</strong></code>; <code>minimum = 1.0e-5</code>; <code>maximum = 1.3e-5</code>)</td></tr></table>
 The Fermi coupling constant, in units of GeV<i>^-2</i>. 
   
 
@@ -138,39 +165,39 @@ currently the CP-violating phase is not taken into account in this
 parametrization. It is up to the user to pick a consistent unitary 
 set of new values whenever changes are made.  
 
-<br/><br/><table><tr><td><strong>StandardModel:Vud </td><td></td><td> <input type="text" name="6" value="0.97383" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.97383</strong></code>; <code>minimum = 0.973</code>; <code>maximum = 0.975</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vud </td><td></td><td> <input type="text" name="7" value="0.97383" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.97383</strong></code>; <code>minimum = 0.973</code>; <code>maximum = 0.975</code>)</td></tr></table>
 The <i>V_ud</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vus </td><td></td><td> <input type="text" name="7" value="0.2272" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2272</strong></code>; <code>minimum = 0.224</code>; <code>maximum = 0.230</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vus </td><td></td><td> <input type="text" name="8" value="0.2272" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2272</strong></code>; <code>minimum = 0.224</code>; <code>maximum = 0.230</code>)</td></tr></table>
 The <i>V_us</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vub </td><td></td><td> <input type="text" name="8" value="0.00396" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.00396</strong></code>; <code>minimum = 0.0037</code>; <code>maximum = 0.0042</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vub </td><td></td><td> <input type="text" name="9" value="0.00396" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.00396</strong></code>; <code>minimum = 0.0037</code>; <code>maximum = 0.0042</code>)</td></tr></table>
 The <i>V_ub</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vcd </td><td></td><td> <input type="text" name="9" value="0.2271" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2271</strong></code>; <code>minimum = 0.224</code>; <code>maximum = 0.230</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vcd </td><td></td><td> <input type="text" name="10" value="0.2271" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2271</strong></code>; <code>minimum = 0.224</code>; <code>maximum = 0.230</code>)</td></tr></table>
 The <i>V_cd</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vcs </td><td></td><td> <input type="text" name="10" value="0.97296" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.97296</strong></code>; <code>minimum = 0.972</code>; <code>maximum = 0.974</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vcs </td><td></td><td> <input type="text" name="11" value="0.97296" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.97296</strong></code>; <code>minimum = 0.972</code>; <code>maximum = 0.974</code>)</td></tr></table>
 The <i>V_cs</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vcb </td><td></td><td> <input type="text" name="11" value="0.04221" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.04221</strong></code>; <code>minimum = 0.0418</code>; <code>maximum = 0.0426</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vcb </td><td></td><td> <input type="text" name="12" value="0.04221" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.04221</strong></code>; <code>minimum = 0.0418</code>; <code>maximum = 0.0426</code>)</td></tr></table>
 The <i>V_cb</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vtd </td><td></td><td> <input type="text" name="12" value="0.00814" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.00814</strong></code>; <code>minimum = 0.006</code>; <code>maximum = 0.010</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vtd </td><td></td><td> <input type="text" name="13" value="0.00814" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.00814</strong></code>; <code>minimum = 0.006</code>; <code>maximum = 0.010</code>)</td></tr></table>
 The <i>V_td</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vts </td><td></td><td> <input type="text" name="13" value="0.04161" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.04161</strong></code>; <code>minimum = 0.039</code>; <code>maximum = 0.043</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vts </td><td></td><td> <input type="text" name="14" value="0.04161" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.04161</strong></code>; <code>minimum = 0.039</code>; <code>maximum = 0.043</code>)</td></tr></table>
 The <i>V_ts</i> CKM matrix element.
   
 
-<br/><br/><table><tr><td><strong>StandardModel:Vtb </td><td></td><td> <input type="text" name="14" value="0.9991" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.9991</strong></code>; <code>minimum = 0.99907</code>; <code>maximum = 0.9992</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>StandardModel:Vtb </td><td></td><td> <input type="text" name="15" value="0.9991" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.9991</strong></code>; <code>minimum = 0.99907</code>; <code>maximum = 0.9992</code>)</td></tr></table>
 The <i>V_tb</i> CKM matrix element.
   
 
@@ -351,74 +378,79 @@ if($_POST["saved"] == 1)
 $filepath = $_POST["filepath"];
 $handle = fopen($filepath, 'a');
 
-if($_POST["1"] != "0.00729735")
+if($_POST["1"] != "6")
 {
-$data = "StandardModel:alphaEM0 = ".$_POST["1"]."\n";
+$data = "StandardModel:alphaSnfmax = ".$_POST["1"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["2"] != "0.00781751")
+if($_POST["2"] != "0.00729735")
 {
-$data = "StandardModel:alphaEMmZ = ".$_POST["2"]."\n";
+$data = "StandardModel:alphaEM0 = ".$_POST["2"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["3"] != "0.2312")
+if($_POST["3"] != "0.00781751")
 {
-$data = "StandardModel:sin2thetaW = ".$_POST["3"]."\n";
+$data = "StandardModel:alphaEMmZ = ".$_POST["3"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["4"] != "0.2315")
+if($_POST["4"] != "0.2312")
 {
-$data = "StandardModel:sin2thetaWbar = ".$_POST["4"]."\n";
+$data = "StandardModel:sin2thetaW = ".$_POST["4"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["5"] != "1.16637e-5")
+if($_POST["5"] != "0.2315")
 {
-$data = "StandardModel:GF = ".$_POST["5"]."\n";
+$data = "StandardModel:sin2thetaWbar = ".$_POST["5"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["6"] != "0.97383")
+if($_POST["6"] != "1.16637e-5")
 {
-$data = "StandardModel:Vud = ".$_POST["6"]."\n";
+$data = "StandardModel:GF = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["7"] != "0.2272")
+if($_POST["7"] != "0.97383")
 {
-$data = "StandardModel:Vus = ".$_POST["7"]."\n";
+$data = "StandardModel:Vud = ".$_POST["7"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["8"] != "0.00396")
+if($_POST["8"] != "0.2272")
 {
-$data = "StandardModel:Vub = ".$_POST["8"]."\n";
+$data = "StandardModel:Vus = ".$_POST["8"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["9"] != "0.2271")
+if($_POST["9"] != "0.00396")
 {
-$data = "StandardModel:Vcd = ".$_POST["9"]."\n";
+$data = "StandardModel:Vub = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["10"] != "0.97296")
+if($_POST["10"] != "0.2271")
 {
-$data = "StandardModel:Vcs = ".$_POST["10"]."\n";
+$data = "StandardModel:Vcd = ".$_POST["10"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["11"] != "0.04221")
+if($_POST["11"] != "0.97296")
 {
-$data = "StandardModel:Vcb = ".$_POST["11"]."\n";
+$data = "StandardModel:Vcs = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "0.00814")
+if($_POST["12"] != "0.04221")
 {
-$data = "StandardModel:Vtd = ".$_POST["12"]."\n";
+$data = "StandardModel:Vcb = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "0.04161")
+if($_POST["13"] != "0.00814")
 {
-$data = "StandardModel:Vts = ".$_POST["13"]."\n";
+$data = "StandardModel:Vtd = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "0.9991")
+if($_POST["14"] != "0.04161")
 {
-$data = "StandardModel:Vtb = ".$_POST["14"]."\n";
+$data = "StandardModel:Vts = ".$_POST["14"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["15"] != "0.9991")
+{
+$data = "StandardModel:Vtb = ".$_POST["15"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

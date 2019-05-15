@@ -7,7 +7,7 @@
 // It illustrates how Les Houches Event File input can be used in Pythia8.
 // It uses the ttsample.lhe input file, the latter only with 100 events.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 using namespace Pythia8; 
 int main() {
 

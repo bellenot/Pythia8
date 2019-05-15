@@ -7,9 +7,9 @@
 // It illustrates how to do CKKW-L merging, 
 // see the Matrix Element Merging page in the online manual. 
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
+#include "Pythia8/Pythia8ToHepMC.h"
 
-#include "HepMCInterface.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_GenEvent.h"
 // Following line to be used with HepMC 2.04 onwards.
@@ -40,7 +40,7 @@ int main( int argc, char* argv[] ){
   // Input parameters:
   pythia.readFile(argv[1]);
   // Interface for conversion from Pythia8::Event to HepMC one. 
-  HepMC::I_Pythia8 ToHepMC;
+  HepMC::Pythia8ToHepMC ToHepMC;
   // Specify file where HepMC events will be stored.
   HepMC::IO_GenEvent ascii_io(argv[3], std::ios::out);
   // Switch off warnings for parton-level events.
@@ -88,15 +88,17 @@ int main( int argc, char* argv[] ){
 
   while(njetcounterLO >= 0) {
 
-    // From njet, choose LHE file
+    // From njetcounter, choose LHE file
     stringstream in;
     in   << "_" << njetcounterLO << ".lhe";
+#ifdef GZIPSUPPORT
+    if(access( (iPathTree+in.str()+".gz").c_str(), F_OK) != -1) in << ".gz";
+#endif
     string LHEfile = iPathTree + in.str();
-
+    LHAupLHEF lhareader((char*)(LHEfile).c_str());
     pythia.settings.mode("Merging:nRequested", njetcounterLO);
-    pythia.readString("Beams:frameType = 4"); 
     pythia.settings.word("Beams:LHEF", LHEfile); 
-    pythia.init();
+    pythia.init(&lhareader);
 
     // Start generation loop
     for( int iEvent=0; iEvent<nEvent; ++iEvent ){
@@ -135,30 +137,36 @@ int main( int argc, char* argv[] ){
   pythia.settings.flag("HadronLevel:all",had);
   pythia.settings.flag("PartonLevel:MPI",mpi);
 
-  int sizeLO  = int(xsecLO.size());
-
-  njetcounterLO = nMaxLO;
-  iPathTree     = iPath + "_tree";
-
+  // Declare sample cross section for output.
+  double sigmaTemp  = 0.;
+  vector<double> sampleXStree;
   // Cross section an error.
   double sigmaTotal  = 0.;
   double errorTotal  = 0.;
 
+  int sizeLO    = int(xsecLO.size());
+  njetcounterLO = nMaxLO;
+  iPathTree     = iPath + "_tree";
+
   while(njetcounterLO >= 0){
 
-    // From njet, choose LHE file
+    // From njetcounter, choose LHE file
     stringstream in;
     in   << "_" << njetcounterLO << ".lhe";
+#ifdef GZIPSUPPORT
+    if(access( (iPathTree+in.str()+".gz").c_str(), F_OK) != -1) in << ".gz";
+#endif
     string LHEfile = iPathTree + in.str();
+    LHAupLHEF lhareader((char*)(LHEfile).c_str());
 
     cout << endl << endl << endl
          << "Start tree level treatment for " << njetcounterLO << " jets"
          << endl;
 
     pythia.settings.mode("Merging:nRequested", njetcounterLO);
-    pythia.readString("Beams:frameType = 4"); 
     pythia.settings.word("Beams:LHEF", LHEfile); 
-    pythia.init();
+    pythia.init(&lhareader);
+
     // Remember position in vector of cross section estimates.
     int iNow = sizeLO-1-njetcounterLO;
 
@@ -175,6 +183,7 @@ int main( int argc, char* argv[] ){
       double weight = pythia.info.mergingWeight();
       double evtweight = pythia.info.weight();
       weight *= evtweight;
+
       // Do not print zero-weight events.
       if ( weight == 0. ) continue; 
 
@@ -188,6 +197,7 @@ int main( int argc, char* argv[] ){
       ToHepMC.fill_next_event( pythia, hepmcevt );
       // Add the weight of the current event to the cross section.
       sigmaTotal += weight*normhepmc;
+      sigmaTemp  += weight*normhepmc;
       errorTotal += pow2(weight*normhepmc);
       // Report cross section to hepmc
       HepMC::GenCrossSection xsec;
@@ -201,6 +211,9 @@ int main( int argc, char* argv[] ){
 
     // print cross section, errors
     pythia.stat();
+    // Save sample cross section for output.
+    sampleXStree.push_back(sigmaTemp);
+    sigmaTemp = 0.;
 
     // Restart with ME of a reduced the number of jets
     if( njetcounterLO > 0 )
@@ -210,12 +223,33 @@ int main( int argc, char* argv[] ){
 
   }
 
-  cout << endl << endl << endl;
-  cout << "CKKWL merged cross section: " << scientific << setprecision(8)
-       << sigmaTotal << "  +-  " << sqrt(errorTotal) << " mb " << endl;
-  cout << "LO inclusive cross section: " << scientific << setprecision(8)
-       << xsecLO.back() << " mb " << endl;
-  cout << endl << endl << endl;
+  // Print cross section information.
+  cout << endl << endl;
+  cout << " *---------------------------------------------------*" << endl;
+  cout << " |                                                   |" << endl;
+  cout << " | Sample cross sections after CKKW-L merging        |" << endl;
+  cout << " |                                                   |" << endl;
+  cout << " | Leading order cross sections (mb):                |" << endl;
+  for (int i = 0; i < int(sampleXStree.size()); ++i)
+    cout << " |     " << sampleXStree.size()-1-i << "-jet:  "
+         << setw(17) << scientific << setprecision(6)
+         << sampleXStree[i] << "                     |" << endl;
+  cout << " |                                                   |" << endl;
+  cout << " |---------------------------------------------------|" << endl;
+  cout << " |---------------------------------------------------|" << endl;
+  cout << " | Inclusive cross sections:                         |" << endl;
+  cout << " |                                                   |" << endl;
+  cout << " | CKKW-L merged inclusive cross section:            |" << endl;
+  cout << " |    " << setw(17) << scientific << setprecision(6)
+       << sigmaTotal << "  +-  " << setw(17) << sqrt(errorTotal) << " mb "
+       << "   |" << endl;
+  cout << " |                                                   |" << endl;
+  cout << " | LO inclusive cross section:                       |" << endl;
+  cout << " |    " << setw(17) << scientific << setprecision(6)
+       << xsecLO.back() << " mb                           |" << endl;
+  cout << " |                                                   |" << endl;
+  cout << " *---------------------------------------------------*" << endl;
+  cout << endl << endl;
 
   // Done
   return 0;

@@ -5,7 +5,7 @@
 
 // Function definitions (not found in the header) for the RHadrons class.
 
-#include "RHadrons.h"
+#include "Pythia8/RHadrons.h"
 
 namespace Pythia8 {
  
@@ -863,7 +863,7 @@ bool RHadrons::produceSquark( ColConfig& colConfig, Event& event) {
          "cannot form light hadron code");
        return false;
     }
-    double mNewL = particleDataPtr->mass( idNewL); 
+    double mNewL = particleDataPtr->mSel( idNewL); 
     
     // Check that energy enough for light hadron and R-hadron.
     if ( sSys > pow2(mRHad + mNewL + MSAFETY) ) { 
@@ -1120,7 +1120,7 @@ bool RHadrons::produceGluino( ColConfig& colConfig, Event& event) {
            "cannot form light hadron code");
          return false;
       }
-      double mNewL = particleDataPtr->mass( idNewL); 
+      double mNewL = particleDataPtr->mSel( idNewL); 
     
       // Check that energy enough for light hadron and R-hadron.
       if ( sSys > pow2(mRHad + mNewL + MSAFETY) ) { 

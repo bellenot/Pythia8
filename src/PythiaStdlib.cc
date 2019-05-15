@@ -5,7 +5,7 @@
 
 // Function definitions (not found in the header) for the Gamma function.
 
-#include "PythiaStdlib.h"
+#include "Pythia8/PythiaStdlib.h"
 
 namespace Pythia8 {
 

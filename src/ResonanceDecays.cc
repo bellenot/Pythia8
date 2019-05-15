@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for 
 // the ResonanceDecays class.
 
-#include "ResonanceDecays.h"
+#include "Pythia8/ResonanceDecays.h"
 
 namespace Pythia8 {
 
@@ -205,7 +205,7 @@ bool ResonanceDecays::pickMasses() {
       if (iTryMasses == NTRYMASSES) return false;
       mSum = 0.;
       for (int i = 1; i <= mult; ++i) {
-        if (useBW[i])  mProd[i] = particleDataPtr->mass( idProd[i] ); 
+        if (useBW[i])  mProd[i] = particleDataPtr->mSel( idProd[i] ); 
         mSum += mProd[i];   
       }
       wt = (mSum + 0.5 * MSAFETY < mMother)

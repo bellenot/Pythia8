@@ -7,7 +7,7 @@
 // It illustrates how to do CKKW-L merging, 
 // see the Matrix Element Merging page in the online manual. 
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8;
 

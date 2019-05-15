@@ -7,7 +7,7 @@
 // Author: Stefan Ask (Stefan DOT Ask AT cern DOT ch)
 // Documentation: S. Ask et al., arXiv:0809.4750 and arXiv:0912.4233
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
 

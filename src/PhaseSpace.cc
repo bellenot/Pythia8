@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the 
 // PhaseSpace and PhaseSpace2to2tauyz classes.
 
-#include "PhaseSpace.h"
+#include "Pythia8/PhaseSpace.h"
 
 namespace Pythia8 {
 
@@ -3214,6 +3214,7 @@ bool PhaseSpace2to3diffractive::trialKin( bool, bool ) {
         double tLowNow  = -0.5 * (tempA + tempB); 
         double tUppNow  = tempC / tLowNow; 
         if (tVal[i] < tLowNow || tVal[i] > tUppNow) tryAgain = true;
+        if (tryAgain) break;
 
         // Careful reconstruction of scattering angle.
         double cosTheta = min(1., max(-1., (tempA + 2. * tVal[i]) / tempB));

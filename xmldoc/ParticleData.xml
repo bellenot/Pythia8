@@ -13,7 +13,7 @@ Apart from the data itself, the particle data table only contains
 a few aspects that are available to change:
 
 <modepick name="ParticleData:modeBreitWigner" default="4" min="0" max="4">
-Selection of particle masses when the <code>mass(id)</code> is called
+Selection of particle masses when the <code>mSel(id)</code> is called
 to provide a new mass:
 <option value="0">
 mass is fixed at the nominal <ei>m_0</ei> value.

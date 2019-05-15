@@ -267,7 +267,14 @@ for the QCD processes.
   
 
 <br/><br/><table><tr><td><strong>ContactInteractions:Lambda </td><td></td><td> <input type="text" name="31" value="1000." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1000.</strong></code>; <code>minimum = 100.</code>)</td></tr></table>
-Compositeness scale <i>Lambda</i> in GeV.
+Compositeness scale <i>Lambda</i> in GeV. Its overall normalization 
+is largely a matter of convention. The choice made here for the
+<i>q qbar -> l- l+</i> processes is such that the pure contact
+interaction part of the left-left interactions (i.e. disregarding
+<i>gamma^*</i>, <i>Z^0</i> and interference terms) has the form
+<i>d(sigmaHat)/d(tHat) = pi * uHat^2 / (3 * sHat^2 * Lambda^4)</i>.
+The corresponding part of the <i>q qbar -> q' qbar'</i> cross section
+is a factor 3 larger from colour. 
   
 
 <br/><br/><table><tr><td><strong>ContactInteractions:etaLL  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = -1</code>; <code>maximum = 1</code>)</td></tr></table>

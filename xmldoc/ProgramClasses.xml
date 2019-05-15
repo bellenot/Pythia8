@@ -67,7 +67,7 @@ collider topologies</td>
 </tr>
 
 <tr> 
-<td><code>HepMC::I_Pythia8</code></td> 
+<td><code>HepMC::Pythia8ToHepMC</code></td> 
 <td><aloc href="HepMCInterface">HepMC Interface</aloc></td> 
 <td>convert a PYTHIA event record to the HepMC format</td> 
 </tr>

@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for helper classes
 // used in tau decays.
 
-#include "HelicityBasics.h"
+#include "Pythia8/HelicityBasics.h"
 
 namespace Pythia8 {
 
@@ -359,7 +359,7 @@ void HelicityParticle::normalize(vector< vector<complex> >& matrix) {
   int HelicityParticle::spinStates() {
 
     int sT = spinType();
-    if (sT == 0) return 0;
+    if (sT == 0) return 1;
     else if (sT != 2 && m() < TOLERANCE) return sT - 1;
     else return sT;
 

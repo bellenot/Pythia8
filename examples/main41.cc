@@ -11,8 +11,8 @@
 // WARNING: typically one needs 25 MB/100 events at the LHC.
 // Therefore large event samples may be impractical.
 
-#include "Pythia.h"
-#include "HepMCInterface.h"
+#include "Pythia8/Pythia.h"
+#include "Pythia8/Pythia8ToHepMC.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_GenEvent.h"
 
@@ -21,7 +21,7 @@ using namespace Pythia8;
 int main() {
 
   // Interface for conversion from Pythia8::Event to HepMC event. 
-  HepMC::I_Pythia8 ToHepMC;
+  HepMC::Pythia8ToHepMC ToHepMC;
 
   // Specify file where HepMC events will be stored.
   HepMC::IO_GenEvent ascii_io("hepmcout41.dat", std::ios::out);
@@ -46,7 +46,7 @@ int main() {
     mult.fill( nCharged );
 
     // Construct new empty HepMC event and fill it.
-    // Units will be as chosen for HepMC build, but can be changed
+    // Units will be as chosen for HepMC build; but can be changed
     // by arguments, e.g. GenEvt( HepMC::Units::GEV, HepMC::Units::MM)  
     HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
     ToHepMC.fill_next_event( pythia, hepmcevt );

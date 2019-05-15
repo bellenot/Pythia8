@@ -5,7 +5,7 @@
 
 // Function definitions (not found in the header) for the BeamShape class. 
 
-#include "BeamShape.h"
+#include "Pythia8/BeamShape.h"
 
 namespace Pythia8 {
  

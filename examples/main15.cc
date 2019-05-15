@@ -21,7 +21,7 @@
 // When used for several particles, remember that the position of
 // some particles may be moved by the undoDecay step.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 using namespace Pythia8;
  
 int main() {
@@ -45,7 +45,7 @@ int main() {
 
   // Simulate b production above given pTmin scale.
   // Warning: these processes do not catch all possible production modes.
-  // You would need to use HardQCD:all or even SoftQCD:minBias for that.
+  // You would need to use HardQCD:all or even SoftQCD:nonDiffractive for that.
   pythia.readString("HardQCD:gg2bbbar = on");    
   pythia.readString("HardQCD:qqbar2bbbar = on");    
   pythia.readString("PhaseSpace:pTHatMin = 50.");  

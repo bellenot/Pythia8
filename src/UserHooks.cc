@@ -6,8 +6,8 @@
 // Function definitions (not found in the header) for the UserHooks class.
 
 // Note: compilation crashes if PhaseSpace.h is moved to UserHooks.h.
-#include "PhaseSpace.h"
-#include "UserHooks.h"
+#include "Pythia8/PhaseSpace.h"
+#include "Pythia8/UserHooks.h"
 
 namespace Pythia8 {
  
@@ -246,6 +246,7 @@ double SuppressSmallPT::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
     // alternatively as for hard processes.
     double alphaSvalue;
     int    alphaSorder;    
+    int    alphaSnfmax = settingsPtr->mode("StandardModel:alphaSnfmax");
     if (useSameAlphaSasMPI) {
       alphaSvalue = settingsPtr->parm("MultipartonInteractions:alphaSvalue");
       alphaSorder = settingsPtr->mode("MultipartonInteractions:alphaSorder");
@@ -253,7 +254,7 @@ double SuppressSmallPT::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
       alphaSvalue = settingsPtr->parm("SigmaProcess:alphaSvalue");
       alphaSorder = settingsPtr->mode("SigmaProcess:alphaSorder");
     }
-    alphaS.init( alphaSvalue, alphaSorder); 
+    alphaS.init( alphaSvalue, alphaSorder, alphaSnfmax, false); 
 
     // Initialization finished.
     isInit = true;

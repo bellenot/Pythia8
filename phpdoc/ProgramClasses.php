@@ -102,7 +102,7 @@ echo "<a href='EventRecord.php?filepath=".$filepath."' target='page'>";?>Event R
 </tr>
 
 <tr> 
-<td><code>HepMC::I_Pythia8</code></td> 
+<td><code>HepMC::Pythia8ToHepMC</code></td> 
 <td><?php $filepath = $_GET["filepath"];
 echo "<a href='HepMCInterface.php?filepath=".$filepath."' target='page'>";?>HepMC Interface</a></td> 
 <td>convert a PYTHIA event record to the HepMC format</td> 

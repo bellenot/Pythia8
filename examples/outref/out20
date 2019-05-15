@@ -5,26 +5,29 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.175      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 16 Feb 2013  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.180      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 20 Sep 2013  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 16 Feb 2013 at 11:35:50    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 20 Sep 2013 at 16:06:28    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Astronomy and Theoretical Physics,      |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      phone: + 46 - 46 - 222 48 16; e-mail: torbjorn@thep.lu.se               |  | 
- |  |   Jesper Roy Christiansen;  Department of Astronomy and Theoretical Physics  |  | 
+ |  |   Jesper Roy Christiansen;  Department of Astronomy and Theoretical Physics, |  | 
  |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
  |  |      e-mail: Jesper.Roy.Christiansen@thep.lu.se                              |  | 
+ |  |   Nishita Desai;  Department of Physics and Astronomy, University College    |  | 
+ |  |      London, Gower Street, London, WC1E 6BT, United Kingdom;                 |  | 
+ |  |      e-mail: Nishita.Desai@cern.ch                                           |  | 
  |  |   Philip Ilten;  School of Physics, Uniiversity College Dublin,              |  | 
  |  |      Belfield, Dublin 4, Ireland;                                            |  | 
  |  |      e-mail: philten@cern.ch                                                 |  | 
  |  |   Stephen Mrenna;  Computing Division, Simulations Group,                    |  | 
  |  |      Fermi National Accelerator Laboratory, MS 234, Batavia, IL 60510, USA;  |  | 
  |  |      phone: + 1 - 630 - 840 - 2556; e-mail: mrenna@fnal.gov                  |  | 
- |  |   Stefan Prestel;  Department of Astronomy and Theoretical Physics,          |  | 
- |  |      Lund University, Solvegatan 14A, SE-223 62 Lund, Sweden;                |  | 
- |  |      phone: + 46 - 46 - 222 06 64; e-mail: stefan.prestel@thep.lu.se         |  | 
+ |  |   Stefan Prestel;  Theory Group, DESY,                                       |  | 
+ |  |      Notkestrasse 85, D-22607 Hamburg, Germany;                              |  | 
+ |  |      phone: + 49 - 40 - 8998-4250; e-mail: stefan.prestel@thep.lu.se         |  | 
  |  |   Peter Skands;  Theoretical Physics, CERN, CH-1211 Geneva 23, Switzerland;  |  | 
  |  |      phone: + 41 - 22 - 767 2447; e-mail: peter.skands@cern.ch               |  | 
  |  |   Stefan Ask; former author; e-mail: ask.stefan@gmail.com                    |  | 
@@ -71,7 +74,7 @@
  |                                                                  |
  *-------  End PYTHIA Process Initialization -----------------------*
 
- *-------  PYTHIA Flag + Mode + Parm + Vect + Word Settings (changes only)  ---------------------------------------* 
+ *-------  PYTHIA Flag + Mode + Parm + Word + MVec + PVec Settings (changes only)  --------------------------------* 
  |                                                                                                                 | 
  | Name                                          |                      Now |      Default         Min         Max | 
  |                                               |                          |                                      | 
@@ -83,7 +86,7 @@
  | MultipartonInteractions:expPow                |                  2.00000 |      1.00000     0.40000    10.00000 | 
  | MultipartonInteractions:pT0Ref                |                  2.08500 |      2.15000     0.50000    10.00000 | 
  | PartonLevel:all                               |                      off |           on                         | 
- | PDF:pSet                                      |                        8 |            2           1          12 | 
+ | PDF:pSet                                      |                        8 |            2           1          16 | 
  | SigmaDiffractive:dampen                       |                       on |          off                         | 
  | SigmaDiffractive:maxAX                        |                 65.00000 |     15.00000         0.0             | 
  | SigmaDiffractive:maxXB                        |                 65.00000 |     15.00000         0.0             | 
@@ -93,7 +96,7 @@
  | SpaceShower:rapidityOrder                     |                       on |          off                         | 
  | WeakDoubleBoson:all                           |                       on |          off                         | 
  |                                                                                                                 | 
- *-------  End PYTHIA Flag + Mode + Parm + Vect + Word Settings  --------------------------------------------------* 
+ *-------  End PYTHIA Flag + Mode + Parm + Word + MVec + PVec Settings  -------------------------------------------* 
 
  --------  PYTHIA Particle Data Table (changed only)  ------------------------------------------------------------------------------
  

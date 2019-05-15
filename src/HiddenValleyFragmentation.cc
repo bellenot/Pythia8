@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the
 // HiddenValleyFragmentation class and its helper classes.
 
-#include "HiddenValleyFragmentation.h"
+#include "Pythia8/HiddenValleyFragmentation.h"
 
 namespace Pythia8 {
  

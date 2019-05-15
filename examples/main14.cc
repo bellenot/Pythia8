@@ -23,7 +23,7 @@
 //         53 - 55 : Excited fermions (compositeness).
 //         56 - 56 : excited Graviton (RS extra dimensions).
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8;
  
@@ -149,6 +149,9 @@ int main() {
       pythia.readString("35:m0 = 300.");
       pythia.readString("36:m0 = 300.");
       pythia.readString("37:m0 = 320.");
+      // With default option Higgs:clipWings = on need to reset mass range.
+      pythia.readString("25:mMin = 50.");
+      pythia.readString("25:mMax = 0.");
     }  
 
     // Initialize for LHC.

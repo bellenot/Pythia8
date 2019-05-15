@@ -16,7 +16,7 @@
 #define Pythia8_JetMatching_H 
 
 // Includes
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 #include "GeneratorInput.h"
 using namespace Pythia8;
 

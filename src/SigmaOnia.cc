@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the 
 // charmonia/bottomonia simulation classes. 
 
-#include "SigmaOnia.h"
+#include "Pythia8/SigmaOnia.h"
 
 namespace Pythia8 {
 

@@ -8,7 +8,7 @@
 // Here the very few events are generated with MadGraph, and illustrate
 // more complicated colour topologies.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 using namespace Pythia8; 
 
 int main() {

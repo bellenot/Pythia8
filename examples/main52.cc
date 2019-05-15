@@ -10,7 +10,7 @@
 // Access time information.
 #include <ctime>
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
 
@@ -61,7 +61,7 @@ int main() {
     Event& event = pythia.event;
 
     // Generate minimum-bias events, with or without double diffraction.
-    pythia.readString("SoftQCD:minBias = on");  
+    pythia.readString("SoftQCD:nonDiffractive = on");  
     //pythia.readString("SoftQCD:doubleDiffractive = on"); 
 
     // Generate QCD jet events, above some threshold.

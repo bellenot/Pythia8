@@ -6,7 +6,7 @@
 // This is a simple test program. It shows how PYTHIA 8 can write
 // a Les Houches Event File based on its process-level events.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 using namespace Pythia8; 
 int main() {
 

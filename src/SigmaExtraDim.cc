@@ -7,7 +7,7 @@
 // Function definitions (not found in the header) for the 
 // extra-dimensional simulation classes. 
 
-#include "SigmaExtraDim.h"
+#include "Pythia8/SigmaExtraDim.h"
 
 namespace Pythia8 {
 

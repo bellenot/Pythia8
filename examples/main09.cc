@@ -5,7 +5,7 @@
 
 // Generate a predetermined second hard interaction.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8;
  

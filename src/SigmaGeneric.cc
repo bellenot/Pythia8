@@ -14,7 +14,7 @@
 //     but tH - uH = sH beta34 cos(thetaH) also for m3 != m4, so use
 //     tH, uH selected for m3 != m4 to derive tHQ, uHQ valid for m3 = m4.   
 
-#include "SigmaGeneric.h"
+#include "Pythia8/SigmaGeneric.h"
 
 namespace Pythia8 {
 

@@ -266,7 +266,7 @@ functionality, e.g. in an interactive session
 <pre>
     gSystem->Load("path_to_PYTHIA8_installation/rootexamples/pythiaDict");
     Pythia8::Pythia *p = new Pythia8::Pythia();
-    p->readString("SoftQCD:minBias = on");
+    p->readString("SoftQCD:nonDiffractive = on");
 </pre>
   
 </body>

@@ -7,7 +7,7 @@
 // Several of the possibilities shown here, like displaced vertices,
 // are extras that need not be used for the basic setup.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
 

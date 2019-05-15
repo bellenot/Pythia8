@@ -88,8 +88,19 @@ is either beam diffractively excited?
 is there central diffraction (a.k.a. double Pomeron exchange)?
 </method>
 
+<method name="bool Info::isNonDiffractive()"> 
+is the process the <code>SoftQCD:nonDiffractive</code> one, 
+i.e. corresponding to the full inelastic nondiffractive part of the
+total cross section. (Note that a hard process, say <ei>Z^0</ei>
+production, normally is nondiffractive, but this is not what we 
+aim at here, and so the method would return <code>false</code>,
+unless the <ei>Z^0</ei> had been generated as part of the MPI
+machinery for the <code>SoftQCD:nonDiffractive</code> component.)
+</method>
+
 <method name="bool Info::isMinBias()"> 
-is the process a minimum-bias one?
+the same as above, retained for backwards compatibility, but to
+be removed in PYTHIA 8.2.
 </method>
 
 <method name="bool Info::isLHA()"> 
@@ -105,8 +116,8 @@ which events have been read in.
 
 <method name="bool Info::hasSub()"> 
 does the process have a subprocess classification?
-Currently only true for minbias and Les Houches events, where it allows 
-the hardest collision to be identified. 
+Currently only true for nondiffractive and Les Houches events, where 
+it allows the hardest collision to be identified. 
 </method>
 
 <method name="string Info::nameSub()"> 
@@ -417,6 +428,11 @@ performed, all histograms should be filled with this weight, as discussed in
 </method>
 
 <h3>Multiparton interactions</h3>
+
+As already noted, these methods do not make sense for diffractive
+topologies, and should not be used there. Partly this is physics,
+but mainly it is for technical reasons, e.g. that double diffraction
+involves two separate systems that would have to be bookkept as such.
 
 <method name="double Info::a0MPI()">
 The value of a0 when an x-dependent matter profile is used,

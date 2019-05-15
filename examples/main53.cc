@@ -9,7 +9,7 @@
 // All input apart from the name of the external LHEF file is specified in the 
 // main53.cmnd file.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
 

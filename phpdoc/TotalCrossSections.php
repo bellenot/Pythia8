@@ -91,7 +91,7 @@ dependence is then parametrized, and behaves roughly like
 several existing <?php $filepath = $_GET["filepath"];
 echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>tunes</a> do not include CD. 
 An inclusion of a nonvanishing CD cross section directly affects 
-the minbias phenomenology (even if not dramatically), and so
+the nondiffractive phenomenology (even if not dramatically), and so
 this flag is used to switch off the CD cross section in such tunes.
 You can switch it back on <i>after</i> the selection of a tune, if you
 so wish. This option has no effect for the MBR model 

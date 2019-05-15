@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the 
 // compositeness simulation classes. 
 
-#include "SigmaCompositeness.h"
+#include "Pythia8/SigmaCompositeness.h"
 
 namespace Pythia8 {
 
@@ -775,16 +775,16 @@ double Sigma2QCffbar2llbar::sigmaHat() {
   // Amplitudes, M = gamma + Z + CI.
   meLL = tmPe2QfQl * qCPropGm 
        + tmPe2s2c2 * tmPgLf * tmPgLl * (qCrePropZ + I * qCimPropZ)
-       + 2. * M_PI * qCetaLL / qCLambda2;
+       + 4. * M_PI * qCetaLL / qCLambda2;
   meRR = tmPe2QfQl * qCPropGm 
        + tmPe2s2c2 * tmPgRf * tmPgRl * (qCrePropZ + I * qCimPropZ)
-       + 2. * M_PI * qCetaRR / qCLambda2;
+       + 4. * M_PI * qCetaRR / qCLambda2;
   meLR = tmPe2QfQl * qCPropGm 
        + tmPe2s2c2 * tmPgLf * tmPgRl * (qCrePropZ + I * qCimPropZ)
-       + 2. * M_PI * qCetaLR / qCLambda2;
+       + 4. * M_PI * qCetaLR / qCLambda2;
   meRL = tmPe2QfQl * qCPropGm 
        + tmPe2s2c2 * tmPgRf * tmPgLl * (qCrePropZ + I * qCimPropZ)
-       + 2. * M_PI * qCetaLR / qCLambda2;
+       + 4. * M_PI * qCetaLR / qCLambda2;
 
   double sigma = sigma0 * uH2 * real(meLL*conj(meLL));
   sigma += sigma0 * uH2 * real(meRR*conj(meRR));

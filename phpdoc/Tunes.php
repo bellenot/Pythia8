@@ -104,7 +104,7 @@ Central diffraction is a recent addition to the "soft QCD" process palette,
 and is thus not yet included in tunes; indeed its cross section is actively
 zeroed. You can switch it back on <i>after</i> you have selected your tune, 
 with <code>SigmaTotal:zeroAXB = off</code>. But note that, since the 
-total cross section is assumed unchanged, the minbias cross section 
+total cross section is assumed unchanged, the nondiffractive cross section 
 is reduced and thus also the MPI machinery affected, even if effects 
 should not be big (for a small central diffractive cross section).
 

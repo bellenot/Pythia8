@@ -7,9 +7,9 @@
 // It illustrates how to do UNLOPS merging, 
 // see the NLO Merging page in the online manual. 
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
+#include "Pythia8/Pythia8ToHepMC.h"
 
-#include "HepMCInterface.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_GenEvent.h"
 // Following line to be used with HepMC 2.04 onwards.
@@ -44,7 +44,7 @@ int main( int argc, char* argv[] ){
   pythia.readFile(argv[1]);
 
   // Interface for conversion from Pythia8::Event to HepMC one. 
-  HepMC::I_Pythia8 ToHepMC;
+  HepMC::Pythia8ToHepMC ToHepMC;
   // Specify file where HepMC events will be stored.
   HepMC::IO_GenEvent ascii_io(argv[3], std::ios::out);
   // Switch off warnings for parton-level events.
@@ -98,15 +98,17 @@ int main( int argc, char* argv[] ){
 
   while(njetcounterLO >= 0){
 
-    // From njet, choose LHE file
+    // From njetcounter, choose LHE file
     stringstream in;
     in   << "_" << njetcounterLO << ".lhe";
+#ifdef GZIPSUPPORT
+    if(access( (iPathTree+in.str()+".gz").c_str(), F_OK) != -1) in << ".gz";
+#endif
     string LHEfile = iPathTree + in.str();
-
-    pythia.readString("Beams:frameType = 4"); 
-    pythia.settings.word("Beams:LHEF", LHEfile);  
+    LHAupLHEF lhareader((char*)(LHEfile).c_str());
     pythia.settings.mode("Merging:nRequested", njetcounterLO);
-    pythia.init();
+    pythia.settings.word("Beams:LHEF", LHEfile);  
+    pythia.init(&lhareader);
 
     // Start generation loop
     for( int iEvent=0; iEvent<nEvent; ++iEvent ){
@@ -155,15 +157,17 @@ int main( int argc, char* argv[] ){
 
   while(njetcounterNLO >= 0){
 
-    // From njet, choose LHE file
+    // From njetcounter, choose LHE file
     stringstream in;
     in   << "_" << njetcounterNLO << ".lhe";
+#ifdef GZIPSUPPORT
+    if(access( (iPathLoop+in.str()+".gz").c_str(), F_OK) != -1) in << ".gz";
+#endif
     string LHEfile = iPathLoop + in.str();
-
-    pythia.readString("Beams:frameType = 4"); 
-    pythia.settings.word("Beams:LHEF", LHEfile);  
+    LHAupLHEF lhareader((char*)(LHEfile).c_str());
     pythia.settings.mode("Merging:nRequested", njetcounterNLO);
-    pythia.init();
+    pythia.settings.word("Beams:LHEF", LHEfile);  
+    pythia.init(&lhareader);
 
     // Start generation loop
     for( int iEvent=0; iEvent<nEvent; ++iEvent ){
@@ -173,7 +177,7 @@ int main( int argc, char* argv[] ){
           break;
         }
         else continue;
-      } 
+      }
     } // end loop over events to generate
 
     // print cross section, errors
@@ -220,6 +224,12 @@ int main( int argc, char* argv[] ){
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
+  // Declare sample cross section for output.
+  double sigmaTemp  = 0.;
+  vector<double> sampleXStree;
+  vector<double> sampleXSvirt;
+  vector<double> sampleXSsubtTree;
+  vector<double> sampleXSsubtVirt;
   // Cross section an error.
   double sigmaTotal  = 0.;
   double errorTotal  = 0.;
@@ -242,10 +252,15 @@ int main( int argc, char* argv[] ){
     pythia.settings.parm("Merging:kFactor1j", k1);
     pythia.settings.parm("Merging:kFactor2j", k2);
 
-    // From njet, choose LHE file
+
+    // From njetcounter, choose LHE file
     stringstream in;
     in   << "_" << njetcounterLO << ".lhe";
+#ifdef GZIPSUPPORT
+    if(access( (iPathTree+in.str()+".gz").c_str(), F_OK) != -1) in << ".gz";
+#endif
     string LHEfile = iPathTree + in.str();
+    LHAupLHEF lhareader((char*)(LHEfile).c_str());
 
     cout << endl << endl << endl
          << "Start tree level treatment for " << njetcounterLO << " jets"
@@ -253,11 +268,10 @@ int main( int argc, char* argv[] ){
 
     // UNLOPS does not contain a zero-jet tree-level sample.
     if ( njetcounterLO == 0 ) break;
-
-    pythia.readString("Beams:frameType = 4"); 
-    pythia.settings.word("Beams:LHEF", LHEfile);  
     pythia.settings.mode("Merging:nRequested", njetcounterLO);
-    pythia.init();
+    pythia.settings.word("Beams:LHEF", LHEfile);  
+    pythia.init(&lhareader);
+
     // Remember position in vector of cross section estimates.
     int iNow = sizeLO-1-njetcounterLO;
 
@@ -287,6 +301,7 @@ int main( int argc, char* argv[] ){
       ToHepMC.fill_next_event( pythia, hepmcevt );
       // Add the weight of the current event to the cross section.
       sigmaTotal += weightNLO*normhepmc;
+      sigmaTemp  += weightNLO*normhepmc;
       errorTotal += pow2(weightNLO*normhepmc);
       // Report cross section to hepmc.
       HepMC::GenCrossSection xsec;
@@ -295,11 +310,13 @@ int main( int argc, char* argv[] ){
       // Write the HepMC event to file. Done with it.
       ascii_io << hepmcevt;
       delete hepmcevt;
-
     } // end loop over events to generate
 
     // print cross section, errors
     pythia.stat();
+    // Save sample cross section for output.
+    sampleXStree.push_back(sigmaTemp);
+    sigmaTemp = 0.;
 
     // Restart with ME of a reduced the number of jets
     if( njetcounterLO > 0 )
@@ -327,19 +344,23 @@ int main( int argc, char* argv[] ){
 
   while(njetcounterNLO >= 0){
 
-    // From njet, choose LHE file
+    // From njetcounter, choose LHE file
     stringstream in;
     in   << "_" << njetcounterNLO << ".lhe";
+#ifdef GZIPSUPPORT
+    if(access( (iPathLoop+in.str()+".gz").c_str(), F_OK) != -1) in << ".gz";
+#endif
     string LHEfile = iPathLoop + in.str();
+    LHAupLHEF lhareader((char*)(LHEfile).c_str());
 
     cout << endl << endl << endl
          << "Start loop level treatment for " << njetcounterNLO << " jets"
          << endl;
 
-    pythia.readString("Beams:frameType = 4"); 
-    pythia.settings.word("Beams:LHEF", LHEfile);  
     pythia.settings.mode("Merging:nRequested", njetcounterNLO);
-    pythia.init();
+    pythia.settings.word("Beams:LHEF", LHEfile);  
+    pythia.init(&lhareader);
+
     // Remember position in vector of cross section estimates.
     int iNow = sizeNLO-1-njetcounterNLO;
 
@@ -372,6 +393,7 @@ int main( int argc, char* argv[] ){
       ToHepMC.fill_next_event( pythia, hepmcevt );
       // Add the weight of the current event to the cross section.
       sigmaTotal += weightNLO*normhepmc;
+      sigmaTemp  += weightNLO*normhepmc;
       errorTotal += pow2(weightNLO*normhepmc);
       // Report cross section to hepmc
       HepMC::GenCrossSection xsec;
@@ -385,6 +407,9 @@ int main( int argc, char* argv[] ){
 
     // print cross section, errors
     pythia.stat();
+    // Save sample cross section for output.
+    sampleXSvirt.push_back(sigmaTemp);
+    sigmaTemp = 0.;
 
     // Restart with ME of a reduced the number of jets
     if( njetcounterNLO > 0)
@@ -413,19 +438,23 @@ int main( int argc, char* argv[] ){
 
   while(njetcounterCT >= 1){
 
-    // From njet, choose LHE file
+    // From njetcounter, choose LHE file
     stringstream in;
     in   << "_" << njetcounterCT << ".lhe";
+#ifdef GZIPSUPPORT
+    if(access( (iPathSubt+in.str()+".gz").c_str(), F_OK) != -1) in << ".gz";
+#endif
     string LHEfile = iPathSubt + in.str();
+    LHAupLHEF lhareader((char*)(LHEfile).c_str());
 
     cout << endl << endl << endl
          << "Start subtractive treatment for " << njetcounterCT << " jets"
          << endl;
 
-    pythia.readString("Beams:frameType = 4"); 
-    pythia.settings.word("Beams:LHEF", LHEfile);  
     pythia.settings.mode("Merging:nRequested", njetcounterCT);
-    pythia.init();
+    pythia.settings.word("Beams:LHEF", LHEfile);  
+    pythia.init(&lhareader);
+
     // Remember position in vector of cross section estimates.
     int iNow = sizeLO-1-njetcounterCT;
 
@@ -455,6 +484,7 @@ int main( int argc, char* argv[] ){
       ToHepMC.fill_next_event( pythia, hepmcevt );
       // Add the weight of the current event to the cross section.
       sigmaTotal += weightNLO*normhepmc;
+      sigmaTemp  += weightNLO*normhepmc;
       errorTotal += pow2(weightNLO*normhepmc);
       // Report cross section to hepmc.
       HepMC::GenCrossSection xsec;
@@ -468,6 +498,9 @@ int main( int argc, char* argv[] ){
 
     // print cross section, errors
     pythia.stat();
+    // Save sample cross section for output.
+    sampleXSsubtTree.push_back(sigmaTemp);
+    sigmaTemp = 0.;
 
     // Restart with ME of a reduced the number of jets
     if( njetcounterCT > 1 )
@@ -495,19 +528,23 @@ int main( int argc, char* argv[] ){
 
   while(njetcounterCT >= 1){
 
-    // From njet, choose LHE file
+    // From njetcounter, choose LHE file
     stringstream in;
     in   << "_" << njetcounterCT << ".lhe";
+#ifdef GZIPSUPPORT
+    if(access( (iPathSubt+in.str()+".gz").c_str(), F_OK) != -1) in << ".gz";
+#endif
     string LHEfile = iPathSubt + in.str();
+    LHAupLHEF lhareader((char*)(LHEfile).c_str());
 
     cout << endl << endl << endl
          << "Start subtractive treatment for " << njetcounterCT << " nlo jets"
          << endl;
 
-    pythia.readString("Beams:frameType = 4"); 
-    pythia.settings.word("Beams:LHEF", LHEfile);  
     pythia.settings.mode("Merging:nRequested", njetcounterCT);
-    pythia.init();
+    pythia.settings.word("Beams:LHEF", LHEfile);  
+    pythia.init(&lhareader);
+
     // Remember position in vector of cross section estimates.
     int iNow = sizeNLO-1-njetcounterCT;
 
@@ -540,6 +577,7 @@ int main( int argc, char* argv[] ){
       ToHepMC.fill_next_event( pythia, hepmcevt );
       // Add the weight of the current event to the cross section.
       sigmaTotal += weightNLO*normhepmc;
+      sigmaTemp  += weightNLO*normhepmc;
       errorTotal += pow2(weightNLO*normhepmc);
       // Report cross section to hepmc.
       HepMC::GenCrossSection xsec;
@@ -553,6 +591,9 @@ int main( int argc, char* argv[] ){
 
     // print cross section, errors
     pythia.stat();
+    // Save sample cross section for output.
+    sampleXSsubtVirt.push_back(sigmaTemp);
+    sigmaTemp = 0.;
 
     // Restart with ME of a reduced the number of jets
     if( njetcounterCT > 1 )
@@ -562,15 +603,58 @@ int main( int argc, char* argv[] ){
 
   }
 
-  cout << "UNLOPS merged cross section: " << scientific << setprecision(8)
-       << sigmaTotal << "  +-  " << sqrt(errorTotal) << " mb " << endl;
-  cout << "NLO inclusive cross section: " << scientific << setprecision(8)
-       << xsecNLO.back() << " mb "
-       << endl;
-  cout << "LO inclusive cross section:  " << scientific << setprecision(8)
-       << xsecLO.back() << " mb "
-       << endl;
-  cout << endl << endl << endl;
+  // Print cross section information.
+  cout << endl << endl;
+  cout << " *---------------------------------------------------*" << endl;
+  cout << " |                                                   |" << endl;
+  cout << " | Sample cross sections after UNLOPS merging        |" << endl;
+  cout << " |                                                   |" << endl;
+  cout << " | Leading order cross sections (mb):                |" << endl;
+  for (int i = 0; i < int(sampleXStree.size()); ++i)
+    cout << " |     " << sampleXStree.size()-1-i+1 << "-jet:  "
+         << setw(17) << scientific << setprecision(6)
+         << sampleXStree[i] << "                     |" << endl;
+  cout << " |     (No 0-jet tree-level sample in UNLOPS)        |" << endl;
+  cout << " |                                                   |" << endl;
+  cout << " | NLO order cross sections (mb):                    |" << endl;
+  for (int i = 0; i < int(sampleXSvirt.size()); ++i)
+    cout << " |     " << sampleXSvirt.size()-1-i << "-jet:  "
+         << setw(17) << scientific << setprecision(6)
+         << sampleXSvirt[i] << "                     |" << endl;
+  cout << " |                                                   |" << endl;
+  cout << " | Leading-order subtractive cross sections (mb):    |" << endl;
+  for (int i = 0; i < int(sampleXSsubtTree.size()); ++i)
+    cout << " |     " << sampleXSsubtTree.size()-1-i+1 << "-jet:  "
+         << setw(17) << scientific << setprecision(6)
+         << sampleXSsubtTree[i] << "                     |" << endl;
+  cout << " |                                                   |" << endl;
+  if ( sampleXSsubtVirt.size() > 0) {
+  cout << " | NLO subtractive cross sections (mb):              |" << endl;
+  for (int i = 0; i < int(sampleXSsubtVirt.size()); ++i)
+    cout << " |     " << sampleXSsubtVirt.size()-1-i+1 << "-jet:  "
+         << setw(17) << scientific << setprecision(6)
+         << sampleXSsubtVirt[i] << "                     |" << endl;
+  cout << " |                                                   |" << endl;
+  }
+  cout << " |---------------------------------------------------|" << endl;
+  cout << " |---------------------------------------------------|" << endl;
+  cout << " | Inclusive cross sections:                         |" << endl;
+  cout << " |                                                   |" << endl;
+  cout << " | UNLOPS merged inclusive cross section:            |" << endl;
+  cout << " |    " << setw(17) << scientific << setprecision(6)
+       << sigmaTotal << "  +-  " << setw(17) << sqrt(errorTotal) << " mb "
+       << "   |" << endl;
+  cout << " |                                                   |" << endl;
+  cout << " | NLO inclusive cross section:                      |" << endl;
+  cout << " |    " << setw(17) << scientific << setprecision(6)
+       << xsecNLO.back() << " mb                           |"  << endl;
+  cout << " |                                                   |" << endl;
+  cout << " | LO inclusive cross section:                       |" << endl;
+  cout << " |    " << setw(17) << scientific << setprecision(6)
+       << xsecLO.back() << " mb                           |" << endl;
+  cout << " |                                                   |" << endl;
+  cout << " *---------------------------------------------------*" << endl;
+  cout << endl << endl;
 
   // Done
   return 0;

@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the 
 // electroweak simulation classes (including photon processes). 
 
-#include "SigmaEW.h"
+#include "Pythia8/SigmaEW.h"
 
 namespace Pythia8 {
 

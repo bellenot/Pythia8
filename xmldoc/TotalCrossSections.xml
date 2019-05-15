@@ -61,7 +61,7 @@ dependence is then parametrized, and behaves roughly like
 <flag name="SigmaTotal:zeroAXB" default="off">
 several existing <aloc href="Tunes">tunes</aloc> do not include CD. 
 An inclusion of a nonvanishing CD cross section directly affects 
-the minbias phenomenology (even if not dramatically), and so
+the nondiffractive phenomenology (even if not dramatically), and so
 this flag is used to switch off the CD cross section in such tunes.
 You can switch it back on <i>after</i> the selection of a tune, if you
 so wish. This option has no effect for the MBR model 

@@ -5,7 +5,7 @@
 
 // Function definitions (not found in the header) for the Info class.
 
-#include "Info.h"
+#include "Pythia8/Info.h"
 
 namespace Pythia8 {
 
@@ -73,7 +73,7 @@ void Info::list(ostream& os) const {
   os << ((isRes && !hasSubSave[0]) ? " Subprocess " : " Process ") << nameSave 
      << " with code " << codeSave << " is 2 -> " << nFinalSave << ".\n";
 
-  // Subprocess name and code for minimum bias processes.
+  // Subprocess name and code for nondiffractive processes.
   if (hasSubSave[0])
     os << " Subprocess " << nameSubSave[0] << " with code " << codeSubSave[0] 
        << " is 2 -> " << nFinalSubSave[0] << ".\n";

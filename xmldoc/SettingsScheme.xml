@@ -1,5 +1,4 @@
 <chapter name="The Settings Scheme">
-
 <h2>The Settings Scheme</h2>
 
 The <code>Settings</code> class keeps track of all the flags, modes, 
@@ -26,28 +25,32 @@ users probably will have little interaction with.
 
 <h3>Concepts</h3>
 
-We distinguish five kinds of user-modifiable variables, by the way
+We distinguish six kinds of user-modifiable variables, by the way
 they have to be stored:
 <ol>
 <li>Flags are on/off switches, and are stored as <code>bool</code>.</li>
 <li>Modes corresponds to a finite enumeration of separate options,
-   and are stored as <code>int</code>.</li>
+and are stored as <code>int</code>.</li>
 <li>Parameters take a continuum of values, and are stored as 
 <code>double</code>. The shorthand notation parm is used in the C++ 
-code and XML tags, so that all five kinds are represented by
-four-letter type names.</li>
-<li>Vectors of parameters take a variable length and for each element 
-a continuum of values, and are stored as <code>&lt;vector&gt;double</code>. 
-The shorthand notation vect is used in the C++ code and XML tags, 
-so that all five kinds are represented by four-letter type names.
-When the vector is input as a string, all the values have to be given 
-as a comma-separated list with no blanks, to simplify parsing.</li>
+code and XML tags.</li>
 <li>Words are simple character strings and are stored as 
 <code>string</code>. No blanks or double quotation marks (&quot;) may 
 appear inside a word, the former to simplify parsing of an input file
 and the latter not to cause conflicts with XML attribute delimiters.
 Currently the main application is to store file names.</li>
+<li>Vectors of modes take a variable length, and are stored as 
+<code>vector&lt;int&gt;</code>. The shorthand notation mvec is used 
+in the C++ code and XML tags. When the vector is input as a string, 
+all the values have to be given as a comma-separated list with no blanks, 
+to simplify parsing.</li>
+<li>Vectors of parameters take a variable length and for each element 
+a continuum of values, and are stored as <code>vector&lt;double&gt;</code>. 
+The shorthand notation pvec is used in the C++ code and XML tag.
+When the vector is input as a string, all the values have to be given 
+as a comma-separated list with no blanks, to simplify parsing.</li>
 </ol>
+Note that all shorthands have been chosen four letters long.
 
 <p/>
 In general, each variable stored in <code>Settings</code> is associated 
@@ -67,16 +70,16 @@ requests.</li>
 <li>An allowed range of values, represented by meaningful
 minimum and maximum values. This has no sense for a <code>flag</code> 
 or a <code>word</code> (and is not used there), is usually rather 
-well-defined for a <code>mode</code>, but less so for a <code>parm</code>
-or <code>vect</code>. Often the allowed range exaggerates the degree of 
-our current knowledge, so as not to restrict too much what the user 
-can do. One may choose not to set the lower or upper limit, in which 
-case the range is open-ended.</li>   
+well-defined for a <code>mode</code> or <code>mvec</code>, but less so 
+for a <code>parm</code> or <code>pvec</code>. Often the allowed range 
+exaggerates the degree of our current knowledge, so as not to restrict 
+too much what the user can do. One may choose not to set the lower or 
+upper limit, in which case the range is open-ended.</li>   
 </ul>
 
 <p/>
 Technically, the <code>Settings</code> class is implemented with the 
-help of five separate maps, one for each kind of variable, with the 
+help of six separate maps, one for each kind of variable, with the 
 variable <code>name</code> used as key. 
 
 <h3>Operation</h3>
@@ -94,9 +97,10 @@ subdirectory.
 <p/>
 In all of the files scanned, lines beginning with 
 <code>&lt;flag</code>, <code>&lt;mode</code>, <code>&lt;parm</code>, 
-<code>&lt;vect</code> or <code>&lt;word</code> are identified, and 
-the information on such a line is used to define a new flag, mode, 
-parameter, vector of parameters or word. To exemplify, consider a line
+<code>&lt;word</code>, <code>&lt;mvec</code> or <code>&lt;pvec</code> 
+are identified, and the information on such a line is used to define 
+a new flag, mode, parameter, word, or vector of modes or parameters. 
+To exemplify, consider a line
 <pre>
 &lt;parm name="TimeShower:pTmin" default="0.5" min="0.1" max="2.0">
 </pre> 
@@ -364,9 +368,11 @@ reset all current values to their defaults.
 </methodmore>
 <methodmore name="bool Settings::isParm(string key)"> 
 </methodmore>
-<methodmore name="bool Settings::isVect(string key)"> 
+<methodmore name="bool Settings::isWord(string key)"> 
 </methodmore>
-<methodmore name="bool Settings::isWord(string key)">
+<methodmore name="bool Settings::isMVec(string key)"> 
+</methodmore>
+<methodmore name="bool Settings::isPVec(string key)">
 return true if an entry of the given name and kind 
 exists, else false.
 </methodmore>
@@ -379,16 +385,20 @@ int default, bool hasMin, bool hasMax, int min, int max)">
 <methodmore name="void Settings::addParm(string key, 
 double default, bool hasMin, bool hasMax, double min, double max)"> 
 </methodmore>
-<methodmore name="void Settings::addVect(string key, 
-vector&lt;double&gt; default, bool hasMin, bool hasMax, 
-double min, double max)"> 
-</methodmore>
 <methodmore name="void Settings::addWord(string key, 
 string default)"> 
+</methodmore>
+<methodmore name="void Settings::addMVec(string key, 
+vector&lt;int&gt; default, bool hasMin, bool hasMax, 
+int min, int max)"> 
+</methodmore>
+<methodmore name="void Settings::addPVec(string key, 
+vector&lt;double&gt; default, bool hasMin, bool hasMax, 
+double min, double max)"> 
 add an entry of the respective kind to the database. The name and default
-value(s) always has to be supplied, for <code>Mode</code>, <code>Parm</code> 
-and <code>Vect</code> additionally if lower and/or upper limits are to be 
-imposed and, if so, what those limit are.
+value(s) always has to be supplied, for <code>Mode</code>, <code>Parm</code>, 
+<code>MVec</code> and <code>PVec</code> additionally if lower and/or 
+upper limits are to be imposed and, if so, what those limit are.
 </methodmore>
 
 <method name="bool Settings::flag(string key)"> 
@@ -397,13 +407,16 @@ imposed and, if so, what those limit are.
 </methodmore>
 <methodmore name="double Settings::parm(string key)"> 
 </methodmore>
-<methodmore name="vector&lt;double&gt; Settings::vect(string key)"> 
-</methodmore>
 <methodmore name="string Settings::word(string key)">
+</methodmore>
+<methodmore name="vector&lt;int&gt; Settings::mvec(string key)"> 
+</methodmore>
+<methodmore name="vector&lt;double&gt; Settings::pvec(string key)"> 
 return the current value(s) of the respective setting. If the name 
 does not exist in the database, a value <code>false</code>,
-<code>0</code>, <code>0.</code>, ditto vector of length 1, 
-and <code>&quot; &quot;</code> is returned, respectively.
+<code>0</code>, <code>0.</code>, <code>&quot; &quot;</code>, or a
+vector of length 1 and value <code>0</code> or <code>0.</code>, 
+respectively, is returned.
 </methodmore>
 
 <method name="bool Settings::flagDefault(string key)"> 
@@ -412,13 +425,16 @@ and <code>&quot; &quot;</code> is returned, respectively.
 </methodmore>
 <methodmore name="double Settings::parmDefault(string key)"> 
 </methodmore>
-<methodmore name="vector&lt;double&gt; Settings::vectDefault(string key)"> 
-</methodmore>
 <methodmore name="string Settings::wordDefault(string key)">
+</methodmore>
+<methodmore name="vector&lt;int&gt; Settings::mvecDefault(string key)"> 
+</methodmore>
+<methodmore name="vector&lt;double&gt; Settings::pvecDefault(string key)"> 
 return the default value(s) of the respective setting. If the name 
 does not exist in the database, a value <code>false</code>,
-<code>0</code>, <code>0.</code>, ditto vector of length 1,  
-and <code>&quot; &quot;</code> is returned, respectively.
+<code>0</code>, <code>0.</code>, <code>&quot; &quot;</code>, or a
+vector of length 1 and value <code>0</code> or <code>0.</code>, 
+respectively, is returned.
 </methodmore>
 
 <method name="map<string, Flag> Settings::getFlagMap(string match)"> 
@@ -427,9 +443,11 @@ and <code>&quot; &quot;</code> is returned, respectively.
 </methodmore>
 <methodmore name="map<string, Parm> Settings::getParmMap(string match)"> 
 </methodmore>
-<methodmore name="map<string, Vect> Settings::getVectMap(string match)"> 
-</methodmore>
 <methodmore name="map<string, Word> Settings::getWordMap(string match)">
+</methodmore>
+<methodmore name="map<string, MVec> Settings::getMVecMap(string match)"> 
+</methodmore>
+<methodmore name="map<string, PVec> Settings::getPVecMap(string match)"> 
 return a map of all settings of the respective type that contain the 
 string "match" in its name.
 </methodmore>
@@ -440,9 +458,11 @@ string "match" in its name.
 </methodmore>
 <methodmore name="void Settings::parm(string key, double now)"> 
 </methodmore>
-<methodmore name="void Settings::vect(string key, vector&lt;double&gt; now)"> 
-</methodmore>
 <methodmore name="void Settings::word(string key, string now)">
+</methodmore>
+<methodmore name="void Settings::mvec(string key, vector&lt;int&gt; now)"> 
+</methodmore>
+<methodmore name="void Settings::pvec(string key, vector&lt;double&gt; now)"> 
 change the current value(s) of the respective setting to the provided 
 new value(s). If lower or upper limits have been set, input values 
 outside the allowed range are reinterpreted as being a the nearest 
@@ -453,7 +473,10 @@ limit.
 </method>
 <methodmore name="void Settings::forceParm(string key, double now)"> 
 </methodmore>
-<methodmore name="void Settings::forceVect(string key, 
+<methodmore name="void Settings::forceMVec(string key, 
+vector&lt;int&gt; now)"> 
+</methodmore>
+<methodmore name="void Settings::forcePVec(string key, 
 vector&lt;double&gt; now)"> 
 as above, but do not check lower and upper limits, so that the current 
 value(s) can be put outside the intended borders.
@@ -465,9 +488,11 @@ value(s) can be put outside the intended borders.
 </methodmore>
 <methodmore name="void Settings::resetParm(string key)"> 
 </methodmore>
-<methodmore name="void Settings::resetVect(string key)"> 
-</methodmore>
 <methodmore name="void Settings::resetWord(string key)">
+</methodmore>
+<methodmore name="void Settings::resetMVec(string key)"> 
+</methodmore>
+<methodmore name="void Settings::resetPVec(string key)"> 
 reset the current value to the default one.
 </methodmore>
 

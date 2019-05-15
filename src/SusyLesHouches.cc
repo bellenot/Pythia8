@@ -4,7 +4,7 @@
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-#include "SusyLesHouches.h"
+#include "Pythia8/SusyLesHouches.h"
 
 // GZIP support.
 #ifdef GZIPSUPPORT
@@ -1426,7 +1426,30 @@ int SusyLesHouches::checkSpectrum() {
     snumix.set(3,3, 1.0);
   };
 
-  // Step 4) Check unitarity/orthogonality of mixing matrices
+  // Step 4) Check mass ordering and unitarity/orthogonality of mixing matrices
+
+  // Check expected mass orderings
+  if (mass.exists()) {
+    // CP-even Higgs
+    if (abs(mass(25)) > abs(mass(35))
+        || (modsel(3) == 1 && abs(mass(35)) > abs(mass(45))) ) 
+      message(0,"checkSpectrum","Note: Higgs sector is not mass-ordered",0);
+    // CP-odd Higgs 
+    if (modsel(3) == 1 && abs(mass(36)) > abs(mass(46))) 
+      message(0,"checkSpectrum",
+              "Note: CP-odd Higgs sector is not mass-ordered",0);
+    // Neutralinos
+    if (abs(mass(1000022)) > abs(mass(1000023))
+        || abs(mass(1000023)) > abs(mass(1000025))
+        || abs(mass(1000025)) > abs(mass(1000035))
+        || (modsel(3) == 1 && abs(mass(1000035)) > abs(mass(1000045))) ) 
+      message(0,"checkSpectrum","Note: Neutralino sector is not mass-ordered"
+              ,0);
+    // Charginos
+    if (abs(mass(1000024)) > abs(mass(1000037))
+        || (modsel(3) == 1 && abs(mass(1000037)) > abs(mass(1000047))) ) 
+      message(0,"checkSpectrum","Note: Chargino sector is not mass-ordered",0);
+  }
 
   //NMIX
   if (nmix.exists()) {

@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the 
 // StringFlav, StringZ and StringPT classes.
 
-#include "FragmentationFlavZpT.h"
+#include "Pythia8/FragmentationFlavZpT.h"
 
 namespace Pythia8 {
 

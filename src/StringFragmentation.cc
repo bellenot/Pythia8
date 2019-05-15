@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the StringEnd and
 // StringFragmentation classes.
 
-#include "StringFragmentation.h"
+#include "Pythia8/StringFragmentation.h"
 
 namespace Pythia8 {
  
@@ -66,7 +66,7 @@ void StringEnd::newHadron() {
   pyHad = pyOld + pyNew;
 
   // Pick its mass and thereby define its transverse mass.
-  mHad   = particleDataPtr->mass(idHad);
+  mHad   = particleDataPtr->mSel(idHad);
   mT2Had = pow2(mHad) + pow2(pxHad) + pow2(pyHad);
 
 }
@@ -618,12 +618,12 @@ bool StringFragmentation::finalTwo(bool fromPos) {
     negEnd.idHad = idHad;
     negEnd.pxNew = -posEnd.pxNew;
     negEnd.pyNew = -posEnd.pyNew;
-    negEnd.mHad  = particleDataPtr->mass(idHad);
+    negEnd.mHad  = particleDataPtr->mSel(idHad);
   } else {     
     posEnd.idHad = idHad;
     posEnd.pxNew = -negEnd.pxNew;
     posEnd.pyNew = -negEnd.pyNew;
-    posEnd.mHad  = particleDataPtr->mass(idHad);
+    posEnd.mHad  = particleDataPtr->mSel(idHad);
   }
 
   // String region in which to do the joining.

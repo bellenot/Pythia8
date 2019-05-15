@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the
 // ColConfig, StringRegion and StringSystem classes.
 
-#include "FragmentationSystems.h"
+#include "Pythia8/FragmentationSystems.h"
 
 namespace Pythia8 {
 

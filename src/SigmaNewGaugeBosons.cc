@@ -6,7 +6,7 @@
 // Function definitions (not found in the header) for the 
 // leptoquark simulation classes. 
 
-#include "SigmaNewGaugeBosons.h"
+#include "Pythia8/SigmaNewGaugeBosons.h"
 
 namespace Pythia8 {
 

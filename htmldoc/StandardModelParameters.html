@@ -18,22 +18,36 @@ may be somewhat different in other approaches (with differences
 formally of higher order), so do not necessarily expect perfect
 agreement, especially not at small <i>Q^2</i> scales. The starting 
 <i>alpha_strong</i> value is defined at the <i>M_Z</i> mass scale.
-The <i>Lambda</i> values are matched at the <i>b</i> and <i>c</i> 
-flavour thresholds, such that <i>alpha_strong</i> is continuous.
-For second-order matching an approximate iterative method is used.
+The <i>Lambda</i> values are matched at the <i>c</i>, <i>b</i> 
+and <i>t</i> flavour thresholds, 
+such that <i>alpha_strong</i> is continuous. 
+For second-order matching an approximate iterative method is used. 
+
+<p/>
+For backwards compatibility, 
+the following global switch determines whether 5- or 6-flavour running 
+will be used above the <i>t</i> threshold: 
+<p/><code>mode&nbsp; </code><strong> StandardModel:alphaSnfmax &nbsp;</strong> 
+ (<code>default = <strong>6</strong></code>; <code>minimum = 5</code>; <code>maximum = 6</code>)<br/>
+<br/><code>option </code><strong> 5</strong> : Use 5-flavour running for all scales above the 
+<i>b</i> flavour threshold (old default).  
+<br/><code>option </code><strong> 6</strong> : Use 6-flavour running above the <i>t</i> threshold 
+(new default).  
+  
  
 <p/>
 Since we allow <i>alpha_strong</i> to vary separately for 
 hard processes, timelike showers, spacelike showers and  multiparton 
-interactions, the relevant values can be set in each of these classes. 
-The default behaviour is everywhere first-order running.
- 
+interactions, all other relevant values are set in each of these classes.
+The default behaviour is everywhere first-order running. 
+
 <p/>
 The <i>alpha_strong</i> calculation is initialized by 
-<code>init( value, order)</code>, where <code>value</code> 
-is the <i>alpha_strong</i> value at <i>M_Z</i> and <code>order</code> 
-is the order of the running, 0, 1 or 2.   Thereafter the value can be 
-calculated by <code>alphaS(scale2)</code>, where 
+<code>init( value, order, nfmax)</code>, where <code>value</code> 
+is the <i>alpha_strong</i> value at <i>M_Z</i>, <code>order</code> 
+is the order of the running, 0, 1 or 2, and <code>nfmax</code> 
+is the highest number of flavours to include in the running. Thereafter 
+the value can be calculated by <code>alphaS(scale2)</code>, where 
 <code>scale2</code> is the <i>Q^2</i> scale in GeV^2. 
 
 <p/>
@@ -45,6 +59,22 @@ second-order <i>Lambda</i>) and the second the correction factor,
 below unity, for the second-order terms. This allows a compact handling 
 of evolution equations.
 
+<p/>
+Resummation arguments [<a href="Bibliography.html" target="page">Cat91</a>] show that a set of 
+universal QCD corrections can be absorbed in coherent parton showers by 
+applying the so-called CMW rescaling of the MSbar value of <i>Lambda_QCD</i>.
+This can be accomplished via a fourth (optional) boolean 
+argument to <code>init( value, order, nfmax, useCMW)</code>, with default value 
+<code>useCMW = false</code>. When set to <code>true</code>, the 
+translation amounts to an <i>N_F</i>-dependent 
+rescaling of <i>Lambda_QCD</i>, relative to its MSbar value, by 
+a factor 1.661 for NF=3, 1.618 for NF=4, 1.569 for NF=5, 
+and 1.513 for NF=6. When using this option, 
+be aware that the original CMW arguments were derived using two-loop running  
+and that the CMW rescaling may need be taken into account in the context of 
+matrix-element matching. Note also that this option has only been made
+available for timelike and spacelike showers, not for hard processes.
+ 
 <h3>The electromagnetic coupling</h3> 
 
 The <code>AlphaEM</code> class is used to generate a running

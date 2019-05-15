@@ -6,7 +6,7 @@
 // This is a simple test program. 
 // It studies event properties of LEP1 events.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
 

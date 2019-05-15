@@ -5,7 +5,7 @@
 
 // Function definitions (not found in the header) for the SigmaTotal class.
 
-#include "SigmaTotal.h"
+#include "Pythia8/SigmaTotal.h"
 
 namespace Pythia8 {
 

@@ -12,7 +12,7 @@
 // The implementation is not physically correct in any number of ways,
 // but should exemplify the strategy needed for realistic cases.
 
-#include "Pythia.h"
+#include "Pythia8/Pythia.h"
 
 using namespace Pythia8; 
   
