@@ -1,11 +1,11 @@
 // main84.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This program is written by Stefan Prestel.
-// It illustrates how to do CKKW-L merging, 
-// see the Matrix Element Merging page in the online manual. 
+// It illustrates how to do CKKW-L merging,
+// see the Matrix Element Merging page in the online manual.
 
 #include <time.h>
 #include "Pythia8/Pythia.h"
@@ -25,7 +25,7 @@ using namespace Pythia8;
 //==========================================================================
 
 // Find the Durham kT separation of the clustering from
-// nJetMin --> nJetMin-1 jets in te input event  
+// nJetMin --> nJetMin-1 jets in te input event
 
 double pTfirstJet( const Event& event, int nJetMin, double Rparam) {
 
@@ -63,7 +63,7 @@ double pTfirstJet( const Event& event, int nJetMin, double Rparam) {
             event[i].py(), event[i].pz(),event[i].e() ) );
   }
 
-  // Do nothing for empty input 
+  // Do nothing for empty input
   if (int(fjInputs.size()) == 0) {
     delete jetDef;
     return 0.0;
@@ -107,7 +107,7 @@ int main( int argc, char* argv[] ){
   pythia.readFile(argv[1]);
   int nEvent = pythia.mode("Main:numberOfEvents");
 
-  // Interface for conversion from Pythia8::Event to HepMC event. 
+  // Interface for conversion from Pythia8::Event to HepMC event.
   // Will fill cross section and event weight directly in this program,
   // so switch it off for normal conversion routine.
   HepMC::Pythia8ToHepMC ToHepMC;
@@ -306,7 +306,7 @@ int main( int argc, char* argv[] ){
           if(weight > 0.){
             // Construct new empty HepMC event and fill it.
             // Units will be as chosen for HepMC build, but can be changed
-            // by arguments, e.g. GenEvt( HepMC::Units::GEV, HepMC::Units::MM)  
+            // by arguments, e.g. GenEvt( HepMC::Units::GEV, HepMC::Units::MM)
             HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
 
             double normhepmc = 1.* xsecEstimate[njet-njetCounter]
@@ -435,7 +435,7 @@ int main( int argc, char* argv[] ){
   cout << endl;
 
   cout << "Histogrammed cross section for "
-     << iPath << " with " << njet << " additional jets is " 
+     << iPath << " with " << njet << " additional jets is "
      << scientific << setprecision(8) << sigma
      << " error " << sqrt(sigma2) << endl;
 

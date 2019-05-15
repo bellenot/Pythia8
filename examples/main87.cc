@@ -4,11 +4,12 @@
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This program is written by Stefan Prestel.
-// It illustrates how to do NL3 merging, 
-// see the Matrix Element Merging page in the online manual. 
+// It illustrates how to do NL3 merging,
+// see the Matrix Element Merging page in the online manual.
 
 #include "Pythia8/Pythia.h"
 #include "Pythia8/Pythia8ToHepMC.h"
+#include <unistd.h>
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_GenEvent.h"
@@ -43,7 +44,7 @@ int main( int argc, char* argv[] ){
   //  3. Output histogram path
   pythia.readFile(argv[1]);
 
-  // Interface for conversion from Pythia8::Event to HepMC one. 
+  // Interface for conversion from Pythia8::Event to HepMC one.
   HepMC::Pythia8ToHepMC ToHepMC;
   // Specify file where HepMC events will be stored.
   HepMC::IO_GenEvent ascii_io(argv[3], std::ios::out);

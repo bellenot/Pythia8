@@ -1,5 +1,5 @@
 // MergingHooks.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -27,7 +27,7 @@ namespace Pythia8 {
 //==========================================================================
 
 // Declaration of hard process class
-// This class holds information on the desired hard 2->2 process 
+// This class holds information on the desired hard 2->2 process
 // for the merging.
 // This class is a container class for History class use.
 
@@ -123,23 +123,23 @@ public:
   // Function to get the number of coloured final state partons in the
   // hard process
   int nQuarksOut();
-  // Function to get the number of uncoloured final state particles in the 
+  // Function to get the number of uncoloured final state particles in the
   // hard process
   int nLeptonOut();
-  // Function to get the number of electroweak final state bosons in the 
+  // Function to get the number of electroweak final state bosons in the
   // hard process
   int nBosonsOut();
 
-  // Function to get the number of coloured initial state partons in the 
+  // Function to get the number of coloured initial state partons in the
   // hard process
   int nQuarksIn();
-  // Function to get the number of uncoloured initial state particles in the 
+  // Function to get the number of uncoloured initial state particles in the
   // hard process
   int nLeptonIn();
-  // Function to report if a resonace decay was found in the 2->2 sub-process 
+  // Function to report if a resonace decay was found in the 2->2 sub-process
   // of the  current state
   int hasResInCurrent();
-  // Function to report the number of resonace decays in the 2->2 sub-process 
+  // Function to report the number of resonace decays in the 2->2 sub-process
   // of the  current state
   int nResInCurrent();
   // Function to report if a resonace decay was found in the 2->2 hard process
@@ -161,7 +161,7 @@ class MergingHooks {
 public:
 
   // Constructor.
-  MergingHooks() : 
+  MergingHooks() :
     doUserMergingSave(false),
     doMGMergingSave(false),
     doKTMergingSave(false),
@@ -208,7 +208,7 @@ public:
   virtual ~MergingHooks(){}
   // Function encoding the functional definition of the merging scale
   virtual double tmsDefinition( const Event& event){ return event[0].e();}
-  // Function to dampen weights calculated from histories with lowest 
+  // Function to dampen weights calculated from histories with lowest
   // multiplicity reclustered events that do not pass the ME cuts
   virtual double dampenIfFailCuts( const Event& inEvent ) {
     // Dummy statement to avoid compiler warnings
@@ -217,7 +217,7 @@ public:
   }
   // Hooks to disallow states in the construction of all histories, e.g.
   // because jets are below the merging scale or fail the matrix element cuts
-  // Function to allow interference in the construction of histories 
+  // Function to allow interference in the construction of histories
   virtual bool canCutOnRecState() { return doCutOnRecStateSave; }
   // Function to check reclustered state while generating all possible
   // histories
@@ -293,7 +293,7 @@ public:
   int nHardInPartons(){ return hardProcess.nQuarksIn();}
   // Function to return the number of incoming leptons in the core process.
   int nHardInLeptons(){ return hardProcess.nLeptonIn();}
-  // Function to report the number of resonace decays in the 2->2 sub-process 
+  // Function to report the number of resonace decays in the 2->2 sub-process
   // of the  current state.
   int nResInCurrent(){ return hardProcess.nResInCurrent();}
   // Function to determine if user defined merging should be applied.
@@ -318,7 +318,7 @@ public:
   bool doNL3Tree() { return doNL3TreeSave;}
   bool doNL3Loop() { return doNL3LoopSave;}
   bool doNL3Subt() { return doNL3SubtSave;}
-  bool doNL3Merging() { return (doNL3TreeSave || doNL3LoopSave 
+  bool doNL3Merging() { return (doNL3TreeSave || doNL3LoopSave
                              || doNL3SubtSave); }
   // Functions to determine if and which part of UNLOPS merging
   // should be applied
@@ -332,7 +332,7 @@ public:
   int nRecluster() { return nReclusterSave;}
 
   //----------------------------------------------------------------------//
-  // Output functions to analyse/prepare event for merging 
+  // Output functions to analyse/prepare event for merging
   //----------------------------------------------------------------------//
 
   // Function to check if event contains an emission not present in the hard
@@ -361,7 +361,7 @@ public:
 
   // Function to force preferred picking of ordered histories. By default,
   // unordered histories will only be considered if no ordered histories
-  // were found. 
+  // were found.
   void orderHistories( bool doOrderHistoriesIn) {
     doOrderHistoriesSave = doOrderHistoriesIn; }
   // Function to force cut on reconstructed states internally, as needed
@@ -380,7 +380,7 @@ public:
   // Function to check if the input particle is a light jet, i.e. should be
   // checked against the merging scale defintion.
   bool checkAgainstCut( const Particle& particle);
-  // Function to return the value of the merging scale function in the 
+  // Function to return the value of the merging scale function in the
   // current event.
   double tmsNow( const Event& event );
   // Find the minimal Lund pT between coloured partons in the event
@@ -452,7 +452,7 @@ protected:
   double kFactor2jSave;
 
   // Saved members.
-  double tmsValueSave;
+  double tmsValueSave, DparameterSave;
   int nJetMaxSave;
   int nJetMaxNLOSave;
   string processSave;
@@ -500,7 +500,7 @@ protected:
 
   // Functions for internal use inside Pythia source code
   // Initialize.
-  void init( Settings settings, Info* infoPtrIn, 
+  void init( Settings settings, Info* infoPtrIn,
     ParticleData* particleDataPtrIn, PartonSystems* partonSystemsPtrIn,
     ostream& os = cout);
 
@@ -579,10 +579,10 @@ protected:
   // Absolute normalization of splitting probability for final state
   // splittings with initial state recoiler
   double fsrInRecNorm() { return fsrInRecNormSave;}
-  // Factor multiplying scalar evolution pT for FSR splitting, when picking 
+  // Factor multiplying scalar evolution pT for FSR splitting, when picking
   // history by minimum scalar pT (see Jonathan Tully's thesis)
   double herwigAcollFSR() { return herwigAcollFSRSave;}
-  // Factor multiplying scalar evolution pT for ISR splitting, when picking 
+  // Factor multiplying scalar evolution pT for ISR splitting, when picking
   // history by minimum scalar pT (see Jonathan Tully's thesis)
   double herwigAcollISR() { return herwigAcollISRSave;}
   // ISR regularisation scale
@@ -633,7 +633,7 @@ protected:
   //----------------------------------------------------------------------//
 
   // Flag to indicate trial shower usage.
-  void doIgnoreEmissions( bool doIgnoreIn ) { 
+  void doIgnoreEmissions( bool doIgnoreIn ) {
     doIgnoreEmissionsSave = doIgnoreIn;
   }
   // Function to allow not counting a trial emission.
@@ -654,7 +654,7 @@ protected:
      = weight; }
 
   // Set starting scales
-  bool setShowerStartingScales( bool isTrial, bool doMergeFirstEmm, 
+  bool setShowerStartingScales( bool isTrial, bool doMergeFirstEmm,
     double& pTscaleIn, const Event& event,
     double& pTmaxFSRIn, bool& limitPTmaxFSRin,
     double& pTmaxISRIn, bool& limitPTmaxISRin,
@@ -671,7 +671,7 @@ protected:
     const Particle& EmtAfterBranch, int Type, double D );
   // Function to compute "pythia pT separation" from Particle input
   double rhoPythia(const Particle& RadAfterBranch,
-    const Particle& EmtAfterBranch, const Particle& RecAfterBranch, 
+    const Particle& EmtAfterBranch, const Particle& RecAfterBranch,
     int ShowerType);
   // Function to find a colour (anticolour) index in the input event,
   // used to find colour-connected recoilers
@@ -691,7 +691,7 @@ protected:
   // Return O(\alpha_s) weight.
   double getWeightFIRST() { return weightFIRSTSave; }
   // Set CKKW-L weight.
-  void setWeightCKKWL( double weightIn){ 
+  void setWeightCKKWL( double weightIn){
     weightCKKWLSave = weightIn;
     infoPtr->setWeightCKKWL(weightIn); }
   // Set O(\alpha_s) weight.

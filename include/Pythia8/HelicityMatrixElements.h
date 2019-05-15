@@ -1,5 +1,5 @@
 // HelicityMatrixElements.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2014 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -234,7 +234,7 @@ private:
 
 // Helicity matrix element for the decay of a CP even Higgs ->  two fermions.
 
-// Because the Higgs is spin zero the Higgs production mechanism is not 
+// Because the Higgs is spin zero the Higgs production mechanism is not
 // needed for calculating helicity density matrices.
  
 class HMEHiggsEven2TwoFermions : public HelicityMatrixElement {
@@ -309,7 +309,7 @@ public:
    
 class HMETauDecay : public HelicityMatrixElement {
 
-public: 
+public:
 
   virtual void initWaves(vector<HelicityParticle>&);
 
@@ -358,7 +358,7 @@ public:
 
 //==========================================================================
 
-// Helicity matrix element for a tau decaying into two mesons through a 
+// Helicity matrix element for a tau decaying into two mesons through a
 // vector meson resonance.
   
 class HMETau2TwoMesonsViaVector : public HMETauDecay {
@@ -379,7 +379,7 @@ private:
 
 //==========================================================================
 
-// Helicity matrix element for a tau decay into two mesons through a vector 
+// Helicity matrix element for a tau decay into two mesons through a vector
 // or scalar meson resonance.
   
 class HMETau2TwoMesonsViaVectorScalar : public HMETauDecay {
@@ -417,7 +417,7 @@ protected:
 
   // Decay mode of the tau.
   enum Mode{Pi0Pi0Pim, PimPimPip, Pi0PimK0b, PimPipKm, Pi0PimEta, PimKmKp,
-	    Pi0K0Km, KlPimKs, Pi0Pi0Km, KlKlPim, PimKsKs, PimK0bK0, Uknown};
+            Pi0K0Km, KlPimKs, Pi0Pi0Km, KlKlPim, PimKsKs, PimK0bK0, Uknown};
   Mode mode;
 
   // Initialize decay mode and resonance constants (called by initConstants).
@@ -446,7 +446,7 @@ protected:
 
   // Sum running p and fixed width Breit-Wigner resonances.
   complex T(double m0, double m1, double s,
-	    vector<double>& M, vector<double>& G, vector<double>& W);
+            vector<double>& M, vector<double>& G, vector<double>& W);
   complex T(double s, vector<double>& M, vector<double>& G, vector<double>& W);
 
 };
@@ -614,7 +614,7 @@ public:
 private:
 
   // Hadronic currents.
-  Wave4 Ja(Wave4 &q, Wave4 &q1, Wave4 &q2, Wave4 &q3, Wave4 &q4, Wave4 &q5); 
+  Wave4 Ja(Wave4 &q, Wave4 &q1, Wave4 &q2, Wave4 &q3, Wave4 &q4, Wave4 &q5);
   Wave4 Jb(Wave4 &q, Wave4 &q1, Wave4 &q2, Wave4 &q3, Wave4 &q4, Wave4 &q5);
 
   // Simplified s-wave Breit-Wigner assuming massless products.

@@ -1,12 +1,12 @@
 // SusyLesHouches.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Header file for SUSY Les Houches Accord Interface
 // Is independent of the rest of the PYTHIA implementation and thus could
-// be re-used stand-alone or merged into other applications, subject to 
+// be re-used stand-alone or merged into other applications, subject to
 // the MCnet Guidelines mentioned above.
 
 #ifndef SLHA_H
@@ -32,30 +32,30 @@ using namespace std;
 
 //************************* SLHA AUX CLASSES *****************************//
 
-namespace Pythia8 { 
+namespace Pythia8 {
 
   //class LHblock: the generic SLHA block (see below for matrices)
   //Explicit typing required, e.g. block<double> minpar;
-  template <class T> class LHblock {    
+  template <class T> class LHblock {
     
-  public: 
+  public:
     
-    //Constructor. 
-    LHblock<T>() : idnow(0) {} ;    
+    //Constructor.
+    LHblock<T>() : idnow(0) {} ;
     
     //Does block exist?
     bool exists() { return int(entry.size()) == 0 ? false : true ; };
     //Clear block
-    void clear() { entry.clear(); };    
+    void clear() { entry.clear(); };
     
     //set: set block entry values.
     //Possible return values from set:
     // 0: normal return. Entry did not previously exist and has been created.
     // 1: normal return. Entry did previously exist and has been overwritten.
-    //-1: failure. 
-    int set(int iIn,T valIn) { 
+    //-1: failure.
+    int set(int iIn,T valIn) {
       int alreadyexisting=exists(iIn)?1:0;
-      entry[iIn]=valIn; 
+      entry[iIn]=valIn;
       return alreadyexisting;
     };
     // Read index and value from SLHA data line
@@ -74,7 +74,7 @@ namespace Pythia8 {
     void set(T valIn) { entry[0]=valIn; };
 
     // Does entry i already exist in this block?
-    bool exists(int iIn) {return entry.find(iIn) != entry.end() 
+    bool exists(int iIn) {return entry.find(iIn) != entry.end()
       ? true : false;};
 
     // Indexing with (). Output only.
@@ -90,7 +90,7 @@ namespace Pythia8 {
 
     // First and next key code
     int first() { idnow = entry.begin()->first; return idnow; };
-    int next() { 
+    int next() {
       typename map<int,T>::iterator itnow;
       itnow = ++entry.find(idnow);
       if ( itnow == entry.end() ) itnow=entry.begin();
@@ -103,34 +103,34 @@ namespace Pythia8 {
       int ibegin=first();
       i=ibegin;
       while (!finished) {
-	cout << "  "<< i << " " << entry[i] <<endl;
-	i=next();
-	if (i == ibegin) finished=true;
-      };       
+        cout << "  "<< i << " " << entry[i] <<endl;
+        i=next();
+        if (i == ibegin) finished=true;
+      };
     };
 
     // Special for DRbar running blocks.
     void setq(double qIn) { qDRbar=qIn; }
     double q() { return qDRbar; }
  
-  protected: 
-    map<int,T> entry;    
+  protected:
+    map<int,T> entry;
 
   private:
     int idnow;
     double qDRbar;
     //Auxiliary vars
-    int i; 
+    int i;
     T val;
   };
 
   // Derived class for generic blocks containing vectors of strings.
-  class LHgenericBlock : public LHblock<string> {    
+  class LHgenericBlock : public LHblock<string> {
 
   public:
     
-    //Constructor. 
-    LHgenericBlock() { } ;    
+    //Constructor.
+    LHgenericBlock() { } ;
 
     // Read index and value from SLHA data line
     int set(string lineIn) {
@@ -140,27 +140,27 @@ namespace Pythia8 {
     
   };
 
-  // class LHmatrixBlock: the generic SLHA matrix 
+  // class LHmatrixBlock: the generic SLHA matrix
   // Explicit sizing required, e.g.LHmatrixBlock<4> nmix;
-  template <int size> class LHmatrixBlock {    
-  public: 
+  template <int size> class LHmatrixBlock {
+  public:
     //Constructor. Set uninitialized and explicitly zero.
-    LHmatrixBlock<size>() { 
-      initialized=false; 
+    LHmatrixBlock<size>() {
+      initialized=false;
       for (i=1;i<=size;i++) {
-	for (j=1;j<=size;j++) {
-	  entry[i][j]=0.0;
-	};
+        for (j=1;j<=size;j++) {
+          entry[i][j]=0.0;
+        };
       };
-    };    
+    };
     
     // Assignment
-    LHmatrixBlock& operator=(const LHmatrixBlock& m) { 
-      if (this != &m) { 
-	for (i=0;i<size;i++) for (j=0;j<=size;j++) entry[i][j] = m(i,j);
-	qDRbar = m.qDRbar; 
-	initialized = m.initialized; 
-      } 
+    LHmatrixBlock& operator=(const LHmatrixBlock& m) {
+      if (this != &m) {
+        for (i=0;i<size;i++) for (j=0;j<=size;j++) entry[i][j] = m(i,j);
+        qDRbar = m.qDRbar;
+        initialized = m.initialized;
+      }
       return *this; };
 
     // Does this matrix contain any entries?
@@ -169,13 +169,13 @@ namespace Pythia8 {
     void clear() { initialized=false; };
 
     // Set matrix entry
-    int set(int iIn,int jIn, double valIn) { 
+    int set(int iIn,int jIn, double valIn) {
       if (iIn>0 && jIn>0 && iIn<=size && jIn<=size) {
-	entry[iIn][jIn]=valIn;
-	initialized=true;
-	return 0;
+        entry[iIn][jIn]=valIn;
+        initialized=true;
+        return 0;
       } else {
-	return -1;
+        return -1;
       };
     };
 
@@ -187,8 +187,8 @@ namespace Pythia8 {
 
     // () Overloading: Get entry
     double operator()(int iIn, int jIn) const {
-      return (iIn <= size && jIn <= size && iIn > 0 && jIn > 0) ? 
-	entry[iIn][jIn] : 0.0;
+      return (iIn <= size && jIn <= size && iIn > 0 && jIn > 0) ?
+        entry[iIn][jIn] : 0.0;
     };
 
     // Set and get scale for DRbar running LHblocks.
@@ -198,9 +198,9 @@ namespace Pythia8 {
     // Simple print utility, to be elaborated on.
     void print() {
       for (i=1;i<=size;i++) {
-	cout << "   "<<i << " " ;
-	for (j=1;j<=size;j++) cout << entry[i][j] << " ";
-	cout << endl;
+        cout << "   "<<i << " " ;
+        for (j=1;j<=size;j++) cout << entry[i][j] << " ";
+        cout << endl;
       };
     };
 
@@ -209,34 +209,34 @@ namespace Pythia8 {
     double entry[size+1][size+1];
     double qDRbar;
     //Auxiliary vars
-    int i,j; 
+    int i,j;
     double val;
   };
 
   // class tensorBlock: the generic SLHA tensor
   // Explicit sizing required, e.g. tensorBlock<3> rvlam;
-  template <int size> class LHtensor3Block {    
-  public: 
+  template <int size> class LHtensor3Block {
+  public:
     //Constructor. Set uninitialized and explicitly zero.
-    LHtensor3Block<size>() { 
-      initialized=false; 
+    LHtensor3Block<size>() {
+      initialized=false;
       for (i=1;i<=size;i++) {
-	for (j=1;j<=size;j++) {
-	  for (k=1;k<=size;k++) {
-	    entry[i][j][k]=0.0;
-	  };
-	};
+        for (j=1;j<=size;j++) {
+          for (k=1;k<=size;k++) {
+            entry[i][j][k]=0.0;
+          };
+        };
       };
-    };    
+    };
     
     // Assignment
-    LHtensor3Block& operator=(const LHtensor3Block& m) { 
-      if (this != &m) { 
-	for (i=0;i<size;i++) for (j=0;j<=size;j++) for (k=0;k<=size;k++) 
-	  entry[i][j][k] = m(i,j,k);
-	qDRbar = m.qDRbar; 
-	initialized = m.initialized; 
-      } 
+    LHtensor3Block& operator=(const LHtensor3Block& m) {
+      if (this != &m) {
+        for (i=0;i<size;i++) for (j=0;j<=size;j++) for (k=0;k<=size;k++)
+          entry[i][j][k] = m(i,j,k);
+        qDRbar = m.qDRbar;
+        initialized = m.initialized;
+      }
       return *this; };
     
     // Does this matrix contain any entries?
@@ -245,13 +245,13 @@ namespace Pythia8 {
     void clear() { initialized=false; };
     
     // Set matrix entry
-    int set(int iIn,int jIn, int kIn, double valIn) { 
+    int set(int iIn,int jIn, int kIn, double valIn) {
       if (iIn>0 && jIn>0 && kIn>0 && iIn<=size && jIn<=size && kIn<=size) {
-	entry[iIn][jIn][kIn]=valIn;
-	initialized=true;
-	return 0;
+        entry[iIn][jIn][kIn]=valIn;
+        initialized=true;
+        return 0;
       } else {
-	return -1;
+        return -1;
       };
     };
 
@@ -263,8 +263,8 @@ namespace Pythia8 {
 
     // () Overloading: Get entry
     double operator()(int iIn, int jIn, int kIn) const {
-      return (iIn <= size && jIn <= size && kIn <= size && iIn > 0 
-	&& jIn > 0 && kIn > 0) ? entry[iIn][jIn][kIn] : 0.0;
+      return (iIn <= size && jIn <= size && kIn <= size && iIn > 0
+        && jIn > 0 && kIn > 0) ? entry[iIn][jIn][kIn] : 0.0;
     };
 
     // Set and get scale for DRbar running LHblocks.
@@ -273,14 +273,14 @@ namespace Pythia8 {
 
     // Simple print utility, to be elaborated on.
     void print() {
-      for (i=1;i<=size;i++) {	
-	for (j=1;j<=size;j++) {
-	  cout << "   "<<i << " "<<j << " " ;
-	  for (k=1;k<=size;k++) {
-	    cout << entry[i][j][k] << " ";	   
-	    cout << endl; 
-	  };
-	};
+      for (i=1;i<=size;i++) {
+        for (j=1;j<=size;j++) {
+          cout << "   "<<i << " "<<j << " " ;
+          for (k=1;k<=size;k++) {
+            cout << entry[i][j][k] << " ";
+            cout << endl;
+          };
+        };
       };
     };
 
@@ -289,27 +289,27 @@ namespace Pythia8 {
     double entry[size+1][size+1][size+1];
     double qDRbar;
     //Auxiliary vars
-    int i,j,k; 
+    int i,j,k;
     double val;
   };
 
   //*************************** DECAY TABLES ***************************//
 
   class LHdecayChannel {
-  public: 
+  public:
 
     LHdecayChannel() : brat(0.0) {};
-    LHdecayChannel(double bratIn, int nDaIn, vector<int> idDaIn, 
+    LHdecayChannel(double bratIn, int nDaIn, vector<int> idDaIn,
       string cIn="") { setChannel(bratIn,nDaIn,idDaIn,cIn);
     }
 
     // Functions to set decay channel information
-    void setChannel(double bratIn, int nDaIn, vector<int> idDaIn, 
+    void setChannel(double bratIn, int nDaIn, vector<int> idDaIn,
       string cIn="") {
       brat    = bratIn;
       for (int i=0; i<=nDaIn; i++) {
-	if (i < int(idDaIn.size())) idDa.push_back(idDaIn[i]);
-	comment = cIn;
+        if (i < int(idDaIn.size())) idDa.push_back(idDaIn[i]);
+        comment = cIn;
       }
     }
     void setBrat(double bratIn) {brat=bratIn;}
@@ -328,8 +328,8 @@ namespace Pythia8 {
       
   };
 
-  class LHdecayTable {        
-  public: 
+  class LHdecayTable {
+  public:
     
   LHdecayTable() : id(0), width(0.0) {};
   LHdecayTable(int idIn) : id(idIn), width(0.0) {};
@@ -337,7 +337,7 @@ namespace Pythia8 {
     
     // Functions to get PDG code (id) and width
     int    getId() {return id;}
-    double getWidth() {return width;} 
+    double getWidth() {return width;}
     
     // Functions to set PDG code (id) and width
     void setId(int idIn) {id = idIn;}
@@ -348,7 +348,7 @@ namespace Pythia8 {
     
     // Function to add another decay channel
     void addChannel(LHdecayChannel channelIn) {table.push_back(channelIn);}
-    void addChannel(double bratIn, int nDaIn, vector<int> idDaIn, 
+    void addChannel(double bratIn, int nDaIn, vector<int> idDaIn,
       string cIn="") {
       LHdecayChannel newChannel(bratIn, nDaIn, idDaIn, cIn);
       table.push_back(newChannel);
@@ -360,27 +360,27 @@ namespace Pythia8 {
     // Function to return a branching ratio
     double getBrat(int iChannel) {
       if (iChannel >= 0 && iChannel < int(table.size())) {
-	return table[iChannel].getBrat();
+        return table[iChannel].getBrat();
       } else {
-	return 0.0;
+        return 0.0;
       }
     }
-    // Function to return daughter PDG codes 
+    // Function to return daughter PDG codes
     vector<int> getIdDa(int iChannel) {
       if (iChannel >= 0 && iChannel < int(table.size())) {
-	return table[iChannel].getIdDa();
+        return table[iChannel].getIdDa();
       } else {
-	vector<int> dum;
-	return dum;
+        vector<int> dum;
+        return dum;
       }
     }
     // Function to return a decay channel
     LHdecayChannel getChannel(int iChannel) {
       if (iChannel >= 0 && iChannel < int(table.size())) {
-	return table[iChannel];
+        return table[iChannel];
       } else {
-	LHdecayChannel dum;
-	return dum;
+        LHdecayChannel dum;
+        return dum;
       }
     }
     
@@ -398,18 +398,18 @@ class SusyLesHouches {
 public:
 
   //Constructor, with and without filename.
-  SusyLesHouches(int verboseIn=1) : verbose(verboseIn), 
+  SusyLesHouches(int verboseIn=1) : verbose(verboseIn),
     headerPrinted(false), footerPrinted(false), filePrinted(false),
     slhaRead(false), lhefRead(false), lhefSlha(false), useDecay(true) {};
-  SusyLesHouches(string filename, int verboseIn=1) : verbose(verboseIn), 
+  SusyLesHouches(string filename, int verboseIn=1) : verbose(verboseIn),
     headerPrinted(false), footerPrinted(false), filePrinted(false),
-    slhaRead(true), lhefRead(false), lhefSlha(false), useDecay(true) 
+    slhaRead(true), lhefRead(false), lhefSlha(false), useDecay(true)
     {readFile(filename);};
 
   //***************************** SLHA FILE I/O *****************************//
-  // Read and write SLHA files 
-  int readFile(string slhaFileIn="slha.spc",int verboseIn=1, 
-    bool useDecayIn=true); 
+  // Read and write SLHA files
+  int readFile(string slhaFileIn="slha.spc",int verboseIn=1,
+    bool useDecayIn=true);
   //int writeFile(string filename): write SLHA file on filename
 
   //Output utilities
@@ -428,8 +428,8 @@ public:
   class Entry {
     
   public:
-    //Constructor. 
-    Entry() : isIntP(false), isDoubleP(false), 
+    //Constructor.
+    Entry() : isIntP(false), isDoubleP(false),
       isStringP(false), n(0), d(0.0), s(""), commentP("") {}
     
     // Generic functions to inquire whether an int, double, or string
@@ -440,7 +440,7 @@ public:
     // = Overloading: Set entry to int, double, or string
     Entry& operator=(double& val)  {
       d=val;isIntP=false;isDoubleP=true;isStringP=false;
-      return *this;      
+      return *this;
     };
     Entry& operator=(int& val)  {
       n=val;isIntP=true;isDoubleP=false;isStringP=false;
@@ -461,7 +461,7 @@ public:
     bool get(string& val) {val=s; return isStringP;}
 
   private:
-    bool isIntP, isDoubleP, isStringP;    
+    bool isIntP, isDoubleP, isStringP;
     int n;
     double d;
     string s;
@@ -515,7 +515,7 @@ public:
 
   //*************************** THE SLHA2 BLOCKS ***************************//
   //Additions to SLHA1
-  LHblock<double> qextpar;  
+  LHblock<double> qextpar;
 
   //FLV Input
   LHblock<double> vckmin;  // The input CKM Wolfenstein parms.
@@ -625,8 +625,8 @@ public:
   template <class T> int set(string,int,int,int,T);
 
   //********************* GENERIC/USER-DEFINED BLOCKS **********************//
-  // bool getEntry(name, indices, value) 
-  //      = true if LHblock and entry exists (value returned in value,  
+  // bool getEntry(name, indices, value)
+  //      = true if LHblock and entry exists (value returned in value,
   //        typecast by user in call)
   //      = false otherwise
   map<string, LHgenericBlock> genericBlocks;
@@ -655,7 +655,7 @@ private:
 template <class T> int SusyLesHouches::set(string blockName, T val) {
 
   // Make sure everything is interpreted as lower case (for safety)
-  for (int iC=0; iC<int(blockName.size()); ++iC) 
+  for (int iC=0; iC<int(blockName.size()); ++iC)
     blockName[iC] = tolower(blockName[iC]);
 
   // Add new generic block if not already existing
@@ -674,7 +674,7 @@ template <class T> int SusyLesHouches::set(string blockName, T val) {
 template <class T> int SusyLesHouches::set(string blockName, int indx, T val) {
 
   // Make sure everything is interpreted as lower case (for safety)
-  for (int iC=0; iC<int(blockName.size()); ++iC) 
+  for (int iC=0; iC<int(blockName.size()); ++iC)
     blockName[iC] = tolower(blockName[iC]);
 
   // Add new generic block if not already existing
@@ -690,11 +690,11 @@ template <class T> int SusyLesHouches::set(string blockName, int indx, T val) {
 
 }
 
-template <class T> int SusyLesHouches::set(string blockName, int indx, 
-					   int jndx, T val) {
+template <class T> int SusyLesHouches::set(string blockName, int indx,
+                                           int jndx, T val) {
 
   // Make sure everything is interpreted as lower case (for safety)
-  for (int iC=0; iC<int(blockName.size()); ++iC) 
+  for (int iC=0; iC<int(blockName.size()); ++iC)
     blockName[iC] = tolower(blockName[iC]);
 
   // Add new generic block if not already existing
@@ -710,11 +710,11 @@ template <class T> int SusyLesHouches::set(string blockName, int indx,
 
 }
 
-template <class T> int SusyLesHouches::set(string blockName, int indx, 
-					   int jndx, int kndx, T val) {
+template <class T> int SusyLesHouches::set(string blockName, int indx,
+                                           int jndx, int kndx, T val) {
 
   // Make sure everything is interpreted as lower case (for safety)
-  for (int iC=0; iC<int(blockName.size()); ++iC) 
+  for (int iC=0; iC<int(blockName.size()); ++iC)
     blockName[iC] = tolower(blockName[iC]);
 
   // Add new generic block if not already existing
@@ -735,18 +735,18 @@ template <class T> int SusyLesHouches::set(string blockName, int indx,
 template <class T> bool SusyLesHouches::getEntry(string blockName, T& val) {
 
   // Make sure everything is interpret as lower case (for safety)
-  for (int iC=0; iC<int(blockName.size()); ++iC) 
-    blockName[iC] = tolower(blockName[iC]);  
+  for (int iC=0; iC<int(blockName.size()); ++iC)
+    blockName[iC] = tolower(blockName[iC]);
 
   // Safety checks
   if (genericBlocks.find(blockName) == genericBlocks.end()) {
     message(1,"getEntry","attempting to extract entry from non-existent block "
-	    +blockName);
+            +blockName);
     return false;
   }
   if (genericBlocks[blockName].size() == 0) {
     message(1,"getEntry","attempting to extract entry from zero-size block "
-	    +blockName);
+            +blockName);
     return false;
   }
   if (genericBlocks[blockName].size() >= 2) {
@@ -754,39 +754,39 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, T& val) {
       "from multi-entry block "+blockName);
     return false;
   }
-  // Attempt to extract value as class T 
+  // Attempt to extract value as class T
   LHgenericBlock block = genericBlocks[blockName];
   istringstream linestream(block(0));
-  linestream >> val; 
+  linestream >> val;
   if ( !linestream ) {
     message(1,"getEntry","problem extracting un-indexed entry "
       "from block "+blockName);
     return false;
-  } 
-  // If made it all the way here, value was successfully extracted. 
+  }
+  // If made it all the way here, value was successfully extracted.
   // Return true.
   return true;
 }
 
-template <class T> bool SusyLesHouches::getEntry(string blockName, int indx, 
-						 T& val) {
+template <class T> bool SusyLesHouches::getEntry(string blockName, int indx,
+                                                 T& val) {
 
   // Make sure everything is interpret as lower case (for safety)
-  for (int iC=0; iC<int(blockName.size()); ++iC) 
-    blockName[iC] = tolower(blockName[iC]);  
+  for (int iC=0; iC<int(blockName.size()); ++iC)
+    blockName[iC] = tolower(blockName[iC]);
 
   // Safety checks
   if (genericBlocks.find(blockName) == genericBlocks.end()) {
     message(1,"getEntry","attempting to extract entry from non-existent block "
-	    +blockName);
+            +blockName);
     return false;
   }
   if (genericBlocks[blockName].size() == 0) {
     message(1,"getEntry","attempting to extract entry from zero-size block "
-	    +blockName);
+            +blockName);
     return false;
   }
-  // Attempt to extract indexed value as class T 
+  // Attempt to extract indexed value as class T
   LHgenericBlock block = genericBlocks[blockName];
   // Loop over block contents, search for indexed entry with index i
   for (int jEntry = 0; jEntry < block.size(); jEntry++) {
@@ -807,25 +807,25 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, int indx,
   return false;
 }
 
-template <class T> bool SusyLesHouches::getEntry(string blockName, int indx, 
-						 int jndx, T& val) {
+template <class T> bool SusyLesHouches::getEntry(string blockName, int indx,
+                                                 int jndx, T& val) {
 
   // Make sure everything is interpret as lower case (for safety)
-  for (int iC=0; iC<int(blockName.size()); ++iC) 
-    blockName[iC] = tolower(blockName[iC]);  
+  for (int iC=0; iC<int(blockName.size()); ++iC)
+    blockName[iC] = tolower(blockName[iC]);
 
   // Safety checks
   if (genericBlocks.find(blockName) == genericBlocks.end()) {
     message(1,"getEntry","attempting to extract entry from non-existent block "
-	    +blockName);
+            +blockName);
     return false;
   }
   if (genericBlocks[blockName].size() == 0) {
     message(1,"getEntry","attempting to extract entry from zero-size block "
-	    +blockName);
+            +blockName);
     return false;
   }
-  // Attempt to extract matrix-indexed value as class T 
+  // Attempt to extract matrix-indexed value as class T
   LHgenericBlock block = genericBlocks[blockName];
   // Loop over block contents, search for indexed entry with indices i, j
   for (int jEntry = 0; jEntry < block.size(); jEntry++) {
@@ -842,29 +842,29 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, int indx,
   }
   // If index not found or unreadable, return false
   message(1,"getEntry","problem extracting matrix-indexed entry from block "
-	  +blockName);
+          +blockName);
   return false;
 }
 
-template <class T> bool SusyLesHouches::getEntry(string blockName, int indx, 
-						 int jndx, int kndx, T& val) {
+template <class T> bool SusyLesHouches::getEntry(string blockName, int indx,
+                                                 int jndx, int kndx, T& val) {
 
   // Make sure everything is interpret as lower case (for safety)
-  for (int iC=0; iC<int(blockName.size()); ++iC) 
-    blockName[iC] = tolower(blockName[iC]);  
+  for (int iC=0; iC<int(blockName.size()); ++iC)
+    blockName[iC] = tolower(blockName[iC]);
 
   // Safety checks
   if (genericBlocks.find(blockName) == genericBlocks.end()) {
     message(1,"getEntry","attempting to extract entry from non-existent block "
-	    +blockName);
+            +blockName);
     return false;
   }
   if (genericBlocks[blockName].size() == 0) {
     message(1,"getEntry","attempting to extract entry from zero-size block "
-	    +blockName);
+            +blockName);
     return false;
   }
-  // Attempt to extract tensor-indexed value as class T 
+  // Attempt to extract tensor-indexed value as class T
   LHgenericBlock block = genericBlocks[blockName];
   // Loop over block contents, search for indexed entry with indices i, j, k
   for (int jEntry = 0; jEntry < block.size(); jEntry++) {
@@ -881,7 +881,7 @@ template <class T> bool SusyLesHouches::getEntry(string blockName, int indx,
   }
   // If index not found or unreadable, return false
   message(1,"getEntry","problem extracting tensor-indexed entry from block "
-	  +blockName);
+          +blockName);
   return false;
  }
 

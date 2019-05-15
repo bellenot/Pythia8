@@ -1,5 +1,5 @@
 // main23.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -7,11 +7,11 @@
 // with an instance handed to Pythia for internal generation.
 // Also how to write a derived class for external random numbers,
 // and how to write a derived class for external parton distributions.
-// Warning: the parameters are not realistic. 
+// Warning: the parameters are not realistic.
 
 #include "Pythia8/Pythia.h"
 
-using namespace Pythia8; 
+using namespace Pythia8;
  
 //==========================================================================
 
@@ -26,7 +26,7 @@ public:
 
   // Initialize beam parameters.
   // In this particular example we will reuse the existing settings names
-  // but with modified meaning, so init() in the base class can be kept. 
+  // but with modified meaning, so init() in the base class can be kept.
   //virtual void init( Settings& settings, Rndm* rndmPtrIn);
 
   // Set the two beam momentum deviations and the beam vertex.
@@ -38,7 +38,7 @@ public:
 
 // Set the two beam momentum deviations and the beam vertex.
 // Note that momenta are in units of GeV and vertices in mm,
-// always with c = 1, so that e.g. time is in mm/c. 
+// always with c = 1, so that e.g. time is in mm/c.
 
 void MyBeamShape::pick() {
 
@@ -54,20 +54,20 @@ void MyBeamShape::pick() {
       if (sigmaPxA > 0.) {
         gauss     = rndmPtr->gauss();
         deltaPxA  = sigmaPxA * gauss;
-        totalDev += gauss * gauss; 
+        totalDev += gauss * gauss;
       }
       if (sigmaPyA > 0.) {
         gauss     = rndmPtr->gauss();
         deltaPyA  = sigmaPyA * gauss;
-        totalDev += gauss * gauss; 
+        totalDev += gauss * gauss;
       }
-    } while (totalDev > maxDevA * maxDevA); 
+    } while (totalDev > maxDevA * maxDevA);
 
     // Set beam A longitudinal momentum as a triangular shape.
     // Reuse sigmaPzA to represent maximum deviation in this case.
     if (sigmaPzA > 0.) {
       deltaPzA    = sigmaPzA * ( 1. - sqrt(rndmPtr->flat()) );
-      if (rndmPtr->flat() < 0.5) deltaPzA = -deltaPzA; 
+      if (rndmPtr->flat() < 0.5) deltaPzA = -deltaPzA;
     }
 
     // Set beam B transverse momentum deviation by a two-dimensional Gaussian.
@@ -76,20 +76,20 @@ void MyBeamShape::pick() {
       if (sigmaPxB > 0.) {
         gauss     = rndmPtr->gauss();
         deltaPxB  = sigmaPxB * gauss;
-        totalDev += gauss * gauss; 
+        totalDev += gauss * gauss;
       }
       if (sigmaPyB > 0.) {
         gauss     = rndmPtr->gauss();
         deltaPyB  = sigmaPyB * gauss;
-        totalDev += gauss * gauss; 
+        totalDev += gauss * gauss;
       }
-    } while (totalDev > maxDevB * maxDevB); 
+    } while (totalDev > maxDevB * maxDevB);
 
     // Set beam B longitudinal momentum as a triangular shape.
     // Reuse sigmaPzB to represent maximum deviation in this case.
     if (sigmaPzB > 0.) {
       deltaPzB = sigmaPzB * ( 1. - sqrt(rndmPtr->flat()) );
-      if (rndmPtr->flat() < 0.5) deltaPzB = -deltaPzB; 
+      if (rndmPtr->flat() < 0.5) deltaPzB = -deltaPzB;
     }
   }
 
@@ -101,12 +101,12 @@ void MyBeamShape::pick() {
       if (sigmaVertexX > 0.) {
         gauss     = rndmPtr->gauss();
         vertexX   = sigmaVertexX * gauss;
-        totalDev += gauss * gauss; 
+        totalDev += gauss * gauss;
       }
       if (sigmaVertexY > 0.) {
         gauss     = rndmPtr->gauss();
         vertexY   = sigmaVertexY * gauss;
-        totalDev += gauss * gauss; 
+        totalDev += gauss * gauss;
       }
     } while (totalDev > maxDevVertex * maxDevVertex);
 
@@ -115,11 +115,11 @@ void MyBeamShape::pick() {
     // Reuse sigmaVertexZ to represent maximum deviation in this case.
     if (sigmaVertexZ > 0.) {
       vertexZ     = sigmaVertexZ * ( 1. - sqrt(rndmPtr->flat()) );
-      if (rndmPtr->flat() < 0.5) vertexZ = -vertexZ; 
+      if (rndmPtr->flat() < 0.5) vertexZ = -vertexZ;
 
-      // Set beam collision time flat between +-(sigmaVertexZ - |vertexZ|). 
+      // Set beam collision time flat between +-(sigmaVertexZ - |vertexZ|).
       // This corresponds to two step-function beams colliding (with v = c).
-      vertexT = (2. * rndmPtr->flat() - 1.) * (sigmaVertexZ - abs(vertexZ));  
+      vertexT = (2. * rndmPtr->flat() - 1.) * (sigmaVertexZ - abs(vertexZ));
     }
 
     // Add offset to beam vertex.
@@ -127,7 +127,7 @@ void MyBeamShape::pick() {
     vertexY      += offsetY;
     vertexZ      += offsetZ;
     vertexT      += offsetT;
-  }  
+  }
 
 }
 
@@ -164,9 +164,9 @@ void stupidRndm::init() {
     
   // Initial values.
   value = 0.5;
-  exp10 = exp(10.); 
+  exp10 = exp(10.);
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
@@ -179,8 +179,8 @@ double stupidRndm::flat() {
     value *= exp10;
     value += M_PI;
     value -= double(int(value));
-    if (value < 0.) value += 1.; 
-  } while (value <= 0. || value >= 1.);  
+    if (value < 0.) value += 1.;
+  } while (value <= 0. || value >= 1.);
 
   // Return new value.
   return value;
@@ -217,13 +217,13 @@ void Scaling::xfUpdate(int, double x, double ) {
 
   // Gluons and sea quarks carrying the rest.
   double gl  = 2.  * pow5(1. - x);
-  double sea = 0.4 * pow5(1. - x); 
+  double sea = 0.4 * pow5(1. - x);
  
   // Update values
   xg    = gl;
   xu    = uv + 0.18 * sea;
-  xd    = dv + 0.18 * sea; 
-  xubar = 0.18 * sea; 
+  xd    = dv + 0.18 * sea;
+  xubar = 0.18 * sea;
   xdbar = 0.18 * sea;
   xs    = 0.08 * sea;
   xc    = 0.04 * sea;
@@ -238,7 +238,7 @@ void Scaling::xfUpdate(int, double x, double ) {
   // idSav = 9 to indicate that all flavours reset.
   idSav = 9;
 
-} 
+}
  
 //==========================================================================
 
@@ -252,41 +252,41 @@ int main() {
   Pythia pythia;
 
   // Process selection.
-  pythia.readString("HardQCD:all = on");    
-  pythia.readString("PhaseSpace:pTHatMin = 20."); 
+  pythia.readString("HardQCD:all = on");
+  pythia.readString("PhaseSpace:pTHatMin = 20.");
 
   // LHC with acollinear beams in the x plane.
-  // Use that default is pp with pz = +-7000 GeV, so this need not be set.  
-  pythia.readString("Beams:frameType = 3");    
-  pythia.readString("Beams:pxA = 1.");    
-  pythia.readString("Beams:pxB = 1.");  
+  // Use that default is pp with pz = +-7000 GeV, so this need not be set.
+  pythia.readString("Beams:frameType = 3");
+  pythia.readString("Beams:pxA = 1.");
+  pythia.readString("Beams:pxB = 1.");
 
   // A class to generate beam parameters according to own parametrization.
   BeamShape* myBeamShape = new MyBeamShape();
 
-  // Hand pointer to Pythia. 
+  // Hand pointer to Pythia.
   // If you comment this out you get internal Gaussian-style implementation.
   pythia.setBeamShapePtr( myBeamShape);
 
-  // Set up beam spread parameters - reused by MyBeamShape.  
-  pythia.readString("Beams:allowMomentumSpread = on");  
-  pythia.readString("Beams:sigmapxA = 0.1");  
-  pythia.readString("Beams:sigmapyA = 0.1");  
-  pythia.readString("Beams:sigmapzA = 5.");  
-  pythia.readString("Beams:sigmapxB = 0.1");  
-  pythia.readString("Beams:sigmapyB = 0.1");  
-  pythia.readString("Beams:sigmapzB = 5."); 
+  // Set up beam spread parameters - reused by MyBeamShape.
+  pythia.readString("Beams:allowMomentumSpread = on");
+  pythia.readString("Beams:sigmapxA = 0.1");
+  pythia.readString("Beams:sigmapyA = 0.1");
+  pythia.readString("Beams:sigmapzA = 5.");
+  pythia.readString("Beams:sigmapxB = 0.1");
+  pythia.readString("Beams:sigmapyB = 0.1");
+  pythia.readString("Beams:sigmapzB = 5.");
 
   // Set up beam vertex parameters - reused by MyBeamShape.
-  pythia.readString("Beams:allowVertexSpread = on");  
-  pythia.readString("Beams:sigmaVertexX = 0.3");  
-  pythia.readString("Beams:sigmaVertexY = 0.3");  
-  pythia.readString("Beams:sigmaVertexZ = 50.");  
+  pythia.readString("Beams:allowVertexSpread = on");
+  pythia.readString("Beams:sigmaVertexX = 0.3");
+  pythia.readString("Beams:sigmaVertexY = 0.3");
+  pythia.readString("Beams:sigmaVertexZ = 50.");
   // In MyBeamShape the time width is not an independent parameter.
-  //pythia.readString("Beams:sigmaTime = 50.");  
+  //pythia.readString("Beams:sigmaTime = 50.");
 
   // Optionally simplify generation.
-  pythia.readString("PartonLevel:all = off");  
+  pythia.readString("PartonLevel:all = off");
 
   // A class to do random numbers externally. Hand pointer to Pythia.
   RndmEngine* badRndm = new stupidRndm();
@@ -297,11 +297,11 @@ int main() {
   PDF* pdfBPtr = new Scaling(2212);
   pythia.setPDFPtr( pdfAPtr, pdfBPtr);
 
-  // Initialization.  
+  // Initialization.
   pythia.init();
 
   // Read out nominal energy.
-  double eCMnom = pythia.info.eCM(); 
+  double eCMnom = pythia.info.eCM();
 
   // Histograms.
   Hist eCM("center-of-mass energy deviation", 100, -20., 20.);
@@ -315,18 +315,18 @@ int main() {
   Hist vtxT("vertex time", 100, -100., 100.);
   Hist vtxZT("vertex |x| + |t|", 100, 0., 100.);
 
-  // Begin event loop. Generate event. 
+  // Begin event loop. Generate event.
   int iAbort = 0;
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
     if (!pythia.next()) {
 
       // List faulty events and quit if many failures.
-      pythia.info.list(); 
+      pythia.info.list();
       pythia.process.list();
       //pythia.event.list();
       if (++iAbort < nAbort) continue;
-      cout << " Event generation aborted prematurely, owing to error!\n"; 
-      break;      
+      cout << " Event generation aborted prematurely, owing to error!\n";
+      break;
     }
 
     // Fill histograms.
@@ -341,15 +341,15 @@ int main() {
     vtxY.fill(  pythia.process[0].yProd() );
     vtxZ.fill(  pythia.process[0].zProd() );
     vtxT.fill(  pythia.process[0].tProd() );
-    double absSum = abs(pythia.process[0].zProd()) 
+    double absSum = abs(pythia.process[0].zProd())
                   + abs(pythia.process[0].tProd());
     vtxZT.fill( absSum );
 
-  // End of event loop. Statistics. Histograms. 
+  // End of event loop. Statistics. Histograms.
   }
   pythia.stat();
   cout << eCM << pXsum << pYsum << pZsum << pZind
-       << vtxX << vtxY << vtxZ << vtxT << vtxZT; 
+       << vtxX << vtxY << vtxZ << vtxT << vtxZT;
 
   // Study standard Pythia random number generator.
   Hist rndmDist("standard random number distribution", 100, 0., 1.);
@@ -361,7 +361,7 @@ int main() {
     rndmDist.fill(rndmNow);
     rndmCorr.fill( abs(rndmNow - rndmOld) );
     rndmOld = rndmNow;
-  }    
+  }
   cout << rndmDist << rndmCorr;
 
   // Study bad "new" random number generator.
@@ -373,7 +373,7 @@ int main() {
     rndmDist2.fill(rndmNow);
     rndmCorr2.fill( abs(rndmNow - rndmOld) );
     rndmOld = rndmNow;
-  }    
+  }
   cout << rndmDist2 << rndmCorr2;
 
   // Done.

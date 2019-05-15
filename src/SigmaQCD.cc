@@ -1,10 +1,10 @@
 // SigmaQCD.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Function definitions (not found in the header) for the 
-// QCD simulation classes. 
+// Function definitions (not found in the header) for the
+// QCD simulation classes.
 
 #include "Pythia8/SigmaQCD.h"
 
@@ -21,7 +21,7 @@ namespace Pythia8 {
 
 void Sigma0AB2AB::setIdColAcol() {
 
-  // Flavours and colours are trivial. 
+  // Flavours and colours are trivial.
   setId( idA, idB, idA, idB);
   setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
 }
@@ -37,8 +37,8 @@ void Sigma0AB2AB::setIdColAcol() {
 
 void Sigma0AB2XB::setIdColAcol() {
 
-  // Flavours and colours are trivial. 
-  int idX          = 10* (abs(idA) / 10) + 9900000; 
+  // Flavours and colours are trivial.
+  int idX          = 10* (abs(idA) / 10) + 9900000;
   if (idA < 0) idX = -idX;
   setId( idA, idB, idX, idB);
   setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
@@ -56,8 +56,8 @@ void Sigma0AB2XB::setIdColAcol() {
 
 void Sigma0AB2AX::setIdColAcol() {
 
-  // Flavours and colours are trivial. 
-  int idX          = 10* (abs(idB) / 10) + 9900000; 
+  // Flavours and colours are trivial.
+  int idX          = 10* (abs(idB) / 10) + 9900000;
   if (idB < 0) idX = -idX;
   setId( idA, idB, idA, idX);
   setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
@@ -75,10 +75,10 @@ void Sigma0AB2AX::setIdColAcol() {
 
 void Sigma0AB2XX::setIdColAcol() {
 
-  // Flavours and colours are trivial. 
-  int          idX1 = 10* (abs(idA) / 10) + 9900000; 
+  // Flavours and colours are trivial.
+  int          idX1 = 10* (abs(idA) / 10) + 9900000;
   if (idA < 0) idX1 = -idX1;
-  int          idX2 = 10* (abs(idB) / 10) + 9900000; 
+  int          idX2 = 10* (abs(idB) / 10) + 9900000;
   if (idB < 0) idX2 = -idX2;
   setId( idA, idB, idX1, idX2);
   setColAcol( 0, 0, 0, 0, 0, 0, 0, 0);
@@ -97,7 +97,7 @@ void Sigma0AB2XX::setIdColAcol() {
 void Sigma0AB2AXB::setIdColAcol() {
   
   // Central diffractive state represented by rho_diffr0. Colours trivial.
-  int idX = 9900110; 
+  int idX = 9900110;
   setId( idA, idB, idA, idB,idX);
   setColAcol( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
   
@@ -115,16 +115,16 @@ void Sigma0AB2AXB::setIdColAcol() {
 void Sigma2gg2gg::sigmaKin() {
 
   // Calculate kinematics dependence.
-  sigTS  = (9./4.) * (tH2 / sH2 + 2. * tH / sH + 3. + 2. * sH / tH 
+  sigTS  = (9./4.) * (tH2 / sH2 + 2. * tH / sH + 3. + 2. * sH / tH
            + sH2 / tH2);
-  sigUS  = (9./4.) * (uH2 / sH2 + 2. * uH / sH + 3. + 2. * sH / uH 
+  sigUS  = (9./4.) * (uH2 / sH2 + 2. * uH / sH + 3. + 2. * sH / uH
            + sH2 / uH2);
-  sigTU  = (9./4.) * (tH2 / uH2 + 2. * tH / uH + 3. + 2. * uH / tH 
+  sigTU  = (9./4.) * (tH2 / uH2 + 2. * tH / uH + 3. + 2. * uH / tH
            + uH2 / tH2);
   sigSum = sigTS + sigUS + sigTU;
 
   // Answer contains factor 1/2 from identical gluons.
-  sigma  = (M_PI / sH2) * pow2(alpS) * 0.5 * sigSum;  
+  sigma  = (M_PI / sH2) * pow2(alpS) * 0.5 * sigSum;
 
 }
 
@@ -140,9 +140,9 @@ void Sigma2gg2gg::setIdColAcol() {
   // Three colour flow topologies, each with two orientations.
   double sigRand = sigSum * rndmPtr->flat();
   if (sigRand < sigTS) setColAcol( 1, 2, 2, 3, 1, 4, 4, 3);
-  else if (sigRand < sigTS + sigUS) 
+  else if (sigRand < sigTS + sigUS)
                        setColAcol( 1, 2, 3, 1, 3, 4, 4, 2);
-  else                 setColAcol( 1, 2, 3, 4, 1, 4, 3, 2); 
+  else                 setColAcol( 1, 2, 3, 4, 1, 4, 3, 2);
   if (rndmPtr->flat() > 0.5) swapColAcol();
 
 }
@@ -154,23 +154,23 @@ void Sigma2gg2gg::setIdColAcol() {
 
 //--------------------------------------------------------------------------
 
-// Initialize process. 
+// Initialize process.
   
 void Sigma2gg2qqbar::initProc() {
 
   // Read number of quarks to be considered in massless approximation.
   nQuarkNew       = settingsPtr->mode("HardQCD:nQuarkNew");
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
-// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence.
 
-void Sigma2gg2qqbar::sigmaKin() { 
+void Sigma2gg2qqbar::sigmaKin() {
 
   // Pick new flavour.
-  idNew = 1 + int( nQuarkNew * rndmPtr->flat() ); 
+  idNew = 1 + int( nQuarkNew * rndmPtr->flat() );
   mNew  = particleDataPtr->m0(idNew);
   m2New = mNew*mNew;
   
@@ -179,12 +179,12 @@ void Sigma2gg2qqbar::sigmaKin() {
   sigUS = 0.;
   if (sH > 4. * m2New) {
     sigTS = (1./6.) * uH / tH - (3./8.) * uH2 / sH2;
-    sigUS = (1./6.) * tH / uH - (3./8.) * tH2 / sH2; 
+    sigUS = (1./6.) * tH / uH - (3./8.) * tH2 / sH2;
   }
   sigSum = sigTS + sigUS;
 
   // Answer is proportional to number of outgoing flavours.
-  sigma  = (M_PI / sH2) * pow2(alpS) * nQuarkNew * sigSum;  
+  sigma  = (M_PI / sH2) * pow2(alpS) * nQuarkNew * sigSum;
 
 }
 
@@ -200,7 +200,7 @@ void Sigma2gg2qqbar::setIdColAcol() {
   // Two colour flow topologies.
   double sigRand = sigSum * rndmPtr->flat();
   if (sigRand < sigTS) setColAcol( 1, 2, 2, 3, 1, 0, 0, 3);
-  else                 setColAcol( 1, 2, 3, 1, 3, 0, 0, 2); 
+  else                 setColAcol( 1, 2, 3, 1, 3, 0, 0, 2);
 
 }
 
@@ -211,9 +211,9 @@ void Sigma2gg2qqbar::setIdColAcol() {
 
 //--------------------------------------------------------------------------
 
-// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence.
 
-void Sigma2qg2qg::sigmaKin() { 
+void Sigma2qg2qg::sigmaKin() {
 
   // Calculate kinematics dependence.
   sigTS  = uH2 / tH2 - (4./9.) * uH / sH;
@@ -221,7 +221,7 @@ void Sigma2qg2qg::sigmaKin() {
   sigSum = sigTS + sigTU;
 
   // Answer.
-  sigma  = (M_PI / sH2) * pow2(alpS) * sigSum;  
+  sigma  = (M_PI / sH2) * pow2(alpS) * sigSum;
 
 }
 
@@ -237,7 +237,7 @@ void Sigma2qg2qg::setIdColAcol() {
   // Two colour flow topologies. Swap if first is gluon, or when antiquark.
   double sigRand = sigSum * rndmPtr->flat();
   if (sigRand < sigTS) setColAcol( 1, 0, 2, 1, 3, 0, 2, 3);
-  else                 setColAcol( 1, 0, 2, 3, 2, 0, 1, 3); 
+  else                 setColAcol( 1, 0, 2, 3, 2, 0, 1, 3);
   if (id1 == 21) swapCol1234();
   if (id1 < 0 || id2 < 0) swapColAcol();
 
@@ -246,14 +246,14 @@ void Sigma2qg2qg::setIdColAcol() {
 //==========================================================================
 
 // Sigma2qq2qq class.
-// Cross section for q qbar' -> q qbar' or q q' -> q q' 
+// Cross section for q qbar' -> q qbar' or q q' -> q q'
 // (qbar qbar' -> qbar qbar'), q' may be same as q.
 
 //--------------------------------------------------------------------------
 
-// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour. 
+// Evaluate d(sigmaHat)/d(tHat), part independent of incoming flavour.
 
-void Sigma2qq2qq::sigmaKin() { 
+void Sigma2qq2qq::sigmaKin() {
 
   // Calculate kinematics dependence for different terms.
   sigT   = (4./9.) * (sH2 + uH2) / tH2;
@@ -266,9 +266,9 @@ void Sigma2qq2qq::sigmaKin() {
 //--------------------------------------------------------------------------
 
 
-// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence. 
+// Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence.
 
-double Sigma2qq2qq::sigmaHat() {  
+double Sigma2qq2qq::sigmaHat() {
 
   // Combine cross section terms; factor 1/2 when identical quarks.
   if      (id2 ==  id1) sigSum = 0.5 * (sigT + sigU + sigTU);
@@ -276,7 +276,7 @@ double Sigma2qq2qq::sigmaHat() {
   else                      sigSum = sigT;
 
   // Answer.
-  return (M_PI/sH2) * pow2(alpS) * sigSum;  
+  return (M_PI/sH2) * pow2(alpS) * sigSum;
 
 }
 
@@ -305,9 +305,9 @@ void Sigma2qq2qq::setIdColAcol() {
 
 //--------------------------------------------------------------------------
 
-// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence.
 
-void Sigma2qqbar2gg::sigmaKin() { 
+void Sigma2qqbar2gg::sigmaKin() {
 
   // Calculate kinematics dependence.
   sigTS  = (32./27.) * uH / tH - (8./3.) * uH2 / sH2;
@@ -315,7 +315,7 @@ void Sigma2qqbar2gg::sigmaKin() {
   sigSum = sigTS + sigUS;
 
   // Answer contains factor 1/2 from identical gluons.
-  sigma  = (M_PI / sH2) * pow2(alpS) * 0.5 * sigSum;  
+  sigma  = (M_PI / sH2) * pow2(alpS) * 0.5 * sigSum;
 
 }
 
@@ -331,7 +331,7 @@ void Sigma2qqbar2gg::setIdColAcol() {
   // Two colour flow topologies. Swap if first is antiquark.
   double sigRand = sigSum * rndmPtr->flat();
   if (sigRand < sigTS) setColAcol( 1, 0, 0, 2, 1, 3, 3, 2);
-  else                 setColAcol( 1, 0, 0, 2, 3, 2, 1, 3); 
+  else                 setColAcol( 1, 0, 0, 2, 3, 2, 1, 3);
   if (id1 < 0) swapColAcol();
 
 }
@@ -343,32 +343,32 @@ void Sigma2qqbar2gg::setIdColAcol() {
 
 //--------------------------------------------------------------------------
 
-// Initialize process. 
+// Initialize process.
   
 void Sigma2qqbar2qqbarNew::initProc() {
 
   // Read number of quarks to be considered in massless approximation.
   nQuarkNew       = settingsPtr->mode("HardQCD:nQuarkNew");
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
-// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence.
 
-void Sigma2qqbar2qqbarNew::sigmaKin() { 
+void Sigma2qqbar2qqbarNew::sigmaKin() {
 
   // Pick new flavour.
-  idNew = 1 + int( nQuarkNew * rndmPtr->flat() ); 
+  idNew = 1 + int( nQuarkNew * rndmPtr->flat() );
   mNew  = particleDataPtr->m0(idNew);
   m2New = mNew*mNew;
 
   // Calculate kinematics dependence.
   sigS                      = 0.;
-  if (sH > 4. * m2New) sigS = (4./9.) * (tH2 + uH2) / sH2; 
+  if (sH > 4. * m2New) sigS = (4./9.) * (tH2 + uH2) / sH2;
 
   // Answer is proportional to number of outgoing flavours.
-  sigma = (M_PI / sH2) * pow2(alpS) * nQuarkNew * sigS;  
+  sigma = (M_PI / sH2) * pow2(alpS) * nQuarkNew * sigS;
 
 }
 
@@ -396,11 +396,11 @@ void Sigma2qqbar2qqbarNew::setIdColAcol() {
 // i) s34Avg picked so that beta34 same when s3, s4 -> s34Avg.
 // ii) tHQ = tH - mQ^2 = -0.5 sH (1 - beta34 cos(thetaH)) for m3 = m4 = mQ,
 //     but tH - uH = sH beta34 cos(thetaH) also for m3 != m4, so use
-//     tH, uH selected for m3 != m4 to derive tHQ, uHQ valid for m3 = m4.   
+//     tH, uH selected for m3 != m4 to derive tHQ, uHQ valid for m3 = m4.
 
 //--------------------------------------------------------------------------
 
-// Initialize process. 
+// Initialize process.
   
 void Sigma2gg2QQbar::initProc() {
 
@@ -415,33 +415,33 @@ void Sigma2gg2QQbar::initProc() {
   // Secondary open width fraction.
   openFracPair = particleDataPtr->resOpenFrac(idNew, -idNew);
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
-// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence.
 
-void Sigma2gg2QQbar::sigmaKin() { 
+void Sigma2gg2QQbar::sigmaKin() {
 
   // Modified Mandelstam variables for massive kinematics with m3 = m4.
-  double s34Avg = 0.5 * (s3 + s4) - 0.25 * pow2(s3 - s4) / sH; 
+  double s34Avg = 0.5 * (s3 + s4) - 0.25 * pow2(s3 - s4) / sH;
   double tHQ    = -0.5 * (sH - tH + uH);
-  double uHQ    = -0.5 * (sH + tH - uH); 
+  double uHQ    = -0.5 * (sH + tH - uH);
   double tHQ2   = tHQ * tHQ;
   double uHQ2   = uHQ * uHQ;
 
   // Calculate kinematics dependence.
   double tumHQ = tHQ * uHQ - s34Avg * sH;
-  sigTS = ( uHQ / tHQ - 2.25 * uHQ2 / sH2 + 4.5 * s34Avg * tumHQ 
-    / ( sH * tHQ2) + 0.5 * s34Avg * (tHQ + s34Avg) / tHQ2 
+  sigTS = ( uHQ / tHQ - 2.25 * uHQ2 / sH2 + 4.5 * s34Avg * tumHQ
+    / ( sH * tHQ2) + 0.5 * s34Avg * (tHQ + s34Avg) / tHQ2
     - s34Avg*s34Avg / (sH * tHQ) ) / 6.;
-  sigUS = ( tHQ / uHQ - 2.25 * tHQ2 / sH2 + 4.5 * s34Avg * tumHQ 
-    / ( sH * uHQ2) + 0.5 * s34Avg * (uHQ + s34Avg) / uHQ2 
+  sigUS = ( tHQ / uHQ - 2.25 * tHQ2 / sH2 + 4.5 * s34Avg * tumHQ
+    / ( sH * uHQ2) + 0.5 * s34Avg * (uHQ + s34Avg) / uHQ2
     - s34Avg*s34Avg / (sH * uHQ) ) / 6.;
   sigSum = sigTS + sigUS;
 
   // Answer.
-  sigma = (M_PI / sH2) * pow2(alpS) * sigSum * openFracPair;  
+  sigma = (M_PI / sH2) * pow2(alpS) * sigSum * openFracPair;
 
 }
 
@@ -457,7 +457,7 @@ void Sigma2gg2QQbar::setIdColAcol() {
   // Two colour flow topologies.
   double sigRand = sigSum * rndmPtr->flat();
   if (sigRand < sigTS) setColAcol( 1, 2, 2, 3, 1, 0, 0, 3);
-  else                 setColAcol( 1, 2, 3, 1, 3, 0, 0, 2); 
+  else                 setColAcol( 1, 2, 3, 1, 3, 0, 0, 2);
 
 }
 
@@ -465,13 +465,13 @@ void Sigma2gg2QQbar::setIdColAcol() {
 
 // Evaluate weight for decay angles of W in top decay.
 
-double Sigma2gg2QQbar::weightDecay( Event& process, int iResBeg, 
+double Sigma2gg2QQbar::weightDecay( Event& process, int iResBeg,
   int iResEnd) {
 
   // For top decay hand over to standard routine, else done.
-  if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6) 
+  if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6)
        return weightTopDecay( process, iResBeg, iResEnd);
-  else return 1.; 
+  else return 1.;
 
 }
 
@@ -483,11 +483,11 @@ double Sigma2gg2QQbar::weightDecay( Event& process, int iResBeg,
 // i) s34Avg picked so that beta34 same when s3, s4 -> s34Avg.
 // ii) tHQ = tH - mQ^2 = -0.5 sH (1 - beta34 cos(thetaH)) for m3 = m4 = mQ,
 //     but tH - uH = sH beta34 cos(thetaH) also for m3 != m4, so use
-//     tH, uH selected for m3 != m4 to derive tHQ, uHQ valid for m3 = m4.   
+//     tH, uH selected for m3 != m4 to derive tHQ, uHQ valid for m3 = m4.
 
 //--------------------------------------------------------------------------
 
-// Initialize process, especially parton-flux object. 
+// Initialize process, especially parton-flux object.
   
 void Sigma2qqbar2QQbar::initProc() {
 
@@ -502,26 +502,26 @@ void Sigma2qqbar2QQbar::initProc() {
   // Secondary open width fraction.
   openFracPair = particleDataPtr->resOpenFrac(idNew, -idNew);
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
-// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence. 
+// Evaluate d(sigmaHat)/d(tHat) - no incoming flavour dependence.
 
-void Sigma2qqbar2QQbar::sigmaKin() { 
+void Sigma2qqbar2QQbar::sigmaKin() {
 
   // Modified Mandelstam variables for massive kinematics with m3 = m4.
-  double s34Avg = 0.5 * (s3 + s4) - 0.25 * pow2(s3 - s4) / sH; 
+  double s34Avg = 0.5 * (s3 + s4) - 0.25 * pow2(s3 - s4) / sH;
   double tHQ    = -0.5 * (sH - tH + uH);
-  double uHQ    = -0.5 * (sH + tH - uH); 
+  double uHQ    = -0.5 * (sH + tH - uH);
   double tHQ2   = tHQ * tHQ;
   double uHQ2   = uHQ * uHQ;
 
   // Calculate kinematics dependence.
-  double sigS = (4./9.) * ((tHQ2 + uHQ2) / sH2 + 2. * s34Avg / sH); 
+  double sigS = (4./9.) * ((tHQ2 + uHQ2) / sH2 + 2. * s34Avg / sH);
 
   // Answer.
-  sigma = (M_PI / sH2) * pow2(alpS) * sigS * openFracPair;  
+  sigma = (M_PI / sH2) * pow2(alpS) * sigS * openFracPair;
 
 }
 
@@ -545,13 +545,13 @@ void Sigma2qqbar2QQbar::setIdColAcol() {
 
 // Evaluate weight for decay angles of W in top decay.
 
-double Sigma2qqbar2QQbar::weightDecay( Event& process, int iResBeg, 
+double Sigma2qqbar2QQbar::weightDecay( Event& process, int iResBeg,
   int iResEnd) {
 
   // For top decay hand over to standard routine, else done.
-  if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6) 
+  if (idNew == 6 && process[process[iResBeg].mother1()].idAbs() == 6)
        return weightTopDecay( process, iResBeg, iResEnd);
-  else return 1.; 
+  else return 1.;
 
 }
 
@@ -581,14 +581,14 @@ void Sigma3gg2ggg::sigmaKin() {
   pp[3][5] = p3cm * p5cm;
   pp[4][5] = p4cm * p5cm;
   for (int i = 1; i < 5; ++i)
-    for (int j = i + 1; j < 6; ++j) pp[j][i] = pp[i][j];       
+    for (int j = i + 1; j < 6; ++j) pp[j][i] = pp[i][j];
   
   // Cross section, in three main sections.
-  double num1 = cycle(1,2,3,4,5) + cycle(1,2,3,5,4) + cycle(1,2,4,3,5) 
+  double num1 = cycle(1,2,3,4,5) + cycle(1,2,3,5,4) + cycle(1,2,4,3,5)
               + cycle(1,2,4,5,3) + cycle(1,2,5,3,4) + cycle(1,2,5,4,3)
               + cycle(1,3,2,4,5) + cycle(1,3,2,5,4) + cycle(1,3,4,2,5)
               + cycle(1,3,5,2,4) + cycle(1,4,2,3,5) + cycle(1,4,3,2,5);
-  double num2 = pow4(pp[1][2]) + pow4(pp[1][3]) + pow4(pp[1][4]) 
+  double num2 = pow4(pp[1][2]) + pow4(pp[1][3]) + pow4(pp[1][4])
               + pow4(pp[1][5]) + pow4(pp[2][3]) + pow4(pp[2][4])
               + pow4(pp[2][5]) + pow4(pp[3][4]) + pow4(pp[3][5])
               + pow4(pp[4][5]);
@@ -614,14 +614,14 @@ void Sigma3gg2ggg::setIdColAcol() {
   /*
   double sigRand = sigSum * rndmPtr->flat();
   if (sigRand < sigTS) setColAcol( 1, 2, 2, 3, 1, 4, 4, 3);
-  else if (sigRand < sigTS + sigUS) 
+  else if (sigRand < sigTS + sigUS)
                        setColAcol( 1, 2, 3, 1, 3, 4, 4, 2);
-  else                 setColAcol( 1, 2, 3, 4, 1, 4, 3, 2); 
+  else                 setColAcol( 1, 2, 3, 4, 1, 4, 3, 2);
   if (rndmPtr->flat() > 0.5) swapColAcol();
   */
 
-  // Temporary solution. 
-  setColAcol( 1, 2, 2, 3, 1, 4, 4, 5, 5, 3);  
+  // Temporary solution.
+  setColAcol( 1, 2, 2, 3, 1, 4, 4, 5, 5, 3);
 }
 
 
@@ -643,7 +643,7 @@ void Sigma3qqbar2ggg::sigmaKin() {
   pCM[4] = p5cm;
 
   // Calculate |M|^2
-  // Answer has a factor 6 due to identical gluons, 
+  // Answer has a factor 6 due to identical gluons,
   // which is cancelled by phase space factor (1 / 6)
   sigma = m2Calc();
 
@@ -705,8 +705,8 @@ void Sigma3qqbar2ggg::setIdColAcol(){
   // Flavours are trivial.
   setId( id1, id2, 21, 21, 21);
 
-  // Temporary solution. 
-  setColAcol( 1, 0, 0, 2, 1, 3, 3, 4, 4, 2);  
+  // Temporary solution.
+  setColAcol( 1, 0, 0, 2, 1, 3, 3, 4, 4, 2);
   if (id1 < 0) swapColAcol();
 }
 
@@ -807,7 +807,7 @@ void Sigma3qg2qgg::setIdColAcol(){
 
 //--------------------------------------------------------------------------
 
-// Initialize process. 
+// Initialize process.
   
 void Sigma3gg2qqbarg::initProc() {
 
@@ -849,7 +849,7 @@ void Sigma3gg2qqbarg::sigmaKin() {
 void Sigma3gg2qqbarg::setIdColAcol(){
 
   // Pick new flavour
-  int idNew = 1 + int( nQuarkNew * rndmPtr->flat() ); 
+  int idNew = 1 + int( nQuarkNew * rndmPtr->flat() );
 
   // Outgoing flavours; easiest just to map by hand
   switch (config) {
@@ -1015,7 +1015,7 @@ inline void Sigma3qq2qqgDiff::mapFinal() {
 
 //--------------------------------------------------------------------------
 
-// Initialize process. 
+// Initialize process.
   
 void Sigma3qqbar2qqbargDiff::initProc() {
 
@@ -1064,7 +1064,7 @@ void Sigma3qqbar2qqbargDiff::sigmaKin() {
 void Sigma3qqbar2qqbargDiff::setIdColAcol(){
 
   // Pick new q qbar flavour with incoming flavour disallowed
-  int idNew = 1 + int( (nQuarkNew - 1) * rndmPtr->flat() ); 
+  int idNew = 1 + int( (nQuarkNew - 1) * rndmPtr->flat() );
   if (idNew >= abs(id1)) ++idNew;
   // For qbar q incoming, q+ is always mapped to q2
   // For q qbar incoming, q+ is always mapped to qbar2
@@ -1115,7 +1115,7 @@ void Sigma3qqbar2qqbargDiff::setIdColAcol(){
 
 //--------------------------------------------------------------------------
 
-// Initialize process. 
+// Initialize process.
   
 void Sigma3qg2qqqbarDiff::initProc() {
 
@@ -1179,7 +1179,7 @@ void Sigma3qg2qqqbarDiff::setIdColAcol(){
   // qbar instead of q incoming means swap outgoing q/qbar pair
   int id3Tmp = idIn, id4Tmp = idNew, id5Tmp = -idNew;
   if (idIn < 0)  swap(id4Tmp, id5Tmp);
-  // If g q incoming rather than q g, idIn and idNew 
+  // If g q incoming rather than q g, idIn and idNew
   // should be exchanged (see sigmaKin)
   if (sigmaIdx == 0) swap(id3Tmp, id4Tmp);
   // Outgoing flavours; now just map as if q g incoming

@@ -1,5 +1,5 @@
 // MergingHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -119,7 +119,7 @@ void HardProcess::translateLHEFString( string LHEpath){
         "xx",
          // All squarks
          "dl~","dl","ul~","ul","sl~","sl","cl~","cl","b1~","b1","t1~","t1",
-         "dr~","dr","ur~","ur","sr~","sr","cr~","cr","b2~","b2","t2~","t2"}; 
+         "dr~","dr","ur~","ur","sr~","sr","cr~","cr","b2~","b2","t2~","t2"};
 
   // Declare final state particle identifiers
   int outParticleNumbers[] = {
@@ -216,7 +216,7 @@ void HardProcess::translateLHEFString( string LHEpath){
     infile.close();
     line = line.substr(line.find(" ",0),line.size());
 
-    // Cut string into incoming and outgoing pieces 
+    // Cut string into incoming and outgoing pieces
     vector <string> pieces;
     pieces.push_back( line.substr(0,line.find("->", 0)) );
     // Do not count additional final jets
@@ -295,7 +295,7 @@ void HardProcess::translateLHEFString( string LHEpath){
       n++;
     }
 
-    // Cut string in incoming, resonance+decay and outgoing pieces 
+    // Cut string in incoming, resonance+decay and outgoing pieces
     vector <string> pieces;
     for(int i =0; i < appearances;++i) {
       int n = line.find("(", 0);
@@ -318,7 +318,7 @@ void HardProcess::translateLHEFString( string LHEpath){
         n++;
       }
 
-      // Cut string in incoming and outgoing pieces 
+      // Cut string in incoming and outgoing pieces
       for(int i =0; i < appearances;++i) {
         int n = line.find(">", 0);
         pieces.push_back(line.substr(0,n));
@@ -349,9 +349,9 @@ void HardProcess::translateLHEFString( string LHEpath){
       // Seperate strings into intermediate and outgoing, if not already done
       int k = pieces[i].find(">", 0);
 
-      string intermediate = (pieces[i].find(">", 0) != string::npos) ? 
+      string intermediate = (pieces[i].find(">", 0) != string::npos) ?
                              pieces[i].substr(0,k) : "";
-      string outgoing = (pieces[i].find(">", 0) != string::npos) ? 
+      string outgoing = (pieces[i].find(">", 0) != string::npos) ?
                          pieces[i].substr(k+1,pieces[i].size()) : pieces[i];
 
       // Get intermediate particles
@@ -378,7 +378,7 @@ void HardProcess::translateLHEFString( string LHEpath){
         }
       }
 
-      // For arbitrary or non-existing intermediate, remember zero for each 
+      // For arbitrary or non-existing intermediate, remember zero for each
       // two outgoing particles, without bosons.
       if (inter.empty()) {
 
@@ -497,7 +497,7 @@ void HardProcess::translateLHEFString( string LHEpath){
 
   // Set final particle identifiers
   if ( (outgo.size() - nBosons - nContainers)%2 == 1) {
-    cout << "Only even number of outgoing particles allowed" << endl;  
+    cout << "Only even number of outgoing particles allowed" << endl;
     for(int i=0; i < int(outgo.size()); ++i)
       cout << outgo[i] << endl;
   } else {
@@ -594,7 +594,7 @@ void HardProcess::translateProcessString( string process){
         "xx",
          // All squarks
          "dl~","dl","ul~","ul","sl~","sl","cl~","cl","b1~","b1","t1~","t1",
-         "dr~","dr","ur~","ur","sr~","sr","cr~","cr","b2~","b2","t2~","t2"}; 
+         "dr~","dr","ur~","ur","sr~","sr","cr~","cr","b2~","b2","t2~","t2"};
 
   // Declare final state particle identifiers
   int outParticleNumbers[] = {
@@ -645,7 +645,7 @@ void HardProcess::translateProcessString( string process){
     nUserParticles++;
     n++;
   }
-  // Cut user-defined particles from remaining process 
+  // Cut user-defined particles from remaining process
   vector <string> userParticleStrings;
   for(int i =0; i < nUserParticles;++i) {
     int n = fullProc.find("{", 0);
@@ -672,9 +672,9 @@ void HardProcess::translateProcessString( string process){
   vector<int>userParticleNumbers;
   if ( int(userParticleStrings.size()) > 1) {
     for( int i = 1; i < int(userParticleStrings.size()); ++i) {
-      userParticleNumbers.push_back( 
+      userParticleNumbers.push_back(
         atoi((char*)userParticleStrings[i].substr(
-          userParticleStrings[i].find(",",0)+1, 
+          userParticleStrings[i].find(",",0)+1,
           userParticleStrings[i].size()).c_str() ) );
     }
   }
@@ -716,7 +716,7 @@ void HardProcess::translateProcessString( string process){
     n++;
   }
 
-  // Cut string in incoming, resonance+decay and outgoing pieces 
+  // Cut string in incoming, resonance+decay and outgoing pieces
   vector <string> pieces;
   for(int i =0; i < appearances;++i) {
     int n = residualProc.find("(", 0);
@@ -740,7 +740,7 @@ void HardProcess::translateProcessString( string process){
       n++;
     }
 
-    // Cut string in incoming and outgoing pieces 
+    // Cut string in incoming and outgoing pieces
     for(int i =0; i < appearances;++i) {
       int n = residualProc.find(">", 0);
       pieces.push_back(residualProc.substr(0,n));
@@ -772,9 +772,9 @@ void HardProcess::translateProcessString( string process){
     // Seperate strings into intermediate and outgoing, if not already done
     int k = pieces[i].find(">", 0);
 
-    string intermediate = (pieces[i].find(">", 0) != string::npos) ? 
+    string intermediate = (pieces[i].find(">", 0) != string::npos) ?
                            pieces[i].substr(0,k) : "";
-    string outgoing = (pieces[i].find(">", 0) != string::npos) ? 
+    string outgoing = (pieces[i].find(">", 0) != string::npos) ?
                        pieces[i].substr(k+1,pieces[i].size()) : pieces[i];
 
     // Get intermediate particles
@@ -801,7 +801,7 @@ void HardProcess::translateProcessString( string process){
       }
     }
 
-    // For arbitrary or non-existing intermediate, remember zero for each 
+    // For arbitrary or non-existing intermediate, remember zero for each
     // two outgoing particles, without bosons.
     if (inter.empty()) {
 
@@ -897,7 +897,7 @@ void HardProcess::translateProcessString( string process){
 // Function to check if the candidates stored in Pos1 and Pos2, together with
 // a proposed candidate iPos are allowed.
 
-bool HardProcess::allowCandidates(int iPos, vector<int> Pos1, 
+bool HardProcess::allowCandidates(int iPos, vector<int> Pos1,
   vector<int> Pos2, const Event& event){
 
   bool allowed = true;
@@ -1255,7 +1255,7 @@ void HardProcess::storeCandidates( const Event& event, string process){
         } // End loop through daughters
       } // End if ids match
     } // End loop through event
-  } // End loop though requested intermediates 
+  } // End loop though requested intermediates
 
   // If all outgoing particles were found, done
   bool done = true;
@@ -1265,7 +1265,7 @@ void HardProcess::storeCandidates( const Event& event, string process){
   for(int i=0; i < int(outgoing2.size()); ++i)
     if (outgoing2[i] != 99)
       done = false;
-  // Return 
+  // Return
   if (done) return;
 
   // Leptons not associated with resonance are allowed.
@@ -1353,7 +1353,7 @@ void HardProcess::storeCandidates( const Event& event, string process){
     // In case the index of the multimap is filled twice, make sure not to
     // arbitrarily overwrite set values.
     vector<int> indexWasSet;
-    for ( multimap<int, int>::iterator it = out2copy.begin(); 
+    for ( multimap<int, int>::iterator it = out2copy.begin();
       it != out2copy.end(); ++it ) {
       if ( allowCandidates(it->second, PosOutgoing1, PosOutgoing2, event) ){
 
@@ -1376,7 +1376,7 @@ void HardProcess::storeCandidates( const Event& event, string process){
     }
 
     indexWasSet.resize(0);
-    for ( multimap<int, int>::iterator it = out1copy.begin(); 
+    for ( multimap<int, int>::iterator it = out1copy.begin();
       it != out1copy.end(); ++it ) {
       if ( allowCandidates(it->second, PosOutgoing1, PosOutgoing2, event) ){
 
@@ -1403,7 +1403,7 @@ void HardProcess::storeCandidates( const Event& event, string process){
     // In case the index of the multimap is filled twice, make sure not to
     // arbitraryly overwrite set values.
     vector<int> indexWasSet;
-    for ( multimap<int, int>::iterator it = out1copy.begin(); 
+    for ( multimap<int, int>::iterator it = out1copy.begin();
       it != out1copy.end(); ++it ) {
       if ( allowCandidates(it->second, PosOutgoing1, PosOutgoing2, event) ){
 
@@ -1426,7 +1426,7 @@ void HardProcess::storeCandidates( const Event& event, string process){
     }
 
     indexWasSet.resize(0);
-    for ( multimap<int, int>::iterator it = out2copy.begin(); 
+    for ( multimap<int, int>::iterator it = out2copy.begin();
       it != out2copy.end(); ++it ) {
       if ( allowCandidates(it->second, PosOutgoing1, PosOutgoing2, event) ){
 
@@ -1528,10 +1528,10 @@ bool HardProcess::matchesAnyOutgoing(int iPos, const Event& event){
   for(int i=0; i < int(PosOutgoing1.size()); ++i)
     // Compare particle properties
     if ( event[iPos].id()         == state[PosOutgoing1[i]].id()
-     && event[iPos].colType()    == state[PosOutgoing1[i]].colType() 
-     && event[iPos].chargeType() == state[PosOutgoing1[i]].chargeType() 
-     && event[iPos].col()        == state[PosOutgoing1[i]].col() 
-     && event[iPos].acol()       == state[PosOutgoing1[i]].acol()
+     && event[iPos].colType()    == state[PosOutgoing1[i]].colType()
+     && event[iPos].chargeType() == state[PosOutgoing1[i]].chargeType()
+     && ( event[iPos].col()        == state[PosOutgoing1[i]].col()
+       || event[iPos].acol()       == state[PosOutgoing1[i]].acol())
      && event[iPos].charge()     == state[PosOutgoing1[i]].charge() )
       matchQN1 = true;
 
@@ -1539,10 +1539,10 @@ bool HardProcess::matchesAnyOutgoing(int iPos, const Event& event){
   for(int i=0; i < int(PosOutgoing2.size()); ++i)
     // Compare particle properties
     if ( event[iPos].id()         == state[PosOutgoing2[i]].id()
-     && event[iPos].colType()    == state[PosOutgoing2[i]].colType() 
-     && event[iPos].chargeType() == state[PosOutgoing2[i]].chargeType() 
-     && event[iPos].col()        == state[PosOutgoing2[i]].col() 
-     && event[iPos].acol()       == state[PosOutgoing2[i]].acol()
+     && event[iPos].colType()    == state[PosOutgoing2[i]].colType()
+     && event[iPos].chargeType() == state[PosOutgoing2[i]].chargeType()
+     && ( event[iPos].col()        == state[PosOutgoing2[i]].col()
+       || event[iPos].acol()       == state[PosOutgoing2[i]].acol())
      && event[iPos].charge()     == state[PosOutgoing2[i]].charge() )
       matchQN2 = true;
 
@@ -1589,6 +1589,24 @@ bool HardProcess::findOtherCandidates(int iPos, const Event& event,
   int col = event[iPos].col();
   int acl = event[iPos].acol();
 
+  // If the particle's mother is an identified intermediate resonance,
+  // then do not attempt any replacement.
+  int iMoth1 = event[iPos].mother1(); 
+  int iMoth2 = event[iPos].mother2(); 
+  if ( iMoth1 > 0 && iMoth2 == 0 ) {
+    bool hasIdentifiedMother = false;
+    for(int i=0; i < int(PosIntermediate.size()); ++i)
+      // Compare particle properties
+      if ( event[iMoth1].id()         == state[PosIntermediate[i]].id()
+        && event[iMoth1].colType()    == state[PosIntermediate[i]].colType()
+        && event[iMoth1].chargeType() == state[PosIntermediate[i]].chargeType()
+        && event[iMoth1].col()        == state[PosIntermediate[i]].col()
+        && event[iMoth1].acol()       == state[PosIntermediate[i]].acol()
+        && event[iMoth1].charge()     == state[PosIntermediate[i]].charge() )
+         hasIdentifiedMother = true;
+    if(hasIdentifiedMother && event[iMoth1].id() != id) return false;
+  }
+
   // Find candidate amongst the already stored ME process candidates.
   vector<int> candidates1;
   vector<int> candidates2;
@@ -1596,14 +1614,14 @@ bool HardProcess::findOtherCandidates(int iPos, const Event& event,
   for(int i=0; i < int(PosOutgoing1.size()); ++i)
     // Compare particle properties
     if ( id  == state[PosOutgoing1[i]].id()
-      && col == state[PosOutgoing1[i]].col() 
+      && col == state[PosOutgoing1[i]].col()
       && acl == state[PosOutgoing1[i]].acol() )
       candidates1.push_back(i);
   // Check outgoing candidates
   for(int i=0; i < int(PosOutgoing2.size()); ++i)
     // Compare particle properties
     if ( id  == state[PosOutgoing2[i]].id()
-      && col == state[PosOutgoing2[i]].col() 
+      && col == state[PosOutgoing2[i]].col()
       && acl == state[PosOutgoing2[i]].acol() )
       candidates2.push_back(i);
 
@@ -1623,13 +1641,13 @@ bool HardProcess::findOtherCandidates(int iPos, const Event& event,
         // Declare vector of already existing candiates.
         vector<int> newPosOutgoing1;
         for(int k=0; k < int(PosOutgoing1.size()); ++k)
-          if ( k != j ) newPosOutgoing1.push_back( PosOutgoing1[k] ); 
+          if ( k != j ) newPosOutgoing1.push_back( PosOutgoing1[k] );
         // If allowed, remember replacment parton.
         if ( allowCandidates(i, newPosOutgoing1, PosOutgoing2, state) )
           further1.insert(make_pair(j, i));
       }
 
-  // Now check for other allowed candidates. 
+  // Now check for other allowed candidates.
   map<int,int> further2;
   for(int i=0; i < int(state.size()); ++i)
     for(int j=0; j < int(PosOutgoing2.size()); ++j)
@@ -1642,7 +1660,7 @@ bool HardProcess::findOtherCandidates(int iPos, const Event& event,
         // Declare vector of already existing candidates.
         vector<int> newPosOutgoing2;
         for(int k=0; k < int(PosOutgoing2.size()); ++k)
-          if ( k != j ) newPosOutgoing2.push_back( PosOutgoing2[k] ); 
+          if ( k != j ) newPosOutgoing2.push_back( PosOutgoing2[k] );
         // If allowed, remember replacment parton.
         if ( allowCandidates(i, PosOutgoing1, newPosOutgoing2, state) )
           further2.insert(make_pair(j, i));
@@ -1832,7 +1850,7 @@ int HardProcess::hasResInCurrent(){
 
 //--------------------------------------------------------------------------
 
-// Function to report the number of resonace decays in the 2->2 sub-process 
+// Function to report the number of resonace decays in the 2->2 sub-process
 // of the  current state
 
 int HardProcess::nResInCurrent(){
@@ -1886,7 +1904,7 @@ void HardProcess::list() const {
   cout << " \t " << hardIncoming1 << " + " << hardIncoming2;
   cout << " \t -----> \t ";
   for(int i =0; i < int(hardIntermediate.size());++i)
-    cout << hardIntermediate[i] << " "; 
+    cout << hardIntermediate[i] << " ";
   cout << " \t -----> \t ";
   for(int i =0; i < int(hardOutgoing1.size());++i)
     cout << hardOutgoing1[i] << " ";
@@ -1905,7 +1923,7 @@ void HardProcess::listCandidates() const {
   cout << " \t " << hardIncoming1 << " + " << hardIncoming2;
   cout << " \t -----> \t ";
   for(int i =0; i < int(PosIntermediate.size());++i)
-    cout << PosIntermediate[i] << " "; 
+    cout << PosIntermediate[i] << " ";
   cout << " \t -----> \t ";
   for(int i =0; i < int(PosOutgoing1.size());++i)
     cout << PosOutgoing1[i] << " ";
@@ -1950,7 +1968,7 @@ void HardProcess::clear() {
 
 // Initialise MergingHooks class
 
-void MergingHooks::init( Settings settings, Info* infoPtrIn, 
+void MergingHooks::init( Settings settings, Info* infoPtrIn,
   ParticleData* particleDataPtrIn, PartonSystems* partonSystemsPtrIn,
   ostream& os){
 
@@ -2092,6 +2110,7 @@ void MergingHooks::init( Settings settings, Info* infoPtrIn,
 
   doWClusteringSave     = settings.flag("Merging:allowWClustering");
   doSQCDClusteringSave  = settings.flag("Merging:allowSQCDClustering");
+  DparameterSave        = settings.parm("Merging:Dparameter");
 
   // Save merging scale on maximal number of jets
   if (  doKTMergingSave || doUserMergingSave || doPTLundMergingSave
@@ -2105,7 +2124,7 @@ void MergingHooks::init( Settings settings, Info* infoPtrIn,
     tmsValueSave    = hardProcess.tms;
     nJetMaxSave     = settings.mode("Merging:nJetMax");
     nJetMaxNLOSave  = -1;
-  } else if (doCutBasedMergingSave) { 
+  } else if (doCutBasedMergingSave) {
 
     // Save list of cuts defining the merging scale.
     nJetMaxSave     = settings.mode("Merging:nJetMax");
@@ -2253,7 +2272,7 @@ void MergingHooks::init( Settings settings, Info* infoPtrIn,
 bool MergingHooks::doVetoEmission( const Event& event) {
 
   // Do nothing in trial showers, or after first step.
-  if ( doIgnoreEmissionsSave ) return false; 
+  if ( doIgnoreEmissionsSave ) return false;
 
   // Do nothing in CKKW-L
   if (  doUserMerging() || doMGMerging() || doKTMerging()
@@ -2298,7 +2317,7 @@ bool MergingHooks::doVetoStep( const Event& process, const Event& event,
   bool doResonance ) {
 
   // Do nothing in trial showers, or after first step.
-  if ( doIgnoreStepSave && !doResonance ) return false; 
+  if ( doIgnoreStepSave && !doResonance ) return false;
 
   // Do nothing in UMEPS or UNLOPS
   if ( doUMEPSTree() || doUMEPSSubt() || doUMEPSMerging() || doUNLOPSTree()
@@ -2341,7 +2360,7 @@ bool MergingHooks::doVetoStep( const Event& process, const Event& event,
 
   // For resonant showers, check if any previous veto should be revoked.
   // This means we treat showers off resonance decay products identical to
-  // MPI: If a hard resonance emission has been produced, the event should 
+  // MPI: If a hard resonance emission has been produced, the event should
   // have been kept. Following this reasoning, it might be necessary to revoke
   // any previous veto.
   } else {
@@ -2360,7 +2379,7 @@ bool MergingHooks::doVetoStep( const Event& process, const Event& event,
     check = false;
 
     // For hadronic resonance decays at hadron colliders, do not veto
-    // events with a hard emission of the resonance decay products, 
+    // events with a hard emission of the resonance decay products,
     // since such states are not included in the matrix element
     if ( pTsave > 0. && check ) {
 
@@ -2498,9 +2517,9 @@ Event MergingHooks::bareEvent(const Event& inputEventIn,
     }
 
     // Add the intermediate particles to the event record.
-    for (int i = 0; i < inputEventIn.size(); ++ i) { 
+    for (int i = 0; i < inputEventIn.size(); ++ i) {
       if (inputEventIn[i].mother1() > 4) break;
-      if ( inputEventIn[i].status() == -22) { 
+      if ( inputEventIn[i].status() == -22) {
         int j = newProcess.append(inputEventIn[i]);
         newProcess[j].statusPos();
         if ( storeInputEvent ) resonances.push_back( make_pair(j, i) );
@@ -2509,7 +2528,7 @@ Event MergingHooks::bareEvent(const Event& inputEventIn,
     }
 
     // Add remaining outgoing particles to the event record.
-    for (int i = 0; i < inputEventIn.size(); ++ i) { 
+    for (int i = 0; i < inputEventIn.size(); ++ i) {
       if (inputEventIn[i].mother1() > 4) break;
       if ( inputEventIn[i].statusAbs() != 11
         && inputEventIn[i].statusAbs() != 12
@@ -2520,16 +2539,16 @@ Event MergingHooks::bareEvent(const Event& inputEventIn,
 
     // Update event colour tag to maximum in whole process.
     int maxColTag = 0;
-    for (int i = 0; i < inputEventIn.size(); ++ i) { 
+    for (int i = 0; i < inputEventIn.size(); ++ i) {
       if ( inputEventIn[i].col() > maxColTag )
         maxColTag = inputEventIn[i].col();
       if ( inputEventIn[i].acol() > maxColTag )
         maxColTag = inputEventIn[i].acol();
     }
-    newProcess.initColTag(maxColTag); 
+    newProcess.initColTag(maxColTag);
 
     // Copy junctions from process to newProcess.
-    for (int i = 0; i < inputEventIn.sizeJunction(); ++i) 
+    for (int i = 0; i < inputEventIn.sizeJunction(); ++i)
       newProcess.appendJunction( inputEventIn.getJunction(i));
 
     newProcess.saveSize();
@@ -2589,7 +2608,7 @@ bool MergingHooks::reattachResonanceDecays(Event& process ) {
 
         Particle& aftMother  = process[iAftMother];
 
-        // Resonance can have been moved by clustering, 
+        // Resonance can have been moved by clustering,
         // so prepare to update colour and momentum information for system.
         int colBef  = hardMother.col();
         int acolBef = hardMother.acol();
@@ -2611,7 +2630,7 @@ bool MergingHooks::reattachResonanceDecays(Event& process ) {
           // Update colour and momentum information.
           if (now.col()  != 0 && now.col()  == colBef ) now.col(colAft);
           if (now.acol() != 0 && now.acol() == acolBef) now.acol(acolAft);
-          now.rotbst( M);  
+          now.rotbst( M);
           // Update vertex information.
           if (now.hasVertex()) now.vProd( aftMother.vDec() );
           // Update mothers.
@@ -2646,7 +2665,7 @@ bool MergingHooks::reattachResonanceDecays(Event& process ) {
               // Update colour and momentum information.
               if (now.col() != 0 && now.col() == colBef ) now.col(colAft);
               if (now.acol()!= 0 && now.acol()== acolBef) now.acol(acolAft);
-              now.rotbst( M);  
+              now.rotbst( M);
               // Update vertex information.
               if (now.hasVertex()) now.vProd( process[iDec].vDec() );
               // Update mothers.
@@ -2665,11 +2684,11 @@ bool MergingHooks::reattachResonanceDecays(Event& process ) {
 
     // Update event colour tag to maximum in whole process.
     int maxColTag = 0;
-    for (int i = 0; i < process.size(); ++ i) { 
+    for (int i = 0; i < process.size(); ++ i) {
       if (process[i].col() > maxColTag) maxColTag = process[i].col();
       if (process[i].acol() > maxColTag) maxColTag = process[i].acol();
     }
-    process.initColTag(maxColTag); 
+    process.initColTag(maxColTag);
 
   }
 
@@ -2884,16 +2903,16 @@ bool MergingHooks::isFirstEmission(const Event& event ) {
 // Function to set the correct starting scales of the shower
 
 // Set starting scales
-bool MergingHooks::setShowerStartingScales( bool isTrial, 
+bool MergingHooks::setShowerStartingScales( bool isTrial,
   bool doMergeFirstEmm, double& pTscaleIn, const Event& event,
   double& pTmaxFSRIn, bool& limitPTmaxFSRIn,
   double& pTmaxISRIn, bool& limitPTmaxISRIn,
   double& pTmaxMPIIn, bool& limitPTmaxMPIIn ) {
 
   // MPI treated differently in case of qcd djiet merging, since hard MPI
-  // can be misidentified as hard process. 
+  // can be misidentified as hard process.
   bool isPureQCD = ( getProcessString().compare("pp>jj") == 0 );
-  int nSteps     = getNumberOfClusteringSteps( bareEvent(event, false) ); 
+  int nSteps     = getNumberOfClusteringSteps( bareEvent(event, false) );
   double scale   = event.scale();
 
   bool doRecluster = doUMEPSSubt() || doNL3Subt() || doUNLOPSSubt()
@@ -3042,14 +3061,11 @@ double MergingHooks::kTms(const Event& event) {
           isDecayProduct = true;
       // Except for e+e- -> jets, do not check radiation in resonance decays.
       if ( !isDecayProduct
-        || getProcessString().compare("e+e->jj") == 0 
+        || getProcessString().compare("e+e->jj") == 0
         || getProcessString().compare("e+e->(z>jj)") == 0 )
         FinalPartPos.push_back(i);
     }
   }
-
-  // Declare kT algorithm parameters
-  double Dparam = 0.4;
 
   // Find minimal Durham kT in event, using own function: Check
   // definition of separation
@@ -3067,7 +3083,7 @@ double MergingHooks::kTms(const Event& event) {
     // Compute separation to other final state jets
     for(int j=i+1; j < int(FinalPartPos.size()); ++j) {
       double temp = kTdurham( event[FinalPartPos[i]], event[FinalPartPos[j]],
-                      type, Dparam);
+                      type, DparameterSave);
       kt12 = min(kt12, temp);
     }
     // Keep the minimal Durham separation
@@ -3122,7 +3138,7 @@ double MergingHooks::kTdurham(const Particle& RadAfterBranch,
     if (jet2.pz() < 0) y2 *= -1.;
     // Get delta_phi for hadronic collisions
     double pt1 = sqrt( pow(jet1.px(),2) + pow(jet1.py(),2) );
-    double pt2 = sqrt( pow(jet2.px(),2) + pow(jet2.py(),2) );  
+    double pt2 = sqrt( pow(jet2.px(),2) + pow(jet2.py(),2) );
     double cosdPhi = ( jet1.px()*jet2.px() + jet1.py()*jet2.py() ) / (pt1*pt2);
     double dPhi = acos( cosdPhi );
     // Calculate kT durham like fastjet,
@@ -3152,7 +3168,7 @@ double MergingHooks::kTdurham(const Particle& RadAfterBranch,
 
     // Get delta_phi and cos(Delta_phi) for hadronic collisions
     double pt1 = sqrt( pow(jet1.px(),2) + pow(jet1.py(),2) );
-    double pt2 = sqrt( pow(jet2.px(),2) + pow(jet2.py(),2) );  
+    double pt2 = sqrt( pow(jet2.px(),2) + pow(jet2.py(),2) );
     double cosdPhi = ( jet1.px()*jet2.px() + jet1.py()*jet2.py() ) / (pt1*pt2);
     double dPhi = acos( cosdPhi );
     // Calculate kT durham like fastjet
@@ -3165,7 +3181,7 @@ double MergingHooks::kTdurham(const Particle& RadAfterBranch,
     double coshdEta = cosh( eta1 - eta2 );
     // Get delta_phi and cos(Delta_phi) for hadronic collisions
     double pt1 = sqrt( pow(jet1.px(),2) + pow(jet1.py(),2) );
-    double pt2 = sqrt( pow(jet2.px(),2) + pow(jet2.py(),2) );  
+    double pt2 = sqrt( pow(jet2.px(),2) + pow(jet2.py(),2) );
     double cosdPhi = ( jet1.px()*jet2.px() + jet1.py()*jet2.py() ) / (pt1*pt2);
     // Calculate kT durham separation "SHERPA-like"
     ktdur = 2.0*min( pow(pt1,2),pow(pt2,2) )
@@ -3217,7 +3233,7 @@ double MergingHooks::rhoms( const Event& event, bool withColour){
           isDecayProduct = true;
       // Except for e+e- -> jets, do not check radiation in resonance decays.
       if ( !isDecayProduct
-        || getProcessString().compare("e+e->jj") == 0 
+        || getProcessString().compare("e+e->jj") == 0
         || getProcessString().compare("e+e->(z>jj)") == 0 )
         FinalPartPos.push_back(i);
     }
@@ -3392,7 +3408,7 @@ double MergingHooks::rhoPythia(const Particle& RadAfterBranch,
   double m2Dip = sum.m2Calc();
   double x1 = 2. * (sum * RadAfterBranch.p()) / m2Dip;
   double x3 = 2. * (sum * EmtAfterBranch.p()) / m2Dip;
-  // Construct momenta of dipole before/after splitting for ISR 
+  // Construct momenta of dipole before/after splitting for ISR
   Vec4 qBR(RadAfterBranch.p() - EmtAfterBranch.p() + RecAfterBranch.p());
   Vec4 qAR(RadAfterBranch.p() + RecAfterBranch.p());
   // Calculate z of splitting, different for FSR and ISR
@@ -3538,7 +3554,7 @@ double MergingHooks::cutbasedms( const Event& event ){
   if (minRJJ > rjjmin) vetoRjj = true;
   if (minMJJ > mjjmin) vetoMjj = true;
 
-  // In the matrix element calculation, we have rejected the events if any of 
+  // In the matrix element calculation, we have rejected the events if any of
   // the cuts had not been fulfilled,
   // i.e. we are in the matrix element domain if all cuts are fulfilled.
   // We veto any emission in the ME region.
@@ -3570,7 +3586,7 @@ double MergingHooks::deltaRij(Vec4 jet1, Vec4 jet2){
   double eta2 = 0.5*log( (jet2.e() + jet2.pz()) / (jet2.e() - jet2.pz()) );
   // Get delta_phi and cos(Delta_phi) for hadronic collisions
   double pt1 = sqrt( pow(jet1.px(),2) + pow(jet1.py(),2) );
-  double pt2 = sqrt( pow(jet2.px(),2) + pow(jet2.py(),2) );  
+  double pt2 = sqrt( pow(jet2.px(),2) + pow(jet2.py(),2) );
   double cosdPhi = ( jet1.px()*jet2.px() + jet1.py()*jet2.py() ) / (pt1*pt2);
   double dPhi = acos( cosdPhi );
   // Calculate kT durham like fastjet

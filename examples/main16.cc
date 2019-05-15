@@ -1,9 +1,9 @@
 // main16.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// This is a simple test program. 
+// This is a simple test program.
 // It illustrates (a) how to collect the analysis code in a separate class
 // and (b) how to provide the .cmnd filename on the command line
 
@@ -12,11 +12,11 @@
 
 #include "Pythia8/Pythia.h"
 
-using namespace Pythia8; 
+using namespace Pythia8;
 
 //==========================================================================
 
-// Put all your own analysis code in the myAnalysis class. 
+// Put all your own analysis code in the myAnalysis class.
 
 class MyAnalysis {
 
@@ -38,13 +38,13 @@ private:
 
   // Declare variables and objects that span init - analyze - finish.
   int  nEvt;
-  Hist brH, yH, etaChg, mult; 
+  Hist brH, yH, etaChg, mult;
 
 };
 
 //--------------------------------------------------------------------------
 
-// The initialization code. 
+// The initialization code.
 
 void MyAnalysis::init() {
 
@@ -57,11 +57,11 @@ void MyAnalysis::init() {
   etaChg.book("charged pseudorapidity", 100, -10., 10.);
   mult.book( "charged multiplicity", 100, -0.5, 799.5);
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
-// The event analysis code. 
+// The event analysis code.
 
 void MyAnalysis::analyze(Event& event) {
 
@@ -70,7 +70,7 @@ void MyAnalysis::analyze(Event& event) {
 
   // Find latest copy of Higgs and plot its rapidity.
   int iH = 0;
-  for (int i = 0; i < event.size(); ++i) 
+  for (int i = 0; i < event.size(); ++i)
     if (event[i].id() == 25) iH = i;
   yH.fill( event[iH].y() );
 
@@ -84,18 +84,18 @@ void MyAnalysis::analyze(Event& event) {
 
   // Plot pseudorapidity distribution. Sum up charged multiplicity.
   int nChg = 0;
-  for (int i = 0; i < event.size(); ++i) 
+  for (int i = 0; i < event.size(); ++i)
   if (event[i].isFinal() && event[i].isCharged()) {
     etaChg.fill( event[i].eta() );
     ++nChg;
   }
   mult.fill( nChg );
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
-// The finishing code. 
+// The finishing code.
 
 void MyAnalysis::finish() {
 
@@ -107,11 +107,11 @@ void MyAnalysis::finish() {
   // Print histograms.
   cout << brH << yH << etaChg << mult;
 
-} 
+}
 
 //==========================================================================
 
-// You should not need to touch the main program: its actions are 
+// You should not need to touch the main program: its actions are
 // determined by the .cmnd file and the rest belongs in MyAnalysis.
 
 int main(int argc, char* argv[]) {
@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
   }
 
   // Check that the provided file name corresponds to an existing file.
-  ifstream is(argv[1]);  
+  ifstream is(argv[1]);
   if (!is) {
     cerr << " Command-line file " << argv[1] << " was not found. \n"
          << " Program stopped! " << endl;
@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
 
   // Declare user analysis class. Do initialization part of it.
   MyAnalysis myAnalysis;
-  myAnalysis.init(); 
+  myAnalysis.init();
 
   // Read in number of event and maximal number of aborts.
   int nEvent = pythia.mode("Main:numberOfEvents");
@@ -152,13 +152,13 @@ int main(int argc, char* argv[]) {
   bool hasPL = pythia.flag("PartonLevel:all");
 
   // Begin event loop.
-  int iAbort = 0; 
+  int iAbort = 0;
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
 
     // Generate events. Quit if too many failures.
     if (!pythia.next()) {
       if (++iAbort < nAbort) continue;
-      cout << " Event generation aborted prematurely, owing to error!\n"; 
+      cout << " Event generation aborted prematurely, owing to error!\n";
       break;
     }
 

@@ -1,17 +1,17 @@
 // main53.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2014 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// This is a simple test program. 
+// This is a simple test program.
 // It illustrates how to interface an external process with an incoming photon
 // in a hadron beam, using the MRST2004QED PDF set.
-// All input apart from the name of the external LHEF file is specified in the 
+// All input apart from the name of the external LHEF file is specified in the
 // main53.cmnd file.
 
 #include "Pythia8/Pythia.h"
 
-using namespace Pythia8; 
+using namespace Pythia8;
 
 int main() {
 
@@ -20,7 +20,7 @@ int main() {
   Event& event = pythia.event;
 
   // Read in commands from external file.
-  pythia.readFile("main53.cmnd");    
+  pythia.readFile("main53.cmnd");
 
   // Extract settings to be used in the main program.
   int nEvent = pythia.mode("Main:numberOfEvents");
@@ -57,7 +57,7 @@ int main() {
     else {
       int iQ = iGamMother;
       int size = event.size();
-      do ++iQ; 
+      do ++iQ;
       while (event[iQ].status() != -43 && iQ < size - 1);
       if (event[iQ].status() == -43) pTwith.fill( event[iQ].pT() );
     }

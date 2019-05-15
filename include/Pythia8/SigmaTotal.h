@@ -1,5 +1,5 @@
 // SigmaTotal.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -18,7 +18,7 @@ namespace Pythia8 {
  
 //==========================================================================
 
-// The SigmaTotal class contains parametrizations of total, elastic and 
+// The SigmaTotal class contains parametrizations of total, elastic and
 // diffractive cross sections, and of the respective slope parameter.
 
 class SigmaTotal {
@@ -29,11 +29,11 @@ public:
   SigmaTotal() : isCalc(false) {};
 
   // Store pointers and initialize data members.
-  void init(Info* infoPtrIn, Settings& settings, 
+  void init(Info* infoPtrIn, Settings& settings,
     ParticleData* particleDataPtrIn );
 
   // Calculate, or recalculate for new beams or new energy.
-  bool calc(int idA, int idB, double eCM); 
+  bool calc(int idA, int idB, double eCM);
 
   // Confirm that initialization worked.
   bool   hasSigmaTot() const {return isCalc;}
@@ -58,9 +58,9 @@ public:
   // Read out slope b in exp(b*t) dependence.
   double bSlopeEl()          const {return bEl;}
   double bSlopeXB(double sX) const { return 2.*bB + alP2 * log(s/sX) ;}
-  double bSlopeAX(double sX) const { return 2.*bA + alP2 * log(s/sX) ;} 
-  double bSlopeXX(double sX1, double sX2) const { 
-    return alP2 * log( exp(4.) + s * s0 / (sX1 * sX2) ) ;}   
+  double bSlopeAX(double sX) const { return 2.*bA + alP2 * log(s/sX) ;}
+  double bSlopeXX(double sX1, double sX2) const {
+    return alP2 * log( exp(4.) + s * s0 / (sX1 * sX2) ) ;}
 
   // Read out parameters of diffractive mass spectra.
   double mMinXB()  const {return mMinXBsave;}
@@ -72,9 +72,9 @@ public:
   double sProton() const {return SPROTON;}
 
   // Read out parameters of trial t spectra.
-  double bMinSlopeXB() const { return max(2., 2. * bB);} 
-  double bMinSlopeAX() const { return max(2., 2. * bA);} 
-  double bMinSlopeXX() const { return alP2 * 4.;} 
+  double bMinSlopeXB() const { return max(2., 2. * bB);}
+  double bMinSlopeAX() const { return max(2., 2. * bA);}
+  double bMinSlopeXX() const { return alP2 * 4.;}
 
 private:
 
@@ -84,21 +84,21 @@ private:
   // Constants: could only be changed in the code itself.
   static const int    IHADATABLE[], IHADBTABLE[], ISDTABLE[], IDDTABLE[];
   static const double MMIN, EPSILON, ETA, X[], Y[], BETA0[], BHAD[],
-                      ALPHAPRIME, CONVERTEL, CONVERTSD, CONVERTDD, MMIN0, 
+                      ALPHAPRIME, CONVERTEL, CONVERTSD, CONVERTDD, MMIN0,
                       CRES, MRES0, CSD[10][8], CDD[10][9], SPROTON;
   
   // Integration of MBR cross sections and form factor approximation.
   static const int    NINTEG, NINTEG2;
-  static const double HBARC2, FFA1, FFA2,FFB1, FFB2; 
+  static const double HBARC2, FFA1, FFA2,FFB1, FFB2;
 
   // Initialization data, normally only set once.
   bool   isCalc, setTotal, zeroAXB, doDampen, setElastic;
-  double sigAXB2TeV, sigTotOwn, sigElOwn, sigXBOwn, sigAXOwn, sigXXOwn, 
-         sigAXBOwn, maxXBOwn, maxAXOwn, maxXXOwn, maxAXBOwn, bSlope, rho, 
+  double sigAXB2TeV, sigTotOwn, sigElOwn, sigXBOwn, sigAXOwn, sigXXOwn,
+         sigAXBOwn, maxXBOwn, maxAXOwn, maxXXOwn, maxAXBOwn, bSlope, rho,
          lambda, tAbsMin, alphaEM0, sigmaPomP, mPomP, pPomP;
   
   // Parameters of MBR model.
-  double MBReps, MBRalpha, MBRbeta0, MBRsigma0, m2min, dyminSDflux, 
+  double MBReps, MBRalpha, MBRbeta0, MBRsigma0, m2min, dyminSDflux,
          dyminDDflux, dyminCDflux, dyminSD, dyminDD, dyminCD,
          dyminSigSD, dyminSigDD, dyminSigCD, sdpmax, ddpmax, dpepmax;
 
@@ -110,14 +110,14 @@ private:
 
   // Store values found by calc.
   double sigTot, sigEl, sigXB, sigAX, sigXX, sigAXB, sigND, bEl, s, bA, bB,
-         alP2, s0, mMinXBsave, mMinAXsave, mMinAXBsave, mResXBsave, 
+         alP2, s0, mMinXBsave, mMinAXsave, mMinAXBsave, mResXBsave,
          mResAXsave;
 
   // The error function erf(x) should normally be in your math library,
   // but if not uncomment this simple parametrization by Sergei Winitzki.
-  //double erf(double x) { double x2 = x * x; double kx2 = 0.147 * x2; 
+  //double erf(double x) { double x2 = x * x; double kx2 = 0.147 * x2;
   //  double tmp = sqrt(1. - exp(-x2 * (4./M_PI + kx2) / (1. + kx2)));
-  //  return ((x >= 0.) ? tmp : -tmp); } 
+  //  return ((x >= 0.) ? tmp : -tmp); }
 
 };
  

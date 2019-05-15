@@ -1,9 +1,9 @@
 // Event.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Function definitions (not found in the header) for the 
+// Function definitions (not found in the header) for the
 // Particle and Event classes, and some related global functions.
 
 #include "Pythia8/Event.h"
@@ -36,12 +36,12 @@ void Particle::setPDEPtr(ParticleDataEntry* pdePtrIn) {
 // Functions for rapidity and pseudorapidity.
 
 double Particle::y() const {
-  double temp = log( ( pSave.e() + abs(pSave.pz()) ) / max( TINY, mT() ) ); 
+  double temp = log( ( pSave.e() + abs(pSave.pz()) ) / max( TINY, mT() ) );
   return (pSave.pz() > 0) ? temp : -temp;
 }
 
 double Particle::eta() const {
-  double temp = log( ( pSave.pAbs() + abs(pSave.pz()) ) / max( TINY, pT() ) ); 
+  double temp = log( ( pSave.pAbs() + abs(pSave.pz()) ) / max( TINY, pT() ) );
   return (pSave.pz() > 0) ? temp : -temp;
 }
 
@@ -61,7 +61,7 @@ int Particle::statusHepMC() const {
   
   // Positive codes are final particles. Status -12 are beam particles.
   if (statusSave > 0)    return 1;
-  if (statusSave == -12) return 4; 
+  if (statusSave == -12) return 4;
   if (evtPtr == 0) return 0;
 
   // Hadrons, muons, taus that decay normally are status 2.
@@ -90,7 +90,7 @@ int Particle::iTopCopy() const {
   if (evtPtr == 0) return -1;
   int iUp = index();
   while ( iUp > 0 && (*evtPtr)[iUp].mother2() == (*evtPtr)[iUp].mother1()
-    && (*evtPtr)[iUp].mother1() > 0) iUp = (*evtPtr)[iUp].mother1();  
+    && (*evtPtr)[iUp].mother1() > 0) iUp = (*evtPtr)[iUp].mother1();
   return iUp;
 
 }
@@ -100,7 +100,7 @@ int Particle::iBotCopy() const {
   if (evtPtr == 0) return -1;
   int iDn = index();
   while ( iDn > 0 && (*evtPtr)[iDn].daughter2() == (*evtPtr)[iDn].daughter1()
-    && (*evtPtr)[iDn].daughter1() > 0) iDn = (*evtPtr)[iDn].daughter1();  
+    && (*evtPtr)[iDn].daughter1() > 0) iDn = (*evtPtr)[iDn].daughter1();
   return iDn;
 
 }
@@ -121,16 +121,16 @@ int Particle::iTopCopyId() const {
     int mother2up = (*evtPtr)[iUp].mother2();
     int id2up     = (mother2up > 0) ? (*evtPtr)[mother2up].id() : 0;
     if (mother2up != mother1up && id2up == id1up) break;
-    if (id1up == idSave) { 
-      iUp = mother1up; 
+    if (id1up == idSave) {
+      iUp = mother1up;
       continue;
     }
     if (id2up == idSave) {
-      iUp = mother2up; 
+      iUp = mother2up;
       continue;
     }
     break;
-  } 
+  }
   return iUp;
 
 }
@@ -145,16 +145,16 @@ int Particle::iBotCopyId() const {
     int daughter2dn = (*evtPtr)[iDn].daughter2();
     int id2dn       = (daughter2dn > 0) ? (*evtPtr)[daughter2dn].id() : 0;
     if (daughter2dn != daughter1dn && id2dn == id1dn) break;
-    if (id1dn == idSave) { 
-      iDn = daughter1dn; 
+    if (id1dn == idSave) {
+      iDn = daughter1dn;
       continue;
     }
     if (id2dn == idSave) {
-      iDn = daughter2dn; 
+      iDn = daughter2dn;
       continue;
     }
     break;
-  } 
+  }
   return iDn;
 
 }
@@ -174,23 +174,23 @@ vector<int> Particle::motherList() const {
   if  (statusSaveAbs == 11 || statusSaveAbs == 12) ;
   else if (mother1Save == 0 && mother2Save == 0) motherVec.push_back(0);
     
-  // One mother or a carbon copy 
-  else if (mother2Save == 0 || mother2Save == mother1Save) 
-    motherVec.push_back(mother1Save); 
+  // One mother or a carbon copy
+  else if (mother2Save == 0 || mother2Save == mother1Save)
+    motherVec.push_back(mother1Save);
 
   // A range of mothers from string fragmentation.
-  else if ( (statusSaveAbs >  80 && statusSaveAbs <  90)  
-         || (statusSaveAbs > 100 && statusSaveAbs < 107) )  
-    for (int iRange = mother1Save; iRange <= mother2Save; ++iRange) 
-      motherVec.push_back(iRange); 
+  else if ( (statusSaveAbs >  80 && statusSaveAbs <  90)
+         || (statusSaveAbs > 100 && statusSaveAbs < 107) )
+    for (int iRange = mother1Save; iRange <= mother2Save; ++iRange)
+      motherVec.push_back(iRange);
 
   // Two separate mothers.
   else {
-    motherVec.push_back( min(mother1Save, mother2Save) ); 
+    motherVec.push_back( min(mother1Save, mother2Save) );
     motherVec.push_back( max(mother1Save, mother2Save) );
   }
 
-  // Done.       
+  // Done.
   return motherVec;
 
 }
@@ -207,30 +207,30 @@ vector<int> Particle::daughterList() const {
 
   // Simple cases: no or one daughter.
   if (daughter1Save == 0 && daughter2Save == 0) ;
-  else if (daughter2Save == 0 || daughter2Save == daughter1Save) 
+  else if (daughter2Save == 0 || daughter2Save == daughter1Save)
     daughterVec.push_back(daughter1Save);
 
   // A range of daughters.
   else if (daughter2Save > daughter1Save)
-    for (int iRange = daughter1Save; iRange <= daughter2Save; ++iRange) 
-      daughterVec.push_back(iRange); 
+    for (int iRange = daughter1Save; iRange <= daughter2Save; ++iRange)
+      daughterVec.push_back(iRange);
 
   // Two separated daughters.
   else {
-    daughterVec.push_back(daughter2Save); 
+    daughterVec.push_back(daughter2Save);
     daughterVec.push_back(daughter1Save);
   }
 
-  // Special case for two incoming beams: attach further 
+  // Special case for two incoming beams: attach further
   // initiators and remnants that have beam as mother.
   if (abs(statusSave) == 12 || abs(statusSave) == 13) {
     int i = index();
-    for (int iDau = i + 1; iDau < evtPtr->size(); ++iDau) 
+    for (int iDau = i + 1; iDau < evtPtr->size(); ++iDau)
     if ((*evtPtr)[iDau].mother1() == i) {
       bool isIn = false;
-      for (int iIn = 0; iIn < int(daughterVec.size()); ++iIn) 
-        if (iDau == daughterVec[iIn]) isIn = true;   
-      if (!isIn) daughterVec.push_back(iDau); 
+      for (int iIn = 0; iIn < int(daughterVec.size()); ++iIn)
+        if (iDau == daughterVec[iIn]) isIn = true;
+      if (!isIn) daughterVec.push_back(iDau);
     }
   }
     
@@ -264,7 +264,7 @@ vector<int> Particle::sisterList(bool traceTopBot) const {
     }
   }
 
-  // Done.       
+  // Done.
   return sisterVec;
 
 }
@@ -272,7 +272,7 @@ vector<int> Particle::sisterList(bool traceTopBot) const {
 //--------------------------------------------------------------------------
 
 // Check whether a given particle is an arbitrarily-steps-removed
-// mother to another. For the parton -> hadron transition, only 
+// mother to another. For the parton -> hadron transition, only
 // first-rank hadrons are associated with the respective end quark.
 
 bool Particle::isAncestor(int iAncestor) const {
@@ -300,20 +300,20 @@ bool Particle::isAncestor(int iAncestor) const {
 
     // For hadronization step, fail if not first rank, else move up.
     if (statusUp == 82) {
-      iUp = (iUp + 1 < sizeNow && (*evtPtr)[iUp + 1].mother1() == mother1up) 
+      iUp = (iUp + 1 < sizeNow && (*evtPtr)[iUp + 1].mother1() == mother1up)
           ? mother1up : mother2up; continue;
-    } 
+    }
     if (statusUp == 83) {
       if ((*evtPtr)[iUp - 1].mother1() == mother1up) return false;
       iUp = mother1up; continue;
     }
     if (statusUp == 84) {
-      if (iUp + 1 < sizeNow && (*evtPtr)[iUp + 1].mother1() == mother1up) 
+      if (iUp + 1 < sizeNow && (*evtPtr)[iUp + 1].mother1() == mother1up)
         return false;
       iUp = mother1up; continue;
     }
 
-    // Fail for ministring -> one hadron and for junctions. 
+    // Fail for ministring -> one hadron and for junctions.
     return false;
 
   }
@@ -324,9 +324,9 @@ bool Particle::isAncestor(int iAncestor) const {
 
 //--------------------------------------------------------------------------
 
-// Recursively remove the decay products of a particle, update it to be 
+// Recursively remove the decay products of a particle, update it to be
 // undecayed, and update all mother/daughter indices to be correct.
-// Warning: assumes that decay chains are nicely ordered. 
+// Warning: assumes that decay chains are nicely ordered.
 
 bool Particle::undoDecay() {
 
@@ -338,29 +338,29 @@ bool Particle::undoDecay() {
 
   // Find range of daughters to remove.
   int dau1 = daughter1Save;
-  if (dau1 == 0) return false; 
+  if (dau1 == 0) return false;
   int dau2 = daughter2Save;
   if (dau2 == 0) dau2 = dau1;
 
   // Refuse if any of the daughters have other mothers.
-  for (int j = dau1; j <= dau2; ++j) if ((*evtPtr)[j].mother1() != i 
-    || ((*evtPtr)[j].mother2() != i && (*evtPtr)[j].mother2() != 0) ) 
+  for (int j = dau1; j <= dau2; ++j) if ((*evtPtr)[j].mother1() != i
+    || ((*evtPtr)[j].mother2() != i && (*evtPtr)[j].mother2() != 0) )
     return false;
 
   // Initialize range arrays for daughters and granddaughters.
   vector<int> dauBeg, dauEnd;
   dauBeg.push_back( dau1);
-  dauEnd.push_back( dau2); 
+  dauEnd.push_back( dau2);
 
   // Begin recursive search through all decay chains.
   int iRange = 0;
   do {
-    for (int j = dauBeg[iRange]; j <= dauEnd[iRange]; ++j) 
+    for (int j = dauBeg[iRange]; j <= dauEnd[iRange]; ++j)
     if ((*evtPtr)[j].status() < 0) {
       
       // Find new daughter range, if present.
       dau1 = (*evtPtr)[j].daughter1();
-      if (dau1 == 0) return false; 
+      if (dau1 == 0) return false;
       dau2 = (*evtPtr)[j].daughter2();
       if (dau2 == 0) dau2 = dau1;
        
@@ -384,12 +384,12 @@ bool Particle::undoDecay() {
         }
       }
 
-    // End of recursive search all decay chains.  
+    // End of recursive search all decay chains.
     }
-  } while (++iRange < int(dauBeg.size())); 
+  } while (++iRange < int(dauBeg.size()));
 
   // Join adjacent ranges to reduce number of erase steps.
-  if (int(dauBeg.size()) > 1) { 
+  if (int(dauBeg.size()) > 1) {
     int iRJ = 0;
     do {
       if (dauEnd[iRJ] + 1 == dauBeg[iRJ + 1]) {
@@ -415,15 +415,15 @@ bool Particle::undoDecay() {
     // Update subsequent history to account for removed indices.
     for (int j = 0; j < int((*evtPtr).size()); ++j) {
       if ((*evtPtr)[j].mother1() > dau2)
-        (*evtPtr)[j].mother1( (*evtPtr)[j].mother1() - nRem );  
+        (*evtPtr)[j].mother1( (*evtPtr)[j].mother1() - nRem );
       if ((*evtPtr)[j].mother2() > dau2)
-        (*evtPtr)[j].mother2( (*evtPtr)[j].mother2() - nRem );  
-      if ((*evtPtr)[j].daughter1() > dau2) 
-        (*evtPtr)[j].daughter1( (*evtPtr)[j].daughter1() - nRem );  
-      if ((*evtPtr)[j].daughter2() > dau2) 
-        (*evtPtr)[j].daughter2( (*evtPtr)[j].daughter2() - nRem ); 
+        (*evtPtr)[j].mother2( (*evtPtr)[j].mother2() - nRem );
+      if ((*evtPtr)[j].daughter1() > dau2)
+        (*evtPtr)[j].daughter1( (*evtPtr)[j].daughter1() - nRem );
+      if ((*evtPtr)[j].daughter2() > dau2)
+        (*evtPtr)[j].daughter2( (*evtPtr)[j].daughter2() - nRem );
     }
-  } 
+  }
 
   // Update mother that has been undecayed.
   statusSave = abs(statusSave);
@@ -443,7 +443,7 @@ string Particle::nameWithStatus(int maxLen) const {
 
   if (pdePtr == 0) return " ";
   string temp = (statusSave > 0) ? pdePtr->name(idSave)
-    : "(" + pdePtr->name(idSave) + ")"; 
+    : "(" + pdePtr->name(idSave) + ")";
   while (int(temp.length()) > maxLen) {
     // Remove from end, excluding closing bracket and charge.
     int iRem = temp.find_last_not_of(")+-0");
@@ -456,14 +456,14 @@ string Particle::nameWithStatus(int maxLen) const {
 
 // Add offsets to mother and daughter pointers (must be non-negative).
 
-void Particle::offsetHistory( int minMother, int addMother, int minDaughter, 
+void Particle::offsetHistory( int minMother, int addMother, int minDaughter,
   int addDaughter) {
 
   if (addMother < 0 || addDaughter < 0) return;
-  if (  mother1Save > minMother  )   mother1Save += addMother; 
-  if (  mother2Save > minMother  )   mother2Save += addMother; 
-  if (daughter1Save > minDaughter) daughter1Save += addDaughter; 
-  if (daughter2Save > minDaughter) daughter2Save += addDaughter; 
+  if (  mother1Save > minMother  )   mother1Save += addMother;
+  if (  mother2Save > minMother  )   mother2Save += addMother;
+  if (daughter1Save > minDaughter) daughter1Save += addDaughter;
+  if (daughter2Save > minDaughter) daughter2Save += addDaughter;
  
 }
 
@@ -471,7 +471,7 @@ void Particle::offsetHistory( int minMother, int addMother, int minDaughter,
 
 // Add offsets to colour and anticolour (must be positive).
 
-void Particle::offsetCol( int addCol) { 
+void Particle::offsetCol( int addCol) {
 
   if (addCol < 0) return;
   if ( colSave > 0)  colSave += addCol;
@@ -487,14 +487,14 @@ void Particle::offsetCol( int addCol) {
 double m(const Particle& pp1, const Particle& pp2) {
   double m2 = pow2(pp1.e() + pp2.e()) - pow2(pp1.px() + pp2.px())
      - pow2(pp1.py() + pp2.py()) - pow2(pp1.pz() + pp2.pz());
-  return (m2 > 0. ? sqrt(m2) : 0.); 
+  return (m2 > 0. ? sqrt(m2) : 0.);
 }
 
 double m2(const Particle& pp1, const Particle& pp2) {
   double m2 = pow2(pp1.e() + pp2.e()) - pow2(pp1.px() + pp2.px())
      - pow2(pp1.py() + pp2.py()) - pow2(pp1.pz() + pp2.pz());
   return m2;
-} 
+}
 
 //==========================================================================
 
@@ -525,11 +525,12 @@ Event& Event::operator=( const Event& oldEvent) {
     particleDataPtr     = oldEvent.particleDataPtr;
 
     // Copy all the particles one by one.
-    for (int i = 0; i < oldEvent.size(); ++i) append( oldEvent[i] ); 
+    maxColTag = 100;
+    for (int i = 0; i < oldEvent.size(); ++i) append( oldEvent[i] );
 
-    // Copy all the junctions one by one. 
-    for (int i = 0; i < oldEvent.sizeJunction(); ++i) 
-      appendJunction( oldEvent.getJunction(i) );  
+    // Copy all the junctions one by one.
+    for (int i = 0; i < oldEvent.sizeJunction(); ++i)
+      appendJunction( oldEvent.getJunction(i) );
 
     // Copy all other values.
     startColTag         = oldEvent.startColTag;
@@ -552,29 +553,29 @@ Event& Event::operator=( const Event& oldEvent) {
 // return index. Three cases, depending on sign of new status code:
 // Positive: copy is viewed as daughter, status of original is negated.
 // Negative: copy is viewed as mother, status of original is unchanged.
-// Zero: the new is a perfect carbon copy (maybe to be changed later). 
+// Zero: the new is a perfect carbon copy (maybe to be changed later).
 
-int Event::copy(int iCopy, int newStatus) {    
+int Event::copy(int iCopy, int newStatus) {
 
   // Protect against attempt to copy negative entries (e.g., junction codes)
   // or entries beyond end of record.
   if (iCopy < 0 || iCopy >= size()) return -1;
 
   // Simple carbon copy.
-  entry.push_back(entry[iCopy]); 
-  int iNew = entry.size() - 1; 
+  entry.push_back(entry[iCopy]);
+  int iNew = entry.size() - 1;
 
   // Set up to make new daughter of old.
   if (newStatus > 0) {
-    entry[iCopy].daughters(iNew,iNew); 
+    entry[iCopy].daughters(iNew,iNew);
     entry[iCopy].statusNeg();
-    entry[iNew].mothers(iCopy, iCopy); 
-    entry[iNew].status(newStatus); 
+    entry[iNew].mothers(iCopy, iCopy);
+    entry[iNew].status(newStatus);
     
   // Set up to make new mother of old.
   } else if (newStatus < 0) {
     entry[iCopy].mothers(iNew,iNew);
-    entry[iNew].daughters(iCopy, iCopy); 
+    entry[iNew].daughters(iCopy, iCopy);
     entry[iNew].status(newStatus);
   }
 
@@ -586,7 +587,7 @@ int Event::copy(int iCopy, int newStatus) {
 //--------------------------------------------------------------------------
 
 // Print an event - special cases that rely on the general method.
-// Not inline to make them directly callable in (some) debuggers. 
+// Not inline to make them directly callable in (some) debuggers.
 
 void Event::list() const {
   list(false, false, cout);
@@ -605,21 +606,21 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters)
 
 // Print an event.
 
-void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters, 
+void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
   ostream& os) const {
 
   // Header.
   os << "\n --------  PYTHIA Event Listing  " << headerList << "----------"
      << "-------------------------------------------------\n \n    no    "
      << "    id   name            status     mothers   daughters     colou"
-     << "rs      p_x        p_y        p_z         e          m \n"; 
-  if (showScaleAndVertex) 
+     << "rs      p_x        p_y        p_z         e          m \n";
+  if (showScaleAndVertex)
     os << "                                    scale         pol          "
        << "                   xProd      yProd      zProd      tProd      "
-       << " tau\n";  
+       << " tau\n";
 
   // At high energy switch to scientific format for momenta.
-  bool useFixed = (entry[0].e() < 1e5);
+  bool useFixed = (entry.empty() || entry[0].e() < 1e5);
 
   // Listing of complete event.
   Vec4 pSum;
@@ -628,22 +629,22 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
     const Particle& pt = entry[i];
 
     // Basic line for a particle, always printed.
-    os << setw(6) << i << setw(10) << pt.id() << "   " << left 
-       << setw(18) << pt.nameWithStatus(18) << right << setw(4) 
-       << pt.status() << setw(6) << pt.mother1() << setw(6) 
-       << pt.mother2() << setw(6) << pt.daughter1() << setw(6) 
+    os << setw(6) << i << setw(10) << pt.id() << "   " << left
+       << setw(18) << pt.nameWithStatus(18) << right << setw(4)
+       << pt.status() << setw(6) << pt.mother1() << setw(6)
+       << pt.mother2() << setw(6) << pt.daughter1() << setw(6)
        << pt.daughter2() << setw(6) << pt.col() << setw(6) << pt.acol()
-       << ( (useFixed) ? fixed : scientific ) << setprecision(3) 
-       << setw(11) << pt.px() << setw(11) << pt.py() << setw(11) 
+       << ( (useFixed) ? fixed : scientific ) << setprecision(3)
+       << setw(11) << pt.px() << setw(11) << pt.py() << setw(11)
        << pt.pz() << setw(11) << pt.e() << setw(11) << pt.m() << "\n";
 
     // Optional extra line for scale value, polarization and production vertex.
-    if (showScaleAndVertex) 
-      os << "                              " << setw(11) << pt.scale() 
-         << " " << fixed << setprecision(3) << setw(11) << pt.pol()   
-         << "                        " << scientific << setprecision(3) 
-         << setw(11) << pt.xProd() << setw(11) << pt.yProd() 
-         << setw(11) << pt.zProd() << setw(11) << pt.tProd() 
+    if (showScaleAndVertex)
+      os << "                              " << setw(11) << pt.scale()
+         << " " << fixed << setprecision(3) << setw(11) << pt.pol()
+         << "                        " << scientific << setprecision(3)
+         << setw(11) << pt.xProd() << setw(11) << pt.yProd()
+         << setw(11) << pt.zProd() << setw(11) << pt.tProd()
          << setw(11) << pt.tau() << "\n";
 
     // Optional extra line, giving a complete list of mothers and daughters.
@@ -657,7 +658,7 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
       }
       os << ";   daughters:";
       vector<int> allDaughters = daughterList(i);
-      for (int j = 0; j < int(allDaughters.size()); ++j) { 
+      for (int j = 0; j < int(allDaughters.size()); ++j) {
         os << " " <<  allDaughters[j];
         if (++linefill == IPERLINE) {os << "\n                "; linefill = 0;}
       }
@@ -665,21 +666,21 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
     }
 
     // Extra blank separation line when each particle spans more than one line.
-    if (showScaleAndVertex || showMothersAndDaughters) os << "\n";   
+    if (showScaleAndVertex || showMothersAndDaughters) os << "\n";
 
     // Statistics on momentum and charge.
     if (entry[i].status() > 0) {
-      pSum += entry[i].p(); 
+      pSum += entry[i].p();
       chargeSum += entry[i].charge();
     }
   }
 
   // Line with sum charge, momentum, energy and invariant mass.
   os << fixed << setprecision(3) << "                                   "
-     << "Charge sum:" << setw(7) << chargeSum << "           Momentum sum:" 
-     << ( (useFixed) ? fixed : scientific ) << setprecision(3) 
-     << setw(11) << pSum.px() << setw(11) << pSum.py() << setw(11) 
-     << pSum.pz() << setw(11) << pSum.e() << setw(11) << pSum.mCalc() 
+     << "Charge sum:" << setw(7) << chargeSum << "           Momentum sum:"
+     << ( (useFixed) ? fixed : scientific ) << setprecision(3)
+     << setw(11) << pSum.px() << setw(11) << pSum.py() << setw(11)
+     << pSum.pz() << setw(11) << pSum.e() << setw(11) << pSum.mCalc()
      << "\n";
 
   // Listing finished.
@@ -690,9 +691,9 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
 
 //--------------------------------------------------------------------------
 
-// Recursively remove the decay products of particle i, update it to be 
+// Recursively remove the decay products of particle i, update it to be
 // undecayed, and update all mother/daughter indices to be correct.
-// Warning: assumes that decay chains are nicely ordered. 
+// Warning: assumes that decay chains are nicely ordered.
 
 bool Event::undoDecay(int i) {
 
@@ -702,28 +703,28 @@ bool Event::undoDecay(int i) {
 
   // Find range of daughters to remove.
   int dau1 = entry[i].daughter1();
-  if (dau1 == 0) return false; 
+  if (dau1 == 0) return false;
   int dau2 = entry[i].daughter2();
   if (dau2 == 0) dau2 = dau1;
 
   // Refuse if any of the daughters have other mothers.
-  for (int j = dau1; j <= dau2; ++j) if (entry[j].mother1() != i 
+  for (int j = dau1; j <= dau2; ++j) if (entry[j].mother1() != i
     || (entry[j].mother2() != i && entry[j].mother2() != 0) ) return false;
 
   // Initialize range arrays for daughters and granddaughters.
   vector<int> dauBeg, dauEnd;
   dauBeg.push_back( dau1);
-  dauEnd.push_back( dau2); 
+  dauEnd.push_back( dau2);
 
   // Begin recursive search through all decay chains.
   int iRange = 0;
   do {
-    for (int j = dauBeg[iRange]; j <= dauEnd[iRange]; ++j) 
+    for (int j = dauBeg[iRange]; j <= dauEnd[iRange]; ++j)
     if (entry[j].status() < 0) {
       
       // Find new daughter range, if present.
       dau1 = entry[j].daughter1();
-      if (dau1 == 0) return false; 
+      if (dau1 == 0) return false;
       dau2 = entry[j].daughter2();
       if (dau2 == 0) dau2 = dau1;
        
@@ -747,12 +748,12 @@ bool Event::undoDecay(int i) {
         }
       }
 
-    // End of recursive search all decay chains.  
+    // End of recursive search all decay chains.
     }
-  } while (++iRange < int(dauBeg.size())); 
+  } while (++iRange < int(dauBeg.size()));
 
   // Join adjacent ranges to reduce number of erase steps.
-  if (int(dauBeg.size()) > 1) { 
+  if (int(dauBeg.size()) > 1) {
      int iRJ = 0;
     do {
       if (dauEnd[iRJ] + 1 == dauBeg[iRJ + 1]) {
@@ -778,15 +779,15 @@ bool Event::undoDecay(int i) {
     // Update subsequent history to account for removed indices.
     for (int j = 0; j < int(entry.size()); ++j) {
       if (entry[j].mother1() > dau2)
-        entry[j].mother1( entry[j].mother1() - nRem );  
+        entry[j].mother1( entry[j].mother1() - nRem );
       if (entry[j].mother2() > dau2)
-        entry[j].mother2( entry[j].mother2() - nRem );  
-      if (entry[j].daughter1() > dau2) 
-        entry[j].daughter1( entry[j].daughter1() - nRem );  
-      if (entry[j].daughter2() > dau2) 
-        entry[j].daughter2( entry[j].daughter2() - nRem ); 
+        entry[j].mother2( entry[j].mother2() - nRem );
+      if (entry[j].daughter1() > dau2)
+        entry[j].daughter1( entry[j].daughter1() - nRem );
+      if (entry[j].daughter2() > dau2)
+        entry[j].daughter2( entry[j].daughter2() - nRem );
     }
-  } 
+  }
 
   // Update mother that has been undecayed.
   entry[i].statusPos();
@@ -815,22 +816,22 @@ vector<int> Event::motherList(int i) const {
   if  (statusAbs == 11 || statusAbs == 12) ;
   else if (mother1 == 0 && mother2 == 0) mothers.push_back(0);
     
-  // One mother or a carbon copy 
-  else if (mother2 == 0 || mother2 == mother1) mothers.push_back(mother1); 
+  // One mother or a carbon copy
+  else if (mother2 == 0 || mother2 == mother1) mothers.push_back(mother1);
 
   // A range of mothers from string fragmentation.
-  else if ( (statusAbs >  80 && statusAbs <  90)  
-         || (statusAbs > 100 && statusAbs < 107) )  
-    for (int iRange = mother1; iRange <= mother2; ++iRange) 
-      mothers.push_back(iRange); 
+  else if ( (statusAbs >  80 && statusAbs <  90)
+         || (statusAbs > 100 && statusAbs < 107) )
+    for (int iRange = mother1; iRange <= mother2; ++iRange)
+      mothers.push_back(iRange);
 
   // Two separate mothers.
   else {
-    mothers.push_back( min(mother1, mother2) ); 
+    mothers.push_back( min(mother1, mother2) );
     mothers.push_back( max(mother1, mother2) );
   }
 
-  // Done.       
+  // Done.
   return mothers;
 
 }
@@ -850,29 +851,29 @@ vector<int> Event::daughterList(int i) const {
 
   // Simple cases: no or one daughter.
   if (daughter1 == 0 && daughter2 == 0) ;
-  else if (daughter2 == 0 || daughter2 == daughter1) 
+  else if (daughter2 == 0 || daughter2 == daughter1)
     daughters.push_back(daughter1);
 
   // A range of daughters.
   else if (daughter2 > daughter1)
-    for (int iRange = daughter1; iRange <= daughter2; ++iRange) 
-      daughters.push_back(iRange); 
+    for (int iRange = daughter1; iRange <= daughter2; ++iRange)
+      daughters.push_back(iRange);
 
   // Two separated daughters.
   else {
-    daughters.push_back(daughter2); 
+    daughters.push_back(daughter2);
     daughters.push_back(daughter1);
   }
 
-  // Special case for two incoming beams: attach further 
+  // Special case for two incoming beams: attach further
   // initiators and remnants that have beam as mother.
   if (entry[i].statusAbs() == 12 || entry[i].statusAbs() == 13)
-  for (int iDau = i + 1; iDau < size(); ++iDau) 
+  for (int iDau = i + 1; iDau < size(); ++iDau)
   if (entry[iDau].mother1() == i) {
     bool isIn = false;
-    for (int iIn = 0; iIn < int(daughters.size()); ++iIn) 
-      if (iDau == daughters[iIn]) isIn = true;   
-    if (!isIn) daughters.push_back(iDau); 
+    for (int iIn = 0; iIn < int(daughters.size()); ++iIn)
+      if (iDau == daughters[iIn]) isIn = true;
+    if (!isIn) daughters.push_back(iDau);
   }
     
   // Done.
@@ -889,7 +890,7 @@ int Event::statusHepMC(int i) const {
   // Positive codes are final particles. Status -12 are beam particles.
   int statusNow     = entry[i].status();
   if (statusNow > 0)    return 1;
-  if (statusNow == -12) return 4;  
+  if (statusNow == -12) return 4;
 
   // Hadrons, muons, taus that decay normally are status 2.
   int idNow         = entry[i].id();
@@ -918,7 +919,7 @@ int Event::iTopCopy( int i) const {
 
   int iUp = i;
   while ( iUp > 0 && entry[iUp].mother2() == entry[iUp].mother1()
-    && entry[iUp].mother1() > 0) iUp = entry[iUp].mother1();  
+    && entry[iUp].mother1() > 0) iUp = entry[iUp].mother1();
   return iUp;
 
 }
@@ -927,7 +928,7 @@ int Event::iBotCopy( int i) const {
 
   int iDn = i;
   while ( iDn > 0 && entry[iDn].daughter2() == entry[iDn].daughter1()
-    && entry[iDn].daughter1() > 0) iDn = entry[iDn].daughter1();  
+    && entry[iDn].daughter1() > 0) iDn = entry[iDn].daughter1();
   return iDn;
 
 }
@@ -948,16 +949,16 @@ int Event::iTopCopyId( int i) const {
     int mother2 = entry[iUp].mother2();
     int id2     = (mother2 > 0) ? entry[mother2].id() : 0;
     if (mother2 != mother1 && id2 == id1) break;
-    if (id1 == id) { 
-      iUp = mother1; 
+    if (id1 == id) {
+      iUp = mother1;
       continue;
     }
     if (id2 == id) {
-      iUp = mother2; 
+      iUp = mother2;
       continue;
     }
     break;
-  } 
+  }
   return iUp;
 
 }
@@ -972,16 +973,16 @@ int Event::iBotCopyId( int i) const {
     int daughter2 = entry[iDn].daughter2();
     int id2       = (daughter2 > 0) ? entry[daughter2].id() : 0;
     if (daughter2 != daughter1 && id2 == id1) break;
-    if (id1 == id) { 
-      iDn = daughter1; 
+    if (id1 == id) {
+      iDn = daughter1;
       continue;
     }
     if (id2 == id) {
-      iDn = daughter2; 
+      iDn = daughter2;
       continue;
     }
     break;
-  } 
+  }
   return iDn;
 
 }
@@ -1001,10 +1002,10 @@ vector<int> Event::sisterList(int i) const {
   vector<int> daughters = daughterList(iMother);
 
   // Copy all daughters, excepting the input particle itself.
-  for (int j = 0; j < int(daughters.size()); ++j) 
+  for (int j = 0; j < int(daughters.size()); ++j)
   if (daughters[j] != i) sisters.push_back( daughters[j] );
 
-  // Done.       
+  // Done.
   return sisters;
 
 }
@@ -1029,8 +1030,8 @@ vector<int> Event::sisterListTopBot(int i, bool widenSearch) const {
   vector<int> daughters = daughterList(iMother);
 
   // Trace all daughters down, excepting the input particle itself.
-  for (int jD = 0; jD < int(daughters.size()); ++jD) 
-  if (daughters[jD] != iUp) 
+  for (int jD = 0; jD < int(daughters.size()); ++jD)
+  if (daughters[jD] != iUp)
     sisters.push_back( iBotCopy( daughters[jD] ) );
 
   // Prune any non-final particles from list.
@@ -1041,18 +1042,18 @@ vector<int> Event::sisterListTopBot(int i, bool widenSearch) const {
       sisters[jP] = sisters.back();
       sisters.pop_back();
     }
-  } 
+  }
 
   // If empty list then restore immediate daughters.
-  if (sisters.size() == 0 && widenSearch) { 
-    for (int jR = 0; jR < int(daughters.size()); ++jR) 
-    if (daughters[jR] != iUp) 
+  if (sisters.size() == 0 && widenSearch) {
+    for (int jR = 0; jR < int(daughters.size()); ++jR)
+    if (daughters[jR] != iUp)
       sisters.push_back( iBotCopy( daughters[jR] ) );
     
     // Then trace all daughters, not only bottom copy.
     for (int jT = 0; jT < int(sisters.size()); ++jT) {
       daughters = daughterList( sisters[jT] );
-      for (int k = 0; k < int(daughters.size()); ++k)    
+      for (int k = 0; k < int(daughters.size()); ++k)
         sisters.push_back( daughters[k] );
     }
   
@@ -1064,10 +1065,10 @@ vector<int> Event::sisterListTopBot(int i, bool widenSearch) const {
         sisters[jN] = sisters.back();
         sisters.pop_back();
       }
-    } 
+    }
   }
 
-  // Done.       
+  // Done.
   return sisters;
 
 }
@@ -1075,7 +1076,7 @@ vector<int> Event::sisterListTopBot(int i, bool widenSearch) const {
 //--------------------------------------------------------------------------
 
 // Check whether a given particle is an arbitrarily-steps-removed
-// mother to another. For the parton -> hadron transition, only 
+// mother to another. For the parton -> hadron transition, only
 // first-rank hadrons are associated with the respective end quark.
 
 bool Event::isAncestor(int i, int iAncestor) const {
@@ -1101,20 +1102,20 @@ bool Event::isAncestor(int i, int iAncestor) const {
 
     // For hadronization step, fail if not first rank, else move up.
     if (status == 82) {
-      iUp = (iUp + 1 < size() && entry[iUp + 1].mother1() == mother1) 
+      iUp = (iUp + 1 < size() && entry[iUp + 1].mother1() == mother1)
           ? mother1 : mother2; continue;
-    } 
+    }
     if (status == 83) {
       if (entry[iUp - 1].mother1() == mother1) return false;
       iUp = mother1; continue;
     }
     if (status == 84) {
-      if (iUp + 1 < size() && entry[iUp + 1].mother1() == mother1) 
+      if (iUp + 1 < size() && entry[iUp + 1].mother1() == mother1)
         return false;
       iUp = mother1; continue;
     }
 
-    // Fail for ministring -> one hadron and for junctions. 
+    // Fail for ministring -> one hadron and for junctions.
     return false;
 
   }
@@ -1129,7 +1130,7 @@ bool Event::isAncestor(int i, int iAncestor) const {
 
 void Event::eraseJunction(int i) {
  
-  for (int j = i; j < int(junction.size()) - 1; ++j) 
+  for (int j = i; j < int(junction.size()) - 1; ++j)
     junction[j] = junction[j + 1];
   junction.pop_back();
 
@@ -1142,18 +1143,18 @@ void Event::eraseJunction(int i) {
 void Event::listJunctions(ostream& os) const {
 
   // Header.
-  os << "\n --------  PYTHIA Junction Listing  " 
+  os << "\n --------  PYTHIA Junction Listing  "
      << headerList.substr(0,30) << "\n \n    no  kind  col0  col1  col2 "
      << "endc0 endc1 endc2 stat0 stat1 stat2\n";
 
   // Loop through junctions in event and list them.
-  for (int i = 0; i < sizeJunction(); ++i) 
+  for (int i = 0; i < sizeJunction(); ++i)
     os << setw(6) << i << setw(6) << kindJunction(i) << setw(6)
-       << colJunction(i, 0) << setw(6) << colJunction(i, 1) << setw(6) 
-       << colJunction(i, 2) << setw(6) << endColJunction(i, 0) << setw(6) 
+       << colJunction(i, 0) << setw(6) << colJunction(i, 1) << setw(6)
+       << colJunction(i, 2) << setw(6) << endColJunction(i, 0) << setw(6)
        << endColJunction(i, 1) << setw(6) << endColJunction(i, 2) << setw(6)
-       << statusJunction(i, 0) << setw(6) << statusJunction(i, 1) << setw(6) 
-       << statusJunction(i, 2) << "\n"; 
+       << statusJunction(i, 0) << setw(6) << statusJunction(i, 1) << setw(6)
+       << statusJunction(i, 2) << "\n";
 
   // Alternative if no junctions. Listing finished.
   if (sizeJunction() == 0) os << "    no junctions present \n";
@@ -1171,7 +1172,7 @@ Event& Event::operator+=( const Event& addEvent) {
   int offsetIdx = entry.size() - 1;
   int offsetCol = maxColTag;
 
-  // Add energy to zeroth line and calculate new invariant mass. 
+  // Add energy to zeroth line and calculate new invariant mass.
   entry[0].p( entry[0].p() + addEvent[0].p() );
   entry[0].m( entry[0].mCalc() );
 
@@ -1181,12 +1182,12 @@ Event& Event::operator+=( const Event& addEvent) {
     temp = addEvent[i];
 
     // Add offset to nonzero mother, daughter and colour indices.
-    if (temp.mother1() > 0) temp.mother1( temp.mother1() + offsetIdx );   
-    if (temp.mother2() > 0) temp.mother2( temp.mother2() + offsetIdx );   
+    if (temp.mother1() > 0) temp.mother1( temp.mother1() + offsetIdx );
+    if (temp.mother2() > 0) temp.mother2( temp.mother2() + offsetIdx );
     if (temp.daughter1() > 0) temp.daughter1( temp.daughter1() + offsetIdx );
     if (temp.daughter2() > 0) temp.daughter2( temp.daughter2() + offsetIdx );
-    if (temp.col() > 0) temp.col( temp.col() + offsetCol );   
-    if (temp.acol() > 0) temp.acol( temp.acol() + offsetCol );   
+    if (temp.col() > 0) temp.col( temp.col() + offsetCol );
+    if (temp.acol() > 0) temp.acol( temp.acol() + offsetCol );
 
     // Append particle to summed event.
     append( temp );
@@ -1202,13 +1203,13 @@ Event& Event::operator+=( const Event& addEvent) {
     for (int  j = 0; j < 3; ++j) {
       begCol = tempJ.col(j);
       endCol = tempJ.endCol(j);
-      if (begCol > 0) begCol += offsetCol; 
-      if (endCol > 0) endCol += offsetCol; 
+      if (begCol > 0) begCol += offsetCol;
+      if (endCol > 0) endCol += offsetCol;
       tempJ.cols( j, begCol, endCol);
     }
 
-    // Append junction to summed event.  
-    appendJunction( tempJ );  
+    // Append junction to summed event.
+    appendJunction( tempJ );
   }
 
   // Set header that indicates character as sum of events.

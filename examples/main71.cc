@@ -1,5 +1,5 @@
 // main71.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Richard Corke.
+// Copyright (C) 2014 Richard Corke.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -24,7 +24,7 @@
 
 #include "Pythia8/Pythia.h"
 
-// This is the minimal interface needed to access FastJet. 
+// This is the minimal interface needed to access FastJet.
 // A more sophisticated interface is demonstrated in main72.cc.
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
@@ -172,7 +172,7 @@ int main() {
 
     // Extract inclusive jets sorted by pT (note minimum pT of 20.0 GeV)
     inclusiveJets = clustSeq.inclusive_jets(20.0);
-    sortedJets    = sorted_by_pt(inclusiveJets);  
+    sortedJets    = sorted_by_pt(inclusiveJets);
 
     // Missing ET cut
     double missingET = missingETvec.pT();

@@ -1,5 +1,5 @@
 // StandardModel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -17,7 +17,7 @@ namespace Pythia8 {
 
 //==========================================================================
 
-// The AlphaStrong class calculates the alpha_strong value at an arbitrary 
+// The AlphaStrong class calculates the alpha_strong value at an arbitrary
 // scale, given the value at m_Z, to zeroth, first or second order.
 
 class AlphaStrong {
@@ -25,12 +25,12 @@ class AlphaStrong {
 public:
 
   // Constructors.
-  AlphaStrong() : isInit(false), order(0), 
-    Lambda3Save(0.), Lambda4Save(0.), Lambda5Save(0.), Lambda6Save(0.), 
+  AlphaStrong() : isInit(false), order(0),
+    Lambda3Save(0.), Lambda4Save(0.), Lambda5Save(0.), Lambda6Save(0.),
     Lambda3Save2(0.), Lambda4Save2(0.), Lambda5Save2(0.), Lambda6Save2(0.),
-    scale2Min(0.), mc2(0.), mb2(0.), mt2(0.), lastCallToFull(false), 
+    scale2Min(0.), mc2(0.), mb2(0.), mt2(0.), lastCallToFull(false),
     valueRef(0.), valueNow(0.), scale2Now(0.) {}
-  AlphaStrong(double valueIn, int orderIn = 1) { 
+  AlphaStrong(double valueIn, int orderIn = 1) {
     init( valueIn, orderIn) ;}
 
   // Initialization for given value at M_Z and given order.
@@ -50,7 +50,7 @@ public:
   double muThres(int idQ);
   double muThres2(int idQ);
 
-  // Return the CMW factor (for nF between 3 and 6). 
+  // Return the CMW factor (for nF between 3 and 6).
   double facCMW( int nFin);
 
 // Protected data members: accessible to derived classes.
@@ -94,7 +94,7 @@ private:
 
 //==========================================================================
 
-// The AlphaEM class calculates the alpha_electromagnetic value at an 
+// The AlphaEM class calculates the alpha_electromagnetic value at an
 // arbitrary scale, given the value at 0 and m_Z, to zeroth or first order.
 
 class AlphaEM {
@@ -169,7 +169,7 @@ public:
   double efvf(int idAbs) {return efvfSave[idAbs];}
   double vf2af2(int idAbs) {return vf2af2Save[idAbs];}
 
-  // Return CKM value or square: 
+  // Return CKM value or square:
   // first index 1/2/3/4 = u/c/t/t', second 1/2/3/4 = d/s/b/b'.
   double VCKMgen(int genU, int genD) {return VCKMsave[genU][genD];}
   double V2CKMgen(int genU, int genD) {return V2CKMsave[genU][genD];}
@@ -188,8 +188,8 @@ protected:
   static const double efSave[20], afSave[20];
 
   // Couplings and VCKM matrix (index 0 not used).
-  double s2tW, c2tW, s2tWbar, GFermi, vfSave[20], lfSave[20], rfSave[20], 
-         ef2Save[20], vf2Save[20], af2Save[20], efvfSave[20], 
+  double s2tW, c2tW, s2tWbar, GFermi, vfSave[20], lfSave[20], rfSave[20],
+         ef2Save[20], vf2Save[20], af2Save[20], efvfSave[20],
          vf2af2Save[20], VCKMsave[5][5], V2CKMsave[5][5], V2CKMout[20];
 
   // Pointer to the random number generator.

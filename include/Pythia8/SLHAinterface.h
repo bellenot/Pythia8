@@ -1,5 +1,5 @@
 // SLHAinterface.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -8,7 +8,7 @@
 // Handles the communication between PYTHIA and the SusyLesHouches classes.
 
 #ifndef Pythia8_SLHAinterface_H
-#define Pythia8_SLHAinterface_H 
+#define Pythia8_SLHAinterface_H
 
 #include "Pythia8/Basics.h"
 #include "Pythia8/ParticleData.h"
@@ -18,28 +18,28 @@
 #include "Pythia8/SusyCouplings.h"
 #include "Pythia8/SusyLesHouches.h"
 
-namespace Pythia8 { 
+namespace Pythia8 {
 
 //==========================================================================
 
-// The SLHAinterface class handles communication between Pythia and 
+// The SLHAinterface class handles communication between Pythia and
 // SusyLesHouches.
 
 class SLHAinterface {
 
-public: 
+public:
 
-  // Constructor. 
+  // Constructor.
   SLHAinterface() {} ;
 
   // Set pointers
   void setPtr( Info* infoPtrIn ) {infoPtr     = infoPtrIn;}
 
   // Initialize and switch to SUSY couplings if reading SLHA spectrum
-  void init( Settings& settings, Rndm* rndmPtr, Couplings* couplingsPtrIn, 
-	     ParticleData* particleDataPtr, bool& useSHLAcouplings );
+  void init( Settings& settings, Rndm* rndmPtr, Couplings* couplingsPtrIn,
+    ParticleData* particleDataPtr, bool& useSHLAcouplings );
 
-  // Initialize SUSY Les Houches Accord data.    
+  // Initialize SUSY Les Houches Accord data.
   bool initSLHA(Settings& settings, ParticleData* particleDataPtr);
 
   // Initialize SLHA blocks SMINPUTS and MASS from PYTHIA SM parameter values.

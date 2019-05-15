@@ -1,15 +1,15 @@
 // main03.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// This is a simple test program. 
+// This is a simple test program.
 // It illustrates how different processes can be selected and studied.
 // All input is specified in the main03.cmnd file.
 
 #include "Pythia8/Pythia.h"
 
-using namespace Pythia8; 
+using namespace Pythia8;
 
 int main() {
 
@@ -20,13 +20,13 @@ int main() {
   Event& event = pythia.event;
 
   // Read in commands from external file.
-  pythia.readFile("main03.cmnd");    
+  pythia.readFile("main03.cmnd");
 
   // Extract settings to be used in the main program.
   int nEvent = pythia.mode("Main:numberOfEvents");
   int nAbort = pythia.mode("Main:timesAllowErrors");
 
-  // Initialize. 
+  // Initialize.
   pythia.init();
 
   // Book histograms.
@@ -45,14 +45,14 @@ int main() {
     // Generate events. Quit if many failures.
     if (!pythia.next()) {
       if (++iAbort < nAbort) continue;
-      cout << " Event generation aborted prematurely, owing to error!\n"; 
+      cout << " Event generation aborted prematurely, owing to error!\n";
       break;
     }
 
     // Fill hard scale of event.
     pThard.fill( pythia.info.pTHat() );
 
-    // Loop over final particles in the event. 
+    // Loop over final particles in the event.
     int  nFin = 0;
     int  nChg = 0;
     Vec4 pSum;
@@ -87,7 +87,7 @@ int main() {
   dndy   *=  5. / nEvent;
   dndeta *=  5. / nEvent;
   dndpT  *= 10. / nEvent;
-  cout << pThard << nFinal << nCharged << dndy << dndeta << dndpT << epCons; 
+  cout << pThard << nFinal << nCharged << dndy << dndeta << dndpT << epCons;
 
   // Done.
   return 0;

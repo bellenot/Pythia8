@@ -1,5 +1,5 @@
 // SigmaHiggs.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // Part of code written by Marc Montull, CERN summer student 2007.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -25,20 +25,20 @@ public:
   // Constructor.
   Sigma1ffbar2H(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return nameSave;}
@@ -67,30 +67,30 @@ public:
   // Constructor.
   Sigma1gg2H(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return nameSave ;}
   virtual int    code()       const {return codeSave;}
-  virtual string inFlux()     const {return "gg";} 
-  virtual int    resonanceA() const {return idRes;} 
+  virtual string inFlux()     const {return "gg";}
+  virtual int    resonanceA() const {return idRes;}
 
 private:
 
-  // A H0, H1, H2 or A3 resonance object provides coupling 
+  // A H0, H1, H2 or A3 resonance object provides coupling
   // and propagator expressions.
   ParticleDataEntry* HResPtr;
   double mRes, GammaRes, m2Res, GamMRat, sigma;
@@ -109,25 +109,25 @@ public:
   // Constructor.
   Sigma1gmgm2H(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
-  virtual string name()       const {return nameSave;} 
-  virtual int    code()       const {return codeSave;} 
-  virtual string inFlux()     const {return "gmgm";} 
+  virtual string name()       const {return nameSave;}
+  virtual int    code()       const {return codeSave;}
+  virtual string inFlux()     const {return "gmgm";}
   virtual int    resonanceA() const {return idRes;}
 
 private:
@@ -151,23 +151,23 @@ public:
   // Constructor.
   Sigma2ffbar2HZ(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
-  virtual string name()       const {return nameSave;} 
+  virtual string name()       const {return nameSave;}
   virtual int    code()       const {return codeSave;}
   virtual string inFlux()     const {return "ffbarSame";}
   virtual bool   isSChannel() const {return true;}
@@ -180,7 +180,7 @@ private:
 
   // Store Z0 mass and width.
   double mZ, widZ, mZS, mwZS, thetaWRat, sigma0, openFracPair, coup2Z;
-  int    higgsType, codeSave, idRes;  
+  int    higgsType, codeSave, idRes;
   string nameSave;
 };
  
@@ -196,20 +196,20 @@ public:
   // Constructor.
   Sigma2ffbar2HW(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return nameSave;}
@@ -223,7 +223,7 @@ public:
 private:
 
   // Store W+- mass and width, and couplings.
-  double mW, widW, mWS, mwWS, thetaWRat, sigma0, openFracPairPos, 
+  double mW, widW, mWS, mwWS, thetaWRat, sigma0, openFracPairPos,
          openFracPairNeg, coup2W;
   int    higgsType, codeSave, idRes;
   string nameSave;
@@ -241,20 +241,20 @@ public:
   // Constructor.
   Sigma3ff2HfftZZ(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -289,20 +289,20 @@ public:
   // Constructor.
   Sigma3ff2HfftWW(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -338,20 +338,20 @@ public:
   Sigma3gg2HQQbar(int idIn, int higgsTypeIn) : idNew(idIn),
     higgsType(higgsTypeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -387,23 +387,23 @@ class Sigma3qqbar2HQQbar : public Sigma3Process {
 public:
 
   // Constructor.
-  Sigma3qqbar2HQQbar(int idIn, int higgsTypeIn) : idNew(idIn), 
+  Sigma3qqbar2HQQbar(int idIn, int higgsTypeIn) : idNew(idIn),
     higgsType(higgsTypeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -439,23 +439,23 @@ class Sigma2qg2Hq : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2qg2Hq(int idIn, int higgsTypeIn) : idNew(idIn), 
+  Sigma2qg2Hq(int idIn, int higgsTypeIn) : idNew(idIn),
     higgsType(higgsTypeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -485,20 +485,20 @@ public:
   // Constructor.
   Sigma2gg2Hglt(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -526,20 +526,20 @@ public:
   // Constructor.
   Sigma2qg2Hqlt(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -567,20 +567,20 @@ public:
   // Constructor.
   Sigma2qqbar2Hglt(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -607,20 +607,20 @@ public:
   // Constructor.
   Sigma1ffbar2Hchg() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return "f fbar' -> H+-";}
@@ -632,7 +632,7 @@ private:
 
   // A H0 resonance object provides coupling and propagator expressions.
   ParticleDataEntry* HResPtr;
-  double mRes, GammaRes, m2Res, GamMRat, m2W, thetaWRat, tan2Beta, sigBW, 
+  double mRes, GammaRes, m2Res, GamMRat, m2W, thetaWRat, tan2Beta, sigBW,
          widthOutPos, widthOutNeg;
 
 };
@@ -646,23 +646,23 @@ class Sigma2qg2Hchgq : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2qg2Hchgq(int idIn, int codeIn, string nameIn) : idNew(idIn), 
+  Sigma2qg2Hchgq(int idIn, int codeIn, string nameIn) : idNew(idIn),
     codeSave(codeIn), nameSave(nameIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -691,20 +691,20 @@ public:
   // Constructor.
   Sigma2ffbar2A3H12(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -733,20 +733,20 @@ public:
   // Constructor.
   Sigma2ffbar2HchgH12(int higgsTypeIn) : higgsType(higgsTypeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -776,20 +776,20 @@ public:
   // Constructor.
   Sigma2ffbar2HposHneg() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return "f fbar -> H+ H-";}

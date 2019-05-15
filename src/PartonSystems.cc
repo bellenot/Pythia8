@@ -1,5 +1,5 @@
 // PartonSystems.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -28,7 +28,7 @@ void PartonSystems::replace(int iSys, int iPosOld, int iPosNew) {
     systems[iSys].iInB = iPosNew;
     return;
   }
-  for (int i = 0; i < sizeOut(iSys); ++i) 
+  for (int i = 0; i < sizeOut(iSys); ++i)
   if (systems[iSys].iOut[i] == iPosOld) {
     systems[iSys].iOut[i] = iPosNew;
     return;
@@ -57,17 +57,17 @@ int PartonSystems::getAll(int iSys, int iMem) const {
 int PartonSystems::getSystemOf(int iPos, bool alsoIn) const {
 
   // Loop over systems and over final-state members in each system.
-  for (int iSys = 0; iSys < sizeSys(); ++iSys) { 
+  for (int iSys = 0; iSys < sizeSys(); ++iSys) {
     if (alsoIn) {
       if (systems[iSys].iInA == iPos) return iSys;
       if (systems[iSys].iInB == iPos) return iSys;
     }
-    for (int iMem = 0; iMem < sizeOut(iSys); ++iMem) 
+    for (int iMem = 0; iMem < sizeOut(iSys); ++iMem)
       if (systems[iSys].iOut[iMem] == iPos) return iSys;
   }
 
   // Failure signalled by return value -1.
-  return -1; 
+  return -1;
 
 }
 
@@ -91,7 +91,7 @@ int PartonSystems::getIndexOfOut(int iSys, int iPos) const {
 void PartonSystems::list(ostream& os) const {
 
   // Header.
-  os << "\n --------  PYTHIA Parton Systems Listing  -------------------" 
+  os << "\n --------  PYTHIA Parton Systems Listing  -------------------"
      << "--------------------------------- "
      << "\n \n  no  inA  inB  out members  \n";
   

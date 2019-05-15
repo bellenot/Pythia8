@@ -1,5 +1,5 @@
 // SigmaSUSY.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -19,7 +19,7 @@ namespace Pythia8 {
  
 //==========================================================================
 
-// An intermediate class for SUSY 2 -> 2 processes with nontrivial decay angles.
+// An intermediate class for SUSY 2 -> 2 with nontrivial decay angles.
 
 class Sigma2SUSY : public Sigma2Process {
 
@@ -29,9 +29,9 @@ public:
   Sigma2SUSY() { };
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
- }; 
+ };
  
 //==========================================================================
 
@@ -45,42 +45,42 @@ public:
   Sigma2qqbar2chi0chi0() {};
 
   // Constructor.
-  Sigma2qqbar2chi0chi0(int id3chiIn, int id4chiIn, int codeIn) { 
+  Sigma2qqbar2chi0chi0(int id3chiIn, int id4chiIn, int codeIn) {
 
     // Save ordering indices and process code
-    id3chi   = id3chiIn; 
-    id4chi   = id4chiIn; 
-    codeSave = codeIn; 
+    id3chi   = id3chiIn;
+    id4chi   = id4chiIn;
+    codeSave = codeIn;
 
 
     // Construct id codes from ordering indices.
-    id3                  = 1000022; 
-    if (id3chi == 2) id3 = 1000023; 
-    if (id3chi == 3) id3 = 1000025; 
-    if (id3chi == 4) id3 = 1000035; 
-    if (id3chi == 5) id3 = 1000045; 
-    id4                  = 1000022; 
-    if (id4chi == 2) id4 = 1000023; 
-    if (id4chi == 3) id4 = 1000025; 
-    if (id4chi == 4) id4 = 1000035; 
-    if (id4chi == 5) id4 = 1000045; 
+    id3                  = 1000022;
+    if (id3chi == 2) id3 = 1000023;
+    if (id3chi == 3) id3 = 1000025;
+    if (id3chi == 4) id3 = 1000035;
+    if (id3chi == 5) id3 = 1000045;
+    id4                  = 1000022;
+    if (id4chi == 2) id4 = 1000023;
+    if (id4chi == 3) id4 = 1000025;
+    if (id4chi == 4) id4 = 1000035;
+    if (id4chi == 5) id4 = 1000045;
 
   }
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  //  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  //  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -89,10 +89,10 @@ public:
   virtual int    id3Mass() const {return abs(id3);}
   virtual int    id4Mass() const {return abs(id4);}
   virtual int    resonanceA() const {return 23;}
-  virtual bool   isSUSY()  const {return true;}  
+  virtual bool   isSUSY()  const {return true;}
   virtual double getSigma0() const {return sigma0;}
 
- protected:  
+ protected:
 
   // Basic process information
   int     id3chi, id4chi, codeSave;
@@ -118,26 +118,26 @@ public:
   Sigma2qqbar2charchi0(int id3chiIn, int id4chiIn, int codeIn) {
     
     // Save ordering indices and process code
-    id3chi   = id3chiIn; 
-    id4chi   = id4chiIn; 
-    codeSave = codeIn; 
+    id3chi   = id3chiIn;
+    id4chi   = id4chiIn;
+    codeSave = codeIn;
 
     // Construct id codes from ordering indices.
-    id3 = (abs(id3chi) == 2) ? 1000037 : 1000024; 
+    id3 = (abs(id3chi) == 2) ? 1000037 : 1000024;
     if (id3chi < 0)  id3 = -id3;
 
-    id4                  = 1000022; 
-    if (id4chi == 2) id4 = 1000023; 
-    if (id4chi == 3) id4 = 1000025; 
-    if (id4chi == 4) id4 = 1000035; 
-    if (id4chi == 5) id4 = 1000045; 
+    id4                  = 1000022;
+    if (id4chi == 2) id4 = 1000023;
+    if (id4chi == 3) id4 = 1000025;
+    if (id4chi == 4) id4 = 1000035;
+    if (id4chi == 5) id4 = 1000045;
 
   }
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
   
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   virtual int    resonanceA() const {return 24;}
@@ -160,20 +160,20 @@ public:
   Sigma2qqbar2charchar(int id3chiIn, int id4chiIn, int codeIn) {
 
     // Save ordering indices and process code
-    id3chi   = id3chiIn; 
-    id4chi   = id4chiIn; 
-    codeSave = codeIn; 
+    id3chi   = id3chiIn;
+    id4chi   = id4chiIn;
+    codeSave = codeIn;
 
     // Construct id codes from ordering indices.
-    id3 = (abs(id3chi) == 2) ?  1000037 :  1000024; 
-    id4 = (abs(id4chi) == 2) ? -1000037 : -1000024; 
+    id3 = (abs(id3chi) == 2) ?  1000037 :  1000024;
+    id4 = (abs(id4chi) == 2) ? -1000037 : -1000024;
 
   }
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
   
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
 };
@@ -190,35 +190,35 @@ public:
   Sigma2qg2chi0squark() { };
 
   // Constructor.
-  Sigma2qg2chi0squark(int id3chiIn, int id4sqIn, bool isUp, int codeIn) { 
+  Sigma2qg2chi0squark(int id3chiIn, int id4sqIn, bool isUp, int codeIn) {
 
     // Save ordering indices and process code
-    id3chi   = id3chiIn; 
-    id4sq    = id4sqIn; 
-    codeSave = codeIn; 
+    id3chi   = id3chiIn;
+    id4sq    = id4sqIn;
+    codeSave = codeIn;
 
     // Construct id codes from ordering indices.
-    id3                  = 1000022; 
-    if (id3chi == 2) id3 = 1000023; 
-    if (id3chi == 3) id3 = 1000025; 
-    if (id3chi == 4) id3 = 1000035; 
-    if (id3chi == 5) id3 = 1000045; 
-    id4                  = 1000001 + (isUp ? 1 : 0); 
-    if (id4sq  == 2) id4 = 1000003 + (isUp ? 1 : 0); 
+    id3                  = 1000022;
+    if (id3chi == 2) id3 = 1000023;
+    if (id3chi == 3) id3 = 1000025;
+    if (id3chi == 4) id3 = 1000035;
+    if (id3chi == 5) id3 = 1000045;
+    id4                  = 1000001 + (isUp ? 1 : 0);
+    if (id4sq  == 2) id4 = 1000003 + (isUp ? 1 : 0);
     if (id4sq  == 3) id4 = 1000005 + (isUp ? 1 : 0);
-    if (id4sq  == 4) id4 = 2000001 + (isUp ? 1 : 0); 
-    if (id4sq  == 5) id4 = 2000003 + (isUp ? 1 : 0); 
-    if (id4sq  == 6) id4 = 2000005 + (isUp ? 1 : 0); 
+    if (id4sq  == 4) id4 = 2000001 + (isUp ? 1 : 0);
+    if (id4sq  == 5) id4 = 2000003 + (isUp ? 1 : 0);
+    if (id4sq  == 6) id4 = 2000005 + (isUp ? 1 : 0);
 
   }
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -230,9 +230,9 @@ public:
   virtual string inFlux()  const {return "qg";}
   virtual int    id3Mass() const {return abs(id3);}
   virtual int    id4Mass() const {return abs(id4);}
-  virtual bool   isSUSY()  const {return true;}  
+  virtual bool   isSUSY()  const {return true;}
 
- protected:  
+ protected:
 
   // Basic process information
   int     id3chi, id4sq, codeSave;
@@ -258,20 +258,20 @@ public:
   Sigma2qg2charsquark(int id3chiIn, int id4sqIn, bool isUp, int codeIn) {
 
     // Save ordering indices and process code
-    id3chi   = id3chiIn; 
-    id4sq    = id4sqIn; 
-    codeSave = codeIn; 
+    id3chi   = id3chiIn;
+    id4sq    = id4sqIn;
+    codeSave = codeIn;
 
     // Construct id codes from ordering indices.
-    id3Sav                       = 1000024; 
-    if (abs(id3chi) == 2) id3Sav = 1000037; 
+    id3Sav                       = 1000024;
+    if (abs(id3chi) == 2) id3Sav = 1000037;
     if (isUp)             id3Sav = -id3Sav;
-    id4Sav                       = 1000001 + (isUp ? 1 : 0); 
-    if (id4sq  == 2) id4Sav      = 1000003 + (isUp ? 1 : 0); 
+    id4Sav                       = 1000001 + (isUp ? 1 : 0);
+    if (id4sq  == 2) id4Sav      = 1000003 + (isUp ? 1 : 0);
     if (id4sq  == 3) id4Sav      = 1000005 + (isUp ? 1 : 0);
-    if (id4sq  == 4) id4Sav      = 2000001 + (isUp ? 1 : 0); 
-    if (id4sq  == 5) id4Sav      = 2000003 + (isUp ? 1 : 0); 
-    if (id4sq  == 6) id4Sav      = 2000005 + (isUp ? 1 : 0); 
+    if (id4sq  == 4) id4Sav      = 2000001 + (isUp ? 1 : 0);
+    if (id4sq  == 5) id4Sav      = 2000003 + (isUp ? 1 : 0);
+    if (id4sq  == 6) id4Sav      = 2000005 + (isUp ? 1 : 0);
 
     // Initial values, can be swapped to charge conjugates event by event.
     id3 = id3Sav;
@@ -279,10 +279,10 @@ public:
 
   }
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -297,7 +297,7 @@ public:
 
 //==========================================================================
 
-// A derived class for q q' -> ~q_i ~q_j 
+// A derived class for q q' -> ~q_i ~q_j
 
 class Sigma2qq2squarksquark : public Sigma2Process {
 
@@ -307,25 +307,25 @@ public:
   Sigma2qq2squarksquark() {}
 
   // Constructor.
-  Sigma2qq2squarksquark(int id3In, int id4In, int codeIn) { 
+  Sigma2qq2squarksquark(int id3In, int id4In, int codeIn) {
 
     // Save ordering indices and process code
     id3Sav = id3In;
     id4Sav = id4In;
-    codeSave = codeIn; 
+    codeSave = codeIn;
     // Initial values (flipped for c.c.)
     id3    = id3Sav;
     id4    = id4Sav;
 
   }
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat).  
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -337,14 +337,14 @@ public:
   virtual string inFlux()  const {return "qq";}
   virtual int    id3Mass() const {return abs(id3Sav);}
   virtual int    id4Mass() const {return abs(id4Sav);}
-  virtual bool   isSUSY()  const {return true;}  
+  virtual bool   isSUSY()  const {return true;}
 
 private:
 
   // Basic process information
   int     id3Sav, id4Sav, codeSave, iGen3, iGen4, nNeut;
   string  nameSave;
-  bool    isUD;  
+  bool    isUD;
 
   // Storage of mass squares
   double m2Glu;
@@ -366,7 +366,7 @@ private:
 
 //==========================================================================
 
-// A derived class for q qbar' -> ~q_i ~q*_j 
+// A derived class for q qbar' -> ~q_i ~q*_j
 
 class Sigma2qqbar2squarkantisquark : public Sigma2Process {
 
@@ -376,26 +376,26 @@ public:
   Sigma2qqbar2squarkantisquark() {}
 
   // Constructor.
-  Sigma2qqbar2squarkantisquark(int id3In, int id4In, int codeIn) { 
+  Sigma2qqbar2squarkantisquark(int id3In, int id4In, int codeIn) {
 
     // Save ordering indices and process code
     // (always store squark first, antisquark second)
     id3Sav = abs(id3In);
     id4Sav = -abs(id4In);
-    codeSave = codeIn; 
-    // Initial values 
+    codeSave = codeIn;
+    // Initial values
     id3    = id3Sav;
     id4    = id4Sav;
 
   }
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat).  
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -407,7 +407,7 @@ public:
   virtual string inFlux()  const {return "qq";}
   virtual int    id3Mass() const {return abs(id3Sav);}
   virtual int    id4Mass() const {return abs(id4Sav);}
-  virtual bool   isSUSY()  const {return true;}  
+  virtual bool   isSUSY()  const {return true;}
 
 private:
 
@@ -428,7 +428,7 @@ private:
   // Point-by-point info
   double tGlu, uGlu;
   vector<double> tNeut, uNeut;
-  complex propZW; 
+  complex propZW;
   double sumColS, sumColT, sumInterference;
 
   //SUSY couplings
@@ -449,26 +449,26 @@ public:
   }
 
   // Constructor.
-  Sigma2gg2squarkantisquark(int id34In, int codeIn) { 
+  Sigma2gg2squarkantisquark(int id34In, int codeIn) {
 
     // Save ordering indices and process code
     // (always store squark first, antisquark second)
     id3Sav = abs(id34In);
     id4Sav = -abs(id34In);
-    codeSave = codeIn; 
-    // Initial values 
+    codeSave = codeIn;
+    // Initial values
     id3    = id3Sav;
     id4    = id4Sav;
 
   }
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat).  
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -480,7 +480,7 @@ public:
   virtual string inFlux()  const {return "gg";}
   virtual int    id3Mass() const {return abs(id3Sav);}
   virtual int    id4Mass() const {return abs(id4Sav);}
-  virtual bool   isSUSY()  const {return true;}  
+  virtual bool   isSUSY()  const {return true;}
 
 private:
 
@@ -506,24 +506,24 @@ public:
   Sigma2qg2squarkgluino() {}
 
   // Constructor.
-  Sigma2qg2squarkgluino(int id3In, int codeIn) { 
+  Sigma2qg2squarkgluino(int id3In, int codeIn) {
 
     // Save ordering indices and process code
     id3Sav = abs(id3In);
-    codeSave = codeIn; 
-    // Initial values 
+    codeSave = codeIn;
+    // Initial values
     id3    = id3Sav;
     id4    = 1000021;
 
   }
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat).  
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -535,7 +535,7 @@ public:
   virtual string inFlux()  const {return "qg";}
   virtual int    id3Mass() const {return abs(id3Sav);}
   virtual int    id4Mass() const {return 1000021;}
-  virtual bool   isSUSY()  const {return true;}  
+  virtual bool   isSUSY()  const {return true;}
 
 private:
 
@@ -561,13 +561,13 @@ public:
   Sigma2gg2gluinogluino() {
   }
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat).  
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -579,7 +579,7 @@ public:
   virtual string inFlux()  const {return "gg";}
   virtual int    id3Mass() const {return 1000021;}
   virtual int    id4Mass() const {return 1000021;}
-  virtual bool   isSUSY()  const {return true;}  
+  virtual bool   isSUSY()  const {return true;}
 
 private:
 
@@ -604,13 +604,13 @@ public:
 
 }
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat).  
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -622,7 +622,7 @@ public:
   virtual string inFlux()  const {return "qq";}
   virtual int    id3Mass() const {return 1000021;}
   virtual int    id4Mass() const {return 1000021;}
-  virtual bool   isSUSY()  const {return true;}  
+  virtual bool   isSUSY()  const {return true;}
 
 private:
 
@@ -649,13 +649,13 @@ public:
 
   }
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat).  
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -663,9 +663,9 @@ public:
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
-  virtual int    code()    const {return codeSave;} 
+  virtual int    code()    const {return codeSave;}
   virtual string inFlux()  const {return "qq";}
-  virtual bool   isSUSY()  const {return true;}  
+  virtual bool   isSUSY()  const {return true;}
   virtual bool   isRPV()   const {return true;}
   virtual int    resonanceA() const {return idRes;}
 
@@ -694,37 +694,37 @@ public:
   Sigma2qqbar2chi0gluino() {};
 
   // Constructor.
-  Sigma2qqbar2chi0gluino(int id4chiIn, int codeIn) { 
+  Sigma2qqbar2chi0gluino(int id4chiIn, int codeIn) {
 
     // Save ordering indices and process code
-    id3   = 1000021; 
-    id4chi   = id4chiIn; 
-    codeSave = codeIn; 
+    id3   = 1000021;
+    id4chi   = id4chiIn;
+    codeSave = codeIn;
 
 
     // Construct id codes from ordering indices.
-    id4                  = 1000022; 
-    if (id4chi == 2) id4 = 1000023; 
-    if (id4chi == 3) id4 = 1000025; 
-    if (id4chi == 4) id4 = 1000035; 
-    if (id4chi == 5) id4 = 1000045; 
+    id4                  = 1000022;
+    if (id4chi == 2) id4 = 1000023;
+    if (id4chi == 3) id4 = 1000025;
+    if (id4chi == 4) id4 = 1000035;
+    if (id4chi == 5) id4 = 1000045;
 
   }
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  //  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  //  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -733,10 +733,10 @@ public:
   virtual int    id3Mass() const {return abs(id3);}
   virtual int    id4Mass() const {return abs(id4);}
   virtual int    resonanceA() const {return 23;}
-  virtual bool   isSUSY()  const {return true;}  
+  virtual bool   isSUSY()  const {return true;}
   virtual double getSigma0() const {return sigma0;}
 
- protected:  
+ protected:
 
   // Basic process information
   int     id3chi, id4chi, codeSave;
@@ -761,22 +761,22 @@ public:
   Sigma2qqbar2chargluino(int id4chiIn, int codeIn) {
     
     // Save ordering indices and process code
-    id3   = 1000021; 
-    id4chi   = id4chiIn; 
-    codeSave = codeIn; 
+    id3   = 1000021;
+    id4chi   = id4chiIn;
+    codeSave = codeIn;
 
     // Construct id codes from ordering indices.
-    id4 = (abs(id4chi) == 2) ? 1000037 : 1000024; 
+    id4 = (abs(id4chi) == 2) ? 1000037 : 1000024;
     if (id4chi < 0)  id4 = -id4;
   }
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
   
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -792,7 +792,7 @@ protected :
 
 //==========================================================================
 
-// A derived class for q qbar' -> ~q_i ~q*_j 
+// A derived class for q qbar' -> ~q_i ~q*_j
 
 class Sigma2qqbar2sleptonantislepton : public Sigma2qqbar2squarkantisquark {
 
@@ -802,25 +802,25 @@ public:
   Sigma2qqbar2sleptonantislepton() {}
 
   // Constructor.
-  Sigma2qqbar2sleptonantislepton(int id3In, int id4In, int codeIn) { 
+  Sigma2qqbar2sleptonantislepton(int id3In, int id4In, int codeIn) {
 
     // Save ordering indices and process code
     // (always store squark first, antisquark second)
     id3Sav = abs(id3In);
     id4Sav = -abs(id4In);
-    codeSave = codeIn; 
-    // Initial values 
+    codeSave = codeIn;
+    // Initial values
     id3    = id3Sav;
     id4    = id4Sav;
   }
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat).  
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -832,7 +832,7 @@ public:
   virtual string inFlux()  const {return "qq";}
   virtual int    id3Mass() const {return abs(id3Sav);}
   virtual int    id4Mass() const {return abs(id4Sav);}
-  virtual bool   isSUSY()  const {return true;}  
+  virtual bool   isSUSY()  const {return true;}
 
 private:
 
@@ -851,7 +851,7 @@ private:
 
   // Point-by-point info
   vector<double> tNeut, uNeut;
-  complex propZW; 
+  complex propZW;
   double sumColS, sumColT, sumInterference;
 
   //SUSY couplings

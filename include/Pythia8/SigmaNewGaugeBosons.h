@@ -1,5 +1,5 @@
 // SigmaNewGaugeBosons.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -28,17 +28,17 @@ public:
 
 protected:
 
-  // Internal products. 
+  // Internal products.
   Vec4    pRot[7];
   complex hA[7][7];
   complex hC[7][7];
 
   // Calculate and store internal products.
-  void setupProd( Event& process, int i1, int i2, int i3, int i4, 
-    int i5, int i6);   
+  void setupProd( Event& process, int i1, int i2, int i3, int i4,
+    int i5, int i6);
 
   // Evaluate the F function of Gunion and Kunszt.
-  complex fGK(int i1, int i2, int i3, int i4, int i5, int i6); 
+  complex fGK(int i1, int i2, int i3, int i4, int i5, int i6);
 
   // Evaluate the Xi function of Gunion and Kunszt.
   double xiGK( double tHnow, double uHnow, double s3now, double s4now);
@@ -61,20 +61,20 @@ public:
   // Constructor.
   Sigma1ffbar2gmZZprime() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for Z' decay angle.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return "f fbar -> gamma*/Z0/Zprime0";}
@@ -85,9 +85,9 @@ public:
 
 private:
 
-  // Parameters set at initialization or for each new event. 
+  // Parameters set at initialization or for each new event.
   int    gmZmode;
-  double mRes, GammaRes, m2Res, GamMRat, sin2tW, cos2tW, thetaWRat, 
+  double mRes, GammaRes, m2Res, GamMRat, sin2tW, cos2tW, thetaWRat,
          mZ, GammaZ, m2Z, GamMRatZ, afZp[20], vfZp[20], coupZpWW,
          anglesZpWW, gamSum, gamZSum, ZSum, gamZpSum, ZZpSum, ZpSum,
          gamNorm, gamZNorm, ZNorm, gamZpNorm, ZZpNorm, ZpNorm;
@@ -108,20 +108,20 @@ public:
   // Constructor.
   Sigma1ffbar2Wprime() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for W decay angle.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return "f fbar' -> W'+-";}
@@ -131,7 +131,7 @@ public:
 
 private:
 
-  // Parameters set at initialization. 
+  // Parameters set at initialization.
   double mRes, GammaRes, m2Res, GamMRat, thetaWRat, sigma0Pos, sigma0Neg,
          aqWp, vqWp, alWp, vlWp, coupWpWZ, anglesWpWZ;
 
@@ -150,13 +150,13 @@ public:
   // Constructor.
   Sigma1ffbar2Rhorizontal() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -170,7 +170,7 @@ public:
 
 private:
 
-  // Parameters set at initialization. 
+  // Parameters set at initialization.
   double mRes, GammaRes, m2Res, GamMRat, thetaWRat, sigma0Pos, sigma0Neg;
 
   // Pointer to properties of the particle species, to access decay channels.

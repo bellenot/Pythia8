@@ -1,18 +1,18 @@
 // main52.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Studies of hadron-level and parton-level minimum-bias quantities,
 // comparing internal default PDF with one from LHAPDF.
-// Major differences indicate need for major retuning, e.g. pT0Ref. 
+// Major differences indicate need for major retuning, e.g. pT0Ref.
 
 // Access time information.
 #include <ctime>
 
 #include "Pythia8/Pythia.h"
 
-using namespace Pythia8; 
+using namespace Pythia8;
 
 int main() {
 
@@ -32,23 +32,23 @@ int main() {
   Hist nChargedOld("n_charged old PDF", 100, -0.5, nMax);
   Hist nChargedNew("n_charged new PDF", 100, -0.5, nMax);
   Hist nChargedRat("n_charged new/old PDF", 100, -0.5, nMax);
-  Hist ySpecOld("y charged distribution old PDF", 100, -10., 10.); 
-  Hist ySpecNew("y charged distribution new PDF", 100, -10., 10.); 
-  Hist ySpecRat("y charged distribution new/old PDF", 100, -10., 10.); 
-  Hist pTSpecOld("pT charged distribution old PDF", 100, 0., 20.); 
-  Hist pTSpecNew("pT charged distribution new PDF", 100, 0., 20.); 
-  Hist pTSpecRat("pT charged distribution new/old PDF", 100, 0., 20.); 
-  Hist avgPTnChOld("<pT>(n_charged) old PDF", 100, -0.5, nMax);  
-  Hist avgPTnChNew("<pT>(n_charged) new PDF", 100, -0.5, nMax);  
-  Hist avgPTnChRat("<pT>(n_charged) new/old PDF", 100, -0.5, nMax);  
+  Hist ySpecOld("y charged distribution old PDF", 100, -10., 10.);
+  Hist ySpecNew("y charged distribution new PDF", 100, -10., 10.);
+  Hist ySpecRat("y charged distribution new/old PDF", 100, -10., 10.);
+  Hist pTSpecOld("pT charged distribution old PDF", 100, 0., 20.);
+  Hist pTSpecNew("pT charged distribution new PDF", 100, 0., 20.);
+  Hist pTSpecRat("pT charged distribution new/old PDF", 100, 0., 20.);
+  Hist avgPTnChOld("<pT>(n_charged) old PDF", 100, -0.5, nMax);
+  Hist avgPTnChNew("<pT>(n_charged) new PDF", 100, -0.5, nMax);
+  Hist avgPTnChRat("<pT>(n_charged) new/old PDF", 100, -0.5, nMax);
 
   // Histograms for parton-level quantities.
-  Hist xDistOld("MPI log(x) distribution old PDF", 80, -8., 0.); 
-  Hist xDistNew("MPI log(x) distribution new PDF", 80, -8., 0.); 
-  Hist xDistRat("MPI log(x) distribution new/old PDF", 80, -8., 0.); 
-  Hist pTDistOld("MPI pT (=Q) distribution old PDF", 100, 0., 20.); 
-  Hist pTDistNew("MPI pT (=Q) distribution new PDF", 100, 0., 20.); 
-  Hist pTDistRat("MPI pT (=Q) distribution new/old PDF", 100, 0., 20.); 
+  Hist xDistOld("MPI log(x) distribution old PDF", 80, -8., 0.);
+  Hist xDistNew("MPI log(x) distribution new PDF", 80, -8., 0.);
+  Hist xDistRat("MPI log(x) distribution new/old PDF", 80, -8., 0.);
+  Hist pTDistOld("MPI pT (=Q) distribution old PDF", 100, 0., 20.);
+  Hist pTDistNew("MPI pT (=Q) distribution new PDF", 100, 0., 20.);
+  Hist pTDistRat("MPI pT (=Q) distribution new/old PDF", 100, 0., 20.);
 
   // Loop over one default run and one with new PDF.
   for (int iRun = 0; iRun < 2; ++iRun) {
@@ -61,12 +61,12 @@ int main() {
     Event& event = pythia.event;
 
     // Generate minimum-bias events, with or without double diffraction.
-    pythia.readString("SoftQCD:nonDiffractive = on");  
-    //pythia.readString("SoftQCD:doubleDiffractive = on"); 
+    pythia.readString("SoftQCD:nonDiffractive = on");
+    //pythia.readString("SoftQCD:doubleDiffractive = on");
 
     // Generate QCD jet events, above some threshold.
-    //pythia.readString("HardQCD:all = on"); 
-    //pythia.readString("PhaseSpace:pTHatMin = 50."); 
+    //pythia.readString("HardQCD:all = on");
+    //pythia.readString("PhaseSpace:pTHatMin = 50.");
 
     // In second run pick new PDF set.
     if (iRun == 1) {
@@ -84,8 +84,8 @@ int main() {
 
     // Tevatron/LHC initialization.
     double eCM =  (machine == 1) ? 1960. : 7000.;
-    pythia.settings.parm("Beams:eCM", eCM); 
-    if (machine == 1) pythia.readString("Beams:idB = -2212");    
+    pythia.settings.parm("Beams:eCM", eCM);
+    if (machine == 1) pythia.readString("Beams:idB = -2212");
     pythia.init();
    
     // Begin event loop.
@@ -97,7 +97,7 @@ int main() {
       // Statistics on multiplicity and pT.
       int    nCh   = 0;
       double pTsum = 0.;
-      for (int i = 0; i < event.size(); ++i) 
+      for (int i = 0; i < event.size(); ++i)
       if (event[i].isFinal() && event[i].isCharged()) {
         ++nCh;
         pTsum += event[i].pT();
@@ -122,7 +122,7 @@ int main() {
       }
 
       // Loop through event record and fill x of all incoming partons.
-      for (int i = 1; i < event.size(); ++i) 
+      for (int i = 1; i < event.size(); ++i)
       if (event[i].status() == -21 || event[i].status() == -31) {
         double x = 2. * event[i].e() / eCM;
         if (iRun == 0) xDistOld.fill( log10(x) );
@@ -139,7 +139,7 @@ int main() {
     // End of event loop.
     }
 
-    // Statistics. 
+    // Statistics.
     pythia.readString("Stat:showPartonLevel = on");
     pythia.stat();
 
@@ -166,8 +166,8 @@ int main() {
   cout << nChargedOld << nChargedNew << nChargedRat
        << ySpecOld    << ySpecNew    << ySpecRat
        << pTSpecOld   << pTSpecNew   << pTSpecRat
-       << avgPTnChOld << avgPTnChNew << avgPTnChRat 
-       << xDistOld    << xDistNew    << xDistRat 
+       << avgPTnChOld << avgPTnChNew << avgPTnChRat
+       << xDistOld    << xDistNew    << xDistRat
        << pTDistOld   << pTDistNew   << pTDistRat;
 
   // Second part of study, as simple extra check:
@@ -177,7 +177,7 @@ int main() {
   PDF* oldPDF = new CTEQ5L(2212);
   PDF* newPDF = new LHAPDF(2212, pdfSet, 0);
 
-  // Histograms.  
+  // Histograms.
   Hist effFlinOld("F_effective( x, Q2 = 10) old", 100 , 0., 1.);
   Hist effFlinNew("F_effective( x, Q2 = 10) new", 100 , 0., 1.);
   Hist effFlinRat("F_effective( x, Q2 = 10) new/old", 100 , 0., 1.);
@@ -190,16 +190,16 @@ int main() {
     double x = 0.005 + 0.01 * iX;
 
     // Evaluate old summed PDF.
-    double oldSum = 2.25 * oldPDF->xf( 21, x, Q2);   
-    for (int i = 1; i < 6; ++i) 
-      oldSum += oldPDF->xf( i, x, Q2) + oldPDF->xf( -i, x, Q2);  
-    effFlinOld.fill ( x, oldSum ); 
+    double oldSum = 2.25 * oldPDF->xf( 21, x, Q2);
+    for (int i = 1; i < 6; ++i)
+      oldSum += oldPDF->xf( i, x, Q2) + oldPDF->xf( -i, x, Q2);
+    effFlinOld.fill ( x, oldSum );
 
     // Evaluate new summed PDF.
-    double newSum = 2.25 * newPDF->xf( 21, x, Q2);   
-    for (int i = 1; i < 6; ++i) 
-      newSum += newPDF->xf( i, x, Q2) + newPDF->xf( -i, x, Q2);  
-    effFlinNew.fill ( x, newSum ); 
+    double newSum = 2.25 * newPDF->xf( 21, x, Q2);
+    for (int i = 1; i < 6; ++i)
+      newSum += newPDF->xf( i, x, Q2) + newPDF->xf( -i, x, Q2);
+    effFlinNew.fill ( x, newSum );
 
   //End loop over x values, in a linear scale.
   }
@@ -207,19 +207,19 @@ int main() {
   // Loop over x values, in a logarithmic scale
   for (int iX = 0; iX < 80; ++iX) {
     double xLog = -(0.1 * iX + 0.05);
-    double x = pow( 10., xLog); 
+    double x = pow( 10., xLog);
 
     // Evaluate old summed PDF.
-    double oldSum = 2.25 * oldPDF->xf( 21, x, Q2);   
-    for (int i = 1; i < 6; ++i) 
-      oldSum += oldPDF->xf( i, x, Q2) + oldPDF->xf( -i, x, Q2);  
-    effFlogOld.fill ( xLog, oldSum ); 
+    double oldSum = 2.25 * oldPDF->xf( 21, x, Q2);
+    for (int i = 1; i < 6; ++i)
+      oldSum += oldPDF->xf( i, x, Q2) + oldPDF->xf( -i, x, Q2);
+    effFlogOld.fill ( xLog, oldSum );
 
     // Evaluate new summed PDF.
-    double newSum = 2.25 * newPDF->xf( 21, x, Q2);   
-    for (int i = 1; i < 6; ++i) 
-      newSum += newPDF->xf( i, x, Q2) + newPDF->xf( -i, x, Q2);  
-    effFlogNew.fill ( xLog, newSum ); 
+    double newSum = 2.25 * newPDF->xf( 21, x, Q2);
+    for (int i = 1; i < 6; ++i)
+      newSum += newPDF->xf( i, x, Q2) + newPDF->xf( -i, x, Q2);
+    effFlogNew.fill ( xLog, newSum );
 
   //End loop over x values, in a logarithmic scale.
   }
@@ -229,7 +229,7 @@ int main() {
   effFlogRat   = effFlogNew  / effFlogOld;
 
   // Print histograms.
-  cout << effFlinOld  << effFlinNew  << effFlinRat 
+  cout << effFlinOld  << effFlinNew  << effFlinRat
        << effFlogOld  << effFlogNew  << effFlogRat;
 
   // Done.

@@ -1,5 +1,5 @@
 // GeneratorInput.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -20,7 +20,7 @@
 // with Madgraph-style matching, and Madgraph input was added.
 
 #ifndef Pythia8_GeneratorInput_H
-#define Pythia8_GeneratorInput_H 
+#define Pythia8_GeneratorInput_H
 
 // Includes and namespace
 #include "Pythia8/Pythia.h"
@@ -199,12 +199,12 @@ private:
   // Constants
   static const double ZEROTHRESHOLD;
 
-}; 
+};
 
 //==========================================================================
 
-// Main implementation of AlpgenPar class. 
-// This may be split out to a separate C++ file if desired, 
+// Main implementation of AlpgenPar class.
+// This may be split out to a separate C++ file if desired,
 // but currently included here for ease of use.
 
 //--------------------------------------------------------------------------
@@ -361,8 +361,8 @@ string AlpgenPar::trim(string s) {
 
 //==========================================================================
 
-// Main implementation of LHAupAlpgen class. 
-// This may be split out to a separate C++ file if desired, 
+// Main implementation of LHAupAlpgen class.
+// This may be split out to a separate C++ file if desired,
 // but currently included here for ease of use.
 
 // ----------------------------------------------------------------------
@@ -540,7 +540,7 @@ bool LHAupAlpgen::setInit() {
   xErrSumSave = xerrup;
 
   // All okay
-  return true; 
+  return true;
 }
 
 // ----------------------------------------------------------------------
@@ -1040,8 +1040,8 @@ bool LHAupAlpgen::rescaleMomenta() {
 
 //==========================================================================
 
-// Main implementation of AlpgenHooks class. 
-// This may be split out to a separate C++ file if desired, 
+// Main implementation of AlpgenHooks class.
+// This may be split out to a separate C++ file if desired,
 // but currently included here for ease of use.
 
 // ----------------------------------------------------------------------
@@ -1102,7 +1102,7 @@ bool AlpgenHooks::initAfterBeams() {
           "no ALPGEN nJet parameter found");
   }
 
-  // Set MLM merging parameters if requested 
+  // Set MLM merging parameters if requested
   if (setMLM) {
     if (par.haveParam("ptjmin") && par.haveParam("drjmin") &&
         par.haveParam("etajmax")) {
@@ -1126,7 +1126,7 @@ bool AlpgenHooks::initAfterBeams() {
 //==========================================================================
 
 // Main implementation of MadgraphPar class.
-// This may be split out to a separate C++ file if desired, 
+// This may be split out to a separate C++ file if desired,
 // but currently included here for ease of use.
 
 //--------------------------------------------------------------------------
@@ -1171,7 +1171,7 @@ void MadgraphPar::extractRunParam(string line) {
   // Simple tokeniser
   istringstream iss(paramVal);
   double val;
-  if (paramName.find(",") != string::npos) {      
+  if (paramName.find(",") != string::npos) {
     string        paramNameNow;
     istringstream issName( paramName);
     while ( getline(issName, paramNameNow, ',') ) {

@@ -1,5 +1,5 @@
 // PythiaStdlib.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -31,7 +31,7 @@ double GammaReal(double x) {
 
   // Answer.
   double t = z + 7.5;
-  gamma *= sqrt(2. * M_PI) * pow(t, z + 0.5) * exp(-t); 
+  gamma *= sqrt(2. * M_PI) * pow(t, z + 0.5) * exp(-t);
   return gamma;
 
 }

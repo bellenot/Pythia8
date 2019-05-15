@@ -1,5 +1,5 @@
 // UserHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -17,14 +17,14 @@ namespace Pythia8 {
 
 //--------------------------------------------------------------------------
 
-// multiplySigmaBy allows the user to introduce a multiplicative factor 
+// multiplySigmaBy allows the user to introduce a multiplicative factor
 // that modifies the cross section of a hard process. Since it is called
 // from before the event record is generated in full, the normal analysis
 // does not work. The code here provides a rather extensive summary of
-// which methods actually do work. It is a convenient starting point for 
+// which methods actually do work. It is a convenient starting point for
 // writing your own derived routine.
 
-double UserHooks::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr, 
+double UserHooks::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
   const PhaseSpace* phaseSpacePtr, bool inEvent) {
 
   // Process code, necessary when some to be treated differently.
@@ -60,23 +60,23 @@ double UserHooks::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
   //}
 
   // Dummy statement to avoid compiler warnings.
-  return ((inEvent && sigmaProcessPtr->code() == 0 
+  return ((inEvent && sigmaProcessPtr->code() == 0
     && phaseSpacePtr->sHat() < 0.) ? 0. : 1.);
 
 }
 
 //--------------------------------------------------------------------------
 
-// biasSelectionBy allows the user to introduce a multiplicative factor 
+// biasSelectionBy allows the user to introduce a multiplicative factor
 // that modifies the cross section of a hard process. The event is assigned
 // a wegith that is the inverse of the selection bias, such that the
-// cross section is unchanged. Since it is called from before the 
-// event record is generated in full, the normal analysis does not work. 
-// The code here provides a rather extensive summary of which methods 
-// actually do work. It is a convenient starting point for writing 
+// cross section is unchanged. Since it is called from before the
+// event record is generated in full, the normal analysis does not work.
+// The code here provides a rather extensive summary of which methods
+// actually do work. It is a convenient starting point for writing
 // your own derived routine.
 
-double UserHooks::biasSelectionBy( const SigmaProcess* sigmaProcessPtr, 
+double UserHooks::biasSelectionBy( const SigmaProcess* sigmaProcessPtr,
   const PhaseSpace* phaseSpacePtr, bool inEvent) {
 
   // Process code, necessary when some to be treated differently.
@@ -111,17 +111,17 @@ double UserHooks::biasSelectionBy( const SigmaProcess* sigmaProcessPtr,
     //double m4    = sigmaProcessPtr->m(4);
   //}
 
-  // Insert here your calculation of the selection bias. 
+  // Insert here your calculation of the selection bias.
   // Here illustrated by a weighting up of events at high pT.
-  //selBias = pow4(phaseSpacePtr->pTHat()); 
+  //selBias = pow4(phaseSpacePtr->pTHat());
 
-  // Return the selBias weight. 
+  // Return the selBias weight.
   // Warning: if you use another variable than selBias
   // the compensating weight will not be set correctly.
   //return selBias;
 
   // Dummy statement to avoid compiler warnings.
-  return ((inEvent && sigmaProcessPtr->code() == 0 
+  return ((inEvent && sigmaProcessPtr->code() == 0
     && phaseSpacePtr->sHat() < 0.) ? 0. : 1.);
 }
 
@@ -132,7 +132,7 @@ double UserHooks::biasSelectionBy( const SigmaProcess* sigmaProcessPtr,
 void UserHooks::omitResonanceDecays(const Event& process, bool finalOnly) {
 
   // Reset work event to be empty
-  workEvent.clear(); 
+  workEvent.clear();
 
   // Loop through all partons. Beam particles should be copied.
   for (int i = 0; i < process.size(); ++i) {
@@ -147,11 +147,11 @@ void UserHooks::omitResonanceDecays(const Event& process, bool finalOnly) {
        
       // Granddaughters of beams should normally be copied and are final.
       else if (iMother > 2) {
-        int iGrandMother =  process[iMother].mother1(); 
+        int iGrandMother =  process[iMother].mother1();
         if (iGrandMother == 1 || iGrandMother == 2) {
           doCopy  = true;
           isFinal = true;
-        }  
+        }
       }
     }
 
@@ -162,10 +162,10 @@ void UserHooks::omitResonanceDecays(const Event& process, bool finalOnly) {
     if (doCopy) {
       int iNew = workEvent.append( process[i]);
       if (isFinal) {
-        workEvent[iNew].statusPos(); 
+        workEvent[iNew].statusPos();
         workEvent[iNew].daughters( 0, 0);
-        // When final only : no mothers; position in full event as daughters. 
-        if (finalOnly) {  
+        // When final only : no mothers; position in full event as daughters.
+        if (finalOnly) {
           workEvent[iNew].mothers( 0, 0);
           workEvent[iNew].daughters( i, i);
         }
@@ -181,8 +181,8 @@ void UserHooks::omitResonanceDecays(const Event& process, bool finalOnly) {
 
 void UserHooks::subEvent(const Event& event, bool isHardest) {
 
-  // Reset work event to be empty. 
-  workEvent.clear();  
+  // Reset work event to be empty.
+  workEvent.clear();
 
   // At the PartonLevel final partons are bookkept by subsystem.
   if (partonSystemsPtr->sizeSys() > 0) {
@@ -196,9 +196,9 @@ void UserHooks::subEvent(const Event& event, bool isHardest) {
       int iOld = partonSystemsPtr->getOut( iSys, i);
 
       // Copy partons to work event.
-      int iNew = workEvent.append( event[iOld]); 
+      int iNew = workEvent.append( event[iOld]);
 
-      // No mothers. Position in full event as daughters.  
+      // No mothers. Position in full event as daughters.
       workEvent[iNew].mothers( 0, 0);
       workEvent[iNew].daughters( iOld, iOld);
     }
@@ -207,11 +207,11 @@ void UserHooks::subEvent(const Event& event, bool isHardest) {
   } else {
 
     // Loop through all partons, and copy all final ones.
-    for (int iOld = 0; iOld < event.size(); ++iOld) 
+    for (int iOld = 0; iOld < event.size(); ++iOld)
     if (event[iOld].isFinal()) {
-      int iNew = workEvent.append( event[iOld]); 
+      int iNew = workEvent.append( event[iOld]);
 
-      // No mothers. Position in full event as daughters.  
+      // No mothers. Position in full event as daughters.
       workEvent[iNew].mothers( 0, 0);
       workEvent[iNew].daughters( iOld, iOld);
     }
@@ -227,7 +227,7 @@ void UserHooks::subEvent(const Event& event, bool isHardest) {
 
 // Modify event weight at the trial level, before selection.
 
-double SuppressSmallPT::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr, 
+double SuppressSmallPT::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
   const PhaseSpace* phaseSpacePtr, bool ) {
 
   // Need to initialize first time this method is called.
@@ -245,7 +245,7 @@ double SuppressSmallPT::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
     // Initialize alpha_strong object as for multiparton interactions,
     // alternatively as for hard processes.
     double alphaSvalue;
-    int    alphaSorder;    
+    int    alphaSorder;
     int    alphaSnfmax = settingsPtr->mode("StandardModel:alphaSnfmax");
     if (useSameAlphaSasMPI) {
       alphaSvalue = settingsPtr->parm("MultipartonInteractions:alphaSvalue");
@@ -254,7 +254,7 @@ double SuppressSmallPT::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
       alphaSvalue = settingsPtr->parm("SigmaProcess:alphaSvalue");
       alphaSorder = settingsPtr->mode("SigmaProcess:alphaSorder");
     }
-    alphaS.init( alphaSvalue, alphaSorder, alphaSnfmax, false); 
+    alphaS.init( alphaSvalue, alphaSorder, alphaSnfmax, false);
 
     // Initialization finished.
     isInit = true;
@@ -264,7 +264,7 @@ double SuppressSmallPT::multiplySigmaBy( const SigmaProcess* sigmaProcessPtr,
   int nFinal = sigmaProcessPtr->nFinal();
   if (nFinal != 2) return 1.;
 
-  // pT scale of process. Weight pT^4 / (pT^2 + pT0^2)^2 
+  // pT scale of process. Weight pT^4 / (pT^2 + pT0^2)^2
   double pTHat     = phaseSpacePtr->pTHat();
   double pT2       = pTHat * pTHat;
   double wt        = pow2( pT2 / (pT20 + pT2) );

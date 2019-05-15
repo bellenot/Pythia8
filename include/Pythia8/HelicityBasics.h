@@ -1,5 +1,5 @@
 // HelicityBasics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2014 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -110,8 +110,8 @@ ostream& operator<< (ostream& os, Wave4 w);
 // helicity matrix elements in conjuction with the Wave4 class. Note that
 // only left to right multplication of Wave4 vectors with the GammaMatrix
 // class is allowed. Additionally, subtracting a scalar from a GammaMatrix
-// (or subtracting a GammaMatrix from a scalar) subtracts the scalar from 
-//each non-zero element of the GammaMatrix. This is designed specifically 
+// (or subtracting a GammaMatrix from a scalar) subtracts the scalar from
+//each non-zero element of the GammaMatrix. This is designed specifically
 // with the (1 - gamma^5) structure of matrix elements in mind.
  
 class GammaMatrix {
@@ -131,21 +131,21 @@ public:
   friend Wave4 operator*(Wave4 w, GammaMatrix g);
 
   // GammaMatrix * Scalar.
-  GammaMatrix operator*(complex s) {val[0] = s*val[0]; val[1] = s*val[1]; 
+  GammaMatrix operator*(complex s) {val[0] = s*val[0]; val[1] = s*val[1];
     val[2] = s*val[2]; val[3] = s*val[3]; return *this;}
 
   // Scalar * GammaMatrix.
-  friend GammaMatrix operator*(complex s, GammaMatrix g); 
+  friend GammaMatrix operator*(complex s, GammaMatrix g);
   
   // Gamma5 - I * Scalar.
-  GammaMatrix operator-(complex s) {val[0] = val[0] - s; val[1] = val[1] - s; 
+  GammaMatrix operator-(complex s) {val[0] = val[0] - s; val[1] = val[1] - s;
     val[2] = val[2] - s; val[3] = val[3] - s; return *this;}
 
   // I * Scalar - Gamma5.
   friend GammaMatrix operator-(complex s, GammaMatrix g);
 
   // Gamma5 + I * Scalar
-  GammaMatrix operator+(complex s) {val[0] = val[0] + s; val[1] = val[1] + s; 
+  GammaMatrix operator+(complex s) {val[0] = val[0] + s; val[1] = val[1] + s;
     val[2] = val[2] + s; val[3] = val[3] + s; return *this;}
 
   // I * Scalar + Gamma5
@@ -168,9 +168,9 @@ protected:
 
 // Namespace function declarations; friends of GammaMatrix class.
 Wave4 operator*(Wave4 w, GammaMatrix g);
-GammaMatrix operator*(complex s, GammaMatrix g); 
-GammaMatrix operator-(complex s, GammaMatrix g); 
-GammaMatrix operator+(complex s, GammaMatrix g); 
+GammaMatrix operator*(complex s, GammaMatrix g);
+GammaMatrix operator-(complex s, GammaMatrix g);
+GammaMatrix operator+(complex s, GammaMatrix g);
 ostream& operator<< (ostream& os, GammaMatrix g);
 
 //==========================================================================
@@ -192,30 +192,30 @@ public:
     : Particle(idIn, statusIn, mother1In, mother2In, daughter1In, daughter2In,
     colIn, acolIn, pxIn, pyIn, pzIn, eIn, mIn, scaleIn) {
     if (ptr) setPDEPtr( ptr->particleDataEntryPtr( idIn) );
-    rho = vector< vector<complex> >(spinStates(), 
+    rho = vector< vector<complex> >(spinStates(),
       vector<complex>(spinStates(), 0));
-    D   = vector< vector<complex> >(spinStates(), 
+    D   = vector< vector<complex> >(spinStates(),
       vector<complex>(spinStates(), 0));
     for (int i = 0; i < spinStates(); i++) { rho[i][i] = 0.5; D[i][i] = 1.;}
     direction = 1; }
   HelicityParticle(int idIn, int statusIn, int mother1In, int mother2In,
-    int daughter1In, int daughter2In, int colIn, int acolIn, Vec4 pIn, 
+    int daughter1In, int daughter2In, int colIn, int acolIn, Vec4 pIn,
     double mIn = 0., double scaleIn = 0., ParticleData* ptr = 0)
     : Particle(idIn, statusIn, mother1In, mother2In, daughter1In, daughter2In,
     colIn, acolIn, pIn, mIn, scaleIn) {
     if (ptr) setPDEPtr( ptr->particleDataEntryPtr( idIn) );
-    rho = vector< vector<complex> >(spinStates(), 
+    rho = vector< vector<complex> >(spinStates(),
       vector<complex>(spinStates(), 0));
-    D   = vector< vector<complex> >(spinStates(), 
+    D   = vector< vector<complex> >(spinStates(),
       vector<complex>(spinStates(), 0));
     for (int i = 0; i < spinStates(); i++) { rho[i][i] = 0.5; D[i][i] = 1;}
     direction = 1; }
-  HelicityParticle(const Particle& ptIn, ParticleData* ptr = 0) 
+  HelicityParticle(const Particle& ptIn, ParticleData* ptr = 0)
     : Particle(ptIn) {
     if (ptr) setPDEPtr( ptr->particleDataEntryPtr( id()) );
-    rho = vector< vector<complex> >(spinStates(), 
+    rho = vector< vector<complex> >(spinStates(),
       vector<complex>(spinStates(), 0));
-    D   = vector< vector<complex> >(spinStates(), 
+    D   = vector< vector<complex> >(spinStates(),
       vector<complex>(spinStates(), 0));
     for (int i = 0; i < spinStates(); i++) { rho[i][i] = 0.5; D[i][i] = 1;}
     direction = 1; }
@@ -238,7 +238,7 @@ public:
   // Decay matrix.
   vector< vector<complex> > D;
 
-private: 
+private:
 
   // Constants: could only be changed in the code itself.
   static const double TOLERANCE;

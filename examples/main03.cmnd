@@ -1,5 +1,5 @@
 ! main03.cmnd.
-! This file contains commands to be read in for a Pythia8 run. 
+! This file contains commands to be read in for a Pythia8 run.
 ! Lines not beginning with a letter or digit are comments.
 ! Names are case-insensitive  -  but spellings-sensitive!
 ! The settings here are illustrative, not always physics-motivated.
@@ -23,27 +23,27 @@ Beams:eCM = 14000.                 ! CM energy of collision
 
 ! 4) Settings for the hard-process generation.
 
-! Example 1: QCD + prompt photon production; must set pTmin. 
+! Example 1: QCD + prompt photon production; must set pTmin.
 HardQCD:all = on                   ! switch on all QCD jet + jet processes
-PromptPhoton:all = on              ! swich on gamma + jet and gamma + gamma 
-PhaseSpace:pTHatMin = 50.          ! minimal pT scale in process 
+PromptPhoton:all = on              ! swich on gamma + jet and gamma + gamma
+PhaseSpace:pTHatMin = 50.          ! minimal pT scale in process
 
-! Example 2: t-tbar production.  
+! Example 2: t-tbar production.
 #Top:gg2ttbar = on                  ! g g -> t tbar
 #Top:qqbar2ttbar = on               ! q qbar -> t tbar
 
 ! Example 3: Z0 production; should set mMin.
 #WeakSingleBoson:ffbar2gmZ = on     ! q qbar -> gamma*/Z0
-#PhaseSpace:mHatMin = 50.            
+#PhaseSpace:mHatMin = 50.
 
 ! Example 4: gauge boson pair production; set pTmin. Not yet complete.
-#WeakDoubleBoson:ffbar2ZW = on      ! q qbar -> Z0 W+- 
+#WeakDoubleBoson:ffbar2ZW = on      ! q qbar -> Z0 W+-
 #WeakDoubleBoson:ffbar2WW = on      ! q qbar -> W+ W-
-#PhaseSpace:pTHatMin = 20.          ! minimal pT scale in process 
+#PhaseSpace:pTHatMin = 20.          ! minimal pT scale in process
 
-! 5) Switch on/off the key event generation steps. 
+! 5) Switch on/off the key event generation steps.
 #PartonLevel:MPI = off              ! no multiparton interactions
-#PartonLevel:ISR = off              ! no initial-state radiation 
+#PartonLevel:ISR = off              ! no initial-state radiation
 #PartonLevel:FSR = off              ! no final-state radiation
 #HadronLevel:Hadronize = off        ! no hadronization
 #HadronLevel:Decay = off            ! no decays

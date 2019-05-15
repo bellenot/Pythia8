@@ -1,10 +1,10 @@
 // Pythia8ToHepMC.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Author: Mikhail Kirsanov, Mikhail.Kirsanov@cern.ch
-// Function definitions (not found in the header) for the Pythia8ToHepMC class, 
+// Function definitions (not found in the header) for the Pythia8ToHepMC class,
 // which converts a PYTHIA event record to the standard HepMC format.
 
 #include "Pythia8/Pythia8ToHepMC.h"
@@ -15,15 +15,15 @@ namespace HepMC {
 //==========================================================================
 
 // Main method for conversion from PYTHIA event to HepMC event.
-// Read one event from Pythia8 and fill GenEvent, 
+// Read one event from Pythia8 and fill GenEvent,
 // and return T/F = success/failure.
 
-bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev, GenEvent* evt, 
+bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
   int ievnum, Pythia8::Info* pyinfo, Pythia8::Settings* pyset) {
 
   // 1. Error if no event passed.
   if (!evt) {
-    std::cerr << "Pythia8ToHepMC::fill_next_event error - passed null event." 
+    std::cerr << "Pythia8ToHepMC::fill_next_event error - passed null event."
               << std::endl;
     return 0;
   }
@@ -38,18 +38,18 @@ bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
   }
 
   // Conversion factors from Pythia units GeV and mm to HepMC ones.
-  double momFac = HepMC::Units::conversion_factor(HepMC::Units::GEV, 
+  double momFac = HepMC::Units::conversion_factor(HepMC::Units::GEV,
     evt->momentum_unit());
-  double lenFac = HepMC::Units::conversion_factor(HepMC::Units::MM, 
+  double lenFac = HepMC::Units::conversion_factor(HepMC::Units::MM,
     evt->length_unit());
     
-  // 2. Create a particle instance for each entry and fill a map, and 
+  // 2. Create a particle instance for each entry and fill a map, and
   // a vector which maps from the particle index to the GenParticle address.
   std::vector<GenParticle*> hepevt_particles( pyev.size() );
   for (int i = 1; i < pyev.size(); ++i) {
 
     // Fill the particle.
-    hepevt_particles[i] = new GenParticle( 
+    hepevt_particles[i] = new GenParticle(
       FourVector( momFac * pyev[i].px(), momFac * pyev[i].py(),
                   momFac * pyev[i].pz(), momFac * pyev[i].e()  ),
       pyev[i].id(), pyev.statusHepMC(i) );
@@ -110,10 +110,10 @@ bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
       if ( !hepevt_particles[mother]->end_vertex() ) {
         prod_vtx->add_particle_in( hepevt_particles[mother] );
 
-      // Problem scenario: the mother already has a decay vertex which 
+      // Problem scenario: the mother already has a decay vertex which
       // differs from the daughter's production vertex. This means there is
       // internal inconsistency in the HEPEVT event record. Print an error.
-      // Note: we could provide a fix by joining the two vertices with a 
+      // Note: we could provide a fix by joining the two vertices with a
       // dummy particle if the problem arises often.
       } else if (hepevt_particles[mother]->end_vertex() != prod_vtx ) {
        if ( m_print_inconsistency ) std::cerr
@@ -133,9 +133,9 @@ bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
   bool doHadr = (pyset == 0) ? m_free_parton_warnings
     : pyset->flag("HadronLevel:all") && pyset->flag("HadronLevel:Hadronize");
 
-  // 4. Check for particles which come from nowhere, i.e. are without 
-  // mothers or daughters. These need to be attached to a vertex, or else 
-  // they will never become part of the event. 
+  // 4. Check for particles which come from nowhere, i.e. are without
+  // mothers or daughters. These need to be attached to a vertex, or else
+  // they will never become part of the event.
   for (int i = 1; i < pyev.size(); ++i) {
     if ( !hepevt_particles[i]->end_vertex() &&
          !hepevt_particles[i]->production_vertex() ) {
@@ -170,9 +170,9 @@ bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
       if (id2pdf == 21) id2pdf = 0;
     }
 
-    // Store PDF information. 
+    // Store PDF information.
     evt->set_pdf_info( PdfInfo( id1pdf, id2pdf, pyinfo->x1pdf(),
-      pyinfo->x2pdf(), pyinfo->QFac(), pyinfo->pdf1(), pyinfo->pdf2() ) );   
+      pyinfo->x2pdf(), pyinfo->QFac(), pyinfo->pdf1(), pyinfo->pdf2() ) );
   }
 
   // Store process code, scale, alpha_em, alpha_s.
@@ -183,11 +183,12 @@ bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
     if (evt->alphaQCD() <= 0) evt->set_alphaQCD( pyinfo->alphaS() );
   }
 
-  // Store cross-section information in pb and event weight. The latter is 
+  // Store cross-section information in pb and event weight. The latter is
   // usually dimensionless, but in units of pb for Les Houches strategies +-4.
   if (m_store_xsec && pyinfo != 0) {
     HepMC::GenCrossSection xsec;
-    xsec.set_cross_section( pyinfo->sigmaGen() * 1e9, pyinfo->sigmaErr() * 1e9);
+    xsec.set_cross_section( pyinfo->sigmaGen() * 1e9,
+      pyinfo->sigmaErr() * 1e9);
     evt->set_cross_section(xsec);
     evt->weights().push_back( pyinfo->weight() );
   }

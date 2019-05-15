@@ -1,5 +1,5 @@
 // Settings.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -29,7 +29,7 @@ class Flag {
 public:
 
   // Constructor
-  Flag(string nameIn = " ", bool defaultIn = false) : name(nameIn), 
+  Flag(string nameIn = " ", bool defaultIn = false) : name(nameIn),
     valNow(defaultIn) , valDefault(defaultIn) { }
 
   // Data members.
@@ -48,7 +48,7 @@ public:
 
   // Constructor
   Mode(string nameIn = " ", int defaultIn = 0, bool hasMinIn = false,
-    bool hasMaxIn = false, int minIn = 0,  int maxIn = 0) :  name(nameIn), 
+    bool hasMaxIn = false, int minIn = 0,  int maxIn = 0) :  name(nameIn),
     valNow(defaultIn), valDefault(defaultIn), hasMin(hasMinIn),
     hasMax(hasMaxIn), valMin(minIn), valMax(maxIn) { }
 
@@ -69,10 +69,10 @@ class Parm {
 public:
 
   // Constructor
-  Parm(string nameIn = " ", double defaultIn = 0., 
-    bool hasMinIn = false, bool hasMaxIn = false, double minIn = 0., 
-    double maxIn = 0.) :  name(nameIn), valNow(defaultIn), 
-    valDefault(defaultIn), hasMin(hasMinIn), hasMax(hasMaxIn), 
+  Parm(string nameIn = " ", double defaultIn = 0.,
+    bool hasMinIn = false, bool hasMaxIn = false, double minIn = 0.,
+    double maxIn = 0.) :  name(nameIn), valNow(defaultIn),
+    valDefault(defaultIn), hasMin(hasMinIn), hasMax(hasMaxIn),
     valMin(minIn), valMax(maxIn) { }
 
   // Data members.
@@ -92,7 +92,7 @@ class Word {
 public:
 
   // Constructor
-  Word(string nameIn = " ", string defaultIn = " ") : name(nameIn), 
+  Word(string nameIn = " ", string defaultIn = " ") : name(nameIn),
     valNow(defaultIn) , valDefault(defaultIn) { }
 
   // Data members.
@@ -109,10 +109,10 @@ class MVec {
 public:
 
   // Constructor
-  MVec(string nameIn = " ", vector<int> defaultIn = vector<int>(1, 0), 
-    bool hasMinIn = false, bool hasMaxIn = false, int minIn = 0, 
-    int maxIn = 0) :  name(nameIn), valNow(defaultIn), 
-    valDefault(defaultIn), hasMin(hasMinIn), hasMax(hasMaxIn), 
+  MVec(string nameIn = " ", vector<int> defaultIn = vector<int>(1, 0),
+    bool hasMinIn = false, bool hasMaxIn = false, int minIn = 0,
+    int maxIn = 0) :  name(nameIn), valNow(defaultIn),
+    valDefault(defaultIn), hasMin(hasMinIn), hasMax(hasMaxIn),
     valMin(minIn), valMax(maxIn) { }
 
   // Data members.
@@ -132,10 +132,10 @@ class PVec {
 public:
 
   // Constructor
-  PVec(string nameIn = " ", vector<double> defaultIn = vector<double>(1, 0.), 
-    bool hasMinIn = false, bool hasMaxIn = false, double minIn = 0., 
-    double maxIn = 0.) :  name(nameIn), valNow(defaultIn), 
-    valDefault(defaultIn), hasMin(hasMinIn), hasMax(hasMaxIn), 
+  PVec(string nameIn = " ", vector<double> defaultIn = vector<double>(1, 0.),
+    bool hasMinIn = false, bool hasMaxIn = false, double minIn = 0.,
+    double maxIn = 0.) :  name(nameIn), valNow(defaultIn),
+    valDefault(defaultIn), hasMin(hasMinIn), hasMax(hasMaxIn),
     valMin(minIn), valMax(maxIn) { }
 
   // Data members.
@@ -148,7 +148,7 @@ public:
 
 //==========================================================================
 
-// This class holds info on flags (bool), modes (int), parms (double), 
+// This class holds info on flags (bool), modes (int), parms (double),
 // words (string), mvecs (vector of int) and pvecs (vector of double).
 
 class Settings {
@@ -162,17 +162,17 @@ public:
   void initPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;}
  
   // Read in database from specific file.
-  bool init(string startFile = "../xmldoc/Index.xml", bool append = false, 
+  bool init(string startFile = "../xmldoc/Index.xml", bool append = false,
     ostream& os = cout) ;
 
   // Overwrite existing database by reading from specific file.
   bool reInit(string startFile = "../xmldoc/Index.xml", ostream& os = cout) ;
 
   // Read in one update from a single line.
-  bool readString(string line, bool warn = true, ostream& os = cout) ; 
+  bool readString(string line, bool warn = true, ostream& os = cout) ;
 
   // Keep track whether any readings have failed, invalidating run setup.
-  bool readingFailed() {return readingFailedSave;} 
+  bool readingFailed() {return readingFailedSave;}
  
   // Write updates or everything to user-defined file.
   bool writeFile(string toFile, bool writeAll = false) ;
@@ -180,12 +180,12 @@ public:
 
   // Print out table of database, either all or only changed ones,
   // or ones containing a given string.
-  void listAll(ostream& os = cout) { 
-    list( true, false, " ", os); } 
-  void listChanged(ostream& os = cout) { 
-    list (false, false, " ", os); } 
-  void list(string match, ostream& os = cout) { 
-    list (false, true, match, os); } 
+  void listAll(ostream& os = cout) {
+    list( true, false, " ", os); }
+  void listChanged(ostream& os = cout) {
+    list (false, false, " ", os); }
+  void list(string match, ostream& os = cout) {
+    list (false, true, match, os); }
 
   // Reset all values to their defaults.
   void resetAll() ;
@@ -193,7 +193,7 @@ public:
   // Query existence of an entry.
   bool isFlag(string keyIn) {
     return (flags.find(toLower(keyIn)) != flags.end()); }
-  bool isMode(string keyIn) { 
+  bool isMode(string keyIn) {
     return (modes.find(toLower(keyIn)) != modes.end()); }
   bool isParm(string keyIn) {
     return (parms.find(toLower(keyIn)) != parms.end()); }
@@ -206,35 +206,35 @@ public:
  
   // Add new entry.
   void addFlag(string keyIn, bool defaultIn) {
-    flags[toLower(keyIn)] = Flag(keyIn, defaultIn); }  
-  void addMode(string keyIn, int defaultIn, bool hasMinIn, 
-    bool hasMaxIn, int minIn, int maxIn) { modes[toLower(keyIn)] 
-    = Mode(keyIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn); }      
-  void addParm(string keyIn, double defaultIn, bool hasMinIn, 
-    bool hasMaxIn, double minIn, double maxIn) { parms[toLower(keyIn)] 
-    = Parm(keyIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn); }  
+    flags[toLower(keyIn)] = Flag(keyIn, defaultIn); }
+  void addMode(string keyIn, int defaultIn, bool hasMinIn,
+    bool hasMaxIn, int minIn, int maxIn) { modes[toLower(keyIn)]
+    = Mode(keyIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn); }
+  void addParm(string keyIn, double defaultIn, bool hasMinIn,
+    bool hasMaxIn, double minIn, double maxIn) { parms[toLower(keyIn)]
+    = Parm(keyIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn); }
   void addWord(string keyIn, string defaultIn) {
-    words[toLower(keyIn)] = Word(keyIn, defaultIn); }  
-  void addMVec(string keyIn, vector<int> defaultIn, bool hasMinIn, 
-    bool hasMaxIn, int minIn, int maxIn) { mvecs[toLower(keyIn)] 
-    = MVec(keyIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn); }  
-   void addPVec(string keyIn, vector<double> defaultIn, bool hasMinIn, 
-    bool hasMaxIn, double minIn, double maxIn) { pvecs[toLower(keyIn)] 
-    = PVec(keyIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn); }  
+    words[toLower(keyIn)] = Word(keyIn, defaultIn); }
+  void addMVec(string keyIn, vector<int> defaultIn, bool hasMinIn,
+    bool hasMaxIn, int minIn, int maxIn) { mvecs[toLower(keyIn)]
+    = MVec(keyIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn); }
+   void addPVec(string keyIn, vector<double> defaultIn, bool hasMinIn,
+    bool hasMaxIn, double minIn, double maxIn) { pvecs[toLower(keyIn)]
+    = PVec(keyIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn); }
 
-  // Give back current value, with check that key exists. 
+  // Give back current value, with check that key exists.
   bool   flag(string keyIn);
   int    mode(string keyIn);
   double parm(string keyIn);
-  string word(string keyIn); 
+  string word(string keyIn);
   vector<int> mvec(string keyIn);
   vector<double> pvec(string keyIn);
 
-  // Give back default value, with check that key exists. 
+  // Give back default value, with check that key exists.
   bool   flagDefault(string keyIn);
   int    modeDefault(string keyIn);
   double parmDefault(string keyIn);
-  string wordDefault(string keyIn); 
+  string wordDefault(string keyIn);
   vector<int> mvecDefault(string keyIn);
   vector<double> pvecDefault(string keyIn);
     
@@ -247,12 +247,12 @@ public:
   map<string, PVec> getPVecMap(string match);
 
   // Change current value, respecting limits.
-  void flag(string keyIn, bool nowIn); 
+  void flag(string keyIn, bool nowIn);
   void mode(string keyIn, int nowIn);
-  void parm(string keyIn, double nowIn); 
-  void word(string keyIn, string nowIn); 
-  void mvec(string keyIn, vector<int> nowIn); 
-  void pvec(string keyIn, vector<double> nowIn); 
+  void parm(string keyIn, double nowIn);
+  void word(string keyIn, string nowIn);
+  void mvec(string keyIn, vector<int> nowIn);
+  void pvec(string keyIn, vector<double> nowIn);
 
   // Change current value, disregarding limits.
   void forceMode(string keyIn, int nowIn);
@@ -260,7 +260,7 @@ public:
   void forceMVec(string keyIn, vector<int> nowIn);
   void forcePVec(string keyIn, vector<double> nowIn);
      
-  // Restore current value to default. 
+  // Restore current value to default.
   void resetFlag(string keyIn);
   void resetMode(string keyIn);
   void resetParm(string keyIn);
@@ -296,7 +296,7 @@ private:
 
   // Print out table of database, called from listAll and listChanged.
   void list(bool doListAll, bool doListString, string match,
-    ostream& os = cout); 
+    ostream& os = cout);
 
   // Master switch for program printout.
   void printQuiet(bool quiet);

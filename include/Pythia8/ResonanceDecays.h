@@ -1,5 +1,5 @@
 // ResonanceDecays.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -28,18 +28,18 @@ class ResonanceDecays {
 
 public:
 
-  // Constructor. 
-  ResonanceDecays() {} 
+  // Constructor.
+  ResonanceDecays() {}
 
   // Store pointers to Info and Rndm for error messages and random numbers.
-  void init(Info* infoPtrIn,  ParticleData* particleDataPtrIn, 
-    Rndm* rndmPtrIn) {infoPtr = infoPtrIn; 
+  void init(Info* infoPtrIn,  ParticleData* particleDataPtrIn,
+    Rndm* rndmPtrIn) {infoPtr = infoPtrIn;
     particleDataPtr = particleDataPtrIn; rndmPtr = rndmPtrIn;}
  
   // Generate the next decay sequence.
-  bool next( Event& process, int iDecNow = 0); 
+  bool next( Event& process, int iDecNow = 0);
 
-private: 
+private:
 
   // Constants: could only be changed in the code itself.
   static const int    NTRYCHANNEL, NTRYMASSES;
@@ -56,7 +56,7 @@ private:
   Rndm*         rndmPtr;
 
   // Select masses of decay products.
-  bool pickMasses(); 
+  bool pickMasses();
 
   // Select colours of decay products.
   bool pickColours(int iDec, Event& process);

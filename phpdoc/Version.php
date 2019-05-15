@@ -26,24 +26,24 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 ?>
 
 <form method='post' action='Version.php'>
-
-<h2>Version</h2>
-
-The settings on this page should not be changed by the ordinary user,
-but appear here for documentation purposes, and so that they can
-form part of the standard databases and be queried accordingly.
-
+ 
+<h2>Version</h2> 
+ 
+The settings on this page should not be changed by the ordinary user, 
+but appear here for documentation purposes, and so that they can 
+form part of the standard databases and be queried accordingly. 
+ 
 <p/><code>parm&nbsp; </code><strong> Pythia:versionNumber &nbsp;</strong> 
- (<code>default = <strong>8.180</strong></code>)<br/>
-Version and subversion number, with three significant decimals.
-  
-
+ (<code>default = <strong>8.183</strong></code>)<br/>
+Version and subversion number, with three significant decimals. 
+   
+ 
 <p/><code>mode&nbsp; </code><strong> Pythia:versionDate &nbsp;</strong> 
- (<code>default = <strong>20130922</strong></code>)<br/>
-Last date of change of current (sub)version, in format yyyymmdd.
-  
-
+ (<code>default = <strong>20140123</strong></code>)<br/>
+Last date of change of current (sub)version, in format yyyymmdd. 
+   
+ 
 </body>
 </html>
-
-<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
+ 
+<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 

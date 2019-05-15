@@ -1,5 +1,5 @@
 // MultipartonInteractions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -27,7 +27,7 @@ namespace Pythia8 {
 //==========================================================================
 
 // SigmaMultiparton is a helper class to MultipartonInteractions.
-// It packs pointers to the allowed processes for different 
+// It packs pointers to the allowed processes for different
 // flavour combinations and levels of ambition.
 
 class SigmaMultiparton {
@@ -40,20 +40,20 @@ public:
   // Destructor.
   ~SigmaMultiparton() {
     for (int i = 0; i < int(sigmaT.size()); ++i) delete sigmaT[i];
-    for (int i = 0; i < int(sigmaU.size()); ++i) delete sigmaU[i];}   
+    for (int i = 0; i < int(sigmaU.size()); ++i) delete sigmaU[i];}
 
   // Initialize list of processes.
-  bool init(int inState, int processLevel, Info* infoPtr, 
-    Settings* settingsPtr, ParticleData* particleDataPtr, Rndm* rndmPtrIn, 
+  bool init(int inState, int processLevel, Info* infoPtr,
+    Settings* settingsPtr, ParticleData* particleDataPtr, Rndm* rndmPtrIn,
     BeamParticle* beamAPtr, BeamParticle* beamBPtr, Couplings* couplingsPtr);
 
   // Calculate cross section summed over possibilities.
-  double sigma( int id1, int id2, double x1, double x2, double sHat, 
+  double sigma( int id1, int id2, double x1, double x2, double sHat,
     double tHat, double uHat, double alpS, double alpEM,
     bool restore = false, bool pickOtherIn = false);
 
   // Return whether the other, rare processes were selected.
-  bool pickedOther() {return pickOther;} 
+  bool pickedOther() {return pickOther;}
 
   // Return one subprocess, picked according to relative cross sections.
   SigmaProcess* sigmaSel();
@@ -89,7 +89,7 @@ private:
  
 //==========================================================================
 
-// The MultipartonInteractions class contains the main methods for the 
+// The MultipartonInteractions class contains the main methods for the
 // generation of multiparton parton-parton interactions in hadronic collisions.
 
 class MultipartonInteractions {
@@ -100,10 +100,10 @@ public:
   MultipartonInteractions() : bIsSet(false) {}
 
   // Initialize the generation process for given beams.
-  bool init( bool doMPIinit, int iDiffSysIn, Info* infoPtrIn, 
-    Settings& settings, ParticleData* particleDataPtr, Rndm* rndmPtrIn, 
-    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
-    Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn, 
+  bool init( bool doMPIinit, int iDiffSysIn, Info* infoPtrIn,
+    Settings& settings, ParticleData* particleDataPtr, Rndm* rndmPtrIn,
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
+    Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn,
     SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn,
     ostream& os = cout);
 
@@ -111,7 +111,7 @@ public:
   void reset();
 
   // Select first = hardest pT in nondiffractive process.
-  void pTfirst(); 
+  void pTfirst();
 
   // Set up kinematics for first = hardest pT in nondiffractive process.
   void setupFirstSys( Event& process);
@@ -127,18 +127,18 @@ public:
   double pTnext( double pTbegAll, double pTendAll, Event& event);
 
   // Set up kinematics of acceptable interaction.
-  bool scatter( Event& event); 
+  bool scatter( Event& event);
 
   // Set "empty" values to avoid query of undefined quantities.
-  void setEmpty() {pT2Ren = alpS = alpEM = x1 = x2 = pT2Fac 
+  void setEmpty() {pT2Ren = alpS = alpEM = x1 = x2 = pT2Fac
     = xPDF1now = xPDF2now = 0.; bIsSet = false;}
 
   // Get some information on current interaction.
   double Q2Ren()      const {return pT2Ren;}
   double alphaSH()    const {return alpS;}
   double alphaEMH()   const {return alpEM;}
-  double x1H()        const {return x1;} 
-  double x2H()        const {return x2;} 
+  double x1H()        const {return x1;}
+  double x2H()        const {return x2;}
   double Q2Fac()      const {return pT2Fac;}
   double pdf1()       const {return xPDF1now;}
   double pdf2()       const {return xPDF2now;}
@@ -152,28 +152,28 @@ public:
 
   // Update and print statistics on number of processes.
   // Note: currently only valid for nondiffractive systems, not diffraction??
-  void accumulate() { int iBeg = (infoPtr->isNonDiffractive()) ? 0 : 1; 
-    for (int i = iBeg; i < infoPtr->nMPI(); ++i) 
+  void accumulate() { int iBeg = (infoPtr->isNonDiffractive()) ? 0 : 1;
+    for (int i = iBeg; i < infoPtr->nMPI(); ++i)
     ++nGen[ infoPtr->codeMPI(i) ];}
   void statistics(bool resetStat = false, ostream& os = cout);
-  void resetStatistics() { for ( map<int, int>::iterator iter = nGen.begin(); 
-    iter != nGen.end(); ++iter) iter->second = 0; } 
+  void resetStatistics() { for ( map<int, int>::iterator iter = nGen.begin();
+    iter != nGen.end(); ++iter) iter->second = 0; }
   
-private: 
+private:
 
   // Constants: could only be changed in the code itself.
   static const bool   SHIFTFACSCALE, PREPICKRESCATTER;
   static const double SIGMAFUDGE, RPT20, PT0STEP, SIGMASTEP, PT0MIN,
-                      EXPPOWMIN, PROBATLOWB, BSTEP, BMAX, EXPMAX, 
+                      EXPPOWMIN, PROBATLOWB, BSTEP, BMAX, EXPMAX,
                       KCONVERGE, CONVERT2MB, ROOTMIN, ECMDEV, WTACCWARN;
 
   // Initialization data, read from Settings.
   bool   allowRescatter, allowDoubleRes, canVetoMPI;
-  int    pTmaxMatch, alphaSorder, alphaEMorder, alphaSnfmax, bProfile, 
-         processLevel, bSelScale, rescatterMode, nQuarkIn, nSample, 
+  int    pTmaxMatch, alphaSorder, alphaEMorder, alphaSnfmax, bProfile,
+         processLevel, bSelScale, rescatterMode, nQuarkIn, nSample,
          enhanceScreening;
-  double alphaSvalue, Kfactor, pT0Ref, ecmRef, ecmPow, pTmin, coreRadius, 
-         coreFraction, expPow, ySepResc, deltaYResc, sigmaPomP, mPomP, pPomP, 
+  double alphaSvalue, Kfactor, pT0Ref, ecmRef, ecmPow, pTmin, coreRadius,
+         coreFraction, expPow, ySepResc, deltaYResc, sigmaPomP, mPomP, pPomP,
          mMaxPertDiff, mMinPertDiff;
 
   // x-dependent matter profile:
@@ -211,27 +211,27 @@ private:
   // Other initialization data.
   bool   hasBaryonBeams, hasLowPow, globalRecoilFSR;
   int    iDiffSys, nMaxGlobalRecoilFSR;
-  double eCM, sCM, pT0, pT20, pT2min, pTmax, pT2max, pT20R, pT20minR, 
-         pT20maxR, pT20min0maxR, pT2maxmin, sigmaND, pT4dSigmaMax, 
-         pT4dProbMax, dSigmaApprox, sigmaInt, sudExpPT[101], 
-         zeroIntCorr, normOverlap, nAvg, kNow, normPi, bAvg, bDiv, 
-         probLowB, radius2B, radius2C, fracA, fracB, fracC, fracAhigh, 
+  double eCM, sCM, pT0, pT20, pT2min, pTmax, pT2max, pT20R, pT20minR,
+         pT20maxR, pT20min0maxR, pT2maxmin, sigmaND, pT4dSigmaMax,
+         pT4dProbMax, dSigmaApprox, sigmaInt, sudExpPT[101],
+         zeroIntCorr, normOverlap, nAvg, kNow, normPi, bAvg, bDiv,
+         probLowB, radius2B, radius2C, fracA, fracB, fracC, fracAhigh,
          fracBhigh, fracChigh, fracABChigh, expRev, cDiv, cMax;
 
   // Properties specific to current system.
   bool   bIsSet, bSetInFirst, isAtLowB, pickOtherSel;
   int    id1, id2, i1Sel, i2Sel, id1Sel, id2Sel;
-  double bNow, enhanceB, pT2, pT2shift, pT2Ren, pT2Fac, x1, x2, xT, xT2, 
+  double bNow, enhanceB, pT2, pT2shift, pT2Ren, pT2Fac, x1, x2, xT, xT2,
          tau, y, sHat, tHat, uHat, alpS, alpEM, xPDF1now, xPDF2now,
          dSigmaSum, x1Sel, x2Sel, sHatSel, tHatSel, uHatSel;
 
   // Stored values for mass interpolation for diffractive systems.
-  int    nStep, iStepFrom, iStepTo; 
-  double eCMsave, eStepSize, eStepSave, eStepFrom, eStepTo, pT0Save[5], 
-         pT4dSigmaMaxSave[5], pT4dProbMaxSave[5], sigmaIntSave[5], 
-         sudExpPTSave[5][101], zeroIntCorrSave[5], normOverlapSave[5], 
-         kNowSave[5], bAvgSave[5], bDivSave[5], probLowBSave[5], 
-         fracAhighSave[5], fracBhighSave[5], fracChighSave[5], 
+  int    nStep, iStepFrom, iStepTo;
+  double eCMsave, eStepSize, eStepSave, eStepFrom, eStepTo, pT0Save[5],
+         pT4dSigmaMaxSave[5], pT4dProbMaxSave[5], sigmaIntSave[5],
+         sudExpPTSave[5][101], zeroIntCorrSave[5], normOverlapSave[5],
+         kNowSave[5], bAvgSave[5], bDivSave[5], probLowBSave[5],
+         fracAhighSave[5], fracBhighSave[5], fracChighSave[5],
          fracABChighSave[5], cDivSave[5], cMaxSave[5];
 
   // Pointer to various information on the generation.
@@ -271,7 +271,7 @@ private:
   // Scattered partons.
   vector<int>    scatteredA, scatteredB;
 
-  // Determine constant in d(Prob)/d(pT2) < const / (pT2 + r * pT20)^2.  
+  // Determine constant in d(Prob)/d(pT2) < const / (pT2 + r * pT20)^2.
   void upperEnvelope();
 
   // Integrate the parton-parton interaction cross section.
@@ -284,13 +284,13 @@ private:
   double fastPT2( double pT2beg);
 
   // Calculate the actual cross section, either for the first interaction
-  // (including at initialization) or for any subsequent in the sequence. 
+  // (including at initialization) or for any subsequent in the sequence.
   double sigmaPT2scatter(bool isFirst = false);
 
   // Find the partons that may rescatter.
-  void findScatteredPartons( Event& event); 
+  void findScatteredPartons( Event& event);
 
-  // Calculate the actual cross section for a rescattering. 
+  // Calculate the actual cross section for a rescattering.
   double sigmaPT2rescatter( Event& event);
 
   // Calculate factor relating matter overlap and interaction rate.

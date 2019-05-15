@@ -1,5 +1,5 @@
 // ProcessLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -25,7 +25,7 @@ const int ProcessLevel::MAXLOOP = 5;
   
 // Destructor.
 
-ProcessLevel::~ProcessLevel() { 
+ProcessLevel::~ProcessLevel() {
 
   // Run through list of first hard processes and delete them.
   for (int i = 0; i < int(containerPtrs.size()); ++i)
@@ -35,20 +35,20 @@ ProcessLevel::~ProcessLevel() {
   for (int i = 0; i < int(container2Ptrs.size()); ++i)
     delete container2Ptrs[i];
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
 // Main routine to initialize generation process.
 
-bool ProcessLevel::init( Info* infoPtrIn, Settings& settings, 
-  ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
-  BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
-  Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, bool doLHA, 
-  SLHAinterface* slhaInterfacePtrIn, UserHooks* userHooksPtrIn, 
+bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
+  ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
+  BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
+  Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, bool doLHA,
+  SLHAinterface* slhaInterfacePtrIn, UserHooks* userHooksPtrIn,
   vector<SigmaProcess*>& sigmaPtrs, ostream& os) {
 
-  // Store input pointers for future use. 
+  // Store input pointers for future use.
   infoPtr          = infoPtrIn;
   particleDataPtr  = particleDataPtrIn;
   rndmPtr          = rndmPtrIn;
@@ -80,7 +80,7 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
   if (doSecondHard && userHooksPtr != 0
   && userHooksPtr->canBiasSelection()) {
     infoPtr->errorMsg("Error in ProcessLevel::init: "
-      "cannot combine second interaction with biased phase space"); 
+      "cannot combine second interaction with biased phase space");
     return false;
   }
 
@@ -100,13 +100,13 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
   
   // Check whether mass and pT ranges agree or overlap.
   cutsAgree     = doSameCuts;
-  if (mHatMin2 == mHatMin1 && mHatMax2 == mHatMax1 && pTHatMin2 == pTHatMin1 
-      && pTHatMax2 == pTHatMax1) cutsAgree = true; 
-  cutsOverlap   = cutsAgree; 
+  if (mHatMin2 == mHatMin1 && mHatMax2 == mHatMax1 && pTHatMin2 == pTHatMin1
+      && pTHatMax2 == pTHatMax1) cutsAgree = true;
+  cutsOverlap   = cutsAgree;
   if (!cutsAgree) {
     bool mHatOverlap = (max( mHatMin1, mHatMin2)
                       < min( mHatMax1, mHatMax2));
-    bool pTHatOverlap = (max( pTHatMin1, pTHatMin2) 
+    bool pTHatOverlap = (max( pTHatMin1, pTHatMin2)
                        < min( pTHatMax1, pTHatMax2));
     if (mHatOverlap && pTHatOverlap) cutsOverlap = true;
   }
@@ -120,7 +120,7 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
     for (int iSig = 0; iSig < int(sigmaPtrs.size()); ++iSig)
       containerPtrs.push_back( new ProcessContainer(sigmaPtrs[iSig],
       true) );
-  } 
+  }
 
   // Append single container for Les Houches processes, if any.
   if (doLHA) {
@@ -130,12 +130,12 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
     // Store location of this container, and send in LHA pointer.
     iLHACont = containerPtrs.size() - 1;
     containerPtrs[iLHACont]->setLHAPtr(lhaUpPtr);
-  }     
+  }
 
   // If no processes found then refuse to do anything.
   if ( int(containerPtrs.size()) == 0) {
     infoPtr->errorMsg("Error in ProcessLevel::init: "
-      "no process switched on"); 
+      "no process switched on");
     return false;
   }
 
@@ -152,10 +152,10 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
     }
     if (!bias2Sel) {
       infoPtr->errorMsg("Error in ProcessLevel::init: "
-        "requested event weighting not possible"); 
+        "requested event weighting not possible");
       return false;
     }
-  } 
+  }
 
   // Check that SUSY couplings were indeed initialized where necessary.
   bool hasSUSY = false;
@@ -165,18 +165,18 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
   // If SUSY processes requested but no SUSY couplings present
   if(hasSUSY && !couplingsPtr->isSUSY) {
     infoPtr->errorMsg("Error in ProcessLevel::init: "
-      "SUSY process switched on but no SUSY couplings found"); 
+      "SUSY process switched on but no SUSY couplings found");
     return false;
   }
 
   // Fill SLHA blocks SMINPUTS and MASS from PYTHIA SM parameter values.
   slhaInterfacePtr->pythia2slha(particleDataPtr);
 
-  // Initialize each process. 
+  // Initialize each process.
   int numberOn = 0;
   for (int i = 0; i < int(containerPtrs.size()); ++i)
-    if (containerPtrs[i]->init(true, infoPtr, settings, particleDataPtr, 
-      rndmPtr, beamAPtr, beamBPtr, couplingsPtr, sigmaTotPtr,  
+    if (containerPtrs[i]->init(true, infoPtr, settings, particleDataPtr,
+      rndmPtr, beamAPtr, beamBPtr, couplingsPtr, sigmaTotPtr,
       &resonanceDecays, slhaInterfacePtr, userHooksPtr)) ++numberOn;
 
   // Sum maxima for Monte Carlo choice.
@@ -190,32 +190,32 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
     setupContainers.init2(container2Ptrs, settings);
     if ( int(container2Ptrs.size()) == 0) {
       infoPtr->errorMsg("Error in ProcessLevel::init: "
-        "no second hard process switched on"); 
+        "no second hard process switched on");
       return false;
     }
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
-      if (container2Ptrs[i2]->init(false, infoPtr, settings, particleDataPtr, 
-        rndmPtr, beamAPtr, beamBPtr, couplingsPtr, sigmaTotPtr, 
+      if (container2Ptrs[i2]->init(false, infoPtr, settings, particleDataPtr,
+        rndmPtr, beamAPtr, beamBPtr, couplingsPtr, sigmaTotPtr,
         &resonanceDecays, slhaInterfacePtr, userHooksPtr)) ++number2On;
     sigma2MaxSum = 0.;
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
       sigma2MaxSum += container2Ptrs[i2]->sigmaMax();
   }
 
-  // Printout during initialization is optional. 
+  // Printout during initialization is optional.
   if (settings.flag("Init:showProcesses")) {
 
     // Construct string with incoming beams and for cm energy.
     string collision = "We collide " + particleDataPtr->name(idA)
-      + " with " + particleDataPtr->name(idB) + " at a CM energy of "; 
+      + " with " + particleDataPtr->name(idB) + " at a CM energy of ";
     string pad( 51 - collision.length(), ' ');
 
     // Print initialization information: header.
     os << "\n *-------  PYTHIA Process Initialization  ---------"
        << "-----------------*\n"
        << " |                                                   "
-       << "               |\n" 
-       << " | " << collision << scientific << setprecision(3) 
+       << "               |\n"
+       << " | " << collision << scientific << setprecision(3)
        << setw(9) << eCM << " GeV" << pad << " |\n"
        << " |                                                   "
        << "               |\n"
@@ -224,7 +224,7 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
        << " |                                                   "
        << " |             |\n"
        << " | Subprocess                                    Code"
-       << " |   Estimated |\n" 
+       << " |   Estimated |\n"
        << " |                                                   "
        << " |    max (mb) |\n"
        << " |                                                   "
@@ -236,10 +236,10 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
 
 
     // Loop over existing processes: print individual process info.
-    for (int i = 0; i < int(containerPtrs.size()); ++i) 
-    os << " | " << left << setw(45) << containerPtrs[i]->name() 
-       << right << setw(5) << containerPtrs[i]->code() << " | " 
-       << scientific << setprecision(3) << setw(11)  
+    for (int i = 0; i < int(containerPtrs.size()); ++i)
+    os << " | " << left << setw(45) << containerPtrs[i]->name()
+       << right << setw(5) << containerPtrs[i]->code() << " | "
+       << scientific << setprecision(3) << setw(11)
        << containerPtrs[i]->sigmaMax() << " |\n";
 
     // Loop over second hard processes, if any, and repeat as above.
@@ -250,16 +250,16 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
          <<"---------------|\n"
          << " |                                                   "
          <<" |             |\n";
-      for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2) 
-      os << " | " << left << setw(45) << container2Ptrs[i2]->name() 
-         << right << setw(5) << container2Ptrs[i2]->code() << " | " 
-         << scientific << setprecision(3) << setw(11)  
+      for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
+      os << " | " << left << setw(45) << container2Ptrs[i2]->name()
+         << right << setw(5) << container2Ptrs[i2]->code() << " | "
+         << scientific << setprecision(3) << setw(11)
          << container2Ptrs[i2]->sigmaMax() << " |\n";
     }
 
     // Listing finished.
     os << " |                                                     "
-       << "             |\n" 
+       << "             |\n"
        << " *-------  End PYTHIA Process Initialization ----------"
        <<"-------------*" << endl;
   }
@@ -267,12 +267,12 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
   // If sum of maxima vanishes then refuse to do anything.
   if ( numberOn == 0  || sigmaMaxSum <= 0.) {
     infoPtr->errorMsg("Error in ProcessLevel::init: "
-      "all processes have vanishing cross sections"); 
+      "all processes have vanishing cross sections");
     return false;
   }
   if ( doSecondHard && (number2On == 0  || sigma2MaxSum <= 0.) ) {
     infoPtr->errorMsg("Error in ProcessLevel::init: "
-      "all second hard processes have vanishing cross sections"); 
+      "all second hard processes have vanishing cross sections");
     return false;
   }
   
@@ -286,24 +286,24 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
     for (int i = 0; i < int(containerPtrs.size()); ++i) {
       foundMatch = false;
       if (cutsOverlap)
-      for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2) 
-        if (container2Ptrs[i2]->code() == containerPtrs[i]->code()) 
+      for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
+        if (container2Ptrs[i2]->code() == containerPtrs[i]->code())
           foundMatch = true;
       containerPtrs[i]->isSame( foundMatch );
       if (!foundMatch)  allHardSame = false;
-      if ( foundMatch) noneHardSame = false; 
+      if ( foundMatch) noneHardSame = false;
     }
 
     // Check for each second process if matched in first.
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2) {
       foundMatch = false;
       if (cutsOverlap)
-      for (int i = 0; i < int(containerPtrs.size()); ++i) 
-        if (containerPtrs[i]->code() == container2Ptrs[i2]->code()) 
+      for (int i = 0; i < int(containerPtrs.size()); ++i)
+        if (containerPtrs[i]->code() == container2Ptrs[i2]->code())
           foundMatch = true;
       container2Ptrs[i2]->isSame( foundMatch );
       if (!foundMatch)  allHardSame = false;
-      if ( foundMatch) noneHardSame = false;   
+      if ( foundMatch) noneHardSame = false;
     }
   }
 
@@ -326,7 +326,7 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
 
 bool ProcessLevel::next( Event& process) {
 
-  // Generate the next event with two or one hard interactions. 
+  // Generate the next event with two or one hard interactions.
   bool physical = (doSecondHard) ? nextTwo( process) : nextOne( process);
 
   // Check that colour assignments make sense.
@@ -350,7 +350,7 @@ bool ProcessLevel::nextLHAdec( Event& process) {
   }
 
   // Store LHA output in standard event record format.
-  containerLHAdec.constructDecays( process); 
+  containerLHAdec.constructDecays( process);
 
   // Done.
   return true;
@@ -366,8 +366,8 @@ void ProcessLevel::accumulate() {
   containerPtrs[iContainer]->accumulate();
 
   // Provide current generated cross section estimate.
-  long   nTrySum    = 0; 
-  long   nSelSum    = 0; 
+  long   nTrySum    = 0;
+  long   nSelSum    = 0;
   long   nAccSum    = 0;
   double sigmaSum   = 0.;
   double delta2Sum  = 0.;
@@ -376,14 +376,14 @@ void ProcessLevel::accumulate() {
   int    codeNow;
   long   nTryNow, nSelNow, nAccNow;
   double sigmaNow, deltaNow, sigSelNow, weightNow;
-  for (int i = 0; i < int(containerPtrs.size()); ++i) 
+  for (int i = 0; i < int(containerPtrs.size()); ++i)
   if (containerPtrs[i]->sigmaMax() != 0.) {
     codeNow         = containerPtrs[i]->code();
     nTryNow         = containerPtrs[i]->nTried();
     nSelNow         = containerPtrs[i]->nSelected();
     nAccNow         = containerPtrs[i]->nAccepted();
     sigmaNow        = containerPtrs[i]->sigmaMC();
-    deltaNow        = containerPtrs[i]->deltaMC(); 
+    deltaNow        = containerPtrs[i]->deltaMC();
     sigSelNow       = containerPtrs[i]->sigmaSelMC();
     weightNow       = containerPtrs[i]->weightSum();
     nTrySum        += nTryNow;
@@ -393,15 +393,15 @@ void ProcessLevel::accumulate() {
     delta2Sum      += pow2(deltaNow);
     sigSelSum      += sigSelNow;
     weightSum      += weightNow;
-    if (!doSecondHard) infoPtr->setSigma( codeNow, nTryNow, nSelNow, 
-      nAccNow, sigmaNow, deltaNow, weightNow); 
+    if (!doSecondHard) infoPtr->setSigma( codeNow, nTryNow, nSelNow,
+      nAccNow, sigmaNow, deltaNow, weightNow);
   }
 
   // Normally only one hard interaction. Then store info and done.
   if (!doSecondHard) {
     double deltaSum = sqrtpos(delta2Sum);
-    infoPtr->setSigma( 0, nTrySum, nSelSum, nAccSum, sigmaSum, deltaSum, 
-      weightSum); 
+    infoPtr->setSigma( 0, nTrySum, nSelSum, nAccSum, sigmaSum, deltaSum,
+      weightSum);
     return;
   }
 
@@ -416,7 +416,7 @@ void ProcessLevel::accumulate() {
   // Cross section estimate for second hard process.
   double sigma2Sum  = 0.;
   double sig2SelSum = 0.;
-  for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2) 
+  for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
   if (container2Ptrs[i2]->sigmaMax() != 0.) {
     nTrySum        += container2Ptrs[i2]->nTried();
     sigma2Sum      += container2Ptrs[i2]->sigmaMC();
@@ -432,12 +432,12 @@ void ProcessLevel::accumulate() {
   // Combine two possible ways and take average.
   double sigmaComb  = 0.5 * (sigmaSum * sig2SelSum + sigSelSum * sigma2Sum);
   sigmaComb        *= impactFac / sigmaND;
-  if (allHardSame) sigmaComb *= 0.5; 
+  if (allHardSame) sigmaComb *= 0.5;
   double deltaComb  = sqrtpos(2. / nAccSum + impactErr2) * sigmaComb;
 
   // Store info and done.
-  infoPtr->setSigma( 0, nTrySum, nSelSum, nAccSum, sigmaComb, deltaComb, 
-    weightSum); 
+  infoPtr->setSigma( 0, nTrySum, nSelSum, nAccSum, sigmaComb, deltaComb,
+    weightSum);
  
 }
 
@@ -448,18 +448,18 @@ void ProcessLevel::accumulate() {
 void ProcessLevel::statistics(bool reset, ostream& os) {
 
   // Special processing if two hard interactions selected.
-  if (doSecondHard) { 
+  if (doSecondHard) {
     statistics2(reset, os);
     return;
-  } 
+  }
     
   // Header.
   os << "\n *-------  PYTHIA Event and Cross Section Statistics  ------"
      << "-------------------------------------------------------*\n"
      << " |                                                            "
-     << "                                                     |\n" 
+     << "                                                     |\n"
      << " | Subprocess                                    Code |       "
-     << "     Number of events       |      sigma +- delta    |\n" 
+     << "     Number of events       |      sigma +- delta    |\n"
      << " |                                                    |       "
      << "Tried   Selected   Accepted |     (estimated) (mb)   |\n"
      << " |                                                    |       "
@@ -470,14 +470,14 @@ void ProcessLevel::statistics(bool reset, ostream& os) {
      << "                            |                        |\n";
 
   // Reset sum counters.
-  long   nTrySum   = 0; 
-  long   nSelSum   = 0; 
+  long   nTrySum   = 0;
+  long   nSelSum   = 0;
   long   nAccSum   = 0;
   double sigmaSum  = 0.;
   double delta2Sum = 0.;
 
   // Loop over existing processes.
-  for (int i = 0; i < int(containerPtrs.size()); ++i) 
+  for (int i = 0; i < int(containerPtrs.size()); ++i)
   if (containerPtrs[i]->sigmaMax() != 0.) {
 
     // Read info for process. Sum counters.
@@ -485,37 +485,37 @@ void ProcessLevel::statistics(bool reset, ostream& os) {
     long   nSel    = containerPtrs[i]->nSelected();
     long   nAcc    = containerPtrs[i]->nAccepted();
     double sigma   = containerPtrs[i]->sigmaMC();
-    double delta   = containerPtrs[i]->deltaMC(); 
+    double delta   = containerPtrs[i]->deltaMC();
     nTrySum       += nTry;
     nSelSum       += nSel;
-    nAccSum       += nAcc; 
+    nAccSum       += nAcc;
     sigmaSum      += sigma;
-    delta2Sum     += pow2(delta);    
+    delta2Sum     += pow2(delta);
 
     // Print individual process info.
-    os << " | " << left << setw(45) << containerPtrs[i]->name() 
-       << right << setw(5) << containerPtrs[i]->code() << " | " 
-       << setw(11) << nTry << " " << setw(10) << nSel << " " 
-       << setw(10) << nAcc << " | " << scientific << setprecision(3) 
+    os << " | " << left << setw(45) << containerPtrs[i]->name()
+       << right << setw(5) << containerPtrs[i]->code() << " | "
+       << setw(11) << nTry << " " << setw(10) << nSel << " "
+       << setw(10) << nAcc << " | " << scientific << setprecision(3)
        << setw(11) << sigma << setw(11) << delta << " |\n";
 
     // Print subdivision by user code for Les Houches process.
-    if (containerPtrs[i]->code() == 9999) 
+    if (containerPtrs[i]->code() == 9999)
       for (int j = 0; j < containerPtrs[i]->codeLHASize(); ++j)
-      os << " |    ... whereof user classification code " << setw(10) 
-         << containerPtrs[i]->subCodeLHA(j) << " | " 
-         << setw(11) << containerPtrs[i]->nTriedLHA(j) << " " << setw(10) 
-	 << containerPtrs[i]->nSelectedLHA(j) << " "
-         << setw(10) << containerPtrs[i]->nAcceptedLHA(j) 
-	 << " |                        | \n";
+      os << " |    ... whereof user classification code " << setw(10)
+         << containerPtrs[i]->subCodeLHA(j) << " | "
+         << setw(11) << containerPtrs[i]->nTriedLHA(j) << " " << setw(10)
+         << containerPtrs[i]->nSelectedLHA(j) << " "
+         << setw(10) << containerPtrs[i]->nAcceptedLHA(j)
+         << " |                        | \n";
   }
 
   // Print summed process info.
   os << " |                                                    |       "
      << "                            |                        |\n"
-     << " | " << left << setw(50) << "sum" << right << " | " << setw(11) 
-     << nTrySum << " " << setw(10) << nSelSum << " " << setw(10) 
-     << nAccSum << " | " << scientific << setprecision(3) << setw(11) 
+     << " | " << left << setw(50) << "sum" << right << " | " << setw(11)
+     << nTrySum << " " << setw(10) << nSelSum << " " << setw(10)
+     << nAccSum << " | " << scientific << setprecision(3) << setw(11)
      << sigmaSum << setw(11) << sqrtpos(delta2Sum) << " |\n";
 
   // Listing finished.
@@ -535,9 +535,9 @@ void ProcessLevel::statistics(bool reset, ostream& os) {
 
 void ProcessLevel::resetStatistics() {
 
-  for (int i = 0; i < int(containerPtrs.size()); ++i) 
+  for (int i = 0; i < int(containerPtrs.size()); ++i)
     containerPtrs[i]->reset();
-  if (doSecondHard)  
+  if (doSecondHard)
   for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
     container2Ptrs[i2]->reset();
 
@@ -590,8 +590,8 @@ bool ProcessLevel::nextOne( Event& process) {
       physical = false;
 
     // Do all resonance decays.
-    if ( physical && doResDecays 
-      && !containerPtrs[iContainer]->decayResonances( process) ) 
+    if ( physical && doResDecays
+      && !containerPtrs[iContainer]->decayResonances( process) )
       physical = false;
 
     // Add any junctions to the process event record list.
@@ -680,13 +680,13 @@ bool ProcessLevel::nextTwo( Event& process) {
       double xA1      = containerPtrs[iContainer]->x1();
       double xB1      = containerPtrs[iContainer]->x2();
       double xA2      = container2Ptrs[i2Container]->x1();
-      double xB2      = container2Ptrs[i2Container]->x2();    
+      double xB2      = container2Ptrs[i2Container]->x2();
       if (xA1 + xA2 >= 1. || xB1 + xB2 >= 1.) continue;
 
       // Reset beam contents. Naive parton densities for second interaction.
       // (Subsequent procedure could be symmetrized, but would be overkill.)
-      beamAPtr->clear();    
-      beamBPtr->clear();    
+      beamAPtr->clear();
+      beamBPtr->clear();
       int    idA1     = containerPtrs[iContainer]->id1();
       int    idB1     = containerPtrs[iContainer]->id2();
       int    idA2     = container2Ptrs[i2Container]->id1();
@@ -696,24 +696,24 @@ bool ProcessLevel::nextTwo( Event& process) {
       double pdfA2Raw = beamAPtr->xf( idA2, xA2,Q2Fac2);
       double pdfB2Raw = beamBPtr->xf( idB2, xB2,Q2Fac2);
 
-      // Remove partons in first interaction from beams. 
+      // Remove partons in first interaction from beams.
       beamAPtr->append( 3, idA1, xA1);
       beamAPtr->xfISR( 0, idA1, xA1, Q2Fac1);
-      beamAPtr->pickValSeaComp(); 
+      beamAPtr->pickValSeaComp();
       beamBPtr->append( 4, idB1, xB1);
       beamBPtr->xfISR( 0, idB1, xB1, Q2Fac1);
-      beamBPtr->pickValSeaComp(); 
+      beamBPtr->pickValSeaComp();
 
       // Reevaluate pdf's for second interaction and weight by reduction.
       double pdfA2Mod = beamAPtr->xfMPI( idA2, xA2,Q2Fac2);
       double pdfB2Mod = beamBPtr->xfMPI( idB2, xB2,Q2Fac2);
-      double wtPdfMod = (pdfA2Mod * pdfB2Mod) / (pdfA2Raw * pdfB2Raw); 
+      double wtPdfMod = (pdfA2Mod * pdfB2Mod) / (pdfA2Raw * pdfB2Raw);
       if (wtPdfMod < rndmPtr->flat()) continue;
 
       // Reduce by a factor of 2 for identical processes when others not,
       // and when in same phase space region.
       bool toLoop = false;
-      if ( someHardSame && containerPtrs[iContainer]->isSame() 
+      if ( someHardSame && containerPtrs[iContainer]->isSame()
         && container2Ptrs[i2Container]->isSame()) {
         if (cutsAgree) {
           if (rndmPtr->flat() > 0.5) toLoop = true;
@@ -722,14 +722,14 @@ bool ProcessLevel::nextTwo( Event& process) {
         double pTHat1 = containerPtrs[iContainer]->pTHat();
         double mHat2 = container2Ptrs[i2Container]->mHat();
         double pTHat2 = container2Ptrs[i2Container]->pTHat();
-        if (mHat1 > mHatMin2 && mHat1 < mHatMax2 
+        if (mHat1 > mHatMin2 && mHat1 < mHatMax2
            && pTHat1 > pTHatMin2 && pTHat1 < pTHatMax2
-           && mHat2 > mHatMin1 && mHat2 < mHatMax1 
-	   && pTHat2 > pTHatMin1 && pTHat2 < pTHatMax1
+           && mHat2 > mHatMin1 && mHat2 < mHatMax1
+           && pTHat2 > pTHatMin1 && pTHat2 < pTHatMax1
            && rndmPtr->flat() > 0.5) toLoop = true;
         }
       }
-      if (toLoop) continue;    
+      if (toLoop) continue;
 
       // If come this far then acceptable event.
       break;
@@ -739,17 +739,17 @@ bool ProcessLevel::nextTwo( Event& process) {
     Event process2;
     process2.init( "(second hard)", particleDataPtr, startColTag);
     process2.initColTag();
-    if ( !containerPtrs[iContainer]->constructProcess( process) ) 
+    if ( !containerPtrs[iContainer]->constructProcess( process) )
       physical = false;
-    if (physical && !container2Ptrs[i2Container]->constructProcess( process2, 
+    if (physical && !container2Ptrs[i2Container]->constructProcess( process2,
       false) ) physical = false;
 
     // Do all resonance decays.
-    if ( physical && doResDecays 
-      &&  !containerPtrs[iContainer]->decayResonances( process) ) 
+    if ( physical && doResDecays
+      &&  !containerPtrs[iContainer]->decayResonances( process) )
       physical = false;
-    if ( physical && doResDecays 
-      &&  !container2Ptrs[i2Container]->decayResonances( process2) ) 
+    if ( physical && doResDecays
+      &&  !container2Ptrs[i2Container]->decayResonances( process2) )
       physical = false;
 
     // Append second hard interaction to normal process object.
@@ -778,7 +778,7 @@ void ProcessLevel::combineProcessRecords( Event& process, Event& process2) {
   int nHard = 5;
   while (nHard < nSize && process[nHard].mother1() == 3) ++nHard;
 
-  // Save resonance products temporarily elsewhere. 
+  // Save resonance products temporarily elsewhere.
   vector<Particle> resProd;
   if (nSize > nHard) {
     for (int i = nHard; i < nSize; ++i) resProd.push_back( process[i] );
@@ -810,15 +810,15 @@ void ProcessLevel::combineProcessRecords( Event& process, Event& process2) {
   if (nHard < nSize) {
 
     // Offset daughter pointers of unmoved mothers.
-    for (int i = 5; i < nHard; ++i) 
-      process[i].offsetHistory( 0, 0, nHard - 1, addPos2); 
+    for (int i = 5; i < nHard; ++i)
+      process[i].offsetHistory( 0, 0, nHard - 1, addPos2);
     
-    // Modify history of resonance products when restoring. 
+    // Modify history of resonance products when restoring.
     for (int i = 0; i < int(resProd.size()); ++i) {
       resProd[i].offsetHistory( nHard - 1, addPos2, nHard - 1, addPos2);
       process.append( resProd[i] );
-    } 
-  }   
+    }
+  }
 
   // Insert resonance decay chains of second hard process.
   if (nHard2 < nSize2) {
@@ -826,18 +826,18 @@ void ProcessLevel::combineProcessRecords( Event& process, Event& process2) {
     int addPos3 = nSize - nHard;
 
     // Offset daughter pointers of second-process mothers.
-    for (int i = nHard + 2; i < nHard3; ++i) 
-      process[i].offsetHistory( 0, 0, nHard3 - 1, addPos3); 
+    for (int i = nHard + 2; i < nHard3; ++i)
+      process[i].offsetHistory( 0, 0, nHard3 - 1, addPos3);
     
-    // Modify history of second-process resonance products and insert. 
+    // Modify history of second-process resonance products and insert.
     for (int i = nHard2; i < nSize2; ++i) {
       process2[i].offsetHistory( nHard3 - 1, addPos3, nHard3 - 1, addPos3);
       process.append( process2[i] );
-    } 
+    }
   }
 
   // Store PDF scale for second interaction.
-  process.scaleSecond( process2.scale() );   
+  process.scaleSecond( process2.scale() );
 
 }
 
@@ -851,71 +851,71 @@ void ProcessLevel::findJunctions( Event& junEvent) {
   // Check all hard vertices for BNV
   for (int i = 1; i<junEvent.size(); i++) {
     
-    // Ignore colorless particles and stages before hard-scattering 
-    // final state. 
-    if (abs(junEvent[i].status()) <= 21 || junEvent[i].colType() == 0) 
+    // Ignore colorless particles and stages before hard-scattering
+    // final state.
+    if (abs(junEvent[i].status()) <= 21 || junEvent[i].colType() == 0)
       continue;
     vector<int> motherList   = junEvent.motherList(i);
     int iMot1 = motherList[0];
-    vector<int> sisterList = junEvent.daughterList(iMot1);        
+    vector<int> sisterList = junEvent.daughterList(iMot1);
     
-    // Check baryon number of vertex. 
-    int barSum = 0;      
+    // Check baryon number of vertex.
+    int barSum = 0;
     map<int,int> colVertex, acolVertex;
     
     // Loop over mothers (enter with crossed colors and negative sign).
     for (unsigned int indx = 0; indx < motherList.size(); indx++) {
       int iMot = motherList[indx];
-      if ( abs(junEvent[iMot].colType()) == 1 ) 
-	barSum -= junEvent[iMot].colType();
+      if ( abs(junEvent[iMot].colType()) == 1 )
+        barSum -= junEvent[iMot].colType();
       else if ( abs(junEvent[iMot].colType()) == 3)
-	barSum -= 2*junEvent[iMot].colType()/3;
+        barSum -= 2*junEvent[iMot].colType()/3;
       int col  = junEvent[iMot].acol();
       int acol  = junEvent[iMot].col();
       
-      // If unmatched (so far), add end. Else erase matching parton. 
+      // If unmatched (so far), add end. Else erase matching parton.
       if (col > 0) {
-	if (acolVertex.find(col) == acolVertex.end() ) colVertex[col] = iMot;
-	else acolVertex.erase(col);
+        if (acolVertex.find(col) == acolVertex.end() ) colVertex[col] = iMot;
+        else acolVertex.erase(col);
       } else if (col < 0) {
-	if (colVertex.find(-col) == colVertex.end() ) acolVertex[-col] = iMot;
-	else colVertex.erase(-col);
+        if (colVertex.find(-col) == colVertex.end() ) acolVertex[-col] = iMot;
+        else colVertex.erase(-col);
       }
       if (acol > 0) {
-	if (colVertex.find(acol) == colVertex.end()) acolVertex[acol] = iMot;
-	else colVertex.erase(acol);
+        if (colVertex.find(acol) == colVertex.end()) acolVertex[acol] = iMot;
+        else colVertex.erase(acol);
       } else if (acol < 0) {
-	if (acolVertex.find(-acol) == acolVertex.end()) 
+        if (acolVertex.find(-acol) == acolVertex.end())
              colVertex[-acol] = iMot;
-	else acolVertex.erase(-acol);
+        else acolVertex.erase(-acol);
       }
     }
 
-    // Loop over sisters. 
+    // Loop over sisters.
     for (unsigned int indx = 0; indx < sisterList.size(); indx++) {
       int iDau = sisterList[indx];
-      if ( abs(junEvent[iDau].colType()) == 1 ) 
-	barSum += junEvent[iDau].colType(); 
+      if ( abs(junEvent[iDau].colType()) == 1 )
+        barSum += junEvent[iDau].colType();
       else if ( abs(junEvent[iDau].colType()) == 3)
-	barSum += 2*junEvent[iDau].colType()/3;
+        barSum += 2*junEvent[iDau].colType()/3;
       int col  = junEvent[iDau].col();
       int acol  = junEvent[iDau].acol();
       
-      // If unmatched (so far), add end. Else erase matching parton. 
+      // If unmatched (so far), add end. Else erase matching parton.
       if (col > 0) {
-	if (acolVertex.find(col) == acolVertex.end() ) colVertex[col] = iDau;
-	else acolVertex.erase(col);
+        if (acolVertex.find(col) == acolVertex.end() ) colVertex[col] = iDau;
+        else acolVertex.erase(col);
       } else if (col < 0) {
-	if (colVertex.find(-col) == colVertex.end() ) acolVertex[-col] = iDau;
-	else colVertex.erase(-col);
+        if (colVertex.find(-col) == colVertex.end() ) acolVertex[-col] = iDau;
+        else colVertex.erase(-col);
       }
       if (acol > 0) {
-	if (colVertex.find(acol) == colVertex.end()) acolVertex[acol] = iDau;
-	else colVertex.erase(acol);
+        if (colVertex.find(acol) == colVertex.end()) acolVertex[acol] = iDau;
+        else colVertex.erase(acol);
       } else if (acol < 0) {
-	if (acolVertex.find(-acol) == acolVertex.end()) 
+        if (acolVertex.find(-acol) == acolVertex.end())
              colVertex[-acol] = iDau;
-	else acolVertex.erase(-acol);
+        else acolVertex.erase(-acol);
       }
     
     }
@@ -923,26 +923,26 @@ void ProcessLevel::findJunctions( Event& junEvent) {
     // Skip if baryon number conserved in this vertex.
     if (barSum == 0) continue;
 
-    // Check and skip any junctions that have already been added. 
+    // Check and skip any junctions that have already been added.
     for (int iJun = 0; iJun < junEvent.sizeJunction(); ++iJun) {
       // Remove the tags corresponding to each of the 3 existing junction legs.
-      for (int j = 0; j < 3; ++j) { 
-	int colNow = junEvent.colJunction(iJun, j); 
-	if (junEvent.kindJunction(iJun) % 2 == 1) colVertex.erase(colNow);
-	else acolVertex.erase(colNow);
+      for (int j = 0; j < 3; ++j) {
+        int colNow = junEvent.colJunction(iJun, j);
+        if (junEvent.kindJunction(iJun) % 2 == 1) colVertex.erase(colNow);
+        else acolVertex.erase(colNow);
       }
     }
 
     // Skip if no junction colors remain.
     if (colVertex.size() == 0 && acolVertex.size() == 0) continue;
 
-    // If baryon number violated, is B = +1 or -1 (larger values not handled). 
+    // If baryon number violated, is B = +1 or -1 (larger values not handled).
     int kindJun = 0;
     if (colVertex.size() == 3 && acolVertex.size() == 0) kindJun = 1;
     else if (colVertex.size() == 0 && acolVertex.size() == 3) kindJun = 2;
     else {
       infoPtr->errorMsg("Error in ProcessLevel::findJunctions: "
-			"N(unmatched (anti)colour tags) != 3");
+                        "N(unmatched (anti)colour tags) != 3");
       return;
     }
 
@@ -951,15 +951,15 @@ void ProcessLevel::findJunctions( Event& junEvent) {
 
     // Order so incoming tags appear first in colVec, outgoing tags last.
     vector<int> colVec;
-    for (map<int,int>::iterator it = colJun.begin(); 
-	 it != colJun.end(); it++) {
+    for (map<int,int>::iterator it = colJun.begin();
+         it != colJun.end(); it++) {
       int col  = it->first;
       int iCol = it->second;
       for (unsigned int indx = 0; indx < motherList.size(); indx++) {
-	if (iCol == motherList[indx]) {
-	  kindJun += 2;
-	  colVec.insert(colVec.begin(),col);
-	}
+        if (iCol == motherList[indx]) {
+          kindJun += 2;
+          colVec.insert(colVec.begin(),col);
+        }
       }
       if (colVec.size() == 0 || colVec[0] != col) colVec.push_back(col);
     }
@@ -991,12 +991,12 @@ bool ProcessLevel::checkColours( Event& process) {
     else if (colType ==  1 && (col <= 0 || acol != 0)) physical = false;
     else if (colType == -1 && (col != 0 || acol <= 0)) physical = false;
     else if (colType ==  2 && (col <= 0 || acol <= 0)) physical = false;
-    // Preparations for colour-sextet assignments 
+    // Preparations for colour-sextet assignments
     // (colour,colour) = (colour,negative anticolour)
     else if (colType ==  3 && (col <= 0 || acol >= 0)) physical = false;
     else if (colType == -3 && (col >= 0 || acol <= 0)) physical = false;
     // All other cases
-    else if (colType < -1 || colType > 3)              physical = false; 
+    else if (colType < -1 || colType > 3)              physical = false;
 
     // Add to the list of colour tags.
     if (col > 0) {
@@ -1009,7 +1009,7 @@ bool ProcessLevel::checkColours( Event& process) {
       for (int ic = 0; ic < int(colTags.size()) ; ++ic)
         if (acol == colTags[ic]) match = true;
       if (!match) colTags.push_back(acol);
-    } 
+    }
     // Colour sextets : map negative colour -> anticolour and vice versa
     else if (col < 0) {
       match = false;
@@ -1027,50 +1027,50 @@ bool ProcessLevel::checkColours( Event& process) {
   // Warn and give up if particles did not have the expected colours.
   if (!physical) {
     infoPtr->errorMsg("Error in ProcessLevel::checkColours: "
-      "incorrect colour assignment"); 
+      "incorrect colour assignment");
     return false;
   }
 
   // Remove (anti)colours coming from an (anti)junction.
-  for (int iJun = 0; iJun < process.sizeJunction(); ++iJun) {    
-    for (int j = 0; j < 3; ++j) { 
+  for (int iJun = 0; iJun < process.sizeJunction(); ++iJun) {
+    for (int j = 0; j < 3; ++j) {
       int colJun = process.colJunction(iJun, j);
       for (int ic = 0; ic < int(colTags.size()) ; ++ic)
-	if (colJun == colTags[ic]) {
-	  colTags[ic] = colTags[colTags.size() - 1]; 
-	  colTags.pop_back();
-	  break;
-	} 
+        if (colJun == colTags[ic]) {
+          colTags[ic] = colTags[colTags.size() - 1];
+          colTags.pop_back();
+          break;
+        }
     }
   }
 
-  // Loop through all colour tags and find their positions (by sign). 
+  // Loop through all colour tags and find their positions (by sign).
   for (int ic = 0; ic < int(colTags.size()); ++ic) {
     col = colTags[ic];
     colPos.resize(0);
     acolPos.resize(0);
     for (int i = 0; i < process.size(); ++i) {
-      if (process[i].col() == col || process[i].acol() == -col) 
-	colPos.push_back(i); 
-      if (process[i].acol() == col || process[i].col() == -col) 
-	acolPos.push_back(i); 
+      if (process[i].col() == col || process[i].acol() == -col)
+        colPos.push_back(i);
+      if (process[i].acol() == col || process[i].col() == -col)
+        acolPos.push_back(i);
     }
 
     // Trace colours back through decays; remove daughters.
     while (colPos.size() > 1) {
-      iPos = colPos.size() - 1; 
-      iNow = colPos[iPos]; 
+      iPos = colPos.size() - 1;
+      iNow = colPos[iPos];
       if ( process[iNow].mother1() == colPos[iPos - 1]
         && process[iNow].mother2() == 0) colPos.pop_back();
       else break;
-    }           
+    }
     while (acolPos.size() > 1) {
-      iPos = acolPos.size() - 1; 
-      iNow = acolPos[iPos]; 
+      iPos = acolPos.size() - 1;
+      iNow = acolPos[iPos];
       if ( process[iNow].mother1() == acolPos[iPos - 1]
         && process[iNow].mother2() == 0) acolPos.pop_back();
       else break;
-    } 
+    }
 
     // Now colour should exist in only 2 copies.
     if (colPos.size() + acolPos.size() != 2) physical = false;
@@ -1078,12 +1078,12 @@ bool ProcessLevel::checkColours( Event& process) {
     // If both colours or both anticolours then one mother of the other.
     else if (colPos.size() == 2) {
       iNow = colPos[1];
-      if ( process[iNow].mother1() != colPos[0] 
+      if ( process[iNow].mother1() != colPos[0]
         && process[iNow].mother2() != colPos[0] ) physical = false;
     }
     else if (acolPos.size() == 2) {
       iNowA = acolPos[1];
-      if ( process[iNowA].mother1() != acolPos[0] 
+      if ( process[iNowA].mother1() != acolPos[0]
         && process[iNowA].mother2() != acolPos[0] ) physical = false;
     }
     
@@ -1092,16 +1092,16 @@ bool ProcessLevel::checkColours( Event& process) {
       iNow  = colPos[0];
       iNowA = acolPos[0];
       if ( process[iNow].status() == -21 &&  process[iNowA].status() == -21 );
-      else if ( (process[iNow].mother1() != process[iNowA].mother1()) 
-	     || (process[iNow].mother2() != process[iNowA].mother2()) ) 
-	physical = false;
+      else if ( (process[iNow].mother1() != process[iNowA].mother1())
+             || (process[iNow].mother2() != process[iNowA].mother2()) )
+        physical = false;
     }
 
   }
 
   // Error message if problem found. Done.
   if (!physical) infoPtr->errorMsg("Error in ProcessLevel::checkColours: "
-                   "unphysical colour flow"); 
+                   "unphysical colour flow");
   return physical;
   
 }
@@ -1124,8 +1124,8 @@ void ProcessLevel::statistics2(bool reset, ostream& os) {
     sigma2SelSum      += container2Ptrs[i2]->sigmaSelMC();
     n2SelSum          += container2Ptrs[i2]->nSelected();
   }
-  double factor1       = impactFac * sigma2SelSum / sigmaND;  
-  double rel1Err       = sqrt(1. / max(1, n2SelSum) + impactErr2);    
+  double factor1       = impactFac * sigma2SelSum / sigmaND;
+  double rel1Err       = sqrt(1. / max(1, n2SelSum) + impactErr2);
   if (allHardSame) factor1 *= 0.5;
 
   // Derive scaling factor to be applied to second set of processes.
@@ -1135,17 +1135,17 @@ void ProcessLevel::statistics2(bool reset, ostream& os) {
     sigma1SelSum      += containerPtrs[i]->sigmaSelMC();
     n1SelSum          += containerPtrs[i]->nSelected();
   }
-  double factor2       = impactFac * sigma1SelSum / sigmaND;       
+  double factor2       = impactFac * sigma1SelSum / sigmaND;
   if (allHardSame) factor2 *= 0.5;
-  double rel2Err       = sqrt(1. / max(1, n1SelSum) + impactErr2);    
+  double rel2Err       = sqrt(1. / max(1, n1SelSum) + impactErr2);
     
   // Header.
   os << "\n *-------  PYTHIA Event and Cross Section Statistics  ------"
      << "--------------------------------------------------*\n"
      << " |                                                            "
-     << "                                                |\n" 
+     << "                                                |\n"
      << " | Subprocess                               Code |            "
-     << "Number of events       |      sigma +- delta    |\n" 
+     << "Number of events       |      sigma +- delta    |\n"
      << " |                                               |       Tried"
      << "   Selected   Accepted |     (estimated) (mb)   |\n"
      << " |                                               |            "
@@ -1160,14 +1160,14 @@ void ProcessLevel::statistics2(bool reset, ostream& os) {
      << "                       |                        |\n";
 
   // Reset sum counters.
-  long   nTrySum   = 0; 
-  long   nSelSum   = 0; 
+  long   nTrySum   = 0;
+  long   nSelSum   = 0;
   long   nAccSum   = 0;
   double sigmaSum  = 0.;
   double delta2Sum = 0.;
 
   // Loop over existing first processes.
-  for (int i = 0; i < int(containerPtrs.size()); ++i) 
+  for (int i = 0; i < int(containerPtrs.size()); ++i)
   if (containerPtrs[i]->sigmaMax() != 0.) {
 
     // Read info for process. Sum counters.
@@ -1178,26 +1178,26 @@ void ProcessLevel::statistics2(bool reset, ostream& os) {
     double delta2  = pow2( containerPtrs[i]->deltaMC() * factor1 );
     nTrySum       += nTry;
     nSelSum       += nSel;
-    nAccSum       += nAcc; 
+    nAccSum       += nAcc;
     sigmaSum      += sigma;
-    delta2Sum     += delta2; 
-    delta2        += pow2( sigma * rel1Err );   
+    delta2Sum     += delta2;
+    delta2        += pow2( sigma * rel1Err );
 
     // Print individual process info.
-    os << " | " << left << setw(40) << containerPtrs[i]->name() 
-       << right << setw(5) << containerPtrs[i]->code() << " | " 
-       << setw(11) << nTry << " " << setw(10) << nSel << " " 
-       << setw(10) << nAcc << " | " << scientific << setprecision(3) 
+    os << " | " << left << setw(40) << containerPtrs[i]->name()
+       << right << setw(5) << containerPtrs[i]->code() << " | "
+       << setw(11) << nTry << " " << setw(10) << nSel << " "
+       << setw(10) << nAcc << " | " << scientific << setprecision(3)
        << setw(11) << sigma << setw(11) << sqrtpos(delta2) << " |\n";
   }
 
   // Print summed info for first processes.
-  delta2Sum       += pow2( sigmaSum * rel1Err ); 
+  delta2Sum       += pow2( sigmaSum * rel1Err );
   os << " |                                               |            "
      << "                       |                        |\n"
-     << " | " << left << setw(45) << "sum" << right << " | " << setw(11) 
-     << nTrySum << " " << setw(10) << nSelSum << " " << setw(10) 
-     << nAccSum << " | " << scientific << setprecision(3) << setw(11) 
+     << " | " << left << setw(45) << "sum" << right << " | " << setw(11)
+     << nTrySum << " " << setw(10) << nSelSum << " " << setw(10)
+     << nAccSum << " | " << scientific << setprecision(3) << setw(11)
      << sigmaSum << setw(11) << sqrtpos(delta2Sum) << " |\n";
 
  
@@ -1214,8 +1214,8 @@ void ProcessLevel::statistics2(bool reset, ostream& os) {
      << "                       |                        |\n";
 
   // Reset sum counters.
-  nTrySum   = 0; 
-  nSelSum   = 0; 
+  nTrySum   = 0;
+  nSelSum   = 0;
   nAccSum   = 0;
   sigmaSum  = 0.;
   delta2Sum = 0.;
@@ -1232,26 +1232,26 @@ void ProcessLevel::statistics2(bool reset, ostream& os) {
     double delta2  = pow2( container2Ptrs[i2]->deltaMC() * factor2 );
     nTrySum       += nTry;
     nSelSum       += nSel;
-    nAccSum       += nAcc; 
+    nAccSum       += nAcc;
     sigmaSum      += sigma;
-    delta2Sum     += delta2;    
-    delta2        += pow2( sigma * rel2Err );   
+    delta2Sum     += delta2;
+    delta2        += pow2( sigma * rel2Err );
 
     // Print individual process info.
-    os << " | " << left << setw(40) << container2Ptrs[i2]->name() 
-       << right << setw(5) << container2Ptrs[i2]->code() << " | " 
-       << setw(11) << nTry << " " << setw(10) << nSel << " " 
-       << setw(10) << nAcc << " | " << scientific << setprecision(3) 
+    os << " | " << left << setw(40) << container2Ptrs[i2]->name()
+       << right << setw(5) << container2Ptrs[i2]->code() << " | "
+       << setw(11) << nTry << " " << setw(10) << nSel << " "
+       << setw(10) << nAcc << " | " << scientific << setprecision(3)
        << setw(11) << sigma << setw(11) << sqrtpos(delta2) << " |\n";
   }
 
   // Print summed info for second processes.
-  delta2Sum       += pow2( sigmaSum * rel2Err ); 
+  delta2Sum       += pow2( sigmaSum * rel2Err );
   os << " |                                               |            "
      << "                       |                        |\n"
-     << " | " << left << setw(45) << "sum" << right << " | " << setw(11) 
-     << nTrySum << " " << setw(10) << nSelSum << " " << setw(10) 
-     << nAccSum << " | " << scientific << setprecision(3) << setw(11) 
+     << " | " << left << setw(45) << "sum" << right << " | " << setw(11)
+     << nTrySum << " " << setw(10) << nSelSum << " " << setw(10)
+     << nAccSum << " | " << scientific << setprecision(3) << setw(11)
      << sigmaSum << setw(11) << sqrtpos(delta2Sum) << " |\n";
 
   // Print information on how the two processes were combined.
@@ -1261,10 +1261,10 @@ void ProcessLevel::statistics2(bool reset, ostream& os) {
      << "------------------------------------------------|\n"
      << " |                                                            "
      << "                                                |\n"
-     << " | Uncombined cross sections for the two event sets were " 
+     << " | Uncombined cross sections for the two event sets were "
      << setw(10) << sigma1SelSum << " and " << sigma2SelSum << " mb, "
      << "respectively, combined  |\n"
-     << " | using a sigma(nonDiffractive) of " << setw(10) << sigmaND 
+     << " | using a sigma(nonDiffractive) of " << setw(10) << sigmaND
      << " mb and an impact-parameter enhancement factor of "
      << setw(10) << impactFac << ".   |\n";
 

@@ -1,5 +1,5 @@
 // SigmaGeneric.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Johan Bijnens,Torbjorn Sjostrand.
+// Copyright (C) 2014 Johan Bijnens,Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -17,24 +17,24 @@ namespace Pythia8 {
  
 //==========================================================================
 
-// A derived class for g g -> qG qGbar (generic quark of spin 0, 1/2 or 1). 
+// A derived class for g g -> qG qGbar (generic quark of spin 0, 1/2 or 1).
 
 class Sigma2gg2qGqGbar : public Sigma2Process {
 
 public:
 
   // Constructor.
-  Sigma2gg2qGqGbar(int idIn, int codeIn, int spinIn, 
+  Sigma2gg2qGqGbar(int idIn, int codeIn, int spinIn,
     string nameIn = "g g -> qG qGbar") : idNew(idIn), codeSave(codeIn),
     spinSave(spinIn), nameSave(nameIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -59,24 +59,24 @@ private:
  
 //==========================================================================
 
-// A derived class for q qbar -> qG qGbar (generic quark of spin 0, 1/2 or 1). 
+// A derived class for q qbar -> qG qGbar (generic quark of spin 0, 1/2 or 1).
 
 class Sigma2qqbar2qGqGbar : public Sigma2Process {
 
 public:
 
   // Constructor.
-  Sigma2qqbar2qGqGbar(int idIn, int codeIn, int spinIn, 
+  Sigma2qqbar2qGqGbar(int idIn, int codeIn, int spinIn,
     string nameIn = "q qbar -> qG qGbar") : idNew(idIn), codeSave(codeIn),
     spinSave(spinIn), nameSave(nameIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -101,25 +101,25 @@ private:
 //==========================================================================
 
 // A derived class for f fbar -> fG fGbar (generic spin 0, 1/2 or 1 particle)
-// via gamma^*/Z^* s-channel exchange. Still under development!! ?? 
+// via gamma^*/Z^* s-channel exchange. Still under development!! ??
 
 class Sigma2ffbar2fGfGbar : public Sigma2Process {
 
 public:
 
   // Constructor.
-  Sigma2ffbar2fGfGbar(int idIn, int codeIn, int spinIn, 
+  Sigma2ffbar2fGfGbar(int idIn, int codeIn, int spinIn,
     string nameIn = "q qbar -> qG qGbar") : idNew(idIn), codeSave(codeIn),
     spinSave(spinIn), nameSave(nameIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
-  virtual double sigmaHat(); 
+  // Evaluate sigmaHat(sHat).
+  virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
@@ -143,7 +143,7 @@ private:
   
 //==========================================================================
 
-// A derived class for f fbar -> Zv, where Zv couples both to the SM and 
+// A derived class for f fbar -> Zv, where Zv couples both to the SM and
 // to a hidden sector. Primitive coupling structure.
 
 class Sigma1ffbar2Zv : public Sigma1Process {
@@ -153,8 +153,8 @@ public:
   // Constructor.
   Sigma1ffbar2Zv() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
@@ -166,7 +166,7 @@ public:
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return "f fbar -> Zv";}

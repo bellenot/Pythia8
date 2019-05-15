@@ -1,11 +1,11 @@
 // main81.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This program is written by Stefan Prestel.
-// It illustrates how to do CKKW-L merging, 
-// see the Matrix Element Merging page in the online manual. 
+// It illustrates how to do CKKW-L merging,
+// see the Matrix Element Merging page in the online manual.
 
 #include "Pythia8/Pythia.h"
 
@@ -21,7 +21,7 @@ using namespace Pythia8;
 //==========================================================================
 
 // Find the Durham kT separation of the clustering from
-// nJetMin --> nJetMin-1 jets in the input event  
+// nJetMin --> nJetMin-1 jets in the input event
 
 double pTfirstJet( const Event& event, int nJetMin, double Rparam) {
 
@@ -59,7 +59,7 @@ double pTfirstJet( const Event& event, int nJetMin, double Rparam) {
             event[i].py(), event[i].pz(),event[i].e() ) );
   }
 
-  // Do nothing for empty input 
+  // Do nothing for empty input
   if (int(fjInputs.size()) == 0) {
     delete jetDef;
     return 0.0;
@@ -160,7 +160,7 @@ int main( int argc, char* argv[] ){
 
   // Write histograms to dat file. Use "jetsInLHEF" to label the files
   // Once all the samples up to the maximal desired jet multiplicity from the
-  // matrix element are run, add all histograms to produce a 
+  // matrix element are run, add all histograms to produce a
   // matrix-element-merged prediction
 
   ofstream write;

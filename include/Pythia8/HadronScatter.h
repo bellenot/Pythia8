@@ -1,5 +1,5 @@
 // HadronScatter.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -134,7 +134,7 @@ class HadronScatter {
 
 public:
 
-  // Constructor. 
+  // Constructor.
   HadronScatter() {}
 
   // Initialisation
@@ -144,7 +144,7 @@ public:
   // Perform all hadron scatterings
   void scatter(Event&);
  
-private: 
+private:
 
   // Pointer to various information on the generation.
   Info* infoPtr;

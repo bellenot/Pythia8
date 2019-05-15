@@ -1,9 +1,9 @@
 ! main88.cmnd.
-! This file contains commands to be read in for a Pythia8 run. 
+! This file contains commands to be read in for a Pythia8 run.
 ! Lines not beginning with a letter or digit are comments.
 
 // Number of events generated
-Main:numberOfEvents		    = 1000
+Main:numberOfEvents       = 1000
 
 // Shower options
 HadronLevel:all           = on
@@ -35,8 +35,8 @@ SpaceShower:rapidityOrder = off
 
 // Since UNLOPS is a next-to-leading order merging method, next-to-leading
 // order PDFs are necessary. However, the parton shower and multiparton
-// interactions favour leading-order PDFs, since multiparton interactions 
-// probe the incoming hadron at small momentum scales. Until a NLO-merged 
+// interactions favour leading-order PDFs, since multiparton interactions
+// probe the incoming hadron at small momentum scales. Until a NLO-merged
 // tune becomes available, NLO PDFs should be used throughout.
 // Example PDF files generated with CTEQ6M PDFs
 PDF:useLHAPDF             = on

@@ -1,10 +1,10 @@
 // SusyResonanceWidths.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand
+// Copyright (C) 2014 Torbjorn Sjostrand
 // Main author of this file: N. Desai
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Header file for resonance properties: dynamical widths etc. 
+// Header file for resonance properties: dynamical widths etc.
 // SusyResonanceWidths: base class for all SUSY resonances.
 
 #ifndef Pythia8_SusyResonanceWidths_H
@@ -29,7 +29,7 @@ public:
 
   void init( ParticleData* particleDataPtrIn, CoupSUSY* coupSUSYPtrIn);
 
-  virtual void setInternal(int idResIn, int id1In, int id2In, int id3In, 
+  virtual void setInternal(int idResIn, int id1In, int id2In, int id3In,
     int idIntIn, int) {setInternal2(idResIn, id1In, id2In, id3In, idIntIn);}
 
   virtual double function(double m12);
@@ -59,7 +59,7 @@ public:
   // Destructor.
   virtual ~Psi() { };
 
-  virtual void setInternal(int idResIn, int id1In, int id2In, int id3In, 
+  virtual void setInternal(int idResIn, int id1In, int id2In, int id3In,
     int idIntIn, int);
   virtual double function(double m12);
 
@@ -74,7 +74,7 @@ public:
   // Destructor.
   virtual ~Upsilon() { };
 
-  virtual void setInternal(int idResIn, int id1In, int id2In, int id3In, 
+  virtual void setInternal(int idResIn, int id1In, int id2In, int id3In,
     int idIntIn, int idInt2);
   virtual double function(double m12);
 
@@ -94,7 +94,7 @@ public:
   // Destructor.
   virtual ~Phi() { };
 
-  virtual void setInternal(int idResIn, int id1In, int id2In, int id3In, 
+  virtual void setInternal(int idResIn, int id1In, int id2In, int id3In,
     int idIntIn, int idInt2);
   virtual double function(double m12sqIn);
 
@@ -120,7 +120,7 @@ public:
 
   // Return particle type
   int typeNeut(int idPDG);
-  int typeChar(int idPDG); 
+  int typeChar(int idPDG);
 
 protected:
 
@@ -146,15 +146,15 @@ class ResonanceSquark : public SUSYResonanceWidths {
 
 public:
 
-  // Constructor. 
-  ResonanceSquark(int idResIn) {initBasic(idResIn);} 
+  // Constructor.
+  ResonanceSquark(int idResIn) {initBasic(idResIn);}
 
-private: 
+private:
 
   // Locally stored properties and couplings.
 
   // Initialize constants.
-  virtual void initConstants(); 
+  virtual void initConstants();
  
   // Calculate various common prefactors for the current mass.
   virtual void calcPreFac(bool = false);
@@ -174,15 +174,15 @@ class ResonanceGluino : public SUSYResonanceWidths {
 
 public:
 
-  // Constructor. 
-  ResonanceGluino(int idResIn) {initBasic(idResIn);} 
+  // Constructor.
+  ResonanceGluino(int idResIn) {initBasic(idResIn);}
 
-private: 
+private:
 
   // Locally stored properties and couplings.
  
   // Initialize constants.
-  virtual void initConstants(); 
+  virtual void initConstants();
  
   // Calculate various common prefactors for the current mass.
   virtual void calcPreFac(bool = false);
@@ -200,16 +200,16 @@ class ResonanceNeut : public SUSYResonanceWidths {
 
 public:
 
-  // Constructor. 
-  ResonanceNeut(int idResIn) {initBasic(idResIn);} 
+  // Constructor.
+  ResonanceNeut(int idResIn) {initBasic(idResIn);}
 
-private: 
+private:
 
   // Locally stored properties and couplings.
   double kinFac2;
 
   // Initialize constants.
-  virtual void initConstants(); 
+  virtual void initConstants();
  
   // Calculate various common prefactors for the current mass.
   virtual void calcPreFac(bool = false);
@@ -234,16 +234,16 @@ class ResonanceChar : public SUSYResonanceWidths {
 
 public:
 
-  // Constructor. 
-  ResonanceChar(int idResIn) {initBasic(idResIn);} 
+  // Constructor.
+  ResonanceChar(int idResIn) {initBasic(idResIn);}
 
-private: 
+private:
 
   // Locally stored properties and couplings.
   double kinFac2;
 
   // Initialize constants.
-  virtual void initConstants(); 
+  virtual void initConstants();
  
   // Calculate various common prefactors for the current mass.
   virtual void calcPreFac(bool = false);
@@ -268,15 +268,15 @@ class ResonanceSlepton : public SUSYResonanceWidths {
 
 public:
 
-  // Constructor. 
-  ResonanceSlepton(int idResIn) {initBasic(idResIn);} 
+  // Constructor.
+  ResonanceSlepton(int idResIn) {initBasic(idResIn);}
 
-private: 
+private:
 
   // Locally stored properties and couplings.
 
   // Initialize constants.
-  virtual void initConstants(); 
+  virtual void initConstants();
  
   // Calculate various common prefactors for the current mass.
   virtual void calcPreFac(bool = false);

@@ -1,5 +1,5 @@
 // main41.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -16,11 +16,11 @@
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_GenEvent.h"
 
-using namespace Pythia8; 
+using namespace Pythia8;
 
 int main() {
 
-  // Interface for conversion from Pythia8::Event to HepMC event. 
+  // Interface for conversion from Pythia8::Event to HepMC event.
   HepMC::Pythia8ToHepMC ToHepMC;
 
   // Specify file where HepMC events will be stored.
@@ -28,9 +28,9 @@ int main() {
 
   // Generator. Process selection. LHC initialization. Histogram.
   Pythia pythia;
-  pythia.readString("Beams:eCM = 8000.");    
-  pythia.readString("HardQCD:all = on");    
-  pythia.readString("PhaseSpace:pTHatMin = 20.");    
+  pythia.readString("Beams:eCM = 8000.");
+  pythia.readString("HardQCD:all = on");
+  pythia.readString("PhaseSpace:pTHatMin = 20.");
   pythia.init();
   Hist mult("charged multiplicity", 100, -0.5, 799.5);
 
@@ -40,14 +40,14 @@ int main() {
 
     // Find number of all final charged particles and fill histogram.
     int nCharged = 0;
-    for (int i = 0; i < pythia.event.size(); ++i) 
-      if (pythia.event[i].isFinal() && pythia.event[i].isCharged()) 
-        ++nCharged; 
+    for (int i = 0; i < pythia.event.size(); ++i)
+      if (pythia.event[i].isFinal() && pythia.event[i].isCharged())
+        ++nCharged;
     mult.fill( nCharged );
 
     // Construct new empty HepMC event and fill it.
     // Units will be as chosen for HepMC build; but can be changed
-    // by arguments, e.g. GenEvt( HepMC::Units::GEV, HepMC::Units::MM)  
+    // by arguments, e.g. GenEvt( HepMC::Units::GEV, HepMC::Units::MM)
     HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
     ToHepMC.fill_next_event( pythia, hepmcevt );
 
@@ -55,10 +55,10 @@ int main() {
     ascii_io << hepmcevt;
     delete hepmcevt;
 
-  // End of event loop. Statistics. Histogram. 
+  // End of event loop. Statistics. Histogram.
   }
   pythia.stat();
-  cout << mult; 
+  cout << mult;
 
   // Done.
   return 0;

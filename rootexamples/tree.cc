@@ -1,8 +1,8 @@
 // File: tree.cc
 // This is a simple test program.
-// Modified by Rene Brun and Axcel Naumann to put the Pythia::event 
+// Modified by Rene Brun and Axcel Naumann to put the Pythia::event
 // into a TTree.
-// Copyright (C) 2013 Torbjorn Sjostrand
+// Copyright (C) 2014 Torbjorn Sjostrand
 
 // Header file to access Pythia 8 program elements.
 #include "Pythia8/Pythia.h"
@@ -33,10 +33,10 @@ int main() {
   for (int iEvent = 0; iEvent < 100; ++iEvent) {
     if (!pythia.next()) continue;
 
-    // Fill the pythia event into the TTree.  
-    // Warning: the files will rapidly become large if all events 
-    // are saved. In some cases it may be convenient to do some 
-    // processing of events and only save those that appear 
+    // Fill the pythia event into the TTree.
+    // Warning: the files will rapidly become large if all events
+    // are saved. In some cases it may be convenient to do some
+    // processing of events and only save those that appear
     // interesting for future analyses.
     T->Fill();
 

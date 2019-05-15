@@ -1,5 +1,5 @@
 // main22.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -7,14 +7,14 @@
 // and (b) your own cross-section class, with instances handed in to Pythia.
 // The hypothetical scenario is that top would have been so long-lived
 // that a toponium resonance Theta could form. Then production could
-// proceed via q qbar -> gamma*/Z* -> Theta, with decay either to 
+// proceed via q qbar -> gamma*/Z* -> Theta, with decay either to
 // a fermion pair or (dominantly) to three gluons.
 // The implementation is not physically correct in any number of ways,
 // but should exemplify the strategy needed for realistic cases.
 
 #include "Pythia8/Pythia.h"
 
-using namespace Pythia8; 
+using namespace Pythia8;
   
 //==========================================================================
 
@@ -24,16 +24,16 @@ class ResonanceTheta : public ResonanceWidths {
 
 public:
 
-  // Constructor. 
-  ResonanceTheta(int idResIn) {initBasic(idResIn);} 
+  // Constructor.
+  ResonanceTheta(int idResIn) {initBasic(idResIn);}
 
-private: 
+private:
 
   // Locally stored properties and couplings.
   double normTheta2qqbar, normTheta2llbar, normTheta2ggg;
  
   // Initialize constants.
-  virtual void initConstants(); 
+  virtual void initConstants();
  
   // Calculate various common prefactors for the current mass.
   // Superfluous here, so skipped.
@@ -53,7 +53,7 @@ void ResonanceTheta::initConstants() {
   // Dummy normalization of couplings to the allowed decay channels.
   normTheta2qqbar = 0.0001;
   normTheta2llbar = 0.0001;
-  normTheta2ggg   = 0.001; 
+  normTheta2ggg   = 0.001;
 }
 
 //--------------------------------------------------------------------------
@@ -63,14 +63,14 @@ void ResonanceTheta::initConstants() {
 void ResonanceTheta::calcWidth(bool) {
 
   // Expression for Theta -> q qbar (q up to b). Colour factor.
-  if (id1Abs < 6) widNow = 3. * normTheta2qqbar * mHat; 
+  if (id1Abs < 6) widNow = 3. * normTheta2qqbar * mHat;
 
   // Expression for Theta -> l lbar (l = e, mu, tau).
-  else if (id1Abs == 11  || id1Abs == 13 || id1Abs == 15) 
-    widNow = normTheta2llbar * mHat; 
+  else if (id1Abs == 11  || id1Abs == 13 || id1Abs == 15)
+    widNow = normTheta2llbar * mHat;
 
   // Expression for Theta -> g g g. Colour factor.
-  else if (id1Abs == 21) widNow = 8. * normTheta2ggg * mHat; 
+  else if (id1Abs == 21) widNow = 8. * normTheta2ggg * mHat;
 
 }
  
@@ -85,20 +85,20 @@ public:
   // Constructor.
   Sigma1qqbar2Theta() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). Assumed flavour-independent so simple. 
+  // Evaluate sigmaHat(sHat). Assumed flavour-independent so simple.
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return "q qbar -> Theta";}
@@ -119,11 +119,11 @@ private:
 
 //--------------------------------------------------------------------------
 
-// Initialize process. 
+// Initialize process.
   
 void Sigma1qqbar2Theta::initProc() {
 
-  // Store Theta mass and width for propagator. 
+  // Store Theta mass and width for propagator.
   idTheta  = 663;
   mRes     = particleDataPtr->m0(idTheta);
   GammaRes = particleDataPtr->mWidth(idTheta);
@@ -136,22 +136,22 @@ void Sigma1qqbar2Theta::initProc() {
   // Set pointer to particle properties and decay table.
   particlePtr = particleDataPtr->particleDataEntryPtr(idTheta);
   
-} 
+}
 
 //--------------------------------------------------------------------------
 
-// Evaluate sigmaHat(sHat); first step when inflavours unknown. 
+// Evaluate sigmaHat(sHat); first step when inflavours unknown.
 
-void Sigma1qqbar2Theta::sigmaKin() { 
+void Sigma1qqbar2Theta::sigmaKin() {
 
   // Incoming width with colour factor.
-  double widthIn  = normTheta2qqbar * mH / 3.; 
+  double widthIn  = normTheta2qqbar * mH / 3.;
 
   // Breit-Wigner, including some (guessed) spin factors.
-  double sigBW    = 12. * M_PI / ( pow2(sH - m2Res) + pow2(sH * GamMRat) ); 
+  double sigBW    = 12. * M_PI / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
 
   // Outgoing width: only includes channels left open.
-  double widthOut = particlePtr->resWidthOpen(663, mH);    
+  double widthOut = particlePtr->resWidthOpen(663, mH);
 
   // Total answer.
   sigma = widthIn * sigBW * widthOut;
@@ -181,7 +181,7 @@ double Sigma1qqbar2Theta::weightDecay( Event& process, int iResBeg,
   int iResEnd) {
 
   // Should be Theta decay. (This is only option here, so overkill.)
-  if (iResEnd != iResBeg || process[iResBeg].idAbs() != idTheta) 
+  if (iResEnd != iResBeg || process[iResBeg].idAbs() != idTheta)
     return 1.;
 
   // Should be decay to three gluons.
@@ -200,7 +200,7 @@ double Sigma1qqbar2Theta::weightDecay( Event& process, int iResBeg,
             / process[iResBeg].m2();
 
   // Matrix-element expression for Theta -> g g g.
-  double wtME = pow2( (1. - x1) / (x2 * x3) ) 
+  double wtME = pow2( (1. - x1) / (x2 * x3) )
     + pow2( (1. - x2) / (x1 * x3) ) + pow2( (1. - x3) / (x1 * x2) );
   double wtMEmax = 2.;
   return wtME / wtMEmax;
@@ -234,17 +234,17 @@ int main() {
   pythia.readString("663:addChannel = 1 0. 0 11 -11");
   pythia.readString("663:addChannel = 1 0. 0 13 -13");
   pythia.readString("663:addChannel = 1 0. 0 15 -15");
-  pythia.readString("663:addChannel = 1 0. 0 21 21 21");  
+  pythia.readString("663:addChannel = 1 0. 0 21 21 21");
 
-  // Create instance of a class to calculate the width of Theta to the 
-  // above channels. Hand in pointer to Pythia. 
-  // Note: Pythia will automatically delete this pointer, 
+  // Create instance of a class to calculate the width of Theta to the
+  // above channels. Hand in pointer to Pythia.
+  // Note: Pythia will automatically delete this pointer,
   // along with all other resonances.
   ResonanceWidths* resonanceTheta = new ResonanceTheta(663);
   pythia.setResonancePtr(resonanceTheta);
 
-  // Create instance of a class to generate the q qbar -> Theta process 
-  // from an external matrix element. Hand in pointer to Pythia.  
+  // Create instance of a class to generate the q qbar -> Theta process
+  // from an external matrix element. Hand in pointer to Pythia.
   SigmaProcess* sigma1Theta = new Sigma1qqbar2Theta();
   pythia.setSigmaPtr(sigma1Theta);
 
@@ -265,7 +265,7 @@ int main() {
     // Generate events. Quit if many failures.
     if (!pythia.next()) {
       if (++iAbort < nAbort) continue;
-      cout << " Event generation aborted prematurely, owing to error!\n"; 
+      cout << " Event generation aborted prematurely, owing to error!\n";
       break;
     }
 

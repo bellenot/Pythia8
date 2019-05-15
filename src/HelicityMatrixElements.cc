@@ -1,5 +1,5 @@
 // HelicityMatrixElements.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2014 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -55,7 +55,7 @@ void HelicityMatrixElement::calculateD(vector<HelicityParticle>& p) {
   // Reset the D matrix to zero.
   for (int i = 0; i < p[0].spinStates(); i++) {
     for (int j = 0; j < p[0].spinStates(); j++) {
-  	p[0].D[i][j] = 0;
+        p[0].D[i][j] = 0;
     }
   }
 
@@ -83,14 +83,14 @@ void HelicityMatrixElement::calculateD(vector<HelicityParticle>& p,
 
   if (i < p.size()) {
     for (h1[i] = 0; h1[i] < p[i].spinStates(); h1[i]++) {
-	for (h2[i] = 0; h2[i] < p[i].spinStates(); h2[i]++) {
-	  calculateD(p, h1, h2, i+1);
-	}
+        for (h2[i] = 0; h2[i] < p[i].spinStates(); h2[i]++) {
+          calculateD(p, h1, h2, i+1);
+        }
     }
   }
   else {
-    p[0].D[h1[0]][h2[0]] += calculateME(h1) * conj(calculateME(h2)) * 
-	calculateProductD(p, h1, h2);
+    p[0].D[h1[0]][h2[0]] += calculateME(h1) * conj(calculateME(h2)) *
+        calculateProductD(p, h1, h2);
   }
 
 }
@@ -105,7 +105,7 @@ void HelicityMatrixElement::calculateRho(unsigned int idx,
   // Reset the rho matrix to zero.
   for (int i = 0; i < p[idx].spinStates(); i++) {
     for (int j = 0; j < p[idx].spinStates(); j++) {
-  	p[idx].rho[i][j] = 0;
+        p[idx].rho[i][j] = 0;
     }
   }
 
@@ -134,22 +134,22 @@ void HelicityMatrixElement::calculateRho(unsigned int idx,
 
   if (i < p.size()) {
     for (h1[i] = 0; h1[i] < p[i].spinStates(); h1[i]++) {
-	for (h2[i] = 0; h2[i] < p[i].spinStates(); h2[i]++) {
-	  calculateRho(idx, p, h1, h2, i+1);
-	}
+        for (h2[i] = 0; h2[i] < p[i].spinStates(); h2[i]++) {
+          calculateRho(idx, p, h1, h2, i+1);
+        }
     }
   }
   else {
     // Calculate rho from a hard process.
     if (p[1].direction < 0)
-	p[idx].rho[h1[idx]][h2[idx]] += p[0].rho[h1[0]][h2[0]] *
-	  p[1].rho[h1[1]][h2[1]] * calculateME(h1)*conj(calculateME(h2)) * 
-	  calculateProductD(idx, 2, p, h1, h2);
+        p[idx].rho[h1[idx]][h2[idx]] += p[0].rho[h1[0]][h2[0]] *
+          p[1].rho[h1[1]][h2[1]] * calculateME(h1)*conj(calculateME(h2)) *
+          calculateProductD(idx, 2, p, h1, h2);
     // Calculate rho from a decay.
     else
-	p[idx].rho[h1[idx]][h2[idx]] += p[0].rho[h1[0]][h2[0]] *
-	  calculateME(h1)*conj(calculateME(h2)) * 
-	  calculateProductD(idx, 1, p, h1, h2);
+        p[idx].rho[h1[idx]][h2[idx]] += p[0].rho[h1[0]][h2[0]] *
+          calculateME(h1)*conj(calculateME(h2)) *
+          calculateProductD(idx, 1, p, h1, h2);
     return;
   }
 
@@ -186,14 +186,14 @@ void HelicityMatrixElement::decayWeight(vector<HelicityParticle>& p,
 
   if (i < p.size()) {
     for (h1[i] = 0; h1[i] < p[i].spinStates(); h1[i]++) {
-	for (h2[i] = 0; h2[i] < p[i].spinStates(); h2[i]++) {
-	  decayWeight(p, h1, h2, weight, i+1);
-	}
+        for (h2[i] = 0; h2[i] < p[i].spinStates(); h2[i]++) {
+          decayWeight(p, h1, h2, weight, i+1);
+        }
     }
   }
   else {
-    weight += p[0].rho[h1[0]][h2[0]] * calculateME(h1) * 
-	conj(calculateME(h2)) * calculateProductD(p, h1, h2);
+    weight += p[0].rho[h1[0]][h2[0]] * calculateME(h1) *
+        conj(calculateME(h2)) * calculateProductD(p, h1, h2);
   }
 
 }
@@ -209,7 +209,7 @@ complex HelicityMatrixElement::calculateProductD(unsigned int idx,
   complex answer(1,0);
   for (unsigned int i = start; i < p.size(); i++) {
     if (i != idx) {
-	answer *= p[i].D[h1[i]][h2[i]];
+        answer *= p[i].D[h1[i]][h2[i]];
     }
   }
   return answer;
@@ -235,7 +235,7 @@ complex HelicityMatrixElement::calculateProductD(
   
 // Initialize a fermion line.
 
-void HelicityMatrixElement::setFermionLine(int position, 
+void HelicityMatrixElement::setFermionLine(int position,
   HelicityParticle& p0, HelicityParticle& p1) {
 
   vector< Wave4 > u0, u1;
@@ -335,8 +335,8 @@ complex HMETwoFermions2W2TwoFermions::calculateME(vector<int> h) {
 
   complex answer(0,0);
   for (int mu = 0; mu <= 3; mu++) {
-    answer += (u[1][h[pMap[1]]] * gamma[mu] * (1 - gamma[5]) 
-      * u[0][h[pMap[0]]]) * gamma[4](mu,mu) * (u[3][h[pMap[3]]] 
+    answer += (u[1][h[pMap[1]]] * gamma[mu] * (1 - gamma[5])
+      * u[0][h[pMap[0]]]) * gamma[4](mu,mu) * (u[3][h[pMap[3]]]
       * gamma[mu] * (1 - gamma[5]) * u[2][h[pMap[2]]]);
   }
   return answer;
@@ -357,7 +357,7 @@ complex HMETwoFermions2W2TwoFermions::calculateME(vector<int> h) {
 
 // Initialize wave functions for the helicity matrix element.
 
-void HMETwoFermions2Gamma2TwoFermions::initWaves( 
+void HMETwoFermions2Gamma2TwoFermions::initWaves(
   vector<HelicityParticle>& p) {
 
   u.clear();
@@ -378,7 +378,7 @@ complex HMETwoFermions2Gamma2TwoFermions::calculateME(vector<int> h) {
 
   complex answer(0,0);
   for (int mu = 0; mu <= 3; mu++) {
-    answer += (u[1][h[pMap[1]]] * gamma[mu] * u[0][h[pMap[0]]]) 
+    answer += (u[1][h[pMap[1]]] * gamma[mu] * u[0][h[pMap[0]]])
       * gamma[4](mu,mu) * (u[3][h[pMap[3]]] * gamma[mu] * u[2][h[pMap[2]]]);
   }
   return p0Q*p2Q * answer / s;
@@ -414,7 +414,7 @@ void HMETwoFermions2Z2TwoFermions::initConstants() {
 
   // Set the Weinberg angle.
   sin2W = couplingsPtr->sin2thetaW();
-  cos2W = couplingsPtr->cos2thetaW(); 
+  cos2W = couplingsPtr->cos2thetaW();
   // Set the on-shell Z mass and width.
   zG = particleDataPtr->mWidth(23);
   zM = particleDataPtr->m0(23);
@@ -442,7 +442,7 @@ void HMETwoFermions2Z2TwoFermions::initWaves(vector<HelicityParticle>& p) {
   // Center of mass energy.
   s = max( 1., pow2(p[4].m()));
   // Check if incoming fermions are oriented along z-axis.
-  zaxis = (p[0].pAbs() == fabs(p[0].pz())) && 
+  zaxis = (p[0].pAbs() == fabs(p[0].pz())) &&
     (p[1].pAbs() == fabs(p[1].pz()));
 
 }
@@ -457,18 +457,18 @@ complex HMETwoFermions2Z2TwoFermions::calculateME(vector<int> h) {
   // Return zero if correct helicity conditions.
   if (h[0] == h[1] && zaxis) return answer;
   for (int mu = 0; mu <= 3; mu++) {
-    for (int nu = 0; nu <= 3; nu++) { 
-	answer += 
-	  (u[1][h[pMap[1]]] * gamma[mu] * (p0CV - p0CA * gamma[5]) * 
-	   u[0][h[pMap[0]]]) *
-	  (gamma[4](mu,nu) - gamma[4](mu,mu)*u[4][0](mu) * 
-	   gamma[4](nu,nu) * u[4][0](nu) / (zM*zM)) *
-	  (u[3][h[pMap[3]]] * gamma[nu] * (p2CV - p2CA * gamma[5]) * 
-	   u[2][h[pMap[2]]]);
+    for (int nu = 0; nu <= 3; nu++) {
+        answer +=
+          (u[1][h[pMap[1]]] * gamma[mu] * (p0CV - p0CA * gamma[5]) *
+           u[0][h[pMap[0]]]) *
+          (gamma[4](mu,nu) - gamma[4](mu,mu)*u[4][0](mu) *
+           gamma[4](nu,nu) * u[4][0](nu) / (zM*zM)) *
+          (u[3][h[pMap[3]]] * gamma[nu] * (p2CV - p2CA * gamma[5]) *
+           u[2][h[pMap[2]]]);
     }
   }
-  return answer / (16 * pow2(sin2W * cos2W) * 
-		     (s - zM*zM + complex(0, s*zG/zM)));
+  return answer / (16 * pow2(sin2W * cos2W) *
+                     (s - zM*zM + complex(0, s*zG/zM)));
 
 }
 
@@ -532,7 +532,7 @@ complex HMETwoFermions2GammaZ2TwoFermions::calculateME(vector<int> h) {
 
 // Helicity matrix element for Z -> two fermions.
 
-// Helicity matrix element for Z -> two fermions. This matrix element is used 
+// Helicity matrix element for Z -> two fermions. This matrix element is used
 // when the production of the Z is from an unknown process.
 
 // p2CA: axial coupling of particle 2 to the Z
@@ -577,9 +577,9 @@ complex HMEZ2TwoFermions::calculateME(vector<int> h) {
 
   complex answer(0,0);
   for (int mu = 0; mu <= 3; mu++) {
-    answer += 
-      u[0][h[pMap[1]]](mu) * (u[2][h[pMap[3]]] * gamma[mu] 
-			      * (p2CV - p2CA * gamma[5]) *  u[1][h[pMap[2]]]);
+    answer +=
+      u[0][h[pMap[1]]](mu) * (u[2][h[pMap[3]]] * gamma[mu]
+                              * (p2CV - p2CA * gamma[5]) *  u[1][h[pMap[2]]]);
   }
   return answer;
 }
@@ -598,9 +598,9 @@ complex HMEZ2TwoFermions::calculateME(vector<int> h) {
 //     i * g_w * m_f / (2 * m_W)
 //                               * -1 for the SM H
 //                               * -sin(alpha) / sin(beta) for H^0 u-type
-//	         		 * -cos(alpha) / cos(beta) for H^0 d-type
-//				 * -cos(alpha) / sin(beta) for h^0 u-type
-//				 *  sin(alpha) / cos(beta) for h^0 d-type 
+//                               * -cos(alpha) / cos(beta) for H^0 d-type
+//                               * -cos(alpha) / sin(beta) for h^0 u-type
+//                               *  sin(alpha) / cos(beta) for h^0 d-type
 
 //--------------------------------------------------------------------------
 
@@ -634,7 +634,7 @@ complex HMEHiggsEven2TwoFermions::calculateME(vector<int> h) {
 // p2CA: in the MSSM this coupling is given by:
 //     -g_w * m_f / (2 * m_W)
 //                            * cot(beta) for A^0 u-type
-//		              * tan(beta) for A^0 d-type
+//                            * tan(beta) for A^0 d-type
 // p2CV: in the MSSM this coupling is zero
 
 //--------------------------------------------------------------------------
@@ -713,9 +713,9 @@ void HMEUnpolarized::calculateRho(unsigned int idx,
 
   for (int i = 0; i < p[idx].spinStates(); i++ ) {
     for (int j = 1; j < p[idx].spinStates(); j++) {
-	if (i == j) p[idx].rho[i][j] = 1.0 / 
-		      static_cast<double>(p[idx].spinStates());
-	else p[idx].rho[i][j] = 0;
+        if (i == j) p[idx].rho[i][j] = 1.0 /
+                      static_cast<double>(p[idx].spinStates());
+        else p[idx].rho[i][j] = 0;
     }
   }
 
@@ -751,8 +751,8 @@ complex HMETauDecay::calculateME(vector<int> h) {
   complex answer(0,0);
   for (int mu = 0; mu <= 3; mu++) {
     answer +=
-	(u[1][h[pMap[1]]] * gamma[mu] * (1 - gamma[5]) * u[0][h[pMap[0]]])
-	* gamma[4](mu,mu) * u[2][0](mu);
+        (u[1][h[pMap[1]]] * gamma[mu] * (1 - gamma[5]) * u[0][h[pMap[0]]])
+        * gamma[4](mu,mu) * u[2][0](mu);
   }
   return answer;
 
@@ -781,8 +781,8 @@ void HMETauDecay::calculateResonanceWeights(vector<double>& phase,
   vector<double>& amplitude, vector<complex>& weight) {
 
   for (unsigned int i = 0; i < phase.size(); i++)
-    weight.push_back(amplitude[i] * (cos(phase[i]) + 
-				       complex(0,1) * sin(phase[i])));
+    weight.push_back(amplitude[i] * (cos(phase[i]) +
+                                       complex(0,1) * sin(phase[i])));
 
 }
 
@@ -855,8 +855,8 @@ complex HMETau2TwoLeptons::calculateME(vector<int> h) {
 
   complex answer(0,0);
   for (int mu = 0; mu <= 3; mu++) {
-    answer += (u[1][h[pMap[1]]] * gamma[mu] * (1 - gamma[5]) 
-      * u[0][h[pMap[0]]]) * gamma[4](mu,mu) * (u[3][h[pMap[3]]] 
+    answer += (u[1][h[pMap[1]]] * gamma[mu] * (1 - gamma[5])
+      * u[0][h[pMap[0]]]) * gamma[4](mu,mu) * (u[3][h[pMap[3]]]
       * gamma[mu] * (1 - gamma[5]) * u[2][h[pMap[2]]]);
   }
   return answer;
@@ -989,26 +989,26 @@ void HMETau2TwoMesonsViaVectorScalar::initHadronicCurrent(
   double s1 = m2(u3,u4);
   double s2 = m2(u4);
   complex scaSumBW = 0; complex scaSumW = 0;
-  complex vecSumBW = 0; complex vecSumW = 0; complex vecSumBWM = 0; 
+  complex vecSumBW = 0; complex vecSumW = 0; complex vecSumBWM = 0;
   for (unsigned int i = 0; i < scaW.size(); i++) {
     scaSumBW  += scaW[i] * sBreitWigner(pM[2], pM[3], s2, scaM[i], scaG[i]);
     scaSumW   += scaW[i];
   }
   for (unsigned int i = 0; i < vecW.size(); i++) {
     vecSumBW  += vecW[i] * pBreitWigner(pM[2], pM[3], s2, vecM[i], vecG[i]);
-    vecSumBWM += vecW[i] * pBreitWigner(pM[2], pM[3], s2, vecM[i], vecG[i]) / 
-	pow2(vecM[i]);
+    vecSumBWM += vecW[i] * pBreitWigner(pM[2], pM[3], s2, vecM[i], vecG[i]) /
+        pow2(vecM[i]);
     vecSumW   += vecW[i];
   }
   u2.push_back(vecC * (vecSumBW * u3 - s1 * vecSumBWM * u4) / vecSumW +
-		 scaC * u4 * scaSumBW / scaSumW);
+                 scaC * u4 * scaSumBW / scaSumW);
   u.push_back(u2);
 
 }
 
 //==========================================================================
 
-// Tau decay matrix element for tau decay into three mesons. This matrix 
+// Tau decay matrix element for tau decay into three mesons. This matrix
 // element provides a base class for all implemented three meson decays.
 
 // mode: three meson decay mode of the tau
@@ -1168,15 +1168,15 @@ double HMETau2ThreeMesons::a1PhaseSpace(double s) {
 
 //--------------------------------------------------------------------------
 
-// Return the Breit-Wigner for the a1. Implements equation 3.18 
+// Return the Breit-Wigner for the a1. Implements equation 3.18
 // of Z. Phys. C48 (1990) 445-452.
 
 complex HMETau2ThreeMesons::a1BreitWigner(double s) {
 
   double a1M = 1.251; // Mass of the a1.
   double a1G = 0.475; // Width of the a1.
-  return a1M * a1M / (a1M * a1M - s - complex(0,1) * a1M * a1G 
-		      * a1PhaseSpace(s) / a1PhaseSpace(a1M * a1M));
+  return a1M * a1M / (a1M * a1M - s - complex(0,1) * a1M * a1G
+                      * a1PhaseSpace(s) / a1PhaseSpace(a1M * a1M));
   
 }
 
@@ -1252,7 +1252,7 @@ void HMETau2ThreePions::initResonances() {
 
   // Clear the vectors from previous decays.
   rhoM.clear(); rhoG.clear();
-  rhoPp.clear(); rhoAp.clear(); rhoWp.clear(); 
+  rhoPp.clear(); rhoAp.clear(); rhoWp.clear();
   rhoPd.clear(); rhoAd.clear(); rhoWd.clear();
 
   // Rho parameters.
@@ -1290,28 +1290,28 @@ complex HMETau2ThreePions::F1() {
   if (mode == PimPimPip) {
     for (unsigned int i = 0; i < rhoM.size(); i++) {
       answer += - rhoWp[i] * pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i])
-        - rhoWd[i] / 3.0 * pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i]) 
+        - rhoWd[i] / 3.0 * pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i])
         * (s2 - s4);
     }
-    answer += -2.0 / 3.0 * (sigW * sBreitWigner(pM[2], pM[4], s3, sigM, sigG) 
+    answer += -2.0 / 3.0 * (sigW * sBreitWigner(pM[2], pM[4], s3, sigM, sigG)
             + f0W * sBreitWigner(pM[2], pM[4], s3, f0M, f0G));
-    answer += f2W * (0.5 * (s4 - s3) 
-            * dBreitWigner(pM[3], pM[4], s2, f2M, f2G) 
-            - 1.0 / (18 * s3) * (4 * pow2(pM[2]) - s3) 
-            * (s1 + s3 - pow2(pM[2])) 
+    answer += f2W * (0.5 * (s4 - s3)
+            * dBreitWigner(pM[3], pM[4], s2, f2M, f2G)
+            - 1.0 / (18 * s3) * (4 * pow2(pM[2]) - s3)
+            * (s1 + s3 - pow2(pM[2]))
             * dBreitWigner(pM[2], pM[4], s3, f2M, f2G));
   }
 
   // Two neutral and one charged pion decay.
   else {
     for (unsigned int i = 0; i < rhoM.size(); i++) {
-      answer += rhoWp[i] * pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i]) 
-        - rhoWd[i] / 3.0 * pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i]) 
+      answer += rhoWp[i] * pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i])
+        - rhoWd[i] / 3.0 * pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i])
         * (s4 - s2 - pow2(pM[4]) + pow2(pM[2]));
     }
-    answer += 2.0 / 3.0 * (sigW * sBreitWigner(pM[2], pM[3], s4, sigM, sigG) 
+    answer += 2.0 / 3.0 * (sigW * sBreitWigner(pM[2], pM[3], s4, sigM, sigG)
       + f0W * sBreitWigner(pM[2], pM[3], s4, f0M, f0G));
-    answer += f2W / (18 * s4) * (s1 - pow2(pM[4]) + s4) 
+    answer += f2W / (18 * s4) * (s1 - pow2(pM[4]) + s4)
       * (4 * pow2(pM[2]) - s4) * dBreitWigner(pM[2], pM[3], s4, f2M, f2G);
   }
   return a1BW * answer;
@@ -1329,30 +1329,30 @@ complex HMETau2ThreePions::F2() {
   // Three charged pion decay.
   if (mode == PimPimPip) {
     for (unsigned int i = 0; i  < rhoM.size(); i++) {
-      answer += -rhoWp[i] * pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i]) 
-	- rhoWd[i] / 3.0 * pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i])
+      answer += -rhoWp[i] * pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i])
+        - rhoWd[i] / 3.0 * pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i])
         * (s3 - s4);
     }
     answer += -2.0 / 3.0 * (sigW * sBreitWigner(pM[3], pM[4], s2, sigM, sigG)
       + f0W * sBreitWigner(pM[3], pM[4], s2, f0M, f0G));
-    answer += f2W * (0.5 * (s4 - s2) 
-      * dBreitWigner(pM[2], pM[4], s3, f2M, f2G) 
-      - 1.0 / (18 * s2) * (4 * pow2(pM[2]) - s2) * (s1 + s2 - pow2(pM[2])) 
+    answer += f2W * (0.5 * (s4 - s2)
+      * dBreitWigner(pM[2], pM[4], s3, f2M, f2G)
+      - 1.0 / (18 * s2) * (4 * pow2(pM[2]) - s2) * (s1 + s2 - pow2(pM[2]))
       * dBreitWigner(pM[3], pM[4], s2, f2M, f2G));
   }
 
   // Two neutral and one charged pion decay.
   else {
     for (unsigned int i = 0; i < rhoM.size(); i++) {
-	answer += -rhoWp[i] / 3.0 *
-	  pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i]) - 
-	  rhoWd[i] * pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i]) * 
-	  (s4 - s3 - pow2(pM[4]) + pow2(pM[3]));
+        answer += -rhoWp[i] / 3.0 *
+          pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i]) -
+          rhoWd[i] * pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i]) *
+          (s4 - s3 - pow2(pM[4]) + pow2(pM[3]));
     }
     answer += 2.0 / 3.0 * (sigW * sBreitWigner(pM[2], pM[3], s4, sigM, sigG)
-			     + f0W * sBreitWigner(pM[2], pM[3], s4, f0M, f0G));
+                             + f0W * sBreitWigner(pM[2], pM[3], s4, f0M, f0G));
     answer += f2W / (18 * s4) * (s1 - pow2(pM[4]) + s4) *
-	(4 * pow2(pM[2]) - s4) * dBreitWigner(pM[2], pM[3], s4, f2M, f2G);
+        (4 * pow2(pM[2]) - s4) * dBreitWigner(pM[2], pM[3], s4, f2M, f2G);
   }
   return -a1BW * answer;
 
@@ -1369,36 +1369,30 @@ complex HMETau2ThreePions::F3() {
   // Three charged pion decay.
   if (mode == PimPimPip) {
     for (unsigned int i = 0; i < rhoM.size(); i++) {
-	answer += -rhoWd[i] * (1.0 / 3.0 * (s3 - s4) *
-			       pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i])
-			       - 1.0 / 3.0 * (s2 - s4) *
-			       pBreitWigner(pM[2], pM[4], s3, rhoM[i],
-					    rhoG[i]));
+      answer += -rhoWd[i] * (1.0 / 3.0 * (s3 - s4)
+        * pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i]) - 1.0 / 3.0
+        * (s2 - s4) * pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i]));
     }
     answer += -2.0 / 3.0 * (sigW * sBreitWigner(pM[3], pM[4], s2, sigM, sigG)
-			      + f0W * sBreitWigner(pM[3], pM[4], s2, f0M, f0G));
+      + f0W * sBreitWigner(pM[3], pM[4], s2, f0M, f0G));
     answer += 2.0 / 3.0 * (sigW * sBreitWigner(pM[2], pM[4], s3, sigM, sigG)
-			     + f0W * sBreitWigner(pM[2], pM[4], s3, f0M, f0G));
-    answer += f2W * (-1.0 / (18 * s2) * (4 * pow2(pM[2]) - s2) * 
-		       (s1 + s2 - pow2(pM[2])) * 
-		       dBreitWigner(pM[3], pM[4], s2, f2M, f2G) +
-		       1.0 / (18 * s3) * (4 * pow2(pM[2]) - s3) * 
-		       (s1 + s3 - pow2(pM[2])) * 
-		       dBreitWigner(pM[2], pM[4], s3, f2M, f2G));
+      + f0W * sBreitWigner(pM[2], pM[4], s3, f0M, f0G));
+    answer += f2W * (-1.0 / (18 * s2) * (4 * pow2(pM[2]) - s2)
+      * (s1 + s2 - pow2(pM[2])) * dBreitWigner(pM[3], pM[4], s2, f2M, f2G)
+      + 1.0 / (18 * s3) * (4 * pow2(pM[2]) - s3) * (s1 + s3 - pow2(pM[2]))
+      * dBreitWigner(pM[2], pM[4], s3, f2M, f2G));
   }
 
   // Two neutral and one charged pion decay.
   else {
     for (unsigned int i = 0; i < rhoM.size(); i++) {
-	answer += rhoWd[i] * (-1.0 / 3.0 * 
-			      (s4 - s3 - pow2(pM[4]) + pow2(pM[3])) *
-			      pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i]) +
-			      1.0 / 3.0 * (s4 - s2 - pow2(pM[4]) + pow2(pM[2])) 
-			      * pBreitWigner(pM[2], pM[4], s3, rhoM[i],
-					     rhoG[i]));
+      answer += rhoWd[i] * (-1.0 / 3.0 * (s4 - s3 - pow2(pM[4]) + pow2(pM[3]))
+        * pBreitWigner(pM[3], pM[4], s2, rhoM[i], rhoG[i])
+        + 1.0 / 3.0 * (s4 - s2 - pow2(pM[4]) + pow2(pM[2]))
+        * pBreitWigner(pM[2], pM[4], s3, rhoM[i], rhoG[i]));
     }
-    answer += -f2W / 2.0 * (s2 - s3) * 
-	dBreitWigner(pM[2], pM[3], s4, f2M, f2G);
+    answer += -f2W / 2.0 * (s2 - s3)
+      * dBreitWigner(pM[2], pM[3], s4, f2M, f2G);
   }
   return a1BW * answer;
 
@@ -1425,20 +1419,20 @@ double HMETau2ThreePions::a1PhaseSpace(double s) {
     picG = 0;
   else if (s < 0.823)
     picG = 5.80900 * pow3(s - picM) * (1.0 - 3.00980 * (s - picM) +
-					 4.5792 * pow2(s - picM));
+                                         4.5792 * pow2(s - picM));
   else
     picG = -13.91400 + 27.67900 * s - 13.39300 * pow2(s) + 3.19240 * pow3(s)
-	- 0.10487 * pow4(s);
+        - 0.10487 * pow4(s);
 
   // Two neutral and one charged pion width contribution.
   if (s < pinM)
     pinG = 0;
   else if (s < 0.823)
     pinG = 6.28450 * pow3(s - pinM) * (1.0 - 2.95950 * (s - pinM) +
-					 4.33550 * pow2(s - pinM));
+                                         4.33550 * pow2(s - pinM));
   else
     pinG = -15.41100 + 32.08800 * s - 17.66600 * pow2(s) + 4.93550 * pow3(s)
-	- 0.37498 * pow4(s);
+        - 0.37498 * pow4(s);
 
   // K and K^* width contribution.
   if (s > pow2(ksM + kM))
@@ -1460,7 +1454,7 @@ complex HMETau2ThreePions::a1BreitWigner(double s) {
 
 //==========================================================================
   
-// Tau decay matrix element for tau decay into three mesons with kaons. 
+// Tau decay matrix element for tau decay into three mesons with kaons.
 // The form factors are taken from hep-ph/9503474.
 
 // rhoMa(v): on-shell masses for the axial (vector) rho resonances
@@ -1515,12 +1509,12 @@ void HMETau2ThreeMesonsWithKaons::initResonances() {
   rhoMv.push_back(1.750); rhoGv.push_back(0.120); rhoWv.push_back(-1.0 / 26.0);
 
   // Kstar parameters.
-  kstarMa.push_back(0.892); kstarGa.push_back(0.050); 
-  kstarMa.push_back(1.412); kstarGa.push_back(0.227); 
+  kstarMa.push_back(0.892); kstarGa.push_back(0.050);
+  kstarMa.push_back(1.412); kstarGa.push_back(0.227);
   kstarWa.push_back(1);
   kstarWa.push_back(-0.135);
-  kstarMv.push_back(0.892); kstarGv.push_back(0.050); 
-  kstarMv.push_back(1.412); kstarGv.push_back(0.227); 
+  kstarMv.push_back(0.892); kstarGv.push_back(0.050);
+  kstarMv.push_back(1.412); kstarGv.push_back(0.227);
   kstarMv.push_back(1.714); kstarGv.push_back(0.323);
   kstarWv.push_back(1);
   kstarWv.push_back(-6.5 / 26.0);
@@ -1556,28 +1550,28 @@ complex HMETau2ThreeMesonsWithKaons::F1() {
   // K_S0, pi-, K_S0 decay and K_L0, pi-, K_L0 decay.
   else if (mode == PimKsKs || mode == KlKlPim)
     answer = -a1BW * (T(piM, kM, s2, kstarMa, kstarGa, kstarWa)
-		      + T(piM, kM, s4, kstarMa, kstarGa, kstarWa)) / 2.0;
+                      + T(piM, kM, s4, kstarMa, kstarGa, kstarWa)) / 2.0;
   // K_S0, pi-, K_L0 decay.
   else if (mode == KlPimKs)
     answer = a1BW * (T(piM, kM, s2, kstarMa, kstarGa, kstarWa)
-		      - T(piM, kM, s4, kstarMa, kstarGa, kstarWa)) / 2.0;
+                      - T(piM, kM, s4, kstarMa, kstarGa, kstarWa)) / 2.0;
   // K-, pi0, K0 decay.
   else if (mode == Pi0K0Km)
     answer = a1BW * (T(piM, kM, s2, kstarMa, kstarGa, kstarWa)
-		     - T(piM, kM, s4, kstarMa, kstarGa, kstarWa)) / 2.0;
+                     - T(piM, kM, s4, kstarMa, kstarGa, kstarWa)) / 2.0;
   // pi0, pi0, K- decay.
   else if (mode == Pi0Pi0Km)
-    answer = T(s1, k1Ma, k1Ga, k1Wa) 
+    answer = T(s1, k1Ma, k1Ga, k1Wa)
       * T(piM, kM, s2, kstarMa, kstarGa, kstarWa);
   // K-, pi-, pi+ decay.
   else if (mode == PimPipKm)
-    answer = T(s1, k1Mb, k1Gb, k1Wb) 
+    answer = T(s1, k1Mb, k1Gb, k1Wb)
       * T(piM, piM, s2, rhoMa, rhoGa, rhoWa);
   // pi-, Kbar0, pi0 decay.
   else if (mode == Pi0PimK0b)
-    answer = T(s1, k1Ma, k1Ga, k1Wa) 
+    answer = T(s1, k1Ma, k1Ga, k1Wa)
       * (T(piM, kM, s2, kstarMa, kstarGa, kstarWa)
-	 - T(piM, kM, s4, kstarMa, kstarGa, kstarWa));
+         - T(piM, kM, s4, kstarMa, kstarGa, kstarWa));
   return -1.0 / 3.0 * answer;
 }
 
@@ -1600,22 +1594,22 @@ complex HMETau2ThreeMesonsWithKaons::F2() {
   // K_S0, pi-, K_L0 decay.
   else if (mode == KlPimKs)
     answer = a1BW * (2.0 * T(piM, piM, s3, rhoMa, rhoGa, rhoWa)
-		     + T(piM, kM, s4, kstarMa, kstarGa, kstarWa)) / 2.0;
+                     + T(piM, kM, s4, kstarMa, kstarGa, kstarWa)) / 2.0;
   // K-, pi0, K0 decay.
   else if (mode == Pi0K0Km)
     answer = a1BW * (2.0 * T(piM, piM, s3, rhoMa, rhoGa, rhoWa)
-		     + T(piM, kM, s4, kstarMa, kstarGa, kstarWa)) / 2.0;
+                     + T(piM, kM, s4, kstarMa, kstarGa, kstarWa)) / 2.0;
   // pi0, pi0, K- decay.
   else if (mode == Pi0Pi0Km)
-    answer = T(s1, k1Ma, k1Ga, k1Wa) 
+    answer = T(s1, k1Ma, k1Ga, k1Wa)
       * T(piM, kM, s3, kstarMa, kstarGa, kstarWa);
   // K-, pi-, pi+ decay.
   else if (mode == PimPipKm)
-    answer = T(s1, k1Ma, k1Ga, k1Wa) 
+    answer = T(s1, k1Ma, k1Ga, k1Wa)
       * T(piM, kM, s3, kstarMa, kstarGa, kstarWa);
   // pi-, Kbar0, pi0 decay.
   else if (mode == Pi0PimK0b)
-    answer = 2.0 * T(s1, k1Mb, k1Gb, k1Wb) 
+    answer = 2.0 * T(s1, k1Mb, k1Gb, k1Wb)
       * T(piM, piM, s3, rhoMa, rhoGa, rhoWa)
       + T(s1, k1Ma, k1Ga, k1Wa) * T(piM, kM, s4, kstarMa, kstarGa, kstarWa);
   return 1.0 / 3.0 * answer;
@@ -1631,46 +1625,46 @@ complex HMETau2ThreeMesonsWithKaons::F4() {
   complex answer;
   // K-, pi-, K+ decay.
   if (mode == PimKmKp)
-    answer = (sqrt(2.) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
-      * (sqrt(2.) * T(s3, omegaM, omegaG, omegaW) 
-	 + T(piM, kM, s2, kstarMa, kstarGa, kstarWa));
+    answer = (sqrt(2.) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv)
+      * (sqrt(2.) * T(s3, omegaM, omegaG, omegaW)
+         + T(piM, kM, s2, kstarMa, kstarGa, kstarWa));
   // K0, pi-, Kbar0 decay.
   else if (mode == PimK0bK0)
-    answer = -(sqrt(2.) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
-      * (sqrt(2.) * T(s3, omegaM, omegaG, omegaW) 
-	 + T(piM, kM, s2, kstarMa, kstarGa, kstarWa));
+    answer = -(sqrt(2.) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv)
+      * (sqrt(2.) * T(s3, omegaM, omegaG, omegaW)
+         + T(piM, kM, s2, kstarMa, kstarGa, kstarWa));
   // K_S0, pi-, K_S0 decay and K_L0, pi-, K_L0 decay.
   else if (mode == PimKsKs || mode == KlKlPim)
-    answer = (sqrt(2.) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
-      * (T(piM, kM, s2, kstarMa, kstarGa, kstarWa) 
-	 - T(piM, kM, s4, kstarMa, kstarGa, kstarWa));
+    answer = (sqrt(2.) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv)
+      * (T(piM, kM, s2, kstarMa, kstarGa, kstarWa)
+         - T(piM, kM, s4, kstarMa, kstarGa, kstarWa));
   // K_S0, pi-, K_L0 decay.
   else if (mode == KlPimKs)
-    answer = -(sqrt(2.) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
-      * (2 * sqrt(2.) * T(s3, omegaM, omegaG, omegaW) 
-	 + T(piM, kM, s2, kstarMa, kstarGa, kstarWa)
-	 + T(piM, kM, s4, kstarMa, kstarGa, kstarWa));
+    answer = -(sqrt(2.) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv)
+      * (2 * sqrt(2.) * T(s3, omegaM, omegaG, omegaW)
+         + T(piM, kM, s2, kstarMa, kstarGa, kstarWa)
+         + T(piM, kM, s4, kstarMa, kstarGa, kstarWa));
   // K-, pi0, K0 decay.
   else if (mode == Pi0K0Km)
-    answer = -(sqrt(2.) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
-      * (T(piM, kM, s4, kstarMa, kstarGa, kstarWa) 
-	 - T(piM, kM, s2, kstarMa, kstarGa, kstarWa));
+    answer = -(sqrt(2.) - 1) * T(piM, piM, s1, rhoMv, rhoGv, rhoWv)
+      * (T(piM, kM, s4, kstarMa, kstarGa, kstarWa)
+         - T(piM, kM, s2, kstarMa, kstarGa, kstarWa));
   // pi0, pi0, K- decay.
   else if (mode == Pi0Pi0Km)
     answer = T(piM, kM, s1, kstarMv, kstarGv, kstarWv)
       * (T(piM, kM, s2, kstarMa, kstarGa, kstarWa)
-	 - T(piM, kM, s3, kstarMa, kstarGa, kstarWa));
+         - T(piM, kM, s3, kstarMa, kstarGa, kstarWa));
   // K-, pi-, pi+ decay.
   else if (mode == PimPipKm)
     answer = -T(piM, kM, s1, kstarMv, kstarGv, kstarWv)
       * (T(piM, piM, s2, rhoMa, rhoGa, rhoWa)
-	 + T(piM, kM, s3, kstarMa, kstarGa, kstarWa));
+         + T(piM, kM, s3, kstarMa, kstarGa, kstarWa));
   // pi-, Kbar0, pi0 decay.
   else if (mode == Pi0PimK0b)
-    answer = T(piM, kM, s1, kstarMv, kstarGv, kstarWv) 
+    answer = T(piM, kM, s1, kstarMv, kstarGv, kstarWv)
       * (2.0 * T(piM, piM, s3, rhoMa, rhoGa, rhoWa)
-	 + T(piM, kM, s2, kstarMa, kstarGa, kstarWa)
-	 + T(piM, kM, s4, kstarMa, kstarGa, kstarWa));
+         + T(piM, kM, s2, kstarMa, kstarGa, kstarWa)
+         + T(piM, kM, s4, kstarMa, kstarGa, kstarWa));
   return 1.0 / (8.0 * M_PI * M_PI * piW * piW) * answer;
 
 }
@@ -1758,7 +1752,7 @@ complex HMETau2ThreeMesonsGeneric::F1() {
     answer = T(s1, k1M, k1G, k1W) * T(piM, kM, s2, kstarM, kstarG, kstarW);
   // K-, pi-, pi+ decay.
   else if (mode == PimPipKm)
-    answer = -T(s1, k1M, k1G, k1W) * T(piM, piM, s2, rhoMa, rhoGa, rhoWa) 
+    answer = -T(s1, k1M, k1G, k1W) * T(piM, piM, s2, rhoMa, rhoGa, rhoWa)
            / 3.0;
   // pi-, Kbar0, pi0 decay.
   else if (mode == Pi0PimK0b)
@@ -1794,7 +1788,7 @@ complex HMETau2ThreeMesonsGeneric::F2() {
     answer = -T(s1, k1M, k1G, k1W) * T(piM, kM, s3, kstarM, kstarG, kstarW);
   // K-, pi-, pi+ decay.
   else if (mode == PimPipKm)
-    answer = T(s1, k1M, k1G, k1W) 
+    answer = T(s1, k1M, k1G, k1W)
       * T(piM, kM, s3, kstarM, kstarG, kstarW) / 3.0;
   // pi-, Kbar0, pi0 decay.
   else if (mode == Pi0PimK0b)
@@ -1818,14 +1812,14 @@ complex HMETau2ThreeMesonsGeneric::F4() {
     answer = 0;
   // K-, pi-, K+ decay.
   else if (mode == PimKmKp)
-    answer = T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
-      * (T(piM, piM, s3, rhoMa, rhoGa, rhoWa) 
-	 - 0.2 * T(piM, kM, s2, kstarM, kstarG, kstarW)) * (1.25);
+    answer = T(piM, piM, s1, rhoMv, rhoGv, rhoWv)
+      * (T(piM, piM, s3, rhoMa, rhoGa, rhoWa)
+         - 0.2 * T(piM, kM, s2, kstarM, kstarG, kstarW)) * (1.25);
   // K0, pi-, Kbar0 decay.
   else if (mode == PimK0bK0)
-    answer = -T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
-      * (T(piM, piM, s3, rhoMa, rhoGa, rhoWa) 
-	 - 0.2 * T(piM, kM, s2, kstarM, kstarG, kstarW)) * (1.25);
+    answer = -T(piM, piM, s1, rhoMv, rhoGv, rhoWv)
+      * (T(piM, piM, s3, rhoMa, rhoGa, rhoWa)
+         - 0.2 * T(piM, kM, s2, kstarM, kstarG, kstarW)) * (1.25);
   // K-, pi0, K0 decay.
   else if (mode == Pi0K0Km)
     answer = 0;
@@ -1834,17 +1828,17 @@ complex HMETau2ThreeMesonsGeneric::F4() {
     answer = 0;
   // K-, pi-, pi+ decay.
   else if (mode == PimPipKm)
-    answer = -T(piM, kM, s1, kstarM, kstarG, kstarW) 
-      * (T(piM, piM, s2, rhoMa, rhoGa, rhoWa) 
-	 - 0.2 * T(piM, kM, s3, kstarM, kstarG, kstarW)) * (1.25);
+    answer = -T(piM, kM, s1, kstarM, kstarG, kstarW)
+      * (T(piM, piM, s2, rhoMa, rhoGa, rhoWa)
+         - 0.2 * T(piM, kM, s3, kstarM, kstarG, kstarW)) * (1.25);
   // pi-, Kbar0, pi0 decay.
   else if (mode == Pi0PimK0b)
-    answer = 2.0 * T(piM, kM, s1, kstarM, kstarG, kstarW) 
-      * (T(piM, piM, s3, rhoMa, rhoGa, rhoWa) 
-	 - 0.2 * T(piM, kM, s2, kstarM, kstarG, kstarW)) * (1.25);
+    answer = 2.0 * T(piM, kM, s1, kstarM, kstarG, kstarW)
+      * (T(piM, piM, s3, rhoMa, rhoGa, rhoWa)
+         - 0.2 * T(piM, kM, s2, kstarM, kstarG, kstarW)) * (1.25);
   // pi-, pi0, eta decay.
   else if (mode == Pi0PimEta)
-    answer = T(piM, piM, s1, rhoMv, rhoGv, rhoWv) 
+    answer = T(piM, piM, s1, rhoMv, rhoGv, rhoWv)
       * T(piM, piM, s4, rhoMa, rhoGa, rhoWa);
   return 1.0 / (4.0 * M_PI * M_PI * piW * piW) * answer;
 
@@ -1895,7 +1889,7 @@ void HMETau2TwoPionsGamma::initWaves(vector<HelicityParticle>& p) {
 
   // Calculate the hadronic current.
   vector< Wave4 > u2;
-  Wave4 q(p[2].p() + p[3].p() + p[4].p()); 
+  Wave4 q(p[2].p() + p[3].p() + p[4].p());
   Wave4 q2(p[2].p()), q3(p[3].p()), q4(p[4].p());
   double s1 = m2(q);
   double s2 = m2(q3 + q2);
@@ -1909,8 +1903,8 @@ void HMETau2TwoPionsGamma::initWaves(vector<HelicityParticle>& p) {
     complex q4e = q4*gamma[4]*e;
     complex q3e = q3*gamma[4]*e;
     u2.push_back(f * (e * (piM*piM*q4q2 - q3q2*(q4q3 - q4q2))
-		      - q3 * (q3e*q4q2 - q4e*q3q2) 
-		      + q2 * (q3e*q4q3 - q4e*(piM*piM + q3q2))));
+                      - q3 * (q3e*q4q2 - q4e*q3q2)
+                      + q2 * (q3e*q4q3 - q4e*(piM*piM + q3q2))));
   }
   u.push_back(u2);
 
@@ -1924,8 +1918,8 @@ complex HMETau2TwoPionsGamma::calculateME(vector<int> h) {
   complex answer(0,0);
   for (int mu = 0; mu <= 3; mu++) {
     answer +=
-	(u[1][h[pMap[1]]] * gamma[mu] * (1 - gamma[5]) * u[0][h[pMap[0]]])
-	* gamma[4](mu,mu) * u[2][h[2]](mu);
+        (u[1][h[pMap[1]]] * gamma[mu] * (1 - gamma[5]) * u[0][h[pMap[0]]])
+        * gamma[4](mu,mu) * u[2][h[2]](mu);
   }
   return answer;
 
@@ -1935,7 +1929,7 @@ complex HMETau2TwoPionsGamma::calculateME(vector<int> h) {
 
 // Return the form factor.
 complex HMETau2TwoPionsGamma::F(double s, vector<double> M, vector<double> G,
-				vector<double> W) {
+                                vector<double> W) {
 
   complex answer(0, 0);
   for (unsigned int i = 0; i < M.size(); i++)
@@ -1981,7 +1975,7 @@ void HMETau2FourPions::initConstants() {
   pinM  = particleDataPtr->m0(111);
   picM  = particleDataPtr->m0(211);
   sigM = 0.8;     omeM = 0.782;   a1M  = 1.23; rhoM = 0.7761;
-  sigG = 0.8;	  omeG = 0.00841; a1G  = 0.45; rhoG = 0.1445;
+  sigG = 0.8;     omeG = 0.00841; a1G  = 0.45; rhoG = 0.1445;
   sigP = 0.43585; omeP = 0.0;
   sigA = 1.39987; omeA = 1.0;
   sigW = sigA*(cos(sigP)+complex(0,1)*sin(sigP));
@@ -2008,22 +2002,22 @@ void HMETau2FourPions::initHadronicCurrent(vector<HelicityParticle>& p) {
   // Create the hadronic current for the 3 neutral pion channel.
   if (abs(pID[3]) == 111)
     u2.push_back(G(1,s)*(t1(q,q3,q4,q5,q2) + t1(q,q3,q2,q5,q4) +
-			 t1(q,q4,q3,q5,q2) + t1(q,q4,q2,q5,q3) + 
-			 t1(q,q2,q3,q5,q4) + t1(q,q2,q4,q5,q3) +
-			 t2(q,q3,q5,q4,q2) + t2(q,q4,q5,q3,q2) + 
-			 t2(q,q2,q5,q4,q3) - t2(q,q5,q3,q4,q2) - 
-			 t2(q,q5,q4,q3,q2) - t2(q,q5,q2,q4,q3)));
+                         t1(q,q4,q3,q5,q2) + t1(q,q4,q2,q5,q3) +
+                         t1(q,q2,q3,q5,q4) + t1(q,q2,q4,q5,q3) +
+                         t2(q,q3,q5,q4,q2) + t2(q,q4,q5,q3,q2) +
+                         t2(q,q2,q5,q4,q3) - t2(q,q5,q3,q4,q2) -
+                         t2(q,q5,q4,q3,q2) - t2(q,q5,q2,q4,q3)));
 
   // Create the hadronic current for the 3 charged pion channel.
   else if (abs(pID[3]) == 211)
-    u2.push_back(G(2,s)*(t1(q,q3,q5,q4,q2) + t1(q,q4,q5,q3,q2) + 
-			 t1(q,q3,q4,q5,q2) + t1(q,q4,q3,q5,q2) +
-			 t1(q,q2,q4,q3,q5) + t1(q,q2,q3,q4,q5) +
-			 t2(q,q2,q4,q3,q5) + t2(q,q2,q3,q4,q5) - 
-			 t2(q,q3,q2,q4,q5) - t2(q,q4,q2,q3,q5)) + 
-		 G(3,s)*(t3(q,q3,q5,q4,q2) + t3(q,q4,q5,q3,q2) - 
-			 t3(q,q3,q4,q5,q2) - t3(q,q4,q3,q5,q2) - 
-			 t3(q,q3,q2,q4,q5) - t3(q,q4,q2,q3,q5)));
+    u2.push_back(G(2,s)*(t1(q,q3,q5,q4,q2) + t1(q,q4,q5,q3,q2) +
+                         t1(q,q3,q4,q5,q2) + t1(q,q4,q3,q5,q2) +
+                         t1(q,q2,q4,q3,q5) + t1(q,q2,q3,q4,q5) +
+                         t2(q,q2,q4,q3,q5) + t2(q,q2,q3,q4,q5) -
+                         t2(q,q3,q2,q4,q5) - t2(q,q4,q2,q3,q5)) +
+                 G(3,s)*(t3(q,q3,q5,q4,q2) + t3(q,q4,q5,q3,q2) -
+                         t3(q,q3,q4,q5,q2) - t3(q,q4,q3,q5,q2) -
+                         t3(q,q3,q2,q4,q5) - t3(q,q4,q2,q3,q5)));
   u.push_back(u2);
 
 }
@@ -2033,7 +2027,7 @@ void HMETau2FourPions::initHadronicCurrent(vector<HelicityParticle>& p) {
 // Return the first t-vector.
 
 Wave4 HMETau2FourPions::t1(Wave4 &q, Wave4 &q1, Wave4 &q2,
-			   Wave4 &q3, Wave4 &q4) {
+                           Wave4 &q3, Wave4 &q4) {
 
   Wave4  a1Q(q2 + q3 + q4);
   Wave4 rhoQ(q3 + q4);
@@ -2044,9 +2038,9 @@ Wave4 HMETau2FourPions::t1(Wave4 &q, Wave4 &q1, Wave4 &q2,
   double gM = sqrtpos(rhoM*rhoM - 4*picM*picM) * (rhoM*rhoM - 4*picM*picM)
     / rhoM;
   double dm = (rhoFormFactor1(0) - rhoFormFactor1(rhoM*rhoM) +
-		 rhoM*rhoM * rhoFormFactor2(rhoM*rhoM)) / gM;
-  return - a1FormFactor(a1S) / (a1D(a1S) * rhoD(rhoS)) * pow2(a1M) * 
-    (rhoM*rhoM + rhoM*rhoG*dm) * 
+                 rhoM*rhoM * rhoFormFactor2(rhoM*rhoM)) / gM;
+  return - a1FormFactor(a1S) / (a1D(a1S) * rhoD(rhoS)) * pow2(a1M) *
+    (rhoM*rhoM + rhoM*rhoG*dm) *
     (m2(q,a1Q) *  (m2(q3,a1Q) * q4 - m2(q4,a1Q) * q3) +
      (m2(q,q4) * m2(q1,q3) - m2(q,q3) * m2(q1,q4)) * a1Q);
 
@@ -2056,8 +2050,8 @@ Wave4 HMETau2FourPions::t1(Wave4 &q, Wave4 &q1, Wave4 &q2,
 
 // Return the second t-vector.
 
-Wave4 HMETau2FourPions::t2(Wave4 &q, Wave4 &/*q1*/, Wave4 &q2, 
-			   Wave4 &q3, Wave4 &q4) {
+Wave4 HMETau2FourPions::t2(Wave4 &q, Wave4 &/*q1*/, Wave4 &q2,
+                           Wave4 &q3, Wave4 &q4) {
 
   Wave4  a1Q(q2 + q3 + q4);
   Wave4 sigQ(q3 + q4);
@@ -2072,19 +2066,19 @@ Wave4 HMETau2FourPions::t2(Wave4 &q, Wave4 &/*q1*/, Wave4 &q2,
 
 // Return the third t-vector.
 
-Wave4 HMETau2FourPions::t3(Wave4 &q, Wave4 &q1, Wave4 &q2, 
-			   Wave4 &q3, Wave4 &q4) {
+Wave4 HMETau2FourPions::t3(Wave4 &q, Wave4 &q1, Wave4 &q2,
+                           Wave4 &q3, Wave4 &q4) {
   Wave4 omeQ(q2 + q3 + q4);
   Wave4 rhoQ(q3 + q4);
   double omeS = m2(omeQ);
   double rhoS = m2(rhoQ);
 
   // Needed to match Herwig++.
-  double gM = sqrtpos(rhoM*rhoM - 4*picM*picM) * (rhoM*rhoM - 4*picM*picM) 
+  double gM = sqrtpos(rhoM*rhoM - 4*picM*picM) * (rhoM*rhoM - 4*picM*picM)
     / rhoM;
   double dm = (rhoFormFactor1(0) - rhoFormFactor1(rhoM*rhoM) +
-		 rhoM*rhoM * rhoFormFactor2(rhoM*rhoM)) / gM;
-  return omeW * omeFormFactor(omeS) / (omeD(omeS) * rhoD(rhoS)) * 
+                 rhoM*rhoM * rhoFormFactor2(rhoM*rhoM)) / gM;
+  return omeW * omeFormFactor(omeS) / (omeD(omeS) * rhoD(rhoS)) *
     pow2(omeM) * (rhoM*rhoM + rhoM*rhoG*dm) *
     ((m2(q,q3) * m2(q1,q4) - m2(q,q4) * m2(q1,q3)) * q2 +
      (m2(q,q4) * m2(q1,q2) - m2(q,q2) * m2(q1,q4)) * q3 +
@@ -2111,13 +2105,13 @@ complex HMETau2FourPions::a1D(double s) {
 
   // Fit of width below pion and rho mass threshold.
   else if (s < rM)
-    rG = 0.003052*pow3(s - piM)*(1.0 + 151.088*(s - piM) + 
-				 174.495*pow2(s - piM));
+    rG = 0.003052*pow3(s - piM)*(1.0 + 151.088*(s - piM) +
+                                 174.495*pow2(s - piM));
 
   // Fit of width above pion and rho mass threshold.
   else
-    rG = 2.60817 - 2.47790*s + 0.66539*pow2(s) - 0.0678183*pow3(s) + 
-	1.66577*(s-1.23701)/s;
+    rG = 2.60817 - 2.47790*s + 0.66539*pow2(s) - 0.0678183*pow3(s) +
+        1.66577*(s-1.23701)/s;
   return s - a1M*a1M + complex(0,1) * sqrtpos(s) * rG;
 
 }
@@ -2129,10 +2123,10 @@ complex HMETau2FourPions::a1D(double s) {
 complex HMETau2FourPions::rhoD(double s) {
 
   double gQ = sqrtpos(s - 4*picM*picM) * (s - 4*picM*picM) / sqrtpos(s);
-  double gM = sqrtpos(rhoM*rhoM - 4*picM*picM) * (rhoM*rhoM - 4*picM*picM) 
+  double gM = sqrtpos(rhoM*rhoM - 4*picM*picM) * (rhoM*rhoM - 4*picM*picM)
     / rhoM;
-  double dm = (rhoFormFactor1(s) - rhoFormFactor1(rhoM*rhoM) - 
-		 (s - rhoM*rhoM) * rhoFormFactor2(rhoM*rhoM)) / gM;
+  double dm = (rhoFormFactor1(s) - rhoFormFactor1(rhoM*rhoM) -
+                 (s - rhoM*rhoM) * rhoFormFactor2(rhoM*rhoM)) / gM;
 
   // Ensure complex part is zero below available channel.
   if (s < 4*picM*picM) gQ = 0;
@@ -2167,7 +2161,7 @@ complex HMETau2FourPions::omeD(double s) {
   // Fit of width given in TAUOLA.
   if (s < 1)
     g = 1 + 17.560*x + 141.110*pow2(x) + 894.884*pow3(x) + 4977.35*pow4(x) +
-	7610.66*pow5(x) - 42524.4*pow6(x);
+        7610.66*pow5(x) - 42524.4*pow6(x);
   else
     g = -1333.26 + 4860*q - 6000.81*pow2(q) + 2504.97*pow3(q);
   if (g < 0) g = 0;
@@ -2243,41 +2237,41 @@ double HMETau2FourPions::G(int i, double s) {
 
   // Three neutral pion parameters.
   if (i == 1) {
-    s0 = 0.614403;	s1 = 0.656264;	s2 = 1.57896;
-    s3 = 3.08198;	s4 = 3.12825;	s5 = 3.17488;
-    a1 = -23383.7;	b1 = 38059.2;
-    a2 = 230.368;	b2 = -4.39368;	c2 = 687.002;
-    d2 = -732.581;	e2 = 207.087;
-    a3 = 1633.92;	b3 = -2596.21;	c3 = 1703.08;
-    d3 = -501.407;	e3 = 54.5919;
-    a4 = -2982.44;	b4 = 986.009;
-    a5 = 6948.99;	b5 = -2188.74;
+    s0 = 0.614403;      s1 = 0.656264;  s2 = 1.57896;
+    s3 = 3.08198;       s4 = 3.12825;   s5 = 3.17488;
+    a1 = -23383.7;      b1 = 38059.2;
+    a2 = 230.368;       b2 = -4.39368;  c2 = 687.002;
+    d2 = -732.581;      e2 = 207.087;
+    a3 = 1633.92;       b3 = -2596.21;  c3 = 1703.08;
+    d3 = -501.407;      e3 = 54.5919;
+    a4 = -2982.44;      b4 = 986.009;
+    a5 = 6948.99;       b5 = -2188.74;
   }
 
   // Three charged pion parameters.
   else if (i == 2) {
-    s0 = 0.614403;	s1 = 0.635161;	s2 = 2.30794;
-    s3 = 3.08198;	s4 = 3.12825;	s5 = 3.17488;
-    a1 = -54171.5;	b1 = 88169.3;
-    a2 = 454.638;	b2 = -3.07152;	c2 = -48.7086;
-    d2 = 81.9702;	e2 = -24.0564;
-    a3 = -162.421;	b3 = 308.977;	c3 = -27.7887;
-    d3 = -48.5957;	e3 = 10.6168;
-    a4 = -2650.29;	b4 = 879.776;
-    a5 = 6936.99;	b5 = -2184.97;
+    s0 = 0.614403;      s1 = 0.635161;  s2 = 2.30794;
+    s3 = 3.08198;       s4 = 3.12825;   s5 = 3.17488;
+    a1 = -54171.5;      b1 = 88169.3;
+    a2 = 454.638;       b2 = -3.07152;  c2 = -48.7086;
+    d2 = 81.9702;       e2 = -24.0564;
+    a3 = -162.421;      b3 = 308.977;   c3 = -27.7887;
+    d3 = -48.5957;      e3 = 10.6168;
+    a4 = -2650.29;      b4 = 879.776;
+    a5 = 6936.99;       b5 = -2184.97;
   }
 
   // Omega mediated three charged pion parameters.
   else if (i == 3) {
-    s0 = 0.81364;	s1 = 0.861709;	s2 = 1.92621;
-    s3 = 3.08198;	s4 = 3.12825;	s5 = 3.17488;
-    a1 = -84888.9;	b1 = 104332;
-    a2 = 2698.15;	b2 = -3.08302;	c2 = 1936.11;
-    d2 = -1254.59;	e2 = 201.291;
-    a3 = 7171.65;	b3 = -6387.9;	c3 = 3056.27;
-    d3 = -888.63;	e3 = 108.632;
-    a4 = -5607.48;	b4 = 1917.27;
-    a5 = 26573;	b5 = -8369.76;
+    s0 = 0.81364;       s1 = 0.861709;  s2 = 1.92621;
+    s3 = 3.08198;       s4 = 3.12825;   s5 = 3.17488;
+    a1 = -84888.9;      b1 = 104332;
+    a2 = 2698.15;       b2 = -3.08302;  c2 = 1936.11;
+    d2 = -1254.59;      e2 = 201.291;
+    a3 = 7171.65;       b3 = -6387.9;   c3 = 3056.27;
+    d3 = -888.63;       e3 = 108.632;
+    a4 = -5607.48;      b4 = 1917.27;
+    a5 = 26573; b5 = -8369.76;
   }
 
   // Return the appropriate fit.
@@ -2324,11 +2318,11 @@ void HMETau2FivePions::initConstants() {
     DECAYWEIGHTMAX = 4e4;
   // pi+, pi-, pi0, pi-, pi0 decay.
   else if (abs(pID[2]) == 111 && abs(pID[3]) == 111 && abs(pID[4]) == 211 &&
-	   abs(pID[5]) == 211 && abs(pID[6]) == 211)
+           abs(pID[5]) == 211 && abs(pID[6]) == 211)
     DECAYWEIGHTMAX = 1e7;
   // pi0, pi0, pi-, pi0, pi0 decay.
   else if (abs(pID[2]) == 111 && abs(pID[3]) == 111 && abs(pID[4]) == 111 &&
-	   abs(pID[5]) == 111 && abs(pID[6]) == 211)
+           abs(pID[5]) == 111 && abs(pID[6]) == 211)
     DECAYWEIGHTMAX = 1e5;
 
   // Set resonances.
@@ -2353,21 +2347,21 @@ void HMETau2FivePions::initHadronicCurrent(vector<HelicityParticle>& p) {
   if (abs(pID[2]) == 211 && abs(pID[3]) == 211 && abs(pID[4]) == 211 &&
       abs(pID[5]) == 211 && abs(pID[6]) == 211)
     u2.push_back(Jb(q, q2, q3, q5, q6, q4) + Jb(q, q4, q3, q5, q6, q2)
-		 + Jb(q, q2, q4, q5, q6, q3) + Jb(q, q2, q3, q6, q5, q4)
-		 + Jb(q, q4, q3, q6, q5, q2) + Jb(q, q2, q4, q6, q5, q3));
+                 + Jb(q, q2, q4, q5, q6, q3) + Jb(q, q2, q3, q6, q5, q4)
+                 + Jb(q, q4, q3, q6, q5, q2) + Jb(q, q2, q4, q6, q5, q3));
   // pi+, pi-, pi0, pi-, pi0 decay.
   else if (abs(pID[2]) == 111 && abs(pID[3]) == 111 && abs(pID[4]) == 211 &&
-	   abs(pID[5]) == 211 && abs(pID[6]) == 211)
+           abs(pID[5]) == 211 && abs(pID[6]) == 211)
     u2.push_back(Ja(q, q6, q4, q2, q5, q3) + Ja(q, q6, q5, q2, q4, q3)
-		 + Ja(q, q6, q4, q3, q5, q2) + Ja(q, q6, q5, q3, q4, q2)
-		 + Jb(q, q4, q5, q6, q2, q3) + Jb(q, q2, q3, q4, q6, q5)
-		 + Jb(q, q2, q3, q5, q6, q4));
+                 + Ja(q, q6, q4, q3, q5, q2) + Ja(q, q6, q5, q3, q4, q2)
+                 + Jb(q, q4, q5, q6, q2, q3) + Jb(q, q2, q3, q4, q6, q5)
+                 + Jb(q, q2, q3, q5, q6, q4));
   // pi0, pi0, pi-, pi0, pi0 decay.
   else if (abs(pID[2]) == 111 && abs(pID[3]) == 111 && abs(pID[4]) == 111 &&
-	   abs(pID[5]) == 111 && abs(pID[6]) == 211)
+           abs(pID[5]) == 111 && abs(pID[6]) == 211)
     u2.push_back(Jb(q, q2, q3, q6, q4, q5) + Jb(q, q5, q3, q6, q4, q2)
-		 + Jb(q, q3, q4, q6, q2, q5) + Jb(q, q2, q4, q6, q3, q5)
-		 + Jb(q, q2, q5, q6, q4, q3) + Jb(q, q4, q5, q6, q2, q3));
+                 + Jb(q, q3, q4, q6, q2, q5) + Jb(q, q2, q4, q6, q3, q5)
+                 + Jb(q, q2, q5, q6, q4, q3) + Jb(q, q4, q5, q6, q2, q3));
 
   u.push_back(u2);
 
@@ -2378,16 +2372,16 @@ void HMETau2FivePions::initHadronicCurrent(vector<HelicityParticle>& p) {
 // Return the omega-rho hadronic current.
   
 Wave4 HMETau2FivePions::Ja(Wave4 &q, Wave4 &q1, Wave4 &q2,
-			   Wave4 &q3, Wave4 &q4, Wave4 &q5) {
+                           Wave4 &q3, Wave4 &q4, Wave4 &q5) {
 
   Wave4 j = epsilon(q1, q2, q3);
-  return omegaW * (breitWigner(m2(q), a1M, a1G) 
-		   * breitWigner(m2(q1 + q2 + q3), omegaM, omegaG) 
-		   * breitWigner(m2(q4 + q5), rhoM, rhoG)
-		   * epsilon(q4 - q5, j, q)
-		   * (breitWigner(m2(q2 + q3), rhoM, rhoG) 
-		      + breitWigner(m2(q1 + q3), rhoM, rhoG)
-		      + breitWigner(m2(q1 + q2), rhoM, rhoG)));
+  return omegaW * (breitWigner(m2(q), a1M, a1G)
+                   * breitWigner(m2(q1 + q2 + q3), omegaM, omegaG)
+                   * breitWigner(m2(q4 + q5), rhoM, rhoG)
+                   * epsilon(q4 - q5, j, q)
+                   * (breitWigner(m2(q2 + q3), rhoM, rhoG)
+                      + breitWigner(m2(q1 + q3), rhoM, rhoG)
+                      + breitWigner(m2(q1 + q2), rhoM, rhoG)));
 
 }
 
@@ -2396,18 +2390,18 @@ Wave4 HMETau2FivePions::Ja(Wave4 &q, Wave4 &q1, Wave4 &q2,
 // Return the a1-sigma hadronic current.
   
 Wave4 HMETau2FivePions::Jb(Wave4 &q, Wave4 &q1, Wave4 &q2,
-			   Wave4 &q3, Wave4 &q4, Wave4 &q5) {
+                           Wave4 &q3, Wave4 &q4, Wave4 &q5) {
   
   double s = m2(q);
   Wave4  a1Q = q1 + q2 + q3;
   double a1S = m2(a1Q);
-  Wave4 j = (m2(q2, q1 - q3) / a1S * a1Q - q1 + q3) 
+  Wave4 j = (m2(q2, q1 - q3) / a1S * a1Q - q1 + q3)
     * breitWigner(m2(q1 + q3), rhoM, rhoG)
-    + (m2(q1, q2 - q3) / a1S * a1Q - q2 + q3) 
+    + (m2(q1, q2 - q3) / a1S * a1Q - q2 + q3)
     * breitWigner(m2(q2 + q3), rhoM, rhoG);
   j = (j * gamma[4] * q / s) * q - j;
-  return sigmaW * (breitWigner(s, a1M, a1G) * breitWigner(a1S, a1M, a1G) 
-		   * breitWigner(m2(q4 + q5), sigmaM, sigmaG) * j);
+  return sigmaW * (breitWigner(s, a1M, a1G) * breitWigner(a1S, a1M, a1G)
+                   * breitWigner(m2(q4 + q5), sigmaM, sigmaG) * j);
   
 }
 

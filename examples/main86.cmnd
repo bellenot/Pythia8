@@ -1,5 +1,5 @@
 ! main86.cmnd.
-! This file contains commands to be read in for a Pythia8 run. 
+! This file contains commands to be read in for a Pythia8 run.
 ! Lines not beginning with a letter or digit are comments.
 
 // Number of events generated
@@ -21,10 +21,10 @@ Merging:TMS                = 15
 // Switch off enforced rapidity ordering
 SpaceShower:rapidityOrder  = off
 
-// Since UMEPS is a tree-level merging method, both leading-order and 
-// next-to-neading order PDFs are allowed. However, from parton shower 
-// considerations, leading-order PDFs are preferred, since multiparton 
-// interactions probe the incoming hadron at small momentum scales.  
+// Since UMEPS is a tree-level merging method, both leading-order and
+// next-to-neading order PDFs are allowed. However, from parton shower
+// considerations, leading-order PDFs are preferred, since multiparton
+// interactions probe the incoming hadron at small momentum scales.
 // Example PDF files generated with CTEQ6M PDFs.
 PDF:useLHAPDF              = on
 PDF:LHAPDFset              = cteq6m.LHpdf

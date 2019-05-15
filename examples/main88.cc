@@ -4,11 +4,12 @@
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This program is written by Stefan Prestel.
-// It illustrates how to do UNLOPS merging, 
-// see the NLO Merging page in the online manual. 
+// It illustrates how to do UNLOPS merging,
+// see the NLO Merging page in the online manual.
 
 #include "Pythia8/Pythia.h"
 #include "Pythia8/Pythia8ToHepMC.h"
+#include <unistd.h>
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/IO_GenEvent.h"
@@ -43,7 +44,7 @@ int main( int argc, char* argv[] ){
   //  3. OUtput histogram path
   pythia.readFile(argv[1]);
 
-  // Interface for conversion from Pythia8::Event to HepMC one. 
+  // Interface for conversion from Pythia8::Event to HepMC one.
   HepMC::Pythia8ToHepMC ToHepMC;
   // Specify file where HepMC events will be stored.
   HepMC::IO_GenEvent ascii_io(argv[3], std::ios::out);
@@ -107,7 +108,7 @@ int main( int argc, char* argv[] ){
     string LHEfile = iPathTree + in.str();
     LHAupLHEF lhareader((char*)(LHEfile).c_str());
     pythia.settings.mode("Merging:nRequested", njetcounterLO);
-    pythia.settings.word("Beams:LHEF", LHEfile);  
+    pythia.settings.word("Beams:LHEF", LHEfile);
     pythia.init(&lhareader);
 
     // Start generation loop
@@ -118,7 +119,7 @@ int main( int argc, char* argv[] ){
           break;
         }
         else continue;
-      } 
+      }
     } // end loop over events to generate
 
     // print cross section, errors
@@ -166,7 +167,7 @@ int main( int argc, char* argv[] ){
     string LHEfile = iPathLoop + in.str();
     LHAupLHEF lhareader((char*)(LHEfile).c_str());
     pythia.settings.mode("Merging:nRequested", njetcounterNLO);
-    pythia.settings.word("Beams:LHEF", LHEfile);  
+    pythia.settings.word("Beams:LHEF", LHEfile);
     pythia.init(&lhareader);
 
     // Start generation loop
@@ -269,7 +270,7 @@ int main( int argc, char* argv[] ){
     // UNLOPS does not contain a zero-jet tree-level sample.
     if ( njetcounterLO == 0 ) break;
     pythia.settings.mode("Merging:nRequested", njetcounterLO);
-    pythia.settings.word("Beams:LHEF", LHEfile);  
+    pythia.settings.word("Beams:LHEF", LHEfile);
     pythia.init(&lhareader);
 
     // Remember position in vector of cross section estimates.
@@ -289,7 +290,7 @@ int main( int argc, char* argv[] ){
       double evtweight  = pythia.info.weight();
       weightNLO        *= evtweight;
       // Do not print zero-weight events.
-      if ( weightNLO == 0. ) continue; 
+      if ( weightNLO == 0. ) continue;
 
       // Construct new empty HepMC event.
       HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
@@ -358,7 +359,7 @@ int main( int argc, char* argv[] ){
          << endl;
 
     pythia.settings.mode("Merging:nRequested", njetcounterNLO);
-    pythia.settings.word("Beams:LHEF", LHEfile);  
+    pythia.settings.word("Beams:LHEF", LHEfile);
     pythia.init(&lhareader);
 
     // Remember position in vector of cross section estimates.
@@ -385,7 +386,7 @@ int main( int argc, char* argv[] ){
       // Get correct cross section from previous estimate.
       double normhepmc = xsecNLO[iNow] / nAcceptNLO[iNow];
       // powheg weighted events
-      if( abs(strategyNLO[iNow]) == 4) 
+      if( abs(strategyNLO[iNow]) == 4)
         normhepmc = 1. / (1e9*nSelectedNLO[iNow]);
       // Set hepmc event weight.
       hepmcevt->weights().push_back(weightNLO*normhepmc);
@@ -452,7 +453,7 @@ int main( int argc, char* argv[] ){
          << endl;
 
     pythia.settings.mode("Merging:nRequested", njetcounterCT);
-    pythia.settings.word("Beams:LHEF", LHEfile);  
+    pythia.settings.word("Beams:LHEF", LHEfile);
     pythia.init(&lhareader);
 
     // Remember position in vector of cross section estimates.
@@ -472,7 +473,7 @@ int main( int argc, char* argv[] ){
       double evtweight  = pythia.info.weight();
       weightNLO        *= evtweight;
       // Do not print zero-weight events.
-      if ( weightNLO == 0. ) continue; 
+      if ( weightNLO == 0. ) continue;
 
       // Construct new empty HepMC event.
       HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
@@ -542,7 +543,7 @@ int main( int argc, char* argv[] ){
          << endl;
 
     pythia.settings.mode("Merging:nRequested", njetcounterCT);
-    pythia.settings.word("Beams:LHEF", LHEfile);  
+    pythia.settings.word("Beams:LHEF", LHEfile);
     pythia.init(&lhareader);
 
     // Remember position in vector of cross section estimates.
@@ -562,14 +563,14 @@ int main( int argc, char* argv[] ){
       double evtweight  = pythia.info.weight();
       weightNLO        *= evtweight;
       // Do not print zero-weight events.
-      if ( weightNLO == 0. ) continue; 
+      if ( weightNLO == 0. ) continue;
 
       // Construct new empty HepMC event.
       HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
       // Get correct cross section from previous estimate.
       double normhepmc = -1*xsecNLO[iNow] / nAcceptNLO[iNow];
       // powheg weighted events
-      if( abs(strategyNLO[iNow]) == 4) 
+      if( abs(strategyNLO[iNow]) == 4)
         normhepmc = -1. / (1e9*nSelectedNLO[iNow]);
       // Set hepmc event weight.
       hepmcevt->weights().push_back(weightNLO*normhepmc);

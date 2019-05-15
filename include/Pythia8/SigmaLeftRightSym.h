@@ -1,5 +1,5 @@
 // SigmaLeftRightSym.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -24,20 +24,20 @@ public:
   // Constructor.
   Sigma1ffbar2ZRight() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
-  virtual double sigmaHat(); 
+  // Evaluate sigmaHat(sHat).
+  virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for G* decay angle.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return "f fbar -> Z_R^0";}
@@ -47,7 +47,7 @@ public:
 
 private:
 
-  // Parameters set at initialization or for current kinematics. 
+  // Parameters set at initialization or for current kinematics.
   int    idZR;
   double mRes, GammaRes, m2Res, GamMRat, sin2tW, sigma0;
 
@@ -67,20 +67,20 @@ public:
   // Constructor.
   Sigma1ffbar2WRight() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for W decay angle.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return "f fbar' -> W_R^+-";}
@@ -90,7 +90,7 @@ public:
 
 private:
 
-  // Parameters set at initialization. 
+  // Parameters set at initialization.
   int    idWR;
   double mRes, GammaRes, m2Res, GamMRat, thetaWRat, sigma0Pos, sigma0Neg;
 
@@ -110,17 +110,17 @@ public:
   // Constructor.
   Sigma1ll2Hchgchg(int leftRightIn ) : leftRight(leftRightIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for W decay angle.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return nameSave;}
@@ -130,7 +130,7 @@ public:
 
 private:
 
-  // Parameters set at initialization. 
+  // Parameters set at initialization.
   int    leftRight, idHLR, codeSave;
   string nameSave;
   double mRes, GammaRes, m2Res, GamMRat, yukawa[4][4];
@@ -138,7 +138,7 @@ private:
   // Pointer to properties of the particle species, to access decay channels.
   ParticleDataEntry* particlePtr;
 
-}; 
+};
  
 //==========================================================================
 
@@ -152,17 +152,17 @@ public:
   Sigma2lgm2Hchgchgl(int leftRightIn, int idLepIn ) : leftRight(leftRightIn),
     idLep(idLepIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for W decay angle.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return nameSave;}
@@ -172,12 +172,12 @@ public:
 
 private:
 
-  // Parameters set at initialization. 
+  // Parameters set at initialization.
   int    leftRight, idHLR, idLep, codeSave;
   string nameSave;
   double yukawa[4], openFracPos, openFracNeg;
 
-}; 
+};
  
 //==========================================================================
 
@@ -190,20 +190,20 @@ public:
   // Constructor.
   Sigma3ff2HchgchgfftWW(int leftRightIn) : leftRight(leftRightIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -238,17 +238,17 @@ public:
   // Constructor.
   Sigma2ffbar2HchgchgHchgchg(int leftRightIn) : leftRight(leftRightIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for W decay angle.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return nameSave;}
@@ -260,13 +260,13 @@ public:
 
 private:
 
-  // Parameters set at initialization. 
+  // Parameters set at initialization.
   int    leftRight, idHLR, codeSave;
   string nameSave;
-  double mRes, GammaRes, m2Res, GamMRat, sin2tW, preFac, yukawa[4][4], 
+  double mRes, GammaRes, m2Res, GamMRat, sin2tW, preFac, yukawa[4][4],
          openFrac;
 
-}; 
+};
 
 //==========================================================================
 

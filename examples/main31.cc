@@ -1,10 +1,10 @@
 // main31.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Richard Corke, Torbjorn Sjostrand.
+// Copyright (C) 2014 Richard Corke, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 #include "Pythia8/Pythia.h"
-using namespace Pythia8; 
+using namespace Pythia8;
 
 //==========================================================================
 
@@ -12,7 +12,7 @@ using namespace Pythia8;
 
 class PowhegHooks : public UserHooks {
 
-public:  
+public:
 
   // Constructor and destructor.
    PowhegHooks(int nFinalIn, int vetoModeIn, int vetoCountIn,
@@ -43,7 +43,7 @@ public:
 
     // Calculate virtuality of splitting
     double sign = (FSR) ? 1. : -1.;
-    Vec4 Q(radVec + sign * emtVec); 
+    Vec4 Q(radVec + sign * emtVec);
     double Qsq = sign * Q.m2Calc();
 
     // Mass term of radiator
@@ -129,7 +129,7 @@ public:
 
   // Calculate pT for a splitting based on pTdefMode.
   // If j is -1, all final-state partons are tried.
-  // If i, k, r and xSR are -1, then all incoming and outgoing 
+  // If i, k, r and xSR are -1, then all incoming and outgoing
   // partons are tried.
   // xSR set to 0 means ISR, while xSR set to 1 means FSR
   double pTcalc(const Event &e, int i, int j, int k, int r, int xSRin) {
@@ -182,8 +182,8 @@ public:
               pTnow = pTpowheg(e, iInA, jNow, (pTdefMode == 0) ? false : FSR);
               if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
   
-              // FSR - try all outgoing partons from system before branching 
-              // as i. Note that for the hard system, there is no 
+              // FSR - try all outgoing partons from system before branching
+              // as i. Note that for the hard system, there is no
               // "before branching" information.
               } else {
     
@@ -193,12 +193,12 @@ public:
 
                   // Coloured only, i != jNow and no carbon copies
                   if (iNow == jNow || e[iNow].colType() == 0) continue;
-                  if (jNow == e[iNow].daughter1() 
+                  if (jNow == e[iNow].daughter1()
                     && jNow == e[iNow].daughter2()) continue;
 
-                  pTnow = pTpowheg(e, iNow, jNow, (pTdefMode == 0) 
+                  pTnow = pTpowheg(e, iNow, jNow, (pTdefMode == 0)
                     ? false : FSR);
-                  if (pTnow > 0.) pTemt = (pTemt < 0) 
+                  if (pTnow > 0.) pTemt = (pTemt < 0)
                     ? pTnow : min(pTemt, pTnow);
                 } // for (iMem)
   
@@ -224,10 +224,10 @@ public:
                 // For this kNow, need to have a recoiler.
                 // Try two incoming.
                 pTnow = pTpythia(e, kNow, jNow, iInA, FSR);
-                if (pTnow > 0.) pTemt = (pTemt < 0) 
+                if (pTnow > 0.) pTemt = (pTemt < 0)
                   ? pTnow : min(pTemt, pTnow);
                 pTnow = pTpythia(e, kNow, jNow, iInB, FSR);
-                if (pTnow > 0.) pTemt = (pTemt < 0) 
+                if (pTnow > 0.) pTemt = (pTemt < 0)
                   ? pTnow : min(pTemt, pTnow);
 
                 // Try all other outgoing.
@@ -235,7 +235,7 @@ public:
                   if (rNow == kNow || rNow == jNow ||
                       !e[rNow].isFinal() || e[rNow].colType() == 0) continue;
                   pTnow = pTpythia(e, kNow, jNow, rNow, FSR);
-                  if (pTnow > 0.) pTemt = (pTemt < 0) 
+                  if (pTnow > 0.) pTemt = (pTemt < 0)
                     ? pTnow : min(pTemt, pTnow);
                 } // for (rNow)
   
@@ -289,7 +289,7 @@ public:
     bool isEmt = (count == nFinal) ? false : true;
     int  iEmt  = (isEmt) ? e.size() - 1 : -1;
 
-    // If there is no radiation or if pThardMode is 0 then set pThard to SCALUP.
+    // If there is no radiation or if pThardMode is 0 then set pThard = SCALUP.
     if (!isEmt || pThardMode == 0) {
       pThard = infoPtr->scalup();
       
@@ -584,7 +584,7 @@ int main(int, char **) {
     ++iEvent;
     if (nEvent != 0 && iEvent == nEvent) break;
 
-  } // End of event loop.        
+  } // End of event loop.
 
   // Statistics, histograms and veto information
   pythia.stat();
@@ -592,7 +592,7 @@ int main(int, char **) {
   cout << "Number of FSR emissions vetoed: " << nFSRveto << endl;
   cout << endl;
 
-  // Done.                           
+  // Done.
   if (powhegHooks) delete powhegHooks;
   return 0;
 }

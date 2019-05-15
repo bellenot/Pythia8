@@ -1,5 +1,5 @@
 // LesHouches.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -31,7 +31,7 @@ public:
   // Constructors.
   LHAProcess() : idProc(0), xSecProc(0.), xErrProc(0.), xMaxProc(0.) { }
   LHAProcess(int idProcIn, double xSecIn, double xErrIn, double xMaxIn) :
-    idProc(idProcIn), xSecProc(xSecIn), xErrProc(xErrIn), 
+    idProc(idProcIn), xSecProc(xSecIn), xErrProc(xErrIn),
     xMaxProc(xMaxIn) { }
 
   // Process properties.
@@ -48,21 +48,21 @@ class LHAParticle {
 
 public:
 
-  // Constructors.   
-  LHAParticle() : idPart(0), statusPart(0), mother1Part(0), 
-    mother2Part(0), col1Part(0), col2Part(0), pxPart(0.), pyPart(0.), 
-    pzPart(0.), ePart(0.), mPart(0.), tauPart(0.), spinPart(9.), 
+  // Constructors.
+  LHAParticle() : idPart(0), statusPart(0), mother1Part(0),
+    mother2Part(0), col1Part(0), col2Part(0), pxPart(0.), pyPart(0.),
+    pzPart(0.), ePart(0.), mPart(0.), tauPart(0.), spinPart(9.),
     scalePart(-1.) { }
   LHAParticle(int idIn, int statusIn, int mother1In, int mother2In,
-    int col1In, int col2In, double pxIn, double pyIn, double pzIn, 
+    int col1In, int col2In, double pxIn, double pyIn, double pzIn,
     double eIn, double mIn, double tauIn, double spinIn,
     double scaleIn) :
-    idPart(idIn), statusPart(statusIn), mother1Part(mother1In), 
-    mother2Part(mother2In), col1Part(col1In), col2Part(col2In), 
-    pxPart(pxIn), pyPart(pyIn), pzPart(pzIn), ePart(eIn), mPart(mIn), 
+    idPart(idIn), statusPart(statusIn), mother1Part(mother1In),
+    mother2Part(mother2In), col1Part(col1In), col2Part(col2In),
+    pxPart(pxIn), pyPart(pyIn), pzPart(pzIn), ePart(eIn), mPart(mIn),
     tauPart(tauIn), spinPart(spinIn), scalePart(scaleIn) { }
 
-  // Particle properties.    
+  // Particle properties.
   int    idPart, statusPart, mother1Part, mother2Part, col1Part, col2Part;
   double pxPart, pyPart, pzPart, ePart, mPart, tauPart, spinPart,
          scalePart;
@@ -71,7 +71,7 @@ public:
 
 //==========================================================================
 
-// LHAup is base class for initialization and event information 
+// LHAup is base class for initialization and event information
 // from an external parton-level generator.
 
 class LHAup {
@@ -85,13 +85,13 @@ public:
   void setPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;}
  
   // Method to be used for LHAupLHEF derived class.
-  virtual void newEventFile(const char*) {} 
-  virtual bool fileFound() {return true;} 
+  virtual void newEventFile(const char*) {}
+  virtual bool fileFound() {return true;}
  
-  // A pure virtual method setInit, wherein all initialization information 
-  // is supposed to be set in the derived class. Can do this by reading a 
-  // file or some other way, as desired. Returns false if it did not work. 
-  virtual bool setInit() = 0; 
+  // A pure virtual method setInit, wherein all initialization information
+  // is supposed to be set in the derived class. Can do this by reading a
+  // file or some other way, as desired. Returns false if it did not work.
+  virtual bool setInit() = 0;
 
   // Give back info on beams.
   int    idBeamA()       const {return idBeamASave;}
@@ -107,32 +107,32 @@ public:
   int    strategy()      const {return strategySave;}
 
   // Give back info on processes.
-  int    sizeProc()      const {return processes.size();} 
-  int    idProcess(int proc) const {return processes[proc].idProc;} 
-  double xSec(int proc)  const {return processes[proc].xSecProc;}    
-  double xErr(int proc)  const {return processes[proc].xErrProc;}    
-  double xMax(int proc)  const {return processes[proc].xMaxProc;} 
-  double xSecSum()       const {return xSecSumSave;}    
-  double xErrSum()       const {return xErrSumSave;}    
+  int    sizeProc()      const {return processes.size();}
+  int    idProcess(int proc) const {return processes[proc].idProc;}
+  double xSec(int proc)  const {return processes[proc].xSecProc;}
+  double xErr(int proc)  const {return processes[proc].xErrProc;}
+  double xMax(int proc)  const {return processes[proc].xMaxProc;}
+  double xSecSum()       const {return xSecSumSave;}
+  double xErrSum()       const {return xErrSumSave;}
    
   // Print the initialization info; useful to check that setting it worked.
-  void   listInit(ostream& os = cout);  
+  void   listInit(ostream& os = cout);
 
   // A pure virtual method setEvent, wherein information on the next event
-  // is supposed to be set in the derived class. 
+  // is supposed to be set in the derived class.
   // Strategies +-1 and +-2: idProcIn is the process type, selected by PYTHIA.
   // Strategies +-3 and +-4: idProcIn is dummy; process choice is made locally.
   // The method can find the next event by a runtime interface to another
-  // program, or by reading a file, as desired. 
+  // program, or by reading a file, as desired.
   // The method should return false if it did not work.
-  virtual bool setEvent(int idProcIn = 0, double mRecalculate = -1.) = 0; 
+  virtual bool setEvent(int idProcIn = 0, double mRecalculate = -1.) = 0;
 
   // Give back process number, weight, scale, alpha_em, alpha_s.
-  int    idProcess()       const {return idProc;} 
-  double weight()          const {return weightProc;} 
-  double scale()           const {return scaleProc;} 
-  double alphaQED()        const {return alphaQEDProc;} 
-  double alphaQCD()        const {return alphaQCDProc;} 
+  int    idProcess()       const {return idProc;}
+  double weight()          const {return weightProc;}
+  double scale()           const {return scaleProc;}
+  double alphaQED()        const {return alphaQEDProc;}
+  double alphaQCD()        const {return alphaQCDProc;}
 
   // Give back info on separate particle.
   int    sizePart()        const {return particles.size();}
@@ -168,13 +168,13 @@ public:
   double pdf2()            const {return pdf2Save;}
 
   // Print the info; useful to check that reading an event worked.
-  void   listEvent(ostream& os = cout);  
+  void   listEvent(ostream& os = cout);
 
   // Skip ahead a number of events, which are not considered further.
   // Mainly intended for debug when using the LHAupLHEF class.
   virtual bool skipEvent(int nSkip) {
     for (int iSkip = 0; iSkip < nSkip; ++iSkip)
-    if (!setEvent()) return false; return true;} 
+    if (!setEvent()) return false; return true;}
 
   // Four routines to write a Les Houches Event file in steps.
   bool   openLHEF(string fileNameIn);
@@ -182,11 +182,14 @@ public:
   bool   eventLHEF(bool verbose = true);
   bool   closeLHEF(bool updateInit = false);
 
+  // Get access to the Les Houches Event file name.
+  string getFileName()     const {return fileName;}  
+
 protected:
 
   // Constructor. Sets default to be that events come with unit weight.
-  LHAup(int strategyIn = 3) : strategySave(strategyIn) 
-    { processes.reserve(10); particles.reserve(20); } 
+  LHAup(int strategyIn = 3) : fileName("void"), strategySave(strategyIn)
+    { processes.reserve(10); particles.reserve(20); }
 
   // Allow conversion from mb to pb.
   static const double CONVERTMB2PB;
@@ -195,54 +198,54 @@ protected:
   Info* infoPtr;
 
   // Input beam info.
-  void setBeamA(int idIn, double eIn, int pdfGroupIn = 0, int pdfSetIn = 0) 
-    { idBeamASave = idIn; eBeamASave = eIn; pdfGroupBeamASave = pdfGroupIn;  
-    pdfSetBeamASave = pdfSetIn;} 
-  void setBeamB(int idIn, double eIn, int pdfGroupIn = 0, int pdfSetIn = 0) 
-    { idBeamBSave = idIn; eBeamBSave = eIn; pdfGroupBeamBSave = pdfGroupIn;  
-    pdfSetBeamBSave = pdfSetIn;} 
+  void setBeamA(int idIn, double eIn, int pdfGroupIn = 0, int pdfSetIn = 0)
+    { idBeamASave = idIn; eBeamASave = eIn; pdfGroupBeamASave = pdfGroupIn;
+    pdfSetBeamASave = pdfSetIn;}
+  void setBeamB(int idIn, double eIn, int pdfGroupIn = 0, int pdfSetIn = 0)
+    { idBeamBSave = idIn; eBeamBSave = eIn; pdfGroupBeamBSave = pdfGroupIn;
+    pdfSetBeamBSave = pdfSetIn;}
 
   // Input process weight strategy.
-  void setStrategy(int strategyIn) {strategySave = strategyIn;} 
+  void setStrategy(int strategyIn) {strategySave = strategyIn;}
 
   // Input process info.
-  void addProcess(int idProcIn, double xSecIn = 1., double xErrIn = 0., 
-    double xMaxIn = 1.) { processes.push_back( LHAProcess( idProcIn, 
+  void addProcess(int idProcIn, double xSecIn = 1., double xErrIn = 0.,
+    double xMaxIn = 1.) { processes.push_back( LHAProcess( idProcIn,
     xSecIn, xErrIn, xMaxIn)); }
 
   // Possibility to update some cross section info at end of run.
   void setXSec(int iP, double xSecIn) {processes[iP].xSecProc = xSecIn;}
   void setXErr(int iP, double xErrIn) {processes[iP].xErrProc = xErrIn;}
-  void setXMax(int iP, double xMaxIn) {processes[iP].xMaxProc = xMaxIn;}     
+  void setXMax(int iP, double xMaxIn) {processes[iP].xMaxProc = xMaxIn;}
  
   // Input info on the selected process.
-  void setProcess(int idProcIn = 0, double weightIn = 1., double 
-    scaleIn = 0., double alphaQEDIn = 0.0073, double alphaQCDIn = 0.12) { 
-    idProc = idProcIn; weightProc = weightIn; scaleProc = scaleIn; 
-    alphaQEDProc = alphaQEDIn; alphaQCDProc = alphaQCDIn; 
+  void setProcess(int idProcIn = 0, double weightIn = 1., double
+    scaleIn = 0., double alphaQEDIn = 0.0073, double alphaQCDIn = 0.12) {
+    idProc = idProcIn; weightProc = weightIn; scaleProc = scaleIn;
+    alphaQEDProc = alphaQEDIn; alphaQCDProc = alphaQCDIn;
     // Clear particle list. Add empty zeroth particle for correct indices.
     particles.clear(); addParticle(0); pdfIsSetSave = false;}
 
   // Input particle info, one particle at the time.
   void addParticle(LHAParticle particleIn) {
     particles.push_back(particleIn);}
-  void addParticle(int idIn, int statusIn = 0, int mother1In = 0, 
-    int mother2In = 0, int col1In = 0, int col2In = 0, double pxIn = 0., 
-    double pyIn = 0., double pzIn = 0., double eIn = 0., double mIn = 0., 
-    double tauIn = 0., double spinIn = 9., double scaleIn = -1.) { 
-    particles.push_back( LHAParticle( idIn, statusIn, mother1In, mother2In, 
-    col1In, col2In, pxIn, pyIn, pzIn, eIn, mIn, tauIn, spinIn, 
+  void addParticle(int idIn, int statusIn = 0, int mother1In = 0,
+    int mother2In = 0, int col1In = 0, int col2In = 0, double pxIn = 0.,
+    double pyIn = 0., double pzIn = 0., double eIn = 0., double mIn = 0.,
+    double tauIn = 0., double spinIn = 9., double scaleIn = -1.) {
+    particles.push_back( LHAParticle( idIn, statusIn, mother1In, mother2In,
+    col1In, col2In, pxIn, pyIn, pzIn, eIn, mIn, tauIn, spinIn,
     scaleIn) ); }
 
   // Input info on flavour and x values of hard-process initiators.
-  void setIdX(int id1In, int id2In, double x1In, double x2In) 
+  void setIdX(int id1In, int id2In, double x1In, double x2In)
     { id1Save = id1In; id2Save = id2In; x1Save = x1In; x2Save = x2In;}
 
   // Optionally input info on parton density values of event.
-  void setPdf(int id1pdfIn, int id2pdfIn, double x1pdfIn, double x2pdfIn, 
-    double scalePDFIn, double pdf1In, double pdf2In, bool pdfIsSetIn) 
-    { id1pdfSave = id1pdfIn; id2pdfSave = id2pdfIn; x1pdfSave = x1pdfIn; 
-    x2pdfSave = x2pdfIn; scalePDFSave = scalePDFIn; pdf1Save = pdf1In; 
+  void setPdf(int id1pdfIn, int id2pdfIn, double x1pdfIn, double x2pdfIn,
+    double scalePDFIn, double pdf1In, double pdf2In, bool pdfIsSetIn)
+    { id1pdfSave = id1pdfIn; id2pdfSave = id2pdfIn; x1pdfSave = x1pdfIn;
+    x2pdfSave = x2pdfIn; scalePDFSave = scalePDFIn; pdf1Save = pdf1In;
     pdf2Save = pdf2In; pdfIsSetSave = pdfIsSetIn;}
 
   // Three routines for LHEF files, but put here for flexibility.
@@ -271,8 +274,14 @@ protected:
   vector<LHAParticle> particlesSave;
   bool   getPDFSave, getScale;
   int    id1InSave, id2InSave, id1pdfInSave, id2pdfInSave;
-  double x1InSave, x2InSave, x1pdfInSave, x2pdfInSave, scalePDFInSave, 
+  double x1InSave, x2InSave, x1pdfInSave, x2pdfInSave, scalePDFInSave,
          pdf1InSave, pdf2InSave;
+ 
+  // File to which to write Les Houches Event File information.
+  string fileName;
+  fstream osLHEF;
+  char dateNow[12];
+  char timeNow[9];
 
 private:
 
@@ -282,13 +291,13 @@ private:
   // Beam particle properties.
   int    idBeamASave, idBeamBSave;
   double eBeamASave, eBeamBSave;
-  int    pdfGroupBeamASave, pdfGroupBeamBSave, pdfSetBeamASave, 
+  int    pdfGroupBeamASave, pdfGroupBeamBSave, pdfSetBeamASave,
          pdfSetBeamBSave;
 
   // The process list, stored as a vector of processes.
   vector<LHAProcess> processes;
 
-  // Store info on the selected process. 
+  // Store info on the selected process.
   int    idProc;
   double weightProc, scaleProc, alphaQEDProc, alphaQCDProc;
 
@@ -298,14 +307,8 @@ private:
   // Info on initiators and optionally on parton density values of event.
   bool   pdfIsSetSave;
   int    id1Save, id2Save, id1pdfSave, id2pdfSave;
-  double x1Save, x2Save, x1pdfSave, x2pdfSave, scalePDFSave, pdf1Save, 
+  double x1Save, x2Save, x1pdfSave, x2pdfSave, scalePDFSave, pdf1Save,
          pdf2Save;
- 
-  // File to which to write Les Houches Event File information.
-  string fileName;
-  fstream osLHEF;
-  char dateNow[12];
-  char timeNow[9];
 
 };
 
@@ -345,18 +348,18 @@ public:
   // Confirm that file was found and opened as expected.
   bool fileFound() { return (isHead->good() && is->good()); }
 
-  // Routine for doing the job of reading and setting initialization info.  
-  bool setInit() {return setInitLHEF(*isHead, readHeaders);} 
+  // Routine for doing the job of reading and setting initialization info.
+  bool setInit() {return setInitLHEF(*isHead, readHeaders);}
 
-  // Routine for doing the job of reading and setting info on next event.  
+  // Routine for doing the job of reading and setting info on next event.
   bool setEvent(int = 0, double mRecalculate = -1.) {
-    if (!setNewEventLHEF(*is, mRecalculate)) return false; 
+    if (!setNewEventLHEF(*is, mRecalculate)) return false;
     return setOldEventLHEF();
-  } 
+  }
 
   // Skip ahead a number of events, which are not considered further.
   bool skipEvent(int nSkip) {for (int iSkip = 0; iSkip < nSkip; ++iSkip)
-    if (!setNewEventLHEF(*is)) return false; return true;} 
+    if (!setNewEventLHEF(*is)) return false; return true;}
 
 private:
 
@@ -384,11 +387,11 @@ public:
   // Destructor.
   ~LHAupFromPYTHIA8() {}
 
-  // Routine for doing the job of reading and setting initialization info.  
-  bool setInit(); 
+  // Routine for doing the job of reading and setting initialization info.
+  bool setInit();
 
-  // Routine for doing the job of reading and setting info on next event.  
-  bool setEvent(int = 0, double = -1.); 
+  // Routine for doing the job of reading and setting info on next event.
+  bool setEvent(int = 0, double = -1.);
 
   // Update cross-section information at the end of the run.
   bool updateSigma();

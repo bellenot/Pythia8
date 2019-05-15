@@ -1,9 +1,9 @@
 // File: hist.cc
 // This is a simple test program.
 // It studies the charged multiplicity distribution at the LHC.
-// Modified by Rene Brun, Axel Naumann and Bernhard Meirose 
+// Modified by Rene Brun, Axel Naumann and Bernhard Meirose
 // to use ROOT for histogramming.
-// Copyright (C) 2013 Torbjorn Sjostrand
+// Copyright (C) 2014 Torbjorn Sjostrand
 
 // Stdlib header file for input and output.
 #include <iostream>
@@ -25,7 +25,7 @@ using namespace Pythia8;
 
 int main(int argc, char* argv[]) {
 
-  // Create the ROOT application environment. 
+  // Create the ROOT application environment.
   TApplication theApp("hist", &argc, argv);
 
   // Create Pythia instance and set it up to generate hard QCD processes

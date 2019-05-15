@@ -1,5 +1,5 @@
 // SigmaProcess.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -92,10 +92,10 @@ public:
   void init(Info* infoPtrIn, Settings* settingsPtrIn,
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, Couplings* couplings,
-    SigmaTotal* sigmaTotPtrIn = 0, SLHAinterface* slhaInterfacePtrIn = 0); 
+    SigmaTotal* sigmaTotPtrIn = 0, SLHAinterface* slhaInterfacePtrIn = 0);
 
   // Store or replace Les Houches pointer.
-  void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;}  
+  void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;}
 
   // Initialize process. Only used for some processes.
   virtual void initProc() {}
@@ -105,41 +105,41 @@ public:
 
   // Input and complement kinematics for resolved 2 -> 1 process.
   // Usage: set1Kin( x1in, x2in, sHin).
-  virtual void set1Kin( double , double , double ) {} 
+  virtual void set1Kin( double , double , double ) {}
 
   // Input and complement kinematics for resolved 2 -> 2 process.
   // Usage: set2Kin( x1in, x2in, sHin, tHin, m3in, m4in, runBW3in, runBW4in).
-  virtual void set2Kin( double , double , double , double , double , 
-    double, double, double ) {} 
+  virtual void set2Kin( double , double , double , double , double ,
+    double, double, double ) {}
 
   // Ditto, but for Multiparton Interactions applications, so different input.
-  // Usage: set2KinMPI( x1in, x2in, sHin, tHin, uHin, 
+  // Usage: set2KinMPI( x1in, x2in, sHin, tHin, uHin,
   //                   alpSin, alpEMin, needMasses, m3in, m4in)
-  virtual void set2KinMPI( double , double , double , double , 
+  virtual void set2KinMPI( double , double , double , double ,
     double , double , double , bool , double , double ) {}
 
   // Input and complement kinematics for resolved 2 -> 3 process.
-  // Usage: set3Kin( x1in, x2in, sHin, p3prel, p4prel, p5prel, 
-  //                 m3in, m4in, m5in, runBW3in, runBW4in, runBW5in); 
-  virtual void set3Kin( double , double , double , Vec4 , Vec4 , Vec4 , 
+  // Usage: set3Kin( x1in, x2in, sHin, p3prel, p4prel, p5prel,
+  //                 m3in, m4in, m5in, runBW3in, runBW4in, runBW5in);
+  virtual void set3Kin( double , double , double , Vec4 , Vec4 , Vec4 ,
     double , double , double , double , double , double ) {}
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin() {}
 
-  // Evaluate sigma for unresolved, sigmaHat(sHat) for 2 -> 1 processes, 
-  // d(sigmaHat)/d(tHat) for (resolved) 2 -> 2 processes, and |M|^2 for 
-  // 2 -> 3 processes. Answer in "native" units, either mb or GeV^-2. 
+  // Evaluate sigma for unresolved, sigmaHat(sHat) for 2 -> 1 processes,
+  // d(sigmaHat)/d(tHat) for (resolved) 2 -> 2 processes, and |M|^2 for
+  // 2 -> 3 processes. Answer in "native" units, either mb or GeV^-2.
   virtual double sigmaHat() {return 0.;}
 
-  // Wrapper to sigmaHat, to (a) store current incoming flavours and 
+  // Wrapper to sigmaHat, to (a) store current incoming flavours and
   // (b) convert from GeV^-2 to mb where required.
   // For 2 -> 1/2 also (c) convert from from |M|^2 to d(sigmaHat)/d(tHat).
   virtual double sigmaHatWrap(int id1in = 0, int id2in = 0) {
-    id1 = id1in; id2 = id2in; 
+    id1 = id1in; id2 = id2in;
     return ( convert2mb() ? CONVERT2MB * sigmaHat() : sigmaHat() ); }
 
-  // Convolute above with parton flux and K factor. Sum over open channels. 
+  // Convolute above with parton flux and K factor. Sum over open channels.
   virtual double sigmaPDF();
 
   // Select incoming parton channel and extract parton densities (resolved).
@@ -154,15 +154,15 @@ public:
 
   // Evaluate weight for simultaneous flavours (only gamma*/Z0 gamma*/Z0).
   // Usage: weightDecayFlav( process).
-  virtual double weightDecayFlav( Event&) {return 1.;} 
+  virtual double weightDecayFlav( Event&) {return 1.;}
 
   // Evaluate weight for decay angular configuration.
-  // Usage: weightDecay( process, iResBeg, iResEnd), where 
+  // Usage: weightDecay( process, iResBeg, iResEnd), where
   // iResBeg <= i < iResEnd is range of sister partons to test decays of.
   virtual double weightDecay( Event&, int, int) {return 1.;}
 
   // Set scale, when that is missing for an external LHA process.
-  virtual void setScale() {} 
+  virtual void setScale() {}
 
   // Process name and code, and the number of final-state particles.
   virtual string name()            const {return "unnamed process";}
@@ -189,14 +189,14 @@ public:
   virtual bool   isDiffC()         const {return false;}
 
   // Special treatment needed for SUSY processes.
-  virtual bool   isSUSY()          const {return false;}  
+  virtual bool   isSUSY()          const {return false;}
 
   // Special treatment needed if negative cross sections allowed.
   virtual bool   allowNegativeSigma() const {return false;}
 
-  // Flavours in 2 -> 2/3 processes where masses needed from beginning. 
+  // Flavours in 2 -> 2/3 processes where masses needed from beginning.
   // (For a light quark masses will be used in the final kinematics,
-  // but not at the matrix-element level. For a gluon no masses at all.) 
+  // but not at the matrix-element level. For a gluon no masses at all.)
   virtual int    id3Mass()         const {return 0;}
   virtual int    id4Mass()         const {return 0;}
   virtual int    id5Mass()         const {return 0;}
@@ -229,12 +229,13 @@ public:
   
   // Give back particle properties: flavours, colours, masses, or all.
   int    id(int i)          const {return idSave[i];}
-  int    col(int i)         const {return colSave[i];} 
+  int    col(int i)         const {return colSave[i];}
   int    acol(int i)        const {return acolSave[i];}
   double m(int i)           const {return mSave[i];}
   Particle getParton(int i) const {return parton[i];}
 
-  // Give back couplings and parton densities. Not all known for nondiffractive.
+  // Give back couplings and parton densities.
+  // Not all known for nondiffractive.
   double Q2Ren()            const {return Q2RenSave;}
   double alphaEMRen()       const {return alpEM;}
   double alphaSRen()        const {return alpS;}
@@ -251,11 +252,11 @@ public:
 
   // Save and load kinematics for trial interactions
   void saveKin() {
-    for (int i = 0; i < 6; i++) { partonT[i] = parton[i]; 
+    for (int i = 0; i < 6; i++) { partonT[i] = parton[i];
       mSaveT[i] = mSave[i]; }
     pTFinT = pTFin; phiT = phi; cosThetaT = cosTheta; sinThetaT = sinTheta; }
   void loadKin() {
-    for (int i = 0; i < 6; i++) { parton[i] = partonT[i]; 
+    for (int i = 0; i < 6; i++) { parton[i] = partonT[i];
     mSave[i] = mSaveT[i]; }
     pTFin = pTFinT; cosTheta = cosThetaT; sinTheta = sinThetaT; phi = phiT;
   }
@@ -270,7 +271,8 @@ protected:
   // Constructor.
   SigmaProcess() : infoPtr(0), settingsPtr(0), particleDataPtr(0),
     rndmPtr(0), beamAPtr(0), beamBPtr(0), couplingsPtr(0), sigmaTotPtr(0),
-    slhaPtr(0), lhaUpPtr(0) {for (int i = 0; i < 6; ++i) mSave[i] = 0.;}
+    slhaPtr(0), lhaUpPtr(0) {for (int i = 0; i < 6; ++i) mSave[i] = 0.;
+    Q2RenSave = alpEM = alpS = Q2FacSave = pdf1Save = pdf2Save = 0.; }
 
   // Constants: could only be changed in the code itself.
   static const double CONVERT2MB, MASSMARGIN, COMPRELERR;
@@ -305,18 +307,18 @@ protected:
   LHAup*          lhaUpPtr;
 
   // Initialization data, normally only set once.
-  int    nQuarkIn, renormScale1, renormScale2, renormScale3, renormScale3VV, 
+  int    nQuarkIn, renormScale1, renormScale2, renormScale3, renormScale3VV,
          factorScale1, factorScale2, factorScale3, factorScale3VV;
-  double Kfactor, mcME, mbME, mmuME, mtauME, renormMultFac, renormFixScale, 
+  double Kfactor, mcME, mbME, mmuME, mtauME, renormMultFac, renormFixScale,
          factorMultFac, factorFixScale;
 
   // CP violation parameters for Higgs sector, normally only set once.
   int    higgsH1parity, higgsH2parity, higgsA3parity;
-  double higgsH1eta, higgsH2eta, higgsA3eta;  
+  double higgsH1eta, higgsH2eta, higgsA3eta;
 
   // Information on incoming beams.
   int    idA, idB;
-  double mA, mB; 
+  double mA, mB;
   bool   isLeptonA, isLeptonB, hasLeptonBeams;
 
   // Partons in beams, with PDF's.
@@ -337,7 +339,7 @@ protected:
   double mH, sH, sH2;
 
   // Store Q2 renormalization and factorization scales, and related values.
-  double Q2RenSave, alpEM, alpS, Q2FacSave, x1Save, x2Save, pdf1Save, 
+  double Q2RenSave, alpEM, alpS, Q2FacSave, x1Save, x2Save, pdf1Save,
          pdf2Save, sigmaSumSave;
 
   // Store flavour, colour, anticolour, mass, angles and the whole particle.
@@ -351,7 +353,7 @@ protected:
   Particle partonT[6];
   double   mSaveT[6], pTFinT, cosThetaT, sinThetaT, phiT;
 
-  // Calculate and store all modified masses and four-vectors 
+  // Calculate and store all modified masses and four-vectors
   // intended for matrix elements. Return false if failed.
   virtual bool setupForME() {return true;}
   bool     setupForMEin();
@@ -363,24 +365,24 @@ protected:
 
   // Set flavour, colour and anticolour.
   void setId( int id1in = 0, int id2in = 0, int id3in = 0, int id4in = 0,
-    int id5in = 0) {idSave[1] = id1in; idSave[2] = id2in; idSave[3] = id3in; 
+    int id5in = 0) {idSave[1] = id1in; idSave[2] = id2in; idSave[3] = id3in;
     idSave[4] = id4in; idSave[5] = id5in;}
-  void setColAcol( int col1 = 0, int acol1 = 0, 
-    int col2 = 0, int acol2 = 0, int col3 = 0, int acol3 = 0, 
+  void setColAcol( int col1 = 0, int acol1 = 0,
+    int col2 = 0, int acol2 = 0, int col3 = 0, int acol3 = 0,
     int col4 = 0, int acol4 = 0, int col5 = 0, int acol5 = 0) {
-    colSave[1] = col1; acolSave[1] = acol1; colSave[2] = col2; 
-    acolSave[2] = acol2; colSave[3] = col3; acolSave[3] = acol3; 
-    colSave[4] = col4; acolSave[4] = acol4; colSave[5] = col5; 
+    colSave[1] = col1; acolSave[1] = acol1; colSave[2] = col2;
+    acolSave[2] = acol2; colSave[3] = col3; acolSave[3] = acol3;
+    colSave[4] = col4; acolSave[4] = acol4; colSave[5] = col5;
     acolSave[5] = acol5; }
-  void swapColAcol() { swap(colSave[1], acolSave[1]); 
-    swap(colSave[2], acolSave[2]); swap(colSave[3], acolSave[3]); 
+  void swapColAcol() { swap(colSave[1], acolSave[1]);
+    swap(colSave[2], acolSave[2]); swap(colSave[3], acolSave[3]);
     swap(colSave[4], acolSave[4]); swap(colSave[5], acolSave[5]);}
-  void swapCol1234() { swap(colSave[1], colSave[2]); 
-    swap(colSave[3], colSave[4]); swap(acolSave[1], acolSave[2]); 
+  void swapCol1234() { swap(colSave[1], colSave[2]);
+    swap(colSave[3], colSave[4]); swap(acolSave[1], acolSave[2]);
     swap(acolSave[3], acolSave[4]);}
-  void swapCol12() { swap(colSave[1], colSave[2]); 
+  void swapCol12() { swap(colSave[1], colSave[2]);
     swap(acolSave[1], acolSave[2]);}
-  void swapCol34() { swap(colSave[3], colSave[4]); 
+  void swapCol34() { swap(colSave[3], colSave[4]);
     swap(acolSave[3], acolSave[4]);}
 
   // Common code for top and Higgs secondary decay angular weights.
@@ -391,7 +393,7 @@ protected:
  
 //==========================================================================
 
-// Sigma0Process is the base class for unresolved and minimum-bias processes. 
+// Sigma0Process is the base class for unresolved and minimum-bias processes.
 // It is derived from SigmaProcess.
 
 class Sigma0Process : public SigmaProcess {
@@ -407,10 +409,10 @@ public:
   // No partonic flux to be set up.
   virtual bool   initFlux() {return true;}
 
-  // Evaluate sigma for unresolved processes. 
+  // Evaluate sigma for unresolved processes.
   virtual double sigmaHat() {return 0.;}
 
-  // Since no PDF's there is no difference from above. 
+  // Since no PDF's there is no difference from above.
   virtual double sigmaPDF() {return sigmaHat();}
 
   // Answer for these processes already in mb, so do not convert.
@@ -440,15 +442,15 @@ public:
 
   // Input and complement kinematics for resolved 2 -> 1 process.
   virtual void   set1Kin( double x1in, double x2in, double sHin) {
-    store1Kin( x1in, x2in, sHin); sigmaKin();} 
+    store1Kin( x1in, x2in, sHin); sigmaKin();}
 
-  // Evaluate sigmaHat(sHat) for resolved 2 -> 1 processes. 
+  // Evaluate sigmaHat(sHat) for resolved 2 -> 1 processes.
   virtual double sigmaHat() {return 0.;}
 
-  // Wrapper to sigmaHat, to (a) store current incoming flavours, 
+  // Wrapper to sigmaHat, to (a) store current incoming flavours,
   // (b) convert from GeV^-2 to mb where required, and
   // (c) convert from |M|^2 to d(sigmaHat)/d(tHat) where required.
-  virtual double sigmaHatWrap(int id1in = 0, int id2in = 0); 
+  virtual double sigmaHatWrap(int id1in = 0, int id2in = 0);
 
 protected:
 
@@ -479,45 +481,45 @@ public:
   virtual int    nFinal() const {return 2;};
 
   // Input and complement kinematics for resolved 2 -> 2 process.
-  virtual void   set2Kin( double x1in, double x2in, double sHin, 
-    double tHin, double m3in, double m4in, double runBW3in, 
-    double runBW4in) { store2Kin( x1in, x2in, sHin, tHin, m3in, m4in, 
+  virtual void   set2Kin( double x1in, double x2in, double sHin,
+    double tHin, double m3in, double m4in, double runBW3in,
+    double runBW4in) { store2Kin( x1in, x2in, sHin, tHin, m3in, m4in,
     runBW3in, runBW4in); sigmaKin();}
 
   // Ditto, but for Multiparton Interactions applications, so different input.
-  virtual void   set2KinMPI( double x1in, double x2in, double sHin, 
-    double tHin, double uHin, double alpSin, double alpEMin, 
+  virtual void   set2KinMPI( double x1in, double x2in, double sHin,
+    double tHin, double uHin, double alpSin, double alpEMin,
     bool needMasses, double m3in, double m4in) {
-    store2KinMPI( x1in, x2in, sHin, tHin, uHin, alpSin, alpEMin, 
+    store2KinMPI( x1in, x2in, sHin, tHin, uHin, alpSin, alpEMin,
     needMasses, m3in, m4in); sigmaKin();}
 
-  // Evaluate d(sigmaHat)/d(tHat) for resolved 2 -> 2 processes. 
+  // Evaluate d(sigmaHat)/d(tHat) for resolved 2 -> 2 processes.
   virtual double sigmaHat() {return 0.;}
 
-  // Wrapper to sigmaHat, to (a) store current incoming flavours, 
+  // Wrapper to sigmaHat, to (a) store current incoming flavours,
   // (b) convert from GeV^-2 to mb where required, and
   // (c) convert from |M|^2 to d(sigmaHat)/d(tHat) where required.
   virtual double sigmaHatWrap(int id1in = 0, int id2in = 0) {
-    id1 = id1in; id2 = id2in; double sigmaTmp = sigmaHat(); 
-    if (convertM2())  sigmaTmp /= 16. * M_PI * sH2; 
+    id1 = id1in; id2 = id2in; double sigmaTmp = sigmaHat();
+    if (convertM2())  sigmaTmp /= 16. * M_PI * sH2;
     if (convert2mb()) sigmaTmp *= CONVERT2MB; return sigmaTmp;}
 
   // Perform kinematics for a Multiparton Interaction, in its rest frame.
-  virtual bool   final2KinMPI( int i1Res = 0, int i2Res = 0, Vec4 p1Res = 0., 
+  virtual bool   final2KinMPI( int i1Res = 0, int i2Res = 0, Vec4 p1Res = 0.,
     Vec4 p2Res = 0., double m1Res = 0., double m2Res = 0.);
 
 protected:
 
   // Constructor.
-  Sigma2Process() : tH(0.), uH(0.), tH2(0.), uH2(0.), m3(0.), s3(0.), 
+  Sigma2Process() : tH(0.), uH(0.), tH2(0.), uH2(0.), m3(0.), s3(0.),
     m4(0.), s4(0.), pT2(0.), runBW3(0.), runBW4(0.) {}
 
   // Store kinematics and set scales for resolved 2 -> 2 process.
-  virtual void   store2Kin( double x1in, double x2in, double sHin, 
-    double tHin, double m3in, double m4in, double runBW3in, 
+  virtual void   store2Kin( double x1in, double x2in, double sHin,
+    double tHin, double m3in, double m4in, double runBW3in,
     double runBW4in);
-  virtual void   store2KinMPI( double x1in, double x2in, double sHin, 
-    double tHin, double uHin, double alpSin, double alpEMin, 
+  virtual void   store2KinMPI( double x1in, double x2in, double sHin,
+    double tHin, double uHin, double alpSin, double alpEMin,
     bool needMasses, double m3in, double m4in);
 
   // Calculate modified masses and four-vectors for matrix elements.
@@ -544,13 +546,13 @@ public:
   virtual int    nFinal() const {return 3;};
 
   // Input and complement kinematics for resolved 2 -> 3 process.
-  virtual void   set3Kin( double x1in, double x2in, double sHin, 
-    Vec4 p3cmIn, Vec4 p4cmIn, Vec4 p5cmIn, double m3in, double m4in, 
-    double m5in, double runBW3in, double runBW4in, double runBW5in) { 
+  virtual void   set3Kin( double x1in, double x2in, double sHin,
+    Vec4 p3cmIn, Vec4 p4cmIn, Vec4 p5cmIn, double m3in, double m4in,
+    double m5in, double runBW3in, double runBW4in, double runBW5in) {
     store3Kin( x1in, x2in, sHin, p3cmIn, p4cmIn, p5cmIn, m3in, m4in, m5in,
     runBW3in, runBW4in, runBW5in); sigmaKin();}
 
-  // Evaluate d(sigmaHat)/d(tHat) for resolved 2 -> 3 processes. 
+  // Evaluate d(sigmaHat)/d(tHat) for resolved 2 -> 3 processes.
   virtual double sigmaHat() {return 0.;}
 
 protected:
@@ -559,8 +561,8 @@ protected:
   Sigma3Process() {}
 
   // Store kinematics and set scales for resolved 2 -> 3 process.
-  virtual void   store3Kin( double x1in, double x2in, double sHin, 
-    Vec4 p3cmIn, Vec4 p4cmIn, Vec4 p5cmIn, double m3in, double m4in, 
+  virtual void   store3Kin( double x1in, double x2in, double sHin,
+    Vec4 p3cmIn, Vec4 p4cmIn, Vec4 p5cmIn, double m3in, double m4in,
     double m5in, double runBW3in, double runBW4in, double runBW5in);
 
   // Calculate modified masses and four-vectors for matrix elements.
@@ -597,7 +599,7 @@ public:
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Set scale, when that is missing for an external LHA process.
-  virtual void   setScale(); 
+  virtual void   setScale();
 
   // Info on the subprocess.
   virtual string name()     const {return "Les Houches User Process(es)";}

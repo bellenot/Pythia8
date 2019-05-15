@@ -1,9 +1,9 @@
 // FragmentationFlavZpT.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Function definitions (not found in the header) for the 
+// Function definitions (not found in the header) for the
 // StringFlav, StringZ and StringPT classes.
 
 #include "Pythia8/FragmentationFlavZpT.h"
@@ -20,15 +20,15 @@ namespace Pythia8 {
 // These are of technical nature, as described for each.
 
 // Offset for different meson multiplet id values.
-const int StringFlav::mesonMultipletCode[6] 
+const int StringFlav::mesonMultipletCode[6]
   = { 1, 3, 10003, 10001, 20003, 5};
 
 // Clebsch-Gordan coefficients for baryon octet and decuplet are
 // fixed once and for all, so only weighted sum needs to be edited.
 // Order: ud0 + u, ud0 + s, uu1 + u, uu1 + d, ud1 + u, ud1 + s.
-const double StringFlav::baryonCGOct[6] 
+const double StringFlav::baryonCGOct[6]
   = { 0.75, 0.5, 0., 0.1667, 0.0833, 0.1667};
-const double StringFlav::baryonCGDec[6] 
+const double StringFlav::baryonCGDec[6]
   = { 0.,  0.,  1., 0.3333, 0.6667, 0.3333};
 
 //--------------------------------------------------------------------------
@@ -80,12 +80,12 @@ void StringFlav::init(Settings& settings, Rndm* rndmPtrIn) {
   mesonRate[3][5] = settings.parm("StringFlav:mesonBL1S1J2");
 
   // Store sum over multiplets for Monte Carlo generation.
-  for (int i = 0; i < 4; ++i) mesonRateSum[i] 
-    = mesonRate[i][0] + mesonRate[i][1] + mesonRate[i][2] 
+  for (int i = 0; i < 4; ++i) mesonRateSum[i]
+    = mesonRate[i][0] + mesonRate[i][1] + mesonRate[i][2]
     + mesonRate[i][3] + mesonRate[i][4] + mesonRate[i][5];
 
   // Parameters for uubar - ddbar - ssbar meson mixing.
-  for (int spin = 0; spin < 6; ++spin) { 
+  for (int spin = 0; spin < 6; ++spin) {
     double theta;
     if      (spin == 0) theta = settings.parm("StringFlav:thetaPS");
     else if (spin == 1) theta = settings.parm("StringFlav:thetaV");
@@ -96,7 +96,7 @@ void StringFlav::init(Settings& settings, Rndm* rndmPtrIn) {
     double alpha = (spin == 0) ? 90. - (theta + 54.7) : theta + 54.7;
     alpha *= M_PI / 180.;
     // Fill in (flavour, spin)-dependent probability of producing
-    // the lightest or the lightest two mesons of the nonet. 
+    // the lightest or the lightest two mesons of the nonet.
     mesonMix1[0][spin] = 0.5;
     mesonMix2[0][spin] = 0.5 * (1. + pow2(sin(alpha)));
     mesonMix1[1][spin] = 0.;
@@ -114,15 +114,15 @@ void StringFlav::init(Settings& settings, Rndm* rndmPtrIn) {
 
   // Maximum SU(6) weight for ud0, ud1, uu1 types.
   baryonCGMax[0] = max( baryonCGSum[0], baryonCGSum[1]);
-  baryonCGMax[1] = baryonCGMax[0]; 
+  baryonCGMax[1] = baryonCGMax[0];
   baryonCGMax[2] = max( baryonCGSum[2], baryonCGSum[3]);
-  baryonCGMax[3] = baryonCGMax[2]; 
+  baryonCGMax[3] = baryonCGMax[2];
   baryonCGMax[4] = max( baryonCGSum[4], baryonCGSum[5]);
-  baryonCGMax[5] = baryonCGMax[4]; 
+  baryonCGMax[5] = baryonCGMax[4];
 
   // Popcorn baryon parameters.
   popcornRate    = settings.parm("StringFlav:popcornRate");
-  popcornSpair   = settings.parm("StringFlav:popcornSpair"); 
+  popcornSpair   = settings.parm("StringFlav:popcornSpair");
   popcornSmeson  = settings.parm("StringFlav:popcornSmeson");
   
   // Suppression of leading (= first-rank) baryons.
@@ -135,16 +135,16 @@ void StringFlav::init(Settings& settings, Rndm* rndmPtrIn) {
   // Enumerate distinguishable diquark types (in diquark first is popcorn q).
   enum Diquark {ud0, ud1, uu1, us0, su0, us1, su1, ss1};
 
-  // Maximum SU(6) weight by diquark type. 
+  // Maximum SU(6) weight by diquark type.
   double barCGMax[8];
-  barCGMax[ud0] = baryonCGMax[0]; 
-  barCGMax[ud1] = baryonCGMax[4]; 
-  barCGMax[uu1] = baryonCGMax[2]; 
-  barCGMax[us0] = baryonCGMax[0]; 
-  barCGMax[su0] = baryonCGMax[0]; 
-  barCGMax[us1] = baryonCGMax[4]; 
-  barCGMax[su1] = baryonCGMax[4]; 
-  barCGMax[ss1] = baryonCGMax[2]; 
+  barCGMax[ud0] = baryonCGMax[0];
+  barCGMax[ud1] = baryonCGMax[4];
+  barCGMax[uu1] = baryonCGMax[2];
+  barCGMax[us0] = baryonCGMax[0];
+  barCGMax[su0] = baryonCGMax[0];
+  barCGMax[us1] = baryonCGMax[4];
+  barCGMax[su1] = baryonCGMax[4];
+  barCGMax[ss1] = baryonCGMax[2];
 
   // Diquark SU(6) survival = Sum_quark (quark tunnel weight) * SU(6).
   double dMB[8];
@@ -153,7 +153,7 @@ void StringFlav::init(Settings& settings, Rndm* rndmPtrIn) {
   dMB[uu1] = baryonCGSum[2] + (1. + probStoUD) * baryonCGSum[3];
   dMB[us0] = (1. + probStoUD) * baryonCGSum[0] + baryonCGSum[1];
   dMB[su0] = dMB[us0];
-  dMB[us1] = (1. + probStoUD) * baryonCGSum[4] + baryonCGSum[5];  
+  dMB[us1] = (1. + probStoUD) * baryonCGSum[4] + baryonCGSum[5];
   dMB[su1] = dMB[us1];
   dMB[ss1] = probStoUD * baryonCGSum[2] + 2. * baryonCGSum[3];
   for (int i = 1; i < 8; ++i) dMB[i] = dMB[i] / dMB[0];
@@ -176,7 +176,7 @@ void StringFlav::init(Settings& settings, Rndm* rndmPtrIn) {
   qBM[ud1] = 3. * qBB[ud1];
   qBM[uu1] = 6. * qBB[uu1];
   qBM[us0] = probStoUD * qBB[us0];
-  qBM[su0] = qBB[su0]; 
+  qBM[su0] = qBB[su0];
   qBM[us1] = probStoUD * 3. * qBB[us1];
   qBM[su1] = 3. * qBB[su1];
   qBM[ss1] = probStoUD * 6. * qBB[ss1];
@@ -193,9 +193,9 @@ void StringFlav::init(Settings& settings, Rndm* rndmPtrIn) {
   // on the other side of popcorn meson: (0) s/u for q -> B M;
   // (1) s/u for rank 0 diquark su -> M B; (2) ditto for s -> c/b.
   double uNorm = 1. + qBM[ud1] + qBM[uu1] + qBM[us0] + qBM[us1];
-  scbBM[0] = (2. * (qBM[su0] + qBM[su1]) + qBM[ss1]) / uNorm;  
+  scbBM[0] = (2. * (qBM[su0] + qBM[su1]) + qBM[ss1]) / uNorm;
   scbBM[1] = scbBM[0] * popcornSpair * qBM[su0] / qBM[us0];
-  scbBM[2] = (1. + qBM[ud1]) * (2. + qBM[us0]) / uNorm; 
+  scbBM[2] = (1. + qBM[ud1]) * (2. + qBM[us0]) / uNorm;
 
   // Include maximum of Clebsch-Gordan coefficients.
   for (int i = 1; i < 8; ++i) dMB[i] *= qBM[i];
@@ -205,23 +205,23 @@ void StringFlav::init(Settings& settings, Rndm* rndmPtrIn) {
   // Popcorn fraction for normal diquark production.
   double qNorm = uNorm * popcornRate / 3.;
   double sNorm = scbBM[0] * popcornSpair;
-  popFrac = qNorm * (1. + qBM[ud1] + qBM[uu1] + qBM[us0] + qBM[us1] 
-    + sNorm * (qBM[su0] + qBM[su1] + 0.5 * qBM[ss1])) / (1. +  qBB[ud1] 
-    + qBB[uu1] + 2. * (qBB[us0] + qBB[us1]) + 0.5 * qBB[ss1]);  
+  popFrac = qNorm * (1. + qBM[ud1] + qBM[uu1] + qBM[us0] + qBM[us1]
+    + sNorm * (qBM[su0] + qBM[su1] + 0.5 * qBM[ss1])) / (1. +  qBB[ud1]
+    + qBB[uu1] + 2. * (qBB[us0] + qBB[us1]) + 0.5 * qBB[ss1]);
 
   // Popcorn fraction for rank 0 diquarks, depending on number of s quarks.
   popS[0] = qNorm * qBM[ud1] / qBB[ud1];
-  popS[1] = qNorm * 0.5 * (qBM[us1] / qBB[us1] 
+  popS[1] = qNorm * 0.5 * (qBM[us1] / qBB[us1]
     + sNorm * qBM[su1] / qBB[su1]);
-  popS[2] = qNorm * sNorm * qBM[ss1] / qBB[ss1]; 
+  popS[2] = qNorm * sNorm * qBM[ss1] / qBB[ss1];
 
-  // Recombine diquark weights to flavour and spin ratios. Second index: 
+  // Recombine diquark weights to flavour and spin ratios. Second index:
   // 0 = s/u popcorn quark ratio.
   // 1, 2 = s/u ratio for vertex quark if popcorn quark is u/d or s.
   // 3 = q/q' vertex quark ratio if popcorn quark is light and = q.
-  // 4, 5, 6 = (spin 1)/(spin 0) ratio for su, us and ud.  
+  // 4, 5, 6 = (spin 1)/(spin 0) ratio for su, us and ud.
 
-  // Case 0: q -> B B. 
+  // Case 0: q -> B B.
   dWT[0][0] = (2. * (qBB[su0] + qBB[su1]) + qBB[ss1])
     / (1. + qBB[ud1] + qBB[uu1] + qBB[us0] + qBB[us1]);
   dWT[0][1] = 2. * (qBB[us0] + qBB[us1]) / (1. + qBB[ud1] + qBB[uu1]);
@@ -282,7 +282,7 @@ FlavContainer StringFlav::pick(FlavContainer& flavOld) {
 
   // Optional suppression of first-rank baryon.
   if (flavOld.rank == 0 && doNewBaryon && suppressLeadingB) {
-    double leadingBSup = (idOld < 4) ? lightLeadingBSup : heavyLeadingBSup; 
+    double leadingBSup = (idOld < 4) ? lightLeadingBSup : heavyLeadingBSup;
     if (rndmPtr->flat() > leadingBSup) {
       doNewBaryon = false;
       flavNew.nPop = 0;
@@ -292,19 +292,19 @@ FlavContainer StringFlav::pick(FlavContainer& flavOld) {
   // Single quark for new meson or for baryon where diquark already exists.
   if (!doPopcornMeson && !doNewBaryon) {
     flavNew.id = pickLightQ();
-    if ( (flavOld.id > 0 && flavOld.id < 9) || flavOld.id < -1000 ) 
-      flavNew.id = -flavNew.id; 
+    if ( (flavOld.id > 0 && flavOld.id < 9) || flavOld.id < -1000 )
+      flavNew.id = -flavNew.id;
 
-    // Done for simple-quark case. 
+    // Done for simple-quark case.
     return flavNew;
   }
 
   // Case: 0 = q -> B B, 1 = q -> B M B, 2 = qq -> M B.
   int iCase = flavNew.nPop;
-  if (flavOld.nPop == 1) iCase = 2; 
+  if (flavOld.nPop == 1) iCase = 2;
 
   // Flavour of popcorn quark (= q shared between B and Bbar).
-  if (doNewBaryon) { 
+  if (doNewBaryon) {
     double sPopWT = dWT[iCase][0];
     if (iCase == 1) sPopWT *= scbBM[0] * popcornSpair;
     double rndmFlav = (2. + sPopWT) * rndmPtr->flat();
@@ -315,15 +315,15 @@ FlavContainer StringFlav::pick(FlavContainer& flavOld) {
   
   // Flavour of vertex quark.
   double sVtxWT = dWT[iCase][1];
-  if (flavNew.idPop >= 3) sVtxWT = dWT[iCase][2]; 
+  if (flavNew.idPop >= 3) sVtxWT = dWT[iCase][2];
   if (flavNew.idPop > 3) sVtxWT *= 0.5 * (1. + 1./dWT[iCase][4]);
   double rndmFlav = (2. + sVtxWT) * rndmPtr->flat();
   flavNew.idVtx = 1;
   if (rndmFlav > 1.) flavNew.idVtx = 2;
   if (rndmFlav > 2.) flavNew.idVtx = 3;
 
-  // Special case for light flavours, possibly identical. 
-  if (flavNew.idPop < 3 && flavNew.idVtx < 3) {  
+  // Special case for light flavours, possibly identical.
+  if (flavNew.idPop < 3 && flavNew.idVtx < 3) {
     flavNew.idVtx = flavNew.idPop;
     if (rndmPtr->flat() > dWT[iCase][3]) flavNew.idVtx = 3 - flavNew.idPop;
   }
@@ -337,11 +337,11 @@ FlavContainer StringFlav::pick(FlavContainer& flavOld) {
     if ((1. + spinWT) * rndmPtr->flat() < 1.) spin = 1;
   }
 
-  // Form outgoing diquark. Done. 
-  flavNew.id = 1000 * max(flavNew.idVtx, flavNew.idPop) 
+  // Form outgoing diquark. Done.
+  flavNew.id = 1000 * max(flavNew.idVtx, flavNew.idPop)
     + 100 * min(flavNew.idVtx, flavNew.idPop) + spin;
-  if ( (flavOld.id < 0 && flavOld.id > -9) || flavOld.id > 1000 ) 
-    flavNew.id = -flavNew.id; 
+  if ( (flavOld.id < 0 && flavOld.id > -9) || flavOld.id > 1000 )
+    flavNew.id = -flavNew.id;
   return flavNew;
 
 }
@@ -354,7 +354,7 @@ FlavContainer StringFlav::pick(FlavContainer& flavOld) {
 int StringFlav::combine(FlavContainer& flav1, FlavContainer& flav2) {
 
   // Recognize largest and smallest flavour.
-  int id1Abs = abs(flav1.id); 
+  int id1Abs = abs(flav1.id);
   int id2Abs = abs(flav2.id);
   int idMax = max(id1Abs, id2Abs);
   int idMin = min(id1Abs, id2Abs);
@@ -382,9 +382,9 @@ int StringFlav::combine(FlavContainer& flav1, FlavContainer& flav2) {
     // For nondiagonal mesons distinguish particle/antiparticle.
     if (idMax != idMin) {
       int sign = (idMax%2 == 0) ? 1 : -1;
-      if ( (idMax == id1Abs && flav1.id < 0) 
+      if ( (idMax == id1Abs && flav1.id < 0)
         || (idMax == id2Abs && flav2.id < 0) ) sign = -sign;
-      idMeson *= sign;  
+      idMeson *= sign;
 
     // For light diagonal mesons include uubar - ddbar - ssbar mixing.
     } else if (flav < 2) {
@@ -409,27 +409,27 @@ int StringFlav::combine(FlavContainer& flav1, FlavContainer& flav2) {
   int spinQQ = idMax % 10;
   int spinFlav = spinQQ - 1;
   if (spinFlav == 2 && idQQ1 != idQQ2) spinFlav = 4;
-  if (idMin != idQQ1 && idMin != idQQ2) spinFlav++;   
-  if (baryonCGSum[spinFlav] < rndmPtr->flat() * baryonCGMax[spinFlav]) 
+  if (idMin != idQQ1 && idMin != idQQ2) spinFlav++;
+  if (baryonCGSum[spinFlav] < rndmPtr->flat() * baryonCGMax[spinFlav])
     return 0;
 
   // Order quarks to form baryon. Pick spin.
-  int idOrd1 = max( idMin, max( idQQ1, idQQ2) ); 
-  int idOrd3 = min( idMin, min( idQQ1, idQQ2) ); 
+  int idOrd1 = max( idMin, max( idQQ1, idQQ2) );
+  int idOrd3 = min( idMin, min( idQQ1, idQQ2) );
   int idOrd2 = idMin + idQQ1 + idQQ2 - idOrd1 - idOrd3;
-  int spinBar = (baryonCGSum[spinFlav] * rndmPtr->flat() 
+  int spinBar = (baryonCGSum[spinFlav] * rndmPtr->flat()
     < baryonCGOct[spinFlav]) ? 2 : 4;
   
-  // Distinguish Lambda- and Sigma-like. 
+  // Distinguish Lambda- and Sigma-like.
   bool LambdaLike = false;
   if (spinBar == 2 && idOrd1 > idOrd2 && idOrd2 > idOrd3) {
     LambdaLike = (spinQQ == 1);
-    if (idOrd1 != idMin && spinQQ == 1) LambdaLike = (rndmPtr->flat() < 0.25); 
+    if (idOrd1 != idMin && spinQQ == 1) LambdaLike = (rndmPtr->flat() < 0.25);
     else if (idOrd1 != idMin)           LambdaLike = (rndmPtr->flat() < 0.75);
   }
 
-  // Form baryon code and return with sign.  
-  int idBaryon = (LambdaLike) 
+  // Form baryon code and return with sign.
+  int idBaryon = (LambdaLike)
     ? 1000 * idOrd1 + 100 * idOrd3 + 10 * idOrd2 + spinBar
     : 1000 * idOrd1 + 100 * idOrd2 + 10 * idOrd3 + spinBar;
    return (flav1.id > 0) ? idBaryon : -idBaryon;
@@ -451,11 +451,11 @@ void StringFlav::assignPopQ(FlavContainer& flav) {
   int id2 = (idAbs/100)%10;
   double pop2WT = 1.;
        if (id1 == 3) pop2WT = scbBM[1];
-  else if (id1 >  3) pop2WT = scbBM[2];  
+  else if (id1 >  3) pop2WT = scbBM[2];
        if (id2 == 3) pop2WT /= scbBM[1];
   else if (id2 >  3) pop2WT /= scbBM[2];
   // Agrees with Patrik code, but opposite to intention??
-  flav.idPop = ((1. + pop2WT) * rndmPtr->flat() > 1.) ? id2 : id1; 
+  flav.idPop = ((1. + pop2WT) * rndmPtr->flat() > 1.) ? id2 : id1;
   flav.idVtx = id1 + id2 - flav.idPop;
 
   // Also determine if to produce popcorn meson.
@@ -470,7 +470,7 @@ void StringFlav::assignPopQ(FlavContainer& flav) {
 
 //--------------------------------------------------------------------------
 
-// Combine two quarks to produce a diquark. 
+// Combine two quarks to produce a diquark.
 // Normally according to production composition, but nonvanishing idHad
 // means diquark from known hadron content, so use SU(6) wave fucntion.
 
@@ -484,16 +484,16 @@ int StringFlav::makeDiquark(int id1, int id2, int idHad) {
   // Select spin of diquark formed from two valence quarks in proton.
   // (More hadron cases??)
   if (abs(idHad) == 2212 || abs(idHad) == 2112) {
-    if (idMin == 1 && idMax == 2 && rndmPtr->flat() < 0.75) spin = 0;  
+    if (idMin == 1 && idMax == 2 && rndmPtr->flat() < 0.75) spin = 0;
 
   // Else select spin of diquark according to production composition.
   } else {
-    if (idMin != idMax && rndmPtr->flat() > probQQ1norm) spin = 0; 
-  }   
+    if (idMin != idMax && rndmPtr->flat() > probQQ1norm) spin = 0;
+  }
 
   // Combined diquark code.
-  int idNewAbs = 1000 * idMax + 100 * idMin + 2 * spin + 1; 
-  return (id1 > 0) ? idNewAbs : -idNewAbs; 
+  int idNewAbs = 1000 * idMax + 100 * idMin + 2 * spin + 1;
+  return (id1 > 0) ? idNewAbs : -idNewAbs;
 
 }
  
@@ -512,25 +512,26 @@ const double StringZ::AFROMZERO  = 0.02;
 const double StringZ::AFROMC     = 0.01;
 
 // Do not take exponent of too large or small number.
-const double StringZ::EXPMAX     = 50.; 
+const double StringZ::EXPMAX     = 50.;
 
 //--------------------------------------------------------------------------
 
 // Initialize data members of the string z selection.
 
-void StringZ::init(Settings& settings, ParticleData& particleData, 
+void StringZ::init(Settings& settings, ParticleData& particleData,
   Rndm* rndmPtrIn) {
 
   // Save pointer.
   rndmPtr       = rndmPtrIn;
 
   // c and b quark masses.
-  mc2           = pow2( particleData.m0(4)); 
-  mb2           = pow2( particleData.m0(5)); 
+  mc2           = pow2( particleData.m0(4));
+  mb2           = pow2( particleData.m0(5));
 
   // Paramaters of Lund/Bowler symmetric fragmentation function.
   aLund         = settings.parm("StringZ:aLund");
   bLund         = settings.parm("StringZ:bLund");
+  aExtraSQuark  = settings.parm("StringZ:aExtraSQuark");
   aExtraDiquark = settings.parm("StringZ:aExtraDiquark");
   rFactC        = settings.parm("StringZ:rFactC");
   rFactB        = settings.parm("StringZ:rFactB");
@@ -564,7 +565,7 @@ void StringZ::init(Settings& settings, ParticleData& particleData,
 
 //--------------------------------------------------------------------------
 
-// Generate the fraction z that the next hadron will take, 
+// Generate the fraction z that the next hadron will take,
 // using either Lund/Bowler or, for heavy, Peterson/SLAC functions.
 // Note: for a heavy new coloured particle we assume pT negligible.
 
@@ -573,6 +574,8 @@ double StringZ::zFrag( int idOld, int idNew, double mT2) {
   // Find if old or new flavours correspond to diquarks.
   int idOldAbs = abs(idOld);
   int idNewAbs = abs(idNew);
+  bool isOldSQuark = (idOldAbs == 3);
+  bool isNewSQuark = (idNewAbs == 3);
   bool isOldDiquark = (idOldAbs > 1000 && idOldAbs < 10000);
   bool isNewDiquark = (idNewAbs > 1000 && idNewAbs < 10000);
 
@@ -584,7 +587,7 @@ double StringZ::zFrag( int idOld, int idNew, double mT2) {
   if (idFrag == 4 && usePetersonC) return zPeterson( epsilonC);
   if (idFrag == 5 && usePetersonB) return zPeterson( epsilonB);
   if (idFrag >  5 && usePetersonH) {
-    double epsilon = epsilonH * mb2 / mT2; 
+    double epsilon = epsilonH * mb2 / mT2;
     return zPeterson( epsilon);
   }
 
@@ -604,9 +607,12 @@ double StringZ::zFrag( int idOld, int idNew, double mT2) {
 
   // Shape parameters of Lund symmetric fragmentation function.
   double aShape = aNow;
+  if (isOldSQuark)  aShape += aExtraSQuark;
   if (isOldDiquark) aShape += aExtraDiquark;
   double bShape = bNow * mT2;
   double cShape = 1.;
+  if (isOldSQuark)  cShape -= aExtraSQuark;
+  if (isNewSQuark)  cShape += aExtraSQuark;
   if (isOldDiquark) cShape -= aExtraDiquark;
   if (isNewDiquark) cShape += aExtraDiquark;
   if (idFrag == 4) cShape += rFactC * bNow * mc2;
@@ -621,43 +627,43 @@ double StringZ::zFrag( int idOld, int idNew, double mT2) {
 // Generate a random z according to the Lund/Bowler symmetric
 // fragmentation function f(z) = (1 -z)^a * exp(-b/z) / z^c.
 // Normalized so that f(z_max) = 1  it can also be written as
-// f(z) = exp( a * ln( (1 - z) / (1 - z_max) ) + b * (1/z_max - 1/z) 
-//           + c * ln(z_max/z) ).  
+// f(z) = exp( a * ln( (1 - z) / (1 - z_max) ) + b * (1/z_max - 1/z)
+//           + c * ln(z_max/z) ).
 
 double StringZ::zLund( double a, double b, double c) {
 
-  // Special cases for c = 1, a = 0 and a = c. 
+  // Special cases for c = 1, a = 0 and a = c.
   bool cIsUnity = (abs( c - 1.) < CFROMUNITY);
   bool aIsZero = (a < AFROMZERO);
   bool aIsC = (abs(a - c) < AFROMC);
 
   // Determine position of maximum.
   double zMax;
-  if (aIsZero) zMax = (c > b) ? b / c : 1.; 
+  if (aIsZero) zMax = (c > b) ? b / c : 1.;
   else if (aIsC) zMax = b / (b + c);
   else { zMax = 0.5 * (b + c - sqrt( pow2(b - c) + 4. * a * b)) / (c - a);
-         if (zMax > 0.9999 && b > 100.) zMax = min(zMax, 1. - a / b); }   
+         if (zMax > 0.9999 && b > 100.) zMax = min(zMax, 1. - a / b); }
         
   // Subdivide z range if distribution very peaked near either endpoint.
   bool peakedNearZero = (zMax < 0.1);
   bool peakedNearUnity = (zMax > 0.85 && b > 1.);
 
-  // Find integral of trial function everywhere bigger than f. 
+  // Find integral of trial function everywhere bigger than f.
   // (Dummy start values.)
-  double fIntLow = 1.; 
-  double fIntHigh = 1.; 
-  double fInt = 2.; 
-  double zDiv = 0.5; 
+  double fIntLow = 1.;
+  double fIntHigh = 1.;
+  double fInt = 2.;
+  double zDiv = 0.5;
   double zDivC = 0.5;
   // When z_max is small use that f(z)
   //   < 1     for z < z_div = 2.75 * z_max,
-  //   < (z_div/z)^c for z > z_div (=> logarithm for c = 1, else power).   
+  //   < (z_div/z)^c for z > z_div (=> logarithm for c = 1, else power).
   if (peakedNearZero) {
     zDiv = 2.75 * zMax;
-    fIntLow = zDiv; 
+    fIntLow = zDiv;
     if (cIsUnity) fIntHigh = -zDiv * log(zDiv);
     else { zDivC = pow( zDiv, 1. - c);
-           fIntHigh = zDiv * (1. - 1./zDivC) / (c - 1.);} 
+           fIntHigh = zDiv * (1. - 1./zDivC) / (c - 1.);}
     fInt = fIntLow + fIntHigh;
   // When z_max large use that f(z)
   //   < exp( b * (z - z_div) ) for z < z_div with z_div messy expression,
@@ -665,19 +671,19 @@ double StringZ::zLund( double a, double b, double c) {
   // To simplify expressions the integral is extended to z =  -infinity.
   } else if (peakedNearUnity) {
     double rcb = sqrt(4. + pow2(c / b));
-    zDiv = rcb - 1./zMax - (c / b) * log( zMax * 0.5 * (rcb + c / b) );  
+    zDiv = rcb - 1./zMax - (c / b) * log( zMax * 0.5 * (rcb + c / b) );
     if (!aIsZero) zDiv += (a/b) * log(1. - zMax);
     zDiv = min( zMax, max(0., zDiv));
     fIntLow = 1. / b;
-    fIntHigh = 1. - zDiv; 
+    fIntHigh = 1. - zDiv;
     fInt = fIntLow + fIntHigh;
   }
 
   // Choice of z, preweighted for peaks at low or high z. (Dummy start values.)
   double z = 0.5;
-  double fPrel = 1.; 
-  double fVal = 1.; 
-  do { 
+  double fPrel = 1.;
+  double fVal = 1.;
+  do {
     // Choice of z flat good enough for distribution peaked in the middle;
     // if not this z can be reused as a random number in general.
     z = rndmPtr->flat();
@@ -688,14 +694,14 @@ double StringZ::zLund( double a, double b, double c) {
       else if (cIsUnity) {z = pow( zDiv, z); fPrel = zDiv / z;}
       else { z = pow( zDivC + (1. - zDivC) * z, 1. / (1. - c) );
              fPrel = pow( zDiv / z, c); }
-    // When z_max large use exp( b * (z -z_div) ) below z_div 
+    // When z_max large use exp( b * (z -z_div) ) below z_div
     // and flat above it.
     } else if (peakedNearUnity) {
-      if (fInt * rndmPtr->flat() < fIntLow) { 
+      if (fInt * rndmPtr->flat() < fIntLow) {
         z = zDiv + log(z) / b;
-        fPrel = exp( b * (z - zDiv) ); 
-      } else z = zDiv + (1. - zDiv) * z; 
-    }  
+        fPrel = exp( b * (z - zDiv) );
+      } else z = zDiv + (1. - zDiv) * z;
+    }
 
     // Evaluate actual f(z) (if in physical range) and correct.
     if (z > 0 && z < 1) {
@@ -720,37 +726,37 @@ double StringZ::zPeterson( double epsilon) {
 
   double z, fVal;
 
-  // For large epsilon pick z flat and reject, 
+  // For large epsilon pick z flat and reject,
   // knowing that 4 * epsilon * f(z) < 1 everywhere.
-  if (epsilon > 0.01) { 
-    do { 
+  if (epsilon > 0.01) {
+    do {
       z = rndmPtr->flat();
-      fVal = 4. * epsilon * z * pow2(1. - z) 
+      fVal = 4. * epsilon * z * pow2(1. - z)
         / pow2( pow2(1. - z) + epsilon * z);
     } while (fVal < rndmPtr->flat());
-    return z; 
-  } 
+    return z;
+  }
   
-  // Else split range, using that 4 * epsilon * f(z) 
+  // Else split range, using that 4 * epsilon * f(z)
   //   < 4 * epsilon / (1 - z)^2 for 0 < z < 1 - 2 * sqrt(epsilon)
   //   < 1                       for 1 - 2 * sqrt(epsilon) < z < 1
   double epsRoot = sqrt(epsilon);
   double epsComb = 0.5 / epsRoot - 1.;
   double fIntLow = 4. * epsilon * epsComb;
   double fInt = fIntLow + 2. * epsRoot;
-  do { 
+  do {
     if (rndmPtr->flat() * fInt < fIntLow) {
       z = 1. - 1. / (1. + rndmPtr->flat() * epsComb);
       fVal = z * pow2( pow2(1. - z) / (pow2(1. - z) + epsilon * z) );
     } else {
       z = 1. - 2. * epsRoot * rndmPtr->flat();
-      fVal = 4. * epsilon * z * pow2(1. - z) 
+      fVal = 4. * epsilon * z * pow2(1. - z)
         / pow2( pow2(1. - z) + epsilon * z);
     }
   } while (fVal < rndmPtr->flat());
-  return z; 
+  return z;
 
-} 
+}
  
 //==========================================================================
 

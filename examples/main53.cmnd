@@ -1,5 +1,5 @@
 ! main53.cmnd
-! This file contains commands to be read in for a Pythia8 run. 
+! This file contains commands to be read in for a Pythia8 run.
 ! Lines not beginning with a letter or digit are comments.
 
 ! 1) Settings used in the main program.
@@ -14,7 +14,7 @@ Next:numberShowProcess = 2         ! print process record n times
 Next:numberShowEvent = 1           ! print event record n times
 
 ! 3) Include photon-in-proton: use MRST2004qed set
-PDF:useLHAPDF = on                 
+PDF:useLHAPDF = on
 PDF:LHAPDFset = MRST2004qed.LHgrid
 
 ! 4 Two options to select hard process to generate.
@@ -24,10 +24,10 @@ PDF:LHAPDFset = MRST2004qed.LHgrid
 #Beams:LHEF = photoninproton.lhe   ! name of LHE file
 ! B) Select internal Pythia processes.
 ! Use that default is 14 TeV pp,so don't set beams.
-WeakBosonAndParton:fgm2Wf = on     ! fermion gamma -> W+- fermion' 
+WeakBosonAndParton:fgm2Wf = on     ! fermion gamma -> W+- fermion'
 
 ! 5) Test flags to simplify generation
 PartonLevel:MPI = off              ! no multiparton interactions
-#PartonLevel:ISR = off              ! initial-state radiation 
+#PartonLevel:ISR = off              ! initial-state radiation
 #PartonLevel:FSR = off              ! no final-state radiation
 HadronLevel:Hadronize = off        ! no hadronization

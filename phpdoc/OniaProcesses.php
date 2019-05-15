@@ -26,383 +26,383 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 ?>
 
 <form method='post' action='OniaProcesses.php'>
-
-<h2>Onia Processes</h2>
-
+ 
+<h2>Onia Processes</h2> 
+ 
 Production of J/psi or Upsilon, directly and via chi states and the 
 colour-octet mechanism. 
 In each process the square-bracketed expression specifies the state 
 in spectroscopic notation, <i>(2S+1) L J</i>, followed by 
 <i>(1)</i> for colour-singlet states and <i>(8)</i> for 
 colour-octet ditto. 
-
-<p/>
+ 
+<p/> 
 The original Fortran code for these processes has been contributed 
-by Stefan Wolf [unpublished]. For the C++ version only the unpolarized
+by Stefan Wolf [unpublished]. For the C++ version only the unpolarized 
 expressions are retained, since the theoretical predictions of the 
 colour-octet model anyway do not agree with the experimental 
-observations. Furthermore, the polarization effects are modest,
-so isotropic decay is not a bad starting point. Such an event sample
-can afterwards be reweighted at will by the user, to test various
-assumptions.
-
-<p/>
-The description of  
+observations. Furthermore, the polarization effects are modest, 
+so isotropic decay is not a bad starting point. Such an event sample 
+can afterwards be reweighted at will by the user, to test various 
+assumptions. 
+ 
+<p/> 
+The description of 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='TimelikeShowers.php?filepath=".$filepath."' target='page'>";?>final-state radiation</a>
-is in this case based on some further model assumptions.
-
-<p/>
-Most of the processes below are divergent in the limit <i>pT -> 0</i>, 
+echo "<a href='TimelikeShowers.php?filepath=".$filepath."' target='page'>";?>final-state radiation</a> 
+is in this case based on some further model assumptions. 
+ 
+<p/> 
+Most of the processes below are divergent in the limit <i>pT &rarr; 0</i>, 
 and therefore a <i>pTmin</i> scale should be set. Comparisons with 
 data indicate that this divergence can be tamed the same way as for 
-the normal QCD <i>2 -> 2</i> cross sections [<a href="Bibliography.php" target="page">Bar06,Kra08</a>], 
+the normal QCD <i>2 &rarr; 2</i> cross sections [<a href="Bibliography.php" target="page">Bar06,Kra08</a>], 
 which makes sense, since they are all dominated by the same kind of 
 <i>t</i>-channel gluon exchange. It is therefore possible to use the 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>SuppressSmallPT</a> user hook to impose a 
-reweighting that cancels the low-<i>pT</i> divergence.
-
-<p/>
+reweighting that cancels the low-<i>pT</i> divergence. 
+ 
+<p/> 
 An eikonalized description of these processes is included in the 
-multiparton-interactions framework. Here the low-<i>pT</i> dampening
-is automatic, and additionally the framework is more consistent
+multiparton-interactions framework. Here the low-<i>pT</i> dampening 
+is automatic, and additionally the framework is more consistent 
 (e.g. with respect to energy-momentum constraints and the 
 impact-parameter description) for events where the onium production 
 is not the hardest subprocess, as would often be the case in the 
-low-<i>pT</i> limit.
-
-<h3>Charmonium</h3>
-
+low-<i>pT</i> limit. 
+ 
+<h3>Charmonium</h3> 
+ 
 <br/><br/><strong>Charmonium:all</strong>  <input type="radio" name="1" value="on"><strong>On</strong>
 <input type="radio" name="1" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Common switch for the group of charmonium production.
-  
-
+Common switch for the group of charmonium production. 
+   
+ 
 <br/><br/><strong>Charmonium:gg2QQbar[3S1(1)]g</strong>  <input type="radio" name="2" value="on"><strong>On</strong>
 <input type="radio" name="2" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>g g -> ccbar[3S1(1)] g</i>.
-Code 401.
-  
-
+<i>g g &rarr; ccbar[3S1(1)] g</i>. 
+Code 401. 
+   
+ 
 <br/><br/><strong>Charmonium:gg2QQbar[3P0(1)]g</strong>  <input type="radio" name="3" value="on"><strong>On</strong>
 <input type="radio" name="3" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>g g -> ccbar[3P0(1)] g</i>.
-Code 402.
-  
-
+<i>g g &rarr; ccbar[3P0(1)] g</i>. 
+Code 402. 
+   
+ 
 <br/><br/><strong>Charmonium:gg2QQbar[3P1(1)]g</strong>  <input type="radio" name="4" value="on"><strong>On</strong>
 <input type="radio" name="4" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>g g -> ccbar[3P1(1)] g</i>.
-Code 403.
-  
-
+<i>g g &rarr; ccbar[3P1(1)] g</i>. 
+Code 403. 
+   
+ 
 <br/><br/><strong>Charmonium:gg2QQbar[3P2(1)]g</strong>  <input type="radio" name="5" value="on"><strong>On</strong>
 <input type="radio" name="5" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>g g -> ccbar[3P2(1)] g</i>.
-Code 404.
-  
-
+<i>g g &rarr; ccbar[3P2(1)] g</i>. 
+Code 404. 
+   
+ 
 <br/><br/><strong>Charmonium:qg2QQbar[3P0(1)]q</strong>  <input type="radio" name="6" value="on"><strong>On</strong>
 <input type="radio" name="6" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q g -> ccbar[3P0(1)] q</i>.
-Code 405.
-  
-
+<i>q g &rarr; ccbar[3P0(1)] q</i>. 
+Code 405. 
+   
+ 
 <br/><br/><strong>Charmonium:qg2QQbar[3P1(1)]q</strong>  <input type="radio" name="7" value="on"><strong>On</strong>
 <input type="radio" name="7" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q g -> ccbar[3P1(1)] q</i>.
-Code 406.
-  
-
+<i>q g &rarr; ccbar[3P1(1)] q</i>. 
+Code 406. 
+   
+ 
 <br/><br/><strong>Charmonium:qg2QQbar[3P2(1)]q</strong>  <input type="radio" name="8" value="on"><strong>On</strong>
 <input type="radio" name="8" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q g -> ccbar[3P2(1)] q</i>.
-Code 407.
-  
-
+<i>q g &rarr; ccbar[3P2(1)] q</i>. 
+Code 407. 
+   
+ 
 <br/><br/><strong>Charmonium:qqbar2QQbar[3P0(1)]g</strong>  <input type="radio" name="9" value="on"><strong>On</strong>
 <input type="radio" name="9" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q qbar -> ccbar[3P0(1)] g</i>.
-Code 408.
-  
-
+<i>q qbar &rarr; ccbar[3P0(1)] g</i>. 
+Code 408. 
+   
+ 
 <br/><br/><strong>Charmonium:qqbar2QQbar[3P1(1)]g</strong>  <input type="radio" name="10" value="on"><strong>On</strong>
 <input type="radio" name="10" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q qbar -> ccbar[3P1(1)] g</i>.
-Code 409.
-  
-
+<i>q qbar &rarr; ccbar[3P1(1)] g</i>. 
+Code 409. 
+   
+ 
 <br/><br/><strong>Charmonium:qqbar2QQbar[3P2(1)]g</strong>  <input type="radio" name="11" value="on"><strong>On</strong>
 <input type="radio" name="11" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q qbar -> ccbar[3P2(1)] g</i>.
-Code 410.
-  
-
+<i>q qbar &rarr; ccbar[3P2(1)] g</i>. 
+Code 410. 
+   
+ 
 <br/><br/><strong>Charmonium:gg2QQbar[3S1(8)]g</strong>  <input type="radio" name="12" value="on"><strong>On</strong>
 <input type="radio" name="12" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>g g -> ccbar[3S1(8)] g</i>.
-Code 411.
-  
-
+<i>g g &rarr; ccbar[3S1(8)] g</i>. 
+Code 411. 
+   
+ 
 <br/><br/><strong>Charmonium:gg2QQbar[1S0(8)]g</strong>  <input type="radio" name="13" value="on"><strong>On</strong>
 <input type="radio" name="13" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>g g -> ccbar[3S1(8)] g</i>.
-Code 412.
-  
-
+<i>g g &rarr; ccbar[3S1(8)] g</i>. 
+Code 412. 
+   
+ 
 <br/><br/><strong>Charmonium:gg2QQbar[3PJ(8)]g</strong>  <input type="radio" name="14" value="on"><strong>On</strong>
 <input type="radio" name="14" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>g g -> ccbar[3S1(8)] g</i>.
-Code 413.
-  
-
+<i>g g &rarr; ccbar[3S1(8)] g</i>. 
+Code 413. 
+   
+ 
 <br/><br/><strong>Charmonium:qg2QQbar[3S1(8)]q</strong>  <input type="radio" name="15" value="on"><strong>On</strong>
 <input type="radio" name="15" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q g -> ccbar[3S1(8)] q</i>.
-Code 414.
-  
-
+<i>q g &rarr; ccbar[3S1(8)] q</i>. 
+Code 414. 
+   
+ 
 <br/><br/><strong>Charmonium:qg2QQbar[1S0(8)]q</strong>  <input type="radio" name="16" value="on"><strong>On</strong>
 <input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q g -> ccbar[3S1(8)] q</i>.
-Code 415.
-  
-
+<i>q g &rarr; ccbar[3S1(8)] q</i>. 
+Code 415. 
+   
+ 
 <br/><br/><strong>Charmonium:qg2QQbar[3PJ(8)]q</strong>  <input type="radio" name="17" value="on"><strong>On</strong>
 <input type="radio" name="17" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q g -> ccbar[3S1(8)] q</i>.
-Code 416.
-  
-
+<i>q g &rarr; ccbar[3S1(8)] q</i>. 
+Code 416. 
+   
+ 
 <br/><br/><strong>Charmonium:qqbar2QQbar[3S1(8)]g</strong>  <input type="radio" name="18" value="on"><strong>On</strong>
 <input type="radio" name="18" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q qbar -> ccbar[3S1(8)] g</i>.
-Code 417.
-  
-
+<i>q qbar &rarr; ccbar[3S1(8)] g</i>. 
+Code 417. 
+   
+ 
 <br/><br/><strong>Charmonium:qqbar2QQbar[1S0(8)]g</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
 <input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q qbar -> ccbar[3S1(8)] g</i>.
-Code 418.
-  
-
+<i>q qbar &rarr; ccbar[3S1(8)] g</i>. 
+Code 418. 
+   
+ 
 <br/><br/><strong>Charmonium:qqbar2QQbar[3PJ(8)]g</strong>  <input type="radio" name="20" value="on"><strong>On</strong>
 <input type="radio" name="20" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q qbar -> ccbar[3S1(8)] g</i>.
-Code 419.
-  
-
-<h3>Bottomonium</h3>
-
+<i>q qbar &rarr; ccbar[3S1(8)] g</i>. 
+Code 419. 
+   
+ 
+<h3>Bottomonium</h3> 
+ 
 <br/><br/><strong>Bottomonium:all</strong>  <input type="radio" name="21" value="on"><strong>On</strong>
 <input type="radio" name="21" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Common switch for the group of charmonium production.
-  
-
+Common switch for the group of charmonium production. 
+   
+ 
 <br/><br/><strong>Bottomonium:gg2QQbar[3S1(1)]g</strong>  <input type="radio" name="22" value="on"><strong>On</strong>
 <input type="radio" name="22" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>g g -> bbbar[3S1(1)] g</i>.
-Code 501.
-  
-
+<i>g g &rarr; bbbar[3S1(1)] g</i>. 
+Code 501. 
+   
+ 
 <br/><br/><strong>Bottomonium:gg2QQbar[3P0(1)]g</strong>  <input type="radio" name="23" value="on"><strong>On</strong>
 <input type="radio" name="23" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>g g -> bbbar[3P0(1)] g</i>.
-Code 502.
-  
-
+<i>g g &rarr; bbbar[3P0(1)] g</i>. 
+Code 502. 
+   
+ 
 <br/><br/><strong>Bottomonium:gg2QQbar[3P1(1)]g</strong>  <input type="radio" name="24" value="on"><strong>On</strong>
 <input type="radio" name="24" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>g g -> bbbar[3P1(1)] g</i>.
-Code 503.
-  
-
+<i>g g &rarr; bbbar[3P1(1)] g</i>. 
+Code 503. 
+   
+ 
 <br/><br/><strong>Bottomonium:gg2QQbar[3P2(1)]g</strong>  <input type="radio" name="25" value="on"><strong>On</strong>
 <input type="radio" name="25" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>g g -> bbbar[3P2(1)] g</i>.
-Code 504.
-  
-
+<i>g g &rarr; bbbar[3P2(1)] g</i>. 
+Code 504. 
+   
+ 
 <br/><br/><strong>Bottomonium:qg2QQbar[3P0(1)]q</strong>  <input type="radio" name="26" value="on"><strong>On</strong>
 <input type="radio" name="26" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q g -> bbbar[3P0(1)] q</i>.
-Code 505.
-  
-
+<i>q g &rarr; bbbar[3P0(1)] q</i>. 
+Code 505. 
+   
+ 
 <br/><br/><strong>Bottomonium:qg2QQbar[3P1(1)]q</strong>  <input type="radio" name="27" value="on"><strong>On</strong>
 <input type="radio" name="27" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q g -> bbbar[3P1(1)] q</i>.
-Code 506.
-  
-
+<i>q g &rarr; bbbar[3P1(1)] q</i>. 
+Code 506. 
+   
+ 
 <br/><br/><strong>Bottomonium:qg2QQbar[3P2(1)]q</strong>  <input type="radio" name="28" value="on"><strong>On</strong>
 <input type="radio" name="28" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q g -> bbbar[3P2(1)] q</i>.
-Code 507.
-  
-
+<i>q g &rarr; bbbar[3P2(1)] q</i>. 
+Code 507. 
+   
+ 
 <br/><br/><strong>Bottomonium:qqbar2QQbar[3P0(1)]g</strong>  <input type="radio" name="29" value="on"><strong>On</strong>
 <input type="radio" name="29" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q qbar -> bbbar[3P0(1)] g</i>.
-Code 508.
-  
-
+<i>q qbar &rarr; bbbar[3P0(1)] g</i>. 
+Code 508. 
+   
+ 
 <br/><br/><strong>Bottomonium:qqbar2QQbar[3P1(1)]g</strong>  <input type="radio" name="30" value="on"><strong>On</strong>
 <input type="radio" name="30" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q qbar -> bbbar[3P1(1)] g</i>.
-Code 509.
-  
-
+<i>q qbar &rarr; bbbar[3P1(1)] g</i>. 
+Code 509. 
+   
+ 
 <br/><br/><strong>Bottomonium:qqbar2QQbar[3P2(1)]g</strong>  <input type="radio" name="31" value="on"><strong>On</strong>
 <input type="radio" name="31" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q qbar -> bbbar[3P2(1)] g</i>.
-Code 510.
-  
-
+<i>q qbar &rarr; bbbar[3P2(1)] g</i>. 
+Code 510. 
+   
+ 
 <br/><br/><strong>Bottomonium:gg2QQbar[3S1(8)]g</strong>  <input type="radio" name="32" value="on"><strong>On</strong>
 <input type="radio" name="32" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>g g -> bbbar[3S1(8)] g</i>.
-Code 511.
-  
-
+<i>g g &rarr; bbbar[3S1(8)] g</i>. 
+Code 511. 
+   
+ 
 <br/><br/><strong>Bottomonium:gg2QQbar[1S0(8)]g</strong>  <input type="radio" name="33" value="on"><strong>On</strong>
 <input type="radio" name="33" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>g g -> bbbar[3S1(8)] g</i>.
-Code 512.
-  
-
+<i>g g &rarr; bbbar[3S1(8)] g</i>. 
+Code 512. 
+   
+ 
 <br/><br/><strong>Bottomonium:gg2QQbar[3PJ(8)]g</strong>  <input type="radio" name="34" value="on"><strong>On</strong>
 <input type="radio" name="34" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>g g -> bbbar[3S1(8)] g</i>.
-Code 513.
-  
-
+<i>g g &rarr; bbbar[3S1(8)] g</i>. 
+Code 513. 
+   
+ 
 <br/><br/><strong>Bottomonium:qg2QQbar[3S1(8)]q</strong>  <input type="radio" name="35" value="on"><strong>On</strong>
 <input type="radio" name="35" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q g -> bbbar[3S1(8)] q</i>.
-Code 514.
-  
-
+<i>q g &rarr; bbbar[3S1(8)] q</i>. 
+Code 514. 
+   
+ 
 <br/><br/><strong>Bottomonium:qg2QQbar[1S0(8)]q</strong>  <input type="radio" name="36" value="on"><strong>On</strong>
 <input type="radio" name="36" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q g -> bbbar[3S1(8)] q</i>.
-Code 515.
-  
-
+<i>q g &rarr; bbbar[3S1(8)] q</i>. 
+Code 515. 
+   
+ 
 <br/><br/><strong>Bottomonium:qg2QQbar[3PJ(8)]q</strong>  <input type="radio" name="37" value="on"><strong>On</strong>
 <input type="radio" name="37" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q g -> bbbar[3S1(8)] q</i>.
-Code 516.
-  
-
+<i>q g &rarr; bbbar[3S1(8)] q</i>. 
+Code 516. 
+   
+ 
 <br/><br/><strong>Bottomonium:qqbar2QQbar[3S1(8)]g</strong>  <input type="radio" name="38" value="on"><strong>On</strong>
 <input type="radio" name="38" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q qbar -> bbbar[3S1(8)] g</i>.
-Code 517.
-  
-
+<i>q qbar &rarr; bbbar[3S1(8)] g</i>. 
+Code 517. 
+   
+ 
 <br/><br/><strong>Bottomonium:qqbar2QQbar[1S0(8)]g</strong>  <input type="radio" name="39" value="on"><strong>On</strong>
 <input type="radio" name="39" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q qbar -> bbbar[3S1(8)] g</i>.
-Code 518.
-  
-
+<i>q qbar &rarr; bbbar[3S1(8)] g</i>. 
+Code 518. 
+   
+ 
 <br/><br/><strong>Bottomonium:qqbar2QQbar[3PJ(8)]g</strong>  <input type="radio" name="40" value="on"><strong>On</strong>
 <input type="radio" name="40" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-<i>q qbar -> bbbar[3S1(8)] g</i>.
-Code 519.
-  
-
-<h3>Onium matrix elements</h3>
-
-The implementation of charmonium and bottomonium production, including
-the colour-octet production mechanism, requires information on NRQCD
-matrix elements for the various wavefunctions involved. Default values
-for these are encoded in the following ten variables. They
+<i>q qbar &rarr; bbbar[3S1(8)] g</i>. 
+Code 519. 
+   
+ 
+<h3>Onium matrix elements</h3> 
+ 
+The implementation of charmonium and bottomonium production, including 
+the colour-octet production mechanism, requires information on NRQCD 
+matrix elements for the various wavefunctions involved. Default values 
+for these are encoded in the following ten variables. They 
 are taken from [<a href="Bibliography.php" target="page">Nas00</a>]; see also [<a href="Bibliography.php" target="page">Bar06</a>]. 
-
+ 
 <br/><br/><table><tr><td><strong>Charmonium:OJpsi3S11 </td><td></td><td> <input type="text" name="41" value="1.16" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.16</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-<i>&lt;O(J/psi)[3S1(1)]&gt;</i>.
-  
-
+<i>&lt;O(J/psi)[3S1(1)]&gt;</i>. 
+   
+ 
 <br/><br/><table><tr><td><strong>Charmonium:OJpsi3S18 </td><td></td><td> <input type="text" name="42" value="0.0119" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.0119</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-<i>&lt;O(J/psi)[3S1(8)]&gt;</i>.
-  
-
+<i>&lt;O(J/psi)[3S1(8)]&gt;</i>. 
+   
+ 
 <br/><br/><table><tr><td><strong>Charmonium:OJpsi1S08 </td><td></td><td> <input type="text" name="43" value="0.01" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.01</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-<i>&lt;O(J/psi)[1S0(8)]&gt;</i>.
-  
-
+<i>&lt;O(J/psi)[1S0(8)]&gt;</i>. 
+   
+ 
 <br/><br/><table><tr><td><strong>Charmonium:OJpsi3P08 </td><td></td><td> <input type="text" name="44" value="0.01" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.01</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-<i>&lt;O(J/psi)[3P0(8)]&gt;/m_c^2</i>.
-  
-
+<i>&lt;O(J/psi)[3P0(8)]&gt;/m_c^2</i>. 
+   
+ 
 <br/><br/><table><tr><td><strong>Charmonium:Ochic03P01 </td><td></td><td> <input type="text" name="45" value="0.05" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.05</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-<i>&lt;O(chi_c0)[3P0(8)]&gt;/m_c^2</i>.
-  
-
+<i>&lt;O(chi_c0)[3P0(8)]&gt;/m_c^2</i>. 
+   
+ 
 <br/><br/><table><tr><td><strong>Bottomonium:OUpsilon3S11 </td><td></td><td> <input type="text" name="46" value="9.28" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>9.28</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-<i>&lt;O(Upsilon)[3S1(1)]&gt;</i>.
-  
-
+<i>&lt;O(Upsilon)[3S1(1)]&gt;</i>. 
+   
+ 
 <br/><br/><table><tr><td><strong>Bottomonium:OUpsilon3S18 </td><td></td><td> <input type="text" name="47" value="0.15" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.15</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-<i>&lt;O(Upsilon)[3S1(8)]&gt;</i>.
-  
-
+<i>&lt;O(Upsilon)[3S1(8)]&gt;</i>. 
+   
+ 
 <br/><br/><table><tr><td><strong>Bottomonium:OUpsilon1S08 </td><td></td><td> <input type="text" name="48" value="0.02" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.02</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-<i>&lt;O(Upsilon)[1S0(8)]&gt;</i>.
-  
-
+<i>&lt;O(Upsilon)[1S0(8)]&gt;</i>. 
+   
+ 
 <br/><br/><table><tr><td><strong>Bottomonium:OUpsilon3P08 </td><td></td><td> <input type="text" name="49" value="0.02" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.02</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-<i>&lt;O(Upsilon)[3P0(8)]&gt;/m_b^2</i>.
-  
-
+<i>&lt;O(Upsilon)[3P0(8)]&gt;/m_b^2</i>. 
+   
+ 
 <br/><br/><table><tr><td><strong>Bottomonium:Ochib03P01 </td><td></td><td> <input type="text" name="50" value="0.085" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.085</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
-<i>&lt;O(chi_b0)[3P0(8)]&gt;/m_b^2</i>.
-  
-
-
+<i>&lt;O(chi_b0)[3P0(8)]&gt;/m_b^2</i>. 
+   
+ 
+ 
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -674,6 +674,6 @@ fclose($handle);
 ?>
 </body>
 </html>
-
-<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
-
+ 
+<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 
+ 

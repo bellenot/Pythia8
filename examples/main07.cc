@@ -1,21 +1,21 @@
 // main07.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Illustration how to generate various two-body channels from 
+// Illustration how to generate various two-body channels from
 // astroparticle processes, e.g. neutralino annihilation or decay.
 // To this end a "blob" of energy is created with unit cross section,
 // from the fictitious collision of two non-radiating incoming e+e-.
 // In the accompanying main29.cmnd file the decay channels of this
 // blob can be set up. Furthermore, only gamma, e+-, p/pbar and
 // neutrinos are stable, everything else is set to decay.
-// (The "single-particle gun" of main21.cc offers another possible 
-// approach to the same problem.) 
+// (The "single-particle gun" of main21.cc offers another possible
+// approach to the same problem.)
 
 #include "Pythia8/Pythia.h"
 
-using namespace Pythia8; 
+using namespace Pythia8;
  
 //==========================================================================
 
@@ -28,7 +28,7 @@ public:
   // Constructor.
   Sigma1GenRes() {}
 
-  // Evaluate sigmaHat(sHat): dummy unit cross section. 
+  // Evaluate sigmaHat(sHat): dummy unit cross section.
   virtual double sigmaHat() {return 1.;}
 
   // Select flavour. No colour or anticolour.
@@ -49,7 +49,7 @@ int main() {
   // Pythia generator.
   Pythia pythia;
 
-  // A class to generate the fictitious resonance initial state. 
+  // A class to generate the fictitious resonance initial state.
   SigmaProcess* sigma1GenRes = new Sigma1GenRes();
 
   // Hand pointer to Pythia.
@@ -79,12 +79,12 @@ int main() {
     // Generate events. Quit if many failures.
     if (!pythia.next()) {
       if (++iAbort < nAbort) continue;
-      cout << " Event generation aborted prematurely, owing to error!\n"; 
+      cout << " Event generation aborted prematurely, owing to error!\n";
       break;
     }
 
     // Loop over all particles and analyze the final-state ones.
-    for (int i = 0; i < pythia.event.size(); ++i) 
+    for (int i = 0; i < pythia.event.size(); ++i)
     if (pythia.event[i].isFinal()) {
       int idAbs = pythia.event[i].idAbs();
       double eI = pythia.event[i].e();

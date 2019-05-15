@@ -1,5 +1,5 @@
 // SigmaOnia.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -22,16 +22,16 @@ class Sigma2gg2QQbar3S11g : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2gg2QQbar3S11g(int idIn, int codeIn) : idNew(idIn), 
+  Sigma2gg2QQbar3S11g(int idIn, int codeIn) : idNew(idIn),
     codeSave(codeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -61,16 +61,16 @@ class Sigma2gg2QQbar3PJ1g : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2gg2QQbar3PJ1g(int idIn, int jIn, int codeIn) : idNew(idIn), 
+  Sigma2gg2QQbar3PJ1g(int idIn, int jIn, int codeIn) : idNew(idIn),
     jSave(jIn), codeSave(codeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -100,16 +100,16 @@ class Sigma2qg2QQbar3PJ1q : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2qg2QQbar3PJ1q(int idIn, int jIn, int codeIn) : idNew(idIn), 
+  Sigma2qg2QQbar3PJ1q(int idIn, int jIn, int codeIn) : idNew(idIn),
     jSave(jIn), codeSave(codeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -139,16 +139,16 @@ class Sigma2qqbar2QQbar3PJ1g : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2qqbar2QQbar3PJ1g(int idIn, int jIn, int codeIn) : idNew(idIn), 
+  Sigma2qqbar2QQbar3PJ1g(int idIn, int jIn, int codeIn) : idNew(idIn),
     jSave(jIn), codeSave(codeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -178,16 +178,16 @@ class Sigma2gg2QQbarX8g : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2gg2QQbarX8g(int idIn, int stateIn, int codeIn) : idNew(idIn), 
+  Sigma2gg2QQbarX8g(int idIn, int stateIn, int codeIn) : idNew(idIn),
     stateSave(stateIn), codeSave(codeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -217,16 +217,16 @@ class Sigma2qg2QQbarX8q : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2qg2QQbarX8q(int idIn, int stateIn, int codeIn) : idNew(idIn), 
+  Sigma2qg2QQbarX8q(int idIn, int stateIn, int codeIn) : idNew(idIn),
     stateSave(stateIn), codeSave(codeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -249,7 +249,7 @@ public:
  
 //==========================================================================
 
-// A derived class for q qbar -> QQbar[X(8)] g (Q = c or b, 
+// A derived class for q qbar -> QQbar[X(8)] g (Q = c or b,
 //   X = 3S1, 1S0 or 3PJ).
 
 class Sigma2qqbar2QQbarX8g : public Sigma2Process {
@@ -257,16 +257,16 @@ class Sigma2qqbar2QQbarX8g : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2qqbar2QQbarX8g(int idIn, int stateIn, int codeIn) : idNew(idIn), 
+  Sigma2qqbar2QQbarX8g(int idIn, int stateIn, int codeIn) : idNew(idIn),
     stateSave(stateIn), codeSave(codeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.

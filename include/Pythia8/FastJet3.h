@@ -1,18 +1,18 @@
 // FastJet3.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This header file written by Gavin Salam.
 
 #ifndef Pythia8_FastJet3_H
-#define Pythia8_FastJet3_H 
+#define Pythia8_FastJet3_H
 
 //----------------------------------------------------------------------
 /// \file FastJet3Pythia8.hh
 ///
 /// Code providing an interface for FastJet 3 to make use of Pythia8
-/// particles and momenta. Given a 
+/// particles and momenta. Given a
 ///
 /// \code
 ///   Pythia8::Particle  py8_particle;
@@ -36,14 +36,14 @@
 ///   fj_particle.user_info<Pythia8::Particle>().status();
 ///   fj_particle.user_info<Pythia8::Particle>().charge();
 /// \endcode
-///   
+///
 /// etc. Note that because the construction of a PseudoJet from the
 /// Pythia8 particle involves taking a copy of the whole particle
 /// (which has a number of member variables), there will be a small
 /// time penalty at that point.
 ///
 /// This file also defines a number of selectors that act on such
-/// PseudoJets, such as 
+/// PseudoJets, such as
 ///
 /// \code
 ///   SelectorIsCharged();
@@ -53,10 +53,10 @@
 /// so that one can for example write
 ///
 /// \code
-///   vector<PseudoJet> charged_constituents 
+///   vector<PseudoJet> charged_constituents
 ///     = SelectorIsCharged()(jet.constituents());
 /// \endcode
-/// 
+///
 /// The full list of Pythia8-specific selectors is to be found at the
 /// end of this file. They can be combined with each other and with
 /// FastJet selectors using standard boolean operators.  They are all
@@ -72,7 +72,7 @@
 /// NB: this code is entirely given as an include file. If compilation
 /// time is critical for your application, you may wish to split it
 /// into separate .cc and .hh files.
-/// 
+///
 // ----------------------------------------------------------------------
 // Copyright 2011 by Matteo Cacciari, Gavin Salam and Gregory
 // Soyez. Permission is granted to redistribute this file and modify
@@ -88,17 +88,17 @@
 // FASTJET_VERSION is only defined from version 3 onwards so we can
 // use it to test that we have a sufficiently recent version
 #ifndef FASTJET_VERSION
-#error "FastJet 3 is required in order to obtain the features of this interface"
+#error "FastJet3 is required in order to obtain the features of this interface"
 #endif
 
 FASTJET_BEGIN_NAMESPACE // place the code here inside the FJ namespace
 
-/// \class Py8Particle 
+/// \class Py8Particle
 ///
 /// A class derived from a pythia 8 particle and that also derives
 /// from PseudoJet::UserInfoBase, so that it can be used as UserInfo
 /// inside PseudoJets, but also be cast back to the Pythia8 particle
-class Py8Particle: public Pythia8::Particle, 
+class Py8Particle: public Pythia8::Particle,
                    public PseudoJet::UserInfoBase {
 public:
   Py8Particle(const Pythia8::Particle & particle) : Particle(particle) {}
@@ -106,7 +106,7 @@ public:
 
 /// specialization of the PseudoJet constructor so that it can take a
 /// pythia8 particle (and makes a copy of it as user info);
-template<> 
+template<>
 inline PseudoJet::PseudoJet(const Pythia8::Particle & particle) {
   reset(particle.px(),particle.py(),particle.pz(), particle.e());
   set_user_info(new Py8Particle(particle));
@@ -114,7 +114,7 @@ inline PseudoJet::PseudoJet(const Pythia8::Particle & particle) {
 
 /// specialization of the PseudoJet constructor so that it can take a
 /// pythia8 Vec4. There is then no particular user info available.
-template<> 
+template<>
 inline PseudoJet::PseudoJet(const Pythia8::Vec4 & particle) {
   reset(particle.px(),particle.py(),particle.pz(), particle.e());
 }
@@ -134,7 +134,7 @@ inline PseudoJet::PseudoJet(const Pythia8::Vec4 & particle) {
 template<class T> class SelectorWorkerPy8 : public SelectorWorker {
 public:
   /// the typedef helps with the notation for member function pointers
-  typedef  T (Pythia8::Particle::*Py8ParticleFnPtr)() const;  
+  typedef  T (Pythia8::Particle::*Py8ParticleFnPtr)() const;
   
   /// c'tor, which takes the member fn pointer and the return value
   /// that it should be equal to
@@ -143,10 +143,10 @@ public:
 
   /// the one function from SelectorWorker that must be overloaded to
   /// get functioning selection. It makes sure that the PseudoJet
-  /// actually has Pythia8::Particle user info before checking 
+  /// actually has Pythia8::Particle user info before checking
   /// its value.
   bool pass(const PseudoJet & p) const {
-    const Pythia8::Particle * py8_particle 
+    const Pythia8::Particle * py8_particle
       = dynamic_cast<const Pythia8::Particle *>(p.user_info_ptr());
     if (py8_particle == 0) {
       return false; // no info, so false
@@ -166,28 +166,28 @@ private:
 /// Pythia8::Particle structure never pass these selectors.
 ///
 ///\{
-inline Selector SelectorIsFinal    () {return 
-  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isFinal    , true));}
-inline Selector SelectorIsCharged  () {return 
-  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isCharged  , true));}
-inline Selector SelectorIsNeutral  () {return 
-  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isNeutral  , true));}
-inline Selector SelectorIsResonance() {return 
-  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isResonance, true));}
-inline Selector SelectorIsVisible  () {return 
-  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isVisible  , true));}
-inline Selector SelectorIsLepton   () {return 
-  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isLepton   , true));}
-inline Selector SelectorIsQuark    () {return 
-  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isQuark    , true));}
-inline Selector SelectorIsGluon    () {return 
-  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isGluon    , true));}
-inline Selector SelectorIsDiquark  () {return 
-  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isDiquark  , true));}
-inline Selector SelectorIsParton   () {return 
-  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isParton   , true));}
-inline Selector SelectorIsHadron   () {return 
-  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isHadron   , true));}
+inline Selector SelectorIsFinal    () {return
+  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isFinal   , true));}
+inline Selector SelectorIsCharged  () {return
+  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isCharged , true));}
+inline Selector SelectorIsNeutral  () {return
+  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isNeutral , true));}
+inline Selector SelectorIsResonance() {return
+  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isResonance,true));}
+inline Selector SelectorIsVisible  () {return
+  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isVisible , true));}
+inline Selector SelectorIsLepton   () {return
+  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isLepton  , true));}
+inline Selector SelectorIsQuark    () {return
+  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isQuark   , true));}
+inline Selector SelectorIsGluon    () {return
+  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isGluon   , true));}
+inline Selector SelectorIsDiquark  () {return
+  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isDiquark , true));}
+inline Selector SelectorIsParton   () {return
+  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isParton  , true));}
+inline Selector SelectorIsHadron   () {return
+  Selector(new SelectorWorkerPy8<bool>(&Pythia8::Particle::isHadron  , true));}
 ///\}
 
 /// @name Integer FJ3/PY8 Selectors
@@ -197,17 +197,17 @@ inline Selector SelectorIsHadron   () {return
 /// Pythia8::Particle structure never pass these selectors.
 ///
 ///\{
-inline Selector SelectorId       (int i) {return 
+inline Selector SelectorId       (int i) {return
   Selector(new SelectorWorkerPy8<int>(&Pythia8::Particle::id       , i));}
-inline Selector SelectorIdAbs    (int i) {return 
+inline Selector SelectorIdAbs    (int i) {return
   Selector(new SelectorWorkerPy8<int>(&Pythia8::Particle::idAbs    , i));}
-inline Selector SelectorStatus   (int i) {return 
+inline Selector SelectorStatus   (int i) {return
   Selector(new SelectorWorkerPy8<int>(&Pythia8::Particle::status   , i));}
-inline Selector SelectorStatusAbs(int i) {return 
+inline Selector SelectorStatusAbs(int i) {return
   Selector(new SelectorWorkerPy8<int>(&Pythia8::Particle::statusAbs, i));}
 ///\}
   
 
-FASTJET_END_NAMESPACE 
+FASTJET_END_NAMESPACE
 
 #endif // Pythia8_FastJet3_H

@@ -1,5 +1,5 @@
 // PythiaStdlib.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -43,41 +43,41 @@ namespace Pythia8 {
 // Generic utilities and mathematical functions.
 using std::swap;
 using std::max;
-using std::min; 
-using std::abs; 
-using std::sort; 
+using std::min;
+using std::abs;
+using std::sort;
 
 // Strings and containers.
-using std::pair; 
-using std::make_pair; 
-using std::string; 
-using std::vector; 
-using std::map; 
-using std::multimap; 
-using std::deque; 
-using std::set; 
+using std::pair;
+using std::make_pair;
+using std::string;
+using std::vector;
+using std::map;
+using std::multimap;
+using std::deque;
+using std::set;
 
 // Input/output streams.
-using std::cin; 
-using std::cout; 
-using std::cerr; 
-using std::istream; 
-using std::ostream; 
-using std::fstream; 
-using std::ifstream; 
-using std::ofstream; 
-using std::stringstream; 
-using std::istringstream; 
-using std::ostringstream; 
-using std::ios; 
+using std::cin;
+using std::cout;
+using std::cerr;
+using std::istream;
+using std::ostream;
+using std::fstream;
+using std::ifstream;
+using std::ofstream;
+using std::stringstream;
+using std::istringstream;
+using std::ostringstream;
+using std::ios;
 
 // Input/output formatting.
-using std::endl; 
-using std::fixed; 
-using std::scientific; 
-using std::left; 
-using std::right; 
-using std::setw; 
+using std::endl;
+using std::fixed;
+using std::scientific;
+using std::left;
+using std::right;
+using std::setw;
 using std::setprecision;
  
 } // end namespace Pythia8

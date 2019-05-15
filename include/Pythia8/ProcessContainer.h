@@ -1,5 +1,5 @@
 // ProcessContainer.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -31,56 +31,56 @@ namespace Pythia8 {
 
 //==========================================================================
 
-// The ProcessContainer class combines pointers to matrix element and 
-// phase space generator with general generation info. 
+// The ProcessContainer class combines pointers to matrix element and
+// phase space generator with general generation info.
 
 class ProcessContainer {
 
 public:
 
-  // Constructor. 
-  ProcessContainer(SigmaProcess* sigmaProcessPtrIn = 0, 
-    bool externalPtrIn = false) : sigmaProcessPtr(sigmaProcessPtrIn), 
-    externalPtr(externalPtrIn), phaseSpacePtr(0) {} 
+  // Constructor.
+  ProcessContainer(SigmaProcess* sigmaProcessPtrIn = 0,
+    bool externalPtrIn = false) : sigmaProcessPtr(sigmaProcessPtrIn),
+    externalPtr(externalPtrIn), phaseSpacePtr(0) {}
 
   // Destructor. Do not destroy external sigmaProcessPtr.
-  ~ProcessContainer() {delete phaseSpacePtr; 
+  ~ProcessContainer() {delete phaseSpacePtr;
     if (!externalPtr) delete sigmaProcessPtr;}
   
   // Initialize phase space and counters.
-  bool init(bool isFirst, Info* infoPtrIn, Settings& settings, 
-    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, BeamParticle* beamAPtr, 
-    BeamParticle* beamBPtr, Couplings* couplings, SigmaTotal* sigmaTotPtr, 
-    ResonanceDecays* resDecaysPtrIn, SLHAinterface* slhaInterfacePtr, 
-    UserHooks* userHooksPtr); 
+  bool init(bool isFirst, Info* infoPtrIn, Settings& settings,
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, BeamParticle* beamAPtr,
+    BeamParticle* beamBPtr, Couplings* couplings, SigmaTotal* sigmaTotPtr,
+    ResonanceDecays* resDecaysPtrIn, SLHAinterface* slhaInterfacePtr,
+    UserHooks* userHooksPtr);
 
   // Store or replace Les Houches pointer.
-  void setLHAPtr( LHAup* lhaUpPtrIn,  ParticleData* particleDataPtrIn = 0) 
-    {lhaUpPtr = lhaUpPtrIn; 
+  void setLHAPtr( LHAup* lhaUpPtrIn,  ParticleData* particleDataPtrIn = 0)
+    {lhaUpPtr = lhaUpPtrIn;
     if (particleDataPtrIn != 0) particleDataPtr = particleDataPtrIn;
-    if (sigmaProcessPtr != 0) sigmaProcessPtr->setLHAPtr(lhaUpPtr); 
+    if (sigmaProcessPtr != 0) sigmaProcessPtr->setLHAPtr(lhaUpPtr);
     if (phaseSpacePtr != 0) phaseSpacePtr->setLHAPtr(lhaUpPtr);}
 
   // Update the CM energy of the event.
   void newECM(double eCM) {phaseSpacePtr->newECM(eCM);}
 
   // Generate a trial event; accepted or not.
-  bool trialProcess(); 
+  bool trialProcess();
   
   // Pick flavours and colour flow of process.
-  bool constructState(); 
+  bool constructState();
   
   // Give the hard subprocess (with option for a second hard subprocess).
-  bool constructProcess( Event& process, bool isHardest = true); 
+  bool constructProcess( Event& process, bool isHardest = true);
   
   // Give the Les Houches decay chain for external resonance.
-  bool constructDecays( Event& process); 
+  bool constructDecays( Event& process);
 
   // Do resonance decays.
-  bool decayResonances( Event& process); 
+  bool decayResonances( Event& process);
 
   // Accumulate statistics after user veto.
-  void accumulate(); 
+  void accumulate();
 
   // Reset statistics on events generated so far.
   void reset();
@@ -100,7 +100,7 @@ public:
   double weightSum()   const {return wtAccSum;}
   double sigmaSelMC()  {if (nTry > nTryStat) sigmaDelta(); return sigmaAvg;}
   double sigmaMC()     {if (nTry > nTryStat) sigmaDelta(); return sigmaFin;}
-  double deltaMC()     {if (nTry > nTryStat) sigmaDelta(); return deltaFin;} 
+  double deltaMC()     {if (nTry > nTryStat) sigmaDelta(); return deltaFin;}
 
   // Some kinematics quantities.
   int    id1()         const {return sigmaProcessPtr->id(1);}
@@ -166,15 +166,15 @@ private:
 
   // Statistics on generation process. (Long integers just in case.)
   bool   newSigmaMx;
-  long   nTry, nSel, nAcc, nTryStat;  
-  double sigmaMx, sigmaSgn, sigmaSum, sigma2Sum, sigmaNeg, sigmaAvg, 
+  long   nTry, nSel, nAcc, nTryStat;
+  double sigmaMx, sigmaSgn, sigmaSum, sigma2Sum, sigmaNeg, sigmaAvg,
          sigmaFin, deltaFin, weightNow, wtAccSum;
 
   // Statistics for Les Houches event classification.
   vector<int> codeLHA;
   vector<long> nTryLHA, nSelLHA, nAccLHA;
 
-  // Estimate integrated cross section and its uncertainty. 
+  // Estimate integrated cross section and its uncertainty.
   void sigmaDelta();
 
 };
@@ -188,8 +188,8 @@ class SetupContainers {
 
 public:
 
-  // Constructor. 
-  SetupContainers() {} 
+  // Constructor.
+  SetupContainers() {}
  
   // Initialization assuming all necessary data already read.
   bool init(vector<ProcessContainer*>& containerPtrs, Settings& settings,
@@ -206,7 +206,7 @@ private:
 
   // Arrays of allowed outgoing SUSY particles and their lengths.
   vector<int> idVecA, idVecB;
-  int nVecA, nVecB;  
+  int nVecA, nVecB;
 
 };
 

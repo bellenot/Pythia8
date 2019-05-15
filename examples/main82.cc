@@ -1,11 +1,11 @@
 // main82.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This program is written by Stefan Prestel.
-// It illustrates how to do CKKW-L merging, 
-// see the Matrix Element Merging page in the online manual. 
+// It illustrates how to do CKKW-L merging,
+// see the Matrix Element Merging page in the online manual.
 
 #include "Pythia8/Pythia.h"
 
@@ -21,7 +21,7 @@ using namespace Pythia8;
 //==========================================================================
 
 // Find the Durham kT separation of the clustering from
-// nJetMin --> nJetMin-1 jets in te input event  
+// nJetMin --> nJetMin-1 jets in te input event
 
 double pTfirstJet( const Event& event, int nJetMin, double Rparam) {
 
@@ -59,7 +59,7 @@ double pTfirstJet( const Event& event, int nJetMin, double Rparam) {
             event[i].py(), event[i].pz(),event[i].e() ) );
   }
 
-  // Do nothing for empty input 
+  // Do nothing for empty input
   if (int(fjInputs.size()) == 0) {
     delete jetDef;
     return 0.0;
@@ -95,7 +95,7 @@ public:
   virtual double tmsDefinition( const Event& event);
 
   // Helper function for tms definition
-  double myKTdurham(const Particle& RadAfterBranch, 
+  double myKTdurham(const Particle& RadAfterBranch,
            const Particle& EmtAfterBranch, int Type, double D );
 
 };
@@ -211,7 +211,7 @@ double MyMergingHooks::myKTdurham(const Particle& RadAfterBranch,
     double eta2 = 0.5*log( (jet2.e() + jet2.pz()) / (jet2.e() - jet2.pz()) );
     // Get delta_phi and cos(Delta_phi) for hadronic collisions
     double pt1 = sqrt( pow(jet1.px(),2) + pow(jet1.py(),2) );
-    double pt2 = sqrt( pow(jet2.px(),2) + pow(jet2.py(),2) );  
+    double pt2 = sqrt( pow(jet2.px(),2) + pow(jet2.py(),2) );
     double cosdPhi = ( jet1.px()*jet2.px() + jet1.py()*jet2.py() ) / (pt1*pt2);
     double dPhi = acos( cosdPhi );
     // Calculate kT durham like fastjet
@@ -224,7 +224,7 @@ double MyMergingHooks::myKTdurham(const Particle& RadAfterBranch,
      double coshdEta = cosh( eta1 - eta2 );
     // Get delta_phi and cos(Delta_phi) for hadronic collisions
     double pt1 = sqrt( pow(jet1.px(),2) + pow(jet1.py(),2) );
-    double pt2 = sqrt( pow(jet2.px(),2) + pow(jet2.py(),2) );  
+    double pt2 = sqrt( pow(jet2.px(),2) + pow(jet2.py(),2) );
     double cosdPhi = ( jet1.px()*jet2.px() + jet1.py()*jet2.py() ) / (pt1*pt2);
     // Calculate kT durham separation "SHERPA-like"
      ktdur = 2.0*min( pow(pt1,2),pow(pt2,2) )
@@ -320,7 +320,7 @@ int main( int argc, char* argv[] ){
 
   // Write histograms to dat file. Use "jetsInLHEF" to label the files
   // Once all the samples up to the maximal desired jet multiplicity from the
-  // matrix element are run, add all histograms to produce a 
+  // matrix element are run, add all histograms to produce a
   // matrix-element-merged prediction
 
   ofstream write;

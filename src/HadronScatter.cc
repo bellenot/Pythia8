@@ -1,5 +1,5 @@
 // HadronScatter.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -50,7 +50,7 @@ namespace Pythia8 {
 //  A simple scheme to provide correct distributions for cos(theta) at a
 //  given CM energy is included. Efficiency is not too bad, but can likely
 //  be greatly improved.
-// 
+//
 //  For each subprocess, a grid in bins of Wcm and cos(theta) is setup with:
 //    setupGrid();
 //  The size of the grid is set by the constants:
@@ -179,10 +179,10 @@ bool SigmaPartialWave::readFile(string xmlPath, string filename) {
     string lineT = line;
     vector < string > token;
     while (true) {
-      startPos = lineT.find_first_of("	 ");
+      startPos = lineT.find_first_of("   ");
       token.push_back(lineT.substr(0, startPos));
       if (startPos == string::npos) break;
-      startPos = lineT.find_first_not_of("	 ", startPos + 1);
+      startPos = lineT.find_first_not_of("       ", startPos + 1);
       if (startPos == string::npos) break;
       lineT = lineT.substr(startPos);
     }
@@ -248,7 +248,7 @@ bool SigmaPartialWave::readFile(string xmlPath, string filename) {
         token[i] = token[i].substr(startPos + 1);
         // Extract 2I
         string Istr;
-        startPos = token[i].find_first_of(",	 ");
+        startPos = token[i].find_first_of(",     ");
         if (startPos == string::npos) {
           Istr = token[i];
           token[i] = "";
@@ -317,7 +317,7 @@ bool SigmaPartialWave::readFile(string xmlPath, string filename) {
           if (input == 1) i1 = sqrt(1. - i1);
           // Degrees to radians
           if ((input == 0 || input == 1 || input == 3) &&
-              dUnit == 0) i2 *= M_PI / 180.; 
+              dUnit == 0) i2 *= M_PI / 180.;
           
           // Convert to Treal and Timg
           complex T(0., 0.);
@@ -758,15 +758,15 @@ bool HadronScatter::init(Info* infoPtrIn, Settings& settings,
   for (int yt = 0; yt < ytMax; yt++) tile[yt].resize(ptMax);
 
   // Find path to data files, i.e. xmldoc directory location.
-  // Environment variable takes precedence, else use constructor input. 
+  // Environment variable takes precedence, else use constructor input.
   // XXX - as in Pythia.cc, but not passed around in e.g. Info/Settings,
   //       so redo here
   string xmlPath = "";
-  const char* PYTHIA8DATA = "PYTHIA8DATA"; 
+  const char* PYTHIA8DATA = "PYTHIA8DATA";
   char* envPath = getenv(PYTHIA8DATA);
   if (envPath != 0 && *envPath != '\0') {
     int i = 0;
-    while (*(envPath+i) != '\0') xmlPath += *(envPath+(i++)); 
+    while (*(envPath+i) != '\0') xmlPath += *(envPath+(i++));
   } else xmlPath = "../xmldoc";
   if (xmlPath[ xmlPath.length() - 1 ] != '/') xmlPath += "/";
 
@@ -914,7 +914,7 @@ bool HadronScatter::canScatter(Event& event, int i) {
   // Pions, K+, K-, p+, pbar- only
   if (scatterProb == 1 || scatterProb == 2)
     if (event[i].idAbs() != 111 && event[i].idAbs() != 211 &&
-        event[i].idAbs() != 321 && event[i].idAbs() != 2212) 
+        event[i].idAbs() != 321 && event[i].idAbs() != 2212)
       return false;
 
   // Probability
@@ -936,7 +936,7 @@ bool HadronScatter::canScatter(Event& event, int i) {
 //--------------------------------------------------------------------------
 
 // Probability for scattering
-bool HadronScatter::doesScatter(Event& event, const HSIndex &i1, 
+bool HadronScatter::doesScatter(Event& event, const HSIndex &i1,
   const HSIndex &i2) {
   Particle &p1 = event[i1.second];
   Particle &p2 = event[i2.second];
@@ -960,7 +960,7 @@ bool HadronScatter::doesScatter(Event& event, const HSIndex &i1,
   }
 
   // Distance in y - phi space
-  double dy  = p1.y() - p2.y(); 
+  double dy  = p1.y() - p2.y();
   double dp  = abs(p1.phi() - p2.phi());
   if (dp > M_PI) dp = 2 * M_PI - dp;
   double dr2 = dy * dy + dp * dp;

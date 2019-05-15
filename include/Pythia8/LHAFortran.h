@@ -1,5 +1,5 @@
 // LHAFortran.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -44,7 +44,7 @@ extern "C" {
 
 //==========================================================================
 
-// A derived class with initialization information from the HEPRUP 
+// A derived class with initialization information from the HEPRUP
 // Fortran commonblock and event information from the HEPEUP one.
 
 class LHAupFortran : public LHAup {
@@ -54,47 +54,47 @@ public:
   // Constructor.
   LHAupFortran() {}
 
-  // Routine for doing the job of setting initialization info.  
+  // Routine for doing the job of setting initialization info.
   bool setInit() {
     // Call the routine that does the job.
     if (!fillHepRup()) return false;
-    // Store beam and strategy info. 
-    setBeamA(heprup_.idbmup[0], heprup_.ebmup[0], heprup_.pdfgup[0], 
+    // Store beam and strategy info.
+    setBeamA(heprup_.idbmup[0], heprup_.ebmup[0], heprup_.pdfgup[0],
       heprup_.pdfsup[0]);
-    setBeamB(heprup_.idbmup[1], heprup_.ebmup[1], heprup_.pdfgup[1], 
+    setBeamB(heprup_.idbmup[1], heprup_.ebmup[1], heprup_.pdfgup[1],
       heprup_.pdfsup[1]);
     setStrategy(heprup_.idwtup);
     // Store process info. Protect against vanishing cross section.
     for (int ip = 0; ip < heprup_.nprup; ++ip) {
       double xsec = max( 1e-10, heprup_.xsecup[ip]);
-      addProcess( heprup_.lprup[ip], xsec, heprup_.xerrup[ip], 
+      addProcess( heprup_.lprup[ip], xsec, heprup_.xerrup[ip],
         heprup_.xmaxup[ip] );
     }
     // Store the beam energies to calculate x values later.
     eBeamA = heprup_.ebmup[0];
-    eBeamB = heprup_.ebmup[1];    
+    eBeamB = heprup_.ebmup[1];
     // Done.
     return true;
-  } 
+  }
 
-  // Routine for doing the job of setting info on next event.  
+  // Routine for doing the job of setting info on next event.
   bool setEvent(int idProcIn = 0, double = -1.) {
     // In some strategies the type of the next event has been set.
     hepeup_.idprup = idProcIn;
     // Call the routine that does the job.
     if (!fillHepEup()) return false;
     // Store process info.
-    setProcess(hepeup_.idprup, hepeup_.xwgtup, hepeup_.scalup, 
+    setProcess(hepeup_.idprup, hepeup_.xwgtup, hepeup_.scalup,
       hepeup_.aqedup, hepeup_.aqcdup);
     // Store particle info.
-    for (int ip = 0; ip < hepeup_.nup; ++ip) addParticle(hepeup_.idup[ip], 
-      hepeup_.istup[ip], hepeup_.mothup[ip][0], hepeup_.mothup[ip][1], 
-      hepeup_.icolup[ip][0], hepeup_.icolup[ip][1], hepeup_.pup[ip][0], 
-      hepeup_.pup[ip][1], hepeup_.pup[ip][2], hepeup_.pup[ip][3], 
+    for (int ip = 0; ip < hepeup_.nup; ++ip) addParticle(hepeup_.idup[ip],
+      hepeup_.istup[ip], hepeup_.mothup[ip][0], hepeup_.mothup[ip][1],
+      hepeup_.icolup[ip][0], hepeup_.icolup[ip][1], hepeup_.pup[ip][0],
+      hepeup_.pup[ip][1], hepeup_.pup[ip][2], hepeup_.pup[ip][3],
       hepeup_.pup[ip][4], hepeup_.vtimup[ip], hepeup_.spinup[ip]) ;
     // Store x values (here E = pup[ip][3]), but note incomplete info.
-    setPdf( hepeup_.idup[0], hepeup_.idup[1], hepeup_.pup[0][3]/eBeamA, 
-	    hepeup_.pup[1][3]/eBeamB, 0., 0., 0., false);
+    setPdf( hepeup_.idup[0], hepeup_.idup[1], hepeup_.pup[0][3]/eBeamA,
+      hepeup_.pup[1][3]/eBeamB, 0., 0., 0., false);
     // Done.
     return true;
   }

@@ -1,5 +1,5 @@
 ! File: main04.cmnd
-! This file contains commands to be read in for a Pythia8 run. 
+! This file contains commands to be read in for a Pythia8 run.
 ! Lines not beginning with a letter or digit are comments.
 ! Names are case-insensitive  -  but spellings-sensitive!
 ! The changes here are illustrative, not always physics-motivated.
@@ -35,7 +35,7 @@ SoftQCD:all = on                   ! Allow total sigma = elastic/SD/DD/ND
 ! Note: these values are illustrative only, not to be taken seriously.
 #SigmaTotal:setOwn = on             ! set your own total/elastic/diffr. sigma
 #SigmaTotal:sigmaTot = 106.         ! total cross section (excluding Coulomb)
-#SigmaTotal:sigmaXX = 5.            ! reduce double diffractive cross section 
+#SigmaTotal:sigmaXX = 5.            ! reduce double diffractive cross section
 #SigmaElastic:setOwn = on           ! suboption for Coulomb term in elastic
 #SigmaElastic:tAbsMin = 4e-5        ! divergence requires lower cutoff
 
@@ -48,12 +48,12 @@ MultipartonInteractions:pT0Ref = 2.
 MultipartonInteractions:ecmRef = 1960.
 MultipartonInteractions:ecmPow = 0.16
 MultipartonInteractions:pTmin = 0.2
-MultipartonInteractions:bProfile = 2   
+MultipartonInteractions:bProfile = 2
 #MultipartonInteractions:coreRadius = 0.4
 #MultipartonInteractions:coreFraction = 0.5
 MultipartonInteractions:expPow = 1.
 
-! 8) Other settings. Can be expanded as desired. 
+! 8) Other settings. Can be expanded as desired.
 ! Note: may overwrite some of the values above, so watch out.
 #Tune:pp = 6                         ! use Tune 4Cx
 

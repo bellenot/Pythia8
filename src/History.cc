@@ -1,10 +1,10 @@
 // History.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This file is written by Stefan Prestel.
-// Function definitions (not found in the header) for the 
+// Function definitions (not found in the header) for the
 // Clustering and History classes.
 
 #include "Pythia8/History.h"
@@ -48,9 +48,9 @@ void Clustering::list() const {
 
 //--------------------------------------------------------------------------
 
-// Number of trial emission to use for calculating the average number of 
+// Number of trial emission to use for calculating the average number of
 // emissions
-const int History::NTRIAL = 1; 
+const int History::NTRIAL = 1;
 
 //--------------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ const int History::NTRIAL = 1;
 // initial history node. \a beamAIn and beamBIn are needed to
 // calcutate PDF ratios, \a particleDataIn to have access to the
 // correct masses of particles. If \a isOrdered is true, the previous
-// clusterings has been ordered. \a is the PDF ratio for this 
+// clusterings has been ordered. \a is the PDF ratio for this
 // clustering (=1 for FSR clusterings). \a probin is the accumulated
 // probabilities for the previous clusterings, and \ mothin is the
 // previous history node (null for the initial node).
@@ -168,7 +168,7 @@ History::History( int depth,
   // register this node.
   if ( clusterings.empty() ) {
     // Multiply with hard process matrix element.
-    prob *= hardProcessME(state); 
+    prob *= hardProcessME(state);
     registerPath( *this, isOrdered, isStronglyOrdered, isAllowed, depth == 0 );
     return;
   }
@@ -262,7 +262,7 @@ bool History::projectOntoDesiredHistories() {
 //                      shower objects
 // OUT double         : (Sukadov) , (alpha_S ratios) , (PDF ratios)
 
-double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR, 
+double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
                   AlphaStrong * asISR, double RN) {
 
   if ( mergingHooksPtr->canCutOnRecState() && !foundAllowedPath ) {
@@ -275,7 +275,7 @@ double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
     message+=" found. Using unordered history.";
     infoPtr->errorMsg(message);
   }
-  if ( mergingHooksPtr->canCutOnRecState() 
+  if ( mergingHooksPtr->canCutOnRecState()
     && mergingHooksPtr->orderHistories()
     && !foundAllowedPath && !foundOrderedPath ) {
     string message="Warning in History::weightTREE: No allowed or ordered";
@@ -297,19 +297,19 @@ double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
   double pdfWeight = 1.;
 
   // Do trial shower, calculation of alpha_S ratios, PDF ratios
-  double wt    = selected->weightTree( trial, asME, maxScale, 
+  double wt    = selected->weightTree( trial, asME, maxScale,
                    selected->clusterIn.pT(), asFSR, asISR, asWeight,
                    pdfWeight );
 
   // MPI no-emission probability
   int njetsMaxMPI = mergingHooksPtr->nMinMPI();
-  double mpiwt = selected->weightTreeEmissions( trial, -1, njetsMaxMPI, 
+  double mpiwt = selected->weightTreeEmissions( trial, -1, njetsMaxMPI,
                    maxScale );
 
   // Set hard process renormalisation scale to default Pythia value.
   bool resetScales = mergingHooksPtr->resetHardQRen();
   // For pure QCD dijet events, evaluate the coupling of the hard process at
-  // a more reasonable pT, rather than evaluation \alpha_s at a fixed 
+  // a more reasonable pT, rather than evaluation \alpha_s at a fixed
   // arbitrary scale.
   if ( resetScales
     && mergingHooksPtr->getProcessString().compare("pp>jj") == 0) {
@@ -320,13 +320,13 @@ double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
   }
 
   // For prompt photon events, evaluate the coupling of the hard process at
-  // a more reasonable pT, rather than evaluation \alpha_s at a fixed 
+  // a more reasonable pT, rather than evaluation \alpha_s at a fixed
   // arbitrary scale.
   if ( resetScales
     && mergingHooksPtr->getProcessString().compare("pp>aj") == 0) {
     // Reset to a running coupling. In prompt photon always ISR.
     double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
-    double runningCoupling = 
+    double runningCoupling =
       (*asISR).alphaS( newQ2Ren + pow(mergingHooksPtr->pT0ISR(),2) ) / asME;
     asWeight *= runningCoupling;
   }
@@ -361,7 +361,7 @@ double History::weightLOOP(PartonLevel* trial, double RN ) {
   double maxScale = (foundCompletePath) ? infoPtr->eCM()
                   : mergingHooksPtr->muFinME();
   int njetsMaxMPI = mergingHooksPtr->nMinMPI();
-  double mpiwt = selected->weightTreeEmissions( trial, -1, njetsMaxMPI, 
+  double mpiwt = selected->weightTreeEmissions( trial, -1, njetsMaxMPI,
                    maxScale );
   wt = mpiwt;
   // Done
@@ -392,16 +392,16 @@ double History::weightFIRST(PartonLevel* trial, AlphaStrong* asFSR,
   // Get the lowest order k-factor and add first two terms in expansion
   double kFactor = asME * mergingHooksPtr->k1Factor(nSteps);
 
-  // If using Bbar, which includes a tree-level part, subtract an 
+  // If using Bbar, which includes a tree-level part, subtract an
   // additional one, i.e. the O(\as^0) contribution as well
   double wt = 1. + kFactor;
 
   // Calculate sum of O(alpha) terms
-  wt += selected->weightFirst(trial,asME, muR, maxScale, asFSR, asISR, 
+  wt += selected->weightFirst(trial,asME, muR, maxScale, asFSR, asISR,
           rndmPtr );
 
   // Get starting scale for trial showers.
-  double startingScale = (selected->mother) ? state.scale() : infoPtr->eCM(); 
+  double startingScale = (selected->mother) ? state.scale() : infoPtr->eCM();
 
   // Count emissions: New variant
   // Generate true average, not only one-point
@@ -410,8 +410,8 @@ double History::weightFIRST(PartonLevel* trial, AlphaStrong* asFSR,
   double nWeight1 = 0.;
   for(int i=0; i < NTRIAL; ++i) {
     // Get number of emissions
-    vector<double> unresolvedEmissionTerm = countEmissions( trial, 
-      startingScale, mergingHooksPtr->tms(), 2, asME, asFSR, asISR, 3, 
+    vector<double> unresolvedEmissionTerm = countEmissions( trial,
+      startingScale, mergingHooksPtr->tms(), 2, asME, asFSR, asISR, 3,
       fixpdf, fixas );
     nWeight1 += unresolvedEmissionTerm[1];
   }
@@ -425,7 +425,7 @@ double History::weightFIRST(PartonLevel* trial, AlphaStrong* asFSR,
 
 //--------------------------------------------------------------------------
 
-double History::weight_UMEPS_TREE(PartonLevel* trial, AlphaStrong * asFSR, 
+double History::weight_UMEPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
                   AlphaStrong * asISR, double RN) {
   // No difference to CKKW-L. Recycle CKKW-L function.
   return weightTREE( trial, asFSR, asISR, RN);
@@ -435,7 +435,7 @@ double History::weight_UMEPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
 
 // Function to return weight of virtual correction events for NLO merging
 
-double History::weight_UMEPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR, 
+double History::weight_UMEPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
                   AlphaStrong * asISR, double RN ) {
 
   // Read alpha_S in ME calculation and maximal scale (eCM)
@@ -452,19 +452,19 @@ double History::weight_UMEPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
   double pdfWeight = 1.;
 
   // Do trial shower, calculation of alpha_S ratios, PDF ratios
-  double sudakov = selected->weightTree(trial, asME, maxScale, 
+  double sudakov = selected->weightTree(trial, asME, maxScale,
                      selected->clusterIn.pT(), asFSR, asISR,
                      asWeight, pdfWeight);
 
   // MPI no-emission probability.
   int njetsMaxMPI = mergingHooksPtr->nMinMPI()+1;
-  double mpiwt = selected->weightTreeEmissions( trial, -1, njetsMaxMPI, 
+  double mpiwt = selected->weightTreeEmissions( trial, -1, njetsMaxMPI,
                    maxScale );
 
   // Set hard process renormalisation scale to default Pythia value.
   bool resetScales = mergingHooksPtr->resetHardQRen();
   // For pure QCD dijet events, evaluate the coupling of the hard process at
-  // a more reasonable pT, rather than evaluation \alpha_s at a fixed 
+  // a more reasonable pT, rather than evaluation \alpha_s at a fixed
   // arbitrary scale.
   if ( resetScales
     && mergingHooksPtr->getProcessString().compare("pp>jj") == 0) {
@@ -475,13 +475,13 @@ double History::weight_UMEPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
   }
 
   // For prompt photon events, evaluate the coupling of the hard process at
-  // a more reasonable pT, rather than evaluation \alpha_s at a fixed 
+  // a more reasonable pT, rather than evaluation \alpha_s at a fixed
   // arbitrary scale.
   if ( resetScales
     && mergingHooksPtr->getProcessString().compare("pp>aj") == 0) {
     // Reset to a running coupling. In prompt photon always ISR.
     double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
-    double runningCoupling = 
+    double runningCoupling =
       (*asISR).alphaS( newQ2Ren + pow(mergingHooksPtr->pT0ISR(),2) ) / asME;
     asWeight *= runningCoupling;
   }
@@ -493,7 +493,7 @@ double History::weight_UMEPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
 
 //--------------------------------------------------------------------------
 
-double History::weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR, 
+double History::weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
                   AlphaStrong * asISR, double RN) {
 
   // Read alpha_S in ME calculation and maximal scale (eCM)
@@ -510,17 +510,17 @@ double History::weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
   double pdfWeight = 1.;
 
   // Do trial shower, calculation of alpha_S ratios, PDF ratios
-  double wt = selected->weightTree(trial, asME, maxScale, 
+  double wt = selected->weightTree(trial, asME, maxScale,
                 selected->clusterIn.pT(), asFSR, asISR, asWeight, pdfWeight);
   // MPI no-emission probability.
   int njetsMaxMPI = mergingHooksPtr->nMinMPI();
-  double mpiwt = selected->weightTreeEmissions( trial, -1, njetsMaxMPI, 
+  double mpiwt = selected->weightTreeEmissions( trial, -1, njetsMaxMPI,
                    maxScale );
 
   // Set hard process renormalisation scale to default Pythia value.
   bool resetScales = mergingHooksPtr->resetHardQRen();
   // For pure QCD dijet events, evaluate the coupling of the hard process at
-  // a more reasonable pT, rather than evaluation \alpha_s at a fixed 
+  // a more reasonable pT, rather than evaluation \alpha_s at a fixed
   // arbitrary scale.
   if ( resetScales
     && mergingHooksPtr->getProcessString().compare("pp>jj") == 0) {
@@ -531,13 +531,13 @@ double History::weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
   }
 
   // For prompt photon events, evaluate the coupling of the hard process at
-  // a more reasonable pT, rather than evaluation \alpha_s at a fixed 
+  // a more reasonable pT, rather than evaluation \alpha_s at a fixed
   // arbitrary scale.
   if ( resetScales
     && mergingHooksPtr->getProcessString().compare("pp>aj") == 0) {
     // Reset to a running coupling. In prompt photon always ISR.
     double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
-    double runningCoupling = 
+    double runningCoupling =
       (*asISR).alphaS( newQ2Ren + pow(mergingHooksPtr->pT0ISR(),2) ) / asME;
     asWeight *= runningCoupling;
   }
@@ -556,7 +556,7 @@ double History::weight_UNLOPS_LOOP(PartonLevel* trial, double RN ) {
 
 //--------------------------------------------------------------------------
 
-double History::weight_UNLOPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR, 
+double History::weight_UNLOPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
                   AlphaStrong * asISR, double RN ) {
 
   // Select a path of clusterings
@@ -572,7 +572,7 @@ double History::weight_UNLOPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
                   ? infoPtr->eCM()
                   : mergingHooksPtr->muFinME();
 
-  // Only allow two clusterings if all intermediate states above the 
+  // Only allow two clusterings if all intermediate states above the
   // merging scale.
   double nSteps = mergingHooksPtr->getNumberOfClusteringSteps(state);
   if ( nSteps == 2 && mergingHooksPtr->nRecluster() == 2
@@ -585,12 +585,12 @@ double History::weight_UNLOPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
   double asWeight  = 1.;
   double pdfWeight = 1.;
   // Do trial shower, calculation of alpha_S ratios, PDF ratios
-  double sudakov = selected->weightTree(trial, asME, maxScale, 
+  double sudakov = selected->weightTree(trial, asME, maxScale,
                      selected->clusterIn.pT(), asFSR, asISR,
                      asWeight, pdfWeight);
   // MPI no-emission probability.
   int njetsMaxMPI = mergingHooksPtr->nMinMPI()+1;
-  double mpiwt = selected->weightTreeEmissions( trial, -1, njetsMaxMPI, 
+  double mpiwt = selected->weightTreeEmissions( trial, -1, njetsMaxMPI,
                    maxScale );
 
   // Set weight
@@ -616,7 +616,7 @@ double History::weight_UNLOPS_SUBTNLO(PartonLevel* trial, double RN ) {
   double maxScale = (foundCompletePath) ? infoPtr->eCM()
                   : mergingHooksPtr->muFinME();
   int njetsMaxMPI = mergingHooksPtr->nMinMPI()+1;
-  double mpiwt = selected->weightTreeEmissions( trial, -1, njetsMaxMPI, 
+  double mpiwt = selected->weightTreeEmissions( trial, -1, njetsMaxMPI,
                    maxScale );
   wt = mpiwt;
   // Done
@@ -629,7 +629,7 @@ double History::weight_UNLOPS_SUBTNLO(PartonLevel* trial, double RN ) {
 // Function to calculate O(\alpha_s)-term of CKKWL-weight for NLO merging
 
 double History::weight_UNLOPS_CORRECTION( int order, PartonLevel* trial,
-                  AlphaStrong* asFSR, AlphaStrong* asISR, 
+                  AlphaStrong* asFSR, AlphaStrong* asISR,
                   double RN, Rndm* rndmPtr ) {
 
   // Already done if no correction should be calculated
@@ -652,7 +652,7 @@ double History::weight_UNLOPS_CORRECTION( int order, PartonLevel* trial,
   // Get the lowest order k-factor and add first two terms in expansion
   double kFactor = asME * mergingHooksPtr->k1Factor(nSteps);
 
-  // If using Bbar, which includes a tree-level part, subtract an 
+  // If using Bbar, which includes a tree-level part, subtract an
   // additional one, i.e. the O(\as^0) contribution as well
   double wt = 1.;
 
@@ -684,7 +684,7 @@ double History::weight_UNLOPS_CORRECTION( int order, PartonLevel* trial,
     // Add integral of DGLAP shifted PDF ratios from \alpha_s expansion to wt.
     nWeight    += (fixpdf) ? wP : 0.;
   }
-  wt += nWeight/double(NTRIAL); 
+  wt += nWeight/double(NTRIAL);
 
   // If O(\alpha_s^1)-term + O(\alpha_s^1)-term is to be calculated, done.
   if ( order == 1 ) return wt;
@@ -719,7 +719,7 @@ void History::getStartingConditions( const double RN, Event& outState ) {
 
       // Save information on last splitting, to allow the next
       // emission in the shower to have smaller rapidity with
-      // respect to the last ME splitting 
+      // respect to the last ME splitting
       // For hard process, use dummy values
       if (mergingHooksPtr->getNumberOfClusteringSteps(state) == 0) {
         infoPtr->zNowISR(0.5);
@@ -736,7 +736,7 @@ void History::getStartingConditions( const double RN, Event& outState ) {
 
     // Save information on last splitting, to allow the next
     // emission in the shower to have smaller rapidity with
-    // respect to the last ME splitting 
+    // respect to the last ME splitting
     infoPtr->zNowISR(selected->zISR());
     infoPtr->pT2NowISR(pow(selected->pTISR(),2));
     infoPtr->hasHistory(true);
@@ -804,7 +804,7 @@ bool History::getClusteredEvent( const double RN, int nSteps,
 
 //--------------------------------------------------------------------------
 
-bool History::getFirstClusteredEventAboveTMS( const double RN, int nDesired, 
+bool History::getFirstClusteredEventAboveTMS( const double RN, int nDesired,
                 Event& process, int& nPerformed, bool doUpdate ) {
 
   // Do reclustering (looping) steps. Remember process scale.
@@ -871,7 +871,7 @@ double History::getPDFratio( int side, bool forSudakov, bool useHardPDFs,
   double pdfDen = 0.0;
 
   // Use hard process PDFs (i.e. PDFs NOT used in ISR, FSR or MPI).
-  if ( useHardPDFs ) { 
+  if ( useHardPDFs ) {
     if (side == 1) {
       if (forSudakov)
         pdfNum = mother->beamA.xfHard( flavNum, xNum, muNum*muNum);
@@ -939,7 +939,7 @@ double History::getPDFratio( int side, bool forSudakov, bool useHardPDFs,
 // Function to set all scales in the sequence of states. This is a
 // wrapper routine for setScales and setEventScales methods
 
-void History::setScalesInHistory() { 
+void History::setScalesInHistory() {
   // Find correct links from n+1 to n states (mother --> child), as
   // needed for enforcing ordered scale sequences
   vector<int> ident;
@@ -1094,7 +1094,7 @@ void History::setScales( vector<int> index, bool forward) {
   // state backwards to all the clustered states
   if (!mother || !forward) {
     // Get index of child along the path
-    int iChild = -1;      
+    int iChild = -1;
     if ( int(index.size()) > 0 ) {
       iChild = index.back();
       index.pop_back();
@@ -1163,10 +1163,10 @@ void History::scaleCopies(int iPart, const Event& refEvent, double rho) {
   // Same charge, colours in mother->state
   if ( mother ) {
     for( int i=0; i < mother->state.size(); ++i) {
-      if ( ( mother->state[i].id()         == refEvent[iPart].id() 
-          && mother->state[i].colType()    == refEvent[iPart].colType() 
+      if ( ( mother->state[i].id()         == refEvent[iPart].id()
+          && mother->state[i].colType()    == refEvent[iPart].colType()
           && mother->state[i].chargeType() == refEvent[iPart].chargeType()
-          && mother->state[i].col()        == refEvent[iPart].col() 
+          && mother->state[i].col()        == refEvent[iPart].col()
           && mother->state[i].acol()       == refEvent[iPart].acol() )
          ) {
         // Rescale the unchanged parton
@@ -1175,7 +1175,7 @@ void History::scaleCopies(int iPart, const Event& refEvent, double rho) {
          if (mother->mother)
           mother->scaleCopies( iPart, refEvent, rho );
        } // end if found unchanged parton case
-    } // end loop over particle entries in event  
+    } // end loop over particle entries in event
   }
 }
 
@@ -1227,7 +1227,7 @@ double History::zISR() {
 
 // Functions to return the z value of the last FSR splitting
 // NO INPUT
-// OUTPUT double : z value of last FSR splitting in history 
+// OUTPUT double : z value of last FSR splitting in history
 
 double History::zFSR() {
 
@@ -1240,7 +1240,7 @@ double History::zFSR() {
   int rec = clusterIn.recoiler;
   int emt = clusterIn.emitted;
   // Construct 2->3 variables for FSR
-  Vec4   sum = mother->state[rad].p() + mother->state[rec].p() 
+  Vec4   sum = mother->state[rad].p() + mother->state[rec].p()
              + mother->state[emt].p();
   double m2Dip = sum.m2Calc();
   double x1 = 2. * (sum * mother->state[rad].p()) / m2Dip;
@@ -1259,7 +1259,7 @@ double History::zFSR() {
 
 // Functions to return the pT scale of the last FSR splitting
 // NO INPUT
-// OUTPUT double : pT scale of last FSR splitting in history 
+// OUTPUT double : pT scale of last FSR splitting in history
 
 double History::pTISR() {
   // Do nothing for ME level state
@@ -1279,7 +1279,7 @@ double History::pTISR() {
 
 // Functions to return the pT scale of the last FSR splitting
 // NO INPUT
-// OUTPUT double : pT scale of last FSR splitting in history 
+// OUTPUT double : pT scale of last FSR splitting in history
 
 double History::pTFSR() {
 
@@ -1300,7 +1300,7 @@ double History::pTFSR() {
 // Function to return the depth of the history (i.e. the number of
 // reclustered splittings)
 // NO INPUT
-// OUTPUT int  : Depth of history 
+// OUTPUT int  : Depth of history
 
 int History::nClusterings() {
   if (!mother) return 0;
@@ -1315,7 +1315,7 @@ int History::nClusterings() {
 // Example: nSteps = 1 -> return event with one additional parton
 // INPUT  int   : Number of splittings in the event,
 //                as counted from core 2->2 process
-// OUTPUT Event : event with nSteps additional partons 
+// OUTPUT Event : event with nSteps additional partons
 
 Event History::clusteredState(int nSteps) {
 
@@ -1437,7 +1437,7 @@ bool History::keepHistory() {
   // Tag unordered paths for removal.
   if ( mergingHooksPtr->getProcessString().compare("pp>jj") == 0
     || mergingHooksPtr->getProcessString().compare("pp>aj") == 0 ) {
-    // Tag unordered paths for removal. Include scale of hard 2->2 process 
+    // Tag unordered paths for removal. Include scale of hard 2->2 process
     // into the ordering definition.
     double maxScale = hardFacScale(state);
     keepPath = isOrderedPath( maxScale );
@@ -1456,7 +1456,7 @@ bool History::isOrderedPath( double maxscale ) {
   if ( !mother ) return true;
   bool ordered = mother->isOrderedPath(newscale);
   if ( !ordered || maxscale < newscale) return false;
-  return ordered; 
+  return ordered;
 }
 
 //--------------------------------------------------------------------------
@@ -1478,7 +1478,7 @@ bool History::allIntermediateAboveRhoMS( double rhoms, bool good ) {
   // Assume state from ME generator passes merging scale cut.
   if ( !mother ) return good;
   // Recurse.
-  return good && mother->allIntermediateAboveRhoMS( rhoms, (rhoNew > rhoms) ); 
+  return good && mother->allIntermediateAboveRhoMS( rhoms, (rhoNew > rhoms) );
 }
 
 //--------------------------------------------------------------------------
@@ -1488,7 +1488,7 @@ bool History::allIntermediateAboveRhoMS( double rhoms, bool good ) {
 bool History::foundAnyOrderedPaths() {
   //Do nothing if no paths were found
   if ( paths.empty() ) return false;
-  double maxscale = infoPtr->eCM(); 
+  double maxscale = infoPtr->eCM();
   // Loop through paths. Divide probability into ordered and unordered pieces.
   for ( map<double, History*>::iterator it = paths.begin();
     it != paths.end(); ++it )
@@ -1686,7 +1686,7 @@ double History::weightTreePDFs( double maxscale, double pdfScale ) {
       double scaleNum = (children.empty()) ? hardFacScale(state) : maxscale;
       double scaleDen = mergingHooksPtr->muFinME();
       // For initial parton, multiply by PDF ratio
-      wt *= getPDFratio(sideRad, false, false, flav, x, scaleNum, flav, x, 
+      wt *= getPDFratio(sideRad, false, false, flav, x, scaleNum, flav, x,
               scaleDen);
     }
 
@@ -1766,7 +1766,7 @@ double History::weightTreePDFs( double maxscale, double pdfScale ) {
 
 // Function to return the no-emission probability part of the CKKWL weight.
 
-double History::weightTreeEmissions( PartonLevel* trial, int type, 
+double History::weightTreeEmissions( PartonLevel* trial, int type,
   int njetMax, double maxscale ) {
 
   // Use correct scale
@@ -1853,7 +1853,7 @@ double History::weightFirst(PartonLevel* trial, double as0, double muR,
   // Find summand beta_0 / 2 * ln(muR^2/t_i) due to as expansion.
   double NF = 4.;
   double BETA0 = 11. - 2./3.* NF;
-  // For fixed \alpha_s in matrix element 
+  // For fixed \alpha_s in matrix element
   w += as0 / (2.*M_PI) * 0.5 * BETA0 * log( (muR*muR) / (b*asScale2) );
 
   // Count emissions: New variant
@@ -1935,7 +1935,7 @@ double History::weightFirstALPHAS( double as0, double muR,
   // Find summand beta_0 / 2 * ln(muR^2/t_i) due to as expansion.
   double NF = 4.;
   double BETA0 = 11. - 2./3.* NF;
-  // For fixed \alpha_s in matrix element 
+  // For fixed \alpha_s in matrix element
   w += as0 / (2.*M_PI) * 0.5 * BETA0 * log( (muR*muR) / (b*asScale) );
   // Done
   return w;
@@ -2083,7 +2083,7 @@ double History::hardFacScale(const Event& event) {
   // If scale should not be reset, done.
   if ( !mergingHooksPtr->resetHardQFac() ) return mergingHooksPtr->muF();
   // For pure QCD dijet events, calculate the hadronic cross section
-  // of the hard process at the pT of the dijet system, rather than at fixed 
+  // of the hard process at the pT of the dijet system, rather than at fixed
   // arbitrary scale.
   if ( mergingHooksPtr->getProcessString().compare("pp>jj") == 0
     || mergingHooksPtr->getProcessString().compare("pp>aj") == 0 ) {
@@ -2094,7 +2094,7 @@ double History::hardFacScale(const Event& event) {
         mT.push_back( abs(event[i].mT2()) );
     if ( int(mT.size()) != 2 )
       hardscale = infoPtr->QFac();
-    else 
+    else
       hardscale = sqrt( min( mT[0], mT[1] ) );
   } else {
     hardscale = infoPtr->QFac();
@@ -2113,7 +2113,7 @@ double History::hardRenScale(const Event& event) {
   // If scale should not be reset, done.
   if ( !mergingHooksPtr->resetHardQRen() ) return mergingHooksPtr->muR();
   // For pure QCD dijet events, calculate the hadronic cross section
-  // of the hard process at the pT of the dijet system, rather than at fixed 
+  // of the hard process at the pT of the dijet system, rather than at fixed
   // arbitrary scale.
   if ( mergingHooksPtr->getProcessString().compare("pp>jj") == 0
     || mergingHooksPtr->getProcessString().compare("pp>aj") == 0 ) {
@@ -2125,7 +2125,7 @@ double History::hardRenScale(const Event& event) {
         mT.push_back( abs(event[i].mT()) );
     if ( int(mT.size()) != 2 )
       hardscale = infoPtr->QRen();
-    else 
+    else
       hardscale = sqrt( mT[0]*mT[1] );
   } else {
     hardscale = infoPtr->QRen();
@@ -2145,10 +2145,10 @@ double History::hardRenScale(const Event& event) {
 //      1.0       : trial shower successful (any emission was below
 //                  the minimal scale )
 
-double History::doTrialShower( PartonLevel* trial, int type, 
+double History::doTrialShower( PartonLevel* trial, int type,
   double maxscaleIn, double minscaleIn ) {
 
-  // Copy state to local process  
+  // Copy state to local process
   Event process        = state;
   // Set starting scale.
   double startingScale = maxscaleIn;
@@ -2291,7 +2291,7 @@ History::countEmissions(PartonLevel* trial, double maxscale,
   result[0] = 1.0;
   if ( N < 1 ) return result;
     
-  // Copy state to local process  
+  // Copy state to local process
   Event process = state;
 
   double startingScale   = maxscale;
@@ -2349,7 +2349,7 @@ History::countEmissions(PartonLevel* trial, double maxscale,
     // Get merging scale in current event
     double tnow = mergingHooksPtr->tmsNow( event );
 
-    // Save scale of current state. 
+    // Save scale of current state.
     startingScale   = pTtrial;
     // If the scale of the current state is below the minimal scale, exit.
     if ( pTtrial < minscale ) break;
@@ -2438,7 +2438,7 @@ double History::monteCarloPDFratios(int flav, double x, double maxScale,
               + 2.*CA*log(1.-x);
   } else {
     double zTrial = x + RN*(1. - x);
-    integral  = (1.-x) * 
+    integral  = (1.-x) *
                 integrand(flav, x, pdfScale, zTrial);
     integral += 3./2.*CF
               + 2.*CF*log(1.-x);
@@ -2472,7 +2472,7 @@ bool History::onlyStronglyOrderedPaths() {
 
 //--------------------------------------------------------------------------
 
-// Check if an allowed (according to user-criterion) path has been found in 
+// Check if an allowed (according to user-criterion) path has been found in
 // the initial node, in which case we will no longer be interested in
 // any forbidden paths.
 
@@ -2490,7 +2490,7 @@ bool History::onlyAllowedPaths() {
 //     bool    : Specifying if path is complete down to 2->2 process
 // OUT true if History object forms a plausible path (eg prob>0 ...)
 
-bool History::registerPath(History & l, bool isOrdered, 
+bool History::registerPath(History & l, bool isOrdered,
        bool isStronglyOrdered, bool isAllowed, bool isComplete) {
 
   // We are not interested in improbable paths.
@@ -2800,7 +2800,7 @@ vector<Clustering> History::getQCDClusterings( const Event& event) {
 //     Event : event record to be checked for ptential partners
 // OUT vector of all allowed radiator+recoiler+emitted triples
 
-vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn, 
+vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
                       const Event& event,
                       vector<int> PosFinalPartn,
                       vector <int> PosInitPartn ) {
@@ -2957,7 +2957,7 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
           // For an initial state radiator, always set recoiler
           // to the other initial state parton (recoil is taken
           // by full remaining system, so this is just a
-          // labelling for such a process) 
+          // labelling for such a process)
           int RecInit  = 0;
           for(int l = 0; l < int(PosInitPartn.size()); ++l)
             if (PosInitPartn[l] != iRad) RecInit = PosInitPartn[l];
@@ -3023,7 +3023,7 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
             if (col > 0) {
               iRec = FindCol(col,iRad,EmtTag,event,1,true);
               if ( (sign < 0) && (event[iRec].isFinal()) ) iRec = 0;
-              if (iRec != 0 
+              if (iRec != 0
                && allowedClustering( iRad, EmtTag, iRec, iRec, event) ) {
                 clus.push_back( Clustering(EmtTag, iRad, iRec, iRec,
                      pTLund(event[iRad],event[EmtTag],event[iRec], pTdef) ));
@@ -3067,7 +3067,7 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
             // to the other initial state parton (recoil is taken
 
             // by full remaining system, so this is just a
-            // labelling for such a process) 
+            // labelling for such a process)
             int RecInit = 0;
             int iPartner = 0;
             for(int l = 0; l < int(PosInitPartn.size()); ++l)
@@ -3202,7 +3202,7 @@ vector<Clustering> History::findEWTriple ( int EmtTagIn, const Event& event,
     int iRad = PosFinalPartn[a];
     if (iRad != EmtTag ) {
       int pTdef = 1;
-      // Find recoiler by flavour. 
+      // Find recoiler by flavour.
       int flavRad = event[iRad].id();
       int flavEmt = event[EmtTag].id();
 
@@ -3363,7 +3363,7 @@ vector<Clustering> History::getSQCDClusterings( const Event& event) {
 //     Event : event record to be checked for ptential partners
 // OUT vector of all allowed radiator+recoiler+emitted triples
 
-vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn, 
+vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
                       const Event& event,
                       vector<int> PosFinalPartn,
                       vector <int> PosInitPartn ) {
@@ -3589,7 +3589,7 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
           // For an initial state radiator, always set recoiler
           // to the other initial state parton (recoil is taken
           // by full remaining system, so this is just a
-          // labelling for such a process) 
+          // labelling for such a process)
           int RecInit  = 0;
           for(int l = 0; l < int(PosInitPartn.size()); ++l)
             if (PosInitPartn[l] != iRad) RecInit = PosInitPartn[l];
@@ -3714,14 +3714,14 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
             // SM splittings already taken care of in findQCDTriple. Since
             // initial state splittings will not know if the true
             // colour-connected recoiler is a SM particle, any ISR splitting
-            // of a SM particle will be included by findQCDTriple. To not 
+            // of a SM particle will be included by findQCDTriple. To not
             // include the same splitting twice, continue for SM ISR radiator
             if ( !isSQCDrad || !isSQCDemt ) continue;
 
             // For an initial state radiator, always set recoiler
             // to the other initial state parton (recoil is taken
             // by full remaining system, so this is just a
-            // labelling for such a process) 
+            // labelling for such a process)
             int RecInit = 0;
             int iPartner = 0;
             for(int l = 0; l < int(PosInitPartn.size()); ++l)
@@ -3801,7 +3801,7 @@ double History::getProb(const Clustering & SystemIn) {
   // If so, use weight for joined evolution
   int nFinal = 0;
   for(int i=0; i < state.size(); ++i)
-    if (state[i].isFinal()) nFinal++; 
+    if (state[i].isFinal()) nFinal++;
   bool isLast = (nFinal == (mergingHooksPtr->hardProcess.nQuarksOut()
                            +mergingHooksPtr->hardProcess.nLeptonOut()+1));
 
@@ -3900,7 +3900,7 @@ double History::getProb(const Clustering & SystemIn) {
       // from those coming from the hard process
       int nCol = 0;
       for(int i=0; i < state.size(); ++i)
-        if (state[i].isFinal() && state[i].colType() != 0 
+        if (state[i].isFinal() && state[i].colType() != 0
           && !mergingHooksPtr->hardProcess.matchesAnyOutgoing(i,state) )
           nCol++;
       // For first splitting of single vector boson production,
@@ -3931,7 +3931,7 @@ double History::getProb(const Clustering & SystemIn) {
       // from those coming from the hard process
       int nCol = 0;
       for(int i=0; i < state.size(); ++i)
-        if (state[i].isFinal() && state[i].colType() != 0 
+        if (state[i].isFinal() && state[i].colType() != 0
           && !mergingHooksPtr->hardProcess.matchesAnyOutgoing(i,state) )
           nCol++;
       // For first splitting of single vector boson production,
@@ -3962,7 +3962,7 @@ double History::getProb(const Clustering & SystemIn) {
       // from those coming from the hard process
       int nCol = 0;
       for ( int i=0; i < state.size(); ++i )
-        if ( state[i].isFinal() && state[i].colType() != 0 
+        if ( state[i].isFinal() && state[i].colType() != 0
           && !mergingHooksPtr->hardProcess.matchesAnyOutgoing(i,state) )
           nCol++;
       // For first splitting of single vector boson production,
@@ -4013,8 +4013,8 @@ double History::getProb(const Clustering & SystemIn) {
 
     // Print error if no kernel calculated
     } else {
-      string message="Error in History::getProb: Splitting kernel undefined in ISR";
-      message+=" in clustering.";
+      string message = "Error in History::getProb: Splitting kernel"
+        " undefined in ISR in clustering.";
       infoPtr->errorMsg(message);
     }
 
@@ -4271,13 +4271,13 @@ void History::setupBeams() {
   beamB.clear();
 
   // Get energy of incoming particles
-  double Ep = 2. * state[inP].e(); 
+  double Ep = 2. * state[inP].e();
   double Em = 2. * state[inM].e();
     
   // If incoming partons are massive then recalculate to put them massless.
-  if (state[inP].m() != 0. || state[inM].m() != 0.) { 
+  if (state[inP].m() != 0. || state[inM].m() != 0.) {
     Ep = state[inP].pPos() + state[inM].pPos();
-    Em = state[inP].pNeg() + state[inM].pNeg(); 
+    Em = state[inP].pNeg() + state[inM].pNeg();
   }
 
   // Add incoming hard-scattering partons to list in beam remnants.
@@ -4336,7 +4336,7 @@ double History::pdfForSudakov() {
   for(int i=0;i< int(state.size()); ++i) {
     if (state[i].mother1() == 1) inP = i;
     if (state[i].mother1() == 2) inM = i;
-  }  
+  }
 
   // Save mother id
   int idMother = mother->state[iInMother].id();
@@ -4575,7 +4575,7 @@ Event History::cluster( const Clustering & inSystem ) {
     RadBefore.p(Rad4mom);
     RecBefore.p(Rec4mom);
 
-    // Set mass of initial recoiler to zero 
+    // Set mass of initial recoiler to zero
     RecBefore.m( 0.0 );
 
   } else {
@@ -4591,9 +4591,8 @@ Event History::cluster( const Clustering & inSystem ) {
     Vec4 pDaughter( 0.,0.,0.,0. );
     Vec4 pRecoiler( 0.,0.,0.,0. );
 
-    // Find side that radiates event (mother moving in
-    // sign * p_z direction)
-    int sign = state[Rad].pz() > 0 ? 1 : -1;
+    // Find side that radiates event (mother moving in sign * p_z direction).
+    int sign = (state[Rad].pz() > 0.) ? 1 : -1;
 
     // Find rotation by phi that would have been done for a
     // splitting daughter -> mother + sister
@@ -4696,6 +4695,10 @@ Event History::cluster( const Clustering & inSystem ) {
     // Set momenta of particles to be attached to new event record
     RecBefore.p( pRecoiler );
     RadBefore.p( pDaughter );
+    if (RecBefore.pz() > 0.) RecBefore.mother1(1);
+    else RecBefore.mother1(2);
+    if (RadBefore.pz() > 0.) RadBefore.mother1(1);
+    else RadBefore.mother1(2);
 
   }
 
@@ -4741,6 +4744,7 @@ Event History::cluster( const Clustering & inSystem ) {
   int size = int(outState.size());
   // Save position of radiator in new event record
   int radPos = 0;
+
   // Append first incoming particle
   if ( RecBefore.mother1() == 1) {
     outState.append( RecBefore );
@@ -4938,7 +4942,7 @@ Event History::cluster( const Clustering & inSystem ) {
 
 
     // If a resonance has been found, but no colours match, and the position
-    // of the resonance in the event record has been changed, update the 
+    // of the resonance in the event record has been changed, update the
     // radiator mother
     if (!matchesRes && iColResNow > 0 && iColRes != iColResNow)
       outState[radPos].mother1(iColResNow);
@@ -5005,7 +5009,7 @@ int History::getRadBeforeFlav(const int RadAfter, const int EmtAfter,
     // Gluino radiation combined with quark yields squark.
     if (abs(radID) < 10 ) {
       int offset = offsetL;
-      // Check if righthanded squark present. If so, make the reclustered 
+      // Check if righthanded squark present. If so, make the reclustered
       // squark match. Works for squark pair production + gluino emission.
       for (int i=0; i < int(event.size()); ++i)
         if ( event[i].isFinal()
@@ -5112,7 +5116,7 @@ int History::getRadBeforeFlav(const int RadAfter, const int EmtAfter,
 //                          non-valid
 
 bool History::connectRadiator( Particle& Radiator, const int RadType,
-                      const Particle& Recoiler, const int RecType, 
+                      const Particle& Recoiler, const int RecType,
                       const Event& event ) {
 
   // Start filling radiator colour indices with dummy values
@@ -5199,7 +5203,7 @@ bool History::connectRadiator( Particle& Radiator, const int RadType,
       int iEx = i;
 
       if ( event[i].isFinal()) {
-        if ( col > 0 && FindCol(col,iEx,0,event,1,true) == 0 
+        if ( col > 0 && FindCol(col,iEx,0,event,1,true) == 0
           && FindCol(col,iEx,0,event,2,true) == 0) {
           if (Radiator.status() < 0 ) Radiator.col(event[i].col());
           else Radiator.acol(event[i].col());
@@ -5313,10 +5317,10 @@ int History::FindParticle( const Particle& particle, const Event& event,
   int index = -1;
 
   for ( int i = int(event.size()) - 1; i > 0; --i )
-    if ( event[i].id()         == particle.id() 
-      && event[i].colType()    == particle.colType() 
-      && event[i].chargeType() == particle.chargeType() 
-      && event[i].col()        == particle.col() 
+    if ( event[i].id()         == particle.id()
+      && event[i].colType()    == particle.colType()
+      && event[i].chargeType() == particle.chargeType()
+      && event[i].col()        == particle.col()
       && event[i].acol()       == particle.acol()
       && event[i].charge()     == particle.charge() ) {
       index = i;
@@ -5335,7 +5339,7 @@ int History::FindParticle( const Particle& particle, const Event& event,
 // for clustering
 // IN  int   : Position of the radiator after the splitting, in the event
 //     int   : Position of the emitted after the splitting, in the event
-//     Event : Reference event   
+//     Event : Reference event
 // OUT int   : Colour of the radiator before the splitting
 
 int History::getRadBeforeCol(const int rad, const int emt,
@@ -5361,7 +5365,7 @@ int History::getRadBeforeCol(const int rad, const int emt,
     //Gluon emissions in FSR
     } else if (type == 1 && event[emt].id() == 21) {
       // If emitted is a gluon, remove the repeated index, and take
-      // the remaining indices as colour and anticolour 
+      // the remaining indices as colour and anticolour
       int colRemove = (event[rad].col() == event[emt].acol())
                     ? event[rad].acol() : event[rad].col();
       radBeforeCol  = (event[rad].col()  == colRemove)
@@ -5369,7 +5373,7 @@ int History::getRadBeforeCol(const int rad, const int emt,
     //Gluon emissions in ISR
     } else if (type == -1 && event[emt].id() == 21) {
       // If emitted is a gluon, remove the repeated index, and take
-      // the remaining indices as colour and anticolour 
+      // the remaining indices as colour and anticolour
       int colRemove = (event[rad].col() == event[emt].col())
                     ? event[rad].col() : event[rad].acol();
       radBeforeCol  = (event[rad].col()  == colRemove)
@@ -5382,7 +5386,7 @@ int History::getRadBeforeCol(const int rad, const int emt,
     // Quark emission in FSR
     if (type == 1 && event[emt].id() != 21) {
       // If radiating is a quark, remove the repeated index, and take
-      // the remaining indices as colour and anticolour 
+      // the remaining indices as colour and anticolour
       int colRemove = (event[rad].col() == event[emt].acol())
                     ? event[rad].acol() : 0;
       radBeforeCol  = (event[rad].col()  == colRemove)
@@ -5390,7 +5394,7 @@ int History::getRadBeforeCol(const int rad, const int emt,
     //Gluon emissions in FSR
     } else if (type == 1 && event[emt].id() == 21) {
       // If emitted is a gluon, remove the repeated index, and take
-      // the remaining indices as colour and anticolour 
+      // the remaining indices as colour and anticolour
       int colRemove = (event[rad].col() == event[emt].acol())
                     ? event[rad].col() : 0;
       radBeforeCol  = (event[rad].col()  == colRemove)
@@ -5398,7 +5402,7 @@ int History::getRadBeforeCol(const int rad, const int emt,
     //Quark emissions in ISR
     } else if (type == -1 && event[emt].id() != 21) {
       // If emitted is a quark, remove the repeated index, and take
-      // the remaining indices as colour and anticolour 
+      // the remaining indices as colour and anticolour
       int colRemove = (event[rad].col() == event[emt].col())
                     ? event[rad].col() : 0;
       radBeforeCol  = (event[rad].col()  == colRemove)
@@ -5406,7 +5410,7 @@ int History::getRadBeforeCol(const int rad, const int emt,
     //Gluon emissions in ISR
     } else if (type == -1 && event[emt].id() == 21) {
       // If emitted is a gluon, remove the repeated index, and take
-      // the remaining indices as colour and anticolour 
+      // the remaining indices as colour and anticolour
       int colRemove = (event[rad].col() == event[emt].col())
                     ? event[rad].col() : 0;
       radBeforeCol  = (event[rad].col()  == colRemove)
@@ -5427,7 +5431,7 @@ int History::getRadBeforeCol(const int rad, const int emt,
 // for clustering
 // IN  int   : Position of the radiator after the splitting, in the event
 //     int   : Position of the emitted after the splitting, in the event
-//     Event : Reference event   
+//     Event : Reference event
 // OUT int   : Anticolour of the radiator before the splitting
 
 int History::getRadBeforeAcol(const int rad, const int emt,
@@ -5454,7 +5458,7 @@ int History::getRadBeforeAcol(const int rad, const int emt,
     //Gluon emissions in FSR
     } else if (type == 1 && event[emt].id() == 21) {
       // If emitted is a gluon, remove the repeated index, and take
-      // the remaining indices as colour and anticolour 
+      // the remaining indices as colour and anticolour
       int colRemove = (event[rad].col() == event[emt].acol())
                     ? event[rad].acol() : event[rad].col();
       radBeforeAcl  = (event[rad].acol() == colRemove)
@@ -5462,7 +5466,7 @@ int History::getRadBeforeAcol(const int rad, const int emt,
     //Gluon emissions in ISR
     } else if (type == -1 && event[emt].id() == 21) {
       // If emitted is a gluon, remove the repeated index, and take
-      // the remaining indices as colour and anticolour 
+      // the remaining indices as colour and anticolour
       int colRemove = (event[rad].col() == event[emt].col())
                     ? event[rad].col() : event[rad].acol();
       radBeforeAcl  = (event[rad].acol() == colRemove)
@@ -5475,7 +5479,7 @@ int History::getRadBeforeAcol(const int rad, const int emt,
     // Antiquark emission in FSR
     if (type == 1 && event[emt].id() != 21) {
       // If radiating is a antiquark, remove the repeated index, and take
-      // the remaining indices as colour and anticolour 
+      // the remaining indices as colour and anticolour
       int colRemove = (event[rad].col() == event[emt].acol())
                     ? event[rad].acol() : 0;
       radBeforeAcl  = (event[rad].acol()  == colRemove)
@@ -5483,7 +5487,7 @@ int History::getRadBeforeAcol(const int rad, const int emt,
     //Gluon emissions in FSR
     } else if (type == 1 && event[emt].id() == 21) {
       // If emitted is a gluon, remove the repeated index, and take
-      // the remaining indices as colour and anticolour 
+      // the remaining indices as colour and anticolour
       int colRemove = (event[rad].acol() == event[emt].col())
                     ? event[rad].acol() : 0;
       radBeforeAcl  = (event[rad].acol()  == colRemove)
@@ -5491,7 +5495,7 @@ int History::getRadBeforeAcol(const int rad, const int emt,
     //Antiquark emissions in ISR
     } else if (type == -1 && event[emt].id() != 21) {
       // If emitted is an antiquark, remove the repeated index, and take
-      // the remaining indices as colour and anticolour 
+      // the remaining indices as colour and anticolour
       int colRemove = (event[rad].acol() == event[emt].acol())
                     ? event[rad].acol() : 0;
       radBeforeAcl  = (event[rad].acol()  == colRemove)
@@ -5499,7 +5503,7 @@ int History::getRadBeforeAcol(const int rad, const int emt,
     //Gluon emissions in ISR
     } else if (type == -1 && event[emt].id() == 21) {
       // If emitted is a gluon, remove the repeated index, and take
-      // the remaining indices as colour and anticolour 
+      // the remaining indices as colour and anticolour
       int colRemove = (event[rad].acol() == event[emt].acol())
                     ? event[rad].acol() : 0;
       radBeforeAcl  = (event[rad].acol()  == colRemove)
@@ -5518,7 +5522,7 @@ int History::getRadBeforeAcol(const int rad, const int emt,
 
   // Function to get the parton connected to in by a colour line
   // IN  int   : Position of parton for which partner should be found
-  //     Event : Reference event   
+  //     Event : Reference event
   // OUT int   : If a colour line connects the "in" parton with another
   //             parton, return the Position of the partner, else return 0
 
@@ -5542,7 +5546,7 @@ int History::getColPartner(const int in, const Event& event) {
 
   // Function to get the parton connected to in by an anticolour line
   // IN  int   : Position of parton for which partner should be found
-  //     Event : Reference event   
+  //     Event : Reference event
   // OUT int   : If an anticolour line connects the "in" parton with another
   //             parton, return the Position of the partner, else return 0
 
@@ -5567,7 +5571,7 @@ int History::getAcolPartner(const int in, const Event& event) {
 // formed by reclusterinf emt and rad by colour and anticolour lines
 // IN  int          : Position of radiator in the clustering
 // IN  int          : Position of emitted in the clustering
-//     Event        : Reference event   
+//     Event        : Reference event
 // OUT vector<int>  : List of positions of all partons that are connected
 //                    to the parton that will be formed
 //                    by clustering emt and rad.
@@ -5651,7 +5655,7 @@ vector<int> History::getReclusteredPartners(const int rad, const int emt,
 //--------------------------------------------------------------------------
 
 // Function to extract a chain of colour-connected partons in
-// the event 
+// the event
 // IN     int          : Type of parton from which to start extracting a
 //                       parton chain. If the starting point is a quark
 //                       i.e. flavType = 1, a chain of partons that are
@@ -5706,10 +5710,10 @@ bool History::getColSinglet( const int flavType, const int iParton,
   colSinglet.push_back(iParton);
   // Remove the partner from the list
   exclude.push_back(iParton);
-  // When starting out from a quark line, follow the colour lines 
+  // When starting out from a quark line, follow the colour lines
   if (flavType == 1)
     colP = getColPartner(iParton,event);
-  // When starting out from an antiquark line, follow the anticolour lines 
+  // When starting out from an antiquark line, follow the anticolour lines
   else
     colP = getAcolPartner(iParton,event);
 
@@ -5728,7 +5732,7 @@ bool History::getColSinglet( const int flavType, const int iParton,
 // Function to check that a set of partons forms a colour singlet
 // IN  Event       : Reference event
 // IN  vector<int> : Positions of the partons in the set
-// OUT bool        : Is a colour singlet / is not 
+// OUT bool        : Is a colour singlet / is not
 
 bool History::isColSinglet( const Event& event,
   vector<int> system ) {
@@ -5741,7 +5745,7 @@ bool History::isColSinglet( const Event& event,
        || event[system[i]].colType() == 2) ) {
       for(int j=0; j < int(system.size()); ++j)
         // If flavour matches, remove both partons and continue
-        if ( system[i] > 0 
+        if ( system[i] > 0
           && system[j] > 0
           && event[system[i]].col() == event[system[j]].acol()) {
           // Remove index and break
@@ -5756,7 +5760,7 @@ bool History::isColSinglet( const Event& event,
        || event[system[i]].colType() == 2) ) {
       for(int j=0; j < int(system.size()); ++j)
         // If flavour matches, remove both partons and continue
-        if ( system[i] > 0 
+        if ( system[i] > 0
           && system[j] > 0
           && event[system[i]].acol() == event[system[j]].col()) {
           // Remove index and break
@@ -5788,7 +5792,7 @@ bool History::isColSinglet( const Event& event,
 // IN  vector<int> : Positions of the partons in the set
 // IN  int         : Flavour of all the quarks in the set, if
 //                   all quarks in a set should have a fixed flavour
-// OUT bool        : Is a flavour singlet / is not 
+// OUT bool        : Is a flavour singlet / is not
 
 bool History::isFlavSinglet( const Event& event,
   vector<int> system, int flav) {
@@ -5806,7 +5810,7 @@ bool History::isFlavSinglet( const Event& event,
           && event[i].idAbs() != 22
           && event[i].idAbs() != 23
           && event[i].idAbs() != 24
-          && system[i] > 0 
+          && system[i] > 0
           && system[j] > 0
           && event[system[i]].isFinal()
           && event[system[j]].isFinal()
@@ -5863,7 +5867,7 @@ bool History::isFlavSinglet( const Event& event,
 // Function to check if rad,emt,rec triple is allowed for clustering
 // IN int rad,emt,rec : Positions (in event record) of the three
 //                      particles considered for clustering
-//    Event event     : Reference event 
+//    Event event     : Reference event
                  
 bool History::allowedClustering( int rad, int emt, int rec, int partner,
                 const Event& event ) {
@@ -5889,7 +5893,7 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
   for(int i=0; i < int(event.size()); ++i)
     // Check all final state partons
     if ( event[i].isFinal()
-      && event[i].colType() != 0 
+      && event[i].colType() != 0
       && mergingHooksPtr->hardProcess.matchesAnyOutgoing(i, event) )
       nPartonInHard++;
 
@@ -5901,7 +5905,7 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
     // Check all final state partons
     if ( i!=emt && i!=rad && i!=rec
       &&  event[i].isFinal()
-      &&  event[i].colType() != 0 
+      &&  event[i].colType() != 0
       && !mergingHooksPtr->hardProcess.matchesAnyOutgoing(i, event) )
       nPartons++;
 
@@ -5926,7 +5930,7 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
       nFinalEW++;
 
   // Check if event after potential clustering contains an even
-  // number of quarks and/or antiquarks 
+  // number of quarks and/or antiquarks
   // (otherwise no electroweak vertex could be formed!)
   // Get number of final quarks
   int nFinalQuark = 0;
@@ -5963,7 +5967,7 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
     // Add recoiler to number of initial quarks
     if (event[rec].isQuark()) nInitialQuark++;
     // Add radiator after clustering to number of initial quarks
-    if (abs(radBeforeFlav) < 10) nInitialQuark++;  
+    if (abs(radBeforeFlav) < 10) nInitialQuark++;
   }
 
   // BEGIN CHECKING THE CLUSTERING
@@ -6004,7 +6008,7 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
   // Never recluster any outgoing partons of the core V -> qqbar' splitting!
   if ( mergingHooksPtr->hardProcess.matchesAnyOutgoing(emt,event) ) {
     // Check if any other particle could replace "emt" as part of the candidate
-    // core process. If so, replace emt with the new candidate and allow the 
+    // core process. If so, replace emt with the new candidate and allow the
     // clustering.
     bool canReplace = mergingHooksPtr->hardProcess.findOtherCandidates(emt,
                         event, true);
@@ -6187,7 +6191,7 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
         if (anticolours[i] != 0)
           allMatched = false;
 
-      if (allMatched) 
+      if (allMatched)
         return false;
 
       // Now add the colours of the hard process, and check if all
@@ -6216,7 +6220,7 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
       // Check if clustering would produce the hard process
       int nNotInHard = 0;
       for ( int i=0; i < int(quark.size()); ++i )
-        if ( !mergingHooksPtr->hardProcess.matchesAnyOutgoing( quark[i], 
+        if ( !mergingHooksPtr->hardProcess.matchesAnyOutgoing( quark[i],
               event) )
           nNotInHard++;
       for ( int i=0; i < int(antiq.size()); ++i )
@@ -6286,8 +6290,8 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
     if ( int(radBeforeColP.size()) == 2
       && ((  event[radBeforeColP[0]].status() == -21
           && event[radBeforeColP[1]].isFinal())
-        ||(  event[radBeforeColP[0]].isFinal() 
-          && event[radBeforeColP[1]].status() == -21)) 
+        ||(  event[radBeforeColP[0]].isFinal()
+          && event[radBeforeColP[1]].status() == -21))
       && event[radBeforeColP[0]].id() == event[radBeforeColP[1]].id() ) {
 
       // In principle, clustering this splitting can disconnect
@@ -6403,7 +6407,7 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
 
       // In a final check, ensure that the final state does not only
       // consist of colour singlets that are also flavour singlets
-      // of the identical (!) flavours 
+      // of the identical (!) flavours
       // Loop through event and save all final state partons
       vector<int> allFinal;
       for(int i=0; i < int(event.size()); ++i)
@@ -6517,7 +6521,7 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
 
     }
 
-  } 
+  }
 
   // Done
   return allowed;
@@ -6529,7 +6533,7 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
 // colour singlet radBefore+recBefore
 // IN int rad,emt,rec : Positions (in event record) of the three
 //                      particles considered for clustering
-//    Event event     : Reference event  
+//    Event event     : Reference event
                 
 bool History::isSinglett( int rad, int emt, int rec, const Event& event ) {
 
@@ -6626,7 +6630,7 @@ bool History::equalClustering( Clustering clus1 , Clustering clus2 ) {
 
 // Chose dummy scale for event construction. By default, choose
 //     sHat     for 2->Boson(->2)+ n partons processes and
-//     M_Boson  for 2->Boson(->)             processes 
+//     M_Boson  for 2->Boson(->)             processes
 
 double History::choseHardScale( const Event& event ) const {
 
@@ -6698,7 +6702,7 @@ double History::getCurrentZ(const int rad,
     // Calculate z of splitting, different for FSR
     z = x1/(x1+x3);
   } else {
-    // Construct momenta of dipole before/after splitting for ISR 
+    // Construct momenta of dipole before/after splitting for ISR
     Vec4 qBR(state[rad].p() - state[emt].p() + state[rec].p());
     Vec4 qAR(state[rad].p() + state[rec].p());
     // Calculate z of splitting, different for ISR
@@ -6726,7 +6730,7 @@ double History::pTLund(const Particle& RadAfterBranch,
   // Mass term of radiator: Consider all non-light quark or gluon radiators
   // massive partons.
   bool isMassive = ( RadAfterBranch.idAbs() >= 4
-                  && RadAfterBranch.id() != 21 );   
+                  && RadAfterBranch.id() != 21 );
   double m2Rad   = ( mergingHooksPtr->includeMassive() && isMassive )
                  ? pow2( particleDataPtr->m0(RadAfterBranch.id()) ) : 0.;
   // Construct 2->3 variables for FSR
@@ -6735,7 +6739,7 @@ double History::pTLund(const Particle& RadAfterBranch,
   double m2Dip = sum.m2Calc();
   double x1 = 2. * (sum * RadAfterBranch.p()) / m2Dip;
   double x3 = 2. * (sum * EmtAfterBranch.p()) / m2Dip;
-  // Construct momenta of dipole before/after splitting for ISR 
+  // Construct momenta of dipole before/after splitting for ISR
   Vec4 qBR(RadAfterBranch.p() - EmtAfterBranch.p() + RecAfterBranch.p());
   Vec4 qAR(RadAfterBranch.p() + RecAfterBranch.p());
   // Calculate z of splitting, different for FSR and ISR
@@ -6834,11 +6838,11 @@ int History::posChangedIncoming(const Event& event, bool before) {
 //--------------------------------------------------------------------------
 
 // Function to give back the ratio of PDFs and PDF * splitting kernels needed
-// to convert a splitting at scale pdfScale, chosen with running PDFs, to a 
+// to convert a splitting at scale pdfScale, chosen with running PDFs, to a
 // splitting chosen with PDFs at a fixed scale mu. As needed to properly count
 // emissions.
 
-double History::pdfFactor( const Event& event, const int type, 
+double History::pdfFactor( const Event& event, const int type,
   double pdfScale, double mu ) {
 
   double weight = 1.;
@@ -6934,12 +6938,12 @@ double History::pdfFactor( const Event& event, const int type,
     double xDaughter = 2.*event[iDaughter].e() / event[0].e();
 
     // Calculate PDF weight to reweight emission to emission evaluated at
-    // constant factorisation scale. No need to include the splitting kernel 
+    // constant factorisation scale. No need to include the splitting kernel
     // in the weight, since it will drop out anyway.
     int sideSplit = ( event[iMother].pz() > 0.) ? 1 : -1;
-    double ratio1 = getPDFratio( sideSplit, false, false, flavDaughter, 
+    double ratio1 = getPDFratio( sideSplit, false, false, flavDaughter,
                       xDaughter, pdfScale, flavDaughter, xDaughter, mu );
-    double ratio2 = getPDFratio( sideSplit, false, false, flavMother, 
+    double ratio2 = getPDFratio( sideSplit, false, false, flavMother,
                       xMother, mu, flavMother, xMother, pdfScale );
 
     weight = ratio1*ratio2;
@@ -6956,7 +6960,7 @@ double History::pdfFactor( const Event& event, const int type,
 //--------------------------------------------------------------------------
 
 // Function giving the product of splitting kernels and PDFs so that the
-// resulting flavour is given by flav. This is used as a helper routine 
+// resulting flavour is given by flav. This is used as a helper routine
 // to dgauss
 
 double History::integrand(int flav, double x, double scaleInt, double z) {

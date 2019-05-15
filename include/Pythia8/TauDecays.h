@@ -1,5 +1,5 @@
 // TauDecays.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2014 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -32,7 +32,7 @@ public:
   ~TauDecays() {}
 
   // Initializer.
-  void init(Info* infoPtrIn, Settings* settingsPtrIn, 
+  void init(Info* infoPtrIn, Settings* settingsPtrIn,
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
     Couplings* couplingsPtrIn);
 
@@ -48,7 +48,7 @@ public:
   // Write the decay to event record.
   void writeDecay(Event& event, vector<HelicityParticle>& p);
 
-private: 
+private:
 
   // Constants: could only be changed in the code itself.
   static const int    NTRYCHANNEL, NTRYDECAY;

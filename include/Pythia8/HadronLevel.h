@@ -1,5 +1,5 @@
 // HadronLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -37,26 +37,26 @@ class HadronLevel {
 
 public:
 
-  // Constructor. 
+  // Constructor.
   HadronLevel() {}
 
   // Initialize HadronLevel classes as required.
-  bool init(Info* infoPtrIn, Settings& settings, 
-    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
-    Couplings* couplingsPtrIn, TimeShower* timesDecPtr, 
-    RHadrons* rHadronsPtrIn, DecayHandler* decayHandlePtr, 
+  bool init(Info* infoPtrIn, Settings& settings,
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
+    Couplings* couplingsPtrIn, TimeShower* timesDecPtr,
+    RHadrons* rHadronsPtrIn, DecayHandler* decayHandlePtr,
     vector<int> handledParticles);
 
   // Get pointer to StringFlav instance (needed by BeamParticle).
   StringFlav* getStringFlavPtr() {return &flavSel;}
  
   // Generate the next event.
-  bool next(Event& event); 
+  bool next(Event& event);
 
   // Special routine to allow more decays if on/off switches changed.
   bool moreDecays(Event& event);
 
-private: 
+private:
 
   // Constants: could only be changed in the code itself.
   static const int    NTRYJNREST;
@@ -82,13 +82,13 @@ private:
   Couplings*    couplingsPtr;
 
   // Configuration of colour-singlet systems.
-  ColConfig     colConfig;   
+  ColConfig     colConfig;
 
   // Colour information.
-  vector<int>    iColEnd, iAcolEnd, iColAndAcol, iParton, iPartonJun, 
-                 iPartonAntiJun, iJunLegA, iJunLegB, iJunLegC,  
+  vector<int>    iColEnd, iAcolEnd, iColAndAcol, iParton, iPartonJun,
+                 iPartonAntiJun, iJunLegA, iJunLegB, iJunLegC,
                  iAntiLegA, iAntiLegB, iAntiLegC, iGluLeg;
-  vector<double> m2Pair; 
+  vector<double> m2Pair;
 
   // The generator class for normal string fragmentation.
   StringFragmentation stringFrag;
@@ -102,7 +102,7 @@ private:
   // The generator class for hadron scattering --rjc
   HadronScatter hadronScatter;
 
-  // The generator class for Bose-Einstein effects. 
+  // The generator class for Bose-Einstein effects.
   BoseEinstein boseEinstein;
 
   // Classes for flavour, pT and z generation.
@@ -125,7 +125,7 @@ private:
  
   // Trace a colour line, from a colour, from an anticolour, or in loop.
   bool traceFromCol(int indxCol, Event& event, int iJun = -1, int iCol = -1);
-  bool traceFromAcol(int indxCol, Event& event, int iJun = -1, int iCol = -1); 
+  bool traceFromAcol(int indxCol, Event& event, int iJun = -1, int iCol = -1);
   bool traceInLoop(int indxCol, int indxAcol, Event& event);
 
   // Split junction-antijunction system into two, or simplify other way.

@@ -1,9 +1,9 @@
 // BeamShape.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Function definitions (not found in the header) for the BeamShape class. 
+// Function definitions (not found in the header) for the BeamShape class.
 
 #include "Pythia8/BeamShape.h"
 
@@ -17,7 +17,7 @@ namespace Pythia8 {
 
 // Initialize beam parameters.
 
-  void BeamShape::init( Settings& settings, Rndm* rndmPtrIn) { 
+  void BeamShape::init( Settings& settings, Rndm* rndmPtrIn) {
 
   // Save pointer.
   rndmPtr             = rndmPtrIn;
@@ -47,7 +47,7 @@ namespace Pythia8 {
   maxDevTime          = settings.parm("Beams:maxDevTime");
  
   // Parameters for beam vertex offset.
-  offsetX             = settings.parm("Beams:offsetVertexX"); 
+  offsetX             = settings.parm("Beams:offsetVertexX");
   offsetY             = settings.parm("Beams:offsetVertexY");
   offsetZ             = settings.parm("Beams:offsetVertexZ");
   offsetT             = settings.parm("Beams:offsetTime");
@@ -58,7 +58,7 @@ namespace Pythia8 {
 
 // Set the two beam momentum deviations and the beam vertex.
 
-void BeamShape::pick() { 
+void BeamShape::pick() {
 
   // Reset all values.
   deltaPxA = deltaPyA = deltaPzA = deltaPxB = deltaPyB = deltaPzB
@@ -72,19 +72,19 @@ void BeamShape::pick() {
       if (sigmaPxA > 0.) {
         gauss     = rndmPtr->gauss();
         deltaPxA  = sigmaPxA * gauss;
-        totalDev += gauss * gauss; 
+        totalDev += gauss * gauss;
       }
       if (sigmaPyA > 0.) {
         gauss     = rndmPtr->gauss();
         deltaPyA  = sigmaPyA * gauss;
-        totalDev += gauss * gauss; 
+        totalDev += gauss * gauss;
       }
       if (sigmaPzA > 0.) {
         gauss     = rndmPtr->gauss();
         deltaPzA  = sigmaPzA * gauss;
-        totalDev += gauss * gauss; 
+        totalDev += gauss * gauss;
       }
-    } while (totalDev > maxDevA * maxDevA); 
+    } while (totalDev > maxDevA * maxDevA);
 
     // Set beam B momentum deviation by a three-dimensional Gaussian.
     do {
@@ -92,20 +92,20 @@ void BeamShape::pick() {
       if (sigmaPxB > 0.) {
         gauss     = rndmPtr->gauss();
         deltaPxB  = sigmaPxB * gauss;
-        totalDev += gauss * gauss; 
+        totalDev += gauss * gauss;
       }
       if (sigmaPyB > 0.) {
         gauss     = rndmPtr->gauss();
         deltaPyB  = sigmaPyB * gauss;
-        totalDev += gauss * gauss; 
+        totalDev += gauss * gauss;
       }
       if (sigmaPzB > 0.) {
         gauss     = rndmPtr->gauss();
         deltaPzB  = sigmaPzB * gauss;
-        totalDev += gauss * gauss; 
+        totalDev += gauss * gauss;
       }
-    } while (totalDev > maxDevB * maxDevB); 
-  }  
+    } while (totalDev > maxDevB * maxDevB);
+  }
 
   // Set beam vertex location by a three-dimensional Gaussian.
   if (allowVertexSpread) {
@@ -115,17 +115,17 @@ void BeamShape::pick() {
       if (sigmaVertexX > 0.) {
         gauss     = rndmPtr->gauss();
         vertexX   = sigmaVertexX * gauss;
-        totalDev += gauss * gauss; 
+        totalDev += gauss * gauss;
       }
       if (sigmaVertexY > 0.) {
         gauss     = rndmPtr->gauss();
         vertexY   = sigmaVertexY * gauss;
-        totalDev += gauss * gauss; 
+        totalDev += gauss * gauss;
       }
       if (sigmaVertexZ > 0.) {
         gauss     = rndmPtr->gauss();
         vertexZ   = sigmaVertexZ * gauss;
-        totalDev += gauss * gauss; 
+        totalDev += gauss * gauss;
       }
     } while (totalDev > maxDevVertex * maxDevVertex);
 
@@ -141,7 +141,7 @@ void BeamShape::pick() {
     vertexY      += offsetY;
     vertexZ      += offsetZ;
     vertexT      += offsetT;
-  }  
+  }
 
 }
  

@@ -1,12 +1,12 @@
 // PhaseSpace.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Header file for phase space generators in kinematics selection.
 // PhaseSpace: base class for phase space generators.
 // Base class for derived classes> 2 ->1 , 2 -> 2, 2 -> 2 elastic/diffractive,
-// 2 -> 2 nondiffractive, 2 -> 3, Les Houches. 
+// 2 -> 2 nondiffractive, 2 -> 3, Les Houches.
 
 #ifndef Pythia8_PhaseSpace_H
 #define Pythia8_PhaseSpace_H
@@ -34,7 +34,7 @@ class UserHooks;
  
 //==========================================================================
 
-// PhaseSpace is a base class for  phase space generators 
+// PhaseSpace is a base class for  phase space generators
 // used in the selection of hard-process kinematics.
 
 class PhaseSpace {
@@ -45,29 +45,29 @@ public:
   virtual ~PhaseSpace() {}
 
   // Perform simple initialization and store pointers.
-  void init(bool isFirst, SigmaProcess* sigmaProcessPtrIn, 
+  void init(bool isFirst, SigmaProcess* sigmaProcessPtrIn,
     Info* infoPtrIn, Settings* settingsPtrIn, ParticleData* particleDataPtrIn,
-    Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
-    Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, 
+    Rndm* rndmPtrIn, BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
+    Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn,
     UserHooks* userHooksPtrIn);
 
   // Update the CM energy of the event.
   void newECM(double eCMin) {eCM = eCMin; s = eCM * eCM;}
 
   // Store or replace Les Houches pointer.
-  void setLHAPtr(LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;}  
+  void setLHAPtr(LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;}
 
   // A pure virtual method, wherein an optimization procedure
   // is used to determine how phase space should be sampled.
-  virtual bool setupSampling() = 0; 
+  virtual bool setupSampling() = 0;
 
-  // A pure virtual method, wherein a trial event kinematics 
+  // A pure virtual method, wherein a trial event kinematics
   // is to be selected in the derived class.
-  virtual bool trialKin(bool inEvent = true, bool repeatSame = false) = 0; 
+  virtual bool trialKin(bool inEvent = true, bool repeatSame = false) = 0;
 
-  // A pure virtual method, wherein the accepted event kinematics 
+  // A pure virtual method, wherein the accepted event kinematics
   // is to be constructed in the derived class.
-  virtual bool finalKin() = 0; 
+  virtual bool finalKin() = 0;
 
   // Allow for nonisotropic decays when ME's available.
   void   decayKinematics( Event& process);
@@ -79,11 +79,11 @@ public:
   bool   newSigmaMax() const {return newSigmaMx;}
   void   setSigmaMax(double sigmaMaxIn) {sigmaMx = sigmaMaxIn;}
 
-  // For Les Houches with negative event weight needs 
+  // For Les Houches with negative event weight needs
   virtual double sigmaSumSigned() const {return sigmaMx;}
   
   // Give back constructed four-vectors and known masses.
-  Vec4   p(int i)   const {return pH[i];} 
+  Vec4   p(int i)   const {return pH[i];}
   double m(int i)   const {return mH[i];}
 
   // Give back other event properties.
@@ -110,17 +110,17 @@ protected:
 
   // Constants: could only be changed in the code itself.
   static const int    NMAXTRY, NTRY3BODY;
-  static const double SAFETYMARGIN, TINY, EVENFRAC, SAMESIGMA, WIDTHMARGIN, 
-                      SAMEMASS, MASSMARGIN, EXTRABWWTMAX, THRESHOLDSIZE, 
-                      THRESHOLDSTEP, YRANGEMARGIN, LEPTONXMIN, LEPTONXMAX, 
+  static const double SAFETYMARGIN, TINY, EVENFRAC, SAMESIGMA, WIDTHMARGIN,
+                      SAMEMASS, MASSMARGIN, EXTRABWWTMAX, THRESHOLDSIZE,
+                      THRESHOLDSTEP, YRANGEMARGIN, LEPTONXMIN, LEPTONXMAX,
                       LEPTONXLOGMIN, LEPTONXLOGMAX, LEPTONTAUMIN,
                       SHATMINZ, PT2RATMINZ, WTCORRECTION[11];
 
   // MBR constants: form factor appoximation with two exponents.
-  static const double FFA1, FFA2,FFB1, FFB2; 
+  static const double FFA1, FFA2,FFB1, FFB2;
 
-  // Pointer to cross section. 
-  SigmaProcess* sigmaProcessPtr; 
+  // Pointer to cross section.
+  SigmaProcess* sigmaProcessPtr;
 
   // Pointer to various information on the generation.
   Info*         infoPtr;
@@ -154,26 +154,26 @@ protected:
   bool   useBreitWigners, doEnergySpread, showSearch, showViolation,
          increaseMaximum;
   int    gmZmodeGlobal;
-  double mHatGlobalMin, mHatGlobalMax, pTHatGlobalMin, pTHatGlobalMax, 
+  double mHatGlobalMin, mHatGlobalMax, pTHatGlobalMin, pTHatGlobalMax,
          pTHatMinDiverge, minWidthBreitWigners, mRecalculate;
  
   // Information on incoming beams.
   int    idA, idB;
-  double mA, mB, eCM, s; 
+  double mA, mB, eCM, s;
   bool   hasLeptonBeams, hasPointLeptons;
 
  // Cross section information.
   bool   newSigmaMx, canModifySigma, canBiasSelection, canBias2Sel;
   int    gmZmode;
-  double bias2SelPow, bias2SelRef, wtBW, sigmaNw, sigmaMx, sigmaPos, 
+  double bias2SelPow, bias2SelRef, wtBW, sigmaNw, sigmaMx, sigmaPos,
          sigmaNeg, biasWt;
 
   // Process-specific kinematics properties, almost always available.
-  double mHatMin, mHatMax, sHatMin, sHatMax, pTHatMin, pTHatMax, 
-         pT2HatMin, pT2HatMax; 
+  double mHatMin, mHatMax, sHatMin, sHatMax, pTHatMin, pTHatMax,
+         pT2HatMin, pT2HatMax;
 
   // Event-specific kinematics properties, almost always available.
-  double x1H, x2H, m3, m4, m5, s3, s4, s5, mHat, sH, tH, uH, pAbs, p2Abs, 
+  double x1H, x2H, m3, m4, m5, s3, s4, s5, mHat, sH, tH, uH, pAbs, p2Abs,
          pTH, theta, phi, betaZ;
   Vec4   pH[6];
   double mH[6];
@@ -185,30 +185,30 @@ protected:
 
   // Determine how phase space should be sampled.
   void setup3Body();
-  bool setupSampling123(bool is2, bool is3, ostream& os = cout); 
+  bool setupSampling123(bool is2, bool is3, ostream& os = cout);
 
   // Select a trial kinematics phase space point.
-  bool trialKin123(bool is2, bool is3, bool inEvent = true, 
-    ostream& os = cout); 
+  bool trialKin123(bool is2, bool is3, bool inEvent = true,
+    ostream& os = cout);
 
   // Presence and properties of any s-channel resonances.
   int    idResA, idResB;
-  double mResA, mResB, GammaResA, GammaResB, tauResA, tauResB, widResA, 
+  double mResA, mResB, GammaResA, GammaResB, tauResA, tauResB, widResA,
          widResB;
   bool   sameResMass;
 
   // Kinematics properties specific to 2 -> 1/2/3.
-  bool   useMirrorWeight; 
-  double tau, y, z, tauMin, tauMax, yMax, zMin, zMax, ratio34, unity34, 
-         zNeg, zPos, wtTau, wtY, wtZ, wt3Body, runBW3H, runBW4H, runBW5H, 
-         intTau0, intTau1, intTau2, intTau3, intTau4, intTau5, intTau6, 
-         intY0, intY12, intY34, intY56, mTchan1, sTchan1, mTchan2, sTchan2, 
-         frac3Flat, frac3Pow1, frac3Pow2; 
+  bool   useMirrorWeight;
+  double tau, y, z, tauMin, tauMax, yMax, zMin, zMax, ratio34, unity34,
+         zNeg, zPos, wtTau, wtY, wtZ, wt3Body, runBW3H, runBW4H, runBW5H,
+         intTau0, intTau1, intTau2, intTau3, intTau4, intTau5, intTau6,
+         intY0, intY12, intY34, intY56, mTchan1, sTchan1, mTchan2, sTchan2,
+         frac3Flat, frac3Pow1, frac3Pow2;
   Vec4   p3cm, p4cm, p5cm;
 
   // Coefficients for optimized selection in 2 -> 1/2/3.
   int    nTau, nY, nZ;
-  double tauCoef[8], yCoef[8], zCoef[8], tauCoefSum[8], yCoefSum[8], 
+  double tauCoef[8], yCoef[8], zCoef[8], tauCoefSum[8], yCoefSum[8],
          zCoefSum[8];
 
   // Calculate kinematical limits for 2 -> 1/2/3.
@@ -224,15 +224,15 @@ protected:
 
   // Solve equation system for better phase space coefficients in 2 -> 1/2/3.
   void solveSys( int n, int bin[8], double vec[8], double mat[8][8],
-    double coef[8], ostream& os = cout); 
+    double coef[8], ostream& os = cout);
 
   // Properties specific to resonance mass selection in 2 -> 2 and 2 -> 3.
-  bool   useBW[6]; 
+  bool   useBW[6];
   int    idMass[6];
-  double mPeak[6], sPeak[6], mWidth[6], mMin[6], mMax[6], mw[6], wmRat[6], 
-         mLower[6], mUpper[6], sLower[6], sUpper[6], fracFlat[6], fracInv[6], 
-         fracInv2[6], atanLower[6], atanUpper[6], intBW[6], intFlat[6], 
-         intInv[6], intInv2[6]; 
+  double mPeak[6], sPeak[6], mWidth[6], mMin[6], mMax[6], mw[6], wmRat[6],
+         mLower[6], mUpper[6], sLower[6], sUpper[6], fracFlat[6], fracInv[6],
+         fracInv2[6], atanLower[6], atanUpper[6], intBW[6], intFlat[6],
+         intInv[6], intInv2[6];
 
   // Setup mass selection for one resonance at a time. Split in two parts.
   void   setupMass1(int iM);
@@ -244,9 +244,9 @@ protected:
 
   // The error function erf(x) should normally be in your math library,
   // but if not uncomment this simple parametrization by Sergei Winitzki.
-  //double erf(double x) { double x2 = x * x; double kx2 = 0.147 * x2; 
+  //double erf(double x) { double x2 = x * x; double kx2 = 0.147 * x2;
   //  double tmp = sqrt(1. - exp(-x2 * (4./M_PI + kx2) / (1. + kx2)));
-  //  return ((x >= 0.) ? tmp : -tmp); } 
+  //  return ((x >= 0.) ? tmp : -tmp); }
 
 };
  
@@ -263,10 +263,10 @@ public:
 
   // Optimize subsequent kinematics selection.
   virtual bool setupSampling() {if (!setupMass()) return false;
-    return setupSampling123(false, false);} 
+    return setupSampling123(false, false);}
 
   // Construct the trial kinematics.
-  virtual bool trialKin(bool inEvent = true, bool = false) {wtBW = 1.; 
+  virtual bool trialKin(bool inEvent = true, bool = false) {wtBW = 1.;
     return trialKin123(false, false, inEvent);}
 
   // Construct the final event kinematics.
@@ -291,12 +291,12 @@ public:
   PhaseSpace2to2tauyz() {}
 
   // Optimize subsequent kinematics selection.
-  virtual bool setupSampling() {if (!setupMasses()) return false; 
-    return setupSampling123(true, false);} 
+  virtual bool setupSampling() {if (!setupMasses()) return false;
+    return setupSampling123(true, false);}
 
   // Construct the trial kinematics.
   virtual bool trialKin(bool inEvent = true, bool = false) {
-    if (!trialMasses()) return false; 
+    if (!trialMasses()) return false;
     return trialKin123(true, false, inEvent);}
 
   // Construct the final event kinematics.
@@ -329,9 +329,9 @@ public:
   PhaseSpace2to2elastic() {}
 
   // Construct the trial or final event kinematics.
-  virtual bool setupSampling(); 
-  virtual bool trialKin(bool inEvent = true, bool = false); 
-  virtual bool finalKin(); 
+  virtual bool setupSampling();
+  virtual bool trialKin(bool inEvent = true, bool = false);
+  virtual bool finalKin();
 
   // Are beam particles resolved in partons or scatter directly?
   virtual bool isResolved() const {return false;}
@@ -364,9 +364,9 @@ public:
     : isDiffA(isDiffAin), isDiffB(isDiffBin) {}
 
   // Construct the trial or final event kinematics.
-  virtual bool setupSampling(); 
-  virtual bool trialKin(bool inEvent = true, bool = false); 
-  virtual bool finalKin(); 
+  virtual bool setupSampling();
+  virtual bool trialKin(bool inEvent = true, bool = false);
+  virtual bool finalKin();
 
   // Are beam particles resolved in partons or scatter directly?
   virtual bool isResolved() const {return false;}
@@ -384,7 +384,7 @@ private:
 
   // Initialization: kinematics properties specific to 2 -> 2 diffractive.
   double m3ElDiff, m4ElDiff, s1, s2, lambda12, lambda34, tLow, tUpp,
-         cRes, sResXB, sResAX, sProton, bMin, bSlope, bSlope1, bSlope2, 
+         cRes, sResXB, sResAX, sProton, bMin, bSlope, bSlope1, bSlope2,
          probSlope1, xIntPF, xtCorPF, mp24DL, coefDL, tAux, tAux1, tAux2;
     
   // Parameters for MBR model.
@@ -395,7 +395,7 @@ private:
 
 //==========================================================================
 
-// A derived class with 2 -> 3 kinematics set up for central diffractive 
+// A derived class with 2 -> 3 kinematics set up for central diffractive
 // scattering.
 
 class PhaseSpace2to3diffractive : public PhaseSpace {
@@ -406,9 +406,9 @@ public:
   PhaseSpace2to3diffractive() {}
 
   // Construct the trial or final event kinematics.
-  virtual bool setupSampling(); 
-  virtual bool trialKin(bool inEvent = true, bool = false); 
-  virtual bool finalKin(); 
+  virtual bool setupSampling();
+  virtual bool trialKin(bool inEvent = true, bool = false);
+  virtual bool finalKin();
 
   // Are beam particles resolved in partons or scatter directly?
   virtual bool isResolved() const {return false;}
@@ -421,10 +421,10 @@ public:
     
   // Local variables to calculate DPE kinematics.
   int    PomFlux;
-  double epsilonPF, alphaPrimePF, s1, s2, m5min, s5min, tLow[2], tUpp[2], 
-         bMin[2], tAux[2], bSlope1, bSlope2, probSlope1[2], tAux1[2], 
-         tAux2[2], bSlope, xIntPF, xIntInvPF, xtCorPF, mp24DL, coefDL, 
-         epsMBR, alphMBR, m2minMBR, dyminMBR, dyminSigMBR, dyminInvMBR, 
+  double epsilonPF, alphaPrimePF, s1, s2, m5min, s5min, tLow[2], tUpp[2],
+         bMin[2], tAux[2], bSlope1, bSlope2, probSlope1[2], tAux1[2],
+         tAux2[2], bSlope, xIntPF, xIntInvPF, xtCorPF, mp24DL, coefDL,
+         epsMBR, alphMBR, m2minMBR, dyminMBR, dyminSigMBR, dyminInvMBR,
          dpepmax, t1, t2;
   Vec4   p1, p2, p3, p4, p5;
 
@@ -445,7 +445,7 @@ public:
   // Construct the trial or final event kinematics.
   virtual bool setupSampling() {sigmaNw = sigmaProcessPtr->sigmaHat();
     sigmaMx = sigmaNw; return true;}
-  virtual bool trialKin( bool , bool = false) {return true;}  
+  virtual bool trialKin( bool , bool = false) {return true;}
   virtual bool finalKin() {return true;}
 
 private:
@@ -454,7 +454,7 @@ private:
  
 //==========================================================================
 
-// A derived class with 2 -> 3 kinematics 1 + 2 -> 3 + 4 + 5 set up in 
+// A derived class with 2 -> 3 kinematics 1 + 2 -> 3 + 4 + 5 set up in
 // tau, y, pT2_4, pT2_5, phi_4, phi_5 and y_3 (partial cylindrical symmetry).
 
 class PhaseSpace2to3tauycyl : public PhaseSpace {
@@ -465,12 +465,12 @@ public:
   PhaseSpace2to3tauycyl() {}
 
   // Optimize subsequent kinematics selection.
-  virtual bool setupSampling() {if (!setupMasses()) return false; 
-    setup3Body(); return setupSampling123(false, true);} 
+  virtual bool setupSampling() {if (!setupMasses()) return false;
+    setup3Body(); return setupSampling123(false, true);}
 
   // Construct the trial kinematics.
   virtual bool trialKin(bool inEvent = true, bool = false) {
-    if (!trialMasses()) return false; 
+    if (!trialMasses()) return false;
     return trialKin123(false, true, inEvent);}
 
   // Construct the final event kinematics.
@@ -491,7 +491,7 @@ private:
  
 //==========================================================================
 
-// A derived class with 2 -> 3 kinematics 1 + 2 -> 3 + 4 + 5 set up in 
+// A derived class with 2 -> 3 kinematics 1 + 2 -> 3 + 4 + 5 set up in
 // y3, y4, y5, pT2_3, pT2_5, phi_3 and phi_5, and with R separation cut.
 // Intended specifically for (essentially massless) 2 -> 3 QCD processes.
 
@@ -503,10 +503,10 @@ public:
   PhaseSpace2to3yyycyl() {}
 
   // Optimize subsequent kinematics selection.
-  virtual bool setupSampling(); 
+  virtual bool setupSampling();
 
   // Construct the trial kinematics.
-  virtual bool trialKin(bool inEvent = true, bool = false); 
+  virtual bool trialKin(bool inEvent = true, bool = false);
 
   // Construct the final event kinematics.
   virtual bool finalKin();
@@ -526,7 +526,7 @@ private:
 
 //==========================================================================
 
-// A derived class for Les Houches events. 
+// A derived class for Les Houches events.
 
 class PhaseSpaceLHA : public PhaseSpace {
 
@@ -539,12 +539,12 @@ public:
   virtual bool setupSampling();
 
   // Construct the next process, by interface to Les Houches class.
-  virtual bool trialKin( bool , bool repeatSame = false); 
+  virtual bool trialKin( bool , bool repeatSame = false);
 
   // Set scale, alpha_s and alpha_em if not done.
   virtual bool finalKin() {sigmaProcessPtr->setScale(); return true;}
 
-  // For Les Houches with negative event weight needs 
+  // For Les Houches with negative event weight needs
   virtual double sigmaSumSigned() const {return sigmaSgn;}
 
 private:

@@ -26,11 +26,11 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 ?>
 
 <form method='post' action='RandomNumberSeed.php'>
-
-<h2>Random-Number Seed</h2>
-
-The seed of the random number generator can be set as follows:
-
+ 
+<h2>Random-Number Seed</h2> 
+ 
+The seed of the random number generator can be set as follows: 
+ 
 <br/><br/><strong>Random:setSeed</strong>  <input type="radio" name="1" value="on"><strong>On</strong>
 <input type="radio" name="1" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
@@ -40,23 +40,23 @@ generator is initialized with its default seed at the beginning
 of the run, and never again. If on, each new <code>Pythia::init</code> 
 call (should several be made in the same run) results in the random 
 number being re-initialized, thereby possibly starting over with the 
-same sequence, if you do not watch out.
-  
-
+same sequence, if you do not watch out. 
+   
+ 
 <br/><br/><table><tr><td><strong>Random:seed  </td><td></td><td> <input type="text" name="2" value="-1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1</strong></code>; <code>maximum = 900000000</code>)</td></tr></table>
-The seed to be used, if <code>setSeed</code> is on.<br/>
+The seed to be used, if <code>setSeed</code> is on.<br/> 
 A negative value gives the default seed,<br/> 
-a value 0 gives a random seed based on the time, and<br/>
+a value 0 gives a random seed based on the time, and<br/> 
 a value between 1 and 900,000,000 a unique different random number 
-sequence.
-  
-
-<p/>
+sequence. 
+   
+ 
+<p/> 
 For more on random numbers see <?php $filepath = $_GET["filepath"];
-echo "<a href='RandomNumbers.php?filepath=".$filepath."' target='page'>";?>here</a>.
-This includes methods to save and restore the state of the generator,
-and some preprogrammed methods to generate non-uniform random numbers.
-
+echo "<a href='RandomNumbers.php?filepath=".$filepath."' target='page'>";?>here</a>. 
+This includes methods to save and restore the state of the generator, 
+and some preprogrammed methods to generate non-uniform random numbers. 
+ 
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -88,5 +88,5 @@ fclose($handle);
 ?>
 </body>
 </html>
-
-<!-- Copyright (C) 2013 Torbjorn Sjostrand -->
+ 
+<!-- Copyright (C) 2014 Torbjorn Sjostrand --> 

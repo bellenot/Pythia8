@@ -1,5 +1,5 @@
 // Bose-Einstein.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -26,10 +26,10 @@ class BoseEinsteinHadron {
 
 public:
 
-  // Constructors. 
-  BoseEinsteinHadron() : id(0), iPos(0), p(0.), pShift(0.), pComp(0.), 
+  // Constructors.
+  BoseEinsteinHadron() : id(0), iPos(0), p(0.), pShift(0.), pComp(0.),
     m2(0.) {}
-  BoseEinsteinHadron(int idIn,  int iPosIn, Vec4 pIn, double mIn) : 
+  BoseEinsteinHadron(int idIn,  int iPosIn, Vec4 pIn, double mIn) :
     id(idIn), iPos(iPosIn), p(pIn), pShift(0.), pComp(0.) {m2 = mIn*mIn;}
 
   // Information on hadron - all public.
@@ -41,23 +41,23 @@ public:
 
 //==========================================================================
 
-// The BoseEinstein class shifts the momenta of identical particles relative 
+// The BoseEinstein class shifts the momenta of identical particles relative
 // to each other, to simulate Bose-Einstein effects to some approximation.
 
 class BoseEinstein {
 
 public:
 
-  // Constructor. 
+  // Constructor.
   BoseEinstein() {}
 
   // Find settings. Precalculate table used to find momentum shifts.
   bool init(Info* infoPtrIn, Settings& settings, ParticleData& particleData);
 
   // Perform Bose-Einstein corrections on an event.
-  bool shiftEvent( Event& event); 
+  bool shiftEvent( Event& event);
 
-private: 
+private:
 
   // Constants: could only be changed in the code itself.
   static const int    IDHADRON[9], ITABLE[9], NCOMPSTEP;
@@ -74,7 +74,7 @@ private:
   int    nStep[4], nStep3[4], nStored[10];
   double QRef2, QRef3, R2Ref, R2Ref2, R2Ref3, mHadron[9],
          mPair[4], m2Pair[4], deltaQ[4], deltaQ3[4], maxQ[4], maxQ3[4];
-  double shift[4][200], shift3[4][200]; 
+  double shift[4][200], shift3[4][200];
 
   // Vector of hadrons to study.
   vector<BoseEinsteinHadron> hadronBE;

@@ -1,5 +1,5 @@
 // main27.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,7 +10,7 @@
 #include <sstream>
 
 #include "Pythia8/Pythia.h"
-using namespace Pythia8; 
+using namespace Pythia8;
 
 int main() {
 
@@ -40,7 +40,7 @@ int main() {
   //pythia.readString("ExtraDimensionsTEV:ffbar2numunumubar = on");
   //pythia.readString("ExtraDimensionsTEV:ffbar2nutaunutaubar = on");
 
-  // Pick KK mass.  
+  // Pick KK mass.
   double newMass = 4000.; // GeV
   cout << "|-------------------------" << endl;
   cout << "| KK mass is: " << newMass << endl;
@@ -48,7 +48,7 @@ int main() {
   stringstream strm;
   string sNewMass, sNewWidth, sNewLowBound, sNewHighBound;
 
-  // Manually set the mass and therefore the width 
+  // Manually set the mass and therefore the width
   // and the phase space for the sampling
   strm.clear();
   strm << newMass;
@@ -63,7 +63,7 @@ int main() {
   strm << newMass*2.;
   strm >> sNewHighBound;
 
-  // Feed in KK state information and other generation specifics.  
+  // Feed in KK state information and other generation specifics.
   pythia.readString("5000023:m0 = " + sNewMass);
   pythia.readString("5000023:mWidth = " + sNewWidth);
   pythia.readString("5000023:mMin = " + sNewLowBound);
@@ -72,15 +72,15 @@ int main() {
   pythia.readString("5000023:isResonance = false"); // THIS IS MANDATORY  //
   //////////////////////////////////////////////////////////////////////////
   // 0=(gm+Z), 1=(gm), 2=(Z), 3=(gm+Z+gmKK+ZKK), 4=(m+Z+gmKK), 5=(m+Z+ZKK)
-  pythia.readString("ExtraDimensionsTEV:gmZmode = 3"); 
+  pythia.readString("ExtraDimensionsTEV:gmZmode = 3");
   // min=0, max=100, default=10
-  pythia.readString("ExtraDimensionsTEV:nMax = 100"); 
+  pythia.readString("ExtraDimensionsTEV:nMax = 100");
   pythia.readString("ExtraDimensionsTEV:mStar = " + sNewMass);
   pythia.readString("PhaseSpace:mHatMin = " + sNewLowBound);
   pythia.readString("PhaseSpace:mHatMax = " + sNewHighBound);
 
   // Initialize for LHC.
-  pythia.readString("Beams:eCM = 14000.");    
+  pythia.readString("Beams:eCM = 14000.");
   pythia.init();
 
   // Histograms.

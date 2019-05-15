@@ -1,5 +1,5 @@
 // BeamRemnants.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -25,28 +25,28 @@ namespace Pythia8 {
 //==========================================================================
 
 // This class matches the kinematics of the hard-scattering subsystems
-// (with primordial kT added) to that of the two beam remnants.  
+// (with primordial kT added) to that of the two beam remnants.
 
 class BeamRemnants {
 
 public:
 
   // Constructor.
-  BeamRemnants() : iDS(0) { }  
+  BeamRemnants() : iDS(0) { }
 
   // Initialization.
-  bool init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn, 
-    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
+  bool init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn,
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
     PartonSystems* partonSystemsPtrIn);
 
   // New beams possible for handling of hard diffraction.
   void reassignBeamPtrs( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
     int iDSin) {beamAPtr = beamAPtrIn; beamBPtr = beamBPtrIn; iDS = iDSin;}
 
-  // Select the flavours/kinematics/colours of the two beam remnants. 
+  // Select the flavours/kinematics/colours of the two beam remnants.
   bool add( Event& event);
 
-private: 
+private:
 
   // Constants: could only be changed in the code itself.
   static const bool   ALLOWCOLOURTWICE, CORRECTMISMATCH;
@@ -55,7 +55,7 @@ private:
   // Initialization data, read from Settings.
   bool   doPrimordialKT, allowRescatter, doRescatterRestoreY, doReconnect;
   double primordialKTsoft, primordialKThard, primordialKTremnant,
-         halfScaleForKT, halfMassForKT, reconnectRange, 
+         halfScaleForKT, halfMassForKT, reconnectRange,
          pT0Ref, ecmRef, ecmPow;
 
   // Information set for events.
@@ -78,7 +78,7 @@ private:
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
 
-  // Do the kinematics of the collision subsystems and two beam remnants. 
+  // Do the kinematics of the collision subsystems and two beam remnants.
   bool setKinematics( Event& event);
 
   // Allow colour reconnections.

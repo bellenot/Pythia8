@@ -1,9 +1,9 @@
 ! main31.cmnd.
-! This file contains commands to be read in for a Pythia8 run. 
+! This file contains commands to be read in for a Pythia8 run.
 ! Lines not beginning with a letter or digit are comments.
 ! Names are case-insensitive  -  but spellings-sensitive!
 ! The settings here are illustrative, not always physics-motivated.
-! You should carefully consider what changes need be done for the 
+! You should carefully consider what changes need be done for the
 ! process you study currently, and consider some of the options
 ! as reasonable measures of uncertainties in the matching process.
 
@@ -12,14 +12,14 @@ Main:numberOfEvents = 0
 
 ! Number of events to list and number of errors to allow.
 Next:numberShowLHA = 1
-Next:numberShowInfo = 1 
+Next:numberShowInfo = 1
 Next:numberShowProcess = 1
-Next:numberShowEvent = 1   
+Next:numberShowEvent = 1
 Main:timesAllowErrors = 10
 
-! List changed settings or particle data.	
+! List changed settings or particle data.
 Init:showChangedSettings = on
-Init:showChangedParticleData = off 
+Init:showChangedParticleData = off
 
 ! Input file.
 Beams:frameType = 4

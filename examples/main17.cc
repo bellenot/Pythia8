@@ -1,16 +1,16 @@
 // main17.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// This is a simple test program. 
-// It illustrates 
-// (a) how to use UserHooks to regularize onium cross section for pT -> 0, 
+// This is a simple test program.
+// It illustrates
+// (a) how to use UserHooks to regularize onium cross section for pT -> 0,
 // (b) how decays could be handled externally.
 
 #include "Pythia8/Pythia.h"
 
-using namespace Pythia8; 
+using namespace Pythia8;
 
 //==========================================================================
 
@@ -21,11 +21,11 @@ class JpsiDecay : public DecayHandler {
 public:
 
   // Constructor.
-  JpsiDecay(ParticleData* pdtPtrIn, Rndm* rndmPtrIn) {times = 0; 
+  JpsiDecay(ParticleData* pdtPtrIn, Rndm* rndmPtrIn) {times = 0;
     pdtPtr = pdtPtrIn; rndmPtr = rndmPtrIn;}
 
   // Routine for doing the decay.
-  bool decay(vector<int>& idProd, vector<double>& mProd, 
+  bool decay(vector<int>& idProd, vector<double>& mProd,
     vector<Vec4>& pProd, int iDec, const Event& event);
 
 private:
@@ -46,7 +46,7 @@ private:
 // The actual J/psi decay routine.
 // Not intended for realism, just to illustrate the principles.
 
-bool JpsiDecay::decay(vector<int>& idProd, vector<double>& mProd, 
+bool JpsiDecay::decay(vector<int>& idProd, vector<double>& mProd,
   vector<Vec4>& pProd, int iDec, const Event& event) {
 
   // Always do decay J/psi -> mu+ mu-; store the muons.
@@ -54,7 +54,7 @@ bool JpsiDecay::decay(vector<int>& idProd, vector<double>& mProd,
   idProd.push_back(13);
   
   // Muon mass(es), here from Pythia tables, also stored.
-  double mMuon = pdtPtr->m0(13); 
+  double mMuon = pdtPtr->m0(13);
   mProd.push_back(mMuon);
   mProd.push_back(mMuon);
 
@@ -66,13 +66,13 @@ bool JpsiDecay::decay(vector<int>& idProd, vector<double>& mProd,
   double cosTheta = 2. * rndmPtr->flat() - 1.;
   double sinTheta = sqrt(max(0., 1. - cosTheta * cosTheta));
   double phi = 2. * M_PI * rndmPtr->flat();
-  double pxMuon = pAbsMuon * sinTheta * cos(phi); 
-  double pyMuon = pAbsMuon * sinTheta * sin(phi); 
-  double pzMuon = pAbsMuon * cosTheta; 
+  double pxMuon = pAbsMuon * sinTheta * cos(phi);
+  double pyMuon = pAbsMuon * sinTheta * sin(phi);
+  double pzMuon = pAbsMuon * cosTheta;
 
   // Define mu+ and mu- four-vectors in the J/psi rest frame.
-  Vec4 pMuPlus(   pxMuon,  pyMuon,  pzMuon, eMuon);  
-  Vec4 pMuMinus( -pxMuon, -pyMuon, -pzMuon, eMuon);  
+  Vec4 pMuPlus(   pxMuon,  pyMuon,  pzMuon, eMuon);
+  Vec4 pMuMinus( -pxMuon, -pyMuon, -pzMuon, eMuon);
 
   // Boost them by velocity vector of the J/psi mother and store.
   pMuPlus.bst(pProd[0]);
@@ -84,7 +84,7 @@ bool JpsiDecay::decay(vector<int>& idProd, vector<double>& mProd,
   if (times++ < 10) {
     int iMother = event[iDec].mother1();
     int idMother = event[iMother].id();
-    cout << "\n J/psi decay performed, J/psi in line " << iDec 
+    cout << "\n J/psi decay performed, J/psi in line " << iDec
          << ", mother id = " << idMother << "\n";
   }
 
@@ -109,23 +109,23 @@ int main() {
   pythia.readString("Charmonium:all = on");
   pythia.readString("Beams:eCM = 7000.");
 
-  // Normally cutoff at pTHat = 1, but push it lower combined with dampening. 
-  pythia.readString("PhaseSpace:pTHatMin = 0.5");  
-  pythia.readString("PhaseSpace:pTHatMinDiverge = 0.5");  
+  // Normally cutoff at pTHat = 1, but push it lower combined with dampening.
+  pythia.readString("PhaseSpace:pTHatMin = 0.5");
+  pythia.readString("PhaseSpace:pTHatMinDiverge = 0.5");
 
   // Set up to do a user veto and send it in.
   // First argument: multiplies the pT0 of multiparton interactions
   // to define the pT dampeing scale.
-  // Second argument: howe many powers of alpha_strong to 
+  // Second argument: howe many powers of alpha_strong to
   // reweight with new (larger) argument.
   // Third argument: choice of process scale two different ways;
   // probably does not make much difference.
-  // See "User Hooks" in manual for detail on SuppressSmallPT. 
+  // See "User Hooks" in manual for detail on SuppressSmallPT.
   UserHooks* oniumUserHook = new SuppressSmallPT( 1., 3, false);
   pythia.setUserHooksPtr( oniumUserHook);
 
-  // A class to do J/psi decays externally. 
-  DecayHandler* handleDecays = new JpsiDecay(&pythia.particleData, 
+  // A class to do J/psi decays externally.
+  DecayHandler* handleDecays = new JpsiDecay(&pythia.particleData,
     &pythia.rndm);
 
   // The list of particles the class can handle.
@@ -138,7 +138,7 @@ int main() {
   // Switch off automatic event listing in favour of manual.
   pythia.readString("Next:numberShowInfo = 0");
   pythia.readString("Next:numberShowProcess = 0");
-  pythia.readString("Next:numberShowEvent = 0"); 
+  pythia.readString("Next:numberShowEvent = 0");
 
   // Initialization.
   pythia.init();
@@ -155,7 +155,7 @@ int main() {
     // Generate events. Quit if many failures.
     if (!pythia.next()) {
       if (++iAbort < nAbort) continue;
-      cout << " Event generation aborted prematurely, owing to error!\n"; 
+      cout << " Event generation aborted prematurely, owing to error!\n";
       break;
     }
 
@@ -168,16 +168,16 @@ int main() {
     for (int i = 0; i < pythia.event.size(); ++i) {
       int status = pythia.event[i].statusAbs();
       if (status == 93 || status == 94) {externalDecay = true; break;}
-    }  
+    }
  
     // List first few events with external decay.
-    if (externalDecay && ++iList <= nList) { 
+    if (externalDecay && ++iList <= nList) {
       pythia.process.list();
       pythia.event.list();
     }
 
     // Histogram pT spectrum of J/Psi.
-   for (int i = 0; i < pythia.event.size(); ++i) 
+   for (int i = 0; i < pythia.event.size(); ++i)
    if (pythia.event[i].id() == 443) pTJPsi.fill( pythia.event[i].pT() );
 
   // End of event loop.

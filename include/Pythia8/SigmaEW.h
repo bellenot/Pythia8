@@ -1,5 +1,5 @@
 // SigmaEW.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -30,7 +30,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -62,7 +62,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -91,13 +91,13 @@ public:
   // Constructor.
   Sigma2gg2ggamma() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -110,7 +110,7 @@ public:
 
 private:
 
-  // Values stored for later use.  
+  // Values stored for later use.
   double chargeSum, sigma;
 
 };
@@ -129,7 +129,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -158,13 +158,13 @@ public:
   // Constructor.
   Sigma2gg2gammagamma() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -192,13 +192,13 @@ public:
   // Constructor.
   Sigma2ff2fftgmZ() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -228,13 +228,13 @@ public:
   // Constructor.
   Sigma2ff2fftW() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -264,20 +264,20 @@ public:
   // Constructor.
   Sigma2qq2QqtW(int idIn, int codeIn) : idNew(idIn), codeSave(codeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for W decay angles in top decay (else inactive).
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -305,20 +305,20 @@ public:
   // Constructor.
   Sigma1ffbar2gmZ() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for Z decay angle.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return "f fbar -> gamma*/Z0";}
@@ -328,9 +328,9 @@ public:
 
 private:
 
-  // Parameters set at initialization or for each new event. 
+  // Parameters set at initialization or for each new event.
   int    gmZmode;
-  double mRes, GammaRes, m2Res, GamMRat, thetaWRat, 
+  double mRes, GammaRes, m2Res, GamMRat, thetaWRat,
          gamSum, intSum, resSum, gamProp, intProp, resProp;
 
   // Pointer to properties of the particle species, to access decay channels.
@@ -349,20 +349,20 @@ public:
   // Constructor.
   Sigma1ffbar2W() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for W decay angle.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return "f fbar' -> W+-";}
@@ -372,7 +372,7 @@ public:
 
 private:
 
-  // Parameters set at initialization. 
+  // Parameters set at initialization.
   double mRes, GammaRes, m2Res, GamMRat, thetaWRat, sigma0Pos, sigma0Neg;
 
   // Pointer to properties of the particle species, to access decay channels.
@@ -395,7 +395,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -418,6 +418,96 @@ private:
 
 //==========================================================================
 
+// A derived class for f fbar -> gamma*/Z0 -> f' fbar', summed over light f.
+
+class Sigma2ffbar2ffbarsgmZ : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2ffbar2ffbarsgmZ() {}
+
+  // Initialize process.
+  virtual void initProc();
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate sigmaHat(sHat).
+  virtual double sigmaHat();
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Info on the subprocess.
+  virtual string name()       const {
+    return "f fbar -> f' fbar' (s-channel gamma*/Z0)";}
+  virtual int    code()       const {return 224;}
+  virtual string inFlux()     const {return "ffbarSame";}
+  virtual bool   isSChannel() const {return true;}
+  virtual int    idSChannel() const {return 23;}
+  virtual int    resonanceA() const {return 23;}
+
+private:
+
+  // Parameters set at initialization or for each new event.
+  int    gmZmode;
+  double mRes, GammaRes, m2Res, GamMRat, thetaWRat, colQ,
+         gamSumT, gamSumL, intSumT, intSumL, intSumA, resSumT, resSumL,
+         resSumA, gamProp, intProp, resProp, cThe;
+  vector<int> idVec;
+  vector<double> gamT, gamL, intT, intL, intA, resT, resL, resA, sigTLA;
+
+  // Pointer to properties of the particle species, to access decay channels.
+  ParticleDataEntry* particlePtr;
+
+};
+
+//==========================================================================
+
+// A derived class for f_1 fbar_2 -> W+- -> f_3 fbar_4, summed over light f.
+
+class Sigma2ffbar2ffbarsW : public Sigma2Process {
+
+public:
+
+  // Constructor.
+  Sigma2ffbar2ffbarsW() {}
+
+  // Initialize process.
+  virtual void initProc();
+
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
+  // Evaluate sigmaHat(sHat).
+  virtual double sigmaHat();
+
+  // Select flavour, colour and anticolour.
+  virtual void setIdColAcol();
+
+  // Info on the subprocess.
+  virtual string name()       const {
+    return "f_1 fbar_2 -> f_3 fbar_4 (s-channel W+-)";}
+  virtual int    code()       const {return 225;}
+  virtual string inFlux()     const {return "ffbarChg";}
+  virtual bool   isSChannel() const {return true;}
+  virtual int    idSChannel() const {return 24;}
+  virtual int    resonanceA() const {return 24;}
+
+private:
+
+  // Parameters set at initialization or stored for later use.
+  int    id3New, id4New;
+  double mRes, GammaRes, m2Res, GamMRat, thetaWRat, sigma0;
+
+  // Pointer to properties of the particle species, to access decay channels.
+  ParticleDataEntry* particlePtr;
+
+};
+
+//==========================================================================
+
 // A derived class for f fbar -> gamma*/Z0 -> F Fbar, for one heavy F.
 // Allows pT cuts as for other 2 -> 2 processes.
 
@@ -426,23 +516,23 @@ class Sigma2ffbar2FFbarsgmZ : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2ffbar2FFbarsgmZ(int idIn, int codeIn) : idNew(idIn), 
+  Sigma2ffbar2FFbarsgmZ(int idIn, int codeIn) : idNew(idIn),
     codeSave(codeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for W decay angles in top decay (else inactive).
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return nameSave;}
@@ -460,7 +550,7 @@ private:
   string nameSave;
   bool   isPhysical;
   double ef, vf, af, mRes, GammaRes, m2Res, GamMRat, thetaWRat,
-         mr, betaf, cosThe, gamProp, intProp, resProp, openFracPair; 
+         mr, betaf, cosThe, gamProp, intProp, resProp, openFracPair;
 
 };
 
@@ -474,23 +564,23 @@ class Sigma2ffbar2FfbarsW : public Sigma2Process {
 public:
 
   // Constructor.
-  Sigma2ffbar2FfbarsW(int idIn, int idIn2, int codeIn) : idNew(idIn), 
+  Sigma2ffbar2FfbarsW(int idIn, int idIn2, int codeIn) : idNew(idIn),
     idNew2(idIn2), codeSave(codeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for W decay angles in top decay (else inactive).
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return nameSave;}
@@ -508,7 +598,7 @@ private:
   string nameSave;
   bool   isPhysical;
   double V2New, mRes, GammaRes, m2Res, GamMRat, thetaWRat, sigma0,
-         openFracPos, openFracNeg; 
+         openFracPos, openFracNeg;
 
 };
  
@@ -525,17 +615,17 @@ public:
 
 protected:
 
-  // Internal products. 
+  // Internal products.
   Vec4    pRot[7];
   complex hA[7][7];
   complex hC[7][7];
 
   // Calculate and store internal products.
-  void setupProd( Event& process, int i1, int i2, int i3, int i4, 
-    int i5, int i6);   
+  void setupProd( Event& process, int i1, int i2, int i3, int i4,
+    int i5, int i6);
 
   // Evaluate the F function of Gunion and Kunszt.
-  complex fGK(int i1, int i2, int i3, int i4, int i5, int i6); 
+  complex fGK(int i1, int i2, int i3, int i4, int i5, int i6);
 
   // Evaluate the Xi function of Gunion and Kunszt.
   double xiGK( double tHnow, double uHnow);
@@ -558,23 +648,23 @@ public:
   // Constructor.
   Sigma2ffbar2gmZgmZ() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for simultaneous flavour choices.
-  virtual double weightDecayFlav( Event& process); 
+  virtual double weightDecayFlav( Event& process);
 
   // Evaluate weight for decay angles of the two gamma*/Z0.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return "f fbar -> gamma*/Z0 gamma*/Z0";}
@@ -585,9 +675,9 @@ public:
 
 private:
 
-  // Parameters set at initialization or for each new event. 
+  // Parameters set at initialization or for each new event.
   int    gmZmode, i1, i2, i3, i4, i5, i6;
-  double mRes, GammaRes, m2Res, GamMRat, thetaWRat, sigma0,  
+  double mRes, GammaRes, m2Res, GamMRat, thetaWRat, sigma0,
          gamSum3, intSum3, resSum3, gamProp3, intProp3, resProp3,
          gamSum4, intSum4, resSum4, gamProp4, intProp4, resProp4,
          c3LL, c3LR, c3RL, c3RR, c4LL, c4LR, c4RL, c4RR, flavWt;
@@ -608,20 +698,20 @@ public:
   // Constructor.
   Sigma2ffbar2ZW() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for Z0 and W+- decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return "f fbar' -> Z0 W+- (no gamma*!)";}
@@ -650,20 +740,20 @@ public:
   // Constructor.
   Sigma2ffbar2WW() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for W+ and W- decay angles.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()       const {return "f fbar -> W+ W-";}
@@ -676,7 +766,7 @@ public:
 private:
 
   // Store Z0 mass and width.
-  double mZ, widZ, mZS, mwZS, thetaWRat, sigma0, cgg, cgZ, cZZ, cfg, 
+  double mZ, widZ, mZS, mwZS, thetaWRat, sigma0, cgg, cgZ, cZZ, cfg,
     cfZ, cff, gSS, gTT, gST, gUU, gSU, openFracPair;
 
 };
@@ -692,24 +782,24 @@ public:
   // Constructor.
   Sigma2ffbargmZggm() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Evaluate weight for gamma&/Z0 decay angle.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
 protected:
 
-  // Parameters set at initialization or for each new event. 
+  // Parameters set at initialization or for each new event.
   int    gmZmode;
-  double mRes, GammaRes, m2Res, GamMRat, thetaWRat, 
+  double mRes, GammaRes, m2Res, GamMRat, thetaWRat,
          gamSum, intSum, resSum, gamProp, intProp, resProp;
 
-  // Evaluate current sum of flavour couplings times phase space. 
-  void flavSum(); 
+  // Evaluate current sum of flavour couplings times phase space.
+  void flavSum();
 
-  // Evaluate current propagator terms of cross section. 
-  void propTerm(); 
+  // Evaluate current propagator terms of cross section.
+  void propTerm();
 
 private:
 
@@ -732,7 +822,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -765,7 +855,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -798,7 +888,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -831,7 +921,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -862,7 +952,7 @@ public:
   Sigma2ffbarWggm() {}
 
   // Evaluate weight for gamma&/Z0 decay angle.
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
 private:
 
@@ -879,13 +969,13 @@ public:
   // Constructor.
   Sigma2qqbar2Wg() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -915,13 +1005,13 @@ public:
   // Constructor.
   Sigma2qg2Wq() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -951,13 +1041,13 @@ public:
   // Constructor.
   Sigma2ffbar2Wgm() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -987,13 +1077,13 @@ public:
   // Constructor.
   Sigma2fgm2Wf() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -1022,13 +1112,13 @@ public:
   // Constructor.
   Sigma2gmgm2ffbar(int idIn, int codeIn) : idNew(idIn), codeSave(codeIn) {}
 
-  // Initialize process. 
+  // Initialize process.
   virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.

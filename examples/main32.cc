@@ -1,11 +1,11 @@
 // main32.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// This is a sample program showing Alpgen- or Madgraph-style MLM matching 
+// This is a sample program showing Alpgen- or Madgraph-style MLM matching
 // for Madgraph LHEF or native Alpgen format event files.
-// 
+//
 // Please see the 'Jet Matching Style' manual page for a description of the
 // parameters and user options.
 

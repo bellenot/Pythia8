@@ -1,5 +1,5 @@
 // MergingHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -18,13 +18,13 @@ namespace Pythia8 {
 
 // Factor by which the maximal value of the merging scale can deviate before
 // a warning is printed.
-const double Merging::TMSMISMATCH = 1.5; 
+const double Merging::TMSMISMATCH = 1.5;
 
 //--------------------------------------------------------------------------
 
 // Initialise Merging class
 
-void Merging::init( Settings* settingsPtrIn, Info* infoPtrIn, 
+void Merging::init( Settings* settingsPtrIn, Info* infoPtrIn,
   ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
   BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
   MergingHooks* mergingHooksPtrIn, PartonLevel* trialPartonLevelPtrIn ){
@@ -38,7 +38,7 @@ void Merging::init( Settings* settingsPtrIn, Info* infoPtrIn,
   trialPartonLevelPtr   = trialPartonLevelPtrIn;
   beamAPtr              = beamAPtrIn;
   beamBPtr              = beamBPtrIn;
-  // Reset minimal tms value. 
+  // Reset minimal tms value.
   tmsNowMin             = infoPtr->eCM();
 
 }
@@ -53,7 +53,7 @@ void Merging::statistics( ostream& os ) {
   // Recall merging scale value.
   double tmsval         = mergingHooksPtr->tms();
   bool printBanner      = enforceCutOnLHE && tmsNowMin > TMSMISMATCH*tmsval;
-  // Reset minimal tms value. 
+  // Reset minimal tms value.
   tmsNowMin             = infoPtr->eCM();
 
   if (!printBanner) return;
@@ -73,7 +73,7 @@ void Merging::statistics( ostream& os ) {
      << "                                                     |\n"
      << " *-------  End PYTHIA Matrix Element Merging Information -----"
      << "-----------------------------------------------------*" << endl;
-} 
+}
 
 //--------------------------------------------------------------------------
 
@@ -146,10 +146,25 @@ int Merging::mergeProcessCKKWL( Event& process) {
   // Reset the minimal tms value, if necessary.
   tmsNowMin     = (nSteps == 0) ? 0. : min(tmsNowMin, tmsnow);
 
+  // Get random number to choose a path.
+  double RN = rndmPtr->flat();
+  // Set dummy process scale.
+  newProcess.scale(0.0);
+  // Generate all histories.
+  History FullHistory( nSteps, 0.0, newProcess, Clustering(), mergingHooksPtr,
+            (*beamAPtr), (*beamBPtr), particleDataPtr, infoPtr, true, true,
+            true, true, 1.0, 0);
+  // Project histories onto desired branches, e.g. only ordered paths.
+  FullHistory.projectOntoDesiredHistories();
+
+  // Do not apply cut if the configuration could not be projected onto an
+  // underlying born configuration.
+  bool applyCut = nSteps > 0 && FullHistory.select(RN)->nClusterings() > 0;
+
   // Enfore merging scale cut if the event did not pass the merging scale
   // criterion.
   bool enforceCutOnLHE  = settingsPtr->flag("Merging:enforceCutOnLHE");
-  if ( enforceCutOnLHE && nSteps > 0 && tmsnow < tmsval ) {
+  if ( enforceCutOnLHE && applyCut && tmsnow < tmsval ) {
     string message="Warning in Merging::mergeProcessCKKWL: Les Houches Event";
     message+=" fails merging scale cut. Reject event.";
     infoPtr->errorMsg(message);
@@ -157,28 +172,17 @@ int Merging::mergeProcessCKKWL( Event& process) {
     return -1;
   }
 
-  // Get random number to choose a path.
-  double RN = rndmPtr->flat();
-  // Set dummy process scale.
-  newProcess.scale(0.0);
-  // Generate all histories.
-  History FullHistory( nSteps, 0.0, newProcess, Clustering(), mergingHooksPtr,
-            (*beamAPtr), (*beamBPtr), particleDataPtr, infoPtr, true, true, 
-            true, true, 1.0, 0);
-  // Project histories onto desired branches, e.g. only ordered paths.
-  FullHistory.projectOntoDesiredHistories();
-
   // Calculate CKKWL weight:
   // Perform reweighting with Sudakov factors, save alpha_s ratios and
   // PDF ratio weights.
-  wgt = FullHistory.weightTREE( trialPartonLevelPtr, 
+  wgt = FullHistory.weightTREE( trialPartonLevelPtr,
           mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(), RN);
 
   // Event with production scales set for further (trial) showering
   // and starting conditions for the shower.
   FullHistory.getStartingConditions( RN, process );
   // If necessary, reattach resonance decay products.
-  mergingHooksPtr->reattachResonanceDecays(process); 
+  mergingHooksPtr->reattachResonanceDecays(process);
 
   // Allow to dampen histories in which the lowest multiplicity reclustered
   // state does not pass the lowest multiplicity cut of the matrix element.
@@ -270,7 +274,7 @@ int Merging::mergeProcessUMEPS( Event& process) {
   newProcess.scale(0.0);
   // Generate all histories.
   History FullHistory( nSteps, 0.0, newProcess, Clustering(), mergingHooksPtr,
-            (*beamAPtr), (*beamBPtr), particleDataPtr, infoPtr, true, true, 
+            (*beamAPtr), (*beamBPtr), particleDataPtr, infoPtr, true, true,
             true, true, 1.0, 0);
   // Project histories onto desired branches, e.g. only ordered paths.
   FullHistory.projectOntoDesiredHistories();
@@ -293,8 +297,8 @@ int Merging::mergeProcessUMEPS( Event& process) {
   // Check reclustering steps to correctly apply MPI.
   int nPerformed = 0;
   if ( nSteps > 0 && doUMEPSSubt
-    && !FullHistory.getFirstClusteredEventAboveTMS( RN, nRecluster, newProcess, 
-          nPerformed, false ) ) {
+    && !FullHistory.getFirstClusteredEventAboveTMS( RN, nRecluster,
+          newProcess, nPerformed, false ) ) {
     // Discard if the state could not be reclustered to a state above TMS.
     mergingHooksPtr->setWeightCKKWL(0.);
     return -1;
@@ -317,7 +321,7 @@ int Merging::mergeProcessUMEPS( Event& process) {
   // and starting conditions for the shower.
   if ( doUMEPSTree ) FullHistory.getStartingConditions( RN, process );
   // Do reclustering (looping) steps.
-  else FullHistory.getFirstClusteredEventAboveTMS( RN, nRecluster, process, 
+  else FullHistory.getFirstClusteredEventAboveTMS( RN, nRecluster, process,
     nPerformed, true );
 
   // Allow to dampen histories in which the lowest multiplicity reclustered
@@ -355,7 +359,7 @@ int Merging::mergeProcessUMEPS( Event& process) {
   // Reset hard process candidates (changed after clustering a parton).
   mergingHooksPtr->storeHardProcessCandidates( process );
   // If necessary, reattach resonance decay products.
-  mergingHooksPtr->reattachResonanceDecays(process); 
+  mergingHooksPtr->reattachResonanceDecays(process);
 
   // Allow merging hooks to remove emissions from now on.
   mergingHooksPtr->doIgnoreEmissions(false);
@@ -395,7 +399,7 @@ int Merging::mergeProcessNL3( Event& process) {
   // Reset weight of the event
   double wgt      = 1.;
   mergingHooksPtr->setWeightCKKWL(1.);
-  // Reset the O(alphaS)-term of the CKKW-L weight. 
+  // Reset the O(alphaS)-term of the CKKW-L weight.
   double wgtFIRST = 0.;
   mergingHooksPtr->setWeightFIRST(0.);
   mergingHooksPtr->muMI(-1.);
@@ -436,7 +440,7 @@ int Merging::mergeProcessNL3( Event& process) {
   newProcess.scale(0.0);
   // Generate all histories
   History FullHistory( nSteps, 0.0, newProcess, Clustering(), mergingHooksPtr,
-            (*beamAPtr), (*beamBPtr), particleDataPtr, infoPtr, true, true, 
+            (*beamAPtr), (*beamBPtr), particleDataPtr, infoPtr, true, true,
             true, true, 1.0, 0);
   // Project histories onto desired branches, e.g. only ordered paths.
   FullHistory.projectOntoDesiredHistories();
@@ -512,7 +516,7 @@ int Merging::mergeProcessNL3( Event& process) {
 
   // Allow to dampen histories in which the lowest multiplicity reclustered
   // state does not pass the lowest multiplicity cut of the matrix element
-  double dampWeight = mergingHooksPtr->dampenIfFailCuts( 
+  double dampWeight = mergingHooksPtr->dampenIfFailCuts(
            FullHistory.lowestMultProc(RN) );
   // Save the weight of the event for histogramming. Only change the
   // event weight after trial shower on the matrix element
@@ -542,7 +546,7 @@ int Merging::mergeProcessNL3( Event& process) {
   if ( doOASTree ) {
     // Calculate the O(\alpha_s)-term of the CKKWL weight
     wgtFIRST = FullHistory.weightFIRST( trialPartonLevelPtr,
-      mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(), RN, 
+      mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(), RN,
       rndmPtr );
     // If necessary, also dampen the O(\alpha_s)-term
     wgtFIRST *= dampWeight;
@@ -570,7 +574,7 @@ int Merging::mergeProcessNL3( Event& process) {
   // Reset hard process candidates (changed after clustering a parton).
   mergingHooksPtr->storeHardProcessCandidates( process );
   // If necessary, reattach resonance decay products.
-  mergingHooksPtr->reattachResonanceDecays(process); 
+  mergingHooksPtr->reattachResonanceDecays(process);
 
   // Allow merging hooks (NL3 part) to remove emissions from now on.
   mergingHooksPtr->doIgnoreEmissions(false);
@@ -639,7 +643,7 @@ int Merging::mergeProcessUNLOPS( Event& process) {
   newProcess.scale(0.0);
   // Generate all histories
   History FullHistory( nSteps, 0.0, newProcess, Clustering(), mergingHooksPtr,
-            (*beamAPtr), (*beamBPtr), particleDataPtr, infoPtr, true, true, 
+            (*beamAPtr), (*beamBPtr), particleDataPtr, infoPtr, true, true,
             true, true, 1.0, 0);
   // Project histories onto desired branches, e.g. only ordered paths.
   FullHistory.projectOntoDesiredHistories();
@@ -669,7 +673,9 @@ int Merging::mergeProcessUNLOPS( Event& process) {
   // Remove real emission events without underlying Born configuration from
   // the loop sample, since such states will be taken care of by tree-level
   // samples.
-  if ( doUNLOPSLoop && containsRealKin
+  bool allowIncompleteReal =
+    settingsPtr->flag("Merging:allowIncompleteHistoriesInReal");
+  if ( doUNLOPSLoop && containsRealKin && !allowIncompleteReal
     && FullHistory.select(RN)->nClusterings() == 0 ) {
     mergingHooksPtr->setWeightCKKWL(0.);
     mergingHooksPtr->setWeightFIRST(0.);
@@ -680,8 +686,8 @@ int Merging::mergeProcessUNLOPS( Event& process) {
   int nPerformed = 0;
   if ( nSteps > 0
     && ( doUNLOPSSubt || doUNLOPSSubtNLO || containsRealKin )
-    && !FullHistory.getFirstClusteredEventAboveTMS( RN, nRecluster, newProcess, 
-          nPerformed, false ) ) {
+    && !FullHistory.getFirstClusteredEventAboveTMS( RN, nRecluster,
+          newProcess, nPerformed, false ) ) {
     mergingHooksPtr->setWeightCKKWL(0.);
     mergingHooksPtr->setWeightFIRST(0.);
     return -1;
@@ -689,8 +695,8 @@ int Merging::mergeProcessUNLOPS( Event& process) {
   // Check reclustering steps to correctly apply MPI.
   mergingHooksPtr->nMinMPI(nSteps - nPerformed);
 
-  // Perform one reclustering for real emission kinematics, then apply merging
-  // scale cut on underlying Born kinematics.
+  // Perform one reclustering for real emission kinematics, then apply
+  // merging scale cut on underlying Born kinematics.
   if ( containsRealKin ) {
     Event dummy = Event();
     // Initialise temporary output of reclustering.
@@ -720,11 +726,11 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     // No reweighting, just set event scales properly
     wgt = FullHistory.weight_UNLOPS_LOOP( trialPartonLevelPtr, RN);
   } else if( doUNLOPSSubtNLO ) {
-    // The standard prescripition contains no real-emission parts 
+    // The standard prescripition contains no real-emission parts
     // No reweighting, just set event scales properly
     wgt = FullHistory.weight_UNLOPS_SUBTNLO( trialPartonLevelPtr, RN);
   } else if( doUNLOPSSubt ) {
-    // The standard prescripition contains no subtraction parts 
+    // The standard prescripition contains no subtraction parts
     // No reweighting, just set event scales properly
     wgt = FullHistory.weight_UNLOPS_SUBT( trialPartonLevelPtr,
             mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(), RN);
@@ -734,12 +740,12 @@ int Merging::mergeProcessUNLOPS( Event& process) {
   if (!doUNLOPSSubt && !doUNLOPSSubtNLO && !containsRealKin )
     FullHistory.getStartingConditions(RN, process);
   // Do reclustering (looping) steps.
-  else FullHistory.getFirstClusteredEventAboveTMS( RN, nRecluster, process, 
+  else FullHistory.getFirstClusteredEventAboveTMS( RN, nRecluster, process,
     nPerformed, true );
 
   // Allow to dampen histories in which the lowest multiplicity reclustered
   // state does not pass the lowest multiplicity cut of the matrix element
-  double dampWeight = mergingHooksPtr->dampenIfFailCuts( 
+  double dampWeight = mergingHooksPtr->dampenIfFailCuts(
            FullHistory.lowestMultProc(RN) );
   // Save the weight of the event for histogramming. Only change the
   // event weight after trial shower on the matrix element
@@ -773,7 +779,7 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     // Calculate terms in expansion of the CKKW-L weight.
     int order = ( nSteps == 1 ) ? 1 : -1;
     if ( nSteps == 2 && nRecluster == 1 && nloTilde ) order = 0;
-    wgtFIRST = FullHistory.weight_UNLOPS_CORRECTION( order, 
+    wgtFIRST = FullHistory.weight_UNLOPS_CORRECTION( order,
       trialPartonLevelPtr, mergingHooksPtr->AlphaS_FSR(),
       mergingHooksPtr->AlphaS_ISR(), RN, rndmPtr );
     // Second reclustering term
@@ -814,11 +820,11 @@ int Merging::mergeProcessUNLOPS( Event& process) {
 
   // Check if resonance structure has been changed
   //  (e.g. because of clustering W/Z/gluino)
-  vector <int> oldResonance; 
+  vector <int> oldResonance;
   for ( int i=0; i < newProcess.size(); ++i )
     if ( newProcess[i].status() == 22 )
       oldResonance.push_back(newProcess[i].id());
-  vector <int> newResonance; 
+  vector <int> newResonance;
   for ( int i=0; i < process.size(); ++i )
     if ( process[i].status() == 22 )
       newResonance.push_back(process[i].id());
@@ -834,7 +840,7 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     hasNewResonances = (oldResonance[i] != 99);
 
   // If necessary, reattach resonance decay products.
-  if (!hasNewResonances) mergingHooksPtr->reattachResonanceDecays(process); 
+  if (!hasNewResonances) mergingHooksPtr->reattachResonanceDecays(process);
 
   // Allow merging hooks to remove emissions from now on.
   mergingHooksPtr->doIgnoreEmissions(false);
@@ -895,7 +901,7 @@ bool Merging::cutOnProcess( Event& process) {
   newProcess.scale(0.0);
   // Generate all histories
   History FullHistory( nSteps, 0.0, newProcess, Clustering(), mergingHooksPtr,
-            (*beamAPtr), (*beamBPtr), particleDataPtr, infoPtr, true, true, 
+            (*beamAPtr), (*beamBPtr), particleDataPtr, infoPtr, true, true,
             true, true, 1.0, 0);
   // Project histories onto desired branches, e.g. only ordered paths.
   FullHistory.projectOntoDesiredHistories();
@@ -903,8 +909,16 @@ bool Merging::cutOnProcess( Event& process) {
   // Remove real emission events without underlying Born configuration from
   // the loop sample, since such states will be taken care of by tree-level
   // samples.
-  if ( containsRealKin && FullHistory.select(RN)->nClusterings() == 0 )
+  bool allowIncompleteReal = 
+    settingsPtr->flag("Merging:allowIncompleteHistoriesInReal");
+  if ( containsRealKin && !allowIncompleteReal
+    && FullHistory.select(RN)->nClusterings() == 0 )
     return true;
+
+  // Cut if no history passes the cut on the lowest-multiplicity state.
+  double dampWeight = mergingHooksPtr->dampenIfFailCuts(
+           FullHistory.lowestMultProc(RN) );
+  if ( dampWeight == 0. ) return true;
 
   // Do not apply cut if the configuration could not be projected onto an
   // underlying born configuration.
@@ -919,11 +933,6 @@ bool Merging::cutOnProcess( Event& process) {
     infoPtr->errorMsg(message);
     return true;
   }
-
-  // Cut if no history passes the cut on the lowest-multiplicity state.
-  double dampWeight = mergingHooksPtr->dampenIfFailCuts( 
-           FullHistory.lowestMultProc(RN) );
-  if ( dampWeight == 0. ) return true;
 
   // Done if no real-emission jets are present.
   if ( !containsRealKin ) return false;

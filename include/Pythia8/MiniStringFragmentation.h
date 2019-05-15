@@ -1,5 +1,5 @@
 // MiniStringFragmentation.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -22,27 +22,27 @@ namespace Pythia8 {
 
 //==========================================================================
 
-// The MiniStringFragmentation class contains the routines to fragment 
-// occasional low-mass colour singlet partonic systems, where the string 
+// The MiniStringFragmentation class contains the routines to fragment
+// occasional low-mass colour singlet partonic systems, where the string
 // approach is not directly applicable (for technical reasons).
 
 class MiniStringFragmentation {
 
 public:
 
-  // Constructor. 
+  // Constructor.
   MiniStringFragmentation() {}
 
   // Initialize and save pointers.
-  void init(Info* infoPtrIn, Settings& settings,  
-    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
+  void init(Info* infoPtrIn, Settings& settings,
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
     StringFlav* flavSelPtrIn, StringPT* pTSelPtrIn, StringZ* zSelPtrIn);
 
   // Do the fragmentation: driver routine.
-  bool fragment( int iSub, ColConfig& colConfig, Event& event, 
+  bool fragment( int iSub, ColConfig& colConfig, Event& event,
     bool isDiff = false);
 
-private: 
+private:
 
   // Constants: could only be changed in the code itself.
   static const int    NTRYDIFFRACTIVE, NTRYLASTRESORT, NTRYFLAV;

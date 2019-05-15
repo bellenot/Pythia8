@@ -1,10 +1,10 @@
 // SigmaLeptoquark.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Function definitions (not found in the header) for the 
-// leptoquark simulation classes. 
+// Function definitions (not found in the header) for the
+// leptoquark simulation classes.
 
 #include "Pythia8/SigmaLeptoquark.h"
 
@@ -13,15 +13,15 @@ namespace Pythia8 {
 //==========================================================================
 
 // Sigma1ql2LeptoQuark class.
-// Cross section for q l -> LQ (leptoquark state). 
+// Cross section for q l -> LQ (leptoquark state).
 
 //--------------------------------------------------------------------------
 
-// Initialize process. 
+// Initialize process.
   
 void Sigma1ql2LeptoQuark::initProc() {
 
-  // Store LQ mass and width for propagator. 
+  // Store LQ mass and width for propagator.
   mRes     = particleDataPtr->m0(42);
   GammaRes = particleDataPtr->mWidth(42);
   m2Res    = mRes*mRes;
@@ -37,19 +37,19 @@ void Sigma1ql2LeptoQuark::initProc() {
   idQuark  = LQPtr->channel(0).product(0);
   idLepton = LQPtr->channel(0).product(1);
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
-// Evaluate sigmaHat(sHat), part independent of incoming flavour. 
+// Evaluate sigmaHat(sHat), part independent of incoming flavour.
 
-void Sigma1ql2LeptoQuark::sigmaKin() { 
+void Sigma1ql2LeptoQuark::sigmaKin() {
 
   // Incoming width for correct quark-lepton pair.
   widthIn  = 0.25 * alpEM * kCoup * mH;
 
   // Set up Breit-Wigner.
-  sigBW    = 4. * M_PI/ ( pow2(sH - m2Res) + pow2(sH * GamMRat) );  
+  sigBW    = 4. * M_PI/ ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
 
 }
 
@@ -57,18 +57,18 @@ void Sigma1ql2LeptoQuark::sigmaKin() {
 
 // Evaluate sigmaHat(sHat) for specific incoming flavours.
 
-double Sigma1ql2LeptoQuark::sigmaHat() { 
+double Sigma1ql2LeptoQuark::sigmaHat() {
 
   // Identify whether correct incoming flavours.
   int idLQ = 0;
   if      (id1 ==  idQuark && id2 ==  idLepton) idLQ =  42;
-  else if (id2 ==  idQuark && id1 ==  idLepton) idLQ =  42;   
-  else if (id1 == -idQuark && id2 == -idLepton) idLQ = -42;   
-  else if (id2 == -idQuark && id1 == -idLepton) idLQ = -42;   
+  else if (id2 ==  idQuark && id1 ==  idLepton) idLQ =  42;
+  else if (id1 == -idQuark && id2 == -idLepton) idLQ = -42;
+  else if (id2 == -idQuark && id1 == -idLepton) idLQ = -42;
   if (idLQ == 0) return 0.;
 
   // Outgoing width and total sigma. Done.
-  return widthIn * sigBW * LQPtr->resWidthOpen(idLQ, mH);    
+  return widthIn * sigBW * LQPtr->resWidthOpen(idLQ, mH);
 
 }
 
@@ -93,15 +93,15 @@ void Sigma1ql2LeptoQuark::setIdColAcol() {
 //==========================================================================
 
 // Sigma2qg2LeptoQuarkl class.
-// Cross section for q g -> LQ l (leptoquark state). 
+// Cross section for q g -> LQ l (leptoquark state).
 
 //--------------------------------------------------------------------------
 
-// Initialize process. 
+// Initialize process.
   
 void Sigma2qg2LeptoQuarkl::initProc() {
 
-  // Store LQ mass and width for propagator. 
+  // Store LQ mass and width for propagator.
   mRes     = particleDataPtr->m0(42);
   GammaRes = particleDataPtr->mWidth(42);
   m2Res    = mRes*mRes;
@@ -119,15 +119,15 @@ void Sigma2qg2LeptoQuarkl::initProc() {
   openFracPos = LQPtr->resOpenFrac( 42);
   openFracNeg = LQPtr->resOpenFrac(-42);
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
-// Evaluate sigmaHat(sHat), part independent of incoming flavour. 
+// Evaluate sigmaHat(sHat), part independent of incoming flavour.
 
-void Sigma2qg2LeptoQuarkl::sigmaKin() { 
+void Sigma2qg2LeptoQuarkl::sigmaKin() {
 
-  //  Evaluate cross section. 
+  //  Evaluate cross section.
   sigma0 = (M_PI / sH2) * kCoup * (alpS * alpEM / 6.) * (-tH / sH)
     * (uH2 + s3 * s3) / pow2(uH - s3);
 
@@ -137,14 +137,14 @@ void Sigma2qg2LeptoQuarkl::sigmaKin() {
 
 // Evaluate sigmaHat(sHat) for specific incoming flavours.
 
-double Sigma2qg2LeptoQuarkl::sigmaHat() { 
+double Sigma2qg2LeptoQuarkl::sigmaHat() {
 
   // Check that correct incoming flavour.
   if (abs(id1) != idQuark && abs(id2) != idQuark) return 0.;
 
   // Answer, with secondary width correction.
   double sigma = sigma0;
-  sigma *= (id1 == idQuark || id2 == idQuark) ? openFracPos : openFracNeg; 
+  sigma *= (id1 == idQuark || id2 == idQuark) ? openFracPos : openFracNeg;
   return sigma;
 
 }
@@ -162,7 +162,7 @@ void Sigma2qg2LeptoQuarkl::setIdColAcol() {
   setId( id1, id2, idLQ, idlp);
 
   // tH defined between f and f': must swap tHat <-> uHat if q g in.
-  swapTU = (id2 == 21); 
+  swapTU = (id2 == 21);
 
   // Colour flow topologies. Swap when antiquarks.
   if (id2 == 21) setColAcol( 1, 0, 2, 1, 2, 0, 0, 0);
@@ -174,15 +174,15 @@ void Sigma2qg2LeptoQuarkl::setIdColAcol() {
 //==========================================================================
 
 // Sigma2gg2LQLQbar class.
-// Cross section for g g -> LQ LQbar (leptoquark state). 
+// Cross section for g g -> LQ LQbar (leptoquark state).
 
 //--------------------------------------------------------------------------
 
-// Initialize process. 
+// Initialize process.
   
 void Sigma2gg2LQLQbar::initProc() {
 
-  // Store LQ mass and width for propagator. 
+  // Store LQ mass and width for propagator.
   mRes     = particleDataPtr->m0(42);
   GammaRes = particleDataPtr->mWidth(42);
   m2Res    = mRes*mRes;
@@ -191,13 +191,13 @@ void Sigma2gg2LQLQbar::initProc() {
    // Secondary open width fraction.
   openFrac = particleDataPtr->resOpenFrac(42, -42);
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
-// Evaluate sigmaHat(sHat), part independent of incoming flavour. 
+// Evaluate sigmaHat(sHat), part independent of incoming flavour.
 
-void Sigma2gg2LQLQbar::sigmaKin() { 
+void Sigma2gg2LQLQbar::sigmaKin() {
 
   // Average outgoing masses and adjust kinematics accordingly.
   double delta = 0.25 * pow2(s3 - s4) / sH;
@@ -206,9 +206,9 @@ void Sigma2gg2LQLQbar::sigmaKin() {
   double uHavg = uH - delta;
 
   //  Evaluate cross section. Secondary width for G*.
-  sigma = (M_PI / sH2) * 0.5 * pow2(alpS) 
+  sigma = (M_PI / sH2) * 0.5 * pow2(alpS)
     * ( 7. / 48. + 3. * pow2(uHavg - tHavg) / (16. * sH2) )
-    * ( 1. + 2. * m2avg * tHavg / pow2(tHavg - m2avg) 
+    * ( 1. + 2. * m2avg * tHavg / pow2(tHavg - m2avg)
     + 2. * m2avg * uHavg / pow2(uHavg - m2avg)
     + 4. * m2avg * m2avg / ((tHavg - m2avg) * (uHavg - m2avg)) );
   sigma *= openFrac;
@@ -233,15 +233,15 @@ void Sigma2gg2LQLQbar::setIdColAcol() {
 //==========================================================================
 
 // Sigma2qqbar2LQLQbar class.
-// Cross section for q qbar -> LQ LQbar (leptoquark state). 
+// Cross section for q qbar -> LQ LQbar (leptoquark state).
 
 //--------------------------------------------------------------------------
 
-// Initialize process. 
+// Initialize process.
   
 void Sigma2qqbar2LQLQbar::initProc() {
 
-  // Store LQ mass and width for propagator. 
+  // Store LQ mass and width for propagator.
   mRes     = particleDataPtr->m0(42);
   GammaRes = particleDataPtr->mWidth(42);
   m2Res    = mRes*mRes;
@@ -257,13 +257,13 @@ void Sigma2qqbar2LQLQbar::initProc() {
    // Secondary open width fraction.
   openFrac = particleDataPtr->resOpenFrac(42, -42);
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
-// Evaluate sigmaHat(sHat), part independent of incoming flavour. 
+// Evaluate sigmaHat(sHat), part independent of incoming flavour.
 
-void Sigma2qqbar2LQLQbar::sigmaKin() { 
+void Sigma2qqbar2LQLQbar::sigmaKin() {
 
   // Average outgoing masses and adjust kinematics accordingly.
   double delta = 0.25 * pow2(s3 - s4) / sH;
@@ -277,8 +277,8 @@ void Sigma2qqbar2LQLQbar::sigmaKin() {
 
   // Evaluate cross section for quark of same flavour as LQ.
   sigmaSame = sigmaDiff + (M_PI / sH2) * (pow2(kCoup * alpEM) / 8.)
-    * (-sH * tHavg - pow2(m2avg-tHavg)) / pow2(tHavg) 
-    + (M_PI / sH2) * (kCoup * alpEM * alpS / 18.) * ( (m2avg - tHavg) 
+    * (-sH * tHavg - pow2(m2avg-tHavg)) / pow2(tHavg)
+    + (M_PI / sH2) * (kCoup * alpEM * alpS / 18.) * ( (m2avg - tHavg)
     * (uHavg - tHavg) + sH * (m2avg + tHavg) ) / (sH * tHavg);
 
   // Open fraction.
@@ -297,7 +297,7 @@ void Sigma2qqbar2LQLQbar::setIdColAcol() {
   setId( id1, id2, 42, -42);
 
   // tH defined between f and LQ: must swap tHat <-> uHat if qbar q in.
-  swapTU = (id1 < 0); 
+  swapTU = (id1 < 0);
 
   // Colour flow topologies.
   if (id1 > 0) setColAcol( 1, 0, 0, 2, 1, 0, 0, 2);

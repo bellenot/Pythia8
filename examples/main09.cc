@@ -1,5 +1,5 @@
 // main09.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -11,7 +11,7 @@ using namespace Pythia8;
  
 int main() {
 
-  // Generator. 
+  // Generator.
   Pythia pythia;
   Event& event   = pythia.event;
 
@@ -30,12 +30,12 @@ int main() {
   //pythia.readString("SecondHard:SingleW = on");
   //pythia.readString("SecondHard:TwoBJets = on");
   
-  // Kinematics cuts, common for the two. 
+  // Kinematics cuts, common for the two.
   pythia.readString("PhaseSpace:mHatMin = 40.");
   pythia.readString("PhaseSpace:pTHatMin = 20.");
 
   // Initialize for LHC at 8 TeV.
-  pythia.readString("Beams:eCM = 8000.");  
+  pythia.readString("Beams:eCM = 8000.");
   pythia.init();
 
   // Histogram.
@@ -64,21 +64,21 @@ int main() {
 
     // Histogram charged multiplicity.
     int nCharged = 0;
-    for (int i = 0; i < event.size(); ++i) 
-      if (event[i].isFinal() && event[i].isCharged()) ++nCharged; 
+    for (int i = 0; i < event.size(); ++i)
+      if (event[i].isFinal() && event[i].isCharged()) ++nCharged;
     nChg.fill( nCharged );
 
   }
 
   // Compare full statistics listing with what is set in info.
   pythia.stat();
-  cout << scientific << setprecision(3) << "\n From pythia.info: sigma = " 
+  cout << scientific << setprecision(3) << "\n From pythia.info: sigma = "
        << pythia.info.sigmaGen() << " +- " << pythia.info.sigmaErr()
        << endl;
 
   // Print histograms.
   cout << pTfirst << pTsecond << pTdiff << nMult << bMore << nChg;
 
-  // Done. 
+  // Done.
   return 0;
 }

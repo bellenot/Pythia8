@@ -1,5 +1,5 @@
 // SigmaExtraDim.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
  
@@ -738,13 +738,13 @@ public:
   // Constructor.
   Sigma2gg2LEDgg() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -777,13 +777,13 @@ public:
   // Constructor.
   Sigma2gg2LEDqqbar() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -821,13 +821,13 @@ public:
   // Constructor.
   Sigma2qg2LEDqg() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -860,13 +860,13 @@ public:
   // Constructor.
   Sigma2qq2LEDqq() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -900,13 +900,13 @@ public:
   // Constructor.
   Sigma2qqbar2LEDgg() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -939,13 +939,13 @@ public:
   // Constructor.
   Sigma2qqbar2LEDqqbarNew() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.

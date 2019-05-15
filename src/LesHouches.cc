@@ -1,5 +1,5 @@
 // LesHouches.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -51,37 +51,37 @@ const double LHAup::CONVERTMB2PB = 1e9;
 void LHAup::listInit(ostream& os) {
 
   // Header.
-  os << "\n --------  LHA initialization information  ------------ \n"; 
+  os << "\n --------  LHA initialization information  ------------ \n";
 
   // Beam info.
-  os << fixed << setprecision(3) 
-     << "\n  beam    kind      energy  pdfgrp  pdfset \n" 
-     << "     A  " << setw(6) << idBeamASave 
-     <<  setw(12) << eBeamASave 
-     << setw(8) << pdfGroupBeamASave 
-     << setw(8) << pdfSetBeamASave << "\n" 
-     << "     B  " << setw(6) << idBeamBSave 
-     <<  setw(12) << eBeamBSave 
-     << setw(8) << pdfGroupBeamBSave 
-     << setw(8) << pdfSetBeamBSave << "\n"; 
+  os << fixed << setprecision(3)
+     << "\n  beam    kind      energy  pdfgrp  pdfset \n"
+     << "     A  " << setw(6) << idBeamASave
+     <<  setw(12) << eBeamASave
+     << setw(8) << pdfGroupBeamASave
+     << setw(8) << pdfSetBeamASave << "\n"
+     << "     B  " << setw(6) << idBeamBSave
+     <<  setw(12) << eBeamBSave
+     << setw(8) << pdfGroupBeamBSave
+     << setw(8) << pdfSetBeamBSave << "\n";
 
   // Event weighting strategy.
-  os << "\n  Event weighting strategy = " << setw(2) 
+  os << "\n  Event weighting strategy = " << setw(2)
      << strategySave << "\n" ;
 
   // Process list.
-  os << scientific << setprecision(4) 
-     << "\n  Processes, with strategy-dependent cross section info \n" 
+  os << scientific << setprecision(4)
+     << "\n  Processes, with strategy-dependent cross section info \n"
      << "  number      xsec (pb)      xerr (pb)      xmax (pb) \n" ;
   for (int ip = 0; ip < int(processes.size()); ++ip) {
-    os << setw(8) << processes[ip].idProc 
-       << setw(15) << processes[ip].xSecProc 
-       << setw(15) << processes[ip].xErrProc 
+    os << setw(8) << processes[ip].idProc
+       << setw(15) << processes[ip].xSecProc
+       << setw(15) << processes[ip].xErrProc
        << setw(15) << processes[ip].xMaxProc << "\n";
   }
 
   // Finished.
-  os << "\n --------  End LHA initialization information  -------- \n"; 
+  os << "\n --------  End LHA initialization information  -------- \n";
 
 }
 
@@ -93,51 +93,51 @@ void LHAup::listEvent(ostream& os) {
 
   // Header.
   os << "\n --------  LHA event information and listing  -------------"
-     << "--------------------------------------------------------- \n"; 
+     << "--------------------------------------------------------- \n";
 
   // Basic event info.
-  os << scientific << setprecision(4) 
-     << "\n    process = " << setw(8) << idProc 
-     << "    weight = " << setw(12) << weightProc 
+  os << scientific << setprecision(4)
+     << "\n    process = " << setw(8) << idProc
+     << "    weight = " << setw(12) << weightProc
      << "     scale = " << setw(12) << scaleProc << " (GeV) \n"
      << "                   "
-     << "     alpha_em = " << setw(12) << alphaQEDProc 
+     << "     alpha_em = " << setw(12) << alphaQEDProc
      << "    alpha_strong = " << setw(12) << alphaQCDProc << "\n";
 
   // Particle list
-  os << fixed << setprecision(3) 
-     << "\n    Participating Particles \n" 
+  os << fixed << setprecision(3)
+     << "\n    Participating Particles \n"
      << "    no        id stat     mothers     colours      p_x        "
      << "p_y        p_z         e          m        tau    spin \n" ;
   for (int ip = 1; ip < int(particles.size()); ++ip) {
-    os << setw(6) << ip 
-       << setw(10) << particles[ip].idPart 
-       << setw(5) << particles[ip].statusPart 
+    os << setw(6) << ip
+       << setw(10) << particles[ip].idPart
+       << setw(5) << particles[ip].statusPart
        << setw(6) << particles[ip].mother1Part
-       << setw(6) << particles[ip].mother2Part 
+       << setw(6) << particles[ip].mother2Part
        << setw(6) << particles[ip].col1Part
-       << setw(6) << particles[ip].col2Part 
+       << setw(6) << particles[ip].col2Part
        << setw(11) << particles[ip].pxPart
        << setw(11) << particles[ip].pyPart
-       << setw(11) << particles[ip].pzPart 
-       << setw(11) << particles[ip].ePart 
-       << setw(11) <<  particles[ip].mPart 
-       << setw(8) <<  particles[ip].tauPart 
+       << setw(11) << particles[ip].pzPart
+       << setw(11) << particles[ip].ePart
+       << setw(11) <<  particles[ip].mPart
+       << setw(8) <<  particles[ip].tauPart
        << setw(8) <<  particles[ip].spinPart << "\n";
   }
 
   // PDF info - optional.
-  if (pdfIsSetSave) os << "\n     pdf: id1 =" << setw(5) << id1pdfSave  
-    << " id2 =" << setw(5) << id2pdfSave 
-    << " x1 ="  << scientific << setw(10) << x1pdfSave    
-    << " x2 =" << setw(10) << x2pdfSave 
-    << " scalePDF =" << setw(10) << scalePDFSave 
-    << " pdf1 =" << setw(10) << pdf1Save    
-    << " pdf2 =" << setw(10) << pdf2Save << "\n";    
+  if (pdfIsSetSave) os << "\n     pdf: id1 =" << setw(5) << id1pdfSave
+    << " id2 =" << setw(5) << id2pdfSave
+    << " x1 ="  << scientific << setw(10) << x1pdfSave
+    << " x2 =" << setw(10) << x2pdfSave
+    << " scalePDF =" << setw(10) << scalePDFSave
+    << " pdf1 =" << setw(10) << pdf1Save
+    << " pdf2 =" << setw(10) << pdf2Save << "\n";
 
   // Finished.
   os << "\n --------  End LHA event information and listing  ---------"
-     << "--------------------------------------------------------- \n"; 
+     << "--------------------------------------------------------- \n";
 
 }
 
@@ -150,7 +150,7 @@ bool LHAup::openLHEF(string fileNameIn) {
   // Open file for writing. Reset it to be empty.
   fileName = fileNameIn;
   const char* cstring = fileName.c_str();
-  osLHEF.open(cstring, ios::out | ios::trunc);  
+  osLHEF.open(cstring, ios::out | ios::trunc);
   if (!osLHEF) {
     infoPtr->errorMsg("Error in LHAup::openLHEF:"
       " could not open file", fileName);
@@ -163,10 +163,10 @@ bool LHAup::openLHEF(string fileNameIn) {
   strftime(timeNow,9,"%H:%M:%S",localtime(&t));
 
   // Write header.
-  osLHEF << "<LesHouchesEvents version=\"1.0\">\n" 
+  osLHEF << "<LesHouchesEvents version=\"1.0\">\n"
          << "<!--\n"
-         << "  File written by Pythia8::LHAup on " 
-         << dateNow << " at " << timeNow << "\n" 
+         << "  File written by Pythia8::LHAup on "
+         << dateNow << " at " << timeNow << "\n"
          << "-->" << endl;
 
   // Done.
@@ -180,19 +180,19 @@ bool LHAup::openLHEF(string fileNameIn) {
 
 bool LHAup::initLHEF() {
 
-  // Write information on beams. 
+  // Write information on beams.
   osLHEF << "<init>\n" << scientific << setprecision(6)
-         << "  " << idBeamASave       << "  " << idBeamBSave 
-         << "  " << eBeamASave        << "  " << eBeamBSave 
-         << "  " << pdfGroupBeamASave << "  " << pdfGroupBeamBSave 
-         << "  " << pdfSetBeamASave   << "  " << pdfSetBeamBSave 
+         << "  " << idBeamASave       << "  " << idBeamBSave
+         << "  " << eBeamASave        << "  " << eBeamBSave
+         << "  " << pdfGroupBeamASave << "  " << pdfGroupBeamBSave
+         << "  " << pdfSetBeamASave   << "  " << pdfSetBeamBSave
          << "  " << strategySave      << "  " << processes.size() << "\n";
 
   // Write information on all the subprocesses.
-  for (int ip = 0; ip < int(processes.size()); ++ip) 
-    osLHEF << " " << setw(13) << processes[ip].xSecProc 
-           << " " << setw(13) << processes[ip].xErrProc 
-           << " " << setw(13) << processes[ip].xMaxProc 
+  for (int ip = 0; ip < int(processes.size()); ++ip)
+    osLHEF << " " << setw(13) << processes[ip].xSecProc
+           << " " << setw(13) << processes[ip].xErrProc
+           << " " << setw(13) << processes[ip].xMaxProc
            << " " << setw(6) << processes[ip].idProc << "\n";
 
   // Done.
@@ -210,30 +210,30 @@ bool LHAup::initLHEF() {
 bool LHAup::eventLHEF(bool verbose) {
 
   // Default verbose option.
-  if (verbose) { 
+  if (verbose) {
 
-    // Write information on process as such. 
+    // Write information on process as such.
     osLHEF << "<event>\n" << scientific << setprecision(6)
-           << " " << setw(5) << particles.size() - 1 
+           << " " << setw(5) << particles.size() - 1
            << " " << setw(5) << idProc
-           << " " << setw(13) << weightProc 
+           << " " << setw(13) << weightProc
            << " " << setw(13) << scaleProc
            << " " << setw(13) << alphaQEDProc
            << " " << setw(13) << alphaQCDProc << "\n";
 
-    // Write information on the particles, excluding zeroth. 
+    // Write information on the particles, excluding zeroth.
     for (int ip = 1; ip < int(particles.size()); ++ip) {
       LHAParticle& ptNow = particles[ip];
-      osLHEF << " " << setw(8) << ptNow.idPart 
-             << " " << setw(5) << ptNow.statusPart 
+      osLHEF << " " << setw(8) << ptNow.idPart
+             << " " << setw(5) << ptNow.statusPart
              << " " << setw(5) << ptNow.mother1Part
-             << " " << setw(5) << ptNow.mother2Part 
+             << " " << setw(5) << ptNow.mother2Part
              << " " << setw(5) << ptNow.col1Part
              << " " << setw(5) << ptNow.col2Part << setprecision(10)
              << " " << setw(17) << ptNow.pxPart
              << " " << setw(17) << ptNow.pyPart
-             << " " << setw(17) << ptNow.pzPart 
-             << " " << setw(17) << ptNow.ePart 
+             << " " << setw(17) << ptNow.pzPart
+             << " " << setw(17) << ptNow.ePart
              << " " << setw(17) <<  ptNow.mPart << setprecision(6);
       if (ptNow.tauPart == 0.) osLHEF << " 0.";
       else osLHEF << " " << setw(13) << ptNow.tauPart;
@@ -243,33 +243,33 @@ bool LHAup::eventLHEF(bool verbose) {
     }
 
     // Optionally write information on PDF values at hard interaction.
-    if (pdfIsSetSave) osLHEF << "#pdf" 
+    if (pdfIsSetSave) osLHEF << "#pdf"
              << " " << setw(4) << id1pdfSave
              << " " << setw(4) << id2pdfSave
-             << " " << setw(13) << x1pdfSave 
-             << " " << setw(13) << x2pdfSave 
-             << " " << setw(13) << scalePDFSave 
-             << " " << setw(13) << pdf1Save 
-             << " " << setw(13) << pdf2Save << "\n"; 
+             << " " << setw(13) << x1pdfSave
+             << " " << setw(13) << x2pdfSave
+             << " " << setw(13) << scalePDFSave
+             << " " << setw(13) << pdf1Save
+             << " " << setw(13) << pdf2Save << "\n";
 
-  // Alternative non-verbose option. 
+  // Alternative non-verbose option.
   } else {
 
-    // Write information on process as such. 
+    // Write information on process as such.
     osLHEF << "<event>\n" << scientific << setprecision(6)
            << particles.size() - 1 << " " << idProc       << " "
            << weightProc           << " " << scaleProc    << " "
            << alphaQEDProc         << " " << alphaQCDProc << "\n";
 
-    // Write information on the particles, excluding zeroth. 
+    // Write information on the particles, excluding zeroth.
     for (int ip = 1; ip < int(particles.size()); ++ip) {
       LHAParticle& ptNow = particles[ip];
-      osLHEF        << ptNow.idPart      << " " << ptNow.statusPart 
-             << " " << ptNow.mother1Part << " " << ptNow.mother2Part 
-             << " " << ptNow.col1Part    << " " << ptNow.col2Part 
+      osLHEF        << ptNow.idPart      << " " << ptNow.statusPart
+             << " " << ptNow.mother1Part << " " << ptNow.mother2Part
+             << " " << ptNow.col1Part    << " " << ptNow.col2Part
              << setprecision(10)         << " " << ptNow.pxPart
-             << " " << ptNow.pyPart      << " " << ptNow.pzPart 
-             << " " << ptNow.ePart       << " " << ptNow.mPart 
+             << " " << ptNow.pyPart      << " " << ptNow.pzPart
+             << " " << ptNow.ePart       << " " << ptNow.mPart
              << setprecision(6);
       if (ptNow.tauPart == 0.) osLHEF << " 0.";
       else osLHEF << " " << setw(13) << ptNow.tauPart;
@@ -280,9 +280,9 @@ bool LHAup::eventLHEF(bool verbose) {
 
     // Optionally write information on PDF values at hard interaction.
     if (pdfIsSetSave) osLHEF << "#pdf" << " " << id1pdfSave
-             << " " << id2pdfSave << " " << x1pdfSave << " " << x2pdfSave 
-             << " " << scalePDFSave << " " << pdf1Save << " " << pdf2Save 
-             << "\n"; 
+             << " " << id2pdfSave << " " << x1pdfSave << " " << x2pdfSave
+             << " " << scalePDFSave << " " << pdf1Save << " " << pdf2Save
+             << "\n";
   }
 
   // Done.
@@ -304,19 +304,19 @@ bool LHAup::closeLHEF(bool updateInit) {
   // Optionally update the cross section information.
   if (updateInit) {
     const char* cstring = fileName.c_str();
-    osLHEF.open(cstring, ios::in | ios::out); 
+    osLHEF.open(cstring, ios::in | ios::out);
   
     // Rewrite header; identically with what openLHEF did.
-    osLHEF << "<LesHouchesEvents version=\"1.0\">\n" 
+    osLHEF << "<LesHouchesEvents version=\"1.0\">\n"
            << "<!--\n"
-           << "  File written by Pythia8::LHAup on " 
-           << dateNow << " at " << timeNow << "\n" 
+           << "  File written by Pythia8::LHAup on "
+           << dateNow << " at " << timeNow << "\n"
            << "-->" << endl;
 
     // Redo initialization information.
     initLHEF();
     osLHEF.close();
-  }  
+  }
 
   // Done.
   return true;
@@ -332,7 +332,7 @@ bool LHAup::setInitLHEF(istream& is, bool readHeaders) {
   // Check that first line is consistent with proper LHEF file.
   string line;
   if (!getline(is, line)) return false;
-  if (line.find("<LesHouchesEvents") == string::npos) return false;  
+  if (line.find("<LesHouchesEvents") == string::npos) return false;
   if (line.find("version=\"1.0\"" ) == string::npos ) return false;
 
   // What to search for if reading headers; if not reading
@@ -342,7 +342,7 @@ bool LHAup::setInitLHEF(istream& is, bool readHeaders) {
   // Loop over lines until an <init (or optionally <header>) tag
   // is found first on a line.
   string tag = " ";
-  do { 
+  do {
     if (!getline(is, line)) return false;
     if (line.find_first_not_of(" \n\t\v\b\r\f\a") != string::npos) {
       istringstream getfirst(line);
@@ -360,7 +360,7 @@ bool LHAup::setInitLHEF(istream& is, bool readHeaders) {
     bool read = true, newKey = false;
     string key = "base";
     vector < string > keyVec;
-    while (true) { 
+    while (true) {
       if (!getline(is, line)) return false;
 
       // Check if this line is a tag; '<' as first character,
@@ -379,7 +379,7 @@ bool LHAup::setInitLHEF(istream& is, bool readHeaders) {
         // Tag present, so handle here
         if (getfirst) {
 
-          // Exit condition 
+          // Exit condition
           if (tag == "init") break;
 
           // End of header block; keep reading until <init> tag,
@@ -429,13 +429,13 @@ bool LHAup::setInitLHEF(istream& is, bool readHeaders) {
 
   } // if (readHeaders == true && tag == headerTag)
   
-  // Read in beam and strategy info, and store it. 
+  // Read in beam and strategy info, and store it.
   int idbmupA, idbmupB;
   double ebmupA, ebmupB;
   int pdfgupA, pdfgupB, pdfsupA, pdfsupB, idwtup, nprup;
   if (!getline(is, line)) return false;
   istringstream getbms(line);
-  getbms >> idbmupA >> idbmupB >> ebmupA >> ebmupB >> pdfgupA 
+  getbms >> idbmupA >> idbmupB >> ebmupA >> ebmupB >> pdfgupA
      >> pdfgupB >> pdfsupA >> pdfsupB >> idwtup >> nprup;
   if (!getbms) return false;
   setBeamA(idbmupA, ebmupA, pdfgupA, pdfsupA);
@@ -446,8 +446,8 @@ bool LHAup::setInitLHEF(istream& is, bool readHeaders) {
   double xsecup, xerrup, xmaxup;
   xSecSumSave = 0.;
   xErrSumSave = 0.;
-  int lprup; 
-  for (int ip = 0; ip < nprup; ++ip) { 
+  int lprup;
+  for (int ip = 0; ip < nprup; ++ip) {
     if (!getline(is, line)) return false;
     istringstream getpro(line);
     getpro >> xsecup >> xerrup >> xmaxup >> lprup ;
@@ -472,14 +472,14 @@ bool LHAup::setNewEventLHEF(istream& is, double mRecalculate ) {
   
   // Loop over lines until an <event tag is found first on a line.
   string line, tag;
-  do { 
+  do {
     if (!getline(is, line)) return false;
     if (line.find_first_not_of(" \n\t\v\b\r\f\a") != string::npos) {
       istringstream getfirst(line);
       getfirst >> tag;
       if (!getfirst) return false;
     }
-  } while (tag != "<event>" && tag != "<event"); 
+  } while (tag != "<event>" && tag != "<event");
 
   // Read in process info and store it.
   if (!getline(is, line)) return false;
@@ -489,38 +489,38 @@ bool LHAup::setNewEventLHEF(istream& is, double mRecalculate ) {
   if (!getpro) return false;
 
   // Reset particlesSave vector, add slot-0 empty particle.
-  particlesSave.clear(); 
+  particlesSave.clear();
   particlesSave.push_back( LHAParticle() );
 
   // Read in particle info one by one, and store it.
   // Note unusual C++ loop range, to better reflect LHA/Fortran standard.
-  // (Recall that process(...) above added empty particle at index 0.) 
-  int idup, istup, mothup1, mothup2, icolup1, icolup2; 
+  // (Recall that process(...) above added empty particle at index 0.)
+  int idup, istup, mothup1, mothup2, icolup1, icolup2;
   double pup1, pup2, pup3, pup4, pup5, vtimup, spinup;
   bool doRecalculate = (mRecalculate > 0.);
-  for (int ip = 1; ip <= nupSave; ++ip) { 
+  for (int ip = 1; ip <= nupSave; ++ip) {
     if (!getline(is, line)) return false;
     istringstream getall(line);
-    getall >> idup >> istup >> mothup1 >> mothup2 >> icolup1 >> icolup2 
+    getall >> idup >> istup >> mothup1 >> mothup2 >> icolup1 >> icolup2
       >> pup1 >> pup2 >> pup3 >> pup4 >> pup5 >> vtimup >> spinup;
-    if (!getall) return false;   
+    if (!getall) return false;
     // Optionally recalculate mass from four-momentum.
-    if (doRecalculate && pup5 > mRecalculate) 
+    if (doRecalculate && pup5 > mRecalculate)
       pup5 = sqrtpos( pup4*pup4 - pup1*pup1 - pup2*pup2 - pup3*pup3);
-    particlesSave.push_back( LHAParticle( idup, istup, mothup1, mothup2, 
+    particlesSave.push_back( LHAParticle( idup, istup, mothup1, mothup2,
       icolup1, icolup2, pup1, pup2, pup3, pup4, pup5, vtimup, spinup, -1.) );
   }
 
   // Flavour and x values of hard-process initiators.
   id1InSave = particlesSave[1].idPart;
   id2InSave = particlesSave[2].idPart;
-  x1InSave  = (eBeamASave > 0.) ? particlesSave[1].ePart / eBeamASave : 0.; 
-  x2InSave  = (eBeamBSave > 0.) ? particlesSave[2].ePart / eBeamBSave : 0.; 
+  x1InSave  = (eBeamASave > 0.) ? particlesSave[1].ePart / eBeamASave : 0.;
+  x2InSave  = (eBeamBSave > 0.) ? particlesSave[2].ePart / eBeamBSave : 0.;
 
   // Continue parsing till </event>. Look for optional info on the way.
   getPDFSave = false;
   getScale   = false;
-  do { 
+  do {
     if (!getline(is, line)) return false;
     istringstream getinfo(line);
     getinfo >> tag;
@@ -528,7 +528,7 @@ bool LHAup::setNewEventLHEF(istream& is, double mRecalculate ) {
 
     // Extract PDF info if present.
     if (tag == "#pdf" && !getPDFSave) {
-      getinfo >> id1pdfInSave >> id2pdfInSave >> x1pdfInSave >> x2pdfInSave 
+      getinfo >> id1pdfInSave >> id2pdfInSave >> x1pdfInSave >> x2pdfInSave
               >> scalePDFInSave >> pdf1InSave >> pdf2InSave;
       if (!getinfo) return false;
       getPDFSave = true;
@@ -544,14 +544,14 @@ bool LHAup::setNewEventLHEF(istream& is, double mRecalculate ) {
       if (!getinfo) return false;
       getScale = true;
     }
-  } while (tag != "</event>" && tag != "</event"); 
+  } while (tag != "</event>" && tag != "</event");
 
   // Need id and x values even when no PDF info. Rest empty.
   if (!getPDFSave) {
     id1pdfInSave   = id1InSave;
     id2pdfInSave   = id2InSave;
-    x1pdfInSave    = x1InSave; 
-    x2pdfInSave    = x2InSave; 
+    x1pdfInSave    = x1InSave;
+    x2pdfInSave    = x2InSave;
     scalePDFInSave = 0.;
     pdf1InSave     = 0.;
     pdf2InSave     = 0.;
@@ -571,9 +571,9 @@ bool LHAup::setOldEventLHEF() {
   // Store saved event, optionally also parton density information.
   setProcess( idprupSave, xwgtupSave, scalupSave, aqedupSave, aqcdupSave);
   for (int ip = 1; ip <= nupSave; ++ip) addParticle( particlesSave[ip] );
-  setIdX( id1InSave, id2InSave, x1InSave, x2InSave);  
-  setPdf( id1pdfInSave, id2pdfInSave, x1pdfInSave, x2pdfInSave, 
-    scalePDFInSave, pdf1InSave, pdf2InSave, getPDFSave);  
+  setIdX( id1InSave, id2InSave, x1InSave, x2InSave);
+  setPdf( id1pdfInSave, id2pdfInSave, x1pdfInSave, x2pdfInSave,
+    scalePDFInSave, pdf1InSave, pdf2InSave, getPDFSave);
 
   // Done;
   return true;
@@ -675,15 +675,15 @@ LHAupLHEF::~LHAupLHEF() {
 
 bool LHAupFromPYTHIA8::setInit() {
   
-  // Read in beam from Info class. Parton density left empty. 
+  // Read in beam from Info class. Parton density left empty.
   int    idbmupA = infoPtr->idA();
   int    idbmupB = infoPtr->idB();
   double ebmupA  = infoPtr->eA();
   double ebmupB  = infoPtr->eB();
-  int    pdfgupA = 0; 
-  int    pdfgupB = 0; 
-  int    pdfsupA = 0; 
-  int    pdfsupB = 0; 
+  int    pdfgupA = 0;
+  int    pdfgupB = 0;
+  int    pdfsupA = 0;
+  int    pdfsupB = 0;
   setBeamA(idbmupA, ebmupA, pdfgupA, pdfsupA);
   setBeamB(idbmupB, ebmupB, pdfgupB, pdfsupB);
 
@@ -692,7 +692,7 @@ bool LHAupFromPYTHIA8::setInit() {
   setStrategy(idwtup);
 
   // Only one process with dummy information. (Can overwrite at the end.)
-  int    lprup  = 9999; 
+  int    lprup  = 9999;
   double xsecup = 1.;
   double xerrup = 0.;
   double xmaxup = 1.;
@@ -711,7 +711,7 @@ bool LHAupFromPYTHIA8::setEvent( int, double ) {
 
   // Read process information from Info class, and store it.
   // Note: renormalization scale here, factorization further down.
-  // For now always convert to process 9999, instead of infoPtr->code(). 
+  // For now always convert to process 9999, instead of infoPtr->code().
   int    idprup = 9999;
   double xwgtup = infoPtr->weight();
   double scalup = infoPtr->QRen();
@@ -722,18 +722,18 @@ bool LHAupFromPYTHIA8::setEvent( int, double ) {
   // Read in particle info one by one, excluding zero and beams, and store it.
   // Note unusual C++ loop range, to better reflect LHA/Fortran standard.
   int nup   = processPtr->size() - 3;
-  int    idup, statusup, istup, mothup1, mothup2, icolup1, icolup2; 
+  int    idup, statusup, istup, mothup1, mothup2, icolup1, icolup2;
   double pup1, pup2, pup3, pup4, pup5, vtimup, spinup;
   for (int ip = 1; ip <= nup; ++ip) {
     Particle& particle = (*processPtr)[ip + 2];
-    idup     = particle.id(); 
+    idup     = particle.id();
     // Convert from PYTHIA8 to LHA status codes.
     statusup = particle.status();
     if (ip < 3)            istup = -1;
     else if (statusup < 0) istup =  2;
     else                   istup =  1;
-    mothup1  = max(0, particle.mother1() - 2); 
-    mothup2  = max(0, particle.mother2() - 2); 
+    mothup1  = max(0, particle.mother1() - 2);
+    mothup2  = max(0, particle.mother2() - 2);
     icolup1  = particle.col();
     icolup2  = particle.acol();
     pup1     = particle.px();
@@ -741,7 +741,7 @@ bool LHAupFromPYTHIA8::setEvent( int, double ) {
     pup3     = particle.pz();
     pup4     = particle.e();
     pup5     = particle.m();
-    vtimup   = particle.tau(); 
+    vtimup   = particle.tau();
     spinup   = particle.pol();
     addParticle(idup, istup, mothup1, mothup2, icolup1, icolup2,
       pup1, pup2, pup3, pup4, pup5, vtimup, spinup, -1.) ;
@@ -762,8 +762,8 @@ bool LHAupFromPYTHIA8::setEvent( int, double ) {
   double scalePDFup = infoPtr->QFac();
   double pdf1up     = infoPtr->pdf1();
   double pdf2up     = infoPtr->pdf2();
-  setPdf(id1pdfup, id2pdfup, x1pdfup, x2pdfup, scalePDFup, pdf1up, 
-    pdf2up, true);  
+  setPdf(id1pdfup, id2pdfup, x1pdfup, x2pdfup, scalePDFup, pdf1up,
+    pdf2up, true);
 
   // Done.
   return true;
@@ -778,7 +778,7 @@ bool LHAupFromPYTHIA8::updateSigma() {
 
   // Read out information from PYTHIA 8 and send it in to LHA.
   double sigGen = CONVERTMB2PB * infoPtr->sigmaGen();
-  double sigErr = CONVERTMB2PB * infoPtr->sigmaErr(); 
+  double sigErr = CONVERTMB2PB * infoPtr->sigmaErr();
   setXSec(0, sigGen);
   setXErr(0, sigErr);
 

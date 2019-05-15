@@ -1,5 +1,5 @@
 // PartonLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -39,29 +39,29 @@ class PartonLevel {
 
 public:
 
-  // Constructor. 
-  PartonLevel() : userHooksPtr(0) {} 
+  // Constructor.
+  PartonLevel() : userHooksPtr(0) {}
  
   // Initialization of all classes at the parton level.
   bool init( Info* infoPtrIn, Settings& settings,
-    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
-    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, 
-    BeamParticle* beamPomAPtrIn, BeamParticle* beamPomBPtrIn, 
-    Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn, 
-    SigmaTotal* sigmaTotPtr, TimeShower* timesDecPtrIn, 
-    TimeShower* timesPtrIn, SpaceShower* spacePtrIn, 
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
+    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
+    BeamParticle* beamPomAPtrIn, BeamParticle* beamPomBPtrIn,
+    Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn,
+    SigmaTotal* sigmaTotPtr, TimeShower* timesDecPtrIn,
+    TimeShower* timesPtrIn, SpaceShower* spacePtrIn,
     RHadrons* rHadronsPtrIn, UserHooks* userHooksPtrIn,
     MergingHooks* mergingHooksPtr, bool useAsTrial);
  
   // Generate the next parton-level process.
-  bool next( Event& process, Event& event); 
+  bool next( Event& process, Event& event);
 
   // Perform showers in resonance decay chains. (For special cases.)
   void setupShowerSys( Event& process, Event& event);
-  bool resonanceShowers( Event& process, Event& event, bool skipForR); 
+  bool resonanceShowers( Event& process, Event& event, bool skipForR);
 
   // Perform decays and showers of W and Z emitted in shower.
-  bool wzDecayShowers( Event& event); 
+  bool wzDecayShowers( Event& event);
 
   // Tell whether failure was due to vetoing.
   bool hasVetoed() const {return doVeto;}
@@ -71,7 +71,7 @@ public:
   void statistics(bool reset = false) {
     if (doMPI) multiMB.statistics(reset);}
     // For now no separate statistics for diffraction??
-    //if (doMPISDA && doDiffraction) multiSDA.statistics(reset); 
+    //if (doMPISDA && doDiffraction) multiSDA.statistics(reset);
     //if (doMPISDB && doDiffraction) multiSDB.statistics(reset);}
   void resetStatistics() { if (doMPI) multiMB.resetStatistics(); }
 
@@ -82,31 +82,31 @@ public:
   // Provide the type of the last branching in the shower.
   int typeLastInShower(){ return typeLastBranch; }
 
-private: 
+private:
 
   // Constants: could only be changed in the code itself.
   static const int NTRY;
 
   // Initialization data, mainly read from Settings.
-  bool   doNonDiff, doDiffraction, doMPI, doMPIMB, doMPISDA, doMPISDB, 
-         doMPICD, doMPIinit, doISR, doFSRduringProcess, doFSRafterProcess,  
-         doFSRinResonances, doRemnants, doSecondHard, hasLeptonBeams, 
-         hasPointLeptons, canVetoPT, canVetoStep, canVetoMPIStep, 
-         canVetoEarly, canSetScale, allowRH, earlyResDec;
-  double mMinDiff, mWidthDiff, pMaxDiff;
+  bool   doNonDiff, doDiffraction, doMPI, doMPIMB, doMPISDA, doMPISDB,
+         doMPICD, doMPIinit, doISR, doFSRduringProcess, doFSRafterProcess,
+         doFSRinResonances, doRemnants, doSecondHard, hasLeptonBeams,
+         hasPointLeptons, canVetoPT, canVetoStep, canVetoMPIStep,
+         canVetoEarly, canSetScale, allowRH, earlyResDec, vetoWeakJets;
+  double mMinDiff, mWidthDiff, pMaxDiff, vetoWeakDeltaR2;
 
   // Event generation strategy. Number of steps. Maximum pT scales.
   bool   doVeto;
-  int    nMPI, nISR, nFSRinProc, nFSRinRes, nISRhard, nFSRhard, 
+  int    nMPI, nISR, nFSRinProc, nFSRinRes, nISRhard, nFSRhard,
          typeLatest, nVetoStep, typeVetoStep, nVetoMPIStep, iSysNow;
   double pTsaveMPI, pTsaveISR, pTsaveFSR, pTvetoPT;
 
   // Current event properties.
-  bool   isNonDiff, isDiffA, isDiffB, isDiffC, isDiff, isSingleDiff, 
-         isDoubleDiff, isCentralDiff, isResolved, isResolvedA, 
+  bool   isNonDiff, isDiffA, isDiffB, isDiffC, isDiff, isSingleDiff,
+         isDoubleDiff, isCentralDiff, isResolved, isResolvedA,
          isResolvedB, isResolvedC;
   int    sizeProcess, sizeEvent, nHardDone, nHardDoneRHad, iDS;
-  double eCMsave; 
+  double eCMsave;
   vector<bool> inRHadDecay;
   vector<int>  iPosBefShow;
 
@@ -124,8 +124,8 @@ private:
   BeamParticle*  beamBPtr;
 
   // Spare copies of normal pointers. Pointers to Pomeron beam-inside-beam.
-  BeamParticle*  beamHadAPtr;  
-  BeamParticle*  beamHadBPtr;  
+  BeamParticle*  beamHadAPtr;
+  BeamParticle*  beamHadBPtr;
   BeamParticle*  beamPomAPtr;
   BeamParticle*  beamPomBPtr;
 
@@ -152,7 +152,7 @@ private:
   MultipartonInteractions  multiCD;
   MultipartonInteractions* multiPtr;
 
-  // The generator class to construct beam-remnant kinematics. 
+  // The generator class to construct beam-remnant kinematics.
   BeamRemnants remnants;
   // Separate instance for central diffraction.
   BeamRemnants remnantsCD;

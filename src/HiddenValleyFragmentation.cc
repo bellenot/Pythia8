@@ -1,5 +1,5 @@
 // HiddenValleyFragmentation.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -41,17 +41,17 @@ FlavContainer HVStringFlav::pick(FlavContainer& flavOld) {
 
   // Pick new HV-flavour at random; keep track of sign.
   flavNew.id = 4900100 + min( 1 + int(nFlav * rndmPtr->flat()), nFlav);
-  if (flavOld.id > 0) flavNew.id = -flavNew.id; 
+  if (flavOld.id > 0) flavNew.id = -flavNew.id;
     
-  // Done. 
+  // Done.
   return flavNew;
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
 // Combine two HV-flavours to produce an HV-hadron.
-// This is simplified procedure, assuming only two HV mesons defined. 
+// This is simplified procedure, assuming only two HV mesons defined.
 
 int HVStringFlav::combine(FlavContainer& flav1, FlavContainer& flav2) {
 
@@ -61,11 +61,11 @@ int HVStringFlav::combine(FlavContainer& flav1, FlavContainer& flav2) {
   int idPos =  max( flav1.id, flav2.id) - 4900000;
   int idNeg = -min( flav1.id, flav2.id) - 4900000;
   if (idPos < 20) idPos = 101;
-  if (idNeg < 20) idNeg = 101; 
+  if (idNeg < 20) idNeg = 101;
 
   // Pick HV-meson code, spin either 0 or 1.
   if (idNeg == idPos)     idMeson =  4900111;
-  else if (idPos > idNeg) idMeson =  4900211; 
+  else if (idPos > idNeg) idMeson =  4900211;
   else                    idMeson = -4900211;
   if (rndmPtr->flat() < probVector) idMeson += ((idMeson > 0) ? 2 : -2);
 
@@ -108,7 +108,7 @@ void HVStringPT::init(Settings& settings, ParticleData& particleData,
 
 // Initialize data members of the string z selection.
 
-void HVStringZ::init(Settings& settings, ParticleData& particleData, 
+void HVStringZ::init(Settings& settings, ParticleData& particleData,
   Rndm* rndmPtrIn) {
 
   // Save pointer.
@@ -123,7 +123,7 @@ void HVStringZ::init(Settings& settings, ParticleData& particleData,
   mqv2     = pow2( particleData.m0( 4900101) );
   bLund    = bmqv2 / mqv2;
 
-  // Mass of qv meson used to set stop scale for fragmentation iteration. 
+  // Mass of qv meson used to set stop scale for fragmentation iteration.
   mhvMeson = particleData.m0( 4900111);
 
 }
@@ -147,9 +147,9 @@ double HVStringZ::zFrag( int , int , double mT2) {
 
 //--------------------------------------------------------------------------
 
-// Initialize and save pointers. 
+// Initialize and save pointers.
 
-bool HiddenValleyFragmentation::init(Info* infoPtrIn, Settings& settings, 
+bool HiddenValleyFragmentation::init(Info* infoPtrIn, Settings& settings,
   ParticleData* particleDataPtrIn, Rndm* rndmPtrIn) {
 
   // Save pointers.
@@ -167,13 +167,13 @@ bool HiddenValleyFragmentation::init(Info* infoPtrIn, Settings& settings,
   if (nFlav > 1) {
     int spinType = particleDataPtr->spinType(4900101);
     double m0    = particleDataPtr->m0(4900101);
-    for (int iFlav = 2; iFlav <= nFlav; ++iFlav) 
+    for (int iFlav = 2; iFlav <= nFlav; ++iFlav)
       particleDataPtr->addParticle( 4900100 + iFlav, "qv", "qvbar",
       spinType, 0, 0, m0);
   }
  
   // Hidden Valley meson mass used to choose hadronization mode.
-  mhvMeson = particleDataPtr->m0(4900111); 
+  mhvMeson = particleDataPtr->m0(4900111);
 
   // Initialize the hvEvent instance of an event record.
   hvEvent.init( "(Hidden Valley fragmentation)", particleDataPtr);
@@ -194,9 +194,9 @@ bool HiddenValleyFragmentation::init(Info* infoPtrIn, Settings& settings,
   hvColConfig.init(infoPtr, settings, hvFlavSelPtr);
 
   // Initialize HV-string and HV-ministring fragmentation.
-  hvStringFrag.init(infoPtr, settings, particleDataPtr, rndmPtr, 
+  hvStringFrag.init(infoPtr, settings, particleDataPtr, rndmPtr,
     hvFlavSelPtr, hvPTSelPtr, hvZSelPtr);
-  hvMinistringFrag.init(infoPtr, settings, particleDataPtr, rndmPtr, 
+  hvMinistringFrag.init(infoPtr, settings, particleDataPtr, rndmPtr,
     hvFlavSelPtr, hvPTSelPtr, hvZSelPtr);
 
   // Done.
@@ -213,7 +213,7 @@ bool HiddenValleyFragmentation::fragment(Event& event) {
   // Reset containers for next event.
   hvEvent.reset();
   hvColConfig.clear();
-  ihvParton.resize(0);  
+  ihvParton.resize(0);
 
   // Extract HV-particles from event to hvEvent. Assign HV-colours.
   // Done if no HV-particles found.
@@ -231,15 +231,15 @@ bool HiddenValleyFragmentation::fragment(Event& event) {
 
   // HV-string fragmentation when enough mass to produce >= 3 HV-mesons.
   if (mSys > 3.5 * mhvMeson) {
-    if (!hvStringFrag.fragment( 0, hvColConfig, hvEvent)) return false; 
+    if (!hvStringFrag.fragment( 0, hvColConfig, hvEvent)) return false;
 
   // HV-ministring fragmentation when enough mass to produce 2 HV-mesons.
   } else if (mSys > 2.1 * mhvMeson) {
-    if (!hvMinistringFrag.fragment( 0, hvColConfig, hvEvent, true)) 
+    if (!hvMinistringFrag.fragment( 0, hvColConfig, hvEvent, true))
     return false;
 
   // If only enough mass for one HV-meson assume HV-glueballs emitted.
-  } else if (!collapseToMeson()) return false; 
+  } else if (!collapseToMeson()) return false;
 
   // Insert HV particles from hvEvent to event.
   insertHVevent(event);
@@ -260,23 +260,23 @@ bool HiddenValleyFragmentation::extractHVevent(Event& event) {
     int idAbs = event[i].idAbs();
     bool isHV = (idAbs > 4900000 && idAbs < 4900007)
              || (idAbs > 4900010 && idAbs < 4900017)
-             || idAbs == 4900021 || idAbs == 4900101;  
+             || idAbs == 4900021 || idAbs == 4900101;
     if (isHV) {
       int iHV = hvEvent.append( event[i]);
       // Convert HV-gluons into normal ones so as to use normal machinery.
       if (event[i].id() ==  4900021) hvEvent[iHV].id(21);
       // Second mother points back to position in complete event;
       // otherwise construct the HV history inside hvEvent.
-      hvEvent[iHV].mothers( 0, i); 
+      hvEvent[iHV].mothers( 0, i);
       hvEvent[iHV].daughters( 0, 0);
       int iMother = event[i].mother1();
-      for (int iHVM = 1; iHVM < hvEvent.size(); ++iHVM) 
+      for (int iHVM = 1; iHVM < hvEvent.size(); ++iHVM)
       if (hvEvent[iHVM].mother2() == iMother) {
         hvEvent[iHV].mother1( iHVM);
         if (hvEvent[iHVM].daughter1() == 0) hvEvent[iHVM].daughter1(iHV);
-        else                                hvEvent[iHVM].daughter2(iHV); 
-      } 
-    }    
+        else                                hvEvent[iHVM].daughter2(iHV);
+      }
+    }
   }
 
   // Done if no HV particles found.
@@ -285,7 +285,7 @@ bool HiddenValleyFragmentation::extractHVevent(Event& event) {
 
   // Initial colour - anticolour parton pair.
   int colBeg = hvEvent.nextColTag();
-  for (int iHV = 1; iHV < hvOldSize; ++iHV) 
+  for (int iHV = 1; iHV < hvOldSize; ++iHV)
   if (hvEvent[iHV].mother1() == 0) {
     if (hvEvent[iHV].id() > 0) hvEvent[iHV].col( colBeg);
     else                       hvEvent[iHV].acol( colBeg);
@@ -295,7 +295,7 @@ bool HiddenValleyFragmentation::extractHVevent(Event& event) {
   for (int iHV = 1; iHV < hvOldSize; ++iHV) {
     int dau1 = hvEvent[iHV].daughter1();
     int dau2 = hvEvent[iHV].daughter2();
-    if (dau1 > 0 && dau2 == 0) 
+    if (dau1 > 0 && dau2 == 0)
       hvEvent[dau1].cols( hvEvent[iHV].col(), hvEvent[iHV].acol());
     else if (dau2 > 0) {
       int colHV  = hvEvent[iHV].col();
@@ -315,20 +315,20 @@ bool HiddenValleyFragmentation::extractHVevent(Event& event) {
         hvEvent[dau1].cols( colNew, acolHV);
         hvEvent[dau2].cols( colHV, colNew);
       }
-    } 
+    }
   }
 
   // Pick up the colour end.
   int colNow = 0;
-  for (int iHV = 1; iHV < hvOldSize; ++iHV) 
+  for (int iHV = 1; iHV < hvOldSize; ++iHV)
   if (hvEvent[iHV].isFinal() && hvEvent[iHV].acol() == 0) {
     ihvParton.push_back( iHV);
     colNow = hvEvent[iHV].col();
   }
  
   // Trace colour by colour until reached anticolour end.
-  while (colNow > 0) { 
-    for (int iHV = 1; iHV < hvOldSize; ++iHV) 
+  while (colNow > 0) {
+    for (int iHV = 1; iHV < hvOldSize; ++iHV)
     if (hvEvent[iHV].isFinal() && hvEvent[iHV].acol() == colNow) {
       ihvParton.push_back( iHV);
       colNow = hvEvent[iHV].col();
@@ -349,7 +349,7 @@ bool HiddenValleyFragmentation::collapseToMeson() {
 
   // If too low mass then cannot do anything. Should not happen.
   if (mSys < 1.001 * mhvMeson) {
-    infoPtr->errorMsg("Error in HiddenValleyFragmentation::collapseToMeson:" 
+    infoPtr->errorMsg("Error in HiddenValleyFragmentation::collapseToMeson:"
       " too low mass to do anything");
     return false;
   }
@@ -358,7 +358,7 @@ bool HiddenValleyFragmentation::collapseToMeson() {
   double mhvGlue = (0.001 + 0.998 * rndmPtr->flat()) * (mSys - mhvMeson);
 
   // Find momentum in rest frame, with isotropic "decay" angles.
-  double pAbs = 0.5 * sqrtpos( pow2(mSys*mSys - mhvMeson*mhvMeson 
+  double pAbs = 0.5 * sqrtpos( pow2(mSys*mSys - mhvMeson*mhvMeson
     - mhvGlue*mhvGlue) - pow2(2. * mhvMeson * mhvGlue) ) / mSys;
   double pz   = (2 * rndmPtr->flat() - 1.) * pAbs;
   double pT   = sqrtpos( pAbs*pAbs - pz*pz);
@@ -367,23 +367,23 @@ bool HiddenValleyFragmentation::collapseToMeson() {
   double py   = pT * sin(phi);
 
   // Construct four-vectors and boost them to event frame.
-  Vec4 phvMeson( px, py, pz, sqrt(mhvMeson*mhvMeson + pAbs*pAbs) );    
+  Vec4 phvMeson( px, py, pz, sqrt(mhvMeson*mhvMeson + pAbs*pAbs) );
   Vec4 phvGlue( -px, -py, -pz, sqrt(mhvGlue*mhvGlue + pAbs*pAbs) );
-  phvMeson.bst( hvColConfig[0].pSum );    
-  phvGlue.bst(  hvColConfig[0].pSum ); 
+  phvMeson.bst( hvColConfig[0].pSum );
+  phvGlue.bst(  hvColConfig[0].pSum );
 
   // Add produced particles to the event record.
   vector<int> iParton = hvColConfig[0].iParton;
-  int iFirst = hvEvent.append( 4900111, 82,  iParton.front(), 
+  int iFirst = hvEvent.append( 4900111, 82,  iParton.front(),
     iParton.back(), 0, 0, 0, 0, phvMeson, mhvMeson);
-  int iLast  = hvEvent.append( 4900991, 82,  iParton.front(), 
+  int iLast  = hvEvent.append( 4900991, 82,  iParton.front(),
     iParton.back(), 0, 0, 0, 0, phvGlue, mhvGlue);
 
   // Mark original partons as hadronized and set their daughter range.
   for (int i = 0; i < int(iParton.size()); ++i) {
     hvEvent[ iParton[i] ].statusNeg();
     hvEvent[ iParton[i] ].daughters(iFirst, iLast);
-  }    
+  }
 
   // Done.
   return true;
@@ -394,11 +394,11 @@ bool HiddenValleyFragmentation::collapseToMeson() {
 
 // Insert HV-particles from hvEvent to event.
 
-bool HiddenValleyFragmentation::insertHVevent(Event& event) {    
+bool HiddenValleyFragmentation::insertHVevent(Event& event) {
 
   // Offset for mother/daughter indices.
   hvNewSize = hvEvent.size();
-  int nOffset = event.size() - hvOldSize;   
+  int nOffset = event.size() - hvOldSize;
 
   // Copy back HV-particles.
   int iNew, iMot1, iMot2, iDau1, iDau2;
@@ -420,13 +420,13 @@ bool HiddenValleyFragmentation::insertHVevent(Event& event) {
       iMot1 = hvEvent[iMot1].mother2();
       event[iMot1].statusNeg();
       event[iMot1].daughter1(iNew);
-    } else if (iMot1 > 0) iMot1 += nOffset; 
+    } else if (iMot1 > 0) iMot1 += nOffset;
     if (iMot2 > 0 && iMot2 < hvOldSize) {
       iMot2 = hvEvent[iMot2].mother2();
       event[iMot2].statusNeg();
       if (event[iMot2].daughter1() == 0) event[iMot2].daughter1(iNew);
       else                               event[iMot2].daughter2(iNew);
-    } else if (iMot2 > 0) iMot2 += nOffset; 
+    } else if (iMot2 > 0) iMot2 += nOffset;
     if (iDau1 > 0) iDau1 += nOffset;
     if (iDau2 > 0) iDau2 += nOffset;
     event[iNew].mothers( iMot1, iMot2);

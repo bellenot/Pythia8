@@ -1,5 +1,5 @@
 // FragmentationFlavZpT.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -20,9 +20,9 @@ namespace Pythia8 {
 
 //==========================================================================
 
-// The FlavContainer class is a simple container for flavour, 
+// The FlavContainer class is a simple container for flavour,
 // including the extra properties needed for popcorn baryon handling.
-// id = current flavour. 
+// id = current flavour.
 // rank = current rank; 0 for endpoint flavour and then increase by 1.
 // nPop = number of popcorn mesons yet to be produced (1 or 0).
 // idPop = (absolute sign of) popcorn quark, shared between B and Bbar.
@@ -32,13 +32,13 @@ class FlavContainer {
 
 public:
 
-  // Constructor. 
-  FlavContainer(int idIn = 0, int rankIn = 0, int nPopIn = 0, 
-    int idPopIn = 0, int idVtxIn = 0) : id(idIn), rank(rankIn), 
+  // Constructor.
+  FlavContainer(int idIn = 0, int rankIn = 0, int nPopIn = 0,
+    int idPopIn = 0, int idVtxIn = 0) : id(idIn), rank(rankIn),
     nPop(nPopIn), idPop(idPopIn), idVtx(idVtxIn) {}
 
   // Overloaded equal operator.
-  FlavContainer& operator=(const FlavContainer& flav) { if (this != &flav) { 
+  FlavContainer& operator=(const FlavContainer& flav) { if (this != &flav) {
     id = flav.id; rank = flav.rank; nPop = flav.nPop; idPop = flav.idPop;
     idVtx = flav.idVtx; } return *this; }
 
@@ -46,15 +46,15 @@ public:
   FlavContainer& anti() {id = -id; return *this;}
 
   // Read in a container into another, without/with id sign flip.
-  FlavContainer& copy(const FlavContainer& flav) { if (this != &flav) { 
+  FlavContainer& copy(const FlavContainer& flav) { if (this != &flav) {
     id = flav.id; rank = flav.rank; nPop = flav.nPop; idPop = flav.idPop;
     idVtx = flav.idVtx; } return *this; }
-  FlavContainer& anti(const FlavContainer& flav) { if (this != &flav) { 
+  FlavContainer& anti(const FlavContainer& flav) { if (this != &flav) {
     id = -flav.id; rank = flav.rank; nPop = flav.nPop; idPop = flav.idPop;
     idVtx = flav.idVtx; } return *this; }
 
   // Check whether is diquark.
-  bool isDiquark() {int idAbs = abs(id); 
+  bool isDiquark() {int idAbs = abs(id);
     return (idAbs > 1000 && idAbs < 10000 && (idAbs/10)%10 == 0);}
 
   // Stored properties.
@@ -70,10 +70,10 @@ class StringFlav {
 
 public:
 
-  // Constructor. 
+  // Constructor.
   StringFlav() {}
 
-  // Destructor. 
+  // Destructor.
   virtual ~StringFlav() {}
 
   // Initialize data members.
@@ -100,19 +100,19 @@ protected:
   // Pointer to the random number generator.
   Rndm*  rndmPtr;
 
-private: 
+private:
 
   // Constants: could only be changed in the code itself.
   static const int    mesonMultipletCode[6];
-  static const double baryonCGOct[6], baryonCGDec[6]; 
+  static const double baryonCGOct[6], baryonCGDec[6];
 
   // Initialization data, to be read from Settings.
   bool   suppressLeadingB;
-  double probQQtoQ, probStoUD, probSQtoQQ, probQQ1toQQ0, probQandQQ, 
-         probQandS, probQandSinQQ, probQQ1corr, probQQ1corrInv, probQQ1norm, 
-         mesonRate[4][6], mesonRateSum[4], mesonMix1[2][6], mesonMix2[2][6], 
-         etaSup, etaPrimeSup, decupletSup, baryonCGSum[6], baryonCGMax[6], 
-         popcornRate, popcornSpair, popcornSmeson, scbBM[3], popFrac, 
+  double probQQtoQ, probStoUD, probSQtoQQ, probQQ1toQQ0, probQandQQ,
+         probQandS, probQandSinQQ, probQQ1corr, probQQ1corrInv, probQQ1norm,
+         mesonRate[4][6], mesonRateSum[4], mesonMix1[2][6], mesonMix2[2][6],
+         etaSup, etaPrimeSup, decupletSup, baryonCGSum[6], baryonCGMax[6],
+         popcornRate, popcornSpair, popcornSmeson, scbBM[3], popFrac,
          popS[3], dWT[3][7], lightLeadingBSup, heavyLeadingBSup;
 
 };
@@ -125,28 +125,28 @@ class StringZ {
 
 public:
 
-  // Constructor. 
+  // Constructor.
   StringZ() {}
 
-  // Destructor. 
+  // Destructor.
   virtual ~StringZ() {}
 
   // Initialize data members.
-  virtual void init(Settings& settings, ParticleData& particleData, 
+  virtual void init(Settings& settings, ParticleData& particleData,
     Rndm* rndmPtrIn);
   
   // Fragmentation function: top-level to determine parameters.
   virtual double zFrag( int idOld, int idNew = 0, double mT2 = 1.);
 
   // Parameters for stopping in the middle; overloaded for Hidden Valley.
-  virtual double stopMass() {return stopM;} 
-  virtual double stopNewFlav() {return stopNF;} 
-  virtual double stopSmear() {return stopS;} 
+  virtual double stopMass() {return stopM;}
+  virtual double stopNewFlav() {return stopNF;}
+  virtual double stopSmear() {return stopS;}
 
   // b fragmentation parameter needed to weight final two solutions.
   virtual double bAreaLund() {return bLund;}
 
-protected: 
+protected:
 
   // Constants: could only be changed in the code itself.
   static const double CFROMUNITY, AFROMZERO, AFROMC, EXPMAX;
@@ -154,8 +154,8 @@ protected:
   // Initialization data, to be read from Settings.
   bool   useNonStandC, useNonStandB, useNonStandH,
          usePetersonC, usePetersonB, usePetersonH;
-  double mc2, mb2, aLund, bLund, aExtraDiquark, rFactC, rFactB, rFactH,
-         aNonC, aNonB, aNonH, bNonC, bNonB, bNonH, 
+  double mc2, mb2, aLund, bLund, aExtraSQuark, aExtraDiquark, rFactC,
+         rFactB, rFactH, aNonC, aNonB, aNonH, bNonC, bNonB, bNonH,
          epsilonC, epsilonB, epsilonH, stopM, stopNF, stopS;
 
   // Fragmentation function: select z according to provided parameters.
@@ -175,23 +175,23 @@ class StringPT {
 
 public:
 
-  // Constructor. 
+  // Constructor.
   StringPT() {}
 
-  // Destructor. 
+  // Destructor.
   virtual ~StringPT() {}
 
   // Initialize data members.
-  virtual void init(Settings& settings, ParticleData& particleData, 
+  virtual void init(Settings& settings, ParticleData& particleData,
     Rndm* rndmPtrIn);
 
   // Return px and py as a pair in the same call.
   pair<double, double>  pxy();
 
   // Gaussian suppression of given pT2; used in MiniStringFragmentation.
-  double suppressPT2(double pT2) { return exp( -pT2 / sigma2Had); }  
+  double suppressPT2(double pT2) { return exp( -pT2 / sigma2Had); }
 
-protected: 
+protected:
 
   // Constants: could only be changed in the code itself.
   static const double SIGMAMIN;

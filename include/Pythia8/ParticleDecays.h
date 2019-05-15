@@ -1,5 +1,5 @@
 // ParticleDecays.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -25,7 +25,7 @@ namespace Pythia8 {
 //==========================================================================
 
 // DecayHandler is base class for the external handling of decays.
-// There is only one pure virtual method, that should do the decay. 
+// There is only one pure virtual method, that should do the decay.
 
 class DecayHandler {
 
@@ -35,7 +35,7 @@ public:
   virtual ~DecayHandler() {}
 
   // A pure virtual method, wherein the derived class method does a decay.
-  virtual bool decay(vector<int>& idProd, vector<double>& mProd, 
+  virtual bool decay(vector<int>& idProd, vector<double>& mProd,
     vector<Vec4>& pProd, int iDec, const Event& event) = 0;
 
 };
@@ -48,23 +48,23 @@ class ParticleDecays {
 
 public:
 
-  // Constructor. 
+  // Constructor.
   ParticleDecays() {}
 
   // Initialize: store pointers and find settings
-  void init(Info* infoPtrIn, Settings& settings, 
-    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
-    Couplings* couplingsPtrIn, TimeShower* timesDecPtrIn, 
-    StringFlav* flavSelPtrIn, DecayHandler* decayHandlePtrIn, 
-    vector<int> handledParticles); 
+  void init(Info* infoPtrIn, Settings& settings,
+    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
+    Couplings* couplingsPtrIn, TimeShower* timesDecPtrIn,
+    StringFlav* flavSelPtrIn, DecayHandler* decayHandlePtrIn,
+    vector<int> handledParticles);
  
   // Perform a decay of a single particle.
-  bool decay(int iDec, Event& event); 
+  bool decay(int iDec, Event& event);
 
   // Did decay result in new partons to hadronize?
   bool moreToDo() const {return hasPartons && keepPartons;}
 
-private: 
+private:
 
   // Constants: could only be changed in the code itself.
   static const int    NTRYDECAY, NTRYPICK, NTRYMEWT, NTRYDALITZ;
@@ -92,15 +92,15 @@ private:
   DecayHandler* decayHandlePtr;
 
   // Initialization data, read from Settings.
-  bool   limitTau0, limitTau, limitRadius, limitCylinder, limitDecay, 
+  bool   limitTau0, limitTau, limitRadius, limitCylinder, limitDecay,
          mixB, doFSRinDecays, doGammaRad;
   int    sophisticatedTau;
-  double mSafety, tau0Max, tauMax, rMax, xyMax, zMax, xBdMix, xBsMix, 
-         sigmaSoft, multIncrease, multIncreaseWeak, multRefMass, multGoffset, 
+  double mSafety, tau0Max, tauMax, rMax, xyMax, zMax, xBdMix, xBsMix,
+         sigmaSoft, multIncrease, multIncreaseWeak, multRefMass, multGoffset,
          colRearrange, stopMass, sRhoDal, wRhoDal;
 
   // Multiplicity. Decay products positions and masses.
-  bool   hasPartons, keepPartons;    
+  bool   hasPartons, keepPartons;
   int    idDec, meMode, mult;
   double scale;
   vector<int>    iProd, idProd, cols, acols, idPartons;
@@ -130,7 +130,7 @@ private:
   bool threeBody(Event& event);
 
   // Do a multibody decay using the M-generator algorithm.
-  bool mGenerator(Event& event); 
+  bool mGenerator(Event& event);
 
   // Select mass of lepton pair in a Dalitz decay.
   bool dalitzMass();

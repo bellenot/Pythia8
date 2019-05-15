@@ -1,5 +1,5 @@
 // Basics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -20,7 +20,7 @@ namespace Pythia8 {
 //==========================================================================
 
 // RndmEngine is the base class for external random number generators.
-// There is only one pure virtual method, that should do the generation. 
+// There is only one pure virtual method, that should do the generation.
 
 class RndmEngine {
 
@@ -29,11 +29,11 @@ public:
   // Destructor.
   virtual ~RndmEngine() {}
 
-  // A pure virtual method, wherein the derived class method 
+  // A pure virtual method, wherein the derived class method
   // generates a random number uniformly distributed between 1 and 1.
   virtual double flat() = 0;
 
-}; 
+};
 
 //==========================================================================
 
@@ -46,13 +46,13 @@ class Rndm {
 public:
 
   // Constructors.
-  Rndm() : initRndm(false), seedSave(0), sequence(0), 
-    useExternalRndm(false), rndmEngPtr(0) { } 
-  Rndm(int seedIn) : initRndm(false), seedSave(0), sequence(0), 
-    useExternalRndm(false), rndmEngPtr(0) { init(seedIn);} 
+  Rndm() : initRndm(false), seedSave(0), sequence(0),
+    useExternalRndm(false), rndmEngPtr(0) { }
+  Rndm(int seedIn) : initRndm(false), seedSave(0), sequence(0),
+    useExternalRndm(false), rndmEngPtr(0) { init(seedIn);}
 
   // Possibility to pass in pointer for external random number generation.
-  bool rndmEnginePtr( RndmEngine* rndmEngPtrIn);  
+  bool rndmEnginePtr( RndmEngine* rndmEngPtrIn);
 
   // Initialize, normally at construction or in first call.
   void init(int seedIn = 0) ;
@@ -61,21 +61,21 @@ public:
   double flat() ;
 
   // Generate random numbers according to exp(-x).
-  double exp() { return -log(flat()) ;} 
+  double exp() { return -log(flat()) ;}
 
   // Generate random numbers according to x * exp(-x).
-  double xexp() { return -log(flat() * flat()) ;} 
+  double xexp() { return -log(flat() * flat()) ;}
 
   // Generate random numbers according to exp(-x^2/2).
   double gauss() {return sqrt(-2. * log(flat())) * cos(M_PI * flat());}
 
   // Generate two random numbers according to exp(-x^2/2-y^2/2).
   pair<double, double> gauss2() {double r = sqrt(-2. * log(flat()));
-    double phi = 2. * M_PI * flat(); 
+    double phi = 2. * M_PI * flat();
     return pair<double, double>(r * sin(phi), r * cos(phi));}
 
   // Pick one option among  vector of (positive) probabilities.
-  int pick(const vector<double>& prob) ; 
+  int pick(const vector<double>& prob) ;
 
   // Save or read current state to or from a binary file.
   bool dumpState(string fileName);
@@ -87,13 +87,13 @@ private:
   static const int DEFAULTSEED;
 
   // State of the random number generator.
-  bool   initRndm; 
+  bool   initRndm;
   int    i97, j97, seedSave;
   long   sequence;
   double u[97], c, cd, cm;
 
   // Pointer for external random number generation.
-  bool   useExternalRndm; 
+  bool   useExternalRndm;
   RndmEngine* rndmEngPtr;
 
 };
@@ -117,16 +117,16 @@ public:
   Vec4(double xIn = 0., double yIn = 0., double zIn = 0., double tIn = 0.)
     : xx(xIn), yy(yIn), zz(zIn), tt(tIn) { }
   Vec4(const Vec4& v) : xx(v.xx), yy(v.yy), zz(v.zz), tt(v.tt) { }
-  Vec4& operator=(const Vec4& v) { if (this != &v) { xx = v.xx; yy = v.yy; 
+  Vec4& operator=(const Vec4& v) { if (this != &v) { xx = v.xx; yy = v.yy;
     zz = v.zz; tt = v.tt; } return *this; }
-  Vec4& operator=(double value) { xx = value; yy = value; zz = value; 
+  Vec4& operator=(double value) { xx = value; yy = value; zz = value;
     tt = value; return *this; }
       
   // Member functions for input.
   void reset() {xx = 0.; yy = 0.; zz = 0.; tt = 0.;}
-  void p(double xIn, double yIn, double zIn, double tIn) 
+  void p(double xIn, double yIn, double zIn, double tIn)
     {xx = xIn; yy = yIn; zz = zIn; tt = tIn;}
-  void p(Vec4 pIn) {xx = pIn.xx; yy = pIn.yy; zz = pIn.zz; tt = pIn.tt;} 
+  void p(Vec4 pIn) {xx = pIn.xx; yy = pIn.yy; zz = pIn.zz; tt = pIn.tt;}
   void px(double xIn) {xx = xIn;}
   void py(double yIn) {yy = yIn;}
   void pz(double zIn) {zz = zIn;}
@@ -162,27 +162,27 @@ public:
   void rescale4(double fac) {xx *= fac; yy *= fac; zz *= fac; tt *= fac;}
   void flip3() {xx = -xx; yy = -yy; zz = -zz;}
   void flip4() {xx = -xx; yy = -yy; zz = -zz; tt = -tt;}
-  void rot(double thetaIn, double phiIn); 
-  void rotaxis(double phiIn, double nx, double ny, double nz); 
+  void rot(double thetaIn, double phiIn);
+  void rotaxis(double phiIn, double nx, double ny, double nz);
   void rotaxis(double phiIn, const Vec4& n);
-  void bst(double betaX, double betaY, double betaZ); 
-  void bst(double betaX, double betaY, double betaZ, double gamma); 
-  void bst(const Vec4& pIn); 
-  void bst(const Vec4& pIn, double mIn); 
-  void bstback(const Vec4& pIn); 
-  void bstback(const Vec4& pIn, double mIn); 
-  void rotbst(const RotBstMatrix& M); 
+  void bst(double betaX, double betaY, double betaZ);
+  void bst(double betaX, double betaY, double betaZ, double gamma);
+  void bst(const Vec4& pIn);
+  void bst(const Vec4& pIn, double mIn);
+  void bstback(const Vec4& pIn);
+  void bstback(const Vec4& pIn, double mIn);
+  void rotbst(const RotBstMatrix& M);
 
   // Operator overloading with member functions
-  Vec4 operator-() {Vec4 tmp; tmp.xx = -xx; tmp.yy = -yy; tmp.zz = -zz; 
+  Vec4 operator-() {Vec4 tmp; tmp.xx = -xx; tmp.yy = -yy; tmp.zz = -zz;
     tmp.tt = -tt; return tmp;}
-  Vec4& operator+=(const Vec4& v) {xx += v.xx; yy += v.yy; zz += v.zz; 
+  Vec4& operator+=(const Vec4& v) {xx += v.xx; yy += v.yy; zz += v.zz;
     tt += v.tt; return *this;}
-  Vec4& operator-=(const Vec4& v) {xx -= v.xx; yy -= v.yy; zz -= v.zz; 
+  Vec4& operator-=(const Vec4& v) {xx -= v.xx; yy -= v.yy; zz -= v.zz;
     tt -= v.tt; return *this;}
-  Vec4& operator*=(double f) {xx *= f; yy *= f; zz *= f; 
+  Vec4& operator*=(double f) {xx *= f; yy *= f; zz *= f;
     tt *= f; return *this;}
-  Vec4& operator/=(double f) {xx /= f; yy /= f; zz /= f; 
+  Vec4& operator/=(double f) {xx /= f; yy /= f; zz /= f;
     tt /= f; return *this;}
 
   // Operator overloading with friends
@@ -206,14 +206,14 @@ public:
   friend double costheta(const Vec4& v1, const Vec4& v2);
 
   // phi is azimuthal angle between v1 and v2 around z axis.
-  friend double phi(const Vec4& v1, const Vec4& v2);  
+  friend double phi(const Vec4& v1, const Vec4& v2);
   friend double cosphi(const Vec4& v1, const Vec4& v2);
 
   // phi is azimuthal angle between v1 and v2 around n axis.
   friend double phi(const Vec4& v1, const Vec4& v2, const Vec4& n);
   friend double cosphi(const Vec4& v1, const Vec4& v2, const Vec4& n);
  
-  // R is distance in cylindrical (y/eta, phi) coordinates. 
+  // R is distance in cylindrical (y/eta, phi) coordinates.
   friend double RRapPhi(const Vec4& v1, const Vec4& v2);
   friend double REtaPhi(const Vec4& v1, const Vec4& v2);
 
@@ -236,23 +236,23 @@ private:
 
 // Implementation of operator overloading with friends.
 
-inline Vec4 operator+(const Vec4& v1, const Vec4& v2) 
+inline Vec4 operator+(const Vec4& v1, const Vec4& v2)
   {Vec4 v = v1 ; return v += v2;}
 
-inline Vec4 operator-(const Vec4& v1, const Vec4& v2) 
+inline Vec4 operator-(const Vec4& v1, const Vec4& v2)
   {Vec4 v = v1 ; return v -= v2;}
 
-inline Vec4 operator*(double f, const Vec4& v1) 
+inline Vec4 operator*(double f, const Vec4& v1)
   {Vec4 v = v1; return v *= f;}
 
-inline Vec4 operator*(const Vec4& v1, double f) 
+inline Vec4 operator*(const Vec4& v1, double f)
   {Vec4 v = v1; return v *= f;}
 
-inline Vec4 operator/(const Vec4& v1, double f) 
+inline Vec4 operator/(const Vec4& v1, double f)
   {Vec4 v = v1; return v /= f;}
 
 inline double operator*(const Vec4& v1, const Vec4& v2)
-  {return v1.tt*v2.tt - v1.xx*v2.xx - v1.yy*v2.yy - v1.zz*v2.zz;}  
+  {return v1.tt*v2.tt - v1.xx*v2.xx - v1.yy*v2.yy - v1.zz*v2.zz;}
 
 // Invariant mass of a pair and its square.
 double m(const Vec4& v1, const Vec4& v2);
@@ -267,14 +267,14 @@ double theta(const Vec4& v1, const Vec4& v2);
 double costheta(const Vec4& v1, const Vec4& v2);
 
 // phi is azimuthal angle between v1 and v2 around z axis.
-double phi(const Vec4& v1, const Vec4& v2);  
+double phi(const Vec4& v1, const Vec4& v2);
 double cosphi(const Vec4& v1, const Vec4& v2);
 
 // phi is azimuthal angle between v1 and v2 around n axis.
 double phi(const Vec4& v1, const Vec4& v2, const Vec4& n);
 double cosphi(const Vec4& v1, const Vec4& v2, const Vec4& n);
 
-// R is distance in cylindrical (y/eta, phi) coordinates. 
+// R is distance in cylindrical (y/eta, phi) coordinates.
 double RRapPhi(const Vec4& v1, const Vec4& v2);
 double REtaPhi(const Vec4& v1, const Vec4& v2);
 
@@ -292,8 +292,8 @@ class RotBstMatrix {
 public:
 
   // Constructors.
-  RotBstMatrix() {for (int i = 0; i < 4; ++i) { for (int j = 0; j < 4; ++j) 
-    { M[i][j] = (i==j) ? 1. : 0.; } } } 
+  RotBstMatrix() {for (int i = 0; i < 4; ++i) { for (int j = 0; j < 4; ++j)
+    { M[i][j] = (i==j) ? 1. : 0.; } } }
   RotBstMatrix(const RotBstMatrix& Min) {
     for (int i = 0; i < 4; ++i) { for (int j = 0; j < 4; ++j) {
     M[i][j] = Min.M[i][j]; } } }
@@ -320,7 +320,7 @@ public:
   // Print a transformation matrix.
   friend ostream& operator<<(ostream&, const RotBstMatrix&) ;
 
-  // Private members to be accessible from Vec4. 
+  // Private members to be accessible from Vec4.
   friend class Vec4;
 
 private:
@@ -351,31 +351,31 @@ public:
 
   // Constructors, including copy constructors.
   Hist() {;}
-  Hist(string titleIn, int nBinIn = 100, double xMinIn = 0., 
+  Hist(string titleIn, int nBinIn = 100, double xMinIn = 0.,
     double xMaxIn = 1.) {
-    book(titleIn, nBinIn, xMinIn, xMaxIn);} 
-  Hist(const Hist& h) 
-    : title(h.title), nBin(h.nBin), nFill(h.nFill), xMin(h.xMin), 
-    xMax(h.xMax), dx(h.dx), under(h.under), inside(h.inside), 
-    over(h.over), res(h.res) { }    
-  Hist(string titleIn, const Hist& h) 
-    : title(titleIn), nBin(h.nBin), nFill(h.nFill), xMin(h.xMin), 
-    xMax(h.xMax), dx(h.dx), under(h.under), inside(h.inside), 
-    over(h.over), res(h.res) { }         
+    book(titleIn, nBinIn, xMinIn, xMaxIn);}
+  Hist(const Hist& h)
+    : title(h.title), nBin(h.nBin), nFill(h.nFill), xMin(h.xMin),
+    xMax(h.xMax), dx(h.dx), under(h.under), inside(h.inside),
+    over(h.over), res(h.res) { }
+  Hist(string titleIn, const Hist& h)
+    : title(titleIn), nBin(h.nBin), nFill(h.nFill), xMin(h.xMin),
+    xMax(h.xMax), dx(h.dx), under(h.under), inside(h.inside),
+    over(h.over), res(h.res) { }
   Hist& operator=(const Hist& h) { if(this != &h) {
-    nBin = h.nBin; nFill = h.nFill; xMin = h.xMin; xMax = h.xMax; 
-    dx = h.dx;  under = h.under; inside = h.inside; over = h.over; 
-    res = h.res; } return *this; }    
+    nBin = h.nBin; nFill = h.nFill; xMin = h.xMin; xMax = h.xMax;
+    dx = h.dx;  under = h.under; inside = h.inside; over = h.over;
+    res = h.res; } return *this; }
   
   // Book a histogram.
-  void book(string titleIn = "  ", int nBinIn = 100, double xMinIn = 0., 
-    double xMaxIn = 1.) ; 
+  void book(string titleIn = "  ", int nBinIn = 100, double xMinIn = 0.,
+    double xMaxIn = 1.) ;
  
   // Set title of a histogram.
-  void name(string titleIn = "  ") {title = titleIn; }  
+  void name(string titleIn = "  ") {title = titleIn; }
 
   // Reset bin contents.
-  void null() ; 
+  void null() ;
 
   // Fill bin with weight.
   void fill(double x, double w = 1.) ;
@@ -384,19 +384,21 @@ public:
   friend ostream& operator<<(ostream& os, const Hist& h) ;
 
   // Print histogram contents as a table (e.g. for Gnuplot).
-  void table(ostream& os = cout) const ;
-  void table(string fileName) const {
-    ofstream streamName(fileName.c_str()); table(streamName); }
+  void table(ostream& os = cout, bool printOverUnder = false) const ;
+  void table(string fileName, bool printOverUnder = false) const {
+    ofstream streamName(fileName.c_str()); table(streamName, printOverUnder);}
 
   // Print a table out of two histograms with same x axis.
-  friend void table(const Hist& h1, const Hist& h2, ostream& os) ; 
-  friend void table(const Hist& h1, const Hist& h2, string fileName) ;
+  friend void table(const Hist& h1, const Hist& h2, ostream& os,
+    bool printOverUnder = false) ;
+  friend void table(const Hist& h1, const Hist& h2, string fileName,
+    bool printOverUnder = false) ;
 
   // Return content of specific bin: 0 gives underflow and nBin+1 overflow.
-  double getBinContent(int iBin) ;
+  double getBinContent(int iBin) const;
 
-  // Return number of entries
-  int getEntries() {return nFill; }
+  // Return number of entries.
+  int getEntries() const {return nFill; }
 
   // Check whether another histogram has same size and limits.
   bool sameSize(const Hist& h) const ;
@@ -408,14 +410,14 @@ public:
   void takeSqrt() ;
 
   // Operator overloading with member functions
-  Hist& operator+=(const Hist& h) ; 
+  Hist& operator+=(const Hist& h) ;
   Hist& operator-=(const Hist& h) ;
-  Hist& operator*=(const Hist& h) ; 
+  Hist& operator*=(const Hist& h) ;
   Hist& operator/=(const Hist& h) ;
-  Hist& operator+=(double f) ; 
-  Hist& operator-=(double f) ; 
-  Hist& operator*=(double f) ; 
-  Hist& operator/=(double f) ; 
+  Hist& operator+=(double f) ;
+  Hist& operator-=(double f) ;
+  Hist& operator*=(double f) ;
+  Hist& operator/=(double f) ;
 
   // Operator overloading with friends
   friend Hist operator+(double f, const Hist& h1);
@@ -440,8 +442,8 @@ private:
 
   // Properties and contents of a histogram.
   string title;
-  int    nBin, nFill; 
-  double xMin, xMax, dx, under, inside, over; 
+  int    nBin, nFill;
+  double xMin, xMax, dx, under, inside, over;
   vector<double> res;
 
 };
@@ -454,8 +456,10 @@ private:
 ostream& operator<<(ostream& os, const Hist& h) ;
 
 // Print a table out of two histograms with same x axis.
-void table(const Hist& h1, const Hist& h2, ostream& os = cout) ; 
-void table(const Hist& h1, const Hist& h2, string fileName) ;
+void table(const Hist& h1, const Hist& h2, ostream& os = cout,
+  bool printOverUnder) ;
+void table(const Hist& h1, const Hist& h2, string fileName,
+  bool printOverUnder) ;
 
 // Operator overloading with friends
 Hist operator+(double f, const Hist& h1);

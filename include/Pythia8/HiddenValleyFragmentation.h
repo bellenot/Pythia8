@@ -1,5 +1,5 @@
 // HiddenValleyFragmentation.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -29,10 +29,10 @@ class HVStringFlav : public StringFlav {
 
 public:
 
-  // Constructor. 
+  // Constructor.
   HVStringFlav() {}
 
-  // Destructor. 
+  // Destructor.
   ~HVStringFlav() {}
 
   // Initialize data members.
@@ -60,10 +60,10 @@ class HVStringPT : public StringPT {
 
 public:
 
-  // Constructor. 
+  // Constructor.
   HVStringPT() {}
 
-  // Destructor. 
+  // Destructor.
   ~HVStringPT() {}
 
   // Initialize data members.
@@ -79,10 +79,10 @@ class HVStringZ : public StringZ {
 
 public:
 
-  // Constructor. 
+  // Constructor.
   HVStringZ() {}
 
-  // Destructor. 
+  // Destructor.
   ~HVStringZ() {}
 
   // Initialize data members.
@@ -92,9 +92,9 @@ public:
   double zFrag( int idOld, int idNew = 0, double mT2 = 1.);
 
   // Parameters for stopping in the middle; for now hardcoded.
-  virtual double stopMass()    {return 1.5 * mhvMeson;} 
-  virtual double stopNewFlav() {return 2.0;} 
-  virtual double stopSmear()   {return 0.2;} 
+  virtual double stopMass()    {return 1.5 * mhvMeson;}
+  virtual double stopNewFlav() {return 2.0;}
+  virtual double stopSmear()   {return 0.2;}
 
 private:
 
@@ -105,30 +105,30 @@ private:
 
 //==========================================================================
 
-// The HiddenValleyFragmentation class contains the routines 
+// The HiddenValleyFragmentation class contains the routines
 // to fragment a Hidden Valley partonic system.
 
 class HiddenValleyFragmentation {
 
 public:
 
-  // Constructor. 
-  HiddenValleyFragmentation() : doHVfrag(false), hvFlavSelPtr(NULL), 
+  // Constructor.
+  HiddenValleyFragmentation() : doHVfrag(false), hvFlavSelPtr(NULL),
     hvPTSelPtr(NULL), hvZSelPtr(NULL) {}
 
-  // Destructor. 
-  ~HiddenValleyFragmentation() { if (doHVfrag) { 
+  // Destructor.
+  ~HiddenValleyFragmentation() { if (doHVfrag) {
     if (hvZSelPtr) delete hvZSelPtr; if (hvPTSelPtr) delete hvPTSelPtr;
     if (hvFlavSelPtr) delete hvFlavSelPtr;} }
 
   // Initialize and save pointers.
-  bool init(Info* infoPtrIn, Settings& settings, 
+  bool init(Info* infoPtrIn, Settings& settings,
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn);
 
   // Do the fragmentation: driver routine.
   bool fragment(Event& event);
 
-private: 
+private:
 
   // Pointer to various information on the generation.
   Info*         infoPtr;
@@ -141,12 +141,12 @@ private:
 
   // Data mambers.
   bool          doHVfrag;
-  int           nFlav, hvOldSize, hvNewSize; 
+  int           nFlav, hvOldSize, hvNewSize;
   double        mhvMeson, mSys;
   vector<int>   ihvParton;
 
   // Configuration of colour-singlet systems.
-  ColConfig     hvColConfig;   
+  ColConfig     hvColConfig;
 
   // Temporary event record for the Hidden Valley system.
   Event         hvEvent;
@@ -171,7 +171,7 @@ private:
   // Insert HV particles from hvEvent to event.
   bool insertHVevent(Event& event);
 
-};  
+};
  
 //==========================================================================
 

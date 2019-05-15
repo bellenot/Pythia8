@@ -1,5 +1,5 @@
 // StandardModel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -19,9 +19,9 @@ namespace Pythia8 {
 // These are of technical nature, as described for each.
 
 // Number of iterations to determine Lambda from given alpha_s.
-const int AlphaStrong::NITER           = 10;  
+const int AlphaStrong::NITER           = 10;
 
-// Masses: m_c, m_b, m_t, m_Z. 
+// Masses: m_c, m_b, m_t, m_Z.
 // Used for flavour thresholds and normalization scale.
 const double AlphaStrong::MC           = 1.5;
 const double AlphaStrong::MB           = 4.8;
@@ -43,7 +43,7 @@ const double AlphaStrong::FACCMW6         = 1.513;
 
 // Initialize alpha_strong calculation by finding Lambda values etc.
 
-void AlphaStrong::init( double valueIn, int orderIn, int nfmaxIn, 
+void AlphaStrong::init( double valueIn, int orderIn, int nfmaxIn,
   bool useCMWIn) {
 
   // Order of alpha_s evaluation.Default values.
@@ -60,9 +60,9 @@ void AlphaStrong::init( double valueIn, int orderIn, int nfmaxIn,
   // First order alpha_s: match at flavour thresholds.
   } else if (order == 1) {
     Lambda5Save = MZ * exp( -6. * M_PI / (23. * valueRef) );
-    Lambda6Save = Lambda5Save * pow(Lambda5Save/MT, 2./21.); 
-    Lambda4Save = Lambda5Save * pow(MB/Lambda5Save, 2./25.); 
-    Lambda3Save = Lambda4Save * pow(MC/Lambda4Save, 2./27.); 
+    Lambda6Save = Lambda5Save * pow(Lambda5Save/MT, 2./21.);
+    Lambda4Save = Lambda5Save * pow(MB/Lambda5Save, 2./25.);
+    Lambda3Save = Lambda4Save * pow(MC/Lambda4Save, 2./27.);
 
   // Second order alpha_s: iterative match at flavour thresholds.
   } else {
@@ -70,10 +70,10 @@ void AlphaStrong::init( double valueIn, int orderIn, int nfmaxIn,
     double b16 = 234. / 441.;
     double b15 = 348. / 529.;
     double b14 = 462. / 625.;
-    double b13 = 576. / 729.; 
+    double b13 = 576. / 729.;
     // The two-loop coefficients: b2 * b0 / b1^2
     double b26 = -36855. / 109512.;
-    double b25 = 224687. / 242208.;      
+    double b25 = 224687. / 242208.;
     double b24 = 548575. / 426888.;
     double b23 = 938709. / 663552.;
 
@@ -83,56 +83,56 @@ void AlphaStrong::init( double valueIn, int orderIn, int nfmaxIn,
     for (int iter = 0; iter < NITER; ++iter) {
       logScale    = 2. * log(MZ/Lambda5Save);
       loglogScale = log(logScale);
-      correction  = 1. - b15 * loglogScale / logScale 
+      correction  = 1. - b15 * loglogScale / logScale
         + pow2(b15 / logScale) * (pow2(loglogScale - 0.5) + b25 - 1.25);
-      valueIter   = valueRef / correction; 
+      valueIter   = valueRef / correction;
       Lambda5Save = MZ * exp( -6. * M_PI / (23. * valueIter) );
     }
 
     // Find Lambda_6 at m_t.
     double logScaleT    = 2. * log(MT/Lambda5Save);
     double loglogScaleT = log(logScaleT);
-    double valueT       = 12. * M_PI / (21. * logScaleT) 
+    double valueT       = 12. * M_PI / (21. * logScaleT)
       * (1. - b16 * loglogScaleT / logScaleT
-        + pow2(b16 / logScaleT) * (pow2(loglogScaleT - 0.5) + b26 - 1.25) ); 
+        + pow2(b16 / logScaleT) * (pow2(loglogScaleT - 0.5) + b26 - 1.25) );
     Lambda6Save         = Lambda5Save;
     for (int iter = 0; iter < NITER; ++iter) {
       logScale    = 2. * log(MT/Lambda6Save);
       loglogScale = log(logScale);
-      correction  = 1. - b15 * loglogScale / logScale 
+      correction  = 1. - b15 * loglogScale / logScale
         + pow2(b15 / logScale) * (pow2(loglogScale - 0.5) + b25 - 1.25);
-      valueIter   = valueT / correction; 
+      valueIter   = valueT / correction;
       Lambda6Save = MT * exp( -6. * M_PI / (21. * valueIter) );
     }
 
     // Find Lambda_4 at m_b.
     double logScaleB    = 2. * log(MB/Lambda5Save);
     double loglogScaleB = log(logScaleB);
-    double valueB       = 12. * M_PI / (23. * logScaleB) 
+    double valueB       = 12. * M_PI / (23. * logScaleB)
       * (1. - b15 * loglogScaleB / logScaleB
-        + pow2(b15 / logScaleB) * (pow2(loglogScaleB - 0.5) + b25- 1.25) ); 
+        + pow2(b15 / logScaleB) * (pow2(loglogScaleB - 0.5) + b25- 1.25) );
     Lambda4Save         = Lambda5Save;
     for (int iter = 0; iter < NITER; ++iter) {
       logScale    = 2. * log(MB/Lambda4Save);
       loglogScale = log(logScale);
-      correction  = 1. - b14 * loglogScale / logScale 
+      correction  = 1. - b14 * loglogScale / logScale
         + pow2(b14 / logScale) * (pow2(loglogScale - 0.5) + b24 - 1.25);
-      valueIter   = valueB / correction; 
+      valueIter   = valueB / correction;
       Lambda4Save = MB * exp( -6. * M_PI / (25. * valueIter) );
     }
     // Find Lambda_3 at m_c.
     double logScaleC    = 2. * log(MC/Lambda4Save);
     double loglogScaleC = log(logScaleC);
-    double valueC       = 12. * M_PI / (25. * logScaleC) 
+    double valueC       = 12. * M_PI / (25. * logScaleC)
       * (1. - b14 * loglogScaleC / logScaleC
-        + pow2(b14 / logScaleC) * (pow2(loglogScaleC - 0.5) + b24 - 1.25) ); 
+        + pow2(b14 / logScaleC) * (pow2(loglogScaleC - 0.5) + b24 - 1.25) );
     Lambda3Save = Lambda4Save;
     for (int iter = 0; iter < NITER; ++iter) {
       logScale    = 2. * log(MC/Lambda3Save);
       loglogScale = log(logScale);
-      correction  = 1. - b13 * loglogScale / logScale 
+      correction  = 1. - b13 * loglogScale / logScale
         + pow2(b13 / logScale) * (pow2(loglogScale - 0.5) + b23 - 1.25);
-      valueIter   = valueC / correction; 
+      valueIter   = valueC / correction;
       Lambda3Save = MC * exp( -6. * M_PI / (27. * valueIter) );
     }
   }
@@ -165,7 +165,7 @@ void AlphaStrong::init( double valueIn, int orderIn, int nfmaxIn,
 
 //--------------------------------------------------------------------------
 
-// Calculate alpha_s value.    
+// Calculate alpha_s value.
 
 double AlphaStrong::alphaS( double scale2) {
 
@@ -180,37 +180,37 @@ double AlphaStrong::alphaS( double scale2) {
 
   // Fix alpha_s.
   if (order == 0) {
-    valueNow = valueRef;        
+    valueNow = valueRef;
   
-  // First order alpha_s: differs by mass region.  
+  // First order alpha_s: differs by mass region.
   } else if (order == 1) {
     if (scale2 > mt2 && nfmax >= 6)
          valueNow = 12. * M_PI / (21. * log(scale2/Lambda6Save2));
-    else if (scale2 > mb2) 
+    else if (scale2 > mb2)
          valueNow = 12. * M_PI / (23. * log(scale2/Lambda5Save2));
-    else if (scale2 > mc2) 
+    else if (scale2 > mc2)
          valueNow = 12. * M_PI / (25. * log(scale2/Lambda4Save2));
     else valueNow = 12. * M_PI / (27. * log(scale2/Lambda3Save2));
   
-  // Second order alpha_s: differs by mass region.  
+  // Second order alpha_s: differs by mass region.
   } else {
     double Lambda2, b0, b1, b2;
     if (scale2 > mt2 && nfmax >= 6) {
       Lambda2 = Lambda6Save2;
       b0      = 21.;
-      b1      = 234. / 441.; 
+      b1      = 234. / 441.;
       b2      = -36855. / 109512.;
     } else if (scale2 > mb2) {
       Lambda2 = Lambda5Save2;
       b0      = 23.;
-      b1      = 348. / 529.; 
-      b2      = 224687. / 242208.;      
-    } else if (scale2 > mc2) {     
+      b1      = 348. / 529.;
+      b2      = 224687. / 242208.;
+    } else if (scale2 > mc2) {
       Lambda2 = Lambda4Save2;
       b0      = 25.;
       b1      = 462. / 625.;
       b2      = 548575. / 426888.;
-    } else {       
+    } else {
       Lambda2 = Lambda3Save2;
       b0      = 27.;
       b1      = 64. / 81.;
@@ -218,15 +218,15 @@ double AlphaStrong::alphaS( double scale2) {
     }
     double logScale    = log(scale2/Lambda2);
     double loglogScale = log(logScale);
-    valueNow = 12. * M_PI / (b0 * logScale) 
-      * ( 1. - b1 * loglogScale / logScale 
-        + pow2(b1 / logScale) * (pow2(loglogScale - 0.5) + b2 - 1.25) ); 
+    valueNow = 12. * M_PI / (b0 * logScale)
+      * ( 1. - b1 * loglogScale / logScale
+        + pow2(b1 / logScale) * (pow2(loglogScale - 0.5) + b2 - 1.25) );
   }
 
   // Done.
   return valueNow;
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
@@ -246,22 +246,22 @@ double  AlphaStrong::alphaS1Ord( double scale2) {
 
   // Fix alpha_S.
   if (order == 0) {
-    valueNow = valueRef;        
+    valueNow = valueRef;
   
-  // First/second order alpha_s: differs by mass region.  
+  // First/second order alpha_s: differs by mass region.
   } else {
-    if (scale2 > mt2 && nfmax >= 6) 
+    if (scale2 > mt2 && nfmax >= 6)
          valueNow = 12. * M_PI / (21. * log(scale2/Lambda6Save2));
-    else if (scale2 > mb2) 
+    else if (scale2 > mb2)
          valueNow = 12. * M_PI / (23. * log(scale2/Lambda5Save2));
-    else if (scale2 > mc2) 
+    else if (scale2 > mc2)
          valueNow = 12. * M_PI / (25. * log(scale2/Lambda4Save2));
     else valueNow = 12. * M_PI / (27. * log(scale2/Lambda3Save2));
   }
 
   // Done.
   return valueNow;
-} 
+}
 
 //--------------------------------------------------------------------------
 
@@ -275,37 +275,37 @@ double AlphaStrong::alphaS2OrdCorr( double scale2) {
   if (scale2 < scale2Min) scale2 = scale2Min;
 
   // Only meaningful for second-order calculations.
-  if (order < 2) return 1.; 
+  if (order < 2) return 1.;
   
-  // Second order correction term: differs by mass region.  
+  // Second order correction term: differs by mass region.
   double Lambda2, b1, b2;
   if (scale2 > mt2 && nfmax >= 6) {
     Lambda2 = Lambda6Save2;
-    b1      = 234. / 441.;       
-    b2      = -36855. / 109512.;      
+    b1      = 234. / 441.;
+    b2      = -36855. / 109512.;
   } else if (scale2 > mb2) {
     Lambda2 = Lambda5Save2;
-    b1      = 348. / 529.;       
-    b2      = 224687. / 242208.;      
-  } else if (scale2 > mc2) {     
+    b1      = 348. / 529.;
+    b2      = 224687. / 242208.;
+  } else if (scale2 > mc2) {
     Lambda2 = Lambda4Save2;
     b1      = 462. / 625.;
     b2      = 548575. / 426888.;
-  } else {       
+  } else {
     Lambda2 = Lambda3Save2;
     b1      = 64. / 81.;
     b2      = 938709. / 663552.;
   }
   double logScale    = log(scale2/Lambda2);
   double loglogScale = log(logScale);
-  return ( 1. - b1 * loglogScale / logScale 
-    + pow2(b1 / logScale) * (pow2(loglogScale - 0.5) + b2 - 1.25) ); 
+  return ( 1. - b1 * loglogScale / logScale
+    + pow2(b1 / logScale) * (pow2(loglogScale - 0.5) + b2 - 1.25) );
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
-// muThres(2): tell what values of flavour thresholds are being used. 
+// muThres(2): tell what values of flavour thresholds are being used.
 
 double AlphaStrong::muThres( int idQ) {
   int idAbs = abs(idQ);
@@ -375,17 +375,17 @@ void AlphaEM::init(int orderIn, Settings* settingsPtr) {
   if (order <= 0) return;
   for (int i = 0; i < 5; ++i) bRun[i] = BRUNDEF[i];
 
-  // Step down from mZ to tau/charm threshold. 
-  alpEMstep[4] = alpEMmZ / ( 1. + alpEMmZ * bRun[4] 
+  // Step down from mZ to tau/charm threshold.
+  alpEMstep[4] = alpEMmZ / ( 1. + alpEMmZ * bRun[4]
     * log(mZ2 / Q2STEP[4]) );
-  alpEMstep[3] = alpEMstep[4] / ( 1. - alpEMstep[4] * bRun[3] 
+  alpEMstep[3] = alpEMstep[4] / ( 1. - alpEMstep[4] * bRun[3]
     * log(Q2STEP[3] / Q2STEP[4]) );
 
   // Step up from me to light-quark threshold.
-  alpEMstep[0] = alpEM0;   
-  alpEMstep[1] = alpEMstep[0] / ( 1. - alpEMstep[0] * bRun[0] 
+  alpEMstep[0] = alpEM0;
+  alpEMstep[1] = alpEMstep[0] / ( 1. - alpEMstep[0] * bRun[0]
     * log(Q2STEP[1] / Q2STEP[0]) );
-  alpEMstep[2] = alpEMstep[1] / ( 1. - alpEMstep[1] * bRun[1] 
+  alpEMstep[2] = alpEMstep[1] / ( 1. - alpEMstep[1] * bRun[1]
     * log(Q2STEP[2] / Q2STEP[1]) );
 
   // Fit b in range between light-quark and tau/charm to join smoothly.
@@ -396,7 +396,7 @@ void AlphaEM::init(int orderIn, Settings* settingsPtr) {
 
 //--------------------------------------------------------------------------
 
-// Calculate alpha_EM value    
+// Calculate alpha_EM value
 
 double AlphaEM::alphaEM( double scale2) {
 
@@ -406,7 +406,7 @@ double AlphaEM::alphaEM( double scale2) {
 
   // Running alphaEM.
   for (int i = 4; i >= 0; --i) if (scale2 > Q2STEP[i])
-    return alpEMstep[i] / (1. - bRun[i] * alpEMstep[i] 
+    return alpEMstep[i] / (1. - bRun[i] * alpEMstep[i]
       * log(scale2 / Q2STEP[i]) );
   return alpEM0;
 
@@ -419,25 +419,25 @@ double AlphaEM::alphaEM( double scale2) {
 //--------------------------------------------------------------------------
 
 // Definitions of static variables: charges and axial couplings.
-const double CoupSM::efSave[20] = { 0., -1./3., 2./3., -1./3., 2./3., -1./3., 
+const double CoupSM::efSave[20] = { 0., -1./3., 2./3., -1./3., 2./3., -1./3.,
   2./3., -1./3., 2./3., 0., 0., -1., 0., -1., 0., -1., 0., -1., 0., 0.};
-const double CoupSM::afSave[20] = { 0., -1., 1., -1., 1., -1., 1., -1., 1., 
+const double CoupSM::afSave[20] = { 0., -1., 1., -1., 1., -1., 1., -1., 1.,
   0., 0., -1., 1., -1., 1., -1., 1., -1., 1., 0.};
 
 //--------------------------------------------------------------------------
 
 // Initialize electroweak mixing angle and couplings, and CKM matrix elements.
 
-void CoupSM::init(Settings& settings, Rndm* rndmPtrIn) { 
+void CoupSM::init(Settings& settings, Rndm* rndmPtrIn) {
 
   // Store input pointer;
   rndmPtr = rndmPtrIn;
 
   // Initialize the local AlphaStrong instance.
   double alphaSvalue  = settings.parm("SigmaProcess:alphaSvalue");
-  int    alphaSorder  = settings.mode("SigmaProcess:alphaSorder");  
+  int    alphaSorder  = settings.mode("SigmaProcess:alphaSorder");
   int    alphaSnfmax  = settings.mode("StandardModel:alphaSnfmax");
-  alphaSlocal.init( alphaSvalue, alphaSorder, alphaSnfmax, false); 
+  alphaSlocal.init( alphaSvalue, alphaSorder, alphaSnfmax, false);
 
   // Initialize the local AlphaEM instance.
   int order = settings.mode("SigmaProcess:alphaEMorder");
@@ -450,7 +450,7 @@ void CoupSM::init(Settings& settings, Rndm* rndmPtrIn) {
   GFermi  = settings.parm("StandardModel:GF");
 
   // Initialize electroweak couplings.
-  for (int i = 0; i < 20; ++i) {  
+  for (int i = 0; i < 20; ++i) {
     vfSave[i]  = afSave[i] - 4. * s2tWbar * efSave[i];
     lfSave[i]  = afSave[i] - 2. * s2tWbar * efSave[i];
     rfSave[i]  =           - 2. * s2tWbar * efSave[i];
@@ -482,8 +482,8 @@ void CoupSM::init(Settings& settings, Rndm* rndmPtrIn) {
   VCKMsave[4][4] = settings.parm("FourthGeneration:VtPrimebPrime");
 
   // Calculate squares of matrix elements.
-  for(int i = 1; i < 5; ++i) for(int j = 1; j < 5; ++j) 
-    V2CKMsave[i][j] = pow2(VCKMsave[i][j]); 
+  for(int i = 1; i < 5; ++i) for(int j = 1; j < 5; ++j)
+    V2CKMsave[i][j] = pow2(VCKMsave[i][j]);
   
   // Sum VCKM^2_out sum for given incoming flavour, excluding top as partner.
   V2CKMout[1] = V2CKMsave[1][1] + V2CKMsave[2][1];
@@ -512,7 +512,7 @@ double CoupSM::VCKMid(int id1, int id2) {
   // Ensure proper order before reading out from VCKMsave or lepton match.
   if (id1Abs%2 == 1) swap(id1Abs, id2Abs);
   if (id1Abs <= 8 && id2Abs <= 8) return VCKMsave[id1Abs/2][(id2Abs + 1)/2];
-  if ( (id1Abs == 12 || id1Abs == 14 || id1Abs == 16 || id1Abs == 18) 
+  if ( (id1Abs == 12 || id1Abs == 14 || id1Abs == 16 || id1Abs == 18)
     && id2Abs == id1Abs - 1 ) return 1.;
   
   // No more valid cases.
@@ -534,7 +534,7 @@ double CoupSM::V2CKMid(int id1, int id2) {
   // Ensure proper order before reading out from V2CKMsave or lepton match.
   if (id1Abs%2 == 1) swap(id1Abs, id2Abs);
   if (id1Abs <= 8 && id2Abs <= 8) return V2CKMsave[id1Abs/2][(id2Abs + 1)/2];
-  if ( (id1Abs == 12 || id1Abs == 14 || id1Abs == 16 || id1Abs == 18) 
+  if ( (id1Abs == 12 || id1Abs == 14 || id1Abs == 16 || id1Abs == 18)
     && id2Abs == id1Abs - 1 ) return 1.;
   
   // No more valid cases.
@@ -554,25 +554,25 @@ int CoupSM::V2CKMpick(int id) {
   
   // Quarks: need to make random choice.
   if (idIn >= 1 && idIn <= 8) {
-    double V2CKMrndm = rndmPtr->flat() * V2CKMout[idIn]; 
+    double V2CKMrndm = rndmPtr->flat() * V2CKMout[idIn];
     if (idIn == 1) idOut = (V2CKMrndm < V2CKMsave[1][1]) ? 2 : 4;
-    else if (idIn == 2) idOut = (V2CKMrndm < V2CKMsave[1][1]) ? 1 
+    else if (idIn == 2) idOut = (V2CKMrndm < V2CKMsave[1][1]) ? 1
       : ( (V2CKMrndm < V2CKMsave[1][1] + V2CKMsave[1][2]) ? 3 : 5 );
     else if (idIn == 3) idOut = (V2CKMrndm < V2CKMsave[1][2]) ? 2 : 4;
-    else if (idIn == 4) idOut = (V2CKMrndm < V2CKMsave[2][1]) ? 1 
+    else if (idIn == 4) idOut = (V2CKMrndm < V2CKMsave[2][1]) ? 1
       : ( (V2CKMrndm < V2CKMsave[2][1] + V2CKMsave[2][2]) ? 3 : 5 );
     else if (idIn == 5) idOut = (V2CKMrndm < V2CKMsave[1][3]) ? 2 : 4;
-    else if (idIn == 6) idOut = (V2CKMrndm < V2CKMsave[3][1]) ? 1 
+    else if (idIn == 6) idOut = (V2CKMrndm < V2CKMsave[3][1]) ? 1
       : ( (V2CKMrndm < V2CKMsave[3][1] + V2CKMsave[3][2]) ? 3 : 5 );
     else if (idIn == 7) idOut = (V2CKMrndm < V2CKMsave[1][4]) ? 2 : 4;
-    else if (idIn == 8) idOut = (V2CKMrndm < V2CKMsave[4][1]) ? 1 
+    else if (idIn == 8) idOut = (V2CKMrndm < V2CKMsave[4][1]) ? 1
       : ( (V2CKMrndm < V2CKMsave[4][1] + V2CKMsave[4][2]) ? 3 : 5 );
   
-  // Leptons: unambiguous. 
+  // Leptons: unambiguous.
   } else if (idIn >= 11 && idIn <= 18) {
     if (idIn%2 == 1) idOut = idIn + 1;
     else idOut             = idIn - 1;
-  } 
+  }
 
   // Done. Return with sign.
   return ( (id > 0) ? idOut : -idOut );

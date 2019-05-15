@@ -1,5 +1,5 @@
 // FragmentationSystems.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -26,7 +26,7 @@ const double ColConfig::CONSTITUENTMASS = 0.325;
 
 // Initialize and save pointers.
 
-void ColConfig::init(Info* infoPtrIn, Settings& settings, 
+void ColConfig::init(Info* infoPtrIn, Settings& settings,
   StringFlav* flavSelPtrIn) {
 
   // Save pointers.
@@ -47,7 +47,7 @@ void ColConfig::init(Info* infoPtrIn, Settings& settings,
 
 //--------------------------------------------------------------------------
 
-// Insert a new colour singlet system in ascending mass order. 
+// Insert a new colour singlet system in ascending mass order.
 // Calculate its properties. Join nearby partons.
 
 bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
@@ -58,53 +58,53 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
   bool hasJunctionIn = false;
   int  nJunctionLegs = 0;
   for (int i = 0; i < int(iPartonIn.size()); ++i) {
-    if (iPartonIn[i] < 0) { 
-      hasJunctionIn = true; 
+    if (iPartonIn[i] < 0) {
+      hasJunctionIn = true;
       ++nJunctionLegs;
     } else {
       pSumIn += event[ iPartonIn[i] ].p();
-      if (!event[ iPartonIn[i] ].isGluon()) 
-	mSumIn += event[ iPartonIn[i] ].constituentMass();
+      if (!event[ iPartonIn[i] ].isGluon())
+        mSumIn += event[ iPartonIn[i] ].constituentMass();
     }
-  } 
-  double massIn = pSumIn.mCalc(); 
+  }
+  double massIn = pSumIn.mCalc();
   double massExcessIn = massIn - mSumIn;
 
   // Check for rare triple- and higher junction systems (like J-Jbar-J)
   if (nJunctionLegs >= 5) {
     infoPtr->errorMsg("Error in ColConfig::insert: "
       "junction topology too complicated; too many junction legs");
-    return false; 
-  }   
+    return false;
+  }
   // Check that junction systems have at least three legs.
   else if (nJunctionLegs > 0 && nJunctionLegs <= 2) {
     infoPtr->errorMsg("Error in ColConfig::insert: "
       "junction topology inconsistent; too few junction legs");
-    return false; 
-  }   
+    return false;
+  }
 
   // Check that momenta do not contain not-a-number.
   if (abs(massExcessIn) >= 0.);
   else {
     infoPtr->errorMsg("Error in ColConfig::insert: "
       "not-a-number system mass");
-    return false; 
-  }   
+    return false;
+  }
 
   // Identify closed gluon loop. Assign "endpoint" masses as light quarks.
-  bool isClosedIn = (iPartonIn[0] >= 0 && event[ iPartonIn[0] ].col() != 0 
+  bool isClosedIn = (iPartonIn[0] >= 0 && event[ iPartonIn[0] ].col() != 0
     && event[ iPartonIn[0] ].acol() != 0 );
-  if (isClosedIn) massExcessIn -= 2. * CONSTITUENTMASS;  
+  if (isClosedIn) massExcessIn -= 2. * CONSTITUENTMASS;
 
   // For junction topology: join two nearby legs into a diquark.
-  if (hasJunctionIn && joinJunction( iPartonIn, event, massExcessIn)) 
+  if (hasJunctionIn && joinJunction( iPartonIn, event, massExcessIn))
     hasJunctionIn = false;
 
   // Loop while > 2 partons left and hope of finding joining pair.
   bool hasJoined = true;
   while (hasJoined && iPartonIn.size() > 2) {
 
-    // Look for the pair of neighbour partons (along string) with 
+    // Look for the pair of neighbour partons (along string) with
     // the smallest invariant mass (subtracting quark masses).
     int iJoinMin = -1;
     double mJoinMin = 2. * mJoin;
@@ -112,15 +112,15 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
     int nPair = (isClosedIn) ? nSize : nSize - 1;
     for (int i = 0; i < nPair; ++i) {
       // Keep three legs of junction separate.
-      if (iPartonIn[i] < 0 || iPartonIn[(i + 1)%nSize] < 0) continue; 
+      if (iPartonIn[i] < 0 || iPartonIn[(i + 1)%nSize] < 0) continue;
       Particle& parton1 = event[ iPartonIn[i] ];
       Particle& parton2 = event[ iPartonIn[(i + 1)%nSize] ];
       // Avoid joining non-partons, e.g. gluino/squark for R-hadron.
-      if (!parton1.isParton() || !parton2.isParton()) continue; 
+      if (!parton1.isParton() || !parton2.isParton()) continue;
       Vec4 pSumNow;
-      pSumNow += (parton1.isGluon()) ? 0.5 * parton1.p() : parton1.p();  
-      pSumNow += (parton2.isGluon()) ? 0.5 * parton2.p() : parton2.p();  
-      double mJoinNow = pSumNow.mCalc(); 
+      pSumNow += (parton1.isGluon()) ? 0.5 * parton1.p() : parton1.p();
+      pSumNow += (parton2.isGluon()) ? 0.5 * parton2.p() : parton2.p();
+      double mJoinNow = pSumNow.mCalc();
       if (!parton1.isGluon()) mJoinNow -= parton1.m();
       if (!parton2.isGluon()) mJoinNow -= parton2.m();
       if (mJoinNow < mJoinMin) { iJoinMin = i; mJoinMin = mJoinNow; }
@@ -129,21 +129,21 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
     // If sufficiently nearby then join into one new parton.
     // Note: error sensitivity to mJoin indicates unstable precedure??
     hasJoined = false;
-    if (mJoinMin < mJoin) { 
+    if (mJoinMin < mJoin) {
       int iJoin1  = iPartonIn[iJoinMin];
       int iJoin2  = iPartonIn[(iJoinMin + 1)%nSize];
-      int idNew   = (event[iJoin1].isGluon()) ? event[iJoin2].id() 
+      int idNew   = (event[iJoin1].isGluon()) ? event[iJoin2].id()
                                               : event[iJoin1].id();
       int colNew  = event[iJoin1].col();
       int acolNew = event[iJoin2].acol();
       if (colNew == acolNew) {
         colNew    = event[iJoin2].col();
         acolNew   = event[iJoin1].acol();
-      }  
+      }
       Vec4 pNew   = event[iJoin1].p() + event[iJoin2].p();
 
       // Append joined parton to event record.
-      int iNew = event.append( idNew, 73, min(iJoin1, iJoin2), 
+      int iNew = event.append( idNew, 73, min(iJoin1, iJoin2),
         max(iJoin1, iJoin2), 0, 0, colNew, acolNew, pNew, pNew.mCalc() );
 
       // Displaced lifetime/vertex; mothers should be same but prefer quark.
@@ -180,8 +180,8 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
     singlets[iSub + 1] = singlets[iSub];
     iInsert = iSub;
   }
-  if (iInsert < int(singlets.size()) - 1) singlets[iInsert] = 
-    ColSinglet(iPartonIn, pSumIn, massIn, massExcessIn, 
+  if (iInsert < int(singlets.size()) - 1) singlets[iInsert] =
+    ColSinglet(iPartonIn, pSumIn, massIn, massExcessIn,
     hasJunctionIn, isClosedIn);
 
   // Done.
@@ -192,7 +192,7 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
 
 // Join two legs of junction to a diquark for small invariant masses.
 // Note: for junction system, iPartonIn points to structure
-// (-code0) g...g.q0 (-code1) g...g.q1 (-code2) g...g.q2 
+// (-code0) g...g.q0 (-code1) g...g.q1 (-code2) g...g.q2
 
 bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
   double massExcessIn) {
@@ -205,13 +205,13 @@ bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
   for (int i = 0; i < int(iPartonIn.size()); ++ i) {
     if (iPartonIn[i] < 0) ++leg;
     else {
-      pLeg[leg]    += event[ iPartonIn[i] ].p(); 
+      pLeg[leg]    += event[ iPartonIn[i] ].p();
       mLeg[leg]     = event[ iPartonIn[i] ].m();
       idAbsLeg[leg] = event[ iPartonIn[i] ].idAbs();
     }
   }
 
-  // Calculate invariant mass of three pairs, minus endpoint masses. 
+  // Calculate invariant mass of three pairs, minus endpoint masses.
   double m01  = (pLeg[0] + pLeg[1]).mCalc() - mLeg[0] - mLeg[1];
   double m02  = (pLeg[0] + pLeg[2]).mCalc() - mLeg[0] - mLeg[2];
   double m12  = (pLeg[1] + pLeg[2]).mCalc() - mLeg[1] - mLeg[2];
@@ -219,28 +219,28 @@ bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
   // Find lowest-mass pair not involving diquark.
   double mMin = mJoinJunction + 1.;
   int    legA = -1;
-  int    legB = -1; 
+  int    legB = -1;
   if (m01 < mMin && idAbsLeg[0] < 9 && idAbsLeg[1] < 9) {
-    mMin = m01; 
-    legA = 0; 
+    mMin = m01;
+    legA = 0;
     legB = 1;
   }
   if (m02 < mMin && idAbsLeg[0] < 9 && idAbsLeg[2] < 9) {
-    mMin = m02; 
-    legA = 0; 
+    mMin = m02;
+    legA = 0;
     legB = 2;
   }
   if (m12 < mMin && idAbsLeg[1] < 9 && idAbsLeg[2] < 9) {
-    mMin = m12; 
-    legA = 1; 
+    mMin = m12;
+    legA = 1;
     legB = 2;
-  } 
-  int legC = 3 - legA - legB;  
+  }
+  int legC = 3 - legA - legB;
 
-  // Nothing to do if no two legs have small invariant mass, and 
+  // Nothing to do if no two legs have small invariant mass, and
   // system as a whole is above MiniStringFragmentation threshold.
-  if (legA == -1 || (mMin > mJoinJunction && massExcessIn > mStringMin)) 
-    return false;  
+  if (legA == -1 || (mMin > mJoinJunction && massExcessIn > mStringMin))
+    return false;
 
   // Construct separate index arrays for the three legs.
   vector<int> iLegA, iLegB, iLegC;
@@ -258,30 +258,30 @@ bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
   for (leg = 0; leg < 2; ++leg) {
     vector<int>& iLegNow = (leg == 0) ? iLegA : iLegB;
     int sizeNow = iLegNow.size();
-    for (int i = sizeNow - 2; i >= 0; --i) {      
+    for (int i = sizeNow - 2; i >= 0; --i) {
       int iQ = iLegNow.back();
       int iG = iLegNow[i];
       int colNew = (event[iQ].id() > 0) ? event[iG].col() : 0;
       int acolNew = (event[iQ].id() < 0) ? event[iG].acol() : 0;
       Vec4 pNew = event[iQ].p() + event[iG].p();
-      int iNew = event.append( event[iQ].id(), 74, min(iQ, iG), 
+      int iNew = event.append( event[iQ].id(), 74, min(iQ, iG),
         max(iQ, iG), 0, 0, colNew, acolNew, pNew, pNew.mCalc() );
 
-      // Mark joined partons and update iLeg end. 
+      // Mark joined partons and update iLeg end.
       event[iQ].statusNeg();
       event[iG].statusNeg();
       event[iQ].daughter1(iNew);
       event[iG].daughter1(iNew);
       iLegNow.back() = iNew;
-    }        
+    }
   }
 
-  // Second step: combine two quarks into a diquark. 
+  // Second step: combine two quarks into a diquark.
   int iQA     = iLegA.back();
   int iQB     = iLegB.back();
   int idQA    = event[iQA].id();
   int idQB    = event[iQB].id();
-  int idNew   = flavSelPtr->makeDiquark( idQA, idQB ); 
+  int idNew   = flavSelPtr->makeDiquark( idQA, idQB );
   // Diquark colour is opposite to parton closest to junction on third leg.
   int colNew  = (idNew > 0) ? 0 : event[ iLegC[0] ].acol();
   int acolNew = (idNew > 0) ? event[ iLegC[0] ].col() : 0;
@@ -296,15 +296,15 @@ bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
   event[iQB].daughter1(iNew);
   iPartonIn.resize(0);
   iPartonIn.push_back( iNew);
-  for (int i = 0; i < int(iLegC.size()) ; ++i) 
+  for (int i = 0; i < int(iLegC.size()) ; ++i)
     iPartonIn.push_back( iLegC[i]);
 
   // Remove junction from event record list, identifying by colour.
   int iJun = -1;
-  for (int i = 0; i < event.sizeJunction(); ++i) 
+  for (int i = 0; i < event.sizeJunction(); ++i)
     for (int j = 0; j < 3; ++ j)
       if ( event.colJunction(i,j) == max(colNew, acolNew) ) iJun = i;
-  if (iJun >= 0) event.eraseJunction(iJun); 
+  if (iJun >= 0) event.eraseJunction(iJun);
 
   // Done, having eliminated junction.
   return true;
@@ -320,7 +320,7 @@ void ColConfig::collect(int iSub, Event& event, bool skipTrivial) {
   // Check that all partons have positive energy.
   for (int i = 0; i < singlets[iSub].size(); ++i) {
     int iNow = singlets[iSub].iParton[i];
-    if (iNow > 0 && event[iNow].e() < 0.) 
+    if (iNow > 0 && event[iNow].e() < 0.)
     infoPtr->errorMsg("Warning in ColConfig::collect: "
       "negative-energy parton encountered");
   }
@@ -359,10 +359,10 @@ void ColConfig::collect(int iSub, Event& event, bool skipTrivial) {
 
 int ColConfig::findSinglet(int i) {
 
-  // Loop through all systems and all members in them.  
-  for (int iSub = 0; iSub < int(singlets.size()); ++iSub) 
-  for (int iMem = 0; iMem < singlets[iSub].size(); ++iMem) 
-    if (singlets[iSub].iParton[iMem] == i) return iSub; 
+  // Loop through all systems and all members in them.
+  for (int iSub = 0; iSub < int(singlets.size()); ++iSub)
+  for (int iMem = 0; iMem < singlets[iSub].size(); ++iMem)
+    if (singlets[iSub].iParton[iMem] == i) return iSub;
 
   // Done without having found particle; return -1 = error code.
   return -1;
@@ -375,14 +375,14 @@ int ColConfig::findSinglet(int i) {
 void ColConfig::list(ostream& os) const {
 
   // Header. Loop over all individual singlets.
-  os << "\n --------  Colour Singlet Systems Listing -------------------\n"; 
+  os << "\n --------  Colour Singlet Systems Listing -------------------\n";
   for (int iSub = 0; iSub < int(singlets.size()); ++iSub) {
 
     // List all partons belonging to each singlet.
     os << " singlet " << iSub << " contains " ;
-    for (int i = 0; i < singlets[iSub].size(); ++i) 
-      os << singlets[iSub].iParton[i] << " ";  
-    os << "\n"; 
+    for (int i = 0; i < singlets[iSub].size(); ++i)
+      os << singlets[iSub].iParton[i] << " ";
+    os << "\n";
 
   // Done.
   }
@@ -435,9 +435,9 @@ void StringRegion::setUp(Vec4 p1, Vec4 p2, bool isMassless) {
     // If crazy kinematics (should not happen!) modify energies.
     if (w2 <= 0. || rootSq <= 0.) {
       if (m1Sq < 0.) m1Sq = 0.;
-      p1.e( sqrt(m1Sq + p1.pAbs2()) ); 
+      p1.e( sqrt(m1Sq + p1.pAbs2()) );
       if (m2Sq < 0.) m2Sq = 0.;
-      p2.e( sqrt(m2Sq + p2.pAbs2()) ); 
+      p2.e( sqrt(m2Sq + p2.pAbs2()) );
       p1p2 = p1 * p2;
       w2 = m1Sq + 2. * p1p2 + m2Sq;
       rootSq = pow2(p1p2) - m1Sq * m2Sq;
@@ -448,8 +448,8 @@ void StringRegion::setUp(Vec4 p1, Vec4 p2, bool isMassless) {
 
     // Find two lightconelike longitudinal four-vector directions.
     double root = sqrt( max(TINY, rootSq) );
-    double k1 = 0.5 * ( (m2Sq + p1p2) / root - 1.); 
-    double k2 = 0.5 * ( (m1Sq + p1p2) / root - 1.); 
+    double k1 = 0.5 * ( (m2Sq + p1p2) / root - 1.);
+    double k2 = 0.5 * ( (m1Sq + p1p2) / root - 1.);
     pPos = (1. + k1) * p1 - k2 * p2;
     pNeg = (1. + k2) * p2 - k1 * p1;
   }
@@ -463,7 +463,7 @@ void StringRegion::setUp(Vec4 p1, Vec4 p2, bool isMassless) {
   if (eDx < min(eDy, eDz)) {
     eX = Vec4( 1., 0., 0., 0.);
     eY = (eDy < eDz) ? Vec4( 0., 1., 0., 0.) : Vec4( 0., 0., 1., 0.);
-  } else if (eDy < eDz) { 
+  } else if (eDy < eDz) {
     eX = Vec4( 0., 1., 0., 0.);
     eY = (eDx < eDz) ? Vec4( 1., 0., 0., 0.) : Vec4( 0., 0., 1., 0.);
   } else {
@@ -493,13 +493,13 @@ void StringRegion::setUp(Vec4 p1, Vec4 p2, bool isMassless) {
 
 // Project a four-momentum onto (x+, x-, px, py).
 
-void StringRegion::project(Vec4 pIn) { 
+void StringRegion::project(Vec4 pIn) {
 
   // Perform projections by four-vector multiplication.
-  xPosProj = 2. * (pIn * pNeg) / w2; 
-  xNegProj = 2. * (pIn * pPos) / w2; 
+  xPosProj = 2. * (pIn * pNeg) / w2;
+  xNegProj = 2. * (pIn * pPos) / w2;
   pxProj = - (pIn * eX);
-  pyProj = - (pIn * eY);   
+  pyProj = - (pIn * eY);
 
 }
  
@@ -509,7 +509,7 @@ void StringRegion::project(Vec4 pIn) {
 
 //--------------------------------------------------------------------------
 
-// Set up system from parton list. 
+// Set up system from parton list.
 
 void StringSystem::setUp(vector<int>& iSys, Event& event) {
 
@@ -518,7 +518,7 @@ void StringSystem::setUp(vector<int>& iSys, Event& event) {
   sizeStrings = sizePartons - 1;
   sizeRegions = (sizeStrings * (sizeStrings + 1)) / 2;
   indxReg = 2 * sizeStrings + 1;
-  iMax = sizeStrings - 1; 
+  iMax = sizeStrings - 1;
 
   // Reserve space for the required number of regions.
   system.clear();

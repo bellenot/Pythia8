@@ -1,5 +1,5 @@
 ! main62.cmnd.
-! This file contains commands to be read in for a Pythia8 run. 
+! This file contains commands to be read in for a Pythia8 run.
 ! Lines not beginning with a letter or digit are comments.
 ! Names are case-insensitive  -  but spellings-sensitive!
 ! The settings here are illustrative, not always physics-motivated.
@@ -24,7 +24,7 @@ PDF:useLHAPDF = on
 ! some pdf sets examples: cteq61.LHpdf cteq61.LHgrid MRST2004nlo.LHgrid
 PDF:LHAPDFset = MRST2001lo.LHgrid
 ! Allow extrapolation of PDF's beyond x and Q2 boundaries, at own risk.
-! Default behaviour is to freeze PDF's at boundaries.  
+! Default behaviour is to freeze PDF's at boundaries.
 PDF:extrapolateLHAPDF = on
 
 ! 4) Other common settings.

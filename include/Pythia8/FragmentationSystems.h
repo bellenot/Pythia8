@@ -1,5 +1,5 @@
 // FragmentationSystems.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -25,26 +25,26 @@ namespace Pythia8 {
 //==========================================================================
 
 // The ColSinglet class contains info on an individual singlet.
-// Only to be used inside ColConfig, so no private members. 
+// Only to be used inside ColConfig, so no private members.
 
 class ColSinglet {
   
 public:
 
   // Constructors.
-  ColSinglet() : pSum(0., 0., 0., 0.), mass(0.), massExcess(0.), 
+  ColSinglet() : pSum(0., 0., 0., 0.), mass(0.), massExcess(0.),
     hasJunction(false), isClosed(false), isCollected(false) {}
-  ColSinglet(vector<int>& iPartonIn, Vec4 pSumIn, double massIn, 
+  ColSinglet(vector<int>& iPartonIn, Vec4 pSumIn, double massIn,
     double massExcessIn, bool hasJunctionIn = false,
-    bool isClosedIn = false, bool isCollectedIn = false) 
-    : iParton(iPartonIn), pSum(pSumIn), mass(massIn), 
+    bool isClosedIn = false, bool isCollectedIn = false)
+    : iParton(iPartonIn), pSum(pSumIn), mass(massIn),
     massExcess(massExcessIn), hasJunction(hasJunctionIn),
     isClosed(isClosedIn), isCollected(isCollectedIn) {}
 
   // Size of iParton array.
   int size() const { return iParton.size();}
 
-  // Stored quantities. 
+  // Stored quantities.
   vector<int> iParton;
   Vec4   pSum;
   double mass, massExcess;
@@ -54,7 +54,7 @@ public:
  
 //==========================================================================
 
-// The ColConfig class describes the colour configuration of the whole event. 
+// The ColConfig class describes the colour configuration of the whole event.
 
 class ColConfig {
 
@@ -73,17 +73,17 @@ public:
   ColSinglet& operator[](int iSub) {return singlets[iSub];}
 
   // Clear contents.
-  void clear() {singlets.resize(0);} 
+  void clear() {singlets.resize(0);}
 
-  // Insert a new colour singlet system in ascending mass order. 
+  // Insert a new colour singlet system in ascending mass order.
   // Calculate its properties. Join nearby partons.
-  bool insert( vector<int>& iPartonIn, Event& event); 
+  bool insert( vector<int>& iPartonIn, Event& event);
 
   // Erase a colour singlet system. (Rare operation.)
-  void erase(int iSub) {singlets.erase(singlets.begin() + iSub);}  
+  void erase(int iSub) {singlets.erase(singlets.begin() + iSub);}
 
   // Collect all partons of singlet to be consecutively ordered.
-  void collect(int iSub, Event& event, bool skipTrivial = true); 
+  void collect(int iSub, Event& event, bool skipTrivial = true);
 
   // Find to which singlet system a particle belongs.
   int findSinglet(int i);
@@ -109,15 +109,15 @@ private:
   vector<ColSinglet> singlets;
 
   // Join two legs of junction to a diquark for small invariant masses.
-  bool joinJunction( vector<int>& iPartonIn, Event& event, 
-    double massExcessIn); 
+  bool joinJunction( vector<int>& iPartonIn, Event& event,
+    double massExcessIn);
 
 };
  
 //==========================================================================
 
-// The StringRegion class contains the information related to 
-// one string section in the evolution of a multiparton system. 
+// The StringRegion class contains the information related to
+// one string section in the evolution of a multiparton system.
 // Only to be used inside StringFragmentation and MiniStringFragmentation,
 // so no private members.
 
@@ -125,7 +125,7 @@ class StringRegion {
 
 public:
 
-  // Constructor. 
+  // Constructor.
   StringRegion() : isSetUp(false), isEmpty(true) {}
 
   // Constants: could only be changed in the code itself.
@@ -140,17 +140,17 @@ public:
   void setUp(Vec4 p1, Vec4 p2, bool isMassless = false);
 
   // Construct a four-momentum from (x+, x-, px, py).
-  Vec4 pHad( double xPosIn, double xNegIn, double pxIn, double pyIn) 
+  Vec4 pHad( double xPosIn, double xNegIn, double pxIn, double pyIn)
     { return xPosIn * pPos + xNegIn * pNeg + pxIn * eX + pyIn * eY; }
 
   // Project a four-momentum onto (x+, x-, px, py). Read out projection.
   void project(Vec4 pIn);
-  void project( double pxIn, double pyIn, double pzIn, double eIn) 
+  void project( double pxIn, double pyIn, double pzIn, double eIn)
     { project( Vec4( pxIn, pyIn, pzIn, eIn) ); }
-  double xPos() const {return xPosProj;} 
-  double xNeg() const {return xNegProj;} 
-  double px() const {return pxProj;} 
-  double py() const {return pyProj;} 
+  double xPos() const {return xPosProj;}
+  double xNeg() const {return xNegProj;}
+  double px() const {return pxProj;}
+  double py() const {return pyProj;}
 
 };
  
@@ -163,30 +163,30 @@ class StringSystem {
 
 public:
 
-  // Constructor. 
+  // Constructor.
   StringSystem() {}
 
   // Set up system from parton list.
   void setUp(vector<int>& iSys, Event& event);
 
   // Calculate string region from (iPos, iNeg) pair.
-  int iReg( int iPos, int iNeg) const 
+  int iReg( int iPos, int iNeg) const
     {return (iPos * (indxReg - iPos)) / 2 + iNeg;}
 
   // Reference to string region specified by (iPos, iNeg) pair.
-  StringRegion& region(int iPos, int iNeg) {return system[iReg(iPos, iNeg)];} 
+  StringRegion& region(int iPos, int iNeg) {return system[iReg(iPos, iNeg)];}
 
   // Reference to low string region specified either by iPos or iNeg.
   StringRegion& regionLowPos(int iPos) {
-    return system[iReg(iPos, iMax - iPos)]; } 
+    return system[iReg(iPos, iMax - iPos)]; }
   StringRegion& regionLowNeg(int iNeg) {
-    return system[iReg(iMax - iNeg, iNeg)]; } 
+    return system[iReg(iMax - iNeg, iNeg)]; }
 
-  // Main content: a vector with all the string regions of the system. 
+  // Main content: a vector with all the string regions of the system.
   vector<StringRegion> system;
 
   // Other data members.
-  int    sizePartons, sizeStrings, sizeRegions, indxReg, iMax; 
+  int    sizePartons, sizeStrings, sizeRegions, indxReg, iMax;
   double mJoin, m2Join;
 
 };

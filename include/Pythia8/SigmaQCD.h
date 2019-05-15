@@ -1,5 +1,5 @@
 // SigmaQCD.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -24,8 +24,8 @@ public:
   // Constructor.
   Sigma0nonDiffractive() {}
 
-  // Evaluate sigma. 
-  virtual double sigmaHat() {return sigmaTotPtr->sigmaND();} 
+  // Evaluate sigma.
+  virtual double sigmaHat() {return sigmaTotPtr->sigmaND();}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol() {}
@@ -50,8 +50,8 @@ public:
   // Constructor.
   Sigma0AB2AB() {}
 
-  // Evaluate sigma. 
-  virtual double sigmaHat() {return sigmaTotPtr->sigmaEl();} 
+  // Evaluate sigma.
+  virtual double sigmaHat() {return sigmaTotPtr->sigmaEl();}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
@@ -76,8 +76,8 @@ public:
   // Constructor.
   Sigma0AB2XB() {}
 
-  // Evaluate sigma. 
-  virtual double sigmaHat() {return sigmaTotPtr->sigmaXB();} 
+  // Evaluate sigma.
+  virtual double sigmaHat() {return sigmaTotPtr->sigmaXB();}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
@@ -103,8 +103,8 @@ public:
   // Constructor.
   Sigma0AB2AX() {}
 
-  // Evaluate sigma. 
-  virtual double sigmaHat() {return sigmaTotPtr->sigmaAX();} 
+  // Evaluate sigma.
+  virtual double sigmaHat() {return sigmaTotPtr->sigmaAX();}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
@@ -130,8 +130,8 @@ public:
   // Constructor.
   Sigma0AB2XX() {}
 
-  // Evaluate sigma. 
-  virtual double sigmaHat() {return sigmaTotPtr->sigmaXX();} 
+  // Evaluate sigma.
+  virtual double sigmaHat() {return sigmaTotPtr->sigmaXX();}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
@@ -158,8 +158,8 @@ public:
   // Constructor.
   Sigma0AB2AXB() {}
   
-  // Evaluate sigma. 
-  virtual double sigmaHat() {return sigmaTotPtr->sigmaAXB();} 
+  // Evaluate sigma.
+  virtual double sigmaHat() {return sigmaTotPtr->sigmaAXB();}
   
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
@@ -189,7 +189,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -218,13 +218,13 @@ public:
   // Constructor.
   Sigma2gg2qqbar() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -261,7 +261,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -281,7 +281,7 @@ private:
  
 //==========================================================================
 
-// A derived class for q qbar' -> q qbar' or q q' -> q q' 
+// A derived class for q qbar' -> q qbar' or q q' -> q q'
 // (qbar qbar' -> qbar qbar'), q' may be same as q.
 
 class Sigma2qq2qq : public Sigma2Process {
@@ -294,7 +294,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -326,7 +326,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -355,13 +355,13 @@ public:
   // Constructor.
   Sigma2qqbar2qqbarNew() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -394,20 +394,20 @@ public:
   // Constructor.
   Sigma2gg2QQbar(int idIn, int codeIn) : idNew(idIn), codeSave(codeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for W decay angles in top decay (else inactive).
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -436,20 +436,20 @@ public:
   // Constructor.
   Sigma2qqbar2QQbar(int idIn, int codeIn) : idNew(idIn), codeSave(codeIn) {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
   virtual void setIdColAcol();
 
   // Evaluate weight for W decay angles in top decay (else inactive).
-  virtual double weightDecay( Event& process, int iResBeg, int iResEnd); 
+  virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
 
   // Info on the subprocess.
   virtual string name()    const {return nameSave;}
@@ -481,7 +481,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -501,7 +501,7 @@ private:
 
   // Intermediate storage and calculation of four-products.
   double pp[6][6];
-  double cycle(int i1, int i2, int i3, int i4, int i5) {return 
+  double cycle(int i1, int i2, int i3, int i4, int i5) {return
     pp[i1][i2] * pp[i2][i3] * pp[i3][i4] * pp[i4][i5] * pp[i5][i1];}
 
 };
@@ -520,7 +520,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -569,7 +569,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -601,8 +601,8 @@ public:
   // Constructor.
   Sigma3gg2qqbarg() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
@@ -638,7 +638,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -685,13 +685,13 @@ public:
   // Constructor.
   Sigma3qqbar2qqbargDiff() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -723,13 +723,13 @@ public:
   // Constructor.
   Sigma3qg2qqqbarDiff() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -766,7 +766,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -817,7 +817,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -849,7 +849,7 @@ public:
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate d(sigmaHat)/d(tHat). 
+  // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.

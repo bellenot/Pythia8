@@ -1,5 +1,5 @@
 // PartonSystems.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -17,7 +17,7 @@ namespace Pythia8 {
 //==========================================================================
 
 // The PartonSystem class contains info on an individual singlet.
-// Only to be used inside PartonSystems, so no private members. 
+// Only to be used inside PartonSystems, so no private members.
 
 class PartonSystem {
   
@@ -26,8 +26,8 @@ public:
   // Constructors.
   PartonSystem() : iInA(0), iInB(0), sHat(0.) {iOut.reserve(10);}
 
-  // Stored quantities. 
-  int         iInA, iInB; 
+  // Stored quantities.
+  int         iInA, iInB;
   vector<int> iOut;
   double      sHat, pTHat;
   
@@ -47,39 +47,39 @@ public:
   // Reset system list to empty.
   void clear() {systems.resize(0);}
 
-  // Add new subsystem to list; return its index. Number of subsystems. 
-  int addSys() {systems.push_back(PartonSystem()); 
-    return systems.size() - 1;} 
+  // Add new subsystem to list; return its index. Number of subsystems.
+  int addSys() {systems.push_back(PartonSystem());
+    return systems.size() - 1;}
   int sizeSys() const {return systems.size();}
 
-  // Set, add or replace info to one system. 
-  void setInA(int iSys, int iPos) {systems[iSys].iInA = iPos;}  
-  void setInB(int iSys, int iPos) {systems[iSys].iInB = iPos;}  
-  void addOut(int iSys, int iPos) {systems[iSys].iOut.push_back(iPos);} 
-  void setOut(int iSys, int iMem, int iPos) {systems[iSys].iOut[iMem] = iPos;} 
+  // Set, add or replace info to one system.
+  void setInA(int iSys, int iPos) {systems[iSys].iInA = iPos;}
+  void setInB(int iSys, int iPos) {systems[iSys].iInB = iPos;}
+  void addOut(int iSys, int iPos) {systems[iSys].iOut.push_back(iPos);}
+  void setOut(int iSys, int iMem, int iPos) {systems[iSys].iOut[iMem] = iPos;}
   void replace(int iSys, int iPosOld, int iPosNew);
   void setSHat(int iSys, double sHatIn) {systems[iSys].sHat = sHatIn;}
   void setPTHat(int iSys, double pTHatIn) {systems[iSys].pTHat = pTHatIn;}
   void setSizeSys(int iSize) {systems.resize(iSize);}
 
   // Get info on one system.
-  bool hasInAB(int iSys)         const {return ( (systems[iSys].iInA > 0)   
-					|| (systems[iSys].iInB > 0) ) ;}
+  bool hasInAB(int iSys)         const {return ( (systems[iSys].iInA > 0)
+                                        || (systems[iSys].iInB > 0) ) ;}
   int getInA(int iSys)           const {return systems[iSys].iInA;}
   int getInB(int iSys)           const {return systems[iSys].iInB;}
   int sizeOut(int iSys)          const {return systems[iSys].iOut.size();}
-  int getOut(int iSys, int iMem) const {return systems[iSys].iOut[iMem];} 
-  int sizeAll(int iSys)          const {return (hasInAB(iSys)) 
+  int getOut(int iSys, int iMem) const {return systems[iSys].iOut[iMem];}
+  int sizeAll(int iSys)          const {return (hasInAB(iSys))
     ? systems[iSys].iOut.size() + 2 : systems[iSys].iOut.size();}
-  int getAll(int iSys, int iMem) const; 
-  double getSHat(int iSys)       const {return systems[iSys].sHat;} 
-  double getPTHat(int iSys)      const {return systems[iSys].pTHat;} 
+  int getAll(int iSys, int iMem) const;
+  double getSHat(int iSys)       const {return systems[iSys].sHat;}
+  double getPTHat(int iSys)      const {return systems[iSys].pTHat;}
 
   // Find system of given outgoing parton, optionally also incoming one.
-  int getSystemOf(int iPos, bool alsoIn = false) const;  
+  int getSystemOf(int iPos, bool alsoIn = false) const;
 
   // Find iOut index of given system and event record index
-  int getIndexOfOut(int iSys, int iPos) const;  
+  int getIndexOfOut(int iSys, int iPos) const;
 
   // List all current systems.
   void list(ostream& os = cout) const;

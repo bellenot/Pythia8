@@ -1,5 +1,5 @@
 // HelicityBasics.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2014 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -21,7 +21,7 @@ namespace Pythia8 {
 
 Wave4 operator*(complex s, const Wave4& w) {
  
-  return Wave4( s * w.val[0], s * w.val[1], s * w.val[2], s * w.val[3]); 
+  return Wave4( s * w.val[0], s * w.val[1], s * w.val[2], s * w.val[3]);
 
 }
 
@@ -31,7 +31,7 @@ Wave4 operator*(complex s, const Wave4& w) {
 
 Wave4 operator*(double s, const Wave4& w) {
  
-  return Wave4( s * w.val[0], s * w.val[1], s * w.val[2], s * w.val[3]); 
+  return Wave4( s * w.val[0], s * w.val[1], s * w.val[2], s * w.val[3]);
 
 }
 
@@ -41,10 +41,10 @@ Wave4 operator*(double s, const Wave4& w) {
 
 Wave4 conj(Wave4 w) {
 
-  w(0) = conj(w(0)); 
-  w(1) = conj(w(1)); 
-  w(2) = conj(w(2));  
-  w(3) = conj(w(3));  
+  w(0) = conj(w(0));
+  w(1) = conj(w(1));
+  w(2) = conj(w(2));
+  w(3) = conj(w(3));
   return w;
 
 }
@@ -56,17 +56,17 @@ Wave4 conj(Wave4 w) {
 Wave4 epsilon(Wave4 w1, Wave4 w2, Wave4 w3) {
 
   Wave4 w4;
-  w4(0) = -(w1(1) * w2(2) * w3(3)) + (w1(1) * w2(3) * w3(2)) 
-    + (w1(2) * w2(1) * w3(3)) - (w1(2) * w2(3) * w3(1)) 
+  w4(0) = -(w1(1) * w2(2) * w3(3)) + (w1(1) * w2(3) * w3(2))
+    + (w1(2) * w2(1) * w3(3)) - (w1(2) * w2(3) * w3(1))
     - (w1(3) * w2(1) * w3(2)) + (w1(3) * w2(2) * w3(1));
-  w4(1) = -(w1(0) * w2(2) * w3(3)) + (w1(0) * w2(3) * w3(2)) 
-    + (w1(2) * w2(0) * w3(3)) - (w1(2) * w2(3) * w3(0)) 
+  w4(1) = -(w1(0) * w2(2) * w3(3)) + (w1(0) * w2(3) * w3(2))
+    + (w1(2) * w2(0) * w3(3)) - (w1(2) * w2(3) * w3(0))
     - (w1(3) * w2(0) * w3(2)) + (w1(3) * w2(2) * w3(0));
-  w4(2) = (w1(0) * w2(1) * w3(3)) - (w1(0) * w2(3) * w3(1)) 
-    - (w1(1) * w2(0) * w3(3)) + (w1(1) * w2(3) * w3(0)) 
+  w4(2) = (w1(0) * w2(1) * w3(3)) - (w1(0) * w2(3) * w3(1))
+    - (w1(1) * w2(0) * w3(3)) + (w1(1) * w2(3) * w3(0))
     + (w1(3) * w2(0) * w3(1)) - (w1(3) * w2(1) * w3(0));
-  w4(3) = -(w1(0) * w2(1) * w3(2)) + (w1(0) * w2(2) * w3(1)) 
-    + (w1(1) * w2(0) * w3(2)) - (w1(1) * w2(2) * w3(0)) 
+  w4(3) = -(w1(0) * w2(1) * w3(2)) + (w1(0) * w2(2) * w3(1))
+    + (w1(1) * w2(0) * w3(2)) - (w1(1) * w2(2) * w3(0))
     - (w1(2) * w2(0) * w3(1)) + (w1(2) * w2(1) * w3(0));
   return w4;
 
@@ -78,14 +78,14 @@ Wave4 epsilon(Wave4 w1, Wave4 w2, Wave4 w3) {
 
 double m2(Wave4 w) {
 
-  return real(w(0)) * real(w(0)) - real(w(1)) * real(w(1)) 
+  return real(w(0)) * real(w(0)) - real(w(1)) * real(w(1))
     - real(w(2)) * real(w(2)) - real(w(3)) * real(w(3));
 
 }
 
 double m2(Wave4 w1, Wave4 w2) {
 
-  return real(w1(0)) * real(w2(0)) - real(w1(1)) * real(w2(1)) 
+  return real(w1(0)) * real(w2(0)) - real(w1(1)) * real(w2(1))
        - real(w1(2)) * real(w2(2)) - real(w1(3)) * real(w2(3));
 
 }
@@ -149,13 +149,13 @@ GammaMatrix::GammaMatrix(int mu) {
 Wave4 operator*(Wave4 w, GammaMatrix g) {
 
   complex w0 = w(g.index[0]);
-  complex w1 = w(g.index[1]); 
+  complex w1 = w(g.index[1]);
   complex w2 = w(g.index[2]);
-  complex w3 = w(g.index[3]); 
+  complex w3 = w(g.index[3]);
   w(0) = w0 * g.val[0];
   w(1) = w1 * g.val[1];
   w(2) = w2 * g.val[2];
-  w(3) = w3 * g.val[3]; 
+  w(3) = w3 * g.val[3];
   return w;
 
 }
@@ -169,7 +169,7 @@ GammaMatrix operator*(complex s, GammaMatrix g) {
   g.val[0] = s * g.val[0];
   g.val[1] = s*g.val[1];
   g.val[2] = s * g.val[2];
-  g.val[3] = s*g.val[3]; 
+  g.val[3] = s*g.val[3];
   return g;
 
 }
@@ -178,12 +178,12 @@ GammaMatrix operator*(complex s, GammaMatrix g) {
 
 // I * Scalar - Gamma5.
 
-GammaMatrix operator-(complex s, GammaMatrix g) { 
+GammaMatrix operator-(complex s, GammaMatrix g) {
 
   g.val[0] = s - g.val[0];
   g.val[1] = s - g.val[1];
-  g.val[2] = s - g.val[2]; 
-  g.val[3] = s - g.val[3]; 
+  g.val[2] = s - g.val[2];
+  g.val[3] = s - g.val[3];
   return g;
 
 }
@@ -196,8 +196,8 @@ GammaMatrix operator+(complex s, GammaMatrix g) {
 
   g.val[0] = s + g.val[0];
   g.val[1] = s + g.val[1];
-  g.val[2] = s + g.val[2]; 
-  g.val[3] = s + g.val[3]; 
+  g.val[2] = s + g.val[2];
+  g.val[3] = s + g.val[3];
   return g;
 
 }
@@ -265,7 +265,7 @@ Wave4 HelicityParticle::wave(int h) {
     vector<double> omega(2);
     omega[0] = sqrtpos(e()-P);
     omega[1] = sqrtpos(e()+P);
-    vector<double> hsign(2,1); 
+    vector<double> hsign(2,1);
     hsign[0] = -1;
     
     // Create particle spinor.
@@ -305,10 +305,10 @@ Wave4 HelicityParticle::wave(int h) {
 
     // Create helicity 0 polarization vector (ensure boson massive).
     } else if (h == 2 && m() > TOLERANCE) {
-	w(0) = P / m(); 
-	w(1) = px() * e() / (m() * P); 
-	w(2) = py() * e() / (m() * P); 
-	w(3) = pz() * e() / (m() * P); 
+        w(0) = P / m();
+        w(1) = px() * e() / (m() * P);
+        w(2) = py() * e() / (m() * P);
+        w(3) = pz() * e() / (m() * P);
     }
 
   // Unknown wave function.

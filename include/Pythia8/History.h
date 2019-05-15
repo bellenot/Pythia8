@@ -1,5 +1,5 @@
 // History.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -107,7 +107,7 @@ public:
   // initial history node. \a beamAIn and beamBIn are needed to
   // calcutate PDF ratios, \a particleDataIn to have access to the
   // correct masses of particles. If \a isOrdered is true, the previous
-  // clusterings has been ordered. \a is the PDF ratio for this 
+  // clusterings has been ordered. \a is the PDF ratio for this
   // clustering (=1 for FSR clusterings). \a probin is the accumulated
   // probabilities for the previous clusterings, and \ mothin is the
   // previous history node (null for the initial node).
@@ -169,7 +169,7 @@ public:
   double weight_UNLOPS_LOOP(PartonLevel* trial, double RN);
   double weight_UNLOPS_SUBTNLO(PartonLevel* trial, double RN);
   double weight_UNLOPS_CORRECTION( int order, PartonLevel* trial,
-                  AlphaStrong* asFSR, AlphaStrong* asISR, 
+                  AlphaStrong* asFSR, AlphaStrong* asISR,
                   double RN, Rndm* rndmPtr );
 
   // Function to check if any allowed histories were found
@@ -182,11 +182,11 @@ public:
   bool foundCompleteHistories() {
     return (children.size() > 0 && foundCompletePath); }
 
-  // Function to set the state with complete scales for evolution 
+  // Function to set the state with complete scales for evolution
   void getStartingConditions( const double RN, Event& outState );
-  // Function to get the state with complete scales for evolution 
+  // Function to get the state with complete scales for evolution
   bool getClusteredEvent( const double RN, int nSteps, Event& outState);
-  // Function to get the first reclustered state above the merging scale. 
+  // Function to get the first reclustered state above the merging scale.
   bool getFirstClusteredEventAboveTMS( const double RN, int nDesired,
     Event& process, int & nPerformed, bool updateProcess = true );
   // Function to return the depth of the history (i.e. the number of
@@ -218,7 +218,7 @@ public:
 
 private:
 
-  // Number of trial emission to use for calculating the average number of 
+  // Number of trial emission to use for calculating the average number of
   // emissions
   static const int NTRIAL;
 
@@ -298,28 +298,28 @@ private:
 
   // Functions to return the z value of the last ISR splitting
   // NO INPUT
-  // OUTPUT double : z value of last ISR splitting in history 
+  // OUTPUT double : z value of last ISR splitting in history
   double zISR();
 
   // Functions to return the z value of the last FSR splitting
   // NO INPUT
-  // OUTPUT double : z value of last FSR splitting in history 
+  // OUTPUT double : z value of last FSR splitting in history
   double zFSR();
 
   // Functions to return the pT scale of the last ISR splitting
   // NO INPUT
-  // OUTPUT double : pT scale of last ISR splitting in history 
+  // OUTPUT double : pT scale of last ISR splitting in history
   double pTISR();
 
   // Functions to return the pT scale of the last FSR splitting
   // NO INPUT
-  // OUTPUT double : pT scale of last FSR splitting in history 
+  // OUTPUT double : pT scale of last FSR splitting in history
   double pTFSR();
 
   // Functions to return the event with nSteps additional partons
   // INPUT  int   : Number of splittings in the event,
   //                as counted from core 2->2 process
-  // OUTPUT Event : event with nSteps additional partons 
+  // OUTPUT Event : event with nSteps additional partons
   Event clusteredState( int nSteps);
 
   // Function to choose a path from all paths in the tree
@@ -345,12 +345,12 @@ private:
     double& asWeight, double& pdfWeight);
 
   // Function to return the \alpha_s-ratio part of the CKKWL weight.
-  double weightTreeALPHAS( double as0, AlphaStrong * asFSR, 
+  double weightTreeALPHAS( double as0, AlphaStrong * asFSR,
     AlphaStrong * asISR );
   // Function to return the PDF-ratio part of the CKKWL weight.
   double weightTreePDFs( double maxscale, double pdfScale );
   // Function to return the no-emission probability part of the CKKWL weight.
-  double weightTreeEmissions( PartonLevel* trial, int type, int njetMax, 
+  double weightTreeEmissions( PartonLevel* trial, int type, int njetMax,
     double maxscale );
 
   // Function to generate the O(\alpha_s)-term of the CKKWL-weight
@@ -383,7 +383,7 @@ private:
   // OUT  0.0       : trial shower emission outside allowed pT range
   //      1.0       : trial shower successful (any emission was below
   //                  the minimal scale )
-  double doTrialShower(PartonLevel* trial, int type, double maxscale, 
+  double doTrialShower(PartonLevel* trial, int type, double maxscale,
     double minscale = 0.);
 
   // Function to bookkeep the indices of weights generated in countEmissions
@@ -409,7 +409,7 @@ private:
   // any unordered paths.
   bool onlyStronglyOrderedPaths();
 
-  // Check if an allowed (according to user-criterion) path has been found in 
+  // Check if an allowed (according to user-criterion) path has been found in
   // the initial node, in which case we will no longer be interested in
   // any forbidden paths.
   bool onlyAllowedPaths();
@@ -443,7 +443,7 @@ private:
   //              causing a 2 -> 3 dipole splitting
   //     Event : event record to be checked for ptential partners
   // OUT vector of all allowed radiator+recoiler+emitted triples
-  vector<Clustering> findQCDTriple (int EmtTagIn, int colTopIn, 
+  vector<Clustering> findQCDTriple (int EmtTagIn, int colTopIn,
                        const Event& event, vector<int> PosFinalPartn,
                        vector <int> PosInitPartn );
 
@@ -454,7 +454,7 @@ private:
 
   vector<Clustering> getAllSQCDClusterings();
   vector<Clustering> getSQCDClusterings( const Event& event);
-  vector<Clustering> findSQCDTriple (int EmtTagIn, int colTopIn, 
+  vector<Clustering> findSQCDTriple (int EmtTagIn, int colTopIn,
                        const Event& event, vector<int> PosFinalPartn,
                        vector <int> PosInitPartn );
 
@@ -493,7 +493,7 @@ private:
   // for clustering
   // IN  int   : Position of the radiator after the splitting, in the event
   //     int   : Position of the emitted after the splitting, in the event
-  //     Event : Reference event   
+  //     Event : Reference event
   // OUT int   : Flavour of the radiator before the splitting
   int getRadBeforeFlav(const int RadAfter, const int EmtAfter,
         const Event& event);
@@ -502,7 +502,7 @@ private:
   // for clustering
   // IN  int   : Position of the radiator after the splitting, in the event
   //     int   : Position of the emitted after the splitting, in the event
-  //     Event : Reference event   
+  //     Event : Reference event
   // OUT int   : Colour of the radiator before the splitting
   int getRadBeforeCol(const int RadAfter, const int EmtAfter,
         const Event& event);
@@ -511,21 +511,21 @@ private:
   // for clustering
   // IN  int   : Position of the radiator after the splitting, in the event
   //     int   : Position of the emitted after the splitting, in the event
-  //     Event : Reference event   
+  //     Event : Reference event
   // OUT int   : Anticolour of the radiator before the splitting
   int getRadBeforeAcol(const int RadAfter, const int EmtAfter,
         const Event& event);
 
   // Function to get the parton connected to in by a colour line
   // IN  int   : Position of parton for which partner should be found
-  //     Event : Reference event   
+  //     Event : Reference event
   // OUT int   : If a colour line connects the "in" parton with another
   //             parton, return the Position of the partner, else return 0
   int getColPartner(const int in, const Event& event);
 
   // Function to get the parton connected to in by an anticolour line
   // IN  int   : Position of parton for which partner should be found
-  //     Event : Reference event   
+  //     Event : Reference event
   // OUT int   : If an anticolour line connects the "in" parton with another
   //             parton, return the Position of the partner, else return 0
   int getAcolPartner(const int in, const Event& event);
@@ -534,7 +534,7 @@ private:
   // formed by reclusterinf emt and rad by colour and anticolour lines
   // IN  int          : Position of radiator in the clustering
   // IN  int          : Position of emitted in the clustering
-  //     Event        : Reference event   
+  //     Event        : Reference event
   // OUT vector<int>  : List of positions of all partons that are connected
   //                    to the parton that will be formed
   //                    by clustering emt and rad.
@@ -542,7 +542,7 @@ private:
     const Event& event);
 
   // Function to extract a chain of colour-connected partons in
-  // the event 
+  // the event
   // IN     int          : Type of parton from which to start extracting a
   //                       parton chain. If the starting point is a quark
   //                       i.e. flavType = 1, a chain of partons that are
@@ -564,14 +564,14 @@ private:
   // Function to check that a set of partons forms a colour singlet
   // IN  Event       : Reference event
   // IN  vector<int> : Positions of the partons in the set
-  // OUT bool        : Is a colour singlet / is not 
+  // OUT bool        : Is a colour singlet / is not
   bool isColSinglet( const Event& event, vector<int> system);
   // Function to check that a set of partons forms a flavour singlet
   // IN  Event       : Reference event
   // IN  vector<int> : Positions of the partons in the set
   // IN  int         : Flavour of all the quarks in the set, if
   //                   all quarks in a set should have a fixed flavour
-  // OUT bool        : Is a flavour singlet / is not 
+  // OUT bool        : Is a flavour singlet / is not
   bool isFlavSinglet( const Event& event,
     vector<int> system, int flav=0);
 
@@ -585,7 +585,7 @@ private:
   //                          event or the resulting event was
   //                          non-valid
   bool connectRadiator( Particle& Radiator, const int RadType,
-                        const Particle& Recoiler, const int RecType, 
+                        const Particle& Recoiler, const int RecType,
                         const Event& event );
 
   // Function to find a colour (anticolour) index in the input event
@@ -618,7 +618,7 @@ private:
   // IN int rad,emt,rec,partner : Positions (in event record) of the three
   //                      particles considered for clustering, and the
   //                      correct colour-connected recoiler (=partner)
-  //    Event event     : Reference event                  
+  //    Event event     : Reference event
   bool allowedClustering( int rad, int emt, int rec, int partner,
     const Event& event );
 
@@ -626,7 +626,7 @@ private:
   // colour singlet radBefore+recBefore
   // IN int rad,emt,rec : Positions (in event record) of the three
   //                      particles considered for clustering
-  //    Event event     : Reference event                  
+  //    Event event     : Reference event
   bool isSinglett( int rad, int emt, int rec, const Event& event );
 
   // Function to check if event is sensibly constructed: Meaning
@@ -643,7 +643,7 @@ private:
 
   // Chose dummy scale for event construction. By default, choose
   //     sHat     for 2->Boson(->2)+ n partons processes and
-  //     M_Boson  for 2->Boson(->)             processes 
+  //     M_Boson  for 2->Boson(->)             processes
   double choseHardScale( const Event& event ) const;
 
   // If the state has an incoming hadron return the flavour of the
@@ -672,7 +672,7 @@ private:
     double mu );
 
   // Function giving the product of splitting kernels and PDFs so that the
-  // resulting flavour is given by flav. This is used as a helper routine 
+  // resulting flavour is given by flav. This is used as a helper routine
   // to dgauss
   double integrand(int flav, double x, double scaleInt, double z);
 
@@ -718,7 +718,7 @@ private:
   // and inserted in paths.
   bool foundStronglyOrderedPath;
 
-  // This is set true if an allowed (according to a user criterion) path has 
+  // This is set true if an allowed (according to a user criterion) path has
   // been found and inserted in paths.
   bool foundAllowedPath;
 
@@ -779,4 +779,4 @@ private:
 
 } // end namespace Pythia8
 
-#endif // end Pythia8_History_H 
+#endif // end Pythia8_History_H

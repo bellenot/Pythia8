@@ -1,5 +1,5 @@
 ! main24.cmnd
-! This file contains commands to be read in for a Pythia8 run. 
+! This file contains commands to be read in for a Pythia8 run.
 ! Lines not beginning with a letter or digit are comments.
 
 ! 1) Settings used in the main program.
@@ -23,9 +23,9 @@ Beams:eCM = 10000.                 ! CM energy of collision
 SLHA:file = cmssm.spc              ! Sample SLHA1 spectrum for CMSSM-10.1.1
 #SLHA:file = sps1aWithDecays.spc     ! Older example including DECAY tables
 
-! 5) Process selection 
+! 5) Process selection
 SUSY:all = on                      ! Switches on ALL (~400) SUSY processes
-#SUSY:gg2gluinogluino  = on      
+#SUSY:gg2gluinogluino  = on
 #SUSY:qqbar2gluinogluino  = on
 #SUSY:qg2squarkgluino = on
 #SUSY:gg2squarkantisquark = on
@@ -42,6 +42,6 @@ SUSY:all = on                      ! Switches on ALL (~400) SUSY processes
 
 ! 6) Settings for the event generation process in the Pythia8 library.
 PartonLevel:MPI = off              ! no multiparton interactions
-PartonLevel:ISR = off              ! no initial-state radiation 
+PartonLevel:ISR = off              ! no initial-state radiation
 PartonLevel:FSR = off              ! no final-state radiation
 HadronLevel:Hadronize = off        ! no hadronization

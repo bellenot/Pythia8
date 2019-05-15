@@ -1,12 +1,12 @@
 // main05.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// This is a simple test program. 
+// This is a simple test program.
 // It studies jet production at the LHC, using SlowJet and CellJet.
 // Note: the two finders are intended to construct approximately the same
-// jet properties, but provides output in slightly different format, 
+// jet properties, but provides output in slightly different format,
 // and have here not been optimized to show maximum possible agreement.
 
 #include "Pythia8/Pythia.h"
@@ -20,12 +20,12 @@ int main() {
 
   // Generator. LHC process and output selection. Initialization.
   Pythia pythia;
-  pythia.readString("Beams:eCM = 14000.");    
-  pythia.readString("HardQCD:all = on");    
-  pythia.readString("PhaseSpace:pTHatMin = 200.");    
+  pythia.readString("Beams:eCM = 14000.");
+  pythia.readString("HardQCD:all = on");
+  pythia.readString("PhaseSpace:pTHatMin = 200.");
   pythia.readString("Next:numberShowInfo = 0");
   pythia.readString("Next:numberShowProcess = 0");
-  pythia.readString("Next:numberShowEvent = 0"); 
+  pythia.readString("Next:numberShowEvent = 0");
   pythia.init();
 
   // Common parameters for the two jet finders.
@@ -42,7 +42,7 @@ int main() {
   // and pion mass assumed for non-photons..
   SlowJet slowJet( -1, radius, pTjetMin, etaMax, nSel, 1);
 
-  // Set up CellJet jet finder. 
+  // Set up CellJet jet finder.
   CellJet cellJet( etaMax, nEta, nPhi, nSel);
 
   // Histograms. Note similarity in names, even when the two jet finders
@@ -54,18 +54,18 @@ int main() {
   Hist eTjetsC("eT for jets, CellJet", 100, 0., 500.);
   Hist etaJetsS("y for jets, SlowJet", 100, -5., 5.);
   Hist etaJetsC("eta for jets, CellJet", 100, -5., 5.);
-  Hist phiJetsS("phi for jets, SlowJwt", 100, -M_PI, M_PI);  
-  Hist phiJetsC("phi for jets, CellJet", 100, -M_PI, M_PI);  
+  Hist phiJetsS("phi for jets, SlowJwt", 100, -M_PI, M_PI);
+  Hist phiJetsC("phi for jets, CellJet", 100, -M_PI, M_PI);
   Hist distJetsS("R distance between jets, SlowJet", 100, 0., 10.);
   Hist distJetsC("R distance between jets, CellJet", 100, 0., 10.);
   Hist eTdiffS("pT difference, SlowJet", 100, -100., 400.);
   Hist eTdiffC("eT difference, CellJet", 100, -100., 400.);
 
-  // Begin event loop. Generate event. Skip if error. 
+  // Begin event loop. Generate event. Skip if error.
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
     if (!pythia.next()) continue;
 
-    // Analyze Slowet jet properties. List first few. 
+    // Analyze Slowet jet properties. List first few.
     slowJet. analyze( pythia.event );
     if (iEvent < nListJets) slowJet.list();
 
@@ -88,10 +88,10 @@ int main() {
     }
 
     // Fill SlowJet pT-difference between jets (to check ordering of list).
-    for (int i = 1; i < slowJet.sizeJet(); ++i) 
+    for (int i = 1; i < slowJet.sizeJet(); ++i)
       eTdiffS.fill( slowJet.pT(i-1) - slowJet.pT(i) );
 
-    // Analyze CellJet jet properties. List first few. 
+    // Analyze CellJet jet properties. List first few.
     cellJet. analyze( pythia.event, pTjetMin, radius );
     if (iEvent < nListJets) cellJet.list();
 
@@ -106,9 +106,9 @@ int main() {
     // Fill CellJet distance between jets.
     for (int i = 0; i < cellJet.size() - 1; ++i)
     for (int j = i +1; j < cellJet.size(); ++j) {
-      double dEta = cellJet.etaWeighted(i) 
+      double dEta = cellJet.etaWeighted(i)
         - cellJet.etaWeighted(j);
-      double dPhi = abs( cellJet.phiWeighted(i) 
+      double dPhi = abs( cellJet.phiWeighted(i)
         - cellJet.phiWeighted(j) );
       if (dPhi > M_PI) dPhi = 2. * M_PI - dPhi;
       double dR = sqrt( pow2(dEta) + pow2(dPhi) );
@@ -116,19 +116,19 @@ int main() {
     }
 
     // Fill CellJet ET-difference between jets (to check ordering of list).
-    for (int i = 1; i < cellJet.size(); ++i) 
+    for (int i = 1; i < cellJet.size(); ++i)
       eTdiffC.fill( cellJet.eT(i-1) - cellJet.eT(i) );
 
     // Compare number of jets for the two finders.
     nJetsD.fill( cellJet.size() - slowJet.sizeJet() );
 
-  // End of event loop. Statistics. Histograms. 
+  // End of event loop. Statistics. Histograms.
   }
   pythia.stat();
-  cout << nJetsS << nJetsC << nJetsD << eTjetsS << eTjetsC 
-       << etaJetsS << etaJetsC << phiJetsS << phiJetsC 
+  cout << nJetsS << nJetsC << nJetsD << eTjetsS << eTjetsC
+       << etaJetsS << etaJetsC << phiJetsS << phiJetsC
        << distJetsS << distJetsC << eTdiffS << eTdiffC;
 
-  // Done. 
+  // Done.
   return 0;
 }

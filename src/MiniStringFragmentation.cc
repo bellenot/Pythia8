@@ -1,5 +1,5 @@
 // MiniStringFragmentation.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -19,13 +19,13 @@ namespace Pythia8 {
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
-// Since diffractive by definition is > 1 particle, try hard. 
+// Since diffractive by definition is > 1 particle, try hard.
 const int MiniStringFragmentation::NTRYDIFFRACTIVE = 200;
 
-// After one-body fragmentation failed, try two-body once more. 
+// After one-body fragmentation failed, try two-body once more.
 const int MiniStringFragmentation::NTRYLASTRESORT  = 100;
 
-// Loop try to combine available endquarks to valid hadron. 
+// Loop try to combine available endquarks to valid hadron.
 const int MiniStringFragmentation::NTRYFLAV        = 10;
 
 //--------------------------------------------------------------------------
@@ -33,7 +33,7 @@ const int MiniStringFragmentation::NTRYFLAV        = 10;
 // Initialize and save pointers.
 
 void MiniStringFragmentation::init(Info* infoPtrIn, Settings& settings,
-   ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, 
+   ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
    StringFlav* flavSelPtrIn, StringPT* pTSelPtrIn, StringZ* zSelPtrIn) {
 
   // Save pointers.
@@ -56,20 +56,20 @@ void MiniStringFragmentation::init(Info* infoPtrIn, Settings& settings,
 
 // Do the fragmentation: driver routine.
   
-bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig, 
+bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig,
   Event& event, bool isDiff) {
 
   // Junction topologies not yet considered - is very rare.
   iParton  = colConfig[iSub].iParton;
   if (iParton.front() < 0) {
     infoPtr->errorMsg("Error in MiniStringFragmentation::fragment: "
-      "very low-mass junction topologies not yet handled"); 
+      "very low-mass junction topologies not yet handled");
     return false;
   }
 
   // Read in info on system to be treated.
   flav1    = FlavContainer( event[ iParton.front() ].id() );
-  flav2    = FlavContainer( event[ iParton.back() ].id() ); 
+  flav2    = FlavContainer( event[ iParton.back() ].id() );
   pSum     = colConfig[iSub].pSum;
   mSum     = colConfig[iSub].mass;
   m2Sum    = mSum*mSum;
@@ -79,17 +79,17 @@ bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig,
   int nTryFirst = (isDiff) ? NTRYDIFFRACTIVE : nTryMass;
 
   // First try to produce two particles from the system.
-  if (ministring2two( nTryFirst, event)) return true;  
+  if (ministring2two( nTryFirst, event)) return true;
 
   // If this fails, then form one hadron and shuffle momentum.
-  if (ministring2one( iSub, colConfig, event)) return true;  
+  if (ministring2one( iSub, colConfig, event)) return true;
 
   // If also this fails, then try harder to produce two particles.
-  if (ministring2two( NTRYLASTRESORT, event)) return true;  
+  if (ministring2two( NTRYLASTRESORT, event)) return true;
 
   // Else complete failure.
   infoPtr->errorMsg("Error in MiniStringFragmentation::fragment: "
-      "no 1- or 2-body state found above mass threshold"); 
+      "no 1- or 2-body state found above mass threshold");
   return false;
 
 }
@@ -119,22 +119,22 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
       flav2.anti(flav1);
     } while (flav1.id == 0 || flav1.nPop > 0);
    
-    // Create a new q qbar flavour to form two hadrons. 
+    // Create a new q qbar flavour to form two hadrons.
     // Start from a diquark, if any.
     do {
       FlavContainer flav3 =
-        (flav1.isDiquark() || (!flav2.isDiquark() && rndmPtr->flat() < 0.5) )  
+        (flav1.isDiquark() || (!flav2.isDiquark() && rndmPtr->flat() < 0.5) )
         ? flavSelPtr->pick( flav1) : flavSelPtr->pick( flav2).anti();
       idHad1 = flavSelPtr->combine( flav1, flav3);
-      idHad2 = flavSelPtr->combine( flav2, flav3.anti()); 
+      idHad2 = flavSelPtr->combine( flav2, flav3.anti());
     } while (idHad1 == 0 || idHad2 == 0);
 
-    // Check whether the mass sum fits inside the available phase space.  
+    // Check whether the mass sum fits inside the available phase space.
     mHad1 = particleDataPtr->mSel(idHad1);
     mHad2 = particleDataPtr->mSel(idHad2);
     mHadSum = mHad1 + mHad2;
     if (mHadSum < mSum) break;
-  } 
+  }
   if (mHadSum >= mSum) return false;
 
   // Define an effective two-parton string, by splitting intermediate
@@ -144,7 +144,7 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
   if (iParton.size() > 2) {
     Vec4 pEnd1 = pSum1;
     Vec4 pEnd2 = pSum2;
-    Vec4 pEndSum = pEnd1 + pEnd2; 
+    Vec4 pEndSum = pEnd1 + pEnd2;
     for (int i = 1; i < int(iParton.size()) - 1 ; ++i) {
       Vec4 pNow = event[ iParton[i] ].p();
       double ratio = (pEnd2 * pNow) / (pEndSum * pNow);
@@ -157,28 +157,28 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
   StringRegion region;
   region.setUp( pSum1, pSum2);
 
-  // Generate an isotropic decay in the ministring rest frame, 
+  // Generate an isotropic decay in the ministring rest frame,
   // suppressed at large pT by a fragmentation pT Gaussian.
   double pAbs2 = 0.25 * ( pow2(m2Sum - mHad1*mHad1 - mHad2*mHad2)
-    - pow2(2. * mHad1 * mHad2) ) / m2Sum; 
+    - pow2(2. * mHad1 * mHad2) ) / m2Sum;
   double pT2 = 0.;
   do {
     double cosTheta = rndmPtr->flat();
     pT2 = (1. - pow2(cosTheta)) * pAbs2;
-  } while (pTSelPtr->suppressPT2(pT2) < rndmPtr->flat() ); 
+  } while (pTSelPtr->suppressPT2(pT2) < rndmPtr->flat() );
 
   // Construct the forward-backward asymmetry of the two particles.
   double mT21 = mHad1*mHad1 + pT2;
   double mT22 = mHad2*mHad2 + pT2;
   double lambda = sqrtpos( pow2(m2Sum  - mT21 - mT22) - 4. * mT21 * mT22 );
-  double probReverse = 1. / (1. + exp( min( 50., bLund * lambda) ) ); 
+  double probReverse = 1. / (1. + exp( min( 50., bLund * lambda) ) );
 
-  // Construct kinematics, as viewed in the transverse rest frame. 
+  // Construct kinematics, as viewed in the transverse rest frame.
   double xpz1 = 0.5 * lambda/ m2Sum;
-  if (probReverse > rndmPtr->flat()) xpz1 = -xpz1; 
+  if (probReverse > rndmPtr->flat()) xpz1 = -xpz1;
   double xmDiff = (mT21 - mT22) / m2Sum;
   double xe1 = 0.5 * (1. + xmDiff);
-  double xe2 = 0.5 * (1. - xmDiff ); 
+  double xe2 = 0.5 * (1. - xmDiff );
 
   // Distribute pT isotropically in angle.
   double phi = 2. * M_PI * rndmPtr->flat();
@@ -191,9 +191,9 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
   Vec4 pHad2 = region.pHad( xe2 - xpz1, xe2 + xpz1, -px, -py);
 
   // Add produced particles to the event record.
-  int iFirst = event.append( idHad1, 82, iParton.front(), iParton.back(), 
+  int iFirst = event.append( idHad1, 82, iParton.front(), iParton.back(),
     0, 0, 0, 0, pHad1, mHad1);
-  int iLast = event.append( idHad2, 82, iParton.front(), iParton.back(), 
+  int iLast = event.append( idHad2, 82, iParton.front(), iParton.back(),
     0, 0, 0, 0, pHad2, mHad2);
 
   // Set decay vertex when this is displaced.
@@ -211,7 +211,7 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
   for (int i = 0; i < int(iParton.size()); ++i) {
     event[ iParton[i] ].statusNeg();
     event[ iParton[i] ].daughters(iFirst, iLast);
-  }    
+  }
 
   // Successfully done.
   return true;
@@ -226,15 +226,15 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
 // Try more sophisticated alternatives later?? (Z0 mass shifted??)
 // Also, if problems, attempt several times to obtain closer mass match??
   
-bool MiniStringFragmentation::ministring2one( int iSub, 
+bool MiniStringFragmentation::ministring2one( int iSub,
   ColConfig& colConfig, Event& event) {
 
-  // Cannot handle qq + qbarqbar system. 
+  // Cannot handle qq + qbarqbar system.
   if (abs(flav1.id) > 100 && abs(flav2.id) > 100) return false;
 
   // For closed gluon loop need to pick an initial flavour.
   if (isClosed) do {
-    int idStart = flavSelPtr->pickLightQ(); 
+    int idStart = flavSelPtr->pickLightQ();
     FlavContainer flavStart(idStart, 1);
     flav1 = flavSelPtr->pick( flavStart);
     flav2 = flav1.anti();
@@ -245,28 +245,28 @@ bool MiniStringFragmentation::ministring2one( int iSub,
   for (int iTryFlav = 0; iTryFlav < NTRYFLAV; ++iTryFlav) {
     idHad = flavSelPtr->combine( flav1, flav2);
     if (idHad != 0) break;
-  } 
+  }
   if (idHad == 0) return false;
 
-  // Find mass.  
+  // Find mass.
   double mHad = particleDataPtr->mSel(idHad);
   
-  // Find the untreated parton system which combines to the largest 
-  // squared mass above mimimum required. 
+  // Find the untreated parton system which combines to the largest
+  // squared mass above mimimum required.
   int iMax = -1;
-  double deltaM2 = mHad*mHad - mSum*mSum; 
+  double deltaM2 = mHad*mHad - mSum*mSum;
   double delta2Max = 0.;
   for (int iRec = iSub + 1; iRec < colConfig.size(); ++iRec) {
-    double delta2Rec = 2. * (pSum * colConfig[iRec].pSum) - deltaM2 
-      - 2. * mHad * colConfig[iRec].mass; 
+    double delta2Rec = 2. * (pSum * colConfig[iRec].pSum) - deltaM2
+      - 2. * mHad * colConfig[iRec].mass;
     if (delta2Rec > delta2Max) { iMax = iRec; delta2Max = delta2Rec;}
   }
-  if (iMax == -1) return false;  
+  if (iMax == -1) return false;
 
-  // Construct kinematics of the hadron and recoiling system. 
+  // Construct kinematics of the hadron and recoiling system.
   Vec4& pRec     = colConfig[iMax].pSum;
   double mRec    = colConfig[iMax].mass;
-  double vecProd = pSum * pRec; 
+  double vecProd = pSum * pRec;
   double coefOld = mSum*mSum + vecProd;
   double coefNew = mHad*mHad + vecProd;
   double coefRec = mRec*mRec + vecProd;
@@ -280,7 +280,7 @@ bool MiniStringFragmentation::ministring2one( int iSub,
   Vec4 pRecNew   = (1. + k2) * pRec - k1 * pSum;
   
   // Add the produced particle to the event record.
-  int iHad = event.append( idHad, 81, iParton.front(), iParton.back(), 
+  int iHad = event.append( idHad, 81, iParton.front(), iParton.back(),
     0, 0, 0, 0, pHad, mHad);
 
   // Set decay vertex when this is displaced.
@@ -296,11 +296,11 @@ bool MiniStringFragmentation::ministring2one( int iSub,
   for (int i = 0; i < int(iParton.size()); ++i) {
     event[ iParton[i] ].statusNeg();
     event[ iParton[i] ].daughters(iHad, iHad);
-  }    
+  }
    
   // Copy down recoiling system, with boosted momentum. Update current partons.
   RotBstMatrix M;
-  M.bst(pRec, pRecNew); 
+  M.bst(pRec, pRecNew);
   for (int i = 0; i < colConfig[iMax].size(); ++i) {
     int iOld = colConfig[iMax].iParton[i];
     // Do not touch negative iOld = beginning of new junction leg.

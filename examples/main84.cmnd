@@ -1,9 +1,9 @@
 ! main84.cmnd.
-! This file contains commands to be read in for a Pythia8 run. 
+! This file contains commands to be read in for a Pythia8 run.
 ! Lines not beginning with a letter or digit are comments.
 
 // specify statistics parameters
-Main:numberOfEvents		   = 100  // number of events generated
+Main:numberOfEvents      = 100  // number of events generated
 
 // specify shower options
 SpaceShower:MEafterFirst = off

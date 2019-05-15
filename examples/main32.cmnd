@@ -1,7 +1,7 @@
 ! 1) Settings used in the main program.
 Main:numberOfEvents   = -1         ! number of events to generate (-1 for all)
 Main:timesAllowErrors = 3          ! how many aborts before run stops
-Main:spareMode1 = 0                ! skip n events at beginning of file 
+Main:spareMode1 = 0                ! skip n events at beginning of file
 
 ! 2) Settings related to output in init(), next() and stat().
 Init:showChangedSettings = on      ! list changed settings
@@ -14,7 +14,7 @@ Next:numberShowEvent   = 1         ! print event record n times
 ! 3) Enable matching
 JetMatching:merge = on
 
-! Madgraph run: 
+! Madgraph run:
 Beams:LHEF = w+_production_lhc_2.lhe
 Beams:frameType = 4
 JetMatching:scheme = 1

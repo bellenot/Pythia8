@@ -1,10 +1,10 @@
 // PartonDistributions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Function definitions (not found in the header) for the PDF, LHAPDF, 
-// GRV94L, CTEQ5L,  MSTWpdf, CTEQ6pdf, GRVpiL, PomFix, PomH1FitAB, 
+// Function definitions (not found in the header) for the PDF, LHAPDF,
+// GRV94L, CTEQ5L,  MSTWpdf, CTEQ6pdf, GRVpiL, PomFix, PomH1FitAB,
 // PomH1Jets, Lepton and NNPDF classes.
 
 #include "Pythia8/PartonDistributions.h"
@@ -24,17 +24,17 @@ void PDF::setValenceContent() {
 
   // Subdivide meson by flavour content.
   if (idBeamAbs < 100 || idBeamAbs > 1000) return;
-  int idTmp1 = idBeamAbs/100;    
+  int idTmp1 = idBeamAbs/100;
   int idTmp2 = (idBeamAbs/10)%10;
 
   // Find which is quark and which antiquark.
-  if (idTmp1%2 == 0) { 
-    idVal1 =  idTmp1; 
+  if (idTmp1%2 == 0) {
+    idVal1 =  idTmp1;
     idVal2 = -idTmp2;
   } else {
-    idVal1 =  idTmp2; 
+    idVal1 =  idTmp2;
     idVal2 = -idTmp1;
-  }      
+  }
   if (idBeam < 0) {
     idVal1 = -idVal1;
     idVal2 = -idVal2;
@@ -51,19 +51,19 @@ void PDF::setValenceContent() {
 
 // Standard parton densities.
 
-double PDF::xf(int id, double x, double Q2) { 
+double PDF::xf(int id, double x, double Q2) {
 
   // Need to update if flavour, x or Q2 changed.
   // Use idSav = 9 to indicate that ALL flavours are up-to-date.
   // Assume that flavour and antiflavour always updated simultaneously.
-  if ( (abs(idSav) != abs(id) && idSav != 9) || x != xSav || Q2 != Q2Sav) 
+  if ( (abs(idSav) != abs(id) && idSav != 9) || x != xSav || Q2 != Q2Sav)
     {idSav = id; xfUpdate(id, x, Q2); xSav = x; Q2Sav = Q2;}
 
   // Baryon and nondiagonal meson beams: only p, pbar, pi+, pi- for now.
-  if (idBeamAbs == 2212 || idBeamAbs == 211) { 
+  if (idBeamAbs == 2212 || idBeamAbs == 211) {
     int idNow = (idBeam > 0) ? id : -id;
     int idAbs = abs(id);
-    if (idNow ==  0 || idAbs == 21) return max(0., xg);  
+    if (idNow ==  0 || idAbs == 21) return max(0., xg);
     if (idNow ==  1) return max(0., xd);
     if (idNow == -1) return max(0., xdbar);
     if (idNow ==  2) return max(0., xu);
@@ -76,10 +76,10 @@ double PDF::xf(int id, double x, double Q2) {
     return 0.;
 
   // Baryon beams: n and nbar by isospin conjugation of p and pbar.
-  } else if (idBeamAbs == 2112) { 
+  } else if (idBeamAbs == 2112) {
     int idNow = (idBeam > 0) ? id : -id;
     int idAbs = abs(id);
-    if (idNow ==  0 || idAbs == 21) return max(0., xg);  
+    if (idNow ==  0 || idAbs == 21) return max(0., xg);
     if (idNow ==  1) return max(0., xu);
     if (idNow == -1) return max(0., xubar);
     if (idNow ==  2) return max(0., xd);
@@ -92,9 +92,9 @@ double PDF::xf(int id, double x, double Q2) {
     return 0.;
 
   // Diagonal meson beams: only pi0, Pomeron for now.
-  } else if (idBeam == 111 || idBeam == 990) { 
+  } else if (idBeam == 111 || idBeam == 990) {
     int idAbs = abs(id);
-    if (id ==  0 || idAbs == 21) return max(0., xg); 
+    if (id ==  0 || idAbs == 21) return max(0., xg);
     if (id == idVal1 || id == idVal2) return max(0., xu);
     if (idAbs <=  2) return max(0., xubar);
     if (idAbs ==  3) return max(0., xs);
@@ -117,21 +117,21 @@ double PDF::xf(int id, double x, double Q2) {
 
 // Only valence part of parton densities.
 
-double PDF::xfVal(int id, double x, double Q2) { 
+double PDF::xfVal(int id, double x, double Q2) {
 
   // Need to update if flavour, x or Q2 changed.
   // Use idSav = 9 to indicate that ALL flavours are up-to-date.
   // Assume that flavour and antiflavour always updated simultaneously.
-  if ( (abs(idSav) != abs(id) && idSav != 9) || x != xSav || Q2 != Q2Sav) 
+  if ( (abs(idSav) != abs(id) && idSav != 9) || x != xSav || Q2 != Q2Sav)
     {idSav = id; xfUpdate(id, x, Q2); xSav = x; Q2Sav = Q2;}
 
   // Baryon and nondiagonal meson beams: only p, pbar, n, nbar, pi+, pi-.
-  if (idBeamAbs == 2212) { 
+  if (idBeamAbs == 2212) {
     int idNow = (idBeam > 0) ? id : -id;
     if (idNow == 1) return max(0., xdVal);
     if (idNow == 2) return max(0., xuVal);
     return 0.;
-  } else if (idBeamAbs == 2112) { 
+  } else if (idBeamAbs == 2112) {
     int idNow = (idBeam > 0) ? id : -id;
     if (idNow == 1) return max(0., xuVal);
     if (idNow == 2) return max(0., xdVal);
@@ -158,31 +158,31 @@ double PDF::xfVal(int id, double x, double Q2) {
 
 // Only sea part of parton densities.
 
-double PDF::xfSea(int id, double x, double Q2) { 
+double PDF::xfSea(int id, double x, double Q2) {
 
   // Need to update if flavour, x or Q2 changed.
   // Use idSav = 9 to indicate that ALL flavours are up-to-date.
   // Assume that flavour and antiflavour always updated simultaneously.
-  if ( (abs(idSav) != abs(id) && idSav != 9) || x != xSav || Q2 != Q2Sav) 
+  if ( (abs(idSav) != abs(id) && idSav != 9) || x != xSav || Q2 != Q2Sav)
     {idSav = id; xfUpdate(id, x, Q2); xSav = x; Q2Sav = Q2;}
 
   // Hadron beams.
-  if (idBeamAbs > 100) { 
+  if (idBeamAbs > 100) {
     int idNow = (idBeam > 0) ? id : -id;
     int idAbs = abs(id);
-    if (idNow == 0 || idAbs == 21) return max(0., xg); 
-    if (idBeamAbs == 2212) { 
+    if (idNow == 0 || idAbs == 21) return max(0., xg);
+    if (idBeamAbs == 2212) {
       if (idNow ==  1) return max(0., xdSea);
       if (idNow == -1) return max(0., xdbar);
       if (idNow ==  2) return max(0., xuSea);
       if (idNow == -2) return max(0., xubar);
-    } else if (idBeamAbs == 2112) { 
+    } else if (idBeamAbs == 2112) {
       if (idNow ==  1) return max(0., xuSea);
       if (idNow == -1) return max(0., xubar);
       if (idNow ==  2) return max(0., xdSea);
       if (idNow == -2) return max(0., xdbar);
     } else {
-      if (idAbs <=  2) return max(0., xuSea);       
+      if (idAbs <=  2) return max(0., xuSea);
     }
     if (idNow ==  3) return max(0., xs);
     if (idNow == -3) return max(0., xsbar);
@@ -244,31 +244,35 @@ void LHAPDF::init(string setName, int member, Info* infoPtr) {
   
   // Determine whether the pdf set contains the photon or not.
   // So far only MRST2004QED and  NNPDF2.3QED.
-  if ( setName == "MRST2004qed.LHgrid" 
-    || setName == "NNPDF23_lo_as_0130_qed.LHgrid"  
-    || setName == "NNPDF23_lo_as_0119_qed.LHgrid"  
-    || setName == "NNPDF23_nlo_as_0119_qed.LHgrid" 
-    || setName == "NNPDF23_nnlo_as_0119_qed.LHgrid" ) hasPhoton = true;
-  else                                 hasPhoton = false;
+  if ( setName == "MRST2004qed.LHgrid"
+    || setName == "NNPDF23_lo_as_0130_qed.LHgrid"
+    || setName == "NNPDF23_lo_as_0130_qed_mem0.LHgrid"
+    || setName == "NNPDF23_lo_as_0119_qed_mem0.LHgrid"
+    || setName == "NNPDF23_lo_as_0130_qed_mem0.LHgrid"
+    || setName == "NNPDF23_nlo_as_0119_qed_mc.LHgrid"
+    || setName == "NNPDF23_nlo_as_0119_qed_mc_mem0.LHgrid"
+    || setName == "NNPDF23_nnlo_as_0119_qed_mc.LHgrid"
+    || setName == "NNPDF23_nnlo_as_0119_qed_mc_mem0.LHgrid" ) hasPhoton = true;
+  else hasPhoton = false;
   
   // If already initialized then need not do anything further.
   pair<string, int> initializedNameMember = initializedSets[nSet];
   string initializedSetName   = initializedNameMember.first;
-  int    initializedMember    = initializedNameMember.second;  
+  int    initializedMember    = initializedNameMember.second;
   if (setName == initializedSetName && member == initializedMember) return;
 
-  // Initialize set. If first character is '/' then assume that name 
+  // Initialize set. If first character is '/' then assume that name
   // is given with path, else not.
   if (setName[0] == '/') LHAPDFInterface::initPDFsetM( nSet, setName);
   else LHAPDFInterface::initPDFsetByNameM( nSet, setName);
 
   // Check that not dummy library was linked and put nSet negative.
-  isSet = (nSet >= 0); 
+  isSet = (nSet >= 0);
   if (!isSet) {
     if (infoPtr != 0) infoPtr->errorMsg("Error from LHAPDF::init: "
-      "you try to use LHAPDF but did not link it");  
+      "you try to use LHAPDF but did not link it");
     else cout << " Error from LHAPDF::init: you try to use LHAPDF "
-      << "but did not link it" << endl;  
+      << "but did not link it" << endl;
   }
 
   // Initialize member.
@@ -305,7 +309,7 @@ void LHAPDF::xfUpdate(int , double x, double Q2) {
   // Use special call if photon included in proton.
   if (hasPhoton) {
     LHAPDFInterface::evolvePDFPHOTONM( nSet, x, Q, xfArray, xPhoton);
-  } 
+  }
   // Else use default LHAPDF call.
   else {
     LHAPDFInterface::evolvePDFM( nSet, x, Q, xfArray);
@@ -314,24 +318,24 @@ void LHAPDF::xfUpdate(int , double x, double Q2) {
 
   // Update values.
   xg     = xfArray[6];
-  xu     = xfArray[8]; 
-  xd     = xfArray[7]; 
-  xs     = xfArray[9]; 
-  xubar  = xfArray[4]; 
-  xdbar  = xfArray[5]; 
-  xsbar  = xfArray[3]; 
-  xc     = xfArray[10]; 
+  xu     = xfArray[8];
+  xd     = xfArray[7];
+  xs     = xfArray[9];
+  xubar  = xfArray[4];
+  xdbar  = xfArray[5];
+  xsbar  = xfArray[3];
+  xc     = xfArray[10];
   xb     = xfArray[11];
   xgamma = xPhoton;
 
   // Subdivision of valence and sea.
-  xuVal  = xu - xubar; 
-  xuSea  = xubar; 
-  xdVal  = xd - xdbar; 
+  xuVal  = xu - xubar;
+  xuSea  = xubar;
+  xdVal  = xd - xdbar;
   xdSea  = xdbar;
 
-  // idSav = 9 to indicate that all flavours reset. 
-  idSav = 9; 
+  // idSav = 9 to indicate that all flavours reset.
+  idSav = 9;
 
 }
  
@@ -448,8 +452,8 @@ void GRV94L::xfUpdate(int , double x, double Q2) {
   // Update values
   xg    = gl;
   xu    = uv + 0.5*(udb - del);
-  xd    = dv + 0.5*(udb + del); 
-  xubar = 0.5*(udb - del); 
+  xd    = dv + 0.5*(udb + del);
+  xubar = 0.5*(udb - del);
   xdbar = 0.5*(udb + del);
   xs    = sb;
   xsbar = sb;
@@ -462,25 +466,25 @@ void GRV94L::xfUpdate(int , double x, double Q2) {
   xdVal = dv;
   xdSea = xdbar;
 
-  // idSav = 9 to indicate that all flavours reset. 
+  // idSav = 9 to indicate that all flavours reset.
   idSav = 9;
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
-double GRV94L::grvv (double x, double n, double ak, double bk, double a, 
+double GRV94L::grvv (double x, double n, double ak, double bk, double a,
    double b, double c, double d) {
 
   double dx = sqrt(x);
   return n * pow(x, ak) * (1. + a * pow(x, bk) + x * (b + c * dx)) *
     pow(1. - x, d);
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
-double GRV94L::grvw (double x, double s, double al, double be, double ak, 
+double GRV94L::grvw (double x, double s, double al, double be, double ak,
   double bk, double a, double b, double c, double d, double e, double es) {
  
   double lx = log(1./x);
@@ -491,7 +495,7 @@ double GRV94L::grvw (double x, double s, double al, double be, double ak,
 
 //--------------------------------------------------------------------------
   
-double GRV94L::grvs (double x, double s, double sth, double al, double be, 
+double GRV94L::grvs (double x, double s, double sth, double al, double be,
   double ak, double ag, double b, double d, double e, double es) {
  
   if(s <= sth) {
@@ -512,21 +516,21 @@ double GRV94L::grvs (double x, double s, double sth, double al, double be,
 // Ref: CTEQ Collaboration, H.L. Lai et al., Eur.Phys.J. C12 (2000) 375.
 
 // The range of (x, Q) covered by this parametrization of the QCD
-// evolved parton distributions is 1E-6 < x < 1, 1.1 GeV < Q < 10 TeV. 
+// evolved parton distributions is 1E-6 < x < 1, 1.1 GeV < Q < 10 TeV.
 // In the current implementation, densities are frozen at borders.
 
 void CTEQ5L::xfUpdate(int , double x, double Q2) {
 
   // Constrain x and Q2 to range for which parametrization is valid.
   double Q = sqrt( max( 1., min( 1e8, Q2) ) );
-  x = max( 1e-6, min( 1.-1e-10, x) ); 
+  x = max( 1e-6, min( 1.-1e-10, x) );
 
   // Derived kinematical quantities.
   double y = - log(x);
   double u = log( x / 0.00001);
   double x1 = 1. - x;
   double x1L = log(1. - x);
-  double sumUbarDbar = 0.; 
+  double sumUbarDbar = 0.;
 
   // Parameters of parametrizations.
   const double Qmin[8] = { 0., 0., 0., 0., 0., 0., 1.3, 4.5};
@@ -536,7 +540,7 @@ void CTEQ5L::xfUpdate(int , double x, double Q2) {
     0.1895615, 3.753257, 4.400772, 5.562568 };
   const double ut2[8] = { -1.105128, -1.258304e5, -274.2390, -1.265969,
     -3.069097, -1.113085, -1.356116, -1.801317 };
-  const double am[8][9][3] = { 
+  const double am[8][9][3] = {
     // d.
     { {  0.5292616E+01, -0.2751910E+01, -0.2488990E+01 },
       {  0.9714424E+00,  0.1011827E-01, -0.1023660E-01 },
@@ -590,7 +594,7 @@ void CTEQ5L::xfUpdate(int , double x, double Q2) {
     // sbar.
     { {  0.1580931E+01, -0.2273826E+01, -0.1822245E+01 },
       {  0.2702644E+01,  0.6763243E+00,  0.7231586E-02 },
-      { -0.1857924E+02,  0.3907500E+01,  0.5850109E+01 }, 
+      { -0.1857924E+02,  0.3907500E+01,  0.5850109E+01 },
       { -0.3044793E+02,  0.2639332E+01,  0.5566644E+01 },
       { -0.4258011E+01, -0.5429244E+01,  0.4418946E+00 },
       {  0.3465259E+02, -0.5532604E+01, -0.4904153E+01 },
@@ -624,23 +628,23 @@ void CTEQ5L::xfUpdate(int , double x, double Q2) {
     if (Q > max(Qmin[i], alpha[i])) {
 
       // Evaluate answer.
-      double tmp = log(Q / alpha[i]);  
-      double sb = log(tmp);   
+      double tmp = log(Q / alpha[i]);
+      double sb = log(tmp);
       double sb1 = sb - 1.2;
-      double sb2 = sb1*sb1; 
+      double sb2 = sb1*sb1;
       double af[9];
-      for (int j = 0; j < 9; ++j) 
-        af[j] = am[i][j][0] + sb1 * am[i][j][1] + sb2 * am[i][j][2]; 
+      for (int j = 0; j < 9; ++j)
+        af[j] = am[i][j][0] + sb1 * am[i][j][1] + sb2 * am[i][j][2];
       double part1 = af[1] * pow( y, 1. + 0.01 * af[4]) * (1. + af[8] * u);
       double part2 = af[0] * x1 + af[3] * x;
       double part3 = x * x1 * (af[5] + af[6] * x1 + af[7] * x * x1);
       double part4 = (ut2[i] < -100.) ? ut1[i] * x1L + af[2] * x1L
                    : ut1[i] * x1L + af[2] * log(x1 + exp(ut2[i]));
-      answer       = x * exp( part1 + part2 + part3 + part4);   
+      answer       = x * exp( part1 + part2 + part3 + part4);
       answer      *= 1. - Qmin[i] / Q;
     }
 
-    // Store results. 
+    // Store results.
     if (i == 0) xd = x * answer;
     else if (i == 1) xu = x * answer;
     else if (i == 2) xg = x * answer;
@@ -675,7 +679,7 @@ void CTEQ5L::xfUpdate(int , double x, double Q2) {
 // Constants: could be changed here if desired, but normally should not.
 // These are of technical nature, as described for each.
 
-// Number of parton flavours, x and Q2 grid points, 
+// Number of parton flavours, x and Q2 grid points,
 // bins below c and b thresholds.
 const int    MSTWpdf::np     = 12;
 const int    MSTWpdf::nx     = 64;
@@ -684,25 +688,25 @@ const int    MSTWpdf::nqc0   = 4;
 const int    MSTWpdf::nqb0   = 14;
   
 // Range of (x, Q2) grid.
-const double MSTWpdf::xmin   = 1e-6; 
-const double MSTWpdf::xmax   = 1.0;  
-const double MSTWpdf::qsqmin = 1.0; 
-const double MSTWpdf::qsqmax = 1e9; 
+const double MSTWpdf::xmin   = 1e-6;
+const double MSTWpdf::xmax   = 1.0;
+const double MSTWpdf::qsqmin = 1.0;
+const double MSTWpdf::qsqmax = 1e9;
 
 // Array of x values.
-const double MSTWpdf::xxInit[65] = {0., 1e-6, 2e-6, 4e-6, 6e-6, 8e-6, 
+const double MSTWpdf::xxInit[65] = {0., 1e-6, 2e-6, 4e-6, 6e-6, 8e-6,
   1e-5, 2e-5, 4e-5, 6e-5, 8e-5, 1e-4, 2e-4, 4e-4, 6e-4, 8e-4,
   1e-3, 2e-3, 4e-3, 6e-3, 8e-3, 1e-2, 1.4e-2, 2e-2, 3e-2, 4e-2, 6e-2,
   8e-2, 0.10, 0.125, 0.15, 0.175, 0.20, 0.225, 0.25, 0.275, 0.30,
-  0.325, 0.35, 0.375, 0.40, 0.425, 0.45, 0.475, 0.50, 0.525, 0.55, 
-  0.575, 0.60, 0.625, 0.65, 0.675, 0.70, 0.725, 0.75, 0.775, 0.80, 
+  0.325, 0.35, 0.375, 0.40, 0.425, 0.45, 0.475, 0.50, 0.525, 0.55,
+  0.575, 0.60, 0.625, 0.65, 0.675, 0.70, 0.725, 0.75, 0.775, 0.80,
   0.825, 0.85, 0.875, 0.90, 0.925, 0.95, 0.975, 1.0 };
 
 // Array of Q values.
 const double MSTWpdf::qqInit[49] = {0., 1.0, 1.25, 1.5, 0., 0., 2.5, 3.2,
   4.0, 5.0, 6.4, 8.0, 10., 12., 0., 0., 26.0, 40.0, 64.0, 1e2, 1.6e2,
-  2.4e2, 4e2, 6.4e2, 1e3, 1.8e3, 3.2e3, 5.6e3, 1e4, 1.8e4, 3.2e4, 5.6e4, 
-  1e5, 1.8e5, 3.2e5, 5.6e5, 1e6, 1.8e6, 3.2e6, 5.6e6, 1e7, 1.8e7, 3.2e7, 
+  2.4e2, 4e2, 6.4e2, 1e3, 1.8e3, 3.2e3, 5.6e3, 1e4, 1.8e4, 3.2e4, 5.6e4,
+  1e5, 1.8e5, 3.2e5, 5.6e5, 1e6, 1.8e6, 3.2e6, 5.6e6, 1e7, 1.8e7, 3.2e7,
   5.6e7, 1e8, 1.8e8, 3.2e8, 5.6e8, 1e9 };
 
 //--------------------------------------------------------------------------
@@ -713,7 +717,7 @@ void MSTWpdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
 
   // Choice of fit among possibilities. Counters and temporary variables.
   iFit = iFitIn;
-  int i,n,m,k,l,j; 
+  int i,n,m,k,l,j;
   double dtemp;
 
   // Variables used for initialising c_ij array:
@@ -723,27 +727,27 @@ void MSTWpdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
   double f12[np+1][nx+1][nq+1];// cross derivative
   double f21[np+1][nx+1][nq+1];// cross derivative
   int wt[16][16]={{1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		  {0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0},
-		  {-3,0,0,3,0,0,0,0,-2,0,0,-1,0,0,0,0},
-		  {2,0,0,-2,0,0,0,0,1,0,0,1,0,0,0,0},
-		  {0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0},
-		  {0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0},
-		  {0,0,0,0,-3,0,0,3,0,0,0,0,-2,0,0,-1},
-		  {0,0,0,0,2,0,0,-2,0,0,0,0,1,0,0,1},
-		  {-3,3,0,0,-2,-1,0,0,0,0,0,0,0,0,0,0},
-		  {0,0,0,0,0,0,0,0,-3,3,0,0,-2,-1,0,0},
-		  {9,-9,9,-9,6,3,-3,-6,6,-6,-3,3,4,2,1,2},
-		  {-6,6,-6,6,-4,-2,2,4,-3,3,3,-3,-2,-1,-1,-2},
-		  {2,-2,0,0,1,1,0,0,0,0,0,0,0,0,0,0},
-		  {0,0,0,0,0,0,0,0,2,-2,0,0,1,1,0,0},
-		  {-6,6,-6,6,-3,-3,3,3,-4,4,2,-2,-2,-2,-1,-1},
-		  {4,-4,4,-4,2,2,-2,-2,2,-2,-2,2,1,1,1,1}};
+                  {0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0},
+                  {-3,0,0,3,0,0,0,0,-2,0,0,-1,0,0,0,0},
+                  {2,0,0,-2,0,0,0,0,1,0,0,1,0,0,0,0},
+                  {0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0},
+                  {0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0},
+                  {0,0,0,0,-3,0,0,3,0,0,0,0,-2,0,0,-1},
+                  {0,0,0,0,2,0,0,-2,0,0,0,0,1,0,0,1},
+                  {-3,3,0,0,-2,-1,0,0,0,0,0,0,0,0,0,0},
+                  {0,0,0,0,0,0,0,0,-3,3,0,0,-2,-1,0,0},
+                  {9,-9,9,-9,6,3,-3,-6,6,-6,-3,3,4,2,1,2},
+                  {-6,6,-6,6,-4,-2,2,4,-3,3,3,-3,-2,-1,-1,-2},
+                  {2,-2,0,0,1,1,0,0,0,0,0,0,0,0,0,0},
+                  {0,0,0,0,0,0,0,0,2,-2,0,0,1,1,0,0},
+                  {-6,6,-6,6,-3,-3,3,3,-4,4,2,-2,-2,-2,-1,-1},
+                  {4,-4,4,-4,2,2,-2,-2,2,-2,-2,2,1,1,1,1}};
   double xxd,d1d2,cl[16],x[16],d1,d2,y[5],y1[5],y2[5],y12[5];
   double mc2,mb2,eps=1e-6; // q^2 grid points at mc2+eps, mb2+eps
   
-    // Select which data file to read for current fit.  
+    // Select which data file to read for current fit.
   if (xmlPath[ xmlPath.length() - 1 ] != '/') xmlPath += "/";
-  string fileName = "  "; 
+  string fileName = "  ";
   if (iFit == 1) fileName = "mrstlostar.00.dat";
   if (iFit == 2) fileName = "mrstlostarstar.00.dat";
   if (iFit == 3) fileName = "mstw2008lo.00.dat";
@@ -753,9 +757,9 @@ void MSTWpdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
   ifstream data_file( (xmlPath + fileName).c_str() );
   if (!data_file.good()) {
     if (infoPtr != 0) infoPtr->errorMsg("Error from MSTWpdf::init: "
-      "did not find parametrization file ", fileName);  
+      "did not find parametrization file ", fileName);
     else cout << " Error from MSTWpdf::init: "
-      << "did not find parametrization file " << fileName << endl;  
+      << "did not find parametrization file " << fileName << endl;
     isSet = false;
     return;
   }
@@ -789,15 +793,15 @@ void MSTWpdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
   // Check that the heavy quark masses are sensible.
   if (mc2 < qq[3] || mc2 > qq[6]) {
     if (infoPtr != 0) infoPtr->errorMsg("Error from MSTWpdf::init: "
-      "invalid mCharm");  
-    else cout << " Error from MSTWpdf::init: invalid mCharm" << endl;  
+      "invalid mCharm");
+    else cout << " Error from MSTWpdf::init: invalid mCharm" << endl;
     isSet = false;
     return;
   }
   if (mb2 < qq[13] || mb2 > qq[16]) {
     if (infoPtr != 0) infoPtr->errorMsg("Error from MSTWpdf::init: "
-      "invalid mBottom");  
-    else cout << " Error from MSTWpdf::init: invalid mBottom" << endl;  
+      "invalid mBottom");
+    else cout << " Error from MSTWpdf::init: invalid mBottom" << endl;
     isSet = false;
     return;
   }
@@ -807,34 +811,34 @@ void MSTWpdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
   // might be provided (cf. the MRST2004QED PDFs).
   if (nExtraFlavours < 0 || nExtraFlavours > 1) {
     if (infoPtr != 0) infoPtr->errorMsg("Error from MSTWpdf::init: "
-      "invalid nExtraFlavours");  
-    else cout << " Error from MSTWpdf::init: invalid nExtraFlavours" << endl;  
+      "invalid nExtraFlavours");
+    else cout << " Error from MSTWpdf::init: invalid nExtraFlavours" << endl;
     isSet = false;
     return;
   }
 
   // Now read in the grids from the grid file.
-  for (n=1;n<=nx-1;n++) 
+  for (n=1;n<=nx-1;n++)
     for (m=1;m<=nq;m++) {
       for (i=1;i<=9;i++)
-	data_file >> f[i][n][m];
+        data_file >> f[i][n][m];
       if (alphaSorder==2) { // only at NNLO
-	data_file >> f[10][n][m]; // = chm-cbar
-	data_file >> f[11][n][m]; // = bot-bbar
+        data_file >> f[10][n][m]; // = chm-cbar
+        data_file >> f[11][n][m]; // = bot-bbar
       }
       else {
-	f[10][n][m] = 0.; // = chm-cbar
-	f[11][n][m] = 0.; // = bot-bbar
+        f[10][n][m] = 0.; // = chm-cbar
+        f[11][n][m] = 0.; // = bot-bbar
       }
       if (nExtraFlavours>0)
-	data_file >> f[12][n][m];   // = photon
+        data_file >> f[12][n][m];   // = photon
       else
-	f[12][n][m] = 0.; // photon
+        f[12][n][m] = 0.; // photon
       if (data_file.eof()) {
         if (infoPtr != 0) infoPtr->errorMsg("Error from MSTWpdf::init: "
-          "failed to read in data file");  
-        else cout << " Error from MSTWpdf::init: failed to read in data file" 
-          << endl;  
+          "failed to read in data file");
+        else cout << " Error from MSTWpdf::init: failed to read in data file"
+          << endl;
         isSet = false;
         return;
       }
@@ -844,9 +848,9 @@ void MSTWpdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
   data_file >> dtemp;
   if (!data_file.eof()) {
     if (infoPtr != 0) infoPtr->errorMsg("Error from MSTWpdf::init: "
-      "failed to read in data file");  
-    else cout << " Error from MSTWpdf::init: failed to read in data file" 
-      << endl;  
+      "failed to read in data file");
+    else cout << " Error from MSTWpdf::init: failed to read in data file"
+      << endl;
     isSet = false;
     return;
   }
@@ -875,7 +879,7 @@ void MSTWpdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
         f[i][3][m]);
       // Then along the rest (up to the last):
       for (k=2;k<nx;k++)
-	f1[i][k][m]=polderivative2(xx[k-1],xx[k],xx[k+1],f[i][k-1][m],
+        f1[i][k][m]=polderivative2(xx[k-1],xx[k],xx[k+1],f[i][k-1][m],
           f[i][k][m],f[i][k+1][m]);
       // Then for the last column:
       f1[i][nx][m]=polderivative3(xx[nx-2],xx[nx-1],xx[nx],f[i][nx-2][m],
@@ -888,20 +892,20 @@ void MSTWpdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
     // the same way as at the endpoints qsqmin and qsqmax.
     for (m=1;m<=nq;m++) {
       if (m==1 || m==nqc0+1 || m==nqb0+1) {
-	for (k=1;k<=nx;k++)
-	  f2[i][k][m]=polderivative1(qq[m],qq[m+1],qq[m+2],
-				     f[i][k][m],f[i][k][m+1],f[i][k][m+2]);
+        for (k=1;k<=nx;k++)
+          f2[i][k][m]=polderivative1(qq[m],qq[m+1],qq[m+2],
+                                     f[i][k][m],f[i][k][m+1],f[i][k][m+2]);
       }
       else if (m==nq || m==nqc0 || m==nqb0) {
-	for (k=1;k<=nx;k++)
-	  f2[i][k][m]=polderivative3(qq[m-2],qq[m-1],qq[m],
-				     f[i][k][m-2],f[i][k][m-1],f[i][k][m]);
+        for (k=1;k<=nx;k++)
+          f2[i][k][m]=polderivative3(qq[m-2],qq[m-1],qq[m],
+                                     f[i][k][m-2],f[i][k][m-1],f[i][k][m]);
       }
       else {
-	// The rest:
-	for (k=1;k<=nx;k++)
-	  f2[i][k][m]=polderivative2(qq[m-1],qq[m],qq[m+1],
-				    f[i][k][m-1],f[i][k][m],f[i][k][m+1]);
+        // The rest:
+        for (k=1;k<=nx;k++)
+          f2[i][k][m]=polderivative2(qq[m-1],qq[m],qq[m+1],
+                                    f[i][k][m-1],f[i][k][m],f[i][k][m+1]);
       }
     }
     
@@ -917,7 +921,7 @@ void MSTWpdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
     // Then along the rest (up to the last):
     for (k=2;k<nx;k++) {
       for (m=1;m<=nq;m++)
-	f12[i][k][m]=polderivative2(xx[k-1],xx[k],xx[k+1],f2[i][k-1][m],
+        f12[i][k][m]=polderivative2(xx[k-1],xx[k],xx[k+1],f2[i][k-1][m],
           f2[i][k][m],f2[i][k+1][m]);
     }
     // Then for the last column:
@@ -928,73 +932,73 @@ void MSTWpdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
     // Now calculate (d/dy)(d/dx).
     for (m=1;m<=nq;m++) {
       if (m==1 || m==nqc0+1 || m==nqb0+1) {
-	for (k=1;k<=nx;k++)
-	  f21[i][k][m]=polderivative1(qq[m],qq[m+1],qq[m+2],
-				      f1[i][k][m],f1[i][k][m+1],f1[i][k][m+2]);
+        for (k=1;k<=nx;k++)
+          f21[i][k][m]=polderivative1(qq[m],qq[m+1],qq[m+2],
+                                      f1[i][k][m],f1[i][k][m+1],f1[i][k][m+2]);
       }
       else if (m==nq || m==nqc0 || m==nqb0) {
-	for (k=1;k<=nx;k++)
-	  f21[i][k][m]=polderivative3(qq[m-2],qq[m-1],qq[m],
-				      f1[i][k][m-2],f1[i][k][m-1],f1[i][k][m]);
+        for (k=1;k<=nx;k++)
+          f21[i][k][m]=polderivative3(qq[m-2],qq[m-1],qq[m],
+                                      f1[i][k][m-2],f1[i][k][m-1],f1[i][k][m]);
       }
       else {
-	// The rest:
-	for (k=1;k<=nx;k++)
-	  f21[i][k][m]=polderivative2(qq[m-1],qq[m],qq[m+1],
-				     f1[i][k][m-1],f1[i][k][m],f1[i][k][m+1]);
+        // The rest:
+        for (k=1;k<=nx;k++)
+          f21[i][k][m]=polderivative2(qq[m-1],qq[m],qq[m+1],
+                                     f1[i][k][m-1],f1[i][k][m],f1[i][k][m+1]);
       }
     }
 
     // Now take the average of (d/dx)(d/dy) and (d/dy)(d/dx).
     for (k=1;k<=nx;k++) {
       for (m=1;m<=nq;m++) {
-	f12[i][k][m] = 0.5*(f12[i][k][m]+f21[i][k][m]);
+        f12[i][k][m] = 0.5*(f12[i][k][m]+f21[i][k][m]);
       }
     }
 
     // Now calculate the coefficients c_ij.
     for (n=1;n<=nx-1;n++) {
       for (m=1;m<=nq-1;m++) {
-	d1=xx[n+1]-xx[n];
-	d2=qq[m+1]-qq[m];
-	d1d2=d1*d2;
-	
-	y[1]=f[i][n][m];
-	y[2]=f[i][n+1][m];
-	y[3]=f[i][n+1][m+1];
-	y[4]=f[i][n][m+1];
-	
-	y1[1]=f1[i][n][m];
-	y1[2]=f1[i][n+1][m];
-	y1[3]=f1[i][n+1][m+1];
-	y1[4]=f1[i][n][m+1];
-	
-	y2[1]=f2[i][n][m];
-	y2[2]=f2[i][n+1][m];
-	y2[3]=f2[i][n+1][m+1];
-	y2[4]=f2[i][n][m+1];
-	
-	y12[1]=f12[i][n][m];
-	y12[2]=f12[i][n+1][m];
-	y12[3]=f12[i][n+1][m+1];
-	y12[4]=f12[i][n][m+1];
-	
-	for (k=1;k<=4;k++) {
-	  x[k-1]=y[k];
-	  x[k+3]=y1[k]*d1;
-	  x[k+7]=y2[k]*d2;
-	  x[k+11]=y12[k]*d1d2;
-	}
-	
-	for (l=0;l<=15;l++) {
-	  xxd=0.0;
-	  for (k=0;k<=15;k++) xxd+= wt[l][k]*x[k];
-	  cl[l]=xxd;
-	}
-	
-	l=0;
-	for (k=1;k<=4;k++) 
-	  for (j=1;j<=4;j++) c[i][n][m][k][j]=cl[l++];
+        d1=xx[n+1]-xx[n];
+        d2=qq[m+1]-qq[m];
+        d1d2=d1*d2;
+        
+        y[1]=f[i][n][m];
+        y[2]=f[i][n+1][m];
+        y[3]=f[i][n+1][m+1];
+        y[4]=f[i][n][m+1];
+        
+        y1[1]=f1[i][n][m];
+        y1[2]=f1[i][n+1][m];
+        y1[3]=f1[i][n+1][m+1];
+        y1[4]=f1[i][n][m+1];
+        
+        y2[1]=f2[i][n][m];
+        y2[2]=f2[i][n+1][m];
+        y2[3]=f2[i][n+1][m+1];
+        y2[4]=f2[i][n][m+1];
+        
+        y12[1]=f12[i][n][m];
+        y12[2]=f12[i][n+1][m];
+        y12[3]=f12[i][n+1][m+1];
+        y12[4]=f12[i][n][m+1];
+        
+        for (k=1;k<=4;k++) {
+          x[k-1]=y[k];
+          x[k+3]=y1[k]*d1;
+          x[k+7]=y2[k]*d2;
+          x[k+11]=y12[k]*d1d2;
+        }
+        
+        for (l=0;l<=15;l++) {
+          xxd=0.0;
+          for (k=0;k<=15;k++) xxd+= wt[l][k]*x[k];
+          cl[l]=xxd;
+        }
+        
+        l=0;
+        for (k=1;k<=4;k++)
+          for (j=1;j<=4;j++) c[i][n][m][k][j]=cl[l++];
       } //m
     } //n
   } // i
@@ -1008,7 +1012,7 @@ void MSTWpdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
 void MSTWpdf::xfUpdate(int , double x, double Q2) {
 
   // Update using MSTW routine.
-  double q    = sqrtpos(Q2); 
+  double q    = sqrtpos(Q2);
   // Quarks:
   double dn   = parton(1,x,q);
   double up   = parton(2,x,q);
@@ -1020,7 +1024,7 @@ void MSTWpdf::xfUpdate(int , double x, double Q2) {
   double upv  = parton(8,x,q);
   double sv   = parton(9,x,q);
   double cv   = parton(10,x,q);
-  double bv   = parton(11,x,q);  
+  double bv   = parton(11,x,q);
   // Antiquarks = quarks - valence quarks:
   double dsea = dn - dnv;
   double usea = up - upv;
@@ -1053,7 +1057,7 @@ void MSTWpdf::xfUpdate(int , double x, double Q2) {
   // idSav = 9 to indicate that all flavours reset.
   idSav  = 9;
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
@@ -1116,16 +1120,16 @@ double MSTWpdf::parton(int f,double x,double q) {
       parton_pdf = parton_extrapolate(ip,xxx,log10(qsqmin));
       parton_pdf1 = parton_extrapolate(ip,xxx,log10(1.01*qsqmin));
       if (f<=-1 && f>=-5) { // antiquark = quark - valence
-	parton_pdf -= parton_extrapolate(ip+5,xxx,log10(qsqmin));
-	parton_pdf1 -= parton_extrapolate(ip+5,xxx,log10(1.01*qsqmin));
+        parton_pdf -= parton_extrapolate(ip+5,xxx,log10(qsqmin));
+        parton_pdf1 -= parton_extrapolate(ip+5,xxx,log10(1.01*qsqmin));
       }
     }
     else { // do usual interpolation
       parton_pdf = parton_interpolate(ip,xxx,log10(qsqmin));
       parton_pdf1 = parton_interpolate(ip,xxx,log10(1.01*qsqmin));
       if (f<=-1 && f>=-5) { // antiquark = quark - valence
-	parton_pdf -= parton_interpolate(ip+5,xxx,log10(qsqmin));
-	parton_pdf1 -= parton_interpolate(ip+5,xxx,log10(1.01*qsqmin));
+        parton_pdf -= parton_interpolate(ip+5,xxx,log10(qsqmin));
+        parton_pdf1 -= parton_interpolate(ip+5,xxx,log10(1.01*qsqmin));
       }
     }
     // Calculate the anomalous dimension, dlog(xf)/dlog(qsq),
@@ -1165,7 +1169,7 @@ double MSTWpdf::parton_interpolate(int ip, double xxx, double qqq) {
   u=(qqq-qq[m])/(qq[m+1]-qq[m]);
 
   // Assume PDF proportional to (1-x)^p as x -> 1.
-  if (n==nx-1) { 
+  if (n==nx-1) {
     double g0=((c[ip][n][m][1][4]*u+c[ip][n][m][1][3])*u
     +c[ip][n][m][1][2])*u+c[ip][n][m][1][1]; // value at xx[n]
     double g1=((c[ip][n-1][m][1][4]*u+c[ip][n-1][m][1][3])*u
@@ -1177,7 +1181,7 @@ double MSTWpdf::parton_interpolate(int ip, double xxx, double qqq) {
   }
 
   // Usual interpolation.
-  else { 
+  else {
     g=0.0;
     for (l=4;l>=1;l--) {
       g=t*g+((c[ip][n][m][l][4]*u+c[ip][n][m][l][3])*u
@@ -1211,7 +1215,7 @@ double MSTWpdf::parton_extrapolate(int ip, double xxx, double qqq) {
       f1=log(f1);
       parton_pdf=exp(f0+(f1-f0)/(xx[2]-xx[1])*(xxx-xx[1]));
     } else // otherwise just extrapolate in the value
-      parton_pdf=f0+(f1-f0)/(xx[2]-xx[1])*(xxx-xx[1]); 
+      parton_pdf=f0+(f1-f0)/(xx[2]-xx[1])*(xxx-xx[1]);
     
   } if (n>0&&m==nq) { // if extrapolation into large q only
     
@@ -1235,7 +1239,7 @@ double MSTWpdf::parton_extrapolate(int ip, double xxx, double qqq) {
       f1=log(f1);
       parton_pdf=exp(f0+(f1-f0)/(xx[2]-xx[1])*(xxx-xx[1]));
     } else // otherwise just extrapolate in the value
-      parton_pdf=f0+(f1-f0)/(xx[2]-xx[1])*(xxx-xx[1]);       
+      parton_pdf=f0+(f1-f0)/(xx[2]-xx[1])*(xxx-xx[1]);
     
   }
   
@@ -1267,7 +1271,7 @@ int MSTWpdf::locate(double xloc[],int n,double x) {
 
 //--------------------------------------------------------------------------
 
-// Returns the estimate of the derivative at x1 obtained by a polynomial 
+// Returns the estimate of the derivative at x1 obtained by a polynomial
 // interpolation using the three points (x_i,y_i).
 
 double MSTWpdf::polderivative1(double x1, double x2, double x3, double y1,
@@ -1280,10 +1284,10 @@ double MSTWpdf::polderivative1(double x1, double x2, double x3, double y1,
 
 //--------------------------------------------------------------------------
 
-// Returns the estimate of the derivative at x2 obtained by a polynomial 
+// Returns the estimate of the derivative at x2 obtained by a polynomial
 // interpolation using the three points (x_i,y_i).
 
-double MSTWpdf::polderivative2(double x1, double x2, double x3, double y1, 
+double MSTWpdf::polderivative2(double x1, double x2, double x3, double y1,
   double y2, double y3) {
 
   return (x3*x3*(y1-y2)-2.0*x2*(x3*(y1-y2)+x1*(y2-y3))+x2*x2*(y1-y3)
@@ -1293,10 +1297,10 @@ double MSTWpdf::polderivative2(double x1, double x2, double x3, double y1,
 
 //--------------------------------------------------------------------------
 
-// Returns the estimate of the derivative at x3 obtained by a polynomial 
+// Returns the estimate of the derivative at x3 obtained by a polynomial
 // interpolation using the three points (x_i,y_i).
 
-double MSTWpdf::polderivative3(double x1, double x2, double x3, double y1, 
+double MSTWpdf::polderivative3(double x1, double x2, double x3, double y1,
   double y2, double y3) {
 
   return (x3*x3*(-y1+y2)+2.0*x2*x3*(y1-y3)+x1*x1*(y2-y3)+x2*x2*(-y1+y3)
@@ -1327,9 +1331,9 @@ void CTEQ6pdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
   // Choice of fit among possibilities.
   iFit = iFitIn;
   
-  // Select which data file to read for current fit.  
+  // Select which data file to read for current fit.
   if (xmlPath[ xmlPath.length() - 1 ] != '/') xmlPath += "/";
-  string fileName = "  "; 
+  string fileName = "  ";
   if (iFit == 1) fileName = "cteq6l.tbl";
   if (iFit == 2) fileName = "cteq6l1.tbl";
   if (iFit == 3) fileName = "ctq66.00.pds";
@@ -1342,14 +1346,14 @@ void CTEQ6pdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
   ifstream pdfgrid( (xmlPath + fileName).c_str() );
   if (!pdfgrid.good()) {
     if (infoPtr != 0) infoPtr->errorMsg("Error from CTEQ6pdf::init: "
-      "did not find parametrization file ", fileName);  
+      "did not find parametrization file ", fileName);
     else cout << " Error from CTEQ6pdf::init: "
-      << "did not find parametrization file " << fileName << endl;  
+      << "did not find parametrization file " << fileName << endl;
     isSet = false;
     return;
   }
 
-  // Read in common information. 
+  // Read in common information.
   int    iDum;
   double orderTmp, nQTmp, qTmp, rDum;
   string line;
@@ -1357,7 +1361,7 @@ void CTEQ6pdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
   getline( pdfgrid, line);
   getline( pdfgrid, line);
   istringstream is1(line);
-  is1 >> orderTmp >> nQTmp >> lambda >> mQ[1] >> mQ[2] >> mQ[3] 
+  is1 >> orderTmp >> nQTmp >> lambda >> mQ[1] >> mQ[2] >> mQ[3]
      >> mQ[4] >> mQ[5] >> mQ[6];
   order  = int(orderTmp + 0.5);
   nQuark = int(nQTmp + 0.5);
@@ -1367,7 +1371,7 @@ void CTEQ6pdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
   if (isPdsGrid) {
     getline( pdfgrid, line);
     istringstream is2(line);
-    is2 >> iDum >> iDum >> iDum >> nfMx >> mxVal >> iDum;   
+    is2 >> iDum >> iDum >> iDum >> nfMx >> mxVal >> iDum;
     if (mxVal > 4) mxVal = 3;
     getline( pdfgrid, line);
     getline( pdfgrid, line);
@@ -1394,7 +1398,7 @@ void CTEQ6pdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
       istringstream is7(line);
       for (int iX = nPackX * iXrng + 1; iX <= nPackX * (iXrng + 1); ++iX)
       if (iX <= nX) is7 >> xv[iX];
-    }  
+    }
   }
 
   // Read in information for the .tbl grid format.
@@ -1416,7 +1420,7 @@ void CTEQ6pdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
         is4 >> qTmp;
         tv[iT] = log( log( qTmp / lambda) );
       }
-    }  
+    }
     getline( pdfgrid, line);
     getline( pdfgrid, line);
     istringstream is5(line);
@@ -1428,13 +1432,13 @@ void CTEQ6pdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
       for (int iX = nPackX * iXrng; iX < nPackX * (iXrng + 1); ++iX)
       if (iX <= nX) is6 >> xv[iX];
     }
-  }    
+  }
 
   // Read in the grid proper.
   getline( pdfgrid, line);
   int nBlk  = (nX + 1) * (nT + 1);
-  int nPts  = nBlk * (nfMx + 1 + mxVal); 
-  int nPack = (isPdsGrid) ? 6 : 5; 
+  int nPts  = nBlk * (nfMx + 1 + mxVal);
+  int nPack = (isPdsGrid) ? 6 : 5;
   for (int iRng = 0; iRng < int( (nPts + nPack - 1) / nPack); ++iRng) {
     getline( pdfgrid, line);
     istringstream is8(line);
@@ -1444,7 +1448,7 @@ void CTEQ6pdf::init(int iFitIn, string xmlPath, Info* infoPtr) {
 
   // Initialize x grid mapped to x^0.3.
   xvpow[0] = 0.;
-  for (int iX = 1; iX <= nX; ++iX)  xvpow[iX] = pow(xv[iX], XPOWER);  
+  for (int iX = 1; iX <= nX; ++iX)  xvpow[iX] = pow(xv[iX], XPOWER);
 
   // Set x and Q borders with some margin.
   xMinEps = xMin * (1. + EPSILON);
@@ -1498,10 +1502,10 @@ void CTEQ6pdf::xfUpdate(int , double x, double Q2) {
   xdVal  = dnv;
   xdSea  = dsea;
 
-  // idSav = 9 to indicate that all flavours reset.  
+  // idSav = 9 to indicate that all flavours reset.
   idSav  = 9;
 
-} 
+}
 
 //--------------------------------------------------------------------------
 
@@ -1527,7 +1531,7 @@ double CTEQ6pdf::parton6(int iParton, double x, double q) {
       jm = (ju + iGridLX) / 2;
       if (x >= xv[jm]) iGridLX = jm;
       else ju = jm;
-    } 
+    }
 
     // Separate acceptable from unacceptable grid points.
     if      (iGridLX <= -1)     return 0.;
@@ -1570,7 +1574,7 @@ double CTEQ6pdf::parton6(int iParton, double x, double q) {
       jm = (ju + iGridLQ) / 2;
       if (tt >= tv[jm]) iGridLQ = jm;
       else ju = jm;
-    } 
+    }
     if      (iGridLQ == 0)      iGridQ = 0;
     else if (iGridLQ <= nT - 2) iGridQ = iGridLQ - 1;
     else                        iGridQ = nT - 3;
@@ -1595,14 +1599,14 @@ double CTEQ6pdf::parton6(int iParton, double x, double q) {
       tConst[1]    = t12 / tConst[8];
       tConst[2]    = t34 / tConst[8];
       tConst[3]    = t24 / tConst[8];
-      tConst[4]    = (t34 * tConst[6] - tmp2 * tConst[7]) / t12 
+      tConst[4]    = (t34 * tConst[6] - tmp2 * tConst[7]) / t12
                      * tConst[6] * tConst[7] / tdet;
       tConst[5]    = (tmp1 * tConst[6] - t12 * tConst[7]) / t34
                      * tConst[6] * tConst[7] / tdet;
     }
 
     // Save x and q values so do not have to redo same again.
-    xLast = x; 
+    xLast = x;
     qLast = q;
   }
 
@@ -1628,7 +1632,7 @@ double CTEQ6pdf::parton6(int iParton, double x, double q) {
       double g1  =  sf2 * xConst[0] - sf3 * xConst[1];
       double g4  = -sf2 * xConst[2] + sf3 * xConst[3];
       fVec[it]   = (xConst[4] * (upd[j1] - g1) + xConst[5] * (upd[j1+3] - g4)
-		 + sf2 * xConst[7] - sf3 * xConst[6]) / xConst[8];
+                 + sf2 * xConst[7] - sf3 * xConst[6]) / xConst[8];
     }
   }
 
@@ -1643,7 +1647,7 @@ double CTEQ6pdf::parton6(int iParton, double x, double q) {
     double tf3 = fVec[3];
     double g1  =  tf2 * tConst[0] - tf3 * tConst[1];
     double g4  = -tf2 * tConst[2] + tf3 * tConst[3];
-    ff         = (tConst[4] * (fVec[1] - g1) + tConst[5] * (fVec[4] - g4) 
+    ff         = (tConst[4] * (fVec[1] - g1) + tConst[5] * (fVec[4] - g4)
                + tf2 * tConst[7] - tf3 * tConst[6]) / tConst[8];
   }
 
@@ -1654,12 +1658,12 @@ double CTEQ6pdf::parton6(int iParton, double x, double q) {
 //--------------------------------------------------------------------------
   
 // The POLINT4 routine is based on the POLINT routine from "Numerical Recipes",
-// but assuming N=4, and ignoring the error estimation. 
+// but assuming N=4, and ignoring the error estimation.
 // Suggested by Z. Sullivan.
 
 double CTEQ6pdf::polint4F(double xa[],double ya[],double x) {
 
-  double y, h1, h2, h3, h4, w, den, d1, c1, d2, c2, d3, c3, cd1, cc1, 
+  double y, h1, h2, h3, h4, w, den, d1, c1, d2, c2, d3, c3, cd1, cc1,
          cd2, cc2, dd1, dc1;
 
   h1  = xa[0] - x;
@@ -1709,7 +1713,7 @@ double CTEQ6pdf::polint4F(double xa[],double ya[],double x) {
 //==========================================================================
 
 // SA Unresolved proton: equivalent photon spectrum from
-// V.M. Budnev, I.F. Ginzburg, G.V. Meledin and V.G. Serbo, 
+// V.M. Budnev, I.F. Ginzburg, G.V. Meledin and V.G. Serbo,
 // Phys. Rept. 15 (1974/1975) 181.
 
 // Constants:
@@ -1772,7 +1776,7 @@ double ProtonPoint::phiFunc(double x, double Q) {
   double tmpV = 1. + Q;
   double tmpSum1 = 0;
   double tmpSum2 = 0;
-  for (int k=1; k<4; ++k) { 
+  for (int k=1; k<4; ++k) {
     tmpSum1 += 1. / (k * pow(tmpV, k));
     tmpSum2 += pow(B, k) / (k * pow(tmpV, k));
   }
@@ -1780,7 +1784,7 @@ double ProtonPoint::phiFunc(double x, double Q) {
   double tmpY = pow2(x) / (1 - x);
   double funVal = (1 + A * tmpY) * (-1.*log(tmpV / Q) + tmpSum1)
                 + (1 - B) * tmpY / (4 * Q * pow(tmpV, 3))
-                + C * (1 + tmpY/4.)* (log((tmpV - B)/tmpV) + tmpSum2);  
+                + C * (1 + tmpY/4.)* (log((tmpV - B)/tmpV) + tmpSum2);
 
   return funVal;
 
@@ -1809,32 +1813,32 @@ void GRVpiL::xfUpdate(int , double x, double Q2) {
     * (1. + (0.381 - 0.419 * s) * xS) * pow(x1, 0.367 + 0.563 * s);
 
   // g.
-  double gl = ( pow(x, 0.482 + 0.341 * sqrt(s)) 
-    * ( (0.678 + 0.877 * s - 0.175 * s2) + (0.338 - 1.597 * s) * xS 
-    + (-0.233 * s + 0.406 * s2) * x) + pow(s, 0.599) 
-    * exp(-(0.618 + 2.070 * s) + sqrt(3.676 * pow(s, 1.263) * xL) ) ) 
+  double gl = ( pow(x, 0.482 + 0.341 * sqrt(s))
+    * ( (0.678 + 0.877 * s - 0.175 * s2) + (0.338 - 1.597 * s) * xS
+    + (-0.233 * s + 0.406 * s2) * x) + pow(s, 0.599)
+    * exp(-(0.618 + 2.070 * s) + sqrt(3.676 * pow(s, 1.263) * xL) ) )
     * pow(x1, 0.390 + 1.053 * s);
 
-  // sea: u, d, s.  
+  // sea: u, d, s.
   double ub = pow(s, 0.55) * (1. - 0.748 * xS + (0.313 + 0.935 * s) * x)
     * pow(x1, 3.359) * exp(-(4.433 + 1.301 * s) + sqrt((9.30 - 0.887 * s)
     * pow(s, 0.56) * xL) ) / pow(xL, 2.538 - 0.763 * s);
 
   // c.
   double chm = (s < 0.888) ? 0. : pow(s - 0.888, 1.02) * (1. + 1.008 * x)
-    * pow(x1, 1.208 + 0.771 * s) * exp(-(4.40 + 1.493 * s) 
+    * pow(x1, 1.208 + 0.771 * s) * exp(-(4.40 + 1.493 * s)
     + sqrt( (2.032 + 1.901 * s) * pow(s, 0.39) * xL) );
 
   // b.
-  double bot = (s < 1.351) ? 0. : pow(s - 1.351, 1.03) 
-    * pow(x1, 0.697 + 0.855 * s) * exp(-(4.51 + 1.490 * s) 
+  double bot = (s < 1.351) ? 0. : pow(s - 1.351, 1.03)
+    * pow(x1, 0.697 + 0.855 * s) * exp(-(4.51 + 1.490 * s)
     + sqrt( (3.056 + 1.694 * s) * pow(s, 0.39) * xL) );
  
   // Update values.
   xg    = gl;
   xu    = uv + ub;
-  xd    = ub; 
-  xubar = ub; 
+  xd    = ub;
+  xubar = ub;
   xdbar = uv + ub;
   xs    = ub;
   xsbar = ub;
@@ -1847,10 +1851,10 @@ void GRVpiL::xfUpdate(int , double x, double Q2) {
   xdVal = uv;
   xdSea = ub;
 
-  // idSav = 9 to indicate that all flavours reset. 
+  // idSav = 9 to indicate that all flavours reset.
   idSav = 9;
 
-} 
+}
  
 //==========================================================================
 
@@ -1862,7 +1866,7 @@ void GRVpiL::xfUpdate(int , double x, double Q2) {
 
 void PomFix::init() {
  
-  normGluon = GammaReal(PomGluonA + PomGluonB + 2.) 
+  normGluon = GammaReal(PomGluonA + PomGluonB + 2.)
             / (GammaReal(PomGluonA + 1.) * GammaReal(PomGluonB + 1.));
   normQuark = GammaReal(PomQuarkA + PomQuarkB + 2.)
             / (GammaReal(PomQuarkA + 1.) * GammaReal(PomQuarkB + 1.));
@@ -1876,8 +1880,8 @@ void PomFix::init() {
 void PomFix::xfUpdate(int , double x, double) {
 
   // Gluon and quark distributions.
-  double gl = normGluon * pow(x, PomGluonA) * pow( (1. - x), PomGluonB); 
-  double qu = normQuark * pow(x, PomQuarkA) * pow( (1. - x), PomQuarkB); 
+  double gl = normGluon * pow(x, PomGluonA) * pow( (1. - x), PomGluonB);
+  double qu = normQuark * pow(x, PomQuarkA) * pow( (1. - x), PomQuarkB);
 
   // Update values
   xg    = (1. - PomQuarkFrac) * gl;
@@ -1917,9 +1921,9 @@ void PomH1FitAB::init( int iFit, string xmlPath, Info* infoPtr) {
   ifstream is( (xmlPath + dataFile).c_str() );
   if (!is.good()) {
     if (infoPtr != 0) infoPtr->errorMsg("Error from PomH1FitAB::init: "
-      "the H1 Pomeron parametrization file was not found");  
+      "the H1 Pomeron parametrization file was not found");
     else cout << " Error from PomH1FitAB::init: "
-      << "the H1 Pomeron parametrization file was not found" << endl;  
+      << "the H1 Pomeron parametrization file was not found" << endl;
     isSet = false;
     return;
   }
@@ -1935,21 +1939,21 @@ void PomH1FitAB::init( int iFit, string xmlPath, Info* infoPtr) {
   dQ2   = log(Q2upp / Q2low) / (nQ2 - 1.);
  
   // Read in quark data grid.
-  for (int i = 0; i < nx; ++i) 
-    for (int j = 0; j < nQ2; ++j) 
+  for (int i = 0; i < nx; ++i)
+    for (int j = 0; j < nQ2; ++j)
       is >> quarkGrid[i][j];
   
   // Read in gluon data grid.
-  for (int i = 0; i < nx; ++i) 
-    for (int j = 0; j < nQ2; ++j) 
+  for (int i = 0; i < nx; ++i)
+    for (int j = 0; j < nQ2; ++j)
       is >> gluonGrid[i][j];
 
   // Check for errors during read-in of file.
   if (!is) {
     if (infoPtr != 0) infoPtr->errorMsg("Error from PomH1FitAB::init: "
-      "the H1 Pomeron parametrization files could not be read");  
+      "the H1 Pomeron parametrization files could not be read");
     else cout << " Error from PomH1FitAB::init: "
-      << "the H1 Pomeron parametrization files could not be read" << endl;  
+      << "the H1 Pomeron parametrization files could not be read" << endl;
     isSet = false;
     return;
   }
@@ -1965,7 +1969,7 @@ void PomH1FitAB::xfUpdate(int , double x, double Q2) {
 
   // Retrict input to validity range.
   double xt  = min( xupp, max( xlow, x) );
-  double Q2t = min( Q2upp, max( Q2low, Q2) ); 
+  double Q2t = min( Q2upp, max( Q2low, Q2) );
 
   // Lower grid point and distance above it.
   double dlx  = log( xt / xlow) / dx;
@@ -1976,22 +1980,22 @@ void PomH1FitAB::xfUpdate(int , double x, double Q2) {
   dlQ2       -= j;
  
   // Interpolate to derive quark PDF.
-  double qu = (1. - dlx) * (1. - dlQ2) * quarkGrid[i][j] 
-            +       dlx  * (1. - dlQ2) * quarkGrid[i + 1][j] 
+  double qu = (1. - dlx) * (1. - dlQ2) * quarkGrid[i][j]
+            +       dlx  * (1. - dlQ2) * quarkGrid[i + 1][j]
             + (1. - dlx) *       dlQ2  * quarkGrid[i][j + 1]
-            +       dlx  *       dlQ2  * quarkGrid[i + 1][j + 1];  
+            +       dlx  *       dlQ2  * quarkGrid[i + 1][j + 1];
 
-  // Interpolate to derive gluon PDF. 
-  double gl = (1. - dlx) * (1. - dlQ2) * gluonGrid[i][j] 
-            +       dlx  * (1. - dlQ2) * gluonGrid[i + 1][j] 
+  // Interpolate to derive gluon PDF.
+  double gl = (1. - dlx) * (1. - dlQ2) * gluonGrid[i][j]
+            +       dlx  * (1. - dlQ2) * gluonGrid[i + 1][j]
             + (1. - dlx) *       dlQ2  * gluonGrid[i][j + 1]
             +       dlx  *       dlQ2  * gluonGrid[i + 1][j + 1];
 
   // Update values.
   xg    = rescale * gl;
   xu    = rescale * qu;
-  xd    = xu; 
-  xubar = xu; 
+  xd    = xu;
+  xubar = xu;
   xdbar = xu;
   xs    = xu;
   xsbar = xu;
@@ -2004,10 +2008,10 @@ void PomH1FitAB::xfUpdate(int , double x, double Q2) {
   xdVal = 0.;
   xdSea = xu;
 
-  // idSav = 9 to indicate that all flavours reset. 
+  // idSav = 9 to indicate that all flavours reset.
   idSav = 9;
 
-} 
+}
  
 //==========================================================================
 
@@ -2024,9 +2028,9 @@ void PomH1Jets::init( string xmlPath, Info* infoPtr) {
   ifstream isc( (xmlPath + "pomH1JetsCharm.data").c_str() );
   if (!isg.good() || !isq.good() || !isc.good()) {
     if (infoPtr != 0) infoPtr->errorMsg("Error from PomH1Jets::init: "
-      "the H1 Pomeron parametrization files were not found");  
+      "the H1 Pomeron parametrization files were not found");
     else cout << " Error from PomH1Jets::init: "
-      << "the H1 Pomeron parametrization files were not found" << endl;  
+      << "the H1 Pomeron parametrization files were not found" << endl;
     isSet = false;
     return;
   }
@@ -2049,7 +2053,7 @@ void PomH1Jets::init( string xmlPath, Info* infoPtr) {
 
   // Identical x and Q2 grid for singlet, so skip ahead.
   double dummy;
-  for (int i = 0; i < 188; ++i) isq >> setw(13) >> dummy;  
+  for (int i = 0; i < 188; ++i) isq >> setw(13) >> dummy;
 
   // Read in singlet data grid.
   for (int j = 0; j < 88; ++j) {
@@ -2059,9 +2063,9 @@ void PomH1Jets::init( string xmlPath, Info* infoPtr) {
   }
 
   // Identical x and Q2 grid for charm, so skip ahead.
-  for (int i = 0; i < 188; ++i) isc >> setw(13) >> dummy;  
+  for (int i = 0; i < 188; ++i) isc >> setw(13) >> dummy;
 
-  // Read in charm data grid. 
+  // Read in charm data grid.
   for (int j = 0; j < 88; ++j) {
     for (int i = 0; i < 100; ++i) {
       isc >> setw(13) >> charmGrid[i][j];
@@ -2071,9 +2075,9 @@ void PomH1Jets::init( string xmlPath, Info* infoPtr) {
   // Check for errors during read-in of files.
   if (!isg || !isq || !isc) {
     if (infoPtr != 0) infoPtr->errorMsg("Error from PomH1Jets::init: "
-      "the H1 Pomeron parametrization files could not be read");  
+      "the H1 Pomeron parametrization files could not be read");
     else cout << " Error from PomH1Jets::init: "
-      << "the H1 Pomeron parametrization files could not be read" << endl;  
+      << "the H1 Pomeron parametrization files could not be read" << endl;
     isSet = false;
     return;
   }
@@ -2090,11 +2094,11 @@ void PomH1Jets::xfUpdate(int , double x, double Q2) {
   // Find position in x array.
   double xLog = log(x);
   int    i    = 0;
-  double dx   = 0.; 
-  if (xLog <= xGrid[0]);     
+  double dx   = 0.;
+  if (xLog <= xGrid[0]);
   else if (xLog >= xGrid[99]) {
     i  = 98;
-    dx = 1.; 
+    dx = 1.;
   } else {
     while (xLog > xGrid[i]) ++i;
     --i;
@@ -2108,36 +2112,36 @@ void PomH1Jets::xfUpdate(int , double x, double Q2) {
   if (Q2Log <= Q2Grid[0]);
   else if (Q2Log >= Q2Grid[87]) {
     j   = 86;
-    dQ2 = 1.;  
+    dQ2 = 1.;
   } else {
-    while (Q2Log > Q2Grid[j]) ++j; 
+    while (Q2Log > Q2Grid[j]) ++j;
     --j;
     dQ2 = (Q2Log - Q2Grid[j]) / (Q2Grid[j + 1] - Q2Grid[j]);
-  } 
+  }
  
-  // Interpolate to derive gluon PDF. 
-  double gl = (1. - dx) * (1. - dQ2) * gluonGrid[i][j] 
-            +       dx  * (1. - dQ2) * gluonGrid[i + 1][j] 
+  // Interpolate to derive gluon PDF.
+  double gl = (1. - dx) * (1. - dQ2) * gluonGrid[i][j]
+            +       dx  * (1. - dQ2) * gluonGrid[i + 1][j]
             + (1. - dx) *       dQ2  * gluonGrid[i][j + 1]
-            +       dx  *       dQ2  * gluonGrid[i + 1][j + 1];  
+            +       dx  *       dQ2  * gluonGrid[i + 1][j + 1];
 
   // Interpolate to derive singlet PDF. (Sum of u, d, s, ubar, dbar, sbar.)
-  double sn = (1. - dx) * (1. - dQ2) * singletGrid[i][j] 
-            +       dx  * (1. - dQ2) * singletGrid[i + 1][j] 
+  double sn = (1. - dx) * (1. - dQ2) * singletGrid[i][j]
+            +       dx  * (1. - dQ2) * singletGrid[i + 1][j]
             + (1. - dx) *       dQ2  * singletGrid[i][j + 1]
-            +       dx  *       dQ2  * singletGrid[i + 1][j + 1];  
+            +       dx  *       dQ2  * singletGrid[i + 1][j + 1];
 
   // Interpolate to derive charm PDF. (Charge-square times c and cbar.)
-  double ch = (1. - dx) * (1. - dQ2) * charmGrid[i][j] 
-            +       dx  * (1. - dQ2) * charmGrid[i + 1][j] 
+  double ch = (1. - dx) * (1. - dQ2) * charmGrid[i][j]
+            +       dx  * (1. - dQ2) * charmGrid[i + 1][j]
             + (1. - dx) *       dQ2  * charmGrid[i][j + 1]
-            +       dx  *       dQ2  * charmGrid[i + 1][j + 1];  
+            +       dx  *       dQ2  * charmGrid[i + 1][j + 1];
 
-  // Update values.  
+  // Update values.
   xg    = rescale * gl;
   xu    = rescale * sn / 6.;
-  xd    = xu; 
-  xubar = xu; 
+  xd    = xu;
+  xubar = xu;
   xdbar = xu;
   xs    = xu;
   xsbar = xu;
@@ -2150,10 +2154,10 @@ void PomH1Jets::xfUpdate(int , double x, double Q2) {
   xdVal = 0.;
   xdSea = xd;
 
-  // idSav = 9 to indicate that all flavours reset. 
+  // idSav = 9 to indicate that all flavours reset.
   idSav = 9;
 
-} 
+}
  
 //==========================================================================
 
@@ -2167,7 +2171,7 @@ const double Lepton::MTAU    = 1.77699;
  
 void Lepton::xfUpdate(int id, double x, double Q2) {
  
-  // Squared mass of lepton species: electron, muon, tau. 
+  // Squared mass of lepton species: electron, muon, tau.
   if (!isInit) {
     double             mLep = ME;
     if (abs(id) == 13) mLep = MMU;
@@ -2182,22 +2186,22 @@ void Lepton::xfUpdate(int id, double x, double Q2) {
   double xMinusLog = log( max(1e-10, 1. - x) );
   double Q2Log = log( max(3., Q2/m2Lep) );
   double beta = (ALPHAEM / M_PI) * (Q2Log - 1.);
-  double delta = 1. + (ALPHAEM / M_PI) * (1.5 * Q2Log + 1.289868) 
-    + pow2(ALPHAEM / M_PI) * (-2.164868 * Q2Log*Q2Log 
+  double delta = 1. + (ALPHAEM / M_PI) * (1.5 * Q2Log + 1.289868)
+    + pow2(ALPHAEM / M_PI) * (-2.164868 * Q2Log*Q2Log
     + 9.840808 * Q2Log - 10.130464);
   double fPrel =  beta * pow(1. - x, beta - 1.) * sqrtpos( delta )
-     - 0.5 * beta * (1. + x) + 0.125 * beta*beta * ( (1. + x) 
-     * (-4. * xMinusLog + 3. * xLog) - 4. * xLog / (1. - x) - 5. - x); 
+     - 0.5 * beta * (1. + x) + 0.125 * beta*beta * ( (1. + x)
+     * (-4. * xMinusLog + 3. * xLog) - 4. * xLog / (1. - x) - 5. - x);
 
   // Zero distribution for very large x and rescale it for intermediate.
   if (x > 1. - 1e-10) fPrel = 0.;
-  else if (x > 1. - 1e-7) fPrel *= pow(1000.,beta) / (pow(1000.,beta) - 1.); 
-  xlepton = x * fPrel; 
+  else if (x > 1. - 1e-7) fPrel *= pow(1000.,beta) / (pow(1000.,beta) - 1.);
+  xlepton = x * fPrel;
 
   // Photon inside electron (one possible scheme - primitive).
   xgamma = (0.5 * ALPHAEM / M_PI) * Q2Log * (1. + pow2(1. - x));
 
-  // idSav = 9 to indicate that all flavours reset. 
+  // idSav = 9 to indicate that all flavours reset.
   idSav = 9;
 
 }
@@ -2211,7 +2215,7 @@ void Lepton::xfUpdate(int id, double x, double Q2) {
 //--------------------------------------------------------------------------
   
 // Freeze PDFs below XMINGRID
-const double NNPDF::fXMINGRID = 1e-7;
+const double NNPDF::fXMINGRID = 1e-9;
 
 //--------------------------------------------------------------------------
 
@@ -2222,23 +2226,23 @@ void NNPDF::init(int iFitIn, string xmlPath, Info* infoPtr) {
   // Choice of fit among possibilities.
   iFit = iFitIn;
   
-  // Select which data file to read for current fit.  
+  // Select which data file to read for current fit.
   if (xmlPath[ xmlPath.length() - 1 ] != '/') xmlPath += "/";
-  string fileName = "  "; 
+  string fileName = "  ";
   // NNPDF2.3 LO QCD+QED, for two values of alphas
-  if (iFit == 1) fileName = "NNPDF23_lo_as_0130_qed.grid";
-  if (iFit == 2) fileName = "NNPDF23_lo_as_0119_qed.grid";
+  if (iFit == 1) fileName = "NNPDF23_lo_as_0130_qed_mem0.grid";
+  if (iFit == 2) fileName = "NNPDF23_lo_as_0119_qed_mem0.grid";
   // NNPDF2.3 NLO QCD+QED
-  if (iFit == 3) fileName = "NNPDF23_nlo_as_0119_qed.grid";
+  if (iFit == 3) fileName = "NNPDF23_nlo_as_0119_qed_mc_mem0.grid";
   // NNPDF2.4 NLO QCD+QED
-  if (iFit == 4) fileName = "NNPDF23_nnlo_as_0119_qed.grid";
+  if (iFit == 4) fileName = "NNPDF23_nnlo_as_0119_qed_mc_mem0.grid";
 
   // Open data file.
   fstream f;
   f.open( (xmlPath + fileName).c_str(),ios::in);
   if (f.fail()) {
     if (infoPtr != 0) infoPtr->errorMsg("Error from NNPDF::init: "
-      "did not find data file ", fileName);  
+      "did not find data file ", fileName);
     else cout << "Error: cannot open file " << (xmlPath + fileName) << endl;
     isSet = false;
     return;
@@ -2250,7 +2254,7 @@ void NNPDF::init(int iFitIn, string xmlPath, Info* infoPtr) {
     getline(f,tmp);
     if (tmp.find("NNPDF20intqed") != string::npos) {
       getline(f,tmp);
-      break;	
+      break;
     }
   }
 
@@ -2269,7 +2273,7 @@ void NNPDF::init(int iFitIn, string xmlPath, Info* infoPtr) {
   fLogQ2Grid = new double[fNQ2];
   for (int iq = 0; iq < fNQ2; iq++) fLogQ2Grid[iq] = log(fQ2Grid[iq]);
 
-  // Prepare grid array.  
+  // Prepare grid array.
   fPDFGrid = new double**[fNFL];
   for (int i = 0; i < fNFL; i++) {
     fPDFGrid[i] = new double*[fNX];
@@ -2277,7 +2281,7 @@ void NNPDF::init(int iFitIn, string xmlPath, Info* infoPtr) {
       fPDFGrid[i][j] = new double[fNQ2];
       for (int z = 0; z < fNQ2; z++) fPDFGrid[i][j][z] = 0.0;
     }
-  }  
+  }
 
   // Check values of number of grid entries.
   if (fNX<= 0 || fNX>100 || fNQ2<=0 || fNQ2>50) {
@@ -2288,12 +2292,12 @@ void NNPDF::init(int iFitIn, string xmlPath, Info* infoPtr) {
     return;
   }
 
-  // Ignore replica number. Read PDF grid points. 
+  // Ignore replica number. Read PDF grid points.
   f >> tmp;
   for (int ix = 0; ix < fNX; ix++)
     for (int iq = 0; iq < fNQ2; iq++)
       for (int fl = 0; fl < fNFL; fl++)
-	f >> fPDFGrid[fl][ix][iq];      
+        f >> fPDFGrid[fl][ix][iq];
   f.close();
 
   // Other vectors.
@@ -2308,7 +2312,7 @@ void NNPDF::xfUpdate(int , double x, double Q2) {
   // Update using NNPDF routine, within allowed (x, q) range.
   xfxevolve(x,Q2);
 
-  // Then transfer to Pythia8 notation.  
+  // Then transfer to Pythia8 notation.
   xg     = fRes[6];
   xu     = fRes[8];
   xd     = fRes[7];
@@ -2326,8 +2330,8 @@ void NNPDF::xfUpdate(int , double x, double Q2) {
   xdVal  = xd - xdbar;
   xdSea  = xdbar;
   
-  // idSav = 9 to indicate that all flavours reset.  
-  idSav  = 9; 
+  // idSav = 9 to indicate that all flavours reset.
+  idSav  = 9;
   
 }
 
@@ -2347,19 +2351,19 @@ void NNPDF::xfxevolve(double x, double Q2) {
     
   // Find nearest points in the x-Q2 grid.
   int minx = 0;
-  int maxx = fNX;  
+  int maxx = fNX;
   while (maxx-minx > 1) {
     int midx = (minx+maxx)/2;
     if (x < fXGrid[midx]) maxx = midx;
-    else minx = midx;      
+    else minx = midx;
   }
-  int ix = minx;    
+  int ix = minx;
   int minq = 0;
   int maxq = fNQ2;
   while (maxq-minq > 1) {
     int midq = (minq+maxq)/2;
     if (Q2 < fQ2Grid[midq]) maxq = midq;
-    else minq = midq;      
+    else minq = midq;
   }
   int iq2 = minq;
   
@@ -2371,7 +2375,7 @@ void NNPDF::xfxevolve(double x, double Q2) {
   for (int i = 0; i < fM; i++) {
     if (ix+1 >= fM/2 && ix+1 <= (fNX-fM/2)) ix1a[i] = ix+1 - fM/2 + i;
     if (ix+1 < fM/2) ix1a[i] = i;
-    if (ix+1 > (fNX-fM/2)) ix1a[i] = (fNX-fM) + i;      
+    if (ix+1 > (fNX-fM/2)) ix1a[i] = (fNX-fM) + i;
     // Check grids.
     if (ix1a[i] < 0 || ix1a[i] >= fNX) {
       cout << "Error in grids! i, ixia[i] = " << i << "\t" << ix1a[i] << endl;
@@ -2382,7 +2386,7 @@ void NNPDF::xfxevolve(double x, double Q2) {
   for (int j = 0; j < fN; j++) {
     if (iq2+1 >= fN/2 && iq2+1 <= (fNQ2-fN/2)) ix2a[j] = iq2+1 - fN/2 + j;
     if (iq2+1 < fN/2) ix2a[j] = j;
-    if (iq2+1 > (fNQ2-fN/2)) ix2a[j] = (fNQ2-fN) + j;   
+    if (iq2+1 > (fNQ2-fN/2)) ix2a[j] = (fNQ2-fN) + j;
     // Check grids.
     if (ix2a[j] < 0 || ix2a[j] >= fNQ2) {
       cout << "Error in grids! j, ix2a[j] = " << j << "\t" << ix2a[j] << endl;
@@ -2399,12 +2403,12 @@ void NNPDF::xfxevolve(double x, double Q2) {
   for (int ipdf = 0; ipdf < fNFL; ipdf++) {
     fRes[ipdf] = 0.0;
     for (int i = 0; i < fM; i++) {
-      if (x < xch) x1a[i] = fLogXGrid[ix1a[i]];	  
+      if (x < xch) x1a[i] = fLogXGrid[ix1a[i]];
       else         x1a[i] = fXGrid[ix1a[i]];
-	  
+          
       for (int j = 0; j < fN; j++) {
-	x2a[j] = fLogQ2Grid[ix2a[j]];
-	ya[i][j] = fPDFGrid[ipdf][ix1a[i]][ix2a[j]];
+        x2a[j] = fLogQ2Grid[ix2a[j]];
+        ya[i][j] = fPDFGrid[ipdf][ix1a[i]][ix2a[j]];
       }
     }
   
@@ -2414,17 +2418,17 @@ void NNPDF::xfxevolve(double x, double Q2) {
     fRes[ipdf] = y;
   }
   
-}  
+}
  
 //--------------------------------------------------------------------------
 
 // 1D polynomial interpolation.
 
-void NNPDF::polint(double xa[], double yal[], int n, double x, 
+void NNPDF::polint(double xa[], double yal[], int n, double x,
   double& y, double& dy) {
 
-  int ns = 0;  
-  double dif = abs(x-xa[0]);    
+  int ns = 0;
+  double dif = abs(x-xa[0]);
   double c[fM > fN ? fM : fN];
   double d[fM > fN ? fM : fN];
   
@@ -2446,8 +2450,8 @@ void NNPDF::polint(double xa[], double yal[], int n, double x,
       double w = c[i+1]-d[i];
       double den = ho-hp;
       if (den == 0) {
-	cout << "NNPDF::polint, failure" << endl;
-	return;
+        cout << "NNPDF::polint, failure" << endl;
+        return;
       }
       den = w/den;
       d[i] = hp*den;
@@ -2466,14 +2470,14 @@ void NNPDF::polint(double xa[], double yal[], int n, double x,
 
 // 2D polynomial interpolation.
 
-void NNPDF::polin2(double x1al[], double x2al[], double yal[][fN], 
+void NNPDF::polin2(double x1al[], double x2al[], double yal[][fN],
   double x1, double x2, double& y, double& dy) {
 
   double yntmp[fN];
   double ymtmp[fM];
 
   for (int j = 0; j < fM; j++) {
-    for (int k = 0; k < fN; k++) yntmp[k] = yal[j][k];  
+    for (int k = 0; k < fN; k++) yntmp[k] = yal[j][k];
     polint(x2al,yntmp,fN,x2,ymtmp[j],dy);
   }
   polint(x1al,ymtmp,fM,x1,y,dy);

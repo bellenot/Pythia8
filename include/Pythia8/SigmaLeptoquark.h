@@ -1,5 +1,5 @@
 // SigmaLeptoquark.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -25,13 +25,13 @@ public:
   // Constructor.
   Sigma1ql2LeptoQuark() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -45,7 +45,7 @@ public:
 
 private:
 
-  // Parameters set at initialization or for current kinematics. 
+  // Parameters set at initialization or for current kinematics.
   int    idQuark, idLepton;
   double mRes, GammaRes, m2Res, GamMRat, kCoup, widthIn, sigBW;
 
@@ -65,13 +65,13 @@ public:
   // Constructor.
   Sigma2qg2LeptoQuarkl() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat();
 
   // Select flavour, colour and anticolour.
@@ -85,7 +85,7 @@ public:
 
 private:
 
-  // Parameters set at initialization or for current kinematics. 
+  // Parameters set at initialization or for current kinematics.
   int    idQuark, idLepton;
   double mRes, GammaRes, m2Res, GamMRat, kCoup, openFracPos, openFracNeg,
          sigma0;
@@ -103,13 +103,13 @@ public:
   // Constructor.
   Sigma2gg2LQLQbar() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat() {return sigma;}
 
   // Select flavour, colour and anticolour.
@@ -124,7 +124,7 @@ public:
 
 private:
 
-  // Parameters set at initialization or for current kinematics. 
+  // Parameters set at initialization or for current kinematics.
   double mRes, GammaRes, m2Res, GamMRat, openFrac, sigma;
 
 };
@@ -140,13 +140,13 @@ public:
   // Constructor.
   Sigma2qqbar2LQLQbar() {}
 
-  // Initialize process. 
-  virtual void initProc(); 
+  // Initialize process.
+  virtual void initProc();
 
   // Calculate flavour-independent parts of cross section.
   virtual void sigmaKin();
 
-  // Evaluate sigmaHat(sHat). 
+  // Evaluate sigmaHat(sHat).
   virtual double sigmaHat() {
     return (abs(id1) == idQuark) ? sigmaSame : sigmaDiff;}
 
@@ -162,9 +162,9 @@ public:
 
 private:
 
-  // Parameters set at initialization or for current kinematics. 
+  // Parameters set at initialization or for current kinematics.
   int    idQuark;
-  double mRes, GammaRes, m2Res, GamMRat, kCoup, openFrac, sigmaDiff, 
+  double mRes, GammaRes, m2Res, GamMRat, kCoup, openFrac, sigmaDiff,
          sigmaSame;
 
 };

@@ -1,5 +1,5 @@
 // JetMatching.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,7 +13,7 @@
 // can be found in the 'Jet Matching Style' manual page.
 
 #ifndef Pythia8_JetMatching_H
-#define Pythia8_JetMatching_H 
+#define Pythia8_JetMatching_H
 
 // Includes
 #include "Pythia8/Pythia.h"
@@ -31,9 +31,9 @@ class JetMatching : virtual public UserHooks {
 public:
 
   // Constructor and destructor
- JetMatching() : cellJet(NULL), slowJet(NULL) {} 
-  ~JetMatching() { 
-    if (cellJet) delete cellJet; 
+ JetMatching() : cellJet(NULL), slowJet(NULL) {}
+  ~JetMatching() {
+    if (cellJet) delete cellJet;
     if (slowJet) delete slowJet;
   }
 
@@ -42,13 +42,13 @@ public:
 
   // Process level vetos
   bool canVetoProcessLevel() { return doMerge; }
-  bool doVetoProcessLevel(Event& process) { 
+  bool doVetoProcessLevel(Event& process) {
     eventProcessOrig = process;
     return false;
   }
 
   // Parton level vetos (before beam remnants and resonance decays)
-  bool canVetoPartonLevelEarly() { return doMerge; } 
+  bool canVetoPartonLevelEarly() { return doMerge; }
   bool doVetoPartonLevelEarly(const Event& event);
 
 protected:
@@ -65,7 +65,7 @@ protected:
   virtual int  matchPartonsToJetsHeavy()=0;
 
   enum vetoStatus { NONE, LESS_JETS, MORE_JETS, HARD_JET, UNMATCHED_PARTON };
-  enum partonTypes { ID_CHARM=4, ID_BOT=5, ID_TOP=6, ID_LEPMIN=11, 
+  enum partonTypes { ID_CHARM=4, ID_BOT=5, ID_TOP=6, ID_LEPMIN=11,
     ID_LEPMAX=16, ID_GLUON=21, ID_PHOTON=22 };
 
   // Master switch for merging
@@ -138,7 +138,7 @@ private:
   int  matchPartonsToJetsLight();
   int  matchPartonsToJetsHeavy();
 
-  // Sorting utility 
+  // Sorting utility
   void sortTypeIdx(vector < int > &vecIn);
 
   // Constants
@@ -179,8 +179,8 @@ protected:
 
 //==========================================================================
 
-// Main implementation of JetMatching class. 
-// This may be split out to a separate C++ file if desired, 
+// Main implementation of JetMatching class.
+// This may be split out to a separate C++ file if desired,
 // but currently included here for ease of use.
 
 //--------------------------------------------------------------------------
@@ -218,14 +218,14 @@ bool JetMatching::doVetoPartonLevelEarly(const Event& event) {
     cout << endl << "Final-state incoming process:";
     eventProcess.list();
     // List categories of sorted particles
-    for (size_t i = 0; i < typeIdx[0].size(); i++) 
+    for (size_t i = 0; i < typeIdx[0].size(); i++)
       cout << ((i == 0) ? "Light jets: " : ", ")   << setw(3) << typeIdx[0][i];
     if( typeIdx[0].size()== 0 )
-      cout << "Light jets: None"; 
+      cout << "Light jets: None";
 
-    for (size_t i = 0; i < typeIdx[1].size(); i++) 
+    for (size_t i = 0; i < typeIdx[1].size(); i++)
       cout << ((i == 0) ? "\nHeavy jets: " : ", ") << setw(3) << typeIdx[1][i];
-    for (size_t i = 0; i < typeIdx[2].size(); i++) 
+    for (size_t i = 0; i < typeIdx[2].size(); i++)
       cout << ((i == 0) ? "\nOther:      " : ", ") << setw(3) << typeIdx[2][i];
     // Full event at this stage
     cout << endl << endl << "Event:";
@@ -279,7 +279,7 @@ bool JetMatching::doVetoPartonLevelEarly(const Event& event) {
 //==========================================================================
 
 // Main implementation of Alpgen UserHooks class.
-// This may be split out to a separate C++ file if desired, 
+// This may be split out to a separate C++ file if desired,
 // but currently included here for ease of use.
 
 //--------------------------------------------------------------------------
@@ -308,11 +308,11 @@ void JetMatchingAlpgen::sortTypeIdx(vector < int > &vecIn) {
       eventProcess[vecIn[i]].pT();
     for (size_t j = i + 1; j < vecIn.size(); j++) {
       double vNow = (jetAlgorithm == 1) ?
-	eventProcess[vecIn[j]].eT() :
-	eventProcess[vecIn[j]].pT();
+        eventProcess[vecIn[j]].eT() :
+        eventProcess[vecIn[j]].pT();
       if (vNow > vMax) {
-	vMax = vNow;
-	jMax = j;
+        vMax = vNow;
+        jMax = j;
       }
     }
     if (jMax != i) swap(vecIn[i], vecIn[jMax]);
@@ -477,12 +477,12 @@ void JetMatchingAlpgen::sortIncomingProcess(const Event &event) {
     int idx = 2;
 
     // Light jets
-    if (eventProcess[i].id() == ID_GLUON 
-      || (eventProcess[i].idAbs() <= ID_BOT 
+    if (eventProcess[i].id() == ID_GLUON
+      || (eventProcess[i].idAbs() <= ID_BOT
       && abs(eventProcess[i].m()) < ZEROTHRESHOLD)) idx = 0;
 
     // Heavy jets
-    else if (eventProcess[i].idAbs() >= ID_CHARM 
+    else if (eventProcess[i].idAbs() >= ID_CHARM
       && eventProcess[i].idAbs() <= ID_TOP) idx = 1;
 
     // Store
@@ -514,7 +514,7 @@ void JetMatchingAlpgen::jetAlgorithmInput(const Event &event, int iType) {
       // Original AG+Py6 algorithm explicitly excludes tops,
       // leptons and photons.
       int id = workEventJet[i].idAbs();
-      if ( (id >= ID_LEPMIN && id <= ID_LEPMAX) || id == ID_TOP 
+      if ( (id >= ID_LEPMIN && id <= ID_LEPMAX) || id == ID_TOP
         || id == ID_PHOTON) {
         workEventJet[i].statusNeg();
         continue;
@@ -687,7 +687,7 @@ int JetMatchingAlpgen::matchPartonsToJetsLight() {
 
         // DeltaR between parton/jet and store if minimum
         double dR = (jetAlgorithm == 1) ?
-	  REtaPhi(p1, jetMomenta[j]) : RRapPhi(p1, jetMomenta[j]);
+          REtaPhi(p1, jetMomenta[j]) : RRapPhi(p1, jetMomenta[j]);
         if (jMin < 0 || dR < dRmin) {
           dRmin = dR;
           jMin  = j;
@@ -822,8 +822,8 @@ int JetMatchingAlpgen::matchPartonsToJetsHeavy() {
 
 //==========================================================================
 
-// Main implementation of Madgraph UserHooks class. 
-// This may be split out to a separate C++ file if desired, 
+// Main implementation of Madgraph UserHooks class.
+// This may be split out to a separate C++ file if desired,
 // but currently included here for ease of use.
 
 //--------------------------------------------------------------------------
@@ -844,17 +844,17 @@ bool JetMatchingMadgraph::initAfterBeams() {
     par.printParams();
   }
  
-  // Set Madgraph merging parameters from the file if requested 
+  // Set Madgraph merging parameters from the file if requested
   if (setMad) {
-    if ( par.haveParam("xqcut")    && par.haveParam("maxjetflavor")  
+    if ( par.haveParam("xqcut")    && par.haveParam("maxjetflavor")
       && par.haveParam("alpsfact") && par.haveParam("ickkw") ) {
       settingsPtr->flag("JetMatching:merge", par.getParam("ickkw"));
       settingsPtr->parm("JetMatching:qCut", par.getParam("xqcut"));
-      settingsPtr->mode("JetMatching:nQmatch", 
+      settingsPtr->mode("JetMatching:nQmatch",
         par.getParamAsInt("maxjetflavor"));
       settingsPtr->parm("JetMatching:clFact",
         clFact = par.getParam("alpsfact"));
-      if (par.getParamAsInt("ickkw") == 0) 
+      if (par.getParamAsInt("ickkw") == 0)
         infoPtr->errorMsg("Error in JetMatchingMadgraph:init: "
           "Madgraph file parameters are not set for merging");
 
@@ -912,8 +912,8 @@ bool JetMatchingMadgraph::initAfterBeams() {
   // Use the QCD distance measure by default.
   jetAlgorithm = 2;
   slowJetPower = 1;
-  slowJet = new SlowJet(slowJetPower, coneRadius, eTjetMin, 
-    etaJetMaxAlgo, 2, 2, NULL, false); 
+  slowJet = new SlowJet(slowJetPower, coneRadius, eTjetMin,
+    etaJetMaxAlgo, 2, 2, NULL, false);
 
   // Setup local event records
   eventProcessOrig.init("(eventProcessOrig)", particleDataPtr);
@@ -979,11 +979,11 @@ void JetMatchingMadgraph::sortIncomingProcess(const Event &event) {
     int idx = 2;
 
     // Light jets: all gluons and quarks with id less than or equal to nQmatch
-    if (eventProcess[i].id() == ID_GLUON 
+    if (eventProcess[i].id() == ID_GLUON
       || (eventProcess[i].idAbs() <= nQmatch) ) idx = 0;
 
     // Heavy jets:  all quarks with id greater than nQmatch
-    else if (eventProcess[i].idAbs() > nQmatch 
+    else if (eventProcess[i].idAbs() > nQmatch
       && eventProcess[i].idAbs() <= ID_TOP) idx = 1;
 
     // Store
@@ -1027,7 +1027,7 @@ void JetMatchingMadgraph::jetAlgorithmInput(const Event &event, int iType) {
       // Original AG+Py6 algorithm explicitly excludes tops,
       // leptons and photons.
       int id = workEventJet[i].idAbs();
-      if ((id >= ID_LEPMIN && id <= ID_LEPMAX) || id == ID_TOP 
+      if ((id >= ID_LEPMIN && id <= ID_LEPMAX) || id == ID_TOP
       || id == ID_PHOTON) {
         workEventJet[i].statusNeg();
         continue;
@@ -1114,7 +1114,7 @@ int JetMatchingMadgraph::matchPartonsToJetsLight() {
   // Count the number of hard partons
   int nParton = typeIdx[0].size();
 
-  // Initialize SlowJet with current working event 
+  // Initialize SlowJet with current working event
   if (!slowJet->setup(workEventJet) ) {
     infoPtr->errorMsg("Warning in JetMatchingMadgraph:matchPartonsToJets"
       "Light: the SlowJet algorithm failed on setup");
@@ -1131,7 +1131,7 @@ int JetMatchingMadgraph::matchPartonsToJetsLight() {
   int nJets = slowJet->sizeJet();
   int nClus = slowJet->sizeAll();
 
-  // Debug printout.  
+  // Debug printout.
   if (MATCHINGDEBUG) slowJet->list(true);
 
   // Count of the number of hadronic jets in SlowJet accounting
@@ -1159,7 +1159,7 @@ int JetMatchingMadgraph::matchPartonsToJetsLight() {
     localQcutSq = dOld;
     if ( clFact >= 0. && nParton > 0 ) {
        vector<double> partonPt;
-       for (int i = 0; i < nParton; ++i) 
+       for (int i = 0; i < nParton; ++i)
          partonPt.push_back( eventProcess[typeIdx[0][i]].pT2() );
        sort( partonPt.begin(), partonPt.end());
        localQcutSq = max( qCutSq, partonPt[0]);
@@ -1174,11 +1174,11 @@ int JetMatchingMadgraph::matchPartonsToJetsLight() {
   tempEvent.init( "(tempEvent)", particleDataPtr);
   int nPass = 0;
   double pTminEstimate = -1.;
-  // Construct a master copy of the event containing only the 
-  // hardest nParton hadronic clusters. While constructing the event, 
+  // Construct a master copy of the event containing only the
+  // hardest nParton hadronic clusters. While constructing the event,
   // the parton type (ID_GLUON) and status (98,99) are arbitrary.
   for (int i = nJets; i < nClus; ++i) {
-    tempEvent.append( ID_GLUON, 98, 0, 0, 0, 0, 0, 0, slowJet->p(i).px(), 
+    tempEvent.append( ID_GLUON, 98, 0, 0, 0, 0, 0, 0, slowJet->p(i).px(),
       slowJet->p(i).py(), slowJet->p(i).pz(), slowJet->p(i).e() );
     ++nPass;
     pTminEstimate = max( pTminEstimate, slowJet->pT(i));
@@ -1213,16 +1213,17 @@ int JetMatchingMadgraph::matchPartonsToJetsLight() {
     if ( !slowJet->setup(tempEventJet) ) {
       infoPtr->errorMsg("Warning in JetMatchingMadgraph:matchPartonsToJets"
         "Light: the SlowJet algorithm failed on setup");
-    } return NONE;
+      return NONE;
+    }
     // These are the conditions for the hadronic jet to match the parton
     //  at the local qCut scale
-    if ( slowJet->iNext() == tempEventJet.size() - 1 
+    if ( slowJet->iNext() == tempEventJet.size() - 1
       && slowJet->jNext() > -1 && slowJet->dNext() < localQcutSq ) {
       int iKnt = -1;
       for (size_t i = 0; i != tempSize; ++i) {
         if (jetAssigned[i]) continue;
         ++iKnt;
-	// Identify the hadronic jet that matches the parton
+        // Identify the hadronic jet that matches the parton
         if (iKnt == slowJet->jNext() ) jetAssigned[i] = true;
       }
     } else { return UNMATCHED_PARTON; }

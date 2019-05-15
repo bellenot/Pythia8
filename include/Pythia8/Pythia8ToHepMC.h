@@ -1,5 +1,5 @@
 // Pythia8ToHepMC.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -30,20 +30,20 @@ class Pythia8ToHepMC : public IO_BaseClass {
 public:
 
   // Constructor and destructor.
-  Pythia8ToHepMC() : m_internal_event_number(0), 
-    m_print_inconsistency(true), m_free_parton_warnings(true), 
+  Pythia8ToHepMC() : m_internal_event_number(0),
+    m_print_inconsistency(true), m_free_parton_warnings(true),
     m_crash_on_problem(false),   m_convert_gluon_to_0(false),
     m_store_pdf(true), m_store_proc(true), m_store_xsec(true) {;}
   virtual ~Pythia8ToHepMC() {;}
 
   // The recommended method to convert Pythia events into HepMC ones.
-  bool fill_next_event( Pythia8::Pythia& pythia, GenEvent* evt, 
-    int ievnum = -1 ) {return fill_next_event( pythia.event, evt, 
+  bool fill_next_event( Pythia8::Pythia& pythia, GenEvent* evt,
+    int ievnum = -1 ) {return fill_next_event( pythia.event, evt,
     ievnum, &pythia.info, &pythia.settings);}
 
   // Alternative method to convert Pythia events into HepMC ones.
-  bool fill_next_event( Pythia8::Event& pyev, GenEvent* evt, 
-    int ievnum = -1, Pythia8::Info* pyinfo = 0, 
+  bool fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
+    int ievnum = -1, Pythia8::Info* pyinfo = 0,
     Pythia8::Settings* pyset = 0);
 
   // Read out values for some switches.
@@ -53,7 +53,7 @@ public:
   bool convert_gluon_to_0()   const {return m_convert_gluon_to_0;}
   bool store_pdf()            const {return m_store_pdf;}
   bool store_proc()           const {return m_store_proc;}
-  bool store_xsec()           const {return m_store_xsec;}  
+  bool store_xsec()           const {return m_store_xsec;}
 
   // Set values for some switches.
   void set_print_inconsistency(bool b = true)  {m_print_inconsistency = b;}
@@ -62,9 +62,9 @@ public:
   void set_convert_gluon_to_0(bool b = false)  {m_convert_gluon_to_0 = b;}
   void set_store_pdf(bool b = true)            {m_store_pdf = b;}
   void set_store_proc(bool b = true)           {m_store_proc = b;}
-  void set_store_xsec(bool b = true)           {m_store_xsec = b;}  
+  void set_store_xsec(bool b = true)           {m_store_xsec = b;}
 
-private: 
+private:
 
   // Following methods are not implemented for this class.
   virtual bool fill_next_event( GenEvent*  ) { return 0; }
@@ -76,7 +76,7 @@ private:
   // Data members.
   int  m_internal_event_number;
   bool m_print_inconsistency, m_free_parton_warnings,
-       m_crash_on_problem, m_convert_gluon_to_0, 
+       m_crash_on_problem, m_convert_gluon_to_0,
        m_store_pdf, m_store_proc, m_store_xsec;
 
 };

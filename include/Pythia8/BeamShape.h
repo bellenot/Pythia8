@@ -1,5 +1,5 @@
 // BeamShape.h is a part of the PYTHIA event generator.
-// Copyright (C) 2013 Torbjorn Sjostrand.
+// Copyright (C) 2014 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -47,9 +47,9 @@ protected:
   
   // Parameters of Gaussian parametrizations.
   bool   allowMomentumSpread, allowVertexSpread;
-  double sigmaPxA, sigmaPyA, sigmaPzA, maxDevA, sigmaPxB, sigmaPyB, 
-         sigmaPzB, maxDevB, sigmaVertexX, sigmaVertexY, sigmaVertexZ, 
-         maxDevVertex, sigmaTime, maxDevTime, offsetX, offsetY, 
+  double sigmaPxA, sigmaPyA, sigmaPzA, maxDevA, sigmaPxB, sigmaPyB,
+         sigmaPzB, maxDevB, sigmaVertexX, sigmaVertexY, sigmaVertexZ,
+         maxDevVertex, sigmaTime, maxDevTime, offsetX, offsetY,
          offsetZ, offsetT;
 
   // Pointer to the random number generator.
