@@ -202,32 +202,38 @@ last column possibly summing fewer rows than the others.)
 </method> 
  
 <method name="void Hist::table(ostream& os = cout, 
-bool printOverUnder = false)"> 
+bool printOverUnder = false, bool xMidBin = true)"> 
 </method> 
 <methodmore name="void Hist::table(string fileName, 
-bool printOverUnder = false)"> 
+bool printOverUnder = false, bool xMidBin = true)"> 
 print a two-column table, where the first column gives the center of 
-each bin and the second one the corresponding bin contents. The desired 
-output stream or file name can be provided as argument. The former 
-is more flexible (e.g., it allows easy append to an existing file), 
-whereas the latter is simpler for the case that each histogram should 
-be a file of its own. The optional last arguments allows also underflow 
-and overflow contents to be printed. (The arbitrary <ei>x</ei> coordinates 
-for these are placed as if corresponding to same-size bins just below or 
-above the regular histogram bins.) The table may be useful for plotting 
-e.g. with Gnuplot. 
+each bin and the second one the corresponding bin contents. The table 
+may be useful for plotting e.g. with Gnuplot. 
+<br/>The desired output stream or file name can be provided as argument. 
+The former is more flexible (e.g., it allows easy append to an existing 
+file), whereas the latter is simpler for the case that each histogram 
+should be a file of its own. 
+<br/>An optional <code>printOverUnder = true</code> argument allows also 
+underflow and overflow contents to be printed. (The arbitrary <ei>x</ei> 
+coordinates for these are placed as if corresponding to same-size bins 
+just below or above the regular histogram bins.) 
+<br/>An optional <code>xMidBin = false</code> argument will have the
+<ei>x</ei> value at the beginning of each bin printed, rather than the
+default midpoint value.
 </methodmore> 
  
 <method name="friend void table(const Hist& h1, const Hist& h2, 
-ostream& os = cout, bool printOverUnder = false)"> 
+ostream& os = cout, bool printOverUnder = false, bool xMidBin = true)"> 
 </method> 
 <methodmore name="friend void table(const Hist& h1, const Hist& h2, 
-string fileName, bool printOverUnder = false)"> 
+string fileName, bool printOverUnder = false, bool xMidBin = true)"> 
 print a three-column table, where the first column gives the center of 
 each bin and the second and third ones the corresponding bin contents 
 of the two histograms. Only works if the two histograms have the same 
-x axis (within a tiny tolerance), else nothing will be done. The optional 
-last arguments allows also underflow and overflow contents to be printed. 
+<ei>x</ei> axis (within a tiny tolerance), else nothing will be done. 
+The optional last two arguments allows also underflow and overflow 
+contents to be printed, and the <ei>x</ei> to refer to the beginning
+of the bin rather than the center; see above. 
 </methodmore> 
  
 <method name="double Hist::getBinContent(int iBin)"> 

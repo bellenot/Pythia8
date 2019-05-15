@@ -235,6 +235,11 @@ bool SpaceShower::limitPTmax( Event& event, double Q2Fac, double Q2Ren) {
   dopTlimit1 = dopTlimit2 = false;
   if      (pTmaxMatch == 1) dopTlimit = dopTlimit1 = dopTlimit2 = true;
   else if (pTmaxMatch == 2) dopTlimit = dopTlimit1 = dopTlimit2 = false;
+
+  // Always restrict SoftQCD processes.
+  else if (infoPtr->isNonDiffractive() || infoPtr->isDiffractiveA()
+    || infoPtr->isDiffractiveB() || infoPtr->isDiffractiveC() )
+    dopTlimit = dopTlimit1 = dopTlimit2 = true;
    
   // Look if any quark (u, d, s, c, b), gluon or photon in final state.
   else {
@@ -1625,7 +1630,7 @@ bool SpaceShower::branch( Event& event) {
   // Check if the first emission shoild be checked for removal
   bool canMergeFirst = (mergingHooksPtr != 0)
                      ? mergingHooksPtr->canVetoEmission() : false;
-  if (canVetoEmission || canMergeFirst || vetoWeakJets) {
+  if (canVetoEmission || canMergeFirst || doWeakShower) {
     for ( int iCopy = 0; iCopy < systemSizeOld; ++iCopy) {
       int iOldCopy    = partonSystemsPtr->getAll(iSysSel, iCopy);
       statusV.push_back( event[iOldCopy].status());
@@ -1869,7 +1874,7 @@ bool SpaceShower::branch( Event& event) {
   // The rest from (and to) event cm frame.
   for ( int i = eventSizeOld + 2; i < eventSizeOld + systemSizeOld; ++i)
     event[i].rotbst(Mtot);
-   
+
   // Remove double counting. Only implemented for QCD hard processes
   // and for the first emission.
   if (infoPtr->nISR() + infoPtr->nFSRinProc() == 0
@@ -1971,6 +1976,8 @@ bool SpaceShower::branch( Event& event) {
       int MEtypeNew = 203;
       if (idRecoiler == 21) MEtypeNew = 201;
       if (idRecoiler == idMother) MEtypeNew = 202;
+      // If original was a Drell-Yan, keep as Drell-Yan.
+      if( event[3].id() == - event[4].id()) MEtypeNew = 200;
       int weakPol = (rndmPtr->flat() > 0.5) ? -1 : 1;
       event[iMother].pol(weakPol);
       if ((weakMode == 0 || weakMode == 1) && weakPol == -1)
@@ -2000,6 +2007,8 @@ bool SpaceShower::branch( Event& event) {
       int MEtypeNew = 203;
       if (idRecoiler == 21) MEtypeNew = 201;
       if (idRecoiler == idMother) MEtypeNew = 202;
+      // If original was a Drell-Yan, keep as Drell-Yan.
+      if( event[3].id() == - event[4].id()) MEtypeNew = 200;
       int weakPol = (rndmPtr->flat() > 0.5) ? -1 : 1;
       event[iMother].pol(weakPol);
       if ((weakMode == 0 || weakMode == 1) && weakPol == -1)
@@ -2025,7 +2034,7 @@ bool SpaceShower::branch( Event& event) {
   }
   if (dipEndSel->colType != 0 && side == 1) ++nRadA[iSysSel];
   else if (dipEndSel->colType != 0) ++nRadB[iSysSel];
-  
+
   // Update info on radiating dipole ends (QCD, QED or weak).
   for (int iDip = 0; iDip < int(dipEnd.size()); ++iDip)
   if ( dipEnd[iDip].system == iSysSel) {
@@ -2064,7 +2073,7 @@ bool SpaceShower::branch( Event& event) {
         && hasWeaklyRadiated) dipEnd[iDip].weakType = 0;
     }
   }
-  
+
   // Set polarisation of mother for weak emissions.
   if (dipEndSel->weakType != 0) mother.pol(dipEndSel->weakPol);
 
@@ -2196,7 +2205,7 @@ bool SpaceShower::branch( Event& event) {
     rescatterFail = true;
     return false;
   }
-    
+
   // Done without any errors.
   return true;
 

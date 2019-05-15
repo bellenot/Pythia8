@@ -89,7 +89,12 @@ bool ResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
   openNeg      = 1.;
 
   // Allow option where on-shell width is forced to current value.
+  // Disable for mixes gamma*/Z0/Z'0
   doForceWidth = particlePtr->doForceWidth();
+  if (idRes == 23 && settingsPtr->mode("WeakZ0:gmZmode") != 2) 
+    doForceWidth = false;
+  if (idRes == 33 && settingsPtr->mode("Zprime:gmZmode") != 3) 
+    doForceWidth = false;
   forceFactor  = 1.;
 
   // Check if we are supposed to do the width calculation
@@ -126,7 +131,7 @@ bool ResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
     }
 
     // Channels with meMode < 100 must be implemented in derived classes.
-    if (meMode < 100 || (meMode == 103 && allowCalcWidth)) {
+    if (meMode < 100 && allowCalcWidth) {
       
       // Read out information on channel: primarily use first two.
       id1       = particlePtr->channel(i).product(0);
@@ -366,7 +371,9 @@ double ResonanceWidths::width(int idSgn, double mHatIn, int idInFlavIn,
     // Optionally multiply by secondary widths.
     if (openOnly) widNow *= particlePtr->channel(i).openSec(idSgn);
 
-    // Optionally include factor to force to fixed width??
+    // Optionally include factor to force to fixed width.
+    if (doForceWidth) widNow *= forceFactor;
+
     // Optionally multiply by current/nominal resonance mass??
 
     // Sum back up.
@@ -621,12 +628,6 @@ void ResonanceGmZ::calcPreFac(bool calledFromInit) {
               / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
     resNorm   = vi2ai2 * pow2(thetaWRat * sH)
               / ( pow2(sH - m2Res) + pow2(sH * GamMRat) );
-
-    // Rescale Z0 height normalization to compensate for a width one??
-    //if (doForceWidth) {
-    //  intNorm *= forceFactor;
-    //  resNorm *= forceFactor;
-    //}
 
     // Optionally only keep gamma* or Z0 term.
     if (gmZmode == 1) {intNorm = 0.; resNorm = 0.;}
@@ -1458,12 +1459,6 @@ void ResonanceZprime::calcPreFac(bool calledFromInit) {
     ZZpNorm   = 2. * vaivapi * pow2(thetaWRat) * ((sH - m2Res) * (sH - m2Z)
               + sH * GamMRat * sH * GamMRatZ) * propZ * propZp;
     ZpNorm    = vapi2 * pow2(thetaWRat) * sH * propZp;
-
-    // Rescale Z0 height normalization to compensate for a width one??
-    //if (doForceWidth) {
-    //  intNorm *= forceFactor;
-    //  resNorm *= forceFactor;
-    //}
 
     // Optionally only keep some of gamma*, Z0 and Z' terms.
     if (gmZmode == 1) {gamZNorm = 0; ZNorm = 0.; gamZpNorm = 0.;

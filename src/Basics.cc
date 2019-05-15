@@ -1009,19 +1009,17 @@ ostream& operator<<(ostream& os, const Hist& h) {
 
 // Print histogram contents as a table (e.g. for Gnuplot).
 
-void Hist::table(ostream& os, bool printOverUnder) const {
+void Hist::table(ostream& os, bool printOverUnder, bool xMidBin) const {
 
   // Print histogram vector bin by bin, with mean x as first column.
   os << scientific << setprecision(4);
+  double xBeg = (xMidBin) ? xMin + 0.5 * dx : xMin;
   if (printOverUnder)
-    os << setw(12) << xMin - 0.5 * dx
-       << setw(12) << under << "\n";
+    os << setw(12) << xBeg - dx << setw(12) << under << "\n";
   for (int ix = 0; ix < nBin; ++ix)
-    os << setw(12) << xMin + (ix + 0.5) * dx
-       << setw(12) << res[ix] << "\n";
+    os << setw(12) << xBeg + ix * dx << setw(12) << res[ix] << "\n";
   if (printOverUnder)
-    os << setw(12) << xMin + (nBin + 0.5) * dx
-       << setw(12) << over << "\n";
+    os << setw(12) << xBeg + nBin * dx << setw(12) << over << "\n";
    
 }
 
@@ -1029,7 +1027,8 @@ void Hist::table(ostream& os, bool printOverUnder) const {
 
 // Print a table out of two histograms with same x axis  (e.g. for Gnuplot).
 
-void table(const Hist& h1, const Hist& h2, ostream& os, bool printOverUnder) {
+void table(const Hist& h1, const Hist& h2, ostream& os, bool printOverUnder,
+  bool xMidBin) {
 
   // Require histogram x axes to agree.
   if (h1.nBin != h2.nBin || abs(h1.xMin - h2.xMin) > Hist::TOLERANCE * h1.dx
@@ -1037,23 +1036,24 @@ void table(const Hist& h1, const Hist& h2, ostream& os, bool printOverUnder) {
 
   // Print histogram vectors bin by bin, with mean x as first column.
   os << scientific << setprecision(4);
+  double xBeg = (xMidBin) ? h1.xMin + 0.5 * h1.dx : h1.xMin;
   if (printOverUnder)
-    os << setw(12) << h1.xMin - 0.5 * h1.dx
-       << setw(12) << h1.under << setw(12) << h2.under << "\n";
+    os << setw(12) << xBeg - h1.dx << setw(12) << h1.under 
+       << setw(12) << h2.under << "\n";
   for (int ix = 0; ix < h1.nBin; ++ix)
-    os << setw(12) << h1.xMin + (ix + 0.5) * h1.dx
-       << setw(12) << h1.res[ix] << setw(12) << h2.res[ix] << "\n";
+    os << setw(12) << xBeg + ix * h1.dx << setw(12) << h1.res[ix] 
+       << setw(12) << h2.res[ix] << "\n";
   if (printOverUnder)
-    os << setw(12) << h1.xMin + (h1.nBin + 0.5) * h1.dx
-       << setw(12) << h1.over << setw(12) << h2.over << "\n";
+    os << setw(12) << xBeg + h1.nBin * h1.dx << setw(12) << h1.over 
+       << setw(12) << h2.over << "\n";
    
 }
 
 void table(const Hist& h1, const Hist& h2, string fileName,
-  bool printOverUnder) {
+  bool printOverUnder, bool xMidBin) {
   
   ofstream streamName(fileName.c_str());
-  table( h1, h2, streamName, printOverUnder);
+  table( h1, h2, streamName, printOverUnder, xMidBin);
 
 }
 

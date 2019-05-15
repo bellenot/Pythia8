@@ -7,6 +7,9 @@
 // in Alpgen for Alpgen input)
 // and Stephen Mrenna (implementation of MLM-style matching as
 // in Madgraph for Alpgen or Madgraph 5 input.)
+// and Simon de Visscher and Stefan Prestel (implementation of shower-kT
+// MLM-style matching and flavour treatment for Madgraph input, and FxFx NLO
+// jet matching with aMC@NLO.)
 // This file provides the classes to perform MLM matching of
 // Alpgen or MadGraph 5 input.
 // Example usage is shown in main32.cc, and further details
@@ -31,10 +34,11 @@ class JetMatching : virtual public UserHooks {
 public:
 
   // Constructor and destructor
- JetMatching() : cellJet(NULL), slowJet(NULL) {}
+ JetMatching() : cellJet(NULL), slowJet(NULL), slowJetHard(NULL) {}
   ~JetMatching() {
     if (cellJet) delete cellJet;
     if (slowJet) delete slowJet;
+    if (slowJetHard) delete slowJetHard;
   }
 
   // Initialisation
@@ -50,6 +54,11 @@ public:
   // Parton level vetos (before beam remnants and resonance decays)
   bool canVetoPartonLevelEarly() { return doMerge; }
   bool doVetoPartonLevelEarly(const Event& event);
+
+  // Shower step vetoes (after the first emission, for Shower-kT scheme)
+  int  numberVetoStep() {return 1;}
+  bool canVetoStep() { return true; }
+  bool doVetoStep(int,  int, int, const Event& ) { return false; }
 
 protected:
 
@@ -70,6 +79,9 @@ protected:
 
   // Master switch for merging
   bool   doMerge;
+  // Switch for merging in the shower-kT scheme. Needed here because
+  // the scheme uses different UserHooks functionality.
+  bool   doShowerKt;
 
   // Maximum and current number of jets
   int    nJetMax, nJet;
@@ -81,6 +93,7 @@ protected:
   // Internal jet algorithms
   CellJet* cellJet;
   SlowJet* slowJet;
+  SlowJet* slowJetHard;
 
   // SlowJet specific
   int    slowJetPower;
@@ -161,6 +174,11 @@ public:
   // Initialisation
   bool initAfterBeams();
 
+  // Shower step vetoes (after the first emission, for Shower-kT scheme)
+  int  numberVetoStep() {return 1;}
+  bool canVetoStep() { return doShowerKt; }
+  bool doVetoStep(int,  int, int, const Event& );
+
 protected:
 
   // Different steps of the matching algorithm.
@@ -170,10 +188,15 @@ protected:
   bool matchPartonsToJets(int);
   int  matchPartonsToJetsLight();
   int  matchPartonsToJetsHeavy();
+  bool doShowerKtVeto(double pTfirst);
 
   // Variables.
+  vector<int> origTypeIdx[3];
   int    nQmatch;
   double qCut, qCutSq, clFact;
+  bool   doFxFx;
+  int    nPartonsNow;
+  double qCutME, qCutMESq;
 
 };
 
@@ -206,6 +229,10 @@ bool JetMatching::doVetoPartonLevelEarly(const Event& event) {
   //    typeSet[0/1/2]   - Indices into 'event' of light jets/heavy jets/other
   //    workEvent        - partons from the hardest subsystem + ISR + FSR only
   sortIncomingProcess(event);
+
+  // For the shower-kT scheme, do not perform any veto here, as any vetoing
+  // will already have taken place in doVetoStep.
+  if ( doShowerKt ) return false;
 
   // Debug printout.
   if (MATCHINGDEBUG) {
@@ -307,9 +334,8 @@ void JetMatchingAlpgen::sortTypeIdx(vector < int > &vecIn) {
       eventProcess[vecIn[i]].eT() :
       eventProcess[vecIn[i]].pT();
     for (size_t j = i + 1; j < vecIn.size(); j++) {
-      double vNow = (jetAlgorithm == 1) ?
-        eventProcess[vecIn[j]].eT() :
-        eventProcess[vecIn[j]].pT();
+      double vNow = (jetAlgorithm == 1) 
+        ? eventProcess[vecIn[j]].eT() : eventProcess[vecIn[j]].pT();
       if (vNow > vMax) {
         vMax = vNow;
         jMax = j;
@@ -686,8 +712,8 @@ int JetMatchingAlpgen::matchPartonsToJetsLight() {
         if (jetAssigned[j]) continue;
 
         // DeltaR between parton/jet and store if minimum
-        double dR = (jetAlgorithm == 1) ?
-          REtaPhi(p1, jetMomenta[j]) : RRapPhi(p1, jetMomenta[j]);
+        double dR = (jetAlgorithm == 1) 
+          ? REtaPhi(p1, jetMomenta[j]) : RRapPhi(p1, jetMomenta[j]);
         if (jMin < 0 || dR < dRmin) {
           dRmin = dR;
           jMin  = j;
@@ -873,8 +899,15 @@ bool JetMatchingMadgraph::initAfterBeams() {
     }
   }
 
+  // Read in FxFx matching parameters
+  doFxFx       = settingsPtr->flag("JetMatching:doFxFx");
+  nPartonsNow  = settingsPtr->mode("JetMatching:nPartonsNow");
+  qCutME       = settingsPtr->parm("JetMatching:qCutME");
+  qCutMESq     = pow(qCutME,2);
+
   // Read in Madgraph merging parameters
   doMerge      = settingsPtr->flag("JetMatching:merge");
+  doShowerKt   = settingsPtr->flag("JetMatching:doShowerKt");
   qCut         = settingsPtr->parm("JetMatching:qCut");
   nQmatch      = settingsPtr->mode("JetMatching:nQmatch");
   clFact       = settingsPtr->parm("JetMatching:clFact");
@@ -915,6 +948,12 @@ bool JetMatchingMadgraph::initAfterBeams() {
   slowJet = new SlowJet(slowJetPower, coneRadius, eTjetMin,
     etaJetMaxAlgo, 2, 2, NULL, false);
 
+  // For FxFx, also initialise jet algorithm to define matrix element jets.
+  // Currently, this only supports the kT-algorithm in SlowJet.
+  // Use the QCD distance measure by default.
+  slowJetHard = new SlowJet(slowJetPower, coneRadius, qCutME,
+    etaJetMaxAlgo, 2, 2, NULL, false);
+
   // Setup local event records
   eventProcessOrig.init("(eventProcessOrig)", particleDataPtr);
   eventProcess.init("(eventProcess)", particleDataPtr);
@@ -951,6 +990,97 @@ bool JetMatchingMadgraph::initAfterBeams() {
 
 //--------------------------------------------------------------------------
 
+bool JetMatchingMadgraph::doVetoStep(int iPos, int nISR, int nFSR,
+  const Event& event)  {
+
+  // Do not perform any veto if not in the Shower-kT scheme.
+  if ( !doShowerKt ) return false;
+
+  // Default to no veto in case the hard input matrix element already has too
+  // many partons (same as in Pythia6).
+  if ( int(typeIdx[0].size()) > nJetMax ) return false;
+
+  // Do nothing for emissions after the first one.
+  if ( nISR + nFSR > 1 ) return false;
+
+  // Do nothing in resonance decay showers.
+  if (iPos == 5) return false;
+
+  // Clear the event of MPI systems and resonace decay products. Store trimmed
+  // event in workEvent.
+  sortIncomingProcess(event);
+
+  // Get (kinematical) pT of first emission
+  double pTfirst = 0.;
+  for (int i = 0; i < workEvent.size(); i++){
+    // Since this event only contains one emission, this test is enough
+    // to isolate this emission.
+    if ( workEvent[i].isFinal()
+      && (workEvent[i].statusAbs()==43 || workEvent[i].statusAbs()==51)) {
+      // Only check partons originating from QCD splittings.
+      int iPos = 1;
+      bool QCDemission = true;
+      while ( workEvent[iPos].statusAbs() > 23 ) {
+        if ( workEvent[iPos].id() == 22 || workEvent[iPos].id() == 23
+          || workEvent[iPos].idAbs() == 24){
+          QCDemission = false;
+          break;
+        }
+        iPos = workEvent[iPos].mother1();
+      }
+      // Get kinematical pT.
+      if (QCDemission) {
+        pTfirst = workEvent[i].pT();
+        break;
+      }
+    }
+  }
+
+  // Check veto.
+  if ( doShowerKtVeto(pTfirst) ) return true;
+
+  // No veto if come this far.
+  return false;
+
+}
+
+//--------------------------------------------------------------------------
+
+bool JetMatchingMadgraph::doShowerKtVeto(double pTfirst) {
+
+  // Only check veto in the shower-kT scheme.
+  if ( !doShowerKt ) return false;
+
+  // Reset veto code
+  bool doVeto = false;
+
+  // Find the (kinematical) pT of the softest (light) parton in the hard
+  // process.	
+  int nParton = typeIdx[0].size();
+  double pTminME=1e10;	
+  for ( int i = 0; i < nParton; ++i)
+    pTminME = min(pTminME,eventProcess[typeIdx[0][i]].pT());
+
+  // Veto if the softest hard process parton is below Qcut.
+  if ( nParton > 0 && pow(pTminME,2) < qCutSq ) doVeto = true;
+
+  // For non-highest multiplicity, veto if the hardest emission is harder
+  // than Qcut.
+  if ( exclusive && pow(pTfirst,2) > qCutSq ) {
+    doVeto = true;
+  // For highest multiplicity sample, veto if the hardest emission is harder
+  // than the hard process parton.
+  } else if ( !exclusive && nParton > 0 && pTfirst > pTminME ) {
+    doVeto = true;	
+  }
+
+  // Return veto
+  return doVeto;
+
+}
+
+//--------------------------------------------------------------------------
+
 // Step (1): sort the incoming particles
 
 void JetMatchingMadgraph::sortIncomingProcess(const Event &event) {
@@ -958,7 +1088,75 @@ void JetMatchingMadgraph::sortIncomingProcess(const Event &event) {
   // Remove resonance decays from original process and keep only final
   // state. Resonances will have positive status code after this step.
   omitResonanceDecays(eventProcessOrig, true);
-  eventProcess = workEvent;
+
+  // For FxFx, pre-cluster partons in the event into jets.
+  if (doFxFx) {
+
+    // Get final state partons
+    eventProcess.clear();
+    workEventJet.clear();
+    for( int i=0; i < workEvent.size(); ++i) {
+      // Original AG+Py6 algorithm explicitly excludes tops,
+      // leptons and photons.
+      int id = workEvent[i].idAbs();
+      if ((id >= ID_LEPMIN && id <= ID_LEPMAX) || id == ID_TOP
+        || id == ID_PHOTON || id == 23 || id == 24 || id == 25) {
+        eventProcess.append(workEvent[i]);
+      } else {
+        workEventJet.append(workEvent[i]);
+      }
+    }
+
+    // Initialize SlowJetHard jet algorithm with current working event
+    if (!slowJetHard->setup(workEventJet) ) {
+      infoPtr->errorMsg("Warning in JetMatchingMadgraph:sortIncomingProcess"
+        ": the SlowJet algorithm failed on setup");
+      return;
+    }
+
+    // Get matrix element cut scale.
+    double localQcutSq = qCutMESq;
+    // Cluster in steps to find all hadronic jets at the scale qCutME
+    while ( slowJetHard->sizeAll() - slowJetHard->sizeJet() > 0 ) {
+      // Done if next step is above qCut
+      if( slowJetHard->dNext() > localQcutSq ) break;
+      // Done if we're at or below the number of partons in the Born state.
+      if( slowJetHard->sizeAll()-slowJetHard->sizeJet() <= nPartonsNow) break;
+      slowJetHard->doStep();
+    }
+
+    // Construct a master copy of the event containing only the
+    // hardest nPartonsNow hadronic clusters. While constructing the event,
+    // the parton type (ID_GLUON) and status (98,99) are arbitrary.
+    int nJets = slowJetHard->sizeJet();
+    int nClus = slowJetHard->sizeAll();
+    int nNow = 0;
+    for (int i = nJets; i < nClus; ++i) {
+      vector<int> parts;
+      if (i < nClus-nJets) parts = slowJetHard->clusConstituents(i);
+      else parts = slowJetHard->constituents(nClus-nJets-i);
+      int flavour = ID_GLUON;
+      for(int j=0; j < int(parts.size()); ++j)
+        if (workEventJet[parts[j]].id() == ID_BOT)
+          flavour = ID_BOT;
+      eventProcess.append( flavour, 98,
+        workEventJet[parts.back()].mother1(),
+        workEventJet[parts.back()].mother2(),
+        workEventJet[parts.back()].daughter1(),
+        workEventJet[parts.back()].daughter2(),
+        0, 0, slowJetHard->p(i).px(), slowJetHard->p(i).py(),
+        slowJetHard->p(i).pz(), slowJetHard->p(i).e() );
+      nNow++;
+    }
+
+    // Done. Clean-up
+    workEventJet.clear();
+
+  // For MLM matching, simply take hard process state from workEvent,
+  // without any preclustering.
+  } else {
+    eventProcess = workEvent;
+  }
 
   // Sort original process final state into light/heavy jets and 'other'.
   // Criteria:
@@ -972,30 +1170,46 @@ void JetMatchingMadgraph::sortIncomingProcess(const Event &event) {
   for (int i = 0; i < 3; i++) {
     typeIdx[i].clear();
     typeSet[i].clear();
+    origTypeIdx[i].clear();
   }
   for (int i = 0; i < eventProcess.size(); i++) {
     // Ignore non-final state and default to 'other'
     if (!eventProcess[i].isFinal()) continue;
     int idx = 2;
+    int orig_idx = 2;
 
     // Light jets: all gluons and quarks with id less than or equal to nQmatch
     if (eventProcess[i].id() == ID_GLUON
-      || (eventProcess[i].idAbs() <= nQmatch) ) idx = 0;
+      || (eventProcess[i].idAbs() <= nQmatch) ) {
+      orig_idx = 0;
+      // Crucial point: MG puts the scale of a non-QCD particle to eCM. For
+      // such particles, we should keep the default "2"
+      if ( eventProcess[i].scale() < 1.999*sqrt(infoPtr->eA()*infoPtr->eB()) )
+        idx = 0;
+    }
 
     // Heavy jets:  all quarks with id greater than nQmatch
     else if (eventProcess[i].idAbs() > nQmatch
-      && eventProcess[i].idAbs() <= ID_TOP) idx = 1;
+      && eventProcess[i].idAbs() <= ID_TOP) {
+      idx = 1;
+      orig_idx = 1;
+
+    } else {
+      idx = 2;
+      orig_idx = 2;
+    }
 
     // Store
     typeIdx[idx].push_back(i);
     typeSet[idx].insert(eventProcess[i].daughter1());
+    origTypeIdx[orig_idx].push_back(i);
   }
 
   // Exclusive mode; if set to 2, then set based on nJet/nJetMax
   if (exclusiveMode == 2) {
 
     // Inclusive if nJet == nJetMax, exclusive otherwise
-    int nParton = typeIdx[0].size();
+    int nParton = origTypeIdx[0].size();
     exclusive = (nParton == nJetMax) ? false : true;
 
   // Otherwise, just set as given
@@ -1028,7 +1242,7 @@ void JetMatchingMadgraph::jetAlgorithmInput(const Event &event, int iType) {
       // leptons and photons.
       int id = workEventJet[i].idAbs();
       if ((id >= ID_LEPMIN && id <= ID_LEPMAX) || id == ID_TOP
-      || id == ID_PHOTON) {
+      || id == ID_PHOTON || (id > nQmatch && id!=21)) {
         workEventJet[i].statusNeg();
         continue;
       }
@@ -1112,7 +1326,7 @@ bool JetMatchingMadgraph::matchPartonsToJets(int iType) {
 int JetMatchingMadgraph::matchPartonsToJetsLight() {
 
   // Count the number of hard partons
-  int nParton = typeIdx[0].size();
+  int nParton = origTypeIdx[0].size();
 
   // Initialize SlowJet with current working event
   if (!slowJet->setup(workEventJet) ) {
@@ -1136,24 +1350,47 @@ int JetMatchingMadgraph::matchPartonsToJetsLight() {
 
   // Count of the number of hadronic jets in SlowJet accounting
   int nCLjets = nClus - nJets;
-  // Compare number of hadronic jets to number of partons
-  // Veto event if too few hadronic jets
-  if ( nCLjets < nParton ) return LESS_JETS;
-  // In exclusive mode, do not allow more hadronic jets than partons
-  if ( exclusive ) {
-    if ( nCLjets > nParton ) return MORE_JETS;
+  // Get number of partons. Different for MLM and FxFx schemes.
+  int nRequested = (doFxFx) ? nPartonsNow : nParton;
 
-  // In inclusive mode, there can be more hadronic jets than partons,
-  //  provided that all partons have a matching hadronic jet
+  // Veto event if too few hadronic jets
+  if ( nCLjets < nRequested ) return LESS_JETS;
+
+  // In exclusive mode, do not allow more hadronic jets than partons
+  if ( exclusive && !doFxFx ) {
+    if ( nCLjets > nRequested ) return MORE_JETS;
   } else {
+
+    // For FxFx, in the non-highest multipicity, all jets need to matched to
+    // partons. For nCLjets > nRequested, this is not possible. Hence, we can
+    // veto here already.
+    if ( doFxFx && nRequested < nJetMax && nCLjets > nRequested )
+      return MORE_JETS;
+
+    // Now continue in inclusive mode.
+    // In inclusive mode, there can be more hadronic jets than partons,
+    // provided that all partons are properly matched to hadronic jets.
+    // Start by setting up the jet algorithm.
     if (!slowJet->setup(workEventJet) ) {
       infoPtr->errorMsg("Warning in JetMatchingMadgraph:matchPartonsToJets"
         "Light: the SlowJet algorithm failed on setup");
       return NONE;
     }
-    // Cluster into hadronic jets until there are the same number as partons
-    while ( slowJet->sizeAll() - slowJet->sizeJet() > nParton )
-      slowJet->doStep();
+
+    // For FxFx, continue clustering as long as the jet separation is above
+    // qCut.
+    if (doFxFx) {
+      while ( slowJet->sizeAll() - slowJet->sizeJet() > 0 ) {
+        if( slowJet->dNext() > localQcutSq ) break;
+        slowJet->doStep();
+      }
+    // For MLM, cluster into hadronic jets until there are the same number as
+    // partons.
+    } else {
+      while ( slowJet->sizeAll() - slowJet->sizeJet() > nParton )
+        slowJet->doStep();
+    }
+
     // Sort partons in pT.  Update local qCut value.
     //  Hadronic jets are already sorted in pT.
     localQcutSq = dOld;
@@ -1182,30 +1419,97 @@ int JetMatchingMadgraph::matchPartonsToJetsLight() {
       slowJet->p(i).py(), slowJet->p(i).pz(), slowJet->p(i).e() );
     ++nPass;
     pTminEstimate = max( pTminEstimate, slowJet->pT(i));
-    if(nPass == nParton) break;
+    if(nPass == nRequested) break;
   }
-  size_t tempSize = tempEvent.size();
+
+  int tempSize = tempEvent.size();
   // This keeps track of which hadronic jets are matched to parton
   vector<bool> jetAssigned;
   jetAssigned.assign( tempSize, false);
 
+  // This keeps track of which partons are matched to which hadronic
+  // jets.
+  vector< vector<bool> > partonMatchesJet;
+  for (int i=0; i < nParton; ++i )
+    partonMatchesJet.push_back( vector<bool>(tempEvent.size(),false) );
+
+  // Begin matching.
+  // Do jet matching for FxFx.
+  // Make sure that the nPartonsNow hardest hadronic jets are matched to any
+  // of the nPartonsNow (+1) partons. This matching is done by attaching a jet
+  // from the list of unmatched hadronic jets, and appending a jet from the
+  // list of partonic jets, one at a time. The partonic jet will be clustered
+  // with the hadronic jet or the beam if the distance measure is below the
+  // cut. The hadronic jet is matched once this happens. Otherwise, another
+  // partonic jet is tried. When a hadronic jet is matched to a partonic jet,
+  // it is removed from the list of unmatched hadronic jets. This process
+  // continues until the nPartonsNow hardest hadronic jets are matched to
+  // partonic jets, or it is not possible to make a match for a hadronic jet.
+  int iNow = 0;
+  while ( doFxFx && iNow < tempSize ) {
+ 
+    // Check if this shower jet matches any partonic jet.
+    Event tempEventJet;
+    tempEventJet.init("(tempEventJet)", particleDataPtr);
+    for (int i=0; i < nParton; ++i ) {
+
+      //// Only assign a parton once.
+      //for (int j=0; j < tempSize; ++j )
+      //  if ( partonMatchesJet[i][j]) continue;
+
+      // Attach a single hadronic jet.
+      tempEventJet.clear();
+      tempEventJet.append( ID_GLUON, 98, 0, 0, 0, 0, 0, 0,
+        tempEvent[iNow].px(), tempEvent[iNow].py(),
+        tempEvent[iNow].pz(), tempEvent[iNow].e() );
+      // Attach the current parton.
+      Vec4 pIn = eventProcess[typeIdx[0][i]].p();
+      tempEventJet.append( ID_GLUON, 99, 0, 0, 0, 0, 0, 0,
+        pIn.px(), pIn.py(), pIn.pz(), pIn.e() );
+
+      // Setup jet algorithm.
+      if ( !slowJet->setup(tempEventJet) ) {
+        infoPtr->errorMsg("Warning in JetMatchingMadgraph:matchPartonsToJets"
+          "Light: the SlowJet algorithm failed on setup");
+        return NONE;
+      }
+
+      // These are the conditions for the hadronic jet to match the parton
+      //  at the local qCut scale
+      if ( slowJet->iNext() == tempEventJet.size() - 1
+        && slowJet->jNext() > -1 && slowJet->dNext() < localQcutSq ) {
+        jetAssigned[iNow] = true;
+        partonMatchesJet[i][iNow] = true;
+      }
+
+    } // End loop over hard partons.
+
+    // Veto if the jet could not be assigned to any parton.
+    if ( !jetAssigned[iNow] ) return UNMATCHED_PARTON;
+
+    // Continue;
+    ++iNow;
+  }
+
+  // Do jet matching for MLM.
   // Take the list of unmatched hadronic jets and append a parton, one at
   // a time. The parton will be clustered with the "closest" hadronic jet
   // or the beam if the distance measure is below the cut. When a hadronic
   // jet is matched to a parton, it is removed from the list of unmatched
   // hadronic jets. This process continues until all hadronic jets are
   // matched to partons or it is not possible to make a match.
-  int iNow = 0;
-  while ( iNow < nParton ) {
+  iNow = 0;
+  while (!doFxFx && iNow < nParton ) {
     Event tempEventJet;
     tempEventJet.init("(tempEventJet)", particleDataPtr);
-    for (size_t i = 0; i < tempSize; ++i) {
+    for (int i = 0; i < tempSize; ++i) {
       if (jetAssigned[i]) continue;
       Vec4 pIn = tempEvent[i].p();
       // Append unmatched hadronic jets
       tempEventJet.append( ID_GLUON, 98, 0, 0, 0, 0, 0, 0,
         pIn.px(), pIn.py(), pIn.pz(), pIn.e() );
     }
+
     Vec4 pIn = eventProcess[typeIdx[0][iNow]].p();
     // Append the current parton
     tempEventJet.append( ID_GLUON, 99, 0, 0, 0, 0, 0, 0,
@@ -1220,13 +1524,15 @@ int JetMatchingMadgraph::matchPartonsToJetsLight() {
     if ( slowJet->iNext() == tempEventJet.size() - 1
       && slowJet->jNext() > -1 && slowJet->dNext() < localQcutSq ) {
       int iKnt = -1;
-      for (size_t i = 0; i != tempSize; ++i) {
+      for (int i = 0; i != tempSize; ++i) {
         if (jetAssigned[i]) continue;
         ++iKnt;
         // Identify the hadronic jet that matches the parton
         if (iKnt == slowJet->jNext() ) jetAssigned[i] = true;
       }
-    } else { return UNMATCHED_PARTON; }
+    } else {
+      return UNMATCHED_PARTON;
+    }
     ++iNow;
   }
 

@@ -8,6 +8,9 @@
 # User-changeable part -------------------------------
 #
 
+RELSRCDIR=`dirname $0`
+ABSSRCDIR=`cd $RELSRCDIR && pwd`
+
 #LCG platform. Can be needed if external libraries are specified
 if [ x$MYLCGPLATFORM = x ]; then
   export MYLCGPLATFORM=x86_64-slc5-gcc43-opt
@@ -17,7 +20,7 @@ fi
 export COMPMODE=OPT
 export SHAREDLIBS=no
 export ENABLEGZIP=no
-export INSTALLDIR=.
+export INSTALLDIR=$ABSSRCDIR
 export DATADIR=
 
 for arg in $* ; do

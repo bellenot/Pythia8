@@ -480,6 +480,7 @@ void ResonanceSquark::calcPreFac(bool) {
   alpS   = coupSUSYPtr->alphaS(mHat * mHat );
   alpEM  = coupSUSYPtr->alphaEM(mHat * mHat);
   preFac = 1.0 / (s2W * pow(mHat,3));
+  ps *= mHat * mHat;
 
 }
 
@@ -654,7 +655,7 @@ void ResonanceSquark::calcWidth(bool) {
     }
     
     // TODO: Case ~q_i -> ~q_j + h/H
-    widNow = fac * wid * ps;
+    widNow = fac * wid * ps * pow2(mHat);
     if (DBSUSY) cout<<idRes<<":: id1:"<<id1Abs<<" id2:"<<id2Abs
                   <<" Width: "<<widNow<<endl;
     return;
@@ -718,7 +719,7 @@ void ResonanceGluino::calcWidth(bool) {
              + 4.0 * mHat * mf2 * real(coupSUSYPtr->LsuuG[isq][iq]
              * conj(coupSUSYPtr->RsuuG[isq][iq]));
     }
-    widNow = widNow * preFac * ps;
+    widNow = widNow * preFac * ps * pow2(mHat);
     if (DBSUSY) {
       cout<<"Gluino:: id1:"<<id1Abs<<" id2:"<<id2Abs<<" Width: ";
       cout<<scientific<<widNow<<endl;
@@ -823,6 +824,10 @@ void  ResonanceNeut::calcWidth(bool){
       // Extra multiplicative factor of 3 over sleptons
       fac *= 6.0/(1 - s2W);
     }
+    else if (id1Abs > 2000010 && id1Abs%2 == 0 ) {
+      // Check for right-handed neutralinos.
+      widNow = 0;
+    }
     else if (id1Abs > 1000000 && id1Abs%100 > 10 && id1Abs%100 < 17
       && id2Abs < 17){
       // ~chi0_k -> ~l + l
@@ -844,7 +849,7 @@ void  ResonanceNeut::calcWidth(bool){
     }
     // TODO: Decays in higgs
     // Final width for 2-body decays
-    widNow = fac * preFac * ps ;
+    widNow = fac * preFac * ps * pow2(mHat);
     if (DBSUSY) {
       cout<<idRes<<":: id1:"<<id1Abs<<" id2:"<<id2Abs<<" Width: ";
       cout<<scientific<<widNow<<endl;
@@ -1125,6 +1130,10 @@ void  ResonanceChar::calcWidth(bool) {
       }
       fac *= 6.0/(1 - s2W);
     }
+    else if (id1Abs > 2000010 && id1Abs%2 == 0 ) {
+      // Check for right-handed neutralinos.
+      widNow = 0;
+    }
     else if (id1Abs > 1000000 && id1Abs%100 > 10 && id1Abs%100 < 17
       && id2Abs < 17){
       // ~chi+_k -> ~l + l
@@ -1146,7 +1155,7 @@ void  ResonanceChar::calcWidth(bool) {
     }
 
     // TODO: Decays in higgs
-    widNow = fac * preFac * ps ;
+    widNow = fac * preFac * ps * pow2(mHat);
     if (DBSUSY) {
       cout<<idRes<<":: id1:"<<id1Abs<<" id2:"<<id2Abs<<" Width: ";
       cout<<scientific<<widNow<<endl;
@@ -1273,7 +1282,7 @@ void ResonanceSlepton::calcWidth(bool) {
     // TODO: Case ~l_i -> ~l_j + h/H
     
     
-    widNow = fac * wid * ps;
+    widNow = fac * wid * ps * pow2(mHat);
     if (DBSUSY) cout<<idRes<<":: id1:"<<id1Abs<<" id2:"<<id2Abs
                   <<" Width: "<<widNow<<endl;
     return;

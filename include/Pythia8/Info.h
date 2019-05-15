@@ -147,6 +147,8 @@ public:
 
   // Cross section estimate, optionally process by process.
   vector<int> codesHard();
+  string nameProc(int i = 0)  {return (i == 0) ? "sum" 
+    : ( (procNameM[i] == "") ? "unknown process" : procNameM[i] );}
   long   nTried(int i = 0)    {return (i == 0) ? nTry : nTryM[i];}
   long   nSelected(int i = 0) {return (i == 0) ? nSel : nSelM[i];}
   long   nAccepted(int i = 0) {return (i == 0) ? nAcc : nAccM[i];}
@@ -237,6 +239,7 @@ private:
   // Store common integrated cross section quantities.
   long   nTry, nSel, nAcc;
   double sigGen, sigErr, wtAccSum;
+  map<int, string> procNameM;
   map<int, long> nTryM, nSelM, nAccM;
   map<int, double> sigGenM, sigErrM;
   int    lhaStrategySave;
@@ -351,14 +354,18 @@ private:
 
   // Set info on cross section: from ProcessLevel (reset in Pythia).
   void sigmaReset() { nTry = nSel = nAcc = 0; sigGen = sigErr = wtAccSum = 0.;
-    nTryM.clear(); nSelM.clear(); nAccM.clear(); sigGenM.clear();
-    sigErrM.clear();}
-  void setSigma( int i, long nTryIn, long nSelIn, long nAccIn,
-    double sigGenIn, double sigErrIn, double wtAccSumIn) {
+    procNameM.clear(); nTryM.clear(); nSelM.clear(); nAccM.clear(); 
+    sigGenM.clear(); sigErrM.clear();}
+  void setSigma( int i, string procNameIn, long nTryIn, long nSelIn,
+    long nAccIn, double sigGenIn, double sigErrIn, double wtAccSumIn) {
     if (i == 0) {nTry = nTryIn; nSel = nSelIn; nAcc = nAccIn;
       sigGen = sigGenIn; sigErr = sigErrIn; wtAccSum = wtAccSumIn;}
-    else { nTryM[i] = nTryIn; nSelM[i] = nSelIn; nAccM[i] = nAccIn;
-      sigGenM[i] = sigGenIn; sigErrM[i] = sigErrIn;} }
+    else {procNameM[i] = procNameIn; nTryM[i] = nTryIn; nSelM[i] = nSelIn;
+      nAccM[i] = nAccIn; sigGenM[i] = sigGenIn; sigErrM[i] = sigErrIn;} }
+  void addSigma( int i, long nTryIn, long nSelIn, long nAccIn, double sigGenIn,
+    double sigErrIn) { nTryM[i] += nTryIn; nSelM[i] += nSelIn; 
+    nAccM[i] += nAccIn; sigGenM[i] += sigGenIn;
+    sigErrM[i] = sqrtpos(sigErrM[i]*sigErrM[i] + sigErrIn*sigErrIn); }
 
   // Set info on impact parameter: from PartonLevel.
   void setImpact( double bMPIIn, double enhanceMPIIn, bool bIsSetIn = true) {

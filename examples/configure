@@ -36,7 +36,7 @@ for arg in $* ; do
     echo "--with-lhapdflibname=n   : lhapdf library name line (default is -lLHAPDF)"
     echo "--with-lhapdfsets=path   : path to LHAPDF data (default is lhapdfpath/../PDFsets, CERN AFS default is lhapdfpath/../../../share/PDFsets)"
     echo "--with-fastjet=path      : path to fastjet (default = /usr/local)"
-    echo "--with-fastjetversion=v  : fastjet version (simplified alternative when using CERN AFS external, e.g. =2.3.3)"
+    echo "--with-fastjetversion=v  : fastjet version (simplified alternative when using CERN AFS external, e.g. =2.3.3); ignored if --with-fastjet option is used"
     exit
   elif [ x`echo x${arg} | grep "="` != x ] ; then
     option=`echo ${arg} | awk -F = '{print $1}'`
@@ -107,12 +107,14 @@ if [ x${LHAPDFSETSLOCATION} = x ]; then
 fi
 
 # Fastjet location
-if [ x${FASTJETVERSION} != x ]; then
-  export FASTJETLOCATION=/afs/cern.ch/sw/lcg/external/fastjet/${FASTJETVERSION}/${MYLCGPLATFORM}
-fi
+# If no explicit FASTJETLOCATION has been set, choose between default and AFS option.
 if [ x${FASTJETLOCATION} = x ]; then
-  export FASTJETLOCATION=/usr/local
-fi
+  if [ x${FASTJETVERSION} != x ]; then
+    export FASTJETLOCATION=/afs/cern.ch/sw/lcg/external/fastjet/${FASTJETVERSION}/${MYLCGPLATFORM}
+  else
+    export FASTJETLOCATION=/usr/local
+  fi
+fi 
 
 #
 # User-changeable part, experts  -----------------------------

@@ -85,9 +85,12 @@ private:
   ColConfig     colConfig;
 
   // Colour information.
-  vector<int>    iColEnd, iAcolEnd, iColAndAcol, iParton, iPartonJun,
-                 iPartonAntiJun, iJunLegA, iJunLegB, iJunLegC,
+  vector<int>    iColEnd, iAcolEnd, iColAndAcol, iParton, 
+                 iJunLegA, iJunLegB, iJunLegC,
                  iAntiLegA, iAntiLegB, iAntiLegC, iGluLeg;
+
+  vector< vector<int > > iPartonJun, iPartonAntiJun;
+
   vector<double> m2Pair;
 
   // The generator class for normal string fragmentation.

@@ -135,7 +135,8 @@ protected:
 //==========================================================================
 
 // The ResonanceGeneric class handles a generic resonance.
-// Only needs a constructor; for the rest uses defaults in base class.
+// Only needs a constructor and allowCalc = false; for the rest uses 
+// defaults in base class. 
 
 class ResonanceGeneric : public ResonanceWidths {
 
@@ -143,6 +144,9 @@ public:
 
   // Constructor.
   ResonanceGeneric(int idResIn) {initBasic(idResIn, true);}
+
+  // By default, assume no dedicated code exists to compute width.
+  virtual bool allowCalc() {return false;}
 
 };
   

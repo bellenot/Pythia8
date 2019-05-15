@@ -1327,7 +1327,8 @@ void HardProcess::storeCandidates( const Event& event, string process){
         && outgoing2[j] != 2212
         && ( abs(outgoing2[j]) < 10
           || (abs(outgoing2[j]) > 1000000 && abs(outgoing2[j]) < 1000010)
-          || (abs(outgoing2[j]) > 2000000 && abs(outgoing2[j]) < 2000010) )
+          || (abs(outgoing2[j]) > 2000000 && abs(outgoing2[j]) < 2000010)
+          || abs(outgoing2[j]) == 1000021 )
         && event[i].isFinal()
         && event[i].id() == outgoing2[j] ){
         out2copy.insert(make_pair(j, i));
@@ -1342,7 +1343,8 @@ void HardProcess::storeCandidates( const Event& event, string process){
         && outgoing1[j] != 2212
         && ( abs(outgoing1[j]) < 10
           || (abs(outgoing1[j]) > 1000000 && abs(outgoing1[j]) < 1000010)
-          || (abs(outgoing1[j]) > 2000000 && abs(outgoing1[j]) < 2000010) )
+          || (abs(outgoing1[j]) > 2000000 && abs(outgoing1[j]) < 2000010)
+          || abs(outgoing2[j]) == 1000021 )
         && event[i].isFinal()
         && event[i].id() == outgoing1[j] ){
         out1copy.insert(make_pair(j, i));
@@ -1530,8 +1532,10 @@ bool HardProcess::matchesAnyOutgoing(int iPos, const Event& event){
     if ( event[iPos].id()         == state[PosOutgoing1[i]].id()
      && event[iPos].colType()    == state[PosOutgoing1[i]].colType()
      && event[iPos].chargeType() == state[PosOutgoing1[i]].chargeType()
-     && ( event[iPos].col()        == state[PosOutgoing1[i]].col()
-       || event[iPos].acol()       == state[PosOutgoing1[i]].acol())
+     && ( ( event[iPos].col() > 0
+         && event[iPos].col() == state[PosOutgoing1[i]].col())
+       || ( event[iPos].acol() > 0
+         && event[iPos].acol() == state[PosOutgoing1[i]].acol()))
      && event[iPos].charge()     == state[PosOutgoing1[i]].charge() )
       matchQN1 = true;
 
@@ -1541,8 +1545,10 @@ bool HardProcess::matchesAnyOutgoing(int iPos, const Event& event){
     if ( event[iPos].id()         == state[PosOutgoing2[i]].id()
      && event[iPos].colType()    == state[PosOutgoing2[i]].colType()
      && event[iPos].chargeType() == state[PosOutgoing2[i]].chargeType()
-     && ( event[iPos].col()        == state[PosOutgoing2[i]].col()
-       || event[iPos].acol()       == state[PosOutgoing2[i]].acol())
+     && ( ( event[iPos].col() > 0
+         && event[iPos].col() == state[PosOutgoing2[i]].col())
+       || ( event[iPos].acol() > 0
+         && event[iPos].acol() == state[PosOutgoing2[i]].acol()))
      && event[iPos].charge()     == state[PosOutgoing2[i]].charge() )
       matchQN2 = true;
 
@@ -1591,8 +1597,8 @@ bool HardProcess::findOtherCandidates(int iPos, const Event& event,
 
   // If the particle's mother is an identified intermediate resonance,
   // then do not attempt any replacement.
-  int iMoth1 = event[iPos].mother1(); 
-  int iMoth2 = event[iPos].mother2(); 
+  int iMoth1 = event[iPos].mother1();
+  int iMoth2 = event[iPos].mother2();
   if ( iMoth1 > 0 && iMoth2 == 0 ) {
     bool hasIdentifiedMother = false;
     for(int i=0; i < int(PosIntermediate.size()); ++i)

@@ -286,18 +286,31 @@ The <i>coneMatchHeavy</i> parameter used when
    
  
 <h3>Madgraph-specific parameters </h3> 
- 
-<br/><br/><table><tr><td><strong>JetMatching:qCut </td><td></td><td> <input type="text" name="12" value="10.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
+
+<br/><br/><strong>JetMatching:doShowerKt</strong>  <input type="radio" name="12" value="on"><strong>On</strong>
+<input type="radio" name="12" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+This switch changes the merging prescription to the shower-kT matching scheme 
+outlined in [<a href="Bibliography.php" target="page">Alw08</a>]. This scheme differs from "classical" MLM jet 
+matching with respect to when the matching veto is checked. The shower-kT 
+scheme considers already immediately after the first shower emission if an 
+event should be discarded. A detailed comparison of the "classical" MLM 
+prescription (e.g. Madgraph-style matching with 
+<code>JetMatching:doShowerKt = off</code>) and the shower-kT scheme are 
+in preparation. 
+   
+  
+<br/><br/><table><tr><td><strong>JetMatching:qCut </td><td></td><td> <input type="text" name="13" value="10.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.0</strong></code>; <code>minimum = 0.0</code>)</td></tr></table>
 k<sub>T</sub> scale for merging shower products into jets. 
    
  
 <br/><br/><table><tr><td><strong>JetMatching:nQmatch  </td><td>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 3</code>; <code>maximum = 6</code>)</td></tr></table>
 Controls the treatment of heavy quarks. 
 <br/>
-<input type="radio" name="13" value="5" checked="checked"><strong>5 </strong>:   All quarks (except top) are treated as light quarks for matching.  <br/>
-<input type="radio" name="13" value="4"><strong>4 </strong>:   Bottom quarks are treated separately.  Currently, they are unmatched.  <br/>
+<input type="radio" name="14" value="5" checked="checked"><strong>5 </strong>:   All quarks (except top) are treated as light quarks for matching.  <br/>
+<input type="radio" name="14" value="4"><strong>4 </strong>:   Bottom quarks are treated separately.  Currently, they are unmatched.  <br/>
  
-<br/><br/><table><tr><td><strong>JetMatching:clFact </td><td></td><td> <input type="text" name="14" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>JetMatching:clFact </td><td></td><td> <input type="text" name="15" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>)</td></tr></table>
 The <i>clFact</i> parameter determines how jet-to parton matching 
 is done. A match is defined as a squared cluster scale that equals: 
 <br/><i>|clFact| * qCut</i> for inclusive mode, 
@@ -305,6 +318,35 @@ is done. A match is defined as a squared cluster scale that equals:
 for exclusive mode, <i>clFact</i> &ge; 0, or 
 <br/><i>|clFact| * min(k<sub>T</sub>(parton))</i> for exclusive mode, 
 <i>clFact</i> &lt; 0. 
+   
+
+<p/> 
+A preliminary implementation of the FxFx prescription for combining multiple 
+NLO calculations [<a href="Bibliography.php" target="page">Fre12</a>] is available. We would like to stress that 
+this implementation is still undergoing validation. FxFx merging with aMC@NLO 
+shares most parameters with the leading-order (MadGraph-style) MLM 
+prescriptions and can be activated by using the three additional settings 
+below. 
+ 
+<br/><br/><strong>JetMatching:doFxFx</strong>  <input type="radio" name="16" value="on"><strong>On</strong>
+<input type="radio" name="16" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+If turned on, then FxFx merging with aMC@NLO inputs is performed. Note that 
+this requires event samples that are specifically generated for this task. 
+   
+ 
+<p/><code>mode&nbsp; </code><strong> JetMatching:nPartonsNow &nbsp;</strong> 
+ (<code>default = <strong>-1</strong></code>)<br/>
+The number of partons in Born-like events for the current input LHEF. If 
+the current sample e.g. contains <i>pp &rarr; e+e- + 2 partons</i> 
+Born-like configurations, and <i>pp &rarr; e+e- + 3 partons</i> 
+Real-emission-type events, then <code>JetMatching:nPartonsNow = 2</code> 
+applies. 
+   
+ 
+<br/><br/><table><tr><td><strong>JetMatching:qCutME </td><td></td><td> <input type="text" name="17" value="10.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.0</strong></code>)</td></tr></table>
+The cut applied to regulate multi-jet matrix elements. Note that this cut can 
+differ from the matching scale. 
    
  
 <h2>Alpgen-style parton-jet matching and merging</h2> 
@@ -653,19 +695,34 @@ if($_POST["11"] != "1.0")
 $data = "JetMatching:coneMatchHeavy = ".$_POST["11"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["12"] != "10.0")
+if($_POST["12"] != "off")
 {
-$data = "JetMatching:qCut = ".$_POST["12"]."\n";
+$data = "JetMatching:doShowerKt = ".$_POST["12"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["13"] != "5")
+if($_POST["13"] != "10.0")
 {
-$data = "JetMatching:nQmatch = ".$_POST["13"]."\n";
+$data = "JetMatching:qCut = ".$_POST["13"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["14"] != "1.0")
+if($_POST["14"] != "5")
 {
-$data = "JetMatching:clFact = ".$_POST["14"]."\n";
+$data = "JetMatching:nQmatch = ".$_POST["14"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["15"] != "1.0")
+{
+$data = "JetMatching:clFact = ".$_POST["15"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["16"] != "off")
+{
+$data = "JetMatching:doFxFx = ".$_POST["16"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["17"] != "10.0")
+{
+$data = "JetMatching:qCutME = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

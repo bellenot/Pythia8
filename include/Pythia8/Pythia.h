@@ -314,6 +314,9 @@ private:
   // Check for lines in file that mark the beginning of new subrun.
   int readSubrun(string line, bool warn = true, ostream& os = cout);
 
+  // Check for lines that mark the beginning or end of commented section.
+  int readCommented(string line);
+
   // Check that combinations of settings are allowed; change if not.
   void checkSettings();
 

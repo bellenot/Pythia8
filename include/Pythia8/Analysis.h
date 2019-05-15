@@ -481,6 +481,13 @@ public:
        cTemp.push_back( *idxTmp); return cTemp;
   }
 
+  // Give a list of all particles in the cluster.
+  vector<int> clusConstituents(int j) { vector<int> cTemp;
+    for (set<int>::iterator idxTmp = clusters[j].idx.begin();
+       idxTmp != clusters[j].idx.end(); ++idxTmp)
+       cTemp.push_back( *idxTmp); return cTemp;
+  }
+
   // Give the index of the jet that the particle i of the event record
   // belongs to. Returns -1 if particle i is not found in a jet.
   int jetAssignment(int i) {

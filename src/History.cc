@@ -158,12 +158,6 @@ History::History( int depth,
     clusterings.insert( clusterings.end(), clusteringsSQCD.begin(),
                         clusteringsSQCD.end() );
 
-  if ( clusterings.empty() && depth > 0) {
-    string message="Warning in History::History: No clusterings";
-    message+=" found. History incomplete.";
-    infoPtr->errorMsg(message);
-  }
-
   // If no clusterings were found, the recursion is done and we
   // register this node.
   if ( clusterings.empty() ) {
@@ -4461,9 +4455,11 @@ Event History::cluster( const Clustering & inSystem ) {
     RadBefore.status(state[Rad].status());
 
   // Put mass for radiator and recoiler
-  if (radType == 1 ) RadBefore.m(particleDataPtr->m0(radID));
+  double radMass = particleDataPtr->m0(radID);
+  double recMass = particleDataPtr->m0(recID);
+  if (radType == 1 ) RadBefore.m(radMass);
   else RadBefore.m(0.0);
-  if (recType == 1 ) RecBefore.m(particleDataPtr->m0(recID));
+  if (recType == 1 ) RecBefore.m(recMass);
   else RecBefore.m(0.0);
 
   // Construct momenta and  colours of clustered particles
@@ -4502,6 +4498,8 @@ Event History::cluster( const Clustering & inSystem ) {
 
     RadBefore.p(Rad4mom);
     RecBefore.p(Rec4mom);
+    RadBefore.m(sqrt(mRsq));
+    RecBefore.m(sqrt(mSsq));
 
   } else if ( radType + recType == 2 && state[Emt].idAbs() == 24 ) {
     // Clustering of final(rad)/final(rec) dipole splitting
@@ -4537,6 +4535,8 @@ Event History::cluster( const Clustering & inSystem ) {
 
     RadBefore.p(Rad4mom);
     RecBefore.p(Rec4mom);
+    RadBefore.m(sqrt(mRsq));
+    RecBefore.m(sqrt(mSsq));
 
   } else if ( radType + recType == 0 ) {
     // Clustering of final(rad)/initial(rec) dipole splitting
@@ -4574,6 +4574,7 @@ Event History::cluster( const Clustering & inSystem ) {
 
     RadBefore.p(Rad4mom);
     RecBefore.p(Rec4mom);
+    RadBefore.m(sqrt(mRsq));
 
     // Set mass of initial recoiler to zero
     RecBefore.m( 0.0 );
@@ -4788,6 +4789,8 @@ Event History::cluster( const Clustering & inSystem ) {
     radPos = outState.append( RadBefore);
   }
 
+  // Append intermediate particle
+  // (careful not to append reclustered recoiler)
   // Append intermediate particle
   // (careful not to append reclustered recoiler)
   for (int i = 0; i < int(NewEvent.size()-1); ++i)
@@ -5861,7 +5864,6 @@ bool History::isFlavSinglet( const Event& event,
 
 }
 
-
 //--------------------------------------------------------------------------
 
 // Function to check if rad,emt,rec triple is allowed for clustering
@@ -5896,7 +5898,6 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
       && event[i].colType() != 0
       && mergingHooksPtr->hardProcess.matchesAnyOutgoing(i, event) )
       nPartonInHard++;
-
 
   // Count coloured final state partons in event, excluding
   // rad, rec, emt and hard process
@@ -5938,7 +5939,7 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
   int nFinalQuarkExc = 0;
   for(int i=0; i < int(event.size()); ++i) {
     if (i !=rad && i != emt && i != rec) {
-      if (event[i].isFinal() && event[i].isQuark() ) {
+      if (event[i].isFinal() && abs(event[i].colType()) == 1 ) {
         if ( !mergingHooksPtr->hardProcess.matchesAnyOutgoing(i,event) )
           nFinalQuark++;
         else
@@ -5971,6 +5972,13 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
   }
 
   // BEGIN CHECKING THE CLUSTERING
+
+  // Do not allow clusterings that lead to a disallowed proton content.
+  int proton[] = {1,2,3,4,5,21,22,23,24};
+  bool isInProton = false;
+  for(int i=0; i < 9; ++i)
+    if (abs(radBeforeFlav) == proton[i]) isInProton = true;
+  if (type == -1 && !isInProton) return false;
 
   // Check if colour is conserved
   vector<int> unmatchedCol;
@@ -6031,16 +6039,22 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
   if ( (nInitialQuark + nFinalQuark + nFinalQuarkExc)%2 != 0 )
     allowed = false;
 
-  // Do not allow final state splitting that produces only
-  // allowed final state gluons, and has a colour-connected initial state
-  // This means forbidding clusterings that do not allow for a
-  // t-channel gluon, which is needed to have a quark-antiquark initial state.
+  // Disallow final state splittings that lead to a purely gluonic final
+  // state, while having a completely colour-connected initial state.
+  // This means that the clustering is discarded if it does not lead to the
+  // t-channel gluon needed to connect the final state to a qq~ initial state.
   // Here, partons excluded from clustering are not counted as possible
   // partners to form a t-channel gluon
   if (event[3].col() == event[4].acol()
     && event[3].acol() == event[4].col()
-    && nFinalQuark == 0)
-    allowed = false;
+    && nFinalQuark == 0){
+    // Careful if rad and rec are the only quarks in the final state, but
+    // were both excluded from the list of final state quarks.
+    int nTripletts = abs(event[rec].colType())
+                   + abs(particleDataPtr->colType(radBeforeFlav));
+    if (event[3].isGluon())                            allowed = false;
+    else if (nTripletts != 2 && nFinalQuarkExc%2 == 0) allowed = false;
+  }
 
   // No problems with gluon radiation
   if (event[emt].id() == 21)
@@ -6283,7 +6297,6 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
         return false;
     }
 
-
     // Next-to-easiest problem 1:
     // RECLUSTERED FINAL STATE GLUON MATCHES ONE FINAL STARE Q_1
     // AND ONE INITIAL STATE Q_1
@@ -6402,8 +6415,17 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
     // Check if colour singlet also is a flavour singlet
     bool isFlavSing = isFlavSinglet(event,colSinglet);
 
+    // Check if the colour singlet is precisely contained in the hard process.
+    // If so, then we're safe to recluster.
+    bool isHardSys = true;
+    for(int i=0; i < int(colSinglet.size()); ++i)
+      isHardSys =
+         mergingHooksPtr->hardProcess.matchesAnyOutgoing(colSinglet[i], event);
+
     // Nearly there...
-    if (isColSing && isFlavSing) {
+    // If the decoupled colour singlet system is NOT contained in the hard
+    // process, we need to check the whole final state.
+    if (isColSing && isFlavSing && !isHardSys) {
 
       // In a final check, ensure that the final state does not only
       // consist of colour singlets that are also flavour singlets

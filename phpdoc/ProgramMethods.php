@@ -1264,7 +1264,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method55" target="page">Info::addCounter(...)</a></td>
+<td><a href="EventInformation.php#method56" target="page">Info::addCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1348,19 +1348,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventInformation.php#method53" target="page">Info::getCounter(...)</a></td>
+<td><a href="EventInformation.php#method54" target="page">Info::getCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="EventInformation.php#method56" target="page">Info::hasHistory()</a></td>
+<td><a href="EventInformation.php#method57" target="page">Info::hasHistory()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method56" target="page">Info::hasHistory(...)</a></td>
+<td><a href="EventInformation.php#method57" target="page">Info::hasHistory(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1372,13 +1372,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>string</td>
-<td><a href="EventInformation.php#method59" target="page">Info::header(...)</a></td>
+<td><a href="EventInformation.php#method60" target="page">Info::header(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>vector &lt;string&gt;</td>
-<td><a href="EventInformation.php#method60" target="page">Info::headerKeys()</a></td>
+<td><a href="EventInformation.php#method61" target="page">Info::headerKeys()</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1540,13 +1540,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method51" target="page">Info::nAccepted(...)</a></td>
+<td><a href="EventInformation.php#method52" target="page">Info::nAccepted(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>string</td>
 <td><a href="EventInformation.php#method8" target="page">Info::name()</a></td>
+<td>Event Information</td>
+</tr>
+
+<tr>
+<td>string</td>
+<td><a href="EventInformation.php#method51" target="page">Info::nameProc(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1594,13 +1600,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method51" target="page">Info::nSelected(...)</a></td>
+<td><a href="EventInformation.php#method52" target="page">Info::nSelected(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>long</td>
-<td><a href="EventInformation.php#method51" target="page">Info::nTried(...)</a></td>
+<td><a href="EventInformation.php#method52" target="page">Info::nTried(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1630,13 +1636,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method58" target="page">Info::pT2NowISR()</a></td>
+<td><a href="EventInformation.php#method59" target="page">Info::pT2NowISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method58" target="page">Info::pT2NowISR(...)</a></td>
+<td><a href="EventInformation.php#method59" target="page">Info::pT2NowISR(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1726,13 +1732,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method54" target="page">Info::setCounter(...)</a></td>
+<td><a href="EventInformation.php#method55" target="page">Info::setCounter(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method61" target="page">Info::setHeader(...)</a></td>
+<td><a href="EventInformation.php#method62" target="page">Info::setHeader(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1744,13 +1750,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method52" target="page">Info::sigmaErr(...)</a></td>
+<td><a href="EventInformation.php#method53" target="page">Info::sigmaErr(...)</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method52" target="page">Info::sigmaGen(...)</a></td>
+<td><a href="EventInformation.php#method53" target="page">Info::sigmaGen(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -1828,13 +1834,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="EventInformation.php#method57" target="page">Info::zNowISR()</a></td>
+<td><a href="EventInformation.php#method58" target="page">Info::zNowISR()</a></td>
 <td>Event Information</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventInformation.php#method57" target="page">Info::zNowISR(...)</a></td>
+<td><a href="EventInformation.php#method58" target="page">Info::zNowISR(...)</a></td>
 <td>Event Information</td>
 </tr>
 
@@ -4678,6 +4684,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
+<td><a href="SettingsScheme.php#method10" target="page">Settings::addFVec(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>void</td>
 <td><a href="SettingsScheme.php#method10" target="page">Settings::addMode(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
@@ -4749,8 +4761,32 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>vector&lt;bool&gt;</td>
+<td><a href="SettingsScheme.php#method11" target="page">Settings::fvec(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="SettingsScheme.php#method14" target="page">Settings::fvec(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>vector&lt;bool&gt;</td>
+<td><a href="SettingsScheme.php#method12" target="page">Settings::fvecDefault(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
 <td>map<string, Flag></td>
 <td><a href="SettingsScheme.php#method13" target="page">Settings::getFlagMap(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>map<string, FVec></td>
+<td><a href="SettingsScheme.php#method13" target="page">Settings::getFVecMap(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
@@ -4799,6 +4835,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>bool</td>
 <td><a href="SettingsScheme.php#method9" target="page">Settings::isFlag(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="SettingsScheme.php#method9" target="page">Settings::isFVec(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
@@ -4943,6 +4985,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>void</td>
 <td><a href="SettingsScheme.php#method16" target="page">Settings::resetFlag(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="SettingsScheme.php#method16" target="page">Settings::resetFVec(...)</a></td>
 <td>Settings Scheme</td>
 </tr>
 
@@ -5176,55 +5224,61 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>vector&lt;int&gt;</td>
+<td><a href="EventAnalysis.php#method46" target="page">SlowJet::clusConstituents(...)</a></td>
+<td>Event Analysis</td>
+</tr>
+
+<tr>
+<td>vector&lt;int&gt;</td>
 <td><a href="EventAnalysis.php#method45" target="page">SlowJet::constituents(...)</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>double</td>
-<td><a href="EventAnalysis.php#method55" target="page">SlowJet::dNext()</a></td>
+<td><a href="EventAnalysis.php#method56" target="page">SlowJet::dNext()</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="EventAnalysis.php#method51" target="page">SlowJet::doNSteps(...)</a></td>
+<td><a href="EventAnalysis.php#method52" target="page">SlowJet::doNSteps(...)</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="EventAnalysis.php#method50" target="page">SlowJet::doStep()</a></td>
+<td><a href="EventAnalysis.php#method51" target="page">SlowJet::doStep()</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventAnalysis.php#method55" target="page">SlowJet::iNext()</a></td>
+<td><a href="EventAnalysis.php#method56" target="page">SlowJet::iNext()</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventAnalysis.php#method46" target="page">SlowJet::jetAssignment(...)</a></td>
+<td><a href="EventAnalysis.php#method47" target="page">SlowJet::jetAssignment(...)</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventAnalysis.php#method55" target="page">SlowJet::jNext()</a></td>
+<td><a href="EventAnalysis.php#method56" target="page">SlowJet::jNext()</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventAnalysis.php#method48" target="page">SlowJet::list()</a></td>
+<td><a href="EventAnalysis.php#method49" target="page">SlowJet::list()</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventAnalysis.php#method54" target="page">SlowJet::list(...)</a></td>
+<td><a href="EventAnalysis.php#method55" target="page">SlowJet::list(...)</a></td>
 <td>Event Analysis</td>
 </tr>
 
@@ -5260,19 +5314,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="EventAnalysis.php#method47" target="page">SlowJet::removeJet(...)</a></td>
+<td><a href="EventAnalysis.php#method48" target="page">SlowJet::removeJet(...)</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="EventAnalysis.php#method49" target="page">SlowJet::setup(...)</a></td>
+<td><a href="EventAnalysis.php#method50" target="page">SlowJet::setup(...)</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="EventAnalysis.php#method53" target="page">SlowJet::sizeAll()</a></td>
+<td><a href="EventAnalysis.php#method54" target="page">SlowJet::sizeAll()</a></td>
 <td>Event Analysis</td>
 </tr>
 
@@ -5296,7 +5350,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="EventAnalysis.php#method52" target="page">SlowJet::stopAtN(...)</a></td>
+<td><a href="EventAnalysis.php#method53" target="page">SlowJet::stopAtN(...)</a></td>
 <td>Event Analysis</td>
 </tr>
 
@@ -5308,19 +5362,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="EventAnalysis.php#method57" target="page">SlowJetHook::include(...)</a></td>
+<td><a href="EventAnalysis.php#method58" target="page">SlowJetHook::include(...)</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="EventAnalysis.php#method56" target="page">SlowJetHook::SlowJetHook()</a></td>
+<td><a href="EventAnalysis.php#method57" target="page">SlowJetHook::SlowJetHook()</a></td>
 <td>Event Analysis</td>
 </tr>
 
 <tr>
 <td>virtual</td>
-<td><a href="EventAnalysis.php#method56" target="page">SlowJetHook::~SlowJetHook()</a></td>
+<td><a href="EventAnalysis.php#method57" target="page">SlowJetHook::~SlowJetHook()</a></td>
 <td>Event Analysis</td>
 </tr>
 

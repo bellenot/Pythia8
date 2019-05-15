@@ -189,7 +189,7 @@ private:
 
   // Constants: could only be changed in the code itself.
   static const double SIMPLIFYROOT, XMARGIN, XMARGINCOMB, TINYPDF, LARGEM2,
-                      THRESHM2, LAMBDA3MARGIN, WEAKPSWEIGHT;
+                      THRESHM2, LAMBDA3MARGIN, WEAKPSWEIGHT, WG2QEXTRA;
   // Rescatter: try to fix up recoil between systems
   static const bool   FIXRESCATTER, VETONEGENERGY;
   static const double MAXVIRTUALITYFRACTION, MAXNEGENERGYFRACTION;
@@ -202,16 +202,17 @@ private:
          brokenHVsym, globalRecoil, useLocalRecoilNow, doSecondHard,
          singleWeakEmission, alphaSuseCMW, vetoWeakJets;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaSnfmax, nGluonToQuark,
-         alphaEMorder, nGammaToQuark, nGammaToLepton, nCHV, idHV,
-         nMaxGlobalRecoil, weakMode;
+         weightGluonToQuark, alphaEMorder, nGammaToQuark, nGammaToLepton, 
+         nCHV, idHV, nMaxGlobalRecoil, weakMode;
   double pTdampFudge, mc, mb, m2c, m2b, renormMultFac, factorMultFac,
          fixedFacScale2, alphaSvalue, alphaS2pi, Lambda3flav, Lambda4flav,
-         Lambda5flav, Lambda3flav2, Lambda4flav2, Lambda5flav2, pTcolCutMin,
-         pTcolCut, pT2colCut, pTchgQCut, pT2chgQCut, pTchgLCut, pT2chgLCut,
+         Lambda5flav, Lambda3flav2, Lambda4flav2, Lambda5flav2,
+         scaleGluonToQuark, extraGluonToQuark, pTcolCutMin, pTcolCut,
+         pT2colCut, pTchgQCut, pT2chgQCut, pTchgLCut, pT2chgLCut,
          pTweakCut, pT2weakCut, mMaxGamma, m2MaxGamma, octetOniumFraction,
-         octetOniumColFac, mZ, gammaZ, thetaWRat, mW, gammaW, CFHV, alphaHVfix,
-         pThvCut, pT2hvCut, mHV, pTmaxFudgeMPI, weakEnhancement,
-         vetoWeakDeltaR2;
+         octetOniumColFac, mZ, gammaZ, thetaWRat, mW, gammaW, CFHV,
+         alphaHVfix, pThvCut, pT2hvCut, mHV, pTmaxFudgeMPI,
+         weakEnhancement, vetoWeakDeltaR2;
 
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;

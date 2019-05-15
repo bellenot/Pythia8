@@ -428,12 +428,15 @@ bool LHAup::setInitLHEF(istream& is, bool readHeaders) {
       setInfoHeader(it->first, it->second);
 
   } // if (readHeaders == true && tag == headerTag)
+
+  // Read in first info line; done if empty.
+  if (!getline(is, line)) return false;
+  if (line.find("</init") != string::npos) return true;
   
   // Read in beam and strategy info, and store it.
   int idbmupA, idbmupB;
   double ebmupA, ebmupB;
   int pdfgupA, pdfgupB, pdfsupA, pdfsupB, idwtup, nprup;
-  if (!getline(is, line)) return false;
   istringstream getbms(line);
   getbms >> idbmupA >> idbmupB >> ebmupA >> ebmupB >> pdfgupA
      >> pdfgupB >> pdfsupA >> pdfsupB >> idwtup >> nprup;
@@ -469,7 +472,7 @@ bool LHAup::setInitLHEF(istream& is, bool readHeaders) {
 // into a staging area where it can be reused by setOldEventLHEF.
 
 bool LHAup::setNewEventLHEF(istream& is, double mRecalculate ) {
-  
+
   // Loop over lines until an <event tag is found first on a line.
   string line, tag;
   do {

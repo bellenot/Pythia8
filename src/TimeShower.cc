@@ -53,6 +53,9 @@ const double TimeShower::MAXNEGENERGYFRACTION  = 0.7;
 // Fudge extra weight for overestimation of weak shower t-channel correction.
 const double TimeShower::WEAKPSWEIGHT = 5.;
 
+// Extra overestimate of g -> q qbar branching rate for DGLAP comparison.
+const double TimeShower::WG2QEXTRA = 20.;
+
 //--------------------------------------------------------------------------
 
 // Initialize alphaStrong, alphaEM and related pTmin parameters.
@@ -117,6 +120,9 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
  
   // Parameters of QCD evolution. Warn if pTmin must be raised.
   nGluonToQuark      = settingsPtr->mode("TimeShower:nGluonToQuark");
+  weightGluonToQuark = settingsPtr->mode("TimeShower:weightGluonToQuark");
+  scaleGluonToQuark  = settingsPtr->parm("TimeShower:scaleGluonToQuark");
+  extraGluonToQuark  = (weightGluonToQuark%4 == 3) ? WG2QEXTRA : 1.;
   pTcolCutMin        = settingsPtr->parm("TimeShower:pTmin");
   if (pTcolCutMin > LAMBDA3MARGIN * Lambda3flav / sqrt(renormMultFac))
     pTcolCut         = pTcolCutMin;
@@ -225,6 +231,11 @@ bool TimeShower::limitPTmax( Event& event, double Q2Fac, double Q2Ren) {
   dopTlimit1 = dopTlimit2 = false;
   if      (pTmaxMatch == 1) dopTlimit = dopTlimit1 = dopTlimit2 = true;
   else if (pTmaxMatch == 2) dopTlimit = dopTlimit1 = dopTlimit2 = false;
+
+  // Always restrict SoftQCD processes.
+  else if (infoPtr->isNonDiffractive() || infoPtr->isDiffractiveA()
+    || infoPtr->isDiffractiveB() || infoPtr->isDiffractiveC() )
+    dopTlimit = dopTlimit1 = dopTlimit2 = true;
    
   // Look if any quark (u, d, s, c, b), gluon or photon in final state.
   else {
@@ -541,9 +552,7 @@ void TimeShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
       // Identify colour octet onium state. Check whether QCD shower allowed.
       int idRad    = event[iRad].id();
       int idRadAbs = abs(idRad);
-      bool isOctetOnium
-        = ( idRad == 9900441 || idRad == 9900443 || idRad == 9910441
-         || idRad == 9900551 || idRad == 9900553 || idRad == 9910551 );
+      bool isOctetOnium = particleDataPtr->isOctetHadron(idRad);
       bool doQCD = doQCDshower;
       if (doQCD && isOctetOnium)
         doQCD = (rndmPtr->flat() < octetOniumFraction);
@@ -569,8 +578,8 @@ void TimeShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
          event, limitPTmaxIn);
 
       // Find weak diple ends.
-      if (doWeakShower && iSys == 0 && (event[iRad].isQuark()
-        || event[iRad].isLepton())) {
+      if (doWeakShower && (iSys == 0 || !partonSystemsPtr->hasInAB(iSys)) 
+        && (event[iRad].isQuark()  || event[iRad].isLepton())) {
         if (weakMode == 0 || weakMode == 1)
           setupWeakdip( iSys, i, 1, event, limitPTmaxIn);
         if (weakMode == 0 || weakMode == 2)
@@ -926,7 +935,8 @@ void TimeShower::rescatterUpdate( int iSys, Event& event) {
   // Uses the size of dipEnd to tell whether a new dipole is added.
   unsigned int nDips = dipEnd.size();
   if (doWeakShower && (event[iNewNew].isQuark() || event[iNewNew].isLepton())
-      && !(hasWeaklyRadiated && singleWeakEmission) && iSys == 0)  {
+      && !(hasWeaklyRadiated && singleWeakEmission) 
+      && (iSys == 0 || !partonSystemsPtr->hasInAB(iSys))) {
   
     if (weakMode == 0 || weakMode == 1)
       setupWeakdip( iSys, sizeOut, 1, event, true);
@@ -1823,7 +1833,8 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
   // PS dec 2010. Include possibility for flexible normalization,
   // e.g., for dipoles stretched to junctions or to switch off radiation.
   if (dip.isFlexible)   colFac *= dip.flexFactor;
-  double wtPSqqbar  = (colTypeAbs == 2) ? 0.25 * nGluonToQuark : 0.;
+  double wtPSqqbar  = (colTypeAbs == 2) 
+    ? 0.25 * nGluonToQuark * extraGluonToQuark : 0.;
   
   // Variables used inside evolution loop. (Mainly dummy start values.)
   dip.pT2              = pT2begDip;
@@ -1953,10 +1964,26 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
         } else if (dip.flavour == 21) {
           wt = (1. + pow3(dip.z)) / wtPSglue;
            
-        // z weight for g -> q qbar.
+        // z weight for g -> q qbar: different options.
         } else {
-          double beta  = sqrtpos( 1. - 4. * pow2(dip.mFlavour) / dip.m2 );
-          wt = beta * ( pow2(dip.z) + pow2(1. - dip.z) );
+          double ratioQ = pow2(dip.mFlavour) / dip.m2; 
+          double betaQ  = sqrtpos( 1. - 4. * ratioQ );
+          if (weightGluonToQuark%4 == 1) {
+            wt = betaQ * ( pow2(dip.z) + pow2(1. - dip.z) );
+          } else if (weightGluonToQuark%4 == 2) {
+            wt = betaQ * ( pow2(dip.z) + pow2(1. - dip.z)
+               + 8. * ratioQ * dip.z * (1. - dip.z) );
+          } else {
+            double m2Rat = dip.m2 / dip.m2DipCorr;
+            double zCosThe = ((1. + m2Rat) * dip.z - m2Rat) / (1. - m2Rat);
+            wt = betaQ * ( pow2(zCosThe) + pow2(1. - zCosThe)
+               + 8. * ratioQ * zCosThe * (1. - zCosThe) )
+               * (1. + m2Rat) / ((1. - m2Rat) * extraGluonToQuark) ;
+            if (weightGluonToQuark%4 == 0) wt *= pow3(1. - m2Rat);
+          }
+          if (weightGluonToQuark > 4 && alphaSorder > 0)
+            wt *= log(dip.pT2 / Lambda2)
+                / log(scaleGluonToQuark * dip.m2 / Lambda2);
         }
 
         // Suppression factors for dipole to beam remnant.
@@ -2029,7 +2056,7 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
   double emitCoefTot = 0.;
 
   // alpha_em at maximum scale provides upper estimate.
-  double alphaEMmax  = alphaEM.alphaEM(renormMultFac * pT2begDip);
+  double alphaEMmax  = alphaEM.alphaEM(renormMultFac * dip.m2DipCorr);
   double alphaEM2pi  = alphaEMmax / (2. * M_PI);
 
   // Emission: upper estimate for matrix element weighting; charge factor.
@@ -2053,7 +2080,7 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
 
     // Total sum of squared charge factors. Find evolution coefficient.
     chg2Sum     = chg2SumL + 3. * chg2SumQ;
-    emitCoefTot = alphaEM2pi * chg2Sum;
+    emitCoefTot = alphaEM2pi * chg2Sum * extraGluonToQuark;
   }
   
   // Variables used inside evolution loop.
@@ -2115,14 +2142,30 @@ void TimeShower::pT2nextQED(double pT2begDip, double pT2sel,
       } else if (hasCharge) {
         wt = (1. + pow2(dip.z)) / wtPSgam;
 
-      // z weight for gamma -> f fbar.
+      // z weight for gamma -> f fbar; different options.
       } else {
-        double beta  = sqrtpos( 1. - 4. * pow2(dip.mFlavour) / dip.m2 );
-        wt = beta * ( pow2(dip.z) + pow2(1. - dip.z) );
+        double ratioF = pow2(dip.mFlavour) / dip.m2; 
+        double betaF  = sqrtpos( 1. - 4. * ratioF );
+        if (weightGluonToQuark%4 == 1) {
+          wt = betaF * ( pow2(dip.z) + pow2(1. - dip.z) );
+        } else if (weightGluonToQuark%4 == 2) {
+          wt = betaF * ( pow2(dip.z) + pow2(1. - dip.z)
+             + 8. * ratioF * dip.z * (1. - dip.z) );
+        } else {
+          double m2Rat = dip.m2 / dip.m2DipCorr;
+          double zCosThe = ((1. + m2Rat) * dip.z - m2Rat) / (1. - m2Rat);
+          wt = betaF * ( pow2(zCosThe) + pow2(1. - zCosThe)
+             + 8. * ratioF * zCosThe * (1. - zCosThe) )
+             * (1. + m2Rat) / ((1. - m2Rat) * extraGluonToQuark) ;
+          if (weightGluonToQuark%4 == 0) wt *= pow3(1. - m2Rat);
+        }
       }
 
       // Correct to current value of alpha_EM.
-      double alphaEMnow = alphaEM.alphaEM(renormMultFac * dip.pT2);
+      double aEMscale = dip.pT2;
+      if (dip.flavour < 20 && weightGluonToQuark > 4)
+        aEMscale = scaleGluonToQuark * dip.m2;
+      double alphaEMnow = alphaEM.alphaEM(renormMultFac * aEMscale);
       wt *= (alphaEMnow / alphaEMmax);
 
       // Suppression factors for dipole to beam remnant.

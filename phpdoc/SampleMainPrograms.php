@@ -177,7 +177,9 @@ are forced to decay at a separate vertices and possibly with changed
 momenta.</li> 
  
 <li><code>main31.cc</code> : exemplifies an improved matching of 
-parton showers to LHEF-style input based on the POWHEG approach. 
+parton showers to LHEF-style input based on the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='POWHEGMerging.php?filepath=".$filepath."' target='page'>";?>POWHEG approach</a>. 
 The <code>main31.cmnd</code> allows to switch between several 
 different matching options. It also allows to select input process, 
 in this case either for the POWHEG-hvq program applied to top 

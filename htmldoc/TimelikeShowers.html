@@ -647,6 +647,44 @@ Number of allowed quark flavours in <i>g &rarr; q qbar</i> branchings
 <i>g &rarr; b bbar</i>, etc. 
    
  
+<p/><code>mode&nbsp; </code><strong> TimeShower:weightGluonToQuark &nbsp;</strong> 
+ (<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 8</code>)<br/>
+Different options to assign kinematics distributions and weights 
+for <i>g &rarr; q qbar</i> branchings, notably for charm and bottom 
+quarks. These options also have the corresponding effect on 
+<i>gamma &rarr; f fbar</i> branchings.
+Notation: <i>r_q = m_q^2/m_qq^2</i>, <i>beta = sqrt(1 - 4r_q)</i>, with 
+<i>m_q</i> the quark mass and <i>m_qq</i> the <i>q qbar</i> pair 
+invariant mass. The scale factor <i>k</i> is described below, 
+<code>TimeShower:scaleGluonToQuark</code>.
+<br/><code>option </code><strong> 1</strong> : same splitting kernel <i>(1/2) (z^2 + (1-z)^2)</i> for 
+massive as massless quarks, only with an extra <i>beta</i> phase 
+space factor.   
+<br/><code>option </code><strong> 2</strong> : a splitting kernel 
+<i>(beta/2) (z^2 + (1-z)^2 + 8r_q z(1-z))</i>.  
+<br/><code>option </code><strong> 3</strong> : a splitting kernel <i>z^2 + (1-z)^2 + 8r_q z(1-z)</i>,
+normalized so that the <i>z</i>-integrated rate is
+<i>(beta/3) (1 + r/2)</i>.  
+<br/><code>option </code><strong> 4</strong> : same as 3, but additionally a suppression factor
+<i>(1 - m_qq^2/m_dipole^2)^3</i>, which reduces the rate of high-mass 
+<i>q qbar</i> pairs.  
+<br/><code>option </code><strong> 5</strong> : same as 1, but reweighted to an <i>alpha_s(k m_qq^2)</i>
+rather than the normal <i>alpha_s(pT^2)</i>.  
+<br/><code>option </code><strong> 6</strong> : same as 2, but reweighted to an <i>alpha_s(k m_qq^2)</i>
+rather than the normal <i>alpha_s(pT^2)</i>.  
+<br/><code>option </code><strong> 7</strong> : same as 3, but reweighted to an <i>alpha_s(k m_qq^2)</i>
+rather than the normal <i>alpha_s(pT^2)</i>.  
+<br/><code>option </code><strong> 8</strong> : same as 4, but reweighted to an <i>alpha_s(k m_qq^2)</i>
+rather than the normal <i>alpha_s(pT^2)</i>.  
+   
+ 
+<p/><code>parm&nbsp; </code><strong> TimeShower:scaleGluonToQuark &nbsp;</strong> 
+ (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 1.0</code>)<br/>
+Extra scale parameter <i>k</i> for <code>TimeShower:weightGluonToQuark</code>
+options 5 - 8. Comes on top of <code>TimeShower:renormMultFac</code>, which
+affects <i>alpha_s(pT^2)</i> alike.
+   
+
 <p/><code>flag&nbsp; </code><strong> TimeShower:QEDshowerByQ &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 Allow quarks to radiate photons, i.e. branchings <i>q &rarr; q gamma</i>; 

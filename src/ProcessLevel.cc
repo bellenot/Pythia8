@@ -113,7 +113,8 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
 
   // Set up containers for all the internal hard processes.
   SetupContainers setupContainers;
-  setupContainers.init(containerPtrs, settings, particleDataPtr, couplingsPtr);
+  setupContainers.init(containerPtrs, infoPtr, settings, particleDataPtr,
+		       couplingsPtr);
 
   // Append containers for external hard processes, if any.
   if (sigmaPtrs.size() > 0) {
@@ -234,13 +235,20 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
        << " |                                                   "
        << " |             |\n";
 
-
     // Loop over existing processes: print individual process info.
-    for (int i = 0; i < int(containerPtrs.size()); ++i)
-    os << " | " << left << setw(45) << containerPtrs[i]->name()
-       << right << setw(5) << containerPtrs[i]->code() << " | "
-       << scientific << setprecision(3) << setw(11)
-       << containerPtrs[i]->sigmaMax() << " |\n";
+    map<int, double> sigmaMaxM;
+    map<int, string> nameM;
+    for (int i = 0; i < int(containerPtrs.size()); ++i) {
+      int code = containerPtrs[i]->code();
+      nameM[code] = containerPtrs[i]->name();
+      sigmaMaxM[code] = containerPtrs[i]->sigmaMax() > sigmaMaxM[code] ?
+	containerPtrs[i]->sigmaMax() : sigmaMaxM[code];
+    }
+    for (map<int, string>::iterator i = nameM.begin(); i != nameM.end(); ++i)
+      os << " | " << left << setw(45) << i->second
+	 << right << setw(5) << i->first << " | "
+	 << scientific << setprecision(3) << setw(11)
+	 << sigmaMaxM[i->first] << " |\n";
 
     // Loop over second hard processes, if any, and repeat as above.
     if (doSecondHard) {
@@ -250,11 +258,20 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
          <<"---------------|\n"
          << " |                                                   "
          <<" |             |\n";
-      for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
-      os << " | " << left << setw(45) << container2Ptrs[i2]->name()
-         << right << setw(5) << container2Ptrs[i2]->code() << " | "
-         << scientific << setprecision(3) << setw(11)
-         << container2Ptrs[i2]->sigmaMax() << " |\n";
+      sigmaMaxM.clear();
+      nameM.clear();
+      for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2) {
+	int code = container2Ptrs[i2]->code();
+	nameM[code] = container2Ptrs[i2]->name();
+	sigmaMaxM[code] = container2Ptrs[i2]->sigmaMax() > sigmaMaxM[code] ?
+	  container2Ptrs[i2]->sigmaMax() : sigmaMaxM[code];
+      }
+      for (map<int, string>::iterator i2 = nameM.begin(); i2 != nameM.end();
+	   ++i2)
+	os << " | " << left << setw(45) << i2->second
+	   << right << setw(5) << i2->first << " | "
+	   << scientific << setprecision(3) << setw(11)
+	   << sigmaMaxM[i2->first] << " |\n";
     }
 
     // Listing finished.
@@ -376,6 +393,7 @@ void ProcessLevel::accumulate() {
   int    codeNow;
   long   nTryNow, nSelNow, nAccNow;
   double sigmaNow, deltaNow, sigSelNow, weightNow;
+  map<int, bool> duplicate;
   for (int i = 0; i < int(containerPtrs.size()); ++i)
   if (containerPtrs[i]->sigmaMax() != 0.) {
     codeNow         = containerPtrs[i]->code();
@@ -393,14 +411,21 @@ void ProcessLevel::accumulate() {
     delta2Sum      += pow2(deltaNow);
     sigSelSum      += sigSelNow;
     weightSum      += weightNow;
-    if (!doSecondHard) infoPtr->setSigma( codeNow, nTryNow, nSelNow,
-      nAccNow, sigmaNow, deltaNow, weightNow);
+    if (!doSecondHard) { 
+      if (!duplicate[codeNow])
+	infoPtr->setSigma( codeNow, containerPtrs[i]->name(),
+	  nTryNow, nSelNow, nAccNow, sigmaNow, deltaNow, weightNow);
+      else
+      	infoPtr->addSigma( codeNow, nTryNow, nSelNow, nAccNow, sigmaNow,
+      	  deltaNow);
+      duplicate[codeNow] = true;
+    }
   }
 
   // Normally only one hard interaction. Then store info and done.
   if (!doSecondHard) {
     double deltaSum = sqrtpos(delta2Sum);
-    infoPtr->setSigma( 0, nTrySum, nSelSum, nAccSum, sigmaSum, deltaSum,
+    infoPtr->setSigma( 0, "sum", nTrySum, nSelSum, nAccSum, sigmaSum, deltaSum,
       weightSum);
     return;
   }
@@ -436,7 +461,7 @@ void ProcessLevel::accumulate() {
   double deltaComb  = sqrtpos(2. / nAccSum + impactErr2) * sigmaComb;
 
   // Store info and done.
-  infoPtr->setSigma( 0, nTrySum, nSelSum, nAccSum, sigmaComb, deltaComb,
+  infoPtr->setSigma( 0, "sum", nTrySum, nSelSum, nAccSum, sigmaComb, deltaComb,
     weightSum);
  
 }
@@ -476,38 +501,66 @@ void ProcessLevel::statistics(bool reset, ostream& os) {
   double sigmaSum  = 0.;
   double delta2Sum = 0.;
 
+  // Reset process maps.
+  map<int, string> nameM;
+  map<int, long> nTryM, nSelM, nAccM;
+  map<int, double> sigmaM, delta2M;
+  vector<ProcessContainer*> lheContainerPtrs;
+
   // Loop over existing processes.
   for (int i = 0; i < int(containerPtrs.size()); ++i)
   if (containerPtrs[i]->sigmaMax() != 0.) {
 
     // Read info for process. Sum counters.
-    long   nTry    = containerPtrs[i]->nTried();
-    long   nSel    = containerPtrs[i]->nSelected();
-    long   nAcc    = containerPtrs[i]->nAccepted();
-    double sigma   = containerPtrs[i]->sigmaMC();
-    double delta   = containerPtrs[i]->deltaMC();
-    nTrySum       += nTry;
-    nSelSum       += nSel;
-    nAccSum       += nAcc;
-    sigmaSum      += sigma;
-    delta2Sum     += pow2(delta);
+    nTrySum       += containerPtrs[i]->nTried();
+    nSelSum       += containerPtrs[i]->nSelected();
+    nAccSum       += containerPtrs[i]->nAccepted();
+    sigmaSum      += containerPtrs[i]->sigmaMC();
+    delta2Sum     += pow2(containerPtrs[i]->deltaMC());
 
-    // Print individual process info.
-    os << " | " << left << setw(45) << containerPtrs[i]->name()
-       << right << setw(5) << containerPtrs[i]->code() << " | "
-       << setw(11) << nTry << " " << setw(10) << nSel << " "
-       << setw(10) << nAcc << " | " << scientific << setprecision(3)
-       << setw(11) << sigma << setw(11) << delta << " |\n";
+    // Skip Les Houches containers.
+    if (containerPtrs[i]->code() == 9999) {
+      lheContainerPtrs.push_back(containerPtrs[i]);
+      continue;
+    }
+    
+    // Internal process info.
+    int code = containerPtrs[i]->code();
+    nameM[code]   = containerPtrs[i]->name();
+    nTryM[code]  += containerPtrs[i]->nTried();
+    nSelM[code]  += containerPtrs[i]->nSelected();
+    nAccM[code]  += containerPtrs[i]->nAccepted();
+    sigmaM[code] += containerPtrs[i]->sigmaMC();
+    delta2M[code]+= pow2(containerPtrs[i]->deltaMC());
+  }
+
+  // Print internal process info.
+  for (map<int, string>::iterator i = nameM.begin(); i != nameM.end(); ++i) {
+    int code = i->first;
+    os << " | " << left << setw(45) << i->second
+       << right << setw(5) << code << " | "
+       << setw(11) << nTryM[code] << " " << setw(10) << nSelM[code] << " "
+       << setw(10) << nAccM[code] << " | " << scientific << setprecision(3)
+       << setw(11) << sigmaM[code] 
+       << setw(11) << sqrtpos(delta2M[code]) << " |\n";
+  }
+
+  // Print Les Houches process info.
+  for (int i = 0; i < int(lheContainerPtrs.size()); ++i) {
+    ProcessContainer *ptr = lheContainerPtrs[i];
+    os << " | " << left << setw(45) << ptr->name()
+       << right << setw(5) << ptr->code() << " | "
+       << setw(11) << ptr->nTried() << " " << setw(10) << ptr->nSelected() 
+       << " " << setw(10) << ptr->nAccepted() << " | " << scientific 
+       << setprecision(3) << setw(11) << ptr->sigmaMC() << setw(11) 
+       << ptr->deltaMC() << " |\n";
 
     // Print subdivision by user code for Les Houches process.
-    if (containerPtrs[i]->code() == 9999)
-      for (int j = 0; j < containerPtrs[i]->codeLHASize(); ++j)
+    for (int j = 0; j < ptr->codeLHASize(); ++j)
       os << " |    ... whereof user classification code " << setw(10)
-         << containerPtrs[i]->subCodeLHA(j) << " | "
-         << setw(11) << containerPtrs[i]->nTriedLHA(j) << " " << setw(10)
-         << containerPtrs[i]->nSelectedLHA(j) << " "
-         << setw(10) << containerPtrs[i]->nAcceptedLHA(j)
-         << " |                        | \n";
+         << ptr->subCodeLHA(j) << " | " << setw(11) << ptr->nTriedLHA(j) 
+         << " " << setw(10) << ptr->nSelectedLHA(j) << " " << setw(10) 
+         << ptr->nAcceptedLHA(j) << " |                        | \n";
   }
 
   // Print summed process info.
@@ -1166,31 +1219,42 @@ void ProcessLevel::statistics2(bool reset, ostream& os) {
   double sigmaSum  = 0.;
   double delta2Sum = 0.;
 
+  // Reset process maps.
+  map<int, string> nameM;
+  map<int, long> nTryM, nSelM, nAccM;
+  map<int, double> sigmaM, delta2M;
+
   // Loop over existing first processes.
   for (int i = 0; i < int(containerPtrs.size()); ++i)
   if (containerPtrs[i]->sigmaMax() != 0.) {
 
     // Read info for process. Sum counters.
-    long   nTry    = containerPtrs[i]->nTried();
-    long   nSel    = containerPtrs[i]->nSelected();
-    long   nAcc    = containerPtrs[i]->nAccepted();
-    double sigma   = containerPtrs[i]->sigmaMC() * factor1;
-    double delta2  = pow2( containerPtrs[i]->deltaMC() * factor1 );
-    nTrySum       += nTry;
-    nSelSum       += nSel;
-    nAccSum       += nAcc;
-    sigmaSum      += sigma;
-    delta2Sum     += delta2;
-    delta2        += pow2( sigma * rel1Err );
-
-    // Print individual process info.
-    os << " | " << left << setw(40) << containerPtrs[i]->name()
-       << right << setw(5) << containerPtrs[i]->code() << " | "
-       << setw(11) << nTry << " " << setw(10) << nSel << " "
-       << setw(10) << nAcc << " | " << scientific << setprecision(3)
-       << setw(11) << sigma << setw(11) << sqrtpos(delta2) << " |\n";
+    int code = containerPtrs[i]->code();
+    nTrySum       += containerPtrs[i]->nTried();
+    nSelSum       += containerPtrs[i]->nSelected();
+    nAccSum       += containerPtrs[i]->nAccepted();
+    sigmaSum      += containerPtrs[i]->sigmaMC() * factor1;
+    delta2Sum     += pow2(containerPtrs[i]->deltaMC() * factor1);
+    nameM[code]    = containerPtrs[i]->name();
+    nTryM[code]   += containerPtrs[i]->nTried();
+    nSelM[code]   += containerPtrs[i]->nSelected();
+    nAccM[code]   += containerPtrs[i]->nAccepted();
+    sigmaM[code]  += containerPtrs[i]->sigmaMC() * factor1;
+    delta2M[code] += pow2(containerPtrs[i]->deltaMC() * factor1);
+    delta2M[code] += pow2(containerPtrs[i]->sigmaMC() * factor1 * rel1Err);
   }
 
+  // Print first process info.
+  for (map<int, string>::iterator i = nameM.begin(); i != nameM.end(); ++i) {
+    int code = i->first;
+    os << " | " << left << setw(40) << i->second
+       << right << setw(5) << code << " | "
+       << setw(11) << nTryM[code] << " " << setw(10) << nSelM[code] << " "
+       << setw(10) << nAccM[code] << " | " << scientific << setprecision(3)
+       << setw(11) << sigmaM[code] 
+       << setw(11) << sqrtpos(delta2M[code]) << " |\n";
+  }
+  
   // Print summed info for first processes.
   delta2Sum       += pow2( sigmaSum * rel1Err );
   os << " |                                               |            "
@@ -1199,7 +1263,6 @@ void ProcessLevel::statistics2(bool reset, ostream& os) {
      << nTrySum << " " << setw(10) << nSelSum << " " << setw(10)
      << nAccSum << " | " << scientific << setprecision(3) << setw(11)
      << sigmaSum << setw(11) << sqrtpos(delta2Sum) << " |\n";
-
  
   // Separation lines to second hard processes.
   os << " |                                               |            "
@@ -1220,29 +1283,43 @@ void ProcessLevel::statistics2(bool reset, ostream& os) {
   sigmaSum  = 0.;
   delta2Sum = 0.;
 
+  // Reset process maps.
+  nameM.clear();
+  nTryM.clear();
+  nSelM.clear(); 
+  nAccM.clear();
+  sigmaM.clear();
+  delta2M.clear();
+
   // Loop over existing second processes.
   for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
   if (container2Ptrs[i2]->sigmaMax() != 0.) {
 
     // Read info for process. Sum counters.
-    long   nTry    = container2Ptrs[i2]->nTried();
-    long   nSel    = container2Ptrs[i2]->nSelected();
-    long   nAcc    = container2Ptrs[i2]->nAccepted();
-    double sigma   = container2Ptrs[i2]->sigmaMC() * factor2;
-    double delta2  = pow2( container2Ptrs[i2]->deltaMC() * factor2 );
-    nTrySum       += nTry;
-    nSelSum       += nSel;
-    nAccSum       += nAcc;
-    sigmaSum      += sigma;
-    delta2Sum     += delta2;
-    delta2        += pow2( sigma * rel2Err );
+    int code = container2Ptrs[i2]->code();
+    nTrySum       += container2Ptrs[i2]->nTried();
+    nSelSum       += container2Ptrs[i2]->nSelected();
+    nAccSum       += container2Ptrs[i2]->nAccepted();
+    sigmaSum      += container2Ptrs[i2]->sigmaMC() * factor2;
+    delta2Sum     += pow2(container2Ptrs[i2]->deltaMC() * factor2);
+    nameM[code]    = container2Ptrs[i2]->name();
+    nTryM[code]   += container2Ptrs[i2]->nTried();
+    nSelM[code]   += container2Ptrs[i2]->nSelected();
+    nAccM[code]   += container2Ptrs[i2]->nAccepted();
+    sigmaM[code]  += container2Ptrs[i2]->sigmaMC() * factor2;
+    delta2M[code] += pow2(container2Ptrs[i2]->deltaMC() * factor2);
+    delta2M[code] += pow2(container2Ptrs[i2]->sigmaMC() * factor2 * rel2Err);
+  }
 
-    // Print individual process info.
-    os << " | " << left << setw(40) << container2Ptrs[i2]->name()
-       << right << setw(5) << container2Ptrs[i2]->code() << " | "
-       << setw(11) << nTry << " " << setw(10) << nSel << " "
-       << setw(10) << nAcc << " | " << scientific << setprecision(3)
-       << setw(11) << sigma << setw(11) << sqrtpos(delta2) << " |\n";
+  // Print second process info.
+  for (map<int, string>::iterator i2 = nameM.begin(); i2 != nameM.end(); ++i2) {
+    int code = i2->first;
+    os << " | " << left << setw(40) << i2->second
+       << right << setw(5) << code << " | "
+       << setw(11) << nTryM[code] << " " << setw(10) << nSelM[code] << " "
+       << setw(10) << nAccM[code] << " | " << scientific << setprecision(3)
+       << setw(11) << sigmaM[code] 
+       << setw(11) << sqrtpos(delta2M[code]) << " |\n";
   }
 
   // Print summed info for second processes.

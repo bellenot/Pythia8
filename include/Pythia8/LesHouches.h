@@ -189,7 +189,8 @@ protected:
 
   // Constructor. Sets default to be that events come with unit weight.
   LHAup(int strategyIn = 3) : fileName("void"), strategySave(strategyIn)
-    { processes.reserve(10); particles.reserve(20); }
+    { processes.reserve(10); particles.reserve(20); 
+    setBeamA( 0, 0., 0, 0); setBeamB( 0, 0., 0, 0); }
 
   // Allow conversion from mb to pb.
   static const double CONVERTMB2PB;

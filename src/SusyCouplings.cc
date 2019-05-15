@@ -28,10 +28,11 @@ namespace Pythia8 {
 
 // Initialize SM+SUSY couplings (only performed once).
 
-void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
-  ParticleData* particleDataPtrIn) {
+void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Info* infoPtrIn,
+    ParticleData* particleDataPtrIn, Settings* settingsPtrIn) {
 
   // Save pointers.
+  infoPtr         = infoPtrIn;
   slhaPtr         = slhaPtrIn;
   settingsPtr     = settingsPtrIn;
   particleDataPtr = particleDataPtrIn;
@@ -75,8 +76,8 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
       //if (DBSUSY) cout << " tan2W = " << tan2W << endl;
       sin2W   = pow2(gp)/(pow2(g)+pow2(gp));
     } else {
-      slhaPtr->message(1,"initSUSY",
-        "Block GAUGE not found or incomplete; using sin(thetaW) at mZ");
+      infoPtr->errorMsg("Warning in CoupSUSY::initSUSY: Block GAUGE"
+        " not found or incomplete; using sin(thetaW) at mZ");
     }
   }
 
@@ -93,8 +94,8 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
     tanb = slhaPtr->hmix(2);
   else{
     tanb = slhaPtr->minpar(3);
-    slhaPtr->message(1,"initSUSY",
-      "Block HMIX not found or incomplete; using MINPAR tan(beta)");
+    infoPtr->errorMsg("Warning in CoupSUSY::initSUSY: Block HMIX"
+      " not found or incomplete; using MINPAR tan(beta)");
   }
   cosb = sqrt( 1.0 / (1.0 + tanb*tanb) );
   sinb = sqrt( max(0.0, 1.0 - cosb*cosb));
@@ -122,10 +123,11 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
   // If RPV, assume alpha = asin(RVHMIX(1,2)) (ignore Higgs-Sneutrino mixing)
   else if (slhaPtr->modsel(4) == 1) {
     alphaHiggs = asin(slhaPtr->rvhmix(1,2));
-    slhaPtr->message(0,"initSUSY","Extracting angle alpha from RVHMIX");
+    infoPtr->errorMsg("Info from CoupSUSY::initSUSY:","Extracting angle"
+      " alpha from RVHMIX", true);
   } else {
-    slhaPtr->message(1,
-      "initSUSY","Block ALPHA not found; using alpha = beta.");
+    infoPtr->errorMsg("Info from CoupSUSY::initSUSY:","Block ALPHA"
+      " not found; using alpha = beta.", true);
     // Define approximate alpha by simple SM limit
     alphaHiggs = atan(tanb);
   }
@@ -136,11 +138,11 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
   } else if (slhaPtr->rvamix.exists()){
     mAHiggs = particleDataPtr->m0(36);
     muHiggs = 0.0;
-    slhaPtr->message(1,"initSUSY",
-      "Block HMIX not found or incomplete; setting mu = 0.");
+    infoPtr->errorMsg("Warning from CoupSUSY::initSUSY: Block HMIX"
+      " not found or incomplete","; setting mu = 0.");
   } else{
-    slhaPtr->message(1,"initSUSY",
-      "Block HMIX not found or incomplete; setting mu = mA = 0.");
+    infoPtr->errorMsg("Warning from CoupSUSY::initSUSY: Block HMIX"
+      " not found or incomplete","; setting mu = mA = 0.");
     muHiggs = 0.0;
     mAHiggs = 0.0;
   }
@@ -307,8 +309,8 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
           break;
         }
     if (hasCrossTerms)
-      slhaPtr->message(0,"initSUSY",
-        "Note: slepton-Higgs mixing not supported in PYTHIA");
+      infoPtr->errorMsg("Warning from CoupSUSY::initSUSY: "
+                        "slepton-Higgs mixing not supported in PYTHIA");
   }
 
   // Neutral sleptons
@@ -325,8 +327,8 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
           break;
         }
     if (hasCrossTerms)
-      slhaPtr->message(0,"initSUSY",
-        "Note: sneutrino-Higgs mixing not supported in PYTHIA");
+      infoPtr->errorMsg("Warning from CoupSUSY::initSUSY: "
+                        "sneutrino-Higgs mixing not supported in PYTHIA");
   }
 
   if(DBSUSY){
@@ -522,8 +524,8 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
           break;
         }
     if (hasCrossTerms)
-      slhaPtr->message(1,"initSUSY",
-                       "Neutrino-Neutralino mixing not supported!");
+      infoPtr->errorMsg("Warning from CoupSUSY::initSUSY: "
+                        "Neutrino-Neutralino mixing not supported in PYTHIA");
   }
   
   // Construct ~chi0 couplings (allow for 5 neutralinos in NMSSM)
@@ -780,8 +782,8 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
           break;
         }
     if (hasCrossTerms)
-      slhaPtr->message(1,"initSUSY",
-                       "Lepton-Chargino mixing not supported!");
+      infoPtr->errorMsg("Warning from CoupSUSY::initSUSY: "
+                        "Lepton-Chargino mixing not supported in PYTHIA");
   }
 
   // Construct ~chi+ couplings

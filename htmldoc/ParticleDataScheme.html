@@ -139,14 +139,10 @@ nor electromagnetic charge, and are not made up of constituents that
 have it. The value of this flag is only relevant if a particle is 
 long-lived enough actually to make it to a detector.</li> 
  
-<li><code>doForceWidth</code>: a flag valid only for resonances where 
-PYTHIA contains code to calculate the width of the resonance from 
-encoded matrix-element expressions, i.e. the <i>Z^0</i>, <i>W^+-</i>, 
-<i>t</i>, <i>h^0</i>, and a few more. The normal behaviour 
-(<code>false</code>) is then that the width is calculated from the mass, 
-but it is possible to <a href="ResonanceDecays.html" target="page">force</a> the 
-resonance to retain the nominal width. Branching ratios and the running 
-of the total width are unaffected.</li> 
+<li><code>doForceWidth</code>: a flag applicable only for resonances 
+(see <code>isResonance</code> above), whereby it is possible to force 
+resonances to retain their assigned width, whatever that is, see 
+<a href="ResonanceDecays.html" target="page">Resonance Decays</a> for details.</li> 
  
 </ul> 
  
@@ -872,14 +868,11 @@ long-lived enough actually to make it to a detector.
 <p/><strong>void ParticleData::doForceWidth(int id, bool doForceWidth) &nbsp;</strong> <br/>
    
 <strong>bool ParticleData::doForceWidth(int id) &nbsp;</strong> <br/>
-a flag valid only for resonances where PYTHIA contains code to 
-calculate the width of the resonance from encoded matrix-element 
-expressions, i.e. the <i>Z^0</i>, <i>W^+-</i>, <i>t</i>, 
-<i>h^0</i>, and a few more. The normal behaviour (<code>false</code>) 
-is then that the width is calculated from the mass, but it is 
-possible to <a href="ResonanceDecays.html" target="page">force</a> the resonance 
-to retain the nominal width. Branching ratios and the running of the 
-total width are unaffected. 
+a flag applicable only for resonances (see <code>isResonance</code> above), 
+whereby it is possible to force resonances to retain their assigned widths, 
+whatever that is, see <a href="ResonanceDecays.html" target="page">Resonance Decays</a> 
+for details. The normal behaviour is <code>false</code>, i.e. the width 
+is based on hardcoded calculations whenever available. 
    
  
 <a name="method34"></a>
@@ -1270,14 +1263,11 @@ long-lived enough actually to make it to a detector.
 <p/><strong>void ParticleDataEntry::setDoForceWidth(bool doForceWidth) &nbsp;</strong> <br/>
    
 <strong>bool ParticleDataEntry::doForceWidth() &nbsp;</strong> <br/>
-a flag valid only for resonances where PYTHIA contains code to 
-calculate the width of the resonance from encoded matrix-element 
-expressions, i.e. the <i>Z^0</i>, <i>W^+-</i>, <i>t</i>, 
-<i>h^0</i>, and a few more. The normal behaviour (<code>false</code>) 
-is then that the width is calculated from the mass, but it is 
-possible to <a href="ResonanceDecays.html" target="page">force</a> the resonance 
-to retain the nominal width. Branching ratios and the running of the 
-total width are unaffected. 
+a flag applicable only for resonances (see <code>isResonance</code> above), 
+whereby it is possible to force resonances to retain their assigned widths, 
+whatever that is, see <a href="ResonanceDecays.html" target="page">Resonance Decays</a> 
+for details. The normal behaviour is <code>false</code>, i.e. the width 
+is based on hardcoded calculations whenever available. 
    
  
 <a name="method84"></a>

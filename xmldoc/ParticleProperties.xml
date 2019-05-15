@@ -200,7 +200,7 @@ generation machinery.
 </method> 
 <methodmore name="int Particle::mother2()"> 
 the indices in the event record where the first and last mothers are 
-stored, if any. There are five allowed combinations of <code>mother1</code> 
+stored, if any. There are six allowed combinations of <code>mother1</code> 
 and <code>mother2</code>: 
 <ol> 
 <li><code>mother1 = mother2 = 0</code>: for lines 0 - 2, where line 0 
@@ -221,12 +221,17 @@ considered mothers; and analogously for
 <li><code>mother1 &lt; mother2</code>, both > 0, except case 4: particles 
 with two truly different mothers, in particular the particles emerging 
 from a hard <ei>2 &rarr; n</ei> interaction.</li> 
+<li><code>mother2 &lt; mother1</code>, both > 0: particles with two truly 
+different mothers, notably for the special case that two nearby partons are 
+joined together into a status 73 or 74 new parton, in the 
+<ei>g + q &rarr; q</ei> case the <ei>q</ei> is made first mother 
+to simplify flavour tracing.</li> 
 </ol> 
 <note>Note 1:</note> in backwards evolution of initial-state showers, 
 the mother may well appear below the daughter in the event record. 
 <note>Note 2:</note> the <code>motherList()</code> method below returns 
 a vector of all the mothers, providing a uniform representation for all 
-five cases. 
+six cases. 
 </methodmore> 
  
 <method name="int Particle::daughter1()"> 

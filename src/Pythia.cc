@@ -22,7 +22,7 @@ namespace Pythia8 {
 //--------------------------------------------------------------------------
 
 // The current Pythia (sub)version number, to agree with XML version.
-const double Pythia::VERSIONNUMBERCODE = 8.183;
+const double Pythia::VERSIONNUMBERCODE = 8.185;
 
 //--------------------------------------------------------------------------
 
@@ -224,17 +224,26 @@ bool Pythia::readFile(istream& is, bool warn, int subrun) {
 
   // Read in one line at a time.
   string line;
+  bool isCommented = false;
   bool accepted = true;
   int subrunNow = SUBRUNDEFAULT;
   while ( getline(is, line) ) {
 
-    // Check whether entered new subrun.
-    int subrunLine = readSubrun( line, warn);
-    if (subrunLine >= 0) subrunNow = subrunLine;
+    // Check whether entering, leaving or inside commented-commands section.
+    int commentLine = readCommented( line);
+    if      (commentLine == +1)  isCommented = true;
+    else if (commentLine == -1)  isCommented = false;
+    else if (isCommented) ;
+   
+    else {
+      // Check whether entered new subrun.
+      int subrunLine = readSubrun( line, warn);
+      if (subrunLine >= 0) subrunNow = subrunLine;
 
-    // Process the line if in correct subrun.
-    if ( (subrunNow == subrun || subrunNow == SUBRUNDEFAULT)
-       && !readString( line, warn) ) accepted = false;
+      // Process the line if in correct subrun.
+      if ( (subrunNow == subrun || subrunNow == SUBRUNDEFAULT)
+         && !readString( line, warn) ) accepted = false;
+    }
 
   // Reached end of input file.
   };
@@ -311,12 +320,12 @@ bool Pythia::init() {
   // Check that constructor worked.
   isInit = false;
   if (!isConstructed) {
-    info.errorMsg("Abort from Pythia::init: constructur "
+    info.errorMsg("Abort from Pythia::init: constructor "
       "initialization failed");
     return false;
   }
 
-  // Early readout to be safe in case of a return false.
+  // Early readout, if return false or changed when no beams.
   doProcessLevel = settings.flag("ProcessLevel:all");
 
   // Check that changes in Settings and ParticleData have worked.
@@ -389,7 +398,7 @@ bool Pythia::init() {
         return false;
       }
 
-      // LHAup object generic abort using fileFound() routine
+      // LHAup object generic abort using fileFound() routine.
       if (!lhaUpPtr->fileFound()) {
         info.errorMsg("Abort from Pythia::init: "
           "LHAup initialisation error");
@@ -462,7 +471,7 @@ bool Pythia::init() {
     }
 
     // Set LHAinit information (in some external program).
-    if (settings.flag("ProcessLevel:all") && !lhaUpPtr->setInit()) {
+    if ( !lhaUpPtr->setInit()) {
       info.errorMsg("Abort from Pythia::init: "
         "Les Houches initialization failed");
       return false;
@@ -471,8 +480,10 @@ bool Pythia::init() {
     // Extract beams from values set in an LHAinit object.
     idA = lhaUpPtr->idBeamA();
     idB = lhaUpPtr->idBeamB();
+    if (idA == 0 || idB == 0) doProcessLevel = false;
     eA  = lhaUpPtr->eBeamA();
     eB  = lhaUpPtr->eBeamB();
+
     // Optionally skip ahead a number of events at beginning of file.
     if (nSkipAtInit > 0) lhaUpPtr->skipEvent(nSkipAtInit);
   }
@@ -500,7 +511,6 @@ bool Pythia::init() {
   info.sigmaReset();
 
   // Initialize data members extracted from database.
-  doProcessLevel   = settings.flag("ProcessLevel:all");
   doPartonLevel    = settings.flag("PartonLevel:all");
   doHadronLevel    = settings.flag("HadronLevel:all");
   doDiffraction    = settings.flag("SoftQCD:all")
@@ -508,7 +518,7 @@ bool Pythia::init() {
                   || settings.flag("SoftQCD:doubleDiffractive")
                   || settings.flag("SoftQCD:centralDiffractive")
                   || settings.flag("SoftQCD:inelastic");
-  doResDec         = settings.flag("Standalone:allowResDec");
+  doResDec         = settings.flag("ProcessLevel:resonanceDecays");
   doFSRinRes       = doPartonLevel && settings.flag("PartonLevel:FSR")
                   && settings.flag("PartonLevel:FSRinResonances");
   decayRHadrons    = settings.flag("RHadrons:allowDecay");
@@ -636,9 +646,9 @@ bool Pythia::init() {
     return false;
   }
 
-  // Optionally only initialize resonance decays.
-  if ( !doProcessLevel && doResDec) processLevel.initDecays( &info,
-    &particleData, &rndm, lhaUpPtr);
+  // Alternatively only initialize resonance decays.
+  if ( !doProcessLevel) processLevel.initDecays( &info, &particleData,
+    &rndm, lhaUpPtr);
 
   // Send info/pointers to parton level for initialization.
   if ( doPartonLevel && doProcessLevel && !partonLevel.init( &info, settings,
@@ -650,10 +660,10 @@ bool Pythia::init() {
     return false;
   }
 
-  // Optionally only initialize final-state showers in resonance decays.
-  if ( (!doProcessLevel || !doPartonLevel) && doFSRinRes) partonLevel.init(
-    &info, settings, &particleData, &rndm, 0, 0, 0, 0, couplingsPtr,
-    &partonSystems, 0, timesDecPtr, 0, 0, &rHadrons, 0, 0, false);
+  // Alternatively only initialize final-state showers in resonance decays.
+  if ( !doProcessLevel || !doPartonLevel) partonLevel.init( &info, settings,
+    &particleData, &rndm, 0, 0, 0, 0, couplingsPtr, &partonSystems, 0,
+    timesDecPtr, 0, 0, &rHadrons, 0, 0, false);
 
   // Send info/pointers to parton level for trial shower initialization.
   if ( doMerging && !trialPartonLevel.init( &info, settings, &particleData,
@@ -1139,7 +1149,7 @@ bool Pythia::next() {
 
       // Redo resonance decays after the merging, in case the resonance
       // structure has been changed because of reclusterings.
-      if (veto == 2 ) processLevel.nextDecays( process);
+      if (veto == 2 && doResDec) processLevel.nextDecays( process);
     }
 
     // Possibility to stop the generation at this stage.
@@ -1333,12 +1343,9 @@ bool Pythia::forceHadronLevel(bool findJunctions) {
     if (doResDec) {
       process = event;
       processLevel.nextDecays( process);
-      bool hasDecays = false;
-      for (int i = 1; i < process.size(); ++i)
-        if (process[i].status() < 0) hasDecays = true;
 
       // Allow for showers if decays happened at process level.
-      if (hasDecays) {
+      if (process.size() > event.size()) {
         if (doFSRinRes) {
           partonLevel.setupShowerSys( process, event);
           partonLevel.resonanceShowers( process, event, false);
@@ -1709,6 +1716,27 @@ int Pythia::readSubrun(string line, bool warn, ostream& os) {
     subrunLine = SUBRUNDEFAULT;
   }
   return subrunLine;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Check for lines in file that mark the beginning or end of commented section.
+// Return +1 for beginning, -1 for end, 0 else.
+
+int Pythia::readCommented(string line) {
+
+  // If less than two nontrivial characters on line then done.
+  if (line.find_first_not_of(" \n\t\v\b\r\f\a") == string::npos) return 0;
+  int firstChar = line.find_first_not_of(" \n\t\v\b\r\f\a");
+  if (int(line.size()) < firstChar + 2) return 0;
+
+  // If first two nontrivial characters are /* or */ then done.
+  if (line.substr(firstChar, 2) == "/*") return +1;
+  if (line.substr(firstChar, 2) == "*/") return -1;
+  
+  // Else done.
+  return 0;
 
 }
 

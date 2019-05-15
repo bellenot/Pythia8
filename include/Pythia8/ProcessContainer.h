@@ -22,6 +22,7 @@
 #include "Pythia8/Settings.h"
 #include "Pythia8/SigmaProcess.h"
 #include "Pythia8/SigmaTotal.h"
+#include "Pythia8/SigmaOnia.h"
 #include "Pythia8/StandardModel.h"
 #include "Pythia8/SusyCouplings.h"
 #include "Pythia8/SLHAinterface.h"
@@ -192,8 +193,8 @@ public:
   SetupContainers() {}
  
   // Initialization assuming all necessary data already read.
-  bool init(vector<ProcessContainer*>& containerPtrs, Settings& settings,
-    ParticleData* particleDataPtr, Couplings* couplings);
+  bool init(vector<ProcessContainer*>& containerPtrs, Info* infoPtr,
+    Settings& settings, ParticleData* particleDataPtr, Couplings* couplings);
  
   // Initialization of a second hard process.
   bool init2(vector<ProcessContainer*>& container2Ptrs, Settings& settings);
@@ -207,6 +208,9 @@ private:
   // Arrays of allowed outgoing SUSY particles and their lengths.
   vector<int> idVecA, idVecB;
   int nVecA, nVecB;
+
+  // Helper class to setup onia production.
+  SigmaOniaSetup charmonium, bottomonium;
 
 };
 

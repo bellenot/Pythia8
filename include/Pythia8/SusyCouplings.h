@@ -31,8 +31,8 @@ public:
   CoupSUSY() {isInit=false; isNMSSM = false; isSUSY=true;}
 
   // Initialize
-  void initSUSY(SusyLesHouches* slhaPtrIn, Settings* settingsPtrIn,
-    ParticleData* particleDataPtrIn);
+  void initSUSY(SusyLesHouches* slhaPtrIn, Info* infoPtrIn, 
+                ParticleData* particleDataPtrIn, Settings* settingsPtrIn);
 
   // Status flag. Flag for NMSSM.
   bool isInit, isNMSSM;
@@ -162,6 +162,8 @@ private:
   // Debug flag
   static const bool DBSUSY;
 
+  // Pointer to the info class
+  Info*          infoPtr;
 
   // Pointer to the settings database.
   Settings*      settingsPtr;

@@ -22,6 +22,10 @@ Z. Phys. C45 (1989) 109</dd>
  
 <dt>Alw07</dt> 
 <dd>J. Alwall et al., arXiv:0712.3311 [hep-ph]</dd> 
+
+<dt>Alw08</dt> 
+<dd>J. Alwall, S. de Visscher, F. Maltoni, 
+JHEP 0902 (2009) 017 [arXiv:0810.5350 [hep-ph]]</dd> 
  
 <dt>Alw11</dt> 
 <dd>J. Alwall, M. Herquet, F. Maltoni, O. Mattelaer, T. Stelzer, 
@@ -48,12 +52,14 @@ JHEP 1201 (2012) 018 [arXiv:1108.2396 [hep-ph]] </dd>
 <dt>Azu05</dt> 
 <dd>G. Azuelos, P.-H. Beauchemin and C.P. Burgess, J. Phys. G31 (2005) 1</dd> 
  
-<dt>Bar94</dt> 
-<dd>E. Barberio and Z. Was, Comput. Phys.Commun. 79 (1994) 291 
+<dt>Bai83</dt> 
+<dd>R. Baier and R. R&uuml;ckl, Z. Phys. C19 (1983) 251</dd>
  
-<dt>Bar06</dt> 
-<dd>M. Bargiotti, talk at the HERA4LHC workshop, 
-http://mbargiot.web.cern.ch/mbargiot/talks/ 
+<dt>Bar94</dt> 
+<dd>E. Barberio and Z. Was, Comput. Phys.Commun. 79 (1994) 291</dd> 
+ 
+<dt>Bar07</dt> 
+<dd>M. Bargiotti and V. Vagnoni, public note LHCb-2007-042
  
 <dt>Bau90</dt> 
 <dd>U. Baur, M. Spira and P. M. Zerwas, Phys. Rev. D42 (1990) 815; 
@@ -142,12 +148,19 @@ Nucl.Phys. B349 (1991) 635</dd>
 <dd>K. Cheung, W.-Y. Keung and T.-C. Yuan, 
 Phys. Rev. D76 (2007) 055003</dd> 
  
+<dt>Cho96</dt> 
+<dd>P. Cho and A. Leibovich, Phys. Rev. D53 (1996) 6203 
+[hep-ph/9511315]</dd> 
+ 
 <dt>Chr14</dt> 
 <dd>J.R. Christiansen and T. Sj&ouml;strand, 
 LU TP 14-02, MCnet-14-01, arXiv:1401.5238 [hep-ph]</dd> 
  
 <dt>Cie12</dt> 
 <dd>R. Ciesielski and K. Goulianos, arXiv:1205.1446 [hep-ph]</dd> 
+ 
+<dt>Cio08</dt> 
+<dd>C. Ciobanu et al., FERMILAB-FN-0773, CDF/PHYS/PUBLIC/7755 (2008)</dd> 
  
 <dt>Cor09</dt> 
 <dd>R. Corke and T. Sj&ouml;strand, JHEP 1001 (2010) 035 
@@ -196,10 +209,14 @@ p. 806</dd>
 <dt>Fra11</dt> 
 <dd>R. Franceschini, G.F. Giudice, P.P. Giardino, P. Lodone, A. Strumia, 
 JHEP 1105 (2011) 092 [arXiv:1101.4919 [hep-ph]] </dd> 
-         
+ 
 <dt>Fre11</dt> 
 <dd>R. Frederix, S. Frixione, V. Hirschi, F. Maltoni, R. Pittau, 
 P. Torrielli, Phys.Lett. B701 (2011) 427 [arXiv:1104.5613 [hep-ph]]</dd> 
+ 
+<dt>Fre12</dt> 
+<dd>R. Frederix, S. Frixione, JHEP 1212 (2012) 061 
+[arXiv:1209.6215 [hep-ph]]</dd> 
          
 <dt>Fri02</dt> 
 <dd>S. Frixione and B.R. Webber, JHEP 0206 (2002) 029 [hep-ph/0204244]</dd> 
@@ -207,6 +224,9 @@ P. Torrielli, Phys.Lett. B701 (2011) 427 [arXiv:1104.5613 [hep-ph]]</dd>
 <dt>Fuk11</dt> 
 <dd>B. Fuks, B. Hermann, and M. Klasen, Phys.Rev. D86 (2012) 015002 
 [arXiv:1112.4838]</dd> 
+ 
+<dt>Gas87</dt> 
+<dd>R. Gastmans, W. Troost and T. Wu, Phys.Lett. B184 (1987) 257</dd> 
  
 <dt>Glu95</dt> 
 <dd>M. Gl&uuml;ck, E. Reya and A. Vogt, Z. Phys. C67 (1995) 433</dd> 
@@ -255,6 +275,10 @@ Phys. Lett. B394 (1997) 132</dd>
 <dd>P. Ilten, arXiv:1211.6730 [hep-ph], to appear in the proceedings of 
 Tau2012, Nagoya, Japan, 17-21 September 2012 
  </dd> 
+ 
+<dt>Ilt14</dt> 
+<dd>P. Ilten, Ph.D. thesis, arXiv:1401.4902 [hep-ex] 
+</dd> 
  
 <dt>Ing85</dt> 
 <dd>G.Ingelman and P. Schlein, Phys. Lett. B152 (1985) 256</dd> 
@@ -365,6 +389,9 @@ eds. G. Altarelli and M.L. Mangano, CERN 2000-004, p. 231
  
 <dt>Nor01</dt> 
  <dd>E. Norrbin and T. Sj&ouml;strand, Nucl. Phys. B603 (2001) 297</dd> 
+ 
+<dt>Ole13</dt> 
+<dd>C. Oleari and P. Nason, [arXiv:1303.3922 [hep-ph]]</dd> 
    
 <dt>Pet83</dt> 
 <dd>C. Peterson, D. Schlatter, I. Schmitt and P. Zerwas, 
@@ -424,6 +451,10 @@ CERN-2005-014, p. 575 [hep-ph/0508110]</dd>
 <dt>Yao06</dt> 
 <dd>Particle Data Group, W.-M. Yao et al., 
 J. Phys. G33 (2006) 1</dd> 
+
+<dt>Yua98</dt> 
+<dd>F. Yuan, C. Qiao and K. Chao, Phys. Rev. D59 (1998) 014009
+[hep-ph/9807329]</dd> 
  
 </dl> 
  

@@ -384,15 +384,17 @@ public:
   friend ostream& operator<<(ostream& os, const Hist& h) ;
 
   // Print histogram contents as a table (e.g. for Gnuplot).
-  void table(ostream& os = cout, bool printOverUnder = false) const ;
-  void table(string fileName, bool printOverUnder = false) const {
-    ofstream streamName(fileName.c_str()); table(streamName, printOverUnder);}
+  void table(ostream& os = cout, bool printOverUnder = false,
+    bool xMidBin = true) const ;
+  void table(string fileName, bool printOverUnder = false,
+    bool xMidBin = true) const { ofstream streamName(fileName.c_str());
+    table(streamName, printOverUnder, xMidBin);}
 
   // Print a table out of two histograms with same x axis.
   friend void table(const Hist& h1, const Hist& h2, ostream& os,
-    bool printOverUnder = false) ;
+    bool printOverUnder, bool xMidBin) ;
   friend void table(const Hist& h1, const Hist& h2, string fileName,
-    bool printOverUnder = false) ;
+    bool printOverUnder, bool xMidBin) ;
 
   // Return content of specific bin: 0 gives underflow and nBin+1 overflow.
   double getBinContent(int iBin) const;
@@ -457,9 +459,9 @@ ostream& operator<<(ostream& os, const Hist& h) ;
 
 // Print a table out of two histograms with same x axis.
 void table(const Hist& h1, const Hist& h2, ostream& os = cout,
-  bool printOverUnder) ;
+  bool printOverUnder = false, bool xMidBin = true) ;
 void table(const Hist& h1, const Hist& h2, string fileName,
-  bool printOverUnder) ;
+  bool printOverUnder = false, bool xMidBin = true) ;
 
 // Operator overloading with friends
 Hist operator+(double f, const Hist& h1);

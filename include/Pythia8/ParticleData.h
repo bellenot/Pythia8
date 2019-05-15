@@ -241,9 +241,8 @@ public:
   bool   isBaryon()       const;
 
   // Intermediate octet ccbar or bbar states in colour-octet model.
-  bool   isOctetHadron()  const {return (idSave == 9900441
-         || idSave == 9900443 || idSave == 9900551 || idSave == 9900553
-         || idSave == 9910441 || idSave == 9910551); }
+  bool   isOctetHadron()  const {return idSave >= 9940000
+      && idSave < 9960000; }
   int    heaviestQuark(int idIn = 1)    const;
   int    baryonNumberType(int idIn = 1) const;
 
@@ -392,13 +391,14 @@ public:
     double mWidthIn = 0., double mMinIn = 0., double mMaxIn = 0.,
     double tau0In = 0.) { pdt[abs(idIn)] = ParticleDataEntry(idIn,
     nameIn, spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn,
-    mMinIn, mMaxIn, tau0In); }
+    mMinIn, mMaxIn, tau0In); pdt[abs(idIn)].initPtr(this); }
   void addParticle(int idIn, string nameIn, string antiNameIn,
     int spinTypeIn = 0, int chargeTypeIn = 0, int colTypeIn = 0,
     double m0In = 0., double mWidthIn = 0., double mMinIn = 0.,
     double mMaxIn = 0., double tau0In = 0.) { pdt[abs(idIn)]
     = ParticleDataEntry(idIn, nameIn, antiNameIn, spinTypeIn,
-    chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn, tau0In); }
+    chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn, tau0In);
+    pdt[abs(idIn)].initPtr(this); }
 
   // Reset all the properties of an entry in one go.
   void setAll(int idIn, string nameIn, string antiNameIn,

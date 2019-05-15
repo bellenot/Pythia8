@@ -17,7 +17,6 @@
 #include "Pythia8/SigmaLeftRightSym.h"
 #include "Pythia8/SigmaLeptoquark.h"
 #include "Pythia8/SigmaNewGaugeBosons.h"
-#include "Pythia8/SigmaOnia.h"
 #include "Pythia8/SigmaQCD.h"
 #include "Pythia8/SigmaSUSY.h"
 
@@ -900,7 +899,8 @@ void ProcessContainer::sigmaDelta() {
 // Main routine to initialize list of processes.
 
 bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
-  Settings& settings, ParticleData* particleDataPtr, Couplings* couplings) {
+       Info *infoPtr, Settings& settings, ParticleData* particleDataPtr, 
+       Couplings* couplings) {
 
   // Reset process list, if filled in previous subrun.
   if (containerPtrs.size() > 0) {
@@ -1185,165 +1185,22 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
   
-  // Set up requested objects for charmonium production
-  bool charmoniums = settings.flag("Charmonium:all");
-  if (charmoniums || settings.flag("Charmonium:gg2QQbar[3S1(1)]g")) {
-    sigmaPtr = new Sigma2gg2QQbar3S11g(4, 401);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:gg2QQbar[3P0(1)]g")) {
-    sigmaPtr = new Sigma2gg2QQbar3PJ1g(4, 0, 402);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:gg2QQbar[3P1(1)]g")) {
-    sigmaPtr = new Sigma2gg2QQbar3PJ1g(4, 1, 403);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:gg2QQbar[3P2(1)]g")) {
-    sigmaPtr = new Sigma2gg2QQbar3PJ1g(4, 2, 404);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:qg2QQbar[3P0(1)]q")) {
-    sigmaPtr = new Sigma2qg2QQbar3PJ1q(4, 0, 405);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:qg2QQbar[3P1(1)]q")) {
-    sigmaPtr = new Sigma2qg2QQbar3PJ1q(4, 1, 406);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:qg2QQbar[3P2(1)]q")) {
-    sigmaPtr = new Sigma2qg2QQbar3PJ1q(4, 2, 407);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:qqbar2QQbar[3P0(1)]g")) {
-    sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(4, 0, 408);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:qqbar2QQbar[3P1(1)]g")) {
-    sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(4, 1, 409);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:qqbar2QQbar[3P2(1)]g")) {
-    sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(4, 2, 410);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:gg2QQbar[3S1(8)]g")) {
-    sigmaPtr = new Sigma2gg2QQbarX8g(4, 0, 411);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:gg2QQbar[1S0(8)]g")) {
-    sigmaPtr = new Sigma2gg2QQbarX8g(4, 1, 412);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:gg2QQbar[3PJ(8)]g")) {
-    sigmaPtr = new Sigma2gg2QQbarX8g(4, 2, 413);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:qg2QQbar[3S1(8)]q")) {
-    sigmaPtr = new Sigma2qg2QQbarX8q(4, 0, 414);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:qg2QQbar[1S0(8)]q")) {
-    sigmaPtr = new Sigma2qg2QQbarX8q(4, 1, 415);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:qg2QQbar[3PJ(8)]q")) {
-    sigmaPtr = new Sigma2qg2QQbarX8q(4, 2, 416);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:qqbar2QQbar[3S1(8)]g")) {
-    sigmaPtr = new Sigma2qqbar2QQbarX8g(4, 0, 417);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:qqbar2QQbar[1S0(8)]g")) {
-    sigmaPtr = new Sigma2qqbar2QQbarX8g(4, 1, 418);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (charmoniums || settings.flag("Charmonium:qqbar2QQbar[3PJ(8)]g")) {
-    sigmaPtr = new Sigma2qqbar2QQbarX8g(4, 2, 419);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-    
-  // Set up requested objects for bottomonium production
-  bool bottomoniums = settings.flag("Bottomonium:all");
-  if (bottomoniums || settings.flag("Bottomonium:gg2QQbar[3S1(1)]g")) {
-    sigmaPtr = new Sigma2gg2QQbar3S11g(5, 501);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:gg2QQbar[3P0(1)]g")) {
-    sigmaPtr = new Sigma2gg2QQbar3PJ1g(5, 0, 502);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:gg2QQbar[3P1(1)]g")) {
-    sigmaPtr = new Sigma2gg2QQbar3PJ1g(5, 1, 503);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:gg2QQbar[3P2(1)]g")) {
-    sigmaPtr = new Sigma2gg2QQbar3PJ1g(5, 2, 504);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:qg2QQbar[3P0(1)]q")) {
-    sigmaPtr = new Sigma2qg2QQbar3PJ1q(5, 0, 505);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:qg2QQbar[3P1(1)]q")) {
-    sigmaPtr = new Sigma2qg2QQbar3PJ1q(5, 1, 506);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:qg2QQbar[3P2(1)]q")) {
-    sigmaPtr = new Sigma2qg2QQbar3PJ1q(5, 2, 507);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:qqbar2QQbar[3P0(1)]g")) {
-    sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(5, 0, 508);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:qqbar2QQbar[3P1(1)]g")) {
-    sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(5, 1, 509);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:qqbar2QQbar[3P2(1)]g")) {
-    sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(5, 2, 510);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:gg2QQbar[3S1(8)]g")) {
-    sigmaPtr = new Sigma2gg2QQbarX8g(5, 0, 511);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:gg2QQbar[1S0(8)]g")) {
-    sigmaPtr = new Sigma2gg2QQbarX8g(5, 1, 512);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:gg2QQbar[3PJ(8)]g")) {
-    sigmaPtr = new Sigma2gg2QQbarX8g(5, 2, 513);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:qg2QQbar[3S1(8)]q")) {
-    sigmaPtr = new Sigma2qg2QQbarX8q(5, 0, 514);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:qg2QQbar[1S0(8)]q")) {
-    sigmaPtr = new Sigma2qg2QQbarX8q(5, 1, 515);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:qg2QQbar[3PJ(8)]q")) {
-    sigmaPtr = new Sigma2qg2QQbarX8q(5, 2, 516);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:qqbar2QQbar[3S1(8)]g")) {
-    sigmaPtr = new Sigma2qqbar2QQbarX8g(5, 0, 517);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:qqbar2QQbar[1S0(8)]g")) {
-    sigmaPtr = new Sigma2qqbar2QQbarX8g(5, 1, 518);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  if (bottomoniums || settings.flag("Bottomonium:qqbar2QQbar[3PJ(8)]g")) {
-    sigmaPtr = new Sigma2qqbar2QQbarX8g(5, 2, 519);
-    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
-  }
-  
-  // Set up requested objects for top production
+  // Set up requested objects for onia production.
+  charmonium = SigmaOniaSetup(infoPtr, &settings, particleDataPtr, 4);
+  bottomonium = SigmaOniaSetup(infoPtr, &settings, particleDataPtr, 5);
+  vector<SigmaProcess*> charmoniumSigmaPtrs, bottomoniumSigmaPtrs;
+  charmonium.setupSigma2gg(charmoniumSigmaPtrs);
+  charmonium.setupSigma2qg(charmoniumSigmaPtrs);
+  charmonium.setupSigma2qq(charmoniumSigmaPtrs);
+  bottomonium.setupSigma2gg(bottomoniumSigmaPtrs);
+  bottomonium.setupSigma2qg(bottomoniumSigmaPtrs);
+  bottomonium.setupSigma2qq(bottomoniumSigmaPtrs);
+  for (unsigned int i = 0; i < charmoniumSigmaPtrs.size(); ++i)
+    containerPtrs.push_back( new ProcessContainer(charmoniumSigmaPtrs[i]) );
+  for (unsigned int i = 0; i < bottomoniumSigmaPtrs.size(); ++i)
+    containerPtrs.push_back( new ProcessContainer(bottomoniumSigmaPtrs[i]) );
+
+  // Set up requested objects for top production.
   bool tops = settings.flag("Top:all");
   if (tops || settings.flag("Top:gg2ttbar")) {
     sigmaPtr = new Sigma2gg2QQbar(6, 601);
@@ -2605,88 +2462,24 @@ bool SetupContainers::init2(vector<ProcessContainer*>& container2Ptrs,
     container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
   }
  
-  // Charmonium production.
+  // Charmonium.
   if (settings.flag("SecondHard:Charmonium")) {
-    sigmaPtr = new Sigma2gg2QQbar3S11g(4, 401);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2gg2QQbar3PJ1g(4, 0, 402);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2gg2QQbar3PJ1g(4, 1, 403);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2gg2QQbar3PJ1g(4, 2, 404);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qg2QQbar3PJ1q(4, 0, 405);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qg2QQbar3PJ1q(4, 1, 406);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qg2QQbar3PJ1q(4, 2, 407);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(4, 0, 408);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(4, 1, 409);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(4, 2, 410);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2gg2QQbarX8g(4, 0, 411);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2gg2QQbarX8g(4, 1, 412);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2gg2QQbarX8g(4, 2, 413);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qg2QQbarX8q(4, 0, 414);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qg2QQbarX8q(4, 1, 415);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qg2QQbarX8q(4, 2, 416);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2QQbarX8g(4, 0, 417);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2QQbarX8g(4, 1, 418);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2QQbarX8g(4, 2, 419);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
+    vector<SigmaProcess*> charmoniumSigmaPtrs;
+    charmonium.setupSigma2gg(charmoniumSigmaPtrs, true);
+    charmonium.setupSigma2qg(charmoniumSigmaPtrs, true);
+    charmonium.setupSigma2qq(charmoniumSigmaPtrs, true);
+    for (unsigned int i = 0; i < charmoniumSigmaPtrs.size(); ++i)
+      container2Ptrs.push_back( new ProcessContainer(charmoniumSigmaPtrs[i]) );
   }
-    
-  // Bottomonium production.
+
+  // Bottomonium.
   if (settings.flag("SecondHard:Bottomonium")) {
-    sigmaPtr = new Sigma2gg2QQbar3S11g(5, 501);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2gg2QQbar3PJ1g(5, 0, 502);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2gg2QQbar3PJ1g(5, 1, 503);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2gg2QQbar3PJ1g(5, 2, 504);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qg2QQbar3PJ1q(5, 0, 505);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qg2QQbar3PJ1q(5, 1, 506);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qg2QQbar3PJ1q(5, 2, 507);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(5, 0, 508);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(5, 1, 509);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2QQbar3PJ1g(5, 2, 510);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2gg2QQbarX8g(5, 0, 511);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2gg2QQbarX8g(5, 1, 512);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2gg2QQbarX8g(5, 2, 513);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qg2QQbarX8q(5, 0, 514);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qg2QQbarX8q(5, 1, 515);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qg2QQbarX8q(5, 2, 516);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2QQbarX8g(5, 0, 517);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2QQbarX8g(5, 1, 518);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
-    sigmaPtr = new Sigma2qqbar2QQbarX8g(5, 2, 519);
-    container2Ptrs.push_back( new ProcessContainer(sigmaPtr) );
+    vector<SigmaProcess*> bottomoniumSigmaPtrs;
+    bottomonium.setupSigma2gg(bottomoniumSigmaPtrs, true);
+    bottomonium.setupSigma2qg(bottomoniumSigmaPtrs, true);
+    bottomonium.setupSigma2qq(bottomoniumSigmaPtrs, true);
+    for (unsigned int i = 0; i < bottomoniumSigmaPtrs.size(); ++i)
+      container2Ptrs.push_back( new ProcessContainer(bottomoniumSigmaPtrs[i]) );
   }
 
   // A single gamma*/Z0.

@@ -576,7 +576,6 @@ void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
   for (map<int, ParticleDataEntry>::iterator pdtEntry = pdt.begin();
     pdtEntry != pdt.end(); ++pdtEntry) {
     ParticleDataEntry& pdtNow = pdtEntry->second;
-    pdtNow.initPtr( this);
     pdtNow.initBWmass();
 
     // Remove any existing resonances.

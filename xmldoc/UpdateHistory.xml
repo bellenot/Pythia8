@@ -2736,6 +2736,132 @@ wherever feasible, and update year to 2014.</li>
  
 </ul> 
 </li> 
+ 
+<li>8.185: 15 March 2014 
+<ul> 
+
+<li>Bug found in the handling of ISR in diffractive systems,  whereby the 
+maximal scale of shower emissions was set to  the mass of the diffractive 
+system, rather than the <ei>pT</ei> of the hardest interaction. This bug 
+was introduced in version 8.183, when the status code of the hardest MPI 
+was changed, and notably gave too many high-<ei>pT</ei> particles, and 
+also a bit too high multiplicity. In versions up to and including 8.180, 
+instead the <ei>pT</ei> of the second MPI was not strictly limited by the 
+<ei>pT</ei> of the first, which also gave an overestimate, but smaller.</li> 
+ 
+<li>Added the FxFx matching and shower-kT matching schemes as new options,
+see <aloc href="JetMatching">Jet Matching</aloc>. Still under validation,
+though. Part of the new code is contributed by Simon de Visscher.</li>
+
+<li>A number of minor improvements of the merging machineries for 
+increased flexibility, including removed hardcoded maximum number of jets, 
+updated bookkeeping to allow for a event-by-event definition of the 
+hard process for merging, removed incomplete histories warning, small 
+change in mass treatment for reclustering, and more. Also removed internal 
+setting of <ei>K</ei> factors for <code>main88.cc</code>.</li> 
+
+<li>New documentation on the 
+<aloc href="POWHEGMerging">POWHEG Merging</aloc> implemented in 
+<code>examples/main31.cc</code>.</li> 
+
+<li>Higgs particle names (re)simplified to MSSM standard. New 
+<code>SLHAInterface</code> code added to reset the names appropriately 
+(SLHA2 conventions) when in the NMSSM, CPV or RPV scenarios. PDG codes 
+45 and 46 reserved as placeholders for further Higgs states.</li>
+ 
+<li>SUSY decay channels now have <code>meMode = 0</code>, except those to 
+Gravitinos, for which no code has been implemented (they stay 103). 
+By default, the width of SUSY particles is formally set to 1.0,  but all 
+decay channels start out with zero branching fractions. The proper BRs 
+should then be calculated by PYTHIA, and/or read in via SLHA decay tables,
+and/or set by hand by the user.</li> 
+
+<li>Expanded SLHA input support for NMSSM type models, plus a few 
+further minor SUSY improvements and fixes.</li> 
+
+<li>Significant extensions to the 
+<aloc href="OniaProcesses">charmonium and bottomonium</aloc> 
+machineries, as follows.
+<br/>Many more colour-octet states, according to a new labelling 
+convention <ei>9 9 n_Q n_state n_r n_L n_J</ei>, where <ei>n_Q</ei> is 
+the flavour of the state (4 or 5),  <ei>n_state</ei> is 0 for 3S1, 
+1  for 1S0 and 2  for 3PJ states, while <ei>n_r</ei>, <ei>n_L</ei> 
+and <ei>n_J</ei> are the same as in the PDG convention. They are
+assigned masses 10 MeV above the respective colour singlet state.
+<br/>Data on processes which only differ by the radial excitation 
+number <ei>n_r</ei> are grouped into vectors for on/off switches 
+and long-dinstance matrix elements, but share the same process code
+and short-distance matrix elements. This grouping involves some upgrades 
+to the cross section bookkeeping machinery.
+<br/>Matrix elements for 3DJ processes are now implemented.
+<br/>The mass splitting between all colour octet and singlet state pairs 
+can be set by one common parameter.
+</li> 
+
+<li>Introduce new switch <code>TimeShower:weightGluonToQuark</code> that 
+allows a few alternative approaches to set the <ei>g &rarr; q qbar</ei> 
+branching rate, notably for heavy quarks, and similarly for 
+<ei>gamma &rarr; f fbar</ei>. Associated scale-setting freedom regulated
+by new <code>TimeShower:scaleGluonToQuark</code> parameter.
+</li> 
+
+<li>New/improved capabilities to accept LesHouches input of events
+without any incoming beams, e.g. for resonances with decay chains, 
+where PYTHIA should add showers and hadronization, see
+<aloc href="LesHouchesAccord">Les Houches Accord</aloc> and 
+<aloc href="HadronLevelStandalone">Hadron-Level Standalone</aloc>.
+The <code>Standalone:allowResDec</code> switch is removed and its 
+functionality largely taken over by the 
+<code>ProcessLevel:resonanceDecays</code> one.</li> 
+
+<li>New possibility to comment out a section of lines in a command file,
+when read in by <code>Pythia::readFile(...)</code>. The first line of 
+the commented section should begin by <code>/*</code> and the last
+begin by <code>*/</code>. Best is to keep them on separate lines,
+optionally followed by comments, but no commands.</li> 
+ 
+<li>A new <code>FVec</code> class has been introduced to store a vector 
+of flags, see the <aloc href="SettingsScheme">Settings</aloc> database.
+</li> 
+
+<li>Minor update in <code>configure</code> to be used by
+<code>pythia8-config</code>. Thanks to Andy Buckley.</li> 
+
+<li>Minor update in the <code>configure</code> options for FastJet.</li> 
+
+<li>Minor update of the Monash 2013 tune.</li> 
+
+<li>In the joining of nearby partons, <ei>q + g &rarr; q</ei> , 
+in preparation of the hadronization step, it is ensured that the quark 
+mother is listed as <code>mother1()</code>, even when this is not the
+order of the mothers in the event record.</li> 
+
+<li>The histogram table printing routines have acquired a new argument
+that allows the <ei>x</ei> value at the beginning of each bin to be
+printed, instead of the midpoint one.</li> 
+ 
+<li>Implement (some of the) functionality of the <code>doForceWidth</code> 
+switch for resonances, that has been missing so far, and improve the
+documentation thereof. Thanks to Xiaohu Sun.</li> 
+
+<li>Update some of the hadron-level code to handle several
+junction-antijunction topologies in a single event.</li> 
+
+<li>Bug fix for MPI's with an <ei>x</ei>-dependent impact parameter profile
+(<code>bProfile = 4</code>) and the factorization scale of a hard process as 
+the maximal scale (<code>pTmaxMatch = 1</code>), that this maximum was not
+respected, so that an MPI could be harder than the hard process.  
+Thanks to Stefano Camarda.</li> 
+
+<li>A few minor bug fixes in the new weak-shower machinery.</li> 
+
+<li>Minor fix in the setting of the pointer of a particle data entry to 
+the full particle data table.</li> 
+
+<li>Some other minor fixes.</li> 
+
+</ul> 
+</li> 
 </ul> 
  
 </chapter> 

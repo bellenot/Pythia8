@@ -39,9 +39,9 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
   bool useDecayIn) {
 
   // Copy inputs to local
-  slhaFile = slhaFileIn;
-  verbose  = verboseIn;
-  useDecay = useDecayIn;
+  slhaFile    = slhaFileIn;
+  verboseSav  = verboseIn;
+  useDecay    = useDecayIn;
 
   // Check that input file is OK.
   int iFailFile=0;
@@ -74,7 +74,7 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
     return -1;
     slhaRead=false;
   }
-  if (verbose >= 3) {
+  if (verboseSav >= 3) {
     message(0,"readFile","parsing "+slhaFile,0);
     filePrinted = true;
   }
@@ -82,6 +82,9 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
   // Array of particles read in.
   vector<int> idRead;
 
+  // Array of block names read in.
+  vector<string> processedBlocks;
+  
   //Initial values for read-in variables.
   slhaRead=true;
   lhefRead=false;
@@ -176,13 +179,6 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
       int nameEnd=blockIn.find(" ",7);
       blockName=blockIn.substr(nameBegin,nameEnd-nameBegin);
       
-      // Copy input file as generic blocks (containing strings)
-      // (more will be done with SLHA1 & 2 specific blocks below, this is
-      //  just to make sure we have a complete copy of the input file,
-      //  including also any unknown/user/generic blocks)
-      LHgenericBlock gBlock;
-      genericBlocks[blockName]=gBlock;
-
       // QNUMBERS blocks (cf. arXiv:0712.3311 [hep-ph])
       if (blockIn.find("qnumbers") != string::npos) {
         // Extract ID code for new particle
@@ -237,6 +233,29 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
         }
       }
 
+      // Non-qnumbers blocks
+      // Skip if several copies of same block 
+      // (facility to use interpolation of different q= not implemented)
+      // only first copy of a given block type is kept
+      else {
+        bool exists = false;
+        for (int i=0; i<int(processedBlocks.size()); ++i)
+          if (blockName == processedBlocks[i]) exists = true;
+        if (exists) {
+          message(0,"readFile","skipping copy of block "+blockName,iLine);
+          blockIn = "";
+          continue;
+        }
+        processedBlocks.push_back(blockName);
+        
+        // Copy input file as generic blocks (containing strings)
+        // (more will be done with SLHA1 & 2 specific blocks below, this is
+        //  just to make sure we have a complete copy of the input file,
+        //  including also any unknown/user/generic blocks)
+        LHgenericBlock gBlock;
+        genericBlocks[blockName]=gBlock;
+      }      
+
       //Find Q=... for DRbar running blocks
       if (blockIn.find("q=") != string::npos) {
         int qbegin=blockIn.find("q=")+2;
@@ -290,6 +309,7 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
           if (blockName=="immsd2") immsd2.setq(q);
           if (blockName=="immsl2") immsl2.setq(q);
           if (blockName=="immse2") immse2.setq(q);
+          if (blockName=="nmssmrun") nmssmrun.setq(q);
         };
       };
       
@@ -306,7 +326,7 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
 
       // If previous had zero length, print now
       if (decay != "" && ! decayPrinted) {
-        if (verbose >= 2) message(0,"readFile","reading  WIDTH for "+nameNow
+        if (verboseSav >= 2) message(0,"readFile","reading  WIDTH for "+nameNow
                 +" (but no decay channels found)",0);
       }
 
@@ -343,8 +363,8 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
             if (width < -1e-6) {
               endComment="(forced width < 0 to zero)";
             }
-            if (verbose >= 2)
-              message(0,"readFile","reading  stable particle "+nameNow
+            if (verboseSav >= 2)
+              message(0,"readFile","reading stable particle "+nameNow
                       +" "+endComment,0);
             width=0.0;
             decayPrinted = true;
@@ -353,7 +373,7 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
             decayPrinted = false;
           }
         } else {
-          if (verbose >= 2)
+          if (verboseSav >= 2)
             message(0,"readFile","ignoring DECAY table for "+nameNow
                     +" (read failed)",iLine);
           decayPrinted = true;
@@ -603,7 +623,7 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
     // Decay table read-in
     else if (decay != "") {
       if (! decayPrinted) {
-        if (verbose >= 2)
+        if (verboseSav >= 2)
           message(0,"readFile","reading  DECAY table for "+nameNow,0);
         decayPrinted = true;
       }
@@ -655,12 +675,12 @@ int SusyLesHouches::readFile(string slhaFileIn, int verboseIn,
 // Print a header with information on version, last date of change, etc.
 
 void SusyLesHouches::printHeader() {
-  if (verbose == 0) return;
+  if (verboseSav == 0) return;
   setprecision(3);
   if (! headerPrinted) {
     cout << " *-----------------------  SusyLesHouches SUSY/BSM"
          << " Interface  ------------------------*\n";
-    message(0,"","Last Change 01 Aug 2012 - P. Skands",0);
+    message(0,"","Last Change 03 Mar 2014 - P. Skands",0);
     if (!filePrinted) {
       message(0,"","Parsing: "+slhaFile,0);
       filePrinted=true;
@@ -674,7 +694,7 @@ void SusyLesHouches::printHeader() {
 // Print a footer
 
 void SusyLesHouches::printFooter() {
-  if (verbose == 0) return;
+  if (verboseSav == 0) return;
   if (! footerPrinted) {
     //    cout << " *" << endl;
     cout << " *-----------------------------------------------------"
@@ -692,7 +712,7 @@ void SusyLesHouches::printFooter() {
 void SusyLesHouches::printSpectrum(int ifail) {
 
   // Exit if output switched off
-  if (verbose <= 0) return;
+  if (verboseSav <= 0) return;
 
   // Print header if not already done
   if (! headerPrinted) printHeader();
@@ -969,8 +989,40 @@ void SusyLesHouches::printSpectrum(int ifail) {
   // Neutral fermions (neutralinos)
   message(0,"","");
 
-  // R-conserving:
-  if (modsel(4) < 1) {
+  // NMSSM
+  if (modsel(3) >= 1) {
+    cout << " |  ~chi0               m      ~B    ~W_3    ~H_1    ~H_2      ~S"
+         << endl;
+    
+    cout << setprecision(3) << " |     1000022 " << setw(10)
+         << ( (mass(1000022) > 1e7) ? scientific : fixed) << mass(1000022)
+         << fixed << "  ";
+    for (int icur=1;icur<=5;icur++) cout << setw(6) << nmnmix(1,icur) << "  ";
+    
+    cout << endl << " |     1000023 " << setw(10)
+         << ( (mass(1000023) > 1e7) ? scientific : fixed) << mass(1000023)
+         << fixed << "  ";
+    for (int icur=1;icur<=5;icur++) cout << setw(6) << nmnmix(2,icur) << "  ";
+    
+    cout << endl << " |     1000025 " << setw(10)
+         << ( (mass(1000025) > 1e7) ? scientific : fixed) << mass(1000025)
+         << fixed << "  ";
+    for (int icur=1;icur<=5;icur++) cout << setw(6) << nmnmix(3,icur) << "  ";
+    
+    cout << endl << " |     1000035 " << setw(10)
+         << ( (mass(1000035) > 1e7) ? scientific : fixed) << mass(1000035)
+         << fixed << "  ";
+    for (int icur=1;icur<=5;icur++) cout << setw(6) << nmnmix(4,icur) << "  ";
+
+    cout << endl << " |     1000045 " << setw(10)
+         << ( (mass(1000045) > 1e7) ? scientific : fixed) << mass(1000045)
+         << fixed << "  ";
+    for (int icur=1;icur<=5;icur++) cout << setw(6) << nmnmix(5,icur) << "  ";
+
+  }
+
+  // R-Conserving MSSM
+  else if (modsel(4) < 1) {
     cout << " |  ~chi0               m      ~B    ~W_3    ~H_1    ~H_2"
          << endl;
     
@@ -993,9 +1045,10 @@ void SusyLesHouches::printSpectrum(int ifail) {
          << ( (mass(1000035) > 1e7) ? scientific : fixed) << mass(1000035)
          << fixed << "  ";
     for (int icur=1;icur<=4;icur++) cout << setw(6) << nmix(4,icur) << "  ";
+
   }
 
-  // R-violating
+  // R-violating MSSM
   else {
     cout << " |  nu/~chi0            m    nu_e   nu_mu  nu_tau      ~B"
          << "    ~W_3    ~H_1    ~H_2" << endl;
@@ -1104,14 +1157,75 @@ void SusyLesHouches::printSpectrum(int ifail) {
   // Higgs bosons
   message(0,"","");
 
-  // R-conserving (R-violating case handled above, with sneutrinos)
-  cout << " |  Higgs      " << endl;
-  if (modsel(4) < 1) {
-    cout << setprecision(3);
-    cout << " |     alpha     ";
-    if (alpha.exists()) cout << setw(8) << alpha() << endl;
+  // NMSSM
+  if (modsel(3) >= 1) {
+    cout << " |  H                   m";
+    if (nmhmix.exists()) cout << "    H_10    H_20      S0";
+    cout << endl;
+    
+    cout << setprecision(3) << " |          25 " << setw(10)
+         << ( (mass(25) > 1e7) ? scientific : fixed) << mass(25)
+         << fixed << "  ";
+    if (nmhmix.exists()) for (int icur=1;icur<=3;icur++)
+                           cout << setw(6) << nmhmix(1,icur) << "  ";
+    
+    cout << endl << " |          35 " << setw(10)
+         << ( (mass(35) > 1e7) ? scientific : fixed) << mass(35)
+         << fixed << "  ";
+    if (nmhmix.exists()) for (int icur=1;icur<=3;icur++)
+                           cout << setw(6) << nmhmix(2,icur) << "  ";
+    
+    cout << endl << " |          45 " << setw(10)
+         << ( (mass(45) > 1e7) ? scientific : fixed) << mass(45)
+         << fixed << "  ";
+    if (nmhmix.exists()) for (int icur=1;icur<=3;icur++)
+                           cout << setw(6) << nmhmix(3,icur) << "  ";
+
+    cout << endl <<" |"<<endl;
+    cout << " |  A                   m";
+    if (nmamix.exists()) cout << "    H_10    H_20      S0";
+    cout << endl;
+    
+    cout << setprecision(3) << " |          36 " << setw(10)
+         << ( (mass(36) > 1e7) ? scientific : fixed) << mass(36)
+         << fixed << "  ";
+    if (nmamix.exists()) for (int icur=1;icur<=3;icur++)
+                           cout << setw(6) << nmamix(1,icur) << "  ";
+    
+    cout << endl << " |          46 " << setw(10)
+         << ( (mass(46) > 1e7) ? scientific : fixed) << mass(46)
+         << fixed << "  ";
+    if (nmamix.exists()) for (int icur=1;icur<=3;icur++)
+                           cout << setw(6) << nmamix(2,icur) << "  ";
+    
+    cout << endl <<" |"<<endl;
+    cout << " |  H+                  m"<< endl;
+    
+    cout << setprecision(3) << " |          37 " << setw(10)
+         << ( (mass(37) > 1e7) ? scientific : fixed) << mass(37)<<endl;
+    
+    cout << endl<<" |"<<endl;
   }
-  if (hmix.exists()) {
+  // R-conserving MSSM (R-violating case handled above, with sneutrinos)
+  else if (modsel(4) < 1) {
+    cout << " |  Higgs               m"<<endl;
+    cout << setprecision(3) << " |          25 " << setw(10)
+         << ( (mass(25) > 1e7) ? scientific : fixed) << mass(25)<<endl;
+    cout << setprecision(3) << " |          35 " << setw(10)
+         << ( (mass(35) > 1e7) ? scientific : fixed) << mass(35)<<endl;
+    cout << setprecision(3) << " |          36 " << setw(10)
+         << ( (mass(36) > 1e7) ? scientific : fixed) << mass(36)<<endl;
+    cout << setprecision(3) << " |          37 " << setw(10)
+         << ( (mass(37) > 1e7) ? scientific : fixed) << mass(37)<<endl;
+    cout << " |"<<endl;
+    cout << " |     alpha     ";
+    if (alpha.exists()) cout << setw(8) << alpha();
+    else cout << "  absent";    
+    cout << endl<<" |"<<endl;
+  }
+  // Running Higgs parameters
+  if (hmix.exists()) { 
+    cout << " |  Hmix "<<endl;
     cout << " |     mu        ";
     if (hmix.exists(1)) cout << setw(8) << hmix(1)
       << " (DRbar running value at Q = " << hmix.q() << " GeV)";
@@ -1203,13 +1317,13 @@ int SusyLesHouches::checkSpectrum() {
   if (modsel(3) == 0 && modsel(4) == 0 && modsel(5) == 0 && modsel(6) == 0) {
     // Check for required SLHA1 blocks
     if (!staumix.exists() && !selmix.exists()) {
-      message(1,"checkSpectrum","STAUMIX not found",0);
+      message(1,"checkSpectrum","STAUMIX or SELMIX not found",0);
     };
     if (!sbotmix.exists() && !dsqmix.exists()) {
-      message(1,"checkSpectrum","SBOTMIX not found",0);
+      message(1,"checkSpectrum","SBOTMIX or DSQMIX not found",0);
     };
     if (!stopmix.exists() && !usqmix.exists()) {
-      message(1,"checkSpectrum","STOPMIX not found",0);
+      message(1,"checkSpectrum","STOPMIX or USQMIX not found",0);
     };
     if (!nmix.exists()) {
       message(1,"checkSpectrum","NMIX not found",0);
@@ -1220,7 +1334,7 @@ int SusyLesHouches::checkSpectrum() {
     if (!vmix.exists()) {
       message(1,"checkSpectrum","VMIX not found",0);
     };
-    if (!alpha.exists()) {
+    if (modsel(3) == 0 && !alpha.exists()) {
       message(1,"checkSpectrum","ALPHA not found",0);
     }
     if (!hmix.exists()) {
@@ -1509,8 +1623,7 @@ int SusyLesHouches::checkSpectrum() {
       message(0,"checkSpectrum","Note: Neutralino sector is not mass-ordered"
               ,0);
     // Charginos
-    if (abs(mass(1000024)) > abs(mass(1000037))
-        || (modsel(3) == 1 && abs(mass(1000037)) > abs(mass(1000047))) )
+    if (abs(mass(1000024)) > abs(mass(1000037))) 
       message(0,"checkSpectrum","Note: Chargino sector is not mass-ordered",0);
   }
 
@@ -1831,7 +1944,7 @@ int SusyLesHouches::checkDecays() {
 
 void SusyLesHouches::message(int level, string place,string themessage,
   int line) {
-  if (verbose == 0) return;
+  if (verboseSav == 0) return;
   //Send normal messages and warnings to stdout, errors to stderr.
   ostream* outstream = &cerr;
   if (level <= 1) outstream = &cout;

@@ -134,6 +134,11 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
       int iJoin2  = iPartonIn[(iJoinMin + 1)%nSize];
       int idNew   = (event[iJoin1].isGluon()) ? event[iJoin2].id()
                                               : event[iJoin1].id();
+      int iMoth1  = min(iJoin1, iJoin2);
+      int iMoth2  = max(iJoin1, iJoin2);
+      // When g + q -> q flip to ensure that mother1 = q.
+      if (event[iMoth1].id() == 21 && event[iMoth2].id() != 21)
+        swap( iMoth1, iMoth2);
       int colNew  = event[iJoin1].col();
       int acolNew = event[iJoin2].acol();
       if (colNew == acolNew) {
@@ -143,8 +148,8 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
       Vec4 pNew   = event[iJoin1].p() + event[iJoin2].p();
 
       // Append joined parton to event record.
-      int iNew = event.append( idNew, 73, min(iJoin1, iJoin2),
-        max(iJoin1, iJoin2), 0, 0, colNew, acolNew, pNew, pNew.mCalc() );
+      int iNew = event.append( idNew, 73, iMoth1, iMoth2, 0, 0, 
+        colNew, acolNew, pNew, pNew.mCalc() );
 
       // Displaced lifetime/vertex; mothers should be same but prefer quark.
       int iVtx = (event[iJoin1].isGluon()) ? iJoin2 : iJoin1;
@@ -264,8 +269,8 @@ bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
       int colNew = (event[iQ].id() > 0) ? event[iG].col() : 0;
       int acolNew = (event[iQ].id() < 0) ? event[iG].acol() : 0;
       Vec4 pNew = event[iQ].p() + event[iG].p();
-      int iNew = event.append( event[iQ].id(), 74, min(iQ, iG),
-        max(iQ, iG), 0, 0, colNew, acolNew, pNew, pNew.mCalc() );
+      int iNew = event.append( event[iQ].id(), 74, iQ, iG, 0, 0, 
+        colNew, acolNew, pNew, pNew.mCalc() );
 
       // Mark joined partons and update iLeg end.
       event[iQ].statusNeg();

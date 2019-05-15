@@ -100,6 +100,9 @@ use only particles with a positive status code, i.e. ones for which
    
  
 <h3>Main parameters</h3> 
+
+Assuming you have set <code>HadronLevel:BoseEinstein = on</code>,
+you can regulate the detailed behaviour with the following settings.
  
 <br/><br/><strong>BoseEinstein:Pion</strong>  <input type="radio" name="1" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="1" value="off"><strong>Off</strong>

@@ -83,6 +83,12 @@ int Merging::mergeProcess(Event& process){
 
   int vetoCode = 1;
 
+  // Reinitialise hard process.
+  mergingHooksPtr->hardProcess.clear();
+  mergingHooksPtr->processSave = settingsPtr->word("Merging:Process");
+  mergingHooksPtr->hardProcess.initOnProcess(
+    settingsPtr->word("Merging:Process"), particleDataPtr);
+
   // Possibility to apply merging scale to an input event.
   bool applyTMSCut = settingsPtr->flag("Merging:doXSectionEstimate");
   if ( applyTMSCut && cutOnProcess(process) ) return -1;
@@ -143,6 +149,15 @@ int Merging::mergeProcessCKKWL( Event& process) {
   // Calculate number of clustering steps.
   int nSteps    = mergingHooksPtr->getNumberOfClusteringSteps( newProcess);
 
+  // Too few steps can be possible if a chain of resonance decays has been
+  // removed. In this case, reject this event, since it will be handled in
+  // lower-multiplicity samples.
+  int nRequested = settingsPtr->mode("Merging:nRequested");
+  if (nSteps < nRequested) {
+    mergingHooksPtr->setWeightCKKWL(0.);
+    return -1;
+  }
+
   // Reset the minimal tms value, if necessary.
   tmsNowMin     = (nSteps == 0) ? 0. : min(tmsNowMin, tmsnow);
 
@@ -170,6 +185,12 @@ int Merging::mergeProcessCKKWL( Event& process) {
     infoPtr->errorMsg(message);
     mergingHooksPtr->setWeightCKKWL(0.);
     return -1;
+  }
+
+  if ( FullHistory.select(RN)->nClusterings() < nSteps) {
+    string message="Warning in Merging::mergeProcessCKKWL: No clusterings";
+    message+=" found. History incomplete.";
+    infoPtr->errorMsg(message);
   }
 
   // Calculate CKKWL weight:
@@ -264,6 +285,15 @@ int Merging::mergeProcessUMEPS( Event& process) {
   double tmsnow  = mergingHooksPtr->tmsNow( newProcess );
   // Calculate number of clustering steps.
   int nSteps     = mergingHooksPtr->getNumberOfClusteringSteps( newProcess );
+
+  // Too few steps can be possible if a chain of resonance decays has been
+  // removed. In this case, reject this event, since it will be handled in
+  // lower-multiplicity samples.
+  int nRequested = settingsPtr->mode("Merging:nRequested");
+  if (nSteps < nRequested) {
+    mergingHooksPtr->setWeightCKKWL(0.);
+    return -1;
+  }
 
   // Reset the minimal tms value, if necessary.
   tmsNowMin      = (nSteps == 0) ? 0. : min(tmsNowMin, tmsnow);
@@ -417,6 +447,15 @@ int Merging::mergeProcessNL3( Event& process) {
   double tmsnow  = mergingHooksPtr->tmsNow( newProcess );
   // Calculate number of clustering steps
   int nSteps   = mergingHooksPtr->getNumberOfClusteringSteps( newProcess);
+
+  // Too few steps can be possible if a chain of resonance decays has been
+  // removed. In this case, reject this event, since it will be handled in
+  // lower-multiplicity samples.
+  if (nSteps < nRequested) {
+    mergingHooksPtr->setWeightCKKWL(0.);
+    mergingHooksPtr->setWeightFIRST(0.);
+    return -1;
+  }
 
   // Reset the minimal tms value, if necessary.
   tmsNowMin = (nSteps == 0) ? 0. : min(tmsNowMin, tmsnow);
@@ -634,6 +673,15 @@ int Merging::mergeProcessUNLOPS( Event& process) {
   // Calculate number of clustering steps
   int nSteps     = mergingHooksPtr->getNumberOfClusteringSteps( newProcess);
 
+  // Too few steps can be possible if a chain of resonance decays has been
+  // removed. In this case, reject this event, since it will be handled in
+  // lower-multiplicity samples.
+  if (nSteps < nRequested) {
+    mergingHooksPtr->setWeightCKKWL(0.);
+    mergingHooksPtr->setWeightFIRST(0.);
+    return -1;
+  }
+
   // Reset the minimal tms value, if necessary.
   tmsNowMin = (nSteps == 0) ? 0. : min(tmsNowMin, tmsnow);
 
@@ -735,6 +783,7 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     wgt = FullHistory.weight_UNLOPS_SUBT( trialPartonLevelPtr,
             mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(), RN);
   }
+
   // Event with production scales set for further (trial) showering
   // and starting conditions for the shower.
   if (!doUNLOPSSubt && !doUNLOPSSubtNLO && !containsRealKin )
@@ -771,19 +820,39 @@ int Merging::mergeProcessUNLOPS( Event& process) {
   // which loop matrix elements are available, do standard UMEPS.
   int nMaxNLO     = mergingHooksPtr->nMaxJetsNLO();
   bool doOASTree  = doUNLOPSTree && nSteps <= nMaxNLO;
-  bool doOASSubt  = doUNLOPSSubt && nSteps <= nMaxNLO+1 && nSteps > 0
-                 && nMaxNLO != 0;
+  bool doOASSubt  = doUNLOPSSubt && nSteps <= nMaxNLO+1 && nSteps > 0;
 
   // Now begin NLO part for tree-level events
   if ( doOASTree || doOASSubt ) {
+
+    // Decide on which order to expand to.
+    int order = ( nSteps > 0 && nSteps <= nMaxNLO) ? 1 : -1;
+
+    // Exclusive inputs:
+    // Subtract only the O(\alpha_s^{n+0})-term from the tree-level
+    // subtraction, if we're at the highest NLO multiplicity (nMaxNLO).
+    if ( nloTilde && doUNLOPSSubt && nRecluster == 1
+      && nSteps == nMaxNLO+1 ) order = 0;
+
+    // Exclusive inputs:
+    // Do not remove the O(as)-term if the number of reclusterings
+    // exceeds the number of NLO jets, or if more clusterings have
+    // been performed.
+    if (nloTilde && doUNLOPSSubt && ( nSteps > nMaxNLO+1
+      || (nSteps == nMaxNLO+1 && nPerformed != nRecluster) ))
+        order = -1;
+
     // Calculate terms in expansion of the CKKW-L weight.
-    int order = ( nSteps == 1 ) ? 1 : -1;
-    if ( nSteps == 2 && nRecluster == 1 && nloTilde ) order = 0;
     wgtFIRST = FullHistory.weight_UNLOPS_CORRECTION( order,
       trialPartonLevelPtr, mergingHooksPtr->AlphaS_FSR(),
       mergingHooksPtr->AlphaS_ISR(), RN, rndmPtr );
-    // Second reclustering term
-    if ( nSteps == 1 && doUNLOPSSubt && nloTilde ) wgtFIRST += 1.;
+
+    // Exclusive inputs:
+    // Subtract the O(\alpha_s^{n+1})-term from the tree-level
+    // subtraction, not the O(\alpha_s^{n+0})-terms.
+    if ( nloTilde && doUNLOPSSubt && nRecluster == 1
+      && nPerformed == nRecluster && nSteps <= nMaxNLO )
+      wgtFIRST += 1.;
 
     // If necessary, also dampen the O(\alpha_s)-term
     wgtFIRST *= dampWeight;
@@ -793,10 +862,6 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     // If PDF contributions have not been included, subtract these later
     wgt = wgt - wgtFIRST;
   }
-
-  // Do not subtract the O(as)-term if more than one reclustering has been
-  // performed.
-  if ( nPerformed > nRecluster ) mergingHooksPtr->setWeightFIRST(0.);
 
   // Set QCD 2->2 starting scale different from arbitrary scale in LHEF!
   // --> Set to minimal mT of partons.
@@ -888,6 +953,11 @@ bool Merging::cutOnProcess( Event& process) {
   // Calculate number of clustering steps
   int nSteps     = mergingHooksPtr->getNumberOfClusteringSteps( newProcess);
 
+  // Too few steps can be possible if a chain of resonance decays has been
+  // removed. In this case, reject this event, since it will be handled in
+  // lower-multiplicity samples.
+  if (nSteps < nRequested) return true;
+
   // Reset the minimal tms value, if necessary.
   tmsNowMin = (nSteps == 0) ? 0. : min(tmsNowMin, tmsnow);
 
@@ -909,7 +979,7 @@ bool Merging::cutOnProcess( Event& process) {
   // Remove real emission events without underlying Born configuration from
   // the loop sample, since such states will be taken care of by tree-level
   // samples.
-  bool allowIncompleteReal = 
+  bool allowIncompleteReal =
     settingsPtr->flag("Merging:allowIncompleteHistoriesInReal");
   if ( containsRealKin && !allowIncompleteReal
     && FullHistory.select(RN)->nClusterings() == 0 )
@@ -932,6 +1002,12 @@ bool Merging::cutOnProcess( Event& process) {
     message+=" fails merging scale cut. Reject event.";
     infoPtr->errorMsg(message);
     return true;
+  }
+
+  if ( FullHistory.select(RN)->nClusterings() < nSteps) {
+    string message="Warning in Merging::cutOnProcess: No clusterings";
+    message+=" found. History incomplete.";
+    infoPtr->errorMsg(message);
   }
 
   // Done if no real-emission jets are present.

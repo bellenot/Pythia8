@@ -398,10 +398,10 @@ class SusyLesHouches {
 public:
 
   //Constructor, with and without filename.
-  SusyLesHouches(int verboseIn=1) : verbose(verboseIn),
+  SusyLesHouches(int verboseIn=1) : verboseSav(verboseIn),
     headerPrinted(false), footerPrinted(false), filePrinted(false),
     slhaRead(false), lhefRead(false), lhefSlha(false), useDecay(true) {};
-  SusyLesHouches(string filename, int verboseIn=1) : verbose(verboseIn),
+  SusyLesHouches(string filename, int verboseIn=1) : verboseSav(verboseIn),
     headerPrinted(false), footerPrinted(false), filePrinted(false),
     slhaRead(true), lhefRead(false), lhefSlha(false), useDecay(true)
     {readFile(filename);};
@@ -636,13 +636,17 @@ public:
   template <class T> bool getEntry(string, int, int, int, T&);
   template <class T> bool getEntry(string, vector<int>, T&);
 
+  // Access/change verbose setting  
+  int verbose() {return verboseSav;}  
+  void verbose(double verboseIn) {verboseSav = verboseIn;}
+
   // Output of messages from SLHA interface
   void message(int, string,string ,int line=0);
-
+  
   //***************************** SLHA PRIVATE *****************************//
 private:
   //SLHA I/O
-  int verbose;
+  int verboseSav;
   bool headerPrinted, footerPrinted, filePrinted;
   bool slhaRead, lhefRead, lhefSlha, useDecay;
 

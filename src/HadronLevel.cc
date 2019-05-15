@@ -133,7 +133,7 @@ bool HadronLevel::next( Event& event) {
       if (allowRH && !rHadronsPtr->produce( colConfig, event))
         return false;
 
-      // Process all colour singlet (sub)system
+      // Process all colour singlet (sub)systems.
       for (int iSub = 0; iSub < colConfig.size(); ++iSub) {
 
         // Collect sequentially all partons in a colour singlet subsystem.
@@ -181,7 +181,7 @@ bool HadronLevel::next( Event& event) {
       if (!boseEinstein.shiftEvent(event)) return false;
       doBoseEinsteinNow = false;
     }
-    
+
     // Fourth part: sequential decays also of long-lived particles.
     if (doDecay) {
     
@@ -232,25 +232,15 @@ bool HadronLevel::moreDecays( Event& event) {
 
 bool HadronLevel::decayOctetOnia(Event& event) {
 
-  // Onium states to be decayed.
-  int idOnium[6] = { 9900443, 9900441, 9910441,
-                     9900553, 9900551, 9910551 };
-  
-  // Loop over particles and identify onia.
+  // Loop over particles and decay any onia encountered.
   for (int iDec = 0; iDec < event.size(); ++iDec)
-  if (event[iDec].isFinal()) {
-    int id = event[iDec].id();
-    bool isOnium = false;
-    for (int j = 0; j < 6; ++j) if (id == idOnium[j]) isOnium = true;
-    
-    // Decay any onia encountered.
-    if (isOnium) {
-      if (!decays.decay( iDec, event)) return false;
+  if (event[iDec].isFinal() 
+    && particleDataPtr->isOctetHadron(event[iDec].id())) {
+    if (!decays.decay( iDec, event)) return false;
 
-      // Set colour flow by hand: gluon inherits octet-onium state.
-      int iGlu = event.size() - 1;
-      event[iGlu].cols( event[iDec].col(), event[iDec].acol() );
-    }
+    // Set colour flow by hand: gluon inherits octet-onium state.
+    int iGlu = event.size() - 1;
+    event[iGlu].cols( event[iDec].col(), event[iDec].acol() );
   }
 
   // Done.
@@ -263,7 +253,7 @@ bool HadronLevel::decayOctetOnia(Event& event) {
 // Trace colour flow in the event to form colour singlet subsystems.
 
 bool HadronLevel::findSinglets(Event& event) {
-  
+
   // Find a list of final partons and of all colour ends and gluons.
   iColEnd.resize(0);
   iAcolEnd.resize(0);
@@ -320,16 +310,27 @@ bool HadronLevel::findSinglets(Event& event) {
     for (int i = 0; i < int(iParton.size()); ++i) if (iParton[i] < 0)
       ++nNeg;
     if (nNeg > 3 && kindJun % 2 == 1) {
-      for (int i = 0; i < int(iParton.size()); ++i)
-        iPartonJun.push_back(iParton[i]);
+      iPartonJun.push_back(iParton);
     } else if (nNeg > 3 && kindJun % 2 == 0) {
-      for (int i = 0; i < int(iParton.size()); ++i)
-        iPartonAntiJun.push_back(iParton[i]);
+      iPartonAntiJun.push_back(iParton);
     } else {
       // A junction may be eliminated by insert if two quarks are nearby.
       int nJunOld = event.sizeJunction();
       if (!colConfig.insert(iParton, event)) return false;
-      if (event.sizeJunction() < nJunOld) --iJun;
+      if (event.sizeJunction() < nJunOld) {
+
+	// Update previously stored numbers.
+	for (int i = 0;i < int(iPartonJun.size());++i)
+	  for (int j = 0;j < int(iPartonJun[i].size()); ++j)
+	    if (iPartonJun[i][j] < -(10 + 10 * iJun)) iPartonJun[i][j] += 10;
+	for (int i = 0;i < int(iPartonAntiJun.size());++i)
+	  for (int j = 0;j < int(iPartonAntiJun[i].size()); ++j)
+	    if (iPartonAntiJun[i][j] < -(10 + 10 * iJun))
+	      iPartonAntiJun[i][j] += 10;
+
+	// One junction was removed.
+	--iJun;
+      }
     }
   }
 
@@ -337,12 +338,16 @@ bool HadronLevel::findSinglets(Event& event) {
   // (Only one system in extreme cases, and then second empty.)
   if (iPartonJun.size() > 0 && iPartonAntiJun.size() > 0) {
     if (!splitJunctionPair(event)) return false;
-    if (!colConfig.insert(iPartonJun, event)) return false;
-    if (iPartonAntiJun.size() > 0)
-      if (!colConfig.insert(iPartonAntiJun, event)) return false;
-  // Error if only one of junction and antijuction left here.
-  } else if (iPartonJun.size() > 0 || iPartonAntiJun.size() > 0) {
-    infoPtr->errorMsg("Error in HadronLevel::findSinglets: "
+    for(int i = 0; i < int(iPartonJun.size()); ++i) 
+      if (iPartonJun[i].size() > 0)
+        if  (!colConfig.insert(iPartonJun[i], event)) return false;
+    for(int i = 0; i < int(iPartonAntiJun.size()); ++i) 
+      if(iPartonAntiJun[i].size() > 0)
+        if (!colConfig.insert(iPartonAntiJun[i], event)) return false;
+  }
+  // Error if not same number of junctions and antijuctions left here.
+  if ( iPartonJun.size() != iPartonAntiJun.size() ) {
+     infoPtr->errorMsg("Error in HadronLevel::findSinglets: "
       "unmatched (anti)junction");
     return false;
   }
@@ -371,7 +376,7 @@ bool HadronLevel::findSinglets(Event& event) {
     // Store found closed string system. Analyze its properties.
     if (!colConfig.insert(iParton, event)) return false;
   }
-    
+
   // Done.
   return true;
 
@@ -564,425 +569,447 @@ bool HadronLevel::traceInLoop(int indxCol, int indxAcol, Event& event) {
 
 bool HadronLevel::splitJunctionPair(Event& event) {
 
-  // Construct separate index arrays for the three junction legs.
-  int identJun = (-iPartonJun[0])/10;
-  iJunLegA.resize(0);
-  iJunLegB.resize(0);
-  iJunLegC.resize(0);
-  int leg = -1;
-  for (int i = 0; i < int(iPartonJun.size()); ++ i) {
-    if ( (-iPartonJun[i])/10 == identJun) ++leg;
-    if (leg == 0) iJunLegA.push_back( iPartonJun[i] );
-    else if (leg == 1) iJunLegB.push_back( iPartonJun[i] );
-    else iJunLegC.push_back( iPartonJun[i] );
-  }
+  for(int iJun = 0;iJun < int(iPartonJun.size());++iJun) {
+    int identJun = (-iPartonJun[iJun][0])/10;
 
-  // Construct separate index arrays for the three antijunction legs.
-  int identAnti = (-iPartonAntiJun[0])/10;
-  iAntiLegA.resize(0);
-  iAntiLegB.resize(0);
-  iAntiLegC.resize(0);
-  leg = -1;
-  for (int i = 0; i < int(iPartonAntiJun.size()); ++ i) {
-    if ( (-iPartonAntiJun[i])/10 == identAnti) ++leg;
-    if (leg == 0) iAntiLegA.push_back( iPartonAntiJun[i] );
-    else if (leg == 1) iAntiLegB.push_back( iPartonAntiJun[i] );
-    else iAntiLegC.push_back( iPartonAntiJun[i] );
-  }
-
-  // Find interjunction legs, i.e. between junction and antijunction.
-  int nMatch = 0;
-  int legJun[3], legAnti[3], nGluLeg[3];
-  if (iJunLegA.back() < 0) { legJun[nMatch] = 0;
-    legAnti[nMatch] = (-iJunLegA.back())%10; ++nMatch;}
-  if (iJunLegB.back() < 0) { legJun[nMatch] = 1;
-    legAnti[nMatch] = (-iJunLegB.back())%10; ++nMatch;}
-  if (iJunLegC.back() < 0) { legJun[nMatch] = 2;
-    legAnti[nMatch] = (-iJunLegC.back())%10; ++nMatch;}
-
-  // Loop over interjunction legs.
-  for (int iMatch = 0; iMatch < nMatch; ++iMatch) {
-    vector<int>& iJunLeg = (legJun[iMatch] == 0) ? iJunLegA
-      : ( (legJun[iMatch] == 1) ? iJunLegB : iJunLegC );
-    vector<int>& iAntiLeg = (legAnti[iMatch] == 0) ? iAntiLegA
-      : ( (legAnti[iMatch] == 1) ? iAntiLegB : iAntiLegC );
-
-    // Find number of gluons on each. Do nothing for now if none.
-    nGluLeg[iMatch] = iJunLeg.size() + iAntiLeg.size() - 4;
-    if (nGluLeg[iMatch] == 0) continue;
-
-    // Else pick up the gluons on the interjunction leg in order.
-    iGluLeg.resize(0);
-    for (int i = 1; i < int(iJunLeg.size()) - 1; ++i)
-      iGluLeg.push_back( iJunLeg[i] );
-    for (int i = int(iAntiLeg.size()) - 2; i > 0; --i)
-      iGluLeg.push_back( iAntiLeg[i] );
-
-    // Remove those gluons from the junction/antijunction leg lists.
-    iJunLeg.resize(1);
-    iAntiLeg.resize(1);
-
-   // Pick a new quark at random; for simplicity no diquarks.
-    int idQ = flavSel.pickLightQ();
-    int colQ, acolQ;
-
-    // If one gluon on leg, split it into a collinear q-qbar pair.
-    if (iGluLeg.size() == 1) {
-    
-      // Store the new q qbar pair, sharing gluon colour and momentum.
-      colQ = event[ iGluLeg[0] ].col();
-      acolQ = event[ iGluLeg[0] ].acol();
-      Vec4 pQ = 0.5 * event[ iGluLeg[0] ].p();
-      double mQ = 0.5 * event[ iGluLeg[0] ].m();
-      int iQ = event.append( idQ, 75, iGluLeg[0], 0, 0, 0, colQ, 0, pQ, mQ );
-      int iQbar = event.append( -idQ, 75, iGluLeg[0], 0, 0, 0, 0, acolQ,
-        pQ, mQ );
-
-      // Mark split gluon and update junction and antijunction legs.
-      event[ iGluLeg[0] ].statusNeg();
-      event[ iGluLeg[0] ].daughters( iQ, iQbar);
-      iJunLeg.push_back(iQ);
-      iAntiLeg.push_back(iQbar);
-
-    // If several gluons on the string, decide which g-g region to split up.
-    } else {
-
-      // Evaluate mass-squared for all adjacent gluon pairs.
-      m2Pair.resize(0);
-      double m2Sum = 0.;
-      for (int i = 0; i < int(iGluLeg.size()) - 1; ++i) {
-        double m2Now = 0.5 * event[ iGluLeg[i] ].p()
-          * event[ iGluLeg[i + 1] ].p();
-        m2Pair.push_back(m2Now);
-        m2Sum += m2Now;
+    // Find the connected anti junctions.
+    int identAntiJun = 500;
+    for (int i = 0;i < int(iPartonJun[iJun].size()); ++i) {
+      if (iPartonJun[iJun][i] < 0 && (-iPartonJun[iJun][i])/10 != identJun) {
+        identAntiJun = (-iPartonJun[iJun][i])/10;
+        break;
       }
-   
-      // Pick breakup region with probability proportional to mass-squared.
-      double m2Reg = m2Sum * rndmPtr->flat();
-      int iReg = -1;
-      do m2Reg -= m2Pair[++iReg];
-      while (m2Reg > 0. && iReg < int(iGluLeg.size()) - 1);
-      m2Reg = m2Pair[iReg];
+    }
+    int iAntiJun = -1;
+    for (int i = 0; i < int(iPartonAntiJun.size());i++)
+    if ( (-iPartonAntiJun[i][0])/10 == identAntiJun) {
+      iAntiJun = i;
+      break;
+    }
+    // If no anti junction found, something went wrong earlier.
+    if(iAntiJun == -1)
+      return false;
 
-      // Pick breaking point of string in chosen region (symmetrically).
-      double m2Temp = min( JJSTRINGM2MAX, JJSTRINGM2FRAC * m2Reg);
-      double xPos = 0.5;
-      double xNeg = 0.5;
-      do {
-        double zTemp = zSel.zFrag( idQ, 0, m2Temp);
-        xPos = 1. - zTemp;
-        xNeg = m2Temp / (zTemp * m2Reg);
-      } while (xNeg > 1.);
-      if (rndmPtr->flat() > 0.5) swap(xPos, xNeg);
-
-      // Pick up two "mother" gluons of breakup. Mark them decayed.
-      Particle& gJun = event[ iGluLeg[iReg] ];
-      Particle& gAnti = event[ iGluLeg[iReg + 1] ];
-      gJun.statusNeg();
-      gAnti.statusNeg();
-      int dau1 = event.size();
-      gJun.daughters(dau1, dau1 + 3);
-      gAnti.daughters(dau1, dau1 + 3);
-      int mother1 = min( iGluLeg[iReg], iGluLeg[iReg + 1]);
-      int mother2 = max( iGluLeg[iReg], iGluLeg[iReg + 1]);
-
-      // Can keep one of old colours but need one new so unambiguous.
-      colQ = gJun.acol();
-      acolQ = event.nextColTag();
-
-      // Store copied gluons with reduced momenta.
-      int iGjun = event.append( 21, 75, mother1, mother2, 0, 0,
-        gJun.col(), gJun.acol(), (1. - 0.5 * xPos) * gJun.p(),
-        (1. - 0.5 * xPos) * gJun.m());
-      int iGanti = event.append( 21, 75, mother1, mother2, 0, 0,
-        acolQ, gAnti.acol(), (1. - 0.5 * xNeg) * gAnti.p(),
-        (1. - 0.5 * xNeg) * gAnti.m());
-
-      // Store the new q qbar pair with remaining momenta.
-      int iQ = event.append( idQ, 75, mother1, mother2, 0, 0,
-        colQ, 0, 0.5 * xNeg * gAnti.p(), 0.5 * xNeg * gAnti.m() );
-      int iQbar = event.append( -idQ, 75, mother1, mother2, 0, 0,
-        0, acolQ, 0.5 * xPos * gJun.p(), 0.5 * xPos * gJun.m() );
-
-      // Update junction and antijunction legs with gluons and quarks.
-      for (int i = 0; i < iReg; ++i)
-        iJunLeg.push_back( iGluLeg[i] );
-      iJunLeg.push_back(iGjun);
-      iJunLeg.push_back(iQ);
-      for (int i = int(iGluLeg.size()) - 1; i > iReg + 1; --i)
-        iAntiLeg.push_back( iGluLeg[i] );
-      iAntiLeg.push_back(iGanti);
-      iAntiLeg.push_back(iQbar);
+    // Construct separate index arrays for the three junction legs.
+    iJunLegA.resize(0);
+    iJunLegB.resize(0);
+    iJunLegC.resize(0);
+    int leg = -1;
+    for (int i = 0; i < int(iPartonJun[iJun].size()); ++ i) {
+      if ( (-iPartonJun[iJun][i])/10 == identJun) ++leg;
+      if (leg == 0) iJunLegA.push_back( iPartonJun[iJun][i] );
+      else if (leg == 1) iJunLegB.push_back( iPartonJun[iJun][i] );
+      else iJunLegC.push_back( iPartonJun[iJun][i] );
     }
 
-    // Update end colours for both g -> q qbar and g g -> g g q qbar.
-    event.endColJunction(identJun - 1, legJun[iMatch], colQ);
-    event.endColJunction(identAnti - 1, legAnti[iMatch], acolQ);
-  }
+    // Construct separate index arrays for the three antijunction legs.
+    int identAnti = (-iPartonAntiJun[iAntiJun][0])/10;
+    iAntiLegA.resize(0);
+    iAntiLegB.resize(0);
+    iAntiLegC.resize(0);
+    leg = -1;
+    for (int i = 0; i < int(iPartonAntiJun[iAntiJun].size()); ++ i) {
+      if ( (-iPartonAntiJun[iAntiJun][i])/10 == identAnti) ++leg;
+      if (leg == 0) iAntiLegA.push_back( iPartonAntiJun[iAntiJun][i] );
+      else if (leg == 1) iAntiLegB.push_back( iPartonAntiJun[iAntiJun][i] );
+      else iAntiLegC.push_back( iPartonAntiJun[iAntiJun][i] );
+    }
 
-  // Update list of interjunction legs after splittings above.
-  int iMatchUp = 0;
-  while (iMatchUp < nMatch) {
-    if (nGluLeg[iMatchUp] > 0) {
-      for (int i = iMatchUp; i < nMatch - 1; ++i) {
-        legJun[i] = legJun[i + 1];
-        legAnti[i] = legAnti[i + 1];
-        nGluLeg[i] = nGluLeg[i + 1];
-      } --nMatch;
-    } else ++iMatchUp;
-  }
+    // Find interjunction legs, i.e. between junction and antijunction.
+    int nMatch = 0;
+    int legJun[3], legAnti[3], nGluLeg[3];
+    if (iJunLegA.back() < 0) { legJun[nMatch] = 0;
+      legAnti[nMatch] = (-iJunLegA.back())%10; ++nMatch;}
+    if (iJunLegB.back() < 0) { legJun[nMatch] = 1;
+      legAnti[nMatch] = (-iJunLegB.back())%10; ++nMatch;}
+    if (iJunLegC.back() < 0) { legJun[nMatch] = 2;
+      legAnti[nMatch] = (-iJunLegC.back())%10; ++nMatch;}
 
-  // Should not ever have three empty interjunction legs.
-  if (nMatch == 3) {
-    infoPtr->errorMsg("Error in HadronLevel::splitJunctionPair: "
-      "three empty junction-junction legs");
-    return false;
-  }
-
-  // If two legs are empty, then collapse system to a single string.
-  if (nMatch == 2) {
-    int legJunLeft = 3 - legJun[0] - legJun[1];
-    int legAntiLeft = 3 - legAnti[0] - legAnti[1];
-    vector<int>& iJunLeg = (legJunLeft == 0) ? iJunLegA
-      : ( (legJunLeft == 1) ? iJunLegB : iJunLegC );
-    vector<int>& iAntiLeg = (legAntiLeft == 0) ? iAntiLegA
-      : ( (legAntiLeft == 1) ? iAntiLegB : iAntiLegC );
-    iPartonJun.resize(0);
-    for (int i = int(iJunLeg.size()) - 1; i > 0; --i)
-      iPartonJun.push_back( iJunLeg[i] );
-    for (int i = 1; i < int(iAntiLeg.size()); ++i)
-      iPartonJun.push_back( iAntiLeg[i] );
-
-    // Match up the colours where the strings are joined.
-    int iColJoin  = iJunLeg[1];
-    int iAcolJoin = iAntiLeg[1];
-    event[iAcolJoin].acol( event[iColJoin].col() );
-
-    // Other string system empty. Remove junctions from their list. Done.
-    iPartonAntiJun.resize(0);
-    event.eraseJunction( max(identJun, identAnti) - 1);
-    event.eraseJunction( min(identJun, identAnti) - 1);
-    return true;
-  }
-
-  // If one leg is empty then, depending on string length, either
-  // (a) annihilate junction and antijunction into two simple strings, or
-  // (b) split the empty leg by borrowing energy from nearby legs.
-  if (nMatch == 1) {
-
-    // Identify the two external legs of either junction.
-    vector<int>& iJunLeg0 = (legJun[0] == 0) ? iJunLegB : iJunLegA;
-    vector<int>& iJunLeg1 = (legJun[0] == 2) ? iJunLegB : iJunLegC;
-    vector<int>& iAntiLeg0 = (legAnti[0] == 0) ? iAntiLegB : iAntiLegA;
-    vector<int>& iAntiLeg1 = (legAnti[0] == 2) ? iAntiLegB : iAntiLegC;
-
-    // Simplified procedure: mainly study first parton on each leg.
-    Vec4 pJunLeg0 = event[ iJunLeg0[1] ].p();
-    Vec4 pJunLeg1 = event[ iJunLeg1[1] ].p();
-    Vec4 pAntiLeg0 = event[ iAntiLeg0[1] ].p();
-    Vec4 pAntiLeg1 = event[ iAntiLeg1[1] ].p();
- 
-    // Starting frame hopefully intermediate to two junction directions.
-    Vec4 pStart = pJunLeg0 / pJunLeg0.e() + pJunLeg1 / pJunLeg1.e()
-      + pAntiLeg0 / pAntiLeg0.e() + pAntiLeg1 / pAntiLeg1.e();
- 
-    // Loop over iteration to junction/antijunction rest frames (JRF/ARF).
-    RotBstMatrix MtoJRF, MtoARF;
-    Vec4 pInJRF[3], pInARF[3];
-    for (int iJun = 0; iJun < 2; ++iJun) {
-      int offset = (iJun == 0) ? 0 : 2;
-         
-      // Iterate from system rest frame towards the junction rest frame.
-      RotBstMatrix MtoRF, Mstep;
-      MtoRF.bstback(pStart);
-      Vec4 pInRF[4];
-      int iter = 0;
-      do {
-        ++iter;
+    // Loop over interjunction legs.
+    for (int iMatch = 0; iMatch < nMatch; ++iMatch) {
+      vector<int>& iJunLeg = (legJun[iMatch] == 0) ? iJunLegA
+        : ( (legJun[iMatch] == 1) ? iJunLegB : iJunLegC );
+      vector<int>& iAntiLeg = (legAnti[iMatch] == 0) ? iAntiLegA
+        : ( (legAnti[iMatch] == 1) ? iAntiLegB : iAntiLegC );
   
-        // Find rest-frame momenta on the three sides of the junction.
-        // Only consider first parton on each leg, for simplicity.
-        pInRF[0 + offset] = pJunLeg0;
-        pInRF[1 + offset] = pJunLeg1;
-        pInRF[2 - offset] = pAntiLeg0;
-        pInRF[3 - offset] = pAntiLeg1;
-        for (int i = 0; i < 4; ++i) pInRF[i].rotbst(MtoRF);
+      // Find number of gluons on each. Do nothing for now if none.
+      nGluLeg[iMatch] = iJunLeg.size() + iAntiLeg.size() - 4;
+      if (nGluLeg[iMatch] == 0) continue;
 
-        // For third side add both legs beyond other junction, weighted.
-        double wt2 = 1. - exp( -pInRF[2].e() / eNormJunction);
-        double wt3 = 1. - exp( -pInRF[3].e() / eNormJunction);
-        pInRF[2] = wt2 * pInRF[2] + wt3 * pInRF[3];
-      
-        // Find new junction rest frame from the set of momenta.
-        Mstep = stringFrag.junctionRestFrame( pInRF[0], pInRF[1], pInRF[2]);
-        MtoRF.rotbst( Mstep );
-      } while (iter < 3 || (Mstep.deviation() > CONVJNREST
-        && iter < NTRYJNREST) );
+      // Else pick up the gluons on the interjunction leg in order.
+      iGluLeg.resize(0);
+      for (int i = 1; i < int(iJunLeg.size()) - 1; ++i)
+        iGluLeg.push_back( iJunLeg[i] );
+      for (int i = int(iAntiLeg.size()) - 2; i > 0; --i)
+        iGluLeg.push_back( iAntiLeg[i] );
 
-      // Store final boost and rest-frame (weighted) momenta.
-      if (iJun == 0) {
-        MtoJRF = MtoRF;
-        for (int i = 0; i < 3; ++i) pInJRF[i] = pInRF[i];
+      // Remove those gluons from the junction/antijunction leg lists.
+      iJunLeg.resize(1);
+      iAntiLeg.resize(1);
+
+     // Pick a new quark at random; for simplicity no diquarks.
+      int idQ = flavSel.pickLightQ();
+      int colQ, acolQ;
+
+      // If one gluon on leg, split it into a collinear q-qbar pair.
+      if (iGluLeg.size() == 1) {
+
+        // Store the new q qbar pair, sharing gluon colour and momentum.
+        colQ = event[ iGluLeg[0] ].col();
+        acolQ = event[ iGluLeg[0] ].acol();
+        Vec4 pQ = 0.5 * event[ iGluLeg[0] ].p();
+        double mQ = 0.5 * event[ iGluLeg[0] ].m();
+        int iQ = event.append( idQ, 75, iGluLeg[0], 0, 0, 0, colQ, 0, pQ, mQ );
+        int iQbar = event.append( -idQ, 75, iGluLeg[0], 0, 0, 0, 0, acolQ,
+          pQ, mQ );
+
+        // Mark split gluon and update junction and antijunction legs.
+        event[ iGluLeg[0] ].statusNeg();
+        event[ iGluLeg[0] ].daughters( iQ, iQbar);
+        iJunLeg.push_back(iQ);
+        iAntiLeg.push_back(iQbar);
+
+      // If several gluons on the string, decide which g-g region to split up.
       } else {
-        MtoARF = MtoRF;
-        for (int i = 0; i < 3; ++i) pInARF[i] = pInRF[i];
+
+        // Evaluate mass-squared for all adjacent gluon pairs.
+        m2Pair.resize(0);
+        double m2Sum = 0.;
+        for (int i = 0; i < int(iGluLeg.size()) - 1; ++i) {
+          double m2Now = 0.5 * event[ iGluLeg[i] ].p()
+            * event[ iGluLeg[i + 1] ].p();
+          m2Pair.push_back(m2Now);
+          m2Sum += m2Now;
+        }
+
+        // Pick breakup region with probability proportional to mass-squared.
+        double m2Reg = m2Sum * rndmPtr->flat();
+        int iReg = -1;
+        do m2Reg -= m2Pair[++iReg];
+        while (m2Reg > 0. && iReg < int(iGluLeg.size()) - 1);
+        m2Reg = m2Pair[iReg];
+
+        // Pick breaking point of string in chosen region (symmetrically).
+        double m2Temp = min( JJSTRINGM2MAX, JJSTRINGM2FRAC * m2Reg);
+        double xPos = 0.5;
+        double xNeg = 0.5;
+        do {
+          double zTemp = zSel.zFrag( idQ, 0, m2Temp);
+          xPos = 1. - zTemp;
+          xNeg = m2Temp / (zTemp * m2Reg);
+        } while (xNeg > 1.);
+        if (rndmPtr->flat() > 0.5) swap(xPos, xNeg);
+
+        // Pick up two "mother" gluons of breakup. Mark them decayed.
+        Particle& gJun = event[ iGluLeg[iReg] ];
+        Particle& gAnti = event[ iGluLeg[iReg + 1] ];
+        gJun.statusNeg();
+        gAnti.statusNeg();
+        int dau1 = event.size();
+        gJun.daughters(dau1, dau1 + 3);
+        gAnti.daughters(dau1, dau1 + 3);
+        int mother1 = min( iGluLeg[iReg], iGluLeg[iReg + 1]);
+        int mother2 = max( iGluLeg[iReg], iGluLeg[iReg + 1]);
+
+        // Can keep one of old colours but need one new so unambiguous.
+        colQ = gJun.acol();
+        acolQ = event.nextColTag();
+
+        // Store copied gluons with reduced momenta.
+        int iGjun = event.append( 21, 75, mother1, mother2, 0, 0,
+          gJun.col(), gJun.acol(), (1. - 0.5 * xPos) * gJun.p(),
+          (1. - 0.5 * xPos) * gJun.m());
+        int iGanti = event.append( 21, 75, mother1, mother2, 0, 0,
+          acolQ, gAnti.acol(), (1. - 0.5 * xNeg) * gAnti.p(),
+          (1. - 0.5 * xNeg) * gAnti.m());
+
+        // Store the new q qbar pair with remaining momenta.
+        int iQ = event.append( idQ, 75, mother1, mother2, 0, 0,
+          colQ, 0, 0.5 * xNeg * gAnti.p(), 0.5 * xNeg * gAnti.m() );
+        int iQbar = event.append( -idQ, 75, mother1, mother2, 0, 0,
+          0, acolQ, 0.5 * xPos * gJun.p(), 0.5 * xPos * gJun.m() );
+
+        // Update junction and antijunction legs with gluons and quarks.
+        for (int i = 0; i < iReg; ++i)
+          iJunLeg.push_back( iGluLeg[i] );
+        iJunLeg.push_back(iGjun);
+        iJunLeg.push_back(iQ);
+        for (int i = int(iGluLeg.size()) - 1; i > iReg + 1; --i)
+          iAntiLeg.push_back( iGluLeg[i] );
+        iAntiLeg.push_back(iGanti);
+        iAntiLeg.push_back(iQbar);
       }
+
+      // Update end colours for both g -> q qbar and g g -> g g q qbar.
+      event.endColJunction(identJun - 1, legJun[iMatch], colQ);
+      event.endColJunction(identAnti - 1, legAnti[iMatch], acolQ);
     }
 
-    // Opposite operations: boost from JRF/ARF to original system.
-    RotBstMatrix MfromJRF = MtoJRF;
-    MfromJRF.invert();
-    RotBstMatrix MfromARF = MtoARF;
-    MfromARF.invert();
-
-    // Velocity vectors of junctions and momentum of legs in lab frame.
-    Vec4 vJun(0., 0., 0., 1.);
-    vJun.rotbst(MfromJRF);
-    Vec4 vAnti(0., 0., 0., 1.);
-    vAnti.rotbst(MfromARF);
-    Vec4 pLabJ[3], pLabA[3];
-    for (int i = 0; i < 3; ++i) {
-      pLabJ[i] = pInJRF[i];
-      pLabJ[i].rotbst(MfromJRF);
-      pLabA[i] = pInARF[i];
-      pLabA[i].rotbst(MfromARF);
+    // Update list of interjunction legs after splittings above.
+    int iMatchUp = 0;
+    while (iMatchUp < nMatch) {
+      if (nGluLeg[iMatchUp] > 0) {
+        for (int i = iMatchUp; i < nMatch - 1; ++i) {
+          legJun[i] = legJun[i + 1];
+          legAnti[i] = legAnti[i + 1];
+          nGluLeg[i] = nGluLeg[i + 1];
+        } --nMatch;
+      } else ++iMatchUp;
     }
 
-    // Calculate Lambda-measure length of three possible topologies.
-    double vJvA = vJun * vAnti;
-    double vJvAe2y = vJvA + sqrt(vJvA*vJvA - 1.);
-    double LambdaJA = (2. * pInJRF[0].e()) * (2. * pInJRF[1].e())
-      * (2. * pInARF[0].e()) * (2. * pInARF[1].e()) * vJvAe2y;
-    double Lambda00 = (2. * pLabJ[0] * pLabA[0])
-      * (2. * pLabJ[1] * pLabA[1]);
-    double Lambda01 = (2. * pLabJ[0] * pLabA[1])
-      * (2. * pLabJ[1] * pLabA[0]);
+    // Should not ever have three empty interjunction legs.
+    if (nMatch == 3) {
+      infoPtr->errorMsg("Error in HadronLevel::splitJunctionPair: "
+        "three empty junction-junction legs");
+      return false;
+    }
 
-    // Case when either topology without junctions is the shorter one.
-    if (LambdaJA > min( Lambda00, Lambda01)) {
-      vector<int>& iAntiMatch0 = (Lambda00 < Lambda01)
-        ? iAntiLeg0 : iAntiLeg1;
-      vector<int>& iAntiMatch1 = (Lambda00 < Lambda01)
-        ? iAntiLeg1 : iAntiLeg0;
-
-      // Define two quark-antiquark strings.
-      iPartonJun.resize(0);
-      for (int i = int(iJunLeg0.size()) - 1; i > 0; --i)
-        iPartonJun.push_back( iJunLeg0[i] );
-      for (int i = 1; i < int(iAntiMatch0.size()); ++i)
-        iPartonJun.push_back( iAntiMatch0[i] );
-      iPartonAntiJun.resize(0);
-      for (int i = int(iJunLeg1.size()) - 1; i > 0; --i)
-        iPartonAntiJun.push_back( iJunLeg1[i] );
-      for (int i = 1; i < int(iAntiMatch1.size()); ++i)
-        iPartonAntiJun.push_back( iAntiMatch1[i] );
+    // If two legs are empty, then collapse system to a single string.
+    if (nMatch == 2) {
+      int legJunLeft = 3 - legJun[0] - legJun[1];
+      int legAntiLeft = 3 - legAnti[0] - legAnti[1];
+      vector<int>& iJunLeg = (legJunLeft == 0) ? iJunLegA
+        : ( (legJunLeft == 1) ? iJunLegB : iJunLegC );
+      vector<int>& iAntiLeg = (legAntiLeft == 0) ? iAntiLegA
+        : ( (legAntiLeft == 1) ? iAntiLegB : iAntiLegC );
+      iPartonJun[iJun].resize(0);
+      for (int i = int(iJunLeg.size()) - 1; i > 0; --i)
+        iPartonJun[iJun].push_back( iJunLeg[i] );
+      for (int i = 1; i < int(iAntiLeg.size()); ++i)
+        iPartonJun[iJun].push_back( iAntiLeg[i] );
 
       // Match up the colours where the strings are joined.
-      int iColJoin  = iJunLeg0[1];
-      int iAcolJoin = iAntiMatch0[1];
+      int iColJoin  = iJunLeg[1];
+      int iAcolJoin = iAntiLeg[1];
       event[iAcolJoin].acol( event[iColJoin].col() );
-      iColJoin  = iJunLeg1[1];
-      iAcolJoin = iAntiMatch1[1];
-      event[iAcolJoin].acol( event[iColJoin].col() );
- 
-      // Remove junctions from their list. Done.
+
+      // Other string system empty. Remove junctions from their list. Done.
+      iPartonAntiJun[iAntiJun].resize(0);
       event.eraseJunction( max(identJun, identAnti) - 1);
       event.eraseJunction( min(identJun, identAnti) - 1);
-      return true;
+      continue;
     }
 
-    // Case where junction and antijunction to be separated.
-    // Shuffle (p+/p-)  momentum of order <mThad> between systems,
-    // times 2/3 for 120 degree in JRF, times 1/2 for two legs,
-    // but not more than half of what nearest parton carries.
-    double eShift = MTHAD / (3. * sqrt(vJvAe2y));
-    double fracJ0 = min(0.5, eShift / pInJRF[0].e());
-    double fracJ1 = min(0.5, eShift / pInJRF[0].e());
-    Vec4 pFromJun = fracJ0 * pJunLeg0 + fracJ1 * pJunLeg1;
-    double fracA0 = min(0.5, eShift / pInARF[0].e());
-    double fracA1 = min(0.5, eShift / pInARF[0].e());
-    Vec4 pFromAnti = fracA0 * pAntiLeg0 + fracA1 * pAntiLeg1;
+    // If one leg is empty then, depending on string length, either
+    // (a) annihilate junction and antijunction into two simple strings, or
+    // (b) split the empty leg by borrowing energy from nearby legs.
+    if (nMatch == 1) {
 
-    // Pick a new quark at random; for simplicity no diquarks.
-    int idQ = flavSel.pickLightQ();
+      // Identify the two external legs of either junction.
+      vector<int>& iJunLeg0 = (legJun[0] == 0) ? iJunLegB : iJunLegA;
+      vector<int>& iJunLeg1 = (legJun[0] == 2) ? iJunLegB : iJunLegC;
+      vector<int>& iAntiLeg0 = (legAnti[0] == 0) ? iAntiLegB : iAntiLegA;
+      vector<int>& iAntiLeg1 = (legAnti[0] == 2) ? iAntiLegB : iAntiLegC;
 
-    // Copy junction partons with scaled-down momenta and update legs.
-    int mother1 = min(iJunLeg0[1], iJunLeg1[1]);
-    int mother2 = max(iJunLeg0[1], iJunLeg1[1]);
-    int iNew1 = event.copy(iJunLeg0[1], 76);
-    event[iNew1].rescale5(1. - fracJ0);
-    iJunLeg0[1] = iNew1;
-    int iNew2 = event.copy(iJunLeg1[1], 76);
-    event[iNew2].rescale5(1. - fracJ1);
-    iJunLeg1[1] = iNew2;
+      // Simplified procedure: mainly study first parton on each leg.
+      Vec4 pJunLeg0 = event[ iJunLeg0[1] ].p();
+      Vec4 pJunLeg1 = event[ iJunLeg1[1] ].p();
+      Vec4 pAntiLeg0 = event[ iAntiLeg0[1] ].p();
+      Vec4 pAntiLeg1 = event[ iAntiLeg1[1] ].p();
+ 
+      // Starting frame hopefully intermediate to two junction directions.
+      Vec4 pStart = pJunLeg0 / pJunLeg0.e() + pJunLeg1 / pJunLeg1.e()
+        + pAntiLeg0 / pAntiLeg0.e() + pAntiLeg1 / pAntiLeg1.e();
 
-    // Update junction colour and store quark with antijunction momentum.
-    // Store history as 2 -> 3  step for consistency.
-    int colQ = event.nextColTag();
-    event.endColJunction(identJun - 1, legJun[0], colQ);
-    int iNewJ = event.append( idQ, 76, mother1, mother2, 0, 0,
-      colQ, 0, pFromAnti, pFromAnti.mCalc() );
-    event[mother1].daughters( iNew1, iNewJ);
-    event[mother2].daughters( iNew1, iNewJ);
-    event[iNew1].mothers( mother1, mother2);
-    event[iNew2].mothers( mother1, mother2);
+      // Loop over iteration to junction/antijunction rest frames (JRF/ARF).
+      RotBstMatrix MtoJRF, MtoARF;
+      Vec4 pInJRF[3], pInARF[3];
+      for (int iJunLocal = 0; iJunLocal < 2; ++iJunLocal) {
+        int offset = (iJunLocal == 0) ? 0 : 2;
 
-    // Copy anti junction partons with scaled-down momenta and update legs.
-    mother1 = min(iAntiLeg0[1], iAntiLeg1[1]);
-    mother2 = max(iAntiLeg0[1], iAntiLeg1[1]);
-    iNew1 = event.copy(iAntiLeg0[1], 76);
-    event[iNew1].rescale5(1. - fracA0);
-    iAntiLeg0[1] = iNew1;
-    iNew2 = event.copy(iAntiLeg1[1], 76);
-    event[iNew2].rescale5(1. - fracA1);
-    iAntiLeg1[1] = iNew2;
+        // Iterate from system rest frame towards the junction rest frame.
+        RotBstMatrix MtoRF, Mstep;
+        MtoRF.bstback(pStart);
+        Vec4 pInRF[4];
+        int iter = 0;
+        do {
+          ++iter;
 
-    // Update antijunction anticolour and store antiquark with junction
-    // momentum. Store history as 2 -> 3  step for consistency.
-    int acolQ = event.nextColTag();
-    event.endColJunction(identAnti - 1, legAnti[0], acolQ);
-    int iNewA = event.append( -idQ, 76, mother1, mother2, 0, 0,
-      0, acolQ, pFromJun, pFromJun.mCalc() );
-    event[mother1].daughters( iNew1, iNewA);
-    event[mother2].daughters( iNew1, iNewA);
-    event[iNew1].mothers( mother1, mother2);
-    event[iNew2].mothers( mother1, mother2);
+          // Find rest-frame momenta on the three sides of the junction.
+          // Only consider first parton on each leg, for simplicity.
+          pInRF[0 + offset] = pJunLeg0;
+          pInRF[1 + offset] = pJunLeg1;
+          pInRF[2 - offset] = pAntiLeg0;
+          pInRF[3 - offset] = pAntiLeg1;
+          for (int i = 0; i < 4; ++i) pInRF[i].rotbst(MtoRF);
 
-    // Bookkeep new quark and antiquark on third legs.
-    if (legJun[0] == 0) iJunLegA[1] = iNewJ;
-    else if (legJun[0] == 1) iJunLegB[1] = iNewJ;
-    else iJunLegC[1] = iNewJ;
-    if (legAnti[0] == 0) iAntiLegA[1] = iNewA;
-    else if (legAnti[0] == 1) iAntiLegB[1] = iNewA;
-    else iAntiLegC[1] = iNewA;
+          // For third side add both legs beyond other junction, weighted.
+          double wt2 = 1. - exp( -pInRF[2].e() / eNormJunction);
+          double wt3 = 1. - exp( -pInRF[3].e() / eNormJunction);
+          pInRF[2] = wt2 * pInRF[2] + wt3 * pInRF[3];
 
-  // Done with splitting junction from antijunction.
+          // Find new junction rest frame from the set of momenta.
+          Mstep = stringFrag.junctionRestFrame( pInRF[0], pInRF[1], pInRF[2]);
+          MtoRF.rotbst( Mstep );
+        } while (iter < 3 || (Mstep.deviation() > CONVJNREST
+          && iter < NTRYJNREST) );
+
+        // Store final boost and rest-frame (weighted) momenta.
+        if (iJunLocal == 0) {
+          MtoJRF = MtoRF;
+          for (int i = 0; i < 3; ++i) pInJRF[i] = pInRF[i];
+        } else {
+          MtoARF = MtoRF;
+          for (int i = 0; i < 3; ++i) pInARF[i] = pInRF[i];
+        }
+      }
+
+      // Opposite operations: boost from JRF/ARF to original system.
+      RotBstMatrix MfromJRF = MtoJRF;
+      MfromJRF.invert();
+      RotBstMatrix MfromARF = MtoARF;
+      MfromARF.invert();
+
+      // Velocity vectors of junctions and momentum of legs in lab frame.
+      Vec4 vJun(0., 0., 0., 1.);
+      vJun.rotbst(MfromJRF);
+      Vec4 vAnti(0., 0., 0., 1.);
+      vAnti.rotbst(MfromARF);
+      Vec4 pLabJ[3], pLabA[3];
+      for (int i = 0; i < 3; ++i) {
+        pLabJ[i] = pInJRF[i];
+        pLabJ[i].rotbst(MfromJRF);
+        pLabA[i] = pInARF[i];
+        pLabA[i].rotbst(MfromARF);
+      }
+
+      // Calculate Lambda-measure length of three possible topologies.
+      double vJvA = vJun * vAnti;
+      double vJvAe2y = vJvA + sqrt(vJvA*vJvA - 1.);
+      double LambdaJA = (2. * pInJRF[0].e()) * (2. * pInJRF[1].e())
+        * (2. * pInARF[0].e()) * (2. * pInARF[1].e()) * vJvAe2y;
+      double Lambda00 = (2. * pLabJ[0] * pLabA[0])
+        * (2. * pLabJ[1] * pLabA[1]);
+      double Lambda01 = (2. * pLabJ[0] * pLabA[1])
+        * (2. * pLabJ[1] * pLabA[0]);
+
+      // Case when either topology without junctions is the shorter one.
+      if (LambdaJA > min( Lambda00, Lambda01)) {
+        vector<int>& iAntiMatch0 = (Lambda00 < Lambda01)
+          ? iAntiLeg0 : iAntiLeg1;
+        vector<int>& iAntiMatch1 = (Lambda00 < Lambda01)
+          ? iAntiLeg1 : iAntiLeg0;
+
+        // Define two quark-antiquark strings.
+        iPartonJun[iJun].resize(0);
+        for (int i = int(iJunLeg0.size()) - 1; i > 0; --i)
+          iPartonJun[iJun].push_back( iJunLeg0[i] );
+        for (int i = 1; i < int(iAntiMatch0.size()); ++i)
+          iPartonJun[iJun].push_back( iAntiMatch0[i] );
+        iPartonAntiJun[iAntiJun].resize(0);
+        for (int i = int(iJunLeg1.size()) - 1; i > 0; --i)
+          iPartonAntiJun[iAntiJun].push_back( iJunLeg1[i] );
+        for (int i = 1; i < int(iAntiMatch1.size()); ++i)
+          iPartonAntiJun[iAntiJun].push_back( iAntiMatch1[i] );
+
+        // Match up the colours where the strings are joined.
+        int iColJoin  = iJunLeg0[1];
+        int iAcolJoin = iAntiMatch0[1];
+        event[iAcolJoin].acol( event[iColJoin].col() );
+        iColJoin  = iJunLeg1[1];
+        iAcolJoin = iAntiMatch1[1];
+        event[iAcolJoin].acol( event[iColJoin].col() );
+
+        // Remove junctions from their list. Done.
+        event.eraseJunction( max(identJun, identAnti) - 1);
+        event.eraseJunction( min(identJun, identAnti) - 1);
+
+        continue;
+      }
+
+      // Case where junction and antijunction to be separated.
+      // Shuffle (p+/p-)  momentum of order <mThad> between systems,
+      // times 2/3 for 120 degree in JRF, times 1/2 for two legs,
+      // but not more than half of what nearest parton carries.
+      double eShift = MTHAD / (3. * sqrt(vJvAe2y));
+      double fracJ0 = min(0.5, eShift / pInJRF[0].e());
+      double fracJ1 = min(0.5, eShift / pInJRF[0].e());
+      Vec4 pFromJun = fracJ0 * pJunLeg0 + fracJ1 * pJunLeg1;
+      double fracA0 = min(0.5, eShift / pInARF[0].e());
+      double fracA1 = min(0.5, eShift / pInARF[0].e());
+      Vec4 pFromAnti = fracA0 * pAntiLeg0 + fracA1 * pAntiLeg1;
+
+      // Pick a new quark at random; for simplicity no diquarks.
+      int idQ = flavSel.pickLightQ();
+
+      // Copy junction partons with scaled-down momenta and update legs.
+      int mother1 = min(iJunLeg0[1], iJunLeg1[1]);
+      int mother2 = max(iJunLeg0[1], iJunLeg1[1]);
+      int iNew1 = event.copy(iJunLeg0[1], 76);
+      event[iNew1].rescale5(1. - fracJ0);
+      iJunLeg0[1] = iNew1;
+      int iNew2 = event.copy(iJunLeg1[1], 76);
+      event[iNew2].rescale5(1. - fracJ1);
+      iJunLeg1[1] = iNew2;
+
+      // Update junction colour and store quark with antijunction momentum.
+      // Store history as 2 -> 3  step for consistency.
+      int colQ = event.nextColTag();
+      event.endColJunction(identJun - 1, legJun[0], colQ);
+      int iNewJ = event.append( idQ, 76, mother1, mother2, 0, 0,
+        colQ, 0, pFromAnti, pFromAnti.mCalc() );
+      event[mother1].daughters( iNew1, iNewJ);
+      event[mother2].daughters( iNew1, iNewJ);
+      event[iNew1].mothers( mother1, mother2);
+      event[iNew2].mothers( mother1, mother2);
+
+      // Copy anti junction partons with scaled-down momenta and update legs.
+      mother1 = min(iAntiLeg0[1], iAntiLeg1[1]);
+      mother2 = max(iAntiLeg0[1], iAntiLeg1[1]);
+      iNew1 = event.copy(iAntiLeg0[1], 76);
+      event[iNew1].rescale5(1. - fracA0);
+      iAntiLeg0[1] = iNew1;
+      iNew2 = event.copy(iAntiLeg1[1], 76);
+      event[iNew2].rescale5(1. - fracA1);
+      iAntiLeg1[1] = iNew2;
+
+      // Update antijunction anticolour and store antiquark with junction
+      // momentum. Store history as 2 -> 3  step for consistency.
+      int acolQ = event.nextColTag();
+      event.endColJunction(identAnti - 1, legAnti[0], acolQ);
+      int iNewA = event.append( -idQ, 76, mother1, mother2, 0, 0,
+        0, acolQ, pFromJun, pFromJun.mCalc() );
+      event[mother1].daughters( iNew1, iNewA);
+      event[mother2].daughters( iNew1, iNewA);
+      event[iNew1].mothers( mother1, mother2);
+      event[iNew2].mothers( mother1, mother2);
+
+      // Bookkeep new quark and antiquark on third legs.
+      if (legJun[0] == 0) iJunLegA[1] = iNewJ;
+      else if (legJun[0] == 1) iJunLegB[1] = iNewJ;
+      else iJunLegC[1] = iNewJ;
+      if (legAnti[0] == 0) iAntiLegA[1] = iNewA;
+      else if (legAnti[0] == 1) iAntiLegB[1] = iNewA;
+      else iAntiLegC[1] = iNewA;
+
+    // Done with splitting junction from antijunction.
+    }
+
+    // Put together new junction parton list.
+    iPartonJun[iJun].resize(0);
+    for (int i = 0; i < int(iJunLegA.size()); ++i)
+      iPartonJun[iJun].push_back( iJunLegA[i] );
+    for (int i = 0; i < int(iJunLegB.size()); ++i)
+      iPartonJun[iJun].push_back( iJunLegB[i] );
+    for (int i = 0; i < int(iJunLegC.size()); ++i)
+      iPartonJun[iJun].push_back( iJunLegC[i] );
+
+    // Put together new antijunction parton list.
+    iPartonAntiJun[iAntiJun].resize(0);
+    for (int i = 0; i < int(iAntiLegA.size()); ++i)
+      iPartonAntiJun[iAntiJun].push_back( iAntiLegA[i] );
+    for (int i = 0; i < int(iAntiLegB.size()); ++i)
+      iPartonAntiJun[iAntiJun].push_back( iAntiLegB[i] );
+    for (int i = 0; i < int(iAntiLegC.size()); ++i)
+      iPartonAntiJun[iAntiJun].push_back( iAntiLegC[i] );
+
   }
-   
-  // Put together new junction parton list.
-  iPartonJun.resize(0);
-  for (int i = 0; i < int(iJunLegA.size()); ++i)
-    iPartonJun.push_back( iJunLegA[i] );
-  for (int i = 0; i < int(iJunLegB.size()); ++i)
-    iPartonJun.push_back( iJunLegB[i] );
-  for (int i = 0; i < int(iJunLegC.size()); ++i)
-    iPartonJun.push_back( iJunLegC[i] );
-
-  // Put together new antijunction parton list.
-  iPartonAntiJun.resize(0);
-  for (int i = 0; i < int(iAntiLegA.size()); ++i)
-    iPartonAntiJun.push_back( iAntiLegA[i] );
-  for (int i = 0; i < int(iAntiLegB.size()); ++i)
-    iPartonAntiJun.push_back( iAntiLegB[i] );
-  for (int i = 0; i < int(iAntiLegC.size()); ++i)
-    iPartonAntiJun.push_back( iAntiLegC[i] );
-
-  // Now the two junction systems are separated and can be stored.
+  // Now all the two junction systems are separated and can be stored.
   return true;
+
 
 }
 
 //==========================================================================
 
 } // end namespace Pythia8
-

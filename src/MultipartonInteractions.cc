@@ -118,85 +118,23 @@ bool SigmaMultiparton::init(int inState, int processLevel, Info* infoPtr,
 
   // Optionally store charmonium and bottomonium production.
   if (processLevel > 2) {
+    SigmaOniaSetup charmonium(infoPtr, settingsPtr, particleDataPtr, 4);
+    SigmaOniaSetup bottomonium(infoPtr, settingsPtr, particleDataPtr, 5);
     if (inState == 0) {
-      sigmaT.push_back( new Sigma2gg2QQbar3S11g(4, 401) );
-      sigmaU.push_back( new Sigma2gg2QQbar3S11g(4, 401) );
-      sigmaT.push_back( new Sigma2gg2QQbar3PJ1g(4, 0, 402) );
-      sigmaU.push_back( new Sigma2gg2QQbar3PJ1g(4, 0, 402) );
-      sigmaT.push_back( new Sigma2gg2QQbar3PJ1g(4, 1, 403) );
-      sigmaU.push_back( new Sigma2gg2QQbar3PJ1g(4, 1, 403) );
-      sigmaT.push_back( new Sigma2gg2QQbar3PJ1g(4, 2, 404) );
-      sigmaU.push_back( new Sigma2gg2QQbar3PJ1g(4, 2, 404) );
-      sigmaT.push_back( new Sigma2gg2QQbarX8g(4, 0, 411) );
-      sigmaU.push_back( new Sigma2gg2QQbarX8g(4, 0, 411) );
-      sigmaT.push_back( new Sigma2gg2QQbarX8g(4, 1, 412) );
-      sigmaU.push_back( new Sigma2gg2QQbarX8g(4, 1, 412) );
-      sigmaT.push_back( new Sigma2gg2QQbarX8g(4, 2, 413) );
-      sigmaU.push_back( new Sigma2gg2QQbarX8g(4, 2, 413) );
-      sigmaT.push_back( new Sigma2gg2QQbar3S11g(5, 501) );
-      sigmaU.push_back( new Sigma2gg2QQbar3S11g(5, 501) );
-      sigmaT.push_back( new Sigma2gg2QQbar3PJ1g(5, 0, 502) );
-      sigmaU.push_back( new Sigma2gg2QQbar3PJ1g(5, 0, 502) );
-      sigmaT.push_back( new Sigma2gg2QQbar3PJ1g(5, 1, 503) );
-      sigmaU.push_back( new Sigma2gg2QQbar3PJ1g(5, 1, 503) );
-      sigmaT.push_back( new Sigma2gg2QQbar3PJ1g(5, 2, 504) );
-      sigmaU.push_back( new Sigma2gg2QQbar3PJ1g(5, 2, 504) );
-      sigmaT.push_back( new Sigma2gg2QQbarX8g(5, 0, 511) );
-      sigmaU.push_back( new Sigma2gg2QQbarX8g(5, 0, 511) );
-      sigmaT.push_back( new Sigma2gg2QQbarX8g(5, 1, 512) );
-      sigmaU.push_back( new Sigma2gg2QQbarX8g(5, 1, 512) );
-      sigmaT.push_back( new Sigma2gg2QQbarX8g(5, 2, 513) );
-      sigmaU.push_back( new Sigma2gg2QQbarX8g(5, 2, 513) );
+      charmonium.setupSigma2gg(sigmaT, true);
+      charmonium.setupSigma2gg(sigmaU, true);
+      bottomonium.setupSigma2gg(sigmaT, true);
+      bottomonium.setupSigma2gg(sigmaU, true);
     } else if (inState == 1) {
-      sigmaT.push_back( new Sigma2qg2QQbar3PJ1q(4, 0, 405) );
-      sigmaU.push_back( new Sigma2qg2QQbar3PJ1q(4, 0, 405) );
-      sigmaT.push_back( new Sigma2qg2QQbar3PJ1q(4, 1, 406) );
-      sigmaU.push_back( new Sigma2qg2QQbar3PJ1q(4, 1, 406) );
-      sigmaT.push_back( new Sigma2qg2QQbar3PJ1q(4, 2, 407) );
-      sigmaU.push_back( new Sigma2qg2QQbar3PJ1q(4, 2, 407) );
-      sigmaT.push_back( new Sigma2qg2QQbarX8q(4, 0, 414) );
-      sigmaU.push_back( new Sigma2qg2QQbarX8q(4, 0, 414) );
-      sigmaT.push_back( new Sigma2qg2QQbarX8q(4, 1, 415) );
-      sigmaU.push_back( new Sigma2qg2QQbarX8q(4, 1, 415) );
-      sigmaT.push_back( new Sigma2qg2QQbarX8q(4, 2, 416) );
-      sigmaU.push_back( new Sigma2qg2QQbarX8q(4, 2, 416) );
-      sigmaT.push_back( new Sigma2qg2QQbar3PJ1q(5, 0, 505) );
-      sigmaU.push_back( new Sigma2qg2QQbar3PJ1q(5, 0, 505) );
-      sigmaT.push_back( new Sigma2qg2QQbar3PJ1q(5, 1, 506) );
-      sigmaU.push_back( new Sigma2qg2QQbar3PJ1q(5, 1, 506) );
-      sigmaT.push_back( new Sigma2qg2QQbar3PJ1q(5, 2, 507) );
-      sigmaU.push_back( new Sigma2qg2QQbar3PJ1q(5, 2, 507) );
-      sigmaT.push_back( new Sigma2qg2QQbarX8q(5, 0, 514) );
-      sigmaU.push_back( new Sigma2qg2QQbarX8q(5, 0, 514) );
-      sigmaT.push_back( new Sigma2qg2QQbarX8q(5, 1, 515) );
-      sigmaU.push_back( new Sigma2qg2QQbarX8q(5, 1, 515) );
-      sigmaT.push_back( new Sigma2qg2QQbarX8q(5, 2, 516) );
-      sigmaU.push_back( new Sigma2qg2QQbarX8q(5, 2, 516) );
+      charmonium.setupSigma2qg(sigmaT, true);
+      charmonium.setupSigma2qg(sigmaU, true);
+      bottomonium.setupSigma2qg(sigmaT, true);
+      bottomonium.setupSigma2qg(sigmaU, true);
     } else if (inState == 2) {
-      sigmaT.push_back( new Sigma2qqbar2QQbar3PJ1g(4, 0, 408) );
-      sigmaU.push_back( new Sigma2qqbar2QQbar3PJ1g(4, 0, 408) );
-      sigmaT.push_back( new Sigma2qqbar2QQbar3PJ1g(4, 1, 409) );
-      sigmaU.push_back( new Sigma2qqbar2QQbar3PJ1g(4, 1, 409) );
-      sigmaT.push_back( new Sigma2qqbar2QQbar3PJ1g(4, 2, 410) );
-      sigmaU.push_back( new Sigma2qqbar2QQbar3PJ1g(4, 2, 410) );
-      sigmaT.push_back( new Sigma2qqbar2QQbarX8g(4, 0, 417) );
-      sigmaU.push_back( new Sigma2qqbar2QQbarX8g(4, 0, 417) );
-      sigmaT.push_back( new Sigma2qqbar2QQbarX8g(4, 1, 418) );
-      sigmaU.push_back( new Sigma2qqbar2QQbarX8g(4, 1, 418) );
-      sigmaT.push_back( new Sigma2qqbar2QQbarX8g(4, 2, 419) );
-      sigmaU.push_back( new Sigma2qqbar2QQbarX8g(4, 2, 419) );
-      sigmaT.push_back( new Sigma2qqbar2QQbar3PJ1g(5, 0, 508) );
-      sigmaU.push_back( new Sigma2qqbar2QQbar3PJ1g(5, 0, 508) );
-      sigmaT.push_back( new Sigma2qqbar2QQbar3PJ1g(5, 1, 509) );
-      sigmaU.push_back( new Sigma2qqbar2QQbar3PJ1g(5, 1, 509) );
-      sigmaT.push_back( new Sigma2qqbar2QQbar3PJ1g(5, 2, 510) );
-      sigmaU.push_back( new Sigma2qqbar2QQbar3PJ1g(5, 2, 510) );
-      sigmaT.push_back( new Sigma2qqbar2QQbarX8g(5, 0, 517) );
-      sigmaU.push_back( new Sigma2qqbar2QQbarX8g(5, 0, 517) );
-      sigmaT.push_back( new Sigma2qqbar2QQbarX8g(5, 1, 518) );
-      sigmaU.push_back( new Sigma2qqbar2QQbarX8g(5, 1, 518) );
-      sigmaT.push_back( new Sigma2qqbar2QQbarX8g(5, 2, 519) );
-      sigmaU.push_back( new Sigma2qqbar2QQbarX8g(5, 2, 519) );
+      charmonium.setupSigma2qq(sigmaT, true);
+      charmonium.setupSigma2qq(sigmaU, true);
+      bottomonium.setupSigma2qq(sigmaT, true);
+      bottomonium.setupSigma2qq(sigmaU, true);
     }
   }
 
@@ -1028,7 +966,11 @@ bool MultipartonInteractions::limitPTmax( Event& event) {
   // User-set cases.
   if (pTmaxMatch == 1) return true;
   if (pTmaxMatch == 2) return false;
-   
+
+  // Always restrict SoftQCD processes.
+  if (infoPtr->isNonDiffractive() || infoPtr->isDiffractiveA()
+    || infoPtr->isDiffractiveB() || infoPtr->isDiffractiveC() ) return true;
+
   // Look if only quarks (u, d, s, c, b), gluons and photons in final state.
   bool onlyQGP1 = true;
   bool onlyQGP2 = true;
@@ -1062,42 +1004,34 @@ double MultipartonInteractions::pTnext( double pTbegAll, double pTendAll,
   double dSigmaScatter, dSigmaRescatter, WTacc;
   double pT2end = pow2( max(pTmin, pTendAll) );
 
-  // With the x-dependent matter profile, it is possible to reuse
-  // values that have been stored during trial interactions for a
-  // slight speedup. bIsSet is false during trial interactions,
-  // counter 21 in case partonLevel is retried and counter 22 for
-  // the first pass through partonLevel.
-  if (bProfile == 4 && bIsSet && infoPtr->getCounter(21) == 1
+  // With the x-dependent matter profile, and minimum bias or diffraction,
+  // it is possible to reuse values that have been stored during the trial 
+  // interactions for a slight speedup. 
+  // bIsSet is false during trial interactions, counter 21 in case partonLevel 
+  // is retried and counter 22 for the first pass through partonLevel.
+  if (bProfile == 4 && bIsSet && bSetInFirst && infoPtr->getCounter(21) == 1
     && infoPtr->getCounter(22) == 1) {
-
-    // Minimum bias.
-    if (bSetInFirst) {
-      if (pT2Save < pT2end) return 0.;
-      pT2      = pT2Save;
-      pT2Fac   = pT2FacSave;
-      pT2Ren   = pT2RenSave;
-      id1      = id1Save;
-      id2      = id2Save;
-      x1       = x1Save;
-      x2       = x2Save;
-      sHat     = sHatSave;
-      tHat     = tHatSave;
-      uHat     = uHatSave;
-      alpS     = alpSsave;
-      alpEM    = alpEMsave;
-      xPDF1now = xPDF1nowSave;
-      xPDF2now = xPDF2nowSave;
-      if (dSigmaDtSel == dSigmaDtSelSave) dSigmaDtSel->swapKin();
-      else dSigmaDtSel = dSigmaDtSelSave;
-      return sqrt(pT2);
-
-    // Hard process.
-    } else {
-      return (pT2 < pT2end) ? 0. : sqrt(pT2);
-    }
+    if (pT2Save < pT2end) return 0.;
+    pT2      = pT2Save;
+    pT2Fac   = pT2FacSave;
+    pT2Ren   = pT2RenSave;
+    id1      = id1Save;
+    id2      = id2Save;
+    x1       = x1Save;
+    x2       = x2Save;
+    sHat     = sHatSave;
+    tHat     = tHatSave;
+    uHat     = uHatSave;
+    alpS     = alpSsave;
+    alpEM    = alpEMsave;
+    xPDF1now = xPDF1nowSave;
+    xPDF2now = xPDF2nowSave;
+    if (dSigmaDtSel == dSigmaDtSelSave) dSigmaDtSel->swapKin();
+    else dSigmaDtSel = dSigmaDtSelSave;
+    return sqrt(pT2);
   }
 
-  // Do not allow rescattering while sill FSR with global recoil.
+  // Do not allow rescattering while still FSR with global recoil.
   bool allowRescatterNow = allowRescatter;
   if (globalRecoilFSR && partonSystemsPtr->sizeOut(0) <= nMaxGlobalRecoilFSR)
     allowRescatterNow = false;

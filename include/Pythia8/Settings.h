@@ -102,6 +102,24 @@ public:
 
 //==========================================================================
 
+// Class for vector of bool flags.
+
+class FVec {
+
+public:
+
+  // Constructor
+  FVec(string nameIn = " ", vector<bool> defaultIn = vector<bool>(1, false)) : 
+    name(nameIn), valNow(defaultIn) , valDefault(defaultIn) { }
+
+  // Data members.
+  string name;
+  vector<bool> valNow, valDefault;
+
+};
+
+//==========================================================================
+
 // Class for vector of integers.
 
 class MVec {
@@ -149,7 +167,8 @@ public:
 //==========================================================================
 
 // This class holds info on flags (bool), modes (int), parms (double),
-// words (string), mvecs (vector of int) and pvecs (vector of double).
+// words (string), fvecs (vector of bool), mvecs (vector of int) and pvecs 
+// (vector of double).
 
 class Settings {
 
@@ -199,6 +218,8 @@ public:
     return (parms.find(toLower(keyIn)) != parms.end()); }
   bool isWord(string keyIn) {
     return (words.find(toLower(keyIn)) != words.end()); }
+  bool isFVec(string keyIn) {
+    return (fvecs.find(toLower(keyIn)) != fvecs.end()); }
   bool isMVec(string keyIn) {
     return (mvecs.find(toLower(keyIn)) != mvecs.end()); }
   bool isPVec(string keyIn) {
@@ -215,6 +236,8 @@ public:
     = Parm(keyIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn); }
   void addWord(string keyIn, string defaultIn) {
     words[toLower(keyIn)] = Word(keyIn, defaultIn); }
+  void addFVec(string keyIn, vector<bool> defaultIn) {
+    fvecs[toLower(keyIn)] = FVec(keyIn, defaultIn); }
   void addMVec(string keyIn, vector<int> defaultIn, bool hasMinIn,
     bool hasMaxIn, int minIn, int maxIn) { mvecs[toLower(keyIn)]
     = MVec(keyIn, defaultIn, hasMinIn, hasMaxIn, minIn, maxIn); }
@@ -227,7 +250,8 @@ public:
   int    mode(string keyIn);
   double parm(string keyIn);
   string word(string keyIn);
-  vector<int> mvec(string keyIn);
+  vector<bool>   fvec(string keyIn);
+  vector<int>    mvec(string keyIn);
   vector<double> pvec(string keyIn);
 
   // Give back default value, with check that key exists.
@@ -235,7 +259,8 @@ public:
   int    modeDefault(string keyIn);
   double parmDefault(string keyIn);
   string wordDefault(string keyIn);
-  vector<int> mvecDefault(string keyIn);
+  vector<bool>   fvecDefault(string keyIn);
+  vector<int>    mvecDefault(string keyIn);
   vector<double> pvecDefault(string keyIn);
     
   // Give back a map of all entries whose names match the string "match".
@@ -243,6 +268,7 @@ public:
   map<string, Mode> getModeMap(string match);
   map<string, Parm> getParmMap(string match);
   map<string, Word> getWordMap(string match);
+  map<string, FVec> getFVecMap(string match);
   map<string, MVec> getMVecMap(string match);
   map<string, PVec> getPVecMap(string match);
 
@@ -251,6 +277,7 @@ public:
   void mode(string keyIn, int nowIn);
   void parm(string keyIn, double nowIn);
   void word(string keyIn, string nowIn);
+  void fvec(string keyIn, vector<bool> nowIn);
   void mvec(string keyIn, vector<int> nowIn);
   void pvec(string keyIn, vector<double> nowIn);
 
@@ -265,6 +292,7 @@ public:
   void resetMode(string keyIn);
   void resetParm(string keyIn);
   void resetWord(string keyIn);
+  void resetFVec(string keyIn);
   void resetMVec(string keyIn);
   void resetPVec(string keyIn);
 
@@ -284,6 +312,9 @@ private:
 
   // Map for string words.
   map<string, Word> words;
+
+  // Map for vectors of bool.
+  map<string, FVec> fvecs;
 
   // Map for vectors of int.
   map<string, MVec> mvecs;
@@ -316,7 +347,8 @@ private:
   bool   boolAttributeValue(string line, string attribute);
   int    intAttributeValue(string line, string attribute);
   double doubleAttributeValue(string line, string attribute);
-  vector<int> intVectorAttributeValue(string line, string attribute);
+  vector<bool>   boolVectorAttributeValue(string line, string attribute);
+  vector<int>    intVectorAttributeValue(string line, string attribute);
   vector<double> doubleVectorAttributeValue(string line, string attribute);
 
 };

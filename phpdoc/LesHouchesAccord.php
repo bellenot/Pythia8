@@ -34,6 +34,21 @@ standard way to input parton-level information from a
 matrix-elements-based generator into PYTHIA. The conventions for 
 which information should be stored has been defined in a Fortran context, 
 as two commonblocks. Here a C++ equivalent is defined, as a single class. 
+The most common application is to read input from a Les Houches Event File 
+(LHEF) [<a href="Bibliography.php" target="page">Alw06</a>], but it is also possible to have a runtime 
+interface to another program.
+
+<p/> 
+A "no-beams" extension, currently not part of the standard, has been 
+implemented. In this case only one part of a complete event is studied, 
+and so no meaningful beam information can be set. The prime example is
+to study the decay properties of a resonance, where a parton-level decay
+chain is provided as input, and then showers and nadronization should be
+added. Another example would be where a given partonic configuration 
+would be hadronized, without any previous showers. See further below and 
+in the <?php $filepath = $_GET["filepath"];
+echo "<a href='HadronLevelStandalone.php?filepath=".$filepath."' target='page'>";?>Hadron-Level Standalone</a> 
+description.
  
 <p/> 
 The <code>LHAup</code> class is a base class, containing reading and 
@@ -41,7 +56,7 @@ printout functions, plus two pure virtual functions, one to set
 initialization information and one to set information on each new event. 
 Derived classes have to provide these two virtual functions to do 
 the actual work. The existing derived classes are for reading information 
-from a Les Houches Event File (LHEF), from the respective Fortran 
+from a Les Houches Event File, from the respective Fortran 
 commonblocks, or from PYTHIA 8 itself. 
  
 <p/> 
@@ -89,21 +104,22 @@ fundamental is changed.
 <p/><strong>virtual bool LHAup::setInit() &nbsp;</strong> <br/>
 this pure virtual method has to be implemented in the derived class, 
 to set relevant information when called. It should return false if it 
-fails to set the info. 
+fails to set the info. In the no-beams extension this method need not
+do anything, since by default strategy 3 is chosen and the rest is set
+vanishing, but the method must exist.
    
  
 <p/> 
 Inside <code>setInit()</code>, such information can be set by the following 
 methods: 
 <a name="method5"></a>
-<p/><strong>void LHAup::setBeamA( int identity, double energy, int pdfGroup, int pdfSet) &nbsp;</strong> <br/>
+<p/><strong>void LHAup::setBeamA( int identity, double energy, int pdfGroup = 0, int pdfSet = 0) &nbsp;</strong> <br/>
    
-<strong>void LHAup::setBeamB( int identity, double energy, int pdfGroup, int pdfSet) &nbsp;</strong> <br/>
+<strong>void LHAup::setBeamB( int identity, double energy, int pdfGroup = 0, int pdfSet = 0) &nbsp;</strong> <br/>
 sets the properties of the first and second incoming beam, respectively 
 (cf. the Fortran <code>IDBMUP(1), EBMUP(i), PDFGUP(i), PDFSUP(i)</code>, 
-with <code>i</code> 1 or 2). The parton distribution information 
-defaults to zero. These numbers can be used to tell which PDF sets were 
-used when the hard process was generated, while the normal 
+with <code>i</code> 1 or 2). These numbers can be used to tell which PDF 
+sets were used when the hard process was generated, while the normal 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>PDF Selection</a> is used for the further 
 event generation in PYTHIA. 
@@ -569,6 +585,18 @@ echo "<a href='ProgramFlow.php?filepath=".$filepath."' target='page'>";?>Pythia:
 initialization option exists, where the LHEF name is provided as input. 
 Internally this name is then used to create an instance of the derived 
 class <code>LHAupLHEF</code>, which can do the job of reading an LHEF. 
+
+<p/> 
+The two key compulsory parts of an LHEF is the initialization information
+stored in an init block, enclosed by a matching <code>&lt;init&gt;</code>
+- <code>&lt;/init&gt;</code> pair of lines, and the event input, with each 
+event enclosed by a matching <code>&lt;event&gt;</code> - 
+<code>&lt;/event&gt;</code> pair of lines. In the case of the no-beams 
+extension the init block may be empty, but the <code>&lt;init&gt;</code>
+and <code>&lt;/init&gt;</code> lines must be included for the file parsing
+to work as expected. It is also possible to have a non-empty init block, 
+with the beams assigned code 0, and optionally a number of specified 
+"processes".
  
 <p/> 
 The LHEF reader can also read in and store header blocks. By default 

@@ -506,6 +506,10 @@ chosen, but can be gleaned from the <code>pythia.stat()</code> output.
 returns a vector with all the process codes set up for the current run, 
 i.e. the valid nonzero arguments for the five methods below. 
 </method> 
+
+<method name="string Info::nameProc(int i = 0)">
+returns the process name for process code <code>i</code>.
+</method> 
  
 <method name="long Info::nTried(int i = 0)"> 
 </method> 

@@ -71,9 +71,8 @@ interference effects in cross sections and decay angular
 distributions and generation-dependent couplings; the default values 
 should mainly be viewed as placeholders. The conversion 
 from the coupling conventions in a set of different <ei>Z'^0</ei> 
-models in the literature to those used in PYTHIA is described by 
-<a href="http://www.hep.uiuc.edu/home/catutza/nota12.ps">C. 
-Ciobanu et al.</a> 
+models in the literature to those used in PYTHIA is described in
+<ref>Cio08</ref>.
  
 <flag name="Zprime:universality" default="on"> 
 If on then you need only set the first-generation couplings 

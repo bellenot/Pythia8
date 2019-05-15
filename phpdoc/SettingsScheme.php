@@ -52,7 +52,7 @@ users probably will have little interaction with.
  
 <h3>Concepts</h3> 
  
-We distinguish six kinds of user-modifiable variables, by the way 
+We distinguish seven kinds of user-modifiable variables, by the way 
 they have to be stored: 
 <ol> 
 <li>Flags are on/off switches, and are stored as <code>bool</code>.</li> 
@@ -66,6 +66,11 @@ code and XML tags.</li>
 appear inside a word, the former to simplify parsing of an input file 
 and the latter not to cause conflicts with XML attribute delimiters. 
 Currently the main application is to store file names.</li> 
+<li>Vectors of flags take a variable length, and are stored as 
+<code>vector&lt;bool&gt;</code>. The shorthand notation fvec is used 
+in the C++ code and XML tags. When the vector is input as a string, 
+all the values have to be given as a comma-separated list with no blanks, 
+to simplify parsing.</li> 
 <li>Vectors of modes take a variable length, and are stored as 
 <code>vector&lt;int&gt;</code>. The shorthand notation mvec is used 
 in the C++ code and XML tags. When the vector is input as a string, 
@@ -95,18 +100,18 @@ to represent a reasonable choice.</li>
 <li>The current value, which differs from the default when the user so 
 requests.</li> 
 <li>An allowed range of values, represented by meaningful 
-minimum and maximum values. This has no sense for a <code>flag</code> 
-or a <code>word</code> (and is not used there), is usually rather 
-well-defined for a <code>mode</code> or <code>mvec</code>, but less so 
-for a <code>parm</code> or <code>pvec</code>. Often the allowed range 
-exaggerates the degree of our current knowledge, so as not to restrict 
+minimum and maximum values. This has no sense for a <code>flag</code>,
+an <code>fvec</code> or a <code>word</code> (and is not used there), is 
+usually rather well-defined for a <code>mode</code> or <code>mvec</code>, 
+but less so for a <code>parm</code> or <code>pvec</code>. Often the allowed 
+range exaggerates the degree of our current knowledge, so as not to restrict 
 too much what the user can do. One may choose not to set the lower or 
 upper limit, in which case the range is open-ended.</li> 
 </ul> 
  
 <p/> 
 Technically, the <code>Settings</code> class is implemented with the 
-help of six separate maps, one for each kind of variable, with the 
+help of seven separate maps, one for each kind of variable, with the 
 variable <code>name</code> used as key. 
  
 <h3>Operation</h3> 
@@ -124,10 +129,10 @@ subdirectory.
 <p/> 
 In all of the files scanned, lines beginning with 
 <code>&lt;flag</code>, <code>&lt;mode</code>, <code>&lt;parm</code>, 
-<code>&lt;word</code>, <code>&lt;mvec</code> or <code>&lt;pvec</code> 
-are identified, and the information on such a line is used to define 
-a new flag, mode, parameter, word, or vector of modes or parameters. 
-To exemplify, consider a line 
+<code>&lt;word</code>, <code>&lt;fvec</code>, <code>&lt;mvec</code> or 
+<code>&lt;pvec</code> are identified, and the information on such a line 
+is used to define a new flag, mode, parameter, word, or vector of flags, 
+modes or parameters. To exemplify, consider a line 
 <pre> 
 &lt;parm name="TimeShower:pTmin" default="0.5" min="0.1" max="2.0"> 
 </pre> 
@@ -227,6 +232,21 @@ The file can freely mix commands to the <code>Settings</code> and
 <code>ParticleData</code> classes, and so is preferable. Lines with 
 settings are handled by calls to the 
 <code>pythia.settings.readString(string)</code> method. 
+ 
+<p/> 
+A file can make use of two extra features that are not available with the 
+<code>readString(...)</code> method. One is the possibility to provide 
+information for several distinct <?php $filepath = $_GET["filepath"];
+echo "<a href='ProgramFlow.php?filepath=".$filepath."' target='page'>";?>subruns</a>.  
+The other is the possibility to comment out a section of lines in the file. 
+The first line of the commented section should then begin by <code>/*</code> 
+and the last begin by <code>*/</code>. This is reminiscent of the convention
+used in C++ and other languages, but is not as powerful, in that it is not
+possible to comment in or out parts of lines. It is only the first two 
+non-blank characters of a line that are checked for a match, and a line
+beginning with <code>*/</code> is counted as part of the commented section.  
+To avoid mistakes it is best to keep <code>/*</code> and <code>*/</code> 
+on lines of their own, optionally followed by comments, but not by commands.
 </li> 
  
 <p/> <li> 
@@ -402,6 +422,8 @@ reset all current values to their defaults.
    
 <strong>bool Settings::isWord(string key) &nbsp;</strong> <br/>
    
+<strong>bool Settings::isFVec(string key) &nbsp;</strong> <br/>
+   
 <strong>bool Settings::isMVec(string key) &nbsp;</strong> <br/>
    
 <strong>bool Settings::isPVec(string key) &nbsp;</strong> <br/>
@@ -417,6 +439,8 @@ exists, else false.
 <strong>void Settings::addParm(string key, double default, bool hasMin, bool hasMax, double min, double max) &nbsp;</strong> <br/>
    
 <strong>void Settings::addWord(string key, string default) &nbsp;</strong> <br/>
+   
+<strong>void Settings::addFVec(string key, vector&lt;bool&gt; default) &nbsp;</strong> <br/>
    
 <strong>void Settings::addMVec(string key, vector&lt;int&gt; default, bool hasMin, bool hasMax, int min, int max) &nbsp;</strong> <br/>
    
@@ -436,14 +460,16 @@ upper limits are to be imposed and, if so, what those limit are.
    
 <strong>string Settings::word(string key) &nbsp;</strong> <br/>
    
+<strong>vector&lt;bool&gt; Settings::fvec(string key) &nbsp;</strong> <br/>
+   
 <strong>vector&lt;int&gt; Settings::mvec(string key) &nbsp;</strong> <br/>
    
 <strong>vector&lt;double&gt; Settings::pvec(string key) &nbsp;</strong> <br/>
 return the current value(s) of the respective setting. If the name 
 does not exist in the database, a value <code>false</code>, 
 <code>0</code>, <code>0.</code>, <code>&quot; &quot;</code>, or a 
-vector of length 1 and value <code>0</code> or <code>0.</code>, 
-respectively, is returned. 
+vector of length 1 and value <code>false</code>, <code>0</code> or 
+<code>0.</code>, respectively, is returned. 
    
  
 <a name="method12"></a>
@@ -455,14 +481,16 @@ respectively, is returned.
    
 <strong>string Settings::wordDefault(string key) &nbsp;</strong> <br/>
    
+<strong>vector&lt;bool&gt; Settings::fvecDefault(string key) &nbsp;</strong> <br/>
+   
 <strong>vector&lt;int&gt; Settings::mvecDefault(string key) &nbsp;</strong> <br/>
    
 <strong>vector&lt;double&gt; Settings::pvecDefault(string key) &nbsp;</strong> <br/>
 return the default value(s) of the respective setting. If the name 
 does not exist in the database, a value <code>false</code>, 
 <code>0</code>, <code>0.</code>, <code>&quot; &quot;</code>, or a 
-vector of length 1 and value <code>0</code> or <code>0.</code>, 
-respectively, is returned. 
+vector of length 1 and value <code>false</code>, <code>0</code> or 
+<code>0.</code>, respectively, is returned. 
    
  
 <a name="method13"></a>
@@ -473,6 +501,8 @@ respectively, is returned.
 <strong>map<string, Parm> Settings::getParmMap(string match) &nbsp;</strong> <br/>
    
 <strong>map<string, Word> Settings::getWordMap(string match) &nbsp;</strong> <br/>
+   
+<strong>map<string, FVec> Settings::getFVecMap(string match) &nbsp;</strong> <br/>
    
 <strong>map<string, MVec> Settings::getMVecMap(string match) &nbsp;</strong> <br/>
    
@@ -489,6 +519,8 @@ string "match" in its name.
 <strong>void Settings::parm(string key, double now) &nbsp;</strong> <br/>
    
 <strong>void Settings::word(string key, string now) &nbsp;</strong> <br/>
+   
+<strong>void Settings::fvec(string key, vector&lt;bool&gt; now) &nbsp;</strong> <br/>
    
 <strong>void Settings::mvec(string key, vector&lt;int&gt; now) &nbsp;</strong> <br/>
    
@@ -519,6 +551,8 @@ value(s) can be put outside the intended borders.
 <strong>void Settings::resetParm(string key) &nbsp;</strong> <br/>
    
 <strong>void Settings::resetWord(string key) &nbsp;</strong> <br/>
+   
+<strong>void Settings::resetFVec(string key) &nbsp;</strong> <br/>
    
 <strong>void Settings::resetMVec(string key) &nbsp;</strong> <br/>
    

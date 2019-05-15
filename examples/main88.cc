@@ -197,21 +197,8 @@ int main( int argc, char* argv[] ){
 
   }
 
-  // Set k-factors
   int sizeLO   = int(xsecLO.size());
   int sizeNLO  = int(xsecNLO.size());
-  double k0    = 1.;
-  double k1    = 1.;
-  double k2    = 1.;
-  // Lowest order k-factor only
-  if ( false ) k1 = k2 = k0 = xsecNLO.back() / xsecLO.back();
-  // No k-factors
-  if ( true ) k0 = k1 = k2 = 1.;
-
-  cout << " K-Factors :" << endl;
-  cout << "k0 = " << k0 << endl;
-  cout << "k1 = " << k1 << endl;
-  cout << "k2 = " << k2 << endl;
 
   // Switch off cross section estimation.
   pythia.settings.flag("Merging:doXSectionEstimate", false);
@@ -247,12 +234,6 @@ int main( int argc, char* argv[] ){
   iPathTree     = iPath + "_tree";
 
   while(njetcounterLO >= 0){
-
-    // Set k factors
-    pythia.settings.parm("Merging:kFactor0j", k0);
-    pythia.settings.parm("Merging:kFactor1j", k1);
-    pythia.settings.parm("Merging:kFactor2j", k2);
-
 
     // From njetcounter, choose LHE file
     stringstream in;
@@ -315,15 +296,16 @@ int main( int argc, char* argv[] ){
 
     // print cross section, errors
     pythia.stat();
-    // Save sample cross section for output.
-    sampleXStree.push_back(sigmaTemp);
-    sigmaTemp = 0.;
 
     // Restart with ME of a reduced the number of jets
     if( njetcounterLO > 0 )
       njetcounterLO--;
     else
       break;
+
+    // Save sample cross section for output.
+    sampleXStree.push_back(sigmaTemp);
+    sigmaTemp = 0.;
 
   }
 

@@ -107,22 +107,11 @@ probability, based on the ratio of the real-emission matrix element
 to the Born-level cross section, and with a Sudakov factor derived 
 from this ratio, i.e. the philosophy introduced in [<a href="Bibliography.html" target="page">Ben87</a>]. 
 <br/>While POWHEG is a generic strategy, the POWHEG BOX 
-[<a href="Bibliography.html" target="page">Ali</a>] is an explicit framework, within which several 
-processes are available. Potential emissions are ordered in a 
-transverse-momentum-related variable. The LHA <code>scale</code> 
-variable encodes this value for each event, and thereby can set the 
-upper limit for subsequent shower emissions. The simplest solution 
-is to set <code>SpaceShower:pTmaxMatch = 1</code> and 
-<code>TimeShower:pTmaxMatch = 1</code> to ensure that the PYTHIA 
-ISR and FSR evolution starts at the POWHEG <code>scale</code> value. 
-<br/>There is a mismatch between the POWHEG BOX and the PYTHIA 
-<i>pT</i> variables, however, which gives imperfections in the 
-transition region [<a href="Bibliography.html" target="page">Cor10</a>]. The proposed improved solution 
-is to allow showers to cover the full phase space, but then veto 
-emissions in the region already covered by the POWHEG BOX evolution. 
-The code required for this can be found in <code>examples/main31</code>. 
-While fairly general, the code would have to be modified to accommodate 
-a different <i>pT</i> scale definition in the POWHEG BOX. 
+[<a href="Bibliography.html" target="page">Ali10</a>] is an explicit framework, within which several 
+processes are available. The code required for merging the PYTHIA 
+showers with POWHEG input can be found in <code>examples/main31</code>,
+and is further described on a 
+<a href="POWHEGMerging.html" target="page">separate page</a>. 
 </li> 
  
 <li>The other traditional approach for NLO calculations is the 

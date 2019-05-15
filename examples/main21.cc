@@ -218,10 +218,11 @@ int main() {
   // Key requirement: switch off ProcessLevel, and thereby also PartonLevel.
   pythia.readString("ProcessLevel:all = off");
 
-  // Also allow resonance decays, with showers in them
-  pythia.readString("Standalone:allowResDec = on");
+  // Optionally switch off resonance decays, or only showers in them.
+  //pythia.readString("ProcessLevel:resonanceDecays = off");
+  //pythia.readString("PartonLevel:FSRinResonances = off");
 
-  // Optionally switch off decays.
+  // Optionally switch off ordinary decays.
   //pythia.readString("HadronLevel:Decay = off");
 
   // Switch off automatic event listing in favour of manual.

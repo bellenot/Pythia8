@@ -759,6 +759,12 @@ gives a list of the indices of the particles that have been
 clustered into the <ei>i</ei>'th jet, 
 </method> 
  
+<method name="vector&lt;int&gt; SlowJet::clusConstituents(int i)"> 
+gives a list of the indices of the particles that have been 
+clustered into the <ei>i</ei>'th cluster, at the current stage of 
+the clustering process,  
+</method> 
+ 
 <method name="int SlowJet::jetAssignment(int i)"> 
 gives the index of the jet that the particle <ei>i</ei> of the event 
 record belongs to, or -1 if there is no jet containing particle 

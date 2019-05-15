@@ -77,6 +77,7 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/BeamShape.obj \
          $(OUTDIR)/BoseEinstein.obj \
          $(OUTDIR)/Event.obj \
+         $(OUTDIR)/FJcore.obj \
          $(OUTDIR)/FragmentationFlavZpT.obj \
          $(OUTDIR)/FragmentationSystems.obj \
          $(OUTDIR)/HadronLevel.obj \
@@ -87,6 +88,7 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/History.obj \
          $(OUTDIR)/Info.obj \
          $(OUTDIR)/LesHouches.obj \
+         $(OUTDIR)/Merging.obj \
          $(OUTDIR)/MergingHooks.obj \
          $(OUTDIR)/MiniStringFragmentation.obj \
          $(OUTDIR)/MultipartonInteractions.obj \
@@ -127,8 +129,9 @@ OBJS =   $(OUTDIR)/Analysis.obj \
          $(OUTDIR)/TauDecays.obj \
          $(OUTDIR)/TimeShower.obj \
          $(OUTDIR)/UserHooks.obj \
-# If you link to HepMC you also need HepMCInterface
-#         $(OUTDIR)/HepMCInterface.obj \
+         $(OUTDIR)/WeakShowerMEs.obj \
+# If you link to HepMC you also need Pythia8ToHepMC
+#         $(OUTDIR)/Pythia8ToHepMC.obj \
 # If you link to LHAPDF you don't want the last line
          $(OUTDIR)/LHAPDFDummy.obj
 

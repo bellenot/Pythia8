@@ -61,7 +61,8 @@ bool Settings::init(string startFile, bool append, ostream& os) {
       if (tag != "<flag" && tag != "<flagfix" && tag != "<mode"
          && tag != "<modeopen" && tag != "<modepick" && tag != "<modefix"
          && tag != "<parm" && tag != "<parmfix" && tag != "<word"
-         && tag != "<wordfix" && tag != "<mvec" && tag != "<mvecfix"
+         && tag != "<wordfix" && tag != "<fvec" && tag != "<fvecfix"
+         && tag != "<mvec" && tag != "<mvecfix"
          && tag != "<pvec" && tag != "<pvecfix" && tag != "<aidx") continue;
 
       // Read and append continuation line(s) if line does not contain >.
@@ -131,6 +132,11 @@ bool Settings::init(string startFile, bool append, ostream& os) {
         string value = attributeValue( line, "default=");
         addWord( name, value);
         
+      // Check for occurence of a bool vector and add to fvec map.
+      } else if (tag == "<fvec" || tag == "<fvecfix") {
+        vector<bool> value = boolVectorAttributeValue( line, "default=");
+        addFVec( name, value);
+        
       // Check for occurence of an int vector and add to mvec map.
       } else if (tag == "<mvec" || tag == "<mvecfix") {
         vector<int> value = intVectorAttributeValue( line, "default=");
@@ -174,6 +180,7 @@ bool Settings::reInit(string startFile, ostream& os) {
   modes.clear();
   parms.clear();
   words.clear();
+  fvecs.clear();
   mvecs.clear();
   pvecs.clear();
 
@@ -221,8 +228,9 @@ bool Settings::readString(string line, bool warn, ostream& os) {
   else if (isMode(name)) inDataBase = 2;
   else if (isParm(name)) inDataBase = 3;
   else if (isWord(name)) inDataBase = 4;
-  else if (isMVec(name)) inDataBase = 5;
-  else if (isPVec(name)) inDataBase = 6;
+  else if (isFVec(name)) inDataBase = 5;
+  else if (isMVec(name)) inDataBase = 6;
+  else if (isPVec(name)) inDataBase = 7;
 
   // For backwards compatibility: multiple -> multiparton, MI -> MPI,
   // minBias -> nonDiffractive.
@@ -249,8 +257,9 @@ bool Settings::readString(string line, bool warn, ostream& os) {
       else if (isMode(name)) inDataBase = 2;
       else if (isParm(name)) inDataBase = 3;
       else if (isWord(name)) inDataBase = 4;
-      else if (isMVec(name)) inDataBase = 5;
-      else if (isPVec(name)) inDataBase = 6;
+      else if (isFVec(name)) inDataBase = 5;
+      else if (isMVec(name)) inDataBase = 6;
+      else if (isPVec(name)) inDataBase = 7;
     }
   }
 
@@ -307,8 +316,21 @@ bool Settings::readString(string line, bool warn, ostream& os) {
   } else if (inDataBase == 4)  {
     word(name, valueString);
         
-  // Update mvec map.
+  // Update fvec map.
   } else if (inDataBase == 5) {
+    istringstream fvecData(valueString);
+    vector<bool> value(boolVectorAttributeValue(
+      "value=\"" + valueString + "\"", "value="));
+    if (!fvecData) {
+      if (warn) os << "\n PYTHIA Error: variable recognized, but its value"
+        << " not meaningful:\n   " << line << endl;
+      readingFailedSave = true;
+      return false;
+    }
+    fvec(name, value);
+
+  // Update mvec map.
+  } else if (inDataBase == 6) {
     istringstream mvecData(valueString);
     vector<int> value(intVectorAttributeValue(
       "value=\"" + valueString + "\"", "value="));
@@ -321,7 +343,7 @@ bool Settings::readString(string line, bool warn, ostream& os) {
     mvec(name, value);
         
   // Update pvec map.
-  } else if (inDataBase == 6) {
+  } else if (inDataBase == 7) {
     istringstream pvecData(valueString);
     vector<double> value(doubleVectorAttributeValue(
       "value=\"" + valueString + "\"", "value="));
@@ -375,19 +397,22 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
   map<string, Mode>::iterator modeEntry = modes.begin();
   map<string, Parm>::iterator parmEntry = parms.begin();
   map<string, Word>::iterator wordEntry = words.begin();
+  map<string, FVec>::iterator fvecEntry = fvecs.begin();
   map<string, MVec>::iterator mvecEntry = mvecs.begin();
   map<string, PVec>::iterator pvecEntry = pvecs.begin();
 
   // Loop while there is something left to do.
   while (flagEntry != flags.end() || modeEntry != modes.end()
       || parmEntry != parms.end() || wordEntry != words.end()
-      || mvecEntry != mvecs.end() || pvecEntry != pvecs.end() ) {
+      || fvecEntry != fvecs.end() || mvecEntry != mvecs.end()
+      || pvecEntry != pvecs.end() ) {
 
     // Check if a flag is next in lexigraphical order; if so print it.
     if ( flagEntry != flags.end()
       && ( modeEntry == modes.end() || flagEntry->first < modeEntry->first )
       && ( parmEntry == parms.end() || flagEntry->first < parmEntry->first )
       && ( wordEntry == words.end() || flagEntry->first < wordEntry->first )
+      && ( fvecEntry == fvecs.end() || flagEntry->first < fvecEntry->first )
       && ( mvecEntry == mvecs.end() || flagEntry->first < mvecEntry->first )
       && ( pvecEntry == pvecs.end() || flagEntry->first < pvecEntry->first )
       ) {
@@ -402,6 +427,7 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
     } else if ( modeEntry != modes.end()
       && ( parmEntry == parms.end() || modeEntry->first < parmEntry->first )
       && ( wordEntry == words.end() || modeEntry->first < wordEntry->first )
+      && ( fvecEntry == fvecs.end() || modeEntry->first < fvecEntry->first )
       && ( mvecEntry == mvecs.end() || modeEntry->first < mvecEntry->first )
       && ( pvecEntry == pvecs.end() || modeEntry->first < pvecEntry->first )
       ) {
@@ -415,6 +441,7 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
     // fixed or scientific depending on value.
     } else if ( parmEntry != parms.end()
       && ( wordEntry == words.end() || parmEntry->first < wordEntry->first )
+      && ( fvecEntry == fvecs.end() || parmEntry->first < fvecEntry->first )
       && ( mvecEntry == mvecs.end() || parmEntry->first < mvecEntry->first )
       && ( pvecEntry == pvecs.end() || parmEntry->first < pvecEntry->first )
       ) {
@@ -434,6 +461,7 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
 
     // Else check if word is next, and if so print it.
     } else  if ( wordEntry != words.end()
+      && ( fvecEntry == fvecs.end() || wordEntry->first < fvecEntry->first )
       && ( mvecEntry == mvecs.end() || wordEntry->first < mvecEntry->first )
       && ( pvecEntry == pvecs.end() || wordEntry->first < pvecEntry->first )
       ) {
@@ -442,6 +470,22 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
       if ( writeAll || valNow != valDefault )
         os << wordEntry->second.name << " = " << valNow << "\n";
       ++wordEntry;
+
+    // Else check if fvec is next, and if so print it.
+    } else if ( fvecEntry != fvecs.end()
+      && ( mvecEntry == mvecs.end() || fvecEntry->first < mvecEntry->first )
+      && ( pvecEntry == pvecs.end() || fvecEntry->first < pvecEntry->first )
+      ) {
+      string state[2] = {"off", "on"};
+      vector<bool> valNow = fvecEntry->second.valNow;
+      vector<bool> valDefault = fvecEntry->second.valDefault;
+      if ( writeAll || valNow != valDefault ) {
+        os  << fvecEntry->second.name << " = ";
+        for (vector<bool>::iterator val = valNow.begin();
+             val != --valNow.end(); ++val) os << state[*val] << ",";
+        os << *(--valNow.end()) << "\n";
+      }
+      ++fvecEntry;
 
     // Else check if mvec is next, and if so print it.
     } else if ( mvecEntry != mvecs.end()
@@ -491,14 +535,14 @@ void Settings::list(bool doListAll,  bool doListString, string match,
 
   // Table header; output for bool as off/on.
   if (doListAll)
-    os << "\n *-------  PYTHIA Flag + Mode + Parm + Word + MVec + PVec Set"
-       << "tings (all)  -----------------------------------------* \n";
+    os << "\n *-------  PYTHIA Flag + Mode + Parm + Word + FVec + MVec + PVec "
+       << "Settings (all)  ----------------------------------* \n";
   else if (!doListString)
-    os << "\n *-------  PYTHIA Flag + Mode + Parm + Word + MVec + PVec Set"
-       << "tings (changes only)  --------------------------------* \n" ;
+    os << "\n *-------  PYTHIA Flag + Mode + Parm + Word + FVec + MVec + PVec "
+       << "Settings (changes only)  -------------------------* \n" ;
   else
-    os << "\n *-------  PYTHIA Flag + Mode + Parm + Word + MVec + PVec Set"
-       << "tings (with requested string)  -----------------------* \n" ;
+    os << "\n *-------  PYTHIA Flag + Mode + Parm + Word + FVec + MVec + PVec "
+       << "Settings (with requested string) -----------------* \n" ;
   os << " |                                                           "
      << "                                                      | \n"
      << " | Name                                          |           "
@@ -515,19 +559,22 @@ void Settings::list(bool doListAll,  bool doListString, string match,
   map<string, Mode>::iterator modeEntry = modes.begin();
   map<string, Parm>::iterator parmEntry = parms.begin();
   map<string, Word>::iterator wordEntry = words.begin();
+  map<string, FVec>::iterator fvecEntry = fvecs.begin();
   map<string, MVec>::iterator mvecEntry = mvecs.begin();
   map<string, PVec>::iterator pvecEntry = pvecs.begin();
 
   // Loop while there is something left to do.
   while (flagEntry != flags.end() || modeEntry != modes.end()
       || parmEntry != parms.end() || wordEntry != words.end()
-      || mvecEntry != mvecs.end() || pvecEntry != pvecs.end() ) {
+      || fvecEntry != fvecs.end() || mvecEntry != mvecs.end()
+      || pvecEntry != pvecs.end() ) {
 
     // Check if a flag is next in lexigraphical order; if so print it.
     if ( flagEntry != flags.end()
       && ( modeEntry == modes.end() || flagEntry->first < modeEntry->first )
       && ( parmEntry == parms.end() || flagEntry->first < parmEntry->first )
       && ( wordEntry == words.end() || flagEntry->first < wordEntry->first )
+      && ( fvecEntry == fvecs.end() || flagEntry->first < fvecEntry->first )
       && ( mvecEntry == mvecs.end() || flagEntry->first < mvecEntry->first )
       && ( pvecEntry == pvecs.end() || flagEntry->first < pvecEntry->first )
       ) {
@@ -546,6 +593,7 @@ void Settings::list(bool doListAll,  bool doListString, string match,
     } else if ( modeEntry != modes.end()
       && ( parmEntry == parms.end() || modeEntry->first < parmEntry->first )
       && ( wordEntry == words.end() || modeEntry->first < wordEntry->first )
+      && ( fvecEntry == fvecs.end() || modeEntry->first < fvecEntry->first )
       && ( mvecEntry == mvecs.end() || modeEntry->first < mvecEntry->first )
       && ( pvecEntry == pvecs.end() || modeEntry->first < pvecEntry->first )
       ) {
@@ -570,6 +618,7 @@ void Settings::list(bool doListAll,  bool doListString, string match,
     // fixed or scientific depending on value.
     } else if ( parmEntry != parms.end()
       && ( wordEntry == words.end() || parmEntry->first < wordEntry->first )
+      && ( fvecEntry == fvecs.end() || parmEntry->first < fvecEntry->first )
       && ( mvecEntry == mvecs.end() || parmEntry->first < mvecEntry->first )
       && ( pvecEntry == pvecs.end() || parmEntry->first < pvecEntry->first )
       ) {
@@ -606,6 +655,7 @@ void Settings::list(bool doListAll,  bool doListString, string match,
 
     // Else check if word is next, and if so print it.
     } else  if ( wordEntry != words.end()
+      && ( fvecEntry == fvecs.end() || wordEntry->first < fvecEntry->first )
       && ( mvecEntry == mvecs.end() || wordEntry->first < mvecEntry->first )
       && ( pvecEntry == pvecs.end() || wordEntry->first < pvecEntry->first )
       ) {
@@ -621,6 +671,39 @@ void Settings::list(bool doListAll,  bool doListString, string match,
            << valNow << " | " << setw(12) << valDefault << blankPad
            << " | \n";
       ++wordEntry;
+
+    // Else check if fvec is next, and if so print it.
+    } else if ( fvecEntry != fvecs.end()
+      && ( mvecEntry == mvecs.end() || fvecEntry->first < mvecEntry->first )
+      && ( pvecEntry == pvecs.end() || fvecEntry->first < pvecEntry->first )
+      ) {
+      string state[2] = {"off", "on"};
+      vector<bool> valsNow = fvecEntry->second.valNow;
+      vector<bool> valsDefault = fvecEntry->second.valDefault;
+      bool valNow(false), valDefault(false);
+      if ( doListAll || (!doListString && valsNow != valsDefault )
+        || (doListString && fvecEntry->first.find(match) != string::npos) ) {
+        for (unsigned int i = 0; i < valsNow.size() || i < valsDefault.size();
+             ++i) {
+          if ( i == 0 )
+            os << " | " << setw(45) << left
+               << fvecEntry->second.name << right << " |             ";
+          else
+            os << " | " << setw(45) << " " << right << " |             ";
+          for (int j = 0; j < 4; ++j) {
+            if (i < valsNow.size()) valNow = valsNow[i];
+            if (i < valsDefault.size()) valDefault = valsDefault[i];
+            if (j == 1) valNow = valDefault;
+            if ( (j == 0 && i >= valsNow.size())
+                 || (j == 1 && i >= valsDefault.size()) || (j > 1) )
+              os << "            ";
+            else os << setw(12) << state[valNow];
+            if (j == 0) os << " | ";
+          }
+          os << " | \n";
+        }
+      }
+      ++fvecEntry;
 
     // Else check if mvec is next, and if so print it.
     } else if ( mvecEntry != mvecs.end()
@@ -707,8 +790,8 @@ void Settings::list(bool doListAll,  bool doListString, string match,
   // End of loop over database contents.
   os << " |                                                           "
      << "                                                      | \n"
-     << " *-------  End PYTHIA Flag + Mode + Parm + Word + MVec + PVec "
-     << "Settings  -------------------------------------------* " << endl;
+     << " *-------  End PYTHIA Flag + Mode + Parm + Word + FVec + MVec + PVec "
+     << "Settings  ------------------------------------* " << endl;
 
 }
 
@@ -744,6 +827,13 @@ void Settings::resetAll() {
     wordEntry != words.end(); ++wordEntry) {
     string name = wordEntry->first;
     resetWord(name);
+  }
+
+  // Loop through the fvecs table, resetting all entries.
+  for (map<string, FVec>::iterator fvecEntry = fvecs.begin();
+    fvecEntry != fvecs.end(); ++fvecEntry) {
+    string name = fvecEntry->first;
+    resetFVec(name);
   }
 
   // Loop through the mvecs table, resetting all entries.
@@ -790,6 +880,12 @@ string Settings::word(string keyIn) {
   return " ";
 }
 
+vector<bool> Settings::fvec(string keyIn) {
+  if (isFVec(keyIn)) return fvecs[toLower(keyIn)].valNow;
+  infoPtr->errorMsg("Error in Settings::fvec: unknown key", keyIn);
+  return vector<bool>(1, false);
+}
+
 vector<int> Settings::mvec(string keyIn) {
   if (isMVec(keyIn)) return mvecs[toLower(keyIn)].valNow;
   infoPtr->errorMsg("Error in Settings::mvec: unknown key", keyIn);
@@ -828,6 +924,12 @@ string Settings::wordDefault(string keyIn) {
   if (isWord(keyIn)) return words[toLower(keyIn)].valDefault;
   infoPtr->errorMsg("Error in Settings::wordDefault: unknown key", keyIn);
   return " ";
+}
+
+vector<bool> Settings::fvecDefault(string keyIn) {
+  if (isFVec(keyIn)) return fvecs[toLower(keyIn)].valDefault;
+  infoPtr->errorMsg("Error in Settings::fvecDefault: unknown key", keyIn);
+  return vector<bool>(1, false);
 }
 
 vector<int> Settings::mvecDefault(string keyIn) {
@@ -894,6 +996,18 @@ map<string, Word> Settings::getWordMap(string match) {
   return wordMap;
 }
 
+map<string, FVec> Settings::getFVecMap(string match) {
+  // Make the match string lower case. Start with an empty map.
+  match = toLower(match);
+  map<string, FVec> fvecMap;
+  // Loop over the fvec map (using iterator).
+  for (map<string,FVec>::iterator fvecEntry = fvecs.begin();
+       fvecEntry != fvecs.end(); ++fvecEntry)
+    if (fvecEntry->first.find(match) != string::npos)
+      fvecMap[fvecEntry->first] = fvecEntry->second;
+  return fvecMap;
+}
+
 map<string, MVec> Settings::getMVecMap(string match) {
   // Make the match string lower case. Start with an empty map.
   match = toLower(match);
@@ -957,6 +1071,16 @@ void Settings::parm(string keyIn, double nowIn) {
 
 void Settings::word(string keyIn, string nowIn) {
     if (isWord(keyIn)) words[toLower(keyIn)].valNow = nowIn;
+}
+
+void Settings::fvec(string keyIn, vector<bool> nowIn) {
+  if (isFVec(keyIn)) {
+    FVec& fvecNow = fvecs[toLower(keyIn)];
+    fvecNow.valNow.clear();
+    for(vector<bool>::iterator now = nowIn.begin();
+        now != nowIn.end(); now++)
+      fvecNow.valNow.push_back(*now);
+  }
 }
 
 void Settings::mvec(string keyIn, vector<int> nowIn) {
@@ -1042,6 +1166,11 @@ void Settings::resetParm(string keyIn) {
 void Settings::resetWord(string keyIn) {
   if (isWord(keyIn)) words[toLower(keyIn)].valNow
     = words[toLower(keyIn)].valDefault ;
+}
+
+void Settings::resetFVec(string keyIn) {
+  if (isFVec(keyIn)) fvecs[toLower(keyIn)].valNow
+    = fvecs[toLower(keyIn)].valDefault ;
 }
 
 void Settings::resetMVec(string keyIn) {
@@ -1784,17 +1913,17 @@ void Settings::initTunePP( int ppTune) {
     flag("SpaceShower:phiPolAsym",              true  );
     flag("SpaceShower:phiIntAsym",              true  );
     parm("MultipartonInteractions:alphaSvalue", 0.130 );   // same as PDF
-    parm("MultipartonInteractions:pT0Ref",      2.285 );
+    parm("MultipartonInteractions:pT0Ref",      2.28  );
     parm("MultipartonInteractions:ecmRef",      7000. );
     parm("MultipartonInteractions:ecmPow",      0.215 );
     mode("MultipartonInteractions:bProfile",    3     );
-    parm("MultipartonInteractions:expPow",      1.76  );
+    parm("MultipartonInteractions:expPow",      1.85  );
     parm("MultipartonInteractions:a1",          0.15  );
-    parm("BeamRemnants:primordialKTsoft",       0.6   );
+    parm("BeamRemnants:primordialKTsoft",       0.9   );
     parm("BeamRemnants:primordialKThard",       1.8   );
-    parm("BeamRemnants:halfScaleForKT",         4.0   );
+    parm("BeamRemnants:halfScaleForKT",         1.5   );
     parm("BeamRemnants:halfMassForKT",          1.0   );
-    parm("BeamRemnants:reconnectRange",         2.0   );
+    parm("BeamRemnants:reconnectRange",         1.80   );
   }
  
 }
@@ -1881,6 +2010,26 @@ double Settings::doubleAttributeValue(string line, string attribute) {
   double doubleVal;
   valStream >> doubleVal;
   return doubleVal;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Extract XML bool vector value following XML attribute.
+
+vector<bool> Settings::boolVectorAttributeValue(string line,
+  string attribute) {
+  string valString = attributeValue(line, attribute);
+  if (valString == "") return vector<bool>(1, false);
+  vector<bool> vectorVal;
+  size_t       stringPos(0);
+  while (stringPos != string::npos) {
+    stringPos = valString.find(",");
+    istringstream  valStream(valString.substr(0, stringPos));
+    valString = valString.substr(stringPos + 1);
+    vectorVal.push_back(boolString(valStream.str()));
+  }
+  return vectorVal;
 
 }
 

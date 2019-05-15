@@ -115,9 +115,8 @@ A new machinery has been introduced to handle <ei>tau</ei> lepton decays,
 with helicity information related to the production process and with 
 the form of the hadronic current fitted to data. It is largely based 
 on the corresponding Herwig++ implementation <ref>Gre07</ref>, with 
-some input from Tauola <ref>Jad90</ref>. A complete writeup is 
-in preparation, but meanwhile a short summary can be found at 
-<ref>Ilt12</ref>. 
+some input from Tauola <ref>Jad90</ref>. A short summary can be found in 
+<ref>Ilt12</ref>, while the complete writeup is in <ref>Ilt14</ref>.
  
 <p/> 
 For <ei>tau</ei>s in external processes, interfaced with Les Houches 

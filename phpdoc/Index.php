@@ -134,6 +134,8 @@ echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>Les Ho
 <a href='AlpgenEventInterface.php?filepath=".$filepath."' target='page'>Alpgen Event Interface</a><br/> 
 <a href='MatchingAndMerging.php?filepath=".$filepath."' target='page'>Matching and Merging</a><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
+<a href='POWHEGMerging.php?filepath=".$filepath."' target='page'>POWHEG Merging</a><br/> 
+&nbsp;&nbsp;--&nbsp;&nbsp; 
 <a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>CKKW-L Merging</a><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <a href='JetMatching.php?filepath=".$filepath."' target='page'>Jet Matching</a><br/> 
