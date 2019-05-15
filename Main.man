@@ -1,0 +1,74 @@
+
+      Main
+      ====
+
+The main program is up to the user to write. However, sample main
+programs are provided. In one such class of programs, one may 
+wish to read in key parameters of the run from a "cards file". 
+In this file some such parameters are defined, and made available
+inside the Settings machinery. They can thus be put among the other
+cards, and then read back in by the main program. See the exampe in
+main01.cc with associated "cards" file main01.cmnd.
+
+---------------------------------------------------------------------- 
+
+   Run parameters
+   --------------
+
+<mode> Main:numberOfEvents = 1000 min = 0
+The number of events to be generated.
+
+<mode> Main:numberToList = 2 min = 0
+The number of events to list.
+
+<mode> Main:timesToShow = 50 min = 0
+Print the number of events generated so far, this many times, 
+i.e. once every numberOfEvents/numberToShow events.
+
+<mode> Main:timesAllowErrors = 10 min = 0
+Allow this many times that pythia.next() returns false, i.e.
+that an event is flawed, before aborting the run.
+
+<flag> Main:showChangedSettings = true
+Print a list of the changed flag/mode/parameter settings.
+
+<flag> Main:showAllSettings = false
+Print a list of all flag/mode/parameter settings.
+
+<flag> Main:showParticleData = false
+Print a list of all particle and decay data.
+
+---------------------------------------------------------------------- 
+
+   Incoming beams
+   --------------
+
+Normally the identities and energies of the two incoming beam particles 
+are given by the parameters of the init call. These parameters can be
+stored in the user input file, in the following variables.
+
+<mode> Main:idBeamA = 2212
+The PDG id code for the first incoming particle.
+
+<mode> Main:idBeamB = 2212
+The PDG id code for the second incoming particle.
+
+<flag> Main:inCMframe = true
+Assume collisions occur in the CM frame.
+
+<parameter> Main:eCM = 1960. min = 10.
+Collision CM energy, to be given if Main:inCMframe is true. 
+
+<parameter> Main:eBeamA = 7000. min = 0.
+The energy of the first incoming particle, moving in the 
++z direction. If the particle energy is smaller than its mass
+it is assumed to be at rest. 
+
+<parameter> Main:eBeamB = 7000. min = 0. 
+The energy of the second incoming particle, moving in the 
+-z direction. If the particle energy is smaller than its mass
+it is assumed to be at rest.
+
+---------------------------------------------------------------------- 
+
+Copyright © 2005 Torbjörn Sjöstrand

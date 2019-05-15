@@ -1,0 +1,106 @@
+
+      Beams
+      =====
+
+The BeamParticle class contains information on all partons extracted 
+from a beam (so far). As each consecutive multiple interaction 
+defines its respective incoming parton to the hard scattering a 
+new slot is added to the list. This information is modified when 
+the backwards evolution of the spacelike shower defines a new 
+initiator parton. It is used, both for the multiple interactions
+and the spacelike showers, to define rescaled parton densities based
+on the x and flavours already extracted, and to distinguish between
+valence, sea and companion quarks. Once the perturbative evolution is 
+finished, further beam remnants are added to obtain a consistent set
+of flavours. The current physics framework is further described in [1]. 
+
+Much of the above information is stored in a vector of ResolvedParton
+objects, which each contains flavour and momentum information, as well
+as valence/companion information and more. The BeamParticle method 
+list() shows the contents of this vector, mainly for debug purposes.
+
+The BeamRemnants class takes over for the final step of adding 
+primordial kT to the initiators and remnants, assigning the relative
+longitudinal momentum sharing among the remnants, and constructing 
+the overall kinematics. This step couples the two sides of an event,
+and could therefore not be covered in the BeamParticle class, which
+only considers one beam at a time. 
+
+Neither of the methods of these classes are intended for general use,
+and so are not described here. 
+
+---------------------------------------------------------------------- 
+
+   Main variables
+   --------------
+
+Currently there are no crucial parameters to consider. The choice of
+parton densities is made in the Pythia class. Then pointers to 
+the pdf's are handed on to BeamParticle at initialization, for all
+subsequent usage.
+
+---------------------------------------------------------------------- 
+
+   Further variables
+   -----------------
+
+<mode> Beams:maxValQuark = 3 min = 0 max = 5
+The maximum valence quark kind allowed in acceptable incoming beams,
+for which multiple interactions are simulated. Default is that hadrons
+may contain u, d and s quarks, but not c and b ones, since sensible
+kinematics has not really been worked out for the latter.
+
+<mode> Beams:companionPower = 4 min = 0 max = 4
+When a sea quark has been found, a companion antisea quark ought to be
+nearby in x. The shape of this distribution can be derived from the
+gluon mother distribution convoluted with the g -> q qbar splitting
+kernel. In practice, simple solutions are only feasible if the gluon
+shape is assumed to be of the form g(x) ~ (1 - x)^p / x, where p is 
+an integer power, the parameter above. Allowed values correspond to 
+the cases programmed. 
+Since the whole framework is approximate anyway, this should be good 
+enough. Note that companions typically are found at small Q2, if at 
+all, so the form is supposed to represent g(x) at small Q2 scales, 
+close to the lower cutoff for multiple interactions. 
+
+<parameter> Beams:primordialKTwidth = 1. min = 0.
+The width of Gaussian distributions in p_x and p_y separately that is
+assigned as a primordial kT to initiators and beam remnants.
+
+<parameter> Beams:valencePowerMeson = 0.8 min = 0.
+<parameter> Beams:valencePowerUinP = 3.5 min = 0. 
+<parameter> Beams:valencePowerDinP = 2.0 min = 0.
+<parameter> Beams:valenceDiqEnhance = 2.0 min = 0.5 max = 10.
+When assigning relative momentum fractions to beam-remnant partons,
+valence quarks are chosen according to a distribution like
+(1 - x)^power / sqrt(x). This power is given above for quarks in 
+mesons, and separately for u and d quarks in the proton, based on the 
+approximate shape of low-Q2 parton densities. The power for other 
+baryons is derived from the proton ones, by an appropriate mixing. 
+The x of a diquark is chosen as the sum of its two constituent x 
+values, and can thus be above unity. (A common rescaling of all 
+remnant partons and particles will fix that.) An additional 
+enhancement of the diquark momentum is obtained by its x value being 
+rescaled by the valenceDiqEnhance factor. 
+
+<flag> Beams:allowJunction = on
+The off option is intended for debug purposes only, as follows.
+When more than one valence quark is kicked out of a baryon beam,
+as part of the multiple interactions scenario, the subsequent
+hadronization is described in terms of a junction string topology.
+This description involves a number of technical complications that
+may make the program more unstable. As an alternative, by switching
+this option off, junction configurations are rejected, and the
+multiple interactions and their showers are redone until a 
+junction-free topology is found.  
+   
+---------------------------------------------------------------------- 
+
+References
+
+[1] T. Sjöstrand and P.Z. Skands, JHEP 03 (2004) 053
+
+---------------------------------------------------------------------- 
+
+Copyright © 2005 Torbjörn Sjöstrand
+

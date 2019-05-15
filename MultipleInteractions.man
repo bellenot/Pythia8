@@ -1,0 +1,238 @@
+    
+          MultipleInteractions
+          ==================== 
+
+The starting point for the multiple interactions physics scenario in
+Pythia is provided by [1]. Recent developments have included a more
+careful study of flavour and colour correlations, junction topologies
+and the relationship to beam remnants [2], and interleaving with 
+initial-state radiation [3], making use of transverse-momentum-ordered
+initial- and final-state showers. The current description is not yet
+finished; what is missing is an interleaving also with final-state 
+shower evolution and, above all, a more successful scheme to handle
+the correlated colour flow in the final state in events with 
+complicated multiparton topologies.  
+
+---------------------------------------------------------------------- 
+
+   Physics strategy
+   ----------------
+
+Relative to the articles mentioned above, not much has happened.
+The main news is a technical one, that the phase space of the 2 -> 2 
+(massless) QCD processes is now sampled in dy_3 dy_4 dpT^2, where 
+y_3 and y_4 are the rapidities of the two produced partons. 
+One can show that
+   (dx_1 / x_1) * (dx_2 / x_2) * d(t-hat) = dy_3 * dy_4 * dpT^2
+Furthermore, since cross sections are dominated by the "Rutherford"
+one of t-channel gluon exchange, which is enhanced by a factor of
+9/4 for each incoming gluon, effective structure functions are 
+defined as
+   F(x, pT2) = (9/4) * xg(x, pT2) + sum_i xq_i(x, pT2) 
+With this technical shift of factors 9/4 from cross sections to parton 
+densities, a common upper estimate of 
+   d(sigma-hat)/d(pT2) < pi * alpha_strong^2 / pT^4   
+is obtained. 
+
+In fact this estimate can be reduced by a factor of 1/2 for the 
+following reason: for any configuration (y_3, y_4, pT2) also one with 
+(y_4, y_3, pT2) lies in the phase space. Not both of those can enjoy 
+being enhanced by the t-hat -> 0 singularity of 
+   d(sigma-hat) propto 1/t-hat^2. 
+Or if they are, which is possible with identical partons like 
+q q -> q q and g g -> g g, each singularity comes with half the 
+strength. So, when integrating/averaging over the two configurations,
+the estimated d(sigma-hat)/d(pT2) drops. Actually, it drops even 
+further, since the naive estimate above is based on
+  (4 /9) * (1 + (u-hat/s-hat)^2) < 8/9 < 1
+The 8/9 value would be approached for t-hat -> 0, which implies
+s-hat >> pT2 and thus a heavy parton-distribution penalty, while
+parton distributions are largest for t-hat = u-hat = -s-hat/2, where
+the above expression evaluates to 5/9. A fudge factor is therefore 
+introduced to go the final step, so it can easily be modifed when 
+further non-Rutherford processes are added, or should parton 
+distributions change significantly.
+
+At initialization, it is assumed that  
+   d(sigma)/d(pT2) < d(sigma-hat)/d(pT2) * F(x_T, pT2) * F(x_T, pT2)
+       * (2 y_max(pT))^2
+where the first factor is the upper estimate as above, the second two
+the parton density sum evaluated at y_3 = y_ 4 = 0 so that 
+x_1 = x_2 = x_T = 2 pT / E_cm, where the product is expected to be
+maximal, and the final is the phase space for -y_max < y_{3,4} < y_max.
+The right-hand side expression is scanned logarithmically in y, and a
+N is determined such that it always is below N/pT^4.
+
+To describe the dampening of the cross section at pT -> 0 by
+colour screening, the actual cross section is multiplied by a 
+regularization factor (pT^2 / (pT^2 + pT0^2))^2, and the alpha_s
+is evaluated at a scale pT^2 + pT0^2, where pT0 is a free parameter
+of the order of 2 - 4 GeV. Since pT0 can be energy-dependent, 
+an ansatz
+   pT0(ecm) = pT0Ref * (ecm/ecmRef)^ecmPow
+is used, where ecm is the current cm frame energy, ecmRef is an
+arbitrary reference energy where pT0Ref is defined, and ecmPow 
+gives the energy rescaling pace. For technical reasons, also an
+absolute lower pT scale pTmin, by default 0.2 GeV, is introduced.
+In principle, it is possible to recover older scenarios with a sharp
+pT cutoff by setting pT0 = 0 and letting pTmin be a larger number. 
+
+The above scanning strategy is then slightly modified: instead of
+an upper estimate N/pT^4 one of the form N/(pT^2 + r * pT0^2)^2 
+is used. At first glance, r = 1 would seem to be fixed by the 
+form of the regularization procedure, but this does not take into
+account the nontrivial dependence on alpha_s, parton distributions 
+and phase space. A better Monte Carlo efficiency is obtained for 
+r somewhat below unity, and currently r = 0.25 is hardcoded.
+
+In the generation a trial pT2 is then selected according to
+d(Prob)/d(pT2) = (1/sigma_ND) * N/(pT^2 + r * pT0^2)^2 * ("Sudakov")
+For the trial pT2, a y_3 and a y_4 are then selected, and incoming
+flavours according to the respective F(x_i, pT2), and then the 
+cross section is evaluated for this flavour combination. The ratio
+of trial/upper estimate gives the probability of survival.
+
+Actually, to profit from the factor 1/2 mentioned above, the cross
+section for the combination y_3 <-> y_4 is also tried, which corresponds
+to t-hat <-> u_hat, and the average formed, while the final kinematics
+is given by the relative importance of the two.
+
+Furthermore, since large y values are disfavoured by dropping PDF's,
+a factor 
+   WT_y = (1 - (y_3/y_max)^2) * (1 - (y_4/y_max)^2) 
+is evaluated, and used as a survival probability before the more
+time-consuming PDF+ME evaluation, with surviving events given a 
+compensating weight 1/WT_y. 
+
+An impact-parameter dependencs is also allowed. Based on the hard pT 
+scale of the first interaction, and enhancement/depletion factor is 
+picked, which multiplies the rate of subsequent interactions.
+
+Parton densities are rescaled and modified to take into account the 
+energy-momentum and flavours kicked out by already-considered 
+interactions.
+
+---------------------------------------------------------------------- 
+
+   Main variables
+   --------------
+
+The rate of interactions is determined by 
+
+<parameter> MultipleInteractions:alphaSvalue = 0.127 min = 0.06 max = 0.25
+The value of alpha_strong at m_Z. Default value is picked equal
+to the one used in CTEQ 5L.  
+
+The actual value is then regulated by the running to the scale pT^2,
+at which it is evaluated
+
+<mode> MultipleInteractions:alphaSorder = 1 min = 0 max = 2
+The order at which alpha_strong runs at scales away from m_Z.
+= 0 : fixed value (i.e. zeroth order).
+= 1 : first order.
+= 2 : second order. Since other parts of the code do not go to second 
+    order there is no strong reason to use this option, but there is 
+    also nothing wrong with it.
+
+Note that the choice of alpha_strong made here overrides the
+one implemented in SigmaProcess, since the alpha_strong value 
+is calculated in MultipleInteractions and then handed to
+SigmaProcess.
+
+In addition there is the possibility of a global rescaling of 
+cross sections (which could not easily be accommodated by a 
+changed alpha_strong, since alpha_strong runs)
+
+<parameter> MultipleInteractions:Kfactor = 1.0 min = 0.5 max = 4.0
+Multiply all cross sections by this fix factor.
+
+There are two complementary ways of regularizing the small-pT 
+divergence, a sharp cutoff and a smooth dampening. These can be 
+combined as desired, but it makes sense to coordinate with how the 
+same issue is handled in spacelike showers. Actually, by default,
+the parameters defined here are used also for the spacelike showers,
+but this can be overridden.
+
+<parameter> MultipleInteractions:pT0Ref = 3.0 min = 0.5 max = 10.0
+Regularization of the divergence of the QCD cross section for 
+pT -> 0 is obtained by a factor pT^4 / (pT0^2 + pT^2)^2, and by 
+using an alpha_s(pT0^2 + pT^2). An energy dependence of the pT0 
+choice is introduced by the next two parameters, so that pT0Ref 
+is the pT0 value for the reference cm energy, pT0Ref = pT0(ecmRef).   
+Warning: if a large pT0 is picked for multiple interactions, 
+such that the integrated interaction cross section is below the 
+nondiffractive inelastic one, this pT0 will automatically be scaled
+down to cope.
+Note: pT0Ref remained to be carefully tuned, but this has no point 
+before the colour flow description has reached a more mature form.
+
+<parameter> MultipleInteractions:ecmRef = 1800.0 min = 1.
+<parameter> MultipleInteractions:ecmPow = 0.16 min = 0. max = 0.5
+The actual pT0 parameter used at a given cm energy scale, ecmNow,
+is obtained as
+     pT0 = pT0(ecmNow) = pT0Ref * (ecmNow / ecmRef)^ecmPow 
+where pT0Ref, ecmRef and ecmPow are the three parameters above.
+
+<parameter> MultipleInteractions:pTmin = 0.2 min = 0.1 max = 10.0
+Lower cutoff in pT, below which no further interactions 
+are allowed. Normally pT0 above would be used to provide the main 
+regularization of the cross section for pT -> 0, in which case 
+pTmin is used  mainly for technical reasons. It is possible,
+however, to set pT0Ref = 0 and use pTmin to provide a step-function
+regularization, or combine them in intermediate approaches.
+Currently pTmin is taken to be energy-independent.  
+
+<mode> MultipleInteractions:bProfile = 2 min = 0 max = 3
+Choice of impact parameter profile for the incoming hadron beams.
+= 0 : no impact parameter dependence at all.
+= 1 : a simple Gaussian matter distribution; no free parameters.
+= 2 : a double Gaussian matter distribution, with the two free
+    parameters coreRadius and coreFraction.
+= 3 : an overlap function , i.e. the convolution of the matter 
+    distributions of the two incoming hadrons, of the form
+    exp(- b^expPow), where expPow is a free parameter. 
+
+<parameter> MultipleInteractions:coreRadius = 0.4 min = 0.1 max = 1. 
+<parameter> MultipleInteractions:coreFraction = 0.5 min = 0. max = 1. 
+When assuming a double Gaussian matter profile, bProfile = 2,
+the inner core is assumed to have a radius that is a factor
+coreRadius smaller than the rest and with a fraction coreFraction 
+of the matter content of the hadron.
+
+<parameter> MultipleInteractions:expPow = 1. min = 0.4 max = 10.
+When bProfile = 3 it gives the power of the assumed overlap shape
+exp(- b^expPow). Default corresponds to a simple exponential drop,
+which is not too dissimilar from the overlap obtained with the
+standard double Gaussian parameters. For expPow = 2 we reduce to
+the simple Gaussian, bProfile = 1, and for expPow -> infinity 
+to no impact parameter dependence at all, bProfile = 0. For 
+small expPow the program becomes slow and unstable, so the min 
+limit must be respected.
+
+Less commonly used options:
+
+<mode> MultipleInteractions:nQuark = 5 min = 0 max = 5
+Number of allowed incoming quark flavours in the beams; a change 
+to 4 would thus exclude b and bbar as incoming partons, etc.
+
+<mode> MultipleInteractions:nSample = 1000 min = 100 
+The allowed pT range is split (unevenly) into 100 bins, and in each 
+of these the interaction cross section is evaluated in nSample 
+random phase space points. The full integral is used at 
+initialization, and the differential one during the run as a
+"Sudakov form factor" for the choice of the hardest interaction.
+A larger number implies increased accuracy of the calculations.
+   
+---------------------------------------------------------------------- 
+
+References
+   
+[1] T. Sjöstrand and M. van Zijl, Phys. Rev. D36 (1987) 2019
+ 
+[2] T. Sjöstrand and P.Z. Skands, JHEP 03 (2004) 053
+
+[3] T. Sjöstrand and P.Z. Skands, Eur. Phys. J. C39 (2005) 129 
+
+---------------------------------------------------------------------- 
+
+Copyright © 2005 Torbjörn Sjöstrand

@@ -1,0 +1,164 @@
+
+      ParticleDecays
+      ==============
+
+The ParticleDecays class performs the sequential decays of all 
+unstable hadrons produced in the string fragmentation stage,
+i.e. up to and including b hadrons and their decay products, 
+such as the tau lepton. It is not to be used for the decay of 
+more massive resonances, such as top, Z0 or SUSY, where decays 
+must be performed at the ProcessLevel of the event generation.
+
+The decay description essentially copies the one present in 
+Pythia since many years, currently with some simplifications 
+for some charm and bottom channels, and updates will need to be
+introduced eventually.
+
+---------------------------------------------------------------------- 
+
+   Variables determining whether a particle decays
+   -----------------------------------------------
+
+Before a particle is actually decayed, a number of checks are made.
+
+(i) Decay modes must have been defined for the particle kind;    
+tested by the canDecay() method of Event (and ParticleData).        
+
+(ii) The main switch for allowing this particle kind to decay must 
+be on; tested by the mayDecay() method of Event (and ParticleData). 
+
+(iii) Particles may be requested to have a nominal proper lifetime 
+tau0 below a threshold.
+<flag> ParticleDecays:limitTau0 = off
+<parameter> ParticleDecays:tau0Max = 1. min = 0.
+When on, only particles with tau0 < tau0Max are decayed, where
+tau0Max is expressed in mm/c.
+
+(iv) Particles may be requested to have an actual proper lifetime 
+tau below a threshold.
+<flag> ParticleDecays:limitTau = off
+<parameter> ParticleDecays:tauMax = 1. min = 0. 
+When on, only particles with tau < tauMax are decayed, where
+tauMax is expressed in mm/c.
+In order for this and the subsequent tests to work, a tau is 
+selected and stored for each particle, whether in the end it
+decays or not. (If each test would use a different temporary tau 
+it would lead to inconsistencies.)
+
+(v) Particles may be requested to decay within a given distance 
+of the origin.
+<flag> ParticleDecays:limitRadius = off
+<parameter> ParticleDecays:rMax = 1. min = 0. 
+When on, only particles with a decay within a radius r < rMax are 
+decayed, where rMax is expressed in mm. There is assumed to be no
+magnetic field or other detector effects.
+
+(vi) Particles may be requested to decay within a given cylidrical 
+volume around the origin.
+<flag> ParticleDecays:limitCylinder = off
+<parameter> ParticleDecays:xyMax = 1. min = 0.
+<parameter> ParticleDecays:zMax = 1. min = 0.
+When on, only particles with a decay within a volume limited by
+rho = sqrt(x^2 + y^2) < xyMax and |z| < zMax are decayed, where 
+xyMax and zMax is expressed in mm. There is assumed to be no
+magnetic field or other detector effects.
+   
+---------------------------------------------------------------------- 
+
+   Other variables
+   ---------------
+
+<flag> ParticleDecays:mixB = on
+Allow or not B^0 - B^0bar and B_s^0 - B_s^0bar mixing.
+
+<parameter> ParticleDecays:xBdMix = 0.771 min = 0.70 max = 0.85
+The mixing parameter x_d = Delta(m_B^0)/Gamma_B^0 in the B^0 - B^0bar
+system.
+
+<parameter> ParticleDecays:xBsMix = 25.0 min = 15.0 
+The mixing parameter x_s = Delta(m_B_s^0)/Gamma_B_s^0 in the 
+B_s^0 - B_s^0bar system.
+
+<parameter> ParticleDecays:mSafety = 0.001 min = 0. max = 0.01
+Minimum mass difference required between the decaying mother mass 
+and the sum of the daughter masses, kept as a safety margin to avoid
+numerical problems in the decay generation.
+
+<parameter> ParticleDecays:multIncrease = 4.5  min = 3. max = 6.
+<parameter> ParticleDecays:multRefMass = 0.7 min = 0.2 max = 2.0
+<parameter> ParticleDecays:multGoffset = 0.0 min = 0.0  max = 2.0
+These parameters are used when a decay mode is defined in terms of 
+a partonic content. Then a random multiplicity (and a random flavour set) 
+of hadrons is to be picked, especially for some charm and bottom decays.
+Then is done according to a Gaussian distribution, for n_q quarks
+centered at c + n_q/4 and with a width sqrt(c), with the final number
+rounded off to the nearest integer. Here
+   c = multIncrease * ln ( mDiff / multRefMass)
+with mDiff the difference between the decaying particle mass and the 
+sum of the constituent quark masses. For gluonic systems multGoffset
+offers and optional additonal term to the multiplicity. There is 
+always some lower limit for the allowed multiplicity; if a number
+smaller than this is picked the choice is repeated.
+
+<parameter> ParticleDecays:colRearrange = 0.5 min = 0. max = 1.0
+When a decay is given as a list of four partons to be turned into
+hadrons (i.e. for mode 11 - 30), it is assumed that they are listed
+in pairs, as a first and a second colour singlet, which could give rise 
+to separate sets of hadrons. Here colRearrange is the probability that 
+this original assignment is not respected, and default corresponds to
+no memory of this original colour topology.
+
+<flag> ParticleDecays:FSRinDecays = true
+When a particle decays to q-qbar, g-g, g-g-g or gamma-g-g, allow
+or not a shower to develop from it, before the partonic system is
+hadronized. (The typical example is Upsilon decay.)
+
+In addition, some variables defined for string framgnetation are used
+also here.
+
+---------------------------------------------------------------------- 
+
+      DecayHandler
+      ============
+
+DecayHandler is a base class for the external handling of decays.
+The user-written derived class is called if a pointer to it has
+been given with the pythia.decayPtr() method, where it also is
+specified which particles it will be called for.  
+
+There is only one pure virtual method in DecayHandler, to do the 
+decay: 
+  virtual bool decay(vector<int>& idProd, vector<double>& mProd, 
+    vector<Vec4>& pProd, int iDec, const Event& event) = 0;
+Here 
+* idProd is a list of particle PDG identity codes,
+*  mProd is a list of their respective masses (in GeV), and
+*  pProd is a list of their respective four-momenta.
+At input, these vectors each have size one, so that idProd[0], 
+mProd[0] and pProd[0] contains information on the particle that is 
+to be decayed. At output, the vectors should have increased by 
+the addition of all the decay products. Even if initially defined 
+in the rest frame of the mother, the products should have been 
+boosted so that their four-momenta add up to the pProd[0] of the 
+decaying particle. 
+
+Should it be of interest to know the prehistory of the decaying 
+particle, e.g. to set some helicity information affecting the 
+decay angular distribution, the full event record is available 
+read-only, with info in which slot iDec the decaying particle 
+is stored.
+
+The routine should return true if it managed the decay and false 
+otherwise, in which case Pythia will try to do the decay itself.  
+
+Note that the decay vertex is always set by Pythia, and that B-Bbar 
+oscillations have already been taken into account, if they were 
+switched on. Thus idProd[0] may be the opposite of event[iDec].id(), 
+where the latter provides the code at production.
+
+A sample test program is available in main04.cc, providing a simple 
+example of how to use thing facility.
+
+---------------------------------------------------------------------- 
+
+Copyright © 2005 Torbjörn Sjöstrand

@@ -1,0 +1,113 @@
+    
+          TimeShower
+          ========== 
+
+The Pythia algorithm for timelike final-state showers is based on
+the recent article [1], where a transverse-momentum-ordered
+evolution scheme is introduced. This algorithm is influenced by
+the previous mass-ordered algorithm in Pythia [2] and by the 
+dipole-emission formulation in Ariadne [3]. From the mass-ordered
+algorithm it inherits a merging procedure for first-order 
+gluon-emission matrix elements in essentially all two-body decays 
+in the standard model and its minimal supersymmetric extension [4]. 
+
+The normal user is not expected to call TimeShower directly, but only
+have it called from Pythia. Some of the parameters below, in particular
+TimeShower:alphaSvalue, would be of interest for a tuning exercise,
+however. 
+
+---------------------------------------------------------------------- 
+
+   Main variables
+   --------------
+
+The amount of QCD radiation in the shower is determined by 
+
+<parameter> TimeShower:alphaSvalue = 0.1265 min = 0.06 max = 0.25
+The alpha_strong value at scale M_Z^2. The default value corresponds 
+to the one tuned to LEP data (using a first-order running), so should 
+be taken rather seriously [5].
+
+The actual value is then regulated by the running to the scale pT^2,
+at which the shower evaluates alpha_strong
+
+<mode> TimeShower:alphaSorder = 1 min = 0 max = 2
+Order at which alpha_strong runs,
+0 = zeroth order, i.e. alpha_strong is kept fixed.
+1 = first order, which is the normal value.
+2 = second order. Since other parts of the code do not go to second 
+    order there is no strong reason to use this option, but there is 
+    also nothing wrong with it.
+
+QED radiation is currently regulated by StandardModel:alphaEMfix,
+since no QED running is implemented in the shower.
+
+The rate of radiation if divergent in the pT -> 0 limit. Here, however,
+perturbation theory is expected to break down. Therefore an effective
+pTmin cutoff parameter is introduced, below which no emissions are
+allowed. The cutoff may be different for QCD and QED radiation off 
+quarks, and is mainly a technical parameter for QED radiation off
+leptons.
+
+<parameter> TimeShower:pTmin = 0.5 min = 0.1 max = 2.0
+Parton shower cut-off pT for QCD emissions.
+
+<parameter> TimeShower:pTminChgQ = 0.5 min = 0.1 max = 2.0
+Parton shower cut-off pT for photon coupling to coloured particle.
+
+<parameter> TimeShower:pTminChgL = 0.0005 min = 0.0001 max = 2.0
+Parton shower cut-off pT for pure QED branchings. 
+Assumed smaller than (or equal to) pTminChgQ.
+
+---------------------------------------------------------------------- 
+
+   Further variables
+   -----------------
+
+There are three flags you can use to switch on or off selected
+branchings in the shower: 
+
+<flag> TimeShower:QCDshower = on
+Allow a QCD shower, i.e. branchings q -> q g, g -> g g and g -> q qbar;
+on/off = true/false.
+
+<flag> TimeShower:QEDshowerByQ = on
+Allow quarks to radiate photons, i.e. branchings q -> q gamma; 
+on/off = true/false.
+
+<flag> TimeShower:QEDshowerByL = on
+Allow leptons to radiate photons, i.e. branchings l -> l gamma;  
+on/off = true/false.
+
+This is mainly for technical controls, physicswise there is no reason
+to switch off anything. The same goes for the following three:
+
+<flag> TimeShower:MEcorrections = on
+Use of matrix element corrections;on/off = true/false.
+
+<flag> TimeShower:phiPolAsym = on
+Azimuthal asymmetry induced by gluon polarization; on/off = true/false.
+
+<mode> TimeShower:nQuark = 5 min = 0 max = 5
+Number of allowed quark flavours in g -> q qbar branchings.
+A change to 4 would exclude g -> b bbar, etc. 
+
+---------------------------------------------------------------------- 
+
+References
+
+[1] T. Sjöstrand and P.Z. Skands, Eur. Phys. J. C39 (2005) 129 
+
+[2] M. Bengtsson and T. Sjöstrand, Nucl. Phys. B289 (1987) 810
+
+[3] G. Gustafson, Phys. Lett. B175 (1986) 453;
+    G. Gustafson and U. Pettersson, Nucl. Phys. B306 (1988) 746;
+    L. Lönnblad, Computer Physics Commun. 71 (1992) 15
+
+[4] E. Norrbin and T. Sjöstrand, Nucl. Phys. B603 (2001) 297
+
+[5] G. Rudolph, private communication
+
+---------------------------------------------------------------------- 
+
+Copyright © 2005 Torbjörn Sjöstrand

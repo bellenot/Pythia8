@@ -1,0 +1,89 @@
+    
+          StringFragmentation
+          =================== 
+
+The StringFragmentation class handles fragmentation according to the 
+Lund string model [1, 2], in cases where the colour-singlet invariant 
+mass is big enough that at least two particles can be comfortably 
+produced. If not, the MiniStringFragmentation machinery is invoked
+instead.
+
+Most of the parameters of string fragmentation are related to the 
+choice of flavours and of longitudinal and transverse momenta. 
+Separate classes for these tasks have been put in the
+FragmentationFlavZpT file, since they are also partly used by 
+the MiniStringFragmentation and ParticleDecays classes.
+
+---------------------------------------------------------------------- 
+
+   The StringFragmentation class
+   -----------------------------
+
+This class drives the fragmentation process of a single partonic system,
+making use of the above-mentioned classes for specific tasks. Most 
+parameters therefore are located in FragmentationFlavZpT.man.
+
+Three parameters describe how the fragmentation process is stopped:
+
+<parameter> StringFragmentation:stopMass = 1.0 min = 0.0 max = 2.0
+Is used to define a W_min = m_q1 + m_q2 + stopMass,
+where m_q1 and m_q2 are the masses of the two current endpoint
+quarks or diquarks. 
+
+<parameter> StringFragmentation:stopNewFlav = 2.0 min = 0.0 max = 2.0
+Add to W_min stopNewFlav * m_q_last, where q_last is the last qqbar
+pair produced between the final two hadrons.
+
+<parameter> StringFragmentation:stopSmear = 0.2 min = 0.0 max = 0.5
+The W_min above is then smeared uniformly in the range
+W_min_smeared = W_min * [ 1 - stopSmear, 1 + stopSmear ].
+
+This W_min_smeared is then compared with the current remaining
+W_transverse to determine if there is energy left for further
+particle production. If not, i.e. if W_transverse < W_min_smeared,
+the final two particles are produced from what is currently left,
+if possible. (If not, the fragmentation process is started over.)
+
+Four parameters are specific to the fragmentation of junction 
+systems [3]:
+
+<parameter> StringFragmentation:eNormJunction = 2.0 min = 0.5 max = 10.
+For each of the three string legs of a junction, the pull is defined
+as a weighed sum of the momenta on each leg, where the weight is 
+exp(- eSum / eNormJunction), with eSum the summed energy of all 
+partons closer to the junction than the currently considered one
+(in the junction rest frame). Should in principle be (close to) 
+sqrt((1 + a) / b), with a and b the parameters of the Lund symmetric 
+fragmentation function. 
+
+<parameter> StringFragmentation:eBothLeftJunction = 1.0 min = 0.5
+Retry (up to 10 times) when the first two considered strings in to a 
+junction both have a remaining energy (in the junction rest frame) 
+above this number.
+
+<parameter> StringFragmentation:eMaxLeftJunction = 10.0 min = 0. 
+Retry (up to 10 times) when the first two considered strings in to a 
+junction has a highest remaining energy (in the junction rest frame) 
+above a random energy evenly distributed between eBothLeftJunction and
+eBothLeftJunction + eMaxLeftJunction (drawn anew for each test).
+
+<parameter> StringFragmentation:eMinLeftJunction = 0.2 min = 0. 
+Retry (up to 10 times) when the invariant mass-squared of the final leg 
+and the leftover momentum of the first two treated legs falls below 
+eMinLeftJunction times the energy of the final leg (in the junction 
+rest frame). 
+   
+---------------------------------------------------------------------- 
+
+References
+ 
+[1] B. Andersson, G. Gustafson, G. Ingelman and T. Sjöstrand,
+    Phys. Rep. 97 (1983) 31
+   
+[2] T. Sjöstrand, Nucl. Phys. B248 (1984) 469
+
+[3] T. Sjöstrand and P.Z. Skands, Nucl. Phys. B659 (2003) 243 
+
+---------------------------------------------------------------------- 
+
+Copyright © 2005 Torbjörn Sjöstrand

@@ -1,0 +1,252 @@
+
+      Pythia
+      ======
+
+The Pythia class is the top-level one of the whole package. It is 
+the one that administrates the whole generation chain, by calling 
+on the other classes to do their job in the proper order. It is also 
+the one the user is primarily interacting with. 
+
+---------------------------------------------------------------------- 
+ 
+   Program flow
+   ------------
+
+Recall that, to first order, the event generation process can be 
+subdivided into three stages:
+   I. Initialization.
+  II. Generation of individual events.
+ III. Finishing.
+This is reflected in how the Pythia class should be used, further
+outlined in the following.
+
+0) Already before the beginning of the main program you need to
+   include the proper header file
+     #include "Pythia.h"
+   To simplify typing, it also makes sense to declare
+     using namespace Pythia8; 
+
+I.1) (compulsory) The first step is to create a generator object, 
+   e.g. with
+      Pythia pythia;
+   It is this object that we will use from now on. Normally a run
+   will only contain one Pythia object, but hypothetically you 
+   could use several.
+   All output from Pythia will be on the cout stream. If this is not 
+   convenient, you can give a reference to another stream as an 
+   optional argument
+      Pythia pythia(ostream);
+   but this does not work so far! (??)  
+
+I.2) (optional) The Pythia constructor will initialize the 
+   default values for the Settings and the ParticleDataTable. 
+   Both of these are static, but for covenience are also defined 
+   as Pythia members, so that pythia.settings.method() is the 
+   same as Settings::method(), and similarly for 
+   pythia.particleData.method() and ParticleDataTable::method().
+   A third static class is the interface to the old Fortran 77 
+   Pythia6, currently used for generating hard processes, but 
+   not provided with a corresponding alias since it is slated for 
+   eventual deletion. You can use the methods of each class to change 
+   the default values to fit the needs of your current run. See the 
+   Settings.man, ParticleData.man and Pythia6.man files for further 
+   details. 
+   However, the
+     pythia.readString(string)
+   method provides a covenient uniform interface to all three of them.
+   The information in the string is case-insensitive, but upper- and
+   lowercase can be combined for clarity. The rules are that
+   (i) if the first nonblank character of the string is not a 
+     letter or a digit nothing will be done, except if the string
+     begins with <particle> or <channel>, see (iii) below;
+   (ii) if the string begins with "Pythia6:", this part is peeled off,
+     and the rest is sent on to Fortran Pythia 6, using the pygive
+     method;
+   (iii) if the string begins with a "Particle:" or a digit, or with 
+     "<particle>" or "<channel>", it is assumed to contain particle 
+     data updates, and so sent on to 
+     pythia.particleData.readString(string);
+   (iv) if none of the above, the string is assumed to contain a  
+     setting, and is sent on to pythia.settings.readString(string). 
+   In the latter two cases, a warning is issued whenever a string
+   cannot be recognized (maybe because of a spelling mistake),
+   unless an optional second argument "false" is used to switch off
+   warnings.
+   Some examples would be
+     pythia.readString("Pythia6:msel = 6");
+     pythia.readString("Particle:111:mayDecay = false");
+     pythia.readString("TimeShower:pTmin = 1.0");
+   The methods in this paragraph are intended for small changes; for 
+   more extensive ones it is better to store all the changes in a     
+   file, see next.
+
+I.3) (optional) You can read in a file containing a list of those
+   variables you want to see changed, with a 
+      pythia.readFile(fileName);
+   Each line in this file with be processes by the pythia.readString
+   method introduced above. You can thus freely mix comment lines 
+   and lines handed on to Settings, ParticleDataTable and Pythia 6.   
+   This would be the normal way to set up what a run is supposed 
+   to do. Again, an optional second argument "false" allows you to 
+   switch off warning messages for unknown variables.
+   Of course, if your file is also supposed to contain commands 
+   to other libraries, so you have to build your own parser, the 
+   readString method above may be more appropriate. 
+
+I.4) (optional) If you are not satisfied with the (short) list of 
+   parton density functions that are implemented internally in 
+   Pythia, you can suppy your own by a call to the PDFptr method
+      pythia.PDFptr( pdfA, pdfB); 
+   where pdfA and pdfB are pointers to two Pythia PDF objects
+   (see the PDF class for further instructions). Note that
+   pdfA and pdfB cannot point to the same object; even if the
+   PDF set is the same, two copies are needed to keep track of
+   two separate sets of x and density values.
+
+I.5) (optional) If you want to perform some particle decays with an
+   external generator, you can call the decayPtr method
+      pythia.decayPtr( decayHandler, particles)
+   where the decayHandler derives from the DecayHandler base class,
+   see ParticleDecays.man, and particles is a vector of particle
+   codes to be handled. (Only to contain particle codes;
+   antiparticles are included automatically.)
+
+I.6) (optional) If you want to use an external random number generator, 
+   you can call the rndmEnginePtr method
+      pythia.rndmEnginePtr( rndmEngine) 
+   where rndmEngine derives from the RndmEngine base class, see
+   Basics.man. The Pythia default random number generator is 
+   perfectly good, so this is only intended for consistency in 
+   bigger frameworks.
+
+I.7) (compulsory) Next comes the initialization stage, where all 
+   remaining details of the generation are to be specified. The 
+   init method allows a few different input formats, so you can 
+   pick the one convenient for you:
+   a) pythia.init( idA, idB, eA, eB);
+   lets you specify the identities and energies of the two incoming
+   beam particles, with A (B) assumed moving in the +z (-z) 
+   direction.
+   b) pythia.init( idA, idB, eCM);
+   is similar, but you specify the CM energy, and you are assumed 
+   in the rest frame.
+   c) pythia.init( machine, eCM);
+   is a variant where the machine type is given as a string, either
+   "pp", "pbarp", "ppbar", "e+e-" or "e-e+", again ordered with the 
+   first moving in the +z direction, together with the CM energy.
+   d) pythia.init( LHAinit*, LHAevnt*); 
+   assumes Les Houches Accord initialization information is available 
+   in an LHAinit class object, and that LHA event information will
+   be provided by the LHAevnt class object.
+
+I.8) (optional) If you want to have a list of the generator and
+   particle data used, for the former only what has been changed or 
+   everything, you can use 
+      pythia.settings.listChanged();
+      pythia.settings.listAll();
+      pythia.particleData.list(); 
+
+II.1) (compulsory) Inside the event generation loop you generate the 
+   next event using the "next" method,
+      pythia.next();
+   This method takes no arguments; everything has already been
+   specified. It does return a bool value, however, false when the
+   generation failed. This can be a "programmed death" when the
+   supply of input parton-level configurations on file is exhausted,
+   but also caused by a failure of Pythia to generate an event,
+   or that an event was generated but something strange was detected
+   in it (see below, checkEvent).  
+ 
+II.2) (optional) The generated event is now stored in the 
+   event object, of type Event, which is a public member of pythia. 
+   You therefore have access to all the tools described in Event.man.
+   For instance, an event can be listed with pythia.event.list(),
+   the identity of the i'th particle is given by pythia.event[i].id(),
+   and so on. 
+   Furthermore, the hard process - roughly the information normally 
+   stored in the Les Houches Accord event record - is available as
+   a second object, process, also of type Event. 
+
+III.1) (optional) At the end of the generation process, you can call
+      pythia.statistics(); 
+   to get some run statistics. 
+
+---------------------------------------------------------------------- 
+
+   Main variables
+   --------------
+
+There is one main physics choice to be made with the Pythia class, 
+namely which parton densities to use (see PartonDistributions.man), 
+a choice that then is propagated through the program. This choice 
+can be made as described in I.3 above, but if not there is a choice 
+between the few distributions available internally:
+
+<mode> Pythia:pPDFset = 2 min = 1 max = 2
+Parton densities to be used for proton beams (and, by implication,
+antiproton ones):
+= 1 : GRV 94 L;
+= 2 : CTEQ 5 L. 
+
+For electrons/leptons there is no need to choose, since only one 
+implementation is available, and should be rather uncontroversial
+(apart from some technical details).
+
+Further, the seed of the random number generator can also be set here.
+
+<flag> Pythia:setSeed = off
+Indicates whether a user-set seed should be used every time the 
+Pythia::init routine is called. If off, the random number generator 
+is initialized with its default seed at the beginning of the run, and
+never again. If on, each new Pythia::init call (should several be made 
+in the same run) results in the random number being re-initialized,
+thereby possibly starting over with the same sequence, if you do not
+watch out.
+
+<mode> Pythia:seed = -1 max = 900000000
+The seed to be used, if setSeed is on.
+A negative value gives the default seed, 
+a value 0 gives a random seed based on the time, and
+a value between 1 and 900,000,000 a unique different random number 
+sequence.
+
+There is also a few settings related to error checking.
+
+<flag> Pythia:checkEvent = on
+When an event has been successfully generated, check that the 
+final event record does not contain any unphysical particles, or 
+nonconserved charge or energy-momentum.
+
+<mode> Pythia:nErrList = 3
+The number of erroneous events, in the above check, for which 
+information will be printed. After that, only the error counters
+will be updated, and can be shown with a pythia.statistics() at
+the end of the run.
+
+<parameter> Pythia:epTolerance = 1e-5
+Maximum allowed summed deviation of E, p_x, p_y and p_z between the   
+incoming beams and the final state, as a fraction of the initial
+energy. (Unfortunetely roundoff errors do not scale linearly with
+the energy, and also have a very long tail. So while most events at 
+lower energies may be correct to better than 1e-10, at LHC it does 
+not have to signal any fundamental bug if also the default tolerance
+above is violated occasionally.)
+
+---------------------------------------------------------------------- 
+
+   Version number
+   --------------
+
+The version number and version date are defined here, so that they 
+could easily be read out by different programs. Obviously they are 
+not intended to be changed.
+
+<parameter> Pythia:versionNumber = 8.040
+Version and subversion number, with three significant decimals.
+
+<mode> Pythia:versionDate = 20050724
+Last date of change of current (sub)version, in format yyyymmdd.
+
+---------------------------------------------------------------------- 
+
+Copyright © 2005 Torbjörn Sjöstrand

@@ -1,0 +1,41 @@
+
+      PartonLevel
+      ===========
+
+The PartonLevel class administrates the middle step of the event
+generation, i.e. the evolution from an input (hard) process from
+ProcessLevel, containing a few partons only, to a complete 
+parton-level configuration to be handed on to HadronLevel. This step 
+involves the application of initial- and final-state radiation, 
+multiple interactions and the structure of beam remnants.
+
+---------------------------------------------------------------------- 
+
+   Main variables
+   --------------
+
+The main degrees of freedom are which other classes should be called. 
+That is, some parts of the event generation may be switched off, 
+in particular: 
+
+<flag> PartonLevel:MI = on
+Master switch for multiple interactions; on/off = true/false.
+Further options are found in the MultipleInteractions class.
+
+<flag> PartonLevel:ISR = on
+Master switch for initial-state radiation; on/off = true/false.
+Further options are found in the SpaceShower class.
+
+<flag> PartonLevel:FSRinProcess = on
+Master switch for final-state radiation in association with the
+hard process itself; on/off = true/false.
+Further options are found in the TimeShower class.
+
+<flag> PartonLevel:FSRinResonances = on
+Master switch for final-state radiation in any resonance decays 
+subsequent to the hard process itself; on/off = true/false.
+Further options are found in the TimeShower class.
+
+---------------------------------------------------------------------- 
+
+Copyright © 2005 Torbjörn Sjöstrand

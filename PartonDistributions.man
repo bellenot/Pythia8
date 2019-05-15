@@ -1,0 +1,83 @@
+
+      PartonDistributions
+      ===================
+
+The parton distributions file contains the PDF class (an abbreviation
+hopefully so well accepted that it is used in many places of the
+code, instead of writing it out in full). PDF is the base class, 
+from which specific PDF classes are derived.
+
+The choice of which PDF to use is made by a switch in the Pythia 
+class. Thus there is no need for a normal user to study this
+class. The structure must be understood when interfacing new PDF's,
+however. 
+
+---------------------------------------------------------------------- 
+
+   The PDF base class
+   ------------------
+
+PDF defines the interface that all PDF classes should respect.
+The constructor requires the incoming beam species to be given:
+even if used for a proton PDF, one needs to know whether the beam
+is actually an antiproton. This is one of the reasons why Pythia 
+always defines two PDF objects in an event, one for each beam.
+
+Once a PDF object has been constructed, call it "pdf", the main 
+method is pdf.xf( id, x, Q2), which returns x*f_id(x, Q2), 
+properly taking into account whether the beam is an 
+antiparticle or not.
+
+Whenever the xf member is called with a new flavour, x or Q2, the 
+xfUpdate member is called to do the actual updating. This routine 
+may either update that particular flavour or all flavours at this
+(x, Q2) point. (In the latter case the saved id value idSav should 
+be set to 9.) The choice is to be made by the producer of a
+given set, based on what he/she deems most effective, given that
+sometimes only one flavour need be evaluated, and about equally
+often all flavours are needed at the same x and Q2. Anyway, the
+latest value is always kept in memory. This is the other reason why
+Pythia has one separate PDF object for each beam, so that values at
+different x can be kept in memory. 
+
+---------------------------------------------------------------------- 
+
+   Derived classes
+   ---------------
+
+There is only one pure virtual method, xfUpdate, that therefore must
+be implemented in any derived class. Currently the list of such classes 
+is tiny:
+
+For protons:
+* GRV94L gives the GRV 94 L parametrization [1].
+* CTEQ5L gives the CTEQ 5 L parametrization [2].
+
+The default, set in Pythia.man, is CTEQ 5L.
+
+For charged leptons (e, mu, tau): 
+* Lepton gives a QED parametrization [3].
+In QED there are not so many ambiguities, so here one set should be 
+enough. On the other hand, there is the problem that the 
+lepton-inside-lepton pdf is integrably divergent for x -> 1, which
+gives numerical problems. Like in Pythia6, the pdf is therefore
+made to vanish for x > 1 - 10^{-10}, and scaled up in the range
+1 - 10^{-7} < x < 1 - 10^{-10} in such a way that the total area
+under the pdf is preserved.   
+   
+---------------------------------------------------------------------- 
+
+References
+ 
+[1] M. Gluck, E. Reya and A. Vogt, Z. Phys. C67 (1995) 433
+
+[2] CTEQ Collaboration, H.L. Lai et al., 
+    Eur. Phys. J. C12 (2000) 375
+
+[3] R. Kleiss et al., in `Z physics at LEP 1', 
+    eds. G. Altarelli, R. Kleiss and C. Verzegnassi, 
+    CERN 89-08 (Geneva, 1989), Vol. 3, p. 143
+
+---------------------------------------------------------------------- 
+
+Copyright © 2005 Torbjörn Sjöstrand

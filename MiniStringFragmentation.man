@@ -1,0 +1,42 @@
+
+      MiniStringFragmentation
+      =======================
+
+The MiniStringFragmentation machinery is only used when a string 
+system has so small invariant mass that normal string fragmentation
+is difficult/impossible. Instead one or two particles are produced,
+in the former case shuffling energy-momentum relative to another
+colour singlet system in the event, while preserving the invariant
+mass of that system. With one exception parameters are the same as 
+defined for normal string fragmentation, to the extent that they are 
+at all applicable in this case.
+
+A discussion of the relevant physics is found in [1]. The current
+implementation does not completely abide to the scheme presented 
+there, however, but has in part been simplified. (In part for greater 
+clarity, in part since the class is not quite finished yet.) 
+
+---------------------------------------------------------------------- 
+
+   Parameters
+   ----------
+
+<mode> MiniStringFragmentation:nTry = 2 min = 1 max = 10
+Whenever the machinery is called, first this many attempts are made
+to pick two hadrons that the system fragments to. If the hadrons are 
+too massive the attempt will fail, but a new subsequent try could
+involve other flavour and hadrons and thus still succeed. 
+After nTry attempts, instead an attempt is made to produce a 
+single hadron from the system. Should also this fail, some further
+attempts at obtaining two hadrons will be made before eventually 
+giving up.
+   
+---------------------------------------------------------------------- 
+
+References
+   
+[1] E. Norrbin and T. Sjöstrand, Eur. Phys. J. C17 (2000) 137 
+
+---------------------------------------------------------------------- 
+
+Copyright © 2005 Torbjörn Sjöstrand
