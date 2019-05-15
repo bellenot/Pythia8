@@ -73,7 +73,7 @@ the constructor and destructor take no arguments.
    
  
 <a name="method2"></a>
-<p/><strong>bool Pythia8ToHepMC::fill_next_event( Pythia8::Pythia& pythia, GenEvent* evt, int ievnum = -1) &nbsp;</strong> <br/>
+<p/><strong>bool Pythia8ToHepMC::fill_next_event( Pythia8::Pythia& pythia, GenEvent* evt, int ievnum = -1, bool append = false, GenParticle* rootParticle = 0, int iBarcode = -1) &nbsp;</strong> <br/>
 convert a <code>Pythia</code> event to a <code>HepMC</code> one. 
 Will return true if succeeded. 
 <br/><code>argument</code><strong> pythia </strong>  :  
@@ -88,10 +88,24 @@ set the event number of the current event. If negative then the
 internal event number is used, which is incremented by one for 
 each new event. 
    
+<br/><code>argument</code><strong> append </strong>  :  
+if <code>true</code> then the input event is appended to the current 
+<code>HepMC</code> event record, rather than starting a new one. 
+   
+<br/><code>argument</code><strong> rootParticle </strong>  :  
+the root particle that defines the new production vertex for the 
+particles to be added in the <code>append = true</code> option. 
+   
+<br/><code>argument</code><strong> iBarcode </strong>  :  
+used to set the bar code when <code>append = true</code>. 
+If positive then start from <code>iBarcode</code> itself, if negative 
+then start from the current size of the <code>HepMC</code> event record, 
+and if 0 then set all bar codes to vanish. 
+   
    
  
 <a name="method3"></a>
-<p/><strong>bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev, GenEvent* evt, int ievnum = -1, Pythia8::Info* pyinfo = 0, Pythia8::Settings* pyset = 0) &nbsp;</strong> <br/>
+<p/><strong>bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev, GenEvent* evt, int ievnum = -1, Pythia8::Info* pyinfo = 0, Pythia8::Settings* pyset = 0, bool append = false, GenParticle* rootParticle = 0, int iBarcode = -1) &nbsp;</strong> <br/>
 convert a <code>Pythia</code> event to a <code>HepMC</code> one. 
 Will return true if succeeded. 
 <br/><code>argument</code><strong> pyev </strong>  :  
@@ -119,6 +133,20 @@ decide whether hadronization is carried out, and therefore whether
 to warn about unhadronized partons. Without such a pointer the 
 <code>set_free_parton_warnings</code> method below uniquely controls 
 the behaviour. 
+   
+<br/><code>argument</code><strong> append </strong>  :  
+if <code>true</code> then the input event is appended to the current 
+<code>HepMC</code> event record, rather than starting a new one. 
+   
+<br/><code>argument</code><strong> rootParticle </strong>  :  
+the root particle that defines the new production vertex for the 
+particles to be added in the <code>append = true</code> option. 
+   
+<br/><code>argument</code><strong> iBarcode </strong>  :  
+used to set the bar code when <code>append = true</code>. 
+If positive then start from <code>iBarcode</code> itself, if negative 
+then start from the current size of the <code>HepMC</code> event record, 
+and if 0 then set all bar codes to vanish. 
    
    
  

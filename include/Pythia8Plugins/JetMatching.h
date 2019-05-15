@@ -560,7 +560,7 @@ inline void JetMatchingAlpgen::sortIncomingProcess(const Event &event) {
 
 // Step (2a): pick which particles to pass to the jet algorithm
 
-inline void JetMatchingAlpgen::jetAlgorithmInput(const Event &event, 
+inline void JetMatchingAlpgen::jetAlgorithmInput(const Event &event,
   int iType) {
 
   // Take input from 'workEvent' and put output in 'workEventJet'
@@ -1126,9 +1126,9 @@ inline bool JetMatchingMadgraph::doShowerKtVeto(double pTfirst) {
   bool doVeto = false;
 
   // Find the (kinematical) pT of the softest (light) parton in the hard
-  // process.   
+  // process.
   int nParton = typeIdx[0].size();
-  double pTminME=1e10;  
+  double pTminME=1e10;
   for ( int i = 0; i < nParton; ++i)
     pTminME = min(pTminME,eventProcess[typeIdx[0][i]].pT());
 
@@ -1142,7 +1142,7 @@ inline bool JetMatchingMadgraph::doShowerKtVeto(double pTfirst) {
   // For highest multiplicity sample, veto if the hardest emission is harder
   // than the hard process parton.
   } else if ( !exclusive && nParton > 0 && pTfirst > pTminME ) {
-    doVeto = true;      
+    doVeto = true;
   }
 
   // Return veto
@@ -1343,7 +1343,7 @@ inline void JetMatchingMadgraph::sortIncomingProcess(const Event &event) {
 
 // Step (2a): pick which particles to pass to the jet algorithm
 
-inline void JetMatchingMadgraph::jetAlgorithmInput(const Event &event, 
+inline void JetMatchingMadgraph::jetAlgorithmInput(const Event &event,
   int iType) {
 
   // Take input from 'workEvent' and put output in 'workEventJet'
@@ -1570,6 +1570,7 @@ inline int JetMatchingMadgraph::matchPartonsToJetsLight() {
   // continues until the nPartonsNow hardest hadronic jets are matched to
   // partonic jets, or it is not possible to make a match for a hadronic jet.
   int iNow = 0;
+  int nMatched = 0;
   while ( doFxFx && iNow < tempSize ) {
 
     // Check if this shower jet matches any partonic jet.
@@ -1609,10 +1610,18 @@ inline int JetMatchingMadgraph::matchPartonsToJetsLight() {
     } // End loop over hard partons.
 
     // Veto if the jet could not be assigned to any parton.
-    if ( !jetAssigned[iNow] ) return UNMATCHED_PARTON;
+    if ( jetAssigned[iNow] ) nMatched++;
 
     // Continue;
     ++iNow;
+  }
+
+  // Jet matching veto for FxFx
+  if (doFxFx) {
+    if ( nRequested <  nJetMax && nMatched != nRequested )
+      return UNMATCHED_PARTON;
+    if ( nRequested == nJetMax && nMatched <  nRequested )
+      return UNMATCHED_PARTON;
   }
 
   // Do jet matching for MLM.

@@ -708,7 +708,8 @@ void Sigma2qg2chi0squark::sigmaKin() {
 
   // Common flavour-independent factor.
   // tmp: alphaS = 0.1 for counter-checks
-  sigma0 = M_PI / sH2 / coupSUSYPtr->sin2W * alpEM * alpS
+  double nChi = 6.0 * coupSUSYPtr->sin2W * (1 - coupSUSYPtr->sin2W);
+  sigma0 = M_PI / sH2 / nChi * alpEM * alpS
     * openFracPair;
 
   // Auxiliary factors for use below
@@ -780,7 +781,6 @@ double Sigma2qg2chi0squark::sigmaHat() {
   weight += fac2 * norm(LsqqX) / 2.0 + fac1 * norm(LsqqX);
 
   double sigma = sigma0 * weight;
-  if (abs(idq) < 9) sigma /= 3.;
 
   // Answer.
   return sigma;
@@ -834,6 +834,24 @@ void Sigma2qg2charsquark::initProc() {
 
 //--------------------------------------------------------------------------
 
+void Sigma2qg2charsquark::sigmaKin() {
+
+  // Common flavour-independent factor.
+  // tmp: alphaS = 0.1 for counter-checks
+  double nChi = 12.0 * coupSUSYPtr->sin2W;
+  sigma0 = M_PI / sH2 / nChi * alpEM * alpS
+    * openFracPair;
+
+  // Auxiliary factors for use below
+  ui       = uH - s3;
+  uj       = uH - s4;
+  ti       = tH - s3;
+  tj       = tH - s4;
+
+}
+
+//--------------------------------------------------------------------------
+
 // Evaluate d(sigmaHat)/d(tHat), including incoming flavour dependence.
 
 double Sigma2qg2charsquark::sigmaHat() {
@@ -862,8 +880,8 @@ double Sigma2qg2charsquark::sigmaHat() {
     RsqqX = coupSUSYPtr->RsduX[id4sq][iGq][id3chi];
   }
   else {
-    LsqqX = coupSUSYPtr->LsduX[id4sq][iGq][id3chi];
-    RsqqX = coupSUSYPtr->RsduX[id4sq][iGq][id3chi];
+    LsqqX = coupSUSYPtr->LsudX[id4sq][iGq][id3chi];
+    RsqqX = coupSUSYPtr->RsudX[id4sq][iGq][id3chi];
   }
 
   // Prefactors : swap u and t if gq instead of qg
@@ -891,7 +909,6 @@ double Sigma2qg2charsquark::sigmaHat() {
   weight += fac2 * norm(LsqqX) / 2.0 + fac1 * norm(LsqqX);
 
   double sigma = sigma0 * weight;
-  if (abs(idq) < 9) sigma /= 3.;
 
   // Answer.
   return sigma * openFracPair;
@@ -965,6 +982,9 @@ void Sigma2qq2squarksquark::initProc() {
 
   // Secondary open width fraction.
   openFracPair = particleDataPtr->resOpenFrac(id3Sav, id4Sav);
+
+  // Selection of interference terms
+  onlyQCD = settingsPtr->flag("SUSY:qq2squarksquark:onlyQCD");
 }
 
 //--------------------------------------------------------------------------
@@ -1050,7 +1070,7 @@ double Sigma2qq2squarksquark::sigmaHat() {
     for (int k=1;k<=2;k++) {
 
       // Skip if only including gluinos
-      if (settingsPtr->flag("SUSY:qq2squarksquark:onlyQCD")) continue;
+      if (onlyQCD) continue;
 
       for (int l=1;l<=2;l++) {
 
@@ -1088,45 +1108,45 @@ double Sigma2qq2squarksquark::sigmaHat() {
       }
     }
 
-    // u-channel Neutralinos
-    for (int k=1;k<=nNeut;k++) {
+    // Skip if only including gluinos
+    if (!onlyQCD) {
 
-      // Skip if only including gluinos
-      if (settingsPtr->flag("SUSY:qq2squarksquark:onlyQCD")) continue;
+      // u-channel Neutralinos
+      for (int k=1;k<=nNeut;k++) {
+        for (int l=1;l<=nNeut;l++) {
 
-      for (int l=1;l<=nNeut;l++) {
+          // kl-dependent factor for LL, RR contributions
+          double facMS = sH*sqrt(m2Neut[k]*m2Neut[l]);
 
-        // kl-dependent factor for LL, RR contributions
-        double facMS = sH*sqrt(m2Neut[k]*m2Neut[l]);
+          // Note: Nkl defined as in [Boz07] with sigmaNeut factored out
+          // [1][1] = LL, [1][2] = LR, [2][1] = RL, [2][2] = RR
+          complex Nkl[3][3];
+          Nkl[1][1] = facMS
+            * conj(coupSUSYPtr->LsuuX[iGen4][iGen1][k])
+            * conj(coupSUSYPtr->LsddX[iGen3][iGen2][k])
+            * coupSUSYPtr->LsuuX[iGen4][iGen1][l]
+            * coupSUSYPtr->LsddX[iGen3][iGen2][l];
+          Nkl[1][2] = facTU
+            * conj(coupSUSYPtr->LsuuX[iGen4][iGen1][k])
+            * conj(coupSUSYPtr->RsddX[iGen3][iGen2][k])
+            * coupSUSYPtr->LsuuX[iGen4][iGen1][l]
+            * coupSUSYPtr->RsddX[iGen3][iGen2][l];
+          Nkl[2][1] =  facTU
+            * conj(coupSUSYPtr->RsuuX[iGen4][iGen1][k])
+            * conj(coupSUSYPtr->LsddX[iGen3][iGen2][k])
+            * coupSUSYPtr->RsuuX[iGen4][iGen1][l]
+            * coupSUSYPtr->LsddX[iGen3][iGen2][l];
+          Nkl[2][2] =  facMS
+            * conj(coupSUSYPtr->RsuuX[iGen4][iGen1][k])
+            * conj(coupSUSYPtr->RsddX[iGen3][iGen2][k])
+            * coupSUSYPtr->RsuuX[iGen4][iGen1][l]
+            * coupSUSYPtr->RsddX[iGen3][iGen2][l];
 
-        // Note: Nkl defined as in [Boz07] with sigmaNeut factored out
-        // [1][1] = LL, [1][2] = LR, [2][1] = RL, [2][2] = RR
-        complex Nkl[3][3];
-        Nkl[1][1] = facMS
-          * conj(coupSUSYPtr->LsuuX[iGen4][iGen1][k])
-          * conj(coupSUSYPtr->LsddX[iGen3][iGen2][k])
-          * coupSUSYPtr->LsuuX[iGen4][iGen1][l]
-          * coupSUSYPtr->LsddX[iGen3][iGen2][l];
-        Nkl[1][2] = facTU
-          * conj(coupSUSYPtr->LsuuX[iGen4][iGen1][k])
-          * conj(coupSUSYPtr->RsddX[iGen3][iGen2][k])
-          * coupSUSYPtr->LsuuX[iGen4][iGen1][l]
-          * coupSUSYPtr->RsddX[iGen3][iGen2][l];
-        Nkl[2][1] =  facTU
-          * conj(coupSUSYPtr->RsuuX[iGen4][iGen1][k])
-          * conj(coupSUSYPtr->LsddX[iGen3][iGen2][k])
-          * coupSUSYPtr->RsuuX[iGen4][iGen1][l]
-          * coupSUSYPtr->LsddX[iGen3][iGen2][l];
-        Nkl[2][2] =  facMS
-          * conj(coupSUSYPtr->RsuuX[iGen4][iGen1][k])
-          * conj(coupSUSYPtr->RsddX[iGen3][iGen2][k])
-          * coupSUSYPtr->RsuuX[iGen4][iGen1][l]
-          * coupSUSYPtr->RsddX[iGen3][iGen2][l];
+          // Add to sum of u-channel neutralinos
+          sumNu += sigmaNeut / uNeut[k] / uNeut[l]
+            * real(Nkl[1][1] + Nkl[1][2] + Nkl[2][1] + Nkl[2][2]);
 
-        // Add to sum of u-channel neutralinos
-        sumNu += sigmaNeut / uNeut[k] / uNeut[l]
-          * real(Nkl[1][1] + Nkl[1][2] + Nkl[2][1] + Nkl[2][2]);
-
+        }
       }
     }
 
@@ -1150,74 +1170,71 @@ double Sigma2qq2squarksquark::sigmaHat() {
     sumGu += sigmaGlu * (Gij[1][1] + Gij[1][2] + Gij[2][1] + Gij[2][2])
       / pow2(uGlu);
 
-    // chargino-neutralino interference
-    for (int k=1;k<=2;k++) {
-      for (int l=1;l<=nNeut;l++) {
 
-        // Skip if only including gluinos
-        if (settingsPtr->flag("SUSY:qq2squarksquark:onlyQCD")) continue;
+    // EW Interference terms: Skip if only including gluinos
+    if (!onlyQCD) {
 
-        // Note: CNkl defined as in [Boz07] with pi/sH2 factored out
-        // [1][1] = LL, [1][2] = LR, [2][1] = RL, [2][2] = RR
-        double CNkl[3][3];
-        CNkl[1][1] = real(coupSUSYPtr->LsudX[iGen4][iGen2][k]
-                          * conj(coupSUSYPtr->LsduX[iGen3][iGen1][k])
-                          * coupSUSYPtr->LsuuX[iGen4][iGen1][l]
-                          * coupSUSYPtr->LsddX[iGen3][iGen2][l]);
-        CNkl[1][2] = real(coupSUSYPtr->RsudX[iGen4][iGen2][k]
-                          * conj(coupSUSYPtr->LsduX[iGen3][iGen1][k])
-                          * coupSUSYPtr->LsuuX[iGen4][iGen1][l]
-                          * coupSUSYPtr->RsddX[iGen3][iGen2][l]);
-        CNkl[2][1] = real(coupSUSYPtr->LsudX[iGen4][iGen2][k]
-                          * conj(coupSUSYPtr->RsduX[iGen3][iGen1][k])
-                          * coupSUSYPtr->RsuuX[iGen4][iGen1][l]
-                          * coupSUSYPtr->LsddX[iGen3][iGen2][l]);
-        CNkl[2][2] = real(coupSUSYPtr->RsudX[iGen4][iGen2][k]
-                          * conj(coupSUSYPtr->RsduX[iGen3][iGen1][k])
-                          * coupSUSYPtr->RsuuX[iGen4][iGen1][l]
-                          * coupSUSYPtr->RsddX[iGen3][iGen2][l]);
-        CNkl[1][1] *= sH*sqrt(m2Char[k]*m2Neut[l]);
-        CNkl[1][2] *= uH*tH-s3*s4;
-        CNkl[2][1] *= uH*tH-s3*s4;
-        CNkl[2][2] *= sH*sqrt(m2Char[k]*m2Neut[l]);
-        // Sum over polarizations
-        sumInterference += sigmaCharNeut * (CNkl[1][1] + CNkl[1][2]
-                         + CNkl[2][1] + CNkl[2][2]) / tChar[k] / uNeut[l];
+      // chargino-neutralino interference
+      for (int k=1;k<=2;k++) {
+        for (int l=1;l<=nNeut;l++) {
+          // Note: CNkl defined as in [Boz07] with pi/sH2 factored out
+          // [1][1] = LL, [1][2] = LR, [2][1] = RL, [2][2] = RR
+          double CNkl[3][3];
+          CNkl[1][1] = real(coupSUSYPtr->LsudX[iGen4][iGen2][k]
+                            * conj(coupSUSYPtr->LsduX[iGen3][iGen1][k])
+                            * coupSUSYPtr->LsuuX[iGen4][iGen1][l]
+                            * coupSUSYPtr->LsddX[iGen3][iGen2][l]);
+          CNkl[1][2] = real(coupSUSYPtr->RsudX[iGen4][iGen2][k]
+                            * conj(coupSUSYPtr->LsduX[iGen3][iGen1][k])
+                            * coupSUSYPtr->LsuuX[iGen4][iGen1][l]
+                            * coupSUSYPtr->RsddX[iGen3][iGen2][l]);
+          CNkl[2][1] = real(coupSUSYPtr->LsudX[iGen4][iGen2][k]
+                            * conj(coupSUSYPtr->RsduX[iGen3][iGen1][k])
+                            * coupSUSYPtr->RsuuX[iGen4][iGen1][l]
+                            * coupSUSYPtr->LsddX[iGen3][iGen2][l]);
+          CNkl[2][2] = real(coupSUSYPtr->RsudX[iGen4][iGen2][k]
+                            * conj(coupSUSYPtr->RsduX[iGen3][iGen1][k])
+                            * coupSUSYPtr->RsuuX[iGen4][iGen1][l]
+                            * coupSUSYPtr->RsddX[iGen3][iGen2][l]);
+          CNkl[1][1] *= sH*sqrt(m2Char[k]*m2Neut[l]);
+          CNkl[1][2] *= uH*tH-s3*s4;
+          CNkl[2][1] *= uH*tH-s3*s4;
+          CNkl[2][2] *= sH*sqrt(m2Char[k]*m2Neut[l]);
+          // Sum over polarizations
+          sumInterference += sigmaCharNeut * (CNkl[1][1] + CNkl[1][2]
+                           + CNkl[2][1] + CNkl[2][2]) / tChar[k] / uNeut[l];
+        }
       }
-    }
 
-    // chargino-gluino interference
-    for (int k=1;k<=2;k++) {
-
-      // Skip if only including gluinos
-      if (settingsPtr->flag("SUSY:qq2squarksquark:onlyQCD")) continue;
-
-      // Note: CGk defined as in [Boz07] with sigmaCharGlu factored out
-      // [1][1] = LL, [1][2] = LR, [2][1] = RL, [2][2] = RR
-      double CGk[3][3];
-      CGk[1][1] = real(coupSUSYPtr->LsudX[iGen4][iGen2][k]
-                       * conj(coupSUSYPtr->LsduX[iGen3][iGen1][k])
-                       * conj(coupSUSYPtr->LsuuG[iGen4][iGen1])
-                       * conj(coupSUSYPtr->LsddG[iGen3][iGen2]));
-      CGk[1][2] = real(coupSUSYPtr->RsudX[iGen4][iGen2][k]
-                       * conj(coupSUSYPtr->LsduX[iGen3][iGen1][k])
-                       * conj(coupSUSYPtr->LsuuG[iGen4][iGen1])
-                       * conj(coupSUSYPtr->RsddG[iGen3][iGen2]));
-      CGk[2][1] = real(coupSUSYPtr->LsudX[iGen4][iGen2][k]
-                       * conj(coupSUSYPtr->RsduX[iGen3][iGen1][k])
-                       * conj(coupSUSYPtr->RsuuG[iGen4][iGen1])
-                       * conj(coupSUSYPtr->LsddG[iGen3][iGen2]));
-      CGk[2][2] = real(coupSUSYPtr->RsudX[iGen4][iGen2][k]
-                       * conj(coupSUSYPtr->RsduX[iGen3][iGen1][k])
-                       * conj(coupSUSYPtr->RsuuG[iGen4][iGen1])
-                       * conj(coupSUSYPtr->RsddG[iGen3][iGen2]));
-      CGk[1][1] *= sH*sqrt(m2Glu*m2Char[k]);
-      CGk[1][2] *= uH*tH-s3*s4;
-      CGk[2][1] *= uH*tH-s3*s4;
-      CGk[2][2] *= sH*sqrt(m2Glu*m2Char[k]);
-      // Sum over polarizations
-      sumInterference += sigmaGlu * (CGk[1][1] + CGk[1][2] + CGk[2][1]
-        + CGk[2][2]) / uGlu / tChar[k];
+      // chargino-gluino interference
+      for (int k=1;k<=2;k++) {
+        // Note: CGk defined as in [Boz07] with sigmaCharGlu factored out
+        // [1][1] = LL, [1][2] = LR, [2][1] = RL, [2][2] = RR
+        double CGk[3][3];
+        CGk[1][1] = real(coupSUSYPtr->LsudX[iGen4][iGen2][k]
+                         * conj(coupSUSYPtr->LsduX[iGen3][iGen1][k])
+                         * conj(coupSUSYPtr->LsuuG[iGen4][iGen1])
+                         * conj(coupSUSYPtr->LsddG[iGen3][iGen2]));
+        CGk[1][2] = real(coupSUSYPtr->RsudX[iGen4][iGen2][k]
+                         * conj(coupSUSYPtr->LsduX[iGen3][iGen1][k])
+                         * conj(coupSUSYPtr->LsuuG[iGen4][iGen1])
+                         * conj(coupSUSYPtr->RsddG[iGen3][iGen2]));
+        CGk[2][1] = real(coupSUSYPtr->LsudX[iGen4][iGen2][k]
+                         * conj(coupSUSYPtr->RsduX[iGen3][iGen1][k])
+                         * conj(coupSUSYPtr->RsuuG[iGen4][iGen1])
+                         * conj(coupSUSYPtr->LsddG[iGen3][iGen2]));
+        CGk[2][2] = real(coupSUSYPtr->RsudX[iGen4][iGen2][k]
+                         * conj(coupSUSYPtr->RsduX[iGen3][iGen1][k])
+                         * conj(coupSUSYPtr->RsuuG[iGen4][iGen1])
+                         * conj(coupSUSYPtr->RsddG[iGen3][iGen2]));
+        CGk[1][1] *= sH*sqrt(m2Glu*m2Char[k]);
+        CGk[1][2] *= uH*tH-s3*s4;
+        CGk[2][1] *= uH*tH-s3*s4;
+        CGk[2][2] *= sH*sqrt(m2Glu*m2Char[k]);
+        // Sum over polarizations
+        sumInterference += sigmaGlu * (CGk[1][1] + CGk[1][2] + CGk[2][1]
+                                       + CGk[2][2]) / uGlu / tChar[k];
+      }
     }
   }
 
@@ -1225,149 +1242,147 @@ double Sigma2qq2squarksquark::sigmaHat() {
   else {
 
     // t-channel + u-channel Neutralinos + t/u interference
-    for (int k=1;k<=nNeut;k++) {
+    // Skip if only including gluinos
+      if (!onlyQCD) {
+        for (int k=1;k<=nNeut;k++) {
+          for (int l=1;l<=nNeut;l++) {
 
-      // Skip if only including gluinos
-      if (settingsPtr->flag("SUSY:qq2squarksquark:onlyQCD")) continue;
+            // kl-dependent factor for LL and RR contributions
+            double facMS = sH * particleDataPtr->m0(coupSUSYPtr->idNeut(k))
+              * particleDataPtr->m0(coupSUSYPtr->idNeut(l));
 
-      for (int l=1;l<=nNeut;l++) {
+            // Note: Nxkl defined as in [Boz07] with sigmaNeut factored out
+            // [1][1] = LL, [1][2] = LR, [2][1] = RL, [2][2] = RR
+            complex NTkl[3][3], NUkl[3][3], NTUkl[3][3];
+            NTkl[1][1] = facMS
+              * conj(coupSUSYPtr->getLsqqX(iGen4,idIn2A,k))
+              * conj(coupSUSYPtr->getLsqqX(iGen3,idIn1A,k))
+              * coupSUSYPtr->getLsqqX(iGen4,idIn2A,l)
+              * coupSUSYPtr->getLsqqX(iGen3,idIn1A,l);
+            NTkl[1][2] = facTU
+              * conj(coupSUSYPtr->getRsqqX(iGen4,idIn2A,k))
+              * conj(coupSUSYPtr->getLsqqX(iGen3,idIn1A,k))
+              * coupSUSYPtr->getRsqqX(iGen4,idIn2A,l)
+              * coupSUSYPtr->getLsqqX(iGen3,idIn1A,l);
+            NTkl[2][1] = facTU
+              * conj(coupSUSYPtr->getLsqqX(iGen4,idIn2A,k))
+              * conj(coupSUSYPtr->getRsqqX(iGen3,idIn1A,k))
+              * coupSUSYPtr->getLsqqX(iGen4,idIn2A,l)
+              * coupSUSYPtr->getRsqqX(iGen3,idIn1A,l);
+            NTkl[2][2] = facMS
+              * conj(coupSUSYPtr->getRsqqX(iGen4,idIn2A,k))
+              * conj(coupSUSYPtr->getRsqqX(iGen3,idIn1A,k))
+              * coupSUSYPtr->getRsqqX(iGen4,idIn2A,l)
+              * coupSUSYPtr->getRsqqX(iGen3,idIn1A,l);
+            NUkl[1][1] = facMS
+              * conj(coupSUSYPtr->getLsqqX(iGen3,idIn2A,k))
+              * conj(coupSUSYPtr->getLsqqX(iGen4,idIn1A,k))
+              * coupSUSYPtr->getLsqqX(iGen3,idIn2A,l)
+              * coupSUSYPtr->getLsqqX(iGen4,idIn1A,l);
+            NUkl[1][2] = facTU
+              * conj(coupSUSYPtr->getRsqqX(iGen3,idIn2A,k))
+              * conj(coupSUSYPtr->getLsqqX(iGen4,idIn1A,k))
+              * coupSUSYPtr->getRsqqX(iGen3,idIn2A,l)
+              * coupSUSYPtr->getLsqqX(iGen4,idIn1A,l);
+            NUkl[2][1] = facTU
+              * conj(coupSUSYPtr->getLsqqX(iGen3,idIn2A,k))
+              * conj(coupSUSYPtr->getRsqqX(iGen4,idIn1A,k))
+              * coupSUSYPtr->getLsqqX(iGen3,idIn2A,l)
+              * coupSUSYPtr->getRsqqX(iGen4,idIn1A,l);
+            NUkl[2][2] = facMS
+              * conj(coupSUSYPtr->getRsqqX(iGen3,idIn2A,k))
+              * conj(coupSUSYPtr->getRsqqX(iGen4,idIn1A,k))
+              * coupSUSYPtr->getRsqqX(iGen3,idIn2A,l)
+              * coupSUSYPtr->getRsqqX(iGen4,idIn1A,l);
+            NTUkl[1][1] = facMS
+              * real( conj(coupSUSYPtr->getLsqqX(iGen4,idIn2A,k))
+                      * conj(coupSUSYPtr->getLsqqX(iGen3,idIn1A,k))
+                      * coupSUSYPtr->getLsqqX(iGen3,idIn2A,l)
+                      * coupSUSYPtr->getLsqqX(iGen4,idIn1A,l) );
+            NTUkl[1][2] = facTU
+              * real( conj(coupSUSYPtr->getRsqqX(iGen4,idIn2A,k))
+                      * conj(coupSUSYPtr->getLsqqX(iGen3,idIn1A,k))
+                      * coupSUSYPtr->getRsqqX(iGen3,idIn2A,l)
+                      * coupSUSYPtr->getLsqqX(iGen4,idIn1A,l) );
+            NTUkl[2][1] = facTU
+              * real( conj(coupSUSYPtr->getLsqqX(iGen4,idIn2A,k))
+                      * conj(coupSUSYPtr->getRsqqX(iGen3,idIn1A,k))
+                      * coupSUSYPtr->getLsqqX(iGen3,idIn2A,l)
+                      * coupSUSYPtr->getRsqqX(iGen4,idIn1A,l) );
+            NTUkl[2][2] = facMS
+              * real( conj(coupSUSYPtr->getRsqqX(iGen4,idIn2A,k))
+                      * conj(coupSUSYPtr->getRsqqX(iGen3,idIn1A,k))
+                      * coupSUSYPtr->getRsqqX(iGen3,idIn2A,l)
+                      * coupSUSYPtr->getRsqqX(iGen4,idIn1A,l) );
 
-        // kl-dependent factor for LL and RR contributions
-        double facMS = sH * particleDataPtr->m0(coupSUSYPtr->idNeut(k))
-          * particleDataPtr->m0(coupSUSYPtr->idNeut(l));
+            // Add to sums
+            sumNt += sigmaNeut / tNeut[k] / tNeut[l]
+              * real(NTkl[1][1] + NTkl[1][2] + NTkl[2][1] + NTkl[2][2]);
+            sumNu += sigmaNeut / uNeut[k] / uNeut[l]
+              * real(NUkl[1][1] + NUkl[1][2] + NUkl[2][1] + NUkl[2][2]);
+            sumInterference += 2.0 / 3.0 * sigmaNeut
+              * real(NTUkl[1][1] + NTUkl[1][2] + NTUkl[2][1] + NTUkl[2][2])
+              / tNeut[k] / uNeut[l];
+          }
 
-        // Note: Nxkl defined as in [Boz07] with sigmaNeut factored out
-        // [1][1] = LL, [1][2] = LR, [2][1] = RL, [2][2] = RR
-        complex NTkl[3][3], NUkl[3][3], NTUkl[3][3];
-        NTkl[1][1] = facMS
-          * conj(coupSUSYPtr->getLsqqX(iGen4,idIn2A,k))
-          * conj(coupSUSYPtr->getLsqqX(iGen3,idIn1A,k))
-          * coupSUSYPtr->getLsqqX(iGen4,idIn2A,l)
-          * coupSUSYPtr->getLsqqX(iGen3,idIn1A,l);
-        NTkl[1][2] = facTU
-          * conj(coupSUSYPtr->getRsqqX(iGen4,idIn2A,k))
-          * conj(coupSUSYPtr->getLsqqX(iGen3,idIn1A,k))
-          * coupSUSYPtr->getRsqqX(iGen4,idIn2A,l)
-          * coupSUSYPtr->getLsqqX(iGen3,idIn1A,l);
-        NTkl[2][1] = facTU
-          * conj(coupSUSYPtr->getLsqqX(iGen4,idIn2A,k))
-          * conj(coupSUSYPtr->getRsqqX(iGen3,idIn1A,k))
-          * coupSUSYPtr->getLsqqX(iGen4,idIn2A,l)
-          * coupSUSYPtr->getRsqqX(iGen3,idIn1A,l);
-        NTkl[2][2] = facMS
-          * conj(coupSUSYPtr->getRsqqX(iGen4,idIn2A,k))
-          * conj(coupSUSYPtr->getRsqqX(iGen3,idIn1A,k))
-          * coupSUSYPtr->getRsqqX(iGen4,idIn2A,l)
-          * coupSUSYPtr->getRsqqX(iGen3,idIn1A,l);
-        NUkl[1][1] = facMS
-          * conj(coupSUSYPtr->getLsqqX(iGen3,idIn2A,k))
-          * conj(coupSUSYPtr->getLsqqX(iGen4,idIn1A,k))
-          * coupSUSYPtr->getLsqqX(iGen3,idIn2A,l)
-          * coupSUSYPtr->getLsqqX(iGen4,idIn1A,l);
-        NUkl[1][2] = facTU
-          * conj(coupSUSYPtr->getRsqqX(iGen3,idIn2A,k))
-          * conj(coupSUSYPtr->getLsqqX(iGen4,idIn1A,k))
-          * coupSUSYPtr->getRsqqX(iGen3,idIn2A,l)
-          * coupSUSYPtr->getLsqqX(iGen4,idIn1A,l);
-        NUkl[2][1] = facTU
-          * conj(coupSUSYPtr->getLsqqX(iGen3,idIn2A,k))
-          * conj(coupSUSYPtr->getRsqqX(iGen4,idIn1A,k))
-          * coupSUSYPtr->getLsqqX(iGen3,idIn2A,l)
-          * coupSUSYPtr->getRsqqX(iGen4,idIn1A,l);
-        NUkl[2][2] = facMS
-          * conj(coupSUSYPtr->getRsqqX(iGen3,idIn2A,k))
-          * conj(coupSUSYPtr->getRsqqX(iGen4,idIn1A,k))
-          * coupSUSYPtr->getRsqqX(iGen3,idIn2A,l)
-          * coupSUSYPtr->getRsqqX(iGen4,idIn1A,l);
-        NTUkl[1][1] = facMS
-          * real( conj(coupSUSYPtr->getLsqqX(iGen4,idIn2A,k))
-                  * conj(coupSUSYPtr->getLsqqX(iGen3,idIn1A,k))
-                  * coupSUSYPtr->getLsqqX(iGen3,idIn2A,l)
-                  * coupSUSYPtr->getLsqqX(iGen4,idIn1A,l) );
-        NTUkl[1][2] = facTU
-          * real( conj(coupSUSYPtr->getRsqqX(iGen4,idIn2A,k))
-                  * conj(coupSUSYPtr->getLsqqX(iGen3,idIn1A,k))
-                  * coupSUSYPtr->getRsqqX(iGen3,idIn2A,l)
-                  * coupSUSYPtr->getLsqqX(iGen4,idIn1A,l) );
-        NTUkl[2][1] = facTU
-          * real( conj(coupSUSYPtr->getLsqqX(iGen4,idIn2A,k))
-                  * conj(coupSUSYPtr->getRsqqX(iGen3,idIn1A,k))
-                  * coupSUSYPtr->getLsqqX(iGen3,idIn2A,l)
-                  * coupSUSYPtr->getRsqqX(iGen4,idIn1A,l) );
-        NTUkl[2][2] = facMS
-          * real( conj(coupSUSYPtr->getRsqqX(iGen4,idIn2A,k))
-                  * conj(coupSUSYPtr->getRsqqX(iGen3,idIn1A,k))
-                  * coupSUSYPtr->getRsqqX(iGen3,idIn2A,l)
-                  * coupSUSYPtr->getRsqqX(iGen4,idIn1A,l) );
+          // Neutralino / Gluino interference
 
-        // Add to sums
-        sumNt += sigmaNeut / tNeut[k] / tNeut[l]
-          * real(NTkl[1][1] + NTkl[1][2] + NTkl[2][1] + NTkl[2][2]);
-        sumNu += sigmaNeut / uNeut[k] / uNeut[l]
-          * real(NUkl[1][1] + NUkl[1][2] + NUkl[2][1] + NUkl[2][2]);
-        sumInterference += 2.0 / 3.0 * sigmaNeut
-          * real(NTUkl[1][1] + NTUkl[1][2] + NTUkl[2][1] + NTUkl[2][2])
-          / tNeut[k] / uNeut[l];
+          // k-dependent factor for LL and RR contributions
+          double facMS = sH * particleDataPtr->m0(coupSUSYPtr->idNeut(k))
+            * particleDataPtr->m0(1000021);
+
+          // Note: Nxkl defined as in [Boz07] with sigmaNeutGlu factored out
+          // [1][1] = LL, [1][2] = LR, [2][1] = RL, [2][2] = RR
+          complex NGA[3][3], NGB[3][3];
+          NGA[1][1] = facMS
+            * real( conj(coupSUSYPtr->getLsqqX(iGen4,idIn2A,k))
+                    * conj(coupSUSYPtr->getLsqqX(iGen3,idIn1A,k))
+                    * conj(coupSUSYPtr->getLsqqG(iGen3,idIn2A))
+                    * conj(coupSUSYPtr->getLsqqG(iGen4,idIn1A)) );
+          NGA[1][2] = facTU
+            * real( conj(coupSUSYPtr->getRsqqX(iGen4,idIn2A,k))
+                    * conj(coupSUSYPtr->getLsqqX(iGen3,idIn1A,k))
+                    * conj(coupSUSYPtr->getLsqqG(iGen3,idIn2A))
+                    * conj(coupSUSYPtr->getRsqqG(iGen4,idIn1A)) );
+          NGA[2][1] = facTU
+            * real( conj(coupSUSYPtr->getLsqqX(iGen4,idIn2A,k))
+                    * conj(coupSUSYPtr->getRsqqX(iGen3,idIn1A,k))
+                    * conj(coupSUSYPtr->getRsqqG(iGen3,idIn2A))
+                    * conj(coupSUSYPtr->getLsqqG(iGen4,idIn1A)) );
+          NGA[2][2] = facMS
+            * real( conj(coupSUSYPtr->getRsqqX(iGen4,idIn2A,k))
+                    * conj(coupSUSYPtr->getRsqqX(iGen3,idIn1A,k))
+                    * conj(coupSUSYPtr->getRsqqG(iGen3,idIn2A))
+                    * conj(coupSUSYPtr->getRsqqG(iGen4,idIn1A)) );
+          NGB[1][1] = facMS
+            * real( conj(coupSUSYPtr->getLsqqX(iGen3,idIn2A,k))
+                    * conj(coupSUSYPtr->getLsqqX(iGen4,idIn1A,k))
+                    * conj(coupSUSYPtr->getLsqqG(iGen4,idIn2A))
+                    * conj(coupSUSYPtr->getLsqqG(iGen3,idIn1A)) );
+          NGB[1][2] = facMS
+            * real( conj(coupSUSYPtr->getRsqqX(iGen3,idIn2A,k))
+                    * conj(coupSUSYPtr->getLsqqX(iGen4,idIn1A,k))
+                    * conj(coupSUSYPtr->getRsqqG(iGen4,idIn2A))
+                    * conj(coupSUSYPtr->getLsqqG(iGen3,idIn1A)) );
+          NGB[2][1] = facMS
+            * real( conj(coupSUSYPtr->getLsqqX(iGen3,idIn2A,k))
+                    * conj(coupSUSYPtr->getRsqqX(iGen4,idIn1A,k))
+                    * conj(coupSUSYPtr->getLsqqG(iGen4,idIn2A))
+                    * conj(coupSUSYPtr->getRsqqG(iGen3,idIn1A)) );
+          NGB[2][2] = facMS
+            * real( conj(coupSUSYPtr->getRsqqX(iGen3,idIn2A,k))
+                    * conj(coupSUSYPtr->getRsqqX(iGen4,idIn1A,k))
+                    * conj(coupSUSYPtr->getRsqqG(iGen4,idIn2A))
+                    * conj(coupSUSYPtr->getRsqqG(iGen3,idIn1A)) );
+
+          // Add to sums
+          sumInterference += sigmaNeutGlu *
+            ( real(NGA[1][1] + NGA[1][2] + NGA[2][1] + NGA[2][2])
+              / tNeut[k] / uGlu
+              + real(NGB[1][1] + NGB[1][2] + NGB[2][1] + NGB[2][2])
+              / uNeut[k] / tGlu );
+        }
       }
-
-      // Neutralino / Gluino interference
-
-      // k-dependent factor for LL and RR contributions
-      double facMS = sH * particleDataPtr->m0(coupSUSYPtr->idNeut(k))
-        * particleDataPtr->m0(1000021);
-
-      // Note: Nxkl defined as in [Boz07] with sigmaNeutGlu factored out
-      // [1][1] = LL, [1][2] = LR, [2][1] = RL, [2][2] = RR
-      complex NGA[3][3], NGB[3][3];
-      NGA[1][1] = facMS
-        * real( conj(coupSUSYPtr->getLsqqX(iGen4,idIn2A,k))
-                * conj(coupSUSYPtr->getLsqqX(iGen3,idIn1A,k))
-                * conj(coupSUSYPtr->getLsqqG(iGen3,idIn2A))
-                * conj(coupSUSYPtr->getLsqqG(iGen4,idIn1A)) );
-      NGA[1][2] = facTU
-        * real( conj(coupSUSYPtr->getRsqqX(iGen4,idIn2A,k))
-                * conj(coupSUSYPtr->getLsqqX(iGen3,idIn1A,k))
-                * conj(coupSUSYPtr->getLsqqG(iGen3,idIn2A))
-                * conj(coupSUSYPtr->getRsqqG(iGen4,idIn1A)) );
-      NGA[2][1] = facTU
-        * real( conj(coupSUSYPtr->getLsqqX(iGen4,idIn2A,k))
-                * conj(coupSUSYPtr->getRsqqX(iGen3,idIn1A,k))
-                * conj(coupSUSYPtr->getRsqqG(iGen3,idIn2A))
-                * conj(coupSUSYPtr->getLsqqG(iGen4,idIn1A)) );
-      NGA[2][2] = facMS
-        * real( conj(coupSUSYPtr->getRsqqX(iGen4,idIn2A,k))
-                * conj(coupSUSYPtr->getRsqqX(iGen3,idIn1A,k))
-                * conj(coupSUSYPtr->getRsqqG(iGen3,idIn2A))
-                * conj(coupSUSYPtr->getRsqqG(iGen4,idIn1A)) );
-      NGB[1][1] = facMS
-        * real( conj(coupSUSYPtr->getLsqqX(iGen3,idIn2A,k))
-                * conj(coupSUSYPtr->getLsqqX(iGen4,idIn1A,k))
-                * conj(coupSUSYPtr->getLsqqG(iGen4,idIn2A))
-                * conj(coupSUSYPtr->getLsqqG(iGen3,idIn1A)) );
-      NGB[1][2] = facMS
-        * real( conj(coupSUSYPtr->getRsqqX(iGen3,idIn2A,k))
-                * conj(coupSUSYPtr->getLsqqX(iGen4,idIn1A,k))
-                * conj(coupSUSYPtr->getRsqqG(iGen4,idIn2A))
-                * conj(coupSUSYPtr->getLsqqG(iGen3,idIn1A)) );
-      NGB[2][1] = facMS
-        * real( conj(coupSUSYPtr->getLsqqX(iGen3,idIn2A,k))
-                * conj(coupSUSYPtr->getRsqqX(iGen4,idIn1A,k))
-                * conj(coupSUSYPtr->getLsqqG(iGen4,idIn2A))
-                * conj(coupSUSYPtr->getRsqqG(iGen3,idIn1A)) );
-      NGB[2][2] = facMS
-        * real( conj(coupSUSYPtr->getRsqqX(iGen3,idIn2A,k))
-                * conj(coupSUSYPtr->getRsqqX(iGen4,idIn1A,k))
-                * conj(coupSUSYPtr->getRsqqG(iGen4,idIn2A))
-                * conj(coupSUSYPtr->getRsqqG(iGen3,idIn1A)) );
-
-      // Add to sums
-      sumInterference += sigmaNeutGlu *
-        ( real(NGA[1][1] + NGA[1][2] + NGA[2][1] + NGA[2][2])
-        / tNeut[k] / uGlu
-        + real(NGB[1][1] + NGB[1][2] + NGB[2][1] + NGB[2][2])
-        / uNeut[k] / tGlu );
-    }
-
     // t-channel + u-channel Gluinos + t/u interference
 
     // factor for LL and RR contributions
@@ -1533,6 +1548,8 @@ void Sigma2qqbar2squarkantisquark::initProc() {
   // Secondary open width fraction.
   openFracPair = particleDataPtr->resOpenFrac(id3Sav, id4Sav);
 
+  // Select interference terms
+  onlyQCD = settingsPtr->flag("SUSY:qqbar2squarkantisquark:onlyQCD");
 }
 
 //--------------------------------------------------------------------------
@@ -1575,7 +1592,7 @@ double Sigma2qqbar2squarkantisquark::sigmaHat() {
   if (!isUD && abs(id1) % 2 != abs(id2) % 2) return 0.0;
 
   // Check if using QCD diagrams only
-  bool onlyQCD = settingsPtr->flag("SUSY:qqbar2squarkantisquark:onlyQCD");
+
 
   // Coded UD sigma is for udbar -> ~u~d'*. Swap t<->u for dbaru -> ~u~d'*.
   swapTU = (isUD && abs(id1) % 2 != 0);
@@ -2910,4 +2927,3 @@ void Sigma2qqbar2sleptonantislepton::setIdColAcol() {
 //==========================================================================
 
 } // end namespace Pythia8
-

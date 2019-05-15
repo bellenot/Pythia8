@@ -41,8 +41,9 @@ public:
 
   // Constructor.
   ProcessContainer(SigmaProcess* sigmaProcessPtrIn = 0,
-    bool externalPtrIn = false) : sigmaProcessPtr(sigmaProcessPtrIn),
-    externalPtr(externalPtrIn), phaseSpacePtr(0) {}
+    bool externalPtrIn = false, PhaseSpace* phaseSpacePtrIn = 0) :
+      sigmaProcessPtr(sigmaProcessPtrIn),
+      externalPtr(externalPtrIn), phaseSpacePtr(phaseSpacePtrIn) {}
 
   // Destructor. Do not destroy external sigmaProcessPtr.
   ~ProcessContainer() {delete phaseSpacePtr;
@@ -158,6 +159,7 @@ private:
   LHAup*           lhaUpPtr;
 
   // Possibility to modify Les Houches input.
+  bool   matchInOut;
   int    idRenameBeams, setLifetime, setLeptonMass, idLep[3];
   double mRecalculate, mLep[3];
 

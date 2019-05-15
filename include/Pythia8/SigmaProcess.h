@@ -252,16 +252,16 @@ public:
 
   // Save and load kinematics for trial interactions
   void saveKin() {
-    for (int i = 0; i < 6; i++) { partonT[i] = parton[i];
+    for (int i = 0; i < 12; i++) { partonT[i] = parton[i];
       mSaveT[i] = mSave[i]; }
     pTFinT = pTFin; phiT = phi; cosThetaT = cosTheta; sinThetaT = sinTheta; }
   void loadKin() {
-    for (int i = 0; i < 6; i++) { parton[i] = partonT[i];
+    for (int i = 0; i < 12; i++) { parton[i] = partonT[i];
     mSave[i] = mSaveT[i]; }
     pTFin = pTFinT; cosTheta = cosThetaT; sinTheta = sinThetaT; phi = phiT;
   }
   void swapKin() {
-    for (int i = 0; i < 6; i++) { swap(parton[i], partonT[i]);
+    for (int i = 0; i < 12; i++) { swap(parton[i], partonT[i]);
                                   swap(mSave[i], mSaveT[i]); }
     swap(pTFin, pTFinT); swap(cosTheta, cosThetaT);
     swap(sinTheta, sinThetaT); swap(phi, phiT); }
@@ -271,7 +271,7 @@ protected:
   // Constructor.
   SigmaProcess() : infoPtr(0), settingsPtr(0), particleDataPtr(0),
     rndmPtr(0), beamAPtr(0), beamBPtr(0), couplingsPtr(0), sigmaTotPtr(0),
-    slhaPtr(0), lhaUpPtr(0) {for (int i = 0; i < 6; ++i) mSave[i] = 0.;
+    slhaPtr(0), lhaUpPtr(0) {for (int i = 0; i < 12; ++i) mSave[i] = 0.;
     Q2RenSave = alpEM = alpS = Q2FacSave = pdf1Save = pdf2Save = 0.; }
 
   // Constants: could only be changed in the code itself.
@@ -314,7 +314,7 @@ protected:
 
   // CP violation parameters for Higgs sector, normally only set once.
   int    higgsH1parity, higgsH2parity, higgsA3parity;
-  double higgsH1eta, higgsH2eta, higgsA3eta, higgsH1phi, higgsH2phi, 
+  double higgsH1eta, higgsH2eta, higgsA3eta, higgsH1phi, higgsH2phi,
          higgsA3phi;
 
   // Information on incoming beams.
@@ -345,21 +345,21 @@ protected:
 
   // Store flavour, colour, anticolour, mass, angles and the whole particle.
   int      id1, id2, id3, id4, id5;
-  int      idSave[6], colSave[6], acolSave[6];
-  double   mSave[6], cosTheta, sinTheta, phi, sHMass, sHBeta, pT2Mass, pTFin;
-  Particle parton[6];
+  int      idSave[12], colSave[12], acolSave[12];
+  double   mSave[12], cosTheta, sinTheta, phi, sHMass, sHBeta, pT2Mass, pTFin;
+  Particle parton[12];
 
   // Minimal set of saved kinematics for trial interactions when
   // using the x-dependent matter profile of multiparton interactions.
-  Particle partonT[6];
-  double   mSaveT[6], pTFinT, cosThetaT, sinThetaT, phiT;
+  Particle partonT[12];
+  double   mSaveT[12], pTFinT, cosThetaT, sinThetaT, phiT;
 
   // Calculate and store all modified masses and four-vectors
   // intended for matrix elements. Return false if failed.
   virtual bool setupForME() {return true;}
   bool     setupForMEin();
-  double   mME[5];
-  Vec4     pME[5];
+  double   mME[12];
+  Vec4     pME[12];
 
   // Store whether tHat and uHat are swapped (= same as swap 3 and 4).
   bool swapTU;
@@ -628,4 +628,3 @@ private:
 } // end namespace Pythia8
 
 #endif // Pythia8_SigmaProcess_H
-

@@ -804,11 +804,11 @@ StringRegion StringFragmentation::finalRegion() {
       double cthe = 2. * rndmPtr->flat() - 1.;
       double sthe = sqrtpos(1. - cthe * cthe);
       double phi  = 2. * M_PI * rndmPtr->flat();
-      delta = 0.5 * min( pPosJoin.e(), pNegJoin.e()) 
+      delta = 0.5 * min( pPosJoin.e(), pNegJoin.e())
         * Vec4( sthe * sin(phi), sthe * cos(phi), cthe, 0.);
       infoPtr->errorMsg("Warning in StringFragmentation::finalRegion: "
         "random axis needed to break tie");
-    }  
+    }
     pPosJoin -= delta;
     pNegJoin += delta;
   }

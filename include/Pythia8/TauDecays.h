@@ -70,8 +70,6 @@ private:
 
   // Hard process helicity matrix elements.
   HMETwoFermions2W2TwoFermions      hmeTwoFermions2W2TwoFermions;
-  HMETwoFermions2Z2TwoFermions      hmeTwoFermions2Z2TwoFermions;
-  HMETwoFermions2Gamma2TwoFermions  hmeTwoFermions2Gamma2TwoFermions;
   HMETwoFermions2GammaZ2TwoFermions hmeTwoFermions2GammaZ2TwoFermions;
   HMEW2TwoFermions                  hmeW2TwoFermions;
   HMEZ2TwoFermions                  hmeZ2TwoFermions;

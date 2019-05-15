@@ -2317,7 +2317,7 @@ void ClusterSequence::_initialise_tiles() {
 	for (int idphi = -1; idphi <=+1; idphi++) {
 	  *pptile = & _tiles[_tile_index(ieta-1,iphi+idphi)];
 	  pptile++;
-	}	
+	}
       }
       *pptile = & _tiles[_tile_index(ieta,iphi-1)];
       pptile++;
@@ -2328,7 +2328,7 @@ void ClusterSequence::_initialise_tiles() {
 	for (int idphi = -1; idphi <= +1; idphi++) {
 	  *pptile = & _tiles[_tile_index(ieta+1,iphi+idphi)];
 	  pptile++;
-	}	
+	}
       }
       tile->end_tiles = pptile;
       tile->tagged = false;
@@ -2584,7 +2584,7 @@ void ClusterSequence::_faster_tiled_N2_cluster() {
   jetA = head;
   for (int i = 0; i < n; i++) {
     diJ[i].diJ = _bj_diJ(jetA); // kt distance * R^2
-    diJ[i].jet = jetA;  // our compact diJ table will not be in	
+    diJ[i].jet = jetA;  // our compact diJ table will not be in
     jetA->diJ_posn = i; // one-to-one corresp. with non-compact jets,
     jetA++; // have jetA follow i
   }

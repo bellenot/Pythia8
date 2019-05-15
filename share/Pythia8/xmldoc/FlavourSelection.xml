@@ -53,7 +53,8 @@ factor of 3 enhancement of spin 1 from counting the number of states.
 The four components give the suppression when the heaviest quark is 
 <ei>u/d</ei>, <ei>s</ei>, <ei>c</ei> or <ei>b</ei>, respectively. 
 These parameters are seldom used and currently not constrained by any 
-data, so very much a guesswork. 
+data, so very much a guesswork. Character-string input of this vector 
+should be as a comma-separated list, without any blanks. 
 </pvec> 
  
 <h3>Standard-meson production</h3> 

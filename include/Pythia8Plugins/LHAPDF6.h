@@ -59,6 +59,25 @@ private:
   // Update parton densities.
   void xfUpdate(int id, double x, double Q2);
 
+  // Check whether x and Q2 values fall inside the fit bounds.
+  bool insideBounds(double x, double Q2) {
+   return ( x > pdf->xMin()  &&  x < pdf->xMax()
+        && Q2 > pdf->q2Min() && Q2 < pdf->q2Max() ); }
+
+  // Return the running alpha_s shipped with the LHAPDF set.
+  double alphaS(double Q2) { return pdf->alphasQ2(Q2); }
+
+  // Return quark masses used in the PDF fit.
+  double muPDFSave, mdPDFSave, mcPDFSave, msPDFSave, mbPDFSave;
+  double mQuarkPDF(int id) {
+    if (abs(id) == 1) return mdPDFSave;
+    if (abs(id) == 2) return muPDFSave;
+    if (abs(id) == 3) return msPDFSave;
+    if (abs(id) == 4) return mcPDFSave;
+    if (abs(id) == 5) return mbPDFSave;
+    return -1.;
+ }
+
 };
 
 //--------------------------------------------------------------------------
@@ -105,6 +124,13 @@ void LHAPDF6::init(string setName, int member, Info *info) {
   }
   isSet = true;
 
+  // Store quark masses used in PDF fit.
+  muPDFSave = pdf->info().get_entry_as<double>("MUp");
+  mdPDFSave = pdf->info().get_entry_as<double>("MDown");
+  mcPDFSave = pdf->info().get_entry_as<double>("MCharm");
+  msPDFSave = pdf->info().get_entry_as<double>("MStrange");
+  mbPDFSave = pdf->info().get_entry_as<double>("MBottom");
+
 }
 
 //--------------------------------------------------------------------------
@@ -112,6 +138,12 @@ void LHAPDF6::init(string setName, int member, Info *info) {
 // Give the parton distribution function set from LHAPDF6.
 
 void LHAPDF6::xfUpdate(int, double x, double Q2) {
+
+  // Freeze at boundary value if PDF is evaluated outside the fit region.
+  if (x < pdf->xMin() )    x = pdf->xMin();
+  if (x > pdf->xMax() )    x = pdf->xMax();
+  if (Q2 < pdf->q2Min() ) Q2 = pdf->q2Min();
+  if (Q2 > pdf->q2Max() ) Q2 = pdf->q2Max();
 
   // Update values.
   xg     = pdf->xfxQ2(21, x, Q2);

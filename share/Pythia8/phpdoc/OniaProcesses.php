@@ -173,6 +173,10 @@ e.g. <i>Upsilon</i> and <i>chi_b</i>.
  
 <h3>Charmonium 3S1 States</h3> 
  
+<b>Warning</b>: changed <code>fvec</code>, <code>mvec</code> or 
+<code>pvec</code> values must be provided as a comma-separated list 
+with the right number of elements, without any blanks inside the list. 
+ 
 <br/><br/><table><tr><td><strong>Charmonium:states(3S1)  </td><td></td><td> <input type="text" name="9" value="443,100443" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>443,100443</strong></code>; <code>minimum = 0</code>)</td></tr></table>
 The <i>3S1</i> charmonium states that can be produced from the following 
 processes. Note that all vectors within this section, 
@@ -265,6 +269,10 @@ Code 410.
  
 <h3>Charmonium 3PJ States</h3> 
  
+<b>Warning</b>: changed <code>fvec</code>, <code>mvec</code> or 
+<code>pvec</code> values must be provided as a comma-separated list 
+with the right number of elements, without any blanks inside the list. 
+ 
 <br/><br/><table><tr><td><strong>Charmonium:states(3PJ)  </td><td></td><td> <input type="text" name="24" value="10441,20443,445" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10441,20443,445</strong></code>)</td></tr></table>
 The <i>3PJ</i> charmonium states that can be produced from the following 
 processes. Note that all vectors within this section, 
@@ -322,6 +330,10 @@ Code 416.
  
 <h3>Charmonium 3DJ States</h3> 
  
+<b>Warning</b>: changed <code>fvec</code>, <code>mvec</code> or 
+<code>pvec</code> values must be provided as a comma-separated list 
+with the right number of elements, without any blanks inside the list. 
+ 
 <br/><br/><table><tr><td><strong>Charmonium:states(3DJ)  </td><td></td><td> <input type="text" name="33" value="30443" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>30443</strong></code>)</td></tr></table>
 The <i>3DJ</i> charmonium states that can be produced from the following 
 processes. Note that all vectors within this section, 
@@ -371,6 +383,10 @@ Code 420.
    
  
 <h3>Bottomonium 3S1 States</h3> 
+ 
+<b>Warning</b>: changed <code>fvec</code>, <code>mvec</code> or 
+<code>pvec</code> values must be provided as a comma-separated list 
+with the right number of elements, without any blanks inside the list. 
  
 <br/><br/><table><tr><td><strong>Bottomonium:states(3S1)  </td><td></td><td> <input type="text" name="40" value="553,100553,200553" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>553,100553,200553</strong></code>; <code>minimum = 0</code>)</td></tr></table>
 The <i>3S1</i> bottomonium states that can be produced from the following 
@@ -464,6 +480,10 @@ Code 510.
  
 <h3>Bottomonium 3PJ States</h3> 
  
+<b>Warning</b>: changed <code>fvec</code>, <code>mvec</code> or 
+<code>pvec</code> values must be provided as a comma-separated list 
+with the right number of elements, without any blanks inside the list. 
+ 
 <br/><br/><table><tr><td><strong>Bottomonium:states(3PJ)  </td><td></td><td> <input type="text" name="55" value="10551,20553,555" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10551,20553,555</strong></code>)</td></tr></table>
 The <i>3PJ</i> bottomonium states that can be produced from the following 
 processes. Note that all vectors within this section, 
@@ -520,6 +540,10 @@ Code 516.
    
  
 <h3>Bottomonium 3DJ States</h3> 
+ 
+<b>Warning</b>: changed <code>fvec</code>, <code>mvec</code> or 
+<code>pvec</code> values must be provided as a comma-separated list 
+with the right number of elements, without any blanks inside the list. 
  
 <br/><br/><table><tr><td><strong>Bottomonium:states(3DJ)  </td><td></td><td> <input type="text" name="64" value="" size="20"/> </td></tr></table>
 The <i>3DJ</i> bottomonium states that can be produced from the following 
@@ -943,4 +967,3 @@ fclose($handle);
 </html>
  
 <!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
- 

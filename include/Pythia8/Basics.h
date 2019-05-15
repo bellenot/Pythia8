@@ -137,6 +137,12 @@ public:
   double py() const {return yy;}
   double pz() const {return zz;}
   double e() const {return tt;}
+  double& operator[](int i) {
+    if      (i == 1) return xx;
+    else if (i == 2) return yy;
+    else if (i == 3) return zz;
+    else             return tt;
+  }
   double mCalc() const {double temp = tt*tt - xx*xx - yy*yy - zz*zz;
     return (temp >= 0.) ? sqrt(temp) : -sqrt(-temp);}
   double m2Calc() const {return tt*tt - xx*xx - yy*yy - zz*zz;}

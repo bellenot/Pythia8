@@ -148,7 +148,7 @@ POWHEG-hardness definition, it can be useful to also check
 value as promoted in [<a href="Bibliography.php" target="page">Ole12</a>]. 
  
 <p/> 
-Finally, you need to decide how many emissions the vetoed shower should 
+You need to decide how many emissions the vetoed shower should 
 check after an allowed emission has been constructed. If the hardness 
 definitions in POWHEG-BOX and PYTHIA 8 where identical, all checking could 
 be stopped after the first allowed PS emission. To be prudent, we 
@@ -158,6 +158,16 @@ recommend setting
 which will then check up to three allowed emissions. Higher values of 
 <code>POWHEG:vetoCount</code> have not lead to visible differences 
 for the processes which have been tested. 
+ 
+<p/> 
+Finally, for many POWHEG processes, the Sudakov effects from electroweak 
+emissions (here we are concerned mainly with photon emissions, but this could 
+apply also to W/Z emissions) are not included. This effect can be 
+investigated using <code>POWHEG:QEDveto = 0,1,</code> or <code>2</code>. 
+For the default  value of <code>POWHEG:pTemt = 0</code>, only 
+<code>POWHEG:QEDveto = 2</code> has any effect. For this choice, a hard 
+photon and subsequent QCD radiation is retained. In many cases, particularly 
+when the Born contributions are small, the choice has little effect. 
  
 <h3>The modes</h3> 
  
@@ -220,6 +230,12 @@ MPI vetoing.
 <input type="radio" name="8" value="0" checked="checked"><strong>0 </strong>: No MPI vetoing is done.<br/>
 <input type="radio" name="8" value="1"><strong>1 </strong>: When there is no radiation, MPIs with a scale above  <ei>pT_1</ei> are vetoed, else MPIs with a scale above  <ei>sum_i pT_i / 2 = (pT_1 + pT_2 + pT_3) / 2</ei> are vetoed.  This option is intended specifically for POWHEG simulations of  <ei>2 &rarr; 2 + 2 &rarr; 3</ei> QCD processes.  <br/>
  
+<br/><br/><table><tr><td><strong>POWHEG:QEDveto  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
+Treatment of non-QCD radiation. 
+<br/>
+<input type="radio" name="9" value="0" checked="checked"><strong>0 </strong>: Colorless partons are not included in <ei> pT </ei>    calculated from the shower for <ei> pTemt>0 </ei>.<br/>
+<input type="radio" name="9" value="1"><strong>1 </strong>: Colorless partons ARE included for <ei> pTemt>0 </ei>.  <option value="2">Colorless partons ARE included for <ei> pTemt>0 </ei>.    Additionally, if a colorless parton is emitted with <ei> pT > pThard </ei>    in Born-level events, then the entire event is accepted.    This is relevant for all values of <ei> pTemt </ei>.  <br/>
+ 
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -273,6 +289,11 @@ fwrite($handle,$data);
 if($_POST["8"] != "0")
 {
 $data = "POWHEG:MPIveto = ".$_POST["8"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["9"] != "0")
+{
+$data = "POWHEG:QEDveto = ".$_POST["9"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

@@ -83,51 +83,67 @@ int Particle::iBotCopy() const {
 // also through shower branchings, making use of flavour matches.
 // Stops tracing when this gives ambiguities.
 
-int Particle::iTopCopyId() const {
+int Particle::iTopCopyId( bool simplify) const {
 
+  // Check that particle belongs to event record. Initialize.
   if (evtPtr == 0) return -1;
   int iUp = index();
-  for ( ; ; ) {
+
+  // Simple solution when only first and last mother are studied.
+  if (simplify) for ( ; ; ) {
     int mother1up = (*evtPtr)[iUp].mother1();
     int id1up     = (mother1up > 0) ? (*evtPtr)[mother1up].id() : 0;
     int mother2up = (*evtPtr)[iUp].mother2();
     int id2up     = (mother2up > 0) ? (*evtPtr)[mother2up].id() : 0;
-    if (mother2up != mother1up && id2up == id1up) break;
-    if (id1up == idSave) {
-      iUp = mother1up;
-      continue;
-    }
-    if (id2up == idSave) {
-      iUp = mother2up;
-      continue;
-    }
-    break;
+    if (mother2up != mother1up && id2up == id1up) return iUp;
+    if (id1up != idSave && id2up != idSave) return iUp;
+    iUp = (id1up == idSave) ?  mother1up : mother2up;
   }
-  return iUp;
+
+  // Else full solution where all mothers are studied.
+  for ( ; ; ) {
+    int iUpTmp  = 0;
+    vector<int> mothersTmp = (*evtPtr)[iUp].motherList();
+    for (unsigned int i = 0; i < mothersTmp.size(); ++i)
+    if ( (*evtPtr)[mothersTmp[i]].id() == idSave) {
+      if (iUpTmp != 0) return iUp;
+      iUpTmp = mothersTmp[i];
+    }
+    if (iUpTmp == 0) return iUp;
+    iUp = iUpTmp;
+  }
 
 }
 
-int Particle::iBotCopyId() const {
+int Particle::iBotCopyId( bool simplify) const {
 
+  // Check that particle belongs to event record. Initialize.
   if (evtPtr == 0) return -1;
   int iDn = index();
-  for ( ; ; ) {
+
+  // Simple solution when only first and last daughter are studied.
+  if (simplify) for ( ; ; ) {
     int daughter1dn = (*evtPtr)[iDn].daughter1();
     int id1dn       = (daughter1dn > 0) ? (*evtPtr)[daughter1dn].id() : 0;
     int daughter2dn = (*evtPtr)[iDn].daughter2();
     int id2dn       = (daughter2dn > 0) ? (*evtPtr)[daughter2dn].id() : 0;
-    if (daughter2dn != daughter1dn && id2dn == id1dn) break;
-    if (id1dn == idSave) {
-      iDn = daughter1dn;
-      continue;
-    }
-    if (id2dn == idSave) {
-      iDn = daughter2dn;
-      continue;
-    }
-    break;
+    if (daughter2dn != daughter1dn && id2dn == id1dn) return iDn;
+    if (id1dn != idSave && id2dn != idSave) return iDn;
+    iDn = (id1dn == idSave) ?  daughter1dn : daughter2dn;
   }
-  return iDn;
+
+  // Else full solution where all daughters are studied.
+  for ( ; ; ) {
+    int iDnTmp  = 0;
+    vector<int> daughtersTmp = (*evtPtr)[iDn].daughterList();
+    for (unsigned int i = 0; i < daughtersTmp.size(); ++i)
+    if ( (*evtPtr)[daughtersTmp[i]].id() == idSave) {
+      if (iDnTmp != 0) return iDn;
+      iDnTmp = daughtersTmp[i];
+    }
+    if (iDnTmp == 0) return iDn;
+    iDn = iDnTmp;
+  }
 
 }
 
@@ -146,7 +162,7 @@ vector<int> Particle::motherList() const {
   if  (statusSaveAbs == 11 || statusSaveAbs == 12) ;
   else if (mother1Save == 0 && mother2Save == 0) motherVec.push_back(0);
 
-  // One mother or a carbon copy
+  // One mother or a carbon copy.
   else if (mother2Save == 0 || mother2Save == mother1Save)
     motherVec.push_back(mother1Save);
 
@@ -319,6 +335,19 @@ int Particle::statusHepMC() const {
 
   // Unacceptable codes as 0.
   return 0;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Check if particle belonged to the final state at the Parton Level.
+
+bool Particle::isFinalPartonLevel() const {
+
+  if (index() >= evtPtr->savedPartonLevelSize) return false;
+  if (statusSave > 0) return true;
+  if (daughter1Save >= evtPtr->savedPartonLevelSize) return true;
+  return false;
 
 }
 
@@ -589,17 +618,17 @@ int Event::copy(int iCopy, int newStatus) {
 // Print an event - special cases that rely on the general method.
 // Not inline to make them directly callable in (some) debuggers.
 
-void Event::list() const {
-  list(false, false, cout);
+void Event::list(int precision) const {
+  list(false, false, cout, precision);
 }
 
-void Event::list(ostream& os) const {
-  list(false, false, os);
+void Event::list(ostream& os, int precision) const {
+  list(false, false, os, precision);
 }
 
-void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters)
-  const {
-  list(showScaleAndVertex, showMothersAndDaughters, cout);
+void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
+  int precision) const {
+  list(showScaleAndVertex, showMothersAndDaughters, cout, precision);
 }
 
 //--------------------------------------------------------------------------
@@ -607,7 +636,7 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters)
 // Print an event.
 
 void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
-  ostream& os) const {
+  ostream& os, int precision) const {
 
   // Header.
   os << "\n --------  PYTHIA Event Listing  " << headerList << "----------"
@@ -619,7 +648,8 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
        << "                   xProd      yProd      zProd      tProd      "
        << " tau\n";
 
-  // At high energy switch to scientific format for momenta.
+  // Precision. At high energy switch to scientific format for momenta.
+  int prec = max( 3, precision);
   bool useFixed = (entry.empty() || entry[0].e() < 1e5);
 
   // Listing of complete event.
@@ -634,18 +664,19 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
        << pt.status() << setw(6) << pt.mother1() << setw(6)
        << pt.mother2() << setw(6) << pt.daughter1() << setw(6)
        << pt.daughter2() << setw(6) << pt.col() << setw(6) << pt.acol()
-       << ( (useFixed) ? fixed : scientific ) << setprecision(3)
-       << setw(11) << pt.px() << setw(11) << pt.py() << setw(11)
-       << pt.pz() << setw(11) << pt.e() << setw(11) << pt.m() << "\n";
+       << ( (useFixed) ? fixed : scientific ) << setprecision(prec)
+       << setw(8+prec) << pt.px() << setw(8+prec) << pt.py()
+       << setw(8+prec) << pt.pz() << setw(8+prec) << pt.e()
+       << setw(8+prec) << pt.m() << "\n";
 
     // Optional extra line for scale value, polarization and production vertex.
     if (showScaleAndVertex)
-      os << "                              " << setw(11) << pt.scale()
-         << " " << fixed << setprecision(3) << setw(11) << pt.pol()
-         << "                        " << scientific << setprecision(3)
-         << setw(11) << pt.xProd() << setw(11) << pt.yProd()
-         << setw(11) << pt.zProd() << setw(11) << pt.tProd()
-         << setw(11) << pt.tau() << "\n";
+      os << "                              " << setw(8+prec) << pt.scale()
+         << " " << fixed << setprecision(prec) << setw(8+prec) << pt.pol()
+         << "                        " << scientific << setprecision(prec)
+         << setw(8+prec) << pt.xProd() << setw(8+prec) << pt.yProd()
+         << setw(8+prec) << pt.zProd() << setw(8+prec) << pt.tProd()
+         << setw(8+prec) << pt.tau() << "\n";
 
     // Optional extra line, giving a complete list of mothers and daughters.
     if (showMothersAndDaughters) {
@@ -678,10 +709,10 @@ void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters,
   // Line with sum charge, momentum, energy and invariant mass.
   os << fixed << setprecision(3) << "                                   "
      << "Charge sum:" << setw(7) << chargeSum << "           Momentum sum:"
-     << ( (useFixed) ? fixed : scientific ) << setprecision(3)
-     << setw(11) << pSum.px() << setw(11) << pSum.py() << setw(11)
-     << pSum.pz() << setw(11) << pSum.e() << setw(11) << pSum.mCalc()
-     << "\n";
+     << ( (useFixed) ? fixed : scientific ) << setprecision(prec)
+     << setw(8+prec) << pSum.px() << setw(8+prec) << pSum.py()
+     << setw(8+prec) << pSum.pz() << setw(8+prec) << pSum.e()
+     << setw(8+prec) << pSum.mCalc() << "\n";
 
   // Listing finished.
   os << "\n --------  End PYTHIA Event Listing  ----------------------------"

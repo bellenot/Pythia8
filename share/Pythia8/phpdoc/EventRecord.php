@@ -101,13 +101,13 @@ above about the (ir)relevance of entry 0.
    
  
 <a name="method4"></a>
-<p/><strong>void Event::list() &nbsp;</strong> <br/>
+<p/><strong>void Event::list(int precision = 3) &nbsp;</strong> <br/>
    
-<strong>void Event::list(ostream& os) &nbsp;</strong> <br/>
+<strong>void Event::list(ostream& os, int precision = 3) &nbsp;</strong> <br/>
    
-<strong>void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters = false) &nbsp;</strong> <br/>
+<strong>void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters = false, int precision = 3) &nbsp;</strong> <br/>
    
-<strong>void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters, ostream& os) &nbsp;</strong> <br/>
+<strong>void Event::list(bool showScaleAndVertex, bool showMothersAndDaughters, ostream& os, int precision = 3) &nbsp;</strong> <br/>
 Provide a listing of the whole event, i.e. of the 
 <code>vector&lt;Particle&gt;</code>. The methods with fewer arguments 
 call the final one with the respective default values, and are 
@@ -127,6 +127,12 @@ described below. It is mainly intended for debug purposes.
    
 <br/><code>argument</code><strong> os </strong> (<code>default = <strong>cout</strong></code>) :  a reference to the <code>ostream</code> 
 object to which the event listing will be directed. 
+   
+<br/><code>argument</code><strong> precision </strong> (<code>default = <strong>3</strong></code>) :  the number of digits to the right 
+of the decimal point shown for momenta, energies andf masses. Can be set 
+above 3, but reducing it below 3 will have no effect. This option is 
+intended for expert users, e.g. for debugging purposes, and so no effort 
+has been made to stretch header and footer to match. 
    
  
    

@@ -124,45 +124,10 @@ private:
 
 //==========================================================================
 
-// Helicity matrix element for the hard process of two fermions -> W ->
+// Helicity matrix element for the hard process of two fermions -> W/W' ->
 // two fermions.
 
 class HMETwoFermions2W2TwoFermions : public HelicityMatrixElement {
-
-public:
-
-  void initWaves(vector<HelicityParticle>&);
-
-  complex calculateME(vector<int>);
-
-};
-
-//==========================================================================
-
-// Helicity matrix element for the hard process of two fermions ->
-// photon -> two fermions.
-
-class HMETwoFermions2Gamma2TwoFermions : public HelicityMatrixElement {
-
-public:
-
-  void initWaves(vector<HelicityParticle>&);
-
-  complex calculateME(vector<int>);
-
-private:
-
-  // Fermion line charge and interaction energy.
-  double p0Q, p2Q, s;
-
-};
-
-//==========================================================================
-
-// Helicity matrix element for the hard process of two fermions ->
-// Z -> two fermions.
-
-class HMETwoFermions2Z2TwoFermions : public HelicityMatrixElement {
 
 public:
 
@@ -177,29 +142,18 @@ private:
   // Vector and axial couplings.
   double p0CA, p2CA, p0CV, p2CV;
 
-  // Weinberg angle, Z width (on-shell), Z mass (on-shell), and s.
-  double cos2W, sin2W, zG, zM, s;
-
-  // Bool whether the incoming fermions are oriented with the z-axis.
-  bool zaxis;
-
 };
 
 //==========================================================================
 
 // Helicity matrix element for the hard process of two fermions ->
-// photon/Z -> two fermions with full interference.
-
-// In general the initPointers and initChannel methods should not need to be
-// redeclared, but in this case each matrix element needs to be initialized.
+// photon/Z/Z' -> two fermions.
 
 class HMETwoFermions2GammaZ2TwoFermions : public HelicityMatrixElement {
 
 public:
 
-  HelicityMatrixElement* initChannel(vector<HelicityParticle>&);
-
-  void initPointers(ParticleData*, Couplings*, Settings* = 0);
+  void initConstants();
 
   void initWaves(vector<HelicityParticle>&);
 
@@ -207,8 +161,27 @@ public:
 
 private:
 
-  HMETwoFermions2Z2TwoFermions     zHME;
-  HMETwoFermions2Gamma2TwoFermions gHME;
+  // Return gamma element for the helicity matrix element.
+  complex calculateGammaME(vector<int>);
+
+  // Return Z/Z' element for helicity matrix element.
+  complex calculateZME(vector<int>, double, double, double, double,
+    double, double);
+
+  // Return the Z' vector or axial coupling for a fermion.
+  double zpCoupling(int id, string type);
+
+  // Vector and axial couplings.
+  double p0CAZ, p2CAZ, p0CVZ, p2CVZ, p0CAZp, p2CAZp, p0CVZp, p2CVZp;
+
+  // Weinberg angle, Z/Z' width (on-shell), Z/Z' mass (on-shell), and s.
+  double cos2W, sin2W, zG, zM, zpG, zpM, s;
+
+  // Fermion line charge.
+  double p0Q, p2Q;
+
+  // Bool whether the incoming fermions are oriented with the z-axis.
+  bool zaxis, includeGamma, includeZ, includeZp;
 
 };
 
@@ -226,13 +199,20 @@ public:
 
 //==========================================================================
 
-// Helicity matrix element for the hard process of W -> two fermions.
+// Helicity matrix element for the hard process of W/W' -> two fermions.
 
 class HMEW2TwoFermions : public HMEX2TwoFermions {
 
 public:
 
+  void initConstants();
+
   complex calculateME(vector<int>);
+
+private:
+
+  // Vector and axial couplings.
+  double p2CA, p2CV;
 
 };
 
@@ -250,7 +230,7 @@ public:
 
 //==========================================================================
 
-// Helicity matrix element for the hard process of Z -> two fermions.
+// Helicity matrix element for the hard process of Z/Z' -> two fermions.
 
 class HMEZ2TwoFermions : public HMEX2TwoFermions {
 
@@ -261,6 +241,9 @@ public:
   complex calculateME(vector<int>);
 
 private:
+
+  // Return the Z' vector or axial coupling for a fermion.
+  double zpCoupling(int id, string type);
 
   // Vector and axial couplings.
   double p2CA, p2CV;
@@ -288,7 +271,6 @@ public:
 private:
 
   // Coupling constants of the fermions with the Higgs.
-  double p2CAH1, p2CVH1, p2CAH2, p2CVH2, p2CAA3, p2CVA3, p2CAH4, p2CVH4;
   complex p2CA, p2CV;
 
 };

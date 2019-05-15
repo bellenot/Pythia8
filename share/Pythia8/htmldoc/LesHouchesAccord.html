@@ -527,7 +527,7 @@ or <i>t &rarr; b W</i>), then decay is still isotropic.
  
 <p/> 
 There are four settings available for event input. They take effect when 
-the LHA event record is translated to the PYTHIA <code>process</code>
+the LHA event record is translated to the PYTHIA <code>process</code> 
 event record. 
  
 <p/><code>mode&nbsp; </code><strong> LesHouches:idRenameBeams &nbsp;</strong> 
@@ -569,16 +569,16 @@ correctly.
  (<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
 setting of mass for final-state charged leptons. The reason here is that 
 some matrix-element generators assume leptons to be massless, so as to 
-simplify calculations. This is particularly common for the <i>e</i> and
-<i>mu</i> leptons, but sometimes also the <i>tau</i> lepton is
+simplify calculations. This is particularly common for the <i>e</i> and 
+<i>mu</i> leptons, but sometimes also the <i>tau</i> lepton is 
 afflicted. Incoming leptons are not affected by this procedure. 
 <br/><code>option </code><strong> 0</strong> :  all lepton masses are taken from the Les Houches input. 
    
 <br/><code>option </code><strong> 1</strong> :  if the input lepton mass deviates by more than 10% 
 from the PYTHIA (data table) mass then its mass is reset according to the 
 PYTHIA value, and the energy is recalculated from this mass and the 
-three-momentum. This should catch weird masses, while allowing sensible  
-variations.
+three-momentum. This should catch weird masses, while allowing sensible 
+variations. 
    
 <br/><code>option </code><strong> 2</strong> :  each lepton mass is reset according to the PYTHIA value, 
 and the energy is recalculated from this mass and the three-momentum. 
@@ -586,9 +586,9 @@ and the energy is recalculated from this mass and the three-momentum.
 <br/><b>Warning:</b> the change of masses and the resultant change of 
 energies can result in energy-momentum non-conservation warnings and, 
 in extreme cases, also to aborts. One possibility then is to change the 
-<a href="ErrorChecks.html" target="page">tolerance</a> to such errors.
+<a href="ErrorChecks.html" target="page">tolerance</a> to such errors. 
    
-
+ 
 <p/><code>parm&nbsp; </code><strong> LesHouches:mRecalculate &nbsp;</strong> 
  (<code>default = <strong>-1.</strong></code>)<br/>
 Does not have any effect by default, or more generally when it is negative. 
@@ -606,6 +606,20 @@ at least 10 GeV, so that only massive particles like <i>W^+-</i>,
 its mass recalculated, currently instead the energy is recalculated 
 from its three-momntum and mass. This is to avoid spurious mismatches 
 from limited numerical precision in an LHEF. 
+   
+ 
+<p/><code>flag&nbsp; </code><strong> LesHouches:matchInOut &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+The energies and longitudinal momenta of the two incoming partons are 
+recalculated from the sum of the outgoing final (i.e. status 1) particles. 
+The incoming partons are set massless. There are two main applications 
+for this option. Firstly, if there is a mismatch in the Les Houches 
+input itself, e.g. owing to limited precision in the stored momenta. 
+Secondly, if a mismatch is induced by PYTHIA recalculations, notably when 
+an outgoing lepton is assigned a mass although assumed massles in the 
+Les Houches input. 
+<br/><b>Warning:</b> it is assumed that the incoming partons are along 
+the <i>+-z</i> axis; else the kinematics construction will fail. 
    
  
 <h3>An interface to Les Houches Event Files</h3> 
@@ -853,10 +867,11 @@ close main event file (LHEF) and, if present, separate header file.
 The runtime Fortran interface requires linking to an external Fortran 
 code. In order to avoid problems with unresolved external references 
 when this interface is not used, the code has been put in a separate 
-<code>LHAFortran.h</code> file, that is not included in any of the 
-other library files. Instead it should be included in the 
-user-supplied main program, together with the implementation of two 
-methods below that call the Fortran program to do its part of the job. 
+<code>include/Pythia8Plugins/LHAFortran.h</code> file, that is not 
+included in any of the other library files. Instead it should be included 
+in the user-supplied main program, and used to create a derived class that 
+contains the implementation of two methods below that call the Fortran 
+program to do its part of the job. 
  
 <p/> 
 The <code>LHAupFortran</code> class derives from <code>LHAup</code>. 

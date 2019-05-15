@@ -30,7 +30,7 @@ protected:
   // Virtual methods to handle model-specific (non-SM) part of initialization
   virtual bool initBSM();
   virtual bool allowCalc();
-  virtual bool getChannels(int) { return false; }; 
+  virtual bool getChannels(int) { return false; };
 
   double integrateGauss( WidthFunction* widthFn, double, double, double);
 

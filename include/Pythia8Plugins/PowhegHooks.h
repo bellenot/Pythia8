@@ -43,6 +43,7 @@ public:
     emittedMode = settingsPtr->mode("POWHEG:emitted");
     pTdefMode   = settingsPtr->mode("POWHEG:pTdef");
     MPIvetoMode = settingsPtr->mode("POWHEG:MPIveto");
+    QEDvetoMode = settingsPtr->mode("POWHEG:QEDveto");
     return true;
   }
 
@@ -54,7 +55,7 @@ public:
   // For the Pythia pT definition, a recoiler (after) must be specified.
 
   // Compute the Pythia pT separation. Based on pTLund function in History.cc
-  inline double pTpythia(const Event &e, int RadAfterBranch, 
+  inline double pTpythia(const Event &e, int RadAfterBranch,
     int EmtAfterBranch, int RecAfterBranch, bool FSR) {
 
     // Convenient shorthands for later
@@ -182,8 +183,10 @@ public:
         int jMax = (j > 0) ? j + 1 : e.size();
         for (; jNow < jMax; jNow++) {
 
-          // Final-state and coloured jNow only
-          if (!e[jNow].isFinal() || e[jNow].colType() == 0) continue;
+          // Final-state only
+          if (!e[jNow].isFinal()) continue;
+          // Exclude photons (and W/Z!)
+          if (QEDvetoMode==0 && e[jNow].colType() == 0) continue;
 
           // POWHEG
           if (pTdefMode == 0 || pTdefMode == 1) {
@@ -193,28 +196,30 @@ public:
               pTnow = pTpowheg(e, iInA, jNow, (pTdefMode == 0) ? false : FSR);
               if (pTnow > 0.) pTemt = (pTemt < 0) ? pTnow : min(pTemt, pTnow);
 
-              // FSR - try all outgoing partons from system before branching
-              // as i. Note that for the hard system, there is no
-              // "before branching" information.
-              } else {
+            // FSR - try all outgoing partons from system before branching
+            // as i. Note that for the hard system, there is no
+            // "before branching" information.
+            } else {
 
-                int outSize = partonSystemsPtr->sizeOut(0);
-                for (int iMem = 0; iMem < outSize; iMem++) {
-                  int iNow = partonSystemsPtr->getOut(0, iMem);
+              int outSize = partonSystemsPtr->sizeOut(0);
+              for (int iMem = 0; iMem < outSize; iMem++) {
+                int iNow = partonSystemsPtr->getOut(0, iMem);
 
-                  // Coloured only, i != jNow and no carbon copies
-                  if (iNow == jNow || e[iNow].colType() == 0) continue;
-                  if (jNow == e[iNow].daughter1()
-                    && jNow == e[iNow].daughter2()) continue;
+                // i != jNow and no carbon copies
+                if (iNow == jNow ) continue;
+                // Exclude photons (and W/Z!)
+                if (QEDvetoMode==0 && e[iNow].colType() == 0) continue;
+                if (jNow == e[iNow].daughter1()
+                  && jNow == e[iNow].daughter2()) continue;
 
-                  pTnow = pTpowheg(e, iNow, jNow, (pTdefMode == 0)
-                    ? false : FSR);
-                  if (pTnow > 0.) pTemt = (pTemt < 0)
-                    ? pTnow : min(pTemt, pTnow);
-                } // for (iMem)
-
-              } // if (!FSR)
-
+                pTnow = pTpowheg(e, iNow, jNow, (pTdefMode == 0)
+                  ? false : FSR);
+                if (pTnow > 0.) pTemt = (pTemt < 0)
+                  ? pTnow : min(pTemt, pTnow);
+              }
+             // for (iMem)
+            }
+            // if (!FSR)
           // Pythia
           } else if (pTdefMode == 2) {
 
@@ -229,8 +234,8 @@ public:
             //       after emission (k).
             } else {
               for (int kNow = 0; kNow < e.size(); kNow++) {
-                if (kNow == jNow || !e[kNow].isFinal() ||
-                    e[kNow].colType() == 0) continue;
+                if (kNow == jNow || !e[kNow].isFinal()) continue;
+                if (QEDvetoMode==0 && e[kNow].colType() == 0) continue;
 
                 // For this kNow, need to have a recoiler.
                 // Try two incoming.
@@ -244,18 +249,24 @@ public:
                 // Try all other outgoing.
                 for (int rNow = 0; rNow < e.size(); rNow++) {
                   if (rNow == kNow || rNow == jNow ||
-                      !e[rNow].isFinal() || e[rNow].colType() == 0) continue;
+                      !e[rNow].isFinal()) continue;
+                  if(QEDvetoMode==0 && e[rNow].colType() == 0) continue;
                   pTnow = pTpythia(e, kNow, jNow, rNow, FSR);
                   if (pTnow > 0.) pTemt = (pTemt < 0)
                     ? pTnow : min(pTemt, pTnow);
-                } // for (rNow)
-
-              } // for (kNow)
-            } // if (!FSR)
-          } // if (pTdefMode)
-        } // for (j)
+                }
+              // for (rNow)
+              }
+            // for (kNow)
+            }
+          // if (!FSR)
+          }
+        // if (pTdefMode)
+        }
+      // for (j)
       }
-    } // for (xSR)
+    }
+    // for (xSR)
 
     return pTemt;
   }
@@ -291,7 +302,7 @@ public:
       exit(1);
     }
     // Flag if POWHEG radiation present and index
-    bool isEmt = (count == nFinal) ? false : true;
+    isEmt = (count == nFinal) ? false : true;
     int  iEmt  = (isEmt) ? e.size() - 1 : -1;
 
     // If there is no radiation or if pThardMode is 0 then set pThard = SCALUP.
@@ -359,11 +370,21 @@ public:
     int r        = (pTemtMode == 0) ? iRecAft : -1;
     double pTemt = pTcalc(e, i, j, k, r, xSR);
 
+    // If a Born configuration, and a photon, and QEDvetoMode=2,
+    //  then don't veto photons, W, or Z harder than pThard
+    bool vetoParton = (!isEmt && e[iEmt].colType()==0 && QEDvetoMode==2)
+      ? false: true;
+
     // Veto if pTemt > pThard
     if (pTemt > pThard) {
-      nAcceptSeq = 0;
-      nISRveto++;
-      return true;
+      if(!vetoParton) {
+        // Don't veto ANY emissions afterwards
+        nAcceptSeq = vetoCount-1;
+      } else {
+        nAcceptSeq = 0;
+        nISRveto++;
+        return true;
+      }
     }
 
     // Else mark that an emission has been accepted and continue
@@ -390,7 +411,7 @@ public:
     int iRadAft = e.size() - 3;
     int iRadBef = e[iEmt].mother1();
     if ( (e[iRecAft].status() != 52 && e[iRecAft].status() != -53) ||
-         e[iEmt].status() != 51 || e[iRadAft].status() != 51) {
+      e[iEmt].status() != 51 || e[iRadAft].status() != 51) {
       e.list();
       cout << "Error: couldn't find Pythia FSR emission" << endl;
       exit(1);
@@ -431,11 +452,21 @@ public:
 
     }
 
+    // If a Born configuration, and a photon, and QEDvetoMode=2,
+    //  then don't veto photons, W's or Z's harder than pThard
+    bool vetoParton = (!isEmt && e[iEmt].colType()==0 && QEDvetoMode==2)
+      ? false: true;
+
     // Veto if pTemt > pThard
     if (pTemt > pThard) {
-      nAcceptSeq = 0;
-      nFSRveto++;
-      return true;
+      if(!vetoParton) {
+        // Don't veto ANY emissions afterwards
+        nAcceptSeq = vetoCount-1;
+      } else {
+        nAcceptSeq = 0;
+        nFSRveto++;
+        return true;
+      }
     }
 
     // Else mark that an emission has been accepted and continue
@@ -465,14 +496,13 @@ public:
 
 //--------------------------------------------------------------------------
 
-  // Private members
-
 private:
-  int    nFinal, vetoMode, vetoCount, pThardMode, pTemtMode,
-         emittedMode, pTdefMode, MPIvetoMode;
+  int nFinal, vetoMode, vetoCount, pThardMode, pTemtMode,
+    emittedMode, pTdefMode, MPIvetoMode, QEDvetoMode;
   double pThard, pTMPI;
-  bool   accepted;
+  bool   accepted, isEmt;
   // The number of accepted emissions (in a row)
+  // Flag for PowHeg Born or Radiation
   int nAcceptSeq;
   // Statistics on vetos
   unsigned long int nISRveto, nFSRveto;
@@ -484,4 +514,3 @@ private:
 } // end namespace Pythia8
 
 #endif // end Pythia8_PowhegHooks_H
-

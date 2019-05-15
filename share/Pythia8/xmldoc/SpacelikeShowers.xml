@@ -134,12 +134,12 @@ but dampened by a factor <ei>k^2 Q^2_ren/(pT^2 + k^2 Q^2_ren)</ei>,
 where <ei>Q_ren</ei> is the renormalization scale and <ei>k</ei> is a 
 multiplicative fudge factor stored in <code>pTdampFudge</code> below. 
 </option> 
-<option value="3">as option 1, but in addition to the standard requirements
+<option value="3">as option 1, but in addition to the standard requirements 
 for dampening it is further necessary to have ar least two top or 
 beyond-the-Standard-Model coloured particles in the final state. 
-Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production.  
+Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production. 
 </option> 
-<option value="4">as option 2, but in addition to the standard requirements
+<option value="4">as option 2, but in addition to the standard requirements 
 for dampening it is further necessary to have ar least two top or 
 beyond-the-Standard-Model coloured particles in the final state. 
 Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production. 
@@ -449,4 +449,3 @@ photon backwards-evolution in lepton beams.
 </chapter> 
  
 <!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
- 

@@ -36,13 +36,15 @@ public:
 
   // The recommended method to convert Pythia events into HepMC ones.
   bool fill_next_event( Pythia8::Pythia& pythia, GenEvent* evt,
-    int ievnum = -1 ) {return fill_next_event( pythia.event, evt,
-    ievnum, &pythia.info, &pythia.settings);}
+    int ievnum = -1, bool append = false, GenParticle* rootParticle = 0,
+    int iBarcode = -1 ) {return fill_next_event( pythia.event, evt, ievnum,
+    &pythia.info, &pythia.settings, append, rootParticle, iBarcode);}
 
   // Alternative method to convert Pythia events into HepMC ones.
   bool fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
     int ievnum = -1, Pythia8::Info* pyinfo = 0,
-    Pythia8::Settings* pyset = 0);
+    Pythia8::Settings* pyset = 0, bool append = false,
+    GenParticle* rootParticle = 0, int iBarcode = -1);
 
   // Read out values for some switches.
   bool print_inconsistency()  const {return m_print_inconsistency;}
@@ -82,11 +84,12 @@ private:
 //==========================================================================
 
 // Main method for conversion from PYTHIA event to HepMC event.
-// Read one event from Pythia8 and fill GenEvent,
-// and return T/F = success/failure.
+// Read one event from Pythia8 and fill a new GenEvent, alternatively
+// append to an existing GenEvent, and return T/F = success/failure.
 
-inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev, 
-  GenEvent* evt, int ievnum, Pythia8::Info* pyinfo, Pythia8::Settings* pyset) {
+inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
+  GenEvent* evt, int ievnum, Pythia8::Info* pyinfo, Pythia8::Settings* pyset,
+  bool append, GenParticle* rootParticle, int iBarcode) {
 
   // 1. Error if no event passed.
   if (!evt) {
@@ -95,13 +98,15 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
     return 0;
   }
 
-  // Event number counter.
-  if ( ievnum >= 0 ) {
-    evt->set_event_number(ievnum);
-    m_internal_event_number = ievnum;
-  } else {
-    evt->set_event_number(m_internal_event_number);
-    ++m_internal_event_number;
+  // Update event number counter.
+  if (!append) {
+    if (ievnum >= 0) {
+      evt->set_event_number(ievnum);
+      m_internal_event_number = ievnum;
+    } else {
+      evt->set_event_number(m_internal_event_number);
+      ++m_internal_event_number;
+    }
   }
 
   // Conversion factors from Pythia units GeV and mm to HepMC ones.
@@ -110,17 +115,35 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
   double lenFac = HepMC::Units::conversion_factor(HepMC::Units::MM,
     evt->length_unit());
 
+  // Set up for alternative to append to an existing event.
+  int iStart     = 1;
+  int newBarcode = 0;
+  if (append) {
+    if (!rootParticle) {
+      std::cerr << "Pythia8ToHepMC::fill_next_event error - passed null "
+                << "root particle in append mode." << std::endl;
+      return 0;
+    }
+    iStart     = 2;
+    newBarcode = (iBarcode > -1) ? iBarcode : evt->particles_size();
+    // New vertex associated with appended particles.
+    GenVertex* prod_vtx0 = new GenVertex();
+    prod_vtx0->add_particle_in( rootParticle );
+    evt->add_vertex( prod_vtx0 );
+  }
+
   // 2. Create a particle instance for each entry and fill a map, and
   // a vector which maps from the particle index to the GenParticle address.
   std::vector<GenParticle*> hepevt_particles( pyev.size() );
-  for (int i = 1; i < pyev.size(); ++i) {
+  for (int i = iStart; i < pyev.size(); ++i) {
 
     // Fill the particle.
     hepevt_particles[i] = new GenParticle(
       FourVector( momFac * pyev[i].px(), momFac * pyev[i].py(),
                   momFac * pyev[i].pz(), momFac * pyev[i].e()  ),
       pyev[i].id(), pyev[i].statusHepMC() );
-    hepevt_particles[i]->suggest_barcode(i);
+    if (iBarcode != 0) ++newBarcode;
+    hepevt_particles[i]->suggest_barcode( (append) ? newBarcode : i );
     hepevt_particles[i]->set_generated_mass( momFac * pyev[i].m() );
 
     // Colour flow uses index 1 and 2.
@@ -133,12 +156,13 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
 
   // Here we assume that the first two particles in the list
   // are the incoming beam particles.
-  evt->set_beam_particles( hepevt_particles[1], hepevt_particles[2] );
+  if (!append)
+    evt->set_beam_particles( hepevt_particles[1], hepevt_particles[2] );
 
   // 3. Loop over particles AGAIN, this time creating vertices.
   // We build the production vertex for each entry in hepevt.
   // The HEPEVT pointers are bi-directional, so gives decay vertices as well.
-  for (int i = 1; i < pyev.size(); ++i) {
+  for (int i = iStart; i < pyev.size(); ++i) {
     GenParticle* p = hepevt_particles[i];
 
     // 3a. Search to see if a production vertex already exists.
@@ -148,8 +172,9 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
     if ( !mothers.empty() ) mother = mothers[imother];
     GenVertex* prod_vtx = p->production_vertex();
     while ( !prod_vtx && mother > 0 ) {
-      prod_vtx = hepevt_particles[mother]->end_vertex();
-      if ( prod_vtx ) prod_vtx->add_particle_out( p );
+      prod_vtx = (append && mother == 1) ? rootParticle->end_vertex()
+               : hepevt_particles[mother]->end_vertex();
+      if (prod_vtx) prod_vtx->add_particle_out( p );
       mother = ( ++imother < mothers.size() ) ? mothers[imother] : -1;
     }
 
@@ -174,15 +199,17 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
     while ( prod_vtx && mother > 0 ) {
 
       // If end vertex of the mother isn't specified, do it now.
-      if ( !hepevt_particles[mother]->end_vertex() ) {
-        prod_vtx->add_particle_in( hepevt_particles[mother] );
+      GenParticle* ppp = (append && mother == 1) ? rootParticle
+                       : hepevt_particles[mother];
+      if ( !ppp->end_vertex() ) {
+        prod_vtx->add_particle_in( ppp );
 
       // Problem scenario: the mother already has a decay vertex which
       // differs from the daughter's production vertex. This means there is
       // internal inconsistency in the HEPEVT event record. Print an error.
       // Note: we could provide a fix by joining the two vertices with a
       // dummy particle if the problem arises often.
-      } else if (hepevt_particles[mother]->end_vertex() != prod_vtx ) {
+      } else if (ppp->end_vertex() != prod_vtx ) {
        if ( m_print_inconsistency ) std::cerr
           << "HepMC::Pythia8ToHepMC: inconsistent mother/daugher "
           << "information in Pythia8 event " << std::endl
@@ -203,7 +230,7 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
   // 4. Check for particles which come from nowhere, i.e. are without
   // mothers or daughters. These need to be attached to a vertex, or else
   // they will never become part of the event.
-  for (int i = 1; i < pyev.size(); ++i) {
+  for (int i = iStart; i < pyev.size(); ++i) {
     if ( !hepevt_particles[i]->end_vertex() &&
          !hepevt_particles[i]->production_vertex() ) {
       std::cerr << "hanging particle " << i << std::endl;
@@ -226,6 +253,9 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
       }
     }
   }
+
+  // Done if only appending to already existing event.
+  if (append) return true;
 
   // 5. Store PDF, weight, cross section and other event information.
   // Flavours of incoming partons.
@@ -260,7 +290,7 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
     evt->weights().push_back( pyinfo->weight() );
   }
 
-  // Done.
+  // Done for new event.
   return true;
 
 }

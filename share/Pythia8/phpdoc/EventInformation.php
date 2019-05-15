@@ -119,15 +119,22 @@ are beam particles resolved, i.e. were PDF's used for the process?
 <p/><strong>bool Info::isDiffractiveA() &nbsp;</strong> <br/>
    
 <strong>bool Info::isDiffractiveB() &nbsp;</strong> <br/>
-is either beam diffractively excited? 
+is either beam soft diffractively excited? 
    
  
 <a name="method12"></a>
 <p/><strong>bool Info::isDiffractiveC() &nbsp;</strong> <br/>
-is there central diffraction (a.k.a. double Pomeron exchange)? 
+is there soft central diffraction (a.k.a. double Pomeron exchange)? 
    
  
 <a name="method13"></a>
+<p/><strong>bool Info::isHardDiffractiveA() &nbsp;</strong> <br/>
+   
+<strong>bool Info::isHardDiffractiveB() &nbsp;</strong> <br/>
+is either beam hard diffractively excited? 
+   
+ 
+<a name="method14"></a>
 <p/><strong>bool Info::isNonDiffractive() &nbsp;</strong> <br/>
 is the process the <code>SoftQCD:nonDiffractive</code> one, 
 i.e. corresponding to the full inelastic nondiffractive part of the 
@@ -138,33 +145,33 @@ unless the <i>Z^0</i> had been generated as part of the MPI
 machinery for the <code>SoftQCD:nonDiffractive</code> component.) 
    
  
-<a name="method14"></a>
+<a name="method15"></a>
 <p/><strong>bool Info::isMinBias() &nbsp;</strong> <br/>
 the same as above, retained for backwards compatibility, but to 
 be removed in PYTHIA 8.2. 
    
  
-<a name="method15"></a>
+<a name="method16"></a>
 <p/><strong>bool Info::isLHA() &nbsp;</strong> <br/>
 has the process been generated from external Les Houches Accord 
 information? 
    
  
-<a name="method16"></a>
+<a name="method17"></a>
 <p/><strong>bool Info::atEndOfFile() &nbsp;</strong> <br/>
 true if a linked Les Houches class refuses to return any further 
 events, presumably because it has reached the end of the file from 
 which events have been read in. 
    
  
-<a name="method17"></a>
+<a name="method18"></a>
 <p/><strong>bool Info::hasSub() &nbsp;</strong> <br/>
 does the process have a subprocess classification? 
 Currently only true for nondiffractive and Les Houches events, where 
 it allows the hardest collision to be identified. 
    
  
-<a name="method18"></a>
+<a name="method19"></a>
 <p/><strong>string Info::nameSub() &nbsp;</strong> <br/>
    
 <strong>int Info::codeSub() &nbsp;</strong> <br/>
@@ -185,21 +192,21 @@ information for such particular subcollisions.
 The methods in this sections refer to the two initial partons of the 
 hard <i>2 &rarr; n</i> process (diffraction excluded; see below). 
  
-<a name="method19"></a>
+<a name="method20"></a>
 <p/><strong>int Info::id1() &nbsp;</strong> <br/>
    
 <strong>int Info::id2() &nbsp;</strong> <br/>
 the identities of the two partons coming in to the hard process. 
    
  
-<a name="method20"></a>
+<a name="method21"></a>
 <p/><strong>double Info::x1() &nbsp;</strong> <br/>
    
 <strong>double Info::x2() &nbsp;</strong> <br/>
 <i>x</i> fractions of the two partons coming in to the hard process. 
    
  
-<a name="method21"></a>
+<a name="method22"></a>
 <p/><strong>double Info::y() &nbsp;</strong> <br/>
    
 <strong>double Info::tau() &nbsp;</strong> <br/>
@@ -207,7 +214,7 @@ rapidity and scaled mass-squared of the hard-process subsystem, as
 defined by the above <i>x</i> values. 
    
  
-<a name="method22"></a>
+<a name="method23"></a>
 <p/><strong>bool Info::isValence1() &nbsp;</strong> <br/>
    
 <strong>bool Info::isValence2() &nbsp;</strong> <br/>
@@ -248,7 +255,7 @@ line provides the factorization scale separately. If <i>alpha_s</i>,
 <i>alpha_em</i> or the compulsory scale value are negative at input 
 then new values are defined as for internal processes. 
  
-<a name="method23"></a>
+<a name="method24"></a>
 <p/><strong>int Info::id1pdf() &nbsp;</strong> <br/>
    
 <strong>int Info::id2pdf() &nbsp;</strong> <br/>
@@ -256,7 +263,7 @@ the identities of the two partons for which parton density values
 are defined. 
    
  
-<a name="method24"></a>
+<a name="method25"></a>
 <p/><strong>double Info::x1pdf() &nbsp;</strong> <br/>
    
 <strong>double Info::x2pdf() &nbsp;</strong> <br/>
@@ -264,7 +271,7 @@ are defined.
 are defined. 
    
  
-<a name="method25"></a>
+<a name="method26"></a>
 <p/><strong>double Info::pdf1() &nbsp;</strong> <br/>
    
 <strong>double Info::pdf2() &nbsp;</strong> <br/>
@@ -275,7 +282,7 @@ methods. Events obtained from external programs or files may not
 contain this information and, if so, 0 is returned. 
    
  
-<a name="method26"></a>
+<a name="method27"></a>
 <p/><strong>double Info::QFac() &nbsp;</strong> <br/>
    
 <strong>double Info::Q2Fac() &nbsp;</strong> <br/>
@@ -283,7 +290,7 @@ the <i>Q</i> or <i>Q^2</i> factorization scale at which the
 densities were evaluated. 
    
  
-<a name="method27"></a>
+<a name="method28"></a>
 <p/><strong>double Info::alphaS() &nbsp;</strong> <br/>
    
 <strong>double Info::alphaEM() &nbsp;</strong> <br/>
@@ -291,7 +298,7 @@ the <i>alpha_strong</i> and <i>alpha_electromagnetic</i> values used
 for the hard process. 
    
  
-<a name="method28"></a>
+<a name="method29"></a>
 <p/><strong>double Info::QRen() &nbsp;</strong> <br/>
    
 <strong>double Info::Q2Ren() &nbsp;</strong> <br/>
@@ -299,7 +306,7 @@ the <i>Q</i> or <i>Q^2</i> renormalization scale at which
 <i>alpha_strong</i> and <i>alpha_electromagnetic</i> were evaluated. 
    
  
-<a name="method29"></a>
+<a name="method30"></a>
 <p/><strong>double Info::scalup() &nbsp;</strong> <br/>
 returns the stored <code>SCALUP</code> value for Les Houches events, 
 and else zero. It may agree with both the <code>QFac()</code> and 
@@ -317,14 +324,14 @@ The methods in this section provide info on the kinematics of the hard
 processes, with special emphasis on <i>2 &rarr; 2</i> (diffraction excluded; 
 see below). 
  
-<a name="method30"></a>
+<a name="method31"></a>
 <p/><strong>double Info::mHat() &nbsp;</strong> <br/>
    
 <strong>double Info::sHat() &nbsp;</strong> <br/>
 the invariant mass and its square for the hard process. 
    
  
-<a name="method31"></a>
+<a name="method32"></a>
 <p/><strong>double Info::tHat() &nbsp;</strong> <br/>
    
 <strong>double Info::uHat() &nbsp;</strong> <br/>
@@ -332,7 +339,7 @@ the remaining two Mandelstam variables; only defined for <i>2 &rarr; 2</i>
 processes. 
    
  
-<a name="method32"></a>
+<a name="method33"></a>
 <p/><strong>double Info::pTHat() &nbsp;</strong> <br/>
    
 <strong>double Info::pT2Hat() &nbsp;</strong> <br/>
@@ -340,14 +347,14 @@ transverse momentum and its square in the rest frame of a <i>2 &rarr; 2</i>
 processes. 
    
  
-<a name="method33"></a>
+<a name="method34"></a>
 <p/><strong>double Info::m3Hat() &nbsp;</strong> <br/>
    
 <strong>double Info::m4Hat() &nbsp;</strong> <br/>
 the masses of the two outgoing particles in a <i>2 &rarr; 2</i> processes. 
    
  
-<a name="method34"></a>
+<a name="method35"></a>
 <p/><strong>double Info::thetaHat() &nbsp;</strong> <br/>
    
 <strong>double Info::phiHat() &nbsp;</strong> <br/>
@@ -355,7 +362,7 @@ the polar and azimuthal scattering angles in the rest frame of
 a <i>2 &rarr; 2</i> process. 
    
  
-<h3>Diffraction</h3> 
+<h3>Soft Diffraction</h3> 
  
 Information on the primary elastic or 
 <?php $filepath = $_GET["filepath"];
@@ -404,9 +411,30 @@ The methods below this section do not currently provide information
 specific to diffractive subsystems, e.g. the MPI information is not 
 bookkept in such cases. 
  
+<h3>Hard Diffraction</h3> 
+ 
+Information on the momentum fraction taken from the beam 
+and the momentum transfer in the hard diffractive process. 
+Note that when side A is diffractively exited, then the Pomeron 
+has been taken from side B and vice versa. 
+ 
+<a name="method36"></a>
+<p/><strong>double Info::xPomeronA() &nbsp;</strong> <br/>
+   
+<strong>double Info::xPomeronB() &nbsp;</strong> <br/>
+<i>x</i> fractions of momenta carried by the Pomeron in the hard 
+diffractive process. 
+   
+<a name="method37"></a>
+<p/><strong>double Info::tPomeronA() &nbsp;</strong> <br/>
+   
+<strong>double Info::tPomeronB() &nbsp;</strong> <br/>
+The momentum transfer <i>t</i> in the hard diffractive process. 
+   
+ 
 <h3>Event weight and activity</h3> 
  
-<a name="method35"></a>
+<a name="method38"></a>
 <p/><strong>double Info::weight() &nbsp;</strong> <br/>
 weight assigned to the current event. Is normally 1 and thus 
 uninteresting. However, there are several cases where one may have 
@@ -431,7 +459,7 @@ come with a weight. Specifically, for strategies <i>+4</i> and
 but converted at output.) 
    
  
-<a name="method36"></a>
+<a name="method39"></a>
 <p/><strong>double Info::weightSum() &nbsp;</strong> <br/>
 Sum of weights accumulated during the run. For unweighted events this 
 agrees with the number of generated events. In order to obtain 
@@ -441,7 +469,7 @@ divided by the bin width.) Normalization to cross section also
 required multiplication by <code>sigmaGen()</code> below. 
    
  
-<a name="method37"></a>
+<a name="method40"></a>
 <p/><strong>int Info::lhaStrategy() &nbsp;</strong> <br/>
 normally 0, but if Les Houches events are input then it gives the 
 event weighting strategy, see 
@@ -449,7 +477,7 @@ event weighting strategy, see
 echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>Les Houches Accord</a>. 
    
  
-<a name="method38"></a>
+<a name="method41"></a>
 <p/><strong>int Info::nISR() &nbsp;</strong> <br/>
    
 <strong>int Info::nFSRinProc() &nbsp;</strong> <br/>
@@ -460,7 +488,7 @@ showering excluding resonance decays, and in the final-state showering
 inside resonance decays, respectively. 
    
  
-<a name="method39"></a>
+<a name="method42"></a>
 <p/><strong>double Info::pTmaxMPI() &nbsp;</strong> <br/>
    
 <strong>double Info::pTmaxISR() &nbsp;</strong> <br/>
@@ -471,7 +499,7 @@ process type and scale choice for the hard interactions. The actual
 evolution will run down from these scales. 
    
  
-<a name="method40"></a>
+<a name="method43"></a>
 <p/><strong>double Info::pTnow() &nbsp;</strong> <br/>
 The current <i>pT</i> scale in the combined MPI, ISR and FSR evolution. 
 Useful for classification in <?php $filepath = $_GET["filepath"];
@@ -479,7 +507,7 @@ echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>user hook
 but not once the event has been evolved. 
    
  
-<a name="method41"></a>
+<a name="method44"></a>
 <p/><strong>double Info::mergingWeight() &nbsp;</strong> <br/>
 combined leading-order merging weight assigned to the current event, if 
 tree-level multi-jet merging (i.e. 
@@ -495,7 +523,7 @@ echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?> CKKW-
 echo "<a href='UMEPSMerging.php?filepath=".$filepath."' target='page'>";?> UMEPS Merging</a>. 
    
  
-<a name="method42"></a>
+<a name="method45"></a>
 <p/><strong>double Info::mergingWeightNLO() &nbsp;</strong> <br/>
 combined NLO merging weight assigned to the current event, if 
 NLO multi-jet merging (i.e. 
@@ -516,13 +544,13 @@ topologies, and should not be used there. Partly this is physics,
 but mainly it is for technical reasons, e.g. that double diffraction 
 involves two separate systems that would have to be bookkept as such. 
  
-<a name="method43"></a>
+<a name="method46"></a>
 <p/><strong>double Info::a0MPI() &nbsp;</strong> <br/>
 The value of a0 when an x-dependent matter profile is used, 
 <code>MultipartonInteractions:bProfile = 4</code>. 
    
  
-<a name="method44"></a>
+<a name="method47"></a>
 <p/><strong>double Info::bMPI() &nbsp;</strong> <br/>
 The impact parameter <i>b</i> assumed for the current collision when 
 multiparton interactions are simulated. Is not expressed in any physical 
@@ -531,7 +559,7 @@ for minimum-bias events (meaning less than that for events with hard
 processes). 
    
  
-<a name="method45"></a>
+<a name="method48"></a>
 <p/><strong>double Info::enhanceMPI() &nbsp;</strong> <br/>
 The choice of impact parameter implies an enhancement or depletion of 
 the rate of subsequent interactions, as given by this number. Again 
@@ -539,14 +567,14 @@ the average is normalized be unity for minimum-bias events (meaning
 more than that for events with hard processes). 
    
  
-<a name="method46"></a>
+<a name="method49"></a>
 <p/><strong>int Info::nMPI() &nbsp;</strong> <br/>
 The number of hard interactions in the current event. Is 0 for elastic 
 and diffractive events, and else at least 1, with more possible from 
 multiparton interactions. 
    
  
-<a name="method47"></a>
+<a name="method50"></a>
 <p/><strong>int Info::codeMPI(int i) &nbsp;</strong> <br/>
    
 <strong>double Info::pTMPI(int i) &nbsp;</strong> <br/>
@@ -556,7 +584,7 @@ subprocess, with <code>i</code> in the range from 0 to
 information already provided above. 
    
  
-<a name="method48"></a>
+<a name="method51"></a>
 <p/><strong>int Info::iAMPI(int i) &nbsp;</strong> <br/>
    
 <strong>int Info::iBMPI(int i) &nbsp;</strong> <br/>
@@ -568,7 +596,7 @@ event record of the outgoing-state parton that rescatters.
 the first or second beam, respectively. 
    
  
-<a name="method49"></a>
+<a name="method52"></a>
 <p/><strong>double Info::eMPI(int i) &nbsp;</strong> <br/>
 The enhancement or depletion of the rate of the <code>i</code>'th 
 subprocess. Is primarily of interest for the 
@@ -591,18 +619,18 @@ The individual process results are not available if
 echo "<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>";?>a second hard process</a> has been 
 chosen, but can be gleaned from the <code>pythia.stat()</code> output. 
  
-<a name="method50"></a>
+<a name="method53"></a>
 <p/><strong>vector&lt;int&gt; Info::codesHard() &nbsp;</strong> <br/>
 returns a vector with all the process codes set up for the current run, 
 i.e. the valid nonzero arguments for the five methods below. 
    
  
-<a name="method51"></a>
+<a name="method54"></a>
 <p/><strong>string Info::nameProc(int i = 0) &nbsp;</strong> <br/>
 returns the process name for process code <code>i</code>. 
    
  
-<a name="method52"></a>
+<a name="method55"></a>
 <p/><strong>long Info::nTried(int i = 0) &nbsp;</strong> <br/>
    
 <strong>long Info::nSelected(int i = 0) &nbsp;</strong> <br/>
@@ -620,7 +648,7 @@ echo "<a href='ASecondHardProcess.php?filepath=".$filepath."' target='page'>";?>
 second hard process</a> there may also be a mismatch. 
    
  
-<a name="method53"></a>
+<a name="method56"></a>
 <p/><strong>double Info::sigmaGen(int i = 0) &nbsp;</strong> <br/>
    
 <strong>double Info::sigmaErr(int i = 0) &nbsp;</strong> <br/>
@@ -639,7 +667,7 @@ This may be especially useful in the context of the
 <code><?php $filepath = $_GET["filepath"];
 echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>User Hooks</a></code> facility. 
  
-<a name="method54"></a>
+<a name="method57"></a>
 <p/><strong>int Info::getCounter(int i) &nbsp;</strong> <br/>
 the method that gives you access to the value of the various loop 
 counters. 
@@ -743,7 +771,7 @@ that therefore are free to use, with the help of the two methods below.
    
    
  
-<a name="method55"></a>
+<a name="method58"></a>
 <p/><strong>void Info::setCounter(int i, int value = 0) &nbsp;</strong> <br/>
 set the above counters to a given value. Only to be used by you 
 for the unassigned counters 40 - 49. 
@@ -754,7 +782,7 @@ normally the default value is what you want.
    
    
  
-<a name="method56"></a>
+<a name="method59"></a>
 <p/><strong>void Info::addCounter(int i, int value = 0) &nbsp;</strong> <br/>
 increase the above counters by a given amount. Only to be used by you 
 for the unassigned counters 40 - 49. 
@@ -770,7 +798,7 @@ normally the default value is what you want.
 The following methods are mainly intended for internal use, 
 e.g. for matrix-element matching. 
  
-<a name="method57"></a>
+<a name="method60"></a>
 <p/><strong>void Info::hasHistory(bool hasHistoryIn) &nbsp;</strong> <br/>
    
 <strong>bool Info::hasHistory() &nbsp;</strong> <br/>
@@ -778,14 +806,14 @@ set/get knowledge whether the likely shower history of an event
 has been traced. 
    
  
-<a name="method58"></a>
+<a name="method61"></a>
 <p/><strong>void Info::zNowISR(bool zNowIn) &nbsp;</strong> <br/>
    
 <strong>double Info::zNowISR() &nbsp;</strong> <br/>
 set/get value of <i>z</i> in latest ISR branching. 
    
  
-<a name="method59"></a>
+<a name="method62"></a>
 <p/><strong>void Info::pT2NowISR(bool pT2NowIn) &nbsp;</strong> <br/>
    
 <strong>double Info::pT2NowISR() &nbsp;</strong> <br/>
@@ -983,17 +1011,17 @@ XML-like format of LHE files, see <?php $filepath = $_GET["filepath"];
 echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?> 
 Les Houches Accord</a> for more details. 
  
-<a name="method60"></a>
+<a name="method63"></a>
 <p/><strong>string Info::header(string key) &nbsp;</strong> <br/>
 return the header named <code>key</code> 
    
  
-<a name="method61"></a>
+<a name="method64"></a>
 <p/><strong>vector &lt;string&gt; Info::headerKeys() &nbsp;</strong> <br/>
 return a vector of all header key names 
    
  
-<a name="method62"></a>
+<a name="method65"></a>
 <p/><strong>void Info::setHeader(string key, string val) &nbsp;</strong> <br/>
 set the header named <code>key</code> with the contents of <code>val</code> 
    

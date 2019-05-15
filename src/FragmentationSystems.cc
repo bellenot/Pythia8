@@ -148,7 +148,7 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
       Vec4 pNew   = event[iJoin1].p() + event[iJoin2].p();
 
       int statusHad = 73;
-      // Need to keep status as 74 for junctions in order to keep track 
+      // Need to keep status as 74 for junctions in order to keep track
       // of them.
       if (event[iMoth1].statusAbs() == 74) statusHad = 74;
 

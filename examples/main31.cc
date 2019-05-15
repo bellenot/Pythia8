@@ -100,4 +100,3 @@ int main() {
   if (powhegHooks) delete powhegHooks;
   return 0;
 }
-

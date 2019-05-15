@@ -62,7 +62,7 @@ void fillPartons(int type, double ee, Event& event, ParticleData& pdt,
   event.reset();
 
   // Information on a q qbar system, to be hadronized.
-  if (type == 1) {
+  if (type == 1 || type == 12) {
     int    id = 2;
     double mm = pdt.m0(id);
     double pp = sqrtpos(ee*ee - mm*mm);
@@ -70,7 +70,7 @@ void fillPartons(int type, double ee, Event& event, ParticleData& pdt,
     event.append( -id, 23,   0, 101, 0., 0., -pp, ee, mm);
 
   // Information on a g g system, to be hadronized.
-  } else if (type == 2) {
+  } else if (type == 2 || type == 13) {
     event.append( 21, 23, 101, 102, 0., 0.,  ee, ee);
     event.append( 21, 23, 102, 101, 0., 0., -ee, ee);
 
@@ -194,8 +194,10 @@ int main() {
   // 4 = minimal q q q junction topology.
   // 5 = q q q junction topology with gluons on the strings.
   // 6 = q q qbar qbar dijunction topology, no gluons.
-  // 7 - 10 : ditto, but with 1 - 4 gluons on string between junctions.
-  // 11 : single-resonance gun.
+  // 7 - 10 = ditto, but with 1 - 4 gluons on string between junctions.
+  // 11 = single-resonance gun.
+  // 12 = q qbar plus parton shower.
+  // 13 = g g plus parton shower.
   int type = 11;
 
   // Set particle species and energy for single-particle gun.
@@ -258,6 +260,18 @@ int main() {
 
     // Set up parton-level configuration.
     else fillPartons( type, ee, event, pdt, pythia.rndm);
+
+    // To have partons shower they must be set maximum allowed scale.
+    // (Can be set individually to restrict radiation differently.)
+    if (type == 12 || type == 13) {
+      double scale = ee;
+      event[1].scale( scale);
+      event[2].scale( scale);
+
+      // Now actually do the shower, for range of partons, and max scale.
+      // (Most restrictive of global and individual applied to each parton.)
+      pythia.forceTimeShower( 1, 2, scale);
+    }
 
     // Generate events. Quit if failure.
     if (!pythia.next()) {

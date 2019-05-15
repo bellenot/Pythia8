@@ -301,6 +301,13 @@ defaults. Or you can use
 where only those variables with names that contain the string 
 (case-insensitive match) are listed. Thus, with a string 
 <code>shower</code>, the shower-related variables would be shown. 
+ 
+<p/> 
+The method <code>pythia.settings.output(key)</code> can return the 
+value of a variable as a string, convenient for output. In a 
+<code>readString</code> or <code>readFile</code> command, the 
+construction <code>key = ?</code> will echo back the variable 
+and its value, using this method. 
 </li> 
  
 <p/> <li> 
@@ -422,11 +429,24 @@ output stream for the listing.
    
  
 <a name="method8"></a>
+<p/><strong>string Settings::output(string key, bool fullLine = true) &nbsp;</strong> <br/>
+provide the value of a variable as a character string, whatever the type. 
+If the variable does not exist then <code>unknown</code> is returned. 
+<br/><code>argument</code><strong> key </strong>  :  
+the name of the settings variable. 
+   
+<br/><code>argument</code><strong> fullLine </strong> (<code>default = <strong>true</strong></code>) :  
+If true then a whole "line" is returned, " <code>key = value\n</code>", 
+while if false only the  <code>value</code> string. 
+   
+   
+ 
+<a name="method9"></a>
 <p/><strong>void Settings::resetAll() &nbsp;</strong> <br/>
 reset all current values to their defaults. 
    
  
-<a name="method9"></a>
+<a name="method10"></a>
 <p/><strong>bool Settings::isFlag(string key) &nbsp;</strong> <br/>
    
 <strong>bool Settings::isMode(string key) &nbsp;</strong> <br/>
@@ -444,7 +464,7 @@ return true if an entry of the given name and kind
 exists, else false. 
    
  
-<a name="method10"></a>
+<a name="method11"></a>
 <p/><strong>void Settings::addFlag(string key, bool default) &nbsp;</strong> <br/>
    
 <strong>void Settings::addMode(string key, int default, bool hasMin, bool hasMax, int min, int max) &nbsp;</strong> <br/>
@@ -464,7 +484,7 @@ value(s) always has to be supplied, for <code>Mode</code>, <code>Parm</code>,
 upper limits are to be imposed and, if so, what those limit are. 
    
  
-<a name="method11"></a>
+<a name="method12"></a>
 <p/><strong>bool Settings::flag(string key) &nbsp;</strong> <br/>
    
 <strong>int Settings::mode(string key) &nbsp;</strong> <br/>
@@ -485,7 +505,7 @@ vector of length 1 and value <code>false</code>, <code>0</code> or
 <code>0.</code>, respectively, is returned. 
    
  
-<a name="method12"></a>
+<a name="method13"></a>
 <p/><strong>bool Settings::flagDefault(string key) &nbsp;</strong> <br/>
    
 <strong>int Settings::modeDefault(string key) &nbsp;</strong> <br/>
@@ -506,7 +526,7 @@ vector of length 1 and value <code>false</code>, <code>0</code> or
 <code>0.</code>, respectively, is returned. 
    
  
-<a name="method13"></a>
+<a name="method14"></a>
 <p/><strong>map<string, Flag> Settings::getFlagMap(string match) &nbsp;</strong> <br/>
    
 <strong>map<string, Mode> Settings::getModeMap(string match) &nbsp;</strong> <br/>
@@ -524,7 +544,7 @@ return a map of all settings of the respective type that contain the
 string "match" in its name. 
    
  
-<a name="method14"></a>
+<a name="method15"></a>
 <p/><strong>void Settings::flag(string key, bool now) &nbsp;</strong> <br/>
    
 <strong>void Settings::mode(string key, int now) &nbsp;</strong> <br/>
@@ -544,7 +564,7 @@ outside the allowed range are reinterpreted as being a the nearest
 limit. 
    
  
-<a name="method15"></a>
+<a name="method16"></a>
 <p/><strong>void Settings::forceMode(string key, int now) &nbsp;</strong> <br/>
    
 <strong>void Settings::forceParm(string key, double now) &nbsp;</strong> <br/>
@@ -556,7 +576,7 @@ as above, but do not check lower and upper limits, so that the current
 value(s) can be put outside the intended borders. 
    
  
-<a name="method16"></a>
+<a name="method17"></a>
 <p/><strong>void Settings::resetFlag(string key) &nbsp;</strong> <br/>
    
 <strong>void Settings::resetMode(string key) &nbsp;</strong> <br/>

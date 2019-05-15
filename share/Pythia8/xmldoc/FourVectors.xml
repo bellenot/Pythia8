@@ -99,6 +99,11 @@ A number of methods provides output of basic or derived quantities:
 gets the respective component. 
 </methodmore> 
  
+<method name="double& operator[](int i)"> 
+returns component by index, where 1 gives <ei>p_x</ei>, 2 gives <ei>p_y</ei>, 
+3 gives <ei>p_z</ei>, and anything else gives <ei>e</ei>. 
+</method> 
+ 
 <method name="double Vec4::mCalc()"> 
 </method> 
 <methodmore name="double Vec4::m2Calc()"> 

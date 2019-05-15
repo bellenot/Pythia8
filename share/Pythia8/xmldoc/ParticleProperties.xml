@@ -678,9 +678,9 @@ when the "same" particle appears several times in the event record, but
 with changed momentum owing to recoil effects. 
 </methodmore> 
  
-<method name="int Particle::iTopCopyId()"> 
+<method name="int Particle::iTopCopyId(bool simplify = false)"> 
 </method> 
-<methodmore name="int Particle::iBotCopyId()"> 
+<methodmore name="int Particle::iBotCopyId(bool simplify = false)"> 
 also trace top mother and bottom daughter, but do not require carbon 
 copies, only that one can find an unbroken chain, of mothers or daughters, 
 with the same flavour <code>id</code> code. When it encounters ambiguities, 
@@ -690,6 +690,9 @@ It can be confused by nontrivial flavour changes, e.g. a hard process
 <ei>u d &rarr; d u</ei> by <ei>W^+-</ei> exchange will give the wrong 
 answer. These methods therefore are of limited use for common particles, 
 in particular for the gluon, but should work well for "rare" particles. 
+By default all mothers and daughters are studied in each step, but with 
+<code>simplify = true</code> only the first and last mother/daughter 
+are checked, which saves time and almost always gives the same result. 
 </methodmore> 
  
 <method name="vector&lt;int&gt; Particle::motherList()"> 
@@ -741,6 +744,19 @@ the respective string endpoint quark, which may be useful e.g. for
 <ei>b</ei> physics, while higher-rank hadrons give <code>false</code>. 
 Currently also ministrings that collapsed to one single hadron and 
 junction topologies give <code>false</code>. 
+</method> 
+ 
+<method name="bool Particle::isFinalPartonLevel()"> 
+is true if the particle belonged to the final state (i.e. with positive 
+status code) right before hadronization is invoked. This is intended to 
+further simple comparisons between parton-level and hadron-level 
+properties, say the number of jets. This method makes use of the event 
+record size set when <code>HadronLevel::next()</code> is invoked, so 
+would not work otherwise (unless <code>Event::savePartonLevelSize()</code> 
+is called by hand). Note that what should be counted as parton level is not 
+always unique. For instance, R-hadron formation is part of the hadron level 
+machinery, even though a subsequent R-hadron decay could well give rise 
+to new activity on the parton level, which thereby is missed. 
 </method> 
  
 <method name="int Particle::statusHepMC()"> 
@@ -897,4 +913,3 @@ particle species.
 </chapter> 
  
 <!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
- 

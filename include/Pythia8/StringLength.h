@@ -30,7 +30,7 @@ public:
   // Calculate string length of a single particle.
   // The first vector is the 4 vector of the particle.
   // The second vector represents (1,0,0,0) in dipole restframe.
-  double getLength(Vec4 p, Vec4 v);
+  double getLength(Vec4 p, Vec4 v, bool isJunc = false);
 
   // Calculate string length for two indices in the event record.
   double getStringLength(Event& event, int i, int j);
@@ -56,7 +56,7 @@ private:
 
   static const double MINDELTAR;
 
-  double m0, m0sqr, sqrt2;
+  double m0, m0sqr, sqrt2, juncCorr;
   int lambdaForm;
 
   // Pointer to various information on the generation.

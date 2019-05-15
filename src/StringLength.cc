@@ -33,6 +33,7 @@ void StringLength::init(Info* infoPtrIn, Settings& settings) {
   // Store variables.
   m0         = settings.parm("ColourReconnection:m0");
   m0sqr      = pow2(m0);
+  juncCorr   = settings.parm("ColourReconnection:junctionCorrection");
   sqrt2      = sqrt(2);
   lambdaForm = settings.mode("ColourReconnection:lambdaForm");
 }
@@ -78,14 +79,16 @@ double StringLength::getStringLength( Vec4 p1, Vec4 p2) {
 // The first vector is the 4 vector of the particle.
 // The second vector represents (1,0,0,0) in dipole restframe.
 
-double StringLength::getLength(Vec4 p, Vec4 v) {
+double StringLength::getLength(Vec4 p, Vec4 v, bool isJunc) {
+  double m = m0;
+  if (isJunc) m *= juncCorr;
 
   if (lambdaForm == 0)
-    return log (1. + sqrt2 * v * p/ m0 );
+    return log (1. + sqrt2 * v * p/ m );
   else if (lambdaForm == 1)
-    return log (1. + 2 * v * p/ m0 );
+    return log (1. + 2 * v * p/ m );
   else if (lambdaForm == 2)
-    return log (2 * v * p / m0);
+    return log (2 * v * p / m);
   else
     return 1e9;
 }
@@ -128,7 +131,8 @@ double StringLength::getJuncLength(Vec4 p1, Vec4 p2, Vec4 p3) {
     return 1e9;
 
   // Calcualte the junction length.
-  return getLength(p1,v1) + getLength(p2,v1) + getLength(p3,v1);
+  return getLength(p1, v1, true) + getLength(p2, v1, true)
+    + getLength(p3, v1, true);
 }
 
 //--------------------------------------------------------------------------
@@ -189,12 +193,11 @@ double StringLength::getJuncLength(Vec4 p1, Vec4 p2, Vec4 p3, Vec4 p4) {
       pow2(p3*v2) - p3*p3 < 0 || pow2(p4*v2) - p4*p4 < 0)
     return 1e9;
 
-  return getLength(p1,v1) + getLength(p2,v1) + getLength(p3,v2) +
-    getLength(p4,v2) + log(v1*v2 + sqrt(pow2(v1*v2)-1));
+  return getLength(p1, v1, true) + getLength(p2, v1, true)
+    + getLength(p3, v2, true) + getLength(p4, v2, true)
+    + log(v1*v2 + sqrt(pow2(v1*v2)-1));
 }
 
 //==========================================================================
 
 } // end namespace Pythia8
-
-

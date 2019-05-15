@@ -68,7 +68,8 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   increaseMaximum = settings.flag("PhaseSpace:increaseMaximum");
 
   // Pick and create phase space generator. Send pointers where required.
-  if      (isLHA)       phaseSpacePtr = new PhaseSpaceLHA();
+  if (phaseSpacePtr != 0) ;
+  else if (isLHA)       phaseSpacePtr = new PhaseSpaceLHA();
   else if (isNonDiff)   phaseSpacePtr = new PhaseSpace2to2nondiffractive();
   else if (!isResolved && !isDiffA  && !isDiffB  && !isDiffC )
                         phaseSpacePtr = new PhaseSpace2to2elastic();
@@ -144,6 +145,7 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   setLifetime   = settings.mode("LesHouches:setLifetime");
   setLeptonMass = settings.mode("LesHouches:setLeptonMass");
   mRecalculate  = settings.parm("LesHouches:mRecalculate");
+  matchInOut    = settings.flag("LesHouches:matchInOut");
   idLep[0] = 11; mLep[0] = particleDataPtr->m0(11);
   idLep[1] = 13; mLep[1] = particleDataPtr->m0(13);
   idLep[2] = 15; mLep[2] = particleDataPtr->m0(15);
@@ -458,6 +460,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
     process.scale( scalePr);
 
     // Copy over info from LHA event to process, in proper order.
+    Vec4 pSumOut;
     for (int i = 1; i < lhaUpPtr->sizePart(); ++i) {
       int iOld = newPos[i];
       int id = lhaUpPtr->id(iOld);
@@ -516,12 +519,16 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       double pz  = lhaUpPtr->pz(iOld);
       double e   = lhaUpPtr->e(iOld);
       double m   = lhaUpPtr->m(iOld);
-      for (int idL = 0; idL < 3; ++idL) 
+      for (int idL = 0; idL < 3; ++idL)
         if (idAbs == idLep[idL] && setLeptonMass > 0 && (setLeptonMass == 2
-          || m < 0.9 * mLep[idL] || m > 1.1 * mLep[idL])) m = mLep[idL]; 
+          || m < 0.9 * mLep[idL] || m > 1.1 * mLep[idL])) m = mLep[idL];
       if (mRecalculate > 0. && m > mRecalculate)
-        m = sqrtpos( e*e - px*px - py*py - pz*pz);   
-      else e = sqrt( m*m + px*px + py*py + pz*pz); 
+        m = sqrtpos( e*e - px*px - py*py - pz*pz);
+      else e = sqrt( m*m + px*px + py*py + pz*pz);
+
+      // Momentum sum for outgoing particles.
+      if (matchInOut && i > 2 && lhaStatus == 1)
+        pSumOut += Vec4( px, py, pz, e);
 
       // Polarization.
       double pol = lhaUpPtr->spin(iOld);
@@ -543,6 +550,18 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       if ( (setLifetime == 1 && idAbs == 15) || setLifetime == 2)
          tau = process[iNow].tau0() * rndmPtr->exp();
       if (tau > 0.) process[iNow].tau(tau);
+    }
+
+    // Reassign momenta and masses for incoming partons.
+    if (matchInOut) {
+      double e1 = 0.5 * (pSumOut.e() + pSumOut.pz());
+      double e2 = 0.5 * (pSumOut.e() - pSumOut.pz());
+      process[3].pz( e1);
+      process[3].e(  e1);
+      process[3].m(  0.);
+      process[4].pz(-e2);
+      process[4].e(  e2);
+      process[4].m(  0.);
     }
   }
 
@@ -1882,8 +1901,8 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
               iproc++;
               if (iso == jso && id1 != id2) iproc++;
               // Exclude RH neutrinos from allowed final states
-              if (abs(id1) >= 2000012 && id1 % 2 == 0) continue; 
-              if (abs(id2) >= 2000012 && id2 % 2 == 0) continue; 
+              if (abs(id1) >= 2000012 && id1 % 2 == 0) continue;
+              if (abs(id2) >= 2000012 && id2 % 2 == 0) continue;
               // Skip if outgoing codes not asked for
               if (!allowIdVals( id1, id2)) continue;
               if (iso == jso && id1 != id2) {

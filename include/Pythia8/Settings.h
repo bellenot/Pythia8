@@ -208,6 +208,9 @@ public:
   void list(string match, ostream& os = cout) {
     list (false, true, match, os); }
 
+  // Give back current value(s) as a string, whatever the type.
+  string output(string keyIn, bool fullLine = true);
+
   // Reset all values to their defaults.
   void resetAll() ;
 

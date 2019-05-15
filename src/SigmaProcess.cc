@@ -544,19 +544,16 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
   // Parameters depend on Higgs type: H0(H_1), H^0(H_2) or A^0(H_3).
   int    higgsParity = higgsH1parity;
   double higgsEta    = higgsH1eta;
-  double higgsPhi    = higgsH1phi;
   if (idH == 35) {
     higgsParity      = higgsH2parity;
     higgsEta         = higgsH2eta;
-    higgsPhi         = higgsH2phi;
   } else if (idH == 36) {
     higgsParity      = higgsA3parity;
     higgsEta         = higgsA3eta;
-    higgsPhi         = higgsA3phi;
   }
 
-  // Option with isotropic decays.
-  if (higgsParity == 0) return 1.;
+  // Option with isotropic decays (also for pseudoscalar fermion couplings).
+  if (higgsParity == 0 || higgsParity > 3) return 1.;
 
   // Maximum and initial weight.
   double wtMax = pow4(process[iH].m());
@@ -619,10 +616,6 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
       / ( (vf1*vf1 + af1*af1) * (vf2*vf2 + af2*af2) );
     double vh = 1;
     double ah = higgsEta / pow2( particleDataPtr->m0(23) );
-    if (higgsParity == 4) {
-      vh = sin(higgsPhi);
-      ah = cos(higgsPhi) / pow2( particleDataPtr->m0(23) );
-    }
 
     // Normal CP-even decay.
     if (higgsParity == 1) wt = 8. * (1. + va12asym) * p35 * p46
@@ -651,10 +644,6 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
   } else if (idZW1 == 24) {
     double vh = 1;
     double ah = higgsEta / pow2( particleDataPtr->m0(24) );
-    if (higgsParity == 4) {
-      vh = sin(higgsPhi);
-      ah = cos(higgsPhi) / pow2( particleDataPtr->m0(24) );
-    }
 
     // Normal CP-even decay.
     if (higgsParity == 1) wt = 16. * p35 * p46;

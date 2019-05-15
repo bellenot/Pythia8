@@ -157,6 +157,10 @@ at TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001
 <dd>A. Buckley et al., Phys. Rep. 504 (2011) 145 
 [arXiv:1101.2599 [hep-ph]]</dd> 
  
+<dt>Buc15</dt> 
+<dd>A. Buckley et al., Eur.Phys.J. C75 (2015) 3, 132 
+[arXiv:1412.7420 [hep-ph]]</dd> 
+ 
 <dt>But14</dt> 
 <dd>J. Butterworth et al., arXiv:1405.1067 [hep-ph]]</dd> 
  
@@ -192,8 +196,8 @@ Nucl.Phys. B349 (1991) 635</dd>
 Phys. Rev. D76 (2007) 055003</dd> 
  
 <dt>Che14</dt> 
-<dd>S.Chekanov, E.May, K. Strand, P. Van Gemmeren,
-Comput. Phys.Commun. 185 (2014) 2629 [arXiv:1311.1229</dd> 
+<dd>S.Chekanov, E.May, K. Strand, P. Van Gemmeren, 
+Comput. Phys.Commun. 185 (2014) 2629 [arXiv:1311.1229]</dd> 
  
 <dt>Cho96</dt> 
 <dd>P. Cho and A. Leibovich, Phys. Rev. D53 (1996) 6203 
@@ -201,13 +205,14 @@ Comput. Phys.Commun. 185 (2014) 2629 [arXiv:1311.1229</dd>
  
 <dt>Chr14</dt> 
 <dd>J.R. Christiansen and T. Sj&ouml;strand, 
-LU TP 14-02, MCnet-14-01, arXiv:1401.5238 [hep-ph]</dd> 
+JHEP 04 (2014) 115 [arXiv:1401.5238 [hep-ph]]</dd> 
  
 <dt>Chr14a</dt> 
 <dd>J.R. Christiansen and P.Z. Skands, in preparation</dd> 
  
 <dt>Cie12</dt> 
-<dd>R. Ciesielski and K. Goulianos, arXiv:1205.1446 [hep-ph]</dd> 
+<dd>R. Ciesielski and K. Goulianos, PoS ICHEP2012 (2013) 301 
+[arXiv:1205.1446 [hep-ph]]</dd> 
  
 <dt>Cio08</dt> 
 <dd>C. Ciobanu et al., FERMILAB-FN-0773, CDF/PHYS/PUBLIC/7755 (2008)</dd> 
@@ -304,6 +309,10 @@ P. Torrielli, Phys.Lett. B701 (2011) 427 [arXiv:1104.5613 [hep-ph]]</dd>
 <dt>H1P06</dt> 
 <dd>H1 Collaboration, A. Aktas et al., Eur. Phys. J. C48 (2006) 715 
 [hep-ex/0606004]</dd> 
+ 
+<dt>H1P06a</dt> 
+<dd>H1 Collaboration, A. Aktas et al., Eur. Phys. J. C48 (2006) 749 
+[hep-ex/0606003]</dd> 
  
 <dt>H1P07</dt> 
 <dd>H1 Collaboration, A. Aktas et al., JHEP 0710 (2007) 042 
@@ -470,6 +479,10 @@ Phys. Rev. D27 (1983) 105</dd>
  
 <dt>Sjo87</dt> 
 <dd>T. Sj&ouml;strand and M. van Zijl, Phys. Rev. D36 (1987) 2019</dd> 
+ 
+<dt>Sjo94</dt> 
+<dd>T. Sj&ouml;strand and V.A. Khoze, Z.Phys. C62 (1994) 281, 
+Phys.Rev.Lett. 72 (1994) 28</dd> 
  
 <dt>Sjo03</dt> 
 <dd>T. Sj&ouml;strand and P.Z. Skands, Nucl. Phys. B659 (2003) 243</dd> 

@@ -111,27 +111,26 @@ a match is searched for just like in the normal case with
  
 <p/><code>mvec&nbsp; </code><strong> SUSY:idVecA &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)<br/>
-As for <code>SUSY:idA</code>, but as a vector of PDG codes. 
-(Character-string input of such vectors should be as a 
-comma-separated list, without any blanks.) Thus, it selects only 
-processes that have a final-state particle corresponding to one 
-of the identity codes in this vector. Note that, to activate this, 
+As for <code>SUSY:idA</code>, but as a vector of PDG codes. Thus, it 
+selects only processes that have a final-state particle corresponding to 
+one of the identity codes in this vector. Note that, to activate this, 
 <code>SUSY:idA</code> must be equal to zero; if not then the match 
-to <code>SUSY:idA</code> takes precedence. 
+to <code>SUSY:idA</code> takes precedence. Character-string input of 
+this vector should be as a comma-separated list, without any blanks. 
    
  
 <p/><code>mvec&nbsp; </code><strong> SUSY:idVecB &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)<br/>
-As for <code>SUSY:idB</code>, but as a vector of PDG codes. 
-(Character-string input of such vectors should be as a 
-comma-separated list, without any blanks.) As above, to activate this, 
-<code>SUSY:idB</code> must be equal to zero; if not then the match to 
-<code>SUSY:idB</code> takes precedence. For the matching, either of 
-<code>SUSY:idA</code> and <code>SUSY:idVecA</code> may be combined with 
-either of <code>SUSY:idB</code> and <code>SUSY:idVecB</code>. 
+As for <code>SUSY:idB</code>, but as a vector of PDG codes. As above, 
+to activate this, <code>SUSY:idB</code> must be equal to zero; if not 
+then the match to <code>SUSY:idB</code> takes precedence. For the matching, 
+either of <code>SUSY:idA</code> and <code>SUSY:idVecA</code> may be 
+combined with either of <code>SUSY:idB</code> and <code>SUSY:idVecB</code>. 
 As above one of the two outgoing SUSY particles must match one of the 
 particles in <code>SUSY:id(Vec)A</code> and the other one of the 
 particles in <code>SUSY:id(Vec)B</code> when both are nonzero. 
+Character-string input of this vector  should be as a comma-separated 
+list, without any blanks. 
    
  
 <p/><code>mode&nbsp; </code><strong> SUSY:sin2thetaWMode &nbsp;</strong> 
@@ -369,4 +368,3 @@ and a fermion-antifermion pair.
 </html>
  
 <!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
- 

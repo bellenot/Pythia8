@@ -282,6 +282,9 @@ public:
   // Initialize process.
   virtual void initProc();
 
+  // Calculate flavour-independent parts of cross section.
+  virtual void sigmaKin();
+
   // Evaluate d(sigmaHat)/d(tHat).
   virtual double sigmaHat();
 
@@ -344,7 +347,7 @@ private:
   // Basic process information
   int     id3Sav, id4Sav, codeSave, iGen3, iGen4, nNeut;
   string  nameSave;
-  bool    isUD;
+  bool    isUD, onlyQCD;
 
   // Storage of mass squares
   double m2Glu;
@@ -414,7 +417,7 @@ private:
   // Basic process information
   int     id3Sav, id4Sav, codeSave, iGen3, iGen4, nNeut;
   string  nameSave;
-  bool    isUD, isCC;
+  bool    isUD, isCC, onlyQCD;
 
   // Storage of mass squares
   double m2Glu;
@@ -864,4 +867,3 @@ private:
 } // end namespace Pythia8
 
 #endif // Pythia8_SigmaSUSY_H
-

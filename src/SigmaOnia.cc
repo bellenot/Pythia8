@@ -1075,4 +1075,3 @@ void Sigma2qqbar2QQbarX8g::setIdColAcol() {
 //==========================================================================
 
 } // end namespace Pythia8
-

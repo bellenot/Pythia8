@@ -322,5 +322,3 @@ vector<vector<int > > ColourTracing::getJunChains(Event& event) {
 //==========================================================================
 
 } // end namespace Pythia8
-
-

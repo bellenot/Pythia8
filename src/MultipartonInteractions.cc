@@ -975,7 +975,9 @@ bool MultipartonInteractions::limitPTmax( Event& event) {
   bool onlyQGP1 = true;
   bool onlyQGP2 = true;
   int  n21      = 0;
-  for (int i = 5; i < event.size(); ++i) {
+  int iBegin = 5;
+  if (infoPtr->isHardDiffractive()) iBegin = 9;
+  for (int i = iBegin; i < event.size(); ++i) {
     if (event[i].status() == -21) ++n21;
     else if (n21 == 0) {
       int idAbs = event[i].idAbs();

@@ -89,4 +89,3 @@ private:
 } // end namespace Pythia8
 
 #endif // Pythia8_BoseEinstein_H
-

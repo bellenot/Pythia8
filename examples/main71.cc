@@ -254,4 +254,3 @@ int main() {
   delete jetDef;
   return 0;
 }
-

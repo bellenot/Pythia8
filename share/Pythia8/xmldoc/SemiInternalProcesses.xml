@@ -29,16 +29,25 @@ With a reasonable such match the task should be of medium difficulty,
 without it more demanding. 
  
 <p/> 
-PYTHIA is rather good at handling the phase space of 
-<ei>2 &rarr; 1</ei> and <ei>2 &rarr; 2</ei> processes, is more primitive for 
-<ei>2 &rarr; 3</ei> ones and does not at all address higher multiplicities. 
-This limits the set of processes that you can implement in this 
-framework. The produced particles may be resonances, however, so it is 
+PYTHIA's internal phase-space generators are rather good at handling 
+the phase space of <ei>2 &rarr; 1</ei> and <ei>2 &rarr; 2</ei> processes, 
+are more primitive for <ei>2 &rarr; 3</ei> ones and do not at all 
+address higher multiplicities. An option is therefore also provided 
+for external phase-space generators to be used, which must then be 
+encapsulated to inherit from PYTHIA's <code>PhaseSpace</code> base class 
+(or one of its derivatives). 
+The set of processes that can be implemented in this framework is 
+therefore in principle unlimited, though the user must supply external 
+phase-space generators for non-trivial <ei>2 &rarr; 3</ei> processes 
+and all higher <ei>2 &rarr; n</ei> multiplicities. 
+Note, however, that the produced particles may be resonances, so it is 
 possible to end up with bigger "final" multiplicities through sequential 
-decays, and to include further matrix-element weighting in those decays. 
+decays, also with the internal phase-space generators, and to include 
+further matrix-element weighting in those decays. 
  
 <p/> 
-There are three steps involved in implementing a process: 
+For processes using PYTHIA's internal phase-space generators, there 
+are three steps involved in implementing a process: 
 <ol> 
 <li>making use of the PYTHIA-provided kinematics information to 
 calculate the relevant cross section,</li> 
@@ -49,6 +58,14 @@ and</li>
 </ol> 
 We consider these aspects in turn. An example where it all comes 
 together is found in <code>main22.cc</code>. 
+ 
+<p/> 
+For processes for which an external phase-space generator will be 
+used, step 1 above changes to writing a new class, where the 
+phase-space generator is implemented, and making use of that to 
+calculate the relevant cross section. There are no example programs 
+illustrating how to do this yet, but the methodology is described 
+below, under "Implementing an external phase-space generator". 
  
 <h3>The Cross Section Calculation</h3> 
  
@@ -532,6 +549,13 @@ and hand it in to a <code>pythia</code> object with
       SigmaProcess* mySigma = new MySigma(); 
       pythia.setSigmaPtr( mySigma); 
 </pre> 
+If an external phase-space generator should be used for this process 
+(see "Implementing an external phase-space generator" below), 
+this should be specified as a second argument in the call to 
+<code>setSigmaPtr()</code>, as in: 
+<pre> 
+      pythia.setSigmaPtr( new mySigma(), new myPhaseSpaceGenerator() ); 
+</pre> 
 If you have several processes you can repeat the procedure any number 
 of times. When <code>pythia.init()</code> is called these processes 
 are initialized along with any internal processes you may have switched on, 
@@ -587,6 +611,73 @@ constructor may take arguments, as specified by you (see above).
 If so, the same basic matrix element may be recycled for a set of 
 related processes, e.g. one for a composite <ei>u</ei> and one for 
 a composite <ei>d</ei>. Obviously these variations may be combined. 
+ 
+<h3>Implementing an external phase-space generator</h3> 
+ 
+An external phase-space generator can be interfaced by encapsulating 
+it within a class inheriting from PYTHIA's <code>PhaseSpace</code> 
+base class. The following three virtual methods must be defined: 
+<pre> 
+      // Determine how phase space should be sampled. 
+      virtual bool setupSampling(); 
+      // Select a trial event kinematics. 
+      virtual bool trialKin(bool inEvent = true, bool repeatSame = false); 
+      // Construct final (accepted) event kinematics. 
+      virtual bool finalKin(); 
+</pre> 
+Optionally, a further virtual method is available to specify whether 
+beam particles are resolved in partons or scatter directly, 
+<pre> 
+      // Inform whether beam particles are resolved or scatter directly. 
+      virtual bool isResolved(); 
+</pre> 
+with default return value <code>true</code>. 
+ 
+<p/> 
+In the <code>setupSampling()</code> step the main point is to determine 
+the upper estimate of the cross section integrated over the allowed 
+phase space regions, and this should be stored in <code>sigmaMx</code>. 
+The ratio between the correct cross section and its upper estimate 
+is a measure of the phase-space selection efficiency, and the purpose 
+of this step is to optimize the sampling accordingly. To this end any 
+convenient set of phase-space variables may be chosen. The 
+<code>x1H</code> and <code>x2H</code> varables should be used to 
+denote the incoming parton momentum fractions, however, to be used in 
+PDF evaluations. 
+ 
+<p/> 
+In the <code>trialKin()</code> intermediate step the same set of internal 
+variables can be used, and fed into the <code>SigmaProcess</code> code 
+to evaluate the cross section in the given phase space point, multiplied 
+by the integrated cross section. This value is to be stored in 
+<code>sigmaNw</code>, and the ratio <code>sigmaNw/sigmaMx</code> 
+will be used to determine whether the trial event is accepted or not. 
+ 
+<p/> 
+In the <code>finalKin()</code> step the output is more standardized. 
+The key values are the ones stored in the <code>mH[]</code> and 
+<code>pH[]</code> arrays, the former for masses and the latter for 
+four-momenta. Here the first two slots represent the two incoming 
+partons and the subsequent ones up to ten outgoing particles. Other 
+particle properties, like the number of final-state particles, their 
+identities and colours, and more, are defined by the 
+<code>SigmaProcess</code> class. 
+ 
+<p/> 
+A tailor-made <ei>2 &rarr; 3</ei> 
+generator could be defined, e.g., by starting from the code for PYTHIA's 
+internal <code>PhaseSpace2to3tauycyl</code> base class, which provides 
+a specific representation of 3-parton phase space, used for generic 
+<ei>2 &rarr; 3</ei> processes in PYTHIA. The virtual functions 
+described could then be redefined to generate a different sampling of 
+3-parton phase space. One example of this is provided by the existing 
+<code>PhaseSpace2to3yyycyl</code> class, which PYTHIA uses for 
+massless QCD processes. Note the interplay between the phase-space 
+variables, generated and saved here, and how they are used by the 
+matrix-element codes. For general processes, the user can define 
+samplings in terms of their own phase-space parametrizations, as long 
+as the corresponding matrix elements use the same variables to 
+evaluate the cross-section expressions. 
  
 </chapter> 
  

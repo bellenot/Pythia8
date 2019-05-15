@@ -5,12 +5,13 @@
 
 // Header file for Fortran Les Houches Accord user process information.
 // LHAupFortran: derived class with the HEPRUP and HEPEUP Fortran info.
-// You are expected to supply the fillHepRup and fillHepEup methods.
+// You are expected to create a derived class that supplies the fillHepRup
+// and fillHepEup methods (and returns true when successful).
 
 #ifndef Pythia8_LHAFortran_H
 #define Pythia8_LHAFortran_H
 
-#include "Pythia8/PythiaStdlib.h"
+#include "Pythia8/Pythia.h"
 
 namespace Pythia8 {
 
@@ -99,16 +100,18 @@ public:
     return true;
   }
 
+protected:
+
+  // User-written routine that does the intialization and fills heprup.
+  virtual bool fillHepRup() {return false;}
+
+  // User-written routine that does the event generation and fills hepeup.
+  virtual bool fillHepEup() {return false;}
+
 private:
 
   // Save beam energies to calculate x values.
   double eBeamA, eBeamB;
-
-  // User-written routine that does the intialization and fills heprup.
-  bool fillHepRup();
-
-  // User-written routine that does the event generation and fills hepeup.
-  bool fillHepEup();
 
 };
 

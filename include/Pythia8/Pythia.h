@@ -9,16 +9,24 @@
 #ifndef Pythia8_Pythia_H
 #define Pythia8_Pythia_H
 
+// Version number defined for use in macros and for consistency checks.
+#define PYTHIA_VERSION 8.209
+
+// Header files for the Pythia class and for what else the user may need.
 #include "Pythia8/Analysis.h"
 #include "Pythia8/Basics.h"
 #include "Pythia8/BeamParticle.h"
 #include "Pythia8/BeamShape.h"
+#include "Pythia8/ColourReconnection.h"
 #include "Pythia8/Event.h"
 #include "Pythia8/FragmentationFlavZpT.h"
 #include "Pythia8/HadronLevel.h"
 #include "Pythia8/History.h"
 #include "Pythia8/Info.h"
+#include "Pythia8/JunctionSplitting.h"
 #include "Pythia8/LesHouches.h"
+#include "Pythia8/Merging.h"
+#include "Pythia8/MergingHooks.h"
 #include "Pythia8/PartonLevel.h"
 #include "Pythia8/ParticleData.h"
 #include "Pythia8/PartonDistributions.h"
@@ -34,8 +42,6 @@
 #include "Pythia8/SLHAinterface.h"
 #include "Pythia8/TimeShower.h"
 #include "Pythia8/UserHooks.h"
-#include "Pythia8/MergingHooks.h"
-#include "Pythia8/Merging.h"
 
 namespace Pythia8 {
 
@@ -96,9 +102,11 @@ public:
   bool setBeamShapePtr( BeamShape* beamShapePtrIn)
     { beamShapePtr = beamShapePtrIn; return true;}
 
-  // Possibility to pass in pointer(s) for external cross section.
-  bool setSigmaPtr( SigmaProcess* sigmaPtrIn)
-    { sigmaPtrs.push_back( sigmaPtrIn); return true;}
+  // Possibility to pass in pointer(s) for external cross section,
+  // with option to include external phase-space generator(s).
+  bool setSigmaPtr( SigmaProcess* sigmaPtrIn, PhaseSpace* phaseSpacePtrIn = 0)
+    { sigmaPtrs.push_back( sigmaPtrIn);
+      phaseSpacePtrs.push_back(phaseSpacePtrIn); return true;}
 
   // Possibility to pass in pointer(s) for external resonance.
   bool setResonancePtr( ResonanceWidths* resonancePtrIn)
@@ -192,22 +200,22 @@ private:
   Pythia& operator=(const Pythia&);
 
   // Constants: could only be changed in the code itself.
-  static const double VERSIONNUMBERCODE;
+  static const double VERSIONNUMBERHEAD, VERSIONNUMBERCODE;
   static const int    NTRY, SUBRUNDEFAULT;
 
   // Initialization data, extracted from database.
   string xmlPath;
   bool   doProcessLevel, doPartonLevel, doHadronLevel, doDiffraction,
-         doResDec, doFSRinRes, decayRHadrons, abortIfVeto, checkEvent,
-         checkHistory;
+         doHardDiff, doResDec, doFSRinRes, decayRHadrons, abortIfVeto,
+         checkEvent, checkHistory;
   int    nErrList;
   double epTolErr, epTolWarn, mTolErr, mTolWarn;
 
   // Initialization data, extracted from init(...) call.
   bool   isConstructed, isInit, isUnresolvedA, isUnresolvedB, showSaV,
-         showMaD;
+         showMaD, doReconnect, forceHadronLevelCR;
   int    idA, idB, frameType, boostType, nCount, nShowLHA, nShowInfo,
-         nShowProc, nShowEvt;
+         nShowProc, nShowEvt, reconnectMode;
   double mA, mB, pxA, pxB, pyA, pyB, pzA, pzB, eA, eB,
          pzAcm, pzBcm, eCM, betaZ, gammaZ;
   Vec4   pAinit, pBinit, pAnow, pBnow;
@@ -259,6 +267,10 @@ private:
   // Pointers to external processes derived from the Pythia base classes.
   vector<SigmaProcess*> sigmaPtrs;
 
+  // Pointers to external phase-space generators derived from Pythia
+  // base classes.
+  vector<PhaseSpace*> phaseSpacePtrs;
+
   // Pointers to external calculation of resonance widths.
   vector<ResonanceWidths*> resonancePtrs;
 
@@ -266,7 +278,7 @@ private:
   TimeShower*  timesDecPtr;
   TimeShower*  timesPtr;
   SpaceShower* spacePtr;
-  bool         useNewTimes, useNewSpace;
+  bool         useNewTimesDec, useNewTimes, useNewSpace;
 
   // The main generator class to define the core process of the event.
   ProcessLevel processLevel;
@@ -279,6 +291,12 @@ private:
 
   // Flags for defining the merging scheme.
   bool        hasMergingHooks, hasOwnMergingHooks, doMerging;
+
+  // The Colour reconnection class.
+  ColourReconnection colourReconnection;
+
+  // The junction spltiting class.
+  JunctionSplitting junctionSplitting;
 
   // The main generator class to produce the hadron level of the event.
   HadronLevel hadronLevel;
@@ -324,7 +342,7 @@ private:
 
   // Initialization of SLHA data.
   bool initSLHA ();
-
+  stringstream particleDataBuffer;
 };
 
 //==========================================================================

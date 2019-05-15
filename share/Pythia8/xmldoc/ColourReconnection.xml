@@ -53,11 +53,16 @@ setup illustrated in <code>examples/main29.cc</code>, but only the
 gluon-move one is sufficiently general and realistic that it has been 
 included among the standard options here. 
  
+<p/> 
+Finally, the SK I and SK II models <ref>Sjo94</ref> have a smaller range 
+of applicability, originally intended for <ei>e^+ e^- &rarr; W^+ W^-</ei>, 
+but in this context offers a more detailed approach. 
+ 
 <flag name="ColourReconnection:reconnect" default="on"> 
 Allow or not a system to be merged with another one. 
 </flag> 
  
-<modepick name="ColourReconnection:mode" default="0" min="0" max="2"> 
+<modepick name="ColourReconnection:mode" default="0" min="0" max="4"> 
 Determine which model is used for colour reconnection. Beware that 
 different <code>BeamRemnants:remnantMode</code> should be used for 
 different reconnection schemes. 
@@ -67,7 +72,29 @@ different reconnection schemes.
 </option> 
 <option value="2"> The new gluon-move model. 
 </option> 
+<option value="3"> The SK I <ei>e^+ e^-</ei> CR model. 
+</option> 
+<option value="4"> The SK II <ei>e^+ e^-</ei> CR model. 
+</option> 
 </modepick> 
+ 
+<flag name="ColourReconnection:forceHadronLevelCR" default="off"> 
+This flag switches on colour reconnection in the <code>forceHadronLevel</code> 
+function. The function is called when only the hadron level of PYTHIA is 
+used (see <aloc href="HadronLevelStandalone">Hadron-level 
+Standalone</aloc>). The MPI-based model is not available for this setup and 
+any resonance decays not already decayed are not included in the CR. 
+</flag> 
+ 
+<flag name="ColourReconnection:forceResonance" default="off"> 
+This parameter allows an additional CR after late resonance decays. All the 
+particles from all resonance decays are allowed to reconnect with each 
+other. It is mainly intended for <ei>H -> WW -> qqqq </ei>, where the 
+Higgs decay ensures a separation between the W bosons and the MPI 
+systems. Reconnections between the decay products from the two <ei>W</ei> 
+bosons is still a possibility, however. This option is not available for 
+colored resonances, and not for the MPI-based model. 
+</flag> 
  
 <h3>The MPI-based scheme</h3> 
  
@@ -154,12 +181,68 @@ whereas the <ei>H</ei> is much more long-lived.
  
 <h3>The newer scheme</h3> 
  
-<parm name="ColourReconnection:m0" default="0.5" min="0.1" 
+The newer CR scheme builds on the minimization of the string length as well as 
+the colour rules from QCD. A main feature of the new model is the introduction 
+of junction structures. These are possible outcomes of the reconnection in 
+addition to the more common string-string reconnections. The model works by 
+constructing all pair of dipoles that are allowed to reconnect by QCD colour 
+rules and switching if the new pair has a lower string length. Junctions are 
+also allowed to be directly produced from three, and in some special cases, 
+four dipoles. This is done iteratively until no further allowed reconnection 
+lowers the total string length. 
+ 
+<p/> 
+According to QCD colour rules, an uncorrelated triplet and anti-triplet are 
+allowed to form a singlet state <ei>1/9</ei> times. This is reflected in the 
+model by giving each dipole a colour number between 0-8 and only dipoles with 
+the same colour number are allowed to reconnect. The junction probability is 
+given by the product of two triplets, which provides an anti-triplet 
+<ei>1/3</ei> times. This is achieved in the model by allowing reconnections 
+between dipoles where modulo three of the color numbers agree. In addition to 
+the colour rules, the dipoles also need to be causally connected in order to 
+perform a reconnection. The definition of causally connected dipoles is not 
+exact, and several different options are available. All the time dilation 
+modes introduce a tuneable parameter, which provides a handle on the overall 
+amount of colour reconnection. 
+ 
+<p/> 
+When the two strings are allowed to reconnect, they will reconnect if it 
+lowers the total string length. The total string length is in the model 
+defined by an approximation to the <ei>lambda</ei>-measure. Several options 
+for different approximations are available. The <ei>lambda</ei>-measure is not 
+well understood, especially for junction structures, and a tuneable parameter 
+is introduced to vary the behaviour between junctions and ordinary strings. 
+ 
+<p/> 
+To avoid problems with very low mass string and junction structures, these are 
+excluded from participating in the colour reconnections. This is achieved by 
+forming the dipole or junction into a pseudo-particle if the invariant mass 
+is too low. Especially the approximations made in the <ei>lambda</ei>-measure 
+provides problems at low invariant masses. 
+ 
+<p/> 
+The new CR scheme introduce several tuneable parameters, which 
+all are listed below. In addition to these, other parameters in PYTHIA also 
+need to retuned to account for the new CR. The default values below, together 
+with changing <code> MultipartonInteractions:pT0Ref = 2.15</code> and 
+<code>ColourReconnection:allowDoubleJunRem = off</code>, provides a good 
+starting point. Additional fragmentation variables were also adjusted in the 
+first tune, but these provide a smaller change (see <ref>Chr14a</ref> for a 
+complete list). 
+ 
+ 
+<parm name="ColourReconnection:m0" default="0.3" min="0.1" 
   max="5."> 
 This is the variable used in the lambda measure for the string length. 
-See the different choices of lambda measure for exact formulaes. This variable 
+See the different choices of lambda measure for exact formulas. This variable 
 is in the new model also used as a cut for forming pseudo particles that are 
 not colour reconnected. 
+</parm> 
+ 
+<parm name="ColourReconnection:junctionCorrection" default="1.20" min="0.01" 
+  max="10."> 
+This variable allows to use a different m0 for junction strings in the lambda 
+measure. It is multiplicative correction to the m0 chosen above. 
 </parm> 
  
 <modeopen name="ColourReconnection:nColours" default="9" min="1" max="30"> 
@@ -178,7 +261,7 @@ variable.
  
 <flag name="ColourReconnection:sameNeighbourColours" default="off"> 
 In the normal colour reconnection two neighbouring strings are not allowed 
-to have the same colour. Similar two strings orginating from a gluon split is 
+to have the same colour. Similar two strings originating from a gluon split is 
 not allowed to reconnect. The physics motivation for this is that it would 
 require colour singlet gluons, and therefore for ordinary physics studies this 
 should be turned off. But for testing of extreme scenarios (i.e. 1 colour), 
@@ -195,7 +278,7 @@ This allows to switch between different options for what
 <ei>lambda</ei>-measure to use. 
 The formula shown are how much each end of a dipole or junction contribute to 
 the total <ei>lambda</ei>-measure. The energies are defined in respectively 
-the dipole or junction restframe. 
+the dipole or junction rest frame. 
 <option value="0"> <ei>lambda = ln (1 + sqrt(2) E/m0)</ei> 
 </option> 
 <option value="1"> <ei>lambda = ln (1 + 2 E/m0)</ei> 
@@ -203,12 +286,6 @@ the dipole or junction restframe.
 <option value="2"> <ei>lambda = ln (2 E/m0)</ei> 
 </option> 
 </modepick> 
- 
-<parm name="ColourReconnection:minimumGainJun" default="1" min="-100" 
-max="100"> 
-The minimum <ei>lambda</ei> has to decrease in order to create a junction 
-antijunction pair. 
-</parm> 
  
 <flag name="ColourReconnection:allowDoubleJunRem" default="on"> 
 This parameter tells whether or not to allow a directly connected 
@@ -218,6 +295,51 @@ configurations. If the chosen configuration is the junction system, a q-qbar
 system is inserted between the junctions by removing some energy/momentum from 
 the other legs. 
 </flag> 
+ 
+<modepick name="ColourReconnection:timeDilationMode" default="2" 
+          min="0" max="5"> 
+Disallow colour reconnection between strings that are not in causal 
+contact; if either string has already decayed before the other string forms, 
+there is no space-time region in which the reconnection could physically 
+occur. The exact defintion of causal contact is not known, hence several 
+possible defintions are included. They all include the boost factor, 
+<ei>gamma</ei>, and the majority also rely on the typical hadronization scale, 
+<ei>r</ei>, which is kept fixed at 1 fm. A tuneable dimensionless parameter is 
+included, which can be used to control the overall amount of colour 
+reconnection. 
+<option value="0"> All strings are allowed to reconnect. 
+</option> 
+<option value="1"> Strings are allowed to reconnect if <ei>gamma &lt 
+timeDilationPar </ei> and all strings should be causally connected to allow a 
+reconnection. 
+</option> 
+<option value="2"> Strings are allowed to reconnect if <ei>gamma &lt 
+timeDilationPar * mDip * r </ei> and all strings should be in causal 
+contact to allow a reconnection. 
+</option> 
+<option value="3"> Strings are allowed to reconnect if <ei>gamma &lt 
+timeDilationPar * mDip * r </ei> and if a single pair of dipoles are in 
+causal contact the reconnection is allowed. 
+</option> 
+<option value="4"> Strings are allowed to reconnect if <ei>gamma &lt 
+timeDilationPar * mDip' * r </ei> and all strings should be in causal 
+contact to allow a reconnection. mDip' is the invariant mass at the 
+formation of the dipole (ie. the first time the colour tag appear in the 
+perturbative expansion). 
+</option> 
+<option value="5"> Strings are allowed to reconnect if <ei>gamma &lt 
+timeDilationPar * mDip' * r </ei> and if a single pair of dipoles are in 
+causal contact the reconnection is allowed. mDip' is the invariant mass at 
+the formation of the dipole (ie. the first time the colour tag appear in 
+the perturbative expansion). 
+</option> 
+</modepick> 
+ 
+<parm name="ColourReconnection:timeDilationPar" default="0.18" min="0" 
+      max="100"> 
+This is a tuneable parameter for the time dilation. The definition 
+can be seen above under <code>timeDilationMode</code>. 
+</parm> 
  
 <h3>The gluon-move scheme</h3> 
  
@@ -298,15 +420,101 @@ will be performed, but those that remain are the ones most likely to produce
 large effects. 
 </parm> 
  
-<modepick name="ColourReconnection:flipMode" default="0" min="0" max="2"> 
-Performing the flip step or not. 
+<modepick name="ColourReconnection:flipMode" default="0" min="0" max="4"> 
+Performing the flip step or not. Also possibility to omit the move step. 
 <option value="0"> No flip handling. 
 </option> 
 <option value="1"> Allow flips, but not for strings in junction topologies. 
 </option> 
 <option value="2"> Allow flips, including for strings in junction topologies. 
 </option> 
+<option value="3"> No move handling. Allow flips, but not for strings 
+in junction topologies. 
+</option> 
+<option value="4"> No move handling. Allow flips, including for strings 
+in junction topologies. 
+</option> 
 </modepick> 
+ 
+<h3>The <ei>e^+ e^-</ei> colour reconnection schemes</h3> 
+ 
+The SK I and SK II models <ref>Sjo94</ref> were specifically developed for 
+<ei>e^+ e^- &rarr; W^+ W^- &rarr; q_1 qbar_2 q_3 qbar_4</ei> at LEP 2, 
+and equally well works for <ei>e^+ e^- &rarr; gamma^*/Z^0 gamma^*/Z^0</ei>. 
+They are not intended to handle hadronic collisions, except in special 
+contexts. The prime of these is Higgs decays of the same character as above, 
+<ei>H^0 &rarr;  W^+ W^- / Z^0 Z^0</ei>, since the Higgs is sufficiently 
+long-lived that its decay products can be considered separately from 
+the rest of the event. The administrative machinery for this possibility 
+is not yet in place, however. 
+ 
+<p/> 
+The labels I and II refer to the colour-confinement strings being modelled 
+either by analogy with type I or type II superconductors. In the former 
+model the strings are viewed as transversely extended "bags". The 
+likelihood of reconnection is then related to the integrated space-time 
+overlap of string pieces from the <ei>W^+</ei> with those from the 
+<ei>W^-</ei>. In the latter model instead strings are assumed to be 
+analogous with vortex lines, where all the topological information 
+is stored in a thin core region. Reconnection therefore only can occur 
+when these cores pass through each other. 
+ 
+<p/> 
+Both of these models are based on a detailed modelling of the space-time 
+separation of the <ei>W^+</ei> and <ei>W^-</ei> decay vertices, on the 
+subsequent shower evolution, on the continued space-time evolution of all 
+the string pieces stretched between the showered partons, and on the 
+cutoff provided by the strings disappearing by the hadronization process. 
+As such, they are more sophisticated than any other reconnection models. 
+Unfortunately they would not easily carry over to hadronic collisions, 
+where both the initial and the final states are far more complicated, 
+and the space-time details less well controlled. 
+ 
+<p/> 
+The SK II model has few free parameters, giving more predictive power. 
+Conversely, SK I has a a free overall CR strength parameter, making it 
+more convenient for tunes to data. The LEP collaborations have used SK I 
+as a common reference to establish the existence of CR in <ei>W^+ W^-</ei> 
+events. 
+ 
+<flag name="ColourReconnection:lowerLambdaOnly" default="on"> 
+Only allow overlaps that lowers the total string length. 
+</flag> 
+ 
+<flag name="ColourReconnection:singleReconnection" default="on"> 
+Limit the number of reconnections to a single reconnection. 
+</flag> 
+ 
+<parm name="ColourReconnection:kI" default="0.6" min="0." max="100."> 
+kI is the main free parameter in the reconnection probability for SK I. 
+This probability is given by kI times the space-time overlap volume, 
+up to saturation effects. 
+</parm> 
+ 
+<parm name="ColourReconnection:fragmentationTime" default="1.5" min="1." 
+max="2."> 
+This parameter specifies the average fragmentation time of the string, 
+in fm. This is used as an upper limit on the invariant time where strings 
+still exist and thus can collide. The expected fragmentation time is 
+related to the <ei>a</ei> and <ei>b</ei> parameters of the Lund string 
+fragmentation function as well as to the string tension. It is therefore 
+not a quite free parameter. 
+</parm> 
+ 
+<parm name="ColourReconnection:rHadron" default="0.5" min="0.3" max="1."> 
+Width of the type I string in reconnection calculations, in fm, giving the 
+radius of the Gaussian distribution in <ei>x</ei> and <ei>y</ei> separately. 
+</parm> 
+ 
+<parm name="ColourReconnection:blowR" default="2.5" min="1." max="4."> 
+Technical parameter used in the Monte Carlo sampling of the spatial 
+phase space volume in SK I. There is no real reason to change this number. 
+</parm> 
+ 
+<parm name="ColourReconnection:blowT" default="2.0" min="1." max="4."> 
+Technical parameter used in the Monte Carlo sampling of the temporal 
+phase space volume in SK I. There is no real reason to change this number. 
+</parm> 
  
 </chapter> 
  

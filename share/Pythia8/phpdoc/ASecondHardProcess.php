@@ -275,7 +275,6 @@ initialization) has to be shrunk  so that the output value can stay
 constant. This means that the proton matter is more closely packed and 
 therefore <i>&lt;f_impact&gt;</i> goes up. 
  
- 
 <p/> 
 The above equations therefore have to be modified to 
 <i>sigma_2aa = &lt;f_impact&gt; sigma_1a^2 / (2 sigma_ND)</i>, 
@@ -439,6 +438,14 @@ in quadrature of the error on this process alone with the error on
 the normalization factor, including the error on 
 <i>&lt;f_impact&gt;</i>. As always it is a purely statistical one 
 and of course hides considerably bigger systematic uncertainties. 
+ 
+<br/> 
+<br/><b>Warning:</b> the calculational machinery above has not (yet) 
+been implemented for the case that the two interactions are to be 
+associated with different impact-parameter profiles, as is the case 
+for <code>MultipartonInteractions:bProfile = 4</code>, i.e. when the 
+radius depends on the <i>x</i> value. Results for the double 
+cross section therefore cannot be trusted in this case. 
  
 <h3>Event information</h3> 
  

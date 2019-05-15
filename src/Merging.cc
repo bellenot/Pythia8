@@ -89,35 +89,35 @@ int Merging::mergeProcess(Event& process){
   mergingHooksPtr->hardProcess.initOnProcess(
     settingsPtr->word("Merging:Process"), particleDataPtr);
 
-  mergingHooksPtr->doUserMergingSave     
+  mergingHooksPtr->doUserMergingSave
     = settingsPtr->flag("Merging:doUserMerging");
-  mergingHooksPtr->doMGMergingSave       
+  mergingHooksPtr->doMGMergingSave
     = settingsPtr->flag("Merging:doMGMerging");
-  mergingHooksPtr->doKTMergingSave       
+  mergingHooksPtr->doKTMergingSave
     = settingsPtr->flag("Merging:doKTMerging");
-  mergingHooksPtr->doPTLundMergingSave   
+  mergingHooksPtr->doPTLundMergingSave
     = settingsPtr->flag("Merging:doPTLundMerging");
-  mergingHooksPtr->doCutBasedMergingSave 
+  mergingHooksPtr->doCutBasedMergingSave
     = settingsPtr->flag("Merging:doCutBasedMerging");
-  mergingHooksPtr->doNL3TreeSave         
+  mergingHooksPtr->doNL3TreeSave
     = settingsPtr->flag("Merging:doNL3Tree");
-  mergingHooksPtr->doNL3LoopSave         
+  mergingHooksPtr->doNL3LoopSave
     = settingsPtr->flag("Merging:doNL3Loop");
-  mergingHooksPtr->doNL3SubtSave         
+  mergingHooksPtr->doNL3SubtSave
     = settingsPtr->flag("Merging:doNL3Subt");
-  mergingHooksPtr->doUNLOPSTreeSave      
+  mergingHooksPtr->doUNLOPSTreeSave
     = settingsPtr->flag("Merging:doUNLOPSTree");
-  mergingHooksPtr->doUNLOPSLoopSave      
+  mergingHooksPtr->doUNLOPSLoopSave
     = settingsPtr->flag("Merging:doUNLOPSLoop");
-  mergingHooksPtr->doUNLOPSSubtSave      
+  mergingHooksPtr->doUNLOPSSubtSave
     = settingsPtr->flag("Merging:doUNLOPSSubt");
-  mergingHooksPtr->doUNLOPSSubtNLOSave   
+  mergingHooksPtr->doUNLOPSSubtNLOSave
     = settingsPtr->flag("Merging:doUNLOPSSubtNLO");
-  mergingHooksPtr->doUMEPSTreeSave       
+  mergingHooksPtr->doUMEPSTreeSave
     = settingsPtr->flag("Merging:doUMEPSTree");
-  mergingHooksPtr->doUMEPSSubtSave       
+  mergingHooksPtr->doUMEPSSubtSave
     = settingsPtr->flag("Merging:doUMEPSSubt");
-  mergingHooksPtr->nReclusterSave        
+  mergingHooksPtr->nReclusterSave
     = settingsPtr->mode("Merging:nRecluster");
 
   // Possibility to apply merging scale to an input event.

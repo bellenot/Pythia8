@@ -134,8 +134,8 @@ of the hard process, which is somewhat different from the ISR implementation.
 <input type="radio" name="4" value="0" checked="checked"><strong>0 </strong>: emissions go up to the kinematical limit,  with no special dampening.  <br/>
 <input type="radio" name="4" value="1"><strong>1 </strong>: emissions go up to the kinematical limit,  but dampened by a factor <ei>k^2 Q^2_fac/(pT^2 + k^2 Q^2_fac)</ei>,  where <ei>Q_fac</ei> is the factorization scale and <ei>k</ei> is a  multiplicative fudge factor stored in <code>pTdampFudge</code> below.  <br/>
 <input type="radio" name="4" value="2"><strong>2 </strong>: emissions go up to the kinematical limit,  but dampened by a factor <ei>k^2 Q^2_ren/(pT^2 + k^2 Q^2_ren)</ei>,  where <ei>Q_ren</ei> is the renormalization scale and <ei>k</ei> is a  multiplicative fudge factor stored in <code>pTdampFudge</code> below.  <br/>
-<input type="radio" name="4" value="3"><strong>3 </strong>: as option 1, but in addition to the standard requirements for dampening it is further necessary to have ar least two top or  beyond-the-Standard-Model coloured particles in the final state.  Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production.   <br/>
-<input type="radio" name="4" value="4"><strong>4 </strong>: as option 2, but in addition to the standard requirements for dampening it is further necessary to have ar least two top or  beyond-the-Standard-Model coloured particles in the final state.  Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production.  <br/>
+<input type="radio" name="4" value="3"><strong>3 </strong>: as option 1, but in addition to the standard requirements  for dampening it is further necessary to have ar least two top or  beyond-the-Standard-Model coloured particles in the final state.  Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production.  <br/>
+<input type="radio" name="4" value="4"><strong>4 </strong>: as option 2, but in addition to the standard requirements  for dampening it is further necessary to have ar least two top or  beyond-the-Standard-Model coloured particles in the final state.  Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production.  <br/>
 <br/><b>Note:</b> These options only apply to the hard interaction. 
 Specifically, a "second hard" interaction would not be affected. 
 Emissions off subsequent multiparton interactions are always constrained 
@@ -350,30 +350,30 @@ at 90 degrees without beam recoil.
    
  
 <p/> 
-When there is no interleaving, a number of MPIs may have been generated
+When there is no interleaving, a number of MPIs may have been generated 
 before FSR is considered. In principle there could be colour correlations 
-between the MPIs, such that a final-state colour of one MPI could be
-matched by the corresponding final-state anticolour of another MPI.
-These thereby would form a colour dipole, but one that does not come out
-from a common vertex, and therefore presumably could not radiate in full.
-Currently the standard procedure is to match colours between MPIs
+between the MPIs, such that a final-state colour of one MPI could be 
+matched by the corresponding final-state anticolour of another MPI. 
+These thereby would form a colour dipole, but one that does not come out 
+from a common vertex, and therefore presumably could not radiate in full. 
+Currently the standard procedure is to match colours between MPIs 
 only after FSR, so MPI systems would radiate independently, with 
-recoils taken by the beam remnant, where necessary. This could change,
+recoils taken by the beam remnant, where necessary. This could change, 
 however, and the following switch would then regulate the choice of 
-behaviour.
+behaviour. 
  
 <br/><br/><strong>TimeShower:allowMPIdipole</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
 <input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-If on, and if interleaving is off, then dipoles are allowed to be
-formed between matching final-state colour-anticolour pairs also
-between two different MPIs. Else dipoles can normally only form
-inside the same MPI, and the could-have-been dipoles between different
+If on, and if interleaving is off, then dipoles are allowed to be 
+formed between matching final-state colour-anticolour pairs also 
+between two different MPIs. Else dipoles can normally only form 
+inside the same MPI, and the could-have-been dipoles between different 
 MPIs instead appear as dipoles stretched to the beam remnants. 
 In either case a dipole can still form between two MPIs if a final-state 
-colour cannot be matched inside the same MPI. This should normally
+colour cannot be matched inside the same MPI. This should normally 
 not happen, except if rescattering is allowed, whereby two or more 
-MPIs get interconnected.
+MPIs get interconnected. 
    
  
 <h3>Global recoil</h3> 

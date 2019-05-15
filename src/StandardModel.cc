@@ -21,11 +21,7 @@ namespace Pythia8 {
 // Number of iterations to determine Lambda from given alpha_s.
 const int AlphaStrong::NITER           = 10;
 
-// Masses: m_c, m_b, m_t, m_Z.
-// Used for flavour thresholds and normalization scale.
-const double AlphaStrong::MC           = 1.5;
-const double AlphaStrong::MB           = 4.8;
-const double AlphaStrong::MT           = 171.0;
+// MZ normalization scale
 const double AlphaStrong::MZ           = 91.188;
 
 // Always evaluate running alpha_s above Lambda3 to avoid disaster.
@@ -46,6 +42,9 @@ const double AlphaStrong::FACCMW6         = 1.513;
 void AlphaStrong::init( double valueIn, int orderIn, int nfmaxIn,
   bool useCMWIn) {
 
+  // Set default mass thresholds if not already done
+  if (mt <= 1.) setThresholds(1.5, 4.8, 171.0);
+
   // Order of alpha_s evaluation.Default values.
   valueRef = valueIn;
   order    = max( 0, min( 2, orderIn ) );
@@ -60,9 +59,9 @@ void AlphaStrong::init( double valueIn, int orderIn, int nfmaxIn,
   // First order alpha_s: match at flavour thresholds.
   } else if (order == 1) {
     Lambda5Save = MZ * exp( -6. * M_PI / (23. * valueRef) );
-    Lambda6Save = Lambda5Save * pow(Lambda5Save/MT, 2./21.);
-    Lambda4Save = Lambda5Save * pow(MB/Lambda5Save, 2./25.);
-    Lambda3Save = Lambda4Save * pow(MC/Lambda4Save, 2./27.);
+    Lambda6Save = Lambda5Save * pow(Lambda5Save/mt, 2./21.);
+    Lambda4Save = Lambda5Save * pow(mb/Lambda5Save, 2./25.);
+    Lambda3Save = Lambda4Save * pow(mc/Lambda4Save, 2./27.);
 
   // Second order alpha_s: iterative match at flavour thresholds.
   } else {
@@ -90,50 +89,50 @@ void AlphaStrong::init( double valueIn, int orderIn, int nfmaxIn,
     }
 
     // Find Lambda_6 at m_t, by requiring alphaS(nF=6,m_t) = alphaS(nF=5,m_t)
-    double logScaleT    = 2. * log(MT/Lambda5Save);
+    double logScaleT    = 2. * log(mt/Lambda5Save);
     double loglogScaleT = log(logScaleT);
     double valueT       = 12. * M_PI / (23. * logScaleT)
       * (1. - b15 * loglogScaleT / logScaleT
         + pow2(b15 / logScaleT) * (pow2(loglogScaleT - 0.5) + b25 - 1.25) );
     Lambda6Save         = Lambda5Save;
     for (int iter = 0; iter < NITER; ++iter) {
-      logScale    = 2. * log(MT/Lambda6Save);
+      logScale    = 2. * log(mt/Lambda6Save);
       loglogScale = log(logScale);
       correction  = 1. - b16 * loglogScale / logScale
         + pow2(b16 / logScale) * (pow2(loglogScale - 0.5) + b26 - 1.25);
       valueIter   = valueT / correction;
-      Lambda6Save = MT * exp( -6. * M_PI / (21. * valueIter) );
+      Lambda6Save = mt * exp( -6. * M_PI / (21. * valueIter) );
     }
 
     // Find Lambda_4 at m_b, by requiring alphaS(nF=4,m_b) = alphaS(nF=5,m_b)
-    double logScaleB    = 2. * log(MB/Lambda5Save);
+    double logScaleB    = 2. * log(mb/Lambda5Save);
     double loglogScaleB = log(logScaleB);
     double valueB       = 12. * M_PI / (23. * logScaleB)
       * (1. - b15 * loglogScaleB / logScaleB
         + pow2(b15 / logScaleB) * (pow2(loglogScaleB - 0.5) + b25- 1.25) );
     Lambda4Save         = Lambda5Save;
     for (int iter = 0; iter < NITER; ++iter) {
-      logScale    = 2. * log(MB/Lambda4Save);
+      logScale    = 2. * log(mb/Lambda4Save);
       loglogScale = log(logScale);
       correction  = 1. - b14 * loglogScale / logScale
         + pow2(b14 / logScale) * (pow2(loglogScale - 0.5) + b24 - 1.25);
       valueIter   = valueB / correction;
-      Lambda4Save = MB * exp( -6. * M_PI / (25. * valueIter) );
+      Lambda4Save = mb * exp( -6. * M_PI / (25. * valueIter) );
     }
     // Find Lambda_3 at m_c, by requiring alphaS(nF=3,m_c) = alphaS(nF=4,m_c)
-    double logScaleC    = 2. * log(MC/Lambda4Save);
+    double logScaleC    = 2. * log(mc/Lambda4Save);
     double loglogScaleC = log(logScaleC);
     double valueC       = 12. * M_PI / (25. * logScaleC)
       * (1. - b14 * loglogScaleC / logScaleC
         + pow2(b14 / logScaleC) * (pow2(loglogScaleC - 0.5) + b24 - 1.25) );
     Lambda3Save = Lambda4Save;
     for (int iter = 0; iter < NITER; ++iter) {
-      logScale    = 2. * log(MC/Lambda3Save);
+      logScale    = 2. * log(mc/Lambda3Save);
       loglogScale = log(logScale);
       correction  = 1. - b13 * loglogScale / logScale
         + pow2(b13 / logScale) * (pow2(loglogScale - 0.5) + b23 - 1.25);
       valueIter   = valueC / correction;
-      Lambda3Save = MC * exp( -6. * M_PI / (27. * valueIter) );
+      Lambda3Save = mc * exp( -6. * M_PI / (27. * valueIter) );
     }
   }
 
@@ -154,9 +153,9 @@ void AlphaStrong::init( double valueIn, int orderIn, int nfmaxIn,
   Lambda4Save2 = pow2(Lambda4Save);
   Lambda5Save2 = pow2(Lambda5Save);
   Lambda6Save2 = pow2(Lambda6Save);
-  mc2          = pow2(MC);
-  mb2          = pow2(MB);
-  mt2          = pow2(MT);
+  mc2          = pow2(mc);
+  mb2          = pow2(mb);
+  mt2          = pow2(mt);
   valueNow     = valueIn;
   scale2Now    = MZ * MZ;
   isInit       = true;
@@ -310,9 +309,9 @@ double AlphaStrong::alphaS2OrdCorr( double scale2) {
 double AlphaStrong::muThres( int idQ) {
   int idAbs = abs(idQ);
   // Return the scale of each flavour threshold included in running.
-  if (idAbs == 4) return MC;
-  else if (idAbs == 5) return MB;
-  else if (idAbs == 6 && nfmax >= 6) return MT;
+  if (idAbs == 4) return mc;
+  else if (idAbs == 5) return mb;
+  else if (idAbs == 6 && nfmax >= 6) return mt;
   // Else return -1 (indicates no such threshold is included in running).
   return -1.;
 }

@@ -70,6 +70,11 @@ public:
        || settingsPtr->flag("Merging:doUNLOPSSubt")) && np_lo == 0)
        return true;
 
+    if (settingsPtr->word("Merging:process").compare("pp>aj") == 0)
+      nPartons -= 1;
+    if (settingsPtr->word("Merging:process").compare("pp>jj") == 0)
+      nPartons -= 2;
+
     // Set number of requested partons.
     if (np_nlo > -1){
       settingsPtr->mode("Merging:nRequested", np_nlo);

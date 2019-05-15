@@ -154,15 +154,15 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
   }
 
   // If split did not provide an axis then pick random axis to break tie.
-  // (Needed for low-mass q-g-qbar with q-qbar perfectly parallel.) 
+  // (Needed for low-mass q-g-qbar with q-qbar perfectly parallel.)
   if (pSum1.mCalc() + pSum2.mCalc() > 0.999999 * mSum) {
     double cthe = 2. * rndmPtr->flat() - 1.;
     double sthe = sqrtpos(1. - cthe * cthe);
     double phi  = 2. * M_PI * rndmPtr->flat();
-    Vec4 delta  = 0.5 * min( pSum1.e(), pSum2.e()) 
+    Vec4 delta  = 0.5 * min( pSum1.e(), pSum2.e())
         * Vec4( sthe * sin(phi), sthe * cos(phi), cthe, 0.);
     pSum1 += delta;
-    pSum2 -= delta; 
+    pSum2 -= delta;
     infoPtr->errorMsg("Warning in MiniStringFragmentation::ministring2two: "
       "random axis needed to break tie");
   }

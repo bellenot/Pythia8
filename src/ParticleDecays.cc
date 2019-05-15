@@ -1283,4 +1283,3 @@ bool ParticleDecays::setColours(Event& event) {
 //==========================================================================
 
 } // end namespace Pythia8
-

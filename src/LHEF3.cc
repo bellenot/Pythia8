@@ -568,7 +568,7 @@ bool Reader::init() {
     }
   }
 
-  if ( !file ) heprup.NPRUP = -42;
+  if ( file == NULL ) heprup.NPRUP = -42;
 
   // Scan the header block for XML tags
   string leftovers;
@@ -629,9 +629,9 @@ bool Reader::init() {
     }
   }
 
-  for ( int i = 0, N = tags1.size(); i < N; ++i ) 
+  for ( int i = 0, N = tags1.size(); i < N; ++i )
     if (tags1[i]) delete tags1[i];
-  for ( int i = 0, N = tags2.size(); i < N; ++i ) 
+  for ( int i = 0, N = tags2.size(); i < N; ++i )
     if (tags2[i]) delete tags2[i];
 
   // Done
@@ -675,7 +675,7 @@ bool Reader::readEvent(HEPEUP * peup) {
       string v = it->second.c_str();
       eup.attributes[it->first] = v;
     }
-    for ( int i = 0, N = evtags.size(); i < N; ++i ) 
+    for ( int i = 0, N = evtags.size(); i < N; ++i )
       if (evtags[i]) delete evtags[i];
   }
 
@@ -706,7 +706,7 @@ bool Reader::readEvent(HEPEUP * peup) {
   while ( getLine() && currentLine.find("</event>") == string::npos )
     eventComments += currentLine + "\n";
 
-  if ( !file ) return false;
+  if ( file == NULL ) return false;
 
   eup.scales = LHAscales(eup.SCALUP);
 
@@ -853,6 +853,8 @@ bool Writer::writeEvent(HEPEUP * peup) {
        << " " << setw(14) << eup.AQCDUP << endl;
   eup.resize();
 
+  int pDigits = 18;
+
   for ( int i = 0; i < eup.NUP; ++i )
     file << " " << setw(8) << eup.IDUP[i]
          << " " << setw(2) << eup.ISTUP[i]
@@ -860,11 +862,11 @@ bool Writer::writeEvent(HEPEUP * peup) {
          << " " << setw(4) << eup.MOTHUP[i].second
          << " " << setw(4) << eup.ICOLUP[i].first
          << " " << setw(4) << eup.ICOLUP[i].second
-         << " " << setw(14) << eup.PUP[i][0]
-         << " " << setw(14) << eup.PUP[i][1]
-         << " " << setw(14) << eup.PUP[i][2]
-         << " " << setw(14) << eup.PUP[i][3]
-         << " " << setw(14) << eup.PUP[i][4]
+         << " " << setw(pDigits) << eup.PUP[i][0]
+         << " " << setw(pDigits) << eup.PUP[i][1]
+         << " " << setw(pDigits) << eup.PUP[i][2]
+         << " " << setw(pDigits) << eup.PUP[i][3]
+         << " " << setw(pDigits) << eup.PUP[i][4]
          << " " << setw(1) << eup.VTIMUP[i]
          << " " << setw(1) << eup.SPINUP[i] << endl;
 

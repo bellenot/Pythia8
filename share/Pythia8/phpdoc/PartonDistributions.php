@@ -38,9 +38,9 @@ The choice of which PDF to use is made by settings in the
 <code>Pythia</code> class, see <?php $filepath = $_GET["filepath"];
 echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>here</a>. 
 These settings also allow to access all the proton PDF's available in the 
-LHAPDF library [<a href="Bibliography.php" target="page">Wha05</a>]. Thus there is no need for a normal user 
-to study the <code>PDF</code> class. The structure must only be understood 
-when interfacing new PDF's, e.g. ones not yet found in LHAPDF. 
+LHAPDF library [<a href="Bibliography.php" target="page">Wha05,Buc15</a>]. Thus there is no need for a normal 
+user to study the <code>PDF</code> class. The structure must only be 
+understood when interfacing new PDF's, e.g. ones not yet found in LHAPDF. 
  
 <h3>The PDF base class</h3> 
  
@@ -84,9 +84,17 @@ updating this information.
 A method <code>setExtrapolate(bool)</code> allows you to switch between 
 freezing parametrizations  at the <i>x</i> and <i>Q^2</i> boundaries 
 (<code>false</code>) or extrapolating them outside the boundaries 
-(<code>true</code>). This method is only implemented for the LHAPDF class 
+(<code>true</code>). This method is only implemented for the LHAPDF5 class 
 below. If you implement a new PDF you are free to use this method, but it 
 would be smarter to hardcode the desired limiting behaviour. 
+ 
+<p/> 
+With <code>insideBounds(double x, double Q2)</code> you can probe whether 
+an <i>(x, Q^2)</i> pair falls inside the fit region or not. The 
+<code>alphaS(double Q2)</code> method returns the <i>alpha_s</i> of the 
+PDF at the given <i>Q^2</i> scale, while <code>mQuarkPDF(int id)</code> 
+returns the quark masses used to set flavour thresholds. Currently these 
+three methods are only implemented for LHAPDF6. 
  
 <h3>Derived classes</h3> 
  
@@ -97,8 +105,9 @@ number of such classes come with the program:
 <p/> 
 For protons: 
 <ul> 
-<li><code>LHAPDF</code> provides an interface to the 
-LHAPDF library[<a href="Bibliography.php" target="page">Wha05</a>].</li> 
+<li><code>LHAPDF</code> provides a plugin interface class to the 
+LHAPDF library[<a href="Bibliography.php" target="page">Wha05,Buc15</a>]. It loads either the 
+<code>LHAPDF5</code> or <code>LHAPDF6</code> class.</li> 
 <li><code>GRV94L</code> gives the GRV 94 L parametrization 
 [<a href="Bibliography.php" target="page">Glu95</a>].</li> 
 <li><code>CTEQ5L</code> gives the CTEQ 5 L parametrization 

@@ -1073,8 +1073,8 @@ on the above parameters.
 <input type="radio" name="111" value="0"><strong>0 </strong>: isotropic decays.<br/>
 <input type="radio" name="111" value="1" checked="checked"><strong>1 </strong>: assuming the <ei>h^0(H_1)</ei> is a pure scalar  (CP-even), as in the MSSM.<br/>
 <input type="radio" name="111" value="2"><strong>2 </strong>: assuming the <ei>h^0(H_1)</ei> is a pure pseudoscalar  (CP-odd).<br/>
-<input type="radio" name="111" value="3"><strong>3 </strong>: assuming the <ei>h^0(H_1)</ei> is a mixture of the two,  including the CP-violating interference term. The parameter  <ei>eta</ei>, see below, sets the strength of the CP-odd admixture,  with the interference term being proportional to <ei>eta</ei>  and the CP-odd one to <ei>eta^2</ei>.<br/>
-<input type="radio" name="111" value="4"><strong>4 </strong>: same as <code>3</code> but now <ei>phi</ei>, see  below, sets the CP-mixing angle. The CP-even term is proportional  to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>,  and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is  pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.<br/>
+<input type="radio" name="111" value="3"><strong>3 </strong>: assuming the <ei>h^0(H_1)</ei> is a mixture of the two,  including the CP-violating interference term. The parameter  <ei>eta</ei>, see below, sets the strength of the CP-odd admixture,  with the interference term being proportional to <ei>eta</ei>  and the CP-odd one to <ei>eta^2</ei>. Intended for decays into  <ei>W^+ W^-</ei> or <ei>Z^0 Z^0</ei>.<br/>
+<input type="radio" name="111" value="4"><strong>4 </strong>: same as <code>3</code> but now <ei>phi</ei>, see  below, sets the CP-mixing angle. The CP-even term is proportional  to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>,  and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is  pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even. Intended for decays  of <ei>h -> f fbar</ei>, notably for <ei>tau</ei> lepton polarization,  whereas <ei>W^+ W^-</ei> and <ei>Z^0 Z^0</ei> decays are isotropic.  <br/>
  
 <br/><br/><table><tr><td><strong>HiggsH1:etaParity </td><td></td><td> <input type="text" name="112" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>eta</i> value of CP-violation in the 
@@ -1096,8 +1096,8 @@ on the above parameters.
 <input type="radio" name="114" value="0"><strong>0 </strong>: isotropic decays.<br/>
 <input type="radio" name="114" value="1" checked="checked"><strong>1 </strong>: assuming the <ei>H^0(H_2)</ei> is a pure scalar  (CP-even), as in the MSSM.<br/>
 <input type="radio" name="114" value="2"><strong>2 </strong>: assuming the <ei>H^0(H_2)</ei> is a pure pseudoscalar  (CP-odd).<br/>
-<input type="radio" name="114" value="3"><strong>3 </strong>: assuming the <ei>H^0(H_2)</ei> is a mixture of the two,  including the CP-violating interference term. The parameter  <ei>eta</ei>, see below, sets the strength of the CP-odd admixture,  with the interference term being proportional to <ei>eta</ei>  and the CP-odd one to <ei>eta^2</ei>.<br/>
-<input type="radio" name="114" value="4"><strong>4 </strong>: same as <code>3</code> but now <ei>phi</ei>, see  below, sets the CP-mixing angle. The CP-even term is proportional  to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>,  and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is  pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.<br/>
+<input type="radio" name="114" value="3"><strong>3 </strong>: assuming the <ei>H^0(H_2)</ei> is a mixture of the two,  including the CP-violating interference term. The parameter  <ei>eta</ei>, see below, sets the strength of the CP-odd admixture,  with the interference term being proportional to <ei>eta</ei>  and the CP-odd one to <ei>eta^2</ei>. Intended or decays into  <ei>W^+ W^-</ei> or <ei>Z^0 Z^0</ei>.<br/>
+<input type="radio" name="114" value="4"><strong>4 </strong>: same as <code>3</code> but now <ei>phi</ei>, see  below, sets the CP-mixing angle. The CP-even term is proportional  to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>,  and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is  pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even. Intended for decays  of <ei>H -> f fbar</ei>, notably for <ei>tau</ei> lepton polarization,  whereas <ei>W^+ W^-</ei> and <ei>Z^0 Z^0</ei> decays are isotropic.  <br/>
  
 <br/><br/><table><tr><td><strong>HiggsH2:etaParity </td><td></td><td> <input type="text" name="115" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>eta</i> value of CP-violation in the 
@@ -1119,8 +1119,8 @@ on the above parameters.
 <input type="radio" name="117" value="0"><strong>0 </strong>: isotropic decays.<br/>
 <input type="radio" name="117" value="1"><strong>1 </strong>: assuming the <ei>A^0(H_3)</ei> is a pure scalar  (CP-even).<br/>
 <input type="radio" name="117" value="2" checked="checked"><strong>2 </strong>: assuming the <ei>A^0(H_3)</ei> is a pure pseudoscalar  (CP-odd), as in the MSSM.<br/>
-<input type="radio" name="117" value="3"><strong>3 </strong>: assuming the <ei>A^0(H_3)</ei> is a mixture of the two,  including the CP-violating interference term. The parameter  <ei>eta</ei>, see below, sets the strength of the CP-odd admixture,  with the interference term being proportional to <ei>eta</ei>  and the CP-odd one to <ei>eta^2</ei>.<br/>
-<input type="radio" name="117" value="4"><strong>4 </strong>: same as <code>3</code> but now <ei>phi</ei>, see  below, sets the CP-mixing angle. The CP-even term is proportional  to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>,  and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is  pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.<br/>
+<input type="radio" name="117" value="3"><strong>3 </strong>: assuming the <ei>A^0(H_3)</ei> is a mixture of the two,  including the CP-violating interference term. The parameter  <ei>eta</ei>, see below, sets the strength of the CP-odd admixture,  with the interference term being proportional to <ei>eta</ei>  and the CP-odd one to <ei>eta^2</ei>. Intended for decays into  <ei>W^+ W^-</ei> or <ei>Z^0 Z^0</ei>.<br/>
+<input type="radio" name="117" value="4"><strong>4 </strong>: same as <code>3</code> but now <ei>phi</ei>, see  below, sets the CP-mixing angle. The CP-even term is proportional  to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>,  and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is  pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even. Intended for decays  of <ei>A -> f fbar</ei>, notably for <ei>tau</ei> lepton polarization,  whereas <ei>W^+ W^-</ei> and <ei>Z^0 Z^0</ei> decays are isotropic.  <br/>
  
 <br/><br/><table><tr><td><strong>HiggsA3:etaParity </td><td></td><td> <input type="text" name="118" value="0." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.</strong></code>)</td></tr></table>
 The <i>eta</i> value of CP-violation in the 
@@ -1750,4 +1750,3 @@ fclose($handle);
 </html>
  
 <!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
- 

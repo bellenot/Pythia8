@@ -5,11 +5,20 @@
 
 // This is a simple test program.
 // It illustrates how Les Houches Event File input can be used in Pythia8.
-// It uses the ttsample.lhe input file, the latter only with 100 events.
+// It uses the ttsample.lhe(.gz) input file, the latter only with 100 events.
 
 #include "Pythia8/Pythia.h"
 using namespace Pythia8;
 int main() {
+
+  // You can always read an plain LHE file,
+  // but you ran "./configure --with-gzip" before "make"
+  // then you can also read a gzipped LHE file.
+#ifdef GZIPSUPPORT
+  bool useGzip = true;
+#else
+  bool useGzip = false;
+#endif
 
   // Generator. We here stick with default values, but changes
   // could be inserted with readString or readFile.
@@ -17,7 +26,8 @@ int main() {
 
   // Initialize Les Houches Event File run. List initialization information.
   pythia.readString("Beams:frameType = 4");
-  pythia.readString("Beams:LHEF = ttbar.lhe");
+  if (useGzip) pythia.readString("Beams:LHEF = ttbar.lhe.gz");
+  else         pythia.readString("Beams:LHEF = ttbar.lhe");
   pythia.init();
 
   // Book histogram.

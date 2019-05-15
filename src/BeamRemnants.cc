@@ -58,7 +58,7 @@ bool BeamRemnants::init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn,
   reducedKTatHighY    = settings.parm("BeamRemnants:reducedKTatHighY");
 
   // Handling of rescattering kinematics uncertainties from primodial kT.
-  allowRescatter      = settings.flag("MultipartonInteractions:allowRescatter");
+  allowRescatter     = settings.flag("MultipartonInteractions:allowRescatter");
   doRescatterRestoreY = settings.flag("BeamRemnants:rescatterRestoreY");
 
   // Choice of beam remnant and colour reconnection scenarios.
@@ -91,7 +91,7 @@ bool BeamRemnants::init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn,
 // Notation: iPar = all partons, iSys = matched systems of two beams,
 //           iRem = additional partons in remnants.
 
-bool BeamRemnants::add( Event& event, int iFirst, bool isDiff) {
+bool BeamRemnants::add( Event& event, int iFirst, bool doDiffCR) {
 
   // Update to current CM energy.
   eCM     = infoPtr->eCM();
@@ -115,6 +115,10 @@ bool BeamRemnants::add( Event& event, int iFirst, bool isDiff) {
     }
   }
 
+  // Deeply inelastic scattering needs special remnant handling.
+  isDIS = (beamAPtr->isLepton() && !beamBPtr->isLepton())
+       || (beamBPtr->isLepton() && !beamAPtr->isLepton());
+
   // Number of scattering subsystems. Size of event record before treatment.
   nSys    = partonSystemsPtr->sizeSys();
   oldSize = event.size();
@@ -131,18 +135,27 @@ bool BeamRemnants::add( Event& event, int iFirst, bool isDiff) {
   } else
     if (!addNew(event)) return false;
 
+  if (isDIS) return true;
+
   // Store event before doing colour reconnections.
   Event eventTmpSave = event;
   bool colCorrect = false;
-  for (int i = 0;i < 10;++i) {
-    if (doReconnect && isDiff && reconnectMode > 0)
+  for (int i = 0; i < 10; ++i) {
+    if (doReconnect && doDiffCR
+    && (reconnectMode == 1 || reconnectMode == 2)) {
       colourReconnectionPtr->next(event, iFirst);
 
-    // Check that the new colour structure is physical.
-    if (!junctionSplitting.checkColours(event))
-      event = eventTmpSave;
-    else {
-      colCorrect = true;
+      // Check that the new colour structure is physical.
+      if (!junctionSplitting.checkColours(event))
+        event = eventTmpSave;
+      else {
+        colCorrect = true;
+        break;
+      }
+      // If no colour reconnection, just check the colour configuration once.
+    } else {
+      if (junctionSplitting.checkColours(event))
+        colCorrect = true;
       break;
     }
   }
@@ -170,8 +183,8 @@ bool BeamRemnants::addOld( Event& event) {
 
   // Add required extra remnant flavour content.
   // Start all over if fails (in option where junctions not allowed).
-  if ( !beamAPtr->remnantFlavours(event)
-    || !beamBPtr->remnantFlavours(event) ) {
+  if ( !beamAPtr->remnantFlavours(event, isDIS)
+    || !beamBPtr->remnantFlavours(event, isDIS) ) {
     infoPtr->errorMsg("Error in BeamRemnants::add:"
       " remnant flavour setup failed");
     return false;
@@ -181,7 +194,7 @@ bool BeamRemnants::addOld( Event& event) {
   if (!setKinematics(event)) return false;
 
   // Allow colour reconnections.
-  if (doReconnect && reconnectMode == 0)
+  if (doReconnect && reconnectMode == 0 && !isDIS)
     colourReconnectionPtr->next(event, oldSize);
 
   // Save current modifiable colour configuration for fast restoration.
@@ -338,6 +351,9 @@ bool BeamRemnants::setKinematics( Event& event) {
     return false;
   }
 
+  // Special kinematics setup for DIS.
+  if (isDIS) return setDISKinematics(event);
+
   // Last beam-status particles. Offset relative to normal beam locations.
   int nBeams   = 3;
   for (int i = 3; i < event.size(); ++i)
@@ -365,7 +381,7 @@ bool BeamRemnants::setKinematics( Event& event) {
     // (for hardest interaction pT -> renormalization scale so also 2 -> 1).
     if (doPrimordialKT) {
       double mHat     = sqrt(sHatNow);
-      double yDamp    = pow( (event[iInA].e() + event[iInB].e()) / mHat, 
+      double yDamp    = pow( (event[iInA].e() + event[iInB].e()) / mHat,
                         reducedKTatHighY );
       mHatDamp        = mHat / (mHat + halfMassForKT * yDamp);
       double scale    = (iSys == 0) ? infoPtr->QRen(iDS)
@@ -782,6 +798,97 @@ bool BeamRemnants::setKinematics( Event& event) {
 
 //--------------------------------------------------------------------------
 
+// Special beam remnant kinematics for Deeply Inelastic Scattering.
+// Currently assumes unresolved lepton.
+
+bool BeamRemnants::setDISKinematics( Event& event) {
+
+  // Identify lepton and hadron beams.
+  BeamParticle& beamLep = (beamAPtr->isLepton()) ? *beamAPtr : *beamBPtr;
+  BeamParticle& beamHad = (beamBPtr->isLepton()) ? *beamAPtr : *beamBPtr;
+  int iBeamHad = (beamBPtr->isLepton()) ? 1 : 2;
+
+  // Identify scattered lepton and scattered hadronic four-momentum.
+  int iLepScat = beamLep[0].iPos() + 2;
+  Vec4 pHadScat;
+  for (int i = 5; i < event.size(); ++i)
+    if (event[i].isFinal() && i != iLepScat) pHadScat += event[i].p();
+
+  // Boost to hadronic rest frame.
+  Vec4 pLepScat = event[iLepScat].p();
+  Vec4 pHadTot  = event[0].p() - pLepScat;
+  Vec4 pRemnant = pHadTot - pHadScat;
+  double w2Tot  = pHadTot.m2Calc();
+  double w2Scat = pHadScat.m2Calc();
+  RotBstMatrix MtoHadRest;
+  MtoHadRest.toCMframe( pHadScat, pRemnant);
+  event.rotbst( MtoHadRest);
+  pHadScat.rotbst( MtoHadRest);
+
+  // Allow ten tries to construct kinematics (but normally works first).
+  bool isPhysical = true;
+  double xSum, xInvM, w2Remn, lambda;
+  for (int iTry = 0; iTry < NTRYKINMATCH; ++iTry) {
+    isPhysical = true;
+
+    // Pick unrescaled x values for remnants. Sum up (unscaled) p+ and p-.
+    xSum  = 0.;
+    xInvM = 0.;
+    for (int iRem = 1; iRem < beamHad.size(); ++iRem) {
+      double xPrel = beamHad.xRemnant( iRem);
+      beamHad[iRem].x(xPrel);
+      xSum  += xPrel;
+      xInvM += beamHad[iRem].mT2() / xPrel;
+    }
+
+    // Squared transverse mass for remnant, may give failure.
+    w2Remn = xSum * xInvM;
+    lambda = pow2( w2Tot - w2Scat - w2Remn) - 4. * w2Scat * w2Remn;
+    if (lambda < 0.) isPhysical = false;
+    if (isPhysical) break;
+  }
+  if (!isPhysical) {
+    infoPtr->errorMsg("Error in BeamRemnants::setDISKinematics:"
+      " too big beam remnant invariant mass");
+    return false;
+  }
+
+  // Boost of scattered system to compensate for remnant mass.
+  double pzNew = 0.5 * sqrt( lambda / w2Tot);
+  double eNewScat = 0.5 * (w2Tot + w2Scat - w2Remn) / sqrt(w2Tot);
+  Vec4 pNewScat( 0., 0., pzNew, eNewScat);
+  RotBstMatrix MforScat;
+  MforScat.bst( pHadScat, pNewScat);
+  int sizeSave = event.size();
+  for (int i = 5; i < sizeSave; ++i)
+  if (event[i].isFinal() && event[i].id() != beamLep[0].id()) {
+    int iNew = event.copy( i, 62);
+    event[iNew].rotbst( MforScat);
+  }
+
+  // Calculate kinematics of remnants and insert into event record.
+  double eNewRemn = 0.5 * (w2Tot + w2Remn - w2Scat) / sqrt(w2Tot);
+  double wNewRemn = eNewRemn + pzNew;
+  for (int iRem = 1; iRem < beamHad.size(); ++iRem) {
+    double wNegNow = wNewRemn * beamHad[iRem].x() / xSum;
+    double wPosNow = beamHad[iRem].mT2() / wNegNow;
+    Vec4 pNow( 0., 0., -0.5 * (wNegNow - wPosNow), 0.5 * (wPosNow + wNegNow) );
+    int iNew = event.append( beamHad[iRem].id(), 63, iBeamHad, 0, 0, 0,
+      beamHad[iRem].col(), beamHad[iRem].acol(), pNow, beamHad[iRem].m() );
+    beamHad[iRem].iPos( iNew);
+  }
+
+  // Boost back event.
+  MtoHadRest.invert();
+  event.rotbst( MtoHadRest);
+
+  // Done.
+  return true;
+
+}
+
+//--------------------------------------------------------------------------
+
 // Collapse colours and check that they are consistent.
 
 bool BeamRemnants::checkColours( Event& event) {
@@ -1068,7 +1175,7 @@ void BeamRemnants::updateColEvent( Event& event,
     for (int j = 0;j < event.sizeJunction(); ++j)
       for (int jCol = 0; jCol < 3; ++jCol)
         if (event.colJunction(j,jCol) == oldCol)
-          event.colJunction(j,jCol,newCol);     
+          event.colJunction(j,jCol,newCol);
   }
 
 }

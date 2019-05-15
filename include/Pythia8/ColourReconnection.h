@@ -164,8 +164,8 @@ public:
 
   // Initialization.
   bool init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn,
-    BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
-    PartonSystems* partonSystemsPtrIn);
+    ParticleData* particleDataPtrIn, BeamParticle* beamAPtrIn,
+    BeamParticle* beamBPtrIn, PartonSystems* partonSystemsPtrIn);
 
   // New beams possible for handling of hard diffraction.
   void reassignBeamPtrs( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn)
@@ -176,21 +176,31 @@ public:
 
 private:
 
-  // list of current dipoles.
+  // Constants: could only be changed in the code itself.
+  static const double MINIMUMGAIN, MINIMUMGAINJUN, HBAR;
+  static const int MAXRECONNECTIONS;
+
+  // Variables needed.
+  bool   allowJunctions, sameNeighbourCol, singleReconOnly, lowerLambdaOnly;
+  int    nSys, nReconCols, swap1, swap2, reconnectMode, flipMode,
+         timeDilationMode;
+  double eCM, sCM, pT0, pT20Rec, pT0Ref, ecmRef, ecmPow, reconnectRange,
+         m0, m0sqr, m2Lambda, fracGluon, dLambdaCut, timeDilationPar,
+         timeDilationParGeV, tfrag, blowR, blowT, rHadron, kI;
+
+  // List of current dipoles.
   vector<ColourDipole*> dipoles, usedDipoles;
   vector<ColourJunction> junctions;
   vector<ColourParticle> particles;
   vector<TrialReconnection> junTrials, dipTrials;
   vector<vector<int> > iColJun;
-
-  // Variables needed.
-  int    nSys, nReconCols, swap1, swap2, reconnectMode, flipMode;
-  bool   allowJunctions, sameNeighbourCol;
-  double eCM, sCM, pT0, pT20Rec, pT0Ref, ecmRef, ecmPow, reconnectRange,
-    m0, m0sqr, m2Lambda, fracGluon, dLambdaCut, minimumGain, minimumGainJun;
+  map<int,double> formationTimes;
 
   // Pointer to various information on the generation.
   Info*          infoPtr;
+
+  // Pointer to particle data table.
+  ParticleData*  particleDataPtr;
 
   // Pointer to the random number generator.
   Rndm*          rndmPtr;
@@ -323,6 +333,30 @@ private:
   // Update the list of dipole trial swaps to account for latest swap.
   void updateJunctionTrials();
 
+  // Check whether up to four dipoles are 'causally' connected.
+  bool checkTimeDilation(ColourDipole* dip1 = 0, ColourDipole* dip2 = 0,
+    ColourDipole* dip3 = 0, ColourDipole* dip4 = 0);
+
+  // Check whether two four momenta are casually connected.
+  bool checkTimeDilation(Vec4 p1, Vec4 p2, double t1, double t2);
+
+  // Find the momentum of the dipole.
+  Vec4 getDipoleMomentum(ColourDipole* dip);
+
+  // Find all particles connected to a junction system (particle list).
+  void addJunctionIndices(int iSinglePar, vector<int> &iPar,
+    vector<int> &usedJuncs);
+
+  // Find all the formation times.
+  void setupFormationTimes( Event & event);
+
+  // Get the mass of all partons connected to a junction system (event list).
+  double getJunctionMass(Event & event, int col);
+
+  // Find all particles connected to a junction system (event list).
+  void addJunctionIndices(Event & event, int iSinglePar,
+    vector<int> &iPar, vector<int> &usedJuncs);
+
   // The old MPI-based scheme.
   bool reconnectMPIs( Event& event, int oldSize);
 
@@ -352,6 +386,21 @@ private:
   // The new gluon-move scheme.
   bool reconnectMove( Event& event, int oldSize);
 
+  // The common part for both Type I and II reconnections in e+e..
+  bool reconnectTypeCommon( Event& event, int oldSize);
+
+  // The e+e- type I CR model.
+  map<double,pair<int,int> > reconnectTypeI( Event& event,
+    vector<vector<ColourDipole> > &dips, Vec4 decays[2]);
+  //  bool reconnectTypeI( Event& event, int oldSize);
+
+  // The e+e- type II CR model.
+  map<double,pair<int,int> > reconnectTypeII( Event& event,
+    vector<vector<ColourDipole> > &dips, Vec4 decays[2]);
+  //    bool reconnectTypeII( Event& event, int oldSize);
+
+  // calculate the determinant of 3 * 3 matrix.
+  double determinant3(vector<vector< double> >& vec);
 };
 
 //==========================================================================

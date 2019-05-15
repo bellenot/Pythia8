@@ -81,12 +81,18 @@ are beam particles resolved, i.e. were PDF's used for the process?
 <method name="bool Info::isDiffractiveA()"> 
 </method> 
 <methodmore name="bool Info::isDiffractiveB()"> 
-is either beam diffractively excited? 
+is either beam soft diffractively excited? 
 </methodmore> 
  
 <method name="bool Info::isDiffractiveC()"> 
-is there central diffraction (a.k.a. double Pomeron exchange)? 
+is there soft central diffraction (a.k.a. double Pomeron exchange)? 
 </method> 
+ 
+<method name="bool Info::isHardDiffractiveA()"> 
+</method> 
+<methodmore name="bool Info::isHardDiffractiveB()"> 
+is either beam hard diffractively excited? 
+</methodmore> 
  
 <method name="bool Info::isNonDiffractive()"> 
 is the process the <code>SoftQCD:nonDiffractive</code> one, 
@@ -294,7 +300,7 @@ the polar and azimuthal scattering angles in the rest frame of
 a <ei>2 &rarr; 2</ei> process. 
 </methodmore> 
  
-<h3>Diffraction</h3> 
+<h3>Soft Diffraction</h3> 
  
 Information on the primary elastic or 
 <aloc href="Diffraction">diffractive</aloc> process 
@@ -341,6 +347,25 @@ A simple check for this is that <code>id1()</code> has to be nonvanishing.
 The methods below this section do not currently provide information 
 specific to diffractive subsystems, e.g. the MPI information is not 
 bookkept in such cases. 
+ 
+<h3>Hard Diffraction</h3> 
+ 
+Information on the momentum fraction taken from the beam 
+and the momentum transfer in the hard diffractive process. 
+Note that when side A is diffractively exited, then the Pomeron 
+has been taken from side B and vice versa. 
+ 
+<method name="double Info::xPomeronA()"> 
+</method> 
+<methodmore name="double Info::xPomeronB()"> 
+<ei>x</ei> fractions of momenta carried by the Pomeron in the hard 
+diffractive process. 
+</methodmore> 
+<method name="double Info::tPomeronA()"> 
+</method> 
+<methodmore name="double Info::tPomeronB()"> 
+The momentum transfer <ei>t</ei> in the hard diffractive process. 
+</methodmore> 
  
 <h3>Event weight and activity</h3> 
  

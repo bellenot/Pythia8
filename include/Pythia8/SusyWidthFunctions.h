@@ -26,10 +26,10 @@ public:
   virtual ~WidthFunction() { };
 
   // Public methods.
-  void setPointers( ParticleData* particleDataPtrIn, CoupSUSY* coupSUSYPtrIn, 
+  void setPointers( ParticleData* particleDataPtrIn, CoupSUSY* coupSUSYPtrIn,
     Info* infoPtrIn);
   virtual double getWidth( int, int) { return 0.0; };
-  
+
 protected:
 
   virtual double function(double xin);
@@ -47,7 +47,7 @@ protected:
 
 //==========================================================================
 
-// Class StauWidths. 
+// Class StauWidths.
 
 class StauWidths : public WidthFunction {
 

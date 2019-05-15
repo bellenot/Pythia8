@@ -100,6 +100,9 @@ bool HadronLevel::init(Info* infoPtrIn, Settings& settings,
 
 bool HadronLevel::next( Event& event) {
 
+  // Store current event size to mark Parton Level content.
+  event.savePartonLevelSize();
+
   // Do Hidden-Valley fragmentation, if necessary.
   if (useHiddenValley) hiddenvalleyFrag.fragment(event);
 
@@ -107,7 +110,11 @@ bool HadronLevel::next( Event& event) {
   if (!decayOctetOnia(event)) return false;
 
   // remove junction structures.
-  junctionSplitting.checkColours(event);
+  if (!junctionSplitting.checkColours(event)) {
+    infoPtr->errorMsg("Error in HadronLevel::next: "
+        "failed colour/junction check");
+    return false;
+  }
 
   // Possibility of hadronization inside decay, but then no BE second time.
   // Hadron scattering, first pass only --rjc

@@ -41,8 +41,8 @@ program by Ingelman and collaborators [<a href="Bibliography.php" target="page">
  
 <p/> 
 For ease of use (and of modelling), the Pomeron-specific parts of the 
-generation are subdivided into three sets of parameters that are rather 
-independent of each other: 
+generation of inclusive ("soft") diffreactive events are subdivided into 
+three sets of parameters that are rather independent of each other: 
 <br/>(i) the total, elastic and diffractive cross sections are 
 parametrized as functions of the CM energy, or can be set by the user 
 to the desired values, see the 
@@ -83,6 +83,23 @@ a central diffractive system is denoted <code>rho_diffr</code>,
 code 9900110. Apart from representing the correct charge and baryon 
 numbers, no deeper meaning should be attributed to the names. 
  
+<p/> 
+PYTHIA also includes a possibility to select hard diffraction. This 
+machinery relies on the same sets of parameters as described above, 
+for the Pomeron flux and PDFs. The main difference between the hard 
+and the soft diffractive frameworks is that the user can select any 
+PYTHIA hard process in the former case, e.g. diffractive <i>Z</i>'s 
+or <i>W</i>'s, whereas only QCD processes are generated in the latter. 
+These QCD processes are generated inclusively, which means that mostly 
+they occur in the low-<i>pT</i> region, even if a tail stretches to 
+higher <i>pT</i> scales, thus overlapping with hard diffraction. 
+Both hard and soft diffractive processes also include the normal PYTHIA 
+machinery, such as MPIs and showers, but for the former the MPI 
+framework can additionally be used to determine whether a hard process 
+survives as a diffractive event or not. The different diffractive types 
+- low mass soft, high mass soft and hard diffraction - are described 
+in more detail below. 
+ 
 <h3>Pomeron flux</h3> 
  
 As already mentioned above, the total diffractive cross section is fixed 
@@ -94,7 +111,7 @@ normalization of the Pomeron flux. The choice of Pomeron flux model
 still will decide on the mass spectrum of diffractive states and the 
 <i>t</i> spectrum of the Pomeron exchange. 
  
-<br/><br/><table><tr><td><strong>Diffraction:PomFlux  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>Diffraction:PomFlux  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 7</code>)</td></tr></table>
 Parametrization of the Pomeron flux <ei>f_Pom/p( x_Pom, t)</ei>. 
 <br/>
 <input type="radio" name="1" value="1" checked="checked"><strong>1 </strong>: Schuler and Sj&ouml;strand <ref>Sch94</ref>: based on a  critical Pomeron, giving a mass spectrum roughly like <ei>dm^2/m^2</ei>;  a mass-dependent exponential <ei>t</ei> slope that reduces the rate  of low-mass states; partly compensated by a very-low-mass (resonance region)  enhancement. Is currently the only one that contains a separate  <ei>t</ei> spectrum for double diffraction (along with MBR) and  separate parameters for pion beams.<br/>
@@ -102,22 +119,28 @@ Parametrization of the Pomeron flux <ei>f_Pom/p( x_Pom, t)</ei>.
 <input type="radio" name="1" value="3"><strong>3 </strong>: a conventional Pomeron description, in the RapGap  manual <ref>Jun95</ref> attributed to Berger et al. and Streng  <ref>Ber87a</ref>, but there (and here) with values updated to a  supercritical Pomeron with <ei>epsilon &gt; 0</ei> (see below),  which gives a stronger peaking towards low-mass diffractive states,  and with a mass-dependent (the <ei>alpha'</ei> below) exponential  <ei>t</ei> slope. The original model only covers single diffraction,  but is here expanded by analogy to double and central diffraction.  <br/>
 <input type="radio" name="1" value="4"><strong>4 </strong>: a conventional Pomeron description, attributed to  Donnachie and Landshoff <ref>Don84</ref>, again with supercritical Pomeron,  with the same two parameters as option 3 above, but this time with a  power-law <ei>t</ei> distribution. The original model only covers single  diffraction, but is here expanded by analogy to double and central  diffraction.<br/>
 <input type="radio" name="1" value="5"><strong>5 </strong>:  the MBR (Minimum Bias Rockefeller) simulation of  (anti)proton-proton interactions <ref>Cie12</ref>. The event  generation follows a renormalized-Regge-theory model, successfully tested  using CDF data. The simulation includes single and double diffraction,  as well as the central diffractive (double-Pomeron exchange) process (106).  Only <ei>p p</ei>, <ei>pbar p</ei> and <ei>p pbar</ei> beam combinations  are allowed for this option. Several parameters of this model are listed  below. <br/>
+<input type="radio" name="1" value="6"><strong>6 </strong>:  The H1 Fit A parametrisation of the Pomeron flux  <ref>H1P06,H1P06a</ref>. The flux factors are motivated by Regge theory,  assuming a Regge trajectory as in options 3 and 4. The flux has been  normalised to 1 at <ei>x_Pomeron = 0.003</ei> and slope parameter and  Pomeron intercept has been fitted to H1 data.<br/>
+<input type="radio" name="1" value="7"><strong>7 </strong>:  The H1 Fit B parametrisation of the Pomeron flux  <ref>H1P06,H1P06a</ref>.<br/>
  
 <p/> 
-In options 3 and 4 above, the Pomeron Regge trajectory is 
+In options 3, 4, 6, and 7 above, the Pomeron Regge trajectory is 
 parametrized as 
 <br/><i> 
 alpha(t) = 1 + epsilon + alpha' t 
 </i><br/> 
 The <i>epsilon</i> and <i>alpha'</i> parameters can be set 
-separately: 
+separately in options 3 and 4: 
  
 <br/><br/><table><tr><td><strong>Diffraction:PomFluxEpsilon </td><td></td><td> <input type="text" name="2" value="0.085" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.085</strong></code>; <code>minimum = 0.02</code>; <code>maximum = 0.15</code>)</td></tr></table>
 The Pomeron trajectory intercept <i>epsilon</i> above. For technical 
 reasons <i>epsilon &gt; 0</i> is necessary in the current implementation. 
+   
  
 <br/><br/><table><tr><td><strong>Diffraction:PomFluxAlphaPrime </td><td></td><td> <input type="text" name="3" value="0.25" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.25</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 0.4</code>)</td></tr></table>
 The Pomeron trajectory slope <i>alpha'</i> above. 
+   
+ 
+Values are fixed in options 6 and 7. 
  
 <p/> 
 When option 5 is selected, the following parameters of the MBR model 
@@ -159,7 +182,7 @@ the parameter <i>sigma_S</i>, used for the cross section suppression at
 low <i>dy</i> (non-diffractive region). 
    
  
-<h3>Separation into low and high masses</h3> 
+<h3>Separation of soft diffraction into low and high masses</h3> 
  
 Preferably one would want to have a perturbative picture of the 
 dynamics of Pomeron-proton collisions, like multiparton interactions 
@@ -196,7 +219,7 @@ be used to represent a small nonperturbative component also at
 high diffractive masses. 
    
  
-<h3>Low-mass diffraction</h3> 
+<h3>Low-mass soft diffraction</h3> 
  
 When an incoming hadron beam is diffractively excited, it is modeled 
 as if either a valence quark or a gluon is kicked out from the hadron. 
@@ -241,7 +264,7 @@ for a baryon beam) that knows no bounds. A suppression like
 <i>p</i> is the <code>diffLargeMassSuppress</code> parameter. 
    
  
-<h3>High-mass diffraction</h3> 
+<h3>High-mass soft diffraction</h3> 
  
 The perturbative description need to use parton densities of the 
 Pomeron. The options are described in the page on 
@@ -358,6 +381,69 @@ and for <i>expPow &rarr; infinity</i> to no impact parameter dependence
 at all, <i>bProfile = 0</i>. For small <i>expPow</i> the program 
 becomes slow and unstable, so the min limit must be respected. 
    
+ 
+<h3>Hard diffraction</h3> 
+ 
+When PYTHIA is requested to generate a hard process, by default it is 
+assumed that the full perturbative cross section is associated with 
+nondiffractive topologies. With the options in this section, PYTHIA 
+includes a possibility for creating a perturbative process diffractively, 
+however. This framework is denoted hard diffraction to distiguish it 
+from soft diffraction, but recall that the latter contains a tail of 
+high-<i>pT</i> processes that could alternatively be obtained as 
+hard diffraction. The idea behind hard diffraction is similar to soft 
+diffraction, as they are both based on the Pomeron model. The proton is 
+thus modelled as having a Pomeron component, described by the Pomeron 
+fluxes above, and the partonic content of the Pomeron is described by 
+the Pomeron PDFs, also described above. From these components we can 
+evaluate the probability for the chosen hard process to have been coming 
+from a diffractively exited system, based on the ratio of the Pomeron flux 
+convoluted with Pomeron PDF to the inclusive proton PDF. 
+ 
+<p/> 
+If the hard process is likely to have been created inside a diffractively 
+excited system, then we also evaluate the momentum fraction carried by the 
+Pomeron, <i>x_Pomeron</i>, and the momentum transfer, <i>t</i>, in 
+the process. This information can also be extracted in the main programs, 
+see eg. example <code>main61.cc</code>. 
+ 
+<p/> 
+Further, we distiguish between two alternative scenarios for the 
+classification of hard diffraction. The first is based solely on the 
+Pomeron flux and PDF, as described above. In the second an additional 
+requirement is imposed, wherein the MPI machinery is not allowed to 
+generate any extra MPIs at all, since presumably these would destroy 
+the rapidity gap and thereby the diffractive nature. We refer to the 
+former as MPI-unchecked and the latter as MPI-checked hard diffraction. 
+The MPI-checked option is likely to be the more realistic one, but the 
+MPI-unchecked one offers a convenient baseline for the study of MPI 
+effects, which still are poorly understood. 
+ 
+<p/> 
+For the selected hard processes, the user can choose whether to generate 
+the inclusive sample of both diffractive and nondiffractive topologies 
+or diffractive only, and in each case with the diffractive ones 
+distinguished either MPI-unchecked or MPI-checked. 
+ 
+<br/><br/><strong>Diffraction:doHard</strong>  <input type="radio" name="32" value="on"><strong>On</strong>
+<input type="radio" name="32" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Allows for the possibility to include hard diffraction tests in a run. 
+   
+ 
+<p/> 
+There is also the possibility to select only a specific subset of events 
+in hard diffraction. 
+ 
+<br/><br/><table><tr><td><strong>Diffraction:sampleType  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 5</code>)</td></tr></table>
+Type of process the user wants to generate. Depends strongly on how an event 
+is classified as diffractive. 
+<br/>
+<input type="radio" name="33" value="1" checked="checked"><strong>1 </strong>: Generate an inclusive sample of both diffractive and  nondiffractive hard processes, MPI-unchecked.  <br/>
+<input type="radio" name="33" value="2"><strong>2 </strong>: Generate an inclusive sample of both diffractive and  nondiffractive hard processes, MPI-checked.  <br/>
+<input type="radio" name="33" value="3"><strong>3 </strong>: Generate an exclusive diffractive sample, MPI-unchecked.  <br/>
+<input type="radio" name="33" value="4"><strong>4 </strong>: Generate an exclusive diffractive sample, MPI-checked.  <br/>
+<input type="radio" name="33" value="5"><strong>5 </strong>: Generate an exclusive sample, rejecting all diffractive  events, MPI-unchecked, so the complement of option 3.  <br/>
  
 <input type="hidden" name="saved" value="1"/>
 
@@ -527,6 +613,16 @@ fwrite($handle,$data);
 if($_POST["31"] != "1.")
 {
 $data = "Diffraction:expPow = ".$_POST["31"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["32"] != "off")
+{
+$data = "Diffraction:doHard = ".$_POST["32"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["33"] != "1")
+{
+$data = "Diffraction:sampleType = ".$_POST["33"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

@@ -771,9 +771,9 @@ with changed momentum owing to recoil effects.
    
  
 <a name="method64"></a>
-<p/><strong>int Particle::iTopCopyId() &nbsp;</strong> <br/>
+<p/><strong>int Particle::iTopCopyId(bool simplify = false) &nbsp;</strong> <br/>
    
-<strong>int Particle::iBotCopyId() &nbsp;</strong> <br/>
+<strong>int Particle::iBotCopyId(bool simplify = false) &nbsp;</strong> <br/>
 also trace top mother and bottom daughter, but do not require carbon 
 copies, only that one can find an unbroken chain, of mothers or daughters, 
 with the same flavour <code>id</code> code. When it encounters ambiguities, 
@@ -783,6 +783,9 @@ It can be confused by nontrivial flavour changes, e.g. a hard process
 <i>u d &rarr; d u</i> by <i>W^+-</i> exchange will give the wrong 
 answer. These methods therefore are of limited use for common particles, 
 in particular for the gluon, but should work well for "rare" particles. 
+By default all mothers and daughters are studied in each step, but with 
+<code>simplify = true</code> only the first and last mother/daughter 
+are checked, which saves time and almost always gives the same result. 
    
  
 <a name="method65"></a>
@@ -840,6 +843,20 @@ junction topologies give <code>false</code>.
    
  
 <a name="method69"></a>
+<p/><strong>bool Particle::isFinalPartonLevel() &nbsp;</strong> <br/>
+is true if the particle belonged to the final state (i.e. with positive 
+status code) right before hadronization is invoked. This is intended to 
+further simple comparisons between parton-level and hadron-level 
+properties, say the number of jets. This method makes use of the event 
+record size set when <code>HadronLevel::next()</code> is invoked, so 
+would not work otherwise (unless <code>Event::savePartonLevelSize()</code> 
+is called by hand). Note that what should be counted as parton level is not 
+always unique. For instance, R-hadron formation is part of the hadron level 
+machinery, even though a subsequent R-hadron decay could well give rise 
+to new activity on the parton level, which thereby is missed. 
+   
+ 
+<a name="method70"></a>
 <p/><strong>int Particle::statusHepMC() &nbsp;</strong> <br/>
 returns the status code according to the HepMC conventions agreed in 
 February 2009. This convention does not preserve the full information 
@@ -867,7 +884,7 @@ event, codes 1 and 4 can still be inferred from its status code, while
 everythg else is assigned code 0. 
    
  
-<a name="method70"></a>
+<a name="method71"></a>
 <p/><strong>bool Particle::undoDecay() &nbsp;</strong> <br/>
 removes the decay chain of the particle and thus restores 
 it to its undecayed state. It is only intended for "normal" particle 
@@ -885,61 +902,61 @@ There are some further methods, some of them inherited from
 <code>Vec4</code>, to modify the properties of a particle. 
 They are of little interest to the normal user. 
  
-<a name="method71"></a>
+<a name="method72"></a>
 <p/><strong>void Particle::rescale3(double fac) &nbsp;</strong> <br/>
 multiply the three-momentum components by <code>fac</code>. 
    
  
-<a name="method72"></a>
+<a name="method73"></a>
 <p/><strong>void Particle::rescale4(double fac) &nbsp;</strong> <br/>
 multiply the four-momentum components by <code>fac</code>. 
    
  
-<a name="method73"></a>
+<a name="method74"></a>
 <p/><strong>void Particle::rescale5(double fac) &nbsp;</strong> <br/>
 multiply the four-momentum components and the mass by <code>fac</code>. 
    
  
-<a name="method74"></a>
+<a name="method75"></a>
 <p/><strong>void Particle::rot(double theta, double phi) &nbsp;</strong> <br/>
 rotate three-momentum and production vertex by these polar and azimuthal 
 angles. 
    
  
-<a name="method75"></a>
+<a name="method76"></a>
 <p/><strong>void Particle::bst(double betaX, double betaY, double betaZ) &nbsp;</strong> <br/>
 boost four-momentum and production vertex by this three-vector. 
    
  
-<a name="method76"></a>
+<a name="method77"></a>
 <p/><strong>void Particle::bst(double betaX, double betaY, double betaZ, double gamma) &nbsp;</strong> <br/>
 as above, but also input the <i>gamma</i> value, to reduce roundoff errors. 
    
  
-<a name="method77"></a>
+<a name="method78"></a>
 <p/><strong>void Particle::bst(const Vec4& pBst) &nbsp;</strong> <br/>
 boost four-momentum and production vertex by 
 <i>beta = (px/e, py/e, pz/e)</i>. 
    
  
-<a name="method78"></a>
+<a name="method79"></a>
 <p/><strong>void Particle::bst(const Vec4& pBst, double mBst) &nbsp;</strong> <br/>
 as above, but also use <i>gamma> = e/m</i> to reduce roundoff errors. 
    
  
-<a name="method79"></a>
+<a name="method80"></a>
 <p/><strong>void Particle::bstback(const Vec4& pBst) &nbsp;</strong> <br/>
    
 <strong>void Particle::bstback(const Vec4& pBst, double mBst) &nbsp;</strong> <br/>
 as above, but with sign of boost flipped. 
    
  
-<a name="method80"></a>
+<a name="method81"></a>
 <p/><strong>void Particle::rotbst(const RotBstMatrix& M) &nbsp;</strong> <br/>
 combined rotation and boost of the four-momentum and production vertex. 
    
  
-<a name="method81"></a>
+<a name="method82"></a>
 <p/><strong>void Particle::offsetHistory( int minMother, int addMother, int minDaughter, int addDaughter)) &nbsp;</strong> <br/>
 add a positive offset to the mother and daughter indices, i.e. 
 if <code>mother1</code> is above <code>minMother</code> then 
@@ -948,7 +965,7 @@ if <code>daughter1</code> is above <code>minDaughter</code> then
 <code>addDaughter</code> is added to it, same with <code>daughter2</code>. 
    
  
-<a name="method82"></a>
+<a name="method83"></a>
 <p/><strong>void Particle::offsetCol( int addCol) &nbsp;</strong> <br/>
 add a positive offset to colour indices, i.e. if <code>col</code> is 
 positive then <code>addCol</code> is added to it, same with <code>acol</code>. 
@@ -959,42 +976,42 @@ positive then <code>addCol</code> is added to it, same with <code>acol</code>.
 Normally a user would not need to create new particles. However, if 
 necessary, the following constructors and methods may be of interest. 
  
-<a name="method83"></a>
+<a name="method84"></a>
 <p/><strong>Particle::Particle() &nbsp;</strong> <br/>
 constructs an empty particle, i.e. where all properties have been set 0 
 or equivalent. 
    
  
-<a name="method84"></a>
+<a name="method85"></a>
 <p/><strong>Particle::Particle(int id, int status = 0, int mother1 = 0, int mother2 = 0, int daughter1 = 0, int daughter2 = 0, int col = 0, int acol = 0, double px = 0., double py = 0., double pz = 0., double e = 0., double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
 constructs a particle with the input properties provided, and non-provided 
 ones set 0 (9 for <code>pol</code>). 
    
  
-<a name="method85"></a>
+<a name="method86"></a>
 <p/><strong>Particle::Particle(int id, int status, int mother1, int mother2, int daughter1, int daughter2, int col, int acol, Vec4 p, double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
 constructs a particle with the input properties provided, and non-provided 
 ones set 0 (9 for <code>pol</code>). 
    
  
-<a name="method86"></a>
+<a name="method87"></a>
 <p/><strong>Particle::Particle(const Particle& pt) &nbsp;</strong> <br/>
 constructs an particle that is a copy of the input one. 
    
  
-<a name="method87"></a>
+<a name="method88"></a>
 <p/><strong>Particle& Particle::operator=(const Particle& pt) &nbsp;</strong> <br/>
 copies the input particle. 
    
  
-<a name="method88"></a>
+<a name="method89"></a>
 <p/><strong>void Particle::setEvtPtr(Event* evtPtr) &nbsp;</strong> <br/>
 sets the pointer to the <code>Event</code> object the particle 
 belongs to. This method is automatically called when a particle 
 is appended to an event record. Also calls <code>setPDEPtr</code> below. 
    
  
-<a name="method89"></a>
+<a name="method90"></a>
 <p/><strong>void Particle::setPDEPtr(ParticleDataEntry* pdePtr = 0) &nbsp;</strong> <br/>
 sets the pointer to the <code>ParticleDataEntry</code> object of the 
 particle, based on its current <code>id</code> code. If the particle 
@@ -1008,4 +1025,3 @@ particle species.
 </html>
  
 <!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
- 

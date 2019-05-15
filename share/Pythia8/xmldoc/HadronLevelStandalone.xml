@@ -115,9 +115,30 @@ baryon-number-violating decay. This particle must have as daughters
 the three partons that together carry the baryon number. 
  
 <p/> 
+When <code>ProcessLevel:all = off</code> the <code>pythia.next()</code> 
+call applied to a parton-level confguration will hadronize it, without 
+generating any parton showers. Indeed, the point of the framework described 
+here is to be able to feed in complete showered parton topologies for 
+hadronization. (The exception is if you feed in a resonance, see next 
+section.) As an option, however, it is possible to generate a shower 
+before the <code>pythia.next()</code> step by using the 
+<code>pythia.forceTimeShower( int iBeg, int iEnd, double pTmax, 
+int nBranchMax = 0)</code> method. 
+Here <code>iBeg</code> and <code>iEnd</code> give the range of partons 
+that should be allowed to shower, <code>pTmax</code> the maximum 
+<ei>pT</ei> scale of emissions, and a nonzero <code>nBranchMax</code> 
+a maximum number of allowed branchings. Additionally, a <code>scale</code> 
+has to be set for each parton that should shower, which requires an 
+additional final argument to the <code>append</code> methods above, 
+or alternatively separately with the <code>pythia.event[i].scale(...)</code> 
+method. This scale limits the maximum <ei>pT</ei> allowed for each parton, 
+in addition to the global <code>pTmax</code>. When not set the scale 
+defaults to 0, meaning no radiation for that parton. 
+ 
+<p/> 
 The sample program in <code>main21.cc</code> illustrates how you can work 
 with this facility, both for simple parton configurations and for more 
-complicated ones with junctions. 
+complicated ones with junctions, and also how to force a shower. 
  
 <p/> 
 As an alternative to setting up a topology with the methods above, 
@@ -197,28 +218,10 @@ externally generated events it is equivalent to a
  
 <p/> 
 This method truly sticks to the hadron level, and thus cannot handle 
-resonance decays. 
- 
-<p/> 
-The similarity of names indicates that 
-<code>pythia.forceTimeShower( int iBeg, int iEnd, double pTmax, 
-int nBranchMax = 0)</code> is intended to belong to the same set of 
-work-by-hand methods. Here <code>iBeg</code> and <code>iEnd</code> 
-give the range of partons that should be allowed to shower, 
-<code>pTmax</code> the maximum <ei>pT</ei> scale of emissions, 
-and a nonzero <code>nBranchMax</code> a maximum number of allowed 
-branchings. Additionally, a <code>scale</code> has to be set for each 
-parton that should shower, which requires an additional final argument 
-to the <code>append</code> methods above. This scale limits the maximum 
-<ei>pT</ei> allowed for each parton, in addition to the global 
-<code>pTmax</code>. When not set the scale defaults to 0, meaning no 
-radiation for that parton. 
- 
-<p/> 
-The real application instead is for repeated hadronization of the same 
-PYTHIA process- and parton-level event. This may for some studies 
-help to save time, given that these two first step are more 
-time-consuming than the hadronization one. 
+resonance decays. The real application instead is for repeated 
+hadronization of the same PYTHIA process- and parton-level event. 
+This may for some studies help to save time, given that these two 
+first step are more time-consuming than the hadronization one. 
  
 <p/> 
 For repeated hadronization you should first generate an event as usual, 

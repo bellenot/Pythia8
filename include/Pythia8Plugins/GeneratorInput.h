@@ -1213,7 +1213,7 @@ inline void MadgraphPar::printParams() {
 
 // Warn if a parameter is going to be overwriten
 
-inline void MadgraphPar::warnParamOverwrite(const string &paramIn, 
+inline void MadgraphPar::warnParamOverwrite(const string &paramIn,
   double val) {
 
   // Check if present and if new value is different

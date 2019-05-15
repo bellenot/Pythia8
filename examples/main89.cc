@@ -78,7 +78,7 @@ int main( int argc, char* argv[] ){
 
   // Number of events. Negative numbers mean all events in the LHEF will be
   // used.
-  int nEvent = pythia.settings.mode("Main:numberOfEvents");
+  long nEvent = pythia.settings.mode("Main:numberOfEvents");
   if (nEvent < 1) nEvent = 1000000000000000;
 
   // For jet matching, initialise the respective user hooks code.
@@ -113,9 +113,14 @@ int main( int argc, char* argv[] ){
     pythia.setUserHooksPtr(matching);
   }
 
-  // Cross section an error.
+  // Cross section and error.
   double sigmaTotal  = 0.;
   double errorTotal  = 0.;
+
+  // Allow abort of run if many errors.
+  int  nAbort  = pythia.mode("Main:timesAllowErrors");
+  int  iAbort  = 0;
+  bool doAbort = false;
 
   cout << endl << endl << endl;
   cout << "Start generating events" << endl;
@@ -140,7 +145,8 @@ int main( int argc, char* argv[] ){
 
       // Generate next event
       if( !pythia.next() ) {
-        if( pythia.info.atEndOfFile() ) break;
+        if ( pythia.info.atEndOfFile() ) break;
+        else if (++iAbort > nAbort) {doAbort = true; break;}
         else continue;
       }
 
@@ -182,7 +188,8 @@ int main( int argc, char* argv[] ){
       ascii_io << hepmcevt;
       delete hepmcevt;
 
-    } // end loop over events to generate
+    } // end loop over events to generate.
+    if (doAbort) break;
 
     // print cross section, errors
     pythia.stat();
@@ -195,8 +202,11 @@ int main( int argc, char* argv[] ){
   }
 
   cout << endl << endl << endl;
-  cout << "Inclusive cross section: " << scientific << setprecision(8)
-       << sigmaTotal << "  +-  " << sqrt(errorTotal) << " mb " << endl;
+  if (doAbort)
+    cout << " Run was not completed owing to too many aborted events" << endl;
+  else
+    cout << "Inclusive cross section: " << scientific << setprecision(8)
+         << sigmaTotal << "  +-  " << sqrt(errorTotal) << " mb " << endl;
   cout << endl << endl << endl;
 
   // Done

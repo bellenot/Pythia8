@@ -110,7 +110,7 @@ public:
     double Q2Ren = 0.);
 
   // Potential enhancement factor of pTmax scale for hardest emission.
-  double enhancePTmax() {return pTmaxFudge;}
+  virtual double enhancePTmax() {return pTmaxFudge;}
 
   // Top-level routine to do a full time-like shower in resonance decay.
   virtual int shower( int iBeg, int iEnd, Event& event, double pTmax,

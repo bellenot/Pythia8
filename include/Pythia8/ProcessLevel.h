@@ -48,7 +48,8 @@ public:
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
     Couplings* couplingsPtrIn, SigmaTotal* sigmaTotPtrIn, bool doLHAin,
     SLHAinterface* slhaInterfacePtrIn, UserHooks* userHooksPtrIn,
-    vector<SigmaProcess*>& sigmaPtrs, ostream& os = cout);
+    vector<SigmaProcess*>& sigmaPtrs, vector<PhaseSpace*>& phaseSpacePtrs,
+    ostream& os = cout);
 
   // Store or replace Les Houches pointer.
   void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;

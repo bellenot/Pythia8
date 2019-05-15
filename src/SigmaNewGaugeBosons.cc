@@ -230,8 +230,8 @@ void Sigma1ffbar2gmZZprime::sigmaKin() {
     // Contributions from three/four fermion generations,
     // and optionally also from excited fermions.
     if ( (idAbs >  0 && idAbs <= maxZpGen)
-      || (idAbs > 10 && idAbs <= maxZpGen+10) 
-      || (idAbs > 4000000 && idAbs <= 4000006) 
+      || (idAbs > 10 && idAbs <= maxZpGen+10)
+      || (idAbs > 4000000 && idAbs <= 4000006)
       || (idAbs > 4000010 && idAbs <= 4000016) ) {
       int idAbs4 = (idAbs < 4000000) ? idAbs : idAbs - 4000000;
       mf = particleDataPtr->m0(idAbs);
@@ -260,7 +260,7 @@ void Sigma1ffbar2gmZZprime::sigmaKin() {
 
         // Colour factor. Additionally secondary width for heavy particles.
         colf      = (idAbs4 < 9) ? colQ : 1.;
-        if ( (idAbs > 5 && idAbs < 9) || (idAbs > 17 && idAbs < 19) 
+        if ( (idAbs > 5 && idAbs < 9) || (idAbs > 17 && idAbs < 19)
           || idAbs > 4000000)
           colf *= particleDataPtr->resOpenFrac(idAbs, -idAbs);
 
@@ -371,7 +371,7 @@ double Sigma1ffbar2gmZZprime::weightDecay( Event& process, int iResBeg,
   int idOutAbs = process[6].idAbs();
 
   // Angular weight for outgoing fermion pair.
-  if (iResBeg == 5 && iResEnd == 5 && (idOutAbs <= maxZpGen 
+  if (iResBeg == 5 && iResEnd == 5 && (idOutAbs <= maxZpGen
     || (idOutAbs > 10 && idOutAbs <= maxZpGen+10) || idOutAbs > 4000000) ) {
 
     // Couplings for in- and out-flavours.

@@ -132,26 +132,25 @@ a match is searched for just like in the normal case with
    
  
 <br/><br/><table><tr><td><strong>SUSY:idVecA  </td><td></td><td> <input type="text" name="4" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)</td></tr></table>
-As for <code>SUSY:idA</code>, but as a vector of PDG codes. 
-(Character-string input of such vectors should be as a 
-comma-separated list, without any blanks.) Thus, it selects only 
-processes that have a final-state particle corresponding to one 
-of the identity codes in this vector. Note that, to activate this, 
+As for <code>SUSY:idA</code>, but as a vector of PDG codes. Thus, it 
+selects only processes that have a final-state particle corresponding to 
+one of the identity codes in this vector. Note that, to activate this, 
 <code>SUSY:idA</code> must be equal to zero; if not then the match 
-to <code>SUSY:idA</code> takes precedence. 
+to <code>SUSY:idA</code> takes precedence. Character-string input of 
+this vector should be as a comma-separated list, without any blanks. 
    
  
 <br/><br/><table><tr><td><strong>SUSY:idVecB  </td><td></td><td> <input type="text" name="5" value="0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>)</td></tr></table>
-As for <code>SUSY:idB</code>, but as a vector of PDG codes. 
-(Character-string input of such vectors should be as a 
-comma-separated list, without any blanks.) As above, to activate this, 
-<code>SUSY:idB</code> must be equal to zero; if not then the match to 
-<code>SUSY:idB</code> takes precedence. For the matching, either of 
-<code>SUSY:idA</code> and <code>SUSY:idVecA</code> may be combined with 
-either of <code>SUSY:idB</code> and <code>SUSY:idVecB</code>. 
+As for <code>SUSY:idB</code>, but as a vector of PDG codes. As above, 
+to activate this, <code>SUSY:idB</code> must be equal to zero; if not 
+then the match to <code>SUSY:idB</code> takes precedence. For the matching, 
+either of <code>SUSY:idA</code> and <code>SUSY:idVecA</code> may be 
+combined with either of <code>SUSY:idB</code> and <code>SUSY:idVecB</code>. 
 As above one of the two outgoing SUSY particles must match one of the 
 particles in <code>SUSY:id(Vec)A</code> and the other one of the 
 particles in <code>SUSY:id(Vec)B</code> when both are nonzero. 
+Character-string input of this vector  should be as a comma-separated 
+list, without any blanks. 
    
  
 <br/><br/><table><tr><td><strong>SUSY:sin2thetaWMode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 3</code>)</td></tr></table>
@@ -538,4 +537,3 @@ fclose($handle);
 </html>
  
 <!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
- 

@@ -212,7 +212,7 @@ void translate(Event& event, Event& hard) {
       } else {
         ilast = i;
         ida1 = hard[ilast].daughter1();
-        ida2 = hard[ilast].daughter2(); 
+        ida2 = hard[ilast].daughter2();
       }
 
       // Resonance decays occur when there are multiple daughters and

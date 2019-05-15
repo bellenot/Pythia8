@@ -278,4 +278,3 @@ void BoseEinstein::shiftPair( int i1, int i2, int iTab) {
 //==========================================================================
 
 } // end namespace Pythia8
-

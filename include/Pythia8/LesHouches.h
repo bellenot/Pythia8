@@ -17,6 +17,7 @@
 #include "Pythia8/Info.h"
 #include "Pythia8/PythiaStdlib.h"
 #include "Pythia8/Settings.h"
+#include "Pythia8/Streams.h"
 
 namespace Pythia8 {
 
@@ -326,12 +327,14 @@ public:
     const char* headerIn = NULL, bool readHeadersIn = false,
     bool setScalesFromLHEFIn = false ) :
     infoPtr(infoPtrIn), filename(filenameIn), headerfile(headerIn),
-    is(openFile(filenameIn, ifs)), reader(*is), isHead(NULL),
-    readHeaders(readHeadersIn), setScalesFromLHEF(setScalesFromLHEFIn) {
-    // Optionally open header file as well. Note that both
-    // are opened here so that initialisation can be aborted if
-    // either of the files is missing, see fileFound().
+    is(NULL), is_gz(NULL), isHead(NULL), isHead_gz(NULL),
+    readHeaders(readHeadersIn), reader(filenameIn),
+    setScalesFromLHEF(setScalesFromLHEFIn) {
+
+    is = (openFile(filenameIn, ifs));
     isHead = (headerfile == NULL) ? is : openFile(headerfile, ifsHead);
+    is_gz = new igzstream(filename);
+    isHead_gz = (headerfile == NULL) ? is_gz : new igzstream(headerfile);
   }
 
   // Destructor.
@@ -342,6 +345,12 @@ public:
 
   // Helper routine to correctly close files.
   void closeAllFiles() {
+
+    if (isHead_gz != is_gz) isHead_gz->close();
+    if (isHead_gz != is_gz) delete isHead_gz;
+    is_gz->close();
+    delete is_gz;
+
     // Close header file if separate, and close main file.
     if (isHead != is) closeFile(isHead, ifsHead);
     closeFile(is, ifs);
@@ -351,7 +360,10 @@ public:
   void newEventFile(const char* filenameIn) {
     // Close files and then open new file
     closeAllFiles();
-    is = openFile(filenameIn, ifs);
+    is = (openFile(filenameIn, ifs));
+    is_gz = new igzstream(filename);
+    isHead_gz = new igzstream(headerfile);
+
     // Set isHead to is to keep expected behaviour in
     // fileFound() and closeAllFiles()
     isHead = is;
@@ -361,10 +373,12 @@ public:
   bool fileFound() { return (isHead->good() && is->good()); }
 
   // Routine for doing the job of reading and setting initialization info.
-  bool setInit() { return setInitLHEF(*isHead, readHeaders);}
+  bool setInit() {
+    return setInitLHEF(*isHead, readHeaders);
+  }
 
   // Routine for doing the job of reading and setting initialization info.
-  bool setInitLHEF( istream & isIn, bool readHead );
+  bool setInitLHEF( istream & isIn, bool readHead);
 
   // Routine for doing the job of reading and setting info on next event.
   bool setEvent(int = 0) {
@@ -373,14 +387,33 @@ public:
   }
 
   // Skip ahead a number of events, which are not considered further.
-  bool skipEvent(int nSkip) {for (int iSkip = 0; iSkip < nSkip; ++iSkip)
-    if (!setNewEventLHEF()) return false; return true;}
+  bool skipEvent(int nSkip) {
+    for (int iSkip = 0; iSkip < nSkip; ++iSkip)
+      if (!setNewEventLHEF()) return false;
+     return true;
+  }
 
   // Routine for doing the job of reading and setting info on next event.
   bool setNewEventLHEF();
 
   // Update cross-section information at the end of the run.
   bool updateSigma();
+
+protected:
+
+  // Used internally to read a single line from the stream.
+  bool getLine(string & line, bool header = true) {
+#ifdef GZIPSUPPORT
+    if      ( header && !getline(*isHead_gz, line)) return false;
+    else if (!header && !getline(*is_gz, line))     return false;
+#else
+    if      (header && !getline(*isHead, line)) return false;
+    else if (!header && !getline(*is, line))    return false;
+#endif
+    // Replace single by double quotes
+    replace(line.begin(),line.end(),'\'','\"');
+    return true;
+  }
 
 private:
 
@@ -389,17 +422,18 @@ private:
   const char* headerfile;
 
   // File from which to read (or a stringstream).
-  ifstream  ifs;
-  istream  *is;
-
-  Reader reader;
-
   // Optionally also a file from which to read the LHEF header.
-  ifstream  ifsHead;
+  istream  *is;
+  igzstream  *is_gz;
+  ifstream  ifs;
   istream  *isHead;
+  igzstream  *isHead_gz;
+  ifstream  ifsHead;
 
   // Flag to read headers or not
   bool readHeaders;
+
+  Reader reader;
 
   // Flag to set particle production scales or not.
   bool setScalesFromLHEF;

@@ -244,16 +244,18 @@ bool TimeShower::limitPTmax( Event& event, double Q2Fac, double Q2Ren) {
     dopTlimit = dopTlimit1 = dopTlimit2 = true;
 
   // Look if any quark (u, d, s, c, b), gluon or photon in final state.
-  // Also count number of heavy coloured particles, like top. 
+  // Also count number of heavy coloured particles, like top.
   else {
     int n21 = 0;
-    for (int i = 5; i < event.size(); ++i) {
+    int iBegin = 5;
+    if (infoPtr->isHardDiffractive()) iBegin = 9;
+    for (int i = iBegin; i < event.size(); ++i) {
       if (event[i].status() == -21) ++n21;
       else if (n21 == 0) {
         int idAbs = event[i].idAbs();
         if (idAbs <= 5 || idAbs == 21 || idAbs == 22) dopTlimit1 = true;
         if ( (event[i].col() != 0 || event[i].acol() != 0)
-          && idAbs > 5 && idAbs != 21 ) ++nHeavyCol;        
+          && idAbs > 5 && idAbs != 21 ) ++nHeavyCol;
       } else if (n21 == 2) {
         int idAbs = event[i].idAbs();
         if (idAbs <= 5 || idAbs == 21 || idAbs == 22) dopTlimit2 = true;
@@ -527,7 +529,7 @@ void TimeShower::prepareGlobal( Event& event) {
         hardPartons.push_back(i);
       if ( event[i].isFinal() && event[i].idAbs() > 5 && event[i].idAbs() != 21
           && (event[i].col() != 0 || event[i].acol() != 0))
-        ++nHeavyCol;        
+        ++nHeavyCol;
     }
     nHard = hardPartons.size();
     if (nFinalBorn > 0 && nHard > nFinalBorn) {
@@ -1142,7 +1144,8 @@ void TimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
   }
 
   // If no success then look for matching (anti)colour anywhere in final state.
-  if ( iRec == 0 || (!doInterleave && allowMPIdipole && !event[iRec].isFinal()) ) {
+  if ( iRec == 0 || (!doInterleave && allowMPIdipole
+    && !event[iRec].isFinal()) ) {
     for (int j = 0; j < event.size(); ++j) if (event[j].isFinal()) {
       if ( (colSign > 0 && event[j].acol() == colTag)
         || (colSign < 0 && event[j].col()  == colTag) ) {
@@ -1747,7 +1750,7 @@ double TimeShower::pTnext( Event& event, double pTbegAll, double pTendAll,
   for (int iDip = 0; iDip < int(dipEnd.size()); ++iDip) {
     TimeDipoleEnd& dip = dipEnd[iDip];
 
-    // Check if this system is part of the hard scattering 
+    // Check if this system is part of the hard scattering
     // (including resonance decay products).
     bool hardSystem = true;
     bool isQCD = event[dip.iRadiator].colType() != 0;
@@ -2503,7 +2506,7 @@ void TimeShower::pT2nextHV(double pT2begDip, double pT2sel,
 
 bool TimeShower::branch( Event& event, bool isInterleaved) {
 
-  // Check if this system is part of the hard scattering 
+  // Check if this system is part of the hard scattering
   // (including resonance decay products).
   bool hardSystem = true;
   bool isQCD = event[dipSel->iRadiator].colType() != 0;
@@ -2573,7 +2576,7 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
         int iG = partonSystemsPtr->getOut( iS, i);
         bool hasHardAncestor = event[iG].statusAbs() < 23;
         for (int iHard = 0; iHard < int(hardPartons.size()); ++iHard)
-          if ( event[iG].isAncestor(hardPartons[iHard]) 
+          if ( event[iG].isAncestor(hardPartons[iHard])
             || iG == hardPartons[iHard]
             || (event[iG].status() == 23 && event[iG].colType() == 0))
             hasHardAncestor = true;

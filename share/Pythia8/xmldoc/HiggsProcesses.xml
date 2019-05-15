@@ -892,12 +892,16 @@ on the above parameters.
 including the CP-violating interference term. The parameter 
 <ei>eta</ei>, see below, sets the strength of the CP-odd admixture, 
 with the interference term being proportional to <ei>eta</ei> 
-and the CP-odd one to <ei>eta^2</ei>.</option> 
+and the CP-odd one to <ei>eta^2</ei>. Intended for decays into 
+<ei>W^+ W^-</ei> or <ei>Z^0 Z^0</ei>.</option> 
 <option value="4">same as <code>3</code> but now <ei>phi</ei>, see 
 below, sets the CP-mixing angle. The CP-even term is proportional 
 to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>, 
 and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is 
-pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.</option> 
+pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even. Intended for decays 
+of <ei>h -> f fbar</ei>, notably for <ei>tau</ei> lepton polarization, 
+whereas <ei>W^+ W^-</ei> and <ei>Z^0 Z^0</ei> decays are isotropic. 
+</option> 
 </modepick> 
  
 <parm name="HiggsH1:etaParity" default="0."> 
@@ -925,12 +929,16 @@ on the above parameters.
 including the CP-violating interference term. The parameter 
 <ei>eta</ei>, see below, sets the strength of the CP-odd admixture, 
 with the interference term being proportional to <ei>eta</ei> 
-and the CP-odd one to <ei>eta^2</ei>.</option> 
+and the CP-odd one to <ei>eta^2</ei>. Intended or decays into 
+<ei>W^+ W^-</ei> or <ei>Z^0 Z^0</ei>.</option> 
 <option value="4">same as <code>3</code> but now <ei>phi</ei>, see 
 below, sets the CP-mixing angle. The CP-even term is proportional 
 to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>, 
 and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is 
-pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.</option> 
+pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even. Intended for decays 
+of <ei>H -> f fbar</ei>, notably for <ei>tau</ei> lepton polarization, 
+whereas <ei>W^+ W^-</ei> and <ei>Z^0 Z^0</ei> decays are isotropic. 
+</option> 
 </modepick> 
  
 <parm name="HiggsH2:etaParity" default="0."> 
@@ -958,12 +966,16 @@ on the above parameters.
 including the CP-violating interference term. The parameter 
 <ei>eta</ei>, see below, sets the strength of the CP-odd admixture, 
 with the interference term being proportional to <ei>eta</ei> 
-and the CP-odd one to <ei>eta^2</ei>.</option> 
+and the CP-odd one to <ei>eta^2</ei>. Intended for decays into 
+<ei>W^+ W^-</ei> or <ei>Z^0 Z^0</ei>.</option> 
 <option value="4">same as <code>3</code> but now <ei>phi</ei>, see 
 below, sets the CP-mixing angle. The CP-even term is proportional 
 to <ei>sin^2(phi)</ei>, the interference to <ei>sin(phi)cos(phi)</ei>, 
 and the CP-odd term to <ei>cos^2(phi)</ei>. Consequently <ei>phi=0</ei> is 
-pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even.</option> 
+pure CP-odd and <ei>phi=pi/2</ei> is pure CP-even. Intended for decays 
+of <ei>A -> f fbar</ei>, notably for <ei>tau</ei> lepton polarization, 
+whereas <ei>W^+ W^-</ei> and <ei>Z^0 Z^0</ei> decays are isotropic. 
+</option> 
 </modepick> 
  
 <parm name="HiggsA3:etaParity" default="0."> 
@@ -979,4 +991,3 @@ The <ei>phi</ei> value of CP-mixing in the
 </chapter> 
  
 <!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
- 

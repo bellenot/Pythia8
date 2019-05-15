@@ -136,14 +136,14 @@ mass-dampening is intended to reduce some troubles later on.)
    
  
 <br/><br/><table><tr><td><strong>BeamRemnants:reducedKTatHighY </td><td></td><td> <input type="text" name="6" value="0.5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.5</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)</td></tr></table>
-For a system of mass <i>m</i> and energy <i>E</i> the
-dampening factor <i>y_damp</i> above is defined as
-<i>y_damp = pow( E/m, r_red)</i>, where <i>r_red</i> is the
-current parameter. The effect is to reduce the primordial <i>kT</i>
+For a system of mass <i>m</i> and energy <i>E</i> the 
+dampening factor <i>y_damp</i> above is defined as 
+<i>y_damp = pow( E/m, r_red)</i>, where <i>r_red</i> is the 
+current parameter. The effect is to reduce the primordial <i>kT</i> 
 of low-mass systems extra much if they are at large rapidities (recall 
 that <i>E/m = cosh(y)</i> before <i>kT</i> is added). The reason 
 for this dampening is purely technical, and for reasonable values 
-should not have dramatic consequences overall.
+should not have dramatic consequences overall. 
    
  
 <br/><br/><table><tr><td><strong>BeamRemnants:primordialKTremnant </td><td></td><td> <input type="text" name="7" value="0.4" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.4</strong></code>; <code>minimum = 0.</code>)</td></tr></table>

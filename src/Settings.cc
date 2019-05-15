@@ -284,6 +284,12 @@ bool Settings::readString(string line, bool warn, ostream& os) {
     return false;
   }
 
+  // If value is a ? then echo the current value.
+  if (valueString == "?") {
+    os << output(name);
+    return true;
+  }
+
   // Update flag map; allow many ways to say yes.
   if (inDataBase == 1) {
     bool value = boolString(valueString);
@@ -800,6 +806,60 @@ void Settings::list(bool doListAll,  bool doListString, string match,
      << "                                                      | \n"
      << " *-------  End PYTHIA Flag + Mode + Parm + Word + FVec + MVec + PVec "
      << "Settings  ------------------------------------* " << endl;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Give back current value(s) as a string, whatever the type.
+
+string Settings::output(string keyIn, bool fullLine) {
+
+  // Default string echoes input key =.
+  string outVal = (fullLine) ? " " + keyIn + " = " : "";
+
+  // Identify flag, mode, parm or word, and convert to string.
+  if (isFlag(keyIn)) {
+    outVal += (flag(keyIn)) ? "true" : "false";
+  } else if (isMode(keyIn)) {
+    ostringstream ostr;
+    ostr << mode(keyIn);
+    outVal += ostr.str();
+  } else if (isParm(keyIn)) {
+    ostringstream ostr;
+    ostr << scientific << setprecision(5) << parm(keyIn);
+    outVal += ostr.str();
+  } else if (isWord(keyIn)) {
+    outVal += word(keyIn);
+
+  // Identify fvec, mvec or pvec, and convert to string.
+  } else if (isFVec(keyIn)) {
+    vector<bool> outVec = fvec(keyIn);
+    for (int i = 0; i < int(outVec.size()); ++i) {
+      outVal += (outVec[i]) ? "true" : "false";
+      if (i != int(outVec.size()) - 1) outVal += "  ";
+    }
+  } else if (isMVec(keyIn)) {
+    vector<int> outVec = mvec(keyIn);
+    for (int i = 0; i < int(outVec.size()); ++i) {
+      ostringstream ostr;
+      ostr << outVec[i];
+      outVal +=  ostr.str();
+      if (i != int(outVec.size()) - 1) outVal += "  ";
+    }
+  } else if (isPVec(keyIn)) {
+    vector<double> outVec = pvec(keyIn);
+    for (int i = 0; i < int(outVec.size()); ++i) {
+      ostringstream ostr;
+      ostr << scientific << setprecision(5) << outVec[i];
+      outVal +=  ostr.str();
+      if (i != int(outVec.size()) - 1) outVal += "  ";
+    }
+
+  // Default value, possible endline and done.
+  } else outVal += "unknown";
+  if (fullLine) outVal += "\n";
+  return outVal;
 
 }
 

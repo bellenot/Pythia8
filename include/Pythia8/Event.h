@@ -189,13 +189,14 @@ public:
   virtual int index() const;
   int iTopCopy()      const;
   int iBotCopy()      const;
-  int iTopCopyId()    const;
-  int iBotCopyId()    const;
+  int iTopCopyId(bool simplify = false) const;
+  int iBotCopyId(bool simplify = false) const;
   vector<int> motherList()   const;
   vector<int> daughterList() const;
   vector<int> sisterList(bool traceTopBot = false) const;
   bool isAncestor(int iAncestor) const;
   int statusHepMC()  const;
+  bool isFinalPartonLevel() const;
   bool undoDecay();
 
   // Further output, based on a pointer to a ParticleDataEntry object.
@@ -371,7 +372,8 @@ public:
 
   // Constructors.
   Event(int capacity = 100) : startColTag(100), maxColTag(100),
-    savedSize(0), savedJunctionSize(0), scaleSave(0.), scaleSecondSave(0.),
+    savedSize(0), savedJunctionSize(0), savedPartonLevelSize(0),
+    scaleSave(0.), scaleSecondSave(0.),
     headerList("----------------------------------------"),
     particleDataPtr(0) { entry.reserve(capacity); }
   Event& operator=(const Event& oldEvent);
@@ -384,8 +386,9 @@ public:
      particleDataPtr = particleDataPtrIn; startColTag = startColTagIn;}
 
   // Clear event record.
-  void clear() {entry.resize(0); maxColTag = startColTag; scaleSave = 0.;
-    scaleSecondSave = 0.; clearJunctions();}
+  void clear() {entry.resize(0); maxColTag = startColTag;
+    savedPartonLevelSize = 0; scaleSave = 0.; scaleSecondSave = 0.;
+    clearJunctions();}
 
   // Clear event record, and set first particle empty.
   void reset() {clear(); append(90, -11, 0, 0, 0., 0., 0., 0., 0.);}
@@ -453,12 +456,12 @@ public:
   int copy(int iCopy, int newStatus = 0);
 
   // List the particles in an event.
-  void list() const;
-  void list(ostream& os) const;
-  void list(bool showScaleAndVertex, bool showMothersAndDaughters = false)
-    const;
+  void list(int precision = 3) const;
+  void list(ostream& os, int precision = 3) const;
+  void list(bool showScaleAndVertex, bool showMothersAndDaughters = false,
+    int precision = 3) const;
   void list(bool showScaleAndVertex, bool showMothersAndDaughters,
-    ostream& os) const;
+    ostream& os, int precision = 3) const;
 
   // Remove last n entries.
   void popBack(int nRemove = 1) { if (nRemove ==1) entry.pop_back();
@@ -542,6 +545,9 @@ public:
   // List any junctions in the event; for debug mainly.
   void listJunctions(ostream& os = cout) const;
 
+  // Save event record size at Parton Level, i.e. before hadronization.
+  void savePartonLevelSize() {savedPartonLevelSize = entry.size();}
+
   // Operator overloading allows to append one event to an existing one.
   // Warning: particles should be OK, but some other information unreliable.
   Event& operator+=(const Event& addEvent);
@@ -569,7 +575,7 @@ private:
   int maxColTag;
 
   // Saved entry and junction list sizes, for simple restoration.
-  int savedSize, savedJunctionSize;
+  int savedSize, savedJunctionSize, savedPartonLevelSize;
 
   // The scale of the event; linear quantity in GeV.
   double scaleSave, scaleSecondSave;

@@ -96,7 +96,7 @@ Code 3101.
 <br/><br/><strong>LeftRightSymmmetry:ffbar2WR</strong>  <input type="radio" name="3" value="on"><strong>On</strong>
 <input type="radio" name="3" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scatterings <i><f fbar' &rarr; W_R^+</i>. 
+Scatterings <i>f fbar' &rarr; W_R^+</i>. 
 Code 3102. 
    
  
@@ -377,4 +377,3 @@ fclose($handle);
 </html>
  
 <!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
- 

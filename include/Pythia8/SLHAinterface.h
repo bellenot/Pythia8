@@ -37,7 +37,8 @@ public:
 
   // Initialize and switch to SUSY couplings if reading SLHA spectrum
   void init( Settings& settings, Rndm* rndmPtr, Couplings* couplingsPtrIn,
-    ParticleData* particleDataPtr, bool& useSHLAcouplings );
+    ParticleData* particleDataPtr, bool& useSHLAcouplings,
+    stringstream& ParticleDataBuffer );
 
   // Initialize SUSY Les Houches Accord data.
   bool initSLHA(Settings& settings, ParticleData* particleDataPtr);
@@ -67,7 +68,3 @@ public:
 } // end namespace Pythia8
 
 #endif // Pythia8_SLHAinterface_H
-
-
-
-

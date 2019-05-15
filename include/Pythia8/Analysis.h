@@ -543,4 +543,3 @@ private:
 } // end namespace Pythia8
 
 #endif // end Pythia8_Analysis_H
-

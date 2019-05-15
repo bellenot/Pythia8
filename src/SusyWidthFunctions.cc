@@ -83,14 +83,14 @@ double WidthFunction::integrateGauss(double xlo, double xhi, double tol) {
   double c = 0.001/abs(xhi-xlo);
   double zlo = xlo;
   double zhi = xhi;
-    
+
   bool nextbin = true;
-  
+
   while ( nextbin ) {
-    
+
     double zmi = 0.5*(zhi+zlo); // midpoint
     double zmr = 0.5*(zhi-zlo); // midpoint, relative to zlo
-    
+
     // Calculate 8-point and 16-point quadratures.
     double s8=0.0;
     for (int i=0;i<4;i++) {
@@ -136,9 +136,9 @@ double WidthFunction::integrateGauss(double xlo, double xhi, double tol) {
 double StauWidths::getWidth(int idResIn, int idIn){
 
   setChannel(idResIn, idIn);
-    
+
   // Calculate integration limits and return integrated width.
-  if (idResIn % 2 == 0) return 0.0; 
+  if (idResIn % 2 == 0) return 0.0;
   double width = integrateGauss(0.0,1.0,1.0e-3);
   return width;
 
@@ -151,20 +151,20 @@ void StauWidths::setChannel(int idResIn, int idIn) {
   // Common masses.
   idRes = abs(idResIn);
   idIn = abs(idIn);
-  mRes = particleDataPtr->m0(idRes); 
+  mRes = particleDataPtr->m0(idRes);
   m1 = particleDataPtr->m0(1000022);
   m2 = particleDataPtr->m0(idIn);
 
-  mInt = particleDataPtr->m0(15); 
+  mInt = particleDataPtr->m0(15);
   gammaInt = particleDataPtr->mWidth(15);
 
   // Couplings etc.
   f0 = 92.4; //MeV
   gf =   coupSUSYPtr->GF();
   delm = mRes - m1;
-  cons = pow2(f0)*pow2(gf)*(pow2(delm) - pow2(m2)) 
+  cons = pow2(f0)*pow2(gf)*(pow2(delm) - pow2(m2))
        * coupSUSYPtr->V2CKMid(1,1) / (128.0 * pow(mRes*M_PI,3));
-  
+
   if (idIn == 900111) wparam = 1.16;
   else if (idIn == 113) wparam = 0.808;
   else wparam = 1.0;
@@ -183,13 +183,13 @@ void StauWidths::setChannel(int idResIn, int idIn) {
   else if (idIn == 14 || idIn == 12) {
     m2 = particleDataPtr->m0(idIn-1);
     fnSwitch = 3;
-  } 
-  else { 
+  }
+  else {
     stringstream mess;
     mess <<  " unknown decay channel idIn = " << idIn;
     infoPtr->errorMsg("Warning in StauWidths::setChannel:", mess.str() );
   }
-  
+
   return;
 }
 
@@ -201,7 +201,7 @@ double StauWidths::function(double x){
   double value = 0.0;
   double qf2 = pow2(delm) - (pow2(delm) - pow2(m2)) * x;
   double fac = 1.0 / pow3(mRes);
-  double term3 = (norm(gL) * qf2 + norm(gR) * mInt * mInt) 
+  double term3 = (norm(gL) * qf2 + norm(gR) * mInt * mInt)
                * (delm * delm + 2.0 * m1 * delm - qf2);
   double term4 = -2.0 * real(gL * conj(gR)) * m2 * mInt * qf2;
 
@@ -209,16 +209,16 @@ double StauWidths::function(double x){
   if (fnSwitch == 1 ) {
     fac *= pow2(delm) - pow2(m2);
     double term1 = sqrt((pow2(delm) - qf2) * (pow2(delm + 2 * m1) - qf2));
-    double term2 = pow2(qf2 - pow2(m2)) / qf2 / (pow2(qf2 - pow2(mInt)) 
+    double term2 = pow2(qf2 - pow2(m2)) / qf2 / (pow2(qf2 - pow2(mInt))
       + pow2(mInt*gammaInt));
     value = fac * (term1 * term2 * (term3 + term4));
   }
 
   else if (fnSwitch == 2 ) {
     double term1 = sqrt((pow2(delm) - qf2) * (pow2(delm + 2 * m1) - qf2));
-    double term2 = pow2(qf2 - pow2(m2)) * (qf2 + pow2(m2)) 
+    double term2 = pow2(qf2 - pow2(m2)) * (qf2 + pow2(m2))
       / (qf2 * qf2 * (pow2(qf2 - pow2(mInt)) + pow2(mInt*gammaInt)));
-    value = fac * (term1 * term2 * (term3 + term4)); 
+    value = fac * (term1 * term2 * (term3 + term4));
   }
 
   else if (fnSwitch == 3 ) {
@@ -226,9 +226,9 @@ double StauWidths::function(double x){
     double m24 = pow2(m2*m2);
     double term1 = sqrt((pow2(delm) - qf2) * (pow2(delm + 2 * m1) - qf2));
     double term2a = 1.0 / (pow2(qf2 - pow2(mInt)) + pow2(mInt*gammaInt)) / qf4;
-    double term2b = 12 * m24 * qf4 * log(qf2/pow2(m2)) 
+    double term2b = 12 * m24 * qf4 * log(qf2/pow2(m2))
       + (qf4 - m24) * (qf4 - 8 * m2 * m2 * qf2 + m24);
-    value = fac * (term1 * term2a * term2b * (term3 + term4)); 
+    value = fac * (term1 * term2a * term2b * (term3 + term4));
   }
 
   else {
@@ -244,4 +244,3 @@ double StauWidths::function(double x){
 //==========================================================================
 
 } //end namespace Pythia8
-

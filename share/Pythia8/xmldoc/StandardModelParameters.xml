@@ -44,6 +44,15 @@ the value can be calculated by <code>alphaS(scale2)</code>, where
 <code>scale2</code> is the <ei>Q^2</ei> scale in GeV^2. 
  
 <p/> 
+By default the charm, bottom and top threshold-matching mass values 
+are chosen to be 1.5, 4.8 and 171 GeV, respectively. The 
+<code>setThresholds(double mc, double mb, double mt)</code> 
+method can be invoked to select other values. To take effect, this 
+must be done before the <code>AlphaStrong::init()</code> method is called, 
+since this is where the flavour-dependent <ei>Lambda_i</ei> values are 
+calculated and stored. If in doubt, better call it once again. 
+ 
+<p/> 
 For applications inside shower programs, a second-order <code>alpha_s</code> 
 value can be obtained as the product of the two functions 
 <code>alphaS1Ord(scale2)</code> and <code>alphaS2OrdCorr(scale2)</code>, 

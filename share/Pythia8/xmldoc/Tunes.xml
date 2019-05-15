@@ -262,8 +262,11 @@ natively in PYTHIA it is possible to use the respective tunes, without
 having to use LHAPDF, if you set <code>Tune:preferLHAPDF = 
 0</code> <i>before</i> the <code>Tune:pp</code> choice. 
 <option value="0"> Use the internal PYTHIA PDFs. 
+</option> 
 <option value="1"> Use LHAPDF5 PDFs. 
+</option> 
 <option value="2"> Use LHAPDF6 PDFs. 
+</option> 
 </modepick> 
  
 <modepick name="Tune:pp" default="14" min="-1" max="32"> 

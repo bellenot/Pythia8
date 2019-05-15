@@ -51,7 +51,7 @@ echo "<a href='TimelikeShowers.php?filepath=".$filepath."' target='page'>";?>Tim
  
 <p/> 
 A minimal set of settings necessary for a consistent treatment of aMC@NLO 
-inputs is  
+inputs is 
 <p/> 
  &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; <code>SpaceShower:pTmaxMatch = 1</code> 
 <p/> 
@@ -64,7 +64,7 @@ inputs is
  &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; 
 <code>SpaceShower:MEcorrections = off</code> 
 <p/> 
- &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;  
+ &nbsp; &nbsp; &nbsp;&nbsp; &nbsp; 
 <code>TimeShower:MEcorrections = off</code> 
 <p/> 
  &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;  <code>TimeShower:globalRecoil = on</code> 

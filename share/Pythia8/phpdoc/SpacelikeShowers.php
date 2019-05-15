@@ -133,8 +133,8 @@ higher-order calculations.
 <input type="radio" name="4" value="0"><strong>0 </strong>: emissions go up to the kinematical limit,  with no special dampening.  <br/>
 <input type="radio" name="4" value="1"><strong>1 </strong>: emissions go up to the kinematical limit,  but dampened by a factor <ei>k^2 Q^2_fac/(pT^2 + k^2 Q^2_fac)</ei>,  where <ei>Q_fac</ei> is the factorization scale and <ei>k</ei> is a  multiplicative fudge factor stored in <code>pTdampFudge</code> below.  <br/>
 <input type="radio" name="4" value="2"><strong>2 </strong>: emissions go up to the kinematical limit,  but dampened by a factor <ei>k^2 Q^2_ren/(pT^2 + k^2 Q^2_ren)</ei>,  where <ei>Q_ren</ei> is the renormalization scale and <ei>k</ei> is a  multiplicative fudge factor stored in <code>pTdampFudge</code> below.  <br/>
-<input type="radio" name="4" value="3" checked="checked"><strong>3 </strong>: as option 1, but in addition to the standard requirements for dampening it is further necessary to have ar least two top or  beyond-the-Standard-Model coloured particles in the final state.  Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production.   <br/>
-<input type="radio" name="4" value="4"><strong>4 </strong>: as option 2, but in addition to the standard requirements for dampening it is further necessary to have ar least two top or  beyond-the-Standard-Model coloured particles in the final state.  Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production.  <br/>
+<input type="radio" name="4" value="3" checked="checked"><strong>3 </strong>: as option 1, but in addition to the standard requirements  for dampening it is further necessary to have ar least two top or  beyond-the-Standard-Model coloured particles in the final state.  Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production.  <br/>
+<input type="radio" name="4" value="4"><strong>4 </strong>: as option 2, but in addition to the standard requirements  for dampening it is further necessary to have ar least two top or  beyond-the-Standard-Model coloured particles in the final state.  Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> production.  <br/>
 <br/><b>Note:</b> These options only apply to the hard interaction. 
 Specifically, a "second hard" interaction would not be affected. 
 Emissions off subsequent multiparton interactions are always constrained 
@@ -640,4 +640,3 @@ fclose($handle);
 </html>
  
 <!-- Copyright (C) 2015 Torbjorn Sjostrand --> 
- 

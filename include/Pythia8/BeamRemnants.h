@@ -48,7 +48,7 @@ public:
     int iDSin) {beamAPtr = beamAPtrIn; beamBPtr = beamBPtrIn; iDS = iDSin;}
 
   // Select the flavours/kinematics/colours of the two beam remnants.
-  bool add( Event& event, int iFirst = 0, bool isDiff = false);
+  bool add( Event& event, int iFirst = 0, bool doDiffCR = false);
 
 private:
 
@@ -63,6 +63,7 @@ private:
   int    remnantMode, reconnectMode;
 
   // Information set for events.
+  bool   isDIS;
   int    nSys, oldSize, iDS;
   double eCM, sCM;
 
@@ -99,6 +100,9 @@ private:
 
   // Do the kinematics of the collision subsystems and two beam remnants.
   bool setKinematics( Event& event);
+
+  // Special beam remnant kinematics for Deeply Inelastic Scattering.
+  bool setDISKinematics( Event& event);
 
   // Update colours of outgoing particles in the event.
   void updateColEvent( Event& event, vector<pair <int,int> > colChanges);

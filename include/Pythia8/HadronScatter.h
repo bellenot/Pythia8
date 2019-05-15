@@ -203,4 +203,3 @@ private:
 } // end namespace Pythia8
 
 #endif // Pythia8_HadronScatter_H
-

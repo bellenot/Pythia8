@@ -178,6 +178,16 @@ public:
   double xfISR(int indexMPI, int idIn, double x, double Q2)
     {return xfModified( indexMPI, idIn, x, Q2);}
 
+  // Check whether x and Q2 values fall inside the fit bounds (LHAPDF6 only).
+  bool insideBounds(double x, double Q2)
+    {return pdfBeamPtr->insideBounds(x,Q2);}
+
+  // Access the running alpha_s of a PDF set (LHAPDF6 only).
+  double alphaS(double Q2) {return pdfBeamPtr->alphaS(Q2);}
+
+  // Return quark masses used in the PDF fit (LHAPDF6 only).
+  double mQuarkPDF(int idIn) {return pdfBeamPtr->mQuarkPDF(idIn);}
+
   // Decide whether chosen quark is valence, sea or companion.
   int pickValSeaComp();
 
@@ -212,7 +222,7 @@ public:
   bool isUnresolvedLepton();
 
   // Add extra remnant flavours to make valence and sea come out right.
-  bool remnantFlavours(Event& event);
+  bool remnantFlavours(Event& event, bool isDIS = false);
 
   // Correlate all initiators and remnants to make a colour singlet.
   bool remnantColours(Event& event, vector<int>& colFrom,
