@@ -39,6 +39,37 @@ but this should only affect a small part of the user code.
  
 <ul> 
  
+<li>8.210: 29 June 2015 
+<ul> 
+
+<li>Bug fix in CKKW-L merging for LHE files, such that the factorization
+  and renormalization scales are set by the <code>SCALUP</code> value if 
+the <code>muf2</code> and  <code>mur2</code> LHEF3 attributes have not
+been set, and the user has not set any explicit values. This change 
+restores the PYTHIA 8.1 behaviour.</li> 
+ 
+<li>Various technical improvements in the machinery for hard 
+diffraction.</li> 
+
+<li>Correct quark flavour selection when a string spanned directly 
+between two junctions is split up.</li> 
+ 
+<li>Check that SK-I and SK-II colour reconnection machineries only
+are called for event topologies they are set up to handle.</li> 
+
+<li>Bug fixes in partial widths of the <i>W'</i> boson. Results are
+correct when the <i>W'</i> is a simply rescaled copy of the <i>W</i>, 
+but not for more general couplings. Thanks to Mihail Chizhov. </li> 
+ 
+<li>Minor fix in default location of PDF data files in the constructors.
+No practical consequence since correct non-default values are used.</li> 
+
+<li>Tiny fix in the <code>configure</code> script, so that CXX options
+containing an equal sign are parsed correctly.</li> 
+ 
+</ul> 
+</li> 
+ 
 <li>8.209: 25 May 2015 
 <ul> 
  
@@ -83,14 +114,14 @@ compression library, see new files <code>Streams.h</code> and
 mode, which requires no Boost headers. The new configure option 
 <code>--with-lhapdf6-plugin=LHAPDF6.h</code> uses native mode, and 
 then requires Boost headers.</li> 
-
-<li>The LHAPDF6 PDF values are frozen at the respective <i>x</i>
-and <i>Q^2</i> boundary if the <i>(x, Q^2)</i> pair falls outside
-the fit region.</li>
+ 
+<li>The LHAPDF6 PDF values are frozen at the respective <i>x</i> 
+and <i>Q^2</i> boundary if the <i>(x, Q^2)</i> pair falls outside 
+the fit region.</li> 
  
 <li>New functions to extract the fit boundaries, the current 
-<i>alpha_s</i> value, and the quark masses from LHADPF6.</li>
-  
+<i>alpha_s</i> value, and the quark masses from LHADPF6.</li> 
+ 
 <li>New option in the HepMC interface, whereby PYTHIA particles can be 
 appended to an existing HepMC event. Thanks to Mikhail Kirsanov.</li> 
  
@@ -177,12 +208,12 @@ when searching for a unique flavour match.</li>
 <li>New example <code>main62.cc</code> illustrates how a user hook can 
 steer the selection of angles in a resonance decay.</li> 
  
-<li>Minor correction in the treatment of the highest multiplicity in
+<li>Minor correction in the treatment of the highest multiplicity in 
 FxFx jet matching.</li> 
-
+ 
 <li>Minor correction in the interface to aMC@NLO for dijet and 
-photon+jet processes.</li>
-
+photon+jet processes.</li> 
+ 
 <li>Inserted missing endtag that corrupted the <code>Tunes.php</code> 
 page. Thanks to Tim Martin.</li> 
  

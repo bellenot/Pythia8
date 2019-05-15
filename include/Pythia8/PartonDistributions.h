@@ -156,8 +156,9 @@ class MSTWpdf : public PDF {
 public:
 
   // Constructor.
-  MSTWpdf(int idBeamIn = 2212, int iFitIn = 1, string xmlPath = "../xmldoc/",
-    Info* infoPtr = 0) : PDF(idBeamIn) {init( iFitIn,  xmlPath, infoPtr);}
+  MSTWpdf(int idBeamIn = 2212, int iFitIn = 1, 
+    string xmlPath = "../share/Pythia8/xmldoc/", Info* infoPtr = 0) 
+    : PDF(idBeamIn) {init( iFitIn,  xmlPath, infoPtr);}
 
 private:
 
@@ -208,8 +209,9 @@ class CTEQ6pdf : public PDF {
 public:
 
   // Constructor.
-  CTEQ6pdf(int idBeamIn = 2212, int iFitIn = 1, string xmlPath = "../xmldoc/",
-    Info* infoPtr = 0) : PDF(idBeamIn) {init( iFitIn, xmlPath, infoPtr);}
+  CTEQ6pdf(int idBeamIn = 2212, int iFitIn = 1, 
+    string xmlPath = "../share/Pythia8/xmldoc/", Info* infoPtr = 0) 
+    : PDF(idBeamIn) {init( iFitIn, xmlPath, infoPtr);}
 
 private:
 
@@ -331,8 +333,8 @@ public:
 
   // Constructor.
  PomH1FitAB(int idBeamIn = 990, int iFit = 1, double rescaleIn = 1.,
-   string xmlPath = "../xmldoc/", Info* infoPtr = 0) : PDF(idBeamIn)
-   {rescale = rescaleIn; init( iFit, xmlPath, infoPtr);}
+   string xmlPath = "../share/Pythia8/xmldoc/", Info* infoPtr = 0) 
+   : PDF(idBeamIn) {rescale = rescaleIn; init( iFit, xmlPath, infoPtr);}
 
 private:
 
@@ -363,8 +365,8 @@ public:
 
   // Constructor.
   PomH1Jets(int idBeamIn = 990,  double rescaleIn = 1.,
-   string xmlPath = "../xmldoc/", Info* infoPtr = 0) : PDF(idBeamIn)
-   {rescale = rescaleIn; init( xmlPath, infoPtr);}
+   string xmlPath = "../share/Pythia8/xmldoc/", Info* infoPtr = 0) 
+   : PDF(idBeamIn) {rescale = rescaleIn; init( xmlPath, infoPtr);}
 
 private:
 
@@ -462,10 +464,11 @@ class NNPDF : public PDF {
 public:
 
   // Constructor.
-  NNPDF(int idBeamIn = 2212, int iFitIn = 1, string xmlPath = "../xmldoc/",
-    Info* infoPtr = 0) : PDF(idBeamIn), fPDFGrid(NULL), fXGrid(NULL),
-    fLogXGrid(NULL), fQ2Grid(NULL), fLogQ2Grid(NULL), fRes(NULL) {
-      init( iFitIn, xmlPath, infoPtr); };
+  NNPDF(int idBeamIn = 2212, int iFitIn = 1, 
+    string xmlPath = "../share/Pythia8/xmldoc/", Info* infoPtr = 0) 
+    : PDF(idBeamIn), fPDFGrid(NULL), fXGrid(NULL), fLogXGrid(NULL), 
+    fQ2Grid(NULL), fLogQ2Grid(NULL), fRes(NULL) {
+    init( iFitIn, xmlPath, infoPtr); };
 
   // Destructor.
   ~NNPDF() {

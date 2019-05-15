@@ -32,13 +32,13 @@ void HardDiffraction::init(Info* infoPtrIn, Settings& settingsPtrIn,
   BeamParticle* beamPomAPtrIn, BeamParticle* beamPomBPtrIn) {
 
   // Store pointers.
-  infoPtr               = infoPtrIn;
-  settings              = settingsPtrIn;
-  rndmPtr               = rndmPtrIn;
-  beamAPtr              = beamAPtrIn;
-  beamBPtr              = beamBPtrIn;
-  beamPomAPtr           = beamPomAPtrIn;
-  beamPomBPtr           = beamPomBPtrIn;
+  infoPtr     = infoPtrIn;
+  settings    = settingsPtrIn;
+  rndmPtr     = rndmPtrIn;
+  beamAPtr    = beamAPtrIn;
+  beamBPtr    = beamBPtrIn;
+  beamPomAPtr = beamPomAPtrIn;
+  beamPomBPtr = beamPomBPtrIn;
 
   // Set diffraction parameters.
   pomSet  = settings.mode("PDF:PomSet");
@@ -103,12 +103,13 @@ void HardDiffraction::init(Info* infoPtrIn, Settings& settingsPtrIn,
 //--------------------------------------------------------------------------
 
 bool HardDiffraction::isDiffractive( int iBeamIn, int partonIn, double xIn,
-  double xfIncIn) {
+  double Q2In, double xfIncIn) {
 
   // Store incoming values.
   iBeam        = iBeamIn;
   int parton   = partonIn;
   double x     = xIn;
+  double Q2    = Q2In;
   double xfInc = xfIncIn;
   tmpPDFPtr    = (iBeam == 1) ? beamPomAPtr : beamPomBPtr;
 
@@ -119,29 +120,27 @@ bool HardDiffraction::isDiffractive( int iBeamIn, int partonIn, double xIn,
     return false;
   }
 
-  // Set the multiplicative factor for overestimated function.
-  setPDFFactor(parton);
-
-  // Return if multiplicative factor = 0 => no diffraction.
-  if (PDFFactor < 0.5) return false;
-
-  // Generate an xNow according to (1 - x) / x.
-  double xNow = 0.;
-  do xNow = pow(xIn, rndmPtr->flat());
-  while ((1. - xNow) < rndmPtr->flat());
+  // Generate an xNow according to 1 / x.
+  double xNow = pow(xIn, rndmPtr->flat());
 
   // Overestimated function:
-  // int_x^1 dxP PDFFactor * (1-xP)/xP * xP f_P/p(xP) * x/xP f_i/P (x/xP, Q^2)
-  //  = PDFFactor * [log(1/x)+x-1]/(1-xP) * xP f_P/p(xP) x/xP f_i/P(x/xP, Q^2)
-  double over = PDFFactor * (log(1./x) + x - 1) / (1. - xNow)
-              * xfPom(xNow) * tmpPDFPtr->xf(parton, x / xNow, Q2);
+  // g(xP) = c/xP * x*f_{P/p}(x) * x*f_{i/P}(x, Q^2_{max})
+  // G(x)  = int_x^1 dxP g(xP)
+  //       = c * x*f_{P/p}(x) * x*f_{i/P}(x, Q^2_{max}) * log( 1/x )
+  // True function:
+  // f(xP) = 1/xP * xP *f_{P/p}(xP) * x/xP * f_{i/P}(x/xP, Q^2)
+  // F(x)  = int_x^1 dxP f(xP)
+  // We have diffraction if G(x)/xfInc > R and if f(xP)/g(xP) > R =>
+  // R < (G(x) * f(xP)) / (g(xP) * xfInc) = (log(1/x) * f(xP)) / (xP * xfInc)
+  double over = log(1./x) * xfPom(xNow) * tmpPDFPtr->xf(parton, x/xNow, Q2);
   if (over > xfInc) {
-    infoPtr->errorMsg("Warning in HardDiffraction::isDiffractive: "
-    "Weight above unity.");
+    stringstream msg;
+    msg << " Weight above unity with parton " << parton;
+    infoPtr->errorMsg("Warning in HardDiffraction::isDiffractive:", msg.str());
   }
 
   // Discard if overestimate/inclusive PDF is less than random number.
-  if (over < rndmPtr->flat() * xfInc) return false;
+  if (over/xfInc < rndmPtr->flat()) return false;
 
   // Make sure there is momentum left for beam remnant
   double m2Diff  = xNow * pow2( infoPtr->eCM());
@@ -179,45 +178,6 @@ bool HardDiffraction::isDiffractive( int iBeamIn, int partonIn, double xIn,
 
 //--------------------------------------------------------------------------
 
-// Set the multiplicative factor for overestimating function.
-
-void HardDiffraction::setPDFFactor(int partonIn) {
-
-  // Set up multiplicative factor for overestimated function.
-  PDFFactor = 3.;
-
-  // Primitive Q^2 independent parametrisation xf(x) = N_ab * x^a (1-x)^b
-  if (pomSet == 1)
-    PDFFactor = (abs(partonIn) == 4 || abs(partonIn) == 5) ? 0. : 1.;
-
-  // Pion PDF: Not allowed
-  if (pomSet == 2)
-    PDFFactor = 0.;
-
-  // The H1 2006 Fit A. NLO and Q^2 - dependent. No c, b quarks
-  else if (pomSet == 3) {
-    if (partonIn == 21) PDFFactor = 2.;
-    else if (abs(partonIn) == 4 || abs(partonIn) == 5) PDFFactor = 0.;
-  }
-
-  // The H1 2006 Fit B. NLO and Q^2 - dependent (pomSet 4) and
-  // the H1 2006 Fit B. LO and Q^2 - dependent (pomSet 6).
-  // No c, b quarks
-  else if (pomSet == 4 || pomSet == 6) {
-    if (partonIn == 21) PDFFactor = 1.;
-    else if (abs(partonIn) == 4 || abs(partonIn) == 5) PDFFactor = 0.;
-  }
-
-  // The H1 2007 Jets Fit. NLO and Q^2 - dependent. No b quarks
-  else if (pomSet == 5) {
-    if (partonIn == 21 || abs(partonIn) == 4) PDFFactor = 1.;
-    else if (abs( partonIn) == 5) PDFFactor = 0.;
-  }
-
-}
-
-//--------------------------------------------------------------------------
-
 // Return x*f_P/p( x), ie. Pomeron flux inside proton, integrated over t.
 
 double HardDiffraction::xfPom(double xIn) {
@@ -234,16 +194,15 @@ double HardDiffraction::xfPom(double xIn) {
   // => x * flux = normPom * exp(2t(2.3 + 0.25*log(1/x)))
   if (pomFlux == 1) {
     double b = b0 + ap * log(1./x);
-    xFlux = normPom * 1./(2*b) * ( exp( 2. * b * tMax) -
-      exp(2. * b * tMin));
+    xFlux = normPom/(2.*b) * ( exp(2.*b*tMax) - exp(2.*b*tMin));
   }
 
   // Bruni-Ingelman Pomeron flux, see Phys. Lett. B311 (1993) 317.
   // flux = normPom * (1/x) * (6.38 *exp(8*t)+ 0.424 * exp(3*t))
   // => x * flux = normPom * (6.38 *exp(8*t)+ 0.424 * exp(3*t))
   else if (pomFlux == 2) {
-    xFlux = normPom * (A1/a1 * (exp(a1 * tMax) - exp(a1 * tMin))
-      + A2/a2 * (exp(a2 * tMax) - exp(a2 * tMin)));
+    xFlux = normPom * (A1/a1 * (exp(a1*tMax) - exp(a1*tMin))
+      + A2/a2 * (exp(a2*tMax) - exp(a2*tMin)));
   }
 
   // Streng-Berger Pomeron flux, see Comp. Phys. Comm. 86 (1995) 147.
@@ -251,8 +210,8 @@ double HardDiffraction::xfPom(double xIn) {
   // => x * flux = normPom * x^(2 - 2*alpha(t)) * exp(-R_N^2 * t)
   else if (pomFlux == 3) {
     double b = (a1 + 2. * ap * log(1./x));
-    xFlux = normPom * exp(log(1./x) * (2. * a0 - 2.));
-    xFlux *= (exp(b * tMax) - exp(b * tMin))/b;
+    xFlux = normPom * exp(log(1./x) * (2.*a0 - 2.));
+    xFlux *= (exp(b*tMax) - exp(b*tMin))/b;
   }
 
   // Donnachie-Landshoff Pomeron flux, see Phys. Lett. B 191 (1987) 309.
@@ -262,10 +221,10 @@ double HardDiffraction::xfPom(double xIn) {
   // => x * flux = beta^2(0)/(16 pi) * x^(2 - 2*\alpha(t)) F_1(t)^2
   else if (pomFlux == 4) {
     double Q = 2. * ap * log(1./x);
-    xFlux = normPom * exp(log(1./x) * (2. * a0 - 2.));
-    xFlux *= (A1/(Q + a1) * (exp((Q + a1) * tMax) - exp((Q + a1) * tMin))
-            + A2/(Q + a2) * (exp((Q + a2) * tMax) - exp((Q + a2) * tMin))
-            + A3/(Q + a3) * (exp((Q + a3) * tMax) - exp((Q + a3) * tMin)));
+    xFlux = normPom * exp(log(1./x) * (2.*a0 - 2.));
+    xFlux *= (A1/(Q + a1) * (exp((Q + a1)*tMax) - exp((Q + a1)*tMin))
+            + A2/(Q + a2) * (exp((Q + a2)*tMax) - exp((Q + a2)*tMin))
+            + A3/(Q + a3) * (exp((Q + a3)*tMax) - exp((Q + a3)*tMin)));
   }
 
   // MBR Pomeron flux, see arXiv:1205.1446v2 [hep-ph] 2012.
@@ -275,9 +234,9 @@ double HardDiffraction::xfPom(double xIn) {
   // => x * flux = normPom * F_1(t)^2 * exp( 2*(alpha(t) -1)*log(1/x))
   else if (pomFlux == 5) {
     double Q = 2. * ap * log(1./x);
-    xFlux = normPom * exp(log(1./x) * ( 2. * a0 - 2.));
-    xFlux *= (A1/(Q + a1) * (exp((Q + a1) * tMax) - exp((Q + a1) * tMin))
-            + A2/(Q + a2) * (exp((Q + a2) * tMax) - exp((Q + a2) * tMin)));
+    xFlux = normPom * exp(log(1./x) * ( 2.*a0 - 2.));
+    xFlux *= (A1/(Q + a1) * (exp((Q + a1)*tMax) - exp((Q + a1)*tMin))
+            + A2/(Q + a2) * (exp((Q + a2)*tMax) - exp((Q + a2)*tMin)));
   }
 
   // H1 Pomeron flux, see Eur. Phys. J. C48 (2006) 715, ibid. 749
@@ -285,8 +244,8 @@ double HardDiffraction::xfPom(double xIn) {
   // => x * flux = normPom * exp(B_Pom * t) / x^(2*\alpha(t)-2)
   else if (pomFlux == 6 || pomFlux == 7) {
     double b = b0 + 2. * ap * log(1./x);
-    xFlux = normPom * exp(log(1./x) * ( 2. * a0 - 2.));
-    xFlux *= (exp(b * tMax) - exp(b * tMin))/b;
+    xFlux = normPom * exp(log(1./x) * ( 2.*a0 - 2.));
+    xFlux *= (exp(b*tMax) - exp(b*tMin))/b;
   }
 
   // Done
@@ -304,28 +263,28 @@ double HardDiffraction::pickTNow(double xIn) {
   double tMin = tLim.first;
   double tMax = tLim.second;
   double tTmp = 0.;
-  double rand = rndmPtr->flat();
+  double rndm = rndmPtr->flat();
 
-  // Schuler-Sjöstrand Pomeron flux, see Phys. Rev. D.49 (1994) 2259.
+  // Schuler-Sjöstrndm Pomeron flux, see Phys. Rev. D.49 (1994) 2259.
   if (pomFlux == 1) {
     double b = b0 + ap * log(1./xIn);
-    tTmp = log(rand * exp(b * tMin) + (1. - rand) * exp(b * tMax))/(2.*b);
+    tTmp = log( rndm*exp(2.*b*tMin) + (1. - rndm)*exp(2.*b*tMax))/(2.*b);
   }
 
   // Bruni-Ingelman Pomeron flux, see Phys. Lett. B311 (1993) 317.
   else if (pomFlux == 2) {
-    double prob1 = A1/a1 * (exp(a1 * tMax) - exp(a1 * tMin));
-    double prob2 = A2/a2 * (exp(a2 * tMax) - exp(a2 * tMin));
+    double prob1 = A1/a1 * (exp(a1*tMax) - exp(a1*tMin));
+    double prob2 = A2/a2 * (exp(a2*tMax) - exp(a2*tMin));
     prob1 /= (prob1 + prob2);
     tTmp  = (prob1 > rndmPtr->flat())
-      ? log(rand * exp(a1 * tMin) + (1. - rand) * exp(a1 * tMax))/a1
-      : log(rand * exp(a2 * tMin) + (1. - rand) * exp(a2 * tMax))/a2;
+      ? log( rndm * exp(a1*tMin) + (1. - rndm) * exp(a1*tMax))/a1
+      : log( rndm * exp(a2*tMin) + (1. - rndm) * exp(a2*tMax))/a2;
   }
 
   // Streng-Berger Pomeron flux, see Comp. Phys. Comm. 86 (1995) 147.
   else if (pomFlux == 3) {
     double b = (2. * ap * log(1./xIn) + a1);
-    tTmp = log(rand * exp(b * tMin) + (1. - rand) * exp(b * tMax))/b;
+    tTmp = log( rndm * exp(b*tMin) + (1. - rndm) * exp(b*tMax))/b;
   }
 
   // Donnachie-Landshoff Pomeron flux, see Phys. Lett. B 191 (1987) 309.
@@ -333,34 +292,34 @@ double HardDiffraction::pickTNow(double xIn) {
     double b1 = 2. * ap * log(1./xIn) + a1;
     double b2 = 2. * ap * log(1./xIn) + a2;
     double b3 = 2. * ap * log(1./xIn) + a3;
-    double prob1    = A1/b1 * (exp(b1 * tMax) - exp(b1 * tMin));
-    double prob2    = A2/b2 * (exp(b2 * tMax) - exp(b2 * tMin));
-    double prob3    = A3/b3 * (exp(b3 * tMax) - exp(b3 * tMin));
+    double prob1    = A1/b1 * ( exp(b1*tMax) - exp(b1*tMin));
+    double prob2    = A2/b2 * ( exp(b2*tMax) - exp(b2*tMin));
+    double prob3    = A3/b3 * ( exp(b3*tMax) - exp(b3*tMin));
     double rndmProb = (prob1 + prob2 + prob3) * rndmPtr->flat() ;
     if (rndmProb < prob1)
-      tTmp = log(rand * exp(b1 * tMin) + (1. - rand) * exp(b1 * tMax))/b1;
+      tTmp = log( rndm * exp(b1*tMin) + (1. - rndm) * exp(b1*tMax))/b1;
     else if ( rndmProb < prob1 + prob2)
-      tTmp = log(rand * exp(b2 * tMin) + (1. - rand) * exp(b2 * tMax))/b2;
+      tTmp = log( rndm * exp(b2*tMin) + (1. - rndm) * exp(b2*tMax))/b2;
     else
-      tTmp = log(rand * exp(b3 * tMin) + (1. - rand) * exp(b3 * tMax))/b3;
+      tTmp = log( rndm * exp(b3*tMin) + (1. - rndm) * exp(b3*tMax))/b3;
   }
 
   // MBR Pomeron flux, see arXiv:1205.1446v2 [hep-ph] 2012.
   else if (pomFlux == 5) {
     double b1 = a1 + 2. * ap * log(1./xIn);
     double b2 = a2 + 2. * ap * log(1./xIn);
-    double prob1 = A1/b1 * (exp(b1 * tMax) - exp(b1 * tMin));
-    double prob2 = A2/b2 * (exp(b2 * tMax) - exp(b2 * tMin));
+    double prob1 = A1/b1 * (exp(b1*tMax) - exp(b1*tMin));
+    double prob2 = A2/b2 * (exp(b2*tMax) - exp(b2*tMin));
     prob1 /= (prob1 + prob2);
     tTmp  = (prob1 > rndmPtr->flat())
-      ? log(rand * exp(b1 * tMin) + (1. - rand) * exp(b1 * tMax))/b1
-      : log(rand * exp(b2 * tMin) + (1. - rand) * exp(b2 * tMax))/b2;
+      ? log( rndm * exp(b1*tMin) + (1. - rndm) * exp(b1*tMax))/b1
+      : log( rndm * exp(b2*tMin) + (1. - rndm) * exp(b2*tMax))/b2;
   }
 
   // H1 Pomeron flux, see Eur. Phys. J. C48 (2006) 715, ibid. 749
   else if (pomFlux == 6 || pomFlux == 7){
     double b = b0 + 2. * ap * log(1./xIn);
-    tTmp = log(rand * exp(b * tMin) + (1. - rand) * exp(b * tMax))/b;
+    tTmp = log( rndm * exp(b*tMin) + (1. - rndm) * exp(b*tMax))/b;
   }
 
   // Done.
@@ -381,34 +340,34 @@ double HardDiffraction::xfPomWithT(double xIn, double tIn) {
   // Schuler-Sjöstrand Pomeron flux, see Phys. Rev. D.49 (1994) 2259.
   if (pomFlux == 1) {
     double b = b0 + ap * log(1./x);
-    xFlux = normPom * exp( 2. * b * t);
+    xFlux = normPom * exp( 2.*b*t);
   }
 
   // Bruni-Ingelman Pomeron flux, see Phys. Lett. B311 (1993) 317.
   else if (pomFlux == 2)
-    xFlux = normPom * (A1 * exp(a1 * t) + A2 * exp(a2 * t));
+    xFlux = normPom * (A1 * exp(a1*t) + A2 * exp(a2*t));
 
   // Streng-Berger Pomeron flux, see Comp. Phys. Comm. 86 (1995) 147.
   else if (pomFlux == 3) {
-    xFlux = normPom * exp(log(1./x) * (2. * a0 - 2.))
-      * exp(t * (a1 + 2. * ap * log(1./x)));
+    xFlux = normPom * exp(log(1./x) * (2.*a0 - 2.))
+      * exp(t * (a1 + 2.*ap*log(1./x)));
   }
 
   // Donnachie-Landshoff Pomeron flux, see Phys. Lett. B 191 (1987) 309.
   else if (pomFlux == 4){
-    double sqrF1 = A1 * exp(a1 * t) + A2 * exp(a2 * t) + A3 * exp(a3 * t);
-    xFlux = normPom * pow(x, 2. +  2. * (a0 + ap * t)) * sqrF1;
+    double sqrF1 = A1 * exp(a1*t) + A2 * exp(a2*t) + A3 * exp(a3*t);
+    xFlux = normPom * pow(x, 2. +  2. * (a0 + ap*t)) * sqrF1;
   }
 
   // MBR Pomeron flux, see arXiv:1205.1446v2 [hep-ph] 2012.
   else if (pomFlux == 5) {
-    double sqrF1 = A1 * exp(a1 * t) + A2 * exp(a2 * t);
-    xFlux = normPom * sqrF1 * exp(log(1./x) * (-2. + a0 + ap * t));
+    double sqrF1 = A1 * exp(a1*t) + A2 * exp(a2*t);
+    xFlux = normPom * sqrF1 * exp(log(1./x) * (-2. + a0 + ap*t));
   }
 
   // H1 Pomeron flux, see Eur. Phys. J. C48 (2006) 715, ibid. 749
   else if (pomFlux == 6 || pomFlux == 7)
-    xFlux = normPom * exp(b0 * t)/pow(x, 2. * (a0 + ap * t) - 2.);
+    xFlux = normPom * exp(b0*t)/pow(x, 2. * (a0 + ap*t) - 2.);
 
   // Done
   return xFlux;

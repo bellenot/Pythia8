@@ -12,7 +12,7 @@ using namespace Pythia8;
 int main() {
 
   // You can always read an plain LHE file,
-  // but you ran "./configure --with-gzip" before "make"
+  // but if you ran "./configure --with-gzip" before "make"
   // then you can also read a gzipped LHE file.
 #ifdef GZIPSUPPORT
   bool useGzip = true;

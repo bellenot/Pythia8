@@ -626,12 +626,12 @@ protected:
   double muFinME() {
     double mu = atof((char*)infoPtr->getEventAttribute("muf2",true).c_str());
     return (muFinMESave > 0.) ? muFinMESave
-      : (mu > 0.) ? infoPtr->QFac() : sqrt(mu);
+      : (mu > 0.) ? sqrt(mu) : infoPtr->QFac();
   }
   double muRinME() {
     double mu = atof((char*)infoPtr->getEventAttribute("mur2",true).c_str());
     return (muRinMESave > 0.) ? muRinMESave
-      : (mu > 0.) ? infoPtr->QRen() : sqrt(mu);
+      : (mu > 0.) ? sqrt(mu) : infoPtr->QRen();
   }
 
   //----------------------------------------------------------------------//

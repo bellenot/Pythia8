@@ -250,9 +250,10 @@ bool PartonLevel::next( Event& process, Event& event) {
   isHardDiff     = false;
   doDiffVeto     = false;
   isSetupDiff    = false;
+
   // The setup of the diffractive events can come after the first evolution.
-  int nHardDiffLoop = 1;
   doVeto         = false;
+  int nHardDiffLoop = 1;
   infoPtr->setAbortPartonLevel(false);
 
   // Mark hard diffractive events to handle CR correctly.
@@ -265,9 +266,9 @@ bool PartonLevel::next( Event& process, Event& event) {
     // If Pomeron taken from side A(=1), then B is the diffractive system
     // If Pomeron taken from side B(=2), then A is the diffractive system
     isHardDiffA = hardDiffraction.isDiffractive(2, infoPtr->id2pdf(),
-      infoPtr->x2pdf(), infoPtr->pdf2());
+      infoPtr->x2pdf(), infoPtr->Q2Fac(), infoPtr->pdf2());
     isHardDiffB = hardDiffraction.isDiffractive(1, infoPtr->id1pdf(),
-      infoPtr->x1pdf(), infoPtr->pdf1());
+      infoPtr->x1pdf(), infoPtr->Q2Fac(), infoPtr->pdf1());
 
     // No hard double diffraction yet, so randomly choose one of the sides.
     if (isHardDiffA && isHardDiffB) {
@@ -286,15 +287,12 @@ bool PartonLevel::next( Event& process, Event& event) {
 
     // Discard all nondiffractive events if only diffractive sample is wanted.
     if (!isHardDiff && (sampleTypeDiff == 3 || sampleTypeDiff == 4)) {
-      beamAPtr->clear();
-      beamBPtr->clear();
-      partonSystemsPtr->clear();
       doDiffVeto = true;
       return false;
     }
 
-    // Discard all diffractive events if only nondiffractive sample is wanted.
     if (isHardDiff) {
+      // Discard all diffractive events if only want nondiffractive sample.
       if (sampleTypeDiff == 5) {
         infoPtr->setHardDiff( false, false, false, 0., 0., 0., 0.);
         doDiffVeto = true;
@@ -1606,10 +1604,11 @@ void PartonLevel::setupHardDiff( Event& process) {
     process[hardParton[j]].daughters( daughter1, daughter2);
   }
 
+  // Search for pomeron and proton with status codes 13 (beam-inside-beam)
   int iPomeron = 0;
   int iProton  = 0;
   for (int i = 0; i < process.size(); ++i) {
-    if (process[i].id() == 990) iPomeron = i;
+    if (process[i].id() == 990 && process[i].status() == 13) iPomeron = i;
     if (abs(process[i].id()) == 2212 && process[i].status() == 13) iProton = i;
   }
 

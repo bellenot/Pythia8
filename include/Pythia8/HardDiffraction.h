@@ -42,7 +42,7 @@ public:
 
   // Main routine to check if event is from diffractive PDF.
   bool isDiffractive(int iBeamIn = 1, int partonIn = 0,
-    double xIn = 0., double xfIncIn = 0.);
+    double xIn = 0., double Q2In = 0., double xfIncIn = 0.);
 
   // Get diffractive values.
   double getXPomeronA()     {return xPomA;}
@@ -61,7 +61,7 @@ private:
 
   // Initialization and event data.
   int    pomSet, pomFlux, iBeam, idA, idB;
-  double normPom, a1, a2, a3, A1, A2, A3, a0, ap, b0, PDFFactor, Q2,
+  double normPom, a1, a2, a3, A1, A2, A3, a0, ap, b0,
          mA, mB, s, s1, s2, s3, s4,
          xPomA, xPomB, tPomA, tPomB, thetaPomA, thetaPomB;
 
@@ -82,9 +82,6 @@ private:
 
   // Pointer to temporary Pomeron PDF.
   BeamParticle*   tmpPDFPtr;
-
-  // Set up multiplicative factor depending on parton.
-  void setPDFFactor(int partonIn = 0);
 
   // Return Pomeron flux inside proton, integrated over t.
   double xfPom(double xIn = 0.);

@@ -1607,15 +1607,15 @@ void ResonanceWprime::calcWidth(bool) {
   // Decay to quarks involves colour factor and CKM matrix.
   if (id1Abs > 0 && id1Abs < 9) widNow
     = preFac * ps * 0.5 * ((vqWp*vqWp + aqWp * aqWp)
-    + 6. * (vqWp*vqWp - aqWp * aqWp) * sqrt(mr1 *mr2))
     * (1. - 0.5 * (mr1 + mr2) - 0.5 * pow2(mr1 - mr2))
+    + 3. * (vqWp*vqWp - aqWp * aqWp) * sqrt(mr1 * mr2))
     * colQ * couplingsPtr->V2CKMid(id1Abs, id2Abs);
 
   // Decay to leptons simpler.
   else if (id1Abs > 10 && id1Abs < 19) widNow
-    = preFac * ps * 0.5 * ((vlWp*vqWp + alWp * aqWp)
-    + 6. * (vlWp*vqWp - alWp * aqWp) * sqrt(mr1 *mr2))
-    * (1. - 0.5 * (mr1 + mr2) - 0.5 * pow2(mr1 - mr2));
+    = preFac * ps * 0.5 * ((vlWp*vlWp + alWp * alWp)
+    * (1. - 0.5 * (mr1 + mr2) - 0.5 * pow2(mr1 - mr2))
+    + 3. * (vlWp*vlWp - alWp * alWp) * sqrt(mr1 * mr2));
 
   // Decay to W^+- Z^0.
   else if (id1Abs == 24 && id2Abs == 23) widNow

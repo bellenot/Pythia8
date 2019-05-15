@@ -156,7 +156,7 @@ bool JunctionSplitting::splitJunGluons(Event& event,
 
       // Pick a new quark at random; for simplicity no diquarks.
       int colQ = 0, acolQ = 0;
-      int idQ = int(rndmPtr->flat() * 3) + 1;
+      int idQ = flavSel.pickLightQ();
 
       // If a single gluon in between the two junctions, change it to a
       // quark-anti quark system.

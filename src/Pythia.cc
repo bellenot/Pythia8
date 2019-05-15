@@ -23,7 +23,7 @@ namespace Pythia8 {
 
 // The current Pythia (sub)version number, to agree with XML version.
 const double Pythia::VERSIONNUMBERHEAD = PYTHIA_VERSION;
-const double Pythia::VERSIONNUMBERCODE = 8.209;
+const double Pythia::VERSIONNUMBERCODE = 8.210;
 
 //--------------------------------------------------------------------------
 
@@ -1321,12 +1321,21 @@ bool Pythia::forceHadronLevel(bool findJunctions) {
   // Allow for CR before the hadronization.
   if (forceHadronLevelCR) {
 
-    // Setup parton system for colour reconnection.
-    partonSystems.clear();
-    partonSystems.addSys();
-    partonSystems.addSys();
-    for(int i = 5;i < event.size();++i)
-      partonSystems.addOut(event[i].mother1() - 3,i);
+    // Setup parton system for SK-I and SK-II colour reconnection.
+    // Require all final state particles to have the Ws as mothers.
+    if (reconnectMode == 3 || reconnectMode == 4) {
+      partonSystems.clear();
+      partonSystems.addSys();
+      partonSystems.addSys();
+      for (int i = 5;i < event.size();++i) {
+        if (event[i].mother1() - 3 < 0 || event[i].mother1() - 3 > 1) {
+          info.errorMsg("Error from Pythia::forceHadronLevel: "
+            " Event is not setup correctly for SK-I or SK-II CR");
+          return false;
+        }
+        partonSystems.addOut(event[i].mother1() - 3,i);
+      }
+    }
 
     // save spare copy of event in case of failure.
     Event spareEvent = event;

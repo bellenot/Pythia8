@@ -190,10 +190,10 @@ for VAR in "$@"; do
 echo "# PYTHIA configuration file." > $CFG_FILE
 echo "# Generated on" `date` "with the user supplied options:" >> $CFG_FILE
 for VAR in "$@"; do
-    if [[ $OPTIONS =~ (^| )${VAR%=*}($| ) ]]; then echo "# $VAR" >> $CFG_FILE;
+    if [[ $OPTIONS =~ (^| )${VAR%%=*}($| ) ]]; then echo "# $VAR" >> $CFG_FILE;
     else echo "WARNING: Ignoring invalid option \"${VAR%=*}\"."; continue; fi;
     VAR=${VAR#--with-}; VAR=${VAR#--};
-    KEY=${VAR%=*}; VAL=${VAR#$KEY}; VAL=${VAL#*=}; KEY=${KEY//"-"/"_"};
+    KEY=${VAR%%=*}; VAL=${VAR#$KEY}; VAL=${VAL#*=}; KEY=${KEY//"-"/"_"};
     KEY=$(echo $KEY | awk '{print toupper($0)}');  VAL=$(eval echo $VAL)
     eval $KEY=\"$VAL\"; eval ${KEY}_SET=true; done
 
