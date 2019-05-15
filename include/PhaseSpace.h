@@ -61,11 +61,11 @@ public:
   virtual bool setupSampling() = 0; 
 
   // A pure virtual method, wherein a trial event kinematics 
-  // is to be selected in the derived class
+  // is to be selected in the derived class.
   virtual bool trialKin(bool inEvent = true, bool repeatSame = false) = 0; 
 
   // A pure virtual method, wherein the accepted event kinematics 
-  // is to be constructed in the derived class
+  // is to be constructed in the derived class.
   virtual bool finalKin() = 0; 
 
   // Allow for nonisotropic decays when ME's available.

@@ -133,7 +133,15 @@ done with the help of the methods described below.
 <p/> <li>
 Between the creation of the <code>Pythia</code> object and the 
 <code>init</code> call for it, you may use several alternative 
-methods to modify some of the default values. 
+methods to modify some of the default values. The same variable 
+can be changed several times. If so, it is the last read value 
+that counts. The two special 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>Tune:ee</a></code> and 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='Tunes.php?filepath=".$filepath."' target='page'>";?>Tune:pp</a></code> 
+modes are expanded to change several settings in one go, but these obey 
+the same ordering rules.
 
 <p/> 
 a) Inside your main program you can directly set values with

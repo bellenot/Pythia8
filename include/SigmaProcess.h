@@ -92,7 +92,7 @@ public:
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, CoupSM* coupSMPtrIn, 
     SigmaTotal* sigmaTotPtrIn = 0, CoupSUSY* coupSUSYPtrIn = 0, 
-    SusyLesHouches* slhaPtrIn = 0);
+    SusyLesHouches* slhaPtrIn = 0); 
 
   // Store or replace Les Houches pointer.
   void setLHAPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;}  
@@ -134,7 +134,7 @@ public:
 
   // Wrapper to sigmaHat, to (a) store current incoming flavours and 
   // (b) convert from GeV^-2 to mb where required.
-  // For 2 -> 2 also (c) convert from from |M|^2 to d(sigmaHat)/d(tHat).
+  // For 2 -> 1/2 also (c) convert from from |M|^2 to d(sigmaHat)/d(tHat).
   virtual double sigmaHatWrap(int id1in = 0, int id2in = 0) {
     id1 = id1in; id2 = id2in; 
     return ( convert2mb() ? CONVERT2MB * sigmaHat() : sigmaHat() ); }
@@ -254,7 +254,8 @@ protected:
   SigmaProcess() {for (int i = 0; i < 6; ++i) mSave[i] = 0.;}
 
   // Constants: could only be changed in the code itself.
-  static const double CONVERT2MB, MASSMARGIN;
+  static const double CONVERT2MB, MASSMARGIN, COMPRELERR;
+  static const int    NCOMPSTEP;
 
   // Pointer to various information on the generation.
   Info*           infoPtr;
@@ -290,8 +291,8 @@ protected:
   // Initialization data, normally only set once.
   int    nQuarkIn, renormScale1, renormScale2, renormScale3, renormScale3VV, 
          factorScale1, factorScale2, factorScale3, factorScale3VV;
-  double Kfactor, renormMultFac, renormFixScale, factorMultFac, 
-         factorFixScale;
+  double Kfactor, mcME, mbME, mmuME, mtauME, renormMultFac, renormFixScale, 
+         factorMultFac, factorFixScale;
 
   // CP violation parameters for Higgs sector, normally only set once.
   int    higgsH1parity, higgsH2parity, higgsA3parity;
@@ -316,6 +317,9 @@ protected:
     inPair.push_back(InPair(idAIn, idBIn));}
   int sizePair() const {return inPair.size();}
 
+  // Store common subprocess kinematics quantities.
+  double mH, sH, sH2;
+
   // Store Q2 renormalization and factorization scales, and related values.
   double Q2RenSave, alpEM, alpS, Q2FacSave, x1Save, x2Save, pdf1Save, 
          pdf2Save, sigmaSumSave;
@@ -326,7 +330,10 @@ protected:
   double   mSave[6], cosTheta, sinTheta, phi, sHMass, sHBeta, pT2Mass, pTFin;
   Particle parton[6];
 
-  // Store modified masses and four-vectors intended for matrix elements.
+  // Calculate and store all modified masses and four-vectors 
+  // intended for matrix elements. Return false if failed.
+  virtual bool setupForME() {return true;}
+  bool     setupForMEin();
   double   mME[5];
   Vec4     pME[5];
 
@@ -417,6 +424,11 @@ public:
   // Evaluate sigmaHat(sHat) for resolved 2 -> 1 processes. 
   virtual double sigmaHat() {return 0.;}
 
+  // Wrapper to sigmaHat, to (a) store current incoming flavours, 
+  // (b) convert from GeV^-2 to mb where required, and
+  // (c) convert from |M|^2 to d(sigmaHat)/d(tHat) where required.
+  virtual double sigmaHatWrap(int id1in = 0, int id2in = 0); 
+
 protected:
 
   // Constructor.
@@ -425,8 +437,8 @@ protected:
   // Store kinematics and set scales for resolved 2 -> 1 process.
   virtual void   store1Kin( double x1in, double x2in, double sHin);
 
-  // Store subprocess kinematics quantities.
-  double mH, sH, sH2;
+  // Calculate modified masses and four-vectors for matrix elements.
+  virtual bool   setupForME();
 
 };
  
@@ -463,7 +475,7 @@ public:
 
   // Wrapper to sigmaHat, to (a) store current incoming flavours, 
   // (b) convert from GeV^-2 to mb where required, and
-  // (c) convert from from |M|^2 to d(sigmaHat)/d(tHat) where required.
+  // (c) convert from |M|^2 to d(sigmaHat)/d(tHat) where required.
   virtual double sigmaHatWrap(int id1in = 0, int id2in = 0) {
     id1 = id1in; id2 = id2in; double sigmaTmp = sigmaHat(); 
     if (convertM2())  sigmaTmp /= 16. * M_PI * sH2; 
@@ -486,8 +498,11 @@ protected:
     double tHin, double uHin, double alpSin, double alpEMin, 
     bool needMasses, double m3in, double m4in);
 
+  // Calculate modified masses and four-vectors for matrix elements.
+  virtual bool   setupForME();
+
   // Store subprocess kinematics quantities.
-  double mH, sH, tH, uH, sH2, tH2, uH2, m3, s3, m4, s4, pT2, runBW3, runBW4;
+  double tH, uH, tH2, uH2, m3, s3, m4, s4, pT2, runBW3, runBW4;
 
 };
  
@@ -526,8 +541,11 @@ protected:
     Vec4 p3cmIn, Vec4 p4cmIn, Vec4 p5cmIn, double m3in, double m4in, 
     double m5in, double runBW3in, double runBW4in, double runBW5in);
 
+  // Calculate modified masses and four-vectors for matrix elements.
+  virtual bool   setupForME();
+
   // Store subprocess kinematics quantities.
-  double mH, sH, m3, s3, m4, s4, m5, s5, runBW3, runBW4, runBW5;
+  double m3, s3, m4, s4, m5, s5, runBW3, runBW4, runBW5;
   Vec4   p3cm, p4cm, p5cm;
 
 };

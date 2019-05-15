@@ -135,6 +135,12 @@ bool Settings::init(string startFile, bool append, ostream& os) {
     };
   };
 
+  // Set up default e+e- and pp tunes, if nonvanishing.
+  int eeTune = mode("Tune:ee");
+  if (eeTune != 0) initTuneEE( eeTune);
+  int ppTune = mode("Tune:pp");
+  if (ppTune != 0) initTunePP( ppTune);
+
   // Done.
   if (nError > 0) return false;
   isInit = true;
@@ -562,12 +568,16 @@ void Settings::flag(string keyIn, bool nowIn) {
 
 void Settings:: mode(string keyIn, int nowIn) { 
   if (isMode(keyIn)) { 
-    Mode& modeNow = modes[toLower(keyIn)];
+    string keyLower = toLower(keyIn);
+    Mode& modeNow = modes[keyLower];
     if (modeNow.hasMin && nowIn < modeNow.valMin) 
       modeNow.valNow = modeNow.valMin; 
     else if (modeNow.hasMax && nowIn > modeNow.valMax) 
       modeNow.valNow = modeNow.valMax;
     else modeNow.valNow = nowIn; 
+    // Tune:ee and Tune:pp each trigger a whole set of changes.
+    if (keyLower == "tune:ee") initTuneEE( modeNow.valNow);
+    if (keyLower == "tune:pp") initTunePP( modeNow.valNow); 
   } 
 } 
 
@@ -584,6 +594,356 @@ void Settings::parm(string keyIn, double nowIn) {
 
 void Settings::word(string keyIn, string nowIn) { 
     if (isWord(keyIn)) words[toLower(keyIn)].valNow = nowIn; 
+}
+
+//--------------------------------------------------------------------------
+
+// Change current value, disregarding limits.
+  
+void Settings::forceMode(string keyIn, int nowIn) { 
+  if (isMode(keyIn)) {
+    string keyLower = toLower(keyIn);
+    Mode& modeNow   = modes[keyLower];
+    modeNow.valNow  = nowIn; 
+    // Tune:ee and Tune:pp each trigger a whole set of changes.
+    if (keyLower == "tune:ee") initTuneEE( modeNow.valNow);
+    if (keyLower == "tune:pp") initTunePP( modeNow.valNow); 
+  }
+}
+
+void Settings::forceParm(string keyIn, double nowIn) { 
+  if (isParm(keyIn)) parms[toLower(keyIn)].valNow = nowIn; 
+}
+
+//--------------------------------------------------------------------------
+     
+// Restore current value to default.
+ 
+void Settings::resetFlag(string keyIn) {
+  if (isFlag(keyIn)) flags[toLower(keyIn)].valNow 
+    = flags[toLower(keyIn)].valDefault ; 
+}
+  
+void Settings::resetMode(string keyIn) {
+  string keyLower = toLower(keyIn);
+  if (isMode(keyIn)) modes[keyLower].valNow 
+    = modes[toLower(keyIn)].valDefault ; 
+
+  // For Tune:ee must also restore variables involved in tune.
+  if (keyLower == "tune:ee") {
+    resetParm("StringFlav:probStoUD");
+    resetParm("StringFlav:probQQtoQ");
+    resetParm("StringFlav:probSQtoQQ");
+    resetParm("StringFlav:probQQ1toQQ0");
+    resetParm("StringFlav:mesonUDvector");
+    resetParm("StringFlav:mesonSvector");
+    resetParm("StringFlav:mesonCvector");
+    resetParm("StringFlav:mesonBvector");
+    resetParm("StringFlav:etaSup");
+    resetParm("StringFlav:etaPrimeSup");
+    resetParm("StringFlav:popcornSpair");  
+    resetParm("StringFlav:popcornSmeson");  
+    resetParm("StringZ:aLund");
+    resetParm("StringZ:bLund");  
+    resetParm("StringZ:rFactB");  
+    resetParm("StringPT:sigma");  
+    resetParm("TimeShower:alphaSvalue");  
+    resetParm("TimeShower:pTmin");  
+    resetParm("TimeShower:pTminChgQ");
+  }  
+
+  // For Tune:pp must also restore variables involved in tune.
+  if (keyLower == "tune:pp") {
+    resetMode("PDF:pSet");  
+    resetParm("SigmaProcess:alphaSvalue");  
+    resetFlag("SigmaDiffractive:dampen");  
+    resetFlag("TimeShower:dampenBeamRecoil");  
+    resetFlag("TimeShower:phiPolAsym");  
+    resetParm("SpaceShower:alphaSvalue");  
+    resetFlag("SpaceShower:samePTasMI");  
+    resetParm("SpaceShower:pT0Ref");  
+    resetParm("SpaceShower:ecmRef");  
+    resetParm("SpaceShower:ecmPow");  
+    resetFlag("SpaceShower:rapidityOrder");  
+    resetFlag("SpaceShower:phiPolAsym");  
+    resetFlag("SpaceShower:phiIntAsym");  
+    resetParm("MultipleInteractions:alphaSvalue");   
+    resetParm("MultipleInteractions:pT0Ref");  
+    resetParm("MultipleInteractions:ecmRef");  
+    resetParm("MultipleInteractions:ecmPow");  
+    resetMode("MultipleInteractions:bProfile");  
+    resetParm("BeamRemnants:primordialKTsoft");  
+    resetParm("BeamRemnants:primordialKThard");  
+    resetParm("BeamRemnants:halfScaleForKT");  
+    resetParm("BeamRemnants:halfMassForKT");  
+    resetParm("BeamRemnants:reconnectRange"); 
+  }  
+
+}
+
+void Settings::resetParm(string keyIn) {
+  if (isParm(keyIn)) parms[toLower(keyIn)].valNow 
+    = parms[toLower(keyIn)].valDefault ; 
+}
+
+void Settings::resetWord(string keyIn) {
+  if (isWord(keyIn)) words[toLower(keyIn)].valNow 
+    = words[toLower(keyIn)].valDefault ; 
+}
+
+//--------------------------------------------------------------------------
+
+// Set the values related to a tune of e+e- data, 
+// i.e. mainly for final-state radiation and hadronization.
+
+void Settings::initTuneEE( int eeTune) {
+
+  // Old flavour and FSR defaults carried over from very old JETSET tune,
+  // only with alphaS roughly tuned for "new" pT-ordered shower.
+  if (eeTune == 1) { 
+    parm("StringFlav:probStoUD",     0.30  );
+    parm("StringFlav:probQQtoQ",     0.10  );
+    parm("StringFlav:probSQtoQQ",    0.40  );
+    parm("StringFlav:probQQ1toQQ0",  0.05  );
+    parm("StringFlav:mesonUDvector", 1.00  );
+    parm("StringFlav:mesonSvector",  1.50  );
+    parm("StringFlav:mesonCvector",  2.50  );
+    parm("StringFlav:mesonBvector",  3.00  );
+    parm("StringFlav:etaSup",        1.00  );
+    parm("StringFlav:etaPrimeSup",   0.40  );
+    parm("StringFlav:popcornSpair",  0.50  );  
+    parm("StringFlav:popcornSmeson", 0.50  );  
+    parm("StringZ:aLund",            0.30  );
+    parm("StringZ:bLund",            0.58  );  
+    parm("StringZ:rFactB",           1.00  );  
+    parm("StringPT:sigma",           0.36  );  
+    parm("TimeShower:alphaSvalue",   0.137 );  
+    parm("TimeShower:pTmin",         0.5   );  
+    parm("TimeShower:pTminChgQ",     0.5   );  
+  }
+
+  // Marc Montull's tune to particle composition at LEP1 (August 2007).
+  else if (eeTune == 2) {  
+    parm("StringFlav:probStoUD",     0.22  );
+    parm("StringFlav:probQQtoQ",     0.08  );
+    parm("StringFlav:probSQtoQQ",    0.75  );
+    parm("StringFlav:probQQ1toQQ0",  0.025 );
+    parm("StringFlav:mesonUDvector", 0.5   );
+    parm("StringFlav:mesonSvector",  0.6   );
+    parm("StringFlav:mesonCvector",  1.5   );
+    parm("StringFlav:mesonBvector",  2.5   );
+    parm("StringFlav:etaSup",        0.60  );
+    parm("StringFlav:etaPrimeSup",   0.15  );
+    parm("StringFlav:popcornSpair",  1.0   );
+    parm("StringFlav:popcornSmeson", 1.0   );
+    parm("StringZ:aLund",            0.76  );
+    parm("StringZ:bLund",            0.58  );   // kept fixed
+    parm("StringZ:rFactB",           1.00  );   // kept fixed
+    parm("StringPT:sigma",           0.36  );   // kept fixed
+    parm("TimeShower:alphaSvalue",   0.137 );   // kept fixed 
+    parm("TimeShower:pTmin",         0.5   );   // kept fixed 
+    parm("TimeShower:pTminChgQ",     0.5   );   // kept fixed
+  }
+
+  // Full e+e- tune of flavours and FSR to LEP1 data within the 
+  // Rivet + Professor framework, by Hendrik Hoeth (June 2009).
+  else if (eeTune == 3) {  
+    parm("StringFlav:probStoUD",     0.19  );
+    parm("StringFlav:probQQtoQ",     0.09  );
+    parm("StringFlav:probSQtoQQ",    1.00  );
+    parm("StringFlav:probQQ1toQQ0",  0.027 );
+    parm("StringFlav:mesonUDvector", 0.62  );
+    parm("StringFlav:mesonSvector",  0.725 );
+    parm("StringFlav:mesonCvector",  1.06  );
+    parm("StringFlav:mesonBvector",  3.0   );
+    parm("StringFlav:etaSup",        0.63  );
+    parm("StringFlav:etaPrimeSup",   0.12  );
+    parm("StringFlav:popcornSpair",  0.5   );   // kept fixed
+    parm("StringFlav:popcornSmeson", 0.5   );   // kept fixed
+    parm("StringZ:aLund",            0.3   );   // kept fixed
+    parm("StringZ:bLund",            0.8   );  
+    parm("StringZ:rFactB",           0.67  );  
+    parm("StringPT:sigma",           0.304 );  
+    parm("TimeShower:alphaSvalue",   0.1383);  
+    parm("TimeShower:pTmin",         0.4   );   // kept fixed (near limit) 
+    parm("TimeShower:pTminChgQ",     0.4   );   // kept same as pTmin
+  }
+  
+}
+
+//--------------------------------------------------------------------------
+
+// Set the values related to a tune of pp/ppbar data, 
+// i.e. mainly for initial-state radiation and multiple interactions.
+
+void Settings::initTunePP( int ppTune) {
+
+  // Old ISR and MI defaults from early and primitive comparisons with data.
+  if (ppTune == 1) {
+    mode("PDF:pSet",                         2     );  
+    parm("SigmaProcess:alphaSvalue",         0.1265);  
+    flag("SigmaDiffractive:dampen",          false );  
+    flag("TimeShower:dampenBeamRecoil",      false );  
+    flag("TimeShower:phiPolAsym",            false );  
+    parm("SpaceShower:alphaSvalue",          0.127 );  
+    flag("SpaceShower:samePTasMI",           true  );  
+    parm("SpaceShower:pT0Ref",               2.2   );  
+    parm("SpaceShower:ecmRef",               1800.0);  
+    parm("SpaceShower:ecmPow",               0.16  );  
+    flag("SpaceShower:rapidityOrder",        false );  
+    flag("SpaceShower:phiPolAsym",           false );  
+    flag("SpaceShower:phiIntAsym",           false );  
+    parm("MultipleInteractions:alphaSvalue", 0.127 );   
+    parm("MultipleInteractions:pT0Ref",      2.15  );  
+    parm("MultipleInteractions:ecmRef",      1800. );  
+    parm("MultipleInteractions:ecmPow",      0.16  );  
+    mode("MultipleInteractions:bProfile",    2     );  
+    parm("BeamRemnants:primordialKTsoft",    0.4   );  
+    parm("BeamRemnants:primordialKThard",    2.1   );  
+    parm("BeamRemnants:halfScaleForKT",      7.0   );  
+    parm("BeamRemnants:halfMassForKT",       2.0   );  
+    parm("BeamRemnants:reconnectRange",      2.5   ); 
+  }
+  
+  // "Tune 1" simple first tune by Peter Skands to ISR and MI, July 2009.
+  else if (ppTune == 2) {
+    mode("PDF:pSet",                         2     );  
+    parm("SigmaProcess:alphaSvalue",         0.1265);   
+    flag("SigmaDiffractive:dampen",          false );  
+    flag("TimeShower:dampenBeamRecoil",      false );  
+    flag("TimeShower:phiPolAsym",            false );  
+    parm("SpaceShower:alphaSvalue",          0.137 );  
+    flag("SpaceShower:samePTasMI",           false );  
+    parm("SpaceShower:pT0Ref",               2.0   );  
+    parm("SpaceShower:ecmRef",               1800.0);  
+    parm("SpaceShower:ecmPow",               0.0   );  
+    flag("SpaceShower:rapidityOrder",        false );  
+    flag("SpaceShower:phiPolAsym",           false );  
+    flag("SpaceShower:phiIntAsym",           false );  
+    parm("MultipleInteractions:alphaSvalue", 0.127 );   
+    parm("MultipleInteractions:pT0Ref",      2.25  );  
+    parm("MultipleInteractions:ecmRef",      1800. );  
+    parm("MultipleInteractions:ecmPow",      0.24  );  
+    mode("MultipleInteractions:bProfile",    1     );  
+    parm("BeamRemnants:primordialKTsoft",    0.5   );  
+    parm("BeamRemnants:primordialKThard",    2.0   );  
+    parm("BeamRemnants:halfScaleForKT",      1.0   );  
+    parm("BeamRemnants:halfMassForKT",       1.0   );  
+    parm("BeamRemnants:reconnectRange",      10.0  );  
+  }
+  
+  // Draft Tune 2C, July 2010.
+  else if (ppTune == 3) {
+    mode("PDF:pSet",                         8     );  
+    parm("SigmaProcess:alphaSvalue",         0.135 );  
+    flag("SigmaDiffractive:dampen",          false );  
+    flag("TimeShower:dampenBeamRecoil",      true  );  
+    flag("TimeShower:phiPolAsym",            true  );  
+    parm("SpaceShower:alphaSvalue",          0.137 );  
+    flag("SpaceShower:samePTasMI",           false );  
+    parm("SpaceShower:pT0Ref",               2.0   );  
+    parm("SpaceShower:ecmRef",               1800.0);  
+    parm("SpaceShower:ecmPow",               0.0   );  
+    flag("SpaceShower:rapidityOrder",        true  );  
+    flag("SpaceShower:phiPolAsym",           true  );  
+    flag("SpaceShower:phiIntAsym",           true  );  
+    parm("MultipleInteractions:alphaSvalue", 0.135 );   
+    parm("MultipleInteractions:pT0Ref",      2.32  );  
+    parm("MultipleInteractions:ecmRef",      1800. );  
+    parm("MultipleInteractions:ecmPow",      0.21  );  
+    mode("MultipleInteractions:bProfile",    3     );  
+    parm("MultipleInteractions:expPow",      1.6   );  
+    parm("BeamRemnants:primordialKTsoft",    0.5   );  
+    parm("BeamRemnants:primordialKThard",    2.0   );  
+    parm("BeamRemnants:halfScaleForKT",      1.0   );  
+    parm("BeamRemnants:halfMassForKT",       1.0   );  
+    parm("BeamRemnants:reconnectRange",      3.0   );  
+  }
+  
+  // Draft Tune 2M, July 2010.
+  else if (ppTune == 4) {
+    mode("PDF:pSet",                         4     );  
+    parm("SigmaProcess:alphaSvalue",         0.1265);  
+    flag("SigmaDiffractive:dampen",          false );  
+    flag("TimeShower:dampenBeamRecoil",      true  );  
+    flag("TimeShower:phiPolAsym",            true  );  
+    parm("SpaceShower:alphaSvalue",          0.130 );  
+    flag("SpaceShower:samePTasMI",           false );  
+    parm("SpaceShower:pT0Ref",               2.0   );  
+    parm("SpaceShower:ecmRef",               1800.0);  
+    parm("SpaceShower:ecmPow",               0.0   );  
+    flag("SpaceShower:rapidityOrder",        true  );  
+    flag("SpaceShower:phiPolAsym",           true  );  
+    flag("SpaceShower:phiIntAsym",           true  );  
+    parm("MultipleInteractions:alphaSvalue", 0.127 );   
+    parm("MultipleInteractions:pT0Ref",      2.455 );  
+    parm("MultipleInteractions:ecmRef",      1800. );  
+    parm("MultipleInteractions:ecmPow",      0.26  );  
+    mode("MultipleInteractions:bProfile",    3     );  
+    parm("MultipleInteractions:expPow",      1.15  );  
+    parm("BeamRemnants:primordialKTsoft",    0.5   );  
+    parm("BeamRemnants:primordialKThard",    2.0   );  
+    parm("BeamRemnants:halfScaleForKT",      1.0   );  
+    parm("BeamRemnants:halfMassForKT",       1.0   );  
+    parm("BeamRemnants:reconnectRange",      3.0   );  
+  }
+ 
+  // Draft Tune 3C, July 2010.
+  else if (ppTune == 5) {
+    mode("PDF:pSet",                         8     );  
+    parm("SigmaProcess:alphaSvalue",         0.135 );  
+    flag("SigmaDiffractive:dampen",          true );  
+    flag("TimeShower:dampenBeamRecoil",      true  );  
+    flag("TimeShower:phiPolAsym",            true  );  
+    parm("SpaceShower:alphaSvalue",          0.130 );  
+    flag("SpaceShower:samePTasMI",           false );  
+    parm("SpaceShower:pT0Ref",               2.0   );  
+    parm("SpaceShower:ecmRef",               1800.0);  
+    parm("SpaceShower:ecmPow",               0.0   );  
+    flag("SpaceShower:rapidityOrder",        true  );  
+    flag("SpaceShower:phiPolAsym",           true  );  
+    flag("SpaceShower:phiIntAsym",           true  );  
+    parm("MultipleInteractions:alphaSvalue", 0.135 );   
+    parm("MultipleInteractions:pT0Ref",      2.10  );  
+    parm("MultipleInteractions:ecmRef",      1800. );  
+    parm("MultipleInteractions:ecmPow",      0.18  );  
+    mode("MultipleInteractions:bProfile",    3     );  
+    parm("MultipleInteractions:expPow",      1.6   );  
+    parm("BeamRemnants:primordialKTsoft",    0.5   );  
+    parm("BeamRemnants:primordialKThard",    2.0   );  
+    parm("BeamRemnants:halfScaleForKT",      1.0   );  
+    parm("BeamRemnants:halfMassForKT",       1.0   );  
+    parm("BeamRemnants:reconnectRange",      3.0   );  
+  }
+  
+  // Draft Tune 3M, July 2010.
+  else if (ppTune == 6) {
+    mode("PDF:pSet",                         4     );  
+    parm("SigmaProcess:alphaSvalue",         0.1265);  
+    flag("SigmaDiffractive:dampen",          true );  
+    flag("TimeShower:dampenBeamRecoil",      true  );  
+    flag("TimeShower:phiPolAsym",            true  );  
+    parm("SpaceShower:alphaSvalue",          0.130 );  
+    flag("SpaceShower:samePTasMI",           false );  
+    parm("SpaceShower:pT0Ref",               2.0   );  
+    parm("SpaceShower:ecmRef",               1800.0);  
+    parm("SpaceShower:ecmPow",               0.0   );  
+    flag("SpaceShower:rapidityOrder",        true  );  
+    flag("SpaceShower:phiPolAsym",           true  );  
+    flag("SpaceShower:phiIntAsym",           true  );  
+    parm("MultipleInteractions:alphaSvalue", 0.127 );   
+    parm("MultipleInteractions:pT0Ref",      2.20  );  
+    parm("MultipleInteractions:ecmRef",      1800. );  
+    parm("MultipleInteractions:ecmPow",      0.20  );  
+    mode("MultipleInteractions:bProfile",    3     );  
+    parm("MultipleInteractions:expPow",      1.15  );  
+    parm("BeamRemnants:primordialKTsoft",    0.5   );  
+    parm("BeamRemnants:primordialKThard",    2.0   );  
+    parm("BeamRemnants:halfScaleForKT",      1.0   );  
+    parm("BeamRemnants:halfMassForKT",       1.0   );  
+    parm("BeamRemnants:reconnectRange",      3.0   );  
+  }
+
 }
 
 //--------------------------------------------------------------------------

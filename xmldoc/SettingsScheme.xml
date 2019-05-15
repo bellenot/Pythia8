@@ -106,7 +106,13 @@ done with the help of the methods described below.
 <p/> <li>
 Between the creation of the <code>Pythia</code> object and the 
 <code>init</code> call for it, you may use several alternative 
-methods to modify some of the default values. 
+methods to modify some of the default values. The same variable 
+can be changed several times. If so, it is the last read value 
+that counts. The two special 
+<code><aloc href="Tunes">Tune:ee</aloc></code> and 
+<code><aloc href="Tunes">Tune:pp</aloc></code> 
+modes are expanded to change several settings in one go, but these obey 
+the same ordering rules.
 
 <p/> 
 a) Inside your main program you can directly set values with

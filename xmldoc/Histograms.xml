@@ -213,6 +213,17 @@ be a file of its own. The table may be useful for plotting e.g. with
 Gnuplot.
 </methodmore>
 
+<method name="friend void table(const Hist& h1, const Hist& h2, 
+ostream& os = cout)">
+</method>
+<methodmore name="friend void table(const Hist& h1, const Hist& h2, 
+string fileName)">
+print a three-column table, where the first column gives the center of 
+each bin and the second and third ones the corresponding bin contents
+of the two histograms. Only works if the two histograms have the same
+x axis (within a tiny tolarance), else nothing will be done.
+</methodmore>
+
 <method name="double Hist::getBinContent(int iBin)">
 return the value in bin <code>iBin</code>, ranging from 1 through 
 <code>numberOfBins</code>, with <code>0</code> for underflow and 
@@ -234,6 +245,11 @@ by default take 10-logarithm of current contents bin by bin. With
 optional argument <code>false</code> instead take <ei>e</ei>-logarithm 
 of contents bin by bin. If to be used, then right before the
 histogram is output. 
+</method>
+
+<method name="void Hist::takeSqrt()">
+take square root of current contents bin by bin, with negative contents 
+set to zero.
 </method>
 
 <method name="Hist& Hist::operator+=(const Hist& h)">

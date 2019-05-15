@@ -174,24 +174,14 @@ public:
   void word(string keyIn, string nowIn); 
 
   // Change current value, disregarding limits.
-  void forceMode(string keyIn, int nowIn) { 
-    if (isMode(keyIn)) modes[toLower(keyIn)].valNow = nowIn; }
-  void forceParm(string keyIn, double nowIn) { 
-    if (isParm(keyIn)) parms[toLower(keyIn)].valNow = nowIn; }
+  void forceMode(string keyIn, int nowIn);
+  void forceParm(string keyIn, double nowIn);
      
   // Restore current value to default. 
-  void resetFlag(string keyIn) {
-    if (isFlag(keyIn)) flags[toLower(keyIn)].valNow 
-      = flags[toLower(keyIn)].valDefault ; }
-  void resetMode(string keyIn) {
-    if (isMode(keyIn)) modes[toLower(keyIn)].valNow 
-      = modes[toLower(keyIn)].valDefault ; }
-  void resetParm(string keyIn) {
-    if (isParm(keyIn)) parms[toLower(keyIn)].valNow 
-      = parms[toLower(keyIn)].valDefault ; }
-  void resetWord(string keyIn) {
-    if (isWord(keyIn)) words[toLower(keyIn)].valNow 
-      = words[toLower(keyIn)].valDefault ; }
+  void resetFlag(string keyIn);
+  void resetMode(string keyIn);
+  void resetParm(string keyIn);
+  void resetWord(string keyIn);
 
 private:
 
@@ -216,6 +206,10 @@ private:
   // Print out table of database, called from listAll and listChanged.
   void list(bool doListAll, bool doListString, string match,
     ostream& os = cout); 
+
+  // Initialize tunes to e+e- and pp/ppbar data.
+  void initTuneEE(int eeTune);
+  void initTunePP(int ppTune);
 
   // Useful functions for string handling.
   string toLower(const string& name);

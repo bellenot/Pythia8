@@ -20,7 +20,6 @@ int main() {
 
   // Read in commands from external file.
   pythia.readFile("main04.cmnd");    
-  pythia.readFile("topbackground.cmnd");    
 
   // Extract settings to be used in the main program.
   int    nEvent  = pythia.mode("Main:numberOfEvents");

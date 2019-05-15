@@ -458,12 +458,12 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
       // Determine overestimated z range; switch at c and b masses.
       if (pT2 > m2b) {
         nFlavour  = 5;
-        pT2minNow = m2b;
+        pT2minNow = max( m2b, pT2endDip);
         b0        = 23./6.;
         Lambda2   = Lambda5flav2;
       } else if (pT2 > m2c) {
         nFlavour  = 4;
-        pT2minNow = m2c;
+        pT2minNow = max( m2c, pT2endDip);
         b0        = 25./6.;
         Lambda2   = Lambda4flav2;
       } else { 
@@ -997,10 +997,10 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
         // Determine overestimated z range; switch at c and b masses.
         if (pT2 > m2b && nQuarkIn >= 5) {
           nFlavour  = 5;
-          pT2minNow = m2b;
+          pT2minNow = max( m2b, pT2endDip);
         } else if (pT2 > m2c && nQuarkIn >= 4) {
           nFlavour  = 4;
-          pT2minNow = m2c;
+          pT2minNow = max( m2c, pT2endDip);
         } else { 
           nFlavour  = 3;
           pT2minNow = pT2endDip;
@@ -1326,6 +1326,13 @@ bool SpaceShower::branch( Event& event) {
     event[2].daughter1( (side == 2) ? iMother : iNewRecoiler ); 
   }
 
+  // Find boost to old rest frame.
+  RotBstMatrix Mtot;
+  if (normalRecoil) Mtot.bst(0., 0., (x2 - x1) / (x1 + x2) );
+  else if (side == 1)
+       Mtot.toCMframe( event[iDaughter].p(), event[iRecoiler].p() );
+  else Mtot.toCMframe( event[iRecoiler].p(), event[iDaughter].p() );
+
   // Initially select phi angle of branching at random.
   double phi = 2. * M_PI * rndmPtr->flat();
 
@@ -1347,7 +1354,10 @@ bool SpaceShower::branch( Event& event) {
         iFinInt = iOut;  
     }
     if (iFinInt != 0) {
-      double theFin = event[iFinInt].theta();
+      // Boost final-state parton to current frame of new kinematics.
+      Vec4 pFinTmp = event[iFinInt].p();
+      pFinTmp.rotbst(Mtot);
+      double theFin = pFinTmp.theta();
       if (side == 2) theFin = M_PI - theFin;
       double theSis = pSister.theta();
       if (side == 2) theSis = M_PI - theSis;
@@ -1376,12 +1386,7 @@ bool SpaceShower::branch( Event& event) {
     } while (weight < rndmPtr->flat());  
   }
 
-  // Find boost to old rest frame, and include rotation -phi.
-  RotBstMatrix Mtot;
-  if (normalRecoil) Mtot.bst(0., 0., (x2 - x1) / (x1 + x2) );
-  else if (side == 1)
-       Mtot.toCMframe( event[iDaughter].p(), event[iRecoiler].p() );
-  else Mtot.toCMframe( event[iRecoiler].p(), event[iDaughter].p() );
+  // Include rotation -phi on boost to old rest frame.
   Mtot.rot(0., -phi); 
 
   // Find boost from old rest frame to event cm frame.

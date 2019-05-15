@@ -168,7 +168,7 @@ The actual <ei>pT0</ei> parameter used at a given CM energy scale,
 where <ei>pT0Ref</ei>, <ei>ecmRef</ei> and <ei>ecmPow</ei> are the 
 three parameters below.
 
-<parm name="MultipleInteractions:pT0Ref" default="2.25" min="0.5" max="10.0">
+<parm name="MultipleInteractions:pT0Ref" default="2.15" min="0.5" max="10.0">
 The <ei>pT0Ref</ei> scale in the above formula.
 <note>Note:</note> <ei>pT0Ref</ei> is one of the key parameters in a
 complete PYTHIA tune. Its value is intimately tied to a number of other

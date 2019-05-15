@@ -99,9 +99,6 @@ public:
     { timesDecPtr = timesDecPtrIn; timesPtr = timesPtrIn;
     spacePtr = spacePtrIn; return true;} 
 
-  // Initialize tunes to e+e- and pp/ppbar data.
-  void initTunes(int eeTune = 0, int ppTune = 0);
-
   // Initialization in the CM frame.
   bool init( int idAin, int idBin, double eCMin);
 

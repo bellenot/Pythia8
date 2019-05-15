@@ -26,6 +26,11 @@ const double SigmaProcess::CONVERT2MB    = 0.389380;
 // The sum of outgoing masses must not be too close to the cm energy.
 const double SigmaProcess::MASSMARGIN    = 0.1;
 
+// Parameters of momentum rescaling procedure: maximally allowed 
+// relative energy error and number of iterations. 
+const double SigmaProcess::COMPRELERR = 1e-10;
+const int    SigmaProcess::NCOMPSTEP  = 10;
+
 //--------------------------------------------------------------------------
 
 // Perform simple initialization and store pointers.
@@ -61,6 +66,16 @@ void SigmaProcess::init(Info* infoPtrIn, Settings* settingsPtrIn,
 
   // Maximum incoming quark flavour.
   nQuarkIn        = settingsPtr->mode("PDFinProcess:nQuarkIn");
+
+  // Medium heavy fermion masses set massless or not in ME expressions.
+  mcME            = (settingsPtr->flag("SigmaProcess:cMassiveME"))   
+                  ? particleDataPtr->m0(4)  : 0.;
+  mbME            = (settingsPtr->flag("SigmaProcess:bMassiveME"))   
+                  ? particleDataPtr->m0(5)  : 0.;
+  mmuME           = (settingsPtr->flag("SigmaProcess:muMassiveME"))  
+                  ? particleDataPtr->m0(13) : 0.;
+  mtauME          = (settingsPtr->flag("SigmaProcess:tauMassiveME")) 
+                  ? particleDataPtr->m0(15) : 0.;
 
   // Renormalization scale choice.
   renormScale1    = settingsPtr->mode("SigmaProcess:renormScale1"); 
@@ -388,6 +403,52 @@ void SigmaProcess::pickInState(int id1in, int id2in) {
 
 //--------------------------------------------------------------------------
 
+// Calculate incoming modified masses and four-vectors for matrix elements.
+
+bool SigmaProcess::setupForMEin() {
+
+  // Initially assume it will work out to set up modified kinematics.
+  bool allowME = true;
+
+  // Correct incoming c, b, mu and tau to be massive or not.
+  mME[0] = 0.;
+  int id1Tmp = abs(id1);
+  if (id1Tmp ==  4) mME[0] = mcME; 
+  if (id1Tmp ==  5) mME[0] = mbME; 
+  if (id1Tmp == 13) mME[0] = mmuME; 
+  if (id1Tmp == 15) mME[0] = mtauME; 
+  mME[1] = 0.;
+  int id2Tmp = abs(id2);
+  if (id2Tmp ==  4) mME[1] = mcME; 
+  if (id2Tmp ==  5) mME[1] = mbME; 
+  if (id2Tmp == 13) mME[1] = mmuME; 
+  if (id2Tmp == 15) mME[1] = mtauME; 
+
+  // If kinematically impossible return to massless case, but set error.
+  if (mME[0] + mME[1] >= mH) {
+    mME[0] = 0.;
+    mME[1] = 0.;
+    allowME = false;
+  }
+
+  // Do incoming two-body kinematics for massless or massive cases.
+  if (mME[0] == 0. && mME[1] == 0.) {
+  pME[0] = 0.5 * mH * Vec4( 0., 0.,  1., 1.);
+  pME[1] = 0.5 * mH * Vec4( 0., 0., -1., 1.);
+  } else {
+    double e0   = 0.5 * (mH * mH + mME[0] * mME[0] - mME[1] * mME[1]) / mH;
+    double pz0  = sqrtpos(e0 * e0 - mME[0] * mME[0]);
+    pME[0] = Vec4( 0., 0.,  pz0, e0);
+    pME[1] = Vec4( 0., 0., -pz0, mH - e0);
+  }
+
+  // Done.
+  return allowME;
+  
+}
+
+//--------------------------------------------------------------------------
+
 // Evaluate weight for W decay distribution in t -> W b -> f fbar b.
 
 double SigmaProcess::weightTopDecay( Event& process, int iResBeg,
@@ -582,6 +643,31 @@ double SigmaProcess::weightHiggsDecay( Event& process, int iResBeg,
 
 //--------------------------------------------------------------------------
 
+// Wrapper to sigmaHat, to (a) store current incoming flavours, 
+// (b) convert from GeV^-2 to mb where required, and
+// (c) convert from |M|^2 to d(sigmaHat)/d(tHat) where required.
+
+double Sigma1Process::sigmaHatWrap(int id1in, int id2in) {
+  
+  id1 = id1in; 
+  id2 = id2in; 
+  double sigmaTmp = sigmaHat(); 
+  if (convertM2()) {
+    sigmaTmp /= 2. * sH;
+    // Convert 2 * pi * delta(p^2 - m^2) to Breit-Wigner with same area.
+    int idTmp     = resonanceA();
+    double mTmp   = particleDataPtr->m0(idTmp);
+    double GamTmp = particleDataPtr->mWidth(idTmp); 
+    sigmaTmp *= 2. * mTmp * GamTmp / ( pow2(sH - mTmp * mTmp) 
+      + pow2(mTmp * GamTmp) );
+  }  
+  if (convert2mb()) sigmaTmp *= CONVERT2MB; 
+  return sigmaTmp;
+
+}
+
+//--------------------------------------------------------------------------
+
 // Input and complement kinematics for resolved 2 -> 1 process. 
 
 void Sigma1Process::store1Kin( double x1in, double x2in, double sHin) {
@@ -596,14 +682,6 @@ void Sigma1Process::store1Kin( double x1in, double x2in, double sHin) {
   mH     = sqrt(sH);
   sH2    = sH * sH;
 
-  // Special kinematics setup for |M|^2 evaluations e.g. with MadGraph.
-  mME[0] = 0.;
-  pME[0] = 0.5 * mH * Vec4( 0., 0.,  1., 1.);
-  mME[1] = 0.;
-  pME[1] = 0.5 * mH * Vec4( 0., 0., -1., 1.);
-  mME[2] = mH;
-  pME[2] = Vec4( 0., 0., 0., mH);
-
   // Different options for renormalization scale, but normally sHat.
   Q2RenSave                        = renormMultFac * sH;
   if (renormScale1 == 2) Q2RenSave = renormFixScale; 
@@ -615,6 +693,24 @@ void Sigma1Process::store1Kin( double x1in, double x2in, double sHin) {
   // Evaluate alpha_strong and alpha_EM.
   alpS   = coupSMPtr->alphaS(Q2RenSave);  
   alpEM  = coupSMPtr->alphaEM(Q2RenSave);  
+
+}
+
+//--------------------------------------------------------------------------
+
+// Calculate modified masses and four-vectors for matrix elements.
+
+bool Sigma1Process::setupForME() {
+
+  // Common initial-state handling.
+  bool allowME = setupForMEin(); 
+
+  // Final state trivial here.
+  mME[2] = mH;
+  pME[2] = Vec4( 0., 0., 0., mH);
+
+  // Done.
+  return allowME;
 
 }
 
@@ -666,29 +762,6 @@ void Sigma2Process::store2Kin( double x1in, double x2in, double sHin,
 
   // Calculate squared transverse momentum.
   pT2 = (masslessKin) ?  tH * uH / sH : (tH * uH - s3 * s4) / sH;
-
-  // Special kinematics setup for |M|^2 evaluations e.g. with MadGraph.
-  mME[0] = 0.;
-  pME[0] = 0.5 * mH * Vec4( 0., 0.,  1., 1.);
-  mME[1] = 0.;
-  pME[1] = 0.5 * mH * Vec4( 0., 0., -1., 1.);
-  double sH34 = sqrtpos( pow2(sH - s3 - s4) - 4. * s3 * s4);
-  double cThe = (tH - uH) / sH34;
-  double sThe = sqrtpos(1. - cThe * cThe);
-  double pAbs = 0.5 * sH34 / mH;
-  // Normally allowed with unequal (or vanishing) masses.
-  if (id3Mass() == 0 || abs(id3Mass()) != abs(id4Mass())) { 
-    mME[2] = m3;
-    pME[2] = Vec4(  pAbs * sThe, 0.,  pAbs * cThe, 0.5 * (sH + s3 - s4) / mH);
-    mME[3] = m4; 
-    pME[3] = Vec4( -pAbs * sThe, 0., -pAbs * cThe, 0.5 * (sH + s4 - s3) / mH);
-  // For equal (anti)particles (e.g. W+ W-) use averaged mass.  
-  } else {
-    mME[2] = sqrtpos(0.5 * (s3 + s4) - 0.25 * pow2(s3 - s4) / sH);
-    pME[2] = Vec4(  pAbs * sThe, 0.,  pAbs * cThe, 0.5 * mH);
-    mME[3] = mME[2];
-    pME[3] = Vec4( -pAbs * sThe, 0., -pAbs * cThe, 0.5 * mH);
-  }  
 
   // Special case: pick scale as if 2 -> 1 process in disguise.
   if (isSChannel()) {
@@ -857,6 +930,67 @@ bool Sigma2Process::final2KinMI( int i1Res, int i2Res, Vec4 p1Res, Vec4 p2Res,
 
 }  
 
+//--------------------------------------------------------------------------
+
+// Calculate modified masses and four-vectors for matrix elements.
+
+bool Sigma2Process::setupForME() {
+
+  // Common initial-state handling.
+  bool allowME = setupForMEin(); 
+
+  // Correct outgoing c, b, mu and tau to be massive or not.
+  mME[2] = m3;
+  int id3Tmp = abs(id3Mass());
+  if (id3Tmp ==  4) mME[2] = mcME; 
+  if (id3Tmp ==  5) mME[2] = mbME; 
+  if (id3Tmp == 13) mME[2] = mmuME; 
+  if (id3Tmp == 15) mME[2] = mtauME; 
+  mME[3] = m4;
+  int id4Tmp = abs(id4Mass());
+  if (id4Tmp ==  4) mME[3] = mcME; 
+  if (id4Tmp ==  5) mME[3] = mbME; 
+  if (id4Tmp == 13) mME[3] = mmuME; 
+  if (id4Tmp == 15) mME[3] = mtauME;
+
+  // If kinematically impossible turn to massless case, but set error.
+  if (mME[2] + mME[3] >= mH) {
+    mME[2] = 0.;
+    mME[3] = 0.;
+    allowME = false;
+  }
+
+  // Calculate scattering angle in subsystem rest frame.
+  double sH34 = sqrtpos( pow2(sH - s3 - s4) - 4. * s3 * s4);
+  double cThe = (tH - uH) / sH34;
+  double sThe = sqrtpos(1. - cThe * cThe);
+
+  // Setup massive kinematics with preserved scattering angle. 
+  double s3ME   = pow2(mME[2]);
+  double s4ME   = pow2(mME[3]);
+  double sH34ME = sqrtpos( pow2(sH - s3ME - s4ME) - 4. * s3ME * s4ME);
+  double pAbsME = 0.5 * sH34ME / mH;
+
+  // Normally allowed with unequal (or vanishing) masses.
+  if (id3Tmp == 0 || id3Tmp != id4Tmp) { 
+    pME[2] = Vec4(  pAbsME * sThe, 0.,  pAbsME * cThe, 
+             0.5 * (sH + s3ME - s4ME) / mH);
+    pME[3] = Vec4( -pAbsME * sThe, 0., -pAbsME * cThe, 
+             0.5 * (sH + s4ME - s3ME) / mH);
+
+  // For equal (anti)particles (e.g. W+ W-) use averaged mass.  
+  } else {
+    mME[2] = sqrtpos(0.5 * (s3ME + s4ME) - 0.25 * pow2(s3ME - s4ME) / sH);
+    mME[3] = mME[2];
+    pME[2] = Vec4(  pAbsME * sThe, 0.,  pAbsME * cThe, 0.5 * mH);
+    pME[3] = Vec4( -pAbsME * sThe, 0., -pAbsME * cThe, 0.5 * mH);
+  }  
+
+  // Done.
+  return allowME;
+
+}
+
 //==========================================================================
 
 // The Sigma3Process class.
@@ -897,21 +1031,10 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
   // Standard Mandelstam variables and four-momenta in rest frame.
   sH       = sHin;
   mH       = sqrt(sH);
+  sH2      = sH * sH;
   p3cm     = p3cmIn;
   p4cm     = p4cmIn;
   p5cm     = p5cmIn;
-
-  // Special kinematics setup for |M|^2 evaluations e.g. with MadGraph.
-  mME[0] = 0.;
-  pME[0] = 0.5 * mH * Vec4( 0., 0.,  1., 1.);
-  mME[1] = 0.;
-  pME[1] = 0.5 * mH * Vec4( 0., 0., -1., 1.);
-  mME[2] = m3;
-  pME[2] = p3cm;
-  mME[3] = m4;
-  pME[3] = p4cm;
-  mME[4] = m5;
-  pME[4] = p5cm;
 
   // The nominal Breit-Wigner factors with running width.
   runBW3   = runBW3in;
@@ -993,6 +1116,107 @@ void Sigma3Process::store3Kin( double x1in, double x2in, double sHin,
 
 }
 
+//--------------------------------------------------------------------------
+
+// Calculate modified masses and four-vectors for matrix elements.
+
+bool Sigma3Process::setupForME() {
+
+  // Common initial-state handling.
+  bool allowME = setupForMEin(); 
+
+  // Correct outgoing c, b, mu and tau to be massive or not.
+  mME[2] = m3;
+  int id3Tmp = abs(id3Mass());
+  if (id3Tmp ==  4) mME[2] = mcME; 
+  if (id3Tmp ==  5) mME[2] = mbME; 
+  if (id3Tmp == 13) mME[2] = mmuME; 
+  if (id3Tmp == 15) mME[2] = mtauME; 
+  mME[3] = m4;
+  int id4Tmp = abs(id4Mass());
+  if (id4Tmp ==  4) mME[3] = mcME; 
+  if (id4Tmp ==  5) mME[3] = mbME; 
+  if (id4Tmp == 13) mME[3] = mmuME; 
+  if (id4Tmp == 15) mME[3] = mtauME;
+  mME[4] = m5;
+  int id5Tmp = abs(id5Mass());
+  if (id5Tmp ==  4) mME[4] = mcME; 
+  if (id5Tmp ==  5) mME[4] = mbME; 
+  if (id5Tmp == 13) mME[4] = mmuME; 
+  if (id5Tmp == 15) mME[4] = mtauME;
+
+  // If kinematically impossible turn to massless case, but set error.
+  if (mME[2] + mME[3] + mME[4] >= mH) {
+    mME[2] = 0.;
+    mME[3] = 0.;
+    mME[4] = 0.;
+    allowME = false;
+  }
+  
+  // Form new average masses if identical particles.
+  if (id3Tmp != 0 && id4Tmp == id3Tmp && id5Tmp == id3Tmp) {
+    double mAvg = (mME[2] + mME[3] + mME[4]) / 3.;
+    mME[2] = mAvg;
+    mME[3] = mAvg;
+    mME[4] = mAvg;
+  } else if (id3Tmp != 0 && id4Tmp == id3Tmp) {
+    mME[2] = sqrtpos(0.5 * (pow2(mME[2]) + pow2(mME[3])) 
+           - 0.25 * pow2(pow2(mME[2]) - pow2(mME[3])) / sH);
+    mME[3] = mME[2];
+  } else if (id3Tmp != 0 && id5Tmp == id3Tmp) {
+    mME[2] = sqrtpos(0.5 * (pow2(mME[2]) + pow2(mME[4])) 
+           - 0.25 * pow2(pow2(mME[2]) - pow2(mME[4])) / sH);
+    mME[4] = mME[2];
+  } else if (id4Tmp != 0 && id5Tmp == id4Tmp) {
+    mME[3] = sqrtpos(0.5 * (pow2(mME[3]) + pow2(mME[4])) 
+           - 0.25 * pow2(pow2(mME[3]) - pow2(mME[4])) / sH);
+    mME[4] = mME[2];
+  }
+
+  // Iterate rescaled three-momenta until convergence.
+  double m2ME3 = pow2(mME[2]);
+  double m2ME4 = pow2(mME[3]);
+  double m2ME5 = pow2(mME[4]);
+  double p2ME3 = p3cm.pAbs2();
+  double p2ME4 = p4cm.pAbs2();
+  double p2ME5 = p5cm.pAbs2();
+  double p2sum = p2ME3 + p2ME4 + p2ME5;
+  double eME3  = sqrt(m2ME3 + p2ME3);
+  double eME4  = sqrt(m2ME4 + p2ME4);
+  double eME5  = sqrt(m2ME5 + p2ME5);
+  double esum  = eME3 + eME4 + eME5;
+  double p2rat = p2ME3 / eME3 + p2ME4 / eME4 + p2ME5 / eME5;
+  int iStep = 0;
+  while ( abs(esum - mH) > COMPRELERR * mH && iStep < NCOMPSTEP ) {
+    ++iStep;
+    double compFac = 1. + 2. * (mH - esum) / p2rat;
+    p2ME3 *= compFac;
+    p2ME4 *= compFac;
+    p2ME5 *= compFac;
+    eME3   = sqrt(m2ME3 + p2ME3);
+    eME4   = sqrt(m2ME4 + p2ME4);
+    eME5   = sqrt(m2ME5 + p2ME5);
+    esum   = eME3 + eME4 + eME5;
+    p2rat  = p2ME3 / eME3 + p2ME4 / eME4 + p2ME5 / eME5;
+  }  
+
+  // If failed convergence set error flag.
+  if (abs(esum - mH) > COMPRELERR * mH) allowME = false; 
+
+  // Set up accepted kinematics.
+  double totFac = sqrt( (p2ME3 + p2ME4 + p2ME5) / p2sum);
+  pME[2] = totFac * p3cm;
+  pME[2].e( eME3);  
+  pME[3] = totFac * p4cm;
+  pME[3].e( eME4);  
+  pME[4] = totFac * p5cm;
+  pME[4].e( eME5);  
+
+  // Done.
+  return allowME;
+
+}
+
 //==========================================================================
 
 // The SigmaLHAProcess class.
@@ -1018,8 +1242,10 @@ void SigmaLHAProcess::setScale() {
       pFinSum += Vec4( lhaUpPtr->px(i), lhaUpPtr->py(i), 
         lhaUpPtr->pz(i), lhaUpPtr->e(i) );
     }  
-    int nFin  = iFin.size(); 
-    double sH = pFinSum * pFinSum; 
+    int nFin = iFin.size(); 
+    sH       = pFinSum * pFinSum; 
+    mH       = sqrt(sH);
+    sH2      = sH * sH;
 
     // If 1 final-state particle then use Sigma1Process logic.
     if (nFin == 1) {

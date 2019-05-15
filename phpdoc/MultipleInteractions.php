@@ -161,7 +161,7 @@ The actual <i>pT0</i> parameter used at a given CM energy scale,
 where <i>pT0Ref</i>, <i>ecmRef</i> and <i>ecmPow</i> are the 
 three parameters below.
 
-<br/><br/><table><tr><td><strong>MultipleInteractions:pT0Ref </td><td></td><td> <input type="text" name="7" value="2.25" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.25</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.0</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>MultipleInteractions:pT0Ref </td><td></td><td> <input type="text" name="7" value="2.15" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2.15</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 10.0</code>)</td></tr></table>
 The <i>pT0Ref</i> scale in the above formula.
 <br/><b>Note:</b> <i>pT0Ref</i> is one of the key parameters in a
 complete PYTHIA tune. Its value is intimately tied to a number of other
@@ -515,7 +515,7 @@ if($_POST["6"] != "3")
 $data = "MultipleInteractions:processLevel = ".$_POST["6"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["7"] != "2.25")
+if($_POST["7"] != "2.15")
 {
 $data = "MultipleInteractions:pT0Ref = ".$_POST["7"]."\n";
 fwrite($handle,$data);

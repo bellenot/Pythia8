@@ -877,6 +877,83 @@ diffractive systems.</li>
 </ul>
 </li>
 
+<li>8.142: 15 August 2010
+<ul>
+
+<li>The strategy for setting up tune values has been changed.
+Previously the <code>Tune:ee</code> and <code>Tune:pp</code>
+settings were only interpreted during the 
+<code>Pythia::init(...)</code> stage. Now they are interpreted
+as soon as they are read. Specifically this means that it is 
+possible to override any of the tune parameters by putting new
+commands below <code>Tune:ee</code> and <code>Tune:pp</code>
+in the <code>Pythia::readFile(...)</code> configuration file 
+or in the list of <code>Pythia::readString(...)</code> commands.
+<br/>As a consequence of this change, the public 
+<code>Pythia::initTunes(...)</code> method has been replaced by
+two private <code>Settings::initTuneEE(...)</code> and
+<code>Settings::initTunePP(...)</code> methods. 
+<br/>If <code>Tune:ee</code> or <code>Tune:pp</code> are
+nonvanishing by default, then the corresponding tune variables
+are set also from the <code>Pythia</code> constructor, before any
+user changes are possible. Currently this is not relevant.
+</li>
+
+<li>Bug fix in the setup of the <code>Tune:pp = 5</code> and 
+<code>= 6</code> options, which meant that diffractive cross 
+sections were not reduced as advertised.</li>
+
+<li>The default value of <code>MultipleInteractions:pT0Ref</code>
+has been slightly reduced so as to give a somewhat improved
+default description. It is not intended as a replacement for the 
+specific tunes, however.</li>
+
+<li>Some comparisons between tunes and data, obtained with the 
+Rivet package, have been posted on
+<a href="http://home.thep.lu.se/~richard/pythia81/">   
+http://home.thep.lu.se/~richard/pythia81/</a>.
+Further improvements can be expected from future Professor-based
+tunes. The current set of 2C, 2M, 3C and 3M "draft tunes" have
+deliberately been chosen different also to explore a range of 
+possibilities. One not visible in the plots is the fraction
+of single and double diffractive events in the inelastic cross 
+section. This is 32% in 2C and 2M, while it was reduced to
+21% in 3C and 3M, and a recent ATLAS study (ATLAS-CONF-2010-048)
+would suggest 28+-4%.</li>
+
+<li>Minor changes in <code>TimeShower</code> and
+<code>SpaceShower</code>, as protection if the <ei>c</ei> or
+<ei>b</ei> masses are set small.</li>
+
+<li>Bug fix in <code>SpaceShower</code>, for case when <ei>phi</ei> 
+angle selection is biased to take into account interference effects.
+</li>
+
+<li>The <code>SigmaProcess::convertM2()</code> method now has
+been implemented also for <ei>2 -> 1</ei> processes, so that it is
+possible to provide the squared matrix element instead of
+<ei>sigmaHat</ei> for semi-internal processes. A fixed-width 
+Breit-Wigner is also inserted, since the matrix element is supposed 
+not to include it.</li> 
+
+<li>New method <code>SigmaProcess::setupForME()</code> does an
+extended conversion from the internal kinematics to an almost
+equivalent one, better adapted to the mass conventions of matrix-element 
+caclulation programs, such as massive incoming <ei>b</ei> quarks.
+New flags allow to determine whether the <ei>c</ei>, <ei>b</ei>, 
+<ei>mu</ei> and <ei>tau</ei> should be considered massless or not 
+in the calculations.</li>
+
+<li>Two new friend methods <code>table</code> of the <code>Hist</code> 
+class allow to print a table with three columns, the first for the 
+(common!) <ei>x</ei> values and the other two for the respective 
+histogram values. A new method <code>takeSqrt</code> for the square
+root of histogram bin contents. 
+</li>
+
+</ul>
+</li>
+
 </ul>
 
 </chapter>

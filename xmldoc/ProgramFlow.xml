@@ -67,7 +67,7 @@ and one for <aloc href="ParticleDataScheme">particle data</aloc>.
 Both of these are initialized with their default values by the 
 <code>Pythia</code> constructor. The default values can then be 
 changed, primarily by one of the two ways below, or by a combination 
-of them.<br/>  
+of them.
 
 <p/>
 a) You can use the
@@ -113,6 +113,15 @@ recompile and relink your main program between runs.<br/>
 It is also possible to read input from an <code>istream</code>, by
 default <code>cin</code>, rather than from a file. This may be convenient
 if information is generated on-the-fly, within the same run.
+
+<p/>
+Changes are made sequentially in the order the commands are encountered 
+during execution, meaning that if a parameter is changed several times 
+it is the last one that counts. The two special 
+<code><aloc href="Tunes">Tune:ee</aloc></code> and 
+<code><aloc href="Tunes">Tune:pp</aloc></code> 
+modes are expanded to change several settings in one go, but these obey 
+the same ordering rules.
 <br/> 
 </li>
 
@@ -402,16 +411,6 @@ the PYTHIA initial- and final-state showers</aloc>, you can use
 where <code>timesDecPtr</code> and <code>timesPtr</code>
 derive from the <code>TimeShower</code> base class, and 
 <code>spacePtr</code> from <code>SpaceShower</code>. 
-</li>
-
-<p/>
-<li>
-The <code>initTunes(...)</code> method allows you to initialize the settings
-of a specific tune at an early stage, so that you can change some of the
-tune values between the <code>initTunes(...)</code> and the 
-<code>init(...)</code> calls. This method should not be used if you want 
-to use an existing tune as is, or make your own changes altogether. 
-See the <code>initTunes(...)</code> description below for more details. 
 </li>
 
 </ol>
@@ -737,39 +736,6 @@ with multiple interactions and timelike showers. If you retain
 the default value 0 then the internal shower routine will be used.
 </argument>
 <note>Note:</note> The method currently always returns true.
-</method>
-
-<method name="void initTunes(int eeTune = 0, int ppTune = 0)">
-prepackages the parameter settings of some PYTHIA tunes. While 
-the <code>readString(...)</code> and <code>readFile(...)</code> 
-methods can be used to set the parameters of some already 
-existing tune, one by one, this is time-consuming and error-prone. 
-Therefore the <code>initTunes(...)</code> method provides a set of
-tunes, hopefully growing with time, that can be selected by the  
-two switches <code><aloc href="Tunes">Tune:ee</aloc></code> and 
-<code><aloc href="Tunes">Tune:pp</aloc></code>. Default is 0, 
-meaning no changes. Nornally <code>initTunes(...)</code> is 
-automatically called from inside the <code>init(...)</code> method, 
-so you would not call it yourself. This can be constraining if you 
-want to use almost, but not quite, an existing tune. Specifically, 
-any attempts to set one or a few of the parameters differently by 
-<code>readString(...)</code> or <code>readFile(...)</code> calls
-before initialization would not work, since they would be overwritten
-during <code>init(...)</code>. This is where the possibility to call 
-<code>initTunes(...)</code> directly comes to the rescue. You could 
-then by hand pick the desired tune, afterwards change whatever settings 
-you wish, and retain these changes during initialization by having    
-<code>Tune:ee = Tune:pp = 0</code>.
-<argument name="eeTune" default="0"> the settings obtained from 
-<ei>e^+e^-</ei> data, see <code><aloc href="Tunes">Tune:ee</aloc></code> 
-for a list of valid values. If you call <code>initTunes(...)</code>
-with this option nonzero you would want to keep <code>Tune:ee</code> 
-equal to zero, or else the whole point is lost.
-</argument>
-<argument name="eeTune" default="0"> the additional settings that 
-can only be extracted from <ei>pp/ppbar</ei> data see 
-<code><aloc href="Tunes">Tune:pp</aloc></code> for a list of valid 
-values. Comment as above.
 </method>
 
 <h3>Initialize</h3>

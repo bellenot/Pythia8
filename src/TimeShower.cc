@@ -1165,19 +1165,19 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
       // Determine overestimated z range; switch at c and b masses.
       if (dip.pT2 > m2b) {
         nFlavour = 5;
-        pT2min   = m2b;
+        pT2min   = max( m2b, pT2endDip); 
         b0       = 23./6.;
         Lambda2  = Lambda5flav2;
       } else if (dip.pT2 > m2c) {
-        nFlavour  = 4;
-        pT2min    = m2c;
-        b0        = 25./6.;
-        Lambda2   = Lambda4flav2;
+        nFlavour = 4;
+        pT2min   = max( m2c, pT2endDip); 
+        b0       = 25./6.;
+        Lambda2  = Lambda4flav2;
       } else { 
-        nFlavour  = 3;
-        pT2min    = pT2endDip;
-        b0        = 27./6.;
-        Lambda2   = Lambda3flav2;
+        nFlavour = 3;
+        pT2min   = pT2endDip;
+        b0       = 27./6.;
+        Lambda2  = Lambda3flav2;
       }
       zMinAbs = 0.5 - sqrtpos( 0.25 - pT2min / dip.m2DipCorr );
       if (zMinAbs < SIMPLIFYROOT) zMinAbs = pT2min / dip.m2DipCorr;

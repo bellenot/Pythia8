@@ -345,6 +345,9 @@ public:
   void table(string fileName) const {
     ofstream streamName(fileName.c_str()); table(streamName); }
 
+  // Print a table out of two histograms with same x axis.
+  friend void table(const Hist& h1, const Hist& h2, ostream& os = cout) ; 
+  friend void table(const Hist& h1, const Hist& h2, string fileName) ;
 
   // Return content of specific bin: -1 gives underflow and nBin overflow.
   double getBinContent(int iBin) ;
@@ -357,6 +360,9 @@ public:
 
   // Take logarithm (base 10 or e) of bin contents.
   void takeLog(bool tenLog = true) ;
+
+  // Take square root of bin contents.
+  void takeSqrt() ;
 
   // Operator overloading with member functions
   Hist& operator+=(const Hist& h) ; 

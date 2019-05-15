@@ -996,6 +996,29 @@ void Hist::table(ostream& os) const {
 
 //--------------------------------------------------------------------------
 
+// Print a table out of two histograms with same x axis  (e.g. for Gnuplot).
+
+void table(const Hist& h1, const Hist& h2, ostream& os) {
+
+  // Require histogram x axes to agree.
+  if (h1.nBin != h2.nBin || abs(h1.xMin - h2.xMin) > Hist::TOLERANCE * h1.dx 
+    || abs(h1.xMax - h2.xMax) > Hist::TOLERANCE * h1.dx) return;
+
+  // Print histogram vectors bin by bin, with mean x as first column.
+  os << scientific << setprecision(4); 
+  for (int ix = 0; ix < h1.nBin; ++ix) 
+    os << setw(12) << h1.xMin + (ix + 0.5) * h1.dx      
+       << setw(12) << h1.res[ix] << setw(12) << h2.res[ix] << "\n";  
+   
+}
+
+void table(const Hist& h1, const Hist& h2, string fileName) {
+  ofstream streamName(fileName.c_str());
+  table( h1, h2, streamName);
+}
+
+//--------------------------------------------------------------------------
+
 // Get content of specific bin.
 // Special values are bin 0 for underflow and bin nBin+1 for overflow.
 // All other bins outside proper histogram range return 0.
@@ -1052,6 +1075,19 @@ void Hist::takeLog(bool tenLog) {
 
 }  
 
+//--------------------------------------------------------------------------
+
+// Take square root of contents bin by bin; set 0 for negative content.
+
+void Hist::takeSqrt() {
+
+  for (int ix = 0; ix < nBin; ++ix) res[ix] = sqrtpos(res[ix]);
+  under  = sqrtpos(under);
+  inside = sqrtpos(inside);
+  over   = sqrtpos(over);
+
+}
+ 
 //--------------------------------------------------------------------------
 
 // Add histogram to existing one.

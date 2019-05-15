@@ -5,10 +5,10 @@
  |  |                                                                              |  | 
  |  |                                                                              |  | 
  |  |   PPP   Y   Y  TTTTT  H   H  III    A      Welcome to the Lund Monte Carlo!  |  | 
- |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.140      |  | 
- |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 16 Jul 2010  |  | 
+ |  |   P  P   Y Y     T    H   H   I    A A     This is PYTHIA version 8.142      |  | 
+ |  |   PPP     Y      T    HHHHH   I   AAAAA    Last date of change: 15 Aug 2010  |  | 
  |  |   P       Y      T    H   H   I   A   A                                      |  | 
- |  |   P       Y      T    H   H  III  A   A    Now is 16 Jul 2010 at 11:50:48    |  | 
+ |  |   P       Y      T    H   H  III  A   A    Now is 15 Aug 2010 at 19:24:40    |  | 
  |  |                                                                              |  | 
  |  |   Torbjorn Sjostrand;  Department of Theoretical Physics, Lund University,   |  | 
  |  |      Solvegatan 14A, SE-223 62 Lund, Sweden;                                 |  | 
@@ -325,7 +325,7 @@
  *-------  End PYTHIA Error and Warning Messages Statistics  ------------------------------------------------------* 
 
 
-  2010-07-16 11:50       deviation from energy-momentum conservation
+  2010-08-15 19:24       deviation from energy-momentum conservation
 
         1.00*10^ 4  X                                                                                                   
         0.96*10^ 4  X                                                                                                   
@@ -368,7 +368,7 @@
    All chan =  1.0000e+04    Rms  =  0.0000e+00    Overflow  =  0.0000e+00    High edge =  1.4000e-02
 
 
-  2010-07-16 11:50       final particle multiplicity
+  2010-08-15 19:24       final particle multiplicity
 
         5.20*10^ 3    5                                                                                                 
         5.00*10^ 3    X                                                                                                 
@@ -412,7 +412,7 @@
    All chan =  1.0000e+04    Rms  =  5.4602e+00    Overflow  =  0.0000e+00    High edge =  7.9950e+02
 
 
-  2010-07-16 11:50       dn/dy for particles
+  2010-08-15 19:24       dn/dy for particles
 
         1.00*10^ 4                                                   37                                                 
         0.96*10^ 4                                                  6XX6                                                
