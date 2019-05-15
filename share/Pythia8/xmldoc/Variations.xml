@@ -37,7 +37,8 @@ the pole at LambdaQCD, however, branchings near the perturbative
 cutoff can nominally result in very large reweighting factors, which 
 is unwanted for typical applications. We therefore enable to limit the 
 absolute (plus/minus) magnitude by which alphaS is allowed to vary by 
-<parm name="UncertaintyBands:deltaAlphaSmax" default="0.2" min="0.0" max="1.0"> 
+<parm name="UncertaintyBands:deltaAlphaSmax" default="0.2" min="0.0" 
+max="1.0"> 
  The allowed range of variation of alphaS, interpreted as abs(alphaSprime 
  - alphaS) &lt; deltaAlphaSmax. 
 </parm> 

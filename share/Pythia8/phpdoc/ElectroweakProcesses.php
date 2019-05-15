@@ -393,13 +393,18 @@ Code 266.
  
 <h3> Photon-Parton Processes</h3> 
  
+<p> 
 Photon-parton production processes. See comment related to PDFs above. 
 Also relevant for direct-resolved processes in photon-photon collisions. 
+Two instances of a given process are created when mixing processes where 
+the direct photon can come from either side. In this case the process 
+code in the parentheses is used when the direct photon is from side A. 
+</p> 
  
 <br/><br/><strong>PhotonParton:all</strong>  <input type="radio" name="38" value="on"><strong>On</strong>
 <input type="radio" name="38" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Common switch for the group of two processes presented below. 
+Common switch for the processes 271-274 (also 281-284 when relevant). 
    
  
 <br/><br/><strong>PhotonParton:ggm2qqbar</strong>  <input type="radio" name="39" value="on"><strong>On</strong>
@@ -407,28 +412,35 @@ Common switch for the group of two processes presented below.
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>g gamma &rarr; q qbar</i>, where <i>q</i> 
 is a light quark (<i>u, d, s</i>). 
-Code 271. 
+Code 271 (281). 
    
  
 <br/><br/><strong>PhotonParton:ggm2ccbar</strong>  <input type="radio" name="40" value="on"><strong>On</strong>
 <input type="radio" name="40" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>g gamma &rarr; c cbar</i>. 
-Code 272. 
+Code 272 (282). 
    
  
 <br/><br/><strong>PhotonParton:ggm2bbbar</strong>  <input type="radio" name="41" value="on"><strong>On</strong>
 <input type="radio" name="41" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>g gamma &rarr; b bbar</i>. 
-Code 273. 
+Code 273 (283). 
    
  
 <br/><br/><strong>PhotonParton:qgm2qg</strong>  <input type="radio" name="42" value="on"><strong>On</strong>
 <input type="radio" name="42" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
 Scattering <i>q gamma &rarr; q g</i>. 
-Code 274. 
+Code 274 (284). 
+   
+ 
+<br/><br/><strong>PhotonParton:qgm2qgm</strong>  <input type="radio" name="43" value="on"><strong>On</strong>
+<input type="radio" name="43" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q gamma &rarr; q gamma</i>. 
+Code 275 (285). 
    
  
 <input type="hidden" name="saved" value="1"/>
@@ -654,6 +666,11 @@ fwrite($handle,$data);
 if($_POST["42"] != "off")
 {
 $data = "PhotonParton:qgm2qg = ".$_POST["42"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["43"] != "off")
+{
+$data = "PhotonParton:qgm2qgm = ".$_POST["43"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);

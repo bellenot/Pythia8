@@ -102,6 +102,15 @@ rules above and to the rules of the particle species itself, the
 methods restrict the allowed mass range of the particle, just like for 
 the <i>2 &rarr; 1 </i> processes. 
  
+<p/><code>parm&nbsp; </code><strong> PhaseSpace:Q2Min &nbsp;</strong> 
+ (<code>default = <strong>0.0</strong></code>; <code>minimum = 0.0</code>)<br/>
+The minimum value for the DIS variable <i>Q^2 = - tHat</i>. 
+Can only meaningfully be used for scattering processes between two 
+non-identical particles, i.e. where <i>tHat</i> and <i>uHat</i> 
+are experimentally distinguishable. No cut will be applied for 
+<code>Q2Min &lt; pTHatMinDiverge^2</code>. 
+   
+ 
 <h3>Cuts in <i>2 &rarr; 3</i> processes</h3> 
  
 There are two main classes of <i>2 &rarr; 3</i> processes. One is the 

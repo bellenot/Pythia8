@@ -520,8 +520,8 @@ methods and data members.
  
 <h3>Constructors and destructor</h3> 
  
-<method name="Pythia::Pythia(string xmlDir = &quot;../share/Pythia8/xmldoc&quot;, 
-bool printBanner = true)"> 
+<method name="Pythia::Pythia(string xmlDir 
+= &quot;../share/Pythia8/xmldoc&quot;, bool printBanner = true)"> 
 creates an instance of the <code>Pythia</code> event generators, 
 and sets initial default values, notably for all settings and 
 particle data. You may use several <code>Pythia</code> instances 
@@ -642,7 +642,10 @@ make sense out of any one line.
 </methodmore> 
  
 <method name="bool Pythia::setPDFPtr( PDF* pdfAPtr, PDF* pdfBPtr, 
-PDF* pdfHardAPtr = 0, PDF* pdfHardBPtr = 0)"> 
+PDF* pdfHardAPtr = 0, PDF* pdfHardBPtr = 0, PDF* pdfPomAPtr = 0, 
+PDF* pdfPomBPtr = 0, PDF* pdfGamAPtr = 0, PDF* pdfGamBPtr = 0, 
+PDF* pdfHardGamAPtr = 0, PDF* pdfHardGamBPtr = 0, PDF* pdfUnresAPtr = 0, 
+PDF* pdfUnresBPtr = 0, PDF* pdfUnresGamAPtr = 0, PDF* pdfUnresGamBPtrIn = 0)"> 
 offers the possibility to link in external PDF sets for usage inside 
 the program. The rules for constructing your own class from 
 the <code>PDF</code> base class are described 
@@ -664,6 +667,37 @@ provide these two further pointers then two different sets of PDF's are
 used. This second set is then exclusively for the generation of the hard 
 process from the process matrix elements library. The first set above 
 is for everything else, notably parton showers and multiparton interactions. 
+</argument> 
+<argument name="pdfPomAPtr, pdfPomBPtr" default="0"> 
+pointers to two further <code>PDF</code>-derived objects, one for each 
+of the incoming beams. These define the pomeron PDFs used in hard diffraction. 
+</argument> 
+<argument name="pdfGamAPtr, pdfGamBPtr" default="0"> 
+pointers to two further <code>PDF</code>-derived objects, one for each 
+of the incoming beams. These define the photon PDFs when photons are 
+emitted from lepton beams. With resolved photon beams some additional 
+methods are required for initial state radiation and multiparton interactions 
+and to sample valence content. 
+</argument> 
+<argument name="pdfHardGamAPtr, pdfHardGamBPtr" default="0"> 
+pointers to two further <code>PDF</code>-derived objects, one for each 
+of the incoming beams. As above, but now these are used for hard-process 
+generation only, the parton showers and multiparton interactions uses the 
+<code>pdfGamAPtr</code> and <code>pdfGamBPtr</code> PDFs. Unlike above, 
+no additional methods are needed for these. 
+</argument> 
+<argument name="pdfUnresAPtr, pdfUnresBPtr" default="0"> 
+pointers to two further <code>PDF</code>-derived objects, one for each 
+of the incoming beams. Additional PDF pointers when the beam particle 
+has also unresolved PDFs in addition to usual resolved one. Currently 
+used only when mixing direct and resolved photon-initiated processes. 
+</argument> 
+<argument name="pdfUnresGamAPtr, pdfUnresGamBPtr" default="0"> 
+pointers to two further <code>PDF</code>-derived objects, one for each 
+of the incoming beams. Additional PDF pointers when having resolved and 
+unresolved photons coming from lepton beams. Currently used only when mixing 
+direct and resolved photon-initiated processes in lepton-lepton or 
+lepton-hadron collisions. 
 </argument> 
 <note>Note 1:</note> The method returns false if the input is obviously 
 incorrect, e.g. if two (nonzero) pointers agree. 
@@ -736,6 +770,16 @@ pointer to a <code>userHooks</code>-derived object. This object
 must be instantiated by you in your program. 
 </argument> 
 <note>Note:</note> The method currently always returns true. 
+</method> 
+ 
+<method name="bool Pythia::addUserHooksPtr( UserHooks* userHooksPtr)"> 
+offers the possibility to add further user hooks, see 
+<code>setUserHooksPtr</code> above for further information. 
+<note>Note:</note> The method currently always returns true. 
+<note>Warning:</note> usually it is meaningful to combine several 
+requirements, but there are examples where not. It is the responsibility 
+of the user to check that a particular combination works as intended. 
+Also see <aloc href="UserHooks">here</aloc>. 
 </method> 
  
 <method name="bool Pythia::setBeamShapePtr( BeamShape* beamShapePtr)"> 

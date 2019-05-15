@@ -60,11 +60,14 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
   userHooksPtr     = userHooksPtrIn;
   slhaInterfacePtr = slhaInterfacePtrIn;
 
-  // Check whether photon inside lepton.
-  bool isLepton2gamma = settings.flag("PDF:lepton2gamma");
+  // Check whether photon inside lepton and save the mode.
+  beamHasGamma     = settings.flag("PDF:lepton2gamma");
+  gammaMode        = settings.mode("Photon:ProcessType");
+  bool beamA2gamma = beamAPtr->isLepton() && beamHasGamma;
+  bool beamB2gamma = beamBPtr->isLepton() && beamHasGamma;
 
   // initialize gammaKinematics when relevant.
-  if (isLepton2gamma)
+  if (beamHasGamma)
     gammaKin.init(infoPtr, &settings, rndmPtr, beamAPtr, beamBPtr);
 
   // Initialize variables related photon-inside-lepton.
@@ -79,7 +82,11 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
   int    idA = infoPtr->idA();
   int    idB = infoPtr->idB();
   double eCM = infoPtr->eCM();
-  if (isLepton2gamma) sigmaTotPtr->calc( 22, 22, eCM);
+  if (beamHasGamma) {
+    int idAin = beamA2gamma ? 22 : idA;
+    int idBin = beamB2gamma ? 22 : idB;
+    sigmaTotPtr->calc( idAin, idBin, eCM);
+  }
   else sigmaTotPtr->calc( idA, idB, eCM);
   sigmaND = sigmaTotPtr->sigmaND();
 
@@ -231,7 +238,7 @@ bool ProcessLevel::init( Info* infoPtrIn, Settings& settings,
     // Construct string with incoming beams and for cm energy.
     string collision = "We collide " + particleDataPtr->name(idA)
       + " with " + particleDataPtr->name(idB) + " at a CM energy of ";
-    string pad( 51 - collision.length(), ' ');
+    string pad( max( 0, 51 - int(collision.length())), ' ');
 
     // Print initialization information: header.
     cout << "\n *-------  PYTHIA Process Initialization  ---------"
@@ -456,9 +463,11 @@ void ProcessLevel::accumulate( bool doAccumulate) {
   if (doAccumulate) container2Ptrs[i2Container]->accumulate();
 
   // Update statistics on average impact factor.
-  ++nImpact;
-  sumImpactFac     += infoPtr->enhanceMPI();
-  sum2ImpactFac    += pow2(infoPtr->enhanceMPI());
+  if (doAccumulate) {
+    ++nImpact;
+    sumImpactFac     += infoPtr->enhanceMPI();
+    sum2ImpactFac    += pow2(infoPtr->enhanceMPI());
+  }
 
   // Cross section estimate for second hard process.
   double sigma2Sum  = 0.;
@@ -480,7 +489,8 @@ void ProcessLevel::accumulate( bool doAccumulate) {
   double sigmaComb  = 0.5 * (sigmaSum * sig2SelSum + sigSelSum * sigma2Sum);
   sigmaComb        *= impactFac / sigmaND;
   if (allHardSame) sigmaComb *= 0.5;
-  double deltaComb  = sqrtpos(2. / nAccSum + impactErr2) * sigmaComb;
+  double deltaComb  = (nAccSum == 0) ? 0.
+                    : sqrtpos(2. / nAccSum + impactErr2) * sigmaComb;
 
   // Store info and done.
   infoPtr->setSigma( 0, "sum", nTrySum, nSelSum, nAccSum, sigmaComb, deltaComb,
@@ -663,6 +673,12 @@ bool ProcessLevel::nextOne( Event& process) {
     containerPtrs[iContainer]->constructState();
     if ( !containerPtrs[iContainer]->constructProcess( process) )
       physical = false;
+
+    // For photon beams from leptons copy the state to additional photon beams.
+    if (beamHasGamma) {
+      beamGamAPtr->setGammaMode(beamAPtr->getGammaMode());
+      beamGamBPtr->setGammaMode(beamBPtr->getGammaMode());
+    }
 
     // Do all resonance decays.
     if ( physical && doResDecays
@@ -921,7 +937,7 @@ bool ProcessLevel::roomForRemnants() {
   } else {
 
     // Photons from lepton beams.
-    if ( beamAhasResGamma && beamAhasResGamma){
+    if ( beamAhasResGamma && beamBhasResGamma){
 
       // Rescale the x_gamma values according to the new invariant mass
       // of the gamma+gamma system and rescale x values.
@@ -948,8 +964,10 @@ bool ProcessLevel::roomForRemnants() {
 
       // Check whether the hard parton is a valence quark and if not use the
       // parametrization for the valence flavor ratios.
-      bool init1Val = tmpBeamAPtr->gammaInitiatorIsVal(0, id1, x1, Q2);
-      bool init2Val = tmpBeamBPtr->gammaInitiatorIsVal(0, id2, x2, Q2);
+      bool init1Val = tmpBeamAPtr->isGamma() ?
+        tmpBeamAPtr->gammaInitiatorIsVal(0, id1, x1, Q2) : false;
+      bool init2Val = tmpBeamBPtr->isGamma() ?
+        tmpBeamBPtr->gammaInitiatorIsVal(0, id2, x2, Q2) : false;
 
       // If no ISR is generated must leave room for beam remnants.
       // Calculate the required amount of energy for three different cases:
@@ -957,21 +975,43 @@ bool ProcessLevel::roomForRemnants() {
       // Hard parton is a gluon:           Remnant mass = 2*m_val.
       // Hard parton is not valence quark: Remnant mass = 2*m_val + m_hard.
       // Unresolved photon:                Remnant mass = 0.
-      if ( !resGammaA) {
-        m1 = 0;
-      } else if (init1Val) {
-        m1 = particleDataPtr->m0(id1);
-      } else {
-        m1 = 2*( particleDataPtr->m0( tmpBeamAPtr->getGammaValFlavour() ) );
-        if (id1 != 21) m1 += particleDataPtr->m0(id1);
+      if ( tmpBeamAPtr->isGamma() ){
+        if ( !resGammaA) {
+          m1 = 0;
+        } else if (init1Val) {
+          m1 = particleDataPtr->m0(id1);
+        } else {
+          m1 = 2*( particleDataPtr->m0( tmpBeamAPtr->getGammaValFlavour() ) );
+          if (id1 != 21) m1 += particleDataPtr->m0(id1);
+        }
+
+      // For hadrons start with hadron mass.
+      } else if ( tmpBeamAPtr->isHadron() ) {
+        m1 = particleDataPtr->m0(tmpBeamAPtr->id());
+
+        // If a valence flavor, remove the mass from remnants, else add.
+        int valSign1 = (tmpBeamAPtr->nValence(id1) > 0) ? -1 : 1;
+        m1 = m1 + valSign1 * particleDataPtr->m0(id1);
       }
-      if ( !resGammaB) {
-        m2 = 0;
-      } else if (init2Val) {
-        m2 = particleDataPtr->m0(id2);
-      } else {
-        m2 = 2*( particleDataPtr->m0( tmpBeamBPtr->getGammaValFlavour() ) );
-        if (id2 != 21) m2 += particleDataPtr->m0(id2);
+
+      // Photons.
+      if ( tmpBeamBPtr->isGamma() ){
+        if ( !resGammaB) {
+          m2 = 0;
+        } else if (init2Val) {
+          m2 = particleDataPtr->m0(id2);
+        } else {
+          m2 = 2*( particleDataPtr->m0( tmpBeamBPtr->getGammaValFlavour() ) );
+          if (id2 != 21) m2 += particleDataPtr->m0(id2);
+        }
+
+      // For hadrons start with hadron mass.
+      } else if ( tmpBeamBPtr->isHadron() ){
+        m2 = particleDataPtr->m0(tmpBeamBPtr->id());
+
+        // If a valence flavor, remove the mass from remnants, else add.
+        int valSign2 = (tmpBeamBPtr->nValence(id2) > 0) ? -1 : 1;
+        m2 = m2 + valSign2 * particleDataPtr->m0(id2);
       }
 
       // Check whether room for remnants.
@@ -1000,14 +1040,30 @@ bool ProcessLevel::roomForRemnants() {
 
     // Do not allow processes that ISR cannot turn into physical one.
     int idLight = 2;
-    m1 = (id1 == 21) ? 2*( particleDataPtr->m0( idLight ) ) :
+
+    // Side A with a photon or hadron.
+    if ( tmpBeamAPtr->isGamma() ) {
+      m1 = (id1 == 21) ? 2*( particleDataPtr->m0( idLight ) ) :
       particleDataPtr->m0( id1 );
-    m2 = (id2 == 21) ? 2*( particleDataPtr->m0( idLight ) ) :
-      particleDataPtr->m0( id2 );
+    } else if ( tmpBeamAPtr->isHadron() ) {
+      m1 = particleDataPtr->m0( tmpBeamAPtr->id() );
+      int valSign1 = (tmpBeamAPtr->nValence(id1) > 0) ? -1 : 1;
+      m1 = m1 + valSign1 * particleDataPtr->m0(id1);
+    }
+
+    // Side B with a photon or hadron.
+    if ( tmpBeamBPtr->isGamma() ) {
+      m2 = (id2 == 21) ? 2*( particleDataPtr->m0( idLight ) ) :
+        particleDataPtr->m0( id2 );
+    } else if ( tmpBeamBPtr->isHadron() ){
+      m2 = particleDataPtr->m0( tmpBeamBPtr->id() );
+      int valSign2 = (tmpBeamBPtr->nValence(id2) > 0) ? -1 : 1;
+      m2 = m2 + valSign2 * particleDataPtr->m0(id2);
+    }
 
     // No remnants needed for direct photons.
-    if ( !resGammaA) m1 = 0;
-    if ( !resGammaB) m2 = 0;
+    if ( !resGammaA && !(tmpBeamAPtr->isHadron()) ) m1 = 0;
+    if ( !resGammaB && !(tmpBeamBPtr->isHadron()) ) m2 = 0;
 
     // Check whether room for remnants.
     physical = ( (m1 + m2) < mTRem );

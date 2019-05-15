@@ -30,6 +30,7 @@ public:
   bool init(Info* infoPtrIn, Settings* settingsPtrIn, Rndm* rndmPtrIn,
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn);
   bool sampleKTgamma();
+  bool sampleKin(double xGamma, double m2beam, double eCM2);
   bool finalize();
 
   // Calculate and return rescaled sHat according to the process.
@@ -62,13 +63,16 @@ private:
   BeamParticle* beamBPtr;
 
   // Kinematics variables.
-  double Q2maxGamma, Wmin, Wmax, eCM, sCM, m2BeamA, m2BeamB, m2sA, m2sB,
-         Q2min1, Q2min2, xGamma1, xGamma2, Q2gamma1, Q2gamma2, phi1, phi2,
-         kT1, kT2, mGmGm, m2GmGm, theta1, theta2, theta1Max, theta2Max,
-         eCM2A, eCM2B, sHatNew;
+  double Q2maxGamma, Wmin, Wmax, eCM, sCM, m2BeamA, m2BeamB, Q2min1, Q2min2,
+         xGamma1, xGamma2, Q2gamma1, Q2gamma2, phi1, phi2, kT1, kT2, kz1, kz2,
+         mGmGm, m2GmGm, theta1, theta2, theta1Max, theta2Max, eCM2A, eCM2B,
+         sHatNew, Q2min, Q2gamma, kT, kz, phi, theta;
 
   // Direct or resolved processes.
   int    gammaMode;
+
+  // Sample one or two photon kinematics.
+  bool sample1Gamma, sample2Gamma, sideGammaA;
 
 };
 

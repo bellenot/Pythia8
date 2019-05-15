@@ -215,6 +215,10 @@ facilities.</li>
 of <code>main34.cc</code>. Demonstrates usage of a PYTHIA plugin 
 within the Python interface.</li> 
  
+<li><code>main35.cc</code> : demonstrates how to generate quarkonia 
+events with the external HelacOnia package interfaced to Pythia, 
+and compare results with the internal implementation.</li> 
+ 
 <li><code>main37.cc</code> : shows how LHEF version 3.0 files can be 
 read and used to fill several histograms of the same property, but with 
 different event weights.</li> 
@@ -293,8 +297,12 @@ to enhance the rate of rare emissions in the shower.</li>
 <li><code>main64.cc</code> : examplifies how LHEF version 3 events can 
 be written on an external file.</li> 
  
+<li><code>main65.cc</code> : exemplifies how a user hook can set 
+space-time vertex information.</li> 
+ 
 <li><code>main69.cc</code> : examplifies how to generate all relevant 
-contributions for charged particle spectra in photon-photon collisions.</li> 
+contributions for charged particle spectra in photon-photon and 
+photon-proton collisions. </li> 
  
 <li><code>main71.cc</code> : an example how the FastJet jet finding 
 package can be linked to allow an analysis of the final state, 
@@ -307,6 +315,11 @@ identical conditions, in this case for QCD jets.</li>
 <li><code>main73.cc</code> : a comparison of jet properties on the 
 parton and the hadron level, illustrating possibilities for larger 
 control of which particles are used in the jet analyses.</li> 
+ 
+<li><code>main74.cc</code> : exemplifies how to use one of the 
+contributed add-ons to the FastJet package. In this case the 
+modified Mass Drop Tagger is used to improve the mass reconstruction 
+of a boosted hadronically decaying <i>Z^0</i>.</li> 
  
 <li><code>main80.cc</code> : do CKKW-L merging with a merging scale 
 defined in <i>kT</i>. Input is provided by the <code>main80.cmnd</code> 

@@ -293,8 +293,7 @@ bool TimeShower::limitPTmax( Event& event, double Q2Fac, double Q2Ren) {
   // Also count number of heavy coloured particles, like top.
   else {
     int n21 = 0;
-    int iBegin = 5;
-    if (infoPtr->isHardDiffractive()) iBegin = 9;
+    int iBegin = 5 + beamOffset;
     for (int i = iBegin; i < event.size(); ++i) {
       if (event[i].status() == -21) ++n21;
       else if (n21 == 0) {
@@ -3289,6 +3288,10 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
   }
   if (recBef.hasVertex()) rec.vProd( recBef.vProd() );
 
+  // Allow setting of parton production vertex.
+  if (userHooksPtr && userHooksPtr->canSetProductionVertex() )
+    emt.vProd( userHooksPtr->vertexForFSR( rad) );
+
   // Put new particles into the event record.
   // Mark original dipole partons as branched and set daughters/mothers.
   int iRad = event.append(rad);
@@ -4449,12 +4452,12 @@ void TimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
       MEkind = 2;
 
     // q -> q + V.
-    else if (minDauType == 1 && maxDauType == 7 && motherType == 1)
+    else if (minDauType == 1 && maxDauType == 7 && motherType == 1) {
       MEkind = 3;
       if (idDau1 == 22 || idDau2 == 22) MEcombi = 1;
 
     // Scalar/pseudoscalar -> q + qbar; q -> q + S.
-    else if (minDauType == 1 && maxDauType == 1 && motherType == 8) {
+    } else if (minDauType == 1 && maxDauType == 1 && motherType == 8) {
       MEkind = 4;
       if (idMother == 25 || idMother == 35 || idMother == 37) MEcombi = 1;
       else if (idMother == 36) MEcombi = 2;

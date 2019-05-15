@@ -104,7 +104,7 @@ below.
    
  
 <p/><code>mode&nbsp; </code><strong> SigmaProcess:renormScale2 &nbsp;</strong> 
- (<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 5</code>)<br/>
+ (<code>default = <strong>2</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)<br/>
 The <i>Q^2</i> renormalization scale for <i>2 &rarr; 2</i> processes. 
 <br/><code>option </code><strong> 1</strong> : the smaller of the squared transverse masses of the two 
 outgoing particles, i.e. <i>min(mT_3^2, mT_4^2) = 
@@ -125,6 +125,10 @@ i.e. <i>sHat</i>. Useful for processes dominated by
    
 <br/><code>option </code><strong> 5</strong> : fix scale set in <code>SigmaProcess:renormFixScale</code> 
 below. 
+   
+<br/><code>option </code><strong> 6</strong> : Use squared invariant momentum transfer <i>-tHat</i>. 
+This is a common choice for lepton-hadron scattering processes. In that 
+case <i>-tHat=Q^2</i>. 
    
    
  
@@ -226,7 +230,7 @@ below.
    
  
 <p/><code>mode&nbsp; </code><strong> SigmaProcess:factorScale2 &nbsp;</strong> 
- (<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 5</code>)<br/>
+ (<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 6</code>)<br/>
 The <i>Q^2</i> factorization scale for <i>2 &rarr; 2</i> processes. 
 <br/><code>option </code><strong> 1</strong> : the smaller of the squared transverse masses of the two 
 outgoing particles. 
@@ -244,6 +248,10 @@ i.e. <i>sHat</i>. Useful for processes dominated by
    
 <br/><code>option </code><strong> 5</strong> : fix scale set in <code>SigmaProcess:factorFixScale</code> 
 below. 
+   
+<br/><code>option </code><strong> 6</strong> : Use squared invariant momentum transfer <i>-tHat</i>. 
+This is a common choice for lepton-hadron scattering processes. In that 
+case <i>-tHat=Q^2</i>. 
    
    
  

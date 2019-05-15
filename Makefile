@@ -103,7 +103,7 @@ $(LOCAL_TMP)/%.o: $(LOCAL_SRC)/%.cc
 $(LOCAL_LIB)/libpythia8.a: $(OBJECTS)
 	ar cru $@ $^
 $(LOCAL_LIB)/libpythia8$(LIB_SUFFIX): $(OBJECTS)
-	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME),$(notdir $@)\
+	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME)$(notdir $@)\
 	  $(LIB_COMMON)
 
 # LHAPDF (turn off all warnings for readability).
@@ -112,11 +112,11 @@ $(LOCAL_TMP)/LHAPDF%Plugin.o: $(LOCAL_INCLUDE)/Pythia8Plugins/$$(LHAPDF%_PLUGIN)
 	 -I$(BOOST_INCLUDE) $(CXX_COMMON)
 $(LOCAL_LIB)/libpythia8lhapdf5.so: $(LOCAL_TMP)/LHAPDF5Plugin.o\
 	$(LOCAL_LIB)/libpythia8.a
-	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME),$(notdir $@)\
+	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME)$(notdir $@)\
 	 -L$(LHAPDF5_LIB) -Wl,-rpath,$(LHAPDF5_LIB) -lLHAPDF -lgfortran
 $(LOCAL_LIB)/libpythia8lhapdf6.so: $(LOCAL_TMP)/LHAPDF6Plugin.o\
 	$(LOCAL_LIB)/libpythia8.a
-	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME),$(notdir $@)\
+	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME)$(notdir $@)\
 	 -L$(LHAPDF6_LIB) -Wl,-rpath,$(LHAPDF6_LIB) -lLHAPDF
 
 # POWHEG (exclude any executable ending with sh).
@@ -127,7 +127,7 @@ $(LOCAL_LIB)/libpythia8powheg%.so: $(POWHEG_BIN)/% $(LOCAL_TMP)/POWHEGPlugin.o\
 	$(LOCAL_LIB)/libpythia8.a
 	ln -s $< $(notdir $<); $(CXX) $(notdir $<) $(LOCAL_TMP)/POWHEGPlugin.o\
 	 $(LOCAL_LIB)/libpythia8.a -o $@ $(CXX_COMMON) $(CXX_SHARED)\
-	 $(CXX_SONAME),$(notdir $@) -Wl,-rpath,$(POWHEG_BIN); rm $(notdir $<)
+	 $(CXX_SONAME)$(notdir $@) -Wl,-rpath,$(POWHEG_BIN); rm $(notdir $<)
 
 # Python (turn off all warnings for readability).
 $(LOCAL_LIB)/pythia8.py: $(LOCAL_INCLUDE)/Pythia8Plugins/PythonWrapper.h
@@ -139,10 +139,7 @@ $(LOCAL_LIB)/_pythia8.so: $(LOCAL_INCLUDE)/Pythia8Plugins/PythonWrapper.h\
 	$(LOCAL_LIB)/libpythia8$(LIB_SUFFIX)
 	$(CXX) -x c++ $< -o $@ -w $(PYTHON_COMMON) $(CXX_SHARED)\
 	 -Wl,-undefined,dynamic_lookup -Wno-long-long\
-	 $(CXX_SONAME),$(notdir $@) -L$(LOCAL_LIB) -lpythia8
-	if type "install_name_tool" &> /dev/null; then\
-	 install_name_tool -change libpythia8$(LIB_SUFFIX)\
-	 $(PREFIX_LIB)/libpythia8$(LIB_SUFFIX) $@; fi
+	 $(CXX_SONAME)$(notdir $@) -L$(LOCAL_LIB) -lpythia8
 
 # Install (rsync is used for finer control).
 install: all

@@ -129,6 +129,34 @@ is what makes up the minimum-bias event class, and plays a major role
 in the description of multiparton interactions, it is important that a 
 consistent set is used. 
  
+<h3>Modify diffractive cross sections</h3> 
+ 
+The default description of diffractive interactions was 
+parameterized and fit in [<a href="Bibliography.html" target="page">Sch94, Sch97</a>]. The following 
+parameters allow for some modification of the mass distribution of 
+the diffractive system, which then integrates to a modified diffractive 
+cross section. Note that these parameters have no effect on the MBR model. 
+ 
+<p/><code>parm&nbsp; </code><strong> SigmaDiffractive:mMin &nbsp;</strong> 
+ (<code>default = <strong>0.28</strong></code>; <code>minimum = 0.0</code>)<br/>
+Lowest mass of a diffractive system is set to be <i>mHadron + mMin</i>. 
+   
+ 
+<p/><code>parm&nbsp; </code><strong> SigmaDiffractive:lowMEnhance &nbsp;</strong> 
+ (<code>default = <strong>2.0</strong></code>; <code>minimum = 0.0</code>)<br/>
+Normalization factor for the contribution of low-mass resonances 
+to the diffractive cross section (<i>cRes</i> in eq. (22) of 
+[<a href="Bibliography.html" target="page">Sch94</a>]). 
+   
+ 
+<p/><code>parm&nbsp; </code><strong> SigmaDiffractive:mResMax &nbsp;</strong> 
+ (<code>default = <strong>1.062</strong></code>; <code>minimum = 0.0</code>)<br/>
+The contribution of low-mass resonances is dampened at around the 
+scale <i>mHadron + mResMax</i> (the sum is <i>Mres</i> in eq. (22) 
+of [<a href="Bibliography.html" target="page">Sch94</a>]). To make sense, we should have 
+<i>mResMax > mMin</i>. 
+   
+ 
 <h3>Dampen diffractive cross sections</h3> 
  
 As already noted, unitarization effects may dampen the rise of diffractive 

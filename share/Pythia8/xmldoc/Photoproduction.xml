@@ -1,42 +1,56 @@
-<chapter name="Photon-photon Interactions"> 
+<chapter name="Photoproduction"> 
  
-<h2>Photon-photon Interactions</h2> 
+<h2>Photoproduction</h2> 
  
 <p> 
-Interactions of two photons, either in photon-photon collision or between 
-photons emitted from lepton beams. Includes both direct and resolved 
-contributions and also soft QCD and MPIs for events with two resolved photons. 
-Only (quasi-)real photons are considered so virtuality of the photons is 
-restricted. The PDF set for resolved photons is selected in the 
-<aloc href="PDFSelection">PDF selection</aloc>. 
+Interactions involving one or two photons, either in photon-photon or 
+photon-hadron collision or photons emitted from lepton beams. 
+Includes both direct and resolved contributions and also soft QCD and MPIs 
+for events with resolved photons. Only (quasi-)real photons are considered 
+so virtuality of the photons is restricted. The PDF set for resolved photons 
+is selected in the <aloc href="PDFSelection">PDF selection</aloc>. 
 This page describes some of the special features related to these collisions 
 and introduces the relevant parameters. 
 </p> 
  
-<h3>Types of photon-photon interactions</h3> 
+<h3>Types of photon processes</h3> 
  
 <p> 
-Since photons can be either resolved or act as point-like particles (direct), 
-there are four different contributions, resolved-resolved, resolved-direct, 
-direct-resolved and direct-direct. Currently these are not automatically 
-mixed, but the user has to generate the relevant processes separately and 
-combine them for the final result. This is illustrated in sample main program 
-<code>main69.cc</code>. 
+Photons can be either resolved or act as point-like particles (direct). 
+Therefore for a photon-photon interaction there are four different 
+contributions, resolved-resolved, resolved-direct, direct-resolved and 
+direct-direct. In case of photon-hadron collisions there are two 
+contributions. With the default value of the parameter below, a mix of 
+relevant contributions is generated but each process type can also be 
+generated individually. Note that for photon-hadron collisions the code 
+for direct contribution depends on which of the beams is photon. 
+The sample main program <code>main69.cc</code> demonstrates different 
+possibilities. 
 </p> 
  
-<modepick name="Photon:ProcessType" default="1" min="1" max="4"> 
-Sets desired contribution for photon-photon interactions. 
+<modepick name="Photon:ProcessType" default="0" min="0" max="4"> 
+Sets desired contribution for interactions with one or two photons. 
+<option value="0"> Mix of relevant contributions below. </option> 
 <option value="1"> Resolved-Resolved: Both colliding photons are 
 resolved and the partonic content is given by the PDFs. Hard processes 
 and non-diffractive events can be generated. </option> 
 <option value="2"> Resolved-Direct: Photon A is resolved and photon B 
 unresolved, i.e. act as an initiator for the hard process. Hard processes 
-with a parton and a photon in the initial state can be generated.</option> 
+with a parton and a photon in the initial state can be generated. 
+In case of photon-hadron collision this provides the direct contribution 
+when hadron is beam A and photon beam B.</option> 
 <option value="3"> Direct-Resolved: As above but now photon A is unresolved 
-and photon B resolved. </option> 
+and photon B resolved. Direct contribution of photon-hadron when photon 
+beam A.</option> 
 <option value="4"> Direct-Direct: Both photons are unresolved. Hard 
 processes with two photon initiators can be generated.</option> 
 </modepick> 
+ 
+<p> 
+The type of the generated process can be obtained from 
+<aloc href="EventInformation">Info class</aloc> with method 
+<code>int Info::photonMode()</code> which follows the conventions above. 
+</p> 
  
 <h3>Resolved photon</h3> 
  
@@ -93,7 +107,7 @@ room for the beam remnants are not allowed.
 </ul> 
 </p> 
  
-<h4>MPIs in photon-photon</h4> 
+<h4>MPIs with photon beams</h4> 
  
 <p> 
 Multiparton interactions with resolved photon beams are generated as with 
@@ -131,12 +145,18 @@ Show the evolution steps of the beam photon in the event record, if on.
 <p> 
 Currently the default values for the parameters related to multiparton 
 interactions are the same as in hadronic collision so no tuning for the 
-MPIs in photon-photon has been done. This holds also for the parameters 
-related to the impact-parameter dependence. The total cross section for 
-photon-photon collisions is paramerized as in <ref>Sch97</ref>. Since 
-the total cross section includes contribution also from elastic and 
-diffractive events, a multiplicative factor is introduced to control 
-the non-diffractive component. 
+MPIs in photon-photon or photon-hadron has been done. This holds also for 
+the parameters related to the impact-parameter dependence. Preliminary 
+studies indicate that a larger value of <ei>pT0Ref</ei> would be preferred 
+for photon-photon case: The inclusive hadron <ei>pT</ei> spectra in LEP 
+is well reproduced with <ei>pT0Ref = 3.30 GeV</ei>. 
+</p> 
+ 
+<p> 
+The total cross section for photon-photon collisions is paramerized as in 
+<ref>Sch97</ref>. Since the total cross section includes contribution also 
+from elastic and diffractive events, a multiplicative factor is introduced 
+to control the non-diffractive component. 
 </p> 
  
 <parm name="Photon:sigmaNDfrac" default="0.7" min="0.5" max="1.0"> 
@@ -196,11 +216,12 @@ primordial <ei>kT</ei>. This may cause some amount of errors especially when
 the invariant mass of <ei>gamma-gamma</ei> system is small. 
 </p> 
  
-<h3>Photon-photon in lepton-lepton</h3> 
+<h3>Photons from lepton beams</h3> 
  
 <p> 
-Photon-photon interactions can happen also in lepton-lepton collisions. 
-How to set up these collisions is described in 
+Interaction of photons from leptons including photon-photon interactions in 
+lepton-lepton collisions and photon-hadron lepton-hadron collisions can be 
+set up as described in 
 <aloc href="PDFSelection">PDF selection</aloc>. Since the current 
 framework can handle only (quasi-)real photons, a upper limit for the 
 photon virtuality needs to be set. This can be done with the parameter 
@@ -215,12 +236,16 @@ Upper limit for (quasi-)real photon virtuality in <ei>GeV^2</ei>.
  
 <parm name="Photon:Wmin" default="10.0" min="5.0"> 
 Lower limit for invariant mass of <ei>gamma-gamma</ei> system in <ei>GeV</ei>. 
+In lepton-hadron collisions <ei>W</ei> corresponds to invariant mass of 
+photon-hadron system. 
 </parm> 
  
 <parm name="Photon:Wmax" default="-1.0"> 
-Upper limit for invariant mass of <ei>gamma-gamma</ei> system in <ei>GeV</ei>. 
+Upper limit for invariant mass of <ei>gamma-gamma</ei> 
+(<ei>gamma-hadron</ei>) system in <ei>GeV</ei>. 
 A value below <code>Photon:Wmin</code> means that the invariant mass of 
-the original <ei>l+l-</ei> pair is used as an upper limit. 
+the original <ei>l+l-</ei> (<ei>lepton-hadron</ei>) system is used as an 
+upper limit. 
 </parm> 
  
 <parm name="Photon:thetaAMax" default="-1.0" max="3.141593"> 
@@ -236,11 +261,12 @@ As above but for lepton B.
  
 </p> 
  
-<h4>MPIs in lepton-lepton</h4> 
+<h4>MPIs with lepton beams</h4> 
  
 <p> 
-The invariant mass of <ei>gamma-gamma</ei> system from lepton beams will vary. 
-Therefore, to generate MPIs and non-diffractive events in <ei>gamma-gamma</ei> 
+The invariant mass of <ei>gamma-gamma</ei> or <ei>gamma-hadron</ei> system 
+from lepton beams will vary. Therefore, to generate MPIs and non-diffractive 
+events in <ei>gamma-gamma</ei> and <ei>gamma-hadron</ei> 
 collisions from lepton beams, the MPI framework is initialized with five 
 values of <ei>W</ei> from <code>Photon:Wmin</code> to 
 <code>Photon:Wmax</code>. The parameter values are then interpolated 

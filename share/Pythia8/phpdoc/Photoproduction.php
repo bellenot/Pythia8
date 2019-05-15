@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>Photon-photon Interactions</title>
+<title>Photoproduction</title>
 <link rel="stylesheet" type="text/css" href="pythia.css"/>
 <link rel="shortcut icon" href="pythia32.gif"/>
 </head>
@@ -25,40 +25,52 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
 }
 ?>
 
-<form method='post' action='PhotonPhoton.php'>
+<form method='post' action='Photoproduction.php'>
  
-<h2>Photon-photon Interactions</h2> 
+<h2>Photoproduction</h2> 
  
 <p> 
-Interactions of two photons, either in photon-photon collision or between 
-photons emitted from lepton beams. Includes both direct and resolved 
-contributions and also soft QCD and MPIs for events with two resolved photons. 
-Only (quasi-)real photons are considered so virtuality of the photons is 
-restricted. The PDF set for resolved photons is selected in the 
-<?php $filepath = $_GET["filepath"];
+Interactions involving one or two photons, either in photon-photon or 
+photon-hadron collision or photons emitted from lepton beams. 
+Includes both direct and resolved contributions and also soft QCD and MPIs 
+for events with resolved photons. Only (quasi-)real photons are considered 
+so virtuality of the photons is restricted. The PDF set for resolved photons 
+is selected in the <?php $filepath = $_GET["filepath"];
 echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>PDF selection</a>. 
 This page describes some of the special features related to these collisions 
 and introduces the relevant parameters. 
 </p> 
  
-<h3>Types of photon-photon interactions</h3> 
+<h3>Types of photon processes</h3> 
  
 <p> 
-Since photons can be either resolved or act as point-like particles (direct), 
-there are four different contributions, resolved-resolved, resolved-direct, 
-direct-resolved and direct-direct. Currently these are not automatically 
-mixed, but the user has to generate the relevant processes separately and 
-combine them for the final result. This is illustrated in sample main program 
-<code>main69.cc</code>. 
+Photons can be either resolved or act as point-like particles (direct). 
+Therefore for a photon-photon interaction there are four different 
+contributions, resolved-resolved, resolved-direct, direct-resolved and 
+direct-direct. In case of photon-hadron collisions there are two 
+contributions. With the default value of the parameter below, a mix of 
+relevant contributions is generated but each process type can also be 
+generated individually. Note that for photon-hadron collisions the code 
+for direct contribution depends on which of the beams is photon. 
+The sample main program <code>main69.cc</code> demonstrates different 
+possibilities. 
 </p> 
  
-<br/><br/><table><tr><td><strong>Photon:ProcessType  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 4</code>)</td></tr></table>
-Sets desired contribution for photon-photon interactions. 
+<br/><br/><table><tr><td><strong>Photon:ProcessType  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)</td></tr></table>
+Sets desired contribution for interactions with one or two photons. 
 <br/>
-<input type="radio" name="1" value="1" checked="checked"><strong>1 </strong>:  Resolved-Resolved: Both colliding photons are  resolved and the partonic content is given by the PDFs. Hard processes  and non-diffractive events can be generated. <br/>
-<input type="radio" name="1" value="2"><strong>2 </strong>:  Resolved-Direct: Photon A is resolved and photon B  unresolved, i.e. act as an initiator for the hard process. Hard processes  with a parton and a photon in the initial state can be generated.<br/>
-<input type="radio" name="1" value="3"><strong>3 </strong>:  Direct-Resolved: As above but now photon A is unresolved  and photon B resolved. <br/>
+<input type="radio" name="1" value="0" checked="checked"><strong>0 </strong>:  Mix of relevant contributions below. <br/>
+<input type="radio" name="1" value="1"><strong>1 </strong>:  Resolved-Resolved: Both colliding photons are  resolved and the partonic content is given by the PDFs. Hard processes  and non-diffractive events can be generated. <br/>
+<input type="radio" name="1" value="2"><strong>2 </strong>:  Resolved-Direct: Photon A is resolved and photon B  unresolved, i.e. act as an initiator for the hard process. Hard processes  with a parton and a photon in the initial state can be generated.  In case of photon-hadron collision this provides the direct contribution  when hadron is beam A and photon beam B.<br/>
+<input type="radio" name="1" value="3"><strong>3 </strong>:  Direct-Resolved: As above but now photon A is unresolved  and photon B resolved. Direct contribution of photon-hadron when photon  beam A.<br/>
 <input type="radio" name="1" value="4"><strong>4 </strong>:  Direct-Direct: Both photons are unresolved. Hard  processes with two photon initiators can be generated.<br/>
+ 
+<p> 
+The type of the generated process can be obtained from 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>Info class</a> with method 
+<code>int Info::photonMode()</code> which follows the conventions above. 
+</p> 
  
 <h3>Resolved photon</h3> 
  
@@ -115,7 +127,7 @@ room for the beam remnants are not allowed.
 </ul> 
 </p> 
  
-<h4>MPIs in photon-photon</h4> 
+<h4>MPIs with photon beams</h4> 
  
 <p> 
 Multiparton interactions with resolved photon beams are generated as with 
@@ -155,12 +167,18 @@ Show the evolution steps of the beam photon in the event record, if on.
 <p> 
 Currently the default values for the parameters related to multiparton 
 interactions are the same as in hadronic collision so no tuning for the 
-MPIs in photon-photon has been done. This holds also for the parameters 
-related to the impact-parameter dependence. The total cross section for 
-photon-photon collisions is paramerized as in [<a href="Bibliography.php" target="page">Sch97</a>]. Since 
-the total cross section includes contribution also from elastic and 
-diffractive events, a multiplicative factor is introduced to control 
-the non-diffractive component. 
+MPIs in photon-photon or photon-hadron has been done. This holds also for 
+the parameters related to the impact-parameter dependence. Preliminary 
+studies indicate that a larger value of <i>pT0Ref</i> would be preferred 
+for photon-photon case: The inclusive hadron <i>pT</i> spectra in LEP 
+is well reproduced with <i>pT0Ref = 3.30 GeV</i>. 
+</p> 
+ 
+<p> 
+The total cross section for photon-photon collisions is paramerized as in 
+[<a href="Bibliography.php" target="page">Sch97</a>]. Since the total cross section includes contribution also 
+from elastic and diffractive events, a multiplicative factor is introduced 
+to control the non-diffractive component. 
 </p> 
  
 <br/><br/><table><tr><td><strong>Photon:sigmaNDfrac </td><td></td><td> <input type="text" name="3" value="0.7" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.7</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 1.0</code>)</td></tr></table>
@@ -220,11 +238,12 @@ primordial <i>kT</i>. This may cause some amount of errors especially when
 the invariant mass of <i>gamma-gamma</i> system is small. 
 </p> 
  
-<h3>Photon-photon in lepton-lepton</h3> 
+<h3>Photons from lepton beams</h3> 
  
 <p> 
-Photon-photon interactions can happen also in lepton-lepton collisions. 
-How to set up these collisions is described in 
+Interaction of photons from leptons including photon-photon interactions in 
+lepton-lepton collisions and photon-hadron lepton-hadron collisions can be 
+set up as described in 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>PDF selection</a>. Since the current 
 framework can handle only (quasi-)real photons, a upper limit for the 
@@ -240,12 +259,16 @@ Upper limit for (quasi-)real photon virtuality in <i>GeV^2</i>.
  
 <br/><br/><table><tr><td><strong>Photon:Wmin </td><td></td><td> <input type="text" name="5" value="10.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>10.0</strong></code>; <code>minimum = 5.0</code>)</td></tr></table>
 Lower limit for invariant mass of <i>gamma-gamma</i> system in <i>GeV</i>. 
+In lepton-hadron collisions <i>W</i> corresponds to invariant mass of 
+photon-hadron system. 
    
  
 <br/><br/><table><tr><td><strong>Photon:Wmax </td><td></td><td> <input type="text" name="6" value="-1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1.0</strong></code>)</td></tr></table>
-Upper limit for invariant mass of <i>gamma-gamma</i> system in <i>GeV</i>. 
+Upper limit for invariant mass of <i>gamma-gamma</i> 
+(<i>gamma-hadron</i>) system in <i>GeV</i>. 
 A value below <code>Photon:Wmin</code> means that the invariant mass of 
-the original <i>l+l-</i> pair is used as an upper limit. 
+the original <i>l+l-</i> (<i>lepton-hadron</i>) system is used as an 
+upper limit. 
    
  
 <br/><br/><table><tr><td><strong>Photon:thetaAMax </td><td></td><td> <input type="text" name="7" value="-1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1.0</strong></code>; <code>maximum = 3.141593</code>)</td></tr></table>
@@ -261,11 +284,12 @@ As above but for lepton B.
  
 </p> 
  
-<h4>MPIs in lepton-lepton</h4> 
+<h4>MPIs with lepton beams</h4> 
  
 <p> 
-The invariant mass of <i>gamma-gamma</i> system from lepton beams will vary. 
-Therefore, to generate MPIs and non-diffractive events in <i>gamma-gamma</i> 
+The invariant mass of <i>gamma-gamma</i> or <i>gamma-hadron</i> system 
+from lepton beams will vary. Therefore, to generate MPIs and non-diffractive 
+events in <i>gamma-gamma</i> and <i>gamma-hadron</i> 
 collisions from lepton beams, the MPI framework is initialized with five 
 values of <i>W</i> from <code>Photon:Wmin</code> to 
 <code>Photon:Wmax</code>. The parameter values are then interpolated 
@@ -287,7 +311,7 @@ if($_POST["saved"] == 1)
 $filepath = $_POST["filepath"];
 $handle = fopen($filepath, 'a');
 
-if($_POST["1"] != "1")
+if($_POST["1"] != "0")
 {
 $data = "Photon:ProcessType = ".$_POST["1"]."\n";
 fwrite($handle,$data);

@@ -177,13 +177,21 @@ public:
 
   // Return a string identifier of a splitting.
   // Usage: getSplittingName( event, iRad, iEmt, iRec)
-  virtual string getSplittingName( const Event& , int , int , int )
-    { return "";}
+  virtual vector<string> getSplittingName( const Event& , int , int , int )
+    { return vector<string>();}
 
   // Return the splitting probability.
   // Usage: getSplittingProb( event, iRad, iEmt, iRec)
   virtual double getSplittingProb( const Event& , int , int , int , string )
     { return 0.;}
+
+  virtual bool allowedSplitting( const Event& , int , int)
+    { return true;}
+  virtual vector<int> getRecoilers( const Event&, int, int, string)
+    { return vector<int>(); }
+
+  // Pointer to MergingHooks object for NLO merging.
+  MergingHooks* mergingHooksPtr;
 
 protected:
 
@@ -311,9 +319,6 @@ private:
 
   // Find coefficient of azimuthal asymmetry from gluon polarization.
   void findAsymPol( Event& event, SpaceDipoleEnd* dip);
-
-  // Pointer to MergingHooks object for NLO merging.
-  MergingHooks* mergingHooksPtr;
 
   // Store uncertainty variations relevant to TimeShower.
   int nUncertaintyVariations, nVarQCD, uVarNflavQ;

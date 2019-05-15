@@ -23,7 +23,7 @@ namespace Pythia8 {
 
 // The current Pythia (sub)version number, to agree with XML version.
 const double Pythia::VERSIONNUMBERHEAD = PYTHIA_VERSION;
-const double Pythia::VERSIONNUMBERCODE = 8.223;
+const double Pythia::VERSIONNUMBERCODE = 8.226;
 
 //--------------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ Pythia::Pythia(string xmlDir, bool printBanner) {
 
 // Constructor from pre-initialised ParticleData and Settings objects.
 
-Pythia::Pythia(Settings& settingsIn,ParticleData& particleDataIn,
+Pythia::Pythia(Settings& settingsIn, ParticleData& particleDataIn,
   bool printBanner) {
 
   // Initialise / reset pointers and global variables.
@@ -195,9 +195,19 @@ Pythia::~Pythia() {
   if (useNewPdfPomB) delete pdfPomBPtr;
   if (useNewPdfGamA) delete pdfGamAPtr;
   if (useNewPdfGamB) delete pdfGamBPtr;
+  if (useNewPdfUnresA) delete pdfUnresAPtr;
+  if (useNewPdfUnresB) delete pdfUnresBPtr;
+  if (useNewPdfUnresGamA) delete pdfUnresGamAPtr;
+  if (useNewPdfUnresGamB) delete pdfUnresGamBPtr;
 
   // Delete the Les Houches object created with new.
   if (useNewLHA) delete lhaUpPtr;
+
+  // Delete vector of UserHooks (but not the UserHooks themselves).
+  if (hasUserHooksVector) delete userHooksPtr;
+
+  // Delete the Merging object created with new.
+  if (hasOwnMerging) delete mergingPtr;
 
   // Delete the MergingHooks object created with new.
   if (hasOwnMergingHooks) delete mergingHooksPtr;
@@ -219,57 +229,69 @@ Pythia::~Pythia() {
 void Pythia::initPtrs() {
 
   // Initial values for pointers to PDF's.
-  useNewPdfA        = false;
-  useNewPdfB        = false;
-  useNewPdfHard     = false;
-  useNewPdfPomA     = false;
-  useNewPdfPomB     = false;
-  useNewPdfGamA     = false;
-  useNewPdfGamB     = false;
-  useNewPdfHardGamA = false;
-  useNewPdfHardGamB = false;
-  pdfAPtr           = 0;
-  pdfBPtr           = 0;
-  pdfHardAPtr       = 0;
-  pdfHardBPtr       = 0;
-  pdfPomAPtr        = 0;
-  pdfPomBPtr        = 0;
-  pdfGamAPtr        = 0;
-  pdfGamBPtr        = 0;
-  pdfHardGamAPtr    = 0;
-  pdfHardGamBPtr    = 0;
+  useNewPdfA         = false;
+  useNewPdfB         = false;
+  useNewPdfHard      = false;
+  useNewPdfPomA      = false;
+  useNewPdfPomB      = false;
+  useNewPdfGamA      = false;
+  useNewPdfGamB      = false;
+  useNewPdfHardGamA  = false;
+  useNewPdfHardGamB  = false;
+  useNewPdfUnresA    = false;
+  useNewPdfUnresB    = false;
+  useNewPdfUnresGamA = false;
+  useNewPdfUnresGamB = false;
+  pdfAPtr            = 0;
+  pdfBPtr            = 0;
+  pdfHardAPtr        = 0;
+  pdfHardBPtr        = 0;
+  pdfPomAPtr         = 0;
+  pdfPomBPtr         = 0;
+  pdfGamAPtr         = 0;
+  pdfGamBPtr         = 0;
+  pdfHardGamAPtr     = 0;
+  pdfHardGamBPtr     = 0;
+  pdfUnresAPtr       = 0;
+  pdfUnresBPtr       = 0;
+  pdfUnresGamAPtr    = 0;
+  pdfUnresGamBPtr    = 0;
 
   // Initial values for pointers to Les Houches Event objects.
-  doLHA           = false;
-  useNewLHA       = false;
-  lhaUpPtr        = 0;
+  doLHA              = false;
+  useNewLHA          = false;
+  lhaUpPtr           = 0;
 
   //Initial value for couplings pointer
-  couplingsPtr    = &couplings;
+  couplingsPtr       = &couplings;
 
   // Initial value for pointer to external decay handler.
-  decayHandlePtr  = 0;
+  decayHandlePtr     = 0;
 
   // Initial value for pointer to user hooks.
-  userHooksPtr    = 0;
+  userHooksPtr       = 0;
+  hasUserHooksVector = false;
 
   // Initial value for pointer to merging hooks.
   doMerging          = false;
+  hasMerging         = false;
+  hasOwnMerging      = false;
+  mergingPtr         = 0;
   hasMergingHooks    = false;
   hasOwnMergingHooks = false;
   mergingHooksPtr    = 0;
 
   // Initial value for pointer to beam shape.
-  useNewBeamShape = false;
-  beamShapePtr    = 0;
+  useNewBeamShape    = false;
+  beamShapePtr       = 0;
 
   // Initial values for pointers to timelike and spacelike showers.
-  useNewTimesDec  = false;
-  useNewTimes     = false;
-  useNewSpace     = false;
-  timesDecPtr     = 0;
-  timesPtr        = 0;
-  spacePtr        = 0;
+  useNewTimesDec     = false;
+  useNewTimes        = false;
+  useNewSpace        = false;
+  timesDecPtr        = 0;
+  timesPtr           = 0;
+  spacePtr           = 0;
 
 }
 
@@ -406,7 +428,8 @@ bool Pythia::readFile(istream& is, bool warn, int subrun) {
 bool Pythia::setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn,
   PDF* pdfHardBPtrIn, PDF* pdfPomAPtrIn, PDF* pdfPomBPtrIn,
   PDF* pdfGamAPtrIn, PDF* pdfGamBPtrIn, PDF* pdfHardGamAPtrIn,
-  PDF* pdfHardGamBPtrIn) {
+  PDF* pdfHardGamBPtrIn, PDF* pdfUnresAPtrIn, PDF* pdfUnresBPtrIn,
+  PDF* pdfUnresGamAPtrIn, PDF* pdfUnresGamBPtrIn) {
 
   // Delete any PDF's created in a previous init call.
   if (useNewPdfHard && pdfHardAPtr != pdfAPtr) delete pdfHardAPtr;
@@ -417,29 +440,41 @@ bool Pythia::setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn,
   if (useNewPdfPomB) delete pdfPomBPtr;
   if (useNewPdfGamA) delete pdfGamAPtr;
   if (useNewPdfGamB) delete pdfGamBPtr;
+  if (useNewPdfUnresA) delete pdfUnresAPtr;
+  if (useNewPdfUnresB) delete pdfUnresBPtr;
+  if (useNewPdfUnresGamA) delete pdfUnresGamAPtr;
+  if (useNewPdfUnresGamB) delete pdfUnresGamBPtr;
   if (useNewPdfHardGamA && pdfHardGamAPtr != pdfGamAPtr) delete pdfHardGamAPtr;
   if (useNewPdfHardGamB && pdfHardGamBPtr != pdfGamBPtr) delete pdfHardGamBPtr;
 
   // Reset pointers to be empty.
-  useNewPdfA        = false;
-  useNewPdfB        = false;
-  useNewPdfHard     = false;
-  useNewPdfPomA     = false;
-  useNewPdfPomB     = false;
-  useNewPdfGamA     = false;
-  useNewPdfGamB     = false;
-  useNewPdfHardGamA = false;
-  useNewPdfHardGamB = false;
-  pdfAPtr           = 0;
-  pdfBPtr           = 0;
-  pdfHardAPtr       = 0;
-  pdfHardBPtr       = 0;
-  pdfPomAPtr        = 0;
-  pdfPomBPtr        = 0;
-  pdfGamAPtr        = 0;
-  pdfGamBPtr        = 0;
-  pdfHardGamAPtr    = 0;
-  pdfHardGamBPtr    = 0;
+  useNewPdfA         = false;
+  useNewPdfB         = false;
+  useNewPdfHard      = false;
+  useNewPdfPomA      = false;
+  useNewPdfPomB      = false;
+  useNewPdfGamA      = false;
+  useNewPdfGamB      = false;
+  useNewPdfHardGamA  = false;
+  useNewPdfHardGamB  = false;
+  useNewPdfUnresA    = false;
+  useNewPdfUnresB    = false;
+  useNewPdfUnresGamA = false;
+  useNewPdfUnresGamB = false;
+  pdfAPtr            = 0;
+  pdfBPtr            = 0;
+  pdfHardAPtr        = 0;
+  pdfHardBPtr        = 0;
+  pdfPomAPtr         = 0;
+  pdfPomBPtr         = 0;
+  pdfGamAPtr         = 0;
+  pdfGamBPtr         = 0;
+  pdfHardGamAPtr     = 0;
+  pdfHardGamBPtr     = 0;
+  pdfUnresAPtr       = 0;
+  pdfUnresBPtr       = 0;
+  pdfUnresGamAPtr    = 0;
+  pdfUnresGamBPtr    = 0;
 
   // Switch off external PDF's by zero as input.
   if (pdfAPtrIn == 0 && pdfBPtrIn == 0) return true;
@@ -481,6 +516,20 @@ bool Pythia::setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn,
     if (pdfHardGamAPtrIn == pdfHardGamBPtrIn) return false;
     pdfHardGamAPtr  = pdfHardGamAPtrIn;
     pdfHardGamBPtr  = pdfHardGamBPtrIn;
+  }
+
+  // Optionally allow pointers for unresolved PDFs.
+  if (pdfUnresAPtrIn != 0 && pdfUnresBPtrIn != 0) {
+    if (pdfUnresAPtrIn == pdfUnresBPtrIn) return false;
+    pdfUnresAPtr = pdfUnresAPtrIn;
+    pdfUnresBPtr = pdfUnresBPtrIn;
+  }
+
+  // Optionally allow pointers for unresolved PDFs for photons from leptons.
+  if (pdfUnresGamAPtrIn != 0 && pdfUnresGamBPtrIn != 0) {
+    if (pdfUnresGamAPtrIn == pdfUnresGamBPtrIn) return false;
+    pdfUnresGamAPtr = pdfUnresGamAPtrIn;
+    pdfUnresGamBPtr = pdfUnresGamBPtrIn;
   }
 
   // Done.
@@ -528,6 +577,63 @@ bool Pythia::init() {
   // Find which frame type to use.
   info.addCounter(1);
   frameType = mode("Beams:frameType");
+
+  // Set up values related to CKKW-L merging.
+  bool doUserMerging     = settings.flag("Merging:doUserMerging");
+  bool doMGMerging       = settings.flag("Merging:doMGMerging");
+  bool doKTMerging       = settings.flag("Merging:doKTMerging");
+  bool doPTLundMerging   = settings.flag("Merging:doPTLundMerging");
+  bool doCutBasedMerging = settings.flag("Merging:doCutBasedMerging");
+  // Set up values related to unitarised CKKW merging
+  bool doUMEPSTree       = settings.flag("Merging:doUMEPSTree");
+  bool doUMEPSSubt       = settings.flag("Merging:doUMEPSSubt");
+  // Set up values related to NL3 NLO merging
+  bool doNL3Tree         = settings.flag("Merging:doNL3Tree");
+  bool doNL3Loop         = settings.flag("Merging:doNL3Loop");
+  bool doNL3Subt         = settings.flag("Merging:doNL3Subt");
+  // Set up values related to unitarised NLO merging
+  bool doUNLOPSTree      = settings.flag("Merging:doUNLOPSTree");
+  bool doUNLOPSLoop      = settings.flag("Merging:doUNLOPSLoop");
+  bool doUNLOPSSubt      = settings.flag("Merging:doUNLOPSSubt");
+  bool doUNLOPSSubtNLO   = settings.flag("Merging:doUNLOPSSubtNLO");
+  bool doXSectionEst     = settings.flag("Merging:doXSectionEstimate");
+  doMerging = doUserMerging || doMGMerging || doKTMerging
+    || doPTLundMerging || doCutBasedMerging || doUMEPSTree || doUMEPSSubt
+    || doNL3Tree || doNL3Loop || doNL3Subt || doUNLOPSTree
+    || doUNLOPSLoop || doUNLOPSSubt || doUNLOPSSubtNLO || doXSectionEst;
+
+  // Set up MergingHooks object.
+  bool inputMergingHooks = (mergingHooksPtr != 0);
+  if (doMerging && !inputMergingHooks){
+    if (hasOwnMergingHooks && mergingHooksPtr) delete mergingHooksPtr;
+    mergingHooksPtr = new MergingHooks();
+    hasOwnMergingHooks = true;
+  }
+
+  hasMergingHooks  = (mergingHooksPtr != 0);
+  // Merging hooks required for merging. If no merging hooks pointer is
+  // available, exit.
+  if (doMerging && !hasMergingHooks) {
+    info.errorMsg("Abort from Pythia::init: "
+      "no merging hooks object has been provided");
+    return false;
+  } else if (doMerging) {
+    mergingHooksPtr->setLHEInputFile("");
+  }
+
+  // Set up Merging object.
+  bool inputMerging = (mergingPtr != 0);
+  if (doMerging && !inputMerging){
+    if (hasOwnMerging && mergingPtr) delete mergingPtr;
+    mergingPtr = new Merging();
+    hasOwnMerging = true;
+  }
+
+  hasMerging  = (mergingPtr != 0);
+
+  // Initialise counting of events significantly above the
+  // merging scale.
+  info.setCounter(41,0);
 
   // Initialization with internal processes: read in and set values.
   if (frameType < 4 ) {
@@ -611,53 +717,12 @@ bool Pythia::init() {
     // Set up values related to merging hooks.
     if (frameType == 4 || frameType == 5) {
 
-      // Set up values related to CKKW-L merging.
-      bool doUserMerging     = settings.flag("Merging:doUserMerging");
-      bool doMGMerging       = settings.flag("Merging:doMGMerging");
-      bool doKTMerging       = settings.flag("Merging:doKTMerging");
-      bool doPTLundMerging   = settings.flag("Merging:doPTLundMerging");
-      bool doCutBasedMerging = settings.flag("Merging:doCutBasedMerging");
-      // Set up values related to unitarised CKKW merging
-      bool doUMEPSTree       = settings.flag("Merging:doUMEPSTree");
-      bool doUMEPSSubt       = settings.flag("Merging:doUMEPSSubt");
-      // Set up values related to NL3 NLO merging
-      bool doNL3Tree         = settings.flag("Merging:doNL3Tree");
-      bool doNL3Loop         = settings.flag("Merging:doNL3Loop");
-      bool doNL3Subt         = settings.flag("Merging:doNL3Subt");
-      // Set up values related to unitarised NLO merging
-      bool doUNLOPSTree      = settings.flag("Merging:doUNLOPSTree");
-      bool doUNLOPSLoop      = settings.flag("Merging:doUNLOPSLoop");
-      bool doUNLOPSSubt      = settings.flag("Merging:doUNLOPSSubt");
-      bool doUNLOPSSubtNLO   = settings.flag("Merging:doUNLOPSSubtNLO");
-      bool doXSectionEst     = settings.flag("Merging:doXSectionEstimate");
-      doMerging = doUserMerging || doMGMerging || doKTMerging
-        || doPTLundMerging || doCutBasedMerging || doUMEPSTree || doUMEPSSubt
-        || doNL3Tree || doNL3Loop || doNL3Subt || doUNLOPSTree
-        || doUNLOPSLoop || doUNLOPSSubt || doUNLOPSSubtNLO || doXSectionEst;
-
-      // Set up MergingHooks object.
-      bool inputMergingHooks = (mergingHooksPtr != 0);
-      if (doMerging && !inputMergingHooks) {
-        if (hasOwnMergingHooks && mergingHooksPtr) delete mergingHooksPtr;
-        mergingHooksPtr = new MergingHooks();
-        hasOwnMergingHooks = true;
-      }
-
-      hasMergingHooks  = (mergingHooksPtr != 0);
-      // Merging hooks required for merging. If no merging hooks pointer is
-      // available, exit.
-      if (doMerging && !hasMergingHooks) {
-        info.errorMsg("Abort from Pythia::init: "
-          "no merging hooks object has been provided");
-        return false;
-      } else if (doMerging) {
+      // Store the name of the input LHEF for merging.
+      if (doMerging) {
         string lhefIn = (frameType == 4) ? lhef : "";
         mergingHooksPtr->setLHEInputFile( lhefIn);
       }
 
-      // Initialise counting of Les Houches Events significantly above the
-      // merging scale.
-      info.setCounter(41,0);
     }
 
     // Set LHAinit information (in some external program).
@@ -729,15 +794,23 @@ bool Pythia::init() {
 
   // Find out if beam is or has a resolved photon beam.
   beamHasGamma     = settings.flag("PDF:lepton2gamma");
-  int gammaMode    = settings.mode("Photon:ProcessType");
-  beamAisResGamma  = (gammaMode == 1) || (gammaMode == 2);
-  beamBisResGamma  = (gammaMode == 1) || (gammaMode == 3);
-  beamAhasResGamma = beamAisResGamma && beamHasGamma;
-  beamBhasResGamma = beamBisResGamma && beamHasGamma;
+  gammaMode        = settings.mode("Photon:ProcessType");
+  bool beamAneedResGamma = (gammaMode == 1) || (gammaMode == 2)
+    || (gammaMode == 0);
+  bool beamBneedResGamma = (gammaMode == 1) || (gammaMode == 3)
+    || (gammaMode == 0);
+  beamAisResGamma  = beamAneedResGamma && idA == 22;
+  beamBisResGamma  = beamBneedResGamma && idB == 22;
+  bool isChargedLeptonA = (abs(idA) == 11 || abs(idA) == 13 || abs(idA) == 15);
+  bool isChargedLeptonB = (abs(idB) == 11 || abs(idB) == 13 || abs(idB) == 15);
+  beamAhasResGamma = beamAneedResGamma && beamHasGamma && isChargedLeptonA;
+  beamBhasResGamma = beamBneedResGamma && beamHasGamma && isChargedLeptonB;
 
   // Initialise merging hooks.
-  if ( doMerging && (hasMergingHooks || hasOwnMergingHooks) )
-    mergingHooksPtr->init( settings, &info, &particleData, &partonSystems);
+  if ( doMerging && (hasMergingHooks || hasOwnMergingHooks) ) {
+    mergingHooksPtr->initPtr( &settings, &info, &particleData, &partonSystems);
+    mergingHooksPtr->init();
+  }
 
   // Check that combinations of settings are allowed; change if not.
   checkSettings();
@@ -836,9 +909,17 @@ bool Pythia::init() {
     // Set up the two beams and the common remnant system.
     StringFlav* flavSelPtr = hadronLevel.getStringFlavPtr();
     beamA.init( idA, pzAcm, eA, mA, &info, settings, &particleData, &rndm,
-      pdfAPtr, pdfHardAPtr, isUnresolvedA, flavSelPtr, beamAhasResGamma);
+      pdfAPtr, pdfHardAPtr, isUnresolvedA, flavSelPtr);
     beamB.init( idB, pzBcm, eB, mB, &info, settings, &particleData, &rndm,
-      pdfBPtr, pdfHardBPtr, isUnresolvedB, flavSelPtr, beamBhasResGamma);
+      pdfBPtr, pdfHardBPtr, isUnresolvedB, flavSelPtr);
+
+    // Init also unresolved PDF pointers for photon beams when needed.
+    if ( ( beamA.isGamma() || beamAhasResGamma )
+        && ( gammaMode == 0 || gammaMode == 3 || gammaMode == 4 ) )
+      beamA.initUnres( pdfUnresAPtr);
+    if ( ( beamB.isGamma() || beamBhasResGamma )
+        && ( gammaMode == 0 || gammaMode == 2 || gammaMode == 4 ) )
+      beamB.initUnres( pdfUnresBPtr);
 
     // Optionally set up new alternative beams for these Pomerons.
     if ( doDiffraction || doHardDiff) {
@@ -849,13 +930,21 @@ bool Pythia::init() {
     }
 
     // Optionally set up photon beams from lepton beams if resolved photons.
-    if (beamAhasResGamma || beamBhasResGamma) {
-      beamGamA.init( 22,  0.5 * eCM, 0.5 * eCM, 0., &info, settings,
-        &particleData, &rndm, pdfGamAPtr, pdfHardGamAPtr, !beamAisResGamma,
-        flavSelPtr);
-      beamGamB.init( 22,  0.5 * eCM, 0.5 * eCM, 0., &info, settings,
-        &particleData, &rndm, pdfGamBPtr, pdfHardGamBPtr, !beamBisResGamma,
-        flavSelPtr);
+    if (beamHasGamma && gammaMode < 4) {
+      if ( !(beamA.isHadron()) )
+        beamGamA.init( 22,  0.5 * eCM, 0.5 * eCM, 0., &info, settings,
+          &particleData, &rndm, pdfGamAPtr, pdfHardGamAPtr, !beamAisResGamma,
+          flavSelPtr);
+      if ( !(beamB.isHadron()) )
+        beamGamB.init( 22,  0.5 * eCM, 0.5 * eCM, 0., &info, settings,
+          &particleData, &rndm, pdfGamBPtr, pdfHardGamBPtr, !beamBisResGamma,
+          flavSelPtr);
+
+      // Initialize also unresolved PDFs for relevant processes.
+      if ( gammaMode == 0 || gammaMode == 3 )
+        beamGamA.initUnres( pdfUnresGamAPtr);
+      if ( gammaMode == 0 || gammaMode == 2 )
+        beamGamB.initUnres( pdfUnresGamBPtr);
     }
 
     // No diffraction for resolved photon+photon in e+e-.
@@ -882,8 +971,8 @@ bool Pythia::init() {
   timesDecPtr->init( &beamA, &beamB);
 
   // Alternatively only initialize resonance decays.
-  if ( !doProcessLevel) processLevel.initDecays( &info, &particleData,
-    &rndm, lhaUpPtr);
+  if ( !doProcessLevel) processLevel.initDecays( &info, settings,
+    &particleData, &rndm, lhaUpPtr);
 
   // Send info/pointers to parton level for initialization.
   if ( doPartonLevel && doProcessLevel && !partonLevel.init( &info, settings,
@@ -915,8 +1004,11 @@ bool Pythia::init() {
   }
 
   // Initialise the merging wrapper class.
-  if (doMerging ) merging.init( &settings, &info, &particleData, &rndm,
-    &beamA, &beamB, mergingHooksPtr, &trialPartonLevel, couplingsPtr );
+  if (doMerging ) {
+    mergingPtr->initPtr( &settings, &info, &particleData, &rndm,
+      &beamA, &beamB, mergingHooksPtr, &trialPartonLevel, couplingsPtr );
+    mergingPtr->init();
+  }
 
   // Send info/pointers to hadron level for initialization.
   // Note: forceHadronLevel() can come, so we must always initialize.
@@ -987,28 +1079,45 @@ void Pythia::checkSettings() {
     settings.flag("MultipartonInteractions:allowDoubleRescatter", false);
   }
 
-  // Photon-photon collisions with direct photon(s).
-  if ( ( (idA == 22) && (idB == 22) )
-    && ( !beamAisResGamma || !beamBisResGamma ) ) {
+  // Collisions with direct photon(s).
+  if ( (idA == 22 && !beamAisResGamma) || (idB == 22 && !beamBisResGamma) ) {
 
     // Turn MPIs off.
     if ( settings.flag("PartonLevel:MPI") ) {
       info.errorMsg("Warning in Pythia::checkSettings: "
-        "MPIs turned off for photon-photon collision with unresolved photon");
+        "MPIs turned off for collision with unresolved photon");
       settings.flag("PartonLevel:MPI", false);
     }
+
+    // Check that no soft QCD processes initialized with direct photons.
+    if ( settings.flag("SoftQCD:nonDiffractive") ) {
+      info.errorMsg("Warning in Pythia::checkSettings: "
+        "Soft QCD processes turned off for collision with unresolved photon");
+      settings.flag("SoftQCD:nonDiffractive", false);
+    }
+
   }
 
-  // Lepton-lepton collisions with direct photon(s).
-  if ( ( (abs(idA) > 10 && abs(idA) < 17) && (abs(idB) > 10 && abs(idB) < 17) )
-    && ( !beamAhasResGamma || !beamBhasResGamma ) && beamHasGamma ) {
+  // Lepton-lepton/hadron collisions with direct photon(s).
+  if ( ( (abs(idA) > 10 && abs(idA) < 17)
+    && !beamAhasResGamma && beamHasGamma)
+    || ( (abs(idB) > 10 && abs(idB) < 17)
+    && !beamBhasResGamma && beamHasGamma) ) {
 
     // Turn MPIs off.
     if ( settings.flag("PartonLevel:MPI") ) {
       info.errorMsg("Warning in Pythia::checkSettings: MPIs turned off for "
-                    "lepton-lepton collision with unresolved photon");
+                    "collision with unresolved photon");
       settings.flag("PartonLevel:MPI", false);
     }
+
+    // Check that no soft QCD processes initialized with direct photons.
+    if ( settings.flag("SoftQCD:nonDiffractive") ) {
+      info.errorMsg("Warning in Pythia::checkSettings: "
+        "Soft QCD processes turned off for collision with unresolved photon");
+      settings.flag("SoftQCD:nonDiffractive", false);
+    }
+
   }
 
 }
@@ -1028,6 +1137,8 @@ bool Pythia::checkBeams() {
   bool isLeptonA    = (idAabs > 10 && idAabs < 17);
   bool isLeptonB    = (idBabs > 10 && idBabs < 17);
   bool isUnresLep   = !settings.flag("PDF:lepton");
+  bool isGammaA     = idAabs == 22;
+  bool isGammaB     = idBabs == 22;
   isUnresolvedA     = ( isLeptonA && (idAabs%2 == 0 || isUnresLep) );
   isUnresolvedB     = ( isLeptonB && (idBabs%2 == 0 || isUnresLep) );
 
@@ -1128,15 +1239,19 @@ bool Pythia::checkBeams() {
     else return true;
   }
 
+  // Gamma+hadron mode OK.
+  if ( (isGammaA && isHadronB) || (isGammaB && isHadronA) ) {
+    return true;
+  }
+
   // Lepton-hadron collisions OK for DIS processes or LHEF input,
-  // although still primitive.
-  // Photon beam inside lepton not yet included for lepton-hadron.
+  // although still primitive. Also e+p with real photons.
   if ( (isLeptonA && isHadronB) || (isHadronA && isLeptonB) ) {
     bool doDIS = settings.flag("WeakBosonExchange:all")
               || settings.flag("WeakBosonExchange:ff2ff(t:gmZ)")
               || settings.flag("WeakBosonExchange:ff2ff(t:W)")
               || (frameType == 4);
-    if (doDIS && !beamHasGamma ) return true;
+    if (doDIS || beamHasGamma ) return true;
   }
 
   // If no case above then failed.
@@ -1278,18 +1393,45 @@ bool Pythia::initPDFs() {
     useNewPdfHardGamB = false;
     pdfHardGamBPtr    = 0;
   }
+  if (useNewPdfUnresA) {
+    delete pdfUnresAPtr;
+    useNewPdfUnresA = false;
+    pdfUnresAPtr    = 0;
+  }
+  if (useNewPdfUnresB) {
+    delete pdfUnresBPtr;
+    useNewPdfUnresB = false;
+    pdfUnresBPtr    = 0;
+  }
+  if (useNewPdfUnresGamA) {
+    delete pdfUnresGamAPtr;
+    useNewPdfUnresGamA = false;
+    pdfUnresGamAPtr    = 0;
+  }
+  if (useNewPdfUnresGamB) {
+    delete pdfUnresGamBPtr;
+    useNewPdfUnresGamB = false;
+    pdfUnresGamBPtr    = 0;
+  }
 
   // Optionally set up photon PDF's for lepton -> gamma collisions. Done before
   // the main PDFs so that the gamma pointer can be used for the main PDF
   // (lepton). Both set also in case that only one of the photons is resolved.
   bool setupGammaBeams = (settings.flag("PDF:lepton2gamma")
-    && (beamAhasResGamma || beamBhasResGamma) );
+    && (gammaMode < 4) );
   if (setupGammaBeams) {
     if ( (abs(idA) == 11 || abs(idA) == 13 || abs(idA) == 15)
         && pdfGamAPtr == 0 ) {
       pdfGamAPtr = getPDFPtr(22, 1, "A");
       if (!pdfGamAPtr->isSetup()) return false;
       useNewPdfGamA = true;
+
+      // Set also unresolved photon beam when also unresolved photons.
+      if (gammaMode != 1) {
+        pdfUnresGamAPtr = getPDFPtr(22, 1, "A", false);
+        if (!pdfUnresGamAPtr->isSetup()) return false;
+        useNewPdfUnresGamA = true;
+      }
 
       // Set up optional hard photon PDF pointers.
       if (settings.flag("PDF:useHard")){
@@ -1303,6 +1445,13 @@ bool Pythia::initPDFs() {
       pdfGamBPtr = getPDFPtr(22, 1, "B");
       if (!pdfGamBPtr->isSetup()) return false;
       useNewPdfGamB = true;
+
+      // Set also unresolved photon beam when also unresolved photons.
+      if (gammaMode != 1) {
+        pdfUnresGamBPtr = getPDFPtr(22, 1, "B", false);
+        if (!pdfUnresGamBPtr->isSetup()) return false;
+        useNewPdfUnresGamB = true;
+      }
 
       // Set up optional hard photon PDF pointers.
       if (settings.flag("PDF:useHard")){
@@ -1342,6 +1491,38 @@ bool Pythia::initPDFs() {
     pdfHardBPtr = getPDFPtr(idB, 2, "B");
     if (!pdfHardBPtr->isSetup()) return false;
     useNewPdfHard = true;
+  }
+
+  // Optionally set up additional unresolved PDFs for photon beams.
+  if ( (idA == 22 || idB == 22) && gammaMode != 1 ) {
+    if ( idA == 22 && pdfUnresAPtr == 0 ) {
+      pdfUnresAPtr = getPDFPtr(idA, 1, "A", false);
+      if (!pdfUnresAPtr->isSetup()) return false;
+      useNewPdfUnresA = true;
+    }
+    if ( idB == 22 && pdfUnresBPtr == 0 ) {
+      pdfUnresBPtr = getPDFPtr(idB, 1, "B", false);
+      if (!pdfUnresBPtr->isSetup()) return false;
+      useNewPdfUnresB = true;
+    }
+  }
+
+  // Optionally set up additional unresolved PDFs for photon beam from lepton.
+  if ( (abs(idA) == 11 || abs(idA) == 13 || abs(idA) == 15)
+        && beamHasGamma && gammaMode != 1 ) {
+    if ( pdfUnresAPtr == 0 ) {
+      pdfUnresAPtr = getPDFPtr(idA, 1, "A", false);
+      if (!pdfUnresAPtr->isSetup()) return false;
+      useNewPdfUnresA = true;
+    }
+  }
+  if ( (abs(idB) == 11 || abs(idB) == 13 || abs(idB) == 15)
+        && beamHasGamma && gammaMode != 1 ) {
+    if ( pdfUnresBPtr == 0 ) {
+      pdfUnresBPtr = getPDFPtr(idB, 1, "B", false);
+      if (!pdfUnresBPtr->isSetup()) return false;
+      useNewPdfUnresB = true;
+    }
   }
 
   // Optionally set up Pomeron PDF's for diffractive physics.
@@ -1390,8 +1571,9 @@ bool Pythia::next() {
       return false;
     }
 
-    // Reset info array (while event record contains data).
+    // Reset info and partonSystems arrays (while event record contains data).
     info.clear();
+    partonSystems.clear();
 
     // Set correct energy for system.
     Vec4 pSum = 0.;
@@ -1481,7 +1663,7 @@ bool Pythia::next() {
 
     // Possibility to perform matrix element merging for this event.
     if (doMerging) {
-      int veto = merging.mergeProcess( process );
+      int veto = mergingPtr->mergeProcess( process );
       // Apply possible merging scale cut.
       if (veto == -1) {
         hasVetoed = true;
@@ -1903,7 +2085,7 @@ void Pythia::stat() {
   if (reset)   partonLevel.resetStatistics();
 
   // Merging statistics.
-  if (doMerging) merging.statistics();
+  if (doMerging) mergingPtr->statistics();
 
   // Summary of which and how many warnings/errors encountered.
   if (showErr) info.errorStatistics();
@@ -2273,8 +2455,13 @@ bool Pythia::check() {
   for (int iSys = 0; iSys < beamA.sizeInit(); ++iSys) {
     int eventANw  = partonSystems.getInA(iSys);
     int eventBNw  = partonSystems.getInB(iSys);
-    int beamANw   = beamA[iSys].iPos();
-    int beamBNw   = beamB[iSys].iPos();
+    // For photon beams from leptons make sure to use correct beams.
+    int beamANw   = ( beamA.getGammaMode() == 0 || !beamHasGamma
+                 || (beamA.getGammaMode() == 2 && beamB.getGammaMode() == 2)) ?
+                 beamA[iSys].iPos() : beamGamA[iSys].iPos();
+    int beamBNw   = ( beamB.getGammaMode() == 0 || !beamHasGamma
+                 || (beamB.getGammaMode() == 2 && beamA.getGammaMode() == 2)) ?
+                 beamB[iSys].iPos() : beamGamB[iSys].iPos();
     if (eventANw != beamANw || eventBNw != beamBNw) {
       info.errorMsg("Error in Pythia::check: "
         "event and beams records disagree");
@@ -2436,7 +2623,7 @@ bool Pythia::check() {
 
 // Routine to set up a PDF pointer.
 
-PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam) {
+PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam, bool resolved) {
 
   // Temporary pointer to be returned.
   PDF* tempPDFPtr = 0;
@@ -2472,6 +2659,8 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam) {
       tempPDFPtr = new CTEQ6pdf(idIn, pSet - 6, 1., xmlPath, &info);
     else if (pSet <= 16)
       tempPDFPtr = new NNPDF(idIn, pSet - 12, xmlPath, &info);
+    else if (pSet <= 20)
+      tempPDFPtr = new LHAGrid1(idIn, pWord, xmlPath, &info);
     else tempPDFPtr = 0;
   }
 
@@ -2545,37 +2734,45 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam) {
   // Photon beam, either point-like (unresolved) or resolved.
   else if (abs(idIn) == 22) {
 
-    int gammaSet = settings.mode("PDF:GammaSet");
+    // For unresolved beam use the point-like PDF.
+    if (!resolved) {
+      tempPDFPtr = new GammaPoint(idIn);
+    } else {
+      int gammaSet = settings.mode("PDF:GammaSet");
 
-    bool beamIsPoint = ( !beamAisResGamma && !(beam == "B") )
-                    || ( !beamBisResGamma &&  (beam == "B") );
+      // Point-like beam if unresolved photons.
+      bool beamAisPoint = ( !beamAisResGamma && !beamAhasResGamma );
+      bool beamBisPoint = ( !beamBisResGamma && !beamBhasResGamma );
+      bool beamIsPoint = ( beamAisPoint && !(beam == "B") )
+                      || ( beamBisPoint && (beam == "B") );
 
-    // Use different PDFs for hard process.
-    if ( sequence == 2) {
+      // Use different PDFs for hard process.
+      if ( sequence == 2) {
 
-      // Find the name or number of the hard PDF set.
-      string gmWord = settings.word("PDF:GammaHardSet");
-      int gmSet     = 0;
-      if (gmWord == "void") gmSet = settings.mode("PDF:GammaSet");
-      else {
-        istringstream gmStream(gmWord);
-        gmStream >> gmSet;
+        // Find the name or number of the hard PDF set.
+        string gmWord = settings.word("PDF:GammaHardSet");
+        int gmSet     = 0;
+        if (gmWord == "void") gmSet = settings.mode("PDF:GammaSet");
+        else {
+          istringstream gmStream(gmWord);
+          gmStream >> gmSet;
+        }
+
+        // Use sets from LHAPDF. Only available for hard processes.
+        if (gmSet == 0 && !beamIsPoint) {
+          tempPDFPtr = new LHAPDF(idIn, gmWord, &info);
+          return tempPDFPtr;
+        }
+
+        // Or set up an internal set (though currently only one).
+        gammaSet = gmSet;
       }
 
-      // Use sets from LHAPDF. Only available for hard processes.
-      if (gmSet == 0 && !beamIsPoint) {
-        tempPDFPtr = new LHAPDF(idIn, gmWord, &info);
-        return tempPDFPtr;
-      }
-
-      // Or set up an internal set (though currently only one).
-      gammaSet = gmSet;
+      // Set up the PDF.
+      if      (beamIsPoint)   tempPDFPtr = new GammaPoint(idIn);
+      else if (gammaSet == 1) tempPDFPtr = new CJKL(idIn, &rndm);
+      else                    tempPDFPtr = 0;
     }
-
-    // Set up the PDF.
-    if      (beamIsPoint)   tempPDFPtr = new GammaPoint(idIn);
-    else if (gammaSet == 1) tempPDFPtr = new CJKL(idIn, &rndm);
-    else                    tempPDFPtr = 0;
   }
 
   // Lepton beam: neutrino, resolved charged lepton or unresolved ditto.
@@ -2584,7 +2781,7 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam) {
     if (abs(idIn)%2 == 0) tempPDFPtr = new NeutrinoPoint(idIn);
 
     // Set up resolved photon inside lepton for beam A.
-    if  ( beamAhasResGamma && !(beam == "B") ) {
+    if  ( beamAhasResGamma && !(beam == "B") && resolved ) {
 
       // Find the pre-set photon PDF, hard or normal.
       PDF* tempGammaPDFPtr = 0;
@@ -2603,7 +2800,7 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam) {
       } else tempPDFPtr = 0;
 
     // Set up resolved photon inside lepton for beam B.
-    } else if ( beamBhasResGamma && (beam == "B") ) {
+    } else if ( beamBhasResGamma && (beam == "B") && resolved ) {
 
       // Find the pre-set photon PDF, hard or normal.
       PDF* tempGammaPDFPtr = 0;
@@ -2626,6 +2823,10 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam) {
       tempPDFPtr = new Lepton(idIn, Q2maxGamma, &info);
     }
     else tempPDFPtr = new LeptonPoint(idIn);
+
+  // Dark matter beam set up as pointlike lepton.
+  } else if (abs(idIn) > 50 && abs(idIn) < 60) {
+    tempPDFPtr = new LeptonPoint(idIn);
   }
 
   // Optionally allow extrapolation beyond x and Q2 limits.

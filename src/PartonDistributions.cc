@@ -65,8 +65,8 @@ double PDF::xf(int id, double x, double Q2) {
   if ( (abs(idSav) != abs(id) && idSav != 9) || x != xSav || Q2 != Q2Sav)
     {idSav = id; xfUpdate(id, x, Q2); xSav = x; Q2Sav = Q2;}
 
-  // Baryon and nondiagonal meson beams: only p, pbar, pi+, pi- for now.
-  if (idBeamAbs == 2212 || idBeamAbs == 211) {
+  // Baryon beams: only p and pbar for now.
+  if (idBeamAbs == 2212) {
     int idNow = (idBeam > 0) ? id : -id;
     int idAbs = abs(id);
     if (idNow ==  0 || idAbs == 21) return max(0., xg);
@@ -90,6 +90,23 @@ double PDF::xf(int id, double x, double Q2) {
     if (idNow == -1) return max(0., xubar);
     if (idNow ==  2) return max(0., xd);
     if (idNow == -2) return max(0., xdbar);
+    if (idNow ==  3) return max(0., xs);
+    if (idNow == -3) return max(0., xsbar);
+    if (idAbs ==  4) return max(0., xc);
+    if (idAbs ==  5) return max(0., xb);
+    if (idAbs == 22) return max(0., xgamma);
+    return 0.;
+
+  // Nondiagonal meson beams: only pi+ and pi- for now.
+  // Some LHAPDF sets are stored with u d as valence, so use dbar = u.
+  } else if (idBeamAbs == 211) {
+    int idNow = (idBeam > 0) ? id : -id;
+    int idAbs = abs(id);
+    if (idNow ==  0 || idAbs == 21) return max(0., xg);
+    if (idNow ==  1) return max(0., xubar );
+    if (idNow == -1) return max(0., xu );
+    if (idNow ==  2) return max(0., xu);
+    if (idNow == -2) return max(0., xubar);
     if (idNow ==  3) return max(0., xs);
     if (idNow == -3) return max(0., xsbar);
     if (idAbs ==  4) return max(0., xc);
@@ -3231,7 +3248,7 @@ double CJKL::hadronlikeB(double x, double s, double Q2) {
 // The LHAGrid1 class.
 // Codes to read files i the LHAPDF6 lhagrid1 format,
 // assuming that the same x grid is used for all Q subgrids.
-// Results are not identical with LHAPDF6, owing do different interpolation.
+// Results are not identical with LHAPDF6, owing to different interpolation.
 
 //--------------------------------------------------------------------------
 
@@ -3252,9 +3269,11 @@ void LHAGrid1::init(string pdfWord, string xmlPath, Info* infoPtr) {
   if (pdfWord[0] == '/') dataFile = pdfWord;
   else if (pdfSet == 0) dataFile = xmlPath + pdfWord;
 
-  // Input is fit number. Current selection for tryout only.
-  //else if (pdfSet == 1) dataFile = xmlPath+"hf_pdf_0000.dat";
-  //else if (pdfSet == 2) dataFile = xmlPath+"NNPDF23_lo_as_0119_qed_0000.dat";
+  // Input is fit number. Current selection for NNPDF3.1 only.
+  else if (pdfSet == 17) dataFile = xmlPath+"NNPDF31_lo_as_0130_0000.dat";
+  else if (pdfSet == 18) dataFile = xmlPath+"NNPDF31_lo_as_0118_0000.dat";
+  else if (pdfSet == 19) dataFile = xmlPath+"NNPDF31_nlo_as_0118_0000.dat";
+  else if (pdfSet == 20) dataFile = xmlPath+"NNPDF31_nnlo_as_0118_0000.dat";
 
   // Open files from which grids should be read in.
   ifstream is( dataFile.c_str() );
@@ -3561,8 +3580,8 @@ void Lepton2gamma::xfUpdate(int , double x, double Q2){
 
   // Find the maximum x value at given Q2max and sqrt(s).
   double sCM = infoPtr->s();
-  double xGamMax = Q2max / (2. * m2lepton)
-    * (sqrt( (1. + 4. * m2lepton / Q2max) * (1. - 4. * m2lepton / sCM) ) - 1.);
+  double xGamMax = ( 2. - 2. * Q2max / sCM - 8. * m2lepton / sCM )
+    / ( 1. + sqrt( (1. + 4. * m2lepton / Q2max) * (1. - 4. * m2lepton/sCM) ) );
 
   // If outside allowed x values set PDFs to zero.
   if ( x > xGamMax ) {
@@ -3636,8 +3655,8 @@ double Lepton2gamma::xfMax(int id, double x, double Q2){
 
   // Find the maximum x value at given Q2max and sqrt(s).
   double sCM = infoPtr->s();
-  double xGamMax = Q2max / (2. * m2lepton)
-    * (sqrt( (1. + 4. * m2lepton / Q2max) * (1. - 4. * m2lepton / sCM) ) - 1.);
+  double xGamMax = ( 2. - 2. * Q2max / sCM - 8. * m2lepton / sCM )
+    / ( 1. + sqrt( (1. + 4. * m2lepton / Q2max) * (1. - 4. * m2lepton/sCM) ) );
 
   // Set PDFs to zero outside allowed x values.
   if ( x > xGamMax ) return 0;

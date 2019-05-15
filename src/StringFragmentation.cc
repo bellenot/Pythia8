@@ -61,6 +61,7 @@ void StringEnd::newHadron(double nNSP) {
   // In case we are using the thermal model or Gaussian with
   // mT2 suppression we have to pick the pT first.
   if (thermalModel || mT2suppression) {
+
     // Pick its transverse momentum.
     pair<double, double> pxy = pTSelPtr->pxy(flavNew.id, nNSP);
     pxNew = pxy.first;
@@ -68,32 +69,39 @@ void StringEnd::newHadron(double nNSP) {
     pxHad = pxOld + pxNew;
     pyHad = pyOld + pyNew;
     double pT2Had = pow2(pxHad) + pow2(pyHad);
+
     // Pick new flavour and form a new hadron.
     do {
       flavNew = flavSelPtr->pick( flavOld, sqrt(pT2Had), nNSP);
       idHad   = flavSelPtr->getHadronID( flavOld, flavNew);
     } while (idHad == 0);
+
+    // Get its mass and thereby define its transverse mass.
+    mHad   = flavSelPtr->getHadronMassWin(idHad);
+    mT2Had = pow2(mHad) + pow2(pxHad) + pow2(pyHad);
   }
 
   // In case of the Gaussian without mT2 suppression we pick
   // the new flavour first to make the width flavour dependent.
   else {
+
     // Pick new flavour and form a new hadron.
     do {
       flavNew = flavSelPtr->pick( flavOld);
       idHad   = flavSelPtr->combine( flavOld, flavNew);
     } while (idHad == 0);
+
     // Pick its transverse momentum.
     pair<double, double> pxy = pTSelPtr->pxy(flavNew.id, nNSP);
     pxNew = pxy.first;
     pyNew = pxy.second;
     pxHad = pxOld + pxNew;
     pyHad = pyOld + pyNew;
-  }
 
-  // Get its mass and thereby define its transverse mass.
-  mHad   = flavSelPtr->getHadronMassWin(idHad);
-  mT2Had = pow2(mHad) + pow2(pxHad) + pow2(pyHad);
+    // Pick its mass and thereby define its transverse mass.
+    mHad   = particleDataPtr->mSel(idHad);
+    mT2Had = pow2(mHad) + pow2(pxHad) + pow2(pyHad);
+  }
 
 }
 
@@ -682,9 +690,6 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
       // Check how many nearby string pieces there are for the next hadron.
       double nNSP = (closePacking) ? nearStringPieces(nowEnd, rapPairs) : 0.;
 
-      // Construct trial hadron and check that energy remains.
-      nowEnd.newHadron(nNSP);
-
       // Possibility for a user to change the fragmentation parameters.
       if ( (userHooksPtr != 0) && userHooksPtr->canChangeFragPar() ) {
          if ( !userHooksPtr->doChangeFragPar( flavSelPtr, zSelPtr, pTSelPtr,
@@ -693,6 +698,9 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
            infoPtr->errorMsg("Error in StringFragmentation::fragment: "
              "failed to change hadronisation parameters.");
       }
+
+      // Construct trial hadron and check that energy remains.
+      nowEnd.newHadron(nNSP);
 
       if ( energyUsedUp(fromPos) ) break;
 
@@ -1384,7 +1392,18 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
           eUsed = 0.;
           int nHadrons = 0;
           bool noNegE = true;
+          // Keep track of hadron momentum.
+          Vec4 hadMom;
           for ( ; ; ++nHadrons) {
+
+            // Possibility for a user to change the fragmentation parameters.
+            if ( (userHooksPtr != 0) && userHooksPtr->canChangeFragPar() ) {
+              if ( !userHooksPtr->doChangeFragPar( flavSelPtr, zSelPtr,
+                pTSelPtr, idPos, hadMom.m2Calc(),
+                (legLoop == 0 ? iPartonMin : iPartonMid )) )
+                infoPtr->errorMsg("Error in StringFragmentation::fragment"
+                "ToJunction: failed to change hadronisation parameters.");
+            }
 
             // Construct trial hadron from positive end.
             posEnd.newHadron();
@@ -1405,7 +1424,8 @@ bool StringFragmentation::fragmentToJunction(Event& event) {
             hadrons.append( posEnd.idHad, statusHad, iPos, iNeg,
               0, 0, 0, 0, pHad, posEnd.mHad);
 
-            // Update string end and remaining momentum.
+            // Update hadron, string end and remaining momentum.
+            hadMom += pHad;
             posEnd.update();
             eUsed += pHad.e();
 

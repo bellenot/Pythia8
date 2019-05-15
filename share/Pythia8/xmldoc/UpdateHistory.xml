@@ -12,6 +12,205 @@ but this should only affect a small part of the user code.
  
 <ul> 
  
+<li>8.226: 26 April 2017 
+<ul> 
+ 
+<li>Implementation of <ei>gamma-hadron</ei> collisions and 
+photoproduction in <ei>lepton-hadron</ei> ones. Section 
+<aloc href="PhotonPhoton">Photon-photon Interactions</aloc> renamed to 
+<aloc href="Photoproduction">Photoproduction</aloc> to cover also 
+<ei>gamma-hadron</ei> documentation. Modified <code>GammaKinematics</code> 
+class to sample photon kinematics also with one photon. Added 
+case <ei>gamma-hadron</ei> to <code>SigmaTotal</code>.</li> 
+ 
+<li>Automatic mixing of resolved and unresolved photon-photon interactions. 
+Implemented by introducing resolved and unresolved PDF pointers for a 
+<code>BeamParticle</code>, and calling the relevant one once the process 
+has been selected. In case of one direct photon the correct number of 
+photon-initiated processes (<code>PhotonParton</code>) is set by 
+<code>ProcessContainer</code>. A new method <code>Info::photonMode()</code> 
+to output the type of the process. Updated sample program 
+<code>main69.cc</code>.</li> 
+ 
+<li>Check if there is room left for photon-beam remnants also in case 
+of softQCD processes. Very rarely fails.</li> 
+ 
+<li>A new partonic subprocess <ei>q gamma &rarr; q gamma</ei>, mainly to 
+study photon production in <ei>lepton &rarr; gamma - hadron</ei> 
+collisions.</li> 
+ 
+<li>Modified kinematics methods for DIS and photoproduction physics, 
+to take beam particle masses into account where important. 
+For DIS, e.g., the incoming lepton is kept massive, which leads to 
+slight changes only visible at very low energies.</li> 
+ 
+<li>Redesigned the merging machinery to allow users to define their 
+own ME+PS merging plugin, which can then be used by Pythia. This change 
+does not affect the physics of Pythia's internal merging schemes. 
+For further details see the new section on "Implementing an external 
+ME+PS combination scheme and interfacing this plugin with Pythia" 
+on the <aloc href="MatchingAndMerging">Matching and Merging</aloc> 
+page.</li> 
+ 
+<li>Added some new (optional) virtual functions to the timelike and 
+spacelike showers, to ease ME+PS merging with shower plugin codes. The 
+change does not impair the compatibility of existing shower plugin codes. 
+See the description on how to 
+<aloc href="NewShowers">Implement New Showers</aloc>, 
+the new methods <code>allowedSplitting(...)</code> and 
+<code>getRecoilers(...)</code>, and the modified 
+<code>getSplittingName(...)</code> ones.</li> 
+ 
+<li>New method <code>Pythia::addUserHooksPtr(...)</code> allows 
+the simultaneous use of several <aloc href="UserHooks">User Hooks</aloc>. 
+When several hooks are applicable for a given task the net effect is 
+multiplicative, in weights or in veto survival. It is up to the user 
+to ensure that such combinations are the intended ones.</li> 
+ 
+<li>New <aloc href="UserHooks">User Hooks</aloc> added to set the 
+space-time vertices for the ISR, FSR and MPI evolution process. 
+New <code>main65.cc</code> example illustrates how to set it up. 
+Thanks to Christian Bierlich.</li> 
+ 
+<li>Bug fix in the user hooks machinery for setting fragmentation 
+parameters, and an extension of this framework also to junction 
+topologies.</li> 
+ 
+<li>Four central members from the NNPDF 3.1 sets are made available, 
+as <code>PDF:pSet</code> (and equivalent) codes 17 - 20: the LO 
+ones with <ei>alpha_s = 0.130</ei> and <ei>0.118</ei>, and the 
+NLO and NNLO ones with the latter <ei>alpha_s</ei>. Note that these 
+are rather different from the default NNPDF 2.3 ones; in particular 
+the small-<ei>x</ei> behaviour is completely changed. Therefore 
+MPI cross sections are appreciably modified for current parameter 
+values, and retunes will be necessary before using NNPDF 3.1 in 
+production. Thanks to Juan Rojo.</li> 
+ 
+<li>Construct <ei>pi^+-</ei> PDFs so that <ei>dbar = u</ei> 
+and <ei>d = ubar</ei>, shortcutting the returned <ei>d, dbar</ei> 
+values since these are not always constructed correctly in LHAPDF. 
+Thanks to Vincent Andrieux.</li> 
+ 
+<li>Upgrade from fjcore version 3.0.5 to 3.2.1. This removes the 
+usage of the deprecated <code>std::auto_ptr</code> C++ feature. 
+Thanks to Ivan Razumov.</li> 
+ 
+<li>Fix a number of harmless but annoying warnings issued in some 
+versions of GCC 6.x, where the <code>-Wmisleading-indentation</code> 
+flag appears to be on by default. Thanks to Ivan Razumov.</li> 
+ 
+<li>Bug fix the calculation of enhancement factor for the machinery 
+with two hard processes. By mistake statistics was added once with 
+the correct value for each event (accessible with 
+<code>Info::enhanceMPI()</code>), and once with unity, leading to a 
+dilution of the effect. The average enhancement factor is now also 
+calculated at initialization, see <code>Info::enhanceMPIavg()</code> 
+and <code>Info::enhanceMPIoldavg()</code>.</li> 
+ 
+<li>Bug fix in <code>SusyLesHouches.cc</code>, in which the unitary 
+checks of SLHA mixing matrices previously ignored imaginary components, 
+leading to failures when reading in spectra with explicit CP violation. 
+Thanks to M. Noormandipur for pointing to this bug. Mixing-matrix output 
+simultaneously updated so that the magnitudes, rather than the real parts, 
+of mixing-matrix elements are printed.</li> 
+ 
+<li>A new approach has been introduced to force settings values 
+outside their allowed range, either by using the keyword 
+<code>FORCE</code> after the key (= parameter name) in an 
+<code>readString()</code> or <code>readFile()</code> command line, 
+or by using a new optional third argument <code>force = true</code> 
+(which is <code>false</code> by default) in the <code>Settings</code> 
+methods used to change values. The latter methods also will add a new 
+key to the database if not already there when <code>force = true</code> 
+is set. The old special <code>force</code> methods are now redundant 
+and will be removed in the next major release.</li> 
+ 
+<li>New methods <code>Settings::getReadHistory</code> and 
+<code>ParticleData::getReadHistory</code> return a vector 
+with all strings that have been read in by the 
+<code>Settings::readString()</code> and 
+<code>ParticleData::readString()</code> 
+methods, respectively, and thereby also the information set by the 
+<code>Pythia::readString()</code> and <code>Pythia::readFile()</code> 
+commands.</li> 
+ 
+<li>Introduce possibility to make phase space cuts on the DIS 
+<ei>Q^2</ei> variable.</li> 
+ 
+<li>Add options to use the DIS <ei>Q^2</ei> variable as factorization 
+and/or renormalization scale.</li> 
+ 
+<li>Introduce some freedom to modify the default shape of the 
+low-mass part of diffractive cross sections, and thereby also the 
+integrated value. </li> 
+ 
+<li>The new <code>LHAupHelaconia</code> class in 
+<code>include/Pythia8Plugins/LHAHelaconia.h</code> provides an 
+interface to the HelacOnia <ref>Sha15</ref> package for onium production, 
+see further the new 
+<aloc href="HelacOniaProcesses">HelacOnia Processes</aloc> page. The 
+new <code>main35.cc</code> example shows how to use the interface, 
+and how to compare with corresponding internal Pythia results.</li> 
+ 
+<li>Modified <code>configure</code> and <code>Makefile</code>s 
+fixes an issue with linking shared libraries on a Mac, and automatizes 
+the selection of whether to link static or shared libraries to the 
+example main programs. </li> 
+ 
+<li>Two new <code>Vec4</code> methods introduced: <code>cross4</code> 
+for cross product of three four-vectors, and <code>getTwoPerpendicular</code> 
+to create to four-vectors perpendicular to two given ones.</li> 
+ 
+<li>New <code>main74.cc</code> illustrates how the modified Mass Drop 
+Tagger code in FastJet can be used to improve mass reconstruction of 
+a resonance.</li> 
+ 
+<li>When using the <code>PhaseSpace:bias2Selection</code> to reweight 
+high-<ei>pT</ei> events the <code>PhaseSpace:pTHatMinDiverge</code> 
+value is now used as ultimate fail-safe to avoid <ei>pT = 0</ei>. 
+</li> 
+ 
+<li>Bug fix in the <code>TimeShower::findMEtype(...)</code> for a 
+few rare cases.</li> 
+ 
+<li>Bug fixes for the squark-gluino and gluino-chargino processes. 
+The charge-conjugate processes were not handled correctly, since the 
+PDF factors are different, and have now been separated.</li> 
+ 
+<li>Minor addition to <code>Streams.cc</code> includes to avoid 
+problems on one platform. Thanks to Joshua Ellis.</li> 
+ 
+<li>Bug fix in <code>HVStringFlav</code>, which otherwise left 
+some Hidden Valley particles massless. Thanks to Colleen Treado.</li> 
+ 
+<li>A few minor fixes when Dark Matter is used as incoming beams in 
+Les Houches input. Thanks to Roberto Ruiz.</li> 
+ 
+<li>Minor bug fix where the process container for resonance decays 
+(only) from LHE input is not initialized. This can lead to the problem 
+where particle input without lifetimes are not corrected, even when 
+the <code>LesHouches:setLifetime</code> mode is non-zero.</li> 
+ 
+<li>Bug fix in <ei>LED/Unparticle + Z^0</ei> production: correct 
+cross section for allowed <ei>Z^0</ei> decay channels. Thanks to 
+Andreas Albert.</li> 
+ 
+<li>Fixed memory leak in <code>TimeShower</code>, for the case when 
+the ProcessLevel is off. Thanks to Ryosuke Sato.</li> 
+ 
+<li>Fix that the MPI machinery did not work for the (infrequently used) 
+<code>MultipartonInteractions:bProfile = 0</code> option.</li> 
+ 
+<li>Minor division-by-zero bug fix in statistics calculation and 
+harmless uninitialized <code>bool</code>s in <code>CoupSUSY</code>. 
+Thanks to Vittorio Zecca.</li> 
+ 
+<li>Minor numerical precision improvements in gamma-gamma kinematics 
+and in <ei>tHat</ei> and <ei>uHat</ei> construction.</li> 
+ 
+</ul> 
+</li> 
+ 
 <li>8.223: 5 January 2017 
 <ul> 
  

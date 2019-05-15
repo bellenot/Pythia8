@@ -2250,6 +2250,16 @@ bool SpaceShower::branch( Event& event) {
   Particle& newRecoiler = event[iNewRecoiler];
   Particle& sister      = event.back();
 
+  // Allow setting of vertex for daughter parton, recoiler and sister.
+  if (userHooksPtr && userHooksPtr->canSetProductionVertex() ){
+    if (!daughter.hasVertex())
+      daughter.vProd( userHooksPtr->vertexForISR(mother) );
+    if (!newRecoiler.hasVertex())
+      newRecoiler.vProd( userHooksPtr->vertexForISR(mother) );
+    if (!sister.hasVertex())
+      sister.vProd( userHooksPtr->vertexForISR(mother) );
+  }
+
   // Replace old by new mother; update new recoiler.
   mother.id( idMother );
   mother.status( -41);
@@ -2354,7 +2364,6 @@ bool SpaceShower::branch( Event& event) {
   } else if (side == 1) {
     Vec4 pMotherWanted( 0., 0.,  0.5 * eCM * x1New, 0.5 * eCM * x1New);
     MfromRest.fromCMframe( pMotherWanted, event[iRecoiler].p() );
-
   } else {
     Vec4 pMotherWanted( 0., 0., -0.5 * eCM * x2New, 0.5 * eCM * x2New);
     MfromRest.fromCMframe( event[iRecoiler].p(), pMotherWanted );
@@ -2824,7 +2833,8 @@ bool SpaceShower::branch( Event& event) {
   }
 
   // Check that beam momentum not used up by rescattered-system boosts.
-  if (beamAPtr->xMax(-1) < 0.0 || beamBPtr->xMax(-1) < 0.0) {
+  if ( ( beamAPtr->xMax(-1) < 0.0 && !(beamAPtr->isUnresolved()) )
+         || (beamBPtr->xMax(-1) < 0.0 && !(beamBPtr->isUnresolved()) ) ) {
     infoPtr->errorMsg("Warning in SpaceShower::branch: "
       "used up beam momentum; retrying parton level");
     rescatterFail = true;

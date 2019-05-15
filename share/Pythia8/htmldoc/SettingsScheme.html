@@ -178,7 +178,10 @@ that do not match an existing variable are ignored. A warning is
 printed, however. Strings beginning with a non-alphanumeric character, 
 like # or !, are assumed to be comments and are not processed at all. 
 Values below the minimum or above the maximum are set at 
-the respective border. For <code>bool</code> values, the following 
+the respective border. In extreme cases, where it is necessary to 
+go outside the allowed range, "<code>FORCE=</code>" can replace 
+the normal "<code>=</code>" separator to force the requested value, 
+at own responsibility. For <code>bool</code> values, the following 
 notation may be used interchangeably: 
 <code>true = on = yes = ok = 1</code>, while everything else gives 
 <code>false</code> (including but not limited to 
@@ -437,11 +440,32 @@ while if false only the  <code>value</code> string.
    
  
 <a name="method11"></a>
+<p/><strong>vector&lt;string&gt; Settings::getReadHistory() &nbsp;</strong> <br/>
+Method to retrieve the history of <code>readString</code> commands that 
+have been processed by the <code>Settings</code> instance, e.g. for 
+inspection. Note that <code>readFile</code> command lines are interpreted 
+by <code>readString</code> and thus also are listed, as are the 
+<code>Settings</code> commands read by <code>Pythia::readString</code> 
+and <code>Pythia::readFile</code>. 
+   
+ 
+<a name="method12"></a>
+<p/><strong>vector&lt;string&gt; Settings::getReadHistory(int subrun) &nbsp;</strong> <br/>
+Method to retrieve the history of <code>readString</code> commands that 
+have been processed by <code>Settings</code>, for a specific subrun 
+(see the section on <a href="MainProgramSettings.html" target="page">Main-Program 
+Settings</a>). For <code>subrun = -1</code>, returns the 
+<code>readString</code> history common to all subruns. For 
+<code>subrun >= 0</code>, returns the history of <code>readString</code> 
+commands for that specific subrun (omitting the common part). 
+   
+ 
+<a name="method13"></a>
 <p/><strong>void Settings::resetAll() &nbsp;</strong> <br/>
 reset all current values to their defaults. 
    
  
-<a name="method12"></a>
+<a name="method14"></a>
 <p/><strong>bool Settings::isFlag(string key) &nbsp;</strong> <br/>
    
 <strong>bool Settings::isMode(string key) &nbsp;</strong> <br/>
@@ -461,7 +485,7 @@ return true if an entry of the given name and kind
 exists, else false. 
    
  
-<a name="method13"></a>
+<a name="method15"></a>
 <p/><strong>void Settings::addFlag(string key, bool default) &nbsp;</strong> <br/>
    
 <strong>void Settings::addMode(string key, int default, bool hasMin, bool hasMax, int min, int max) &nbsp;</strong> <br/>
@@ -483,7 +507,7 @@ value(s) always has to be supplied, for <code>Mode</code>, <code>Parm</code>,
 upper limits are to be imposed and, if so, what those limit are. 
    
  
-<a name="method14"></a>
+<a name="method16"></a>
 <p/><strong>bool Settings::flag(string key) &nbsp;</strong> <br/>
    
 <strong>int Settings::mode(string key) &nbsp;</strong> <br/>
@@ -506,7 +530,7 @@ vector of length 1 and value <code>false</code>, <code>0</code>,
 <code>0.</code> or <code>&quot; &quot;</code>, respectively, is returned. 
    
  
-<a name="method15"></a>
+<a name="method17"></a>
 <p/><strong>bool Settings::flagDefault(string key) &nbsp;</strong> <br/>
    
 <strong>int Settings::modeDefault(string key) &nbsp;</strong> <br/>
@@ -529,7 +553,7 @@ vector of length 1 and value <code>false</code>, <code>0</code>,
 <code>0.</code> or <code>&quot; &quot;</code>, respectively, is returned. 
    
  
-<a name="method16"></a>
+<a name="method18"></a>
 <p/><strong>map&lt;string, Flag&gt; Settings::getFlagMap(string match) &nbsp;</strong> <br/>
    
 <strong>map&lt;string, Mode&gt; Settings::getModeMap(string match) &nbsp;</strong> <br/>
@@ -549,29 +573,35 @@ return a map of all settings of the respective type that contain the
 string "match" in its name. 
    
  
-<a name="method17"></a>
-<p/><strong>void Settings::flag(string key, bool now) &nbsp;</strong> <br/>
+<a name="method19"></a>
+<p/><strong>void Settings::flag(string key, bool now, bool force = false) &nbsp;</strong> <br/>
    
-<strong>void Settings::mode(string key, int now) &nbsp;</strong> <br/>
+<strong>void Settings::mode(string key, int now, bool force = false) &nbsp;</strong> <br/>
    
-<strong>void Settings::parm(string key, double now) &nbsp;</strong> <br/>
+<strong>void Settings::parm(string key, double now, bool force = false) &nbsp;</strong> <br/>
    
-<strong>void Settings::word(string key, string now) &nbsp;</strong> <br/>
+<strong>void Settings::word(string key, string now, bool force = false) &nbsp;</strong> <br/>
    
-<strong>void Settings::fvec(string key, vector&lt;bool&gt; now) &nbsp;</strong> <br/>
+<strong>void Settings::fvec(string key, vector&lt;bool&gt; now, bool force = false) &nbsp;</strong> <br/>
    
-<strong>void Settings::mvec(string key, vector&lt;int&gt; now) &nbsp;</strong> <br/>
+<strong>void Settings::mvec(string key, vector&lt;int&gt; now, bool force = false) &nbsp;</strong> <br/>
    
-<strong>void Settings::pvec(string key, vector&lt;double&gt; now) &nbsp;</strong> <br/>
+<strong>void Settings::pvec(string key, vector&lt;double&gt; now, bool force = false) &nbsp;</strong> <br/>
    
-<strong>void Settings::wvec(string key, vector&lt;string&gt; now) &nbsp;</strong> <br/>
+<strong>void Settings::wvec(string key, vector&lt;string&gt; now, bool force = false) &nbsp;</strong> <br/>
 change the current value(s) of the respective setting to the provided 
-new value(s). If lower or upper limits have been set, input values 
-outside the allowed range are reinterpreted as being a the nearest 
-limit. 
+new value(s). If lower or upper limits have been set and 
+<code>force=false</code>, input values 
+outside the allowed range are reinterpreted as being at the nearest 
+limit. If <code>force = true</code>, upper and lower limits will be 
+ignored, allowing to force values outside the allowed range (to be 
+used with caution and at own responsibility!). Any key not found in the 
+settings database will be ignored, unless <code>force = true</code>, in 
+which case the missing key will be added to the database with the 
+given value. 
    
  
-<a name="method18"></a>
+<a name="method20"></a>
 <p/><strong>void Settings::forceMode(string key, int now) &nbsp;</strong> <br/>
    
 <strong>void Settings::forceParm(string key, double now) &nbsp;</strong> <br/>
@@ -581,9 +611,13 @@ limit.
 <strong>void Settings::forcePVec(string key, vector&lt;double&gt; now) &nbsp;</strong> <br/>
 as above, but do not check lower and upper limits, so that the current 
 value(s) can be put outside the intended borders. 
+<br/><b>Note:</b> these methods have been superseded by the 
+<code>force = true</code> option in the standard methods above. 
+They are kept for backwards compatibility with version 8.223 and earlier 
+but will be removed in a future major release. 
    
  
-<a name="method19"></a>
+<a name="method21"></a>
 <p/><strong>void Settings::resetFlag(string key) &nbsp;</strong> <br/>
    
 <strong>void Settings::resetMode(string key) &nbsp;</strong> <br/>
@@ -602,17 +636,17 @@ value(s) can be put outside the intended borders.
 reset the current value to the default one. 
    
  
-<a name="method20"></a>
+<a name="method22"></a>
 <p/><strong>bool Settings::getIsInit() &nbsp;</strong> <br/>
 return true if the database has been initialized, else false. 
    
  
-<a name="method21"></a>
+<a name="method23"></a>
 <p/><strong>bool Settings::readingFailed() &nbsp;</strong> <br/>
 return true if some input could not be parsed, else false. 
    
  
-<a name="method22"></a>
+<a name="method24"></a>
 <p/><strong>bool Settings::unfinishedInput() &nbsp;</strong> <br/>
 return true if input of a vector has been begun with am 
 open brace { but no matching closing brace } has been found 

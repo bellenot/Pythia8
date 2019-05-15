@@ -34,7 +34,8 @@ public:
     weights_detailed(NULL), weights_compressed(NULL), scales(NULL),
     weights(NULL), rwgt(NULL), eCMSave(0.), lowPTmin(false), a0MPISave(0.),
     abortPartonLevel(false), weightCKKWLSave(1.), weightFIRSTSave(0.) {
-    for (int i = 0; i < 40; ++i) counters[i] = 0; setNWeights(1);}
+    for (int i = 0; i < 40; ++i) counters[i] = 0;
+    setNWeights(1);}
 
   // Listing of most available information on current event.
   void   list() const;
@@ -112,6 +113,7 @@ public:
   double thetaScatLepA()      const {return thetaLepton1;}
   double thetaScatLepB()      const {return thetaLepton2;}
   double sHatNew()            const {return sHatNewSave;}
+  int    photonMode()         const {return gammaModeEvent;}
 
   // Mandelstam variables (notation as if subcollision).
   double mHat(int i = 0)      const {return sqrt(sH[i]);}
@@ -159,9 +161,12 @@ public:
   // Impact parameter picture, as set by hardest interaction.
   double bMPI()               const {return (bIsSet) ? bMPISave : 1.;}
   double enhanceMPI()         const {return (bIsSet) ? enhanceMPISave : 1.;}
+  double enhanceMPIavg()     const {return (bIsSet) ? enhanceMPIavgSave : 1.;}
   double eMPI(int i)          const {return (bIsSet) ? eMPISave[i] : 1.;}
   double bMPIold()            const {return (bIsSet) ? bMPIoldSave : 1.;}
   double enhanceMPIold()      const {return (bIsSet) ? enhanceMPIoldSave : 1.;}
+  double enhanceMPIoldavg()  const {return (bIsSet)
+                                     ? enhanceMPIoldavgSave : 1.;}
 
   // Number of multiparton interactions, with code and pT for them.
   int    nMPI()               const {return nMPISave;}
@@ -413,17 +418,18 @@ private:
          pdf2Save[4], Q2FacSave[4], alphaEMSave[4], alphaSSave[4],
          Q2RenSave[4], scalupSave[4], sH[4], tH[4], uH[4], pTH[4], m3H[4],
          m4H[4], thetaH[4], phiH[4], bMPISave, enhanceMPISave,
-         bMPIoldSave, enhanceMPIoldSave, pTmaxMPISave, pTmaxISRSave,
-         pTmaxFSRSave, pTnowSave, zNowISRSave, pT2NowISRSave, xPomA, xPomB,
-         tPomA, tPomB;
+         enhanceMPIavgSave, bMPIoldSave, enhanceMPIoldSave,
+         enhanceMPIoldavgSave, pTmaxMPISave, pTmaxISRSave, pTmaxFSRSave,
+         pTnowSave, zNowISRSave, pT2NowISRSave, xPomA, xPomB, tPomA, tPomB;
   string nameSave, nameSubSave[4];
   vector<int>    codeMPISave, iAMPISave, iBMPISave;
   vector<double> pTMPISave, eMPISave, weightSave;
   vector<string> weightLabelSave;
 
   // Variables related to photon kinematics.
+  int    gammaModeEvent;
   double x1GammaSave, x2GammaSave, Q2Gamma1Save, Q2Gamma2Save, eCMsubSave,
-    thetaLepton1, thetaLepton2, sHatNewSave;
+         thetaLepton1, thetaLepton2, sHatNewSave;
 
   // Vector of various loop counters.
   int    counters[50];
@@ -462,14 +468,15 @@ private:
   void setECM( double eCMin) {eCMSave = eCMin; sSave = eCMSave * eCMSave;}
 
   // Set info related to gamma+gamma subcollision.
-  void setX1Gamma( double x1GammaIn)  { x1GammaSave  = x1GammaIn; }
-  void setX2Gamma( double x2GammaIn)  { x2GammaSave  = x2GammaIn; }
-  void setQ2Gamma1( double Q2gammaIn) { Q2Gamma1Save = Q2gammaIn; }
-  void setQ2Gamma2( double Q2gammaIn) { Q2Gamma2Save = Q2gammaIn; }
-  void setTheta1( double theta1In)    { thetaLepton1 = theta1In;  }
-  void setTheta2( double theta2In)    { thetaLepton2 = theta2In;  }
-  void setECMsub( double eCMsubIn)    { eCMsubSave   = eCMsubIn;  }
-  void setsHatNew( double sHatNewIn)  { sHatNewSave  = sHatNewIn; }
+  void setX1Gamma( double x1GammaIn)     { x1GammaSave    = x1GammaIn;   }
+  void setX2Gamma( double x2GammaIn)     { x2GammaSave    = x2GammaIn;   }
+  void setQ2Gamma1( double Q2gammaIn)    { Q2Gamma1Save   = Q2gammaIn;   }
+  void setQ2Gamma2( double Q2gammaIn)    { Q2Gamma2Save   = Q2gammaIn;   }
+  void setTheta1( double theta1In)       { thetaLepton1   = theta1In;    }
+  void setTheta2( double theta2In)       { thetaLepton2   = theta2In;    }
+  void setECMsub( double eCMsubIn)       { eCMsubSave     = eCMsubIn;    }
+  void setsHatNew( double sHatNewIn)     { sHatNewSave    = sHatNewIn;   }
+  void setGammaMode( double gammaModeIn) { gammaModeEvent = gammaModeIn; }
 
   // Reset info for current event: only from Pythia class.
   void clear() {
@@ -478,8 +485,8 @@ private:
       = isHardDiffA = isHardDiffB = hasUnresBeams = hasPomPsys = false;
     codeSave = nFinalSave = nTotal = nMPISave = nISRSave = nFSRinProcSave
       = nFSRinResSave = 0;
-    bMPISave = enhanceMPISave = bMPIoldSave = enhanceMPIoldSave
-      = weightCKKWLSave = 1.;
+    bMPISave = enhanceMPISave = enhanceMPIavgSave = bMPIoldSave
+      = enhanceMPIoldSave = enhanceMPIoldavgSave = weightCKKWLSave = 1.;
     pTmaxMPISave = pTmaxISRSave = pTmaxFSRSave = pTnowSave = zNowISRSave
       = pT2NowISRSave = weightFIRSTSave = 0.;
     nameSave = " ";
@@ -555,11 +562,12 @@ private:
     sigErrM[i] = sqrtpos(sigErrM[i]*sigErrM[i] + sigErrIn*sigErrIn); }
 
   // Set info on impact parameter: from PartonLevel.
-  void setImpact( double bMPIIn, double enhanceMPIIn, bool bIsSetIn = true,
-    bool pushBack = false) {
-    if (pushBack) {bMPIoldSave = bMPISave; enhanceMPIoldSave = enhanceMPISave;}
+  void setImpact( double bMPIIn, double enhanceMPIIn, double enhanceMPIavgIn,
+    bool bIsSetIn = true, bool pushBack = false) {
+    if (pushBack) {bMPIoldSave = bMPISave; enhanceMPIoldSave = enhanceMPISave;
+      enhanceMPIoldavgSave = enhanceMPIavgSave;}
     bMPISave = bMPIIn; enhanceMPISave = eMPISave[0] = enhanceMPIIn,
-    bIsSet = bIsSetIn;}
+    enhanceMPIavgSave = enhanceMPIavgIn, bIsSet = bIsSetIn;}
 
   // Set info on pTmax scales and number of evolution steps: from PartonLevel.
   void setPartEvolved( int nMPIIn, int nISRIn) {

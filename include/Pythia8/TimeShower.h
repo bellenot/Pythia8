@@ -187,13 +187,21 @@ public:
 
   // Return a string identifier of a splitting.
   // Usage: getSplittingName( event, iRad, iEmt, iRec)
-  virtual string getSplittingName( const Event& , int , int , int )
-    { return "";}
+  virtual vector<string> getSplittingName( const Event& , int, int , int)
+    { return vector<string>();}
 
   // Return the splitting probability.
   // Usage: getSplittingProb( event, iRad, iEmt, iRec)
   virtual double getSplittingProb( const Event& , int , int , int , string )
     { return 0.;}
+
+  virtual bool allowedSplitting( const Event& , int , int)
+    { return true; }
+  virtual vector<int> getRecoilers( const Event&, int, int, string)
+    { return vector<int>(); }
+
+  // Pointer to MergingHooks object for NLO merging.
+  MergingHooks* mergingHooksPtr;
 
 protected:
 
@@ -351,9 +359,6 @@ private:
   int nGlobal, globalRecoilMode;
   // Switch to constrain recoiling system.
   bool limitMUQ;
-
-  // Pointer to MergingHooks object for NLO merging.
-  MergingHooks* mergingHooksPtr;
 
   // 2 -> 2 information needed for the external weak setup.
   vector<Vec4> weakMomenta;

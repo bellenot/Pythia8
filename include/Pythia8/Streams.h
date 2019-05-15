@@ -13,10 +13,10 @@
 #ifndef Pythia8_Streams_H
 #define Pythia8_Streams_H
 
+#include <cstddef>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
-#include <iostream>
 #include <fstream>
 #include <string.h>
 
@@ -24,6 +24,7 @@ namespace Pythia8 {
 
 #ifdef GZIPSUPPORT
 #include <zlib.h>
+
 //==========================================================================
 
 // Internal classes to implement gzstream. See below for user classes.

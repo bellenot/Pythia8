@@ -18,11 +18,13 @@ namespace Pythia8 {
 
 // Initialize data members of the flavour generation.
 
-void HVStringFlav::init(Settings& settings, ParticleData*,
-  Rndm* rndmPtrIn, Info*) {
+void HVStringFlav::init(Settings& settings, ParticleData* particleDataPtrIn,
+  Rndm* rndmPtrIn, Info* infoPtrIn) {
 
-  // Save pointer.
+  // Save pointers.
+  particleDataPtr = particleDataPtrIn;
   rndmPtr    = rndmPtrIn;
+  infoPtr         = infoPtrIn;
 
   // Read in data from Settings.
   nFlav      = settings.mode("HiddenValley:nFlav");

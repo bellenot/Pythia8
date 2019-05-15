@@ -10,8 +10,8 @@
 #define Pythia8_Pythia_H
 
 // Version number defined for use in macros and for consistency checks.
-#define PYTHIA_VERSION 8.223
-#define PYTHIA_VERSION_INTEGER 8223
+#define PYTHIA_VERSION 8.226
+#define PYTHIA_VERSION_INTEGER 8226
 
 // Header files for the Pythia class and for what else the user may need.
 #include "Pythia8/Analysis.h"
@@ -92,7 +92,9 @@ public:
   bool setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn = 0,
     PDF* pdfHardBPtrIn = 0, PDF* pdfPomAPtrIn = 0, PDF* pdfPomBPtrIn = 0,
     PDF* pdfGamAPtrIn = 0, PDF* pdfGamBPtrIn = 0, PDF* pdfHardGamAPtrIn = 0,
-    PDF* pdfHardGamBPtrIn = 0);
+    PDF* pdfHardGamBPtrIn = 0, PDF* pdfUnresAPtrIn = 0,
+    PDF* pdfUnresBPtrIn = 0, PDF* pdfUnresGamAPtrIn = 0,
+    PDF* pdfUnresGamBPtrIn = 0);
 
   // Possibility to pass in pointer to external LHA-interfaced generator.
   bool setLHAupPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn; return true;}
@@ -101,16 +103,32 @@ public:
   bool setDecayPtr( DecayHandler* decayHandlePtrIn,
     vector<int> handledParticlesIn) {decayHandlePtr = decayHandlePtrIn;
     handledParticles.resize(0);
-    for(int i = 0; i < int(handledParticlesIn.size()); ++i)
-    handledParticles.push_back( handledParticlesIn[i] ); return true;}
+    for (int i = 0; i < int(handledParticlesIn.size()); ++i)
+      handledParticles.push_back( handledParticlesIn[i] );
+    return true;}
 
   // Possibility to pass in pointer for external random number generation.
   bool setRndmEnginePtr( RndmEngine* rndmEnginePtrIn)
     { return rndm.rndmEnginePtr( rndmEnginePtrIn);}
 
   // Possibility to pass in pointer for user hooks.
-  bool setUserHooksPtr( UserHooks* userHooksPtrIn)
-    { userHooksPtr = userHooksPtrIn; return true;}
+  bool setUserHooksPtr( UserHooks* userHooksPtrIn) {
+    if (hasUserHooksVector) delete userHooksPtr;
+    hasUserHooksVector = false;
+    userHooksPtr = userHooksPtrIn; return true;}
+
+  // Possibility to add further pointers to allow multiple user hooks.
+  bool addUserHooksPtr( UserHooks* userHooksPtrIn) {
+    if ( !userHooksPtr ) return setUserHooksPtr(userHooksPtrIn);
+    UserHooksVector* uhv = dynamic_cast<UserHooksVector*>(userHooksPtr);
+    if ( !uhv ) { uhv = new UserHooksVector();
+      uhv->hooks.push_back(userHooksPtr); userHooksPtr = uhv; }
+    uhv->hooks.push_back(userHooksPtrIn);
+    hasUserHooksVector = true; return true;}
+
+  // Possibility to pass in pointer for full merging class.
+  bool setMergingPtr( Merging* mergingPtrIn)
+    { mergingPtr = mergingPtrIn; return true;}
 
   // Possibility to pass in pointer for merging hooks.
   bool setMergingHooksPtr( MergingHooks* mergingHooksPtrIn)
@@ -161,7 +179,8 @@ public:
 
   // Skip a number of Les Houches events at input.
   bool LHAeventSkip(int nSkip) {
-    if (lhaUpPtr != 0) return lhaUpPtr->skipEvent(nSkip); return false;}
+    if (lhaUpPtr != 0) return lhaUpPtr->skipEvent(nSkip);
+    return false;}
 
   // Main routine to provide final statistics on generation.
   void stat();
@@ -173,7 +192,8 @@ public:
   string word(string key) {return settings.word(key);}
 
   // Auxiliary to set parton densities among list of possibilities.
-  PDF* getPDFPtr(int idIn, int sequence = 1, string beam = "");
+  PDF* getPDFPtr(int idIn, int sequence = 1, string beam = "",
+    bool resolved = true);
 
   // The event record for the parton-level central process.
   Event          process;
@@ -204,11 +224,15 @@ public:
   PartonSystems  partonSystems;
 
   // Merging object as wrapper for matrix element merging routines.
-  Merging        merging;
+  Merging*       mergingPtr;
 
   // Pointer to MergingHooks object for user interaction with the merging.
   // MergingHooks also more generally steers the matrix element merging.
   MergingHooks*  mergingHooksPtr;
+
+  // The two incoming beams.
+  BeamParticle beamA;
+  BeamParticle beamB;
 
 private:
 
@@ -231,6 +255,7 @@ private:
   // Initialization data related to photon-photon interactions.
   bool   beamHasGamma, beamAisResGamma, beamBisResGamma, beamAhasResGamma,
          beamBhasResGamma;
+  int    gammaMode;
 
   // Initialization data, extracted from init(...) call.
   bool   isConstructed, isInit, isUnresolvedA, isUnresolvedB, showSaV,
@@ -266,13 +291,17 @@ private:
   PDF* pdfHardGamAPtr;
   PDF* pdfHardGamBPtr;
 
-  // Keep track when "new" has been used and needs a "delete" for PDF's.
-  bool useNewPdfA, useNewPdfB, useNewPdfHard, useNewPdfPomA, useNewPdfPomB,
-    useNewPdfGamA, useNewPdfGamB, useNewPdfHardGamA, useNewPdfHardGamB;
+  // Alternative unresolved PDFs when mixing resolved and unresolved processes.
+  PDF* pdfUnresAPtr;
+  PDF* pdfUnresBPtr;
+  PDF* pdfUnresGamAPtr;
+  PDF* pdfUnresGamBPtr;
 
-  // The two incoming beams.
-  BeamParticle beamA;
-  BeamParticle beamB;
+  // Keep track when "new" has been used and needs a "delete" for PDF's etc.
+  bool useNewPdfA, useNewPdfB, useNewPdfHard, useNewPdfPomA, useNewPdfPomB,
+    useNewPdfGamA, useNewPdfGamB, useNewPdfHardGamA, useNewPdfHardGamB,
+    useNewPdfUnresA, useNewPdfUnresB, useNewPdfUnresGamA, useNewPdfUnresGamB,
+    hasUserHooksVector;
 
   // Alternative Pomeron beam-inside-beam.
   BeamParticle beamPomA;
@@ -324,6 +353,7 @@ private:
   PartonLevel trialPartonLevel;
 
   // Flags for defining the merging scheme.
+  bool        hasMerging, hasOwnMerging;
   bool        hasMergingHooks, hasOwnMergingHooks, doMerging;
 
   // The Colour reconnection class.

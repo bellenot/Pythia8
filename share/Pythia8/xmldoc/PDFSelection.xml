@@ -146,6 +146,17 @@ NLO <ei>alpha_s(M_Z) = 0.1180</ei> (NLO, see Warning 3 above).</option>
 </option> 
 <option value="16">NNPDF2.3 QCD+QED NNLO <ei>alpha_s(M_Z) = 0.119</ei>. 
 </option> 
+<option value="17">NNPDF3.1 QCD LO <ei>alpha_s(M_Z) = 0.130</ei>. 
+<note>Warning :</note>the NNPDF 3.1 sets are quite different from the 
+NNPDF 2.3 ones, and cannot be used interchangeably but need 
+retuning of the MPI framework. 
+</option> 
+<option value="18">NNPDF3.1 QCD LO <ei>alpha_s(M_Z) = 0.118</ei>. 
+</option> 
+<option value="19">NNPDF3.1 QCD NLO <ei>alpha_s(M_Z) = 0.118</ei>. 
+</option> 
+<option value="20">NNPDF3.1 QCD NNLO <ei>alpha_s(M_Z) = 0.118</ei>. 
+</option> 
 <option value="LHAPDF5:set/member">Use an external LHAPDF set 
 where <code>set</code> is the name of the set to use 
 and <code>member</code> is the member of the set to use. The value 
@@ -412,7 +423,7 @@ diffractive processes.
 <h3>Parton densities for photons</h3> 
  
 Photon PDFs describe the partonic content of the resolved photons and 
-can be used to generate any hard process initiated by quarks and gluons. 
+can be used to generate any process initiated by quarks and gluons. 
  
 <p/> 
 There are several PDF sets available for photons, although there have not 
@@ -427,7 +438,7 @@ Currently no photon PDFs have been included in LHAPDF6.
 Parton densities that can be used for resolved photon beams. 
 <option value="1"> CJKL, based on <ref>Cor03</ref> but the rescaling 
 for heavy quarks due to kinematic constraints in DIS is undone to obtain 
-correct behaviour for photon-photon collisions.</option> 
+correct behaviour for photon-photon/hadron collisions.</option> 
 </modepick> 
  
 <word name="PDF:GammaHardSet" default="void"> 
@@ -460,7 +471,7 @@ these collinear photons will carry the full radiated energy.
 <p/> 
 Neutrinos are always taken pointlike. Do note that the phase space 
 selection machinery currently does not allow one resolved and one 
-unresolved beam. For lepton-neutrino collisions to work you must 
+unresolved lepton beam. For lepton-neutrino collisions to work you must 
 therefore set <code>PDF:lepton = off</code>. 
  
 <h4>Photons from lepton beams</h4> 
@@ -473,8 +484,8 @@ gives the flux of bremsstrahlung photons.
  
 <flag name="PDF:lepton2gamma" default="off"> 
 Gives photon beams from leptons. Both, unresolved (direct) and resolved 
-contributions are included, see <aloc href="PhotonPhoton">Photon-photon 
-Interactions</aloc> for details. Can be used only with charged leptons. 
+contributions are included, see <aloc href="Photoproduction"> 
+Photoproduction</aloc> for details. Can be used only with charged leptons. 
 The applied photon PDF set is selected with the <code>PDF:GammaSet</code> 
 and <code>PDF:GammaHardSet</code> options above. Events with two unresolved 
 photon initiators can be generated also with the <code>PDF:lepton = on</code> 

@@ -220,7 +220,8 @@ In detail, the list of used or foreseen status codes is:
   <li>107 : two temporary leftover gluons joined into one in the formation 
             of a gluino-gluon R-hadron</li> 
   </ul> 
-<li>111 - 119 : hadrons with changed momentum due to hadron (re)scattering</li> 
+<li>111 - 119 : hadrons with changed momentum due to hadron 
+  (re)scattering</li> 
   <ul> 
   <li>111 : first time scattering</li> 
   <li>112 : second or more time scattering</li> 

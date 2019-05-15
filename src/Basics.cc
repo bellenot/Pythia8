@@ -10,6 +10,7 @@
 
 // Access time information.
 #include <ctime>
+#include <limits>
 
 namespace Pythia8 {
 
@@ -411,6 +412,17 @@ void Vec4::rotbst(const RotBstMatrix& M) {
 
 //--------------------------------------------------------------------------
 
+// Print a four-vector: also operator overloading with friend.
+
+ostream& operator<<(ostream& os, const Vec4& v) {
+  os << fixed << setprecision(3) << " " << setw(9) << v.xx << " "
+     << setw(9) << v.yy << " " << setw(9) << v.zz << " " << setw(9)
+     << v.tt << " (" << setw(9) << v.mCalc() << ")\n";
+  return os;
+}
+
+//--------------------------------------------------------------------------
+
 // The invariant mass of two four-vectors.
 
 double m(const Vec4& v1, const Vec4& v2) {
@@ -446,6 +458,24 @@ Vec4 cross3(const Vec4& v1, const Vec4& v2) {
   v.xx = v1.yy * v2.zz - v1.zz * v2.yy;
   v.yy = v1.zz * v2.xx - v1.xx * v2.zz;
   v.zz = v1.xx * v2.yy - v1.yy * v2.xx; return v;
+}
+
+
+//--------------------------------------------------------------------------
+
+// Cross-product of three 4-vectors ( p_i = epsilon_{iabc} p_a p_b p_c)
+
+Vec4 cross4(const Vec4& a, const Vec4& b, const Vec4& c) {
+  Vec4 v(0.,0.,0.,0.);
+  v.tt =   a.xx*b.yy*c.zz + a.yy*b.zz*c.xx + a.zz*b.xx*c.yy
+         - a.xx*b.zz*c.yy - a.zz*b.yy*c.xx - a.yy*b.xx*c.zz;
+  v.xx = -(- a.tt*b.yy*c.zz - a.yy*b.zz*c.tt - a.zz*b.tt*c.yy
+           + a.tt*b.zz*c.yy + a.zz*b.yy*c.tt + a.yy*b.tt*c.zz);
+  v.yy = -(- a.xx*b.tt*c.zz - a.tt*b.zz*c.xx - a.zz*b.xx*c.tt
+           + a.xx*b.zz*c.tt + a.zz*b.tt*c.xx + a.tt*b.xx*c.zz);
+  v.zz = -(- a.xx*b.yy*c.tt - a.yy*b.tt*c.xx - a.tt*b.xx*c.yy
+           + a.xx*b.tt*c.yy + a.tt*b.yy*c.xx + a.yy*b.xx*c.tt);
+  return v;
 }
 
 //--------------------------------------------------------------------------
@@ -556,17 +586,6 @@ double REtaPhi(const Vec4& v1, const Vec4& v2) {
 
 //--------------------------------------------------------------------------
 
-// Print a four-vector: also operator overloading with friend.
-
-ostream& operator<<(ostream& os, const Vec4& v) {
-  os << fixed << setprecision(3) << " " << setw(9) << v.xx << " "
-     << setw(9) << v.yy << " " << setw(9) << v.zz << " " << setw(9)
-     << v.tt << " (" << setw(9) << v.mCalc() << ")\n";
-  return os;
-}
-
-//--------------------------------------------------------------------------
-
 // Shift four-momenta within pair from old to new masses.
 // Note that p1Move and p2Move change values during operation.
 
@@ -592,6 +611,30 @@ bool pShift( Vec4& p1Move, Vec4& p2Move, double m1New, double m2New) {
   p1Move    += pSh;
   p2Move    -= pSh;
   return true;
+}
+
+//--------------------------------------------------------------------------
+
+// Create two vectors that are perpendicular to the both input vectors.
+
+pair<Vec4,Vec4> getTwoPerpendicular(const Vec4& v1, const Vec4& v2) {
+
+  // One perpendicular vector from three-dimensional cross-product.
+  Vec4 nPerp( cross3(v1,v2) );
+  double TINY = std::numeric_limits<double>::epsilon();
+  if ( abs(nPerp.pAbs()) < TINY) {
+    Vec4 aux;
+    if (v1.px() != 0.)      aux.p(v1.yy,v1.px(),v1.pz(),v1.e());
+    else if (v1.py() != 0.) aux.p(v1.px(),v1.pz(),v1.py(),v1.e());
+    else if (v1.pz() != 0.) aux.p(v1.pz(),v1.py(),v1.px(),v1.e());
+    nPerp.p( cross3(v1,aux) );
+  }
+  nPerp /= abs(nPerp.pAbs());
+
+  // Second perpendicular vector from four-dimensional cross-product.
+  Vec4 lPerp( cross4(v1,v2,nPerp) );
+  lPerp /= sqrt(abs(lPerp.m2Calc()));
+  return make_pair(nPerp,lPerp);
 }
 
 //==========================================================================
