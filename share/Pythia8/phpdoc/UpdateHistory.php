@@ -39,6 +39,27 @@ but this should only affect a small part of the user code.
  
 <ul> 
  
+<li>8.205: 23 January 2015 
+<ul> 
+ 
+<li>Unfortunate tiny typo made the new A14 tunes inaccessible.
+Now fixed.</li> 
+ 
+<li>Resolved an inconsistency between MLM and FxFx merging that was 
+introduced in 8.201 upon answering a user request. The effect should 
+be minimal. Thanks to Josh Bendavid for bringing this to our attention.
+</li> 
+ 
+<li>Amended the automated reading of the (optional) 
+"TimeShower:nPartonsInBorn" setting from Les Houches Event files 
+produced with aMC@NLO. Heavy coloured objects are now handled correctly 
+when the information in the Les Houches event does not include heavy 
+partons of the lowest-multiplicity state into its counting (as is 
+conventional). Thanks to Josh Bendavid for pointing this out.</li> 
+ 
+</ul> 
+</li> 
+ 
 <li>8.204: 22 January 2015 
 <ul> 
  

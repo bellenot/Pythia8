@@ -2048,7 +2048,7 @@ void Settings::initTunePP( int ppTune) {
   }
 
   // Several ATLAS and CMS tunes start out from Monash 2013 tune.
-  else if (ppTune == 18) {
+  else if (ppTune >= 18) {
     word("PDF:pSet",                            "13"  );   // NNPDF
     parm("SigmaProcess:alphaSvalue",            0.130 );   // same as PDF
     flag("SigmaTotal:zeroAXB",                  true  );

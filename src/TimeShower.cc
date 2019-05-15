@@ -520,10 +520,15 @@ void TimeShower::prepareGlobal( Event& event) {
 
   // Global recoils: store positions of hard outgoing partons.
   // No global recoil for H events.
+  int nHeavyCol = 0;
   if (globalRecoil) {
-    for (int i = 0; i < event.size(); ++i)
+    for (int i = 0; i < event.size(); ++i) {
       if (event[i].isFinal() && event[i].colType() != 0)
         hardPartons.push_back(i);
+      if ( event[i].isFinal() && event[i].idAbs() > 5 && event[i].idAbs() != 21
+          && (event[i].col() != 0 || event[i].acol() != 0))
+        ++nHeavyCol;        
+    }
     nHard = hardPartons.size();
     if (nFinalBorn > 0 && nHard > nFinalBorn) {
       hardPartons.resize(0);
@@ -533,8 +538,11 @@ void TimeShower::prepareGlobal( Event& event) {
 
   // Reset nFinalBorn on an event-by-event basis.
   string nNow = infoPtr->getEventAttribute("npNLO",true);
-  if (nNow != "" && nFinalBorn == -1)
+  if (nNow != "" && nFinalBorn == -1){
     nFinalBorn = max(0, atoi((char*)nNow.c_str()));
+    // Add number of heavy colored objects in lowest multiplicity state.
+    nFinalBorn += nHeavyCol;
+  }
 
 }
 

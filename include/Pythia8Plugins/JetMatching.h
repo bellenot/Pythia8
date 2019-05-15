@@ -1044,7 +1044,10 @@ inline bool JetMatchingMadgraph::doVetoProcessLevel(Event& process) {
   sortIncomingProcess(process);
 
   // Veto in case the hard input matrix element already has too many partons.
-  if ( int(typeIdx[0].size()) > nJetMax ) return true;
+  if ( !doFxFx && int(typeIdx[0].size()) > nJetMax )
+    return true;
+  if ( doFxFx && npNLO() < nJetMax && int(typeIdx[0].size()) > nJetMax )
+    return true;
 
   // Done
   return false;

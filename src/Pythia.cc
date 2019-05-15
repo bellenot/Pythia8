@@ -22,7 +22,7 @@ namespace Pythia8 {
 //--------------------------------------------------------------------------
 
 // The current Pythia (sub)version number, to agree with XML version.
-const double Pythia::VERSIONNUMBERCODE = 8.204;
+const double Pythia::VERSIONNUMBERCODE = 8.205;
 
 //--------------------------------------------------------------------------
 
