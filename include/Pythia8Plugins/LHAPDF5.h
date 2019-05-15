@@ -1,5 +1,5 @@
 // LHAPDF5.h is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -29,6 +29,8 @@ extern "C" {
   extern void initpdfm_(int&, int&);
 
   extern void evolvepdfm_(int&, double&, double&, double*);
+
+  extern void evolvepdfpm_(int&, double&, double&, double&, double&, double*);
 
   extern void evolvepdfphotonm_(int&, double&, double&, double*, double&);
 
@@ -62,6 +64,12 @@ namespace LHAPDF5Interface {
   // Evaluate x f_i(x, Q).
   void evolvePDFM( int& nSet, double x, double Q, double* xfArray) {
     evolvepdfm_( nSet, x, Q, xfArray);
+  }
+
+  // Evaluate x f_i(x, Q) for photon beams.
+  void evolvePDFpM( int& nSet, double x, double Q, double P2, double IP2,
+    double* xfArray) {
+    evolvepdfpm_( nSet, x, Q, P2, IP2, xfArray);
   }
 
   // Evaluate x f_i(x, Q) including photon
@@ -125,7 +133,8 @@ public:
   // Constructor.
   LHAPDF5(int idBeamIn, string setName, int member,  int nSetIn = -1,
     Info* infoPtr = 0) : PDF(idBeamIn), nSet(nSetIn)
-    {init(setName, member, infoPtr);}
+    { init(setName, member, infoPtr);
+    isPhoton = (idBeamIn == 22) ? true : false; }
 
   // Allow extrapolation beyond boundaries. This is optional.
   void setExtrapolate(bool extrapol);
@@ -141,7 +150,7 @@ private:
   // Current set and pdf values.
   int    nSet;
   double xfArray[13];
-  bool   hasPhoton;
+  bool   hasPhoton, isPhoton;
   double xPhoton;
 
 };
@@ -209,6 +218,12 @@ void LHAPDF5::xfUpdate(int, double x, double Q2) {
   if (hasPhoton) {
     LHAPDF5Interface::evolvePDFPHOTONM( nSet, x, Q, xfArray, xPhoton);
   }
+
+  // Use special call with photon beams. No virtualities implemented yet.
+  else if (isPhoton) {
+    LHAPDF5Interface::evolvePDFpM( nSet, x, Q, 0., 0., xfArray);
+  }
+
   // Else use default LHAPDF5 call.
   else {
     LHAPDF5Interface::evolvePDFM( nSet, x, Q, xfArray);

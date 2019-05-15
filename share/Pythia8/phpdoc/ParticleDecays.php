@@ -231,7 +231,7 @@ decay is performed and a warning is issued.
  
 <p/> 
 Both the internal and external determination have advantages and 
-disadvantages. For example, if an LHEF <ei Z^0 &rarr; tau^+ tau^-</i> 
+disadvantages. For example, if an LHEF <i>Z^0 &rarr; tau^+ tau^-</i> 
 event is passed with SPINUP provided for both <i>tau</i>s but 
 without SPINUP for the <i>Z^0</i> then 
 with <code>TauDecays:externalTau</code> set to <code>0</code> the 
@@ -599,4 +599,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

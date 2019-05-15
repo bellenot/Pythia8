@@ -175,7 +175,7 @@ is governed by the the beam parameters from the
 echo "<a href='BeamParameters.php?filepath=".$filepath."' target='page'>";?>Beams</a></code> 
 group of variables. If you don't change any of those you will 
 default to proton-proton collisions at 14 TeV, i.e. the nominal LHC 
-values. 
+values.</li> 
  
 <p/> 
 <li> 
@@ -603,7 +603,6 @@ particle data. This option is intended for runs with multiple
 Pythia instances, where only the first one needs to read the 
 <code>xmldoc</code> files, while subsequent ones can "inherit" 
 this information. 
-   
 <br/><code>argument</code><strong> printBanner </strong> (<code>default = <strong>on</strong></code>) :  can be set 
 <code>false</code> to stop the program from printing a banner. 
 The banner contains useful information, so this option is only 
@@ -618,7 +617,6 @@ creates an instance of the <code>Pythia</code> event generators,
 and sets initial default values, notably for all settings and 
 particle data. This option is intended for runs with multiple 
 Pythia instances, where input streams can avoid file read congestion. 
-   
 <br/><code>argument</code><strong> printBanner </strong> (<code>default = <strong>on</strong></code>) :  can be set 
 <code>false</code> to stop the program from printing a banner. 
 The banner contains useful information, so this option is only 
@@ -630,6 +628,7 @@ where output needs to be restricted.
 <a name="method4"></a>
 <p/><strong>Pythia::~Pythia &nbsp;</strong> <br/>
 the destructor deletes the objects created by the constructor. 
+   
  
 <a name="method5"></a>
 <p/><strong>void Pythia::initPtrs() &nbsp;</strong> <br/>
@@ -1209,4 +1208,4 @@ echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>here<
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

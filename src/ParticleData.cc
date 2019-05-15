@@ -1,5 +1,5 @@
 // ParticleData.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,6 +10,7 @@
 #include "Pythia8/ResonanceWidths.h"
 #include "Pythia8/StandardModel.h"
 #include "Pythia8/SusyResonanceWidths.h"
+#include "Pythia8/ResonanceWidthsDM.h"
 
 // Allow string and character manipulation.
 #include <cctype>
@@ -239,6 +240,48 @@ int ParticleDataEntry::baryonNumberType(int idIn) const {
   if (isBaryon()) return (idIn > 0) ? 3 : -3;
 
   // Done.
+  return 0;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Find number of quarks of given kind inside quark, diquark or hadron.
+// Note: naive answer for flavour-diagonal meson mixing.
+
+int ParticleDataEntry::nQuarksInCode(int idQIn) const {
+
+  // Do not keep track of sign.
+  int idQ   = abs(idQIn);
+  int idNow = abs(idSave);
+  int nQ    = 0;
+
+  // Quarks.
+  if (isQuark()) return (idQ == idNow) ? 1 : 0;
+
+  // Diquarks.
+  if (isDiquark()) {
+    if ( (idNow/1000) % 10 == idQ) ++nQ;
+    if ( (idNow/100)  % 10 == idQ) ++nQ;
+    return nQ;
+  }
+
+  // Mesons.
+  if (isMeson()) {
+    if ( (idNow/100) % 10 == idQ) ++nQ;
+    if ( (idNow/10)  % 10 == idQ) ++nQ;
+    return nQ;
+  }
+
+  // Baryons.
+  if (isBaryon()) {
+    if ( (idNow/1000) % 10 == idQ) ++nQ;
+    if ( (idNow/100)  % 10 == idQ) ++nQ;
+    if ( (idNow/10)   % 10 == idQ) ++nQ;
+    return nQ;
+  }
+
+  // Done. Room for improvements e.g. w.r.t. R-hadrons.
   return 0;
 
 }
@@ -640,6 +683,10 @@ void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
   resonancePtr = new ResonanceLeptoquark(42);
   setResonancePtr( 42, resonancePtr);
 
+  // Mediators for Dark Matter.
+  resonancePtr = new ResonanceZp(55);
+  setResonancePtr( 55, resonancePtr);
+
   // 93 = Z0copy and 94 = W+-copy used to pick decay channels
   // for W/Z production in parton showers.
   resonancePtr = new ResonanceGmZ(93);
@@ -647,8 +694,8 @@ void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
   resonancePtr = new ResonanceW(94);
   setResonancePtr( 94, resonancePtr);
 
-  // Supersymmetry
-  //  - Squarks
+  // Supersymmetry:
+  //  - Squarks;
   for(int i = 1; i < 7; i++){
     resonancePtr = new ResonanceSquark(1000000 + i);
     setResonancePtr( 1000000 + i, resonancePtr);
@@ -656,7 +703,7 @@ void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
     setResonancePtr( 2000000 + i, resonancePtr);
   }
 
-  //  - Sleptons and sneutrinos
+  //  - Sleptons and sneutrinos;
   for(int i = 1; i < 7; i++){
     resonancePtr = new ResonanceSlepton(1000010 + i);
     setResonancePtr( 1000010 + i, resonancePtr);
@@ -664,17 +711,17 @@ void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
     setResonancePtr( 2000010 + i, resonancePtr);
   }
 
-  // - Gluino
+  // - Gluino;
   resonancePtr = new ResonanceGluino(1000021);
   setResonancePtr( 1000021, resonancePtr);
 
-  // - Charginos
+  // - Charginos;
   resonancePtr = new ResonanceChar(1000024);
   setResonancePtr( 1000024, resonancePtr);
   resonancePtr = new ResonanceChar(1000037);
   setResonancePtr( 1000037, resonancePtr);
 
-  // - Neutralinos
+  // - Neutralinos.
   if (isResonance(1000022)) {
     resonancePtr = new ResonanceNeut(1000022);
     setResonancePtr( 1000022, resonancePtr);

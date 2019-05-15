@@ -873,7 +873,7 @@ keep track of whether the data for a particle has been changed
 in any respect between initialization and the current status. 
 Is used e.g. by the <code>listChanged</code> method to determine 
 which particles to list. 
-</method> 
+</methodmore> 
  
 <method name="bool ParticleData::useBreitWigner(int id)"> 
 tells whether a particle will have a Breit-Wigner mass distribution or 
@@ -1538,4 +1538,4 @@ positive and negative particles. For internal use.
  
 </chapter> 
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

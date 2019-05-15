@@ -1,5 +1,5 @@
 // PartonDistributions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -45,10 +45,10 @@ void PDF::setValenceContent() {
     idVal2 = -1;
   }
 
-  // Photon, to start off. Modified later.
+  // Photon not fixed until at Process-/PartonLevel.
   if (idBeamAbs == 22) {
-    idVal1 =  2;
-    idVal2 = -2;
+    idVal1 =  10;
+    idVal2 = -10;
   }
 
 }
@@ -2217,8 +2217,13 @@ void Lepton::xfUpdate(int id, double x, double Q2) {
   else if (x > 1. - 1e-7) fPrel *= pow(1000.,beta) / (pow(1000.,beta) - 1.);
   xlepton = x * fPrel;
 
-  // Photon inside electron (one possible scheme - primitive).
-  xgamma = (0.5 * ALPHAEM / M_PI) * Q2Log * (1. + pow2(1. - x));
+  // Photons with restricted virtuality.
+  double sCM = infoPtr->s();
+  double m2s = 4 * m2Lep / sCM;
+  double Q2minGamma = 2. * m2Lep * pow2(x)
+    / ( 1. - x - m2s + sqrt(1. - m2s) * sqrt( pow2(1. - x) - m2s ) );
+  xgamma = (0.5 * ALPHAEM / M_PI) * (1. + pow2(1. - x))
+         * log( Q2maxGamma / Q2minGamma );
 
   // idSav = 9 to indicate that all flavours reset.
   idSav = 9;
@@ -2630,14 +2635,14 @@ LHAPDF::Symbol LHAPDF::symbol(string symName) {
 // Gives the CJKL leading order parton distribution function set
 // in parametrized form for the real photons. Authors: F.Cornet, P.Jankowski,
 // M.Krawczyk and A.Lorca, Phys. Rev. D68: 014010, 2003.
-// Valid for 10^(-5) < x < 1 and 1 < Q^2 < 2*10^5 GeV^2,
-// however, currently used down to Q^2 > 0.4 GeV^2 which is still above
-// the initial scale of the fit and parametrizations are reasonable.
+// Valid for 10^(-5) < x < 1 and 1 < Q^2 < 2*10^5 GeV^2.
+// Below Q^2 = 1 a logarithmic approximation in Q^2 is used.
 
 // Constants related to the fit.
 const double CJKL::ALPHAEM = 0.007297353080;
 const double CJKL::Q02     = 0.25;
-const double CJKL::Q2MIN   = 0.4;
+const double CJKL::Q2MIN   = 0.05;
+const double CJKL::Q2REF   = 1.0;
 const double CJKL::LAMBDA  = 0.221;
 const double CJKL::MC      = 1.3;
 const double CJKL::MB      = 4.3;
@@ -2649,8 +2654,11 @@ void CJKL::xfUpdate(int , double x, double Q2) {
   // Parameters:
   double lambda2 = pow2(LAMBDA);
 
-  // Freeze the scale below minimum scale.
-  if(Q2 < Q2MIN) Q2 = Q2MIN;
+  // When below reference scale calculate first with the reference scale and
+  // later scale with log(Q^2).
+  double Q2Save = Q2;
+  bool belowRef = (Q2 < Q2REF);
+  if ( belowRef) Q2 = Q2REF;
 
   // Evolution variable.
   double s = log( log(Q2/lambda2)/log(Q02/lambda2) );
@@ -2698,6 +2706,34 @@ void CJKL::xfUpdate(int , double x, double Q2) {
   xcSea = ALPHAEM*( hlCharm );
   xbVal = ALPHAEM*( plLog*plBottom );
   xbSea = ALPHAEM*( hlBottom );
+
+  // When below valid Q^2 values approximate scale evolution with log(Q^2).
+  // Approximation derived by integrating xf over x and calculating the
+  // derivative at Q2REF.
+  if ( belowRef) {
+    double logApprox = max( log(Q2Save/Q2MIN) / log(Q2REF/Q2MIN ), 0.);
+
+    // Scale the PDFs according to log(Q^2) approx.
+    xg    *= logApprox;
+    xd    *= logApprox;
+    xu    *= logApprox;
+    xubar *= logApprox;
+    xdbar *= logApprox;
+    xs    *= logApprox;
+    xsbar *= logApprox;
+    xc    *= logApprox;
+    xb    *= logApprox;
+    xuVal *= logApprox;
+    xuSea *= logApprox;
+    xdVal *= logApprox;
+    xdSea *= logApprox;
+    xsVal *= logApprox;
+    xsSea *= logApprox;
+    xcVal *= logApprox;
+    xcSea *= logApprox;
+    xbVal *= logApprox;
+    xbSea *= logApprox;
+  }
 
   // idSav = 9 to indicate that all flavours reset.
   idSav  = 9;
@@ -2782,6 +2818,36 @@ int CJKL::sampleGammaValFlavor(double Q2) {
   }
 
   return idVal1;
+}
+
+//--------------------------------------------------------------------------
+
+// Sum of integrated PDFs \int dx x f(x,Q^2) at given scale Q^2.
+// Integrals parametrized as a0 + a1*log(Q^2/Q0^2).
+
+double CJKL::xfIntegratedTotal(double Q2){
+
+  // Freeze the scale below the initial scale.
+  if(Q2 < Q02) Q2 = Q02;
+
+  // Set the reference scales and relative contributions.
+  // Gluons and u/d quarks has some non-perturbative contribution, others
+  // only radiative contributions. Derived by fitting by eye to
+  // a0 + a1*log(Q^2/Q0^2).
+  double fq0[6] = { 0.0018, 0.0006, 0.0006, 0., 0., 0. };
+  double mq2[6] = { Q02, Q02, Q02, Q02, pow2(MC), pow2(MB) };
+  double eq2[6] = { 3.0/9.0, 1.0/9.0, 4.0/9.0, 1.0/9.0, 4.0/9.0, 1.0/9.0 };
+  double a1 = 0.000981;
+
+  // Logarithmic Q^2 evolution for each flavor. quarks two times, gluon
+  // coefficents scaled appropriately.
+  double xIntegrated = 0;
+  for(int i = 0;i < 6;++i) {
+    xIntegrated += fq0[i] + 2*a1*eq2[i]*max(0.0,log(Q2/mq2[i]));
+  }
+
+  return xIntegrated;
+
 }
 
 //--------------------------------------------------------------------------
@@ -3493,9 +3559,6 @@ const double Lepton2gamma::Q2MIN   = 1.;
 
 void Lepton2gamma::xfUpdate(int , double x, double Q2){
 
-  // Freeze scale at Q^2 < Q^2_min.
-  if(Q2 < Q2MIN) Q2 = Q2MIN;
-
   // Find the maximum x value at given Q2max and sqrt(s).
   double sCM = infoPtr->s();
   double xGamMax = Q2max / (2. * m2lepton)
@@ -3521,8 +3584,10 @@ void Lepton2gamma::xfUpdate(int , double x, double Q2){
   double log2xMax = pow2( log( Q2max / (m2lepton * pow2(xGamMax)) ) );
 
   // Sample x_gamma.
-  xGm = sqrt( (Q2max / m2lepton)
-    * exp( -sqrt( log2x + rndmPtr->flat() * (log2xMax - log2x) ) ) );
+  if ( sampleXgamma) {
+    xGm = sqrt( (Q2max / m2lepton)
+      * exp( -sqrt( log2x + rndmPtr->flat() * (log2xMax - log2x) ) ) );
+  }
 
   // Evaluate the PDFs at x/x_gamma.
   double xInGamma = x/xGm;
@@ -3569,9 +3634,6 @@ void Lepton2gamma::xfUpdate(int , double x, double Q2){
 
 double Lepton2gamma::xfMax(int id, double x, double Q2){
 
-  // Freeze scale at Q^2 < Q^2_min.
-  if(Q2 < Q2MIN) Q2 = Q2MIN;
-
   // Find the maximum x value at given Q2max and sqrt(s).
   double sCM = infoPtr->s();
   double xGamMax = Q2max / (2. * m2lepton)
@@ -3595,9 +3657,25 @@ double Lepton2gamma::xfMax(int id, double x, double Q2){
   else if (idAbs == 5) xApprox = (pow(x, 0.2) + pow(1.  -x, -0.5))  * 0.5;
   else xApprox = 0.;
 
+  // Direct photons in usual lepton PDFs.
+  if ( idAbs == 22 ) return 0;
+
   // Return the approximation.
   return (ALPHAEM / (2. * M_PI)) * (log2x - log2xMax) * 0.5
     * gammaPDFPtr->xf(id, x, Q2) / xApprox;
+}
+
+//--------------------------------------------------------------------------
+
+// Return PDF without sampling x_gamma values to compute cross section with
+// rescaled sHat. Not very elegant but no need to modify the xfUpdate call.
+
+double Lepton2gamma::xfSame(int id, double x, double Q2){
+  sampleXgamma = false;
+  xfUpdate(id, x, Q2);
+  double xfNow = xf(id, x, Q2);
+  sampleXgamma = true;
+  return xfNow;
 }
 
 //==========================================================================

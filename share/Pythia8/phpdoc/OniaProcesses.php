@@ -43,7 +43,7 @@ which specifies the Fock state through which the process occurs,
 where <i>(1)</i> indicates a colour-singlet state and <i>(8)</i> a 
 colour-octet state. 
  
-<p> The unphysical colour-octet states follow the <code>id</code> 
+<p/> The unphysical colour-octet states follow the <code>id</code> 
 scheme of <i>99 n_q n_s n_r n_L n_J</i> where <i>n_q</i> is the 
 quark flavour of the state and <i>n_s</i> is the colour-octet state 
 type. Here <i>0</i> is <i>3S1</i>, <i>1</i> is <i>1S0</i>, 
@@ -1122,4 +1122,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

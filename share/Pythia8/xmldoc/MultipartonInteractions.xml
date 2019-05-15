@@ -422,7 +422,7 @@ used for some of the <code>MultipartonInteractions:rescatterMode</code>
 options above, as the rapidity for which a scattered parton has a 50% 
 probability to be considered as a potential rescatterer. 
 A <ei>ySep > 0</ei> generally implies that some central partons cannot 
-rescatter at all, while a <ei>ySep < 0</ei>  instead allows central 
+rescatter at all, while a <ei>ySep &lt; 0</ei>  instead allows central 
 partons to scatter against either beam. 
 </parm> 
  
@@ -587,4 +587,4 @@ interactions.
  
 </chapter> 
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

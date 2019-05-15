@@ -16,7 +16,7 @@ which specifies the Fock state through which the process occurs,
 where <ei>(1)</ei> indicates a colour-singlet state and <ei>(8)</ei> a 
 colour-octet state. 
  
-<p> The unphysical colour-octet states follow the <code>id</code> 
+<p/> The unphysical colour-octet states follow the <code>id</code> 
 scheme of <ei>99 n_q n_s n_r n_L n_J</ei> where <ei>n_q</ei> is the 
 quark flavour of the state and <ei>n_s</ei> is the colour-octet state 
 type. Here <ei>0</ei> is <ei>3S1</ei>, <ei>1</ei> is <ei>1S0</ei>, 
@@ -176,7 +176,7 @@ The colour-octet long-distance matrix
 elements <ei>&lt;O[3P0(8)]&gt;/m_Q^2</ei> for the <ei>3S1</ei> charmonium 
 states. The remaining <ei>&lt;O[3PJ(8)]&gt;/m_Q^2</ei> 
 are calculated from these long-distance matrix elements. 
-</parm> 
+</pvec> 
  
 <fvec name="Charmonium:gg2ccbar(3S1)[3S1(1)]g" default="off,off"> 
 Colour-singlet production of <ei>3S1</ei> charmonium states via 
@@ -329,7 +329,7 @@ The colour-octet long-distance matrix
 elements <ei>&lt;O[3P0(8)]&gt;/m_Q^2</ei> for the 3DJ charmonium 
 states. The remaining <ei>&lt;O[3PJ(8)]&gt;/m_Q^2</ei> 
 are calculated from these long-distance matrix elements. 
-</parm> 
+</pvec> 
  
 <fvec name="Charmonium:gg2ccbar(3DJ)[3DJ(1)]g" default="off"> 
 Colour-singlet production of <ei>3PJ</ei> charmonium states via 
@@ -435,7 +435,7 @@ The colour-octet long-distance matrix
 elements <ei>&lt;O[3P0(8)]&gt;/m_Q^2</ei> for the <ei>3S1</ei> bottomonium 
 states. The remaining <ei>&lt;O[3PJ(8)]&gt;/m_Q^2</ei> 
 are calculated from these long-distance matrix elements. 
-</parm> 
+</pvec> 
  
 <fvec name="Bottomonium:gg2bbbar(3S1)[3S1(1)]g" default="off,off,off"> 
 Colour-singlet production of <ei>3S1</ei> bottomonium states via 
@@ -589,7 +589,7 @@ The colour-octet long-distance matrix
 elements <ei>&lt;O[3P0(8)]&gt;/m_Q^2</ei> for the 3DJ bottomonium 
 states. The remaining <ei>&lt;O[3PJ(8)]&gt;/m_Q^2</ei> 
 are calculated from these long-distance matrix elements. 
-</parm> 
+</pvec> 
  
 <fvec name="Bottomonium:gg2bbbar(3DJ)[3DJ(1)]g" default=""> 
 Colour-singlet production of <ei>3PJ</ei> bottomonium states via 
@@ -665,4 +665,4 @@ Code 522.
  
 </chapter> 
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

@@ -1,5 +1,5 @@
 // ProcessContainer.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -19,6 +19,7 @@
 #include "Pythia8/SigmaNewGaugeBosons.h"
 #include "Pythia8/SigmaQCD.h"
 #include "Pythia8/SigmaSUSY.h"
+#include "Pythia8/SigmaDM.h"
 
 namespace Pythia8 {
 
@@ -45,9 +46,10 @@ const int ProcessContainer::N3SAMPLE  = 1000;
 
 bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   Settings& settings, ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
-  BeamParticle* beamAPtr, BeamParticle* beamBPtr, Couplings* couplingsPtr,
+  BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn, Couplings* couplingsPtr,
   SigmaTotal* sigmaTotPtr, ResonanceDecays* resDecaysPtrIn,
-  SLHAinterface* slhaInterfacePtr, UserHooks* userHooksPtrIn) {
+  SLHAinterface* slhaInterfacePtr, UserHooks* userHooksPtrIn,
+  GammaKinematics* gammaKinPtrIn) {
 
   // Extract info about current process from SigmaProcess object.
   isLHA       = sigmaProcessPtr->isLHA();
@@ -75,14 +77,22 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   // Flag for maximum violation handling.
   increaseMaximum = settings.flag("PhaseSpace:increaseMaximum");
 
-  // Store whether beam has a gamma beam inside (leptons).
-  beamAhasGamma = beamAPtr->hasGamma();
-  beamBhasGamma = beamBPtr->hasGamma();
+  // Store whether beam particle has a resolved photons.
+  beamAPtr         = beamAPtrIn;
+  beamBPtr         = beamBPtrIn;
+  gammaKinPtr      = gammaKinPtrIn;
+  beamHasGamma     = settings.flag("PDF:lepton2gamma");
+  beamAhasResGamma = beamAPtr->hasResGamma();
+  beamBhasResGamma = beamBPtr->hasResGamma();
+  beamHasResGamma  = beamAhasResGamma || beamBhasResGamma;
 
   // Pick and create phase space generator. Send pointers where required.
   if (phaseSpacePtr != 0) ;
   else if (isLHA)       phaseSpacePtr = new PhaseSpaceLHA();
-  else if (isNonDiff)   phaseSpacePtr = new PhaseSpace2to2nondiffractive();
+  else if (isNonDiff && !beamHasGamma)
+                        phaseSpacePtr = new PhaseSpace2to2nondiffractive();
+  else if (isNonDiff && beamAhasResGamma && beamBhasResGamma)
+    phaseSpacePtr = new PhaseSpace2to2nondiffractiveGamma();
   else if (!isResolved && !isDiffA  && !isDiffB  && !isDiffC )
                         phaseSpacePtr = new PhaseSpace2to2elastic();
   else if (!isResolved && !isDiffA  && !isDiffB && isDiffC)
@@ -111,6 +121,10 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   phaseSpacePtr->init( isFirst, sigmaProcessPtr, infoPtr, &settings,
     particleDataPtr, rndmPtr, beamAPtr,  beamBPtr, couplingsPtr, sigmaTotPtr,
     userHooksPtr);
+
+  // Send the pointer to gammaKinematics for non-diffractive processes.
+  if ( beamAhasResGamma && beamBhasResGamma && isNonDiffractive() )
+    phaseSpacePtr->setGammaKinPtr( gammaKinPtr);
 
   // Reset cross section statistics.
   nTry      = 0;
@@ -185,6 +199,24 @@ bool ProcessContainer::trialProcess() {
     infoPtr->setEndOfFile(false);
     bool repeatSame = (iTry > 0);
     bool physical = phaseSpacePtr->trialKin(true, repeatSame);
+
+    // For acceptable kinematics sample also kT for photons from leptons.
+    if ( physical && !isNonDiffractive() && beamHasGamma ) {
+
+      // Save the x_gamma values for unresolved photons.
+      if ( !beamAhasResGamma ) beamAPtr->xGamma( x1());
+      if ( !beamBhasResGamma ) beamBPtr->xGamma( x2());
+
+      // Sample the kinematics of virtual photons.
+      if ( !gammaKinPtr->sampleKTgamma() ) physical = false;
+
+      // Processes with direct photons rescale momenta and cross section.
+      if ( physical && !(beamAhasResGamma && beamBhasResGamma) ) {
+        double sHatNew = gammaKinPtr->calcNewSHat( phaseSpacePtr->sHat() );
+        phaseSpacePtr->rescaleSigma( sHatNew);
+        phaseSpacePtr->rescaleMomenta( sHatNew);
+      }
+    }
 
     // Flag to check if more events should be generated.
     bool doTryNext = true;
@@ -358,6 +390,9 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   if (!phaseSpacePtr->finalKin()) return false;
   int nFin = sigmaProcessPtr->nFinal();
 
+  // Save sampled values for further use.
+  if ( beamHasGamma && !isNonDiffractive() ) gammaKinPtr->finalize();
+
   // Basic info on process.
   if (isHardest) infoPtr->setType( name(), code(), nFin, isNonDiff,
     isResolved, isDiffA, isDiffB, isDiffC, isLHA);
@@ -375,31 +410,31 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
   process.append( idB, -12, 0, 0, 0, 0, 0, 0,
     Vec4(0., 0., infoPtr->pzB(), infoPtr->eB()), infoPtr->mB(), 0. );
 
+  // Add intermediate gammas for lepton -> gamma -> parton processes
+  // for both non-diffractive and hard processes, including direct-resolved.
+  int nOffsetGamma = 0;
+  if ( beamHasResGamma) {
+    double xGm1 = beamAPtr->xGamma();
+    process.append( 22, -13, 1, 0, 0, 0, 0, 0,
+      Vec4(0., 0., xGm1*infoPtr->pzA(), xGm1*infoPtr->eA()), 0, 0. );
+    process[1].daughter1(3);
+    ++nOffsetGamma;
+    double xGm2 = beamBPtr->xGamma();
+    process.append( 22, -13, 2, 0, 0, 0, 0, 0,
+      Vec4(0., 0., xGm2*infoPtr->pzB(), xGm2*infoPtr->eB()), 0, 0. );
+    process[1 + nOffsetGamma].daughter1(3 + nOffsetGamma);
+    ++nOffsetGamma;
+  }
+
   // For nondiffractive process no interaction selected so far, so done.
   if (isNonDiff) return true;
 
   // Entries 3 and 4, now to be added, come from 1 and 2.
-  process[1].daughter1(3);
-  process[2].daughter1(4);
+  // Offset from normal locations possible due to intermediate photons.
+  process[1 + nOffsetGamma].daughter1(3 + nOffsetGamma);
+  process[2 + nOffsetGamma].daughter1(4 + nOffsetGamma);
   double scale  = 0.;
   double scalup = 0.;
-
-  // Add intermediate gammas for lepton -> gamma -> parton processes.
-  int nOffsetGamma = 0;
-  if ( beamAhasGamma) {
-    double xGm1 = xGamma1();
-    process.append( 22, -13, 1, 0, 0, 0, 0, 0,
-      Vec4(0., 0., xGm1*infoPtr->pzA(), xGm1*infoPtr->eA()), 0, 0. );
-    process[3].daughter1(5);
-    ++nOffsetGamma;
-  }
-  if ( beamBhasGamma) {
-    double xGm2 = xGamma2();
-    process.append( 22, -13, 2, 0, 0, 0, 0, 0,
-      Vec4(0., 0., xGm2*infoPtr->pzB(), xGm2*infoPtr->eB()), 0, 0. );
-    process[3 + nOffsetGamma].daughter1(5 + nOffsetGamma);
-    ++nOffsetGamma;
-  }
 
   // For DiffC entries 3 - 5 come jointly from 1 and 2 (to keep HepMC happy).
   if (isDiffC) {
@@ -446,7 +481,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       else if (acol < 0) acol -= colOffset;
 
       // If extra photons in event record, offset the mother/daughter list.
-      if ( beamAhasGamma || beamBhasGamma ) {
+      if ( beamAhasResGamma || beamBhasResGamma ) {
         if (mother1 > 0)   mother1   += nOffsetGamma;
         if (mother2 > 0)   mother2   += nOffsetGamma;
         if (daughter1 > 0) daughter1 += nOffsetGamma;
@@ -1438,6 +1473,25 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   }
   if (photonCollisions || settings.flag("PhotonCollision:gmgm2tautau")) {
     sigmaPtr = new Sigma2gmgm2ffbar(15, 266);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+
+  // Set up requested objects for photon-parton processes.
+  bool photonParton = settings.flag("PhotonParton:all");
+  if (photonParton || settings.flag("PhotonParton:ggm2qqbar")) {
+    sigmaPtr = new Sigma2ggm2qqbar(1, 271);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (photonParton || settings.flag("PhotonParton:ggm2ccbar")) {
+    sigmaPtr = new Sigma2ggm2qqbar(4, 272);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (photonParton || settings.flag("PhotonParton:ggm2bbbar")) {
+    sigmaPtr = new Sigma2ggm2qqbar(5, 273);
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (photonParton || settings.flag("PhotonParton:qgm2qg")) {
+    sigmaPtr = new Sigma2qgm2qg();
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
 
@@ -2686,6 +2740,12 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   }
   if (settings.flag("ExtraDimensionsUnpart:gg2llbar")) {
     sigmaPtr = new Sigma2gg2LEDllbar( false );
+    containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+
+  // Set up requested objects for Dark Matter processes.
+  if (settings.flag("DM:ffbar2Zp2XX")) {
+    sigmaPtr = new Sigma2ffbar2Zp2XX();
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
   }
 

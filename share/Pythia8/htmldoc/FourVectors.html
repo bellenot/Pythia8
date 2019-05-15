@@ -416,6 +416,12 @@ such that the matrix encodes the full sequence of operations.
 The order in which you do these calls must agree with the imagined 
 order in which the rotations/boosts should be applied to a 
 four-momentum, since in general the operations do not commute. 
+<br/>(Mathematically you would e.g. define <i>M = M_3 M_2 M_1</i> 
+in that <i>M p = M_3( M_2( M_1 p) ) )</i>. That is, operations 
+on the four-vector <i>p</i> are carried out in the order first 
+<i>M_1</i>, then <i>M_2</i> and finally <i>M_3</i>. Thus 
+<i>M_1, M_2, M_3</i> is also the order in which you should input 
+rotations and boosts to <i>M</i>.) 
  
 <a name="method53"></a>
 <p/><strong>RotBstMatrix::RotBstMatrix() &nbsp;</strong> <br/>
@@ -510,4 +516,4 @@ ended with a newline.
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

@@ -1,5 +1,5 @@
 // BeamRemnants.h is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -63,7 +63,7 @@ private:
   int    remnantMode, reconnectMode;
 
   // Information set for events.
-  bool   isDIS;
+  bool   isDIS, doMPI;
   int    nSys, oldSize, iDS;
   double eCM, sCM;
 
@@ -97,6 +97,9 @@ private:
 
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr;
+
+  // Pointer to the particle data table.
+  ParticleData* particleDataPtr;
 
   // Do the kinematics of the collision subsystems and two beam remnants.
   bool setKinematics( Event& event);

@@ -1,5 +1,5 @@
 // LHEF3.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -940,6 +940,66 @@ bool Writer::writeEvent(HEPEUP * peup, int pDigits) {
   if ( !file ) return false;
 
   return true;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Write out an event as a string.
+
+string Writer::getEventString(HEPEUP * peup) {
+
+  HEPEUP & eup = (peup? *peup: hepeup);
+
+  stringstream helper;
+
+  helper << "<event";
+  for ( map<string,string>::const_iterator it = eup.attributes.begin();
+        it != eup.attributes.end(); ++it )
+    helper << " " << it->first << "=\"" << it->second << "\"";
+  helper << ">" << std::flush << endl;
+  helper << " " << setw(4) << eup.NUP
+       << " " << setw(6) << eup.IDPRUP
+       << " " << setw(14) << eup.XWGTUP
+       << " " << setw(14) << eup.SCALUP
+       << " " << setw(14) << eup.AQEDUP
+       << " " << setw(14) << eup.AQCDUP << endl;
+  eup.resize();
+
+  for ( int i = 0; i < eup.NUP; ++i ) {
+    helper << " " << setw(8) << eup.IDUP[i]
+         << " " << setw(2) << eup.ISTUP[i]
+         << " " << setw(4) << eup.MOTHUP[i].first
+         << " " << setw(4) << eup.MOTHUP[i].second
+         << " " << setw(6) << eup.ICOLUP[i].first
+         << " " << setw(6) << eup.ICOLUP[i].second
+         << fixed
+         << setprecision(15)
+         << " " << setw(22) << eup.PUP[i][0]
+         << " " << setw(22) << eup.PUP[i][1]
+         << " " << setw(22) << eup.PUP[i][2]
+         << " " << setw(22) << eup.PUP[i][3]
+         << " " << setw(22) << eup.PUP[i][4]
+         << " " << setw(6) << eup.VTIMUP[i]
+         << " " << setw(6) << eup.SPINUP[i] << endl;
+  }
+
+  // Write event comments.
+  helper << hashline(eventStream.str()) << std::flush;
+  eventStream.str("");
+
+  if ( version != 1 ) {
+    eup.rwgtSave.list(helper);
+    eup.weightsSave.list(helper);
+    eup.scalesSave.list(helper);
+  }
+
+  helper << "</event>" << endl;
+
+  string helperString = helper.str();
+  //event = helperString.c_str();
+
+  return helperString;
 
 }
 

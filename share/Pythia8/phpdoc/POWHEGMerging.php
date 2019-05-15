@@ -235,7 +235,8 @@ MPI vetoing.
 Treatment of non-QCD radiation. 
 <br/>
 <input type="radio" name="9" value="0" checked="checked"><strong>0 </strong>: Colorless partons are not included in <ei> pT </ei>    calculated from the shower for <ei> pTemt>0 </ei>.<br/>
-<input type="radio" name="9" value="1"><strong>1 </strong>: Colorless partons ARE included for <ei> pTemt>0 </ei>.  <option value="2">Colorless partons ARE included for <ei> pTemt>0 </ei>.    Additionally, if a colorless parton is emitted with <ei> pT > pThard </ei>    in Born-level events, then the entire event is accepted.    This is relevant for all values of <ei> pTemt </ei>.  <br/>
+<input type="radio" name="9" value="1"><strong>1 </strong>: Colorless partons ARE included for <ei> pTemt>0 </ei>.    <br/>
+<input type="radio" name="9" value="2"><strong>2 </strong>: Colorless partons ARE included for <ei> pTemt>0 </ei>.    Additionally, if a colorless parton is emitted with <ei> pT > pThard </ei>    in Born-level events, then the entire event is accepted.    This is relevant for all values of <ei> pTemt </ei>.  <br/>
  
 <input type="hidden" name="saved" value="1"/>
 
@@ -304,4 +305,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

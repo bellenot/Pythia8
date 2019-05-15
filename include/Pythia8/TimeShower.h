@@ -1,5 +1,5 @@
 // TimeShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -252,15 +252,15 @@ private:
          uVarMPIshowers;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaSnfmax, nGluonToQuark,
          weightGluonToQuark, alphaEMorder, nGammaToQuark, nGammaToLepton,
-         nCHV, idHV, nMaxGlobalRecoil, weakMode;
+         nCHV, idHV, alphaHVorder, nMaxGlobalRecoil, weakMode;
   double pTdampFudge, mc, mb, m2c, m2b, renormMultFac, factorMultFac,
          fixedFacScale2, alphaSvalue, alphaS2pi, Lambda3flav, Lambda4flav,
          Lambda5flav, Lambda3flav2, Lambda4flav2, Lambda5flav2,
          scaleGluonToQuark, extraGluonToQuark, pTcolCutMin, pTcolCut,
          pT2colCut, pTchgQCut, pT2chgQCut, pTchgLCut, pT2chgLCut,
          pTweakCut, pT2weakCut, mMaxGamma, m2MaxGamma, octetOniumFraction,
-         octetOniumColFac, mZ, gammaZ, thetaWRat, mW, gammaW, CFHV,
-         alphaHVfix, pThvCut, pT2hvCut, mHV, pTmaxFudgeMPI,
+         octetOniumColFac, mZ, gammaZ, thetaWRat, mW, gammaW, CFHV, nFlavHV,
+         alphaHVfix, LambdaHV, pThvCut, pT2hvCut, mHV, pTmaxFudgeMPI,
          weakEnhancement, vetoWeakDeltaR2, dASmax, cNSpTmin;
 
   // alphaStrong and alphaEM calculations.

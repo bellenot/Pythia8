@@ -453,21 +453,27 @@ diffractive processes.
  
 Photon PDFs describe the partonic content of the resolved photons and 
 can be used to generate any hard process initiated by quarks and gluons. 
-Currently hard-processes with parton showers and hadronization can 
-be generated but MPIs and soft interactions are not included. 
  
 <p/> 
 There are several PDF sets available for photons, although there have not 
-been much activity recently. Currently one internal set is included. 
-Even though LHAPDF5 includes some older photon PDF sets, only the 
-internal set should be used here as the parton shower and beam remnant 
-generation require additional methods that are not present in external 
-sets. 
+been much activity recently. Currently one internal set is included, but 
+more sets are available from LHAPDF5. The sets from LHAPDF5 can only be 
+used as PDFs in the hard process (see <code>PDF:GammaHardSet</code> below). 
+In case of photons the parton shower and beam remnant generation 
+require additional methods that are provided only for internal sets. 
+Currently no photon PDFs have been included in LHAPDF6. 
  
 <br/><br/><table><tr><td><strong>PDF:GammaSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 1</code>)</td></tr></table>
-Parton densities that can be used for photon beams. 
+Parton densities that can be used for resolved photon beams. 
 <br/>
 <input type="radio" name="17" value="1" checked="checked"><strong>1 </strong>:  CJKL, based on <ref>Cor03</ref> but the rescaling  for heavy quarks due to kinematic constraints in DIS is undone to obtain  correct behaviour for photon-photon collisions.<br/>
+ 
+<br/><br/><table><tr><td><strong>PDF:GammaHardSet  </td><td></td><td> <input type="text" name="18" value="void" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>void</strong></code>)</td></tr></table>
+Parton densities to be used by the beams of the hard process. For photons 
+the other options are the ones provided by LHAPDF5. If this option is set 
+to <code>void</code> then the same PDF set as <code>PDF:GammaSet</code> is 
+used. 
+   
  
 <h3>Parton densities for leptons</h3> 
  
@@ -478,8 +484,8 @@ However, insofar as e.g. <i>e^+ e^-</i> data often are corrected
 back to a world without any initial-state photon radiation, it is 
 useful to have a corresponding option available here. 
  
-<br/><br/><strong>PDF:lepton</strong>  <input type="radio" name="18" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="18" value="off"><strong>Off</strong>
+<br/><br/><strong>PDF:lepton</strong>  <input type="radio" name="19" value="on" checked="checked"><strong>On</strong>
+<input type="radio" name="19" value="off"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
 Use parton densities for lepton beams or not. If off the colliding 
 leptons carry the full beam energy, if on part of the energy is 
@@ -499,25 +505,30 @@ therefore set <code>PDF:lepton = off</code>.
  
 <h4>Photons from lepton beams</h4> 
  
-Lepton beams can also emit resolved photons and therefore have partonic 
+Lepton beams can emit photons and therefore may have partonic 
 content. The PDFs describing these can be obtained by convoluting 
-the photon flux with the selected photon PDFs. Currently the photon flux 
+the photon flux with the selected photon PDFs. The photon flux 
 is modelled according to equivalent photon approximation (EPA) which 
 gives the flux of bremsstrahlung photons. 
  
-<br/><br/><strong>PDF:lepton2gamma</strong>  <input type="radio" name="19" value="on"><strong>On</strong>
-<input type="radio" name="19" value="off" checked="checked"><strong>Off</strong>
+<br/><br/><strong>PDF:lepton2gamma</strong>  <input type="radio" name="20" value="on"><strong>On</strong>
+<input type="radio" name="20" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-When set on, the photon-inside-lepton PDFs are used and processes with quark 
-or gluon initiators can be generated. Can be used only with charged leptons. 
-The photon PDF set is selected with the <code>PDF:GammaSet</code> option 
-above. 
+Gives photon beams from leptons. Both, unresolved (direct) and resolved 
+contributions are included, see <?php $filepath = $_GET["filepath"];
+echo "<a href='PhotonPhoton.php?filepath=".$filepath."' target='page'>";?>Photon-photon 
+Interactions</a> for details. Can be used only with charged leptons. 
+The applied photon PDF set is selected with the <code>PDF:GammaSet</code> 
+and <code>PDF:GammaHardSet</code> options above. Events with two unresolved 
+photon initiators can be generated also with the <code>PDF:lepton = on</code> 
+but then additional phase-space cuts (e.g. cut on the invariant mass of the 
+photon-photon pair) are not applied. 
    
  
-<br/><br/><table><tr><td><strong>PDF:lepton2gammaSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>PDF:lepton2gammaSet  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 1</code>)</td></tr></table>
 The photon flux. Currently one option available. 
 <br/>
-<input type="radio" name="20" value="1" checked="checked"><strong>1 </strong>:  Convolute the photon flux from EPA with the selected photon  PDF set. Convolution integral is performed "on the fly", meaning that the  actual integral is not computed but the <ei>x_gamma</ei> is sampled  event-by-event. Since the final PDF value depends on the sampled value for  <ei>x_gamma</ei> the phase-space sampling is set up using an overestimate for  the PDFs. This makes the process selection somewhat less efficient compared  to the case where the PDFs are fixed (e.g. for protons).<br/>
+<input type="radio" name="21" value="1" checked="checked"><strong>1 </strong>:  Convolute the photon flux from EPA with the selected photon  PDF set. Convolution integral is performed "on the fly", meaning that the  actual integral is not computed but the <ei>x_gamma</ei> is sampled  event-by-event. Since the final PDF value depends on the sampled value for  <ei>x_gamma</ei> the phase-space sampling is set up using an overestimate for  the PDFs. This makes the process selection somewhat less efficient compared  to the case where the PDFs are fixed (e.g. for protons).<br/>
  
 <h3>Incoming parton selection</h3> 
  
@@ -527,7 +538,7 @@ only which quarks are allowed to contribute to the hard-process cross
 sections. Note that separate but similarly named modes are available 
 for multiparton interactions and spacelike showers. 
  
-<br/><br/><table><tr><td><strong>PDFinProcess:nQuarkIn  </td><td></td><td> <input type="text" name="21" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>PDFinProcess:nQuarkIn  </td><td></td><td> <input type="text" name="22" value="5" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)</td></tr></table>
 Number of allowed incoming quark flavours in the beams; a change 
 to 4 would thus exclude <i>b</i> and <i>bbar</i> as incoming 
 partons, etc. 
@@ -633,24 +644,29 @@ if($_POST["17"] != "1")
 $data = "PDF:GammaSet = ".$_POST["17"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["18"] != "on")
+if($_POST["18"] != "void")
 {
-$data = "PDF:lepton = ".$_POST["18"]."\n";
+$data = "PDF:GammaHardSet = ".$_POST["18"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["19"] != "off")
+if($_POST["19"] != "on")
 {
-$data = "PDF:lepton2gamma = ".$_POST["19"]."\n";
+$data = "PDF:lepton = ".$_POST["19"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["20"] != "1")
+if($_POST["20"] != "off")
 {
-$data = "PDF:lepton2gammaSet = ".$_POST["20"]."\n";
+$data = "PDF:lepton2gamma = ".$_POST["20"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["21"] != "5")
+if($_POST["21"] != "1")
 {
-$data = "PDFinProcess:nQuarkIn = ".$_POST["21"]."\n";
+$data = "PDF:lepton2gammaSet = ".$_POST["21"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["22"] != "5")
+{
+$data = "PDFinProcess:nQuarkIn = ".$_POST["22"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
@@ -660,4 +676,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

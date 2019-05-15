@@ -1,5 +1,5 @@
 // MultipartonInteractions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -104,7 +104,8 @@ public:
     Settings& settings, ParticleData* particleDataPtr, Rndm* rndmPtrIn,
     BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
     Couplings* couplingsPtrIn, PartonSystems* partonSystemsPtrIn,
-    SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn);
+    SigmaTotal* sigmaTotPtrIn, UserHooks* userHooksPtrIn,
+    bool hasGammaIn = false);
 
   // Reset impact parameter choice and update the CM energy.
   void reset();
@@ -150,6 +151,11 @@ public:
   // decision from trial interactions.
   int    getVSC1()   const {return vsc1;}
   int    getVSC2()   const {return vsc2;}
+
+  // Set the offset wrt. to normal beam particle positions for hard diffraction
+  // and for photon beam from lepton.
+  int  getBeamOffset()       const {return beamOffset;}
+  void setBeamOffset(int offsetIn) {beamOffset = offsetIn;}
 
   // Update and print statistics on number of processes.
   // Note: currently only valid for nondiffractive systems, not diffraction??
@@ -234,6 +240,11 @@ private:
          kNowSave[5], bAvgSave[5], bDivSave[5], probLowBSave[5],
          fracAhighSave[5], fracBhighSave[5], fracChighSave[5],
          fracABChighSave[5], cDivSave[5], cMaxSave[5];
+
+  // Beam offset wrt. normal situation and other photon-related parameters.
+  int    beamOffset;
+  double mGmGmMin, mGmGmMax;
+  bool   hasGamma;
 
   // Pointer to various information on the generation.
   Info*          infoPtr;

@@ -1,5 +1,5 @@
 // SigmaProcess.h is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -57,9 +57,6 @@ public:
   int    id;
   double pdf;
 
-  // Need to add here since sampled when PDFs are called.
-  double xGamma;
-
 };
 
 //==========================================================================
@@ -77,9 +74,6 @@ public:
   // Values.
   int    idA, idB;
   double pdfA, pdfB, pdfSigma;
-
-  // x_gamma values for each beam sampled with the PDF calls.
-  double xGammaA, xGammaB;
 
 };
 
@@ -146,8 +140,9 @@ public:
     return ( convert2mb() ? CONVERT2MB * sigmaHat() : sigmaHat() ); }
 
   // Convolute above with parton flux and K factor. Sum over open channels.
-  // Possibly different PDF in initialization phase (photons in leptons).
-  virtual double sigmaPDF(bool initPS = false);
+  // Possibly different PDF in initialization phase or no sampling for x_gamma
+  // (photons in leptons).
+  virtual double sigmaPDF(bool initPS = false, bool samexGamma = false);
 
   // Select incoming parton channel and extract parton densities (resolved).
   void pickInState(int id1in = 0, int id2in = 0);
@@ -249,10 +244,6 @@ public:
   double Q2Fac()            const {return Q2FacSave;}
   double pdf1()             const {return pdf1Save;}
   double pdf2()             const {return pdf2Save;}
-
-  // Give back the saved x_gamma values.
-  double xGamma1()          const {return xGamma1Save;}
-  double xGamma2()          const {return xGamma2Save;}
 
   // Give back angles; relevant only for multipe-interactions processes.
   double thetaMPI()         const {return atan2( sinTheta, cosTheta);}
@@ -360,9 +351,6 @@ protected:
   double   mSave[12], cosTheta, sinTheta, phi, sHMass, sHBeta, pT2Mass, pTFin;
   Particle parton[12];
 
-  // x_gamma values when photon in lepton.
-  double   xGamma1Save, xGamma2Save;
-
   // Minimal set of saved kinematics for trial interactions when
   // using the x-dependent matter profile of multiparton interactions.
   Particle partonT[12];
@@ -428,7 +416,7 @@ public:
   virtual double sigmaHat() {return 0.;}
 
   // Since no PDF's there is no difference from above.
-  virtual double sigmaPDF(bool ) {return sigmaHat();}
+  virtual double sigmaPDF(bool, bool ) {return sigmaHat();}
 
   // Answer for these processes already in mb, so do not convert.
   virtual bool convert2mb() const {return false;}
@@ -608,7 +596,7 @@ public:
   virtual bool   initFlux() {return true;}
 
   // Dummy function: action is put in PhaseSpaceLHA.
-  virtual double sigmaPDF(bool ) {return 1.;}
+  virtual double sigmaPDF(bool, bool ) {return 1.;}
 
   // Evaluate weight for decay angular configuration, where relevant.
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd);

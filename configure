@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # configure is a part of the PYTHIA event generator.
-# Copyright (C) 2016 Torbjorn Sjostrand.
+# Copyright (C) 2017 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, October 2014 - May 2015.
@@ -140,7 +140,7 @@ function configure_package() {
 
     # Set binary, include, and library paths from specified package path.
     if [ -n "$PKG_DIR" ]; then
-	if [ -z "${PKG_CFG[1]}" ];     then PKG_CFG[1]=$PKG_DIR/$PKG_BIN/; fi;
+	if [ -z "${PKG_CFG[1]}" ];     then PKG_CFG[1]=$PKG_DIR/$PKG_BIN; fi;
 	if [ "${PKG_CFG[2]}" = "./" ]; then PKG_CFG[2]=$PKG_DIR/$PKG_INC; fi;
 	if [ "${PKG_CFG[3]}" = "./" ]; then PKG_CFG[3]=$PKG_DIR/$PKG_LIB; fi; fi
 
@@ -213,10 +213,7 @@ if [ -z "$CXX_COMMON" ]; then
     CXX_COMMON="$CXX_COMMON -pedantic -W -Wall -Wshadow -fPIC"; fi
 if [ -z "$CXX_SHARED" ]; then
     if [ "$ARCH" = "LINUX" ];  then CXX_SHARED="-shared"; fi
-    if [ "$ARCH" = "DARWIN" ]; then
-	CXX_SHARED="-dynamiclib -flat_namespace -undefined suppress"
-	if [[ "$CXX" = *"clang"* ]]; then 
-	    CXX_SHARED="$CXX_SHARED -Qunused-arguments"; fi; fi; fi
+    if [ "$ARCH" = "DARWIN" ]; then CXX_SHARED="-dynamiclib"; fi; fi
 if [ -z "$CXX_SONAME" ]; then
     if [ "$ARCH" = "LINUX" ];  then CXX_SONAME="-Wl,-soname"; fi
     if [ "$ARCH" = "DARWIN" ]; then CXX_SONAME="-Wl,-dylib_install_name"; fi; fi
@@ -253,7 +250,7 @@ configure_package "POWHEG" "" "bin" "" "lib" "hvq" "" "" ""
 configure_package "PROMC" ""\
      "bin" "" "lib" "" "src/ProMCBook.h" "promc" "GZIP"
 configure_package "ROOT" "/afs/cern.ch/sw/lcg/releases/ROOT"\
-    "bin" "include" "lib" "rootcint,root-config" "TH1D.h" "Cint" ""
+    "bin" "include" "lib" "rootcint,root-config" "TH1D.h" "" ""
 configure_package "GZIP" "" "" "include" "lib" "" "zlib.h" "z" ""
 configure_package "BOOST" "/afs/cern.ch/sw/lcg/releases/Boost"\
     "bin" "include" "lib" "" "boost/shared_ptr.hpp" "" ""
@@ -314,6 +311,7 @@ for IDX in ${!PKG_LIST[@]}; do
     if [ "$PKG_USE" = true ]; then echo "* $PKG"
 	eval PKG_BIN=\${${PKG}_CFG[1]}; eval PKG_INC=\${${PKG}_CFG[2]};
 	eval PKG_LIB=\${${PKG}_CFG[3]};
+	if [ -n "$PKG_BIN" ]; then PKG_BIN+=/; fi
     else PKG_BIN=""; PKG_INC="./"; PKG_LIB="./"; fi
     cat >> $CFG_FILE << BLOCKTEXT
 

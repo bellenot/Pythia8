@@ -1,5 +1,5 @@
 // Info.h is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -102,6 +102,16 @@ public:
   double QRen(int i = 0)      const {return sqrtpos(Q2RenSave[i]);}
   double Q2Ren(int i = 0)     const {return Q2RenSave[i];}
   double scalup(int i = 0)    const {return scalupSave[i];}
+
+  // Kinematics of photons from lepton beams.
+  double xGammaA()            const {return x1GammaSave;}
+  double xGammaB()            const {return x2GammaSave;}
+  double Q2GammaA()           const {return Q2Gamma1Save;}
+  double Q2GammaB()           const {return Q2Gamma2Save;}
+  double eCMsub()             const {return eCMsubSave;}
+  double thetaScatLepA()      const {return thetaLepton1;}
+  double thetaScatLepB()      const {return thetaLepton2;}
+  double sHatNew()            const {return sHatNewSave;}
 
   // Mandelstam variables (notation as if subcollision).
   double mHat(int i = 0)      const {return sqrt(sH[i]);}
@@ -411,6 +421,10 @@ private:
   vector<double> pTMPISave, eMPISave, weightSave;
   vector<string> weightLabelSave;
 
+  // Variables related to photon kinematics.
+  double x1GammaSave, x2GammaSave, Q2Gamma1Save, Q2Gamma2Save, eCMsubSave,
+    thetaLepton1, thetaLepton2, sHatNewSave;
+
   // Vector of various loop counters.
   int    counters[50];
 
@@ -438,6 +452,7 @@ private:
   friend class Settings;
   friend class TimeShower;
   friend class SpaceShower;
+  friend class GammaKinematics;
 
   // Set info on the two incoming beams: only from Pythia class.
   void setBeamA( int idAin, double pzAin, double eAin, double mAin) {
@@ -445,6 +460,16 @@ private:
   void setBeamB( int idBin, double pzBin, double eBin, double mBin) {
     idBSave = idBin; pzBSave = pzBin; eBSave = eBin; mBSave = mBin;}
   void setECM( double eCMin) {eCMSave = eCMin; sSave = eCMSave * eCMSave;}
+
+  // Set info related to gamma+gamma subcollision.
+  void setX1Gamma( double x1GammaIn)  { x1GammaSave  = x1GammaIn; }
+  void setX2Gamma( double x2GammaIn)  { x2GammaSave  = x2GammaIn; }
+  void setQ2Gamma1( double Q2gammaIn) { Q2Gamma1Save = Q2gammaIn; }
+  void setQ2Gamma2( double Q2gammaIn) { Q2Gamma2Save = Q2gammaIn; }
+  void setTheta1( double theta1In)    { thetaLepton1 = theta1In;  }
+  void setTheta2( double theta2In)    { thetaLepton2 = theta2In;  }
+  void setECMsub( double eCMsubIn)    { eCMsubSave   = eCMsubIn;  }
+  void setsHatNew( double sHatNewIn)  { sHatNewSave  = sHatNewIn; }
 
   // Reset info for current event: only from Pythia class.
   void clear() {

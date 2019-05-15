@@ -59,7 +59,7 @@ to print an event, i.e. all the particles belonging to it. Given the
 length of these listings one would list only a few events at the 
 beginning of the run, to get some feeling for the character of events. 
 This could be achieved e.g. with a main-program statement<br/> 
-<code>   if (iEvent < 3) pythia.event.list()</code><br/> 
+<code>   if (iEvent &lt; 3) pythia.event.list()</code><br/> 
 to list the first three events in a loop over <code>iEvent</code>, 
 after <code>pythia.next()</code> has been used to generate the next 
 event. Alternatively a <code>Next:numberListEvent = 3</code> 
@@ -144,6 +144,7 @@ identity code. Default means that no particle is printed.
 Print a line telling how many events have been generated so far, 
 once every <code>numberCount</code> events. If set zero then no 
 lines are ever printed. 
+   
  
 <br/><br/><table><tr><td><strong>Next:numberShowLHA  </td><td></td><td> <input type="text" name="10" value="1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 0</code>)</td></tr></table>
 The number of events to list the Les Houches input information for, 
@@ -557,4 +558,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

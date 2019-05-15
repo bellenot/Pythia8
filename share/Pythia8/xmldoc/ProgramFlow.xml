@@ -141,7 +141,7 @@ is governed by the the beam parameters from the
 <code><aloc href="BeamParameters">Beams</aloc></code> 
 group of variables. If you don't change any of those you will 
 default to proton-proton collisions at 14 TeV, i.e. the nominal LHC 
-values. 
+values.</li> 
  
 <p/> 
 <li> 
@@ -553,7 +553,6 @@ particle data. This option is intended for runs with multiple
 Pythia instances, where only the first one needs to read the 
 <code>xmldoc</code> files, while subsequent ones can "inherit" 
 this information. 
-</argument> 
 <argument name="printBanner" default="on"> can be set 
 <code>false</code> to stop the program from printing a banner. 
 The banner contains useful information, so this option is only 
@@ -568,7 +567,6 @@ creates an instance of the <code>Pythia</code> event generators,
 and sets initial default values, notably for all settings and 
 particle data. This option is intended for runs with multiple 
 Pythia instances, where input streams can avoid file read congestion. 
-</argument> 
 <argument name="printBanner" default="on"> can be set 
 <code>false</code> to stop the program from printing a banner. 
 The banner contains useful information, so this option is only 
@@ -579,6 +577,7 @@ where output needs to be restricted.
  
 <method name="Pythia::~Pythia"> 
 the destructor deletes the objects created by the constructor. 
+</method> 
  
 <method name="void Pythia::initPtrs()"> 
 </method> 
@@ -1095,4 +1094,4 @@ see <aloc href="AdvancedUsage">here</aloc> for further details.
  
 </chapter> 
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

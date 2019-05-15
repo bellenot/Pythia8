@@ -328,13 +328,13 @@ expanded with an optional argument to address properties of diffractive
 subsystems. This argument can take four values: 
 <ul> 
 <li>0 : default argument, used for normal nondiffractive events or 
-the primary elastic/diffractive process (see above); 
+the primary elastic/diffractive process (see above); </li> 
 <li>1 : the <ei>X1</ei> system in single diffraction 
-<ei>A B &rarr; X1 B</ei> or double diffraction <ei>A B &rarr; X1 X2</ei>; 
+<ei>A B &rarr; X1 B</ei> or double diffraction <ei>A B &rarr; X1 X2</ei>; </li> 
 <li>2 : the <ei>X2</ei> system in single diffraction 
-<ei>A B &rarr; A X2</ei> or double diffraction <ei>A B &rarr; X1 X2</ei>; 
+<ei>A B &rarr; A X2</ei> or double diffraction <ei>A B &rarr; X1 X2</ei>; </li> 
 <li>3 : the <ei>X</ei> system in central diffraction 
-<ei>A B &rarr; A X B</ei>. 
+<ei>A B &rarr; A X B</ei>. </li> 
 </ul> 
 The argument is defined for all of the methods in the three sections above, 
 "Hard process initiators", "Hard process parton densities and scales" and 
@@ -365,6 +365,29 @@ diffractive process.
 </method> 
 <methodmore name="double Info::tPomeronB()"> 
 The momentum transfer <ei>t</ei> in the hard diffractive process. 
+</methodmore> 
+ 
+<h3>Photon-photon in lepton-lepton</h3> 
+ 
+Information about the kinematics of photon-photon collisions from lepton 
+beams. 
+<method name="double Info::eCMsub()"> 
+Collision energy of the <ei>gamma-gamma</ei> sub-system. 
+</method> 
+<method name="double Info::xGammaA()"> 
+</method> 
+<methodmore name="double Info::xGammaB()"> 
+<ei>x</ei> fractions of lepton momenta carried by the photons. 
+</methodmore> 
+<method name="double Info::Q2GammaA()"> 
+</method> 
+<methodmore name="double Info::Q2GammaB()"> 
+Virtualities of the photons emitted by the leptons. 
+</methodmore> 
+<method name="double Info::thetaScatLepA()"> 
+</method> 
+<methodmore name="double Info::thetaScatLepB()"> 
+Scattering angles of the leptons wrt. the beam direction. 
 </methodmore> 
  
 <h3>Event weight and activity</h3> 
@@ -734,7 +757,7 @@ Les Houches Event files can conform to version 1.0 and version 3.0
 of the standard (version 2.0 having been extended to 3.0). The LHEF version 
 of an input file can can be accessed by 
 <br/><methodmore name="int Info::LHEFversion()"> 
-</methodmorer> 
+</methodmore> 
  
 <p/> 
 The <code>Info</code> class also provides a suitable interface to 
@@ -742,7 +765,7 @@ the information stored after reading Les Houches Event files in the
 updated format <ref>But14</ref>. An example main program using LHEF 3.0 
 information is <code>main38.cc</code>. 
  
-</p> 
+<p/> 
 LHEF 3.0 offers new features both in the initialisation and the event sections 
 of the input files. Possible information include extended 
 use of XML tags in the <code>&lt;header&gt;</code> and 
@@ -951,4 +974,4 @@ set the header named <code>key</code> with the contents of <code>val</code>
  
 </chapter> 
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

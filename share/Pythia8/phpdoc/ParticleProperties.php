@@ -33,6 +33,10 @@ A <code>Particle</code> corresponds to one entry/slot in the
 event record. Its properties therefore is a mix of ones belonging 
 to a particle-as-such, like its identity code or four-momentum, 
 and ones related to the event-as-a-whole, like which mother it has. 
+Recall that energies, momenta and masses are all given in GeV, and 
+space-time coordinates all in mm, i.e. units are chosen such that 
+the speed of light <i>c</i> is unity. In particular, times are 
+also in mm, <b>not</b> in seconds. 
  
 <p/> 
 What is stored for each particle is 
@@ -116,6 +120,8 @@ In detail, the list of used or foreseen status codes is:
            parton (cf. status 42)</li> 
   <li>47 : a <i>W</i> or <i>Z</i> gauge boson produced in the 
            shower evolution</li> 
+  <li>49 : a special state in the evolution, where 
+           <i>E^2 - p^2 = m^2</i> is not fulfilled</li> 
   </ul> 
 <li>51 - 59 : particles produced by final-state-showers</li> 
   <ul> 
@@ -129,6 +135,8 @@ In detail, the list of used or foreseen status codes is:
            different system from the radiator</li> 
   <li>56 : a <i>W</i> or <i>Z</i> gauge boson produced in a 
            shower branching (special case of 51)</li> 
+  <li>59 : a special state in the evolution, where 
+           <i>E^2 - p^2 = m^2</i> is not fulfilled</li> 
   </ul> 
 <li>61 - 69 : particles produced by beam-remnant treatment</li> 
   <ul> 
@@ -207,13 +215,18 @@ In detail, the list of used or foreseen status codes is:
   <li>105 : partons or particles formed together with the R-hadron during 
             the fragmentation treatment</li> 
   <li>106 : subdivision of an R-hadron into its flavour content, with 
-           momentum split accordingly, in preparation of the decay of 
-           the heavy new particle, if it is unstable</li> 
+            momentum split accordingly, in preparation of the decay of 
+            the heavy new particle, if it is unstable</li> 
   <li>107 : two temporary leftover gluons joined into one in the formation 
-          of a gluino-gluon R-hadron.</li> 
+            of a gluino-gluon R-hadron</li> 
   </ul> 
-<li>111 - 199 : reserved for future expansion</li> 
-<li>201 - : free to be used by anybody</li> 
+<li>111 - 119 : hadrons with changed momentum due to hadron (re)scattering</li> 
+  <ul> 
+  <li>111 : first time scattering</li> 
+  <li>112 : second or more time scattering</li> 
+  </ul> 
+<li>121 - 199 : reserved for future expansion</li> 
+<li>201 - : free to be used by anybody.</li> 
 </ul> 
 <br/><b>Note:</b> a clarification on the role of the "hardest" vs. the 
 "subsequent" subprocesses, the 20'ies and 30'ies status code series, 
@@ -393,11 +406,12 @@ which of course then should be reinterpreted as above.
  
 <a name="method13"></a>
 <p/><strong>double Particle::tau() &nbsp;</strong> <br/>
-the proper lifetime, in mm/c. It is assigned for all hadrons with 
-positive nominal <i>tau</i>, <i>tau_0 > 0</i>, because it can be used 
-by PYTHIA to decide whether a particle should or should not be allowed 
-to decay, e.g. based on the decay vertex distance to the primary interaction 
-vertex. 
+the proper lifetime, in mm/c. (Since c = 3 * 10^11 mm/s, 
+<code>Particle::tau()</code>/(3 * 10^11) is the lifetime in seconds.) 
+It is assigned for all hadrons with positive nominal <i>tau</i>, 
+<i>tau_0 > 0</i>, because it can be used by PYTHIA to decide whether 
+a particle should or should not be allowed to decay, e.g. based on 
+the decay vertex distance to the primary interaction vertex. 
    
  
 <h3>Input methods</h3> 
@@ -816,7 +830,7 @@ Mothers are listed in ascending order.
 <a name="method67"></a>
 <p/><strong>vector&lt;int&gt; Particle::daughterList() &nbsp;</strong> <br/>
 returns a vector of all the daughter indices of the particle. This is 
-derived from the <codedaughter1</code>, <code>daughter2</code> and 
+derived from the <code>daughter1</code>, <code>daughter2</code> and 
 <code>status</code> information as explained above. This list is empty 
 for a particle that did not decay (or, if the evolution is stopped 
 early enough, a parton that did not branch), while otherwise it can 
@@ -1048,4 +1062,4 @@ particle species.
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

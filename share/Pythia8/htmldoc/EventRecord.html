@@ -226,11 +226,15 @@ untouched, and so may be internally inconsistent.
    
  
 <a name="method17"></a>
-<p/><strong>void Event::remove(int iFirst, int iLast) &nbsp;</strong> <br/>
+<p/><strong>void Event::remove(int iFirst, int iLast, bool shiftHistory = true) &nbsp;</strong> <br/>
 removes particles in the range between indices <code>iFirst</code> 
-and <code>iLast</code>, including the endpoints. History (and other) 
-information of remaning entries is untouched, and so may be internally 
-inconsistent. 
+and <code>iLast</code>, including the endpoints. By default all mother 
+and daughter indices above the removed range are shifted down by the 
+number of removed entries, while indices in the removed range are put 
+zero. Optionally these shifts can be omitted. Other information remains 
+unchanged, which may lead to inconsistencies. If the decay products of 
+a particle are removed, e.g., the mother particle status should be set 
+positive, cf. <code>Particle::undoDecay()</code>. 
    
  
 <a name="method18"></a>
@@ -400,4 +404,4 @@ It is intended to be accessed only by experts, such as implementors of
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

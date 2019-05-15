@@ -196,7 +196,7 @@ decay is performed and a warning is issued.
  
 <p/> 
 Both the internal and external determination have advantages and 
-disadvantages. For example, if an LHEF <ei Z^0 &rarr; tau^+ tau^-</ei> 
+disadvantages. For example, if an LHEF <ei>Z^0 &rarr; tau^+ tau^-</ei> 
 event is passed with SPINUP provided for both <ei>tau</ei>s but 
 without SPINUP for the <ei>Z^0</ei> then 
 with <code>TauDecays:externalTau</code> set to <code>0</code> the 
@@ -320,7 +320,7 @@ virtual W mass should contribute to the production of new particles,
 rather than the full meson mass. 
 </parm> 
  
-<parm name="ParticleDecays:multRefMass" default="0.7"min="0.2" max="2.0"> 
+<parm name="ParticleDecays:multRefMass" default="0.7" min="0.2" max="2.0"> 
 The above <ei>multRefMass</ei> parameter. 
 </parm> 
  
@@ -422,4 +422,4 @@ multiplicity than the simple string assumed for 82, see the
  
 </chapter> 
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

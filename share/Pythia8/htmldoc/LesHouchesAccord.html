@@ -253,11 +253,9 @@ for the number of subprocesses.
 <strong>double LHAup::xMax(i) &nbsp;</strong> <br/>
 for process <code>i</code> in the range <code>0 &lt;= i &lt; 
 sizeProc()</code>. 
- 
    
 <a name="method16"></a>
 <p/><strong>double LHAup::xSecSum() &nbsp;</strong> <br/>
-   
 <strong>double LHAup::xErrSum() &nbsp;</strong> <br/>
 the sum of the cross sections and errors (the latter added quadratically). 
 Note that cross section errors are only meaningful for strategies +-3. 
@@ -306,6 +304,7 @@ events in a file is exhausted. If so, no event is generated, and
 <code><a href="EventInformation.html" target="page">Info::atEndOfFile()</a></code> 
 to confirm that indeed the failure is caused in this method, and decide 
 to break out of the event generation loop. 
+   
  
 <p/> 
 Inside a normal <code>setEvent(...)</code> call, information can be set 
@@ -409,6 +408,7 @@ This information is returned by the methods
 <strong>double LHAup::x1() &nbsp;</strong> <br/>
    
 <strong>double LHAup::x2() &nbsp;</strong> <br/>
+the flavour and <i>x</i> values of the two initiators. 
    
  
 <p/> 
@@ -417,7 +417,7 @@ include information on the parton densities of the colliding partons
 is suggested. This optional further information can be set by 
 <a name="method28"></a>
 <p/><strong>void LHAup::setPdf( int id1pdf, int id2pdf, double x1pdf, double x2pdf, double scalePDF, double pdf1, double pdf2, bool pdfIsSet) &nbsp;</strong> <br/>
-which gives the flavours , the <i>x</i> and the <ie>Q</i> scale 
+which gives the flavours , the <i>x</i> and the <i>Q</i> scale 
 (in GeV) at which the parton densities <i>x*f_i(x, Q)</i> have been 
 evaluated. The last argument is normally <code>true</code>. 
    
@@ -879,7 +879,7 @@ used.) All parsing that is not strictly part of the LHEF format
 the <code>LHAupLHEF</code> methods. 
  
 <p/> 
-Two other small utility routines are: 
+Some other small utility routines are: 
  
 <a name="method35"></a>
 <p/><strong>bool LHAup::fileFound() &nbsp;</strong> <br/>
@@ -889,6 +889,18 @@ found and opened correctly.
    
  
 <a name="method36"></a>
+<p/><strong>bool LHAup::useExternal() &nbsp;</strong> <br/>
+always returns false in the base class, but in <code>LHAupLHEF</code> 
+it returns false if the <code>LHAupLHEF</code> instance is constructed to 
+work on an input LHE file, while it returns true if the <code>LHAupLHEF</code> 
+instance is constructed to use externally provided input streams instead. 
+For the latter, the <code>LHAupLHEF</code> instance should have been 
+constructed with the class constructor <code>LHAupLHEF(Info* infoPtrIn, 
+istream* isIn, istream* isHeadIn, bool readHeadersIn, bool setScalesFromLHEFIn) 
+</code> 
+   
+ 
+<a name="method37"></a>
 <p/><strong>void LHAup::setInfoHeader(const string &key, const string &val) &nbsp;</strong> <br/>
 is used to send header information on to the <code>Info</code> class. 
    
@@ -900,13 +912,13 @@ to be read consecutively, without the need for a complete
 reinitialization. This presupposes that the events are of the same 
 kind, only split e.g. to limit file sizes. 
  
-<a name="method37"></a>
+<a name="method38"></a>
 <p/><strong>bool LHAup::newEventFile(const char* fileIn) &nbsp;</strong> <br/>
 close current event input file/stream and open a new one, to 
 continue reading events of the same kind as before. 
    
  
-<a name="method38"></a>
+<a name="method39"></a>
 <p/><strong>istream* LHAup::openFile(const char *fn, ifstream &ifs) &nbsp;</strong> <br/>
    
 <strong>void LHAup::closeFile(istream *&is, ifstream &ifs) &nbsp;</strong> <br/>
@@ -914,7 +926,7 @@ open and close a file, also gzip files, where an intermediate
 decompression layer is needed. 
    
  
-<a name="method39"></a>
+<a name="method40"></a>
 <p/><strong>void LHAupLHEF::closeAllFiles() &nbsp;</strong> <br/>
 close main event file (LHEF) and, if present, separate header file. 
    
@@ -967,20 +979,20 @@ as well, however. Specifically, there are four routines in the base class
 that can be called to write a Les Houches Event File. These should be 
 called in sequence in order to build up the proper file structure. 
  
-<a name="method40"></a>
+<a name="method41"></a>
 <p/><strong>bool LHAup::openLHEF(string filename) &nbsp;</strong> <br/>
 Opens a file with the filename indicated, and writes a header plus a brief 
 comment with date and time information. 
    
  
-<a name="method41"></a>
+<a name="method42"></a>
 <p/><strong>bool LHAup::initLHEF() &nbsp;</strong> <br/>
 Writes initialization information to the file above. Such information should 
 already have been set with the methods described in the "Initialization" 
 section above. 
    
  
-<a name="method42"></a>
+<a name="method43"></a>
 <p/><strong>bool LHAup::eventLHEF(bool verbose = true) &nbsp;</strong> <br/>
 Writes event information to the file above. Such information should 
 already have been set with the methods described in the "Event input" 
@@ -990,7 +1002,7 @@ To save space, the alternative <code>verbose = false</code> only
 leaves a single blank between the information fields. 
    
  
-<a name="method43"></a>
+<a name="method44"></a>
 <p/><strong>bool LHAup::closeLHEF(bool updateInit = false) &nbsp;</strong> <br/>
 Writes the closing tag and closes the file. Optionally, if 
 <code>updateInit = true</code>, this routine will reopen the file from 
@@ -1009,7 +1021,7 @@ lines require exactly as much space as the old ones did. Thus, if you add
 another process in between, the file will be corrupted. 
    
  
-<a name="method44"></a>
+<a name="method45"></a>
 <p/><strong>string LHAup::getFileName() &nbsp;</strong> <br/>
 Return the name of the LHE file above. 
    
@@ -1088,7 +1100,7 @@ a constructor call
 As a next step, you should open the output file by using the 
 <code>LHAupFromPYTHIA8</code> member function 
 <br/><code>openLHEF(string name)</code> 
-</br> 
+<br/> 
 where <code>name</code> is the output file name. 
  
 <p/> 
@@ -1100,17 +1112,17 @@ in the init block is not sensible, as no integration has yet
 taken place. The init block can be updated at the end of 
 the event generation (see below). 
  
-</p> 
+<p/> 
 During event generation, you should use <code>setEvent()</code> to 
 write the event information (as read from <code>info</code> and 
 <code>event</code>) to the output file. 
  
-</p> 
+<p/> 
 Finally, before leaving your main program, it is necessary to 
 close the output file by using the 
 <code>LHAupFromPYTHIA8</code> member function 
 <br/><code>closeLHEF( bool doUpdate = false)</code> 
-</br> 
+<br/> 
 The boolean variable <code>doUpdate</code> is optional. 
 If <code>doUpdate</code> is used, and if 
 <code>doUpdate = true</code>, then the init block of the output 
@@ -1129,4 +1141,4 @@ for the case that <code>Pythia::process</code> is not in this frame.
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

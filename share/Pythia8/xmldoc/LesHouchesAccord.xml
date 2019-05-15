@@ -235,10 +235,8 @@ for the number of subprocesses.
 <methodmore name="double LHAup::xMax(i)"> 
 for process <code>i</code> in the range <code>0 &lt;= i &lt; 
 sizeProc()</code>. 
- 
-</method> 
-<method name="double LHAup::xSecSum()"> 
 </methodmore> 
+<method name="double LHAup::xSecSum()"/> 
 <methodmore name="double LHAup::xErrSum()"> 
 the sum of the cross sections and errors (the latter added quadratically). 
 Note that cross section errors are only meaningful for strategies +-3. 
@@ -285,6 +283,7 @@ events in a file is exhausted. If so, no event is generated, and
 <code><aloc href="EventInformation">Info::atEndOfFile()</aloc></code> 
 to confirm that indeed the failure is caused in this method, and decide 
 to break out of the event generation loop. 
+</method> 
  
 <p/> 
 Inside a normal <code>setEvent(...)</code> call, information can be set 
@@ -381,7 +380,7 @@ This information is returned by the methods
 </methodmore> 
 <methodmore name="double LHAup::x1()"> 
 </methodmore> 
-<methodmore name="double LHAup::x2()" 
+<methodmore name="double LHAup::x2()"> 
 the flavour and <ei>x</ei> values of the two initiators. 
 </methodmore> 
  
@@ -391,7 +390,7 @@ include information on the parton densities of the colliding partons
 is suggested. This optional further information can be set by 
 <method name="void LHAup::setPdf( int id1pdf, int id2pdf, double x1pdf, 
 double x2pdf, double scalePDF, double pdf1, double pdf2, bool pdfIsSet)"> 
-which gives the flavours , the <ei>x</ei> and the <ie>Q</ei> scale 
+which gives the flavours , the <ei>x</ei> and the <ei>Q</ei> scale 
 (in GeV) at which the parton densities <ei>x*f_i(x, Q)</ei> have been 
 evaluated. The last argument is normally <code>true</code>. 
 </method> 
@@ -842,12 +841,23 @@ used.) All parsing that is not strictly part of the LHEF format
 the <code>LHAupLHEF</code> methods. 
  
 <p/> 
-Two other small utility routines are: 
+Some other small utility routines are: 
  
 <method name="bool LHAup::fileFound()"> 
 always returns true in the base class, but in <code>LHAupLHEF</code> 
 it returns false if the LHEF provided in the constructor is not 
 found and opened correctly. 
+</method> 
+ 
+<method name="bool LHAup::useExternal()"> 
+always returns false in the base class, but in <code>LHAupLHEF</code> 
+it returns false if the <code>LHAupLHEF</code> instance is constructed to 
+work on an input LHE file, while it returns true if the <code>LHAupLHEF</code> 
+instance is constructed to use externally provided input streams instead. 
+For the latter, the <code>LHAupLHEF</code> instance should have been 
+constructed with the class constructor <code>LHAupLHEF(Info* infoPtrIn, 
+istream* isIn, istream* isHeadIn, bool readHeadersIn, bool setScalesFromLHEFIn) 
+</code> 
 </method> 
  
 <method name="void LHAup::setInfoHeader(const string &key, 
@@ -1042,7 +1052,7 @@ a constructor call
 As a next step, you should open the output file by using the 
 <code>LHAupFromPYTHIA8</code> member function 
 <br/><code>openLHEF(string name)</code> 
-</br> 
+<br/> 
 where <code>name</code> is the output file name. 
  
 <p/> 
@@ -1054,17 +1064,17 @@ in the init block is not sensible, as no integration has yet
 taken place. The init block can be updated at the end of 
 the event generation (see below). 
  
-</p> 
+<p/> 
 During event generation, you should use <code>setEvent()</code> to 
 write the event information (as read from <code>info</code> and 
 <code>event</code>) to the output file. 
  
-</p> 
+<p/> 
 Finally, before leaving your main program, it is necessary to 
 close the output file by using the 
 <code>LHAupFromPYTHIA8</code> member function 
 <br/><code>closeLHEF( bool doUpdate = false)</code> 
-</br> 
+<br/> 
 The boolean variable <code>doUpdate</code> is optional. 
 If <code>doUpdate</code> is used, and if 
 <code>doUpdate = true</code>, then the init block of the output 
@@ -1082,4 +1092,4 @@ for the case that <code>Pythia::process</code> is not in this frame.
  
 </chapter> 
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

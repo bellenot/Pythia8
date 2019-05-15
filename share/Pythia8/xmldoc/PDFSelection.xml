@@ -413,23 +413,29 @@ diffractive processes.
  
 Photon PDFs describe the partonic content of the resolved photons and 
 can be used to generate any hard process initiated by quarks and gluons. 
-Currently hard-processes with parton showers and hadronization can 
-be generated but MPIs and soft interactions are not included. 
  
 <p/> 
 There are several PDF sets available for photons, although there have not 
-been much activity recently. Currently one internal set is included. 
-Even though LHAPDF5 includes some older photon PDF sets, only the 
-internal set should be used here as the parton shower and beam remnant 
-generation require additional methods that are not present in external 
-sets. 
+been much activity recently. Currently one internal set is included, but 
+more sets are available from LHAPDF5. The sets from LHAPDF5 can only be 
+used as PDFs in the hard process (see <code>PDF:GammaHardSet</code> below). 
+In case of photons the parton shower and beam remnant generation 
+require additional methods that are provided only for internal sets. 
+Currently no photon PDFs have been included in LHAPDF6. 
  
 <modepick name="PDF:GammaSet" default="1" min="1" max="1"> 
-Parton densities that can be used for photon beams. 
+Parton densities that can be used for resolved photon beams. 
 <option value="1"> CJKL, based on <ref>Cor03</ref> but the rescaling 
 for heavy quarks due to kinematic constraints in DIS is undone to obtain 
 correct behaviour for photon-photon collisions.</option> 
 </modepick> 
+ 
+<word name="PDF:GammaHardSet" default="void"> 
+Parton densities to be used by the beams of the hard process. For photons 
+the other options are the ones provided by LHAPDF5. If this option is set 
+to <code>void</code> then the same PDF set as <code>PDF:GammaSet</code> is 
+used. 
+</word> 
  
 <h3>Parton densities for leptons</h3> 
  
@@ -459,20 +465,24 @@ therefore set <code>PDF:lepton = off</code>.
  
 <h4>Photons from lepton beams</h4> 
  
-Lepton beams can also emit resolved photons and therefore have partonic 
+Lepton beams can emit photons and therefore may have partonic 
 content. The PDFs describing these can be obtained by convoluting 
-the photon flux with the selected photon PDFs. Currently the photon flux 
+the photon flux with the selected photon PDFs. The photon flux 
 is modelled according to equivalent photon approximation (EPA) which 
 gives the flux of bremsstrahlung photons. 
  
 <flag name="PDF:lepton2gamma" default="off"> 
-When set on, the photon-inside-lepton PDFs are used and processes with quark 
-or gluon initiators can be generated. Can be used only with charged leptons. 
-The photon PDF set is selected with the <code>PDF:GammaSet</code> option 
-above. 
+Gives photon beams from leptons. Both, unresolved (direct) and resolved 
+contributions are included, see <aloc href="PhotonPhoton">Photon-photon 
+Interactions</aloc> for details. Can be used only with charged leptons. 
+The applied photon PDF set is selected with the <code>PDF:GammaSet</code> 
+and <code>PDF:GammaHardSet</code> options above. Events with two unresolved 
+photon initiators can be generated also with the <code>PDF:lepton = on</code> 
+but then additional phase-space cuts (e.g. cut on the invariant mass of the 
+photon-photon pair) are not applied. 
 </flag> 
  
-<modepick name="PDF:lepton2gammaSet" default="1"> 
+<modepick name="PDF:lepton2gammaSet" default="1" min="1" max="1"> 
 The photon flux. Currently one option available. 
 <option value="1"> Convolute the photon flux from EPA with the selected photon 
 PDF set. Convolution integral is performed "on the fly", meaning that the 
@@ -499,4 +509,4 @@ partons, etc.
  
 </chapter> 
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

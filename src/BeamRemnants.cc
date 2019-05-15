@@ -1,5 +1,5 @@
 // BeamRemnants.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -47,6 +47,7 @@ bool BeamRemnants::init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn,
   beamBPtr              = beamBPtrIn;
   partonSystemsPtr      = partonSystemsPtrIn;
   colourReconnectionPtr = colourReconnectionPtrIn;
+  particleDataPtr       = particleDataPtrIn;
 
   // Width of primordial kT distribution.
   doPrimordialKT      = settings.flag("BeamRemnants:primordialKT");
@@ -65,6 +66,9 @@ bool BeamRemnants::init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn,
   remnantMode         = settings.mode("BeamRemnants:remnantMode");
   doReconnect         = settings.flag("ColourReconnection:reconnect");
   reconnectMode       = settings.mode("ColourReconnection:mode");
+
+  // Do multiparton interactions.
+  doMPI               = settings.flag("PartonLevel:MPI");
 
   // Check that remnant model and colour reconnection model work together.
   if (remnantMode == 1 && reconnectMode == 0) {
@@ -343,21 +347,32 @@ bool BeamRemnants::setKinematics( Event& event) {
   if ( beamA.isUnresolvedLepton() && beamB.isUnresolvedLepton() )
     return true;
 
-  // Check if photon beams need remnants.
-  bool beamAisGamma    = beamA.isGamma();
-  bool beamBisGamma    = beamB.isGamma();
-  bool gammaARemnants  = beamA.getGammaRemnants();
-  bool gammaBRemnants  = beamB.getGammaRemnants();
-  bool gammaOneRemnant = false;
+  // Photon from photon beam is unresolved.
+  if ( beamA.isGamma() && beamA[0].id() == 22 ) {
+    beamA.resolvedGamma(false);
+  }
+  if ( beamB.isGamma() && beamB[0].id() == 22 )  {
+    beamB.resolvedGamma(false);
+  }
 
-  // Nothing to do if ISR have found the original beam photons.
-  if (beamAisGamma && !gammaARemnants && beamBisGamma && !gammaBRemnants)
+  // Check if photon beams need remnants.
+  bool beamAisGamma     = beamA.isGamma();
+  bool beamBisGamma     = beamB.isGamma();
+  bool gammaAResolved   = beamA.resolvedGamma();
+  bool gammaBResolved   = beamB.resolvedGamma();
+  bool gammaOneResolved = false;
+
+  // Do nothing if ISR have found the original beam photons and only one MPI.
+  if ( ( beamAisGamma && !gammaAResolved && beamBisGamma && !gammaBResolved )
+    && infoPtr->nMPI() == 1 )
     return true;
 
-  // Check that has not already used up beams.
-  if ( ( !(beamA.isLepton() || (beamAisGamma && !gammaARemnants) )
+  // Check that has not already used up beams. Unless direct photon in photon.
+  if ( beamA.isGamma() && beamA[0].id() == 22 ) { }
+  else if ( beamB.isGamma() && beamB[0].id() == 22 )  { }
+  else if ( ( !(beamA.isLepton() || (beamAisGamma && !gammaAResolved) )
          && beamA.xMax(-1) <= 0.) ||
-       ( !(beamB.isLepton() || (beamBisGamma && !gammaBRemnants) )
+       ( !(beamB.isLepton() || (beamBisGamma && !gammaBResolved) )
          && beamB.xMax(-1) <= 0.) ) {
     infoPtr->errorMsg("Error in BeamRemnants::setKinematics:"
       " no momentum left for beam remnants");
@@ -366,12 +381,13 @@ bool BeamRemnants::setKinematics( Event& event) {
 
   // Check if exactly one remnant for photon-photon collisions.
   if ( (beamAisGamma && beamBisGamma) &&
-      ( (gammaARemnants && !gammaBRemnants) ||
-        (!gammaARemnants && gammaBRemnants) ) )
-    gammaOneRemnant = true;
+      ( (gammaAResolved && !gammaBResolved) ||
+        (!gammaAResolved && gammaBResolved) ) )
+    gammaOneResolved = true;
 
   // Special kinematics setup for one-remnant systems (DIS).
-  if(gammaOneRemnant || isDIS) return setOneRemnKinematics(event, iDS);
+  if( (gammaOneResolved && infoPtr->nMPI() == 1) || isDIS )
+    return setOneRemnKinematics(event, iDS);
 
   // Last beam-status particles. Offset relative to normal beam locations.
   int nBeams   = 3;
@@ -380,8 +396,8 @@ bool BeamRemnants::setKinematics( Event& event) {
   int nOffset  = nBeams - 3;
 
   // If extra photons in event fix the offset.
-  if (beamA.hasGamma()) --nOffset;
-  if (beamB.hasGamma()) --nOffset;
+  if (beamA.hasResGamma()) --nOffset;
+  if (beamB.hasResGamma()) --nOffset;
 
   // Reserve space for extra information on the systems and beams.
   int nMaxBeam = max( beamA.size(), beamB.size() );
@@ -451,7 +467,12 @@ bool BeamRemnants::setKinematics( Event& event) {
         double pxSum = 0.;
         double pySum = 0.;
         for (int iPar = 0; iPar < nPar; ++iPar) {
-          if ( beam[iPar].isFromBeam() ) {
+          // Do nothing if initiator parton from gamma->qqbar
+          // where gamma is the original beam particle or for
+          // the other valence arising from the same splitting.
+          if ( iPar == beam.gamVal() || ( beam.gamVal() >= 0 &&
+              ( iPar != beam.gamVal() && beam[iPar].isValence()) ) ) ;
+          else if ( beam[iPar].isFromBeam() ) {
             pair<double, double> gauss2 = rndmPtr->gauss2();
             double px = kTwidth[iPar] * gauss2.first;
             double py = kTwidth[iPar] * gauss2.second;
@@ -468,20 +489,73 @@ bool BeamRemnants::setKinematics( Event& event) {
 
         // Share recoil between all initiator partons, rescatterers excluded.
         double kTcompSum = (iBeam == 0) ? kTcompSumA : kTcompSumB;
-        for (int iPar = 0; iPar < nPar; ++iPar)
-        if (beam[iPar].isFromBeam() ) {
-          beam[iPar].px( beam[iPar].px() - pxSum * kTcomp[iPar] / kTcompSum );
-          beam[iPar].py( beam[iPar].py() - pySum * kTcomp[iPar] / kTcompSum );
+
+        // If parton from gamma->qqbar in ISR, set pT accordingly.
+        if ( beam.gamVal() >= 0 ) {
+
+          // Get the pT2 value for the given gamma->qqbar splitting.
+          double pT2corr = beam.pT2gamma2qqbar();
+
+          // Sample the direction and set px and py.
+          double phi = 2*M_PI*rndmPtr->flat();
+          double px = cos(phi) * sqrt(pT2corr);
+          double py = sin(phi) * sqrt(pT2corr);
+          beam[beam.gamVal()].px(px);
+          beam[beam.gamVal()].py(py);
+          pxSum += px;
+          pySum += py;
+
+          // Do not change the momentum of these partons when sharing recoil.
+          kTcompSum -= kTcomp[beam.gamVal()];
+
+          // Other valence parton takes (most of) the recoil but this will
+          // still be part of pT balancing.
+          for (int iPar = 0; iPar < nPar; ++iPar)
+            if ( iPar != beam.gamVal() && beam[iPar].isValence() ){
+              beam[iPar].px(-px);
+              beam[iPar].py(-py);
+              pxSum += -px;
+              pySum += -py;
+              break;
+            }
+        }
+
+        for (int iPar = 0; iPar < nPar; ++iPar) {
+          if (beam[iPar].isFromBeam() && iPar != beam.gamVal() ) {
+            beam[iPar].px( beam[iPar].px() - pxSum * kTcomp[iPar] / kTcompSum);
+            beam[iPar].py( beam[iPar].py() - pySum * kTcomp[iPar] / kTcompSum);
+          }
         }
 
       // Without primordial kT: still need to store rescattered partons.
       } else if ( beam.isHadron() || beam.isGamma() ) {
-        for (int iPar = 0; iPar < nPar; ++iPar)
-        if ( !beam[iPar].isFromBeam() ) {
-          int iInAB = (iBeam == 0) ? partonSystemsPtr->getInA(iPar)
-                                   : partonSystemsPtr->getInB(iPar);
-          beam[iPar].p( event[iInAB].p() );
+        for (int iPar = 0; iPar < nPar; ++iPar){
+          if ( !beam[iPar].isFromBeam() ) {
+            int iInAB = (iBeam == 0) ? partonSystemsPtr->getInA(iPar)
+                                     : partonSystemsPtr->getInB(iPar);
+            beam[iPar].p( event[iInAB].p() );
+          }
         }
+
+        // And set the pT in case gamma->qqbar splitting with MPIs.
+        if ( beam.gamVal() >= 0 ) {
+          double phi = 2*M_PI*rndmPtr->flat();
+          double px = cos(phi) * sqrt(beam.pT2gamma2qqbar());
+          double py = sin(phi) * sqrt(beam.pT2gamma2qqbar());
+          beam[beam.gamVal()].px(px);
+          beam[beam.gamVal()].py(py);
+
+          // Other valence parton takes the recoil but this will still be
+          // part of pT balancing.
+          for (int iPar = 0; iPar < nPar; ++iPar){
+            if ( iPar != beam.gamVal() && beam[iPar].isValence() ){
+              beam[iPar].px(-px);
+              beam[iPar].py(-py);
+              break;
+            }
+          }
+        }
+
       }
 
       // Pick unrescaled x values for remnants. Sum up (unscaled) p+ and p-.
@@ -830,9 +904,13 @@ bool BeamRemnants::setOneRemnKinematics( Event& event, int beamOffset) {
   // Identify beams with and without remnant.
   int iBeamHad;
   if (isDIS) iBeamHad = beamAPtr->isLepton() ? 2 : 1;
-  else iBeamHad = beamAPtr->getGammaRemnants() ? 1 : 2;
+  else iBeamHad = beamAPtr->resolvedGamma() ? 1 : 2;
   BeamParticle& beamHad   = (iBeamHad == 1) ? *beamAPtr : *beamBPtr;
   BeamParticle& beamOther = (iBeamHad == 2) ? *beamAPtr : *beamBPtr;
+
+  // Beam offsets in case of gamma+gamma.
+  int iBeamA = 1 + beamOffset;
+  int iBeamB = 2 + beamOffset;
 
   // Identify remnant-side hadronic four-momentum and scattered lepton if DIS.
   int iLepScat = isDIS ? (beamOther[0].iPos() + 2) : -1;
@@ -842,7 +920,7 @@ bool BeamRemnants::setOneRemnKinematics( Event& event, int beamOffset) {
 
   // Set scattered lepton momentum if DIS and find the hadronic system.
   Vec4 pLepScat = isDIS ? event[iLepScat].p() : Vec4();
-  Vec4 pHadTot  = event[1 + beamOffset].p() + event[2 + beamOffset].p();
+  Vec4 pHadTot  = event[iBeamA].p() + event[iBeamB].p();
   if ( isDIS ) pHadTot -= pLepScat;
   Vec4 pRemnant = pHadTot - pHadScat;
   double w2Tot  = pHadTot.m2Calc();

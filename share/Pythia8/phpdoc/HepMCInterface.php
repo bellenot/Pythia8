@@ -240,4 +240,4 @@ like in some Les Houches strategies, this weight is in units of pb.
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

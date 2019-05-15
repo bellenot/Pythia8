@@ -1,5 +1,5 @@
 // ProcessLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -87,14 +87,10 @@ private:
 
   // Generic info for process generation.
   bool   doSecondHard, doSameCuts, allHardSame, noneHardSame,
-         someHardSame, cutsAgree, cutsOverlap, doResDecays, doISR;
+         someHardSame, cutsAgree, cutsOverlap, doResDecays, doISR, doMPI;
   int    nImpact, startColTag;
   double mHatMin1, mHatMax1, pTHatMin1, pTHatMax1, mHatMin2, mHatMax2,
          pTHatMin2, pTHatMax2, sigmaND, sumImpactFac, sum2ImpactFac;
-
-  // Variables for gamma-inside-lepton collisions.
-  bool   isLepton2gamma;
-  double xGamma1, xGamma2;
 
   // Vector of containers of internally-generated processes.
   vector<ProcessContainer*> containerPtrs;
@@ -143,6 +139,9 @@ private:
 
   // ResonanceDecay object does sequential resonance decays.
   ResonanceDecays resonanceDecays;
+
+  // Samples photon kinematics from leptons.
+  GammaKinematics gammaKin;
 
   // Generate the next event with one interaction.
   bool nextOne( Event& process);

@@ -1,5 +1,5 @@
 // PartonDistributions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -59,7 +59,7 @@ public:
   // Allow extrapolation beyond boundaries. This is optional.
   virtual void setExtrapolate(bool) {}
 
-  // Read out parton density
+  // Read out parton density.
   virtual double xf(int id, double x, double Q2);
 
   // Read out valence and sea part of parton densities.
@@ -84,11 +84,17 @@ public:
   // Sample the valence content for photons.
   virtual int sampleGammaValFlavor(double) { return 0.; }
 
+  // The total x-integrated PDFs. Relevant for MPIs with photon beams.
+  virtual double xfIntegratedTotal(double) { return 0.; }
+
   // Return the sampled value for x_gamma.
-  virtual double xGamma(int){ return 1; }
+  virtual double xGamma(){ return 1.; }
 
   // Normal PDFs unless gamma inside lepton -> an overestimate for sampling.
   virtual double xfMax(int id, double x, double Q2) { return xf( id, x, Q2); }
+
+  // Normal PDFs unless gamma inside lepton -> Do not sample x_gamma.
+  virtual double xfSame(int id, double x, double Q2) { return xf( id, x, Q2); }
 
 protected:
 
@@ -477,6 +483,10 @@ public:
   // Constructor.
   Lepton(int idBeamIn = 11) : PDF(idBeamIn) {}
 
+  // Constructor with further info.
+  Lepton(int idBeamIn, double Q2maxGammaIn, Info* infoPtrIn) : PDF(idBeamIn) {
+    Q2maxGamma = Q2maxGammaIn; infoPtr = infoPtrIn; }
+
 private:
 
   // Constants: could only be changed in the code itself.
@@ -486,7 +496,10 @@ private:
   void xfUpdate(int id, double x, double Q2);
 
   // The squared lepton mass, set at initialization.
-  double m2Lep;
+  double m2Lep, Q2maxGamma;
+
+  // Pointer to info, needed to get sqrt(s) to fix x_gamma limits.
+  Info* infoPtr;
 
 };
 
@@ -701,10 +714,13 @@ public:
   // Set the valence content for photons.
   int sampleGammaValFlavor(double Q2);
 
+  // The total x-integrated PDFs. Relevant for MPIs with photon beams.
+  double xfIntegratedTotal(double Q2);
+
 private:
 
   // Parameters related to the fit.
-  static const double ALPHAEM, Q02, Q2MIN, LAMBDA, MC, MB;
+  static const double ALPHAEM, Q02, Q2MIN, Q2REF, LAMBDA, MC, MB;
 
   // Pointer to random number generator used for valence sampling.
   Rndm *rndmPtr;
@@ -801,18 +817,23 @@ public:
   Lepton2gamma(int idBeamIn, double m2leptonIn, double Q2maxGamma,
     PDF* gammaPDFPtrIn, Info* infoPtrIn, Rndm* rndmPtrIn) : PDF(idBeamIn) {
     m2lepton = m2leptonIn; Q2max = Q2maxGamma; gammaPDFPtr = gammaPDFPtrIn;
-    infoPtr = infoPtrIn; rndmPtr = rndmPtrIn; hasGammaInLepton = true; }
+    infoPtr = infoPtrIn; rndmPtr = rndmPtrIn; hasGammaInLepton = true;
+    sampleXgamma = true; }
 
-  // Override the member function definitions where relevant.
+  // Overload the member function definitions where relevant.
   void xfUpdate(int id, double x, double Q2);
-  double xGamma(int){ return xGm; }
+  double xGamma(){ return xGm; }
   double xfMax(int id, double x, double Q2);
+  double xfSame(int id, double x, double Q2);
 
 private:
 
   // Parameters for convolution.
   static const double ALPHAEM, Q2MIN;
   double m2lepton, Q2max, xGm;
+
+  // Sample new value for x_gamma.
+  bool sampleXgamma;
 
   // Photon PDFs with the photon flux is convoluted with.
   PDF* gammaPDFPtr;
@@ -822,6 +843,24 @@ private:
 
   // Pointer to info, needed to get sqrt(s) to fix x_gamma limits.
   Info* infoPtr;
+
+};
+
+//==========================================================================
+
+// Gives electron (or other lepton) parton distribution when unresolved.
+
+class GammaPoint : public PDF {
+
+public:
+
+  // Constructor.
+  GammaPoint(int idBeamIn = 22) : PDF(idBeamIn) {}
+
+private:
+
+  // Update PDF values in trivial way.
+  void xfUpdate(int , double , double ) { xgamma = 1.;}
 
 };
 

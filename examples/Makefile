@@ -1,5 +1,5 @@
 # Makefile is a part of the PYTHIA event generator.
-# Copyright (C) 2016 Torbjorn Sjostrand.
+# Copyright (C) 2017 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, September 2014.
@@ -13,6 +13,9 @@
 ################################################################################
 # VARIABLES: Definition of the relevant variables from the configuration script.
 ################################################################################
+
+# Set the shell.
+SHELL=/usr/bin/env bash
 
 # Include the configuration.
 -include Makefile.inc
@@ -119,19 +122,25 @@ endif
 main91: $$@.cc $(PREFIX_LIB)/libpythia8.a
 ifeq ($(ROOT_USE),true)
 	$(CXX) $^ -o $@ -w -I$(ROOT_INCLUDE) $(CXX_COMMON)\
+	 `$(ROOTBIN)root-config --cflags`\
 	 -Wl,-rpath,$(ROOT_LIB) `$(ROOT_BIN)root-config --glibs`
 else
 	@echo "Error: $@ requires ROOT"
 endif
-main92: $$@.cc $$@.h $$@LinkDef.h $(PREFIX_LIB)/libpythia8.a
+main92: $$@.cc $(PREFIX_LIB)/libpythia8.a main92.so
 ifeq ($(ROOT_USE),true)
-	export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$(ROOT_LIB);\
-	 $(ROOT_BIN)rootcint -f $@Dct.cc -c -I$(PREFIX_INCLUDE) $@.h $@LinkDef.h
-	$(CXX) $@Dct.cc $^ -o $@ -w -I$(ROOT_INCLUDE) $(CXX_COMMON)\
+	$(CXX) $^ -o $@ -w -I$(ROOT_INCLUDE) $(CXX_COMMON)\
+	 `$(ROOTBIN)root-config --cflags` -Wl,-rpath,./\
 	 -Wl,-rpath,$(ROOT_LIB) `$(ROOT_BIN)root-config --glibs`
 else
 	@echo "Error: $@ requires ROOT"
 endif
+main92.so: main92Dct.cc $(PREFIX_LIB)/libpythia8.a
+	$(CXX) $^ -o $@ -w -I$(ROOT_INCLUDE) $(CXX_SHARED) $(CXX_COMMON)\
+	 `$(ROOTBIN)root-config --cflags`
+main92Dct.cc: main92.h main92LinkDef.h
+	export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$(ROOT_LIB);\
+	 $(ROOT_BIN)rootcint -f $@ -c -I$(PREFIX_INCLUDE) $^
 
 # User-written examples for tutorials, without external dependencies.
 mymain% : mymain%.cc $(PREFIX_LIB)/libpythia8.a
@@ -147,4 +156,4 @@ clean:
 	rm -f mymain[0-9][0-9]; rm -f myout[0-9][0-9];\
 	rm -f test[0-9][0-9][0-9]; rm -f out[0-9][0-9][0-9];\
 	rm -f weakbosons.lhe; rm -f Pythia8.promc; rm -f hist.root;\
-	rm -f *~; rm -f \#*; rm -f core*; rm -f *Dct.*
+	rm -f *~; rm -f \#*; rm -f core*; rm -f *Dct.*; rm -f *.so;

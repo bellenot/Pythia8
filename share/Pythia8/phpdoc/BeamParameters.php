@@ -246,7 +246,7 @@ a maximal total deviation from the nominal values <i>(p_x0, p_y0, p_z0)</i>
 for the first incoming particle, like 
 <br/><i> 
 (p_x - p_x0)^2/sigma_px^2 + (p_y - p_y0)^2/sigma_py^2 + 
-(p_z - p_z0)^2/sigma_pz^2 < maxDev^2 
+(p_z - p_z0)^2/sigma_pz^2 &lt; maxDev^2 
 </i><br/> 
 (Note the absence of a factor 2 in the denominator, unlike the Gaussians 
 used to pick <i>(p_x, p_y, p_z)</i>.) 
@@ -273,7 +273,7 @@ a maximal total deviation from the nominal values <i>(p_x0, p_y0, p_z0)</i>,
 for the second incoming particle, like 
 <br/><i> 
 (p_x - p_x0)^2/sigma_px^2 + (p_y - p_y0)^2/sigma_py^2 + 
-(p_z - p_z0)^2/sigma_pz^2 < maxDev^2 
+(p_z - p_z0)^2/sigma_pz^2 &lt; maxDev^2 
 </i><br/> 
 (Note the absence of a factor 2 in the denominator, unlike the Gaussians 
 used to pick <i>(p_x, p_y, p_z)</i>.) 
@@ -314,7 +314,7 @@ The triply Gaussian distribution of interaction vertex position
 <i>(x, y, z)</i> is restricted to a maximal total deviation from the 
 origin, like 
 <br/><i> 
-x^2/sigma_x^2 + y^2/sigma_y^2 + z^2/sigma_z^2 < maxDevVertex^2 
+x^2/sigma_x^2 + y^2/sigma_y^2 + z^2/sigma_z^2 &lt; maxDevVertex^2 
 </i><br/> 
 (Note the absence of a factor 2 in the denominator, unlike the Gaussians 
 used to pick <i>(x, y, z)</i>.) 
@@ -569,4 +569,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

@@ -1,5 +1,5 @@
 // LesHouches.h is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -88,6 +88,7 @@ public:
   // Method to be used for LHAupLHEF derived class.
   virtual void newEventFile(const char*) {}
   virtual bool fileFound() {return true;}
+  virtual bool useExternal() {return false;}
 
   // A pure virtual method setInit, wherein all initialization information
   // is supposed to be set in the derived class. Can do this by reading a
@@ -323,18 +324,28 @@ class LHAupLHEF : public LHAup {
 public:
 
   // Constructor.
+  LHAupLHEF(Pythia8::Info* infoPtrIn, istream* isIn, istream* isHeadIn,
+    bool readHeadersIn = false, bool setScalesFromLHEFIn = false ) :
+    infoPtr(infoPtrIn), filename(""), headerfile(""),
+    is(isIn), is_gz(NULL), isHead(isHeadIn), isHead_gz(NULL),
+    readHeaders(readHeadersIn), reader(is),
+    setScalesFromLHEF(setScalesFromLHEFIn), hasExtFileStream(true),
+    hasExtHeaderStream(true) {}
+
   LHAupLHEF(Pythia8::Info* infoPtrIn, const char* filenameIn,
     const char* headerIn = NULL, bool readHeadersIn = false,
     bool setScalesFromLHEFIn = false ) :
     infoPtr(infoPtrIn), filename(filenameIn), headerfile(headerIn),
     is(NULL), is_gz(NULL), isHead(NULL), isHead_gz(NULL),
     readHeaders(readHeadersIn), reader(filenameIn),
-    setScalesFromLHEF(setScalesFromLHEFIn) {
+    setScalesFromLHEF(setScalesFromLHEFIn), hasExtFileStream(false),
+    hasExtHeaderStream(false) {
     is = (openFile(filenameIn, ifs));
     isHead = (headerfile == NULL) ? is : openFile(headerfile, ifsHead);
     is_gz = new igzstream(filename);
     isHead_gz = (headerfile == NULL) ? is_gz : new igzstream(headerfile);
   }
+
 
   // Destructor.
   ~LHAupLHEF() {
@@ -345,14 +356,14 @@ public:
   // Helper routine to correctly close files.
   void closeAllFiles() {
 
-    if (isHead_gz != is_gz) isHead_gz->close();
+    if (!hasExtHeaderStream && isHead_gz != is_gz) isHead_gz->close();
     if (isHead_gz != is_gz) delete isHead_gz;
-    is_gz->close();
-    delete is_gz;
+    if (is_gz) is_gz->close();
+    if (is_gz) delete is_gz;
 
     // Close header file if separate, and close main file.
-    if (isHead != is) closeFile(isHead, ifsHead);
-    closeFile(is, ifs);
+    if (!hasExtHeaderStream && isHead != is) closeFile(isHead, ifsHead);
+    if (!hasExtFileStream) closeFile(is, ifs);
   }
 
   // Want to use new file with events, but without reinitialization.
@@ -370,7 +381,8 @@ public:
   }
 
   // Confirm that file was found and opened as expected.
-  bool fileFound() { return (isHead->good() && is->good()); }
+  bool fileFound() {return (useExternal() || (isHead->good() && is->good()));}
+  bool useExternal() {return (hasExtHeaderStream && hasExtFileStream);}
 
   // Routine for doing the job of reading and setting initialization info.
   bool setInit() {
@@ -404,8 +416,10 @@ protected:
   // Used internally to read a single line from the stream.
   bool getLine(string & line, bool header = true) {
 #ifdef GZIPSUPPORT
-    if      ( header && !getline(*isHead_gz, line)) return false;
-    else if (!header && !getline(*is_gz, line))     return false;
+    if      ( isHead_gz &&  header && !getline(*isHead_gz, line)) return false;
+    else if ( is_gz     && !header && !getline(*is_gz, line))     return false;
+    if      (header && !getline(*isHead, line)) return false;
+    else if (!header && !getline(*is, line))    return false;
 #else
     if      (header && !getline(*isHead, line)) return false;
     else if (!header && !getline(*is, line))    return false;
@@ -436,7 +450,7 @@ private:
   Reader reader;
 
   // Flag to set particle production scales or not.
-  bool setScalesFromLHEF;
+  bool setScalesFromLHEF, hasExtFileStream, hasExtHeaderStream;
 
 };
 
@@ -483,15 +497,19 @@ public:
 
   // Constructor.
   LHEF3FromPythia8(Event* eventPtrIn, Settings* settingsPtrIn,
-    Info* infoPtrIn, ParticleData* particleDataPtrIn, int pDigitsIn = 15) :
+    Info* infoPtrIn, ParticleData* particleDataPtrIn, int pDigitsIn = 15,
+    bool writeToFileIn = true) :
     eventPtr(eventPtrIn),settingsPtr(settingsPtrIn), infoPtr(infoPtrIn),
-    particleDataPtr(particleDataPtrIn), writer(osLHEF), pDigits(pDigitsIn) {}
+    particleDataPtr(particleDataPtrIn), writer(osLHEF), pDigits(pDigitsIn),
+    writeToFile(writeToFileIn) {}
 
   // Routine for reading, setting and printing the initialisation info.
   bool setInit();
 
   // Routine for reading, setting and printing the next event.
+  void setEventPtr(Event* evPtr) { eventPtr = evPtr; }
   bool setEvent(int = 0);
+  string getEventString() { return writer.getEventString(&hepeup); }
 
   // Function to open the output file.
   bool openLHEF(string fileNameIn);
@@ -513,7 +531,8 @@ private:
   Writer writer;
 
   // Number of digits to set width of double write out
-  int pDigits;
+  int  pDigits;
+  bool writeToFile;
 
   // Some internal init and event block objects for convenience.
   HEPRUP heprup;

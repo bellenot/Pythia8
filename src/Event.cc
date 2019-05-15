@@ -1,5 +1,5 @@
 // Event.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -479,24 +479,9 @@ bool Particle::undoDecay() {
 
   // Iterate over relevant ranges, from bottom up.
   for (int iR = int(dauBeg.size()) - 1; iR >= 0; --iR) {
-    dau1 = dauBeg[iR];
-    dau2 = dauEnd[iR];
-    int nRem = dau2 - dau1 + 1;
 
-    // Remove daughters in each range.
-    (*evtPtr).remove( dau1, dau2);
-
-    // Update subsequent history to account for removed indices.
-    for (int j = 0; j < int((*evtPtr).size()); ++j) {
-      if ((*evtPtr)[j].mother1() > dau2)
-        (*evtPtr)[j].mother1( (*evtPtr)[j].mother1() - nRem );
-      if ((*evtPtr)[j].mother2() > dau2)
-        (*evtPtr)[j].mother2( (*evtPtr)[j].mother2() - nRem );
-      if ((*evtPtr)[j].daughter1() > dau2)
-        (*evtPtr)[j].daughter1( (*evtPtr)[j].daughter1() - nRem );
-      if ((*evtPtr)[j].daughter2() > dau2)
-        (*evtPtr)[j].daughter2( (*evtPtr)[j].daughter2() - nRem );
-    }
+    // Remove daughters in each range and update mother and daughter indices.
+    (*evtPtr).remove( dauBeg[iR], dauEnd[iR]);
   }
 
   // Update mother that has been undecayed.
@@ -655,6 +640,45 @@ int Event::copy(int iCopy, int newStatus) {
 
   // Done.
   return iNew;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Remove entries from iFirst to iLast, including endpoints, and fix history.
+// (To the extent possible; history pointers in removed range are zeroed.)
+
+void Event::remove(int iFirst, int iLast, bool shiftHistory) {
+
+  // Check that removal range is sensible.
+  if (iFirst < 0 || iLast >= int(entry.size()) || iLast < iFirst) return;
+  int nRem = iLast + 1 - iFirst;
+
+  // Remove the entries.
+  entry.erase( entry.begin() + iFirst, entry.begin() + iLast + 1);
+
+  // Loop over remaining particles; read out mothers and daughters.
+  if (shiftHistory) for (int i = 0; i < int(entry.size()); ++i) {
+    int iMot1 = entry[i].mother1();
+    int iMot2 = entry[i].mother2();
+    int iDau1 = entry[i].daughter1();
+    int iDau2 = entry[i].daughter2();
+
+    // Shift mother and daughter indices according to removed number.
+    // Set zero if in removed range.
+    if (iMot1 > iLast) iMot1 -= nRem;
+    else if (iMot1 >= iFirst) iMot1 = 0;
+    if (iMot2 > iLast) iMot2 -= nRem;
+    else if (iMot2 >= iFirst) iMot2 = 0;
+    if (iDau1 > iLast) iDau1 -= nRem;
+    else if (iDau1 >= iFirst) iDau1 = 0;
+    if (iDau2 > iLast) iDau2 -= nRem;
+    else if (iDau2 >= iFirst) iDau2 = 0;
+
+    // Set the new values.
+    entry[i].mothers(iMot1, iMot2);
+    entry[i].daughters(iDau1, iDau2);
+  }
 
 }
 

@@ -1,5 +1,5 @@
 // LesHouches.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1531,7 +1531,7 @@ bool LHEF3FromPythia8::setEvent(int) {
   // Write event comments of input LHEF.
 
   writer.hepeup = hepeup;
-  writer.writeEvent(&hepeup,pDigits);
+  if (writeToFile) writer.writeEvent(&hepeup,pDigits);
 
   return true;
 

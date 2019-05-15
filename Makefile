@@ -1,5 +1,5 @@
 # Makefile is a part of the PYTHIA event generator.
-# Copyright (C) 2016 Torbjorn Sjostrand.
+# Copyright (C) 2017 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, October 2014 - May 2015.
@@ -14,6 +14,9 @@
 # VARIABLES: Definition of the relevant variables from the configuration script
 # and the distribution structure.
 ################################################################################
+
+# Set the shell.
+SHELL=/usr/bin/env bash
 
 # Include the configuration and set the local directory structure.
 ifeq (,$(findstring clean, $(MAKECMDGOALS)))
@@ -135,6 +138,7 @@ $(LOCAL_LIB)/_pythia8.so: $(LOCAL_INCLUDE)/Pythia8Plugins/PythonWrapper.h\
 	$(LOCAL_LIB)/pythia8.py $(wildcard $(LOCAL_INCLUDE)/*/*.h) |\
 	$(LOCAL_LIB)/libpythia8$(LIB_SUFFIX)
 	$(CXX) -x c++ $< -o $@ -w $(PYTHON_COMMON) $(CXX_SHARED)\
+	 -Wl,-undefined,dynamic_lookup -Wno-long-long\
 	 $(CXX_SONAME),$(notdir $@) -L$(LOCAL_LIB) -lpythia8
 	if type "install_name_tool" &> /dev/null; then\
 	 install_name_tool -change libpythia8$(LIB_SUFFIX)\

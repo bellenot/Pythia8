@@ -1,5 +1,5 @@
 // Pythia.h is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,7 +10,8 @@
 #define Pythia8_Pythia_H
 
 // Version number defined for use in macros and for consistency checks.
-#define PYTHIA_VERSION 8.219
+#define PYTHIA_VERSION 8.223
+#define PYTHIA_VERSION_INTEGER 8223
 
 // Header files for the Pythia class and for what else the user may need.
 #include "Pythia8/Analysis.h"
@@ -90,7 +91,8 @@ public:
   // Possibility to pass in pointers to PDF's.
   bool setPDFPtr( PDF* pdfAPtrIn, PDF* pdfBPtrIn, PDF* pdfHardAPtrIn = 0,
     PDF* pdfHardBPtrIn = 0, PDF* pdfPomAPtrIn = 0, PDF* pdfPomBPtrIn = 0,
-    PDF* pdfGamAPtrIn = 0, PDF* pdfGamBPtrIn = 0);
+    PDF* pdfGamAPtrIn = 0, PDF* pdfGamBPtrIn = 0, PDF* pdfHardGamAPtrIn = 0,
+    PDF* pdfHardGamBPtrIn = 0);
 
   // Possibility to pass in pointer to external LHA-interfaced generator.
   bool setLHAupPtr( LHAup* lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn; return true;}
@@ -196,7 +198,7 @@ public:
   Couplings*     couplingsPtr;
 
   // SLHA Interface
-  SLHAinterface slhaInterface;
+  SLHAinterface  slhaInterface;
 
   // The partonic content of each subcollision system (auxiliary to event).
   PartonSystems  partonSystems;
@@ -225,6 +227,10 @@ private:
          checkEvent, checkHistory;
   int    nErrList;
   double epTolErr, epTolWarn, mTolErr, mTolWarn;
+
+  // Initialization data related to photon-photon interactions.
+  bool   beamHasGamma, beamAisResGamma, beamBisResGamma, beamAhasResGamma,
+         beamBhasResGamma;
 
   // Initialization data, extracted from init(...) call.
   bool   isConstructed, isInit, isUnresolvedA, isUnresolvedB, showSaV,
@@ -256,9 +262,13 @@ private:
   PDF* pdfGamAPtr;
   PDF* pdfGamBPtr;
 
+  // Extra PDF pointers to be used in hard lepton -> gamma processes.
+  PDF* pdfHardGamAPtr;
+  PDF* pdfHardGamBPtr;
+
   // Keep track when "new" has been used and needs a "delete" for PDF's.
   bool useNewPdfA, useNewPdfB, useNewPdfHard, useNewPdfPomA, useNewPdfPomB,
-       useNewPdfGamA, useNewPdfGamB;
+    useNewPdfGamA, useNewPdfGamB, useNewPdfHardGamA, useNewPdfHardGamB;
 
   // The two incoming beams.
   BeamParticle beamA;

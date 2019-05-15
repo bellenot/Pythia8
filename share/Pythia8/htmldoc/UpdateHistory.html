@@ -18,6 +18,176 @@ but this should only affect a small part of the user code.
  
 <ul> 
  
+<li>8.223: 5 January 2017 
+<ul> 
+ 
+<li>Nadine Fischer and Leif L&ouml;nnblad join as co-authors, 
+while Jesper Roy Christiansen leaves. Nishista Desai, Ilkka Helenius 
+and Stefan Prestel have new affiliations.</li> 
+ 
+<li>The machinery for resolved &gamma;&gamma; collisions has been extended, 
+such that now soft processes and MPIs can be simulated, also when 
+embedded in <i>l^+l^-</i> collisions. (But not yet diffraction.) 
+Also some further improvements have been introduced, see 
+the <a href="PhotonPhoton.html" target="page">Photon-photon Interactions</a> 
+description. This implies several changes in different parts of 
+the code, mainly related to beam remnants and beam particles.</li> 
+ 
+<li> 
+Also direct-resolved and direct-direct processes are included for 
+&gamma;&gamma; interactions, with photon beams and within lepton beams. 
+This involves new subprocesses where one initiator is a photon and the 
+other a parton. A new sample main program (<code>main69.cc</code>) 
+illustrates how the different classes of &gamma;&gamma; interactions 
+are combined.</li> 
+ 
+<li>The kinematics of &gamma;&gamma; have been revised to include all 
+mass corrections and to handle also non-equal leptons. A new class 
+<code>GammaKinematics</code> is introduced to handle the sampling of 
+the kinematics. A fix for the <code>ProcessLevel::roomForRemnants()</code> 
+function, which rejected a bit too many processes when photon-photon 
+collisions were generated within lepton beams. 
+</li> 
+ 
+<li>New cuts for the kinematics of &gamma;&gamma; interactions in 
+<i>l^+l^-</i> collisions are introduced, for details see 
+<a href="PhotonPhoton.html" target="page">Photon-photon Interactions</a>. 
+Matching new kinematics output methods, see 
+<a href="EventInformation.html" target="page">Event Information</a>.</li> 
+ 
+<li>A PDF for point-like photon is included. In case of lepton PDFs, the 
+photon contribution has now restricted virtuality and also more accurate 
+lower limit for the virtuality. A new option to use separate PDFs for 
+hard processes, with photon PDFs obtained from LHAPDF5. CJKL PDFs are 
+modified so that, instead of freezing the scale below its minimum, 
+the scale evolution is approximated with <i>log(Q^2)</i>.</li> 
+ 
+<li>A new alternative "thermal hadronization" option is introduced, 
+wherein an exponential <i>exp(-pT / T)</i> hadronic transverse 
+momentum spectrum replaces the default Gaussian one, with a 
+"temperature" <i>T</i> as free parameter. Given this <i>pT</i>, 
+the next hadron (consistent with local flavour conservation) is picked 
+among the possibilities with an <i>exp(-mT / T)</i> weight. 
+This option is accessed with <code>StringPT:thermalModel = on</code>. 
+See further the <a href="Fragmentation.html" target="page">Fragmentation</a> and 
+<a href="FlavourSelection.html" target="page">Flavour Selection</a> descriptions 
+and the article [<a href="Bibliography.html" target="page">Fis16</a>].</li> 
+ 
+<li>A new option <code>StringPT:closePacking = on</code> allows to 
+enhance the <i>pT</i> width in regions where there is a high 
+density of partly overlapping strings. This works both for the 
+default Gaussian and the alternative exponential (see above) 
+<i>pT</i> description; in the latter case it will also enhance the 
+rate of heavier-particle production. See further the 
+<a href="Fragmentation.html" target="page">Fragmentation</a> description 
+and the article [<a href="Bibliography.html" target="page">Fis16</a>].</li> 
+ 
+<li>A new simple model for hadronic rescattering is introduced, 
+with two variants, as described in [<a href="Bibliography.html" target="page">Fis16</a>]. A new master 
+switch <code>HadronLevel:HadronScatter</code>, by default off, and 
+<code>HadronScatter:mode</code> to pick among them and the old one. 
+See the <a href="HadronScattering.html" target="page">Hadron Scattering</a> page 
+for further details and parameters. New status codes 111 and 112 
+introduced for rescattered hadrons.</li> 
+ 
+<li>A first process for Dark Matter production, for the pair production 
+of new Dirac DM particles through an <i>s</i>-channel vector-like 
+mediator.</li> 
+ 
+<li>New mode <code>BeamRemnants:unresolvedHadron</code> can be used to 
+let original hadron remain as beam remnant, e.g. for coherent emission 
+of photons.</li> 
+ 
+<li>New option with running coupling in Hidden Valley scenarios. 
+Some other small fixes in it.</li> 
+ 
+<li>Fixed a check in the construction of all shower histories for 
+the merging, which meant that not all histories were produced for 
+squarks+jets. Included rudimentary facilities to guess the process 
+for merging.</li> 
+ 
+<li>Added functionality to write Pythia events to a LHEF3-style string, 
+e.g. for use in an external Pythia caller.</li> 
+ 
+<li>Improved safety checks for the presence of LHE files.</li> 
+ 
+<li>New status codes 49 and 59 introduced for ISR and FSR partons, 
+respectively, to represent special states in the evolution where 
+<i>E^2 - p^2 = m^2</i> is not fulfilled.</li> 
+ 
+<li>New behaviour of <code>Event::remove</code>, where mother and 
+daughter indices now are updated by default.</li> 
+ 
+<li>Fix in the setup of tunes with 
+<code>SpaceShower:rapidityOrder = off</code>. 
+The new (in 8.219) <code>SpaceShower:rapidityOrderMPI</code> then also 
+ought to have been set off, but this was missed, giving small 
+inconsistencies (around 2% reduction of the charged multiplicity). 
+Thanks to James Monk.</li> 
+ 
+<li>New method <code>string Hist::getTitle()</code> to get the title 
+of a histogram, while <code>void Hist::title(string )</code> sets it. 
+Thanks to Roberto Franceschini.</li> 
+ 
+<li>Corrected behaviour for <i>R</i>-hadrons produced in sequential 
+resonance decays (for example a squark decaying to a gluino with the 
+latter forming an <i>R</i>-hadron). Thanks to Jinmian Li for 
+alerting us.</li> 
+ 
+<li>Minor updates so that <code>main91</code> and <code>main92</code> 
+examples work also with ROOT 6, in addition to the existing ROOT 5 
+support. Thanks to Li Huang.</li> 
+ 
+<li>Include correct mass suppression for excited fermion three-body 
+decays <i>F^* &rarr; F Fbar f</i>, primarily for <i>F = t</i>. 
+Thanks to Olya Igonkina and Oleg Zenin.</li> 
+ 
+<li>Two new <code>Hist::rivetTable</code> methods allow histograms to 
+be written on file in a format that Rivet understands.</li> 
+ 
+<li>New particle data method <code>nQuarksInCode(int idQ)</code> counts 
+how many copies of the requested quark code <code>idQ</code> that a 
+quark, diquark, meson or baryon code contains.</li> 
+ 
+<li>Bring the <code>FJcore</code> package inside the <code>Pythia8</code> 
+namespace to avoid potential name clashes with user code. Thanks to 
+Andy Buckley.</li> 
+ 
+<li>Fixed <code>flat_namespace</code> issue for macOS. Thanks to 
+Juergen Reuter.</li> 
+ 
+<li>Ensure that bash shell is used in <code>Makefile</code>s. 
+Thanks to Inga Strumke.</li> 
+ 
+<li>New <code>#define PYTHIA_VERSION_INTEGER 82xx</code> in 
+<code>Pythia.h</code> matches already existing 
+<code>#define PYTHIA_VERSION 8.2xx</code>, for more convenient 
+matching using integers. Thanks to Andrii Verbytskyi.</li> 
+ 
+<li>The handling of the <code>meMode</code> ranges 52 - 60 and 62 - 70 
+were incorrect, insofar as checks or not against duplication of existing 
+channels go, and have now been set straight. Thanks to Christopher 
+West.</li> 
+ 
+<li>Minor bug fix in the <code>TimeShower</code> machinery to optionally 
+enhance the rate of some shower branchings.</li> 
+ 
+<li>A minor fix for <code>BeamParticle::popBack()</code> method to reset 
+companion choice also if <code>iComp = 0</code>.</li> 
+ 
+<li>Cleanup of unmatched xml tags and other xml inconsistencies.</li> 
+ 
+<li>Two minor particle data fixes.</li> 
+ 
+<li>Small fix in the parsing code of <code>LHEF3.h</code>.</li> 
+ 
+<li>Year updated to 2017.</li> 
+ 
+<li>Small clarifications in the documentation.</li> 
+ 
+</ul> 
+</li> 
+ 
 <li>8.219: 10 May 2016 
 <ul> 
  
@@ -1143,7 +1313,7 @@ non-universal couplings.</li>
 angle <i>phi</i> as described in <a href="HiggsProcesses.html" target="page">Higgs 
 Processes</a>. The choice of the Higgs CP-mixing parametrization 
 now also affects the distributions of the <i>tau</i> decay products 
-from the processes <i>H^0 &rarr; tau^+ tau^-</i>. 
+from the processes <i>H^0 &rarr; tau^+ tau^-</i>.</li> 
  
 <li>Bug fix in <i>H^0 &rarr; W^+ W^- &rarr; 4 f</i> matrix element 
 for mixed CP-state case.</li> 
@@ -1181,4 +1351,4 @@ to six flavours at the top mass.</li>
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

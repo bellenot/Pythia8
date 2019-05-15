@@ -154,12 +154,12 @@ Values are fixed in options 6 and 7.
 When option 5 is selected, the following parameters of the MBR model 
 <ref>Cie12</ref> are used: 
  
-<parm name="Diffraction:MBRepsilon" default="0.104" min="0.02" max="0.15"> 
+<parm name="Diffraction:MBRepsilon" default="0.104" min="0.02" max="0.15"/> 
 <parm name="Diffraction:MBRalpha" default="0.25" min="0.1" max="0.4"> 
 the parameters of the Pomeron trajectory. 
 </parm> 
  
-<parm name="Diffraction:MBRbeta0" default="6.566" min="0.0" max="10.0"> 
+<parm name="Diffraction:MBRbeta0" default="6.566" min="0.0" max="10.0"/> 
 <parm name="Diffraction:MBRsigma0" default="2.82" min="0.0" max="5.0"> 
 the Pomeron-proton coupling, and the total Pomeron-proton cross section. 
 </parm> 
@@ -168,23 +168,23 @@ the Pomeron-proton coupling, and the total Pomeron-proton cross section.
 the lowest value of the mass squared of the dissociated system. 
 </parm> 
  
-<parm name="Diffraction:MBRdyminSDflux" default="2.3" min="0.0" max="5.0"> 
-<parm name="Diffraction:MBRdyminDDflux" default="2.3" min="0.0" max="5.0"> 
+<parm name="Diffraction:MBRdyminSDflux" default="2.3" min="0.0" max="5.0"/> 
+<parm name="Diffraction:MBRdyminDDflux" default="2.3" min="0.0" max="5.0"/> 
 <parm name="Diffraction:MBRdyminCDflux" default="2.3" min="0.0" max="5.0"> 
 the minimum width of the rapidity gap used in the calculation of 
 <ei>Ngap(s)</ei> (flux renormalization). 
 </parm> 
  
-<parm name="Diffraction:MBRdyminSD" default="2.0" min="0.0" max="5.0"> 
-<parm name="Diffraction:MBRdyminDD" default="2.0" min="0.0" max="5.0"> 
+<parm name="Diffraction:MBRdyminSD" default="2.0" min="0.0" max="5.0"/> 
+<parm name="Diffraction:MBRdyminDD" default="2.0" min="0.0" max="5.0"/> 
 <parm name="Diffraction:MBRdyminCD" default="2.0" min="0.0" max="5.0"> 
 the minimum width of the rapidity gap used in the calculation of cross 
 sections, i.e. the parameter <ei>dy_S</ei>, which suppresses the cross 
 section at low <ei>dy</ei> (non-diffractive region). 
 </parm> 
  
-<parm name="Diffraction:MBRdyminSigSD" default="0.5" min="0.001" max="5.0"> 
-<parm name="Diffraction:MBRdyminSigDD" default="0.5" min="0.001" max="5.0"> 
+<parm name="Diffraction:MBRdyminSigSD" default="0.5" min="0.001" max="5.0"/> 
+<parm name="Diffraction:MBRdyminSigDD" default="0.5" min="0.001" max="5.0"/> 
 <parm name="Diffraction:MBRdyminSigCD" default="0.5" min="0.001" max="5.0"> 
 the parameter <ei>sigma_S</ei>, used for the cross section suppression at 
 low <ei>dy</ei> (non-diffractive region). 
@@ -529,4 +529,4 @@ one.
  
 </chapter> 
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

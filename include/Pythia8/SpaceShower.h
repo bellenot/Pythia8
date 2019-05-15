@@ -1,5 +1,5 @@
 // SpaceShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -132,6 +132,9 @@ public:
   void calcUncertainties(bool accept, double pAcceptIn, double pT20in,
     SpaceDipoleEnd* dip, Particle* motherPtr, Particle* sisterPtr);
 
+  // Tell if latest scattering was a gamma->qqbar.
+  bool wasGamma2qqbar() { return gamma2qqbar; }
+
   // Tell which system was the last processed one.
   virtual int system() const {return iSysSel;}
 
@@ -234,7 +237,7 @@ private:
          doPhiPolAsymHard, doPhiIntAsym, doRapidityOrder, useFixedFacScale,
          doSecondHard, canVetoEmission, hasUserHooks, alphaSuseCMW,
          singleWeakEmission, vetoWeakJets, weakExternal, doRapidityOrderMPI,
-         doUncertainties, uVarMuSoftCorr, uVarMPIshowers;
+         doUncertainties, uVarMuSoftCorr, uVarMPIshowers, doMPI, gamma2qqbar;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaSnfmax, alphaEMorder,
          nQuarkIn, enhanceScreening, weakMode;
   double pTdampFudge, mc, mb, m2c, m2b, renormMultFac, factorMultFac,
@@ -243,7 +246,7 @@ private:
          ecmRef, ecmPow, pTmin, sCM, eCM, pT0, pTminChgQ, pTminChgL, pT20,
          pT2min, pT2minChgQ, pT2minChgL, pTweakCut, pT2weakCut, pTmaxFudgeMPI,
          strengthIntAsym, weakEnhancement, mZ, gammaZ, thetaWRat, mW, gammaW,
-    weakMaxWt, vetoWeakDeltaR2, dASmax, cNSpTmin;
+         weakMaxWt, vetoWeakDeltaR2, dASmax, cNSpTmin;
 
   // alphaStrong and alphaEM calculations.
   AlphaStrong alphaS;

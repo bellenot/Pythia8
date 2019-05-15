@@ -207,6 +207,7 @@ operations, e.g. to boost the event to its rest frame before analysis,
 or remove particles that should not be analyzed. 
 The <code>workEvent</code> can also be sent on to a 
 <a href="EventAnalysis.html" target="page">jet clustering algorithm</a>. 
+   
  
 <h3>(i) Interrupt between the main generation levels</h3> 
  
@@ -329,6 +330,7 @@ not be included.
 is very similar to <code>doVetoPartonLevel(...)</code> above, but 
 the veto can be done earlier, as described for 
 <code>canVetoPartonLevelEarly()</code>. 
+   
  
 <h3>(ii) Interrupt during the parton-level evolution, at a 
 <i>pT</i> scale</h3> 
@@ -377,6 +379,7 @@ emissions.
 In the base class this method returns false. If you redefine it 
 to return true then the method <code>doVetoPT(...)</code> will 
 interrupt the downward evolution at <code>scaleVetoPT()</code>. 
+   
  
 <a name="method14"></a>
 <p/><strong>virtual double UserHooks::scaleVetoPT() &nbsp;</strong> <br/>
@@ -446,6 +449,7 @@ In the base class this method returns false. If you redefine it
 to return true then the method <code>doVetoStep(...)</code> will 
 interrupt the downward ISR and FSR evolution the first 
 <code>numberVetoStep()</code> times. 
+   
  
 <a name="method17"></a>
 <p/><strong>virtual int UserHooks::numberVetoStep() &nbsp;</strong> <br/>
@@ -497,6 +501,7 @@ In the base class this method returns false. If you redefine it
 to return true then the method <code>doVetoMPIStep(...)</code> will 
 interrupt the downward MPI evolution the first 
 <code>numberVetoMPIStep()</code> times. 
+   
  
 <a name="method20"></a>
 <p/><strong>virtual int UserHooks::numberVetoMPIStep() &nbsp;</strong> <br/>
@@ -562,6 +567,7 @@ In the base class this method returns false. If you redefine it
 to return true then the method <code>doVetoISREmission(...)</code> 
 will interrupt the initial-state shower immediately after each 
 emission and allow that emission to be vetoed. 
+   
  
 <a name="method23"></a>
 <p/><strong>virtual bool UserHooks::doVetoISREmission( int sizeOld, const Event& event, int iSys) &nbsp;</strong> <br/>
@@ -593,6 +599,7 @@ In the base class this method returns false. If you redefine it
 to return true then the method <code>doVetoFSREmission(...)</code> 
 will interrupt the final-state shower immediately after each 
 emission and allow that emission to be vetoed. 
+   
  
 <a name="method25"></a>
 <p/><strong>virtual bool UserHooks::doVetoFSREmission( int sizeOld, const Event& event, int iSys, bool inResonance = false) &nbsp;</strong> <br/>
@@ -627,6 +634,7 @@ In the base class this method returns false. If you redefine it
 to return true then the method <code>doVetoMPIEmission(...)</code> 
 will interrupt the MPI machinery immediately after each multiparton 
 interaction and allow it to be vetoed. 
+   
  
 <a name="method27"></a>
 <p/><strong>virtual bool UserHooks::doVetoMPIEmission( int sizeOld, const Event& event) &nbsp;</strong> <br/>
@@ -746,6 +754,7 @@ as set for multiparton interactions (i.e. same starting value at
 instead the one for hard subprocesses. The denominator 
 <i>alpha_s(Q^2_ren)</i> is always the value used for the "original", 
 unweighted cross section. 
+   
    
    
  
@@ -993,35 +1002,35 @@ by default, i.e. for all input strings it does not propose to handle.
 Currently, the following input names are recognized by the PYTHIA 
 showers, and can thus be used to enhance the respective 
 splittings. 
-</p> 
+<p/> 
 ISR QCD branchings: 
 <br/><code>isr:G2GG</code> for <i>g &rarr; g + g</i>, 
 <br/><code>isr:G2QQ</code> for <i>g &rarr; q + qbar</i>, 
 <br/><code>isr:Q2QG</code> for <i>q &rarr; q + g</i>, 
 <br/><code>isr:Q2GQ</code> for <i>q &rarr; g + q</i>; 
-</p> 
+<p/> 
 ISR QED branchings: 
 <br/><code>isr:Q2QA</code> for <i>q &rarr; q + photon</i>, 
 <br/><code>isr:Q2AQ</code> for <i>q &rarr; photon + q</i>; 
-</p> 
+<p/> 
 ISR weak shower branchings: 
 <br/><code>isr:Q2QW</code> for <i>q &rarr; q + W</i> or 
 <i>q &rarr; q + Z</i>; 
-</p> 
+<p/> 
 FSR QCD branchings: 
 <br/><code>fsr:G2GG</code> for <i>g &rarr; g + g</i>, 
 <br/><code>fsr:G2QQ</code> for <i>g &rarr; q + qbar</i>, 
 <br/><code>fsr:Q2QG</code> for <i>q &rarr; q + g</i>; 
-</p> 
+<p/> 
 FSR QED branchings: 
 <br/><code>fsr:Q2QA</code> for <i>q &rarr; q + photon</i>, 
 <br/><code>fsr:A2QQ</code> for <i>photon &rarr; q + qbar</i>, 
 <br/><code>fsr:A2LL</code> for <i>photon &rarr; lepton + antilepton</i>, 
-</p> 
+<p/> 
 FSR weak shower branchings: 
 <br/><code>fsr:Q2QW</code> for <i>q &rarr; q + W</i> or 
 <i>q &rarr; q + Z</i>; 
-</p> 
+<p/> 
 FSR hidden valley branchings: 
 <br/><code>fsr:Q2QHV</code> for all hidden valley branchings. 
 <br/> 
@@ -1111,7 +1120,7 @@ and <code>doVetoFragmentation(...)</code>.
    
  
 <a name="method46"></a>
-<p/><strong>virtual bool doChangeFragPar(StringFlav* flavPtr, StringZ* zPtr, StringPT* pTPtr, int idEnd, double m2Had, vector<int> iParton) &nbsp;</strong> <br/>
+<p/><strong>virtual bool doChangeFragPar(StringFlav* flavPtr, StringZ* zPtr, StringPT* pTPtr, int idEnd, double m2Had, vector&lt;int&gt; iParton) &nbsp;</strong> <br/>
 This is the method for changing fragmentation parameters. If all 
 parameters are changed as they should, the method should return true. 
 In case of errors the method returns false and a warning is printed. 
@@ -1164,4 +1173,4 @@ just before it is added to the event record.
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

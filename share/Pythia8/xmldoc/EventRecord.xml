@@ -204,11 +204,16 @@ number. History (and other) information of remaning entries is
 untouched, and so may be internally inconsistent. 
 </method> 
  
-<method name="void Event::remove(int iFirst, int iLast)"> 
+<method name="void Event::remove(int iFirst, int iLast, 
+bool shiftHistory = true)"> 
 removes particles in the range between indices <code>iFirst</code> 
-and <code>iLast</code>, including the endpoints. History (and other) 
-information of remaning entries is untouched, and so may be internally 
-inconsistent. 
+and <code>iLast</code>, including the endpoints. By default all mother 
+and daughter indices above the removed range are shifted down by the 
+number of removed entries, while indices in the removed range are put 
+zero. Optionally these shifts can be omitted. Other information remains 
+unchanged, which may lead to inconsistencies. If the decay products of 
+a particle are removed, e.g., the mother particle status should be set 
+positive, cf. <code>Particle::undoDecay()</code>. 
 </method> 
  
 <method name="int Event::append(Particle entryIn)"> 
@@ -243,7 +248,7 @@ int acol, Vec4 p, double m = 0., double scale = 0., double pol = 9.)">
 appends a particle to the bottom of the event record and 
 returns the index of this position, as above but with vanishing 
 (i.e. zero) mother and daughter indices. 
-</method> 
+</methodmore> 
  
 <method name="int Event::setEvtPtr(int iSet = -1)"> 
 send in the <code>this</code> pointer of the current <code>Event</code> 
@@ -376,4 +381,4 @@ It is intended to be accessed only by experts, such as implementors of
  
 </chapter> 
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

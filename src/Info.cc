@@ -1,11 +1,12 @@
 // Info.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Function definitions (not found in the header) for the Info class.
 
 #include "Pythia8/Info.h"
+#include <limits>
 
 namespace Pythia8 {
 
@@ -400,7 +401,8 @@ unsigned int Info::getWeightsDetailedSize() {
 
 double Info::getWeightsDetailedValue(string n) {
   if (weights_detailed->empty()
-    || weights_detailed->find(n) == weights_detailed->end()) return 0./0.;
+    || weights_detailed->find(n) == weights_detailed->end())
+    return std::numeric_limits<double>::quiet_NaN();
   return (*weights_detailed)[n];
 }
 
@@ -430,8 +432,8 @@ unsigned int Info::getWeightsCompressedSize() {
 }
 
 double Info::getWeightsCompressedValue(unsigned int n) {
-  if (weights_compressed->empty()
-    || weights_compressed->size() < n+1) return 0./0.;
+  if (weights_compressed->empty() || weights_compressed->size() < n+1)
+    return std::numeric_limits<double>::quiet_NaN();
   return (*weights_compressed)[n];
 }
 
@@ -462,8 +464,8 @@ string Info::getScalesValue(bool doRemoveWhitespace) {
 }
 
 double Info::getScalesAttribute(string key) {
-  if (!scales) return 0./0.;
-  double res = 0./0.;
+  if (!scales) return std::numeric_limits<double>::quiet_NaN();
+  double res = std::numeric_limits<double>::quiet_NaN();
   if ( key == "muf") {
     res = scales->muf;
   } else if ( key == "mur") {

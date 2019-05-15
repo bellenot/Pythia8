@@ -188,7 +188,7 @@ that this particular merging scale definition will check <i>kT</i> between
 all pairs of <i>u,d,c,s,b,g</i> partons. 
    
  
-</p> 
+<p/> 
 Currently, the name longitudinally invariant <i>kT</i> is used 
 for a few jet recombination algorithms with slightly different 
 jet measures. A specific form can be chosen by setting the switch 
@@ -197,7 +197,7 @@ jet measures. A specific form can be chosen by setting the switch
  (<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 3</code>)<br/>
 Precise functional definition of longitudinally 
 invariant <i>kT</i>. For e+e- collisions, <i>Durham kT</i> is 
-always defined by the square root of <i>min{ 2*min[ </sub> 
+always defined by the square root of <i>min{ 2*min[ 
 E<sub>i</sub><sup>2</sup>, E<sub>j</sub><sup>2</sup>] * [ 1 - 
 cos&theta;<sub>ij</sub>] }</i>, so that this switch will have no effect. 
 <br/><code>option </code><strong> 1</strong> :  Longitudinally invariant <i>kT</i> is defined by 
@@ -266,7 +266,7 @@ scale.
 The string specifying the hard core process, in MG4/ME notation. 
    
  
-</p> 
+<p/> 
 If e.g. <i>W + jets</i> merging should be performed, set this to 
 <code>pp>e+ve</code> (<i>without white spaces or  quotation marks</i>). 
 This string may contain resonances in the MG/ME notation, e.g. for merging 
@@ -404,7 +404,7 @@ maximal number of additional matrix element jets
  
 <h4>Les Houches events outside the matrix element region</h4> 
  
-</p> 
+<p/> 
 Before continuing, we would like to point out that in general, the user 
 should make sure that the events in the Les Houches file are actually 
 calculated using the regularisation cut definition and value(s) supplied to 
@@ -636,7 +636,7 @@ procedure, set the input
 General user defined merging on/off. 
    
  
-</p> 
+<p/> 
 Then, set 
 the <strong>Merging:nJetMax</strong>, <strong>Merging:TMS</strong> 
 and <strong>Merging:Process</strong> input as before. 
@@ -911,9 +911,9 @@ with an input file (like <code>main85.cmnd</code>). The executable should be
 invoked with three arguments: the input file, the "name" of the input LHE 
 files, and the name of the output HepMC event file. To use the LHE files that 
 are shipped with the Pythia distribution, a valid usage would be 
-</p> 
+<p/> 
 <code>./main85.exe ./main85.cmnd ./w_production ./myhepmc.hepmc</code> 
-</p> 
+<p/> 
 If you want to use other input LHE files, note 
 that <code>main85.cc</code> assumes the naming 
 convention <i>name_tree_#nAdditionalJets.lhe</i>. All settings can 
@@ -1380,4 +1380,4 @@ by <code>Info::sigmaGen()</code> includes the effect of CKKW-L merging.
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

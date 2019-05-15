@@ -1,5 +1,5 @@
 // Settings.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1859,6 +1859,7 @@ void Settings::resetTunePP() {
   resetParm("SpaceShower:pTmaxFudge");
   resetParm("SpaceShower:pTdampFudge");
   resetFlag("SpaceShower:rapidityOrder");
+  resetFlag("SpaceShower:rapidityOrderMPI");
   resetFlag("SpaceShower:phiPolAsym");
   resetFlag("SpaceShower:phiIntAsym");
 
@@ -2160,6 +2161,7 @@ void Settings::initTunePP( int ppTune) {
     parm("SpaceShower:pTmaxFudge",              1.0   );
     parm("SpaceShower:pTdampFudge",             1.0   );
     flag("SpaceShower:rapidityOrder",           false );
+    flag("SpaceShower:rapidityOrderMPI",        false );
     flag("SpaceShower:phiPolAsym",              false );
     flag("SpaceShower:phiIntAsym",              false );
     parm("MultipartonInteractions:alphaSvalue", 0.127 );
@@ -2196,6 +2198,7 @@ void Settings::initTunePP( int ppTune) {
     parm("SpaceShower:pTmaxFudge",              1.0   );
     parm("SpaceShower:pTdampFudge",             1.0   );
     flag("SpaceShower:rapidityOrder",           false );
+    flag("SpaceShower:rapidityOrderMPI",        false );
     flag("SpaceShower:phiPolAsym",              false );
     flag("SpaceShower:phiIntAsym",              false );
     parm("MultipartonInteractions:alphaSvalue", 0.127 );
@@ -2232,6 +2235,7 @@ void Settings::initTunePP( int ppTune) {
     parm("SpaceShower:pTmaxFudge",              1.0   );
     parm("SpaceShower:pTdampFudge",             1.0   );
     flag("SpaceShower:rapidityOrder",           true  );
+    flag("SpaceShower:rapidityOrderMPI",        true  );
     flag("SpaceShower:phiPolAsym",              true  );
     flag("SpaceShower:phiIntAsym",              true  );
     parm("MultipartonInteractions:alphaSvalue", 0.135 );
@@ -2268,6 +2272,7 @@ void Settings::initTunePP( int ppTune) {
     parm("SpaceShower:pTmaxFudge",              1.0   );
     parm("SpaceShower:pTdampFudge",             1.0   );
     flag("SpaceShower:rapidityOrder",           true  );
+    flag("SpaceShower:rapidityOrderMPI",        true  );
     flag("SpaceShower:phiPolAsym",              true  );
     flag("SpaceShower:phiIntAsym",              true  );
     parm("MultipartonInteractions:alphaSvalue", 0.127 );
@@ -2307,6 +2312,7 @@ void Settings::initTunePP( int ppTune) {
     parm("SpaceShower:pTmaxFudge",              1.0   );
     parm("SpaceShower:pTdampFudge",             1.0   );
     flag("SpaceShower:rapidityOrder",           true  );
+    flag("SpaceShower:rapidityOrderMPI",        true  );
     flag("SpaceShower:phiPolAsym",              true  );
     flag("SpaceShower:phiIntAsym",              true  );
     parm("MultipartonInteractions:alphaSvalue", 0.135 );
@@ -2346,6 +2352,7 @@ void Settings::initTunePP( int ppTune) {
     parm("SpaceShower:pTmaxFudge",              1.0   );
     parm("SpaceShower:pTdampFudge",             1.0   );
     flag("SpaceShower:rapidityOrder",           true  );
+    flag("SpaceShower:rapidityOrderMPI",        true  );
     flag("SpaceShower:phiPolAsym",              true  );
     flag("SpaceShower:phiIntAsym",              true  );
     parm("MultipartonInteractions:alphaSvalue", 0.135 );
@@ -2385,6 +2392,7 @@ void Settings::initTunePP( int ppTune) {
     parm("SpaceShower:pTmaxFudge",              1.0   );
     parm("SpaceShower:pTdampFudge",             1.0   );
     flag("SpaceShower:rapidityOrder",           true  );
+    flag("SpaceShower:rapidityOrderMPI",        true  );
     flag("SpaceShower:phiPolAsym",              true  );
     flag("SpaceShower:phiIntAsym",              true  );
     parm("MultipartonInteractions:alphaSvalue", 0.130 );   // same as PDF
@@ -2423,6 +2431,7 @@ void Settings::initTunePP( int ppTune) {
     parm("SpaceShower:pTmaxFudge",              1.0   );
     parm("SpaceShower:pTdampFudge",             1.0   );
     flag("SpaceShower:rapidityOrder",           true );
+    flag("SpaceShower:rapidityOrderMPI",        true  );
     flag("SpaceShower:phiPolAsym",              true  );
     flag("SpaceShower:phiIntAsym",              true  );
     parm("MultipartonInteractions:alphaSvalue", 0.135 );
@@ -2449,6 +2458,7 @@ void Settings::initTunePP( int ppTune) {
         word("PDF:pSet",             "LHAPDF6:cteq6l1");
       else word("PDF:pSet",                     "8"   );
       flag("SpaceShower:rapidityOrder",         false );
+      flag("SpaceShower:rapidityOrderMPI",      false );
       parm("MultipartonInteractions:pT0Ref",    2.18  );
       parm("MultipartonInteractions:ecmPow",    0.22  );
       mode("MultipartonInteractions:bProfile",  4     );
@@ -2465,6 +2475,7 @@ void Settings::initTunePP( int ppTune) {
         word("PDF:pSet",      "LHAPDF6:MSTW2008lo68cl");
       else word("PDF:pSet",                     "5"   );
       flag("SpaceShower:rapidityOrder",         false );
+      flag("SpaceShower:rapidityOrderMPI",      false );
       parm("MultipartonInteractions:pT0Ref",    1.90  );
       parm("MultipartonInteractions:ecmPow",    0.30  );
       mode("MultipartonInteractions:bProfile",  4     );
@@ -2481,6 +2492,7 @@ void Settings::initTunePP( int ppTune) {
         word("PDF:pSet",             "LHAPDF6:cteq6l1");
       else word("PDF:pSet",                     "8"   );
       flag("SpaceShower:rapidityOrder",         false );
+      flag("SpaceShower:rapidityOrderMPI",      false );
       parm("MultipartonInteractions:pT0Ref",    2.13  );
       parm("MultipartonInteractions:ecmPow",    0.21  );
       mode("MultipartonInteractions:bProfile",  4     );
@@ -2497,6 +2509,7 @@ void Settings::initTunePP( int ppTune) {
         word("PDF:pSet",      "LHAPDF6:MSTW2008lo68cl");
       else word("PDF:pSet",                     "5"   );
       flag("SpaceShower:rapidityOrder",         false );
+      flag("SpaceShower:rapidityOrderMPI",      false );
       parm("MultipartonInteractions:pT0Ref",    1.87  );
       parm("MultipartonInteractions:ecmPow",    0.28  );
       mode("MultipartonInteractions:bProfile",  4     );
@@ -2512,6 +2525,7 @@ void Settings::initTunePP( int ppTune) {
       else
         word("PDF:pSet",         "LHAPDF5:CT10.LHgrid");
       flag("SpaceShower:rapidityOrder",         false );
+      flag("SpaceShower:rapidityOrderMPI",      false );
       parm("MultipartonInteractions:pT0Ref",    1.70  );
       parm("MultipartonInteractions:ecmPow",    0.16  );
       mode("MultipartonInteractions:bProfile",  4     );
@@ -2528,6 +2542,7 @@ void Settings::initTunePP( int ppTune) {
         word("PDF:pSet",       "LHAPDF6:MRST2007lomod");
       else word("PDF:pSet",                     "3"   );
       flag("SpaceShower:rapidityOrder",         false );
+      flag("SpaceShower:rapidityOrderMPI",      false );
       parm("MultipartonInteractions:pT0Ref",    2.39  );
       parm("MultipartonInteractions:ecmPow",    0.24  );
       mode("MultipartonInteractions:bProfile",  4     );
@@ -2544,6 +2559,7 @@ void Settings::initTunePP( int ppTune) {
         word("PDF:pSet",            "LHAPDF6:MRSTMCal");
       else word("PDF:pSet",                     "4"   );
       flag("SpaceShower:rapidityOrder",         false );
+      flag("SpaceShower:rapidityOrderMPI",      false );
       parm("MultipartonInteractions:pT0Ref",    2.57  );
       parm("MultipartonInteractions:ecmPow",    0.23  );
       mode("MultipartonInteractions:bProfile",  4     );
@@ -2591,7 +2607,8 @@ void Settings::initTunePP( int ppTune) {
     }
   }
 
-  // Several ATLAS and CMS tunes start out from Monash 2013 tune.
+  // Several ATLAS and CMS tunes and tunes close-packing of strings
+  // and hadron rescattering with start out from Monash 2013 tune.
   else if (ppTune >= 18) {
     word("PDF:pSet",                            "13"  );   // NNPDF
     parm("SigmaProcess:alphaSvalue",            0.130 );   // same as PDF
@@ -2613,6 +2630,7 @@ void Settings::initTunePP( int ppTune) {
     parm("SpaceShower:pTmaxFudge",              1.0   );
     parm("SpaceShower:pTdampFudge",             1.0   );
     flag("SpaceShower:rapidityOrder",           true  );
+    flag("SpaceShower:rapidityOrderMPI",        true  );
     flag("SpaceShower:phiPolAsym",              true  );
     flag("SpaceShower:phiIntAsym",              true  );
     parm("MultipartonInteractions:alphaSvalue", 0.130 );   // same as PDF
@@ -2633,7 +2651,7 @@ void Settings::initTunePP( int ppTune) {
     // See R.D. Field, presentation at MPI@LHC 2014, Krakow, Poland.
     if (ppTune == 18) {
       parm("MultipartonInteractions:pT0Ref",    2.4024);
-      parm("MultipartonInteractions:ecmPow",    0.2521);
+      parm("MultipartonInteractions:ecmPow",    0.25208);
       parm("MultipartonInteractions:expPow",    1.60  );
     }
 
@@ -2860,6 +2878,41 @@ void Settings::initTunePP( int ppTune) {
       parm("MultipartonInteractions:pT0Ref",    2.09  );
       parm("BeamRemnants:primordialKThard",     1.88  );
       parm("ColourReconnection:range",          1.71  );
+    }
+
+    // Tune with close-packing of strings and rescattering (November 2016).
+    // Gaussian pT.
+    else if (ppTune == 33) {
+      parm("MultipartonInteractions:pT0Ref",    2.34 );
+      parm("ColourReconnection:range",          1.8  );
+      flag("StringPT:thermalModel",             false);
+      parm("StringPT:sigma",                    0.33 );
+      parm("StringPT:widthPreStrange",          1.2  );
+      parm("StringPT:widthPreDiquark",          1.2  );
+      parm("StringPT:enhancedFraction",         0.0  );
+      flag("StringPT:closePacking",             true );
+      parm("StringPT:expNSP",                   0.01 );
+      parm("StringPT:expMPI",                   0.0  );
+      flag("HadronLevel:HadronScatter",         true );
+      mode("HadronScatter:mode",                0    );
+      parm("HadronScatter:maxProbDS",           0.25 );
+    }
+
+    // Tune with close-packing of strings and rescattering (November 2016).
+    // Thermodynamical pT.
+    else if (ppTune == 34) {
+      parm("MultipartonInteractions:pT0Ref",    2.5  );
+      parm("ColourReconnection:range",          1.1  );
+      flag("StringPT:thermalModel",             true );
+      parm("StringPT:temperature",              0.21 );
+      parm("StringFlav:BtoMratio",              0.357);
+      parm("StringFlav:StrangeSuppression",     0.5  );
+      flag("StringPT:closePacking",             true );
+      parm("StringPT:expNSP",                   0.13 );
+      parm("StringPT:expMPI",                   0.0  );
+      flag("HadronLevel:HadronScatter",         true );
+      mode("HadronScatter:mode",                0    );
+      parm("HadronScatter:maxProbDS",           0.5  );
     }
 
   }

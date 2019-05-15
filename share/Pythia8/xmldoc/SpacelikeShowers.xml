@@ -345,6 +345,7 @@ Determine which branchings are allowed.
  
 <parm name ="SpaceShower:pTminWeak" default="1.0" min="0.1" max="2.0"> 
 Parton shower cut-off <ei>pT</ei> for weak branchings. 
+</parm> 
  
 <h3>Further variables</h3> 
  
@@ -467,4 +468,4 @@ photon backwards-evolution in lepton beams.
  
 </chapter> 
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

@@ -340,6 +340,7 @@ Determine which branchings are allowed.
  
 <br/><br/><table><tr><td><strong> </td><td></td><td> <input type="text" name="23" value="1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1.0</strong></code>; <code>minimum = 0.1</code>; <code>maximum = 2.0</code>)</td></tr></table>
 Parton shower cut-off <i>pT</i> for weak branchings. 
+   
  
 <h3>Further variables</h3> 
  
@@ -674,4 +675,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

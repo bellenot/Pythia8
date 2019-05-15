@@ -233,6 +233,7 @@ outgoing partons, in preparation of using the optional global recoil
 scheme. Unlike <code>prepare(...)</code> below it is only called 
 once during the parton-level evolution, since it only relates to 
 the hardest interaction. Is probably of no use to most people. 
+   
  
 <a name="method11"></a>
 <p/><strong>virtual void TimeShower::prepare( int iSys, Event& event, bool limitPTmaxIn = true) &nbsp;</strong> <br/>
@@ -364,7 +365,7 @@ code, but has been inserted at various places during the
 development/debug phase. 
    
  
-</p> 
+<p/> 
 One of the major complications when combining fixed-order calculations 
 with parton showers comes from constructing a parton shower history. This 
 crucial step requires very precise knowledge of the functional forms 
@@ -379,7 +380,7 @@ be loaded directly from PYTHIA's merging machinery. Note that within a new
 shower, you do not need to use these functions or all of the inputs 
 transferred to these functions. Any dummy definition is acceptable. 
  
-</p> 
+<p/> 
 The easy-access functions are listed in the following. They use some common 
 terminology, wherein <code>iRad</code> is the position in the event 
 record of the radiating parton, <code>iRec</code> is the position of the 
@@ -422,7 +423,7 @@ with the splitting,
 <br/>- the key <code>tRS</code> gives the evolution variable at 
 which the shower should be restarted after a branching, 
 <br/>- the key <code>scaleAS</code> gives the argument of 
-<i>&alpha;<sub>s</sub> used for the branching, and 
+<i>&alpha;<sub>s</sub></i> used for the branching, and 
 <br/>- the key <code>scalePDF</code> gives the argument of PDF factors 
 used for the branching. 
 <br/>All other entries are optional and may be auxiliary variables related 
@@ -623,7 +624,7 @@ code, but has been inserted at various places during the
 development/debug phase. 
    
  
-</p> 
+<p/> 
 As mentioned at the end of the section on timelike showers, it can 
 be beneficial to merging and matching machinery of PYTHIA if some 
 additional functionality is available. This in particular includes 
@@ -662,7 +663,7 @@ with the splitting,
 <br/>- the key <code>tRS</code> gives the evolution variable at 
 which the shower should be restarted after a branching, 
 <br/>- the key <code>scaleAS</code> gives the argument of 
-<i>&alpha;<sub>s</sub> used for the branching, and 
+<i>&alpha;<sub>s</sub></i> used for the branching, and 
 <br/>- the key <code>scalePDF</code> gives the argument of PDF factors 
 used for the branching. 
 <br/>All other entries are optional and may be auxiliary variables related 
@@ -695,4 +696,4 @@ relative to the input <code>event</code>. The identifier
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

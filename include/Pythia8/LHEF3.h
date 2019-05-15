@@ -1,5 +1,5 @@
 // LHEF3.h is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -108,7 +108,7 @@ struct XMLTag {
       pos_t begin = str.find("<", curr);
 
       // Skip comments.
-      if ( str.find("<!--", curr) == begin ) {
+      if ( begin != end && str.find("<!--", curr) == begin ) {
         pos_t endcom = str.find("-->", begin);
         if ( endcom == end ) {
           if ( leftover ) *leftover += str.substr(curr);
@@ -813,6 +813,11 @@ public:
     isGood = init();
   }
 
+  Reader(istream* is)
+    : filename(""), intstream(NULL), file(is) {
+    isGood = init();
+  }
+
   // Clean up
   ~Reader() {
     if (intstream) delete intstream;
@@ -1011,6 +1016,8 @@ public:
   // Write out the event stored in hepeup, followed by optional
   // comment lines.
   bool writeEvent(HEPEUP * peup = 0, int pDigits = 15);
+  // Write out an event as a string.
+  string getEventString(HEPEUP * peup = 0);
 
 protected:
 

@@ -1,5 +1,5 @@
 // SpaceShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -227,6 +227,10 @@ void SpaceShower::init( BeamParticle* beamAPtrIn,
 
   // Possibility of two predetermined hard emissions in event.
   doSecondHard       = settingsPtr->flag("SecondHard:generate");
+
+  // gamma->qqbar splittings handled differently with and without MPIs.
+  doMPI              = settingsPtr->flag("PartonLevel:MPI");
+  gamma2qqbar        = false;
 
   // Optional dampening at small pT's when large multiplicities.
   enhanceScreening
@@ -570,6 +574,9 @@ double SpaceShower::pTnext( Event& event, double pTbegAll, double pTendAll,
       xDaughter    = beamNow[iSysNow].x();
       x1Now        = (sideA) ? xDaughter : beamRec[iSysNow].x();
       x2Now        = (sideA) ? beamRec[iSysNow].x() : xDaughter;
+
+      // If reconstructed back to the beam photon, no further ISR emissions.
+      if ( beamNow.isGamma() && !(beamNow.resolvedGamma()) ) continue;
 
       // Note dipole mass correction when recoiler is a rescatter.
       m2Rec        = (dipEndNow->normalRecoil) ? 0. : event[iRec].m2();
@@ -1031,7 +1038,7 @@ void SpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
     // Check that room left for beam remnants with photon beam.
     if ( beam.isGamma() ) {
       BeamParticle& beamOther = (sideA) ? *beamBPtr : *beamAPtr;
-      if ( !beamOther.getGammaRemnants() ) {
+      if ( !beamOther.resolvedGamma() ) {
         // Check that room left for 1 beam remnant if other fixed
         if ( !beam.roomFor1Remnant( idMother, xMother, eCM) ) {
           wt = 0.;
@@ -1156,7 +1163,7 @@ void SpaceShower::pT2nearThreshold( BeamParticle& beam,
 
     // For photon beams kinematics are fixed.
     if (isGammaBeam) {
-      xMother = xMaxAbs;
+      xMother = 1.0;
       z       = xDaughter/xMother;
     // Pick z flat in allowed range.
     } else {
@@ -1207,7 +1214,8 @@ void SpaceShower::pT2nearThreshold( BeamParticle& beam,
   // Save values for (so far) acceptable branching.
   double mSister = (abs(idDaughter) == 4) ? mc : mb;
 
-  splittingNameNow = "isr:G2QQ";
+  if ( isGammaBeam ) splittingNameNow = "isr:A2QQ";
+  else               splittingNameNow = "isr:G2QQ";
   dipEndNow->store( idDaughter, idMother, -idDaughter, x1Now, x2Now, m2Dip,
     pT2, z, xMother, Q2, mSister, pow2(mSister), pT2corr);
 
@@ -1369,7 +1377,7 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
 
         // Fix the flavors and masses for the partons.
         idMother = 22;
-        xMother = xMaxAbs;
+        xMother = 1.0;
         z = xDaughter/xMother;
         idSister = -idDaughter;
         mSister  = particleDataPtr->m0(idSister);
@@ -1490,7 +1498,7 @@ void SpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
         if ( beam.isGamma() ) {
           BeamParticle& beamOther = (sideA) ? *beamBPtr : *beamAPtr;
           // Room for one remnant, other already fixed by ISR.
-          if( !beamOther.getGammaRemnants() ){
+          if( !beamOther.resolvedGamma() ){
             if ( !beam.roomFor1Remnant( idMother, xMother, eCM) ) {
               wt = 0.;
               continue;
@@ -2075,7 +2083,20 @@ bool SpaceShower::branch( Event& event) {
   double x2New      = (side == 2) ? xMo : x2;
 
   // Flag for gamma -> q qbar splittings.
-  bool gamma2qqbar  = false;
+  gamma2qqbar  = false;
+
+  // Current beam particle.
+  BeamParticle& beamNow = (side == 1) ? *beamAPtr : *beamBPtr;
+
+  // If gamma->qqbar splitting and nMPI > 1 then only save pT2 value
+  // and constrcut the kinematics in beamRemnants.
+  if ( beamNow.isGamma() && idMother == 22 && infoPtr->nMPI() > 1 ) {
+    gamma2qqbar = true;
+    beamNow.resolvedGamma(false);
+    beamNow.pT2gamma2qqbar(pT2corr);
+    beamNow.gamVal(iSysSel);
+    return true;
+  }
 
   // Read in MEtype:
   int MEtype        = dipEndSel->MEtype;
@@ -2683,18 +2704,13 @@ bool SpaceShower::branch( Event& event) {
   if (dipEndSel->weakType != 0) mother.pol(dipEndSel->weakPol);
 
   // Update info on beam remnants.
-  BeamParticle& beamNow = (side == 1) ? *beamAPtr : *beamBPtr;
   double xNew = (side == 1) ? x1New : x2New;
   beamNow[iSysSel].update( iMother, idMother, xNew);
   // Redo choice of companion kind whenever new flavour.
   if (idMother != idDaughterNow) {
     pdfScale2 = (useFixedFacScale) ? fixedFacScale2 : factorMultFac * pT2;
-    // For photon beams decide the valence content after evolution.
-    if (beamNow.isGamma()) ;
-    else {
-      beamNow.xfISR( iSysSel, idMother, xNew, pdfScale2);
-      beamNow.pickValSeaComp();
-    }
+    beamNow.xfISR( iSysSel, idMother, xNew, pdfScale2);
+    beamNow.pickValSeaComp();
   }
   BeamParticle& beamRec = (side == 1) ? *beamBPtr : *beamAPtr;
   beamRec[iSysSel].iPos( iNewRecoiler);
@@ -2816,7 +2832,8 @@ bool SpaceShower::branch( Event& event) {
   }
 
   // If gamma -> q qbar valid with photon beam no need for remnants.
-  if ( beamNow.isGamma() ) beamNow.setGammaRemnants(!gamma2qqbar);
+  if ( beamNow.isGamma() && beamNow.resolvedGamma() && gamma2qqbar)
+    beamNow.resolvedGamma(false);
 
   // Done without any errors.
   return true;
@@ -3070,8 +3087,8 @@ void SpaceShower::calcUncertainties(bool accept, double pAccept, double pT20in,
       if (denom < REJECTFACTOR) {
         stringstream message;
         message << iWeight;
-        infoPtr->errorMsg("Warning in SpaceShower: reject denom for iWeight = ",
-          message.str());
+        infoPtr->errorMsg("Warning in SpaceShower: reject denom for"
+          " iWeight = ", message.str());
       }
       // Force reweighting factor > 0.
       double reWtFail = max(0.01, (1. - uVarFac[iWeight] * pAccept) / denom);

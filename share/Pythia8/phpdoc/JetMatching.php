@@ -432,6 +432,7 @@ system (ignoring all MPI systems) is then analysed:
         infrared-safe jet algorithm. 
       </li> 
     </ul> 
+  </li> 
   <li> 
     If there is a light ME parton remaining which has not been matched 
     to a jet, then the event is vetoed. If all ME partons have been 
@@ -448,6 +449,7 @@ system (ignoring all MPI systems) is then analysed:
         than the softest matched jet. This is typically used when 
         there is no ME sample with higher jet multiplicity, so the parton 
         shower should be allowed to give extra jets. 
+      </li> 
     </ul> 
   </li> 
   <li> 
@@ -580,7 +582,7 @@ the hard process parameters are used to guide the merging procedure,
 events will be matched in the exclusive mode. 
  
 <h4>Madgraph-style jet matching with no internal vetoes (assuming an external 
-veto implementation)</h2> 
+veto implementation)</h4> 
  
 <p/> 
 This section describes the facilities that allow expert users to use their own 
@@ -809,4 +811,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

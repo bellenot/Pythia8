@@ -1,5 +1,5 @@
 // PartonLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -105,7 +105,7 @@ private:
          hasTwoLeptonBeams, hasPointLeptons, canVetoPT, canVetoStep,
          canVetoMPIStep, canVetoEarly, canSetScale, allowRH, earlyResDec,
          vetoWeakJets, canReconResSys, doReconnect, doHardDiff,
-         forceResonanceCR;
+         forceResonanceCR, doNDgamma, doMPIgmgm, showUnresGamma;
   int    pTmaxMatchMPI;
   double mMinDiff, mWidthDiff, pMaxDiff, vetoWeakDeltaR2;
 
@@ -126,6 +126,10 @@ private:
   vector<bool> inRHadDecay;
   vector<int>  iPosBefShow;
 
+  // Variables for photon inside electron.
+  bool   beamHasGamma, beamAhasResGamma, beamBhasResGamma, beamHasResGamma;
+  int    gammaMode;
+
   // Pointer to various information on the generation.
   Info*          infoPtr;
 
@@ -144,6 +148,7 @@ private:
   BeamParticle*  beamHadBPtr;
   BeamParticle*  beamPomAPtr;
   BeamParticle*  beamPomBPtr;
+
   // Pointers to photon beams inside lepton beams.
   BeamParticle*  beamGamAPtr;
   BeamParticle*  beamGamBPtr;
@@ -170,13 +175,10 @@ private:
   MultipartonInteractions  multiSDB;
   MultipartonInteractions  multiCD;
   MultipartonInteractions* multiPtr;
+  MultipartonInteractions  multiGmGm;
 
   // The generator class to construct beam-remnant kinematics.
   BeamRemnants remnants;
-
-  // Variables for photon inside electron.
-  bool   beamAhasGamma, beamBhasGamma, beamHasGamma;
-  double Q2maxGamma;
 
   // The RHadrons class is used to fragment off and decay R-hadrons.
   RHadrons*    rHadronsPtr;
@@ -219,7 +221,11 @@ private:
 
   // Photon beam inside lepton beam: recover the whole event and
   // add scattered leptons.
-  void leaveResolvedLeptonGamma( Event& process, Event& event);
+  void leaveResolvedLeptonGamma( Event& process, Event& event,
+    bool physical = true);
+
+  // Photon beam inside lepton beam: set up the parton level generation.
+  void cleanEventFromGamma( Event& event);
 
   // Pointer to MergingHooks object for user interaction with the merging.
   MergingHooks* mergingHooksPtr;

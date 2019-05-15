@@ -25,8 +25,9 @@ usual, please report them to the PYTHIA authors.
 An attempt has been made to translate all PYTHIA classes and functions 
 to the Python interface as directly as possible. The following 
 features are included in the Python interface: 
+<ul> 
 <li>The interface is compatible with Python version <code>2.1</code> 
-and beyond, including <code>3.5</code>, the current version of Python. 
+and beyond, including <code>3.5</code>, the current version of Python.</li> 
 <li>All PYTHIA classes and functions are 
 available. See <code>main01.py</code> for a direct Python translation 
 of the C++ <code>main01.cc</code> example.</li> 
@@ -40,7 +41,7 @@ built-in <code>help</code> function in Python is provided. Please note
 that this documentation is automatically generated, similar to 
 the <a href="http://home.thep.lu.se/~torbjorn/doxygen/index.html">Doxygen</a> 
 documentation. Consequently, the inline Python documentation is not a 
-replacement for this manual. 
+replacement for this manual.</li> 
 <li>All operators defined in C++, e.g. <code>Vec4*double</code>, as 
 well as reverse operators, e.g. <code>double*Vec4</code>, are 
 available.</li> 
@@ -74,6 +75,7 @@ these classes are available through the Python
 interface. See <code>main10.py</code> for a direct Python translation 
 of the C++ <code>main10.cc</code> example which uses a derived class 
 from the <code>UserHooks</code> class to veto events.</li> 
+</ul> 
  
 <h3>Limitations</h3> 
  
@@ -86,6 +88,7 @@ method, e.g.
 <a href="http://doc.pypy.org/en/latest/cppyy.html" target="_top">cppyy</a>, 
 in the future. The Python interface to PYTHIA currently suffers the 
 following limitations: 
+<ul> 
 <li>In the <code>CoupSUSY</code> class all public members that are 
 3-by-3 arrays cannot be accessed, these 
 include <code>LsddX</code>, <code>LsuuX</code>, <code>LsduX</code>, 
@@ -123,7 +126,8 @@ classes or functions defined
 in <code>EvtGen.h</code>, <code>FastJet3.h</code>, <code>HepMC2.h</code>, 
 or <code>LHAFortran.h</code>. However, interfaces are available for 
 all remaining plugins, including both <code>LHAMadgraph.h</code> 
-and <code>PowhegProcs.h</code>. 
+and <code>PowhegProcs.h</code>.</li> 
+</ul> 
  
 <h3>Installation</h3> 
  
@@ -153,18 +157,20 @@ such as package managers, etc. Also note that if one wishes to utilize
 GZIP support (needed for the <code>LHAupMadgraph</code> plugin) then 
 the option <code>--with-gzip</code> should also be provided. 
  
-</p> 
+<p/> 
 After configuring the Python interface for PYTHIA to be built and 
 running <code>make</code> as usual, the following files should be 
 generated in the directory <code>lib</code>. 
+<ul> 
 <li><code>pythia8.py</code>: the Python code for the interface.</li> 
 <li><code>pythia8.pyc</code>: the byte-compiled Python code for the 
 interface.</li> 
 <li><code>_pythia8.so</code>: the C++ library needed for the interface.</li> 
 <li><code>libpythia8.[so,dylib]</code>: the standard shared PYTHIA 
 library.</li> 
+</ul> 
  
-</p> 
+<p/> 
 To ensure that the <code>pythia8.py</code> module is available to 
 Python, the system variable <code>PYTHONPATH</code> should be set similar to 
 <pre> 
@@ -190,4 +196,4 @@ of the example.
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

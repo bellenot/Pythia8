@@ -1,6 +1,6 @@
 <chapter name="Index"> 
  
-<img src='pythia99.gif' alt='Pythia logo' hspace=10/> 
+<img src="pythia99.gif" alt="Pythia logo" hspace="10"/> 
  
 <h2>PYTHIA 8 Index</h2> 
  
@@ -51,6 +51,8 @@
 <aidx href="HiddenValleyProcesses">Hidden Valleys</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <aidx href="ExtraDimensionalProcesses">Extra Dimensions</aidx><br/> 
+&nbsp;&nbsp;--&nbsp;&nbsp; 
+<aidx href="DarkMatterProcesses">Dark Matter</aidx><br/> 
 <aidx href="ASecondHardProcess">A Second Hard Process</aidx><br/> 
 <aidx href="PhaseSpaceCuts">Phase Space Cuts</aidx><br/> 
 <aidx href="CouplingsAndScales">Couplings and Scales</aidx><br/> 
@@ -141,4 +143,4 @@
  
 </chapter> 
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

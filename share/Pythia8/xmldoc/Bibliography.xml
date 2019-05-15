@@ -77,7 +77,7 @@ JHEP 1201 (2012) 018 [arXiv:1108.2396 [hep-ph]] </dd>
 <dd>E. Barberio and Z. Was, Comput. Phys.Commun. 79 (1994) 291</dd> 
  
 <dt>Bar07</dt> 
-<dd>M. Bargiotti and V. Vagnoni, public note LHCb-2007-042 
+<dd>M. Bargiotti and V. Vagnoni, public note LHCb-2007-042</dd> 
  
 <dt>Bau90</dt> 
 <dd>U. Baur, M. Spira and P. M. Zerwas, Phys. Rev. D42 (1990) 815; 
@@ -252,6 +252,10 @@ Phys. Rev. D63 (2001) 075004</dd>
 <br/>P. Chiappetta and M. Perrottet, CERN Yellow Report 90-10, Vol. II, 
 p. 806</dd> 
  
+<dt>Fis16</dt> 
+<dd>N. Fischer and T. Sj&ouml;strand, LU TP 16-57, CoEPP-MN-16-25, 
+arXiv:1610.09818 [hep-ph]</dd> 
+ 
 <dt>Fra11</dt> 
 <dd>R. Franceschini, G.F. Giudice, P.P. Giardino, P. Lodone and A. Strumia, 
 JHEP 1105 (2011) 092 [arXiv:1101.4919 [hep-ph]] </dd> 
@@ -350,7 +354,7 @@ S. Jadach, Z. Was, R. Decker and J.H. Kuhn, Comput. Phys. Commun.
  
 <dt>Kas10</dt> 
 <dd>T. Kasemets, LU TP 10-03, arXiv:1002.4376 [hep-ph]; 
-<br>T. Kasemets and T. Sj&ouml;strand, Eur. Phys. J. C69 (2010) 19 
+<br/>T. Kasemets and T. Sj&ouml;strand, Eur. Phys. J. C69 (2010) 19 
 [arXiv:1007.0897 [hep-ph]]</dd> 
  
 <dt>Kle89</dt> 
@@ -463,11 +467,15 @@ Phys. Rev. D27 (1983) 105</dd>
 <dt>Sch97</dt> 
 <dd>G.A. Schuler and T. Sj&ouml;strand, Z. Phys. C73 (1997) 677</dd> 
  
-<dt>Sjo84</dt> 
-<dd>T. Sj&ouml;strand, Nucl. Phys. B248 (1984) 469</dd> 
+<dt>Scw15</dt> 
+<dd>P. Schwaller, D. Stolarski and A. Weiler, JHEP 1505 (2015) 059 
+[arXiv:1502.05409 [hep-ph]]</dd> 
  
 <dt>Sey95</dt> 
 <dd>M. Seymour, Phys. Lett. B354 (1995) 409</dd> 
+ 
+<dt>Sjo84</dt> 
+<dd>T. Sj&ouml;strand, Nucl. Phys. B248 (1984) 469</dd> 
  
 <dt>Sjo85</dt> 
 <dd>T. Sj&ouml;strand, Phys. Lett. 157B (1985) 321; 
@@ -530,4 +538,4 @@ J. Phys. G33 (2006) 1</dd>
  
 </chapter> 
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

@@ -142,7 +142,7 @@ or <i>W^+-</i> exchange between two fermions.
 <br/><br/><strong>WeakBosonExchange:ff2ff(t:gmZ)</strong>  <input type="radio" name="10" value="on"><strong>On</strong>
 <input type="radio" name="10" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scattering <i>f f' &rarr; f f'</i> via </i>gamma^*/Z^0</i> 
+Scattering <i>f f' &rarr; f f'</i> via <i>gamma^*/Z^0</i> 
 <i>t</i>-channel exchange, with full interference 
 between the <i>gamma^*</i> and <i>Z^0</i>. 
 Code 211. 
@@ -151,7 +151,7 @@ Code 211.
 <br/><br/><strong>WeakBosonExchange:ff2ff(t:W)</strong>  <input type="radio" name="11" value="on"><strong>On</strong>
 <input type="radio" name="11" value="off" checked="checked"><strong>Off</strong>
  &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
-Scattering <i>f_1 f_2 &rarr; f_3 f_4</i> via </i>W^+-</i> 
+Scattering <i>f_1 f_2 &rarr; f_3 f_4</i> via <i>W^+-</i> 
 <i>t</i>-channel exchange. 
 Code 212. 
    
@@ -391,6 +391,46 @@ Scattering <i>gamma gamma &rarr; tau+ tau-</i>.
 Code 266. 
    
  
+<h3> Photon-Parton Processes</h3> 
+ 
+Photon-parton production processes. See comment related to PDFs above. 
+Also relevant for direct-resolved processes in photon-photon collisions. 
+ 
+<br/><br/><strong>PhotonParton:all</strong>  <input type="radio" name="38" value="on"><strong>On</strong>
+<input type="radio" name="38" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Common switch for the group of two processes presented below. 
+   
+ 
+<br/><br/><strong>PhotonParton:ggm2qqbar</strong>  <input type="radio" name="39" value="on"><strong>On</strong>
+<input type="radio" name="39" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g gamma &rarr; q qbar</i>, where <i>q</i> 
+is a light quark (<i>u, d, s</i>). 
+Code 271. 
+   
+ 
+<br/><br/><strong>PhotonParton:ggm2ccbar</strong>  <input type="radio" name="40" value="on"><strong>On</strong>
+<input type="radio" name="40" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g gamma &rarr; c cbar</i>. 
+Code 272. 
+   
+ 
+<br/><br/><strong>PhotonParton:ggm2bbbar</strong>  <input type="radio" name="41" value="on"><strong>On</strong>
+<input type="radio" name="41" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>g gamma &rarr; b bbar</i>. 
+Code 273. 
+   
+ 
+<br/><br/><strong>PhotonParton:qgm2qg</strong>  <input type="radio" name="42" value="on"><strong>On</strong>
+<input type="radio" name="42" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+Scattering <i>q gamma &rarr; q g</i>. 
+Code 274. 
+   
+ 
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -591,6 +631,31 @@ if($_POST["37"] != "off")
 $data = "PhotonCollision:gmgm2tautau = ".$_POST["37"]."\n";
 fwrite($handle,$data);
 }
+if($_POST["38"] != "off")
+{
+$data = "PhotonParton:all = ".$_POST["38"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["39"] != "off")
+{
+$data = "PhotonParton:ggm2qqbar = ".$_POST["39"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["40"] != "off")
+{
+$data = "PhotonParton:ggm2ccbar = ".$_POST["40"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["41"] != "off")
+{
+$data = "PhotonParton:ggm2bbbar = ".$_POST["41"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["42"] != "off")
+{
+$data = "PhotonParton:qgm2qg = ".$_POST["42"]."\n";
+fwrite($handle,$data);
+}
 fclose($handle);
 }
 
@@ -598,4 +663,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2016 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2017 Torbjorn Sjostrand --> 

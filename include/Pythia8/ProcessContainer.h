@@ -1,5 +1,5 @@
 // ProcessContainer.h is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -54,7 +54,7 @@ public:
     ParticleData* particleDataPtrIn, Rndm* rndmPtrIn, BeamParticle* beamAPtr,
     BeamParticle* beamBPtr, Couplings* couplings, SigmaTotal* sigmaTotPtr,
     ResonanceDecays* resDecaysPtrIn, SLHAinterface* slhaInterfacePtr,
-    UserHooks* userHooksPtr);
+    UserHooks* userHooksPtr, GammaKinematics* gammaKinPtrIn);
 
   // Store or replace Les Houches pointer.
   void setLHAPtr( LHAup* lhaUpPtrIn,  ParticleData* particleDataPtrIn = 0)
@@ -88,10 +88,11 @@ public:
   void reset();
 
   // Process name and code, and the number of final-state particles.
-  string name()        const {return sigmaProcessPtr->name();}
-  int    code()        const {return sigmaProcessPtr->code();}
-  int    nFinal()      const {return sigmaProcessPtr->nFinal();}
-  bool   isSUSY()      const {return sigmaProcessPtr->isSUSY();}
+  string name()             const {return sigmaProcessPtr->name();}
+  int    code()             const {return sigmaProcessPtr->code();}
+  int    nFinal()           const {return sigmaProcessPtr->nFinal();}
+  bool   isSUSY()           const {return sigmaProcessPtr->isSUSY();}
+  bool   isNonDiffractive() const {return isNonDiff;}
 
   // Member functions for info on generation process.
   bool   newSigmaMax() const {return newSigmaMx;}
@@ -115,8 +116,6 @@ public:
   double Q2Fac()       const {return sigmaProcessPtr->Q2Fac();}
   double mHat()        const {return sqrtpos(phaseSpacePtr->sHat());}
   double pTHat()       const {return phaseSpacePtr->pTHat();}
-  double xGamma1()     const {return sigmaProcessPtr->xGamma1();}
-  double xGamma2()     const {return sigmaProcessPtr->xGamma2();}
 
   // Tell whether container is for Les Houches events.
   bool   isLHAContainer() const {return isLHA;}
@@ -163,6 +162,13 @@ private:
   // Pointer to LHAup for generating external events.
   LHAup*           lhaUpPtr;
 
+  // Pointers to the two incoming beams.
+  BeamParticle*    beamAPtr;
+  BeamParticle*    beamBPtr;
+
+  // Pointer to the phase space generator of photons from leptons.
+  GammaKinematics* gammaKinPtr;
+
   // Possibility to modify Les Houches input.
   bool   matchInOut;
   int    idRenameBeams, setLifetime, setQuarkMass, setLeptonMass, idNewM[9];
@@ -180,8 +186,8 @@ private:
   double sigmaMx, sigmaSgn, sigmaSum, sigma2Sum, sigmaNeg, sigmaAvg,
          sigmaFin, deltaFin, weightNow, wtAccSum;
 
-  // Flags to store whether beam has a gamma beam inside.
-  bool   beamAhasGamma, beamBhasGamma;
+  // Flags to store whether beam has a (un)resolved photon.
+  bool   beamAhasResGamma, beamBhasResGamma, beamHasResGamma, beamHasGamma;
 
   // Statistics for Les Houches event classification.
   vector<int> codeLHA;

@@ -1,5 +1,5 @@
 // TimeShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2016 Torbjorn Sjostrand.
+// Copyright (C) 2017 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL version 2, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -212,12 +212,23 @@ void TimeShower::init( BeamParticle* beamAPtrIn,
   doHVshower         = settingsPtr->flag("HiddenValley:FSR");
   nCHV               = settingsPtr->mode("HiddenValley:Ngauge");
   alphaHVfix         = settingsPtr->parm("HiddenValley:alphaFSR");
+  alphaHVorder       = (nCHV > 1 )
+                     ? settingsPtr->mode("HiddenValley:alphaOrder") : 0;
+  nFlavHV            = settingsPtr->mode("HiddenValley:nFlav");
+  LambdaHV           = settingsPtr->parm("HiddenValley:Lambda");
   pThvCut            = settingsPtr->parm("HiddenValley:pTminFSR");
-  pT2hvCut           = pThvCut * pThvCut;
   CFHV               = (nCHV == 1) ? 1. : (nCHV * nCHV - 1.)/(2. * nCHV);
   idHV               = (nCHV == 1) ? 4900022 : 4900021;
   mHV                = particleDataPtr->m0(idHV);
   brokenHVsym        = (nCHV == 1 && mHV > 0.);
+  if (pThvCut < LambdaHV) {
+    pThvCut         = LAMBDA3MARGIN * LambdaHV;
+    ostringstream newPTcolCut;
+    newPTcolCut << fixed << setprecision(3) << pThvCut;
+    infoPtr->errorMsg("Warning in TimeShower::init: Hidden Valley pTmin ",
+                      "too low, raised to " + newPTcolCut.str() );
+  }
+  pT2hvCut           = pThvCut * pThvCut;
 
   // Possibility of two predetermined hard emissions in event.
   doSecondHard    = settingsPtr->flag("SecondHard:generate");
@@ -2328,7 +2339,7 @@ void TimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
   if (canEnhanceET) {
     if (isEnhancedQ2QG) storeEnhanceFactor(dip.pT2,"fsr:Q2QG", enhanceNow);
     if (isEnhancedG2QQ) storeEnhanceFactor(dip.pT2,"fsr:G2QQ", enhanceNow);
-    if (isEnhancedG2QQ) storeEnhanceFactor(dip.pT2,"fsr:G2GG", enhanceNow);
+    if (isEnhancedG2GG) storeEnhanceFactor(dip.pT2,"fsr:G2GG", enhanceNow);
   }
 
 }
@@ -2755,12 +2766,14 @@ void TimeShower::pT2nextHV(double pT2begDip, double pT2sel,
   // C_F * alpha_HV/2 pi.
   int    colvTypeAbs = abs(dip.colvType);
   double colvFac     = (colvTypeAbs == 1) ? CFHV : 0.5 * nCHV;
-  double alphaHV2pi  = colvFac * (alphaHVfix / (2. * M_PI));
+  double alphaHV2pi  = alphaHVfix / (2. * M_PI);
+  double b0HV        = (11. /6. * nCHV - 2. / 6. * nFlavHV);
 
   // Determine overestimated z range. Find evolution coefficient.
   double zMinAbs = 0.5 - sqrtpos( 0.25 - pT2endDip / dip.m2DipCorr );
   if (zMinAbs < SIMPLIFYROOT) zMinAbs = pT2endDip / dip.m2DipCorr;
-  double emitCoefTot = alphaHV2pi * 2. * log(1. / zMinAbs - 1.);
+  double emitCoefTot = colvFac * 2. * log(1. / zMinAbs - 1.);
+  double LambdaHV2 = pow2(LambdaHV);
 
   // Variables used inside evolution loop.
   dip.pT2 = pT2begDip;
@@ -2783,8 +2796,14 @@ void TimeShower::pT2nextHV(double pT2begDip, double pT2sel,
     enhanceNow = 1.;
     nameNow = "";
 
-    // Pick pT2 (in overestimated z range).
-    dip.pT2 = dip.pT2 * pow(rndmPtr->flat(), 1. / emitCoefTot);
+    // Pick pT2 (in overestimated z range), fixed or first-order alpha_strong.
+    if (alphaHVorder == 0) {
+      dip.pT2 = dip.pT2 * pow( rndmPtr->flat(),
+        1. / (alphaHV2pi * emitCoefTot) );
+    } else if (alphaHVorder == 1) {
+      dip.pT2 = LambdaHV2 * pow( dip.pT2 / LambdaHV2,
+        pow( rndmPtr->flat(), b0HV / emitCoefTot) );
+    }
     wt = 0.;
 
     // Abort evolution if below cutoff scale, or below another branching.
@@ -3208,8 +3227,8 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
 
   // If doing uncertainty variations, calculate accept/reject reweightings.
   doUncertaintiesNow = doUncertainties;
-  if (!uVarMPIshowers && iSysSel != 0 && partonSystemsPtr->getInA(iSysSel) != 0)
-    doUncertaintiesNow = false;
+  if (!uVarMPIshowers && iSysSel != 0
+    && partonSystemsPtr->getInA(iSysSel) != 0) doUncertaintiesNow = false;
   if (doUncertaintiesNow)
     calcUncertainties( acceptEvent, pAccept, dipSel, &rad, &emt);
 
@@ -3230,14 +3249,14 @@ bool TimeShower::branch( Event& event, bool isInterleaved) {
     BeamParticle& beamRec = (isrTypeNow == 1) ? *beamAPtr : *beamBPtr;
     if ( beamRec.isGamma() ) {
       // If recoiler kinematics fixed by ISR can't act as recoiler.
-      if ( !beamRec.getGammaRemnants() ) return false;
+      if ( !beamRec.resolvedGamma() ) return false;
       BeamParticle& beamOther = (isrTypeNow == 1) ? *beamBPtr : *beamAPtr;
       bool physical   = true;
       double xRec     = 2. * pRec.e() / (beamRec.e() + beamOther.e());
       double sCM      = m2( beamRec.p(), beamOther.p());
       double eCM      = sqrt(sCM);
       // One-remnant system.
-      if ( !beamOther.getGammaRemnants() ) {
+      if ( !beamOther.resolvedGamma() ) {
         physical = beamRec.roomFor1Remnant(beamRec[0].id(), xRec, eCM);
       // Two-remnants systems.
       } else {
