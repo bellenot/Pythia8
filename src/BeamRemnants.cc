@@ -1,5 +1,5 @@
 // BeamRemnants.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -275,6 +275,25 @@ bool BeamRemnants::addOld( Event& event) {
     return false;
   }
 
+  // Possibility to add vertex information to beam particles.
+  if (doPartonVertex) {
+    BeamParticle* beamPtr = beamAPtr;
+    // Add vertex information for both beams.
+    for (int beam = 0; beam < 2; ++beam) {
+      for (int i = 0; i < beamPtr->size(); ++i) {
+        int j = (*beamPtr)[i].iPos();
+        // We might have daughters.
+        vector<int> dList = event[j].daughterList();
+        // First the beam remnant particle itself.
+        partonVertexPtr->vertexBeam(j, beam, event);
+        // Then possible daughters.
+        for(int k = 0, N = dList.size(); k < N; ++k )
+                partonVertexPtr->vertexBeam(dList[k],beam,event);
+      }
+      // Switch beam.
+      beamPtr = beamBPtr;
+    }
+  }
   // Done.
   return true;
 }
@@ -822,7 +841,7 @@ bool BeamRemnants::setKinematics( Event& event) {
     if (beamA[iSys].isFromBeam()) {
       int iA       = beamA[iSys].iPos();
       int iAcopy   = event.copy(iA, -61);
-      event[iAcopy].rotbst(Msys[iSys]);
+      event[iAcopy].rotbst(Msys[iSys], false);
       partonSystemsPtr->setInA(iSys, iAcopy);
       beamA[iSys].iPos( iAcopy);
       if (iSys == 0) {
@@ -833,7 +852,7 @@ bool BeamRemnants::setKinematics( Event& event) {
     if (beamB[iSys].isFromBeam()) {
       int iB       = beamB[iSys].iPos();
       int iBcopy   = event.copy(iB, -61);
-      event[iBcopy].rotbst(Msys[iSys]);
+      event[iBcopy].rotbst(Msys[iSys], false);
       partonSystemsPtr->setInB(iSys, iBcopy);
       beamB[iSys].iPos( iBcopy);
       if (iSys == 0) {
@@ -846,7 +865,7 @@ bool BeamRemnants::setKinematics( Event& event) {
       int iAB      = partonSystemsPtr->getOut(iSys, iMem);
       if (event[iAB].isFinal()) {
         int iABcopy = event.copy(iAB, 62);
-        event[iABcopy].rotbst(Msys[iSys]);
+        event[iABcopy].rotbst(Msys[iSys], false);
         partonSystemsPtr->setOut(iSys, iMem, iABcopy);
         pSumOut   += event[iABcopy].p();
       }
@@ -878,7 +897,7 @@ bool BeamRemnants::setKinematics( Event& event) {
     for (int iSys = 0; iSys < nSys; ++iSys)
     for (int iMem = 0; iMem < partonSystemsPtr->sizeOut(iSys); ++iMem) {
       int iAB = partonSystemsPtr->getOut(iSys, iMem);
-      if (event[iAB].isFinal()) event[iAB].rotbst(Mmismatch);
+      if (event[iAB].isFinal()) event[iAB].rotbst(Mmismatch, false);
     }
     pSumOut.rotbst(Mmismatch);
 
@@ -1170,7 +1189,7 @@ bool BeamRemnants::setOneRemnKinematics( Event& event, int beamOffset) {
   for (int i = 5 + beamOffset; i < sizeSave; ++i)
     if ( i != iLepScat && event[i].isFinal() ) {
       int iNew = event.copy( i, 62);
-      event[iNew].rotbst( MforScat);
+      event[iNew].rotbst( MforScat, false);
   }
 
   // Calculate kinematics of remnants and insert into event record.

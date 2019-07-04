@@ -1393,6 +1393,13 @@ the event weight <code>Info::weight()</code>, the merging weight
 by <code>Info::sigmaGen()</code> includes the effect of CKKW-L merging. 
    
  
+<br/><br/><table><tr><td><strong>Merging:nJetMinWinnerTakesAll  </td><td></td><td> <input type="text" name="44" value="-1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1</strong></code>; <code>minimum = -1</code>)</td></tr></table>
+Minimal number of additional jets in the matrix element that will be handled 
+by winner-takes-all cluctering. The default, negative value means that no 
+clusterings will be handled by winner-takes-all, and instead all histories 
+are constructed. 
+   
+ 
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -1623,6 +1630,11 @@ if($_POST["43"] != "on")
 $data = "Merging:includeWeightInXsection = ".$_POST["43"]."\n";
 fwrite($handle,$data);
 }
+if($_POST["44"] != "-1")
+{
+$data = "Merging:nJetMinWinnerTakesAll = ".$_POST["44"]."\n";
+fwrite($handle,$data);
+}
 fclose($handle);
 }
 
@@ -1630,4 +1642,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2018 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

@@ -1,5 +1,5 @@
 // PartonLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 // Hard diffraction added by Christine Rasmussen.
@@ -614,7 +614,7 @@ bool PartonLevel::next( Event& process, Event& event) {
     double pTscaleRad  = process.scale();
     double pTscaleMPI  = (doMPI && pTmaxMatchMPI == 3)
                        ? multiPtr->scaleLimitPT() : pTscaleRad;
-    if (doSecondHard) {
+    if (twoHard) {
       pTscaleRad       = max( pTscaleRad, process.scaleSecond() );
       pTscaleMPI       = min( pTscaleMPI, process.scaleSecond() );
     }
@@ -1067,7 +1067,7 @@ bool PartonLevel::next( Event& process, Event& event) {
 
   if (!physical) {
     // Leave hard diffractive system properly if beam remnant failed.
-    if (infoPtr->hasPomPsystem()) leaveHardDiff( process, event);
+    if (infoPtr->hasPomPsystem()) leaveHardDiff( process, event, false);
     // Leave also photon from lepton framework.
     if (beamHasGamma) leaveResolvedLeptonGamma( process, event, false);
     return false;
@@ -2022,29 +2022,37 @@ void PartonLevel::setupHardDiff( Event& process) {
 
 // Leave special handling of hard diffraction.
 
-void PartonLevel::leaveHardDiff( Event& process, Event& event) {
+void PartonLevel::leaveHardDiff( Event& process, Event& event,
+  bool physical) {
 
-  // Reconstruct boost and rotation to event cm frame.
-  Vec4 pDiffA = (isHardDiffA) ? process[1 + gammaOffset].p()
-              : process[1 + gammaOffset].p() - process[3 + gammaOffset].p();
-  Vec4 pDiffB = (isHardDiffB) ? process[2 + gammaOffset].p()
-              : process[2 + gammaOffset].p() - process[4 + gammaOffset].p();
-  RotBstMatrix MtoCM;
-  MtoCM.fromCMframe( pDiffA, pDiffB);
+  // Calculate kinematics only for physical events.
+  if (physical) {
 
-  // Perform rotation and boost on diffractive system.
-  for (int i = 5 + gammaOffset; i < process.size(); ++i)
-    process[i].rotbst( MtoCM);
-  for (int i = 5 + gammaOffset; i < event.size(); ++i)
-    event[i].rotbst( MtoCM);
+    // Reconstruct boost and rotation to event cm frame.
+    Vec4 pDiffA = (isHardDiffA) ? process[1 + gammaOffset].p()
+                : process[1 + gammaOffset].p() - process[3 + gammaOffset].p();
+    Vec4 pDiffB = (isHardDiffB) ? process[2 + gammaOffset].p()
+                : process[2 + gammaOffset].p() - process[4 + gammaOffset].p();
+    RotBstMatrix MtoCM;
+    MtoCM.fromCMframe( pDiffA, pDiffB);
+
+    // Perform rotation and boost on diffractive system.
+    for (int i = 5 + gammaOffset; i < process.size(); ++i)
+      process[i].rotbst( MtoCM);
+    for (int i = 5 + gammaOffset; i < event.size(); ++i)
+      event[i].rotbst( MtoCM);
+
+    // Reset beam energies.
+    beamAPtr->newPzE( event[1 + gammaOffset].pz(), event[1 + gammaOffset].e());
+    beamBPtr->newPzE( event[2 + gammaOffset].pz(), event[2 + gammaOffset].e());
+
+  }
 
   // Clear diffractive info.
   isHardDiffA = isHardDiffB = isHardDiff = false;
 
   // Restore cm energy.
   infoPtr->setECM( eCMsave);
-  beamAPtr->newPzE( event[1 + gammaOffset].pz(), event[1 + gammaOffset].e());
-  beamBPtr->newPzE( event[2 + gammaOffset].pz(), event[2 + gammaOffset].e());
 
   // Restore beam pointers to incoming hadrons.
   // If gamma-in-lepton need to change to beamGamPtr.
@@ -2174,266 +2182,273 @@ bool PartonLevel::setupResolvedLeptonGamma( Event& process) {
 void PartonLevel::leaveResolvedLeptonGamma( Event& process, Event& event,
   bool physical) {
 
-  // Find the momenta of incoming leptons and photons.
-  Vec4 pLeptonA =  process[1].p();
-  Vec4 pLeptonB =  process[2].p();
-
-  // Momenta for scattered leptons to be set later according to final state.
-  Vec4 pLepton1scat;
-  Vec4 pLepton2scat;
-
-  // Skip the boost of the extra intermediate photon in hard diffraction.
-  int iSkipHardDiff = -1;
-
-  // Reconstruct boost and rotation to event cm frame.
-  RotBstMatrix MtoLeptonLepton;
-  MtoLeptonLepton.toCMframe( pLeptonA, pLeptonB);
-
-  // Boost event to cm frame.
-  process.rotbst(MtoLeptonLepton);
-  event.rotbst(MtoLeptonLepton);
-
-  // Restore cm energy.
-  infoPtr->setECM( eCMsaveGamma);
-
   // Restore beam pointers to incoming leptons.
   if ( hasGammaA) beamAPtr = beamHadAPtr;
   if ( hasGammaB) beamBPtr = beamHadBPtr;
 
-  // Get the masses of beam particles.
-  double m2BeamA  = pow2( beamAPtr->m());
-  double m2BeamB  = pow2( beamBPtr->m());
+  // Restore cm energy.
+  infoPtr->setECM( eCMsaveGamma);
 
-  // Get the original collision energy and derive the lepton energies in CMS.
-  double sCM      = infoPtr->s();
-  double eCM2A    = 0.25 * pow2(sCM + m2BeamA - m2BeamB) / sCM;
-  double eCM2B    = 0.25 * pow2(sCM - m2BeamA + m2BeamB) / sCM;
+  // Set the new kinematics only for physical events.
+  if (physical) {
 
-  // Find the current momenta of photons.
-  Vec4 pGamma1Orig = process[3].p();
-  Vec4 pGamma2Orig = process[4].p();
-  Vec4 pGamma1     = pGamma1Orig;
-  Vec4 pGamma2     = pGamma2Orig;
-  double mGamma1   = sqrt(m2BeamA);
-  double mGamma2   = sqrt(m2BeamB);
+    // Find the momenta of incoming leptons and photons.
+    Vec4 pLeptonA =  process[1].p();
+    Vec4 pLeptonB =  process[2].p();
 
-  // Separate treatment for 2 -> 1 processes with two direct gammas to preserve
-  // sampled invariant mass. Corresponds to the usual beam remnant handling.
-  if ( (infoPtr->nFinal() == 1) && (gammaModeEvent == 4)
-    && hasGammaA && hasGammaB ) {
+    // Momenta for scattered leptons to be set later according to final state.
+    Vec4 pLepton1scat;
+    Vec4 pLepton2scat;
 
-    // Save the virtualities and transverse mometum of the photons.
-    mGamma1     = -sqrt( beamAPtr->Q2Gamma());
-    mGamma2     = -sqrt( beamBPtr->Q2Gamma());
-    double kTxA = beamAPtr->gammaKTx();
-    double kTyA = beamAPtr->gammaKTy();
-    double kTxB = beamBPtr->gammaKTx();
-    double kTyB = beamBPtr->gammaKTy();
+    // Skip the boost of the extra intermediate photon in hard diffraction.
+    int iSkipHardDiff = -1;
 
-    // Derive transverse mass and new sHat.
-    double mT2A    = pow2( beamAPtr->gammaKT() ) - pow2(mGamma1);
-    double mT2B    = pow2( beamBPtr->gammaKT() ) - pow2(mGamma2);
-    double sHatBef = infoPtr->sHat();
-    double sHatAft = infoPtr->sHat() + pow2(kTxA + kTxB) + pow2(kTyA + kTyB);
-    double lambda  = pow2(sHatAft) + pow2(mT2A) + pow2(mT2B)
-                   - 2. * ( sHatAft * (mT2A + mT2B) + mT2A * mT2B );
-    double kz2New  = 0.25 * lambda / sHatAft;
+    // Reconstruct boost and rotation to event cm frame.
+    RotBstMatrix MtoLeptonLepton;
+    MtoLeptonLepton.toCMframe( pLeptonA, pLeptonB);
 
-    // Photon momenta in CM frame.
-    Vec4 pGamma1New(kTxA, kTyA,  sqrt(kz2New), sqrt(kz2New + mT2A) );
-    Vec4 pGamma2New(kTxB, kTyB, -sqrt(kz2New), sqrt(kz2New + mT2B) );
+    // Boost event to cm frame.
+    process.rotbst(MtoLeptonLepton);
+    event.rotbst(MtoLeptonLepton);
 
-    // Boost and rotate the new photon momenta.
-    RotBstMatrix MfromGmGmOrig;
-    MfromGmGmOrig.toCMframe( pGamma1Orig, pGamma2Orig);
-    MfromGmGmOrig.invert();
-    pGamma1New.rotbst(MfromGmGmOrig);
-    pGamma2New.rotbst(MfromGmGmOrig);
+    // Get the masses of beam particles.
+    double m2BeamA  = pow2( beamAPtr->m());
+    double m2BeamB  = pow2( beamBPtr->m());
 
-    // Set the new photon momenta.
-    pGamma1 = pGamma1New;
-    pGamma2 = pGamma2New;
+    // Get the original collision energy and derive the lepton energies in CMS.
+    double sCM      = infoPtr->s();
+    double eCM2A    = 0.25 * pow2(sCM + m2BeamA - m2BeamB) / sCM;
+    double eCM2B    = 0.25 * pow2(sCM - m2BeamA + m2BeamB) / sCM;
 
-    // Modify the mass and momenta in event record.
-    event[3].p( pGamma1);
-    event[3].m( mGamma1);
-    event[4].p( pGamma2);
-    event[4].m( mGamma2);
+    // Find the current momenta of photons.
+    Vec4 pGamma1Orig = process[3].p();
+    Vec4 pGamma2Orig = process[4].p();
+    Vec4 pGamma1     = pGamma1Orig;
+    Vec4 pGamma2     = pGamma2Orig;
+    double mGamma1   = sqrt(m2BeamA);
+    double mGamma2   = sqrt(m2BeamB);
 
-    // Light-cone momentum removed by the photons.
-    double rescale = sqrt(sHatAft / sHatBef);
-    double wPosBef = beamAPtr->xGamma() * infoPtr->eCM();
-    double wNegBef = beamBPtr->xGamma() * infoPtr->eCM();
+    // Separate treatment for 2 -> 1 processes with two direct gammas
+    // to preserve sampled invariant mass. Corresponds to the usual
+    // beam remnant handling.
+    if ( (infoPtr->nFinal() == 1) && (gammaModeEvent == 4)
+      && hasGammaA && hasGammaB ) {
 
-    // Transverse mass of the leptons and invariant mass left for remnants.
-    double w2BeamA = pow2(beamAPtr->gammaKT()) + m2BeamA;
-    double w2BeamB = pow2(beamBPtr->gammaKT()) + m2BeamB;
-    double wPosRem = infoPtr->eCM() - rescale * wPosBef;
-    double wNegRem = infoPtr->eCM() - rescale * wNegBef;
-    double w2Rem   = wPosRem * wNegRem;
-    double xLepA   = 1. - beamAPtr->xGamma();
-    double xLepB   = 1. - beamBPtr->xGamma();
+      // Save the virtualities and transverse mometum of the photons.
+      mGamma1     = -sqrt( beamAPtr->Q2Gamma());
+      mGamma2     = -sqrt( beamBPtr->Q2Gamma());
+      double kTxA = beamAPtr->gammaKTx();
+      double kTyA = beamAPtr->gammaKTy();
+      double kTxB = beamBPtr->gammaKTx();
+      double kTyB = beamBPtr->gammaKTy();
 
-    // Rescaling factors for leptons.
-    double lambdaRoot = sqrtpos( pow2(w2Rem - w2BeamA - w2BeamB)
-                      - 4. * w2BeamA * w2BeamB );
-    double rescaleA   = (w2Rem + w2BeamA - w2BeamB + lambdaRoot)
-                      / (2. * w2Rem * xLepA);
-    double rescaleB   = (w2Rem + w2BeamB - w2BeamA + lambdaRoot)
-                      / (2. * w2Rem * xLepB);
+      // Derive transverse mass and new sHat.
+      double mT2A    = pow2( beamAPtr->gammaKT() ) - pow2(mGamma1);
+      double mT2B    = pow2( beamBPtr->gammaKT() ) - pow2(mGamma2);
+      double sHatBef = infoPtr->sHat();
+      double sHatAft = infoPtr->sHat() + pow2(kTxA + kTxB) + pow2(kTyA + kTyB);
+      double lambda  = pow2(sHatAft) + pow2(mT2A) + pow2(mT2B)
+                     - 2. * ( sHatAft * (mT2A + mT2B) + mT2A * mT2B );
+      double kz2New  = 0.25 * lambda / sHatAft;
 
-    // Momenta of the scattered leptons.
-    double pPosA  = rescaleA * xLepA * wPosRem;
-    double pNegA  = w2BeamA / pPosA;
-    double eLepA  = 0.5 * (pPosA + pNegA);
-    double pzLepA = 0.5 * (pPosA - pNegA);
-    double pNegB  = rescaleB * xLepB * wNegRem;
-    double pPosB  = w2BeamB / pNegB;
-    double eLepB  = 0.5 * (pPosB + pNegB);
-    double pzLepB = 0.5 * (pPosB - pNegB);
-    Vec4 pLeptonANew( -kTxA, -kTyA, pzLepA, eLepA);
-    Vec4 pLeptonBNew( -kTxB, -kTyB, pzLepB, eLepB);
+      // Photon momenta in CM frame.
+      Vec4 pGamma1New(kTxA, kTyA,  sqrt(kz2New), sqrt(kz2New + mT2A) );
+      Vec4 pGamma2New(kTxB, kTyB, -sqrt(kz2New), sqrt(kz2New + mT2B) );
 
-    // Save the momenta of scattered leptons.
-    pLepton1scat = pLeptonANew;
-    pLepton2scat = pLeptonBNew;
+      // Boost and rotate the new photon momenta.
+      RotBstMatrix MfromGmGmOrig;
+      MfromGmGmOrig.toCMframe( pGamma1Orig, pGamma2Orig);
+      MfromGmGmOrig.invert();
+      pGamma1New.rotbst(MfromGmGmOrig);
+      pGamma2New.rotbst(MfromGmGmOrig);
 
-    // Save the scattering angles of the leptons.
-    double theta1 = pLepton1scat.theta();
-    double theta2 = M_PI - pLepton2scat.theta();
-    infoPtr->setTheta1(theta1);
-    infoPtr->setTheta2(theta2);
-    infoPtr->setECMsub(sqrt(sHatBef));
-    infoPtr->setsHatNew(sHatBef);
+      // Set the new photon momenta.
+      pGamma1 = pGamma1New;
+      pGamma2 = pGamma2New;
 
-  // Otherwise derive the kinematics according to sampled virtualities.
-  } else {
-
-    // Calculate the new momentum for virtual photon if present for side A.
-    if ( hasGammaA ) {
-
-      // Get the x_gamma and virtuality and derive mass.
-      double xGamma1  = beamAPtr->xGamma();
-      double Q2gamma1 = beamAPtr->Q2Gamma();
-      mGamma1         = -sqrt( Q2gamma1);
-      beamGamAPtr->newM( mGamma1);
-
-      // Derive the kinematics with virtuality and kT.
-      double eGamma1  = xGamma1 * sqrt( eCM2A);
-      double kz1      = (eCM2A * xGamma1 + 0.5 * Q2gamma1)
-                      / sqrt(eCM2A - m2BeamA);
-
-      // Set the new momemtum and mass.
-      pGamma1 = Vec4( beamAPtr->gammaKTx(), beamAPtr->gammaKTy(),
-        kz1, eGamma1);
+      // Modify the mass and momenta in event record.
       event[3].p( pGamma1);
       event[3].m( mGamma1);
-
-      // For hard diffraction set the new kinematics also for the copy.
-      if (infoPtr->isHardDiffractiveA()) {
-        event[7].p( pGamma1);
-        event[7].m( mGamma1);
-        iSkipHardDiff = 7;
-      }
-    }
-
-    // Calculate the new momentum for virtual photon if present for side B.
-    if ( hasGammaB ) {
-
-      // Get the x_gamma and virtuality and derive mass.
-      double xGamma2  = beamBPtr->xGamma();
-      double Q2gamma2 = beamBPtr->Q2Gamma();
-      mGamma2         = -sqrt( Q2gamma2);
-      beamGamBPtr->newM( mGamma2);
-
-      // Derive the kinematics with virtuality and kT.
-      double eGamma2  = xGamma2 * sqrt( eCM2B);
-      double kz2      = (eCM2B * xGamma2 + 0.5 * Q2gamma2)
-                      / sqrt(eCM2B - m2BeamB);
-
-      // Save the 4-momentum of photons with sampled kT.
-      pGamma2 = Vec4( beamBPtr->gammaKTx(), beamBPtr->gammaKTy(),
-        -kz2, eGamma2);
       event[4].p( pGamma2);
       event[4].m( mGamma2);
 
-      // For hard diffraction set the new kinematics also for the copy.
-      if (infoPtr->isHardDiffractiveB()) {
-        event[8].p( pGamma2);
-        event[8].m( mGamma2);
-        iSkipHardDiff = 8;
+      // Light-cone momentum removed by the photons.
+      double rescale = sqrt(sHatAft / sHatBef);
+      double wPosBef = beamAPtr->xGamma() * infoPtr->eCM();
+      double wNegBef = beamBPtr->xGamma() * infoPtr->eCM();
+
+      // Transverse mass of the leptons and invariant mass left for remnants.
+      double w2BeamA = pow2(beamAPtr->gammaKT()) + m2BeamA;
+      double w2BeamB = pow2(beamBPtr->gammaKT()) + m2BeamB;
+      double wPosRem = infoPtr->eCM() - rescale * wPosBef;
+      double wNegRem = infoPtr->eCM() - rescale * wNegBef;
+      double w2Rem   = wPosRem * wNegRem;
+      double xLepA   = 1. - beamAPtr->xGamma();
+      double xLepB   = 1. - beamBPtr->xGamma();
+
+      // Rescaling factors for leptons.
+      double lambdaRoot = sqrtpos( pow2(w2Rem - w2BeamA - w2BeamB)
+                        - 4. * w2BeamA * w2BeamB );
+      double rescaleA   = (w2Rem + w2BeamA - w2BeamB + lambdaRoot)
+                        / (2. * w2Rem * xLepA);
+      double rescaleB   = (w2Rem + w2BeamB - w2BeamA + lambdaRoot)
+                        / (2. * w2Rem * xLepB);
+
+      // Momenta of the scattered leptons.
+      double pPosA  = rescaleA * xLepA * wPosRem;
+      double pNegA  = w2BeamA / pPosA;
+      double eLepA  = 0.5 * (pPosA + pNegA);
+      double pzLepA = 0.5 * (pPosA - pNegA);
+      double pNegB  = rescaleB * xLepB * wNegRem;
+      double pPosB  = w2BeamB / pNegB;
+      double eLepB  = 0.5 * (pPosB + pNegB);
+      double pzLepB = 0.5 * (pPosB - pNegB);
+      Vec4 pLeptonANew( -kTxA, -kTyA, pzLepA, eLepA);
+      Vec4 pLeptonBNew( -kTxB, -kTyB, pzLepB, eLepB);
+
+      // Save the momenta of scattered leptons.
+      pLepton1scat = pLeptonANew;
+      pLepton2scat = pLeptonBNew;
+
+      // Save the scattering angles of the leptons.
+      double theta1 = pLepton1scat.theta();
+      double theta2 = M_PI - pLepton2scat.theta();
+      infoPtr->setTheta1(theta1);
+      infoPtr->setTheta2(theta2);
+      infoPtr->setECMsub(sqrt(sHatBef));
+      infoPtr->setsHatNew(sHatBef);
+
+    // Otherwise derive the kinematics according to sampled virtualities.
+    } else {
+
+      // Calculate the new momentum for virtual photon if present for side A.
+      if ( hasGammaA ) {
+
+        // Get the x_gamma and virtuality and derive mass.
+        double xGamma1  = beamAPtr->xGamma();
+        double Q2gamma1 = beamAPtr->Q2Gamma();
+        mGamma1         = -sqrt( Q2gamma1);
+        beamGamAPtr->newM( mGamma1);
+
+        // Derive the kinematics with virtuality and kT.
+        double eGamma1  = xGamma1 * sqrt( eCM2A);
+        double kz1      = (eCM2A * xGamma1 + 0.5 * Q2gamma1)
+                        / sqrt(eCM2A - m2BeamA);
+
+        // Set the new momemtum and mass.
+        pGamma1 = Vec4( beamAPtr->gammaKTx(), beamAPtr->gammaKTy(),
+          kz1, eGamma1);
+        event[3].p( pGamma1);
+        event[3].m( mGamma1);
+
+        // For hard diffraction set the new kinematics also for the copy.
+        if (infoPtr->isHardDiffractiveA()) {
+          event[7].p( pGamma1);
+          event[7].m( mGamma1);
+          iSkipHardDiff = 7;
+        }
+      }
+
+      // Calculate the new momentum for virtual photon if present for side B.
+      if ( hasGammaB ) {
+
+        // Get the x_gamma and virtuality and derive mass.
+        double xGamma2  = beamBPtr->xGamma();
+        double Q2gamma2 = beamBPtr->Q2Gamma();
+        mGamma2         = -sqrt( Q2gamma2);
+        beamGamBPtr->newM( mGamma2);
+
+        // Derive the kinematics with virtuality and kT.
+        double eGamma2  = xGamma2 * sqrt( eCM2B);
+        double kz2      = (eCM2B * xGamma2 + 0.5 * Q2gamma2)
+                        / sqrt(eCM2B - m2BeamB);
+
+        // Save the 4-momentum of photons with sampled kT.
+        pGamma2 = Vec4( beamBPtr->gammaKTx(), beamBPtr->gammaKTy(),
+          -kz2, eGamma2);
+        event[4].p( pGamma2);
+        event[4].m( mGamma2);
+
+        // For hard diffraction set the new kinematics also for the copy.
+        if (infoPtr->isHardDiffractiveB()) {
+          event[8].p( pGamma2);
+          event[8].m( mGamma2);
+          iSkipHardDiff = 8;
+        }
+      }
+
+      // Find momenta for scattered lepton.
+      Vec4 pLepton1 = process[1].p();
+      Vec4 pLepton2 = process[2].p();
+      pLepton1scat  = pLepton1 - pGamma1;
+      pLepton2scat  = pLepton2 - pGamma2;
+    }
+
+    // For photon-hadron cases use the 4-momentum of the original beam particle
+    // since virtual photon kinematics are derived in this frame.
+    // Effect negligible when mass of the beam providing photon is small.
+    if      ( hasGammaA && !hasGammaB) pGamma2 = event[2].p();
+    else if (!hasGammaA &&  hasGammaB) pGamma1 = event[1].p();
+
+    // Find the boost from rest frame of collinear photons to rest frame of
+    // photons with kT.
+    RotBstMatrix MfromGmGm;
+    MfromGmGm.toCMframe( pGamma1, pGamma2);
+    MfromGmGm.fromCMframe( pGamma1Orig, pGamma2Orig);
+    MfromGmGm.invert();
+
+    // Copy the momentum and mass of the unresolved photon for direct-resolved
+    // processes to have correct virtualities in the event record.
+    int iSkipGamma = -1;
+    if ( gammaModeEvent == 3 ) {
+      iSkipGamma = 5;
+      event[iSkipGamma].m( mGamma1);
+      event[iSkipGamma].p( pGamma1);
+    } else if ( gammaModeEvent == 2 ) {
+      iSkipGamma = 6;
+      event[iSkipGamma].m( mGamma2);
+      event[iSkipGamma].p( pGamma2);
+    }
+
+    // Boost scattered system to frame where photon beam has non-zero kT.
+    // Do not boost photons which has already correct four momenta.
+    // For elastic events skip both photons.
+    int iProcessBegin = 5;
+    int iSkipGammaEl = -1;
+    if (isElastic) {
+      iProcessBegin = 3;
+      if (hasGammaA) iSkipGamma   = 3;
+      if (hasGammaB) iSkipGammaEl = 4;
+    }
+    for (int i = iProcessBegin; i < event.size(); ++i) {
+      if ( (i != iSkipGamma) && (i != iSkipHardDiff) && (i != iSkipGammaEl) )
+        event[i].rotbst( MfromGmGm);
+    }
+
+    // For photon-hadron cases set the beam particle copy originally derived
+    // using zero virtuality for photon to match the derived kinematics.
+    if      ( hasGammaA && !hasGammaB) event[4].p(pGamma2);
+    else if (!hasGammaA &&  hasGammaB) event[3].p(pGamma1);
+
+    // Add the scattered leptons if remnants are constructed.
+    if (doRemnants) {
+
+      // Add scattered leptons and fix the daughter codes.
+      if ( hasGammaA) {
+        int iPosLepton1 = event.append( beamAPtr->id(), 63, 1, 0, 0, 0, 0, 0,
+          pLepton1scat, beamAPtr->m());
+        event[1].daughter2( event[1].daughter1());
+        event[1].daughter1( iPosLepton1);
+      }
+      if ( hasGammaB) {
+        int iPosLepton2 = event.append( beamBPtr->id(), 63, 2, 0, 0, 0, 0, 0,
+          pLepton2scat, beamBPtr->m());
+        event[2].daughter2( event[2].daughter1());
+        event[2].daughter1( iPosLepton2);
       }
     }
 
-    // Find momenta for scattered lepton.
-    Vec4 pLepton1 = process[1].p();
-    Vec4 pLepton2 = process[2].p();
-    pLepton1scat  = pLepton1 - pGamma1;
-    pLepton2scat  = pLepton2 - pGamma2;
-  }
-
-  // For photon-hadron cases use the 4-momentum of the original beam particle
-  // since virtual photon kinematics are derived in this frame.
-  // Effect negligible when mass of the beam providing photon is small.
-  if      ( hasGammaA && !hasGammaB) pGamma2 = event[2].p();
-  else if (!hasGammaB &&  hasGammaB) pGamma1 = event[1].p();
-
-  // Find the boost from rest frame of collinear photons to rest frame of
-  // photons with kT.
-  RotBstMatrix MfromGmGm;
-  MfromGmGm.toCMframe( pGamma1, pGamma2);
-  MfromGmGm.fromCMframe( pGamma1Orig, pGamma2Orig);
-  MfromGmGm.invert();
-
-  // Copy the momentum and mass of the unresolved photon for direct-resolved
-  // processes to have correct virtualities in the event record.
-  int iSkipGamma = -1;
-  if ( gammaModeEvent == 3 ) {
-    iSkipGamma = 5;
-    event[iSkipGamma].m( mGamma1);
-    event[iSkipGamma].p( pGamma1);
-  } else if ( gammaModeEvent == 2 ) {
-    iSkipGamma = 6;
-    event[iSkipGamma].m( mGamma2);
-    event[iSkipGamma].p( pGamma2);
-  }
-
-  // Boost scattered system to frame where photon beam has non-zero kT.
-  // Do not boost photons which has already correct four momenta.
-  // For elastic events skip both photons.
-  int iProcessBegin = 5;
-  int iSkipGammaEl = -1;
-  if (isElastic) {
-    iProcessBegin = 3;
-    if (hasGammaA) iSkipGamma   = 3;
-    if (hasGammaB) iSkipGammaEl = 4;
-  }
-  for (int i = iProcessBegin; i < event.size(); ++i) {
-    if ( (i != iSkipGamma) && (i != iSkipHardDiff) && (i != iSkipGammaEl) )
-      event[i].rotbst( MfromGmGm);
-  }
-
-  // For photon-hadron cases set the beam particle copy originally derived
-  // using zero virtuality for photon to match the derived kinematics.
-  if      ( hasGammaA && !hasGammaB) event[4].p(pGamma2);
-  else if (!hasGammaB &&  hasGammaB) event[3].p(pGamma1);
-
-  // Add the scattered leptons if remnants are constructed and event allowed.
-  if ( doRemnants && physical) {
-
-    // Add scattered leptons and fix the daughter codes.
-    if ( hasGammaA) {
-      int iPosLepton1 = event.append( beamAPtr->id(), 63, 1, 0, 0, 0, 0, 0,
-        pLepton1scat, beamAPtr->m());
-      event[1].daughter2( event[1].daughter1());
-      event[1].daughter1( iPosLepton1);
-    }
-    if ( hasGammaB) {
-      int iPosLepton2 = event.append( beamBPtr->id(), 63, 2, 0, 0, 0, 0, 0,
-        pLepton2scat, beamBPtr->m());
-      event[2].daughter2( event[2].daughter1());
-      event[2].daughter1( iPosLepton2);
-    }
+  // Reset all pointers also for non-physical events.
   }
 
   // Done for direct-direct and elastic processes.

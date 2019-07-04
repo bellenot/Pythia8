@@ -1,5 +1,5 @@
 // ProcessContainer.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -136,8 +136,9 @@ bool ProcessContainer::init(bool isFirst, Info* infoPtrIn,
   }
 
   // Save the photon modes and propagate further.
+  // For soft processes set possible VM states.
   if ( ( beamAPtr->isGamma() || beamBPtr->isGamma() ) || beamHasGamma )
-    setBeamModes(isSoftQCD() && !isElastic(), false);
+    setBeamModes(isSoftQCD(), false);
 
   // Save the state of photon beams.
   beamAhasResGamma = beamAPtr->hasResGamma();
@@ -223,8 +224,9 @@ bool ProcessContainer::trialProcess() {
   double wtFlux = 1.;
 
   // For photon beams set PDF pointer to resolved or unresolved.
+  // Do not reset VM states since they will be sampled in phaseSpace->trialKin.
   if ( beamAPtr->isGamma() || beamBPtr->isGamma() || beamHasGamma )
-    setBeamModes();
+    setBeamModes(false);
 
   // Loop over tries only occurs for Les Houches strategy = +-2.
   for (int iTry = 0;  ; ++iTry) {
@@ -427,8 +429,9 @@ bool ProcessContainer::constructState() {
   sigmaProcessPtr->setIdColAcol();
 
   // Set beam modes correctly for given process.
+  // Propagate the sampled VM states to beams as they are now sampled.
   if ( beamAPtr->isResolvedUnresolved() || beamBPtr->isResolvedUnresolved() )
-    setBeamModes( isSoftQCD() && !isElastic());
+    setBeamModes();
 
   // Done.
   return true;
@@ -454,117 +457,20 @@ void ProcessContainer::setBeamModes(bool setVMD, bool isSampled) {
 
   // Propagate gammaMode and VMD state to info pointer.
   infoPtr->setGammaMode(gammaModeEvent);
-  if ( (gammaModeEvent != 4) && setVMD) {
-    double scale[3] = {0.00331524, 0.00030905, 0.00039639};
-    int idA = beamAPtr->hasResGamma() ? 22 : beamAPtr->id();
-    int idB = beamBPtr->hasResGamma() ? 22 : beamBPtr->id();
-    pair<int, int> idAB = chooseVMDstates(idA, idB, isSampled);
-    if (idAB.first == 113 || idAB.first == 223 || idAB.first == 333) {
-      double mA  = particleDataPtr->mSel(idAB.first);
-      double scA = scale[idAB.first/100 - 1];
-      beamAPtr->setVMDstate(true, idAB.first, mA, scA, false);
-      infoPtr->setVMDstateA(true, idAB.first, mA, scA);
-    }
-    if (idAB.second == 113 || idAB.second == 223 || idAB.second == 333) {
-      double mB  = particleDataPtr->mSel(idAB.second);
-      double scB = scale[idAB.second/100 - 1];
-      beamBPtr->setVMDstate(true, idAB.second, mB, scB, false);
-      infoPtr->setVMDstateB(true, idAB.second, mB, scB);
-    }
+
+  // Check whether explicit VMD sampling is required later on.
+  if (setVMD && !isSampled) {
+    if (beamAgammaMode > 0) infoPtr->setVMDstateA(true, 22, 0.,0.);
+    if (beamBgammaMode > 0) infoPtr->setVMDstateB(true, 22, 0.,0.);
   }
 
-}
-
-//--------------------------------------------------------------------------
-
-// VMD processes: Choose particle.
-// If in the initialization phase use the original sqrt(s).
-
-pair<int, int> ProcessContainer::chooseVMDstates( int idA, int idB,
-  bool isSampled) {
-
-  // Constants and initial values.
-  double gammaFac[3] = {2.2, 23.6, 18.4};
-  double alphaEM     = 0.00729353;
-  double idVMD[3]    = {113, 223, 333};
-  double pVP[3]      = {};
-  double pVV[3][3]   = {};
-  double pSum        = 0.;
-
-  // Use the invariant mass of sub-system when present.
-  double eCM = (beamHasGamma && isSampled) ? gammaKinPtr->eCMsub()
-             : infoPtr->eCM();
-
-  // gamma-gamma.
-  if (idA == 22 && idB == 22) {
-    for (int i = 0; i < 3; ++i)
-    for (int j = 0; j < 3; ++j) {
-      // Evaluate the cross sections individually.
-      sigmaTotPtr->calc(idVMD[i], idVMD[j], eCM);
-      pVV[i][j] = pow2(alphaEM) / (gammaFac[i] * gammaFac[j]);
-      if      (processCode == 101) pVV[i][j] *= sigmaTotPtr->sigmaND();
-      else if (processCode == 102) pVV[i][j] *= sigmaTotPtr->sigmaEl();
-      else if (processCode == 103) pVV[i][j] *= sigmaTotPtr->sigmaXB();
-      else if (processCode == 104) pVV[i][j] *= sigmaTotPtr->sigmaAX();
-      else if (processCode == 105) pVV[i][j] *= sigmaTotPtr->sigmaXX();
-      pSum     += pVV[i][j];
-    }
-    // Reset to proper cross section.
-    sigmaTotPtr->calc(infoPtr->idA(), infoPtr->idB(), infoPtr->eCM());
-    // Choose VMD states based on relative fractions.
-    double pickMode = rndmPtr->flat() * pSum;
-    for (int i = 0; i < 3; ++i)
-    for (int j = 0; j < 3; ++j) {
-      pickMode -= pVV[i][j];
-      if (pickMode < 0.) return make_pair(113 + 110 * i, 113 + 110 * j);
-    }
-    return make_pair(113, 113);
-
-  // gamma + p.
-  } else if (idA == 22 && idB == 2212) {
-    for (int i = 0; i < 3; ++i) {
-      // Evaluate the cross sections individually.
-      sigmaTotPtr->calc(idVMD[i], 2212, eCM);
-      pVP[i] = alphaEM / gammaFac[i];
-      if      (processCode == 101) pVP[i] *= sigmaTotPtr->sigmaND();
-      else if (processCode == 102) pVP[i] *= sigmaTotPtr->sigmaEl();
-      else if (processCode == 103) pVP[i] *= sigmaTotPtr->sigmaXB();
-      else if (processCode == 104) pVP[i] *= sigmaTotPtr->sigmaAX();
-      else if (processCode == 105) pVP[i] *= sigmaTotPtr->sigmaXX();
-      pSum     += pVP[i];
-    }
-    // Reset to proper cross section.
-    sigmaTotPtr->calc(infoPtr->idA(), infoPtr->idB(), infoPtr->eCM());
-    // Choose VMD state based on relative fractions.
-    double pickMode = rndmPtr->flat() * pSum;
-    if (pickMode > pVP[1] + pVP[2]) return make_pair(113, 2212);
-    else if (pickMode > pVP[2])     return make_pair(223, 2212);
-    else                            return make_pair(333, 2212);
-
-  // p + gamma.
-  } else if (idA == 2212 && idB == 22) {
-    for (int i = 0; i < 3; ++i) {
-      // Evaluate the cross sections individually.
-      sigmaTotPtr->calc(2212, idVMD[i], eCM);
-      pVP[i] = alphaEM / gammaFac[i];
-      if      (processCode == 101) pVP[i] *= sigmaTotPtr->sigmaND();
-      else if (processCode == 102) pVP[i] *= sigmaTotPtr->sigmaEl();
-      else if (processCode == 103) pVP[i] *= sigmaTotPtr->sigmaXB();
-      else if (processCode == 104) pVP[i] *= sigmaTotPtr->sigmaAX();
-      else if (processCode == 105) pVP[i] *= sigmaTotPtr->sigmaXX();
-      pSum     += pVP[i];
-    }
-    // Reset to proper cross section.
-    sigmaTotPtr->calc(infoPtr->idA(), infoPtr->idB(), infoPtr->eCM());
-    // Choose VMD state based on relative fractions.
-    double pickMode = rndmPtr->flat() * pSum;
-    if (pickMode > pVP[1] + pVP[2]) return make_pair(2212, 113);
-    else if (pickMode > pVP[2])     return make_pair(2212, 223);
-    else                            return make_pair(2212, 333);
-
-  // Do nothing for other beam combinations.
-  } else return make_pair(idA, idB);
-
+  // Propagate the sampled VMD states to beams.
+  if (isSampled) {
+    if (infoPtr->isVMDstateA()) beamAPtr->setVMDstate(true, infoPtr->idVMDA(),
+      infoPtr->mVMDA(), infoPtr->scaleVMDA(), false);
+    if (infoPtr->isVMDstateB()) beamBPtr->setVMDstate(true, infoPtr->idVMDB(),
+      infoPtr->mVMDB(), infoPtr->scaleVMDB(), false);
+  }
 }
 
 //--------------------------------------------------------------------------
@@ -744,14 +650,33 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
   // Insert the outgoing particles - unresolved processes.
   else if (!isLHA) {
-    int id3     = sigmaProcessPtr->id(3);
-    int status3 = (id3 == process[1].id()) ? 14 : 15;
-    process.append( id3, status3, 1 + nOffsetGamma, 0, 0, 0, 0, 0,
-      phaseSpacePtr->p(3), phaseSpacePtr->m(3));
-    int id4     = sigmaProcessPtr->id(4);
-    int status4 = (id4 == process[2].id()) ? 14 : 15;
-    process.append( id4, status4, 2 + nOffsetGamma, 0, 0, 0, 0, 0,
-      phaseSpacePtr->p(4), phaseSpacePtr->m(4));
+
+    // COR: Special handling of soft QCD with photons. If VMD states,
+    // then outgoing photon has to be changed to VMD
+    if (isSoftQCD() && (infoPtr->isVMDstateA() || infoPtr->isVMDstateB())) {
+      int id3orig = sigmaProcessPtr->id(3);
+      int status3 = (id3orig == process[1+nOffsetGamma].id()) ? 14 : 15;
+      int id3     = (status3 == 14 && infoPtr->isVMDstateA())
+                  ? infoPtr->idVMDA() : id3orig;
+      process.append( id3, status3, 1 + nOffsetGamma, 0, 0, 0, 0, 0,
+        phaseSpacePtr->p(3), phaseSpacePtr->m(3));
+      int id4orig = sigmaProcessPtr->id(4);
+      int status4 = (id4orig == process[2+nOffsetGamma].id()) ? 14 : 15;
+      int id4     = (status4 == 14 && infoPtr->isVMDstateB())
+                  ? infoPtr->idVMDB() : id4orig;
+      process.append( id4, status4, 2 + nOffsetGamma, 0, 0, 0, 0, 0,
+        phaseSpacePtr->p(4), phaseSpacePtr->m(4));
+
+    } else {
+      int id3     = sigmaProcessPtr->id(3);
+      int status3 = (id3 == process[1].id()) ? 14 : 15;
+      process.append( id3, status3, 1 + nOffsetGamma, 0, 0, 0, 0, 0,
+        phaseSpacePtr->p(3), phaseSpacePtr->m(3));
+      int id4     = sigmaProcessPtr->id(4);
+      int status4 = (id4 == process[2].id()) ? 14 : 15;
+      process.append( id4, status4, 2 + nOffsetGamma, 0, 0, 0, 0, 0,
+        phaseSpacePtr->p(4), phaseSpacePtr->m(4));
+    }
 
     // For central diffraction: two scattered protons inserted so far,
     // but modify mothers, add also centrally-produced hadronic system.
@@ -763,6 +688,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       process.append( id5, status5, 1, 2, 0, 0, 0, 0,
         phaseSpacePtr->p(5), phaseSpacePtr->m(5));
     }
+
   }
 
   // Insert the outgoing particles - Les Houches Accord processes.
@@ -770,8 +696,12 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
 
     // Check if second process; if so partons must be in order.
     int n21 = 0;
+    int nOffsetSecond = 0;
     for (int i = 1; i < lhaUpPtr->sizePart(); ++i)
-      if (lhaUpPtr->status(i) == -1) ++n21;
+    if (lhaUpPtr->status(i) == -1) {
+      ++n21;
+      if (n21 == 3) nOffsetSecond = i - 1;
+    }
     bool twoHard = (n21 == 4);
 
     // Since LHA partons may be out of order, determine correct one.
@@ -797,6 +727,11 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
     double scalePr = (scale < 0.) ? sqrt(Q2Fac()) : scale;
     process.scale( scalePr);
     if (twoHard) process.scaleSecond( scalePr);
+    if ( lhaUpPtr->scaleShowersIsSet() ) {
+      process.scale( lhaUpPtr->scaleShowers(0) );
+      process.scaleSecond( lhaUpPtr->scaleShowers(1) );
+    }
+    double scalePr2 = process.scaleSecond();
 
     // Copy over info from LHA event to process, in proper order.
     vector<int> iFinal;
@@ -873,8 +808,10 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       double scaleShow = lhaUpPtr->scale(iOld);
 
       // For resonance decay products use resonance mass as scale.
-      double scaleNow = scalePr;
-      if (mother1 > 4 && !useStrictLHEFscales) scaleNow = process[mother1].m();
+      double scaleNow = (iIn < 3) ? scalePr : scalePr2;
+      int motherBeg = (iIn < 3) ? 4 : 4 + nOffsetSecond;
+      if (mother1 > motherBeg && !useStrictLHEFscales)
+        scaleNow = process[mother1].m();
       if (scaleShow >= 0.0) scaleNow = scaleShow;
 
       // Store Les Houches Accord partons.
@@ -1824,6 +1761,16 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   if (tops || settings.flag("Top:gmgm2ttbar")) {
     sigmaPtr = new Sigma2gmgm2ffbar(6, 606);
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+  }
+  if (tops || settings.flag("Top:ggm2ttbar")) {
+    if ( initGammaB ) {
+      sigmaPtr = new Sigma2ggm2qqbar(6, 607, "ggm");
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
+    if ( initGammaA ) {
+      sigmaPtr = new Sigma2ggm2qqbar(6, 617, "gmg");
+      containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
+    }
   }
 
   // Set up requested objects for fourth-generation b' production

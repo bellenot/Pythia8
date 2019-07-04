@@ -443,6 +443,12 @@ and avoid already explicitly listed non-partonic channels</li>
 and hadronize</li> 
 <li> 92 : decay onium to <i>g g g</i> or <i>g g gamma</i> 
 (with matrix element), which should shower and hadronize</li> 
+<li> 93 : decay of colour singlet to <i>q qbar</i> plus another singlet, 
+flat in phase space (and arbitrarily ordered), where the <i>q qbar</i> 
+pair should shower and hadronize</li> 
+<li> 94 : same as 93, but weighted with <i>V-A</i> weak matrix element 
+if the decay chain is of the type <i>neutrino \rarr; dbar u lepton</i> 
+in that order</li> 
 <li> 100 - : reserved for the description of partial widths of 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?>resonances</a></li> 
@@ -614,4 +620,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2018 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

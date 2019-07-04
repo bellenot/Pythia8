@@ -1,5 +1,5 @@
 // SigmaTotal.h is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -166,6 +166,10 @@ public:
   double bSlopeEl()     {return sigTotElPtr->bEl;}
   bool   hasCoulomb()   {return sigTotElPtr->hasCou;}
 
+  // Total elastic cross section.
+  bool calcTotEl( int idAin, int idBin, double sIn, double mAin, double mBin) {
+    return sigTotElPtr->calcTotEl( idAin, idBin, sIn, mAin, mBin); }
+
   // Differential elastic cross section.
   double dsigmaEl( double t, bool useCoulomb = false,
     bool onlyPomerons = false) {
@@ -195,6 +199,9 @@ public:
 
   // Minimal central diffractive mass.
   double mMinCD() {return sigDiffPtr->mMinCD();}
+
+  // Sample the VMD states for resolved photons.
+  void chooseVMDstates(int idA, int idB, double eCM, int processCode);
 
   // Standard methods to find t range of a 2 -> 2 process
   // and to check whether a given t value is in that range.
@@ -338,19 +345,19 @@ public:
 private:
 
   // Constants: could only be changed in the code itself.
-  static const int    IHADATABLE[], IHADBTABLE[], ISDTABLE[], IDDTABLE[];
+  static const int    IHADATABLE[], IHADBTABLE[], ISDTABLE[], IDDTABLE[], NVMD;
   static const double EPSILON, ETA, X[], Y[], BETA0[], BHAD[], ALPHAPRIME,
-                      CONVERTSD, CONVERTDD, VMDMASS[3], GAMMAFAC[3],
+                      CONVERTSD, CONVERTDD, VMDMASS[4], GAMMAFAC[4],
                       CSD[10][8], CDD[10][9];
 
   // Initialization data, normally only set once, and result of calculation.
   bool   doDampen, zeroAXB, swapped, sameSign;
-  int    idAbsA, idAbsB, iProc, iHadA, iHadB, iHadAtmp[3],
-         iHadBtmp[3], iProcVP[3], iProcVV[3][3];
+  int    idAbsA, idAbsB, iProc, iHadA, iHadB, iHadAtmp[4],
+         iHadBtmp[4], iProcVP[4], iProcVV[4][4];
   double s, mA, mB, bA, bB, maxXBOwn, maxAXOwn, maxXXOwn, maxAXBOwn, epsSaS,
          sigmaPomP, mPomP, pPomP, sigAXB2TeV, mMin0,  cRes, mRes0, mMinCDnow,
          alP2, s0, mMinXB,  mMinAX, mMinAXB, mResXB, mResAX, sResXB,
-         sResAX, wtNow, mAtmp[3], mBtmp[3], multVP[3], multVV[3][3];
+         sResAX, wtNow, mAtmp[4], mBtmp[4], multVP[4], multVV[4][4];
 
   // Find combination of incoming beams.
   bool findBeamComb( int idAin, int idBin, double mAin, double mBin);

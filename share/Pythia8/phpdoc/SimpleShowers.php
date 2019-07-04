@@ -86,7 +86,7 @@ global-recoil option for the first few emissions, in order to simplify
 matching and merging to higher-order calculations.</li> 
 <li>The default global-recoil scheme for ISR can be replaced by a 
 dipole-recoil scheme, where the other colour dipole end may be in 
-the final state.</li>  
+the final state.</li> 
 <li>Showers off massive objects, within and beyond the Standard 
 Model, including e.g. octet onium states.</li> 
 <li>Showers interleaved with multiparton interactions, and set up 
@@ -156,4 +156,4 @@ echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>User Hook
 </body>
 </html>
  
-<!-- Copyright (C) 2018 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

@@ -7,6 +7,143 @@ PYTHIA 8.186 version, which was the last 8.1 release. The step
 from 8.1 to 8.2 gave an occasion to break backwards compatibility, 
 but this should only affect a small part of the user code. 
  
+<h3>8.242: 1 July 2019</h3> 
+<ul> 
+ 
+<li>A bug fix in 8.240, for an issue with colour vs. anticolour assignment 
+of dipole ends in baryon-number-violating decays, unfortunately introduced 
+a bug of its own. Specifically, in cases where the recoiler of a final-state 
+radiation is in the initial state, the recoiler colour type should 
+be negated relative to a final-state recoiler. In addition, the new 
+code has been extended to apply for all colour (anti)triplets, including 
+(anti)squarks. The bug has meant that high-<ei>pT</ei> jets 
+in some flavour combinations have acquired a larger multiplicity than they 
+should, at very high <ei>pT</ei> by up to 10%. Physics at lower <ei>pT</ei> 
+scales appear unaffected, as is e.g. top, <ei>W</ei>, <ei>Z</ei> and 
+<ei>H</ei> decays. Thanks to Patrick Komiske and Jesse Thaler.</li> 
+ 
+<li>New particle decay codes 93 and 94 for singlet particle decaying to a 
+<ei>q qbar</ei> pair plus a new singlet. Thanks to Philippe Mermod.</li> 
+ 
+<li>Fix cases where <code>scale()</code> and <code>scaleSecond()</code> 
+return values were not stored in the event record, by allowing new 
+<code>#scaleShowers</code> tag in Les Houches events. Thanks to 
+Oleh Fedkevych.</li> 
+ 
+<li>Bug fixes to the LHEF3 file reader. An issue previously led to 
+some tags being skipped, if the line before the tag was commented by 
+a hash/pound sign (#).</li> 
+ 
+<li>Protect against potential square root of negative number in 
+Dark Matter resonance handling. Thanks to Peter Richardson.</li> 
+ 
+<li>The implementation of the indexing operator <code>event[i]</code> 
+has been changed from straight vector indexing to using the 
+<code>at(i)</code> method, giving some safety against out-of-bounds 
+indexing with little to no cost in execution time. Thanks to 
+Helen Brooks.</li> 
+ 
+<li>The new method <code>Event::free()</code> empties the event record, 
+like <code>Event::clear()</code>,but also frees up the memory of the 
+<code>Particle</code> vector.</li> 
+ 
+<li>Fix that PDF set 22 was unreachable, since a range check had not 
+been updated.</li> 
+ 
+<li>Static code analysis by Dmitri Konstantinov and colleagues revealed 
+four errors, now fixed. 
+<ul> 
+<li>The <ei>H^+</ei> contribution was missed in BSM Higgs width 
+calculation for the <ei>gamma + Z^0</ei> channel.</li> 
+<li>Typo in the expression for the slepton/sneutrino partial width to 
+a chargino plus a neutrino/lepton.</li> 
+<li>Typo in the merging machinery for SUSY pair production.</li> 
+<li>Possibility of incorrect kinematics when photoproduction involves 
+off-shell photons.</li> 
+</ul></li> 
+ 
+<li>Fixed faulty behaviour in PartonVertex asssignment, where parton 
+shower would boost vertices to unphysical spatial points. To this end 
+the event and particle <code>rotbst</code> methods have been endowed 
+with a second optional argument not to boost production vertices.</li> 
+ 
+<li>Bug fixes to the "guess" option for defining hard process name for 
+multijet merging. An issue previously led to the hard process name being 
+only corrected once for the first event, and then no longer adjusted 
+automatically.The <code>main89.cc</code> program has been modified 
+as a consequence.</li> 
+ 
+<li>Bug fixes for the hard process name handling for weak-boson-fusion-like 
+processes that led to an incorrect counting of additional emissions. 
+In multijet merging, this led to incorrect no-emission probabilities 
+being applied to such processes.</li> 
+ 
+<li>A winner-takes-it-all strategy for choosing parton shower histories 
+has been added in multijet merging. This is an unfortunate necessity for 
+extremely high multiplicity merging, to avoid excessive memory usage. 
+Other memory usage tweaks have been included in the <code>History</code> 
+class.</li> 
+ 
+<li>Corrections and extensions to the VMD framework for photon beams, 
+including improved kinematics and minor corrections for the production 
+of VMD states. It is now possible to generate the <ei>J/Psi</ei> as 
+one of the VMD states. </li> 
+ 
+<li>Process <ei>g gamma &rarr; t tbar</ei> has been enabled, see 
+<aloc href="TopProcesses">Top Processes</aloc> for details.</li> 
+ 
+<li>Fixed cross section for heavy-quark pair production in gamma+gluon 
+and gamma+gamma fusion processes. Thanks to Javier Alberto Murillo 
+Quijada.</li> 
+ 
+<li>Bug fix for hard diffraction and resolved photons, wherein kinematics 
+is not recalculated when previous steps already failed.</li> 
+ 
+<li>Bug fix in the check that energy-momentum is preserved, without which 
+DIS events e.g. generated with <code>main36.cc</code> are falsely 
+rejected.</li> 
+ 
+<li>New setting <code>Beams:allowVariableEnergy</code> allow incoming 
+beam energies or momenta to be set event-by event, by further arguments 
+to the <code>pythia.next</code> call. This is achieved by initializing 
+the MPI machinery at a grid of CM energies, and then interpolating as 
+needed. Thus only processes belonging to the <code>SoftQCD</code> family 
+for inclusive hadron-hadron collisions can be simulated. This is unlike 
+the <code>Beams:allowMomentumSpread</code>, which can be used for any 
+process, but only in a narrow energy range around the nominal one. 
+The selection of grid energies for diffraction and photon beams has been 
+unified with the new one above. 
+See further in the "Variable collision energy" section of the 
+<aloc href="BeamParameters">Beam Parameters</aloc> description.</li> 
+ 
+<li>Some simple methods have been added to the <code>Event</code> 
+class, to return the final-state multiplicity, or the rapidity/angular 
+separation between two particles in the event record.</li> 
+ 
+<li>A simple method has been added to the <code>Settings</code> class, 
+to check whether only <code>SoftQCD</code> processes are switched on. 
+</li> 
+ 
+<li>A new check at initialization to warn if <code>SoftQCD</code> 
+processes are mixed with other kinds of processes, since this can 
+lead to doublecounting and/or low efficiency.</li> 
+
+<li>New <code>main77.cc</code> example how double parton scattering events 
+can be reweighted according to a different model than default in Pythia.
+Contributed by Boris Blok and Paolo Gunnellini.</li> 
+ 
+<li>The examples <code>main10.cc</code> and <code>main62.cc</code> 
+have been rewritten to avoid having histograms in global scope.</li> 
+ 
+<li>Fix minor typo in the <ei>I_0</ei> and <ei>I_1</ei> Bessel 
+functions.</li> 
+ 
+<li>Various other minor typo corrections.</li> 
+ 
+<li>Year updated to 2019.</li> 
+ 
+</ul> 
+ 
 <h3>8.240: 20 December 2018</h3> 
 <ul> 
  
@@ -2236,4 +2373,4 @@ to six flavours at the top mass.</li>
  
 </chapter> 
  
-<!-- Copyright (C) 2018 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

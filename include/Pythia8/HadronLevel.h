@@ -1,5 +1,5 @@
 // HadronLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -72,7 +72,7 @@ private:
 
   // Initialization data, read from Settings.
   bool doHadronize, doDecay, doBoseEinstein, doDeuteronProd,
-    allowRH, closePacking;
+       allowRH, closePacking;
   double mStringMin, eNormJunction, widthSepBE;
 
   // Settings for hadron scattering.
@@ -112,7 +112,7 @@ private:
   ParticleDecays decays;
 
   // The generator class for hadron scattering.
-  HadronScatter hadronScatter;
+  HadronScatter  hadronScatter;
 
   // Class for event geometry for Rope Hadronization. Production vertices.
   Ropewalk ropewalk;

@@ -1,5 +1,5 @@
 // SimpleSpaceShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -2590,12 +2590,12 @@ bool SimpleSpaceShower::branch( Event& event) {
 
     // Perform cumulative rotation/boost operation.
     // Mother, recoiler and sister from old rest frame to event cm frame.
-    mother.rotbst(MfromRest);
-    newRecoiler.rotbst(MfromRest);
-    sister.rotbst(MfromRest);
+    mother.rotbst(MfromRest, false);
+    newRecoiler.rotbst(MfromRest, false);
+    sister.rotbst(MfromRest, false);
     // The rest from (and to) event cm frame.
     for ( int i = eventSizeOld + 2; i < eventSizeOld + systemSizeOld; ++i)
-      event[i].rotbst(Mtot);
+      event[i].rotbst(Mtot, false);
 
   // Simpler special boost procedure for IF dipole.
   } else {
@@ -2604,9 +2604,9 @@ bool SimpleSpaceShower::branch( Event& event) {
     RotBstMatrix MfromRest;
     MfromRest.fromCMframe( event[iDaughter].p(), event[iColPartner].p() );
     // Boost mother, sister and new colour partner (recoiler already fine).
-    mother.rotbst(MfromRest);
-    sister.rotbst(MfromRest);
-    event[iNewColPartner].rotbst(MfromRest);
+    mother.rotbst(MfromRest, false);
+    sister.rotbst(MfromRest, false);
+    event[iNewColPartner].rotbst(MfromRest, false);
   }
 
   // Remove double counting. Only implemented for QCD hard processes
@@ -2989,7 +2989,7 @@ bool SimpleSpaceShower::branch( Event& event) {
     MmodResc.toCMframe(  event[iOldA].p(), event[iOldB].p());
     MmodResc.fromCMframe(event[iNewA].p(), event[iNewB].p());
     for (int iOutAB = 0; iOutAB < sizeOutAB; ++iOutAB)
-      event[eventSize + iOutAB].rotbst(MmodResc);
+      event[eventSize + iOutAB].rotbst(MmodResc, false);
 
     // Update list of partons in system.
     partonSystemsPtr->setInA(iSysResc, iNewA);

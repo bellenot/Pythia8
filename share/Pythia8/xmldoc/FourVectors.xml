@@ -444,7 +444,7 @@ return the combination of this and another matrix (corresponding to first
 making the transformation <ei>M_{in}</ei> and then this transformation. 
 </method> 
  
-<method name="Vec4 RotBstMatrix::operator*(Vec4 p) const"> 
+<method name="Vec4 RotBstMatrix::operator*(Vec4 p)"> 
 return a rotated and boosted version of <ei>p</ei>. 
 </method> 
  
@@ -453,7 +453,7 @@ invert the matrix, which corresponds to an opposite sequence and sign
 of rotations and boosts. 
 </method> 
  
-<method name="RotBstMatrix RotBstMatrix::inverse() const"> 
+<method name="RotBstMatrix RotBstMatrix::inverse()"> 
 return the inverse matrix, which corresponds to an opposite sequence and sign 
 of rotations and boosts, without overwriting the original matrix. 
 </method> 
@@ -521,4 +521,4 @@ when in the rest frame.
  
 </chapter> 
  
-<!-- Copyright (C) 2018 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

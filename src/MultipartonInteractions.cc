@@ -1,5 +1,5 @@
 // MultipartonInteractions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -524,6 +524,10 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
   mMaxPertDiff = eCM;
   eCMsave      = eCM;
 
+  // Allow for variable collision energies.
+  doVarEcm    = settings.flag("Beams:allowVariableEnergy");
+  if (iDiffSys > 0 || hasGamma) doVarEcm = false;
+
   // Limits on invariant mass of gm+gm system.
   mGmGmMin     = settings.parm("Photon:Wmin");
   mGmGmMax     = settings.parm("Photon:Wmax");
@@ -551,10 +555,13 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
          << "---------* \n"
          << " |                                                        "
          << "          | \n";
-    if (isNonDiff && !hasGamma)
+    if (!doVarEcm && isNonDiff && !hasGamma)
       cout << " |                   sigmaNonDiffractive = " << setprecision(2)
            << ((sigmaND > 1.) ? fixed : scientific) << setw(8) << sigmaND
            << " mb              | \n";
+    else if (doVarEcm)
+      cout << " |                          non-diffractive               "
+           << "          | \n";
     else if (iDiffSys == 1)
       cout << " |                          diffraction XB                "
            << "          | \n";
@@ -577,30 +584,46 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
          << "          | \n";
   }
 
-  // For diffraction need to cover range of diffractive masses.
-  nStep     = (iDiffSys == 0) ? 1 : 5;
-  eStepSize = (nStep < 2) ? 1.
-            : log(mMaxPertDiff / mMinPertDiff) / (nStep - 1.);
-
-  // For photons from lepton cover range of gm+gm invariant masses.
-  if (hasGamma) {
-    nStep     = 5;
-    eStepSize = log(mGmGmMax / mGmGmMin) / (nStep - 1.);
+  // Normally fixed collision cm energy.
+  nStep       = 1;
+  eStepMin    = 1.;
+  eStepMax    = 1.;
+  eStepSize   = 1.;
+  // For variable-energy beams cover range of cm energies.
+  if (doVarEcm || iDiffSys > 0 || hasGamma) {
+    if (doVarEcm) {
+      eStepMin  = settings.parm("Beams:eMinPert");
+      eStepMax  = eCM;
+    // For diffraction cover range of diffractive masses.
+    } else if (iDiffSys > 0) {
+      eStepMin  = mMinPertDiff;
+      eStepMax  = mMaxPertDiff;
+    // For photons from lepton cover range of gm+gm invariant masses.
+    } else {
+      eStepMin  = mGmGmMin;
+      eStepMax  = mGmGmMax;
+    }
+    nStep     = min( 20, int( 2. + 2. * log( eStepMax / eStepMin)) );
+    eStepSize   = log( eStepMax / eStepMin) / (nStep - 1.);
   }
 
+  // Loop over masses for which to initialize generation.
   for (int iStep = 0; iStep < nStep; ++iStep) {
-
-    // Update and output current diffractive mass and
-    // fictitious Pomeron-proton cross section for normalization.
     if (nStep > 1) {
-      if (!hasGamma) eCM = mMinPertDiff * pow( mMaxPertDiff / mMinPertDiff,
-                           iStep / (nStep - 1.) );
-      else eCM = mGmGmMin * pow( mGmGmMax / mGmGmMin, iStep / (nStep - 1.) );
+      eCM = eStepMin * pow( eStepMax / eStepMin, iStep / (nStep - 1.) );
       sCM = eCM * eCM;
 
+      // Nondiffractive cross section at current mass.
+      if (doVarEcm) {
+        sigmaTotPtr->calc( beamAPtr->id(), beamBPtr->id(), eCM );
+        sigmaND = sigmaTotPtr->sigmaND();
+        if (showMPI) cout << " |   collision energy = " << scientific
+          << setprecision(2) << setw(8) << eCM << " GeV and sigmaNorm = "
+          << ((sigmaND > SIGMAMBLIMIT) ? fixed : scientific)
+          << setw(8) << sigmaND << " mb    | \n";
 
       // MPI for diffractive events. Rescale Pom/p flux to use for Pom/gamma.
-      if (hasPomeronBeams) {
+      } else if (hasPomeronBeams) {
         double gamPomRatio = 1.;
         if (hasGamma) {
           sigmaTotPtr->calc(22, 2212, eCM);
@@ -624,6 +647,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
           beamAPtr->xPom(pow2(eCM/eCMsave));
         else if ( beamBPtr->id() == 990 )
           beamBPtr->xPom(pow2(eCM/eCMsave));
+
       // MPI with photons from leptons.
       } else {
 
@@ -750,7 +774,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
       cMaxSave[iStep]         = cMax;
    }
 
-  // End of loop over diffractive/invariant gamma+gamma masses.
+  // End of loop over energies or diffractive/invariant gamma+gamma masses.
   }
 
   // Reset pomeron momentum fraction.
@@ -808,7 +832,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
 //--------------------------------------------------------------------------
 
 // Reset impact parameter choice and update the CM energy.
-// For diffraction also interpolate parameters to current CM energy.
+// Sometimes also interpolate parameters to current CM energy.
 
 void MultipartonInteractions::reset( ) {
 
@@ -821,18 +845,17 @@ void MultipartonInteractions::reset( ) {
   sCM = eCM * eCM;
   if (nStep == 1 || abs( eCM / eCMsave - 1.) < ECMDEV) return;
 
-  // Set fictitious Pomeron-proton cross section for diffractive system.
-  if (!hasGamma) sigmaND = sigmaPomP * pow( eCM / mPomP, pPomP);
-  // For photons from leptons calculate sigmaND at updated CM energy.
-  else {
+  // For variable-energy collisions, including photons from leptons,
+  // calculate sigmaND at updated collision CM energy.
+  if (doVarEcm || hasGamma) {
     sigmaTotPtr->calc( beamAPtr->id(), beamBPtr->id(), eCM );
     sigmaND = sigmaTotPtr->sigmaND();
-  }
+  // Set fictitious Pomeron-proton cross section for diffractive system.
+  } else sigmaND = sigmaPomP * pow( eCM / mPomP, pPomP);
 
   // Current interpolation point.
   eCMsave   = eCM;
-  if (!hasGamma) eStepSave = log(eCM / mMinPertDiff) / eStepSize;
-  else eStepSave = log(eCM / mGmGmMin) / eStepSize;
+  eStepSave = log(eCM / eStepMin)     / eStepSize;
   iStepFrom = max( 0, min( nStep - 2, int( eStepSave) ) );
   iStepTo   = iStepFrom + 1;
   eStepTo   = max( 0., min( 1., eStepSave - iStepFrom) );
@@ -1092,6 +1115,9 @@ void MultipartonInteractions::setupFirstSys( Event& process) {
     // Put the partons into the event record.
     process.append(parton);
   }
+  if (doPartonVertex)
+    partonVertexPtr->vertexMPI( sizeProc, 4, bNow, process);
+
 
   // Set scale from which to begin evolution.
   process.scale(  sqrt(pT2Fac) );

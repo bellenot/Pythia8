@@ -1,5 +1,5 @@
 // MergingHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -73,9 +73,10 @@ int Merging::mergeProcess(Event& process){
 
   // Reinitialise hard process.
   mergingHooksPtr->hardProcess->clear();
-  mergingHooksPtr->processSave = settingsPtr->word("Merging:Process");
+  mergingHooksPtr->processNow  = settingsPtr->word("Merging:Process");
   mergingHooksPtr->hardProcess->initOnProcess(
-    settingsPtr->word("Merging:Process"), particleDataPtr);
+    mergingHooksPtr->processNow, particleDataPtr);
+  settingsPtr->word("Merging:Process", mergingHooksPtr->processSave);
 
   mergingHooksPtr->doUserMergingSave
     = settingsPtr->flag("Merging:doUserMerging");
@@ -113,8 +114,19 @@ int Merging::mergeProcess(Event& process){
     = mergingHooksPtr->nJetMaxSave;
   mergingHooksPtr->nJetMaxNLOLocal
     = mergingHooksPtr->nJetMaxNLOSave;
-  mergingHooksPtr->nRequestedSave
-    = settingsPtr->mode("Merging:nRequested");
+  int nRequestedNow = settingsPtr->mode("Merging:nRequested");
+  if ( mergingHooksPtr->getProcessString().compare("pp>aj") != 0
+    && mergingHooksPtr->getProcessString().compare("pp>jj") != 0) {
+    int sizeOut1 = mergingHooksPtr->hardProcess->hardOutgoing1.size();
+    int sizeOut2 = mergingHooksPtr->hardProcess->hardOutgoing2.size();
+    for (int i=0; i < sizeOut1; ++i)
+      if (mergingHooksPtr->hardProcess->hardOutgoing1[i] == 2212)
+        nRequestedNow--;
+    for (int i=0; i < sizeOut2; ++i)
+      if (mergingHooksPtr->hardProcess->hardOutgoing2[i] == 2212)
+        nRequestedNow--;
+  }
+  mergingHooksPtr->nRequestedSave = nRequestedNow;
 
   // Ensure that merging weight is not counted twice.
   bool includeWGT = mergingHooksPtr->includeWGTinXSEC();
@@ -207,7 +219,6 @@ int Merging::mergeProcessCKKWL( Event& process) {
     if ( includeWGT) infoPtr->updateWeight(0.);
     if (applyVeto) return -1;
     else return 1;
-    //return -1;
   }
 
   // Reset the minimal tms value, if necessary.
@@ -244,7 +255,6 @@ int Merging::mergeProcessCKKWL( Event& process) {
     infoPtr->errorMsg(message);
     if (!includeWGT) mergingHooksPtr->setWeightCKKWL(0.);
     if ( includeWGT) infoPtr->updateWeight(0.);
-    //return -1;
     if (applyVeto) return -1;
     else return 1;
   }
@@ -267,7 +277,6 @@ int Merging::mergeProcessCKKWL( Event& process) {
 
   bool complete = (FullHistory.select(RN)->nClusterings() == nSteps) ||
     ( mergingHooksPtr->doWeakClustering() && nFinalP == 2 && nFinalW == 0 );
-
   if ( !complete ) {
     string message="Warning in Merging::mergeProcessCKKWL: No clusterings";
     message+=" found. History incomplete.";
@@ -744,6 +753,9 @@ int Merging::mergeProcessUNLOPS( Event& process) {
   if ( mergingHooksPtr->getProcessString().compare("pp>h") == 0)
     mergingHooksPtr->allowCutOnRecState(true);
 
+  // Ensure that merging weight is not counted twice.
+  bool includeWGT = mergingHooksPtr->includeWGTinXSEC();
+
   // Reset weight of the event.
   double wgt      = 1.;
   mergingHooksPtr->setWeightCKKWL(1.);
@@ -767,6 +779,8 @@ int Merging::mergeProcessUNLOPS( Event& process) {
   int nSteps = mergingHooksPtr->getNumberOfClusteringSteps( newProcess, true);
   int nRequested = mergingHooksPtr->nRequested();
 
+  mergingHooksPtr->nInProcessNow = nSteps;
+
   // Check if hard event cut should be applied later.
   bool allowReject = settingsPtr->flag("Merging:applyVeto");
 
@@ -779,6 +793,7 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     infoPtr->errorMsg(message);
     mergingHooksPtr->setWeightCKKWL(0.);
     mergingHooksPtr->setWeightFIRST(0.);
+    if ( includeWGT) infoPtr->updateWeight(0.);
     return ((allowReject)? -1 : 1);
   }
 
@@ -810,6 +825,7 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     infoPtr->errorMsg(message);
     mergingHooksPtr->setWeightCKKWL(0.);
     mergingHooksPtr->setWeightFIRST(0.);
+    if ( includeWGT) infoPtr->updateWeight(0.);
     return ((allowReject)? -1 : 1);
     //return -1;
   }
@@ -828,6 +844,7 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     && FullHistory.select(RN)->nClusterings() == 0 ) {
     mergingHooksPtr->setWeightCKKWL(0.);
     mergingHooksPtr->setWeightFIRST(0.);
+    if ( includeWGT) infoPtr->updateWeight(0.);
     return ((allowReject)? -1 : 1);
     //return -1;
   }
@@ -840,6 +857,7 @@ int Merging::mergeProcessUNLOPS( Event& process) {
           newProcess, nPerformed, false ) ) {
     mergingHooksPtr->setWeightCKKWL(0.);
     mergingHooksPtr->setWeightFIRST(0.);
+    if ( includeWGT) infoPtr->updateWeight(0.);
     return ((allowReject)? -1 : 1);
     //return -1;
   }
@@ -866,8 +884,7 @@ int Merging::mergeProcessUNLOPS( Event& process) {
       infoPtr->errorMsg(message);
       mergingHooksPtr->setWeightCKKWL(0.);
       mergingHooksPtr->setWeightFIRST(0.);
-
-
+      if ( includeWGT) infoPtr->updateWeight(0.);
       return ((allowReject)? -1 : 1);
       //return -1;
     }
@@ -1034,6 +1051,10 @@ int Merging::mergeProcessUNLOPS( Event& process) {
 
   // If necessary, reattach resonance decay products.
   if (!hasNewResonances) mergingHooksPtr->reattachResonanceDecays(process);
+
+  // Update the event weight.
+  double norm = (abs(infoPtr->lhaStrategy()) == 4) ? 1/1e9 : 1.;
+  if ( includeWGT) infoPtr->updateWeight(infoPtr->weight()*wgt*norm);
 
   // Allow merging hooks to remove emissions from now on.
   mergingHooksPtr->doIgnoreEmissions(false);

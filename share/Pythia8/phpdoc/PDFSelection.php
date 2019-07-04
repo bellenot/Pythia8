@@ -212,9 +212,9 @@ evolution.
    
 <br/><code>option </code><strong> 18</strong> : NNPDF3.1 QCD LO <i>alpha_s(M_Z) = 0.118</i>. 
    
-<br/><code>option </code><strong> 19</strong> : NNPDF3.1 QCD+QED NLO <i>alpha_s(M_Z) = 0.118</i>. 
+<br/><code>option </code><strong> 19</strong> : NNPDF3.1 QCD+LUXQED NLO <i>alpha_s(M_Z) = 0.118</i>. 
    
-<br/><code>option </code><strong> 20</strong> : NNPDF3.1 QCD+QED NNLO <i>alpha_s(M_Z) = 0.118</i>. 
+<br/><code>option </code><strong> 20</strong> : NNPDF3.1 QCD+LUXQED NNLO <i>alpha_s(M_Z) = 0.118</i>. 
    
 <br/><code>option </code><strong> 21</strong> : NNPDF3.1sx+LHCb NLO+NLLx LUXQED 
 <i>alpha_s(M_Z) = 0.118</i> [<a href="Bibliography.php#refBer18" target="page">Ber18</a>]. While at NLO, the 
@@ -919,4 +919,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2018 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

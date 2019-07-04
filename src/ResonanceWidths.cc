@@ -1,5 +1,5 @@
 // ResonanceWidths.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1209,12 +1209,13 @@ double ResonanceH::eta2gaZ() {
   double  ef, vf, mLoop, epsilon, epsPrime, root, rootLog, asinEps;
   complex phi, psi, phiPrime, psiPrime, fXY, f1, etaNow;
 
-  // Loop over s, c, b, t, mu , tau, W+-, H+- flavours.
-  for (int idLoop = 0; idLoop < 7; ++idLoop) {
+  // Loop over s, c, b, t, mu, tau, W+-, H+- flavours.
+  for (int idLoop = 0; idLoop < 8; ++idLoop) {
     if      (idLoop < 4) idNow = idLoop + 3;
     else if (idLoop < 6) idNow = 2 * idLoop + 5;
     else if (idLoop < 7) idNow = 24;
     else                 idNow = 37;
+    if (idNow == 37 && higgsType == 0) continue;
 
     // Electroweak charges and loop integral parameters.
     ef        = (idNow < 20) ? couplingsPtr->ef(idNow) : 1.;

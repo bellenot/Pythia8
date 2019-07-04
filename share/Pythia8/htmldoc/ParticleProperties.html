@@ -210,11 +210,16 @@ In detail, the list of used or foreseen status codes is:
   <li>107 : two temporary leftover gluons joined into one in the formation 
             of a gluino-gluon R-hadron</li> 
   </ul> 
-<li>111 - 119 : hadrons with changed momentum due to hadron 
+<li>111 - 119 : new hadrons or hadrons with changed momentum due to hadron 
   (re)scattering</li> 
   <ul> 
-  <li>111 : first time scattering</li> 
-  <li>112 : second or further time scattering</li> 
+  <li>111 : inelastic nondiffractive collisions</li> 
+  <li>112 : elastic scattering</li> 
+  <li>113 : single diffraction, first particle excited</li> 
+  <li>114 : single diffraction, second particle excited</li> 
+  <li>115 : double diffraction</li> 
+  <li>116 : annihilation of incoming quark-antiquark pairs</li> 
+  <li>117 : intermediate resonance production and decay</li> 
   </ul> 
 <li>121 - 129 : other special hadron production mechanisms</li> 
   <ul> 
@@ -1033,8 +1038,10 @@ as above, but with sign of boost flipped.
    
  
 <a name="anchor116"></a>
-<p/><strong> void Particle::rotbst(const RotBstMatrix& M) &nbsp;</strong> <br/>
+<p/><strong> void Particle::rotbst(const RotBstMatrix& M, bool boostVertex = true) &nbsp;</strong> <br/>
 combined rotation and boost of the four-momentum and production vertex. 
+If the optional second argument is false only the four-momentum is 
+boosted, and not the production vertex. 
    
  
 <a name="anchor117"></a>
@@ -1106,4 +1113,4 @@ particle species.
 </body>
 </html>
  
-<!-- Copyright (C) 2018 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

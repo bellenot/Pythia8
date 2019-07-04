@@ -1,5 +1,5 @@
 // FragmentationSystems.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -193,6 +193,32 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
   if (iInsert < int(singlets.size()) - 1) singlets[iInsert] =
     ColSinglet(iPartonIn, pSumIn, massIn, massExcessIn,
     hasJunctionIn, isClosedIn);
+
+  // Done.
+  return true;
+}
+
+//--------------------------------------------------------------------------
+
+// Insert a new qqbar colour singlet system in ascending mass order.
+// Simple version for at most two triplet-antitriplet systems.
+
+bool ColConfig::simpleInsert( vector<int>& iPartonIn, Event& event) {
+
+  // Find momentum and invariant mass of system, minus endpoint masses.
+  Vec4 pSumIn   = event[ iPartonIn[0] ].p() + event[ iPartonIn[1] ].p();
+  double mSumIn = event[ iPartonIn[0] ].constituentMass()
+                + event[ iPartonIn[1] ].constituentMass();
+  double massIn = pSumIn.mCalc();
+  double massExcessIn = massIn - mSumIn;
+
+  // Store new colour singlet system at the end.
+  singlets.push_back( ColSinglet(iPartonIn, pSumIn, massIn,
+    massExcessIn, false, false) );
+
+  // If necessary flip so that smallest mass excesses come first.
+  if (singlets.size() == 2 && massExcessIn < singlets[0].massExcess)
+    swap( singlets[0], singlets[1]);
 
   // Done.
   return true;

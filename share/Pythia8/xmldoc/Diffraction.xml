@@ -97,7 +97,7 @@ the CM energy then there will be no perturbative description at all,
 but only the older low-<ei>pt</ei> description. 
 </parm> 
  
-<parm name="Diffraction:mWidthPert" default="10." min="0."> 
+<parm name="Diffraction:mWidthPert" default="10." min="1."> 
 The abovementioned threshold width <ei>m_width.</ei> 
 </parm> 
  
@@ -440,4 +440,4 @@ one.
  
 </chapter> 
  
-<!-- Copyright (C) 2018 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

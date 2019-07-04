@@ -23,7 +23,6 @@ At the bottom of this webpage is a complete survey of all public
 than the task-oriented descriptions found in the preceding sections. 
 This offers complementary information. 
  
- 
 <h3>Normal usage</h3> 
  
 <h4>Initialization</h4> 
@@ -973,6 +972,20 @@ can be checked with the
 method. 
 </method> 
  
+<method name="bool Pythia::next(double eCM)"> 
+</method> 
+<methodmore name="bool Pythia::next(double eA, double eB)"> 
+</methodmore> 
+<methodmore name="bool Pythia::next(double pxA, double pyA, double pzA, 
+double pxB, double pyB, double pzB)"> 
+These three methods can only be used when variable event-energy has been 
+switched on, see the <aloc href="BeamParameters">Beam Parameters</aloc> 
+description. Then they can be used to give in the new event CM energy, 
+the two back-to-back incoming particle energies, or the full 
+three-momentum of the incoming particles, for <code>Beams:frameType</code> 
+set to 1, 2 or 3, respectively. 
+</methodmore> 
+ 
 <method name="int Pythia::forceTimeShower( int iBeg, int iEnd, 
 double pTmax, int nBranchMax = 0)"> 
 perform a final-state shower evolution on partons in the 
@@ -1201,4 +1214,4 @@ see <aloc href="AdvancedUsage">here</aloc> for further details.
  
 </chapter> 
  
-<!-- Copyright (C) 2018 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

@@ -169,9 +169,9 @@ evolution.
 </option> 
 <option value="18">NNPDF3.1 QCD LO <ei>alpha_s(M_Z) = 0.118</ei>. 
 </option> 
-<option value="19">NNPDF3.1 QCD+QED NLO <ei>alpha_s(M_Z) = 0.118</ei>. 
+<option value="19">NNPDF3.1 QCD+LUXQED NLO <ei>alpha_s(M_Z) = 0.118</ei>. 
 </option> 
-<option value="20">NNPDF3.1 QCD+QED NNLO <ei>alpha_s(M_Z) = 0.118</ei>. 
+<option value="20">NNPDF3.1 QCD+LUXQED NNLO <ei>alpha_s(M_Z) = 0.118</ei>. 
 </option> 
 <option value="21">NNPDF3.1sx+LHCb NLO+NLLx LUXQED 
 <ei>alpha_s(M_Z) = 0.118</ei> <ref>Ber18</ref>. While at NLO, the 
@@ -682,4 +682,4 @@ partons, etc.
  
 </chapter> 
  
-<!-- Copyright (C) 2018 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

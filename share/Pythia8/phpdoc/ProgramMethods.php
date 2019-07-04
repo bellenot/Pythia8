@@ -88,6 +88,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
+<td><a href="ExternalDecays.php#anchor3" target="page">doChainDecay(...)</a></td>
+<td>External Decays</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
 <td><a href="UserHooks.php#anchor48" target="page">doChangeFragPar(...)</a></td>
 <td>User Hooks</td>
 </tr>
@@ -129,12 +135,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
-<td>virtual bool doChainDecay(...) {return</td>
-<td><a href="ExternalDecays.php#anchor3" target="page">false;}</a></td>
-<td>External Decays</td>
-</tr>
-
-<tr>
 <td>RotBstMatrix</td>
 <td><a href="FourVectors.php#anchor94" target="page">fromCMframe(...)</a></td>
 <td>Four-Vectors</td>
@@ -166,7 +166,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>PDF*</td>
-<td><a href="ProgramFlow.php#anchor39" target="page">getPDFPtr(...)</a></td>
+<td><a href="ProgramFlow.php#anchor42" target="page">getPDFPtr(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -723,18 +723,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
-<td>Vec4 RotBstMatrix::operator*(...)</td>
-<td><a href="FourVectors.php#anchor86" target="page">const</a></td>
-<td>Four-Vectors</td>
-</tr>
-
-<tr>
-<td>RotBstMatrix RotBstMatrix::inverse()</td>
-<td><a href="FourVectors.php#anchor88" target="page">const</a></td>
-<td>Four-Vectors</td>
-</tr>
-
-<tr>
 <td>double</td>
 <td><a href="StandardModelParameters.php#anchor16" target="page">CoupSM::af(...)</a></td>
 <td>Standard Model Parameters</td>
@@ -1072,12 +1060,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#anchor23" target="page">Event::append(...)</a></td>
-<td>Event Record</td>
-</tr>
-
-<tr>
-<td>int</td>
 <td><a href="EventRecord.php#anchor24" target="page">Event::append(...)</a></td>
 <td>Event Record</td>
 </tr>
@@ -1101,6 +1083,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>int</td>
+<td><a href="EventRecord.php#anchor28" target="page">Event::append(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
 <td>Particle&</td>
 <td><a href="EventRecord.php#anchor4" target="page">Event::at(...)</a></td>
 <td>Event Record</td>
@@ -1114,19 +1102,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#anchor32" target="page">Event::bst(...)</a></td>
+<td><a href="EventRecord.php#anchor39" target="page">Event::bst(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#anchor33" target="page">Event::bst(...)</a></td>
+<td><a href="EventRecord.php#anchor40" target="page">Event::bst(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#anchor34" target="page">Event::bst(...)</a></td>
+<td><a href="EventRecord.php#anchor41" target="page">Event::bst(...)</a></td>
 <td>Event Record</td>
 </tr>
 
@@ -1138,13 +1126,37 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#anchor29" target="page">Event::copy(...)</a></td>
+<td><a href="EventRecord.php#anchor30" target="page">Event::copy(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="EventRecord.php#anchor34" target="page">Event::detaAbs(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="EventRecord.php#anchor35" target="page">Event::dphiAbs(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="EventRecord.php#anchor33" target="page">Event::dyAbs(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td> </td>
 <td><a href="EventRecord.php#anchor15" target="page">Event::Event(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="EventRecord.php#anchor20" target="page">Event::free()</a></td>
 <td>Event Record</td>
 </tr>
 
@@ -1185,6 +1197,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>int</td>
+<td><a href="EventRecord.php#anchor32" target="page">Event::nFinal(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
 <td>Event&</td>
 <td><a href="EventRecord.php#anchor17" target="page">Event::operator+=(...)</a></td>
 <td>Event Record</td>
@@ -1210,37 +1228,49 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#anchor21" target="page">Event::popBack(...)</a></td>
+<td><a href="EventRecord.php#anchor22" target="page">Event::popBack(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#anchor22" target="page">Event::remove(...)</a></td>
+<td><a href="EventRecord.php#anchor23" target="page">Event::remove(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#anchor20" target="page">Event::reset()</a></td>
+<td><a href="EventRecord.php#anchor21" target="page">Event::reset()</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#anchor30" target="page">Event::restorePtrs()</a></td>
+<td><a href="EventRecord.php#anchor31" target="page">Event::restorePtrs()</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="EventRecord.php#anchor37" target="page">Event::REtaPhi(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#anchor31" target="page">Event::rot(...)</a></td>
+<td><a href="EventRecord.php#anchor38" target="page">Event::rot(...)</a></td>
 <td>Event Record</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="EventRecord.php#anchor35" target="page">Event::rotbst(...)</a></td>
+<td><a href="EventRecord.php#anchor42" target="page">Event::rotbst(...)</a></td>
+<td>Event Record</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="EventRecord.php#anchor36" target="page">Event::RRapPhi(...)</a></td>
 <td>Event Record</td>
 </tr>
 
@@ -1270,7 +1300,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="EventRecord.php#anchor28" target="page">Event::setEvtPtr(...)</a></td>
+<td><a href="EventRecord.php#anchor29" target="page">Event::setEvtPtr(...)</a></td>
 <td>Event Record</td>
 </tr>
 
@@ -4930,37 +4960,37 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>CoupSM</td>
-<td><a href="ProgramFlow.php#anchor46" target="page">Pythia::coupSM</a></td>
+<td><a href="ProgramFlow.php#anchor49" target="page">Pythia::coupSM</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>Event</td>
-<td><a href="ProgramFlow.php#anchor41" target="page">Pythia::event</a></td>
+<td><a href="ProgramFlow.php#anchor44" target="page">Pythia::event</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#anchor35" target="page">Pythia::flag(...)</a></td>
+<td><a href="ProgramFlow.php#anchor38" target="page">Pythia::flag(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#anchor29" target="page">Pythia::forceHadronLevel(...)</a></td>
+<td><a href="ProgramFlow.php#anchor32" target="page">Pythia::forceHadronLevel(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#anchor31" target="page">Pythia::forceRHadronDecays()</a></td>
+<td><a href="ProgramFlow.php#anchor34" target="page">Pythia::forceRHadronDecays()</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ProgramFlow.php#anchor28" target="page">Pythia::forceTimeShower(...)</a></td>
+<td><a href="ProgramFlow.php#anchor31" target="page">Pythia::forceTimeShower(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -4972,7 +5002,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>Info</td>
-<td><a href="ProgramFlow.php#anchor42" target="page">Pythia::info</a></td>
+<td><a href="ProgramFlow.php#anchor45" target="page">Pythia::info</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -4990,25 +5020,25 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="ProgramFlow.php#anchor32" target="page">Pythia::LHAeventList()</a></td>
+<td><a href="ProgramFlow.php#anchor35" target="page">Pythia::LHAeventList()</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#anchor33" target="page">Pythia::LHAeventSkip(...)</a></td>
+<td><a href="ProgramFlow.php#anchor36" target="page">Pythia::LHAeventSkip(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="ProgramFlow.php#anchor36" target="page">Pythia::mode(...)</a></td>
+<td><a href="ProgramFlow.php#anchor39" target="page">Pythia::mode(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>bool</td>
-<td><a href="ProgramFlow.php#anchor30" target="page">Pythia::moreDecays()</a></td>
+<td><a href="ProgramFlow.php#anchor33" target="page">Pythia::moreDecays()</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -5019,26 +5049,62 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>bool</td>
+<td><a href="ProgramFlow.php#anchor28" target="page">Pythia::next(...)</a></td>
+<td>Program Flow</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="ProgramFlow.php#anchor29" target="page">Pythia::next(...)</a></td>
+<td>Program Flow</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="ProgramFlow.php#anchor30" target="page">Pythia::next(...)</a></td>
+<td>Program Flow</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="BeamParameters.php#anchor2" target="page">Pythia::next(...)</a></td>
+<td>Beam Parameters</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="BeamParameters.php#anchor3" target="page">Pythia::next(...)</a></td>
+<td>Beam Parameters</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="BeamParameters.php#anchor4" target="page">Pythia::next(...)</a></td>
+<td>Beam Parameters</td>
+</tr>
+
+<tr>
 <td>double</td>
-<td><a href="ProgramFlow.php#anchor37" target="page">Pythia::parm(...)</a></td>
+<td><a href="ProgramFlow.php#anchor40" target="page">Pythia::parm(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>ParticleData</td>
-<td><a href="ProgramFlow.php#anchor44" target="page">Pythia::particleData</a></td>
+<td><a href="ProgramFlow.php#anchor47" target="page">Pythia::particleData</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>PartonSystems</td>
-<td><a href="ProgramFlow.php#anchor48" target="page">Pythia::partonSystems</a></td>
+<td><a href="ProgramFlow.php#anchor51" target="page">Pythia::partonSystems</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>Event</td>
-<td><a href="ProgramFlow.php#anchor40" target="page">Pythia::process</a></td>
+<td><a href="ProgramFlow.php#anchor43" target="page">Pythia::process</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -5092,7 +5158,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>Rndm</td>
-<td><a href="ProgramFlow.php#anchor45" target="page">Pythia::rndm</a></td>
+<td><a href="ProgramFlow.php#anchor48" target="page">Pythia::rndm</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -5176,7 +5242,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>Settings</td>
-<td><a href="ProgramFlow.php#anchor43" target="page">Pythia::settings</a></td>
+<td><a href="ProgramFlow.php#anchor46" target="page">Pythia::settings</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -5188,19 +5254,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>SusyLesHouches</td>
-<td><a href="ProgramFlow.php#anchor47" target="page">Pythia::slha</a></td>
+<td><a href="ProgramFlow.php#anchor50" target="page">Pythia::slha</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="ProgramFlow.php#anchor34" target="page">Pythia::stat()</a></td>
+<td><a href="ProgramFlow.php#anchor37" target="page">Pythia::stat()</a></td>
 <td>Program Flow</td>
 </tr>
 
 <tr>
 <td>string</td>
-<td><a href="ProgramFlow.php#anchor38" target="page">Pythia::word(...)</a></td>
+<td><a href="ProgramFlow.php#anchor41" target="page">Pythia::word(...)</a></td>
 <td>Program Flow</td>
 </tr>
 
@@ -5361,6 +5427,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>RotBstMatrix</td>
+<td><a href="FourVectors.php#anchor88" target="page">RotBstMatrix::inverse()</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
 <td>void</td>
 <td><a href="FourVectors.php#anchor87" target="page">RotBstMatrix::invert()</a></td>
 <td>Four-Vectors</td>
@@ -5369,6 +5441,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>RotBstMatrix&</td>
 <td><a href="FourVectors.php#anchor85" target="page">RotBstMatrix::operator*(...)</a></td>
+<td>Four-Vectors</td>
+</tr>
+
+<tr>
+<td>Vec4</td>
+<td><a href="FourVectors.php#anchor86" target="page">RotBstMatrix::operator*(...)</a></td>
 <td>Four-Vectors</td>
 </tr>
 
@@ -5711,6 +5789,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td>vector&lt;int&gt;</td>
 <td><a href="SettingsScheme.php#anchor46" target="page">Settings::mvecDefault(...)</a></td>
+<td>Settings Scheme</td>
+</tr>
+
+<tr>
+<td>bool</td>
+<td><a href="SettingsScheme.php#anchor80" target="page">Settings::onlySoftQCD()</a></td>
 <td>Settings Scheme</td>
 </tr>
 
@@ -7162,4 +7246,4 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 </table>
 
-<!-- Copyright (C) 2018 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2019 Torbjorn Sjostrand -->

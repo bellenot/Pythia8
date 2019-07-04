@@ -1,5 +1,5 @@
 // MultipartonInteractions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -103,7 +103,7 @@ public:
 
   // Constructor.
   MultipartonInteractions() : allowRescatter(), allowDoubleRes(), canVetoMPI(),
-    doPartonVertex(), pTmaxMatch(), alphaSorder(), alphaEMorder(),
+    doPartonVertex(), doVarEcm(), pTmaxMatch(), alphaSorder(), alphaEMorder(),
     alphaSnfmax(), bProfile(), processLevel(), bSelScale(), rescatterMode(),
     nQuarkIn(), nSample(), enhanceScreening(), pT0paramMode(), alphaSvalue(),
     Kfactor(), pT0Ref(), ecmRef(), ecmPow(), pTmin(), coreRadius(),
@@ -126,12 +126,12 @@ public:
     pT2(), pT2shift(), pT2Ren(), pT2Fac(), x1(), x2(), xT(), xT2(), tau(),
     y(), sHat(), tHat(), uHat(), alpS(), alpEM(), xPDF1now(), xPDF2now(),
     dSigmaSum(), x1Sel(), x2Sel(), sHatSel(), tHatSel(), uHatSel(), nStep(),
-    iStepFrom(), iStepTo(), eCMsave(), eStepSize(), eStepSave(), eStepFrom(),
-    eStepTo(), pT0Save(), pT4dSigmaMaxSave(), pT4dProbMaxSave(),
-    sigmaIntSave(), sudExpPTSave(), zeroIntCorrSave(), normOverlapSave(),
-    kNowSave(), bAvgSave(), bDivSave(), probLowBSave(), fracAhighSave(),
-    fracBhighSave(), fracChighSave(), fracABChighSave(), cDivSave(),
-    cMaxSave(), beamOffset(), mGmGmMin(), mGmGmMax(), hasGamma(),
+    iStepFrom(), iStepTo(), eCMsave(), eStepMin(), eStepMax(), eStepSize(),
+    eStepSave(), eStepFrom(), eStepTo(), pT0Save(), pT4dSigmaMaxSave(),
+    pT4dProbMaxSave(), sigmaIntSave(), sudExpPTSave(), zeroIntCorrSave(),
+    normOverlapSave(), kNowSave(), bAvgSave(), bDivSave(), probLowBSave(),
+    fracAhighSave(), fracBhighSave(), fracChighSave(), fracABChighSave(),
+    cDivSave(), cMaxSave(), beamOffset(), mGmGmMin(), mGmGmMax(), hasGamma(),
     isGammaGamma(), isGammaHadron(), isHadronGamma(), infoPtr(), rndmPtr(),
     beamAPtr(), beamBPtr(), couplingsPtr(), partonSystemsPtr(), sigmaTotPtr(),
     userHooksPtr(), partonVertexPtr(), sigma2Sel(), dSigmaDtSel() {}
@@ -214,7 +214,7 @@ private:
                       SIGMAMBLIMIT;
 
   // Initialization data, read from Settings.
-  bool   allowRescatter, allowDoubleRes, canVetoMPI, doPartonVertex;
+  bool   allowRescatter, allowDoubleRes, canVetoMPI, doPartonVertex, doVarEcm;
   int    pTmaxMatch, alphaSorder, alphaEMorder, alphaSnfmax, bProfile,
          processLevel, bSelScale, rescatterMode, nQuarkIn, nSample,
          enhanceScreening, pT0paramMode;
@@ -274,12 +274,12 @@ private:
 
   // Stored values for mass interpolation for diffractive systems.
   int    nStep, iStepFrom, iStepTo;
-  double eCMsave, eStepSize, eStepSave, eStepFrom, eStepTo, pT0Save[5],
-         pT4dSigmaMaxSave[5], pT4dProbMaxSave[5], sigmaIntSave[5],
-         sudExpPTSave[5][101], zeroIntCorrSave[5], normOverlapSave[5],
-         kNowSave[5], bAvgSave[5], bDivSave[5], probLowBSave[5],
-         fracAhighSave[5], fracBhighSave[5], fracChighSave[5],
-         fracABChighSave[5], cDivSave[5], cMaxSave[5];
+  double eCMsave, eStepMin, eStepMax, eStepSize, eStepSave, eStepFrom, eStepTo,
+         pT0Save[20], pT4dSigmaMaxSave[20], pT4dProbMaxSave[20],
+         sigmaIntSave[20], sudExpPTSave[20][101], zeroIntCorrSave[20],
+         normOverlapSave[20], kNowSave[20], bAvgSave[20], bDivSave[20],
+         probLowBSave[20], fracAhighSave[20], fracBhighSave[20],
+         fracChighSave[20], fracABChighSave[20], cDivSave[20], cMaxSave[20];
 
   // Beam offset wrt. normal situation and other photon-related parameters.
   int    beamOffset;

@@ -1,5 +1,5 @@
 // Pythia.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -24,7 +24,7 @@ namespace Pythia8 {
 
 // The current Pythia (sub)version number, to agree with XML version.
 const double Pythia::VERSIONNUMBERHEAD = PYTHIA_VERSION;
-const double Pythia::VERSIONNUMBERCODE = 8.240;
+const double Pythia::VERSIONNUMBERCODE = 8.242;
 
 //--------------------------------------------------------------------------
 
@@ -65,10 +65,11 @@ Pythia::Pythia(string xmlDir, bool printBanner) :
   hasUserHooksVector(), doLHA(), useNewLHA(), lhaUpPtr(), decayHandlePtr(),
   userHooksPtr(), hasUserHooks(), doVetoProcess(), doVetoPartons(),
   retryPartonLevel(), beamShapePtr(), useNewBeamShape(), doMomentumSpread(),
-  doVertexSpread(), timesDecPtr(), timesPtr(), spacePtr(), useNewTimesDec(),
-  useNewTimes(), useNewSpace(), partonVertexPtr(), useNewPartonVertex(),
-  hasMerging(), hasOwnMerging(), hasMergingHooks(), hasOwnMergingHooks(),
-  doMerging(), hasHeavyIons(), hasOwnHeavyIons(), doHeavyIons() {
+  doVertexSpread(), doVarEcm(), eMinPert(), eWidthPert(), timesDecPtr(),
+  timesPtr(), spacePtr(), useNewTimesDec(), useNewTimes(), useNewSpace(),
+  partonVertexPtr(), useNewPartonVertex(), hasMerging(), hasOwnMerging(),
+  hasMergingHooks(), hasOwnMergingHooks(), doMerging(), hasHeavyIons(),
+  hasOwnHeavyIons(), doHeavyIons() {
 
   // Initialise / reset pointers and global variables.
   initPtrs();
@@ -155,10 +156,11 @@ Pythia::Pythia(Settings& settingsIn, ParticleData& particleDataIn,
   hasUserHooksVector(), doLHA(), useNewLHA(), lhaUpPtr(), decayHandlePtr(),
   userHooksPtr(), hasUserHooks(), doVetoProcess(), doVetoPartons(),
   retryPartonLevel(), beamShapePtr(), useNewBeamShape(), doMomentumSpread(),
-  doVertexSpread(), timesDecPtr(), timesPtr(), spacePtr(), useNewTimesDec(),
-  useNewTimes(), useNewSpace(), partonVertexPtr(), useNewPartonVertex(),
-  hasMerging(), hasOwnMerging(), hasMergingHooks(), hasOwnMergingHooks(),
-  doMerging(),hasHeavyIons(), hasOwnHeavyIons(), doHeavyIons() {
+  doVertexSpread(), doVarEcm(), eMinPert(), eWidthPert(), timesDecPtr(),
+  timesPtr(), spacePtr(), useNewTimesDec(), useNewTimes(), useNewSpace(),
+  partonVertexPtr(), useNewPartonVertex(), hasMerging(), hasOwnMerging(),
+  hasMergingHooks(), hasOwnMergingHooks(), doMerging(),hasHeavyIons(),
+  hasOwnHeavyIons(), doHeavyIons() {
 
   // Initialise / reset pointers and global variables.
   initPtrs();
@@ -224,11 +226,12 @@ Pythia::Pythia( istream& settingsStrings, istream& particleDataStrings,
   useNewPdfVMDA(), useNewPdfVMDB(), hasUserHooksVector(), doLHA(),
   useNewLHA(), lhaUpPtr(), decayHandlePtr(), userHooksPtr(), hasUserHooks(),
   doVetoProcess(), doVetoPartons(), retryPartonLevel(), beamShapePtr(),
-  useNewBeamShape(), doMomentumSpread(), doVertexSpread(), timesDecPtr(),
-  timesPtr(), spacePtr(), useNewTimesDec(), useNewTimes(), useNewSpace(),
-  partonVertexPtr(), useNewPartonVertex(), hasMerging(), hasOwnMerging(),
-  hasMergingHooks(), hasOwnMergingHooks(), doMerging(), hasHeavyIons(),
-  hasOwnHeavyIons(), doHeavyIons() {
+  useNewBeamShape(), doMomentumSpread(), doVertexSpread(), doVarEcm(),
+  eMinPert(), eWidthPert(), timesDecPtr(), timesPtr(), spacePtr(),
+  useNewTimesDec(), useNewTimes(), useNewSpace(), partonVertexPtr(),
+  useNewPartonVertex(), hasMerging(), hasOwnMerging(), hasMergingHooks(),
+  hasOwnMergingHooks(), doMerging(), hasHeavyIons(), hasOwnHeavyIons(),
+  doHeavyIons() {
 
   // Initialise / reset pointers and global variables.
   initPtrs();
@@ -1049,7 +1052,8 @@ bool Pythia::init() {
                   || settings.flag("SoftQCD:doubleDiffractive")
                   || doSoftQCDall || doSoftQCDinel || doCentralDiff;
   doSoftQCD        = doDiffraction ||
-                     settings.flag("SoftQCD:nonDiffractive");
+                     settings.flag("SoftQCD:nonDiffractive") ||
+                     settings.flag("SoftQCD:elastic");
   doHardDiff       = settings.flag("Diffraction:doHard");
   doResDec         = settings.flag("ProcessLevel:resonanceDecays");
   doFSRinRes       = doPartonLevel && settings.flag("PartonLevel:FSR")
@@ -1057,6 +1061,9 @@ bool Pythia::init() {
   decayRHadrons    = settings.flag("RHadrons:allowDecay");
   doMomentumSpread = settings.flag("Beams:allowMomentumSpread");
   doVertexSpread   = settings.flag("Beams:allowVertexSpread");
+  doVarEcm         = settings.flag("Beams:allowVariableEnergy");
+  eMinPert         = settings.parm("Beams:eMinPert");
+  eWidthPert       = settings.parm("Beams:eWidthPert");
   abortIfVeto      = settings.flag("Check:abortIfVeto");
   checkEvent       = settings.flag("Check:event");
   checkHistory     = settings.flag("Check:history");
@@ -1065,6 +1072,19 @@ bool Pythia::init() {
   epTolWarn        = settings.parm("Check:epTolWarn");
   mTolErr          = settings.parm("Check:mTolErr");
   mTolWarn         = settings.parm("Check:mTolWarn");
+
+  // Warn/abort for unallowed process and beam combinations.
+  bool doHardProc  = !settings.onlySoftQCD() || doLHA;
+  if (doSoftQCD && doHardProc) {
+    info.errorMsg("Warning from Pythia::init: "
+      "should not combine softQCD processes with hard ones");
+  }
+  if (doVarEcm) doMomentumSpread = false;
+  if (doVarEcm && doHardProc) {
+    info.errorMsg("Abort from Pythia::init: "
+      "variable energy only works for softQCD processes");
+    return false;
+  }
 
   // Find out if beam is or has a resolved photon beam.
   beamHasGamma     = settings.flag("PDF:lepton2gamma");
@@ -1123,7 +1143,7 @@ bool Pythia::init() {
   // Initialize SLHA interface (including SLHA/BSM couplings).
   bool useSLHAcouplings = false;
   slhaInterface = SLHAinterface();
-  slhaInterface.setPtr( &info );
+  slhaInterface.setPtr( &info);
   slhaInterface.init( settings, &rndm, couplingsPtr, &particleData,
     useSLHAcouplings, particleDataBuffer );
   if (useSLHAcouplings) couplingsPtr = slhaInterface.couplingsPtr;
@@ -1869,7 +1889,7 @@ bool Pythia::initPDFs() {
     }
   }
 
-  // Optionally set up Pomeron PDF's for diffractive physics.
+  // Optionally set up VMD PDF's for photon physics.
   if ( doSoftQCD && (doVMDsideA || doVMDsideB)) {
     if (pdfVMDAPtr == 0) {
       pdfVMDAPtr    = getPDFPtr(111);
@@ -1978,7 +1998,7 @@ bool Pythia::next() {
   if (doMomentumSpread || doVertexSpread) beamShapePtr->pick();
 
   // Recalculate kinematics when beam momentum spread.
-  if (doMomentumSpread) nextKinematics();
+  if (doMomentumSpread || doVarEcm) nextKinematics();
 
   // Outer loop over hard processes; only relevant for user-set vetoes.
   for ( ; ; ) {
@@ -2042,6 +2062,8 @@ bool Pythia::next() {
     if (!doPartonLevel) {
       boostAndVertex( true, true);
       processLevel.accumulate();
+      event.scale( process.scale() );
+      event.scaleSecond( process.scaleSecond() );
       info.addCounter(4);
       if (doLHA && nPrevious < nShowLHA) lhaUpPtr->listEvent();
       if (nPrevious < nShowInfo) info.list();
@@ -2129,6 +2151,8 @@ bool Pythia::next() {
       if (!doHadronLevel) {
         processLevel.accumulate();
         partonLevel.accumulate();
+        event.scale( process.scale() );
+        event.scaleSecond( process.scaleSecond() );
         // Optionally check final event for problems.
         if (checkEvent && !check()) {
           info.errorMsg("Abort from Pythia::next: "
@@ -2191,6 +2215,7 @@ bool Pythia::next() {
     processLevel.accumulate();
     partonLevel.accumulate();
     event.scale( process.scale() );
+    event.scaleSecond( process.scaleSecond() );
 
     // End of outer loop over hard processes. Done with normal option.
     info.addCounter(13);
@@ -2206,6 +2231,106 @@ bool Pythia::next() {
   // Done.
   info.addCounter(4);
   return true;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Variant of the main event-generation routine, for variable CM energies.
+
+bool Pythia::next(double eCMin) {
+
+  // Check that constructor worked.
+  if (!isConstructed) return false;
+
+  // Check that generation has been initialized for variable energy.
+  if (!doVarEcm) {
+    info.errorMsg("Abort from Pythia::next: "
+      "generation not initialized for variable energies");
+    return false;
+  }
+
+  // Check that the frameType matches the input provided.
+  if (frameType != 1) {
+    info.errorMsg("Abort from Pythia::next: "
+      "input parameters do not match frame type");
+    return false;
+  }
+
+  // Save input value.
+  eCM = eCMin;
+
+  // Call regular next method for event generation.
+  return next();
+
+}
+
+//--------------------------------------------------------------------------
+
+// Variant of the main event-generation routine, for variable beam energies.
+
+bool Pythia::next(double eAin, double eBin) {
+
+  // Check that constructor worked.
+  if (!isConstructed) return false;
+
+  // Check that generation has been initialized for variable energy.
+  if (!doVarEcm) {
+    info.errorMsg("Abort from Pythia::next: "
+      "generation not initialized for variable energies");
+    return false;
+  }
+
+  // Check that the frameType matches the input provided.
+  if (frameType != 2) {
+    info.errorMsg("Abort from Pythia::next: "
+      "input parameters do not match frame type");
+    return false;
+  }
+
+  // Save input values.
+  eA = eAin;
+  eB = eBin;
+
+  // Call regular next method for event generation.
+  return next();
+
+}
+
+//--------------------------------------------------------------------------
+
+// Variant of the main event-generation routine, for variable beam momenta.
+
+bool Pythia::next(double pxAin, double pyAin, double pzAin,
+                  double pxBin, double pyBin, double pzBin) {
+
+  // Check that constructor worked.
+  if (!isConstructed) return false;
+
+  // Check that generation has been initialized for variable energy.
+  if (!doVarEcm) {
+    info.errorMsg("Abort from Pythia::next: "
+      "generation not initialized for variable energies");
+    return false;
+  }
+
+  // Check that the frameType matches the input provided.
+  if (frameType != 3) {
+    info.errorMsg("Abort from Pythia::next: "
+      "input parameters do not match frame type");
+    return false;
+  }
+
+  // Save input value.
+  pxA = pxAin;
+  pyA = pyAin;
+  pzA = pzAin;
+  pxB = pxBin;
+  pyB = pyBin;
+  pzB = pzBin;
+
+  // Call regular next method for event generation.
+  return next();
 
 }
 
@@ -2334,14 +2459,36 @@ bool Pythia::forceHadronLevel(bool findJunctions) {
 
 void Pythia::nextKinematics() {
 
-  // Read out momentum shift to give current beam momenta.
-  pAnow = pAinit + beamShapePtr->deltaPA();
-  pAnow.e( sqrt(pAnow.pAbs2() + mA * mA) );
-  pBnow = pBinit + beamShapePtr->deltaPB();
-  pBnow.e( sqrt(pBnow.pAbs2() + mB * mB) );
+  // Momentum spread: read out momentum shift to give current beam momenta.
+  if (doMomentumSpread) {
+    pAnow = pAinit + beamShapePtr->deltaPA();
+    pAnow.e( sqrt(pAnow.pAbs2() + mA*mA) );
+    pBnow = pBinit + beamShapePtr->deltaPB();
+    pBnow.e( sqrt(pBnow.pAbs2() + mB*mB) );
+    eCM   = (pAnow + pBnow).mCalc();
+
+  // For variable energy in rest frame only need new eCM value, already set.
+  } else if (frameType == 1) {
+
+  // Variable energy but collinear beams: give current beam momenta.
+  } else if (frameType == 2) {
+    pAnow = Vec4( 0., 0.,  sqrtpos( eA*eA - mA*mA), eA);
+    pBnow = Vec4( 0., 0., -sqrtpos( eB*eB - mB*mB), eB);
+    eCM   = (pAnow + pBnow).mCalc();
+
+  // Variable three-momenta stored and energy calculated.
+  } else if (frameType == 3) {
+    pAnow = Vec4( pxA, pyA, pzA, sqrt(pxA*pxA + pyA*pyA + pzA*pzA + mA*mA) );
+    pBnow = Vec4( pxB, pyB, pzB, sqrt(pxB*pxB + pyB*pyB + pzB*pzB + mB*mB) );
+    eCM   = (pAnow + pBnow).mCalc();
+
+  // Other possibilites not supported.
+  } else {
+    info.errorMsg("Error from Pythia::nextKinematics: unsupported frameType");
+    return;
+  }
 
   // Construct CM frame kinematics.
-  eCM   = (pAnow + pBnow).mCalc();
   pzAcm = 0.5 * sqrtpos( (eCM + mA + mB) * (eCM - mA - mB)
         * (eCM - mA + mB) * (eCM + mA - mB) ) / eCM;
   pzBcm = -pzAcm;
@@ -2356,10 +2503,12 @@ void Pythia::nextKinematics() {
   beamB.newPzE( pzBcm, eB);
 
   // Set boost/rotation matrices from/to CM frame.
-  MfromCM.reset();
-  MfromCM.fromCMframe( pAnow, pBnow);
-  MtoCM = MfromCM;
-  MtoCM.invert();
+  if (frameType != 1) {
+    MfromCM.reset();
+    MfromCM.fromCMframe( pAnow, pBnow);
+    MtoCM = MfromCM;
+    MtoCM.invert();
+  }
 
 }
 
@@ -2599,7 +2748,7 @@ void Pythia::banner() {
        << " when interpreting results.           |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
-       << " |  |   Copyright (C) 2018 Torbjorn Sjostrand"
+       << " |  |   Copyright (C) 2019 Torbjorn Sjostrand"
        << "                                      |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
@@ -2715,7 +2864,7 @@ bool Pythia::check() {
       if (beamA.isLepton() && beamB.isHadron())
         { iA = beamA[0].iPos(); iB = 2; }
       if (beamB.isLepton() && beamA.isHadron())
-        { iB = beamA[0].iPos(); iA = 1; }
+        { iB = beamB[0].iPos(); iA = 1; }
       int iPos = 0;
       while ( beamA.isHadron() && iPos < beamB.size()
            && beamA.id() == beamB[iPos].id() )
@@ -3048,7 +3197,7 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam, bool resolved) {
       tempPDFPtr = new CTEQ6pdf(idIn, pSet - 6, 1., xmlPath, &info);
     else if (pSet <= 16)
       tempPDFPtr = new NNPDF(idIn, pSet - 12, xmlPath, &info);
-    else if (pSet <= 21)
+    else if (pSet <= 22)
       tempPDFPtr = new LHAGrid1(idIn, pWord, xmlPath, &info);
     else tempPDFPtr = 0;
   }
@@ -3062,8 +3211,10 @@ PDF* Pythia::getPDFPtr(int idIn, int sequence, string beam, bool resolved) {
     piStream >> piSet;
 
     // If VMD process then scale PDF accordingly:
-    // f_a^VMD = alphaEM * (1/f_rho^2 + 1/f_omega^2 + 1/f_phi^2) * f_a^pi0.
-    double rescale = (doVMDsideA || doVMDsideB) ? 0.00402068 : 1.;
+    // f_a^VMD = alphaEM * (1/f_rho^2 + 1/f_omega^2 + 1/f_phi^2 + 1/f_J/psi)
+    //         * f_a^pi0.
+    // COR: New value here includes J/psi
+    double rescale = (doVMDsideA || doVMDsideB) ? 0.0046549 : 1.;
 
     // Use internal LHAgrid1 implementation for LHAPDF6 files.
     if (piSet == 0 && piWord.length() > 9

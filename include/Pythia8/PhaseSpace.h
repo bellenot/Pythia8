@@ -1,5 +1,5 @@
 // PhaseSpace.h is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -129,10 +129,11 @@ protected:
     increaseMaximum(), hasQ2Min(), gmZmodeGlobal(), mHatGlobalMin(),
     mHatGlobalMax(), pTHatGlobalMin(), pTHatGlobalMax(), Q2GlobalMin(),
     pTHatMinDiverge(), minWidthBreitWigners(), minWidthNarrowBW(), idA(),
-    idB(), idAin(), idBin(), mA(), mB(), eCM(), s(), sigmaMxGm(),
+    idB(), idAgm(), idBgm(), mA(), mB(), eCM(), s(), sigmaMxGm(),
     hasLeptonBeamA(), hasLeptonBeamB(), hasOneLeptonBeam(),
     hasTwoLeptonBeams(), hasPointGammaA(), hasPointGammaB(),
-    hasOnePointParticle(), hasTwoPointParticles(), hasGamma(), newSigmaMx(),
+    hasOnePointParticle(), hasTwoPointParticles(), hasGamma(),
+    hasVMD(), newSigmaMx(),
     canModifySigma(), canBiasSelection(), canBias2Sel(), gmZmode(),
     bias2SelPow(), bias2SelRef(), wtBW(), sigmaNw(),
     sigmaMx(), sigmaPos(), sigmaNeg(), biasWt(), mHatMin(), mHatMax(),
@@ -203,11 +204,11 @@ protected:
          Q2GlobalMin, pTHatMinDiverge, minWidthBreitWigners, minWidthNarrowBW;
 
   // Information on incoming beams.
-  int    idA, idB, idAin, idBin;
+  int    idA, idB, idAgm, idBgm;
   double mA, mB, eCM, s, sigmaMxGm;
   bool   hasLeptonBeamA, hasLeptonBeamB, hasOneLeptonBeam, hasTwoLeptonBeams,
          hasPointGammaA, hasPointGammaB, hasOnePointParticle,
-         hasTwoPointParticles, hasGamma;
+         hasTwoPointParticles, hasGamma, hasVMD;
 
   // Cross section information.
   bool   newSigmaMx, canModifySigma, canBiasSelection, canBias2Sel;
@@ -400,7 +401,8 @@ public:
 
   // Constructor.
   PhaseSpace2to2elastic() : isOneExp(), useCoulomb(), s1(), s2(), alphaEM0(),
-    lambda12S(), tLow(), tUpp(), bSlope1(), bSlope2(), sigRef1(), sigRef2(),
+    lambda12S(), lambda12(), lambda34(), tempA(), tempB(), tempC(),
+    tLow(), tUpp(), bSlope1(), bSlope2(), sigRef1(), sigRef2(),
     sigRef(), sigNorm1(), sigNorm2(), sigNorm3(), sigNormSum(), rel2() {}
 
   // Construct the trial or final event kinematics.
@@ -419,9 +421,9 @@ private:
 
   // Kinematics properties specific to 2 -> 2 elastic.
   bool   isOneExp, useCoulomb;
-  double s1, s2, alphaEM0, lambda12S, tLow, tUpp, bSlope1, bSlope2,
-         sigRef1, sigRef2, sigRef, sigNorm1, sigNorm2, sigNorm3,
-         sigNormSum, rel2;
+  double s1, s2, alphaEM0, lambda12S, lambda12, lambda34, tempA, tempB, tempC,
+         tLow, tUpp, bSlope1, bSlope2, sigRef1, sigRef2, sigRef,
+         sigNorm1, sigNorm2, sigNorm3, sigNormSum, rel2;
 
 };
 

@@ -29,20 +29,21 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
  
 <h2>Update History</h2> 
 <ol id="toc">
-  <li><a href="#section0">8.240: 20 December 2018</a></li>
-  <li><a href="#section1">8.235: 27 March 2018</a></li>
-  <li><a href="#section2">8.230: 6 October 2017</a></li>
-  <li><a href="#section3">8.226: 26 April 2017</a></li>
-  <li><a href="#section4">8.223: 5 January 2017</a></li>
-  <li><a href="#section5">8.219: 10 May 2016</a></li>
-  <li><a href="#section6">8.215: 4 January 2016</a></li>
-  <li><a href="#section7">8.212: 23 September 2015</a></li>
-  <li><a href="#section8">8.210: 29 June 2015</a></li>
-  <li><a href="#section9">8.209: 25 May 2015</a></li>
-  <li><a href="#section10">8.205: 23 January 2015</a></li>
-  <li><a href="#section11">8.204: 22 January 2015</a></li>
-  <li><a href="#section12">8.201: 14 October 2014</a></li>
-  <li><a href="#section13">8.200: 11 October 2014</a></li>
+  <li><a href="#section0">8.242: 1 July 2019</a></li>
+  <li><a href="#section1">8.240: 20 December 2018</a></li>
+  <li><a href="#section2">8.235: 27 March 2018</a></li>
+  <li><a href="#section3">8.230: 6 October 2017</a></li>
+  <li><a href="#section4">8.226: 26 April 2017</a></li>
+  <li><a href="#section5">8.223: 5 January 2017</a></li>
+  <li><a href="#section6">8.219: 10 May 2016</a></li>
+  <li><a href="#section7">8.215: 4 January 2016</a></li>
+  <li><a href="#section8">8.212: 23 September 2015</a></li>
+  <li><a href="#section9">8.210: 29 June 2015</a></li>
+  <li><a href="#section10">8.209: 25 May 2015</a></li>
+  <li><a href="#section11">8.205: 23 January 2015</a></li>
+  <li><a href="#section12">8.204: 22 January 2015</a></li>
+  <li><a href="#section13">8.201: 14 October 2014</a></li>
+  <li><a href="#section14">8.200: 11 October 2014</a></li>
 </ol>
 
  
@@ -52,6 +53,146 @@ from 8.1 to 8.2 gave an occasion to break backwards compatibility,
 but this should only affect a small part of the user code. 
  
 <a name="section0"></a> 
+<h3>8.242: 1 July 2019</h3> 
+<ul> 
+ 
+<li>A bug fix in 8.240, for an issue with colour vs. anticolour assignment 
+of dipole ends in baryon-number-violating decays, unfortunately introduced 
+a bug of its own. Specifically, in cases where the recoiler of a final-state 
+radiation is in the initial state, the recoiler colour type should 
+be negated relative to a final-state recoiler. In addition, the new 
+code has been extended to apply for all colour (anti)triplets, including 
+(anti)squarks. The bug has meant that high-<i>pT</i> jets 
+in some flavour combinations have acquired a larger multiplicity than they 
+should, at very high <i>pT</i> by up to 10%. Physics at lower <i>pT</i> 
+scales appear unaffected, as is e.g. top, <i>W</i>, <i>Z</i> and 
+<i>H</i> decays. Thanks to Patrick Komiske and Jesse Thaler.</li> 
+ 
+<li>New particle decay codes 93 and 94 for singlet particle decaying to a 
+<i>q qbar</i> pair plus a new singlet. Thanks to Philippe Mermod.</li> 
+ 
+<li>Fix cases where <code>scale()</code> and <code>scaleSecond()</code> 
+return values were not stored in the event record, by allowing new 
+<code>#scaleShowers</code> tag in Les Houches events. Thanks to 
+Oleh Fedkevych.</li> 
+ 
+<li>Bug fixes to the LHEF3 file reader. An issue previously led to 
+some tags being skipped, if the line before the tag was commented by 
+a hash/pound sign (#).</li> 
+ 
+<li>Protect against potential square root of negative number in 
+Dark Matter resonance handling. Thanks to Peter Richardson.</li> 
+ 
+<li>The implementation of the indexing operator <code>event[i]</code> 
+has been changed from straight vector indexing to using the 
+<code>at(i)</code> method, giving some safety against out-of-bounds 
+indexing with little to no cost in execution time. Thanks to 
+Helen Brooks.</li> 
+ 
+<li>The new method <code>Event::free()</code> empties the event record, 
+like <code>Event::clear()</code>,but also frees up the memory of the 
+<code>Particle</code> vector.</li> 
+ 
+<li>Fix that PDF set 22 was unreachable, since a range check had not 
+been updated.</li> 
+ 
+<li>Static code analysis by Dmitri Konstantinov and colleagues revealed 
+four errors, now fixed. 
+<ul> 
+<li>The <i>H^+</i> contribution was missed in BSM Higgs width 
+calculation for the <i>gamma + Z^0</i> channel.</li> 
+<li>Typo in the expression for the slepton/sneutrino partial width to 
+a chargino plus a neutrino/lepton.</li> 
+<li>Typo in the merging machinery for SUSY pair production.</li> 
+<li>Possibility of incorrect kinematics when photoproduction involves 
+off-shell photons.</li> 
+</ul></li> 
+ 
+<li>Fixed faulty behaviour in PartonVertex asssignment, where parton 
+shower would boost vertices to unphysical spatial points. To this end 
+the event and particle <code>rotbst</code> methods have been endowed 
+with a second optional argument not to boost production vertices.</li> 
+ 
+<li>Bug fixes to the "guess" option for defining hard process name for 
+multijet merging. An issue previously led to the hard process name being 
+only corrected once for the first event, and then no longer adjusted 
+automatically.The <code>main89.cc</code> program has been modified 
+as a consequence.</li> 
+ 
+<li>Bug fixes for the hard process name handling for weak-boson-fusion-like 
+processes that led to an incorrect counting of additional emissions. 
+In multijet merging, this led to incorrect no-emission probabilities 
+being applied to such processes.</li> 
+ 
+<li>A winner-takes-it-all strategy for choosing parton shower histories 
+has been added in multijet merging. This is an unfortunate necessity for 
+extremely high multiplicity merging, to avoid excessive memory usage. 
+Other memory usage tweaks have been included in the <code>History</code> 
+class.</li> 
+ 
+<li>Corrections and extensions to the VMD framework for photon beams, 
+including improved kinematics and minor corrections for the production 
+of VMD states. It is now possible to generate the <i>J/Psi</i> as 
+one of the VMD states. </li> 
+ 
+<li>Process <i>g gamma &rarr; t tbar</i> has been enabled, see 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='TopProcesses.php?filepath=".$filepath."' target='page'>";?>Top Processes</a> for details.</li> 
+ 
+<li>Fixed cross section for heavy-quark pair production in gamma+gluon 
+and gamma+gamma fusion processes. Thanks to Javier Alberto Murillo 
+Quijada.</li> 
+ 
+<li>Bug fix for hard diffraction and resolved photons, wherein kinematics 
+is not recalculated when previous steps already failed.</li> 
+ 
+<li>Bug fix in the check that energy-momentum is preserved, without which 
+DIS events e.g. generated with <code>main36.cc</code> are falsely 
+rejected.</li> 
+ 
+<li>New setting <code>Beams:allowVariableEnergy</code> allow incoming 
+beam energies or momenta to be set event-by event, by further arguments 
+to the <code>pythia.next</code> call. This is achieved by initializing 
+the MPI machinery at a grid of CM energies, and then interpolating as 
+needed. Thus only processes belonging to the <code>SoftQCD</code> family 
+for inclusive hadron-hadron collisions can be simulated. This is unlike 
+the <code>Beams:allowMomentumSpread</code>, which can be used for any 
+process, but only in a narrow energy range around the nominal one. 
+The selection of grid energies for diffraction and photon beams has been 
+unified with the new one above. 
+See further in the "Variable collision energy" section of the 
+<?php $filepath = $_GET["filepath"];
+echo "<a href='BeamParameters.php?filepath=".$filepath."' target='page'>";?>Beam Parameters</a> description.</li> 
+ 
+<li>Some simple methods have been added to the <code>Event</code> 
+class, to return the final-state multiplicity, or the rapidity/angular 
+separation between two particles in the event record.</li> 
+ 
+<li>A simple method has been added to the <code>Settings</code> class, 
+to check whether only <code>SoftQCD</code> processes are switched on. 
+</li> 
+ 
+<li>A new check at initialization to warn if <code>SoftQCD</code> 
+processes are mixed with other kinds of processes, since this can 
+lead to doublecounting and/or low efficiency.</li> 
+
+<li>New <code>main77.cc</code> example how double parton scattering events 
+can be reweighted according to a different model than default in Pythia.
+Contributed by Boris Blok and Paolo Gunnellini.</li> 
+ 
+<li>The examples <code>main10.cc</code> and <code>main62.cc</code> 
+have been rewritten to avoid having histograms in global scope.</li> 
+ 
+<li>Fix minor typo in the <i>I_0</i> and <i>I_1</i> Bessel 
+functions.</li> 
+ 
+<li>Various other minor typo corrections.</li> 
+ 
+<li>Year updated to 2019.</li> 
+ 
+</ul> 
+ 
+<a name="section1"></a> 
 <h3>8.240: 20 December 2018</h3> 
 <ul> 
  
@@ -325,7 +466,7 @@ from 0.4 to 0.1 GeV by ATLAS request.</li>
  
 </ul> 
  
-<a name="section1"></a> 
+<a name="section2"></a> 
 <h3>8.235: 27 March 2018</h3> 
 <ul> 
  
@@ -582,7 +723,7 @@ to html, by omitting the paragraph break before a tag that contains
  
 </ul> 
  
-<a name="section2"></a> 
+<a name="section3"></a> 
 <h3>8.230: 6 October 2017</h3> 
 <ul> 
  
@@ -792,7 +933,7 @@ and is directed to these from the text references.</li>
  
 </ul> 
  
-<a name="section3"></a> 
+<a name="section4"></a> 
 <h3>8.226: 26 April 2017</h3> 
 <ul> 
  
@@ -998,7 +1139,7 @@ and in <i>tHat</i> and <i>uHat</i> construction.</li>
  
 </ul> 
  
-<a name="section4"></a> 
+<a name="section5"></a> 
 <h3>8.223: 5 January 2017</h3> 
 <ul> 
  
@@ -1175,7 +1316,7 @@ companion choice also if <code>iComp = 0</code>.</li>
  
 </ul> 
  
-<a name="section5"></a> 
+<a name="section6"></a> 
 <h3>8.219: 10 May 2016</h3> 
 <ul> 
  
@@ -1354,7 +1495,7 @@ php version of the manual recognize them.</li>
  
 </ul> 
  
-<a name="section6"></a> 
+<a name="section7"></a> 
 <h3>8.215: 4 January 2016</h3> 
 <ul> 
  
@@ -1530,7 +1671,7 @@ Thanks to Radek Zlebcik.</li>
  
 </ul> 
  
-<a name="section7"></a> 
+<a name="section8"></a> 
 <h3>8.212: 23 September 2015</h3> 
 <ul> 
  
@@ -1678,7 +1819,7 @@ aMC@NLO merging.</li>
  
 </ul> 
  
-<a name="section8"></a> 
+<a name="section9"></a> 
 <h3>8.210: 29 June 2015</h3> 
 <ul> 
  
@@ -1709,7 +1850,7 @@ containing an equal sign are parsed correctly.</li>
  
 </ul> 
  
-<a name="section9"></a> 
+<a name="section10"></a> 
 <h3>8.209: 25 May 2015</h3> 
 <ul> 
  
@@ -1899,7 +2040,7 @@ debugged and tested, so not yet ready for public usage.</li>
  
 </ul> 
  
-<a name="section10"></a> 
+<a name="section11"></a> 
 <h3>8.205: 23 January 2015</h3> 
 <ul> 
  
@@ -1920,7 +2061,7 @@ conventional). Thanks to Josh Bendavid for pointing this out.</li>
  
 </ul> 
  
-<a name="section11"></a> 
+<a name="section12"></a> 
 <h3>8.204: 22 January 2015</h3> 
 <ul> 
  
@@ -2093,7 +2234,7 @@ lines where meaningful, and some further minor changes.</li>
  
 </ul> 
  
-<a name="section12"></a> 
+<a name="section13"></a> 
 <h3>8.201: 14 October 2014</h3> 
 <ul> 
  
@@ -2108,7 +2249,7 @@ among allowed configure options.</li>
  
 </ul> 
  
-<a name="section13"></a> 
+<a name="section14"></a> 
 <h3>8.200: 11 October 2014</h3> 
 <ul> 
  
@@ -2363,4 +2504,4 @@ to six flavours at the top mass.</li>
 </body>
 </html>
  
-<!-- Copyright (C) 2018 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

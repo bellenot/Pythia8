@@ -1,5 +1,5 @@
 // LHEF3.h is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -106,10 +106,17 @@ struct XMLTag {
 
       // Find the first tag.
       pos_t begin = str.find("<", curr);
-
-      // Skip comments.
-      if ( begin != end && str.find("<!--", curr) == begin ) {
-        pos_t endcom = str.find("-->", begin);
+      // Skip tags in lines beginning with #.
+      pos_t lastbreak_before_begin = str.find_last_of("\n",begin);
+      pos_t lastpound_before_begin = str.find_last_of("#",begin);
+      // Logic: Last newline before begin was before last pound sign (or there
+      // was no last newline at all, i.e. this is the special case of the
+      // first line), and hence the pound sign was before the tag was opened
+      // (at begin) with '<'. Thus, skip forward to next new line.
+      if ( (lastbreak_before_begin < lastpound_before_begin
+         || lastbreak_before_begin == end)
+        && begin > lastpound_before_begin) {
+        pos_t endcom = str.find_first_of("\n",begin);
         if ( endcom == end ) {
           if ( leftover ) *leftover += str.substr(curr);
              return tags;
@@ -119,29 +126,13 @@ struct XMLTag {
         continue;
       }
 
-      // Do not extract tags from #-commented lines.
-      string id = str.substr(begin + 1, str.find_first_of(" \t\n/>",
-      begin)-begin-1);
-      while(id.find(" ", 0) != string::npos)
-        id.erase(id.begin()+id.find(" ",0));
-      pos_t lasthash  = str.find_last_of("#", begin);
-      pos_t lastbreak = str.find_last_of("\n", begin);
-      pos_t now       = str.find("<"+id, curr);
-      if ( begin      != end
-        && lasthash   != string::npos
-        && (lastbreak != string::npos  || curr == 0)
-        && (lasthash  >  lastbreak     || curr == 0)
-        && now        != string::npos
-        && lasthash   <  now)     {
-        pos_t endcom = str.find("</"+id+">", begin);
-        pos_t endcom2 = str.find_first_of("\n", begin);
-        if ( endcom == end && endcom2 == end) {
+      // Skip xml-style comments.
+      if ( begin != end && str.find("<!--", curr) == begin ) {
+        pos_t endcom = str.find("-->", begin);
+        if ( endcom == end ) {
           if ( leftover ) *leftover += str.substr(curr);
              return tags;
-        } else if ( endcom == end)
-          endcom = endcom2;
-        else
-          endcom += ("</"+id+">").size();
+        }
         if ( leftover ) *leftover += str.substr(curr, endcom - curr);
         curr = endcom;
         continue;

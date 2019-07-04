@@ -1,5 +1,5 @@
 // HadronLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -209,7 +209,7 @@ bool HadronLevel::next( Event& event) {
           }
           // Else default to Buffon treatment which
           // does not need dipole extraction and overlaps.
-          else {
+          else if (!doBuffon) {
             infoPtr->errorMsg("Error in HadronLevel::next: "
               "ropes: Flavour enabled, but no space time information.");
           }

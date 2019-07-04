@@ -1,5 +1,5 @@
 // ResonanceWidthsDM.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2018 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -390,8 +390,8 @@ void ResonanceChaD::calcPreFac(bool) {
 
   // Common coupling factors.
   double dm = particleDataPtr->m0(59) - particleDataPtr->m0(57);
-  preFac =  4.0 * 6.993e-13 * sqrt(1. - pow2(0.1396/dm)) * pow3(dm);
-  if (dm < 0.1396) preFac = 0.0;
+  preFac = (dm > 0.) ? 4.0 * 6.993e-13 * sqrtpos(1. - pow2(0.1396/dm))
+         * pow3(dm) : 0.;
 
 }
 

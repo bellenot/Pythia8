@@ -40,6 +40,23 @@ in the <a href="HadronLevelStandalone.html" target="page">Hadron-Level Standalon
 description. 
  
 <p/> 
+Another unofficial extension is the support for Double Parton Scattering 
+(DPS), i.e. when two hard scatterings should be defined. This is allowed 
+by letting one follow after the other in the event listing, such 
+that two <i>2 &rarr; 2</i> scatterings are specified by eight lines. 
+It is here required that daughters are located below mothers strictly 
+within each scattering separately, since the logic needed to sort out 
+an arbitrary ordering is deemed overkill for such a peripheral case. 
+An additional line <code>#scaleShowers scale1 scale2</code> can be 
+attached after the event proper, where the starting shower scale can be 
+defined for each scattering separately; if not present both scatterings 
+evolve down from the standard scale value. The <code>LHAup</code> 
+method <code>bool scaleShowersIsSet()</code> tells whether such information 
+has been set for the current event and, if so, 
+<code>double scaleShowers(int i)</code> return the two scale values for 
+arguments 0 and 1. 
+ 
+<p/> 
 The <code>LHAup</code> class is a base class, containing reading and 
 printout functions, plus two pure virtual functions, one to set 
 initialization information and one to set information on each new event. 
@@ -1225,4 +1242,4 @@ for the case that <code>Pythia::process</code> is not in this frame.
 </body>
 </html>
  
-<!-- Copyright (C) 2018 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
