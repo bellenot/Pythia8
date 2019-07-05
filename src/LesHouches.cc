@@ -570,8 +570,9 @@ bool LHAup::setNewEventLHEF(istream& is) {
   x2InSave  = (eBeamBSave > 0.) ? particlesSave[2].ePart / eBeamBSave : 0.;
 
   // Continue parsing till </event>. Look for optional info on the way.
-  getPDFSave = false;
-  getScale   = false;
+  getPDFSave      = false;
+  getScale        = false;
+  getScaleShowers = false;
   do {
     if (!getline(is, line)) return false;
     istringstream getinfo(line);
@@ -589,6 +590,7 @@ bool LHAup::setNewEventLHEF(istream& is) {
     } else if (tag == "#scaleShowers") {
       getinfo >> scaleShowersInSave[0] >> scaleShowersInSave[1];
       if (!getinfo) return false;
+      getScaleShowers = true;
 
     // Extract scale info if present.
     } else if (tag == "#" && !getScale) {
@@ -631,7 +633,8 @@ bool LHAup::setOldEventLHEF() {
   setIdX( id1InSave, id2InSave, x1InSave, x2InSave);
   setPdf( id1pdfInSave, id2pdfInSave, x1pdfInSave, x2pdfInSave,
     scalePDFInSave, pdf1InSave, pdf2InSave, getPDFSave);
-  setScaleShowers( scaleShowersInSave[0], scaleShowersInSave[1]);
+  if (getScaleShowers)
+    setScaleShowers( scaleShowersInSave[0], scaleShowersInSave[1]);
 
   // Done;
   return true;
@@ -988,9 +991,10 @@ bool LHAupLHEF::setNewEventLHEF() {
   // Parse event comments and look for optional info on the way.
   std::string line, tag;
   std::stringstream ss(reader.eventComments);
-  getPDFSave = false;
-  getScale   = false;
-  getScale   = (setScalesFromLHEF && reader.version == 1) ? false : true;
+  getPDFSave      = false;
+  getScale        = false;
+  getScale        = (setScalesFromLHEF && reader.version == 1) ? false : true;
+  getScaleShowers = false;
   while (getline(ss, line)) {
     istringstream getinfo(line);
     getinfo >> tag;
@@ -1005,6 +1009,7 @@ bool LHAupLHEF::setNewEventLHEF() {
     } else if (tag == "#scaleShowers") {
       getinfo >> scaleShowersInSave[0] >> scaleShowersInSave[1];
       if (!getinfo) return false;
+      getScaleShowers = true;
     // Extract scale info if present.
     } else if (tag == "#" && !getScale) {
       double scaleIn = 0;

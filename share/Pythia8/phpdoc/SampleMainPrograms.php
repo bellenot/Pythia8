@@ -367,7 +367,7 @@ in several different scenarios, as specified in <code>main76.cmnd</code>,
 notably with long-lived particle signatures.</li> 
  
 <li><code>main77.cc</code> : example how double parton scattering events 
-can be reweighted according to a different model than default in Pythia.
+can be reweighted according to a different model than default in Pythia. 
 Contributed by Boris Blok and Paolo Gunnellini.</li> 
  
 <li><code>main80.cc</code> : do CKKW-L merging with a merging scale 

@@ -920,8 +920,8 @@ private:
                  + log(1. + m2( event[iGR[ii]], event[iAcolT]) / m2Ref);
           if (lamRec - lamNow < dLam) {iR = ii; dLam = lamRec - lamNow;}
         }
+        if (mode == 5 && dLam > 0.) continue;
       }
-      if (mode == 5 && dLam > 0.) continue;
 
       // Swap top and rest gluon colour and anticolour.
       ++nRec;

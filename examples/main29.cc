@@ -61,7 +61,7 @@ int main() {
     pythia.readString("Top:gg2ttbar = on");
 
     // Colour reconnection setups.
-    UserHooks* myUserHooks;
+    UserHooks* myUserHooks = NULL;
 
     // Tuning parameters for CR scenarios have tune 4C as a starting point.
     pythia.readString("Tune:pp = 5");
@@ -235,7 +235,7 @@ int main() {
          << mTerrH << pTTH << mTpTH;
 
     // End loop over top colour reconnection scenarios.
-    if (mLoop >=3) delete myUserHooks;
+    if (myUserHooks) delete myUserHooks;
   }
 
   // Done.

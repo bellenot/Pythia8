@@ -7,6 +7,26 @@ PYTHIA 8.186 version, which was the last 8.1 release. The step
 from 8.1 to 8.2 gave an occasion to break backwards compatibility, 
 but this should only affect a small part of the user code. 
  
+<h3>8.243: 4 July 2019</h3> 
+<ul> 
+ 
+<li>Bug fix in the Les Houches reader, where the introduction of 
+the optional <code>#scaleShowers</code> tag in 8.242 meant that 
+parton showers were killed if that tag was not present. Should not 
+affect LHE3-compliant files. Thanks to Helen Brooks.</li> 
+ 
+<li>The Python interface in 
+<code>include/Pythia8Plugins/PythonWrapper.h</code> has been updated.</li> 
+ 
+<li>Obsolete method declaration in <code>ProcessContainer.cc</code> 
+removed.</li> 
+ 
+<li><code>main29.cc</code> has been updated with safer handling of a 
+pointer. Address tiny issue of possibly uninitialized variable in 
+<code>ColourReconnectionHooks.h</code>. Thanks to Leif Gellersen.</li> 
+ 
+</ul> 
+ 
 <h3>8.242: 1 July 2019</h3> 
 <ul> 
  
@@ -127,9 +147,9 @@ to check whether only <code>SoftQCD</code> processes are switched on.
 <li>A new check at initialization to warn if <code>SoftQCD</code> 
 processes are mixed with other kinds of processes, since this can 
 lead to doublecounting and/or low efficiency.</li> 
-
+ 
 <li>New <code>main77.cc</code> example how double parton scattering events 
-can be reweighted according to a different model than default in Pythia.
+can be reweighted according to a different model than default in Pythia. 
 Contributed by Boris Blok and Paolo Gunnellini.</li> 
  
 <li>The examples <code>main10.cc</code> and <code>main62.cc</code> 

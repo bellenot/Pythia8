@@ -108,10 +108,6 @@ public:
   // Method propagates the choice of photon process type to beam pointers.
   void setBeamModes(bool setVMD = false, bool isSampled = true);
 
-  // If resolved photons, then choose VMD states. Method propagates
-  // states to beam pointers and info pointer.
-  pair<int, int> chooseVMDstates(int idA, int idB, bool isSampled);
-
   // Process name and code, and the number of final-state particles.
   string name()             const {return sigmaProcessPtr->name();}
   int    code()             const {return sigmaProcessPtr->code();}

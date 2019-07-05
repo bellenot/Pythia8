@@ -196,14 +196,14 @@ protected:
   // Constructor. Sets default to be that events come with unit weight.
   LHAup(int strategyIn = 3) : infoPtr(), nupSave(), idprupSave(), xwgtupSave(),
     scalupSave(), aqedupSave(), aqcdupSave(), xSecSumSave(), xErrSumSave(),
-    getPDFSave(), getScale(), id1InSave(), id2InSave(), id1pdfInSave(),
-    id2pdfInSave(), x1InSave(), x2InSave(), x1pdfInSave(), x2pdfInSave(),
-    scalePDFInSave(), pdf1InSave(), pdf2InSave(), scaleShowersInSave(),
-    fileName("void"), dateNow(), timeNow(), strategySave(strategyIn),
-    idBeamASave(), idBeamBSave(), eBeamASave(), eBeamBSave(),
-    pdfGroupBeamASave(), pdfGroupBeamBSave(), pdfSetBeamASave(),
+    getPDFSave(), getScale(), getScaleShowers(), id1InSave(), id2InSave(),
+    id1pdfInSave(), id2pdfInSave(), x1InSave(), x2InSave(), x1pdfInSave(),
+    x2pdfInSave(), scalePDFInSave(), pdf1InSave(), pdf2InSave(),
+    scaleShowersInSave(), fileName("void"), dateNow(), timeNow(),
+    strategySave(strategyIn), idBeamASave(), idBeamBSave(), eBeamASave(),
+    eBeamBSave(), pdfGroupBeamASave(), pdfGroupBeamBSave(), pdfSetBeamASave(),
     pdfSetBeamBSave(), idProc(), weightProc(), scaleProc(), alphaQEDProc(),
-    alphaQCDProc(), pdfIsSetSave(), scaleShowersIsSetSave(), id1Save(),
+    alphaQCDProc(), pdfIsSetSave(), scaleShowersIsSetSave(false), id1Save(),
     id2Save(), id1pdfSave(), id2pdfSave(), x1Save(), x2Save(), x1pdfSave(),
     x2pdfSave(), scalePDFSave(), pdf1Save(), pdf2Save(), scaleShowersSave() {
     processes.reserve(10); particles.reserve(20);
@@ -296,7 +296,7 @@ protected:
   double xwgtupSave, scalupSave, aqedupSave, aqcdupSave, xSecSumSave,
          xErrSumSave;
   vector<LHAParticle> particlesSave;
-  bool   getPDFSave, getScale;
+  bool   getPDFSave, getScale, getScaleShowers;
   int    id1InSave, id2InSave, id1pdfInSave, id2pdfInSave;
   double x1InSave, x2InSave, x1pdfInSave, x2pdfInSave, scalePDFInSave,
          pdf1InSave, pdf2InSave, scaleShowersInSave[2];
