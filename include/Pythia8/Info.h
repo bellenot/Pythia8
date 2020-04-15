@@ -192,9 +192,11 @@ public:
   double getGroupWeight(int iGW) {
     double tempWeight(1.0);
     if( iGW < 0 || iGW >= externalVariationsSize ) return tempWeight;
+    double normalization = weightSave[0];
     for( vector<int>::const_iterator cit = externalMap[iGW].begin();
-      cit < externalMap[iGW].end(); ++cit ) tempWeight *= weightSave[*cit];
-    return tempWeight;
+      cit < externalMap[iGW].end(); ++cit )
+      tempWeight *= weightSave[*cit] / normalization;
+    return tempWeight * weight(0);
   }
   string getInitialName(int iG) { return initialNameSave[iG]; }
   // Variations that must be known by TimeShower and Spaceshower

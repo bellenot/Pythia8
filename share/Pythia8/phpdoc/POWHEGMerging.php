@@ -176,9 +176,14 @@ Note that the modes have generally been defined with several default values
 below corresponding to the "off" state, and thus do not agree with the 
 recommended values described above. 
  
-<br/><br/><table><tr><td><strong>POWHEG:nFinal  </td><td></td><td> <input type="text" name="1" value="2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>2</strong></code>; <code>minimum = 1</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>POWHEG:nFinal  </td><td></td><td> <input type="text" name="1" value="-1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1</strong></code>; <code>minimum = -1</code>)</td></tr></table>
 Number of outgoing particles of POWHEG Born level process, 
 i.e. not counting additional POWHEG radiation. 
+The negative default value is interpreted as the instruction to ignore 
+final state particle count conditions, as is e.g. necessary when the 
+POWHEG-BOX code includes a variable number of additional emission (on top of 
+the Born process) into the input events. Note that for this negative default 
+value, only <code>POWHEG:pThard = 0</code> is allowed. 
    
  
 <br/><br/><table><tr><td><strong>POWHEG:veto  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)</td></tr></table>
@@ -198,7 +203,7 @@ Selection of the <ei>pThard</ei> scale. For events where there is no
 radiation, <ei>pThard</ei> is always set to be the <code>SCALUP</code> 
 value of the LHA/LHEF standard. 
 <br/>
-<input type="radio" name="4" value="0" checked="checked"><strong>0 </strong>: Set <ei>pThard</ei> equal to <code>SCALUP</code>.  <br/>
+<input type="radio" name="4" value="0" checked="checked"><strong>0 </strong>: Set <ei>pThard</ei> equal to <code>SCALUP</code>. Note  that if <code>POWHEG:nFinal = -1</code>, only this choice for  <ei>pThard</ei> is allowed.  <br/>
 <input type="radio" name="4" value="1"><strong>1 </strong>: The <ei>pT</ei> of the POWHEG emission is tested against  all other incoming and outgoing partons, with the minimal value chosen.  <br/>
 <input type="radio" name="4" value="2"><strong>2 </strong>: The <ei>pT</ei> of all final-state partons is tested  against all other incoming and outgoing partons, with the minimal value  chosen.<br/>
  
@@ -254,7 +259,7 @@ if($_POST["saved"] == 1)
 $filepath = $_POST["filepath"];
 $handle = fopen($filepath, 'a');
 
-if($_POST["1"] != "2")
+if($_POST["1"] != "-1")
 {
 $data = "POWHEG:nFinal = ".$_POST["1"]."\n";
 fwrite($handle,$data);

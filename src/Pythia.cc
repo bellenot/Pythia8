@@ -24,7 +24,7 @@ namespace Pythia8 {
 
 // The current Pythia (sub)version number, to agree with XML version.
 const double Pythia::VERSIONNUMBERHEAD = PYTHIA_VERSION;
-const double Pythia::VERSIONNUMBERCODE = 8.243;
+const double Pythia::VERSIONNUMBERCODE = 8.244;
 
 //--------------------------------------------------------------------------
 
@@ -855,6 +855,9 @@ bool Pythia::init() {
   // Find which frame type to use.
   info.addCounter(1);
   frameType = mode("Beams:frameType");
+
+  // Reset number of weights for re-init
+   info.setNWeights(1);
 
   // Set up values related to CKKW-L merging.
   bool doUserMerging     = settings.flag("Merging:doUserMerging");

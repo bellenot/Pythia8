@@ -7,6 +7,48 @@ PYTHIA 8.186 version, which was the last 8.1 release. The step
 from 8.1 to 8.2 gave an occasion to break backwards compatibility, 
 but this should only affect a small part of the user code. 
  
+<h3>8.244: 20 December 2019</h3> 
+<ul> 
+ 
+<li>The combination of weight variations, within the context of 
+uncertainty bands, has not been well documented and therefore prone 
+to misunderstandings. Now the behaviour of 
+<code>Info::getGroupWeight()</code> has been made more transparent, 
+and the documentation in <aloc href="Variations">Variations</aloc> 
+has been improved. The <code>main121.cc</code> example has been 
+modified accordingly.</li> 
+ 
+<li>Restore the capability to set width and lifetime of a resonance 
+separately (see change in 8.240). Now the lifetime is set from the 
+width only if the <code>allowCalc()</code> method of the resonance 
+class returns true. 
+</li> 
+ 
+<li>Updated handling of Powheg files, such that files with 
+multiple/variable number of real emissions can be handled. The default 
+value of the <code>POWHEG:nFinal</code>parameter has been changed 
+to -1, see the <aloc href="POWHEGMerging">POWHEG Merging</aloc> 
+documentation.</li> 
+ 
+<li>Limit the amount by which transverse smearing of the space-time 
+quark-antiquark string breakup vertices can give large shifts, 
+which may translate into unreasonably long invariant times being 
+assigned to primary hadron production vertices. This is regulated by 
+the new <code>HadronVertex:maxSmear</code> parameter. Even so, 
+large hadron production invariant times may still occur occasionally 
+by imperfections in the reconstruction around multiple gluon corners, 
+so <code>HadronVertex:maxTau</code> gives the possibility to reject 
+the hadrons of such a parton system and try again. Also some other 
+related changes.</li> 
+ 
+<li>Fixes for consistent storage of production vertices in units 
+of mm. Thanks to Christopher Plumberg.</li> 
+ 
+<li>Number of weights in <code>info</code> reset to 1 for each new 
+<code>init</code> call.</li> 
+ 
+</ul> 
+ 
 <h3>8.243: 4 July 2019</h3> 
 <ul> 
  

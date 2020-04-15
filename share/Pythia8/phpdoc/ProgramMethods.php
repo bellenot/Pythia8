@@ -21,6 +21,24 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td> int    nVariationGroups()</td>
+<td><a href="Variations.php#anchor2" target="page"></a></td>
+<td>Variations</td>
+</tr>
+
+<tr>
+<td> string getGroupName(...)</td>
+<td><a href="Variations.php#anchor3" target="page"></a></td>
+<td>Variations</td>
+</tr>
+
+<tr>
+<td> double getGroupWeight(...)</td>
+<td><a href="Variations.php#anchor4" target="page"></a></td>
+<td>Variations</td>
+</tr>
+
+<tr>
 <td> </td>
 <td><a href="AlpgenEventInterface.php#anchor10" target="page">AlpgenHooks(...)</a></td>
 <td>Alpgen Event Interface</td>
@@ -228,6 +246,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 <td>double</td>
 <td><a href="ParticleProperties.php#anchor65" target="page">m2(...)</a></td>
 <td>Particle Properties</td>
+</tr>
+
+<tr>
+<td>int</td>
+<td><a href="Variations.php#anchor5" target="page">nWeights()</a></td>
+<td>Variations</td>
 </tr>
 
 <tr>
@@ -486,6 +510,18 @@ Many of them are only intended for experts, while undocumented ones are only for
 <td>virtual void</td>
 <td><a href="VertexInformation.php#anchor2" target="page">vertexMPI(...)</a></td>
 <td>Vertex Information</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="Variations.php#anchor7" target="page">weight(...)</a></td>
+<td>Variations</td>
+</tr>
+
+<tr>
+<td>string</td>
+<td><a href="Variations.php#anchor6" target="page">weightLabel(...)</a></td>
+<td>Variations</td>
 </tr>
 
 <tr>

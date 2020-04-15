@@ -211,9 +211,11 @@ bool ResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
   }
 
   // Set lifetime for displaced vertex calculations (convert GeV^-1 to mm).
-  double decayLength = HBARC * FM2MM / widTot;
-  particlePtr->setTau0(decayLength, false);
-
+  if (allowCalcWidth) {
+    double decayLength = HBARC * FM2MM / widTot;
+    particlePtr->setTau0(decayLength, false);
+  }
+    
   // Normalize branching ratios to unity.
   double bRatio;
   for (int i = 0; i < particlePtr->sizeChannels(); ++i) {

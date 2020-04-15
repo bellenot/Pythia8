@@ -37,9 +37,9 @@ void PartonVertex::vertexBeam( int iNow, int iBeam, Event& event) {
   double xbB = bNow/2.;
   // Don't do any rotation in phi for these simple models.
   if(iBeam == 0)
-    event[iNow].vProd(xbA, 0., 0., 0.);
+    event[iNow].vProd(xbA * FM2MM, 0., 0., 0.);
   else if(iBeam == 1)
-    event[iNow].vProd(xbB, 0., 0. ,0.);
+    event[iNow].vProd(xbB * FM2MM, 0., 0. ,0.);
   else
     infoPtr->errorMsg("Error in PartonVertex:vertexBeam: Wrong beam index.");
 }
@@ -85,7 +85,7 @@ void PartonVertex::vertexMPI( int iBeg, int nAdd, double bNowIn,
     }
 
     // Set production vertices.
-    event[iNow].vProd( x, y, 0., 0.);
+    event[iNow].vProd( x * FM2MM, y * FM2MM, 0., 0.);
   }
 
 }
@@ -109,7 +109,7 @@ void PartonVertex::vertexFSR( int iNow, Event& event) {
   double pT = max( event[iNow].pT(), pTmin);
   pair<double, double> xy = rndmPtr->gauss2();
   Vec4 vSmear = (widthEmission / pT) * Vec4( xy.first, xy.second, 0., 0.);
-  event[iNow].vProd( vStart + vSmear);
+  event[iNow].vProd( vStart + vSmear * FM2MM);
 
 
 }
@@ -133,7 +133,7 @@ void PartonVertex::vertexISR( int iNow, Event& event) {
   double pT = max( event[iNow].pT(), pTmin);
   pair<double, double> xy = rndmPtr->gauss2();
   Vec4 vSmear = (widthEmission / pT) * Vec4( xy.first, xy.second, 0., 0.);
-  event[iNow].vProd( vStart + vSmear);
+  event[iNow].vProd( vStart + vSmear * FM2MM);
 
 }
 

@@ -191,6 +191,12 @@ two would be defined as follows
 </pre> 
  
 <p/> 
+In the following, we refer to this combination as a <b>group</b> of 
+primary variations with the group name <b>groupName</b>.    Here, the 
+group of variations is <code>fsr:muRfac=2.0 isr:muRfac=2.0</code> 
+with name <code>myVariation1</code>. 
+ 
+<p/> 
 Staying within the context of this example, the user might also want to 
 check what a variation of the two scales independently of each other would 
 produce. This can be achieved within the same run by adding two further 
@@ -214,7 +220,7 @@ follows:
 <p/><code>wvec&nbsp; </code><strong> UncertaintyBands:List &nbsp;</strong> 
  (<code>default = <strong>{alphaShi fsr:muRfac=0.5 isr:muRfac=0.5, alphaSlo fsr:muRfac=2.0 isr:muRfac=2.0, hardHi fsr:cNS=2.0 isr:cNS=2.0, hardLo fsr:cNS=-2.0 isr:cNS=-2.0}</strong></code>)<br/>
 Vector of uncertainty-variation strings defining which variations will be 
-calculated by Pythia when<code>UncertaintyBands:doVariations</code> 
+calculated by Pythia when <code>UncertaintyBands:doVariations</code> 
 is switched on. 
    
  
@@ -229,33 +235,68 @@ equivalent to the above default variations could look as follows:
         hardLo fsr:cNS=-2.0 isr:cNS=-2.0 
     } 
 </pre> 
+ 
 Note that each of the individual uncertainty-variation definitions 
-(the elements of the vector) are separated by commas and that 
+(the elements of the vector or a group) are separated by commas and that 
 keywords separated only by spaces are interpreted as belonging to a 
 single combined variation. Note also that the beginning and end of the 
 vector is marked by curly braces. 
+<p/> 
+The combination of variations in a group has a total weight 
+that is the product of individual, primary variations. 
+The primary variations are bookkept separately because: 
+<br/>(1) there is some potential redundancy in the calculation of 
+these primary variations for different groups, 
+<br/>(2) they are often accumulated in different parts of 
+the code,  and 
+<br/>(3) the user might want to deconvolute the products in the group. 
+ 
+<p/> 
+In the example given above, there are 8 primary variations 
+<code> fsr:muRfac=0.5,isr:muRfac=0.5,fsr:muRfac=2.0,isr:muRfac=2.0, 
+fsr:cNS=2.0,isr:cNS=2.0,fsr:cNS=-2.0,isr:cNS=-2.0</code> 
+and 4 groups <code>alphaShi,alphaSlo,hardHi,hardLo</code>. 
  
 <a name="access"></a> 
 <a name="section1"></a> 
 <h3>Accessing the Uncertainty Weights</h3> 
+The following methods give access to the groups of uncertainty weights: 
  
-During the event generation, uncertainty weights will be calculated 
-for each variation defined above, via the method described in 
-[<a href="Bibliography.php#refMre16" target="page">Mre16</a>]. The resulting alternative weights for the event are 
-accessible through the <code>Pythia::info.weight(int iWeight=0)</code> 
-method. 
- 
+<a name="anchor2"></a>
+<p/><strong>  int    nVariationGroups()  &nbsp;</strong> <br/>
+  returns the number of groups 
+   
+<a name="anchor3"></a>
+<p/><strong>  string getGroupName(int iG)  &nbsp;</strong> <br/>
+  returns the name of the iG-th group 
+   
+<a name="anchor4"></a>
+<p/><strong>  double getGroupWeight(int iG)  &nbsp;</strong> <br/>
+  returns the weight of the iG-th group 
+   
 <p/> 
-The baseline weight for each event (normally unity for an 
-ordinary unweighted event sample) is not modified and 
-corresponds to <code>iWeight = 0</code>. The uncertainty-variation 
-weights are thus enumerated starting from <code>iWeight = 1</code> for 
-the first variation up to <code>N</code> for the last variation, in 
-the order they were specified in <code>UncertaintyBands:List</code>. 
+Correspondingly, the primary weights can also be accessed: 
  
+<a name="anchor5"></a>
+<p/><strong> int nWeights() &nbsp;</strong> <br/>
+  returns number of primary weights 
+   
+<a name="anchor6"></a>
+<p/><strong> string weightLabel(int i) &nbsp;</strong> <br/>
+returns label of i-th primary weight 
+   
+<a name="anchor7"></a>
+<p/><strong> double weight(i) &nbsp;</strong> <br/>
+  returns value of i-th primary weight 
+   
 <p/> 
-The total number of variations that have been defined, <code>N</code>, 
-can be queried using <code>Pythia::info.nWeights()</code>. 
+Note, <code> weight(0) </code> has the value of 
+<code>Pythia::info.weight()</code>, 
+which is the baseline weight for each event (normally unity for an 
+ordinary unweighted event sample). The primary variation 
+weights are thus enumerated starting from <code>1</code> for 
+the first primary variation up to <code>nWeights()</code> for 
+the last primary variation. 
  
 <a name="section2"></a> 
 <h3>NLO Compensation Term for Renormalisation-Scale Variations</h3> 
@@ -297,7 +338,8 @@ The keywords for PDF variations (plus and minus) is:
   <li><code>isr:PDF:minus</code> : any number </li> 
 </ul> 
 The number is not used, but is there for syntactical consistency. 
-Note, this uses the formula from the LHAPDF6 library to calculate the variation. 
+Note, this uses the formula from the LHAPDF6 library to calculate the 
+variation. 
  
 <p/> 
 Alternatively, the variation from the default to any other individual 
@@ -330,7 +372,7 @@ the following switch can be used to control whether <i>b</i> and
 <i>t</i> quarks are considered to be <code>Q</code> or <code>X</code> 
 particles (e.g. providing a simple way to control top-quark or bottom-quark 
 radiation independently of the rest of the shower uncertainties): 
-<a name="anchor2"></a>
+<a name="anchor8"></a>
 <p/><code>mode&nbsp; </code><strong> UncertaintyBands:nFlavQ &nbsp;</strong> 
  (<code>default = <strong>6</strong></code>; <code>minimum = 2</code>; <code>maximum = 6</code>)<br/>
 Number of quark flavours controlled via <code>Q2QG</code> keywords, with 

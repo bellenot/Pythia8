@@ -964,8 +964,8 @@ EventInfo & Angantyr::shiftEvent(EventInfo & ei) {
   Vec4 bmin = ei.coll->targ->bPos();
   for ( int i = 0, N = ei.event.size(); i < N; ++i ) {
     Vec4 shift = bmin + (bmax - bmin)*(ei.event[i].y() - ymin)/(ymax - ymin);
-    ei.event[i].xProd(ei.event[i].xProd() + shift.px());
-    ei.event[i].yProd(ei.event[i].yProd() + shift.py());
+    ei.event[i].xProd(ei.event[i].xProd() + FM2MM * shift.px());
+    ei.event[i].yProd(ei.event[i].yProd() + FM2MM * shift.py());
   }
   return ei;
 }

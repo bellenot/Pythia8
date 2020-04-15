@@ -8,22 +8,23 @@
  
 <h2>Update History</h2> 
 <ol id="toc">
-  <li><a href="#section0">8.243: 4 July 2019</a></li>
-  <li><a href="#section1">8.242: 1 July 2019</a></li>
-  <li><a href="#section2">8.240: 20 December 2018</a></li>
-  <li><a href="#section3">8.235: 27 March 2018</a></li>
-  <li><a href="#section4">8.230: 6 October 2017</a></li>
-  <li><a href="#section5">8.226: 26 April 2017</a></li>
-  <li><a href="#section6">8.223: 5 January 2017</a></li>
-  <li><a href="#section7">8.219: 10 May 2016</a></li>
-  <li><a href="#section8">8.215: 4 January 2016</a></li>
-  <li><a href="#section9">8.212: 23 September 2015</a></li>
-  <li><a href="#section10">8.210: 29 June 2015</a></li>
-  <li><a href="#section11">8.209: 25 May 2015</a></li>
-  <li><a href="#section12">8.205: 23 January 2015</a></li>
-  <li><a href="#section13">8.204: 22 January 2015</a></li>
-  <li><a href="#section14">8.201: 14 October 2014</a></li>
-  <li><a href="#section15">8.200: 11 October 2014</a></li>
+  <li><a href="#section0">8.244: 20 December 2019</a></li>
+  <li><a href="#section1">8.243: 4 July 2019</a></li>
+  <li><a href="#section2">8.242: 1 July 2019</a></li>
+  <li><a href="#section3">8.240: 20 December 2018</a></li>
+  <li><a href="#section4">8.235: 27 March 2018</a></li>
+  <li><a href="#section5">8.230: 6 October 2017</a></li>
+  <li><a href="#section6">8.226: 26 April 2017</a></li>
+  <li><a href="#section7">8.223: 5 January 2017</a></li>
+  <li><a href="#section8">8.219: 10 May 2016</a></li>
+  <li><a href="#section9">8.215: 4 January 2016</a></li>
+  <li><a href="#section10">8.212: 23 September 2015</a></li>
+  <li><a href="#section11">8.210: 29 June 2015</a></li>
+  <li><a href="#section12">8.209: 25 May 2015</a></li>
+  <li><a href="#section13">8.205: 23 January 2015</a></li>
+  <li><a href="#section14">8.204: 22 January 2015</a></li>
+  <li><a href="#section15">8.201: 14 October 2014</a></li>
+  <li><a href="#section16">8.200: 11 October 2014</a></li>
 </ol>
 
  
@@ -33,6 +34,49 @@ from 8.1 to 8.2 gave an occasion to break backwards compatibility,
 but this should only affect a small part of the user code. 
  
 <a name="section0"></a> 
+<h3>8.244: 20 December 2019</h3> 
+<ul> 
+ 
+<li>The combination of weight variations, within the context of 
+uncertainty bands, has not been well documented and therefore prone 
+to misunderstandings. Now the behaviour of 
+<code>Info::getGroupWeight()</code> has been made  transparent, 
+and the documentation in <a href="Variations.html" target="page">Variations</a> 
+has been improved. The <code>main121.cc</code> example has been 
+modified accordingly.</li> 
+ 
+<li>Restore the capability to set width and lifetime of a resonance 
+separately (see change in 8.240). Now the lifetime is set from the 
+width only if the <code>allowCalc()</code> method of the resonance 
+class returns true. 
+</li> 
+ 
+<li>Updated handling of Powheg files, such that files with 
+multiple/variable number of real emissions can be handled. The default 
+value of the <code>POWHEG:nFinal</code>parameter has been changed 
+to -1, see the <a href="POWHEGMerging.html" target="page">POWHEG Merging</a> 
+documentation.</li> 
+ 
+<li>Limit the amount by which transverse smearing of the space-time 
+quark-antiquark string breakup vertices can give large shifts, 
+which may translate into unreasonably long invariant times being 
+assigned to primary hadron production vertices. This is regulated by 
+the new <code>HadronVertex:maxSmear</code> parameter. Even so, 
+large hadron production invariant times may still occur occasionally 
+by imperfections in the reconstruction around multiple gluon corners, 
+so <code>HadronVertex:maxTau</code> gives the possibility to reject 
+the hadrons of such a parton system and try again. Also some other 
+related changes.</li> 
+ 
+<li>Fixes for consistent storage of production vertices in units 
+of mm. Thanks to Christopher Plumberg.</li> 
+ 
+<li>Number of weights in <code>info</code> reset to 1 for each new 
+<code>init</code> call.</li> 
+ 
+</ul> 
+ 
+<a name="section1"></a> 
 <h3>8.243: 4 July 2019</h3> 
 <ul> 
  
@@ -53,7 +97,7 @@ pointer. Address tiny issue of possibly uninitialized variable in
  
 </ul> 
  
-<a name="section1"></a> 
+<a name="section2"></a> 
 <h3>8.242: 1 July 2019</h3> 
 <ul> 
  
@@ -191,7 +235,7 @@ functions.</li>
  
 </ul> 
  
-<a name="section2"></a> 
+<a name="section3"></a> 
 <h3>8.240: 20 December 2018</h3> 
 <ul> 
  
@@ -459,7 +503,7 @@ from 0.4 to 0.1 GeV by ATLAS request.</li>
  
 </ul> 
  
-<a name="section3"></a> 
+<a name="section4"></a> 
 <h3>8.235: 27 March 2018</h3> 
 <ul> 
  
@@ -705,7 +749,7 @@ to html, by omitting the paragraph break before a tag that contains
  
 </ul> 
  
-<a name="section4"></a> 
+<a name="section5"></a> 
 <h3>8.230: 6 October 2017</h3> 
 <ul> 
  
@@ -905,7 +949,7 @@ and is directed to these from the text references.</li>
  
 </ul> 
  
-<a name="section5"></a> 
+<a name="section6"></a> 
 <h3>8.226: 26 April 2017</h3> 
 <ul> 
  
@@ -1104,7 +1148,7 @@ and in <i>tHat</i> and <i>uHat</i> construction.</li>
  
 </ul> 
  
-<a name="section6"></a> 
+<a name="section7"></a> 
 <h3>8.223: 5 January 2017</h3> 
 <ul> 
  
@@ -1274,7 +1318,7 @@ companion choice also if <code>iComp = 0</code>.</li>
  
 </ul> 
  
-<a name="section7"></a> 
+<a name="section8"></a> 
 <h3>8.219: 10 May 2016</h3> 
 <ul> 
  
@@ -1447,7 +1491,7 @@ php version of the manual recognize them.</li>
  
 </ul> 
  
-<a name="section8"></a> 
+<a name="section9"></a> 
 <h3>8.215: 4 January 2016</h3> 
 <ul> 
  
@@ -1617,7 +1661,7 @@ Thanks to Radek Zlebcik.</li>
  
 </ul> 
  
-<a name="section9"></a> 
+<a name="section10"></a> 
 <h3>8.212: 23 September 2015</h3> 
 <ul> 
  
@@ -1760,7 +1804,7 @@ aMC@NLO merging.</li>
  
 </ul> 
  
-<a name="section10"></a> 
+<a name="section11"></a> 
 <h3>8.210: 29 June 2015</h3> 
 <ul> 
  
@@ -1791,7 +1835,7 @@ containing an equal sign are parsed correctly.</li>
  
 </ul> 
  
-<a name="section11"></a> 
+<a name="section12"></a> 
 <h3>8.209: 25 May 2015</h3> 
 <ul> 
  
@@ -1981,7 +2025,7 @@ debugged and tested, so not yet ready for public usage.</li>
  
 </ul> 
  
-<a name="section12"></a> 
+<a name="section13"></a> 
 <h3>8.205: 23 January 2015</h3> 
 <ul> 
  
@@ -2002,7 +2046,7 @@ conventional). Thanks to Josh Bendavid for pointing this out.</li>
  
 </ul> 
  
-<a name="section13"></a> 
+<a name="section14"></a> 
 <h3>8.204: 22 January 2015</h3> 
 <ul> 
  
@@ -2173,7 +2217,7 @@ lines where meaningful, and some further minor changes.</li>
  
 </ul> 
  
-<a name="section14"></a> 
+<a name="section15"></a> 
 <h3>8.201: 14 October 2014</h3> 
 <ul> 
  
@@ -2188,7 +2232,7 @@ among allowed configure options.</li>
  
 </ul> 
  
-<a name="section15"></a> 
+<a name="section16"></a> 
 <h3>8.200: 11 October 2014</h3> 
 <ul> 
  

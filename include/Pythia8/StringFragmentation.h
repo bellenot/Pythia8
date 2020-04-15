@@ -110,9 +110,9 @@ public:
     closePacking(), doFlavRope(), setVertices(), constantTau(), smearOn(),
     traceColours(false), hadronVertex(), stopMass(), stopNewFlav(),
     stopSmear(), eNormJunction(), eBothLeftJunction(), eMaxLeftJunction(),
-    eMinLeftJunction(), mJoin(), bLund(), pT20(), xySmear(), kappaVtx(),
-    mc(), mb(), hasJunction(), isClosed(), iPos(), iNeg(), w2Rem(),
-    stopMassNow(), idDiquark(), legMin(), legMid() {}
+    eMinLeftJunction(), mJoin(), bLund(), pT20(), xySmear(), maxSmear(),
+    maxTau(), kappaVtx(), mc(), mb(), hasJunction(), isClosed(), iPos(),
+    iNeg(), w2Rem(), stopMassNow(), idDiquark(), legMin(), legMid() {}
 
   // Initialize and save pointers.
   void init(Info* infoPtrIn, Settings& settings,
@@ -130,7 +130,7 @@ private:
 
   // Constants: could only be changed in the code itself.
   static const int    NTRYFLAV, NTRYJOIN, NSTOPMASS, NTRYJNREST,
-                      NTRYJNMATCH, NTRYJRFEQ;
+                      NTRYJNMATCH, NTRYJRFEQ, NTRYSMEAR;
   static const double FACSTOPMASS, CLOSEDM2MAX, CLOSEDM2FRAC, EXPMAX,
                       MATCHPOSNEG, EJNWEIGHTMAX, CONVJNREST, M2MAXJRF,
                       M2MINJRF, EEXTRAJNMATCH, MDIQUARKMIN, CONVJRFEQ,
@@ -162,7 +162,7 @@ private:
   int    hadronVertex;
   double stopMass, stopNewFlav, stopSmear, eNormJunction,
          eBothLeftJunction, eMaxLeftJunction, eMinLeftJunction,
-         mJoin, bLund, pT20, xySmear, kappaVtx, mc, mb;
+         mJoin, bLund, pT20, xySmear, maxSmear, maxTau, kappaVtx, mc, mb;
 
   // Data members.
   bool   hasJunction, isClosed;
@@ -212,7 +212,7 @@ private:
   Vec4 pPosFinalReg, pNegFinalReg, eXFinalReg, eYFinalReg;
 
   // Set hadron production points in space-time picture.
-  void setHadronVertices(Event& event);
+  bool setHadronVertices(Event& event);
 
   // Construct a special joining region for the final two hadrons.
   StringRegion finalRegion();

@@ -335,19 +335,38 @@ then averaged, as described above in <i>v<sup>h</sup><sub>i</sub> =
 giving a width reduction of 1/sqrt(2). 
    
  
-<br/><br/><strong>HadronVertex:constantTau</strong>  <input type="radio" name="26" value="on" checked="checked"><strong>On</strong>
-<input type="radio" name="26" value="off"><strong>Off</strong>
- &nbsp;&nbsp;(<code>default = <strong>on</strong></code>)<br/>
-The transverse smearing might change either the time coordinate or 
-the invariant time of the breakup points with respect to the origin. 
-Normally, the <i>tau</i> is kept constant and the time coordinate is 
-recalculated to compensate the effect of the smearing. If off, the 
-time coordinate is kept constant and the invariant time is modified 
-by the smearing. 
+<br/><br/><table><tr><td><strong>HadronVertex:maxSmear </td><td></td><td> <input type="text" name="26" value="0.2" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.2</strong></code>; <code>minimum = 0.</code>; <code>maximum = 10.</code>)</td></tr></table>
+Limit the smearing defined above from giving large shifts of vertices, 
+by reducing the net shift to be this fraction of the original value. 
+(Technically the quantity studied is a quadratic combination of space 
+and time shifts, additionally in quadrature with the  <i>xySmear</i> 
+parameter.) 
    
  
-<br/><br/><strong></strong>  <input type="radio" name="27" value="on"><strong>On</strong>
-<input type="radio" name="27" value="off"><strong>Off</strong>
+<br/><br/><strong>HadronVertex:constantTau</strong>  <input type="radio" name="27" value="on"><strong>On</strong>
+<input type="radio" name="27" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+The transverse smearing can change either the time coordinate or 
+the invariant time of the breakup points with respect to the origin. 
+Normally, the time coordinate is kept constant and the invariant time 
+is modified by the smearing. If on, the <i>tau</i> is kept constant 
+and the time coordinate is recalculated to compensate the effect of 
+the smearing. Empirically, the former prescription gives fewer problems 
+on the hadron level. 
+   
+ 
+<br/><br/><table><tr><td><strong>HadronVertex:maxTau </td><td></td><td> <input type="text" name="28" value="20." size="20"/>  &nbsp;&nbsp;(<code>default = <strong>20.</strong></code>; <code>minimum = 1.</code>; <code>maximum = 100.</code>)</td></tr></table>
+In cases of complicated string topologies the reconstruction of a 
+string breakup vertex can fail occasionally. Usually this translates 
+into a large (positive or negative) production invariant (squared) 
+time for the adjacent hadrons (using the middle definition). This cut 
+rejects fragmented systems where such a large tau is found, and a new 
+try to hadronize is made. If this variable is set too low then also 
+many correct vertices will be rejected. 
+   
+ 
+<br/><br/><strong></strong>  <input type="radio" name="29" value="on"><strong>On</strong>
+<input type="radio" name="29" value="off"><strong>Off</strong>
 <br/>
 The decay products of particles with short lifetimes, such as rho, should be 
 displaced from the production point of the mother particle. When on, the 
@@ -362,7 +381,7 @@ See below for unstable particles that have neither a know width nor a
 known lifetime. 
    
  
-<br/><br/><table><tr><td><strong>HadronVertex:intermediateTau0 </td><td></td><td> <input type="text" name="28" value="1e-9" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1e-9</strong></code>; <code>minimum = 1e-12</code>; <code>maximum = 1e-3</code>)</td></tr></table>
+<br/><br/><table><tr><td><strong>HadronVertex:intermediateTau0 </td><td></td><td> <input type="text" name="30" value="1e-9" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>1e-9</strong></code>; <code>minimum = 1e-12</code>; <code>maximum = 1e-3</code>)</td></tr></table>
 Average lifetime <i>c * tau_0</i>, expressed in mm, assigned to particle 
 species which are unstable, but have neither been assigned a nonvanishing 
 lifetime nor a non-negligible (above <code>NARROWMASS</code>) width. 
@@ -516,19 +535,29 @@ if($_POST["25"] != "0.7")
 $data = "HadronVertex:xySmear = ".$_POST["25"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["26"] != "on")
+if($_POST["26"] != "0.2")
 {
-$data = "HadronVertex:constantTau = ".$_POST["26"]."\n";
+$data = "HadronVertex:maxSmear = ".$_POST["26"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["27"] != "")
+if($_POST["27"] != "off")
 {
-$data = " = ".$_POST["27"]."\n";
+$data = "HadronVertex:constantTau = ".$_POST["27"]."\n";
 fwrite($handle,$data);
 }
-if($_POST["28"] != "1e-9")
+if($_POST["28"] != "20.")
 {
-$data = "HadronVertex:intermediateTau0 = ".$_POST["28"]."\n";
+$data = "HadronVertex:maxTau = ".$_POST["28"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["29"] != "")
+{
+$data = " = ".$_POST["29"]."\n";
+fwrite($handle,$data);
+}
+if($_POST["30"] != "1e-9")
+{
+$data = "HadronVertex:intermediateTau0 = ".$_POST["30"]."\n";
 fwrite($handle,$data);
 }
 fclose($handle);
