@@ -1,5 +1,5 @@
 // aMCatNLOHooks.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -42,6 +42,7 @@ public:
   // Set the number of partons.
   bool doVetoProcessLevel( Event& process) {
 
+    int nPartons = 0;
     normFactor = 1.;
 
     // Do not include resonance decay products in the counting.
@@ -50,84 +51,43 @@ public:
     // Get the maximal quark flavour counted as "additional" parton.
     int nQuarksMerge = settingsPtr->mode("Merging:nQuarksMerge");
 
-    string procSave = settingsPtr->word("Merging:Process");
-    bool hasIN = (procSave.find(">", 0) != string::npos);
-    string incoming = procSave.substr(0,procSave.find(">", 0));
-    string outgoing = procSave.substr(procSave.find(">", 0)+1,procSave.size());
-    string outgoingSave = outgoing;
-
-    // Count number of user particles
-    int nCommas = 0;
-    for(int n = outgoing.find(",", 0); n != int(string::npos);
-            n = outgoing.find(",", n)) { nCommas++; n++; }
-    vector <string> out;
-    for(int i =0; i < nCommas;++i) {
-      int n = outgoing.find(",", 0);
-      out.push_back(outgoing.substr(0,n));
-      outgoing = outgoing.substr(n+1,outgoing.size());
-    }
-    if (outgoing.size()>0) out.push_back(outgoing);
-
     // Dynamically set the process string.
-    string proc;
-    if (settingsPtr->word("Merging:Process").find("guess") != string::npos) {
+    if ( settingsPtr->word("Merging:Process") == "guess" ) {
       string processString = "";
       // Set incoming particles.
-      if (hasIN) {
-        processString += incoming + ">";
-      } else {
-        int beamAid = beamAPtr->id();
-        int beamBid = beamBPtr->id();
-        if (abs(beamAid) == 2212) processString += "p";
-        if (beamAid == 11)        processString += "e-";
-        if (beamAid ==-11)        processString += "e+";
-        if (abs(beamBid) == 2212) processString += "p";
-        if (beamBid == 11)        processString += "e-";
-        if (beamBid ==-11)        processString += "e+";
-        processString += ">";
-      }
+      int beamAid = beamAPtr->id();
+      int beamBid = beamBPtr->id();
+      if (abs(beamAid) == 2212) processString += "p";
+      if (beamAid == 11)        processString += "e-";
+      if (beamAid ==-11)        processString += "e+";
+      if (abs(beamBid) == 2212) processString += "p";
+      if (beamBid == 11)        processString += "e-";
+      if (beamBid ==-11)        processString += "e+";
+      processString += ">";
       // Set outgoing particles.
       bool foundOutgoing = false;
-      for(int i=0; i < int(workEvent.size()); ++i) {
+      for(int i=0; i < int(workEvent.size()); ++i)
         if ( workEvent[i].isFinal()
           && ( workEvent[i].colType() == 0
             || workEvent[i].idAbs() > 21
             || ( workEvent[i].id() != 21
               && workEvent[i].idAbs() > nQuarksMerge) ) ) {
           foundOutgoing = true;
-          ostringstream proc_oss;
-          proc_oss << "{" << workEvent[i].name() << "," << workEvent[i].id()
+          ostringstream proc;
+          proc << "{" << workEvent[i].name() << "," << workEvent[i].id()
                << "}";
-          processString += proc_oss.str();
+          processString += proc.str();
         }
-      }
-
-      for (int i =0; i < int(out.size()); ++i) {
-        if (out[i].find("guess") != string::npos) continue;
-        processString += "," + out[i];
-      }
-
-      if (foundOutgoing) proc = processString;
+      // Set the process string.
+      if (foundOutgoing) settingsPtr->word("Merging:Process", processString);
     }
-
-    if (proc.size()>0) settingsPtr->word("Merging:Process", proc);
-    else proc = procSave;
 
     // Loop through event and count.
-    int nPartons = 0;
-    if (settingsPtr->flag("Merging:mayRemoveDecayProducts")) {
-      for(int i=0; i < int(workEvent.size()); ++i)
-        if ( workEvent[i].isFinal()
-          && workEvent[i].colType()!= 0
-          && ( workEvent[i].id() == 21 || workEvent[i].idAbs() <= nQuarksMerge))
-          nPartons++;
-    } else {
-      for(int i=0; i < int(process.size()); ++i)
-        if ( process[i].isFinal()
-          && process[i].colType()!= 0
-          && ( process[i].id() == 21 || process[i].idAbs() <= nQuarksMerge))
-          nPartons++;
-    }
+    for(int i=0; i < int(workEvent.size()); ++i)
+      if ( workEvent[i].isFinal()
+        && workEvent[i].colType()!= 0
+        && ( workEvent[i].id() == 21 || workEvent[i].idAbs() <= nQuarksMerge))
+        nPartons++;
 
     // Store merging scheme.
     bool isumeps  = (mergingScheme == 1);
@@ -143,10 +103,10 @@ public:
        || settingsPtr->flag("Merging:doUNLOPSSubt")) && np_lo == 0)
        return true;
 
-    int nj = 0;
-    for(int n = proc.find("j", 0); n != int(string::npos);
-            n = proc.find("j", n)) { nj++; n++; }
-    nPartons -= nj;
+    if (settingsPtr->word("Merging:process").compare("pp>aj") == 0)
+      nPartons -= 1;
+    if (settingsPtr->word("Merging:process").compare("pp>jj") == 0)
+      nPartons -= 2;
 
     // Set number of requested partons.
     if (np_nlo > -1){

@@ -1,5 +1,5 @@
 // main121.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -12,6 +12,18 @@ using namespace Pythia8;
 
 //--------------------------------------------------------------------------
 
+// Small helper function to get variation names.
+
+string weightLabel(string weightString) {
+  // Strip leading whitespace
+  weightString.erase(0,weightString.find_first_not_of(" \t\n\r\f\v"));
+  // Find first blank and use this to isolate weight label.
+  int iBlank = weightString.find(" ", 0);
+  return weightString.substr(0, iBlank);
+}
+
+//--------------------------------------------------------------------------
+
 int main() {
 
   // Initialize Pythia.
@@ -20,7 +32,7 @@ int main() {
   pythia.init();
 
   // Define multiple histograms, one for each variation.
-  int nWeights = pythia.info.nVariationGroups();
+  int nWeights = pythia.info.nWeights();
   vector<double> sumOfWeights;
   vector<Hist> pTtop, nCh;
   vector<string> names;
@@ -29,7 +41,7 @@ int main() {
   // Loop through weights to initialize the histograms.
   for (int iWeight=0; iWeight < nWeights; ++iWeight) {
     names.push_back( (iWeight==0)
-      ? "baseline" : pythia.info.getGroupName(iWeight) );
+      ? "baseline" : weightLabel(weightStrings[iWeight-1]));
     pTtop.push_back ( Hist("top transverse momentum",       100,  0., 200.));
     nCh.push_back   ( Hist("charged particle multiplicity", 100, -1., 399.));
     sumOfWeights.push_back(0.);
@@ -58,7 +70,7 @@ int main() {
     // Fill histograms with variation weights.
     for (int iWeight = 0; iWeight < nWeights; ++iWeight) {
       // Get weight
-      double w = pythia.info.getGroupWeight(iWeight);
+      double w = pythia.info.weight(iWeight);
       // Add the weight of the current event to the wsum of weights.
       sumOfWeights[iWeight]  += w;
       // Fill histograms.

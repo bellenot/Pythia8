@@ -1,9 +1,12 @@
 // main88.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// This program is written by Stefan Prestel.
+// Authors: Stefan Prestel <stefan.prestel@thep.lu.se>.
+
+// Keywords: merging; NLO; UNLOPS; hepmc;
+
 // It illustrates how to do UNLOPS merging, see the Matrix Element
 // Merging page in the online manual. An example command is
 //     ./main88 main88.cmnd w_production hepmcout88.dat

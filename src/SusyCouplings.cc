@@ -1,5 +1,5 @@
 // SusyCouplings.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -28,14 +28,14 @@ namespace Pythia8 {
 
 // Initialize SM+SUSY couplings (only performed once).
 
-void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Info* infoPtrIn,
-    ParticleData* particleDataPtrIn, Settings* settingsPtrIn) {
+void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Info* infoPtrIn) {
 
   // Save pointers.
-  infoPtr         = infoPtrIn;
+  infoPtr      = infoPtrIn;
   slhaPtr         = slhaPtrIn;
-  settingsPtr     = settingsPtrIn;
-  particleDataPtr = particleDataPtrIn;
+  settingsPtr     = infoPtr->settingsPtr;
+  particleDataPtr = infoPtr->particleDataPtr;
+  coupSMPtr       = infoPtr->coupSMPtr;
 
   // Only initialize SUSY parts if SUSY is actually switched on
   if (!slhaPtr->modsel.exists()) return;
@@ -56,7 +56,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Info* infoPtrIn,
   // (default to pole values if no running available)
   mW        = mWpole;
   mZ        = mZpole;
-  sin2W     = sin2thetaW();
+  sin2W     = coupSMPtr->sin2thetaW();
 
   if (settingsPtr->mode("SUSY:sin2thetaWMode") == 3) {
     // Possibility to force on-shell sin2W definition, mostly intended for
@@ -80,9 +80,6 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Info* infoPtrIn,
         " not found or incomplete; using sin(thetaW) at mZ");
     }
   }
-
-  // Overload the SM value of sin2thetaW
-  s2tW = sin2W;
 
   sinW = sqrt(sin2W);
   cosW = sqrt(1.0-sin2W);
@@ -111,7 +108,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Info* infoPtrIn,
     for (int i=1;i<=3;i++) {
       for (int j=1;j<=3;j++) {
         cout << " VCKM  [" << i << "][" << j << "] = "
-             << scientific << setw(10) << VCKMgen(i,j) << endl;
+             << scientific << setw(10) << coupSMPtr->VCKMgen(i,j) << endl;
       }
     }
   }
@@ -228,8 +225,8 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Info* infoPtrIn,
   for (int i=1 ; i<=6 ; i++) {
 
     // q[i] q[i] Z (def with extra factor 2 compared to [Okun])
-    LqqZ[i] = af(i) - 2.0*ef(i)*sin2W ;
-    RqqZ[i] =       - 2.0*ef(i)*sin2W ;
+    LqqZ[i] = coupSMPtr->af(i) - 2.0*coupSMPtr->ef(i)*sin2W ;
+    RqqZ[i] =                  - 2.0*coupSMPtr->ef(i)*sin2W ;
 
     // tmp: verbose output
     if (DBSUSY) {
@@ -361,8 +358,8 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Info* infoPtrIn,
   // Construct llZ couplings;
   for (int i=11 ; i<=16 ; i++) {
 
-    LllZ[i-10] = af(i) - 2.0*ef(i)*sin2W ;
-    RllZ[i-10] =       - 2.0*ef(i)*sin2W ;
+    LllZ[i-10] = coupSMPtr->af(i) - 2.0*coupSMPtr->ef(i)*sin2W ;
+    RllZ[i-10] =                  - 2.0*coupSMPtr->ef(i)*sin2W ;
 
     // tmp: verbose output
     if (DBSUSY) {
@@ -420,7 +417,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Info* infoPtrIn,
       // CKM matrix (use Pythia one if no SLHA)
       // (NB: could also try input one if no running one found, but
       // would then need to compute from Wolfenstein)
-      complex Vij=VCKMgen(i,j);
+      complex Vij=coupSMPtr->VCKMgen(i,j);
       if (slhaPtr->vckm.exists()) {
         Vij=complex(slhaPtr->vckm(i,j),slhaPtr->imvckm(i,j));
       }
@@ -455,7 +452,7 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Info* infoPtrIn,
           // CKM matrix (use Pythia one if no SLHA)
           // (NB: could also try input one if no running one found, but
           // would then need to compute from Wolfenstein)
-          complex Vij=VCKMgen(i,j);
+          complex Vij=coupSMPtr->VCKMgen(i,j);
           if (slhaPtr->vckm.exists()) {
             Vij=complex(slhaPtr->vckm(i,j),slhaPtr->imvckm(i,j));
           }
@@ -888,8 +885,8 @@ void CoupSUSY::initSUSY (SusyLesHouches* slhaPtrIn, Info* infoPtrIn,
           // CKM matrix (use Pythia one if no SLHA)
           // (NB: could also try input one if no running one found, but
           // would then need to compute from Wolfenstein)
-          complex Vlk=VCKMgen(l,k);
-          complex Vkl=VCKMgen(k,l);
+          complex Vlk=coupSMPtr->VCKMgen(l,k);
+          complex Vkl=coupSMPtr->VCKMgen(k,l);
           if (slhaPtr->vckm.exists()) {
             Vlk=complex(slhaPtr->vckm(l,k),slhaPtr->imvckm(l,k));
             Vkl=complex(slhaPtr->vckm(k,l),slhaPtr->imvckm(k,l));

@@ -1,6 +1,6 @@
-<chapter name="POWHEG Merging"> 
+<chapter name="POWHEG Matching"> 
  
-<h2>POWHEG Merging</h2> 
+<h2>POWHEG Matching</h2> 
  
 POWHEG <ref>Nas04</ref> in its character is very much like a parton shower, 
 with a Sudakov factor arising from the ordering of emissions. Both 
@@ -148,14 +148,9 @@ Note that the modes have generally been defined with several default values
 below corresponding to the "off" state, and thus do not agree with the 
 recommended values described above. 
  
-<modeopen name="POWHEG:nFinal" default="-1" min="-1"> 
+<modeopen name="POWHEG:nFinal" default="2" min="1"> 
 Number of outgoing particles of POWHEG Born level process, 
 i.e. not counting additional POWHEG radiation. 
-The negative default value is interpreted as the instruction to ignore 
-final state particle count conditions, as is e.g. necessary when the 
-POWHEG-BOX code includes a variable number of additional emission (on top of 
-the Born process) into the input events. Note that for this negative default 
-value, only <code>POWHEG:pThard = 0</code> is allowed. 
 </modeopen> 
  
 <modepick name="POWHEG:veto" default="0" min="0" max="1"> 
@@ -177,9 +172,7 @@ large value (e.g. 100000) will mean that all emissions are checked.
 Selection of the <ei>pThard</ei> scale. For events where there is no 
 radiation, <ei>pThard</ei> is always set to be the <code>SCALUP</code> 
 value of the LHA/LHEF standard. 
-<option value="0">Set <ei>pThard</ei> equal to <code>SCALUP</code>. Note 
-that if <code>POWHEG:nFinal = -1</code>, only this choice for 
-<ei>pThard</ei> is allowed. 
+<option value="0">Set <ei>pThard</ei> equal to <code>SCALUP</code>. 
 </option> 
 <option value="1">The <ei>pT</ei> of the POWHEG emission is tested against 
 all other incoming and outgoing partons, with the minimal value chosen. 
@@ -246,4 +239,4 @@ Treatment of non-QCD radiation.
  
 </chapter> 
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

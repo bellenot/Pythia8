@@ -1,5 +1,5 @@
 // PowhegHooks.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Richard Corke, Torbjorn Sjostrand.
+// Copyright (C) 2019 Richard Corke, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -283,53 +283,27 @@ public:
   inline bool doVetoMPIStep(int nMPI, const Event &e) {
     // Extra check on nMPI
     if (nMPI > 1) return false;
-    int iEmt = -1;
-    double pT1(0.), pTsum(0.);
 
-    // When nFinal is set, be strict about comparing the number of final-state
-    // particles with exectation from Born and single-real emission states.
-    // (Note: the default from 8.244 onwards is nFinal = -1)
-    if (nFinal > 0) {
-
-      // Find if there is a POWHEG emission. Go backwards through the
-      // event record until there is a non-final particle. Also sum pT and
-      // find pT_1 for possible MPI vetoing
-      int count = 0;
-      for (int i = e.size() - 1; i > 0; i--) {
-        if (e[i].isFinal()) {
-          count++;
-          pT1    = e[i].pT();
-          pTsum += e[i].pT();
-        } else break;
-      }
-      // Extra check that we have the correct final state
-      if (count != nFinal && count != nFinal + 1) {
-        cout <<"Error: wrong number of final state particles in event"<< endl;
-        exit(1);
-      }
-      // Flag if POWHEG radiation present and index
-      isEmt = (count == nFinal) ? false : true;
-      iEmt  = (isEmt) ? e.size() - 1 : -1;
-
-    // If nFinal == -1, then go through the event and extract only the
-    // information on the emission and its pT, but do not enforce strict
-    // comparisons of final state multiplicity.
-    } else {
-
-      // Flag whether POWHEG radiation is present, and save index of emission.
-      isEmt = false;
-      for (int i = e.size() - 1; i > 0; i--) {
-        if (e[i].isFinal()) {
-          if ( e[i].isParton() && iEmt < 0
-            && e[e[i].mother1()].isParton() ) {
-            isEmt = true;
-            iEmt = i;
-          }
-          pT1    = e[i].pT();
-          pTsum += e[i].pT();
-        } else break;
-      }
+    // Find if there is a POWHEG emission. Go backwards through the
+    // event record until there is a non-final particle. Also sum pT and
+    // find pT_1 for possible MPI vetoing
+    int    count = 0;
+    double pT1 = 0., pTsum = 0.;
+    for (int i = e.size() - 1; i > 0; i--) {
+      if (e[i].isFinal()) {
+        count++;
+        pT1    = e[i].pT();
+        pTsum += e[i].pT();
+      } else break;
     }
+    // Extra check that we have the correct final state
+    if (count != nFinal && count != nFinal + 1) {
+      cout << "Error: wrong number of final state particles in event" << endl;
+      exit(1);
+    }
+    // Flag if POWHEG radiation present and index
+    isEmt = (count == nFinal) ? false : true;
+    int  iEmt  = (isEmt) ? e.size() - 1 : -1;
 
     // If there is no radiation or if pThardMode is 0 then set pThard = SCALUP.
     if (!isEmt || pThardMode == 0) {
@@ -338,29 +312,13 @@ public:
     // If pThardMode is 1 then the pT of the POWHEG emission is checked against
     // all other incoming and outgoing partons, with the minimal value taken
     } else if (pThardMode == 1) {
-      if (nFinal < 0) {
-        string message = "Warning in PowhegHooks.h: When using nFinal == -1,";
-        message+=" only pThardMode == 0 is available. Reset pThardMode = 0.";
-        infoPtr->errorMsg(message);
-        pThardMode = 0;
-        pThard = infoPtr->scalup();
-      } else {
-        pThard = pTcalc(e, -1, iEmt, -1, -1, -1);
-      }
+      pThard = pTcalc(e, -1, iEmt, -1, -1, -1);
 
     // If pThardMode is 2, then the pT of all final-state partons is checked
     // against all other incoming and outgoing partons, with the minimal value
     // taken
     } else if (pThardMode == 2) {
-      if (nFinal < 0) {
-        string message = "Warning in PowhegHooks.h: When using nFinal == -1,";
-        message+=" only pThardMode == 0 is available. Reset pThardMode = 0.";
-        infoPtr->errorMsg(message);
-        pThardMode = 0;
-        pThard = infoPtr->scalup();
-      } else {
-        pThard = pTcalc(e, -1, -1, -1, -1, -1);
-      }
+      pThard = pTcalc(e, -1, -1, -1, -1, -1);
     }
 
     // Find MPI veto pT if necessary

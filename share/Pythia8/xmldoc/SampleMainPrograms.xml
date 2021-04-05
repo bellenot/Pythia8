@@ -250,9 +250,6 @@ where subruns are used to process several consecutive LHEF,
 as in <code>main13.cc</code>, with information stored e.g in 
 <code>main43.cmnd</code>. Other comments as for <code>main42.cc</code>.</li> 
  
-<li><code>main46.cc</code> : illustrated how the ProMC library 
-can be used to store Pythia events in a compact format.</li> 
- 
 <li><code>main48.cc</code> : demonstrates how to use 
 the <code>EvtGenDecays</code> class provided 
 by <code>include/Pythia8Plugins/EvtGen.h</code> to perform decays 
@@ -465,8 +462,25 @@ events by centrality bins.</li>
 <li><code>main121.cc</code> : set up automatic uncertainty band variations 
 to PDFs and factorization and renormalization scales.</li> 
  
+<li><code>main200.cc</code> : Basic VINCIA example program for 
+hadronic Z decays at LEP.</li> 
+ 
+<li><code>main201.cc</code> : Comparison of VINCIA and Pythia on 
+inclusive jets at LHC, with option to run the two generators in 
+parallel using OpenMP.</li> 
+ 
+<li><code>main202.cc</code> : VINCIA setup for ttbar production at 
+LHC, with measurement of run time and options to switch various shower and 
+MPI/hadronisation components on/off via command file.</li> 
+ 
+<li><code>main300.cc</code> : Allows to steer Pythia from 
+the command line and can produce HepMC files and allows for OpenMP 
+parallelization. More documentation can be obtained by 
+executing <code>./main300 --help</code>. The input file main300.cmnd 
+further illustrates the use of DIRE.</li> 
+ 
 </ul> 
  
 </chapter> 
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

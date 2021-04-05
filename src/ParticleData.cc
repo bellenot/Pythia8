@@ -1,5 +1,5 @@
 // ParticleData.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -374,7 +374,7 @@ void ParticleDataEntry::initBWmass() {
 // Function to give mass of a particle, either at the nominal value
 // or picked according to a (linear or quadratic) Breit-Wigner.
 
-double ParticleDataEntry::mSel() {
+double ParticleDataEntry::mSel() const {
 
   // Nominal value. (Width check should not be needed, but just in case.)
   if (modeBWnow == 0 || mWidthSave < NARROWMASS) return m0Save;
@@ -430,7 +430,7 @@ double ParticleDataEntry::mSel() {
 
 // Function to calculate running mass at given mass scale.
 
-double ParticleDataEntry::mRun(double mHat) {
+double ParticleDataEntry::mRun(double mHat) const {
 
   // Except for six quarks return nominal mass.
   if (idSave > 6) return m0Save;
@@ -530,10 +530,8 @@ void ParticleDataEntry::setResonancePtr(
   resonancePtr = resonancePtrIn;
 }
 
-void ParticleDataEntry::resInit(Info* infoPtrIn, Settings* settingsPtrIn,
-  ParticleData* particleDataPtrIn, Couplings* couplingsPtrIn) {
-  if (resonancePtr != 0) resonancePtr->init(infoPtrIn, settingsPtrIn,
-  particleDataPtrIn, couplingsPtrIn);
+void ParticleDataEntry::resInit(Info* infoPtr) {
+  if (resonancePtr != 0) resonancePtr->init(infoPtr);
 }
 
 double ParticleDataEntry::resWidth(int idSgn, double mHat, int idIn,
@@ -2199,7 +2197,7 @@ void ParticleData::checkTable(int verbosity) {
 
 // Return the id of the sequentially next particle stored in table.
 
-int ParticleData::nextId(int idIn) {
+int ParticleData::nextId(int idIn) const {
 
   // Return 0 for negative or unknown codes. Return first for 0.
   if (idIn < 0 || (idIn > 0 && !isParticle(idIn))) return 0;

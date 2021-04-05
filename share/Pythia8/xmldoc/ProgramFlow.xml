@@ -320,7 +320,7 @@ method
       pythia.setLHAupPtr( lhaUpPtr); 
 </pre> 
 where the  <code>lhaUpPtr</code> derives from the 
-<aloc href="LesHouchesAccord">LHAup</aloc> base class. 
+<aloc href="LHA">LHAup</aloc> base class. 
 </li> 
  
 <p/> 
@@ -744,7 +744,7 @@ in your program.
 <method name="bool Pythia::setLHAupPtr( LHAup* lhaUpPtrIn)"> 
 offers linkage to an external generator that feeds in events 
 in the LHA format, see 
-<aloc href="LesHouchesAccord">Les Houches Accord</aloc>, 
+<aloc href="LHA">Les Houches Accord</aloc>, 
 assuming that 
 <code><aloc href="BeamParameters">Beams:frameType = 5</aloc></code> 
 has been set. 
@@ -1063,9 +1063,19 @@ its four-momentum is changed. Further details are found
 event record is then not consistent and should not be studied. 
 </method> 
  
+<method name="bool Pythia::doLowEnergyProcess(int i1, int i2, int type)"> 
+Allow two hadrons, located in positions <ei>i1</ei> and <ei>i2</ei> of 
+the normal event record to interact with each other and give rise to new 
+hadrons. Only simple interaction types are offered, as relevent at low 
+energies. It can be used e.g. to model hadronic rescattering in the 
+final state. This method does not itself decay unstable hadrons, but 
+thst could be achieved e.g. with a <code>Pythia::moreDecays()</code> 
+call. This method is still under development. 
+</method> 
+ 
 <method name="void Pythia::LHAeventList()"> 
 list the Les Houches Accord information on the current event, see 
-<code><aloc href="LesHouchesAccord">LHAup::listEvent(...)</aloc></code>. 
+<code><aloc href="LHA">LHAup::listEvent(...)</aloc></code>. 
 (Other listings are available via the class members below, so this 
 listing is a special case that would not fit elsewhere.) 
 </method> 
@@ -1073,7 +1083,7 @@ listing is a special case that would not fit elsewhere.)
 <method name="bool Pythia::LHAeventSkip(int nSkip)"> 
 skip ahead a number of events in the Les Houches generation 
 sequence, without doing anything further with them, see 
-<code><aloc href="LesHouchesAccord">LHAup::skipEvent(nSkip)</aloc></code>. 
+<code><aloc href="LHA">LHAup::skipEvent(nSkip)</aloc></code>. 
 Mainly intended for debug purposes, e.g. when an event at a known 
 location in a Les Houches Event File is causing problems. 
 <argument name="nSkip"> 
@@ -1214,4 +1224,4 @@ see <aloc href="AdvancedUsage">here</aloc> for further details.
  
 </chapter> 
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

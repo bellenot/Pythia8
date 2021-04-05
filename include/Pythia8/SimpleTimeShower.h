@@ -1,5 +1,5 @@
 // SimpleTimeShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -44,9 +44,9 @@ public:
     iMEpartner(iMEpartnerIn), weakPol(weakPolIn), isOctetOnium(isOctetOniumIn),
     isHiddenValley(isHiddenValleyIn), colvType(colvTypeIn), MEmix(MEmixIn),
     MEorder (MEorderIn), MEsplit(MEsplitIn), MEgluinoRec(MEgluinoRecIn),
-    isFlexible(isFlexibleIn), hasJunction(false), flavour(), iAunt(), mRad(),
-    m2Rad(), mRec(), m2Rec(), mDip(), m2Dip(), m2DipCorr(), pT2(), m2(), z(),
-    mFlavour(), asymPol(), flexFactor(), pAccept()  { }
+    isFlexible(isFlexibleIn), flavour(), iAunt(), mRad(), m2Rad(), mRec(),
+    m2Rec(), mDip(), m2Dip(), m2DipCorr(), pT2(), m2(), z(), mFlavour(),
+    asymPol(), flexFactor(), pAccept()  { }
 
   // Basic properties related to dipole and matrix element corrections.
   int    iRadiator, iRecoiler;
@@ -57,7 +57,6 @@ public:
   int    colvType;
   double MEmix;
   bool   MEorder, MEsplit, MEgluinoRec, isFlexible;
-  bool   hasJunction;
 
   // Properties specific to current trial emission.
   int    flavour, iAunt;
@@ -101,8 +100,7 @@ public:
     pdfScale2(), doTrialNow(), canEnhanceEmission(), canEnhanceTrial(),
     canEnhanceET(), doUncertaintiesNow(), dipSel(), iDipSel(), nHard(),
     nFinalBorn(), nMaxGlobalBranch(), nGlobal(), globalRecoilMode(),
-    limitMUQ(), weakHardSize() { beamOffset = 0; pdfMode = 0;
-    useSystems = true; }
+    limitMUQ(), weakHardSize() { beamOffset = 0;}
 
   // Destructor.
   virtual ~SimpleTimeShower() {}
@@ -159,17 +157,6 @@ public:
   // Provide the pT scale of the last branching in the above shower.
   virtual double pTLastInShower() {return pTLastBranch;}
 
-  // Functions to directly extract the probability of no emission between two
-  // scales. These functions are not used in the Pythia core code, but can be
-  // used by external programs to interface with the shower directly.
-  double noEmissionProbability( double pTbegAll, double pTendAll, double m2dip,
-    int id, int type, double s = -1., double x = -1.);
-  double pTnext( vector<TimeDipoleEnd> dipEnds, Event event, double pTbegAll,
-    double pTendAll, double m2dip, int id, int type, double s = -1.,
-    double x = -1.);
-  int pdfMode;
-  bool useSystems;
-
 private:
 
   // Constants: could only be changed in the code itself.
@@ -194,7 +181,6 @@ private:
          globalRecoil, useLocalRecoilNow, doSecondHard, hasUserHooks,
          singleWeakEmission, alphaSuseCMW, vetoWeakJets, allowMPIdipole,
          weakExternal, recoilDeadCone,  doDipoleRecoil, doPartonVertex;
-  int    pdfModeSave;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaSnfmax, nGluonToQuark,
          weightGluonToQuark, alphaEMorder, nGammaToQuark, nGammaToLepton,
          nCHV, idHV, alphaHVorder, nMaxGlobalRecoil, weakMode;

@@ -1,5 +1,5 @@
 // History.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -8,6 +8,7 @@
 // Clustering and History classes.
 
 #include "Pythia8/History.h"
+#include "Pythia8/SharedPointers.h"
 
 namespace Pythia8 {
 
@@ -71,7 +72,7 @@ History::History( int depthIn,
          double scalein,
          Event statein,
          Clustering c,
-         MergingHooks* mergingHooksPtrIn,
+         MergingHooksPtr mergingHooksPtrIn,
          BeamParticle beamAIn,
          BeamParticle beamBIn,
          ParticleData* particleDataPtrIn,
@@ -110,8 +111,7 @@ History::History( int depthIn,
       coupSMPtr(coupSMPtrIn),
       probMaxSave(-1.),
       depth(depthIn),
-      minDepthSave(-1),
-      nMaxOrd(0)
+      minDepthSave(-1)
     {
 
   // Initialise beam particles
@@ -171,6 +171,7 @@ History::History( int depthIn,
 
   // If necessary, try to find possible EW clusterings.
   vector<Clustering> clusteringsEW;
+  //  if ( depth > 0 && mergingHooksPtr->doWeakClustering() )
   if ( depth > 0 && dow )
     clusteringsEW = getAllEWClusterings();
   if ( !clusteringsEW.empty() ) {
@@ -192,62 +193,32 @@ History::History( int depthIn,
     // Multiply with hard process matrix element.
     prob *= hardProcessME(state);
     if (registerPath( *this, isOrdered, isStronglyOrdered, isAllowed,
-      depth == 0 )) {
-      updateMinDepth(depth);
-      double nord = nOrdered (infoPtr->eCM());
-      if (nord>-1) updateNmaxOrdered(nord);
-    } else {
-      state.free();
-    }
+      depth == 0 )) updateMinDepth(depth);
     return;
   }
 
   // We'll now order the clusterings in such a way that an ordered
   // history is found more rapidly. Following the branches with small pT is
   // a good heuristic, as is following ISR clusterings.
-  double pMax = -1.;
-  map<int,multimap<double, Clustering *> > sort_ordered;
-  for (unsigned int i = 0; i < clusterings.size(); ++i) {
-    double t = clusterings[i].pT();
-    // Retain only clustering with highest probability.
-    if ( mergingHooksPtr->nMinJetWTA() > 0
-      && depth >= mergingHooksPtr->nMinJetWTA()) {
-      double p = getProb(clusterings[i]);
-      clusterings[i].prob = p;
-      clusterings[i].hasProbSet = true;
-      pMax = max(pMax,p);
-    }
-    int nord =  nOrdered(t);
-    if (nord >-1 && t>scale) nord++;
-    if (nord < 0) nord=0;
-    map<int,multimap<double, Clustering *> >::iterator it
-      = sort_ordered.find(nord);
-    if (it == sort_ordered.end()) {
-      sort_ordered[nord] = multimap<double, Clustering *>();
-      sort_ordered[nord].insert(make_pair(t, &clusterings[i]));
-    } else
-      sort_ordered[nord].insert(make_pair(t, &clusterings[i]));
-  }
-
-  for ( map<int,multimap<double, Clustering *> >::reverse_iterator
-    it0  = sort_ordered.rbegin();
-    it0 != sort_ordered.rend();
-    ++it0) {
-
-  // First go through potentially ordered clusterings.
-  for ( multimap<double, Clustering *>::iterator it = it0->second.begin();
-  it != it0->second.end(); ++it ) {
-
-  /*double pMax = -1.;
   multimap<double, Clustering *> sort;
   for (unsigned int i = 0; i < clusterings.size(); ++i) {
     double t = clusterings[i].pT();
     double index = t;
+    //// This might be a marginally faster ordering.
+    //double z = getCurrentZ(clusterings[i].emittor,
+    //             clusterings[i].recoiler,
+    //             clusterings[i].emitted,
+    //             clusterings[i].flavRadBef);
+    //double index = t/z;
+    //if (!state[clusterings[i].emittor].isFinal())
+    //  sort.insert(make_pair(-1./index, &clusterings[i]));
+    //else
+    //  sort.insert(make_pair(index, &clusterings[i]));
     sort.insert(make_pair(index, &clusterings[i]));
   }
 
   for ( multimap<double, Clustering *>::iterator it = sort.begin();
-  it != sort.end(); ++it ) {*/
+  it != sort.end(); ++it ) {
 
     double t = it->second->pT();
     // If this path is not strongly ordered and we already have found an
@@ -260,15 +231,6 @@ History::History( int depthIn,
       if ( onlyStronglyOrderedPaths()  ) continue;
       stronglyOrdered = false;
     }
-
-    int nord = nOrdered (t);
-    if (nord >-1 && nord + depth < nMaxOrdered()) continue;
-
-    // Retain only clustering with highest probability.
-    if ( mergingHooksPtr->nMinJetWTA() > 0
-      && depth >= mergingHooksPtr->nMinJetWTA()
-      && it->second->hasProbSet
-      && it->second->prob < pMax) continue;
 
     // Check if reclustering follows ordered sequence.
     bool ordered = isOrdered;
@@ -311,29 +273,17 @@ History::History( int depthIn,
     }
 
     // Skip if this branch is already strongly suppressed.
-    double p = it->second->hasProbSet
-             ? it->second->prob :  getProb(*it->second);
+    double p = getProb(*it->second);
     if (abs(p)*prob < 1e-10*probMax()) continue;
-    //if (abs(p)*prob < 0.0*probMax()) continue;
-
-    // Skip clusterings with vanishing probability.
-    if (p==0.) continue;
-
-    // Create new state - already here, to catch errors when clustering.
-    Event newState(cluster(*it->second));
-    if (newState.size()<3) continue;
+    updateProbMax(abs(p)*prob,depth==0);
 
     // Perform the clustering and recurse and construct the next
     // history node.
-    children.push_back(new History(depth - 1, t, newState,
+    children.push_back(new History(depth - 1, t, cluster(*it->second),
            *it->second, mergingHooksPtr, beamA, beamB, particleDataPtr,
            infoPtr, showers, coupSMPtr, ordered, stronglyOrdered, allowed,
            true, prob*p, this ));
   }
-
-  }
-
-  clearPaths();
 
 }
 
@@ -419,7 +369,8 @@ double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
     double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
     double runningCoupling = (*asFSR).alphaS(newQ2Ren) / asME;
     asWeight *= pow2(runningCoupling);
-  } else if (isQCD2to2(selected->state)) {
+  } else if (mergingHooksPtr->doWeakClustering()
+    && isQCD2to2(selected->state)) {
     // Reset to a running coupling. Here we choose FSR for simplicity.
     double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
     double runningCoupling = (*asFSR).alphaS(newQ2Ren) / asME;
@@ -427,7 +378,7 @@ double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
   }
 
   // For W clustering, correct the \alpha_em.
-  if (isEW2to1(selected->state)) {
+  if (mergingHooksPtr->doWeakClustering() && isEW2to1(selected->state)) {
     // Reset to a running coupling. Here we choose FSR for simplicity.
     double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
     double runningCoupling = (*aemFSR).alphaEM(newQ2Ren) / aemME;
@@ -464,7 +415,7 @@ double History::weightLOOP(PartonLevel* trial, double RN ) {
     infoPtr->errorMsg(message);
   }
 
-  /*// Select a path of clusterings
+  // Select a path of clusterings
   History *  selected = select(RN);
   // Set scales in the states to the scales pythia would have set
   selected->setScalesInHistory();
@@ -480,39 +431,7 @@ double History::weightLOOP(PartonLevel* trial, double RN ) {
                    maxScale );
   wt = mpiwt;
   // Done
-  return wt;*/
-
-  // Select a path of clusterings
-  History *  selected = select(RN);
-  // Set scales in the states to the scales pythia would have set
-  selected->setScalesInHistory();
-  // So far, no reweighting
-  //double wt = 1.;
-
-  // Read alpha_S in ME calculation and maximal scale (eCM)
-  double maxScale = (foundCompletePath)
-                  ? infoPtr->eCM()
-                  : mergingHooksPtr->muFinME();
-
-  // Only allow two clusterings if all intermediate states above the
-  // merging scale.
-  int nSteps = mergingHooksPtr->getNumberOfClusteringSteps(state);
-  if ( nSteps == 2 && mergingHooksPtr->nRecluster() == 2
-    && ( !foundCompletePath
-      || !selected->allIntermediateAboveRhoMS( mergingHooksPtr->tms() )) )
-    return 0.;
-
-  // MPI no-emission probability.
-  int njetsMaxMPI = mergingHooksPtr->nMinMPI()+1;
-  double mpiwt = selected->weightTreeEmissions( trial, -1, 0, njetsMaxMPI,
-                   maxScale );
-
-  // Do PDF ratios
-  double pdfWeight = 1.;
-
-  // Set weight
-  return ( mergingHooksPtr->nRecluster() == 2 ) ? 1. : pdfWeight*mpiwt;
-
+  return wt;
 }
 
 //--------------------------------------------------------------------------
@@ -552,7 +471,8 @@ double History::weightFIRST(PartonLevel* trial, AlphaStrong* asFSR,
           rndmPtr );
 
   // Get starting scale for trial showers.
-  double startingScale = (selected->mother) ? state.scale() : infoPtr->eCM();
+  double startingScale = (selected->mother) ? state.scale()
+    : infoPtr->eCM();
 
   // Count emissions: New variant
   // Generate true average, not only one-point
@@ -1054,7 +974,7 @@ bool History::getFirstClusteredEventAboveTMS( const double RN, int nDesired,
   select(RN)->setScalesInHistory();
 
   // Recluster until reclustered event is above the merging scale.
-  Event dummy(15);
+  Event dummy = Event();
   do {
     // Initialise temporary output of reclustering.
     dummy.clear();
@@ -2100,27 +2020,6 @@ int History::nClusterings() {
   return w;
 }
 
-int History::nOrdered( double maxscale ) {
-  //return -1;
-  vector<double> s = scales();
-  if (s.empty()) return 0;
-  s.push_back(maxscale);
-  int no(0), nomax(0);
-  for (size_t i=0; i < s.size()-1; ++i) {
-    if (s[i]<s[i+1]) no++;
-    if (s[i]>s[i+1]) no=0;
-    nomax = max(no,nomax);
-  }
-  return nomax;
-}
-
-vector<double> History::scales() {
-  if ( !mother ) return vector<double>();
-  vector<double> ret = mother->scales();
-  ret.push_back(clusterIn.pT());
-  return ret;
-}
-
 //--------------------------------------------------------------------------
 
 // Functions to return the event after nSteps splittings of the 2->2 process
@@ -2205,10 +2104,6 @@ bool History::trimHistories() {
     it != paths.end(); ++it ) {
     // Check if history is allowed.
     if ( it->second->keep() && !it->second->keepHistory() )
-      it->second->remove();
-    int nord = it->second->nOrdered(infoPtr->eCM());
-    if ( it->second->keep() && nord >-1
-      && nord != nMaxOrdered())
       it->second->remove();
   }
   // Project onto desired / undesired branches.
@@ -3125,7 +3020,6 @@ double History::doTrialShower( PartonLevel* trial, int type,
   Event process        = state;
   // Set starting scale.
   double startingScale = maxscaleIn;
-
   // Careful when setting shower starting scale for pure QCD and prompt
   // photon case.
   if ( mergingHooksPtr->getNumberOfClusteringSteps(process) == 0
@@ -3137,15 +3031,14 @@ double History::doTrialShower( PartonLevel* trial, int type,
   // Set output.
   bool doVeto          = false;
   double wt            = 1.;
-  bool canEnhanceTrial = (trial->userHooksPtr!=0)
-         && trial->userHooksPtr->canEnhanceTrial();
+  bool canEnhanceTrial = trial->canEnhanceTrial();
 
   while ( true ) {
 
     // Reset trialShower object
     trial->resetTrial();
     // Construct event to be showered
-    Event event(15);
+    Event event = Event();
     event.init("(hard process-modified)", particleDataPtr);
     event.clear();
 
@@ -3188,10 +3081,8 @@ double History::doTrialShower( PartonLevel* trial, int type,
     trial->resetTrial();
 
     // Get enhanced trial emission weight.
-    double pTEnhanced = (canEnhanceTrial)
-                      ? trial->userHooksPtr->getEnhancedTrialPT() : 0.;
-    double wtEnhanced = (canEnhanceTrial)
-                      ? trial->userHooksPtr->getEnhancedTrialWeight() : 1.;
+    double pTEnhanced = trial->getEnhancedTrialPT();
+    double wtEnhanced = trial->getEnhancedTrialWeight();
     if ( canEnhanceTrial && pTEnhanced > 0.) pTtrial = pTEnhanced;
 
     // Get veto (merging) scale value
@@ -3316,14 +3207,13 @@ History::countEmissions(PartonLevel* trial, double maxscale,
       startingScale = min( startingScale, hardFacScale(process) );
 
   vector<double> wts;
-  bool canEnhanceTrial = (trial->userHooksPtr!=0)
-         && trial->userHooksPtr->canEnhanceTrial();
+  bool canEnhanceTrial = trial->canEnhanceTrial();
 
   while ( true ) {
     // Reset trialShower object
     trial->resetTrial();
     // Construct event to be showered
-    Event event(15);
+    Event event = Event();
     event.init("(hard process-modified)", particleDataPtr);
     event.clear();
 
@@ -3363,10 +3253,8 @@ History::countEmissions(PartonLevel* trial, double maxscale,
     trial->resetTrial();
 
     // Get enhanced trial emission weight.
-    double pTEnhanced = (canEnhanceTrial)
-                      ? trial->userHooksPtr->getEnhancedTrialPT() : 0.;
-    double wtEnhanced = (canEnhanceTrial)
-                      ? trial->userHooksPtr->getEnhancedTrialWeight() : 1.;
+    double pTEnhanced = trial->getEnhancedTrialPT();
+    double wtEnhanced = trial->getEnhancedTrialWeight();
     if ( canEnhanceTrial && pTEnhanced > 0.) pTtrial = pTEnhanced;
 
     // Get veto (merging) scale value
@@ -3562,7 +3450,6 @@ bool History::registerPath(History & l, bool isOrdered,
     if ( !foundAllowedPath || !foundCompletePath ) {
       // If this is the first complete, allowed path, discard the
       // old, disallowed or incomplete ones.
-      map<double,History *>().swap(paths);
       paths.clear();
       sumpath = 0.0;
     }
@@ -3575,7 +3462,6 @@ bool History::registerPath(History & l, bool isOrdered,
     if ( !foundStronglyOrderedPath || !foundCompletePath ) {
       // If this is the first complete, ordered path, discard the
       // old, non-ordered or incomplete ones.
-      map<double,History *>().swap(paths);
       paths.clear();
       sumpath = 0.0;
     }
@@ -3588,7 +3474,6 @@ bool History::registerPath(History & l, bool isOrdered,
     if ( !foundOrderedPath || !foundCompletePath ) {
       // If this is the first complete, ordered path, discard the
       // old, non-ordered or incomplete ones.
-      map<double,History *>().swap(paths);
       paths.clear();
       sumpath = 0.0;
     }
@@ -3601,7 +3486,6 @@ bool History::registerPath(History & l, bool isOrdered,
     if ( !foundCompletePath ) {
       // If this is the first complete path, discard the old,
       // incomplete ones.
-      map<double,History *>().swap(paths);
       paths.clear();
       sumpath = 0.0;
     }
@@ -3617,18 +3501,6 @@ bool History::registerPath(History & l, bool isOrdered,
   double weakProb = 1.;
   if (mergingHooksPtr->doWeakClustering())
     weakProb = l.getWeakProb();
-
-  int nord = l.nOrdered (infoPtr->eCM());
-  if (nord>-1 && nord < l.nMaxOrdered()) return false;
-  if (nord>-1 && nord > l.nMaxOrdered() && l.nMaxOrdered() > 0) {
-    for ( map<double, History*>::iterator it = paths.begin();
-      it != paths.end(); ++it ) it->second->state.free();
-    map<double,History *>().swap(paths);
-    paths.clear();
-    sumpath = 0.0;
-  }
-  l.updateMinDepth(l.depth);
-  l.updateNmaxOrdered(nord);
 
   // Index path by probability
   sumpath += l.prob * weakProb;
@@ -3692,7 +3564,7 @@ vector<Clustering> History::getAllQCDClusterings() {
   //  search again)
   else if ( ret.empty()
         && mergingHooksPtr->allowColourShuffling() ) {
-    Event NewState(state);
+    Event NewState = Event(state);
     // Start with changing final state quark colour
     for(int i = 0; i < int(posFinalQuark.size()); ++i) {
       // Never change the hard process candidates
@@ -3857,11 +3729,8 @@ void History::attachClusterings (vector<Clustering>& clus, int iEmt, int iRad,
 
     // Do nothing for kinematically forbidden state.
     if (pT <= 0.) return;
-
-    // Get flavour of radiator before the splitting.
-    int flavRadBef = getRadBeforeFlav(iRad, iEmt, event);
     clus.push_back( Clustering(iEmt, iRad, iRec, iPartner,
-      pT, flavRadBef, 0, 0, 0, 9));
+      pT, 0, 0, 0, 0, 9));
 
   } else {
 
@@ -5453,12 +5322,11 @@ double History::getProb(const Clustering & SystemIn) {
     }
 
     // Check cuts on momentum fraction.
-    //double pT2minNow
-    //  = pow2(mergingHooksPtr->settingsPtr->parm("SpaceShower:pTmin"));
-    ////double pT2minNow = mergingHooksPtr->pTcut();
-    //double zMaxAbs   = 1. - 0.5 * (pT2minNow / m2Dip) *
-    //                   ( sqrt( 1. + 4. * m2Dip / pT2minNow ) - 1. );
-    double zMaxAbs   = 1.;
+    double pT2minNow
+      = pow2(mergingHooksPtr->settingsPtr->parm("SpaceShower:pTmin"));
+    //double pT2minNow = mergingHooksPtr->pTcut();
+    double zMaxAbs   = 1. - 0.5 * (pT2minNow / m2Dip) *
+                       ( sqrt( 1. + 4. * m2Dip / pT2minNow ) - 1. );
     zMaxAbs          = min(1.,zMaxAbs);
     //double zMinAbs   = max(0.,1. - zMaxAbs);
     double zMinAbs = 2. * state[Rad].e() / state[0].e() * z1;
@@ -5848,12 +5716,12 @@ double History::hardProcessME( const Event& event ) {
     }
     // qqbar -> Z. No interference with gamma included.
     else if (event[5].idAbs() == 23) {
-      double mZ  = particleDataPtr->m0(23);
-      double gZ  = particleDataPtr->mWidth(23) / mZ;
-      double sH  = (event[3].p()+event[4].p()).m2Calc();
-      int idInit = event[3].idAbs();
-      double thetaZRat = (pow2(coupSMPtr->rf(idInit))
-        + pow2(coupSMPtr->lf(idInit))) /
+      double mZ = particleDataPtr->m0(23);
+      double gZ = particleDataPtr->mWidth(23) / mZ;
+      double sH = (event[3].p()+event[4].p()).m2Calc();
+
+      double thetaZRat = (pow2(coupSMPtr->rf( abs(clusterIn.flavRadBef))) +
+        pow2(coupSMPtr->lf( abs(clusterIn.flavRadBef)))) /
         (24. * coupSMPtr->sin2thetaW() * coupSMPtr->cos2thetaW());
       double bwW = 12. * M_PI / ( pow2(sH - pow2(mZ)) + pow2(sH * gZ) );
       double preFac = thetaZRat * sqrt(sH) * particleDataPtr->mWidth(23);
@@ -5984,10 +5852,9 @@ Event History::cluster( Clustering & inSystem ) {
   int recType = state[Rec].isFinal() ? 1 : -1;
 
   // Construct the clustered event
-  Event NewEvent(15);
+  Event NewEvent = Event();
   NewEvent.init("(hard process-modified)", particleDataPtr);
   NewEvent.clear();
-  map<int,int> iPosMothTmp, iPosMoth;
 
   // Check if external clustering should be used.
   if ( mergingHooksPtr->useShowerPlugin() ) {
@@ -6006,11 +5873,9 @@ Event History::cluster( Clustering & inSystem ) {
   }
 
   // Copy all unchanged particles to NewEvent
-  for (int i = 0; i < state.size(); ++i) {
-    if ( i == Rad || i == Rec || i == Emt ) continue;
-    int iNext = NewEvent.append( state[i] );
-    iPosMothTmp[iNext] = i;
-  }
+  for (int i = 0; i < state.size(); ++i)
+    if ( i != Rad && i != Rec && i != Emt )
+      NewEvent.append( state[i] );
 
   // Copy all the junctions one by one
   for (int i = 0; i < state.sizeJunction(); ++i)
@@ -6321,15 +6186,13 @@ Event History::cluster( Clustering & inSystem ) {
   }
 
   // Build the clustered event
-  Event outState(15);
+  Event outState = Event();
   outState.init("(hard process-modified)", particleDataPtr);
   outState.clear();
 
   // Copy system and incoming beam particles to outState
-  for (int i = 0; i < 3; ++i) {
-    int iNext = outState.append( NewEvent[i] );
-    iPosMoth[iNext] = iPosMothTmp[i];
-  }
+  for (int i = 0; i < 3; ++i)
+    outState.append( NewEvent[i] );
   // Copy all the junctions one by one
   for (int i = 0; i < state.sizeJunction(); ++i)
     outState.appendJunction( state.getJunction(i) );
@@ -6347,37 +6210,32 @@ Event History::cluster( Clustering & inSystem ) {
   // Append first incoming particle
   if ( RecBefore.mother1() == 1) {
     recPos = outState.append( RecBefore );
-    iPosMoth[recPos] = Rec;
     recAppended = true;
   } else if ( RadBefore.mother1() == 1 ) {
     radPos = outState.append( RadBefore );
-    iPosMoth[radPos] = Rad;
     radAppended = true;
   } else {
     // Find second incoming in input event
     int in1 = 0;
     for(int i=0; i < int(state.size()); ++i)
       if (state[i].mother1() == 1) in1 =i;
-    int iNext = outState.append( state[in1] );
-    iPosMoth[iNext] = in1;
+    outState.append( state[in1] );
     size++;
   }
   // Append second incoming particle
   if ( RecBefore.mother1() == 2) {
     recPos = outState.append( RecBefore );
-    iPosMoth[recPos] = Rec;
     recAppended = true;
   } else if ( RadBefore.mother1() == 2 ) {
     radPos = outState.append( RadBefore );
-    iPosMoth[radPos] = Rad;
     radAppended = true;
   } else {
     // Find second incoming in input event
     int in2 = 0;
     for(int i=0; i < int(state.size()); ++i)
       if (state[i].mother1() == 2) in2 =i;
-    int iNext = outState.append( state[in2] );
-    iPosMoth[iNext] = in2;
+
+    outState.append( state[in2] );
     size++;
   }
 
@@ -6385,13 +6243,11 @@ Event History::cluster( Clustering & inSystem ) {
   if (!recAppended && !RecBefore.isFinal()) {
     recAppended = true;
     recPos = outState.append( RecBefore);
-    iPosMoth[recPos] = Rec;
   }
   // Append new radiator if not done already
   if (!radAppended && !RadBefore.isFinal()) {
     radAppended = true;
     radPos = outState.append( RadBefore);
-    iPosMoth[radPos] = Rad;
   }
 
   // Append intermediate particle
@@ -6399,45 +6255,29 @@ Event History::cluster( Clustering & inSystem ) {
   // Append intermediate particle
   // (careful not to append reclustered recoiler)
   for (int i = 0; i < int(NewEvent.size()-1); ++i)
-    if (NewEvent[i].status() == -22) {
-      int iNext = outState.append( NewEvent[i] );
-      iPosMoth[iNext] = iPosMothTmp[i];
-    }
+    if (NewEvent[i].status() == -22) outState.append( NewEvent[i] );
   // Append final state particles, resonances first
   for (int i = 0; i < int(NewEvent.size()-1); ++i)
-    if (NewEvent[i].status() == 22) {
-      int iNext = outState.append( NewEvent[i] );
-      iPosMoth[iNext] = iPosMothTmp[i];
-    }
+    if (NewEvent[i].status() == 22) outState.append( NewEvent[i] );
   // Then start appending partons
-  if (!radAppended && RadBefore.statusAbs() == 22) {
+  if (!radAppended && RadBefore.statusAbs() == 22)
     radPos = outState.append(RadBefore);
-    iPosMoth[radPos] = Rad;
-  }
-  if (!recAppended) {
+  if (!recAppended)
     recPos = outState.append(RecBefore);
-    iPosMoth[recPos] = Rec;
-  }
-  if (!radAppended && RadBefore.statusAbs() != 22) {
+  if (!radAppended && RadBefore.statusAbs() != 22)
     radPos = outState.append(RadBefore);
-    iPosMoth[radPos] = Rad;
-  }
   // Then partons (not reclustered recoiler)
   for(int i = 0; i < int(NewEvent.size()-1); ++i)
     if ( NewEvent[i].status()  != 22
       && NewEvent[i].colType() != 0
-      && NewEvent[i].isFinal()) {
-      int iNext = outState.append( NewEvent[i] );
-      iPosMoth[iNext] = iPosMothTmp[i];
-    }
+      && NewEvent[i].isFinal())
+      outState.append( NewEvent[i] );
   // Then the rest
   for(int i = 0; i < int(NewEvent.size()-1); ++i)
     if ( NewEvent[i].status() != 22
       && NewEvent[i].colType() == 0
-      && NewEvent[i].isFinal() ) {
-      int iNext = outState.append( NewEvent[i] );
-      iPosMoth[iNext] = iPosMothTmp[i];
-    }
+      && NewEvent[i].isFinal() )
+      outState.append( NewEvent[i]);
 
   // Find intermediate and respective daughters
   vector<int> posIntermediate;
@@ -6451,13 +6291,6 @@ Event History::cluster( Clustering & inSystem ) {
       // Find daughters in output state
       int daughter1 = FindParticle( state[d1], outState);
       int daughter2 = FindParticle( state[d2], outState);
-
-      // Careful if resonance daughters have been reclustered.
-      if      (daughter1 < 0 && (d1==Rad || d1 == Emt)) daughter1 = radPos;
-      else if (daughter1 < 0 && d1==Rec)                daughter1 = recPos;
-      if      (daughter2 < 0 && (d2==Rad || d2 == Emt)) daughter2 = radPos;
-      else if (daughter2 < 0 && d2==Rec)                daughter2 = recPos;
-
       // If both daughters found, done
       // Else put first final particle as first daughter
       // and last final particle as second daughter
@@ -6575,6 +6408,7 @@ Event History::cluster( Clustering & inSystem ) {
         outState[iColResNow].acol(radAcl);
     }
 
+
     // If a resonance has been found, but no colours match, and the position
     // of the resonance in the event record has been changed, update the
     // radiator mother
@@ -6582,9 +6416,6 @@ Event History::cluster( Clustering & inSystem ) {
       outState[radPos].mother1(iColResNow);
 
   }
-
-  // Store 1-to-1 map between particles in clustered and unclustered state.
-  inSystem.iPosInMother = iPosMoth;
 
   // If event is not constructed properly, return false
   if ( !validEvent(outState) ) {
@@ -7024,7 +6855,7 @@ int History::FindParticle( const Particle& particle, const Event& event,
       break;
     }
 
-  if (index >= 0 && checkStatus && event[index].status() != particle.status())
+  if ( checkStatus && event[index].status() != particle.status() )
     index = -1;
 
   return index;
@@ -7726,7 +7557,12 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
       && event[rad].id() != radBeforeFlav )
     allowed = false;
 
-  // Ensure quark number conservation.
+  // If only gluons in initial state and no quarks in final state,
+  // reject (no electroweak vertex can be formed)
+  if (nFinalEW != 0 && nInitialQuark == 0
+    && nFinalQuark == 0 && nFinalQuarkExc == 0)
+    allowed = false;
+
   if ( (nInitialQuark + nFinalQuark + nFinalQuarkExc)%2 != 0 )
     allowed = false;
 
@@ -7761,13 +7597,6 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
     else if (nTripletts != 2 && nFinalQuarkExc%2 == 0) allowed = false;
   }
 
-  // If only gluons in initial state and no quarks in final state,
-  // reject (no electroweak vertex can be formed)
-  if (nFinalEW != 0 && nInitialQuark == 0
-    && nFinalQuark == 0 && nFinalQuarkExc == 0
-    && !mergingHooksPtr->allowEffectiveVertex( in, out))
-    allowed = false;
-
   // Minimal phase space checks.
   if ( abs((event[rad].p()+type*event[emt].p()+event[rec].p()).pz())
      > (event[rad].p()+type*event[emt].p()+event[rec].p()).e()
@@ -7786,13 +7615,13 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
   vector<int> outgoingParticles;
   int nOut1 = int(mergingHooksPtr->hardProcess->PosOutgoing1.size());
   for ( int i=0; i < nOut1;  ++i ) {
-    int iPos = mergingHooksPtr->hardProcess->PosOutgoing1[i].second;
+    int iPos = mergingHooksPtr->hardProcess->PosOutgoing1[i];
     outgoingParticles.push_back(
                       mergingHooksPtr->hardProcess->state[iPos].id() );
   }
   int nOut2 = int(mergingHooksPtr->hardProcess->PosOutgoing2.size());
   for ( int i=0; i < nOut2; ++i ) {
-    int iPos = mergingHooksPtr->hardProcess->PosOutgoing2[i].second;
+    int iPos = mergingHooksPtr->hardProcess->PosOutgoing2[i];
     outgoingParticles.push_back(
                       mergingHooksPtr->hardProcess->state[iPos].id() );
   }
@@ -8536,10 +8365,6 @@ double History::pTLund(const Event& event, int rad, int emt, int rec,
   Vec4 Q(RadAfterBranch.p() + sign*EmtAfterBranch.p());
   double Qsq = sign * Q.m2Calc();
 
-  // If tiny Q^2 there won't be a viable configuration. In this case, return
-  // a small value for signalling.
-  if (abs(Qsq)<1e-6) { return 1e-6; }
-
   // Construct 2->3 variables for FSR
   Vec4 radAft(RadAfterBranch.p());
   Vec4 recAft(RecAfterBranch.p());
@@ -8582,11 +8407,6 @@ double History::pTLund(const Event& event, int rad, int emt, int rec,
   double q2BR = (RadAfterBranch.p() - EmtAfterBranch.p()
                + RecAfterBranch.p()).m2Calc();
   double q2AR = (RadAfterBranch.p() + RecAfterBranch.p()).m2Calc();
-
-  // Check that dipole mass after intial-state emission is positive.
-  // If not, the emission is not kinematically allowed and the pT should
-  // be zero.
-  if (Type != 1 && q2BR < 0.) return 0.;
 
   // Prepare for more complicated z definition for massive splittings.
   double lambda13 = sqrt( pow2(Qsq - m2RadAft - m2EmtAft )
@@ -9085,6 +8905,7 @@ void History::reverseBoostISR(Vec4& pMother, Vec4& pSister, Vec4& pPartner,
 // (Only enabled if W reclustering is used).
 bool History::isQCD2to2(const Event& event) {
 
+  if (!mergingHooksPtr->doWeakClustering()) return false;
   //if (event.size() == 7) return true;
   //else return false;
   int nFinalPartons = 0, nFinal = 0;;
@@ -9105,6 +8926,8 @@ bool History::isQCD2to2(const Event& event) {
 // Check if an event reclustered into a 2 -> 1 Drell-Yan.
 // (Only enabled if W reclustering is used).
 bool History::isEW2to1(const Event& event) {
+
+  if (!mergingHooksPtr->doWeakClustering()) return false;
 
   int nVector = 0;
   for (int i = 0;i < event.size();++i) {

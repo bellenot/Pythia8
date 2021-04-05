@@ -328,33 +328,14 @@ then averaged, as described above in <ei>v<sup>h</sup><sub>i</sub> =
 giving a width reduction of 1/sqrt(2). 
 </parm> 
  
-<parm name="HadronVertex:maxSmear" default="0.2" min="0." max="10."> 
-Limit the smearing defined above from giving large shifts of vertices, 
-by reducing the net shift to be this fraction of the original value. 
-(Technically the quantity studied is a quadratic combination of space 
-and time shifts, additionally in quadrature with the  <ei>xySmear</ei> 
-parameter.) 
-</parm> 
- 
-<flag name="HadronVertex:constantTau" default="off"> 
-The transverse smearing can change either the time coordinate or 
+<flag name="HadronVertex:constantTau" default="on"> 
+The transverse smearing might change either the time coordinate or 
 the invariant time of the breakup points with respect to the origin. 
-Normally, the time coordinate is kept constant and the invariant time 
-is modified by the smearing. If on, the <ei>tau</ei> is kept constant 
-and the time coordinate is recalculated to compensate the effect of 
-the smearing. Empirically, the former prescription gives fewer problems 
-on the hadron level. 
+Normally, the <ei>tau</ei> is kept constant and the time coordinate is 
+recalculated to compensate the effect of the smearing. If off, the 
+time coordinate is kept constant and the invariant time is modified 
+by the smearing. 
 </flag> 
- 
-<parm name="HadronVertex:maxTau" default="20." min="1." max="100."> 
-In cases of complicated string topologies the reconstruction of a 
-string breakup vertex can fail occasionally. Usually this translates 
-into a large (positive or negative) production invariant (squared) 
-time for the adjacent hadrons (using the middle definition). This cut 
-rejects fragmented systems where such a large tau is found, and a new 
-try to hadronize is made. If this variable is set too low then also 
-many correct vertices will be rejected. 
-</parm> 
  
 <flag name = "HadronVertex:rapidDecays" default = "on"> 
 The decay products of particles with short lifetimes, such as rho, should be 
@@ -387,4 +368,4 @@ in the Review of Particle Physics.
  
 </chapter> 
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

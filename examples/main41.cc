@@ -1,9 +1,12 @@
 // main41.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Author: Mikhail Kirsanov, Mikhail.Kirsanov@cern.ch, based on main01.cc.
+// Authors: Mikhail Kirsanov <Mikhail.Kirsanov@cern.ch>.
+
+// Keywords: basic usage; hepmc;
+
 // This program illustrates how HepMC can be interfaced to Pythia8.
 // It studies the charged multiplicity distribution at the LHC.
 // HepMC events are output to the hepmcout41.dat file.

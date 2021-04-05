@@ -1,5 +1,5 @@
 // HepMC2.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -86,7 +86,7 @@ public:
 
   // Alternative method to convert Pythia events into HepMC ones.
   bool fill_next_event( Pythia8::Event& pyev, GenEvent* evt,
-    int ievnum = -1, Pythia8::Info* pyinfo = 0,
+    int ievnum = -1, const Pythia8::Info* pyinfo = 0,
     Pythia8::Settings* pyset = 0, bool append = false,
     GenParticle* rootParticle = 0, int iBarcode = -1);
 
@@ -129,8 +129,9 @@ private:
 // append to an existing GenEvent, and return T/F = success/failure.
 
 inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
-  GenEvent* evt, int ievnum, Pythia8::Info* pyinfo, Pythia8::Settings* pyset,
-  bool append, GenParticle* rootParticle, int iBarcode) {
+  GenEvent* evt, int ievnum, const Pythia8::Info* pyinfo,
+  Pythia8::Settings* pyset, bool append, GenParticle* rootParticle,
+  int iBarcode) {
 
   // 1. Error if no event passed.
   if (!evt) {

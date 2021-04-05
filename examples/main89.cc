@@ -1,16 +1,25 @@
 // main89.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// This program is written by Stefan Prestel.
-// It illustrates how to do run PYTHIA with LHEF input, allowing a
+// Authors: Stefan Prestel <stefan.prestel@thep.lu.se>.
+
+// Keywords: matching; merging; leading order; NLO; powheg; madgraph; aMC@NLO;
+// CKKW-L; UMEPS; NL3; UNLOPS; FxFx; MLM; userhooks; LHE file; hepmc;
+
+// This program illustrates how to do run PYTHIA with LHEF input, allowing a
 // sample-by-sample generation of
 // a) Non-matched/non-merged events
 // b) MLM jet-matched events (kT-MLM, shower-kT, FxFx)
 // c) CKKW-L and UMEPS-merged events
 // d) UNLOPS NLO merged events
 // see the respective sections in the online manual for details.
+//
+// An example command is
+//     ./main89 main89ckkwl.cmnd hepmcout89.dat
+// where main89.cmnd supplies the commands and hepmcout89.dat is the
+// output file. This example requires HepMC.
 
 #include "Pythia8/Pythia.h"
 #include "Pythia8Plugins/HepMC2.h"
@@ -81,13 +90,13 @@ int main( int argc, char* argv[] ){
   // Number of events. Negative numbers mean all events in the LHEF will be
   // used.
   long nEvent = pythia.settings.mode("Main:numberOfEvents");
-  if (nEvent < 1) nEvent = 1000000000000000;
+  if (nEvent < 1) nEvent = 1000;
 
   // For jet matching, initialise the respective user hooks code.
-  UserHooks* matching            = NULL;
+  //shared_ptr<UserHooks> matching;
 
   // Allow to set the number of addtional partons dynamically.
-  amcnlo_unitarised_interface* setting = NULL;
+  shared_ptr<amcnlo_unitarised_interface> setting;
   if ( doMerge ) {
     // Store merging scheme.
     int scheme = ( pythia.settings.flag("Merging:doUMEPSTree")
@@ -99,32 +108,18 @@ int main( int argc, char* argv[] ){
                 || pythia.settings.flag("Merging:doUNLOPSSubtNLO")) ?
                 2 :
                 0 );
-    setting = new amcnlo_unitarised_interface(scheme);
+    setting = make_shared<amcnlo_unitarised_interface>(scheme);
     pythia.setUserHooksPtr(setting);
   }
 
   // For jet matching, initialise the respective user hooks code.
-  if (doMatch) {
-    CombineMatchingInput combined;
-    matching = combined.getHook(pythia);
-    if (!matching) {
-      cerr << " Failed to initialise jet matching structures.\n"
-           << " Program stopped.";
-      return 1;
-    }
-    pythia.setUserHooksPtr(matching);
-  }
+  CombineMatchingInput combined;
+  if (doMatch) combined.setHook(pythia);
 
   vector<double> xss;
 
-  // Allow estimate cross-section for non-matched configuration, to allow
-  // that usage as well.
-  bool doEst = !doMatchMerge;
-  if (doMerge
-    && pythia.settings.mode("Beams:frameType") != 4
-    && pythia.settings.mode("Beams:frameType") != 5)
-    doEst=true;
-  if(doEst) {
+  // Allow usage also for non-matched configuration.
+  if(!doMatchMerge) {
     // Loop over subruns with varying number of jets.
     for (int iMerge = 0; iMerge < nMerge; ++iMerge) {
       // Read in file for current subrun and initialize.
@@ -165,16 +160,21 @@ int main( int argc, char* argv[] ){
     // Read in name of LHE file for current subrun and initialize.
     pythia.readFile(argv[1], iMerge);
 
+    // If the process string is "guess", temporarily set it to something safe
+    // for initialization.
+    bool doGuess = pythia.settings.word("Merging:process") == "guess";
+    if (doMerge && doGuess) pythia.settings.word("Merging:process","pp>e+e-");
     // Initialise.
     pythia.init();
+    // Reset the process string to "guess" if necessary.
+    if (doGuess) pythia.settings.word("Merging:process","guess");
 
     // Get the inclusive x-section by summing over all process x-sections.
     double xs = 0.;
     for (int i=0; i < pythia.info.nProcessesLHEF(); ++i)
       xs += pythia.info.sigmaLHEF(i);
 
-    if (!doMatchMerge || (doMerge && pythia.info.nProcessesLHEF()==0))
-      xs = xss[iMerge];
+    if (!doMatchMerge) xs = xss[iMerge];
 
     // Start generation loop
     while( pythia.info.nSelected() < nEvent ){
@@ -204,10 +204,8 @@ int main( int argc, char* argv[] ){
       if (abs(pythia.info.lhaStrategy()) == 4)
         normhepmc = 1. / double(1e9*nEvent);
       // Work with unweighted events.
-      else if (abs(pythia.info.lhaStrategy()) == 3)
-        normhepmc = xs / double(1e9*nEvent);
       else
-        normhepmc = xs / double(nEvent);
+        normhepmc = xs / double(1e9*nEvent);
 
       // Set event weight
       hepmcevt->weights().push_back(evtweight*normhepmc);
@@ -246,10 +244,6 @@ int main( int argc, char* argv[] ){
     cout << "Inclusive cross section: " << scientific << setprecision(8)
          << sigmaTotal << "  +-  " << sqrt(errorTotal) << " mb " << endl;
   cout << endl << endl << endl;
-
-  // Clean-up
-  if ( doMerge ) delete setting;
-  if ( doMatch ) delete matching;
 
   // Done
   return 0;

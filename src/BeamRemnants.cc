@@ -1,5 +1,5 @@
 // BeamRemnants.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -35,42 +35,33 @@ const bool   BeamRemnants::CORRECTMISMATCH  = false;
 
 // Initialization.
 
-bool BeamRemnants::init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn,
-  BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
-  PartonSystems* partonSystemsPtrIn, PartonVertex* partonVertexPtrIn,
-  ParticleData* particleDataPtrIn,
-  ColourReconnection* colourReconnectionPtrIn) {
+bool BeamRemnants::init( PartonVertexPtr partonVertexPtrIn,
+  ColRecPtr colourReconnectionPtrIn) {
 
   // Save pointers.
-  infoPtr               = infoPtrIn;
-  rndmPtr               = rndmPtrIn;
-  beamAPtr              = beamAPtrIn;
-  beamBPtr              = beamBPtrIn;
-  partonSystemsPtr      = partonSystemsPtrIn;
   partonVertexPtr       = partonVertexPtrIn;
   colourReconnectionPtr = colourReconnectionPtrIn;
-  particleDataPtr       = particleDataPtrIn;
 
   // Width of primordial kT distribution.
-  doPrimordialKT      = settings.flag("BeamRemnants:primordialKT");
-  primordialKTsoft    = settings.parm("BeamRemnants:primordialKTsoft");
-  primordialKThard    = settings.parm("BeamRemnants:primordialKThard");
-  primordialKTremnant = settings.parm("BeamRemnants:primordialKTremnant");
-  halfScaleForKT      = settings.parm("BeamRemnants:halfScaleForKT");
-  halfMassForKT       = settings.parm("BeamRemnants:halfMassForKT");
-  reducedKTatHighY    = settings.parm("BeamRemnants:reducedKTatHighY");
+  doPrimordialKT      = flag("BeamRemnants:primordialKT");
+  primordialKTsoft    = parm("BeamRemnants:primordialKTsoft");
+  primordialKThard    = parm("BeamRemnants:primordialKThard");
+  primordialKTremnant = parm("BeamRemnants:primordialKTremnant");
+  halfScaleForKT      = parm("BeamRemnants:halfScaleForKT");
+  halfMassForKT       = parm("BeamRemnants:halfMassForKT");
+  reducedKTatHighY    = parm("BeamRemnants:reducedKTatHighY");
 
   // Handling of rescattering kinematics uncertainties from primodial kT.
-  allowRescatter    = settings.flag("MultipartonInteractions:allowRescatter");
-  doRescatterRestoreY = settings.flag("BeamRemnants:rescatterRestoreY");
+  allowRescatter    = flag("MultipartonInteractions:allowRescatter");
+  doRescatterRestoreY = flag("BeamRemnants:rescatterRestoreY");
 
   // Choice of beam remnant and colour reconnection scenarios.
-  remnantMode         = settings.mode("BeamRemnants:remnantMode");
-  doReconnect         = settings.flag("ColourReconnection:reconnect");
-  reconnectMode       = settings.mode("ColourReconnection:mode");
+  remnantMode         = mode("BeamRemnants:remnantMode");
+  doReconnect         = flag("ColourReconnection:reconnect");
+  reconnectMode       = mode("ColourReconnection:mode");
 
   // Do multiparton interactions.
-  doMPI               = settings.flag("PartonLevel:MPI");
+  doMPI               = flag("PartonLevel:MPI");
 
   // Check that remnant model and colour reconnection model work together.
   if (remnantMode == 1 && reconnectMode == 0) {
@@ -84,10 +75,10 @@ bool BeamRemnants::init( Info* infoPtrIn, Settings& settings, Rndm* rndmPtrIn,
   sCM                 = eCM * eCM;
 
   // Initialize junction splitting class.
-  junctionSplitting.init(infoPtr, settings, rndmPtr, particleDataPtrIn);
+  junctionSplitting.init();
 
   // Possibility to set parton vertex information.
-  doPartonVertex      = settings.flag("PartonVertex:setVertex")
+  doPartonVertex      = flag("PartonVertex:setVertex")
                      && (partonVertexPtr != 0);
 
   // Done.
@@ -287,13 +278,14 @@ bool BeamRemnants::addOld( Event& event) {
         // First the beam remnant particle itself.
         partonVertexPtr->vertexBeam(j, beam, event);
         // Then possible daughters.
-        for(int k = 0, N = dList.size(); k < N; ++k )
-                partonVertexPtr->vertexBeam(dList[k],beam,event);
+        for (int k = 0, N = dList.size(); k < N; ++k )
+          partonVertexPtr->vertexBeam(dList[k],beam,event);
       }
       // Switch beam.
       beamPtr = beamBPtr;
     }
   }
+
   // Done.
   return true;
 }
@@ -480,26 +472,14 @@ bool BeamRemnants::setKinematics( Event& event) {
     // Allow primordial kT reduction for small-mass and small-pT systems
     // (for hardest interaction pT -> renormalization scale so also 2 -> 1).
     if (doPrimordialKT) {
-
-      // Les Houches events use primordialKThard.
-      if (iSys == 0 && infoPtr->isLHA()) {
-        kTwidthNow = primordialKThard;
-
-      // Internal processes and MPI use pT-dependent interpolation between
-      // primordialKThard and primordialKTsoft.
-      } else {
-        double scale = (iSys == 0) ? infoPtr->QRen(iDS)
-                                   : partonSystemsPtr->getPTHat(iSys);
-         kTwidthNow = (halfScaleForKT * primordialKTsoft
-           + scale * primordialKThard) / (halfScaleForKT + scale);
-      }
-
-      // Dampen primordial kT width for very low masses / extreme rapidities.
-      double mHat  = sqrt(sHatNow);
-      double yDamp =
-        pow( (event[iInA].e() + event[iInB].e()) / mHat, reducedKTatHighY );
-      mHatDamp =  mHat / (mHat + halfMassForKT * yDamp);
-      kTwidthNow *= mHatDamp;
+      double mHat     = sqrt(sHatNow);
+      double yDamp    = pow( (event[iInA].e() + event[iInB].e()) / mHat,
+                        reducedKTatHighY );
+      mHatDamp        = mHat / (mHat + halfMassForKT * yDamp);
+      double scale    = (iSys == 0) ? infoPtr->QRen(iDS)
+                      : partonSystemsPtr->getPTHat(iSys);
+      kTwidthNow      = ( (halfScaleForKT * primordialKTsoft
+      + scale * primordialKThard) / (halfScaleForKT + scale) ) * mHatDamp;
     }
 
     // Store properties of compensation systems and total compensation power.
@@ -995,9 +975,9 @@ bool BeamRemnants::setOneRemnKinematics( Event& event, int beamOffset) {
               ? 1 + beamOffset + 2 + 2 : 2 + beamOffset + 2 + 2;
   if ( !beamOther.isGamma()
     && (!event[iLepOut].isLepton()
-    || iLepScat > event.size()-1
     || !event[iLepScat].isLepton()
-    || !event[iLepScat].isFinal())) {
+    || !event[iLepScat].isFinal()
+    || iLepScat > event.size()-1)) {
     double eMax = -1.0;
     for (int i = event.size()-1; i > 0 ; --i) {
       if ( event[i].isFinal()
@@ -1446,7 +1426,7 @@ bool BeamRemnants::checkColours( Event& event) {
   // Repair step - sometimes needed when rescattering allowed.
   if (colList.size() > 0 || acolList.size() > 0) {
     infoPtr->errorMsg("Warning in BeamRemnants::checkColours:"
-                      " need to repair unmatched colours");
+      " need to repair unmatched colours");
   }
   while (colList.size() > 0 && acolList.size() > 0) {
 

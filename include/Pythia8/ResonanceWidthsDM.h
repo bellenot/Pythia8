@@ -1,5 +1,5 @@
 // ResonanceWidthsDM.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -36,13 +36,13 @@ private:
   bool pScalar;
 
   // Initialize constants.
-  virtual void initConstants();
+  virtual void initConstants() override;
 
   // Calculate various common prefactors for the current mass.
-  virtual void calcPreFac(bool = false);
+  virtual void calcPreFac(bool = false) override;
 
   // Caclulate width for currently considered channel.
-  virtual void calcWidth(bool calledFromInit = false);
+  virtual void calcWidth(bool calledFromInit = false) override;
 
   // Loop integral for H -> gg coupling.
   virtual double eta2gg();
@@ -68,13 +68,13 @@ private:
   double gZp, eps, vX, aX, vu, vd, vl, vv, au, ad, al, av, preFac;
 
   // Initialize constants.
-  virtual void initConstants();
+  virtual void initConstants() override;
 
   // Calculate various common prefactors for the current mass.
-  virtual void calcPreFac(bool = false);
+  virtual void calcPreFac(bool = false) override;
 
   // Caclulate width for currently considered channel.
-  virtual void calcWidth(bool calledFromInit = false);
+  virtual void calcWidth(bool calledFromInit = false) override;
 
 };
 
@@ -95,13 +95,13 @@ private:
   double yuk[4];
 
   // Initialize constants.
-  virtual void initConstants();
+  virtual void initConstants() override;
 
   // Calculate various common prefactors for the current mass.
-  virtual void calcPreFac(bool = false);
+  virtual void calcPreFac(bool = false) override;
 
   // Caclulate width for currently considered channel.
-  virtual void calcWidth(bool calledFromInit = false);
+  virtual void calcWidth(bool calledFromInit = false) override;
 
 };
 
@@ -129,13 +129,13 @@ protected:
 private:
 
   // Initialize constants.
-  virtual void initConstants() {setMassMix(); return;}
+  virtual void initConstants() override {setMassMix();}
 
   // Calculate various common prefactors for the current mass.
-  virtual void calcPreFac(bool = false);
+  virtual void calcPreFac(bool = false) override;
 
   // Caclulate width for currently considered channel.
-  virtual void calcWidth(bool calledFromInit = false);
+  virtual void calcWidth(bool calledFromInit = false) override;
 
 };
 
@@ -158,13 +158,13 @@ private:
   double mHiggs, wHiggs;
 
   // Initialize constants.
-  virtual void initConstants();
+  virtual void initConstants() override;
 
   // Calculate various common prefactors for the current mass.
-  virtual void calcPreFac(bool = false);
+  virtual void calcPreFac(bool = false) override;
 
   // Caclulate width for currently considered channel.
-  virtual void calcWidth(bool calledFromInit = false);
+  virtual void calcWidth(bool calledFromInit = false) override;
 
 };
 
@@ -186,13 +186,13 @@ private:
   double preFac;
 
   // Initialize constants.
-  virtual void initConstants() {setMassMix();}
+  virtual void initConstants() override {setMassMix();}
 
   // Calculate various common prefactors for the current mass.
-  virtual void calcPreFac(bool = false);
+  virtual void calcPreFac(bool = false) override;
 
   // Caclulate width for currently considered channel.
-  virtual void calcWidth(bool calledFromInit = false);
+  virtual void calcWidth(bool calledFromInit = false) override;
 
 };
 

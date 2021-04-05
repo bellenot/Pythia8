@@ -1,5 +1,5 @@
 // SigmaOnia.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -19,15 +19,14 @@ namespace Pythia8 {
 
 // The constructor.
 
-SigmaOniaSetup::SigmaOniaSetup(Info* infoPtrIn, Settings* settingsPtrIn,
-  ParticleData* particleDataPtrIn, int flavourIn)
+SigmaOniaSetup::SigmaOniaSetup(Info* infoPtrIn, int flavourIn)
   : valid3S1(true), valid3PJ(true), valid3DJ(true), validDbl3S1(true),
   flavour(flavourIn) {
 
   // Set the pointers and category/key strings and mass splitting.
   infoPtr = infoPtrIn;
-  settingsPtr = settingsPtrIn;
-  particleDataPtr = particleDataPtrIn;
+  settingsPtr = infoPtr->settingsPtr;
+  particleDataPtr = infoPtr->particleDataPtr;
   cat   = (flavour == 4) ? "Charmonium" : "Bottomonium";
   key   = (flavour == 4) ? "ccbar" : "bbbar";
   mSplit = settingsPtr->parm("Onia:massSplit");
@@ -101,8 +100,8 @@ SigmaOniaSetup::SigmaOniaSetup(Info* infoPtrIn, Settings* settingsPtrIn,
   initStates("(3S1)1", states1Dbl3S1, spins1Dbl3S1, validDbl3S1, false);
   initStates("(3S1)2", states2Dbl3S1, spins2Dbl3S1, validDbl3S1, false);
   if (states1Dbl3S1.size() != states2Dbl3S1.size()) {
-    infoPtr->errorMsg("Error in SigmaOniaSetup: mvecs Charmonium:states(3S1)"
-      " 1 and 2 are not the same size");
+    infoPtr->errorMsg("Error in SigmaOniaSetup: mvecs Charmonium:states"
+      "(3S1) 1 and 2 are not the same size");
     validDbl3S1 = false;
     return;
   }

@@ -23,8 +23,7 @@
   <li><a href="#section12">Cross sections</a></li>
   <li><a href="#section13">Loop counters</a></li>
   <li><a href="#section14">Parton shower history</a></li>
-  <li><a href="#section15">Les Houches Event File 3.0 information</a></li>
-  <li><a href="#section16">Header information</a></li>
+  <li><a href="#section15">Les Houches Event File information</a></li>
 </ol>
 
  
@@ -424,9 +423,9 @@ subsystems. This argument can take four values:
 <li>0 : default argument, used for normal nondiffractive events or 
 the primary elastic/diffractive process (see above); </li> 
 <li>1 : the <i>X1</i> system in single diffraction 
-<i>A B &rarr; X1 B</i> or double diffraction <i>A B &rarr; X1 X2</i>; </li> 
+<i>A B &rarr; X1 B</i> or double diffraction <i>A B &rarr; X1 X2</i>;</li> 
 <li>2 : the <i>X2</i> system in single diffraction 
-<i>A B &rarr; A X2</i> or double diffraction <i>A B &rarr; X1 X2</i>; </li> 
+<i>A B &rarr; A X2</i> or double diffraction <i>A B &rarr; X1 X2</i>;</li> 
 <li>3 : the <i>X</i> system in central diffraction 
 <i>A B &rarr; A X B</i>. </li> 
 </ul> 
@@ -542,7 +541,7 @@ required multiplication by <code>sigmaGen()</code> below.
 <p/><strong> int Info::lhaStrategy() &nbsp;</strong> <br/>
 normally 0, but if Les Houches events are input then it gives the 
 event weighting strategy, see 
-<a href="LesHouchesAccord.html" target="page">Les Houches Accord</a>. 
+<a href="LHA.html" target="page">Les Houches Accord</a>. 
    
  
 <a name="anchor76"></a>
@@ -929,248 +928,22 @@ set/get value of <i>pT^2</i> in latest ISR branching.
    
  
 <a name="section15"></a> 
-<h3>Les Houches Event File 3.0 information</h3> 
+<h3>Les Houches Event File information</h3> 
  
-Les Houches Event files can conform to version 1.0 and version 3.0 
-of the standard (version 2.0 having been extended to 3.0). The LHEF version 
-of an input file can can be accessed by 
-<a name="anchor114"></a>
-<br/><strong> int Info::LHEFversion() &nbsp;</strong> <br/>
-   
- 
-<p/> 
-The <code>Info</code> class also provides a suitable interface to 
+Since the <code>Info</code> class is one of the main interfaces between 
+the PYTHIA generation and the user, it also handles the retrieval of 
+information that is passed to PYTHIA through input Les Houches Event 
+files. 
+The <code>Info</code> class further provides the interface to 
 the information stored after reading Les Houches Event files in the 
 updated format [<a href="Bibliography.html#refBut14" target="page">But14</a>]. An example main program using LHEF 3.0 
 information is <code>main38.cc</code>. 
  
-<p/> 
-LHEF 3.0 offers new features both in the initialisation and the event sections 
-of the input files. Possible information include extended 
-use of XML tags in the <code>&lt;header&gt;</code> and 
-<code>&lt;init&gt;</code> blocks.  The LHEF 3.0 information is stored 
-in a series <code>struct</code>'s: 
- 
-<p/> 
- -- &nbsp; &nbsp; The <code>&lt;initrwgt&gt;</code> tag is a container 
- tag for weight and weightgroup tags.   This information is stored 
- internally in <code>LHAinitrwgt</code>. 
- Currently, there is no dedicated 
- output for this tag. However, all the information stored in the tag can 
- be retrieved by using the <code>Info</code> class member pointer 
- <code>LHAinitrwgt Info::initrwgt</code>. 
- 
-<p/> 
- -- &nbsp; &nbsp; Multiple <code>&lt;weightgroup&gt;</code> tags: 
- Container tag for weight tags. Currently, there is no dedicated 
- output for this tag. However, all the information stored in the tag can 
- be retrieved by using the <code>Info</code> class member pointer 
- <code>vector&lt;LHAweightgroups&gt; * Info::weightgroups</code>. 
- 
-<p/> 
- -- &nbsp; &nbsp; Multiple <code>&lt;weight&gt;</code> tags: Tag defining 
- auxiliary information on an event weight, e.g. the identifier and information 
- on what the weight represents. All the information stored in the tag can 
- be retrieved by using the <code>Info</code> class member pointer 
- <code>vector&lt;LHAweightgroups&gt; * Info::init_weights</code>. This vector 
- contains all <code>&lt;weight&gt;</code> tags in the 
- <code>&lt;initrwgt&gt;</code> container and its subcontainer 
- <code>&lt;weightgroup&gt;</code> tags. The size of the vector can be accessed 
- through the method 
-<a name="anchor115"></a>
-<br/><strong> int Info::getInitrwgtSize() &nbsp;</strong> <br/>
-   
- 
-<p/> 
- -- &nbsp; &nbsp; Multiple <code>&lt;generator&gt;</code> tags: Store 
- information on the generators used in the event generation. All the 
- information stored in the tag can be retrieved by using the 
- <code>Info</code> class member pointer 
- <code>vector&lt;LHAgenerators&gt; * Info::generators</code>. More easy-to-use 
- output functions are available. The size of this vector can be obtained from 
-<a name="anchor116"></a>
-<br/><strong> int Info::getGeneratorSize() &nbsp;</strong> <br/>
-   
- 
-<p/> 
-The complete header can be obtained with the <code>Info</code> class 
-member <code>string getHeaderBlock()</code>. 
- 
-<p/> 
-The contents of a <code>&lt;generator&gt;</code> tag can be accessed through 
-the method 
-<a name="anchor117"></a>
-<br/><strong> string Info::getGeneratorValue(unsigned int n = 0) &nbsp;</strong> <br/>
-Return the contents of the n'th <code>&lt;generator&gt;</code> tag in 
-the vector of tags. 
-   
- 
-<p/> 
-Attributes of the <code>&lt;generator&gt;</code> tag (e.g. the generator 
-<code>name</code> and <code>version</code>) can be accessed via 
-<a name="anchor118"></a>
-<br/><strong> string Info::getGeneratorAttribute(unsigned int n, string key, bool doRemoveWhitespace = false) &nbsp;</strong> <br/>
-Return the value of the generator attribute named <code>key</code> for 
-the n'th generator in the vector. Setting <code>doRemoveWhitespace</code> to 
-true will return the value, stripped of any whitespace. An empty string is 
-returned if the attribute named <code>key</code> does not exist. 
-   
- 
-<p/> 
-To obtain information on cross sections, the following two methods can be 
-used 
-<a name="anchor119"></a>
-<br/><strong> int Info::nProcessesLHEF() &nbsp;</strong> <br/>
-return the number of processes for which the cross section is stored. 
-   
-<a name="anchor120"></a>
-<br/><strong> double Info::sigmaLHEF(int iProcess) &nbsp;</strong> <br/>
-return the cross section of the <code>iProcess</code>'th process. 
-   
- 
-<p/> 
-Possible information also includes extended use of XML tags in the 
-<code>&lt;event&gt;</code> blocks: 
- 
-<p/> 
- -- &nbsp; &nbsp; The <code>&lt;rwgt&gt;</code> tag is a container 
- tag for wgt tags. Currently, there is no dedicated 
- output for this tag. It can however be retrieved by using the 
- <code>Info</code> class member pointer 
- <code>LHArwgt Info::rwgt</code>. 
- 
-<p/> 
- -- &nbsp; &nbsp; Multiple <code>&lt;wgt&gt;</code> tags: Tag defining 
- the event weight in the detailed version of LHEF 3.0.  All the information 
- stored in the tag can be retrieved by using the <code>Info</code> class 
- member pointer <code>vector&lt;LHAwgt&gt; * Info::weights_detailed</code>. 
- More easy-to-use output functions are available. The size of this vector 
- can be obtained from 
-<a name="anchor121"></a>
-<br/><strong> unsigned int Info::getWeightsDetailedSize() &nbsp;</strong> <br/>
-   
- 
-<p/> 
-A convenient access point to the information stored in the 
-<code>&lt;wgt&gt;</code> tags is the <code>Info</code> class member 
-<code>vector&lt;double&gt; Info::weights_detailed_vector</code>. The 
-entries of this vector are ordered according to how <code>&lt;wgt&gt;</code> 
-tags appear in the event block. 
- 
-<p/> 
-The contents of a <code>&lt;wgt&gt;</code> tag can be accessed through the 
-method 
-<a name="anchor122"></a>
-<br/><strong> double Info::getWeightsDetailedValue(string n) &nbsp;</strong> <br/>
-Return the value of the n'th <code>&lt;wgt&gt;</code> tag in the 
-event. 
-   
- 
-<p/> 
-Attributes of the <code>&lt;wgt&gt;</code> tag (e.g. the weight 
-<code>id</code>) can be accessed via 
-<a name="anchor123"></a>
-<br/><strong> string Info::getWeightsDetailedAttribute(string n, string key, bool doRemoveWhitespace = false) &nbsp;</strong> <br/>
-Return the value of the wgt attribute named <code>key</code> for 
-the n'th wgt in the vector. Setting <code>doRemoveWhitespace</code> to 
-true will return the value, stripped of any whitespace. An empty string is 
-returned if the attribute named <code>key</code> does not exist. 
-   
- 
-<p/> 
- -- &nbsp; &nbsp; The <code>&lt;weights&gt;</code> tag: Tag containing 
- a vector of <code>double</code> entries for weights in the compressed version 
- of LHEF 3.0. All the information stored in the tag can be retrieved by using 
- the <code>Info</code> class member pointer <code> LHAweights * 
- Info::weights</code> and the vector <code> vector&lt;double&gt; 
- Info::weights_compressed</code>. More easy-to-use output functions are 
- available. The size of this vector can be obtained from 
-<a name="anchor124"></a>
-<br/><strong> unsigned int Info::getWeightsCompressedSize() &nbsp;</strong> <br/>
-   
- 
-<p/> 
-The n'th weight can be accessed through the method 
-<a name="anchor125"></a>
-<br/><strong> double Info::getWeightsCompressedValue(unsigned int n) &nbsp;</strong> <br/>
-   
- 
-<p/> 
-Attributes of the <code>&lt;weights&gt;</code> tag (not normally used) can be 
-accessed via 
-<a name="anchor126"></a>
-<br/><strong> string Info::getWeightsCompressedAttribute(string key, bool doRemoveWhitespace = false) &nbsp;</strong> <br/>
-Return the value of the <code>&lt;weights&gt;</code> tag's attribute 
-named <code>key</code>. Setting <code>doRemoveWhitespace</code> to 
-true will return the value, stripped of any whitespace. An empty string is 
-returned if the attribute named <code>key</code> does not exist. 
-   
- 
-<p/> 
- -- &nbsp; &nbsp; The <code>&lt;scales&gt;</code> tag: Contains information 
- on different scales used by the matrix element generator. All the information 
- stored in the tag can be retrieved by using the <code>Info</code> class 
- member pointer <code> LHAweights * Info::scales</code>. More easy-to-use 
- output functions are available. The contents of the scales tag can be 
- obtained from 
-<a name="anchor127"></a>
-<br/><strong> string Info::getScalesValue() &nbsp;</strong> <br/>
-   
- 
-<p/> 
-However, note that the actual scale values are stored as attributes (called 
-e.g. <code>muf</code> or <code>mur</code>). Attributes of the 
-<code>&lt;scales&gt;</code> tag can be accessed via 
-<a name="anchor128"></a>
-<br/><strong> double Info::getScalesAttribute(string key) &nbsp;</strong> <br/>
-Return the value of the <code>&lt;scales&gt;</code> tag's attribute 
-named <code>key</code>. Not-a-number will be returned if the attribute 
-named <code>key</code> does not exist. 
-   
- 
-<p/> 
-Finally, arbitrary attributes of the <code>&lt;event&gt;</code> tag are 
-supported. Attributes of the <code>&lt;event&gt;</code> tag can be accessed by 
-<a name="anchor129"></a>
-<br/><strong> string Info::getEventAttribute(string key, bool doRemoveWhitespace = false) &nbsp;</strong> <br/>
-return the value of the event attribute named <code>key</code>. Setting 
-<code>doRemoveWhitespace</code> to true will return the value, stripped of 
-any whitespace. An empty string is returned if the attribute named 
-<code>key</code> does not exist. 
-   
- 
-<p/> 
-Additional comments appearing in the <code>&lt;event&gt;</code> tag 
-can be obtained with the <code>Info</code> class member 
-<code>string getEventComments()</code>. 
- 
-<a name="section16"></a> 
-<h3>Header information</h3> 
- 
-A simple string key/value store, mainly intended for accessing 
-information that is stored in the header block of Les Houches Event 
-(LHE) files. In principle, any <code>LHAup</code> derived class can set 
-this header information, which can then be read out later. Although the 
-naming convention is arbitrary, in practice, it is dictated by the 
-XML-like format of LHE files, see <a href="LesHouchesAccord.html" target="page"> 
-Les Houches Accord</a> for more details. 
- 
-<a name="anchor130"></a>
-<p/><strong> string Info::header(string key) &nbsp;</strong> <br/>
-return the header named <code>key</code> 
-   
- 
-<a name="anchor131"></a>
-<p/><strong> vector &lt;string&gt; Info::headerKeys() &nbsp;</strong> <br/>
-return a vector of all header key names 
-   
- 
-<a name="anchor132"></a>
-<p/><strong> void Info::setHeader(string key, string val) &nbsp;</strong> <br/>
-set the header named <code>key</code> with the contents of <code>val</code> 
-   
+For the documentation of the necessary <code>Info</code> class 
+retrieval functions, please consult the 
+<a href="LHEF.html" target="page">Les Houches Event Files </a> section. 
  
 </body>
 </html>
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 

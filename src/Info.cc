@@ -1,5 +1,5 @@
 // Info.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -266,7 +266,7 @@ vector<int> Info::codesHard() {
 
 // Print a message the first few times. Insert in database.
 
-  void Info::errorMsg(string messageIn, string extraIn, bool showAlways) {
+void Info::errorMsg(string messageIn, string extraIn, bool showAlways) {
 
   // Recover number of times message occured. Also inserts new string.
   int times = messages[messageIn];
@@ -282,12 +282,11 @@ vector<int> Info::codesHard() {
 
 // Provide total number of errors/aborts/warnings experienced to date.
 
-int Info::errorTotalNumber() {
+int Info::errorTotalNumber() const {
 
   int nTot = 0;
-  for ( map<string, int>::iterator messageEntry = messages.begin();
-    messageEntry != messages.end(); ++messageEntry)
-    nTot += messageEntry->second;
+  for (pair<string, int> messageEntry : messages)
+    nTot += messageEntry.second;
   return nTot;
 
 }
@@ -296,7 +295,7 @@ int Info::errorTotalNumber() {
 
 // Print statistics on errors/aborts/warnings.
 
-void Info::errorStatistics() {
+void Info::errorStatistics() const {
 
   // Header.
   cout << "\n *-------  PYTHIA Error and Warning Messages Statistics  "
@@ -309,7 +308,7 @@ void Info::errorStatistics() {
        << "                                                          | \n";
 
   // Loop over all messages
-  map<string, int>::iterator messageEntry = messages.begin();
+  map<string, int>::const_iterator messageEntry = messages.begin();
   if (messageEntry == messages.end())
     cout << " |      0   no errors or warnings to report              "
          << "                                                          | \n";
@@ -336,11 +335,10 @@ void Info::errorStatistics() {
 
 // Return a list of all header key names
 
-vector < string > Info::headerKeys() {
-  vector < string > keys;
-  for (map < string, string >::iterator it = headers.begin();
-      it != headers.end(); it++)
-    keys.push_back(it->first);
+vector<string> Info::headerKeys() const {
+  vector<string> keys;
+  for (pair<string, string> headerEntry : headers)
+    keys.push_back(headerEntry.first);
   return keys;
 }
 
@@ -413,7 +411,7 @@ void Info::setLHEF3EventInfo( map<string, string> *eventAttributesIn,
 
 // Retrieve events tag information.
 
-string Info::getEventAttribute(string key, bool doRemoveWhitespace) {
+string Info::getEventAttribute(string key, bool doRemoveWhitespace) const {
   if (!eventAttributes) return "";
   if ( eventAttributes->find(key) != eventAttributes->end() ) {
     string res = (*eventAttributes)[key];
@@ -426,15 +424,9 @@ string Info::getEventAttribute(string key, bool doRemoveWhitespace) {
 
 //--------------------------------------------------------------------------
 
-// Retrieve LHEF version.
-
-int Info::LHEFversion() { return LHEFversionSave;}
-
-//--------------------------------------------------------------------------
-
 // Retrieve initrwgt tag information.
 
-unsigned int Info::getInitrwgtSize() {
+unsigned int Info::getInitrwgtSize() const {
   if (!initrwgt) return 0;
   return initrwgt->weights.size();
 }
@@ -443,18 +435,18 @@ unsigned int Info::getInitrwgtSize() {
 
 // Retrieve generator tag information.
 
-unsigned int Info::getGeneratorSize() {
+unsigned int Info::getGeneratorSize() const {
   if (!generators) return 0;
   return generators->size();
 }
 
-string Info::getGeneratorValue(unsigned int n) {
+string Info::getGeneratorValue(unsigned int n) const {
   if (!generators || generators->size() < n+1) return "";
   return (*generators)[n].contents;
 }
 
 string Info::getGeneratorAttribute( unsigned int n, string key,
-  bool doRemoveWhitespace) {
+  bool doRemoveWhitespace) const {
   if (!generators || generators->size() < n+1) return "";
   string res("");
   if ( key == "name") {
@@ -474,12 +466,12 @@ string Info::getGeneratorAttribute( unsigned int n, string key,
 
 // Retrieve rwgt tag information.
 
-unsigned int Info::getWeightsDetailedSize() {
+unsigned int Info::getWeightsDetailedSize() const {
   if (!weights_detailed) return 0;
   return weights_detailed->size();
 }
 
-double Info::getWeightsDetailedValue(string n) {
+double Info::getWeightsDetailedValue(string n) const {
   if (weights_detailed->empty()
     || weights_detailed->find(n) == weights_detailed->end())
     return std::numeric_limits<double>::quiet_NaN();
@@ -487,7 +479,7 @@ double Info::getWeightsDetailedValue(string n) {
 }
 
 string Info::getWeightsDetailedAttribute(string n, string key,
-  bool doRemoveWhitespace) {
+  bool doRemoveWhitespace) const {
   if (!rwgt || rwgt->wgts.find(n) == rwgt->wgts.end())
     return "";
   string res("");
@@ -506,19 +498,19 @@ string Info::getWeightsDetailedAttribute(string n, string key,
 
 // Retrieve weights tag information.
 
-unsigned int Info::getWeightsCompressedSize() {
+unsigned int Info::getWeightsCompressedSize() const {
   if (!weights_compressed) return 0;
   return weights_compressed->size();
 }
 
-double Info::getWeightsCompressedValue(unsigned int n) {
+double Info::getWeightsCompressedValue(unsigned int n) const {
   if (weights_compressed->empty() || weights_compressed->size() < n+1)
     return std::numeric_limits<double>::quiet_NaN();
   return (*weights_compressed)[n];
 }
 
 string Info::getWeightsCompressedAttribute(string key,
-  bool doRemoveWhitespace) {
+  bool doRemoveWhitespace) const {
   if (!weights || weights->attributes.find(key) == weights->attributes.end())
     return "";
   string res("");
@@ -535,7 +527,7 @@ string Info::getWeightsCompressedAttribute(string key,
 
 // Retrieve scales tag information.
 
-string Info::getScalesValue(bool doRemoveWhitespace) {
+string Info::getScalesValue(bool doRemoveWhitespace) const {
   if (!scales) return "";
   string res = scales->contents;
   if (doRemoveWhitespace && res != "")
@@ -543,7 +535,7 @@ string Info::getScalesValue(bool doRemoveWhitespace) {
   return res;
 }
 
-double Info::getScalesAttribute(string key) {
+double Info::getScalesAttribute(string key) const {
   if (!scales) return std::numeric_limits<double>::quiet_NaN();
   double res = std::numeric_limits<double>::quiet_NaN();
   if ( key == "muf") {

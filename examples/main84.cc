@@ -1,9 +1,12 @@
 // main84.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// This program is written by Stefan Prestel.
+// Authors: Stefan Prestel <stefan.prestel@thep.lu.se>.
+
+// Keywords: merging; leading order; CKKW-L; hepmc;
+
 // It illustrates how to do CKKW-L merging, see the Matrix Element
 // Merging page in the online manual. An example command is
 //     ./main84 main84.cmnd hepmcout84.dat 2 w+_production_lhc histout84.dat
@@ -23,7 +26,6 @@ using namespace Pythia8;
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/CDFMidPointPlugin.hh"
 #include "fastjet/CDFJetCluPlugin.hh"
-#include "fastjet/D0RunIIConePlugin.hh"
 
 //==========================================================================
 
@@ -115,6 +117,8 @@ int main( int argc, char* argv[] ){
   // so switch it off for normal conversion routine.
   HepMC::Pythia8ToHepMC ToHepMC;
   ToHepMC.set_store_xsec(false);
+  ToHepMC.set_print_inconsistency(false);
+  ToHepMC.set_free_parton_exception(false);
 
   // Specify file where HepMC events will be stored.
   HepMC::IO_GenEvent ascii_io(argv[2], std::ios::out);

@@ -1,10 +1,12 @@
 // main77.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Boris Blok,       blok@physics.technion.ac.il
-//          Paolo Gunnellini, Paolo.Gunnellini@cern.ch
+// Authorss: Boris Blok <blok@physics.technion.ac.il>
+//          Paolo Gunnellini <Paolo.Gunnellini@cern.ch>
+
+// Keywords: MPI; DPS;
 
 // The program calculates the 4 jet DPS cross section as a function of
 // standard observables according to the model described in

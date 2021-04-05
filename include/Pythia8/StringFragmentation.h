@@ -1,5 +1,5 @@
 // StringFragmentation.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2019 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -16,6 +16,7 @@
 #include "Pythia8/FragmentationFlavZpT.h"
 #include "Pythia8/FragmentationSystems.h"
 #include "Pythia8/ParticleData.h"
+#include "Pythia8/PhysicsBase.h"
 #include "Pythia8/PythiaStdlib.h"
 #include "Pythia8/Ropewalk.h"
 #include "Pythia8/Settings.h"
@@ -100,25 +101,23 @@ public:
 // The StringFragmentation class contains the top-level routines
 // to fragment a colour singlet partonic system.
 
-class StringFragmentation {
+class StringFragmentation : public PhysicsBase {
 
 public:
 
   // Constructor.
-  StringFragmentation() : infoPtr(), particleDataPtr(), rndmPtr(),
-    flavSelPtr(), pTSelPtr(), zSelPtr(), flavRopePtr(), userHooksPtr(),
-    closePacking(), doFlavRope(), setVertices(), constantTau(), smearOn(),
+  StringFragmentation() :
+    flavSelPtr(), pTSelPtr(), zSelPtr(), flavRopePtr(),
+    closePacking(), setVertices(), constantTau(), smearOn(),
     traceColours(false), hadronVertex(), stopMass(), stopNewFlav(),
     stopSmear(), eNormJunction(), eBothLeftJunction(), eMaxLeftJunction(),
-    eMinLeftJunction(), mJoin(), bLund(), pT20(), xySmear(), maxSmear(),
-    maxTau(), kappaVtx(), mc(), mb(), hasJunction(), isClosed(), iPos(),
-    iNeg(), w2Rem(), stopMassNow(), idDiquark(), legMin(), legMid() {}
+    eMinLeftJunction(), mJoin(), bLund(), pT20(), xySmear(), kappaVtx(),
+    mc(), mb(), hasJunction(), isClosed(), iPos(), iNeg(), w2Rem(),
+    stopMassNow(), idDiquark(), legMin(), legMid() {}
 
   // Initialize and save pointers.
-  void init(Info* infoPtrIn, Settings& settings,
-    ParticleData* particleDataPtrIn, Rndm* rndmPtrIn,
-    StringFlav* flavSelPtrIn, StringPT* pTSelPtrIn, StringZ* zSelPtrIn,
-    FlavourRope* flavRopePtrIn = NULL, UserHooks* userHooksPtrIn = NULL);
+  void init(StringFlav* flavSelPtrIn, StringPT* pTSelPtrIn, StringZ* zSelPtrIn,
+    FragModPtr fragModPtrIn = NULL);
 
   // Do the fragmentation: driver routine.
   bool fragment( int iSub, ColConfig& colConfig, Event& event);
@@ -130,20 +129,11 @@ private:
 
   // Constants: could only be changed in the code itself.
   static const int    NTRYFLAV, NTRYJOIN, NSTOPMASS, NTRYJNREST,
-                      NTRYJNMATCH, NTRYJRFEQ, NTRYSMEAR;
+                      NTRYJNMATCH, NTRYJRFEQ;
   static const double FACSTOPMASS, CLOSEDM2MAX, CLOSEDM2FRAC, EXPMAX,
                       MATCHPOSNEG, EJNWEIGHTMAX, CONVJNREST, M2MAXJRF,
                       M2MINJRF, EEXTRAJNMATCH, MDIQUARKMIN, CONVJRFEQ,
                       CHECKPOS;
-
-  // Pointer to various information on the generation.
-  Info*         infoPtr;
-
-  // Pointer to the particle data table.
-  ParticleData* particleDataPtr;
-
-  // Pointer to the random number generator.
-  Rndm*         rndmPtr;
 
   // Pointers to classes for flavour, pT and z generation.
   StringFlav*   flavSelPtr;
@@ -151,18 +141,15 @@ private:
   StringZ*      zSelPtr;
 
   // Pointer to flavour-composition-changing ropes.
-  FlavourRope*  flavRopePtr;
-
-  // Pointer to the User Hooks class for user intervention
-  UserHooks*    userHooksPtr;
+  FragModPtr  flavRopePtr;
 
   // Initialization data, read from Settings.
-  bool   closePacking, doFlavRope, setVertices, constantTau, smearOn,
+  bool   closePacking, setVertices, constantTau, smearOn,
          traceColours;
   int    hadronVertex;
   double stopMass, stopNewFlav, stopSmear, eNormJunction,
          eBothLeftJunction, eMaxLeftJunction, eMinLeftJunction,
-         mJoin, bLund, pT20, xySmear, maxSmear, maxTau, kappaVtx, mc, mb;
+         mJoin, bLund, pT20, xySmear, kappaVtx, mc, mb;
 
   // Data members.
   bool   hasJunction, isClosed;
@@ -212,7 +199,7 @@ private:
   Vec4 pPosFinalReg, pNegFinalReg, eXFinalReg, eYFinalReg;
 
   // Set hadron production points in space-time picture.
-  bool setHadronVertices(Event& event);
+  void setHadronVertices(Event& event);
 
   // Construct a special joining region for the final two hadrons.
   StringRegion finalRegion();

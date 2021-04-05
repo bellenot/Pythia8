@@ -1,5 +1,5 @@
 // HelicityMatrixElements.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2019 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -27,11 +27,11 @@ public:
 
   // Constructor and destructor.
   HelicityMatrixElement() : DECAYWEIGHTMAX(), particleDataPtr(),
-    couplingsPtr(), settingsPtr() {};
+    coupSMPtr(), settingsPtr() {};
   virtual ~HelicityMatrixElement() {};
 
   // Initialize the physics matrices and pointers.
-  virtual void initPointers(ParticleData*, Couplings*, Settings* = 0);
+  virtual void initPointers(ParticleData*, CoupSM* , Settings* = 0);
 
   // Initialize the channel.
   virtual HelicityMatrixElement* initChannel(vector<HelicityParticle>&);
@@ -94,7 +94,7 @@ protected:
   ParticleData* particleDataPtr;
 
   // Pointer to Standard Model constants.
-  Couplings*    couplingsPtr;
+  CoupSM*       coupSMPtr;
 
   // Pointer to Settings.
   Settings*     settingsPtr;
