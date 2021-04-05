@@ -1,5 +1,5 @@
 // SimpleTimeShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -120,6 +120,8 @@ void SimpleTimeShower::init( BeamParticle* beamAPtrIn,
   factorMultFac     = settingsPtr->parm("TimeShower:factorMultFac");
   useFixedFacScale  = settingsPtr->flag("TimeShower:useFixedFacScale");
   fixedFacScale2    = pow2(settingsPtr->parm("TimeShower:fixedFacScale"));
+
+  pdfModeSave       = settingsPtr->mode("TimeShower:pdfMode");
 
   // Parameters of alphaStrong generation.
   alphaSvalue        = settingsPtr->parm("TimeShower:alphaSvalue");
@@ -645,38 +647,46 @@ void SimpleTimeShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
   int iInA = partonSystemsPtr->getInA(iSys);
   int iInB = partonSystemsPtr->getInB(iSys);
   if (iSys == 0 || iInA == 0) dipEnd.resize(0);
+  if (!useSystems) dipEnd.resize(0);
   int dipEndSizeBeg = dipEnd.size();
 
   // No dipoles for 2 -> 1 processes.
-  if (partonSystemsPtr->sizeOut(iSys) < 2) return;
+  if (useSystems && partonSystemsPtr->sizeOut(iSys) < 2) return;
 
   // In case of DPS overwrite limitPTmaxIn by saved value.
   if (twoHard && iSys == 0) limitPTmaxIn = dopTlimit1;
   if (twoHard && iSys == 1) limitPTmaxIn = dopTlimit2;
+  if (!useSystems) limitPTmaxIn = dopTlimit1;
 
   // Reset number of proposed splittings. Used for global recoil.
   // First check if this system belongs to the hard scattering.
   bool isHard = false;
-  for (int i = 0; i < partonSystemsPtr->sizeOut(iSys); ++i) {
-    int ii = partonSystemsPtr->getOut( iSys, i);
-    for (int iHard = 0; iHard < int(hardPartons.size()); ++iHard) {
-      if ( event[ii].isAncestor(hardPartons[iHard])
-        || ii == hardPartons[iHard]){
-        isHard = true;
-        break;
+  if (useSystems) {
+    for (int i = 0; i < partonSystemsPtr->sizeOut(iSys); ++i) {
+      int ii = partonSystemsPtr->getOut( iSys, i);
+      for (int iHard = 0; iHard < int(hardPartons.size()); ++iHard) {
+        if ( event[ii].isAncestor(hardPartons[iHard])
+          || ii == hardPartons[iHard]){
+          isHard = true;
+          break;
+        }
       }
+      if (isHard) break;
     }
-    if (isHard) break;
-  }
+  } else isHard = true;
+
   // If the system belongs to the hard scattering, initialise
   // counter of proposed emissions.
   if (isHard &&  nProposed.find(iSys) == nProposed.end() )
     nProposed.insert(make_pair(iSys,0));
-  partonSystemsPtr->setHard(iSys, isHard);
+  if (useSystems) partonSystemsPtr->setHard(iSys, isHard);
+
+  int nFinal = (useSystems) ? partonSystemsPtr->sizeOut(iSys) : event.size();
 
   // Loop through final state of system to find possible dipole ends.
-  for (int i = 0; i < partonSystemsPtr->sizeOut(iSys); ++i) {
-    int iRad = partonSystemsPtr->getOut( iSys, i);
+  for (int i = 0; i < nFinal; ++i) {
+
+    int iRad = (useSystems) ? partonSystemsPtr->getOut( iSys, i) : i;
 
     if (event[iRad].isFinal() && event[iRad].scale() > 0.) {
 
@@ -1179,18 +1189,25 @@ void SimpleTimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
   Event& event, bool isOctetOnium, bool limitPTmaxIn) {
 
   // Initial values.
-  int iRad     = partonSystemsPtr->getOut(iSys, i);
+  int iRad     = (useSystems)
+    ? partonSystemsPtr->getOut(iSys, i) : i;
   int iRec     = 0;
-  int sizeAll  = partonSystemsPtr->sizeAll(iSys);
-  int sizeOut  = partonSystemsPtr->sizeOut(iSys);
+  int sizeAllA = (useSystems)
+    ?  partonSystemsPtr->sizeAll(iSys) : event.size();
+  int sizeOut  = (useSystems)
+    ?  partonSystemsPtr->sizeOut(iSys) : event.size();
+  int sizeAll  = ( allowBeamRecoil ) ? sizeAllA : sizeOut;
+  int iOffset  = i + sizeAllA - sizeOut;
   // Number of potential recoilers; decide if beams included or not.
-  int sizeRec  = ( allowBeamRecoil && partonSystemsPtr->hasInAB(iSys) ) ?
-    sizeAll : sizeOut;
+  int sizeRec  = (useSystems)
+    ? ((allowBeamRecoil && partonSystemsPtr->hasInAB(iSys))
+      ?  sizeAll : sizeOut)
+    : sizeAll;
   int sizeInRec    = sizeRec - sizeOut;
   int sizeInNonRec = sizeAll - sizeOut - sizeInRec;
-  int iOffset  = i + sizeAll - sizeOut;
   bool otherSystemRec = false;
-  bool allowInitial   = partonSystemsPtr->hasInAB(iSys);
+  bool allowInitial   = (useSystems)
+    ? ((partonSystemsPtr->hasInAB(iSys)) ? true : false) : true;
   // PS dec 2010: possibility to allow for several recoilers and each with
   // flexible normalization
   bool   isFlexible   = false;
@@ -1202,7 +1219,8 @@ void SimpleTimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
   if (colSign > 0) {
     for (int j = 0; j < sizeRec; ++j) {
       if (j + sizeInNonRec != iOffset) {
-        int iRecNow = partonSystemsPtr->getAll(iSys, j + sizeInNonRec);
+        int iRecNow = (useSystems)
+          ? partonSystemsPtr->getAll(iSys, j + sizeInNonRec) : j;
         if ( ( j <  sizeInRec && event[iRecNow].col()  == colTag
                && !event[iRecNow].isRescatteredIncoming() )
              || ( j >= sizeInRec && event[iRecNow].acol() == colTag
@@ -1219,7 +1237,8 @@ void SimpleTimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
   if (colSign < 0) {
     for (int j = 0; j < sizeRec; ++j) {
       if (j + sizeInNonRec != iOffset) {
-        int iRecNow = partonSystemsPtr->getAll(iSys, j + sizeInNonRec);
+        int iRecNow = (useSystems)
+          ? partonSystemsPtr->getAll(iSys, j + sizeInNonRec) : j;
         if ( ( j <  sizeInRec && event[iRecNow].acol()  == colTag
                && !event[iRecNow].isRescatteredIncoming() )
              || ( j >= sizeInRec && event[iRecNow].col() == colTag
@@ -1248,7 +1267,7 @@ void SimpleTimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
     double ppMin = LARGEM2;
     for (int j = 0; j < sizeOut; ++j) {
       if (j != i) {
-        int iRecNow  = partonSystemsPtr->getOut(iSys, j);
+        int iRecNow  = (useSystems) ? partonSystemsPtr->getOut(iSys, j) : j;
         if (!event[iRecNow].isFinal()) continue;
         double ppNow = event[iRecNow].p() * event[iRad].p()
           - event[iRecNow].m() * event[iRad].m();
@@ -1275,7 +1294,7 @@ void SimpleTimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
     }
 
     // If no success then look for match to non-rescattered in initial state.
-    if (iRec == 0 && allowInitial) {
+    if (useSystems && iRec == 0 && allowInitial) {
       for (int iSysR = 0; iSysR < partonSystemsPtr->sizeSys(); ++iSysR)
       if (iSysR != iSys) {
         int j = partonSystemsPtr->getInA(iSysR);
@@ -1296,6 +1315,24 @@ void SimpleTimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
         }
       }
     }
+
+    // If no success then look for match to non-rescattered in initial state.
+    if (!useSystems && iRec == 0 && allowInitial) {
+      for (int j = 0; j <= event.size(); ++j) {
+        if (event[j].isFinal()) continue;
+        if (j > 0 && ( (colSign > 0 && event[j].col() == colTag)
+          || (colSign < 0 && event[j].acol()  == colTag) ) ) {
+          iRec = j;
+          break;
+        }
+        if (j > 0 && ( (colSign > 0 && event[j].col() == colTag)
+          || (colSign < 0 && event[j].acol()  == colTag) ) ) {
+          iRec = j;
+          break;
+        }
+      }
+    }
+
   }
 
   // Junctions (PS&ND dec 2010)
@@ -1427,6 +1464,13 @@ void SimpleTimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
       if (iSys == 0 || (iSys == 1 && twoHard)) pTmax *= pTmaxFudge;
       else if (sizeInRec > 0) pTmax *= pTmaxFudgeMPI;
     } else pTmax = 0.5 * m( event[iRad], event[iRec]);
+
+    // If requested, force maximal pT to LHEF input value.
+    if ( abs(event[iRad].status()) > 20 &&  abs(event[iRad].status()) < 24
+      && settingsPtr->flag("Beams:setProductionScalesFromLHEF")
+      && event[iRad].scale() > 0.)
+      pTmax = event[iRad].scale();
+
     int colType  = (event[iRad].id() == 21) ? 2 * colSign : colSign;
     int isrType  = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
     // This line in case mother is a rescattered parton.
@@ -1434,6 +1478,7 @@ void SimpleTimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
     if (isrType > 2) isrType -= beamOffset;
     dipEnd.push_back( TimeDipoleEnd( iRad, iRec, pTmax,
       colType, 0, 0, 0, isrType, iSys, -1, -1, 0, isOctetOnium) );
+    dipEnd.back().hasJunction = hasJunction;
 
     // If hooked up with other system then find which.
     if (otherSystemRec) {
@@ -2104,6 +2149,250 @@ double SimpleTimeShower::pTnext( Event& event, double pTbegAll,
 
 //--------------------------------------------------------------------------
 
+// Function to directly extract the probability of no emission between two
+// scales. This function is not used in the Pythia core code, but can be used
+// by external programs to extract no-emission probabilities from Pythia.
+
+double SimpleTimeShower::noEmissionProbability( double pTbegAll,
+  double pTendAll, double m2dip, int idA, int type, double s, double x) {
+
+  // First, create a dummy event with two entries from the inputs.
+  Event state;
+  state.init("(dummy event)", particleDataPtr);
+  // Setup two dipole ends for each flavor combination.
+  Vec4 pA(0., 0., 0.5*sqrt(m2dip), 0.5*sqrt(m2dip)), pB, pBtmp;
+  double phi   = 2.*M_PI*rndmPtr->flat();
+  double theta = M_PI*rndmPtr->flat();
+  double sign_theta = rndmPtr->flat() > 0.5 ? 1. : -1.;
+  pA.rot(sign_theta*theta,phi);
+  if (type < 0) {
+    pB.p(-pA.px(),-pA.py(),-pA.pz(), 0.5*sqrt(m2dip));
+    pBtmp.p(0., 0.,-0.5*sqrt(m2dip), 0.5*sqrt(m2dip));
+    RotBstMatrix rotate;
+    rotate.bst( pB, pBtmp);
+    // After this, the inactive beam returns to the correct energy fraction.
+    pB.rotbst(rotate);
+    pA.rotbst(rotate);
+  }
+  if (type > 0) pB.p(-pA.px(),-pA.py(),-pA.pz(), 0.5*sqrt(m2dip));
+
+  int iSys = 0;
+  int colA  = 1;
+  int acolA = 2;
+  if (particleDataPtr->colType(idA) == 1) {colA = 1; acolA = 0;}
+  if (particleDataPtr->colType(idA) ==-1) {colA = 0; acolA = 1;}
+
+  // Add recoiler. For 1->3 splitting, attach "dummy" recoiler.
+  state.append( 90, -11, 0, 0, 0, 0, 0, 0, pA+pB, (pA+pB).mCalc(),
+    (pA+pB).mCalc() );
+  if (type > 0) state.append( idA, 23, 0, 0, 0, 0, colA, acolA, pA, 0.0,
+    sqrt(m2dip) );
+
+  int idB  = (idA == 21) ? 21
+           : ((type < 0) ? idA : -idA);
+  vector<int> recids; recids.push_back(idB);
+  vector<int> recpos;
+
+  for (unsigned int i = 0; i < recids.size(); ++i) {
+    int colB(acolA), acolB(colA);
+    if (type < 0) swap(colB,acolB);
+    if ( type < 0
+      && particleDataPtr->colType(idA) == 1
+      && particleDataPtr->colType(recids[i])   ==-1) {colB = 0; acolB = colA;}
+    if ( type < 0
+      && particleDataPtr->colType(idA) ==-1
+      && particleDataPtr->colType(recids[i])   == 1) {colB = acolA; acolB = 0;}
+
+    if ( type < 0
+      && particleDataPtr->colType(idA) == 2
+      && particleDataPtr->colType(recids[i])   ==-1) {colB = 0; acolB = colA;}
+    if ( type < 0
+      && particleDataPtr->colType(idA) == 2
+      && particleDataPtr->colType(recids[i])   == 1) {colB = acolA; acolB = 0;}
+
+    if (type < 0) state.append( recids[i], -21, 0, 0, 0, 0, colB, acolB, pB,
+      0.0, sqrt(m2dip) );
+    if (type > 0) state.append( recids[i],  23, 0, 0, 0, 0, colB, acolB, pB,
+      0.0, sqrt(m2dip) );
+    recpos.push_back(i+1);
+  }
+
+  if (type < 0) state.append( idA, 23, 0, 0, 0, 0, colA, acolA, pA, 0.0,
+    sqrt(m2dip) );
+
+  // Now initialize other internal classes from the inputs, so that parton
+  // shower methods that rely on beam and system information can be used.
+  double x1 = x;
+  double x2 = m2dip/s/x1;
+  useSystems = false;
+  int idInA = (idA != 6) ? idA : 21;
+  int idInB = (idB != 6) ? idB : 21;
+  beamAPtr->clear();
+  beamBPtr->clear();
+  beamAPtr->append( 1, idInA, x1);
+  beamBPtr->append( 2, idInB, x2);
+  beamAPtr->xfISR( 0, idInA, x1, pTbegAll*pTbegAll);
+  int vsc1 = beamAPtr->pickValSeaComp();
+  beamBPtr->xfISR( 0, idInB, x2, pTbegAll*pTbegAll);
+  int vsc2 = beamBPtr->pickValSeaComp();
+  infoPtr->setValence( (vsc1 == -3), (vsc2 == -3));
+  // Store participating partons as first set in list of all systems.
+  partonSystemsPtr->clear();
+  partonSystemsPtr->addSys();
+  partonSystemsPtr->setInA(0, 1);
+  partonSystemsPtr->setInB(0, 2);
+  partonSystemsPtr->setSHat( 0, m2dip);
+  partonSystemsPtr->setPTHat( 0, pTbegAll);
+
+  // Find positions of incoming colliding partons and extract all dipoles that
+  // should be used in the evolution.
+  vector<TimeDipoleEnd> dipEnds;
+  prepare(iSys,state,true);
+  dipEnds = dipEnd;
+  dipEnd.clear();
+
+  // Set output and produce many trial showers (to obtain a statisically stable
+  // no-emission probability value)
+  double wt(0.);
+  int nTrialsMax(10000), nTrials(0);
+  for (int i=0; i < nTrialsMax; ++i) {
+
+    double startingScale = pTbegAll;
+    double wtnow = 1.;
+    doTrialNow = true;
+
+    while ( true ) {
+
+      // Reset process scale so that shower starting scale is correctly set.
+      state.scale(startingScale);
+
+      // Get pT before reclustering
+      double minScale = pTendAll;
+
+      mergingHooksPtr->setShowerStoppingScale(minScale);
+
+      // If the maximal scale and the minimal scale coincide (as would
+      // be the case for the corrected scales of unordered histories),
+      // do not generate Sudakov
+      if (minScale >= startingScale) break;
+
+      // Get trial shower pT.
+      double pTtrial = pTnext( dipEnds, state, startingScale, minScale, m2dip,
+        idA, type, s, x);
+
+      // Done if evolution scale has fallen below minimum
+      if ( pTtrial < minScale ) { wtnow *= 1.; break;}
+
+      // Reset starting scale.
+      startingScale = pTtrial;
+
+      if ( pTtrial > minScale) wtnow *= 0.;
+      if ( wtnow == 0.) break;
+      if ( pTtrial > minScale) continue;
+
+      // Done
+      break;
+
+    }
+
+    wt += wtnow;
+    nTrials++;
+
+  }
+
+  // Calculate the value of the no-emssion probabilty.
+  wt /= nTrials;
+  if (wt < settingsPtr->parm("Dire:Sudakov:Min")) wt = 0.;
+
+  // Clean up, done.
+  beamAPtr->clear();
+  beamBPtr->clear();
+  partonSystemsPtr->clear();
+  useSystems = true;
+  return wt;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Function to select next pT in downwards evolution of the existing dipoles.
+// This function is not used in the Pythia core code, but can be used
+// by external programs. Thus, this function relies exclusively on its
+// inputs, such that it can be used by an external code. Apart from this,
+// this function is a copy of the interal-use function
+// "pTnext( event, pTbegAll, pTendAll, isFirstTrial, doTrialIn)" defined
+// above, but stripped of any non-QCD showers.
+
+double SimpleTimeShower::pTnext( vector<TimeDipoleEnd> dipEnds, Event event,
+  double pTbegAll, double pTendAll, double, int, int, double, double) {
+
+  // Starting values: no radiating dipole found.
+  double pT2sel = pow2(pTendAll);
+  iDipSel       = 0;
+  iSysSel       = 0;
+  dipSel        = 0;
+  pdfMode = pdfModeSave;
+
+  // Loop over all possible dipole ends.
+  for (int iDipEnd = 0; iDipEnd < int(dipEnds.size()); ++iDipEnd) {
+
+    TimeDipoleEnd* dipEndNow      = &dipEnds[iDipEnd];
+
+    // Find properties of dipole and radiating dipole end.
+    int iNow      = dipEndNow->iRadiator;
+    int iRec      = dipEndNow->iRecoiler;
+
+    // Note dipole mass correction when recoiler is a rescatter.
+    dipEndNow->m2Rec         = event[iRec].m2();
+    dipEndNow->mRec          = sqrt(dipEndNow->m2Rec);
+    dipEndNow->m2Rad         = event[iNow].m2();
+    dipEndNow->mRad          = sqrt(dipEndNow->m2Rad);
+    dipEndNow->m2Dip         = abs(2.*event[iNow].p()*event[iRec].p());
+    dipEndNow->mDip          = sqrt(dipEndNow->m2Dip);
+    dipEndNow->m2DipCorr     = dipEndNow->m2Dip;
+
+    // Reset emission properties.
+    dipEndNow->pT2         =  0.0;
+    dipEndNow->z           = -1.0;
+
+    // Find maximum evolution scale for dipole.
+    dipEndNow->m2DipCorr   = pow2(dipEndNow->mDip - dipEndNow->mRec)
+                           - dipEndNow->m2Rad;
+    double pTbegDip = min( pTbegAll, dipEndNow->pTmax );
+    double pT2begDip = min( pow2(pTbegDip), 0.25 * dipEndNow->m2DipCorr);
+    double pT2start = pT2begDip;
+    double pT2stop  = pTendAll*pTendAll;
+
+    if (pT2start < pT2stop) { pT2sel = 0.; dipSel =0; break; }
+
+    pT2stop         = max( pT2stop, pT2sel);
+
+    // Do QCD, QED, weak or HV evolution if it makes sense.
+    if (pT2start > pT2sel) {
+      if (dipEndNow->colType != 0)
+        pT2nextQCD(pT2start, pT2sel, *dipEndNow, event);
+
+      // Update if found larger pT than current maximum.
+      if (dipEndNow->pT2 > pT2sel) {
+        pT2sel  = dipEndNow->pT2;
+        dipSel  = &dipEnds[iDipEnd];
+        iDipSel = iDipEnd;
+        splittingNameSel = splittingNameNow;
+      }
+    }
+
+  // End loop over dipole ends.
+  }
+
+  pdfMode = 0;
+
+  // Return nonvanishing value if found pT is bigger than already found.
+  return (dipSel == 0) ? 0. : sqrt(pT2sel);
+
+}
+
+//--------------------------------------------------------------------------
+
 // Evolve a QCD dipole end.
 
 void SimpleTimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
@@ -2368,7 +2657,7 @@ void SimpleTimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
           double xNew = xOld * (1. + (dip.m2 - dip.m2Rad) /
             (dip.m2Dip - dip.m2Rad));
           double xMaxAbs = beam.xMax(iSysRec);
-          if (xMaxAbs < 0.) {
+          if (pdfMode==0 && xMaxAbs < 0.) {
             infoPtr->errorMsg("Warning in SimpleTimeShower::pT2nextQCD: "
             "xMaxAbs negative");
             return;
@@ -2376,18 +2665,22 @@ void SimpleTimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
 
           // New: Ensure that no x-value larger than unity is picked. Only
           // necessary for imprecise LHE input.
-          if (xNew > 1.) wt = 0.;
+          if (pdfMode==0 && xNew > 1.) wt = 0.;
 
           // Firstly reduce by PDF ratio.
-          if (xNew > xMaxAbs) wt = 0.;
+          if (pdfMode==0 && xNew > xMaxAbs) wt = 0.;
           else {
-            int idRec     = event[dip.iRecoiler].id();
+            int idRec = event[dip.iRecoiler].id();
             pdfScale2 = (useFixedFacScale) ? fixedFacScale2
               : factorMultFac * dip.pT2;
-            double pdfOld = max ( TINYPDF,
-              beam.xfISR( iSysRec, idRec, xOld, pdfScale2) );
-            double pdfNew =
-              beam.xfISR( iSysRec, idRec, xNew, pdfScale2);
+            xfModifiedPrepareData p = beam.xfModifiedPrepare(iSysRec,
+              pdfScale2);
+            double pdfOld = (pdfMode==0)
+              ? max (TINYPDF, beam.xfISR(iSysRec, idRec, xOld, pdfScale2, p))
+              : 1.;
+            double pdfNew =  (pdfMode==0)
+              ? beam.xfISR( iSysRec, idRec, xNew, pdfScale2, p)
+              : 1.;
             wt *= min( 1., pdfNew / pdfOld);
           }
 
@@ -2635,10 +2928,11 @@ void SimpleTimeShower::pT2nextQED(double pT2begDip, double pT2sel,
           int idRec     = event[dip.iRecoiler].id();
           pdfScale2 = (useFixedFacScale) ? fixedFacScale2
             : factorMultFac * dip.pT2;
+          xfModifiedPrepareData p = beam.xfModifiedPrepare(iSys, pdfScale2);
           double pdfOld = max ( TINYPDF,
-            beam.xfISR( iSys, idRec, xOld, pdfScale2) );
+            beam.xfISR( iSys, idRec, xOld, pdfScale2, p) );
           double pdfNew =
-            beam.xfISR( iSys, idRec, xNew, pdfScale2);
+            beam.xfISR( iSys, idRec, xNew, pdfScale2, p);
           wt *= min( 1., pdfNew / pdfOld);
         }
 
@@ -2804,10 +3098,11 @@ void SimpleTimeShower::pT2nextWeak(double pT2begDip, double pT2sel,
           int idRec     = event[dip.iRecoiler].id();
           pdfScale2 = (useFixedFacScale) ? fixedFacScale2
             : factorMultFac * dip.pT2;
+          xfModifiedPrepareData p = beam.xfModifiedPrepare(iSys, pdfScale2);
           double pdfOld = max ( TINYPDF,
-            beam.xfISR( iSys, idRec, xOld, pdfScale2) );
+            beam.xfISR( iSys, idRec, xOld, pdfScale2, p) );
           double pdfNew =
-            beam.xfISR( iSys, idRec, xNew, pdfScale2);
+            beam.xfISR( iSys, idRec, xNew, pdfScale2, p);
           wt *= min( 1., pdfNew / pdfOld);
         }
         // Secondly optionally reduce by 4 pT2_hard / (4 pT2_hard + m2).
@@ -3082,11 +3377,15 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
   // Negate colour type if recoiler is initial-state quark.
   if (!recBef.isFinal()) colTypeRec = -colTypeRec;
   int colTypeRad   = particleDataPtr->colType( idRad );
+
   // Perform junction tests for all colour (anti)triplets.
-  if (colTypeRec ==  1 && colTypeTmp > 0) colTypeTmp = -colTypeTmp;
-  if (colTypeRec == -1 && colTypeTmp < 0) colTypeTmp = -colTypeTmp;
-  if (colTypeRad ==  1 && colTypeTmp < 0) colTypeTmp = -colTypeTmp;
-  if (colTypeRad == -1 && colTypeTmp > 0) colTypeTmp = -colTypeTmp;
+  bool hasJunction = dipSel->hasJunction;
+  if( hasJunction ) {
+    if (colTypeRec ==  1 && colTypeTmp > 0) colTypeTmp = -colTypeTmp;
+    if (colTypeRec == -1 && colTypeTmp < 0) colTypeTmp = -colTypeTmp;
+    if (colTypeRad ==  1 && colTypeTmp < 0) colTypeTmp = -colTypeTmp;
+    if (colTypeRad == -1 && colTypeTmp > 0) colTypeTmp = -colTypeTmp;
+  }
 
   // Default OK for photon, photon_HV or gluon_HV emission.
   if (dipSel->flavour == 22 || dipSel->flavour == idHV) {
@@ -3616,6 +3915,7 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
     dipEnd.push_back( TimeDipoleEnd(iEmt, iRecMod, pTsel,
        colType, 0, 0, 0, isrTypeSave, iSysSel, 0));
     dipEnd.back().systemRec = iSysSelRec;
+    dipEnd.back().hasJunction = hasJunction;
     // PS dec 2010: the (iEmt,iRec) dipole "inherits" flexible normalization
     if (isFlexible) {
       dipEnd.back().isFlexible = true;
@@ -3623,6 +3923,7 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
     }
     dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, pTsel,
       -colType, 0, 0, 0, 0, iSysSel, 0));
+    dipEnd.back().hasJunction = hasJunction;
 
   // Gluon branching to q qbar: update current dipole and other of gluon.
   } else if (dipSel->colType != 0) {

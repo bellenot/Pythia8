@@ -42,7 +42,7 @@ The <code>ParticleDecays</code> class performs the sequential decays of
 all unstable hadrons produced in the string fragmentation stage, 
 i.e. up to and including <i>b</i> hadrons and their decay products, 
 such as the <i>tau</i> lepton. It is not to be used for the decay of 
- massive <?php $filepath = $_GET["filepath"];
+more massive <?php $filepath = $_GET["filepath"];
 echo "<a href='ResonanceDecays.php?filepath=".$filepath."' target='page'>";?>resonances</a>, such as top, 
 <i>Z^0</i> or SUSY, where decays must be performed already at the 
 <code>ProcessLevel</code> of the event generation. 
@@ -620,4 +620,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

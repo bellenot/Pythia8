@@ -1,5 +1,5 @@
 // ResonanceWidths.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -215,7 +215,7 @@ bool ResonanceWidths::init(Info* infoPtrIn, Settings* settingsPtrIn,
     double decayLength = HBARC * FM2MM / widTot;
     particlePtr->setTau0(decayLength, false);
   }
-    
+
   // Normalize branching ratios to unity.
   double bRatio;
   for (int i = 0; i < particlePtr->sizeChannels(); ++i) {

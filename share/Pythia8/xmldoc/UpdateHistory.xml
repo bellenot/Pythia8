@@ -7,6 +7,102 @@ PYTHIA 8.186 version, which was the last 8.1 release. The step
 from 8.1 to 8.2 gave an occasion to break backwards compatibility, 
 but this should only affect a small part of the user code. 
  
+<h3>8.245: 29 October 2020</h3> 
+<ul> 
+ 
+<li>Significant speedup of parton distribution handling, and 
+thereby of the whole PYTHIA execution, since PDF is such a major 
+part of the total execution time. This has been achieved by 
+careful work by Dmitri Konstantinov and Grigory Latyshev. 
+In detail, the main changes are. 
+<ul> 
+<li>In the LHAPDF6 interface the evaluation of the <ei>x</ei> and 
+<ei>Q^2</ei> limits is extremely slow, such that a caching of these 
+numbers increases execution speed by about a factor of 2 when LHAPDF 
+is used.</li> 
+<li>A caching of info on the amount of <ei>x</ei> already used up 
+helps speed up MPI, ISR and FSR execution times, giving gains of 
+order 20%. Main changes are in the <code>BeamParticle</code> class. 
+</li> 
+<li>Optimization of array handling in <code>LHAGrid1</code> give 
+a speedup by about 5%. This is the internal PYTHIA implementation 
+of interpolation in LHAPDF6 grids which, still after the LHAPDF6 
+improvements reported above, runs more than 50% faster than using 
+the same PDF evaluated by LHAPDF6. This streamlining is made at 
+the cost of not offering facilities like PDF error bands.</li> 
+<li>Also the special internal routines for the NNPDF 2.3 series 
+has been speeded up by more than 10%, by optimized interpolation 
+routines.</li> 
+</ul> 
+</li> 
+ 
+<li>Several fixes to avoid out-of-bound evaluation of vectors 
+in the merging code.</li> 
+ 
+<li>Several fixes to correctly handle CKKW-L merging of EWkino- and 
+higgsino-processes have been included.</li> 
+ 
+<li>Include the functionality for MC@NLO-Delta matching with aMC@NLO. 
+This requires runtime interfacing of Pythia and aMC@NLO, and can not 
+be employed by other users. New functionalities 
+include new PDF treatments in the parton shower (see new 
+<code><aloc href="TimelikeShowers">TimeShower:pdfMode</aloc></code> and 
+<code><aloc href="SpacelikeShowers">SpaceShower:pdfMode</aloc></code> 
+settings), a new way to access shower no-emission probabilties for 
+external codes by exposing the new 
+<code>Merging::generateSingleSudakov</code> method, and a new way to 
+retrieve shower-specific kinematic variables for aMC@NLO (see new setting 
+<code><aloc href="CKKWLMerging">Merging:runtimeAMCATNLOInterface 
+</aloc></code> and the new methods <code>Merging::getStoppingInfo</code> 
+and <code>Merging::getDeadzones</code>).</li> 
+ 
+<li>Further bug fixes for the hard process name handling for 
+weak-boson-fusion-like processes, that led to an incorrect counting 
+of additional emissions.</li> 
+ 
+<li>Small fixes to history construction in the presence of multiple 
+resonances.</li> 
+ 
+<li>The primordial kT for LHE files is now set by the 
+<code>BeamRemnants:primordialKThard</code> average value, 
+rather than the LHE <code>scale</code>, since the latter may be 
+quite low e.g. in the POWHEG approach.</li> 
+ 
+<li>The problem of "dangling" gluons causing changing color flows in 
+<code>SimpleTimeShower</code> for top decays is now fixed. The fix is 
+not fully validated for RPV.</li> 
+ 
+<li>Extra check added to <code>SimpleSpaceShower</code> for the case where 
+a small daughter PDF value can lead to an infinite loop if PDF variations 
+are switched on.</li> 
+ 
+<li>Bug fixed in the new possibility to let particles with narrow 
+widths (such as onia states) obtain a simple Breit-Wigner 
+distribution, specifically for MPIs, introduced in 8.240. This bug led 
+to excessive rejection of low-invariant-mass interactions. Thanks to 
+Albert De Roeck.</li> 
+ 
+<li>An indexing bug, for the scattering lepton in DIS events with 
+photon radiation allowed, has been fixed.</li> 
+ 
+<li>Added a few copy constructors to match corresponding assignment 
+operators, to avoid warnings for some compilers.</li> 
+ 
+<li>Small fix in cross section calculation of <code>main89.cc</code>. 
+</li> 
+ 
+<li>Fixes in <code>configure</code> and <code>examples/Makefile</code> 
+to have ROOT examples work again.</li> 
+ 
+<li><code>main**.cmnd</code>, ** = 81-84, 87-88 have been slightly 
+modified such that linking to LHAPDF6 is not required by default.</li> 
+ 
+<li>A bug in the XML-to-HTML conversion has led to the indiscriminate 
+removal of "more" from the HTML manual, notably in 
+<code>Pythia::moreDecays()</code>.</li> 
+ 
+</ul> 
+ 
 <h3>8.244: 20 December 2019</h3> 
 <ul> 
  
@@ -2435,4 +2531,4 @@ to six flavours at the top mass.</li>
  
 </chapter> 
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

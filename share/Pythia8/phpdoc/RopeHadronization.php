@@ -250,7 +250,7 @@ echo "<a href='Fragmentation.php?filepath=".$filepath."' target='page'>";?>Strin
 Fragmentation</a>. One point to note regarding the rescaling is the 
 fragmentation parameter <code>StringFlav:probQQtoQ</code>, describing 
 baryon relative to meson production. Baryon production is, as suggested 
-by eg. the popcorn hadronization model [<a href="Bibliography.php#refEde97" target="page">Ede97</a>],  complicated 
+by eg. the popcorn hadronization model [<a href="Bibliography.php#refEde97" target="page">Ede97</a>], more complicated 
 than meson production. The current modelling of this in the flavour ropes 
 framework is limited, but intended to be extended in the future. 
  
@@ -462,4 +462,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

@@ -79,7 +79,7 @@ analysis</a>, or one you have created yourself. The output of RIVET is in
 the form of <code>.aida</code> files, containing the histograms for the 
 analysis, which can be processed further with RIVET (see the 
 <a href="http://projects.hepforge.org/rivet/trac/wiki/FirstRivetRun"> 
-RIVET documentation</a> for  details). 
+RIVET documentation</a> for more details). 
  
 <br/><br/> 
 The above examples requires that (potentially large) HepMC events are stored 
@@ -173,4 +173,4 @@ They are all displayed by running <code>./main93 -h</code>.
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

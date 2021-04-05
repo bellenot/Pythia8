@@ -1153,7 +1153,7 @@ are working with an instance <code>pythia</code> of the
 The method <code>setInit()</code> should be called to store the 
 <code>pythia</code> initialization information in the LHA object, 
 and <code>setEvent()</code> to store event information. 
-Further, <code>updateSigma()</code> can be used at the end 
+Furthermore, <code>updateSigma()</code> can be used at the end 
 of the run to update cross-section information, cf. 
 <code>closeLHEF(true)</code> above. An example how the 
 generation, translation and writing methods should be ordered is 
@@ -1300,4 +1300,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

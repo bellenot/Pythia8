@@ -1,5 +1,5 @@
 // BeamParticle.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -351,7 +351,79 @@ double BeamParticle::xMax(int iSkip) {
 // multiparton interactions. By picking a non-negative iSkip value,
 // one particular interaction is skipped, as needed for ISR
 
-double BeamParticle::xfModified(int iSkip, int idIn, double x, double Q2) {
+// for case resolved.size() === 0
+double BeamParticle::xfModified0(int iSkip, int idIn, double x, double Q2){
+  if (x >= 1.) return 0.;
+  bool canBeVal = false;
+  for (int i = 0; i < nValKinds; ++i)
+    if (idIn == idVal[i]) {
+      canBeVal = true;
+      break;
+    }
+  if (canBeVal) {
+    xqVal     = xfVal( idIn, x, Q2);
+    xqgSea    = xfSea( idIn, x, Q2);
+  }
+  else xqgSea = xf( idIn, x, Q2);
+
+  // Add total, but only return relevant part for ISR. More cases??
+  // Watch out, e.g. g can come from either kind of quark.??
+  xqgTot = xqVal + xqgSea + xqCompSum;
+
+  // If ISR with photon beams no distinction between valence and sea.
+  if (isGammaBeam && doISR) return xqgTot;
+
+  if (iSkip >= 0) {
+    if (resolved[iSkip].isValence()) return xqVal;
+    if (resolved[iSkip].isUnmatched()) return xqgSea + xqCompSum;
+  }
+  return xqgTot;
+}
+
+/*
+3 cases:
+ * common case: all is different
+ * iSkip, Q2 and ...
+    * idIn is constant between calls // SimpleTimeShower
+    * x is constant between calls // MultipartonInteractions
+*/
+
+
+xfModifiedPrepareData BeamParticle::xfModifiedPrepare(int iSkip, double Q2){
+  xfModifiedPrepareData data = {0., 0., 0., 0., 0.};
+  // -----------
+  for (int i = 0; i < nValKinds; ++i) {
+    nValLeft[i] = nVal[i];
+    for (int j = 0; j < size(); ++j)
+    if (j != iSkip && resolved[j].isValence()
+      && resolved[j].id() == idVal[i]) --nValLeft[i];
+    double xValNow =  xValFrac(i, Q2);
+    data.xValTot += nVal[i] * xValNow;
+    data.xValLeft += nValLeft[i] * xValNow;
+  }
+  // -----------
+  double xUsed = 0.;
+  for (int i = 0; i < size(); ++i)
+    if (i != iSkip) xUsed += resolved[i].x();
+  data.xLeft = 1. - xUsed;
+  // -----------
+  for (int i = 0; i < size(); ++i){
+    if (i != iSkip && resolved[i].isUnmatched()){
+      data.xCompAdded += xCompFrac( resolved[i].x()
+        / (data.xLeft + resolved[i].x()) )
+      // Typo warning: extrafactor missing in Skands&Sjostrand article;
+      // <x> for companion refers to fraction of x left INCLUDING sea quark.
+      // To be modified further??
+      * (1. + resolved[i].x() / data.xLeft);
+    }
+  }
+  data.rescaleGS = max( 0., (1. - data.xValLeft - data.xCompAdded)
+    / (1. - data.xValTot) );
+  return data;
+}
+
+double BeamParticle::xfModified(int iSkip, int idIn, double x, double Q2,
+  xfModifiedPrepareData& prepared ) {
 
   // Initial values.
   idSave    = idIn;
@@ -360,77 +432,48 @@ double BeamParticle::xfModified(int iSkip, int idIn, double x, double Q2) {
   xqgSea    = 0.;
   xqCompSum = 0.;
 
+  const int resolved_size = size();
+
   // Fast procedure for first interaction.
-  if (size() == 0) {
-    if (x >= 1.) return 0.;
-    bool canBeVal = false;
-    for (int i = 0; i < nValKinds; ++i)
-      if (idIn == idVal[i]) canBeVal = true;
-    if (canBeVal) {
-      xqVal     = xfVal( idIn, x, Q2);
-      xqgSea    = xfSea( idIn, x, Q2);
-    }
-    else xqgSea = xf( idIn, x, Q2);
+  if (resolved_size == 0) {
+    return xfModified0(iSkip, idIn, x, Q2);
+  };
 
   // More complicated procedure for non-first interaction.
-  } else {
+  // Sum up the x already removed, and check that remaining x is enough.
+  if (x >= prepared.xLeft) return 0.;
+  double xRescaled = x / prepared.xLeft;
 
-    // Sum up the x already removed, and check that remaining x is enough.
-    double xUsed = 0.;
-    for (int i = 0; i < size(); ++i)
-      if (i != iSkip) xUsed += resolved[i].x();
-    double xLeft = 1. - xUsed;
-    if (x >= xLeft) return 0.;
-    double xRescaled = x / xLeft;
-
-    // Calculate total and remaining amount of x carried by valence quarks.
-    double xValTot = 0.;
-    double xValLeft = 0.;
-    for (int i = 0; i < nValKinds; ++i) {
-      nValLeft[i] = nVal[i];
-      for (int j = 0; j < size(); ++j)
-      if (j != iSkip && resolved[j].isValence()
-        && resolved[j].id() == idVal[i]) --nValLeft[i];
-      double xValNow =  xValFrac(i, Q2);
-      xValTot += nVal[i] * xValNow;
-      xValLeft += nValLeft[i] * xValNow;
-    }
-
-    // Calculate total amount of x carried by unmatched companion quarks.
-    double xCompAdded = 0.;
-    for (int i = 0; i < size(); ++i)
-    if (i != iSkip && resolved[i].isUnmatched()) xCompAdded
-      += xCompFrac( resolved[i].x() / (xLeft + resolved[i].x()) )
-      // Typo warning: extrafactor missing in Skands&Sjostrand article;
-      // <x> for companion refers to fraction of x left INCLUDING sea quark.
-      // To be modified further??
-      * (1. + resolved[i].x() / xLeft);
-
-    // Calculate total rescaling factor and pdf for sea and gluon.
-    double rescaleGS = max( 0., (1. - xValLeft - xCompAdded)
-      / (1. - xValTot) );
-    xqgSea = rescaleGS * xfSea( idIn, xRescaled, Q2);
-
+  // Calculate total and remaining amount of x carried by valence quarks.
+  for (int i = nValKinds - 1; i >= 0; --i) {
     // Find valence part and rescale it to remaining number of quarks.
-    for (int i = 0; i < nValKinds; ++i)
-    if (idIn == idVal[i] && nValLeft[i] > 0)
+    if (idIn == idVal[i] && nValLeft[i] > 0){
       xqVal = xfVal( idIn, xRescaled, Q2)
       * double(nValLeft[i]) / double(nVal[i]);
-
-    // Find companion part, by adding all companion contributions.
-    for (int i = 0; i < size(); ++i)
-    if (i != iSkip && resolved[i].id() == -idIn
-      && resolved[i].isUnmatched()) {
-      double xsRescaled = resolved[i].x() / (xLeft + resolved[i].x());
-      double xcRescaled = x / (xLeft + resolved[i].x());
-      double xqCompNow = xCompDist( xcRescaled, xsRescaled);
-      // Normalize the companion quark PDF to the total momentum carried
-      // by the partons in case of photon beam at given scale Q^2.
-      if ( isGamma() ) xqCompNow *= xIntegratedPDFs(Q2);
-      resolved[i].xqCompanion( xqCompNow);
-      xqCompSum += xqCompNow;
+      break;
     }
   }
+
+  // Calculate total amount of x carried by unmatched companion quarks.
+  for (int i = 0; i < resolved_size; ++i){
+    if (i != iSkip && resolved[i].isUnmatched() &&
+        resolved[i].id() == -idIn){
+        // Find companion part, by adding all companion contributions.
+        double xsRescaled = resolved[i].x()
+          / (prepared.xLeft + resolved[i].x());
+        double xcRescaled = x / (prepared.xLeft + resolved[i].x());
+        double xqCompNow = xCompDist( xcRescaled, xsRescaled);
+        // Normalize the companion quark PDF to the total momentum carried
+        // by the partons in case of photon beam at given scale Q^2.
+        if ( isGamma() ) xqCompNow *= xIntegratedPDFs(Q2);
+        resolved[i].xqCompanion( xqCompNow);
+        xqCompSum += xqCompNow;
+      }
+    }
+
+  // Calculate total rescaling factor and pdf for sea and gluon.
+
+  xqgSea = prepared.rescaleGS * xfSea( idIn, xRescaled, Q2);
 
   // Add total, but only return relevant part for ISR. More cases??
   // Watch out, e.g. g can come from either kind of quark.??
@@ -502,7 +545,7 @@ int BeamParticle::pickValSeaComp() {
 // Fraction of hadron momentum sitting in a valence quark distribution.
 // Based on hardcoded parametrizations of CTEQ 5L numbers.
 
-double BeamParticle::xValFrac(int j, double Q2) {
+inline double BeamParticle::xValFrac(int j, double Q2) {
 
   // Only recalculate when required.
   if (Q2 != Q2ValFracSav) {
@@ -534,41 +577,52 @@ double BeamParticle::xValFrac(int j, double Q2) {
 // using an approximate gluon density like (1 - x_g)^power / x_g.
 // The value corresponds to an unrescaled range between 0 and 1 - x_s.
 
-double BeamParticle::xCompFrac(double xs) {
+inline double BeamParticle::xCompFrac(double xs) {
 
   // Tiny answer for xs -> 1 is numerically unstable, so set = 0.
   if (xs > XMAXCOMPANION) return 0.;
 
+  // Cached result can be returned straight away.
+  if (companionPower == cPowerCache && xs == xsCache) return resCache;
+
   // Select case by power of gluon (1-x_g) shape.
+  double logxs = log(xs);
+  double res;
   switch (companionPower) {
 
     case 0:
-       return xs * ( 5. + xs * (-9. - 2. * xs * (-3. + xs)) + 3. * log(xs) )
+       res =  xs * ( 5. + xs * (-9. - 2. * xs * (-3. + xs)) + 3. * logxs )
          / ( (-1. + xs) * (2. + xs * (-1. + 2. * xs)) );
-
+       break;
     case 1:
-       return -1. -3. * xs + ( 2. * pow2(-1. + xs) * (1. + xs + xs*xs))
-         / ( 2. + xs*xs * (xs - 3.) + 3. * xs * log(xs) );
-
+       res =  -1. -3. * xs + ( 2. * pow2(-1. + xs) * (1. + xs + xs*xs))
+         / ( 2. + xs*xs * (xs - 3.) + 3. * xs * logxs );
+       break;
     case 2:
-       return xs * ( (1. - xs) * (19. + xs * (43. + 4. * xs))
-         + 6. * log(xs) * (1. + 6. * xs + 4.*xs*xs) ) /
+       res =  xs * ( (1. - xs) * (19. + xs * (43. + 4. * xs))
+         + 6. * logxs * (1. + 6. * xs + 4.*xs*xs) ) /
         ( 4. * ( (xs - 1.) * (1. + xs * (4. + xs) )
-        - 3. * xs * log(xs) * (1 + xs) ) );
-
+        - 3. * xs * logxs * (1 + xs) ) );
+       break;
     case 3:
-      return 3. * xs * ( (xs - 1.) * (7. + xs * (28. + 13. * xs))
-        - 2. * log(xs) * (1. + xs * (9. + 2. * xs * (6. + xs))) )
+      res =  3. * xs * ( (xs - 1.) * (7. + xs * (28. + 13. * xs))
+        - 2. * logxs * (1. + xs * (9. + 2. * xs * (6. + xs))) )
         / ( 4. + 27. * xs - 31. * pow3(xs)
-        + 6. * xs * log(xs) * (3. + 2. * xs * (3.+xs)) );
-
+        + 6. * xs * logxs * (3. + 2. * xs * (3.+xs)) );
+      break;
     default:
-      return ( -9. * xs * (xs*xs - 1.) * (5. + xs * (24. + xs)) + 12. * xs
-        * log(xs) * (1. + 2. * xs) * (1. + 2. * xs * (5. + 2. * xs)) )
+      res =  ( -9. * xs * (xs*xs - 1.) * (5. + xs * (24. + xs)) + 12. * xs
+        * logxs * (1. + 2. * xs) * (1. + 2. * xs * (5. + 2. * xs)) )
         / ( 8. * (1. + 2. * xs) * ((xs - 1.) * (1. + xs * (10. + xs))
-        - 6. * xs * log(xs) * (1. + xs)) );
+        - 6. * xs * logxs * (1. + xs)) );
 
   }
+
+  // Cache new result and return it.
+  cPowerCache = companionPower;
+  xsCache     = xs;
+  resCache    = res;
+  return res;
 }
 
 //--------------------------------------------------------------------------

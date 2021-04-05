@@ -165,7 +165,7 @@ The choice of jet algorithm and associated parameters can be adjusted with
 the settings below. The PYTHIA8 internal <code>CellJet</code> and 
 <code>SlowJet</code> routines are used for jet finding.  See the 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='EventAnalysis.php?filepath=".$filepath."' target='page'>";?>Event Analysis</a> page for  details. 
+echo "<a href='EventAnalysis.php?filepath=".$filepath."' target='page'>";?>Event Analysis</a> page for more details. 
  
 <br/><br/><table><tr><td><strong>JetMatching:jetAlgorithm  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)</td></tr></table>
 The choice of jet algorithm to use when merging against hard partons. 
@@ -518,7 +518,7 @@ for PYTHIA8.
 First, the k<sub>T</sub> jet algorithm is applied using the PYTHIA8 
 <code>SlowJet</code> implementation. The <code>useStandardR = false</code> 
 is used, ie. the <i>(delta R)^2</i> separation is defined as 
-<i>2 (cosh(delta y) - cos(delta phi))</i> rather than the  common 
+<i>2 (cosh(delta y) - cos(delta phi))</i> rather than the more common 
 <i>(delta y)^2 + delta phi)^2</i>. The <i>R</i>, <i>etaMax</i>, 
 and a <i>pTmin</i> parameters are specified. By default, <i>R = 1</i> 
 and <i>pTmin = qCut </i>. It is not recommended to change these. 
@@ -829,4 +829,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

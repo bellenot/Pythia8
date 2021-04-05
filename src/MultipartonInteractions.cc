@@ -1,5 +1,5 @@
 // MultipartonInteractions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -209,30 +209,29 @@ double SigmaMultiparton::sigma( int id1, int id2, double x1, double x2,
       m3Fix[i] = particleDataPtr->mSel(sigmaT[i]->id3Mass());
     if (useNarrowBW4[i])
       m4Fix[i] = particleDataPtr->mSel(sigmaT[i]->id4Mass());
-    if ((useNarrowBW3[i] || useNarrowBW4[i])
-      && pow2( m3Fix[i] + m4Fix[i] + MASSMARGIN) > sHat) return 0.;
+
+    // Check that invariant mass sufficiently large for product masses.
+    if (useNarrowBW3[i] || useNarrowBW4[i])
+      sHatMin[i] = pow2( m3Fix[i] + m4Fix[i] + MASSMARGIN);
+    if (sHatMin[i] > sHat) continue;
 
     // t-channel-sampling contribution.
-    if (sHat > sHatMin[i]) {
-      sigmaT[i]->set2KinMPI( x1, x2, sHat, tHat, uHat,
-        alpS, alpEM, needMasses[i], m3Fix[i], m4Fix[i]);
-      sigmaTval[i] = sigmaT[i]->sigmaHatWrap(id1, id2);
-      sigmaT[i]->pickInState(id1, id2);
-      // Correction factor for tHat rescaling in massive kinematics.
-      if (needMasses[i]) sigmaTval[i] *= sigmaT[i]->sHBetaMPI() / sHat;
-      sigmaTsum += sigmaTval[i];
-    }
+    sigmaT[i]->set2KinMPI( x1, x2, sHat, tHat, uHat,
+      alpS, alpEM, needMasses[i], m3Fix[i], m4Fix[i]);
+    sigmaTval[i] = sigmaT[i]->sigmaHatWrap(id1, id2);
+    sigmaT[i]->pickInState(id1, id2);
+    // Correction factor for tHat rescaling in massive kinematics.
+    if (needMasses[i]) sigmaTval[i] *= sigmaT[i]->sHBetaMPI() / sHat;
+    sigmaTsum += sigmaTval[i];
 
     // u-channel-sampling contribution.
-    if (sHat > sHatMin[i]) {
-      sigmaU[i]->set2KinMPI( x1, x2, sHat, uHat, tHat,
-        alpS, alpEM, needMasses[i], m3Fix[i], m4Fix[i]);
-      sigmaUval[i] = sigmaU[i]->sigmaHatWrap( id1, id2);
-      sigmaU[i]->pickInState(id1, id2);
-      // Correction factor for tHat rescaling in massive kinematics.
-      if (needMasses[i]) sigmaUval[i] *= sigmaU[i]->sHBetaMPI() / sHat;
-      sigmaUsum += sigmaUval[i];
-    }
+    sigmaU[i]->set2KinMPI( x1, x2, sHat, uHat, tHat,
+      alpS, alpEM, needMasses[i], m3Fix[i], m4Fix[i]);
+    sigmaUval[i] = sigmaU[i]->sigmaHatWrap( id1, id2);
+    sigmaU[i]->pickInState(id1, id2);
+    // Correction factor for tHat rescaling in massive kinematics.
+    if (needMasses[i]) sigmaUval[i] *= sigmaU[i]->sHBetaMPI() / sHat;
+    sigmaUsum += sigmaUval[i];
 
   // Average of t- and u-channel sampling; corrected for not selected channels.
   }
@@ -1712,28 +1711,32 @@ double MultipartonInteractions::sigmaPT2scatter(bool isFirst) {
   // For first interaction use normal densities.
   if (isFirst) {
     for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF1[10] = (9./4.) * beamAPtr->xf(21, x1, pT2Fac);
-      else xPDF1[id+10] = beamAPtr->xf(id, x1, pT2Fac);
+      if (id == 0){
+        xPDF1[10] = (9./4.) * beamAPtr->xf(21, x1, pT2Fac);
+        xPDF2[10] = (9./4.) * beamBPtr->xf(21, x2, pT2Fac);
+      } else {
+        xPDF1[id+10] = beamAPtr->xf(id, x1, pT2Fac);
+        xPDF2[id+10] = beamBPtr->xf(id, x2, pT2Fac);
+      }
       xPDF1sum += xPDF1[id+10];
-    }
-    for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF2[10] = (9./4.) * beamBPtr->xf(21, x2, pT2Fac);
-      else xPDF2[id+10] = beamBPtr->xf(id, x2, pT2Fac);
       xPDF2sum += xPDF2[id+10];
     }
 
   // For subsequent interactions use rescaled densities.
   } else {
+    xfModifiedPrepareData pA = beamAPtr->xfModifiedPrepare(-1, pT2Fac);
+    xfModifiedPrepareData pB = beamBPtr->xfModifiedPrepare(-1, pT2Fac);
     for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF1[10] = (9./4.) * beamAPtr->xfMPI(21, x1, pT2Fac);
-      else xPDF1[id+10] = beamAPtr->xfMPI(id, x1, pT2Fac);
+      if (id == 0) continue;
+      xPDF1[id+10] = beamAPtr->xfMPI(id, x1, pT2Fac, pA);
+      xPDF2[id+10] = beamBPtr->xfMPI(id, x2, pT2Fac, pB);
       xPDF1sum += xPDF1[id+10];
-    }
-    for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF2[10] = (9./4.) * beamBPtr->xfMPI(21, x2, pT2Fac);
-      else xPDF2[id+10] = beamBPtr->xfMPI(id, x2, pT2Fac);
       xPDF2sum += xPDF2[id+10];
     }
+    xPDF1[10] = (9./4.) * beamAPtr->xfMPI(21, x1, pT2Fac, pA);
+    xPDF2[10] = (9./4.) * beamBPtr->xfMPI(21, x2, pT2Fac, pB);
+    xPDF1sum += xPDF1[10];
+    xPDF2sum += xPDF2[10];
   }
 
   // Select incoming flavours according to actual PDF's.
@@ -1903,6 +1906,7 @@ double MultipartonInteractions::sigmaPT2rescatter( Event& event) {
     int( rndmPtr->flat() * double(nScatA) ) );
 
   // Loop over all already scattered partons from side A.
+  xfModifiedPrepareData pB = beamBPtr->xfModifiedPrepare(-1, pT2Fac);
   for (int iScat = 0; iScat < nScatA; ++iScat) {
     if (PREPICKRESCATTER && iScat != iScatA) continue;
     int iA         = scatteredA[iScat];
@@ -1934,10 +1938,12 @@ double MultipartonInteractions::sigmaPT2rescatter( Event& event) {
 
     // Use rescaled densities, with preweighting 9/4 for gluons.
     for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF2[10] = (9./4.) * beamBPtr->xfMPI(21, x2Tmp, pT2Fac);
-      else xPDF2[id+10] = beamBPtr->xfMPI(id, x2Tmp, pT2Fac);
+      if (id == 0) continue;
+      xPDF2[id+10] = beamBPtr->xfMPI(id, x2Tmp, pT2Fac, pB);
       xPDF2sum += xPDF2[id+10];
     }
+    xPDF2[10] = (9./4.) * beamBPtr->xfMPI(21, x2Tmp, pT2Fac, pB);
+    xPDF2sum += xPDF2[10];
 
     // Select incoming flavour according to actual PDF's.
     int id2Tmp = -nQuarkIn - 1;
@@ -2002,6 +2008,7 @@ double MultipartonInteractions::sigmaPT2rescatter( Event& event) {
     int( rndmPtr->flat() * double(nScatB) ) );
 
   // Loop over all already scattered partons from side B.
+  xfModifiedPrepareData pA = beamAPtr->xfModifiedPrepare(-1, pT2Fac);
   for (int iScat = 0; iScat < nScatB; ++iScat) {
     if (PREPICKRESCATTER && iScat != iScatB) continue;
     int iB         = scatteredB[iScat];
@@ -2033,10 +2040,12 @@ double MultipartonInteractions::sigmaPT2rescatter( Event& event) {
 
     // Use rescaled densities, with preweighting 9/4 for gluons.
     for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF1[10] = (9./4.) * beamAPtr->xfMPI(21, x1Tmp, pT2Fac);
-      else xPDF1[id+10] = beamAPtr->xfMPI(id, x1Tmp, pT2Fac);
+      if (id == 0) continue;
+      xPDF1[id+10] = beamAPtr->xfMPI(id, x1Tmp, pT2Fac, pA);
       xPDF1sum += xPDF1[id+10];
     }
+    xPDF1[10] = (9./4.) * beamAPtr->xfMPI(21, x1Tmp, pT2Fac, pA);
+    xPDF1sum += xPDF1[10];
 
     // Select incoming flavour according to actual PDF's.
     int id1Tmp = -nQuarkIn - 1;

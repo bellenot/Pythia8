@@ -68,7 +68,7 @@ without it more demanding.
 <p/> 
 PYTHIA's internal phase-space generators are rather good at handling 
 the phase space of <i>2 &rarr; 1</i> and <i>2 &rarr; 2</i> processes, 
-are  primitive for <i>2 &rarr; 3</i> ones and do not at all 
+are more primitive for <i>2 &rarr; 3</i> ones and do not at all 
 address higher multiplicities. An option is therefore also provided 
 for external phase-space generators to be used, which must then be 
 encapsulated to inherit from PYTHIA's <code>PhaseSpace</code> base class 
@@ -255,7 +255,7 @@ external matrix-element evaluation.
 The matrix-element information has to be encoded in a new class. 
 The relevant code could either be put before the main program in the 
 same file, or be stored separately, e.g. in a matched pair 
-of <code>.h</code> and <code>.cc</code> files. The latter may be  
+of <code>.h</code> and <code>.cc</code> files. The latter may be more 
 convenient, in particular if the cross sections are lengthy, or if you 
 intend to build up your own little process library, but of course 
 requires that these additional files are correctly compiled and linked. 
@@ -606,7 +606,7 @@ echo "<a href='ElectroweakProcesses.php?filepath=".$filepath."' target='page'>";
 for a specific process. The global mode normally is used to switch off 
 parts of the <i>gamma^*/Z^0</i> propagator for test purposes. The 
 above local mode is useful for processes where a <i>Z^0</i> really is 
-that and nothing , such as <i>q qbar &rarr; H^0 Z^0</i>. The default 
+that and nothing more, such as <i>q qbar &rarr; H^0 Z^0</i>. The default 
 value -1 returned by <code>gmZmode()</code> ensures that the global 
 mode is used, while 0 gives full <i>gamma^*/Z^0</i> interference, 
 1 <i>gamma^*</i> only and 2 <i>Z^0</i> only. 
@@ -732,7 +732,7 @@ by the integrated cross section. This value is to be stored in
 will be used to determine whether the trial event is accepted or not. 
  
 <p/> 
-In the <code>finalKin()</code> step the output is  standardized. 
+In the <code>finalKin()</code> step the output is more standardized. 
 The key values are the ones stored in the <code>mH[]</code> and 
 <code>pH[]</code> arrays, the former for masses and the latter for 
 four-momenta. Here the first two slots represent the two incoming 
@@ -799,4 +799,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

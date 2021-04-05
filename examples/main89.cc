@@ -1,5 +1,5 @@
 // main89.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -204,8 +204,10 @@ int main( int argc, char* argv[] ){
       if (abs(pythia.info.lhaStrategy()) == 4)
         normhepmc = 1. / double(1e9*nEvent);
       // Work with unweighted events.
-      else
+      else if (abs(pythia.info.lhaStrategy()) == 3)
         normhepmc = xs / double(1e9*nEvent);
+      else
+        normhepmc = xs / double(nEvent);
 
       // Set event weight
       hepmcevt->weights().push_back(evtweight*normhepmc);

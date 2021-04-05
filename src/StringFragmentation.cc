@@ -1,5 +1,5 @@
 // StringFragmentation.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1086,7 +1086,7 @@ bool StringFragmentation::setHadronVertices( Event& event) {
         noOffset = (betterFrac) ? fracCorrection : pCorrection;
         fromBreaks = noOffset + gluonOffset;
       }
-      
+
       // Store vertex and check positivity.
       longitudinal.push_back(fromBreaks);
       if (fromBreaks.m2Calc() < -CHECKPOS * max(1., pow2(fromBreaks.e())))
@@ -1205,7 +1205,7 @@ bool StringFragmentation::setHadronVertices( Event& event) {
       }
     }
   }
-  
+
   // Begin smearing in transverse space. Endpoint vertices unchanged.
   vector<Vec4> spaceTime;
   for (int i = 0; i < vertexSize; ++i) {
@@ -1227,7 +1227,7 @@ bool StringFragmentation::setHadronVertices( Event& event) {
       }
 
       // Loop over tries; give up if struck.
-      double longiLen = sqrt(longi.pAbs2() + pow2(longi.e()) + pow2(xySmear)); 
+      double longiLen = sqrt(longi.pAbs2() + pow2(longi.e()) + pow2(xySmear));
       for (int iTry = 0; ; ++iTry) {
         if (iTry == NTRYSMEAR) {
           infoPtr->errorMsg("Warning in StringFragmentation::set"
@@ -1243,7 +1243,7 @@ bool StringFragmentation::setHadronVertices( Event& event) {
         positionTot = transPos + longi;
 
         // Keep proper or actual time constant when including the smearing.
-        if (constantTau) 
+        if (constantTau)
           positionTot.e( sqrt(longi.m2Calc() + positionTot.pAbs2()) );
         if ( sqrt(transPos.pAbs2() + pow2(positionTot.e() - longi.e()))
           < maxSmear * longiLen) break;
@@ -1301,7 +1301,7 @@ bool StringFragmentation::setHadronVertices( Event& event) {
           noOffset = (betterFrac) ? fracCorrection : pCorrection;
           fromBreaks = noOffset + gluonOffset;
         }
-        
+
         // Store vertex and check positivity.
         longitudinalPos.push_back(fromBreaks);
         if (fromBreaks.m2Calc() < -CHECKPOS * max(1., pow2(fromBreaks.e())))
@@ -1371,7 +1371,7 @@ bool StringFragmentation::setHadronVertices( Event& event) {
         }
       }
 
-      // Begin smearing in transverse space. 
+      // Begin smearing in transverse space.
       for (int i = 0; i < int(legVertices.size()); ++i) {
         Vec4& longi = longitudinalPos[i];
         Vec4 positionTot = longi;
@@ -1384,9 +1384,9 @@ bool StringFragmentation::setHadronVertices( Event& event) {
           Vec4 eX = currentRegion.eX;
           Vec4 eY = currentRegion.eY;
 
-          // Loop over tries; give up if struck.      
+          // Loop over tries; give up if struck.
           double longiLen = sqrt(longi.pAbs2() + pow2(longi.e())
-            + pow2(xySmear));  
+            + pow2(xySmear));
           for (int iTry = 0; ; ++iTry) {
             if (iTry == NTRYSMEAR) {
               infoPtr->errorMsg("Warning in StringFragmentation::set"
@@ -1402,7 +1402,7 @@ bool StringFragmentation::setHadronVertices( Event& event) {
             positionTot = transPos + longi;
 
             // Keep proper or actual time constant when including the smearing.
-            if (constantTau) 
+            if (constantTau)
               positionTot.e( sqrt(longi.m2Calc() + positionTot.pAbs2()) );
             if ( sqrt(transPos.pAbs2() + pow2(positionTot.e() - longi.e()))
               < maxSmear * longiLen) break;

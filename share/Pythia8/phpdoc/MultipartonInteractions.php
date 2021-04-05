@@ -516,7 +516,7 @@ and <i>uHat</i>, and the average formed, while the final kinematics
 is given by the relative importance of the two. 
  
 <p/> 
-Further, since large <i>y</i> values are disfavoured by dropping 
+Furthermore, since large <i>y</i> values are disfavoured by dropping 
 PDF's, a factor 
 <br/><i> 
    WT_y = (1 - (y_3/y_max)^2) * (1 - (y_4/y_max)^2) 
@@ -682,4 +682,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

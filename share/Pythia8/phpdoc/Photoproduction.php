@@ -143,7 +143,7 @@ hadron beams. The only difference follows again from the additional
 <i>gamma &rarr; q qbar</i> splittings where the beam photon becomes 
 unresolved. If this splitting happens during the interleaved evolution 
 for either of the photon beams no further MPIs below the branching scale 
-<i>pT</i> are allowed since the photon is not resolved any. 
+<i>pT</i> are allowed since the photon is not resolved anymore. 
 </p> 
  
 <p> 
@@ -321,10 +321,10 @@ upper limit.
 <br/><br/><table><tr><td><strong>Photon:thetaAMax </td><td></td><td> <input type="text" name="11" value="-1.0" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>-1.0</strong></code>; <code>maximum = 3.141593</code>)</td></tr></table>
 Upper limit for scattering angle of lepton A in <i>rad</i>. A negative 
 value means that no cut is applied. Since <i>k_T</i> depends on virtuality 
-of the emitted photon, the <code>Photon:Q2max</code> cut is usually  
+of the emitted photon, the <code>Photon:Q2max</code> cut is usually more 
 restrictive unless a very small angle is used. This cut is only applied 
 when the colliding beams are defined in their CM frame 
-(<code>Beams:frameType=1</code>). Further, in case of <i>2 &rarr; 1</i> 
+(<code>Beams:frameType=1</code>). Furthermore, in case of <i>2 &rarr; 1</i> 
 processes with direct photons the scattered lepton kinematics is modified 
 later in the event generation, so accurate rejection can be obtained only 
 based on the final lepton momenta in the event record. 
@@ -446,4 +446,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

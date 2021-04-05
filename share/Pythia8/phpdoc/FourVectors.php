@@ -476,7 +476,7 @@ of the <code>RotBstMatrix</code>.
 <p/> 
 For a longer sequence of rotations and boosts, and where several 
 <code>Vec4</code> are to be rotated and boosted in the same way, 
-a  efficient approach is to define a <code>RotBstMatrix</code>, 
+a more efficient approach is to define a <code>RotBstMatrix</code>, 
 which forms a separate auxiliary class. You can build up this 
 4-by-4 matrix by successive calls to the methods of the class, 
 such that the matrix encodes the full sequence of operations. 
@@ -649,4 +649,4 @@ when in the rest frame.
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

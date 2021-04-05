@@ -378,7 +378,7 @@ As a simplified option, we here offer the possibility to bias the
 <i>2 &rarr; 2</i> sampling by a power of <i>pTHat</i>, then with 
 events having a weight the inverse of this. This fast track will only 
 work under a number of strict conditions, implemented to reduce the 
-risk of abuse. (Whereas a <code>UserHooks</code> setup can be  
+risk of abuse. (Whereas a <code>UserHooks</code> setup can be more 
 flexible.) Specifically it will work if only high-<i>pT</i> 
 <i>2 &rarr; 2</i> processes already implemented in PYTHIA are requested, 
 notably the <code>HardQCD</code> ones. That is, you cannot mix with 
@@ -569,4 +569,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

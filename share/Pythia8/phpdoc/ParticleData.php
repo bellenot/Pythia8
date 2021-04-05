@@ -67,7 +67,7 @@ of the Breit-Wigner distributions (the mass spectrum develops a
 <i>dm/m</i> divergence). 
 However, we expect form factors to dampen this tail at masses some distance 
 above the nominal one, so cut off the rise by requiring the actual 
-Breit-Wigner weight not to be  than a factor <code>maxEnhanceBW</code> 
+Breit-Wigner weight not to be more than a factor <code>maxEnhanceBW</code> 
 above the one obtained with options 1 or 3, respectively. This also 
 opens up for a simpler technical handling of mass selection in options 
 2 and 4, by using standard hit-and-miss Monte Carlo. 
@@ -9264,4 +9264,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

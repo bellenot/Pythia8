@@ -921,7 +921,7 @@ With this extension, the methods <code>double pT(int i)</code>,
 <code>double y(int i)</code>, <code>double phi(int i)</code>, 
 <code>Vec4 p(int i)</code>, <code>double m(int i)</code> and 
 <code>int multiplicity(int i)</code> can be used as before. 
-Further, <code>list()</code> generalizes 
+Furthermore, <code>list()</code> generalizes 
  
 <a name="anchor62"></a>
 <p/><strong> void SlowJet::list(bool listAll = false) &nbsp;</strong> <br/>
@@ -1022,4 +1022,4 @@ individual particle.
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

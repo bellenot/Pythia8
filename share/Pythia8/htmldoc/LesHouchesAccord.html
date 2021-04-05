@@ -666,7 +666,7 @@ simplify calculations. This is particularly common for the <i>e</i> and
 afflicted. Incoming leptons are not affected by this procedure. 
 <br/><code>option </code><strong> 0</strong> :  all lepton masses are taken from the Les Houches input. 
    
-<br/><code>option </code><strong> 1</strong> :  if the input lepton mass deviates by  than 10% 
+<br/><code>option </code><strong> 1</strong> :  if the input lepton mass deviates by more than 10% 
 from the PYTHIA (data table) mass then its mass is reset according to the 
 PYTHIA value. This should catch weird masses, while allowing sensible 
 variations. 
@@ -1145,7 +1145,7 @@ are working with an instance <code>pythia</code> of the
 The method <code>setInit()</code> should be called to store the 
 <code>pythia</code> initialization information in the LHA object, 
 and <code>setEvent()</code> to store event information. 
-Further, <code>updateSigma()</code> can be used at the end 
+Furthermore, <code>updateSigma()</code> can be used at the end 
 of the run to update cross-section information, cf. 
 <code>closeLHEF(true)</code> above. An example how the 
 generation, translation and writing methods should be ordered is 
@@ -1242,4 +1242,4 @@ for the case that <code>Pythia::process</code> is not in this frame.
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

@@ -232,4 +232,4 @@ Copyright &copy; 2019 Torbj&ouml;rn Sj&ouml;strand
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

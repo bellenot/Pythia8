@@ -29,23 +29,24 @@ echo "<font color='red'>NO FILE SELECTED YET.. PLEASE DO SO </font><a href='Save
  
 <h2>Update History</h2> 
 <ol id="toc">
-  <li><a href="#section0">8.244: 20 December 2019</a></li>
-  <li><a href="#section1">8.243: 4 July 2019</a></li>
-  <li><a href="#section2">8.242: 1 July 2019</a></li>
-  <li><a href="#section3">8.240: 20 December 2018</a></li>
-  <li><a href="#section4">8.235: 27 March 2018</a></li>
-  <li><a href="#section5">8.230: 6 October 2017</a></li>
-  <li><a href="#section6">8.226: 26 April 2017</a></li>
-  <li><a href="#section7">8.223: 5 January 2017</a></li>
-  <li><a href="#section8">8.219: 10 May 2016</a></li>
-  <li><a href="#section9">8.215: 4 January 2016</a></li>
-  <li><a href="#section10">8.212: 23 September 2015</a></li>
-  <li><a href="#section11">8.210: 29 June 2015</a></li>
-  <li><a href="#section12">8.209: 25 May 2015</a></li>
-  <li><a href="#section13">8.205: 23 January 2015</a></li>
-  <li><a href="#section14">8.204: 22 January 2015</a></li>
-  <li><a href="#section15">8.201: 14 October 2014</a></li>
-  <li><a href="#section16">8.200: 11 October 2014</a></li>
+  <li><a href="#section0">8.245: 29 October 2020</a></li>
+  <li><a href="#section1">8.244: 20 December 2019</a></li>
+  <li><a href="#section2">8.243: 4 July 2019</a></li>
+  <li><a href="#section3">8.242: 1 July 2019</a></li>
+  <li><a href="#section4">8.240: 20 December 2018</a></li>
+  <li><a href="#section5">8.235: 27 March 2018</a></li>
+  <li><a href="#section6">8.230: 6 October 2017</a></li>
+  <li><a href="#section7">8.226: 26 April 2017</a></li>
+  <li><a href="#section8">8.223: 5 January 2017</a></li>
+  <li><a href="#section9">8.219: 10 May 2016</a></li>
+  <li><a href="#section10">8.215: 4 January 2016</a></li>
+  <li><a href="#section11">8.212: 23 September 2015</a></li>
+  <li><a href="#section12">8.210: 29 June 2015</a></li>
+  <li><a href="#section13">8.209: 25 May 2015</a></li>
+  <li><a href="#section14">8.205: 23 January 2015</a></li>
+  <li><a href="#section15">8.204: 22 January 2015</a></li>
+  <li><a href="#section16">8.201: 14 October 2014</a></li>
+  <li><a href="#section17">8.200: 11 October 2014</a></li>
 </ol>
 
  
@@ -55,13 +56,113 @@ from 8.1 to 8.2 gave an occasion to break backwards compatibility,
 but this should only affect a small part of the user code. 
  
 <a name="section0"></a> 
+<h3>8.245: 29 October 2020</h3> 
+<ul> 
+ 
+<li>Significant speedup of parton distribution handling, and 
+thereby of the whole PYTHIA execution, since PDF is such a major 
+part of the total execution time. This has been achieved by 
+careful work by Dmitri Konstantinov and Grigory Latyshev. 
+In detail, the main changes are. 
+<ul> 
+<li>In the LHAPDF6 interface the evaluation of the <i>x</i> and 
+<i>Q^2</i> limits is extremely slow, such that a caching of these 
+numbers increases execution speed by about a factor of 2 when LHAPDF 
+is used.</li> 
+<li>A caching of info on the amount of <i>x</i> already used up 
+helps speed up MPI, ISR and FSR execution times, giving gains of 
+order 20%. Main changes are in the <code>BeamParticle</code> class. 
+</li> 
+<li>Optimization of array handling in <code>LHAGrid1</code> give 
+a speedup by about 5%. This is the internal PYTHIA implementation 
+of interpolation in LHAPDF6 grids which, still after the LHAPDF6 
+improvements reported above, runs more than 50% faster than using 
+the same PDF evaluated by LHAPDF6. This streamlining is made at 
+the cost of not offering facilities like PDF error bands.</li> 
+<li>Also the special internal routines for the NNPDF 2.3 series 
+has been speeded up by more than 10%, by optimized interpolation 
+routines.</li> 
+</ul> 
+</li> 
+ 
+<li>Several fixes to avoid out-of-bound evaluation of vectors 
+in the merging code.</li> 
+ 
+<li>Several fixes to correctly handle CKKW-L merging of EWkino- and 
+higgsino-processes have been included.</li> 
+ 
+<li>Include the functionality for MC@NLO-Delta matching with aMC@NLO. 
+This requires runtime interfacing of Pythia and aMC@NLO, and can not 
+be employed by other users. New functionalities 
+include new PDF treatments in the parton shower (see new 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='TimelikeShowers.php?filepath=".$filepath."' target='page'>";?>TimeShower:pdfMode</a></code> and 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='SpacelikeShowers.php?filepath=".$filepath."' target='page'>";?>SpaceShower:pdfMode</a></code> 
+settings), a new way to access shower no-emission probabilties for 
+external codes by exposing the new 
+<code>Merging::generateSingleSudakov</code> method, and a new way to 
+retrieve shower-specific kinematic variables for aMC@NLO (see new setting 
+<code><?php $filepath = $_GET["filepath"];
+echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>Merging:runtimeAMCATNLOInterface 
+</a></code> and the new methods <code>Merging::getStoppingInfo</code> 
+and <code>Merging::getDeadzones</code>).</li> 
+ 
+<li>Further bug fixes for the hard process name handling for 
+weak-boson-fusion-like processes, that led to an incorrect counting 
+of additional emissions.</li> 
+ 
+<li>Small fixes to history construction in the presence of multiple 
+resonances.</li> 
+ 
+<li>The primordial kT for LHE files is now set by the 
+<code>BeamRemnants:primordialKThard</code> average value, 
+rather than the LHE <code>scale</code>, since the latter may be 
+quite low e.g. in the POWHEG approach.</li> 
+ 
+<li>The problem of "dangling" gluons causing changing color flows in 
+<code>SimpleTimeShower</code> for top decays is now fixed. The fix is 
+not fully validated for RPV.</li> 
+ 
+<li>Extra check added to <code>SimpleSpaceShower</code> for the case where 
+a small daughter PDF value can lead to an infinite loop if PDF variations 
+are switched on.</li> 
+ 
+<li>Bug fixed in the new possibility to let particles with narrow 
+widths (such as onia states) obtain a simple Breit-Wigner 
+distribution, specifically for MPIs, introduced in 8.240. This bug led 
+to excessive rejection of low-invariant-mass interactions. Thanks to 
+Albert De Roeck.</li> 
+ 
+<li>An indexing bug, for the scattering lepton in DIS events with 
+photon radiation allowed, has been fixed.</li> 
+ 
+<li>Added a few copy constructors to match corresponding assignment 
+operators, to avoid warnings for some compilers.</li> 
+ 
+<li>Small fix in cross section calculation of <code>main89.cc</code>. 
+</li> 
+ 
+<li>Fixes in <code>configure</code> and <code>examples/Makefile</code> 
+to have ROOT examples work again.</li> 
+ 
+<li><code>main**.cmnd</code>, ** = 81-84, 87-88 have been slightly 
+modified such that linking to LHAPDF6 is not required by default.</li> 
+ 
+<li>A bug in the XML-to-HTML conversion has led to the indiscriminate 
+removal of "more" from the HTML manual, notably in 
+<code>Pythia::moreDecays()</code>.</li> 
+ 
+</ul> 
+ 
+<a name="section1"></a> 
 <h3>8.244: 20 December 2019</h3> 
 <ul> 
  
 <li>The combination of weight variations, within the context of 
 uncertainty bands, has not been well documented and therefore prone 
 to misunderstandings. Now the behaviour of 
-<code>Info::getGroupWeight()</code> has been made  transparent, 
+<code>Info::getGroupWeight()</code> has been made more transparent, 
 and the documentation in <?php $filepath = $_GET["filepath"];
 echo "<a href='Variations.php?filepath=".$filepath."' target='page'>";?>Variations</a> 
 has been improved. The <code>main121.cc</code> example has been 
@@ -99,7 +200,7 @@ of mm. Thanks to Christopher Plumberg.</li>
  
 </ul> 
  
-<a name="section1"></a> 
+<a name="section2"></a> 
 <h3>8.243: 4 July 2019</h3> 
 <ul> 
  
@@ -120,7 +221,7 @@ pointer. Address tiny issue of possibly uninitialized variable in
  
 </ul> 
  
-<a name="section2"></a> 
+<a name="section3"></a> 
 <h3>8.242: 1 July 2019</h3> 
 <ul> 
  
@@ -260,7 +361,7 @@ functions.</li>
  
 </ul> 
  
-<a name="section3"></a> 
+<a name="section4"></a> 
 <h3>8.240: 20 December 2018</h3> 
 <ul> 
  
@@ -301,7 +402,7 @@ echo "<a href='SimpleShowers.php?filepath=".$filepath."' target='page'>";?>here<
  
 <li>Two new proton PDF sets, NNPDF3.1sx+LHCb (N)NLO+NLLx LUXQED, 
 have been introduced. Since they include small-<i>x</i> resummation 
-they offer a  reasonable small-<i>x</i> behaviour for use in a 
+they offer a more reasonable small-<i>x</i> behaviour for use in a 
 LO context. The old set 21 has been removed and replaced by the 
 new NLO/NNLO ones as sets 21 and 22. Thanks to J. Rojo.</li> 
  
@@ -326,7 +427,7 @@ fictitious colour and anticolour indices to be set for the primary
 hadrons, according to the colour indices of the endpoint partons of 
 the string region(s) in which each hadron is produced.</li> 
  
-<li>The <code>configure</code> file has been made  verbose, 
+<li>The <code>configure</code> file has been made more verbose, 
 both on choices made and on any problems encountered.</li> 
  
 <li>Some improvements of the merging machinery for high-multiplicity 
@@ -413,7 +514,7 @@ cross sections. Thanks to Celine Degrande.</li>
 <li>Initialize some variables that are not otherwise initialized 
 when using <code>TimeShower::showerQED</code>. Thanks to Kevin Pedro.</li> 
  
-<li>Minor change in <code>BeamParticle</code> for  flexibility in 
+<li>Minor change in <code>BeamParticle</code> for more flexibility in 
 resolving beam remnants. Thanks to Laurent Forthomme.</li> 
  
 <li>Fix incorrect combination of a displaced vertex in the hard process 
@@ -534,7 +635,7 @@ from 0.4 to 0.1 GeV by ATLAS request.</li>
  
 </ul> 
  
-<a name="section4"></a> 
+<a name="section5"></a> 
 <h3>8.235: 27 March 2018</h3> 
 <ul> 
  
@@ -661,7 +762,7 @@ have been added.</li>
  
 <li>The central NNPDF 3.1 QCD NLO and NNLO fits at <i>alpha_s = 0.118</i>, 
 <code>PDF:pSet = 19</code> and <code>20</code>, have been replaced by 
-the  recent corresponding NNPDF 3.1 QCD + QED (luxqed) fits.</li> 
+the more recent corresponding NNPDF 3.1 QCD + QED (luxqed) fits.</li> 
  
 <li>Updates for non-diffractive photoproduction with externally provided 
 photon flux, to fix the normalization and to solve issue with process 
@@ -785,13 +886,13 @@ in the <code>configure</code> script. Thanks to James Monk.</li>
  
 <li>New xml tags introduced to group parameters visually in conversion 
 to html, by omitting the paragraph break before a tag that contains 
-<code></code>, e.g. <code>parm</code>.</li> 
+<code>more</code>, e.g. <code>parmmore</code>.</li> 
  
 <li>Year has been updated to 2018.</li> 
  
 </ul> 
  
-<a name="section5"></a> 
+<a name="section6"></a> 
 <h3>8.230: 6 October 2017</h3> 
 <ul> 
  
@@ -885,13 +986,13 @@ low-<i>x</i> extrapolation. Thanks to Radek Zlebcik.</li>
  
 <li>Implementation of nuclear PDFs for hard processes. See 
 <code><?php $filepath = $_GET["filepath"];
-echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>PDF Selection</a></code> for  
+echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>PDF Selection</a></code> for more 
 details.</li> 
  
 <li>A new proton PDF added, which sets out to combine a NNLO behaviour 
 at high <i>x</i> values with a sensible LO low-<i>x</i> one, see 
 <code><?php $filepath = $_GET["filepath"];
-echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>PDF Selection</a></code> for  
+echo "<a href='PDFSelection.php?filepath=".$filepath."' target='page'>";?>PDF Selection</a></code> for more 
 details.</li> 
  
 <li>The <code>main51.cc</code>, <code>main52.cc</code> and 
@@ -1001,7 +1102,7 @@ and is directed to these from the text references.</li>
  
 </ul> 
  
-<a name="section6"></a> 
+<a name="section7"></a> 
 <h3>8.226: 26 April 2017</h3> 
 <ul> 
  
@@ -1207,7 +1308,7 @@ and in <i>tHat</i> and <i>uHat</i> construction.</li>
  
 </ul> 
  
-<a name="section7"></a> 
+<a name="section8"></a> 
 <h3>8.223: 5 January 2017</h3> 
 <ul> 
  
@@ -1358,7 +1459,7 @@ Thanks to Inga Strumke.</li>
  
 <li>New <code>#define PYTHIA_VERSION_INTEGER 82xx</code> in 
 <code>Pythia.h</code> matches already existing 
-<code>#define PYTHIA_VERSION 8.2xx</code>, for  convenient 
+<code>#define PYTHIA_VERSION 8.2xx</code>, for more convenient 
 matching using integers. Thanks to Andrii Verbytskyi.</li> 
  
 <li>The handling of the <code>meMode</code> ranges 52 - 60 and 62 - 70 
@@ -1384,7 +1485,7 @@ companion choice also if <code>iComp = 0</code>.</li>
  
 </ul> 
  
-<a name="section8"></a> 
+<a name="section9"></a> 
 <h3>8.219: 10 May 2016</h3> 
 <ul> 
  
@@ -1409,7 +1510,7 @@ and a paper is due to appear on arXiv shortly.</li>
 <li>When a final-state <i>g &rarr; g g</i> branching happens with 
 a massive recoiler, radiation in the recoiler direction is now 
 by default further suppressed to respect the "dead cone" effect, 
-see new switch <code>TimeShower:recoilDeadCone</code>. Further 
+see new switch <code>TimeShower:recoilDeadCone</code>. Furthermore 
 a new switch, <code>TimeShower:MEextended</code>, on by defaults, 
 attempts to guess the most relevant ME correction when the 
 correct choice is not known or implemented. Thanks to 
@@ -1454,7 +1555,7 @@ in one call.</li>
 hard-diffraction Pomeron fluxes.</li> 
  
 <li>Extrapolation of PDFs to small <i>x</i> values when 
-<code>PDF:extrapolate = on</code> now extended to  cases.</li> 
+<code>PDF:extrapolate = on</code> now extended to more cases.</li> 
  
 <li>New flag <code>TimeShower:QEDshowerByOther</code> allows charged 
 resonances, like the <i>W^+-</i>, to radiate photons.</li> 
@@ -1508,14 +1609,14 @@ echo "<a href='SettingsScheme.php?filepath=".$filepath."' target='page'>";?>Sett
 <li>The <code>Settings::toLower</code> method used to convert a string 
 to lowercase, and also trim it from initial or trailing blanks and special 
 characters, now moved to <code>PythiaStdlib.h</code> so it can be used 
- generally. Other code changes accordingly.</li> 
+more generally. Other code changes accordingly.</li> 
  
 <li>Remove many rarely (if ever) used <code>ostream& os = cout</code> 
 optional arguments in favour of hardcoded <code>cout</code> in the code. 
 Eliminates some redundancy of methods.</li> 
  
 <li>Rename <code>...print(...</code> methods to <code>...list(...</code> 
-to favour a  regular naming pattern.</li> 
+to favour a more regular naming pattern.</li> 
  
 <li>Minor <code>configure</code> and <code>Makefile</code> updates, 
 to address potential linking problems on some platforms for boost, gzip 
@@ -1563,7 +1664,7 @@ php version of the manual recognize them.</li>
  
 </ul> 
  
-<a name="section9"></a> 
+<a name="section10"></a> 
 <h3>8.215: 4 January 2016</h3> 
 <ul> 
  
@@ -1739,7 +1840,7 @@ Thanks to Radek Zlebcik.</li>
  
 </ul> 
  
-<a name="section10"></a> 
+<a name="section11"></a> 
 <h3>8.212: 23 September 2015</h3> 
 <ul> 
  
@@ -1786,7 +1887,7 @@ configuration were not calculated correctly, as an incorrect recoiler
 momentum was used, leading to a numerical small deviation from the 
 actual result. This issue has now been corrected. Some additional 
 matching and merging changes, mostly to make the reclustering in the 
-merging numerically  stable, and to make UN2LOPS possible.</li> 
+merging numerically more stable, and to make UN2LOPS possible.</li> 
  
 <li>Fix bug for the <code>Beams:newLHEFsameInit = on</code> option, 
 whereby several LHE files can be read in without new initialization 
@@ -1887,7 +1988,7 @@ aMC@NLO merging.</li>
  
 </ul> 
  
-<a name="section11"></a> 
+<a name="section12"></a> 
 <h3>8.210: 29 June 2015</h3> 
 <ul> 
  
@@ -1908,7 +2009,7 @@ are called for event topologies they are set up to handle.</li>
  
 <li>Bug fixes in partial widths of the <i>W'</i> boson. Results are 
 correct when the <i>W'</i> is a simply rescaled copy of the <i>W</i>, 
-but not for  general couplings. Thanks to Mihail Chizhov. </li> 
+but not for more general couplings. Thanks to Mihail Chizhov. </li> 
  
 <li>Minor fix in default location of PDF data files in the constructors. 
 No practical consequence since correct non-default values are used.</li> 
@@ -1918,7 +2019,7 @@ containing an equal sign are parsed correctly.</li>
  
 </ul> 
  
-<a name="section12"></a> 
+<a name="section13"></a> 
 <h3>8.209: 25 May 2015</h3> 
 <ul> 
  
@@ -2030,7 +2131,7 @@ set the charm, bottom and top flavour-threshold masses used for the
 running of <i>alpha_strong</i>.</li> 
  
 <li>New option for the <code>Event::list()</code> methods allows to show 
-momenta with  decimal digits.</li> 
+momenta with more decimal digits.</li> 
  
 <li>New <code>Particle::isFinalPartonLevel()</code> method to tell whether 
 a particle belonged to the final state on the parton level of generation 
@@ -2108,7 +2209,7 @@ debugged and tested, so not yet ready for public usage.</li>
  
 </ul> 
  
-<a name="section13"></a> 
+<a name="section14"></a> 
 <h3>8.205: 23 January 2015</h3> 
 <ul> 
  
@@ -2129,7 +2230,7 @@ conventional). Thanks to Josh Bendavid for pointing this out.</li>
  
 </ul> 
  
-<a name="section14"></a> 
+<a name="section15"></a> 
 <h3>8.204: 22 January 2015</h3> 
 <ul> 
  
@@ -2192,7 +2293,7 @@ in <code>main46.cc</code>. Thanks to Sergei Chekanov.</li>
 <li>Change in the setup of final-state-shower colour dipoles for the 
 non-default case of no interleaving, whereby it becomes less likely 
 to pick a colourless final-state particle as recoiler. New option 
-<code>TimeShower:allowMPIdipole</code> gives  flexibility. 
+<code>TimeShower:allowMPIdipole</code> gives more flexibility. 
 Thanks to Mihoko Nojiri and Bryan Webber.</li> 
  
 <li>New options 3 and 4 for <code>TimeShower:pTdampMatch</code> 
@@ -2302,7 +2403,7 @@ lines where meaningful, and some further minor changes.</li>
  
 </ul> 
  
-<a name="section15"></a> 
+<a name="section16"></a> 
 <h3>8.201: 14 October 2014</h3> 
 <ul> 
  
@@ -2317,7 +2418,7 @@ among allowed configure options.</li>
  
 </ul> 
  
-<a name="section16"></a> 
+<a name="section17"></a> 
 <h3>8.200: 11 October 2014</h3> 
 <ul> 
  
@@ -2331,7 +2432,7 @@ and <code>README</code> are also copied here during installation.
  
 <li>A new <code>share/Pythia8/pdfdoc</code> directory collects pdf 
 documents that are linked from the <code>htmldoc</code> and 
-<code>phpdoc</code> directories. Over time it will  provide  
+<code>phpdoc</code> directories. Over time it will  provide more 
 in-depth descriptions of various physics aspects than offered in 
 the html/php-formatted documentation. In addition to the official 
 main publication and the worksheet, currently notes on LO vs. NLO 
@@ -2572,4 +2673,4 @@ to six flavours at the top mass.</li>
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

@@ -86,7 +86,7 @@ illustrates the procedure.
 <?php $filepath = $_GET["filepath"];
 echo "<a href='UMEPSMerging.php?filepath=".$filepath."' target='page'>";?>UMEPS multi-jet merging</a> scheme. 
 Since UMEPS is already slightly more complicated than 
-CKKW-L, this makes UNLOPS  complicated than NL<sup>3</sup>. The basic idea 
+CKKW-L, this makes UNLOPS more complicated than NL<sup>3</sup>. The basic idea 
 however remains the same: Start from a tree-level merging scheme (in this case 
 UMEPS), remove all undesirable <i>&alpha;<sub>s</sub><sup>n+0</sup></i>- and 
 <i>&alpha;<sub>s</sub><sup>n+1</sup></i>-terms from this result, and add 
@@ -122,7 +122,7 @@ tree-level events (<code>Merging:nJetMax</code>) has to be set.
 merging and HepMC output for RIVET</strong>" and "<strong>Further 
 variables</strong>" in  the <?php $filepath = $_GET["filepath"];
 echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L 
-documentation</a> can be accessed in NLO merging as well. Further, 
+documentation</a> can be accessed in NLO merging as well. Furthermore, 
 the <code>Merging:nRecluster</code> switch (see the 
 <?php $filepath = $_GET["filepath"];
 echo "<a href='UMEPSMerging.php?filepath=".$filepath."' target='page'>";?>UMEPS documentation</a>) is important. 
@@ -430,7 +430,7 @@ Please note that, in order for this to work smoothly, the switch
 <code>Merging:doNL3Tree</code> and the switch 
 <code>Merging:doNL3Loop</code> have to be turned off. As for the estimation 
 of cross sections, it is <i>mandatory</i> to set the correct value of 
-<code>Merging:nRequested</code>. Further, it is necessary to set the 
+<code>Merging:nRequested</code>. Furthermore, it is necessary to set the 
 value of <code>Merging:nRecluster</code> to one. 
    
  
@@ -536,7 +536,7 @@ the merging scale definition used in the cross section estimation.
 to perform the actual NLO merging. The discussion of K-factors given in the 
 NL<sup>3</sup> section (i.e. of <code>Merging:kFactor0j</code>, 
 <code>Merging:kFactor1j</code> and <code>Merging:kFactor2j</code>) also 
-applies to <code>main88.cc</code>. Although UNLOPS is considerably  stable 
+applies to <code>main88.cc</code>. Although UNLOPS is considerably more stable 
 than NL<sup>3</sup> upon changing the K-factors, we do not recommend the 
 use of K-factors. 
  
@@ -615,7 +615,7 @@ that, in order for this to work smoothly, the switches
 <code>Merging:doUNLOPSTree</code>, <code>Merging:doUNLOPSLoop</code> and 
 <code>Merging:doUNLOPSSubtNLO</code> have to be turned off. 
 As for the estimation of cross sections, it is <i>mandatory</i> to set the 
-correct value of <code>Merging:nRequested</code>. Further, it is necessary 
+correct value of <code>Merging:nRequested</code>. Furthermore, it is necessary 
 to set the value of <code>Merging:nRecluster</code> to one. 
    
  
@@ -667,7 +667,7 @@ that, in order for this to work smoothly, the switches
 <code>Merging:doUNLOPSTree</code>, <code>Merging:doUNLOPSLoop</code> and 
 <code>Merging:doUNLOPSSubt</code> have to be turned off. 
 As for the estimation of cross sections, it is <i>mandatory</i> to set the 
-correct value of <code>Merging:nRequested</code>. Further, it is necessary 
+correct value of <code>Merging:nRequested</code>. Furthermore, it is necessary 
 to set the value of <code>Merging:nRecluster</code> to one. 
    
  
@@ -979,4 +979,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

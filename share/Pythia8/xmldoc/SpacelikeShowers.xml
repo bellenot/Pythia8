@@ -476,6 +476,24 @@ The fixed factorization scale, in GeV, that would be used in the
 evaluation of parton densities if the <code>flag</code> above is on. 
 </parm> 
  
+<modepick name="SpaceShower:pdfMode" default="0" min="0" max="2"> 
+This setting should not be touched by non-experts. Deviating 
+from the default setting will only lead to consistent results 
+after explicit external intervention. 
+<option value="0">this default setting corresponds to the typical 
+shower treatment of including PDF ratios in the backwards-evolution 
+branching rates, leading to the generation of normal no-emission 
+probabilities. 
+</option> 
+<option value="1">disable the PDF dependence, which leads to the 
+generation of Sudakov factors according to the momentum sum rule. 
+</option> 
+<option value="2">disable the PDF dependence, which leads to the 
+generation of Sudakov factors like option 1, but with a lower cut-off 
+<ei>zMin = 0.5</ei> on the energy-fraction integral. 
+</option> 
+</modepick> 
+ 
 <h3>Technical notes</h3> 
  
 Almost everything is equivalent to the algorithm in 
@@ -526,4 +544,4 @@ photon backwards-evolution in lepton beams.
  
 </chapter> 
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

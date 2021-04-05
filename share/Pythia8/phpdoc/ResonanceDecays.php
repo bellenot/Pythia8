@@ -193,7 +193,7 @@ Resonances come in two kinds.
 <ul> 
 <li> 
 The standard built-in ones include <i>Z^0</i>, <i>W^+-</i>, 
-<i>t</i>, <i>h^0</i>, and many . These have explicit decay-widths 
+<i>t</i>, <i>h^0</i>, and many more. These have explicit decay-widths 
 formulae encoded, in classes derived from the 
 <code><?php $filepath = $_GET["filepath"];
 echo "<a href='SemiInternalResonances.php?filepath=".$filepath."' target='page'>";?>ResonanceWidths</a></code> 
@@ -350,7 +350,7 @@ unlike the 102 option. To avoid division by zero, or in general
 unreasonably big rescaling factors, a lower limit 
 <code>minThreshold</code> (see below) on the value of the on-shell 
 threshold factor is imposed. (In cases where a big rescaling is 
-intentional, code 102 would be  appropriate.) </li> 
+intentional, code 102 would be more appropriate.) </li> 
 </ul> 
  
 <br/><br/><table><tr><td><strong>ResonanceWidths:minThreshold </td><td></td><td> <input type="text" name="2" value="0.1" size="20"/>  &nbsp;&nbsp;(<code>default = <strong>0.1</strong></code>; <code>minimum = 0.01</code>)</td></tr></table>
@@ -453,4 +453,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

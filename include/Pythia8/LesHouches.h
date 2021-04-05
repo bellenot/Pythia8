@@ -1,5 +1,5 @@
 // LesHouches.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -519,8 +519,12 @@ public:
   LHEF3FromPythia8(Event* eventPtrIn, Settings* settingsPtrIn,
     Info* infoPtrIn, ParticleData* particleDataPtrIn, int pDigitsIn = 15,
     bool writeToFileIn = true) :
-    eventPtr(eventPtrIn),settingsPtr(settingsPtrIn), infoPtr(infoPtrIn),
-    particleDataPtr(particleDataPtrIn), writer(osLHEF), pDigits(pDigitsIn),
+    eventPtr(eventPtrIn),
+    infoPtr(infoPtrIn),
+    particleDataPtr(particleDataPtrIn),
+    settingsPtr(settingsPtrIn),
+    writer(osLHEF),
+    pDigits(pDigitsIn),
     writeToFile(writeToFileIn) {}
 
   // Routine for reading, setting and printing the initialisation info.
@@ -537,15 +541,21 @@ public:
   // Function to close (and possibly update) the output file.
   bool closeLHEF(bool updateInit = false);
 
-private:
-
   // Pointer to event that should be printed.
   Event* eventPtr;
 
-  // Pointer to settings and info objects.
-  Settings* settingsPtr;
+  // Pointer to info objects.
   Info* infoPtr;
   ParticleData* particleDataPtr;
+
+  // Some internal init and event block objects for convenience.
+  HEPRUP heprup;
+  HEPEUP hepeup;
+
+private:
+
+  // Pointer to settings objects.
+  Settings* settingsPtr;
 
   // LHEF3 writer
   Writer writer;
@@ -553,10 +563,6 @@ private:
   // Number of digits to set width of double write out
   int  pDigits;
   bool writeToFile;
-
-  // Some internal init and event block objects for convenience.
-  HEPRUP heprup;
-  HEPEUP hepeup;
 
 };
 

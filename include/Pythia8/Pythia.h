@@ -1,5 +1,5 @@
 // Pythia.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,8 +10,8 @@
 #define Pythia8_Pythia_H
 
 // Version number defined for use in macros and for consistency checks.
-#define PYTHIA_VERSION 8.244
-#define PYTHIA_VERSION_INTEGER 8244
+#define PYTHIA_VERSION 8.245
+#define PYTHIA_VERSION_INTEGER 8245
 
 // Header files for the Pythia class and for what else the user may need.
 #include "Pythia8/Analysis.h"

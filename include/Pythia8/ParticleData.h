@@ -1,5 +1,5 @@
 // ParticleData.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -48,6 +48,15 @@ public:
     for (int j = 0; j < 8; ++j) if (prod[j] != 0 && j == nProd) ++nProd; }
 
   // Copy constructor.
+  DecayChannel( const DecayChannel& oldDC) {
+    onModeSave = oldDC.onModeSave; bRatioSave = oldDC.bRatioSave;
+    currentBRSave = oldDC.currentBRSave;
+    onShellWidthSave = oldDC.onShellWidthSave; openSecPos = oldDC.openSecPos;
+    openSecNeg = oldDC.openSecNeg; meModeSave = oldDC.meModeSave;
+    nProd = oldDC.nProd; for (int j = 0; j < 8; ++j) prod[j] = oldDC.prod[j];
+    hasChangedSave = oldDC.hasChangedSave; }
+
+  // Assignment operator.
   DecayChannel& operator=( const DecayChannel& oldDC) { if (this != &oldDC) {
     onModeSave = oldDC.onModeSave; bRatioSave = oldDC.bRatioSave;
     currentBRSave = oldDC.currentBRSave;
@@ -146,6 +155,27 @@ public:
     setDefaults(); if (toLower(antiNameIn) == "void") hasAntiSave = false;}
 
   // Copy constructor.
+  ParticleDataEntry( const ParticleDataEntry& oldPDE) {idSave = oldPDE.idSave;
+    nameSave = oldPDE.nameSave; antiNameSave = oldPDE.antiNameSave;
+    spinTypeSave = oldPDE.spinTypeSave; chargeTypeSave = oldPDE.chargeTypeSave;
+    colTypeSave = oldPDE.colTypeSave; m0Save = oldPDE.m0Save;
+    mWidthSave = oldPDE.mWidthSave;  mMinSave = oldPDE.mMinSave;
+    mMaxSave = oldPDE.mMaxSave;  tau0Save = oldPDE.tau0Save;
+    constituentMassSave = oldPDE.constituentMassSave;
+    hasAntiSave = oldPDE.hasAntiSave; isResonanceSave = oldPDE.isResonanceSave;
+    mayDecaySave = oldPDE.mayDecaySave; doExternalDecaySave
+    = oldPDE.doExternalDecaySave; isVisibleSave = oldPDE.isVisibleSave;
+    doForceWidthSave = oldPDE.doForceWidthSave; hasChangedSave
+    = oldPDE.hasChangedSave; hasChangedMMinSave = oldPDE.hasChangedMMinSave;
+    hasChangedMMaxSave = oldPDE.hasChangedMMaxSave;
+    modeBWnow = oldPDE.modeBWnow; atanLow = oldPDE.atanLow;
+    atanDif = oldPDE.atanDif; mThr = oldPDE.mThr;
+   for (int i = 0; i < int(oldPDE.channels.size()); ++i) {
+      DecayChannel oldDC = oldPDE.channels[i]; channels.push_back(oldDC); }
+    currentBRSum = oldPDE.currentBRSum; resonancePtr = oldPDE.resonancePtr;
+    particleDataPtr = oldPDE.particleDataPtr; }
+
+  // Assignment operator.
   ParticleDataEntry& operator=( const ParticleDataEntry& oldPDE) {
     if (this != &oldPDE) { idSave = oldPDE.idSave;
     nameSave = oldPDE.nameSave; antiNameSave = oldPDE.antiNameSave;
@@ -383,7 +413,19 @@ public:
     rndmPtr(0), couplingsPtr(0), particlePtr(0), isInit(false),
     readingFailedSave(false) {}
 
-  // Copy constructors.
+  // Copy constructor.
+  ParticleData( const ParticleData& oldPD) {
+    modeBreitWigner = oldPD.modeBreitWigner; maxEnhanceBW = oldPD.maxEnhanceBW;
+    for (int i = 0; i < 7; ++i) mQRun[i] = oldPD.mQRun[i];
+    Lambda5Run = oldPD.Lambda5Run;
+    infoPtr = 0; settingsPtr = 0; rndmPtr = 0; couplingsPtr = 0;
+    for ( map<int, ParticleDataEntry>::const_iterator pde = oldPD.pdt.begin();
+      pde != oldPD.pdt.end(); pde++) { int idTmp = pde->first;
+      pdt[idTmp] = pde->second; pdt[idTmp].initPtr(this); }
+    particlePtr = 0; isInit = oldPD.isInit;
+    readingFailedSave = oldPD.readingFailedSave; }
+
+  // Assignment operator.
   ParticleData& operator=( const ParticleData& oldPD) { if (this != &oldPD) {
     modeBreitWigner = oldPD.modeBreitWigner; maxEnhanceBW = oldPD.maxEnhanceBW;
     for (int i = 0; i < 7; ++i) mQRun[i] = oldPD.mQRun[i];

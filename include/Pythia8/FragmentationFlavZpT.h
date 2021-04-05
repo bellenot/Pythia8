@@ -1,5 +1,5 @@
 // FragmentationFlavZpT.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -36,6 +36,11 @@ public:
   FlavContainer(int idIn = 0, int rankIn = 0, int nPopIn = 0,
     int idPopIn = 0, int idVtxIn = 0) : id(idIn), rank(rankIn),
     nPop(nPopIn), idPop(idPopIn), idVtx(idVtxIn) {}
+
+  // Copy constructor.
+  FlavContainer(const FlavContainer& flav) {
+    id = flav.id; rank = flav.rank; nPop = flav.nPop; idPop = flav.idPop;
+    idVtx = flav.idVtx;}
 
   // Overloaded equal operator.
   FlavContainer& operator=(const FlavContainer& flav) { if (this != &flav) {

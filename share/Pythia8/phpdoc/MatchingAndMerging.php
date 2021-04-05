@@ -270,7 +270,7 @@ cross section. After this estimate, MLM jet matching within the Madgraph
 approach is performed in a second Pythia run. Example MLM settings can be 
 found in <code>main89mlm.cmnd</code>. Please consult 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='JetMatching.php?filepath=".$filepath."' target='page'>";?>Jet Matching</a> for  details. 
+echo "<a href='JetMatching.php?filepath=".$filepath."' target='page'>";?>Jet Matching</a> for more details. 
  
 <h4>CKKW-L merging with main89.cc</h4> 
  
@@ -280,7 +280,7 @@ be generated with <code>./bin/generate_events aMC@LO</code>).
 No run to estimate the cross section estimate is needed. Example CKKW-L 
 settings can be found in <code>main89ckkwl.cmnd</code>. Please consult 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L merging</a> for  details. 
+echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L merging</a> for more details. 
  
 <h4>UMEPS merging with main89.cc</h4> 
  
@@ -292,7 +292,7 @@ settings can be found in <code>main89umeps.cmnd</code>. Please
 consult <?php $filepath = $_GET["filepath"];
 echo "<a href='UMEPSMerging.php?filepath=".$filepath."' target='page'>";?>UMEPS merging</a> and 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L merging</a> for  details. 
+echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L merging</a> for more details. 
  
 <h4>FxFx (NLO) jet matching with main89.cc</h4> 
  
@@ -306,7 +306,7 @@ Example FxFx settings for Pythia can be found in <code>main89fxfx.cmnd</code>.
 Please consult <?php $filepath = $_GET["filepath"];
 echo "<a href='JetMatching.php?filepath=".$filepath."' target='page'>";?>Jet Matching</a> and 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='aMCatNLOMatching.php?filepath=".$filepath."' target='page'>";?>aMC@NLO matching</a> for  details. 
+echo "<a href='aMCatNLOMatching.php?filepath=".$filepath."' target='page'>";?>aMC@NLO matching</a> for more details. 
  
  
 <h4>UNLOPS (NLO) merging with main89.cc</h4> 
@@ -328,7 +328,7 @@ settings can be found in <code>main89umeps.cmnd</code>. Please
 consult <?php $filepath = $_GET["filepath"];
 echo "<a href='UNLOPSMerging.php?filepath=".$filepath."' target='page'>";?>UMEPS merging</a> and 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L merging</a> for  details. 
+echo "<a href='CKKWLMerging.php?filepath=".$filepath."' target='page'>";?>CKKW-L merging</a> for more details. 
  
 <br/><br/><hr/> 
 <a name="section1"></a> 
@@ -462,7 +462,7 @@ call already.
    
  
 <p/> 
-For  details on how to design your <code>MyMerging</code> class, and to 
+For more details on how to design your <code>MyMerging</code> class, and to 
 understand the interface to Pythia, studying Pythia's internal code is 
 unavoidable. Each potential developer of a MM plugin should do so. 
  
@@ -669,4 +669,4 @@ candidates by another list of candidates.
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

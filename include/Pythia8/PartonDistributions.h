@@ -1,5 +1,5 @@
 // PartonDistributions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -731,10 +731,9 @@ private:
   void xfxevolve(double x, double Q2);
 
   // 1D and 2D polynomial interpolation.
-  void polint(double xa[], double ya[], int n, double x,
-    double& y, double& dy);
-  void polin2(double x1a[], double x2a[], double ya[][fN],
-    double x1, double x2, double& y, double& dy);
+  double polint(double xa[], double ya[], int n, double x);
+  double polin2(double x1a[], double x2a[], double ya[][fN], double x1,
+    double x2);
 
 };
 
@@ -887,19 +886,19 @@ public:
   LHAGrid1(int idBeamIn = 2212, string pdfWord = "void",
     string xmlPath = "../share/Pythia8/xmldoc/", Info* infoPtr = 0)
     : PDF(idBeamIn), doExtraPol(false), nx(), nq(), nqSub(), xMin(), xMax(),
-    qMin(), qMax(), pdfVal(), pdfGrid(NULL),
+    qMin(), qMax(), pdfVal(), pdfGrid(),
     pdfSlope(NULL) { init( pdfWord, xmlPath, infoPtr); };
 
   // Constructor with a stream.
   LHAGrid1(int idBeamIn, istream& is, Info* infoPtr = 0)
     : PDF(idBeamIn), doExtraPol(false), nx(), nq(), nqSub(), xMin(), xMax(),
-    qMin(), qMax(), pdfVal(), pdfGrid(NULL),
+    qMin(), qMax(), pdfVal(), pdfGrid(),
     pdfSlope(NULL) { init( is, infoPtr); };
 
   // Destructor.
-  ~LHAGrid1() { if (pdfGrid) { for (int iid = 0; iid < 12; ++iid) {
-    for (int ix = 0; ix < nx; ++ix) delete[] pdfGrid[iid][ix];
-    delete[] pdfGrid[iid]; } delete[] pdfGrid; }
+  ~LHAGrid1() { for (int iid = 0; iid < 12; ++iid) {
+    for (int iq = 0; iq < nq; ++iq) delete[] pdfGrid[iid][iq];
+    delete[] pdfGrid[iid]; }
     if (pdfSlope) { for (int iid = 0; iid < 12; ++iid) delete[] pdfSlope[iid];
     delete[] pdfSlope;} };
 
@@ -914,7 +913,7 @@ private:
   vector<int> nqSum;
   double xMin, xMax, qMin, qMax, pdfVal[12];
   vector<double> xGrid, lnxGrid, qGrid, lnqGrid, qDiv;
-  double*** pdfGrid;
+  double** pdfGrid[12];
   double** pdfSlope;
 
   // Initialization of data array.

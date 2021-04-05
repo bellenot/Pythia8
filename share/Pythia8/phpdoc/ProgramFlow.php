@@ -52,7 +52,7 @@ intended for more special applications.
  
 <p/> 
 At the bottom of this webpage is a complete survey of all public 
-<code>Pythia</code> methods and data members, in a  formal style 
+<code>Pythia</code> methods and data members, in a more formal style 
 than the task-oriented descriptions found in the preceding sections. 
 This offers complementary information. 
  
@@ -531,7 +531,7 @@ so each instance could be run inside a separate thread.
  
 <p/> 
 <li> 
-In some cases it is convenient to use  than one <code>Pythia</code> 
+In some cases it is convenient to use more than one <code>Pythia</code> 
 object. The key example would be the simultaneous generation of signal 
 and pileup events, see <code>main19.cc</code>. The two objects are then 
 set up and initialized separately, and generate events completely 
@@ -1144,7 +1144,7 @@ studied.
    
  
 <a name="anchor33"></a>
-<p/><strong> bool Pythia::Decays() &nbsp;</strong> <br/>
+<p/><strong> bool Pythia::moreDecays() &nbsp;</strong> <br/>
 perform decays of all particles in the event record that have not been 
 decayed but should have been done so. This can be used e.g. for 
 repeated decay attempts, in schemes intended to save computer time. 
@@ -1351,4 +1351,4 @@ echo "<a href='AdvancedUsage.php?filepath=".$filepath."' target='page'>";?>here<
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

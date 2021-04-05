@@ -1,5 +1,5 @@
 // MergingHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -886,9 +886,10 @@ void HardProcess::translateProcessString( string process){
   // Push back jets, distribute evenly among particles / antiparticles
   // Push back majorana particles, distribute evenly
   int iNow = 0;
-  for(int i=0; i < int(outgo.size()); ++i)
+  for(int i=0; i < int(outgo.size()); ++i) {
     if ( (outgo[i] == 2212
       || outgo[i] == 5000
+      || outgo[i] == 1100
       || outgo[i] == 1200
       || outgo[i] == 1000022
       || outgo[i] > 10000000)
@@ -898,12 +899,14 @@ void HardProcess::translateProcessString( string process){
     } else if ( (outgo[i] == 2212
              || outgo[i] == 5000
              || outgo[i] == 1100
+             || outgo[i] == 1200
              || outgo[i] == 1000022
              || outgo[i] > 10000000)
              && iNow%2 == 1 ){
       hardOutgoing1.push_back( outgo[i]);
       iNow++;
     }
+  }
 
   // Done
 }
@@ -989,7 +992,8 @@ bool HardProcess::allowCandidates(int iPos, vector<pair<int,int> > Pos1,
 
 // Function to identify the hard subprocess in the current event
 
-void HardProcess::storeCandidates( const Event& event, string process){
+void HardProcess::storeCandidates( const Event& event, string process,
+  ParticleData* particleDataPtr){
 
   // Store the reference event
   state.clear();
@@ -1092,6 +1096,11 @@ void HardProcess::storeCandidates( const Event& event, string process){
       if (skip) continue;
 
       for(int j=0; j < int(outgoing2.size()); ++j){
+
+        // Skip event entry if already used up.
+        if (find(iPosChecked.begin(), iPosChecked.end(), i)
+          != iPosChecked.end()) break;
+
         // If the particle matches an outgoing neutrino, save it
         if ( outgoing2[j] == 1100
           && ( event[i].idAbs() == 11
@@ -1129,6 +1138,11 @@ void HardProcess::storeCandidates( const Event& event, string process){
       if (skip) continue;
 
       for(int j=0; j < int(outgoing1.size()); ++j){
+
+        // Skip event entry if already used up.
+        if (find(iPosChecked.begin(), iPosChecked.end(), i)
+          != iPosChecked.end()) break;
+
         // If the particle matches an outgoing neutrino, save it
         if ( outgoing1[j] == 1100
           && ( event[i].idAbs() == 11
@@ -1231,7 +1245,7 @@ void HardProcess::storeCandidates( const Event& event, string process){
         for(int k=0; k < int(outgoing1.size()); ++k) {
           if (event[j].id() == outgoing1[k] && !indexSet){
             PosOutgoing1[k] = make_pair(outgoing1[k],j);
-           outgoing1[k] = 99;
+            outgoing1[k] = 99;
             indexSet = true;
           }
         }
@@ -1381,7 +1395,7 @@ void HardProcess::storeCandidates( const Event& event, string process){
 
       // If the particle matches an outgoing lepton, save it
       if (event[i].id() == outgoing1[j] ){
-        PosOutgoing2[j] = make_pair(outgoing1[j],i);
+        PosOutgoing1[j] = make_pair(outgoing1[j],i);
         outgoing1[j] = 99;
         iPosChecked.push_back(i);
       }
@@ -1395,10 +1409,7 @@ void HardProcess::storeCandidates( const Event& event, string process){
       // or if this particle is a jet.
       if ( outgoing2[j] != 99
         && outgoing2[j] != 2212
-        && ( abs(outgoing2[j]) < 10
-          || (abs(outgoing2[j]) > 1000000 && abs(outgoing2[j]) < 1000010)
-          || (abs(outgoing2[j]) > 2000000 && abs(outgoing2[j]) < 2000010)
-          || abs(outgoing2[j]) == 1000021 )
+        && particleDataPtr->colType(outgoing2[j]) != 0
         && event[i].isFinal()
         && event[i].id() == outgoing2[j] ){
         out2copy.insert(make_pair(j, i));
@@ -1411,10 +1422,7 @@ void HardProcess::storeCandidates( const Event& event, string process){
       // or if this particle is a jet.
       if ( outgoing1[j] != 99
         && outgoing1[j] != 2212
-        && ( abs(outgoing1[j]) < 10
-          || (abs(outgoing1[j]) > 1000000 && abs(outgoing1[j]) < 1000010)
-          || (abs(outgoing1[j]) > 2000000 && abs(outgoing1[j]) < 2000010)
-          || abs(outgoing1[j]) == 1000021 )
+        && particleDataPtr->colType(outgoing1[j]) != 0
         && event[i].isFinal()
         && event[i].id() == outgoing1[j] ){
         out1copy.insert(make_pair(j, i));
@@ -1441,7 +1449,7 @@ void HardProcess::storeCandidates( const Event& event, string process){
         // Save parton
         PosOutgoing2[it->first] = make_pair(outgoing2[it->first],it->second);
 
-        // remove entry form lists
+        // remove entry from lists
         outgoing2[it->first] = 99;
         iPosChecked.push_back(it->second);
         indexWasSet.push_back(it->first);
@@ -1465,14 +1473,14 @@ void HardProcess::storeCandidates( const Event& event, string process){
         // Save parton
         PosOutgoing1[it->first] = make_pair(outgoing1[it->first],it->second);
 
-        // remove entry form lists
+        // remove entry from lists
         outgoing1[it->first] = 99;
         iPosChecked.push_back(it->second);
         indexWasSet.push_back(it->first);
       }
     }
 
-  } else {
+  } else if ( out1copy.size() + out2copy.size() > 0){
 
     // In case the index of the multimap is filled twice, make sure not to
     // arbitraryly overwrite set values.
@@ -1533,7 +1541,7 @@ void HardProcess::storeCandidates( const Event& event, string process){
   for(int i=0; i < int(event.size()); ++i){
 
     // Skip non-final particles and final partons
-    if ( !event[i].isFinal() || event[i].colType() == 0)
+    if ( !event[i].isFinal() || event[i].colType() != 0)
       continue;
 
     // Skip all particles that have already been identified
@@ -1549,9 +1557,9 @@ void HardProcess::storeCandidates( const Event& event, string process){
       // Do nothing if this particle has already be found,
       // or if this particle is a jet, lepton container or lepton
 
-      if (  outgoing2[j] == 99
+      if ( outgoing2[j] == 99
         || outgoing2[j] == 2212
-        || (abs(outgoing2[j]) > 10 && abs(outgoing2[j]) < 20)
+        || particleDataPtr->isLepton(outgoing2[j])
         || outgoing2[j] == 1100
         || outgoing2[j] == 1200
         || outgoing2[j] == 2400 )
@@ -1573,9 +1581,9 @@ void HardProcess::storeCandidates( const Event& event, string process){
     for(int j=0; j < int(outgoing1.size()); ++j){
       // Do nothing if this particle has already be found,
       // or if this particle is a jet, lepton container or lepton
-      if (  outgoing1[j] == 99
+      if ( outgoing1[j] == 99
         || outgoing1[j] == 2212
-        || (abs(outgoing1[j]) > 10 && abs(outgoing1[j]) < 20)
+        || particleDataPtr->isLepton(outgoing1[j])
         || outgoing1[j] == 1100
         || outgoing1[j] == 1200
         || outgoing1[j] == 2400 )
@@ -1700,7 +1708,7 @@ bool HardProcess::findOtherCandidates(int iPos, const Event& event,
         && event[iMoth1].acol()       == state[iState].acol()
         && event[iMoth1].charge()     == state[iState].charge() )
         hasIdentifiedMother = true;
-      }
+    }
     if(hasIdentifiedMother && event[iMoth1].id() != id) return false;
   }
 
@@ -1727,7 +1735,11 @@ bool HardProcess::findOtherCandidates(int iPos, const Event& event,
 
   // Now check for other allowed candidates.
   map<int,int> further1;
-  for(int i=0; i < int(state.size()); ++i)
+  for(int i=0; i < int(state.size()); ++i) {
+
+    // Don't try to replace particle with itself.
+    if (i == iPos) continue;
+
     for(int j=0; j < int(PosOutgoing1.size()); ++j) {
 
       // Do nothing if this particle has already be found,
@@ -1741,28 +1753,34 @@ bool HardProcess::findOtherCandidates(int iPos, const Event& event,
         for(int k=0; k < int(PosOutgoing1.size()); ++k)
           if ( k != j ) newPosOutgoing1.push_back( PosOutgoing1[k] );
         // If allowed, remember replacement parton.
-        if ( allowCandidates(i, newPosOutgoing1, PosOutgoing2, state) )
+        if ( allowCandidates(i, newPosOutgoing1, PosOutgoing2, state) ) {
           further1.insert(make_pair(j, i));
+        }
       }
 
       // If the stored particle is a jet, and indicated as such, then
       // might still be viable, even if id's do not match.
       if ( PosOutgoing1[j].first == 2212 && state[i].isFinal()
-        && i != PosOutgoing1[j].second){
+        && state[i].colType() != 0 && i != PosOutgoing1[j].second){
         // Declare vector of already existing candiates.
         vector< pair<int,int> > newPosOutgoing1;
         for(int k=0; k < int(PosOutgoing1.size()); ++k)
           if ( k != j ) newPosOutgoing1.push_back( PosOutgoing1[k] );
         // If allowed, remember replacement parton.
-        if ( allowCandidates(i, newPosOutgoing1, PosOutgoing2, state) )
+        if ( allowCandidates(i, newPosOutgoing1, PosOutgoing2, state) ) {
           further1.insert(make_pair(j, i));
+        }
       }
-
     }
+  }
 
   // Now check for other allowed candidates.
   map<int,int> further2;
-  for(int i=0; i < int(state.size()); ++i)
+  for(int i=0; i < int(state.size()); ++i) {
+
+    // Don't try to replace particle with itself.
+    if (i == iPos) continue;
+
     for(int j=0; j < int(PosOutgoing2.size()); ++j) {
       // Do nothing if this particle has already be found,
       // or if this particle is a jet, lepton container or lepton
@@ -1775,24 +1793,26 @@ bool HardProcess::findOtherCandidates(int iPos, const Event& event,
         for(int k=0; k < int(PosOutgoing2.size()); ++k)
           if ( k != j ) newPosOutgoing2.push_back( PosOutgoing2[k] );
         // If allowed, remember replacement parton.
-        if ( allowCandidates(i, PosOutgoing1, newPosOutgoing2, state) )
+        if ( allowCandidates(i, PosOutgoing1, newPosOutgoing2, state) ) {
           further2.insert(make_pair(j, i));
+        }
       }
 
       // If the stored particle is a jet, and indicated as such, then
       // might still be viable, even if id's do not match.
       if ( PosOutgoing2[j].first == 2212 && state[i].isFinal()
-        && i != PosOutgoing2[j].second){
+        && state[i].colType() != 0 && i != PosOutgoing2[j].second){
         // Declare vector of already existing candiates.
         vector< pair<int,int> > newPosOutgoing2;
         for(int k=0; k < int(PosOutgoing2.size()); ++k)
           if ( k != j ) newPosOutgoing2.push_back( PosOutgoing2[k] );
         // If allowed, remember replacement parton.
-        if ( allowCandidates(i, PosOutgoing1, newPosOutgoing2, state) )
+        if ( allowCandidates(i, PosOutgoing1, newPosOutgoing2, state) ) {
           further2.insert(make_pair(j, i));
+        }
       }
-
     }
+  }
 
   // Remove all hard process particles that would be counted twice.
   map<int,int>::iterator it2 = further2.begin();
@@ -1837,6 +1857,7 @@ bool HardProcess::exchangeCandidates( vector<int> candidates1,
   int nOld2 = candidates2.size();
   int nNew1 = further1.size();
   int nNew2 = further2.size();
+
   bool exchanged = false;
   // Replace, if one-to-one correspondence exists.
   if ( nOld1 == 1 && nOld2 == 0 && nNew1 == 1 && nNew2 == 0){
@@ -1846,10 +1867,16 @@ bool HardProcess::exchangeCandidates( vector<int> candidates1,
     PosOutgoing2[further2.begin()->first].second = further2.begin()->second;
     exchanged = true;
   // Else simply swap with the first candidate.
-  } else if ( nNew1 >  1 && nNew2 == 0 ) {
+  } else if ( nNew1 >  0 && nNew2 == 0 ) {
     PosOutgoing1[further1.begin()->first].second = further1.begin()->second;
     exchanged = true;
   } else if ( nNew1 == 0 && nNew2 >  0 ) {
+    PosOutgoing2[further2.begin()->first].second = further2.begin()->second;
+    exchanged = true;
+  } else if  ( nNew1 >  0 && nOld1 > 0 ) {
+    PosOutgoing1[further1.begin()->first].second = further1.begin()->second;
+    exchanged = true;
+  } else if  ( nNew2 >  0 && nOld2 > 0 ) {
     PosOutgoing2[further2.begin()->first].second = further2.begin()->second;
     exchanged = true;
   }
@@ -1896,8 +1923,6 @@ int HardProcess::nLeptonOut(){
   int nFin =0;
   for(int i =0; i< int(hardOutgoing1.size()); ++i){
     if (abs(hardOutgoing1[i]) > 10 && abs(hardOutgoing1[i]) < 20) nFin++;
-    // Bookkeep MSSM neutralinos as leptons
-    if (abs(hardOutgoing1[i]) == 1000022) nFin++;
     // Bookkeep sleptons as leptons
     if ( abs(hardOutgoing1[i]) == 1000011 || abs(hardOutgoing1[i]) == 2000011
       || abs(hardOutgoing1[i]) == 1000013 || abs(hardOutgoing1[i]) == 2000013
@@ -1906,31 +1931,53 @@ int HardProcess::nLeptonOut(){
   }
   for(int i =0; i< int(hardOutgoing2.size()); ++i){
     if (abs(hardOutgoing2[i]) > 10 && abs(hardOutgoing2[i]) < 20) nFin++;
-    // Bookkeep MSSM neutralinos as leptons
-    if (abs(hardOutgoing2[i]) == 1000022) nFin++;
     // Bookkeep sleptons as leptons
     if ( abs(hardOutgoing2[i]) == 1000011 || abs(hardOutgoing2[i]) == 2000011
       || abs(hardOutgoing2[i]) == 1000013 || abs(hardOutgoing2[i]) == 2000013
       || abs(hardOutgoing2[i]) == 1000015 || abs(hardOutgoing2[i]) == 2000015)
       nFin++;
   }
+
   // For very loose hard process definition, check number of hard process
   // lepton explicitly.
   // Check lepton / neutrino containers as leptons
-  for(int i =0; i< int(hardOutgoing1.size()); ++i)
+  for(int i =0; i< int(hardOutgoing1.size()); ++i) {
     if (hardOutgoing1[i] == 1100)
       for(int j =0; j< int(PosOutgoing1.size()); ++j)
         if (  abs(state[PosOutgoing1[j].second].id()) == 11
           || abs(state[PosOutgoing1[j].second].id()) == 13
           || abs(state[PosOutgoing1[j].second].id()) == 15 )
           nFin++;
-  for(int i =0; i< int(hardOutgoing2.size()); ++i)
+    if (hardOutgoing1[i] == 1200)
+      for(int j =0; j< int(PosOutgoing1.size()); ++j)
+        if (  abs(state[PosOutgoing1[j].second].id()) == 12
+          || abs(state[PosOutgoing1[j].second].id()) == 14
+          || abs(state[PosOutgoing1[j].second].id()) == 16 )
+          nFin++;
+  }
+  for(int i =0; i< int(hardOutgoing2.size()); ++i) {
+    if (hardOutgoing2[i] == 1100)
+      for(int j =0; j< int(PosOutgoing2.size()); ++j)
+        if (  abs(state[PosOutgoing2[j].second].id()) == 11
+          || abs(state[PosOutgoing2[j].second].id()) == 13
+          || abs(state[PosOutgoing2[j].second].id()) == 15 )
+          nFin++;
     if (hardOutgoing2[i] == 1200)
       for(int j =0; j< int(PosOutgoing2.size()); ++j)
         if (  abs(state[PosOutgoing2[j].second].id()) == 12
           || abs(state[PosOutgoing2[j].second].id()) == 14
           || abs(state[PosOutgoing2[j].second].id()) == 16 )
           nFin++;
+  }
+
+  return nFin;
+}
+
+//--------------------------------------------------------------------------
+
+int HardProcess::nOtherOut(){
+  int nFin = hardOutgoing1.size() + hardOutgoing2.size();
+  nFin -= nQuarksOut() + nLeptonOut() + nBosonsOut();
   return nFin;
 }
 
@@ -2198,8 +2245,10 @@ void MergingHooks::init(){
   applyVeto            =  settingsPtr->flag("Merging:applyVeto");
 
   // Get core process from user input
-  processSave           = settingsPtr->word("Merging:Process");
+  processSave          = settingsPtr->word("Merging:Process");
   processNow           = processSave;
+
+  bool doGuess         = (processNow.find("guess") != string::npos);
 
   // If the process string is "guess", temporarily set it to something safe
   // for initialization.
@@ -2215,7 +2264,9 @@ void MergingHooks::init(){
 
   // Initialise input event.
   inputEvent.init("(hard process)", particleDataPtr);
-  doRemoveDecayProducts = settingsPtr->flag("Merging:mayRemoveDecayProducts");
+  doRemoveDecayProducts
+    = doGuess || settingsPtr->flag("Merging:mayRemoveDecayProducts");
+  settingsPtr->flag("Merging:mayRemoveDecayProducts",doRemoveDecayProducts);
 
   // Initialise the hard process
   if ( doMGMergingSave )
@@ -2721,6 +2772,7 @@ Event MergingHooks::bareEvent(const Event& inputEventIn,
   if ( storeInputEvent ) {
     resonances.resize(0);
     inputEvent.clear();
+    inputEvent.init("(hard process)", particleDataPtr);
     for (int i = 0; i < inputEventIn.size(); ++i)
       inputEvent.append( inputEventIn[i] );
     for (int i = 0; i < inputEventIn.sizeJunction(); ++i)
@@ -2951,23 +3003,36 @@ bool MergingHooks::isInHard( int iPos, const Event& event){
   // Get sub-system of particles for iPos
   int iSys = partonSystemsPtr->getSystemOf(iPos, !event[iPos].isFinal() );
   if ( iSys > 0 ) {
+
+    int sysSize = partonSystemsPtr->sizeAll(iSys);
+
+    // First do simple check if the system is sensible. Might not be the
+    // case when constructing a process record by hand, yet still keeping the
+    // partonSystems. Remember to not check problematic systems.
+    bool isGoodSys = true;
+    for ( int i = 0; i < sysSize; ++i ) {
+      int iPosNow = partonSystemsPtr->getAll( iSys, i );
+      if (iPosNow >= event.size()) isGoodSys = false;
+    }
+
     // Check all partons belonging to the same system as iPos. If any is
     // produced in MPI or has MPI ancestors, the whole system is not the
     // hard subprocess, i.e. iPos is not in the hard subprocess.
-    int sysSize = partonSystemsPtr->sizeAll(iSys);
-    for ( int i = 0; i < sysSize; ++i ) {
-      int iPosNow = partonSystemsPtr->getAll( iSys, i );
-      // MPI not part of hard process
-      if ( event[iPosNow].statusAbs() > 30
-        && event[iPosNow].statusAbs() < 40 )
-        return false;
-      // Disregard any parton iPos that has MPI ancestors.
-      for ( int j=0; j < int(mpiParticlePos.size()); ++j)
-        if ( event[iPosNow].isAncestor( mpiParticlePos[j]) )
+    if (isGoodSys) {
+      for ( int i = 0; i < sysSize; ++i ) {
+        int iPosNow = partonSystemsPtr->getAll( iSys, i );
+        // MPI not part of hard process
+        if ( event[iPosNow].statusAbs() > 30
+          && event[iPosNow].statusAbs() < 40 )
           return false;
-      // Beam remnants and hadronisation not part of hard process
-      if ( event[iPosNow].statusAbs() > 60 )
-        return false;
+        // Disregard any parton iPos that has MPI ancestors.
+        for ( int j=0; j < int(mpiParticlePos.size()); ++j)
+          if ( event[iPosNow].isAncestor( mpiParticlePos[j]) )
+            return false;
+        // Beam remnants and hadronisation not part of hard process
+        if ( event[iPosNow].statusAbs() > 60 )
+          return false;
+      }
     }
   }
 
@@ -2993,8 +3058,18 @@ bool MergingHooks::isInHard( int iPos, const Event& event){
       containsInitialParton = true;
       break;
     }
+
+    int iUpOld = iUp;
     // If unique mother then keep on moving up the chain.
     iUp = event[iUp].mother1();
+
+    // Give up if mother is inconsistently set.
+    if (iUpOld == iUp) {
+      string message="Error in MergingHooks::isInHard: Event has";
+      message+=" inconsistent mother-daughter relations.";
+      infoPtr->errorMsg(message);
+      return false;
+    }
   }
 
   if ( !containsInitialParton ) return false;
@@ -3011,53 +3086,78 @@ bool MergingHooks::isInHard( int iPos, const Event& event){
 int MergingHooks::getNumberOfClusteringSteps(const Event& event,
   bool resetJetMax ){
 
+  vector<int> pos;
+
   // Count the number of final state partons
   int nFinalPartons = 0;
-  for ( int i=0; i < event.size(); ++i)
+  for ( int i=0; i < event.size(); ++i) {
+    if ( find(pos.begin(), pos.end(), i) != pos.end() ) continue;
     if ( event[i].isFinal()
       && isInHard( i, event)
-      && (event[i].isQuark() || event[i].isGluon()) )
+      && (event[i].isQuark() || event[i].isGluon()) ) {
       nFinalPartons++;
+      pos.push_back(i);
+    }
+  }
 
   // Count the number of final state leptons
   int nFinalLeptons = 0;
-  for( int i=0; i < event.size(); ++i)
-    if ( event[i].isFinal() && isInHard( i, event) && event[i].isLepton())
+  for( int i=0; i < event.size(); ++i) {
+    if ( find(pos.begin(), pos.end(), i) != pos.end() ) continue;
+    if ( event[i].isFinal() && isInHard( i, event) && event[i].isLepton()) {
       nFinalLeptons++;
-
-  // Add neutralinos to number of leptons
-  for( int i=0; i < event.size(); ++i)
-    if ( event[i].isFinal() && isInHard( i, event)
-       && event[i].idAbs() == 1000022)
-      nFinalLeptons++;
+      pos.push_back(i);
+    }
+  }
 
   // Add sleptons to number of leptons
-  for( int i=0; i < event.size(); ++i)
+  for( int i=0; i < event.size(); ++i) {
+    if ( find(pos.begin(), pos.end(), i) != pos.end() ) continue;
     if ( event[i].isFinal() && isInHard( i, event)
        && (event[i].idAbs() == 1000011
         || event[i].idAbs() == 2000011
         || event[i].idAbs() == 1000013
         || event[i].idAbs() == 2000013
         || event[i].idAbs() == 1000015
-        || event[i].idAbs() == 2000015) )
+        || event[i].idAbs() == 2000015) ) {
       nFinalLeptons++;
+      pos.push_back(i);
+    }
+  }
 
   // Count the number of final state electroweak bosons
   int nFinalBosons = 0;
-  for( int i=0; i < event.size(); ++i)
+  for( int i=0; i < event.size(); ++i) {
+    if ( find(pos.begin(), pos.end(), i) != pos.end() ) continue;
     if ( event[i].isFinal() && isInHard( i, event)
       && ( event[i].idAbs() == 22
         || event[i].idAbs() == 23
         || event[i].idAbs() == 24
-        || event[i].idAbs() == 25 ) )
+        || event[i].idAbs() == 25 ) ) {
       nFinalBosons++;
+      pos.push_back(i);
+    }
+  }
+
+  // Finally add other particles.
+  int nFinalOther=0;
+  for( int i=0; i < event.size(); ++i) {
+    if ( find(pos.begin(), pos.end(), i) != pos.end() ) continue;
+    if ( event[i].isFinal() && isInHard( i, event)) {
+      nFinalOther++;
+      pos.push_back(i);
+    }
+  }
 
   // Save sum of all final state particles
-  int nFinal = nFinalPartons + nFinalLeptons
-             + 2*(nFinalBosons - nHardOutBosons() );
+  int nBosons = (doRemoveDecayProducts)
+              ? nFinalBosons-nHardOutBosons()
+              : 2*(nFinalBosons-nHardOutBosons());
+  int nFinal  = nFinalPartons + nFinalLeptons + nFinalOther
+              + nBosons;
 
   // Return the difference to the core process outgoing particles
-  int nsteps = nFinal - nHardOutPartons() - nHardOutLeptons();
+  int nsteps = nFinal-nHardOutPartons()-nHardOutLeptons()-nHardOutOther();
 
   // For inclusive handling, the number of reclustering steps
   // can be different within a single sample.
@@ -3122,10 +3222,10 @@ bool MergingHooks::isFirstEmission(const Event& event ) {
   int nFinalLeptons  = 0;
   int nFinalBosons   = 0;
   int nFinalPhotons  = 0;
-  int nFinal         = 0;
+  int nFinalOther    = 0;
   for( int i=0; i < event.size(); ++i) {
     if (event[i].isFinal() && isInHard(i, event) ){
-      if ( event[i].spinType() == 2 && event[i].colType() == 0)
+      if ( event[i].isLepton())
         nFinalLeptons++;
       if ( event[i].id()    == 23
         || event[i].idAbs() == 24
@@ -3138,7 +3238,7 @@ bool MergingHooks::isFirstEmission(const Event& event ) {
       if ( event[i].isGluon())
         nFinalGluons++;
       if ( !event[i].isDiquark() )
-        nFinal++;
+        nFinalOther++;
     }
   }
 

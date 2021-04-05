@@ -156,4 +156,4 @@ echo "<a href='UserHooks.php?filepath=".$filepath."' target='page'>";?>User Hook
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

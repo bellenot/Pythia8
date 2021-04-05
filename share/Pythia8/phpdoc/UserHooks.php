@@ -884,7 +884,7 @@ you histogram results. It is the exact inverse of the weight you
 used to modify the phase-space sampling, a weight that must be stored 
 in the <code>selBias</code> member variable, such that this routine 
 can return <code>1/selBias</code>. The weight is also returned by the 
-<code>Info::weight()</code> method, which may be  convenient to use. 
+<code>Info::weight()</code> method, which may be more convenient to use. 
    
  
 <a name="section6"></a> 
@@ -1195,7 +1195,7 @@ the string hadronization model, involving changes to hadronization
 parameters based on local properties of the string. Given information 
 on the hadronization history of a single string,  parameters can be 
 changed to control the selection of quark flavour, <i>z</i> and 
-<i>pT</i> in string breaks. Further there is a option to veto 
+<i>pT</i> in string breaks. Furthermore there is a option to veto 
 the creation of a hadron before it is added to the event record, 
 thus repeating a step in the hadronization procedure. 
  
@@ -1327,4 +1327,4 @@ occurs.
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

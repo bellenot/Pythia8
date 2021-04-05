@@ -449,12 +449,11 @@ if [ "$PKG" = "ROOT" ]; then
 ${PKG}_LIBS=$ROOT_LIBS
 CXX_${PKG}=$CXX_ROOT
 BLOCKTEXT
-else
+fi
 # All other packages, just put include/ and lib/ paths
-    cat >> $CFG_FILE << BLOCKTEXT
+cat >> $CFG_FILE << BLOCKTEXT
 ${PKG}_INCLUDE=$PKG_INC
 ${PKG}_LIB=$PKG_LIB
 BLOCKTEXT
-fi
 done
 echo ""

@@ -121,8 +121,8 @@ endif
 main74: $$@.cc $(PREFIX_LIB)/libpythia8.a
 ifeq ($(FASTJET3_USE),true)
 	$(CXX) $< -o $@ -I$(FASTJET3_INCLUDE) $(CXX_COMMON)\
-	 -L$(FASTJET3_LIB) -Wl,-rpath,$(FASTJET3_LIB) -lfastjet -lRecursiveTools\
-	  $(GZIP_INC) $(GZIP_FLAGS)
+	 -L$(FASTJET3_LIB) -Wl,-rpath,$(FASTJET3_LIB) -lfastjet\
+         -lRecursiveTools $(GZIP_INC) $(GZIP_FLAGS)
 else
 	@echo "Error: $@ requires FASTJET3"
 endif
@@ -142,33 +142,34 @@ endif
 main91: $$@.cc $(PREFIX_LIB)/libpythia8.a
 ifeq ($(ROOT_USE),true)
 	$(CXX) $< -o $@ -w -I$(ROOT_INCLUDE) $(CXX_COMMON)\
-	 `$(ROOTBIN)root-config --cflags`\
-	 -Wl,-rpath,$(ROOT_LIB) `$(ROOT_BIN)root-config --glibs`
+	 `$(ROOT_BIN)/root-config --cflags`\
+	 -Wl,-rpath,$(ROOT_LIB) `$(ROOT_BIN)/root-config --glibs`
 else
 	@echo "Error: $@ requires ROOT"
 endif
 main92: $$@.cc $(PREFIX_LIB)/libpythia8.a main92.so
 ifeq ($(ROOT_USE),true)
 	$(CXX) $< main92.so -o $@ -w -I$(ROOT_INCLUDE) $(CXX_COMMON)\
-	 `$(ROOTBIN)root-config --cflags` -Wl,-rpath,./\
-	 -Wl,-rpath,$(ROOT_LIB) `$(ROOT_BIN)root-config --glibs`
+	 `$(ROOT_BIN)/root-config --cflags` -Wl,-rpath,./\
+	 -Wl,-rpath,$(ROOT_LIB) `$(ROOT_BIN)/root-config --glibs`
 else
 	@echo "Error: $@ requires ROOT"
 endif
 main92.so: main92Dct.cc $(PREFIX_LIB)/libpythia8.a
 	$(CXX) $< -o $@ -w -I$(ROOT_INCLUDE) $(CXX_SHARED) $(CXX_COMMON)\
-	 `$(ROOTBIN)root-config --cflags`
+	 `$(ROOT_BIN)/root-config --cflags`
 main92Dct.cc: main92.h main92LinkDef.h
 	export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$(ROOT_LIB);\
-	 $(ROOT_BIN)rootcint -f $@ -c -I$(PREFIX_INCLUDE) $^
+	 $(ROOT_BIN)/rootcint -f $@ -c -I$(PREFIX_INCLUDE) $^
 
 # main93 with several dependencies. It is assumed that
 # Rivet and YODA are installed to system path or appended to it.
 main93: $$@.cc $(PREFIX_LIB)/libpythia8.a main93.so
 ifeq ($(ROOT_USE),true)
-	$(CXX) $< main93.so -o $@ -DUSE_ROOT -DUSE_YODA -std=c++11 -w -I$(ROOT_INCLUDE) $(CXX_COMMON)\
-	 `$(ROOTBIN)root-config --cflags` -Wl,-rpath,./\
-	 -Wl,-rpath,$(ROOT_LIB) `$(ROOT_BIN)root-config --glibs` -lYODA\
+	$(CXX) $< main93.so -o $@ -DUSE_ROOT -DUSE_YODA -std=c++11 -w\
+         -I$(ROOT_INCLUDE) $(CXX_COMMON)\
+	 `$(ROOT_BIN)/root-config --cflags` -Wl,-rpath,./\
+	 -Wl,-rpath,$(ROOT_LIB) `$(ROOT_BIN)/root-config --glibs` -lYODA\
 	 -lHepMC -lRivet  $(GZIP_INC) $(GZIP_FLAGS)
 else
 	$(CXX) $< -o $@ -DUSE_YODA -std=c++11 -w $(CXX_COMMON) -lYODA\
@@ -177,14 +178,14 @@ endif
 main93.so: main93Dct.cc $(PREFIX_LIB)/libpythia8.a
 ifeq ($(ROOT_USE),true)
 	$(CXX) $< -o $@ -w -I$(ROOT_INCLUDE) $(CXX_SHARED) $(CXX_COMMON)\
-	 `$(ROOTBIN)root-config --cflags`
+	 `$(ROOT_BIN)/root-config --cflags`
 else
 	@echo "Skipping Root shared library"
 endif
 main93Dct.cc: main93.h main93LinkDef.h
 ifeq ($(ROOT_USE),true)
 	export LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:$(ROOT_LIB);\
-	 $(ROOT_BIN)rootcint -f $@ -c -I$(PREFIX_INCLUDE) $^
+	 $(ROOT_BIN)/rootcint -f $@ -c -I$(PREFIX_INCLUDE) $^
 else
 	@echo "Skipping Root dictionary"
 endif

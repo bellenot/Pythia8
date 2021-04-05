@@ -1191,7 +1191,7 @@ this header information, which can then be read out later. Although the
 naming convention is arbitrary, in practice, it is dictated by the 
 XML-like format of LHE files, see <?php $filepath = $_GET["filepath"];
 echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?> 
-Les Houches Accord</a> for  details. 
+Les Houches Accord</a> for more details. 
  
 <a name="anchor130"></a>
 <p/><strong> string Info::header(string key) &nbsp;</strong> <br/>
@@ -1211,4 +1211,4 @@ set the header named <code>key</code> with the contents of <code>val</code>
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

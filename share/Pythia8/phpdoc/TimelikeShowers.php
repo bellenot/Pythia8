@@ -825,6 +825,15 @@ The fixed factorization scale, in GeV, that would be used in the
 evaluation of parton densities if the <code>flag</code> above is on. 
    
  
+<br/><br/><table><tr><td><strong>TimeShower:pdfMode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)</td></tr></table>
+This setting should not be touched by non-experts. Deviating 
+from the default setting will only lead to consistent results 
+after explicit external intervention. 
+<br/>
+<input type="radio" name="50" value="0" checked="checked"><strong>0 </strong>: this default setting corresponds to the typical  shower treatment of including PDF ratios for dipole recoils in the  initial state, leading to the generation of normal no-emission  probabilities.  <br/>
+<input type="radio" name="50" value="1"><strong>1 </strong>: disable the PDF dependence, which leads to the  generation of Sudakov factors according to the momentum sum rule.  <br/>
+<input type="radio" name="50" value="2"><strong>2 </strong>: disable the PDF dependence, which leads to the  generation of Sudakov factors like option 1, but with a lower cut-off  <ei>zMin = 0.5</ei> on the energy-fraction integral.  <br/>
+ 
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -1085,6 +1094,11 @@ if($_POST["49"] != "100.")
 $data = "TimeShower:fixedFacScale = ".$_POST["49"]."\n";
 fwrite($handle,$data);
 }
+if($_POST["50"] != "0")
+{
+$data = "TimeShower:pdfMode = ".$_POST["50"]."\n";
+fwrite($handle,$data);
+}
 fclose($handle);
 }
 
@@ -1092,4 +1106,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

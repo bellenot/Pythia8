@@ -1,5 +1,5 @@
 // TimeShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -168,6 +168,12 @@ public:
     { return true; }
   virtual vector<int> getRecoilers( const Event&, int, int, string)
     { return vector<int>(); }
+
+  // Functions to directly extract the probability of no emission between two
+  // scales. This functions is not used in the Pythia core code, but can be
+  // used by external programs to interface with the shower directly.
+  virtual double noEmissionProbability( double, double, double, int, int,
+    double, double) { return 1.; }
 
   // Pointer to MergingHooks object for NLO merging.
   MergingHooks*  mergingHooksPtr;

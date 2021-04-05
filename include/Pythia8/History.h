@@ -1,5 +1,5 @@
 // History.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -61,10 +61,14 @@ public:
   bool hasProbSet;
   double prob;
 
+  // Map between particle positions in the clustered states -> particle
+  // positions in unclustered real-emission state.
+  map<int,int> iPosInMother;
+
   // Default constructor
   Clustering() : emitted(0), emittor(0), recoiler(0), partner(0), pTscale(),
     flavRadBef(0), spinRad(9), spinEmt(9), spinRec(9), spinRadBef(9),
-    radBef(0), recBef(0), hasProbSet(false), prob(-1.) {}
+    radBef(0), recBef(0), hasProbSet(false), prob(-1.), iPosInMother() {}
 
   // Default destructor
   ~Clustering(){}
@@ -77,19 +81,20 @@ public:
     spinRad(inSystem.spinRad), spinEmt(inSystem.spinEmt),
     spinRec(inSystem.spinRec), spinRadBef(inSystem.spinRad),
     radBef(inSystem.radBef), recBef(inSystem.recBef),
-    hasProbSet(inSystem.hasProbSet), prob(inSystem.prob) {}
+    hasProbSet(inSystem.hasProbSet), prob(inSystem.prob),
+    iPosInMother(inSystem.iPosInMother) {}
 
   // Constructor with input
   Clustering( int emtIn, int radIn, int recIn, int partnerIn,
     double pTscaleIn, int flavRadBefIn = 0, int spinRadIn = 9,
     int spinEmtIn = 9, int spinRecIn = 9, int spinRadBefIn = 9,
     int radBefIn = 0, int recBefIn = 0, bool hasProbIn = false,
-    double probIn = -1.)
+    double probIn = -1., map<int,int> posIn = map<int,int>())
     : emitted(emtIn), emittor(radIn), recoiler(recIn), partner(partnerIn),
       pTscale(pTscaleIn), flavRadBef(flavRadBefIn), spinRad(spinRadIn),
       spinEmt(spinEmtIn), spinRec(spinRecIn), spinRadBef(spinRadBefIn),
       radBef(radBefIn), recBef(recBefIn), hasProbSet(hasProbIn),
-      prob(probIn) {}
+      prob(probIn), iPosInMother(posIn) {}
 
   // Function to return pythia pT scale of clustering
   double pT() const { return pTscale; }
@@ -164,7 +169,7 @@ public:
     bool allClear=true;
     for ( int i = 0, N = children.size(); i < N; ++i )
       if (children[i]->state.size()!= 0) allClear = false;
-    if (allClear) state.free();
+    if (mother && allClear) state.free();
     return;
   }
 

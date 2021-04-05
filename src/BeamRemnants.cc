@@ -1,5 +1,5 @@
 // BeamRemnants.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -480,14 +480,26 @@ bool BeamRemnants::setKinematics( Event& event) {
     // Allow primordial kT reduction for small-mass and small-pT systems
     // (for hardest interaction pT -> renormalization scale so also 2 -> 1).
     if (doPrimordialKT) {
-      double mHat     = sqrt(sHatNow);
-      double yDamp    = pow( (event[iInA].e() + event[iInB].e()) / mHat,
-                        reducedKTatHighY );
-      mHatDamp        = mHat / (mHat + halfMassForKT * yDamp);
-      double scale    = (iSys == 0) ? infoPtr->QRen(iDS)
-                      : partonSystemsPtr->getPTHat(iSys);
-      kTwidthNow      = ( (halfScaleForKT * primordialKTsoft
-      + scale * primordialKThard) / (halfScaleForKT + scale) ) * mHatDamp;
+
+      // Les Houches events use primordialKThard.
+      if (iSys == 0 && infoPtr->isLHA()) {
+        kTwidthNow = primordialKThard;
+
+      // Internal processes and MPI use pT-dependent interpolation between
+      // primordialKThard and primordialKTsoft.
+      } else {
+        double scale = (iSys == 0) ? infoPtr->QRen(iDS)
+                                   : partonSystemsPtr->getPTHat(iSys);
+         kTwidthNow = (halfScaleForKT * primordialKTsoft
+           + scale * primordialKThard) / (halfScaleForKT + scale);
+      }
+
+      // Dampen primordial kT width for very low masses / extreme rapidities.
+      double mHat  = sqrt(sHatNow);
+      double yDamp =
+        pow( (event[iInA].e() + event[iInB].e()) / mHat, reducedKTatHighY );
+      mHatDamp =  mHat / (mHat + halfMassForKT * yDamp);
+      kTwidthNow *= mHatDamp;
     }
 
     // Store properties of compensation systems and total compensation power.
@@ -983,9 +995,9 @@ bool BeamRemnants::setOneRemnKinematics( Event& event, int beamOffset) {
               ? 1 + beamOffset + 2 + 2 : 2 + beamOffset + 2 + 2;
   if ( !beamOther.isGamma()
     && (!event[iLepOut].isLepton()
+    || iLepScat > event.size()-1
     || !event[iLepScat].isLepton()
-    || !event[iLepScat].isFinal()
-    || iLepScat > event.size()-1)) {
+    || !event[iLepScat].isFinal())) {
     double eMax = -1.0;
     for (int i = event.size()-1; i > 0 ; --i) {
       if ( event[i].isFinal()

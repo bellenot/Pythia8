@@ -67,7 +67,7 @@ Allowed codes include
 <br/><i>990 = Pomeron</i> (used in diffractive machinery; 
 here mainly for debug purposes), 
 <br/><i>22 = gamma</i> (for <i>gamma-gamma</i> and <i>gamma-hadron</i> 
-interactions,  info <?php $filepath = $_GET["filepath"];
+interactions, more info <?php $filepath = $_GET["filepath"];
 echo "<a href='Photoproduction.php?filepath=".$filepath."' target='page'>";?>here</a>), 
 <br/><i>11 = e^-</i>, <i>-11 = e^+</i>, 
 <br/><i>13 = mu^-</i>, <i>-13 = mu^+</i>, 
@@ -176,7 +176,7 @@ Read in LHEF header blocks and store them in the
 <?php $filepath = $_GET["filepath"];
 echo "<a href='EventInformation.php?filepath=".$filepath."' target='page'>";?>Info</a> class. See also 
 <?php $filepath = $_GET["filepath"];
-echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>LHAupLHEF</a> for  information. 
+echo "<a href='LesHouchesAccord.php?filepath=".$filepath."' target='page'>";?>LHAupLHEF</a> for more information. 
    
  
 <a name="anchor1"></a>
@@ -332,7 +332,7 @@ experienced at hadron colliders. Thus it can be safely assumed that the
 physics does not change over the CM energy range probed, so that the 
 parameters of the physics initialization at the nominal energy can be 
 used as is. Therefore it can be used for all processes implemented in 
-PYTHIA. It can <b>not</b> be used for the  extensive energy spread, 
+PYTHIA. It can <b>not</b> be used for the more extensive energy spread, 
 however, e.g. as expected at linear <i>e^+ e^-</i> colliders. Also, 
 any attempt to combine it with external Les Houches input of 
 parton-level events is at own risk. This option cannot be combined with 
@@ -713,4 +713,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

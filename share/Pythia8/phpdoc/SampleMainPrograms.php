@@ -105,7 +105,7 @@ PYTHIA 6.4. This file currently only contains 100 events
 so as not to make the distributed PYTHIA package too big, and so serves 
 mainly as a demonstration of the principles involved. </li> 
  
-<li><code>main12.cc</code> : a  sophisticated variant of 
+<li><code>main12.cc</code> : a more sophisticated variant of 
 <code>main11.cc</code>, where two Les Houches Event Files 
 (<code>ttbar.lhe</code> and <code>ttbar2.lhe</code>) successively 
 are used as input. Also illustrating some other aspects, like the 
@@ -505,4 +505,4 @@ to PDFs and factorization and renormalization scales.</li>
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

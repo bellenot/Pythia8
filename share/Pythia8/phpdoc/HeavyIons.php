@@ -47,7 +47,7 @@ handful of nuclei with PDG numbers on the form 100ZZZAAAI:
 <sup>63</sup>Cu (1000290630), 
 <sup>129</sup>Xe (1000541290), 
 <sup>197</sup>Au (1000791970), and 
-<sup>208</sup>Pb (1000822080), but  can be added using the function 
+<sup>208</sup>Pb (1000822080), but more can be added using the function 
 <code>ParticleData::addParticle</code>. 
  
 <br/><br/><table><tr><td><strong>HeavyIon:mode  </td><td>  &nbsp;&nbsp;(<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)</td></tr></table>
@@ -105,7 +105,7 @@ nucleon-nucleon  collision between a projectile and a target
 model for the distribution in impact parameter 
 space of nucleons in a nucleus. There are two ready-made subclasses called 
 <code>WoodsSaxonModel</code>, implementing a standard Woods-Saxon 
-distribution, and <code>GLISSANDOModel</code>, implementing the  
+distribution, and <code>GLISSANDOModel</code>, implementing the more 
 advanced model in [<a href="Bibliography.php#refBro09" target="page">Bro09</a>,<a href="Bibliography.php#refRyb14" target="page">Ryb14</a>]. 
 <br/><br/><strong>HeavyIon:WSHardCore</strong>  <input type="radio" name="3" value="on" checked="checked"><strong>On</strong>
 <input type="radio" name="3" value="off"><strong>Off</strong>
@@ -536,4 +536,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

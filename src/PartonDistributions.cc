@@ -1,5 +1,5 @@
 // PartonDistributions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -2516,9 +2516,7 @@ void NNPDF::xfxevolve(double x, double Q2) {
     }
 
     // 2D polynomial interpolation.
-    double y = 0, dy = 0;
-    polin2(x1a,x2a,ya,x1,x2,y,dy);
-    fRes[ipdf] = y;
+    fRes[ipdf] = polin2(x1a,x2a,ya,x1,x2);
   }
 
 }
@@ -2526,46 +2524,70 @@ void NNPDF::xfxevolve(double x, double Q2) {
 //--------------------------------------------------------------------------
 
 // 1D polynomial interpolation.
+static inline double polint_neville_2(double xa[2], double yal[2], double x)
+{
+    const int j = 1, i = 0;
+    const double xjd = xa[j] - x;
+    const double xid = xa[i] - x;
+    const double pi = yal[i];
+    const double pip = yal[i + 1];
+    return (-xjd * pi + xid * pip) / (xid - xjd);
+}
 
-void NNPDF::polint(double xa[], double yal[], int n, double x,
-  double& y, double& dy) {
+static inline double polint_lagrange_4(double xa[4], double yal[4], double x)
+{
+    return yal[0] * (x - xa[1]) * (x - xa[2]) * (x - xa[3]) / (xa[0] - xa[1])
+      / (xa[0] - xa[2]) / (xa[0] - xa[3]) +
+        yal[1] * (x - xa[0]) * (x - xa[2]) * (x - xa[3]) / (xa[1] - xa[0])
+      / (xa[1] - xa[2]) / (xa[1] - xa[3]) +
+        yal[2] * (x - xa[0]) * (x - xa[1]) * (x - xa[3]) / (xa[2] - xa[0])
+      / (xa[2] - xa[1]) / (xa[2] - xa[3]) +
+        yal[3] * (x - xa[0]) * (x - xa[1]) * (x - xa[2]) / (xa[3] - xa[0])
+      / (xa[3] - xa[1]) / (xa[3] - xa[2]);
+}
 
-  int ns = 0;
-  double dif = abs(x-xa[0]);
-  double c[fM > fN ? fM : fN];
-  double d[fM > fN ? fM : fN];
+static inline double polint_neville_n(double xa[], double yal[], int n,
+  double x) {
 
-  for (int i = 0; i < n; i++) {
-    double dift = abs(x-xa[i]);
-    if (dift < dif) {
-      ns = i;
-      dif = dift;
+    double *p = new double[n];
+    for (int i = 0; i < n; ++i)
+    {
+        p[i] = yal[i];
     }
-    c[i] = yal[i];
-    d[i] = yal[i];
-  }
-  y = yal[ns];
-  ns--;
-  for (int m = 1; m < n; m++) {
-    for (int i = 0; i < n-m; i++) {
-      double ho = xa[i]-x;
-      double hp = xa[i+m]-x;
-      double w = c[i+1]-d[i];
-      double den = ho-hp;
-      if (den == 0) {
-        cout << "NNPDF::polint, failure" << endl;
-        return;
-      }
-      den = w/den;
-      d[i] = hp*den;
-      c[i] = ho*den;
+    int i = 0, layer = 1;
+    while (1)
+    {
+        const int j = layer + i;
+        const double xjd = xa[j] - x;
+        const double xid = xa[i] - x;
+        const double pi = p[i];
+        const double pip = p[i + 1];
+
+        p[i] = (-xjd * pi + xid * pip) / (xid - xjd);
+
+        i++;
+        if (j == n - 1)
+        {
+            if (layer == n - 1)
+                break;
+            layer++;
+            i = 0;
+        }
     }
-    if (2*(ns+1) < n-m) dy = c[ns+1];
-    else {
-      dy = d[ns];
-      ns--;
-    }
-    y+=dy;
+    double v = p[0];
+    delete[] p;
+    return v;
+}
+
+ inline double NNPDF::polint(double xa[], double yal[], int n, double x) {
+  switch (n)
+  {
+  case 2:
+      return polint_neville_2(xa, yal, x);
+  case 4:
+      return polint_lagrange_4(xa, yal, x);
+  default:
+      return polint_neville_n(xa, yal, n, x);
   }
 }
 
@@ -2573,17 +2595,15 @@ void NNPDF::polint(double xa[], double yal[], int n, double x,
 
 // 2D polynomial interpolation.
 
-void NNPDF::polin2(double x1al[], double x2al[], double yal[][fN],
-  double x1, double x2, double& y, double& dy) {
+inline double NNPDF::polin2(double x1al[], double x2al[], double yal[][fN],
+  double x1, double x2) {
 
-  double yntmp[fN];
   double ymtmp[fM];
 
   for (int j = 0; j < fM; j++) {
-    for (int k = 0; k < fN; k++) yntmp[k] = yal[j][k];
-    polint(x2al,yntmp,fN,x2,ymtmp[j],dy);
+    ymtmp[j] = polint(x2al,yal[j],fN,x2);
   }
-  polint(x1al,ymtmp,fM,x1,y,dy);
+  return polint(x1al,ymtmp,fM,x1);
 
 }
 
@@ -3435,12 +3455,11 @@ void LHAGrid1::init(istream& is, Info* infoPtr) {
   }
 
   // Create array big enough to hold (flavour, x, Q) grid.
-  pdfGrid = new double**[12];
   for (int iid = 0; iid < 12; ++iid) {
-    pdfGrid[iid] = new double*[nx];
-    for (int ix = 0; ix < nx; ++ix) {
-      pdfGrid[iid][ix] = new double[nq];
-      for (int iq = 0; iq < nq; ++iq) pdfGrid[iid][ix][iq] = 0.;
+    pdfGrid[iid] = new double*[nq];
+    for (int iq = 0; iq < nq; ++iq) {
+      pdfGrid[iid][iq] = new double[nx];
+      for (int ix = 0; ix < nx; ++ix) pdfGrid[iid][iq][ix] = 0.;
     }
   }
 
@@ -3468,7 +3487,7 @@ void LHAGrid1::init(istream& is, Info* infoPtr) {
       istringstream ispdf( pdflines[++iln] );
       for (int iid = 0; iid < nid; ++iid) {
         ispdf >> pdfNow;
-        if (idGridMap[iid] >= 0) pdfGrid[idGridMap[iid]][ix][iq] = pdfNow;
+        if (idGridMap[iid] >= 0) pdfGrid[idGridMap[iid]][iq][ix] = pdfNow;
       }
     }
   }
@@ -3478,8 +3497,8 @@ void LHAGrid1::init(istream& is, Info* infoPtr) {
   for (int iid = 0; iid < 12; ++iid) {
     pdfSlope[iid] = new double[nq];
     for (int iq = 0; iq < nq; ++iq) { pdfSlope[iid][iq] =
-      ( min( pdfGrid[iid][0][iq], pdfGrid[iid][1][iq]) > 1e-5)
-      ? ( log(pdfGrid[iid][1][iq]) - log(pdfGrid[iid][0][iq]) )
+      ( min( pdfGrid[iid][iq][0], pdfGrid[iid][iq][1]) > 1e-5)
+      ? ( log(pdfGrid[iid][iq][1]) - log(pdfGrid[iid][iq][0]) )
       / (lnxGrid[1] - lnxGrid[0]) : 0.;
     }
   }
@@ -3601,19 +3620,30 @@ void LHAGrid1::xfxevolve(double x, double Q2) {
   }
 
   // Interpolate between grid elements, normally bicubic, or simpler in ln(q).
-  for (int iid = 0; iid < 12; ++iid) pdfVal[iid] = 0.;
   if (inx == 0) {
     for (int iid = 0; iid < 12; ++iid)
-    for (int i3x = 0; i3x < 4; ++i3x)
-    for (int i3q = 0; i3q < n3q; ++i3q)
-      pdfVal[iid] += wx[i3x] * wq[i3q] * pdfGrid[iid][m3x+i3x][m3q+i3q];
+    {
+      double **ppdf = pdfGrid[iid] + m3q;
+      double sum0 = 0;
+      for (int i3q = 0; i3q < n3q; ++i3q)
+      {
+        double *pdf = ppdf[i3q] + m3x;
+        sum0 +=  wq[i3q] * (wx[0] * pdf[0] +
+                            wx[1] * pdf[1] +
+                            wx[2] * pdf[2] +
+                            wx[3] * pdf[3]  );
+      }
+      pdfVal[iid] = sum0;
+    }
 
   // Special: extrapolate to small x. (Let vanish at large x, so no such code.)
   } else if (inx == -1) {
-    for (int iid = 0; iid < 12; ++iid)
+    for (int iid = 0; iid < 12; ++iid){
+      pdfVal[iid] = 0;
     for (int i3q = 0; i3q < n3q; ++i3q)
-      pdfVal[iid] += wq[i3q] * pdfGrid[iid][0][m3q+i3q]
+      pdfVal[iid] += wq[i3q] * pdfGrid[iid][m3q+i3q][0]
         * (doExtraPol ? pow( x / xMin, pdfSlope[iid][m3q+i3q]) : 1.);
+    }
   }
 
 }

@@ -1,5 +1,5 @@
 // MergingHooks.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -112,7 +112,8 @@ public:
   virtual bool allowCandidates(int iPos, vector<pair<int,int> > Pos1,
     vector<pair<int,int> > Pos2, const Event& event);
   // Function to identify the hard subprocess in the current event
-  virtual void storeCandidates( const Event& event, string process);
+  virtual void storeCandidates( const Event& event, string process,
+    ParticleData* particleDataPtr);
   // Function to check if the particle event[iPos] matches any of
   // the stored outgoing particles of the hard subprocess
   virtual bool matchesAnyOutgoing(int iPos, const Event& event);
@@ -131,6 +132,7 @@ public:
   // Function to get the number of uncoloured final state particles in the
   // hard process
   int nLeptonOut();
+  int nOtherOut();
   // Function to get the number of electroweak final state bosons in the
   // hard process
   int nBosonsOut();
@@ -330,6 +332,8 @@ public:
   int nHardOutPartons(){ return hardProcess->nQuarksOut();}
   // Function to return the number of outgoing leptons in the core process
   int nHardOutLeptons(){ return hardProcess->nLeptonOut();}
+  // Function to return the number of non-tagged (BSM) particles in process
+  int nHardOutOther(){ return hardProcess->nOtherOut();}
   // Function to return the number of outgoing electroweak bosons in the core
   // process.
   int nHardOutBosons(){ return hardProcess->nBosonsOut();}
@@ -626,7 +630,7 @@ public:
   // Function storing candidates for the hard process in the current event
   // Needed in order not to cluster members of the core process
   void storeHardProcessCandidates(const Event& event){
-    hardProcess->storeCandidates(event,getProcessString());
+    hardProcess->storeCandidates(event,getProcessString(), particleDataPtr);
   }
 
   // Function to set the path to the LHE file, so that more automated merging

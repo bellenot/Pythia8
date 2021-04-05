@@ -88,7 +88,7 @@ further checks are made that all mother and daughter pointers are
 consistently set. Specifically that all daughters in the 
 <code>daughterlist</code> (or <code>motherList</code>) have the 
 particle in their respective <code>motherList</code> 
-(or <code>daughterlist</code>). This operation takes a bit  
+(or <code>daughterlist</code>). This operation takes a bit more 
 time than the other error tests (of the order of 10% of what it takes 
 to generate the event in the first place), and so could be switched off 
 to save time. 
@@ -221,4 +221,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

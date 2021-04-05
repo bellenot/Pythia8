@@ -1400,6 +1400,14 @@ clusterings will be handled by winner-takes-all, and instead all histories
 are constructed. 
    
  
+<br/><br/><strong>Merging:runtimeAMCATNLOInterface</strong>  <input type="radio" name="45" value="on"><strong>On</strong>
+<input type="radio" name="45" value="off" checked="checked"><strong>Off</strong>
+ &nbsp;&nbsp;(<code>default = <strong>off</strong></code>)<br/>
+This setting should only be touched by experts. 
+If on, then the merging machinery will only be used to generate and 
+extract information necessary for the runtime interface of Pythia and aMC@NLO. 
+   
+ 
 <input type="hidden" name="saved" value="1"/>
 
 <?php
@@ -1635,6 +1643,11 @@ if($_POST["44"] != "-1")
 $data = "Merging:nJetMinWinnerTakesAll = ".$_POST["44"]."\n";
 fwrite($handle,$data);
 }
+if($_POST["45"] != "off")
+{
+$data = "Merging:runtimeAMCATNLOInterface = ".$_POST["45"]."\n";
+fwrite($handle,$data);
+}
 fclose($handle);
 }
 
@@ -1642,4 +1655,4 @@ fclose($handle);
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

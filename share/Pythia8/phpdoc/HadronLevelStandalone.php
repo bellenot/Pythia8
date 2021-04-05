@@ -274,7 +274,7 @@ hadronization history.
 A more limited form of repetition is if you want to decay a given kind 
 of particle repeatedly, without having to generate the rest of the event 
 anew. This could be the case e.g. in <i>B</i> physics applications. 
-Then you can use the <code>pythia.Decays()</code> method, which 
+Then you can use the <code>pythia.moreDecays()</code> method, which 
 decays all particles in the event record that have not been decayed 
 but should have been done so. The 
 <code>pythia.particleData.mayDecay( id, false/true)</code> method 
@@ -303,4 +303,4 @@ events.
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
