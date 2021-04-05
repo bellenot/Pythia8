@@ -1,5 +1,5 @@
 // DireHistory.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -40,24 +40,26 @@ class DireCouplFunction : public DireFunction {
 
 public:
 
-  DireCouplFunction(AlphaStrong* asIn) : as(asIn), aem(NULL) {};
-  DireCouplFunction(AlphaEM* aemIn)    : as(NULL), aem(aemIn) {};
+  DireCouplFunction(AlphaStrong* asIn) :
+    as(asIn), aem(nullptr), asPow(1), aemPow(1) {};
+  DireCouplFunction(AlphaEM* aemIn) :
+    as(nullptr), aem(aemIn), asPow(1), aemPow(1) {};
   DireCouplFunction(AlphaStrong* asIn, int asPowIn,
     AlphaEM* aemIn, int aemPowIn) : as(asIn), aem(aemIn), asPow(asPowIn),
     aemPow(aemPowIn) {};
   double f(double x) {
-    double ret = (as==NULL)  ? 1. : pow(as->alphaS(x),asPow);
-    ret       *= (aem==NULL) ? 1. : pow(aem->alphaEM(x),aemPow);
+    double ret = (as==nullptr)  ? 1. : pow(as->alphaS(x),asPow);
+    ret       *= (aem==nullptr) ? 1. : pow(aem->alphaEM(x),aemPow);
     return ret;
   }
   double f(double x, double) {
-    double ret = (as==NULL)  ? 1. : pow(as->alphaS(x),asPow);
-    ret       *= (aem==NULL) ? 1. : pow(aem->alphaEM(x),aemPow);
+    double ret = (as==nullptr)  ? 1. : pow(as->alphaS(x),asPow);
+    ret       *= (aem==nullptr) ? 1. : pow(aem->alphaEM(x),aemPow);
     return ret;
   }
   double f(double x, vector<double>) {
-    double ret = (as==NULL)  ? 1. : pow(as->alphaS(x),asPow);
-    ret       *= (aem==NULL) ? 1. : pow(aem->alphaEM(x),aemPow);
+    double ret = (as==nullptr)  ? 1. : pow(as->alphaS(x),asPow);
+    ret       *= (aem==nullptr) ? 1. : pow(aem->alphaEM(x),aemPow);
     return ret;
   }
   AlphaStrong* as;
@@ -445,7 +447,7 @@ bool DireHistory::projectOntoDesiredHistories() {
     //paths.begin()->second->mother->setProbabilities();
     // Set probabilities from next-to-lowest multi --> highest multi. If
     // lowest multi == highest multi, no need to set probabilities.
-    DireHistory* deepest = NULL;
+    DireHistory* deepest = nullptr;
 
     // Set probabilities from next-to-lowest multi --> highest multi. If
     // lowest multi == highest multi, no need to set probabilities.
@@ -801,14 +803,12 @@ double DireHistory::weightFIRST(PartonLevel* trial, AlphaStrong* asFSR,
 
   // Count emissions: New variant
   // Generate true average, not only one-point
-  bool fixpdf = true;
-  bool fixas  = true;
   double nWeight1 = 0.;
   for(int i=0; i < NTRIAL; ++i) {
     // Get number of emissions
-    vector<double> unresolvedEmissionTerm = countEmissions( trial,
-      startingScale, mergingHooksPtr->tms(), 2, asME, asFSR, asISR, 3,
-      fixpdf, fixas );
+    vector<double> unresolvedEmissionTerm = countEmissions
+      ( trial, startingScale, mergingHooksPtr->tms(), 2, asME, asFSR, asISR, 3,
+        true, true );
     nWeight1 += unresolvedEmissionTerm[1];
   }
 
@@ -918,12 +918,12 @@ double DireHistory::weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
     aemWeight, pdfWeight);
   else {
     wt   = selected->weightEmissions( trial, 1, 0, depthIn, maxScale );
-    if (wt != 0.) asWeight  = selected->weightALPHAS( asME, asFSR, asISR,
-                             0, depthIn);
-    if (wt != 0.) aemWeight = selected->weightALPHAEM( aemME, aemFSR,
-                             aemISR, 0, depthIn);
-    if (wt != 0.) pdfWeight = selected->weightPDFs( maxScale,
-                             selected->clusterIn.pT(), 0, depthIn);
+    if (wt != 0.) {
+      asWeight  = selected->weightALPHAS( asME, asFSR, asISR, 0, depthIn);
+      aemWeight = selected->weightALPHAEM( aemME, aemFSR, aemISR, 0, depthIn);
+      pdfWeight = selected->weightPDFs
+        ( maxScale, selected->clusterIn.pT(), 0, depthIn);
+    }
   }
 
   // MPI no-emission probability.
@@ -1012,12 +1012,12 @@ double DireHistory::weight_UNLOPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
       aemWeight, pdfWeight);
   else {
     sudakov   = selected->weightEmissions( trial, 1, 0, depthIn, maxScale );
-    if (sudakov > 0.) asWeight  = selected->weightALPHAS( asME, asFSR,
-                                  asISR, 0, depthIn);
-    if (sudakov > 0.) aemWeight  = selected->weightALPHAEM( aemME, aemFSR,
-                                  aemISR, 0, depthIn);
-    if (sudakov > 0.) pdfWeight = selected->weightPDFs( maxScale,
-                                  selected->clusterIn.pT(), 0, depthIn);
+    if (sudakov > 0.) {
+      asWeight  = selected->weightALPHAS( asME, asFSR, asISR, 0, depthIn);
+      aemWeight = selected->weightALPHAEM( aemME, aemFSR, aemISR, 0, depthIn);
+      pdfWeight = selected->weightPDFs
+        ( maxScale, selected->clusterIn.pT(), 0, depthIn);
+    }
   }
 
   // MPI no-emission probability.
@@ -1108,25 +1108,23 @@ double DireHistory::weight_UNLOPS_CORRECTION( int order, PartonLevel* trial,
 
   // Calculate sum of O(\alpha_s^1)-terms of the ckkw-l weight WITHOUT
   // the O(\alpha_s^1)-term of the last no-emission probability.
-  bool fixpdf = true;
-  bool fixas  = true;
   // Get first term in expansion of alpha_s ratios.
-  double wA   = selected->weightFirstALPHAS( asME, muR, asFSR, asISR );
+  double wA = selected->weightFirstALPHAS( asME, muR, asFSR, asISR );
   // Add logarithm from \alpha_s expansion to weight.
-  wt         += (fixas) ? wA : 0.;
+  wt += wA;
   // Generate true average, not only one-point.
   double nWeight = 0.;
-  for ( int i=0; i < NTRIAL; ++i ) {
+  for ( int i = 0; i < NTRIAL; ++i ) {
     // Get average number of emissions.
-    double wE   = selected->weightFirstEmissions(trial,asME, maxScale,
-      asFSR, asISR, fixpdf, fixas );
+    double wE = selected->weightFirstEmissions
+      ( trial,asME, maxScale, asFSR, asISR, true, true );
     // Add average number of emissions off reconstructed states to weight.
-    nWeight    += wE;
+    nWeight  += wE;
     // Get first term in expansion of PDF ratios.
     double pscale = selected->clusterIn.pT();
-    double wP   = selected->weightFirstPDFs(asME, maxScale, pscale, rndmPtr);
+    double wP = selected->weightFirstPDFs(asME, maxScale, pscale, rndmPtr);
     // Add integral of DGLAP shifted PDF ratios from \alpha_s expansion to wt.
-    nWeight    += (fixpdf) ? wP : 0.;
+    nWeight  += wP;
   }
   wt += nWeight/double(NTRIAL);
 
@@ -1165,32 +1163,14 @@ void DireHistory::getStartingConditions( const double RN, Event& outState ) {
       for (int i = 3;i < state.size();++i)
         state[i].scale(startingScale);
     }
-
-    // Save information on last splitting, to allow the next
-    // emission in the shower to have smaller rapidity with
-    // respect to the last ME splitting.
-    // For hard process, use dummy values.
-    if (mergingHooksPtr->getNumberOfClusteringSteps(state) == 0) {
-      infoPtr->zNowISR(0.5);
-      infoPtr->pT2NowISR(pow(state[0].e(),2));
-      infoPtr->hasHistory(true);
-    // For incomplete process, try to use real values.
-    } else {
-      infoPtr->zNowISR(0.5);
-      infoPtr->pT2NowISR(pow(state[0].e(),2));
-      infoPtr->hasHistory(true);
-    }
-
-  } else {
-
-    // Save information on last splitting, to allow the next
-    // emission in the shower to have smaller rapidity with
-    // respect to the last ME splitting.
-    infoPtr->zNowISR(0.5);
-    infoPtr->pT2NowISR(pow(state[0].e(),2));
-    infoPtr->hasHistory(true);
-
   }
+
+  // Save information on last splitting, to allow the next
+  // emission in the shower to have smaller rapidity with
+  // respect to the last ME splitting.
+  infoPtr->zNowISR(0.5);
+  infoPtr->pT2NowISR(pow(state[0].e(),2));
+  infoPtr->hasHistory(true);
 
   // Copy the output state.
   outState = state;
@@ -1228,7 +1208,7 @@ void DireHistory::printStates() {
   }
 
   // Print.
-  double p = (mother) ? prodOfProbs/mother->prodOfProbs : prodOfProbs;
+  double p = prodOfProbs/mother->prodOfProbs;
   cout << scientific << setprecision(4) << "Probabilities:"
        << "\n\t Product =              "
        << prodOfProbs << " " << prodOfProbsFull
@@ -1345,22 +1325,13 @@ double DireHistory::getPDFratio( int side, bool forSudakov, bool useHardPDFs,
     if (side == 1) {
       if (forSudakov)
         pdfNum = mother->beamA.xfHard( flavNum, xNum, muNum*muNum);
-      else
-        pdfNum = beamA.xfHard( flavNum, xNum, muNum*muNum);
-      if (forSudakov)
-        pdfDen = max(1e-10, beamA.xfHard( flavDen, xDen, muDen*muDen));
-      else
-        pdfDen = max(1e-10, beamA.xfHard( flavDen, xDen, muDen*muDen));
+      else pdfNum = beamA.xfHard( flavNum, xNum, muNum*muNum);
+      pdfDen = max(1e-10, beamA.xfHard( flavDen, xDen, muDen*muDen));
     } else {
       if (forSudakov)
         pdfNum = mother->beamB.xfHard( flavNum, xNum, muNum*muNum);
-      else
-        pdfNum = beamB.xfHard( flavNum, xNum, muNum*muNum);
-
-      if (forSudakov)
-        pdfDen = max(1e-10,beamB.xfHard( flavDen, xDen, muDen*muDen));
-      else
-        pdfDen = max(1e-10,beamB.xfHard( flavDen, xDen, muDen*muDen));
+      else pdfNum = beamB.xfHard( flavNum, xNum, muNum*muNum);
+      pdfDen = max(1e-10,beamB.xfHard( flavDen, xDen, muDen*muDen));
     }
 
   // Use rescaled PDFs in the presence of multiparton interactions
@@ -1368,22 +1339,13 @@ double DireHistory::getPDFratio( int side, bool forSudakov, bool useHardPDFs,
     if (side == 1) {
       if (forSudakov)
         pdfNum = mother->beamA.xfISR(0, flavNum, xNum, muNum*muNum);
-      else
-        pdfNum = beamA.xfISR(0, flavNum, xNum, muNum*muNum);
-      if (forSudakov)
-        pdfDen = max(1e-10, beamA.xfISR(0, flavDen, xDen, muDen*muDen));
-      else
-        pdfDen = max(1e-10, beamA.xfISR(0, flavDen, xDen, muDen*muDen));
-
+      else pdfNum = beamA.xfISR(0, flavNum, xNum, muNum*muNum);
+      pdfDen = max(1e-10, beamA.xfISR(0, flavDen, xDen, muDen*muDen));
     } else {
       if (forSudakov)
         pdfNum = mother->beamB.xfISR(0, flavNum, xNum, muNum*muNum);
-      else
-        pdfNum = beamB.xfISR(0, flavNum, xNum, muNum*muNum);
-      if (forSudakov)
-        pdfDen = max(1e-10,beamB.xfISR(0, flavDen, xDen, muDen*muDen));
-      else
-        pdfDen = max(1e-10,beamB.xfISR(0, flavDen, xDen, muDen*muDen));
+      else pdfNum = beamB.xfISR(0, flavNum, xNum, muNum*muNum);
+      pdfDen = max(1e-10,beamB.xfISR(0, flavDen, xDen, muDen*muDen));
     }
   }
 
@@ -2017,7 +1979,7 @@ bool DireHistory::allIntermediateAboveRhoMS( double rhoms, bool good ) {
   // Assume state from ME generator passes merging scale cut.
   if ( !mother ) return good;
   // Recurse.
-  return good && mother->allIntermediateAboveRhoMS( rhoms, (rhoNew > rhoms) );
+  return mother->allIntermediateAboveRhoMS( rhoms, (rhoNew > rhoms) );
 }
 
 //--------------------------------------------------------------------------
@@ -2663,16 +2625,12 @@ double DireHistory::weightFirst(PartonLevel* trial, double as0, double muR,
   double b = 1.;
   double asScale2 = newScale*newScale;
   int showerType = (mother->state[clusterIn.emittor].isFinal() ) ? 1 : -1;
-  if (showerType == -1) {
-    asScale2 += pow(mergingHooksPtr->pT0ISR(),2);
-    b = 1.;
-  }
+  if (showerType == -1) asScale2 += pow(mergingHooksPtr->pT0ISR(),2);
 
   // Directly get argument of running alpha_s from shower plugin.
   asScale2 = getShowerPluginScale(mother->state, clusterIn.emittor,
     clusterIn.emtPos(), clusterIn.recoiler, clusterIn.name(),
     "scaleAS", asScale2);
-  b = 1.;
 
   // Find summand beta_0 / 2 * ln(muR^2/t_i) due to as expansion.
   double NF = 4.;
@@ -2752,16 +2710,13 @@ double DireHistory::weightFirstALPHAS( double as0, double muR,
   double asScale = pow2( newScale );
   if ( mergingHooksPtr->unorderedASscalePrescip() == 1 )
     asScale = pow2( clusterIn.pT() );
-  if (showerType == -1) {
+  if (showerType == -1)
     asScale += pow2( mergingHooksPtr->pT0ISR() );
-    b = 1.;
-  }
 
   // Directly get argument of running alpha_s from shower plugin.
   asScale = getShowerPluginScale(mother->state, clusterIn.emittor,
     clusterIn.emtPos(), clusterIn.recoiler, clusterIn.name(),
     "scaleAS", asScale);
-  b = 1.;
 
   // Find summand beta_0 / 2 * ln(muR^2/t_i) due to as expansion.
   double NF = 4.;
@@ -3223,7 +3178,7 @@ vector<double> DireHistory::doTrialShower( PartonLevel* trial, int type,
         = infoPtr->settingsPtr->flag("ShowerPDF:usePDFalphas");
       BeamParticle* beam = (particleDataPtr->isHadron(beamA.id())) ? &beamA
                          : (particleDataPtr->isHadron(beamB.id())) ? &beamB
-                                                        : NULL;
+                                                        : nullptr;
       double m2cPhys     = (usePDFalphas) ? pow2(max(0.,beam->mQuarkPDF(4)))
                          : mergingHooksPtr->AlphaS_ISR()->muThres2(4);
       double m2bPhys     = (usePDFalphas) ? pow2(max(0.,beam->mQuarkPDF(5)))
@@ -4373,9 +4328,10 @@ double DireHistory::hardProcessCouplings( const Event& event, int order,
     double res = pow(width*sigBW*asRatio,nh.size());
 
     result *= res;
-    if (fillCouplCounters) couplingPowCount["qcd"]+=2;
-    if (fillCouplCounters) couplingPowCount["heft"]++;
-
+    if (fillCouplCounters) {
+      couplingPowCount["qcd"]+=2;
+      couplingPowCount["heft"]++;
+    }
   }
 
   return result;
@@ -4485,8 +4441,8 @@ int DireHistory::getRadBeforeFlav(const int RadAfter, const int EmtAfter,
   if ( type ==-1 && radID == 21 )
     return -emtID;
   // Initial state t-channel gluon splitting
-  if ( type ==-1 && !colConnected
-    && emtID != 21 && radID != 21 && abs(emtID) < 10 && abs(radID) < 10)
+  if ( type ==-1 && !colConnected && radID != 21 && abs(emtID) < 10
+       && abs(radID) < 10)
     return 21;
 
   // SQCD splittings
@@ -4929,7 +4885,7 @@ int DireHistory::getRadBeforeCol(const int rad, const int emt,
     }
 
   // Get reconstructed quark colours
-  } else if ( radBeforeFlav != 21 && radBeforeFlav > 0) {
+  } else if ( radBeforeFlav > 0) {
 
     // Quark emission in FSR
     if (type == 1 && event[emt].id() != 21) {
@@ -5022,7 +4978,7 @@ int DireHistory::getRadBeforeAcol(const int rad, const int emt,
     }
 
   // Get reconstructed anti-quark colours
-  } else if ( radBeforeFlav != 21 && radBeforeFlav < 0) {
+  } else if ( radBeforeFlav < 0) {
 
     // Antiquark emission in FSR
     if (type == 1 && event[emt].id() != 21) {
@@ -5293,8 +5249,7 @@ bool DireHistory::isColSinglet( const Event& event,
        || event[system[i]].colType() == 2) ) {
       for(int j=0; j < int(system.size()); ++j)
         // If flavour matches, remove both partons and continue
-        if ( system[i] > 0
-          && system[j] > 0
+        if ( system[j] > 0
           && event[system[i]].col() == event[system[j]].acol()) {
           // Remove index and break
           system[i] = 0;
@@ -5308,8 +5263,7 @@ bool DireHistory::isColSinglet( const Event& event,
        || event[system[i]].colType() == 2) ) {
       for(int j=0; j < int(system.size()); ++j)
         // If flavour matches, remove both partons and continue
-        if ( system[i] > 0
-          && system[j] > 0
+        if ( system[j] > 0
           && event[system[i]].acol() == event[system[j]].col()) {
           // Remove index and break
           system[i] = 0;
@@ -5358,7 +5312,6 @@ bool DireHistory::isFlavSinglet( const Event& event,
           && event[i].idAbs() != 22
           && event[i].idAbs() != 23
           && event[i].idAbs() != 24
-          && system[i] > 0
           && system[j] > 0
           && event[system[i]].isFinal()
           && event[system[j]].isFinal()
@@ -5379,10 +5332,8 @@ bool DireHistory::isFlavSinglet( const Event& event,
           && event[i].idAbs() != 22
           && event[i].idAbs() != 23
           && event[i].idAbs() != 24
-          && system[i] > 0
           && system[j] > 0
-          && ( ( !event[system[i]].isFinal() && event[system[j]].isFinal())
-             ||( !event[system[j]].isFinal() && event[system[i]].isFinal()) )
+          && event[system[i]].isFinal() != event[system[j]].isFinal()
           && event[system[i]].id() == event[system[j]].id()) {
           // If we want to check if only one flavour of quarks
           // exists
@@ -5496,7 +5447,6 @@ bool DireHistory::allowedClustering( int rad, int emt, int rec, int partner,
       &&(  event[i].id() == 22
         || event[i].id() == 23
         || event[i].idAbs() == 24
-        ||(event[i].idAbs() > 10 && event[i].idAbs() < 20)
         ||(event[i].idAbs() > 10 && event[i].idAbs() < 20)
         ||(event[i].idAbs() > 1000010 && event[i].idAbs() < 1000020)
         ||(event[i].idAbs() > 2000010 && event[i].idAbs() < 2000020) ))
@@ -7218,13 +7168,10 @@ bool DireHistory::mayHaveEffectiveVertex( string process, vector<int> in,
 
 void DireHistory::setSelectedChild() {
 
-  if (mother == 0) return;
-  if (!mother) return;
-  if (mother==NULL) return;
-
+  if (mother == nullptr) return;
   for (int i = 0;i < int(mother->children.size());++i)
     if (mother->children[i] == this) mother->selectedChild = i;
-  if (mother) mother->setSelectedChild();
+  mother->setSelectedChild();
 }
 
 //--------------------------------------------------------------------------
@@ -7232,7 +7179,7 @@ void DireHistory::setSelectedChild() {
 // Store index of children that pass "trimHistories".
 
 void DireHistory::setGoodChildren() {
-  if (mother == 0 || !mother || mother==NULL) return;
+  if (mother == nullptr) return;
   for (int i = 0;i < int(mother->children.size());++i)
     if (mother->children[i] == this) {
       // Nothing to be done if good child is already tagged.
@@ -7554,12 +7501,6 @@ void DireHistory::setEffectiveScales() {
       as_tmax = couplFunc.f(tmax*headroom,vector<double>());
     }
 
-    if ((abs(alphasOftEffRatio-alphasOftEffRatio) > 1e5
-         || alphasOftEffRatio != alphasOftEffRatio)
-    || alphasOftEff_num/alphasOftEff_den < 0.) {
-    fsr->direInfoPtr->printMessages(1); abort();
-    }
-
     // Include correct power for effective alphaS.
     DireRootFinder direRootFinder;
     double teff = mergingHooksPtr->pTcut();
@@ -7715,7 +7656,7 @@ void DireHistory::setCouplingOrderCount(DireHistory* leaf,
   string name  = clusterIn.name();
   if (leaf == this) {
     // Count hard process couplings.
-    hardProcessCouplings(state, 0, 1., NULL, NULL, true);
+    hardProcessCouplings(state, 0, 1., nullptr, nullptr, true);
     // Update with coupling order of clustering.
     count = couplingPowCount;
 

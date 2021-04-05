@@ -1,5 +1,5 @@
 // ParticleData.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -133,6 +133,9 @@ void ParticleDataEntry::setDefaults() {
 
   // A particle may decay if it is shortlived enough.
   mayDecaySave        = (tau0Save < MAXTAU0FORDECAY);
+
+  // A particle's lifetime is calculated from its decay width.
+  tauCalcSave         = true;
 
   // A particle by default has no external decays.
   doExternalDecaySave = false;
@@ -1434,6 +1437,13 @@ void ParticleData::listFF(string outFile) {
     getWord >> mayTmp;
     bool mayDecayTmp = boolString(mayTmp);
     pdt[idTmp].setMayDecay(mayDecayTmp);
+    return true;
+  }
+  if (property == "taucalc") {
+    string tauTmp;
+    getWord >> tauTmp;
+    bool tauCalcTmp = boolString(tauTmp);
+    pdt[idTmp].setTauCalc(tauCalcTmp);
     return true;
   }
   if (property == "doexternaldecay") {

@@ -8,6 +8,7 @@
 #include <Pythia8/SigmaTotal.h>
 #include <Pythia8/StandardModel.h>
 #include <Pythia8/SusyCouplings.h>
+#include <Pythia8/Weights.h>
 #include <functional>
 #include <ios>
 #include <istream>

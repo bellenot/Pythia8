@@ -22,11 +22,10 @@
 #include <Pythia8/ShowerModel.h>
 #include <Pythia8/SigmaProcess.h>
 #include <Pythia8/SigmaTotal.h>
-#include <Pythia8/SpaceShower.h>
 #include <Pythia8/StandardModel.h>
 #include <Pythia8/SusyCouplings.h>
-#include <Pythia8/TimeShower.h>
 #include <Pythia8/UserHooks.h>
+#include <Pythia8/Weights.h>
 #include <functional>
 #include <istream>
 #include <iterator>

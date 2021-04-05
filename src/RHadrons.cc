@@ -1,5 +1,5 @@
 // RHadrons.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -208,7 +208,7 @@ bool RHadrons::produce( ColConfig& colConfig, Event& event) {
   }
   if (nRHad == 2) {
     iBef = iBefRHad[1];
-    iSys = colConfig.findSinglet( iBefRHad[1]);
+    iSys = colConfig.findSinglet( iBef);
     systemPtr = &colConfig[iSys];
     if (systemPtr->hasJunction && !splitOffJunction( colConfig, event)) {
       infoPtr->errorMsg("Error in RHadrons::produce: "
@@ -228,7 +228,7 @@ bool RHadrons::produce( ColConfig& colConfig, Event& event) {
   }
   if (nRHad == 2) {
     iBef = iBefRHad[1];
-    iSys = colConfig.findSinglet( iBefRHad[1]);
+    iSys = colConfig.findSinglet( iBef);
     systemPtr = &colConfig[iSys];
     if (systemPtr->isClosed && !openClosedLoop( colConfig, event)) {
       infoPtr->errorMsg("Error in RHadrons::produce: "

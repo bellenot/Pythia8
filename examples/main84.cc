@@ -1,5 +1,5 @@
 // main84.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -17,7 +17,7 @@
 
 #include <time.h>
 #include "Pythia8/Pythia.h"
-#include "Pythia8Plugins/HepMC2.h"
+#include "Pythia8Plugins/HepMC3.h"
 
 using namespace Pythia8;
 
@@ -115,13 +115,13 @@ int main( int argc, char* argv[] ){
   // Interface for conversion from Pythia8::Event to HepMC event.
   // Will fill cross section and event weight directly in this program,
   // so switch it off for normal conversion routine.
-  HepMC::Pythia8ToHepMC ToHepMC;
-  ToHepMC.set_store_xsec(false);
-  ToHepMC.set_print_inconsistency(false);
-  ToHepMC.set_free_parton_exception(false);
+  HepMC3::Pythia8ToHepMC3 toHepMC;
+  toHepMC.set_store_xsec(false);
+  toHepMC.set_print_inconsistency(false);
+  toHepMC.set_free_parton_warnings(false);
 
   // Specify file where HepMC events will be stored.
-  HepMC::IO_GenEvent ascii_io(argv[2], std::ios::out);
+  HepMC3::WriterAscii ascii_io(argv[2]);
 
   // Third argument: Maximal number of additional jets
   int njet = atoi(argv[3]);
@@ -306,7 +306,7 @@ int main( int argc, char* argv[] ){
             // Construct new empty HepMC event and fill it.
             // Units will be as chosen for HepMC build, but can be changed
             // by arguments, e.g. GenEvt( HepMC::Units::GEV, HepMC::Units::MM)
-            HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
+            HepMC3::GenEvent hepmcevt;
 
             double normhepmc = 1.* xsecEstimate[njet-njetCounter]
                 * nTrialEstimate[njet-njetCounter]
@@ -316,24 +316,22 @@ int main( int argc, char* argv[] ){
             sigma += weight*normhepmc;
             sigma2 += pow(weight*normhepmc,2);
             // Set event weight
-            hepmcevt->weights().push_back(weight*normhepmc);
+            hepmcevt.weights().push_back(weight*normhepmc);
 
             // Fill summed histograms
             histPTFirstSum.fill( pTfirst, weight*normhepmc);
             histPTSecondSum.fill( pTsecnd, weight*normhepmc);
 
             // Fill HepMC event, with PDF info.
-            ToHepMC.fill_next_event( pythia, hepmcevt );
+            toHepMC.fill_next_event( pythia, &hepmcevt );
 
-            // Report cross section to hepmc
-            HepMC::GenCrossSection xsec;
-            xsec.set_cross_section( sigma*1e9,
-              pythia.info.sigmaErr()*1e9 );
-            hepmcevt->set_cross_section( xsec );
-
-            // Write the HepMC event to file. Done with it.
-            ascii_io << hepmcevt;
-            delete hepmcevt;
+            // Report cross section to hepmc.
+            shared_ptr<HepMC3::GenCrossSection> xsec;
+            xsec = make_shared<HepMC3::GenCrossSection>();
+            xsec->set_cross_section( sigma*1e9, pythia.info.sigmaErr()*1e9 );
+            hepmcevt.set_cross_section( xsec );
+            // Write the HepMC event to file.
+            ascii_io.write_event(hepmcevt);
           }
 
         } // if( pythia.next() )

@@ -1,5 +1,5 @@
 // DireTimes.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -45,8 +45,8 @@ public:
     chgType(0), gamType(0), weakType(0), isrType(0), system(0), systemRec(0),
     MEtype(0), iMEpartner(-1), weakPol(0), isOctetOnium(false),
     isHiddenValley(false), colvType(0), MEmix(0.), MEorder(true),
-    MEsplit(true), MEgluinoRec(false), isFlexible(false), idRadAft(0),
-    idEmtAft(0) {
+    MEsplit(true), MEgluinoRec(false), isFlexible(false), flavour(0), iAunt(0),
+    idRadAft(0), idEmtAft(0) {
     mRad = m2Rad = mRec = m2Rec = mDip = m2Dip = m2DipCorr = pT2 = m2 = z
          = mFlavour = asymPol = flexFactor = phi = 0.;
     sa1  = xa = phia1 = pT2start = pT2stop = pT2Old = 0.;
@@ -70,8 +70,8 @@ public:
     iMEpartner(iMEpartnerIn), weakPol(weakPolIn), isOctetOnium(isOctetOniumIn),
     isHiddenValley(isHiddenValleyIn), colvType(colvTypeIn), MEmix(MEmixIn),
     MEorder (MEorderIn), MEsplit(MEsplitIn), MEgluinoRec(MEgluinoRecIn),
-    isFlexible(isFlexibleIn), mass(massIn), idRadAft(idRadAftIn),
-    idEmtAft(idEmtAftIn), iSpectator(iSpectatorIn),
+    isFlexible(isFlexibleIn), flavour(0), iAunt(0), mass(massIn),
+    idRadAft(idRadAftIn), idEmtAft(idEmtAftIn), iSpectator(iSpectatorIn),
     allowedEmissions(allowedIn), iSiblings(iSiblingsIn) {
     mRad = m2Rad = mRec = m2Rec = mDip = m2Dip = m2DipCorr = pT2 = m2 = z
          = mFlavour = asymPol = flexFactor = phi = 0.;

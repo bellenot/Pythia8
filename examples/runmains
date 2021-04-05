@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (C) 2019 Torbjorn Sjostrand.
+# Copyright (C) 2020 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -35,6 +35,8 @@ LOGFILE="runmains.log"
 main16="main16.cmnd"
 main42="main42.cmnd hepmcout42.dat"
 main43="main43.cmnd hepmcout43.dat"
+main44="main44.cmnd hepmcout44.dat"
+main45="main44.cmnd hepmcout45.dat"
 main48="/hep/evtgen/share/DECAY_2010.DEC /hep/evtgen/share/evt.pdl "
 main48+=" /hep/evtgen/share/Pythia8/xmldoc/ true"
 main81="main81.cmnd w+_production_lhc_0.lhe histout81.dat"
@@ -108,7 +110,7 @@ for VAR in "$@"; do
 done
 
 # Build the parallel runs.
-MAINS=(*.cc); THREAD=0
+MAINS=(main*.cc); THREAD=0
 echo "${MAINS[@]}" > $LOGFILE
 if [ -z $THREADS ]; then THREADS=1; fi
 while ((THREAD < THREADS)); do

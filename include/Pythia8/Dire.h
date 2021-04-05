@@ -1,5 +1,5 @@
 // Dire.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -24,11 +24,11 @@
 #include "Pythia8/ParticleData.h"
 #include "Pythia8/Basics.h"
 #include "Pythia8/PartonSystems.h"
-#include "Pythia8/PhysicsBase.h"
 #include "Pythia8/UserHooks.h"
 #include "Pythia8/MergingHooks.h"
 #include "Pythia8/PartonVertex.h"
 #include "Pythia8/StandardModel.h"
+#include "Pythia8/ShowerModel.h"
 
 #include <iostream>
 #include <sstream>
@@ -37,7 +37,7 @@ namespace Pythia8 {
 
 //==========================================================================
 
-class Dire : public PhysicsBase {
+class Dire : public ShowerModel {
 
   public:
 
@@ -48,7 +48,7 @@ class Dire : public PhysicsBase {
     hasOwnSpace(false), hasOwnSplittings(false), hasOwnHooks(false),
     hasUserHooks(false), hasOwnHardProcess(false),
     hasOwnMergingHooks(false), initNewSettings(false), isInit(false),
-    isInitShower(false), printBannerSave(true) {}
+    isInitShower(false), printBannerSave(true) { createPointers(); }
 
   Dire( MergingHooksPtr mergingHooksPtrIn, PartonVertexPtr partonVertexPtrIn)
     :  pythiaMergingHooksPtr(mergingHooksPtrIn),
@@ -60,8 +60,7 @@ class Dire : public PhysicsBase {
     hasOwnSpace(false), hasOwnSplittings(false), hasOwnHooks(false),
     hasUserHooks(false), hasOwnHardProcess(false),
     hasOwnMergingHooks(false), initNewSettings(false), isInit(false),
-    isInitShower(false), printBannerSave(true) {
-  }
+    isInitShower(false), printBannerSave(true) { createPointers(); }
 
  ~Dire() {
     if (hasOwnWeights)      delete weightsPtr;
@@ -95,17 +94,38 @@ class Dire : public PhysicsBase {
     infoPtr->updateWeight(wt * pswt);
   }
 
-  bool init(BeamParticle* beamA, BeamParticle* beamB);
+  void createPointers();
+
+  // Initialization function called before beams are set up.
+  // Currently only to register objects as PhysicsBase (=initialize ptrs).
+  bool init(MergingPtr, MergingHooksPtr, PartonVertexPtr, WeightContainer*) {
+    subObjects.clear();
+    if (mergingHooksPtr) {
+      registerSubObject(*mergingHooksPtr);
+    }
+    if (mergingPtr) {
+      registerSubObject(*mergingPtr);
+    }
+    if (timesPtr)    registerSubObject(*timesPtr);
+    if (timesDecPtr) registerSubObject(*timesDecPtr);
+    if (spacePtr)    registerSubObject(*spacePtr);
+    return true;
+  }
+
+  // Initialization function called after beams are set up, used as main
+  // initialization.
+  bool initAfterBeams();
+
   void initTune();
   void initShowersAndWeights();
   void setup(BeamParticle* beamA, BeamParticle* beamB);
   void printBanner();
 
-  TimeShowerPtr  getTimesShower()    { return timesPtr; }
-  TimeShowerPtr  getTimesDecShower() { return timesDecPtr; }
-  SpaceShowerPtr getSpaceShower()    { return spacePtr; }
-  MergingHooksPtr getMergingHooks()  { return mergingHooksPtr; }
-  MergingPtr getMerging()            { return mergingPtr; }
+  TimeShowerPtr  getTimeShower() const   { return timesPtr; }
+  TimeShowerPtr  getTimeDecShower() const { return timesDecPtr; }
+  SpaceShowerPtr getSpaceShower() const   { return spacePtr; }
+  MergingHooksPtr getMergingHooks() const { return mergingHooksPtr; }
+  MergingPtr getMerging() const           { return mergingPtr; }
 
   MergingHooksPtr pythiaMergingHooksPtr;
   PartonVertexPtr partonVertexPtr;

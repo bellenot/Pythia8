@@ -1,5 +1,5 @@
 // VinciaDiagnostics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2020 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -8,7 +8,7 @@
 #ifndef VINCIA_DIAG_H
 #define VINCIA_DIAG_H
 
-#include "Pythia8/VinciaFSR.h"
+#include "Pythia8/UserHooks.h"
 
 //completely abstract class for user-defined diagnostics
 //to be used like UserHooks - but for diagnostic purposes only
@@ -17,7 +17,7 @@
 
 namespace Pythia8 {
 
-class VinciaDiagnostics{
+class VinciaDiagnostics : public UserHooks {
 
  public:
 

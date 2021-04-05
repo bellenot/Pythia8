@@ -1,5 +1,5 @@
 // DireWeightContainer.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -84,13 +84,14 @@ class DireWeightContainer {
 public:
 
   // Constructor.
-  DireWeightContainer() : card(""), PY8MEs_accessorPtr(NULL), beamA(NULL),
-    beamB(NULL), direInfoPtr(NULL)
+  DireWeightContainer() : card(""), PY8MEs_accessorPtr(nullptr),
+    settingsPtr(nullptr), beamA(nullptr), beamB(nullptr), direInfoPtr(nullptr)
     { init(); }
 
   DireWeightContainer(Settings* settingsPtrIn) : card(""),
-    PY8MEs_accessorPtr(NULL),
-    settingsPtr(settingsPtrIn), beamA(NULL), beamB(NULL), direInfoPtr(NULL)
+    PY8MEs_accessorPtr(nullptr),
+    settingsPtr(settingsPtrIn), beamA(nullptr), beamB(nullptr),
+    direInfoPtr(nullptr)
     { init(); }
 
   // Destructor.
@@ -109,9 +110,10 @@ public:
   void setup();
 
   void initPtrs(BeamParticle* beamAIn, BeamParticle* beamBIn,
-    DireInfo* direInfoPtrIn) {
+    Settings* settingsPtrIn, DireInfo* direInfoPtrIn) {
     beamA    = beamAIn;
     beamB    = beamBIn;
+    settingsPtr = settingsPtrIn;
     direInfoPtr = direInfoPtrIn;
     return;
   }

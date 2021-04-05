@@ -1,5 +1,5 @@
 // TimeShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -22,6 +22,7 @@
 #include "Pythia8/StandardModel.h"
 #include "Pythia8/UserHooks.h"
 #include "Pythia8/MergingHooks.h"
+#include "Pythia8/Weights.h"
 
 namespace Pythia8 {
 
@@ -42,10 +43,12 @@ public:
   // Initialize various pointers.
   // (Separated from rest of init since not virtual.)
   void initPtrs(MergingHooksPtr mergingHooksPtrIn,
-    PartonVertexPtr partonVertexPtrIn) {
+    PartonVertexPtr partonVertexPtrIn,
+    WeightContainer* weightContainerPtrIn) {
     coupSMPtr = infoPtr->coupSMPtr;
     mergingHooksPtr = mergingHooksPtrIn;
     partonVertexPtr = partonVertexPtrIn;
+    weightContainerPtr = weightContainerPtrIn;
   }
 
   // New beams possible for handling of hard diffraction. (Not virtual.)
@@ -161,10 +164,9 @@ public:
   // Pointer to MergingHooks object for NLO merging.
   MergingHooksPtr  mergingHooksPtr{};
 
-protected:
+  WeightContainer* weightContainerPtr{};
 
-  // Pointer to Standard Model couplings.
-  CoupSM*          coupSMPtr{};
+protected:
 
   // Beam location offset in event.
   int              beamOffset{};

@@ -1,5 +1,5 @@
 // LowEnergyProcess.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -731,7 +731,7 @@ double LowEnergyProcess::splitZ(int iq1, int iq2, double mRat1, double mRat2) {
   double x1, x2, x1a, x1b;
 
   // Handle mesons.
-  if (iq1Abs < 10 && iq1Abs < 10) {
+  if (iq1Abs < 10 && iq2Abs < 10) {
     do x1 = pow2( mRat1 + (1. - mRat1) * rndmPtr->flat() );
     while ( pow(1. - x1, xPowMes) < rndmPtr->flat() );
     do x2 = pow2( mRat2 + (1. - mRat2) * rndmPtr->flat() );

@@ -154,10 +154,10 @@ ul, ol {
     background-color: #ccc;
 }
 .expandAll:before {
-    content: "\25BA Expand ";
+    content: "\25BA\00A0 Expand ";
     color: #000000;
     display: inline;
 }
 .activeAll:before {
-    content: "\25BC Collapse ";
+    content: "\25BC\00A0 Collapse ";
 }

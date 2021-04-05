@@ -1,5 +1,5 @@
 // Pythia.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -30,7 +30,7 @@ namespace Pythia8 {
 
 // The current Pythia (sub)version number, to agree with XML version.
 const double Pythia::VERSIONNUMBERHEAD = PYTHIA_VERSION;
-const double Pythia::VERSIONNUMBERCODE = 8.301;
+const double Pythia::VERSIONNUMBERCODE = 8.302;
 
 //--------------------------------------------------------------------------
 
@@ -44,20 +44,17 @@ Pythia::Pythia(string xmlDir, bool printBanner) {
   // Find path to data files, i.e. xmldoc directory location.
   // Environment variable takes precedence, then constructor input,
   // and finally the pre-processor constant XMLDIR.
-  xmlPath = "";
-  const char* PYTHIA8DATA = "PYTHIA8DATA";
-  char* envPath = getenv(PYTHIA8DATA);
-  if (envPath != 0 && *envPath != '\0') {
-    int i = 0;
-    while (*(envPath+i) != '\0') xmlPath += *(envPath+(i++));
-  } else {
-    if (xmlDir[ xmlDir.length() - 1 ] != '/') xmlDir += "/";
+  const char* envPath = getenv("PYTHIA8DATA");
+  xmlPath = envPath ? envPath : "";
+  if (xmlPath == "") {
+    if (xmlDir.length() && xmlDir[xmlDir.length() - 1] != '/') xmlDir += "/";
     xmlPath = xmlDir;
     ifstream xmlFile((xmlPath + "Index.xml").c_str());
     if (!xmlFile.good()) xmlPath = XMLDIR;
     xmlFile.close();
   }
-  if (xmlPath[ xmlPath.length() - 1 ] != '/') xmlPath += "/";
+  if (xmlPath.empty() || (xmlDir.length() && xmlPath[xmlPath.length() - 1]
+      != '/')) xmlPath += "/";
 
   // Read in files with all flags, modes, parms and words.
   settings.initPtrs( &infoPrivate);
@@ -190,7 +187,7 @@ void Pythia::initPtrs() {
   // Setup of Info.
   infoPrivate.setPtrs( &settings, &particleData, &rndm, &coupSM, &coupSUSY,
     &beamA, &beamB, &beamPomA, &beamPomB, &beamGamA, &beamGamB,
-    &beamVMDA, &beamVMDB, &partonSystems, &sigmaTot);
+    &beamVMDA, &beamVMDB, &partonSystems, &sigmaTot, &weightContainer);
   registerPhysicsBase(processLevel);
   registerPhysicsBase(partonLevel);
   registerPhysicsBase(trialPartonLevel);
@@ -832,92 +829,47 @@ bool Pythia::init() {
     partonVertexPtr->init();
   }
 
-  // Default parton showers, alternatively external plugin.
-  Vincia* vinciaPtr  = nullptr;
-  Dire*   direPtr    = nullptr;
-  if (showerModel == 1) {
-
-    // Set up objects for timelike and spacelike showers.
-    if (timesDecPtr == 0 || timesPtr == 0) {
-      TimeShowerPtr timesNow = make_shared<SimpleTimeShower>();
-      registerPhysicsBase(*timesNow);
-      if (timesDecPtr == 0) {
-        timesDecPtr    = timesNow;
-      }
-      if (timesPtr == 0) {
-        timesPtr    = timesNow;
-      }
-    }
-    if (spacePtr == 0) {
-      spacePtr    = make_shared<SimpleSpaceShower>();
-      registerPhysicsBase(*spacePtr);
-    }
-
-   // The Vincia shower
-  } else if (showerModel == 2) {
-    // Create new Vincia pointer and set Pythia's shower pointers.
-    vinciaPtr   = new Vincia( &slhaInterface.slha);
-    registerPhysicsBase(*vinciaPtr);
-    vinciaPtr->initPrel();
-    timesPtr    = vinciaPtr->getTimesShower();
-    registerPhysicsBase(*timesPtr);
-    timesDecPtr = vinciaPtr->getTimesDecShower();
-    registerPhysicsBase(*timesDecPtr);
-    spacePtr    = vinciaPtr->getSpaceShower();
-    registerPhysicsBase(*spacePtr);
-
-  // Set up the Dire shower object.
-  // Do we want to have a fallback solution in case of failed initialization?
-  } else {
-    direPtr    = new Dire( mergingHooksPtr, partonVertexPtr);
-    if (direPtr == 0) {
-      infoPrivate.errorMsg
-        ("Abort in Pythia::init: could not create Dire shower");
-      return false;
-    }
-    registerPhysicsBase(*direPtr);
-    direPtr->initShowersAndWeights();
-    timesPtr           = direPtr->getTimesShower();
-    registerPhysicsBase(*timesPtr);
-    timesDecPtr        = direPtr->getTimesDecShower();
-    if (timesDecPtr != timesPtr) registerPhysicsBase(*timesDecPtr);
-    spacePtr           = direPtr->getSpaceShower();
-    registerPhysicsBase(*spacePtr);
-    mergingHooksPtr    = direPtr->getMergingHooks();
-    mergingPtr         = direPtr->getMerging();
-    if (doMerging && mergingHooksPtr !=0) {
-      string lhefIn = (frameType == 4) ? lhef : "";
-      mergingHooksPtr->setLHEInputFile( lhefIn);
-      registerPhysicsBase(*mergingHooksPtr);
-      mergingHooksPtr->init();
-    }
+  // Set up and initialize the ShowerModel (if not provided by user).
+  if ( !showerModelPtr ) {
+    if ( showerModel == 2 )
+      showerModelPtr = make_shared<Vincia>();
+    else if (showerModel == 3 )
+      showerModelPtr = make_shared<Dire>();
+    else
+      showerModelPtr = make_shared<SimpleShowerModel>();
+    // Register shower model as physicsBase object (also sets pointers)
+    registerPhysicsBase(*showerModelPtr);
   }
 
-  // Initialize pointers in showers.
-  if ( timesPtr )
-    timesPtr->initPtrs( mergingHooksPtr, partonVertexPtr);
-  if ( timesDecPtr && timesDecPtr != timesPtr )
-    timesDecPtr->initPtrs( mergingHooksPtr, partonVertexPtr);
-  if ( spacePtr )
-    spacePtr->initPtrs( mergingHooksPtr, partonVertexPtr);
+  // Initialise shower model
+  if ( !showerModelPtr->init(mergingPtr, mergingHooksPtr,
+    partonVertexPtr, &weightContainer) ) {
+    infoPrivate.errorMsg("Abort from Pythia::init: "
+      "Shower model failed to initialise.");
+    return false;
+  }
 
-  // Set up and initialize the ShowerModel.
-  //if ( !showerModelPtr ) {
-    // if ( showerModel == 2 )
-    //   showerModelPtr = make_shared<Vincia>();
-    // else if (shiwerModel == 3 )
-    //   showerModelPtr = make_shared<Dire>();
-    // else
-    //  showerModelPtr = make_shared<SimpleShowerModel>();
-    //registerPhysicsBase(*showerModelPtr);
-  //}
-  //if ( !showerModelPtr->init(mergingPtr, mergingHooksPtr) ) {
-  //  infoPrivate.errorMsg("Abort from Pythia::init: "
-  //    "Shower model failed to initialise.");
-  //  return false;
-  //}
-  //mergingPtr = showerModelPtr->getMerging();
-  //mergingHooksPtr = showerModelPtr->getMergingHooks();
+  // Get relevant pointers from shower models.
+  if (doMerging && showerModel != 1) {
+    mergingPtr  = showerModelPtr->getMerging();
+    mergingHooksPtr = showerModelPtr->getMergingHooks();
+  }
+  timesPtr    = showerModelPtr->getTimeShower();
+  timesDecPtr = showerModelPtr->getTimeDecShower();
+  spacePtr    = showerModelPtr->getSpaceShower();
+
+  // Initialize pointers in showers.
+  if (showerModel == 1 || showerModel == 3) {
+    if ( timesPtr )
+      timesPtr->initPtrs( mergingHooksPtr, partonVertexPtr,
+        &weightContainer);
+    if ( timesDecPtr && timesDecPtr != timesPtr )
+      timesDecPtr->initPtrs( mergingHooksPtr, partonVertexPtr,
+        &weightContainer);
+    if ( spacePtr )
+      spacePtr->initPtrs( mergingHooksPtr, partonVertexPtr,
+        &weightContainer);
+  }
 
   // At this point, the mergingPtr should be set. If that is not the
   // case, then the initialization should be aborted.
@@ -1015,40 +967,15 @@ bool Pythia::init() {
     }
   }
 
-  // Initialize shower handlers.
-  if (showerModel == 1) { ;
-
-  } else if (showerModel == 2) {
-    // Initialize Vincia.
-    // First establish Vincia-specific default tune settings.
-
-    // (Store any user-supplied settings; reapply them after initialising
-    //  tune, ignoring any tune:ee or tune:pp commands.)
-    string vinciaDefaults = vinciaPtr->tuneFile();
-    if (vinciaDefaults != "none") {
-      vector<string> readStringHistory = settings.getReadHistory();
-      readFile(vinciaDefaults);
-      for (int i=0; i<(int)readStringHistory.size(); ++i) {
-        string lineNow = toLower(readStringHistory[i]);
-        if (lineNow.find("tune:ee") == string::npos && lineNow.find("tune:pp")
-          == string::npos) readString(lineNow);
-      }
-    }
-
-    // Now initialise Vincia
-    if (!vinciaPtr->init()) {
-      infoPrivate.errorMsg("Abort in Pythia::init: "
-        "Vincia shower initialization failed.");
-      return false;
-    }
-
-  } else {
-    // Initialize Dire.
-    if (!direPtr->init(&beamA, &beamB)) {
-      infoPrivate.errorMsg("Abort in Pythia::init: "
-        "Fail to initialize Dire shower");
-      return false;
-    }
+  // Initialize shower handlers using intialized beams.
+  if (!showerModelPtr->initAfterBeams()) {
+    string message = "Abort in Pythia::init: Fail to initialize ";
+    if      (showerModel==1) message += "default";
+    else if (showerModel==2) message += "Vincia";
+    else if (showerModel==3) message += "Dire";
+    message += " shower.";
+    infoPrivate.errorMsg(message);
+    return false;
   }
 
   // Initialize timelike showers already here, since needed in decays.
@@ -1611,6 +1538,7 @@ bool Pythia::next() {
 
     // Reset info and partonSystems arrays (while event record contains data).
     infoPrivate.clear();
+    weightContainer.clear();
     partonSystems.clear();
 
     // Set correct energy for system.
@@ -1640,6 +1568,7 @@ bool Pythia::next() {
 
   // Reset arrays.
   infoPrivate.clear();
+  weightContainer.clear();
   process.clear();
   event.clear();
   partonSystems.clear();
@@ -1778,8 +1707,10 @@ bool Pythia::next() {
       hasVetoed = false;
 
       // Restore original process record if problems.
-      if (iTry > 0) process = processSave;
-      if (iTry > 0) infoPrivate.resizeMPIarrays( sizeMPI);
+      if (iTry > 0) {
+        process = processSave;
+        infoPrivate.resizeMPIarrays( sizeMPI);
+      }
 
       // Reset event record and (extracted partons from) beam remnants.
       event.clear();
@@ -2447,7 +2378,7 @@ void Pythia::banner() {
        << setw(5) << versionNumber << "      |  | \n"
        << " |  |   PPP     Y      T    HHHHH   I   AAAAA"
        << "    Last date of change: " << setw(2) << versionDate%100
-       << " " << month[ (versionDate/100)%100 - 1 ]
+       << " " << month[ min(11, (versionDate/100)%100 - 1) ]
        << " " << setw(4) << versionDate/10000 <<  "  |  | \n"
        << " |  |   P       Y      T    H   H   I   A   A"
        << "                                      |  | \n"
@@ -2509,8 +2440,8 @@ void Pythia::banner() {
        << "E-223 62 Lund, Sweden;                |  | \n"
        << " |  |      e-mail: torbjorn@thep.lu.se       "
        << "                                      |  | \n"
-       << " |  |   Peter Skands;  School of Physics,    "
-       << "                                      |  | \n"
+       << " |  |   Peter Skands;  School of Physics and "
+       << "Astronomy,                            |  | \n"
        << " |  |      Monash University, PO Box 27, 3800"
        << " Melbourne, Australia;                |  | \n"
        << " |  |      e-mail: peter.skands@monash.edu   "
@@ -2549,7 +2480,7 @@ void Pythia::banner() {
        << " when interpreting results.           |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
-       << " |  |   Copyright (C) 2019 Torbjorn Sjostrand"
+       << " |  |   Copyright (C) 2020 Torbjorn Sjostrand"
        << "                                      |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
@@ -2731,9 +2662,7 @@ bool Pythia::check() {
     bool checkMass = event[i].statusAbs() != 49 && event[i].statusAbs() != 59;
 
     // Look for particles with mismatched or not-a-number energy/momentum/mass.
-    if (abs(event[i].px()) >= 0. && abs(event[i].py()) >= 0.
-      && abs(event[i].pz()) >= 0.  && abs(event[i].e()) >= 0.
-      && abs(event[i].m()) >= 0.) {
+    if (isfinite(event[i].p()) && isfinite(event[i].m())) {
       double errMass = abs(event[i].mCalc() - event[i].m())
         / max( 1.0, event[i].e());
       if (checkMass && errMass > mTolErr) {
@@ -2753,9 +2682,7 @@ bool Pythia::check() {
     }
 
     // Look for particles with not-a-number vertex/lifetime.
-    if (abs(event[i].xProd()) >= 0. && abs(event[i].yProd()) >= 0.
-      && abs(event[i].zProd()) >= 0.  && abs(event[i].tProd()) >= 0.
-      && abs(event[i].tau()) >= 0.) ;
+    if (isfinite(event[i].vProd()) && isfinite(event[i].tau())) ;
     else {
       infoPrivate.errorMsg("Error in Pythia::check: "
         "not-a-number vertex/lifetime");
@@ -2949,8 +2876,7 @@ bool Pythia::check() {
     infoPrivate.list();
     event.list(listVertices, listHistory);
     if (listSystems) partonSystems.list();
-    if (listBeams) beamA.list();
-    if (listBeams) beamB.list();
+    if (listBeams) {beamA.list(); beamB.list();}
   }
 
   // Update error counter. Done also for flawed event.
@@ -3004,9 +2930,6 @@ PDFPtr Pythia::getPDFPtr(int idIn, int sequence, string beam, bool resolved) {
     else if (pSet <= 12)
       tempPDFPtr = make_shared<CTEQ6pdf>(idIn, pSet - 6, 1.,
         pdfdataPath, &infoPrivate);
-    else if (pSet <= 16)
-      tempPDFPtr = make_shared<NNPDF>
-        (idIn, pSet - 12, pdfdataPath, &infoPrivate);
     else if (pSet <= 22)
       tempPDFPtr = make_shared<LHAGrid1>
         (idIn, pWord, pdfdataPath, &infoPrivate);

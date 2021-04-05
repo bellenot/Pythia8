@@ -1,5 +1,5 @@
 // ShowerModel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -39,14 +39,20 @@ public:
   // Derived classes should create objects of the specific model objects
   // to be used. Pointers to merging and merging hooks may be overwritten
   // in derived classes.
-  virtual bool init(MergingPtr mergPtrIn, MergingHooksPtr mergHooksPtrIn) = 0;
+  virtual bool init(MergingPtr mergPtrIn, MergingHooksPtr mergHooksPtrIn,
+    PartonVertexPtr partonVertexPtrIn,
+    WeightContainer* weightContainerPtrIn) = 0;
+
+  // Function called from Pythia after the beam particles have been set up,
+  // so that showers may be initialized after the beams are initialized.
+  virtual bool initAfterBeams() = 0;
 
   // Access the pointers to the different model components.
-  TimeShowerPtr   getTimeShower() const { return timesPtr; }
-  TimeShowerPtr   getTimeDecShower() const { return timesDecPtr; }
-  SpaceShowerPtr  getSpaceShower() const { return spacePtr; }
-  MergingPtr      getMerging() const { return mergingPtr; }
-  MergingHooksPtr getMergingHooks() const { return mergingHooksPtr; }
+  virtual TimeShowerPtr   getTimeShower() const { return timesPtr; }
+  virtual TimeShowerPtr   getTimeDecShower() const { return timesDecPtr; }
+  virtual SpaceShowerPtr  getSpaceShower() const { return spacePtr; }
+  virtual MergingPtr      getMerging() const { return mergingPtr; }
+  virtual MergingHooksPtr getMergingHooks() const { return mergingHooksPtr; }
 
 protected:
 
@@ -83,7 +89,14 @@ public:
   virtual ~SimpleShowerModel() {}
 
   // Function called from Pythia after the basic pointers has been set.
-  virtual bool init(MergingPtr mergPtrIn, MergingHooksPtr mergHooksPtrIn);
+  virtual bool init(MergingPtr mergPtrIn, MergingHooksPtr mergHooksPtrIn,
+                    PartonVertexPtr partonVertexPtrIn,
+                    WeightContainer* weightContainerPtrIn);
+
+  // Function called from Pythia after the beam particles have been set up,
+  // so that showers may be initialized after the beams are initialized.
+  // Currently only dummy dunction.
+  virtual bool initAfterBeams() { return true; }
 
 };
 

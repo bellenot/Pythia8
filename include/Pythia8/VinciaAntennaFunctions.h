@@ -1,5 +1,5 @@
 // VinciaAntennaFunctions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2020 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -67,7 +67,7 @@ class AntennaFunction {
 public:
 
   // Constructor.
-  AntennaFunction();
+  AntennaFunction() = default;
 
   // Destructor
   virtual ~AntennaFunction() {};
@@ -80,7 +80,7 @@ public:
   virtual int idB() const = 0;
   virtual int id1() const = 0;
 
-  // The (dimensionful) antenna function
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> mNew,
     vector<int> helBef, vector<int> helNew) = 0;
 
@@ -152,48 +152,48 @@ public:
 protected:
 
   // Is initialized.
-  bool isInitPtr, isInit;
+  bool isInitPtr{false}, isInit{false};
 
   // Charge factor, kinematics map, and subleading-colour treatment.
-  double chargeFacSav;
-  int kineMapSav, modeSLC;
-  bool sectorShower;
+  double chargeFacSav{0.0};
+  int kineMapSav{0}, modeSLC{-1};
+  bool sectorShower{false};
 
   // The alpha collinear-partitioning parameter.
-  double alphaSav;
+  double alphaSav{0.0};
 
   // The sector-shower collinear dampening parameter.
-  double sectorDampSav;
+  double sectorDampSav{0.0};
 
   // Shorthand for commonly used variable(s).
-  double term, preFacFiniteTermSav, antMinSav;
-  bool   isMinVar;
+  double term{}, preFacFiniteTermSav{0.0}, antMinSav{0.0};
+  bool   isMinVar{};
 
   // Variables for internal storage of masses and helicities.
-  double mi, mj, mk;
-  int hA, hB, hi, hj, hk;
+  double mi{0.0}, mj{0.0}, mk{0.0};
+  int hA{9}, hB{9}, hi{9}, hj{9}, hk{9};
 
   // Map to tell whether a given helicity value maps to L- and/or
   // R-handed. Defined by constructor and not to be changed
   // dynamically.
-  map<int, bool> LH;
-  map<int, bool> RH;
+  map<int, bool> LH{{9, true}, {1, false}, {-1, true}};
+  map<int, bool> RH{{9, true}, {1, true},  {-1, false}};
 
   // Verbosity level.
-  int verbose;
+  int verbose{1};
 
   // Pointers to Pythia8 classes.
-  Info*         infoPtr;
-  ParticleData* particleDataPtr;
-  Settings*     settingsPtr;
-  Rndm*         rndmPtr;
+  Info*         infoPtr{};
+  ParticleData* particleDataPtr{};
+  Settings*     settingsPtr{};
+  Rndm*         rndmPtr{};
 
   // Pointer to VINCIA DGLAP class.
-  DGLAP* dglapPtr;
+  DGLAP* dglapPtr{};
 
   // Dummy vectors.
-  vector<double> mDum;
-  vector<int> hDum;
+  vector<double> mDum{0, 0, 0, 0};
+  vector<int> hDum{9, 9, 9, 9};
 
 };
 
@@ -213,12 +213,12 @@ public:
   virtual int idB() const {return -1;}
   virtual int id1() const {return 21;}
 
-  // The dimensionless antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> mNew,
     vector<int> helBef, vector<int> helNew);
 
   // Function to give Altarelli-Parisi limits of this antenna.
-  // Defined as PI/yij + PK/yjk, i.e. equivalent to antennae.
+  // Defined as PI/sij + PK/sjk, i.e. equivalent to antennae.
   virtual double AltarelliParisi(vector<double> invariants,
     vector<double>, vector<int> helBef, vector<int> helNew);
 
@@ -240,7 +240,7 @@ public:
   virtual int idB() const {return 21;}
   virtual int id1() const {return 21;}
 
-  // The dimensionless antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants,
     vector<double> mNew, vector<int> helBef, vector<int> helNew);
 
@@ -266,7 +266,7 @@ public:
   virtual int idB() const {return -1;}
   virtual int id1() const {return 21;}
 
-  // The dimensionless antenna function (derived from QGEmit by swapping).
+  // The antenna function [GeV^-2] (derived from QGEmit by swapping).
   virtual double antFun(vector<double> invariants,
     vector<double> mNew, vector<int> helBef, vector<int> helNew);
 
@@ -292,7 +292,7 @@ public:
   virtual int idB()    const {return 21;}
   virtual int id1()    const {return 21;}
 
-  // The dimensionless antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants,
     vector<double> mNew, vector<int> helBef, vector<int> helNew);
 
@@ -318,7 +318,7 @@ public:
   virtual int idB() const {return  0;}
   virtual int id1() const {return -1;}
 
-  // The dimensionless antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants,
     vector<double> mNew, vector<int> helBef, vector<int> helNew);
 
@@ -344,7 +344,7 @@ class QGEmitFFsec : public QGEmitFF {
 
 public:
 
-  // The dimensionless antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants,
     vector<double> mNew, vector<int> helBef, vector<int> helNew);
 
@@ -364,7 +364,7 @@ public:
   virtual int idB() const {return -1;}
   virtual int id1() const {return 21;}
 
-  // The dimensionless antenna function (derived from QGEmitFFsec by swapping).
+  // The antenna function [GeV^-2] (derived from QGEmitFFsec by swapping).
   virtual double antFun(vector<double> invariants,
     vector<double> mNew, vector<int> helBef, vector<int> helNew);
 
@@ -398,7 +398,7 @@ class GXSplitFFsec : public GXSplitFF {
 
  public:
 
-  // The dimensionless antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> mNew,
     vector<int> helBef, vector<int> helNew);
 
@@ -461,7 +461,7 @@ public:
   virtual int id1() const {return 21;}
   virtual int id2() const {return -1;}
 
-  // The antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
     vector<int> helBef, vector<int> helNew);
 
@@ -517,7 +517,7 @@ public:
   virtual int id1() const {return 21;}
   virtual int id2() const {return 21;}
 
-  // The antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
     vector<int> helBef, vector<int> helNew);
 
@@ -547,7 +547,7 @@ public:
   virtual int id1() const {return -1;}
   virtual int id2() const {return 0;}
 
-  // The antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
     vector<int> helBef, vector<int> helNew);
 
@@ -579,7 +579,7 @@ public:
   virtual int id1() const {return 2;}
   virtual int id2() const {return 0;}
 
-  // The antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
     vector<int> helBef, vector<int> helNew);
 
@@ -683,7 +683,7 @@ public:
   virtual int id1() const {return 21;}
   virtual int id2() const {return -1;}
 
-  // The antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
     vector<int> helBef, vector<int> helNew);
 
@@ -717,7 +717,7 @@ public:
   virtual int id1() const {return 21;}
   virtual int id2() const {return 21;}
 
-  // The antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
     vector<int> helBef, vector<int> helNew);
 
@@ -745,7 +745,7 @@ public:
   virtual int id1() const {return 21;}
   virtual int id2() const {return 1;}
 
-  // The antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
     vector<int> helBef, vector<int> helNew);
 
@@ -773,7 +773,7 @@ public:
   virtual int id1() const {return 21;}
   virtual int id2() const {return 21;}
 
-  // The antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
     vector<int> helBef, vector<int> helNew);
 
@@ -803,7 +803,7 @@ public:
   virtual int id1() const {return -1;}
   virtual int id2() const {return 0;}
 
-  // The antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
     vector<int> helBef, vector<int> helNew);
 
@@ -834,7 +834,7 @@ public:
   virtual int id1() const {return 2;}
   virtual int id2() const {return 0;}
 
-  // The antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
     vector<int> helBef, vector<int> helNew);
 
@@ -866,7 +866,7 @@ public:
   virtual int id1() const {return -1;}
   virtual int id2() const {return 1;}
 
-  // The antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
     vector<int> helBef, vector<int> helNew);
 
@@ -891,7 +891,7 @@ class QGEmitIFsec : public QGEmitIF {
 
 public:
 
-  // The dimensionless antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants,
     vector<double> mNew, vector<int> helBef, vector<int> helNew);
 
@@ -905,7 +905,7 @@ class GGEmitIFsec : public GGEmitIF {
 
 public:
 
-  // The dimensionless antenna function.
+  // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants,
     vector<double> mNew, vector<int> helBef, vector<int> helNew);
 
@@ -920,7 +920,7 @@ class XGSplitIFsec : public XGSplitIF {
 
 public:
 
-  // The dimensionless antenna function, just 2*global.
+  // The antenna function, just 2*global [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> mNew,
     vector<int> helBef, vector<int> helNew);
 
@@ -1047,7 +1047,7 @@ class AntennaSetFSR {
 public:
 
   // Default constructor.
-  AntennaSetFSR() {isInitPtr = false; isInit = false;}
+  AntennaSetFSR() = default;
 
   // Destructor, delete the antennae.
   virtual ~AntennaSetFSR() {
@@ -1083,20 +1083,20 @@ private:
 
   // Use a map of AntennaFunction pointers, create them with new on
   // initialization.
-  map<int,AntennaFunction*> antFunPtrs;
+  map<int,AntennaFunction*> antFunPtrs{};
 
   // Pointers to Pythia8 classes, needed to initialise antennae.
-  bool isInitPtr, isInit;
-  Info*         infoPtr;
-  ParticleData* particleDataPtr;
-  Settings*     settingsPtr;
-  Rndm*         rndmPtr;
+  bool isInitPtr{false}, isInit{false};
+  Info*         infoPtr{};
+  ParticleData* particleDataPtr{};
+  Settings*     settingsPtr{};
+  Rndm*         rndmPtr{};
 
   // Pointer to VINCIA DGLAP class.
-  DGLAP* dglapPtr;
+  DGLAP* dglapPtr{};
 
   // Verbosity level
-  int verbose;
+  int verbose{};
 
 };
 
@@ -1109,7 +1109,7 @@ class AntennaSetISR {
  public:
 
   // Default constructor.
-  AntennaSetISR() {isInitPtr = false; isInit = false;}
+  AntennaSetISR() = default;
 
   // Destructor, delete the antennae.
   ~AntennaSetISR() {
@@ -1145,20 +1145,20 @@ private:
 
   // Use a map of AntennaFunction pointers, create them with new on
   // initialization.
-  map<int,AntennaFunctionIX*> antFunPtrs;
+  map<int,AntennaFunctionIX*> antFunPtrs{};
 
   // Pointers to Pythia 8 classes, needed to initialise antennae.
-  bool isInitPtr, isInit;
-  Info*         infoPtr;
-  ParticleData* particleDataPtr;
-  Settings*     settingsPtr;
-  Rndm*         rndmPtr;
+  bool isInitPtr{false}, isInit{false};
+  Info*         infoPtr{};
+  ParticleData* particleDataPtr{};
+  Settings*     settingsPtr{};
+  Rndm*         rndmPtr{};
 
   // Pointer to VINCIA DGLAP class
-  DGLAP* dglapPtr;
+  DGLAP* dglapPtr{};
 
   // Verbosity level
-  int verbose;
+  int verbose{};
 
 };
 

@@ -1,5 +1,5 @@
 // SigmaExtraDim.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -32,25 +32,25 @@ complex ampLedS(double x, double n, double L, double M) {
   if (x < 0) {
     double sqrX = sqrt(-x);
     if (int(n) % 2 == 0) {
-      cS = -log(fabs(1 - 1/x));
+      cS = -log(abs(1 - 1/x));
     } else {
       cS = (2.*atan(sqrX) - M_PI)/sqrX;
     }
   } else if ((x > 0) && (x < 1)) {
     double sqrX = sqrt(x);
     if (int(n) % 2 == 0) {
-      cS = -log(fabs(1 - 1/x)) - M_PI*I;
+      cS = -log(abs(1 - 1/x)) - M_PI*I;
     } else {
       double rat = (sqrX + 1)/(sqrX - 1);
-      cS = log(fabs(rat))/sqrX - M_PI*I/sqrX;
+      cS = log(abs(rat))/sqrX - M_PI*I/sqrX;
     }
   } else if (x > 1){
     double sqrX = sqrt(x);
     if (int(n) % 2 == 0) {
-      cS = -log(fabs(1 - 1/x));
+      cS = -log(abs(1 - 1/x));
     } else {
       double rat = (sqrX + 1)/(sqrX - 1);
-      cS = log(fabs(rat))/sqrX;
+      cS = log(abs(rat))/sqrX;
     }
   }
 

@@ -1,5 +1,5 @@
 // VinciaQED.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2020 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -111,7 +111,7 @@ void HungarianAlgorithm::optimal(int *assignment, double *cost,
       // Steps 1 and 2a.
       for (row = 0; row<nOfRows; row++)
         for (col = 0; col<nOfColumns; col++)
-          if (fabs(distMatrix[row + nOfRows*col]) < DBL_EPSILON)
+          if (abs(distMatrix[row + nOfRows*col]) < DBL_EPSILON)
             if (!coveredColumns[col]) {
               starMatrix[row + nOfRows*col] = true;
               coveredColumns[col] = true;
@@ -139,7 +139,7 @@ void HungarianAlgorithm::optimal(int *assignment, double *cost,
     // Steps 1 and 2a.
     for (col = 0; col<nOfColumns; col++)
       for (row = 0; row<nOfRows; row++)
-        if (fabs(distMatrix[row + nOfRows*col]) < DBL_EPSILON)
+        if (abs(distMatrix[row + nOfRows*col]) < DBL_EPSILON)
           if (!coveredRows[row]) {
             starMatrix[row + nOfRows*col] = true;
             coveredColumns[col] = true;
@@ -266,7 +266,7 @@ void HungarianAlgorithm::step3(int *assignment, double *distMatrix,
       for (col = 0; col<nOfColumns; col++)
         if (!coveredColumns[col])
           for (row = 0; row<nOfRows; row++)
-            if ((!coveredRows[row]) && (fabs(distMatrix[row + nOfRows*col])
+            if ((!coveredRows[row]) && (abs(distMatrix[row + nOfRows*col])
                                         < DBL_EPSILON)) {
               // Prime zero.
               primeMatrix[row + nOfRows*col] = true;
@@ -673,7 +673,7 @@ double QEDemitElemental::generateTrial(Event &event, double q2Start,
   // RF.
   if (isRF) {
     // Compute phase space constants.
-    double mr2 = fabs((event[x].p() - event[y].p()).m2Calc());
+    double mr2 = abs((event[x].p() - event[y].p()).m2Calc());
     double mx = sqrt(mx2);
     double my = sqrt(my2);
     double mr = sqrt(mr2);
@@ -735,7 +735,7 @@ double QEDemitElemental::generateTrial(Event &event, double q2Start,
             double zetaNew = zetaSav - f/fPrime;
             if (zetaNew > zMax) {zetaSav = zMax; continue;}
             if (zetaNew < zMin) {zetaSav = zMin; continue;}
-            if (fabs(zetaNew - zetaSav) < 1E-8*zetaNew) {
+            if (abs(zetaNew - zetaSav) < 1E-8*zetaNew) {
               zetaSav = zetaNew;
               break;
             }
@@ -815,7 +815,7 @@ void QEDemitSystem::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
 
   // Verbose setting.
   if (!isInitPtr)
-    printErr(__METHOD_NAME__, "QEDemitSystem:initPtr not called");
+    printOut(__METHOD_NAME__,"QEDemitSystem:initPtr not called");
   verbose = verboseIn;
 
   // Set beam pointers.
@@ -843,7 +843,7 @@ void QEDemitSystem::prepare(int iSysIn, Event &event, double q2CutIn,
   bool isBelowHadIn, vector<double> evolutionWindowsIn, AlphaEM alIn) {
 
   if (!isInit) {
-    printErr(__METHOD_NAME__, "Not initialised.");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Not initialised.");
     return;
   }
 
@@ -999,13 +999,13 @@ double QEDemitSystem::PDFratio(bool isA, double eOld, double eNew, int id,
   if (isA) {
     newPDF = beamAPtr->xfISR(iSys, id, xNew, Qt2)/xNew;
     oldPDF = beamAPtr->xfISR(iSys, id, xOld, Qt2)/xOld;
-    if (fabs(newPDF) < TINYPDF) newPDF = TINYPDF;
-    if (fabs(oldPDF) < TINYPDF) oldPDF = TINYPDF;
+    if (abs(newPDF) < TINYPDF) newPDF = TINYPDF;
+    if (abs(oldPDF) < TINYPDF) oldPDF = TINYPDF;
   } else {
     newPDF = beamBPtr->xfISR(iSys, id, xNew, Qt2)/xNew;
     oldPDF = beamBPtr->xfISR(iSys, id, xOld, Qt2)/xOld;
-    if (fabs(newPDF) < TINYPDF) newPDF = TINYPDF;
-    if (fabs(oldPDF) < TINYPDF) oldPDF = TINYPDF;
+    if (abs(newPDF) < TINYPDF) newPDF = TINYPDF;
+    if (abs(oldPDF) < TINYPDF) oldPDF = TINYPDF;
   }
   return newPDF/oldPDF;
 }
@@ -1089,7 +1089,8 @@ void QEDemitSystem::buildSystem(Event &event) {
           }
         }
         if (iEv == iPseudoVec.back()) {
-          printErr(__METHOD_NAME__, "warning; colour tracing failed.");
+          infoPtr->errorMsg("Error in "+__METHOD_NAME__
+            +": Colour tracing failed.");
           break;
         }
         iPseudoVec.push_back(iEv);
@@ -1202,8 +1203,8 @@ void QEDemitSystem::buildSystem(Event &event) {
     }
 
     if (chargeTypeTot != 0) {
-      printOut(__METHOD_NAME__,
-        "Charge not conserved above hadronization scale");
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": Charge not conserved above hadronization scale");
       if (verbose >= superdebug) {
         printOut(__METHOD_NAME__, "Printing events and systems");
         event.list();
@@ -1316,7 +1317,8 @@ double QEDemitSystem::generateTrialScale(Event &event, double q2Start) {
   int iEvol = evolutionWindows.size() - 1;
   while (iEvol >= 1 && q2Start <= evolutionWindows[iEvol]) iEvol--;
   double q2Low = evolutionWindows[iEvol];
-  if (q2Low < 0) printOut(__METHOD_NAME__, "Evolution window < 0");
+  if (q2Low < 0)
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Evolution window < 0");
   double q2Trial = 0;
 
   // Generate a scale.
@@ -1500,7 +1502,8 @@ bool QEDemitSystem::checkVeto(Event &event) {
 
     // Check if nothing got messed up along the way.
     if (pRec.size() != iRec.size()) {
-      printOut(__METHOD_NAME__, "RF Kinematics got messed up");
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": inconsistent recoilers in RF kinematics.");
       return false;
     }
   }
@@ -2021,7 +2024,7 @@ void QEDsplitSystem::prepare(int iSysIn, Event &event, double q2CutIn,
   bool isBelowHadIn, vector<double> evolutionWindowsIn, AlphaEM alIn) {
 
   if (!isInit) {
-    printErr(__METHOD_NAME__, "Not initialised.");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Not initialised.");
     return;
   }
   if (verbose >= louddebug) printOut(__METHOD_NAME__, "begin --------------");
@@ -2363,7 +2366,7 @@ void QEDconvSystem::prepare(int iSysIn, Event &event, double q2CutIn,
   bool isBelowHadIn, vector<double> evolutionWindowsIn, AlphaEM alIn) {
 
   if (!isInit) {
-    printErr(__METHOD_NAME__, "Not initialised.");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Not initialised.");
     return;
   }
   if (verbose >= louddebug) printOut(__METHOD_NAME__, "begin --------------");
@@ -2575,29 +2578,29 @@ bool QEDconvSystem::checkVeto(Event &event) {
     // Photon pdf.
     double newPDFPhot = beamAPtr->xfISR(iSys, idTrial, xPhotNew, q2Trial);
     double oldPDFPhot = beamAPtr->xfISR(iSys, 22,      xPhotOld, q2Trial);
-    if (fabs(newPDFPhot) < TINYPDF) newPDFPhot = TINYPDF;
-    if (fabs(oldPDFPhot) < TINYPDF) oldPDFPhot = TINYPDF;
+    if (abs(newPDFPhot) < TINYPDF) newPDFPhot = TINYPDF;
+    if (abs(oldPDFPhot) < TINYPDF) oldPDFPhot = TINYPDF;
     Rpdf *= newPDFPhot/oldPDFPhot;
 
     // Spectator pdf.
     double newPDFSpec = beamBPtr->xfISR(iSys, idSpec, xSpecNew, q2Trial);
     double oldPDFSpec = beamBPtr->xfISR(iSys, idSpec, xSpecOld, q2Trial);
-    if (fabs(newPDFSpec) < TINYPDF) newPDFSpec = TINYPDF;
-    if (fabs(oldPDFSpec) < TINYPDF) oldPDFSpec = TINYPDF;
+    if (abs(newPDFSpec) < TINYPDF) newPDFSpec = TINYPDF;
+    if (abs(oldPDFSpec) < TINYPDF) oldPDFSpec = TINYPDF;
     Rpdf *= newPDFSpec/oldPDFSpec;
   } else {
     // Photon pdf.
     double newPDFPhot = beamBPtr->xfISR(iSys, idTrial, xPhotNew, q2Trial);
     double oldPDFPhot = beamBPtr->xfISR(iSys, 22,      xPhotOld, q2Trial);
-    if (fabs(newPDFPhot) < TINYPDF) newPDFPhot = TINYPDF;
-    if (fabs(oldPDFPhot) < TINYPDF) oldPDFPhot = TINYPDF;
+    if (abs(newPDFPhot) < TINYPDF) newPDFPhot = TINYPDF;
+    if (abs(oldPDFPhot) < TINYPDF) oldPDFPhot = TINYPDF;
     Rpdf *= newPDFPhot/oldPDFPhot;
 
     // Spectator pdf.
     double newPDFSpec = beamAPtr->xfISR(iSys, idSpec, xSpecNew, q2Trial);
     double oldPDFSpec = beamAPtr->xfISR(iSys, idSpec, xSpecOld, q2Trial);
-    if (fabs(newPDFSpec) < TINYPDF) newPDFSpec = TINYPDF;
-    if (fabs(oldPDFSpec) < TINYPDF) oldPDFSpec = TINYPDF;
+    if (abs(newPDFSpec) < TINYPDF) newPDFSpec = TINYPDF;
+    if (abs(oldPDFSpec) < TINYPDF) oldPDFSpec = TINYPDF;
     Rpdf *= newPDFSpec/oldPDFSpec;
   }
 

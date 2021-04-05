@@ -1,5 +1,5 @@
 // MultipartonInteractions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1698,28 +1698,32 @@ double MultipartonInteractions::sigmaPT2scatter(bool isFirst) {
   // For first interaction use normal densities.
   if (isFirst) {
     for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF1[10] = (9./4.) * beamAPtr->xf(21, x1, pT2Fac);
-      else xPDF1[id+10] = beamAPtr->xf(id, x1, pT2Fac);
+      if (id == 0) {
+        xPDF1[10] = (9./4.) * beamAPtr->xf(21, x1, pT2Fac);
+        xPDF2[10] = (9./4.) * beamBPtr->xf(21, x2, pT2Fac);
+      } else {
+        xPDF1[id+10] = beamAPtr->xf(id, x1, pT2Fac);
+        xPDF2[id+10] = beamBPtr->xf(id, x2, pT2Fac);
+      }
       xPDF1sum += xPDF1[id+10];
-    }
-    for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF2[10] = (9./4.) * beamBPtr->xf(21, x2, pT2Fac);
-      else xPDF2[id+10] = beamBPtr->xf(id, x2, pT2Fac);
       xPDF2sum += xPDF2[id+10];
     }
 
   // For subsequent interactions use rescaled densities.
   } else {
+    xfModPrepData xfDataA = beamAPtr->xfModPrep(-1, pT2Fac);
+    xfModPrepData xfDataB = beamBPtr->xfModPrep(-1, pT2Fac);
     for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF1[10] = (9./4.) * beamAPtr->xfMPI(21, x1, pT2Fac);
-      else xPDF1[id+10] = beamAPtr->xfMPI(id, x1, pT2Fac);
+      if (id == 0) continue;
+      xPDF1[id+10] = beamAPtr->xfMPI(id, x1, pT2Fac, xfDataA);
+      xPDF2[id+10] = beamBPtr->xfMPI(id, x2, pT2Fac, xfDataB);
       xPDF1sum += xPDF1[id+10];
-    }
-    for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF2[10] = (9./4.) * beamBPtr->xfMPI(21, x2, pT2Fac);
-      else xPDF2[id+10] = beamBPtr->xfMPI(id, x2, pT2Fac);
       xPDF2sum += xPDF2[id+10];
     }
+    xPDF1[10] = (9./4.) * beamAPtr->xfMPI(21, x1, pT2Fac, xfDataA);
+    xPDF2[10] = (9./4.) * beamBPtr->xfMPI(21, x2, pT2Fac, xfDataB);
+    xPDF1sum += xPDF1[10];
+    xPDF2sum += xPDF2[10];
   }
 
   // Select incoming flavours according to actual PDF's.
@@ -1889,6 +1893,7 @@ double MultipartonInteractions::sigmaPT2rescatter( Event& event) {
     int( rndmPtr->flat() * double(nScatA) ) );
 
   // Loop over all already scattered partons from side A.
+  xfModPrepData xfDataB = beamBPtr->xfModPrep(-1, pT2Fac);
   for (int iScat = 0; iScat < nScatA; ++iScat) {
     if (PREPICKRESCATTER && iScat != iScatA) continue;
     int iA         = scatteredA[iScat];
@@ -1920,10 +1925,12 @@ double MultipartonInteractions::sigmaPT2rescatter( Event& event) {
 
     // Use rescaled densities, with preweighting 9/4 for gluons.
     for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF2[10] = (9./4.) * beamBPtr->xfMPI(21, x2Tmp, pT2Fac);
-      else xPDF2[id+10] = beamBPtr->xfMPI(id, x2Tmp, pT2Fac);
+      if (id == 0) continue;
+      xPDF2[id+10] = beamBPtr->xfMPI(id, x2Tmp, pT2Fac, xfDataB);
       xPDF2sum += xPDF2[id+10];
     }
+    xPDF2[10] = (9./4.) * beamBPtr->xfMPI(21, x2Tmp, pT2Fac, xfDataB);
+    xPDF2sum += xPDF2[10];
 
     // Select incoming flavour according to actual PDF's.
     int id2Tmp = -nQuarkIn - 1;
@@ -1988,6 +1995,7 @@ double MultipartonInteractions::sigmaPT2rescatter( Event& event) {
     int( rndmPtr->flat() * double(nScatB) ) );
 
   // Loop over all already scattered partons from side B.
+  xfModPrepData xfDataA = beamAPtr->xfModPrep(-1, pT2Fac);
   for (int iScat = 0; iScat < nScatB; ++iScat) {
     if (PREPICKRESCATTER && iScat != iScatB) continue;
     int iB         = scatteredB[iScat];
@@ -2019,10 +2027,12 @@ double MultipartonInteractions::sigmaPT2rescatter( Event& event) {
 
     // Use rescaled densities, with preweighting 9/4 for gluons.
     for (int id = -nQuarkIn; id <= nQuarkIn; ++id) {
-      if (id == 0) xPDF1[10] = (9./4.) * beamAPtr->xfMPI(21, x1Tmp, pT2Fac);
-      else xPDF1[id+10] = beamAPtr->xfMPI(id, x1Tmp, pT2Fac);
+      if (id == 0) continue;
+      xPDF1[id+10] = beamAPtr->xfMPI(id, x1Tmp, pT2Fac, xfDataA);
       xPDF1sum += xPDF1[id+10];
     }
+    xPDF1[10] = (9./4.) * beamAPtr->xfMPI(21, x1Tmp, pT2Fac, xfDataA);
+    xPDF1sum += xPDF1[10];
 
     // Select incoming flavour according to actual PDF's.
     int id1Tmp = -nQuarkIn - 1;

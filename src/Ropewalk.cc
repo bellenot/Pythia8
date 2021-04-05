@@ -1,5 +1,5 @@
 // Ropewalk.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1216,7 +1216,7 @@ map<string, double> FlavourRope::fetchParametersBuffon(double m2Had,
       // Initialize a bit
       Vec4 hadronic4Momentum(0,0,0,0);
       double enh = 1.0;
-      double dipFrac;
+      double dipFrac = -1.0;
       vector<int>::iterator dipItr;
       // Find out when invariant mass exceeds m2Had
       for(dipItr = iParton.begin(); dipItr != iParton.end(); ++dipItr){
@@ -1362,7 +1362,7 @@ map<string, double> FlavourRope::fetchParameters(double m2Had,
   double dipFrac = 0;
   // We are in the first dipole.
   if (eventIndex == -1 || eventIndex == 0) {
-    eventIndex = 0;
+    eventIndex = 1;
     dipFrac = sqrt(m2Had / m2Here);
   }
   else {
@@ -1370,8 +1370,8 @@ map<string, double> FlavourRope::fetchParameters(double m2Had,
     double m2Small = mom.m2Calc();
     dipFrac = (sqrt(m2Had) - sqrt(m2Small)) / (sqrt(m2Here) - sqrt(m2Small));
   }
-  double enh = rwPtr->getKappaHere( iParton[eventIndex],
-    iParton[eventIndex + 1], dipFrac);
+  double enh = rwPtr->getKappaHere( iParton[eventIndex - 1],
+    iParton[eventIndex], dipFrac);
   return fp.getEffectiveParameters(enh);
 
 }

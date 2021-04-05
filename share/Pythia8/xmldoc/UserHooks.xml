@@ -242,7 +242,7 @@ resonance decay chains, if any. Use the method
 decay chains. There are exceptions to this structure, 
 for <aloc href="QCDProcesses">soft QCD processes</aloc> (where 
 the partonic process may not yet have been selected at this stage), 
-and when <aloc href="ASecondHardProcess">a second hard process</aloc> has 
+and when <aloc href="SecondHardProcess">a second hard process</aloc> has 
 been requested (where two hard processes are bookkept). In general 
 it is useful to begin the development work by listing a few 
 <code>process</code> records, to clarify what the structure is for 
@@ -756,7 +756,7 @@ to return true then the method <code>biasSelectionBy(...)</code> will
 allow you to modify the phase space sampling, with a compensating 
 event weight, such that the cross section is unchanged. You cannot 
 combine this kind of reweighting with the selection of 
-<aloc href="ASecondHardProcess">a second hard process</aloc>. 
+<aloc href="SecondHardProcess">a second hard process</aloc>. 
 </method> 
  
 <method name="virtual double UserHooks::biasSelectionBy( 
@@ -1082,8 +1082,7 @@ These are handled internally, so that users only have to ensure that
 <code>Info::mergingWeightNLO()</code> are correctly taken into account. 
  
 <p/>A simple example of enhanced regular emissions is provided in 
-<code>main63.cc</code>, whereas <code>main64.cc</code> illustrates 
-the usefulness of enhanced trial emissions for expert users. 
+<code>main63.cc</code>. 
  
 <h3>(x) Modified hadronization</h3> 
  
@@ -1218,4 +1217,4 @@ occurs.
  
 </chapter> 
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

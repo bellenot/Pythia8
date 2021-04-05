@@ -1,5 +1,5 @@
 // main300.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,8 +13,8 @@
 
 // Pythia includes.
 #include "Pythia8/Pythia.h"
-#ifdef HEPMC2
-#include "Pythia8Plugins/HepMC2.h"
+#ifdef HEPMC3
+#include "Pythia8Plugins/HepMC3.h"
 #endif
 
 // OpenMP includes.
@@ -416,20 +416,20 @@ int main( int argc, char* argv[] ){
   // Restore print-out.
   cout.rdbuf (old);
 
-#ifdef HEPMC2
+#ifdef HEPMC3
   bool printHepMC = !(hepmc_output == "");
   // Interface for conversion from Pythia8::Event to HepMC one.
-  HepMC::Pythia8ToHepMC ToHepMC;
+  HepMC3::Pythia8ToHepMC3 toHepMC;
   // Specify file where HepMC events will be stored.
-  HepMC::IO_GenEvent ascii_io(hepmc_output, std::ios::out);
+  HepMC3::WriterAscii ascii_io(hepmc_output);
   // Switch off warnings for parton-level events.
-  ToHepMC.set_print_inconsistency(false);
-  ToHepMC.set_free_parton_exception(false);
+  toHepMC.set_print_inconsistency(false);
+  toHepMC.set_free_parton_warnings(false);
   // Do not store cross section information, as this will be done manually.
-  ToHepMC.set_store_pdf(false);
-  ToHepMC.set_store_proc(false);
-  ToHepMC.set_store_xsec(false);
-  vector< HepMC::IO_GenEvent* > ascii_io_var;
+  toHepMC.set_store_pdf(false);
+  toHepMC.set_store_proc(false);
+  toHepMC.set_store_xsec(false);
+  vector< HepMC3::WriterAscii* > ascii_io_var;
 #endif
 
   // Cross section and weights:
@@ -448,11 +448,10 @@ int main( int argc, char* argv[] ){
       doVariationsAll = false;
   if ( doVariationsAll ) {
     for (int iwt=0; iwt < 3; ++iwt) {
-#ifdef HEPMC2
+#ifdef HEPMC3
       if (printHepMC) {
         string hepmc_var = hepmc_output + "-" + std::to_string(iwt);
-        ascii_io_var.push_back
-          (new HepMC::IO_GenEvent(hepmc_var, std::ios::out));
+        ascii_io_var.push_back(new HepMC3::WriterAscii(hepmc_var));
       }
 #endif
       sigmaTotVarAll.push_back(0.);
@@ -613,22 +612,22 @@ int main( int argc, char* argv[] ){
         sigmaTotAll += w/divide;
         sigmaInc[j] += evtweight*normhepmc;
         sigmaTot[j] += w;
-#ifdef HEPMC2
+#ifdef HEPMC3
         if (printHepMC) {
           // Construct new empty HepMC event.
-          HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
+          HepMC3::GenEvent hepmcevt;
           // Set event weight
-          hepmcevt->weights().push_back(w);
+          hepmcevt.weights().push_back(w);
           // Fill HepMC event
-          ToHepMC.fill_next_event( *pythiaPtr[j], hepmcevt );
-          // Report cross section to hepmc
-          HepMC::GenCrossSection xsec;
-          xsec.set_cross_section( sigmaTotAll*1e9,
+          toHepMC.fill_next_event( *pythiaPtr[j], &hepmcevt );
+          // Report cross section to hepmc.
+          shared_ptr<HepMC3::GenCrossSection> xsec;
+          xsec = make_shared<HepMC3::GenCrossSection>();
+          xsec->set_cross_section( sigmaTotAll*1e9,
             pythiaPtr[j]->info.sigmaErr()*1e9 );
-          hepmcevt->set_cross_section( xsec );
+          hepmcevt.set_cross_section( xsec );
           // Write the HepMC event to file. Done with it.
-          ascii_io << hepmcevt;
-          delete hepmcevt;
+          ascii_io.write_event(hepmcevt);
         }
 #endif
 
@@ -639,21 +638,21 @@ int main( int argc, char* argv[] ){
           double divideVar = (splitSingleRun ? double(nThreadsReq) : 1.0);
           sigmaTotVarAll[iwt] += wVar/divideVar;
           sigmaTotVar[j][iwt] += wVar;
-#ifdef HEPMC2
+#ifdef HEPMC3
           if (printHepMC) {
-            HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
+            HepMC3::GenEvent hepmcevt;
             // Set event weight
-            hepmcevt->weights().push_back(wVar);
+            hepmcevt.weights().push_back(wVar);
             // Fill HepMC event
-            ToHepMC.fill_next_event( *pythiaPtr[j], hepmcevt );
-            // Report cross section to hepmc
-            HepMC::GenCrossSection xsec;
-            xsec.set_cross_section( sigmaTotVarAll[iwt]*1e9,
+            toHepMC.fill_next_event( *pythiaPtr[j], &hepmcevt );
+            // Report cross section to hepmc.
+            shared_ptr<HepMC3::GenCrossSection> xsec;
+            xsec = make_shared<HepMC3::GenCrossSection>();
+            xsec->set_cross_section( sigmaTotVarAll[iwt]*1e9,
               pythiaPtr[j]->info.sigmaErr()*1e9 );
-            hepmcevt->set_cross_section( xsec );
+            hepmcevt.set_cross_section( xsec );
             // Write the HepMC event to file. Done with it.
-            *ascii_io_var[iwt] << hepmcevt;
-            delete hepmcevt;
+            ascii_io_var[iwt]->write_event(hepmcevt);
           }
 #endif
         }
@@ -743,22 +742,22 @@ int main( int argc, char* argv[] ){
         sigmaTotAll += w;
         sigmaInc[j] += evtweight*normhepmc;
         sigmaTot[j] += w;
-#ifdef HEPMC2
+#ifdef HEPMC3
         if (printHepMC) {
           // Construct new empty HepMC event.
-          HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
+          HepMC3::GenEvent hepmcevt;
           // Set event weight
-          hepmcevt->weights().push_back(w);
+          hepmcevt.weights().push_back(w);
           // Fill HepMC event
-          ToHepMC.fill_next_event( *pythiaPtr[j], hepmcevt );
-          // Report cross section to hepmc
-          HepMC::GenCrossSection xsec;
-          xsec.set_cross_section( sigmaTotAll*1e9,
+          toHepMC.fill_next_event( *pythiaPtr[j], &hepmcevt );
+          // Report cross section to hepmc.
+          shared_ptr<HepMC3::GenCrossSection> xsec;
+          xsec = make_shared<HepMC3::GenCrossSection>();
+          xsec->set_cross_section( sigmaTotAll*1e9,
             pythiaPtr[j]->info.sigmaErr()*1e9 );
-          hepmcevt->set_cross_section( xsec );
-          // Write the HepMC event to file. Done with it.
-          ascii_io << hepmcevt;
-          delete hepmcevt;
+          hepmcevt.set_cross_section( xsec );
+          // Write the HepMC event to file.
+          ascii_io.write_event(hepmcevt);
         }
 #endif
 
@@ -768,21 +767,21 @@ int main( int argc, char* argv[] ){
           // Add the weight of the current event to the cross section.
           sigmaTotVarAll[iwt] += wVar;
           sigmaTotVar[j][iwt] += wVar;
-#ifdef HEPMC2
+#ifdef HEPMC3
           if (printHepMC) {
-            HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
+            HepMC3::GenEvent hepmcevt;
             // Set event weight
-            hepmcevt->weights().push_back(wVar);
+            hepmcevt.weights().push_back(wVar);
             // Fill HepMC event
-            ToHepMC.fill_next_event( *pythiaPtr[j], hepmcevt );
-            // Report cross section to hepmc
-            HepMC::GenCrossSection xsec;
-            xsec.set_cross_section( sigmaTotVarAll[iwt]*1e9,
+            toHepMC.fill_next_event( *pythiaPtr[j], &hepmcevt );
+            // Report cross section to hepmc.
+            shared_ptr<HepMC3::GenCrossSection> xsec;
+            xsec = make_shared<HepMC3::GenCrossSection>();
+            xsec->set_cross_section( sigmaTotVarAll[iwt]*1e9,
               pythiaPtr[j]->info.sigmaErr()*1e9 );
-            hepmcevt->set_cross_section( xsec );
-            // Write the HepMC event to file. Done with it.
-            *ascii_io_var[iwt] << hepmcevt;
-            delete hepmcevt;
+            hepmcevt.set_cross_section( xsec );
+            // Write the HepMC event to file.
+            ascii_io_var[iwt]->write_event(hepmcevt);
           }
 #endif
         }
@@ -818,7 +817,7 @@ int main( int argc, char* argv[] ){
     << "\n"
     << "\t Cross section after shower : " << sigmaTotAll << "\n";
 
-#ifdef HEPMC2
+#ifdef HEPMC3
   // Clean-up.
   if ( pythiaPtr.front()->settings.flag("Variations:doVariations") ) {
     if (printHepMC) for (int iwt=0; iwt < 3; ++iwt) delete ascii_io_var[iwt];

@@ -198,8 +198,10 @@
        http://lcgapp.cern.ch/project/simu/HepMC/. The interface
        between PYTHIA 8 and HepMC is provided via the
        "include/Pythia8Plugins/HepMC2.h" header.
-   HEPMC3) An interface for the upcoming HepMC 3 format. Currently this
-       package is not used.
+   HEPMC3) An interface to the HepMC event record, version 3:
+       https://hepmc.web.cern.ch/hepmc/. The interface
+       between PYTHIA 8 and HepMC is provided via the
+       "include/Pythia8Plugins/HepMC3.h" header.
    LHAPDF6) The modern C++ version of LHAPDF,
        http://lhapdf.hepforge.org/. Because PDF sets are an integral
        part of PYTHIA 8, the LHAPDF interface is handled differently

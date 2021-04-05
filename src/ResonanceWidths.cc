@@ -1,5 +1,5 @@
 // ResonanceWidths.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -54,7 +54,7 @@ bool ResonanceWidths::init(Info* infoPtrIn) {
 
   // Pointer to particle species.
   particlePtr  = particleDataPtr->particleDataEntryPtr(idRes);
-  if (particlePtr == 0) {
+  if (particlePtr->id() == 0) {
     infoPtr->errorMsg("Error in ResonanceWidths::init:"
       " unknown resonance identity code");
     return false;
@@ -211,9 +211,9 @@ bool ResonanceWidths::init(Info* infoPtrIn) {
   }
 
   // Set lifetime for displaced vertex calculations (convert GeV^-1 to mm).
-  // SLHA decay table should take precedence: decay length already set and
-  //  potentially over-written as per users request.
-  if( allowCalcWidth ) {
+  // SLHA decay table should take precedence; decay length already set and
+  // potentially over-written as per users request.
+  if (particlePtr->tauCalc()) {
     double decayLength = HBARC * FM2MM / widTot;
     particlePtr->setTau0(decayLength, false);
   }

@@ -1,5 +1,5 @@
 // DireBasics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -232,11 +232,6 @@ public:
 
 //==========================================================================
 
-// Abort function.
-int puppybort( string input, int iPuppy = 0);
-
-//==========================================================================
-
 class DireEventInfo {
 
   public:
@@ -332,8 +327,7 @@ class DireDebugInfo {
 
   public:
 
-  DireDebugInfo() {
-  }
+  DireDebugInfo() = default;
 
   void clearMessages() {
     messageStream0.str("");
@@ -370,13 +364,6 @@ class DireDebugInfo {
     return messageStream0;
   }
 
-  void eatCout() {
-    old = cout.rdbuf();
-    cout.rdbuf (messageStream1.rdbuf());
-  }
-  void freeCout() { cout.flush(); cout.rdbuf (old); }
-
-  std::streambuf *old;
   // Debug message streams.
   ostringstream messageStream0, messageStream1, messageStream2;
 
@@ -414,8 +401,6 @@ class DireInfo {
     return direDebugInfo.printMessages(verbosity); }
   ostream & message ( int verbosity = 0) {
     return direDebugInfo.message(verbosity); }
-  void eatCout()  { return direDebugInfo.eatCout(); }
-  void freeCout() { return direDebugInfo.freeCout(); }
   void clearMessages() { direDebugInfo.clearMessages(); }
 
   void fillHistograms(int type, int nfinal, double mec, double pT, double z) {

@@ -1,5 +1,5 @@
 // Info.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -14,6 +14,7 @@
 #include "Pythia8/LHEF3.h"
 #include "Pythia8/PythiaStdlib.h"
 #include "Pythia8/SharedPointers.h"
+#include "Pythia8/Weights.h"
 
 namespace Pythia8 {
 
@@ -51,6 +52,10 @@ public:
       delete eventAttributes;
   }
 
+  // Assignment operator gives a shallow copy; no objects pointed to
+  // are copied.
+  Info & operator=(const Info &) = default;
+
   // Pointers to other class objects, carried piggyback by Info.
 
   // Set pointers to other class objects.
@@ -60,14 +65,16 @@ public:
     BeamParticle* beamPomAPtrIn, BeamParticle*  beamPomBPtrIn,
     BeamParticle* beamGamAPtrIn, BeamParticle*  beamGamBPtrIn,
     BeamParticle* beamVMDAPtrIn, BeamParticle*  beamVMDBPtrIn,
-    PartonSystems* partonSystemsPtrIn, SigmaTotal* sigmaTotPtrIn) {
+    PartonSystems* partonSystemsPtrIn, SigmaTotal* sigmaTotPtrIn,
+    WeightContainer* weightContainerPtrIn) {
     settingsPtr = settingsPtrIn; particleDataPtr = particleDataPtrIn;
     rndmPtr = rndmPtrIn; coupSMPtr = coupSMPtrIn; coupSUSYPtr = coupSUSYPtrIn;
     beamAPtr    = beamAPtrIn;    beamBPtr    = beamBPtrIn;
     beamPomAPtr = beamPomAPtrIn; beamPomBPtr = beamPomBPtrIn;
     beamGamAPtr = beamGamAPtrIn; beamGamBPtr = beamGamBPtrIn;
     beamVMDAPtr = beamVMDAPtrIn; beamVMDBPtr = beamVMDBPtrIn;
-    partonSystemsPtr = partonSystemsPtrIn; sigmaTotPtr = sigmaTotPtrIn;}
+    partonSystemsPtr = partonSystemsPtrIn; sigmaTotPtr = sigmaTotPtrIn;
+    weightContainerPtr = weightContainerPtrIn; }
 
   // Pointer to the settings database.
   Settings*      settingsPtr{};
@@ -105,6 +112,8 @@ public:
   // Pointer to information about a HeavyIons run and the current event.
   // (Is NULL if HeavyIons object is inactive.)
   HIInfo*        hiInfo{};
+
+  WeightContainer* weightContainerPtr{};
 
   // Listing of most available information on current event.
   void   list() const;
@@ -231,10 +240,12 @@ public:
   }
   double getGroupWeight(int iGW) const {
     double tempWeight(1.0);
+    double normalization = weightSave[0];
     if( iGW < 0 || iGW >= externalVariationsSize ) return tempWeight;
     for( vector<int>::const_iterator cit = externalMap[iGW].begin();
-      cit < externalMap[iGW].end(); ++cit ) tempWeight *= weightSave[*cit];
-    return tempWeight;
+      cit < externalMap[iGW].end(); ++cit )
+      tempWeight *= weightSave[*cit] / normalization;
+    return tempWeight * weight(0);
   }
   string getInitialName(int iG) const { return initialNameSave[iG]; }
   // Variations that must be known by TimeShower and Spaceshower
@@ -409,6 +420,7 @@ public:
     vector<double > *weights_compressedIn,
     LHAscales *scalesIn, LHAweights *weightsIn,
     LHArwgt *rwgtIn, vector<double> weights_detailed_vecIn,
+    vector<string> weights_detailed_name_vecIn,
     string eventCommentsIn, double eventWeightLHEFIn );
 
   // Retrieve events tag information.
@@ -735,7 +747,10 @@ public:
   void setWeight( double weightIn, int lhaStrategyIn) {
     for (int i = 0; i < nWeights(); ++i) weightSave[i] = weightIn;
     if (nWeights() == 0) weightSave.push_back(weightIn);
+    weightContainerPtr->setWeightNominal(
+        abs(lhaStrategyIn) == 4 ? CONVERTMB2PB*weightIn : weightIn);
     lhaStrategySave = lhaStrategyIn;}
+
 
   // Apply weight modification (used for automated uncertainty variations).
   void reWeight( int iWeight, double rwIn) {
@@ -766,6 +781,17 @@ public:
   vector<int> weakModes, weak2to2lines;
   vector<Vec4> weakMomenta;
   vector<pair<int, int> > weakDipoles;
+
+  int numberOfWeights() const {
+    return weightContainerPtr->numberOfWeights(); }
+  double weightValueByIndex(int key=0) const {
+    return weightContainerPtr->weightValueByIndex(key); }
+  string weightNameByIndex(int key=0) const {
+    return weightContainerPtr->weightNameByIndex(key); }
+  vector<double> weightValueVector() const {
+    return weightContainerPtr->weightValueVector(); }
+  vector<string> weightNameVector() const {
+    return weightContainerPtr->weightNameVector(); }
 
 };
 

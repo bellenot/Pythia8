@@ -1,5 +1,5 @@
 // StringFragmentation.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -314,7 +314,7 @@ Vec4 StringEnd::kinematicsHadronTmp( StringSystem system, Vec4 pRem,
   double meanM    = (mRem > 0.0) ? max( MEANMMIN, min( MEANM, mRem) ) : MEANM;
   double meanMT2  = pow2(meanM) + pow2(MEANPT);
   double GammaNow = (1.0 + aLund) / bLund;
-  // Modify Gamma value in case of ealier fails.
+  // Modify Gamma value in case of earlier fails.
   if (mult > 0.0) GammaNow *= mult;
   double tmp      = ( GammaNow + meanMT2 - GammaOld ) / GammaOld;
   double zPlus    = (-0.5 * tmp + sqrt(0.25 * pow2(tmp) + meanMT2 / GammaOld));
@@ -885,10 +885,12 @@ vector<int> StringFragmentation::findFirstRegion(int iSub,
 
 // Set flavours and momentum position for initial string endpoints.
 
-void StringFragmentation::setStartEnds(int idPos, int idNeg,
+void StringFragmentation::setStartEnds(int idPosIn, int idNegIn,
 StringSystem systemNow, int legNow) {
 
   // Variables characterizing string endpoints: defaults for open string.
+  int    idPos       = idPosIn;
+  int    idNeg       = idNegIn;
   double px          = 0.;
   double py          = 0.;
   double Gamma       = 0.;

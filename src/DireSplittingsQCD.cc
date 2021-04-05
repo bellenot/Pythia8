@@ -1,5 +1,5 @@
 // DireSplittingsQCD.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -629,15 +629,13 @@ double DireSplittingQCD::getJacobian( const Event& state, PartonSystems*
 
     // Jacobian for 1->3 splittings, in CS variables.
     if (nEmissions() == 2) {
-      jac1 = jac2 = 1.;
-      double m2ai  = sai + m2a + m2i;
 
       // Jacobian for competing steps, i.e. applied to over-all splitting rate.
       jac1 = (q2 - m2aij - m2k) / sqrt( lABC(q2, m2aij, m2k) );
 
       // Additional jacobian for non-competing steps.
-      double m2aik = (sai + m2a + m2i) + m2k
-                   +  z/xa * (q2 - m2RadBef - m2k);
+      double m2ai  = sai + m2a + m2i;
+      double m2aik = (sai + m2a + m2i) + m2k +  z/xa * (q2 - m2RadBef - m2k);
       jac1 *= (m2aik - m2ai - m2k) / sqrt( lABC(m2aik, m2ai, m2k) );
 
       // Additional factor from massive propagator.
@@ -735,11 +733,10 @@ double DireSplittingQCD::getJacobian( const Event& state, PartonSystems*
 
     // Jacobian for 1->3 splittings, in CS variables.
     if ( nEmissions() == 2 ) {
-      jac = 1.;
-      double m2jk = pT2/xa + q2*( 1. - xa/z) - m2ai;
 
       // Construnct the new initial state momentum, as needed to
       // calculate the Jacobian.
+      double m2jk = pT2/xa + q2*( 1. - xa/z) - m2ai;
       double uCS  = z*(m2ai-m2a-m2i)/q2;
       double xCS  = uCS + xa - (pT2*z)/(q2*xa);
       Vec4 q( state[splitInfo.iRadBef].p() - state[splitInfo.iRecBef].p() );
@@ -6413,7 +6410,7 @@ bool Dire_isr_qcd_Q2qQqbarDist::calc(const Event& state, int orderNow) {
     it->second *= z;
 
   // Store higher order correction separately.
-  if (order > 0) wts.insert( make_pair("base_order_as2", wts["base"] ));
+  wts.insert( make_pair("base_order_as2", wts["base"] ));
 
   // Store kernel values.
   clearKernels();
@@ -6744,7 +6741,7 @@ bool Dire_isr_qcd_Q2QbarQQId::calc(const Event& state, int orderNow) {
     it->second *= z;
 
   // Store higher order correction separately.
-  if (order > 0) wts.insert( make_pair("base_order_as2", wts["base"] ));
+  wts.insert( make_pair("base_order_as2", wts["base"] ));
 
   // Store kernel values.
   clearKernels();

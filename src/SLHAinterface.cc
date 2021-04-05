@@ -1,5 +1,5 @@
 // SLHAinterface.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -126,7 +126,8 @@ bool SLHAinterface::initSLHA() {
       "No MODSEL found, keeping internal SUSY switched off");
   } else if (ifailSpc >= 2) {
     // no SUSY, but problems
-    infoPtr->errorMsg(warnPref + "Problem with SLHA MASS or QNUMBERS.");
+    infoPtr->errorMsg(warnPref +
+      "No MASS or MODSEL blocks found.");
     coupSUSYPtr->isSUSY = false;
   }
   // ifail = 0 : MODSEL found, spectrum OK

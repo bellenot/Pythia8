@@ -1,5 +1,5 @@
 // DireSplitInfo.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -147,10 +147,10 @@ public:
     double saiIn, double xaIn, double phi2In, double m2RadBefIn,
     double m2RecIn, double m2RadAftIn, double m2EmtAftIn, double m2EmtAft2In,
     double xBefIn, double xAftIn )
-    : m2Dip(m2DipIn), pT2(pT2In), z(zIn), phi(phiIn),
+    : m2Dip(m2DipIn), pT2(pT2In), pT2Old(-1.), z(zIn), phi(phiIn),
     sai(saiIn), xa(xaIn), phi2(phi2In), m2RadBef(m2RadBefIn), m2Rec(m2RecIn),
     m2RadAft(m2RadAftIn), m2EmtAft(m2EmtAftIn), m2EmtAft2(m2EmtAft2In),
-    xBef(xBefIn), xAft(xAftIn) {}
+      xBef(xBefIn), xAft(xAftIn) {}
 
   void store2to3kine( double m2DipIn, double pT2In, double zIn, double phiIn,
     double xAftIn = -1.) {
@@ -215,7 +215,11 @@ public:
 
   DireSplitInfo() : iRadBef(0), iRecBef(0), iRadAft(0), iRecAft(0), iEmtAft(0),
     iEmtAft2(0), side(0), type(0), system(0), systemRec(0),
-    splittingSelName(""), useForBranching(false), terminateEvolution(false) {
+    splittingSelName(""), useForBranching(false), terminateEvolution(false),
+    iRadBefStore(-1), iRecBefStore(-1), iRadAftStore(-1), iRecAftStore(-1),
+    iEmtAftStore(-1), iEmtAft2Store(-1), sideStore(-1), typeStore(-1),
+    systemStore(-1), systemRecStore(-1), splittingSelNameStore(""),
+    useForBranchingStore(false), terminateEvolutionStore(false) {
     init(); }
   DireSplitInfo ( const Event& state, int iRadBefIn, int iRecBefIn,
     int iRadAftIn, int iRecAftIn, int iEmtAftIn,
@@ -238,19 +242,32 @@ public:
 
   DireSplitInfo ( const Event& state, int iRadBefIn, int iRecBefIn,
     string splittingSelNameIn) : iRadBef(iRadBefIn), iRecBef(iRecBefIn),
-    splittingSelName(splittingSelNameIn) {
+    splittingSelName(splittingSelNameIn),
+    iRadBefStore(-1), iRecBefStore(-1), iRadAftStore(-1), iRecAftStore(-1),
+    iEmtAftStore(-1), iEmtAft2Store(-1), sideStore(-1), typeStore(-1),
+    systemStore(-1), systemRecStore(-1), splittingSelNameStore(""),
+    useForBranchingStore(false), terminateEvolutionStore(false) {
     iRadAft = iRecAft = iEmtAft = side = type = system = systemRec = 0;
     useForBranching = terminateEvolution = false; init(state); }
 
   DireSplitInfo ( const Event& state, int iRadAftIn, int iRecAftIn,
-    int iEmtAftIn,
-    string splittingSelNameIn) : iRadAft(iRadAftIn), iRecAft(iRecAftIn),
-    iEmtAft(iEmtAftIn), splittingSelName(splittingSelNameIn) {
+    int iEmtAftIn, string splittingSelNameIn) :
+    iRadAft(iRadAftIn), iRecAft(iRecAftIn),
+    iEmtAft(iEmtAftIn), splittingSelName(splittingSelNameIn),
+    iRadBefStore(-1), iRecBefStore(-1), iRadAftStore(-1), iRecAftStore(-1),
+    iEmtAftStore(-1), iEmtAft2Store(-1), sideStore(-1), typeStore(-1),
+    systemStore(-1), systemRecStore(-1), splittingSelNameStore(""),
+    useForBranchingStore(false), terminateEvolutionStore(false) {
     splittingSelName = ""; iRadBef = iRecBef = side = type = system
       = systemRec = 0;
     useForBranching = terminateEvolution = false; init(state); }
 
-  DireSplitInfo ( const DireSplitInfo& s) {
+  DireSplitInfo ( const DireSplitInfo& s) : iRadBefStore(-1), iRecBefStore(-1),
+    iRadAftStore(-1), iRecAftStore(-1), iEmtAftStore(-1), iEmtAft2Store(-1),
+    sideStore(-1), typeStore(-1), systemStore(-1), systemRecStore(-1),
+    particleSaveStore(), kinSaveStore(), splittingSelNameStore(),
+    extrasStore(), useForBranchingStore(false), terminateEvolutionStore(false),
+    iSiblingsStore() {
     iRadBef = s.iRadBef;
     iRecBef = s.iRecBef;
     iRadAft = s.iRadAft;

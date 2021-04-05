@@ -1,5 +1,5 @@
 // DireTimes.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -87,6 +87,8 @@ const double DireTimes::LEPTONZMAX     = 1. - 1e-4;
 void DireTimes::init( BeamParticle* beamAPtrIn,
   BeamParticle* beamBPtrIn) {
 
+cout << __FILE__ << " " << __LINE__ << endl;
+
   dryrun = false;
 
   // Colour factors.
@@ -99,6 +101,7 @@ void DireTimes::init( BeamParticle* beamAPtrIn,
   NC = settingsPtr->parm("DireColorQCD:NC") > 0.
      ? settingsPtr->parm("DireColorQCD:NC") : 3.0;
 
+cout << __FILE__ << " " << __LINE__ << endl;
   // Alternatively only initialize resonance decays.
   processLevel.initInfoPtr(*infoPtr);
   processLevel.initDecays(nullptr);
@@ -137,6 +140,7 @@ void DireTimes::init( BeamParticle* beamAPtrIn,
   pT2recombine       =
     pow2(max(0.,settingsPtr->parm("DireTimes:pTrecombine")));
 
+cout << __FILE__ << " " << __LINE__ << endl;
   // Charm and bottom mass thresholds.
   mc                 = max( MCMIN, particleDataPtr->m0(4));
   mb                 = max( MBMIN, particleDataPtr->m0(5));
@@ -192,6 +196,7 @@ void DireTimes::init( BeamParticle* beamAPtrIn,
   m2colCut           = pT2colCut;
   mTolErr            = settingsPtr->parm("Check:mTolErr");
 
+cout << __FILE__ << " " << __LINE__ << endl;
   double pT2minQED = pow2(settingsPtr->parm("TimeShower:pTminChgQ"));
   pT2minQED = min(pT2minQED, pow2(settingsPtr->parm("TimeShower:pTminChgL")));
   pT2cutSave = create_unordered_map<int,double>
@@ -215,6 +220,7 @@ void DireTimes::init( BeamParticle* beamAPtrIn,
     ("doQEDshowerByL",doQEDshowerByL)
     ("doQEDshowerByQ",doQEDshowerByQ);
 
+cout << __FILE__ << " " << __LINE__ << endl;
   usePDFalphas       = settingsPtr->flag("ShowerPDF:usePDFalphas");
   useSummedPDF       = settingsPtr->flag("ShowerPDF:useSummedPDF");
   BeamParticle* beam = NULL;
@@ -236,6 +242,7 @@ void DireTimes::init( BeamParticle* beamAPtrIn,
   m2bPhys = (usePDFalphas) ? pow2(max(0.,beam->mQuarkPDF(5)))
           : alphaS.muThres2(5);
 
+cout << __FILE__ << " " << __LINE__ << endl;
   // Parameters of alphaEM generation.
   alphaEMorder       = settingsPtr->mode("TimeShower:alphaEMorder");
 
@@ -284,6 +291,7 @@ void DireTimes::init( BeamParticle* beamAPtrIn,
   // Number of MPI, in case MPI forces intervention in shower weights.
   nMPI = 0;
 
+cout << __FILE__ << " " << __LINE__ << endl;
   // Set splitting library, if already exists.
   if (splittingsPtr) splits = splittingsPtr->getSplittings();
 
@@ -293,6 +301,7 @@ void DireTimes::init( BeamParticle* beamAPtrIn,
     overhead.insert(make_pair(it->first,1.));
   }
 
+cout << __FILE__ << " " << __LINE__ << endl;
   // May have to fix up recoils related to rescattering.
   allowRescatter     = settingsPtr->flag("PartonLevel:MPI")
     && settingsPtr->flag("MultipartonInteractions:allowRescatter");
@@ -1199,24 +1208,22 @@ void DireTimes::setupDecayDip( int iSys, int iRad, const Event& event,
 
   // First try nearest recoiler in same system in final state,
   // by (p_i + p_j)^2 - (m_i + m_j)^2 = 2 (p_i p_j - m_i m_j).
-  if (iRec == 0) {
-    double ppMin = LARGEM2;
-    for (int j = 0; j < sizeOut; ++j) {
-      int iRecNow  = partonSystemsPtr->getOut(iSys, j);
-      if (iRecNow == iRad || !event[iRecNow].isFinal()) continue;
-      double ppNow = event[iRecNow].p() * event[iRad].p()
-                   - event[iRecNow].m() * event[iRad].m();
-      if (ppNow < ppMin) {
-        iRec  = iRecNow;
-        ppMin = ppNow;
-      }
+  double ppMin = LARGEM2;
+  for (int j = 0; j < sizeOut; ++j) {
+    int iRecNow  = partonSystemsPtr->getOut(iSys, j);
+    if (iRecNow == iRad || !event[iRecNow].isFinal()) continue;
+    double ppNow = event[iRecNow].p() * event[iRad].p()
+      - event[iRecNow].m() * event[iRad].m();
+    if (ppNow < ppMin) {
+      iRec  = iRecNow;
+      ppMin = ppNow;
     }
   }
 
   // Now try nearest recoiler in same system in initial state,
   // by -(p_i - p_j)^2 - (m_i + m_j)^2 = 2 (p_i p_j - m_i m_j).
   if (iRec == 0 && allowInitial) {
-    double ppMin = LARGEM2;
+    ppMin = LARGEM2;
     // Check first beam.
     int iRecNow = partonSystemsPtr->getInA(iSys);
     double ppNow = event[iRecNow].p() * event[iRad].p()
@@ -1236,8 +1243,7 @@ void DireTimes::setupDecayDip( int iSys, int iRad, const Event& event,
     }
   }
 
-  double pTmax = event[iRad].scale();
-  pTmax = m( event[iRad], event[iRec]);
+  double pTmax = m( event[iRad], event[iRec]);
   int colType  = event[iRad].colType();
   int isrType  = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
   // This line in case mother is a rescattered parton.
@@ -2760,13 +2766,11 @@ bool DireTimes::applyMEC ( const Event& state, DireSplitInfo* splitInfo,
   }
   double baseNew = ((kernel - oas2) * MECnum/MECden + oas2);
 
-  if (hasME) {
-
-    // Now check if the splitting should be vetoed/accepted given new kernel.
-    //double auxNew  = overheadFactorsMEC(state, splitInfo, splittingSelName)
-    //               * kernel;
-    double auxNew  = kernel;
-    double overNew = kernel;
+  // Now check if the splitting should be vetoed/accepted given new kernel.
+  //double auxNew  = overheadFactorsMEC(state, splitInfo, splittingSelName)
+  //               * kernel;
+  double auxNew  = kernel;
+  double overNew = kernel;
 
   int nFinal = 0;
   for (int i=0; i < state.size(); ++i)
@@ -2777,72 +2781,68 @@ bool DireTimes::applyMEC ( const Event& state, DireSplitInfo* splitInfo,
     splitInfo->kinematics()->xBef, state[splitInfo->iRadBef].id(), nFinal-1,
     max(baseNew/overNew,1.1));
 
-    // Ensure that accept probability is positive.
-    if (baseNew/auxNew < 0.) auxNew *= -1.;
+  // Ensure that accept probability is positive.
+  if (baseNew/auxNew < 0.) auxNew *= -1.;
+  if (suppressLargeMECs)  while (baseNew/auxNew < 5e-2) auxNew /= 5.;
 
-    if (suppressLargeMECs)  while (baseNew/auxNew < 5e-2) auxNew /= 5.;
+  // Reset overestimate if necessary.
+  if (baseNew/auxNew > 1.) {
+    double rescale = baseNew/auxNew * 1.5;
+    auxNew *= rescale;
+  }
+  double wt = baseNew/auxNew;
 
-    // Reset overestimate if necessary.
-    if (baseNew/auxNew > 1.) {
-      double rescale = baseNew/auxNew * 1.5;
-      auxNew *= rescale;
+  // New rejection weight.
+  double wvNow = auxNew/overNew * (overNew - baseNew)
+    / (auxNew  - baseNew);
+
+  // New acceptance weight.
+  double waNow = auxNew/overNew;
+  if (wt < rndmPtr->flat()) {
+
+    if (abs(wvNow) > 1e0) {
+      direInfoPtr->message(1) << __FILE__ << " " << __func__
+      << " " << __LINE__ << " : Large reject weight=" << wvNow
+      << "\t for kernel=" << baseNew << " overestimate=" << overNew
+      << "\t aux. overestimate=" << auxNew << " at pT2="
+      << splitInfo->kinematics()->pT2
+      <<  " for " << splittingSelName << endl;
     }
 
-    double wt = baseNew/auxNew;
+    // Loop through and reset weights.
+    for (unordered_map<string,double>::iterator it= kernelSel.begin();
+         it != kernelSel.end(); ++it) {
+      // Get old accept weight.
+      double waOld = weights->getAcceptWeight( splitInfo->kinematics()->pT2,
+                                               it->first);
+      // Remove previous acceptance weight and replace rejection weight.
+      weights->eraseAcceptWeight(splitInfo->kinematics()->pT2, it->first);
+      weights->resetRejectWeight(splitInfo->kinematics()->pT2, wvNow*waOld,
+                                 it->first);
+    }
+    reject = true;
+  } else {
 
-    // New rejection weight.
-    double wvNow = auxNew/overNew * (overNew - baseNew)
-                                  / (auxNew  - baseNew);
-    // New acceptance weight.
-    double waNow = auxNew/overNew;
-
-    if (wt < rndmPtr->flat()) {
-
-      if (abs(wvNow) > 1e0) {
-        direInfoPtr->message(1) << __FILE__ << " " << __func__
-        << " " << __LINE__ << " : Large reject weight=" << wvNow
-        << "\t for kernel=" << baseNew << " overestimate=" << overNew
-        << "\t aux. overestimate=" << auxNew << " at pT2="
-        << splitInfo->kinematics()->pT2
-        <<  " for " << splittingSelName << endl;
-      }
-
-      // Loop through and reset weights.
-      for (unordered_map<string,double>::iterator it= kernelSel.begin();
-        it != kernelSel.end(); ++it) {
-        // Get old accept weight.
-        double waOld = weights->getAcceptWeight( splitInfo->kinematics()->pT2,
-          it->first);
-        // Remove previous acceptance weight and replace rejection weight.
-        weights->eraseAcceptWeight(splitInfo->kinematics()->pT2, it->first);
-        weights->resetRejectWeight(splitInfo->kinematics()->pT2, wvNow*waOld,
-          it->first);
-      }
-      reject = true;
-    } else {
-
-      if (abs(waNow) > 1e0) {
-        direInfoPtr->message(1) << __FILE__ << " " << __func__
-        << " " << __LINE__ << " : Large accept weight=" << waNow
-        << "\t for kernel=" << baseNew << " overestimate=" << overNew
-        << "\t aux. overestimate=" << auxNew << " at pT2="
-        << splitInfo->kinematics()->pT2
-        << " for " << splittingSelName << endl;
-      }
-
-      // Loop through and reset weights.
-      for (unordered_map<string,double>::iterator it= kernelSel.begin();
-        it != kernelSel.end(); ++it) {
-        // Get old accept weight.
-        double waOld = weights->getAcceptWeight( splitInfo->kinematics()->pT2,
-          it->first);
-        // Remove previous reject weight and replace accept weight.
-        weights->eraseRejectWeight(splitInfo->kinematics()->pT2, it->first);
-        weights->resetAcceptWeight(splitInfo->kinematics()->pT2, waNow*waOld,
-          it->first);
-      }
+    if (abs(waNow) > 1e0) {
+      direInfoPtr->message(1) << __FILE__ << " " << __func__
+      << " " << __LINE__ << " : Large accept weight=" << waNow
+      << "\t for kernel=" << baseNew << " overestimate=" << overNew
+      << "\t aux. overestimate=" << auxNew << " at pT2="
+      << splitInfo->kinematics()->pT2
+      << " for " << splittingSelName << endl;
     }
 
+    // Loop through and reset weights.
+    for (unordered_map<string,double>::iterator it= kernelSel.begin();
+         it != kernelSel.end(); ++it) {
+      // Get old accept weight.
+      double waOld = weights->getAcceptWeight( splitInfo->kinematics()->pT2,
+                                               it->first);
+      // Remove previous reject weight and replace accept weight.
+      weights->eraseRejectWeight(splitInfo->kinematics()->pT2, it->first);
+      weights->resetAcceptWeight(splitInfo->kinematics()->pT2, waNow*waOld,
+                                 it->first);
+    }
   }
 
   // Done.
@@ -2916,7 +2916,7 @@ bool DireTimes::inAllowedPhasespace( int kinType, double z, double pT2,
     double kT2  = zbar*(1.-zbar)*sij - (1.-zbar)*m2r - zbar*m2e;
 
     // Not possible to construct kinematics if kT2 < 0.0
-    if (kT2 < 0. || kT2!=kT2 || abs(kT2-kT2) > 1e5) return false;
+    if (kT2 < 0. || isnan(kT2)) return false;
 
     // Get yCS-boundaries.
     double mu2Rad = m2r/q2;
@@ -2979,7 +2979,7 @@ bool DireTimes::inAllowedPhasespace( int kinType, double z, double pT2,
     double kT2  = zbar*(1.-zbar)*sij - (1.-zbar)*m2ai - zbar*m2j;
 
     // Not possible to construct kinematics if kT2 < 0.0
-    if (kT2 < 0. || kT2!=kT2 || abs(kT2-kT2) > 1e5) return false;
+    if (kT2 < 0. || isnan(kT2)) return false;
 
     // Get yCS-boundaries.
     double mu2Rad = m2ai/q2_1;
@@ -3025,7 +3025,7 @@ bool DireTimes::inAllowedPhasespace( int kinType, double z, double pT2,
                        *(sij + m2a - m2i)/(q2_2-sij-m2k));
     kT2  = zbar*(1.-zbar)*sij - (1.-zbar)*m2a - zbar*m2i;
 
-    if (kT2 < 0. || kT2!=kT2 || abs(kT2-kT2) > 1e5) return false;
+    if (kT2 < 0. || isnan(kT2)) return false;
 
   // Extremely conservative technical cut-off on z for final-final splittings.
   } else if (splitType == 3) {
@@ -3167,7 +3167,7 @@ bool DireTimes::inAllowedPhasespace( int kinType, double z, double pT2,
     double kT2  = zbar*(1.-zbar)*sij - (1.-zbar)*m2a - zbar*m2i;
 
     // Not possible to construct second step if kT2 < 0.0
-    if (kT2 < 0. || kT2!=kT2 || abs(kT2-kT2) > 1e5) return false;
+    if (kT2 < 0. || isnan(kT2)) return false;
 
   // Extremely conservative technical z-cut-off for final-initial splittings.
   } else if (splitType ==-3) {
@@ -3511,7 +3511,6 @@ bool DireTimes::pT2nextQCD_FF(double pT2begDip, double pT2sel,
 
       // Jacobian for 1->3 splittings, in CS variables.
       if (nEmissions == 2) {
-        jac1 = jac2 = 1.;
         double sai   = dip.sa1;
         double m2ai  = sai + m2a + m2i;
         // Jacobian for competing steps, i.e. applied to over-all
@@ -4006,8 +4005,7 @@ bool DireTimes::pT2nextQCD_FI(double pT2begDip, double pT2sel,
     pdfScale2 = max(pdfScale2, pT2colCut);
     double pdfScale2Old = pdfScale2;
     double pdfScale2New = pdfScale2;
-    if (forceBranching) pdfScale2Old = infoPtr->Q2Fac();
-    if (forceBranching) pdfScale2New = infoPtr->Q2Fac();
+    if (forceBranching)  pdfScale2New = pdfScale2Old = infoPtr->Q2Fac();
     bool inD = hasPDFrec ? beam.insideBounds(xRecoiler, pdfScale2Old) : true;
     bool inM = hasPDFrec ? beam.insideBounds(xNew, pdfScale2New)      : true;
     double pdfOld = getXPDF(idRecoiler, xRecoiler, pdfScale2Old, iSysRec,
@@ -4591,9 +4589,11 @@ bool DireTimes::branch_FF( Event& event, bool trial,
     zCS   = z / (xa*(1-yCS)) * (q2 - m2aij - m2k) / (q2 - m2ai - m2j - m2k);
     m2Emt = m2Rad;
     m2Rad = m2ai;
-    if (split->useForBranching) m2Emt = split->kinematics()->m2EmtAft;
-    if (split->useForBranching) m2Rad = sai + m2a + m2j;
-    if (split->useForBranching) m2ai  = sai + m2a + m2j;
+    if (split->useForBranching) {
+      m2Emt = split->kinematics()->m2EmtAft;
+      m2Rad = sai + m2a + m2j;
+      m2ai  = sai + m2a + m2j;
+    }
   }
 
   // Calculate derived variables.
@@ -5034,11 +5034,11 @@ bool DireTimes::branch_FF( Event& event, bool trial,
     if (physical) {
 
       // Update dipoles and beams.
-      if (!trial) updateAfterFF( iSysSel, iSysSelRec, event,
-        iRadBef, iRecBef, iRad, iEmt, iRec, flavour, colType, pTsel);
-
-      // Shower may occur at a displaced vertex.
       if (!trial) {
+        updateAfterFF( iSysSel, iSysSelRec, event,
+          iRadBef, iRecBef, iRad, iEmt, iRec, flavour, colType, pTsel);
+
+        // Shower may occur at a displaced vertex.
         if (event[iEmtOld].hasVertex()) {
           rad2.vProd( event[iEmtOld].vProd() );
           emt2.vProd( event[iEmtOld].vProd() );
@@ -5086,7 +5086,7 @@ bool DireTimes::branch_FF( Event& event, bool trial,
     // emission was indeed zero all along. In this case, neither
     // acceptProbability nor rejectProbability would have been filled. Thus,
     // remove the relevant entries from the weight container!
-    if (!trial && !physical) {
+    if (!trial) {
       for ( unordered_map<string, multimap<double,double> >::iterator
         it = rejectProbability.begin(); it != rejectProbability.end(); ++it){
         weights->eraseAcceptWeight(pT2, it->first);
@@ -5753,20 +5753,9 @@ bool DireTimes::branch_FI( Event& event, bool trial,
     pEmt.p(momsAfter.second);
     pRec.p(pRecBef);
 
-    if ( abs(pRad.e()-pRad.e()) > 1e5 || pRad.e()  !=pRad.e()
-      || abs(pRad.px()-pRad.px())>1e5 || pRad.px() !=pRad.px()
-      || abs(pRad.py()-pRad.py())>1e5 || pRad.py() !=pRad.py()
-      || abs(pRad.pz()-pRad.pz())>1e5 || pRad.pz() !=pRad.pz())
-      physical = false;
+    if (isnan(pRad)) physical = false;
 
-
-  } else {
-    if ( abs(pRad.e()-pRad.e()) > 1e5 || pRad.e()  !=pRad.e()
-      || abs(pRad.px()-pRad.px())>1e5 || pRad.px() !=pRad.px()
-      || abs(pRad.py()-pRad.py())>1e5 || pRad.py() !=pRad.py()
-      || abs(pRad.pz()-pRad.pz())>1e5 || pRad.pz() !=pRad.pz())
-      physical = false;
-  }
+  } else if (isnan(pRad)) physical = false;
 
   // Ensure that radiator is on mass-shell
   double errMass = abs(pRad.mCalc() - sqrt(m2Rad)) / max( 1.0, pRad.e());
@@ -6268,7 +6257,7 @@ bool DireTimes::branch_FI( Event& event, bool trial,
     // emission was indeed zero all along. In this case, neither
     // acceptProbability nor rejectProbability would have been filled. Thus,
     // remove the relevant entries from the weight container!
-    if (!trial && !physical) {
+    if (!trial) {
       for ( unordered_map<string, multimap<double,double> >::iterator
         it = rejectProbability.begin(); it != rejectProbability.end(); ++it){
         weights->eraseAcceptWeight(pT2, it->first);
@@ -6617,8 +6606,8 @@ pair < Vec4, Vec4 > DireTimes::decayWithOnshellRec( double zCS, double yCS,
                      *(sij + m2RadAft - m2EmtAft)/(q2-sij-m2Rec));
   double kT2  = zbar*(1.-zbar)*sij - (1.-zbar)*m2RadAft - zbar*m2EmtAft;
 
-  double physical = true;
-  if (kT2 < 0. || kT2!=kT2 || abs(kT2-kT2) > 1e5 ) physical = false;
+  bool physical = true;
+  if (kT2 < 0. || isnan(kT2)) physical = false;
   if (abs(kT2) < 1e-9) kT2 = 0.0;
 
   // Construct left-over dipole momentum by momentum conservation.
@@ -6664,7 +6653,7 @@ pair <Vec4, Vec4> DireTimes::decayWithOffshellRec( double zCS, double yCS,
 
   // Not possible to construct kinematics if kT2 < 0.0
   bool physical = true;
-  if (kT2 < 0. || kT2!=kT2 || abs(kT2-kT2) > 1e5 ) physical = false;
+  if (kT2 < 0. || isnan(kT2)) physical = false;
 
   // Construct left-over dipole momentum by momentum conservation.
   Vec4 pij(q-pRadBef);
@@ -7751,7 +7740,7 @@ Event DireTimes::makeHardEvent( int iSys, const Event& state, bool isProcess) {
   }
 
   int i1(-1), i2(-1);
-  if ( !hasSystems || (hasSystems && partonSystemsPtr->hasInAB(iSys)) ) {
+  if ( !hasSystems || partonSystemsPtr->hasInAB(iSys) ) {
     event.append(state[0]);
     i1 = event.append(state[1]);
     event[i1].mothers(0,0);
@@ -7833,17 +7822,8 @@ Event DireTimes::makeHardEvent( int iSys, const Event& state, bool isProcess) {
 
 bool DireTimes::validMomentum( const Vec4& p, int id, int status) {
 
-  // Check for NaNs
-  if ( abs(p.e()-p.e()) > 1e5 || p.e()  !=p.e()
-    || abs(p.px()-p.px())>1e5 || p.px() !=p.px()
-    || abs(p.py()-p.py())>1e5 || p.py() !=p.py()
-    || abs(p.pz()-p.pz())>1e5 || p.pz() !=p.pz())
-    return false;
-
-  // Check for INFs
-  if ( std::isinf(p.e())  || std::isinf(p.px())
-    || std::isinf(p.py()) || std::isinf(p.pz()))
-    return false;
+  // Check for NaNs or INFs.
+  if (isnan(p) || isinf(p)) return false;
 
   // Check if particles is on mass shell
   double mNow = (status < 0) ? 0.
@@ -7881,19 +7861,9 @@ bool DireTimes::validEvent( const Event& state, bool isProcess,
   bool hasSystems = !isProcess && partonSystemsPtr->sizeSys() > 0;
   int sizeSys     = (hasSystems) ? partonSystemsPtr->sizeSys() : 1;
 
-  // Check for NaNs
+  // Check for NaNs or INFs.
   for ( int i = 0; i < state.size(); ++i)
-    if ( abs(state[i].e()-state[i].e()) > 1e5 || state[i].e()  !=state[i].e()
-      || abs(state[i].px()-state[i].px())>1e5 || state[i].px() !=state[i].px()
-      || abs(state[i].py()-state[i].py())>1e5 || state[i].py() !=state[i].py()
-      || abs(state[i].pz()-state[i].pz())>1e5 || state[i].pz() !=state[i].pz())
-      return false;
-
-  // Check for INFs
-  for ( int i = 0; i < state.size(); ++i)
-    if ( std::isinf(state[i].e())  || std::isinf(state[i].px())
-      || std::isinf(state[i].py()) || std::isinf(state[i].pz()))
-      return false;
+    if (isnan(state[i].p()) || isinf(state[i].p())) return false;
 
   Event event = Event();
   event.clear();
@@ -8101,8 +8071,10 @@ int DireTimes::FindCol(int col, vector<int> iExc, const Event& event,
     if ( event[i].mother1() == 2 && event[i].status() != -31
       && event[i].status() != -34) { if (inB == 0) inB = i; }
   }
-  if (iSys >= 0) inA = partonSystemsPtr->getInA(iSys);
-  if (iSys >= 0) inB = partonSystemsPtr->getInB(iSys);
+  if (iSys >= 0) {
+    inA = partonSystemsPtr->getInA(iSys);
+    inB = partonSystemsPtr->getInB(iSys);
+  }
   // Unset if the incoming particles are flagged as outgoing. Instead, try to
   // resort to information stored in 0th event entry.
   if (event[inA].status() > 0) {

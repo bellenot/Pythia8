@@ -1,5 +1,5 @@
 // Dire.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,6 +13,41 @@ namespace Pythia8 {
 //==========================================================================
 
 // The Dire wrapper class.
+
+//--------------------------------------------------------------------------
+
+void Dire::createPointers() {
+
+  // Construct showers.
+  if (!weightsPtr)  {
+    hasOwnWeights  = true;
+    weightsPtr     = new DireWeightContainer(settingsPtr);
+  }
+  if (!timesPtr) {
+    hasOwnTimes    = true;
+    timesPtr       = make_shared<DireTimes>( mergingHooksPtr, partonVertexPtr);
+  }
+  if (!spacePtr) {
+    hasOwnSpace    = true;
+    spacePtr       = make_shared<DireSpace>( mergingHooksPtr, partonVertexPtr);
+  }
+  if (!timesDecPtr) {
+    hasOwnTimesDec = true;
+    timesDecPtr    = make_shared<DireTimes>( mergingHooksPtr, partonVertexPtr);
+  }
+  if (!mergingPtr) {
+    mergingPtr    = make_shared<DireMerging>();
+  }
+  if (!hardProcessPtr) {
+    hasOwnHardProcess = true;
+    hardProcessPtr    = new DireHardProcess();
+  }
+  if (!mergingHooksPtr) {
+    hasOwnMergingHooks = true;
+    mergingHooksPtr    = make_shared<DireMergingHooks>();
+  }
+
+}
 
 //--------------------------------------------------------------------------
 
@@ -121,6 +156,7 @@ void Dire::initShowersAndWeights() {
   }
 
   mergingHooksPtr->setHardProcessPtr(hardProcessPtr);
+  mergingHooksPtr->init();
 
   timesPtr->setWeightContainerPtr(weightsPtr);
   spacePtr->setWeightContainerPtr(weightsPtr);
@@ -137,7 +173,7 @@ void Dire::setup(BeamParticle* beamA, BeamParticle* beamB) {
   if (isInit) return;
 
   // Initialise library of splitting functions.
-  if (!splittings && !isInit) {
+  if (!splittings) {
     hasOwnSplittings = true;
     splittings       = new DireSplittingLibrary();
   }
@@ -196,7 +232,7 @@ void Dire::setup(BeamParticle* beamA, BeamParticle* beamB) {
   timesPtr->initSplits();
   spacePtr->initSplits();
 
-  weightsPtr->initPtrs(beamA, beamB, &direInfo);
+  weightsPtr->initPtrs(beamA, beamB, settingsPtr, &direInfo);
   timesDecPtr->initVariations();
   timesPtr->initVariations();
   spacePtr->initVariations();
@@ -205,7 +241,8 @@ void Dire::setup(BeamParticle* beamA, BeamParticle* beamB) {
 
 //--------------------------------------------------------------------------
 
-bool Dire::init(BeamParticle* beamA, BeamParticle* beamB) {
+//bool Dire::init(BeamParticle* beamA, BeamParticle* beamB) {
+bool Dire::initAfterBeams() {
 
   if (isInit) return true;
 
@@ -228,8 +265,9 @@ bool Dire::init(BeamParticle* beamA, BeamParticle* beamB) {
   }
 
   // Setup weight container (after user-defined enhance factors have been read)
+  weightsPtr->initPtrs(beamAPtr, beamBPtr, settingsPtr, &direInfo);
   weightsPtr->setup();
-  setup(beamA, beamB);
+  setup(beamAPtr, beamBPtr);
   isInit = true;
 
   printBannerSave = printBannerSave && !settingsPtr->flag("Print:quiet");

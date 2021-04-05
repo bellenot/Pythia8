@@ -1,5 +1,5 @@
 // Vincia.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2020 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -17,6 +17,7 @@
 #include "Pythia8/ParticleData.h"
 #include "Pythia8/PartonSystems.h"
 #include "Pythia8/StandardModel.h"
+#include "Pythia8/ShowerModel.h"
 
 // Include Vincia headers.
 #include "Pythia8/VinciaAntennaFunctions.h"
@@ -34,49 +35,54 @@ namespace Pythia8 {
 // The Vincia class. Top-level handler class for the Vincia antenna
 // shower model.
 
-class Vincia : public PhysicsBase {
+class Vincia : public ShowerModel {
 
 public:
 
-  // Default constructor is pure dummy.
-  Vincia() {}
+  // Constructor
+  Vincia() = default;
 
-  // Real constructor needs a pointer to Pythia's SLHA instance (used
-  // by MG5 interface).
-  Vincia(SusyLesHouches* slhaPtrIn);
-
-  // Preliminary initialization.
-  void initPrel();
+  // Empty virtual destructor
+  virtual ~Vincia() = default;
 
   // Initialize.
-  bool init();
+  bool init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
+            PartonVertexPtr partonVertexPtrIn,
+            WeightContainer* weightContainerPtrIn) override;
 
-  // Method to check for and return Vincia-specific tune file. First
-  // check in present working directory, then in share/Pythia8/tunes.
-  string tuneFile();
+  // Function called from Pythia after the beam particles have been set up,
+  // so that showers may be initialized after the beams are initialized.
+  // Currently only dummy dunction.
+  bool initAfterBeams() override { return true; }
 
-  // Methods to return shower pointers.
-  TimeShowerPtr  getTimesShower()    {return fsrShowerPtr;}
-  TimeShowerPtr  getTimesDecShower() {return fsrShowerPtr;}
-  SpaceShowerPtr getSpaceShower()    {return isrShowerPtr;}
+  // Methods to get
+  TimeShowerPtr  getTimeShower() const override { return timesPtr; }
+  TimeShowerPtr  getTimeDecShower() const override { return timesDecPtr; }
+  SpaceShowerPtr getSpaceShower() const override { return spacePtr; }
+  MergingHooksPtr getMergingHooks() const override { return mergingHooksPtr; }
+  MergingPtr getMerging() const override { return mergingPtr; }
 
   // Automatically set verbose level in all members.
   void setVerbose(int verboseIn);
 
   // Utilities for printing info and internal histograms.
-  void printInfo() {fsrShowerPtr->printInfo(true);
-    isrShowerPtr->printInfo(true);}
-  void printHistos() {fsrShowerPtr->printHistos();}
+  void printInfo() {
+    timesPtr->printInfo(true);
+    spacePtr->printInfo(true);
+  }
+  void printHistos() {
+    timesPtr->printHistos();
+  }
   void writeHistos(string fileName = "vincia", string lastName = "dat") {
-    fsrShowerPtr->writeHistos(fileName, lastName);}
+    timesPtr->writeHistos(fileName, lastName);
+  }
   const Hist& getDiagnosticHistogram(string name) {
-    return fsrShowerPtr->getDiagnosticHistogram(name);}
+    return timesPtr->getDiagnosticHistogram(name);
+  }
 
   // Public Vincia objects.
   VinciaCommon          vinCom;
   Resolution            resolution;
-  shared_ptr<VinciaFSR> fsrShowerPtr;
-  shared_ptr<VinciaISR> isrShowerPtr;
   QEDShower             qedShower;
   Colour                colour;
   ResScaleHook          resScaleHook;
@@ -95,11 +101,20 @@ public:
   // Pointers to Pythia classes.
   SusyLesHouches* slhaPtr;
 
-private:
+ protected:
+
+  // Method to initialise Vincia tune settings
+  bool initTune(int iTune);
+
+  // Members for the FSR and ISR showers.
+  shared_ptr<VinciaFSR> timesPtr;
+  shared_ptr<VinciaFSR> timesDecPtr;
+  shared_ptr<VinciaISR> spacePtr;
+
+ private:
 
   // Verbosity level.
   int verbose;
-  bool isConstructed;
 
 };
 

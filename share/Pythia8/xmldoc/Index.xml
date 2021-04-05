@@ -176,6 +176,7 @@ Hard Processes</button>
 <aidx href="EventInformation">Event Information</aidx><br/> 
 <aidx href="EventStatistics">Event Statistics</aidx><br/> 
 <aidx href="EventAnalysis">Event Analysis</aidx><br/> 
+<aidx href="CrossSectionsAndWeights">Cross Sections and Weights</aidx><br/> 
 <aidx href="Histograms">Histograms</aidx><br/> 
 <aidx href="AdvancedUsage">Advanced Usage</aidx><br/> 
 </div> 
@@ -216,4 +217,4 @@ Hard Processes</button>
 <script src="Expand.js"></script> 
 </chapter> 
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

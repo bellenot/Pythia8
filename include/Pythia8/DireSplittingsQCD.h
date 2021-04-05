@@ -1,5 +1,5 @@
 // DireSplittingsQCD.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -409,11 +409,12 @@ class Dire_fsr_qcd_G2Gqqbar : public DireSplittingQCD {
 public:
 
   Dire_fsr_qcd_G2Gqqbar(int idEmtAfterIn, string idIn, int softRS,
-    Settings* settings,
-    ParticleData* particleData, Rndm* rndm, BeamParticle* beamA,
-    BeamParticle* beamB, CoupSM* coupSM, Info* info, DireInfo* direInfo) :
+    Settings* settings, ParticleData* particleData, Rndm* rndm,
+    BeamParticle* beamA, BeamParticle* beamB, CoupSM* coupSM, Info* info,
+    DireInfo* direInfo) :
     DireSplittingQCD(idIn, softRS, settings, particleData, rndm, beamA, beamB,
-      coupSM, info, direInfo), idEmtAfterSave(idEmtAfterIn)
+      coupSM, info, direInfo),
+    idEmtAfterSave(idEmtAfterIn), is_sai_endpoint_save(false)
       { nGluonToQuark = settingsPtr->mode("TimeShower:nGluonToQuark"); }
 
   bool canRadiate ( const Event&, pair<int,int>,

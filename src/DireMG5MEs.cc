@@ -1,5 +1,5 @@
 // DireMG5MEs.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -115,7 +115,7 @@ double calcME( PY8MEs_namespace::PY8MEs& accessor,
 
 #else
 bool isAvailableME() { return false; }
-double calcME() { return false; }
+double calcME() { return 0.0; }
 #endif
 
 //==========================================================================

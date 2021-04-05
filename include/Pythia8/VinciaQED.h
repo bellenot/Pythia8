@@ -1,5 +1,5 @@
 // VinciaQED.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2020 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -282,7 +282,7 @@ public:
   friend class QEDsplitSystem;
 
   // Default constructor.
-  QEDsplitElemental() {;}
+  QEDsplitElemental() = default;
 
   // Constructor.
   QEDsplitElemental(Event &event, int iPhotIn, int iSpecIn):
@@ -297,9 +297,9 @@ public:
 private:
 
   // Internal members.
-  int iPhot, iSpec;
-  double m2Spec, m2Ant, sAnt;
-  double ariWeight;
+  int iPhot{}, iSpec{};
+  double m2Spec{}, m2Ant{}, sAnt{};
+  double ariWeight{};
 };
 
 //==========================================================================

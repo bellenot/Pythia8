@@ -1,5 +1,5 @@
 // History.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -593,12 +593,12 @@ double History::weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
     aemWeight, pdfWeight);
   else {
     wt   = selected->weightTreeEmissions( trial, 1, 0, depthIn, maxScale );
-    if (wt != 0.) asWeight  = selected->weightTreeALPHAS( asME, asFSR, asISR,
-                             depthIn);
-    if (wt != 0.) aemWeight = selected->weightTreeALPHAEM( aemME, aemFSR,
-                             aemISR, depthIn);
-    if (wt != 0.) pdfWeight = selected->weightTreePDFs( maxScale,
-                             selected->clusterIn.pT(), depthIn);
+    if (wt != 0.) {
+      asWeight  = selected->weightTreeALPHAS( asME, asFSR, asISR, depthIn);
+      aemWeight = selected->weightTreeALPHAEM( aemME, aemFSR, aemISR, depthIn);
+      pdfWeight = selected->weightTreePDFs( maxScale,
+                                            selected->clusterIn.pT(), depthIn);
+    }
   }
 
   // MPI no-emission probability.
@@ -687,12 +687,12 @@ double History::weight_UNLOPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
       aemWeight, pdfWeight);
   else {
     sudakov = selected->weightTreeEmissions( trial, 1, 0, depthIn, maxScale );
-    if (sudakov > 0.) asWeight  = selected->weightTreeALPHAS( asME, asFSR,
-                                  asISR, depthIn);
-    if (sudakov > 0.) aemWeight  = selected->weightTreeALPHAEM( aemME, aemFSR,
-                                  aemISR, depthIn);
-    if (sudakov > 0.) pdfWeight = selected->weightTreePDFs( maxScale,
-                                  selected->clusterIn.pT(), depthIn);
+    if (sudakov > 0.) {
+      asWeight  = selected->weightTreeALPHAS( asME, asFSR, asISR, depthIn);
+      aemWeight = selected->weightTreeALPHAEM( aemME, aemFSR, aemISR, depthIn);
+      pdfWeight = selected->weightTreePDFs( maxScale,
+                                            selected->clusterIn.pT(), depthIn);
+    }
   }
 
   // MPI no-emission probability.
@@ -782,25 +782,23 @@ double History::weight_UNLOPS_CORRECTION( int order, PartonLevel* trial,
 
   // Calculate sum of O(\alpha_s^1)-terms of the ckkw-l weight WITHOUT
   // the O(\alpha_s^1)-term of the last no-emission probability.
-  bool fixpdf = true;
-  bool fixas  = true;
   // Get first term in expansion of alpha_s ratios.
   double wA   = selected->weightFirstALPHAS( asME, muR, asFSR, asISR );
   // Add logarithm from \alpha_s expansion to weight.
-  wt         += (fixas) ? wA : 0.;
+  wt         += wA;
   // Generate true average, not only one-point.
   double nWeight = 0.;
   for ( int i=0; i < NTRIAL; ++i ) {
     // Get average number of emissions.
     double wE   = selected->weightFirstEmissions(trial,asME, maxScale,
-      asFSR, asISR, fixpdf, fixas );
+      asFSR, asISR, true, true );
     // Add average number of emissions off reconstructed states to weight.
     nWeight    += wE;
     // Get first term in expansion of PDF ratios.
     double pscale = selected->clusterIn.pT();
     double wP   = selected->weightFirstPDFs(asME, maxScale, pscale, rndmPtr);
     // Add integral of DGLAP shifted PDF ratios from \alpha_s expansion to wt.
-    nWeight    += (fixpdf) ? wP : 0.;
+    nWeight    += wP;
   }
   wt += nWeight/double(NTRIAL);
 
@@ -927,7 +925,7 @@ void History::printStates() {
   }
 
   // Print.
-  double p = (mother) ? prob/mother->prob : prob;
+  double p = prob/mother->prob;
   cout << scientific << setprecision(6) << "Probability=" << p
        << " scale=" << clusterIn.pT() << endl;
   state.list();
@@ -1038,20 +1036,13 @@ double History::getPDFratio( int side, bool forSudakov, bool useHardPDFs,
         pdfNum = mother->beamA.xfHard( flavNum, xNum, muNum*muNum);
       else
         pdfNum = beamA.xfHard( flavNum, xNum, muNum*muNum);
-      if (forSudakov)
-        pdfDen = max(1e-10, beamA.xfHard( flavDen, xDen, muDen*muDen));
-      else
-        pdfDen = max(1e-10, beamA.xfHard( flavDen, xDen, muDen*muDen));
+      pdfDen = max(1e-10, beamA.xfHard( flavDen, xDen, muDen*muDen));
     } else {
       if (forSudakov)
         pdfNum = mother->beamB.xfHard( flavNum, xNum, muNum*muNum);
       else
         pdfNum = beamB.xfHard( flavNum, xNum, muNum*muNum);
-
-      if (forSudakov)
-        pdfDen = max(1e-10,beamB.xfHard( flavDen, xDen, muDen*muDen));
-      else
-        pdfDen = max(1e-10,beamB.xfHard( flavDen, xDen, muDen*muDen));
+      pdfDen = max(1e-10,beamB.xfHard( flavDen, xDen, muDen*muDen));
     }
 
   // Use rescaled PDFs in the presence of multiparton interactions
@@ -1061,21 +1052,14 @@ double History::getPDFratio( int side, bool forSudakov, bool useHardPDFs,
         pdfNum = mother->beamA.xfISR(0, flavNum, xNum, muNum*muNum);
       else
         pdfNum = beamA.xfISR(0, flavNum, xNum, muNum*muNum);
-      if (forSudakov)
-        pdfDen = max(1e-10, beamA.xfISR(0, flavDen, xDen, muDen*muDen));
-      else
-        pdfDen = max(1e-10, beamA.xfISR(0, flavDen, xDen, muDen*muDen));
+      pdfDen = max(1e-10, beamA.xfISR(0, flavDen, xDen, muDen*muDen));
 
     } else {
       if (forSudakov)
         pdfNum = mother->beamB.xfISR(0, flavNum, xNum, muNum*muNum);
       else
         pdfNum = beamB.xfISR(0, flavNum, xNum, muNum*muNum);
-
-      if (forSudakov)
-        pdfDen = max(1e-10,beamB.xfISR(0, flavDen, xDen, muDen*muDen));
-      else
-        pdfDen = max(1e-10,beamB.xfISR(0, flavDen, xDen, muDen*muDen));
+      pdfDen = max(1e-10,beamB.xfISR(0, flavDen, xDen, muDen*muDen));
     }
   }
 
@@ -2213,7 +2197,7 @@ bool History::allIntermediateAboveRhoMS( double rhoms, bool good ) {
   // Assume state from ME generator passes merging scale cut.
   if ( !mother ) return good;
   // Recurse.
-  return good && mother->allIntermediateAboveRhoMS( rhoms, (rhoNew > rhoms) );
+  return mother->allIntermediateAboveRhoMS( rhoms, (rhoNew > rhoms) );
 }
 
 //--------------------------------------------------------------------------
@@ -3562,8 +3546,7 @@ vector<Clustering> History::getAllQCDClusterings() {
   // clusterings of diagrams that interfere with the current one
   // (i.e. change the colours of the current event slightly and run
   //  search again)
-  else if ( ret.empty()
-        && mergingHooksPtr->allowColourShuffling() ) {
+  else if ( mergingHooksPtr->allowColourShuffling() ) {
     Event NewState = Event(state);
     // Start with changing final state quark colour
     for(int i = 0; i < int(posFinalQuark.size()); ++i) {
@@ -3610,12 +3593,6 @@ vector<Clustering> History::getAllQCDClusterings() {
           return ret;
         }
       }
-    }
-
-    if ( !ret.empty() ) {
-      string message="Warning in History::getAllQCDClusterings: Changed";
-      message+=" colour structure to allow at least one clustering.";
-      infoPtr->errorMsg(message);
     }
 
   }
@@ -6466,7 +6443,7 @@ int History::getRadBeforeFlav(const int RadAfter, const int EmtAfter,
     return -emtID;
   // Initial state t-channel gluon splitting
   if ( type ==-1 && !colConnected
-    && emtID != 21 && radID != 21 && abs(emtID) < 10 && abs(radID) < 10)
+    && radID != 21 && abs(emtID) < 10 && abs(radID) < 10)
     return 21;
 
   // SQCD splittings
@@ -6909,7 +6886,7 @@ int History::getRadBeforeCol(const int rad, const int emt,
     }
 
   // Get reconstructed quark colours
-  } else if ( radBeforeFlav != 21 && radBeforeFlav > 0) {
+  } else if (radBeforeFlav > 0) {
 
     // Quark emission in FSR
     if (type == 1 && event[emt].id() != 21) {
@@ -7002,7 +6979,7 @@ int History::getRadBeforeAcol(const int rad, const int emt,
     }
 
   // Get reconstructed anti-quark colours
-  } else if ( radBeforeFlav != 21 && radBeforeFlav < 0) {
+  } else if (radBeforeFlav < 0) {
 
     // Antiquark emission in FSR
     if (type == 1 && event[emt].id() != 21) {
@@ -7273,8 +7250,7 @@ bool History::isColSinglet( const Event& event,
        || event[system[i]].colType() == 2) ) {
       for(int j=0; j < int(system.size()); ++j)
         // If flavour matches, remove both partons and continue
-        if ( system[i] > 0
-          && system[j] > 0
+        if ( system[j] > 0
           && event[system[i]].col() == event[system[j]].acol()) {
           // Remove index and break
           system[i] = 0;
@@ -7288,8 +7264,7 @@ bool History::isColSinglet( const Event& event,
        || event[system[i]].colType() == 2) ) {
       for(int j=0; j < int(system.size()); ++j)
         // If flavour matches, remove both partons and continue
-        if ( system[i] > 0
-          && system[j] > 0
+        if ( system[j] > 0
           && event[system[i]].acol() == event[system[j]].col()) {
           // Remove index and break
           system[i] = 0;
@@ -7338,7 +7313,6 @@ bool History::isFlavSinglet( const Event& event,
           && event[i].idAbs() != 22
           && event[i].idAbs() != 23
           && event[i].idAbs() != 24
-          && system[i] > 0
           && system[j] > 0
           && event[system[i]].isFinal()
           && event[system[j]].isFinal()
@@ -7359,10 +7333,8 @@ bool History::isFlavSinglet( const Event& event,
           && event[i].idAbs() != 22
           && event[i].idAbs() != 23
           && event[i].idAbs() != 24
-          && system[i] > 0
           && system[j] > 0
-          && ( ( !event[system[i]].isFinal() && event[system[j]].isFinal())
-             ||( !event[system[j]].isFinal() && event[system[i]].isFinal()) )
+          && event[system[i]].isFinal() != event[system[j]].isFinal()
           && event[system[i]].id() == event[system[j]].id()) {
           // If we want to check if only one flavour of quarks
           // exists
@@ -7449,7 +7421,6 @@ bool History::allowedClustering( int rad, int emt, int rec, int partner,
       &&(  event[i].id() == 22
         || event[i].id() == 23
         || event[i].id() == 24
-        ||(event[i].idAbs() > 10 && event[i].idAbs() < 20)
         ||(event[i].idAbs() > 10 && event[i].idAbs() < 20)
         ||(event[i].idAbs() > 1000010 && event[i].idAbs() < 1000020)
         ||(event[i].idAbs() > 2000010 && event[i].idAbs() < 2000020) ))

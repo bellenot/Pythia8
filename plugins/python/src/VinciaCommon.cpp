@@ -23,12 +23,11 @@
 #include <Pythia8/ShowerModel.h>
 #include <Pythia8/SigmaProcess.h>
 #include <Pythia8/SigmaTotal.h>
-#include <Pythia8/SpaceShower.h>
 #include <Pythia8/StandardModel.h>
 #include <Pythia8/SusyCouplings.h>
-#include <Pythia8/TimeShower.h>
 #include <Pythia8/UserHooks.h>
 #include <Pythia8/VinciaCommon.h>
+#include <Pythia8/Weights.h>
 #include <functional>
 #include <ios>
 #include <istream>
@@ -62,22 +61,22 @@
 
 void bind_Pythia8_VinciaCommon(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
-	// Pythia8::m(const class Pythia8::Vec4 &) file:Pythia8/VinciaCommon.h line:274
+	// Pythia8::m(const class Pythia8::Vec4 &) file:Pythia8/VinciaCommon.h line:275
 	M("Pythia8").def("m", (double (*)(const class Pythia8::Vec4 &)) &Pythia8::m, "C++: Pythia8::m(const class Pythia8::Vec4 &) --> double", pybind11::arg(""));
 
-	// Pythia8::m2(const class Pythia8::Vec4 &) file:Pythia8/VinciaCommon.h line:275
+	// Pythia8::m2(const class Pythia8::Vec4 &) file:Pythia8/VinciaCommon.h line:276
 	M("Pythia8").def("m2", (double (*)(const class Pythia8::Vec4 &)) &Pythia8::m2, "C++: Pythia8::m2(const class Pythia8::Vec4 &) --> double", pybind11::arg(""));
 
-	// Pythia8::m2(const class Pythia8::Vec4 &, const class Pythia8::Vec4 &, const class Pythia8::Vec4 &) file:Pythia8/VinciaCommon.h line:276
+	// Pythia8::m2(const class Pythia8::Vec4 &, const class Pythia8::Vec4 &, const class Pythia8::Vec4 &) file:Pythia8/VinciaCommon.h line:277
 	M("Pythia8").def("m2", (double (*)(const class Pythia8::Vec4 &, const class Pythia8::Vec4 &, const class Pythia8::Vec4 &)) &Pythia8::m2, "C++: Pythia8::m2(const class Pythia8::Vec4 &, const class Pythia8::Vec4 &, const class Pythia8::Vec4 &) --> double", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 
-	// Pythia8::m2(const class Pythia8::Vec4 &, const class Pythia8::Vec4 &, const class Pythia8::Vec4 &, const class Pythia8::Vec4 &) file:Pythia8/VinciaCommon.h line:277
+	// Pythia8::m2(const class Pythia8::Vec4 &, const class Pythia8::Vec4 &, const class Pythia8::Vec4 &, const class Pythia8::Vec4 &) file:Pythia8/VinciaCommon.h line:278
 	M("Pythia8").def("m2", (double (*)(const class Pythia8::Vec4 &, const class Pythia8::Vec4 &, const class Pythia8::Vec4 &, const class Pythia8::Vec4 &)) &Pythia8::m2, "C++: Pythia8::m2(const class Pythia8::Vec4 &, const class Pythia8::Vec4 &, const class Pythia8::Vec4 &, const class Pythia8::Vec4 &) --> double", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 
-	// Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &, const class Pythia8::Particle &) file:Pythia8/VinciaCommon.h line:278
+	// Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &, const class Pythia8::Particle &) file:Pythia8/VinciaCommon.h line:279
 	M("Pythia8").def("m2", (double (*)(const class Pythia8::Particle &, const class Pythia8::Particle &, const class Pythia8::Particle &)) &Pythia8::m2, "C++: Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &, const class Pythia8::Particle &) --> double", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 
-	{ // Pythia8::Pythia file:Pythia8/Pythia.h line:63
+	{ // Pythia8::Pythia file:Pythia8/Pythia.h line:64
 		pybind11::class_<Pythia8::Pythia, std::shared_ptr<Pythia8::Pythia>> cl(M("Pythia8"), "Pythia", "");
 		pybind11::handle cl_type = cl;
 
@@ -144,13 +143,11 @@ void bind_Pythia8_VinciaCommon(std::function< pybind11::module &(std::string con
 		cl.def("setMergingPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::Merging>)) &Pythia8::Pythia::setMergingPtr, "C++: Pythia8::Pythia::setMergingPtr(class std::shared_ptr<class Pythia8::Merging>) --> bool", pybind11::arg("mergingPtrIn"));
 		cl.def("setMergingHooksPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::MergingHooks>)) &Pythia8::Pythia::setMergingHooksPtr, "C++: Pythia8::Pythia::setMergingHooksPtr(class std::shared_ptr<class Pythia8::MergingHooks>) --> bool", pybind11::arg("mergingHooksPtrIn"));
 		cl.def("setBeamShapePtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::BeamShape>)) &Pythia8::Pythia::setBeamShapePtr, "C++: Pythia8::Pythia::setBeamShapePtr(class std::shared_ptr<class Pythia8::BeamShape>) --> bool", pybind11::arg("beamShapePtrIn"));
-		cl.def("setShowerPtr", [](Pythia8::Pythia &o, class std::shared_ptr<class Pythia8::TimeShower> const & a0) -> bool { return o.setShowerPtr(a0); }, "", pybind11::arg("timesDecPtrIn"));
-		cl.def("setShowerPtr", [](Pythia8::Pythia &o, class std::shared_ptr<class Pythia8::TimeShower> const & a0, class std::shared_ptr<class Pythia8::TimeShower> const & a1) -> bool { return o.setShowerPtr(a0, a1); }, "", pybind11::arg("timesDecPtrIn"), pybind11::arg("timesPtrIn"));
-		cl.def("setShowerPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::TimeShower>, class std::shared_ptr<class Pythia8::TimeShower>, class std::shared_ptr<class Pythia8::SpaceShower>)) &Pythia8::Pythia::setShowerPtr, "C++: Pythia8::Pythia::setShowerPtr(class std::shared_ptr<class Pythia8::TimeShower>, class std::shared_ptr<class Pythia8::TimeShower>, class std::shared_ptr<class Pythia8::SpaceShower>) --> bool", pybind11::arg("timesDecPtrIn"), pybind11::arg("timesPtrIn"), pybind11::arg("spacePtrIn"));
 		cl.def("setShowerModelPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::ShowerModel>)) &Pythia8::Pythia::setShowerModelPtr, "C++: Pythia8::Pythia::setShowerModelPtr(class std::shared_ptr<class Pythia8::ShowerModel>) --> bool", pybind11::arg("showerModelPtrIn"));
 		cl.def("setHeavyIonsPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::HeavyIons>)) &Pythia8::Pythia::setHeavyIonsPtr, "C++: Pythia8::Pythia::setHeavyIonsPtr(class std::shared_ptr<class Pythia8::HeavyIons>) --> bool", pybind11::arg("heavyIonsPtrIn"));
 		cl.def("setHIHooks", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::HIUserHooks>)) &Pythia8::Pythia::setHIHooks, "C++: Pythia8::Pythia::setHIHooks(class std::shared_ptr<class Pythia8::HIUserHooks>) --> bool", pybind11::arg("hiHooksPtrIn"));
 		cl.def("getHeavyIonsPtr", (class std::shared_ptr<class Pythia8::HeavyIons> (Pythia8::Pythia::*)()) &Pythia8::Pythia::getHeavyIonsPtr, "C++: Pythia8::Pythia::getHeavyIonsPtr() --> class std::shared_ptr<class Pythia8::HeavyIons>");
+		cl.def("getShowerModelPtr", (class std::shared_ptr<class Pythia8::ShowerModel> (Pythia8::Pythia::*)()) &Pythia8::Pythia::getShowerModelPtr, "C++: Pythia8::Pythia::getShowerModelPtr() --> class std::shared_ptr<class Pythia8::ShowerModel>");
 		cl.def("setPartonVertexPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::PartonVertex>)) &Pythia8::Pythia::setPartonVertexPtr, "C++: Pythia8::Pythia::setPartonVertexPtr(class std::shared_ptr<class Pythia8::PartonVertex>) --> bool", pybind11::arg("partonVertexPtrIn"));
 		cl.def("init", (bool (Pythia8::Pythia::*)()) &Pythia8::Pythia::init, "C++: Pythia8::Pythia::init() --> bool");
 		cl.def("next", (bool (Pythia8::Pythia::*)()) &Pythia8::Pythia::next, "C++: Pythia8::Pythia::next() --> bool");

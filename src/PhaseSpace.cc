@@ -1,5 +1,5 @@
 // PhaseSpace.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -3733,7 +3733,7 @@ bool PhaseSpace2to3yyycyl::setupSampling() {
       pT4   = pT3 - pT5;
       p4cm  = pT4 * Vec4( -1., 0.,  sinhR, coshR );
       p5cm  = pT5 * Vec4( -1., 0., -sinhR, coshR );
-      y3    = -1.2 + 0.2 * (iStep/10);
+      y3    = -1.2 + 0.2 * int(iStep/10);
       p3cm  = pT3 * Vec4( 1., 0., sinh(y3), cosh(y3));
       betaZ = (p3cm.pz() + p4cm.pz() + p5cm.pz())
             / (p3cm.e()  + p4cm.e()  + p5cm.e());

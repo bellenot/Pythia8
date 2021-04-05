@@ -1,5 +1,5 @@
 // Pythia.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,8 +10,8 @@
 #define Pythia8_Pythia_H
 
 // Version number defined for use in macros and for consistency checks.
-#define PYTHIA_VERSION 8.301
-#define PYTHIA_VERSION_INTEGER 8301
+#define PYTHIA_VERSION 8.302
+#define PYTHIA_VERSION_INTEGER 8302
 
 // Header files for the Pythia class and for what else the user may need.
 #include "Pythia8/Analysis.h"
@@ -49,6 +49,7 @@
 #include "Pythia8/TimeShower.h"
 #include "Pythia8/UserHooks.h"
 #include "Pythia8/VinciaCommon.h"
+#include "Pythia8/Weights.h"
 
 namespace Pythia8 {
 
@@ -166,12 +167,6 @@ public:
   bool setResonancePtr( ResonanceWidths* resonancePtrIn)
     { resonancePtrs.push_back( resonancePtrIn); return true;}
 
-  //TS?? Possibility to pass in pointer for external showers. Obsolete!
-  bool setShowerPtr( TimeShowerPtr timesDecPtrIn,
-    TimeShowerPtr timesPtrIn = nullptr, SpaceShowerPtr spacePtrIn = nullptr)
-    { timesDecPtr = timesDecPtrIn; timesPtr = timesPtrIn;
-    spacePtr = spacePtrIn; return true;}
-
   // Possibility to pass in pointer for external showers.
   bool setShowerModelPtr( ShowerModelPtr showerModelPtrIn)
     { showerModelPtr = showerModelPtrIn; return true;}
@@ -188,6 +183,9 @@ public:
   // Possibility to get the pointer to a object modelling heavy ion
   // collisions.
   HeavyIonsPtr getHeavyIonsPtr() { return heavyIonsPtr;}
+
+  // Possibility to get the pointer to the parton-shower model.
+  ShowerModelPtr getShowerModelPtr() { return showerModelPtr; }
 
   // Possibility to pass in pointer for setting of parton space-time vertices.
   bool setPartonVertexPtr( PartonVertexPtr partonVertexPtrIn)
@@ -292,6 +290,10 @@ public:
   BeamParticle   beamB = {};
 
 private:
+
+  // The collector of all event generation weights that should eventually
+  // be transferred to the final output.
+  WeightContainer weightContainer = {};
 
   // The main keeper/collector of information, accessible from all
   // PhysicsBase objects. The information is available from the
@@ -427,7 +429,7 @@ private:
   // Pointers to external calculation of resonance widths.
   vector<ResonanceWidths*> resonancePtrs = {};
 
-  // Pointers to timelike and spacelike showers, including Vinxia and Dire.
+  // Pointers to timelike and spacelike showers, including Vincia and Dire.
   TimeShowerPtr  timesDecPtr = {};
   TimeShowerPtr  timesPtr = {};
   SpaceShowerPtr spacePtr = {};

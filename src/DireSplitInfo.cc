@@ -1,5 +1,5 @@
 // DireSplitInfo.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -318,12 +318,10 @@ DireSingleColChain DireSingleColChain::chainFromCol(int iPos, int col,
     if (iPosInChain == 0) {
 
       ret.addToChain(chain[iPosInChain].first, state);
-      if ( iPosInChain+1 >= 0 && iPosInChain+1 < size()
-        && chain[iPosInChain+1].first > 0
+      if ( iPosInChain+1 < size() && chain[iPosInChain+1].first > 0
         && !ret.isInChain(chain[iPosInChain+1].first))
         ret.addToChain(chain[iPosInChain+1].first, state);
-      if ( iPosInChain+2 >= 0 && iPosInChain+2 < size()
-        && chain[iPosInChain+2].first > 0
+      if ( iPosInChain+2 < size() && chain[iPosInChain+2].first > 0
         && !ret.isInChain(chain[iPosInChain+2].first))
         ret.addToChain(chain[iPosInChain+2].first, state);
 
@@ -349,8 +347,7 @@ DireSingleColChain DireSingleColChain::chainFromCol(int iPos, int col,
         && chain[iPosInChain].first   > 0
         && !ret.isInChain(chain[iPosInChain].first))
         ret.addToChain(chain[iPosInChain].first, state);
-      if ( iPosInChain+1 >= 0 && iPosInChain+1 < size()
-        && chain[iPosInChain+1].first > 0
+      if ( iPosInChain+1 < size() && chain[iPosInChain+1].first > 0
         && !ret.isInChain(chain[iPosInChain+1].first))
         ret.addToChain(chain[iPosInChain+1].first, state);
     }

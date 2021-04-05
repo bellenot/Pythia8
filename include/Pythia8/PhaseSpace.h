@@ -1,5 +1,5 @@
 // PhaseSpace.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -450,9 +450,9 @@ class PhaseSpace2to3diffractive : public PhaseSpace {
 public:
 
   // Constructor.
-  PhaseSpace2to3diffractive() : splitxit(), s1(), s2(), m5min(), s5min(), m5(),
-    sigNow(), sigMax(), sigMaxNow(), xiMin(), xi1(), xi2(), fWid1(), fWid2(),
-    fWid3(), fbWid1(), fbWid2(), fbWid3(), fbWid123() {}
+ PhaseSpace2to3diffractive() : PhaseSpace(), splitxit(), s1(), s2(), m5min(),
+    s5min(), sigNow(), sigMax(), sigMaxNow(), xiMin(), xi1(), xi2(), fWid1(),
+    fWid2(), fWid3(), fbWid1(), fbWid2(), fbWid3(), fbWid123() {}
 
   // Construct the trial or final event kinematics.
   virtual bool setupSampling();
@@ -473,7 +473,7 @@ public:
   bool   splitxit;
 
   // Local variables to calculate DPE kinematics.
-  double s1, s2, m5min, s5min, m5, sigNow, sigMax, sigMaxNow, xiMin, xi1, xi2,
+  double s1, s2, m5min, s5min, sigNow, sigMax, sigMaxNow, xiMin, xi1, xi2,
          fWid1, fWid2, fWid3, fbWid1, fbWid2, fbWid3, fbWid123;
   Vec4   p1, p2, p3, p4, p5;
 

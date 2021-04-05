@@ -1,5 +1,5 @@
 // SigmaTotal.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1453,18 +1453,19 @@ bool SigmaSaSDL::findBeamComb( int idAin, int idBin, double mAin,
     if (idAbsA > 400) iProc                       = 12;
   } else if (idAbsA == 22 || idAbsB == 22) {
     if (idAbsA == idAbsB) iProc                   = 14;
-    if (idAbsA > 1000 || idAbsB > 1000) iProc     = 13;
+    if (idAbsB > 1000)    iProc                   = 13;
   }
   if (iProc == -1) return false;
 
   // Set up global variables.
-  iHadA = IHADATABLE[iProc];
-  iHadB = IHADBTABLE[iProc];
-  bA    = BHAD[iHadA];
-  bB    = BHAD[iHadB];
+  if (iProc < 13) {
+    iHadA = IHADATABLE[iProc];
+    iHadB = IHADBTABLE[iProc];
+    bA    = BHAD[iHadA];
+    bB    = BHAD[iHadB];
 
   // Set up VMD global variables for gamma + p.
-  if (iProc == 13){
+  } else if (iProc == 13){
     for (int i = 0; i < NVMD; ++i){
       // VMD always on side a
       mAtmp[i]    = VMDMASS[i];
@@ -1476,10 +1477,9 @@ bool SigmaSaSDL::findBeamComb( int idAin, int idBin, double mAin,
       else if (i == 2) iProcVP[i]  = 5;
       else if (i == 3) iProcVP[i]  = 6;
     }
-  }
 
   // Set up VMD global variables for gamma + gamma.
-  if (iProc == 14){
+  } else if (iProc == 14){
     for (int i = 0; i < NVMD; ++i){
       mAtmp[i]      = VMDMASS[i];
       mBtmp[i]      = VMDMASS[i];

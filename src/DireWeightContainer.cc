@@ -1,5 +1,5 @@
 // DireWeightContainer.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -20,6 +20,7 @@ const double DireWeightContainer::LARGEWT = 2e0;
 
 void DireWeightContainer::setup() {
 
+cout << __LINE__ << " " << settingsPtr << endl;
   // Clear everything.
   init();
   enhanceFactors.clear();
@@ -254,8 +255,7 @@ void DireWeightContainer::setup() {
 //--------------------------------------------------------------------------
 
 void DireWeightContainer::bookWeightVar( string vkey, bool checkSettings) {
-  bool insert =  !checkSettings
-              || (checkSettings && settingsPtr->parm(vkey) != 1.0);
+  bool insert = !checkSettings || settingsPtr->parm(vkey) != 1.0;
   if (insert) {
     rejectWeight.insert( make_pair(vkey, map<ulong, DirePSWeight>() ));
     acceptWeight.insert( make_pair(vkey, map<ulong, DirePSWeight>() ));
@@ -531,7 +531,7 @@ double DireWeightContainer::getME(const Event& event) {
   return calcME(*PY8MEs_accessorPtr,event);
 #else
   if (false) cout << event.size();
-  return false;
+  return 0.0;
 #endif
 }
 

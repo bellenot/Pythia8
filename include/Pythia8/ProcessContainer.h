@@ -1,5 +1,5 @@
 // ProcessContainer.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -44,13 +44,12 @@ public:
   ProcessContainer(SigmaProcess* sigmaProcessPtrIn = 0,
     bool externalPtrIn = false, PhaseSpace* phaseSpacePtrIn = 0) :
       sigmaProcessPtr(sigmaProcessPtrIn), externalPtr(externalPtrIn),
-      phaseSpacePtr(phaseSpacePtrIn),
-      resDecaysPtr(), gammaKinPtr(), matchInOut(), idRenameBeams(),
-      setLifetime(),
-      setQuarkMass(), setLeptonMass(), idNewM(), mRecalculate(), mNewM(),
-      isLHA(), isNonDiff(), isResolved(), isDiffA(), isDiffB(), isDiffC(),
-      isQCD3body(), allowNegSig(), isSameSave(), increaseMaximum(),
-      canVetoResDecay(), lhaStrat(), lhaStratAbs(), useStrictLHEFscales(),
+      phaseSpacePtr(phaseSpacePtrIn), resDecaysPtr(), gammaKinPtr(),
+      matchInOut(), idRenameBeams(), setLifetime(), setQuarkMass(),
+      setLeptonMass(), idNewM(), mRecalculate(), mNewM(), isLHA(), isNonDiff(),
+      isResolved(), isDiffA(), isDiffB(), isDiffC(), isQCD3body(),
+      allowNegSig(), isSameSave(), increaseMaximum(), canVetoResDecay(),
+      lhaStrat(), lhaStratAbs(), processCode(), useStrictLHEFscales(),
       newSigmaMx(), nTry(), nSel(), nAcc(), nTryStat(), sigmaMx(), sigmaSgn(),
       sigmaSum(), sigma2Sum(), sigmaNeg(), sigmaAvg(), sigmaFin(), deltaFin(),
       weightNow(), wtAccSum(), beamAhasResGamma(), beamBhasResGamma(),

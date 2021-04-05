@@ -1,5 +1,5 @@
 // DireMerging.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -42,7 +42,8 @@ class DireMerging : public Merging {
 public:
 
   // Constructor.
-  DireMerging() : totalProbSave(createvector<double>(0.)(0.)(0.)) {
+  DireMerging() : totalProbSave(createvector<double>(0.)(0.)(0.)),
+    sudakovs(1.), asRatios(1.), pdfRatios(1.), psweights(0), first(true) {
     vector<double> tmp(createvector<double>(0.)(0.)(0.));
     signalProbSave.insert(make_pair("higgs",tmp));
     bkgrndProbSave.insert(make_pair("higgs",tmp));

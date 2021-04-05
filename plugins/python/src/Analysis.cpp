@@ -15,6 +15,7 @@
 #include <Pythia8/SigmaTotal.h>
 #include <Pythia8/StandardModel.h>
 #include <Pythia8/SusyCouplings.h>
+#include <Pythia8/Weights.h>
 #include <functional>
 #include <istream>
 #include <iterator>
@@ -94,7 +95,7 @@ struct PyCallBack_Pythia8_SlowJet : public Pythia8::SlowJet {
 	}
 };
 
-// Pythia8::PDF file:Pythia8/PartonDistributions.h line:39
+// Pythia8::PDF file:Pythia8/PartonDistributions.h line:48
 struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 	using Pythia8::PDF::PDF;
 
@@ -583,11 +584,11 @@ void bind_Pythia8_Analysis(std::function< pybind11::module &(std::string const &
 		cl.def("clusterFJ", (bool (Pythia8::SlowJet::*)()) &Pythia8::SlowJet::clusterFJ, "C++: Pythia8::SlowJet::clusterFJ() --> bool");
 		cl.def("assign", (class Pythia8::SlowJet & (Pythia8::SlowJet::*)(const class Pythia8::SlowJet &)) &Pythia8::SlowJet::operator=, "C++: Pythia8::SlowJet::operator=(const class Pythia8::SlowJet &) --> class Pythia8::SlowJet &", pybind11::return_value_policy::reference, pybind11::arg(""));
 	}
-	{ // Pythia8::PDF file:Pythia8/PartonDistributions.h line:39
+	{ // Pythia8::PDF file:Pythia8/PartonDistributions.h line:48
 		pybind11::class_<Pythia8::PDF, std::shared_ptr<Pythia8::PDF>, PyCallBack_Pythia8_PDF> cl(M("Pythia8"), "PDF", "");
 		pybind11::handle cl_type = cl;
 
-		{ // Pythia8::PDF::PDFEnvelope file:Pythia8/PartonDistributions.h line:86
+		{ // Pythia8::PDF::PDFEnvelope file:Pythia8/PartonDistributions.h line:95
 			auto & enclosing_class = cl;
 			pybind11::class_<Pythia8::PDF::PDFEnvelope, std::shared_ptr<Pythia8::PDF::PDFEnvelope>> cl(enclosing_class, "PDFEnvelope", "");
 			pybind11::handle cl_type = cl;

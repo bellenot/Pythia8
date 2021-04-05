@@ -1,5 +1,5 @@
 ! main300.cmnd
-! This file contains commands to be read in for a PYTHIA8/DIRE run. 
+! This file contains commands to be read in for a PYTHIA8/DIRE run.
 ! Lines not beginning with a letter or digit are comments.
 ! Names are case-insensitive  -  but spellings-sensitive!
 
@@ -21,10 +21,10 @@ WeakSingleBoson:ffbar2gmZ = on     ! process
 !23:onIfAny = 5           ! Decays to b quarks only, for mass tests
 !23:onIfAny = 11          ! Z decays to electrons, for QED tests
 
-! 3) Optionally switch on/off photon ISR and hadronization 
+! 3) Optionally switch on/off photon ISR and hadronization
 PDF:lepton = off
 
-! 4) Choose parton shower model. 
+! 4) Choose parton shower model.
 ! Warning: Dire comes with weighted events.
 PartonShowers:model = 3    ! 1:old showers, 2:vincia, 3:dire
 

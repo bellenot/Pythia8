@@ -7,6 +7,11 @@
 <body>
  
 <h2>Update History</h2> 
+<ol id="toc">
+  <li><a href="#section0">8.302: 24 April 2020</a></li>
+  <li><a href="#section1">8.301: 30 October 2019</a></li>
+</ol>
+
  
 These update notes describe major updates relative to the 
 PYTHIA 8.243 version, which was the last 8.2 release (so far). 
@@ -15,6 +20,101 @@ compatibility. The main change is that C++11 is now assumed.
 The impact on existing used code should be mild, however. 
  
 <a name="section0"></a> 
+<h3>8.302: 24 April 2020</h3> 
+<ul> 
+ 
+<li>A HepMC 3 interface is now included in 
+<code>Pythia8Plugins/HepMC3.h</code>. All HepMC examples have been 
+migrated from using the HepMC 2 interface to HepMC 3, excluding 
+<code>main44.cc</code> and <code>main93.cc</code> which are kept for 
+legacy purposes.</li> 
+ 
+<li>Bug fix to correct units for automated shower uncertainty weights 
+for <code>lhaStrategy = &plusmn;4</code>. In addition, the 
+combination of weight variations, within the context of uncertainty 
+bands, was not previously well documented and was therefore prone to 
+misunderstandings. Now, all methods related to cross sections and 
+weights are documented together on a single page, 
+<a href="CrossSectionsAndWeights.html" target="page">Cross Sections and Weights</a>, the 
+documentation on shower <a href="Variations.html" target="page">Variations</a> has 
+been improved, and the behaviour of 
+<code>Info::getGroupWeight()</code> has been made more transparent. 
+The <code>main121.cc</code> example has been modified 
+accordingly. Note that the bug fix for <code>lhaStrategy = 
+&plusmn;4</code> parallels an analogous one made in Pythia 8.244 which 
+had not been previously carried over to Pythia 8.3.</li> 
+ 
+<li>Fix for subscripting issue for photon beams, courtesy of Vittorio 
+Zecca.</li> 
+ 
+<li>New particle property directive <code>tauCalc</code> allows for a 
+particle's proper lifetime to be set independently of its width.  This 
+is useful for studying the effect of lifetime for a particle when the 
+particle width is otherwise negligible.</li> 
+ 
+<li>Significant speedup of parton distribution handling, and 
+thereby of the whole PYTHIA execution, since PDF is such a major 
+part of the total execution time. This has been achieved by 
+careful work by Dmitri Konstantinov and Grigory Latyshev. 
+In detail, the main changes are: 
+<ul> 
+<li>In the LHAPDF6 interface the evaluation of the <i>x</i> and 
+<i>Q^2</i> limits is extremely slow, such that a caching of these 
+numbers increases execution speed by about a factor of 2 when LHAPDF 
+is used.</li> 
+<li>A caching of info on the amount of <i>x</i> already used up 
+helps speed up MPI, ISR and FSR execution times, giving gains of 
+order 20%. Main changes are in the <code>BeamParticle</code> class. 
+</li> 
+<li>Optimization of array handling in <code>LHAGrid1</code> give 
+a speedup by about 5%. This is the internal PYTHIA implementation 
+of interpolation in LHAPDF6 grids which, still after the LHAPDF6 
+improvements reported above, runs more than 50% faster than using 
+the same PDF evaluated by LHAPDF6. This streamlining is made at 
+the cost of not offering facilities like PDF error bands.</li> 
+<li>Also the special internal routines for the NNPDF 2.3 series 
+could be speeded up, but would still be slower than an equivalent 
+<code>LHAGrid1</code> implementation. The NNPDF 2.3 sets therefore 
+have been moved to the latter framework.</li> 
+</ul> 
+</li> 
+ 
+<li>New base class <code>ShowerModel</code> introduced, as a 
+top-level handler of parton-shower models, interfaced via a shared 
+pointer in <code>Pythia.cc</code>. 
+Changes to Pythia's default showers 
+and to the Vincia and Dire shower models to inherit from 
+<code>ShowerModel</code>. New public method 
+<code>Pythia::getShowerModelPtr()</code> intended to provide a way 
+to access public ShowerModel methods for diagnostics purposes. 
+</li> 
+ 
+<li>Extra protection against unexpected input in <i>e+e-</i> Les 
+Houches events, specifically where <i>x >= 1</i> by roundoff errors. 
+Thanks to Alexander Belyaev, Alexander Pukhov and Marco Zaro.</li> 
+ 
+<li>Bug fix in 
+<code>SusyLesHouches::checkSpectrum()</code>, to ensure uniform 
+error handling when one or more spectrum self-consistency checks fails. 
+</li> 
+ 
+<li>Replaced use of <code>fabs()</code> by <code>abs()</code> 
+in several places. Although default C++ <code>abs()</code> only takes 
+integer arguments, <code>PythiaStdLib.h</code> contains the 
+declaration <code>using std::abs</code> (via the <code>cmath</code> 
+header), which is suitably overloaded and obviates the need for 
+separate methods. 
+</li> 
+ 
+<li>Improvements to Vincia's handling of error messages; 
+now issued via <code>Info::errorMsg()</code>.</li> 
+ 
+<li>Removed <code>share/Pythia8/tunes</code> directory, 
+with Vincia reverting to the same (in-code) way of setting tune 
+presets as Dire and Pythia.</li> 
+</ul> 
+ 
+<a name="section1"></a> 
 <h3>8.301: 30 October 2019</h3> 
 <ul> 
 <li>Compilation is done with a new <code>-std=c++11</code> flag.</li> 
@@ -199,4 +299,4 @@ so desired.</li>
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

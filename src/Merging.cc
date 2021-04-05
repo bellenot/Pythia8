@@ -1,5 +1,5 @@
 // MergingHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -182,20 +182,16 @@ int Merging::mergeProcessCKKWL( Event& process) {
   // Store hard event cut information, reset veto information.
   mergingHooksPtr->setHardProcessInfo(nSteps, tmsnow);
   mergingHooksPtr->setEventVetoInfo(-1, -1.);
-
-  //if (nSteps < nRequested && applyVeto) {
   if (nSteps < nRequested ) {
     if (!includeWGT) mergingHooksPtr->setWeightCKKWL(0.);
     if ( includeWGT) infoPtr->updateWeight(0.);
     if (applyVeto) return -1;
     else return 1;
-    //return -1;
   }
 
   // Reset the minimal tms value, if necessary.
-  //tmsNowMin     = (nSteps == 0) ? 0. : min(tmsNowMin, tmsnow);
-  tmsNowMin     = (nSteps > 0 && tmsnow < infoPtr->eCM())
-                ? min(tmsNowMin, tmsnow) : 0.;
+  tmsNowMin = (nSteps > 0 && tmsnow < infoPtr->eCM())
+    ? min(tmsNowMin, tmsnow) : 0.;
 
   // Get random number to choose a path.
   double RN = rndmPtr->flat();
@@ -290,7 +286,6 @@ int Merging::mergeProcessCKKWL( Event& process) {
 
   // If no-emission probability is zero.
   if ( applyVeto && wgt == 0. ) return 0;
-  //if ( wgt == 0. ) return 0;
 
   // Done
   return 1;
@@ -586,8 +581,7 @@ int Merging::mergeProcessNL3( Event& process) {
     }
     double tnowNew  = mergingHooksPtr->tmsNow( dummy );
     // Veto if underlying Born kinematics do not pass merging scale cut.
-    if ( enforceCutOnLHE && nSteps > 0 && nRequested > 0
-      && tnowNew < tmsval ) {
+    if ( enforceCutOnLHE && nRequested > 0 && tnowNew < tmsval ) {
       mergingHooksPtr->setWeightCKKWL(0.);
       mergingHooksPtr->setWeightFIRST(0.);
       return -1;
@@ -793,7 +787,6 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     mergingHooksPtr->setWeightCKKWL(0.);
     mergingHooksPtr->setWeightFIRST(0.);
     return ((allowReject)? -1 : 1);
-    //return -1;
   }
 
   // Potentially recluster real emission jets for powheg input containing
@@ -810,7 +803,6 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     mergingHooksPtr->setWeightCKKWL(0.);
     mergingHooksPtr->setWeightFIRST(0.);
     return ((allowReject)? -1 : 1);
-    //return -1;
   }
 
   // Discard if the state could not be reclustered to any state above TMS.
@@ -822,7 +814,6 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     mergingHooksPtr->setWeightCKKWL(0.);
     mergingHooksPtr->setWeightFIRST(0.);
     return ((allowReject)? -1 : 1);
-    //return -1;
   }
 
   // Check reclustering steps to correctly apply MPI.
@@ -840,17 +831,13 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     FullHistory.getClusteredEvent( RN, nSteps, dummy );
     double tnowNew  = mergingHooksPtr->tmsNow( dummy );
     // Veto if underlying Born kinematics do not pass merging scale cut.
-    if ( enforceCutOnLHE && nSteps > 0 && nRequested > 0
-      && tnowNew < tmsval ) {
+    if ( enforceCutOnLHE && nRequested > 0 && tnowNew < tmsval ) {
       string message="Warning in Merging::mergeProcessUNLOPS: Les Houches";
       message+=" Event fails merging scale cut. Reject event.";
       infoPtr->errorMsg(message);
       mergingHooksPtr->setWeightCKKWL(0.);
       mergingHooksPtr->setWeightFIRST(0.);
-
-
       return ((allowReject)? -1 : 1);
-      //return -1;
     }
   }
 
@@ -969,7 +956,6 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     // New UNLOPS based on UN2LOPS.
     if (doUNLOPS2 && order > -1) wgt = -wgt*(wgtFIRST-1.);
     else if (order > -1) wgt = wgt - wgtFIRST;
-
   }
 
   // Set QCD 2->2 starting scale different from arbitrary scale in LHEF!
@@ -1149,22 +1135,20 @@ bool Merging::cutOnProcess( Event& process) {
   // Now cut on events that contain an additional real-emission jet.
   // Perform one reclustering for real emission kinematics, then apply merging
   // scale cut on underlying Born kinematics.
-  if ( containsRealKin ) {
-    Event dummy = Event();
-    // Initialise temporary output of reclustering.
-    dummy.clear();
-    dummy.init( "(hard process-modified)", particleDataPtr );
-    dummy.clear();
-    // Recluster once.
-    FullHistory.getClusteredEvent( RN, nSteps, dummy );
-    double tnowNew  = mergingHooksPtr->tmsNow( dummy );
-    // Veto if underlying Born kinematics do not pass merging scale cut.
-    if ( nSteps > 0 && nRequested > 0 && tnowNew < tmsval ) {
-      string message="Warning in Merging::cutOnProcess: Les Houches Event";
-      message+=" fails merging scale cut. Reject event.";
-      infoPtr->errorMsg(message);
-      return true;
-    }
+  Event dummy = Event();
+  // Initialise temporary output of reclustering.
+  dummy.clear();
+  dummy.init( "(hard process-modified)", particleDataPtr );
+  dummy.clear();
+  // Recluster once.
+  FullHistory.getClusteredEvent( RN, nSteps, dummy );
+  double tnowNew = mergingHooksPtr->tmsNow( dummy );
+  // Veto if underlying Born kinematics do not pass merging scale cut.
+  if ( nRequested > 0 && tnowNew < tmsval ) {
+    string message = "Warning in Merging::cutOnProcess: Les Houches Event";
+    message += " fails merging scale cut. Reject event.";
+    infoPtr->errorMsg(message);
+    return true;
   }
 
   // Done if only interested in cross section estimate after cuts.

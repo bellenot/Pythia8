@@ -1,5 +1,5 @@
 // DireMerging.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1112,8 +1112,7 @@ int DireMerging::mergeProcessNL3( Event& process) {
     }
     double tnowNew  = mergingHooksPtr->tmsNow( dummy );
     // Veto if underlying Born kinematics do not pass merging scale cut.
-    if ( enforceCutOnLHE && nSteps > 0 && nRequested > 0
-      && tnowNew < tmsval ) {
+    if ( enforceCutOnLHE && nRequested > 0 && tnowNew < tmsval ) {
       mergingHooksPtr->setWeightCKKWL(0.);
       mergingHooksPtr->setWeightFIRST(0.);
       return -1;
@@ -1361,8 +1360,7 @@ int DireMerging::mergeProcessUNLOPS( Event& process) {
     FullHistory.getClusteredEvent( RN, nSteps, dummy );
     double tnowNew  = mergingHooksPtr->tmsNow( dummy );
     // Veto if underlying Born kinematics do not pass merging scale cut.
-    if ( enforceCutOnLHE && nSteps > 0 && nRequested > 0
-      && tnowNew < tmsval && tmsval > 0.) {
+    if (enforceCutOnLHE && nRequested > 0 && tnowNew < tmsval && tmsval > 0.) {
       string message="Warning in DireMerging::mergeProcessUNLOPS: Les Houches";
       message+=" Event fails merging scale cut. Reject event.";
       infoPtr->errorMsg(message);
@@ -1374,7 +1372,7 @@ int DireMerging::mergeProcessUNLOPS( Event& process) {
 
   // New UNLOPS strategy based on UN2LOPS.
   bool doUNLOPS2 = false;
-  int depth = (!doUNLOPS2) ? -1 : ( (containsRealKin) ? nSteps-1 : nSteps);
+  int depth = -1;
 
   // Calculate weights.
   // Do LO or first part of NLO tree-level reweighting
@@ -1895,8 +1893,7 @@ int DireMerging::calculateWeights( double RNpath, bool useAll ) {
     myHistory->getClusteredEvent( RNpath, nSteps, dummy );
     double tnowNew  = mergingHooksPtr->tmsNow( dummy );
     // Veto if underlying Born kinematics do not pass merging scale cut.
-    if ( enforceCutOnLHE && nSteps > 0 && nRequested > 0
-      && tnowNew < tmsval && tmsval > 0.) {
+    if (enforceCutOnLHE && nRequested > 0 && tnowNew < tmsval && tmsval > 0.) {
       string message="Warning in DireMerging::calculateWeights: Les Houches";
       message+=" Event fails merging scale cut. Reject event.";
       infoPtr->errorMsg(message);
@@ -1919,63 +1916,63 @@ int DireMerging::calculateWeights( double RNpath, bool useAll ) {
 
   // New UNLOPS strategy based on UN2LOPS.
   bool doUNLOPS2 = false;
-  int depth = (!doUNLOPS2) ? -1 : ( (containsRealKin) ? nSteps-1 : nSteps);
+  int depth = -1;
 
   if (!useAll) {
 
-  // Calculate weights.
-  if (doMOPS)
-    wgt = myHistory->weightMOPS( trialPartonLevelPtr,
-            mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaEM_FSR(),
-            RNpath);
-  else if ( mergingHooksPtr->doCKKWLMerging() )
-    wgt = myHistory->weightTREE( trialPartonLevelPtr,
-            mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(),
-            mergingHooksPtr->AlphaEM_FSR(), mergingHooksPtr->AlphaEM_ISR(),
-            RNpath);
-  else if (  mergingHooksPtr->doUMEPSTreeSave )
-    wgt = myHistory->weight_UMEPS_TREE( trialPartonLevelPtr,
-            mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(),
-            mergingHooksPtr->AlphaEM_FSR(), mergingHooksPtr->AlphaEM_ISR(),
-            RNpath);
-  else if ( mergingHooksPtr->doUMEPSSubtSave )
-    wgt = myHistory->weight_UMEPS_SUBT( trialPartonLevelPtr,
-            mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(),
-            mergingHooksPtr->AlphaEM_FSR(), mergingHooksPtr->AlphaEM_ISR(),
-            RNpath);
-  else if ( mergingHooksPtr->doUNLOPSTreeSave )
-    wgt = myHistory->weight_UNLOPS_TREE( trialPartonLevelPtr,
-            mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(),
-            mergingHooksPtr->AlphaEM_FSR(), mergingHooksPtr->AlphaEM_ISR(),
-            RNpath, depth);
-  else if ( mergingHooksPtr->doUNLOPSLoopSave )
-    wgt = myHistory->weight_UNLOPS_LOOP( trialPartonLevelPtr,
-            mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(),
-            mergingHooksPtr->AlphaEM_FSR(), mergingHooksPtr->AlphaEM_ISR(),
-            RNpath, depth);
-  else if ( mergingHooksPtr->doUNLOPSSubtNLOSave )
-    wgt = myHistory->weight_UNLOPS_SUBTNLO( trialPartonLevelPtr,
-            mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(),
-            mergingHooksPtr->AlphaEM_FSR(), mergingHooksPtr->AlphaEM_ISR(),
-            RNpath, depth);
-  else if ( mergingHooksPtr->doUNLOPSSubtSave )
-    wgt = myHistory->weight_UNLOPS_SUBT( trialPartonLevelPtr,
-            mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(),
-            mergingHooksPtr->AlphaEM_FSR(), mergingHooksPtr->AlphaEM_ISR(),
-            RNpath, depth);
+    // Calculate weights.
+    if (doMOPS)
+      wgt = myHistory->weightMOPS( trialPartonLevelPtr,
+              mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaEM_FSR(),
+              RNpath);
+    else if ( mergingHooksPtr->doCKKWLMerging() )
+      wgt = myHistory->weightTREE( trialPartonLevelPtr,
+              mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(),
+              mergingHooksPtr->AlphaEM_FSR(), mergingHooksPtr->AlphaEM_ISR(),
+              RNpath);
+    else if (  mergingHooksPtr->doUMEPSTreeSave )
+      wgt = myHistory->weight_UMEPS_TREE( trialPartonLevelPtr,
+              mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(),
+              mergingHooksPtr->AlphaEM_FSR(), mergingHooksPtr->AlphaEM_ISR(),
+              RNpath);
+    else if ( mergingHooksPtr->doUMEPSSubtSave )
+      wgt = myHistory->weight_UMEPS_SUBT( trialPartonLevelPtr,
+              mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(),
+              mergingHooksPtr->AlphaEM_FSR(), mergingHooksPtr->AlphaEM_ISR(),
+              RNpath);
+    else if ( mergingHooksPtr->doUNLOPSTreeSave )
+      wgt = myHistory->weight_UNLOPS_TREE( trialPartonLevelPtr,
+              mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(),
+              mergingHooksPtr->AlphaEM_FSR(), mergingHooksPtr->AlphaEM_ISR(),
+              RNpath, depth);
+    else if ( mergingHooksPtr->doUNLOPSLoopSave )
+      wgt = myHistory->weight_UNLOPS_LOOP( trialPartonLevelPtr,
+              mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(),
+              mergingHooksPtr->AlphaEM_FSR(), mergingHooksPtr->AlphaEM_ISR(),
+              RNpath, depth);
+    else if ( mergingHooksPtr->doUNLOPSSubtNLOSave )
+      wgt = myHistory->weight_UNLOPS_SUBTNLO( trialPartonLevelPtr,
+              mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(),
+              mergingHooksPtr->AlphaEM_FSR(), mergingHooksPtr->AlphaEM_ISR(),
+              RNpath, depth);
+    else if ( mergingHooksPtr->doUNLOPSSubtSave )
+      wgt = myHistory->weight_UNLOPS_SUBT( trialPartonLevelPtr,
+              mergingHooksPtr->AlphaS_FSR(), mergingHooksPtr->AlphaS_ISR(),
+              mergingHooksPtr->AlphaEM_FSR(), mergingHooksPtr->AlphaEM_ISR(),
+              RNpath, depth);
 
-  // For tree-level or subtractive sammples, rescale with k-Factor
-  if ( doUNLOPSTree || doUNLOPSSubt ){
-    // Find k-factor
-    double kFactor = 1.;
-    if ( nSteps > mergingHooksPtr->nMaxJetsNLO() )
-      kFactor = mergingHooksPtr->kFactor( mergingHooksPtr->nMaxJetsNLO() );
-    else kFactor = mergingHooksPtr->kFactor(nSteps);
-    // For NLO merging, rescale CKKW-L weight with k-factor
-    wgt *= (nRecluster == 2 && nloTilde) ? 1. : kFactor;
-  }
+    // For tree-level or subtractive sammples, rescale with k-Factor
+    if ( doUNLOPSTree || doUNLOPSSubt ){
+      // Find k-factor
+      double kFactor = 1.;
+      if ( nSteps > mergingHooksPtr->nMaxJetsNLO() )
+        kFactor = mergingHooksPtr->kFactor( mergingHooksPtr->nMaxJetsNLO() );
+      else kFactor = mergingHooksPtr->kFactor(nSteps);
+      // For NLO merging, rescale CKKW-L weight with k-factor
+      wgt *= (nRecluster == 2 && nloTilde) ? 1. : kFactor;
+    }
 
-  } else if (useAll && doMOPS) {
+  } else if (doMOPS) {
     // Calculate CKKWL reweighting for all paths.
     double wgtsum(0.);
     double lastp(0.);
@@ -2276,22 +2273,20 @@ bool DireMerging::cutOnProcess( Event& process) {
   // Now cut on events that contain an additional real-emission jet.
   // Perform one reclustering for real emission kinematics, then apply merging
   // scale cut on underlying Born kinematics.
-  if ( containsRealKin ) {
-    Event dummy = Event();
-    // Initialise temporary output of reclustering.
-    dummy.clear();
-    dummy.init( "(hard process-modified)", particleDataPtr );
-    dummy.clear();
-    // Recluster once.
-    FullHistory.getClusteredEvent( RN, nSteps, dummy );
-    double tnowNew  = mergingHooksPtr->tmsNow( dummy );
-    // Veto if underlying Born kinematics do not pass merging scale cut.
-    if ( nSteps > 0 && nRequested > 0 && tnowNew < tmsval && tmsval > 0.) {
-      string message="Warning in DireMerging::cutOnProcess: Les Houches Event";
-      message+=" fails merging scale cut. Reject event.";
-      infoPtr->errorMsg(message);
-      return true;
-    }
+  Event dummy = Event();
+  // Initialise temporary output of reclustering.
+  dummy.clear();
+  dummy.init( "(hard process-modified)", particleDataPtr );
+  dummy.clear();
+  // Recluster once.
+  FullHistory.getClusteredEvent( RN, nSteps, dummy );
+  double tnowNew  = mergingHooksPtr->tmsNow( dummy );
+  // Veto if underlying Born kinematics do not pass merging scale cut.
+  if ( nRequested > 0 && tnowNew < tmsval && tmsval > 0.) {
+    string message="Warning in DireMerging::cutOnProcess: Les Houches Event";
+    message+=" fails merging scale cut. Reject event.";
+    infoPtr->errorMsg(message);
+    return true;
   }
 
   // Done if only interested in cross section estimate after cuts.

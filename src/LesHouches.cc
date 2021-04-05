@@ -1,5 +1,5 @@
 // LesHouches.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -992,7 +992,6 @@ bool LHAupLHEF::setNewEventLHEF() {
   std::string line, tag;
   std::stringstream ss(reader.eventComments);
   getPDFSave      = false;
-  getScale        = false;
   getScale        = (setScalesFromLHEF && reader.version == 1) ? false : true;
   getScaleShowers = false;
   while (getline(ss, line)) {
@@ -1058,11 +1057,12 @@ bool LHAupLHEF::setNewEventLHEF() {
       &reader.hepeup.weights_detailed, &reader.hepeup.weights_compressed,
       &reader.hepeup.scalesSave, &reader.hepeup.weightsSave,
       &reader.hepeup.rwgtSave, reader.weights_detailed_vector(),
+      reader.weightnames_detailed_vector(),
       reader.eventComments, reader.hepeup.XWGTUP);
   // Try to at least set the event attributes for 1.0
   } else {
     infoPtr->setLHEF3EventInfo( &reader.hepeup.attributes, 0, 0, 0, 0, 0,
-       vector<double>(), "", 1.0);
+       vector<double>(), vector<string>(), "", 1.0);
   }
 
   // Reading worked.

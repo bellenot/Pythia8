@@ -1,5 +1,5 @@
 // PartonLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 // Hard diffraction added by Christine Rasmussen.
@@ -351,8 +351,8 @@ bool PartonLevel::next( Event& process, Event& event) {
   infoPtr->setAbortPartonLevel(false);
 
   // Update photon state according to beams set in processContainer.
-  beamAhasResGamma  = beamAPtr->hasResGamma();
-  beamBhasResGamma  = beamBPtr->hasResGamma();
+  beamAhasResGamma  = beamAPtr == nullptr ? false : beamAPtr->hasResGamma();
+  beamBhasResGamma  = beamBPtr == nullptr ? false : beamBPtr->hasResGamma();
   beamHasResGamma   = beamAhasResGamma || beamBhasResGamma;
 
   // Save if photoproduction from either side.

@@ -41,7 +41,7 @@ the final state (as needed e.g. for DIS studies).</li>
 <li>Showers off massive objects, within and beyond the Standard 
 Model, including e.g. octet onium states.</li> 
 <li>Showers interleaved with multiparton interactions, and set up 
-to handle <aloc href="ASecondHardProcess">two predefined hard 
+to handle <aloc href="SecondHardProcess">two predefined hard 
 interactions</aloc>.</li> 
 <li>QED showers, where photons can be emitted and then branch 
 into fermion pairs that shower further.</li> 
@@ -106,4 +106,4 @@ help of <aloc href="UserHooks">User Hooks</aloc>.</li>
  
 </chapter> 
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

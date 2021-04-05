@@ -1,5 +1,5 @@
 // VinciaFSR.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2020 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -114,8 +114,7 @@ public:
     vector<int> iIn {i0In, i1In}; if (i2In >= 1) iIn.push_back(i2In);
     reset(iSysIn,event,iIn);}
 
-  // Methods to get (explicit for up to three parents, otherwise just
-  // use iVec).
+  // Methods to get (explicit for up to 3 parents, otherwise just use iVec).
   int i0() const {return (iSav.size() >= 1) ? iSav[0] : -1;}
   int i1() const {return (iSav.size() >= 2) ? iSav[1] : -1;}
   int i2() const {return (iSav.size() >= 3) ? iSav[2] : -1;}
@@ -338,7 +337,7 @@ public:
 private:
 
   // Data members to store information about generated trials.
-  double colFacSav;
+  double colFacSav{};
 
 };
 
@@ -358,7 +357,7 @@ public:
   // is the anticolour or colour side of the gluon that participates
   // in the antenna (used to decide pTj or pTi measure).
   BrancherSplitFF(int iSysIn, Event& event, int i0In, int i1In,
-    bool col2acol) {reset(iSysIn, event, i0In, i1In); isXGsav = !col2acol;}
+    bool col2acol) { reset(iSysIn, event, i0In, i1In); isXGsav = !col2acol; }
 
   // Destructor.
   virtual ~BrancherSplitFF() {;}
@@ -404,14 +403,14 @@ public:
  private:
 
   // Data members for storing information on generated trials.
-  int     idFlavSav;
-  double  mFlavSav;
+  int     idFlavSav{};
+  double  mFlavSav{};
 
   // Data member to store whether this is really an XG antenna or a GX
   // one, i.e. if it is the anticolour or colour side of the gluon
   // which is participating in the LC antenna. In the former case, we
   // use pT(qbar) = pTj as the measure, in the latter pT(q) = pTi.
-  bool isXGsav;
+  bool isXGsav{};
 
 };
 
@@ -426,7 +425,7 @@ class BrancherEmitRF : public Brancher {
 public:
 
   // Constructor.
-  BrancherEmitRF() {;}
+  BrancherEmitRF() = default;
 
   // Constructor.
   BrancherEmitRF(int iSysIn, Event& event, vector<int> allIn,
@@ -504,26 +503,26 @@ protected:
 
   // Save reference to position in vectors of resonance and colour
   // connected parton.
-  unsigned int posRes, posFinal;
+  unsigned int posRes{}, posFinal{};
   // Mass of resonance.
-  double mRes;
+  double mRes{};
   // Mass of final state parton in antennae.
-  double mFinal;
+  double mFinal{};
   // Collective mass of rest of downstream decay products of resonance
   // these will just take recoil.
-  double mRecoilers;
-  double sAK;
+  double mRecoilers{};
+  double sAK{};
   // Limits of zeta Integral.
-  double zetaMin, zetaMax;
+  double zetaMin{}, zetaMax{};
   // Max Q2 for this brancher, still an overestimate.
-  double Q2MaxSav;
+  double Q2MaxSav{};
   // Integral of zeta over whole phase space.
-  double zetaIntSave;
-  double colFacSav;
+  double zetaIntSave{};
+  double colFacSav{};
   // Store whether the colour flow is from R to F (e.g. t -> bW+) or F
   // to R (e.g. tbar -> bbarW-).
-  bool colFlowRtoF;
-  map<unsigned int,unsigned int> posNewtoOld;
+  bool colFlowRtoF{};
+  map<unsigned int,unsigned int> posNewtoOld{};
 
 };
 
@@ -587,8 +586,8 @@ protected:
     return Q2cut/sajMax + 1.- sajMax/sAK;}
 
   // Members.
-  int     idFlavSav;
-  double  mFlavSav;
+  int     idFlavSav{};
+  double  mFlavSav{};
 
 };
 
@@ -737,8 +736,19 @@ public:
   void doforceQuit(int nBranchQuitIn) {
     allowforceQuit = true; nBranchQuit = nBranchQuitIn;}
   // Set the diagnostics pointer.
-  void setDiagnostics(VinciaDiagnostics* diagnosticsPtrIn) {
-    diagnosticsPtr = diagnosticsPtrIn;}
+  void setDiagnostics(shared_ptr<VinciaDiagnostics> diagnosticsPtrIn) {
+    diagnosticsPtr = diagnosticsPtrIn;
+    if (diagnosticsPtr != nullptr) {
+      doDiagnostics = true;
+      if (verbose >= normal)
+        printOut(__METHOD_NAME__, "Diagnostics enabled...");
+      diagnosticsPtr->init();
+    } else {
+      doDiagnostics = false;
+      if (verbose >= normal)
+        printOut(__METHOD_NAME__, "Diagnostics disabled...");
+    }
+  }
 
   // Check event.
   bool check(Event &event);
@@ -973,7 +983,7 @@ private:
   bool headerIsPrinted;
 
   // Internal histograms.
-  VinciaDiagnostics* diagnosticsPtr;
+  shared_ptr<VinciaDiagnostics> diagnosticsPtr;
   bool doDiagnostics;
   map<string,Hist> vinciaHistos;
 

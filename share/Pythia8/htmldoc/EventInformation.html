@@ -18,18 +18,18 @@
   <li><a href="#section7">Soft Diffraction</a></li>
   <li><a href="#section8">Hard Diffraction</a></li>
   <li><a href="#section9">Photons from lepton beams</a></li>
-  <li><a href="#section10">Event weight and activity</a></li>
+  <li><a href="#section10">Event activity</a></li>
   <li><a href="#section11">Multiparton interactions</a></li>
-  <li><a href="#section12">Cross sections</a></li>
-  <li><a href="#section13">Loop counters</a></li>
-  <li><a href="#section14">Parton shower history</a></li>
-  <li><a href="#section15">Les Houches Event File information</a></li>
+  <li><a href="#section12">Loop counters</a></li>
+  <li><a href="#section13">Parton shower history</a></li>
+  <li><a href="#section14">Les Houches Event File information</a></li>
 </ol>
 
  
-The <code>Info</code> class collects various one-of-a-kind information, 
-some relevant for all events and others for the current event. 
-An object <code>info</code> is a public member of the <code>Pythia</code> 
+The <code>Info</code> class collects various one-of-a-kind 
+information, some relevant for all events and others for the current 
+event.  An object <code>info</code> is a public member of the 
+<code>Pythia</code> 
 class, so if you e.g. have declared <code>Pythia pythia</code>, the 
 <code>Info</code> methods can be accessed by 
 <code>pythia.info.method()</code>. Most of this is information that 
@@ -37,6 +37,11 @@ could also be obtained e.g. from the event record, but is here more
 directly available. It is primarily intended for processes generated 
 internally in PYTHIA, but many of the methods would work also for 
 events fed in via the Les Houches Accord. 
+ 
+<p/> 
+Note that further <code>Info</code> methods related to cross sections 
+and event weights are collected on the 
+<a href="CrossSectionsAndWeights.html" target="page">Cross Sections and Weights</a> page. 
  
 <a name="section0"></a> 
 <h3>List information</h3> 
@@ -502,102 +507,39 @@ Type of photon process, see
    
  
 <a name="section10"></a> 
-<h3>Event weight and activity</h3> 
+<h3>Event activity</h3> 
  
 <a name="anchor73"></a>
-<p/><strong> double Info::weight() &nbsp;</strong> <br/>
-weight assigned to the current event. Is normally 1 and thus 
-uninteresting. However, there are several cases where one may have 
-nontrivial event weights. These weights must the be used e.g. when 
-filling histograms. 
-<br/>(i) In the <code><a href="PhaseSpaceCuts.html" target="page"> 
-PhaseSpace:increaseMaximum = off</a></code> default strategy, 
-an event with a differential cross-section above the assumed one 
-(in a given phase-space point) is assigned a weight correspondingly 
-above unity. This should happen only very rarely, if at all, and so 
-could normally be disregarded. 
-<br/>(ii) The <a href="UserHooks.html" target="page">User Hooks</a> class offers 
-the possibility to bias the selection of phase space points, which 
-means that events come with a compensating weight, stored here. 
-<br/>(iii) For Les Houches events some strategies allow negative weights, 
-which then after unweighting lead to events with weight -1. There are 
-also Les Houches strategies where no unweighting is done, so events 
-come with a weight. Specifically, for strategies <i>+4</i> and 
-<i>-4</i>, the event weight is in units of pb. (Internally in mb, 
-but converted at output.) 
-   
- 
-<a name="anchor74"></a>
-<p/><strong> double Info::weightSum() &nbsp;</strong> <br/>
-Sum of weights accumulated during the run. For unweighted events this 
-agrees with the number of generated events. In order to obtain 
-histograms normalized "per event", at the end of a run, histogram 
-contents should be divided by this weight. (And additionally 
-divided by the bin width.) Normalization to cross section also 
-required multiplication by <code>sigmaGen()</code> below. 
-   
- 
-<a name="anchor75"></a>
-<p/><strong> int Info::lhaStrategy() &nbsp;</strong> <br/>
-normally 0, but if Les Houches events are input then it gives the 
-event weighting strategy, see 
-<a href="LHA.html" target="page">Les Houches Accord</a>. 
-   
- 
-<a name="anchor76"></a>
 <p/><strong> int Info::nISR() &nbsp;</strong> <br/>
    
-<a name="anchor77"></a>
+<a name="anchor74"></a>
 <strong> int Info::nFSRinProc() &nbsp;</strong> <br/>
    
-<a name="anchor78"></a>
+<a name="anchor75"></a>
 <strong> int Info::nFSRinRes() &nbsp;</strong> <br/>
 the number of emissions in the initial-state showering, in the final-state 
 showering excluding resonance decays, and in the final-state showering 
 inside resonance decays, respectively. 
    
  
-<a name="anchor79"></a>
+<a name="anchor76"></a>
 <p/><strong> double Info::pTmaxMPI() &nbsp;</strong> <br/>
    
-<a name="anchor80"></a>
+<a name="anchor77"></a>
 <strong> double Info::pTmaxISR() &nbsp;</strong> <br/>
    
-<a name="anchor81"></a>
+<a name="anchor78"></a>
 <strong> double Info::pTmaxFSR() &nbsp;</strong> <br/>
 Maximum <i>pT</i> scales set for MPI, ISR and FSR, given the 
 process type and scale choice for the hard interactions. The actual 
 evolution will run down from these scales. 
    
  
-<a name="anchor82"></a>
+<a name="anchor79"></a>
 <p/><strong> double Info::pTnow() &nbsp;</strong> <br/>
 The current <i>pT</i> scale in the combined MPI, ISR and FSR evolution. 
 Useful for classification in <a href="UserHooks.html" target="page">user hooks</a>, 
 but not once the event has been evolved. 
-   
- 
-<a name="anchor83"></a>
-<p/><strong> double Info::mergingWeight() &nbsp;</strong> <br/>
-combined leading-order merging weight assigned to the current event, if 
-tree-level multi-jet merging (i.e. 
-<a href="CKKWLMerging.html" target="page"> CKKW-L</a> or 
-<a href="UMEPSMerging.html" target="page"> UMEPS</a> merging) is attempted. 
-If tree-level multi-jet merging is performed, all histograms should be 
-filled with this weight, as discussed in 
-<a href="CKKWLMerging.html" target="page"> CKKW-L Merging</a> and 
-<a href="UMEPSMerging.html" target="page"> UMEPS Merging</a>. 
-   
- 
-<a name="anchor84"></a>
-<p/><strong> double Info::mergingWeightNLO() &nbsp;</strong> <br/>
-combined NLO merging weight assigned to the current event, if 
-NLO multi-jet merging (i.e. 
-<a href="NLOMerging.html" target="page"> NL<sup>3</sup></a> or 
-<a href="NLOMerging.html" target="page"> UNLOPS</a> merging) is attempted. 
-If NLO multi-jet merging is performed, all histograms should be filled 
-with this weight, as discussed in 
-<a href="NLOMerging.html" target="page"> NLO Merging</a>. 
    
  
 <a name="section11"></a> 
@@ -608,13 +550,13 @@ topologies, and should not be used there. Partly this is physics,
 but mainly it is for technical reasons, e.g. that double diffraction 
 involves two separate systems that would have to be bookkept as such. 
  
-<a name="anchor85"></a>
+<a name="anchor80"></a>
 <p/><strong> double Info::a0MPI() &nbsp;</strong> <br/>
 The value of a0 when an x-dependent matter profile is used, 
 <code>MultipartonInteractions:bProfile = 4</code>. 
    
  
-<a name="anchor86"></a>
+<a name="anchor81"></a>
 <p/><strong> double Info::bMPI() &nbsp;</strong> <br/>
 The impact parameter <i>b</i> assumed for the current collision when 
 multiparton interactions are simulated. Is not expressed in any physical 
@@ -623,7 +565,7 @@ for minimum-bias events (meaning less than that for events with hard
 processes). 
    
  
-<a name="anchor87"></a>
+<a name="anchor82"></a>
 <p/><strong> double Info::enhanceMPI() &nbsp;</strong> <br/>
 The choice of impact parameter implies an enhancement or depletion of 
 the rate of subsequent interactions, as given by this number. Again 
@@ -631,7 +573,7 @@ the average is normalized to be unity for minimum-bias events (meaning
 more than that for events with hard processes). 
    
  
-<a name="anchor88"></a>
+<a name="anchor83"></a>
 <p/><strong> double Info::enhanceMPIavg() &nbsp;</strong> <br/>
 The average enhancement factor expected for hard processes, in those 
 cases where it can be calculated already at initialization, i.e. excluding 
@@ -646,17 +588,17 @@ which instead is normalized to average value unity for nondiffractive events.
 As used internally the two are consistent. 
    
  
-<a name="anchor89"></a>
+<a name="anchor84"></a>
 <p/><strong> int Info::nMPI() &nbsp;</strong> <br/>
 The number of hard interactions in the current event. Is 0 for elastic 
 and diffractive events, and else at least 1, with more possible from 
 multiparton interactions. 
    
  
-<a name="anchor90"></a>
+<a name="anchor85"></a>
 <p/><strong> int Info::codeMPI(int i) &nbsp;</strong> <br/>
    
-<a name="anchor91"></a>
+<a name="anchor86"></a>
 <strong> double Info::pTMPI(int i) &nbsp;</strong> <br/>
 the process code and transverse momentum of the <code>i</code>'th 
 subprocess, with <code>i</code> in the range from 0 to 
@@ -664,10 +606,10 @@ subprocess, with <code>i</code> in the range from 0 to
 information already provided above. 
    
  
-<a name="anchor92"></a>
+<a name="anchor87"></a>
 <p/><strong> int Info::iAMPI(int i) &nbsp;</strong> <br/>
    
-<a name="anchor93"></a>
+<a name="anchor88"></a>
 <strong> int Info::iBMPI(int i) &nbsp;</strong> <br/>
 are normally zero. However, if the <code>i</code>'th subprocess is 
 a rescattering, i.e. either or both incoming partons come from the 
@@ -677,7 +619,7 @@ event record of the outgoing-state parton that rescatters.
 the first or second beam, respectively. 
    
  
-<a name="anchor94"></a>
+<a name="anchor89"></a>
 <p/><strong> double Info::eMPI(int i) &nbsp;</strong> <br/>
 The enhancement or depletion of the rate of the <code>i</code>'th 
 subprocess. Is primarily of interest for the 
@@ -686,13 +628,13 @@ size of the proton depends on the <i>x</i> values of the colliding
 partons. Note that <code>eMPI(0) = enhanceMPI()</code>. 
    
  
-<a name="anchor95"></a>
+<a name="anchor90"></a>
 <p/><strong> double Info::bMPIold() &nbsp;</strong> <br/>
    
-<a name="anchor96"></a>
+<a name="anchor91"></a>
 <strong> double Info::enhanceMPIold() &nbsp;</strong> <br/>
    
-<a name="anchor97"></a>
+<a name="anchor92"></a>
 <strong> double Info::enhanceMPIoldavg() &nbsp;</strong> <br/>
 These methods are only relevant for hard diffraction with the requirement 
 of no MPI in the hadron-hadron collision. Then an impact parameter 
@@ -704,61 +646,6 @@ provide the new Pomeron-hadron ones.
    
  
 <a name="section12"></a> 
-<h3>Cross sections</h3> 
- 
-Here are the currently available methods related to the event sample 
-as a whole, for the default value <code>i = 0</code>, and otherwise for 
-the specific process code provided as argument. This is the number 
-obtained with <code>Info::code()</code>, while the further subdivision 
-given by <code>Info::codeSub()</code> is not bookkept. While continuously 
-updated during the run, it is recommended only to study these properties 
-at the end of the event generation, when the full statistics is available. 
-The individual process results are not available if 
-<a href="ASecondHardProcess.html" target="page">a second hard process</a> has been 
-chosen, but can be gleaned from the <code>pythia.stat()</code> output. 
- 
-<a name="anchor98"></a>
-<p/><strong> vector&lt;int&gt; Info::codesHard() &nbsp;</strong> <br/>
-returns a vector with all the process codes set up for the current run, 
-i.e. the valid nonzero arguments for the five methods below. 
-   
- 
-<a name="anchor99"></a>
-<p/><strong> string Info::nameProc(int i = 0) &nbsp;</strong> <br/>
-returns the process name for process code <code>i</code>. 
-   
- 
-<a name="anchor100"></a>
-<p/><strong> long Info::nTried(int i = 0) &nbsp;</strong> <br/>
-   
-<a name="anchor101"></a>
-<strong> long Info::nSelected(int i = 0) &nbsp;</strong> <br/>
-   
-<a name="anchor102"></a>
-<strong> long Info::nAccepted(int i = 0) &nbsp;</strong> <br/>
-the total number of tried phase-space points, selected hard processes 
-and finally accepted events, summed over all allowed processes 
-(<code>i = 0</code>) or for the given process. 
-The first number is only intended for a study of the phase-space selection 
-efficiency. The last two numbers usually only disagree if the user introduces 
-some veto during the event-generation process; then the former is the number 
-of acceptable events found by PYTHIA and the latter the number that also 
-were approved by the user. If you set <a href="ASecondHardProcess.html" target="page">a 
-second hard process</a> there may also be a mismatch. 
-   
- 
-<a name="anchor103"></a>
-<p/><strong> double Info::sigmaGen(int i = 0) &nbsp;</strong> <br/>
-   
-<a name="anchor104"></a>
-<strong> double Info::sigmaErr(int i = 0) &nbsp;</strong> <br/>
-the estimated cross section and its estimated error, 
-summed over all allowed processes (<code>i = 0</code>) or for the given 
-process, in units of mb. The numbers refer to the accepted event sample 
-above, i.e. after any user veto. 
-   
- 
-<a name="section13"></a> 
 <h3>Loop counters</h3> 
  
 Mainly for internal/debug purposes, a number of loop counters from 
@@ -767,7 +654,7 @@ so that one can keep track of how the event generation is progressing.
 This may be especially useful in the context of the 
 <code><a href="UserHooks.html" target="page">User Hooks</a></code> facility. 
  
-<a name="anchor105"></a>
+<a name="anchor93"></a>
 <p/><strong> int Info::getCounter(int i) &nbsp;</strong> <br/>
 the method that gives you access to the value of the various loop 
 counters. 
@@ -874,7 +761,7 @@ that therefore are free to use, with the help of the two methods below.
    
    
  
-<a name="anchor106"></a>
+<a name="anchor94"></a>
 <p/><strong> void Info::setCounter(int i, int value = 0) &nbsp;</strong> <br/>
 set the above counters to a given value. Only to be used by you 
 for the unassigned counters 40 - 49. 
@@ -885,7 +772,7 @@ normally the default value is what you want.
    
    
  
-<a name="anchor107"></a>
+<a name="anchor95"></a>
 <p/><strong> void Info::addCounter(int i, int value = 0) &nbsp;</strong> <br/>
 increase the above counters by a given amount. Only to be used by you 
 for the unassigned counters 40 - 49. 
@@ -896,38 +783,38 @@ normally the default value is what you want.
    
    
  
-<a name="section14"></a> 
+<a name="section13"></a> 
 <h3>Parton shower history</h3> 
  
 The following methods are mainly intended for internal use, 
 e.g. for matrix-element matching. 
  
-<a name="anchor108"></a>
+<a name="anchor96"></a>
 <p/><strong> void Info::hasHistory(bool hasHistoryIn) &nbsp;</strong> <br/>
    
-<a name="anchor109"></a>
+<a name="anchor97"></a>
 <strong> bool Info::hasHistory() &nbsp;</strong> <br/>
 set/get knowledge whether the likely shower history of an event 
 has been traced. 
    
  
-<a name="anchor110"></a>
+<a name="anchor98"></a>
 <p/><strong> void Info::zNowISR(bool zNowIn) &nbsp;</strong> <br/>
    
-<a name="anchor111"></a>
+<a name="anchor99"></a>
 <strong> double Info::zNowISR() &nbsp;</strong> <br/>
 set/get value of <i>z</i> in latest ISR branching. 
    
  
-<a name="anchor112"></a>
+<a name="anchor100"></a>
 <p/><strong> void Info::pT2NowISR(bool pT2NowIn) &nbsp;</strong> <br/>
    
-<a name="anchor113"></a>
+<a name="anchor101"></a>
 <strong> double Info::pT2NowISR() &nbsp;</strong> <br/>
 set/get value of <i>pT^2</i> in latest ISR branching. 
    
  
-<a name="section15"></a> 
+<a name="section14"></a> 
 <h3>Les Houches Event File information</h3> 
  
 Since the <code>Info</code> class is one of the main interfaces between 
@@ -946,4 +833,4 @@ retrieval functions, please consult the
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

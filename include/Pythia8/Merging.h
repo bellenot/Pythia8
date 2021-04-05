@@ -1,5 +1,5 @@
 // Merging.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -30,13 +30,13 @@ namespace Pythia8 {
 // Merging is a wrapper class for the interface of matrix element merging and
 // Pythia8.
 
-class Merging : public  PhysicsBase {
+class Merging : public PhysicsBase {
 
 public:
 
   // Constructor.
-  Merging() :  trialPartonLevelPtr(), mergingHooksPtr(),
-    coupSMPtr(), tmsNowMin() {}
+  Merging() :  PhysicsBase(), trialPartonLevelPtr(), mergingHooksPtr(),
+    tmsNowMin() {}
 
   // Destructor.
   virtual ~Merging(){}
@@ -73,7 +73,7 @@ protected:
   MergingHooksPtr mergingHooksPtr;
 
   // Pointer to standard model couplings.
-  CoupSM* coupSMPtr;
+  //CoupSM* coupSMPtr;
 
   // Minimal value found for the merging scale in events.
   double tmsNowMin;

@@ -1,5 +1,5 @@
 // History.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -888,7 +888,8 @@ private:
     sumBadBranches(), foundOrderedPath(), foundStronglyOrderedPath(),
     foundAllowedPath(), foundCompletePath(), scale(), nextInInput(), prob(),
     iReclusteredOld(), iReclusteredNew(), doInclude(), mergingHooksPtr(),
-    particleDataPtr(), infoPtr(), showers(), coupSMPtr(), sumScalarPT() {}
+    particleDataPtr(), infoPtr(), showers(), coupSMPtr(), sumScalarPT(),
+    probMaxSave(), depth(), minDepthSave() {}
 
   // The copy-constructor is private.
   History(const History &) {}

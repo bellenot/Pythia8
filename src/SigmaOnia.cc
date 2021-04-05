@@ -1,5 +1,5 @@
 // SigmaOnia.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -937,7 +937,7 @@ void Sigma2gg2QQbarX8g::initProc() {
     particleDataPtr->addParticle(idOct, nameOct, spinType, chargeType, colType,
                                  m0, mWidth, m0, m0);
     ParticleDataEntry* entry = particleDataPtr->particleDataEntryPtr(idOct);
-    if (entry) entry->addChannel(1, 1.0, 0, idHad, 21);
+    if (entry->id() != 0) entry->addChannel(1, 1.0, 0, idHad, 21);
   } else if (mSplit > 0 && abs(particleDataPtr->m0(idOct) - m0) > 1E-5) {
     particleDataPtr->m0(idOct, m0);
     particleDataPtr->mWidth(idOct, mWidth);

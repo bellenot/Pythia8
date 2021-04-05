@@ -1,5 +1,5 @@
 // VinciaISR.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2020 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -30,7 +30,8 @@ class TrialGeneratorISR {
 public:
 
   // Constructor.
-  TrialGeneratorISR() : isInitPtr(false), isInit(false) {;}
+  TrialGeneratorISR() : isInit(false) {;}
+  virtual ~TrialGeneratorISR() {;}
 
   // Initialize pointers.
   void initPtr(Info* infoPtrIn);
@@ -126,7 +127,7 @@ public:
  private:
 
   // Status.
-  bool isInitPtr, isInit;
+  bool isInit;
 
   // Verbosity level.
   int verbose;
@@ -804,7 +805,7 @@ class BranchElementalISR {
 public:
 
   // Constructors.
-  BranchElementalISR() : system(0) {;}
+  BranchElementalISR() = default;
   BranchElementalISR(int iSysIn, Event& event, int iOld1In,
     int iOld2In, int colIn, bool isVal1In, bool isVal2In) {
     reset(iSysIn, event, iOld1In, iOld2In, colIn, isVal1In, isVal2In);}
@@ -941,25 +942,26 @@ public:
   void list(bool header = false, bool footer = false) const;
 
   // Data storage members.
-  int i1sav, i2sav, id1sav, id2sav, colType1sav, colType2sav, h1sav, h2sav;
-  double e1sav, e2sav;
-  bool isVal1sav, isVal2sav, isIIsav, is1Asav;
-  Particle new1, new2, new3;
+  int i1sav{}, i2sav{}, id1sav{}, id2sav{}, colType1sav{}, colType2sav{},
+    h1sav{}, h2sav{};
+  double e1sav{}, e2sav{};
+  bool isVal1sav{}, isVal2sav{}, isIIsav{}, is1Asav{};
+  Particle new1{}, new2{}, new3{};
   // Colour, not obvious, since for e.g. gg -> H we have two II antennae.
-  int colSav;
+  int colSav{};
   // System and counter for vetos.
-  int system, nVeto, nHull, nHadr;
+  int system{0}, nVeto{}, nHull{}, nHadr{};
   // We have to force a splitting (heavy quarks).
-  bool forceSplittingSav;
+  bool forceSplittingSav{};
 
   // Trial Generators and properties of saved trials.
-  vector<TrialGeneratorISR*> trialGenPtrsSav;
-  vector<double> zMinSav, zMaxSav, colFacSav, alphaSav;
-  vector<double> physPDFratioSav, trialPDFratioSav;
-  vector<double> extraMassPDFfactorSav;
-  vector<double> scaleSav, scaleOldSav, headroomSav, enhanceFacSav;
-  vector<bool> hasSavedTrial, isSwappedSav;
-  vector<int> iAntPhysSav, nShouldRescue, trialFlavSav;
+  vector<TrialGeneratorISR*> trialGenPtrsSav{};
+  vector<double> zMinSav{}, zMaxSav{}, colFacSav{}, alphaSav{};
+  vector<double> physPDFratioSav{}, trialPDFratioSav{};
+  vector<double> extraMassPDFfactorSav{};
+  vector<double> scaleSav{}, scaleOldSav{}, headroomSav{}, enhanceFacSav{};
+  vector<bool> hasSavedTrial{}, isSwappedSav{};
+  vector<int> iAntPhysSav{}, nShouldRescue{}, trialFlavSav{};
   // Note: isSwapped = true for II means physical antenna function is
   // coded for side A but trial generator is for side B.  For IF, is1A
   // = true for 1 being on side A, false for 1 being on side B.
@@ -967,7 +969,7 @@ public:
  private:
 
   // Saved antenna invariant mass value.
-  double m2AntSav, mAntSav, sAntSav;
+  double m2AntSav{}, mAntSav{}, sAntSav{};
 
 };
 
@@ -1176,9 +1178,7 @@ private:
 
   // Beams, saved as positive and negative pz respectively.
   int beamFrameType;
-  BeamParticle* beamPosPtr;
-  BeamParticle* beamNegPtr;
-  double eBeamPos, eBeamNeg, eCMBeamsSav, m2BeamsSav;
+  double eBeamA, eBeamB, eCMBeamsSav, m2BeamsSav;
   double TINYPDF;
 
   // Main Vincia ISR on/off switches.
@@ -1268,8 +1268,7 @@ private:
   // Saved incoming guys.
   map<int, Particle> initialA;
   map<int, Particle> initialB;
-  double eBeamPosUsed;
-  double eBeamNegUsed;
+  double eBeamAUsed, eBeamBUsed;
 
   // Count numbers of quarks and gluons.
   map<int, int> nG, nQQ;

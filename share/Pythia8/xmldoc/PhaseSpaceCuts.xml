@@ -285,7 +285,7 @@ notably the <code>HardQCD</code> ones. That is, you cannot mix with
 <ei>2 &rarr; 1</ei> or <ei>2 &rarr; 3</ei> processes, nor with external 
 processes (notably Les Houches input) or <code>SoftQCD</code> ones, 
 and  you cannot use the option to define a 
-<aloc href="ASecondHardProcess">second hard process</aloc> in 
+<aloc href="SecondHardProcess">second hard process</aloc> in 
 the same event. Furthermore you have to be careful about the choice 
 of <code>PhaseSpace:pTHatMin</code>, since a <ei>pTHat = 0</ei> 
 event would come with an infinite weight. 
@@ -320,4 +320,4 @@ give "reasonably-sized" weights.
  
 </chapter> 
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

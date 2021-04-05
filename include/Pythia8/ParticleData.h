@@ -1,5 +1,5 @@
 // ParticleData.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -135,8 +135,9 @@ public:
     chargeTypeSave(chargeTypeIn), colTypeSave(colTypeIn), m0Save(m0In),
     mWidthSave (mWidthIn), mMinSave(mMinIn), mMaxSave(mMaxIn),
     tau0Save(tau0In), constituentMassSave(), hasAntiSave(false),
-    isResonanceSave(), mayDecaySave(), doExternalDecaySave(), isVisibleSave(),
-    doForceWidthSave(), hasChangedSave(true), hasChangedMMinSave(false),
+    isResonanceSave(), mayDecaySave(), tauCalcSave(true),
+    doExternalDecaySave(), isVisibleSave(), doForceWidthSave(),
+    hasChangedSave(true), hasChangedMMinSave(false),
     hasChangedMMaxSave(false), modeBWnow(), modeTau0now(), atanLow(),
     atanDif(), mThr(), currentBRSum(), resonancePtr(0), particleDataPtr() {
     setDefaults();}
@@ -148,8 +149,9 @@ public:
     chargeTypeSave(chargeTypeIn), colTypeSave(colTypeIn), m0Save(m0In),
     mWidthSave (mWidthIn), mMinSave(mMinIn), mMaxSave(mMaxIn),
     tau0Save(tau0In), constituentMassSave(), hasAntiSave(true),
-    isResonanceSave(), mayDecaySave(), doExternalDecaySave(), isVisibleSave(),
-    doForceWidthSave(), hasChangedSave(true), hasChangedMMinSave(false),
+    isResonanceSave(), mayDecaySave(), tauCalcSave(true),
+    doExternalDecaySave(), isVisibleSave(), doForceWidthSave(),
+    hasChangedSave(true), hasChangedMMinSave(false),
     hasChangedMMaxSave(false), modeBWnow(), modeTau0now(), atanLow(),
     atanDif(), mThr(), currentBRSum(), resonancePtr(0), particleDataPtr() {
     setDefaults(); if (toLower(antiNameIn) == "void") hasAntiSave = false;}
@@ -163,13 +165,14 @@ public:
     mMaxSave = oldPDE.mMaxSave;  tau0Save = oldPDE.tau0Save;
     constituentMassSave = oldPDE.constituentMassSave;
     hasAntiSave = oldPDE.hasAntiSave; isResonanceSave = oldPDE.isResonanceSave;
-    mayDecaySave = oldPDE.mayDecaySave; doExternalDecaySave
-    = oldPDE.doExternalDecaySave; isVisibleSave = oldPDE.isVisibleSave;
-    doForceWidthSave = oldPDE.doForceWidthSave; hasChangedSave
-    = oldPDE.hasChangedSave; hasChangedMMinSave = oldPDE.hasChangedMMinSave;
-    hasChangedMMaxSave = oldPDE.hasChangedMMaxSave;
-    modeBWnow = oldPDE.modeBWnow; atanLow = oldPDE.atanLow;
-    atanDif = oldPDE.atanDif; mThr = oldPDE.mThr;
+    mayDecaySave = oldPDE.mayDecaySave; tauCalcSave = oldPDE.tauCalcSave;
+    doExternalDecaySave = oldPDE.doExternalDecaySave; isVisibleSave
+    = oldPDE.isVisibleSave; doForceWidthSave = oldPDE.doForceWidthSave;
+    hasChangedSave = oldPDE.hasChangedSave; hasChangedMMinSave
+    = oldPDE.hasChangedMMinSave; hasChangedMMaxSave
+    = oldPDE.hasChangedMMaxSave; modeTau0now = oldPDE.modeTau0now; modeBWnow
+    = oldPDE.modeBWnow; atanLow = oldPDE.atanLow; atanDif = oldPDE.atanDif;
+    mThr = oldPDE.mThr;
     for (int i = 0; i < int(oldPDE.channels.size()); ++i) {
       DecayChannel oldDC = oldPDE.channels[i]; channels.push_back(oldDC); }
     currentBRSum = oldPDE.currentBRSum; resonancePtr = oldPDE.resonancePtr;
@@ -185,13 +188,13 @@ public:
     mMaxSave = oldPDE.mMaxSave;  tau0Save = oldPDE.tau0Save;
     constituentMassSave = oldPDE.constituentMassSave;
     hasAntiSave = oldPDE.hasAntiSave; isResonanceSave = oldPDE.isResonanceSave;
-    mayDecaySave = oldPDE.mayDecaySave; doExternalDecaySave
-    = oldPDE.doExternalDecaySave; isVisibleSave = oldPDE.isVisibleSave;
-    doForceWidthSave = oldPDE.doForceWidthSave; hasChangedSave
-    = oldPDE.hasChangedSave; hasChangedMMinSave = oldPDE.hasChangedMMinSave;
-    hasChangedMMaxSave = oldPDE.hasChangedMMaxSave;
-    modeBWnow = oldPDE.modeBWnow; atanLow = oldPDE.atanLow;
-    atanDif = oldPDE.atanDif; mThr = oldPDE.mThr;
+    mayDecaySave = oldPDE.mayDecaySave; tauCalcSave = oldPDE.tauCalcSave;
+    doExternalDecaySave = oldPDE.doExternalDecaySave; isVisibleSave
+    = oldPDE.isVisibleSave; doForceWidthSave = oldPDE.doForceWidthSave;
+    hasChangedSave = oldPDE.hasChangedSave; hasChangedMMinSave
+    = oldPDE.hasChangedMMinSave; hasChangedMMaxSave
+    = oldPDE.hasChangedMMaxSave; modeBWnow = oldPDE.modeBWnow; atanLow
+    = oldPDE.atanLow; atanDif = oldPDE.atanDif; mThr = oldPDE.mThr;
     for (int i = 0; i < int(oldPDE.channels.size()); ++i) {
       DecayChannel oldDC = oldPDE.channels[i]; channels.push_back(oldDC); }
     currentBRSum = oldPDE.currentBRSum; resonancePtr = 0;
@@ -250,6 +253,8 @@ public:
     hasChangedSave = true;}
   void setMayDecay(bool mayDecayIn, bool countAsChanged = true) {
     mayDecaySave = mayDecayIn; if (countAsChanged) hasChangedSave = true;}
+  void setTauCalc(bool tauCalcIn, bool countAsChanged = true) {
+    tauCalcSave = tauCalcIn; if (countAsChanged) hasChangedSave = true;}
   void setDoExternalDecay(bool doExternalDecayIn)
     {doExternalDecaySave = doExternalDecayIn; hasChangedSave = true;}
   void setIsVisible(bool isVisibleIn) {isVisibleSave = isVisibleIn;
@@ -285,6 +290,7 @@ public:
   double tau0()                   const { return tau0Save; }
   bool   isResonance()            const { return isResonanceSave; }
   bool   mayDecay()               const { return mayDecaySave; }
+  bool   tauCalc()                const { return tauCalcSave; }
   bool   doExternalDecay()        const { return doExternalDecaySave; }
   bool   isVisible()              const { return isVisibleSave; }
   bool   doForceWidth()           const { return doForceWidthSave; }
@@ -373,9 +379,9 @@ private:
   int    spinTypeSave, chargeTypeSave, colTypeSave;
   double m0Save, mWidthSave, mMinSave, mMaxSave, tau0Save,
          constituentMassSave;
-  bool   hasAntiSave, isResonanceSave, mayDecaySave, doExternalDecaySave,
-         isVisibleSave, doForceWidthSave, hasChangedSave, hasChangedMMinSave,
-         hasChangedMMaxSave;
+  bool   hasAntiSave, isResonanceSave, mayDecaySave, tauCalcSave,
+         doExternalDecaySave, isVisibleSave, doForceWidthSave, hasChangedSave,
+         hasChangedMMinSave, hasChangedMMaxSave;
 
   // Extra data for mass selection according to a Breit-Wigner and lifetime.
   int    modeBWnow, modeTau0now;
@@ -412,7 +418,19 @@ public:
     rndmPtr(0), coupSMPtr(0), particlePtr(0), isInit(false),
     readingFailedSave(false) {}
 
-  // Copy constructors.
+  // Copy constructor.
+  ParticleData( const ParticleData& oldPD) {
+    modeBreitWigner = oldPD.modeBreitWigner; maxEnhanceBW = oldPD.maxEnhanceBW;
+    for (int i = 0; i < 7; ++i) mQRun[i] = oldPD.mQRun[i];
+    Lambda5Run = oldPD.Lambda5Run;
+    infoPtr = 0; settingsPtr = 0; rndmPtr = 0; coupSMPtr = 0;
+    for ( map<int, ParticleDataEntry>::const_iterator pde = oldPD.pdt.begin();
+      pde != oldPD.pdt.end(); pde++) { int idTmp = pde->first;
+      pdt[idTmp] = pde->second; pdt[idTmp].initPtr(this); }
+    particlePtr = 0; isInit = oldPD.isInit;
+    readingFailedSave = oldPD.readingFailedSave; }
+
+  // Assignment operator.
   ParticleData& operator=( const ParticleData& oldPD) { if (this != &oldPD) {
     modeBreitWigner = oldPD.modeBreitWigner; maxEnhanceBW = oldPD.maxEnhanceBW;
     for (int i = 0; i < 7; ++i) mQRun[i] = oldPD.mQRun[i];
@@ -528,17 +546,17 @@ public:
   // Query existence of an entry and return an iterator.
   ParticleDataEntry* findParticle(int idIn) {
     map<int,ParticleDataEntry>::iterator found = pdt.find( abs(idIn) );
-    if( found == pdt.end() ) return NULL;
+    if( found == pdt.end() ) return nullptr;
     if ( idIn > 0 || found->second.hasAnti() ) return &((*found).second);
-    return NULL;
+    return nullptr;
   }
 
   // Query existence of an entry and return a const iterator.
   const ParticleDataEntry* findParticle(int idIn) const {
     map<int,ParticleDataEntry>::const_iterator found = pdt.find( abs(idIn) );
-    if( found == pdt.end() ) return NULL;
+    if( found == pdt.end() ) return nullptr;
     if ( idIn > 0 || found->second.hasAnti() ) return &((*found).second);
-    return NULL;
+    return nullptr;
   }
 
   // Return the id of the sequentially next particle stored in table.
@@ -584,6 +602,9 @@ public:
   void mayDecay(int idIn, bool mayDecayIn) {
     ParticleDataEntry* ptr = findParticle(idIn);
     if ( ptr ) ptr->setMayDecay(mayDecayIn); }
+  void tauCalc(int idIn, bool tauCalcIn) {
+    ParticleDataEntry* ptr = findParticle(idIn);
+    if ( ptr ) ptr->setTauCalc(tauCalcIn); }
   void doExternalDecay(int idIn, bool doExternalDecayIn) {
     ParticleDataEntry* ptr = findParticle(idIn);
     if ( ptr ) ptr->setDoExternalDecay(doExternalDecayIn); }
@@ -643,6 +664,9 @@ public:
   bool mayDecay(int idIn) const {
     const ParticleDataEntry* ptr = findParticle(idIn);
     return ( ptr ) ? ptr->mayDecay() : false ; }
+  bool tauCalc(int idIn) const {
+    const ParticleDataEntry* ptr = findParticle(idIn);
+    return ( ptr ) ? ptr->tauCalc() : false ; }
   bool doExternalDecay(int idIn) const {
     const ParticleDataEntry* ptr = findParticle(idIn);
     return ( ptr ) ? ptr->doExternalDecay() : false ; }

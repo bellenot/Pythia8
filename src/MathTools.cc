@@ -1,5 +1,5 @@
 // MathTools.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -244,7 +244,7 @@ bool integrateGauss(double& resultOut, function<double(double)> f,
 // is fixed, the other variables can be captured using a lambda
 // function.
 
-double brent(double& solutionOut, function<double(double)> f,  double target,
+bool brent(double& solutionOut, function<double(double)> f,  double target,
   double xLo, double xHi, double tol, int maxIter) {
 
   // Range checks.

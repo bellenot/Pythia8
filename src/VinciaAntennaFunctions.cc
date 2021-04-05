@@ -1,5 +1,5 @@
 // VinciaAntennaFunctions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2020 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -190,50 +190,6 @@ double DGLAP::Pq2gqLin(double z, int hA, int polB, int hC, double mu) {
 
 //--------------------------------------------------------------------------
 
-// Constructor.
-
-AntennaFunction::AntennaFunction() {
-
-  // Init flags.
-  isInitPtr = false;
-  isInit    = false;
-
-  // Default values (reset by init).
-  verbose  = 1;
-
-  // Initialize LH and RH maps (DO NOT CHANGE).
-  RH[9]  = true;
-  RH[1]  = true;
-  RH[-1] = false;
-  LH[9]  = true;
-  LH[1]  = false;
-  LH[-1] = true;
-  chargeFacSav = 0.0;
-  kineMapSav   = 0;
-  modeSLC      = -1;
-
-  // Sector shower parameters.
-  sectorShower   = false;
-  sectorDampSav  = 0.0;
-
-  // Global shower parameters.
-  alphaSav            = 0.0;
-  preFacFiniteTermSav = 0.0;
-  antMinSav           = 0.0;
-
-  // Initialise dummy vectors for massless/unpolarised antennae.
-  hDum.clear();
-  mDum.clear();
-  for (int i=0; i<4; ++i) {hDum.push_back(9); mDum.push_back(0.);}
-  hA = 9; hB = 9;
-  hi = 9; mi = 0.;
-  hj = 9; mj = 0.;
-  hk = 9; mk = 0.;
-
-}
-
-//--------------------------------------------------------------------------
-
 // Default initialization.
 
 bool AntennaFunction::init() {
@@ -320,9 +276,9 @@ int AntennaFunction::initHel(vector<int>* helBef, vector<int>* helNew) {
   if (!physHel) {
     if (verbose >= normal){
       stringstream ss;
-      ss << "Unphysical helicity configuration: "
-         << hA << " " << hB << " -> " << hi << " " << hj << " " << hk;
-      printErr(__METHOD_NAME__, ss.str());
+      ss << hA << " " << hB << " -> " << hi << " " << hj << " " << hk;
+      infoPtr->errorMsg("Warning in "+__METHOD_NAME__+
+        ": unphysical helicity configuration.",ss.str());
     }
     return 0;
   }
@@ -367,10 +323,12 @@ bool AntennaFunction::check() {
       modeSLC = modeSLCsave;
       // Compare.
       double ratio = ant/eik;
-      if (fabs(ratio - 1.) >= 0.001) {
+      if (abs(ratio - 1.) >= 0.001) {
         isOK = false;
-        if (verbose >= quiet) printOut(__METHOD_NAME__, "WARNING:" +
-          vinciaName() + " FAILED (eikonal " + num2str(iTest,1) + ")");
+        if (verbose >= quiet) {
+          infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": Failed eikonal.",
+            "("+num2str(iTest,1) + ")");
+        }
       } else if (verbose >= verylouddebug) printOut(__METHOD_NAME__,
         vinciaName() + " OK (eikonal " + num2str(iTest, 1) + ")");
     }
@@ -470,7 +428,7 @@ bool AntennaFunction::check() {
       if (AP1 > 0.) {
         double ratio = ant1/AP1;
         // Require better than 5% agreement unless dominated by nonsingular.
-        if (fabs(ratio-1.) >= 0.05 && fabs(ant1 - AP1) > 10.) {
+        if (abs(ratio-1.) >= 0.05 && abs(ant1 - AP1) > 10.) {
           isOK = false;
           if (verbose >= normal){
             printOut(__METHOD_NAME__, "WARNING:" + vinciaName() +
@@ -493,7 +451,7 @@ bool AntennaFunction::check() {
       // Require better than 5% agreement unless dominated by nonsingular.
       if (AP2 > 0.) {
         double ratio = ant2/AP2;
-        if (fabs(ratio - 1.) >= 0.05 && fabs(ant2 - AP2) > 10.) {
+        if (abs(ratio - 1.) >= 0.05 && abs(ant2 - AP2) > 10.) {
           isOK = false;
           if (verbose >= quiet) {
             printOut(__METHOD_NAME__, "WARNING:" + vinciaName() +
@@ -635,7 +593,7 @@ string AntennaFunction::id2str(int id) const {
 
 //--------------------------------------------------------------------------
 
-// The dimensionless antenna function.
+// The antenna function [GeV^-2].
 
 double QQEmitFF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
@@ -731,7 +689,7 @@ double QQEmitFF::antFun(vector<double> invariants, vector<double> masses,
 //--------------------------------------------------------------------------
 
 // Function to give Altarelli-Parisi limits of this antenna.
-// Defined as PI/yij + PK/yjk, i.e. equivalent to antennae.
+// Defined as PI/sij + PK/sjk, i.e. equivalent to antennae.
 
 double QQEmitFF::AltarelliParisi(vector<double> invariants,
   vector<double>, vector<int> helBef, vector<int> helNew) {
@@ -741,6 +699,8 @@ double QQEmitFF::AltarelliParisi(vector<double> invariants,
   int h2Now = helNew[2];
   int hANow = helBef[0];
   int hBNow = helBef[1];
+
+  // Compute (sum of) DGLAP kernel(s)/Q^2
   if (hANow != h0Now || hBNow != h2Now) return -1.;
   else return dglapPtr->Pq2qg(zA(invariants),hANow,h0Now,h1Now)/invariants[1]
          + dglapPtr->Pq2qg(zB(invariants),hBNow,h2Now,h1Now)/invariants[2];
@@ -753,7 +713,7 @@ double QQEmitFF::AltarelliParisi(vector<double> invariants,
 
 //--------------------------------------------------------------------------
 
-// The dimensionless antenna function.
+// The antenna function [GeV^-2].
 
 double QGEmitFF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
@@ -855,7 +815,7 @@ double QGEmitFF::AltarelliParisi(vector<double> invariants,
   int hBNow = helBef[1];
   if (h0Now != hANow) return -1;
 
-  // Compute (sum of) DGLAP kernel(s).
+  // Compute (sum of) DGLAP kernel(s)/Q^2
   double sum(0.);
   if (h2Now == hBNow)
     sum += dglapPtr->Pq2qg(zA(invariants), hANow, h0Now, h1Now)/invariants[1];
@@ -870,7 +830,7 @@ double QGEmitFF::AltarelliParisi(vector<double> invariants,
 
 //--------------------------------------------------------------------------
 
-// The dimensionless antenna function (derived from QGEmit by swapping).
+// The antenna function [GeV^-2] (derived from QGEmit by swapping).
 
 double GQEmitFF::antFun(vector<double> invariants,
   vector<double> mNew, vector<int> helBef, vector<int> helNew) {
@@ -897,7 +857,7 @@ double GQEmitFF::AltarelliParisi(vector<double> invariants,
   int hBNow = helBef[1];
   if (h2Now != hBNow) return -1;
 
-  // Compute (sum of) DGLAP kernel(s)/
+  // Compute (sum of) DGLAP kernel(s)/Q^2
   double sum(0.);
   if (h0Now == hANow)
     sum += dglapPtr->Pq2qg(zB(invariants), hBNow, h2Now, h1Now)/invariants[2];
@@ -912,7 +872,7 @@ double GQEmitFF::AltarelliParisi(vector<double> invariants,
 
 //--------------------------------------------------------------------------
 
-// The dimensionless antenna function.
+// The antenna function [GeV^-2].
 
 double GGEmitFF::antFun(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
@@ -997,6 +957,8 @@ double GGEmitFF::AltarelliParisi(vector<double> invariants,
   int hANow = helBef[0];
   int hBNow = helBef[1];
   double sum(0.);
+
+  // Compute (sum of) DGLAP kernel(s)/Q^2
   if (hBNow == h2Now)
     sum += dglapPtr->Pg2gg(zA(invariants), hANow, h0Now, h1Now)/invariants[1];
   if (hANow == h0Now)
@@ -1011,7 +973,7 @@ double GGEmitFF::AltarelliParisi(vector<double> invariants,
 
 //--------------------------------------------------------------------------
 
-// The dimensionless antenna function.
+// The antenna function [GeV^-2].
 
 double GXSplitFF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
@@ -1099,8 +1061,10 @@ double GXSplitFF::AltarelliParisi(vector<double> invariants,
   int h2Now = helNew[2];
   int hANow = helBef[0];
   int hBNow = helBef[1];
+
+  // Compute DGLAP kernel/Q^2
   return hBNow != h2Now ? 0.0 : dglapPtr->Pg2qq(zA(invariants), hANow, h0Now,
-                                                h1Now)/invariants[1];
+    h1Now)/invariants[1];
 
 }
 
@@ -1111,7 +1075,7 @@ double GXSplitFF::AltarelliParisi(vector<double> invariants,
 
 //--------------------------------------------------------------------------
 
-// The dimensionless antenna function.
+// The antenna function [GeV^-2].
 
 double QGEmitFFsec::antFun(vector<double> invariants,
   vector<double> mNew, vector<int> helBef, vector<int> helNew) {
@@ -1145,7 +1109,7 @@ double QGEmitFFsec::antFun(vector<double> invariants,
 
 //--------------------------------------------------------------------------
 
-// The dimensionless antenna function (derived from QGEmitFFsec by swapping).
+// The antenna function [GeV^-2] (derived from QGEmitFFsec by swapping).
 
 double GQEmitFFsec::antFun(vector<double> invariants,
   vector<double> mNew, vector<int> helBef, vector<int> helNew) {
@@ -1172,7 +1136,7 @@ double GQEmitFFsec::AltarelliParisi(vector<double> invariants,
   int hBNow = helBef[1];
   if (h2Now != hBNow) return -1;
 
-  // Compute (sum of) DGLAP kernel(s).
+  // Compute (sum of) DGLAP kernel(s)/Q^2.
   double sum(0.);
   if (h0Now == hANow)
     sum += dglapPtr->Pq2qg(zB(invariants), hBNow, h2Now, h1Now)/invariants[2];
@@ -1188,7 +1152,7 @@ double GQEmitFFsec::AltarelliParisi(vector<double> invariants,
 
 //--------------------------------------------------------------------------
 
-// The dimensionless antenna function.
+// The antenna function [GeV^-2].
 
 double GGEmitFFsec::antFun(vector<double> invariants, vector<double> mNew,
   vector<int> helBef, vector<int> helNew) {
@@ -1234,7 +1198,7 @@ double GGEmitFFsec::antFun(vector<double> invariants, vector<double> mNew,
 
 //--------------------------------------------------------------------------
 
-// The dimensionless antenna function, just 2*global.
+// The antenna function [GeV^-2] (just 2*global).
 
 double GXSplitFFsec::antFun(vector<double> invariants, vector<double> mNew,
   vector<int> helBef, vector<int> helNew) {
@@ -1325,7 +1289,7 @@ bool AntennaFunctionIX::check() {
 
         // Compare.
         double ratio = ant/eik;
-        if (fabs(ratio - 1.0) >= 0.001) {
+        if (abs(ratio - 1.0) >= 0.001) {
           isOK = false;
           if (verbose >= quiet)
             printOut(vinciaName() + ":check","WARNING: FAILED "
@@ -1369,7 +1333,7 @@ bool AntennaFunctionIX::check() {
       double zs2 = zB(invariants1);
       if (zs1 != -1.0) {
         double ratio = ant1/AP1;
-        if (fabs(ratio - 1.0) >= 0.01) {
+        if (abs(ratio - 1.0) >= 0.01) {
           isOK = false;
           if (verbose >= quiet)
             printOut(vinciaName() + ":check","WARNING: FAILED "
@@ -1387,7 +1351,7 @@ bool AntennaFunctionIX::check() {
       }
       if (zs2 != -1.0) {
         double ratio = ant2/AP2;
-        if (fabs(ratio - 1.0) >= 0.01) {
+        if (abs(ratio - 1.0) >= 0.01) {
           isOK = false;
           if (verbose >= 1)
             printOut(vinciaName() + ":check","WARNING: FAILED "
@@ -1511,7 +1475,7 @@ bool AntennaFunctionIX::check() {
 
 //--------------------------------------------------------------------------
 
-// The antenna function.
+// The antenna function [GeV^-2].
 
 double QQEmitII::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
@@ -1633,7 +1597,7 @@ double QQEmitII::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //--------------------------------------------------------------------------
 
-// The antenna function.
+// The antenna function [GeV^-2].
 
 double GQEmitII::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
@@ -1770,7 +1734,7 @@ double GQEmitII::AltarelliParisi(vector<double> invariants,
 
 //--------------------------------------------------------------------------
 
-// The antenna function.
+// The antenna function [GeV^-2].
 
 double GGEmitII::antFun(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
@@ -1883,7 +1847,7 @@ double GGEmitII::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //--------------------------------------------------------------------------
 
-// The antenna function.
+// The antenna function [GeV^-2].
 
 double QXSplitII::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
@@ -1989,7 +1953,7 @@ double QXSplitII::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //--------------------------------------------------------------------------
 
-// The antenna function.
+// The antenna function [GeV^-2].
 
 double GXConvII::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
@@ -2185,7 +2149,7 @@ bool AntennaFunctionIF::check() {
           modeSLC = modeSLCsave;
           // Compare.
           double ratio = ant/eik;
-          if (fabs(ratio - 1.0) >= 0.001) {
+          if (abs(ratio - 1.0) >= 0.001) {
             isOK = false;
             if (verbose >= 1) printOut(vinciaName() + ":check",
                 "WARNING: FAILED (eikonal " + num2str(iTest, 1) +
@@ -2225,7 +2189,7 @@ bool AntennaFunctionIF::check() {
         double zs2 = zB(invariants1);
         if (zs1 != -1.0) {
           double ratio = ant1/AP1;
-          if (fabs(ratio - 1.0) >= 0.01) {
+          if (abs(ratio - 1.0) >= 0.01) {
             isOK = false;
             if (verbose >= 1)
               printOut(vinciaName() + ":check","WARNING: FAILED "
@@ -2242,7 +2206,7 @@ bool AntennaFunctionIF::check() {
         }
         if (zs2 != -1.0) {
           double ratio = ant2/AP2;
-          if (fabs(ratio - 1.0) >= 0.01) {
+          if (abs(ratio - 1.0) >= 0.01) {
             isOK = false;
             if (verbose >= 1) printOut(vinciaName() + ":check",
                 "WARNING: FAILED (collinear jk " + num2str(iTest, 1) +
@@ -2330,9 +2294,9 @@ bool AntennaFunctionIF::check() {
           ":check", "OK (is positive " + helString + " )");
       if (!isZero) {
         if (hasDeadZone && verbose >= 1) printOut(vinciaName() + ":check",
-           "WARNING (dead zone encountered " + helString + " )");
+          "WARNING (dead zone encountered " + helString + " )");
         else if (!hasDeadZone && verbose >= 6) printOut(vinciaName()
-            + ":check", "OK (no dead zones " + helString+" )");
+          + ":check", "OK (no dead zones " + helString+" )");
       }
     } // End loop over helicities.
   } // End loop over initi-final state.
@@ -2369,7 +2333,7 @@ bool AntennaFunctionIF::checkRes() {
 
     // Check ratio.
     double ratio= antNow/antSoft;
-    if (fabs(ratio - 1.) >= 0.001) {
+    if (abs(ratio - 1.) >= 0.001) {
       if (verbose >= quiet) {
         stringstream ss;
         ss << "WARNING:" + vinciaName() << " FAILED soft eikonal: ratio to "
@@ -2393,8 +2357,8 @@ bool AntennaFunctionIF::checkRes() {
     // Get dimensionful invariants.
     vector<double> invariants;
     if (!getTestInvariants(invariants, masses, yaj, yjk)) {
-      if (verbose>=normal)
-        printErr(__METHOD_NAME__, "Failed to get test invariants!");
+      if (verbose>=normal) infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": Failed to get test invariants!");
       return false;
     }
 
@@ -2415,7 +2379,7 @@ bool AntennaFunctionIF::checkRes() {
     if (AP > 0.) {
       double ratio = antNow/AP;
       // Require better than 1% agreement unless dominated by nonsingular.
-      if (fabs(ratio - 1.) >= 0.01 && fabs(antNow - AP) > 10.) {
+      if (abs(ratio - 1.) >= 0.01 && abs(antNow - AP) > 10.) {
         if (verbose >= 1) printOut(__METHOD_NAME__, "WARNING:" + vinciaName() +
             "Failed (collinear ij " + num2str(iTest, 1)+" )");
         if (verbose >= 3) cout << setprecision(6) << "    ant  = "
@@ -2479,7 +2443,7 @@ double AntennaFunctionIF::antFunCollLimit(vector<double> invariants,
 
 //--------------------------------------------------------------------------
 
-// The antenna function.
+// The antenna function [GeV^-2].
 
 double QQEmitIF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
@@ -2614,7 +2578,7 @@ double QQEmitIF::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //--------------------------------------------------------------------------
 
-// The antenna function.
+// The antenna function [GeV^-2].
 
 double QGEmitIF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
@@ -2738,7 +2702,7 @@ double QGEmitIF::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //--------------------------------------------------------------------------
 
-// The antenna function.
+// The antenna function [GeV^-2].
 
 double GQEmitIF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
@@ -2871,7 +2835,7 @@ double GQEmitIF::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //--------------------------------------------------------------------------
 
-// The antenna function.
+// The antenna function [GeV^-2].
 
 double GGEmitIF::antFun(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
@@ -2984,7 +2948,7 @@ double GGEmitIF::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //--------------------------------------------------------------------------
 
-// The antenna function.
+// The antenna function [GeV^-2].
 
 double QXSplitIF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
@@ -3088,7 +3052,7 @@ double QXSplitIF::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //--------------------------------------------------------------------------
 
-// The antenna function.
+// The antenna function [GeV^-2].
 
 double GXConvIF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
@@ -3194,7 +3158,7 @@ double GXConvIF::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //--------------------------------------------------------------------------
 
-// The antenna function.
+// The antenna function [GeV^-2].
 
 double XGSplitIF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
@@ -3300,7 +3264,7 @@ double XGSplitIF::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //--------------------------------------------------------------------------
 
-// The dimensionless antenna function.
+// The antenna function [GeV^-2].
 
 double QGEmitIFsec::antFun(vector<double> invariants,
   vector<double> mNew, vector<int> helBef, vector<int> helNew) {
@@ -3335,7 +3299,7 @@ double QGEmitIFsec::antFun(vector<double> invariants,
 
 //--------------------------------------------------------------------------
 
-// The dimensionless antenna function.
+// The antenna function [GeV^-2].
 
 double GGEmitIFsec::antFun(vector<double> invariants,
   vector<double> mNew, vector<int> helBef, vector<int> helNew) {
@@ -3371,7 +3335,7 @@ double GGEmitIFsec::antFun(vector<double> invariants,
 
 //--------------------------------------------------------------------------
 
-// The dimensionless antenna function, just 2*global.
+// The antenna function, just 2*global [GeV^-2].
 
 double XGSplitIFsec::antFun(vector<double> invariants, vector<double> mNew,
     vector<int> helBef, vector<int> helNew) {
@@ -3419,11 +3383,8 @@ void AntennaSetFSR::init() {
   bool sectorShower = settingsPtr->flag("Vincia:sectorShower");
   antFunPtrs[iQQemitFF] = sectorShower ? new QQEmitFFsec() : new QQEmitFF();
   antFunPtrs[iQGemitFF] = sectorShower ? new QGEmitFFsec() : new QGEmitFF();
-  // NOTE: for reason not understood compiler does not accept the
-  // sectorShower? construction as above for GQEmit but says they
-  // are incompatible operand types.
-  if (sectorShower) antFunPtrs[iGQemitFF] = new GQEmitFFsec();
-  else antFunPtrs[iGQemitFF] = new GQEmitFF();
+  antFunPtrs[iGQemitFF] = sectorShower ? (AntennaFunction*)new GQEmitFFsec() :
+    new GQEmitFF();
   antFunPtrs[iGGemitFF] = sectorShower ? new GGEmitFFsec() : new GGEmitFF();
   antFunPtrs[iGXsplitFF]= sectorShower ? new GXSplitFFsec() : new GXSplitFF();
   // Add RF antenna functions (no sector versions defined yet)
@@ -3450,9 +3411,8 @@ void AntennaSetFSR::init() {
     if (pass) {
       if (verbose > normal) printOut(__METHOD_NAME__, "Added to antenna list: "
         + antFunPtr->humanName());
-    } else if (verbose >= quiet) printErr(__METHOD_NAME__,
-        "Added to antenna list: " + antFunPtr->humanName()
-         + " (but one or more consistency checks failed)");
+    } else if (verbose >= quiet) infoPtr->errorMsg("Warning in "+
+      __METHOD_NAME__+": one or more consistency checks failed.");
   }
   isInit = true;
 
@@ -3542,9 +3502,8 @@ void AntennaSetISR::init() {
       if (verbose > normal) printOut(__METHOD_NAME__, "Added to antenna list: "
         + antFunPtr->vinciaName());
     } else if (verbose >= quiet)
-      printErr(__METHOD_NAME__, "Added to antenna list: " +
-        antFunPtr->vinciaName() +
-        " (but one or more consistency checks failed)");
+      infoPtr->errorMsg("Warning in "+__METHOD_NAME__
+        +": one or more consistency checks failed.");
   }
   isInit = true;
 

@@ -1,5 +1,5 @@
 // DireSpace.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -192,12 +192,9 @@ void DireSpace::init( BeamParticle* beamAPtrIn,
     pTmin         = settingsPtr->parm("SpaceShower:pTmin");
   }
 
-  // Calculate nominal invariant mass of events. Set current pT0 scale.
-  sCM             = m2( beamAPtr->p(), beamBPtr->p());
-  eCM             = sqrt(sCM);
-  pT0             = pT0Ref * pow(eCM / ecmRef, ecmPow);
-
-  // Set regularisation parameter to zero.
+  // Calculate nominal invariant mass of events. Set current pT0 scale to zero.
+  sCM = m2( beamAPtr->p(), beamBPtr->p());
+  eCM = sqrt(sCM);
   pT0 = 0.;
 
   // Restrict pTmin to ensure that alpha_s(pTmin^2 + pT_0^2) does not blow up.
@@ -431,9 +428,8 @@ void DireSpace::prepare( int iSys, Event& event, bool limitPTmaxIn) {
   bool canRadiate2 = !(event[in2].isRescatteredIncoming());
 
   // Reset dipole-ends list for first interaction. Also resonances.
-  if (iSys == 0) dipEnd.resize(0);
-  if (iSys == 0) idResFirst  = 0;
-  if (iSys == 1) idResSecond = 0;
+  if (iSys == 0) {dipEnd.resize(0); idResFirst  = 0;}
+  else if (iSys == 1) idResSecond = 0;
 
   // Set splitting library.
   splits = splittingsPtr->getSplittings();
@@ -596,12 +592,11 @@ void DireSpace::setupQCDdip( int iSys, int side, int colTag, int colSign,
     pTmax = event[iRad].scale();
 
   // Force maximal pT to LHEF scales tag value.
-  double mups   = infoPtr->getScalesAttribute("mups");
-  bool nan_mups = abs(mups-mups) > 1e5 || mups  != mups;
+  double mups = infoPtr->getScalesAttribute("mups");
   if ( abs(event[iRad].status()) > 20
     && abs(event[iRad].status()) < 24
     && settingsPtr->flag("Beams:setProductionScalesFromLHEF")
-    && !nan_mups)
+    && !isnan(mups) )
     pTmax = mups;
 
   int colType  = (event[iRad].id() == 21) ? 2 * colSign : colSign;
@@ -2285,11 +2280,10 @@ bool DireSpace::applyMEC ( const Event& state, DireSplitInfo* splitInfo,
     kernelSel.erase(kernelSel.find("base_order_as2"));
   }
   double baseNew = ((kernel - oas2) * MECnum/MECden + oas2);
-  if (hasME) {
 
-    // Now check if the splitting should be vetoed/accepted given new kernel.
-    double auxNew  = kernel;
-    double overNew = kernel;
+  // Now check if the splitting should be vetoed/accepted given new kernel.
+  double auxNew  = kernel;
+  double overNew = kernel;
 
   int nFinal = 0;
   for (int i=0; i < state.size(); ++i)
@@ -2300,28 +2294,25 @@ bool DireSpace::applyMEC ( const Event& state, DireSplitInfo* splitInfo,
     splitInfo->kinematics()->xBef, state[splitInfo->iRadBef].id(), nFinal-1,
     max(baseNew/overNew,1.1));
 
-    // Ensure that accept probability is positive.
-    if (baseNew/auxNew < 0.) auxNew *= -1.;
+  // Ensure that accept probability is positive.
+  if (baseNew/auxNew < 0.) auxNew *= -1.;
 
-    if (suppressLargeMECs)  while (baseNew/auxNew < 5e-2)  auxNew /= 5.;
+  if (suppressLargeMECs)  while (baseNew/auxNew < 5e-2)  auxNew /= 5.;
 
-    // Reset overestimate if necessary.
-    if (baseNew/auxNew > 1.) {
-      double rescale = baseNew/auxNew * 1.15;
-      auxNew *= rescale;
-    }
+  // Reset overestimate if necessary.
+  if (baseNew/auxNew > 1.) {
+    double rescale = baseNew/auxNew * 1.15;
+    auxNew *= rescale;
+  }
+  double wt = baseNew/auxNew;
 
-    double wt = baseNew/auxNew;
+  // New rejection weight.
+  double wvNow = auxNew/overNew * (overNew - baseNew) / (auxNew -  baseNew);
 
-    // New rejection weight.
-    double wvNow = auxNew/overNew
-                 * (overNew - baseNew)
-                 / (auxNew -  baseNew);
+  // New acceptance weight.
+  double waNow = auxNew/overNew;
 
-    // New acceptance weight.
-    double waNow = auxNew/overNew;
-
-    if (abs(wvNow) > 1e0) {
+  if (abs(wvNow) > 1e0) {
     direInfoPtr->message(1) << __FILE__ << " " << __func__
     << " " << __LINE__ << " : Large reject weight=" << wvNow
     << "\t for kernel=" << baseNew << " overestimate=" << overNew
@@ -2329,8 +2320,8 @@ bool DireSpace::applyMEC ( const Event& state, DireSplitInfo* splitInfo,
     << splitInfo->kinematics()->pT2
     <<  " for " << splittingSelName
     << endl;
-    }
-    if (abs(waNow) > 1e0) {
+  }
+  if (abs(waNow) > 1e0) {
     direInfoPtr->message(1) << __FILE__ << " " << __func__
     << " " << __LINE__ << " : Large accept weight=" << waNow
     << "\t for kernel=" << baseNew << " overestimate=" << overNew
@@ -2340,34 +2331,32 @@ bool DireSpace::applyMEC ( const Event& state, DireSplitInfo* splitInfo,
     << endl;
     }
 
-    if (wt < rndmPtr->flat()) {
+  if (wt < rndmPtr->flat()) {
 
-      // Loop through and reset weights.
-      for (unordered_map<string,double>::iterator it= kernelSel.begin();
-        it != kernelSel.end(); ++it) {
-        // Get old accept weight.
-        double waOld = weights->getAcceptWeight( splitInfo->kinematics()->pT2,
-          it->first);
-        // Remove previous acceptance weight and replace rejection weight.
-        weights->eraseAcceptWeight(splitInfo->kinematics()->pT2, it->first);
-        weights->resetRejectWeight(splitInfo->kinematics()->pT2, wvNow*waOld,
-          it->first);
-      }
-      reject = true;
-    } else {
-      // Loop through and reset weights.
-      for (unordered_map<string,double>::iterator it= kernelSel.begin();
-        it != kernelSel.end(); ++it) {
-        // Get old accept weight.
-        double waOld = weights->getAcceptWeight( splitInfo->kinematics()->pT2,
-          it->first);
-        // Remove previous reject weight and replace accept weight.
-        weights->eraseRejectWeight(splitInfo->kinematics()->pT2, it->first);
-        weights->resetAcceptWeight(splitInfo->kinematics()->pT2, waOld*waNow,
-          it->first);
-      }
+    // Loop through and reset weights.
+    for (unordered_map<string,double>::iterator it= kernelSel.begin();
+         it != kernelSel.end(); ++it) {
+      // Get old accept weight.
+      double waOld = weights->getAcceptWeight( splitInfo->kinematics()->pT2,
+        it->first);
+      // Remove previous acceptance weight and replace rejection weight.
+      weights->eraseAcceptWeight(splitInfo->kinematics()->pT2, it->first);
+      weights->resetRejectWeight(splitInfo->kinematics()->pT2, wvNow*waOld,
+        it->first);
     }
-
+    reject = true;
+  } else {
+    // Loop through and reset weights.
+    for (unordered_map<string,double>::iterator it = kernelSel.begin();
+         it != kernelSel.end(); ++it) {
+      // Get old accept weight.
+      double waOld = weights->getAcceptWeight( splitInfo->kinematics()->pT2,
+        it->first);
+      // Remove previous reject weight and replace accept weight.
+      weights->eraseRejectWeight(splitInfo->kinematics()->pT2, it->first);
+      weights->resetAcceptWeight(splitInfo->kinematics()->pT2, waOld*waNow,
+        it->first);
+    }
   }
 
   // Done.
@@ -2511,7 +2500,7 @@ bool DireSpace::inAllowedPhasespace( int kinType, double z, double pT2,
     double kT2  = zbar*(1.-zbar)*m2r - (1-zbar)*saj - zbar*m2e;
 
     // Disallow kinematically impossible transverse momentum.
-    if (kT2 < 0. || abs(kT2-kT2) > 1e5 || kT2 != kT2) return false;
+    if (kT2 < 0. || isnan(kT2)) return false;
 
   // splitType ==-2 -> Massive 1->3 II
   } else {
@@ -2543,7 +2532,7 @@ bool DireSpace::inAllowedPhasespace( int kinType, double z, double pT2,
     double kT2  = zbar*(1.-zbar)*m2a - (1-zbar)*m2ai - zbar*m2i;
 
     // Disallow kinematically impossible transverse momentum.
-    if (kT2 < 0. || abs(kT2-kT2) > 1e5 || kT2 != kT2) return false;
+    if (kT2 < 0. || isnan(kT2)) return false;
 
     // Check "second" step.
     double m2rec = m2ai;
@@ -2565,7 +2554,7 @@ bool DireSpace::inAllowedPhasespace( int kinType, double z, double pT2,
     kT2         = zbar*(1.-zbar)*sij - (1.-zbar)*m2rad - zbar*m2emt;
 
     // Not possible to construct kinematics if kT2 < 0.0
-    if (kT2 < 0. || abs(kT2-kT2) > 1e5 || kT2 != kT2) return false;
+    if (kT2 < 0. || isnan(kT2)) return false;
 
   }
 
@@ -2602,8 +2591,6 @@ void DireSpace::alphasReweight(double, double talpha, int iSys,
     fullWeight *= alphasNow(pT2min, 1., iSys);
     return;
   }
-
-  if (forceFixedAs) renormMultFacNow = 1.0;
   talpha = max(talpha, pT2min);
 
   double scale       = talpha*renormMultFacNow;
@@ -2840,8 +2827,7 @@ bool DireSpace::pT2nextQCD_II( double pT2begDip, double pT2sel,
     tnow = tNextQCD( &dip, kernelPDF, tnow, pT2endDip, pT2freeze,
       (forceBranching ? -1 : 1));
     if (tnow < 0.) {
-      wt = 0.0; dip.pT2 = tnow = abs(tnow);
-      wt = 0.0; dip.pT2 = tnow = 0.;
+      wt = dip.pT2 = tnow = 0.;
       double R0 = kernelPDF*rndmPtr->flat();
       if (!newOverestimates.empty()) {
         if (newOverestimates.lower_bound(R0) == newOverestimates.end())
@@ -2980,8 +2966,7 @@ bool DireSpace::pT2nextQCD_II( double pT2begDip, double pT2sel,
     pdfScale2 = max(pdfScale2, tnow);
     double pdfScale2Old = pdfScale2;
     double pdfScale2New = pdfScale2;
-    if (forceBranching) pdfScale2Old = infoPtr->Q2Fac();
-    if (forceBranching) pdfScale2New = infoPtr->Q2Fac();
+    if (forceBranching) pdfScale2Old = pdfScale2New = infoPtr->Q2Fac();
     bool inD = (hasPDFdau) ? beam.insideBounds(xDaughter, pdfScale2Old) : true;
     bool inM = (hasPDFdau) ? beam.insideBounds(xMother,   pdfScale2New) : true;
     double xPDFdaughterNew = getXPDF( idDaughter, xDaughter, pdfScale2Old,
@@ -3379,8 +3364,7 @@ bool DireSpace::pT2nextQCD_IF( double pT2begDip, double pT2sel,
     tnow  = tNextQCD( &dip, kernelPDF, tnow, pT2endDip, pT2freeze,
       (forceBranching ? -1 : 1));
     if (tnow < 0.) {
-      wt = 0.0; dip.pT2 = tnow = abs(tnow);
-      wt = 0.0; dip.pT2 = tnow = 0.;
+      wt = dip.pT2 = tnow = 0.;
       double R0 = kernelPDF*rndmPtr->flat();
       if (!newOverestimates.empty()) {
         if (newOverestimates.lower_bound(R0) == newOverestimates.end())
@@ -3497,7 +3481,6 @@ bool DireSpace::pT2nextQCD_IF( double pT2begDip, double pT2sel,
 
       // Jacobian for 1->3 splittings, in CS variables.
       if ( splits[splittingNowName]->nEmissions() == 2 ) {
-        jacobian = 1.;
         double m2jk = dip.pT2/dip.xa + q2*( 1. - dip.xa/dip.z) - m2ai;
 
         // Construnct the new initial state momentum, as needed to
@@ -3603,8 +3586,7 @@ bool DireSpace::pT2nextQCD_IF( double pT2begDip, double pT2sel,
     pdfScale2 = max(pdfScale2, pT2min);
     double pdfScale2Old = pdfScale2;
     double pdfScale2New = pdfScale2;
-    if (forceBranching) pdfScale2Old = infoPtr->Q2Fac();
-    if (forceBranching) pdfScale2New = infoPtr->Q2Fac();
+    if (forceBranching) pdfScale2Old = pdfScale2New = infoPtr->Q2Fac();
     bool inD = (hasPDFdau) ? beam.insideBounds(xDaughter, pdfScale2Old) : true;
     bool inM = (hasPDFdau) ? beam.insideBounds(xMother,   pdfScale2New) : true;
     double xPDFdaughterNew = getXPDF( idDaughter, xDaughter, pdfScale2Old,
@@ -4054,9 +4036,11 @@ bool DireSpace::branch_II( Event& event, bool trial,
     auxevent2.copy(iOldCopy, statusNew);
     if (iOldCopy == iDaughter) iMother      = iNewCopy;
     if (iOldCopy == iRecoiler) iNewRecoiler = iNewCopy;
-    if (statusOld < 0) event[iNewCopy].statusNeg();
-    if (statusOld < 0) auxevent1[iNewCopy].statusNeg();
-    if (statusOld < 0) auxevent2[iNewCopy].statusNeg();
+    if (statusOld < 0) {
+      event[iNewCopy].statusNeg();
+      auxevent1[iNewCopy].statusNeg();
+      auxevent2[iNewCopy].statusNeg();
+    }
   }
 
   // For 1->3 splitting, intermediate mother is a gluon.
@@ -4265,7 +4249,7 @@ bool DireSpace::branch_II( Event& event, bool trial,
   }
 
   bool doVeto = false;
-  bool printWarnings = (!trial || (trial && !forceMassiveMap));
+  bool printWarnings = (!trial || forceMassiveMap);
   bool doMECreject = false;
 
   // Regular massive kinematics for 1+1 -> 2+1 splitting
@@ -4340,8 +4324,8 @@ bool DireSpace::branch_II( Event& event, bool trial,
 
       // Now construct the transverse momentum vector in the dipole CM frame.
       double phi_kt = (!trial) ? 2.*M_PI*rndmPtr->flat()
-                : (trial && split->kinematics()->phi < 0.)  ?
-        2.*M_PI*rndmPtr->flat() : split->kinematics()->phi;
+        : (split->kinematics()->phi < 0. ?
+           2.*M_PI*rndmPtr->flat() : split->kinematics()->phi);
 
       // Allow splitting kernel to overwrite phase space variables.
       if (split->useForBranching) { phi_kt = psp["phi"]; }
@@ -4547,7 +4531,7 @@ bool DireSpace::branch_II( Event& event, bool trial,
     double kT2  = zbar*(1.-zbar)*m2a - (1-zbar)*m2ai - zbar*m2i;
 
     // Disallow kinematically impossible transverse momentum.
-    if (kT2 < 0. || abs(kT2-kT2) > 1e5 || kT2 != kT2) physical = false;
+    if (kT2 < 0. || isnan(kT2)) physical = false;
 
     // Now construct radiator in lab frame.
     Vec4 pa = (paj_tilde - m2aij/gABC(q2,m2aij,m2k)*pb_tilde)
@@ -4791,10 +4775,6 @@ bool DireSpace::branch_II( Event& event, bool trial,
     mother1.daughters( iSister1, iMother);
     mother1.mothers( mother.mother1(), mother.mother2());
     mother.mothers( iMother1, 0);
-
-    // Exempt dummy mother from Pythia momentum checks.
-    if ( nEmissions == 2 ) mother.status(-49);
-
     sister1.id(idMother);
     sister1.status(43);
     sister1.mothers(iMother1,0);
@@ -4855,7 +4835,7 @@ bool DireSpace::branch_II( Event& event, bool trial,
     // emission was indeed zero all along. In this case, neither
     // acceptProbability nor rejectProbability would have been filled. Thus,
     // remove the relevant entries from the weight container!
-    if (!trial && !physical) {
+    if (!trial) {
       for ( unordered_map<string, multimap<double,double> >::iterator
         it = rejectProbability.begin(); it != rejectProbability.end(); ++it){
         weights->eraseAcceptWeight(pT2, it->first);
@@ -5371,7 +5351,7 @@ bool DireSpace::branch_IF( Event& event, bool trial,
   }
 
   bool doVeto = false;
-  bool printWarnings = (!trial || (trial && !forceMassiveMap));
+  bool printWarnings = (!trial || !forceMassiveMap);
   bool doMECreject = false;
 
   // Regular massive kinematics for 1+1 -> 2+1 splitting
@@ -5438,7 +5418,7 @@ bool DireSpace::branch_IF( Event& event, bool trial,
 
         // Now construct the transverse momentum vector in the dipole CM frame.
         double phi_kt = (!trial) ? 2.*M_PI*rndmPtr->flat()
-                : (trial && split->kinematics()->phi < 0.)  ?
+          : split->kinematics()->phi < 0.  ?
           2.*M_PI*rndmPtr->flat() : split->kinematics()->phi;
 
         double phi_kt1 = phi_kt+DPHI_IF*M_PI;
@@ -5528,7 +5508,7 @@ bool DireSpace::branch_IF( Event& event, bool trial,
       double kT2  = zbar*(1.-zbar)*saj - (1-zbar)*m2e - zbar*m2r;
 
       // Disallow kinematically impossible transverse momentum.
-      if (kT2 < 0. || abs(kT2-kT2) > 1e5 || kT2 != kT2) physical = false;
+      if (kT2 < 0. || isnan(kT2)) physical = false;
 
       // Now construct recoiler in lab frame.
       Vec4 pRec( (pk_tilde - q*pk_tilde/q2*q)
@@ -5539,7 +5519,7 @@ bool DireSpace::branch_IF( Event& event, bool trial,
       Vec4 paj(-q+pRec);
 
       double phi_kt = (!trial) ? 2.*M_PI*rndmPtr->flat()
-                : (trial && split->kinematics()->phi < 0.)  ?
+        : split->kinematics()->phi < 0.  ?
         2.*M_PI*rndmPtr->flat() : split->kinematics()->phi;
 
       // Allow splitting kernel to overwrite phase space variables.
@@ -5794,7 +5774,7 @@ bool DireSpace::branch_IF( Event& event, bool trial,
       double kT2   = zbar*(1.-zbar)*s_i_jk - (1-zbar)*m2i - zbar*m2jk;
 
       // Disallow kinematically impossible transverse momentum.
-      if (kT2 < 0. || abs(kT2-kT2) > 1e5 || kT2 != kT2) physical = false;
+      if (kT2 < 0. || isnan(kT2)) physical = false;
 
       // Now construct radiator in lab frame.
       Vec4 pa( ( pa12_tilde - 0.5*(q2-m2Bef-m2k)/q2par * qpar )
@@ -6058,7 +6038,7 @@ bool DireSpace::branch_IF( Event& event, bool trial,
       double kT2  = zbar*(1.-zbar)*m2ai - (1-zbar)*m2i - zbar*m2a;
 
       // Disallow kinematically impossible transverse momentum.
-      if (kT2 < 0. || abs(kT2-kT2) > 1e5 || kT2 != kT2) physical = false;
+      if (kT2 < 0. || isnan(kT2)) physical = false;
 
       // Now construct recoiler in lab frame.
       Vec4 pjk( (pb_tilde - q*pb_tilde/q2*q)
@@ -6348,7 +6328,7 @@ bool DireSpace::branch_IF( Event& event, bool trial,
     // emission was indeed zero all along. In this case, neither
     // acceptProbability nor rejectProbability would have been filled. Thus,
     // remove the relevant entries from the weight container!
-    if (!trial && !physical) {
+    if (!trial) {
       for ( unordered_map<string, multimap<double,double> >::iterator
         it = rejectProbability.begin(); it != rejectProbability.end(); ++it){
         weights->eraseAcceptWeight(pT2, it->first);
@@ -7023,8 +7003,7 @@ bool DireSpace::cluster_IF( const Event& state,
 
     // Boost to realign the incoming radiator.
     int iOther  = getInB(iSysSel);
-    if (side == 2) iOther = getInA(iSysSel);
-
+    if (side == -1) iOther = getInA(iSysSel);
     Vec4 pOther(state[iOther].p());
 
     // Boost to rest frame of incoming particles A and B.
@@ -7585,17 +7564,8 @@ Event DireSpace::makeHardEvent( int iSys, const Event& state, bool isProcess) {
 
 bool DireSpace::validMomentum( const Vec4& p, int id, int status) {
 
-  // Check for NaNs
-  if ( abs(p.e()-p.e()) > 1e5 || p.e()  !=p.e()
-    || abs(p.px()-p.px())>1e5 || p.px() !=p.px()
-    || abs(p.py()-p.py())>1e5 || p.py() !=p.py()
-    || abs(p.pz()-p.pz())>1e5 || p.pz() !=p.pz())
-    return false;
-
-  // Check for INFs
-  if ( std::isinf(p.e())  || std::isinf(p.px())
-    || std::isinf(p.py()) || std::isinf(p.pz()))
-    return false;
+  // Check for NaNs and INFs.
+  if (isnan(p) || isinf(p)) return false;
 
   // Check if particles is on mass shell
   double mNow = (status < 0) ? 0.
@@ -7635,19 +7605,9 @@ bool DireSpace::validEvent( const Event& state, bool isProcess ) {
   int sizeSys     = (hasSystems) ? partonSystemsPtr->sizeSys() : 1;
   Event e         = Event();
 
-  // Check for NaNs
+  // Check for NaNs or INFs.
   for ( int i = 0; i < state.size(); ++i)
-    if ( abs(state[i].e()-state[i].e()) > 1e5 || state[i].e()  !=state[i].e()
-      || abs(state[i].px()-state[i].px())>1e5 || state[i].px() !=state[i].px()
-      || abs(state[i].py()-state[i].py())>1e5 || state[i].py() !=state[i].py()
-      || abs(state[i].pz()-state[i].pz())>1e5 || state[i].pz() !=state[i].pz())
-      return false;
-
-  // Check for INFs
-  for ( int i = 0; i < state.size(); ++i)
-    if ( std::isinf(state[i].e())  || std::isinf(state[i].px())
-      || std::isinf(state[i].py()) || std::isinf(state[i].pz()))
-      return false;
+    if (isnan(state[i].p()) || isinf(state[i].p())) return false;
 
   for (int iSys = 0; iSys < sizeSys; ++iSys) {
 
@@ -7824,8 +7784,7 @@ int DireSpace::FindCol(int col, vector<int> iExc, const Event& event,
     if ( event[i].mother1() == 2 && event[i].status() != -31
       && event[i].status() != -34) { if (inB == 0) inB = i; }
   }
-  if (iSys >= 0) inA = getInA(iSys);
-  if (iSys >= 0) inB = getInB(iSys);
+  if (iSys >= 0) {inA = getInA(iSys); inB = getInB(iSys);}
 
   // Search event record for matching colour & anticolour
   for(int n = 0; n < event.size(); ++n) {

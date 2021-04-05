@@ -1,5 +1,5 @@
 // DireMergingHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1270,6 +1270,10 @@ void DireMergingHooks::init(){
 
   isInit = isStored = false;
 
+  // Get core process from user input. Return if no process was selected.
+  processSave           = settingsPtr->word("Merging:Process");
+  if (processSave == "void") return;
+
   // Save pointers
   showers               = 0;
 
@@ -1339,9 +1343,6 @@ void DireMergingHooks::init(){
 
   // Flag to check if CKKW-L event veto should be applied.
   applyVeto            =  settingsPtr->flag("Merging:applyVeto");
-
-  // Get core process from user input
-  processSave           = settingsPtr->word("Merging:Process");
 
   // Clear hard process
   hardProcess->clear();

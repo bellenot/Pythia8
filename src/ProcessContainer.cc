@@ -1,5 +1,5 @@
 // ProcessContainer.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -588,7 +588,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       if ( beamAhasResGamma || beamBhasResGamma
          || (beamAgammaMode == 2 && beamBgammaMode == 0)
          || (beamAgammaMode == 0 && beamBgammaMode == 2) ) {
-        if (mother1 > 0)   mother1   += nOffsetGamma;
+        mother1 += nOffsetGamma;
         if (mother2 > 0)   mother2   += nOffsetGamma;
         if (daughter1 > 0) daughter1 += nOffsetGamma;
         if (daughter2 > 0) daughter2 += nOffsetGamma;
@@ -929,17 +929,19 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
         pSumOut += process[iFinal[iF]].p();
       double e1 = 0.5 * (pSumOut.e() + pSumOut.pz());
       double e2 = 0.5 * (pSumOut.e() - pSumOut.pz());
+      if (max(e1, e2) > 0.500001 * process[0].e()) {
+        infoPtr->errorMsg("Error in ProcessContainer::constructProcess: "
+          "setting mass failed");
+        return false;
+      }
+      e1 = min( e1, 0.5 * process[0].e());
+      e2 = min( e2, 0.5 * process[0].e());
       process[3].pz( e1);
       process[3].e(  e1);
       process[3].m(  0.);
       process[4].pz(-e2);
       process[4].e(  e2);
       process[4].m(  0.);
-      if (max(e1, e2) > 0.500001 * process[0].e()) {
-        infoPtr->errorMsg("Error in ProcessContainer::constructProcess: "
-          "setting mass failed");
-        return false;
-      }
     }
   }
 
@@ -1607,8 +1609,7 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   bool photonCollisions = settings.flag("PhotonCollision:all");
   bool hasGamma      = settings.flag("PDF:lepton2gamma");
   int  photonMode    = settings.mode("Photon:ProcessType");
-  bool initGmGm      = ( ( (photonMode == 4) || (photonMode == 0) )
-                     && hasGamma ) || !hasGamma;
+  bool initGmGm      = !hasGamma || ( (photonMode == 4) || (photonMode == 0) );
   if ( initGmGm && ( photonCollisions
     || settings.flag("PhotonCollision:gmgm2qqbar") ) ) {
     sigmaPtr = new Sigma2gmgm2ffbar(1, 261);

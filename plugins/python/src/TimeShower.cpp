@@ -31,6 +31,7 @@
 #include <Pythia8/SusyCouplings.h>
 #include <Pythia8/TauDecays.h>
 #include <Pythia8/TimeShower.h>
+#include <Pythia8/Weights.h>
 #include <complex>
 #include <functional>
 #include <istream>
@@ -61,7 +62,7 @@
 	PYBIND11_MAKE_OPAQUE(std::shared_ptr<void>);
 #endif
 
-// Pythia8::TimeShower file:Pythia8/TimeShower.h line:32
+// Pythia8::TimeShower file:Pythia8/TimeShower.h line:33
 struct PyCallBack_Pythia8_TimeShower : public Pythia8::TimeShower {
 	using Pythia8::TimeShower::TimeShower;
 
@@ -453,7 +454,7 @@ struct PyCallBack_Pythia8_DecayHandler : public Pythia8::DecayHandler {
 	}
 };
 
-// Pythia8::SpaceShower file:Pythia8/SpaceShower.h line:32
+// Pythia8::SpaceShower file:Pythia8/SpaceShower.h line:33
 struct PyCallBack_Pythia8_SpaceShower : public Pythia8::SpaceShower {
 	using Pythia8::SpaceShower::SpaceShower;
 
@@ -763,7 +764,7 @@ struct PyCallBack_Pythia8_SpaceShower : public Pythia8::SpaceShower {
 
 void bind_Pythia8_TimeShower(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
-	{ // Pythia8::TimeShower file:Pythia8/TimeShower.h line:32
+	{ // Pythia8::TimeShower file:Pythia8/TimeShower.h line:33
 		pybind11::class_<Pythia8::TimeShower, std::shared_ptr<Pythia8::TimeShower>, PyCallBack_Pythia8_TimeShower> cl(M("Pythia8"), "TimeShower", "");
 		pybind11::handle cl_type = cl;
 
@@ -793,7 +794,6 @@ void bind_Pythia8_TimeShower(std::function< pybind11::module &(std::string const
 		cl.def_readwrite("varQ2QGcNS", &Pythia8::TimeShower::varQ2QGcNS);
 		cl.def_readwrite("varG2QQcNS", &Pythia8::TimeShower::varG2QQcNS);
 		cl.def_readwrite("varX2XGcNS", &Pythia8::TimeShower::varX2XGcNS);
-		cl.def("initPtrs", (void (Pythia8::TimeShower::*)(class std::shared_ptr<class Pythia8::MergingHooks>, class std::shared_ptr<class Pythia8::PartonVertex>)) &Pythia8::TimeShower::initPtrs, "C++: Pythia8::TimeShower::initPtrs(class std::shared_ptr<class Pythia8::MergingHooks>, class std::shared_ptr<class Pythia8::PartonVertex>) --> void", pybind11::arg("mergingHooksPtrIn"), pybind11::arg("partonVertexPtrIn"));
 		cl.def("limitPTmax", [](Pythia8::TimeShower &o, class Pythia8::Event & a0) -> bool { return o.limitPTmax(a0); }, "", pybind11::arg(""));
 		cl.def("limitPTmax", [](Pythia8::TimeShower &o, class Pythia8::Event & a0, double const & a1) -> bool { return o.limitPTmax(a0, a1); }, "", pybind11::arg(""), pybind11::arg(""));
 		cl.def("limitPTmax", (bool (Pythia8::TimeShower::*)(class Pythia8::Event &, double, double)) &Pythia8::TimeShower::limitPTmax, "C++: Pythia8::TimeShower::limitPTmax(class Pythia8::Event &, double, double) --> bool", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
@@ -836,7 +836,7 @@ void bind_Pythia8_TimeShower(std::function< pybind11::module &(std::string const
 		cl.def("chainDecay", (bool (Pythia8::DecayHandler::*)(class std::vector<int, class std::allocator<int> > &, class std::vector<int, class std::allocator<int> > &, class std::vector<double, class std::allocator<double> > &, class std::vector<class Pythia8::Vec4, class std::allocator<class Pythia8::Vec4> > &, int, const class Pythia8::Event &)) &Pythia8::DecayHandler::chainDecay, "C++: Pythia8::DecayHandler::chainDecay(class std::vector<int, class std::allocator<int> > &, class std::vector<int, class std::allocator<int> > &, class std::vector<double, class std::allocator<double> > &, class std::vector<class Pythia8::Vec4, class std::allocator<class Pythia8::Vec4> > &, int, const class Pythia8::Event &) --> bool", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("assign", (class Pythia8::DecayHandler & (Pythia8::DecayHandler::*)(const class Pythia8::DecayHandler &)) &Pythia8::DecayHandler::operator=, "C++: Pythia8::DecayHandler::operator=(const class Pythia8::DecayHandler &) --> class Pythia8::DecayHandler &", pybind11::return_value_policy::reference, pybind11::arg(""));
 	}
-	{ // Pythia8::SpaceShower file:Pythia8/SpaceShower.h line:32
+	{ // Pythia8::SpaceShower file:Pythia8/SpaceShower.h line:33
 		pybind11::class_<Pythia8::SpaceShower, std::shared_ptr<Pythia8::SpaceShower>, PyCallBack_Pythia8_SpaceShower> cl(M("Pythia8"), "SpaceShower", "");
 		pybind11::handle cl_type = cl;
 
@@ -866,7 +866,6 @@ void bind_Pythia8_TimeShower(std::function< pybind11::module &(std::string const
 		cl.def_readwrite("varQ2GQcNS", &Pythia8::SpaceShower::varQ2GQcNS);
 		cl.def_readwrite("varG2QQcNS", &Pythia8::SpaceShower::varG2QQcNS);
 		cl.def_readwrite("varX2XGcNS", &Pythia8::SpaceShower::varX2XGcNS);
-		cl.def("initPtrs", (void (Pythia8::SpaceShower::*)(class std::shared_ptr<class Pythia8::MergingHooks>, class std::shared_ptr<class Pythia8::PartonVertex>)) &Pythia8::SpaceShower::initPtrs, "C++: Pythia8::SpaceShower::initPtrs(class std::shared_ptr<class Pythia8::MergingHooks>, class std::shared_ptr<class Pythia8::PartonVertex>) --> void", pybind11::arg("mergingHooksPtrIn"), pybind11::arg("partonVertexPtrIn"));
 		cl.def("limitPTmax", [](Pythia8::SpaceShower &o, class Pythia8::Event & a0) -> bool { return o.limitPTmax(a0); }, "", pybind11::arg(""));
 		cl.def("limitPTmax", [](Pythia8::SpaceShower &o, class Pythia8::Event & a0, double const & a1) -> bool { return o.limitPTmax(a0, a1); }, "", pybind11::arg(""), pybind11::arg(""));
 		cl.def("limitPTmax", (bool (Pythia8::SpaceShower::*)(class Pythia8::Event &, double, double)) &Pythia8::SpaceShower::limitPTmax, "C++: Pythia8::SpaceShower::limitPTmax(class Pythia8::Event &, double, double) --> bool", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));

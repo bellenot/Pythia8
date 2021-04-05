@@ -28,7 +28,7 @@
 	PYBIND11_MAKE_OPAQUE(std::shared_ptr<void>);
 #endif
 
-// Pythia8::RndmEngine file:Pythia8/Basics.h line:319
+// Pythia8::RndmEngine file:Pythia8/Basics.h line:328
 struct PyCallBack_Pythia8_RndmEngine : public Pythia8::RndmEngine {
 	using Pythia8::RndmEngine::RndmEngine;
 
@@ -49,7 +49,7 @@ struct PyCallBack_Pythia8_RndmEngine : public Pythia8::RndmEngine {
 
 void bind_Pythia8_Basics_1(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
-	{ // Pythia8::RndmEngine file:Pythia8/Basics.h line:319
+	{ // Pythia8::RndmEngine file:Pythia8/Basics.h line:328
 		pybind11::class_<Pythia8::RndmEngine, std::shared_ptr<Pythia8::RndmEngine>, PyCallBack_Pythia8_RndmEngine> cl(M("Pythia8"), "RndmEngine", "");
 		pybind11::handle cl_type = cl;
 
@@ -57,7 +57,7 @@ void bind_Pythia8_Basics_1(std::function< pybind11::module &(std::string const &
 		cl.def("flat", (double (Pythia8::RndmEngine::*)()) &Pythia8::RndmEngine::flat, "C++: Pythia8::RndmEngine::flat() --> double");
 		cl.def("assign", (class Pythia8::RndmEngine & (Pythia8::RndmEngine::*)(const class Pythia8::RndmEngine &)) &Pythia8::RndmEngine::operator=, "C++: Pythia8::RndmEngine::operator=(const class Pythia8::RndmEngine &) --> class Pythia8::RndmEngine &", pybind11::return_value_policy::reference, pybind11::arg(""));
 	}
-	{ // Pythia8::Rndm file:Pythia8/Basics.h line:338
+	{ // Pythia8::Rndm file:Pythia8/Basics.h line:347
 		pybind11::class_<Pythia8::Rndm, std::shared_ptr<Pythia8::Rndm>> cl(M("Pythia8"), "Rndm", "");
 		pybind11::handle cl_type = cl;
 
@@ -78,7 +78,7 @@ void bind_Pythia8_Basics_1(std::function< pybind11::module &(std::string const &
 		cl.def("dumpState", (bool (Pythia8::Rndm::*)(std::string)) &Pythia8::Rndm::dumpState, "C++: Pythia8::Rndm::dumpState(std::string) --> bool", pybind11::arg("fileName"));
 		cl.def("readState", (bool (Pythia8::Rndm::*)(std::string)) &Pythia8::Rndm::readState, "C++: Pythia8::Rndm::readState(std::string) --> bool", pybind11::arg("fileName"));
 	}
-	{ // Pythia8::Hist file:Pythia8/Basics.h line:403
+	{ // Pythia8::Hist file:Pythia8/Basics.h line:412
 		pybind11::class_<Pythia8::Hist, std::shared_ptr<Pythia8::Hist>> cl(M("Pythia8"), "Hist", "");
 		pybind11::handle cl_type = cl;
 
@@ -150,7 +150,7 @@ void bind_Pythia8_Basics_1(std::function< pybind11::module &(std::string const &
 
 		cl.def("__str__", [](Pythia8::Hist const &o) -> std::string { std::ostringstream s; s << o; return s.str(); } );
 	}
-	{ // Pythia8::HistPlot file:Pythia8/Basics.h line:550
+	{ // Pythia8::HistPlot file:Pythia8/Basics.h line:559
 		pybind11::class_<Pythia8::HistPlot, std::shared_ptr<Pythia8::HistPlot>> cl(M("Pythia8"), "HistPlot", "");
 		pybind11::handle cl_type = cl;
 

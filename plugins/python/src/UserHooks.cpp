@@ -32,6 +32,7 @@
 #include <Pythia8/SusyCouplings.h>
 #include <Pythia8/TimeShower.h>
 #include <Pythia8/UserHooks.h>
+#include <Pythia8/Weights.h>
 #include <functional>
 #include <istream>
 #include <iterator>

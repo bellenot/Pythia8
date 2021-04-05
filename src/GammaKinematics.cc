@@ -1,5 +1,5 @@
 // GammaKinematics.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -96,11 +96,11 @@ bool GammaKinematics::sampleKTgamma(bool nonDiff) {
   gammaMode = infoPtr->photonMode();
 
   // Reject already sampled x_gamma values outside kinematic bounds.
-  if ( hasGammaA && (!externalFlux || ( externalFlux
-    && (gammaMode == 3 || gammaMode == 4) ) ) && (xGamma1 > xGammaMax1) )
+  if ( hasGammaA && (!externalFlux || (gammaMode == 3 || gammaMode == 4) )
+       && (xGamma1 > xGammaMax1) )
        return false;
-  if ( hasGammaB && (!externalFlux || ( externalFlux
-    && (gammaMode == 2 || gammaMode == 4) ) ) && (xGamma2 > xGammaMax2) )
+  if ( hasGammaB && (!externalFlux || (gammaMode == 2 || gammaMode == 4) )
+       && (xGamma2 > xGammaMax2) )
        return false;
 
   // Sample virtuality for photon A.

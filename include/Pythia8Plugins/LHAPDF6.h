@@ -1,5 +1,5 @@
 // LHAPDF6.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -120,20 +120,22 @@ private:
 
   // Check whether x and Q2 values fall inside the fit bounds.
   bool insideBounds(double x, double Q2) {
-    return (x > pdf->xMin()  &&  x < pdf->xMax()
-            && Q2 > pdf->q2Min() && Q2 < pdf->q2Max());}
+    return (x > xMin && x < xMax && Q2 > q2Min && Q2 < q2Max);}
 
   // Return the running alpha_s shipped with the LHAPDF set.
   double alphaS(double Q2) { return pdf->alphasQ2(Q2); }
 
   // Return quark masses used in the PDF fit.
-  double muPDFSave, mdPDFSave, mcPDFSave, msPDFSave, mbPDFSave;
+  double muPDFSave, mdPDFSave, mcPDFSave, msPDFSave, mbPDFSave,
+         xMin, xMax, q2Min, q2Max;
   double mQuarkPDF(int id) {
-    if (abs(id) == 1) return mdPDFSave;
-    if (abs(id) == 2) return muPDFSave;
-    if (abs(id) == 3) return msPDFSave;
-    if (abs(id) == 4) return mcPDFSave;
-    if (abs(id) == 5) return mbPDFSave;
+    switch(abs(id)){
+      case 1: return mdPDFSave;
+      case 2: return muPDFSave;
+      case 3: return msPDFSave;
+      case 4: return mcPDFSave;
+      case 5: return mbPDFSave;
+    }
     return -1.;
  }
 
@@ -180,6 +182,12 @@ void LHAPDF6::init(string setName, int member) {
   pdf = (*pdfs)[member];
   isSet = true;
 
+  // Save x and Q2 limits.
+  xMax  = pdf->xMax();
+  xMin  = pdf->xMin();
+  q2Max = pdf->q2Max();
+  q2Min = pdf->q2Min();
+
   // Store quark masses used in PDF fit.
   muPDFSave = pdf->info().get_entry_as<double>("MUp");
   mdPDFSave = pdf->info().get_entry_as<double>("MDown");
@@ -198,10 +206,10 @@ void LHAPDF6::init(string setName, int member) {
 void LHAPDF6::xfUpdate(int, double x, double Q2) {
 
   // Freeze at boundary value if PDF is evaluated outside the fit region.
-  if (x < pdf->xMin() && !extrapol) x = pdf->xMin();
-  if (x > pdf->xMax() )    x = pdf->xMax();
-  if (Q2 < pdf->q2Min() ) Q2 = pdf->q2Min();
-  if (Q2 > pdf->q2Max() ) Q2 = pdf->q2Max();
+  if (x < xMin && !extrapol) x = xMin;
+  if (x > xMax)    x = xMax;
+  if (Q2 < q2Min) Q2 = q2Min;
+  if (Q2 > q2Max) Q2 = q2Max;
 
   // Update values.
   xg     = pdf->xfxQ2(21, x, Q2);
@@ -234,12 +242,10 @@ void LHAPDF6::calcPDFEnvelope(int idNow, double xNow, double Q2NowIn,
   int valSea) {
 
   // Freeze at boundary value if PDF is evaluated outside the fit region.
-  double x1 = (xNow < pdf->xMin() && !extrapol)
-            ? pdf->xMin() : xNow;
-  if (x1 > pdf->xMax() ) x1 = pdf->xMax();
-  double Q2Now = (Q2NowIn < pdf->q2Min() )
-               ? pdf->q2Min() : Q2NowIn;
-  if (Q2Now > pdf->q2Max() ) Q2Now = pdf->q2Max();
+  double x1 = (xNow < xMin && !extrapol) ? xMin : xNow;
+  if (x1 > xMax) x1 = xMax;
+  double Q2Now = (Q2NowIn < q2Min) ? q2Min : Q2NowIn;
+  if (Q2Now > q2Max) Q2Now = q2Max;
 
   // Loop over the members.
   vector<double> xfCalc((*pdfs).size());
@@ -271,15 +277,12 @@ void LHAPDF6::calcPDFEnvelope(pair<int,int> idNows, pair<double,double> xNows,
   double Q2NowIn, int valSea) {
 
   // Freeze at boundary value if PDF is evaluated outside the fit region.
-  double x1 = (xNows.first < pdf->xMin() && !extrapol)
-            ? pdf->xMin() : xNows.first;
-  if (x1 > pdf->xMax() ) x1 = pdf->xMax();
-  double x2 = (xNows.second < pdf->xMin() && !extrapol)
-            ? pdf->xMin() : xNows.second;
-  if (x2 > pdf->xMax() ) x2 = pdf->xMax();
-  double Q2Now = (Q2NowIn < pdf->q2Min() )
-               ? pdf->q2Min() : Q2NowIn;
-  if (Q2Now > pdf->q2Max() ) Q2Now = pdf->q2Max();
+  double x1 = (xNows.first < xMin && !extrapol) ? xMin : xNows.first;
+  if (x1 > xMax) x1 = xMax;
+  double x2 = (xNows.second < xMin && !extrapol) ? xMin : xNows.second;
+  if (x2 > xMax) x2 = xMax;
+  double Q2Now = (Q2NowIn < q2Min) ? q2Min : Q2NowIn;
+  if (Q2Now > q2Max) Q2Now = q2Max;
 
   // Loop over the members.
   vector<double> xfCalc((*pdfs).size());

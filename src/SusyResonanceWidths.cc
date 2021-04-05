@@ -1,5 +1,5 @@
 // SusyResonanceWidths.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand
+// Copyright (C) 2020 Torbjorn Sjostrand
 // Authors: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -415,6 +415,7 @@ void ResonanceSquark::calcWidth(bool) {
           * (1.0 - s2W)) * pow2(ps) ;
 
       int isq2 = (id1Abs/ksusy == 2) ? (id1Abs%10+1)/2 + 3: (id1Abs%10+1)/2;
+      isq2 = min(6, isq2);
 
       if (id2Abs == 23 && id1Abs%2 == idRes%2){
         if (idown)
@@ -1478,16 +1479,17 @@ void ResonanceSlepton::calcWidth(bool) {
           && idRes%2 != id2Abs%2){
 
           fac = alpEM *  preFac / (4.0 * (1 - s2W));
+
           if (islep)
             wid = kinFac * (norm(coupSUSYPtr->LslvX[isl][il][i])
-                + norm(coupSUSYPtr->RslvX[isl][il][i]))
-                - 4.0 * mHat * mf2 * real(coupSUSYPtr->LslvX[isl][il][i]
-                * conj(coupSUSYPtr->RslvX[isl][il][i]));
+              + norm(coupSUSYPtr->RslvX[isl][il][i]))
+              - 4.0 * mHat * mf2 * real(coupSUSYPtr->LslvX[isl][il][i]
+              * conj(coupSUSYPtr->RslvX[isl][il][i]));
           else
-            wid = kinFac * (norm(coupSUSYPtr->LslvX[isl][il][i])
-                + norm(coupSUSYPtr->RslvX[isl][il][i]))
-                - 4.0 * mHat * mf2 * real(coupSUSYPtr->LslvX[isl][il][i]
-                * conj(coupSUSYPtr->RslvX[isl][il][i]));
+            wid = kinFac * (norm(coupSUSYPtr->LsvvX[isl][il][i])
+              + norm(coupSUSYPtr->RsvvX[isl][il][i]))
+              - 4.0 * mHat * mf2 * real(coupSUSYPtr->LsvvX[isl][il][i]
+              * conj(coupSUSYPtr->RsvvX[isl][il][i]));
         }
       }
     }
@@ -1500,6 +1502,7 @@ void ResonanceSlepton::calcWidth(bool) {
       fac = alpEM * preFac/(16.0 * pow2(mf2) * (1.0 - s2W)) * pow2(ps) ;
 
       int isl2 = (id1Abs/ksusy == 2) ? (id1Abs%10+1)/2 + 3: (id1Abs%10+1)/2;
+      isl2 = min(6, isl2);
 
       if (id2Abs == 23 && id1Abs%2 == idRes%2){
         if (islep)

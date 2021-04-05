@@ -1,5 +1,5 @@
 // HeavyIons.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -141,7 +141,7 @@ void HeavyIons::clearProcessLevel(Pythia & pyt) {
   pyt.settings.init(path + "HiddenValleyProcesses.xml", true);
   pyt.settings.init(path + "ExtraDimensionalProcesses.xml", true);
   pyt.settings.init(path + "DarkMatterProcesses.xml", true);
-  pyt.settings.init(path + "ASecondHardProcess.xml", true);
+  pyt.settings.init(path + "SecondHardProcess.xml", true);
   pyt.settings.init(path + "PhaseSpaceCuts.xml", true);
   // NOTE! if new processes are added in separate xml files these have
   // to be added here.
@@ -157,6 +157,10 @@ void HeavyIons::updateInfo() {
   infoPtr->hiInfo = &hiInfo;
   infoPtr->messages = saveMess;
   infoPtr->updateWeight(hiInfo.weight());
+  // Also book and update weight in the weight container.
+  infoPtr->weightContainerPtr->weightsHI.bookWeight("HIweight");
+  infoPtr->weightContainerPtr->weightsHI.
+    reweightValueByName("HIweight", hiInfo.weight());
   infoPtr->sigmaReset();
   double norm = 1.0/double(hiInfo.NSave);
   int Nall = 0;
@@ -1442,7 +1446,7 @@ bool Angantyr::buildEvent(list<EventInfo> & subevents,
             sit != subevents.end(); ++sit  ) {
         if ( sit->code >= 101 && sit->code <= 106 ) continue;
         addSubEvent(etmp, sit->event);
-        if ( !found ) hiInfo.select(sit->info);
+        hiInfo.select(sit->info);
         hiInfo.addSubCollision(*sit->coll);
         subevents.erase(sit);
         found = true;

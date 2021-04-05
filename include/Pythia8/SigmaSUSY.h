@@ -1,5 +1,5 @@
 // SigmaSUSY.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -25,15 +25,9 @@ class Sigma2SUSY : public Sigma2Process {
 
 public:
 
-  // Constructor.
-  Sigma2SUSY() : coupSUSYPtr() { };
-
   // Evaluate weight for decay angles.
   virtual double weightDecay( Event& process, int iResBeg, int iResEnd);
   void setPointers(string processIn);
-
-protected:
-    CoupSUSY* coupSUSYPtr;
 
  };
 
@@ -107,8 +101,6 @@ public:
   // Values stored for later use
   double  sigma0, ui, uj, ti, tj, openFracPair;
   complex propZ;
-
-
 
 };
 
@@ -650,16 +642,12 @@ class Sigma1qq2antisquark : public Sigma1Process {
 public:
 
   // Constructor.
-  Sigma1qq2antisquark() : mRes(), GammaRes(), m2Res(), sigBW(), widthOut(),
-    codeSave(), idRes(), coupSUSYPtr() {}
+  Sigma1qq2antisquark() : Sigma1Process(), mRes(), GammaRes(), m2Res(),
+    sigBW(), widthOut(), codeSave(), idRes() {}
 
 
-  Sigma1qq2antisquark(int id3In) : mRes(), GammaRes(), m2Res(), sigBW(),
-    widthOut(), codeSave(), coupSUSYPtr() {
-
-    idRes = id3In;
-
-  }
+  Sigma1qq2antisquark(int id3In) : Sigma1Process(), mRes(), GammaRes(),
+    m2Res(), sigBW(), widthOut(), codeSave(), idRes(id3In) {}
 
   // Initialize process.
   virtual void initProc();
@@ -687,10 +675,6 @@ private:
   double mRes, GammaRes, m2Res, sigBW, widthOut;
   int    codeSave, idRes;
   string nameSave;
-
-  //SUSY couplings
-  CoupSUSY* coupSUSYPtr;
-
 
 };
 

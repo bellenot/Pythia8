@@ -1,5 +1,5 @@
 // ResonanceDecays.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -340,7 +340,6 @@ bool ResonanceDecays::pickMasses() {
   double psMax    = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 );
   double wtMax   = 1.;
   if      (psMode == 1) wtMax = psMax;
-  else if (psMode == 2) wtMax = psMax * psMax;
   else if (psMode == 3) wtMax = pow3(psMax);
   else if (psMode == 5) wtMax = psMax
     * (pow2(1. - mr1 - mr2) + 8. * mr1 * mr2);
@@ -378,7 +377,6 @@ bool ResonanceDecays::pickMasses() {
       ps   = sqrtpos( pow2(1. - mr1 - mr2) - 4. * mr1 * mr2 );
       wt   = 1.;
       if      (psMode == 1) wt = ps;
-      else if (psMode == 2) wt = ps * ps;
       else if (psMode == 3) wt = pow3(ps);
       else if (psMode == 5) wt = ps
         * (pow2(1. - mr1 - mr2) + 8. * mr1 * mr2);

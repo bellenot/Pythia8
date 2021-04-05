@@ -1,5 +1,5 @@
 // FragmentationFlavZpT.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -694,8 +694,13 @@ void StringFlav::init() {
           // Make sure ID2 is diquark.
           if (abs(ID2) < abs(ID1)) swap(ID1,ID2);
           // Extract quark flavours and spin from diquark.
-          int Q1      = ( (abs(ID2)/1000) % 10 );
-          int Q2      = ( (abs(ID2)/100)  % 10 );
+          int Q1 = ( (abs(ID2)/1000) % 10 );
+          int Q2 = ( (abs(ID2)/100)  % 10 );
+          if (Q1 > 5 || Q2 > 5) {
+            infoPtr->errorMsg("Error in StringFlav::init: invalid quark "
+                              "content flavours for diquark");
+            continue;
+          }
           int diqSpin = ( ((abs(ID2) % 10) == 1) ? 0 : 1 );
           // Single quark.
           int Q3      = abs(ID1);
@@ -1105,6 +1110,7 @@ int StringFlav::combine(FlavContainer& flav1, FlavContainer& flav2) {
   int spinFlav = spinQQ - 1;
   if (spinFlav == 2 && idQQ1 != idQQ2) spinFlav = 4;
   if (idMin != idQQ1 && idMin != idQQ2) spinFlav++;
+  if (spinFlav < 0 || spinFlav > 5) return 0;
   if (baryonCGSum[spinFlav] < rndmPtr->flat() * baryonCGMax[spinFlav])
     return 0;
 

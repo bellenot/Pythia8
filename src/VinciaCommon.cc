@@ -1,5 +1,5 @@
 // VinciaCommon.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2020 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -25,8 +25,7 @@ double Rambo::genPoint(double eCM, int nOut, vector<Vec4>& pOut) {
   pOut.resize(nOut);
   // Create momentum-sum four-vector
   Vec4 R;
-  // Generate nParticles independent massless four-momenta with
-  // isotropic angles.
+  // Generate nParticles independent massless 4-momenta with isotropic angles
   for (int i = 0; i < nOut; ++i) {
     // Cos(theta), sin(theta), and phi
     double c   = 2.0*rndmPtr->flat() - 1.0;
@@ -511,14 +510,14 @@ bool Colour::inherit01(double s01, double s12) {
   }
 
   // Safety checks: small, or approximately equal s01, s12.
-  double a12 = fabs(s01);
-  double a23 = fabs(s12);
+  double a12 = abs(s01);
+  double a23 = abs(s12);
 
   // Inverted mode (smallest invariant inherits - should only be used
   // for extreme variation checks).
   if (inheritMode < 0) {
-    a12 = fabs(s12);
-    a23 = fabs(s01);
+    a12 = abs(s12);
+    a23 = abs(s01);
     inheritMode = abs(inheritMode);
   }
 
@@ -925,7 +924,7 @@ bool VinciaCommon::showerChecks(Event& event, bool ISR) {
       }
     }
   }
-  double eLab = fabs(pSum.e());
+  double eLab = abs(pSum.e());
 
   // Loop over particles in the event.
   for (int i = 0; i < event.size(); ++i) {
@@ -963,10 +962,10 @@ bool VinciaCommon::showerChecks(Event& event, bool ISR) {
     }
 
     // Look for particles with mismatched or not-a-number energy/momentum/mass.
-    if (fabs(event[i].px()) >= 0.0 && fabs(event[i].py()) >= 0.0
-        && fabs(event[i].pz()) >= 0.0 && fabs(event[i].e())  >= 0.0
-        && fabs(event[i].m())  >= 0.0 ) {
-      double errMass  = fabs(event[i].mCalc() - event[i].m()) /
+    if (abs(event[i].px()) >= 0.0 && abs(event[i].py()) >= 0.0
+        && abs(event[i].pz()) >= 0.0 && abs(event[i].e())  >= 0.0
+        && abs(event[i].m())  >= 0.0 ) {
+      double errMass  = abs(event[i].mCalc() - event[i].m()) /
         max( 1.0, event[i].e());
 
       if (errMass > mTolErr) {
@@ -997,9 +996,9 @@ bool VinciaCommon::showerChecks(Event& event, bool ISR) {
     }
 
     // Look for particles with not-a-number vertex/lifetime.
-    if (fabs(event[i].xProd()) >= 0.0 && fabs(event[i].yProd()) >= 0.0
-        && fabs(event[i].zProd()) >= 0.0 && fabs(event[i].tProd()) >= 0.0
-        && fabs(event[i].tau())   >= 0.0) {
+    if (abs(event[i].xProd()) >= 0.0 && abs(event[i].yProd()) >= 0.0
+        && abs(event[i].zProd()) >= 0.0 && abs(event[i].tProd()) >= 0.0
+        && abs(event[i].tau())   >= 0.0) {
     } else {
       nVertex++;
       if (nVertex == 1){
@@ -1018,8 +1017,8 @@ bool VinciaCommon::showerChecks(Event& event, bool ISR) {
   } // End of particle loop.
 
   // Check energy-momentum/charge conservation.
-  double epDev = fabs( pSum.e()) + fabs(pSum.px()) + fabs(pSum.py())
-    + fabs(pSum.pz() );
+  double epDev = abs( pSum.e()) + abs(pSum.px()) + abs(pSum.py())
+    + abs(pSum.pz() );
   if (epDev > epTolErr * eLab) {
     nEPcons[0]++;
     if (nEPcons[0] == 1) {
@@ -1035,7 +1034,7 @@ bool VinciaCommon::showerChecks(Event& event, bool ISR) {
       cout << "WARNING in Vincia::ShowerChecks" << (ISR ? "(ISR)" : "(FSR)")
            << ": energy-momentum not quite conserved" << endl;
   }
-  if (fabs(chargeSum) > 0.1) {
+  if (abs(chargeSum) > 0.1) {
     nChargeCons++;
     if (nChargeCons == 1){
       cout << "ERROR in Vincia::ShowerChecks" << (ISR ? "(ISR)" : "(FSR)")
@@ -1185,7 +1184,7 @@ double VinciaCommon::getShowerStartingScale(int iSys,
       else if (factorScale2 == 3) Q2facSav = 0.5*(mT21+mT22);
       else if (factorScale2 == 4) Q2facSav = sHat;
       else if (factorScale2 == 5) Q2facSav = Q2facFix;
-      else if (factorScale2 == 6) Q2facSav = fabs(-tHat);
+      else if (factorScale2 == 6) Q2facSav = abs(-tHat);
       if (factorScale2 != 5) Q2facSav *= Q2facMult;
 
     // Ask Pythia about 2 -> 3 scale.
@@ -1492,8 +1491,8 @@ bool VinciaCommon::map3to2FFmassive(vector<Vec4>& pClu, vector<Vec4> pIn,
   pClu[b] = (1-x)*pIn[a] + (1-rMap)*pIn[r] + (1-z)*pIn[b];
 
   // Check if on-shell.
-  double offshellnessI = fabs(pClu[a].m2Calc() - pow2(mI))/m2Ant;
-  double offshellnessK = fabs(pClu[b].m2Calc() - pow2(mK))/m2Ant;
+  double offshellnessI = abs(pClu[a].m2Calc() - pow2(mI))/m2Ant;
+  double offshellnessK = abs(pClu[b].m2Calc() - pow2(mK))/m2Ant;
   if (offshellnessI > TINY || offshellnessK > TINY) {
     if (verbose >= 3) {
       printOut("VinciaCommon::map3to2FFmassive","on-shell check failed");
@@ -1650,8 +1649,8 @@ bool VinciaCommon::map2to3FFmassive(vector<Vec4>& pThree,
   if ( 1-abs(cos02) < 1e-15 ) cos02 = cos02 > 0 ? 1. : -1.;
 
   // Use positive square root for sine.
-  double sin01 = (fabs(cos01) < 1) ? sqrt(fabs(1.0 - pow2(cos01))) : 0.0;
-  double sin02 = (fabs(cos02) < 1) ? sqrt(fabs(1.0 - pow2(cos02))) : 0.0;
+  double sin01 = (abs(cos01) < 1) ? sqrt(abs(1.0 - pow2(cos01))) : 0.0;
+  double sin02 = (abs(cos02) < 1) ? sqrt(abs(1.0 - pow2(cos02))) : 0.0;
 
   // Set momenta in CMz frame (frame with 1 oriented along positive z
   // axis and event in (x,z) plane).
@@ -1693,16 +1692,16 @@ bool VinciaCommon::map2to3FFmassive(vector<Vec4>& pThree,
       * ( pow2(sAnt) - pow2(sAntMin) );
     if(bigRantMap2 < 0.){
       stringstream ss;
-      ss<<"Warning, kinematic map is broken on line "
-        <<__LINE__;
-      printErr(__METHOD_NAME__,ss.str());
+      ss<<"On line "<<__LINE__;
+      infoPtr->errorMsg("Warning in "+__METHOD_NAME__
+        +": kinematics map is broken.",ss.str());
       return false;
     }
     double bigRantMap = sqrt( bigRantMap2 );
     double p1dotpI = (sig2*(pow2(s02) - pow2(s02min))*
-        (m2Ant + pow2(mass0) - pow2(mass1) - pow2(mass2) - s12)
-        +8*rAntMap*(m2Ant + pow2(mass0) - pow2(mass1) - pow2(mass2) - s12)*gDet
-        -bigRantMap*(pow2(s02) - pow2(s02min) + s01*s02-2*s12*pow2(mass0)))
+      (m2Ant + pow2(mass0) - pow2(mass1) - pow2(mass2) - s12)
+      +8*rAntMap*(m2Ant + pow2(mass0) - pow2(mass1) - pow2(mass2) - s12)*gDet
+      -bigRantMap*(pow2(s02) - pow2(s02min) + s01*s02-2*s12*pow2(mass0)))
       /(4*(4*gDet + m2Ant*(pow2(s02) - pow2(s02min))));
 
     // Norm of the three-momentum and the energy of the first parent
@@ -1712,8 +1711,9 @@ bool VinciaCommon::map2to3FFmassive(vector<Vec4>& pThree,
       - 2*m2Ant*m2K - 2*m2I*m2K;
     if (apInum2 < 0.) {
       stringstream ss;
-      ss << "Warning, kinematic map is broken on line " << __LINE__;
-      printErr(__METHOD_NAME__,ss.str());
+      ss<<"On line "<<__LINE__;
+      infoPtr->errorMsg("Warning in "+__METHOD_NAME__
+        +": kinematics map is broken.",ss.str());
       return false;
     }
     double apI = sqrt(apInum2)/(2*mAnt);
@@ -1725,8 +1725,7 @@ bool VinciaCommon::map2to3FFmassive(vector<Vec4>& pThree,
       psi = 0.;
     } else if (cospsi <= -1.0) {
       psi = M_PI;
-    } else if(std::isnan(cospsi)){
-      printOut("VinciaCommon::map2to3FFmassive:","oops, cospsi is nan");
+    } else if(isnan(cospsi)){
       psi= 0.;
       stringstream ss;
       ss << "ap0 = " << ap0;
@@ -1734,12 +1733,10 @@ bool VinciaCommon::map2to3FFmassive(vector<Vec4>& pThree,
       ss << " E0 = " << E0;
       ss << " mass0 = " << mass0;
       ss << " mAnt = " << mAnt;
-      printOut(__METHOD_NAME__,ss.str());
-      ss.str("");
-      ss << pow2(sAnt) + pow2(m2I) + pow2(m2K);
-      ss << "  ";
-      ss <<  2*sAnt*m2I + 2*sAnt*m2K + 2*m2I*m2K;
-      printOut(__METHOD_NAME__,ss.str());
+      ss << " sum1 = " << pow2(sAnt) + pow2(m2I) + pow2(m2K);
+      ss << " sum2 = " << 2*sAnt*m2I + 2*sAnt*m2K + 2*m2I*m2K;
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": cos(psi) = nan.",ss.str());
       return false;
     }
     else{
@@ -1792,17 +1789,15 @@ bool VinciaCommon::map2to3FFmassive(vector<Vec4>& pThree,
 
   Vec4 total = pTwo[0] + pTwo[1];
   total -= (p1+p2+p3);
-  if (fabs(total.e()) > SMALL || fabs(total.px()) > SMALL
-      || fabs(total.py()) > SMALL || fabs(total.pz()) >  SMALL ){
-    string msg="Failed momentum conservation test.";
-    printErr(__METHOD_NAME__,msg);
+  if (abs(total.e()) > SMALL || abs(total.px()) > SMALL
+    || abs(total.py()) > SMALL || abs(total.pz()) >  SMALL ){
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__+
+      ": Failed momentum conservation test. Aborting.");
     infoPtr->setAbortPartonLevel(true);
     return false;
   }
-  if (std::isnan(total.e()) || std::isnan(total.px())
-      || std::isnan(total.py()) || std::isnan(total.pz()) ){
-    string msg="Failed isnan test.";
-    printErr(__METHOD_NAME__,msg);
+  if (isnan(total)) {
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": (E,p) = nan.");
     return false;
   }
 
@@ -1821,9 +1816,7 @@ bool VinciaCommon::map2to3FFmassless(vector<Vec4>& pThree,
   const vector<Vec4>& pTwo, int kMapType, const vector<double>& invariants,
   double phi) {
 
-  if (verbose >= superdebug) {
-    cout << "VinciaCommon::map2to3FFmassless(): begin" << endl;
-  }
+  if (verbose >= superdebug) printOut(__METHOD_NAME__, "begin --------------");
 
   // Antenna invariant mass.
   double m2Ant = m2(pTwo[0],pTwo[1]);
@@ -1863,10 +1856,10 @@ bool VinciaCommon::map2to3FFmassless(vector<Vec4>& pThree,
   double cos02 = (E0*E2 - s02/2)/(ap0*ap2);
 
   // Protection: num. precision loss for small (ultracollinear) invariants.
-  if ( 1-fabs(cos01) < 1e-15 ) cos01 = cos01 > 0 ? 1. : -1.;
-  if ( 1-fabs(cos02) < 1e-15 ) cos02 = cos02 > 0 ? 1. : -1.;
-  double sin01 = (fabs(cos01) < 1) ? sqrt(fabs(1.0 - pow2(cos01))) : 0.0;
-  double sin02 = (fabs(cos02) < 1) ? sqrt(fabs(1.0 - pow2(cos02))) : 0.0;
+  if ( 1-abs(cos01) < 1e-15 ) cos01 = cos01 > 0 ? 1. : -1.;
+  if ( 1-abs(cos02) < 1e-15 ) cos02 = cos02 > 0 ? 1. : -1.;
+  double sin01 = (abs(cos01) < 1) ? sqrt(abs(1.0 - pow2(cos01))) : 0.0;
+  double sin02 = (abs(cos02) < 1) ? sqrt(abs(1.0 - pow2(cos02))) : 0.0;
 
   // Set momenta in CMz frame (with 1 oriented along positive z axis
   // and event in (x,z) plane).
@@ -1955,14 +1948,14 @@ bool VinciaCommon::map2to3FFmassless(vector<Vec4>& pThree,
 
   // Check momentum conservation.
   Vec4 diff = total - (p1+p2+p3);
-  if(fabs(diff.e())  / fabs(total.e()) > SMALL ||
-     fabs(diff.px()) / fabs(total.e()) > SMALL ||
-     fabs(diff.py()) / fabs(total.e()) > SMALL ||
-     fabs(diff.pz()) / fabs(total.e()) > SMALL) {
+  if(abs(diff.e())  / abs(total.e()) > SMALL ||
+     abs(diff.px()) / abs(total.e()) > SMALL ||
+     abs(diff.py()) / abs(total.e()) > SMALL ||
+     abs(diff.pz()) / abs(total.e()) > SMALL) {
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": (E,p) not conserved.","Aborting.");
     cout << setprecision(10) << " difference = " << total.px() << " "
          << total.py() << " " << total.pz() << " " << total.e() << endl;
-    string msg = "Failed momentum conservation test.";
-    printErr(__METHOD_NAME__, msg);
     infoPtr->setAbortPartonLevel(true);
     return false;
   }
@@ -1980,13 +1973,12 @@ bool VinciaCommon::map2to3RFmassive(vector<Vec4>& pThree, vector<Vec4> pTwo,
   vector<double> invariants,double phi,
   vector<double> masses) {
 
-  if (verbose >= superdebug) {
-    cout << "VinciaCommon::map2to3RFmassive(): begin" << endl;
-  }
+  if (verbose >= superdebug) printOut(__METHOD_NAME__, "begin --------------");
 
   // Get momenta and boost to lab frame.
   if(pTwo.size() != 2){
-    printErr(__METHOD_NAME__, "Wrong number of momenta provided.");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": Wrong number of momenta provided.");
     return false;
   }
 
@@ -2023,11 +2015,11 @@ bool VinciaCommon::map2to3RFmassive(vector<Vec4>& pThree, vector<Vec4> pTwo,
   double EkAfter = sak/(2.0*mA);
   if (EkAfter < mk)  return false;
   else if (EjAfter < mj) return false;
-  else if (invDiff > 0.001) return false;
+  else if (invDiff > SMALL) return false;
 
   // Get cosTheta.
   double cosTheta = getCosTheta(EjAfter,EkAfter, mj,mk, sjk);
-  if (fabs(cosTheta) > 1.0) return false;
+  if (abs(cosTheta) > 1.0) return false;
   double sinTheta = sqrt(1.0 - cosTheta*cosTheta);
   double pk = sqrt(EkAfter*EkAfter-mk*mk);
   double pj = sqrt(EjAfter*EjAfter-mj*mj);
@@ -2089,9 +2081,8 @@ bool VinciaCommon::map2to3RFmassive(vector<Vec4>& pThree, vector<Vec4> pTwo,
 bool VinciaCommon::map2toNRFmassive(vector<Vec4>& pAfter, vector<Vec4> pBefore,
   unsigned int posR, unsigned int posF, vector<double> invariants,double phi,
   vector<double> masses) {
-  if (verbose >= superdebug) {
-    cout << "VinciaCommon::map2to3NRFmassive(): begin" << endl;
-  }
+
+  if (verbose >= superdebug) printOut(__METHOD_NAME__, "begin --------------");
   pAfter.clear();
 
   // Momentum of "R", "F" end of antenna, and sum of downstream recoilers.
@@ -2124,9 +2115,9 @@ bool VinciaCommon::map2toNRFmassive(vector<Vec4>& pAfter, vector<Vec4> pBefore,
   pAfter.push_back(pThree.at(1));
   pAfter.push_back(pThree.at(2));
   Vec4 pSumAfter = pThree.at(0);
-  if (fabs(pSumAfter.mCalc() - pSum.mCalc()) > 0.001) {
-    printErr(__METHOD_NAME__,
-             "Failed to conserve mass of system of recoilers.");
+  if (abs(pSumAfter.mCalc() - pSum.mCalc()) > SMALL) {
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": Failed to conserve mass of system.");
     return false;
   }
 
@@ -2143,8 +2134,9 @@ bool VinciaCommon::map2toNRFmassive(vector<Vec4>& pAfter, vector<Vec4> pBefore,
       double mRecAfter = pRec.at(imom).mCalc();
 
       // Check mass.
-      if (fabs(mRecAfter- mRecBef) > 0.001) {
-        printErr(__METHOD_NAME__, "Failed to conserve mass of recoilers.");
+      if (abs(mRecAfter- mRecBef) > SMALL) {
+        infoPtr->errorMsg("Error in "+__METHOD_NAME__
+          +": Failed to conserve mass of recoilers.");
         return false;
       }
       pAfter.push_back(pRec.at(imom));
@@ -2163,11 +2155,11 @@ bool VinciaCommon::map2to3II(vector<Vec4>& pNew, vector<Vec4>& pRec,
   vector<Vec4>& pOld, double sAB, double saj, double sjb, double sab,
   double phi, double mj2) {
 
+  if (verbose >= superdebug) printOut(__METHOD_NAME__, "begin --------------");
+
   // Hand off to massless map if mj2 = 0.
-  if (verbose >= superdebug) cout << "VinciaCommon::map2to3II(): begin"
-                                  << endl;
   if (mj2 == 0.0)
-      return map2to3IImassless(pNew, pRec, pOld, sAB, saj, sjb, sab, phi);
+    return map2to3IImassless(pNew, pRec, pOld, sAB, saj, sjb, sab, phi);
 
   // Do massive mapping.
   pNew.clear();
@@ -2182,8 +2174,8 @@ bool VinciaCommon::map2to3II(vector<Vec4>& pNew, vector<Vec4>& pRec,
   double fac = sqrt(sAB/sCM);
   double e0 = pOld[0].e();
   double e1 = pOld[1].e();
-  if (fabs(1. - fac) > TINY) {
-    if (verbose >= 3 && fabs(1.-fac) > 1.01)
+  if (abs(1. - fac) > TINY) {
+    if (verbose >= 3 && abs(1.-fac) > 1.01)
       printOut("VinClu::map2to3II", "Warning: scaling AB so m2(AB) = sAB");
     e0 *= fac;
     e1 *= fac;
@@ -2202,7 +2194,8 @@ bool VinciaCommon::map2to3II(vector<Vec4>& pNew, vector<Vec4>& pRec,
   double G = saj*sjb*sab - mj2*sab*sab;
   if (G < 0. || sab < 0.) return false;
   if ((sab <= sjb) || (sab <= saj)) {
-    printErr(__METHOD_NAME__, "Incompatible invariants.");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": Incompatible invariants.");
     return false;
   }
 
@@ -2234,32 +2227,32 @@ bool VinciaCommon::map2to3II(vector<Vec4>& pNew, vector<Vec4>& pRec,
   double sajNew = 2*pNew[0]*pNew[1];
   double sjbNew = 2*pNew[1]*pNew[2];
   double sabNew = 2*pNew[0]*pNew[2];
-  if (fabs(sabNew - sab)/sab > check) {
+  if (abs(sabNew - sab)/sab > check) {
     if (verbose >= 5) {
       printOut("VinClu::map2to3II","ERROR! Invariants differ!");
       cout << scientific << " sab (" << sab << ") fracdiff = ydiff = "
-           << fabs(sabNew-sab)/sab << endl << " Old momenta are" << endl;
+           << abs(sabNew-sab)/sab << endl << " Old momenta are" << endl;
       for (int i=0; i<2; i++) cout << "    " << pOld[i];
       cout << " New momenta are" << endl;
       for (int i=0; i<3; i++) cout << "    " << pNew[i];
     }
     return false;
-  } else if (fabs(sajNew - saj)/sab > check) {
+  } else if (abs(sajNew - saj)/sab > check) {
     if (verbose >= 5) {
       printOut("VinClu::map2to3II","ERROR! Invariants differ!");
       cout << scientific << " saj (" << saj << ") fracdiff = "
-           << fabs(sajNew-saj)/saj << " ydiff = "
-           << fabs(sajNew-saj)/sab << endl << " Old momenta are" << endl;
+           << abs(sajNew-saj)/saj << " ydiff = "
+           << abs(sajNew-saj)/sab << endl << " Old momenta are" << endl;
       for (int i=0; i<2; i++) cout << "    " << pOld[i];
       cout << " New momenta are" << endl;
       for (int i=0; i<3; i++) cout << "    " << pNew[i];
     }
     return false;
-  } else if (fabs(sjbNew - sjb)/sab > check) {
+  } else if (abs(sjbNew - sjb)/sab > check) {
     if (verbose >= 5) {
       printOut("VinClu::map2to3II","ERROR! Invariants differ!");
       cout << scientific << " sjb (" << sjb << ") fracdiff = "
-           << fabs(sjbNew-sjb)/sjb << " ydiff = " << fabs(sjbNew-sjb)/sab
+           << abs(sjbNew-sjb)/sjb << " ydiff = " << abs(sjbNew-sjb)/sab
            << endl << " Old momenta are" << endl;
       for (int i=0; i<2; i++) cout << "    " << pOld[i];
       cout << " New momenta are" << endl;
@@ -2306,8 +2299,7 @@ bool VinciaCommon::map2to3IImassless(vector<Vec4>& pNew, vector<Vec4>& pRec,
   vector<Vec4>& pOld, double sAB, double saj, double sjb, double sab,
   double phi) {
 
-  if (verbose >= superdebug)
-    cout << "VinciaCommon::map2to3IImassless(): begin" << endl;
+  if (verbose >= superdebug) printOut(__METHOD_NAME__, "begin --------------");
   pNew.clear();
   pNew.resize(3);
 
@@ -2320,8 +2312,8 @@ bool VinciaCommon::map2to3IImassless(vector<Vec4>& pNew, vector<Vec4>& pRec,
   double fac = sqrt(sAB/sCM);
   double e0 = pOld[0].e();
   double e1 = pOld[1].e();
-  if (fabs(1. - fac) > TINY) {
-    if (verbose >= 3 && fabs(1. - fac) > 1.01)
+  if (abs(1. - fac) > TINY) {
+    if (verbose >= 3 && abs(1. - fac) > 1.01)
       printOut("VinciaCommon::map2to3IImassless",
                "Warning: scaling AB so m2(AB) = sAB");
     e0 *= fac;
@@ -2368,33 +2360,33 @@ bool VinciaCommon::map2to3IImassless(vector<Vec4>& pNew, vector<Vec4>& pRec,
   double sajNew = 2*pNew[0]*pNew[1];
   double sjbNew = 2*pNew[1]*pNew[2];
   double sabNew = 2*pNew[0]*pNew[2];
-  if (fabs(sabNew - sab)/sab > check) {
+  if (abs(sabNew - sab)/sab > check) {
     if (verbose >= 5) {
       printOut("VinciaCommon::map2to3IImassless","ERROR! Invariants differ!");
       cout << scientific << " sab (" << sab << ") fracdiff = ydiff = "
-           << fabs(sabNew - sab)/sab << endl
+           << abs(sabNew - sab)/sab << endl
            << " Old momenta are" << endl;
       for (int i=0; i<2; i++) cout << "    " << pOld[i];
       cout << " New momenta are" << endl;
       for (int i=0; i<3; i++) cout << "    " << pNew[i];
     }
     return false;
-  } else if (fabs(sajNew - saj)/sab > check) {
+  } else if (abs(sajNew - saj)/sab > check) {
     if (verbose >= 5) {
       printOut("VinciaCommon::map2to3IImassless","ERROR! Invariants differ!");
       cout << scientific << " saj (" << saj << ") fracdiff = "
-           << fabs(sajNew-saj)/saj << " ydiff = "<< fabs(sajNew - saj)/sab
+           << abs(sajNew-saj)/saj << " ydiff = "<< abs(sajNew - saj)/sab
            << endl << " Old momenta are" << endl;
       for (int i=0; i<2; i++) cout << "    " << pOld[i];
       cout << " New momenta are" << endl;
       for (int i=0; i<3; i++) cout << "    " << pNew[i];
     }
     return false;
-  } else if ( fabs(sjbNew-sjb)/sab > check ) {
+  } else if ( abs(sjbNew-sjb)/sab > check ) {
     if (verbose >= 5) {
       printOut("VinciaCommon::map2to3IImassless","ERROR! Invariants differ!");
       cout << scientific << " sjb (" << sjb << ") fracdiff = "
-           << fabs(sjbNew-sjb)/sjb << " ydiff = "<< fabs(sjbNew - sjb)/sab
+           << abs(sjbNew-sjb)/sjb << " ydiff = "<< abs(sjbNew - sjb)/sab
            << endl << " Old momenta are" << endl;
       for (int i=0; i<2; i++) cout << "    " << pOld[i];
       cout << " New momenta are" << endl;
@@ -2425,8 +2417,7 @@ bool VinciaCommon::map2to3IFlocal(vector<Vec4>& pNew, vector<Vec4>& pOld,
   double sAK, double saj, double sjk, double sak, double phi,
   double mK2, double mj2, double mk2) {
 
-  if (verbose >= superdebug)
-    cout << "VinciaCommon::map2to3IFlocal(): begin" << endl;
+  if (verbose >= superdebug) printOut(__METHOD_NAME__, "begin --------------");
   pNew.clear();
   pNew.resize(3);
   if (verbose >= superdebug) {
@@ -2443,10 +2434,11 @@ bool VinciaCommon::map2to3IFlocal(vector<Vec4>& pNew, vector<Vec4>& pOld,
   double check = 1.e-3;
   double inv1Norm = (saj + sak)/(sAK + sjk);
   double inv2Norm = 1.0  + (mj2 + mk2 - mK2)/(sAK + sjk);
-  double diff = fabs(inv1Norm-inv2Norm);
+  double diff = abs(inv1Norm-inv2Norm);
   if(diff > check) {
     if (verbose >= 2) {
-      printErr(__METHOD_NAME__,"Inconsistent invariants.");
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": Inconsistent invariants.","Aborting.");
       cout <<" yaj + yak = " << inv1Norm
            << " 1 + muj2 + muk2 - muK2 = "<< inv2Norm
            << " Diff = " << diff << endl;
@@ -2474,8 +2466,8 @@ bool VinciaCommon::map2to3IFlocal(vector<Vec4>& pNew, vector<Vec4>& pOld,
   // Check if pT was properly boosted, allow 0.1% difference.
   if (pTrans*pOld[0] > pOld[0][0]*1e-3 || pTrans*pOld[1] > pOld[1][0]*1e-3) {
     if (verbose >= normal) {
-      string msg = "The transverse momentum is not transverse after boosting";
-      printErr(__METHOD_NAME__,msg);
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": The transverse momentum is not transverse after boosting");
     }
     return false;
   }
@@ -2495,11 +2487,11 @@ bool VinciaCommon::map2to3IFlocal(vector<Vec4>& pNew, vector<Vec4>& pOld,
   double sakNew = pNew[0]*pNew[2]*2;
   double sajNew = pNew[0]*pNew[1]*2;
   double sjkNew = pNew[1]*pNew[2]*2;
-  if (fabs(sakNew - sak)/sak > check) {
+  if (abs(sakNew - sak)/sak > check) {
     if (verbose >= 2) {
       printOut("VinClu::map2to3IFlocal","ERROR! sak is inconsistent!");
       cout << scientific << " sak (" << sak << ") diff = "
-           << fabs(sakNew-sak)/sak << endl
+           << abs(sakNew-sak)/sak << endl
            << " Old momenta are" << endl;
       for (int i=0; i<2; i++) cout << "    " << pOld[i];
       cout << " New momenta are" << endl;
@@ -2508,11 +2500,11 @@ bool VinciaCommon::map2to3IFlocal(vector<Vec4>& pNew, vector<Vec4>& pOld,
            << " mk2 = " << mk2 << endl;
     }
     return false;
-  } else if (fabs(sajNew - saj)/saj > check) {
+  } else if (abs(sajNew - saj)/saj > check) {
     if (verbose >= 2 ) {
       printOut("VinClu::map2to3IFlocal","ERROR! saj is inconsistent!");
       cout << scientific << " saj (" << saj << ") diff = ";
-      cout << fabs(sajNew-saj)/saj << endl;
+      cout << abs(sajNew-saj)/saj << endl;
       cout << " Old momenta are" << endl;
       for (int i=0; i<2; i++) cout << "    " << pOld[i];
       cout << " New momenta are" << endl;
@@ -2521,11 +2513,11 @@ bool VinciaCommon::map2to3IFlocal(vector<Vec4>& pNew, vector<Vec4>& pOld,
            << " mk2 = " << mk2 << endl;
     }
     return false;
-  } else if ( fabs(sjkNew-sjk)/sjk > check ) {
+  } else if ( abs(sjkNew-sjk)/sjk > check ) {
     if (verbose >= 2 ){
       printOut("VinClu::map2to3IFlocal","ERROR! sjk is inconsistent!");
       cout << scientific << " sjk (" << sjk << ") diff = ";
-      cout << fabs(sjkNew-sjk)/sjk << endl;
+      cout << abs(sjkNew-sjk)/sjk << endl;
       cout << " Old momenta are" << endl;
       for (int i=0; i<2; i++) cout << "    " << pOld[i];
       cout << " New momenta are" << endl;
@@ -2549,8 +2541,7 @@ bool VinciaCommon::map2to3IFglobal(vector<Vec4>& pNew,
   double sAK, double saj, double sjk, double sak, double phi,
   double mK2, double mj2, double mk2) {
 
-  if (verbose >= superdebug)
-    cout << "VinciaCommon::map2to3IFglobal(): begin" << endl;
+  if (verbose >= superdebug) printOut(__METHOD_NAME__, "begin --------------");
   pNew.clear();
   pNew.resize(3);
 
@@ -2690,8 +2681,8 @@ bool VinciaCommon::map2to3IFglobal(vector<Vec4>& pNew,
     // Check if done.
     double eps = 0;
     for (int i=0; i<n; i++) {
-      if (fabs(vNew[i] - v[i])/fabs(v[i]) > eps) {
-        eps = fabs(vNew[i] - v[i])/fabs(v[i]);
+      if (abs(vNew[i] - v[i])/abs(v[i]) > eps) {
+        eps = abs(vNew[i] - v[i])/abs(v[i]);
       }
     }
     v = vNew;
@@ -2742,11 +2733,11 @@ bool VinciaCommon::map2to3IFglobal(vector<Vec4>& pNew,
   double sjkNew = 2*pNew[1]*pNew[2];
   double sakNew = 2*pNew[0]*pNew[2];
   if (verbose >= 5) {
-    if (fabs(sajNew - saj)/saj > 1E-3)
+    if (abs(sajNew - saj)/saj > 1E-3)
       printOut("VinciaCommon:map2to3IFglobal", "saj not quite correct");
-    if (fabs(sjkNew - sjk)/sjk > 1E-3)
+    if (abs(sjkNew - sjk)/sjk > 1E-3)
       printOut("VinciaCommon:map2to3IFglobal", "sjk not quite correct");
-    if (fabs(sakNew - sak)/sak > 1E-3)
+    if (abs(sakNew - sak)/sak > 1E-3)
       printOut("VinciaCommon:map2to3IFglobal", "sak not quite correct");
   }
   return true;
@@ -2784,7 +2775,7 @@ bool VinciaCommon::map2to3RFmassive(vector<Vec4>& pNew, vector<Vec4>& pRec,
   double EkAfter    = sak/(2.0*sqrt(mA2));
   double pVeckAfter = sqrt(pow2(EkAfter) - mK2);
   double cosTheta   = (2.*EjAfter*EkAfter - sjk)/2./pVecjAfter/pVeckAfter;
-  if (fabs(cosTheta) > 1) {return false;}
+  if (abs(cosTheta) > 1) {return false;}
   double sinTheta   = sqrt(1.0 - cosTheta*cosTheta);
 
   // Construct three momenta.
@@ -2830,7 +2821,7 @@ bool VinciaCommon::onShellCM(Vec4& p1, Vec4& p2, double m1, double m2,
   double s01    = Vec4(p1+p2).m2Calc();
   double s1Calc = p1.m2Calc();
   double s2Calc = p2.m2Calc();
-  if (fabs(s1Calc-s1)/s01 > tol || fabs(s2Calc-s2)/s01 > tol) {
+  if (abs(s1Calc-s1)/s01 > tol || abs(s2Calc-s2)/s01 > tol) {
     if (verbose >= 3)
       printOut("VinClu::onShellCM","forcing particles on mass shell");
     RotBstMatrix M;
@@ -2852,8 +2843,8 @@ bool VinciaCommon::onShellCM(Vec4& p1, Vec4& p2, double m1, double m2,
     }
 
     // If this got them closer to mass shell, replace momenta.
-    if (fabs(s1Test-s1)/s01 <= fabs(s1Calc-s1)/s01
-      && fabs(s2Test-s2)/s01 <= fabs(s2Calc-s2)/s01) {
+    if (abs(s1Test-s1)/s01 <= abs(s1Calc-s1)/s01
+      && abs(s2Test-s2)/s01 <= abs(s2Calc-s2)/s01) {
       p1 = p1new;
       p2 = p2new;
     }
@@ -3013,7 +3004,8 @@ bool VinciaCommon::mapToMassless(int iSys, Event& event,
       //Check momentum conservation.
       if (!checkCoM(iSys,event,partonSystemsPtr)) {
         infoPtr->setAbortPartonLevel(true);
-        printErr(__METHOD_NAME__,"Failed conservation of momentum check.");
+        infoPtr->errorMsg("Error in "+__METHOD_NAME__+
+          ": Failed (E,p) conservation check.","Aborting.");
         return false;
       }
       return true;
@@ -3061,7 +3053,8 @@ bool VinciaCommon::mapToMassless(int iSys, Event& event,
   // Check momentum conservation.
   if(!checkCoM(iSys, event,partonSystemsPtr)){
     infoPtr->setAbortPartonLevel(true);
-    printErr(__METHOD_NAME__, "Failed conservation of momentum check.");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": Failed (E,p) conservation check.","Aborting.");
     return false;
   }
 
@@ -3093,26 +3086,27 @@ bool VinciaCommon::checkCoM(int iSys, Event& event,
     if (event[iOut].isFinal()) total -= event[iOut].p();
     else {
       stringstream ss;
-      ss << "Member of system " << iSys << " iOut = " << iOut
-         << " not in final state";
-      printErr(__METHOD_NAME__, ss.str());
+      ss << "iSys = " << iSys << " iOut = " << iOut;
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": isFinal()=false for outgoing parton.",ss.str());
       partonSystemsPtr->list();
       event.list();
       return false;
     }
   }
   total/=sysMass;
-  if(fabs(total.e()) > SMALL || fabs(total.px()) > SMALL
-     || fabs(total.py()) > SMALL || fabs(total.pz()) >  SMALL) {
+  if(abs(total.e()) > SMALL || abs(total.px()) > SMALL
+     || abs(total.py()) > SMALL || abs(total.pz()) >  SMALL) {
     event.list();
     cout << "total = " << setprecision(10) << total.e() << " " << total.px()
          << " " << total.py() << " " << total.pz() << endl;
-    printErr(__METHOD_NAME__, "Failed momentum conservation test.");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +" Failed (E,p) conservation check.");
     return false;
-  } else if(std::isnan(total.e()) || std::isnan(total.px())
-            || std::isnan(total.py()) || std::isnan(total.pz()) ){
+  } else if(isnan(total)){
     event.list();
-    printErr(__METHOD_NAME__, "Failed isnan test.");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +" Failed (E,p) isnan check.");
     return false;
   } else return true;
 
@@ -3180,15 +3174,15 @@ double getCosTheta(double E1, double E2, double m1, double m2, double s12){
 string num2str(int i, int width) {
   ostringstream tmp;
   if (width <= 1) tmp << i;
-  else if (fabs(i) < pow(10.0, width - 1) || ( i > 0 && i < pow(10.0, width)))
+  else if (abs(i) < pow(10.0, width - 1) || ( i > 0 && i < pow(10.0, width)))
     tmp << fixed << setw(width) << i;
   else {
     string ab = "k";
     double r = i;
-    if      (fabs(i) < 1e5)       {r/=1e3;}
-    else if (fabs(i) < 1e8)  {r/=1e6;  ab = "M";}
-    else if (fabs(i) < 1e11) {r/=1e9;  ab = "G";}
-    else if (fabs(i) < 1e14) {r/=1e12; ab = "T";}
+    if      (abs(i) < 1e5)       {r/=1e3;}
+    else if (abs(i) < 1e8)  {r/=1e6;  ab = "M";}
+    else if (abs(i) < 1e11) {r/=1e9;  ab = "G";}
+    else if (abs(i) < 1e14) {r/=1e12; ab = "T";}
     tmp << fixed << setw(width - 1)
         << (r > 10 ? setprecision(width-4) : setprecision(width-3)) << r << ab;
   }
@@ -3198,7 +3192,7 @@ string num2str(int i, int width) {
 string num2str(double r, int width) {
   ostringstream tmp;
   if (width <= 0) tmp << r;
-  else if (r == 0.0 || (fabs(r) > 0.1 && fabs(r) < pow(10., max(width-3,1)))
+  else if (r == 0.0 || (abs(r) > 0.1 && abs(r) < pow(10., max(width-3,1)))
            || width <= 8) tmp << fixed << setw(max(width,3))
                               << setprecision(min(3, max(1, width - 2))) << r;
   else tmp << scientific << setprecision(max(2, width - 7))
@@ -3211,11 +3205,6 @@ string bool2str(bool b, int width) {
   int nPad = width - tmp.length();
   for (int i = 1; i <= nPad; ++i) tmp = " " + tmp;
   return tmp;
-}
-
-void printErr(string place, string message) {
-  cout.setf(ios::internal);
-  cerr << " (" << place << ") " << message << "\n";
 }
 
 void printOut(string place, string message) {
@@ -3236,7 +3225,7 @@ double gramDet( double s01tilde, double s12tilde, double s02tilde,
 
 double gramDet(Vec4 p0, Vec4 p1, Vec4 p2) {
   return gramDet(2*p0*p1, 2*p1*p2, 2*p0*p2, p0.mCalc(), p1.mCalc(),
-                 p2.mCalc());
+    p2.mCalc());
 }
 
 //--------------------------------------------------------------------------
@@ -3252,7 +3241,7 @@ double Li2(const double x, const double kmax, const double xerr) {
       double rk = (k-1.0)/k;
       term *= x*rk*rk;
       sum += term;
-      if (fabs(term/sum) < xerr) return sum;
+      if (abs(term/sum) < xerr) return sum;
     }
     cout << "Maximum number of iterations exceeded in Li2" << endl;
     return sum;
@@ -3302,11 +3291,11 @@ int binomial(const int n, const int m) {
 double LambertW(const double x) {
   if (x == 0.) return 0.;
   if (x < -0.2) {
-    printErr("lambertW","Warning: current implementation is accurate to"
-             " less than three decimal places for x < -0.2");
+    cout << "Warning in "<<__METHOD_NAME__
+         << ": Accuracy less than three decimal places for x < -0.2";
   } else if (x > 10.) {
-    printErr("lambertW","Warning: current implementation is accurate to"
-             " less than three decimal places for x > 10.");
+    cout << "Warning in "<<__METHOD_NAME__
+         <<": Accuracy less than three decimal places for x > 10.";
   }
   return x*(1. + x*(2.445053 + x*(1.343664 + x*(0.14844 + 0.000804*x))))
     /(1. + x*(3.444708 + x*(3.292489 + x*(0.916460 + x*(0.053068)))));
@@ -3329,13 +3318,13 @@ double zbrent(TFunctor& fun, double r, double x1, double x2, double tol) {
     if ((fb > 0.0 && fc > 0.0) || (fb < 0.0 && fc < 0.0)) {
       c = a; fc = fa; e = d = b-a;
     }
-    if (fabs(fc) < fabs(fb)) {
+    if (abs(fc) < abs(fb)) {
       a = b; b = c; c= a; fa = fb; fb = fc; fc = fa;
     }
-    tol1 = 2.0*REALTINY*fabs(b) + 0.5*tol;
+    tol1 = 2.0*REALTINY*abs(b) + 0.5*tol;
     xm = 0.5*(c-b);
-    if (fabs(xm) <= tol1 || fb == 0.0) return b;
-    if (fabs(e) >= tol1 && fabs(fa) > fabs(fb)) {
+    if (abs(xm) <= tol1 || fb == 0.0) return b;
+    if (abs(e) >= tol1 && abs(fa) > abs(fb)) {
       s = fb/fa;
       if (a == c) {p = 2.0*xm*s; q = 1.0-s;}
       else {
@@ -3344,15 +3333,15 @@ double zbrent(TFunctor& fun, double r, double x1, double x2, double tol) {
         q = (q - 1.0)*(r1 - 1.0)*(s - 1.0);
       }
       if (p > 0.0) q = -q;
-      p = fabs(p);
-      min1 = 3.0*xm*q - fabs(tol1*q);
-      min2 = fabs(e*q);
+      p = abs(p);
+      min1 = 3.0*xm*q - abs(tol1*q);
+      min2 = abs(e*q);
       if (2.0*p < (min1 < min2 ? min1 : min2)) {e = d; d= p/q;}
       else {d = xm; e = d;}
     } else {d = xm; e = d;}
     a = b;
     fa = fb;
-    b += fabs(d) > tol1 ? d : (xm > 1) ? tol1 : - tol1;
+    b += abs(d) > tol1 ? d : (xm > 1) ? tol1 : - tol1;
     fb = fun(b) - r;
   }
   cerr << "(brent:) -> Maximum number of iterations exceeded" << endl;

@@ -1,5 +1,5 @@
 // SimpleTimeShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -99,8 +99,7 @@ void SimpleTimeShower::init( BeamParticle* beamAPtrIn,
 
   // If SimpleSpaceShower does dipole recoil then SimpleTimeShower must adjust.
   doDipoleRecoil     = flag("SpaceShower:dipoleRecoil");
-  if (doDipoleRecoil) allowBeamRecoil  = true;
-  if (doDipoleRecoil) dampenBeamRecoil = false;
+  if (doDipoleRecoil) {allowBeamRecoil  = true; dampenBeamRecoil = false;}
 
   // Matching in pT of hard interaction or MPI to shower evolution.
   pTmaxMatch         = mode("TimeShower:pTmaxMatch");
@@ -1629,24 +1628,21 @@ void SimpleTimeShower::setupWeakdip( int iSys, int i, int weakType,
   int sizeOut  = partonSystemsPtr->sizeOut(iSys);
   // Only allow weak dipoles to take outgoing particles as recoiler.
   int sizeRec  = sizeOut;
-  int sizeInRec     = sizeRec - sizeOut;
-  int sizeInNonRec  = sizeAll - sizeInRec - sizeOut;
+  int sizeInNonRec  = sizeAll - sizeOut;
   int iOffset  = i + sizeAll - sizeOut;
   double ppMin = LARGEM2;
   bool hasRescattered = false;
   bool otherSystemRec = false;
 
-  // Find nearest same- (opposide-) flavour recoiler in initial (final)
+  // Find nearest same- (opposite-) flavour recoiler in initial (final)
   // state of same system, excluding rescattered (in or out) partons.
   // Also find if system is involved in rescattering.
   // Note: (p_i + p_j)2 - (m_i + m_j)2 = 2 (p_i p_j - m_i m_j).
   for (int j = 0; j < sizeRec; ++j)
     if (j + sizeInNonRec != iOffset) {
       int iRecNow  = partonSystemsPtr->getAll(iSys, j + sizeInNonRec);
-      if ( (j <  sizeInRec && !event[iRecNow].isRescatteredIncoming())
-        || (j >= sizeInRec && event[iRecNow].isFinal()) ) {
-        if ( (j <  sizeInRec && event[iRecNow].id() ==  idRad)
-          || (j >= sizeInRec && event[iRecNow].id() == -idRad) ) {
+      if ( event[iRecNow].isFinal() ) {
+        if ( event[iRecNow].id() == -idRad ) {
           double ppNow = event[iRecNow].p() * event[iRad].p()
                        - event[iRecNow].m() * event[iRad].m();
           if (ppNow < ppMin) {
@@ -1682,8 +1678,7 @@ void SimpleTimeShower::setupWeakdip( int iSys, int i, int weakType,
     double weakCoupNow = 1.;
     if (weakType == 2) weakCoupNow = coupSMPtr->vf2(event[iRecNow].idAbs())
       + coupSMPtr->af2(event[iRecNow].idAbs());
-    if ( (j <  sizeInRec && !event[iRecNow].isRescatteredIncoming())
-      || (j >= sizeInRec && event[iRecNow].isFinal()) ) {
+    if ( event[iRecNow].isFinal() ) {
       double ppNow = (event[iRecNow].p() * event[iRad].p()
                    -  event[iRecNow].m() * event[iRad].m()) / weakCoupNow;
       if (ppNow < ppMin) {
@@ -1788,7 +1783,6 @@ void SimpleTimeShower::setupWeakdip( int iSys, int i, int weakType,
     double pTmax = event[iRad].scale();
     if (limitPTmaxIn) {
       if (iSys == 0) pTmax *= pTmaxFudge;
-      if (iSys > 0 && sizeInRec > 0) pTmax *= pTmaxFudgeMPI;
     } else pTmax = 0.5 * m( event[iRad], event[iRec]);
     int isrType = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
     // This line in case mother is a rescattered parton.
@@ -2384,10 +2378,11 @@ void SimpleTimeShower::pT2nextQCD(double pT2begDip, double pT2sel,
             int idRec     = event[dip.iRecoiler].id();
             pdfScale2 = (useFixedFacScale) ? fixedFacScale2
               : factorMultFac * dip.pT2;
+            xfModPrepData xfData = beam.xfModPrep(iSysRec, pdfScale2);
             double pdfOld = max ( TINYPDF,
-              beam.xfISR( iSysRec, idRec, xOld, pdfScale2) );
+              beam.xfISR( iSysRec, idRec, xOld, pdfScale2, xfData) );
             double pdfNew =
-              beam.xfISR( iSysRec, idRec, xNew, pdfScale2);
+              beam.xfISR( iSysRec, idRec, xNew, pdfScale2, xfData);
             wt *= min( 1., pdfNew / pdfOld);
           }
 
@@ -2635,10 +2630,11 @@ void SimpleTimeShower::pT2nextQED(double pT2begDip, double pT2sel,
           int idRec     = event[dip.iRecoiler].id();
           pdfScale2 = (useFixedFacScale) ? fixedFacScale2
             : factorMultFac * dip.pT2;
+          xfModPrepData xfData = beam.xfModPrep(iSys, pdfScale2);
           double pdfOld = max ( TINYPDF,
-            beam.xfISR( iSys, idRec, xOld, pdfScale2) );
+            beam.xfISR( iSys, idRec, xOld, pdfScale2, xfData) );
           double pdfNew =
-            beam.xfISR( iSys, idRec, xNew, pdfScale2);
+            beam.xfISR( iSys, idRec, xNew, pdfScale2, xfData);
           wt *= min( 1., pdfNew / pdfOld);
         }
 
@@ -2804,10 +2800,11 @@ void SimpleTimeShower::pT2nextWeak(double pT2begDip, double pT2sel,
           int idRec     = event[dip.iRecoiler].id();
           pdfScale2 = (useFixedFacScale) ? fixedFacScale2
             : factorMultFac * dip.pT2;
+          xfModPrepData xfData = beam.xfModPrep(iSys, pdfScale2);
           double pdfOld = max ( TINYPDF,
-            beam.xfISR( iSys, idRec, xOld, pdfScale2) );
+            beam.xfISR( iSys, idRec, xOld, pdfScale2, xfData) );
           double pdfNew =
-            beam.xfISR( iSys, idRec, xNew, pdfScale2);
+            beam.xfISR( iSys, idRec, xNew, pdfScale2, xfData);
           wt *= min( 1., pdfNew / pdfOld);
         }
         // Secondly optionally reduce by 4 pT2_hard / (4 pT2_hard + m2).
@@ -3901,11 +3898,17 @@ bool SimpleTimeShower::initUncertainties() {
 
   // Only perform for the first call to Timeshower
   if (infoPtr->nWeights() <= 1.) {
+    // These two should eventually be removed...
     infoPtr->setNWeights( nUncertaintyVariations + 1 );
     infoPtr->setWeightLabel( 0, "Baseline");
+    // ... in favor of this one.
+    infoPtr->weightContainerPtr->weightsPS.bookWeight("Baseline");
     for(int iWeight = 1; iWeight <= nUncertaintyVariations; ++iWeight) {
       string uVarString = uniqueVars[iWeight-1];
+      // This should eventually be removed...
       infoPtr->setWeightLabel(iWeight, uVarString);
+      // ... in favor of this one.
+      infoPtr->weightContainerPtr->weightsPS.bookWeight(uVarString);
 
       while (uVarString.find("=") != string::npos) {
         int firstEqual = uVarString.find_first_of("=");
@@ -3958,7 +3961,12 @@ bool SimpleTimeShower::initUncertainties() {
       if (nRecognizedQCD > 0) ++nVarQCD;
     } // End loop over UVars.
   }
+
   infoPtr->initUncertainties(&uVars);
+
+  // Now instead of putting everything into the InfoHub class, and cluttering
+  // the latter, we can put everything into the WeightContainer.
+
   // Let the calling function know if we found anything.
   return (nUncertaintyVariations > 0);
 }
@@ -4135,10 +4143,17 @@ void SimpleTimeShower::calcUncertainties(bool accept, double pAccept,
   for (int iWeight = 0; iWeight <= nUncertaintyVariations; ++iWeight) {
     if (!doVar[iWeight]) continue;
     // If trial accepted: apply ratio of accept probabilities.
-    if (accept) infoPtr->reWeight(iWeight,
-      uVarFac[iWeight] / ((1.0 - vp) * enhance) );
+    if (accept) {
+      infoPtr->reWeight(iWeight,
+        uVarFac[iWeight] / ((1.0 - vp) * enhance) );
+
+      // At some point, we should remove the weights structures in InfoHub in
+      // favor of WeightContainer.
+      weightContainerPtr->weightsPS.reweightValueByIndex(iWeight,
+        uVarFac[iWeight] / ((1.0 - vp) * enhance) );
+
     // If trial rejected : apply Sudakov reweightings.
-    else {
+    } else {
       // Check for near-singular denominators (indicates too few failures,
       // and hence would need to increase headroom).
       double denom = 1. - pAccept*(1.0 - vp);
@@ -4152,6 +4167,11 @@ void SimpleTimeShower::calcUncertainties(bool accept, double pAccept,
       double reWtFail = max(0.01, (1. - uVarFac[iWeight] * pAccept / enhance)
         / denom);
       infoPtr->reWeight(iWeight, reWtFail);
+
+      // At some point, we should remove the weights structures in InfoHub in
+      // favor of WeightContainer.
+      weightContainerPtr->weightsPS.reweightValueByIndex(iWeight,
+        reWtFail);
     }
   }
 }
@@ -4570,7 +4590,7 @@ void SimpleTimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
     dip.MEgluinoRec = false;
 
     // If type already set (or set not to have) then done.
-    if (minDauType == 0 && dip.MEtype < 0) dip.MEtype = 0;
+    if (minDauType == 0) dip.MEtype = 0;
     if (dip.MEtype >= 0) return;
     dip.MEtype = 0;
 
@@ -4698,10 +4718,9 @@ void SimpleTimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
   // Now begin processing of charge dipole - still primitive.
   } else if (dip.chgType != 0) {
 
-    // Set defaults for QED case; then possibly done.
+    // Set defaults for QED case.
     dip.MEorder = true;
     dip.MEsplit = true;
-    if (dip.MEtype >= 0) return;
 
     // So far only ME corrections for q qbar or l lbar.
     int idDau1 = event[dip.iRadiator].id();
@@ -4927,8 +4946,7 @@ double SimpleTimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
     wtPS *= x3 / (x3 - kRad * (x1 + x3));
   }
   // The t-channel corrections are handled separately in findMEweak.
-  else if (dip->MEtype == 201 || dip->MEtype == 202
-       ||  dip->MEtype == 203 || dip->MEtype == 205
+  else if (dip->MEtype == 201 || dip->MEtype == 202 || dip->MEtype == 203
        ||  dip->MEtype == 206 || dip->MEtype == 207) return 1.;
 
   // Return ratio of actual ME to assumed PS rate of emission.
@@ -5667,14 +5685,8 @@ double SimpleTimeShower::calcMEcorr( int kind, int combiIn, double mixIn,
           + 2.;
       break;
 
-     // q -> q~ W
+    // q -> q~ W (32) and q -> q Z (33)
     case 32:
-      rLO = 1.;
-      rFO = (2. * r3s * r3s + 2. * r3s * (x1 + x2) + x1s + x2s) / prop12
-          - r3s / prop1s - r3s / prop2s;
-      break;
-
-    // q -> q Z
     case 33:
       rLO = 1.;
       rFO = (2. * r3s * r3s + 2. * r3s * (x1 + x2) + x1s + x2s) / prop12
@@ -5818,7 +5830,7 @@ double SimpleTimeShower::findMEcorrWeak(TimeDipoleEnd* dip,Vec4 rad,
   else if (dip->MEtype == 202 || dip->MEtype == 207)
     wt *= simpleWeakShowerMEs.getMEqq2qqZ( p3, p4, emt, rec, rad)
         / simpleWeakShowerMEs.getMEqq2qq( sHat, tHat, uHat, true);
-  else if (dip->MEtype == 203 || dip->MEtype == 208)
+  else
     wt *= simpleWeakShowerMEs.getMEqq2qqZ( p3, p4, emt, rec, rad)
         / simpleWeakShowerMEs.getMEqq2qq( sHat, tHat, uHat, false);
 

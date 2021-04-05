@@ -1,5 +1,5 @@
 // Basics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -120,11 +120,20 @@ public:
   inline double operator*(const Vec4& v) const {
     return tt*v.tt - xx*v.xx - yy*v.yy - zz*v.zz;}
 
-  // Operator overloading with friends
+  // Operator overloading with friends.
   friend Vec4 operator*(double f, const Vec4& v1);
 
   // Print a four-vector.
   friend ostream& operator<<(ostream&, const Vec4& v) ;
+
+  // Check if NaN, INF, or finite.
+  friend inline bool isnan(const Vec4 &v) {
+    return isnan(v.tt) || isnan(v.xx) || isnan(v.yy) || isnan(v.zz);}
+  friend inline bool isinf(const Vec4 &v) {
+    return isinf(v.tt) || isinf(v.xx) || isinf(v.yy) || isinf(v.zz);}
+  friend inline bool isfinite(const Vec4 &v) {
+    return isfinite(v.tt) && isfinite(v.xx) && isfinite(v.yy)
+      && isfinite(v.zz);}
 
   // Invariant mass of a pair and its square.
   friend double m(const Vec4& v1, const Vec4& v2);

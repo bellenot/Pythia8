@@ -252,16 +252,16 @@ for the strategy choice.
 for the number of subprocesses. 
    
 <a name="anchor23"></a>
-<p/><strong> int LHAup::idProcess(i) &nbsp;</strong> <br/>
+<p/><strong> int LHAup::idProcess(int i) &nbsp;</strong> <br/>
    
 <a name="anchor24"></a>
-<strong> double LHAup::xSec(i) &nbsp;</strong> <br/>
+<strong> double LHAup::xSec(int i) &nbsp;</strong> <br/>
    
 <a name="anchor25"></a>
-<strong> double LHAup::xErr(i) &nbsp;</strong> <br/>
+<strong> double LHAup::xErr(int i) &nbsp;</strong> <br/>
    
 <a name="anchor26"></a>
-<strong> double LHAup::xMax(i) &nbsp;</strong> <br/>
+<strong> double LHAup::xMax(int i) &nbsp;</strong> <br/>
 for process <code>i</code> in the range <code>0 &lt;= i &lt; 
 sizeProc()</code>. 
    
@@ -567,7 +567,7 @@ The LHA standard only allows for one hard subcollision in an event.
 Further multiparton interactions are supposed to be handled by the 
 internal MPI machinery. As a nonstandard feature, it is possible 
 to input two hard subcollisions in the same event, to match the internal 
-<a href="ASecondHardProcess.html" target="page">second hard process</a> machinery. 
+<a href="SecondHardProcess.html" target="page">second hard process</a> machinery. 
 In such cases two partons are extracted from each of the two incoming 
 hadrons. A restriction is that, unlike the single-subprocess case, 
 it is important that the partons are input in the order that PYTHIA 
@@ -798,4 +798,4 @@ Return the name of the LHE file above.
 </body>
 </html>
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

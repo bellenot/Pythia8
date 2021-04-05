@@ -1,5 +1,5 @@
 ! File: main200.cmnd
-! This file contains commands to be read in for a PYTHIA8/VINCIA run. 
+! This file contains commands to be read in for a PYTHIA8/VINCIA run.
 ! Lines not beginning with a letter or digit are comments.
 ! Names are case-insensitive  -  but spellings-sensitive!
 
@@ -23,13 +23,13 @@ Top:gg2ttbar = on
 ! Switch on/off FSR, ISR, hadronization, and event checks
 PartonLevel:FSR = on
 PartonLevel:ISR = on
-PartonLevel:MPI = off 
+PartonLevel:MPI = off
 HadronLevel:all = off
 PartonLevel:Remnants = on
 Check:event = on
 
 ! VINCIA settings
-PartonShowers:Model = 2 
+PartonShowers:Model = 2
 Vincia:doII    = on
 Vincia:doIF    = on
 Vincia:doFF    = on

@@ -1,5 +1,5 @@
 // main112.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -195,6 +195,7 @@ int main() {
     double w = it->second;
     if ( acc < lim && acc + w >= lim ) {
       newlim[idxa--] = prev + (curr - prev)*(lim - acc)/w;
+      if ( idxa < 0 ) break;
       lim = sumw*(1.0 - pclim[idxa]);
     }
     acc += w;

@@ -1,5 +1,5 @@
 // VinciaFSR.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2020 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -233,7 +233,9 @@ double BrancherEmitFF::genQ2(int evTypeIn, double q2BegIn, Rndm* rndmPtr,
     }
   }
   if (q2NewSav > q2BegIn) {
-    printErr(__METHOD_NAME__, "Generated impossible Q2");
+    string errorMsg = "Error in "+__METHOD_NAME__
+      +": Generated q2New > q2BegIn."+" Returning 0.";
+    cout<<errorMsg<<endl;
     q2NewSav = 0.;
   }
   return q2NewSav;
@@ -468,8 +470,11 @@ double BrancherSplitFF::genQ2(int evTypeIn, double q2BegIn,
   vector<double> wtFlav;
   unsigned int nFlav = headroomFlav.size();
   if (nFlav != enhanceFlav.size()) {
-    if (verboseIn >=normal) printErr(__METHOD_NAME__,
-      "Headroom and enhancement vectors have different sizes.");
+    if (verboseIn >=normal) {
+      string errorMsg = "Error in "+__METHOD_NAME__
+        +": inconsistent size of headroom and enhancement vectors.";
+      cout<<errorMsg<<endl;
+    }
     return 0.;
   }
 
@@ -524,7 +529,9 @@ double BrancherSplitFF::genQ2(int evTypeIn, double q2BegIn,
     }
   }
   if (q2NewSav > q2BegIn) {
-    printErr(__METHOD_NAME__, "Generated impossible Q2");
+    string errorMsg = "Error in "+__METHOD_NAME__
+      +": Generated q2New > q2Beg."+" Returning 0.";
+    cout<<errorMsg<<endl;
     q2NewSav = 0.;
   }
   return q2NewSav;
@@ -911,7 +918,7 @@ bool BrancherEmitRF::getNewParticles(Event& event, vector<Vec4> momIn,
     newPart.setEvtPtr(&event);
     newPart.scale(scaleNew);
     newPart.daughters(0,0);
-    if (fabs(newPart.m() - newPart.mCalc()) > 0.001) return false;
+    if (abs(newPart.m() - newPart.mCalc()) > 0.001) return false;
     pNew.push_back(newPart);
   }
   colTagSav=newTag;
@@ -970,18 +977,21 @@ double BrancherEmitRF::genQ2(int evTypeIn, double Q2MaxNow, Rndm* rndmPtr,
       if (verboseIn >= superdebug)
         cout << "evolution mode = " << evWindowPtrIn->runMode << endl
              << "prefactor = " << prefactor << " zetaIntSave = " << zetaIntSave
-             << " logR =  " << logR << endl << " kmu2 = "
-             << evWindowPtrIn->kMu2
+             << " logR =  " << logR << endl
+             << " kmu2 = " << evWindowPtrIn->kMu2
              << " lambda2 = " << evWindowPtrIn->lambda2 << endl;
-      printErr(__METHOD_NAME__, "Generated impossible Q2");
+      string errorMsg = "Error in "+__METHOD_NAME__
+        +": Generated q2New > q2Max"+" Returning -1.";
+      cout<<errorMsg<<endl;
       q2NewSav = -1.;
     }
   } else {
     if (verboseIn >= normal) {
       stringstream ss;
-      ss << "Evolution type not currently supported! Evolution type = "
-         << evTypeIn;
-      printErr(__METHOD_NAME__, ss.str());
+      ss << "evTypeIn = " << evTypeIn;
+      string errorMsg = "Error in "+__METHOD_NAME__
+        +": Unsupported Evolution Type."+" "+ss.str();
+      cout<<errorMsg<<endl;
     }
     return 0.;
   }
@@ -1040,8 +1050,11 @@ double BrancherEmitRF::pAccept(const double antPhys, int verboseIn) {
 
   // Check q2.
   if (q2NewSav <= 0.) {
-    if (verboseIn >= normal)
-      printErr(__METHOD_NAME__, "ERROR: q2NewSav not set");
+    if (verboseIn >= normal) {
+      string errorMsg = "Error in "+__METHOD_NAME__+": q2NewSav not set."+
+        " Returning 0.";
+      cout<<errorMsg<<endl;
+    }
     return 0.;
   }
 
@@ -1158,7 +1171,7 @@ bool BrancherEmitRF::vetoPhSpPoint(double saj, double sjk, double sak,
 
   // When |cosTheta| < 1.
   double cosTheta = getCosTheta(Ej,Ek,mj,mk,sjk);
-  if (fabs(cosTheta) > 1.0) {
+  if (abs(cosTheta) > 1.0) {
     if (verboseIn >= louddebug)
       printOut(__METHOD_NAME__, "Failed cos theta condition.");
     return true;
@@ -1355,8 +1368,11 @@ double BrancherSplitRF::genQ2(int evTypeIn, double Q2MaxNow, Rndm* rndmPtr,
   vector<double> wtFlav;
   unsigned int nFlav = headroomIn.size();
   if (nFlav != enhanceIn.size()) {
-    if (verboseIn >= normal) printErr(__METHOD_NAME__,
-      "Headroom and enhancement vectors have different sizes.");
+    if (verboseIn >= normal) {
+      string errorMsg = "Error in "+__METHOD_NAME__
+        +": Headroom and enhancement vectors have different sizes.";
+      cout<<errorMsg<<endl;
+    }
     return 0.;
   }
   for (unsigned int iFlav = 0; iFlav < nFlav; ++iFlav) {
@@ -1395,9 +1411,10 @@ double BrancherSplitRF::genQ2(int evTypeIn, double Q2MaxNow, Rndm* rndmPtr,
   } else {
     if (verboseIn >= normal) {
       stringstream ss;
-      ss << "Evolution type not currently supported!" << " Evolution type = "
-         << evTypeIn;
-      printErr(__METHOD_NAME__, ss.str());
+      ss << "evTypeIn = " << evTypeIn;
+      string errorMsg = "Error in "+__METHOD_NAME__
+        +": Unsupported Evolution Type."+" "+ss.str();
+      cout<<errorMsg<<endl;
     }
     return 0.;
   }
@@ -1422,7 +1439,9 @@ double BrancherSplitRF::genQ2(int evTypeIn, double Q2MaxNow, Rndm* rndmPtr,
     printOut(__METHOD_NAME__, ss.str());
   }
   if (q2NewSav > Q2MaxNow) {
-    printErr(__METHOD_NAME__, "Generated impossible Q2");
+    string errorMsg = "Error in "+__METHOD_NAME__
+      +": Generated qq2New > q2Max"+" Returning -1.";
+    cout<<errorMsg<<endl;
     q2NewSav = -1.;
   }
   hasTrialSav = true;
@@ -1482,12 +1501,16 @@ bool BrancherSplitRF::genInvariants(vector<double>& invariants,Rndm* rndmPtr,
 double BrancherSplitRF::pAccept(const double antPhys, int verboseIn) {
 
   if (q2NewSav <= 0.) {
-    if (verboseIn >= normal)
-      printErr(__METHOD_NAME__, "ERROR: q2NewSav not set");
+    if (verboseIn >= normal) {
+      string errorMsg = "Error in "+__METHOD_NAME__+": q2NewSav not set";
+      cout<<errorMsg<<endl;
+    }
     return 0.;
   } else if (invariantsSav.size() != 4) {
-    if (verboseIn >= normal)
-      printErr(__METHOD_NAME__, "ERROR: invariants not set");
+    if (verboseIn >= normal) {
+      string errorMsg = "Error in "+__METHOD_NAME__+": invariants not set";
+      cout<<errorMsg<<endl;
+    }
     return 0.;
   }
   double saj = invariantsSav[1];
@@ -1661,13 +1684,9 @@ void VinciaFSR::init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
     qedShowerPtr->init(beamAPtrIn, beamBPtrIn);
   }
 
-  // Diagnositcs.
-  if (diagnosticsPtr != nullptr) {
-    doDiagnostics = true;
-    if (verbose >= veryloud)
-      printOut(__METHOD_NAME__, "Performing diagnostics....");
-    diagnosticsPtr->init();
-  } else doDiagnostics=false;
+  // Diagnostics.
+  setDiagnostics(dynamic_pointer_cast<VinciaDiagnostics>(userHooksPtr));
+
   isInit=true;
   if (verbose >= veryloud) printOut(__METHOD_NAME__, "end --------------");
 
@@ -1850,7 +1869,8 @@ void VinciaFSR::prepare( int iSys, Event& event, bool){
   // Check if we are supposed to do anything
   if (!(doFF || doRF)) return;
   if (infoPtr->getAbortPartonLevel()) {
-    printErr(__METHOD_NAME__, "Aborting.");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": Received abort from PartonLevel().","Aborting.");
     return;
   }
 
@@ -1993,8 +2013,8 @@ void VinciaFSR::prepare( int iSys, Event& event, bool){
     }
 
     // Make light quarks (and initial-state partons) explicitly massless.
-    if (!vinComPtr->mapToMassless
-        (iSys, event, partonSystemsPtr, makeNewCopies)) return;
+    if (!vinComPtr->mapToMassless(iSys, event, partonSystemsPtr,
+        makeNewCopies)) return;
     // Then see if we know how to compute matrix elements for this conf.
     doMECsSys[iSys] = mecsPtr->prepare(iSys, event);
     // Then see if and whether we can assign helicities.
@@ -2038,8 +2058,8 @@ void VinciaFSR::update( int iSys, Event& event, bool) {
   // Update QED system.
   qedShowerPtr->update(event, iSys);
   if (isResonanceSys[iSys]) {
-    if (verbose >=normal) printErr(__METHOD_NAME__,
-        "Update called unexpectedly in resonance shower: exiting.");
+    if (verbose >=normal) infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": Update called unexpectedly in resonance shower.","Exiting.");
     return;
   }
 
@@ -2144,7 +2164,8 @@ void VinciaFSR::update( int iSys, Event& event, bool) {
     return;
   }
   if (!check(event)) {
-    printErr(__METHOD_NAME__, "Error: failed update antennae.");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": failed update antennae.");
     list();
     if (verbose >= superdebug) printLookup();
     infoPtr->setAbortPartonLevel(true);
@@ -2207,9 +2228,9 @@ double VinciaFSR::pTnext(Event& event, double pTevolBegAll,
     double q2QED = qedShowerPtr->generateTrialScale(event, q2Begin);
     if (q2QED >q2Begin) {
       stringstream ss;
-      ss << "QED generated scale higher start scale = " << q2QED;
-      printErr(__METHOD_NAME__, ss.str());
-      infoPtr->setAbortPartonLevel(true);
+      ss << "q2Begin = "<<q2Begin<<" q2QED = " << q2QED;
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": Genereated q2QED > q2Begin.",ss.str());
       return 0.;
     }
     // Check for winning condition.
@@ -2302,7 +2323,8 @@ bool VinciaFSR::branch(Event& event, bool ){
   if (hasResJunction[iSysWin]) junctionInfoCopy=junctionInfo[iSysWin];
   if (!updateEvent(newevent,junctionInfoCopy)) {
     if (verbose >= loud)
-      printErr(__METHOD_NAME__, "Error: Failed to update event.");
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": Failed to update event.");
     return false;
   }
 
@@ -2327,14 +2349,16 @@ bool VinciaFSR::branch(Event& event, bool ){
   // Check momentum conservation.
   if (!vinComPtr->checkCoM(iSysWin,event,partonSystemsPtr)) {
     infoPtr->setAbortPartonLevel(true);
-    printErr(__METHOD_NAME__, "Failed momentum conservation test.");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": Failed momentum conservation test.");
     return false;
   }
 
   // Update antennae.
   if(!updateAntennae(event)) {
     if (verbose >= loud)
-      printErr(__METHOD_NAME__, "Error: Failed to update antennae");
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": Failed to update antennae");
     infoPtr->setAbortPartonLevel(true);
     return false;
   }
@@ -2355,7 +2379,7 @@ bool VinciaFSR::branch(Event& event, bool ){
 
   // Check the event after each branching.
   if (!vinComPtr->showerChecks(event, false)) {
-    printErr(__METHOD_NAME__, "ABORT: Failed shower checks");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Failed shower checks.");
     infoPtr->setAbortPartonLevel(true);
     return false;
   }
@@ -2398,8 +2422,8 @@ void VinciaFSR::list() const {
   // Loop over antenna list and print it.
   if (resEmitters.size() + resSplitters.size() +
       emitters.size() + splitters.size() == 0) {
-    cout << " --------  The list of FF antennae is empty"
-      " -------------------------------------------------------------\n";
+    cout << " --------  The list of FF antennae is empty -------------------"
+      "------------------------------------------\n";
     return;
   }
   cout << endl << endl;
@@ -2419,8 +2443,8 @@ void VinciaFSR::list() const {
     if (i == 0) splitters[i].list("Gluon Splitting Antennae");
     else splitters[i].list();
   }
-  cout << " --------  End VINCIA FF Antenna Listing"
-    " ----------------------------------------------------------\n";
+  cout << " --------  End VINCIA FF Antenna Listing ------------------------"
+    "----------------------------------\n";
 
 }
 
@@ -2807,16 +2831,18 @@ bool VinciaFSR::check(Event &event) {
   for (int i = 0; i < (int)emitters.size(); ++i) {
     if (!event[emitters[i].i0()].isFinal()) {
       if (verbose > normal){
-        ss << "Emitter " <<  i  << " failed update "
-           << "i0 = " << emitters[i].i0() << " not final.";
-        printErr(__METHOD_NAME__, ss.str());
+        ss << "Emitter " << i
+           << " i0 = " << emitters[i].i0() << " not final.";
+        infoPtr->errorMsg("Error in "+__METHOD_NAME__
+          +": Failed to update emitter (not final).", ss.str());
       }
       return false;
     } else if (!event[emitters[i].i1()].isFinal()) {
       if (verbose > normal) {
-        ss << "Emitter " << i << " failed update: "
-           << "i1 = " << emitters[i].i1() << " not final.";
-        printErr(__METHOD_NAME__, ss.str());
+        ss << "Emitter " << i
+           << " i1 = " << emitters[i].i1() << " not final.";
+        infoPtr->errorMsg("Error in "+__METHOD_NAME__
+          +": Failed to update emitter (not final).", ss.str());
       }
       return false;
     }
@@ -2824,16 +2850,18 @@ bool VinciaFSR::check(Event &event) {
   for (int i = 0; i < (int)splitters.size(); ++i) {
     if(!event[splitters[i].i0()].isFinal()){
       if (verbose > normal) {
-        ss << "Splitter " << i << " failed update: "
-           << "i0 = " << splitters[i].i0() << " not final.";
-        printErr(__METHOD_NAME__, ss.str());
+        ss << "Splitter " << i
+           << " i0 = " << splitters[i].i0() << " not final.";
+        infoPtr->errorMsg("Error in "+__METHOD_NAME__
+          +": Failed to update splitter (not final).", ss.str());
       }
       return false;
     } else if (!event[splitters[i].i1()].isFinal()) {
       if (verbose > normal) {
-        ss << "Splitter " << i << " failed update: "
-           << "i0 = " << splitters[i].i0() << " not final.";
-        printErr(__METHOD_NAME__, ss.str());
+        ss << "Splitter " << i
+           << " i1 = " << splitters[i].i1() << " not final.";
+        infoPtr->errorMsg("Error in "+__METHOD_NAME__
+          +": Failed to update splitter (not final).", ss.str());
       }
       return false;
     }
@@ -3005,7 +3033,8 @@ bool VinciaFSR::getAntennae(int iSys, Event& event){
 
   // Sanity check.
   if (partonSystemsPtr == nullptr) {
-    printErr(__METHOD_NAME__, "partonSystems pointer is NULL!");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": partonSystems pointer is NULL!");
     return false;
   }
   // Reset antenna list for first interaction and for resonance decays
@@ -3085,14 +3114,15 @@ bool VinciaFSR::getAntennae(int iSys, Event& event){
   } else total += event[partonSystemsPtr->getInRes(iSys)].p();
   total -= pSum;
   total /= mSys;
-  if (fabs(total.e()) > SMALL || fabs(total.px()) > SMALL ||
-      fabs(total.py()) > SMALL || fabs(total.pz()) > SMALL) {
+  if (abs(total.e()) > SMALL || abs(total.px()) > SMALL ||
+      abs(total.py()) > SMALL || abs(total.pz()) > SMALL) {
     event.list();
     cout << "total = " << setprecision(10) << total.e() << " "
          << total.px() << " " << total.py() << " " <<total.pz() << endl;
     stringstream ss;
-    ss << "Failed momentum conservation test in sys " << iSys;
-    printErr(__METHOD_NAME__, ss.str());
+    ss << "iSys = " << iSys;
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": Failed momentum conservation test.", ss.str());
     infoPtr->setAbortPartonLevel(true);
     return false;
   }
@@ -3182,16 +3212,16 @@ bool VinciaFSR::getAntennae(int iSys, Event& event){
               junctionInfo[iSys].iEndQuark=newPart;
               junctionInfo[iSys].iEndColTag=colNow;
             } else {
-              printErr(__METHOD_NAME__, "Resonance involved in junction that "
-                "cannot be traced.");
+              infoPtr->errorMsg("Error in "+__METHOD_NAME__
+                +": Resonance involved in junction that cannot be traced.");
               hasResJunction[iSys] = false;
               break;
             }
           }
           if (event[junctionInfo[iSys].iEndQuark].col() == 0 ||
               !event[junctionInfo[iSys].iEndQuark].isFinal()) {
-            printErr(__METHOD_NAME__, "Failed to find end quark in resonance "
-              "junction.");
+            infoPtr->errorMsg("Error in "+__METHOD_NAME__
+              +": Failed to find end quark in resonance junction.");
             hasResJunction[iSys] = false;
             break;
           }
@@ -3303,7 +3333,8 @@ bool VinciaFSR::q2NextResSplit(const double q2Begin, const double q2End) {
   double q2EndNow = max(q2End, q2CutoffSplit);
   bool gen = q2NextBranch<BrancherSplitRF>(resSplitters, evWindowsSplit,
     evTypeSplit, q2Begin, q2EndNow, false);
-  if (verbose >= verylouddebug) printOut(__METHOD_NAME__,"end --------------");
+  if (verbose >= verylouddebug)
+    printOut(__METHOD_NAME__,"end --------------");
   return gen;
 }
 
@@ -3313,7 +3344,8 @@ bool VinciaFSR::q2NextEmit(const double q2Begin, const double q2End) {
   double q2EndNow = max(q2End, q2CutoffEmit);
   bool gen = q2NextBranch<BrancherEmitFF>(emitters, evWindowsEmit, evTypeEmit,
     q2Begin, q2EndNow, true);
-  if (verbose >= verylouddebug) printOut(__METHOD_NAME__,"end --------------");
+  if (verbose >= verylouddebug)
+    printOut(__METHOD_NAME__,"end --------------");
   return gen;
 }
 
@@ -3323,7 +3355,8 @@ bool VinciaFSR::q2NextSplit(const double q2Begin, const double q2End) {
   double q2EndNow = max(q2End, q2CutoffSplit);
   bool gen = q2NextBranch<BrancherSplitFF>(splitters, evWindowsSplit,
     evTypeSplit, q2Begin, q2EndNow, false);
-  if (verbose >= verylouddebug) printOut(__METHOD_NAME__,"end --------------");
+  if (verbose >= verylouddebug)
+    printOut(__METHOD_NAME__,"end --------------");
   return gen;
 }
 
@@ -3478,7 +3511,8 @@ bool VinciaFSR::branchQED(Event& event) {
 
     // Check momentum conservation.
     if (!vinComPtr->checkCoM(qedShowerPtr->sysWin(),event,partonSystemsPtr)) {
-      printErr(__METHOD_NAME__, "Failed conservation of momentum test.");
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": Failed (E,p) conservation check.");
       infoPtr->setAbortPartonLevel(true);
       return false;
     }
@@ -3488,20 +3522,23 @@ bool VinciaFSR::branchQED(Event& event) {
 
     // Check PartonSystems in debug mode.
     if (verbose > quiteloud) {
-      stringstream ss;
       if (partonSystemsPtr->hasInAB(iSysWin)) {
         int inA = partonSystemsPtr->getInA(iSysWin);
         int inB = partonSystemsPtr->getInB(iSysWin);
         if (inA <= 0 || inB <= 0 ) {
-          ss.str("Incoming particles in system ");
-          ss << iSysWin << "non-positive. inA = "<< inA << " inB = " << inB;
-          printErr(__METHOD_NAME__, ss.str());
+          stringstream ss;
+          ss << "iSysWin = "<<iSysWin << " non-positive. inA = "<< inA
+             << " inB = " << inB;
+          infoPtr->errorMsg("Error in "+__METHOD_NAME__
+            +": Non-positive incoming parton.", ss.str());
           infoPtr->setAbortPartonLevel(true);
           return false;
         } else if (event[inA].mother1() > 2 || event[inB].mother1() > 2) {
-          ss.str("Failed to update incoming particles in system ");
-          ss << iSysWin << "after QED branching.";
-          printErr(__METHOD_NAME__, ss.str());
+          stringstream ss;
+          ss << "iSysWin = "<<iSysWin;
+          infoPtr->errorMsg("Error in "+__METHOD_NAME__
+            +": Failed to update incoming particles after QED branching.",
+            ss.str());
           infoPtr->setAbortPartonLevel(true);
           return false;
         }
@@ -3651,8 +3688,8 @@ double VinciaFSR::getAntPhys(AntennaFunction* &antFunPtr) {
   vector<int> hPost(nPre+1,9);
   double antPhys = antFunPtr->antFun(invariants, mPost, hPre, hPost);
   if (antPhys < 0.) {
-    if (verbose > normal) printErr(__METHOD_NAME__,
-        "Negative Antenna Function:" + num2str(iAntWin));
+    if (verbose > normal) infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": Negative Antenna Function.", num2str(iAntWin));
     return 0.;
   }
   antPhys *= antFunPtr->chargeFac();
@@ -3705,8 +3742,8 @@ bool VinciaFSR::genFullKinematics(int kineMap, Event event,
   } else {
     // 2->3 kinematics.
     if (nPre == 2 && nPost == 3) {
-      if (!vinComPtr->map2to3FF(pPost, pPre, kineMap,
-                                invariants, phi, mPost)) {
+      if (!vinComPtr->map2to3FF(pPost, pPre, kineMap, invariants, phi,
+          mPost)) {
         if (verbose >=  debug)
           printOut(__METHOD_NAME__, "Trial rejected (failed map2to3)");
         ++nFailedKine[iAntWin];
@@ -3714,11 +3751,13 @@ bool VinciaFSR::genFullKinematics(int kineMap, Event event,
       }
     // 2->4 kinematics
     } else if (nPre == 2 && nPost == 4) {
-      printErr(__METHOD_NAME__, "2->4 kinematics map not implemented yet.");
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": 2->4 kinematics map not implemented yet.");
       return false;
     // 3->4 kinematics
     } else if (nPre == 3 && nPost == 4) {
-      printErr(__METHOD_NAME__, "3->4 kinematics map not implemented yet.");
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": 3->4 kinematics map not implemented yet.");
       return false;
     }
   }
@@ -3805,8 +3844,10 @@ bool VinciaFSR::acceptTrial(Event& event) {
   if (verbose >= loud ) {
     bool violation  = (pAccept[0] > 1.0 + TINY);
     bool negPaccept = (pAccept[0] < 0.0);
-    if (violation)  printErr(__METHOD_NAME__, "pAccept > 1");
-    if (negPaccept)   printErr(__METHOD_NAME__, "pAccept <1");
+    if (violation) infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": pAccept > 1");
+    if (negPaccept) infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": pAccept < 0");
     //Print more info for bad cases.
     if ((violation || negPaccept) && verbose > debug) winnerPtr->list();
   }
@@ -3870,7 +3911,8 @@ bool VinciaFSR::getNewParticles(Event& event, AntennaFunction* antFunPtr,
   // Generate full kinematics.
   if (antFunPtr == nullptr) {
     if (verbose >= normal)
-      printErr(__METHOD_NAME__, "ERROR: antFunPtr is NULL pointer.");
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": antFunPtr is NULL pointer.");
     return false;
   }
   newParts.clear();
@@ -3887,13 +3929,14 @@ bool VinciaFSR::getNewParticles(Event& event, AntennaFunction* antFunPtr,
   if (pPost.size() != hPost.size()) {
     if (verbose >= normal) {
       stringstream ss;
-      ss << "ERROR: Wrong size containers:" << "  pPost.size() = "
+      ss << " pPost.size() = "
          << pPost.size() <<"  hPost.size() = " << hPost.size();
-      printErr(__METHOD_NAME__, ss.str());
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": Wrong size containers.", ss.str());
     }
     return false;
-  } else if (!winnerPtr->getNewParticles(event, pPost, hPost,
-                                         newParts, rndmPtr, colourPtr)) {
+  } else if (!winnerPtr->getNewParticles(event, pPost, hPost, newParts,
+      rndmPtr, colourPtr)) {
     if (verbose >= debug)
       printOut(__METHOD_NAME__, "Failed to generate new particles");
     return false;
@@ -3989,8 +4032,8 @@ bool VinciaFSR::updateEvent(Event& event, resJunctionInfo& junctionInfoIn) {
   if (hasResJunction[iSysWin]) {
     vector<int>* colours = &junctionInfoIn.colours;
     if (!event[junctionInfoIn.iEndQuark].isQuark()) {
-      printErr(__METHOD_NAME__, "Can't update junction. iEndQuark is not "
-        "a quark!");
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__
+        +": Can't update junction. iEndQuark is not a quark!");
       hasResJunction[iSysWin]=false;
       return false;
     }
@@ -4052,8 +4095,8 @@ bool VinciaFSR::updateEvent(Event& event, resJunctionInfo& junctionInfoIn) {
       if (event[iNew].col() == colLeft) colNew = event[iNew].acol();
       else colNew = event[iNew].col();
       if (colNew == 0) {
-        printErr(__METHOD_NAME__,
-          "Couldn't find colour for updating junction info.");
+        infoPtr->errorMsg("Error in "+__METHOD_NAME__
+          +": Couldn't find colour for updating junction info.");
         return false;
       }
 
@@ -4074,7 +4117,8 @@ bool VinciaFSR::updateEvent(Event& event, resJunctionInfo& junctionInfoIn) {
           junctionInfoIn.iEndQuark  = d2;
           junctionInfoIn.iEndColTag = event[d2].col();
         } else {
-          printErr(__METHOD_NAME__, "Couldn't update junction.");
+          infoPtr->errorMsg("Error in "+__METHOD_NAME__
+            +": Couldn't update junction.");
           return false;
         }
         //Update junction.
@@ -4362,10 +4406,10 @@ void VinciaFSR::updateEmitter(Event& event,int iOld1, int iOld2,
 // Update splitter branchers due to a recoiled parton.
 
 void VinciaFSR::updateSplitters(Event& event, int iOld, int iNew) {
-  updateBranchers<BrancherSplitFF>
-    (splitters, lookupSplitter, event, iOld, iNew);
-  updateBranchers<BrancherSplitFF>
-    (splitters, lookupSplitter, event, -iOld, -iNew);
+  updateBranchers<BrancherSplitFF>(splitters, lookupSplitter, event,
+    iOld, iNew);
+  updateBranchers<BrancherSplitFF>(splitters, lookupSplitter, event,
+    -iOld, -iNew);
 }
 
 //--------------------------------------------------------------------------
@@ -4482,6 +4526,7 @@ bool VinciaFSR::updateResBranchers(int iSysRes, Event& event, int iRes) {
   }
   if (verbose >= verylouddebug)
     printOut(__METHOD_NAME__, "end --------------");
+
   return true;
 
 }
@@ -4495,7 +4540,7 @@ void VinciaFSR::updateResBranchers(int iSysRes, Event& event,
   bool isCol) {
 
   if (posRes >= resSysAll.size() || posPartner >= resSysAll.size()) {
-    printErr(__METHOD_NAME__, "Invalid positions.");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Invalid positions.");
     infoPtr->setAbortPartonLevel(true);
     return;
   }
@@ -4609,7 +4654,8 @@ bool VinciaFSR::updateAntennae(Event& event) {
     if (verbose >= superdebug) printLookup();
   }
   if (winnerPtr == nullptr) {
-    if (verbose >= normal) printErr(__METHOD_NAME__, "winnerPtr is NULL");
+    if (verbose >= normal) infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": winnerPtr is NULL");
     return false;
   }
 
@@ -4628,7 +4674,7 @@ bool VinciaFSR::updateAntennae(Event& event) {
     int iColSplit = event[splitOld].daughter1();
     int iaColSplit = event[splitOld].daughter2();
     if(event[iColSplit].col() == 0 && event[iaColSplit].acol() == 0 &&
-       event[iColSplit].acol() != 0 && event[iaColSplit].acol() != 0) {
+       event[iColSplit].acol() != 0 && event[iaColSplit].col() != 0) {
       iColSplit = event[splitOld].daughter2();
       iaColSplit = event[splitOld].daughter1();
     }
@@ -4735,9 +4781,8 @@ bool VinciaFSR::updateAntennae(Event& event) {
           updateEmitters(event,mother,daughter2);
           updateSplitters(event,mother,daughter2);
         // Resonant splitter.
-        } else if (branchType == 6 && event[mother].isGluon() &&
-                   !event[daughter1].isGluon()
-                   && !event[daughter2].isGluon()) {
+        } else if (branchType == 6 && event[mother].isGluon()
+          && !event[daughter1].isGluon() && !event[daughter2].isGluon()) {
           removeSplitter(mother);
           int iColSplit  = daughter1;
           int iaColSplit = daughter2;
@@ -4782,7 +4827,8 @@ bool VinciaFSR::updateAntennae(Event& event) {
     if (!updateResBranchers(iSysWin, event,
         partonSystemsPtr->getInRes(iSysWin))){
       if (verbose >= normal)
-        printErr(__METHOD_NAME__, "ERROR: failed updateResEmitters.");
+        infoPtr->errorMsg("Error in "+__METHOD_NAME__
+          +": Failed updateResEmitters.");
       return false;
     }
   }
@@ -4791,7 +4837,8 @@ bool VinciaFSR::updateAntennae(Event& event) {
     if (verbose >= superdebug) {
       printLookup();
       if (!check(event)) {
-        printErr(__METHOD_NAME__, "Error: failed update antennae.");
+        infoPtr->errorMsg("Error in "+__METHOD_NAME__
+          +": Failed update antennae.");
         return false;
       }
     }
@@ -4859,7 +4906,8 @@ bool VinciaFSR::updateAfterQED(Event& event, int sizeOld) {
     int moth1 = event[i1].mother1();
     colouredrecoilers.push_back(make_pair(moth1, i1));
   } else if (status51coloured.size() > 2){
-    printErr(__METHOD_NAME__, "Error: too many status 51 particles");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": Too many status 51 particles");
     infoPtr->setAbortPartonLevel(true);
     return false;
   }
@@ -4878,14 +4926,16 @@ bool VinciaFSR::updateAfterQED(Event& event, int sizeOld) {
     if (!updateResBranchers(iSysWin, event,
         partonSystemsPtr->getInRes(iSysWin))) {
       if (verbose >= normal)
-        printErr(__METHOD_NAME__, "ERROR: failed updateResEmitters.");
+        infoPtr->errorMsg("Error in "+__METHOD_NAME__
+          +": Failed updateResEmitters.");
       return updated;
     }
   }
 
   // Check the event.
   if (!check(event)) {
-    printErr(__METHOD_NAME__, "Error: failed update antennae.");
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": Failed update antennae.");
     list();
     if (verbose >= superdebug) printLookup();
     infoPtr->setAbortPartonLevel(true);
@@ -4903,13 +4953,15 @@ bool VinciaFSR::updateAfterQED(Event& event, int sizeOld) {
       else if(event[d2].isQuark() && event[d2].col() > 0)
         junctionInfo[iSysWin].iEndQuark = d2;
       else {
-        printErr(__METHOD_NAME__, "Couldn't update junction information");
+        infoPtr->errorMsg("Error in "+__METHOD_NAME__
+          +": Couldn't update junction information");
         return false;
       }
     }
   }
   if (verbose >= verylouddebug)
     printOut(__METHOD_NAME__, "end --------------");
+
   return true;
 
 }

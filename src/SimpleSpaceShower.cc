@@ -1,5 +1,5 @@
 // SimpleSpaceShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -381,8 +381,7 @@ void SimpleSpaceShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
   bool canRadiate2 = !(event[in2].isRescatteredIncoming());
 
   // Reset dipole-ends list for first interaction. Also resonances.
-  if (iSys == 0) dipEnd.resize(0);
-  if (iSys == 0) idResFirst  = 0;
+  if (iSys == 0) {dipEnd.resize(0); idResFirst  = 0;}
   if (iSys == 1) idResSecond = 0;
 
   // Find matrix element corrections for system.
@@ -823,7 +822,9 @@ void SimpleSpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
 
       // Parton density of daughter at current scale.
       pdfScale2 = (useFixedFacScale) ? fixedFacScale2 : factorMultFac * pT2;
-      xPDFdaughter = beam.xfISR(iSysNow, idDaughter, xDaughter, pdfScale2);
+      xfModPrepData xfData = beam.xfModPrep(iSysNow, pdfScale2);
+      xPDFdaughter = beam.xfISR(iSysNow, idDaughter, xDaughter, pdfScale2,
+        xfData);
       if (xPDFdaughter < TINYPDF) {
         xPDFdaughter  = TINYPDF;
         hasTinyPDFdau = true;
@@ -843,14 +844,13 @@ void SimpleSpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
         if (canEnhanceET) q2gInt *= userHooksPtr->enhanceFactor("isr:Q2GQ");
 
         // Parton density of potential quark mothers to a g.
-        xPDFmotherSum = 0.;
+        xPDFmotherSum  = 0.;
+        xPDFmother[10] = 0.;
         for (int i = -nQuarkIn; i <= nQuarkIn; ++i) {
-          if (i == 0) {
-            xPDFmother[10] = 0.;
-          } else {
-            xPDFmother[i+10] = beam.xfISR(iSysNow, i, xDaughter, pdfScale2);
-            xPDFmotherSum += xPDFmother[i+10];
-          }
+          if (i == 0) continue;
+          xPDFmother[i+10] = beam.xfISR(iSysNow, i, xDaughter, pdfScale2,
+            xfData);
+          xPDFmotherSum += xPDFmother[i+10];
         }
 
         // Total QCD evolution coefficient for a gluon.
@@ -896,7 +896,7 @@ void SimpleSpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
         }
 
         // Parton density of a potential gluon mother to a q.
-        xPDFgMother = beam.xfISR(iSysNow, 21, xDaughter, pdfScale2);
+        xPDFgMother = beam.xfISR(iSysNow, 21, xDaughter, pdfScale2, xfData);
 
         // Total QCD evolution coefficient for a quark.
         kernelPDF = q2qInt + g2qInt * xPDFgMother / xPDFdaughter;
@@ -1167,10 +1167,11 @@ void SimpleSpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
 
     // Evaluation of new daughter and mother PDF's.
     pdfScale2 = (useFixedFacScale) ? fixedFacScale2 : factorMultFac * pT2;
+    xfModPrepData xfData2 = beam.xfModPrep(iSysNow, pdfScale2);
     double xPDFdaughterNew = max ( TINYPDF,
-      beam.xfISR(iSysNow, idDaughter, xDaughter, pdfScale2) );
+      beam.xfISR(iSysNow, idDaughter, xDaughter, pdfScale2, xfData2) );
     double xPDFmotherNew =
-      beam.xfISR(iSysNow, idMother, xMother, pdfScale2);
+      beam.xfISR(iSysNow, idMother, xMother, pdfScale2, xfData2);
     wt *= xPDFmotherNew / xPDFdaughterNew;
 
     // If doing uncertainty variations, postpone accept/reject to branch()
@@ -1646,10 +1647,11 @@ void SimpleSpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
 
         // Evaluation of new daughter and mother PDF's.
         pdfScale2 = (useFixedFacScale) ? fixedFacScale2 : factorMultFac * pT2;
+        xfModPrepData xfData = beam.xfModPrep(iSysNow, pdfScale2);
         double xPDFdaughterNew = max ( TINYPDF,
-          beam.xfISR(iSysNow, idDaughter, xDaughter, pdfScale2) );
+          beam.xfISR(iSysNow, idDaughter, xDaughter, pdfScale2, xfData) );
         double xPDFmotherNew   =
-          beam.xfISR(iSysNow, idMother, xMother, pdfScale2);
+          beam.xfISR(iSysNow, idMother, xMother, pdfScale2, xfData);
         wt *= xPDFmotherNew / xPDFdaughterNew;
       }
 
@@ -1729,17 +1731,15 @@ void SimpleSpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
         // Optionally enhanced branching rate.
         if (canEnhanceET) q2gInt *= userHooksPtr->enhanceFactor("isr:Q2QA");
 
-
-        // Charge-weighted Parton density of potential quark mothers.
-        xPDFmotherSum = 0.;
+        // Charge-weighted parton density of potential quark mothers.
+        xPDFmotherSum  = 0.;
+        xPDFmother[10] = 0.;
+        xfModPrepData xfData2 = beam.xfModPrep(iSysNow, pdfScale2);
         for (int i = -nFlavour; i <= nFlavour; ++i) {
-          if (i == 0) {
-            xPDFmother[10] = 0.;
-          } else {
-            xPDFmother[i+10] = pow2((abs(i+1) % 2 + 1)/3.0)
-              * beam.xfISR(iSysNow, i, xDaughter, pdfScale2);
-            xPDFmotherSum += xPDFmother[i+10];
-          }
+          if (i == 0) continue;
+           xPDFmother[i+10] = pow2((abs(i+1) % 2 + 1)/3.0)
+             * beam.xfISR(iSysNow, i, xDaughter, pdfScale2, xfData2);
+          xPDFmotherSum += xPDFmother[i+10];
         }
 
         // Total QED evolution coefficient for a photon.
@@ -1990,9 +1990,10 @@ void SimpleSpaceShower::pT2nextWeak( double pT2begDip, double pT2endDip) {
   // PDF and CKM upper estimate needed for W emission.
   double overEstimatePDFCKM = 0.;
   if (dipEndNow->weakType == 1) {
+    xfModPrepData xfData = beam.xfModPrep(iSysNow, pdfScale2);
     for (unsigned int i = 0; i < possibleMothers.size(); i++)
       overEstimatePDFCKM += coupSMPtr->V2CKMid(idDaughter, possibleMothers[i])
-        * beam.xfISR(iSysNow, possibleMothers[i], xDaughter, pdfScale2)
+        * beam.xfISR(iSysNow, possibleMothers[i], xDaughter, pdfScale2, xfData)
         / xPDFdaughter;
   }
   if (dipEndNow->weakType == 2) overEstimatePDFCKM = 1.;
@@ -2100,11 +2101,12 @@ void SimpleSpaceShower::pT2nextWeak( double pT2begDip, double pT2endDip) {
 
     // Evaluation of new daughter and mother PDF's for Z.
     pdfScale2 = (useFixedFacScale) ? fixedFacScale2 : factorMultFac * pT2;
+    xfModPrepData xfData2 = beam.xfModPrep(iSysNow, pdfScale2);
     double xPDFdaughterNew = max ( TINYPDF,
-      beam.xfISR(iSysNow, idDaughter, xDaughter, pdfScale2) );
+      beam.xfISR(iSysNow, idDaughter, xDaughter, pdfScale2, xfData2) );
     if (dipEndNow->weakType == 2) {
       double xPDFmotherNew
-        = beam.xfISR(iSysNow, idMother, xMother, pdfScale2);
+        = beam.xfISR(iSysNow, idMother, xMother, pdfScale2, xfData2);
       wt *= xPDFmotherNew / xPDFdaughterNew;
     }
 
@@ -2114,8 +2116,8 @@ void SimpleSpaceShower::pT2nextWeak( double pT2begDip, double pT2endDip) {
       double sumPDFCKM    = 0.;
       for (unsigned int i = 0; i < possibleMothers.size(); i++) {
         valPDFCKM[i] = coupSMPtr->V2CKMid(idDaughter,possibleMothers[i])
-          * beam.xfISR(iSysNow, possibleMothers[i], xMother, pdfScale2)
-          / xPDFdaughterNew;
+          * beam.xfISR(iSysNow, possibleMothers[i], xMother, pdfScale2,
+          xfData2) / xPDFdaughterNew;
         sumPDFCKM += valPDFCKM[i];
       }
       wt *= sumPDFCKM / overEstimatePDFCKM;
@@ -3134,11 +3136,14 @@ bool SimpleSpaceShower::initUncertainties() {
 
   if ( nUncertaintyVariations > 0 ) {
     int nWeights = infoPtr->nWeights();
-    infoPtr->setNWeights( nWeights + nUncertaintyVariations );
-    int newSize = infoPtr->nWeights();
+    int newSize = nWeights + nUncertaintyVariations;
+    infoPtr->setNWeights( newSize );
     for(int iWeight = nWeights; iWeight < newSize; ++iWeight) {
       string uVarString = uniqueVars[iWeight - nWeights];
+      // This should be removed later...
       infoPtr->setWeightLabel(iWeight, uVarString);
+      // ... in favor of this
+      infoPtr->weightContainerPtr->weightsPS.bookWeight(uVarString);
       // Parse each string in uVars to look for recognised keywords.
       // Convert to lowercase (to be case-insensitive). Also remove "=" signs
       // and extra spaces, so "key=value", "key = value" mapped to "key value"
@@ -3202,6 +3207,10 @@ bool SimpleSpaceShower::initUncertainties() {
   }
 
   infoPtr->initUncertainties(&uVars,true);
+
+  // Now instead of putting everything into the InfoHub class, and cluttering
+  // the latter, we can put everything into the WeightContainer.
+
   // Let the calling function know if we found anything.
   return (nVarQCD > 0);
 }
@@ -3378,10 +3387,17 @@ void SimpleSpaceShower::calcUncertainties(bool accept, double pAccept,
   for (int iWeight = 0; iWeight < numWeights; ++iWeight) {
     if (!doVar[iWeight]) continue;
     // If trial accepted: apply ratio of accept probabilities.
-    if (accept) infoPtr->reWeight( iWeight,
-       uVarFac[iWeight] / ((1.0 - vp) * enhance) );
+    if (accept) {
+
+      infoPtr->reWeight( iWeight, uVarFac[iWeight] / ((1.0 - vp) * enhance) );
+
+      // At some point, we should remove the weights structures in InfoHub in
+      // favor of WeightContainer.
+      weightContainerPtr->weightsPS.reweightValueByIndex(iWeight,
+        uVarFac[iWeight] / ((1.0 - vp) * enhance) );
+
     // If trial rejected : apply Sudakov reweightings.
-    else {
+    } else {
       // Check for near-singular denominators (indicates too few failures,
       // and hence would need to increase headroom).
       double denom = 1. - pAccept * (1.0 - vp);
@@ -3395,6 +3411,11 @@ void SimpleSpaceShower::calcUncertainties(bool accept, double pAccept,
       double reWtFail = max(0.01, (1. - uVarFac[iWeight] * pAccept / enhance )
         / denom);
       infoPtr->reWeight(iWeight, reWtFail);
+
+      // At some point, we should remove the weights structures in InfoHub in
+      // favor of WeightContainer.
+      weightContainerPtr->weightsPS.reweightValueByIndex(iWeight,
+        reWtFail);
     }
   }
 }

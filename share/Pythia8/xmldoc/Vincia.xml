@@ -165,42 +165,28 @@ are described <aidx href="VinciaQED">here</aidx>.
 <h3>VINCIA Tunes</h3> 
  
 <p> 
-  <b>VINCIA accepts input</b> of tune presets in the form of a standard PYTHIA 
-  8 command file whose name and location can be specified by the 
-  user. 
+  <b>VINCIA has its own</b> set of dedicated tune presets, which can 
+  be specified by the user. 
 </p> 
  
-<word name="Vincia:tuneFile" default="vinciaDefault.cmnd"> 
-  Name of a command file (optionally including an absolute or relative path) 
-  containing tune presets for VINCIA.  If no explicit path is given, 
-  the current working directory will be 
-  searched first, then the <code>share/Vincia/tunes</code> directory. 
-</word> 
-<p><b>Note:</b> the requested file will only 
-be read in when VINCIA is switched on, in order not to interfere with 
+<modepick name="Vincia:Tune" default="0" min="-1" max="0"> 
+  <option value="-1">None. No VINCIA-specific tune parameter settings 
+  will be used during initialisation.</option> 
+  <option value="0">Hadronisation and MPI parameters optimised for use 
+  with the VINCIA shower model, used as default VINCIA parameters 
+  since PYTHIA 8.302. 
+  </option> 
+</modepick> 
+<p><b>Note:</b> the requested tune parameters will only 
+be activated when VINCIA is switched on, in order not to interfere with 
 the PYTHIA settings when VINCIA is switched off. 
 </p> 
 <p> 
-  <b>Note 2:</b> a special value 
-  for this parameter is "none", in which case no tune file will 
-be used (i.e., PYTHIA's parameters will be used as they are). </p> 
-<p><b>Note 3:</b> the entries in the tune file will be superseded by any 
-user modifications made in the main command file given to the VINCIA 
-constructor. This should allow sufficient flexibility to explore user 
-variations away from the tuned values. 
-</p> 
-<p> 
-  A particular set of user-defined parameters can 
-  easily be made into a tune set by simply copying the relevant parts of 
-  the user's normal command file (i.e., omitting the process-specific 
-  and program control parameters) into a new file that can then be shared 
-  and/or submitted to the VINCIA authors for possible inclusion 
-  in future distributions. In order to make tunings more stable 
-  against possible 
-  changes in the program defaults (be it PYTHIA or VINCIA), it is 
-  advisable to include all relevant parameter values explicitly in the 
-  tune file, rather than letting parameters that retain 
-  their (version-specific) default values be defined implicitly. 
+  <b>Note 2:</b> as with ordinary Pythia tune parameters, 
+  the tuned parameter values will be superseded by any 
+  user modifications made in the user's command file or main program. 
+  This should allow sufficient flexibility to explore user 
+  variations away from the tuned values. 
 </p> 
 <h4>Advice on Tuning</h4> 
 <p> 
@@ -244,35 +230,6 @@ around 0.12.
 </p> 
  
 <h3>About VINCIA</h3> 
- 
-<p>The authors of the current version, taking active responsibility 
-for code development and day-to-day maintenance, are 
-<ul> 
-  <li>P. Skands: Main author</li> 
-  <li>H. Brooks: Resonance-decay showers.</li> 
-  <li>R. Verheyen: QED multipole showers</li> 
-</ul> 
-</p> 
-<p> 
-  In addition, the 
-  following people have made significant individual contributions to 
-  the underlying formalism and code development of VINCIA: 
-  <ul> 
-  <li>W. T. Giele and D. A. Kosower: Basics of the antenna shower 
-    formalism.</li> 
-  <li>L. Hartgring and E. Laenen: on NLO corrections to Z + 3 jets.</li> 
-  <li>H.-T. Li: on 2&rarr;4 branchings and one-loop corrections to FF 
-  shower kernels.</li> 
-  <li>A. Larkoski: on helicity-based final-state showers and matrix 
-  elements.</li> 
-  <li>A. Lifson: Analytical MHV amplitudes.</li> 
-  <li>N. Fischer: ISR and MECs for hadron collisions.</li> 
-  <li>J. J. Lopez-Villarejo: Sector showers.</li> 
-  <li>S. Prestel: Merging and strongly-ordered MECs.</li> 
-  <li>M. Ritzmann: Mass corrections and initial-state antenna showers.</li> 
-  <li>T. Sj&ouml;strand: Integration with PYTHIA 8.</li> 
-  </ul> 
-</p> 
  
 <p><b>The main references</b> for the current version of VINCIA are: 
 <ul> 

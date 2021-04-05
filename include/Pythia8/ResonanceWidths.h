@@ -1,5 +1,5 @@
 // ResonanceWidths.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -196,12 +196,12 @@ class ResonanceW : public ResonanceWidths {
 public:
 
   // Constructor.
-  ResonanceW(int idResIn) : thetaWRat(), alpEM() {initBasic(idResIn);}
+ ResonanceW(int idResIn) : ResonanceWidths(), thetaWRat() {initBasic(idResIn);}
 
 private:
 
   // Locally stored properties and couplings.
-  double thetaWRat, alpEM;
+  double thetaWRat;
 
   // Initialize constants.
   virtual void initConstants() override;
@@ -394,13 +394,13 @@ class ResonanceWprime : public ResonanceWidths {
 public:
 
   // Constructor.
-  ResonanceWprime(int idResIn) : thetaWRat(), cos2tW(), alpEM(), aqWp(),
-    vqWp(), alWp(), vlWp(), coupWpWZ() {initBasic(idResIn);}
+ ResonanceWprime(int idResIn) : ResonanceWidths(), thetaWRat(), cos2tW(),
+    aqWp(), vqWp(), alWp(), vlWp(), coupWpWZ() {initBasic(idResIn);}
 
 private:
 
   // Locally stored properties and couplings.
-  double thetaWRat, cos2tW, alpEM, aqWp, vqWp, alWp, vlWp, coupWpWZ;
+  double thetaWRat, cos2tW, aqWp, vqWp, alWp, vlWp, coupWpWZ;
 
   // Initialize constants.
   virtual void initConstants() override;

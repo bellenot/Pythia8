@@ -76,7 +76,7 @@ The LHA standard only allows for one hard subcollision in an event.
 Further multiparton interactions are supposed to be handled by the 
 internal MPI machinery. As a nonstandard feature, it is possible 
 to input two hard subcollisions in the same event, to match the internal 
-<aloc href="ASecondHardProcess">second hard process</aloc> machinery. 
+<aloc href="SecondHardProcess">second hard process</aloc> machinery. 
 In such cases two partons are extracted from each of the two incoming 
 hadrons. A restriction is that, unlike the single-subprocess case, 
 it is important that the partons are input in the order that PYTHIA 
@@ -590,7 +590,8 @@ the vector of tags.
 <p/> 
 Attributes of the <code>&lt;generator&gt;</code> tag (e.g. the generator 
 <code>name</code> and <code>version</code>) can be accessed via 
-<br/><methodmore name="string Info::getGeneratorAttribute(unsigned int n, string key, bool doRemoveWhitespace = false)"> 
+<br/><methodmore name="string Info::getGeneratorAttribute(unsigned int n, 
+string key, bool doRemoveWhitespace = false)"> 
 Return the value of the generator attribute named <code>key</code> for 
 the n'th generator in the vector. Setting <code>doRemoveWhitespace</code> to 
 true will return the value, stripped of any whitespace. An empty string is 
@@ -658,7 +659,8 @@ event.
 Attributes of the <code>&lt;wgt&gt;</code> tag (e.g. the weight 
 <code>id</code>) can be accessed via 
 <br/> 
-<methodmore name="string Info::getWeightsDetailedAttribute(string n, string key, bool doRemoveWhitespace = false)"> 
+<methodmore name="string Info::getWeightsDetailedAttribute(string n, 
+string key, bool doRemoveWhitespace = false)"> 
 Return the value of the wgt attribute named <code>key</code> for 
 the n'th wgt in the vector. Setting <code>doRemoveWhitespace</code> to 
 true will return the value, stripped of any whitespace. An empty string is 
@@ -689,7 +691,8 @@ The n'th weight can be accessed through the method
 Attributes of the <code>&lt;weights&gt;</code> tag (not normally used) can be 
 accessed via 
 <br/> 
-<methodmore name="string Info::getWeightsCompressedAttribute(string key, bool doRemoveWhitespace = false)"> 
+<methodmore name="string Info::getWeightsCompressedAttribute(string key, 
+bool doRemoveWhitespace = false)"> 
 Return the value of the <code>&lt;weights&gt;</code> tag's attribute 
 named <code>key</code>. Setting <code>doRemoveWhitespace</code> to 
 true will return the value, stripped of any whitespace. An empty string is 
@@ -726,7 +729,8 @@ named <code>key</code> does not exist.
 Finally, arbitrary attributes of the <code>&lt;event&gt;</code> tag are 
 supported. Attributes of the <code>&lt;event&gt;</code> tag can be accessed by 
 <br/> 
-<methodmore name="string Info::getEventAttribute(string key, bool doRemoveWhitespace = false)"> 
+<methodmore name="string Info::getEventAttribute(string key, 
+bool doRemoveWhitespace = false)"> 
 return the value of the event attribute named <code>key</code>. Setting 
 <code>doRemoveWhitespace</code> to true will return the value, stripped of 
 any whitespace. An empty string is returned if the attribute named 
@@ -854,4 +858,4 @@ for the case that <code>Pythia::process</code> is not in this frame.
  
 </chapter> 
  
-<!-- Copyright (C) 2019 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 

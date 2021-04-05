@@ -1,5 +1,5 @@
 // MathTools.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -28,7 +28,7 @@ bool integrateGauss(double& resultOut, function<double(double)> f,
   double xLo, double xHi, double tol=1e-6);
 
 // Solve f(x) = target for x in the specified range
-double brent(double& solutionOut, function<double(double)> f,
+bool brent(double& solutionOut, function<double(double)> f,
   double target, double xLo, double xHi, double tol=1e-6, int maxIter = 10000);
 
 //==========================================================================

@@ -1,5 +1,5 @@
 # Makefile is a part of the PYTHIA event generator.
-# Copyright (C) 2019 Torbjorn Sjostrand.
+# Copyright (C) 2020 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, September 2014.
@@ -54,8 +54,16 @@ main%: $(PYTHIA) main%.cc
 main23: $(PYTHIA) main23.cc
 	$(CXX) $@.cc -o $@ -w $(CXX_COMMON)
 
+# HEPMC3.
+main41 main42 main43 main45 main85 main86 main87 main88 main89: $(PYTHIA) $$@.cc
+ifeq ($(HEPMC3_USE),true)
+	$(CXX) $@.cc -o $@ $(HEPMC3_INCLUDE) $(CXX_COMMON) $(HEPMC3_LIB)
+else
+	$(error Error: $@ requires HEPMC3)
+endif
+
 # HEPMC2.
-main41 main42 main43 main85 main86 main87 main88 main89: $(PYTHIA) $$@.cc
+main44: $(PYTHIA) $$@.cc
 ifeq ($(HEPMC2_USE),true)
 	$(CXX) $@.cc -o $@ $(HEPMC2_INCLUDE) $(CXX_COMMON) $(HEPMC2_LIB)
 else
@@ -72,7 +80,7 @@ else
 endif
 
 # FASTJET3.
-main71 main72 main75: $(PYTHIA) $$@.cc
+main71 main72 main75 main81 main82 main83: $(PYTHIA) $$@.cc
 ifeq ($(FASTJET3_USE),true)
 	$(CXX) $@.cc -o $@ $(FASTJET3_INCLUDE) -w $(CXX_COMMON) $(FASTJET3_LIB)
 else
@@ -88,13 +96,13 @@ else
 	$(error Error: $@ requires FASTJET3)
 endif
 
-# FASTJET3 and HEPMC2.
-main81 main82 main83 main84: $(PYTHIA) $$@.cc
-ifeq ($(FASTJET3_USE)$(HEPMC2_USE),truetrue)
-	$(CXX) $@.cc -o $@ $(FASTJET3_INCLUDE) $(HEPMC2_INCLUDE) -w\
-	 $(CXX_COMMON) $(FASTJET3_LIB) $(HEPMC2_LIB)
+# FASTJET3 and HEPMC3.
+main84: $(PYTHIA) $$@.cc
+ifeq ($(FASTJET3_USE)$(HEPMC3_USE),truetrue)
+	$(CXX) $@.cc -o $@ $(FASTJET3_INCLUDE) $(HEPMC3_INCLUDE) -w\
+	 $(CXX_COMMON) $(FASTJET3_LIB) $(HEPMC3_LIB)
 else
-	$(error Error: $@ requires FASTJET3 and HEPMC2)
+	$(error Error: $@ requires FASTJET3 and HEPMC3)
 endif
 
 # ROOT libraries generated via CINT.
@@ -140,11 +148,11 @@ else
 	$(CXX) $@.cc -o $@ -w $(CXX_COMMON)
 endif
 
-# HEPMC2.
+# HEPMC3.
 main300: $(PYTHIA) $$@.cc
-ifeq ($(HEPMC2_USE),true)
-	$(CXX) $@.cc -o $@ $(HEPMC2_INCLUDE) $(CXX_COMMON) $(HEPMC2_LIB)\
-	 -DHEPMC2
+ifeq ($(HEPMC3_USE),true)
+	$(CXX) $@.cc -o $@ $(HEPMC3_INCLUDE) $(CXX_COMMON) $(HEPMC3_LIB)\
+	 -DHEPMC3
 else
 	$(CXX) $@.cc -o $@ $(CXX_COMMON)
 endif

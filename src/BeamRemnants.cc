@@ -1,5 +1,5 @@
 // BeamRemnants.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -383,9 +383,18 @@ bool BeamRemnants::setKinematics( Event& event) {
   BeamParticle& beamA = *beamAPtr;
   BeamParticle& beamB = *beamBPtr;
 
-  // Nothing to do for lepton-lepton scattering with all energy already used.
-  if ( beamA.isUnresolvedLepton() && beamB.isUnresolvedLepton() )
+  // Simple handling of lepton-lepton scattering.
+  if (beamA.isLepton() && beamB.isLepton()) {
+    if (!beamA.isUnresolvedLepton()) {
+      double eGamma = max(0., event[1].e() - event[event[1].daughter1()].e() );
+      event.append( 22, 63, 1, 0, 0, 0, 0, 0, 0., 0., eGamma, eGamma, 0.);
+    }
+    if (!beamB.isUnresolvedLepton()) {
+      double eGamma = max(0., event[2].e() - event[event[2].daughter1()].e() );
+      event.append( 22, 63, 2, 0, 0, 0, 0, 0, 0., 0., -eGamma, eGamma, 0.);
+    }
     return true;
+  }
 
   // Photon from photon beam is unresolved.
   if ( beamA.isGamma() && beamA[0].id() == 22 ) {
@@ -420,9 +429,7 @@ bool BeamRemnants::setKinematics( Event& event) {
   }
 
   // Check if exactly one remnant for photon-photon collisions.
-  if ( (beamAisGamma && beamBisGamma) &&
-      ( (gammaAResolved && !gammaBResolved) ||
-        (!gammaAResolved && gammaBResolved) ) )
+  if ( beamAisGamma && beamBisGamma && gammaAResolved !=gammaBResolved)
     gammaOneResolved = true;
 
   // Unresolved photon + hadron.
@@ -463,6 +470,14 @@ bool BeamRemnants::setKinematics( Event& event) {
   double kTcompSumA   = 0.;
   double kTcompSumB   = 0.;
   for (int iSys = 0; iSys < nSys; ++iSys) {
+    // Safety check. All parton systems now remaining should be 2->N.
+    if (!partonSystemsPtr->hasInAB(iSys)) {
+      stringstream ss;
+      ss << "iSys = "<<iSys;
+      infoPtr->errorMsg("Error in BeamRemnants::setKinematics:"
+        " Encountered parton system without beam partons.",ss.str());
+      return false;
+    }
     double kTwidthNow = 0.;
     double mHatDamp   = 1.;
     int iInA          = partonSystemsPtr->getInA(iSys);
@@ -477,7 +492,7 @@ bool BeamRemnants::setKinematics( Event& event) {
                         reducedKTatHighY );
       mHatDamp        = mHat / (mHat + halfMassForKT * yDamp);
       double scale    = (iSys == 0) ? infoPtr->QRen(iDS)
-                      : partonSystemsPtr->getPTHat(iSys);
+                       : partonSystemsPtr->getPTHat(iSys);
       kTwidthNow      = ( (halfScaleForKT * primordialKTsoft
       + scale * primordialKThard) / (halfScaleForKT + scale) ) * mHatDamp;
     }
@@ -1040,8 +1055,7 @@ bool BeamRemnants::setOneRemnKinematics( Event& event, int beamOffset) {
     double sHatNow   = (event[iInA].p() + event[iInB].p()).m2Calc();
     double mHat      = sqrt(sHatNow);
     double mHatDamp  = mHat / (mHat + halfMassForKT);
-    double scale     = (iSys == 0) ? infoPtr->QRen(iDS)
-      : partonSystemsPtr->getPTHat(iSys);
+    double scale     = infoPtr->QRen(iDS);
     kTwidth[0]       = ( (halfScaleForKT * primordialKTsoft
       + scale * primordialKThard) / (halfScaleForKT + scale) ) * mHatDamp;
     kTcomp[0]        = mHatDamp;
@@ -1159,10 +1173,8 @@ bool BeamRemnants::setOneRemnKinematics( Event& event, int beamOffset) {
     if (iBeamHad == 1) partonSystemsPtr->setInA(iSys, iCopy);
     else partonSystemsPtr->setInB(iSys, iCopy);
     beamHad[iSys].iPos( iCopy);
-    if (iSys == 0) {
-      int mother = event[iCopy].mother1();
-      event[mother].daughter1(iCopy);
-    }
+    int mother = event[iCopy].mother1();
+    event[mother].daughter1(iCopy);
 
     // Calculate transverse mass for scattered system with kT.
     w2Scat += pow2( beamHad[iSys].pT());

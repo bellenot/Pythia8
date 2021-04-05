@@ -1,5 +1,5 @@
 // VinciaCommon.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2020 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -11,13 +11,13 @@
 
 // Maths headers.
 #include <limits>
-#include <cmath>
 
 // Include Pythia 8 headers.
 #include "Pythia8/Event.h"
 #include "Pythia8/Info.h"
 #include "Pythia8/ParticleData.h"
 #include "Pythia8/PartonSystems.h"
+#include "Pythia8/PythiaStdlib.h"
 #include "Pythia8/StandardModel.h"
 
 //==========================================================================
@@ -188,6 +188,7 @@ class TFunctor {
 
 public:
   virtual double operator()(double) = 0;
+  virtual ~TFunctor() {}
 
 };
 
@@ -423,7 +424,7 @@ class Resolution {
 public:
 
   // Constructor.
-  Resolution() : isInitPtr(false), isInit(false) {};
+  Resolution() = default;
 
   // Destructor.
   virtual ~Resolution() {};
@@ -469,16 +470,16 @@ public:
 private:
 
   // Initialized.
-  bool isInitPtr, isInit;
+  bool isInitPtr{false}, isInit{false};
 
   // Pointer to PYTHIA 8 settings database.
-  Settings* settingsPtr;
+  Settings* settingsPtr{};
 
   // Number of flavours to be treated as massless.
-  int nFlavZeroMassSav;
+  int nFlavZeroMassSav{};
 
   // Verbosity level.
-  int verbose;
+  int verbose{};
 
 };
 

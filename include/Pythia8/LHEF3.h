@@ -1,5 +1,5 @@
 // LHEF3.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -876,6 +876,7 @@ public:
    hepeup.clear();
    eventComments = "";
    weights_detailed_vec.resize(0);
+   weightnames_detailed_vec.resize(0);
   }
 
 protected:
@@ -935,7 +936,11 @@ public:
 
   // The detailed weights associated with this event, linearized to a vector.
   vector<double> weights_detailed_vec;
-  vector<double> weights_detailed_vector() { return weights_detailed_vec; }
+  vector<double> weights_detailed_vector()
+    { return weights_detailed_vec; }
+  vector<string> weightnames_detailed_vec;
+  vector<string> weightnames_detailed_vector()
+    { return weightnames_detailed_vec; }
 
 private:
 

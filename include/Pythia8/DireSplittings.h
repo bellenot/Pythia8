@@ -1,5 +1,5 @@
 // DireSplittings.h is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -55,22 +55,22 @@ class DireSplitting {
 public:
 
   // Constructor and destructor.
-  DireSplitting() :
+  DireSplitting() : renormMultFac(0),
       id("void"), correctionOrder(0), settingsPtr(0),
       particleDataPtr(0), rndmPtr(0), beamAPtr(0),
       beamBPtr(0),  coupSMPtr(0), infoPtr(0), direInfoPtr(0),
       is_qcd(false), is_qed(false), is_ewk(false), is_fsr(false),
-      is_isr(false), is_dire(false) {}
+      is_isr(false), is_dire(false), nameHash(0) {}
   DireSplitting(string idIn, int softRS, Settings* settings,
     ParticleData* particleData, Rndm* rndm, BeamParticle* beamA,
     BeamParticle* beamB, CoupSM* coupSMPtrIn, Info* infoPtrIn,
                 DireInfo* direInfo) :
-      id(idIn), correctionOrder(softRS), settingsPtr(settings),
-      particleDataPtr(particleData), rndmPtr(rndm), beamAPtr(beamA),
-      beamBPtr(beamB), coupSMPtr(coupSMPtrIn), infoPtr(infoPtrIn),
-      direInfoPtr(direInfo),
-      is_qcd(false), is_qed(false), is_ewk(false), is_fsr(false),
-      is_isr(false), is_dire(false) { init(); splitInfo.storeName(name()); }
+      renormMultFac(0), id(idIn), correctionOrder(softRS),
+      settingsPtr(settings), particleDataPtr(particleData), rndmPtr(rndm),
+      beamAPtr(beamA), beamBPtr(beamB), coupSMPtr(coupSMPtrIn),
+      infoPtr(infoPtrIn), direInfoPtr(direInfo), is_qcd(false), is_qed(false),
+      is_ewk(false), is_fsr(false), is_isr(false), is_dire(false),
+       nameHash(0) { init(); splitInfo.storeName(name()); }
   virtual ~DireSplitting() {}
 
   void init();

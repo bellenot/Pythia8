@@ -1,5 +1,5 @@
 // Info.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -384,6 +384,7 @@ void Info::setLHEF3EventInfo() {
   weights_detailed_vector.resize(0);
   eventComments      = "";
   eventWeightLHEF    = 1.0;
+  weightContainerPtr->weightsLHEF.clear();
 }
 
 //--------------------------------------------------------------------------
@@ -395,6 +396,7 @@ void Info::setLHEF3EventInfo( map<string, string> *eventAttributesIn,
    vector<double> *weights_compressedIn,
    LHAscales *scalesIn, LHAweights *weightsIn,
    LHArwgt *rwgtIn, vector<double> weights_detailed_vecIn,
+   vector<string> weights_detailed_name_vecIn,
    string eventCommentsIn, double eventWeightLHEFIn ) {
    eventAttributes    = eventAttributesIn;
    weights_detailed   = weights_detailedIn;
@@ -405,6 +407,8 @@ void Info::setLHEF3EventInfo( map<string, string> *eventAttributesIn,
    weights_detailed_vector = weights_detailed_vecIn;
    eventComments      = eventCommentsIn;
    eventWeightLHEF    = eventWeightLHEFIn;
+   weightContainerPtr->weightsLHEF.init(weights_detailed_vecIn,
+     weights_detailed_name_vecIn);
 }
 
 //--------------------------------------------------------------------------

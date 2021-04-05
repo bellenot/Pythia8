@@ -1,5 +1,5 @@
 // ColourReconnection.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1264,8 +1264,7 @@ void ColourReconnection::makePseudoParticle(ColourDipole* dip , int status,
             particles[iAcol].dips[i].begin(), particles[iAcol].dips[i].end() );
         }
       }
-    }
-    if (iCol != iAcol) {
+
       // Update the dipole legs to the new particle.
       for (int i = 0; i < int(particles[iAcol].activeDips.size()); ++i) {
         if ( particles[iAcol].activeDips[i]->iAcol == iAcol) {
@@ -1581,14 +1580,16 @@ void ColourReconnection::makeAllPseudoParticles( Event & event, int iFirst) {
     dipoles[i]->isReal = true;
     dipoles[i + oldSize]->isReal = false;
 
-    // Store original dipoles connected to junctions.
+    // Store original dipoles connected to junctions. Note the use of
+    // min(2,i%10) instead of just i%10 for indices which fixes a
+    // static-analysis warning by making these explicitly range safe.
     if (dipoles[i]->iCol < 0) {
-      junctions[-(dipoles[i]->iCol / 10 + 1)].dipsOrig[(-dipoles[i]->iCol)
-        % 10] = dipoles[i];
+      junctions[-(dipoles[i]->iCol / 10 + 1)].dipsOrig
+        [min(2, (-dipoles[i]->iCol) % 10)] = dipoles[i];
     }
     if (dipoles[i]->iAcol < 0) {
-      junctions[-(dipoles[i]->iAcol / 10 + 1)].dipsOrig[-(dipoles[i]->iAcol
-        % 10)] = dipoles[i];
+      junctions[-(dipoles[i]->iAcol / 10 + 1)].dipsOrig
+        [min(2, -(dipoles[i]->iAcol % 10))] = dipoles[i];
     }
   }
 
@@ -2883,26 +2884,34 @@ void ColourReconnection::doDipoleTrial(TrialReconnection& trial) {
          particles[dip2->iAcol].dips[dip2->iAcolLeg].front()->iAcol);
     swap(particles[dip1->iAcol].dips[dip1->iAcolLeg].front(),
          particles[dip2->iAcol].dips[dip2->iAcolLeg].front());
-  // If only dip1 has normal acol end.
+  // If only dip1 has normal acol end.  Note the use of min(2,i%10)
+  // instead of just i%10 for indices which fixes a static-analysis
+  // warning by making these explicitly range safe.
   } else if (dip1->iAcol >= 0) {
     swap(particles[dip1->iAcol].dips[dip1->iAcolLeg].front()->iAcol,
-       junctions[-(dip2->iAcol / 10 + 1)].dipsOrig[-dip2->iAcol % 10]->iAcol);
+       junctions[-(dip2->iAcol / 10 + 1)].dipsOrig
+         [min(2, -dip2->iAcol % 10)]->iAcol);
     swap(particles[dip1->iAcol].dips[dip1->iAcolLeg].front(),
-         junctions[-(dip2->iAcol / 10 + 1)].dipsOrig[-dip2->iAcol % 10]);
+         junctions[-(dip2->iAcol / 10 + 1)].dipsOrig
+         [min(2, -dip2->iAcol % 10)]);
   // If only dip2 has normal acol end.
   } else if (dip2->iAcol >= 0) {
     swap(particles[dip2->iAcol].dips[dip2->iAcolLeg].front()->iAcol,
-       junctions[-(dip1->iAcol / 10 + 1)].dipsOrig[-dip1->iAcol % 10]->iAcol);
+       junctions[-(dip1->iAcol / 10 + 1)].dipsOrig
+         [min(2, -dip1->iAcol % 10)]->iAcol);
     swap(particles[dip2->iAcol].dips[dip2->iAcolLeg].front(),
-         junctions[-(dip1->iAcol / 10 + 1)].dipsOrig[-dip1->iAcol % 10]);
+         junctions[-(dip1->iAcol / 10 + 1)].dipsOrig
+         [min(2, -dip1->iAcol % 10)]);
   // If both ends are junctions.
   } else {
-    swap(junctions[ -(dip1->iAcol / 10 + 1) ].dipsOrig[
-           -dip1->iAcol % 10 ]->iAcol,
-         junctions[ -(dip2->iAcol / 10 + 1) ].dipsOrig[
-           -dip2->iAcol % 10 ]->iAcol);
-    swap(junctions[ -(dip1->iAcol / 10 + 1) ].dipsOrig[ -dip1->iAcol % 10],
-         junctions[ -(dip2->iAcol / 10 + 1) ].dipsOrig[ -dip2->iAcol % 10] );
+    swap(junctions[ -(dip1->iAcol / 10 + 1) ].dipsOrig
+         [min(2, -dip1->iAcol % 10)]->iAcol,
+         junctions[ -(dip2->iAcol / 10 + 1) ].dipsOrig
+         [min(2, -dip2->iAcol % 10)]->iAcol);
+    swap(junctions[ -(dip1->iAcol / 10 + 1) ].dipsOrig
+         [min(2, -dip1->iAcol % 10)],
+         junctions[ -(dip2->iAcol / 10 + 1) ].dipsOrig
+         [min(2, -dip2->iAcol % 10)]);
   }
 
   // Swap the dipoles.

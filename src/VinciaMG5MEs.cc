@@ -1,5 +1,5 @@
 // VinciaMG5MEs.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2020 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -47,8 +47,7 @@ bool VinciaMG5MEs::init() {
   isInit = true;
 
   // Set colour depth (TODO: via "Vincia:matchingFullColour").
-  bool fullColour = true;
-  colourDepth = (fullColour) ? 1 : 0;
+  colourDepth = 1;
 
   // Initialise Parameters_sm (only if not using dummy).
 #ifdef MG5MES
@@ -248,7 +247,7 @@ double VinciaMG5MEs::ME2(vector<Particle> state, int nIn) {
     proc_ptr->setHelicities(helConf[iHC]);
     double me2now = proc_ptr->sigmaKin();
     // MG may produce inf/nan for unphysical hel combinations.
-    if ( !std::isnan(me2now) && !std::isinf(me2now) ) {
+    if ( !isnan(me2now) && !isinf(me2now) ) {
       // Save helicity matrix element for possible later use.
       me2hel[helConf[iHC]] = me2now;
       // Add this helicity ME to me2

@@ -9,6 +9,7 @@
 #include <Pythia8/SigmaTotal.h>
 #include <Pythia8/StandardModel.h>
 #include <Pythia8/SusyCouplings.h>
+#include <Pythia8/Weights.h>
 #include <functional>
 #include <istream>
 #include <iterator>
@@ -140,6 +141,8 @@ void bind_Pythia8_ParticleData(std::function< pybind11::module &(std::string con
 		cl.def("setIsResonance", (void (Pythia8::ParticleDataEntry::*)(bool)) &Pythia8::ParticleDataEntry::setIsResonance, "C++: Pythia8::ParticleDataEntry::setIsResonance(bool) --> void", pybind11::arg("isResonanceIn"));
 		cl.def("setMayDecay", [](Pythia8::ParticleDataEntry &o, bool const & a0) -> void { return o.setMayDecay(a0); }, "", pybind11::arg("mayDecayIn"));
 		cl.def("setMayDecay", (void (Pythia8::ParticleDataEntry::*)(bool, bool)) &Pythia8::ParticleDataEntry::setMayDecay, "C++: Pythia8::ParticleDataEntry::setMayDecay(bool, bool) --> void", pybind11::arg("mayDecayIn"), pybind11::arg("countAsChanged"));
+		cl.def("setTauCalc", [](Pythia8::ParticleDataEntry &o, bool const & a0) -> void { return o.setTauCalc(a0); }, "", pybind11::arg("tauCalcIn"));
+		cl.def("setTauCalc", (void (Pythia8::ParticleDataEntry::*)(bool, bool)) &Pythia8::ParticleDataEntry::setTauCalc, "C++: Pythia8::ParticleDataEntry::setTauCalc(bool, bool) --> void", pybind11::arg("tauCalcIn"), pybind11::arg("countAsChanged"));
 		cl.def("setDoExternalDecay", (void (Pythia8::ParticleDataEntry::*)(bool)) &Pythia8::ParticleDataEntry::setDoExternalDecay, "C++: Pythia8::ParticleDataEntry::setDoExternalDecay(bool) --> void", pybind11::arg("doExternalDecayIn"));
 		cl.def("setIsVisible", (void (Pythia8::ParticleDataEntry::*)(bool)) &Pythia8::ParticleDataEntry::setIsVisible, "C++: Pythia8::ParticleDataEntry::setIsVisible(bool) --> void", pybind11::arg("isVisibleIn"));
 		cl.def("setDoForceWidth", (void (Pythia8::ParticleDataEntry::*)(bool)) &Pythia8::ParticleDataEntry::setDoForceWidth, "C++: Pythia8::ParticleDataEntry::setDoForceWidth(bool) --> void", pybind11::arg("doForceWidthIn"));
@@ -164,6 +167,7 @@ void bind_Pythia8_ParticleData(std::function< pybind11::module &(std::string con
 		cl.def("tau0", (double (Pythia8::ParticleDataEntry::*)() const) &Pythia8::ParticleDataEntry::tau0, "C++: Pythia8::ParticleDataEntry::tau0() const --> double");
 		cl.def("isResonance", (bool (Pythia8::ParticleDataEntry::*)() const) &Pythia8::ParticleDataEntry::isResonance, "C++: Pythia8::ParticleDataEntry::isResonance() const --> bool");
 		cl.def("mayDecay", (bool (Pythia8::ParticleDataEntry::*)() const) &Pythia8::ParticleDataEntry::mayDecay, "C++: Pythia8::ParticleDataEntry::mayDecay() const --> bool");
+		cl.def("tauCalc", (bool (Pythia8::ParticleDataEntry::*)() const) &Pythia8::ParticleDataEntry::tauCalc, "C++: Pythia8::ParticleDataEntry::tauCalc() const --> bool");
 		cl.def("doExternalDecay", (bool (Pythia8::ParticleDataEntry::*)() const) &Pythia8::ParticleDataEntry::doExternalDecay, "C++: Pythia8::ParticleDataEntry::doExternalDecay() const --> bool");
 		cl.def("isVisible", (bool (Pythia8::ParticleDataEntry::*)() const) &Pythia8::ParticleDataEntry::isVisible, "C++: Pythia8::ParticleDataEntry::isVisible() const --> bool");
 		cl.def("doForceWidth", (bool (Pythia8::ParticleDataEntry::*)() const) &Pythia8::ParticleDataEntry::doForceWidth, "C++: Pythia8::ParticleDataEntry::doForceWidth() const --> bool");

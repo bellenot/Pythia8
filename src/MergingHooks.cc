@@ -1,5 +1,5 @@
 // MergingHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -3579,7 +3579,7 @@ double MergingHooks::rhoms( const Event& event, bool withColour){
           int emtCol = event[FinalPartPos[j]].col();
           int iRec = -1;
           // Check in final state
-          if (iRec <= 0 && radAcl > 0 && radAcl != emtCol)
+          if (radAcl > 0 && radAcl != emtCol)
             iRec = findColour(radAcl, FinalPartPos[i], FinalPartPos[j],
                      event,1, isHard);
           if (iRec <= 0 && radCol > 0 && radCol != emtAcl)
@@ -3705,7 +3705,7 @@ double MergingHooks::rhoPythia(const Event& event, int rad, int emt, int rec,
         = showers->spacePtr->getSplittingName(event, rad, emt, 0);
       for (int iName=0; iName < int(names.size()); ++iName) {
         vector<int> recsNow
-          = showers->timesPtr->getRecoilers(event, rad, emt, names[iName]);
+          = showers->spacePtr->getRecoilers(event, rad, emt, names[iName]);
         for ( int i = 0; i < int(recsNow.size()); ++i ) {
           stateVars = showers->spacePtr->getStateVariables(event, rad, emt,
             recsNow[i], names[iName]);

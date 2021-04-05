@@ -1,5 +1,5 @@
 // HelicityMatrixElements.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2020 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -477,8 +477,8 @@ void HMETwoFermions2GammaZ2TwoFermions::initWaves(vector<HelicityParticle>& p)
   // Center of mass energy.
   s = max( 1., pow2(p[4].m()));
   // Check if incoming fermions are oriented along z-axis.
-  zaxis = (p[0].pAbs() == fabs(p[0].pz())) &&
-    (p[1].pAbs() == fabs(p[1].pz()));
+  zaxis = (p[0].pAbs() == abs(p[0].pz())) &&
+    (p[1].pAbs() == abs(p[1].pz()));
 
 }
 
@@ -877,7 +877,7 @@ double HMETauDecay::decayWeightMax(vector<HelicityParticle>& p) {
   double on  = real(p[0].rho[0][0]) > real(p[0].rho[1][1]) ?
     real(p[0].rho[0][0]) : real(p[0].rho[1][1]);
   // Determine the maximum off-diagonal element of rho.
-  double off = fabs(real(p[0].rho[0][1])) + fabs(imag(p[0].rho[0][1]));
+  double off = abs(real(p[0].rho[0][1])) + abs(imag(p[0].rho[0][1]));
   return  DECAYWEIGHTMAX * (on + off);
 
 }

@@ -13,6 +13,7 @@
 #include <Pythia8/StandardModel.h>
 #include <Pythia8/SusyCouplings.h>
 #include <Pythia8/SusyLesHouches.h>
+#include <Pythia8/Weights.h>
 #include <complex>
 #include <functional>
 #include <istream>
@@ -45,7 +46,7 @@
 
 void bind_Pythia8_Info(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
-	{ // Pythia8::Info file:Pythia8/Info.h line:40
+	{ // Pythia8::Info file:Pythia8/Info.h line:41
 		pybind11::class_<Pythia8::Info, std::shared_ptr<Pythia8::Info>> cl(M("Pythia8"), "Info", "");
 		pybind11::handle cl_type = cl;
 
@@ -169,6 +170,7 @@ void bind_Pythia8_Info(std::function< pybind11::module &(std::string const &name
 		cl.def_readwrite("weak2to2lines", &Pythia8::Info::weak2to2lines);
 		cl.def_readwrite("weakMomenta", &Pythia8::Info::weakMomenta);
 		cl.def_readwrite("weakDipoles", &Pythia8::Info::weakDipoles);
+		cl.def("assign", (class Pythia8::Info & (Pythia8::Info::*)(const class Pythia8::Info &)) &Pythia8::Info::operator=, "C++: Pythia8::Info::operator=(const class Pythia8::Info &) --> class Pythia8::Info &", pybind11::return_value_policy::reference, pybind11::arg(""));
 		cl.def("list", (void (Pythia8::Info::*)() const) &Pythia8::Info::list, "C++: Pythia8::Info::list() const --> void");
 		cl.def("idA", (int (Pythia8::Info::*)() const) &Pythia8::Info::idA, "C++: Pythia8::Info::idA() const --> int");
 		cl.def("idB", (int (Pythia8::Info::*)() const) &Pythia8::Info::idB, "C++: Pythia8::Info::idB() const --> int");
@@ -460,6 +462,12 @@ void bind_Pythia8_Info(std::function< pybind11::module &(std::string const &name
 		cl.def("setHardDiff", (void (Pythia8::Info::*)(bool, bool, bool, bool, double, double, double, double)) &Pythia8::Info::setHardDiff, "C++: Pythia8::Info::setHardDiff(bool, bool, bool, bool, double, double, double, double) --> void", pybind11::arg("hasUnresBeamsIn"), pybind11::arg("hasPomPsysIn"), pybind11::arg("isHardDiffAIn"), pybind11::arg("isHardDiffBIn"), pybind11::arg("xPomAIn"), pybind11::arg("xPomBIn"), pybind11::arg("tPomAIn"), pybind11::arg("tPomBIn"));
 		cl.def("setHasUnresolvedBeams", (void (Pythia8::Info::*)(bool)) &Pythia8::Info::setHasUnresolvedBeams, "C++: Pythia8::Info::setHasUnresolvedBeams(bool) --> void", pybind11::arg("hasUnresBeamsIn"));
 		cl.def("setHasPomPsystem", (void (Pythia8::Info::*)(bool)) &Pythia8::Info::setHasPomPsystem, "C++: Pythia8::Info::setHasPomPsystem(bool) --> void", pybind11::arg("hasPomPsysIn"));
-		cl.def("assign", (class Pythia8::Info & (Pythia8::Info::*)(const class Pythia8::Info &)) &Pythia8::Info::operator=, "C++: Pythia8::Info::operator=(const class Pythia8::Info &) --> class Pythia8::Info &", pybind11::return_value_policy::reference, pybind11::arg(""));
+		cl.def("numberOfWeights", (int (Pythia8::Info::*)() const) &Pythia8::Info::numberOfWeights, "C++: Pythia8::Info::numberOfWeights() const --> int");
+		cl.def("weightValueByIndex", [](Pythia8::Info const &o) -> double { return o.weightValueByIndex(); }, "");
+		cl.def("weightValueByIndex", (double (Pythia8::Info::*)(int) const) &Pythia8::Info::weightValueByIndex, "C++: Pythia8::Info::weightValueByIndex(int) const --> double", pybind11::arg("key"));
+		cl.def("weightNameByIndex", [](Pythia8::Info const &o) -> std::string { return o.weightNameByIndex(); }, "");
+		cl.def("weightNameByIndex", (std::string (Pythia8::Info::*)(int) const) &Pythia8::Info::weightNameByIndex, "C++: Pythia8::Info::weightNameByIndex(int) const --> std::string", pybind11::arg("key"));
+		cl.def("weightValueVector", (class std::vector<double, class std::allocator<double> > (Pythia8::Info::*)() const) &Pythia8::Info::weightValueVector, "C++: Pythia8::Info::weightValueVector() const --> class std::vector<double, class std::allocator<double> >");
+		cl.def("weightNameVector", (class std::vector<std::string, class std::allocator<std::string > > (Pythia8::Info::*)() const) &Pythia8::Info::weightNameVector, "C++: Pythia8::Info::weightNameVector() const --> class std::vector<std::string, class std::allocator<std::string > >");
 	}
 }

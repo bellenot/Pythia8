@@ -1,5 +1,5 @@
 // ProcessLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2019 Torbjorn Sjostrand.
+// Copyright (C) 2020 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -451,8 +451,10 @@ void ProcessLevel::accumulate( bool doAccumulate) {
   for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
   if (container2Ptrs[i2]->sigmaMax() != 0.) {
     nTrySum        += container2Ptrs[i2]->nTried();
-    if (doAccumulate) sigma2Sum  += container2Ptrs[i2]->sigmaMC();
-    if (doAccumulate) sig2SelSum += container2Ptrs[i2]->sigmaSelMC();
+    if (doAccumulate) {
+      sigma2Sum  += container2Ptrs[i2]->sigmaMC();
+      sig2SelSum += container2Ptrs[i2]->sigmaSelMC();
+    }
   }
 
   // Average impact-parameter factor.
@@ -873,13 +875,15 @@ bool ProcessLevel::nextTwo( Event& process) {
       physical = false;
 
     // Append second hard interaction to normal process object.
-    if (physical) combineProcessRecords( process, process2);
+    if (physical) {
+      combineProcessRecords( process, process2);
 
-    // Add any junctions to the process event record list.
-    if (physical) findJunctions( process);
+      // Add any junctions to the process event record list.
+      findJunctions( process);
 
-    // Outer loop should normally work first time around.
-    if (physical) break;
+      // Outer loop should normally work first time around.
+      break;
+    }
   }
 
   // Done.
@@ -929,8 +933,7 @@ bool ProcessLevel::roomForRemnants() {
   double mTRem = 0;
 
   // Direct-resolved processes with photons from lepton beams.
-  if ( ( (resGammaA && !resGammaB) || (!resGammaA && resGammaB) )
-    && beamHasResGamma ) {
+  if ( resGammaA != resGammaB && beamHasResGamma ) {
     double wTot   = infoPtr->eCMsub();
     double w2scat = infoPtr->sHatNew();
     mTRem = wTot - sqrt(w2scat);
