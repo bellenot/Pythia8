@@ -49,6 +49,9 @@ typedef shared_ptr<PartonVertex> PartonVertexPtr;
 class PDF;
 typedef shared_ptr<PDF> PDFPtr;
 
+class Plugin;
+typedef shared_ptr<Plugin> PluginPtr;
+
 class ShowerModel;
 typedef shared_ptr<ShowerModel> ShowerModelPtr;
 

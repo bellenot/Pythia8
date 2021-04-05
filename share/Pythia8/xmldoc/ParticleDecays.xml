@@ -367,6 +367,9 @@ parton pair, but at least two particles in total)</li>
 <li>  2 : polarization in <ei>V &rarr; PS + PS</ei> (<ei>V</ei> = vector, 
 <ei>PS</ei> = pseudoscalar), when <ei>V</ei> is produced by 
 <ei>PS &rarr; PS + V</ei> or <ei>PS &rarr; gamma + V</ei></li> 
+<li>  3 - 7 : two-body decay of a hadron with mass-dependent width. The 
+angular momentum of the outgoing two-body system is given by 
+<code>code</code> - 3. </li> 
 <li> 11 : Dalitz decay into one particle, in addition to the 
 lepton pair (also allowed to specify a quark-antiquark pair that 
 should collapse to a single hadron)</li> 

@@ -162,7 +162,8 @@ private:
   // Variables for photon inside electron.
   bool   hasGammaA{}, hasGammaB{}, beamHasGamma{}, beamAisGamma{},
          beamBisGamma{}, beamAhasGamma{}, beamBhasGamma{}, beamAhasResGamma{},
-         beamBhasResGamma{}, beamHasResGamma{}, isGammaHadronDir{};
+         beamBhasResGamma{}, beamHasResGamma{}, isGammaHadronDir{},
+         sampleQ2gamma{};
   int    gammaMode{}, gammaModeEvent{}, gammaOffset{};
   double eCMsaveGamma{};
 

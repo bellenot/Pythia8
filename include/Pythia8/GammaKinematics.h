@@ -32,7 +32,8 @@ public:
     kT(), kz(), phi(), theta(), xGammaMax1(), xGammaMax2(), m2eA(), m2eB(),
     alphaEM(), log2xMinA(), log2xMinB(), log2xMaxA(), log2xMaxB(),
     sigmaEstimate(), wt(), gammaMode(), subInA(), subInB(), hasGammaA(),
-    hasGammaB(), externalFlux(), sampleQ2(), gammaA(), gammaB() {}
+    hasGammaB(), sampleQ2(), gammaA(), gammaB(),
+    hasApproxFluxA(), hasApproxFluxB(), sHatScaled() {}
 
   // Sample the trial or final event kinematics.
   bool init();
@@ -59,6 +60,7 @@ public:
   double weight()        const {return wt;}
   int    idInA()         const {return subInA;}
   int    idInB()         const {return subInB;}
+  bool   hasNewSHat()    const {return sHatScaled;}
 
 private:
 
@@ -74,7 +76,8 @@ private:
   int    gammaMode, subInA, subInB;
 
   // Sample one or two photon kinematics.
-  bool hasGammaA, hasGammaB, externalFlux, sampleQ2, gammaA, gammaB;
+  bool hasGammaA, hasGammaB, sampleQ2, gammaA, gammaB,
+    hasApproxFluxA, hasApproxFluxB, sHatScaled;
 
 };
 

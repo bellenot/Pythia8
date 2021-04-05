@@ -27,3 +27,4 @@ SpaceShower:QEDshowerByL = off
 ! 4) VINCIA settings
 PartonShowers:model = 2    ! 1:old showers, 2:vincia, 3:dire
 Vincia:verbose = 2         ! slightly more output from and about Vincia
+Vincia:MEplugin = sm

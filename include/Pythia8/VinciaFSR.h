@@ -92,7 +92,7 @@ class Brancher {
 public:
 
   // Default constructor.
-  Brancher() {;}
+  Brancher() : hasTrialSav(false), swapped(false) {;}
 
   // Create branch elemental for antenna(e) with arbitrary parents in iIn.
   Brancher(int iSysIn, Event& event, vector<int> iIn) {

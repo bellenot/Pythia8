@@ -296,7 +296,7 @@ void SimpleSpaceShower::init( BeamParticle* beamAPtrIn,
 
   // Possibility to set parton vertex information.
   doPartonVertex     = flag("PartonVertex:setVertex")
-                    && (partonVertexPtr != 0);
+                     && (partonVertexPtr != 0);
 
 }
 
@@ -3022,7 +3022,7 @@ bool SimpleSpaceShower::branch( Event& event) {
 
   // Check that beam momentum not used up by rescattered-system boosts.
   if ( ( beamAPtr->xMax(-1) < 0.0 && !(beamAPtr->isUnresolved()) )
-         || (beamBPtr->xMax(-1) < 0.0 && !(beamBPtr->isUnresolved()) ) ) {
+    || ( beamBPtr->xMax(-1) < 0.0 && !(beamBPtr->isUnresolved()) ) ) {
     infoPtr->errorMsg("Warning in SimpleSpaceShower::branch: "
       "used up beam momentum; retrying parton level");
     rescatterFail = true;
@@ -3044,6 +3044,9 @@ bool SimpleSpaceShower::branch( Event& event) {
 
 bool SimpleSpaceShower::initUncertainties() {
 
+  // Only initialize once
+  if( nUncertaintyVariations ) return(nUncertaintyVariations);
+
   // Populate lists of uncertainty variations for SimpleSpaceShower,
   // by keyword.
   uVarMuSoftCorr = flag("UncertaintyBands:muSoftCorr");
@@ -3056,10 +3059,11 @@ bool SimpleSpaceShower::initUncertainties() {
   varX2XGmuRfac.clear();    varX2XGcNS.clear();
   varG2QQmuRfac.clear();    varG2QQcNS.clear();
   // Maps that must be known by TimeShower
-  varPDFplus   = &infoPtr->varPDFplus;
-  varPDFminus  = &infoPtr->varPDFminus;
-  varPDFmember = &infoPtr->varPDFmember;
-  varPDFplus->clear();       varPDFminus->clear();
+  varPDFplus   = &weightContainerPtr->weightsPS.varPDFplus;
+  varPDFminus  = &weightContainerPtr->weightsPS.varPDFminus;
+  varPDFmember = &weightContainerPtr->weightsPS.varPDFmember;
+  varPDFplus->clear();
+  varPDFminus->clear();
   varPDFmember->clear();
 
   vector<string> keys;
@@ -3083,67 +3087,54 @@ bool SimpleSpaceShower::initUncertainties() {
   // Store number of QCD variations (as separator to QED ones).
   int nKeysQCD=keys.size();
 
-  // Get uncertainty variations from Settings (as list of strings to parse).
-  vector<string> uVars = settingsPtr->wvec("UncertaintyBands:List");
-  size_t varSize = uVars.size();
-  nUncertaintyVariations = int(uVars.size());
-  if (nUncertaintyVariations == 0) return false;
+  // Get atomized variation strings, not necessarily all relevant for FSR
+  vector<string> uniqueVarsIn = weightContainerPtr->weightsPS.
+    getUniqueShowerVars();
+  size_t varSize = uniqueVarsIn.size();
+  if (varSize == 0) {
+    nUncertaintyVariations = varSize;
+    return false;
+  }
   vector<string> uniqueVars;
 
   // Expand uVars if PDFmembers has been chosen
   string tmpKey("isr:pdf:family");
-  // Parse each string in uVars to look for recognized keywords.
-  for (size_t iWeight = 0; iWeight < varSize; ++iWeight) {
-    // Convert to lowercase (to be case-insensitive). Also remove "=" signs
-    // and extra spaces, so "key=value", "key = value" mapped to "key value"
-    string uVarString = toLower(uVars[iWeight]);
-    while (uVarString.find(" ") == 0) uVarString.erase( 0, 1);
-    int iEnd = uVarString.find(" ", 0);
-    uVarString.erase(0,iEnd+1);
-    while (uVarString.find("=") != string::npos) {
-      int firstEqual = uVarString.find_first_of("=");
-      string testString = uVarString.substr(0, firstEqual);
-      iEnd = uVarString.find_first_of(" ", 0);
-      if( iEnd<0 ) iEnd = uVarString.length();
-      string insertString = uVarString.substr(0,iEnd);
-      // does the key match an fsr one?
-      if( find(keys.begin(), keys.end(), testString) != keys.end() ) {
-        if( uniqueVars.size() == 0 ) {
-          uniqueVars.push_back(insertString);
-        } else if ( find(uniqueVars.begin(), uniqueVars.end(), insertString)
+  // Parse each string in uniqueVarsIn to look for recognized keywords.
+  for (string uVarString: uniqueVarsIn) {
+    int firstEqual = uVarString.find_first_of("=");
+    string testString = uVarString.substr(0, firstEqual);
+    // does the key match an fsr one?
+    if( find(keys.begin(), keys.end(), testString) != keys.end() ) {
+      if( uniqueVars.size() == 0 ) {
+        uniqueVars.push_back(uVarString);
+      } else if ( find(uniqueVars.begin(), uniqueVars.end(), uVarString)
+      == uniqueVars.end() ) {
+        uniqueVars.push_back(uVarString);
+      }
+    } else if ( testString == tmpKey ) {
+      int nMembers(0);
+      BeamParticle& beam  = *beamAPtr;
+      nMembers = beam.nMembers();
+      for(int iMem=1; iMem<nMembers; ++iMem) {
+        ostringstream iss;
+        iss << iMem;
+        string tmpString("isr:pdf:member="+iss.str());
+        if (find(uniqueVars.begin(), uniqueVars.end(), tmpString)
         == uniqueVars.end() ) {
-          uniqueVars.push_back(insertString);
-        }
-      } else if ( testString == tmpKey ) {
-        int nMembers(0);
-        BeamParticle& beam  = *beamAPtr;
-        nMembers = beam.nMembers();
-        for(int iMem=1; iMem<nMembers; ++iMem) {
-          ostringstream iss;
-          iss << iMem;
-          string tmpString("isr:pdf:member="+iss.str());
-          if (find(uniqueVars.begin(), uniqueVars.end(), tmpString)
-          == uniqueVars.end() ) {
-            uniqueVars.push_back(tmpString);
-          }
+          uniqueVars.push_back(tmpString);
         }
       }
-      uVarString.erase(0,iEnd+1);
     }
   }
 
   nUncertaintyVariations = int(uniqueVars.size());
 
   if ( nUncertaintyVariations > 0 ) {
-    int nWeights = infoPtr->nWeights();
+    int nWeights = weightContainerPtr->weightsPS.getWeightsSize();
     int newSize = nWeights + nUncertaintyVariations;
-    infoPtr->setNWeights( newSize );
     for(int iWeight = nWeights; iWeight < newSize; ++iWeight) {
       string uVarString = uniqueVars[iWeight - nWeights];
-      // This should be removed later...
-      infoPtr->setWeightLabel(iWeight, uVarString);
-      // ... in favor of this
-      infoPtr->weightContainerPtr->weightsPS.bookWeight(uVarString);
+      weightContainerPtr->weightsPS.bookWeight(uVarString);
       // Parse each string in uVars to look for recognised keywords.
       // Convert to lowercase (to be case-insensitive). Also remove "=" signs
       // and extra spaces, so "key=value", "key = value" mapped to "key value"
@@ -3206,11 +3197,6 @@ bool SimpleSpaceShower::initUncertainties() {
     } // End loop over UVars.
   }
 
-  infoPtr->initUncertainties(&uVars,true);
-
-  // Now instead of putting everything into the InfoHub class, and cluttering
-  // the latter, we can put everything into the WeightContainer.
-
   // Let the calling function know if we found anything.
   return (nVarQCD > 0);
 }
@@ -3234,7 +3220,7 @@ void SimpleSpaceShower::calcUncertainties(bool accept, double pAccept,
   // Make sure we have a dummy to point to if no map to be used.
   map<int,double> dummy;     dummy.clear();
 
-  int numWeights = infoPtr->nWeights();
+  int numWeights = weightContainerPtr->weightsPS.getWeightsSize();
   // Store uncertainty variation factors, initialised to unity.
   // Make vector sizes + 1 since 0 = default and variations start at 1.
   vector<double> uVarFac(numWeights, 1.0);
@@ -3389,10 +3375,6 @@ void SimpleSpaceShower::calcUncertainties(bool accept, double pAccept,
     // If trial accepted: apply ratio of accept probabilities.
     if (accept) {
 
-      infoPtr->reWeight( iWeight, uVarFac[iWeight] / ((1.0 - vp) * enhance) );
-
-      // At some point, we should remove the weights structures in InfoHub in
-      // favor of WeightContainer.
       weightContainerPtr->weightsPS.reweightValueByIndex(iWeight,
         uVarFac[iWeight] / ((1.0 - vp) * enhance) );
 
@@ -3410,10 +3392,6 @@ void SimpleSpaceShower::calcUncertainties(bool accept, double pAccept,
       // Force reweighting factor > 0.
       double reWtFail = max(0.01, (1. - uVarFac[iWeight] * pAccept / enhance )
         / denom);
-      infoPtr->reWeight(iWeight, reWtFail);
-
-      // At some point, we should remove the weights structures in InfoHub in
-      // favor of WeightContainer.
       weightContainerPtr->weightsPS.reweightValueByIndex(iWeight,
         reWtFail);
     }

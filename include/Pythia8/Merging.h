@@ -4,7 +4,7 @@
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // This file is written by Stefan Prestel.
-// Merging: Wpapper class to interface matrix element merging schemes with
+// Merging: Wrapper class to interface matrix element merging schemes with
 //          Pythia
 
 #ifndef Pythia8_Merging_H

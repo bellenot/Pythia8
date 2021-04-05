@@ -737,7 +737,7 @@ double TrialIFSoft::genQ2run(double q2old, double sAK,
 
   // Generate new trial scale.
   double Iz     = getIz(zMin, zMax);
-  double comFac = 2.0*M_PI*b0/Iz/colFac/PDFratio/(headroomFac*enhanceFac);
+  double comFac = 2.0*M_PI*b0/(Iz*colFac*PDFratio*headroomFac*enhanceFac);
   double ran    = rndmPtr->flat();
   double facLam = pow2(Lambda/kR);
   return exp(pow(ran, comFac) * log(q2old/facLam)) * facLam;
@@ -785,7 +785,7 @@ double TrialIFSoft::genZ(double zMin, double zMax) {
 
 double TrialIFSoft::getIz(double zMin, double zMax) {
   if (zMin >= zMax || zMin <= 1.) return 0.0;
-  const double c  = (zMax-1) * zMin / (zMin - 1) / zMax;
+  const double c  = (zMax - 1) * zMin / ( (zMin - 1) * zMax );
   return log(c);
 }
 
@@ -1640,8 +1640,9 @@ void BranchElementalISR::saveTrial(int iTrial, double qOld, double qTrial,
   double zMin, double zMax, double colFac,double alphaEff, double pdfRatio,
   int trialFlav, double extraMpdf, double headroom, double enhanceFac) {
   hasSavedTrial[iTrial]         = true;
-  scaleSav[iTrial]              = qTrial;
   scaleOldSav[iTrial]           = qOld;
+  scaleSav[iTrial]              = qTrial;
+  if (qTrial <= 0.) return;
   zMinSav[iTrial]               = zMin;
   zMaxSav[iTrial]               = zMax;
   colFacSav[iTrial]             = colFac;
@@ -2856,10 +2857,14 @@ double VinciaISR::pTnext( Event& event, double pTevolBegAll,
             e1, e2, headroomFac, enhanceFac);
           qTrial = sqrt(q2trial);
           // Save trial information.
-          double muEff    = kR*qTrial/lambdaEff;
-          double alphaEff = 1.0/b0/log(pow2(muEff));
-          trialPtr->saveTrial(indx, qTmp, qTrial, zMinNow, zMaxNow, colFac,
-            alphaEff, pdfRatioFlav, trialFlav, 1.0, headroomFac, enhanceFac);
+          if (qTrial > cutoffScale) {
+            double muEff    = max( 1.01, kR*qTrial/lambdaEff );
+            double alphaEff = 1.0/b0/log(pow2(muEff));
+            trialPtr->saveTrial(indx, qTmp, qTrial, zMinNow, zMaxNow, colFac,
+              alphaEff, pdfRatioFlav, trialFlav, 1.0, headroomFac, enhanceFac);
+          } else {
+            trialPtr->saveTrial(indx, qTmp, 0.);
+          }
 
         // AlphaS outside trial integral.
         } else {

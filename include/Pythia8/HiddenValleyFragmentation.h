@@ -39,7 +39,7 @@ public:
   void init();
 
   // Pick a new flavour (including diquarks) given an incoming one.
-  FlavContainer pick(FlavContainer& flavOld, double, double);
+  FlavContainer pick(FlavContainer& flavOld, double, double, bool);
 
   // Combine two flavours (including diquarks) to produce a hadron.
   int combine(FlavContainer& flav1, FlavContainer& flav2);

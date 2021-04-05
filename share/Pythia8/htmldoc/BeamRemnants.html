@@ -90,6 +90,11 @@ interactions, <i>m</i> the mass of the system, and
 <i>m_half</i> and <i>y_damp</i> parameters defined below. 
 Furthermore each separately defined beam remnant has a distribution 
 of width <i>sigma_remn</i>, independently of kinematical variables. 
+<p/> 
+Note that, for external (LHE) events <i>Q_half</i> is treated as 
+zero. This is so that LHE events with low-pT extra jets (e.g., in 
+the context of POWHEG-style merging) are given the same primordial kT 
+as their Born-level counterparts. 
  
 <a name="anchor1"></a>
 <p/><code>flag&nbsp; </code><strong> BeamRemnants:primordialKT &nbsp;</strong> 
@@ -102,7 +107,8 @@ parameter values below.
 <p/><code>parm&nbsp; </code><strong> BeamRemnants:primordialKTsoft &nbsp;</strong> 
  (<code>default = <strong>0.9</strong></code>; <code>minimum = 0.</code>)<br/>
 The width <i>sigma_soft</i> in the above equation, assigned as a 
-primordial <i>kT</i> to initiators in the soft-interaction limit. 
+primordial <i>kT</i> to initiators in the soft-interaction 
+limit. 
    
  
 <a name="anchor3"></a>
@@ -116,7 +122,8 @@ primordial <i>kT</i> to initiators in the hard-interaction limit.
 <p/><code>parm&nbsp; </code><strong> BeamRemnants:halfScaleForKT &nbsp;</strong> 
  (<code>default = <strong>1.5</strong></code>; <code>minimum = 0.</code>)<br/>
 The scale <i>Q_half</i> in the equation above, defining the 
-half-way point between hard and soft interactions. 
+half-way point between hard and soft interactions. For external (LHE) 
+events, this parameter is treated as zero. 
    
  
 <a name="anchor5"></a>

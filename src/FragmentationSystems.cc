@@ -204,7 +204,8 @@ bool ColConfig::insert( vector<int>& iPartonIn, Event& event) {
 // Insert a new qqbar colour singlet system in ascending mass order.
 // Simple version for at most two triplet-antitriplet systems.
 
-bool ColConfig::simpleInsert( vector<int>& iPartonIn, Event& event) {
+bool ColConfig::simpleInsert( vector<int>& iPartonIn, Event& event,
+  bool fixOrder) {
 
   // Find momentum and invariant mass of system, minus endpoint masses.
   Vec4 pSumIn   = event[ iPartonIn[0] ].p() + event[ iPartonIn[1] ].p();
@@ -218,8 +219,8 @@ bool ColConfig::simpleInsert( vector<int>& iPartonIn, Event& event) {
     massExcessIn, false, false) );
 
   // If necessary flip so that smallest mass excesses come first.
-  if (singlets.size() == 2 && massExcessIn < singlets[0].massExcess)
-    swap( singlets[0], singlets[1]);
+  if (!fixOrder && singlets.size() == 2 && massExcessIn
+    < singlets[0].massExcess) swap( singlets[0], singlets[1]);
 
   // Done.
   return true;

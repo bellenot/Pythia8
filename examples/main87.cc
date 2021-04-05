@@ -45,6 +45,10 @@ int main( int argc, char* argv[] ){
   //  3. Output histogram path
   pythia.readFile(argv[1]);
 
+  // Deactivate AUX_ weight output
+  pythia.readString("Weights:suppressAUX = on");
+
+
   // Interface for conversion from Pythia8::Event to HepMC one.
   HepMC3::Pythia8ToHepMC3 toHepMC;
   // Specify file where HepMC events will be stored.
@@ -101,7 +105,7 @@ int main( int argc, char* argv[] ){
     // From njetcounter, choose LHE file
     stringstream in;
     in   << "_" << njetcounterLO << ".lhe";
-#ifdef GZIPSUPPORT
+#ifdef GZIP
     if(access( (iPathTree+in.str()+".gz").c_str(), F_OK) != -1) in << ".gz";
 #endif
     string LHEfile = iPathTree + in.str();
@@ -159,7 +163,7 @@ int main( int argc, char* argv[] ){
     // From njetcounter, choose LHE file
     stringstream in;
     in   << "_" << njetcounterNLO << ".lhe";
-#ifdef GZIPSUPPORT
+#ifdef GZIP
     if(access( (iPathLoop+in.str()+".gz").c_str(), F_OK) != -1) in << ".gz";
 #endif
     string LHEfile = iPathLoop + in.str();
@@ -243,6 +247,8 @@ int main( int argc, char* argv[] ){
   njetcounterLO = nMaxLO;
   iPathTree     = iPath + "_tree";
 
+  bool wroteRunInfo = false;
+
   while(njetcounterLO >= 0){
 
     // Set k factors
@@ -253,7 +259,7 @@ int main( int argc, char* argv[] ){
     // From njetcounter, choose LHE file
     stringstream in;
     in   << "_" << njetcounterLO << ".lhe";
-#ifdef GZIPSUPPORT
+#ifdef GZIP
     if(access( (iPathTree+in.str()+".gz").c_str(), F_OK) != -1) in << ".gz";
 #endif
     string LHEfile = iPathTree + in.str();
@@ -286,6 +292,18 @@ int main( int argc, char* argv[] ){
       // Do not print zero-weight events.
       if ( weightNLO == 0. ) continue;
 
+      // Create a GenRunInfo object with the necessary weight names and write
+      // them to the HepMC3 file only once.
+      if (!wroteRunInfo) {
+        shared_ptr<HepMC3::GenRunInfo> genRunInfo;
+        genRunInfo = make_shared<HepMC3::GenRunInfo>();
+        vector<string> weight_names = pythia.info.weightNameVector();
+        genRunInfo->set_weight_names(weight_names);
+        ascii_io.set_run_info(genRunInfo);
+        ascii_io.write_run_info();
+        wroteRunInfo = true;
+      }
+
       // Construct new empty HepMC event.
       HepMC3::GenEvent hepmcevt;
       // Get correct cross section from previous estimate.
@@ -304,8 +322,10 @@ int main( int argc, char* argv[] ){
       // Report cross section to hepmc.
       shared_ptr<HepMC3::GenCrossSection> xsec;
       xsec = make_shared<HepMC3::GenCrossSection>();
-      xsec->set_cross_section( sigmaTotal*1e9, pythia.info.sigmaErr()*1e9 );
+      // First add object to event, then set cross section. This order ensures
+      // that the lengths of the cross section and the weight vector agree.
       hepmcevt.set_cross_section( xsec );
+      xsec->set_cross_section( sigmaTotal*1e9, pythia.info.sigmaErr()*1e9 );
       // Write the HepMC event to file.
       ascii_io.write_event(hepmcevt);
 
@@ -345,7 +365,7 @@ int main( int argc, char* argv[] ){
     // From njetcounter, choose LHE file
     stringstream in;
     in   << "_" << njetcounterNLO << ".lhe";
-#ifdef GZIPSUPPORT
+#ifdef GZIP
     if(access( (iPathLoop+in.str()+".gz").c_str(), F_OK) != -1) in << ".gz";
 #endif
     string LHEfile = iPathLoop + in.str();
@@ -378,6 +398,18 @@ int main( int argc, char* argv[] ){
       // Do not print zero-weight events.
       if ( weightNLO == 0. ) continue;
 
+      // Create a GenRunInfo object with the necessary weight names and write
+      // them to the HepMC3 file only once.
+      if (!wroteRunInfo) {
+        shared_ptr<HepMC3::GenRunInfo> genRunInfo;
+        genRunInfo = make_shared<HepMC3::GenRunInfo>();
+        vector<string> weight_names = pythia.info.weightNameVector();
+        genRunInfo->set_weight_names(weight_names);
+        ascii_io.set_run_info(genRunInfo);
+        ascii_io.write_run_info();
+        wroteRunInfo = true;
+      }
+
       // Construct new empty HepMC event.
       HepMC3::GenEvent hepmcevt;
       // Get correct cross section from previous estimate.
@@ -396,8 +428,10 @@ int main( int argc, char* argv[] ){
       // Report cross section to hepmc.
       shared_ptr<HepMC3::GenCrossSection> xsec;
       xsec = make_shared<HepMC3::GenCrossSection>();
-      xsec->set_cross_section( sigmaTotal*1e9, pythia.info.sigmaErr()*1e9 );
+      // First add object to event, then set cross section. This order ensures
+      // that the lengths of the cross section and the weight vector agree.
       hepmcevt.set_cross_section( xsec );
+      xsec->set_cross_section( sigmaTotal*1e9, pythia.info.sigmaErr()*1e9 );
       // Write the HepMC event to file.
       ascii_io.write_event(hepmcevt);
 
@@ -439,7 +473,7 @@ int main( int argc, char* argv[] ){
     // From njetcounter, choose LHE file
     stringstream in;
     in   << "_" << njetcounterCT << ".lhe";
-#ifdef GZIPSUPPORT
+#ifdef GZIP
     if(access( (iPathSubt+in.str()+".gz").c_str(), F_OK) != -1) in << ".gz";
 #endif
     string LHEfile = iPathSubt + in.str();
@@ -472,6 +506,18 @@ int main( int argc, char* argv[] ){
       // Do not print zero-weight events.
       if ( weightNLO == 0. ) continue;
 
+      // Create a GenRunInfo object with the necessary weight names and write
+      // them to the HepMC3 file only once.
+      if (!wroteRunInfo) {
+        shared_ptr<HepMC3::GenRunInfo> genRunInfo;
+        genRunInfo = make_shared<HepMC3::GenRunInfo>();
+        vector<string> weight_names = pythia.info.weightNameVector();
+        genRunInfo->set_weight_names(weight_names);
+        ascii_io.set_run_info(genRunInfo);
+        ascii_io.write_run_info();
+        wroteRunInfo = true;
+      }
+
       // Construct new empty HepMC event.
       HepMC3::GenEvent hepmcevt;
       // Get correct cross section from previous estimate.
@@ -490,8 +536,10 @@ int main( int argc, char* argv[] ){
       // Report cross section to hepmc.
       shared_ptr<HepMC3::GenCrossSection> xsec;
       xsec = make_shared<HepMC3::GenCrossSection>();
-      xsec->set_cross_section( sigmaTotal*1e9, pythia.info.sigmaErr()*1e9 );
+      // First add object to event, then set cross section. This order ensures
+      // that the lengths of the cross section and the weight vector agree.
       hepmcevt.set_cross_section( xsec );
+      xsec->set_cross_section( sigmaTotal*1e9, pythia.info.sigmaErr()*1e9 );
       // Write the HepMC event to file.
       ascii_io.write_event(hepmcevt);
 

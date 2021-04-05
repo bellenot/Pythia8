@@ -473,8 +473,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
              : false;
 
   // Possibility to set parton vertex information.
-  doPartonVertex = flag("PartonVertex:setVertex")
-                && (partonVertexPtr != 0);
+  doPartonVertex = flag("PartonVertex:setVertex") && (partonVertexPtr != 0);
 
   // Some common combinations for double Gaussian, as shorthand.
   if (bProfile == 2) {
@@ -558,13 +557,13 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
       cout << " |                          diffraction AXB               "
            << "          | \n";
     else if ( hasGamma && isGammaGamma )
-      cout << " |                       l+l- -> gamma+gamma -> X         "
+      cout << " |                     A+B -> gamma+gamma -> X            "
            << "          | \n";
     else if ( hasGamma && isGammaHadron )
-      cout << " |              lepton+hadron -> gamma+hadron -> X        "
+      cout << " |                       A+B -> gamma+B -> X              "
            << "          | \n";
     else if ( hasGamma && isHadronGamma )
-      cout << " |              hadron+lepton -> hadron+gamma -> X        "
+      cout << " |                       A+B -> A+gamma -> X              "
            << "          | \n";
     cout << " |                                                        "
          << "          | \n";

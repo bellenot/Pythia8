@@ -15,7 +15,8 @@
   <li><a href="#section4">Parton densities for Pomerons</a></li>
   <li><a href="#section5">Parton densities for photons</a></li>
   <li><a href="#section6">Parton densities for leptons</a></li>
-  <li><a href="#section7">Incoming parton selection</a></li>
+  <li><a href="#section7">Photon fluxes</a></li>
+  <li><a href="#section8">Incoming parton selection</a></li>
 </ol>
 
  
@@ -670,49 +671,111 @@ selection machinery currently does not allow one resolved and one
 unresolved lepton beam. For lepton-neutrino collisions to work you must 
 therefore set <code>PDF:lepton = off</code>. 
  
-<h4>Photons from lepton beams</h4> 
+<a name="section7"></a> 
+<h3>Photon fluxes</h3> 
  
-Lepton beams can emit photons and therefore may have partonic 
-content. The PDFs describing these can be obtained by convoluting 
+Charged beam particles may emit photons that can act as initiators for 
+different processes. In addition to being in an unresolved state, 
+the low virtuality 
+(real) photons may also be resolved and have some partonic structure. 
+Both, unresolved (direct) and resolved contributions are included, 
+see <a href="Photoproduction.html" target="page">Photoproduction</a> for details. 
+ 
+<p/> 
+The PDFs describing the resolved state can be obtained by convoluting 
 the photon flux with the selected photon PDFs. The photon flux 
-is modelled according to equivalent photon approximation (EPA) which 
-gives the flux of bremsstrahlung photons. 
+is modelled according to equivalent photon approximation (EPA). 
+The photon fluxes can be enabled with the following options. Currently 
+fluxes are internally defined for charged leptons and protons, but other 
+fluxes (e.g. photons from heavy ions) can be externally defined and 
+passed to Pythia for event generation. The photon sub-beams are enabled 
+with the following flags 
  
 <a name="anchor27"></a>
-<p/><code>flag&nbsp; </code><strong> PDF:lepton2gamma &nbsp;</strong> 
+<p/><code>flag&nbsp; </code><strong> PDF:beamA2gamma &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
-Gives photon beams from leptons. Both, unresolved (direct) and resolved 
-contributions are included, see <a href="Photoproduction.html" target="page"> 
-Photoproduction</a> for details. Can be used only with charged leptons. 
-The applied photon PDF set is selected with the <code>PDF:GammaSet</code> 
-and <code>PDF:GammaHardSet</code> options above. Events with two unresolved 
-photon initiators can be generated also with the <code>PDF:lepton = on</code> 
-but then additional phase-space cuts (e.g. cut on the invariant mass of the 
-photon-photon pair) are not applied. 
+Enables photon sub-beam from beam particle <code>A</code>, 
+   
+<a name="anchor28"></a>
+<p/><code>flag&nbsp; </code><strong> PDF:beamB2gamma &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Enables photon sub-beam from beam particle <code>B</code>. 
    
  
-<a name="anchor28"></a>
+Further options specific for different beam types are described below. 
+ 
+<h4>Lepton beams</h4> 
+ 
+In case of leptons the photon fluxes can also be enabled with the 
+following flag. 
+ 
+<a name="anchor29"></a>
+<p/><code>flag&nbsp; </code><strong> PDF:lepton2gamma &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Enables photon sub-beam from all lepton beams. 
+   
+ 
+This option, however, has been superseded by the new options 
+<code>PDF:BeamA2gamma</code> and <code>PDF:BeamB2gamma</code> above, but is 
+kept for backwards compability. The resulting behaviour is the same in both 
+cases. The applied photon PDF set is selected with the 
+<code>PDF:GammaSet</code> and <code>PDF:GammaHardSet</code> options above. 
+Events with two unresolved photon initiators can be generated also with 
+<code>PDF:lepton = on</code>, but then additional phase-space cuts 
+(e.g. cut on the invariant mass of the photon-photon pair) are not applied. 
+ 
+<a name="anchor30"></a>
 <p/><code>mode&nbsp; </code><strong> PDF:lepton2gammaSet &nbsp;</strong> 
- (<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)<br/>
+ (<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)<br/>
 The type of photon flux. 
+<br/><code>option </code><strong> 0</strong> :  Uses an approximation of the photon flux to sample 
+processes and corrects this later with an externally provided flux. For 
+leptons a bit less efficient than option 1, but allows straightforward 
+implementation of photon fluxes from different particles. To use this option 
+the user has to provide the external photon flux using method 
+<code>Pythia::setPhotonFluxPtr(pdfAPtr, pdfBPtr)</code> as demonstrated in the 
+sample program <code>main70.cc</code>.   
 <br/><code>option </code><strong> 1</strong> :  Convolute the photon flux from EPA with the selected photon 
 PDF set. Convolution integral is performed "on the fly", meaning that the 
 actual integral is not computed but the <i>x_gamma</i> is sampled 
 event-by-event. Since the final PDF value depends on the sampled value for 
-<i>x_gamma</i> the phase-space sampling is set up using an overestimate for 
+<i>x_gamma</i>, the phase-space sampling is set up using an overestimate for 
 the PDFs. This makes the process selection somewhat less efficient compared 
 to the case where the PDFs are fixed (e.g. for protons).   
-<br/><code>option </code><strong> 2</strong> :  Uses an approximation of the photon flux to sample 
-processes and corrects this later with an externally provided flux. For 
-leptons a bit less efficient than option 1 but allows straightforward 
-implementation of photon fluxes from different particles. To use this option 
-user has to provide the external photon flux using method 
-<code>Pythia::setPhotonFluxPtr(PDF*, PDF*)</code> as demostrated in the 
-sample program <code>main70.cc</code>.   
    
  
-<a name="anchor29"></a>
-<p/><code>mode&nbsp; </code><strong> PDF:lepton2gammaApprox &nbsp;</strong> 
+<h4>Proton beams</h4> 
+ 
+There are currently two internally defined photon fluxes from a proton, 
+and the user can also provide an externally defined flux. The applied flux is 
+set with the following option. 
+ 
+<a name="anchor31"></a>
+<p/><code>mode&nbsp; </code><strong> PDF:Proton2gammaSet &nbsp;</strong> 
+ (<code>default = <strong>2</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
+<br/><code>option </code><strong> 0</strong> : Use an externally provided photon flux. This flux 
+has to be passed with method <code>Pythia::setPhotonFluxPtr(pdfAPtr, 
+pdfBPtr)</code>.   
+<br/><code>option </code><strong> 1</strong> :  Use virtuality integrated photon flux from Budnev 
+et al.  As the flux is integrated over <i>Q^2</i>, the virtuality is 
+always set to zero and the scattered beam proton does not have any 
+transverse momentum.  When this option is applied the <i>Q^2</i> 
+sampling will be turned off.   
+<br/><code>option </code><strong> 2</strong> :  Use a virtuality-dependent flux similar to the 
+approximation by Drees and Zeppenfeld. Uses a dipole form factor to 
+appropriately suppress high virtualities.   
+   
+ 
+<h4>Nuclear beams</h4> 
+ 
+Currently no flux from heavy ions are internally defined. However, using 
+the above options it is possible to define a suitable flux and pass this 
+to Pythia for event generation, see <code>main70.cc</code> for example. 
+To increase the sampling efficiency fo nuclear beams, the following options 
+have been introduced. 
+ 
+<a name="anchor32"></a>
+<p/><code>mode&nbsp; </code><strong> PDF:beam2gammaApprox &nbsp;</strong> 
  (<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)<br/>
 Controls which type of overestimate is used for photon flux sampling. 
 <br/><code>option </code><strong> 1</strong> :  Estimate optimized for photons from leptons. Works 
@@ -721,42 +784,44 @@ reasonable well also for photoproduction in p+p.
 as presented in <code>main70.cc</code>. Here the estimate is divided into two 
 regions, a power-law in <i>x_gamma</i> below <i>x_cut</i> and an 
 exponential fall-off above, see the related parameters below. Default values 
-are optimized for p+Pb collisions where Pb-nucleus provide the photons but 
+are optimized for p+Pb collisions where Pb-nucleus provide the photons, but 
 they should work reasonably well also for other similar 
 configurations.   
-<br/><b>Note:</b> Parameters do not affect the flux itself, only the sampling 
-efficiency. 
+<br/><b>Note 1:</b> Parameters do not affect the flux itself, only the 
+sampling efficiency. 
    
+<br/><b>Note 2:</b> This option was formerly named as 
+<code>PDF:lepton2gammaApprox</code> but is renamed for version 8.3. 
  
-<a name="anchor30"></a>
+<a name="anchor33"></a>
 <p/><code>parm&nbsp; </code><strong> PDF:gammaFluxApprox2bMin &nbsp;</strong> 
  (<code>default = <strong>7.336</strong></code>; <code>minimum = 0.0</code>)<br/>
 Minimal allowed impact parameter for which the flux is considered. Units in 
 <code>fm</code>. Should match the flux provided by user. 
    
  
-<a name="anchor31"></a>
+<a name="anchor34"></a>
 <p/><code>parm&nbsp; </code><strong> PDF:gammaFluxApprox2mBeam &nbsp;</strong> 
  (<code>default = <strong>0.9314</strong></code>; <code>minimum = 0.0</code>)<br/>
 Per-nucleon mass used for the overestimate. Units in 
 <code>GeV</code> and should again match to the user-provided flux. 
    
  
-<a name="anchor32"></a>
+<a name="anchor35"></a>
 <p/><code>parm&nbsp; </code><strong> PDF:gammaFluxApprox2xPow &nbsp;</strong> 
  (<code>default = <strong>1.15</strong></code>; <code>minimum = 0.0</code>)<br/>
 Value of the exponent of the power law. The default value should work well 
 for the foreseen cases, so vary with caution. 
    
  
-<a name="anchor33"></a>
+<a name="anchor36"></a>
 <p/><code>parm&nbsp; </code><strong> PDF:gammaFluxApprox2xCut &nbsp;</strong> 
  (<code>default = <strong>0.01</strong></code>; <code>minimum = 0.0</code>)<br/>
 Value that defines at which <i>x_gamma</i> different approximations are 
 used. As above, vary with caution. 
    
  
-<a name="section7"></a> 
+<a name="section8"></a> 
 <h3>Incoming parton selection</h3> 
  
 There is one useful degree of freedom to restrict the set of incoming 
@@ -765,7 +830,7 @@ only which quarks are allowed to contribute to the hard-process cross
 sections. Note that separate but similarly named modes are available 
 for multiparton interactions and spacelike showers. 
  
-<a name="anchor34"></a>
+<a name="anchor37"></a>
 <p/><code>mode&nbsp; </code><strong> PDFinProcess:nQuarkIn &nbsp;</strong> 
  (<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)<br/>
 Number of allowed incoming quark flavours in the beams; a change 

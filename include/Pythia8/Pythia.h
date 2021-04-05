@@ -10,8 +10,8 @@
 #define Pythia8_Pythia_H
 
 // Version number defined for use in macros and for consistency checks.
-#define PYTHIA_VERSION 8.302
-#define PYTHIA_VERSION_INTEGER 8302
+#define PYTHIA_VERSION 8.303
+#define PYTHIA_VERSION_INTEGER 8303
 
 // Header files for the Pythia class and for what else the user may need.
 #include "Pythia8/Analysis.h"
@@ -20,6 +20,7 @@
 #include "Pythia8/Event.h"
 #include "Pythia8/FragmentationFlavZpT.h"
 #include "Pythia8/HadronLevel.h"
+#include "Pythia8/HadronWidths.h"
 #include "Pythia8/Info.h"
 #include "Pythia8/JunctionSplitting.h"
 #include "Pythia8/LesHouches.h"
@@ -221,6 +222,26 @@ public:
   bool doLowEnergyProcess(int i1, int i2, int type) {
     return hadronLevel.doLowEnergyProcess( i1, i2, type, event); }
 
+  // Get low-energy cross section for two hadrons in the event record.
+  double getLowEnergySigma(int i1, int i2, int type = 0) {
+    double eCM12 = (event[i1].p() + event[i2].p()).mCalc();
+    return getLowEnergySigma( event[i1].id(), event[i2].id(), eCM12,
+      event[i1].m(), event[i2].m(), type); }
+
+  // Get low-energy cross section for two hadrons standalone.
+  double getLowEnergySigma(int id1, int id2, double eCM12, double m1,
+    double m2, int type = 0) {
+    return hadronLevel.getLowEnergySigma(id1, id2, eCM12, m1, m2, type); }
+
+  double getLowEnergySigma(int id1, int id2, double eCM12, int type = 0) {
+    return getLowEnergySigma(id1, id2, eCM12,
+      particleData.m0(id1), particleData.m0(id2), type); }
+
+    // Get b slope in elastic and diffractive interactions standalone.
+  double getLowEnergySlope( int id1, int id2, double eCM12, double m1,
+    double m2, int type = 2) { if (type < 2 || type > 5) return 0.;
+    return hadronLevel.getLowEnergySlope( id1, id2, eCM12, m1, m2, type); }
+
   // List the current Les Houches event.
   void LHAeventList() { if (lhaUpPtr != 0) lhaUpPtr->listEvent();}
 
@@ -239,7 +260,7 @@ public:
   string word(string key) {return settings.word(key);}
 
   // Auxiliary to set parton densities among list of possibilities.
-  PDFPtr getPDFPtr(int idIn, int sequence = 1, string beam = "",
+  PDFPtr getPDFPtr(int idIn, int sequence = 1, string beam = "A",
     bool resolved = true);
 
   // The event record for the parton-level central process.
@@ -285,6 +306,9 @@ public:
   // Pointer to a HIUserHooks object to modify heavy ion modelling.
   HIUserHooksPtr hiHooksPtr = {};
 
+  // HadronWidths: the hadron widths data table/database.
+  HadronWidths    hadronWidths = {};
+
   // The two incoming beams.
   BeamParticle   beamA = {};
   BeamParticle   beamB = {};
@@ -327,15 +351,16 @@ private:
          doSoftQCDall = {}, doSoftQCDinel = {}, doCentralDiff = {},
          doDiffraction = {}, doSoftQCD = {}, doVMDsideA = {}, doVMDsideB = {},
          doHardDiff = {}, doResDec = {}, doFSRinRes = {}, decayRHadrons = {},
-         abortIfVeto = {}, checkEvent = {}, checkHistory = {};
+         doPartonVertex = {}, doVertexPlane = {}, abortIfVeto = {},
+         checkEvent = {}, checkHistory = {}, doNonPert = {};
   int    nErrList = {};
   double epTolErr = {}, epTolWarn = {}, mTolErr = {}, mTolWarn = {};
 
-  // Initialization data related to photon-photon interactions.
-  bool   beamHasGamma = {}, beamAisResGamma = {}, beamBisResGamma = {},
-         beamAhasResGamma = {},
-         beamBhasResGamma = {};
+  // Initialization data related to photon-photon/hadron interactions.
   int    gammaMode = {};
+  bool   beamA2gamma = {}, beamB2gamma = {};
+  bool   beamAResGamma = {}, beamBResGamma = {};
+  bool   beamAUnresGamma = {}, beamBUnresGamma = {};
 
   // Initialization data, extracted from init(...) call.
   bool   isConstructed = {}, isInit = {}, isUnresolvedA = {},
@@ -417,7 +442,7 @@ private:
   // Pointer to BeamShape object for beam momentum and interaction vertex.
   BeamShapePtr beamShapePtr = {};
   bool         doMomentumSpread = {}, doVertexSpread = {}, doVarEcm = {};
-  double     eMinPert = {}, eWidthPert = {};
+  double       eMinPert = {}, eWidthPert = {};
 
   // Pointers to external processes derived from the Pythia base classes.
   vector<SigmaProcess*> sigmaPtrs = {};

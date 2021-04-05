@@ -194,7 +194,7 @@ int main() {
       double tmp_et = pythia.event[tmp_monojet].eT();
       double tmp_et_cut = 1000;
       if ( tmp_et >=  tmp_et_cut && abs(tmp_eta) < 3 ) {
-        hEtjet.fill( fabs(tmp_et) );
+        hEtjet.fill( abs(tmp_et) );
       }
     }
 

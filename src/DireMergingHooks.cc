@@ -1403,8 +1403,8 @@ void DireMergingHooks::init(){
   pTcutSave             = max(pTcutSave,pT0ISRSave);
 
   // Initialise CKKWL weight
-  weightCKKWLSave = 1.;
-  weightFIRSTSave = 0.;
+  weightCKKWLSave = {1.};
+  weightFIRSTSave = {0.};
   nMinMPISave = 100;
   muMISave = -1.;
 
@@ -1721,7 +1721,7 @@ bool DireMergingHooks::doVetoEmission( const Event& event) {
 
   // When performing NL3 merging of tree-level events, reset the
   // CKKWL weight.
-  if ( veto && doNL3Tree() ) setWeightCKKWL(0.);
+  if ( veto && doNL3Tree() ) setWeightCKKWL({0.});
 
   // If the emission is allowed, do not check any further emissions
   if ( !veto ) doIgnoreEmissionsSave = true;
@@ -1783,12 +1783,13 @@ bool DireMergingHooks::doVetoStep( const Event& process, const Event& event,
     if ( nSteps > nMaxJetsNLO() && nSteps < nJetMax && tnow > tms()
       && tms() > 0. ) {
       // Set weight to zero if event should be vetoed.
-      weightCKKWL1Save = 0.;
+      weightCKKWL1Save = {0.};
       // Save weight before veto, in case veto needs to be revoked.
       weightCKKWL2Save = getWeightCKKWL();
       // Reset stored weights.
-      if ( !includeWGTinXSEC() ) setWeightCKKWL(0.);
-      if (  includeWGTinXSEC() ) infoPtr->updateWeight(0.);
+      if ( !includeWGTinXSEC() ) setWeightCKKWL({0.});
+      if (  includeWGTinXSEC() ) infoPtr->weightContainerPtr->
+        setWeightNominal(0.);
       veto = true;
     }
 
@@ -1900,15 +1901,16 @@ bool DireMergingHooks::doVetoStep( const Event& process, const Event& event,
       setWeightCKKWL(weightCKKWL2Save);
     } else if ( check ) {
       setWeightCKKWL(weightCKKWL1Save);
-      if ( weightCKKWL1Save == 0. ) veto = true;
+      if ( weightCKKWL1Save[0] == 0. ) veto = true;
     }
 
     // Check veto condition.
     if ( !check && nSteps > nMaxJetsNLO() && nSteps < nJetMax && tnow > tms()
       && tms() > 0.){
       // Set stored weights to zero.
-      if ( !includeWGTinXSEC() ) setWeightCKKWL(0.);
-      if (  includeWGTinXSEC() ) infoPtr->updateWeight(0.);
+      if ( !includeWGTinXSEC() ) setWeightCKKWL({0.});
+      if (  includeWGTinXSEC() ) infoPtr->weightContainerPtr->
+        setWeightNominal(0.);
       // Now allow veto.
       veto = true;
     }

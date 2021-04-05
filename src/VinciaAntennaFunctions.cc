@@ -3532,7 +3532,7 @@ vector<int> AntennaSetISR::getIant() {
 
 // Initialize pointers.
 
-void MECs::initPtr(Info* infoPtrIn, VinciaMG5MEs* mg5mesPtrIn,
+void MECs::initPtr(Info* infoPtrIn, ShowerMEs* mg5mesPtrIn,
   VinciaCommon* vinComPtrIn) {
 
   infoPtr            = infoPtrIn;
@@ -3564,11 +3564,11 @@ void MECs::init() {
   sizeOutBornSav.clear();
 
   // Initialise MG5 interface
-  if (mg5mesPtr->init()) {
-    mg5mesPtr->setColourDepth(matchingFullColour);
+  if (mg5mesPtr->initVincia()) {
+    mg5mesPtr->setColourDepthVincia(matchingFullColour);
   } else {
     if (verbose >= 3) printOut("Vincia::MECs",
-      "Could not initialise VinciaMG5MEs interface.");
+      "Could not initialise ShowerMEs interface.");
     maxMECs2to1   = -1;
     maxMECs2to2   = -1;
     maxMECs2toN   = -1;
@@ -3614,11 +3614,8 @@ bool MECs::prepare(const int iSys, Event& event) {
     idOut.push_back(event[partonSystemsPtr->getOut(iSys, i)].id());
 
   // Check whether MG5MEs interface has the process.
-#ifdef MG5MES
   set<int> sChan;
-  return mg5mesPtr->getProcess(idIn, idOut, sChan) != nullptr;
-#endif
-  return false;
+  return mg5mesPtr->hasProcessVincia(idIn, idOut, sChan);
 
 }
 
@@ -3657,7 +3654,7 @@ bool MECs::polarise(const int iSys, Event& event) {
     if (verbose >= 4) cout << " MECs::polarise(): system " << iSys << " nIn = "
                            << nIn << endl;
     // Check if MG5MEs interface can do this.
-    if (!mg5mesPtr->selectHelicities(parts, nIn)) return false;
+    if (!mg5mesPtr->selectHelicitiesVincia(parts, nIn)) return false;
 
     // Update particles in event record: incoming.
     if (nIn == 1) event[partonSystemsPtr->getInRes(iSys)].pol(parts[0].pol());
@@ -3786,12 +3783,13 @@ bool MECs::doMEC(int iSys, int nBranch) {
 // Get squared matrix element.
 
 double MECs::getME2(const vector<Particle> state, int nIn) {
-  return mg5mesPtr->ME2(state, nIn);}
+  return mg5mesPtr->me2Vincia(state, nIn);}
 
 double MECs::getME2(const int iSys, const Event& event) {
   vector<Particle> state = makeParticleList(iSys, event);
   bool isResDec = partonSystemsPtr->hasInRes(iSys);
-  return (isResDec) ? mg5mesPtr->ME2(state, 1 ): mg5mesPtr->ME2(state, 2);
+  return (isResDec) ?
+    mg5mesPtr->me2Vincia(state, 1 ) : mg5mesPtr->me2Vincia(state, 2);
 }
 
 //--------------------------------------------------------------------------

@@ -35,7 +35,7 @@ LOCAL_SRC=src
 LOCAL_TMP=tmp
 LOCAL_MKDIRS:=$(shell mkdir -p $(LOCAL_TMP) $(LOCAL_LIB))
 CXX_COMMON:=-I$(LOCAL_INCLUDE) $(CXX_COMMON)
-OBJ_COMMON=-MD $(CXX_COMMON)
+OBJ_COMMON:=-MD $(CXX_COMMON) $(OBJ_COMMON)
 LIB_COMMON=-Wl,-rpath,$(PREFIX_LIB) -ldl $(GZIP_LIB)
 
 # PYTHIA.
@@ -53,24 +53,20 @@ endif
 
 # POWHEG (needs directory that contains just POWHEG binaries and scripts).
 ifeq ($(POWHEG_USE),true)
-  ifneq ($(POWHEG_DIR),./)
+  ifneq ($(POWHEG_BIN),./)
     TARGETS+=$(patsubst $(POWHEG_BIN)%,$(LOCAL_LIB)/libpythia8powheg%.so,\
              $(wildcard $(POWHEG_BIN)*))
   endif
 endif
 
-# Python.
-ifeq ($(PYTHON_USE),true)
-  TARGETS+=$(LOCAL_LIB)/pythia8.so
-endif
-
 # MG5 matrix element plugins.
 ifeq ($(MG5MES_USE),true)
-  MG5MES_SRC=$(patsubst -I%,%,$(MG5MES_INCLUDE))
-  MG5MES_MKDIR:=$(shell mkdir -p $(LOCAL_TMP)/mg5mes)
-  CXX_MG5MES=$(MG5MES_INCLUDE) -DPYTHIA8 -DMG5MES
-  OBJECTS+=$(patsubst $(MG5MES_SRC)/%.cc,$(LOCAL_TMP)/mg5mes/%.o,\
-	   $(sort $(wildcard $(MG5MES_SRC)/*.cc)))
+  TARGETS+=mg5mes
+endif
+
+# Python.
+ifeq ($(PYTHON_USE),true)
+  TARGETS+=python
 endif
 
 ################################################################################
@@ -79,7 +75,7 @@ endif
 
 # Rules without physical targets (secondary expansion for documentation).
 .SECONDEXPANSION:
-.PHONY: all install clean distclean
+.PHONY: all install clean distclean mg5mes python
 
 # All targets.
 all: $(TARGETS) $(addprefix $(LOCAL_SHARE)/, $(LOCAL_DOCS))
@@ -95,22 +91,14 @@ Makefile.inc:
 # Auto-generated (with -MD flag) dependencies.
 -include $(LOCAL_TMP)/*.d $(LOCAL_TMP)/mg5mes/*.d
 
-# MG5 matrix element plugins.
-$(LOCAL_TMP)/mg5mes/%.o: $(MG5MES_SRC)/%.cc
-	$(CXX) $< -o $@ -c $(OBJ_COMMON) -DPYTHIA8 -w
-$(LOCAL_TMP)/%MG5MEs.o: $(LOCAL_SRC)/%MG5MEs.cc Makefile.inc
-	$(CXX) $< -o $@ -c $(OBJ_COMMON) $(CXX_MG5MES)
-$(LOCAL_TMP)/VinciaAntenna%.o: $(LOCAL_SRC)/VinciaAntenna%.cc Makefile.inc
-	$(CXX) $< -o $@ -c $(OBJ_COMMON) $(CXX_MG5MES)
-
 # PYTHIA.
 $(LOCAL_TMP)/Pythia.o: $(LOCAL_SRC)/Pythia.cc Makefile.inc
 	$(CXX) $< -o $@ -c $(OBJ_COMMON) -DXMLDIR=\"$(PREFIX_SHARE)/xmldoc\"
-$(LOCAL_TMP)/%.o: $(LOCAL_SRC)/%.cc Makefile.inc
+$(LOCAL_TMP)/%.o: $(LOCAL_SRC)/%.cc
 	$(CXX) $< -o $@ -c $(OBJ_COMMON)
-$(LOCAL_LIB)/libpythia8.a: $(OBJECTS) $(OBJECTS_ME)
+$(LOCAL_LIB)/libpythia8.a: $(OBJECTS)
 	ar cr $@ $^
-$(LOCAL_LIB)/libpythia8$(LIB_SUFFIX): $(OBJECTS) $(OBJECTS_ME)
+$(LOCAL_LIB)/libpythia8$(LIB_SUFFIX): $(OBJECTS)
 	$(CXX) $^ -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME)$(notdir $@)\
 	  $(LIB_COMMON)
 
@@ -123,19 +111,22 @@ $(LOCAL_LIB)/libpythia8lhapdf%.so: $(LOCAL_TMP)/LHAPDF%Plugin.o\
 	 $(LHAPDF$*_LIB) -lLHAPDF -Llib -lpythia8
 
 # POWHEG (exclude any executable ending with sh).
-$(LOCAL_TMP)/POWHEGPlugin.o: $(LOCAL_INCLUDE)/Pythia8Plugins/LHAPowheg.h
+$(LOCAL_TMP)/LHAPowheg.o: $(LOCAL_INCLUDE)/Pythia8Plugins/LHAPowheg.h
 	$(CXX) -x c++ $< -o $@ -c -MD -w $(CXX_COMMON)
 $(LOCAL_LIB)/libpythia8powheg%sh.so: $(POWHEG_BIN)%sh;
-$(LOCAL_LIB)/libpythia8powheg%.so: $(POWHEG_BIN)% $(LOCAL_TMP)/POWHEGPlugin.o\
+$(LOCAL_LIB)/libpythia8powheg%.so: $(POWHEG_BIN)% $(LOCAL_TMP)/LHAPowheg.o\
 	$(LOCAL_LIB)/libpythia8$(LIB_SUFFIX)
-	ln -s $< $(notdir $<); $(CXX) $(notdir $<) $(LOCAL_TMP)/POWHEGPlugin.o\
+	ln -s $< $(notdir $<); $(CXX) $(notdir $<) $(LOCAL_TMP)/LHAPowheg.o\
 	 -o $@ $(CXX_COMMON) $(CXX_SHARED) -Llib -lpythia8\
 	 $(CXX_SONAME)$(notdir $@) -Wl,-rpath,$(POWHEG_BIN); rm $(notdir $<)
 
+# MG5 matrix element plugins.
+mg5mes:
+	cd $(MG5MES_BIN) && $(MAKE)
+
 # Python.
-$(LOCAL_LIB)/pythia8.so: $(wildcard plugins/python/src/*.cpp)\
-	$(LOCAL_LIB)/libpythia8$(LIB_SUFFIX)
-	cd plugins/python && $(MAKE) ../../$@
+python: $(LOCAL_LIB)/libpythia8$(LIB_SUFFIX)
+	cd plugins/python && $(MAKE)
 
 # Install.
 install: all
@@ -149,6 +140,7 @@ install: all
 # Clean.
 clean:
 	cd plugins/python && $(MAKE) clean
+	cd plugins/mg5mes && $(MAKE) clean
 	rm -rf $(LOCAL_TMP) $(LOCAL_LIB)
 	rm -f $(LOCAL_EXAMPLE)/*Dct.*
 	rm -f $(LOCAL_EXAMPLE)/*[0-9]

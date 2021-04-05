@@ -549,6 +549,18 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3) {
     idResB = 0;
   }
 
+  // Check resonances have non-zero widths.
+  if (!is2 && !is3 && idResA != 0 && GammaResA == 0.) {
+    infoPtr->errorMsg("Error in PhaseSpace::setupSampling123: "
+                      "zero-width resonance ", to_string(idResA), true);
+    return false;
+  }
+  if (!is2 && !is3 && idResB != 0 && GammaResB == 0.) {
+    infoPtr->errorMsg("Error in PhaseSpace::setupSampling123: "
+                      "zero-width resonance ", to_string(idResB), true);
+    return false;
+  }
+
   // More sampling in tau if resonances in s-channel.
   if (idResA !=0 && !hasTwoPointParticles) {
     nTau += 2;
@@ -987,10 +999,12 @@ bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent) {
     if (idResA !=0 && !hasTwoPointParticles) {
       tauResA = mResA * mResA / s;
       widResA = mResA * GammaResA / s;
+      if (widResA == 0) return false;
     }
     if (idResB != 0 && !hasTwoPointParticles) {
       tauResB = mResB * mResB / s;
       widResB = mResB * GammaResB / s;
+      if (widResB == 0) return false;
     }
   }
 
@@ -2106,12 +2120,14 @@ bool PhaseSpace2to2tauyz::finalKin() {
 
   // Special kinematics for direct photon+hadron (massless+massive) to fulfill
   // s = x1 * x2 * sHat and to retain the momentum of the massless photon beam.
-  if ( hasPointGammaA && beamBPtr->isHadron() ) {
+  if ( hasPointGammaA && (beamBPtr->isHadron()
+      && !flag("PDF:beamB2gamma") ) ) {
     double eCM1 = 0.5 * ( s + pow2(mA) - pow2(mB) ) / eCM;
     double eCM2 = 0.25 * x2H * s / eCM1;
     pH[1] = Vec4( 0., 0.,  eCM1, eCM1);
     pH[2] = Vec4( 0., 0., -eCM2, eCM2);
-  } else if ( hasPointGammaB && beamAPtr->isHadron() ) {
+  } else if ( hasPointGammaB && (beamAPtr->isHadron()
+      && !flag("PDF:beamA2gamma") ) ) {
     double eCM2 = 0.5 * ( s - pow2(mA) + pow2(mB) ) / eCM;
     double eCM1 = 0.25 * x1H * s / eCM2;
     pH[1] = Vec4( 0., 0.,  eCM1, eCM1);
@@ -2120,7 +2136,7 @@ bool PhaseSpace2to2tauyz::finalKin() {
   // Special kinematics for DIS to preserve lepton mass.
   } else if ( ( (beamAPtr->isLepton() && beamBPtr->isHadron())
              || (beamBPtr->isLepton() && beamAPtr->isHadron()) )
-             && !flag("PDF:lepton2gamma") ) {
+             && !(flag("PDF:beamA2gamma") || flag("PDF:beamB2gamma") ) ) {
     mH[1] = mA;
     mH[2] = mB;
     double pzAcm = 0.5 * sqrtpos( (eCM + mA + mB) * (eCM - mA - mB)
@@ -2440,24 +2456,37 @@ double PhaseSpace2to2tauyz::weightGammaPDFApprox(){
   // No need for reweighting if only direct photons.
   if (beamAPtr->getGammaMode() == 2 && beamBPtr->getGammaMode() == 2)
     return 1.;
-  if ( (beamAPtr->getGammaMode() == 2 && beamBPtr->isHadron())
-       || (beamBPtr->getGammaMode() == 2 && beamAPtr->isHadron()) )
+  if ( (beamAPtr->getGammaMode() == 2 && !(beamBPtr->gammaInBeam()) )
+      || (beamBPtr->getGammaMode() == 2 && !(beamAPtr->gammaInBeam()) ) )
     return 1.;
 
   // Get the combined x and x_gamma values and derive x'.
-  double x1GammaHadr = beamAPtr->xGammaHadr();
-  double x2GammaHadr = beamBPtr->xGammaHadr();
-  double x1Gamma     = beamAPtr->xGamma();
-  double x2Gamma     = beamBPtr->xGamma();
-  double x1Hadr      = x1GammaHadr / x1Gamma;
-  double x2Hadr      = x2GammaHadr / x2Gamma;
+  // Start with negative values as these are not reweighted.
+  double x1GammaHadr = -1.;
+  double x2GammaHadr = -1.;
+  double x1Gamma     = -1.;
+  double x2Gamma     = -1.;
+  double x1Hadr      = -1.;
+  double x2Hadr      = -1.;
+
+  // Find the correct values for each case.
+  if ( beamAPtr->hasApproxGammaFlux() ) {
+    x1GammaHadr = beamAPtr->xGammaHadr();
+    x1Gamma     = beamAPtr->xGamma();
+    x1Hadr      = x1GammaHadr / x1Gamma;
+  }
+  if ( beamBPtr->hasApproxGammaFlux() ) {
+    x2GammaHadr = beamBPtr->xGammaHadr();
+    x2Gamma     = beamBPtr->xGamma();
+    x2Hadr      = x2GammaHadr / x2Gamma;
+  }
 
   // For photon-hadron case do not reweight the hadron side.
-  if ( beamAPtr->isHadron() || beamAPtr->getGammaMode() == 2 ) {
+  if ( !(beamAPtr->gammaInBeam()) || beamAPtr->getGammaMode() == 2 ) {
     x1GammaHadr = -1.;
     x1Gamma     = -1.;
   }
-  if ( beamBPtr->isHadron() || beamBPtr->getGammaMode() == 2 ) {
+  if ( !(beamBPtr->gammaInBeam()) || beamBPtr->getGammaMode() == 2 ) {
     x2GammaHadr = -1.;
     x2Gamma     = -1.;
   }
@@ -2503,7 +2532,7 @@ const double PhaseSpace2to2elastic::TOFFSET  = -0.2;
 bool PhaseSpace2to2elastic::setupSampling() {
 
   // Flag if a photon inside lepton beam.
-  hasGamma = flag("PDF:lepton2gamma");
+  hasGamma = flag("PDF:beamA2gamma") || flag("PDF:beamB2gamma");
 
   // Flag if photon has a VMD state.
   hasVMD = infoPtr->isVMDstateA() || infoPtr->isVMDstateB();
@@ -2830,7 +2859,7 @@ const double PhaseSpace2to2diffractive::SPROTON = 0.8803544;
 bool PhaseSpace2to2diffractive::setupSampling() {
 
   // Flag if a photon inside lepton beam.
-  hasGamma = flag("PDF:lepton2gamma");
+  hasGamma = flag("PDF:beamA2gamma") || flag("PDF:beamB2gamma");
 
   // Flag if photon has a VMD state.
   hasVMD = infoPtr->isVMDstateA() || infoPtr->isVMDstateB();
@@ -3391,7 +3420,7 @@ bool PhaseSpace2to3diffractive::finalKin() {
 bool PhaseSpace2to2nondiffractive::setupSampling(){
 
   // Flag if a photon inside lepton beam.
-  hasGamma = flag("PDF:lepton2gamma");
+  hasGamma = flag("PDF:beamA2gamma") || flag("PDF:beamB2gamma");
 
   // Default behaviour with usual hadron beams.
   if (!hasGamma) {

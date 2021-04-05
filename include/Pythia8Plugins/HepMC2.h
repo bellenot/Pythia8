@@ -330,6 +330,12 @@ inline bool Pythia8ToHepMC::fill_next_event( Pythia8::Event& pyev,
       double value      = pyinfo->weightValueByIndex(iweight);
       evt->weights()[name] = value;
     }
+    // If multiweights with possibly different xsec, overwrite central value
+    std::vector<double> xsecVec = pyinfo->weightContainerPtr->getTotalXsec();
+    if (xsecVec.size() > 0) {
+      xsec.set_cross_section(xsecVec[0]*1e9);
+      evt->set_cross_section(xsec);
+    }
   }
 
   // Done for new event.

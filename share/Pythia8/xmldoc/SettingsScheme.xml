@@ -647,11 +647,13 @@ open brace { but no matching closing brace } has been found
 (so far), else false. 
 </method> 
  
-<method name="bool Settings::onlySoftQCD()"> 
-return true if the only processes switched on for generation belong 
-to the <code>SoftQCD</code> category, else false. Since the method 
-contains a hardcoding of what other process types exist, in order to 
-detect if any is on, it could be broken by the addition of new internal 
+<method name="bool Settings::hasHardProc()"> 
+return true if any hard processes are switched on, i.e. any process 
+not belonging to the <code>SoftQCD</code> or <code>LowEnergyQCD</code> 
+categories, else false. This method does not check whether Les Houches 
+input is used, so that may have to be done separately. Since the method 
+contains a hardcoding of what hard process types exist, in order to 
+detect if any are on, it could be broken by the addition of new internal 
 processes. It is therefore mainly useful for warning purposes, not for 
 hard decisions. 
 </method> 

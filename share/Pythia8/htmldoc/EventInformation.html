@@ -20,9 +20,10 @@
   <li><a href="#section9">Photons from lepton beams</a></li>
   <li><a href="#section10">Event activity</a></li>
   <li><a href="#section11">Multiparton interactions</a></li>
-  <li><a href="#section12">Loop counters</a></li>
-  <li><a href="#section13">Parton shower history</a></li>
-  <li><a href="#section14">Les Houches Event File information</a></li>
+  <li><a href="#section12">Cross sections</a></li>
+  <li><a href="#section13">Loop counters</a></li>
+  <li><a href="#section14">Parton shower history</a></li>
+  <li><a href="#section15">Les Houches Event File information</a></li>
 </ol>
 
  
@@ -646,6 +647,61 @@ provide the new Pomeron-hadron ones.
    
  
 <a name="section12"></a> 
+<h3>Cross sections</h3> 
+ 
+Here are the currently available methods related to the event sample 
+as a whole, for the default value <code>i = 0</code>, and otherwise for 
+the specific process code provided as argument. This is the number 
+obtained with <code>Info::code()</code>, while the further subdivision 
+given by <code>Info::codeSub()</code> is not bookkept. While continuously 
+updated during the run, it is recommended only to study these properties 
+at the end of the event generation, when the full statistics is available. 
+The individual process results are not available if a 
+<a href="SecondHardProcess.html" target="page">second hard process</a> has been 
+chosen, but can be gleaned from the <code>pythia.stat()</code> output. 
+ 
+<a name="anchor93"></a>
+<p/><strong> vector&lt;int&gt; Info::codesHard() &nbsp;</strong> <br/>
+returns a vector with all the process codes set up for the current run, 
+i.e. the valid nonzero arguments for the five methods below. 
+   
+ 
+<a name="anchor94"></a>
+<p/><strong> string Info::nameProc(int i = 0) &nbsp;</strong> <br/>
+returns the process name for process code <code>i</code>. 
+   
+ 
+<a name="anchor95"></a>
+<p/><strong> long Info::nTried(int i = 0) &nbsp;</strong> <br/>
+   
+<a name="anchor96"></a>
+<strong> long Info::nSelected(int i = 0) &nbsp;</strong> <br/>
+   
+<a name="anchor97"></a>
+<strong> long Info::nAccepted(int i = 0) &nbsp;</strong> <br/>
+the total number of tried phase-space points, selected hard processes 
+and finally accepted events, summed over all allowed processes 
+(<code>i = 0</code>) or for the given process. 
+The first number is only intended for a study of the phase-space selection 
+efficiency. The last two numbers usually only disagree if the user introduces 
+some veto during the event-generation process; then the former is the number 
+of acceptable events found by PYTHIA and the latter the number that also 
+were approved by the user. If you set a <a href="SecondHardProcess.html" target="page"> 
+second hard process</a> there may also be a mismatch. 
+   
+ 
+<a name="anchor98"></a>
+<p/><strong> double Info::sigmaGen(int i = 0) &nbsp;</strong> <br/>
+   
+<a name="anchor99"></a>
+<strong> double Info::sigmaErr(int i = 0) &nbsp;</strong> <br/>
+the estimated cross section and its estimated error, 
+summed over all allowed processes (<code>i = 0</code>) or for the given 
+process, in units of mb. The numbers refer to the accepted event sample 
+above, i.e. after any user veto. 
+   
+ 
+<a name="section13"></a> 
 <h3>Loop counters</h3> 
  
 Mainly for internal/debug purposes, a number of loop counters from 
@@ -654,7 +710,7 @@ so that one can keep track of how the event generation is progressing.
 This may be especially useful in the context of the 
 <code><a href="UserHooks.html" target="page">User Hooks</a></code> facility. 
  
-<a name="anchor93"></a>
+<a name="anchor100"></a>
 <p/><strong> int Info::getCounter(int i) &nbsp;</strong> <br/>
 the method that gives you access to the value of the various loop 
 counters. 
@@ -761,7 +817,7 @@ that therefore are free to use, with the help of the two methods below.
    
    
  
-<a name="anchor94"></a>
+<a name="anchor101"></a>
 <p/><strong> void Info::setCounter(int i, int value = 0) &nbsp;</strong> <br/>
 set the above counters to a given value. Only to be used by you 
 for the unassigned counters 40 - 49. 
@@ -772,7 +828,7 @@ normally the default value is what you want.
    
    
  
-<a name="anchor95"></a>
+<a name="anchor102"></a>
 <p/><strong> void Info::addCounter(int i, int value = 0) &nbsp;</strong> <br/>
 increase the above counters by a given amount. Only to be used by you 
 for the unassigned counters 40 - 49. 
@@ -783,38 +839,38 @@ normally the default value is what you want.
    
    
  
-<a name="section13"></a> 
+<a name="section14"></a> 
 <h3>Parton shower history</h3> 
  
 The following methods are mainly intended for internal use, 
 e.g. for matrix-element matching. 
  
-<a name="anchor96"></a>
+<a name="anchor103"></a>
 <p/><strong> void Info::hasHistory(bool hasHistoryIn) &nbsp;</strong> <br/>
    
-<a name="anchor97"></a>
+<a name="anchor104"></a>
 <strong> bool Info::hasHistory() &nbsp;</strong> <br/>
 set/get knowledge whether the likely shower history of an event 
 has been traced. 
    
  
-<a name="anchor98"></a>
+<a name="anchor105"></a>
 <p/><strong> void Info::zNowISR(bool zNowIn) &nbsp;</strong> <br/>
    
-<a name="anchor99"></a>
+<a name="anchor106"></a>
 <strong> double Info::zNowISR() &nbsp;</strong> <br/>
 set/get value of <i>z</i> in latest ISR branching. 
    
  
-<a name="anchor100"></a>
+<a name="anchor107"></a>
 <p/><strong> void Info::pT2NowISR(bool pT2NowIn) &nbsp;</strong> <br/>
    
-<a name="anchor101"></a>
+<a name="anchor108"></a>
 <strong> double Info::pT2NowISR() &nbsp;</strong> <br/>
 set/get value of <i>pT^2</i> in latest ISR branching. 
    
  
-<a name="section14"></a> 
+<a name="section15"></a> 
 <h3>Les Houches Event File information</h3> 
  
 Since the <code>Info</code> class is one of the main interfaces between 

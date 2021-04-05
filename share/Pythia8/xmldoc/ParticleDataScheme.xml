@@ -581,7 +581,8 @@ read in an XML-style file with particle data and initialize the
 particle data tables accordingly. This command is executed 
 in the <code>Pythia</code> constructor, i.e. is mainly for 
 internal use. 
-<argument name="startFile" default ="../share/Pythia8/xmldoc/ParticleData.xml"> 
+<argument name="startFile" 
+default ="../share/Pythia8/xmldoc/ParticleData.xml"> 
 the name of the data file to be read. When called from the 
 <code>Pythia</code> constructor the directory is provided by the 
 <code><aloc href="ProgramFlow">PYTHIA8DATA</aloc></code> 
@@ -666,6 +667,11 @@ make sense out of the input string.
 </methodmore> 
 <methodmore name="void ParticleData::list(bool changedOnly = false, 
 bool changedRes = true)"> 
+</methodmore> 
+<methodmore name="void ParticleData::listAll(ostream& stream)"> 
+</methodmore> 
+<methodmore name="void ParticleData::list(ostream& stream, 
+bool changedOnly = false, bool changedRes = true)"> 
 methods intended to present a listing of particle data in a readable 
 format. The first two are special cases of the third. The first 
 lists all particle data, the second only data for those particles that 
@@ -674,6 +680,7 @@ Resonances are a special case since they can get their data changed
 by being linked to an object that does the calculation of branching 
 ratios. By default the second method does not count such resonances 
 as changed, whereas the third does and thus lists all resonances. 
+The last two methods are simple variants where the output can be redirected. 
 </methodmore> 
  
 <method name="void ParticleData::list(int idList)"> 
@@ -740,7 +747,8 @@ identity code.
  
 <method name="ParticleDataEntry* ParticleData::findParticle(int id)"> 
 </method> 
-<methodmore name="const ParticleDataEntry* ParticleData::findParticle(int id)"> 
+<methodmore name="const ParticleDataEntry* 
+ParticleData::findParticle(int id)"> 
 query whether the particle data table contains the particle of the 
 identity code, and if so return a (const) iterator to it. 
 </methodmore> 
@@ -749,10 +757,21 @@ identity code, and if so return a (const) iterator to it.
 return the identity code of the sequentially next particle stored in table. 
 </method> 
  
+<method name="map&lt;int, ParticleDataEntry&gt;::iterator begin()"> 
+</method> 
+<methodmore name="map&lt;int, ParticleDataEntry&gt;::iterator end()"> 
+iterators over all the entries in the particle data table. 
+</methodmore> 
+ 
 <method name="bool ParticleData::hasAnti(int id)"> 
 bool whether a distinct antiparticle exists or not. Is true if an 
 antiparticle name has been set (and is different from 
 <code>void</code>). 
+</method> 
+ 
+<method name="int ParticleData::antiId(int id)"> 
+gets the id of the antiparticle of this particle, which is <code>-id</code> if 
+a distinct antiparticle exists, and <code>id</code> otherwise. 
 </method> 
  
 <method name="void ParticleData::name(int id, string name)"> 
@@ -930,6 +949,12 @@ not. Is determined by an internal logic based on the particle width and
 on the value of the 
 <code><aloc href="ParticleData">ParticleData:modeBreitWigner</aloc></code> 
 switch. 
+</method> 
+ 
+<method name="bool ParticleData::varWidth(int id)"> 
+returns whether this particle has a defined mass-dependent width. These widths 
+are parametrised in the 
+<aidx href="HadronWidths"><code>HadronWidths</code></aidx> class. 
 </method> 
  
 <method name="double ParticleData::constituentMass(int id)"> 
@@ -1309,6 +1334,14 @@ whereby it is possible to force resonances to retain their assigned widths,
 whatever that is, see <aloc href="ResonanceDecays">Resonance Decays</aloc> 
 for details. The normal behaviour is <code>false</code>, i.e. the width 
 is based on hardcoded calculations whenever available. 
+</methodmore> 
+ 
+<method name="void ParticleDataEntry::setVarWidth(bool varWidth)"> 
+</method> 
+<methodmore name="bool ParticleDataEntry::varWidth()"> 
+sets or returns whether this particle has a defined mass-dependent width. 
+These widths are parametrised in the 
+<aidx href="HadronWidths"><code>HadronWidths</code></aidx> class. 
 </methodmore> 
  
 <method name="void ParticleDataEntry::setHasChanged(bool hasChanged)"> 

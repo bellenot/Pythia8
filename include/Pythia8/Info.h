@@ -27,6 +27,7 @@ class CoupSUSY;
 class BeamParticle;
 class PartonSystems;
 class SigmaTotal;
+class HadronWidths;
 
 // Forward declaration of HIInfo class.
 class HIInfo;
@@ -44,7 +45,7 @@ public:
 
   // Constructors.
   Info() = default;
-  Info(bool) : Info() {weightCKKWLSave = 1.;}
+  Info(bool) : Info() {}
 
   // Destructor for clean-up.
   ~Info() {
@@ -66,6 +67,7 @@ public:
     BeamParticle* beamGamAPtrIn, BeamParticle*  beamGamBPtrIn,
     BeamParticle* beamVMDAPtrIn, BeamParticle*  beamVMDBPtrIn,
     PartonSystems* partonSystemsPtrIn, SigmaTotal* sigmaTotPtrIn,
+    HadronWidths* hadronWidthsPtrIn,
     WeightContainer* weightContainerPtrIn) {
     settingsPtr = settingsPtrIn; particleDataPtr = particleDataPtrIn;
     rndmPtr = rndmPtrIn; coupSMPtr = coupSMPtrIn; coupSUSYPtr = coupSUSYPtrIn;
@@ -74,6 +76,7 @@ public:
     beamGamAPtr = beamGamAPtrIn; beamGamBPtr = beamGamBPtrIn;
     beamVMDAPtr = beamVMDAPtrIn; beamVMDBPtr = beamVMDBPtrIn;
     partonSystemsPtr = partonSystemsPtrIn; sigmaTotPtr = sigmaTotPtrIn;
+    hadronWidthsPtr = hadronWidthsPtrIn;
     weightContainerPtr = weightContainerPtrIn; }
 
   // Pointer to the settings database.
@@ -105,6 +108,9 @@ public:
 
   // Pointer to the total/elastic/diffractive cross sections.
   SigmaTotal*    sigmaTotPtr{};
+
+  // Pointer to the hadron widths data table.
+  HadronWidths*  hadronWidthsPtr;
 
   // Pointer to the UserHooks object set for the run.
   UserHooksPtr   userHooksPtr{};
@@ -225,31 +231,21 @@ public:
   double lhaStrategy()        const {return lhaStrategySave;}
 
   // Further access to uncertainty weights: number and labels
-  int nWeights() const { return weightSave.size(); }
+  int nWeights() const
+    { return weightContainerPtr->weightsPS.getWeightsSize(); }
   string weightLabel(int iWeight) const {
-    if (iWeight >= 0 && iWeight < (int)weightLabelSave.size())
-      return weightLabelSave[iWeight];
-    else return "";}
+    return weightContainerPtr->weightsPS.getWeightsName(iWeight);
+    }
 
-  void   initUncertainties(vector<string>*, bool = false);
-  int    nVariationGroups() const { return externalVariationsSize; }
+  int    nVariationGroups() const { return weightContainerPtr->
+    weightsPS.externalVariations.size(); }
   string getGroupName(int iGN) const {
-    string tmpString("Null");
-    if( iGN < 0 || iGN >= externalVariationsSize ) return tmpString;
-    return externalGroupNames[iGN];
+    return weightContainerPtr->weightsPS.getGroupName(iGN);
   }
   double getGroupWeight(int iGW) const {
-    double tempWeight(1.0);
-    double normalization = weightSave[0];
-    if( iGW < 0 || iGW >= externalVariationsSize ) return tempWeight;
-    for( vector<int>::const_iterator cit = externalMap[iGW].begin();
-      cit < externalMap[iGW].end(); ++cit )
-      tempWeight *= weightSave[*cit] / normalization;
-    return tempWeight * weight(0);
+    return weightContainerPtr->weightsPS.getGroupWeight(iGW)
+           *weightContainerPtr->weightNominal;
   }
-  string getInitialName(int iG) const { return initialNameSave[iG]; }
-  // Variations that must be known by TimeShower and Spaceshower
-  map<int,double> varPDFplus, varPDFminus, varPDFmember;
 
   // Number of times other steps have been carried out.
   int    nISR()               const {return nISRSave;}
@@ -330,23 +326,13 @@ public:
   void   pT2NowISR( double pT2NowIn) {pT2NowISRSave = pT2NowIn;}
   double pT2NowISR() {return pT2NowISRSave;}
 
-  // Update a particular event weight, first entry by default.
-  void updateWeight( double weightIn, int i = 0) { weightSave[i] = weightIn;}
-
-  // Return CKKW-L weight.
-  double getWeightCKKWL() const { return weightCKKWLSave;}
-  // Set CKKW-L weight.
-  void setWeightCKKWL( double weightIn) { weightCKKWLSave = weightIn;}
   // Return merging weight.
-  double mergingWeight() const { return weightCKKWLSave;}
+  double mergingWeight(int i=0) const {
+    return weightContainerPtr->weightsMerging.getWeightsValue(i);}
 
   // Return the complete NLO weight.
-  double mergingWeightNLO() const {
-    return (weightCKKWLSave - weightFIRSTSave); }
-  // Return the O(\alpha_s)-term of the CKKW-L weight.
-  double getWeightFIRST() const { return weightFIRSTSave;}
-  // Set the O(\alpha_s)-term of the CKKW-L weight.
-  void setWeightFIRST( double weightIn) { weightFIRSTSave = weightIn;}
+  double mergingWeightNLO(int i=0) const {
+    return weightContainerPtr->weightsMerging.getWeightsValue(i); }
 
   // Return an LHEF header
   string header(const string &key) const {
@@ -381,7 +367,7 @@ public:
   map<string,LHAweight > *init_weights{};
 
   // Store current-event Les Houches event tags.
-  bool hasOwnEventAttributes;
+  bool hasOwnEventAttributes{};
   map<string, string > *eventAttributes{};
 
   // The weights associated with this event, as given by the LHAwgt tags
@@ -548,14 +534,7 @@ public:
          xPomB{}, tPomA{}, tPomB{};
   string nameSave{}, nameSubSave[4];
   vector<int>    codeMPISave, iAMPISave, iBMPISave;
-  vector<double> pTMPISave, eMPISave, weightSave;
-  vector<string> weightLabelSave;
-  vector<string>          externalVariations;
-  vector<vector<string> > externalVarNames;
-  vector<string>          externalGroupNames;
-  vector<string>          initialNameSave;
-  vector<vector<int> >    externalMap;
-  int                     externalVariationsSize{};
+  vector<double> pTMPISave, eMPISave;
 
   // Variables related to photon kinematics.
   bool   isVMDstateAEvent{}, isVMDstateBEvent{};
@@ -577,22 +556,16 @@ public:
   string headerBlock{}, eventComments{};
 
   // Map for plugin libraries.
-  map<string, void*> plugins;
+  map<string, PluginPtr> plugins;
 
   // Load a plugin library.
-  void* loadPlugin(string nameIn) {
-      void *lib;
-      map<string, void*>::iterator plugin = plugins.find(nameIn);
-      if (plugin == plugins.end()) {
-        lib = dlopen(nameIn.c_str(), RTLD_LAZY);
-        const char* cerror = dlerror();
-        string serror(cerror == nullptr ? "" : cerror);
-        dlerror();
-        if (serror.size()) {
-          errorMsg("Error in Info::loadPlugin: " + serror); return nullptr;}
-        plugins[nameIn] = lib;
-      } else lib = plugin->second;
-      return lib;
+  PluginPtr plugin(string nameIn) {
+    map<string, PluginPtr>::iterator pluginItr = plugins.find(nameIn);
+    if (pluginItr == plugins.end()) {
+      PluginPtr pluginPtr = make_shared<Plugin>(nameIn, this);
+      plugins[nameIn] = pluginPtr;
+      return pluginPtr;
+    } else return pluginItr->second;
   };
 
   // Set info on the two incoming beams: only from Pythia class.
@@ -628,9 +601,9 @@ public:
     codeSave = nFinalSave = nTotal = nMPISave = nISRSave = nFSRinProcSave
       = nFSRinResSave = 0;
     bMPISave = enhanceMPISave = enhanceMPIavgSave = bMPIoldSave
-      = enhanceMPIoldSave = enhanceMPIoldavgSave = weightCKKWLSave = 1.;
+      = enhanceMPIoldSave = enhanceMPIoldavgSave = 1.;
     pTmaxMPISave = pTmaxISRSave = pTmaxFSRSave = pTnowSave = zNowISRSave
-      = pT2NowISRSave = weightFIRSTSave = 0.;
+      = pT2NowISRSave = 0.;
     nameSave = " ";
     for (int i = 0; i < 4; ++i) {
       hasSubSave[i] = false;
@@ -644,7 +617,8 @@ public:
     }
     codeMPISave.resize(0); iAMPISave.resize(0); iBMPISave.resize(0);
     pTMPISave.resize(0); eMPISave.resize(0); setHardDiff();
-    for (int i = 0; i < nWeights(); ++i) weightSave[i]=1.;}
+    weightContainerPtr->clear();
+  }
 
   // Reset info arrays only for parton and hadron level.
   int sizeMPIarrays() const { return codeMPISave.size(); }
@@ -730,35 +704,16 @@ public:
   // Set info whether reading of Les Houches Accord file at end.
   void setEndOfFile( bool atEOFin) {atEOF = atEOFin;}
 
-  // Set number and labels of weights (for uncertainty evaluations).
-  void setNWeights(int mWeights) {
-    mWeights = max(1,mWeights);
-    int lWeights = weightSave.size();
-    weightSave.resize(mWeights);
-    weightLabelSave.resize(mWeights);
-    for (int i=lWeights; i<mWeights; ++i) weightLabelSave[i]="";
-  }
-  void setWeightLabel(int iWeight, string labelIn) {
-    if (iWeight >= 0 && iWeight < (int)weightLabelSave.size())
-      weightLabelSave[iWeight] = labelIn;
-  }
-
-  // Set event weight, either for LHEF3 or for uncertainty bands.
+  // Set event weight, either for LHEF3 or for uncertainty bands. If weight
+  // has units (lhaStrategy 4 or -4), input in mb
   void setWeight( double weightIn, int lhaStrategyIn) {
-    for (int i = 0; i < nWeights(); ++i) weightSave[i] = weightIn;
-    if (nWeights() == 0) weightSave.push_back(weightIn);
+    for (int i = 0; i < nWeights(); ++i)
+      weightContainerPtr->weightsPS.setValueByIndex(i,1.);
+    // Nominal weight in weightContainer saved in pb for lhaStrategy +-4
     weightContainerPtr->setWeightNominal(
         abs(lhaStrategyIn) == 4 ? CONVERTMB2PB*weightIn : weightIn);
     lhaStrategySave = lhaStrategyIn;}
-
-
-  // Apply weight modification (used for automated uncertainty variations).
-  void reWeight( int iWeight, double rwIn) {
-    if (iWeight >= 0 || iWeight < nWeights()) weightSave[iWeight] *= rwIn;}
-
-  // Save merging weight (i.e. CKKW-L-type weight, summed O(\alpha_s) weight).
-  double weightCKKWLSave{}, weightFIRSTSave{};
-
+  //
   // Set info on resolved processes.
   void setIsResolved(bool isResIn) {isRes = isResIn;}
 
@@ -792,6 +747,48 @@ public:
     return weightContainerPtr->weightValueVector(); }
   vector<string> weightNameVector() const {
     return weightContainerPtr->weightNameVector(); }
+
+};
+
+//==========================================================================
+
+// Class for loading plugin libraries at run time.
+
+class Plugin {
+
+public:
+
+  // Constructor.
+  Plugin(string nameIn = "", Info *infoPtrIn = nullptr);
+
+  // Destructor.
+  ~Plugin();
+
+  // Return if the plugin is loaded.
+  bool isLoaded() {return libPtr != nullptr;}
+
+  // Symbol from the plugin library.
+  typedef void (*Symbol)();
+
+  // Access plugin library symbols.
+  Symbol symbol(string symName);
+
+protected:
+
+  // Small routine for error printout, depending on infoPtr existing or not.
+  void errorMsg(string errMsg) {
+    if (infoPtr != nullptr) infoPtr->errorMsg(errMsg);
+    else cout << errMsg << endl;
+  }
+
+ private:
+
+  // Pointer to info.
+  Info  *infoPtr;
+  // The loaded plugin library.
+  void  *libPtr;
+  // The plugin library name.
+  string name;
 
 };
 

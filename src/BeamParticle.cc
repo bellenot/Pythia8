@@ -74,9 +74,6 @@ void BeamParticle::init( int idIn, double pzIn, double eIn, double mIn,
   pdfBeamPtrSave     = pdfInPtr;
   pdfHardBeamPtrSave = pdfHardInPtr;
 
-  // Check whether beam has a supplementary photon beam.
-  bool beamHasGamma  = flag("PDF:lepton2gamma");
-
   // Maximum quark kind in allowed incoming beam hadrons.
   maxValQuark       = mode("BeamRemnants:maxValQuark");
 
@@ -130,8 +127,8 @@ void BeamParticle::init( int idIn, double pzIn, double eIn, double mIn,
   pBeam             = Vec4( 0., 0., pzIn, eIn);
   mBeam             = mIn;
 
-  // To be set process by process but start with this.
-  hasResGammaInBeam  = beamHasGamma && (isLepton() || isGamma());
+  // To be set process by process so start with false.
+  hasResGammaInBeam  = false;
 
   // Initialize parameters related to photon beams.
   resetGamma();
@@ -674,7 +671,7 @@ double BeamParticle::xCompDist(double xc, double xs) {
 void BeamParticle::setGammaMode(int gammaModeIn)  {
 
   // For hadrons mode always 0.
-  if (isHadron()) {
+  if ( !( initGammaBeam || isGamma() ) ) {
     gammaMode         = 0;
     pdfBeamPtr        = pdfBeamPtrSave;
     pdfHardBeamPtr    = pdfHardBeamPtrSave;
@@ -703,8 +700,8 @@ void BeamParticle::setGammaMode(int gammaModeIn)  {
     isUnresolvedBeam  = false;
     if ( isGamma()) isResolvedGamma = true;
     else            isResolvedGamma = false;
-    if ( isLepton() && gammaMode == 1 ) hasResGammaInBeam = true;
-    else                                hasResGammaInBeam = false;
+    if ( initGammaBeam && gammaMode == 1 ) hasResGammaInBeam = true;
+    else                                   hasResGammaInBeam = false;
   }
 
 }

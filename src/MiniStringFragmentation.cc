@@ -42,7 +42,8 @@ void MiniStringFragmentation::init(StringFlav* flavSelPtrIn,
 
   // Calculation and definition of hadron space-time production vertices.
   hadronVertex    = mode("HadronVertex:mode");
-  setVertices     = flag("Fragmentation:setVertices");
+  setVertices     = flag("Fragmentation:setVertices")
+                 || flag("HadronLevel:Rescatter");
   kappaVtx        = parm("HadronVertex:kappa");
   smearOn         = flag("HadronVertex:smearOn");
   xySmear         = parm("HadronVertex:xySmear");
@@ -65,7 +66,7 @@ void MiniStringFragmentation::init(StringFlav* flavSelPtrIn,
 // Do the fragmentation: driver routine.
 
 bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig,
-  Event& event, bool isDiff) {
+  Event& event, bool isDiff, bool systemRecoil) {
 
   // Junction topologies not yet considered - is very rare.
   iParton  = colConfig[iSub].iParton;
@@ -86,14 +87,23 @@ bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig,
   // Do not want diffractive systems to easily collapse to one particle.
   int nTryFirst = (isDiff) ? NTRYDIFFRACTIVE : nTryMass;
 
-  // First try to produce two particles from the system.
-  if (ministring2two( nTryFirst, event)) return true;
+  // First try to produce two hadrons from the system.
+  if (ministring2two( nTryFirst, event, false)) return true;
 
   // If this fails, then form one hadron and shuffle momentum.
-  if (ministring2one( iSub, colConfig, event)) return true;
+  if (ministring2one( iSub, colConfig, event, false)) return true;
 
-  // If also this fails, then try harder to produce two particles.
-  if (ministring2two( NTRYLASTRESORT, event)) return true;
+  // If also this fails, try to produce two hadrons with lower mass.
+  if (ministring2two( NTRYLASTRESORT, event, true)) return true;
+
+  // If also this fails, try to form a hadron with lower mass.
+  if (ministring2one( iSub, colConfig, event, true)) return true;
+
+  // For low-energy systems may also search for a single hadron recoiler.
+  if (!systemRecoil) {
+    if (ministring2one( iSub, colConfig, event, false, false)) return true;
+    if (ministring2one( iSub, colConfig, event, true,  false)) return true;
+  }
 
   // Else complete failure.
   infoPtr->errorMsg("Error in MiniStringFragmentation::fragment: "
@@ -104,9 +114,11 @@ bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig,
 
 //--------------------------------------------------------------------------
 
-  // Attempt to produce two particles from the ministring.
+// Attempt to produce two particles from the ministring.
+// Note that popcorn baryons not allowed.
 
-bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
+bool MiniStringFragmentation::ministring2two( int nTry, Event& event,
+  bool findLowMass) {
 
   // Properties of the produced hadrons.
   int    idHad1  = 0;
@@ -122,8 +134,8 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
     if (isClosed) do {
       int idStart = flavSelPtr->pickLightQ();
       FlavContainer flavStart(idStart, 1);
-      flavStart = flavSelPtr->pick( flavStart);
-      flav1 = flavSelPtr->pick( flavStart);
+      flavStart = flavSelPtr->pick( flavStart, -1., 0., false);
+      flav1 = flavSelPtr->pick( flavStart, -1., 0., false);
       flav2.anti(flav1);
     } while (flav1.id == 0 || flav1.nPop > 0);
 
@@ -132,9 +144,15 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
     do {
       FlavContainer flav3 =
         (flav1.isDiquark() || (!flav2.isDiquark() && rndmPtr->flat() < 0.5) )
-        ? flavSelPtr->pick( flav1) : flavSelPtr->pick( flav2).anti();
-      idHad1 = flavSelPtr->combine( flav1, flav3);
-      idHad2 = flavSelPtr->combine( flav2, flav3.anti());
+        ? flavSelPtr->pick( flav1, -1., 0., false)
+        : flavSelPtr->pick( flav2, -1., 0., false).anti();
+      if (findLowMass) {
+        idHad1 = flavSelPtr->combineToLightest( flav1.id, flav3.id);
+        idHad2 = flavSelPtr->combineToLightest( flav2.id, -flav3.id);
+      } else {
+        idHad1 = flavSelPtr->combine( flav1, flav3);
+        idHad2 = flavSelPtr->combine( flav2, flav3.anti());
+      }
     } while (idHad1 == 0 || idHad2 == 0);
 
     // Check whether the mass sum fits inside the available phase space.
@@ -142,6 +160,15 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
     mHad2 = particleDataPtr->mSel(idHad2);
     mHadSum = mHad1 + mHad2;
     if (mHadSum < mSum) break;
+  }
+
+  // As last resort keep original flavours and split off pi0. Else fail.
+  if (mHadSum >= mSum && findLowMass && !isClosed) {
+    idHad1 = flavSelPtr->combineToLightest( flav1.id, flav2.id);
+    idHad2 = 111;
+    mHad1 = particleDataPtr->mSel(idHad1);
+    mHad2 = particleDataPtr->mSel(idHad2);
+    mHadSum = mHad1 + mHad2;
   }
   if (mHadSum >= mSum) return false;
 
@@ -272,11 +299,12 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event) {
 // Attempt to produce one particle from a ministring.
 // Current algorithm: find the system with largest invariant mass
 // relative to the existing one, and boost that system appropriately.
+// Optionally force pick lightest hadron possible to increase chances.
+// Optionally let existing hadron take recoil instead of system.
 // Try more sophisticated alternatives later?? (Z0 mass shifted??)
-// Also, if problems, attempt several times to obtain closer mass match??
 
 bool MiniStringFragmentation::ministring2one( int iSub,
-  ColConfig& colConfig, Event& event) {
+  ColConfig& colConfig, Event& event, bool findLowMass, bool systemRecoil) {
 
   // Cannot handle qq + qbarqbar system.
   if (abs(flav1.id) > 100 && abs(flav2.id) > 100) return false;
@@ -289,9 +317,11 @@ bool MiniStringFragmentation::ministring2one( int iSub,
     flav2 = flav1.anti();
   } while (abs(flav1.id) > 100);
 
-  // Select hadron flavour from available quark flavours.
+  // Select hadron flavour from available quark flavours,
+  // optionally with lowest possible mass.
   int idHad = 0;
-  for (int iTryFlav = 0; iTryFlav < NTRYFLAV; ++iTryFlav) {
+  if (findLowMass) idHad = flavSelPtr->combineToLightest( flav1.id, flav2.id);
+  else for (int iTryFlav = 0; iTryFlav < NTRYFLAV; ++iTryFlav) {
     idHad = flavSelPtr->combine( flav1, flav2);
     if (idHad != 0) break;
   }
@@ -300,21 +330,30 @@ bool MiniStringFragmentation::ministring2one( int iSub,
   // Find mass.
   double mHad = particleDataPtr->mSel(idHad);
 
-  // Find the untreated parton system which combines to the largest
-  // squared mass above mimimum required.
+  // Find the untreated parton system, alternatively final hadron,
+  // which combines to the largest squared mass above mimimum required.
   int iMax = -1;
   double deltaM2 = mHad*mHad - mSum*mSum;
   double delta2Max = 0.;
-  for (int iRec = iSub + 1; iRec < colConfig.size(); ++iRec) {
-    double delta2Rec = 2. * (pSum * colConfig[iRec].pSum) - deltaM2
-      - 2. * mHad * colConfig[iRec].mass;
-    if (delta2Rec > delta2Max) { iMax = iRec; delta2Max = delta2Rec;}
+  if (systemRecoil) {
+    for (int iRec = iSub + 1; iRec < colConfig.size(); ++iRec) {
+      double delta2Rec = 2. * (pSum * colConfig[iRec].pSum) - deltaM2
+        - 2. * mHad * colConfig[iRec].mass;
+      if (delta2Rec > delta2Max) { iMax = iRec; delta2Max = delta2Rec;}
+    }
+  } else {
+    for (int iRec = 0; iRec < event.size(); ++iRec)
+    if (event[iRec].isHadron() && event[iRec].status() > 80) {
+      double delta2Rec = 2. * (pSum * event[iRec].p()) - deltaM2
+        - 2. * mHad * event[iRec].m();
+      if (delta2Rec > delta2Max) { iMax = iRec; delta2Max = delta2Rec;}
+    }
   }
   if (iMax == -1) return false;
 
-  // Construct kinematics of the hadron and recoiling system.
-  Vec4& pRec     = colConfig[iMax].pSum;
-  double mRec    = colConfig[iMax].mass;
+  // Construct kinematics of the hadron and recoiling system (or hadron).
+  Vec4   pRec    = (systemRecoil) ? colConfig[iMax].pSum : event[iMax].p();
+  double mRec    = (systemRecoil) ? colConfig[iMax].mass : event[iMax].m();
   double vecProd = pSum * pRec;
   double coefOld = mSum*mSum + vecProd;
   double coefNew = mHad*mHad + vecProd;
@@ -356,20 +395,27 @@ bool MiniStringFragmentation::ministring2one( int iSub,
   // Copy down recoiling system, with boosted momentum. Update current partons.
   RotBstMatrix M;
   M.bst(pRec, pRecNew);
-  for (int i = 0; i < colConfig[iMax].size(); ++i) {
-    int iOld = colConfig[iMax].iParton[i];
-    // Do not touch negative iOld = beginning of new junction leg.
-    if (iOld >= 0) {
-      int iNew;
-      // Keep track of 74 throughout the event.
-      if (event[iOld].status() == 74) iNew = event.copy(iOld, 74);
-      else iNew = event.copy(iOld, 72);
-      event[iNew].rotbst(M);
-      colConfig[iMax].iParton[i] = iNew;
+  if (systemRecoil) {
+    for (int i = 0; i < colConfig[iMax].size(); ++i) {
+      int iOld = colConfig[iMax].iParton[i];
+      // Do not touch negative iOld = beginning of new junction leg.
+      if (iOld >= 0) {
+        int iNew;
+        // Keep track of 74 throughout the event.
+        if (event[iOld].status() == 74) iNew = event.copy(iOld, 74);
+        else iNew = event.copy(iOld, 72);
+        event[iNew].rotbst(M);
+        colConfig[iMax].iParton[i] = iNew;
+      }
     }
+    colConfig[iMax].pSum = pRecNew;
+    colConfig[iMax].isCollected = true;
+
+  // Alternatively copy down modified hadron and boost it (including vertex).
+  } else {
+    int iNew = event.copy(iMax, event[iMax].status());
+    event[iNew].rotbst(M);
   }
-  colConfig[iMax].pSum = pRecNew;
-  colConfig[iMax].isCollected = true;
 
   // Calculate hadron production points from breakup vertices
   // using one of the three definitions.

@@ -15,10 +15,10 @@
 #include "Pythia8/Basics.h"
 #include "Pythia8/Event.h"
 #include "Pythia8/PythiaStdlib.h"
+#include "Pythia8/ShowerMEs.h"
 
 // Vincia headers.
 #include "Pythia8/VinciaCommon.h"
-#include "Pythia8/VinciaMG5MEs.h"
 
 namespace Pythia8 {
 
@@ -1178,7 +1178,7 @@ public:
   virtual ~MECs() {};
 
   // Initialize pointers.
-  void initPtr(Info* infoPtrIn, VinciaMG5MEs* mg5mesPtrIn,
+  void initPtr(Info* infoPtrIn, ShowerMEs* mg5mesPtrIn,
     VinciaCommon* vinComPtrIn);
 
   // Initialize pointers to antenna sets.
@@ -1256,9 +1256,9 @@ private:
   Settings*      settingsPtr;
   Rndm*          rndmPtr;
   PartonSystems* partonSystemsPtr;
+  ShowerMEs*     mg5mesPtr;
 
   // Pointers to VINCIA objects.
-  VinciaMG5MEs*  mg5mesPtr;
   VinciaCommon*  vinComPtr;
 
   // Antenna sets.

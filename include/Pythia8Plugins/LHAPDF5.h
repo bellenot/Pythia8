@@ -276,10 +276,16 @@ void LHAPDF5::xfUpdate(int, double x, double Q2) {
 
 // Define external handles to the plugin for dynamic loading.
 
-extern "C" PDFPtr newLHAPDF(int idBeamIn, string setName, int member) {
-  int nSet = LHAPDF5Interface::findNSet(setName, member);
-  if (nSet == -1) nSet = LHAPDF5Interface::freeNSet();
-  return make_shared<LHAPDF5>(idBeamIn, setName, member, nSet);
+extern "C" {
+
+  LHAPDF5* newPDF(int idBeamIn, string setName, int member) {
+    int nSet = LHAPDF5Interface::findNSet(setName, member);
+    if (nSet == -1) nSet = LHAPDF5Interface::freeNSet();
+    return new LHAPDF5(idBeamIn, setName, member, nSet);
+  }
+
+  void deletePDF(LHAPDF5* pdf) {delete pdf;}
+
 }
 
 //==========================================================================

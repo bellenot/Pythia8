@@ -74,11 +74,16 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
   // Set SLHA pointer
   slhaPtr = coupSUSYPtr->slhaPtr;
 
+  // Load the matrix element correction plugin.
+  string melib = settingsPtr->word("Vincia:MEplugin");
+  if (melib.size() > 0)
+    mg5mes = ShowerMEsPlugin("libpythia8mg5" + melib + ".so");
+
   // Pass pointers on to objects that require them.
   resolution.initPtr(settingsPtr);
   rambo.initPtr(rndmPtr);
   vinCom.initPtr(infoPtr);
-  mg5mes.initPtr(infoPtr, slhaPtr, &vinCom);
+  mg5mes.initPtrVincia(infoPtr, slhaPtr, &vinCom);
   mecs.initPtr(infoPtr, &mg5mes, &vinCom);
   colour.initPtr(infoPtr);
   vinWeights.initPtr(infoPtr, &vinCom);
@@ -189,7 +194,7 @@ void Vincia::setVerbose(int verboseIn) {
   qedShower.setVerbose(verboseIn);
   spacePtr->setVerbose(verboseIn);
   colour.setVerbose(verboseIn);
-  mg5mes.setVerbose(verboseIn);
+  mg5mes.setVerboseVincia(verboseIn);
   mecs.setVerbose(verboseIn);
 
 }

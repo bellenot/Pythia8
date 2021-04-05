@@ -24,7 +24,6 @@ sys.path.insert(0, lib)
 # Import the Pythia module.
 import pythia8
 pythia = pythia8.Pythia()
-print pythia.settings.fvec("Charmonium:gg2ccbar(3S1)[3S1(8)]g")
 pythia.readString("Beams:eCM = 8000.")
 pythia.readString("HardQCD:all = on")
 pythia.readString("PhaseSpace:pTHatMin = 20.")

@@ -44,9 +44,9 @@ public:
     iMEpartner(iMEpartnerIn), weakPol(weakPolIn), isOctetOnium(isOctetOniumIn),
     isHiddenValley(isHiddenValleyIn), colvType(colvTypeIn), MEmix(MEmixIn),
     MEorder (MEorderIn), MEsplit(MEsplitIn), MEgluinoRec(MEgluinoRecIn),
-    isFlexible(isFlexibleIn), flavour(), iAunt(), mRad(), m2Rad(), mRec(),
-    m2Rec(), mDip(), m2Dip(), m2DipCorr(), pT2(), m2(), z(), mFlavour(),
-    asymPol(), flexFactor(), pAccept()  { }
+    isFlexible(isFlexibleIn), hasJunction(false), flavour(), iAunt(), mRad(),
+    m2Rad(), mRec(), m2Rec(), mDip(), m2Dip(), m2DipCorr(), pT2(), m2(), z(),
+    mFlavour(), asymPol(), flexFactor(), pAccept()  { }
 
   // Basic properties related to dipole and matrix element corrections.
   int    iRadiator, iRecoiler;
@@ -57,6 +57,7 @@ public:
   int    colvType;
   double MEmix;
   bool   MEorder, MEsplit, MEgluinoRec, isFlexible;
+  bool   hasJunction;
 
   // Properties specific to current trial emission.
   int    flavour, iAunt;

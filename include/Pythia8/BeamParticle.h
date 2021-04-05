@@ -146,12 +146,13 @@ public:
     isMesonBeam(), isBaryonBeam(), isGammaBeam(), nValKinds(), idVal(), nVal(),
     idSave(), iSkipSave(), nValLeft(), xqgTot(), xqVal(), xqgSea(),
     xqCompSum(), doISR(), doMPI(), doND(), isResolvedGamma(),
-    hasResGammaInBeam(), isResUnres(), hasVMDstateInBeam(), pTminISR(),
-    pTminMPI(), pT2gm2qqbar(), iGamVal(), iPosVal(), gammaMode(), xGm(),
-    Q2gm(), kTgamma(), phiGamma(), cPowerCache(-100), xsCache(-1), resCache(),
-    resolved(), nInit(0), hasJunctionBeam(), junCol(), nJuncs(), nAjuncs(),
-    nDiffJuncs(), allowBeamJunctions(), Q2ValFracSav(-1.), uValInt(),
-    dValInt(), idVal1(), idVal2(), idVal3(), zRel(), pxRel(), pyRel() { }
+    hasResGammaInBeam(), isResUnres(), hasVMDstateInBeam(), initGammaBeam(),
+    pTminISR(), pTminMPI(), pT2gm2qqbar(), iGamVal(), iPosVal(), gammaMode(),
+    xGm(), Q2gm(), kTgamma(), phiGamma(), cPowerCache(-100), xsCache(-1),
+    resCache(), resolved(), nInit(0), hasJunctionBeam(), junCol(), nJuncs(),
+    nAjuncs(), nDiffJuncs(), allowBeamJunctions(), Q2ValFracSav(-1.),
+    uValInt(), dValInt(), idVal1(), idVal2(), idVal3(), zRel(), pxRel(),
+    pyRel() { }
 
   // Initialize data on a beam particle and save pointers.
   void init( int idIn, double pzIn, double eIn, double mIn,
@@ -366,6 +367,8 @@ public:
   void setGammaMode(int gammaModeIn);
   int  getGammaMode()                 { return gammaMode; }
   bool isResolvedUnresolved()         { return isResUnres; }
+  void initGammaInBeam()              { initGammaBeam = true; }
+  bool gammaInBeam()                  { return initGammaBeam; }
 
   // Set state of VMD inside gamma.
   void setVMDstate(bool isVMDIn, int idIn, double mIn, double scaleIn,
@@ -416,6 +419,9 @@ public:
   double xGammaMin()          { return pdfHardBeamPtr->getXmin(); }
   double xGammaHadr()         { return pdfHardBeamPtr->getXhadr(); }
   double gammaFluxIntApprox() { return pdfHardBeamPtr->intFluxApprox(); }
+
+  // Do photon flux use an approximation for sampling.
+  bool hasApproxGammaFlux() { return pdfHardBeamPtr->hasApproxGammaFlux(); }
 
   // Get the kinematics related photons form lepton beams.
   double xGamma()   const { return xGm; }
@@ -480,7 +486,7 @@ private:
 
   // Variables related to photon beams (also inside lepton).
   bool   doISR, doMPI, doND, isResolvedGamma, hasResGammaInBeam,
-         isResUnres, hasVMDstateInBeam;
+         isResUnres, hasVMDstateInBeam, initGammaBeam;
   double pTminISR, pTminMPI, pT2gm2qqbar;
   int    iGamVal, iPosVal, gammaMode;
 

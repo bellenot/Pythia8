@@ -17,9 +17,9 @@ below.
  
 <p/> 
 Since both models deal with string overlaps in transverse space, it is 
-necessary to provide such information, as it is not present in the Pythia MPI 
-model. The information is provided through the 
-<aloc href="VertexInformation">Parton Vertex</aloc> methods. The string 
+necessary to provide such information, as it is not present in the 
+Pythia MPI model. The information is provided through the 
+<aloc href="PartonVertexInformation">Parton Vertex</aloc> methods. The string 
 shoving mechanism is exemplified in the <code>main101</code> example, 
 and the flavour ropes in <code>main102</code>. 
 A simpler version of flavour composition ropes exist <ref>Bie16c</ref>, 
@@ -243,7 +243,7 @@ environments, such as central heavy ion collisions.
  
 <parm name="Ropewalk:presetKappa" default="0." min="0." max="100.0"> 
 The effective string tension is normally calculated dynamically using overlaps 
-of strings, based on <aloc href="VertexInformation">Parton Vertex</aloc> 
+of strings, based on <aloc href="PartonVertexInformation">Parton Vertex</aloc> 
 information. By setting <code>Ropewalk:setFixedKappa</code>, this information 
 is ignored, and a preset value provided in the <code>presetKappa</code> 
 variable is used. 

@@ -107,6 +107,11 @@ public:
       nPartons -= 1;
     if (settingsPtr->word("Merging:process").compare("pp>jj") == 0)
       nPartons -= 2;
+    if (settingsPtr->word("Merging:process").compare("e+e->jj") == 0) {
+      nPartons -= 2;
+      np_lo -= 2;
+      np_nlo -= 2;
+    }
 
     // Set number of requested partons.
     if (np_nlo > -1){
@@ -122,8 +127,7 @@ public:
     }
 
     // Reset the event weight to incorporate corrective factor.
-    bool updateWgt = settingsPtr->flag("Merging:includeWeightInXsection");
-    double norm    = (abs(infoPtr->lhaStrategy()) == 4) ? 1./1e9 : 1.;
+    bool updateWgt = true;
 
     // Choose randomly if this event should be treated as subtraction or
     // as regular event. Put the correct settings accordingly.
@@ -194,11 +198,11 @@ public:
         settingsPtr->flag("Merging:doUMEPSSubt", false);
         settingsPtr->mode("Merging:nRecluster",0);
       }
-      // Reset the event weight to incorporate corrective factor.
-      if ( updateWgt) {
-        infoPtr->updateWeight(infoPtr->weight()*norm*normFactor);
-        normFactor = 1.;
-      }
+    }
+    // Reset the event weight to incorporate corrective factor.
+    if ( updateWgt) {
+      infoPtr->weightContainerPtr->weightNominal *= normFactor;
+      normFactor = 1.;
     }
 
     // Done

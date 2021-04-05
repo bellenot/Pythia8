@@ -242,7 +242,7 @@ resonance decay chains, if any. Use the method
 decay chains. There are exceptions to this structure, 
 for <aloc href="QCDProcesses">soft QCD processes</aloc> (where 
 the partonic process may not yet have been selected at this stage), 
-and when <aloc href="SecondHardProcess">a second hard process</aloc> has 
+and when a <aloc href="SecondHardProcess">second hard process</aloc> has 
 been requested (where two hard processes are bookkept). In general 
 it is useful to begin the development work by listing a few 
 <code>process</code> records, to clarify what the structure is for 
@@ -755,8 +755,8 @@ In the base class this method returns false. If you redefine it
 to return true then the method <code>biasSelectionBy(...)</code> will 
 allow you to modify the phase space sampling, with a compensating 
 event weight, such that the cross section is unchanged. You cannot 
-combine this kind of reweighting with the selection of 
-<aloc href="SecondHardProcess">a second hard process</aloc>. 
+combine this kind of reweighting with the selection of a 
+<aloc href="SecondHardProcess">second hard process</aloc>. 
 </method> 
  
 <method name="virtual double UserHooks::biasSelectionBy( 

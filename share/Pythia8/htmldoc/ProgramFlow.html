@@ -953,7 +953,7 @@ event properties can be interrogated.
 <p/><strong> bool Pythia::setPartonVertexPtr( PartonVertexPtr partonVertexPtrIn) &nbsp;</strong> <br/>
 offers the possibility to set production vertices for the MPI, 
 FSR and ISR parton-level evolution, instead of the default framework, 
-see further <a href="VertexInformation.html" target="page">here</a>. 
+see further <a href="PartonVertexInformation.html" target="page">here</a>. 
 This part of the program is still in the early stages, and is 
 likely to evolve further. Currently it is only used for the 
 <a href="RopeHadronization.html" target="page">Rope Hadronization</a> framework. 
@@ -1096,16 +1096,63 @@ event record is then not consistent and should not be studied.
  
 <a name="anchor36"></a>
 <p/><strong> bool Pythia::doLowEnergyProcess(int i1, int i2, int type) &nbsp;</strong> <br/>
-Allow two hadrons, located in positions <i>i1</i> and <i>i2</i> of 
+allow two hadrons, located in positions <i>i1</i> and <i>i2</i> of 
 the normal event record to interact with each other and give rise to new 
-hadrons. Only simple interaction types are offered, as relevent at low 
-energies. It can be used e.g. to model hadronic rescattering in the 
-final state. This method does not itself decay unstable hadrons, but 
-thst could be achieved e.g. with a <code>Pythia::moreDecays()</code> 
-call. This method is still under development. 
+hadrons by 
+<a href="QCDLowEnergyProcesses.html" target="page">Low-energy QCD Processes</a>. 
+The possible interaction <code>type</code>s are 
+(1) inelastic nondiffractive, (2) elastic, (3, 4) single diffractive 
+where either first or second hadron is broken up, (5) double diffractive, 
+(7) excitation, (8) annihilation and (9) resonant. It is also possible to 
+specify the formation of a specific resonance by setting <code>type</code> to 
+the id of that particle. No perturbative stage is applied in either case, 
+as relevent at low energies. It can be used e.g. to model 
+<a href="HadronicRescattering.html" target="page">Hadronic Rescattering</a> in the 
+final state, where partial cross sections are first calculated to provide 
+the relevant mix of different collision types. This method does not itself 
+decay unstable hadrons, but that could be achieved e.g. with a 
+<code>Pythia::moreDecays()</code> call. 
    
  
 <a name="anchor37"></a>
+<p/><strong> double Pythia::getLowEnergySigma(int i1, int i2, int type = 0) &nbsp;</strong> <br/>
+returns the cross section used internally for low-energy collisions, 
+with the same arguments and in particular the same <code>type</code> 
+classification as above, with default option 0 giving the total cross section. 
+   
+ 
+<a name="anchor38"></a>
+<p/><strong> double Pythia::getLowEnergySigma(int id1, int id2, double eCM12, double m1, double m2, int type = 0) &nbsp;</strong> <br/>
+   
+<a name="anchor39"></a>
+<strong> double Pythia::getLowEnergySigma(int id1, int id2, double eCM12, int type = 0) &nbsp;</strong> <br/>
+returns the same low-energy cross sections as above, but with 
+arguments decoupled from the event record location of particles. 
+<br/><code>argument</code><strong> id1, id2 </strong>  :  
+the identity codes of the two colliding hadrons. 
+   
+<br/><code>argument</code><strong> eCM12 </strong>  :  
+the collision center-of-mass energy. 
+   
+<br/><code>argument</code><strong> m1, m2 </strong>  :  
+the masses of the two incoming hadrons. If unspecified, the particles are 
+assumed to be on-shell. 
+   
+<br/><code>argument</code><strong> type </strong>  :  
+process classification as above, with 0 for the total cross section. 
+   
+   
+ 
+<a name="anchor40"></a>
+<p/><strong> double Pythia::getLowEnergySlope(int id1, int id2, double eCM12, double m1, double m2, int type = 2) &nbsp;</strong> <br/>
+returns the elastic (<code>type</code> = 2) and diffractive 
+(<code>type</code> = 3, 4 or 5) slopes <i>B</i> of the <i>t</i> 
+dependence. Arguments as above, but note that <code>m1</code> and 
+<code>m2</code> refer to the current diffractive masses for 
+diffraction. 
+   
+ 
+<a name="anchor41"></a>
 <p/><strong> void Pythia::LHAeventList() &nbsp;</strong> <br/>
 list the Les Houches Accord information on the current event, see 
 <code><a href="LHA.html" target="page">LHAup::listEvent(...)</a></code>. 
@@ -1113,7 +1160,7 @@ list the Les Houches Accord information on the current event, see
 listing is a special case that would not fit elsewhere.) 
    
  
-<a name="anchor38"></a>
+<a name="anchor42"></a>
 <p/><strong> bool Pythia::LHAeventSkip(int nSkip) &nbsp;</strong> <br/>
 skip ahead a number of events in the Les Houches generation 
 sequence, without doing anything further with them, see 
@@ -1135,7 +1182,7 @@ when and how you want. It is still recommended that you make it a
 routine to call the following method at the end. A second method provides 
 a deprecated alternative. 
  
-<a name="anchor39"></a>
+<a name="anchor43"></a>
 <p/><strong> void Pythia::stat() &nbsp;</strong> <br/>
 list statistics on the event generation, specifically total and partial 
 cross sections and the number of different errors. For more details see 
@@ -1158,7 +1205,7 @@ be the number of events to generate. For such applications the
 following shortcuts to some <code>Settings</code> methods may be 
 convenient. 
  
-<a name="anchor40"></a>
+<a name="anchor44"></a>
 <p/><strong> bool Pythia::flag(string key) &nbsp;</strong> <br/>
 read in a boolean variable from the <code>Settings</code> database. 
 <br/><code>argument</code><strong> key </strong>  :  
@@ -1166,7 +1213,7 @@ the name of the variable to be read.
    
    
  
-<a name="anchor41"></a>
+<a name="anchor45"></a>
 <p/><strong> int Pythia::mode(string key) &nbsp;</strong> <br/>
 read in an integer variable from the <code>Settings</code> database. 
 <br/><code>argument</code><strong> key </strong>  :  
@@ -1174,7 +1221,7 @@ the name of the variable to be read.
    
    
  
-<a name="anchor42"></a>
+<a name="anchor46"></a>
 <p/><strong> double Pythia::parm(string key) &nbsp;</strong> <br/>
 read in a double-precision variable from the <code>Settings</code> 
 database. 
@@ -1183,7 +1230,7 @@ the name of the variable to be read.
    
    
  
-<a name="anchor43"></a>
+<a name="anchor47"></a>
 <p/><strong> string Pythia::word(string key) &nbsp;</strong> <br/>
 read in a string variable from the <code>Settings</code> database. 
 <br/><code>argument</code><strong> key </strong>  :  
@@ -1197,7 +1244,7 @@ the name of the variable to be read.
 internally, plus an interface to LHAPDF (5 or 6). With the method below, 
 this machinery is also made available for external usage. 
  
-<a name="anchor44"></a>
+<a name="anchor48"></a>
 <p/><strong> PDF* getPDFPtr(int id, int sequence = 1) &nbsp;</strong> <br/>
 get a pointer to a PDF object. Which PDF is returned depends on the 
 <a href="PDFSelection.html" target="page">PDF Selection</a> settings. 
@@ -1217,55 +1264,55 @@ The <code>Pythia</code> class contains a few public data members,
 several of which play a central role. We list them here, with 
 links to the places where they are further described. 
  
-<a name="anchor45"></a>
+<a name="anchor49"></a>
 <p/><strong> Event Pythia::process &nbsp;</strong> <br/>
 the hard-process event record, see <a href="EventRecord.html" target="page">here</a> 
 for further details. 
    
  
-<a name="anchor46"></a>
+<a name="anchor50"></a>
 <p/><strong> Event Pythia::event &nbsp;</strong> <br/>
 the complete event record, see <a href="EventRecord.html" target="page">here</a> 
 for further details. 
    
  
-<a name="anchor47"></a>
+<a name="anchor51"></a>
 <p/><strong> Info Pythia::info &nbsp;</strong> <br/>
 further information on the event-generation process, see 
 <a href="EventInformation.html" target="page">here</a> for further details. 
    
  
-<a name="anchor48"></a>
+<a name="anchor52"></a>
 <p/><strong> Settings Pythia::settings &nbsp;</strong> <br/>
 the settings database, see <a href="SettingsScheme.html" target="page">here</a> 
 for further details. 
    
  
-<a name="anchor49"></a>
+<a name="anchor53"></a>
 <p/><strong> ParticleData Pythia::particleData &nbsp;</strong> <br/>
 the particle properties and decay tables database, see 
 <a href="ParticleDataScheme.html" target="page">here</a> for further details. 
    
  
-<a name="anchor50"></a>
+<a name="anchor54"></a>
 <p/><strong> Rndm Pythia::rndm &nbsp;</strong> <br/>
 the random number generator, see <a href="RandomNumberSeed.html" target="page">here</a> 
 and <a href="RandomNumbers.html" target="page">here</a> for further details. 
    
  
-<a name="anchor51"></a>
+<a name="anchor55"></a>
 <p/><strong> CoupSM Pythia::coupSM &nbsp;</strong> <br/>
 Standard Model couplings and mixing matrices, see 
 <a href="StandardModelParameters.html" target="page">here</a> for further details. 
    
  
-<a name="anchor52"></a>
+<a name="anchor56"></a>
 <p/><strong> SusyLesHouches Pythia::slha &nbsp;</strong> <br/>
 parameters and particle data in the context of supersymmetric models, 
 see <a href="SUSYLesHouchesAccord.html" target="page">here</a> for further details. 
    
  
-<a name="anchor53"></a>
+<a name="anchor57"></a>
 <p/><strong> PartonSystems Pythia::partonSystems &nbsp;</strong> <br/>
 a grouping of the partons in the event record by subsystem, 
 see <a href="AdvancedUsage.html" target="page">here</a> for further details. 

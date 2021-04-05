@@ -310,23 +310,23 @@ double PDF::xfSea(int id, double x, double Q2) {
 // Constructor.
 
 LHAPDF::LHAPDF(int idIn, string pSet, Info* infoPtrIn) :
-  pdfPtr(0), infoPtr(infoPtrIn), lib(0) {
+  pdfPtr(nullptr), infoPtr(infoPtrIn), libPtr(nullptr) {
   isSet = false;
-  if (!infoPtr) return;
 
   // Determine the plugin library name.
   if (pSet.size() < 8) {
     printErr("Error in LHAPDF::LHAPDF: invalid pSet " + pSet, infoPtr);
     return;
   }
-  libName = pSet.substr(0, 7);
-  if (libName != "LHAPDF5" && libName != "LHAPDF6") {
+  name = pSet.substr(0, 7);
+  if (name != "LHAPDF5" && name != "LHAPDF6") {
     printErr("Error in LHAPDF::LHAPDF: invalid pSet " + pSet, infoPtr);
     return;
   }
-  libName = "libpythia8lhapdf" + libName.substr(6) + ".so";
-  lib = infoPtr->loadPlugin(libName);
-  if (lib == nullptr) return;
+  name = "libpythia8lhapdf" + name.substr(6) + ".so";
+  if (infoPtr != nullptr) libPtr = infoPtr->plugin(name);
+  else libPtr = make_shared<Plugin>(name);
+  if (!libPtr->isLoaded()) return;
 
   // Determine the PDF set and member.
   string   set = pSet.substr(8);
@@ -339,28 +339,23 @@ LHAPDF::LHAPDF(int idIn, string pSet, Info* infoPtrIn) :
   set = set.substr(0, pos);
 
   // Load the PDF.
-  NewLHAPDF* newLHAPDF = (NewLHAPDF*)symbol("newLHAPDF");
-  if (!newLHAPDF) return;
-  pdfPtr = newLHAPDF(idIn, set, mem, infoPtr);
+  NewPDF* newPDF = (NewPDF*)libPtr->symbol("newPDF");
+  if (!newPDF) return;
+  pdfPtr = newPDF(idIn, set, mem, infoPtr);
   isSet = true;
 
 }
 
 //--------------------------------------------------------------------------
 
-// Access a plugin library symbol.
+// Destructor.
 
-LHAPDF::Symbol LHAPDF::symbol(string symName) {
-  Symbol sym(0);
-  const char* error(0);
-  if (!infoPtr) return sym;
+LHAPDF::~LHAPDF() {
+  if (pdfPtr == nullptr || !libPtr->isLoaded()) return;
 
-  // Load the symbol.
-  sym = (Symbol)dlsym(lib, symName.c_str());
-  error = dlerror();
-  if (error) printErr("Error in LHAPDF::symbol: " + string(error), infoPtr);
-  dlerror();
-  return sym;
+  // Delete the PDF.
+  DeletePDF* deletePDF = (DeletePDF*)libPtr->symbol("deletePDF");
+  if (deletePDF) deletePDF(pdfPtr);
 
 }
 
@@ -567,7 +562,8 @@ void LHAGrid1::init(istream& is, Info* infoPtr) {
   for (int iid = 0; iid < 12; ++iid) {
     pdfSlope[iid] = new double[nq];
     for (int iq = 0; iq < nq; ++iq) { pdfSlope[iid][iq] =
-      ( min( pdfGrid[iid][iq][0], pdfGrid[iid][iq][1]) > 1e-5)
+      ( min( pdfGrid[iid][iq][0], pdfGrid[iid][iq][1]) > 1e-5
+      && abs(lnxGrid[1] - lnxGrid[0]) > 1e-5)
       ? ( log(pdfGrid[iid][iq][1]) - log(pdfGrid[iid][iq][0]) )
       / (lnxGrid[1] - lnxGrid[0]) : 0.;
     }
@@ -2146,6 +2142,7 @@ void ProtonPoint::xfUpdate(int , double x, double /*Q2*/ ) {
   double phiMax = phiFunc(x, Q2MAX / Q20);
   double phiMin = phiFunc(x, tmpQ2Min / Q20);
 
+  // Check wheter in the allowed kinematic region.
   double fgm = 0.;
   if (phiMax < phiMin) {
     printErr("Error in ProtonPoint::xfUpdate: phiMax - phiMin < 0!",
@@ -2198,6 +2195,104 @@ double ProtonPoint::phiFunc(double x, double Q) {
                 + C * (1 + tmpY/4.)* (log((tmpV - B)/tmpV) + tmpSum2);
 
   return funVal;
+
+}
+
+//==========================================================================
+
+// Unresolved proton: equivalent photon spectrum  according
+// to the approximation by Drees and Zeppenfeld,
+// Phys.Rev. D39 (1989) 2536.
+// Note that the reference provides the Q^2 integrated flux.
+
+// Constants:
+const double Proton2gammaDZ::ALPHAEM = 0.00729735080;
+const double Proton2gammaDZ::Q20     = 0.71;
+
+//--------------------------------------------------------------------------
+
+// Gives a generic Q2-dependent equivalent photon spectrum
+// with the electric dipole form factor.
+
+void Proton2gammaDZ::xfUpdate(int , double x, double Q2 ) {
+
+  // Form factor and photon spectrum.
+  double FQ4 = 1. / pow4( 1 + Q2 / Q20 );
+  double fgm = 0.5 * ALPHAEM / M_PI * (1. + pow2(1. - x)) / Q2 * FQ4;
+
+  // Update values
+  xg     = 0.;
+  xu     = 0.;
+  xd     = 0.;
+  xubar  = 0.;
+  xdbar  = 0.;
+  xs     = 0.;
+  xsbar  = 0.;
+  xc     = 0.;
+  xb     = 0.;
+  xgamma = fgm;
+
+  // Subdivision of valence and sea.
+  xuVal = 0.;
+  xuSea = 0;
+  xdVal = 0.;
+  xdSea = 0;
+
+  // idSav = 9 to indicate that all flavours reset.
+  idSav = 9;
+
+}
+
+//==========================================================================
+
+// Unresolved nucleus: equivalent photon approximation
+// for impact parameter integrated flux according to standard
+// form introduced in J.D. Jackson, Classical Electrodynamics,
+// 2nd edition, John Wiley & Sons (1975).
+
+// Constants:
+
+const double Nucleus2gamma::ALPHAEM = 0.00729735080;
+
+// Read in flux parameters.
+
+void Nucleus2gamma::initNucleus() {
+
+  // Derive mass number and number of protons (charge).
+  a = (idBeam/10) % 1000;
+  z = (idBeam/10000) % 1000;
+}
+
+// Update the photon flux.
+
+void Nucleus2gamma::xfUpdate(int , double x, double ) {
+
+  // The b-integrated photon flux.
+  double xi = x * mNucleon * bMin / HBARC;
+  double bK0 = besselK0(xi);
+  double bK1 = besselK1(xi);
+  double intB = xi * bK1 * bK0 - 0.5 * pow2(xi) * ( pow2(bK1) - pow2(bK0) );
+  xgamma = 2. * ALPHAEM * pow2(z) / M_PI * intB;
+
+  // Set partons to zero.
+  xg     = 0.;
+  xu     = 0.;
+  xd     = 0.;
+  xubar  = 0.;
+  xdbar  = 0.;
+  xs     = 0.;
+  xsbar  = 0.;
+  xc     = 0.;
+  xb     = 0.;
+
+  // Subdivision of valence and sea.
+  xuVal = 0.;
+  xuSea = 0;
+  xdVal = 0.;
+  xdSea = 0;
+
+  // idSav = 9 to indicate that all flavours reset.
+  idSav = 9;
 
 }
 
@@ -3464,7 +3559,7 @@ void EPAexternal::init() {
   xMax  = 1.0;
 
   // Select which overestimate is used for sampling.
-  approxMode = settingsPtr->mode("PDF:lepton2gammaApprox");
+  approxMode = settingsPtr->mode("PDF:beam2gammaApprox");
 
   // Approximation suited for lepton beams.
   if (approxMode == 1) {

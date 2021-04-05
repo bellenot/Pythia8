@@ -13,6 +13,7 @@
 #include <istream>
 #include <iterator>
 #include <memory>
+#include <ostream>
 #include <sstream>
 #include <sstream> // __str__
 #include <string>
@@ -724,8 +725,9 @@ void bind_Pythia8_SigmaProcess(std::function< pybind11::module &(std::string con
 		cl.def_readwrite("isLeptonA", &Pythia8::SigmaProcess::isLeptonA);
 		cl.def_readwrite("isLeptonB", &Pythia8::SigmaProcess::isLeptonB);
 		cl.def_readwrite("hasLeptonBeams", &Pythia8::SigmaProcess::hasLeptonBeams);
-		cl.def_readwrite("lepton2gammaA", &Pythia8::SigmaProcess::lepton2gammaA);
-		cl.def_readwrite("lepton2gammaB", &Pythia8::SigmaProcess::lepton2gammaB);
+		cl.def_readwrite("beamA2gamma", &Pythia8::SigmaProcess::beamA2gamma);
+		cl.def_readwrite("beamB2gamma", &Pythia8::SigmaProcess::beamB2gamma);
+		cl.def_readwrite("hasGamma", &Pythia8::SigmaProcess::hasGamma);
 		cl.def_readwrite("inBeamA", &Pythia8::SigmaProcess::inBeamA);
 		cl.def_readwrite("inBeamB", &Pythia8::SigmaProcess::inBeamB);
 		cl.def_readwrite("inPair", &Pythia8::SigmaProcess::inPair);

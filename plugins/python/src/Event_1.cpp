@@ -6,6 +6,7 @@
 #include <istream>
 #include <iterator>
 #include <memory>
+#include <ostream>
 #include <sstream> // __str__
 #include <string>
 #include <vector>

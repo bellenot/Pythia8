@@ -717,10 +717,12 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
       vector<bool> valNow = fvecEntry->second.valNow;
       vector<bool> valDefault = fvecEntry->second.valDefault;
       if ( writeAll || valNow != valDefault ) {
-        os  << fvecEntry->second.name << " = ";
-        for (vector<bool>::iterator val = valNow.begin();
-             val != --valNow.end(); ++val) os << state[*val] << ",";
-        os << *(--valNow.end()) << "\n";
+        os  << fvecEntry->second.name << " = {";
+        if (valNow.size() > 0) {
+          for (vector<bool>::iterator val = valNow.begin();
+               val != --valNow.end(); ++val) os << state[*val] << ",";
+          os << state[*(--valNow.end())] << "}\n";
+        } else os << "}\n";
       }
       ++fvecEntry;
 
@@ -732,10 +734,12 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
       vector<int> valNow = mvecEntry->second.valNow;
       vector<int> valDefault = mvecEntry->second.valDefault;
       if ( writeAll || valNow != valDefault ) {
-        os  << mvecEntry->second.name << " = ";
-        for (vector<int>::iterator val = valNow.begin();
-             val != --valNow.end(); ++val) os << *val << ",";
-        os << *(--valNow.end()) << "\n";
+        os  << mvecEntry->second.name << " = {";
+        if (valNow.size() > 0) {
+          for (vector<int>::iterator val = valNow.begin();
+               val != --valNow.end(); ++val) os << *val << ",";
+          os << *(--valNow.end()) << "}\n";
+        } else os << "}\n";
       }
       ++mvecEntry;
 
@@ -746,17 +750,19 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
       vector<double> valNow = pvecEntry->second.valNow;
       vector<double> valDefault = pvecEntry->second.valDefault;
       if ( writeAll || valNow != valDefault ) {
-        os  << pvecEntry->second.name << " = ";
-        for (vector<double>::iterator val = valNow.begin();
-             val != --valNow.end(); ++val) {
-          if ( *val == 0. ) os << fixed << setprecision(1);
-          else if ( abs(*val) < 0.001 ) os << scientific << setprecision(4);
-          else if ( abs(*val) < 0.1 ) os << fixed << setprecision(7);
-          else if ( abs(*val) < 1000. ) os << fixed << setprecision(5);
-          else if ( abs(*val) < 1000000. ) os << fixed << setprecision(3);
-          else os << scientific << setprecision(4);
-          os << *val << ",";
-        } os << *(--valNow.end()) << "\n";
+        os  << pvecEntry->second.name << " = {";
+        if (valNow.size() > 0) {
+          for (vector<double>::iterator val = valNow.begin();
+               val != --valNow.end(); ++val) {
+            if ( *val == 0. ) os << fixed << setprecision(1);
+            else if ( abs(*val) < 0.001 ) os << scientific << setprecision(4);
+            else if ( abs(*val) < 0.1 ) os << fixed << setprecision(7);
+            else if ( abs(*val) < 1000. ) os << fixed << setprecision(5);
+            else if ( abs(*val) < 1000000. ) os << fixed << setprecision(3);
+            else os << scientific << setprecision(4);
+            os << *val << ",";
+          } os << *(--valNow.end()) << "}\n";
+        } else os << "}\n";
       }
       ++pvecEntry;
 
@@ -765,10 +771,12 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
       vector<string> valNow = wvecEntry->second.valNow;
       vector<string> valDefault = wvecEntry->second.valDefault;
       if ( writeAll || valNow != valDefault ) {
-        os  << wvecEntry->second.name << " = ";
+        if (valNow.size() > 0) {
+        os  << wvecEntry->second.name << " = {";
         for (vector<string>::iterator val = valNow.begin();
              val != --valNow.end(); ++val) os << *val << ",";
-        os << *(--valNow.end()) << "\n";
+        os << *(--valNow.end()) << "}\n";
+        } else os << "}\n";
       }
       ++wvecEntry;
     }
@@ -897,10 +905,12 @@ bool Settings::writeFileXML(ostream& os) {
       ) {
       string state[2] = {"off", "on"};
       vector<bool> valDefault = fvecEntry->second.valDefault;
-      os << "<fvec name=\"" << fvecEntry->second.name << "\" default=\"";
-      for (vector<bool>::iterator val = valDefault.begin();
-           val != --valDefault.end(); ++val) os << state[*val] << ",";
-      os << state[*(--valDefault.end())] << "\"></fvec>" << endl;
+      os << "<fvec name=\"" << fvecEntry->second.name << "\" default={\"";
+      if (valDefault.size() > 0) {
+        for (vector<bool>::iterator val = valDefault.begin();
+             val != --valDefault.end(); ++val) os << state[*val] << ",";
+        os << state[*(--valDefault.end())] << "}\"></fvec>" << endl;
+      } else os << "}\"></fvec>" << endl;
       ++fvecEntry;
 
     // Else check if mvec is next, and if so print it.
@@ -909,10 +919,12 @@ bool Settings::writeFileXML(ostream& os) {
       && ( wvecEntry == wvecs.end() || mvecEntry->first < wvecEntry->first )
       ) {
       vector<int> valDefault = mvecEntry->second.valDefault;
-      os << "<mvec name=\"" << mvecEntry->second.name << "\" default=\"";
-      for (vector<int>::iterator val = valDefault.begin();
-           val != --valDefault.end(); ++val) os << *val << ",";
-      os << *(--valDefault.end())        << "\">";
+      os << "<mvec name=\"" << mvecEntry->second.name << "\" default={\"";
+      if (valDefault.size() > 0) {
+        for (vector<int>::iterator val = valDefault.begin();
+             val != --valDefault.end(); ++val) os << *val << ",";
+        os << *(--valDefault.end()) << "}\">";
+      } else os << "}\">";
       if (mvecEntry->second.hasMin ) os << " min=\""
         << mvecEntry->second.valMin << "\"";
       if (mvecEntry->second.hasMax ) os << " max=\""
@@ -925,9 +937,10 @@ bool Settings::writeFileXML(ostream& os) {
       && ( wvecEntry == wvecs.end() || pvecEntry->first < wvecEntry->first )
       ) {
       vector<double> valDefault = pvecEntry->second.valDefault;
-      os << "<pvec name=\"" << pvecEntry->second.name << "\" default=\"";
-      for (vector<double>::iterator val = valDefault.begin();
-           val != --valDefault.end(); ++val) {
+      os << "<pvec name=\"" << pvecEntry->second.name << "\" default={\"";
+      if (valDefault.size() > 0) {
+        for (vector<double>::iterator val = valDefault.begin();
+             val != --valDefault.end(); ++val) {
           if ( *val == 0. ) os << fixed << setprecision(1);
           else if ( abs(*val) < 0.001 ) os << scientific << setprecision(4);
           else if ( abs(*val) < 0.1 ) os << fixed << setprecision(7);
@@ -935,8 +948,9 @@ bool Settings::writeFileXML(ostream& os) {
           else if ( abs(*val) < 1000000. ) os << fixed << setprecision(3);
           else os << scientific << setprecision(4);
           os << *val << ",";
-      }
-      os << *(--valDefault.end())        << "\">";
+        }
+        os << *(--valDefault.end()) << "}\">";
+      } else os << "}\">";
       if (pvecEntry->second.hasMin ) {
         double valLocal = pvecEntry->second.valMin;
         os << " min=\"";
@@ -965,10 +979,12 @@ bool Settings::writeFileXML(ostream& os) {
     // Else print wvec.
     } else {
       vector<string> valDefault = wvecEntry->second.valDefault;
-      os << "<wvec name=\"" << wvecEntry->second.name << "\" default=\"";
-      for (vector<string>::iterator val = valDefault.begin();
-           val != --valDefault.end(); ++val) os << *val << ",";
-      os << *(--valDefault.end())        << "\">";
+      os << "<wvec name=\"" << wvecEntry->second.name << "\" default={\"";
+      if (valDefault.size() > 0) {
+        for (vector<string>::iterator val = valDefault.begin();
+             val != --valDefault.end(); ++val) os << *val << ",";
+        os << *(--valDefault.end()) << "}\">";
+      } else os << "}\">";
       os << "</wvec>" << endl;
       ++wvecEntry;
    }
@@ -1763,9 +1779,10 @@ void Settings::resetWVec(string keyIn) {
 
 //--------------------------------------------------------------------------
 
-// Check whether any other processes than SoftQCD are switched on.
+// Check whether any other processes than SoftQCD and LowEnergyQCD are
+// switched on. Note that Les Houches input has to be checked separately.
 
-bool Settings::onlySoftQCD() {
+bool Settings::hasHardProc() {
 
   // List of (most?) process name groups, in lowercase. Special cases.
   string flagList[26] = { "hardqcd", "promptphoton", "weakbosonexchange",
@@ -1789,11 +1806,11 @@ bool Settings::onlySoftQCD() {
     if (doExclude) continue;
     for (int i = 0; i < sizeList; ++i)
       if (flagName.find( flagList[i]) != string::npos
-      && flagEntry->second.valNow == true) return false;
+      && flagEntry->second.valNow == true) return true;
   }
 
-  // Done without having found a non-SoftQCD process on.
-  return true;
+  // Done without having found a non-SoftQCD/LowEnergyQCD process on.
+  return false;
 
 }
 
@@ -2943,41 +2960,6 @@ void Settings::initTunePP( int ppTune) {
       parm("ColourReconnection:range",          1.71  );
     }
 
-    // Tune with close-packing of strings and rescattering (November 2016).
-    // Gaussian pT.
-    else if (ppTune == 33) {
-      parm("MultipartonInteractions:pT0Ref",    2.34 );
-      parm("ColourReconnection:range",          1.8  );
-      flag("StringPT:thermalModel",             false);
-      parm("StringPT:sigma",                    0.33 );
-      parm("StringPT:widthPreStrange",          1.2  );
-      parm("StringPT:widthPreDiquark",          1.2  );
-      parm("StringPT:enhancedFraction",         0.0  );
-      flag("StringPT:closePacking",             true );
-      parm("StringPT:expNSP",                   0.01 );
-      parm("StringPT:expMPI",                   0.0  );
-      flag("HadronLevel:HadronScatter",         true );
-      mode("HadronScatter:mode",                0    );
-      parm("HadronScatter:maxProbDS",           0.25 );
-    }
-
-    // Tune with close-packing of strings and rescattering (November 2016).
-    // Thermodynamical pT.
-    else if (ppTune == 34) {
-      parm("MultipartonInteractions:pT0Ref",    2.5  );
-      parm("ColourReconnection:range",          1.1  );
-      flag("StringPT:thermalModel",             true );
-      parm("StringPT:temperature",              0.21 );
-      parm("StringFlav:BtoMratio",              0.357);
-      parm("StringFlav:StrangeSuppression",     0.5  );
-      flag("StringPT:closePacking",             true );
-      parm("StringPT:expNSP",                   0.13 );
-      parm("StringPT:expMPI",                   0.0  );
-      flag("HadronLevel:HadronScatter",         true );
-      mode("HadronScatter:mode",                0    );
-      parm("HadronScatter:maxProbDS",           0.5  );
-    }
-
   }
 
 }
@@ -3055,11 +3037,11 @@ double Settings::doubleAttributeValue(string line, string attribute) {
 vector<bool> Settings::boolVectorAttributeValue(string line,
   string attribute) {
   string valString = attributeValue(line, attribute);
-  if (valString == "") return vector<bool>(1, false);
   size_t openBrace  = valString.find_first_of("{");
   size_t closeBrace = valString.find_last_of("}");
   if (openBrace != string::npos)
     valString = valString.substr(openBrace + 1, closeBrace - openBrace - 1);
+  if (valString == "") return vector<bool>();
   vector<bool> vectorVal;
   size_t       stringPos(0);
   while (stringPos != string::npos) {
@@ -3079,11 +3061,11 @@ vector<bool> Settings::boolVectorAttributeValue(string line,
 vector<int> Settings::intVectorAttributeValue(string line,
   string attribute) {
   string valString = attributeValue(line, attribute);
-  if (valString == "") return vector<int>(1, 0);
   size_t openBrace  = valString.find_first_of("{");
   size_t closeBrace = valString.find_last_of("}");
   if (openBrace != string::npos)
     valString = valString.substr(openBrace + 1, closeBrace - openBrace - 1);
+  if (valString == "") return vector<int>();
   int         intVal;
   vector<int> vectorVal;
   size_t      stringPos(0);
@@ -3105,11 +3087,11 @@ vector<int> Settings::intVectorAttributeValue(string line,
 vector<double> Settings::doubleVectorAttributeValue(string line,
   string attribute) {
   string valString = attributeValue(line, attribute);
-  if (valString == "") return vector<double>(1, 0.);
   size_t openBrace  = valString.find_first_of("{");
   size_t closeBrace = valString.find_last_of("}");
   if (openBrace != string::npos)
     valString = valString.substr(openBrace + 1, closeBrace - openBrace - 1);
+  if (valString == "") return vector<double>();
   double         doubleVal;
   vector<double> vectorVal;
   size_t         stringPos(0);
@@ -3131,11 +3113,11 @@ vector<double> Settings::doubleVectorAttributeValue(string line,
 vector<string> Settings::stringVectorAttributeValue(string line,
   string attribute) {
   string valString = attributeValue(line, attribute);
-  if (valString == "") return vector<string>(1, " ");
   size_t openBrace  = valString.find_first_of("{");
   size_t closeBrace = valString.find_last_of("}");
   if (openBrace != string::npos)
     valString = valString.substr(openBrace + 1, closeBrace - openBrace - 1);
+  if (valString == "") return vector<string>();
   string         stringVal;
   vector<string> vectorVal;
   size_t         stringPos(0);

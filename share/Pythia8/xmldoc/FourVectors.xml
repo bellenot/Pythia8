@@ -171,13 +171,13 @@ four-vector, as provided by <code>mCalc()</code> above, and it all
 ended with a newline. 
 </method> 
  
-<method name="friend bool isnan(const Vec4& v)">
+<method name="friend bool isnan(const Vec4& v)"> 
 </method> 
 <methodmore name="friend double isinf(const Vec4& v)"> 
 returns true if any of the four elements is not a number or infinite. 
 </methodmore> 
-<methodmore name="friend bool isnan(const Vec4& v)">
-returns true if all four elements are finite.
+<methodmore name="friend bool isnan(const Vec4& v)"> 
+returns true if all four elements are finite. 
 </methodmore> 
  
 <method name="friend double m(const Vec4& v1, const Vec4& v2)"> 
@@ -443,6 +443,16 @@ rotate and boost from the rest frame of <ei>p_1</ei> and <ei>p_2</ei>,
 with <ei>p_1</ei> along the <ei>+z</ei> axis, to the actual frame of 
 <ei>p_1</ei> and <ei>p_2</ei>, i.e. the inverse of the above. 
 </method> 
+ 
+<method 
+name="void RotBstMatrix::toSameVframe(const Vec4& p1, const Vec4& p2)"> 
+</method> 
+<methodmore name="void RotBstMatrix::fromSameVframe(const Vec4& p1, 
+const Vec4& p2)"> 
+similar to <code>toCMframe</code> and <code>fromCMframe</code> above, 
+but to/from a frame with equal-size and opposite velocities instead of 
+ditto three-momenta. 
+</methodmore> 
  
 <method name="void RotBstMatrix::rotbst(const RotBstMatrix& Min);"> 
 combine the current matrix with another one. 

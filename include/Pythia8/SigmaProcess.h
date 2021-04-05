@@ -280,13 +280,13 @@ protected:
     mbME(), mmuME(), mtauME(), renormMultFac(), renormFixScale(),
     factorMultFac(), factorFixScale(), higgsH1parity(), higgsH2parity(),
     higgsA3parity(), higgsH1eta(), higgsH2eta(), higgsA3eta(),
-    higgsH1phi(), higgsH2phi(),
-    higgsA3phi(), idA(), idB(), mA(), mB(), isLeptonA(), isLeptonB(),
-    hasLeptonBeams(), lepton2gammaA(), lepton2gammaB(), mH(), sH(), sH2(),
-    x1Save(), x2Save(), sigmaSumSave(), id1(), id2(), id3(), id4(), id5(),
-    idSave(), colSave(), acolSave(), mSave(), cosTheta(), sinTheta(), phi(),
-    sHMass(), sHBeta(), pT2Mass(), pTFin(), mSaveT(), pTFinT(), cosThetaT(),
-    sinThetaT(), phiT(), mME(), swapTU() {
+    higgsH1phi(), higgsH2phi(), higgsA3phi(), idA(), idB(), mA(), mB(),
+    isLeptonA(), isLeptonB(), hasLeptonBeams(), beamA2gamma(), beamB2gamma(),
+    hasGamma(), mH(), sH(), sH2(), x1Save(), x2Save(), sigmaSumSave(),
+    id1(), id2(), id3(), id4(), id5(), idSave(), colSave(), acolSave(),
+    mSave(), cosTheta(), sinTheta(), phi(), sHMass(), sHBeta(), pT2Mass(),
+    pTFin(), mSaveT(), pTFinT(), cosThetaT(), sinThetaT(), phiT(), mME(),
+    swapTU() {
     for (int i = 0; i < 12; ++i) mSave[i] = 0.;
     Q2RenSave = alpEM = alpS = Q2FacSave = pdf1Save = pdf2Save = 0.; }
 
@@ -314,7 +314,8 @@ protected:
   // Information on incoming beams.
   int    idA, idB;
   double mA, mB;
-  bool   isLeptonA, isLeptonB, hasLeptonBeams, lepton2gammaA, lepton2gammaB;
+  bool   isLeptonA, isLeptonB, hasLeptonBeams, beamA2gamma, beamB2gamma,
+         hasGamma;
 
   // Partons in beams, with PDF's.
   vector<InBeam> inBeamA;

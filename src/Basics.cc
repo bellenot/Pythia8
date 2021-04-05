@@ -821,6 +821,66 @@ void RotBstMatrix::fromCMframe(const Vec4& p1, const Vec4& p2) {
 
 //--------------------------------------------------------------------------
 
+// Boost and rotation that transforms from p1 and p2 to the frame where
+// they have  opposite same-magnitude velocities with p1 along +z axis.
+
+void RotBstMatrix::toSameVframe(const Vec4& p1, const Vec4& p2) {
+
+  // Boost and rotate (p1, p2) = (dir, inv) to CM frame along +-z axis.
+  Vec4 pSum = p1 + p2;
+  Vec4 dir  = p1;
+  Vec4 inv  = p2;
+  dir.bstback(pSum);
+  inv.bstback(pSum);
+  double theta = dir.theta();
+  double phi   = dir.phi();
+  bstback(pSum);
+  rot(0., -phi);
+  rot(-theta, phi);
+
+  // Final boost to frame with equal velocities oppositely directed.
+  double sDir = p1.m2Calc();
+  double sInv = p2.m2Calc();
+  if ( abs(sDir - sInv) > 1e-6 * (sDir + sInv) ) {
+    double beta = (dir.e() * inv.e() - dir.pAbs2() - sqrt(sDir * sInv))
+      * (dir.e() + inv.e()) / (dir.pAbs() * (sDir - sInv));
+    bst( 0., 0., beta);
+  }
+}
+
+//--------------------------------------------------------------------------
+
+// Rotation and boost that transforms from equal-velocity frame of p1 and p2
+// with p1 along +z axis to actual frame of p1 and p2. (Inverse of above.)
+
+void RotBstMatrix::fromSameVframe(const Vec4& p1, const Vec4& p2) {
+
+  // Boost and rotation to CM frame along +-z axis.
+  Vec4 pSum = p1 + p2;
+  Vec4 dir  = p1;
+  Vec4 inv  = p2;
+  dir.bstback(pSum);
+  inv.bstback(pSum);
+  double theta = dir.theta();
+  double phi   = dir.phi();
+
+  // Initial boost from equal-velocity to equal-momentum frame.
+  double sDir = p1.m2Calc();
+  double sInv = p2.m2Calc();
+  if ( abs(sDir - sInv) > 1e-6 * (sDir + sInv) ) {
+    double beta = (dir.e() * inv.e() - dir.pAbs2() - sqrt(sDir * sInv))
+      * (dir.e() + inv.e()) / (dir.pAbs() * (sDir - sInv));
+    bst( 0., 0., -beta);
+  }
+
+  // Rotation and boost back to lab frame.
+  rot(0., -phi);
+  rot(theta, phi);
+  bst(pSum);
+}
+
+//--------------------------------------------------------------------------
+
 // Combine existing rotation/boost matrix with another one.
 
 void RotBstMatrix::rotbst(const RotBstMatrix& Mrb) {
@@ -921,6 +981,25 @@ const char NUMBER[] = {'0', '1', '2', '3', '4', '5',
 
 //--------------------------------------------------------------------------
 
+  // Create a histogram that is the plot of the given function.
+
+Hist Hist::plotFunc(function<double(double)> f, string titleIn,
+    int nBinIn, double xMinIn, double xMaxIn, bool logXIn) {
+    Hist result(titleIn, nBinIn, xMinIn, xMaxIn, logXIn);
+    if (!logXIn) {
+      double dx = (xMaxIn - xMinIn) / nBinIn;
+      for (double x = xMinIn + 0.5 * dx; x < xMaxIn; x += dx)
+        result.fill(x, f(x));
+    } else {
+      double rx = pow( xMaxIn / xMinIn, 1. / nBinIn);
+      for (double x = xMinIn * sqrt(rx); x < xMaxIn; x *= rx)
+        result.fill(x, f(x));
+    }
+    return result;
+  }
+
+//--------------------------------------------------------------------------
+
 // Book a histogram.
 
 void Hist::book(string titleIn, int nBinIn, double xMinIn,
@@ -963,6 +1042,7 @@ void Hist::null() {
   under  = 0.;
   inside = 0.;
   over   = 0.;
+  sumxw  = 0.;
   for (int ix = 0; ix < nBin; ++ix) res[ix] = 0.;
 
 }
@@ -973,6 +1053,8 @@ void Hist::null() {
 
 void Hist::fill(double x, double w) {
 
+  if (!isfinite(x) || !isfinite(w)) {nNonFinite += 1; return;}
+
   ++nFill;
   if (x < xMin) {under += w; return;}
   if (x > xMax) {over  += w; return;}
@@ -980,8 +1062,11 @@ void Hist::fill(double x, double w) {
            : int( floor( log10(x / xMin) / dx) );
   if      (iBin < 0)     under += w;
   else if (iBin >= nBin) over  += w;
-  else                 {inside += w; res[iBin] += w; }
-
+  else {
+    res[iBin] += w;
+    inside    += w;
+    sumxw     += x * w;
+  }
 }
 
 //--------------------------------------------------------------------------
@@ -991,7 +1076,10 @@ void Hist::fill(double x, double w) {
 ostream& operator<<(ostream& os, const Hist& h) {
 
   // Do not print empty histograms.
-  if (h.nFill <= 0) return os;
+  if (h.nFill <= 0) {
+    os << "     Histogram not shown since it is empty \n \n";
+    return os;
+  }
 
   // Write time and title.
   time_t t = time(0);
@@ -1057,8 +1145,10 @@ ostream& operator<<(ostream& os, const Hist& h) {
         if (iRow == row[iCol])                  os << NUMBER[frac[iCol]];
         else if (iRow * (row[iCol] - iRow) > 0) os << NUMBER[10];
         else                                    os << " ";
-      } os << "\n";
-    } os << "\n";
+      }
+      os << "\n";
+    }
+    os << "\n";
 
     // Print sign and value of bin contents
     double maxim = log10(max(yMax, -yMin));
@@ -1308,14 +1398,16 @@ void Hist::takeSqrt() {
 
 //--------------------------------------------------------------------------
 
-// Find smallest nonzero absolute value of bin contents.
+// Normalize bin contents to given sum, by default including overflow bins.
 
-double Hist::smallestAbsValue() const {
+void Hist::normalize( double sum, bool alsoOverflow) {
 
-  double smallest = 1e20; double yAbs;
-  for (int ix = 0; ix < nBin; ++ix) { yAbs = abs(res[ix]);
-    if (yAbs > 1e-20 && yAbs < smallest) smallest = yAbs; }
-  return smallest;
+  double norm = (alsoOverflow) ? sum / (under + inside + over) : sum / inside;
+  for (int ix = 0; ix < nBin; ++ix) res[ix] *= norm;
+  under  *= norm;
+  inside *= norm;
+  over   *= norm;
+  sumxw  *= norm;
 
 }
 
@@ -1328,7 +1420,8 @@ Hist& Hist::operator+=(const Hist& h) {
   nFill  += h.nFill;
   under  += h.under;
   inside += h.inside;
-  over += h.over;
+  over   += h.over;
+  sumxw  += h.sumxw;
   for (int ix = 0; ix < nBin; ++ix) res[ix] += h.res[ix];
   return *this;
 }
@@ -1342,7 +1435,7 @@ Hist& Hist::operator-=(const Hist& h) {
   nFill  += h.nFill;
   under  -= h.under;
   inside -= h.inside;
-  over -= h.over;
+  over   -= h.over;
   for (int ix = 0; ix < nBin; ++ix) res[ix] -= h.res[ix];
   return *this;
 }
@@ -1384,6 +1477,7 @@ Hist& Hist::operator+=(double f) {
   under  += f;
   inside += nBin * f;
   over   += f;
+  sumxw  += nBin * f;
   for (int ix = 0; ix < nBin; ++ix) res[ix] += f;
   return *this;
 }
@@ -1396,6 +1490,7 @@ Hist& Hist::operator-=(double f) {
   under  -= f;
   inside -= nBin * f;
   over   -= f;
+  sumxw  -= nBin * f;
   for (int ix = 0; ix < nBin; ++ix) res[ix] -= f;
   return *this;
 }
@@ -1408,6 +1503,7 @@ Hist& Hist::operator*=(double f) {
   under  *= f;
   inside *= f;
   over   *= f;
+  sumxw  *= f;
   for (int ix = 0; ix < nBin; ++ix) res[ix] *= f;
   return *this;
 }
@@ -1421,12 +1517,14 @@ Hist& Hist::operator/=(double f) {
     under  /= f;
     inside /= f;
     over   /= f;
+    sumxw  /= f;
     for (int ix = 0; ix < nBin; ++ix) res[ix] /= f;
   // Set empty contents when division by zero.
   } else {
     under  = 0.;
     inside = 0.;
     over   = 0.;
+    sumxw  = 0.;
     for (int ix = 0; ix < nBin; ++ix) res[ix] = 0.;
   }
   return *this;
@@ -1468,6 +1566,7 @@ Hist operator-(double f, const Hist& h1) {
   h.under  = f - h1.under;
   h.inside = h1.nBin * f - h1.inside;
   h.over   = f - h1.over;
+  h.sumxw  = f - h1.sumxw;
   for (int ix = 0; ix < h1.nBin; ++ix) h.res[ix] = f - h1.res[ix];
   return h;}
 
@@ -1479,6 +1578,7 @@ Hist operator/(double f, const Hist& h1) {
   h.under  = (abs(h1.under)  < Hist::TINY) ? 0. :  f/h1.under;
   h.inside = (abs(h1.inside) < Hist::TINY) ? 0. :  f/h1.inside;
   h.over   = (abs(h1.over)   < Hist::TINY) ? 0. :  f/h1.over;
+  h.sumxw  = (abs(h1.sumxw)  < Hist::TINY) ? 0. :  f/h1.sumxw;
   for (int ix = 0; ix < h1.nBin; ++ix)
     h.res[ix] = (abs(h1.res[ix]) < Hist::TINY) ? 0. : f/h1.res[ix];
   return h;
@@ -1493,10 +1593,10 @@ Hist operator/(double f, const Hist& h1) {
 
 //  Generate the Python code for plotting a frame.
 
-void HistPlot::plot( bool logY) {
+void HistPlot::plot( bool logY, bool logX, bool userBorders) {
 
   // Start new file or add to existing one.
-  if (frameName != "") {
+  if (frameName != "" && frameName != framePrevious) {
     if (nPDF > 0) toPython << "pp.close()" << endl;
     ++nPDF;
     fileName = frameName;
@@ -1507,18 +1607,29 @@ void HistPlot::plot( bool logY) {
     ++nFrame;
   }
   toPython << "tmp" << nFrame << " = plt.figure(" << nFrame << ")" << endl;
+  toPython << "tmp" << nFrame << ".set_size_inches(" << fixed
+    << setprecision(2) << xSize << "," << ySize << ")" << endl;
 
   // Loop through the vector of histograms.
-  double yAbsMin = 1e20;
+  double xMinTot = 1e10, xMaxTot = -1e10, yMinTot = 1e10, yMaxTot = -1e10,
+         yAbsMin = 1e10;
   for (int iHist = 0; iHist < int(histos.size()); ++iHist) {
 
-    // Histogram information for plotting.
+    // Histogram information for plotting, especially x and y borders.
     string legendNow = (legends[iHist] != "void") ? legends[iHist]
       : histos[iHist].getTitle();
     stringstream nBin;
     nBin << histos[iHist].getBinNumber();
-    double yAbsNow = histos[iHist].smallestAbsValue();
-    if (yAbsNow < yAbsMin) yAbsMin = yAbsNow;
+    double xMinNow = histos[iHist].getXMin();
+    if (iHist == 0 || xMinNow < xMinTot) xMinTot = xMinNow;
+    double xMaxNow = histos[iHist].getXMax();
+    if (iHist == 0 || xMaxNow > xMaxTot) xMaxTot = xMaxNow;
+    double yMinNow = histos[iHist].getYMin();
+    if (iHist == 0 || yMinNow < yMinTot) yMinTot = yMinNow;
+    double yMaxNow = histos[iHist].getYMax();
+    if (iHist == 0 || yMaxNow > yMaxTot) yMaxTot = yMaxNow;
+    double yAbsNow = histos[iHist].getYAbsMin();
+    if (iHist == 0 || yAbsNow < yAbsMin) yAbsMin = yAbsNow;
 
     // Split plotting style and potential colour information.
     string styleNow = (styles[iHist] == "") ? "h" : styles[iHist];
@@ -1549,12 +1660,94 @@ void HistPlot::plot( bool logY) {
     toPython << " label=r'" << legendNow << "')" << endl;
   }
 
-  // Write title, axes and create plot.
-  if (!histos[0].getLinX()) toPython << "plt.xscale('log')" << endl;
-  if (logY) toPython << "plt.yscale('symlog', linthreshy=" << scientific
-           << setprecision(2) << yAbsMin << ")" << endl;
-  else toPython << "plt.ticklabel_format(axis='y', style='sci', "
-           << "scilimits=(-2,3))" << endl;
+  // Loop through the vector of already existing files, if any.
+  if (histos.size() == 0) yAbsMin = 0.;
+  for (int iFile = 0; iFile < int(files.size()); ++iFile) {
+    string legendNow = (fileLegends[iFile] != "void") ? fileLegends[iFile]
+      : files[iFile];
+
+    // Split plotting style and potential colour information.
+    string styleNow = (fileStyles[iFile] == "") ? "o" : fileStyles[iFile];
+    string style1 = styleNow;
+    string style2 = "";
+    if (styleNow.find(",") != string::npos) {
+      int iComma = styleNow.find(",");
+      style1 = (iComma > 0) ? styleNow.substr( 0, iComma) : "o";
+      if (iComma + 1 < int(styleNow.length()))
+        style2 = styleNow.substr( iComma + 1);
+    }
+
+    // Find out whether and what kind of error bars should be plotted.
+    int nxErr = 0;
+    if (filexyerr[iFile].find("x") != string::npos) nxErr = 1;
+    if (filexyerr[iFile].find("X") != string::npos) nxErr = 2;
+    int nyErr = 0;
+    if (filexyerr[iFile].find("y") != string::npos) nyErr = 1;
+    if (filexyerr[iFile].find("Y") != string::npos) nyErr = 2;
+
+    // Write code to plot existing file. Trivial but tedious error bars.
+    toPython << "plot = open('" << files[iFile] << "')" << endl
+             << "plot = [line.split() for line in plot]" << endl
+             << "valx = [float(x[0]) for x in plot]" << endl
+             << "valy = [float(x[1]) for x in plot]" << endl;
+    if (style1 == "h") toPython
+      << "vale = [float(x[2]) for x in plot]" << endl
+      << "plt.hist( valx, vale, weights = valy,"  << " histtype='step',";
+    else if (nxErr == 0 && nyErr == 0)
+      toPython << "plt.plot( valx, valy, '" << style1 << "',";
+    else {
+      if (nxErr == 1) toPython
+        << "errx = [float(x[2]) for x in plot]" << endl;
+      else if (nxErr == 2) toPython
+        << "errxlow = [float(x[2]) for x in plot]" << endl
+        << "errxupp = [float(x[3]) for x in plot]" << endl
+        << "errx = [errxlow, errxupp]" << endl;
+      if (nyErr == 1) toPython
+        << "erry = [float(x[" << nxErr + 2 << "]) for x in plot]" << endl;
+      else if (nyErr == 2) toPython
+        << "errylow = [float(x[" << nxErr + 2 << "]) for x in plot]" << endl
+        << "erryupp = [float(x[" << nxErr + 3 << "]) for x in plot]" << endl
+        << "erry = [errylow, erryupp]" << endl;
+      toPython << "plt.errorbar( valx, valy,";
+      if (nxErr > 0) toPython << " xerr=errx,";
+      if (nyErr > 0) toPython << " yerr=erry,";
+      toPython << " fmt='" << style1 << "',";
+    }
+    if (style2 != "") toPython << " color='" << style2 << "',";
+    toPython << " label=r'" << legendNow << "', zorder=-1)" << endl;
+  }
+
+  // Set borders and write axes.
+  toPython << "plt.xlim( " << scientific << setprecision(3)
+           << (userBorders ? xMinUser : xMinTot) << ", "
+           << (userBorders ? xMaxUser : xMaxTot) << ")" << endl;
+  if ((histos.size() > 0 && !histos[0].getLinX()) || logX)
+    toPython << "plt.xscale('log')" << endl;
+  if (logY) {
+    if (userBorders) toPython << "plt.ylim( " << scientific << setprecision(3)
+      << yMinUser << ", " << yMaxUser << ")" << endl;
+    toPython << "plt.yscale('symlog', linthreshy=" << scientific
+             << setprecision(2) << (userBorders ? 0.5 * yMinUser : yAbsMin)
+             << ")" << endl;
+  } else {
+    if (userBorders) {
+      yMinTot = yMinUser;
+      yMaxTot = yMaxUser;
+    } else if (yMinTot < -1e-20 || yMinTot > 0.5 * yMaxTot) {
+      double yMargin = 0.05 * (yMaxTot - yMinTot);
+      yMinTot -= yMargin;
+      yMaxTot += yMargin;
+    } else {
+      yMinTot  = 0.;
+      yMaxTot *= 1.05;
+    }
+    toPython << "plt.ylim( " << scientific << setprecision(3) << yMinTot
+             << ", " << yMaxTot << ")" << endl;
+    toPython << "plt.ticklabel_format(axis='y', style='sci', "
+             << "scilimits=(-2,3))" << endl;
+  }
+
+  // Write title and labels, and create plot.
   toPython << "plt.legend(frameon=False,loc='best')" << endl
            << "plt.title(r'" << title << "')" << endl
            << "plt.xlabel(r'" << xLabel << "')" << endl

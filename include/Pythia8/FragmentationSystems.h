@@ -83,7 +83,8 @@ public:
 
   // Insert a new qqbar colour singlet system in ascending mass order.
   // Calculate its properties.
-  bool simpleInsert( vector<int>& iPartonIn, Event& event);
+  bool simpleInsert( vector<int>& iPartonIn, Event& event,
+    bool fixOrder = false);
 
   // Erase a colour singlet system. (Rare operation.)
   void erase(int iSub) {singlets.erase(singlets.begin() + iSub);}

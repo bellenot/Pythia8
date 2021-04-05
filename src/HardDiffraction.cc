@@ -238,6 +238,7 @@ double HardDiffraction::xfPom(double xIn) {
   double tMax  = tLim.second;
   double x     = xIn;
   double xFlux = 0.;
+  if (tMin > 0. || tMax > 0.) return 0.;
 
   // Schuler-Sjostrand Pomeron flux, see Phys. Rev. D.49 (1994) 2259.
   // flux = normPom * 1/x * exp(2t(2.3 + 0.25 * log(1/x)))
@@ -445,6 +446,9 @@ pair<double, double> HardDiffraction::tRange(double xIn) {
   s2         = pow2(mB);
   s3         = (iBeam == 1) ? s1 : M2;
   s4         = (iBeam == 2) ? s2 : M2;
+
+  // Error exit if too large diffractive mass.
+  if (sqrt(s3) + sqrt(s4) >= eCM) return make_pair( 1., 1.);
 
   // Calculate kinematics.
   double lambda12 = sqrtpos(pow2(s - s1 - s2) - 4. * s1 * s2);

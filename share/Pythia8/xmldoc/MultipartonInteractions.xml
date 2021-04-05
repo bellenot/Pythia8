@@ -304,8 +304,8 @@ that varies according to the selected <ei>x</ei> value of an interaction,
 <ei>1. + a1 log (1 / x)</ei>, where <ei>a1</ei> is a free parameter. 
 Note that once <ei>b</ei> has been selected for the hard process, 
 it remains fixed for the remainder of the evolution. Also note that 
-the machinery for 
-<aloc href="SecondHardProcess">a second hard process</aloc> 
+the machinery for a 
+<aloc href="SecondHardProcess">second hard process</aloc> 
 is not adapted to calculate the impact-parameter enhancement factor 
 for this option. 
 </option> 

@@ -158,22 +158,26 @@ hadron-level steps.
  
 <p/> 
 For <code>HadronLevel:all = on</code> some parts of the event generation 
-on this level may be switched off individually: 
+on this level may be switched on or off individually: 
  
 <flag name="HadronLevel:Hadronize" default="on"> 
 Master switch for hadronization; on/off = true/false. 
 Further options are found <aloc href="Fragmentation">here</aloc>. 
 </flag> 
  
-<flag name="HadronLevel:HadronScatter" default="off"> 
-Master switch for hadron rescattering, following the hadronization; 
-on/off = true/false. 
-Further options are found <aloc href="HadronScattering">here</aloc>. 
-</flag> 
- 
 <flag name="HadronLevel:Decay" default="on"> 
 Master switch for decays; on/off = true/false. 
 Further options are found <aloc href="ParticleDecays">here</aloc>. 
+</flag> 
+ 
+<flag name="HadronLevel:Rescatter" default="off"> 
+Master switch for hadronic rescattering, following the hadronization; 
+on/off = true/false. 
+<note>Note</note>: If this is on, <code>Fragmentation:setVertices</code> and 
+<code>HadronVertex:rapidDecays</code> are automatically treated as being on, 
+since they provide spacetime information required by rescattering. 
+Consider also turning on <code>PartonVertex:setVertex</code>. Further options 
+are found <aloc href="HadronicRescattering">here</aloc>. 
 </flag> 
  
 <flag name="HadronLevel:BoseEinstein" default="off"> 

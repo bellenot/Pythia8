@@ -42,7 +42,7 @@ public:
 
   // Do the fragmentation: driver routine.
   bool fragment( int iSub, ColConfig& colConfig, Event& event,
-    bool isDiff = false);
+    bool isDiff = false, bool systemRecoil = true);
 
 private:
 
@@ -70,10 +70,11 @@ private:
   vector<StringVertex> ministringVertices;
 
   // Attempt to produce two particles from a cluster.
-  bool ministring2two( int nTry, Event& event);
+  bool ministring2two( int nTry, Event& event, bool findLowMass = false);
 
   // Attempt to produce one particle from a cluster.
-  bool ministring2one( int iSub, ColConfig& colConfig, Event& event);
+  bool ministring2one( int iSub, ColConfig& colConfig, Event& event,
+    bool findLowMass = false, bool systemRecoil = true);
 
   // Set hadron production points in space-time picture.
   void setHadronVertices(Event& event, StringRegion& region,

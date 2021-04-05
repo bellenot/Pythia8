@@ -2,6 +2,7 @@
 #include <Pythia8/BeamParticle.h>
 #include <Pythia8/Event.h>
 #include <Pythia8/HIUserHooks.h>
+#include <Pythia8/HadronWidths.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/Info.h>
 #include <Pythia8/LHEF3.h>

@@ -485,7 +485,7 @@ public:
     else {int newSize = max( 0, size() - nRemove);
     entry.resize(newSize);} }
 
-  // Remove entries from iFirst to iLast, including endpoints, anf fix history.
+  // Remove entries from iFirst to iLast, including endpoints, and fix history.
   // (To the extent possible; history pointers in removed range are zeroed.)
   void remove(int iFirst, int iLast, bool shiftHistory = true);
 

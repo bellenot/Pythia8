@@ -79,7 +79,10 @@ protected:
   // Pointer to the particle data table.
   ParticleData*  particleDataPtr  = {};
 
- // Pointer to the random number generator.
+  // Pointer to the hadron widths data table
+  HadronWidths*  hadronWidthsPtr  = {};
+
+  // Pointer to the random number generator.
   Rndm*          rndmPtr          = {};
 
   // Pointers to SM and SUSY couplings.

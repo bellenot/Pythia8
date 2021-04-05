@@ -45,7 +45,7 @@ apart from the factor of 3 enhancement of spin 1 from counting the
 number of states. 
 </parm> 
  
-<pvec name="StringFlav:probQQ1toQQ0join" default="0.5,0.7,0.9,1.0" 
+<pvec name="StringFlav:probQQ1toQQ0join" default="{0.5,0.7,0.9,1.0}" 
 min="0.0" max="1.0"> 
 when two already produced quarks are to be combined to a diquark, 
 e.g. in the junction framework, these numbers give the suppression 

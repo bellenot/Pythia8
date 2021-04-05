@@ -141,7 +141,7 @@ int main() {
           pythia.event[i].idAbs() == 16)     continue;
 
       // Only |eta| < 3.6
-      if (fabs(pythia.event[i].eta()) > 3.6) continue;
+      if (abs(pythia.event[i].eta()) > 3.6) continue;
 
       // Missing ET
       missingETvec += pythia.event[i].p();
@@ -193,7 +193,7 @@ int main() {
 
     for (unsigned int i = 0; i < sortedJets.size(); i++) {
       // Only count jets that have |eta| < 2.0
-      if (fabs(sortedJets[i].rap()) > 2.0) continue;
+      if (abs(sortedJets[i].rap()) > 2.0) continue;
       // Check distance between W decay electron and jets
       if (fjElec.squared_distance(sortedJets[i]) < 0.52 * 0.52)
         { vetoEvent = true; break; }

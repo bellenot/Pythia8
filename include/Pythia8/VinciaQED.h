@@ -127,7 +127,12 @@ public:
   friend class QEDemitSystem;
 
   // Constuctor.
-  QEDemitElemental() {;}
+  QEDemitElemental() : rndmPtr(nullptr), partonSystemsPtr(nullptr), q2Sav(0.),
+    zetaSav(0.), phiSav(0.), sxjSav(0.), syjSav(0.), alpha(0.), c(0.),
+    hasTrial(false), x(0), y(0), idx(0), idy(0), mx2(0.), my2(0.),
+    ex(0.), ey(0.), m2Ant(0.), sAnt(0.), QQ(0.), isII(false), isIF(false),
+    isFF(false), isRF(false), isIA(true), isDip(false), shh(0.),
+    isInitPtr(false), isInit(false), verbose(1) {;}
 
   // Initialize the pointers.
   void initPtr(Rndm* rndmPtrIn, PartonSystems* partonSystemsPtrIn);

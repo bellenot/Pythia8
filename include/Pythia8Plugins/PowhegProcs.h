@@ -44,22 +44,11 @@ public:
 
 private:
 
-  // Typedefs of the hooks used to access the plugin.
-  //typedef LHAupPtr NewLHAupPowheg(Pythia*);
-  typedef LHAupPtr NewLHAupPowheg(Pythia*);
-  typedef void (*Symbol)();
-
-  // Acccess a plugin library symbol.
-  Symbol symbol(string symName);
-
   // The POWHEG process name, run directory, and PDF file (if not LHAPDF).
   string proc, dir, pdf;
 
   // The map of POWHEG settings.
   map<string, string> settings;
-
-  // The POWHEG plugin library.
-  void *lib;
 
 };
 
@@ -90,38 +79,14 @@ private:
 // via the POWHEGBOX configuration).
 
 PowhegProcs::PowhegProcs(Pythia *pythia, string procIn, string dirIn,
-  string pdfIn, bool random) : proc(procIn), dir(dirIn), pdf(pdfIn),
-  lib(0) {
-
-  // Load the library.
-  if (!pythia) return;
-  lib = const_cast<Info&>(pythia->info).loadPlugin
-    ("libpythia8powheg" + proc + ".so");
-  if (lib == nullptr) return;
+  string pdfIn, bool random) : proc(procIn), dir(dirIn), pdf(pdfIn) {
 
   // Load the LHAup pointer.
-  NewLHAupPowheg* newLHAupPowheg = (NewLHAupPowheg*)symbol("newLHAupPowheg");
   pythia->settings.addWord("POWHEG:dir", dir);
   pythia->settings.addFlag("POWHEG:pythiaRandom", random);
-  if (newLHAupPowheg) pythia->setLHAupPtr(newLHAupPowheg(pythia));
+  pythia->setLHAupPtr(make_shared<LHAupPlugin>
+                      ("libpythia8powheg" + proc + ".so", pythia));
   pythia->setUserHooksPtr(make_shared<PowhegHooks>());
-
-}
-
-//--------------------------------------------------------------------------
-
-// Access a plugin library symbol.
-
-PowhegProcs::Symbol PowhegProcs::symbol(string symName) {
-  Symbol sym(0);
-  const char* error(0);
-
-  // Load the symbol.
-  sym = (Symbol)dlsym(lib, symName.c_str());
-  error = dlerror();
-  if (error) cout << "Error in LHAupPowheg::symbol: " + string(error) + "\n";
-  dlerror();
-  return sym;
 
 }
 

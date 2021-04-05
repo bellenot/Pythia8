@@ -55,12 +55,10 @@ void SigmaProcess::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
   isLeptonB       = (beamBPtr != 0) ? beamBPtr->isLepton() : false;
   hasLeptonBeams  = isLeptonA || isLeptonB;
 
-  // Photon beams from leptons.
-  bool isLepton2gamma = flag("PDF:lepton2gamma");
-  lepton2gammaA   = (beamAPtr != 0) ?
-    beamAPtr->isLepton() && isLepton2gamma : false;
-  lepton2gammaB   = (beamBPtr != 0) ?
-    beamBPtr->isLepton() && isLepton2gamma : false;
+  // Photon sub-beams from leptons or hadrons.
+  beamA2gamma     = (beamAPtr != 0) ? flag("PDF:beamA2gamma") : false;
+  beamB2gamma     = (beamBPtr != 0) ? flag("PDF:beamB2gamma") : false;
+  hasGamma        = beamA2gamma || beamB2gamma || idA == 22 || idB == 22;
 
   // K factor, multiplying resolved processes. (But not here for MPI.)
   Kfactor         = parm("SigmaProcess:Kfactor");
@@ -195,12 +193,12 @@ bool SigmaProcess::initFlux() {
   else if (fluxType == "ff") {
     // If beams are leptons then they are also the colliding partons
     // unless lepton includes a photon beam.
-    if ( isLeptonA && isLeptonB && !lepton2gammaA && !lepton2gammaB ) {
+    if ( isLeptonA && isLeptonB && !beamA2gamma && !beamB2gamma ) {
       addBeamA(idA);
       addBeamB(idB);
       addPair(idA, idB);
     // First beam is lepton and second is hadron.
-    } else if ( isLeptonA && !lepton2gammaA ) {
+    } else if ( isLeptonA && !beamA2gamma ) {
       addBeamA(idA);
       for (int idNow = -nQuarkIn; idNow <= nQuarkIn; ++idNow)
       if (idNow != 0) {
@@ -208,7 +206,7 @@ bool SigmaProcess::initFlux() {
         addPair(idA, idNow);
       }
     // First beam is hadron and second is lepton.
-    } else if ( isLeptonB && !lepton2gammaB ) {
+    } else if ( isLeptonB && !beamB2gamma ) {
       addBeamB(idB);
       for (int idNow = -nQuarkIn; idNow <= nQuarkIn; ++idNow)
       if (idNow != 0) {
@@ -235,7 +233,7 @@ bool SigmaProcess::initFlux() {
     // If beams are leptons then also colliding partons
     // unless lepton includes a photon beam.
     if (isLeptonA && isLeptonB && idA * idB < 0
-        && !lepton2gammaA && !lepton2gammaB) {
+        && !beamA2gamma && !beamB2gamma) {
       addBeamA(idA);
       addBeamB(idB);
       addPair(idA, idB);
@@ -258,7 +256,7 @@ bool SigmaProcess::initFlux() {
   else if (fluxType == "ffbarSame") {
     // If beams are antiparticle pair and leptons then also colliding partons
     // unless lepton includes a photon beam.
-    if ( idA + idB == 0 && isLeptonA && !lepton2gammaA && !lepton2gammaB) {
+    if ( idA + idB == 0 && isLeptonA && !beamA2gamma && !beamB2gamma) {
       addBeamA(idA);
       addBeamB(idB);
       addPair(idA, idB);
@@ -279,7 +277,7 @@ bool SigmaProcess::initFlux() {
   else if (fluxType == "ffbarChg") {
     // If beams are leptons then also colliding partons
     // unless lepton includes a photon beam.
-    if ( isLeptonA && isLeptonB && !lepton2gammaA && !lepton2gammaB
+    if ( isLeptonA && isLeptonB && !beamA2gamma && !beamB2gamma
          && abs( particleDataPtr->chargeType(idA)
            + particleDataPtr->chargeType(idB) ) == 3 ) {
       addBeamA(idA);
@@ -303,7 +301,7 @@ bool SigmaProcess::initFlux() {
   // Case with f gamma incoming state.
   else if (fluxType == "fgm") {
     // Fermion from incoming side A if no photon beam inside.
-    if ( isLeptonA && !lepton2gammaA ) {
+    if ( isLeptonA && !beamA2gamma ) {
       addBeamA( idA);
       addPair(idA, 22);
     } else {
@@ -314,7 +312,7 @@ bool SigmaProcess::initFlux() {
       }
     }
     // Fermion from incoming side B if no photon beam inside.
-    if ( isLeptonB && !lepton2gammaB ) {
+    if ( isLeptonB && !beamB2gamma ) {
       addBeamB( idB);
       addPair(22, idB);
     } else {
@@ -336,14 +334,18 @@ bool SigmaProcess::initFlux() {
         addBeamA(idNow);
         addPair(idNow, 22);
       }
-    for (int idNow = -nQuarkIn; idNow <= nQuarkIn; ++idNow)
-      if (idNow != 0) {
-        addBeamB(idNow);
-        addPair(22, idNow);
-      }
-
+    // Initialize initiators both ways if not photoproductions.
+    if (!hasGamma) {
+      for (int idNow = -nQuarkIn; idNow <= nQuarkIn; ++idNow)
+        if (idNow != 0) {
+          addBeamB(idNow);
+          addPair(22, idNow);
+        }
+    }
     // Photons in the beams.
-    addBeamA(22);
+    if (!hasGamma) {
+      addBeamA(22);
+    }
     addBeamB(22);
   }
 
@@ -362,11 +364,16 @@ bool SigmaProcess::initFlux() {
   // Case with gluon gamma incoming state.
   else if (fluxType == "ggm") {
     addBeamA(21);
-    addBeamA(22);
-    addBeamB(21);
     addBeamB(22);
     addPair(21, 22);
-    addPair(22, 21);
+
+    // If not photoproduction, initialize both ways. Otherwise keep track of
+    // initiator ordering to generate correct combinations (direct, resolved).
+    if (!hasGamma) {
+      addBeamA(22);
+      addBeamB(21);
+      addPair(22, 21);
+    }
   }
 
   // Case with gamma gluon incoming state.
@@ -390,6 +397,7 @@ bool SigmaProcess::initFlux() {
     "unrecognized inFlux type", fluxType);
     return false;
   }
+
   return true;
 
 }

@@ -20,36 +20,19 @@ const double DireWeightContainer::LARGEWT = 2e0;
 
 void DireWeightContainer::setup() {
 
-cout << __LINE__ << " " << settingsPtr << endl;
   // Clear everything.
   init();
   enhanceFactors.clear();
 
-  // Initialize MG5 interface.
-  card=settingsPtr->word("Dire:MG5card");
-#ifdef MG5MES
-  // Redirect output so that Dire can print MG5 initialization.
-  std::streambuf *old = cout.rdbuf();
-  stringstream ss;
-  cout.rdbuf (ss.rdbuf());
-  // Read Pythia settings from file (to define tune).
-#ifdef OPENMP
-#pragma omp critical
-{
-  if (PY8MEs_accessorPtr) delete PY8MEs_accessorPtr;
-  PY8MEs_accessorPtr = new PY8MEs_namespace::PY8MEs(card);
-}
-#else
-  if (PY8MEs_accessorPtr) delete PY8MEs_accessorPtr;
-  PY8MEs_accessorPtr = new PY8MEs_namespace::PY8MEs(card);
-#endif
-  PY8MEs_accessorPtr->seProcessesIncludeSymmetryFactors(false);
-  PY8MEs_accessorPtr->seProcessesIncludeHelicityAveragingFactors(false);
-  PY8MEs_accessorPtr->seProcessesIncludeColorAveragingFactors(false);
-  PY8MEs_accessorPtr->setProcessesExternalMassesMode(1);
-  // Restore print-out.
-  cout.rdbuf (old);
-#endif
+  // Initialize MG5 MEs interface.
+  card            = settingsPtr->word("Dire:MG5card");
+  string mePlugin = settingsPtr->word("Dire:MEplugin");
+  if (mePlugin.size() > 0) {
+    if (!hasMEs) {
+      matrixElements = ShowerMEsPlugin("libpythia8mg5" + mePlugin + ".so");
+    }
+    hasMEs = matrixElements.initDire(infoPtr,card);
+  }
 
   // Initialize additional user-defined enhancements of splitting kernel
   // overestimates.
@@ -508,31 +491,18 @@ double DireWeightContainer::getTrialEnhancement( double pT2key ) {
 //--------------------------------------------------------------------------
 
 bool DireWeightContainer::hasME(const Event& event) {
-#ifdef MG5MES
-  return isAvailableME(*PY8MEs_accessorPtr,event);
-#else
-  if (false) cout << event.size();
+  if (hasMEs) return matrixElements.isAvailableMEDire(event);
   return false;
-#endif
-
 }
 
 bool DireWeightContainer::hasME(vector <int> in_pdgs, vector<int> out_pdgs) {
-#ifdef MG5MES
-  return isAvailableME(*PY8MEs_accessorPtr, in_pdgs, out_pdgs);
-#else
-  if (false) cout << in_pdgs.size()*out_pdgs.size();
+  if (hasMEs) return matrixElements.isAvailableMEDire(in_pdgs, out_pdgs);
   return false;
-#endif
 }
 
 double DireWeightContainer::getME(const Event& event) {
-#ifdef MG5MES
-  return calcME(*PY8MEs_accessorPtr,event);
-#else
-  if (false) cout << event.size();
+  if (hasMEs) return matrixElements.calcMEDire(event);
   return 0.0;
-#endif
 }
 
 //==========================================================================

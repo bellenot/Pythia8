@@ -50,12 +50,13 @@ public:
       isResolved(), isDiffA(), isDiffB(), isDiffC(), isQCD3body(),
       allowNegSig(), isSameSave(), increaseMaximum(), canVetoResDecay(),
       lhaStrat(), lhaStratAbs(), processCode(), useStrictLHEFscales(),
-      newSigmaMx(), nTry(), nSel(), nAcc(), nTryStat(), sigmaMx(), sigmaSgn(),
-      sigmaSum(), sigma2Sum(), sigmaNeg(), sigmaAvg(), sigmaFin(), deltaFin(),
-      weightNow(), wtAccSum(), beamAhasResGamma(), beamBhasResGamma(),
-      beamHasResGamma(), beamHasGamma(), beamAgammaMode(), beamBgammaMode(),
-      gammaModeEvent(), externalFlux(), nTryRequested(), nSelRequested(),
-      nAccRequested(), sigmaTemp(), sigma2Temp() {}
+      isAsymLHA(), betazLHA(), newSigmaMx(), nTry(), nSel(), nAcc(),
+      nTryStat(), sigmaMx(), sigmaSgn(), sigmaSum(), sigma2Sum(), sigmaNeg(),
+      sigmaAvg(), sigmaFin(), deltaFin(), weightNow(), wtAccSum(),
+      beamAhasResGamma(), beamBhasResGamma(), beamHasResGamma(),
+      beamHasGamma(), beamAgammaMode(), beamBgammaMode(), gammaModeEvent(),
+      approximatedGammaFlux(), nTryRequested(), nSelRequested(),
+      nAccRequested(), sigmaTemp(), sigma2Temp(), normVar3() {}
 
   // Destructor. Do not destroy external sigmaProcessPtr.
   ~ProcessContainer() {delete phaseSpacePtr;
@@ -184,6 +185,10 @@ private:
   int    lhaStrat, lhaStratAbs, processCode;
   bool   useStrictLHEFscales;
 
+  // Boost Les Houches events to CM frame (when originally asymmetric).
+  bool   isAsymLHA;
+  double betazLHA;
+
   // Statistics on generation process. (Long integers just in case.)
   bool   newSigmaMx;
   long   nTry, nSel, nAcc, nTryStat;
@@ -194,8 +199,8 @@ private:
   bool   beamAhasResGamma, beamBhasResGamma, beamHasResGamma, beamHasGamma;
   int    beamAgammaMode, beamBgammaMode, gammaModeEvent;
 
-  // Use external photon flux.
-  bool   externalFlux;
+  // Use approximated photon flux for process sampling.
+  bool   approximatedGammaFlux;
 
   // Statistics for Les Houches event classification.
   vector<int> codeLHA;
@@ -205,7 +210,7 @@ private:
   long nTryRequested, nSelRequested, nAccRequested;
 
   // Temporary summand for handling (weighted) events when vetoes are applied.
-  double sigmaTemp, sigma2Temp;
+  double sigmaTemp, sigma2Temp, normVar3;
 
   // Estimate integrated cross section and its uncertainty.
   void sigmaDelta();

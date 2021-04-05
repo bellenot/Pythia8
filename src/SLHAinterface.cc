@@ -368,7 +368,6 @@ bool SLHAinterface::initSLHA() {
       + "using QNUMBERS for id codes < 1000000 may clash with SM.");
 
   // Import mass spectrum.
-  bool   keepSM            = settingsPtr->flag("SLHA:keepSM");
   double minMassSM         = settingsPtr->parm("SLHA:minMassSM");
   map<int,bool> idModified;
   if (ifailSpc == 1 || ifailSpc == 0) {
@@ -392,13 +391,12 @@ bool SLHAinterface::initSLHA() {
      // Ignore masses for known SM particles or particles with
       // default masses < minMassSM; overwrite masses for rest.
       // SM particles: (idRes < 25 || idRes > 80 && idRes < 1000000);
+      // Top and Higgs (25) can be overwritten if mass > minMassSM
       // Extra higgses (26 - 40) & DM (51 - 60) not SM
-      // keepSM : do not allow modification of any SM particles
       // minMassSM : mass above which SM masses may be overwritten
       bool isSM = id < 26 || ( id > 80 && id < 1000000);
       if (isSM && isInternal) {
-        if (keepSM) ignoreMassKeepSM.push_back(id);
-        else if (particleDataPtr->m0(id) < minMassSM) {
+        if (particleDataPtr->m0(id) < minMassSM) {
           ignoreMassM0.push_back(id);
         }
       } else {
@@ -434,18 +432,6 @@ bool SLHAinterface::initSLHA() {
       }
       infoPtr->errorMsg(infoPref + "importing MASS entries","for id = {"
         + idImport + "}", true);
-    }
-    if (ignoreMassKeepSM.size() >= 1) {
-      string idIgnore;
-      for (unsigned int i=0; i<ignoreMassKeepSM.size(); ++i) {
-        ostringstream idCode;
-        idCode << ignoreMassKeepSM[i];
-        if (i != 0) idIgnore +=",";
-        idIgnore += idCode.str();
-      }
-      infoPtr->errorMsg(warnPref + "ignoring MASS entries", "for id = {"
-        + idIgnore + "}"
-        + " (SLHA:keepSM. Use id > 1000000 for new particles)", true);
     }
     if (ignoreMassM0.size() >= 1) {
       string idIgnore;
@@ -488,7 +474,6 @@ bool SLHAinterface::initSLHA() {
     // Let extra Higgses & Dark Matter sector be non-SM
     bool isSM = idRes < 26 || ( idRes > 80 && idRes < 1000000);
     if (isSM && isInternal) {
-      if (keepSM) { ignoreDecayKeepSM.push_back(idRes); continue; }
       if(particleDataPtr->m0(idRes) < minMassSM) {
         ignoreDecayM0.push_back(idRes);
         continue;
@@ -628,18 +613,6 @@ bool SLHAinterface::initSLHA() {
     }
     infoPtr->errorMsg(infoPref + "importing DECAY tables","for id = {"
       + idImport + "}", true);
-  }
-  if (ignoreDecayKeepSM.size() >= 1) {
-    string idIgnore;
-    for (unsigned int i=0; i<ignoreDecayKeepSM.size(); ++i) {
-      ostringstream idCode;
-      idCode << ignoreDecayKeepSM[i];
-      if (i != 0) idIgnore +=",";
-      idIgnore += idCode.str();
-    }
-    infoPtr->errorMsg(warnPref + "ignoring DECAY tables", "for id = {"
-      + idIgnore + "}"
-      + " (SLHA:keepSM. Use id > 1000000 for new particles)", true);
   }
   if (ignoreDecayM0.size() >= 1) {
     string idIgnore;

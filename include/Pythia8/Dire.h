@@ -80,18 +80,14 @@ class Dire : public ShowerModel {
   void endEvent(PhysicsBase::Status status) {
     // No finalize in case of failure.
     if (status == INCOMPLETE) return;
-    // Cross section conversion factor to undo annoying conversions done in
-    // info.weight() calls.
-    double CONVERTMB2PB = 1.;
-    if (abs(infoPtr->lhaStrategy()) == 4) CONVERTMB2PB = 1e9;
     // Update the event weight by the Dire shower weight when relevant.
     // Retrieve the shower weight.
     weightsPtr->calcWeight(0.);
     weightsPtr->reset();
     double pswt = weightsPtr->getShowerWeight();
     // Multiply the shower weight to the event weight.
-    double wt = infoPtr->weight()/CONVERTMB2PB;
-    infoPtr->updateWeight(wt * pswt);
+    double wt = infoPtr->weight();
+    infoPtr->weightContainerPtr->setWeightNominal(wt * pswt);
   }
 
   void createPointers();

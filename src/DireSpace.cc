@@ -4462,9 +4462,6 @@ bool DireSpace::branch_II( Event& event, bool trial,
                      && partonSystemsPtr->getSystemOf(iRecoiler,true) == 0;
     if (isHardSystem && physical && doMEcorrections
       && pT2 > pT2minMECs && checkSIJ(event,Q2minMECs)) {
-
-#ifdef MG5MES
-
       int iA      = getInA(iSysSelNow);
       int iB      = getInB(iSysSelNow);
       vector<int> iOut(createvector<int>(0)(0));
@@ -4492,13 +4489,6 @@ bool DireSpace::branch_II( Event& event, bool trial,
       for (int iCopy = 2; iCopy < systemSizeOld; ++iCopy)
         partonSystemsPtr->setOut(iSysSelNow, iCopy - 2, iOut[iCopy]);
       partonSystemsPtr->popBackOut(iSysSelNow);
-
-#else
-
-      doMECreject = false;
-
-#endif
-
     }
 
     // Update dipoles and beams. Note: dipEndSel no longer valid after this.
@@ -5656,8 +5646,6 @@ bool DireSpace::branch_IF( Event& event, bool trial,
     if (isHardSystem && physical && doMEcorrections
       && pT2 > pT2minMECs && checkSIJ(event,Q2minMECs)) {
 
-#ifdef MG5MES
-
       int iA      = getInA(iSysSelNow);
       int iB      = getInB(iSysSelNow);
       // Update and add newly produced particles.
@@ -5706,13 +5694,6 @@ bool DireSpace::branch_IF( Event& event, bool trial,
         partonSystemsPtr->replace(iSysSelNow, iNewRecoiler, iRecoiler);
         partonSystemsPtr->popBackOut(iSysSelNow);
       }
-
-#else
-
-      doMECreject = false;
-
-#endif
-
     }
 
     // Update dipoles and beams. Note: dipEndSel no longer valid after this.
@@ -7286,7 +7267,7 @@ double DireSpace::getSplittingProb( const Event& state, int iRad,
 
   // Disallow below cut-off.
   if ( pT2cut(state[iEmt].id()) > pT2) return 0.;
-  if ( !splits[name]->aboveCutoff( pT2, state[iRad], state[iRec], 0,
+  if ( !splits[name]->aboveCutoff( pT2, state[iRad], state[iRecAft], 0,
         partonSystemsPtr)) return 0.;
 
   // Upate type if this is a massive splitting.

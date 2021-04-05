@@ -71,7 +71,7 @@ int main() {
     if ( photonsFromElectrons) {
       pythia.readString("Beams:idA = 11");
       pythia.readString("Beams:idB = 2212");
-      pythia.readString("PDF:lepton2gamma = on");
+      pythia.readString("PDF:beamA2gamma = on");
 
     // Set up beam particles for photon + proton.
     } else {
@@ -83,7 +83,8 @@ int main() {
   } else if ( photonsFromElectrons) {
     pythia.readString("Beams:idA = -11");
     pythia.readString("Beams:idB =  11");
-    pythia.readString("PDF:lepton2gamma = on");
+    pythia.readString("PDF:beamA2gamma = on");
+    pythia.readString("PDF:beamB2gamma = on");
 
   // Set up beam particles for photon-photon.
   } else {
@@ -115,11 +116,16 @@ int main() {
 
   // Initialize the histograms.
   Hist pTtot("Total charged hadron pT distribution", nBinsPT, pTmin, pTmax);
-  Hist pTresres("Resolved-resolved contribution", nBinsPT, pTmin, pTmax);
-  Hist pTresdir("Resolved-direct contribution", nBinsPT, pTmin, pTmax);
-  Hist pTdirres("Direct-resolved contribution", nBinsPT, pTmin, pTmax);
-  Hist pTdirdir("Direct-direct contribution", nBinsPT, pTmin, pTmax);
-  Hist pTiRun("Contribution from Run i", nBinsPT, pTmin, pTmax);
+  Hist pTresres("Resolved-resolved contribution for pT distribution",
+    nBinsPT, pTmin, pTmax);
+  Hist pTresdir("Resolved-direct contribution for pT distribution",
+    nBinsPT, pTmin, pTmax);
+  Hist pTdirres("Direct-resolved contribution for pT distribution",
+    nBinsPT, pTmin, pTmax);
+  Hist pTdirdir("Direct-direct contribution for pT distribution",
+    nBinsPT, pTmin, pTmax);
+  Hist pTiRun("Contribution from Run i for pT distribution",
+    nBinsPT, pTmin, pTmax);
 
   // Initialize hard QCD processes with 0, 1, or 2 initial photons.
   pythia.readString("HardQCD:all = on");

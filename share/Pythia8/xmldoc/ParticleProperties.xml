@@ -164,6 +164,7 @@ In detail, the list of used or foreseen status codes is:
   <li>95, 96 : a forced decay handled by an external program, i.e. picked 
            from a subset of the possible channels to enhance the rate 
            of rare signals, normally or with oscillation</li> 
+  <li>97 : decay products from a resonance produced in rescattering</li> 
   <li>99 : particles with momenta shifted by Bose-Einstein effects 
            (not a proper decay, but bookkept as an <ei>1 &rarr; 1</ei> such, 
            happening after decays of short-lived resonances but before 
@@ -191,23 +192,27 @@ In detail, the list of used or foreseen status codes is:
   <li>107 : two temporary leftover gluons joined into one in the formation 
             of a gluino-gluon R-hadron</li> 
   </ul> 
-<li>111 - 119 : new hadrons or hadrons with changed momentum due to hadron 
-  (re)scattering</li> 
-  <ul> 
-  <li>111 : inelastic nondiffractive collisions</li> 
-  <li>112 : elastic scattering</li> 
-  <li>113 : single diffraction, first particle excited</li> 
-  <li>114 : single diffraction, second particle excited</li> 
-  <li>115 : double diffraction</li> 
-  <li>116 : annihilation of incoming quark-antiquark pairs</li> 
-  <li>117 : intermediate resonance production and decay</li> 
-  </ul> 
 <li>121 - 129 : other special hadron production mechanisms</li> 
   <ul> 
   <li>121 : deuteron formed by coalescence, and other particles formed 
   simultaneously (like a <ei>gamma</ei> or <ei>pi</ei>)</li> 
   </ul> 
-<li>131 - 199 : reserved for future expansion</li> 
+<li>150 - 159 : new hadrons or hadrons with changed momentum due to hadron 
+  (re)scattering</li> 
+  <ul> 
+  <li>150 : reserved for possible future expansion</li> 
+  <li>151 : inelastic nondiffractive collisions</li> 
+  <li>152 : elastic scattering</li> 
+  <li>153 : single diffraction, first particle excited</li> 
+  <li>154 : single diffraction, second particle excited</li> 
+  <li>155 : double diffraction</li> 
+  <li>156 : reserved for future central diffraction</li> 
+  <li>157 : low-mass diffraction, forming explicit resonances 
+            (NN collisions only)</li> 
+  <li>158 : annihilation of incoming quark-antiquark pairs</li> 
+  <li>159 : formation of a resonance particle</li> 
+  </ul> 
+<li>100 - 199 : reserved for future expansion</li> 
 <li>201 - : free to be used by anybody.</li> 
 </ul> 
 <note>Note:</note> a clarification on the role of the "hardest" vs. the 

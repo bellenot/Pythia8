@@ -21,8 +21,10 @@
 // LeptonPoint:   an unresolved lepton (mainly dummy).
 // NeutrinoPoint: an unresolved neutrino (mainly dummy).
 // CJKL:          CJKL parton densities for photons.
-// Leoton2gamma:  convolution of photon flux from leptons and photon PDFs.
-// PhotonPoint:   an nunresolved photon.
+// Lepton2gamma:  convolution of photon flux from leptons and photon PDFs.
+// PhotonPoint:   an unresolved photon.
+// Proton2gammaDZ: Photon flux from protons according to Drees-Zeppenfeld.
+// Nucleus2gamma: Photon flux from heavy nuclei.
 // EPAexternal:   approximated photon flux used for sampling of external flux.
 // nPDF:          a nuclear PDF, derived from a proton ditto.
 // Isospin:       isospin modification for nuclear pDF
@@ -128,6 +130,7 @@ public:
   virtual double xfApprox(int , double , double ) { return 0.; }
   virtual double xfGamma(int , double , double )  { return 0.; }
   virtual double intFluxApprox()                  { return 0.; }
+  virtual bool hasApproxGammaFlux()               { return false; }
 
   // Return the kinematical limits and sample Q2 and x.
   virtual double getXmin()              { return 0.; }
@@ -186,75 +189,75 @@ public:
 
   // Constructor and destructor.
   LHAPDF(int idIn, string pSet, Info* infoPtrIn);
+  ~LHAPDF();
 
   // Confirm that PDF has been set up.
-  bool isSetup() {if (pdfPtr) return pdfPtr->isSetup(); return false;}
+  bool isSetup() {return pdfPtr != nullptr ? pdfPtr->isSetup() : false;}
 
   // Dynamic choice of meson valence flavours for pi0, K0S, K0L, Pomeron.
   void newValenceContent(int idVal1In, int idVal2In) {
-    if (pdfPtr) pdfPtr->newValenceContent(idVal1In, idVal2In);}
+    if (pdfPtr != nullptr) pdfPtr->newValenceContent(idVal1In, idVal2In);}
 
   // Allow extrapolation beyond boundaries.
   void setExtrapolate(bool extrapolate) {
-    if (pdfPtr) pdfPtr->setExtrapolate(extrapolate);}
+    if (pdfPtr != nullptr) pdfPtr->setExtrapolate(extrapolate);}
 
   // Read out parton density
   double xf(int id, double x, double Q2) {
-    if (pdfPtr) return pdfPtr->xf(id, x, Q2); else return 0;}
+    return pdfPtr != nullptr ? pdfPtr->xf(id, x, Q2) : 0;}
 
   // Read out valence and sea part of parton densities.
   double xfVal(int id, double x, double Q2) {
-    if (pdfPtr) return pdfPtr->xfVal(id, x, Q2); else return 0;}
+    return pdfPtr != nullptr ? pdfPtr->xfVal(id, x, Q2) : 0;}
   double xfSea(int id, double x, double Q2) {
-    if (pdfPtr) return pdfPtr->xfSea(id, x, Q2); else return 0;}
+    return pdfPtr != nullptr ? pdfPtr->xfSea(id, x, Q2) : 0;}
 
   // Check whether x and Q2 values fall inside the fit bounds (LHAPDF6 only).
   bool insideBounds(double x, double Q2) {
-    if(pdfPtr) return pdfPtr->insideBounds(x, Q2); else return true;}
+    return pdfPtr != nullptr ? pdfPtr->insideBounds(x, Q2) : true;}
 
   // Access the running alpha_s of a PDF set (LHAPDF6 only).
   double alphaS(double Q2) {
-    if(pdfPtr) return pdfPtr->alphaS(Q2); else return 1.;}
+    return pdfPtr != nullptr ? pdfPtr->alphaS(Q2) : 1.;}
 
   // Return quark masses used in the PDF fit (LHAPDF6 only).
   double mQuarkPDF(int idIn) {
-    if(pdfPtr) return pdfPtr->mQuarkPDF(idIn); else return -1.;}
+    return pdfPtr != nullptr ? pdfPtr->mQuarkPDF(idIn) : -1.;}
 
   // Return quark masses used in the PDF fit (LHAPDF6 only).
   int nMembers() {
-    if(pdfPtr) return pdfPtr->nMembers(); else return 1;}
+    return pdfPtr != nullptr ? pdfPtr->nMembers() : 1;}
 
 
   // Calculate PDF envelope.
   void calcPDFEnvelope(int idNow, double xNow, double Q2Now, int valSea) {
-    if (pdfPtr) pdfPtr->calcPDFEnvelope(idNow, xNow, Q2Now, valSea);}
+    if (pdfPtr != nullptr)
+      pdfPtr->calcPDFEnvelope(idNow, xNow, Q2Now, valSea);}
   void calcPDFEnvelope(pair<int,int> idNows, pair<double,double> xNows,
     double Q2Now, int valSea) {
-    if (pdfPtr) pdfPtr->calcPDFEnvelope(idNows,xNows,Q2Now,valSea);}
-  PDFEnvelope getPDFEnvelope() { if (pdfPtr) return pdfPtr->getPDFEnvelope();
-    else return PDFEnvelope(); }
+    if (pdfPtr != nullptr) pdfPtr->calcPDFEnvelope(idNows,xNows,Q2Now,valSea);}
+  PDFEnvelope getPDFEnvelope() {
+    return pdfPtr != nullptr ? pdfPtr->getPDFEnvelope() : PDFEnvelope();}
 
 private:
 
   // Resolve valence content for assumed meson.
-  void setValenceContent() {if (pdfPtr) pdfPtr->setValenceContent();}
+  void setValenceContent() {if (pdfPtr != nullptr)
+      pdfPtr->setValenceContent();}
 
   // Update parton densities.
   void xfUpdate(int id, double x, double Q2) {
-    if (pdfPtr) pdfPtr->xfUpdate(id, x, Q2);}
+    if (pdfPtr != nullptr) pdfPtr->xfUpdate(id, x, Q2);}
 
   // Typedefs of the hooks used to access the plugin.
-  typedef PDFPtr NewLHAPDF(int, string, int, Info*);
-  typedef void (*Symbol)();
+  typedef PDF* NewPDF(int, string, int, Info*);
+  typedef void DeletePDF(PDF*);
 
-  // Acccess a plugin library symbol.
-  Symbol symbol(string symName);
-
-  // The loaded LHAPDF object, info pointer, and plugin library and name.
-  PDFPtr pdfPtr;
-  Info*  infoPtr;
-  string libName;
-  void*  lib;
+  // The loaded LHAPDF object, info pointer, and plugin name, and plugin.
+  PDF*      pdfPtr;
+  Info*     infoPtr;
+  string    name;
+  PluginPtr libPtr;
 
 };
 
@@ -928,6 +931,64 @@ private:
 
 //==========================================================================
 
+// Unresolved proton: equivalent photon spectrum according
+// to the approximation by Drees and Zeppenfeld,
+// Phys.Rev. D39 (1989) 2536.
+
+class Proton2gammaDZ : public PDF {
+
+public:
+
+  // Constructor.
+  Proton2gammaDZ(int idBeamIn = 2212) : PDF(idBeamIn) {}
+
+private:
+
+  // Stored parameters.
+  static const double ALPHAEM, Q20;
+
+  // Update PDF values.
+  void xfUpdate(int , double x, double Q2);
+
+};
+
+//==========================================================================
+
+// Unresolved nucleus: equivalent photon approximation
+// for impact parameter integrated flux according to standard
+// form introduced in J.D. Jackson, Classical Electrodynamics,
+// 2nd edition, John Wiley & Sons (1975).
+
+class Nucleus2gamma : public PDF {
+
+public:
+
+  // Constructor.
+ Nucleus2gamma(int idBeamIn, double bMinIn, double mNucleonIn) :
+  PDF(idBeamIn), a(), z(), bMin(bMinIn), mNucleon(mNucleonIn)
+  { initNucleus(); }
+
+private:
+
+  // Stored constant parameters.
+  static const double ALPHAEM;
+
+  // Initialize flux parameters.
+  void initNucleus();
+
+  // Update PDF values.
+  void xfUpdate(int , double x, double Q2);
+
+  // Mass number and electric charge.
+  int a, z;
+
+  // Minimum impact parameter for integration and per-nucleon mass.
+  double bMin, mNucleon;
+
+};
+
+//==========================================================================
+
 // Equivalent photon approximation for sampling with external photon flux.
 
 class EPAexternal : public PDF {
@@ -941,7 +1002,7 @@ public:
     norm2(), integral1(), integral2(), bmhbarc(), gammaFluxPtr(gammaFluxPtrIn),
     gammaPDFPtr(gammaPDFPtrIn), infoPtr(infoPtrIn),
     rndmPtr(infoPtrIn->rndmPtr), settingsPtr(infoPtrIn->settingsPtr) {
-      hasGammaInLepton = true; init(); }
+    hasGammaInLepton = true; init(); }
 
   // Update PDFs.
   void xfUpdate(int , double x, double Q2);
@@ -951,6 +1012,9 @@ public:
   double xfGamma(int id, double x, double Q2);
   double xfApprox(int id, double x, double Q2);
   double intFluxApprox();
+
+  // This derived class use approximated flux for sampling.
+  bool hasApproxGammaFlux()      { return true; }
 
   // Kinematics.
   double getXmin()          { return xMin; }

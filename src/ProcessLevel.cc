@@ -51,10 +51,10 @@ bool ProcessLevel::init( bool doLHA, SLHAinterface* slhaInterfacePtrIn,
   Settings& settings = *settingsPtr;
 
   // Check whether photon inside lepton and save the mode.
-  beamHasGamma     = settings.flag("PDF:lepton2gamma");
+  bool beamA2gamma = settings.flag("PDF:beamA2gamma");
+  bool beamB2gamma = settings.flag("PDF:beamB2gamma");
+  beamHasGamma     = beamA2gamma || beamB2gamma;
   gammaMode        = settings.mode("Photon:ProcessType");
-  bool beamA2gamma = beamAPtr->isLepton() && beamHasGamma;
-  bool beamB2gamma = beamBPtr->isLepton() && beamHasGamma;
 
   // initialize gammaKinematics when relevant.
   if (beamHasGamma)

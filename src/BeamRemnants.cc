@@ -63,6 +63,10 @@ bool BeamRemnants::init( PartonVertexPtr partonVertexPtrIn,
   // Do multiparton interactions.
   doMPI               = flag("PartonLevel:MPI");
 
+  // Flags for photoproduction from either (or both) side.
+  beamA2gamma         = flag("PDF:beamA2gamma");
+  beamB2gamma         = flag("PDF:beamB2gamma");
+
   // Check that remnant model and colour reconnection model work together.
   if (remnantMode == 1 && reconnectMode == 0) {
     infoPtr->errorMsg("Abort from BeamRemnants::init: The remnant model"
@@ -138,7 +142,6 @@ bool BeamRemnants::add( Event& event, int iFirst, bool doDiffCR) {
     if (!addOld(event)) return false;
   } else
     if (!addNew(event)) return false;
-
   if (isDIS) return true;
 
   // Store event before doing colour reconnections.
@@ -164,24 +167,15 @@ bool BeamRemnants::add( Event& event, int iFirst, bool doDiffCR) {
     }
   }
 
-  // Possibility to add vertex information to beam particles.
-  if (doPartonVertex) {
-    BeamParticle* beamPtr = beamAPtr;
-    // Add vertex information for both beams.
-    for (int beam = 0; beam < 2; ++beam) {
-      for (int i = 0; i < beamPtr->size(); ++i) {
-        int j = (*beamPtr)[i].iPos();
-        // We might have daughters.
-        vector<int> dList = event[j].daughterList();
-        // First the beam remnant particle itself.
-        partonVertexPtr->vertexBeam(j, beam, event);
-        // Then possible daughters.
-        for(int k = 0, N = dList.size(); k < N; ++k )
-                partonVertexPtr->vertexBeam(dList[k],beam,event);
-      }
-      // Switch beam.
-      beamPtr = beamBPtr;
-    }
+  // Possibility to add vertex information to beam particles and remnants.
+  if (doPartonVertex) for (int iBeam = 0; iBeam < 2; ++iBeam) {
+    BeamParticle& beamNow = (iBeam == 0) ? *beamAPtr : *beamBPtr;
+    vector<int> iRemn, iInit;
+    for (int i = beamNow.sizeInit(); i < beamNow.size(); ++i)
+      iRemn.push_back( beamNow[i].iPos() );
+    for (int i = 0; i < beamNow.sizeInit(); ++i)
+      iInit.push_back( beamNow[i].iPos() );
+    partonVertexPtr->vertexBeam(iBeam, iRemn, iInit, event);
   }
 
   // Restore event and return false if colour reconnection failed.
@@ -255,35 +249,15 @@ bool BeamRemnants::addOld( Event& event) {
     for (int i = oldSize; i < event.size(); ++i)
       event[i].cols( colSave[i - oldSize], acolSave[i - oldSize] );
     event.restoreJunctionSize();
-    infoPtr->errorMsg("Warning in BeamRemnants::add:"
+    infoPtr->errorMsg("Warning in BeamRemnants::addOld:"
       " colour tracing failed; will try again");
   }
 
   // If no solution after several tries then failed.
   if (!physical) {
-    infoPtr->errorMsg("Error in BeamRemnants::add:"
+    infoPtr->errorMsg("Error in BeamRemnants::addOld:"
       " colour tracing failed after several attempts");
     return false;
-  }
-
-  // Possibility to add vertex information to beam particles.
-  if (doPartonVertex) {
-    BeamParticle* beamPtr = beamAPtr;
-    // Add vertex information for both beams.
-    for (int beam = 0; beam < 2; ++beam) {
-      for (int i = 0; i < beamPtr->size(); ++i) {
-        int j = (*beamPtr)[i].iPos();
-        // We might have daughters.
-        vector<int> dList = event[j].daughterList();
-        // First the beam remnant particle itself.
-        partonVertexPtr->vertexBeam(j, beam, event);
-        // Then possible daughters.
-        for (int k = 0, N = dList.size(); k < N; ++k )
-          partonVertexPtr->vertexBeam(dList[k],beam,event);
-      }
-      // Switch beam.
-      beamPtr = beamBPtr;
-    }
   }
 
   // Done.
@@ -358,7 +332,7 @@ bool BeamRemnants::addNew( Event& event) {
 
   // Return if it was not possible to find physical colour structure.
   if (!beamRemnantFound) {
-    infoPtr->errorMsg("Error in BeamRemnants::add: "
+    infoPtr->errorMsg("Error in BeamRemnants::addNew: "
         "failed to find physical colour structure");
     // Restore event to previous state.
     event = eventSave;
@@ -417,8 +391,8 @@ bool BeamRemnants::setKinematics( Event& event) {
     return true;
 
   // Check that has not already used up beams. Unless direct photon in photon.
-  if ( beamA.isGamma() && beamA[0].id() == 22 ) { }
-  else if ( beamB.isGamma() && beamB[0].id() == 22 )  { }
+  if ( beamAisGamma && beamA[0].id() == 22 ) { }
+  else if ( beamBisGamma && beamB[0].id() == 22 )  { }
   else if ( ( !(beamA.isLepton() || (beamAisGamma && !gammaAResolved) )
          && beamA.xMax(-1) <= 0.) ||
        ( !(beamB.isLepton() || (beamBisGamma && !gammaBResolved) )
@@ -429,7 +403,7 @@ bool BeamRemnants::setKinematics( Event& event) {
   }
 
   // Check if exactly one remnant for photon-photon collisions.
-  if ( beamAisGamma && beamBisGamma && gammaAResolved !=gammaBResolved)
+  if ( beamAisGamma && beamBisGamma && gammaAResolved != gammaBResolved)
     gammaOneResolved = true;
 
   // Unresolved photon + hadron.
@@ -438,14 +412,14 @@ bool BeamRemnants::setKinematics( Event& event) {
       && !(beamAisGamma && beamBisGamma) )
     gammaOneResolved = true;
 
-  // Unresolved photon from lepton + hadron.
-  if ( ( beamA.getGammaMode() == 2 && beamB.isHadron() )
-    || ( beamB.getGammaMode() == 2 && beamA.isHadron() ) )
+  // Unresolved photon on one side.
+  if ( ( beamA.getGammaMode() == 2 && !beamB2gamma )
+    || ( beamB.getGammaMode() == 2 && !beamA2gamma ) )
     gammaOneResolved = true;
 
   // Special kinematics setup for one-remnant systems (DIS).
   if ( (gammaOneResolved && infoPtr->nMPI() == 1) || isDIS )
-    return setOneRemnKinematics(event, iDS);
+    return setOneRemnKinematics(event);
 
   // Last beam-status particles. Offset relative to normal beam locations.
   int nBeams   = 3;
@@ -454,7 +428,7 @@ bool BeamRemnants::setKinematics( Event& event) {
   int nOffset  = nBeams - 3;
 
   // If extra photons in event fix the offset.
-  if ( !(beamA.isHadron() || beamB.isHadron()) ) {
+  if ( beamA2gamma || beamB2gamma ) {
     if (beamA.hasResGamma()) --nOffset;
     if (beamB.hasResGamma()) --nOffset;
   }
@@ -484,17 +458,27 @@ bool BeamRemnants::setKinematics( Event& event) {
     int iInB          = partonSystemsPtr->getInB(iSys);
     double sHatNow    = (event[iInA].p() + event[iInB].p()).m2Calc();
 
-    // Allow primordial kT reduction for small-mass and small-pT systems
-    // (for hardest interaction pT -> renormalization scale so also 2 -> 1).
+    // Set width of primordial kT distribution.
     if (doPrimordialKT) {
-      double mHat     = sqrt(sHatNow);
-      double yDamp    = pow( (event[iInA].e() + event[iInB].e()) / mHat,
-                        reducedKTatHighY );
-      mHatDamp        = mHat / (mHat + halfMassForKT * yDamp);
-      double scale    = (iSys == 0) ? infoPtr->QRen(iDS)
-                       : partonSystemsPtr->getPTHat(iSys);
-      kTwidthNow      = ( (halfScaleForKT * primordialKTsoft
-      + scale * primordialKThard) / (halfScaleForKT + scale) ) * mHatDamp;
+      // Les Houches events use primordialKThard.
+      if (iSys == 0 && infoPtr->isLHA()) {
+        kTwidthNow = primordialKThard;
+      }
+      // Internal processes and MPI use pT-dependent interpolation between
+      // primordialKThard and primordialKTsoft.
+      else {
+        // For hardest interaction pT -> renormalization scale so also 2 -> 1.
+        double scale = (iSys == 0) ? infoPtr->QRen(iDS)
+                                   : partonSystemsPtr->getPTHat(iSys);
+         kTwidthNow = (halfScaleForKT * primordialKTsoft
+           + scale * primordialKThard) / (halfScaleForKT + scale);
+      }
+      // Dampen primordial kT width for very low masses / extreme rapidities.
+      double mHat  = sqrt(sHatNow);
+      double yDamp =
+        pow( (event[iInA].e() + event[iInB].e()) / mHat, reducedKTatHighY );
+      mHatDamp =  mHat / (mHat + halfMassForKT * yDamp);
+      kTwidthNow *= mHatDamp;
     }
 
     // Store properties of compensation systems and total compensation power.
@@ -967,7 +951,7 @@ bool BeamRemnants::setKinematics( Event& event) {
 // remnant system, other created by ISR, and for Deeply Inelastic Scattering.
 // Currently assumes unresolved lepton.
 
-bool BeamRemnants::setOneRemnKinematics( Event& event, int beamOffset) {
+bool BeamRemnants::setOneRemnKinematics( Event& event) {
 
   // Identify beams with and without remnant.
   int iBeamHad;
@@ -977,9 +961,29 @@ bool BeamRemnants::setOneRemnKinematics( Event& event, int beamOffset) {
   BeamParticle& beamHad   = (iBeamHad == 1) ? *beamAPtr : *beamBPtr;
   BeamParticle& beamOther = (iBeamHad == 2) ? *beamAPtr : *beamBPtr;
 
-  // Beam offsets in case of gamma+gamma.
-  int iBeamA = 1 + beamOffset;
-  int iBeamB = 2 + beamOffset;
+  // Normal beam particle locations to start with e.g. for DIS.
+  int beamOffset = 0;
+  int iBeamA     = 1;
+  int iBeamB     = 2;
+
+  // Check first that event contains a reasonable number of particles
+  // as a safety measure to avoid calling container out of its range.
+  if (event.size() < 4) {
+    infoPtr->errorMsg("Error in BeamRemnants::setOneRemnKinematics:"
+      " unexpected number of particles in the event record");
+    return false;
+  }
+
+  // Find the current beam locations from event record.
+  // Offset possible in photonproduction and (hard) diffraction.
+  for (int i = 3; i < event.size(); ++i) {
+    if ( abs(event[i].status()) > 20 ) {
+      beamOffset = i - 3;
+      iBeamA     = i - 2;
+      iBeamB     = i - 1;
+      break;
+    }
+  }
 
   // Identify remnant-side hadronic four-momentum and scattered lepton if DIS.
   int iLepScat = isDIS ? (beamOther[0].iPos() + 2) : -1;
@@ -987,12 +991,12 @@ bool BeamRemnants::setOneRemnKinematics( Event& event, int beamOffset) {
   // Definition of scattered lepton more intricate in the presence of QED
   // radiation. For now, define highest energy lepton as scattered.
   int iLepOut = particleDataPtr->isLepton(beamAPtr->id())
-              ? 1 + beamOffset + 2 + 2 : 2 + beamOffset + 2 + 2;
+              ? iBeamA + 2 + 2 : iBeamB + 2 + 2;
   if ( !beamOther.isGamma()
-    && (!event[iLepOut].isLepton()
+    && (iLepScat > event.size()-1
+    || !event[iLepOut].isLepton()
     || !event[iLepScat].isLepton()
-    || !event[iLepScat].isFinal()
-    || iLepScat > event.size()-1)) {
+    || !event[iLepScat].isFinal())) {
     double eMax = -1.0;
     for (int i = event.size()-1; i > 0 ; --i) {
       if ( event[i].isFinal()

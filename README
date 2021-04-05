@@ -78,6 +78,8 @@
          systems this is ".so" and for OS X this is ".dylib". Note
          that all plugin libraries, including the Python interface,
          are always built with the ".so" suffix.
+     --obj-common="FLAGS" : add a common compiler flag to object 
+         compilation only (ie. .o files and not linking).
 
 1.2) All of the options listed above are formatted into
      "Makefile.inc", which is also copied to

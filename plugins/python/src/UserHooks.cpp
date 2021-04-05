@@ -4,14 +4,17 @@
 #include <Pythia8/FragmentationFlavZpT.h>
 #include <Pythia8/FragmentationSystems.h>
 #include <Pythia8/GammaKinematics.h>
+#include <Pythia8/HadronWidths.h>
 #include <Pythia8/HiddenValleyFragmentation.h>
 #include <Pythia8/Info.h>
 #include <Pythia8/JunctionSplitting.h>
 #include <Pythia8/LHEF3.h>
 #include <Pythia8/LesHouches.h>
 #include <Pythia8/LowEnergyProcess.h>
+#include <Pythia8/LowEnergySigma.h>
 #include <Pythia8/MergingHooks.h>
 #include <Pythia8/MiniStringFragmentation.h>
+#include <Pythia8/NucleonExcitations.h>
 #include <Pythia8/ParticleData.h>
 #include <Pythia8/PartonLevel.h>
 #include <Pythia8/PartonSystems.h>
@@ -34,12 +37,14 @@
 #include <Pythia8/UserHooks.h>
 #include <Pythia8/Weights.h>
 #include <functional>
+#include <ios>
 #include <istream>
 #include <iterator>
 #include <map>
 #include <memory>
 #include <ostream>
 #include <sstream> // __str__
+#include <streambuf>
 #include <string>
 #include <utility>
 #include <vector>
@@ -644,18 +649,18 @@ struct PyCallBack_Pythia8_PartonVertex : public Pythia8::PartonVertex {
 		}
 		return PartonVertex::init();
 	}
-	void vertexBeam(int a0, int a1, class Pythia8::Event & a2) override { 
+	void vertexBeam(int a0, class std::vector<int, class std::allocator<int> > & a1, class std::vector<int, class std::allocator<int> > & a2, class Pythia8::Event & a3) override { 
 		pybind11::gil_scoped_acquire gil;
 		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::PartonVertex *>(this), "vertexBeam");
 		if (overload) {
-			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1, a2);
+			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1, a2, a3);
 			if (pybind11::detail::cast_is_temporary_value_reference<void>::value) {
 				static pybind11::detail::overload_caster_t<void> caster;
 				return pybind11::detail::cast_ref<void>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<void>(std::move(o));
 		}
-		return PartonVertex::vertexBeam(a0, a1, a2);
+		return PartonVertex::vertexBeam(a0, a1, a2, a3);
 	}
 	void vertexMPI(int a0, int a1, double a2, class Pythia8::Event & a3) override { 
 		pybind11::gil_scoped_acquire gil;
@@ -695,6 +700,19 @@ struct PyCallBack_Pythia8_PartonVertex : public Pythia8::PartonVertex {
 			else return pybind11::detail::cast_safe<void>(std::move(o));
 		}
 		return PartonVertex::vertexISR(a0, a1);
+	}
+	void vertexHadrons(int a0, class Pythia8::Event & a1) override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::PartonVertex *>(this), "vertexHadrons");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1);
+			if (pybind11::detail::cast_is_temporary_value_reference<void>::value) {
+				static pybind11::detail::overload_caster_t<void> caster;
+				return pybind11::detail::cast_ref<void>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<void>(std::move(o));
+		}
+		return PartonVertex::vertexHadrons(a0, a1);
 	}
 	void onInitInfoPtr() override { 
 		pybind11::gil_scoped_acquire gil;
@@ -1088,15 +1106,32 @@ void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const 
 
 		cl.def( pybind11::init( [](){ return new Pythia8::PartonVertex(); }, [](){ return new PyCallBack_Pythia8_PartonVertex(); } ) );
 		cl.def("init", (void (Pythia8::PartonVertex::*)()) &Pythia8::PartonVertex::init, "C++: Pythia8::PartonVertex::init() --> void");
-		cl.def("vertexBeam", (void (Pythia8::PartonVertex::*)(int, int, class Pythia8::Event &)) &Pythia8::PartonVertex::vertexBeam, "C++: Pythia8::PartonVertex::vertexBeam(int, int, class Pythia8::Event &) --> void", pybind11::arg("iNow"), pybind11::arg("iBeam"), pybind11::arg("event"));
+		cl.def("vertexBeam", (void (Pythia8::PartonVertex::*)(int, class std::vector<int, class std::allocator<int> > &, class std::vector<int, class std::allocator<int> > &, class Pythia8::Event &)) &Pythia8::PartonVertex::vertexBeam, "C++: Pythia8::PartonVertex::vertexBeam(int, class std::vector<int, class std::allocator<int> > &, class std::vector<int, class std::allocator<int> > &, class Pythia8::Event &) --> void", pybind11::arg("iBeam"), pybind11::arg("iRemn"), pybind11::arg("iInit"), pybind11::arg("event"));
 		cl.def("vertexMPI", (void (Pythia8::PartonVertex::*)(int, int, double, class Pythia8::Event &)) &Pythia8::PartonVertex::vertexMPI, "C++: Pythia8::PartonVertex::vertexMPI(int, int, double, class Pythia8::Event &) --> void", pybind11::arg("iBeg"), pybind11::arg("nAdd"), pybind11::arg("bNowIn"), pybind11::arg("event"));
 		cl.def("vertexFSR", (void (Pythia8::PartonVertex::*)(int, class Pythia8::Event &)) &Pythia8::PartonVertex::vertexFSR, "C++: Pythia8::PartonVertex::vertexFSR(int, class Pythia8::Event &) --> void", pybind11::arg("iNow"), pybind11::arg("event"));
 		cl.def("vertexISR", (void (Pythia8::PartonVertex::*)(int, class Pythia8::Event &)) &Pythia8::PartonVertex::vertexISR, "C++: Pythia8::PartonVertex::vertexISR(int, class Pythia8::Event &) --> void", pybind11::arg("iNow"), pybind11::arg("event"));
+		cl.def("vertexHadrons", (void (Pythia8::PartonVertex::*)(int, class Pythia8::Event &)) &Pythia8::PartonVertex::vertexHadrons, "C++: Pythia8::PartonVertex::vertexHadrons(int, class Pythia8::Event &) --> void", pybind11::arg("nBefFrag"), pybind11::arg("event"));
 		cl.def("assign", (class Pythia8::PartonVertex & (Pythia8::PartonVertex::*)(const class Pythia8::PartonVertex &)) &Pythia8::PartonVertex::operator=, "C++: Pythia8::PartonVertex::operator=(const class Pythia8::PartonVertex &) --> class Pythia8::PartonVertex &", pybind11::return_value_policy::reference, pybind11::arg(""));
 	}
 	{ // Pythia8::MergingHooks file:Pythia8/MergingHooks.h line:166
 		pybind11::class_<Pythia8::MergingHooks, std::shared_ptr<Pythia8::MergingHooks>, PyCallBack_Pythia8_MergingHooks> cl(M("Pythia8"), "MergingHooks", "");
 		pybind11::handle cl_type = cl;
+
+		{ // Pythia8::MergingHooks::IndividualWeights file:Pythia8/MergingHooks.h line:598
+			auto & enclosing_class = cl;
+			pybind11::class_<Pythia8::MergingHooks::IndividualWeights, std::shared_ptr<Pythia8::MergingHooks::IndividualWeights>> cl(enclosing_class, "IndividualWeights", "");
+			pybind11::handle cl_type = cl;
+
+			cl.def( pybind11::init( [](){ return new Pythia8::MergingHooks::IndividualWeights(); } ) );
+			cl.def( pybind11::init( [](Pythia8::MergingHooks::IndividualWeights const &o){ return new Pythia8::MergingHooks::IndividualWeights(o); } ) );
+			cl.def_readwrite("wtSave", &Pythia8::MergingHooks::IndividualWeights::wtSave);
+			cl.def_readwrite("pdfWeightSave", &Pythia8::MergingHooks::IndividualWeights::pdfWeightSave);
+			cl.def_readwrite("mpiWeightSave", &Pythia8::MergingHooks::IndividualWeights::mpiWeightSave);
+			cl.def_readwrite("asWeightSave", &Pythia8::MergingHooks::IndividualWeights::asWeightSave);
+			cl.def_readwrite("aemWeightSave", &Pythia8::MergingHooks::IndividualWeights::aemWeightSave);
+			cl.def_readwrite("bornAsVarFac", &Pythia8::MergingHooks::IndividualWeights::bornAsVarFac);
+			cl.def("assign", (struct Pythia8::MergingHooks::IndividualWeights & (Pythia8::MergingHooks::IndividualWeights::*)(const struct Pythia8::MergingHooks::IndividualWeights &)) &Pythia8::MergingHooks::IndividualWeights::operator=, "C++: Pythia8::MergingHooks::IndividualWeights::operator=(const struct Pythia8::MergingHooks::IndividualWeights &) --> struct Pythia8::MergingHooks::IndividualWeights &", pybind11::return_value_policy::reference, pybind11::arg(""));
+		}
 
 		cl.def( pybind11::init( [](){ return new Pythia8::MergingHooks(); }, [](){ return new PyCallBack_Pythia8_MergingHooks(); } ) );
 		cl.def_readwrite("useShowerPluginSave", &Pythia8::MergingHooks::useShowerPluginSave);
@@ -1160,6 +1195,7 @@ void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const 
 		cl.def_readwrite("nJetMaxSave", &Pythia8::MergingHooks::nJetMaxSave);
 		cl.def_readwrite("nJetMaxNLOSave", &Pythia8::MergingHooks::nJetMaxNLOSave);
 		cl.def_readwrite("processSave", &Pythia8::MergingHooks::processSave);
+		cl.def_readwrite("processNow", &Pythia8::MergingHooks::processNow);
 		cl.def_readwrite("tmsListSave", &Pythia8::MergingHooks::tmsListSave);
 		cl.def_readwrite("doOrderHistoriesSave", &Pythia8::MergingHooks::doOrderHistoriesSave);
 		cl.def_readwrite("doCutOnRecStateSave", &Pythia8::MergingHooks::doCutOnRecStateSave);
@@ -1177,6 +1213,10 @@ void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const 
 		cl.def_readwrite("nMinMPISave", &Pythia8::MergingHooks::nMinMPISave);
 		cl.def_readwrite("weightCKKWLSave", &Pythia8::MergingHooks::weightCKKWLSave);
 		cl.def_readwrite("weightFIRSTSave", &Pythia8::MergingHooks::weightFIRSTSave);
+		cl.def_readwrite("individualWeights", &Pythia8::MergingHooks::individualWeights);
+		cl.def_readwrite("doVariations", &Pythia8::MergingHooks::doVariations);
+		cl.def_readwrite("muRVarFactors", &Pythia8::MergingHooks::muRVarFactors);
+		cl.def_readwrite("nWgts", &Pythia8::MergingHooks::nWgts);
 		cl.def_readwrite("nJetMaxLocal", &Pythia8::MergingHooks::nJetMaxLocal);
 		cl.def_readwrite("nJetMaxNLOLocal", &Pythia8::MergingHooks::nJetMaxNLOLocal);
 		cl.def_readwrite("hasJetMaxLocal", &Pythia8::MergingHooks::hasJetMaxLocal);
@@ -1254,6 +1294,8 @@ void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const 
 		cl.def("tmsHardNow", (double (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::tmsHardNow, "C++: Pythia8::MergingHooks::tmsHardNow() --> double");
 		cl.def("nJetsNow", (int (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::nJetsNow, "C++: Pythia8::MergingHooks::nJetsNow() --> int");
 		cl.def("tmsNow", (double (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::tmsNow, "C++: Pythia8::MergingHooks::tmsNow() --> double");
+		cl.def("nMuRVar", (int (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::nMuRVar, "C++: Pythia8::MergingHooks::nMuRVar() --> int");
+		cl.def("printIndividualWeights", (void (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::printIndividualWeights, "C++: Pythia8::MergingHooks::printIndividualWeights() --> void");
 		cl.def("storeHardProcessCandidates", (void (Pythia8::MergingHooks::*)(const class Pythia8::Event &)) &Pythia8::MergingHooks::storeHardProcessCandidates, "C++: Pythia8::MergingHooks::storeHardProcessCandidates(const class Pythia8::Event &) --> void", pybind11::arg("event"));
 		cl.def("setLHEInputFile", (void (Pythia8::MergingHooks::*)(std::string)) &Pythia8::MergingHooks::setLHEInputFile, "C++: Pythia8::MergingHooks::setLHEInputFile(std::string) --> void", pybind11::arg("lheFile"));
 		cl.def("includeMassive", (bool (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::includeMassive, "C++: Pythia8::MergingHooks::includeMassive() --> bool");
@@ -1293,7 +1335,7 @@ void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const 
 		cl.def("muRinME", (double (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::muRinME, "C++: Pythia8::MergingHooks::muRinME() --> double");
 		cl.def("doIgnoreStep", (void (Pythia8::MergingHooks::*)(bool)) &Pythia8::MergingHooks::doIgnoreStep, "C++: Pythia8::MergingHooks::doIgnoreStep(bool) --> void", pybind11::arg("doIgnoreIn"));
 		cl.def("canVetoStep", (bool (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::canVetoStep, "C++: Pythia8::MergingHooks::canVetoStep() --> bool");
-		cl.def("storeWeights", (void (Pythia8::MergingHooks::*)(double)) &Pythia8::MergingHooks::storeWeights, "C++: Pythia8::MergingHooks::storeWeights(double) --> void", pybind11::arg("weight"));
+		cl.def("storeWeights", (void (Pythia8::MergingHooks::*)(class std::vector<double, class std::allocator<double> >)) &Pythia8::MergingHooks::storeWeights, "C++: Pythia8::MergingHooks::storeWeights(class std::vector<double, class std::allocator<double> >) --> void", pybind11::arg("weight"));
 		cl.def("doVetoStep", [](Pythia8::MergingHooks &o, const class Pythia8::Event & a0, const class Pythia8::Event & a1) -> bool { return o.doVetoStep(a0, a1); }, "", pybind11::arg("process"), pybind11::arg("event"));
 		cl.def("doVetoStep", (bool (Pythia8::MergingHooks::*)(const class Pythia8::Event &, const class Pythia8::Event &, bool)) &Pythia8::MergingHooks::doVetoStep, "C++: Pythia8::MergingHooks::doVetoStep(const class Pythia8::Event &, const class Pythia8::Event &, bool) --> bool", pybind11::arg("process"), pybind11::arg("event"), pybind11::arg("doResonance"));
 		cl.def("setShowerStartingScales", (bool (Pythia8::MergingHooks::*)(bool, bool, double &, const class Pythia8::Event &, double &, bool &, double &, bool &, double &, bool &)) &Pythia8::MergingHooks::setShowerStartingScales, "C++: Pythia8::MergingHooks::setShowerStartingScales(bool, bool, double &, const class Pythia8::Event &, double &, bool &, double &, bool &, double &, bool &) --> bool", pybind11::arg("isTrial"), pybind11::arg("doMergeFirstEmm"), pybind11::arg("pTscaleIn"), pybind11::arg("event"), pybind11::arg("pTmaxFSRIn"), pybind11::arg("limitPTmaxFSRin"), pybind11::arg("pTmaxISRIn"), pybind11::arg("limitPTmaxISRin"), pybind11::arg("pTmaxMPIIn"), pybind11::arg("limitPTmaxMPIin"));
@@ -1306,11 +1348,14 @@ void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const 
 		cl.def("rhoPythia", (double (Pythia8::MergingHooks::*)(const class Pythia8::Event &, int, int, int, int)) &Pythia8::MergingHooks::rhoPythia, "C++: Pythia8::MergingHooks::rhoPythia(const class Pythia8::Event &, int, int, int, int) --> double", pybind11::arg("event"), pybind11::arg("rad"), pybind11::arg("emt"), pybind11::arg("rec"), pybind11::arg("ShowerType"));
 		cl.def("findColour", (int (Pythia8::MergingHooks::*)(int, int, int, const class Pythia8::Event &, int, bool)) &Pythia8::MergingHooks::findColour, "C++: Pythia8::MergingHooks::findColour(int, int, int, const class Pythia8::Event &, int, bool) --> int", pybind11::arg("col"), pybind11::arg("iExclude1"), pybind11::arg("iExclude2"), pybind11::arg("event"), pybind11::arg("type"), pybind11::arg("isHardIn"));
 		cl.def("deltaRij", (double (Pythia8::MergingHooks::*)(class Pythia8::Vec4, class Pythia8::Vec4)) &Pythia8::MergingHooks::deltaRij, "C++: Pythia8::MergingHooks::deltaRij(class Pythia8::Vec4, class Pythia8::Vec4) --> double", pybind11::arg("jet1"), pybind11::arg("jet2"));
-		cl.def("getWeightNLO", (double (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::getWeightNLO, "C++: Pythia8::MergingHooks::getWeightNLO() --> double");
-		cl.def("getWeightCKKWL", (double (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::getWeightCKKWL, "C++: Pythia8::MergingHooks::getWeightCKKWL() --> double");
-		cl.def("getWeightFIRST", (double (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::getWeightFIRST, "C++: Pythia8::MergingHooks::getWeightFIRST() --> double");
-		cl.def("setWeightCKKWL", (void (Pythia8::MergingHooks::*)(double)) &Pythia8::MergingHooks::setWeightCKKWL, "C++: Pythia8::MergingHooks::setWeightCKKWL(double) --> void", pybind11::arg("weightIn"));
-		cl.def("setWeightFIRST", (void (Pythia8::MergingHooks::*)(double)) &Pythia8::MergingHooks::setWeightFIRST, "C++: Pythia8::MergingHooks::setWeightFIRST(double) --> void", pybind11::arg("weightIn"));
+		cl.def("getWeightNLO", [](Pythia8::MergingHooks &o) -> double { return o.getWeightNLO(); }, "");
+		cl.def("getWeightNLO", (double (Pythia8::MergingHooks::*)(int)) &Pythia8::MergingHooks::getWeightNLO, "C++: Pythia8::MergingHooks::getWeightNLO(int) --> double", pybind11::arg("i"));
+		cl.def("getWeightCKKWL", (class std::vector<double, class std::allocator<double> > (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::getWeightCKKWL, "C++: Pythia8::MergingHooks::getWeightCKKWL() --> class std::vector<double, class std::allocator<double> >");
+		cl.def("getWeightFIRST", (class std::vector<double, class std::allocator<double> > (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::getWeightFIRST, "C++: Pythia8::MergingHooks::getWeightFIRST() --> class std::vector<double, class std::allocator<double> >");
+		cl.def("setWeightCKKWL", (void (Pythia8::MergingHooks::*)(class std::vector<double, class std::allocator<double> >)) &Pythia8::MergingHooks::setWeightCKKWL, "C++: Pythia8::MergingHooks::setWeightCKKWL(class std::vector<double, class std::allocator<double> >) --> void", pybind11::arg("weightIn"));
+		cl.def("setWeightFIRST", (void (Pythia8::MergingHooks::*)(class std::vector<double, class std::allocator<double> >)) &Pythia8::MergingHooks::setWeightFIRST, "C++: Pythia8::MergingHooks::setWeightFIRST(class std::vector<double, class std::allocator<double> >) --> void", pybind11::arg("weightIn"));
+		cl.def("getSudakovWeight", (class std::vector<double, class std::allocator<double> > (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::getSudakovWeight, "C++: Pythia8::MergingHooks::getSudakovWeight() --> class std::vector<double, class std::allocator<double> >");
+		cl.def("getCouplingWeight", (class std::vector<double, class std::allocator<double> > (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::getCouplingWeight, "C++: Pythia8::MergingHooks::getCouplingWeight() --> class std::vector<double, class std::allocator<double> >");
 		cl.def("setEventVetoInfo", (void (Pythia8::MergingHooks::*)(int, double)) &Pythia8::MergingHooks::setEventVetoInfo, "C++: Pythia8::MergingHooks::setEventVetoInfo(int, double) --> void", pybind11::arg("nJetNowIn"), pybind11::arg("tmsNowIn"));
 		cl.def("setHardProcessInfo", (void (Pythia8::MergingHooks::*)(int, double)) &Pythia8::MergingHooks::setHardProcessInfo, "C++: Pythia8::MergingHooks::setHardProcessInfo(int, double) --> void", pybind11::arg("nHardNowIn"), pybind11::arg("tmsHardNowIn"));
 		cl.def("assign", (class Pythia8::MergingHooks & (Pythia8::MergingHooks::*)(const class Pythia8::MergingHooks &)) &Pythia8::MergingHooks::operator=, "C++: Pythia8::MergingHooks::operator=(const class Pythia8::MergingHooks &) --> class Pythia8::MergingHooks &", pybind11::return_value_policy::reference, pybind11::arg(""));

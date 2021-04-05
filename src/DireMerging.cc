@@ -466,7 +466,7 @@ int DireMerging::mergeProcess(Event& process){
 
   // Possibility to apply merging scale to an input event.
   if ( applyTMSCut && cutOnProcess(process) ) {
-    if (includeWGT) infoPtr->updateWeight(0.);
+    if (includeWGT) infoPtr->weightContainerPtr->setWeightNominal(0.);
     return -1;
   }
 
@@ -559,8 +559,8 @@ int DireMerging::mergeProcess(Event& process){
 
     // Ensure that merging weight is not counted twice.
     if (returnCode == 0) {
-      mergingHooksPtr->setWeightCKKWL(0.);
-      if ( includeWGT) infoPtr->updateWeight(0.);
+      mergingHooksPtr->setWeightCKKWL({0.});
+      if ( includeWGT) infoPtr->weightContainerPtr->setWeightNominal(0.);
     }
 
     if (!allowReject && returnCode < 1) returnCode=1;
@@ -569,7 +569,7 @@ int DireMerging::mergeProcess(Event& process){
     if (foundHistories) storeInfos();
 
     if (doMOPS) {
-      if (returnCode < 1) mergingHooksPtr->setWeightCKKWL(0.);
+      if (returnCode < 1) mergingHooksPtr->setWeightCKKWL({0.});
      return returnCode;
     }
 
@@ -622,7 +622,7 @@ int DireMerging::mergeProcessCKKWL( Event& process) {
 
   // Reset weight of the event.
   double wgt = 1.0;
-  mergingHooksPtr->setWeightCKKWL(1.);
+  mergingHooksPtr->setWeightCKKWL({1.});
   mergingHooksPtr->muMI(-1.);
 
   // Prepare process record for merging. If Pythia has already decayed
@@ -653,8 +653,8 @@ int DireMerging::mergeProcessCKKWL( Event& process) {
   mergingHooksPtr->setEventVetoInfo(-1, -1.);
 
   if (nSteps < nRequested && allowReject) {
-    if (!includeWGT) mergingHooksPtr->setWeightCKKWL(0.);
-    if ( includeWGT) infoPtr->updateWeight(0.);
+    if (!includeWGT) mergingHooksPtr->setWeightCKKWL({0.});
+    if ( includeWGT) infoPtr->weightContainerPtr->setWeightNominal(0.);
     return -1;
   }
 
@@ -744,8 +744,8 @@ int DireMerging::mergeProcessCKKWL( Event& process) {
       "Les Houches Event";
     message+=" fails merging scale cut. Reject event.";
     infoPtr->errorMsg(message);
-    if (!includeWGT) mergingHooksPtr->setWeightCKKWL(0.);
-    if ( includeWGT) infoPtr->updateWeight(0.);
+    if (!includeWGT) mergingHooksPtr->setWeightCKKWL({0.});
+    if ( includeWGT) infoPtr->weightContainerPtr->setWeightNominal(0.);
     return -1;
   }
 
@@ -809,11 +809,11 @@ int DireMerging::mergeProcessCKKWL( Event& process) {
   wgt *= dampWeight;
 
   // Save the weight of the event for histogramming.
-  if (!includeWGT) mergingHooksPtr->setWeightCKKWL(wgt);
+  if (!includeWGT) mergingHooksPtr->setWeightCKKWL({wgt});
 
   // Update the event weight.
-  double norm = (abs(infoPtr->lhaStrategy()) == 4) ? 1/1e9 : 1.;
-  if ( includeWGT) infoPtr->updateWeight(infoPtr->weight()*wgt*norm);
+  if ( includeWGT) infoPtr->weightContainerPtr->
+    setWeightNominal(infoPtr->weight()*wgt);
 
   // Allow merging hooks to veto events from now on.
   mergingHooksPtr->doIgnoreStep(false);
@@ -858,7 +858,7 @@ int DireMerging::mergeProcessUMEPS( Event& process) {
 
   // Reset weights of the event.
   double wgt   = 1.;
-  mergingHooksPtr->setWeightCKKWL(1.);
+  mergingHooksPtr->setWeightCKKWL({1.});
   mergingHooksPtr->muMI(-1.);
 
   // Prepare process record for merging. If Pythia has already decayed
@@ -880,8 +880,8 @@ int DireMerging::mergeProcessUMEPS( Event& process) {
   // removed. In this case, reject this event, since it will be handled in
   // lower-multiplicity samples.
   if (nSteps < nRequested) {
-    if (!includeWGT) mergingHooksPtr->setWeightCKKWL(0.);
-    if ( includeWGT) infoPtr->updateWeight(0.);
+    if (!includeWGT) mergingHooksPtr->setWeightCKKWL({0.});
+    if ( includeWGT) infoPtr->weightContainerPtr->setWeightNominal(0.);
     return -1;
   }
 
@@ -912,8 +912,8 @@ int DireMerging::mergeProcessUMEPS( Event& process) {
       "Les Houches Event";
     message+=" fails merging scale cut. Reject event.";
     infoPtr->errorMsg(message);
-    if (!includeWGT) mergingHooksPtr->setWeightCKKWL(0.);
-    if ( includeWGT) infoPtr->updateWeight(0.);
+    if (!includeWGT) mergingHooksPtr->setWeightCKKWL({0.});
+    if ( includeWGT) infoPtr->weightContainerPtr->setWeightNominal(0.);
     return -1;
   }
 
@@ -923,8 +923,8 @@ int DireMerging::mergeProcessUMEPS( Event& process) {
     && !FullHistory.getFirstClusteredEventAboveTMS( RN, nRecluster,
           newProcess, nPerformed, false ) ) {
     // Discard if the state could not be reclustered to a state above TMS.
-    if (!includeWGT) mergingHooksPtr->setWeightCKKWL(0.);
-    if ( includeWGT) infoPtr->updateWeight(0.);
+    if (!includeWGT) mergingHooksPtr->setWeightCKKWL({0.});
+    if ( includeWGT) infoPtr->weightContainerPtr->setWeightNominal(0.);
     return -1;
   }
 
@@ -960,11 +960,11 @@ int DireMerging::mergeProcessUMEPS( Event& process) {
   wgt *= dampWeight;
 
   // Save the weight of the event for histogramming.
-  if (!includeWGT) mergingHooksPtr->setWeightCKKWL(wgt);
+  if (!includeWGT) mergingHooksPtr->setWeightCKKWL({wgt});
 
   // Update the event weight.
-  double norm = (abs(infoPtr->lhaStrategy()) == 4) ? 1/1e9 : 1.;
-  if ( includeWGT) infoPtr->updateWeight(infoPtr->weight()*wgt*norm);
+  if ( includeWGT) infoPtr->weightContainerPtr->
+    setWeightNominal(infoPtr->weight()*wgt);
 
   // Set QCD 2->2 starting scale different from arbitrary scale in LHEF!
   // --> Set to minimal mT of partons.
@@ -1026,10 +1026,10 @@ int DireMerging::mergeProcessNL3( Event& process) {
 
   // Reset weight of the event
   double wgt      = 1.;
-  mergingHooksPtr->setWeightCKKWL(1.);
+  mergingHooksPtr->setWeightCKKWL({1.});
   // Reset the O(alphaS)-term of the CKKW-L weight.
   double wgtFIRST = 0.;
-  mergingHooksPtr->setWeightFIRST(0.);
+  mergingHooksPtr->setWeightFIRST({0.});
   mergingHooksPtr->muMI(-1.);
 
   // Prepare process record for merging. If Pythia has already decayed
@@ -1051,8 +1051,8 @@ int DireMerging::mergeProcessNL3( Event& process) {
   // removed. In this case, reject this event, since it will be handled in
   // lower-multiplicity samples.
   if (nSteps < nRequested) {
-    mergingHooksPtr->setWeightCKKWL(0.);
-    mergingHooksPtr->setWeightFIRST(0.);
+    mergingHooksPtr->setWeightCKKWL({0.});
+    mergingHooksPtr->setWeightFIRST({0.});
     return -1;
   }
 
@@ -1066,8 +1066,8 @@ int DireMerging::mergeProcessNL3( Event& process) {
     string message = "Warning in DireMerging::mergeProcessNL3: Les Houches";
     message += " Event fails merging scale cut. Reject event.";
     infoPtr->errorMsg(message);
-    mergingHooksPtr->setWeightCKKWL(0.);
-    mergingHooksPtr->setWeightFIRST(0.);
+    mergingHooksPtr->setWeightCKKWL({0.});
+    mergingHooksPtr->setWeightFIRST({0.});
     return -1;
   }
 
@@ -1087,8 +1087,8 @@ int DireMerging::mergeProcessNL3( Event& process) {
   // Discard states that cannot be projected unto a state with one less jet.
   if ( nSteps > 0 && doNL3Subt
     && FullHistory.select(RN)->nClusterings() == 0 ){
-    mergingHooksPtr->setWeightCKKWL(0.);
-    mergingHooksPtr->setWeightFIRST(0.);
+    mergingHooksPtr->setWeightCKKWL({0.});
+    mergingHooksPtr->setWeightFIRST({0.});
     return -1;
   }
 
@@ -1106,15 +1106,15 @@ int DireMerging::mergeProcessNL3( Event& process) {
     dummy.clear();
     // Recluster once.
     if ( !FullHistory.getClusteredEvent( RN, nSteps, dummy )) {
-      mergingHooksPtr->setWeightCKKWL(0.);
-      mergingHooksPtr->setWeightFIRST(0.);
+      mergingHooksPtr->setWeightCKKWL({0.});
+      mergingHooksPtr->setWeightFIRST({0.});
       return -1;
     }
     double tnowNew  = mergingHooksPtr->tmsNow( dummy );
     // Veto if underlying Born kinematics do not pass merging scale cut.
     if ( enforceCutOnLHE && nRequested > 0 && tnowNew < tmsval ) {
-      mergingHooksPtr->setWeightCKKWL(0.);
-      mergingHooksPtr->setWeightFIRST(0.);
+      mergingHooksPtr->setWeightCKKWL({0.});
+      mergingHooksPtr->setWeightFIRST({0.});
       return -1;
     }
   }
@@ -1147,8 +1147,8 @@ int DireMerging::mergeProcessNL3( Event& process) {
   else {
     // Function to return the reclustered event
     if ( !FullHistory.getClusteredEvent( RN, nSteps, process )) {
-      mergingHooksPtr->setWeightCKKWL(0.);
-      mergingHooksPtr->setWeightFIRST(0.);
+      mergingHooksPtr->setWeightCKKWL({0.});
+      mergingHooksPtr->setWeightFIRST({0.});
       return -1;
     }
   }
@@ -1174,7 +1174,7 @@ int DireMerging::mergeProcessNL3( Event& process) {
   }
 
   // Save the weight of the event for histogramming
-  mergingHooksPtr->setWeightCKKWL(wgt);
+  mergingHooksPtr->setWeightCKKWL({wgt});
 
   // Check if we need to subtract the O(\alpha_s)-term. If the number
   // of additional partons is larger than the number of jets for
@@ -1191,7 +1191,7 @@ int DireMerging::mergeProcessNL3( Event& process) {
     // If necessary, also dampen the O(\alpha_s)-term
     wgtFIRST *= dampWeight;
     // Set the subtractive weight to the value calculated so far
-    mergingHooksPtr->setWeightFIRST(wgtFIRST);
+    mergingHooksPtr->setWeightFIRST({wgtFIRST});
     // Subtract the O(\alpha_s)-term from the CKKW-L weight
     // If PDF contributions have not been included, subtract these later
     wgt = wgt - wgtFIRST;
@@ -1253,10 +1253,10 @@ int DireMerging::mergeProcessUNLOPS( Event& process) {
 
   // Reset weight of the event.
   double wgt      = 1.;
-  mergingHooksPtr->setWeightCKKWL(1.);
+  mergingHooksPtr->setWeightCKKWL({1.});
   // Reset the O(alphaS)-term of the UMEPS weight.
   double wgtFIRST = 0.;
-  mergingHooksPtr->setWeightFIRST(0.);
+  mergingHooksPtr->setWeightFIRST({0.});
   mergingHooksPtr->muMI(-1.);
 
   // Prepare process record for merging. If Pythia has already decayed
@@ -1282,8 +1282,8 @@ int DireMerging::mergeProcessUNLOPS( Event& process) {
       "Les Houches Event";
     message+=" after removing decay products does not contain enough partons.";
     infoPtr->errorMsg(message);
-    mergingHooksPtr->setWeightCKKWL(0.);
-    mergingHooksPtr->setWeightFIRST(0.);
+    mergingHooksPtr->setWeightCKKWL({0.});
+    mergingHooksPtr->setWeightFIRST({0.});
     return -1;
   }
 
@@ -1314,8 +1314,8 @@ int DireMerging::mergeProcessUNLOPS( Event& process) {
     string message="Warning in DireMerging::mergeProcessUNLOPS: Les Houches";
     message+=" Event fails merging scale cut. Reject event.";
     infoPtr->errorMsg(message);
-    mergingHooksPtr->setWeightCKKWL(0.);
-    mergingHooksPtr->setWeightFIRST(0.);
+    mergingHooksPtr->setWeightCKKWL({0.});
+    mergingHooksPtr->setWeightFIRST({0.});
     return -1;
   }
 
@@ -1329,8 +1329,8 @@ int DireMerging::mergeProcessUNLOPS( Event& process) {
   // samples.
   if ( doUNLOPSLoop && containsRealKin && !allowIncompleteReal
     && FullHistory.select(RN)->nClusterings() == 0 ) {
-    mergingHooksPtr->setWeightCKKWL(0.);
-    mergingHooksPtr->setWeightFIRST(0.);
+    mergingHooksPtr->setWeightCKKWL({0.});
+    mergingHooksPtr->setWeightFIRST({0.});
     return -1;
   }
 
@@ -1340,8 +1340,8 @@ int DireMerging::mergeProcessUNLOPS( Event& process) {
     && ( doUNLOPSSubt || doUNLOPSSubtNLO || containsRealKin )
     && !FullHistory.getFirstClusteredEventAboveTMS( RN, nRecluster,
           newProcess, nPerformed, false ) ) {
-    mergingHooksPtr->setWeightCKKWL(0.);
-    mergingHooksPtr->setWeightFIRST(0.);
+    mergingHooksPtr->setWeightCKKWL({0.});
+    mergingHooksPtr->setWeightFIRST({0.});
     return -1;
   }
 
@@ -1364,8 +1364,8 @@ int DireMerging::mergeProcessUNLOPS( Event& process) {
       string message="Warning in DireMerging::mergeProcessUNLOPS: Les Houches";
       message+=" Event fails merging scale cut. Reject event.";
       infoPtr->errorMsg(message);
-      mergingHooksPtr->setWeightCKKWL(0.);
-      mergingHooksPtr->setWeightFIRST(0.);
+      mergingHooksPtr->setWeightCKKWL({0.});
+      mergingHooksPtr->setWeightFIRST({0.});
       return -1;
     }
   }
@@ -1433,7 +1433,7 @@ int DireMerging::mergeProcessUNLOPS( Event& process) {
   }
 
   // Save the weight of the event for histogramming
-  mergingHooksPtr->setWeightCKKWL(wgt);
+  mergingHooksPtr->setWeightCKKWL({wgt});
 
   // Check if we need to subtract the O(\alpha_s)-term. If the number
   // of additional partons is larger than the number of jets for
@@ -1479,7 +1479,7 @@ int DireMerging::mergeProcessUNLOPS( Event& process) {
     wgtFIRST *= dampWeight;
 
     // Set the subtractive weight to the value calculated so far
-    mergingHooksPtr->setWeightFIRST(wgtFIRST);
+    mergingHooksPtr->setWeightFIRST({wgtFIRST});
     // Subtract the O(\alpha_s)-term from the CKKW-L weight
     // If PDF contributions have not been included, subtract these later
     // New UNLOPS based on UN2LOPS.
@@ -1804,8 +1804,8 @@ int DireMerging::calculateWeights( double RNpath, bool useAll ) {
 
   // Ensure that merging hooks to not remove emissions
   mergingHooksPtr->doIgnoreEmissions(true);
-  mergingHooksPtr->setWeightCKKWL(1.);
-  mergingHooksPtr->setWeightFIRST(0.);
+  mergingHooksPtr->setWeightCKKWL({1.});
+  mergingHooksPtr->setWeightFIRST({0.});
 
   // Reset weight of the event.
   double wgt      = 1.;
@@ -2008,7 +2008,7 @@ int DireMerging::calculateWeights( double RNpath, bool useAll ) {
 
   }
 
-  mergingHooksPtr->setWeightCKKWL(wgt);
+  mergingHooksPtr->setWeightCKKWL({wgt});
 
   // Check if we need to subtract the O(\alpha_s)-term. If the number
   // of additional partons is larger than the number of jets for

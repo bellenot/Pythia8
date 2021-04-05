@@ -927,7 +927,7 @@ event properties can be interrogated.
 partonVertexPtrIn)"> 
 offers the possibility to set production vertices for the MPI, 
 FSR and ISR parton-level evolution, instead of the default framework, 
-see further <aloc href="VertexInformation">here</aloc>. 
+see further <aloc href="PartonVertexInformation">here</aloc>. 
 This part of the program is still in the early stages, and is 
 likely to evolve further. Currently it is only used for the 
 <aloc href="RopeHadronization">Rope Hadronization</aloc> framework. 
@@ -1062,13 +1062,59 @@ event record is then not consistent and should not be studied.
 </method> 
  
 <method name="bool Pythia::doLowEnergyProcess(int i1, int i2, int type)"> 
-Allow two hadrons, located in positions <ei>i1</ei> and <ei>i2</ei> of 
+allow two hadrons, located in positions <ei>i1</ei> and <ei>i2</ei> of 
 the normal event record to interact with each other and give rise to new 
-hadrons. Only simple interaction types are offered, as relevent at low 
-energies. It can be used e.g. to model hadronic rescattering in the 
-final state. This method does not itself decay unstable hadrons, but 
-thst could be achieved e.g. with a <code>Pythia::moreDecays()</code> 
-call. This method is still under development. 
+hadrons by 
+<aloc href="QCDLowEnergyProcesses">Low-energy QCD Processes</aloc>. 
+The possible interaction <code>type</code>s are 
+(1) inelastic nondiffractive, (2) elastic, (3, 4) single diffractive 
+where either first or second hadron is broken up, (5) double diffractive, 
+(7) excitation, (8) annihilation and (9) resonant. It is also possible to 
+specify the formation of a specific resonance by setting <code>type</code> to 
+the id of that particle. No perturbative stage is applied in either case, 
+as relevent at low energies. It can be used e.g. to model 
+<aloc href="HadronicRescattering">Hadronic Rescattering</aloc> in the 
+final state, where partial cross sections are first calculated to provide 
+the relevant mix of different collision types. This method does not itself 
+decay unstable hadrons, but that could be achieved e.g. with a 
+<code>Pythia::moreDecays()</code> call. 
+</method> 
+ 
+<method name="double Pythia::getLowEnergySigma(int i1, int i2, int type = 0)"> 
+returns the cross section used internally for low-energy collisions, 
+with the same arguments and in particular the same <code>type</code> 
+classification as above, with default option 0 giving the total cross section. 
+</method> 
+ 
+<method name="double Pythia::getLowEnergySigma(int id1, int id2, double eCM12, 
+double m1, double m2, int type = 0)"> 
+</method> 
+<methodmore name="double Pythia::getLowEnergySigma(int id1, int id2, 
+double eCM12, int type = 0)"> 
+returns the same low-energy cross sections as above, but with 
+arguments decoupled from the event record location of particles. 
+<argument name="id1, id2"> 
+the identity codes of the two colliding hadrons. 
+</argument> 
+<argument name="eCM12"> 
+the collision center-of-mass energy. 
+</argument> 
+<argument name="m1, m2"> 
+the masses of the two incoming hadrons. If unspecified, the particles are 
+assumed to be on-shell. 
+</argument> 
+<argument name="type"> 
+process classification as above, with 0 for the total cross section. 
+</argument> 
+</methodmore> 
+ 
+<method name="double Pythia::getLowEnergySlope(int id1, int id2, double eCM12, 
+double m1, double m2, int type = 2)"> 
+returns the elastic (<code>type</code> = 2) and diffractive 
+(<code>type</code> = 3, 4 or 5) slopes <ei>B</ei> of the <ei>t</ei> 
+dependence. Arguments as above, but note that <code>m1</code> and 
+<code>m2</code> refer to the current diffractive masses for 
+diffraction. 
 </method> 
  
 <method name="void Pythia::LHAeventList()"> 

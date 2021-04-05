@@ -129,6 +129,7 @@ namespace Pythia8 {
 
   // class LHmatrixBlock: the generic SLHA matrix
   // Explicit sizing required, e.g.LHmatrixBlock<4> nmix;
+  // Note, indexing from 1 is intentional, zeroth column/row not used.
   template <int size> class LHmatrixBlock {
   public:
     //Constructor. Set uninitialized and explicitly zero.
@@ -143,14 +144,14 @@ namespace Pythia8 {
 
     // Copy constructor.
     LHmatrixBlock(const LHmatrixBlock& m) : val(m.val) {
-      for (i=0;i<size;i++) for (j=0;j<=size;j++) entry[i][j] = m(i,j);
+      for (i=1;i<=size;i++) for (j=1;j<=size;j++) entry[i][j] = m(i,j);
       qDRbar = m.qDRbar;
       initialized = m.initialized; }
 
     // Assignment.
     LHmatrixBlock& operator=(const LHmatrixBlock& m) {
       if (this != &m) {
-        for (i=0;i<size;i++) for (j=0;j<=size;j++) entry[i][j] = m(i,j);
+        for (i=1;i<=size;i++) for (j=1;j<=size;j++) entry[i][j] = m(i,j);
         qDRbar = m.qDRbar;
         initialized = m.initialized;
       }

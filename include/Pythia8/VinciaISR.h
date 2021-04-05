@@ -854,9 +854,10 @@ public:
   int nTrialGenerators() const {return trialGenPtrsSav.size();}
 
   // Save a generated trial branching.
-  void saveTrial(int iTrial, double qOld, double qTrial, double zMin,
-    double zMax, double colFac,double alphaEff, double pdfRatio, int trialFlav,
-    double extraMpdf, double headroom = 1.0, double enhanceFac = 1.0);
+  void saveTrial(int iTrial, double qOld, double qTrial, double zMin=0.,
+    double zMax=0., double colFac=0.,double alphaEff=0., double pdfRatio=0.,
+    int trialFlav=0, double extraMpdf=0., double headroom = 1.0,
+    double enhanceFac = 1.0);
 
   // Add the physical pdf ratio.
   void addPDF(int iTrial,double pdfRatio) {physPDFratioSav[iTrial] = pdfRatio;}

@@ -26,7 +26,7 @@ LOCAL_SRC=src
 LOCAL_TMP=tmp
 LOCAL_INCLUDE=include
 LOCAL_MKDIRS:=$(shell mkdir -p $(LOCAL_TMP) $(TOP_LIB))
-OBJ_COMMON:=-MD $(CXX_COMMON) -Iinclude $(PYTHON_INCLUDE) -w -fpermissive
+OBJ_COMMON=-MD $(CXX_COMMON) -Iinclude $(PYTHON_INCLUDE) -w -fpermissive
 LIB_COMMON=-Wl,-rpath,$(TOP_LIB) -ldl $(GZIP_LIB)
 PYTHIA=$(TOP_LIB)/libpythia8$(LIB_SUFFIX)
 

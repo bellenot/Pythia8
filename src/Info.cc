@@ -162,92 +162,16 @@ void Info::list() const {
 // Event weights and accumulated weight.
 
 double Info::weight(int iWeight) const {
-  double wt = (iWeight <= 0 || iWeight >= int(weightSave.size()))
-    ? weightSave[0] : weightSave[iWeight];
-  return (abs(lhaStrategySave) == 4) ? CONVERTMB2PB * wt : wt;
+  double weightNominal = weightContainerPtr->weightNominal;
+  double wt = (iWeight <= 0 ||
+      iWeight >= int(weightContainerPtr->weightsPS.getWeightsSize()))
+    ? weightNominal :
+      weightContainerPtr->weightsPS.getWeightsValue(iWeight)*weightNominal;
+  return wt;
 }
 
 double Info::weightSum() const {
   return (abs(lhaStrategySave) == 4) ? CONVERTMB2PB * wtAccSum : wtAccSum;
-}
-//--------------------------------------------------------------------------
-
-// Uncertainty variations initialization
-
-void Info::initUncertainties(vector<string>* variationListIn, bool isISR) {
-  size_t vNames = weightLabelSave.size();
-  externalVariations.clear();
-  externalVarNames.clear();
-  externalGroupNames.clear();
-  externalMap.clear();
-  initialNameSave.clear();
-  externalVariations.push_back("Baseline");
-  initialNameSave.push_back("Baseline");
-  for(vector<string>::const_iterator v=variationListIn->begin();
-      v != variationListIn->end(); ++v) {
-    string line = *v;
-    // Remove initial blank spaces
-    while (line.find(" ") == 0) line.erase( 0, 1);
-    size_t pos=0;
-    // Search for pdf:family keyword for SpaceShower
-    if( isISR && ((pos = line.find("isr:pdf:family")) != string::npos) ) {
-      size_t posEnd = line.find(" ",pos);
-      if( posEnd == string::npos ) posEnd = line.size();
-      for(size_t i=0; i < vNames; ++i) {
-        string local = weightLabelSave[i];
-        if( local.find("isr:pdf:member") != string::npos ) {
-          size_t iEqual = local.find("=")+1;
-          string nMember = local.substr(iEqual,local.size());
-          nMember.append(" ");
-          string tmpLine = line;
-          tmpLine.replace(pos,posEnd-pos,local);
-          size_t iBlank = line.find_first_of(" ");
-          tmpLine.replace(iBlank,1,nMember);
-          externalVariations.push_back(tmpLine);
-          initialNameSave.push_back(line.substr(0,line.find_first_of(" ")));
-        }
-      }
-    } else {
-      externalVariations.push_back(line);
-      initialNameSave.push_back(line.substr(0,line.find_first_of(" ")));
-    }
-  }
-  externalVariationsSize = externalVariations.size();
-  size_t nNames = externalVariationsSize;
-  externalVarNames.resize(nNames);
-  externalVarNames[0].push_back("Baseline");
-  externalGroupNames.resize(nNames);
-  externalGroupNames[0]="Baseline";
-  for(size_t iWeight = 0; iWeight < nNames; ++iWeight) {
-    string uVarString = toLower(externalVariations[iWeight]);
-    size_t firstBlank  = uVarString.find_first_of(" ");
-    size_t endLine = uVarString.size();
-    if( firstBlank > endLine) continue;
-    externalGroupNames[iWeight] = uVarString.substr(0,firstBlank);
-    uVarString  = uVarString.substr(firstBlank+1,endLine);
-    size_t pos = 0;
-    while ((pos = uVarString.find(" ")) != string::npos) {
-      string token = uVarString.substr(0, pos);
-      externalVarNames[iWeight].push_back(token);
-      uVarString.erase(0, pos + 1);
-    }
-    if (uVarString == "" || uVarString == " ") continue;
-    externalVarNames[iWeight].push_back(uVarString);
-  }
-  externalMap.resize(nNames);
-  for(size_t iWeight = 0; iWeight < vNames; ++iWeight) {
-    for(size_t iV = 0; iV < nNames; ++iV) {
-      for(size_t iW = 0; iW < externalVarNames[iV].size(); ++iW) {
-        if( externalVarNames[iV][iW] == weightLabelSave[iWeight] ) {
-          externalMap[iV].push_back(iWeight);
-        } else if ( isISR && externalVarNames[iV][iW].find("isr:pdf:family")
-        != string::npos && weightLabelSave[iWeight].find("isr:pdf:member")
-        != string::npos ) {
-          externalMap[iV].push_back(iWeight);
-        }
-      }
-    }
-  }
 }
 
 //--------------------------------------------------------------------------
@@ -368,6 +292,9 @@ void Info::setLHEF3InitInfo( int LHEFversionIn, LHAinitrwgt *initrwgtIn,
   weightgroups    = weightgroupsIn;
   init_weights    = init_weightsIn;
   headerBlock     = headerBlockIn;
+  weightContainerPtr->weightsLHEF.
+    identifyVariationsFromLHAinit( init_weightsIn );
+  weightContainerPtr->weightsMerging.setLHEFvariationMapping();
 }
 
 //--------------------------------------------------------------------------
@@ -407,7 +334,7 @@ void Info::setLHEF3EventInfo( map<string, string> *eventAttributesIn,
    weights_detailed_vector = weights_detailed_vecIn;
    eventComments      = eventCommentsIn;
    eventWeightLHEF    = eventWeightLHEFIn;
-   weightContainerPtr->weightsLHEF.init(weights_detailed_vecIn,
+   weightContainerPtr->weightsLHEF.bookVectors(weights_detailed_vecIn,
      weights_detailed_name_vecIn);
 }
 
@@ -556,6 +483,56 @@ double Info::getScalesAttribute(string key) const {
   }
   return res;
 }
+
+//--------------------------------------------------------------------------
+//==========================================================================
+
+// Class for loading plugin libraries at run time.
+
+//--------------------------------------------------------------------------
+
+// Constructor, with library name and info pointer.
+
+Plugin::Plugin(string nameIn, Info *infoPtrIn) {
+  name = nameIn;
+  infoPtr = infoPtrIn;
+  libPtr = dlopen(nameIn.c_str(), RTLD_LAZY);
+  const char* cerror = dlerror();
+  string serror(cerror == nullptr ? "" : cerror);
+  dlerror();
+  if (serror.size()) {
+    errorMsg("Error in Plugin::Plugin: " + serror);
+    libPtr = nullptr;
+  }
+
+}
+
+//--------------------------------------------------------------------------
+
+// Destructor.
+
+Plugin::~Plugin() {
+  if (libPtr != nullptr) dlclose(libPtr);
+  dlerror();
+
+}
+
+//--------------------------------------------------------------------------
+
+// Access plugin library symbols.
+
+Plugin::Symbol Plugin::symbol(string symName) {
+    Symbol sym(0);
+    const char* error(0);
+    if (libPtr == nullptr) return sym;
+    sym = (Symbol)dlsym(libPtr, symName.c_str());
+    error = dlerror();
+    if (error) errorMsg("Error in Plugin::symbol: " + string(error));
+    dlerror();
+    return sym;
+
+}
+
 
 //==========================================================================
 

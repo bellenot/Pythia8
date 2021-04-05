@@ -257,6 +257,12 @@ define a histogram that previously was only declared;
 see above for the meaning of the arguments. 
 </method> 
  
+<method name="static Hist Hist::plotFunc(function&lt;double(double)&gt; f, 
+string title, int nBin, double xMin, double xMax, bool logX = false)"> 
+create a histogram out of a provided function <ei>f(x)</ei>. 
+The function is evaluated in the middle of each bin. 
+</method> 
+ 
 <method name="void Hist::title(string title)"> 
 change the title of a histogram, but keep other properties unchanged. 
 </method> 
@@ -368,9 +374,31 @@ return the title of the histogram.
 return the number of bins in the histogram. 
 </method> 
  
+<method name="int Hist::getNonFinite()"> 
+return the number of entries that are neither infinite nor NaN. 
+</method> 
+ 
 <method name="bool Hist::getLinX()"> 
 return true if the histogram has a linear <ei>x</ei> scale and 
 false if a logarithmic one. 
+</method> 
+ 
+<method name="bool Hist::getXMin()"> 
+</method> 
+<methodmore name="bool Hist::getXMax()"> 
+return the lower and upper edge of the booked <ei>x</ei> range. 
+</methodmore> 
+ 
+<method name="bool Hist::getYMin()"> 
+</method> 
+<methodmore name="bool Hist::getYMax()"> 
+return the highest and lowest value of any bin inside the histogram, 
+i.e. excluding underflow and overflow. 
+</methodmore> 
+ 
+<method name="double Hist::getYAbsMin()"> 
+returns the smallest absolute value (above 1e-20, to sidestep bins with 
+zero content) in any of the bins inside the histogram. 
 </method> 
  
 <method name="double Hist::getBinContent(int iBin)"> 
@@ -379,9 +407,10 @@ return the value in bin <code>iBin</code>, ranging from 1 through
 <code>numberOfBins + 1</code> for overflow. 
 </method> 
  
-<method name="int Hist::getEntries()"> 
+<method name="int Hist::getEntries(bool alsoNonFinite = true)"> 
 return the number of entries, i.e. the number of time that 
-<code>fill(...)</code> has been called. 
+<code>fill(...)</code> has been called. If <code>alsoNonFinite</code> 
+is false, then entries that are infinity or NaN are ignored. 
 </method> 
  
 <method name="bool Hist::sameSize(const Hist&amp; h)"> 
@@ -401,9 +430,17 @@ take square root of current contents bin by bin, with negative contents
 set to zero. 
 </method> 
  
-<method name="double Hist::smallestAbsValue()"> 
-returns the smallest absolute value (above 1e-20, to sidestep bins with zero 
-content) in any of the bins. 
+<method name="void Hist::normalize( double sum = 1., 
+bool alsoOverflow = true)"> 
+Rescale the histogram to a given sum of all bin contents, where 
+<argument name="sum" default="1."> 
+is the intended sum of all bin contents after rescaling, and 
+</argument> 
+<argument name="alsoOverflow" default="on"> 
+includes the underflow and overflow bins in the definition of the 
+original area to be rescaled, or not. Either way, the under/overflow 
+are always rescaled by the same factor as the histogram proper. 
+</argument> 
 </method> 
  
 <method name="Hist&amp; Hist::operator+=(const Hist&amp; h)"> 
@@ -479,23 +516,29 @@ defined below will be drawn and output.
 </method> 
  
 <method name="void HistPlot::frame( string frameName, string title = 
-&quot;&quot;, string xLabel = &quot;&quot;, string yLabel = &quot;&quot;)"> 
+&quot;&quot;, string xLabel = &quot;&quot;, string yLabel = &quot;&quot;, 
+double xSize = 8., double ySize = 6.)"> 
 command to open a frame where successive histograms can be added and 
-plotted, where 
+plotted. 
 <argument name="frameName"> 
-is the frame that will become a PFD file <code>frameName.pdf</code> when 
-the Python program is run; if left blank the frame will be appended to the 
-most recent previous  PDF file, so clearly it cannot be left blank for the 
-first call, 
+the name of the frame. When the Python program is run, the output PDF 
+file will be <code>frameName.pdf</code>. If this is blank or it is the 
+same name as the previous frame, then the frame will be appended to 
+the most recent previous PDF file. It cannot be left blank for the 
+first call. 
 </argument> 
 <argument name="title"> 
-is an optional title of the histogram, plotted on top of the frame, 
+an optional title of the histogram, plotted on top of the frame. 
 </argument> 
 <argument name="xLabel"> 
-is an optional label plotted below the <ei>x</ei> axis, and 
+an optional label plotted below the <ei>x</ei> axis. 
 </argument> 
 <argument name="yLabel"> 
-is an optional label plotted to the right of the <ei>y</ei> axis. 
+an optional label plotted to the right of the <ei>y</ei> axis. 
+</argument> 
+<argument name="xSize, ySize"> 
+specifies the <ei>x</ei> and <ei>y</ei> size, in inches, of the canvas 
+(the full figure area). Default values agree with the Pyplot defaults. 
 </argument> 
 <note>Note:</note> the title and labels may contain special LaTeX symbols, 
 e.g. simple math formulae enclosed by dollar signs $...$, that are 
@@ -526,7 +569,47 @@ above.
 </argument> 
 </method> 
  
-<method name="void HistPlot::plot( bool logY = false)"> 
+<method name="void HistPlot::addFile(string file, 
+string style = &quot;o&quot;, string legend = &quot;void&quot;, 
+string xyerr = &quot;&quot;)"> 
+add data in an already existing file to the current plot frame, where 
+<argument name="file"> 
+is the name of the file to be plotted, 
+</argument> 
+<argument name="style"> 
+tells how the data will be represented in the figure, just like in the 
+<code>add</code> method above, but by default intended for discrete 
+points rather than histograms or connected lines; 
+</argument> 
+<argument name="legend"> 
+is the text written in association with the plotting symbol, where the 
+default <code>void</code> is replaced by the name of the input file, 
+and LaTex input may be used as described in the note above for 
+<code>frame</code>; and 
+</argument> 
+<argument name="xyerr"> 
+can be used to provide error bars for a point, where the options are 
+to give an <code>x</code> to plot a symmetric error bar in the <ei>x</ei> 
+direction, an <code>X</code> for an asymmetric ditto, a <code>y</code> for 
+a symmetric error bar in the <ei>y</ei> direction, and a <code>Y</code> for 
+an asymmetric ditto, and where both <ei>x</ei> and <ei>y</ei> can be 
+combined or omitted as desired. 
+</argument> 
+<note>Note:</note> this method is primarily intended to overlay data 
+points over existing histograms, and not for standalone usage. The data 
+file is expected to contain at least two columns, where the first two 
+give the <ei>(x,y)</ei> coordinates of the points. Then up to four 
+error columns can follow, first the ones pertaining to the <ei>x</ei> 
+error, if any, and then to <ei>y</ei>. Symmetric errors require one 
+column with length in both directions, whereas asymetric gives first the 
+length downwards and then the length upwards, both as non-negative numbers. 
+For example, to plot the point (1.0, 2.0) with a symmetric error +/-0.5 in the 
+x-direction and an asymmetric error +0.2/-0.5 in the y-direction, the file 
+should contain the row <code>1.0 2.0 0.5 0.2 -0.5</code> and the value of 
+<code>xyerr</code> might be <code>"xY"</code>. 
+</method> 
+ 
+<method name="void HistPlot::plot( bool logY = false, bool logX = false)"> 
 write the Pyplot commands for the current frame, as defined by the input 
 from the two methods above, and additionally write the data files needed 
 when the Python code is to be run. 
@@ -535,9 +618,23 @@ By default a linear <ei>y</ei> scale is used, but when true the <ei>y</ei>
 scale is instead logarithmic, except that a linear scale is used the very 
 last step to zero bin content. 
 </argument> 
-<note>Note:</note> whether the <ei>x</ei> scale is linear or logarithmic 
-depends on what choice was made when the histogram was booked, and cannot 
-be changed later. 
+<argument name="logX"> 
+By default a linear or logarithmic <ei>x</ei> scale is used depending on 
+how the histograms were booked, i.e. by default linear, and this should 
+not be overridden. For the case that the only input comes from 
+<code>addFile</code> commands, however, this option gives the possibility 
+to pick a logarithimic <ei>x</ei> scale instead of the default linear one. 
+(Presumably you would then use the <code>plot</code>variant below.) 
+Note the confusing order of the two arguments, which is caused by the 
+first presumably being much more commonly used than the second. 
+</argument> 
+</method> 
+ 
+<method name="void HistPlot::plot( double xMin, double xMax, double yMin, 
+double yMax, bool logY = false, bool logX = false)"> 
+a variant of the <code>plot</code> method above, where the <ei>x</ei> 
+and <ei>y</ei> ranges of the plot frame can be set by hand instead of 
+calculated from the histogram information. 
 </method> 
  
 <method name="void HistPlot::plotFrame( string frameName, const Hist& hist, 

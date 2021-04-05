@@ -585,6 +585,9 @@ const double StringFragmentation::M2MINJRF      = 1e-4;
 const double StringFragmentation::CONVJRFEQ     = 1e-12;
 const int    StringFragmentation::NTRYJRFEQ     = 40;
 
+// Retry smearing of breakup vertex if too big shifts.
+const int    StringFragmentation::NTRYSMEAR     = 100;
+
 // Check that breakup vertex does not have negative tau^2 or t within roundoff.
 const double StringFragmentation::CHECKPOS     = 1e-10;
 
@@ -610,14 +613,16 @@ void StringFragmentation::init(StringFlav* flavSelPtrIn,
   eMaxLeftJunction  = parm("StringFragmentation:eMaxLeftJunction");
   eMinLeftJunction  = parm("StringFragmentation:eMinLeftJunction");
 
-
   // Calculation and definition of hadron space-time production vertices.
   hadronVertex    = mode("HadronVertex:mode");
-  setVertices     = flag("Fragmentation:setVertices");
+  setVertices     = flag("Fragmentation:setVertices")
+                 || flag("HadronLevel:Rescatter");
   kappaVtx        = parm("HadronVertex:kappa");
   smearOn         = flag("HadronVertex:smearOn");
   xySmear         = parm("HadronVertex:xySmear");
+  maxSmear        = parm("HadronVertex:maxSmear");
   constantTau     = flag("HadronVertex:constantTau");
+  maxTau          = parm("HadronVertex:maxTau");
 
   // Tracing of colours for primary hadrons.
   traceColours    = flag("StringFragmentation:TraceColours");
@@ -837,10 +842,10 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
   store(event);
 
   // Store hadron production space-time vertices.
-  if (setVertices) setHadronVertices( event);
+  bool saneVertices = (setVertices) ? setHadronVertices( event) : true;
 
   // Done.
-  return true;
+  return saneVertices;
 
 }
 
@@ -986,14 +991,14 @@ bool StringFragmentation::energyUsedUp(bool fromPos) {
 
 }
 
-
 //--------------------------------------------------------------------------
 
 // Store hadron production vertices in the event record.
 
-void StringFragmentation::setHadronVertices( Event& event) {
+bool StringFragmentation::setHadronVertices( Event& event) {
 
   // Order breakup points from one end to the other.
+  bool saneVertices = true;
   int vertexSize = stringVertices.size();
   vector<StringVertex> orderedVertices;
   for (int i = 0; i < vertexSize; ++i) if (stringVertices[i].fromPos)
@@ -1032,12 +1037,14 @@ void StringFragmentation::setHadronVertices( Event& event) {
       Vec4 noOffset = (xPosIn * currentRegion.pPos +
         xNegIn * currentRegion.pNeg) / kappaVtx;
       Vec4 pRegion = (currentRegion.pPos + currentRegion.pNeg) / kappaVtx;
+      Vec4 fromBreaks = noOffset + gluonOffset;
 
       // Correction added to the space-time location of breakup points
       // if negative squared invariant time.
-      if (noOffset.m2Calc() < 0.) {
-        double cPlus = (-pRegion * noOffset + sqrt( pow2(pRegion*noOffset)
-        - pRegion.m2Calc() * noOffset.m2Calc())) / pRegion.m2Calc();
+      if (fromBreaks.m2Calc() < 0.) {
+        double cPlus = (-pRegion * fromBreaks + sqrt( pow2(pRegion
+          * fromBreaks) - pRegion.m2Calc() * fromBreaks.m2Calc()))
+          / pRegion.m2Calc();
         Vec4 pCorrection = noOffset + cPlus * pRegion;
         Vec4 fracCorrection;
         bool betterFrac = false;
@@ -1050,9 +1057,10 @@ void StringFragmentation::setHadronVertices( Event& event) {
                      > abs(noOffset.e() - fracCorrection.e());
         }
         noOffset = (betterFrac) ? fracCorrection : pCorrection;
+        fromBreaks = noOffset + gluonOffset;
       }
+
       // Store vertex and check positivity.
-      Vec4 fromBreaks = noOffset + gluonOffset;
       longitudinal.push_back(fromBreaks);
       if (fromBreaks.m2Calc() < -CHECKPOS * max(1., pow2(fromBreaks.e())))
         infoPtr->errorMsg("Warning in StringFragmentation::setVertices: "
@@ -1171,21 +1179,17 @@ void StringFragmentation::setHadronVertices( Event& event) {
     }
   }
 
-  // Smearing in transverse space.
+  // Begin smearing in transverse space. Endpoint vertices unchanged.
   vector<Vec4> spaceTime;
   for (int i = 0; i < vertexSize; ++i) {
-    Vec4 positionTot = longitudinal[i];
-    if (smearOn) {
+    Vec4& longi = longitudinal[i];
+    Vec4 positionTot = longi;
 
-      if (!isClosed && (i == 0 || i == vertexSize -1)) {
-        spaceTime.push_back(positionTot);
-        continue;
-      }
+    // Find two spacelike transverse four-vector directions.
+    if (smearOn && (isClosed || (i > 0 && i < vertexSize - 1))) {
       Vec4 eX, eY;
       int iPosIn = orderedVertices[i].iRegPos;
       int iNegIn = orderedVertices[i].iRegNeg;
-
-      // Find two spacelike transverse four-vector directions.
       if (iPosIn == -1 && iNegIn == -1) {
         eX = eXFinalReg;
         eY = eYFinalReg;
@@ -1195,26 +1199,27 @@ void StringFragmentation::setHadronVertices( Event& event) {
         eY = currentRegion.eY;
       }
 
-      // Smearing calculated randomly following a gaussian.
+      // Loop over tries; give up if struck.
+      double longiLen = sqrt(longi.pAbs2() + pow2(longi.e()) + pow2(xySmear));
       for (int iTry = 0; ; ++iTry) {
+        if (iTry == NTRYSMEAR) {
+          infoPtr->errorMsg("Warning in StringFragmentation::set"
+            "Vertices: failed to smear vertex (normal string)");
+          positionTot = longi;
+          break;
+        }
+
+        // Smearing calculated randomly following a Gaussian.
         double transX = rndmPtr -> gauss();
         double transY = rndmPtr -> gauss();
-        Vec4 transversePos = xySmear * (transX * eX + transY * eY) / sqrt(2.);
-        positionTot = transversePos + longitudinal[i];
+        Vec4 transPos = xySmear * (transX * eX + transY * eY) / sqrt(2.);
+        positionTot = transPos + longi;
 
         // Keep proper or actual time constant when including the smearing.
-        if (constantTau) {
-          double newtime = sqrt(longitudinal[i].m2Calc()
-            + positionTot.pAbs2());
-          positionTot.e(newtime);
-          break;
-        } else {
-          if (positionTot.m2Calc() >= 0.) break;
-          if (iTry == 100) {
-            positionTot = longitudinal[i];
-            break;
-          }
-        }
+        if (constantTau)
+          positionTot.e( sqrt(longi.m2Calc() + positionTot.pAbs2()) );
+        if ( sqrt(transPos.pAbs2() + pow2(positionTot.e() - longi.e()))
+          < maxSmear * longiLen) break;
       }
     }
     spaceTime.push_back(positionTot);
@@ -1244,15 +1249,17 @@ void StringFragmentation::setHadronVertices( Event& event) {
         StringRegion currentRegion = systemNow.region( iPosIn, iNegIn);
         Vec4 gluonOffset = currentRegion.gluonOffsetJRF( iPartonNow, event,
           iPosIn, iNegIn, MtoJRF) / kappaVtx;
-        Vec4 pRegion = (currentRegion.pPos + currentRegion.pNeg) / kappaVtx;
         Vec4 noOffset = (xPosIn * currentRegion.pPos
           + xNegIn * currentRegion.pNeg) / kappaVtx;
+        Vec4 pRegion = (currentRegion.pPos + currentRegion.pNeg) / kappaVtx;
+        Vec4 fromBreaks = noOffset + gluonOffset;
 
         // Correction added to the space-time location of breakup points
         // if negative squared invariant time.
-        if (noOffset.m2Calc() < 0.) {
-          double cPlus = (-pRegion * noOffset + sqrt( pow2(pRegion * noOffset)
-            - pRegion.m2Calc() * noOffset.m2Calc())) / pRegion.m2Calc();
+        if (fromBreaks.m2Calc() < 0.) {
+          double cPlus = (-pRegion * fromBreaks + sqrt( pow2(pRegion
+            * fromBreaks) - pRegion.m2Calc() * fromBreaks.m2Calc()))
+            / pRegion.m2Calc();
           Vec4 pCorrection = noOffset + cPlus * pRegion;
           Vec4 fracCorrection;
           bool betterFrac = false;
@@ -1265,9 +1272,10 @@ void StringFragmentation::setHadronVertices( Event& event) {
                        > abs(noOffset.e() - fracCorrection.e());
           }
           noOffset = (betterFrac) ? fracCorrection : pCorrection;
+          fromBreaks = noOffset + gluonOffset;
         }
+
         // Store vertex and check positivity.
-        Vec4 fromBreaks = noOffset + gluonOffset;
         longitudinalPos.push_back(fromBreaks);
         if (fromBreaks.m2Calc() < -CHECKPOS * max(1., pow2(fromBreaks.e())))
           infoPtr->errorMsg("Warning in StringFragmentation::setVertices: "
@@ -1336,36 +1344,41 @@ void StringFragmentation::setHadronVertices( Event& event) {
         }
       }
 
+      // Begin smearing in transverse space.
       for (int i = 0; i < int(legVertices.size()); ++i) {
-        Vec4 positionTot = longitudinalPos[i];
+        Vec4& longi = longitudinalPos[i];
+        Vec4 positionTot = longi;
 
-        // Smearing in transverse space.
-        if (smearOn) {
+        // Find two spacelike transverse four-vector directions.
+        if (smearOn && i > 0) {
           int iPosIn = legVertices[i].iRegPos;
           int iNegIn = legVertices[i].iRegNeg;
           StringRegion currentRegion = systemNow.region( iPosIn, iNegIn);
           Vec4 eX = currentRegion.eX;
           Vec4 eY = currentRegion.eY;
+
+          // Loop over tries; give up if struck.
+          double longiLen = sqrt(longi.pAbs2() + pow2(longi.e())
+            + pow2(xySmear));
           for (int iTry = 0; ; ++iTry) {
+            if (iTry == NTRYSMEAR) {
+              infoPtr->errorMsg("Warning in StringFragmentation::set"
+                "Vertices: failed to smear vertex (junction string)");
+              positionTot = longi;
+              break;
+            }
+
+            // Smearing calculated randomly following a Gaussian.
             double transX = rndmPtr->gauss();
             double transY = rndmPtr->gauss();
-            Vec4 transversePos = xySmear * (transX * eX + transY * eY)
-              / sqrt(2.);
-            positionTot = transversePos + longitudinalPos[i];
+            Vec4 transPos = xySmear * (transX * eX + transY * eY) / sqrt(2.);
+            positionTot = transPos + longi;
 
             // Keep proper or actual time constant when including the smearing.
-            if (constantTau) {
-              double newtime = sqrt( longitudinalPos[i].m2Calc()
-                +  positionTot.pAbs2());
-              positionTot.e(newtime);
-              break;
-            } else {
-              if (positionTot.m2Calc() >= 0.) break;
-              if (iTry == 100) {
-                positionTot = longitudinalPos[i];
-                break;
-              }
-            }
+            if (constantTau)
+              positionTot.e( sqrt(longi.m2Calc() + positionTot.pAbs2()) );
+            if ( sqrt(transPos.pAbs2() + pow2(positionTot.e() - longi.e()))
+              < maxSmear * longiLen) break;
           }
         }
 
@@ -1400,6 +1413,7 @@ void StringFragmentation::setHadronVertices( Event& event) {
       // using one of the three definitions.
       for (int i = 0; i < int(finalLocation.size()) - 1; ++i) {
         Vec4 middlePoint =  0.5 * (finalLocation[i] + finalLocation[i + 1]);
+        if (abs(middlePoint.mCalc()) > maxTau) saneVertices = false;
         int iHad = i + hadSoFar + event.size() - hadrons.size();
         Vec4 pHad = event[iHad].p();
         Vec4 prodPoints = Vec4( 0., 0., 0., 0.);
@@ -1428,7 +1442,7 @@ void StringFragmentation::setHadronVertices( Event& event) {
       }
 
       // End of the two legs loop. Number of hadrons with stored vertices.
-      hadSoFar = hadSoFar + finalLocation.size() - 1;
+      if (finalLocation.size() > 0) hadSoFar += finalLocation.size() - 1;
     }
   }
 
@@ -1436,6 +1450,7 @@ void StringFragmentation::setHadronVertices( Event& event) {
   // from breakup vertices using one of the three definitions.
   for (int i = 0; i < int(spaceTime.size()) - 1; ++i) {
     Vec4 middlePoint = 0.5 * (spaceTime[i] + spaceTime[i + 1]);
+    if (abs(middlePoint.mCalc()) > maxTau) saneVertices = false;
     int iHad = i + iHadJunc + event.size() - hadrons.size();
     Vec4 pHad = event[iHad].p();
     Vec4 prodPoints = Vec4( 0., 0., 0., 0.);
@@ -1463,6 +1478,11 @@ void StringFragmentation::setHadronVertices( Event& event) {
     }
     event[iHad].vProd( event[iHad].vProd() + prodPoints * FM2MM );
   }
+
+  // Done.
+  if (!saneVertices) infoPtr->errorMsg("Error in StringFragmentation::set"
+    "Vertices: too large |tau| so make new try");
+  return saneVertices;
 
 }
 

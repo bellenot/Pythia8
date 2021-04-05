@@ -63,6 +63,8 @@ int main( int argc, char* argv[] ){
 
   double sigmaTotal(0.), errorTotal(0.);
 
+  bool wroteRunInfo = false;
+
   // Loop over subruns with varying number of jets.
   for (int iRuns = 0; iRuns < nRuns; ++iRuns) {
 
@@ -95,17 +97,20 @@ int main( int argc, char* argv[] ){
       // Do not print zero-weight events.
       if ( evtweight == 0. ) continue;
 
-      // Create a GenRunInfo object with the necessary weight names. This
-      // seems to be needed such that the HepMC3 file writer will write
-      // the weight names on an event-by-event basis, rather than only in
-      // the first event.
-      shared_ptr<HepMC3::GenRunInfo> genRunInfo;
-      genRunInfo = make_shared<HepMC3::GenRunInfo>();
-      vector<string> weight_names = pythia.info.weightNameVector();
-      genRunInfo->set_weight_names(weight_names);
+      // Create a GenRunInfo object with the necessary weight names and write
+      // them to the HepMC3 file only once.
+      if (!wroteRunInfo) {
+        shared_ptr<HepMC3::GenRunInfo> genRunInfo;
+        genRunInfo = make_shared<HepMC3::GenRunInfo>();
+        vector<string> weight_names = pythia.info.weightNameVector();
+        genRunInfo->set_weight_names(weight_names);
+        ascii_io.set_run_info(genRunInfo);
+        ascii_io.write_run_info();
+        wroteRunInfo = true;
+      }
 
       // Construct new empty HepMC event.
-      HepMC3::GenEvent hepmcevt(genRunInfo);
+      HepMC3::GenEvent hepmcevt;
 
       // Work with weighted (LHA strategy=-4) events.
       double normhepmc = 1.;
@@ -127,10 +132,10 @@ int main( int argc, char* argv[] ){
       // Report cross section to hepmc
       shared_ptr<HepMC3::GenCrossSection> xsec;
       xsec = make_shared<HepMC3::GenCrossSection>();
-      xsec->set_cross_section( sigmaTotal*1e9, pythia.info.sigmaErr()*1e9 );
+      // First add object to event, then set cross section. This order ensures
+      // that the lengths of the cross section and the weight vector agree.
       hepmcevt.set_cross_section( xsec );
-      // Unset GenRunInfo object of writer so that event run info is used.
-      ascii_io.set_run_info(0);
+      xsec->set_cross_section( sigmaTotal*1e9, pythia.info.sigmaErr()*1e9 );
       // Write the HepMC event to file. Done with it.
       ascii_io.write_event(hepmcevt);
 

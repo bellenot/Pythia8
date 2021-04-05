@@ -3,6 +3,7 @@
 #include <Pythia8/BeamParticle.h>
 #include <Pythia8/Event.h>
 #include <Pythia8/FragmentationFlavZpT.h>
+#include <Pythia8/HadronWidths.h>
 #include <Pythia8/Info.h>
 #include <Pythia8/LHEF3.h>
 #include <Pythia8/MathTools.h>
@@ -21,6 +22,7 @@
 #include <iterator>
 #include <map>
 #include <memory>
+#include <ostream>
 #include <sstream> // __str__
 #include <string>
 #include <utility>
@@ -95,7 +97,7 @@ struct PyCallBack_Pythia8_SlowJet : public Pythia8::SlowJet {
 	}
 };
 
-// Pythia8::PDF file:Pythia8/PartonDistributions.h line:48
+// Pythia8::PDF file:Pythia8/PartonDistributions.h line:50
 struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 	using Pythia8::PDF::PDF;
 
@@ -398,6 +400,19 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		}
 		return PDF::intFluxApprox();
 	}
+	bool hasApproxGammaFlux() override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::PDF *>(this), "hasApproxGammaFlux");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>();
+			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
+				static pybind11::detail::overload_caster_t<bool> caster;
+				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<bool>(std::move(o));
+		}
+		return PDF::hasApproxGammaFlux();
+	}
 	double getXmin() override { 
 		pybind11::gil_scoped_acquire gil;
 		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::PDF *>(this), "getXmin");
@@ -584,11 +599,11 @@ void bind_Pythia8_Analysis(std::function< pybind11::module &(std::string const &
 		cl.def("clusterFJ", (bool (Pythia8::SlowJet::*)()) &Pythia8::SlowJet::clusterFJ, "C++: Pythia8::SlowJet::clusterFJ() --> bool");
 		cl.def("assign", (class Pythia8::SlowJet & (Pythia8::SlowJet::*)(const class Pythia8::SlowJet &)) &Pythia8::SlowJet::operator=, "C++: Pythia8::SlowJet::operator=(const class Pythia8::SlowJet &) --> class Pythia8::SlowJet &", pybind11::return_value_policy::reference, pybind11::arg(""));
 	}
-	{ // Pythia8::PDF file:Pythia8/PartonDistributions.h line:48
+	{ // Pythia8::PDF file:Pythia8/PartonDistributions.h line:50
 		pybind11::class_<Pythia8::PDF, std::shared_ptr<Pythia8::PDF>, PyCallBack_Pythia8_PDF> cl(M("Pythia8"), "PDF", "");
 		pybind11::handle cl_type = cl;
 
-		{ // Pythia8::PDF::PDFEnvelope file:Pythia8/PartonDistributions.h line:95
+		{ // Pythia8::PDF::PDFEnvelope file:Pythia8/PartonDistributions.h line:97
 			auto & enclosing_class = cl;
 			pybind11::class_<Pythia8::PDF::PDFEnvelope, std::shared_ptr<Pythia8::PDF::PDFEnvelope>> cl(enclosing_class, "PDFEnvelope", "");
 			pybind11::handle cl_type = cl;
@@ -662,6 +677,7 @@ void bind_Pythia8_Analysis(std::function< pybind11::module &(std::string const &
 		cl.def("xfApprox", (double (Pythia8::PDF::*)(int, double, double)) &Pythia8::PDF::xfApprox, "C++: Pythia8::PDF::xfApprox(int, double, double) --> double", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("xfGamma", (double (Pythia8::PDF::*)(int, double, double)) &Pythia8::PDF::xfGamma, "C++: Pythia8::PDF::xfGamma(int, double, double) --> double", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("intFluxApprox", (double (Pythia8::PDF::*)()) &Pythia8::PDF::intFluxApprox, "C++: Pythia8::PDF::intFluxApprox() --> double");
+		cl.def("hasApproxGammaFlux", (bool (Pythia8::PDF::*)()) &Pythia8::PDF::hasApproxGammaFlux, "C++: Pythia8::PDF::hasApproxGammaFlux() --> bool");
 		cl.def("getXmin", (double (Pythia8::PDF::*)()) &Pythia8::PDF::getXmin, "C++: Pythia8::PDF::getXmin() --> double");
 		cl.def("getXhadr", (double (Pythia8::PDF::*)()) &Pythia8::PDF::getXhadr, "C++: Pythia8::PDF::getXhadr() --> double");
 		cl.def("sampleXgamma", (double (Pythia8::PDF::*)(double)) &Pythia8::PDF::sampleXgamma, "C++: Pythia8::PDF::sampleXgamma(double) --> double", pybind11::arg(""));

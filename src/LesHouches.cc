@@ -6,6 +6,7 @@
 // Function definitions (not found in the header) for the LHAup and
 // LHAupLHEF classes.
 
+#include "Pythia8/Pythia.h"
 #include "Pythia8/LesHouches.h"
 
 // Access time information.
@@ -1062,11 +1063,49 @@ bool LHAupLHEF::setNewEventLHEF() {
   // Try to at least set the event attributes for 1.0
   } else {
     infoPtr->setLHEF3EventInfo( &reader.hepeup.attributes, 0, 0, 0, 0, 0,
-       vector<double>(), vector<string>(), "", 1.0);
+       vector<double>(), vector<string>(), "", reader.hepeup.XWGTUP);
   }
 
   // Reading worked.
   return true;
+
+}
+
+//==========================================================================
+
+// LHAupPlugin class.
+
+//--------------------------------------------------------------------------
+
+// Constructor.
+
+LHAupPlugin::LHAupPlugin(string nameIn, Pythia *pythiaPtr) :
+  LHAup(), lhaPtr(nullptr), libPtr(nullptr), name(nameIn) {
+
+  // Load the plugin library if needed.
+  if (infoPtr != nullptr)
+    libPtr = const_cast<Info&>(pythiaPtr->info).plugin(name);
+  else libPtr = make_shared<Plugin>(name);
+  if (!libPtr->isLoaded()) return;
+
+  // Create a new LHAup.
+  NewLHAup* newLHAup = (NewLHAup*)libPtr->symbol("newLHAup");
+  if (!newLHAup) return;
+  lhaPtr = newLHAup(pythiaPtr);
+
+}
+
+//--------------------------------------------------------------------------
+
+// Destructor.
+
+LHAupPlugin::~LHAupPlugin() {
+
+  // Delete the LHAup pointer.
+  if (lhaPtr == nullptr || !libPtr->isLoaded()) return;
+  DeleteLHAup* deleteLHAup =
+    (DeleteLHAup*)libPtr->symbol("deleteLHAup");
+  if (deleteLHAup) deleteLHAup(lhaPtr);
 
 }
 

@@ -251,6 +251,8 @@ public:
   void bst(const Vec4&, const Vec4&);
   void toCMframe(const Vec4&, const Vec4&);
   void fromCMframe(const Vec4&, const Vec4&);
+  void toSameVframe(const Vec4&, const Vec4&);
+  void fromSameVframe(const Vec4&, const Vec4&);
   void rotbst(const RotBstMatrix&);
   void invert();
   RotBstMatrix inverse() const { RotBstMatrix tmp = *this;
@@ -414,24 +416,32 @@ class Hist {
 public:
 
   // Constructors, including copy constructors.
-  Hist() : titleSave(""), nBin(), nFill(), xMin(), xMax(), linX(), dx(),
-    under(), inside(), over() { }
+  Hist() : titleSave(""), nBin(), nFill(), nNonFinite(),
+    xMin(), xMax(), linX(), dx(), under(), inside(), over(), sumxw()
+    { }
   Hist(string titleIn, int nBinIn = 100, double xMinIn = 0.,
-    double xMaxIn = 1., bool logXIn = false) : nBin(), nFill(), xMin(), xMax(),
-    linX(), dx(), under(), inside(), over() {
-    book(titleIn, nBinIn, xMinIn, xMaxIn, logXIn);}
+    double xMaxIn = 1., bool logXIn = false) : nBin(), nFill(), nNonFinite(),
+    xMin(), xMax(), linX(), dx(), under(), inside(), over(), sumxw()
+    { book(titleIn, nBinIn, xMinIn, xMaxIn, logXIn); }
   Hist(const Hist& h)
-    : titleSave(h.titleSave), nBin(h.nBin), nFill(h.nFill), xMin(h.xMin),
-    xMax(h.xMax), linX(h.linX), dx(h.dx), under(h.under), inside(h.inside),
-    over(h.over), res(h.res) { }
+    : titleSave(h.titleSave), nBin(h.nBin), nFill(h.nFill),
+      nNonFinite(h.nNonFinite), xMin(h.xMin), xMax(h.xMax), linX(h.linX),
+      dx(h.dx), under(h.under), inside(h.inside), over(h.over),
+      sumxw(h.sumxw), res(h.res) { }
   Hist(string titleIn, const Hist& h)
-    : titleSave(titleIn), nBin(h.nBin), nFill(h.nFill), xMin(h.xMin),
-    xMax(h.xMax), linX(h.linX), dx(h.dx), under(h.under), inside(h.inside),
-    over(h.over), res(h.res) { }
+    : titleSave(titleIn), nBin(h.nBin), nFill(h.nFill),
+      nNonFinite(h.nNonFinite), xMin(h.xMin), xMax(h.xMax), linX(h.linX),
+      dx(h.dx), under(h.under), inside(h.inside), over(h.over),
+      sumxw(h.sumxw), res(h.res) { }
   Hist& operator=(const Hist& h) { if(this != &h) {
-    nBin = h.nBin; nFill = h.nFill; xMin = h.xMin; xMax = h.xMax;
-    linX = h.linX; dx = h.dx;  under = h.under; inside = h.inside;
-    over = h.over; res = h.res; } return *this; }
+    nBin = h.nBin; nFill = h.nFill; nNonFinite = h.nNonFinite; xMin = h.xMin;
+    xMax = h.xMax; linX = h.linX; dx = h.dx; under = h.under;
+    inside = h.inside; over = h.over; sumxw = h.sumxw;
+    res = h.res; } return *this; }
+
+  // Create a histogram that is the plot of the given function.
+  static Hist plotFunc(function<double(double)> f, string titleIn,
+    int nBinIn, double xMinIn, double xMaxIn, bool logXIn = false);
 
   // Book a histogram.
   void book(string titleIn = "  ", int nBinIn = 100, double xMinIn = 0.,
@@ -471,13 +481,34 @@ public:
   // Return title and size of histogram. Also if logarithmic x scale.
   string getTitle() const {return titleSave;}
   int    getBinNumber() const {return nBin;}
+  int    getNonFinite() const {return nNonFinite;}
   bool   getLinX() const {return linX;}
+
+  // Return min and max in x and y directions.
+  double getXMin() const {return xMin;}
+  double getXMax() const {return xMax;}
+  double getYMin() const { double yMin = res[0];
+    for (int ix = 1; ix < nBin; ++ix)
+      if (res[ix] < yMin ) yMin = res[ix];
+    return yMin;}
+  double getYMax() const {double yMax = res[0];
+    for (int ix = 1; ix < nBin; ++ix)
+      if (res[ix] > yMax ) yMax = res[ix];
+    return yMax;}
+  double getYAbsMin() const { double yAbsMin = 1e20; double yAbs;
+    for (int ix = 0; ix < nBin; ++ix) { yAbs = abs(res[ix]);
+      if (yAbs > 1e-20 && yAbs < yAbsMin) yAbsMin = yAbs; }
+    return yAbsMin;}
+
+  double getXMean() const { return sumxw / inside; }
+  double getYMean() const { return inside / nFill; }
 
   // Return content of specific bin: 0 gives underflow and nBin+1 overflow.
   double getBinContent(int iBin) const;
 
   // Return number of entries.
-  int getEntries() const {return nFill; }
+  int getEntries(bool alsoNonFinite = true) const {
+    return alsoNonFinite ? nNonFinite + nFill : nFill; }
 
   // Check whether another histogram has same size and limits.
   bool sameSize(const Hist& h) const ;
@@ -488,8 +519,8 @@ public:
   // Take square root of bin contents.
   void takeSqrt() ;
 
-  // Find smallest nonzero absolute value of bin contents.
-  double smallestAbsValue() const ;
+  // Normalize bin contents to given sum, by default including overflow bins.
+  void normalize( double sum = 1., bool alsoOverflow = true) ;
 
   // Operator overloading with member functions
   Hist& operator+=(const Hist& h) ;
@@ -524,10 +555,10 @@ private:
 
   // Properties and contents of a histogram.
   string titleSave;
-  int    nBin, nFill;
+  int    nBin, nFill, nNonFinite;
   double xMin, xMax;
   bool   linX;
-  double dx, under, inside, over;
+  double dx, under, inside, over, sumxw;
   vector<double> res;
 
 };
@@ -570,18 +601,31 @@ public:
   // Destructor should do final close.
   ~HistPlot() { toPython << "pp.close()" << endl; }
 
-  // New plot frame, with title, x and y labels.
+  // New plot frame, with title, x and y labels, x and y sizes..
   void frame( string frameIn, string titleIn = "", string xLabIn = "",
-    string yLabIn = "") {frameName = frameIn; title = titleIn; xLabel = xLabIn;
-    yLabel = yLabIn; histos.clear(); styles.clear(); legends.clear(); }
+    string yLabIn = "", double xSizeIn = 8., double ySizeIn = 6.) {
+    framePrevious = frameName; frameName = frameIn; title = titleIn;
+    xLabel = xLabIn; yLabel = yLabIn; xSize = xSizeIn; ySize = ySizeIn;
+    histos.clear(); styles.clear(); legends.clear(); files.clear();
+    fileStyles.clear(); fileLegends.clear(); filexyerr.clear();}
 
   // Add a histogram to the current plot, with optional style and legend.
   void add( const Hist& histIn, string styleIn = "h",
     string legendIn = "void") { histos.push_back(histIn);
     styles.push_back(styleIn); legends.push_back(legendIn); }
 
+  // Add a file of (x, y) values not from a histogram, e.g. data points.
+  void addFile( string fileIn, string styleIn = "o",
+    string legendIn = "void", string xyerrIn="") { files.push_back(fileIn);
+    fileStyles.push_back(styleIn); fileLegends.push_back(legendIn);
+    filexyerr.push_back(xyerrIn);}
+
   // Plot a frame given the information from the new and add calls.
-  void plot( bool logY = false);
+  void plot( bool logY = false, bool logX = false, bool userBorders = false);
+  void plot( double xMinUserIn, double xMaxUserIn,  double yMinUserIn,
+     double yMaxUserIn, bool logY = false, bool logX = false) {
+     xMinUser = xMinUserIn; xMaxUser = xMaxUserIn; yMinUser = yMinUserIn;
+     yMaxUser = yMaxUserIn; plot( logY, logX, true);}
 
   //  Omnibus single call when only one histogram in the frame.
   void plotFrame( string frameIn, const Hist& histIn, string titleIn = "",
@@ -598,9 +642,10 @@ private:
   // Stored quantities.
   ofstream toPython;
   int      nPDF, nFrame, nTable;
-  string   frameName, title, xLabel, yLabel, fileName, tmpFig;
+  double   xSize, ySize, xMinUser, xMaxUser, yMinUser, yMaxUser;
+  string   frameName, framePrevious, title, xLabel, yLabel, fileName, tmpFig;
   vector<Hist> histos;
-  vector<string> styles, legends;
+  vector<string> styles, legends, files, fileStyles, fileLegends, filexyerr;
 
 };
 

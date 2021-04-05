@@ -115,11 +115,13 @@ public:
   // Pick a new flavour (including diquarks) given an incoming one,
   // either by old standard Gaussian or new alternative exponential.
   virtual FlavContainer pick(FlavContainer& flavOld, double pT = -1.0,
-    double nNSP = 0.0) { hadronIDwin = 0; idNewWin = 0; hadronMassWin = -1.0;
+    double nNSP = 0.0, bool allowPop = true) {
+    hadronIDwin = 0; idNewWin = 0; hadronMassWin = -1.0;
     if ( (thermalModel || mT2suppression) && (pT >= 0.0) )
       return pickThermal(flavOld, pT, nNSP);
-    return pickGauss(flavOld); }
-  virtual FlavContainer pickGauss(FlavContainer& flavOld);
+    return pickGauss(flavOld, allowPop); }
+  virtual FlavContainer pickGauss(FlavContainer& flavOld,
+    bool allowPop = true);
   virtual FlavContainer pickThermal(FlavContainer& flavOld,
     double pT, double nNSP);
 
@@ -131,6 +133,9 @@ public:
     FlavContainer flag1(id1); FlavContainer flag2(id2);
     for (int i = 0; i < 100; ++i) { int idNew = combine( flag1, flag2);
       if (idNew != 0 || !keepTrying) return idNew;} return 0;}
+
+  // Combine two flavours to produce a hadron with lowest possible mass.
+  virtual int combineToLightest( int id1, int id2);
 
   // Return chosen hadron in case of thermal model.
   virtual int getHadronIDwin() { return hadronIDwin; }

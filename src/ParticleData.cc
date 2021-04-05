@@ -323,7 +323,10 @@ void ParticleDataEntry::initBWmass() {
   if ( m0Save < NARROWMASS ) mWidthSave = 0.;
   if ( mWidthSave < NARROWMASS || (mMaxSave > mMinSave
     && mMaxSave - mMinSave < NARROWMASS) ) modeBWnow = 0;
-  if (modeBWnow == 0) return;
+  if (modeBWnow == 0) {
+    mMinSave = mMaxSave = m0Save;
+    return;
+  }
 
   // Find atan expressions to be used in random mass selection.
   if (modeBWnow < 3) {
@@ -629,8 +632,9 @@ void ParticleData::initCommon() {
   Lambda5Run = alphaS.Lambda5();
 
   // Set secondary vertices also for rapidly decaying particles.
-  setRapidDecayVertex = settingsPtr->flag("Fragmentation:setVertices")
-                     && settingsPtr->flag("HadronVertex:rapidDecays");
+  setRapidDecayVertex = settingsPtr->flag("HadronLevel:Rescatter")
+                     || ( settingsPtr->flag("Fragmentation:setVertices")
+                       && settingsPtr->flag("HadronVertex:rapidDecays") );
   intermediateTau0    = settingsPtr->parm("HadronVertex:intermediateTau0");
 
 }
@@ -1013,13 +1017,15 @@ bool ParticleData::processXML(bool reset) {
       double mMinTmp     = doubleAttributeValue( line, "mMin");
       double mMaxTmp     = doubleAttributeValue( line, "mMax");
       double tau0Tmp     = doubleAttributeValue( line, "tau0");
+      bool varWidthTmp   = boolAttributeValue( line, "varWidth");
 
       // Erase if particle already exists.
       if (isParticle(idTmp)) pdt.erase(idTmp);
 
       // Store new particle. Save pointer, to be used for decay channels.
       addParticle( idTmp, nameTmp, antiNameTmp, spinTypeTmp, chargeTypeTmp,
-                   colTypeTmp, m0Tmp, mWidthTmp, mMinTmp, mMaxTmp, tau0Tmp);
+                   colTypeTmp, m0Tmp, mWidthTmp, mMinTmp, mMaxTmp, tau0Tmp,
+                   varWidthTmp);
       particlePtr = particleDataEntryPtr(idTmp);
 
       // Check for occurence of a decay channel. Add any continuation lines.
@@ -1184,12 +1190,13 @@ bool ParticleData::readFF(istream& is, bool reset) {
       string nameTmp, antiNameTmp;
       int    spinTypeTmp, chargeTypeTmp, colTypeTmp;
       double m0Tmp, mWidthTmp, mMinTmp, mMaxTmp, tau0Tmp;
+      bool   varWidthTmp;
       string mayTmp;
 
       // Do the reading.
       readLine >> idTmp >> nameTmp >> antiNameTmp >> spinTypeTmp
                >> chargeTypeTmp >> colTypeTmp >> m0Tmp >> mWidthTmp
-               >> mMinTmp >> mMaxTmp >> tau0Tmp;
+               >> mMinTmp >> mMaxTmp >> tau0Tmp >> varWidthTmp;
 
       // Error printout if something went wrong.
       if (!readLine) {
@@ -1203,7 +1210,7 @@ bool ParticleData::readFF(istream& is, bool reset) {
 
       // Store new particle. Save pointer, to be used for decay channels.
       addParticle( idTmp, nameTmp, antiNameTmp, spinTypeTmp, chargeTypeTmp,
-        colTypeTmp, m0Tmp, mWidthTmp, mMinTmp, mMaxTmp, tau0Tmp);
+        colTypeTmp, m0Tmp, mWidthTmp, mMinTmp, mMaxTmp, tau0Tmp, varWidthTmp);
       particlePtr = particleDataEntryPtr(idTmp);
       readParticle = false;
 
@@ -1467,6 +1474,13 @@ void ParticleData::listFF(string outFile) {
     pdt[idTmp].setDoForceWidth(doForceWidthTmp);
     return true;
   }
+  if (property == "varwidth") {
+    string varwidthTmp;
+    getWord >> varwidthTmp;
+    bool varWidthTmp = boolString(varwidthTmp);
+    pdt[idTmp].setVarWidth(varWidthTmp);
+    return true;
+  }
 
   // Addition or complete replacement of a particle.
   if (property == "all" || property == "new") {
@@ -1482,22 +1496,23 @@ void ParticleData::listFF(string outFile) {
     double mMinTmp       = 0.;
     double mMaxTmp       = 0.;
     double tau0Tmp       = 0.;
+    bool   varWidthTmp   = false;
 
     // Read in data from stream.
     getWord >> nameTmp >> antiNameTmp >> spinTypeTmp >> chargeTypeTmp
             >> colTypeTmp >> m0Tmp >> mWidthTmp >> mMinTmp >> mMaxTmp
-            >> tau0Tmp;
+            >> tau0Tmp >> varWidthTmp;
 
     // To keep existing decay channels, only overwrite particle data.
     if (property == "all" && isParticle(idTmp)) {
       setAll( idTmp, nameTmp, antiNameTmp, spinTypeTmp, chargeTypeTmp,
-        colTypeTmp, m0Tmp, mWidthTmp, mMinTmp, mMaxTmp, tau0Tmp);
+        colTypeTmp, m0Tmp, mWidthTmp, mMinTmp, mMaxTmp, tau0Tmp, varWidthTmp);
 
     // Else start over completely from scratch.
     } else {
       if (isParticle(idTmp)) pdt.erase(idTmp);
       addParticle( idTmp, nameTmp, antiNameTmp, spinTypeTmp, chargeTypeTmp,
-        colTypeTmp, m0Tmp, mWidthTmp, mMinTmp, mMaxTmp, tau0Tmp);
+        colTypeTmp, m0Tmp, mWidthTmp, mMinTmp, mMaxTmp, tau0Tmp, varWidthTmp);
     }
     return true;
   }
@@ -1677,22 +1692,22 @@ void ParticleData::listFF(string outFile) {
 
 // Print out complete or changed table of database in numerical order.
 
-void ParticleData::list(bool changedOnly, bool changedRes) {
+void ParticleData::list(ostream& str, bool changedOnly, bool changedRes) {
 
   // Table header; output for bool as off/on.
   if (!changedOnly) {
-    cout << "\n --------  PYTHIA Particle Data Table (complete)  --------"
-         << "------------------------------------------------------------"
-         << "--------------\n \n";
+    str << "\n --------  PYTHIA Particle Data Table (complete)  --------"
+        << "------------------------------------------------------------"
+        << "--------------\n \n";
 
   } else {
-    cout << "\n --------  PYTHIA Particle Data Table (changed only)  ----"
-         << "------------------------------------------------------------"
-         << "--------------\n \n";
+    str << "\n --------  PYTHIA Particle Data Table (changed only)  ----"
+        << "------------------------------------------------------------"
+        << "--------------\n \n";
   }
-  cout << "      id   name            antiName         spn chg col      m0"
-       << "        mWidth      mMin       mMax       tau0    res dec ext "
-       << "vis wid\n             no onMode   bRatio   meMode     products \n";
+  str << "      id   name            antiName         spn chg col      m0"
+      << "        mWidth      mMin       mMax       tau0    res dec ext "
+      << "vis wid\n             no onMode   bRatio   meMode     products \n";
 
   // Iterate through the particle data table. Option to skip unchanged.
   int nList = 0;
@@ -1705,41 +1720,41 @@ void ParticleData::list(bool changedOnly, bool changedRes) {
       // Pick format for mass and width based on mass value.
       double m0Now = particlePtr->m0();
       if (m0Now == 0 || (m0Now > 0.1 && m0Now < 1000.))
-           cout << fixed << setprecision(5);
-      else cout << scientific << setprecision(3);
+           str << fixed << setprecision(5);
+      else str << scientific << setprecision(3);
 
       // Print particle properties.
       ++nList;
-      cout << "\n" << setw(8) << particlePtr->id() << "  " << left;
+      str << "\n" << setw(8) << particlePtr->id() << "  " << left;
       if (particlePtr->name(-1) == "void")
-           cout << setw(33) << particlePtr->name() << "  ";
-      else cout << setw(16) << particlePtr->name() << " "
+           str << setw(33) << particlePtr->name() << "  ";
+      else str << setw(16) << particlePtr->name() << " "
                 << setw(16) << particlePtr->name(-1) << "  ";
-      cout << right << setw(2) << particlePtr->spinType() << "  "
-           << setw(2) << particlePtr->chargeType() << "  "
-           << setw(2) << particlePtr->colType() << " "
-           << setw(10) << particlePtr->m0() << " "
-           << setw(10) << particlePtr->mWidth() << " "
-           << setw(10) << particlePtr->mMin() << " "
-           << setw(10) << particlePtr->mMax() << " "
-           << scientific << setprecision(5)
-           << setw(12) << particlePtr->tau0() << "  " << setw(2)
-           << particlePtr->isResonance() << "  " << setw(2)
-           << (particlePtr->mayDecay() && particlePtr->canDecay())
-           << "  " << setw(2) << particlePtr->doExternalDecay() << "  "
-           << setw(2) << particlePtr->isVisible()<< "  "
-           << setw(2) << particlePtr->doForceWidth() << "\n";
+      str << right << setw(2) << particlePtr->spinType() << "  "
+          << setw(2) << particlePtr->chargeType() << "  "
+          << setw(2) << particlePtr->colType() << " "
+          << setw(10) << particlePtr->m0() << " "
+          << setw(10) << particlePtr->mWidth() << " "
+          << setw(10) << particlePtr->mMin() << " "
+          << setw(10) << particlePtr->mMax() << " "
+          << scientific << setprecision(5)
+          << setw(12) << particlePtr->tau0() << "  " << setw(2)
+          << particlePtr->isResonance() << "  " << setw(2)
+          << (particlePtr->mayDecay() && particlePtr->canDecay())
+          << "  " << setw(2) << particlePtr->doExternalDecay() << "  "
+          << setw(2) << particlePtr->isVisible()<< "  "
+          << setw(2) << particlePtr->doForceWidth() << "\n";
 
       // Loop through the decay channel table for each particle.
       if (particlePtr->sizeChannels() > 0) {
         for (int i = 0; i < int(particlePtr->sizeChannels()); ++i) {
           const DecayChannel& channel = particlePtr->channel(i);
-          cout << "          "  << setprecision(7) << setw(5) << i
-               << setw(6) << channel.onMode() << fixed<< setw(12)
-               << channel.bRatio() << setw(5) << channel.meMode() << " ";
+          str << "          "  << setprecision(7) << setw(5) << i
+              << setw(6) << channel.onMode() << fixed<< setw(12)
+              << channel.bRatio() << setw(5) << channel.meMode() << " ";
           for (int j = 0; j < channel.multiplicity(); ++j)
-            cout << setw(8) << channel.product(j) << " ";
-          cout << "\n";
+            str << setw(8) << channel.product(j) << " ";
+          str << "\n";
         }
       }
     }

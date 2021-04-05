@@ -15,6 +15,9 @@
 
 namespace Pythia8 {
 
+// Forward declare Info class for pointer
+class Info;
+
 //==========================================================================
 
 // This is a base class to store weight information in a way that allows
@@ -33,7 +36,7 @@ class WeightsBase {
   virtual void clear() { return; };
 
   // Store the current event information.
-  virtual void init(vector<double> /*weightValues*/,
+  virtual void bookVectors(vector<double> /*weightValues*/,
     vector<string> /*weightNames*/) { return; }
 
   // Function to return processed weights to weight container, e.g. if
@@ -51,9 +54,12 @@ class WeightsBase {
   // have to be serialized in output.
   vector<double> weightValues;
   vector<string> weightNames;
-  string getWeightsName(int iPos)  { return weightNames[iPos];   }
-  double getWeightsValue(int iPos) { return weightValues[iPos];  }
-  int getWeightsSize()             { return weightValues.size(); }
+  string getWeightsName(int iPos) const  {
+    if (iPos >= 0 && iPos < (int)weightNames.size())
+      return weightNames[iPos];
+    else return "";}
+  virtual double getWeightsValue(int iPos) const { return weightValues[iPos]; }
+  int getWeightsSize()         const    { return weightValues.size(); }
 
   // Function to create a new, synchronized, pair of weight name and value.
   void bookWeight(string name, double defaultValue = 1.)  {
@@ -76,8 +82,15 @@ class WeightsBase {
   int findIndexOfName(string name) {
     vector<string>::iterator it
       = find(weightNames.begin(), weightNames.end(), name);
+    unsigned long int index = distance(weightNames.begin(), it);
+    if (index == weightNames.size()) return -1;
     return distance(weightNames.begin(), it);
   }
+
+  // Pointers necessary for variation initialization
+  Info* infoPtr;
+
+  void setPtrs(Info* infoPtrIn) { infoPtr = infoPtrIn; };
 
 };
 
@@ -87,19 +100,18 @@ class WeightsBase {
 // weights into a container class that can be part of Weight, which
 // in turn is part of InfoHub.
 
-class WeightsShower : public WeightsBase {
+class WeightsSimpleShower : public WeightsBase {
 
   public:
+
+  // Initialize weights (more can be booked at any time)
+  void init( bool doMerging);
 
   // Reset all internal values;
   void clear();
 
   // Store the current event information.
-  void init(vector<double> weights, vector<string> names);
-
-  //// Function to group weights and return processed weights to container.
-  //void collectWeightValues(vector<double>& outputWeights);
-  //void collectWeightNames(vector<string>& outputNames);
+  void bookVectors(vector<double> weights, vector<string> names);
 
   // Functions to set values of weights.
   void reweightValueByIndex(int iPos, double val);
@@ -107,32 +119,116 @@ class WeightsShower : public WeightsBase {
 
   void replaceWhitespace( vector<string>& namesIn);
 
+  // Variations that must be known by TimeShower and Spaceshower
+  map<int,double> varPDFplus, varPDFminus, varPDFmember;
+
+  // Return group name (want to integrate this in weightNameVector?)
+  string getGroupName(int iGN) const;
+
+  // Return group weight (want to integrate this in weightValueVector?)
+  double getGroupWeight(int iGW) const;
+
+  int    nVariationGroups() const { return externalVariations.size(); }
+
+  // Initialize the weight group structure
+  void initAutomatedVariationGroups(bool = false);
+
+  // Return list of atomic weight variations to be performed by shower
+  vector<string> getUniqueShowerVars();
+
+  string getInitialName(int iG) const { return initialNameSave[iG]; }
+
+  // Vectors for weight group handling
+  vector<string>          externalVariations;
+  vector<vector<string> > externalVarNames;
+  vector<string>          externalGroupNames;
+  vector<string>          initialNameSave;
+  vector<vector<int> >    externalMap;
+  int                     externalVariationsSize{};
+
+  // Vector for merging requested weight handling
+  vector<vector<string>> mergingVarNames;
+  vector<double> getMuRWeightVector();
+
+  void collectWeightNames(vector<string>& outputNames);
+  void collectWeightValues(vector<double>& outputWeights,
+    double norm = 1.);
 };
 
 //==========================================================================
 
-// This class collects information on weights generated in the heavy ion
-// framework, now limited to a single weight (per event) from
-// impact parameter sampling.
+// This class collects information on weights generated in the merging
+// framework. The first weight is always required for CKKW-L, UMEPS and
+// NLO merging. The additional weights are required for simultaneous
+// renormalization scale variation in matrix element generation and parton
+// shower.
 
-class WeightsHeavyIon : public WeightsBase {
+class WeightsMerging : public WeightsBase {
 
   public:
+
+  // Initialize weights (more can be booked at any time)
+  void init();
 
   // Reset all internal values;
   void clear();
 
+  // Function to create a new, synchronized, pair of weight name and value.
+  void bookWeight(string name, double value, double valueFirst);
+
   // Store the current event information.
-  void init(vector<double> weights, vector<string> names);
+  void bookVectors(vector<double> weights, vector<string> names);
+  void bookVectors(vector<double> weights,vector<double> weightsFirst,
+            vector<string> names);
+  // Modified weight getter to include first order weight
+  double getWeightsValue(int iPos) const {
+    return weightValues[iPos] - weightValuesFirst[iPos]; }
+  // Also add getters for UNLOPS-P and -PC schemes
+  double getWeightsValueP(int iPos) const {
+    return weightValuesP[iPos] - weightValuesFirstP[iPos]; }
+  double getWeightsValuePC(int iPos) const {
+    return weightValuesPC[iPos] - weightValuesFirstPC[iPos]; }
 
   // Functions to set values of weights.
   void reweightValueByIndex(int iPos, double val);
   void reweightValueByName(string name, double val);
 
+  // Data member for first order weight
+  vector<double> weightValuesFirst;
+
+  // Data members for UNLOPS-P and -PC
+  vector<double> weightValuesP, weightValuesPC,
+    weightValuesFirstP, weightValuesFirstPC;
+
+  // Functions to set values of first order weights.
+  void setValueFirstByIndex(int iPos, double val);
+  void setValueFirstByName(string name, double val);
+
+  // Functions to set values as whole vector.
+  void setValueVector(vector<double> ValueVector);
+  void setValueFirstVector(vector<double> ValueFirstVector);
+
+  // Function telling merging which muR variations to perform
+  vector<double> getMuRVarFactors();
+
+  // Set up mapping between LHEF variations and
+  void setLHEFvariationMapping();
+  // Corresponding vector with respective LHEF weight indices
+  map<int,int> muRVarLHEFindex;
+
+  // Function to collect weight names
+  void collectWeightNames(vector<string>& outputNames);
+
+  // Function collecting weight values
+  void collectWeightValues(vector<double>& outputWeights,
+     double norm = 1.);
+
+  // Boolean to memorize if LHEF weight needs to be applied (only for NLO)
+  bool isNLO;
 };
 
 //==========================================================================
-
+//
 // This is a short example class to collect information on Les Houches Event
 // weights into a container class that can be part of Weight, which
 // in turn is part of InfoHub.
@@ -141,11 +237,14 @@ class WeightsLHEF : public WeightsBase {
 
   public:
 
+  // Central weight, needed for normalization, set from ProcessContainer.cc
+  double centralWeight;
+
   // Reset all internal values;
   void clear();
 
   // Store the current event information.
-  void init(vector<double> weights_detailed_vecIn,
+  void bookVectors(vector<double> weights_detailed_vecIn,
     vector<string> weights_detailed_name_vecIn);
 
   // Function to return processed weights to weight container, e.g. if
@@ -158,6 +257,10 @@ class WeightsLHEF : public WeightsBase {
   // in https://arxiv.org/pdf/1405.1067.pdf, page  162ff.
   vector<string> weightnames_lhef2hepmc(
     vector<string> weights_detailed_name_vecIn);
+
+  void identifyVariationsFromLHAinit( map<string,LHAweight> *init_weightsIn );
+
+  map<int,double> muRvars;
 
 };
 
@@ -173,22 +276,22 @@ class WeightContainer {
 
   // Default constructor only ensures that members are initialized with
   // sensible default values.
-  WeightContainer() : weightNominal(1.0) {}
+  WeightContainer() : weightNominal(1.0), xsecIsInit(false) {}
 
-  // The nominal Pythia weight
+  // The nominal Pythia weight, in pb for lha strategy 4 and -4
   double weightNominal;
   void setWeightNominal( double weightNow );
+  double collectWeightNominal();
 
   // First example of a weight subcategory.
   WeightsLHEF          weightsLHEF;
 
   // Other possible sub-categories:
-  WeightsShower        weightsPS;
+  WeightsSimpleShower        weightsPS;
 
-  WeightsHeavyIon     weightsHI;
+  WeightsMerging       weightsMerging;
 
   // Other possible sub-categories:
-  //WeightsMerging       weightInfoMerging;
   //WeightsHadronization weightInfoHadronization;
 
   // Functions to retrieve information stored in the subcategory members.
@@ -208,6 +311,34 @@ class WeightContainer {
 
   // Reset all members to default stage.
   void clear();
+
+  // Reset total cross section estimate
+  void clearTotal();
+
+  // Pointers necessary for variation initialization
+  Info* infoPtr;
+
+  // Init, for those classes that need it
+  void init( bool doMerging);
+
+  // Function to set Pointers in weight classes
+  void initPtrs(Info* infoPtrIn);
+
+  // Suppress AUX_ weights
+  bool doSuppressAUXweights;
+
+  vector<double> sigmaTotal, sigmaSample, errorTotal, errorSample;
+  bool xsecIsInit;
+
+  void initXsecVec();
+
+  vector<double> getSampleXsec();
+  vector<double> getTotalXsec();
+  vector<double> getSampleXsecErr();
+  vector<double> getTotalXsecErr();
+
+  // Accumulate cross section for all weights.
+  void accumulateXsec(double norm = 1.);
 
 };
 

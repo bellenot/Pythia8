@@ -254,7 +254,8 @@ void ResonanceCha::setMassMix(){
 
   // Check if using the Nplet model
   // (do not over-ride DM mass if using s-channel mediators).
-  doDY = settingsPtr->flag("DM:qqbar2DY");
+  doDY = settingsPtr->flag("DM:qqbar2DY") &&
+    settingsPtr->mode("DM:DYtype") > 1;
   if (!doDY) return;
 
   // Locally stored properties and couplings.

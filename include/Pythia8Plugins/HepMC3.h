@@ -99,8 +99,8 @@ public:
 
     // Here we assume that the first two particles are the beam particles.
     vector<GenParticlePtr> beam_particles;
-    beam_particles.push_back(hepevt_particles[0]);
     beam_particles.push_back(hepevt_particles[1]);
+    beam_particles.push_back(hepevt_particles[2]);
 
     // Add particles and vertices in topological order.
     evt->add_tree( beam_particles );
@@ -183,14 +183,6 @@ public:
         std::make_shared<DoubleAttribute>(pyinfo->alphaEM()));
     }
 
-    // Store cross-section information in pb.
-    if (m_store_xsec && pyinfo != 0) {
-      GenCrossSectionPtr xsec = make_shared<GenCrossSection>();
-      xsec->set_cross_section( pyinfo->sigmaGen() * 1e9,
-        pyinfo->sigmaErr() * 1e9);
-      evt->set_cross_section(xsec);
-    }
-
     // Store event weights.
     if (m_store_weights && pyinfo != 0) {
       evt->weights().clear();
@@ -203,6 +195,24 @@ public:
         evt->weights().push_back(value);
       }
 
+    }
+
+    // Store cross-section information in pb.
+    if (m_store_xsec && pyinfo != 0) {
+      // First set atribute to event, such that
+      // GenCrossSection::set_cross_section knows how many weights the
+      // event has and sets the number of cross sections accordingly.
+      GenCrossSectionPtr xsec = make_shared<GenCrossSection>();
+      evt->set_cross_section(xsec);
+      xsec->set_cross_section( pyinfo->sigmaGen() * 1e9,
+        pyinfo->sigmaErr() * 1e9);
+      // If multiweights with possibly different xsec, overwrite central value
+      vector<double> xsecVec = pyinfo->weightContainerPtr->getTotalXsec();
+      if (xsecVec.size() > 0) {
+        for (unsigned int iXsec = 0; iXsec < xsecVec.size(); ++iXsec) {
+          xsec->set_xsec(iXsec, xsecVec[iXsec]*1e9);
+        }
+      }
     }
 
     // Done.

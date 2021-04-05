@@ -103,12 +103,15 @@ void RopeDipole::propagateInit(double deltat) {
   // Dipole end momenta.
   Vec4 pcm = d1.getParticlePtr()->p();
   Vec4 pam = d2.getParticlePtr()->p();
-  double mTc = sqrt(pcm.pT2() + pcm.m2Calc());
-  double mTa = sqrt(pam.pT2() + pam.m2Calc());
-  if (mTc == 0 || mTa == 0)
+  double mT2c = pcm.pT2() + pcm.m2Calc();
+  double mT2a = pam.pT2() + pam.m2Calc();
+  if (mT2c <= 0 || mT2a <= 0) {
     infoPtr->errorMsg("Error in RopeDipole::propagateInit: Tried to"
-      "propagate a RopeDipoleEnd with mT = 0");
-
+      "propagate a RopeDipoleEnd with mT <= 0");
+    return;
+  }
+  double mTc = sqrt(mT2c);
+  double mTa = sqrt(mT2a);
   // New vertices in the lab frame.
   Vec4 newv1 = Vec4( deltat * pcm.px() / mTc, deltat * pcm.py() / mTc, 0, 0);
   Vec4 newv2 = Vec4( deltat * pam.px() / mTa, deltat * pam.py() / mTa, 0, 0);
@@ -1358,18 +1361,18 @@ map<string, double> FlavourRope::fetchParameters(double m2Had,
   // We figure out where we are on the dipole.
   // Set some values.
   double m2Here = mom.m2Calc();
-  // The dipFrac signifies a fraction.
-  double dipFrac = 0;
-  // We are in the first dipole.
-  if (eventIndex == -1 || eventIndex == 0) {
-    eventIndex = 1;
-    dipFrac = sqrt(m2Had / m2Here);
-  }
-  else {
-    mom -= ePtr->at(iParton[eventIndex]).p();
-    double m2Small = mom.m2Calc();
+  // Catch event indices less than first dipole.
+  eventIndex = max(eventIndex, 1);
+  // Dipfrac is the fraction moved in on a dipole.
+  double dipFrac = 0.;
+  // Trace one step back if possible.
+  if (eventIndex > 1) {
+    mom-=ePtr->at(iParton[eventIndex]).p();
+    // Starting point can never be less than 0.
+    double m2Small = max(mom.m2Calc(), 0.);
     dipFrac = (sqrt(m2Had) - sqrt(m2Small)) / (sqrt(m2Here) - sqrt(m2Small));
   }
+  else dipFrac = sqrt(m2Had / m2Here);
   double enh = rwPtr->getKappaHere( iParton[eventIndex - 1],
     iParton[eventIndex], dipFrac);
   return fp.getEffectiveParameters(enh);

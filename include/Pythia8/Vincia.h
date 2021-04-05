@@ -18,6 +18,7 @@
 #include "Pythia8/PartonSystems.h"
 #include "Pythia8/StandardModel.h"
 #include "Pythia8/ShowerModel.h"
+#include "Pythia8/ShowerMEs.h"
 
 // Include Vincia headers.
 #include "Pythia8/VinciaAntennaFunctions.h"
@@ -25,7 +26,6 @@
 #include "Pythia8/VinciaFSR.h"
 #include "Pythia8/VinciaISR.h"
 #include "Pythia8/VinciaQED.h"
-#include "Pythia8/VinciaMG5MEs.h"
 
 // Define namespace inside which Vincia lives.
 namespace Pythia8 {
@@ -90,7 +90,7 @@ public:
   MECs                  mecs;
 
   // Auxiliary objects.
-  VinciaMG5MEs          mg5mes;
+  ShowerMEsPlugin       mg5mes;
   Rambo                 rambo;
 
   // Vectors of antenna functions.

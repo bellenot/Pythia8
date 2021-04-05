@@ -213,6 +213,9 @@ protected:
 
 };
 
+// Backwards compatability for MG5ME plugin interface with Pythia.
+typedef CoupSM Couplings;
+
 //==========================================================================
 
 } // end namespace Pythia8

@@ -23,16 +23,13 @@
 #include <map>
 #include <unordered_map>
 #include <deque>
+#include <queue>
 #include <set>
 #include <list>
+#include <functional>
 
 // Stdlib header file for dynamic library loading.
-#define dlsym __
 #include <dlfcn.h>
-#undef dlsym
-
-// Redefine dlsym to suppress compiler warnings.
-extern "C" void *(*dlsym(void *handle, const char *symbol))();
 
 // Stdlib header file for input and output.
 #include <iostream>
@@ -43,6 +40,18 @@ extern "C" void *(*dlsym(void *handle, const char *symbol))();
 // Define pi if not yet done.
 #ifndef M_PI
 #define M_PI 3.1415926535897932385
+#endif
+
+// Set floating point exceptions from the gcc compiler for debug
+// purposes. Use the compilation flag -DGCCFPDEBUG to enable.
+#ifdef GCCFPDEBUG
+#ifndef __ENABLE_FP_DEBUG__
+#define __ENABLE_FP_DEBUG__
+#include <fenv.h>
+static void __attribute__((constructor)) raisefpe() {
+   feenableexcept (FE_DIVBYZERO | FE_OVERFLOW | FE_INVALID);
+}
+#endif
 #endif
 
 // By this declaration you do not need to use std:: qualifier everywhere.
@@ -67,14 +76,17 @@ using std::isfinite;
 using std::pair;
 using std::make_pair;
 using std::string;
+using std::to_string;
 using std::vector;
 using std::map;
 using std::multimap;
 using std::unordered_map;
 using std::deque;
+using std::priority_queue;
 using std::set;
 using std::multiset;
 using std::list;
+using std::function;
 
 // Input/output streams.
 using std::cin;

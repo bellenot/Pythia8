@@ -7,6 +7,7 @@
 // ParticleDecays class.
 
 #include "Pythia8/ParticleDecays.h"
+#include "Pythia8/HadronWidths.h"
 
 namespace Pythia8 {
 
@@ -184,6 +185,36 @@ bool ParticleDecays::decay( int iDec, Event& event) {
     if (doneExternally) return true;
   }
 
+  // Perform decay using mass dependent widths if possible.
+  if (!doneExternally && decDataPtr->varWidth()
+      && (idDec != 113 && abs(idDec) != 213 && idDec != 225)) {
+    double mDec = decayer.m();
+    int id1, id2;
+    double m1, m2;
+    if (hadronWidthsPtr->pickDecay(idDec, mDec, id1, id2, m1, m2)) {
+
+      // Calculate four-momenta and boost to lab frame.
+      auto ps = rndmPtr->phaseSpace2(mDec, m1, m2);
+      ps.first.bst( decayer.p(), decayer.m() );
+      ps.second.bst(decayer.p(), decayer.m() );
+
+      // Insert new particles into event record.
+      mult = 2;
+      int statOut = ( decayer.statusAbs() == 157
+                  ||  decayer.statusAbs() == 159 ) ? 97 : 91;
+      iProd.resize(3);
+      iProd[1] = event.append(id1, statOut, iDec,0, 0,0, 0,0, ps.first , m1);
+      iProd[2] = event.append(id2, statOut, iDec,0, 0,0, 0,0, ps.second, m2);
+
+      // Mark original particle as decayed and set daughters.
+      event[iDec].statusNeg();
+      event[iDec].daughters(iProd[1], iProd[2]);
+
+      // Mark as done externally.
+      doneExternally = true;
+    }
+  }
+
   // Now begin normal internal decay treatment.
   if (!doneExternally) {
 
@@ -290,6 +321,7 @@ bool ParticleDecays::decay( int iDec, Event& event) {
       if (hasStored) event.popBack(mult);
       infoPtr->errorMsg("Error in ParticleDecays::decay: "
         "failed to find workable decay channel");
+
       return false;
     }
 
@@ -334,6 +366,26 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   // Done.
   return true;
 
+}
+
+//--------------------------------------------------------------------------
+
+// Perform decays on all particles in the event.
+
+bool ParticleDecays::decayAll(Event& event, double minWidth) {
+
+  // Loop through all entries to find those that should decay.
+  bool gotMoreToDo = false;
+  for (int iDec = 0; iDec < event.size(); ++iDec) {
+    Particle& decayer = event[iDec];
+    if ( decayer.isFinal() && decayer.canDecay() && decayer.mayDecay()
+      && (decayer.mWidth() >= minWidth || decayer.idAbs() == 311) ) {
+      decay(iDec, event);
+      if (moreToDo()) gotMoreToDo = true;
+    }
+  }
+
+  return gotMoreToDo;
 }
 
 //--------------------------------------------------------------------------

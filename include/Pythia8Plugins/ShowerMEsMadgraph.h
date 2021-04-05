@@ -1,47 +1,80 @@
-// VinciaMG5MEs.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Peter Skands, Torbjorn Sjostrand.
+// ShowerMEsMadgraph.h is a part of the PYTHIA event generator.
+// Copyright (C) 2020 Peter Skands, Stefan Prestel, Philip Ilten, Torbjorn
+// Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Main interface methods for MadGraph 5 C++ matrix elements
-// (MEs generated with the MG5 PY8Kernels Plugin)
+// This file contains the Madgraph parton shower ME plugin class which
+// interfaces with matrix elements generated with the
+// PY8Kernels/MG5MES plugin to MadGraph 5.
 
-#include "Pythia8/VinciaMG5MEs.h"
+#ifndef Pythia8_ShowerMEsMadgraph_H
+#define Pythia8_ShowerMEsMadgraph_H
+
+// Include Pythia headers.
+#include "Pythia8/ShowerMEs.h"
+
+// Include Madgraph PY8MEs plugin headers.
+#include "PY8ME.h"
+#include "PY8MEs.h"
 
 namespace Pythia8 {
 
 //==========================================================================
 
-// The VinciaMG5MEs matrix-element interface
+
+class ShowerMEsMadgraph : public ShowerMEs {
+
+public:
+
+  // Constructor.
+  ShowerMEsMadgraph() {isInitPtr = false; isInit = false;
+    libPtr = nullptr; modelPtr = nullptr;}
+
+  // Destructor.
+  ~ShowerMEsMadgraph() {if (libPtr != nullptr) delete libPtr;
+    if (modelPtr != nullptr) delete modelPtr;}
+
+  // VINCIA methods.
+  // Initialise the Madgraph model, parameters, and couplings.
+  bool initVincia() override;
+  // Get the matrix element squared for a particle state.
+  double me2Vincia(vector<Particle> state, int nIn) override;
+  // Check if the process is available.
+  bool hasProcessVincia(vector<int> idIn, vector<int> idOut,
+    set<int> sChan) override;
+
+  // Dire methods.
+  bool initDire(Info*, string card) override;
+  bool isAvailableMEDire(vector <int> in, vector<int> out) override;
+  bool isAvailableMEDire(const Pythia8::Event& event) override;
+  double calcMEDire(const Pythia8::Event& event) override;
+
+  // Common methods.
+  // Get pointer to matrix element, e.g. to check if process exists in
+  // library.
+  PY8MEs_namespace::PY8ME* getProcess(vector<int> idIn, vector<int> idOut,
+    set<int> sChan);
+
+private:
+
+  PY8MEs_namespace::PY8MEs* libPtr;
+  PARS* modelPtr;
+
+};
 
 //--------------------------------------------------------------------------
 
-// Set pointers to required PYTHIA 8 objects.
+// Initialise the Madgraph model, parameters, and couplings.
 
-void VinciaMG5MEs::initPtr(Info* infoPtrIn,
-  SusyLesHouches* slhaPtrIn, VinciaCommon* vinComPtrIn) {
-  infoPtr      = infoPtrIn;
-  coupSMPtr       = infoPtr->coupSMPtr;
-  particleDataPtr = infoPtr->particleDataPtr;
-  settingsPtr     = infoPtr->settingsPtr;
-  rndmPtr         = infoPtr->rndmPtr;
-  slhaPtr         = slhaPtrIn;
-  vinComPtr       = vinComPtrIn;
-  isInitPtr       = true;
-}
-
-//--------------------------------------------------------------------------
-
-// Main initialization routine.
-
-bool VinciaMG5MEs::init() {
+bool ShowerMEsMadgraph::initVincia() {
 
   // Check if pointers initialized.
   verbose = settingsPtr->mode("Vincia:verbose");
-  if (verbose > normal) printOut("VinciaMG5MEs::init","...");
+  if (verbose > normal) printOut("ShowerMEsMadgraph::init", "...");
   if (!isInitPtr) {
-    printOut("VinciaMG5MEs::init",
-      "Cannot initialize, pointers not set.");
+    printOut("ShowerMEsMadgraph::init",
+             "Cannot initialize, pointers not set.");
     return false;
   }
   isInit = true;
@@ -49,13 +82,11 @@ bool VinciaMG5MEs::init() {
   // Set colour depth (TODO: via "Vincia:matchingFullColour").
   colourDepth = 1;
 
-  // Initialise Parameters_sm (only if not using dummy).
-#ifdef MG5MES
-
   // Create new model instance.
-  if (verbose >= quiteloud) printOut("VinciaMG5MEs::init",
+  if (verbose >= quiteloud) printOut("ShowerMEsMadgraph::init",
     "   setting MG C++ masses, widths, couplings...");
-  Parameters_sm* modelPtr = new Parameters_sm();
+  if (modelPtr != nullptr) delete modelPtr;
+  modelPtr = new PARS();
   modelPtr->setIndependentParameters(particleDataPtr,coupSMPtr,slhaPtr);
   modelPtr->setIndependentCouplings();
   if (verbose >= quiteloud) {
@@ -64,7 +95,7 @@ bool VinciaMG5MEs::init() {
   }
 
   // In the VINCIA context, alphaS_MGME = 1/4pi (- > gS = 1; we
-  // control the running separately). Thus, even the MG5 "dependent"
+  // control the running separately). Thus, even the Madgraph "dependent"
   // parameters only need to be set once.
 
   // Alternatively, we could evaluate the QCD coupling at MZ but should
@@ -80,48 +111,47 @@ bool VinciaMG5MEs::init() {
     alpS);
   modelPtr->setDependentCouplings();
 
-  // Construct MG5 process library.
-  if (verbose >= superdebug) printOut("VinciaMG5MEs::init()",
-      "   attempting to construct mg5lib");
-  if (mg5libPtr != nullptr && mg5libPtr != 0) delete mg5libPtr;
-  mg5libPtr = new PY8MEs(modelPtr);
+  // Construct Madgraph process library.
+  if (verbose >= superdebug) printOut("ShowerMEsMadgraph::init()",
+      "   attempting to construct lib");
+  if (libPtr != nullptr) delete libPtr;
+  libPtr = new PY8MEs_namespace::PY8MEs(modelPtr);
   return true;
-#else
-  mg5libPtr = nullptr;
-  isInit = false;
-  return false;
-#endif
 
 }
 
 //--------------------------------------------------------------------------
 
-// Get pointer to matrix element, e.g. to check if process exists in
-// library.x
+// Check if the process is available.
 
-#ifdef MG5MES
-PY8ME* VinciaMG5MEs::getProcess(vector<int> idIn, vector<int> idOut,
-  set<int> sChan) {
+bool ShowerMEsMadgraph::hasProcessVincia(vector<int> idIn, vector<int> idOut,
+  set<int> sChan) {return getProcess(idIn, idOut, sChan) != nullptr;}
+
+//--------------------------------------------------------------------------
+
+// Get pointer to matrix element, e.g. to check if process exists in
+// library.
+
+PY8MEs_namespace::PY8ME* ShowerMEsMadgraph::getProcess(
+  vector<int> idIn, vector<int> idOut, set<int> sChan) {
     if (verbose >= superdebug) {
-      cout << " VinciaMG5interface::getProcess(): checking for process";
+      cout << " ShowerMEsMadgraph::getProcess(): checking for process";
       for (int i = 0; i < (int)idIn.size(); ++i) cout << " " << idIn[i];
       cout << " > ";
       for (int i = 0; i < (int)idOut.size(); ++i) cout << " " << idOut[i];
       cout << endl;
     }
-    if (mg5libPtr != nullptr && mg5libPtr != 0)
-      return mg5libPtr->getProcess(idIn, idOut, sChan);
+    if (libPtr != nullptr && libPtr != 0)
+      return libPtr->getProcess(idIn, idOut, sChan);
     cout << "      returning NULL" << endl;
     return nullptr;
 }
-#endif
 
 //--------------------------------------------------------------------------
 
 // Get the matrix element squared for a particle state.
 
-#ifdef MG5MES
-double VinciaMG5MEs::ME2(vector<Particle> state, int nIn) {
+double ShowerMEsMadgraph::me2Vincia(vector<Particle> state, int nIn) {
 
   // Prepare vector of incoming ID codes.
   if (nIn <= 0) return -1;
@@ -153,14 +183,15 @@ double VinciaMG5MEs::ME2(vector<Particle> state, int nIn) {
   set<int> sChannels;
 
   // Access the process.
-  process_specifier proc_spec = mg5libPtr->getProcessSpecifier(idIn, idOut,
-    sChannels);
-  process_accessor proc_handle = mg5libPtr->getProcess(proc_spec);
+  PY8MEs_namespace::process_specifier proc_spec =
+    libPtr->getProcessSpecifier(idIn, idOut, sChannels);
+  PY8MEs_namespace::process_accessor proc_handle =
+    libPtr->getProcess(proc_spec);
 
   // Return right away if unavailable.
   if (proc_handle.second.second < 0) return -1;
 
-  // Convert momenta and colours to MG5 format (energy first entry).
+  // Convert momenta and colours to Madgraph format (energy first entry).
   vector< vector<double> > momentaMG5;
   vector< int > colacolMG5;
   for (int i = 0; i < (int)momenta.size(); ++i) {
@@ -197,7 +228,8 @@ double VinciaMG5MEs::ME2(vector<Particle> state, int nIn) {
       // Set hel for this particle in this copy.
       // Start from -1, then 1, then 0 (if 3 states).
       int h = -1;
-      if (iCopy == 2) h = 1;
+      if (nS == 1) h = 0;
+      else if (iCopy == 2) h = 1;
       else if (iCopy == 3) h = 0;
       else if (iCopy == 4) h = -2;
       else if (iCopy == 5) h = 2;
@@ -229,8 +261,8 @@ double VinciaMG5MEs::ME2(vector<Particle> state, int nIn) {
   }
 
   // Set properties and return ME2 value.
-  PY8ME* proc_ptr = proc_handle.first;
-  vec_int perms = proc_handle.second.first;
+  PY8MEs_namespace::PY8ME* proc_ptr = proc_handle.first;
+  vector<int> perms = proc_handle.second.first;
   int proc_ID = proc_handle.second.second;
   proc_ptr->setMomenta(momentaMG5);
   proc_ptr->setProcID(proc_ID);
@@ -258,72 +290,104 @@ double VinciaMG5MEs::ME2(vector<Particle> state, int nIn) {
   return me2;
 
 }
-#else
-// Pure dummy implementation if MG5MES plugin not linked.
-double VinciaMG5MEs::ME2(vector<Particle>, int) {return -1.;}
-#endif
 
 //--------------------------------------------------------------------------
 
-// Set helicities for a particle state.
+bool ShowerMEsMadgraph::initDire(Info*, string card) {
 
-bool VinciaMG5MEs::selectHelicities(vector<Particle>& state, int nIn){
+  // Redirect output so that Dire can print MG5 initialization.
+  std::streambuf *old = cout.rdbuf();
+  stringstream ss;
+  cout.rdbuf (ss.rdbuf());
+  if (libPtr != nullptr) delete libPtr;
+  libPtr = new PY8MEs_namespace::PY8MEs(card);
+  libPtr->seProcessesIncludeSymmetryFactors(false);
+  libPtr->seProcessesIncludeHelicityAveragingFactors(false);
+  libPtr->seProcessesIncludeColorAveragingFactors(false);
+  libPtr->setProcessesExternalMassesMode(1);
+  // Restore print-out.
+  cout.rdbuf (old);
 
-  // Get the matrix element (automatically sums over any h=9 particles).
-  double me2sum = ME2(state, nIn);
-  if (verbose >= superdebug)
-    cout << " VinciaMG5MEs::selectHelicities(): "
-         << scientific<<me2sum << endl;
-
-  // Did we find the ME, (ME2() returns -1 if no ME found).
-  if (me2sum <= 0.) return false;
-
-  // Check how many helicity configurations we summed over.
-  int nHelConf = me2hel.size();
-  if (nHelConf <= 0) return false;
-
-  // Random number between zero and me2sum (trivial if only one helConf).
-  double ranHelConf = 0.0;
-  vector<int> hSelected;
-  if (nHelConf >= 2) ranHelConf = rndmPtr->flat() * me2sum;
-  for (map< vector<int>, double>::iterator it=me2hel.begin();
-       it != me2hel.end(); ++it) {
-    // Progressively subtract each me2hel and check when we cross zero.
-    ranHelConf -= it->second;
-    if (ranHelConf <= 0.0) {
-      hSelected = it->first;
-      break;
-    }
-  }
-  if (ranHelConf > 0.) return false;
-
-  // Set helicity configuration.
-  for (int i = 0; i < (int)state.size(); ++i) state[i].pol(hSelected[i]);
-  if (verbose >= superdebug)
-    cout << " VinciaMG5MEs::selectHelicities(): selected " <<
-      makeLabel(hSelected, nIn, false) << endl;
   return true;
 
 }
 
 //--------------------------------------------------------------------------
 
-// Convert process id codes (or helicity values) to string.
+// Check if a matrix element is available.
 
-string VinciaMG5MEs::makeLabel(vector<int>& id, int nIn,
-  bool useNames) {
-  string label = "{";
-  for (int i = 0; i < (int)id.size(); ++i) {
-    string idName;
-    if (useNames && id[i] != 0) idName = particleDataPtr->name(id[i]);
-    else idName = num2str(id[i]);
-    if (i == nIn-1) idName += " ->";
-    label += idName+" ";
+bool ShowerMEsMadgraph::isAvailableMEDire(vector <int> in, vector<int> out) {
+  set<int> req_s_channels;
+  PY8MEs_namespace::PY8ME * query
+    = libPtr->getProcess(in, out, req_s_channels);
+  return (query != 0);
+}
+
+//--------------------------------------------------------------------------
+
+// Check if a matrix element is available.
+
+bool ShowerMEsMadgraph::isAvailableMEDire(const Pythia8::Event& event) {
+
+  vector <int> in, out;
+  fillIds(event, in, out);
+  set<int> req_s_channels;
+
+  PY8MEs_namespace::PY8ME* query
+    = libPtr->getProcess(in, out, req_s_channels);
+  return (query != 0);
+}
+
+//--------------------------------------------------------------------------
+
+// Calcuate the matrix element.
+
+double ShowerMEsMadgraph::calcMEDire(const Pythia8::Event& event) {
+
+  vector <int> in, out;
+  fillIds(event, in, out);
+  vector<int> cols;
+  fillCols(event, cols);
+  vector< vector<double> > pvec = fillMoms(event);
+  set<int> req_s_channels;
+  vector<int> helicities;
+
+  bool success = true;
+  pair < double, bool > res;
+  try {
+    res = libPtr->calculateME(in, out, pvec, req_s_channels, cols,
+                               helicities);
+  } catch (const std::exception& e) {
+    success = false;
   }
-  label += "}";
-  return label;
+  if (!success) return 0.0;
+  if (res.second) {
+    double me = res.first;
+    PY8MEs_namespace::PY8ME* query
+      = libPtr->getProcess(in, out, req_s_channels);
+    me *= 1./query->getHelicityAveragingFactor();
+    me *= 1./query->getColorAveragingFactor();
+    return me;
+  }
+  // Done
+  return 0.0;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Define external handles to the plugin for dynamic loading.
+
+extern "C" {
+
+  ShowerMEsMadgraph* newShowerMEs() {return new ShowerMEsMadgraph();}
+
+  void deleteShowerMEs(ShowerMEsMadgraph* mes) {delete mes;}
+
 }
 
 //==========================================================================
 
 } // end namespace Pythia8
+
+#endif // end Pythia8_ShowerMEsMadgraph_H

@@ -7,7 +7,6 @@
 // heavy ion classes classes, and some related global functions.
 
 #include "Pythia8/HeavyIons.h"
-#include "Pythia8/Pythia.h"
 #include <cassert>
 
 namespace Pythia8 {
@@ -88,7 +87,7 @@ void HeavyIons::setupSpecials(Pythia & p, string match) {
     opts.parm(it->second.name.substr(2), it->second.valNow, true);
   map<string, Word> words = opts.getWordMap(match);
   for ( map<string, Word>::iterator it = words.begin();
-        it != words.end(); ++it )
+       it != words.end(); ++it )
     opts.word(it->second.name.substr(2), it->second.valNow, true);
   map<string, FVec> fvecs = opts.getFVecMap(match);
   for ( map<string, FVec>::iterator it = fvecs.begin();
@@ -156,11 +155,7 @@ void HeavyIons::updateInfo() {
   *infoPtr =  hiInfo.primInfo;
   infoPtr->hiInfo = &hiInfo;
   infoPtr->messages = saveMess;
-  infoPtr->updateWeight(hiInfo.weight());
-  // Also book and update weight in the weight container.
-  infoPtr->weightContainerPtr->weightsHI.bookWeight("HIweight");
-  infoPtr->weightContainerPtr->weightsHI.
-    reweightValueByName("HIweight", hiInfo.weight());
+  infoPtr->weightContainerPtr->setWeightNominal(hiInfo.weight());
   infoPtr->sigmaReset();
   double norm = 1.0/double(hiInfo.NSave);
   int Nall = 0;

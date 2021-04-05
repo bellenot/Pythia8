@@ -232,10 +232,13 @@ void Dire::setup(BeamParticle* beamA, BeamParticle* beamB) {
   timesPtr->initSplits();
   spacePtr->initSplits();
 
-  weightsPtr->initPtrs(beamA, beamB, settingsPtr, &direInfo);
+  weightsPtr->initPtrs(beamA, beamB, settingsPtr, infoPtr, &direInfo);
   timesDecPtr->initVariations();
   timesPtr->initVariations();
   spacePtr->initVariations();
+  if (mergingPtr) mergingPtr->initPtrs( weightsPtr, timesPtr,
+    spacePtr, &direInfo);
+
 
 }
 
@@ -265,7 +268,7 @@ bool Dire::initAfterBeams() {
   }
 
   // Setup weight container (after user-defined enhance factors have been read)
-  weightsPtr->initPtrs(beamAPtr, beamBPtr, settingsPtr, &direInfo);
+  weightsPtr->initPtrs(beamAPtr, beamBPtr, settingsPtr, infoPtr, &direInfo);
   weightsPtr->setup();
   setup(beamAPtr, beamBPtr);
   isInit = true;

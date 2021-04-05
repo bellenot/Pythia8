@@ -8,6 +8,7 @@
 #define Pythia8_MathTools_H
 
 // Header file for the MathTools methods.
+#include "Pythia8/Basics.h"
 #include "Pythia8/PythiaStdlib.h"
 
 namespace Pythia8 {
@@ -30,6 +31,44 @@ bool integrateGauss(double& resultOut, function<double(double)> f,
 // Solve f(x) = target for x in the specified range
 bool brent(double& solutionOut, function<double(double)> f,
   double target, double xLo, double xHi, double tol=1e-6, int maxIter = 10000);
+
+//==========================================================================
+
+// LinearInterpolator class.
+// Used to interpolate between values in linearly spaced data.
+
+class LinearInterpolator {
+
+public:
+
+  LinearInterpolator() = default;
+
+  // Constructor.
+  LinearInterpolator(double leftIn, double rightIn, vector<double> ysIn)
+    : leftSave(leftIn), rightSave(rightIn), ysSave(ysIn) { }
+
+  // Function to get y-values of interpolation data.
+  const vector<double>& data() const { return ysSave; }
+
+  // x-values are linearly spaced on the interpolation region.
+  double left()  const { return leftSave; }
+  double right() const { return rightSave; }
+  double dx()    const { return (rightSave - leftSave) / (ysSave.size() - 1); }
+
+  // Operator to get interpolated value at the specified point.
+  double operator()(double x) const;
+
+  // Plot the data points of this LinearInterpolator in a histogram.
+  Hist plot(string title) const;
+  Hist plot(string title, double xMin, double xMax) const;
+
+private:
+
+  // Data members
+  double leftSave, rightSave;
+  vector<double> ysSave;
+
+};
 
 //==========================================================================
 

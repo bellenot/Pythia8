@@ -87,8 +87,6 @@ const double DireTimes::LEPTONZMAX     = 1. - 1e-4;
 void DireTimes::init( BeamParticle* beamAPtrIn,
   BeamParticle* beamBPtrIn) {
 
-cout << __FILE__ << " " << __LINE__ << endl;
-
   dryrun = false;
 
   // Colour factors.
@@ -101,7 +99,6 @@ cout << __FILE__ << " " << __LINE__ << endl;
   NC = settingsPtr->parm("DireColorQCD:NC") > 0.
      ? settingsPtr->parm("DireColorQCD:NC") : 3.0;
 
-cout << __FILE__ << " " << __LINE__ << endl;
   // Alternatively only initialize resonance decays.
   processLevel.initInfoPtr(*infoPtr);
   processLevel.initDecays(nullptr);
@@ -140,7 +137,6 @@ cout << __FILE__ << " " << __LINE__ << endl;
   pT2recombine       =
     pow2(max(0.,settingsPtr->parm("DireTimes:pTrecombine")));
 
-cout << __FILE__ << " " << __LINE__ << endl;
   // Charm and bottom mass thresholds.
   mc                 = max( MCMIN, particleDataPtr->m0(4));
   mb                 = max( MBMIN, particleDataPtr->m0(5));
@@ -196,7 +192,6 @@ cout << __FILE__ << " " << __LINE__ << endl;
   m2colCut           = pT2colCut;
   mTolErr            = settingsPtr->parm("Check:mTolErr");
 
-cout << __FILE__ << " " << __LINE__ << endl;
   double pT2minQED = pow2(settingsPtr->parm("TimeShower:pTminChgQ"));
   pT2minQED = min(pT2minQED, pow2(settingsPtr->parm("TimeShower:pTminChgL")));
   pT2cutSave = create_unordered_map<int,double>
@@ -220,7 +215,6 @@ cout << __FILE__ << " " << __LINE__ << endl;
     ("doQEDshowerByL",doQEDshowerByL)
     ("doQEDshowerByQ",doQEDshowerByQ);
 
-cout << __FILE__ << " " << __LINE__ << endl;
   usePDFalphas       = settingsPtr->flag("ShowerPDF:usePDFalphas");
   useSummedPDF       = settingsPtr->flag("ShowerPDF:useSummedPDF");
   BeamParticle* beam = NULL;
@@ -242,7 +236,6 @@ cout << __FILE__ << " " << __LINE__ << endl;
   m2bPhys = (usePDFalphas) ? pow2(max(0.,beam->mQuarkPDF(5)))
           : alphaS.muThres2(5);
 
-cout << __FILE__ << " " << __LINE__ << endl;
   // Parameters of alphaEM generation.
   alphaEMorder       = settingsPtr->mode("TimeShower:alphaEMorder");
 
@@ -291,7 +284,6 @@ cout << __FILE__ << " " << __LINE__ << endl;
   // Number of MPI, in case MPI forces intervention in shower weights.
   nMPI = 0;
 
-cout << __FILE__ << " " << __LINE__ << endl;
   // Set splitting library, if already exists.
   if (splittingsPtr) splits = splittingsPtr->getSplittings();
 
@@ -301,7 +293,6 @@ cout << __FILE__ << " " << __LINE__ << endl;
     overhead.insert(make_pair(it->first,1.));
   }
 
-cout << __FILE__ << " " << __LINE__ << endl;
   // May have to fix up recoils related to rescattering.
   allowRescatter     = settingsPtr->flag("PartonLevel:MPI")
     && settingsPtr->flag("MultipartonInteractions:allowRescatter");
@@ -4832,8 +4823,6 @@ bool DireTimes::branch_FF( Event& event, bool trial,
       //&& pT2 > pT2minMECs && checkSIJ(event,1.)) {
       && pT2 > pT2minMECs && checkSIJ(event,Q2minMECs)) {
 
-#ifdef MG5MES
-
       // Finally update the list of all partons in all systems.
       partonSystemsPtr->replace(iSysSel, iRadBef, iRad);
       partonSystemsPtr->addOut(iSysSel, iEmt);
@@ -4847,13 +4836,6 @@ bool DireTimes::branch_FF( Event& event, bool trial,
       partonSystemsPtr->replace(iSysSel, iRad, iRadBef);
       partonSystemsPtr->replace(iSysSelRec, iRec, iRecBef);
       partonSystemsPtr->popBackOut(iSysSel);
-
-#else
-
-      doMECreject = false;
-
-#endif
-
     }
 
     // Update dipoles and beams.
@@ -5935,9 +5917,6 @@ bool DireTimes::branch_FI( Event& event, bool trial,
     if ( isHardSystem && physical && doMEcorrections
       //&& pT2 > pT2minMECs && checkSIJ(event,1.)) {
       && pT2 > pT2minMECs && checkSIJ(event,Q2minMECs)) {
-
-#ifdef MG5MES
-
       // Temporarily update parton systems.
       partonSystemsPtr->replace(iSysSel, iRadBef, iRad);
       partonSystemsPtr->addOut(iSysSel, iEmt);
@@ -5952,13 +5931,6 @@ bool DireTimes::branch_FI( Event& event, bool trial,
       partonSystemsPtr->replace(iSysSel, iRad, iRadBef);
       partonSystemsPtr->replace(iSysSelRec, iRec, iRecBef);
       partonSystemsPtr->popBackOut(iSysSel);
-
-#else
-
-      doMECreject = false;
-
-#endif
-
     }
 
 

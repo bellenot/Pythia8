@@ -6,6 +6,7 @@
 #include <Pythia8/FragmentationFlavZpT.h>
 #include <Pythia8/FragmentationSystems.h>
 #include <Pythia8/HadronLevel.h>
+#include <Pythia8/HadronWidths.h>
 #include <Pythia8/HelicityBasics.h>
 #include <Pythia8/HelicityMatrixElements.h>
 #include <Pythia8/Info.h>

@@ -536,8 +536,9 @@ double QEDemitElemental::generateTrial(Event &event, double q2Start,
       if (q2New > q2Sav) {
         q2Sav   = q2New;
         zetaSav = 1/(exp(Iz*(0.5 - rndmPtr->flat())) + 1);
-        sxjSav  = sqrt(sAnt*q2Sav*zetaSav/((1-zetaSav)));
-        syjSav  = sqrt(sAnt*q2Sav*(1-zetaSav)/(zetaSav));
+        sxjSav  = zetaSav != 1 ? sqrt(sAnt*q2Sav*zetaSav/((1-zetaSav))) : 0;
+        syjSav  = zetaSav != 0 ? sqrt(sAnt*q2Sav*(1-zetaSav)/(zetaSav)) :
+          std::numeric_limits<double>::infinity();
       }
     }
     // Generate scale for additional W piece on x.
@@ -1481,7 +1482,7 @@ bool QEDemitSystem::checkVeto(Event &event) {
     masses.push_back(sqrt(mA2));
     masses.push_back(0.);
     masses.push_back(sqrt(mK2));
-    masses.push_back(sqrt(mA2+mK2-sAK));
+    masses.push_back(sqrtpos(mA2+mK2-sAK));
     vector<double> invariants;
     invariants.push_back(sAK);
     invariants.push_back(saj);

@@ -226,7 +226,6 @@ private:
 // Global functions accessible in the Vincia namespace.
 
 // Utilities for printing out VINCIA Messages.
-void printErr(string,string);
 void printOut(string,string);
 
 // String utilities.

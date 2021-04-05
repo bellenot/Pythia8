@@ -287,7 +287,7 @@ void SimpleTimeShower::init( BeamParticle* beamAPtrIn,
 
   // Possibility to set parton vertex information.
   doPartonVertex     = flag("PartonVertex:setVertex")
-                    && (partonVertexPtr != 0);
+                     && (partonVertexPtr != 0);
 
 }
 
@@ -1434,6 +1434,7 @@ void SimpleTimeShower::setupQCDdip( int iSys, int i, int colTag, int colSign,
     dipEnd.push_back( TimeDipoleEnd( iRad, iRec, pTmax,
       colType, 0, 0, 0, isrType, iSys, -1, -1, 0, isOctetOnium) );
 
+    dipEnd.back().hasJunction = hasJunction;
     // If hooked up with other system then find which.
     if (otherSystemRec) {
       int systemRec = partonSystemsPtr->getSystemOf(iRec, true);
@@ -3079,11 +3080,16 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
   // Negate colour type if recoiler is initial-state quark.
   if (!recBef.isFinal()) colTypeRec = -colTypeRec;
   int colTypeRad   = particleDataPtr->colType( idRad );
+
+  bool hasJunction = dipSel->hasJunction;
+
+  if( hasJunction ) {
   // Perform junction tests for all colour (anti)triplets.
-  if (colTypeRec ==  1 && colTypeTmp > 0) colTypeTmp = -colTypeTmp;
-  if (colTypeRec == -1 && colTypeTmp < 0) colTypeTmp = -colTypeTmp;
-  if (colTypeRad ==  1 && colTypeTmp < 0) colTypeTmp = -colTypeTmp;
-  if (colTypeRad == -1 && colTypeTmp > 0) colTypeTmp = -colTypeTmp;
+    if (colTypeRec ==  1 && colTypeTmp > 0) colTypeTmp = -colTypeTmp;
+    if (colTypeRec == -1 && colTypeTmp < 0) colTypeTmp = -colTypeTmp;
+    if (colTypeRad ==  1 && colTypeTmp < 0) colTypeTmp = -colTypeTmp;
+    if (colTypeRad == -1 && colTypeTmp > 0) colTypeTmp = -colTypeTmp;
+  }
 
   // Default OK for photon, photon_HV or gluon_HV emission.
   if (dipSel->flavour == 22 || dipSel->flavour == idHV) {
@@ -3614,6 +3620,7 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
     dipEnd.push_back( TimeDipoleEnd(iEmt, iRecMod, pTsel,
        colType, 0, 0, 0, isrTypeSave, iSysSel, 0));
     dipEnd.back().systemRec = iSysSelRec;
+    dipEnd.back().hasJunction = hasJunction;
     // PS dec 2010: the (iEmt,iRec) dipole "inherits" flexible normalization
     if (isFlexible) {
       dipEnd.back().isFlexible = true;
@@ -3621,6 +3628,7 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
     }
     dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, pTsel,
       -colType, 0, 0, 0, 0, iSysSel, 0));
+    dipEnd.back().hasJunction = hasJunction;
 
   // Gluon branching to q qbar: update current dipole and other of gluon.
   } else if (dipSel->colType != 0) {
@@ -3830,15 +3838,16 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
 
 bool SimpleTimeShower::initUncertainties() {
 
-  if( infoPtr->nWeights() > 1 ) return(nUncertaintyVariations);
+  if( weightContainerPtr->weightsPS.getWeightsSize() > 1 )
+    return(nUncertaintyVariations);
 
   // Populate lists of uncertainty variations for SimpleTimeShower, by keyword.
   uVarMuSoftCorr = flag("UncertaintyBands:muSoftCorr");
   dASmax         = parm("UncertaintyBands:deltaAlphaSmax");
   // Variations handled by SpaceShower.
-  varPDFplus    = &infoPtr->varPDFplus;
-  varPDFminus   = &infoPtr->varPDFminus;
-  varPDFmember  = &infoPtr->varPDFmember;
+  varPDFplus    = &weightContainerPtr->weightsPS.varPDFplus;
+  varPDFminus   = &weightContainerPtr->weightsPS.varPDFminus;
+  varPDFmember  = &weightContainerPtr->weightsPS.varPDFmember;
 
   // Reset uncertainty variation maps.
   varG2GGmuRfac.clear();    varG2GGcNS.clear();
@@ -3857,58 +3866,42 @@ bool SimpleTimeShower::initUncertainties() {
   keys.push_back("fsr:q2qg:cns");
   keys.push_back("fsr:x2xg:cns");
   keys.push_back("fsr:g2qq:cns");
+
   // Store number of QCD variations (as separator to QED ones).
   int nKeysQCD=keys.size();
 
-  // Get uncertainty variations from Settings (as list of strings to parse).
-  vector<string> uVars = settingsPtr->wvec("UncertaintyBands:List");
-  size_t varSize = uVars.size();
-  nUncertaintyVariations = int(uVars.size());
-  if (nUncertaintyVariations == 0) return false;
+  // Get atomized variation strings, not necessarily all relevant for FSR
+  vector<string> uniqueVarsIn = weightContainerPtr->weightsPS.
+    getUniqueShowerVars();
+  size_t varSize = uniqueVarsIn.size();
+  if (varSize == 0) {
+    nUncertaintyVariations = varSize;
+    return false;
+  }
   vector<string> uniqueVars;
 
-  // Parse each string in uVars to look for recognized keywords.
-  for (size_t iWeight = 0; iWeight < varSize; ++iWeight) {
-    // Convert to lowercase (to be case-insensitive). Also remove "=" signs
-    // and extra spaces, so "key=value", "key = value" mapped to "key value"
-    string uVarString = toLower(uVars[iWeight]);
-    while (uVarString.find(" ") == 0) uVarString.erase( 0, 1);
-    int iEnd = uVarString.find(" ", 0);
-    uVarString.erase(0,iEnd+1);
-    while (uVarString.find("=") != string::npos) {
-      int firstEqual = uVarString.find_first_of("=");
-      string testString = uVarString.substr(0, firstEqual);
-      iEnd = uVarString.find_first_of(" ", 0);
-      if( iEnd<0 ) iEnd = uVarString.length();
-      string insertString = uVarString.substr(0,iEnd);
-      // does the key match an fsr one?
-      if( find(keys.begin(), keys.end(), testString) != keys.end() ) {
-        if( uniqueVars.size() == 0 ) {
-          uniqueVars.push_back(insertString);
-        } else if ( find(uniqueVars.begin(), uniqueVars.end(), insertString)
-        == uniqueVars.end() ) {
-          uniqueVars.push_back(insertString);
-        }
+  // Parse each string in uniqueVarsIn to look for recognized keywords.
+  for (string uVarString: uniqueVarsIn) {
+    int firstEqual = uVarString.find_first_of("=");
+    string testString = uVarString.substr(0, firstEqual);
+    // does the key match an fsr one?
+    if( find(keys.begin(), keys.end(), testString) != keys.end() ) {
+      if( uniqueVars.size() == 0 ) {
+        uniqueVars.push_back(uVarString);
+      } else if ( find(uniqueVars.begin(), uniqueVars.end(), uVarString)
+      == uniqueVars.end() ) {
+        uniqueVars.push_back(uVarString);
       }
-      uVarString.erase(0,iEnd+1);
     }
   }
 
   nUncertaintyVariations = int(uniqueVars.size());
 
   // Only perform for the first call to Timeshower
-  if (infoPtr->nWeights() <= 1.) {
-    // These two should eventually be removed...
-    infoPtr->setNWeights( nUncertaintyVariations + 1 );
-    infoPtr->setWeightLabel( 0, "Baseline");
-    // ... in favor of this one.
-    infoPtr->weightContainerPtr->weightsPS.bookWeight("Baseline");
+  if (weightContainerPtr->weightsPS.getWeightsSize() <= 1.) {
     for(int iWeight = 1; iWeight <= nUncertaintyVariations; ++iWeight) {
       string uVarString = uniqueVars[iWeight-1];
-      // This should eventually be removed...
-      infoPtr->setWeightLabel(iWeight, uVarString);
-      // ... in favor of this one.
-      infoPtr->weightContainerPtr->weightsPS.bookWeight(uVarString);
+      weightContainerPtr->weightsPS.bookWeight(uVarString);
 
       while (uVarString.find("=") != string::npos) {
         int firstEqual = uVarString.find_first_of("=");
@@ -3962,11 +3955,6 @@ bool SimpleTimeShower::initUncertainties() {
     } // End loop over UVars.
   }
 
-  infoPtr->initUncertainties(&uVars);
-
-  // Now instead of putting everything into the InfoHub class, and cluttering
-  // the latter, we can put everything into the WeightContainer.
-
   // Let the calling function know if we found anything.
   return (nUncertaintyVariations > 0);
 }
@@ -3991,7 +3979,7 @@ void SimpleTimeShower::calcUncertainties(bool accept, double pAccept,
   // Make sure we have a dummy to point to if no map to be used.
   map<int,double> dummy;     dummy.clear();
 
-  int numWeights = infoPtr->nWeights();
+  int numWeights = weightContainerPtr->weightsPS.getWeightsSize();
   // Store uncertainty variation factors, initialised to unity.
   // Make vector sizes + 1 since 0 = default and variations start at 1.
   vector<double> uVarFac(numWeights, 1.0);
@@ -4144,11 +4132,6 @@ void SimpleTimeShower::calcUncertainties(bool accept, double pAccept,
     if (!doVar[iWeight]) continue;
     // If trial accepted: apply ratio of accept probabilities.
     if (accept) {
-      infoPtr->reWeight(iWeight,
-        uVarFac[iWeight] / ((1.0 - vp) * enhance) );
-
-      // At some point, we should remove the weights structures in InfoHub in
-      // favor of WeightContainer.
       weightContainerPtr->weightsPS.reweightValueByIndex(iWeight,
         uVarFac[iWeight] / ((1.0 - vp) * enhance) );
 
@@ -4166,10 +4149,6 @@ void SimpleTimeShower::calcUncertainties(bool accept, double pAccept,
       // Force reweighting factor > 0.
       double reWtFail = max(0.01, (1. - uVarFac[iWeight] * pAccept / enhance)
         / denom);
-      infoPtr->reWeight(iWeight, reWtFail);
-
-      // At some point, we should remove the weights structures in InfoHub in
-      // favor of WeightContainer.
       weightContainerPtr->weightsPS.reweightValueByIndex(iWeight,
         reWtFail);
     }

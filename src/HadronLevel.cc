@@ -11,6 +11,35 @@ namespace Pythia8 {
 
 //==========================================================================
 
+// The PriorityNode class.
+// Used to order scatterings and decays during hadronic rescattering.
+
+//--------------------------------------------------------------------------
+
+class HadronLevel::PriorityNode {
+
+public:
+
+  PriorityNode(int iDecayIn, Vec4 originIn)
+    : i1(iDecayIn), i2(0), origin(originIn) {}
+  PriorityNode(int i1In, int i2In, Vec4 originIn, Vec4 displaced1In,
+    Vec4 displaced2In) : i1(i1In), i2(i2In), origin(originIn),
+    displaced1(displaced1In), displaced2(displaced2In) {}
+
+  bool isDecay() { return i2 == 0; }
+
+  // Priority comparison to be used by priority_queue.
+  // Note that lower t means higher priority!
+  // @FUTURE: allow the user to pick the comparer (time-ordering problem)?
+  bool operator<(const PriorityNode& r) const {
+    return origin.e() > r.origin.e(); }
+
+  int i1, i2;
+  Vec4 origin, displaced1, displaced2;
+};
+
+//==========================================================================
+
 // The HadronLevel class.
 
 //--------------------------------------------------------------------------
@@ -24,17 +53,17 @@ const double HadronLevel::MTINY = 0.1;
 
 // Find settings. Initialize HadronLevel classes as required.
 
-bool HadronLevel::init( TimeShowerPtr timesDecPtr,
-  RHadrons* rHadronsPtrIn, DecayHandlerPtr decayHandlePtr,
-  vector<int> handledParticles, StringIntPtr stringInteractionsPtrIn) {
+bool HadronLevel::init( TimeShowerPtr timesDecPtr, RHadrons* rHadronsPtrIn,
+  DecayHandlerPtr decayHandlePtr, vector<int> handledParticles,
+  StringIntPtr stringInteractionsPtrIn, PartonVertexPtr partonVertexPtrIn) {
 
   // Store other input pointers.
   rHadronsPtr     = rHadronsPtrIn;
 
   // Main flags.
   doHadronize     = flag("HadronLevel:Hadronize");
-  doHadronScatter = flag("hadronLevel:HadronScatter");
   doDecay         = flag("HadronLevel:Decay");
+  doRescatter     = flag("HadronLevel:Rescatter");
   doBoseEinstein  = flag("HadronLevel:BoseEinstein");
   doDeuteronProd  = flag("HadronLevel:DeuteronProduction");
 
@@ -50,12 +79,12 @@ bool HadronLevel::init( TimeShowerPtr timesDecPtr,
   // Particles that should decay or not before Bose-Einstein stage.
   widthSepBE      = parm("BoseEinstein:widthSep");
 
-  // Need string density information be collected?
-  closePacking     = flag("StringPT:closePacking");
+  // Displace hadron vertices from parton impact-parameter picture.
+  partonVertexPtr = partonVertexPtrIn;
+  doPartonVertex  = flag("PartonVertex:setVertex");
 
-  // Hadron scattering.
-  hadronScatMode  = mode("HadronScatter:mode");
-  hsAfterDecay    = flag("HadronScatter:afterDecay");
+  // Need string density information be collected?
+  closePacking    = flag("StringPT:closePacking");
 
   // Initialize string interactions (Ropewalk and Flavour Ropes) if present.
   fragmentationModifierPtr =
@@ -77,19 +106,52 @@ bool HadronLevel::init( TimeShowerPtr timesDecPtr,
   // Initialize particle decays.
   decays.init(timesDecPtr, &flavSel, decayHandlePtr, handledParticles);
 
+  // Initialize nucleon excitations.
+  string dataFile = word("xmlPath") + "NucleonExcitations.dat";
+  if (!nucleonExcitations.init(dataFile)) {
+    infoPtr->errorMsg("Abort from HadronLevel::init: "
+      "nucleon excitation data unavailable");
+    return false;
+  }
+
+  // Initialize low-energy framework.
+  lowEnergyProcess.init(&flavSel, &stringFrag, &ministringFrag,
+    &lowEnergySigma, &nucleonExcitations);
+
+  // Initialize low energy cross sections.
+  lowEnergySigma.init(&nucleonExcitations);
+
+  // Initialize rescattering settings if applicable.
+  if (doRescatter) {
+
+    // Break if conflicting settings.
+    if (doBoseEinstein) {
+      infoPtr->errorMsg("Error in HadronLevel::init: "
+        "Rescattering and Bose-Einstein cannot be on at the same time");
+      return false;
+    }
+
+    // Read settings for rescattering.
+    scatterManyTimes  = flag("Rescattering:scatterManyTimes");
+    scatterQuickCheck = flag("Rescattering:quickCheck");
+    scatterNeighbours = flag("Rescattering:nearestNeighbours");
+    impactModel       = mode("Rescattering:impactModel");
+    b2Max             = pow2(FM2MM * parm("Rescattering:bMax"));
+    impactOpacity     = parm("Rescattering:opacity");
+    widthSepRescatter = FMINV2GEV / parm("Rescattering:tau0RapidDecay");
+    delayRegeneration = flag("Rescattering:delayRegeneration");
+    tauRegeneration   = parm("Rescattering:tauRegeneration");
+    boostDir          = mode("Rescattering:boostDir");
+    boost             = parm("Rescattering:boost");
+    doBoost           = boostDir > 0 && boost > 0.;
+    useVelocityFrame  = flag("Rescattering:useVelocityFrame");
+  }
+
   // Initialize BoseEinstein.
   boseEinstein.init();
 
   // Initialize DeuteronProduction.
-  if (doDeuteronProd)
-    deuteronProd.init();
-
-  // Initialize HadronScatter.
-  if (doHadronScatter)
-    hadronScatter.init();
-
-  // Initialize low-energy hadron-hadron collisions.
-  lowEnergyProcess.init(&stringFrag, &ministringFrag);
+  if (doDeuteronProd) deuteronProd.init();
 
   // Initialize Hidden-Valley fragmentation, if necessary.
   useHiddenValley = hiddenvalleyFrag.init();
@@ -135,12 +197,11 @@ bool HadronLevel::next( Event& event) {
   }
 
   // Possibility of hadronization inside decay, but then no BE second time.
-  // Hadron scattering, first pass only --rjc
-  bool moreToDo, firstPass = true;
   bool doBoseEinsteinNow = doBoseEinstein;
   bool doDeuteronProdNow = doDeuteronProd;
+  bool decaysCausedHadronization;
   do {
-    moreToDo = false;
+    decaysCausedHadronization = false;
 
     // First part: string fragmentation.
     if (doHadronize) {
@@ -188,6 +249,7 @@ bool HadronLevel::next( Event& event) {
 
         // Collect sequentially all partons in a colour singlet subsystem.
         colConfig.collect(iSub, event);
+        int nBefFrag = event.size();
 
         // String fragmentation of each colour singlet (sub)system.
         if ( colConfig[iSub].massExcess > mStringMin ) {
@@ -200,36 +262,93 @@ bool HadronLevel::next( Event& event) {
           if (!ministringFrag.fragment( iSub, colConfig, event, isDiff))
             return false;
         }
+
+        // Displace hadron vertices transversely from parton MPI + shower.
+        if (doPartonVertex) partonVertexPtr->vertexHadrons( nBefFrag, event);
       }
     }
 
-    // Hadron scattering.
-    if (doHadronScatter) {
-      // New model.
-      if (hadronScatMode < 2) hadronScatter.scatter(event);
-      // Old model, before decays.
-      else if ((hadronScatMode == 2) && !hsAfterDecay && firstPass)
-        hadronScatter.scatterOld(event);
-    }
-
     // Second part: sequential decays of short-lived particles (incl. K0).
-    if (doDecay) {
 
-      // Loop through all entries to find those that should decay.
-      int iDec = 0;
-      do {
-        Particle& decayer = event[iDec];
-        if ( decayer.isFinal() && decayer.canDecay() && decayer.mayDecay()
-          && (decayer.mWidth() > widthSepBE || decayer.idAbs() == 311) ) {
-          decays.decay( iDec, event);
-          if (decays.moreToDo()) moreToDo = true;
+    // If rescattering is off, we don't care about the order of the decays.
+    if (doDecay && !doRescatter) {
+      decaysCausedHadronization = decays.decayAll(event, widthSepBE);
+
+    // If rescattering is on, decays/rescatterings must happen in order.
+    } else if (doRescatter) {
+
+      if (doBoost) {
+        if      (boostDir == 1) event.bst(tanh(boost), 0., 0.);
+        else if (boostDir == 2) event.bst(0., tanh(boost), 0.);
+        else                    event.bst(0., 0., tanh(boost));
+      }
+
+      // Queue potential decays and rescatterings.
+      priority_queue<PriorityNode> candidates;
+      queueDecResc(event, 0, candidates);
+      while (!candidates.empty()) {
+        if (event.size() > 10000) {
+          infoPtr->errorMsg("Error in HadronLevel::next: "
+            "too many rescatterings; possibly caught in endless loop");
+          return false;
         }
-      } while (++iDec < event.size());
-    }
 
-    // Hadron scattering, old model, after decays.
-    if (doHadronScatter && (hadronScatMode == 2) && hsAfterDecay && firstPass)
-      hadronScatter.scatterOld(event);
+        // Get earliest decay/rescattering.
+        PriorityNode node = candidates.top();
+        candidates.pop();
+
+        // Skip if either particle has already interacted elsewhere.
+        if (!event[node.i1].isFinal()
+        || (!node.isDecay() && !event[node.i2].isFinal())) continue;
+
+        // Perform the queued action: decay.
+        int oldSize = event.size();
+        if (node.isDecay()) {
+          decays.decay(node.i1, event);
+          // @TODO If there is moreToDo, those things should also
+          // be handled in order?
+          if (decays.moreToDo()) decaysCausedHadronization = true;
+
+        // Perform the queued action: two-body collision.
+        } else {
+          Particle& hadA = event[node.i1];
+          Particle& hadB = event[node.i2];
+          double eCM = (hadA.p() + hadB.p()).mCalc();
+          int type = lowEnergySigma.pickProcess(hadA.id(), hadB.id(), eCM,
+            hadA.m(),  hadB.m());
+          if (type == 0) {
+            infoPtr->errorMsg("Error in HadronLevel::next: "
+              "no available rescattering processes", to_string(hadA.id())
+              + " + " + to_string(hadB.id()) + " @ " + to_string(eCM));
+            continue;
+          }
+          if (!lowEnergyProcess.collide(node.i1, node.i2, type, event,
+            node.origin, node.displaced1, node.displaced2)) continue;
+        }
+
+        // If multiple rescattering is on, check for new interactions.
+        if (scatterManyTimes) queueDecResc(event, oldSize, candidates);
+
+        // If multiple rescattering is off, decay new hadrons.
+        else if (doDecay) {
+          for (int i = oldSize; i < event.size(); ++i) {
+            if (event[i].isFinal() && event[i].isHadron()
+            && event[i].canDecay() && event[i].mayDecay()
+            && event[i].mWidth() > widthSepBE) {
+              decays.decay(i, event);
+              if (decays.moreToDo())
+                decaysCausedHadronization = true;
+            }
+          }
+        }
+      }
+
+     if (doBoost) {
+        if      (boostDir == 1) event.bst(-tanh(boost), 0., 0.);
+        else if (boostDir == 2) event.bst(0., -tanh(boost), 0.);
+        else                    event.bst(0., 0., -tanh(boost));
+      }
+    }
 
     // Third part: include Bose-Einstein effects among current particles.
     if (doBoseEinsteinNow) {
@@ -239,27 +358,20 @@ bool HadronLevel::next( Event& event) {
 
     // Fourth part: sequential decays also of long-lived particles.
     if (doDecay) {
-
-      // Loop through all entries to find those that should decay.
-      int iDec = 0;
-      do {
-        Particle& decayer = event[iDec];
-        if ( decayer.isFinal() && decayer.canDecay() && decayer.mayDecay() ) {
-          decays.decay( iDec, event);
-          if (decays.moreToDo()) moreToDo = true;
-        }
-      } while (++iDec < event.size());
+      if (decays.decayAll(event))
+        decaysCausedHadronization = true;
     }
 
     // Fifth part: deuteron production.
     if (doDeuteronProdNow) {
       if (!deuteronProd.combine(event)) return false;
       doDeuteronProdNow = false;
-      moreToDo = doDecay;
+      decaysCausedHadronization = doDecay;
     }
 
-  // Normally done first time around, but sometimes not (e.g. Upsilon).
-  } while (moreToDo);
+  // Normally done first time around, but sometimes not.
+  // (e.g. Upsilon decay can cause create unstable hadrons).
+  } while (decaysCausedHadronization);
 
   // Done.
   return true;
@@ -285,6 +397,93 @@ bool HadronLevel::moreDecays( Event& event) {
 
   // Done.
   return true;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Prepare to be able to pick a low-energy hadron-hadron scattering.
+
+bool HadronLevel::initLowEnergyProcesses() {
+
+  // Prepare for low-energy QCD processes.
+  doNonPertAll     = flag("LowEnergyQCD:all");
+  if (!doNonPertAll) {
+    if (flag("LowEnergyQCD:nonDiffractive"))      nonPertProc.push_back(1);
+    if (flag("LowEnergyQCD:elastic"))             nonPertProc.push_back(2);
+    if (flag("LowEnergyQCD:singleDiffractiveXB")) nonPertProc.push_back(3);
+    if (flag("LowEnergyQCD:singleDiffractiveAX")) nonPertProc.push_back(4);
+    if (flag("LowEnergyQCD:doubleDiffractive"))   nonPertProc.push_back(5);
+    if (flag("LowEnergyQCD:excitation"))          nonPertProc.push_back(7);
+    if (flag("LowEnergyQCD:annihilation"))        nonPertProc.push_back(8);
+    if (flag("LowEnergyQCD:resonant"))            nonPertProc.push_back(9);
+  }
+
+  // Return true if any process is switched on.
+  return doNonPertAll || (nonPertProc.size() > 0);
+
+}
+
+//--------------------------------------------------------------------------
+
+// Pick process for a low-energy hadron-hadron scattering.
+
+int HadronLevel::pickLowEnergyProcess(int idA, int idB, double eCM,
+  double mA, double mB) {
+
+  // Chosen process.
+  int procType;
+
+    // If all processes are on, just call LowEnergySigma directly.
+  if (doNonPertAll) {
+    procType = lowEnergySigma.pickProcess(idA, idB, eCM, mA, mB);
+    if (procType == 0) {
+      infoPtr->errorMsg("Error in HadronLevel::pickLowEnergyProcess: "
+        "no available processes for specified particles and energy");
+      return 0;
+    }
+
+  // Trivial choice if only one process.
+  } else if (nonPertProc.size() ==1) {
+    procType = nonPertProc[0];
+
+  // If only certain processes are on, calculate those cross sections.
+  } else {
+    vector<int> procs;
+    vector<double> sigmas;
+    for (int proc : nonPertProc) {
+      double sigma = lowEnergySigma.sigmaPartial(idA, idB, eCM, mA, mB, proc);
+      if (sigma > 0.) {
+        procs.push_back(proc);
+        sigmas.push_back(sigma);
+      } else {
+        infoPtr->errorMsg("Warning in HadronLevel::pickLowEnergyProcess: "
+          "a process with zero cross section was explicitly turned on",
+          std::to_string(proc));
+      }
+    }
+
+    // Error if no processes has a positive cross section. Else pick process.
+    if (procs.size() == 0) {
+      infoPtr->errorMsg("Error in HadronLevel::pickLowEnergyProcess: "
+        "no processes with positive cross sections have been turned on");
+      return 0;
+    }
+    procType = procs[rndmPtr->pick(sigmas)];
+  }
+
+  // Pick specific resonance for proc == 9.
+  if (procType == 9) {
+    procType = lowEnergySigma.pickResonance(idA, idB, eCM);
+    if (procType == 0) {
+      infoPtr->errorMsg("Error in Pythia::nextNonPert: "
+        "no available resonances for the given particles and energy");
+      return 0;
+    }
+  }
+
+  // Done.
+  return procType;
 
 }
 
@@ -374,6 +573,133 @@ bool HadronLevel::findSinglets(Event& event, bool keepJunctions) {
   // Done.
   return true;
 
+}
+
+//--------------------------------------------------------------------------
+
+// Calculate possible decays and rescatterings and add all to the queue.
+
+void HadronLevel::queueDecResc(Event& event, int iStart,
+  priority_queue<HadronLevel::PriorityNode>& queue) {
+
+  // Loop over all existing or newly added hadrons.
+  for (int iFirst = iStart; iFirst < event.size(); ++iFirst) {
+    Particle& hadA = event[iFirst];
+    if (!hadA.isFinal() || !hadA.isHadron()) continue;
+
+    // Queue hadrons that should decay.
+    if (doDecay && hadA.canDecay() && hadA.mayDecay()
+      && hadA.mWidth() > widthSepRescatter)
+      queue.push(PriorityNode(iFirst, hadA.vDec()));
+
+    // Find primary hadron mother, if any.
+    int iNowA = iFirst;
+    int iMotA = event[iNowA].mother1();
+    if (!scatterNeighbours)
+    while (event[iMotA].isHadron() && event[iNowA].mother2() == 0) {
+      iNowA = iMotA;
+      iMotA = event[iNowA].mother1();
+    }
+
+    // Loop over a second existing hadron to study all pairs.
+    for (int iSecond = 0; iSecond < iFirst; ++iSecond) {
+      Particle& hadB = event[iSecond];
+      if (!hadB.isFinal() || !hadB.isHadron()) continue;
+
+      // Early skip if particles are moving away from each other.
+      if (scatterQuickCheck && dot3( hadB.p() / hadB.e() - hadA.p() / hadA.e(),
+        hadB.vProd() - hadA.vProd() ) > 0. ) continue;
+
+      // Skip rescattering among decay products or already scattered.
+      if ( event[hadA.mother1()].isHadron() && hadB.mother1() == hadA.mother1()
+        && hadB.mother2() == hadA.mother2()) continue;
+
+      // Find primary hadron mother, if any.
+      if (!scatterNeighbours) {
+        int iNowB = iSecond;
+        int iMotB = event[iNowB].mother1();
+        while (event[iMotB].isHadron() && event[iNowB].mother2() == 0) {
+          iNowB = iMotB;
+          iMotB = event[iNowB].mother1();
+        }
+
+        // Optionally skip if hadrons are nearest neighbours.
+        if (abs(iNowB - iNowA) <= 1) continue;
+      }
+
+      // Set up positions for each particle in the pair CM frame.
+      RotBstMatrix frame;
+
+      if (useVelocityFrame)
+        frame.toSameVframe(hadA.p(), hadB.p());
+      else
+        frame.toCMframe(hadA.p(), hadB.p());
+      Vec4 vA = hadA.vProd(); vA.rotbst(frame);
+      Vec4 vB = hadB.vProd(); vB.rotbst(frame);
+      Vec4 pA = hadA.p();     pA.rotbst(frame);
+      Vec4 pB = hadB.p();     pB.rotbst(frame);
+
+      // Rejection of pairs with large impact parameter.
+      double b2 = (vA - vB).pT2();
+      if (b2 > b2Max) continue;
+
+      // Offset particles to position when the last particle is created.
+      double t0 = max(vA.e(), vB.e());
+      double zA = vA.pz() + (t0 - vA.e()) * pA.pz() / pA.e();
+      double zB = vB.pz() + (t0 - vB.e()) * pB.pz() / pB.e();
+
+      // Abort if particles have already passed each other.
+      if (zA >= zB) continue;
+
+      // Optionally allow regeneration time delay.
+      if (delayRegeneration && (hadA.status()/10 == 15
+        || hadB.status()/10 == 15)) {
+        bool regA = (hadA.status() == 152 || hadA.status() == 157);
+        if ( (hadA.status() == 153 || hadA.status() == 154)
+          && event[hadA.mother1()].isHadron()) regA = true;
+        bool regB = (hadB.status() == 152 || hadB.status() == 157);
+        if ( (hadB.status() == 153 || hadB.status() == 154)
+          && event[hadB.mother1()].isHadron()) regB = true;
+        if (regA || regB) {
+          if (regA) vA += tauRegeneration * FM2MM * rndmPtr->exp()
+            * pA / hadA.m();
+          if (regB) vB += tauRegeneration * FM2MM * rndmPtr->exp()
+            * pB / hadB.m();
+          t0 = max(vA.e(), vB.e());
+          zA = vA.pz() + (t0 - vA.e()) * pA.pz() / pA.e();
+          zB = vB.pz() + (t0 - vB.e()) * pB.pz() / pB.e();
+          if (zA >= zB) continue;
+        }
+      }
+
+      // Calculate sigma and abort if impact parameter is too large.
+      double eCM = (pA + pB).mCalc();
+      double sigma = lowEnergySigma.sigmaTotal(hadA.id(), hadB.id(), eCM,
+        hadA.m(),  hadB.m());
+      double b2Crit = MB2FMSQ * pow2(FM2MM) * sigma / (impactOpacity * M_PI);
+      double pAccept;
+      // Sharp edge or Gaussian profile.
+      if (impactModel == 0)  pAccept = (b2 < b2Crit) ? impactOpacity : 0.;
+      else                   pAccept = impactOpacity * exp(-b2 / b2Crit);
+      if (rndmPtr->flat() > pAccept) continue;
+
+      // Calculate origin of collision and transform to lab frame.
+      // Also particle scattering vertices for elastic and excitation.
+      double tColl = t0 - (zB - zA) / (pB.pz() / pB.e() - pA.pz() / pA.e());
+      Vec4 origin(0.5 * (vA.px() + vB.px()), 0.5 * (vA.py() + vB.py()),
+                  zA + pA.pz() / pA.e() * (tColl - t0), tColl);
+      Vec4 displacedA = Vec4( vA.px(), vA.py(), origin.pz(), origin.e() );
+      Vec4 displacedB = Vec4( vB.px(), vB.py(), origin.pz(), origin.e() );
+      frame.invert();
+      origin.rotbst(frame);
+      displacedA.rotbst(frame);
+      displacedB.rotbst(frame);
+
+      // Queue hadron pair that should rescatter.
+      queue.push( PriorityNode(iFirst, iSecond, origin, displacedA,
+        displacedB) );
+    }
+  }
 }
 
 //--------------------------------------------------------------------------

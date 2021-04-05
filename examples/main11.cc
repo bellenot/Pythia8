@@ -16,7 +16,7 @@ int main() {
   // You can always read an plain LHE file,
   // but if you ran "./configure --with-gzip" before "make"
   // then you can also read a gzipped LHE file.
-#ifdef GZIPSUPPORT
+#ifdef GZIP
   bool useGzip = true;
 #else
   bool useGzip = false;

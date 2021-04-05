@@ -25,6 +25,7 @@ void PhysicsBase::initInfoPtr(Info& infoIn) {
   // Other objects extracted from Info.
   settingsPtr      = infoPtr->settingsPtr;
   particleDataPtr  = infoPtr->particleDataPtr;
+  hadronWidthsPtr  = infoPtr->hadronWidthsPtr;
   rndmPtr          = infoPtr->rndmPtr;
   coupSMPtr        = infoPtr->coupSMPtr;
   coupSUSYPtr      = infoPtr->coupSUSYPtr;

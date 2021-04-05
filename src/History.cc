@@ -308,23 +308,23 @@ bool History::projectOntoDesiredHistories() {
 //                      shower objects
 // OUT double         : (Sukadov) , (alpha_S ratios) , (PDF ratios)
 
-double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
+vector<double> History::weightCKKWL(PartonLevel* trial, AlphaStrong * asFSR,
   AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN) {
 
   if ( mergingHooksPtr->canCutOnRecState() && !foundAllowedPath ) {
-    string message="Warning in History::weightTREE: No allowed history";
+    string message="Warning in History::weightCKKWL: No allowed history";
     message+=" found. Using disallowed history.";
     infoPtr->errorMsg(message);
   }
   if ( mergingHooksPtr->orderHistories() && !foundOrderedPath ) {
-    string message="Warning in History::weightTREE: No ordered history";
+    string message="Warning in History::weightCKKWL: No ordered history";
     message+=" found. Using unordered history.";
     infoPtr->errorMsg(message);
   }
   if ( mergingHooksPtr->canCutOnRecState()
     && mergingHooksPtr->orderHistories()
     && !foundAllowedPath && !foundOrderedPath ) {
-    string message="Warning in History::weightTREE: No allowed or ordered";
+    string message="Warning in History::weightCKKWL: No allowed or ordered";
     message+=" history found.";
     infoPtr->errorMsg(message);
   }
@@ -341,11 +341,12 @@ double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
   // Set scales in the states to the scales pythia would have set
   selected->setScalesInHistory();
 
+  int nWgts = mergingHooksPtr->nWgts;
   // Get weight.
-  double sudakov   = 1.;
-  double asWeight  = 1.;
-  double aemWeight = 1.;
-  double pdfWeight = 1.;
+  vector<double> sudakov( nWgts, 1. );
+  vector<double> asWeight( nWgts, 1. );
+  vector<double> aemWeight( nWgts, 1. );
+  vector<double> pdfWeight( nWgts, 1. );
 
   // Do trial shower, calculation of alpha_S ratios, PDF ratios
   sudakov  = selected->weightTree( trial, asME, aemME, maxScale,
@@ -354,8 +355,8 @@ double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
 
   // MPI no-emission probability
   int njetsMaxMPI = mergingHooksPtr->nMinMPI();
-  double mpiwt = selected->weightTreeEmissions( trial, -1, 0, njetsMaxMPI,
-                   maxScale );
+  vector<double> mpiwt = selected->weightTreeEmissions( trial, -1, 0,
+      njetsMaxMPI, maxScale );
 
   // Set hard process renormalisation scale to default Pythia value.
   bool resetScales = mergingHooksPtr->resetHardQRen();
@@ -368,13 +369,13 @@ double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
     // Reset to a running coupling. Here we choose FSR for simplicity.
     double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
     double runningCoupling = (*asFSR).alphaS(newQ2Ren) / asME;
-    asWeight *= pow2(runningCoupling);
+    for (double& asW: asWeight) asW *= pow2(runningCoupling);
   } else if (mergingHooksPtr->doWeakClustering()
     && isQCD2to2(selected->state)) {
     // Reset to a running coupling. Here we choose FSR for simplicity.
     double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
     double runningCoupling = (*asFSR).alphaS(newQ2Ren) / asME;
-    asWeight *= pow2(runningCoupling);
+    for (double& asW: asWeight) asW *= pow2(runningCoupling);
   }
 
   // For W clustering, correct the \alpha_em.
@@ -382,7 +383,7 @@ double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
     // Reset to a running coupling. Here we choose FSR for simplicity.
     double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
     double runningCoupling = (*aemFSR).alphaEM(newQ2Ren) / aemME;
-    aemWeight *= runningCoupling;
+    for (double& aemW: aemWeight) aemW *= runningCoupling;
   }
 
   // For prompt photon events, evaluate the coupling of the hard process at
@@ -394,11 +395,15 @@ double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
     double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
     double runningCoupling =
       (*asISR).alphaS( newQ2Ren + pow(mergingHooksPtr->pT0ISR(),2) ) / asME;
-    asWeight *= runningCoupling;
+    for (double& asW: asWeight) asW *= runningCoupling;
   }
 
   // Done
-  return (sudakov*asWeight*aemWeight*pdfWeight*mpiwt);
+  vector<double> ret;
+  for (int iVar = 0; iVar < nWgts; ++iVar)
+    ret.push_back(sudakov[iVar]*asWeight[iVar]*aemWeight[iVar]*pdfWeight[iVar]*
+        mpiwt[iVar]);
+  return ret;
 
 }
 
@@ -407,10 +412,10 @@ double History::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
 // Function to return weight of virtual correction and subtractive events
 // for NL3 merging
 
-double History::weightLOOP(PartonLevel* trial, double RN ) {
+vector<double> History::weightNL3Loop(PartonLevel* trial, double RN ) {
 
   if ( mergingHooksPtr->canCutOnRecState() && !foundAllowedPath ) {
-    string message="Warning in History::weightLOOP: No allowed history";
+    string message="Warning in History::weightNL3Loop: No allowed history";
     message+=" found. Using disallowed history.";
     infoPtr->errorMsg(message);
   }
@@ -421,14 +426,15 @@ double History::weightLOOP(PartonLevel* trial, double RN ) {
   selected->setScalesInHistory();
 
   // So far, no reweighting
-  double wt = 1.;
+  int nWgts = mergingHooksPtr->nWgts;
+  vector<double> wt( nWgts, 1. );
 
   // Only reweighting with MPI no-emission probability
   double maxScale = (foundCompletePath) ? infoPtr->eCM()
                   : mergingHooksPtr->muFinME();
   int njetsMaxMPI = mergingHooksPtr->nMinMPI();
-  double mpiwt = selected->weightTreeEmissions( trial, -1, 0, njetsMaxMPI,
-                   maxScale );
+  vector<double> mpiwt = selected->weightTreeEmissions( trial, -1, 0,
+      njetsMaxMPI, maxScale );
   wt = mpiwt;
   // Done
   return wt;
@@ -438,12 +444,9 @@ double History::weightLOOP(PartonLevel* trial, double RN ) {
 
 // Function to calculate O(\alpha_s)-term of CKKWL-weight for NLO merging
 
-double History::weightFIRST(PartonLevel* trial, AlphaStrong* asFSR,
-  AlphaStrong* asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN,
+vector<double> History::weightNL3First(PartonLevel* trial, AlphaStrong* asFSR,
+  AlphaStrong* asISR, AlphaEM* , AlphaEM* , double RN,
   Rndm* rndmPtr ) {
-
-  // Dummy statement to avoid compiler warnings.
-  if (false) cout << aemFSR << aemISR;
 
   // Read alpha_S in ME calculation and maximal scale (eCM)
   double asME   = infoPtr->alphaS();
@@ -457,7 +460,7 @@ double History::weightFIRST(PartonLevel* trial, AlphaStrong* asFSR,
   // Set scales in the states to the scales pythia would have set
   selected->setScalesInHistory();
 
-  double nSteps = mergingHooksPtr->getNumberOfClusteringSteps(state);
+  int nSteps = mergingHooksPtr->getNumberOfClusteringSteps(state);
 
   // Get the lowest order k-factor and add first two terms in expansion
   double kFactor = asME * mergingHooksPtr->k1Factor(nSteps);
@@ -467,8 +470,8 @@ double History::weightFIRST(PartonLevel* trial, AlphaStrong* asFSR,
   double wt = 1. + kFactor;
 
   // Calculate sum of O(alpha) terms
-  wt += selected->weightFirst(trial,asME, muR, maxScale, asFSR, asISR,
-          rndmPtr );
+  double wtFirst = selected->weightFirst(trial,asME, muR, maxScale, asFSR,
+      asISR, rndmPtr );
 
   // Get starting scale for trial showers.
   double startingScale = (selected->mother) ? state.scale()
@@ -487,27 +490,56 @@ double History::weightFIRST(PartonLevel* trial, AlphaStrong* asFSR,
     nWeight1 += unresolvedEmissionTerm[1];
   }
 
-  wt += nWeight1/double(NTRIAL);
+  wtFirst += nWeight1/double(NTRIAL);
+
+  // Introduce vector to allow variation of coefficient
+  int nWgts = mergingHooksPtr->nWgts;
+  vector<double> wtVec({wt+wtFirst});
+
+  // Use the varied scale in the coefficient around which we expand
+  for (int iVar = 1; iVar < nWgts; ++iVar) {
+    double asFix = asFSR->alphaS(pow2(muR*mergingHooksPtr->
+          muRVarFactors[iVar-1])) / asME;
+    wtVec.push_back( wt + asFix*wtFirst );
+  }
+
+  // Introduce variation of stong coupling that is not done in Born input
+  for ( int iVar = 1; iVar < nWgts; ++iVar ) {
+    double corrFac = std::pow(asFSR->alphaS(pow2(muR*mergingHooksPtr->
+            muRVarFactors[iVar-1])) / asME, nSteps);
+    wtVec[iVar] *= corrFac;
+  }
 
   // Done
-  return wt;
+  return wtVec;
 
 }
 
 //--------------------------------------------------------------------------
 
-double History::weight_UMEPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
-  AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN) {
+vector<double> History::weightNL3Tree(PartonLevel* trial, AlphaStrong*
+    asFSR, AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR,
+    double RN) {
   // No difference to CKKW-L. Recycle CKKW-L function.
-  return weightTREE( trial, asFSR, asISR, aemFSR, aemISR, RN);
+  return weightCKKWL( trial, asFSR, asISR, aemFSR, aemISR, RN);
+}
+
+//--------------------------------------------------------------------------
+
+vector<double> History::weightUMEPSTree(PartonLevel* trial, AlphaStrong*
+    asFSR, AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR,
+    double RN) {
+  // No difference to CKKW-L. Recycle CKKW-L function.
+  return weightCKKWL( trial, asFSR, asISR, aemFSR, aemISR, RN);
 }
 
 //--------------------------------------------------------------------------
 
 // Function to return weight of virtual correction events for NLO merging
 
-double History::weight_UMEPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
-  AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN ) {
+vector<double> History::weightUMEPSSubt(PartonLevel* trial, AlphaStrong*
+    asFSR, AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR,
+    double RN ) {
 
   // Read alpha_S in ME calculation and maximal scale (eCM)
   double asME     = infoPtr->alphaS();
@@ -520,10 +552,11 @@ double History::weight_UMEPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
   selected->setScalesInHistory();
 
   // Get weight.
-  double sudakov   = 1.;
-  double asWeight  = 1.;
-  double aemWeight = 1.;
-  double pdfWeight = 1.;
+  int nWgts = mergingHooksPtr->nWgts;
+  vector<double> sudakov( nWgts, 1.);
+  vector<double> asWeight( nWgts, 1.);
+  vector<double> aemWeight( nWgts, 1.);
+  vector<double> pdfWeight( nWgts, 1.);
 
   // Do trial shower, calculation of alpha_S ratios, PDF ratios
   sudakov   = selected->weightTree(trial, asME, aemME, maxScale,
@@ -532,8 +565,8 @@ double History::weight_UMEPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
 
   // MPI no-emission probability.
   int njetsMaxMPI = mergingHooksPtr->nMinMPI()+1;
-  double mpiwt = selected->weightTreeEmissions( trial, -1, 0, njetsMaxMPI,
-                   maxScale );
+  vector<double> mpiwt = selected->weightTreeEmissions( trial, -1, 0,
+      njetsMaxMPI, maxScale );
 
   // Set hard process renormalisation scale to default Pythia value.
   bool resetScales = mergingHooksPtr->resetHardQRen();
@@ -545,7 +578,7 @@ double History::weight_UMEPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
     // Reset to a running coupling. Here we choose FSR for simplicity.
     double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
     double runningCoupling = (*asFSR).alphaS(newQ2Ren) / asME;
-    asWeight *= pow(runningCoupling,2);
+    for (double& asW: asWeight) asW *= pow(runningCoupling,2);
   }
 
   // For prompt photon events, evaluate the coupling of the hard process at
@@ -557,19 +590,41 @@ double History::weight_UMEPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
     double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
     double runningCoupling =
       (*asISR).alphaS( newQ2Ren + pow(mergingHooksPtr->pT0ISR(),2) ) / asME;
-    asWeight *= runningCoupling;
+    for (double& asW: asWeight) asW *= runningCoupling;
   }
 
   // Done
-  return (sudakov*asWeight*aemWeight*pdfWeight*mpiwt);
+  vector<double> ret;
+  for (int iVar = 0; iVar < nWgts; ++iVar)
+    ret.push_back(sudakov[iVar]*asWeight[iVar]*aemWeight[iVar]*pdfWeight[iVar]*
+        mpiwt[iVar]);
+  return ret;
 
 }
 
 //--------------------------------------------------------------------------
 
-double History::weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
-  AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN,
-  int depthIn) {
+vector<double> History::weightUNLOPSTree(PartonLevel* trial, AlphaStrong*
+    asFSR, AlphaStrong* asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN,
+    int depthIn) {
+
+  if ( mergingHooksPtr->canCutOnRecState() && !foundAllowedPath ) {
+    string message="Warning in History::weightUNLOPSTree: No allowed";
+    message+=" history found. Using disallowed history.";
+    infoPtr->errorMsg(message);
+  }
+  if ( mergingHooksPtr->orderHistories() && !foundOrderedPath ) {
+    string message="Warning in History::weightUNLOPSTree: No ordered";
+    message+=" history found. Using unordered history.";
+    infoPtr->errorMsg(message);
+  }
+  if ( mergingHooksPtr->canCutOnRecState()
+    && mergingHooksPtr->orderHistories()
+    && !foundAllowedPath && !foundOrderedPath ) {
+    string message="Warning in History::weightUNLOPSTree: No allowed or";
+    message+=" ordered history found.";
+    infoPtr->errorMsg(message);
+  }
 
   // Read alpha_S in ME calculation and maximal scale (eCM)
   double asME     = infoPtr->alphaS();
@@ -582,20 +637,21 @@ double History::weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
   selected->setScalesInHistory();
 
   // Get weight.
-  double asWeight  = 1.;
-  double aemWeight = 1.;
-  double pdfWeight = 1.;
+  int nWgts = mergingHooksPtr->nWgts;
+  vector<double> asWeight( nWgts, 1. );
+  vector<double> aemWeight( nWgts, 1. );
+  vector<double> pdfWeight( nWgts, 1. );
 
   // Do trial shower, calculation of alpha_S ratios, PDF ratios
-  double wt = 1.;
+  vector<double> wt( nWgts, 1.);
   if (depthIn < 0) wt = selected->weightTree(trial, asME, aemME, maxScale,
     selected->clusterIn.pT(), asFSR, asISR, aemFSR, aemISR, asWeight,
     aemWeight, pdfWeight);
   else {
     wt   = selected->weightTreeEmissions( trial, 1, 0, depthIn, maxScale );
-    if (wt != 0.) {
-      asWeight  = selected->weightTreeALPHAS( asME, asFSR, asISR, depthIn);
-      aemWeight = selected->weightTreeALPHAEM( aemME, aemFSR, aemISR, depthIn);
+    if (wt[0] != 0.) {
+      asWeight  = selected->weightTreeAlphaS( asME, asFSR, asISR, depthIn);
+      aemWeight = selected->weightTreeAlphaEM( aemME, aemFSR, aemISR, depthIn);
       pdfWeight = selected->weightTreePDFs( maxScale,
                                             selected->clusterIn.pT(), depthIn);
     }
@@ -603,8 +659,8 @@ double History::weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
 
   // MPI no-emission probability.
   int njetsMaxMPI = mergingHooksPtr->nMinMPI();
-  double mpiwt = selected->weightTreeEmissions( trial, -1, 0, njetsMaxMPI,
-                   maxScale );
+  vector<double> mpiwt = selected->weightTreeEmissions( trial, -1, 0,
+      njetsMaxMPI, maxScale );
 
   // Set hard process renormalisation scale to default Pythia value.
   bool resetScales = mergingHooksPtr->resetHardQRen();
@@ -616,7 +672,7 @@ double History::weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
     // Reset to a running coupling. Here we choose FSR for simplicity.
     double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
     double runningCoupling = (*asFSR).alphaS(newQ2Ren) / asME;
-    asWeight *= pow(runningCoupling,2);
+    for (double& asW: asWeight) asW *= pow(runningCoupling,2);
   }
 
   // For prompt photon events, evaluate the coupling of the hard process at
@@ -628,37 +684,238 @@ double History::weight_UNLOPS_TREE(PartonLevel* trial, AlphaStrong * asFSR,
     double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
     double runningCoupling =
       (*asISR).alphaS( newQ2Ren + pow(mergingHooksPtr->pT0ISR(),2) ) / asME;
-    asWeight *= runningCoupling;
+    for (double& asW: asWeight) asW *= runningCoupling;
   }
 
   // Done
-  return (wt*asWeight*aemWeight*pdfWeight*mpiwt);
+  vector<double> ret;
+  for (int iVar = 0; iVar < nWgts; ++iVar)
+    ret.push_back(wt[iVar]*asWeight[iVar]*aemWeight[iVar]*pdfWeight[iVar]*
+        mpiwt[iVar]);
+
+  // For tree level, undo as variation applied to ME component to avoid double
+  // ratios when combining later.
+  int nSteps = mergingHooksPtr->getNumberOfClusteringSteps(state);
+  double muR = mergingHooksPtr->muRinME();
+  for (int iVar = 1; iVar < nWgts; ++iVar)
+    asWeight[iVar] *= std::pow((*asFSR).alphaS(muR*muR) /
+        (*asFSR).alphaS(pow2(muR*mergingHooksPtr->muRVarFactors[iVar-1])),
+        nSteps);
+
+  // Save weight vectors internally for UNLOPS-P and -PC
+  mergingHooksPtr->individualWeights.wtSave = wt;
+  mergingHooksPtr->individualWeights.asWeightSave = asWeight;
+  mergingHooksPtr->individualWeights.aemWeightSave = aemWeight;
+  mergingHooksPtr->individualWeights.pdfWeightSave = pdfWeight;
+  mergingHooksPtr->individualWeights.mpiWeightSave = mpiwt;
+
+  return ret;
 
 }
 
 //--------------------------------------------------------------------------
 
-double History::weight_UNLOPS_LOOP(PartonLevel* trial, AlphaStrong * asFSR,
-  AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN,
-  int depthIn) {
+vector<double> History::weightUNLOPSLoop(PartonLevel* trial, AlphaStrong*
+    asFSR, AlphaStrong* asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN,
+    int depthIn) {
   // No difference to default NL3
-  if (depthIn < 0) return weightLOOP(trial, RN);
-  else return weight_UNLOPS_TREE(trial, asFSR, asISR, aemFSR, aemISR, RN,
-    depthIn);
+  if (depthIn < 0) return weightNL3Loop(trial, RN);
+
+  // Read alpha_S in ME calculation and maximal scale (eCM)
+  double asME       = infoPtr->alphaS();
+  double aemME      = infoPtr->alphaEM();
+  double maxScale   = (foundCompletePath) ? infoPtr->eCM() :
+                      mergingHooksPtr->muFinME();
+
+  // Select a path of clusterings
+  History * selected = select(RN);
+  // Set scales in the status to the scales pythia would have set
+  selected->setScalesInHistory();
+
+  // Get weight.
+  int nWgts = mergingHooksPtr->nWgts;
+  vector<double> wt( nWgts, 1.);
+  vector<double> asWeight( nWgts, 1.);
+  vector<double> aemWeight( nWgts, 1.);
+  vector<double> pdfWeight( nWgts, 1.);
+
+  // Do trial shower, calculation of alpha_S ratios, PDF ratios
+  if (depthIn < 0) wt = selected->weightTree(trial, asME, aemME, maxScale,
+    selected->clusterIn.pT(), asFSR, asISR, aemFSR, aemISR, asWeight,
+    aemWeight, pdfWeight);
+  else {
+    wt   = selected->weightTreeEmissions( trial, 1, 0, depthIn, maxScale );
+    if (wt[0] != 0.) {
+      asWeight  = selected->weightTreeAlphaS( asME, asFSR, asISR, depthIn,
+          true);
+      aemWeight = selected->weightTreeAlphaEM( aemME, aemFSR, aemISR, depthIn);
+      pdfWeight = selected->weightTreePDFs( maxScale,
+                                            selected->clusterIn.pT(), depthIn);
+    }
+  }
+
+  // MPI no-emission probability.
+  int njetsMaxMPI = mergingHooksPtr->nMinMPI();
+  vector<double> mpiwt = selected->weightTreeEmissions( trial, -1, 0,
+      njetsMaxMPI, maxScale );
+
+  // Set hard process renormalisation scale to default Pythia value.
+  bool resetScales = mergingHooksPtr->resetHardQRen();
+  // For pure QCD dijet events, evaluate the coupling of the hard process at
+  // a more reasonable pT, rather than evaluation \alpha_s at a fixed
+  // arbitrary scale.
+  if ( resetScales
+    && mergingHooksPtr->getProcessString().compare("pp>jj") == 0) {
+    // Reset to a running coupling. Here we choose FSR for simplicity.
+    double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
+    double runningCoupling = (*asFSR).alphaS(newQ2Ren) / asME;
+    for (double& asW: asWeight) asW *= pow(runningCoupling,2);
+  }
+
+  // For prompt photon events, evaluate the coupling of the hard process at
+  // a more reasonable pT, rather than evaluation \alpha_s at a fixed
+  // arbitrary scale.
+  if ( resetScales
+    && mergingHooksPtr->getProcessString().compare("pp>aj") == 0) {
+    // Reset to a running coupling. In prompt photon always ISR.
+    double newQ2Ren = pow2( selected->hardRenScale(selected->state) );
+    double runningCoupling =
+      (*asISR).alphaS( newQ2Ren + pow(mergingHooksPtr->pT0ISR(),2) ) / asME;
+    for (double& asW: asWeight) asW *= runningCoupling;
+  }
+
+  // Done
+  vector<double> ret;
+  for (int iVar = 0; iVar < nWgts; ++iVar)
+    ret.push_back(wt[iVar]*asWeight[iVar]*aemWeight[iVar]*pdfWeight[iVar]*
+        mpiwt[iVar]);
+
+  // Save weight vectors interally for UNLOPS-P and -PC
+  mergingHooksPtr->individualWeights.wtSave = wt;
+  mergingHooksPtr->individualWeights.asWeightSave = asWeight;
+  mergingHooksPtr->individualWeights.aemWeightSave = aemWeight;
+  mergingHooksPtr->individualWeights.pdfWeightSave = pdfWeight;
+  mergingHooksPtr->individualWeights.mpiWeightSave = mpiwt;
+
+  return ret;
+
 }
 
 //--------------------------------------------------------------------------
 
-double History::weight_UNLOPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
-  AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN,
+vector<double> History::weightUNLOPSSubt(PartonLevel* trial, AlphaStrong*
+    asFSR, AlphaStrong* asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN,
   int depthIn) {
 
   // Select a path of clusterings
-  History *  selected = select(RN);
+  History* selected = select(RN);
   // Set scales in the states to the scales pythia would have set
   selected->setScalesInHistory();
+
+  // Read alpha_S in ME calculation and maximal scale (eCM)
+  double asME     = infoPtr->alphaS();
+  double aemME    = infoPtr->alphaEM();
+  double maxScale = (foundCompletePath)
+                  ? infoPtr->eCM()
+                  : mergingHooksPtr->muFinME();
+
+  int nWgts = mergingHooksPtr->nWgts;
+
+  // Only allow two clusterings if all intermediate states above the
+  // merging scale.
+  int nSteps = mergingHooksPtr->getNumberOfClusteringSteps(state);
+  if ( nSteps == 2 && mergingHooksPtr->nRecluster() == 2
+    && ( !foundCompletePath
+      || !selected->allIntermediateAboveRhoMS( mergingHooksPtr->tms() )) )
+    return vector<double>( nWgts, 0. );
+
+  // Get weights: alpha_S ratios and PDF ratios
+  vector<double> asWeight( nWgts, 1.);
+  vector<double> aemWeight( nWgts, 1.);
+  vector<double> pdfWeight( nWgts, 1.);
+  // Do trial shower, calculation of alpha_S ratios, PDF ratios
+  vector<double> wt( nWgts, 1.);
+  if (depthIn < 0)
+    wt = selected->weightTree(trial, asME, aemME, maxScale,
+      selected->clusterIn.pT(), asFSR, asISR, aemFSR, aemISR, asWeight,
+      aemWeight, pdfWeight);
+  else {
+    wt = selected->weightTreeEmissions( trial, 1, 0, depthIn, maxScale );
+    if (wt[0] > 0.) {
+      asWeight  = selected->weightTreeAlphaS( asME, asFSR, asISR, depthIn);
+      aemWeight = selected->weightTreeAlphaEM( aemME, aemFSR, aemISR, depthIn);
+      pdfWeight = selected->weightTreePDFs( maxScale,
+                                            selected->clusterIn.pT(), depthIn);
+    }
+  }
+
+  // MPI no-emission probability.
+  int njetsMaxMPI = mergingHooksPtr->nMinMPI()+1;
+  vector<double> mpiwt = selected->weightTreeEmissions( trial, -1, 0,
+      njetsMaxMPI, maxScale );
+
+  // Set weight
+  vector<double> ret;
+  if (mergingHooksPtr->nRecluster() == 2 )
+    ret = wt = asWeight = aemWeight = pdfWeight = mpiwt =
+      vector<double>( nWgts, 1. );
+  else {
+    for (int iVar = 0; iVar < nWgts; ++iVar)
+      ret.push_back(asWeight[iVar]*aemWeight[iVar]*pdfWeight[iVar]*
+          wt[iVar]*mpiwt[iVar]);
+  }
+
+  // For tree level, undo as variation applied to ME component to avoid double
+  // ratios when combining later.
+  double muR = mergingHooksPtr->muRinME();
+  for (int iVar = 1; iVar < nWgts; ++iVar)
+    asWeight[iVar] *= std::pow((*asFSR).alphaS(muR*muR) /
+        (*asFSR).alphaS(pow2(muR*mergingHooksPtr->muRVarFactors[iVar-1])),
+        nSteps);
+
+  // Save weight vectors interally for UNLOPS-P and -PC
+  mergingHooksPtr->individualWeights.wtSave = wt;
+  mergingHooksPtr->individualWeights.asWeightSave = asWeight;
+  mergingHooksPtr->individualWeights.aemWeightSave = aemWeight;
+  mergingHooksPtr->individualWeights.pdfWeightSave = pdfWeight;
+  mergingHooksPtr->individualWeights.mpiWeightSave = mpiwt;
+
+  // Done
+  return ret;
+
+}
+
+//--------------------------------------------------------------------------
+
+vector<double> History::weightUNLOPSSubtNLO(PartonLevel* trial, AlphaStrong*
+    asFSR, AlphaStrong* asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN,
+    int depthIn) {
+
   // So far, no reweighting
-  double wt = 1.;
+  int nWgts = mergingHooksPtr->nWgts;
+  vector<double> wt( nWgts, 1. );
+
+  if (depthIn < 0) {
+
+    // Select a path of clusterings
+    History *  selected = select(RN);
+    // Set scales in the states to the scales pythia would have set
+    selected->setScalesInHistory();
+    // Only reweighting with MPI no-emission probability
+    double maxScale = (foundCompletePath) ? infoPtr->eCM()
+                    : mergingHooksPtr->muFinME();
+    int njetsMaxMPI = mergingHooksPtr->nMinMPI()+1;
+    vector<double> mpiwt = selected->weightTreeEmissions
+      ( trial, -1, 0, njetsMaxMPI, maxScale );
+    wt = mpiwt;
+    // Done
+    return wt;
+  }
+
+  // Select a path of clusterings
+  History* selected = select(RN);
+  // Set scales in the states to the scales pythia would have set
+  selected->setScalesInHistory();
 
   // Read alpha_S in ME calculation and maximal scale (eCM)
   double asME     = infoPtr->alphaS();
@@ -673,23 +930,23 @@ double History::weight_UNLOPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
   if ( nSteps == 2 && mergingHooksPtr->nRecluster() == 2
     && ( !foundCompletePath
       || !selected->allIntermediateAboveRhoMS( mergingHooksPtr->tms() )) )
-    return 0.;
+    return vector<double>( nWgts, 0. );
 
   // Get weights: alpha_S ratios and PDF ratios
-  double asWeight  = 1.;
-  double aemWeight = 1.;
-  double pdfWeight = 1.;
+  vector<double> asWeight( nWgts, 1.);
+  vector<double> aemWeight( nWgts, 1.);
+  vector<double> pdfWeight( nWgts, 1.);
   // Do trial shower, calculation of alpha_S ratios, PDF ratios
-  double sudakov = 1.;
   if (depthIn < 0)
-    sudakov = selected->weightTree(trial, asME, aemME, maxScale,
+    wt = selected->weightTree(trial, asME, aemME, maxScale,
       selected->clusterIn.pT(), asFSR, asISR, aemFSR, aemISR, asWeight,
       aemWeight, pdfWeight);
   else {
-    sudakov = selected->weightTreeEmissions( trial, 1, 0, depthIn, maxScale );
-    if (sudakov > 0.) {
-      asWeight  = selected->weightTreeALPHAS( asME, asFSR, asISR, depthIn);
-      aemWeight = selected->weightTreeALPHAEM( aemME, aemFSR, aemISR, depthIn);
+    wt = selected->weightTreeEmissions( trial, 1, 0, depthIn, maxScale );
+    if (wt[0] > 0.) {
+      asWeight  = selected->weightTreeAlphaS( asME, asFSR, asISR, depthIn,
+          true);
+      aemWeight = selected->weightTreeAlphaEM( aemME, aemFSR, aemISR, depthIn);
       pdfWeight = selected->weightTreePDFs( maxScale,
                                             selected->clusterIn.pT(), depthIn);
     }
@@ -697,60 +954,43 @@ double History::weight_UNLOPS_SUBT(PartonLevel* trial, AlphaStrong * asFSR,
 
   // MPI no-emission probability.
   int njetsMaxMPI = mergingHooksPtr->nMinMPI()+1;
-  double mpiwt = selected->weightTreeEmissions( trial, -1, 0, njetsMaxMPI,
-                   maxScale );
+  vector<double> mpiwt = selected->weightTreeEmissions( trial, -1, 0,
+      njetsMaxMPI, maxScale );
 
   // Set weight
-  wt = ( mergingHooksPtr->nRecluster() == 2 ) ? 1.
-     : asWeight*aemWeight*pdfWeight*sudakov*mpiwt;
+  vector<double> ret;
+  if (mergingHooksPtr->nRecluster() == 2 )
+    ret = wt = asWeight = aemWeight = pdfWeight = mpiwt =
+      vector<double>( nWgts, 1. );
+  else {
+    for (int iVar = 0; iVar < nWgts; ++iVar)
+      ret.push_back(asWeight[iVar]*aemWeight[iVar]*pdfWeight[iVar]*
+          wt[iVar]*mpiwt[iVar]);
+  }
+
+  // Save weight vectors interally for UNLOPS-P and -PC
+  mergingHooksPtr->individualWeights.wtSave = wt;
+  mergingHooksPtr->individualWeights.asWeightSave = asWeight;
+  mergingHooksPtr->individualWeights.aemWeightSave = aemWeight;
+  mergingHooksPtr->individualWeights.pdfWeightSave = pdfWeight;
+  mergingHooksPtr->individualWeights.mpiWeightSave = mpiwt;
 
   // Done
-  return wt;
-
-}
-
-//--------------------------------------------------------------------------
-
-double History::weight_UNLOPS_SUBTNLO(PartonLevel* trial, AlphaStrong * asFSR,
-  AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN,
-  int depthIn) {
-
-  if (depthIn < 0) {
-
-    // Select a path of clusterings
-    History *  selected = select(RN);
-    // Set scales in the states to the scales pythia would have set
-    selected->setScalesInHistory();
-    // So far, no reweighting
-    double wt = 1.;
-    // Only reweighting with MPI no-emission probability
-    double maxScale = (foundCompletePath) ? infoPtr->eCM()
-                    : mergingHooksPtr->muFinME();
-    int njetsMaxMPI = mergingHooksPtr->nMinMPI()+1;
-    double mpiwt = selected->weightTreeEmissions( trial, -1, 0, njetsMaxMPI,
-                     maxScale );
-    wt = mpiwt;
-    // Done
-    return wt;
-
-  } else return weight_UNLOPS_SUBT(trial, asFSR, asISR, aemFSR, aemISR, RN,
-                                   depthIn);
-
+  return ret;
 }
 
 //--------------------------------------------------------------------------
 
 // Function to calculate O(\alpha_s)-term of CKKWL-weight for NLO merging
 
-double History::weight_UNLOPS_CORRECTION( int order, PartonLevel* trial,
-  AlphaStrong* asFSR, AlphaStrong* asISR, AlphaEM * aemFSR, AlphaEM * aemISR,
+vector<double> History::weightUNLOPSFirst( int order, PartonLevel*
+  trial, AlphaStrong* asFSR, AlphaStrong* asISR, AlphaEM*, AlphaEM*,
   double RN, Rndm* rndmPtr ) {
 
-  // Dummy statement to avoid compiler warnings.
-  if (false) cout << aemFSR << aemISR;
+  int nWgts = mergingHooksPtr->nWgts;
 
   // Already done if no correction should be calculated
-  if ( order < 0 ) return 0.;
+  if ( order < 0 ) return vector<double>( nWgts, 0. );
 
   // Read alpha_S in ME calculation and maximal scale (eCM)
   double asME     = infoPtr->alphaS();
@@ -772,41 +1012,62 @@ double History::weight_UNLOPS_CORRECTION( int order, PartonLevel* trial,
 
   // If using Bbar, which includes a tree-level part, subtract an
   // additional one, i.e. the O(\as^0) contribution as well
-  double wt = 1.;
+  double wt = 1;
+  // Set up vector for order == 0 case.
+  vector<double> wtVec(nWgts, wt);
 
-  // If only O(\alpha_s^0)-term is to be calculated, done already.
-  if ( order == 0 ) return wt;
+  if (order > 0) {
+    // Start by adding the O(\alpha_s^1)-term of the k-factor.
+    if ( mergingHooksPtr->orderHistories() && foundOrderedPath )
+      wt += kFactor;
 
-  // Start by adding the O(\alpha_s^1)-term of the k-factor.
-  wt += kFactor;
+    // Calculate sum of O(\alpha_s^1)-terms of the ckkw-l weight WITHOUT
+    // the O(\alpha_s^1)-term of the last no-emission probability.
+    // Get first term in expansion of alpha_s ratios.
+    double wA = selected->weightFirstAlphaS( asME, muR, asFSR, asISR );
+    // Generate true average, not only one-point.
+    double nWeight = 0.;
+    for ( int i=0; i < NTRIAL; ++i ) {
+      // Get average number of emissions.
+      double wE   = selected->weightFirstEmissions(trial,asME, maxScale,
+        asFSR, asISR, true, true );
+      // Add average number of emissions off reconstructed states to weight.
+      nWeight += wE;
+      // Get first term in expansion of PDF ratios.
+      double pscale = selected->clusterIn.pT();
+      double wP   = selected->weightFirstPDFs(asME, maxScale, pscale, rndmPtr);
+      // Add integral of DGLAP shifted PDF ratios from \alpha_s
+      // expansion to wt.
+      nWeight += wP;
+    }
 
-  // Calculate sum of O(\alpha_s^1)-terms of the ckkw-l weight WITHOUT
-  // the O(\alpha_s^1)-term of the last no-emission probability.
-  // Get first term in expansion of alpha_s ratios.
-  double wA   = selected->weightFirstALPHAS( asME, muR, asFSR, asISR );
-  // Add logarithm from \alpha_s expansion to weight.
-  wt         += wA;
-  // Generate true average, not only one-point.
-  double nWeight = 0.;
-  for ( int i=0; i < NTRIAL; ++i ) {
-    // Get average number of emissions.
-    double wE   = selected->weightFirstEmissions(trial,asME, maxScale,
-      asFSR, asISR, true, true );
-    // Add average number of emissions off reconstructed states to weight.
-    nWeight    += wE;
-    // Get first term in expansion of PDF ratios.
-    double pscale = selected->clusterIn.pT();
-    double wP   = selected->weightFirstPDFs(asME, maxScale, pscale, rndmPtr);
-    // Add integral of DGLAP shifted PDF ratios from \alpha_s expansion to wt.
-    nWeight    += wP;
+    // Introduce vector to allow variation of coefficient
+    wtVec = vector<double>({wt + wA + nWeight/double(NTRIAL)});
+
+    // Use the varied scale in the coefficient around which we expand
+    for (int iVar = 1; iVar < nWgts; ++iVar) {
+      double asFix = asFSR->alphaS(pow2(muR*mergingHooksPtr->
+            muRVarFactors[iVar-1])) / asME;
+      wtVec.push_back( wt + asFix*(wA + nWeight / double(NTRIAL)) );
+    }
   }
-  wt += nWeight/double(NTRIAL);
+
+  // Introduce variation of stong coupling that is not done in Born input
+  mergingHooksPtr->individualWeights.bornAsVarFac =
+    vector<double>( nWgts, 1. );
+  for ( int iVar = 1; iVar < nWgts; ++iVar ) {
+    double corrFac = std::pow(asFSR->alphaS(pow2(muR*mergingHooksPtr->
+            muRVarFactors[iVar-1])) / asME, nSteps);
+    wtVec[iVar] *= corrFac;
+    mergingHooksPtr->individualWeights.bornAsVarFac[iVar] =
+      corrFac;
+  }
 
   // If O(\alpha_s^1)-term + O(\alpha_s^1)-term is to be calculated, done.
-  if ( order == 1 ) return wt;
+  if ( order <= 1 ) return wtVec;
 
   // So far, no calculation of  O(\alpha_s^2)-term
-  return 0.;
+  return vector<double>( nWgts, 0. );
 
 }
 
@@ -901,6 +1162,7 @@ void History::getStartingConditions( const double RN, Event& outState ) {
   // Setup the weak shower if W clustering is enabled.
   if (mergingHooksPtr->doWeakClustering()) setupSimpleWeakShower(0);
 
+  mergingHooksPtr->setShowerStoppingScale( 0.0 );
 }
 
 //--------------------------------------------------------------------------
@@ -2232,13 +2494,15 @@ bool History::foundAnyOrderedPaths() {
 //     AlphaStrong: Initialised shower alpha_s object for ISR
 //                  alpha_s ratio calculation (can be different from previous)
 
-double History::weightTree(PartonLevel* trial, double as0, double aem0,
+vector<double> History::weightTree(PartonLevel* trial, double as0, double aem0,
   double maxscale, double pdfScale, AlphaStrong * asFSR, AlphaStrong * asISR,
-  AlphaEM * aemFSR, AlphaEM * aemISR, double& asWeight, double& aemWeight,
-  double& pdfWeight) {
+  AlphaEM * aemFSR, AlphaEM * aemISR, vector<double>& asWeight,
+  vector<double>& aemWeight, vector<double>& pdfWeight) {
 
   // Use correct scale
   double newScale = scale;
+
+  int nWgts = mergingHooksPtr->nWgts;
 
   // For ME state, just multiply by PDF ratios
   if ( !mother ) {
@@ -2257,7 +2521,7 @@ double History::weightTree(PartonLevel* trial, double as0, double aem0,
       // For initial parton, multiply by PDF ratio
       double ratio = getPDFratio(sideRad, false, false, flav, x, scaleNum,
                        flav, x, scaleDen);
-      pdfWeight *= ratio;
+      for (double& pdfW: pdfWeight) pdfW *= ratio;
     }
 
     // Calculate PDF ratio for second leg
@@ -2271,10 +2535,9 @@ double History::weightTree(PartonLevel* trial, double as0, double aem0,
       // For initial parton, multiply with PDF ratio
       double ratio = getPDFratio(sideRec, false, false, flav, x, scaleNum,
                        flav, x, scaleDen);
-      pdfWeight *= ratio;
+      for (double& pdfW: pdfWeight) pdfW *= ratio;
     }
-
-    return 1.0;
+    return vector<double>(nWgts,1.);
   }
 
   // Remember new PDF scale n case true scale should be used for un-ordered
@@ -2284,16 +2547,19 @@ double History::weightTree(PartonLevel* trial, double as0, double aem0,
     newPDFscale = clusterIn.pT();
 
   // Recurse
-  double w = mother->weightTree(trial, as0, aem0, newScale, newPDFscale,
-    asFSR, asISR, aemFSR, aemISR, asWeight, aemWeight, pdfWeight);
+  vector<double> w = mother->weightTree(trial, as0, aem0, newScale,
+      newPDFscale, asFSR, asISR, aemFSR, aemISR, asWeight, aemWeight,
+      pdfWeight);
 
   // Do nothing for empty state
-  if (state.size() < 3) return 1.0;
+  if (state.size() < 3) return vector<double>(nWgts,1.);
   // If up to now, trial shower was not successful, return zero
-  if ( w < 1e-12 ) return 0.0;
+  if ( w[0] < 1e-12 ) return vector<double>(nWgts,0.);
   // Do trial shower on current state, return zero if not successful
-  w *= doTrialShower(trial, 1, maxscale);
-  if ( w < 1e-12 ) return 0.0;
+  vector<double> wTrial = doTrialShower(trial, 1, maxscale);
+  for (int iVar = 0; iVar < nWgts; ++iVar)
+    w[iVar] *= wTrial[iVar];
+  if ( w[0] < 1e-12 ) return vector<double>( nWgts, 0. );
 
   int emtType = mother->state[clusterIn.emitted].colType();
   // Calculate alpha_s ratio for current state.
@@ -2313,7 +2579,15 @@ double History::weightTree(PartonLevel* trial, double as0, double aem0,
 
     double alphaSinPS = (FSR) ? (*asFSR).alphaS(asScale)
                               : (*asISR).alphaS(asScale);
-    asWeight *= alphaSinPS / as0;
+    asWeight[0] *= alphaSinPS / as0;
+
+    // Scale variations
+    for (int iVar = 1; iVar < nWgts; ++iVar) {
+      alphaSinPS = (FSR) ?
+        asFSR->alphaS(pow2(mergingHooksPtr->muRVarFactors[iVar-1])*asScale) :
+        asISR->alphaS(pow2(mergingHooksPtr->muRVarFactors[iVar-1])*asScale);
+      asWeight[iVar] *= alphaSinPS / as0;
+    }
   }
 
   // Calculate alpha_em ratio for current state.
@@ -2333,7 +2607,7 @@ double History::weightTree(PartonLevel* trial, double as0, double aem0,
 
     double alphaEMinPS = (FSR) ? (*aemFSR).alphaEM(aemScale)
                                : (*aemISR).alphaEM(aemScale);
-    aemWeight *= alphaEMinPS / aem0;
+    for (double& aemW: aemWeight) aemW *= alphaEMinPS / aem0;
   }
 
   // Calculate pdf ratios: Get both sides of event
@@ -2356,7 +2630,7 @@ double History::weightTree(PartonLevel* trial, double as0, double aem0,
     // Multiply PDF ratio
     double ratio = getPDFratio(sideP, false, false, flav, x, scaleNum,
                      flav, x, scaleDen);
-    pdfWeight *= ratio;
+    for (double& pdfW: pdfWeight) pdfW *= ratio;
   }
 
   if ( mother->state[inM].colType() != 0 ) {
@@ -2373,7 +2647,7 @@ double History::weightTree(PartonLevel* trial, double as0, double aem0,
     // Multiply PDF ratio
     double ratio = getPDFratio(sideM, false, false, flav, x, scaleNum,
                      flav, x, scaleDen);
-    pdfWeight *= ratio;
+    for (double& pdfW: pdfWeight) pdfW *= ratio;
   }
 
   // Done
@@ -2384,19 +2658,22 @@ double History::weightTree(PartonLevel* trial, double as0, double aem0,
 
 // Function to return the \alpha_s-ratio part of the CKKWL weight of a path.
 
-double History::weightTreeALPHAS( double as0, AlphaStrong * asFSR,
-  AlphaStrong * asISR, int njetMax ) {
+vector<double> History::weightTreeAlphaS( double as0, AlphaStrong * asFSR,
+  AlphaStrong * asISR, int njetMax, bool asVarInME ) {
+
+  int nWgts = mergingHooksPtr->nWgts;
 
   // For ME state, do nothing.
-  if ( !mother ) return 1.;
+  if ( !mother ) return vector<double>(nWgts,1.);
   // Recurse
-  double w = mother->weightTreeALPHAS( as0, asFSR, asISR, njetMax );
+  vector<double> w = mother->weightTreeAlphaS( as0, asFSR, asISR, njetMax,
+     asVarInME );
   // Do nothing for empty state
   if (state.size() < 3) return w;
 
   // If this node has too many jets, no not calculate no-emission probability.
   int njetNow = mergingHooksPtr->getNumberOfClusteringSteps( state) ;
-  if (njetNow >= njetMax) return 1.0;
+  if (njetNow >= njetMax) return vector<double>( nWgts, 1.0 );
 
   // Store variables for easy use.
   bool FSR = mother->state[clusterIn.emittor].isFinal();
@@ -2421,7 +2698,20 @@ double History::weightTreeALPHAS( double as0, AlphaStrong * asFSR,
 
     double alphaSinPS = (FSR) ? (*asFSR).alphaS(asScale)
                               : (*asISR).alphaS(asScale);
-    w *= alphaSinPS / as0;
+    w[0] *= alphaSinPS / as0;
+
+    // Scale variations
+    for (int iVar = 1; iVar < nWgts; ++iVar) {
+      alphaSinPS = (FSR) ?
+        asFSR->alphaS(pow2(mergingHooksPtr->muRVarFactors[iVar-1])*asScale) :
+        asISR->alphaS(pow2(mergingHooksPtr->muRVarFactors[iVar-1])*asScale);
+      // Respect variations in ME if present (NLO input)
+      double muR2 = pow2(mergingHooksPtr->muRinMESave);
+      double alphaSinME = (!asVarInME) ? as0 : ((FSR) ?
+          asFSR->alphaS(muR2*pow2(mergingHooksPtr->muRVarFactors[iVar-1])) :
+          asISR->alphaS(muR2*pow2(mergingHooksPtr->muRVarFactors[iVar-1])));
+      w[iVar] *= alphaSinPS / alphaSinME;
+    }
   }
 
   // Done
@@ -2432,19 +2722,22 @@ double History::weightTreeALPHAS( double as0, AlphaStrong * asFSR,
 
 // Function to return the \alpha_em-ratio part of the CKKWL weight of a path.
 
-double History::weightTreeALPHAEM( double aem0, AlphaEM * aemFSR,
+vector<double> History::weightTreeAlphaEM( double aem0, AlphaEM * aemFSR,
   AlphaEM * aemISR, int njetMax ) {
 
+  int nWgts = mergingHooksPtr->nWgts;
+
   // For ME state, do nothing.
-  if ( !mother ) return 1.;
+  if ( !mother ) return vector<double>( nWgts, 1. );
   // Recurse
-  double w = mother->weightTreeALPHAEM( aem0, aemFSR, aemISR, njetMax );
+  vector<double> w = mother->weightTreeAlphaEM( aem0, aemFSR, aemISR,
+      njetMax );
   // Do nothing for empty state
   if (state.size() < 3) return w;
 
   // If this node has too many jets, no not calculate no-emission probability.
   int njetNow = mergingHooksPtr->getNumberOfClusteringSteps( state) ;
-  if (njetNow >= njetMax) return 1.0;
+  if (njetNow >= njetMax) return vector<double>( nWgts, 1.0 );
 
   // Store variables for easy use.
   bool FSR = mother->state[clusterIn.emittor].isFinal();
@@ -2469,7 +2762,7 @@ double History::weightTreeALPHAEM( double aem0, AlphaEM * aemFSR,
 
     double alphaEMinPS = (FSR) ? (*aemFSR).alphaEM(aemScale)
                                : (*aemISR).alphaEM(aemScale);
-    w *= alphaEMinPS / aem0;
+    for (double& wi: w) wi *= alphaEMinPS / aem0;
   }
 
   // Done
@@ -2480,20 +2773,22 @@ double History::weightTreeALPHAEM( double aem0, AlphaEM * aemFSR,
 
 // Function to return the PDF-ratio part of the CKKWL weight of a path.
 
-double History::weightTreePDFs( double maxscale, double pdfScale,
+vector<double> History::weightTreePDFs( double maxscale, double pdfScale,
   int njetMax ) {
 
   // Use correct scale
   double newScale = scale;
 
+  double nWgts = mergingHooksPtr->nWgts;
+
   // For ME state, just multiply by PDF ratios
   if ( !mother ) {
 
-    // If this node has too many jets, no not calculate PDF ratio.
+    // If this node has too many jets, do not calculate PDF ratio.
     int njet = mergingHooksPtr->getNumberOfClusteringSteps( state);
-    if (njet > njetMax) return 1.0;
+    if (njet > njetMax) return vector<double>( nWgts, 1.0 );
 
-    double wt = 1.;
+    vector<double> wt( nWgts, 1. );
     int sideRad = (state[3].pz() > 0) ? 1 :-1;
     int sideRec = (state[4].pz() > 0) ? 1 :-1;
 
@@ -2506,8 +2801,9 @@ double History::weightTreePDFs( double maxscale, double pdfScale,
       double scaleNum = (children.empty()) ? hardFacScale(state) : maxscale;
       double scaleDen = mergingHooksPtr->muFinME();
       // For initial parton, multiply by PDF ratio
-      wt *= getPDFratio(sideRad, false, false, flav, x, scaleNum, flav, x,
-              scaleDen);
+      double ratio = getPDFratio(sideRad, false, false, flav, x, scaleNum,
+          flav, x, scaleDen);
+      for (double& w: wt) w *= ratio;
     }
 
     // Calculate PDF ratio for second leg
@@ -2519,8 +2815,9 @@ double History::weightTreePDFs( double maxscale, double pdfScale,
       double scaleNum = (children.empty()) ? hardFacScale(state) : maxscale;
       double scaleDen = mergingHooksPtr->muFinME();
       // For initial parton, multiply with PDF ratio
-      wt *= getPDFratio(sideRec, false, false, flav, x, scaleNum, flav, x,
-              scaleDen);
+      double ratio = getPDFratio(sideRec, false, false, flav, x, scaleNum,
+          flav, x, scaleDen);
+      for (double& w: wt) w *= ratio;
     }
 
     return wt;
@@ -2533,13 +2830,14 @@ double History::weightTreePDFs( double maxscale, double pdfScale,
     newPDFscale = clusterIn.pT();
 
   // Recurse
-  double w = mother->weightTreePDFs( newScale, newPDFscale, njetMax );
+  vector<double> w = mother->weightTreePDFs( newScale, newPDFscale, njetMax );
 
   // Do nothing for empty state
   if (state.size() < 3) return w;
 
-  // If this node has too many jets, no not calculate PDF ratio.
+  // If this node has too many jets, do not calculate PDF ratio.
   int njetNow = mergingHooksPtr->getNumberOfClusteringSteps( state) ;
+  if (njetNow >= njetMax) return vector<double>( nWgts, 1. );
 
   // Calculate pdf ratios: Get both sides of event
   int inP = 3;
@@ -2564,8 +2862,7 @@ double History::weightTreePDFs( double maxscale, double pdfScale,
     double sDen = (njetNow == njetMax) ? mergingHooksPtr->muFinME() : scaleDen;
     double ratio = getPDFratio(sideP, false, false, flav, x, scaleNum,
                      flavDen, xDen, sDen);
-    w *= ratio;
-
+    for (double& wi: w) wi *= ratio;
   }
 
   if ( mother->state[inM].colType() != 0 ) {
@@ -2585,7 +2882,7 @@ double History::weightTreePDFs( double maxscale, double pdfScale,
     double sDen = (njetNow == njetMax) ? mergingHooksPtr->muFinME() : scaleDen;
     double ratio = getPDFratio(sideM, false, false, flav, x, scaleNum,
                      flavDen, xDen, sDen);
-    w *= ratio;
+    for (double& wi: w) wi *= ratio;
   }
 
   // Done
@@ -2596,28 +2893,35 @@ double History::weightTreePDFs( double maxscale, double pdfScale,
 
 // Function to return the no-emission probability part of the CKKWL weight.
 
-double History::weightTreeEmissions( PartonLevel* trial, int type,
+vector<double> History::weightTreeEmissions( PartonLevel* trial, int type,
   int njetMin, int njetMax, double maxscale ) {
+
+  int nWgts = mergingHooksPtr->nWgts;
+
+  if (type == -1 && !mergingHooksPtr->settingsPtr->flag("PartonLevel:MPI"))
+    return vector<double>( nWgts, 1. );
 
   // Use correct scale
   double newScale = scale;
   // For ME state, just multiply by PDF ratios
 
-  if ( !mother ) return 1.0;
+  if ( !mother ) return vector<double>( nWgts, 1.0 );
   // Recurse
-  double w = mother->weightTreeEmissions(trial,type,njetMin,njetMax,newScale);
+  vector<double> w = mother->weightTreeEmissions( trial, type, njetMin,
+      njetMax, newScale );
   // Do nothing for empty state
-  if (state.size() < 3) return 1.0;
+  if (state.size() < 3) return vector<double>( nWgts, 1.0 );
   // If up to now, trial shower was not successful, return zero
-  if ( w < 1e-12 ) return 0.0;
-  // If this node has too many jets, no not calculate no-emission probability.
+  if ( w[0] < 1e-12 ) return vector<double>( nWgts, 0.0 );
+  // If this node has too many jets, do not calculate no-emission probability.
   int njetNow = mergingHooksPtr->getNumberOfClusteringSteps( state) ;
-  if (njetNow >= njetMax) return 1.0;
-  if (njetNow < njetMin ) w *= 1.0;
+  if (njetNow >= njetMax) return vector<double>( nWgts, 1.0);
   // Do trial shower on current state, return zero if not successful
-  else w *= doTrialShower(trial, type, maxscale);
-
-  if ( w < 1e-12 ) return 0.0;
+  else {
+    vector<double> wTrial = doTrialShower( trial, type, maxscale );
+    for (int iVar = 0; iVar < nWgts; ++iVar) w[iVar] *= wTrial[iVar];
+  }
+  if ( w[0] < 1e-12 ) return vector<double>( nWgts, 0.0 );
   // Done
   return w;
 
@@ -2754,7 +3058,7 @@ double History::weightFirst(PartonLevel* trial, double as0, double muR,
 // Function to generate the O(\alpha_s)-term of the \alpha_s-ratios
 // appearing in the CKKWL-weight.
 
-double History::weightFirstALPHAS( double as0, double muR,
+double History::weightFirstAlphaS( double as0, double muR,
   AlphaStrong * asFSR, AlphaStrong * asISR ) {
 
   // Use correct scale
@@ -2762,7 +3066,7 @@ double History::weightFirstALPHAS( double as0, double muR,
   // Done
   if ( !mother ) return 0.;
   // Recurse
-  double w = mother->weightFirstALPHAS( as0, muR, asFSR, asISR );
+  double w = mother->weightFirstAlphaS( as0, muR, asFSR, asISR );
   // Find right scale
   int showerType = (mother->state[clusterIn.emittor].isFinal() ) ? 1 : -1;
   double b = 1.;
@@ -2997,7 +3301,7 @@ double History::hardRenScale(const Event& event) {
 //      1.0       : trial shower successful (any emission was below
 //                  the minimal scale )
 
-double History::doTrialShower( PartonLevel* trial, int type,
+vector<double> History::doTrialShower( PartonLevel* trial, int type,
   double maxscaleIn, double minscaleIn ) {
 
   // Copy state to local process
@@ -3012,10 +3316,16 @@ double History::doTrialShower( PartonLevel* trial, int type,
          || isQCD2to2(state) ) )
       startingScale = min( startingScale, hardFacScale(process) );
 
+  int nWgts = mergingHooksPtr->nWgts;
+
   // Set output.
   bool doVeto          = false;
   double wt            = 1.;
   bool canEnhanceTrial = trial->canEnhanceTrial();
+
+  // Save shower weight vector before variation
+  vector<double> showerWeightVecSave = infoPtr->
+    weightContainerPtr->weightsPS.weightValues;
 
   while ( true ) {
 
@@ -3055,6 +3365,8 @@ double History::doTrialShower( PartonLevel* trial, int type,
     // Setup weak shower settings.
     if (mergingHooksPtr->doWeakClustering()) setupSimpleWeakShower(0);
 
+    // Make sure trial shower stops where it should
+    mergingHooksPtr->setShowerStoppingScale(minScale);
     // Perform trial shower emission
     trial->next(process,event);
     // Get trial shower pT.
@@ -3101,9 +3413,19 @@ double History::doTrialShower( PartonLevel* trial, int type,
 
     // Only consider allowed emissions for veto:
     // Only allow MPI for MPI no-emission probability.
-    if ( type == -1 && typeTrial != 1 ) continue;
+    if ( type == -1 && typeTrial != 1 ) {
+      // Restore weight vector
+      infoPtr->weightContainerPtr->weightsPS.weightValues =
+        showerWeightVecSave;
+      continue;
+    }
     // Only allow ISR or FSR for radiative no-emission probability.
-    if ( type ==  1 && !(typeTrial == 2 || typeTrial >= 3) ) continue;
+    if ( type ==  1 && !(typeTrial == 2 || typeTrial >= 3) ) {
+      // Restore weight vector
+      infoPtr->weightContainerPtr->weightsPS.weightValues =
+        showerWeightVecSave;
+      continue;
+    }
 
     // Update enhanced trial shower weight.
     if (canEnhanceTrial && pTtrial > minScale) wt *= (1. - 1./wtEnhanced);
@@ -3129,7 +3451,7 @@ double History::doTrialShower( PartonLevel* trial, int type,
         || mergingHooksPtr->getProcessString().compare("pp>aj") == 0
            || isQCD2to2(state))
       && pTtrial > hardFacScale(process) )
-      return 0.0;
+      return vector<double>( nWgts, 0.0 );
 
     // If pT of trial emission was in suitable range (trial shower
     // successful), return false
@@ -3141,8 +3463,22 @@ double History::doTrialShower( PartonLevel* trial, int type,
   }
 
   // Done
-  double res = (canEnhanceTrial) ? wt : ( (doVeto) ? 0. : 1. );
-  return res;
+  // Get combination of shower weights for muR variation in FSR and ISR
+  vector<double> trialShowerWt = infoPtr->weightContainerPtr->weightsPS.
+    getMuRWeightVector();
+  // Insert 1. for central value
+  trialShowerWt.insert(trialShowerWt.begin(),1.);
+
+  // If MPI, no variation allowed (no-emission variations would bleed in from
+  // shower without this catch)
+  if (type == -1) trialShowerWt = vector<double>(trialShowerWt.size(),1.);
+  // Reset shower weights
+  infoPtr->weightContainerPtr->weightsPS.weightValues = showerWeightVecSave;
+
+  //Apply veto or enhancement
+  for (double& swt: trialShowerWt)
+   swt *= (canEnhanceTrial) ? wt : ( (doVeto) ? 0. : 1. );
+  return trialShowerWt;
 
 }
 
@@ -3167,8 +3503,7 @@ bool History::updateind(vector<int> & ind, int i, int N) {
 // term. Optionally calculate the the terms using fixed alphaS
 // and/or PDF ratios.
 
-vector<double>
-History::countEmissions(PartonLevel* trial, double maxscale,
+vector<double> History::countEmissions(PartonLevel* trial, double maxscale,
                         double minscale, int showerType, double as0,
                         AlphaStrong * asFSR, AlphaStrong * asISR, int N = 1,
                         bool fixpdf = true, bool fixas = true) {
@@ -3192,6 +3527,10 @@ History::countEmissions(PartonLevel* trial, double maxscale,
 
   vector<double> wts;
   bool canEnhanceTrial = trial->canEnhanceTrial();
+
+  // Save shower weight vector before variation
+  vector<double> showerWeightVecSave = infoPtr->
+    weightContainerPtr->weightsPS.weightValues;
 
   while ( true ) {
     // Reset trialShower object
@@ -3228,6 +3567,9 @@ History::countEmissions(PartonLevel* trial, double maxscale,
 
     // Perform trial shower emission
     trial->next(process,event);
+
+    // Restore weight vector, since variation higher order
+    infoPtr->weightContainerPtr->weightsPS.weightValues = showerWeightVecSave;
 
     // Get trial shower pT
     double pTtrial = trial->pTLastInShower();
@@ -6832,10 +7174,11 @@ int History::FindParticle( const Particle& particle, const Event& event,
       break;
     }
 
-  if ( checkStatus && event[index].status() != particle.status() )
+  if (index >= 0 && checkStatus && event[index].status() != particle.status())
     index = -1;
 
   return index;
+
 }
 
 //--------------------------------------------------------------------------
@@ -8649,33 +8992,23 @@ double History::integrand(int flav, double x, double scaleInt, double z) {
 
     double integrand1 =
       2.*CA
-      * z * beamB.xf( 21,x/z,pow(scaleInt,2))
-          / beamB.xf( 21,x,  pow(scaleInt,2))
+      * z * getPDFratio( 2, false, true, 21, x/z, scaleInt, 21, x, scaleInt )
     - 2.*CA;
 
     double integrand2 =
       // G -> G terms
       2.*CA  *((1. -z)/z + z*(1.-z))
-      * beamB.xf( 21,x/z,pow(scaleInt,2))
-      / beamB.xf( 21,x,  pow(scaleInt,2))
+      * getPDFratio( 2, false, true, 21, x/z, scaleInt, 21, x, scaleInt )
       // G -> Q terms
     + CF * ((1+pow(1-z,2))/z)
-      *( beamB.xf(  1, x/z,pow(scaleInt,2))
-       / beamB.xf( 21, x,  pow(scaleInt,2))
-       + beamB.xf( -1, x/z,pow(scaleInt,2))
-       / beamB.xf( 21, x,  pow(scaleInt,2))
-       + beamB.xf(  2, x/z,pow(scaleInt,2))
-       / beamB.xf( 21, x,  pow(scaleInt,2))
-       + beamB.xf( -2, x/z,pow(scaleInt,2))
-       / beamB.xf( 21, x,  pow(scaleInt,2))
-       + beamB.xf(  3, x/z,pow(scaleInt,2))
-       / beamB.xf( 21, x,  pow(scaleInt,2))
-       + beamB.xf( -3, x/z,pow(scaleInt,2))
-       / beamB.xf( 21, x,  pow(scaleInt,2))
-       + beamB.xf(  4, x/z,pow(scaleInt,2))
-       / beamB.xf( 21, x,  pow(scaleInt,2))
-       + beamB.xf( -4, x/z,pow(scaleInt,2))
-       / beamB.xf( 21, x,  pow(scaleInt,2)) );
+      *( getPDFratio(2,false,true,1,x/z,scaleInt,21,x,scaleInt)
+       + getPDFratio(2,false,true,-1,x/z,scaleInt,21,x,scaleInt)
+       + getPDFratio(2,false,true,2,x/z,scaleInt,21,x,scaleInt)
+       + getPDFratio(2,false,true,-2,x/z,scaleInt,21,x,scaleInt)
+       + getPDFratio(2,false,true,3,x/z,scaleInt,21,x,scaleInt)
+       + getPDFratio(2,false,true,-3,x/z,scaleInt,21,x,scaleInt)
+       + getPDFratio(2,false,true,4,x/z,scaleInt,21,x,scaleInt)
+       + getPDFratio(2,false,true,-4,x/z,scaleInt,21,x,scaleInt) );
 
     // Done
     result = integrand1*measure1 + integrand2*measure2;
@@ -8688,15 +9021,13 @@ double History::integrand(int flav, double x, double scaleInt, double z) {
     // Q -> Q terms
     double integrand1 =
       CF * (1+pow(z,2))
-      * beamB.xf( flav, x/z, pow(scaleInt,2))
-      / beamB.xf( flav, x,   pow(scaleInt,2))
+      * getPDFratio(2,false,true,flav,x/z,scaleInt,flav,x,scaleInt)
     - 2.*CF;
 
     // Q -> G terms
     double integrand2 =
     + TR * (pow(z,2) + pow(1-z,2))
-      * beamB.xf( 21,   x/z, pow(scaleInt,2))
-      / beamB.xf( flav, x,   pow(scaleInt,2));
+      * getPDFratio(2,false,true,21,x/z,scaleInt,flav,x,scaleInt);
 
     // Done
     result = measure1*integrand1 + measure2*integrand2;

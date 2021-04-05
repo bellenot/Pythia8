@@ -72,6 +72,9 @@ public:
   // Perform a decay of a single particle.
   bool decay(int iDec, Event& event);
 
+  // Perform decays on all particles in the event.
+  bool decayAll(Event& event, double minWidth = 0.);
+
   // Did decay result in new partons to hadronize?
   bool moreToDo() const {return hasPartons && keepPartons;}
 

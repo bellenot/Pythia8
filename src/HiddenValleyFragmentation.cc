@@ -34,7 +34,8 @@ void HVStringFlav::init() {
 
 // Pick a new HV-flavour given an incoming one.
 
-FlavContainer HVStringFlav::pick(FlavContainer& flavOld, double, double) {
+FlavContainer HVStringFlav::pick(FlavContainer& flavOld, double, double,
+  bool) {
 
   // Initial values for new flavour.
   FlavContainer flavNew;

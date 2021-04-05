@@ -87,6 +87,8 @@ Advanced options.
 --cxx-soname='FLAGS' : Use these C++ flags when setting shared library names.
 --lib-suffix=SUF     : Shared library name suffix: [.so] for Linux and [.dylib]
                        for OS X.
+--obj-common='FLAGS' : Set the common C++ flags used for object (.o) compilation
+                       only (not linking).
 BLOCKTEXT
 OPTIONS="-h --h -help --help --enable-debug --enable-optdebug --lcg"
 OPTIONS+=" --prefix --prefix-bin --prefix-lib --prefix-include --prefix-share"
@@ -95,6 +97,7 @@ for PKG in "evtgen" "fastjet3" "hepmc2" "hepmc3" "lhapdf5" "lhapdf6" "powheg"\
     OPTIONS+=" --with-$PKG --with-$PKG-bin --with-$PKG-lib --with-$PKG-include"
     OPTIONS+="  --with-$PKG-config --with-$PKG-version"; done
 OPTIONS+=" --arch --cxx --cxx-common --cxx-shared --cxx-soname --lib-suffix"
+OPTIONS+=" --obj-common"
 
 ################################################################################
 # FUNCTION: Configure a package.
@@ -347,7 +350,7 @@ configure_package "YODA" "" "yoda-config" "" "--includedir" "--libdir" ""\
 configure_package "GZIP" "" "" "" "" "" "" "zlib.h" "z" "" "-DGZIP"
 configure_package "PYTHON" "/afs/cern.ch/sw/lcg/external/Python"\
     "python-config" "" "--includes" "" "" "Python.h" "" ""
-configure_package "MG5MES" "" "" "" "echo plugins/mg5mes/sm" "" "" "PY8ME.h"\
+configure_package "MG5MES" "" "" "echo plugins/mg5mes" "" "" "" ""\
     "" ""
 configure_package "OPENMP" "" "" "" "" "" "" "" "gomp" "" "-fopenmp -DOPENMP"
 
@@ -408,6 +411,7 @@ echo -n "  Further options             = "
 if [ "$ENABLE_DEBUG_SET" = true ];    then echo -n "--enable-debug ";    fi
 if [ "$ENABLE_OPTDEBUG_SET" = true ]; then echo -n "--enable-optdebug "; fi
 if [ "$LCG_SET" = true ];             then echo -n "--lcg=$LCG";         fi
+if [ "$OBJ_COMMON" != "" ];     then echo -n "OBJ_COMMON = $OBJ_COMMON"; fi
 echo ""
 cat >> $CFG_FILE << BLOCKTEXT
 
@@ -423,6 +427,7 @@ CXX_COMMON=$CXX_COMMON
 CXX_SHARED=$CXX_SHARED
 CXX_SONAME=$CXX_SONAME
 LIB_SUFFIX=$LIB_SUFFIX
+OBJ_COMMON=$OBJ_COMMON
 BLOCKTEXT
 echo -e "\nThe following optional external packages will be used:"
 for IDX in ${!PKG_LIST[@]}; do

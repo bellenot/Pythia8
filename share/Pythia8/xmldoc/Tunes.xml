@@ -399,15 +399,6 @@ in PYTHIA, so you must link LHAPDF.
 </option> 
 <option value="32">"ATLAS A14 variation 3c-" of tune 21. 
 </option> 
-<option value="33">tune that includes close-packing of strings and 
-hadron rescattering, Gaussian model for pT and flavour selection 
-<ref>Fis16</ref>. Based on Monash tune, mainly tuned to pT spectra. 
-</option> 
-<option value="34">tune that includes close-packing of strings and 
-hadron rescattering, thermodynamical model for pT and flavour selection 
-<ref>Fis16</ref>. Based on Monash tune, mainly tuned to pT spectra. 
-</option> 
- 
 </modepick> 
  
 </chapter> 

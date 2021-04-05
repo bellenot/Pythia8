@@ -55,7 +55,7 @@ main23: $(PYTHIA) main23.cc
 	$(CXX) $@.cc -o $@ -w $(CXX_COMMON)
 
 # HEPMC3.
-main41 main42 main43 main45 main85 main86 main87 main88 main89: $(PYTHIA) $$@.cc
+main41 main42 main43 main45 main85 main86 main87 main88: $(PYTHIA) $$@.cc
 ifeq ($(HEPMC3_USE),true)
 	$(CXX) $@.cc -o $@ $(HEPMC3_INCLUDE) $(CXX_COMMON) $(HEPMC3_LIB)
 else
@@ -68,6 +68,16 @@ ifeq ($(HEPMC2_USE),true)
 	$(CXX) $@.cc -o $@ $(HEPMC2_INCLUDE) $(CXX_COMMON) $(HEPMC2_LIB)
 else
 	$(error Error: $@ requires HEPMC2)
+endif
+
+# HEPMC2 or HEPMC3 (prefer HEPMC3 if both)
+main89: $(PYTHIA) $$@.cc
+ifeq ($(HEPMC3_USE),true)
+	$(CXX) $@.cc -o $@ $(HEPMC3_INCLUDE) $(CXX_COMMON) $(HEPMC3_LIB) -DHEPMC3
+else ifeq ($(HEPMC2_USE),true)
+	$(CXX) $@.cc -o $@ $(HEPMC2_INCLUDE) $(CXX_COMMON) $(HEPMC2_LIB) -DHEPMC2
+else
+	$(error Error: $@ requires HEPMC2 or HEPMC3)
 endif
 
 # EVTGEN.
@@ -111,7 +121,7 @@ main%.so: main%Dct.cc
 	 $(ROOT_LIB) `$(ROOT_CONFIG) --cflags`
 main%Dct.cc: main%.h main%LinkDef.h
 ifeq ($(ROOT_USE),true)
-	$(ROOT_BIN)rootcint -f $@ -c -I$(PREFIX_INCLUDE) $^
+	$(ROOT_BIN)rootcint -f $@ -I$(PREFIX_INCLUDE) $^
 else
 	$(error Error: $@ requires ROOT)
 endif
@@ -128,10 +138,10 @@ main92: $(PYTHIA) $$@.cc main92.so
 	$(CXX) $@.cc main92.so -o $@ -w $(CXX_COMMON) -Wl,-rpath,./\
 	 `$(ROOT_CONFIG) --cflags --glibs`
 
-# RIVET with optional ROOT.
+# RIVET with optional ROOT (if RIVET, use C++14).
 main93: $(PYTHIA) $$@.cc $(if $(filter true,$(ROOT_USE)),main93.so)
 ifeq ($(RIVET_USE),true)
-	$(CXX) $@.cc -o $@ -w $(CXX_COMMON) -Wl,-rpath,./\
+	$(CXX) $@.cc -o $@ -w $(CXX_COMMON:c++11=c++14) -Wl,-rpath,./\
 	 $(if $(filter true,$(ROOT_USE)),main93.so -DPY8ROOT\
          $(ROOT_LIB) `$(ROOT_CONFIG) --cflags --glibs`)\
 	 $(RIVET_INCLUDE) $(RIVET_LIB)
@@ -139,11 +149,11 @@ else
 	$(error Error: $@ requires RIVET)
 endif
 
-# RIVET.
+# RIVET (if RIVET use C++14).
 main111: $(PYTHIA) $$@.cc
 ifeq ($(RIVET_USE),true)
-	$(CXX) $@.cc -o $@ -w $(CXX_COMMON) $(RIVET_INCLUDE) $(RIVET_LIB)\
-	 -DRIVET
+	$(CXX) $@.cc -o $@ -w $(CXX_COMMON:c++11=c++14) $(RIVET_INCLUDE)\
+	 $(RIVET_LIB) -DRIVET
 else
 	$(CXX) $@.cc -o $@ -w $(CXX_COMMON)
 endif

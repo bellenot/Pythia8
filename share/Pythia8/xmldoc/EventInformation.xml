@@ -517,6 +517,53 @@ In such cases the old hadron-hadron values can be found here, while
 provide the new Pomeron-hadron ones. 
 </methodmore> 
  
+<h3>Cross sections</h3> 
+ 
+Here are the currently available methods related to the event sample 
+as a whole, for the default value <code>i = 0</code>, and otherwise for 
+the specific process code provided as argument. This is the number 
+obtained with <code>Info::code()</code>, while the further subdivision 
+given by <code>Info::codeSub()</code> is not bookkept. While continuously 
+updated during the run, it is recommended only to study these properties 
+at the end of the event generation, when the full statistics is available. 
+The individual process results are not available if a 
+<aloc href="SecondHardProcess">second hard process</aloc> has been 
+chosen, but can be gleaned from the <code>pythia.stat()</code> output. 
+ 
+<method name="vector&lt;int&gt; Info::codesHard()"> 
+returns a vector with all the process codes set up for the current run, 
+i.e. the valid nonzero arguments for the five methods below. 
+</method> 
+ 
+<method name="string Info::nameProc(int i = 0)"> 
+returns the process name for process code <code>i</code>. 
+</method> 
+ 
+<method name="long Info::nTried(int i = 0)"> 
+</method> 
+<methodmore name="long Info::nSelected(int i = 0)"> 
+</methodmore> 
+<methodmore name="long Info::nAccepted(int i = 0)"> 
+the total number of tried phase-space points, selected hard processes 
+and finally accepted events, summed over all allowed processes 
+(<code>i = 0</code>) or for the given process. 
+The first number is only intended for a study of the phase-space selection 
+efficiency. The last two numbers usually only disagree if the user introduces 
+some veto during the event-generation process; then the former is the number 
+of acceptable events found by PYTHIA and the latter the number that also 
+were approved by the user. If you set a <aloc href="SecondHardProcess"> 
+second hard process</aloc> there may also be a mismatch. 
+</methodmore> 
+ 
+<method name="double Info::sigmaGen(int i = 0)"> 
+</method> 
+<methodmore name="double Info::sigmaErr(int i = 0)"> 
+the estimated cross section and its estimated error, 
+summed over all allowed processes (<code>i = 0</code>) or for the given 
+process, in units of mb. The numbers refer to the accepted event sample 
+above, i.e. after any user veto. 
+</methodmore> 
+ 
 <h3>Loop counters</h3> 
  
 Mainly for internal/debug purposes, a number of loop counters from 

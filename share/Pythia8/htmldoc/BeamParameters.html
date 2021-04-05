@@ -99,7 +99,7 @@ class instance.
  
 <a name="anchor4"></a>
 <p/><code>parm&nbsp; </code><strong> Beams:eCM &nbsp;</strong> 
- (<code>default = <strong>14000.</strong></code>; <code>minimum = 10.</code>)<br/>
+ (<code>default = <strong>14000.</strong></code>; <code>minimum = 0.</code>)<br/>
 Collision CM energy, to be set if <code>Beams:frameType</code> = 1. 
    
  
@@ -264,12 +264,16 @@ initialization. The MPI framework is what is needed to simulate
 hadronic nondiffractive events (<code>SoftQCD:nonDiffractive</code>). 
 Pretty much the same strategy is already used for diffraction, to handle 
 MPIs inside the variable-mass diffractive systems. Thus all the 
-<a href="QCDProcesses.html" target="page">Soft QCD processes</a> can be used 
-within this framework. It is not possible to generate other processes 
-with this framework, however, and the program will abort if you try. 
+<a href="QCDSoftProcesses.html" target="page">Soft QCD processes</a> can be used 
+within this framework. Below the minimal energy for a perturbative 
+description (see below) instead the simplified 
+<a href="QCDLowEnergyProcesses.html" target="page">Low-energy QCD processes</a> 
+can be used. It is not possible to generate other processes 
+with the variable-energy framework, however, and the program will abort 
+if you try. 
  
 <p/> 
-The initalization of involves setting up optimal coefficients for 
+The initialization involves setting up optimal coefficients for 
 the kinematics selection in the subsequent MPI generation, and 
 finding the associated maximum of the differentialcross section. 
 At a fixed energy this typically takes less than a second, and so 

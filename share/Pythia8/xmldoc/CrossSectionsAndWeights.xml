@@ -202,14 +202,14 @@ is currently used when producing <code>HepMC2</code> and
 <code>HepMC3</code> output. In these two cases, all weights 
 that appear in the event generation will automatically be 
 transferred to the output files. This means that the HepMC file will 
-automatically contain weights from various sources, e.g. weights from
-<aloc href="LHEF">LHE files</aloc>,
-<aloc href="Variations">automated shower variations</aloc>, etc. Note that
-for LHEF files, only the <ei>detailed format</ei> is currently
-supported in the weight container, and that the names of weights
-appearing in HepMC will use the convention discussed in
-<ref>But14</ref>, page 162.  The sample main programs
-<code>main44.cc</code> and <code>main45.cc</code>
+automatically contain weights from various sources, e.g. weights from 
+<aloc href="LHEF">LHE files</aloc>, 
+<aloc href="Variations">automated shower variations</aloc>, etc. Note that 
+for LHEF files, only the <ei>detailed format</ei> is currently 
+supported in the weight container, and that the names of weights 
+appearing in HepMC will use the convention discussed in 
+<ref>But14</ref>, page 162.  The sample main programs 
+<code>main44.cc</code> and <code>main45.cc</code> 
 illustrate this behaviour. 
  
 <p/> 
@@ -252,6 +252,24 @@ with the order of <code> Info::weightValueVector()</code>.
 Returns a vector of all weight values. The ordering of entries in synchronized 
 with the order of <code> Info::weightNameVector()</code>. 
 </method> 
+ 
+<p/> 
+Custom weights such as shower variations weights, shower variation group 
+weights, and weights directly included from LHEF input receive an 
+<code>AUX_</code> prefix in the weight name as reported by the methods 
+<code>Info::weightNameByIndex</code> and <code>Info::weightNameVector</code> 
+to mark them as auxiliary output. This allows the user to further process or 
+combine the weights in a meaningful way. Since the number of these weights 
+depends on the LHEF input, different numbers of weights might occur in the 
+output when processing multiple LHEF input files. To avoid this, the following 
+flag allows to suppress the output of <code>AUX_</code> weights. 
+ 
+<flag name="Weights:suppressAUX" default="off"> 
+If on, the output of weights with <code>AUX</code> prefix will be 
+suppressed in the five above mentioned methods. The nominal weight and 
+combined weight variations from LHEF, parton shower and merging 
+remain. 
+</flag> 
  
 </chapter> 
  

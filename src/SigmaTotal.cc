@@ -213,8 +213,7 @@ bool SigmaTotal::calc(int idA, int idB, double eCM) {
   else                       sigDiffPtr = new SigmaABMST();
 
   // Initialize and calculate for selected diffractive class.
-  if (sigDiffPtr != sigTotElPtr)
-    sigDiffPtr->init(infoPtr);
+  sigDiffPtr->init(infoPtr);
   if ( !sigDiffPtr->calcDiff( idA, idB, s, mA, mB) ) return false;
 
   // Inelastic nondiffractive by unitarity.

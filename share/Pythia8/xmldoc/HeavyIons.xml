@@ -175,7 +175,7 @@ fitting machinery in <code>SubCollisionModel</code> allows for up to eight
 parameters. 
  
 <pvec name="HeavyIon:SigFitDefPar" 
-      default="17.24,2.15,0.33,0.0,0.0,0.0,0.0,0.0"> 
+      default="{17.24,2.15,0.33,0.0,0.0,0.0,0.0,0.0}"> 
 These are the default values of the parameters of the 
 <code>SubCollisionModel</code> in Angantyr. They will be used as starting 
 point when fitting to the inclusive nucleon cross sections. 
@@ -190,7 +190,7 @@ population  which gives the best inclusive cross sections is picked.
 Eight different cross sections may be fitted to but it is possible to select 
 only some of them: 
 <pvec name="HeavyIon:SigFitErr" 
-      default="0.02,0.02,0.1,0.05,0.05,0.0,0.1,0.0" min="0.0" max="1.0"> 
+      default="{0.02,0.02,0.1,0.05,0.05,0.0,0.1,0.0}" min="0.0" max="1.0"> 
 The relative error assumed in the calculation of goodness of fit 
 corresponding to the different cross sections fitted to. The cross 
 sections are obtained from the 

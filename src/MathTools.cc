@@ -152,7 +152,7 @@ double besselK1(double x){
   return result;
 }
 
-//--------------------------------------------------------------------------
+//==========================================================================
 
 // Integrate f over the specified range.
 // Note that f must be a function of one variable. In order to integrate one
@@ -163,11 +163,14 @@ double besselK1(double x){
 bool integrateGauss(double& resultOut, function<double(double)> f,
   double xLo, double xHi, double tol) {
 
-  // Initialize.
-  double result = 0.0;
-
   // Boundary check: return zero if xLo >= xHi.
-  if (xLo >= xHi) return true;
+  if (xLo >= xHi) {
+    resultOut = 0.0;
+    return true;
+  }
+
+  // Initialize temporary result.
+  double result = 0.0;
 
   // 8-point unweighted.
   static double x8[4]={  0.96028985649753623, 0.79666647741362674,
@@ -232,11 +235,12 @@ bool integrateGauss(double& resultOut, function<double(double)> f,
     }
   }
 
+  // Write result and return success.
   resultOut = result;
   return true;
 }
 
-//--------------------------------------------------------------------------
+//==========================================================================
 
 // Solve f(x) = target for x in the specified range. Note that f must
 // be a function of one variable. In order to solve an equation with a
@@ -317,6 +321,57 @@ bool brent(double& solutionOut, function<double(double)> f,  double target,
 
   // Maximum number of iterations exceeded.
   return false;
+}
+
+//==========================================================================
+
+// LinearInterpolator class.
+// Used to interpolate between values in linearly spaced data.
+
+//--------------------------------------------------------------------------
+
+// Operator to get interpolated value at the specified point.
+
+double LinearInterpolator::operator()(double xIn) const {
+
+  if (xIn == rightSave)
+    return ysSave.back();
+
+  // Select interpolation bin.
+  double t = (xIn - leftSave) / (rightSave - leftSave);
+  int lastIdx = ysSave.size() - 1;
+  int j = (int)floor(t * lastIdx);
+
+  // Return zero outside of interpolation range.
+  if (j < 0 || j >= lastIdx) return 0.;
+  // Select position in bin and return linear interpolation.
+  else {
+    double s = (xIn - (leftSave + j * dx())) / dx();
+    return (1 - s) * ysSave[j] + s * ysSave[j + 1];
+  }
+}
+
+//--------------------------------------------------------------------------
+
+// Plot the data points of this LinearInterpolator in a histogram.
+
+Hist LinearInterpolator::plot(string title) const {
+  return plot(title, leftSave, rightSave);
+}
+
+Hist LinearInterpolator::plot(string title, double xMin, double xMax) const {
+
+  int nBins = ceil((xMax - xMin) / (rightSave - leftSave) * ysSave.size());
+
+  Hist result(title, nBins, xMin, xMax, false);
+  double dxNow = (xMax - xMin) / nBins;
+
+  for (int i = 0; i < nBins; ++i) {
+    double x = xMin + dxNow * (0.5 + i);
+    result.fill(x, operator()(x));
+  }
+
+  return result;
 }
 
 //==========================================================================
