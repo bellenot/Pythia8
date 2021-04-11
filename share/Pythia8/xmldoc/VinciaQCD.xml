@@ -501,16 +501,14 @@ inclusively summed over. </p>
 </p> 
  
 <parm name="Vincia:cutoffScaleFF" default="0.75" min="0.1" max="10.0"> 
-This parameter sets the value (in GeV) of the final state shower 
-cutoff. For <code>evolutionType = 1</code> it is interpreted as a 
-cutoff on ARIADNE pT, while for <code>evolutionType = 2</code> it is 
-interpreted as a cutoff on invariant mass. 
+This parameter sets the value (in GeV) of the final-state shower 
+cutoff. 
 </parm> 
-<parm name="Vincia:cutoffScaleII" default="1.6" min="0.1" max="10.0"> 
+<parm name="Vincia:cutoffScaleII" default="1.25" min="0.1" max="10.0"> 
 This parameter sets the value (in GeV) of the shower cutoff for 
 initial-initial antennae. 
 </parm> 
-<parm name="Vincia:cutoffScaleIF" default="1.6" min="0.1" max="10.0"> 
+<parm name="Vincia:cutoffScaleIF" default="1.5" min="0.1" max="10.0"> 
 This parameter sets the value (in GeV) of the shower cutoff for 
 initial-final antennae. 
 </parm> 

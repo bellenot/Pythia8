@@ -94,6 +94,8 @@ also Les Houches strategies where no unweighting is done, so events
 come with a weight. Specifically, for strategies <ei>+4</ei> and 
 <ei>-4</ei>, the event weight is in units of pb. (Internally in mb, 
 but converted at output.) 
+<br/>(iv) If enhanced parton shower emissions are activated, the corrective 
+weight to each event containing enhanced emissions is included here. 
 </method> 
  
 <h3>CKKW-L and NLO Merging Weights</h3> 
@@ -131,7 +133,7 @@ printed by <code>Info::sigmaGen()</code> includes the effect of CKKW-L
 merging. 
 </flag> 
  
-<h3>User Hooks Weights</h3> 
+<h3>User Hooks Weight</h3> 
  
 <method name="virtual double UserHooks::biasedSelectionWeight()"> 
 Returns the weight you should assign to the event, to use e.g. when 
@@ -140,13 +142,6 @@ used to modify the phase-space sampling, a weight that must be stored
 in the <code>selBias</code> member variable, such that this routine 
 can return <code>1/selBias</code>. The weight is also returned by the 
 <code>Info::weight()</code> method, which may be more convenient to use. 
-</method> 
- 
-<method name="virtual double UserHooks::getEnhancedEventWeight()"> 
-If you use enhanced emissions, it is paramount to attribute a corrective 
-weight to each event containing enhanced emissions. This function returns 
-this weight. In the presence of enhancements, all histograms and output 
-events must account for this weight. 
 </method> 
  
 <h3>Shower Uncertainty-Variation Weights</h3> 
@@ -218,9 +213,7 @@ In this context, the following program methods are relevant:
 <method name="int Info::numberOfWeights()"> 
 The total length of the set of all weights, similar to 
 <code>Info::nWeights</code> above (which returns the length of the set 
-of shower variation weights). Note that shower variations are treated 
-as "atomic", meaning that individual variations are stored. Weight 
-groups are currently not supported. 
+of shower variation weights). 
 </method> 
  
 <method name="string Info::weightNameByIndex(int i)"> 
@@ -273,4 +266,4 @@ remain.
  
 </chapter> 
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 

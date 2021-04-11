@@ -1,5 +1,5 @@
 # Makefile is a part of the PYTHIA event generator.
-# Copyright (C) 2020 Torbjorn Sjostrand.
+# Copyright (C) 2021 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, September 2014.
@@ -29,6 +29,13 @@ CXX_COMMON:=-I$(PREFIX_INCLUDE) $(CXX_COMMON) $(GZIP_LIB)
 CXX_COMMON+= -L$(PREFIX_LIB) -Wl,-rpath,$(PREFIX_LIB) -lpythia8 -ldl
 PYTHIA=$(PREFIX_LIB)/libpythia8$(LIB_SUFFIX)
 
+# Fix missing runtime paths from RIVET.
+ifeq ($(RIVET_USE),true)
+  COMMA=,
+  RIVET_LPATH=$(filter -L%,$(shell $(RIVET_BIN)$(RIVET_CONFIG) --ldflags))
+  RIVET_RPATH=$(subst -L,-Wl$(COMMA)-rpath=,$(RIVET_LPATH))
+endif
+
 ################################################################################
 # RULES: Definition of the rules used to build the PYTHIA examples.
 ################################################################################
@@ -54,36 +61,37 @@ main%: $(PYTHIA) main%.cc
 main23: $(PYTHIA) main23.cc
 	$(CXX) $@.cc -o $@ -w $(CXX_COMMON)
 
-# HEPMC3.
-main41 main42 main43 main45 main85 main86 main87 main88: $(PYTHIA) $$@.cc
+# HEPMC2 or HEPMC3 (use HEPMC3 if both).
+main41 main42 main43 main44 main45 main85 main86 main87 main88 main89 main280:\
+	$(PYTHIA) $$@.cc
 ifeq ($(HEPMC3_USE),true)
-	$(CXX) $@.cc -o $@ $(HEPMC3_INCLUDE) $(CXX_COMMON) $(HEPMC3_LIB)
-else
-	$(error Error: $@ requires HEPMC3)
-endif
-
-# HEPMC2.
-main44: $(PYTHIA) $$@.cc
-ifeq ($(HEPMC2_USE),true)
-	$(CXX) $@.cc -o $@ $(HEPMC2_INCLUDE) $(CXX_COMMON) $(HEPMC2_LIB)
-else
-	$(error Error: $@ requires HEPMC2)
-endif
-
-# HEPMC2 or HEPMC3 (prefer HEPMC3 if both)
-main89: $(PYTHIA) $$@.cc
-ifeq ($(HEPMC3_USE),true)
-	$(CXX) $@.cc -o $@ $(HEPMC3_INCLUDE) $(CXX_COMMON) $(HEPMC3_LIB) -DHEPMC3
+	$(CXX) $@.cc -o $@ $(HEPMC3_INCLUDE) $(CXX_COMMON) $(HEPMC3_LIB)\
+	 -DHEPMC3
 else ifeq ($(HEPMC2_USE),true)
-	$(CXX) $@.cc -o $@ $(HEPMC2_INCLUDE) $(CXX_COMMON) $(HEPMC2_LIB) -DHEPMC2
+	$(CXX) $@.cc -o $@ $(HEPMC2_INCLUDE) $(CXX_COMMON) $(HEPMC2_LIB)\
+	 -DHEPMC2
 else
 	$(error Error: $@ requires HEPMC2 or HEPMC3)
+endif
+
+# MPICH, HDF5, HIGHFIVE, and HepMC2 or HepMC3.
+main46: $(PYTHIA) $$@.cc
+ifeq ($(MPICH_USE)$(HDF5_USE)$(HIGHFIVE_USE)$(HEPMC3_USE),truetruetruetrue)
+	$(MPICH_BIN)mpic++ $@.cc -o $@ -w $(MPICH_INCLUDE) $(HDF5_INCLUDE)\
+	 $(HIGHFIVE_INCLUDE) $(HEPMC3_INCLUDE) $(CXX_COMMON)\
+	 $(MPICH_LIB) $(HDF5_LIB) $(HEPMC3_LIB) -DHEPMC3
+else ifeq ($(MPICH_USE)$(HDF5_USE)$(HIGHFIVE_USE)$(HEPMC2_USE),truetruetruetrue)
+	$(MPICH_BIN)mpic++ $@.cc -o $@ -w $(MPICH_INCLUDE) $(HDF5_INCLUDE)\
+	 $(HIGHFIVE_INCLUDE) $(HEPMC2_INCLUDE) $(CXX_COMMON)\
+	 $(MPICH_LIB) $(HDF5_LIB) $(HEPMC2_LIB) -DHEPMC2
+else
+	$(error Error: $@ requires MPICH, HDF5, HIGHFIVE, and HEPMC2 or HEPMC3)
 endif
 
 # EVTGEN.
 main48: $(PYTHIA) $$@.cc
 ifeq ($(EVTGEN_USE)$(HEPMC2_USE),truetrue)
-	$(CXX) $@.cc -o $@ $(EVTGEN_INCLUDE) -w $(CXX_COMMON)\
+	$(CXX) $@.cc -o $@ -w $(EVTGEN_INCLUDE) $(CXX_COMMON)\
 	 -DEVTGEN_PYTHIA -DEVTGEN_EXTERNAL $(EVTGEN_LIB)
 else
 	$(error Error: $@ requires EVTGEN)
@@ -92,7 +100,7 @@ endif
 # FASTJET3.
 main71 main72 main75 main81 main82 main83: $(PYTHIA) $$@.cc
 ifeq ($(FASTJET3_USE),true)
-	$(CXX) $@.cc -o $@ $(FASTJET3_INCLUDE) -w $(CXX_COMMON) $(FASTJET3_LIB)
+	$(CXX) $@.cc -o $@ -w $(FASTJET3_INCLUDE) $(CXX_COMMON) $(FASTJET3_LIB)
 else
 	$(error Error: $@ requires FASTJET3)
 endif
@@ -100,7 +108,7 @@ endif
 # FASTJET3 with recursive tools.
 main74: $(PYTHIA) $$@.cc
 ifeq ($(FASTJET3_USE),true)
-	$(CXX) $@.cc -o $@ $(FASTJET3_INCLUDE) -w $(CXX_COMMON)\
+	$(CXX) $@.cc -o $@ -w $(FASTJET3_INCLUDE) $(CXX_COMMON)\
 	 $(FASTJET3_LIB) -lfastjettools -lRecursiveTools
 else
 	$(error Error: $@ requires FASTJET3)
@@ -109,7 +117,7 @@ endif
 # FASTJET3 and HEPMC3.
 main84: $(PYTHIA) $$@.cc
 ifeq ($(FASTJET3_USE)$(HEPMC3_USE),truetrue)
-	$(CXX) $@.cc -o $@ $(FASTJET3_INCLUDE) $(HEPMC3_INCLUDE) -w\
+	$(CXX) $@.cc -o $@ -w $(FASTJET3_INCLUDE) $(HEPMC3_INCLUDE)\
 	 $(CXX_COMMON) $(FASTJET3_LIB) $(HEPMC3_LIB)
 else
 	$(error Error: $@ requires FASTJET3 and HEPMC3)
@@ -144,7 +152,7 @@ ifeq ($(RIVET_USE),true)
 	$(CXX) $@.cc -o $@ -w $(CXX_COMMON:c++11=c++14) -Wl,-rpath,./\
 	 $(if $(filter true,$(ROOT_USE)),main93.so -DPY8ROOT\
          $(ROOT_LIB) `$(ROOT_CONFIG) --cflags --glibs`)\
-	 $(RIVET_INCLUDE) $(RIVET_LIB)
+	 `$(RIVET_BIN)$(RIVET_CONFIG) --cppflags --libs` $(RIVET_RPATH)
 else
 	$(error Error: $@ requires RIVET)
 endif
@@ -152,8 +160,8 @@ endif
 # RIVET (if RIVET use C++14).
 main111: $(PYTHIA) $$@.cc
 ifeq ($(RIVET_USE),true)
-	$(CXX) $@.cc -o $@ -w $(CXX_COMMON:c++11=c++14) $(RIVET_INCLUDE)\
-	 $(RIVET_LIB) -DRIVET
+	$(CXX) $@.cc -o $@ -w $(CXX_COMMON:c++11=c++14) -DRIVET \
+	 `$(RIVET_BIN)$(RIVET_CONFIG) --cppflags --libs` $(RIVET_RPATH)
 else
 	$(CXX) $@.cc -o $@ -w $(CXX_COMMON)
 endif

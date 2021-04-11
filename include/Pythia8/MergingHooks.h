@@ -1,5 +1,5 @@
 // MergingHooks.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -203,13 +203,14 @@ public:
     muRinMESave(),
     doIgnoreEmissionsSave(true),
     doIgnoreStepSave(true), pTsave(), weightCKKWL1Save(), weightCKKWL2Save(),
-    nMinMPISave(), weightCKKWLSave(), weightFIRSTSave(), nJetMaxLocal(),
-    nJetMaxNLOLocal(),
+    nMinMPISave(), weightCKKWLSave(), weightFIRSTSave(),
+    doVariations(false), nWgts(0), nJetMaxLocal(), nJetMaxNLOLocal(),
     hasJetMaxLocal(false),
     includeWGTinXSECSave(false), nHardNowSave(), nJetNowSave(),
     tmsHardNowSave(), tmsNowSave() {
       inputEvent = Event(); resonances.resize(0);
-      useOwnHardProcess = false; hardProcess = 0; stopScaleSave= 0.0; }
+      useOwnHardProcess = false; hardProcess = 0; stopScaleSave= 0.0;
+      nVetoedInMainShower = 0;}
 
   // Make History class friend to allow access to advanced switches
   friend class History;
@@ -223,10 +224,6 @@ public:
   friend class TimeShower;
   // Make Merging class friend
   friend class Merging;
-
-  //----------------------------------------------------------------------//
-  // Functions that allow user interference
-  //----------------------------------------------------------------------//
 
   // Destructor.
   virtual ~MergingHooks();
@@ -278,10 +275,6 @@ public:
   // Functions for internal use inside Pythia source code
   // Initialize.
   virtual void init();
-
-  //----------------------------------------------------------------------//
-  // Simple output functions
-  //----------------------------------------------------------------------//
 
   // Function returning the value of the merging scale.
   double tms() {
@@ -460,6 +453,7 @@ public:
   virtual bool canVetoEmission() { return !doIgnoreEmissionsSave; }
   // Function to check if emission should be rejected.
   virtual bool doVetoEmission( const Event& );
+  virtual bool usesVincia() {return false;}
 
   //----------------------------------------------------------------------//
   // Functions used as clusterings / probabilities
@@ -836,7 +830,7 @@ public:
   // Set CKKW-L weight.
   void setWeightCKKWL( vector<double> weightIn){
     weightCKKWLSave = weightIn;
-    if ( !includeWGTinXSEC() ) infoPtr->weightContainerPtr
+    infoPtr->weightContainerPtr
       ->weightsMerging.setValueVector(weightIn); }
   // Set O(\alpha_s) weight.
   void setWeightFIRST( vector<double> weightIn){
@@ -878,6 +872,11 @@ public:
   // Set the hard process information.
   void setHardProcessInfo(int nHardNowIn, double tmsHardNowIn) {
     nHardNowSave = nHardNowIn; tmsHardNowSave = tmsHardNowIn; }
+
+  // Statistics.
+  int nVetoedInMainShower;
+  void addVetoInMainShower() {++nVetoedInMainShower;}
+  int getNumberVetoedInMainShower() {return nVetoedInMainShower;}
 
 };
 

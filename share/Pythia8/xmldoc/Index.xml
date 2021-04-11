@@ -110,12 +110,15 @@ Hard Processes</button>
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <aidx href="WeakShowers">Weak Showers</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
-<aidx href="Variations">Automated Variations</aidx><br/> 
+<aidx href="Variations">Automated Variations and Enhanced Emissions</aidx> 
+<br/> 
 <aidx href="Vincia">Antenna Showers (VINCIA)</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
-<aidx href="VinciaQCD">QCD</aidx><br/> 
+<aidx href="VinciaQCD">QCD Showers</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
-<aidx href="VinciaQED">QED</aidx><br/> 
+<aidx href="VinciaEW">QED/EW Showers</aidx><br/> 
+&nbsp;&nbsp;--&nbsp;&nbsp; 
+<aidx href="VinciaMECs">ME Corrections</aidx><br/> 
 <aidx href="DireShowers">The Dire Shower</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <aidx href="DireWeights">Enhancements</aidx><br/> 
@@ -135,6 +138,8 @@ Hard Processes</button>
 <aidx href="JetMatching">MLM Jet Merging</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <aidx href="CKKWLMerging">CKKW-L Merging</aidx><br/> 
+&nbsp;&nbsp;--&nbsp;&nbsp; 
+<aidx href="VinciaMerging">Sector Merging (VINCIA)</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <aidx href="UMEPSMerging">UMEPS Merging</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
@@ -187,6 +192,7 @@ Hard Processes</button>
 <button class="expand" style="font-size:20px;">Other Interfaces</button> 
 <div class="panel"> 
 <aidx href="SUSYLesHouchesAccord">Susy Les Houches Accord (SLHA)</aidx><br/> 
+<aidx href="LHAHDF5">HDF5 Les Houches Accord (LHAHDF5)</aidx><br/> 
 <aidx href="HepMCInterface">HepMC Interface</aidx><br/> 
 <aidx href="UserHooks">User Hooks</aidx><br/> 
 <aidx href="BeamShape">Beam Shape</aidx><br/> 
@@ -220,4 +226,4 @@ Hard Processes</button>
 <script src="Expand.js"></script> 
 </chapter> 
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 

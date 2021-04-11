@@ -98,13 +98,13 @@ which makes sense, since they are all dominated by the same kind of
 reweighting that cancels the low-<ei>pT</ei> divergence. 
  
 <p/> 
-An eikonalized description of these processes, excluding double onia 
-production, is included in the multiparton-interactions 
-framework. Here the low-<ei>pT</ei> damping is automatic, and 
-additionally the framework is more consistent (e.g. with respect to 
-energy-momentum constraints and the impact-parameter description) for 
-events where the onium production is not the hardest subprocess, as 
-would often be the case in the low-<ei>pT</ei> limit. 
+An eikonalized description of these processes is included in the 
+multiparton-interactions framework. Here the low-<ei>pT</ei> damping 
+is automatic, and additionally the framework is more consistent 
+(e.g. with respect to energy-momentum constraints and the 
+impact-parameter description) for events where the onium production is 
+not the hardest subprocess, as would often be the case in the 
+low-<ei>pT</ei> limit. 
  
 <flag name="Onia:forceMassSplit" default="on"> 
 Force the mass splitting between the colour-singlet states and their 
@@ -677,4 +677,4 @@ Code 522.
  
 </chapter> 
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 

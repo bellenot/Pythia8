@@ -1,5 +1,5 @@
 // Pythia.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,8 +10,8 @@
 #define Pythia8_Pythia_H
 
 // Version number defined for use in macros and for consistency checks.
-#define PYTHIA_VERSION 8.303
-#define PYTHIA_VERSION_INTEGER 8303
+#define PYTHIA_VERSION 8.304
+#define PYTHIA_VERSION_INTEGER 8304
 
 // Header files for the Pythia class and for what else the user may need.
 #include "Pythia8/Analysis.h"
@@ -184,6 +184,9 @@ public:
   // Possibility to get the pointer to a object modelling heavy ion
   // collisions.
   HeavyIonsPtr getHeavyIonsPtr() { return heavyIonsPtr;}
+
+  // Possibility to access the pointer to the BeamShape object.
+  BeamShapePtr getBeamShapePtr() { return beamShapePtr; }
 
   // Possibility to get the pointer to the parton-shower model.
   ShowerModelPtr getShowerModelPtr() { return showerModelPtr; }
@@ -437,7 +440,8 @@ private:
 
   // Pointer to UserHooks object for user interaction with program.
   UserHooksPtr userHooksPtr = {};
-  bool       doVetoProcess = {}, doVetoPartons = {}, retryPartonLevel = {};
+  bool doVetoProcess = {}, doVetoPartons = {},
+       retryPartonLevel = {}, canVetoHadronization = {};
 
   // Pointer to BeamShape object for beam momentum and interaction vertex.
   BeamShapePtr beamShapePtr = {};

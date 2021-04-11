@@ -1,5 +1,5 @@
 // HadronWidths.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -123,8 +123,8 @@ private:
   int getSignature(int baryonNumber, int charge) const;
 
   // Get total available phase space.
-  double psSize(double eCM, ParticleDataEntry& prodA,
-    ParticleDataEntry& prodB, double lType) const;
+  double psSize(double eCM, ParticleDataEntryPtr prodA,
+    ParticleDataEntryPtr prodB, double lType) const;
 
   // Calculate partial width of the particle without using interpolation.
   double widthCalc(int id, DecayChannel& channel, double m) const;

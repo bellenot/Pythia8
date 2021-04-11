@@ -1,5 +1,5 @@
 // UserHooks.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -172,21 +172,6 @@ public:
   // Value of PartonLevel:earlyResDec determines where method is called.
   virtual bool doReconnectResonanceSystems( int, Event &) {return true;}
 
-  // Enhance emission rates (sec. 4 in EPJC (2013) 73).
-  virtual bool canEnhanceEmission() {return false;}
-  virtual double enhanceFactor( string ) {return 1.;}
-  virtual double vetoProbability( string ) {return 0.;}
-  void setEnhancedEventWeight(double wt) { enhancedEventWeight = wt;}
-  double getEnhancedEventWeight() { return enhancedEventWeight;}
-
-  // Bookkeeping of weights for enhanced actual or trial emissions
-  // (sec. 3 in EPJC (2013) 73).
-  virtual bool canEnhanceTrial() {return false;}
-  void setEnhancedTrial( double pTIn, double wtIn) { pTEnhanced = pTIn;
-    wtEnhanced = wtIn; }
-  double getEnhancedTrialPT() { return pTEnhanced;}
-  double getEnhancedTrialWeight() { return wtEnhanced;}
-
   // Can change fragmentation parameters.
   virtual bool canChangeFragPar() { return false;}
 
@@ -212,6 +197,15 @@ public:
   // (final two hadron case).
   virtual bool doVetoFragmentation(Particle, Particle,
     const StringEnd*, const StringEnd* ) { return false;}
+
+  // Possibility to veto an event after hadronization based
+  // on event contents. Works as an early trigger to avoid
+  // running the time consuming rescattering process on
+  // uninteresting events.
+  virtual bool canVetoAfterHadronization() {return false;}
+
+  // Do the actual veto after hadronization.
+  virtual bool doVetoAfterHadronization(const Event& ) {return false;}
 
   // Can set the overall impact parameter for the MPI treatment.
   virtual bool canSetImpactParameter() const { return false; }
@@ -620,34 +614,6 @@ public:
     for ( int i = 0, N = hooks.size(); i < N; ++i )
       if ( hooks[i]->canReconnectResonanceSystems()
         && hooks[i]->doReconnectResonanceSystems(j, e) ) return true;
-    return false;
-  }
-
-  // Enhance emission rates (sec. 4 in EPJC (2013) 73).
-  virtual bool canEnhanceEmission() {
-    for ( int i = 0, N = hooks.size(); i < N; ++i )
-      if ( hooks[i]->canEnhanceEmission() ) return true;
-    return false;
-  }
-  virtual double enhanceFactor( string s) {
-    double f = 1.0;
-    for ( int i = 0, N = hooks.size(); i < N; ++i )
-      if ( hooks[i]->canEnhanceEmission() ) f *= hooks[i]->enhanceFactor(s);
-    return f;
-  }
-  virtual double vetoProbability( string s) {
-    double keep = 1.0;
-    for ( int i = 0, N = hooks.size(); i < N; ++i )
-      if ( hooks[i]->canEnhanceEmission() )
-        keep *= 1.0 - hooks[i]->vetoProbability(s);
-    return 1.0 - keep;
-  }
-
-  // Bookkeeping of weights for enhanced actual or trial emissions
-  // (sec. 3 in EPJC (2013) 73).
-  virtual bool canEnhanceTrial() {
-    for ( int i = 0, N = hooks.size(); i < N; ++i )
-      if ( hooks[i]->canEnhanceTrial() ) return true;
     return false;
   }
 

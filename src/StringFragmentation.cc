@@ -1,5 +1,5 @@
 // StringFragmentation.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -316,12 +316,14 @@ Vec4 StringEnd::kinematicsHadronTmp( StringSystem system, Vec4 pRem,
   double GammaNow = (1.0 + aLund) / bLund;
   // Modify Gamma value in case of earlier fails.
   if (mult > 0.0) GammaNow *= mult;
-  double tmp      = ( GammaNow + meanMT2 - GammaOld ) / GammaOld;
-  double zPlus    = (-0.5 * tmp + sqrt(0.25 * pow2(tmp) + meanMT2 / GammaOld));
-  double zMinus   = (-0.5 * tmp - sqrt(0.25 * pow2(tmp) + meanMT2 / GammaOld));
+  double zPlus, zMinus;
+  if (GammaOld > 1e-10) {
+    double tmp = ( GammaNow + meanMT2 - GammaOld ) / GammaOld;
+    zPlus      = (-0.5 * tmp + sqrt(0.25 * pow2(tmp) + meanMT2 / GammaOld));
+    zMinus     = (-0.5 * tmp - sqrt(0.25 * pow2(tmp) + meanMT2 / GammaOld));
   // Special case of first hadron.
-  if (GammaOld < 1e-10) {
-    zPlus  = pow(1.0 + meanMT2 / GammaNow, -1.0);
+  } else {
+    zPlus  = GammaNow / (GammaNow + meanMT2);
     zMinus = -1.0;
   }
   bool zPlusOk    = (zPlus < 1.0) && (zPlus > 0.0);
@@ -329,7 +331,6 @@ Vec4 StringEnd::kinematicsHadronTmp( StringSystem system, Vec4 pRem,
   // Negative energy signals failure.
   if ( (!zPlusOk) && (!zMinusOk) ) return Vec4(0., 0., 0., -1.);
   double zHadTmp  = (zPlusOk ? zPlus : zMinus);
-
   double pxHadTmp = cos(phi) * MEANPT;
   double pyHadTmp = sin(phi) * MEANPT;
 
@@ -341,8 +342,7 @@ Vec4 StringEnd::kinematicsHadronTmp( StringSystem system, Vec4 pRem,
   double xPosHadTmp = xPosHad, xNegHadTmp = xNegHad;
   double pxNewTmp   = pxNew,   pxOldTmp   = pxOld;
   double pyNewTmp   = pyNew,   pyOldTmp   = pyOld;
-
-  Vec4 pSoFarTmp = pSoFar;
+  Vec4   pSoFarTmp  = pSoFar;
 
   // Set up references that are direction-neutral;
   // ...Dir for direction of iteration and ...Inv for its inverse.
@@ -374,13 +374,12 @@ Vec4 StringEnd::kinematicsHadronTmp( StringSystem system, Vec4 pRem,
       // A first step within a low region is easy. Make sure we use this
       // region in case it's the last one.
       if ( (meanMT2 < zHadTmp * xDirOld * (1. - xInvOld) * region.w2)
-        || (iInvNew - 1 < 0) ) {
-
-        if (iInvNew - 1 < 0)
-          zHadTmp = meanMT2 / xDirOld / (1. - xInvOld) / region.w2;
+        || (iInvNew < 1) ) {
+        if (iInvNew < 1)
+          zHadTmp = meanMT2 / (xDirOld * (1. - xInvOld) * region.w2);
 
         // Translate into x coordinates.
-        xDirHad = zHad * xDirOld;
+        xDirHad = zHadTmp * xDirOld;
         xInvHad = meanMT2 / (xDirHad * region.w2);
         xDirNew = xDirOld - xDirHad;
         xInvNew = xInvOld + xInvHad;
@@ -715,7 +714,9 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
     if (iTry == 2 * NTRYJOIN / 3) nExtraJoin += extraJoin( 4., event);
 
     // After several failed tries gradually allow larger stop mass.
-    if (iTry > NTRYJOIN - NSTOPMASS) stopMassNow *= FACSTOPMASS;
+    if (iTry > NTRYJOIN - NSTOPMASS) stopMassNow
+      *= (max( abs(posEnd.flavOld.id), abs(negEnd.flavOld.id)) < 4)
+      ? FACSTOPMASS : FACSTOPMASS * FACSTOPMASS;
 
     // Set up flavours of two string ends, and reset other info.
     setStartEnds(idPos, idNeg, system);

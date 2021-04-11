@@ -24,7 +24,7 @@ void bind_Pythia8_Analysis(std::function< pybind11::module &(std::string const &
 void bind_Pythia8_SigmaProcess(std::function< pybind11::module &(std::string const &namespace_) > &M);
 void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const &namespace_) > &M);
 void bind_Pythia8_TimeShower(std::function< pybind11::module &(std::string const &namespace_) > &M);
-void bind_Pythia8_VinciaCommon(std::function< pybind11::module &(std::string const &namespace_) > &M);
+void bind_Pythia8_Pythia(std::function< pybind11::module &(std::string const &namespace_) > &M);
 void bind_Pythia8_HeavyIons(std::function< pybind11::module &(std::string const &namespace_) > &M);
 
 
@@ -63,7 +63,7 @@ PYBIND11_MODULE(pythia8, root_module) {
 	bind_Pythia8_SigmaProcess(M);
 	bind_Pythia8_UserHooks(M);
 	bind_Pythia8_TimeShower(M);
-	bind_Pythia8_VinciaCommon(M);
+	bind_Pythia8_Pythia(M);
 	bind_Pythia8_HeavyIons(M);
 
 }

@@ -1,5 +1,5 @@
 // HadronLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -202,6 +202,7 @@ bool HadronLevel::next( Event& event) {
   bool decaysCausedHadronization;
   do {
     decaysCausedHadronization = false;
+    doHadronizeVeto = false;
 
     // First part: string fragmentation.
     if (doHadronize) {
@@ -268,6 +269,13 @@ bool HadronLevel::next( Event& event) {
       }
     }
 
+    // The event can be vetoed here by the user.
+    if (userHooksPtr && userHooksPtr->canVetoAfterHadronization() &&
+      userHooksPtr->doVetoAfterHadronization(event) ) {
+      doHadronizeVeto = true;
+      return false;
+    }
+
     // Second part: sequential decays of short-lived particles (incl. K0).
 
     // If rescattering is off, we don't care about the order of the decays.
@@ -287,11 +295,6 @@ bool HadronLevel::next( Event& event) {
       priority_queue<PriorityNode> candidates;
       queueDecResc(event, 0, candidates);
       while (!candidates.empty()) {
-        if (event.size() > 10000) {
-          infoPtr->errorMsg("Error in HadronLevel::next: "
-            "too many rescatterings; possibly caught in endless loop");
-          return false;
-        }
 
         // Get earliest decay/rescattering.
         PriorityNode node = candidates.top();

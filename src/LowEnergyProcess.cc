@@ -1,5 +1,5 @@
 // LowEnergyProcess.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -174,15 +174,14 @@ bool LowEnergyProcess::collide( int i1, int i2, int typeIn, Event& event,
   }
 
   // Perform collision specified by code.
-  if      (code == 1)              { if (!nondiff())      return false; }
-  else if (code >= 2 && code <= 5) { if (!eldiff())       return false; }
-  else if (code == 7)              { if (!excitation())   return false; }
-  else if (code == 8)              { if (!annihilation()) return false; }
-  else if (code == 9)              { if (!resonance())    return false; }
+  if      (code == 1) { if (!nondiff())      return false; }
+  else if (code <= 5) { if (!eldiff())       return false; }
+  else if (code == 7) { if (!excitation())   return false; }
+  else if (code == 8) { if (!annihilation()) return false; }
+  else                { if (!resonance())    return false; }
 
   // Store number of direct daughters of the original colliding hadrons.
   int nPrimaryProds = leEvent.size() - 3;
-
   nHadron = (code == 3 || code == 5) ? 0 : 1;
 
   // Hadronize new strings if necessary.
@@ -233,7 +232,7 @@ bool LowEnergyProcess::collide( int i1, int i2, int typeIn, Event& event,
 
   // Boost particles from subcollision frame to full event frame.
   RotBstMatrix MfromCM = fromCMframe( event[i1].p(), event[i2].p());
-  if (code == 1 || code == 6 || code > 7) {
+  if (code == 1 || code > 7) {
     for (int i = sizeOld; i < event.size(); ++i) {
       event[i].rotbst( MfromCM);
       event[i].vProdAdd( vtx);
@@ -294,8 +293,8 @@ bool LowEnergyProcess::nondiff() {
       double redStep = (loop < 10) ? 1. : exp( -MASSREDUCERATE * (loop - 9));
 
       // Split up hadrons A  and B into q + qbar or q + qq for meson/baryon.
-      splitA( eCM, redStep);
-      splitB( eCM, redStep);
+      if (!splitA( eCM, redStep)) continue;
+      if (!splitB( eCM, redStep)) continue;
 
       // Assign relative sharing of longitudinal momentum.
       z1     = splitZ( idc1, idac1, mTc1 / eCM, mTac1 / eCM);
@@ -423,8 +422,7 @@ bool LowEnergyProcess::eldiff() {
           wtA = (hasExcitation) ? 1.
               : (1. + CRES * sResXB / (sResXB + sA)) / (1. + CRES);
         } while (wtA < rndmPtr->flat());
-        splitA( mA, redStep);
-        if (mTc1 + mTac1 > mA) failM = true;
+        if (!splitA( mA, redStep)) failM = true;
       }
 
 
@@ -436,8 +434,7 @@ bool LowEnergyProcess::eldiff() {
           wtB = (hasExcitation) ? 1.
               : (1. + CRES * sResAX / (sResAX + sB)) / (1. + CRES);
         } while (wtB < rndmPtr->flat());
-        splitB( mB, redStep);
-        if (mTc2 + mTac2 > mB) failM = true;
+        if (!splitB( mB, redStep)) failM = true;
       }
 
       // Ensure that pair of hadron masses not too large. Suppression at limit.
@@ -608,7 +605,7 @@ bool LowEnergyProcess::annihilation() {
   }
 
   // Working areas.
-  int iqAll[2][3];
+  int iqAll[2][10];
   vector<int> iqPair;
 
   // Split first and second hadron by flavour content.
@@ -695,8 +692,8 @@ bool LowEnergyProcess::annihilation() {
       double redStep = (loop < 10) ? 1. : exp( -MASSREDUCERATE * (loop - 9));
 
       // Split up hadrons A  and B by relative pT.
-      splitA( eCM, redStep, false);
-      splitB( eCM, redStep, false);
+      if (!splitA( eCM, redStep, false)) continue;
+      if (!splitB( eCM, redStep, false)) continue;
 
       // Assign relative sharing of longitudinal momentum.
       z1     = splitZ( idc1, idac1, mTc1 / eCM, mTac1 / eCM);
@@ -1119,6 +1116,7 @@ pair< int, int> LowEnergyProcess::splitFlav( int id) {
 double LowEnergyProcess::splitZ(int iq1, int iq2, double mRat1, double mRat2) {
 
   // Initial values.
+  if (mRat1 + mRat2 >= 1.) return mRat1 / ( mRat1 + mRat2);
   int iq1Abs = abs(iq1);
   int iq2Abs = abs(iq2);
   if (iq2Abs > 10) swap( mRat1, mRat2);

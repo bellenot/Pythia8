@@ -28,7 +28,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.html#anchor47" target="page">canChangeFragPar()</a></td>
+<td><a href="UserHooks.html#anchor42" target="page">canChangeFragPar()</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -40,7 +40,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.html#anchor51" target="page">canSetImpactParameter()</a></td>
+<td><a href="UserHooks.html#anchor48" target="page">canSetImpactParameter()</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td> </td>
+<td><a href="UserHooks.html#anchor46" target="page">canVetoAfterHadronization()</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -94,7 +100,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.html#anchor48" target="page">doChangeFragPar(...)</a></td>
+<td><a href="UserHooks.html#anchor43" target="page">doChangeFragPar(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -106,7 +112,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.html#anchor52" target="page">doSetImpactParameter()</a></td>
+<td><a href="UserHooks.html#anchor49" target="page">doSetImpactParameter()</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -118,13 +124,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.html#anchor49" target="page">doVetoFragmentation(...)</a></td>
+<td><a href="UserHooks.html#anchor47" target="page">doVetoAfterHadronization(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.html#anchor50" target="page">doVetoFragmentation(...)</a></td>
+<td><a href="UserHooks.html#anchor44" target="page">doVetoFragmentation(...)</a></td>
+<td>User Hooks</td>
+</tr>
+
+<tr>
+<td>virtual bool</td>
+<td><a href="UserHooks.html#anchor45" target="page">doVetoFragmentation(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -150,12 +162,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 <td>RotBstMatrix</td>
 <td><a href="FourVectors.html#anchor103" target="page">fromCMframe(...)</a></td>
 <td>Four-Vectors</td>
-</tr>
-
-<tr>
-<td>double</td>
-<td><a href="UserHooks.html#anchor45" target="page">getEnhancedEventWeight()</a></td>
-<td>User Hooks</td>
 </tr>
 
 <tr>
@@ -310,19 +316,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend Hist</td>
-<td><a href="Histograms.html#anchor49" target="page">operator*(...)</a></td>
+<td><a href="Histograms.html#anchor56" target="page">operator*(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>friend Hist</td>
-<td><a href="Histograms.html#anchor50" target="page">operator*(...)</a></td>
+<td><a href="Histograms.html#anchor57" target="page">operator*(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>friend Hist</td>
-<td><a href="Histograms.html#anchor51" target="page">operator*(...)</a></td>
+<td><a href="Histograms.html#anchor58" target="page">operator*(...)</a></td>
 <td>Histograms</td>
 </tr>
 
@@ -334,19 +340,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend Hist</td>
-<td><a href="Histograms.html#anchor43" target="page">operator+(...)</a></td>
+<td><a href="Histograms.html#anchor50" target="page">operator+(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>friend Hist</td>
-<td><a href="Histograms.html#anchor44" target="page">operator+(...)</a></td>
+<td><a href="Histograms.html#anchor51" target="page">operator+(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>friend Hist</td>
-<td><a href="Histograms.html#anchor45" target="page">operator+(...)</a></td>
+<td><a href="Histograms.html#anchor52" target="page">operator+(...)</a></td>
 <td>Histograms</td>
 </tr>
 
@@ -358,19 +364,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend Hist</td>
-<td><a href="Histograms.html#anchor46" target="page">operator-(...)</a></td>
+<td><a href="Histograms.html#anchor53" target="page">operator-(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>friend Hist</td>
-<td><a href="Histograms.html#anchor47" target="page">operator-(...)</a></td>
+<td><a href="Histograms.html#anchor54" target="page">operator-(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>friend Hist</td>
-<td><a href="Histograms.html#anchor48" target="page">operator-(...)</a></td>
+<td><a href="Histograms.html#anchor55" target="page">operator-(...)</a></td>
 <td>Histograms</td>
 </tr>
 
@@ -382,19 +388,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>friend Hist</td>
-<td><a href="Histograms.html#anchor52" target="page">operator/(...)</a></td>
+<td><a href="Histograms.html#anchor59" target="page">operator/(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>friend Hist</td>
-<td><a href="Histograms.html#anchor53" target="page">operator/(...)</a></td>
+<td><a href="Histograms.html#anchor60" target="page">operator/(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>friend Hist</td>
-<td><a href="Histograms.html#anchor54" target="page">operator/(...)</a></td>
+<td><a href="Histograms.html#anchor61" target="page">operator/(...)</a></td>
 <td>Histograms</td>
 </tr>
 
@@ -574,19 +580,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td> int    Info::nVariationGroups()</td>
-<td><a href="CrossSectionsAndWeights.html#anchor16" target="page"></a></td>
+<td><a href="CrossSectionsAndWeights.html#anchor15" target="page"></a></td>
 <td>Cross Sections And Weights</td>
 </tr>
 
 <tr>
 <td> string Info::getGroupName(...)</td>
-<td><a href="CrossSectionsAndWeights.html#anchor17" target="page"></a></td>
+<td><a href="CrossSectionsAndWeights.html#anchor16" target="page"></a></td>
 <td>Cross Sections And Weights</td>
 </tr>
 
 <tr>
 <td> double Info::getGroupWeight(...)</td>
-<td><a href="CrossSectionsAndWeights.html#anchor18" target="page"></a></td>
+<td><a href="CrossSectionsAndWeights.html#anchor17" target="page"></a></td>
 <td>Cross Sections And Weights</td>
 </tr>
 
@@ -814,13 +820,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>vector &lt;string&gt; Info::weightNameVector()</td>
-<td><a href="CrossSectionsAndWeights.html#anchor25" target="page">const</a></td>
+<td><a href="CrossSectionsAndWeights.html#anchor24" target="page">const</a></td>
 <td>Cross Sections And Weights</td>
 </tr>
 
 <tr>
 <td>vector &lt;double&gt; Info::weightValueVector()</td>
-<td><a href="CrossSectionsAndWeights.html#anchor26" target="page">const</a></td>
+<td><a href="CrossSectionsAndWeights.html#anchor25" target="page">const</a></td>
 <td>Cross Sections And Weights</td>
 </tr>
 
@@ -1425,6 +1431,12 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>void Hist::takeFunc(...)&gt;</td>
+<td><a href="Histograms.html#anchor36" target="page">func)</a></td>
+<td>Histograms</td>
+</tr>
+
+<tr>
 <td>double</td>
 <td><a href="HadronWidths.html#anchor9" target="page">HadronWidths::br(...)</a></td>
 <td>Hadron Widths</td>
@@ -1551,14 +1563,38 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
+<td>vector&lt;double&gt;</td>
+<td><a href="Histograms.html#anchor32" target="page">Hist::getBinContents()</a></td>
+<td>Histograms</td>
+</tr>
+
+<tr>
+<td>double</td>
+<td><a href="Histograms.html#anchor30" target="page">Hist::getBinEdge(...)</a></td>
+<td>Histograms</td>
+</tr>
+
+<tr>
+<td>vector&lt;double&gt;</td>
+<td><a href="Histograms.html#anchor33" target="page">Hist::getBinEdges()</a></td>
+<td>Histograms</td>
+</tr>
+
+<tr>
 <td>int</td>
 <td><a href="Histograms.html#anchor21" target="page">Hist::getBinNumber()</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
+<td>double</td>
+<td><a href="Histograms.html#anchor31" target="page">Hist::getBinWidth(...)</a></td>
+<td>Histograms</td>
+</tr>
+
+<tr>
 <td>int</td>
-<td><a href="Histograms.html#anchor30" target="page">Hist::getEntries(...)</a></td>
+<td><a href="Histograms.html#anchor34" target="page">Hist::getEntries(...)</a></td>
 <td>Histograms</td>
 </tr>
 
@@ -1636,7 +1672,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="Histograms.html#anchor34" target="page">Hist::normalize(...)</a></td>
+<td><a href="Histograms.html#anchor39" target="page">Hist::normalize(...)</a></td>
+<td>Histograms</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="Histograms.html#anchor40" target="page">Hist::normalizeIntegral(...)</a></td>
+<td>Histograms</td>
+</tr>
+
+<tr>
+<td>void</td>
+<td><a href="Histograms.html#anchor41" target="page">Hist::normalizeSpectrum(...)</a></td>
 <td>Histograms</td>
 </tr>
 
@@ -1648,49 +1696,49 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>Hist&amp;</td>
-<td><a href="Histograms.html#anchor37" target="page">Hist::operator*=(...)</a></td>
+<td><a href="Histograms.html#anchor44" target="page">Hist::operator*=(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>Hist&amp;</td>
-<td><a href="Histograms.html#anchor41" target="page">Hist::operator*=(...)</a></td>
+<td><a href="Histograms.html#anchor48" target="page">Hist::operator*=(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>Hist&amp;</td>
-<td><a href="Histograms.html#anchor42" target="page">Hist::operator*=(...)</a></td>
+<td><a href="Histograms.html#anchor49" target="page">Hist::operator*=(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>Hist&amp;</td>
-<td><a href="Histograms.html#anchor35" target="page">Hist::operator+=(...)</a></td>
+<td><a href="Histograms.html#anchor42" target="page">Hist::operator+=(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>Hist&amp;</td>
-<td><a href="Histograms.html#anchor39" target="page">Hist::operator+=(...)</a></td>
+<td><a href="Histograms.html#anchor46" target="page">Hist::operator+=(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>Hist&amp;</td>
-<td><a href="Histograms.html#anchor36" target="page">Hist::operator-=(...)</a></td>
+<td><a href="Histograms.html#anchor43" target="page">Hist::operator-=(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>Hist&amp;</td>
-<td><a href="Histograms.html#anchor40" target="page">Hist::operator-=(...)</a></td>
+<td><a href="Histograms.html#anchor47" target="page">Hist::operator-=(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>Hist&amp;</td>
-<td><a href="Histograms.html#anchor38" target="page">Hist::operator/=(...)</a></td>
+<td><a href="Histograms.html#anchor45" target="page">Hist::operator/=(...)</a></td>
 <td>Histograms</td>
 </tr>
 
@@ -1720,7 +1768,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>bool</td>
-<td><a href="Histograms.html#anchor31" target="page">Hist::sameSize(...)</a></td>
+<td><a href="Histograms.html#anchor35" target="page">Hist::sameSize(...)</a></td>
 <td>Histograms</td>
 </tr>
 
@@ -1738,13 +1786,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="Histograms.html#anchor32" target="page">Hist::takeLog(...)</a></td>
+<td><a href="Histograms.html#anchor37" target="page">Hist::takeLog(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="Histograms.html#anchor33" target="page">Hist::takeSqrt()</a></td>
+<td><a href="Histograms.html#anchor38" target="page">Hist::takeSqrt()</a></td>
 <td>Histograms</td>
 </tr>
 
@@ -1756,43 +1804,43 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>void</td>
-<td><a href="Histograms.html#anchor57" target="page">HistPlot::add(...)</a></td>
+<td><a href="Histograms.html#anchor64" target="page">HistPlot::add(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="Histograms.html#anchor58" target="page">HistPlot::addFile(...)</a></td>
+<td><a href="Histograms.html#anchor65" target="page">HistPlot::addFile(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="Histograms.html#anchor56" target="page">HistPlot::frame(...)</a></td>
+<td><a href="Histograms.html#anchor63" target="page">HistPlot::frame(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td> </td>
-<td><a href="Histograms.html#anchor55" target="page">HistPlot::HistPlot(...)</a></td>
+<td><a href="Histograms.html#anchor62" target="page">HistPlot::HistPlot(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="Histograms.html#anchor59" target="page">HistPlot::plot(...)</a></td>
+<td><a href="Histograms.html#anchor66" target="page">HistPlot::plot(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="Histograms.html#anchor60" target="page">HistPlot::plot(...)</a></td>
+<td><a href="Histograms.html#anchor67" target="page">HistPlot::plot(...)</a></td>
 <td>Histograms</td>
 </tr>
 
 <tr>
 <td>void</td>
-<td><a href="Histograms.html#anchor61" target="page">HistPlot::plotFrame(...)</a></td>
+<td><a href="Histograms.html#anchor68" target="page">HistPlot::plotFrame(...)</a></td>
 <td>Histograms</td>
 </tr>
 
@@ -2314,13 +2362,13 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>int</td>
-<td><a href="CrossSectionsAndWeights.html#anchor22" target="page">Info::numberOfWeights()</a></td>
+<td><a href="CrossSectionsAndWeights.html#anchor21" target="page">Info::numberOfWeights()</a></td>
 <td>Cross Sections And Weights</td>
 </tr>
 
 <tr>
 <td>int</td>
-<td><a href="CrossSectionsAndWeights.html#anchor19" target="page">Info::nWeights()</a></td>
+<td><a href="CrossSectionsAndWeights.html#anchor18" target="page">Info::nWeights()</a></td>
 <td>Cross Sections And Weights</td>
 </tr>
 
@@ -2578,19 +2626,19 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="CrossSectionsAndWeights.html#anchor21" target="page">Info::weight(...)</a></td>
+<td><a href="CrossSectionsAndWeights.html#anchor20" target="page">Info::weight(...)</a></td>
 <td>Cross Sections And Weights</td>
 </tr>
 
 <tr>
 <td>string</td>
-<td><a href="CrossSectionsAndWeights.html#anchor20" target="page">Info::weightLabel(...)</a></td>
+<td><a href="CrossSectionsAndWeights.html#anchor19" target="page">Info::weightLabel(...)</a></td>
 <td>Cross Sections And Weights</td>
 </tr>
 
 <tr>
 <td>string</td>
-<td><a href="CrossSectionsAndWeights.html#anchor23" target="page">Info::weightNameByIndex(...)</a></td>
+<td><a href="CrossSectionsAndWeights.html#anchor22" target="page">Info::weightNameByIndex(...)</a></td>
 <td>Cross Sections And Weights</td>
 </tr>
 
@@ -2602,7 +2650,7 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>double</td>
-<td><a href="CrossSectionsAndWeights.html#anchor24" target="page">Info::weightValueByIndex(...)</a></td>
+<td><a href="CrossSectionsAndWeights.html#anchor23" target="page">Info::weightValueByIndex(...)</a></td>
 <td>Cross Sections And Weights</td>
 </tr>
 
@@ -7366,18 +7414,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 <tr>
 <td>virtual bool</td>
-<td><a href="UserHooks.html#anchor42" target="page">UserHooks::canEnhanceEmission()</a></td>
-<td>User Hooks</td>
-</tr>
-
-<tr>
-<td>virtual bool</td>
-<td><a href="UserHooks.html#anchor46" target="page">UserHooks::canEnhanceTrial()</a></td>
-<td>User Hooks</td>
-</tr>
-
-<tr>
-<td>virtual bool</td>
 <td><a href="UserHooks.html#anchor29" target="page">UserHooks::canModifySigma()</a></td>
 <td>User Hooks</td>
 </tr>
@@ -7521,18 +7557,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 </tr>
 
 <tr>
-<td>virtual double</td>
-<td><a href="UserHooks.html#anchor43" target="page">UserHooks::enhanceFactor(...)</a></td>
-<td>User Hooks</td>
-</tr>
-
-<tr>
-<td>virtual double</td>
-<td><a href="CrossSectionsAndWeights.html#anchor15" target="page">UserHooks::getEnhancedEventWeight()</a></td>
-<td>Cross Sections And Weights</td>
-</tr>
-
-<tr>
 <td>virtual bool</td>
 <td><a href="UserHooks.html#anchor7" target="page">UserHooks::initAfterBeams()</a></td>
 <td>User Hooks</td>
@@ -7589,12 +7613,6 @@ Many of them are only intended for experts, while undocumented ones are only for
 <tr>
 <td> </td>
 <td><a href="UserHooks.html#anchor1" target="page">UserHooks::UserHooks()</a></td>
-<td>User Hooks</td>
-</tr>
-
-<tr>
-<td>virtual double</td>
-<td><a href="UserHooks.html#anchor44" target="page">UserHooks::vetoProbability(...)</a></td>
 <td>User Hooks</td>
 </tr>
 
@@ -7912,4 +7930,4 @@ Many of them are only intended for experts, while undocumented ones are only for
 
 </table>
 
-<!-- Copyright (C) 2020 Torbjorn Sjostrand -->
+<!-- Copyright (C) 2021 Torbjorn Sjostrand -->

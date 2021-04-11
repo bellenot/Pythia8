@@ -19,6 +19,14 @@ other places of the program, notably particle decays, and is thus
 described on the separate <aloc href="FlavourSelection">Flavour 
 Selection</aloc> page. 
  
+<p/> 
+Note that the fragmentation in a 
+<aloc href="HiddenValleyProcesses">Hidden Valley</aloc> scenario 
+is modelled in a similar spirit as for ordinary string fragmentation, 
+but with a separate set of parameters. Relevant parameters for it 
+are closely related to the scenario chosen, and therefore are 
+documented on the same page. 
+ 
 <h3>Fragmentation functions</h3> 
  
 The <code>StringZ</code> class handles the choice of longitudinal 
@@ -504,4 +512,4 @@ junction rest frame).
  
 </chapter> 
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 

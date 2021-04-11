@@ -1,5 +1,5 @@
 // HeavyIons.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -7,6 +7,7 @@
 // heavy ion classes classes, and some related global functions.
 
 #include "Pythia8/HeavyIons.h"
+#include "Pythia8/BeamShape.h"
 #include <cassert>
 
 namespace Pythia8 {
@@ -403,6 +404,7 @@ bool Angantyr::init() {
   for ( int i = MBIAS; i < ALL; ++i ) {
     pythia[i] = new Pythia(*settingsPtr, *particleDataPtr, false);
     pythia[i]->settings.mode("HeavyIon:mode", 1);
+    pythia[i]->settings.flag("Beams:allowVertexSpread", false);
   }
 
   sigtot.init();
@@ -1642,6 +1644,12 @@ bool Angantyr::next() {
       } else {
         if ( !pythia[HADRON]->forceHadronLevel(false) ) continue;
       }
+    }
+
+    if ( settingsPtr->flag("Beams:allowVertexSpread") ) {
+      pythia[HADRON]->getBeamShapePtr()->pick();
+      Vec4 vertex = pythia[HADRON]->getBeamShapePtr()->vertex();
+      for ( Particle & p : pythia[HADRON]->event ) p.vProdAdd( vertex);
     }
 
     hiInfo.accept();

@@ -1,5 +1,5 @@
 // ProcessLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -183,9 +183,6 @@ bool ProcessLevel::init( bool doLHA, SLHAinterface* slhaInterfacePtrIn,
       "SUSY process switched on but no SUSY couplings found");
     return false;
   }
-
-  // Fill SLHA blocks SMINPUTS and MASS from PYTHIA SM parameter values.
-  slhaInterfacePtr->pythia2slha();
 
   // Initialize each process.
   int numberOn = 0;
@@ -1181,9 +1178,9 @@ void ProcessLevel::findJunctions( Event& junEvent) {
   for (int i = 1; i<junEvent.size(); i++) {
 
     // Ignore colorless particles and stages before hard-scattering
-    // final state.
-    if (abs(junEvent[i].status()) <= 21 || junEvent[i].colType() == 0)
-      continue;
+    // final state. Also ignore shower branchings.
+    if (abs(junEvent[i].status()) <= 21 || junEvent[i].colType() == 0
+      || (junEvent[i].status() >= 40 && junEvent[i].status() <= 59) ) continue;
     vector<int> motherList   = junEvent[i].motherList();
     int iMot1 = motherList[0];
     vector<int> sisterList = junEvent[iMot1].daughterList();

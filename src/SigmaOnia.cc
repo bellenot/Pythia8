@@ -1,5 +1,5 @@
 // SigmaOnia.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -142,6 +142,17 @@ void SigmaOniaSetup::setupSigma2gg(vector<SigmaProcess*> &procs, bool oniaIn) {
     }
   }
 
+  // Initialise the double 3S1 processes.
+  if (validDbl3S1) {
+    for (unsigned int i = 0; i < states1Dbl3S1.size(); ++i) {
+      bool flag = oniaIn || onia || onia3S1 || oniaFlavour;
+      // Colour-singlet.
+      if ((flag || dbls3S1[0][i])) procs.push_back(
+        new Sigma2gg2QQbar3S11QQbar3S11( states1Dbl3S1[i], states2Dbl3S1[i],
+           mesDbl3S1[0][i], mesDbl3S1[1][i], flavour*100 + 21) );
+    }
+  }
+
   // Initialise the 3PJ processes.
   if (valid3PJ) {
     for (unsigned int i = 0; i < states3PJ.size(); ++i) {
@@ -251,6 +262,17 @@ void SigmaOniaSetup::setupSigma2qq(vector<SigmaProcess*> &procs, bool oniaIn) {
     }
   }
 
+  // Initialise the double 3S1 processes.
+  if (validDbl3S1) {
+    for (unsigned int i = 0; i < states1Dbl3S1.size(); ++i) {
+      bool flag = oniaIn || onia || onia3S1 || oniaFlavour;
+      // Colour-singlet.
+      if ((flag || dbls3S1[1][i])) procs.push_back(
+        new Sigma2qqbar2QQbar3S11QQbar3S11( states1Dbl3S1[i], states2Dbl3S1[i],
+           mesDbl3S1[0][i], mesDbl3S1[1][i], flavour*100 + 22) );
+    }
+  }
+
   // Initialise the 3PJ processes.
   if (valid3PJ) {
     for (unsigned int i = 0; i < states3PJ.size(); ++i) {
@@ -274,29 +296,6 @@ void SigmaOniaSetup::setupSigma2qq(vector<SigmaProcess*> &procs, bool oniaIn) {
       if (flag || qqs3DJ[0][i])
         procs.push_back(new Sigma2qqbar2QQbarX8g
           (states3DJ[i], mes3DJ[1][i], 2, mSplit, flavour*100+20));
-    }
-  }
-
-}
-
-//--------------------------------------------------------------------------
-
-// Initialise the SigmaProcesses for double onium production.
-
-void SigmaOniaSetup::setupSigma2dbl(vector<SigmaProcess*> &procs,
-  bool oniaIn) {
-
-  // Initialise the 3S1 processes.
-  if (validDbl3S1) {
-    for (unsigned int i = 0; i < states1Dbl3S1.size(); ++i) {
-      bool flag = oniaIn || onia || onia3S1 || oniaFlavour;
-      // Colour-singlet.
-      if ((flag || dbls3S1[0][i])) procs.push_back(
-        new Sigma2gg2QQbar3S11QQbar3S11( states1Dbl3S1[i], states2Dbl3S1[i],
-           mesDbl3S1[0][i], mesDbl3S1[1][i], flavour*100 + 21) );
-      if ((flag || dbls3S1[1][i])) procs.push_back(
-        new Sigma2qqbar2QQbar3S11QQbar3S11( states1Dbl3S1[i], states2Dbl3S1[i],
-           mesDbl3S1[0][i], mesDbl3S1[1][i], flavour*100 + 22) );
     }
   }
 
@@ -936,7 +935,7 @@ void Sigma2gg2QQbarX8g::initProc() {
     int    colType    = 2;
     particleDataPtr->addParticle(idOct, nameOct, spinType, chargeType, colType,
                                  m0, mWidth, m0, m0);
-    ParticleDataEntry* entry = particleDataPtr->particleDataEntryPtr(idOct);
+    ParticleDataEntryPtr entry = particleDataPtr->particleDataEntryPtr(idOct);
     if (entry->id() != 0) entry->addChannel(1, 1.0, 0, idHad, 21);
   } else if (mSplit > 0 && abs(particleDataPtr->m0(idOct) - m0) > 1E-5) {
     particleDataPtr->m0(idOct, m0);

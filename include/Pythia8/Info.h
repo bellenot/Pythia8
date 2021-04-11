@@ -1,5 +1,5 @@
 // Info.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -232,19 +232,19 @@ public:
 
   // Further access to uncertainty weights: number and labels
   int nWeights() const
-    { return weightContainerPtr->weightsPS.getWeightsSize(); }
+    { return weightContainerPtr->weightsShowerPtr->getWeightsSize(); }
   string weightLabel(int iWeight) const {
-    return weightContainerPtr->weightsPS.getWeightsName(iWeight);
+    return weightContainerPtr->weightsShowerPtr->getWeightsName(iWeight);
     }
 
-  int    nVariationGroups() const { return weightContainerPtr->
-    weightsPS.externalVariations.size(); }
+  int    nWeightGroups() const { return weightContainerPtr->
+      weightsShowerPtr->nWeightGroups(); }
   string getGroupName(int iGN) const {
-    return weightContainerPtr->weightsPS.getGroupName(iGN);
+    return weightContainerPtr->weightsShowerPtr->getGroupName(iGN);
   }
   double getGroupWeight(int iGW) const {
-    return weightContainerPtr->weightsPS.getGroupWeight(iGW)
-           *weightContainerPtr->weightNominal;
+    return weightContainerPtr->weightsShowerPtr->getGroupWeight(iGW)
+      *weightContainerPtr->weightNominal;
   }
 
   // Number of times other steps have been carried out.
@@ -708,7 +708,7 @@ public:
   // has units (lhaStrategy 4 or -4), input in mb
   void setWeight( double weightIn, int lhaStrategyIn) {
     for (int i = 0; i < nWeights(); ++i)
-      weightContainerPtr->weightsPS.setValueByIndex(i,1.);
+      weightContainerPtr->weightsShowerPtr->setValueByIndex(i,1.);
     // Nominal weight in weightContainer saved in pb for lhaStrategy +-4
     weightContainerPtr->setWeightNominal(
         abs(lhaStrategyIn) == 4 ? CONVERTMB2PB*weightIn : weightIn);
@@ -718,7 +718,7 @@ public:
   void setIsResolved(bool isResIn) {isRes = isResIn;}
 
   // Set info on hard diffraction.
-  void setHardDiff( bool hasUnresBeamsIn = false, bool hasPomPsysIn = false,
+  void setHardDiff(bool hasUnresBeamsIn = false, bool hasPomPsysIn = false,
     bool isHardDiffAIn = false, bool isHardDiffBIn = false,
     double xPomAIn = 0., double xPomBIn = 0., double tPomAIn = 0.,
     double tPomBIn = 0.) { hasUnresBeams = hasUnresBeamsIn;
@@ -726,6 +726,9 @@ public:
     isHardDiffB = isHardDiffBIn;
     xPomA = xPomAIn; xPomB = xPomBIn;
     tPomA = tPomAIn; tPomB = tPomBIn;}
+
+  // Move process information to an another diffractive system.
+  void reassignDiffSystem(int iDSold, int iDSnew);
 
   // Set information in hard diffractive events.
   void setHasUnresolvedBeams(bool hasUnresBeamsIn)

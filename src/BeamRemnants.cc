@@ -1,5 +1,5 @@
 // BeamRemnants.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -358,14 +358,25 @@ bool BeamRemnants::setKinematics( Event& event) {
   BeamParticle& beamB = *beamBPtr;
 
   // Simple handling of lepton-lepton scattering.
+  // For resolved leptons add either photon or scattered lepton as a remnant.
   if (beamA.isLepton() && beamB.isLepton()) {
     if (!beamA.isUnresolvedLepton()) {
-      double eGamma = max(0., event[1].e() - event[event[1].daughter1()].e() );
-      event.append( 22, 63, 1, 0, 0, 0, 0, 0, 0., 0., eGamma, eGamma, 0.);
+      int idRemn    = event[event[1].daughter1()].id() == event[1].id()
+                    ? 22 : beamA.id();
+      double mRemn  = particleDataPtr->m0(idRemn);
+      double eRemn  = max(0., event[1].e() - event[event[1].daughter1()].e());
+      double pzRemn = sqrtpos( pow2(eRemn) - pow2(mRemn) );
+      event.append( idRemn, 63, 1, 0, 0, 0, 0, 0, 0., 0., pzRemn, eRemn,
+                    mRemn);
     }
     if (!beamB.isUnresolvedLepton()) {
-      double eGamma = max(0., event[2].e() - event[event[2].daughter1()].e() );
-      event.append( 22, 63, 2, 0, 0, 0, 0, 0, 0., 0., -eGamma, eGamma, 0.);
+      int idRemn    = event[event[2].daughter1()].id() == event[2].id()
+                    ? 22 : beamB.id();
+      double mRemn  = particleDataPtr->m0(idRemn);
+      double eRemn  = max(0., event[2].e() - event[event[2].daughter1()].e());
+      double pzRemn = sqrtpos( pow2(eRemn) - pow2(mRemn) );
+      event.append( idRemn, 63, 2, 0, 0, 0, 0, 0, 0., 0., -pzRemn, eRemn,
+                    mRemn);
     }
     return true;
   }

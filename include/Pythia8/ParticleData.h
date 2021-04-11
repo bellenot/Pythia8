@@ -1,5 +1,5 @@
 // ParticleData.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -218,7 +218,7 @@ public:
   void setAll(string nameIn, string antiNameIn, int spinTypeIn = 0,
     int chargeTypeIn = 0, int colTypeIn = 0, double m0In = 0.,
     double mWidthIn = 0., double mMinIn = 0., double mMaxIn = 0.,
-    double tau0In = 0., double varWidthIn = false)
+    double tau0In = 0., bool varWidthIn = false)
     {nameSave = nameIn; antiNameSave = antiNameIn; hasAntiSave = true;
     if (toLower(antiNameIn) == "void") hasAntiSave = false;
     spinTypeSave = spinTypeIn; chargeTypeSave = chargeTypeIn;
@@ -423,32 +423,34 @@ public:
 
   // Constructor.
   ParticleData() : setRapidDecayVertex(), modeBreitWigner(), maxEnhanceBW(),
-    mQRun(), Lambda5Run(), intermediateTau0(), infoPtr(0), settingsPtr(0),
-    rndmPtr(0), coupSMPtr(0), particlePtr(0), isInit(false),
-    readingFailedSave(false) {}
+    mQRun(), Lambda5Run(), intermediateTau0(), infoPtr(nullptr),
+    settingsPtr(nullptr), rndmPtr(nullptr), coupSMPtr(nullptr),
+    particlePtr(nullptr), isInit(false), readingFailedSave(false) {}
 
   // Copy constructor.
   ParticleData( const ParticleData& oldPD) {
     modeBreitWigner = oldPD.modeBreitWigner; maxEnhanceBW = oldPD.maxEnhanceBW;
     for (int i = 0; i < 7; ++i) mQRun[i] = oldPD.mQRun[i];
-    Lambda5Run = oldPD.Lambda5Run;
-    infoPtr = 0; settingsPtr = 0; rndmPtr = 0; coupSMPtr = 0;
-    for ( map<int, ParticleDataEntry>::const_iterator pde = oldPD.pdt.begin();
-      pde != oldPD.pdt.end(); pde++) { int idTmp = pde->first;
-      pdt[idTmp] = pde->second; pdt[idTmp].initPtr(this); }
-    particlePtr = 0; isInit = oldPD.isInit;
+    Lambda5Run = oldPD.Lambda5Run; infoPtr = nullptr; settingsPtr = nullptr;
+    rndmPtr = nullptr; coupSMPtr = nullptr;
+    for (auto pde = oldPD.pdt.begin(); pde != oldPD.pdt.end(); pde++) {
+      int idTmp = pde->first;
+      pdt[idTmp] = make_shared<ParticleDataEntry>(*pde->second);
+      pdt[idTmp]->initPtr(this); }
+    particlePtr = nullptr; isInit = oldPD.isInit;
     readingFailedSave = oldPD.readingFailedSave; }
 
   // Assignment operator.
   ParticleData& operator=( const ParticleData& oldPD) { if (this != &oldPD) {
     modeBreitWigner = oldPD.modeBreitWigner; maxEnhanceBW = oldPD.maxEnhanceBW;
     for (int i = 0; i < 7; ++i) mQRun[i] = oldPD.mQRun[i];
-    Lambda5Run = oldPD.Lambda5Run;
-    infoPtr = 0; settingsPtr = 0; rndmPtr = 0; coupSMPtr = 0;
-    for ( map<int, ParticleDataEntry>::const_iterator pde = oldPD.pdt.begin();
-      pde != oldPD.pdt.end(); pde++) { int idTmp = pde->first;
-      pdt[idTmp] = pde->second; pdt[idTmp].initPtr(this); }
-    particlePtr = 0; isInit = oldPD.isInit;
+    Lambda5Run = oldPD.Lambda5Run; infoPtr = nullptr; settingsPtr = nullptr;
+    rndmPtr = nullptr; coupSMPtr = nullptr;
+    for (auto pde = oldPD.pdt.begin(); pde != oldPD.pdt.end(); pde++) {
+      int idTmp = pde->first;
+      pdt[idTmp] = make_shared<ParticleDataEntry>(*pde->second);
+      pdt[idTmp]->initPtr(this); }
+    particlePtr = nullptr; isInit = oldPD.isInit;
     readingFailedSave = oldPD.readingFailedSave; } return *this; }
 
   // Initialize pointers.
@@ -528,48 +530,49 @@ public:
     int chargeTypeIn = 0, int colTypeIn = 0, double m0In = 0.,
     double mWidthIn = 0., double mMinIn = 0., double mMaxIn = 0.,
     double tau0In = 0., bool varWidthIn = false) {
-    pdt[abs(idIn)] = ParticleDataEntry(idIn, nameIn, spinTypeIn, chargeTypeIn,
-      colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn, tau0In, varWidthIn);
-    pdt[abs(idIn)].initPtr(this); }
+    pdt[abs(idIn)] = make_shared<ParticleDataEntry>(idIn, nameIn, spinTypeIn,
+      chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn, tau0In,
+      varWidthIn);
+    pdt[abs(idIn)]->initPtr(this); }
   void addParticle(int idIn, string nameIn, string antiNameIn,
     int spinTypeIn = 0, int chargeTypeIn = 0, int colTypeIn = 0,
     double m0In = 0., double mWidthIn = 0., double mMinIn = 0.,
     double mMaxIn = 0., double tau0In = 0., bool varWidthIn = false) {
-    pdt[abs(idIn)] = ParticleDataEntry(idIn, nameIn, antiNameIn, spinTypeIn,
-      chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn, tau0In,
-      varWidthIn);
-    pdt[abs(idIn)].initPtr(this); }
+    pdt[abs(idIn)] = make_shared<ParticleDataEntry>(idIn, nameIn, antiNameIn,
+      spinTypeIn, chargeTypeIn, colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn,
+      tau0In, varWidthIn);
+    pdt[abs(idIn)]->initPtr(this); }
 
   // Reset all the properties of an entry in one go.
   void setAll(int idIn, string nameIn, string antiNameIn,
     int spinTypeIn = 0, int chargeTypeIn = 0, int colTypeIn = 0,
     double m0In = 0., double mWidthIn = 0., double mMinIn = 0.,
     double mMaxIn = 0.,double tau0In = 0.,bool varWidthIn = false) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setAll( nameIn, antiNameIn, spinTypeIn, chargeTypeIn,
     colTypeIn, m0In, mWidthIn, mMinIn, mMaxIn, tau0In, varWidthIn); }
 
   // Query existence of an entry.
   bool isParticle(int idIn) const {
-    map<int,ParticleDataEntry>::const_iterator found = pdt.find( abs(idIn) );
+    auto found = pdt.find( abs(idIn) );
     if ( found == pdt.end() ) return false;
-    if ( idIn > 0 || found->second.hasAnti() ) return true;
+    if ( idIn > 0 || found->second->hasAnti() ) return true;
     return false;
   }
 
   // Query existence of an entry and return an iterator.
-  ParticleDataEntry* findParticle(int idIn) {
-    map<int,ParticleDataEntry>::iterator found = pdt.find( abs(idIn) );
+  ParticleDataEntryPtr findParticle(int idIn) {
+    auto found = pdt.find( abs(idIn) );
     if( found == pdt.end() ) return nullptr;
-    if ( idIn > 0 || found->second.hasAnti() ) return &((*found).second);
+    if ( idIn > 0 || found->second->hasAnti() ) return found->second;
     return nullptr;
   }
 
   // Query existence of an entry and return a const iterator.
-  const ParticleDataEntry* findParticle(int idIn) const {
-    map<int,ParticleDataEntry>::const_iterator found = pdt.find( abs(idIn) );
+  const ParticleDataEntryPtr findParticle(int idIn) const {
+    auto found = pdt.find( abs(idIn) );
     if( found == pdt.end() ) return nullptr;
-    if ( idIn > 0 || found->second.hasAnti() ) return &((*found).second);
+    if ( idIn > 0 || found->second->hasAnti() ) return found->second;
     return nullptr;
   }
 
@@ -577,237 +580,237 @@ public:
   int nextId(int idIn) const;
 
   // Define iterators over entries.
-  map<int, ParticleDataEntry>::iterator begin() { return pdt.begin(); }
-  map<int, ParticleDataEntry>::iterator end()   { return pdt.end();   }
+  map<int, ParticleDataEntryPtr>::iterator begin() { return pdt.begin(); }
+  map<int, ParticleDataEntryPtr>::iterator end()   { return pdt.end();   }
 
   // Change current values one at a time (or set if not set before).
   void name(int idIn, string nameIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setName(nameIn); }
   void antiName(int idIn, string antiNameIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setAntiName(antiNameIn); }
   void names(int idIn, string nameIn, string antiNameIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setNames(nameIn, antiNameIn); }
   void spinType(int idIn, int spinTypeIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setSpinType(spinTypeIn); }
   void chargeType(int idIn, int chargeTypeIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setChargeType(chargeTypeIn); }
   void colType(int idIn, int colTypeIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setColType(colTypeIn); }
   void m0(int idIn, double m0In) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setM0(m0In); }
   void mWidth(int idIn, double mWidthIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setMWidth(mWidthIn); }
   void mMin(int idIn, double mMinIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setMMin(mMinIn); }
   void mMax(int idIn, double mMaxIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setMMax(mMaxIn); }
   void tau0(int idIn, double tau0In) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setTau0(tau0In); }
   void isResonance(int idIn, bool isResonanceIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setIsResonance(isResonanceIn); }
   void mayDecay(int idIn, bool mayDecayIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setMayDecay(mayDecayIn); }
   void tauCalc(int idIn, bool tauCalcIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setTauCalc(tauCalcIn); }
   void doExternalDecay(int idIn, bool doExternalDecayIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setDoExternalDecay(doExternalDecayIn); }
   void varWidth(int idIn, bool varWidthIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setVarWidth(varWidthIn); }
   void isVisible(int idIn, bool isVisibleIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setIsVisible(isVisibleIn); }
   void doForceWidth(int idIn, bool doForceWidthIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setDoForceWidth(doForceWidthIn); }
   void hasChanged(int idIn, bool hasChangedIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setHasChanged(hasChangedIn); }
 
   // Give back current values.
   bool hasAnti(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->hasAnti() : false; }
   int antiId(int idIn) const {
     if (idIn < 0) return -idIn;
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->antiId() : 0; }
   string name(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->name(idIn) : " "; }
   int spinType(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->spinType() : 0; }
   int chargeType(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->chargeType(idIn) : 0; }
   double charge(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->charge(idIn) : 0; }
   int colType(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->colType(idIn) : 0 ; }
   double m0(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->m0() : 0. ; }
   double mWidth(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->mWidth() : 0. ; }
   double mMin(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->mMin() : 0. ; }
   double m0Min(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->m0Min() : 0. ; }
   double mMax(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->mMax() : 0. ; }
   double m0Max(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->m0Max() : 0. ; }
   double tau0(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->tau0() : 0. ; }
   bool isResonance(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->isResonance() : false ; }
   bool mayDecay(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->mayDecay() : false ; }
   bool tauCalc(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->tauCalc() : false ; }
   bool doExternalDecay(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->doExternalDecay() : false ; }
   bool isVisible(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->isVisible() : false ; }
   bool doForceWidth(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->doForceWidth() : false ; }
   bool hasChanged(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->hasChanged() : false ; }
   bool hasChangedMMin(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->hasChangedMMin() : false ; }
   bool hasChangedMMax(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->hasChangedMMax() : false ; }
 
   // Give back special mass-related quantities.
   bool useBreitWigner(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->useBreitWigner() : false ; }
   bool varWidth(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->varWidth() : false; }
   double constituentMass(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->constituentMass() : 0. ; }
   double mSel(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->mSel() : 0. ; }
   double mRun(int idIn, double mH) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->mRun(mH) : 0. ; }
 
   // Give back other quantities.
   bool canDecay(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->canDecay() : false ; }
   bool isLepton(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->isLepton() : false ; }
   bool isQuark(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->isQuark() : false ; }
   bool isGluon(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->isGluon() : false ; }
   bool isDiquark(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->isDiquark() : false ; }
   bool isParton(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->isParton() : false ; }
   bool isHadron(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->isHadron() : false ; }
   bool isMeson(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->isMeson() : false ; }
   bool isBaryon(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->isBaryon() : false ; }
   bool isOnium(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->isOnium() : false ; }
   bool isOctetHadron(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->isOctetHadron() : false ; }
   int heaviestQuark(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->heaviestQuark(idIn) : 0 ; }
   int baryonNumberType(int idIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->baryonNumberType(idIn) : 0 ; }
   int nQuarksInCode(int idIn, int idQIn) const {
-    const ParticleDataEntry* ptr = findParticle(idIn);
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->nQuarksInCode(idQIn) : 0 ; }
 
   // Change branching ratios.
   void rescaleBR(int idIn, double newSumBR = 1.) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->rescaleBR(newSumBR); }
 
   // Access methods stored in ResonanceWidths.
   void setResonancePtr(int idIn, ResonanceWidths* resonancePtrIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setResonancePtr( resonancePtrIn);}
   void resInit(int idIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->resInit(infoPtr);}
   double resWidth(int idIn, double mHat, int idInFlav = 0,
     bool openOnly = false, bool setBR = false) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->resWidth(idIn, mHat,
     idInFlav, openOnly, setBR) : 0.;}
   double resWidthOpen(int idIn, double mHat, int idInFlav = 0) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->resWidthOpen(idIn, mHat, idInFlav) : 0.;}
   double resWidthStore(int idIn, double mHat, int idInFlav = 0) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->resWidthStore(idIn, mHat, idInFlav) : 0.;}
   double resOpenFrac(int id1In, int id2In = 0, int id3In = 0);
   double resWidthRescaleFactor(int idIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->resWidthRescaleFactor() : 0.;}
   double resWidthChan(int idIn, double mHat, int idAbs1 = 0,
     int idAbs2 = 0) {
-    ParticleDataEntry* ptr = findParticle(idIn);
+    ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->resWidthChan( mHat, idAbs1, idAbs2) : 0.;}
 
   // Return pointer to entry.
-  ParticleDataEntry* particleDataEntryPtr(int idIn) {
-    ParticleDataEntry* ptr = findParticle(idIn);
-    return ( ptr ) ? ptr : &pdt[0]; }
+  ParticleDataEntryPtr particleDataEntryPtr(int idIn) {
+    ParticleDataEntryPtr ptr = findParticle(idIn);
+    return ( ptr ) ? ptr : pdt[0]; }
 
   // Check initialisation status.
   bool getIsInit() {return isInit;}
@@ -835,10 +838,10 @@ private:
   CoupSM* coupSMPtr;
 
   // All particle data stored in a map.
-  map<int, ParticleDataEntry> pdt;
+  map<int, ParticleDataEntryPtr> pdt;
 
   // Pointer to current particle (e.g. when reading decay channels).
-  ParticleDataEntry* particlePtr;
+  ParticleDataEntryPtr particlePtr;
 
   // Flag that initialization has been performed; whether any failures.
   bool   isInit, readingFailedSave;

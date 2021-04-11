@@ -1,5 +1,5 @@
 // NucleonExcitations.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -329,8 +329,8 @@ double NucleonExcitations::sigmaCalc(double eCM, int maskC, int maskD) const {
   int quarkContentC = (maskC / 10) % 1000, quarkContentD = (maskD / 10) % 1000;
   maskC -= 10 * quarkContentC;
   maskD -= 10 * quarkContentD;
-  ParticleDataEntry* entryC = particleDataPtr->findParticle(2210 + maskC);
-  ParticleDataEntry* entryD = particleDataPtr->findParticle(2210 + maskD);
+  ParticleDataEntryPtr entryC = particleDataPtr->findParticle(2210 + maskC);
+  ParticleDataEntryPtr entryD = particleDataPtr->findParticle(2210 + maskD);
 
   // No cross section below threshold.
   if (eCM < entryC->mMin() + entryD->mMin())
@@ -386,10 +386,10 @@ bool NucleonExcitations::parameterizeAll(int precision, double threshold) {
   double scaleFactorN = 2.;
 
   double scaleFactorD;
-  bool check = integrateGauss(scaleFactorD, [&](double m) {
+  bool valid = integrateGauss(scaleFactorD, [&](double m) {
     return hadronWidthsPtr->mDistr(2214, m);
   }, particleDataPtr->mMin(2214), particleDataPtr->mMax(2214));
-  if (!check) {
+  if (!valid) {
     infoPtr->errorMsg("Abort from NucleonExcitations::parameterizeAll: "
         "unable to integrate excitation mass distribution", "2214");
     return false;
@@ -405,17 +405,17 @@ bool NucleonExcitations::parameterizeAll(int precision, double threshold) {
       "parameterizing", to_string(idEx), true);
 
     // Define helpful variables for the current excitation.
-    ParticleDataEntry* entry = particleDataPtr->findParticle(idEx);
+    ParticleDataEntryPtr entry = particleDataPtr->findParticle(idEx);
     double mEx = entry->m0(), mMinEx = entry->mMin();
     bool isDelta = particleDataPtr->isParticle(2220 + maskEx);
 
     // Calculate high energy scale factor.
     double scaleFactorEx;
-    check = integrateGauss(scaleFactorEx, [&](double m) {
+    valid = integrateGauss(scaleFactorEx, [&](double m) {
       return hadronWidthsPtr->mDistr(idEx, m);
     }, entry->mMin(), entry->mMax());
 
-    if (!check) {
+    if (!valid) {
       infoPtr->errorMsg("Abort from NucleonExcitations::parameterizeAll: "
         "unable to integrate excitation mass distribution", to_string(idEx));
       return false;

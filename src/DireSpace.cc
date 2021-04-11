@@ -1,5 +1,5 @@
 // DireSpace.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2021 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -342,8 +342,7 @@ bool DireSpace::limitPTmax( Event& event, double, double) {
   bool dopTlimit = false;
   dopTlimit1 = dopTlimit2 = false;
   int nHeavyCol = 0;
-  if      (pTmaxMatch == 1) dopTlimit = dopTlimit1 = dopTlimit2 = true;
-  else if (pTmaxMatch == 2) dopTlimit = dopTlimit1 = dopTlimit2 = false;
+  if (pTmaxMatch == 1) dopTlimit = dopTlimit1 = dopTlimit2 = true;
 
   // Always restrict SoftQCD processes.
   else if (infoPtr->isNonDiffractive() || infoPtr->isDiffractiveA()
@@ -4131,8 +4130,6 @@ bool DireSpace::branch_II( Event& event, bool trial,
     // transferred to sister "1" color.
     if (idMother*idDaughterNow > 0 && idMother > 0) {
       colMother1  = colDaughter;
-      acolMother1 = 0;
-      acolSister1 = 0;
       colSister1  = acolSister;
     }
     // Daughter anticolor transferred to antiquark mother "1", sister color
@@ -5207,8 +5204,6 @@ bool DireSpace::branch_IF( Event& event, bool trial,
     // transferred to sister "1" color.
     if (idMother*idDaughterNow > 0 && idMother > 0) {
       colMother1  = colDaughter;
-      acolMother1 = 0;
-      acolSister1 = 0;
       colSister1  = acolSister;
     }
     // Daughter anticolor transferred to antiquark mother "1", sister color

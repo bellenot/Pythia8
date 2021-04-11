@@ -1,5 +1,5 @@
 // PhaseSpace.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -113,7 +113,9 @@ void PhaseSpace::init(bool isFirst, SigmaProcess* sigmaProcessPtrIn) {
     || ( hasPointGammaA && !hasPointGammaB)
     || (!hasPointGammaA &&  hasPointGammaB);
   hasTwoPointParticles = (hasTwoLeptonBeams && hasPointLepton)
-    || ( hasPointGammaA && hasPointGammaB);
+    || ( hasPointGammaA && hasPointGammaB)
+    || ( hasLeptonBeamA && hasPointLepton && hasPointGammaB )
+    || ( hasLeptonBeamB && hasPointLepton && hasPointGammaA );
 
   // Flag if photons from leptons.
   bool beamHasResGamma = beamAPtr->hasResGamma() && beamBPtr->hasResGamma();
@@ -1382,7 +1384,7 @@ void PhaseSpace::selectY(int iY, double yVal) {
   else if (iY <= 4) y = log( expYMin + (expYMax - expYMin) * yVal );
 
   // 1 / (1 - exp(y - y_max)) or mirrored 1 / (1 - exp(y_min - y)).
-  else y = yMax - log( 1. + exp(aLowY + (aUppY - aLowY) * yVal) );
+  else y = yMax - log1p( exp(aLowY + (aUppY - aLowY) * yVal) );
 
   // Mirror two cases.
   if (iY == 2 || iY == 4 || iY == 6) y = -y;
@@ -2531,11 +2533,11 @@ const double PhaseSpace2to2elastic::TOFFSET  = -0.2;
 
 bool PhaseSpace2to2elastic::setupSampling() {
 
-  // Flag if a photon inside lepton beam.
-  hasGamma = flag("PDF:beamA2gamma") || flag("PDF:beamB2gamma");
-
   // Flag if photon has a VMD state.
   hasVMD = infoPtr->isVMDstateA() || infoPtr->isVMDstateB();
+
+  // Flag if a photon inside lepton beam.
+  hasGamma = flag("PDF:beamA2gamma") || flag("PDF:beamB2gamma");
 
   // If not photoproduction, calculate the cross-section estimates directly.
   if (!hasGamma) {
@@ -2858,11 +2860,11 @@ const double PhaseSpace2to2diffractive::SPROTON = 0.8803544;
 
 bool PhaseSpace2to2diffractive::setupSampling() {
 
-  // Flag if a photon inside lepton beam.
-  hasGamma = flag("PDF:beamA2gamma") || flag("PDF:beamB2gamma");
-
   // Flag if photon has a VMD state.
   hasVMD = infoPtr->isVMDstateA() || infoPtr->isVMDstateB();
+
+  // Flag if a photon inside lepton beam.
+  hasGamma = flag("PDF:beamA2gamma") || flag("PDF:beamB2gamma");
 
   // If not photoproduction, calculate the cross-section estimates directly.
   if (!hasGamma) {
@@ -4101,6 +4103,120 @@ bool PhaseSpaceLHA::trialKin( bool, bool repeatSame ) {
   // Done.
   return true;
 
+}
+
+//==========================================================================
+
+// Rambo phase space generator.
+
+//--------------------------------------------------------------------------
+
+// Massless flat phase space generator. Generate a random (uniformly
+// distributed) massless PS point with nOut particles and total sqrt(s) = eCM.
+
+double Rambo::genPoint(double eCM, int nOut, vector<Vec4>& pOut) {
+
+  // Set size of output vector
+  pOut.resize(nOut);
+  // Create momentum-sum four-vector
+  Vec4 R;
+  // Generate nParticles independent massless 4-momenta with isotropic angles
+  for (int i = 0; i < nOut; ++i) {
+    // Cos(theta), sin(theta), and phi
+    double c   = 2.0*rndmPtr->flat() - 1.0;
+    double s   = sqrt(1.0-pow2(c));
+    double phi = 2.0*M_PI*rndmPtr->flat();
+    // Norm
+    double r12 = 0.0;
+    while (r12 == 0.0) {
+      double r1 = rndmPtr->flat();
+      double r2 = rndmPtr->flat();
+      r12 = r1*r2;
+    }
+    double En = -log(r12);
+    pOut[i].e(En);
+    pOut[i].pz(En*c);
+    pOut[i].py(En*s*cos(phi));
+    pOut[i].px(En*s*sin(phi));
+    // Add to vector and add to sum
+    R += pOut[i];
+  }
+  // Compute ECM and normalise to unity (with sign flip)
+  double Rmass = R.mCalc();
+  R /= -Rmass;
+  // Transform momenta so add up to (eCM, 0, 0, 0)
+  double a = 1.0/(1.0-R.e());
+  double x = eCM/Rmass;
+  for (int i = 0; i < nOut; ++i) {
+    double bq = dot3(R, pOut[i]);
+    pOut[i].px( x * (pOut[i].px()+R.px()*(pOut[i].e()+a*bq)) );
+    pOut[i].py( x * (pOut[i].py()+R.py()*(pOut[i].e()+a*bq)) );
+    pOut[i].pz( x * (pOut[i].pz()+R.pz()*(pOut[i].e()+a*bq)) );
+    pOut[i].e(  x * (-R.e()*pOut[i].e()+bq) );
+  }
+  // The weight is always unity for the massless algorithm.
+  return 1.0;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Massive flat phase space generator, generalised according to the
+// original paper. The momenta are not distributed flat in phase
+// space anymore, returns the weight of the phase space configutation.
+
+double Rambo::genPoint(double eCM, vector<double> mIn, vector<Vec4>& pOut) {
+
+  // Call the massless genPoint, initializing weight.
+  int nOut = mIn.size();
+  if (nOut <= 1 || eCM <= 0.) return 0.;
+  double weight = genPoint(eCM, nOut, pOut);
+  bool massesnonzero = false;
+
+  // Set up the function determining the rescaling parameter xi.
+  vector<double> energies;
+  for (int i = 0; i < nOut; i++) {
+    energies.push_back(pOut[i].e());
+    if (pow2(mIn[i]/eCM) > 1e-9) massesnonzero = true;
+  }
+
+  // If none of the reduced masses is > 1e-9, return.
+  if (!massesnonzero) return weight;
+
+  // Set up the mass and energy vectors.
+  vector<double> mXi(0), energiesXi(0);
+  if (mIn.size() == energies.size()) {mXi = mIn; energiesXi = energies;}
+
+  // Define the Xi function.
+  function<double(double)> rhs = [&mXi, &energiesXi](double xi) -> double{
+    double retval = 0.;
+    for (vector<double>::size_type i = 0; i < mXi.size(); i++)
+      retval += sqrt( pow2(mXi[i]) + pow2(xi)*pow2(energiesXi[i]));
+    return retval;
+  };
+
+  // Rescale all the momenta.
+  double xi(0);
+  brent(xi, rhs, eCM, 0., 1., 1e-10);
+  for (int iMom = 0; iMom < nOut; iMom++) {
+    pOut[iMom].rescale3(xi);
+    pOut[iMom].e( sqrt(pow2(mIn[iMom]) + pow2(xi)*pow2(pOut[iMom].e())) );
+  }
+
+  // Determine the quantities needed for the calculation of the weight.
+  double sumP(0.), prodPdivE(1.), sumP2divE(0.);
+  for (int iMom = 0; iMom < nOut; iMom++) {
+    double pAbs2 = pOut[iMom].pAbs2();
+    double pAbs  = sqrt(pAbs2);
+    sumP      += pAbs;
+    prodPdivE *= pAbs/pOut[iMom].e();
+    sumP2divE += pAbs2/pOut[iMom].e();
+  }
+
+  // There's a typo in eq. 4.11 of the Rambo paper by Kleiss, Stirling
+  // and Ellis, the Ecm below is not present there.
+  weight *= pow(sumP/eCM,2*nOut-3)*prodPdivE*eCM/sumP2divE;
+  return weight;
 }
 
 //==========================================================================

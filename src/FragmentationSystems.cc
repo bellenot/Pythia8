@@ -1,5 +1,5 @@
 // FragmentationSystems.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -277,8 +277,8 @@ bool ColConfig::joinJunction( vector<int>& iPartonIn, Event& event,
 
   // Nothing to do if no two legs have small invariant mass, and
   // system as a whole is above MiniStringFragmentation threshold.
-  if (legA == -1 || (mMin > mJoinJunction && massExcessIn > mStringMin))
-    return false;
+  if (legA == -1 || legB == -1 || (mMin > mJoinJunction
+    && massExcessIn > mStringMin)) return false;
 
   // Construct separate index arrays for the three legs.
   vector<int> iLegA, iLegB, iLegC;

@@ -1,5 +1,5 @@
 // SpaceShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -86,6 +86,9 @@ public:
   // Initialize data members for calculation of uncertainty bands.
   virtual bool initUncertainties() {return false;}
 
+  // Initialize data members for application of enhancements.
+  virtual bool initEnhancements() {return false;}
+
   // Flag for failure in branch(...) that will force a retry of parton level.
   virtual bool doRestart() const {return false;}
 
@@ -144,6 +147,12 @@ public:
   virtual vector<int> getRecoilers( const Event&, int, int, string)
     { return vector<int>(); }
 
+  virtual double enhanceFactor(const string& name) {
+    unordered_map<string, double>::iterator it = enhanceISR.find(name);
+    if ( it == enhanceISR.end() ) return 1.;
+    return it->second;
+  }
+
   // Pointer to MergingHooks object for NLO merging.
   MergingHooksPtr  mergingHooksPtr{};
 
@@ -166,6 +175,7 @@ protected:
   map<int,double>* varPDFplus;
   map<int,double>* varPDFminus;
   map<int,double>* varPDFmember;
+  unordered_map<string,double> enhanceISR;
 
 };
 

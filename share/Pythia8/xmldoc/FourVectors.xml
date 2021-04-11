@@ -155,7 +155,10 @@ the combinations <ei>E+-p_z</ei>.</methodmore>
 <method name="double Vec4::rap()"> 
 </method> 
 <methodmore name="double Vec4::eta()"> 
-true rapidity <ei>y</ei> and pseudorapidity <ei>eta</ei>. 
+true rapidity <ei>y</ei> and pseudorapidity <ei>eta</ei>. In case of 
+massless or inconsistent input, such as <ei>e &leq; |p_z|</ei> (within 
+machine precision), a value of +-20 is set, where the sign reflects 
+that of <ei>p_z</ei>. 
 </methodmore> 
  
 <h3>Friend methods for output</h3> 
@@ -540,4 +543,4 @@ when in the rest frame.
  
 </chapter> 
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 

@@ -8,19 +8,169 @@
  
 <h2>Update History</h2> 
 <ol id="toc">
-  <li><a href="#section0">8.303: 01 September 2020</a></li>
-  <li><a href="#section1">8.302: 24 April 2020</a></li>
-  <li><a href="#section2">8.301: 30 October 2019</a></li>
+  <li><a href="#section0">8.304: 09 April 2021</a></li>
+  <li><a href="#section1">8.303: 01 September 2020</a></li>
+  <li><a href="#section2">8.302: 24 April 2020</a></li>
+  <li><a href="#section3">8.301: 30 October 2019</a></li>
 </ol>
 
  
 These update notes describe major updates relative to the 
-PYTHIA 8.243 version, which was the last 8.2 release (so far). 
-The step from 8.2 to 8.3 gave an occasion to break backwards 
+PYTHIA 8.243 version, which was the starting point for PYTHIA 
+8.3. The step from 8.2 to 8.3 gave an occasion to break backwards 
 compatibility. The main change is that C++11 is now assumed. 
 The impact on existing used code should be mild, however. 
  
 <a name="section0"></a> 
+<h3>8.304: 09 April 2021</h3> 
+ 
+<ul> 
+<li>Christian Preuss and Rob Rob Verheyen join the author team.</li> 
+ 
+<li>Christine O. Rasmussen leaves as an active author.</li> 
+ 
+<li>New "sector" antenna showers implemented and made default 
+for the Vincia antenna shower model.</li> 
+ 
+<li>Minor changes to a few of the default Vincia hadronisation 
+parameters, reflecting the move to sector showers as default.</li> 
+ 
+<li>New dedicated LO merging scheme for the Vincia sector antenna 
+showers. The scheme is similar to CKKWL in spirit but exploits the 
+bijective nature of the sector shower to vastly reduce the number of 
+histories that need to be taken into account.</li> 
+ 
+<li>New full-fledged electroweak shower option implemented for the 
+Vincia shower model. The splitting kernels are based on collinear 
+limits of corresponding helicity matrix elements so this EW shower 
+model requires Born partons with assigned helicities. Currently these 
+must either be input via LHEF or (for experts) runtime via Vincia's 
+interface to MG5 matrix elements.</li> 
+ 
+<li>Introduced tools to automatically generate MadGraph plugin 
+libraries.</li> 
+ 
+<li>New options for interleaved resonance decays implemented for both 
+Pythia's default (simple) shower model, and for Vincia's 
+antenna-shower model. Made default for the Vincia shower model, 
+while Pythia's shower keeps its previous (non-interleaved) default 
+setting.</li> 
+ 
+<li>Revised internal handling of shower variations and splitting 
+enhancements, both for regular and trial emissions. Enhancements of 
+rare shower splittings are now steered by settings instead of 
+UserHooks, and the necessary weights are automatically included in the 
+shower and merging weights.</li> 
+ 
+<li> A number of updates have been made to sophisticated <i>tau</i> 
+decays. 
+<ul> 
+  <li>External SPINUP is now always interpreted as a helicity state in 
+  the lab frame to ensure consistent treatment between <i>tau</i> 
+  decays and helicity showers.</li> 
+  <li>The default external mode for tau decays has been changed to 
+  handle helicity showers.</li> 
+  <li><i>gamma gamma &rarr; tau^+ tau^-</i> processes are now 
+  handled.</li> 
+  <li>Helicity states for initial beams can be specified and used in 
+  <i>tau</i> decays.</li> 
+</ul> 
+</li> 
+ 
+<li>Added HDF5 support.</li> 
+ 
+<li>Added support for lepton-photon initiated hard processes generated 
+internally or externally. Thanks to Liu Yao-Bei.</li> 
+ 
+<li>Minor code changes to allow hadronic rescattering in nuclear 
+collisions (remove limit on number of rescatterings, increase maximum 
+transverse vertex location).</li> 
+ 
+<li>Double quarkonia production, if enabled, is now also included in 
+both MPI and second hard processes.</li> 
+ 
+<li>Added some new functionality to the <code>Hist</code> class.</li> 
+ 
+<li>Moved the event information in Info class to an appropriate 
+diffractive system for hard diffraction. This way also the 
+hard-process scale is properly propagated for primordial <i>kT</i> 
+sampling.</li> 
+ 
+<li>The <code>stopMassNow</code> in 
+<code>StringFragmentation.cc</code> is made to increase faster for 
+charm and bottom end quarks, to allow an increased few-body fraction 
+further above threshold. Thanks to Andy Buckley.</li> 
+ 
+<li> Added <code>ResonanceDecayFilterHook</code> and example <code> 
+main103.cc </code> to demonstrate how to select specific final states 
+from resonance decays.</li> 
+ 
+<li>Fixed vertex smearing in heavy ion events.</li> 
+ 
+<li>Fixed remnant handling for e+e- collisions for photon-initiated 
+processes, thanks to Murat Köksal.</li> 
+ 
+<li>Several (mostly minor) optimisations in Vincia, thanks to 
+D. Konstantinov.</li> 
+ 
+<li>Minor fixes in xml/html QCD process links and text.</li> 
+ 
+<li>Several small bug fixes based on error reports by Vittorio Zecca. 
+<ul> 
+<li>Fixed a bug where some elastic cross sections for pi K at low 
+energies were set equal to the total ones.</li> 
+<li>Protect against too high constituent masses inside a hadron in 
+<code>LowEnergyProcess.cc</code>, already at an earlier stage of the 
+process.</li> 
+<li>Protect against <i>exp(-infinity)</i> in 
+<code>HadronLevel.cc</code>.</li> 
+<li>Two fixes for first step in the trial emissions in 
+<code>StringFragmentation.cc</code>, used primarily in the thermal 
+model option.</li> 
+<li>Properly set the photon-in-lepton PDF to vanish at very large 
+<i>x</i>, rather than give unphysical values there.</li> 
+<li>Better protection against weird results for the <code>rap</code> 
+and <code>eta</code> methods in <code>Basics.h</code>, and 
+<code>y</code> in <code>Event.cc</code>.</li> 
+<li>Fixed pointer logic in Dire <code>getXPDF</code>.</li> 
+<li>Migrated from <code>log(1 + x)</code> to <code>log1p(x)</code> for 
+numerical stability.</li> 
+</ul> 
+</li> 
+ 
+<li>Several small fixes in response to a static code analysis, 
+provided by Dmitri Konstantinov. 
+<ul> 
+<li>Fix inconsistency in the usage of the third argument of the 
+<code>dsigmaEl</code> method in the classes derived from 
+<code>SigmaTotAux</code>.</li> 
+<li>Flawed and unused <code>LowEnergySigma::sigmaPartial</code> 
+method removed.</li> 
+<li>Fix inconsistent type for <code>varWidthIn</code> in 
+<code>ParticleDataEntry</code> class.</li> 
+<li>Introduce minor changes, e.g. to protect against out-of-bounds 
+addressing or insert missing initializer, even though there is no 
+evidence that it is needed.</li> 
+<li>Small speedup of the <code>Vec4</code> <code>[]</code> operator 
+using <code>switch()</code> instead of <code>if</code> to find element 
+to be returned.</li> 
+</ul> 
+</li> 
+ 
+<li>Bug fixed in the new possibility to let particles with narrow 
+widths (such as onia states) obtain a simple Breit-Wigner 
+distribution, specifically for MPIs, introduced in 8.240. This bug led 
+to excessive rejection of low-invariant-mass interactions. Thanks to 
+Albert De Roeck.</li> 
+ 
+<li>Default event record checks switched off for 
+<code>main21.cc</code>, to avoid issues with junction mother-daughter 
+relations not being fully set. Also change so that showers are not 
+called twice. Now all available cases are looped over, but easy to 
+change back to study only one.</li> 
+</ul> 
+ 
+<a name="section1"></a> 
 <h3>8.303: 01 September 2020</h3> 
  
 <ul> 
@@ -190,7 +340,8 @@ Gavin Salam and Priyotosh Bandyopadhyay.</li>
 <li>A minor fix for kinematics of zero-virtuality photons to retain 
 physical kinematics.</li> 
  
-<li>Protect against diffractive masses exceeding phase space bounds for hard diffraction.</li> 
+<li>Protect against diffractive masses exceeding phase space bounds 
+for hard diffraction.</li> 
  
 <li>A bug for propagation of space-like partons in string shoving. 
 Thanks to Dong Jo Kim.</li> 
@@ -253,7 +404,7 @@ diffractive systems.</li>
 for diffraction. Thanks to Valentina Zaccolo.</li> 
 </ul> 
  
-<a name="section1"></a> 
+<a name="section2"></a> 
 <h3>8.302: 24 April 2020</h3> 
  
 <ul> 
@@ -348,7 +499,7 @@ with Vincia reverting to the same (in-code) way of setting tune
 presets as Dire and Pythia.</li> 
 </ul> 
  
-<a name="section2"></a> 
+<a name="section3"></a> 
 <h3>8.301: 30 October 2019</h3> 
 <ul> 
 <li>Compilation is done with a new <code>-std=c++11</code> flag.</li> 
@@ -533,4 +684,4 @@ so desired.</li>
 </body>
 </html>
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 

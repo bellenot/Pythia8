@@ -1,5 +1,5 @@
 // Event.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -82,7 +82,7 @@ public:
 
   // Member functions to set the Event and ParticleDataEntry pointers.
   void setEvtPtr(Event* evtPtrIn) { evtPtr = evtPtrIn; setPDEPtr();}
-  void setPDEPtr(ParticleDataEntry* pdePtrIn = 0);
+  void setPDEPtr(ParticleDataEntryPtr pdePtrIn = nullptr);
 
   // Member functions for input.
   void id(int idIn) {idSave = idIn; setPDEPtr();}
@@ -305,7 +305,7 @@ protected:
   // Should no be saved in a persistent copy of the event record.
   // The //! below is ROOT notation that this member should not be saved.
   // Event::restorePtrs() can be called to restore the missing information.
-  ParticleDataEntry* pdePtr;  //!
+  ParticleDataEntryPtr pdePtr;  //!
 
   // Pointer to the whole event record to which the particle belongs (if any).
   // As above it should not be saved.
@@ -313,10 +313,12 @@ protected:
 
 };
 
-// Invariant mass of a pair and its square.
+// Particles invariant mass, mass squared, and momentum dot product.
 // (Not part of class proper, but tightly linked.)
-double m(const Particle&, const Particle&);
-double m2(const Particle&, const Particle&);
+double m(const Particle& pp1, const Particle& pp2);
+double m2(const Particle& pp1, const Particle& pp2);
+double m2(const Particle& pp1, const Particle& pp2, const Particle& pp3);
+double dot4(const Particle& pp1, const Particle& pp2);
 
 //==========================================================================
 
@@ -489,7 +491,7 @@ public:
   // (To the extent possible; history pointers in removed range are zeroed.)
   void remove(int iFirst, int iLast, bool shiftHistory = true);
 
-  // Restore all ParticleDataEntry* pointers in the Particle vector.
+  // Restore all ParticleDataEntryPtr pointers in the Particle vector.
   // Useful when a persistent copy of the event record is read back in.
   void restorePtrs() { for (int i = 0; i < size(); ++i) setEvtPtr(i); }
 
@@ -630,4 +632,4 @@ private:
 
 } // end namespace Pythia8
 
-#endif // end Pythia8_Event_H
+#endif // Pythia8_Event_H

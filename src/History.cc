@@ -1,5 +1,5 @@
 // History.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -739,19 +739,14 @@ vector<double> History::weightUNLOPSLoop(PartonLevel* trial, AlphaStrong*
   vector<double> aemWeight( nWgts, 1.);
   vector<double> pdfWeight( nWgts, 1.);
 
-  // Do trial shower, calculation of alpha_S ratios, PDF ratios
-  if (depthIn < 0) wt = selected->weightTree(trial, asME, aemME, maxScale,
-    selected->clusterIn.pT(), asFSR, asISR, aemFSR, aemISR, asWeight,
-    aemWeight, pdfWeight);
-  else {
-    wt   = selected->weightTreeEmissions( trial, 1, 0, depthIn, maxScale );
-    if (wt[0] != 0.) {
-      asWeight  = selected->weightTreeAlphaS( asME, asFSR, asISR, depthIn,
-          true);
-      aemWeight = selected->weightTreeAlphaEM( aemME, aemFSR, aemISR, depthIn);
-      pdfWeight = selected->weightTreePDFs( maxScale,
-                                            selected->clusterIn.pT(), depthIn);
-    }
+  // Do trial shower, calculation of alpha_S ratios, PDF ratios.
+  wt   = selected->weightTreeEmissions( trial, 1, 0, depthIn, maxScale );
+  if (wt[0] != 0.) {
+    asWeight  = selected->weightTreeAlphaS( asME, asFSR, asISR, depthIn,
+                                            true);
+    aemWeight = selected->weightTreeAlphaEM( aemME, aemFSR, aemISR, depthIn);
+    pdfWeight = selected->weightTreePDFs( maxScale,
+                                          selected->clusterIn.pT(), depthIn);
   }
 
   // MPI no-emission probability.
@@ -937,19 +932,13 @@ vector<double> History::weightUNLOPSSubtNLO(PartonLevel* trial, AlphaStrong*
   vector<double> aemWeight( nWgts, 1.);
   vector<double> pdfWeight( nWgts, 1.);
   // Do trial shower, calculation of alpha_S ratios, PDF ratios
-  if (depthIn < 0)
-    wt = selected->weightTree(trial, asME, aemME, maxScale,
-      selected->clusterIn.pT(), asFSR, asISR, aemFSR, aemISR, asWeight,
-      aemWeight, pdfWeight);
-  else {
-    wt = selected->weightTreeEmissions( trial, 1, 0, depthIn, maxScale );
-    if (wt[0] > 0.) {
-      asWeight  = selected->weightTreeAlphaS( asME, asFSR, asISR, depthIn,
-          true);
-      aemWeight = selected->weightTreeAlphaEM( aemME, aemFSR, aemISR, depthIn);
-      pdfWeight = selected->weightTreePDFs( maxScale,
-                                            selected->clusterIn.pT(), depthIn);
-    }
+  wt = selected->weightTreeEmissions( trial, 1, 0, depthIn, maxScale );
+  if (wt[0] > 0.) {
+    asWeight  = selected->weightTreeAlphaS( asME, asFSR, asISR, depthIn,
+                                            true);
+    aemWeight = selected->weightTreeAlphaEM( aemME, aemFSR, aemISR, depthIn);
+    pdfWeight = selected->weightTreePDFs( maxScale,
+                                          selected->clusterIn.pT(), depthIn);
   }
 
   // MPI no-emission probability.
@@ -2837,7 +2826,7 @@ vector<double> History::weightTreePDFs( double maxscale, double pdfScale,
 
   // If this node has too many jets, do not calculate PDF ratio.
   int njetNow = mergingHooksPtr->getNumberOfClusteringSteps( state) ;
-  if (njetNow >= njetMax) return vector<double>( nWgts, 1. );
+  if (njetNow > njetMax) return vector<double>( nWgts, 1. );
 
   // Calculate pdf ratios: Get both sides of event
   int inP = 3;
@@ -3320,17 +3309,27 @@ vector<double> History::doTrialShower( PartonLevel* trial, int type,
 
   // Set output.
   bool doVeto          = false;
-  double wt            = 1.;
   bool canEnhanceTrial = trial->canEnhanceTrial();
 
   // Save shower weight vector before variation
   vector<double> showerWeightVecSave = infoPtr->
-    weightContainerPtr->weightsPS.weightValues;
+    weightContainerPtr->weightsSimpleShower.weightValues;
+  // Set shower weights to 1.
+  for (double &showerwt: infoPtr->weightContainerPtr
+         ->weightsSimpleShower.weightValues)
+    showerwt = 1.;
+  // Get vector of shower weights, now just vector of 1. of correct length
+  vector<double> wt( nWgts, 1.);
 
-  while ( true ) {
+  while (true) {
 
     // Reset trialShower object
     trial->resetTrial();
+    // Set shower weights to 1. for each enhanced emission
+    if (canEnhanceTrial)
+      for (double &showerwt: infoPtr->weightContainerPtr
+             ->weightsSimpleShower.weightValues)
+        showerwt = 1.;
     // Construct event to be showered
     Event event = Event();
     event.init("(hard process-modified)", particleDataPtr);
@@ -3413,24 +3412,20 @@ vector<double> History::doTrialShower( PartonLevel* trial, int type,
 
     // Only consider allowed emissions for veto:
     // Only allow MPI for MPI no-emission probability.
-    if ( type == -1 && typeTrial != 1 ) {
-      // Restore weight vector
-      infoPtr->weightContainerPtr->weightsPS.weightValues =
-        showerWeightVecSave;
-      continue;
-    }
+    if ( type == -1 && typeTrial != 1 ) continue;
     // Only allow ISR or FSR for radiative no-emission probability.
-    if ( type ==  1 && !(typeTrial == 2 || typeTrial >= 3) ) {
-      // Restore weight vector
-      infoPtr->weightContainerPtr->weightsPS.weightValues =
-        showerWeightVecSave;
-      continue;
-    }
+    if ( type ==  1 && !(typeTrial == 2 || typeTrial >= 3) ) continue;
 
-    // Update enhanced trial shower weight.
-    if (canEnhanceTrial && pTtrial > minScale) wt *= (1. - 1./wtEnhanced);
+    // Update enhanced trial shower weight. (1.-1./wtEnhanced) usual veto
+    // factor, only variation factor applied in shower
+    if (canEnhanceTrial && pTtrial > minScale) {
+      vector<double> showerVar = infoPtr->weightContainerPtr->
+        weightsSimpleShower.getMuRWeightVector();
+      wt[0] *= (1.-1./wtEnhanced);
+      for (int i = 1; i < nWgts; ++i) wt[i] *= (1. - showerVar[i]/wtEnhanced);
+    }
     // Done with enhanced trial showers if weight is zero.
-    if ( canEnhanceTrial && wt == 0.) break;
+    if ( canEnhanceTrial && wt[0] == 0.) break;
     // Continue producing trial emissions in case of enhanced showers.
     if ( canEnhanceTrial && pTtrial > minScale) continue;
 
@@ -3450,8 +3445,12 @@ vector<double> History::doTrialShower( PartonLevel* trial, int type,
       && ( mergingHooksPtr->getProcessString().compare("pp>jj") == 0
         || mergingHooksPtr->getProcessString().compare("pp>aj") == 0
            || isQCD2to2(state))
-      && pTtrial > hardFacScale(process) )
+      && pTtrial > hardFacScale(process) ) {
+      // Reset shower weights
+      infoPtr->weightContainerPtr->weightsSimpleShower.weightValues =
+        showerWeightVecSave;
       return vector<double>( nWgts, 0.0 );
+    }
 
     // If pT of trial emission was in suitable range (trial shower
     // successful), return false
@@ -3459,26 +3458,26 @@ vector<double> History::doTrialShower( PartonLevel* trial, int type,
 
     // Done
     break;
-
   }
 
-  // Done
   // Get combination of shower weights for muR variation in FSR and ISR
-  vector<double> trialShowerWt = infoPtr->weightContainerPtr->weightsPS.
-    getMuRWeightVector();
-  // Insert 1. for central value
-  trialShowerWt.insert(trialShowerWt.begin(),1.);
+  vector<double> trialShowerWt =
+    infoPtr->weightContainerPtr->weightsSimpleShower.getMuRWeightVector();
 
+  // If not enhanced, apply veto to weights accumulated in shower
+  if (!canEnhanceTrial) {
+    wt[0] = trialShowerWt[0] * ((doVeto) ? 0. : 1.);
+    for (int i = 1; i < nWgts; ++i) wt[i] = wt[0]*trialShowerWt[i];
+  }
   // If MPI, no variation allowed (no-emission variations would bleed in from
   // shower without this catch)
-  if (type == -1) trialShowerWt = vector<double>(trialShowerWt.size(),1.);
+  if (type == -1)
+    for (size_t i = 1; i < wt.size(); ++i) wt[i] = wt[0];
   // Reset shower weights
-  infoPtr->weightContainerPtr->weightsPS.weightValues = showerWeightVecSave;
+  infoPtr->weightContainerPtr->weightsSimpleShower.weightValues =
+    showerWeightVecSave;
 
-  //Apply veto or enhancement
-  for (double& swt: trialShowerWt)
-   swt *= (canEnhanceTrial) ? wt : ( (doVeto) ? 0. : 1. );
-  return trialShowerWt;
+  return wt;
 
 }
 
@@ -3530,11 +3529,14 @@ vector<double> History::countEmissions(PartonLevel* trial, double maxscale,
 
   // Save shower weight vector before variation
   vector<double> showerWeightVecSave = infoPtr->
-    weightContainerPtr->weightsPS.weightValues;
+    weightContainerPtr->weightsSimpleShower.weightValues;
 
   while ( true ) {
     // Reset trialShower object
     trial->resetTrial();
+    // Set shower weights to 1.
+    for (double &wt: infoPtr->weightContainerPtr
+           ->weightsSimpleShower.weightValues) wt = 1.;
     // Construct event to be showered
     Event event = Event();
     event.init("(hard process-modified)", particleDataPtr);
@@ -3568,12 +3570,13 @@ vector<double> History::countEmissions(PartonLevel* trial, double maxscale,
     // Perform trial shower emission
     trial->next(process,event);
 
-    // Restore weight vector, since variation higher order
-    infoPtr->weightContainerPtr->weightsPS.weightValues = showerWeightVecSave;
-
     // Get trial shower pT
     double pTtrial = trial->pTLastInShower();
     int typeTrial  = trial->typeLastInShower();
+
+    // Restore weight vector, since variation higher order
+    infoPtr->weightContainerPtr->weightsSimpleShower.weightValues
+      = showerWeightVecSave;
 
     // Clear parton systems.
     trial->resetTrial();

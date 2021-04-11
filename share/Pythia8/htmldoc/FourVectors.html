@@ -202,7 +202,10 @@ the combinations <i>E+-p_z</i>.
    
 <a name="anchor31"></a>
 <strong> double Vec4::eta() &nbsp;</strong> <br/>
-true rapidity <i>y</i> and pseudorapidity <i>eta</i>. 
+true rapidity <i>y</i> and pseudorapidity <i>eta</i>. In case of 
+massless or inconsistent input, such as <i>e &leq; |p_z|</i> (within 
+machine precision), a value of +-20 is set, where the sign reflects 
+that of <i>p_z</i>. 
    
  
 <a name="section3"></a> 
@@ -649,4 +652,4 @@ when in the rest frame.
 </body>
 </html>
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 

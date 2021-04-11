@@ -1,5 +1,5 @@
 # Makefile is a part of the PYTHIA event generator.
-# Copyright (C) 2020 Torbjorn Sjostrand.
+# Copyright (C) 2021 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, October 2014 - November 2017.
@@ -36,7 +36,7 @@ LOCAL_TMP=tmp
 LOCAL_MKDIRS:=$(shell mkdir -p $(LOCAL_TMP) $(LOCAL_LIB))
 CXX_COMMON:=-I$(LOCAL_INCLUDE) $(CXX_COMMON)
 OBJ_COMMON:=-MD $(CXX_COMMON) $(OBJ_COMMON)
-LIB_COMMON=-Wl,-rpath,$(PREFIX_LIB) -ldl $(GZIP_LIB)
+LIB_COMMON=-Wl,-rpath,../lib:$(PREFIX_LIB) -ldl $(GZIP_LIB)
 
 # PYTHIA.
 OBJECTS=$(patsubst $(LOCAL_SRC)/%.cc,$(LOCAL_TMP)/%.o,\
@@ -94,6 +94,8 @@ Makefile.inc:
 # PYTHIA.
 $(LOCAL_TMP)/Pythia.o: $(LOCAL_SRC)/Pythia.cc Makefile.inc
 	$(CXX) $< -o $@ -c $(OBJ_COMMON) -DXMLDIR=\"$(PREFIX_SHARE)/xmldoc\"
+$(LOCAL_TMP)/Streams.o: $(LOCAL_SRC)/Streams.cc Makefile.inc
+	$(CXX) $< -o $@ -c $(OBJ_COMMON)
 $(LOCAL_TMP)/%.o: $(LOCAL_SRC)/%.cc
 	$(CXX) $< -o $@ -c $(OBJ_COMMON)
 $(LOCAL_LIB)/libpythia8.a: $(OBJECTS)
@@ -143,7 +145,7 @@ clean:
 	cd plugins/mg5mes && $(MAKE) clean
 	rm -rf $(LOCAL_TMP) $(LOCAL_LIB)
 	rm -f $(LOCAL_EXAMPLE)/*Dct.*
-	rm -f $(LOCAL_EXAMPLE)/*[0-9]
+	rm -f $(LOCAL_EXAMPLE)/*[0-9][0-9]
 	rm -f $(LOCAL_EXAMPLE)/weakbosons.lhe
 	rm -f $(LOCAL_EXAMPLE)/hist.root
 

@@ -1,5 +1,5 @@
 // VinciaAntennaFunctions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2021 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -69,7 +69,7 @@ public:
   // Constructor.
   AntennaFunction() = default;
 
-  // Destructor
+  // Destructor.
   virtual ~AntennaFunction() {};
 
   // Names of this antenna, for VINCIA, and for humans.
@@ -199,14 +199,14 @@ protected:
 
 //==========================================================================
 
-// Class QQEmitFF, final-final antenna function.
+// Class AntQQemitFF, final-final antenna function.
 
-class QQEmitFF : public AntennaFunction {
+class AntQQemitFF : public AntennaFunction {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:QQEmitFF";};
+  virtual string vinciaName() const {return "Vincia:QQemitFF";};
 
   // Functions needed by soft- and collinear-limit checks (AB -> 0i 1j 2k).
   virtual int idA() const {return 1;}
@@ -226,14 +226,14 @@ public:
 
 //==========================================================================
 
-// Class QGEmitFF, final-final antenna function.
+// Class AntQGemitFF, final-final antenna function.
 
-class QGEmitFF : public AntennaFunction {
+class AntQGemitFF : public AntennaFunction {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:QGEmitFF";};
+  virtual string vinciaName() const {return "Vincia:QGemitFF";};
 
   // Parton types (AB -> 0i 1j 2k): needed by soft- and collinear-limit checks.
   virtual int idA() const {return 1;}
@@ -252,21 +252,21 @@ public:
 
 //==========================================================================
 
-// Class GQEmitFF, final-final antenna function.
+// Class AntGQemitFF, final-final antenna function.
 
-class GQEmitFF : public QGEmitFF {
+class AntGQemitFF : public AntQGemitFF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:GQEmitFF";};
+  virtual string vinciaName() const {return "Vincia:GQemitFF";};
 
   // Parton types (AB -> 0i 1j 2k): needed by soft- and collinear-limit checks.
   virtual int idA() const {return 21;}
   virtual int idB() const {return -1;}
   virtual int id1() const {return 21;}
 
-  // The antenna function [GeV^-2] (derived from QGEmit by swapping).
+  // The antenna function [GeV^-2] (derived from AntQGemit by swapping).
   virtual double antFun(vector<double> invariants,
     vector<double> mNew, vector<int> helBef, vector<int> helNew);
 
@@ -278,14 +278,14 @@ public:
 
 //==========================================================================
 
-// Class GQEmitFF, final-final antenna function.
+// Class AntGQemitFF, final-final antenna function.
 
-class GGEmitFF : public AntennaFunction {
+class AntGGemitFF : public AntennaFunction {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName()    const {return "Vincia:GGEmitFF";};
+  virtual string vinciaName()    const {return "Vincia:GGemitFF";};
 
   // Parton types (AB -> 0i 1j 2k): needed by soft- and collinear-limit checks.
   virtual int idA()    const {return 21;}
@@ -304,14 +304,14 @@ public:
 
 //==========================================================================
 
-// Class GXSplitFF, final-final antenna function.
+// Class AntGXsplitFF, final-final antenna function.
 
-class GXSplitFF : public AntennaFunction {
+class AntGXsplitFF : public AntennaFunction {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:GXSplitFF";};
+  virtual string vinciaName() const {return "Vincia:GXsplitFF";};
 
   // Parton types (AB -> 0i 1j 2k): needed by soft- and collinear-limit checks.
   virtual int idA() const {return 21;}
@@ -330,17 +330,17 @@ public:
 
 //==========================================================================
 
-// Class QQEmitFFsec, sector final-final antenna function, identical
+// Class AntQQemitFFsec, sector final-final antenna function, identical
 // to global one.
 
-class QQEmitFFsec : public QQEmitFF {};
+class AntQQemitFFsec : public AntQQemitFF {};
 
 //==========================================================================
 
-// Class QGEmitFFsec, sector final-final antenna function, explicit
-// symmetrisation of QGEmitFF.
+// Class AntQGemitFFsec, sector final-final antenna function, explicit
+// symmetrisation of AntQGemitFF.
 
-class QGEmitFFsec : public QGEmitFF {
+class AntQGemitFFsec : public AntQGemitFF {
 
 public:
 
@@ -352,10 +352,10 @@ public:
 
 //==========================================================================
 
-// Class GQEmitFFsec, sector final-final antenna function, explicit
-// symmetrisation of GQEmitFF.
+// Class AntGQemitFFsec, sector final-final antenna function, explicit
+// symmetrisation of AntGQemitFF.
 
-class GQEmitFFsec : public QGEmitFFsec {
+class AntGQemitFFsec : public AntQGemitFFsec {
 
 public:
 
@@ -364,7 +364,7 @@ public:
   virtual int idB() const {return -1;}
   virtual int id1() const {return 21;}
 
-  // The antenna function [GeV^-2] (derived from QGEmitFFsec by swapping).
+  // The antenna function [GeV^-2] (derived from AntQGemitFFsec by swapping).
   virtual double antFun(vector<double> invariants,
     vector<double> mNew, vector<int> helBef, vector<int> helNew);
 
@@ -376,10 +376,10 @@ public:
 
 //==========================================================================
 
-// Class GGEmitFFsec, sector final-final antenna function, explicit
-// symmetrisation of GGEmitFF.
+// Class AntGGemitFFsec, sector final-final antenna function, explicit
+// symmetrisation of AntGGemitFF.
 
-class GGEmitFFsec : public GGEmitFF {
+class AntGGemitFFsec : public AntGGemitFF {
 
 public:
 
@@ -391,10 +391,10 @@ public:
 
 //==========================================================================
 
-// Class GXSplitFFsec, sector final-final antenna function, explicit
-// symmetrisation of GXSplitFF.
+// Class AntGXsplitFFsec, sector final-final antenna function, explicit
+// symmetrisation of AntGXsplitFF.
 
-class GXSplitFFsec : public GXSplitFF {
+class AntGXsplitFFsec : public AntGXsplitFF {
 
  public:
 
@@ -417,16 +417,17 @@ class AntennaFunctionIX : public AntennaFunction {
 public:
 
   // Method to initialise (can be different than that of the base class).
-  virtual bool init();
+  virtual bool init() override;
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:AntennaFunctionIX";}
+  virtual string vinciaName() const override {
+    return "Vincia:AntennaFunctionIX";}
 
   // Parton types AB -> 0a 1j 2b with A,B,a,b initial and j final.
-  virtual int idA() const {return 0;}
-  virtual int idB() const {return 0;}
+  virtual int idA() const override {return 0;}
+  virtual int idB() const override {return 0;}
   virtual int id0() const {return 0;}
-  virtual int id1() const {return 0;}
+  virtual int id1() const override {return 0;}
   virtual int id2() const {return 0;}
 
   // Functions to get Altarelli-Parisi energy fractions.
@@ -439,163 +440,163 @@ public:
   virtual bool isIIant() {return true;}
 
   // Function to check singularities, positivity, etc.
-  virtual bool check();
+  virtual bool check() override;
 
 };
 
 //==========================================================================
 
-// Class QQEmitII, initial-initial antenna function.
+// Class AntQQemitII, initial-initial antenna function.
 
-class QQEmitII : public AntennaFunctionIX {
+class AntQQemitII : public AntennaFunctionIX {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:QQEmitII";}
+  virtual string vinciaName() const override {return "Vincia:QQemitII";}
 
   // Parton types AB -> 0a 1j 2b with A,B,a,b initial and j final.
-  virtual int idA() const {return 1;}
-  virtual int idB() const {return -1;}
-  virtual int id0() const {return 1;}
-  virtual int id1() const {return 21;}
-  virtual int id2() const {return -1;}
+  virtual int idA() const override {return 1;}
+  virtual int idB() const override {return -1;}
+  virtual int id0() const override {return 1;}
+  virtual int id1() const override {return 21;}
+  virtual int id2() const override {return -1;}
 
   // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
-    vector<int> helBef, vector<int> helNew);
+    vector<int> helBef, vector<int> helNew) override;
 
   // AP splitting kernel for collinear limit checks.
   virtual double AltarelliParisi(vector<double> invariants,
-    vector<double>, vector<int> helBef, vector<int> helNew);
+    vector<double>, vector<int> helBef, vector<int> helNew) override;
 
 };
 
 //==========================================================================
 
-// Class GQEmitII, initial-initial antenna function.
+// Class AntGQemitII, initial-initial antenna function.
 
-class GQEmitII : public AntennaFunctionIX {
+class AntGQemitII : public AntennaFunctionIX {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:GQEmitII";}
+  virtual string vinciaName() const override {return "Vincia:GQemitII";}
 
   // Parton types AB -> 0a 1j 2b with A,B,a,b initial and j final.
-  virtual int idA() const {return 21;}
-  virtual int idB() const {return 1;}
-  virtual int id0() const {return 21;}
-  virtual int id1() const {return 21;}
-  virtual int id2() const {return 1;}
+  virtual int idA() const override {return 21;}
+  virtual int idB() const override {return 1;}
+  virtual int id0() const override {return 21;}
+  virtual int id1() const override {return 21;}
+  virtual int id2() const override {return 1;}
 
   // The antenna function.
   virtual double antFun(vector<double> invariants, vector<double> masses,
-    vector<int> helBef, vector<int> helNew);
+    vector<int> helBef, vector<int> helNew) override;
 
   // AP splitting kernel for collinear limit checks.
   virtual double AltarelliParisi(vector<double> invariants,
-    vector<double>, vector<int> helBef, vector<int> helNew);
+    vector<double>, vector<int> helBef, vector<int> helNew) override;
 
 };
 
 //==========================================================================
 
-// Class GGEmitII, initial-initial antenna function.
+// Class AntGGemitII, initial-initial antenna function.
 
-class GGEmitII : public AntennaFunctionIX {
+class AntGGemitII : public AntennaFunctionIX {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:GGEmitII";}
+  virtual string vinciaName() const override {return "Vincia:GGemitII";}
 
   // Parton types AB -> 0a 1j 2b with A,B,a,b initial and j final.
-  virtual int idA() const {return 21;}
-  virtual int idB() const {return 21;}
-  virtual int id0() const {return 21;}
-  virtual int id1() const {return 21;}
-  virtual int id2() const {return 21;}
+  virtual int idA() const override {return 21;}
+  virtual int idB() const override {return 21;}
+  virtual int id0() const override {return 21;}
+  virtual int id1() const override {return 21;}
+  virtual int id2() const override {return 21;}
 
   // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
-    vector<int> helBef, vector<int> helNew);
+    vector<int> helBef, vector<int> helNew) override;
 
   // AP splitting kernel, P(z)/Q2.
   virtual double AltarelliParisi(vector<double> invariants,
-    vector<double>, vector<int> helBef, vector<int> helNew);
+    vector<double>, vector<int> helBef, vector<int> helNew) override;
 
 };
 
 //==========================================================================
 
-// Class QXSplitII, initial-initial antenna function. Splitting is in
+// Class AntQXsplitII, initial-initial antenna function. splitting is in
 // the forwards sense, i.e. quark backwards evolving to a gluon and
 // emitting an antiquark in the final state.
 
-class QXSplitII : public AntennaFunctionIX {
+class AntQXsplitII : public AntennaFunctionIX {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const { return "Vincia:QXSplitII";}
+  virtual string vinciaName() const override { return "Vincia:QXsplitII";}
 
   // Parton types AB -> 0a 1j 2b with A,B, a,b initial and j final.
-  virtual int idA() const {return 1;}
-  virtual int idB() const {return 0;}
-  virtual int id0() const {return 21;}
-  virtual int id1() const {return -1;}
-  virtual int id2() const {return 0;}
+  virtual int idA() const override {return 1;}
+  virtual int idB() const override {return 0;}
+  virtual int id0() const override {return 21;}
+  virtual int id1() const override {return -1;}
+  virtual int id2() const override {return 0;}
 
   // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
-    vector<int> helBef, vector<int> helNew);
+    vector<int> helBef, vector<int> helNew) override;
 
   // AP splitting kernel, P(z)/Q2.
   virtual double AltarelliParisi(vector<double> invariants,
-    vector<double>, vector<int> helBef, vector<int> helNew);
+    vector<double>, vector<int> helBef, vector<int> helNew) override;
 
   // Mark that this function has no zB collinear limit.
-  virtual double zB(vector<double>) {return -1.0;}
+  virtual double zB(vector<double>) override {return -1.0;}
 
 };
 
 //==========================================================================
 
-// Class GXConvII, initial-initial antenna function. Gluon evolves
+// Class AntGXconvII, initial-initial antenna function. Gluon evolves
 // backwards into a quark and emits a quark in the final state.
 
-class GXConvII : public AntennaFunctionIX {
+class AntGXconvII : public AntennaFunctionIX {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:GXConvII";}
+  virtual string vinciaName() const override {return "Vincia:GXconvII";}
 
   // Parton types AB -> 0a 1j 2b with A,B,a,b initial and j final.
-  virtual int idA() const {return 21;}
-  virtual int idB() const {return 0;}
-  virtual int id0() const {return 2;}
-  virtual int id1() const {return 2;}
-  virtual int id2() const {return 0;}
+  virtual int idA() const override {return 21;}
+  virtual int idB() const override {return 0;}
+  virtual int id0() const override {return 2;}
+  virtual int id1() const override {return 2;}
+  virtual int id2() const override {return 0;}
 
   // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
-    vector<int> helBef, vector<int> helNew);
+    vector<int> helBef, vector<int> helNew) override;
 
   // AP splitting kernel, P(z)/Q2.
   virtual double AltarelliParisi(vector<double> invariants,
-    vector<double>, vector<int> helBef, vector<int> helNew);
+    vector<double>, vector<int> helBef, vector<int> helNew) override;
 
   // Mark that this function has no zB collinear limit.
-  virtual double zB(vector<double>) {return -1.0;}
+  virtual double zB(vector<double>) override {return -1.0;}
 
 };
 
 //==========================================================================
 
 // Class AntennaFunctionIF, base class for IF/RF antenna functions
-// which implements QQEmitIF. Derived classes are for global
+// which implements AntQQemitIF. Derived classes are for global
 // initial-final and resonance-final antenna functions. The method
 // isRFant() distinguishes between the two.
 
@@ -604,29 +605,30 @@ class AntennaFunctionIF : public AntennaFunctionIX {
 public:
 
   // Method to initialise (can be different than that of the base class).
-  virtual bool init();
+  virtual bool init() override;
 
   // Function to check singularities, positivity, etc.
-  virtual bool check();
+  virtual bool check() override;
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:AntennaFunctionIF";}
+  virtual string vinciaName() const override {
+    return "Vincia:AntennaFunctionIF";}
 
   // Parton types AB -> 0a 1j 2b with A,a initial and B,b,j final.
-  virtual int idA() const {return 1;}
-  virtual int idB() const {return -1;}
-  virtual int id0() const {return 1;}
-  virtual int id1() const {return 21;}
-  virtual int id2() const {return -1;}
+  virtual int idA() const override {return 1;}
+  virtual int idB() const override {return -1;}
+  virtual int id0() const override {return 1;}
+  virtual int id1() const override {return 21;}
+  virtual int id2() const override {return -1;}
 
   // Functions to get Altarelli-Parisi energy fractions.
-  virtual double zA(vector<double> invariants) {double sAK = invariants[0];
-    double sjk = invariants[2]; return sAK/(sAK+sjk);}
-  virtual double zB(vector<double> invariants) {double sAK = invariants[0];
-    double saj = invariants[1]; return (sAK-saj)/sAK;}
+  virtual double zA(vector<double> invariants) override {
+    double sAK(invariants[0]), sjk(invariants[2]); return sAK/(sAK+sjk);}
+  virtual double zB(vector<double> invariants) override {
+    double sAK(invariants[0]), saj(invariants[1]); return (sAK-saj)/sAK;}
 
   // Methods to tell II, IF, and RF apart.
-  virtual bool isIIant() {return false;}
+  virtual bool isIIant() override {return false;}
   virtual bool isRFant() {return false;}
 
   // Check for resonances.
@@ -667,296 +669,297 @@ protected:
 
 //==========================================================================
 
-// Class QQEmitIF, initial-final antenna function.
+// Class AntQQemitIF, initial-final antenna function.
 
-class QQEmitIF : public AntennaFunctionIF {
+class AntQQemitIF : public AntennaFunctionIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const { return "Vincia:QQEmitIF";}
+  virtual string vinciaName() const override { return "Vincia:QQemitIF";}
 
   // Parton types AB -> 0a 1j 2b with A,a initial and B,b,j final.
-  virtual int idA() const {return 1;}
-  virtual int idB() const {return -1;}
-  virtual int id0() const {return 1;}
-  virtual int id1() const {return 21;}
-  virtual int id2() const {return -1;}
+  virtual int idA() const override {return 1;}
+  virtual int idB() const override {return -1;}
+  virtual int id0() const override {return 1;}
+  virtual int id1() const override {return 21;}
+  virtual int id2() const override {return -1;}
 
   // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
-    vector<int> helBef, vector<int> helNew);
+    vector<int> helBef, vector<int> helNew) override;
 
   // The AP kernel, P(z)/Q2.
   virtual double AltarelliParisi(vector<double> invariants,
-    vector<double>, vector<int> helBef, vector<int> helNew);
+    vector<double>, vector<int> helBef, vector<int> helNew) override;
 
   // Functions to get Altarelli-Parisi energy fractions.
-  virtual double zA(vector<double> invariants) {double sAK = invariants[0];
-    double sjk = invariants[2]; return sAK/(sAK+sjk);}
-  virtual double zB(vector<double> invariants) {double sAK = invariants[0];
-    double saj = invariants[1]; return (sAK-saj)/sAK;}
+  virtual double zA(vector<double> invariants) override {
+    double sAK(invariants[0]), sjk(invariants[2]); return sAK/(sAK+sjk);}
+  virtual double zB(vector<double> invariants) override {
+    double sAK(invariants[0]), saj(invariants[1]); return (sAK-saj)/sAK;}
 
 };
 
 //==========================================================================
 
-// Class QGEmitIF, initial-final antenna function.
+// Class AntQGemitIF, initial-final antenna function.
 
-class QGEmitIF : public AntennaFunctionIF {
+class AntQGemitIF : public AntennaFunctionIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:QGEmitIF";}
+  virtual string vinciaName() const override {return "Vincia:QGemitIF";}
 
   // Parton types AB -> 0a 1j 2b with A,a initial and B,b,j final.
-  virtual int idA() const {return 1;}
-  virtual int idB() const {return 21;}
-  virtual int id0() const {return 1;}
-  virtual int id1() const {return 21;}
-  virtual int id2() const {return 21;}
+  virtual int idA() const override {return 1;}
+  virtual int idB() const override {return 21;}
+  virtual int id0() const override {return 1;}
+  virtual int id1() const override {return 21;}
+  virtual int id2() const override {return 21;}
 
   // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
-    vector<int> helBef, vector<int> helNew);
+    vector<int> helBef, vector<int> helNew) override;
 
   // The AP kernel, P(z)/Q2.
   virtual double AltarelliParisi(vector<double> invariants,
-    vector<double>, vector<int> helBef, vector<int> helNew);
+    vector<double>, vector<int> helBef, vector<int> helNew) override;
 
 };
 
 //==========================================================================
 
-// Class GQEmitIF, initial-final antenna function.
+// Class AntGQemitIF, initial-final antenna function.
 
-class GQEmitIF : public AntennaFunctionIF {
+class AntGQemitIF : public AntennaFunctionIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:GQEmitIF";}
+  virtual string vinciaName() const override {return "Vincia:GQemitIF";}
 
   // Parton types AB -> 0a 1j 2b with A,a initial and B,b,j final.
-  virtual int idA() const {return 21;}
-  virtual int idB() const {return 1;}
-  virtual int id0() const {return 21;}
-  virtual int id1() const {return 21;}
-  virtual int id2() const {return 1;}
+  virtual int idA() const override {return 21;}
+  virtual int idB() const override {return 1;}
+  virtual int id0() const override {return 21;}
+  virtual int id1() const override {return 21;}
+  virtual int id2() const override {return 1;}
 
   // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
-    vector<int> helBef, vector<int> helNew);
+    vector<int> helBef, vector<int> helNew) override;
 
   // The AP kernel, P(z)/Q2.
   virtual double AltarelliParisi(vector<double> invariants,
-    vector<double>, vector<int> helBef, vector<int> helNew);
+    vector<double>, vector<int> helBef, vector<int> helNew) override;
 
 };
 
 //==========================================================================
 
-// Class GGEmitIF, initial-final antenna function.
+// Class AntGGemitIF, initial-final antenna function.
 
-class GGEmitIF : public AntennaFunctionIF {
+class AntGGemitIF : public AntennaFunctionIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:GGEmitIF";}
+  virtual string vinciaName() const override {return "Vincia:GGemitIF";}
 
   // Parton types AB -> 0a 1j 2b with A,a initial and B,b,j final.
-  virtual int idA() const {return 21;}
-  virtual int idB() const {return 21;}
-  virtual int id0() const {return 21;}
-  virtual int id1() const {return 21;}
-  virtual int id2() const {return 21;}
+  virtual int idA() const override {return 21;}
+  virtual int idB() const override {return 21;}
+  virtual int id0() const override {return 21;}
+  virtual int id1() const override {return 21;}
+  virtual int id2() const override {return 21;}
 
   // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
-    vector<int> helBef, vector<int> helNew);
+    vector<int> helBef, vector<int> helNew) override;
 
   // The AP kernel, P(z)/Q2.
   virtual double AltarelliParisi(vector<double> invariants,
-    vector<double>, vector<int> helBef, vector<int> helNew);
+    vector<double>, vector<int> helBef, vector<int> helNew) override;
 
 };
 
 //==========================================================================
 
-// Class QXSplitIF, initial-final antenna function. Splitting is in
+// Class AntQXsplitIF, initial-final antenna function. splitting is in
 // the forwards sense, i.e. quark backwards evolving to a gluon and
 // emitting an antiquark in the final state.
 
-class QXSplitIF : public AntennaFunctionIF {
+class AntQXsplitIF : public AntennaFunctionIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:QXSplitIF";}
+  virtual string vinciaName() const override {return "Vincia:QXsplitIF";}
 
   // Parton types AB -> 0a 1j 2b with A,a initial and B,b,j final.
-  virtual int idA() const {return 1;}
-  virtual int idB() const {return 0;}
-  virtual int id0() const {return 21;}
-  virtual int id1() const {return -1;}
-  virtual int id2() const {return 0;}
+  virtual int idA() const override {return 1;}
+  virtual int idB() const override {return 0;}
+  virtual int id0() const override {return 21;}
+  virtual int id1() const override {return -1;}
+  virtual int id2() const override {return 0;}
 
   // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
-    vector<int> helBef, vector<int> helNew);
+    vector<int> helBef, vector<int> helNew) override;
 
   virtual double AltarelliParisi(vector<double> invariants,
-    vector<double> /* mNew */, vector<int> helBef, vector<int> helNew);
+    vector<double> /*mNew*/, vector<int> helBef, vector<int> helNew) override;
 
   // Mark that this function does not have a zB collinear limit.
-  virtual double zB(vector<double>) {return -1.0;}
+  virtual double zB(vector<double>) override {return -1.0;}
 
 };
 
 //==========================================================================
 
-// Class GXConvIF, initial-final antenna function. Gluon evolves
+// Class AntGXconvIF, initial-final antenna function. Gluon evolves
 // backwards into a quark and emits a quark in the final state.
 
-class GXConvIF : public AntennaFunctionIF {
+class AntGXconvIF : public AntennaFunctionIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:GXConvIF";}
+  virtual string vinciaName() const override {return "Vincia:GXconvIF";}
 
   // Parton types AB -> 0a 1j 2b with A,a initial and B,b,j final.
-  virtual int idA() const {return 21;}
-  virtual int idB() const {return 0;}
-  virtual int id0() const {return 2;}
-  virtual int id1() const {return 2;}
-  virtual int id2() const {return 0;}
+  virtual int idA() const override {return 21;}
+  virtual int idB() const override {return 0;}
+  virtual int id0() const override {return 2;}
+  virtual int id1() const override {return 2;}
+  virtual int id2() const override {return 0;}
 
   // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
-    vector<int> helBef, vector<int> helNew);
+    vector<int> helBef, vector<int> helNew) override;
 
   // The AP kernel, P(z)/Q2.
   virtual double AltarelliParisi(vector<double> invariants,
-    vector<double>, vector<int> helBef, vector<int> helNew);
+    vector<double>, vector<int> helBef, vector<int> helNew) override;
 
   // Mark that this function does not have a zB collinear limit.
-  virtual double zB(vector<double>) {return -1.0;}
+  virtual double zB(vector<double>) override {return -1.0;}
 
 };
 
 //==========================================================================
 
-// Class XGSplitIF, initial-final antenna function. Gluon splitting in
+// Class AntXGsplitIF, initial-final antenna function. Gluon splitting in
 // the final state.
 
-class XGSplitIF : public AntennaFunctionIF {
+class AntXGsplitIF : public AntennaFunctionIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:XGsplitIF";}
+  virtual string vinciaName() const override {return "Vincia:XGsplitIF";}
 
   // Parton types AB -> 0a 1j 2b with A,a initial and B,b,j final.
-  virtual int idA() const {return 0;}
-  virtual int idB() const {return 21;}
-  virtual int id0() const {return 0;}
-  virtual int id1() const {return -1;}
-  virtual int id2() const {return 1;}
+  virtual int idA() const override {return 0;}
+  virtual int idB() const override {return 21;}
+  virtual int id0() const override {return 0;}
+  virtual int id1() const override {return -1;}
+  virtual int id2() const override {return 1;}
 
   // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> masses,
-    vector<int> helBef, vector<int> helNew);
+    vector<int> helBef, vector<int> helNew) override;
 
   // The AP kernel, P(z)/Q2.
   virtual double AltarelliParisi(vector<double> invariants,
-    vector<double>, vector<int> helBef, vector<int> helNew);
+    vector<double>, vector<int> helBef, vector<int> helNew) override;
 
   // Mark that this function does not have a zA collinear limit.
-  virtual double zA(vector<double>) {return -1.0;}
+  virtual double zA(vector<double>) override {return -1.0;}
 
 };
 
 //==========================================================================
 
-// Class QGEmitIFsec, derived class for sector initial-final antenna
+// Class AntQGemitIFsec, derived class for sector initial-final antenna
 // function. Note only the final-state leg needs to be symmetrised,
 // as the global IF functions already contain sector terms on their
 // initial-state legs to account for the absence of "emission into the
 // initial state".
 
-class QGEmitIFsec : public QGEmitIF {
+class AntQGemitIFsec : public AntQGemitIF {
 
 public:
 
   // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants,
-    vector<double> mNew, vector<int> helBef, vector<int> helNew);
+    vector<double> mNew, vector<int> helBef, vector<int> helNew) override;
 
 };
 
 //==========================================================================
 
-// Class GGEmitIFsec, sector initial-final antenna function.
+// Class AntGGemitIFsec, sector initial-final antenna function.
 
-class GGEmitIFsec : public GGEmitIF {
+class AntGGemitIFsec : public AntGGemitIF {
 
 public:
 
   // The antenna function [GeV^-2].
   virtual double antFun(vector<double> invariants,
-    vector<double> mNew, vector<int> helBef, vector<int> helNew);
+    vector<double> mNew, vector<int> helBef, vector<int> helNew) override;
 
 };
 
 //==========================================================================
 
-// Class XGSplitIFsec, sector initial-final antenna function. Gluon
+// Class AntXGsplitIFsec, sector initial-final antenna function. Gluon
 // splitting in the final state.
 
-class XGSplitIFsec : public XGSplitIF {
+class AntXGsplitIFsec : public AntXGsplitIF {
 
 public:
 
   // The antenna function, just 2*global [GeV^-2].
   virtual double antFun(vector<double> invariants, vector<double> mNew,
-    vector<int> helBef, vector<int> helNew);
+    vector<int> helBef, vector<int> helNew) override;
 
 };
 
 //==========================================================================
 
-// Class QQEmitRF, resonance-final antenna function.
+// Class AntQQemitRF, resonance-final antenna function.
 
-class QQEmitRF : public QQEmitIF {
+class AntQQemitRF : public AntQQemitIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  string vinciaName() const {return "Vincia:QQEmitRF";}
+  string vinciaName() const override {return "Vincia:QQemitRF";}
 
   // Parton types AB -> ijk with A,i initial and B,k,j final.
-  int idA() const {return 6;}
-  int idB() const {return 5;}
-  int id0() const {return 6;}
-  int id1() const {return 21;}
-  int id2() const {return 5;}
+  int idA() const override {return 6;}
+  int idB() const override {return 5;}
+  int id0() const override {return 6;}
+  int id1() const override {return 21;}
+  int id2() const override {return 5;}
 
   // Mark that this function does not have a zA collinear limit.
-  double zA(vector<double>) {return -1;}
+  double zA(vector<double>) override {return -1;}
 
   // Return this is a resonance-final antenna.
-  bool isRFant() {return true;}
+  bool isRFant() override {return true;}
 
   // Test masses (top, gluon, bottom, and W mass).
-  void getTestMasses(vector<double> &masses) {masses = {particleDataPtr->m0(6),
-    0.0, particleDataPtr->m0(5), particleDataPtr->m0(24)};}
+  void getTestMasses(vector<double> &masses) override {masses =
+      {particleDataPtr->m0(6), 0.0, particleDataPtr->m0(5),
+       particleDataPtr->m0(24)};}
 
   // AP with dummy helicities.
   virtual double AltarelliParisi(vector<double> invariants,
-    vector<double> masses, vector<int>, vector<int>) {
+    vector<double> masses, vector<int>, vector<int>) override {
     double sjk(invariants[2]), mkres(masses[2]), z(zB(invariants)),
       mu2(mkres*mkres/sjk), Pz(dglapPtr->Pq2gq(z,9,9,9,mu2));
     return Pz/sjk;};
@@ -965,35 +968,35 @@ public:
 
 //==========================================================================
 
-// Class QGEmitRF, resonance-final antenna function.
+// Class AntQGemitRF, resonance-final antenna function.
 
-class QGEmitRF : public QGEmitIF {
+class AntQGemitRF : public AntQGemitIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  string vinciaName() const {return "Vincia:QGEmitRF";}
+  string vinciaName() const override {return "Vincia:QGemitRF";}
 
   // Parton types AB -> ijk with A,i initial and B,k,j final.
-  int idA() const {return 6;}
-  int idB() const {return 21;}
+  int idA() const override {return 6;}
+  int idB() const override {return 21;}
+  int id1() const override {return 21;}
   int ida() const {return 6;}
   int idb() const {return 21;}
-  int id1() const {return 21;}
 
   // Mark that this function does not have a zA collinear limit.
-  double zA(vector<double>) {return -1;}
+  double zA(vector<double>) override {return -1;}
 
   // Return this is a resonance-final antenna.
-  bool isRFant() {return true;}
+  bool isRFant() override {return true;}
 
   // Test masses (top, gluon, gluon, X).
-  void getTestMasses(vector<double> &masses) {masses = {particleDataPtr->m0(6),
-    0.0, 0.0, 0.6*particleDataPtr->m0(6)};}
+  void getTestMasses(vector<double> &masses) override {masses =
+      {particleDataPtr->m0(6), 0.0, 0.0, 0.6*particleDataPtr->m0(6)};}
 
   // AP with dummy helicities and masses.
   virtual double AltarelliParisi(vector<double> invariants, vector<double>,
-    vector<int>, vector<int>) {
+    vector<int>, vector<int>) override {
     double sjk(invariants[2]), z(zB(invariants)),
       Pz(dglapPtr->Pg2gg(z, 9, 9, 9));
     return Pz/sjk;}
@@ -1002,41 +1005,117 @@ public:
 
 //==========================================================================
 
-// Class XGSplitRF, resonance-final antenna function.
+// Class AntQGemitRF, resonance-final antenna function.
 
-class XGSplitRF : public XGSplitIF {
+class AntQGemitRFsec : public AntQGemitIFsec {
+
+public:
+
+  // Names (remember to redefine both for each inherited class).
+  string vinciaName() const override {return "Vincia:QGemitRF";}
+
+  // Parton types AB -> ijk with A,i initial and B,k,j final.
+  int idA() const override {return 6;}
+  int idB() const override {return 21;}
+  int id1() const override {return 21;}
+  int ida() const {return 6;}
+  int idb() const {return 21;}
+
+  // Mark that this function does not have a zA collinear limit.
+  double zA(vector<double>) override {return -1;}
+
+  // Return this is a resonance-final antenna.
+  bool isRFant() override {return true;}
+
+  // Test masses (top, gluon, gluon, X).
+  void getTestMasses(vector<double> &masses) override {masses =
+      {particleDataPtr->m0(6), 0.0, 0.0, 0.6*particleDataPtr->m0(6)};}
+
+  // AP with dummy helicities and masses.
+  virtual double AltarelliParisi(vector<double> invariants, vector<double>,
+    vector<int>, vector<int>) override {
+    double sjk(invariants[2]), z(zB(invariants)),
+      Pz(dglapPtr->Pg2gg(z, 9, 9, 9));
+    return Pz/sjk;}
+
+};
+
+//==========================================================================
+
+// Class AntXGsplitRF, resonance-final antenna function.
+
+class AntXGsplitRF : public AntXGsplitIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class)
-  string vinciaName() const {return "Vincia:XGSplitRF";}
+  string vinciaName() const override {return "Vincia:XGsplitRF";}
 
   // Mark that this function does not have a zA collinear limit.
-  double zA(vector<double>){ return -1;}
+  double zA(vector<double>) override {return -1;}
 
   // Return this is a resonance-final antenna.
-  bool isRFant() {return true;}
+  bool isRFant() override {return true;}
 
   // Parton types AB -> ijk with A,i initial and B,k,j final.
-  int idA() const {return 6;}
-  int idB() const {return 21;}
+  int idA() const override {return 6;}
+  int idB() const override {return 21;}
+  int id1() const override {return -2;}
   int ida() const {return 6;}
   int idb() const {return 2;}
-  int id1() const {return -2;}
 
   // Test masses (top, gluon, gluon, X).
-  void getTestMasses(vector<double> &masses) {masses = {particleDataPtr->m0(6),
-    0.0, 0.0, 0.6*particleDataPtr->m0(6)};}
+  void getTestMasses(vector<double> &masses) override {masses =
+      {particleDataPtr->m0(6), 0.0, 0.0, 0.6*particleDataPtr->m0(6)};}
 
   // AP with dummy helicities.
   double AltarelliParisi(vector<double> invariants, vector<double> masses,
-    vector<int>, vector<int>) {
+    vector<int>, vector<int>) override {
     double sAK(invariants[0]), saj(invariants[1]), sjk(invariants[2]),
       mkres(masses[2]), m2q(mkres*mkres), Q2(sjk + 2*m2q), mu2(m2q/Q2),
       z((sAK+saj-Q2)/sAK), Pz(dglapPtr->Pg2qq(z, 9, 9, 9, mu2));
     return Pz/Q2;}
 
 };
+
+//==========================================================================
+
+// Class AntXGsplitRF, resonance-final antenna function.
+
+class AntXGsplitRFsec : public AntXGsplitIFsec {
+
+public:
+
+  // Names (remember to redefine both for each inherited class)
+  string vinciaName() const override {return "Vincia:XGsplitRF";}
+
+  // Mark that this function does not have a zA collinear limit.
+  double zA(vector<double>) override {return -1;}
+
+  // Return this is a resonance-final antenna.
+  bool isRFant() override {return true;}
+
+  // Parton types AB -> ijk with A,i initial and B,k,j final.
+  int idA() const override {return 6;}
+  int idB() const override {return 21;}
+  int id1() const override {return -2;}
+  int ida() const {return 6;}
+  int idb() const {return 2;}
+
+  // Test masses (top, gluon, gluon, X).
+  void getTestMasses(vector<double> &masses) override {masses =
+      {particleDataPtr->m0(6), 0.0, 0.0, 0.6*particleDataPtr->m0(6)};}
+
+  // AP with dummy helicities.
+  double AltarelliParisi(vector<double> invariants, vector<double> masses,
+    vector<int>, vector<int>) override {
+    double sAK(invariants[0]), saj(invariants[1]), sjk(invariants[2]),
+      mkres(masses[2]), m2q(mkres*mkres), Q2(sjk + 2*m2q), mu2(m2q/Q2),
+      z((sAK+saj-Q2)/sAK), Pz(dglapPtr->Pg2qq(z, 9, 9, 9, mu2));
+    return Pz/Q2;}
+
+};
+
 
 //==========================================================================
 
@@ -1051,8 +1130,8 @@ public:
 
   // Destructor, delete the antennae.
   virtual ~AntennaSetFSR() {
-    for (map<int, AntennaFunction*>::iterator it = antFunPtrs.begin();
-         it != antFunPtrs.end(); ++it) delete it->second;
+    for (auto it = antFunPtrs.begin(); it != antFunPtrs.end(); ++it)
+      delete it->second;
     antFunPtrs.clear();}
 
   // Initialize pointers.
@@ -1062,28 +1141,31 @@ public:
   void init();
 
   // Function to chek if an antenna with the given index exists.
-  bool exists(int iAntIn) {return antFunPtrs.count(iAntIn);}
+  bool exists(enum AntFunType antFunType) {
+    return antFunPtrs.count(antFunType);}
 
-  // Gets an antenna iAntIn from the AntennaSet.
-  AntennaFunction* getAnt(int iAntIn) {
-    return (exists(iAntIn)) ? antFunPtrs[iAntIn] : nullptr;}
+  // Gets an antenna from the AntennaSet.
+  AntennaFunction* getAntFunPtr(enum AntFunType antFunType) {
+    return (exists(antFunType)) ? antFunPtrs[antFunType] : nullptr;}
 
-  // Method to return all iAntPhys values that are defined in antFunPtr.
-  vector<int> getIant();
+  // Get list of all AntFunTypes contained in this set.
+  vector<enum AntFunType> getAntFunTypes();
 
-  // Get Vincia name, e.g. "Vincia:QQEmitFF".
-  string vinciaName(int iAntIn) {
-    return exists(iAntIn) ? antFunPtrs[iAntIn]->vinciaName() : "noVinciaName";}
+  // Get Vincia name, e.g. "Vincia:QQemitFF".
+  string vinciaName(enum AntFunType antFunType) {
+    return exists(antFunType) ? antFunPtrs[antFunType]->vinciaName() :
+      "noVinciaName";}
 
   // Get human name, e.g. "g/qq".
-  string humanName(int iAntIn) {
-    return exists(iAntIn) ? antFunPtrs[iAntIn]->humanName() : "noHumanName";}
+  string humanName(enum AntFunType antFunType) {
+    return exists(antFunType) ? antFunPtrs[antFunType]->humanName() :
+      "noHumanName";}
 
 private:
 
   // Use a map of AntennaFunction pointers, create them with new on
   // initialization.
-  map<int,AntennaFunction*> antFunPtrs{};
+  map<enum AntFunType, AntennaFunction*> antFunPtrs{};
 
   // Pointers to Pythia8 classes, needed to initialise antennae.
   bool isInitPtr{false}, isInit{false};
@@ -1113,8 +1195,8 @@ class AntennaSetISR {
 
   // Destructor, delete the antennae.
   ~AntennaSetISR() {
-    for (map<int, AntennaFunctionIX*>::iterator it = antFunPtrs.begin();
-         it != antFunPtrs.end(); ++it) delete it->second;
+    for (auto it = antFunPtrs.begin(); it != antFunPtrs.end(); ++it)
+      delete it->second;
     antFunPtrs.clear();}
 
   // Initialize pointers.
@@ -1124,28 +1206,31 @@ class AntennaSetISR {
   void init();
 
   // Function to chek if an antenna with the given index exists.
-  bool exists(int iAntIn) {return antFunPtrs.count(iAntIn);}
+  bool exists(enum AntFunType antFunType) {
+    return antFunPtrs.count(antFunType);}
 
-  // Gets an antenna iAntIn from the AntennaSetISR.
-  AntennaFunctionIX* getAnt(vector<AntennaFunctionIX*>::size_type iAntIn) {
-    return (exists(iAntIn)) ? antFunPtrs[iAntIn] : nullptr;}
+  // Gets an antenna from the AntennaSetISR.
+  AntennaFunctionIX* getAntFunPtr(enum AntFunType antFunType) {
+    return (exists(antFunType)) ? antFunPtrs[antFunType] : nullptr;}
 
-  // Method to return all iAntPhys values that are defined in antFunPtr.
-  vector<int> getIant();
+  // Get list of all AntFunTypes contained in this set.
+  vector<enum AntFunType> getAntFunTypes();
 
-  // Get Vincia name, e.g. "Vincia:QQEmitII".
-  string vinciaName(vector<AntennaFunctionIX*>::size_type iAntIn) {
-    return exists(iAntIn) ? antFunPtrs[iAntIn]->vinciaName() : "noVinciaName";}
+  // Get Vincia name, e.g. "Vincia:QQemitII".
+  string vinciaName(enum AntFunType antFunType) {
+    return exists(antFunType) ? antFunPtrs[antFunType]->vinciaName()
+      : "noVinciaName";}
 
   // Get human name, e.g. "g/qq".
-  string humanName(int iAntIn) {
-    return exists(iAntIn) ? antFunPtrs[iAntIn]->humanName() : "noHumanName";}
+  string humanName(enum AntFunType antFunType) {
+    return exists(antFunType) ? antFunPtrs[antFunType]->humanName() :
+      "noHumanName";}
 
 private:
 
   // Use a map of AntennaFunction pointers, create them with new on
   // initialization.
-  map<int,AntennaFunctionIX*> antFunPtrs{};
+  map<enum AntFunType, AntennaFunctionIX*> antFunPtrs{};
 
   // Pointers to Pythia 8 classes, needed to initialise antennae.
   bool isInitPtr{false}, isInit{false};
@@ -1179,7 +1264,7 @@ public:
 
   // Initialize pointers.
   void initPtr(Info* infoPtrIn, ShowerMEs* mg5mesPtrIn,
-    VinciaCommon* vinComPtrIn);
+    VinciaCommon* vinComPtrIn, Resolution* resPtrIn);
 
   // Initialize pointers to antenna sets.
   void initAntPtr(AntennaSetFSR* antFSRusr, AntennaSetISR* antISRusr) {
@@ -1198,41 +1283,45 @@ public:
   bool prepare(const int iSys, Event& event);
 
   // Function to assign helicities to particles (using MEs).
-  bool polarise(const int iSys, Event& event);
+  bool polarise(const int iSys, Event& event, const bool force = false);
+  bool polarise(vector<Particle>& state, const bool force = false);
 
-  // Make list of particles as vector<Particle>.
-  //   First 1 or 2 entries : incoming particle(s).
-  //   Subseqent entries    : outgoing particles.
-  // The two last arguments are optional and allow to specify a list
-  // of indices to be ignored, and a set of particles to be added, e.g.
-  // in the context of setting up a trial state after a branching.
-  // The newly added particles are then at the end of the respective
-  // lists, i.e. a newly added incoming particle is the last incoming
-  // one and newly added outgoing ones are the last among the outgoing
-  // ones.
-  vector<Particle> makeParticleList(const int iSys, const Event& event,
-    const vector<Particle> pNew = vector<Particle>(),
-    const vector<int> iOld = vector<int>());
-
-  // Check if state already has helicities. Return true if any
-  // particle in state already has a specified helicity.
-  bool isPolarised(int iSys, Event& event, bool checkIncoming);
+  // Check if state already has helicities.
+  // checkAll = true : only return true if all particles have helicities.
+  // checkAll = false : return true if *any* particle is polarised.
+  bool isPolarised(int iSys, Event& event, bool checkAll = true);
 
   // Wrapper function to return a specific antenna function.
-  AntennaFunction* getAntFSR(const int iAnt) {
-    return antSetFSR->getAnt(iAnt); }
-  AntennaFunctionIX* getAntISR(const int iAnt) {
-    return antSetISR->getAnt(iAnt); }
+  AntennaFunction* getAntFunPtrFSR(const enum AntFunType antFunType) {
+    return antSetFSR->getAntFunPtr(antFunType); }
+  AntennaFunctionIX* getAntFunPtrISR(const enum AntFunType antFunType) {
+    return antSetISR->getAntFunPtr(antFunType); }
 
   // Function to determine if MECs are requested at this order for this system.
   bool doMEC(const int iSys, const int nBranch);
 
-  // Get squared matrix element.
-  double getME2(const vector<Particle> parts, const int nIn);
-  double getME2(const int iSys, const Event& event);
+  // Check whether we have a matrix element for this configuration.
+  bool meAvailable(int iSys, const Event& event);
+  bool meAvailable(const vector<Particle>& state);
 
-  // Get matrix element correction factor (TODO: dummy implementation).
-  double getMEC(const int, const Event&) {return 1.;}
+  // Get squared matrix element.
+  double getME2(const vector<Particle>& state, int nIn);
+  double getME2(int iSys, const Event& event);
+
+  // Get matrix element correction factor for sector shower.
+  double getMECSector(int iSys, const vector<Particle>& stateNow,
+    const vector<Particle>& statePost, VinciaClustering& clus);
+  //TODO: Matrix element corrections for global shower?
+  //   double getMECGlobal(const vector<Particle>& statePost,
+  //     const VinciaClustering& clus, int nIn);
+
+  // Communicate that the trial was accepted and we branched.
+  void hasBranched(int iSys);
+
+  // Set whether we need to calculate a new matrix element for
+  // current configuration (e.g. due to an EW decay).
+  void needsNewME2(int iSys, bool needsNewIn) {
+    hasME2now[iSys] = !needsNewIn; }
 
   // Return number of partons added since Born (as defined by prepare).
   int sizeOutBorn(const int iSys) {return sizeOutBornSav[iSys];}
@@ -1243,22 +1332,42 @@ public:
   // Header.
   void header();
 
+  // Is initalised?
+  bool isInitialised() { return isInit; }
+
 private:
+
+  // Save hard scale in current system.
+  bool saveHardScale(int iSys, Event& /*event*/);
+
+  // Regularise this correction?
+  bool doRegMatch(int iSys, const vector<Particle>& state);
+
+  // Get matching regulator.
+  double getMatchReg(int iSys, const VinciaClustering& clus);
+
+  // Get antenna approximation.
+  double getAntApprox(const VinciaClustering& clus);
+
+  // Get colour weight.
+  double getColWeight(const vector<Particle>& state);
 
   // Verbosity level.
   int verbose;
 
-  // Is initialized.
+  // Is initialised.
   bool isInitPtr, isInit;
 
   // Pointers to PYTHIA objects.
   Info*          infoPtr;
-  Settings*      settingsPtr;
   Rndm*          rndmPtr;
+  ParticleData*  particleDataPtr;
   PartonSystems* partonSystemsPtr;
+  Settings*      settingsPtr;
   ShowerMEs*     mg5mesPtr;
 
   // Pointers to VINCIA objects.
+  Resolution*    resolutionPtr;
   VinciaCommon*  vinComPtr;
 
   // Antenna sets.
@@ -1266,12 +1375,29 @@ private:
   AntennaSetISR* antSetISR;
 
   // Matching settings.
-  bool matchingFullColour;
+  bool matchingFullColour, matchingScaleIsAbs;
+  int  modeMECs;
+  int  matchingRegOrder, matchingRegShape;
   int  maxMECs2to1, maxMECs2to2, maxMECs2toN, maxMECsResDec, maxMECsMPI;
   int  nFlavZeroMass;
+  double matchingIRcutoff, matchingScale, q2Match;
 
   // Map from iSys to Born multiplicity and ME class; set in prepare().
   map<int,int> sizeOutBornSav;
+
+  // Map from iSys to number of QCD particles in Born; set in prepare().
+  map<int,int> sysToBornMultQCD;
+
+  // Map from iSys to hard scale; set in prepare();
+  map<int,double> sysToHardScale;
+
+  // Map from iSys to matrix element of current state.
+  map<int,double> me2now;
+  map<int,bool>   hasME2now;
+
+  // Maps from iSys to matrix element of post-branching state.
+  map<int,double> me2post;
+  map<int,bool>   hasME2post;
 
 };
 
@@ -1279,4 +1405,4 @@ private:
 
 } // end namespace Pythia8
 
-#endif // end Pythia8_VinciaAntennaFunctions_H
+#endif // Pythia8_VinciaAntennaFunctions_H

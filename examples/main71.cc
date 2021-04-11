@@ -1,5 +1,5 @@
 // main71.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -243,10 +243,14 @@ int main() {
     if (i != 0) {
       cout << scientific << setprecision(3)
            << ", Pythia ratio to " << i - 1 << "-jet = "
-           << ((double) nEventAccept25[i] / (double) nEventAccept25[i - 1]);
+           << nEventAccept25[i - 1]
+        ? ((double) nEventAccept25[i] / (double) nEventAccept25[i - 1])
+        : numeric_limits<double>::quiet_NaN();
       cout << scientific << setprecision(3)
            << ", Experimental ratio to " << i - 1 << "-jet = "
-           << expCrossSec[i] / expCrossSec[i - 1];
+           << expCrossSec[i - 1]
+        ? expCrossSec[i] / expCrossSec[i - 1]
+        : numeric_limits<double>::quiet_NaN();
     }
     cout << endl;
   }

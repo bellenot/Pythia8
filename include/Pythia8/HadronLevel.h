@@ -1,5 +1,5 @@
 // HadronLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -86,6 +86,9 @@ public:
   double getLowEnergySlope( int idA, int idB, double eCM, double mA,
     double mB, int type = 2) {
     return lowEnergyProcess.bSlope( idA, idB, eCM, mA, mB, type); }
+
+  // Tell if we did an early user-defined veto of the event.
+  bool hasVetoedHadronize() const {return doHadronizeVeto; }
 
 protected:
 
@@ -178,6 +181,9 @@ private:
   double boost;
   bool doBoost;
   bool useVelocityFrame;
+
+  // User veto performed right after string hadronization.
+  bool doHadronizeVeto;
 
   // The generator class for low-energy hadron-hadron collisions.
   LowEnergyProcess lowEnergyProcess;

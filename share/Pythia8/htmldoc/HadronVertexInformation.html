@@ -166,14 +166,16 @@ on the hadron level.
  
 <a name="anchor8"></a>
 <p/><code>parm&nbsp; </code><strong> HadronVertex:maxTau &nbsp;</strong> 
- (<code>default = <strong>20.</strong></code>; <code>minimum = 1.</code>; <code>maximum = 100.</code>)<br/>
+ (<code>default = <strong>40.</strong></code>; <code>minimum = 1.</code>; <code>maximum = 100.</code>)<br/>
 In cases of complicated string topologies the reconstruction of a 
 string breakup vertex can fail occasionally. Usually this translates 
 into a large (positive or negative) production invariant (squared) 
-time for the adjacent hadrons (using the middle definition). This cut 
-rejects fragmented systems where such a large tau is found, and a new 
-try to hadronize is made. If this variable is set too low then also 
-many correct vertices will be rejected. 
+time for the adjacent hadrons (using the middle definition), here 
+expressed in units of fm. This cut rejects fragmented systems where 
+such a large tau is found, and a new try to hadronize is made. If this 
+variable is set too low then also many correct vertices will be rejected. 
+Notably this would happen in heavy-ion collisions, where the collision 
+region at <i>t = 0</i> can be spread transversely up to order 20 fm. 
    
  
 <a name="anchor9"></a>
@@ -212,4 +214,4 @@ in the Review of Particle Physics.
 </body>
 </html>
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 

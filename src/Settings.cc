@@ -1,5 +1,5 @@
 // Settings.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1628,7 +1628,7 @@ map<string, WVec> Settings::getWVecMap(string match) {
 
 void Settings::flag(string keyIn, bool nowIn, bool force) {
   string keyLower = toLower(keyIn);
-  if (isFlag(keyIn)) flags[keyLower].valNow = nowIn;
+  if (isFlag(keyLower)) flags[keyLower].valNow = nowIn;
   else if (force) addFlag( keyIn, nowIn);
   // Print:quiet  triggers a whole set of changes.
   if (keyLower == "print:quiet") printQuiet( nowIn);

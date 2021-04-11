@@ -1,5 +1,5 @@
 // PythiaStdlib.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <memory>
 #include <functional>
+#include <limits>
 
 // Stdlib header files for strings and containers.
 #include <string>
@@ -55,13 +56,14 @@ static void __attribute__((constructor)) raisefpe() {
 #endif
 
 // By this declaration you do not need to use std:: qualifier everywhere.
-//using namespace std;
+// using namespace std;
 
 // Alternatively you can specify exactly which std:: methods will be used.
 // Now made default so std does not spill outside namespace Pythia8.
 namespace Pythia8 {
 
 // Generic utilities and mathematical functions.
+using std::move;
 using std::swap;
 using std::max;
 using std::min;
@@ -71,6 +73,7 @@ using std::function;
 using std::isnan;
 using std::isinf;
 using std::isfinite;
+using std::numeric_limits;
 
 // Strings and containers.
 using std::pair;
@@ -173,6 +176,21 @@ string toLower(const string& name, bool trim = true);
 inline void toLowerRep(string& name, bool trim = true) {
   name = toLower( name, trim);}
 
+//==========================================================================
+
 } // end namespace Pythia8
+
+// Define the hash for a pair.
+namespace std {
+  template <class T1, class T2> struct hash<pair<T1, T2> > {
+  public:
+    size_t operator()(const pair<T1, T2>& p) const {
+      return hash<T1>{}(p.first) ^ hash<T2>{}(p.second);
+    }
+  };
+
+//==========================================================================
+
+} // end namespace std
 
 #endif // Pythia8_PythiaStdlib_H

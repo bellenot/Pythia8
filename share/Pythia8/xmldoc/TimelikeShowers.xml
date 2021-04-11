@@ -318,11 +318,65 @@ multiparton interactions and initial-state radiation have been considered.
 </flag> 
  
 <p/> 
-As an aside, it should be noted that such interleaving does not affect 
-showering in resonance decays, such as a <ei>Z^0</ei>. These decays are 
-only introduced after the production process has been considered in full, 
-and the subsequent FSR is carried out inside the resonance, with 
-preserved resonance mass. 
+Whether such interleaving affects resonance decays or not is 
+controlled by the following switch: 
+<flag name="TimeShower:interleaveResDec" default="off"> 
+  When this flag is set to <code>off</code>, 
+  the interleaved evolution does not affect 
+  showering in resonance decays, such as a <ei>Z^0</ei>. These decays are 
+  only introduced after the production process has been considered in full, 
+  and the subsequent FSR is carried out inside the resonance, with 
+  preserved resonance mass. 
+  When this flag is set to <code>on</code>, 
+  resonance decays are inserted in the final-state shower evolution 
+  when it reaches the <ei>pT</ei> scale defined by 
+  <code>TimeShower:resDecScaleChoice</code> below. 
+</flag> 
+ 
+<p/>When <code>TimeShower:interleaveResDec</code> is set to 
+<code>on</code>, the <ei>pT</ei> scale at which interleaved resonance 
+decays are inserted in the shower evolution is determined by the value 
+of the following switch: 
+<modepick name="TimeShower:resDecScaleChoice" default="1" min="0" max="2"> 
+  <option value="0">The on-shell width of the resonance.</option> 
+  <option value="1">Off-shellness determined by <ei>|m<sup>2</sup> - 
+  m0<sup>2</sup>|/m0</ei>. This implies, e.g., that the decay of 
+  a resonance which has <ei>m = m0 &pm; &Gamma;</ei> will be performed 
+  at a scale <ei>pT ~ sqrt(2) &Gamma;</ei>. 
+  </option> 
+  <option value="2"> Off-shellness determined by <ei>sqrt(|m<sup>2</sup> - 
+  m0<sup>2</sup>|)</ei>. This implies, e.g., that the decay of a 
+  resonance which has  <ei>m = m0 &pm; &Gamma;</ei> will be performed 
+  at a scale <ei>pT ~ sqrt(2 &Gamma; m0 )</ei>. 
+  </option> 
+</modepick> 
+ 
+<p/>Technically, the following steps happen when an interleaved 
+resonance decay is inserted in the evolution: 
+<ul> 
+<li>The resonance is replaced by its decay products;</li> 
+<li>A final-state resonance shower is performed within the 
+resonance-decay system (with preserved resonance mass) bringing it 
+down to the same <ei>pT</ei> scale that the rest of the evolution had 
+reached before the decay was inserted.</li> 
+<li>The overall final-state shower evolution is continued from that 
+<ei>pT</ei> scale downwards, now with the resonance replaced by its 
+decay products together with any branchings that happened during the 
+resonance shower in the previous step.</li> 
+</ul> 
+This can take place in nested sequences, such as in 
+<ei>t&rarr;bW</ei> followed by <ei>W&rarr; qq'</ei>, where the 
+<ei>W</ei> decay may happen either during the top-decay resonance shower, or 
+after it, depending on whether the scale associated with the 
+<ei>W</ei> decay is higher, or lower, than that of the top. 
+ 
+<p/> 
+Note that, since interleaving of resonance decays only affects the 
+shower evolution below the scale at which the resonance decays occur, 
+only mild effects are expected for SM resonances like t, Z, and W, which 
+all have widths not much larger than 1 GeV. The dynamic scale choices, 
+especially <code>TimeShower:resDecScaleChoice = 2</code>, however, 
+allow for potentially larger effects in the tails. 
  
 <p/> 
 One aspect of FSR for a hard process in hadron collisions is that often 
@@ -809,4 +863,4 @@ evaluation of parton densities if the <code>flag</code> above is on.
  
 </chapter> 
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 

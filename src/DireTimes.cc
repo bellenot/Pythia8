@@ -1,5 +1,5 @@
 // DireTimes.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2021 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -217,24 +217,24 @@ void DireTimes::init( BeamParticle* beamAPtrIn,
 
   usePDFalphas       = settingsPtr->flag("ShowerPDF:usePDFalphas");
   useSummedPDF       = settingsPtr->flag("ShowerPDF:useSummedPDF");
-  BeamParticle* beam = NULL;
-  if (beamAPtr != NULL || beamBPtr != NULL) {
-    beam = (beamAPtr != NULL && particleDataPtr->isHadron(beamAPtr->id())) ?
+  BeamParticle* beam = nullptr;
+  if (beamAPtr != nullptr || beamBPtr != nullptr) {
+    beam = (beamAPtr != nullptr && particleDataPtr->isHadron(beamAPtr->id())) ?
       beamAPtr
-         : (beamBPtr != NULL && particleDataPtr->isHadron(beamBPtr->id())) ?
-      beamBPtr : NULL;
-    if (beam == NULL && beamAPtr != 0) beam = beamAPtr;
-    if (beam == NULL && beamBPtr != 0) beam = beamBPtr;
+         : (beamBPtr != nullptr && particleDataPtr->isHadron(beamBPtr->id())) ?
+      beamBPtr : nullptr;
+    if (beam == nullptr && beamAPtr != 0) beam = beamAPtr;
+    if (beam == nullptr && beamBPtr != 0) beam = beamBPtr;
   }
-  alphaS2piOverestimate = (usePDFalphas && beam != NULL)
+  alphaS2piOverestimate = (usePDFalphas && beam != nullptr)
                         ? beam->alphaS(pT2colCut) * 0.5/M_PI
                         : (alphaSorder > 0) ? alphaS.alphaS(pT2colCut)*0.5/M_PI
                                             :  0.5 * 0.5/M_PI;
 
-  m2cPhys = (usePDFalphas) ? pow2(max(0.,beam->mQuarkPDF(4)))
-          : alphaS.muThres2(4);
-  m2bPhys = (usePDFalphas) ? pow2(max(0.,beam->mQuarkPDF(5)))
-          : alphaS.muThres2(5);
+  m2cPhys = (usePDFalphas && beam != nullptr) ?
+    pow2(max(0.,beam->mQuarkPDF(4))) : alphaS.muThres2(4);
+  m2bPhys = (usePDFalphas && beam != nullptr) ?
+    pow2(max(0.,beam->mQuarkPDF(5))) : alphaS.muThres2(5);
 
   // Parameters of alphaEM generation.
   alphaEMorder       = settingsPtr->mode("TimeShower:alphaEMorder");
@@ -351,7 +351,6 @@ bool DireTimes::limitPTmax( Event& event, double, double) {
   dopTlimit1 = dopTlimit2 = false;
   int nHeavyCol = 0;
   if      (pTmaxMatch == 1) dopTlimit = dopTlimit1 = dopTlimit2 = true;
-  else if (pTmaxMatch == 2) dopTlimit = dopTlimit1 = dopTlimit2 = false;
 
   // Always restrict SoftQCD processes.
   else if (infoPtr->isNonDiffractive() || infoPtr->isDiffractiveA()
@@ -1343,8 +1342,7 @@ void DireTimes::getQCDdip( int iRad, int colTag, int colSign,
     }
   }
 
-  double pTmax = event[iRad].scale();
-  pTmax = m( event[iRad], event[iRec]);
+  double pTmax = m( event[iRad], event[iRec]);
   int colType  = (event[iRad].id() == 21) ? 2 * colSign : colSign;
   int isrType  = (event[iRec].isFinal()) ? 0 : event[iRec].mother1();
   // This line in case mother is a rescattered parton.
@@ -2052,13 +2050,13 @@ double DireTimes::overheadFactors( DireTimesEnd* dip, const Event& state,
     && !state[dip->iRecoiler].isFinal()
     && particleDataPtr->colType(state[dip->iRecoiler].id()) != 0) {
 
-    BeamParticle* beam = NULL;
-    if (beamAPtr != NULL || beamBPtr != NULL) {
-      if (dip->isrType == 1 && beamAPtr != NULL) beam = beamAPtr;
-      if (dip->isrType != 1 && beamBPtr != NULL) beam = beamBPtr;
+    BeamParticle* beam = nullptr;
+    if (beamAPtr != nullptr || beamBPtr != nullptr) {
+      if (dip->isrType == 1 && beamAPtr != nullptr) beam = beamAPtr;
+      if (dip->isrType != 1 && beamBPtr != nullptr) beam = beamBPtr;
     }
 
-    if (beam != NULL) {
+    if (beam != nullptr) {
 
       double idRec       = state[dip->iRecoiler].id();
       int    iSysRec     = dip->systemRec;
@@ -2680,8 +2678,8 @@ pair<bool, pair<double,double> >  DireTimes::getMEC ( const Event& state,
     // Generate all histories
     DireHistory myHistory( nSteps, 0.0, newProcess, DireClustering(),
       mergingHooksPtr, (*beamAPtr), (*beamBPtr), particleDataPtr, infoPtr,
-      NULL, splits.begin()->second->fsr, splits.begin()->second->isr, weights,
-      coupSMPtr, true, true, 1.0, 1.0, 1.0, 1.0, 0);
+      nullptr, splits.begin()->second->fsr, splits.begin()->second->isr,
+      weights, coupSMPtr, true, true, 1.0, 1.0, 1.0, 1.0, 0);
     // Project histories onto desired branches, e.g. only ordered paths.
     myHistory.projectOntoDesiredHistories();
 
@@ -4796,7 +4794,7 @@ bool DireTimes::branch_FF( Event& event, bool trial,
 
     // Try to find incoming particle in other systems, i.e. if the current
     // system arose from a resonance decay.
-    bool sys = partonSystemsPtr->getSystemOf(iRadBef,true);
+    int sys = partonSystemsPtr->getSystemOf(iRadBef,true);
     int sizeSys = partonSystemsPtr->sizeSys();
     int in1 = partonSystemsPtr->getInA(sys);
     int in2 = partonSystemsPtr->getInB(sys);
@@ -8238,20 +8236,20 @@ void DireTimes::list() const {
 double DireTimes::alphasNow( double pT2, double renormMultFacNow, int iSys ) {
 
   // Get beam for PDF alphaS, if necessary.
-  BeamParticle* beam = NULL;
-  if (beamAPtr != NULL || beamBPtr != NULL) {
-    beam = (beamAPtr != NULL && particleDataPtr->isHadron(beamAPtr->id()))
+  BeamParticle* beam = nullptr;
+  if (beamAPtr != nullptr || beamBPtr != nullptr) {
+    beam = (beamAPtr != nullptr && particleDataPtr->isHadron(beamAPtr->id()))
          ? beamAPtr
-         : (beamBPtr != NULL && particleDataPtr->isHadron(beamBPtr->id()))
-         ? beamBPtr : NULL;
-    if (beam == NULL && beamAPtr != 0) beam = beamAPtr;
-    if (beam == NULL && beamBPtr != 0) beam = beamBPtr;
+         : (beamBPtr != nullptr && particleDataPtr->isHadron(beamBPtr->id()))
+         ? beamBPtr : nullptr;
+    if (beam == nullptr && beamAPtr != 0) beam = beamAPtr;
+    if (beam == nullptr && beamBPtr != 0) beam = beamBPtr;
   }
   double scale       = pT2*renormMultFacNow;
   scale              = max(scale, pT2colCut);
 
   // Get alphaS(k*pT^2) and subtractions.
-  double asPT2pi      = (usePDFalphas && beam != NULL)
+  double asPT2pi      = (usePDFalphas && beam != nullptr)
                       ? beam->alphaS(scale)  / (2.*M_PI)
                       : alphaS.alphaS(scale) / (2.*M_PI);
 
@@ -8323,17 +8321,17 @@ double DireTimes::getNF(double pT2) {
 
   double NF = 6.;
 
-  BeamParticle* beam = NULL;
-  if (beamAPtr != NULL || beamBPtr != NULL) {
-    beam = (beamAPtr != NULL && particleDataPtr->isHadron(beamAPtr->id()))
+  BeamParticle* beam = nullptr;
+  if (beamAPtr != nullptr || beamBPtr != nullptr) {
+    beam = (beamAPtr != nullptr && particleDataPtr->isHadron(beamAPtr->id()))
          ? beamAPtr
-         : (beamBPtr != NULL && particleDataPtr->isHadron(beamBPtr->id()))
-         ? beamBPtr : NULL;
-    if (beam == NULL && beamAPtr != 0) beam = beamAPtr;
-    if (beam == NULL && beamBPtr != 0) beam = beamBPtr;
+         : (beamBPtr != nullptr && particleDataPtr->isHadron(beamBPtr->id()))
+         ? beamBPtr : nullptr;
+    if (beam == nullptr && beamAPtr != 0) beam = beamAPtr;
+    if (beam == nullptr && beamBPtr != 0) beam = beamBPtr;
   }
   // Get current number of flavours.
-  if ( !usePDFalphas || beam == NULL ) {
+  if ( !usePDFalphas || beam == nullptr ) {
     if ( pT2 > pow2( max(0., particleDataPtr->m0(5) ) )
       && pT2 < pow2( particleDataPtr->m0(6)) )                 NF = 5.;
     else if ( pT2 > pow2( max( 0., particleDataPtr->m0(4)) ) ) NF = 4.;

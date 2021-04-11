@@ -574,58 +574,6 @@ struct PyCallBack_Pythia8_HeavyIons_InfoGrabber : public Pythia8::HeavyIons::Inf
 		}
 		return UserHooks::doReconnectResonanceSystems(a0, a1);
 	}
-	bool canEnhanceEmission() override { 
-		pybind11::gil_scoped_acquire gil;
-		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::HeavyIons::InfoGrabber *>(this), "canEnhanceEmission");
-		if (overload) {
-			auto o = overload.operator()<pybind11::return_value_policy::reference>();
-			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
-				static pybind11::detail::overload_caster_t<bool> caster;
-				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
-			}
-			else return pybind11::detail::cast_safe<bool>(std::move(o));
-		}
-		return UserHooks::canEnhanceEmission();
-	}
-	double enhanceFactor(class std::basic_string<char> a0) override { 
-		pybind11::gil_scoped_acquire gil;
-		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::HeavyIons::InfoGrabber *>(this), "enhanceFactor");
-		if (overload) {
-			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
-			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
-				return pybind11::detail::cast_ref<double>(std::move(o), caster);
-			}
-			else return pybind11::detail::cast_safe<double>(std::move(o));
-		}
-		return UserHooks::enhanceFactor(a0);
-	}
-	double vetoProbability(class std::basic_string<char> a0) override { 
-		pybind11::gil_scoped_acquire gil;
-		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::HeavyIons::InfoGrabber *>(this), "vetoProbability");
-		if (overload) {
-			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
-			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
-				return pybind11::detail::cast_ref<double>(std::move(o), caster);
-			}
-			else return pybind11::detail::cast_safe<double>(std::move(o));
-		}
-		return UserHooks::vetoProbability(a0);
-	}
-	bool canEnhanceTrial() override { 
-		pybind11::gil_scoped_acquire gil;
-		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::HeavyIons::InfoGrabber *>(this), "canEnhanceTrial");
-		if (overload) {
-			auto o = overload.operator()<pybind11::return_value_policy::reference>();
-			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
-				static pybind11::detail::overload_caster_t<bool> caster;
-				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
-			}
-			else return pybind11::detail::cast_safe<bool>(std::move(o));
-		}
-		return UserHooks::canEnhanceTrial();
-	}
 	bool canChangeFragPar() override { 
 		pybind11::gil_scoped_acquire gil;
 		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::HeavyIons::InfoGrabber *>(this), "canChangeFragPar");
@@ -638,6 +586,32 @@ struct PyCallBack_Pythia8_HeavyIons_InfoGrabber : public Pythia8::HeavyIons::Inf
 			else return pybind11::detail::cast_safe<bool>(std::move(o));
 		}
 		return UserHooks::canChangeFragPar();
+	}
+	bool canVetoAfterHadronization() override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::HeavyIons::InfoGrabber *>(this), "canVetoAfterHadronization");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>();
+			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
+				static pybind11::detail::overload_caster_t<bool> caster;
+				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<bool>(std::move(o));
+		}
+		return UserHooks::canVetoAfterHadronization();
+	}
+	bool doVetoAfterHadronization(const class Pythia8::Event & a0) override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::HeavyIons::InfoGrabber *>(this), "doVetoAfterHadronization");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
+			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
+				static pybind11::detail::overload_caster_t<bool> caster;
+				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<bool>(std::move(o));
+		}
+		return UserHooks::doVetoAfterHadronization(a0);
 	}
 	bool canSetImpactParameter() const override { 
 		pybind11::gil_scoped_acquire gil;

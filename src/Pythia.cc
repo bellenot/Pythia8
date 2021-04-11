@@ -1,5 +1,5 @@
 // Pythia.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -30,7 +30,7 @@ namespace Pythia8 {
 
 // The current Pythia (sub)version number, to agree with XML version.
 const double Pythia::VERSIONNUMBERHEAD = PYTHIA_VERSION;
-const double Pythia::VERSIONNUMBERCODE = 8.303;
+const double Pythia::VERSIONNUMBERCODE = 8.304;
 
 //--------------------------------------------------------------------------
 
@@ -646,7 +646,7 @@ bool Pythia::init() {
     if (frameType == 4 || frameType == 5) {
 
       // Store the name of the input LHEF for merging.
-      if (doMerging  && showerModel == 1 ) {
+      if (doMerging && showerModel == 1) {
         string lhefIn = (frameType == 4) ? lhef : "";
         mergingHooksPtr->setLHEInputFile( lhefIn);
       }
@@ -675,9 +675,10 @@ bool Pythia::init() {
   }
 
   // Set up values related to user hooks.
-  doVetoProcess    = false;
-  doVetoPartons    = false;
-  retryPartonLevel = false;
+  doVetoProcess        = false;
+  doVetoPartons        = false;
+  retryPartonLevel     = false;
+  canVetoHadronization = false;
 
   if ( userHooksPtr ) {
     infoPrivate.userHooksPtr = userHooksPtr;
@@ -688,9 +689,10 @@ bool Pythia::init() {
         " UserHooks");
       return false;
     }
-    doVetoProcess    = userHooksPtr->canVetoProcessLevel();
-    doVetoPartons    = userHooksPtr->canVetoPartonLevel();
-    retryPartonLevel = userHooksPtr->retryPartonLevel();
+    doVetoProcess       = userHooksPtr->canVetoProcessLevel();
+    doVetoPartons       = userHooksPtr->canVetoPartonLevel();
+    retryPartonLevel    = userHooksPtr->retryPartonLevel();
+    canVetoHadronization = userHooksPtr->canVetoAfterHadronization();
   }
 
   // Setup objects for string interactions (swing, colour
@@ -810,8 +812,10 @@ bool Pythia::init() {
     }
   }
 
-  // Initialise merging hooks.
-  if ( doMerging && mergingHooksPtr ) mergingHooksPtr->init();
+  // Initialise merging hooks for simple shower model.
+  if ( doMerging && mergingHooksPtr && showerModel == 1 ){
+    mergingHooksPtr->init();
+  }
 
   // Check that combinations of settings are allowed; change if not.
   checkSettings();
@@ -863,12 +867,9 @@ bool Pythia::init() {
 
   // Set up and initialize the ShowerModel (if not provided by user).
   if ( !showerModelPtr ) {
-    if ( showerModel == 2 )
-      showerModelPtr = make_shared<Vincia>();
-    else if (showerModel == 3 )
-      showerModelPtr = make_shared<Dire>();
-    else
-      showerModelPtr = make_shared<SimpleShowerModel>();
+    if ( showerModel == 2 ) showerModelPtr = make_shared<Vincia>();
+    else if (showerModel == 3 ) showerModelPtr = make_shared<Dire>();
+    else showerModelPtr = make_shared<SimpleShowerModel>();
     // Register shower model as physicsBase object (also sets pointers)
     registerPhysicsBase(*showerModelPtr);
   }
@@ -880,6 +881,9 @@ bool Pythia::init() {
       "Shower model failed to initialise.");
     return false;
   }
+
+  // Vincia adds a userhook -> need to push this to all physics objects.
+  if ( showerModel == 2 ) pushInfo();
 
   // Get relevant pointers from shower models.
   if (doMerging && showerModel != 1) {
@@ -1044,8 +1048,8 @@ bool Pythia::init() {
 
   // Set up shower variation groups if enabled
   bool doVariations = flag("UncertaintyBands:doVariations");
-  if ( doVariations && showerModel==1 ) weightContainer.weightsPS.
-    initAutomatedVariationGroups(true);
+  if ( doVariations && showerModel==1 ) weightContainer.weightsShowerPtr->
+    initWeightGroups(true);
 
   // Send info/pointers to parton level for trial shower initialization.
   if ( doMerging && !trialPartonLevel.init( timesDecPtr, timesPtr,
@@ -1756,6 +1760,12 @@ bool Pythia::next() {
           return false;
         }
 
+        // Skip to next hard process for failure owing to veto in merging.
+        if (partonLevel.hasVetoedMerging()) {
+          event = process;
+          break;
+        }
+
         // Skip to next hard process for failure owing to deliberate veto,
         // or alternatively retry for the same hard process.
         hasVetoed = partonLevel.hasVetoed();
@@ -1827,6 +1837,11 @@ bool Pythia::next() {
       // Hadron-level: hadronization, decays.
       infoPrivate.addCounter(16);
       if ( !hadronLevel.next( event) ) {
+        // Check if we aborted due to user intervention.
+        if ( canVetoHadronization && hadronLevel.hasVetoedHadronize() ) {
+          endEvent(PhysicsBase::HADRONLEVEL_USERVETO);
+          return false;
+        }
         infoPrivate.errorMsg("Error in Pythia::next: "
           "hadronLevel failed; try again");
         physical = false;
@@ -2138,6 +2153,12 @@ bool Pythia::forceHadronLevel(bool findJunctions) {
     // Hadron-level: hadronization, decays.
     if (hadronLevel.next( event)) break;
 
+    // Failure might be by user intervention. Then we should not try again.
+    if (canVetoHadronization && hadronLevel.hasVetoedHadronize()) {
+      endEvent(PhysicsBase::HADRONLEVEL_USERVETO);
+      break;
+    }
+
     // If failure then warn, restore original configuration and try again.
     infoPrivate.errorMsg("Error in Pythia::forceHadronLevel: "
       "hadronLevel failed; try again");
@@ -2391,7 +2412,7 @@ void Pythia::stat() {
   if (reset)   partonLevel.resetStatistics();
 
   // Merging statistics.
-  if (doMerging && mergingPtr ) mergingPtr->statistics();
+  if (doMerging && mergingPtr) mergingPtr->statistics();
 
   // Summary of which and how many warnings/errors encountered.
   if (showErr) infoPrivate.errorStatistics();
@@ -2475,10 +2496,6 @@ void Pythia::banner() {
        << "                                      |  | \n"
        << " |  |      University of Cincinnati, Cincinna"
        << "ti, OH 45221, USA;                    |  | \n"
-       << " |  |      School of Physics and Astronomy,  "
-       << "                                      |  | \n"
-       << " |  |      University of Birmingham, Birmingh"
-       << "am, B152 2TT, UK;                     |  | \n"
        << " |  |      e-mail: philten@cern.ch           "
        << "                                      |  | \n"
        << " |  |   Leif Lonnblad;  Department of Astrono"
@@ -2499,12 +2516,12 @@ void Pythia::banner() {
        << "E-223 62 Lund, Sweden;                |  | \n"
        << " |  |      e-mail: stefan.prestel@thep.lu.se "
        << "                                      |  | \n"
-       << " |  |   Christine O. Rasmussen;  Department o"
-       << "f Astronomy and Theoretical Physics,  |  | \n"
-       << " |  |      Lund University, Solvegatan 14A, S"
-       << "E-223 62 Lund, Sweden;                |  | \n"
-       << " |  |      e-mail: christine.rasmussen@thep.l"
-       << "u.se                                  |  | \n"
+       << " |  |   Christian Preuss;  School of Physics "
+       << "and Astronomy,                        |  | \n"
+       << " |  |      Monash University, PO Box 27, 3800"
+       << " Melbourne, Australia;                |  | \n"
+       << " |  |      e-mail: christian.preuss@monash.ed"
+       << "u                                     |  | \n"
        << " |  |   Torbjorn Sjostrand;  Department of As"
        << "tronomy and Theoretical Physics,      |  | \n"
        << " |  |      Lund University, Solvegatan 14A, S"
@@ -2522,6 +2539,12 @@ void Pythia::banner() {
        << " |  |      Lund University, Solvegatan 14A, S"
        << "E-223 62 Lund, Sweden;                |  | \n"
        << " |  |      e-mail: marius.utheim@thep.lu.se  "
+       << "                                      |  | \n"
+       << " |  |   Rob Verheyen;  Department of Physics "
+       << "and Astronomy,                        |  | \n"
+       << " |  |      University College London, Gower S"
+       << "t, Bloomsbury, London WC1E 6BT, UK;   |  | \n"
+       << " |  |      e-mail: r.verheyen@ucl.ac.uk      "
        << "                                      |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
@@ -2557,7 +2580,7 @@ void Pythia::banner() {
        << " when interpreting results.           |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
-       << " |  |   Copyright (C) 2020 Torbjorn Sjostrand"
+       << " |  |   Copyright (C) 2021 Torbjorn Sjostrand"
        << "                                      |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"

@@ -32,12 +32,15 @@
 void bind_Pythia8_Event_1(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
 	// Pythia8::m(const class Pythia8::Particle &, const class Pythia8::Particle &) file:Pythia8/Event.h line:318
-	M("Pythia8").def("m", (double (*)(const class Pythia8::Particle &, const class Pythia8::Particle &)) &Pythia8::m, "C++: Pythia8::m(const class Pythia8::Particle &, const class Pythia8::Particle &) --> double", pybind11::arg(""), pybind11::arg(""));
+	M("Pythia8").def("m", (double (*)(const class Pythia8::Particle &, const class Pythia8::Particle &)) &Pythia8::m, "C++: Pythia8::m(const class Pythia8::Particle &, const class Pythia8::Particle &) --> double", pybind11::arg("pp1"), pybind11::arg("pp2"));
 
 	// Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &) file:Pythia8/Event.h line:319
-	M("Pythia8").def("m2", (double (*)(const class Pythia8::Particle &, const class Pythia8::Particle &)) &Pythia8::m2, "C++: Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &) --> double", pybind11::arg(""), pybind11::arg(""));
+	M("Pythia8").def("m2", (double (*)(const class Pythia8::Particle &, const class Pythia8::Particle &)) &Pythia8::m2, "C++: Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &) --> double", pybind11::arg("pp1"), pybind11::arg("pp2"));
 
-	{ // Pythia8::Event file:Pythia8/Event.h line:379
+	// Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &, const class Pythia8::Particle &) file:Pythia8/Event.h line:320
+	M("Pythia8").def("m2", (double (*)(const class Pythia8::Particle &, const class Pythia8::Particle &, const class Pythia8::Particle &)) &Pythia8::m2, "C++: Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &, const class Pythia8::Particle &) --> double", pybind11::arg("pp1"), pybind11::arg("pp2"), pybind11::arg("pp3"));
+
+	{ // Pythia8::Event file:Pythia8/Event.h line:381
 		pybind11::class_<Pythia8::Event, std::shared_ptr<Pythia8::Event>> cl(M("Pythia8"), "Event", "");
 		pybind11::handle cl_type = cl;
 

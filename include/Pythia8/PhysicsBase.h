@@ -1,5 +1,5 @@
 // PhysicsBase.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -33,7 +33,7 @@ public:
     INIT_FAILED, LHEF_END, LOWENERGY_FAILED, PROCESSLEVEL_FAILED,
     PROCESSLEVEL_USERVETO, MERGING_FAILED, PARTONLEVEL_FAILED,
     PARTONLEVEL_USERVETO, HADRONLEVEL_FAILED, CHECK_FAILED,
-    OTHER_UNPHYSICAL, HEAVYION_FAILED };
+    OTHER_UNPHYSICAL, HEAVYION_FAILED, HADRONLEVEL_USERVETO };
 
   // This function is called from above for physics objects used in a run.
   void initInfoPtr(Info& infoPtrIn);

@@ -119,6 +119,19 @@ struct PyCallBack_Pythia8_TimeShower : public Pythia8::TimeShower {
 		}
 		return TimeShower::showerQEDafterRemnants(a0);
 	}
+	void prepareProcess(class Pythia8::Event & a0, class Pythia8::Event & a1, class std::vector<int, class std::allocator<int> > & a2) override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::TimeShower *>(this), "prepareProcess");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1, a2);
+			if (pybind11::detail::cast_is_temporary_value_reference<void>::value) {
+				static pybind11::detail::overload_caster_t<void> caster;
+				return pybind11::detail::cast_ref<void>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<void>(std::move(o));
+		}
+		return TimeShower::prepareProcess(a0, a1, a2);
+	}
 	void prepareGlobal(class Pythia8::Event & a0) override { 
 		pybind11::gil_scoped_acquire gil;
 		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::TimeShower *>(this), "prepareGlobal");
@@ -184,6 +197,19 @@ struct PyCallBack_Pythia8_TimeShower : public Pythia8::TimeShower {
 		}
 		return TimeShower::pTnext(a0, a1, a2, a3, a4);
 	}
+	double pTnextResDec() override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::TimeShower *>(this), "pTnextResDec");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>();
+			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
+				static pybind11::detail::overload_caster_t<double> caster;
+				return pybind11::detail::cast_ref<double>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<double>(std::move(o));
+		}
+		return TimeShower::pTnextResDec();
+	}
 	bool branch(class Pythia8::Event & a0, bool a1) override { 
 		pybind11::gil_scoped_acquire gil;
 		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::TimeShower *>(this), "branch");
@@ -196,6 +222,19 @@ struct PyCallBack_Pythia8_TimeShower : public Pythia8::TimeShower {
 			else return pybind11::detail::cast_safe<bool>(std::move(o));
 		}
 		return TimeShower::branch(a0, a1);
+	}
+	bool resonanceShower(class Pythia8::Event & a0, class Pythia8::Event & a1, class std::vector<int, class std::allocator<int> > & a2, double a3) override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::TimeShower *>(this), "resonanceShower");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1, a2, a3);
+			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
+				static pybind11::detail::overload_caster_t<bool> caster;
+				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<bool>(std::move(o));
+		}
+		return TimeShower::resonanceShower(a0, a1, a2, a3);
 	}
 	void list() const override { 
 		pybind11::gil_scoped_acquire gil;
@@ -222,6 +261,19 @@ struct PyCallBack_Pythia8_TimeShower : public Pythia8::TimeShower {
 			else return pybind11::detail::cast_safe<bool>(std::move(o));
 		}
 		return TimeShower::initUncertainties();
+	}
+	bool initEnhancements() override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::TimeShower *>(this), "initEnhancements");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>();
+			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
+				static pybind11::detail::overload_caster_t<bool> caster;
+				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<bool>(std::move(o));
+		}
+		return TimeShower::initEnhancements();
 	}
 	bool getHasWeaklyRadiated() override { 
 		pybind11::gil_scoped_acquire gil;
@@ -368,6 +420,19 @@ struct PyCallBack_Pythia8_TimeShower : public Pythia8::TimeShower {
 			else return pybind11::detail::cast_safe<_binder_ret_2>(std::move(o));
 		}
 		return TimeShower::getRecoilers(a0, a1, a2, a3);
+	}
+	double enhanceFactor(const class std::basic_string<char> & a0) override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::TimeShower *>(this), "enhanceFactor");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
+			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
+				static pybind11::detail::overload_caster_t<double> caster;
+				return pybind11::detail::cast_ref<double>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<double>(std::move(o));
+		}
+		return TimeShower::enhanceFactor(a0);
 	}
 	void onInitInfoPtr() override { 
 		pybind11::gil_scoped_acquire gil;
@@ -550,6 +615,19 @@ struct PyCallBack_Pythia8_SpaceShower : public Pythia8::SpaceShower {
 		}
 		return SpaceShower::initUncertainties();
 	}
+	bool initEnhancements() override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::SpaceShower *>(this), "initEnhancements");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>();
+			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
+				static pybind11::detail::overload_caster_t<bool> caster;
+				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<bool>(std::move(o));
+		}
+		return SpaceShower::initEnhancements();
+	}
 	bool doRestart() const override { 
 		pybind11::gil_scoped_acquire gil;
 		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::SpaceShower *>(this), "doRestart");
@@ -709,6 +787,19 @@ struct PyCallBack_Pythia8_SpaceShower : public Pythia8::SpaceShower {
 		}
 		return SpaceShower::getRecoilers(a0, a1, a2, a3);
 	}
+	double enhanceFactor(const class std::basic_string<char> & a0) override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::SpaceShower *>(this), "enhanceFactor");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
+			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
+				static pybind11::detail::overload_caster_t<double> caster;
+				return pybind11::detail::cast_ref<double>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<double>(std::move(o));
+		}
+		return SpaceShower::enhanceFactor(a0);
+	}
 	void onInitInfoPtr() override { 
 		pybind11::gil_scoped_acquire gil;
 		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::SpaceShower *>(this), "onInitInfoPtr");
@@ -795,6 +886,7 @@ void bind_Pythia8_TimeShower(std::function< pybind11::module &(std::string const
 		cl.def_readwrite("varQ2QGcNS", &Pythia8::TimeShower::varQ2QGcNS);
 		cl.def_readwrite("varG2QQcNS", &Pythia8::TimeShower::varG2QQcNS);
 		cl.def_readwrite("varX2XGcNS", &Pythia8::TimeShower::varX2XGcNS);
+		cl.def_readwrite("enhanceFSR", &Pythia8::TimeShower::enhanceFSR);
 		cl.def("limitPTmax", [](Pythia8::TimeShower &o, class Pythia8::Event & a0) -> bool { return o.limitPTmax(a0); }, "", pybind11::arg(""));
 		cl.def("limitPTmax", [](Pythia8::TimeShower &o, class Pythia8::Event & a0, double const & a1) -> bool { return o.limitPTmax(a0, a1); }, "", pybind11::arg(""), pybind11::arg(""));
 		cl.def("limitPTmax", (bool (Pythia8::TimeShower::*)(class Pythia8::Event &, double, double)) &Pythia8::TimeShower::limitPTmax, "C++: Pythia8::TimeShower::limitPTmax(class Pythia8::Event &, double, double) --> bool", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
@@ -802,6 +894,7 @@ void bind_Pythia8_TimeShower(std::function< pybind11::module &(std::string const
 		cl.def("shower", (int (Pythia8::TimeShower::*)(int, int, class Pythia8::Event &, double, int)) &Pythia8::TimeShower::shower, "C++: Pythia8::TimeShower::shower(int, int, class Pythia8::Event &, double, int) --> int", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("showerQED", (int (Pythia8::TimeShower::*)(int, int, class Pythia8::Event &, double)) &Pythia8::TimeShower::showerQED, "C++: Pythia8::TimeShower::showerQED(int, int, class Pythia8::Event &, double) --> int", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("showerQEDafterRemnants", (int (Pythia8::TimeShower::*)(class Pythia8::Event &)) &Pythia8::TimeShower::showerQEDafterRemnants, "C++: Pythia8::TimeShower::showerQEDafterRemnants(class Pythia8::Event &) --> int", pybind11::arg(""));
+		cl.def("prepareProcess", (void (Pythia8::TimeShower::*)(class Pythia8::Event &, class Pythia8::Event &, class std::vector<int, class std::allocator<int> > &)) &Pythia8::TimeShower::prepareProcess, "C++: Pythia8::TimeShower::prepareProcess(class Pythia8::Event &, class Pythia8::Event &, class std::vector<int, class std::allocator<int> > &) --> void", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("prepareGlobal", (void (Pythia8::TimeShower::*)(class Pythia8::Event &)) &Pythia8::TimeShower::prepareGlobal, "C++: Pythia8::TimeShower::prepareGlobal(class Pythia8::Event &) --> void", pybind11::arg(""));
 		cl.def("prepare", [](Pythia8::TimeShower &o, int const & a0, class Pythia8::Event & a1) -> void { return o.prepare(a0, a1); }, "", pybind11::arg(""), pybind11::arg(""));
 		cl.def("prepare", (void (Pythia8::TimeShower::*)(int, class Pythia8::Event &, bool)) &Pythia8::TimeShower::prepare, "C++: Pythia8::TimeShower::prepare(int, class Pythia8::Event &, bool) --> void", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
@@ -811,10 +904,14 @@ void bind_Pythia8_TimeShower(std::function< pybind11::module &(std::string const
 		cl.def("pTnext", [](Pythia8::TimeShower &o, class Pythia8::Event & a0, double const & a1, double const & a2) -> double { return o.pTnext(a0, a1, a2); }, "", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("pTnext", [](Pythia8::TimeShower &o, class Pythia8::Event & a0, double const & a1, double const & a2, bool const & a3) -> double { return o.pTnext(a0, a1, a2, a3); }, "", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("pTnext", (double (Pythia8::TimeShower::*)(class Pythia8::Event &, double, double, bool, bool)) &Pythia8::TimeShower::pTnext, "C++: Pythia8::TimeShower::pTnext(class Pythia8::Event &, double, double, bool, bool) --> double", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
+		cl.def("pTnextResDec", (double (Pythia8::TimeShower::*)()) &Pythia8::TimeShower::pTnextResDec, "C++: Pythia8::TimeShower::pTnextResDec() --> double");
 		cl.def("branch", [](Pythia8::TimeShower &o, class Pythia8::Event & a0) -> bool { return o.branch(a0); }, "", pybind11::arg(""));
 		cl.def("branch", (bool (Pythia8::TimeShower::*)(class Pythia8::Event &, bool)) &Pythia8::TimeShower::branch, "C++: Pythia8::TimeShower::branch(class Pythia8::Event &, bool) --> bool", pybind11::arg(""), pybind11::arg(""));
+		cl.def("resonanceShower", [](Pythia8::TimeShower &o, class Pythia8::Event & a0, class Pythia8::Event & a1, class std::vector<int, class std::allocator<int> > & a2) -> bool { return o.resonanceShower(a0, a1, a2); }, "", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
+		cl.def("resonanceShower", (bool (Pythia8::TimeShower::*)(class Pythia8::Event &, class Pythia8::Event &, class std::vector<int, class std::allocator<int> > &, double)) &Pythia8::TimeShower::resonanceShower, "C++: Pythia8::TimeShower::resonanceShower(class Pythia8::Event &, class Pythia8::Event &, class std::vector<int, class std::allocator<int> > &, double) --> bool", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("list", (void (Pythia8::TimeShower::*)() const) &Pythia8::TimeShower::list, "C++: Pythia8::TimeShower::list() const --> void");
 		cl.def("initUncertainties", (bool (Pythia8::TimeShower::*)()) &Pythia8::TimeShower::initUncertainties, "C++: Pythia8::TimeShower::initUncertainties() --> bool");
+		cl.def("initEnhancements", (bool (Pythia8::TimeShower::*)()) &Pythia8::TimeShower::initEnhancements, "C++: Pythia8::TimeShower::initEnhancements() --> bool");
 		cl.def("getHasWeaklyRadiated", (bool (Pythia8::TimeShower::*)()) &Pythia8::TimeShower::getHasWeaklyRadiated, "C++: Pythia8::TimeShower::getHasWeaklyRadiated() --> bool");
 		cl.def("system", (int (Pythia8::TimeShower::*)() const) &Pythia8::TimeShower::system, "C++: Pythia8::TimeShower::system() const --> int");
 		cl.def("enhancePTmax", (double (Pythia8::TimeShower::*)()) &Pythia8::TimeShower::enhancePTmax, "C++: Pythia8::TimeShower::enhancePTmax() --> double");
@@ -826,6 +923,7 @@ void bind_Pythia8_TimeShower(std::function< pybind11::module &(std::string const
 		cl.def("getSplittingProb", (double (Pythia8::TimeShower::*)(const class Pythia8::Event &, int, int, int, std::string)) &Pythia8::TimeShower::getSplittingProb, "C++: Pythia8::TimeShower::getSplittingProb(const class Pythia8::Event &, int, int, int, std::string) --> double", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("allowedSplitting", (bool (Pythia8::TimeShower::*)(const class Pythia8::Event &, int, int)) &Pythia8::TimeShower::allowedSplitting, "C++: Pythia8::TimeShower::allowedSplitting(const class Pythia8::Event &, int, int) --> bool", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("getRecoilers", (class std::vector<int, class std::allocator<int> > (Pythia8::TimeShower::*)(const class Pythia8::Event &, int, int, std::string)) &Pythia8::TimeShower::getRecoilers, "C++: Pythia8::TimeShower::getRecoilers(const class Pythia8::Event &, int, int, std::string) --> class std::vector<int, class std::allocator<int> >", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
+		cl.def("enhanceFactor", (double (Pythia8::TimeShower::*)(const std::string &)) &Pythia8::TimeShower::enhanceFactor, "C++: Pythia8::TimeShower::enhanceFactor(const std::string &) --> double", pybind11::arg("name"));
 		cl.def("assign", (class Pythia8::TimeShower & (Pythia8::TimeShower::*)(const class Pythia8::TimeShower &)) &Pythia8::TimeShower::operator=, "C++: Pythia8::TimeShower::operator=(const class Pythia8::TimeShower &) --> class Pythia8::TimeShower &", pybind11::return_value_policy::reference, pybind11::arg(""));
 	}
 	{ // Pythia8::DecayHandler file:Pythia8/ParticleDecays.h line:31
@@ -867,6 +965,7 @@ void bind_Pythia8_TimeShower(std::function< pybind11::module &(std::string const
 		cl.def_readwrite("varQ2GQcNS", &Pythia8::SpaceShower::varQ2GQcNS);
 		cl.def_readwrite("varG2QQcNS", &Pythia8::SpaceShower::varG2QQcNS);
 		cl.def_readwrite("varX2XGcNS", &Pythia8::SpaceShower::varX2XGcNS);
+		cl.def_readwrite("enhanceISR", &Pythia8::SpaceShower::enhanceISR);
 		cl.def("limitPTmax", [](Pythia8::SpaceShower &o, class Pythia8::Event & a0) -> bool { return o.limitPTmax(a0); }, "", pybind11::arg(""));
 		cl.def("limitPTmax", [](Pythia8::SpaceShower &o, class Pythia8::Event & a0, double const & a1) -> bool { return o.limitPTmax(a0, a1); }, "", pybind11::arg(""), pybind11::arg(""));
 		cl.def("limitPTmax", (bool (Pythia8::SpaceShower::*)(class Pythia8::Event &, double, double)) &Pythia8::SpaceShower::limitPTmax, "C++: Pythia8::SpaceShower::limitPTmax(class Pythia8::Event &, double, double) --> bool", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
@@ -880,6 +979,7 @@ void bind_Pythia8_TimeShower(std::function< pybind11::module &(std::string const
 		cl.def("branch", (bool (Pythia8::SpaceShower::*)(class Pythia8::Event &)) &Pythia8::SpaceShower::branch, "C++: Pythia8::SpaceShower::branch(class Pythia8::Event &) --> bool", pybind11::arg(""));
 		cl.def("list", (void (Pythia8::SpaceShower::*)() const) &Pythia8::SpaceShower::list, "C++: Pythia8::SpaceShower::list() const --> void");
 		cl.def("initUncertainties", (bool (Pythia8::SpaceShower::*)()) &Pythia8::SpaceShower::initUncertainties, "C++: Pythia8::SpaceShower::initUncertainties() --> bool");
+		cl.def("initEnhancements", (bool (Pythia8::SpaceShower::*)()) &Pythia8::SpaceShower::initEnhancements, "C++: Pythia8::SpaceShower::initEnhancements() --> bool");
 		cl.def("doRestart", (bool (Pythia8::SpaceShower::*)() const) &Pythia8::SpaceShower::doRestart, "C++: Pythia8::SpaceShower::doRestart() const --> bool");
 		cl.def("wasGamma2qqbar", (bool (Pythia8::SpaceShower::*)()) &Pythia8::SpaceShower::wasGamma2qqbar, "C++: Pythia8::SpaceShower::wasGamma2qqbar() --> bool");
 		cl.def("getHasWeaklyRadiated", (bool (Pythia8::SpaceShower::*)()) &Pythia8::SpaceShower::getHasWeaklyRadiated, "C++: Pythia8::SpaceShower::getHasWeaklyRadiated() --> bool");
@@ -892,6 +992,7 @@ void bind_Pythia8_TimeShower(std::function< pybind11::module &(std::string const
 		cl.def("getSplittingProb", (double (Pythia8::SpaceShower::*)(const class Pythia8::Event &, int, int, int, std::string)) &Pythia8::SpaceShower::getSplittingProb, "C++: Pythia8::SpaceShower::getSplittingProb(const class Pythia8::Event &, int, int, int, std::string) --> double", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("allowedSplitting", (bool (Pythia8::SpaceShower::*)(const class Pythia8::Event &, int, int)) &Pythia8::SpaceShower::allowedSplitting, "C++: Pythia8::SpaceShower::allowedSplitting(const class Pythia8::Event &, int, int) --> bool", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("getRecoilers", (class std::vector<int, class std::allocator<int> > (Pythia8::SpaceShower::*)(const class Pythia8::Event &, int, int, std::string)) &Pythia8::SpaceShower::getRecoilers, "C++: Pythia8::SpaceShower::getRecoilers(const class Pythia8::Event &, int, int, std::string) --> class std::vector<int, class std::allocator<int> >", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
+		cl.def("enhanceFactor", (double (Pythia8::SpaceShower::*)(const std::string &)) &Pythia8::SpaceShower::enhanceFactor, "C++: Pythia8::SpaceShower::enhanceFactor(const std::string &) --> double", pybind11::arg("name"));
 		cl.def("assign", (class Pythia8::SpaceShower & (Pythia8::SpaceShower::*)(const class Pythia8::SpaceShower &)) &Pythia8::SpaceShower::operator=, "C++: Pythia8::SpaceShower::operator=(const class Pythia8::SpaceShower &) --> class Pythia8::SpaceShower &", pybind11::return_value_policy::reference, pybind11::arg(""));
 	}
 }

@@ -5,6 +5,7 @@
 #include <ostream>
 #include <sstream> // __str__
 #include <string>
+#include <vector>
 
 #include <pybind11/pybind11.h>
 #include <functional>
@@ -26,7 +27,7 @@
 
 void bind_Pythia8_Basics_2(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
-	{ // Pythia8::HistPlot file:Pythia8/Basics.h line:590
+	{ // Pythia8::HistPlot file:Pythia8/Basics.h line:630
 		pybind11::class_<Pythia8::HistPlot, std::shared_ptr<Pythia8::HistPlot>> cl(M("Pythia8"), "HistPlot", "");
 		pybind11::handle cl_type = cl;
 

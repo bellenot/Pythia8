@@ -1,5 +1,5 @@
 // ShowerMEs.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Peter Skands, Stefan Prestel, Philip Ilten, Torbjorn
+// Copyright (C) 2021 Peter Skands, Stefan Prestel, Philip Ilten, Torbjorn
 // Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -34,8 +34,9 @@ class ShowerMEs {
 
 public:
 
-  // Constructor.
+  // Constructor, destructor, and assignment.
   ShowerMEs() = default;
+  ~ShowerMEs() = default;
 
   // VINCIA methods.
   // Set pointers to required PYTHIA 8 objects.
@@ -50,7 +51,8 @@ public:
   virtual double me2Vincia(vector<Particle> state, int nIn) = 0;
   // Use me2 to set helicities for a state. Takes a reference as
   // input and operates on it.
-  virtual bool selectHelicitiesVincia(vector<Particle>& state, int nIn);
+  virtual bool selectHelicitiesVincia(vector<Particle>& state, int nIn,
+    bool force);
   // Set and get colour depth.
   virtual void setColourDepthVincia(int colourDepthIn) {
     colourDepth = colourDepthIn;}
@@ -112,9 +114,13 @@ class ShowerMEsPlugin : public ShowerMEs {
 public:
 
   // Constructor and destructor.
+  ShowerMEsPlugin(const ShowerMEsPlugin &me) : ShowerMEs(), mesPtr(nullptr),
+    libPtr(nullptr), name(me.name) {};
   ShowerMEsPlugin(string nameIn = "") : ShowerMEs(), mesPtr(nullptr),
     libPtr(nullptr), name(nameIn) {};
   ~ShowerMEsPlugin();
+  ShowerMEsPlugin &operator=(const ShowerMEsPlugin &me) {
+    mesPtr = nullptr; libPtr = nullptr; name = me.name; return *this;}
 
   // VINCIA methods.
   // Set pointers to required PYTHIA 8 objects.
@@ -131,9 +137,10 @@ public:
       mesPtr->hasProcessVincia(idIn, idOut, sChan) : false;}
   // Use me2 to set helicities for a state. Takes a reference as
   // input and operates on it.
-  bool selectHelicitiesVincia(vector<Particle>& state, int nIn) override {
+  bool selectHelicitiesVincia(vector<Particle>& state, int nIn,
+    bool force) override {
     return mesPtr != nullptr ?
-      mesPtr->selectHelicitiesVincia(state, nIn) : false;}
+      mesPtr->selectHelicitiesVincia(state, nIn, force) : false;}
   // Set and get colour depth.
   void setColourDepthVincia(int colourDepthIn) override {
     if (mesPtr != nullptr) mesPtr->setColourDepthVincia(colourDepthIn);}

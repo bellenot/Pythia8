@@ -487,58 +487,6 @@ struct PyCallBack_Pythia8_UserHooks : public Pythia8::UserHooks {
 		}
 		return UserHooks::doReconnectResonanceSystems(a0, a1);
 	}
-	bool canEnhanceEmission() override { 
-		pybind11::gil_scoped_acquire gil;
-		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::UserHooks *>(this), "canEnhanceEmission");
-		if (overload) {
-			auto o = overload.operator()<pybind11::return_value_policy::reference>();
-			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
-				static pybind11::detail::overload_caster_t<bool> caster;
-				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
-			}
-			else return pybind11::detail::cast_safe<bool>(std::move(o));
-		}
-		return UserHooks::canEnhanceEmission();
-	}
-	double enhanceFactor(class std::basic_string<char> a0) override { 
-		pybind11::gil_scoped_acquire gil;
-		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::UserHooks *>(this), "enhanceFactor");
-		if (overload) {
-			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
-			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
-				return pybind11::detail::cast_ref<double>(std::move(o), caster);
-			}
-			else return pybind11::detail::cast_safe<double>(std::move(o));
-		}
-		return UserHooks::enhanceFactor(a0);
-	}
-	double vetoProbability(class std::basic_string<char> a0) override { 
-		pybind11::gil_scoped_acquire gil;
-		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::UserHooks *>(this), "vetoProbability");
-		if (overload) {
-			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
-			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
-				return pybind11::detail::cast_ref<double>(std::move(o), caster);
-			}
-			else return pybind11::detail::cast_safe<double>(std::move(o));
-		}
-		return UserHooks::vetoProbability(a0);
-	}
-	bool canEnhanceTrial() override { 
-		pybind11::gil_scoped_acquire gil;
-		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::UserHooks *>(this), "canEnhanceTrial");
-		if (overload) {
-			auto o = overload.operator()<pybind11::return_value_policy::reference>();
-			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
-				static pybind11::detail::overload_caster_t<bool> caster;
-				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
-			}
-			else return pybind11::detail::cast_safe<bool>(std::move(o));
-		}
-		return UserHooks::canEnhanceTrial();
-	}
 	bool canChangeFragPar() override { 
 		pybind11::gil_scoped_acquire gil;
 		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::UserHooks *>(this), "canChangeFragPar");
@@ -551,6 +499,32 @@ struct PyCallBack_Pythia8_UserHooks : public Pythia8::UserHooks {
 			else return pybind11::detail::cast_safe<bool>(std::move(o));
 		}
 		return UserHooks::canChangeFragPar();
+	}
+	bool canVetoAfterHadronization() override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::UserHooks *>(this), "canVetoAfterHadronization");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>();
+			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
+				static pybind11::detail::overload_caster_t<bool> caster;
+				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<bool>(std::move(o));
+		}
+		return UserHooks::canVetoAfterHadronization();
+	}
+	bool doVetoAfterHadronization(const class Pythia8::Event & a0) override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::UserHooks *>(this), "doVetoAfterHadronization");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
+			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
+				static pybind11::detail::overload_caster_t<bool> caster;
+				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<bool>(std::move(o));
+		}
+		return UserHooks::doVetoAfterHadronization(a0);
 	}
 	bool canSetImpactParameter() const override { 
 		pybind11::gil_scoped_acquire gil;
@@ -928,6 +902,19 @@ struct PyCallBack_Pythia8_MergingHooks : public Pythia8::MergingHooks {
 		}
 		return MergingHooks::doVetoEmission(a0);
 	}
+	bool usesVincia() override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::MergingHooks *>(this), "usesVincia");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>();
+			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
+				static pybind11::detail::overload_caster_t<bool> caster;
+				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<bool>(std::move(o));
+		}
+		return MergingHooks::usesVincia();
+	}
 	bool useShowerPlugin() override { 
 		pybind11::gil_scoped_acquire gil;
 		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::MergingHooks *>(this), "useShowerPlugin");
@@ -1081,16 +1068,9 @@ void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const 
 		cl.def("doVetoMPIEmission", (bool (Pythia8::UserHooks::*)(int, const class Pythia8::Event &)) &Pythia8::UserHooks::doVetoMPIEmission, "C++: Pythia8::UserHooks::doVetoMPIEmission(int, const class Pythia8::Event &) --> bool", pybind11::arg(""), pybind11::arg(""));
 		cl.def("canReconnectResonanceSystems", (bool (Pythia8::UserHooks::*)()) &Pythia8::UserHooks::canReconnectResonanceSystems, "C++: Pythia8::UserHooks::canReconnectResonanceSystems() --> bool");
 		cl.def("doReconnectResonanceSystems", (bool (Pythia8::UserHooks::*)(int, class Pythia8::Event &)) &Pythia8::UserHooks::doReconnectResonanceSystems, "C++: Pythia8::UserHooks::doReconnectResonanceSystems(int, class Pythia8::Event &) --> bool", pybind11::arg(""), pybind11::arg(""));
-		cl.def("canEnhanceEmission", (bool (Pythia8::UserHooks::*)()) &Pythia8::UserHooks::canEnhanceEmission, "C++: Pythia8::UserHooks::canEnhanceEmission() --> bool");
-		cl.def("enhanceFactor", (double (Pythia8::UserHooks::*)(std::string)) &Pythia8::UserHooks::enhanceFactor, "C++: Pythia8::UserHooks::enhanceFactor(std::string) --> double", pybind11::arg(""));
-		cl.def("vetoProbability", (double (Pythia8::UserHooks::*)(std::string)) &Pythia8::UserHooks::vetoProbability, "C++: Pythia8::UserHooks::vetoProbability(std::string) --> double", pybind11::arg(""));
-		cl.def("setEnhancedEventWeight", (void (Pythia8::UserHooks::*)(double)) &Pythia8::UserHooks::setEnhancedEventWeight, "C++: Pythia8::UserHooks::setEnhancedEventWeight(double) --> void", pybind11::arg("wt"));
-		cl.def("getEnhancedEventWeight", (double (Pythia8::UserHooks::*)()) &Pythia8::UserHooks::getEnhancedEventWeight, "C++: Pythia8::UserHooks::getEnhancedEventWeight() --> double");
-		cl.def("canEnhanceTrial", (bool (Pythia8::UserHooks::*)()) &Pythia8::UserHooks::canEnhanceTrial, "C++: Pythia8::UserHooks::canEnhanceTrial() --> bool");
-		cl.def("setEnhancedTrial", (void (Pythia8::UserHooks::*)(double, double)) &Pythia8::UserHooks::setEnhancedTrial, "C++: Pythia8::UserHooks::setEnhancedTrial(double, double) --> void", pybind11::arg("pTIn"), pybind11::arg("wtIn"));
-		cl.def("getEnhancedTrialPT", (double (Pythia8::UserHooks::*)()) &Pythia8::UserHooks::getEnhancedTrialPT, "C++: Pythia8::UserHooks::getEnhancedTrialPT() --> double");
-		cl.def("getEnhancedTrialWeight", (double (Pythia8::UserHooks::*)()) &Pythia8::UserHooks::getEnhancedTrialWeight, "C++: Pythia8::UserHooks::getEnhancedTrialWeight() --> double");
 		cl.def("canChangeFragPar", (bool (Pythia8::UserHooks::*)()) &Pythia8::UserHooks::canChangeFragPar, "C++: Pythia8::UserHooks::canChangeFragPar() --> bool");
+		cl.def("canVetoAfterHadronization", (bool (Pythia8::UserHooks::*)()) &Pythia8::UserHooks::canVetoAfterHadronization, "C++: Pythia8::UserHooks::canVetoAfterHadronization() --> bool");
+		cl.def("doVetoAfterHadronization", (bool (Pythia8::UserHooks::*)(const class Pythia8::Event &)) &Pythia8::UserHooks::doVetoAfterHadronization, "C++: Pythia8::UserHooks::doVetoAfterHadronization(const class Pythia8::Event &) --> bool", pybind11::arg(""));
 		cl.def("canSetImpactParameter", (bool (Pythia8::UserHooks::*)() const) &Pythia8::UserHooks::canSetImpactParameter, "C++: Pythia8::UserHooks::canSetImpactParameter() const --> bool");
 		cl.def("doSetImpactParameter", (double (Pythia8::UserHooks::*)()) &Pythia8::UserHooks::doSetImpactParameter, "C++: Pythia8::UserHooks::doSetImpactParameter() --> double");
 		cl.def("onInitInfoPtr", (void (Pythia8::UserHooks::*)()) &Pythia8::UserHooks::onInitInfoPtr, "C++: Pythia8::UserHooks::onInitInfoPtr() --> void");
@@ -1117,7 +1097,7 @@ void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const 
 		pybind11::class_<Pythia8::MergingHooks, std::shared_ptr<Pythia8::MergingHooks>, PyCallBack_Pythia8_MergingHooks> cl(M("Pythia8"), "MergingHooks", "");
 		pybind11::handle cl_type = cl;
 
-		{ // Pythia8::MergingHooks::IndividualWeights file:Pythia8/MergingHooks.h line:598
+		{ // Pythia8::MergingHooks::IndividualWeights file:Pythia8/MergingHooks.h line:592
 			auto & enclosing_class = cl;
 			pybind11::class_<Pythia8::MergingHooks::IndividualWeights, std::shared_ptr<Pythia8::MergingHooks::IndividualWeights>> cl(enclosing_class, "IndividualWeights", "");
 			pybind11::handle cl_type = cl;
@@ -1226,6 +1206,7 @@ void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const 
 		cl.def_readwrite("tmsHardNowSave", &Pythia8::MergingHooks::tmsHardNowSave);
 		cl.def_readwrite("tmsNowSave", &Pythia8::MergingHooks::tmsNowSave);
 		cl.def_readwrite("stopScaleSave", &Pythia8::MergingHooks::stopScaleSave);
+		cl.def_readwrite("nVetoedInMainShower", &Pythia8::MergingHooks::nVetoedInMainShower);
 		cl.def("tmsDefinition", (double (Pythia8::MergingHooks::*)(const class Pythia8::Event &)) &Pythia8::MergingHooks::tmsDefinition, "C++: Pythia8::MergingHooks::tmsDefinition(const class Pythia8::Event &) --> double", pybind11::arg("event"));
 		cl.def("dampenIfFailCuts", (double (Pythia8::MergingHooks::*)(const class Pythia8::Event &)) &Pythia8::MergingHooks::dampenIfFailCuts, "C++: Pythia8::MergingHooks::dampenIfFailCuts(const class Pythia8::Event &) --> double", pybind11::arg("inEvent"));
 		cl.def("canCutOnRecState", (bool (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::canCutOnRecState, "C++: Pythia8::MergingHooks::canCutOnRecState() --> bool");
@@ -1288,6 +1269,7 @@ void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const 
 		cl.def("doIgnoreEmissions", (void (Pythia8::MergingHooks::*)(bool)) &Pythia8::MergingHooks::doIgnoreEmissions, "C++: Pythia8::MergingHooks::doIgnoreEmissions(bool) --> void", pybind11::arg("doIgnoreIn"));
 		cl.def("canVetoEmission", (bool (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::canVetoEmission, "C++: Pythia8::MergingHooks::canVetoEmission() --> bool");
 		cl.def("doVetoEmission", (bool (Pythia8::MergingHooks::*)(const class Pythia8::Event &)) &Pythia8::MergingHooks::doVetoEmission, "C++: Pythia8::MergingHooks::doVetoEmission(const class Pythia8::Event &) --> bool", pybind11::arg(""));
+		cl.def("usesVincia", (bool (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::usesVincia, "C++: Pythia8::MergingHooks::usesVincia() --> bool");
 		cl.def("useShowerPlugin", (bool (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::useShowerPlugin, "C++: Pythia8::MergingHooks::useShowerPlugin() --> bool");
 		cl.def("includeWGTinXSEC", (bool (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::includeWGTinXSEC, "C++: Pythia8::MergingHooks::includeWGTinXSEC() --> bool");
 		cl.def("nHardNow", (int (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::nHardNow, "C++: Pythia8::MergingHooks::nHardNow() --> int");
@@ -1358,6 +1340,8 @@ void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const 
 		cl.def("getCouplingWeight", (class std::vector<double, class std::allocator<double> > (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::getCouplingWeight, "C++: Pythia8::MergingHooks::getCouplingWeight() --> class std::vector<double, class std::allocator<double> >");
 		cl.def("setEventVetoInfo", (void (Pythia8::MergingHooks::*)(int, double)) &Pythia8::MergingHooks::setEventVetoInfo, "C++: Pythia8::MergingHooks::setEventVetoInfo(int, double) --> void", pybind11::arg("nJetNowIn"), pybind11::arg("tmsNowIn"));
 		cl.def("setHardProcessInfo", (void (Pythia8::MergingHooks::*)(int, double)) &Pythia8::MergingHooks::setHardProcessInfo, "C++: Pythia8::MergingHooks::setHardProcessInfo(int, double) --> void", pybind11::arg("nHardNowIn"), pybind11::arg("tmsHardNowIn"));
+		cl.def("addVetoInMainShower", (void (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::addVetoInMainShower, "C++: Pythia8::MergingHooks::addVetoInMainShower() --> void");
+		cl.def("getNumberVetoedInMainShower", (int (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::getNumberVetoedInMainShower, "C++: Pythia8::MergingHooks::getNumberVetoedInMainShower() --> int");
 		cl.def("assign", (class Pythia8::MergingHooks & (Pythia8::MergingHooks::*)(const class Pythia8::MergingHooks &)) &Pythia8::MergingHooks::operator=, "C++: Pythia8::MergingHooks::operator=(const class Pythia8::MergingHooks &) --> class Pythia8::MergingHooks &", pybind11::return_value_policy::reference, pybind11::arg(""));
 	}
 }

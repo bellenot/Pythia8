@@ -1,5 +1,5 @@
 // LowEnergySigma.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -806,12 +806,12 @@ void LowEnergySigma::calcTot() {
                  * ((A * A * s4p) / (pow2(sNN - s4p) + A * A * s4p) + B);
     }
 
-    // Check that particles can annihilate.
+    // Check that particles can annihilate. Overrun not possible.
     vector<int> countA(5), countB(5);
     for (int quarksA = ( idA / 10) % 1000; quarksA > 0; quarksA /= 10)
-      countA[quarksA % 10 - 1] += 1;
+      if (quarksA % 10 > 1 && quarksA % 10 < 6) countA[quarksA % 10 - 1] += 1;
     for (int quarksB = (-idB / 10) % 1000; quarksB > 0; quarksB /= 10)
-      countB[quarksB % 10 - 1] += 1;
+      if (quarksB % 10 > 1 && quarksB % 10 < 6) countB[quarksB % 10 - 1] += 1;
     int nMutual = 0;
     for (int i = 0; i < 5; ++i) nMutual += min(countA[i], countB[i]);
 
@@ -874,9 +874,9 @@ double LowEnergySigma::calcRes(int idR) const {
     return 0.;
 
     // Find particle entries
-  auto* entryR = particleDataPtr->findParticle(idR);
-  auto* entryA = particleDataPtr->findParticle(idA);
-  auto* entryB = particleDataPtr->findParticle(idB);
+  auto entryR = particleDataPtr->findParticle(idR);
+  auto entryA = particleDataPtr->findParticle(idA);
+  auto entryB = particleDataPtr->findParticle(idB);
 
   if (entryR == nullptr || entryA == nullptr || entryB == nullptr) {
     infoPtr->errorMsg("Error in HadronWidths::sigmaResonant: particle does "
@@ -917,9 +917,12 @@ void LowEnergySigma::calcEla() {
 
   // Special case for K pi.
   else if ((idA == 321 || idA == 311) && (abs(idB) == 211 || idB == 111)) {
+    // For isospin = 1/2, no direct elastic scattering at low energies.
+    // For isospin = 3/2 (K+pi+ or K0pi-), use parameterization.
     if (eCM <= 1.8 && ((idA == 321 && idB == 211)
                     || (idA == 311 && idB == -211)))
-      sigEl = PelaezpiK32TotData(eCM);
+      sigEl = PelaezpiK32ElData(eCM);
+    // Above threshold, both cases can be approximated by a constant.
     else if (eCM > 1.8)
       sigEl = 1.5;
   }
@@ -958,7 +961,7 @@ void LowEnergySigma::calcEla() {
     else if (eCM < 1.485215)
       sigEl = -1.296457765e7 * pow4(eCM - e0)
               + 2.160975431e4 * pow2(eCM - e0) + 120.;
-    else if (eCM < 1.91)
+    else if (eCM < 1.825)
       sigEl = 1.1777e6 * exp(-6.4463 * eCM)
               - 12. * exp(-pow2(eCM - 1.646) / 0.004)
               + 10. * exp(-pow2(eCM - 1.937) / 0.004);
@@ -1069,7 +1072,7 @@ void LowEnergySigma::calcDiff() {
   } else if (idqAtmp == 33) {
     if (idANow == 331) scaleA = fracEtaPss + (1. - fracEtaPss) / sEffAQM;
   } else {
-    int nq[6] = {};
+    int nq[10] = {};
     ++nq[idqA%10];
     ++nq[(idqA/10)%10];
     ++nq[(idqA/100)%10];
@@ -1087,7 +1090,7 @@ void LowEnergySigma::calcDiff() {
   } else if (idqBtmp == 33) {
     if (idBNow == 331) scaleB = fracEtaPss + (1. - fracEtaPss) / sEffAQM;
   } else {
-    int nq[6] = {};
+    int nq[10] = {};
     ++nq[idqB%10];
     ++nq[(idqB/10)%10];
     ++nq[(idqB/100)%10];
@@ -1155,7 +1158,7 @@ void LowEnergySigma::calcDiff() {
     mResXBsave = mANow + MRES0;
     sResXB    = pow2(mResXBsave);
     sRMavgXB  = mResXBsave * mMinXBsave;
-    sRMlogXB  = log(1. + sResXB/sMinXB);
+    sRMlogXB  = log1p(sResXB/sMinXB);
     BcorrXB   = CSD[iSD][2] + CSD[iSD][3] / sCM;
     sum2      = CRES * sRMlogXB / (2.*bB + ALP2 * log(sCM/sRMavgXB) + BcorrXB);
   }
@@ -1180,7 +1183,7 @@ void LowEnergySigma::calcDiff() {
     mResAXsave = mBNow + MRES0;
     sResAX    = pow2(mResAXsave);
     sRMavgAX  = mResAXsave * mMinAXsave;
-    sRMlogAX  = log(1. + sResAX/sMinAX);
+    sRMlogAX  = log1p(sResAX/sMinAX);
     BcorrAX   = CSD[iSD][6] + CSD[iSD][7] / sCM;
     sum2      = CRES * sRMlogAX / (2.*bA + ALP2 * log(sCM/sRMavgAX) + BcorrAX);
   }
@@ -1365,7 +1368,7 @@ double LowEnergySigma::nqEffAQM(int id) const {
 
   // Count up number of quarks of each kind for hadron and combine.
   int idAbs = abs(id);
-  int nq[6] = {};
+  int nq[10] = {};
   ++nq[(idAbs/10)%10];
   ++nq[(idAbs/100)%10];
   ++nq[(idAbs/1000)%10];
@@ -1446,7 +1449,7 @@ double LowEnergySigma::meltpoint(int idX, int idM) const {
 
   // p+M.
   if (idX == 2212)
-    return idM == -211 ? 1.74
+    return idM == -211 ? 1.75
          : idM ==  211 ? 2.05
          : idM ==  111 ? 2.00
          : idM == -321 ? 2.10

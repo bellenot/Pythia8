@@ -1,5 +1,5 @@
 // Event.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -27,8 +27,8 @@ const double Particle::TINY = 1e-20;
 
 // Set pointer to the particle data species of the particle.
 
-void Particle::setPDEPtr(ParticleDataEntry* pdePtrIn) {
-  pdePtr = pdePtrIn; if (pdePtrIn != 0 || evtPtr == 0) return;
+void Particle::setPDEPtr(ParticleDataEntryPtr pdePtrIn) {
+  pdePtr = pdePtrIn; if (pdePtrIn != nullptr || evtPtr == nullptr) return;
   pdePtr = (*evtPtr).particleDataPtr->particleDataEntryPtr( idSave);}
 
 //--------------------------------------------------------------------------
@@ -50,7 +50,8 @@ int Particle::intPol() const {
 // Functions for rapidity and pseudorapidity.
 
 double Particle::y() const {
-  double temp = log( ( pSave.e() + abs(pSave.pz()) ) / max( TINY, mT() ) );
+  double temp = log( ( max(pSave.e(), pSave.pAbs()) + abs(pSave.pz()) )
+    / max( TINY, mT() ) );
   return (pSave.pz() > 0.) ? temp : -temp;
 }
 
@@ -558,20 +559,20 @@ void Particle::offsetCol( int addCol) {
 
 //--------------------------------------------------------------------------
 
-// Invariant mass of a pair and its square.
+// Particles invariant mass, mass squared, and momentum dot product.
 // (Not part of class proper, but tightly linked.)
 
 double m(const Particle& pp1, const Particle& pp2) {
-  double m2 = pow2(pp1.e() + pp2.e()) - pow2(pp1.px() + pp2.px())
-     - pow2(pp1.py() + pp2.py()) - pow2(pp1.pz() + pp2.pz());
-  return (m2 > 0. ? sqrt(m2) : 0.);
-}
+  double s = m2(pp1, pp2); return (s > 0. ? sqrt(s) : 0.);}
 
 double m2(const Particle& pp1, const Particle& pp2) {
-  double m2 = pow2(pp1.e() + pp2.e()) - pow2(pp1.px() + pp2.px())
-     - pow2(pp1.py() + pp2.py()) - pow2(pp1.pz() + pp2.pz());
-  return m2;
-}
+  return m2(pp1.p(), pp2.p());}
+
+double m2(const Particle& pp1, const Particle& pp2, const Particle& pp3) {
+  return m2(pp1.p(), pp2.p(), pp3.p());}
+
+double dot4(const Particle& pp1, const Particle& pp2) {
+  return pp1.p()*pp2.p();}
 
 //==========================================================================
 

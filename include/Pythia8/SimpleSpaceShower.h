@@ -1,5 +1,5 @@
 // SimpleSpaceShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -101,48 +101,54 @@ public:
     beamOffset = 0;}
 
   // Destructor.
-  virtual ~SimpleSpaceShower() {}
+  virtual ~SimpleSpaceShower() override {}
 
   // Initialize generation. Possibility to force re-initialization by hand.
-  virtual void init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn);
+  virtual void init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn)
+    override;
 
   // Find whether to limit maximum scale of emissions, and whether to dampen.
   virtual bool limitPTmax( Event& event, double Q2Fac = 0.,
-    double Q2Ren = 0.);
+    double Q2Ren = 0.) override;
 
   // Prepare system for evolution; identify ME.
-  virtual void prepare( int iSys, Event& event, bool limitPTmaxIn = true);
+  virtual void prepare( int iSys, Event& event, bool limitPTmaxIn = true)
+    override;
 
   // Update dipole list after each FSR emission.
-  virtual void update( int iSys, Event& event, bool hasWeakRad = false);
+  virtual void update( int iSys, Event& event, bool hasWeakRad = false)
+    override;
 
   // Select next pT in downwards evolution.
   virtual double pTnext( Event& event, double pTbegAll, double pTendAll,
-    int nRadIn = -1, bool doTrialIn = false);
+    int nRadIn = -1, bool doTrialIn = false) override;
 
   // ME corrections and kinematics that may give failure.
-  virtual bool branch( Event& event);
+  virtual bool branch( Event& event) override;
 
   // Print dipole list; for debug mainly.
-  virtual void list() const;
+  virtual void list() const override;
 
   // Initialize data members for calculation of uncertainty bands.
-  virtual bool initUncertainties();
+  virtual bool initUncertainties() override;
+
+   // Initialize data members for application of enhancements.
+  virtual bool initEnhancements() override;
 
   // Flag for failure in branch(...) that will force a retry of parton level.
-  virtual bool doRestart() const {return rescatterFail;}
+  virtual bool doRestart() const override {return rescatterFail;}
 
   // Tell if latest scattering was a gamma->qqbar.
-  virtual bool wasGamma2qqbar() { return gamma2qqbar; }
+  virtual bool wasGamma2qqbar() override { return gamma2qqbar; }
 
   // Tell whether ISR has done a weak emission.
-  virtual bool getHasWeaklyRadiated() {return hasWeaklyRadiated;}
+  virtual bool getHasWeaklyRadiated() override {return hasWeaklyRadiated;}
 
   // Tell which system was the last processed one.
-  virtual int system() const {return iSysSel;}
+  virtual int system() const override {return iSysSel;}
 
   // Potential enhancement factor of pTmax scale for hardest emission.
-  virtual double enhancePTmax() const {return pTmaxFudge;}
+  virtual double enhancePTmax() const override {return pTmaxFudge;}
 
 private:
 
@@ -249,7 +255,7 @@ private:
 
   // Calculate uncertainty-band weights for accepted/rejected trial branching.
   void calcUncertainties(bool accept, double pAcceptIn, double pT20in,
-    double enhance, double vp, SpaceDipoleEnd* dip, Particle* motherPtr,
+    double enhance, SpaceDipoleEnd* dip, Particle* motherPtr,
     Particle* sisterPtr);
 
 };

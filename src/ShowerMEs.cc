@@ -1,5 +1,5 @@
 // ShowerMEs.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Peter Skands, Stefan Prestel, Philip Ilten, Torbjorn
+// Copyright (C) 2021 Peter Skands, Stefan Prestel, Philip Ilten, Torbjorn
 // Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -34,11 +34,16 @@ void ShowerMEs::initPtrVincia(Info* infoPtrIn,
 
 // Set helicities for a particle state.
 
-bool ShowerMEs::selectHelicitiesVincia(vector<Particle>& state, int nIn) {
+bool ShowerMEs::selectHelicitiesVincia(vector<Particle>& state, int nIn,
+  bool force) {
+  // If force = true, erase any existing helicities.
+  if (force) {
+    for (int i=0; i<(int)state.size(); ++i) state[i].pol(9);
+  }
 
   // Get the matrix element (automatically sums over any h=9 particles).
   double me2sum = me2Vincia(state, nIn);
-  if (verbose >= superdebug)
+  if (verbose >= DEBUG)
     cout << " ShowerMEs::selectHelicities(): "
          << scientific << me2sum << endl;
 
@@ -49,10 +54,16 @@ bool ShowerMEs::selectHelicitiesVincia(vector<Particle>& state, int nIn) {
   int nHelConf = me2hel.size();
   if (nHelConf <= 0) return false;
 
+  // Add up all helicity matrix
+  double me2helsum = 0.;
+  for (auto it = me2hel.begin(); it!=me2hel.end(); it++) {
+    me2helsum += it->second;
+  }
+
   // Random number between zero and me2sum (trivial if only one helConf).
   double ranHelConf = 0.0;
   vector<int> hSelected;
-  if (nHelConf >= 2) ranHelConf = rndmPtr->flat() * me2sum;
+  if (nHelConf >= 2) ranHelConf = rndmPtr->flat() * me2helsum;
   for (map< vector<int>, double>::iterator it=me2hel.begin();
        it != me2hel.end(); ++it) {
     // Progressively subtract each me2hel and check when we cross zero.
@@ -66,7 +77,7 @@ bool ShowerMEs::selectHelicitiesVincia(vector<Particle>& state, int nIn) {
 
   // Set helicity configuration.
   for (int i = 0; i < (int)state.size(); ++i) state[i].pol(hSelected[i]);
-  if (verbose >= superdebug)
+  if (verbose >= DEBUG)
     cout << " ShowerMEs::selectHelicities(): selected " <<
       makeLabelVincia(hSelected, nIn, false) << endl;
   return true;

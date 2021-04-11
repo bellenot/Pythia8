@@ -1,5 +1,5 @@
 // ProcessContainer.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -126,18 +126,23 @@ bool ProcessContainer::init(bool isFirst, ResonanceDecays* resDecaysPtrIn,
   sigmaProcessPtr->init(beamAPtr, beamBPtr, slhaInterfacePtr);
 
   // Store the state of photon beams using inFlux: 0 = not a photon beam;
-  // 1 = resolved photon; 2 = unresolved photon.
+  // 1 = resolved photon; 2 = unresolved photon. Resolved photon unless
+  // expcilitly an initiator or if beam unresolved and in-state not defined.
   string inState = sigmaProcessPtr->inFlux();
   beamAgammaMode = 0;
   beamBgammaMode = 0;
   gammaModeEvent = 0;
   if ( beamAPtr->isGamma() || beamAhasGamma ) {
-    if ( inState == "gmg" || inState == "gmq" || inState == "gmgm" )
+    if (isLHA) beamAgammaMode = beamAPtr->isUnresolved() ? 2 : 1;
+    else if ( inState == "gmg" || inState == "gmq" || inState == "gmf"
+        || inState == "gmgm" )
       beamAgammaMode = 2;
     else beamAgammaMode = 1;
   }
   if ( beamBPtr->isGamma() || beamBhasGamma ) {
-    if ( inState == "ggm" || inState == "qgm" || inState == "gmgm" )
+    if (isLHA) beamBgammaMode = beamBPtr->isUnresolved() ? 2 : 1;
+    else if ( inState == "ggm" || inState == "qgm" || inState == "fgm"
+        || inState == "gmgm" )
       beamBgammaMode = 2;
     else beamBgammaMode = 1;
   }
@@ -179,7 +184,7 @@ bool ProcessContainer::init(bool isFirst, ResonanceDecays* resDecaysPtrIn,
   sigma2Temp  = 0.;
 
   // Set up normalized variance for lhaStratAbs = 3.
-  normVar3 = (lhaStratAbs == 3)
+  normVar3 = (lhaStratAbs == 3 && lhaUpPtr->xSecSum() != 0)
            ? pow2( lhaUpPtr->xErrSum() / lhaUpPtr->xSecSum()) : 0.;
 
   // Initialize process and allowed incoming partons.
@@ -1745,11 +1750,9 @@ bool SetupContainers::init(vector<ProcessContainer*>& containerPtrs,
   charmonium.setupSigma2gg(charmoniumSigmaPtrs);
   charmonium.setupSigma2qg(charmoniumSigmaPtrs);
   charmonium.setupSigma2qq(charmoniumSigmaPtrs);
-  charmonium.setupSigma2dbl(charmoniumSigmaPtrs);
   bottomonium.setupSigma2gg(bottomoniumSigmaPtrs);
   bottomonium.setupSigma2qg(bottomoniumSigmaPtrs);
   bottomonium.setupSigma2qq(bottomoniumSigmaPtrs);
-  bottomonium.setupSigma2dbl(bottomoniumSigmaPtrs);
   for (unsigned int i = 0; i < charmoniumSigmaPtrs.size(); ++i)
     containerPtrs.push_back( new ProcessContainer(charmoniumSigmaPtrs[i]) );
   for (unsigned int i = 0; i < bottomoniumSigmaPtrs.size(); ++i)

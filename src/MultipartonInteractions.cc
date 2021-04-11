@@ -1,5 +1,5 @@
 // MultipartonInteractions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -209,30 +209,29 @@ double SigmaMultiparton::sigma( int id1, int id2, double x1, double x2,
       m3Fix[i] = particleDataPtr->mSel(sigmaT[i]->id3Mass());
     if (useNarrowBW4[i])
       m4Fix[i] = particleDataPtr->mSel(sigmaT[i]->id4Mass());
-    if ((useNarrowBW3[i] || useNarrowBW4[i])
-      && pow2( m3Fix[i] + m4Fix[i] + MASSMARGIN) > sHat) return 0.;
+
+    // Check that invariant mass sufficiently large for product masses.
+    if (useNarrowBW3[i] || useNarrowBW4[i])
+      sHatMin[i] = pow2( m3Fix[i] + m4Fix[i] + MASSMARGIN);
+    if (sHatMin[i] > sHat) continue;
 
     // t-channel-sampling contribution.
-    if (sHat > sHatMin[i]) {
-      sigmaT[i]->set2KinMPI( x1, x2, sHat, tHat, uHat,
-        alpS, alpEM, needMasses[i], m3Fix[i], m4Fix[i]);
-      sigmaTval[i] = sigmaT[i]->sigmaHatWrap(id1, id2);
-      sigmaT[i]->pickInState(id1, id2);
-      // Correction factor for tHat rescaling in massive kinematics.
-      if (needMasses[i]) sigmaTval[i] *= sigmaT[i]->sHBetaMPI() / sHat;
-      sigmaTsum += sigmaTval[i];
-    }
+    sigmaT[i]->set2KinMPI( x1, x2, sHat, tHat, uHat,
+      alpS, alpEM, needMasses[i], m3Fix[i], m4Fix[i]);
+    sigmaTval[i] = sigmaT[i]->sigmaHatWrap(id1, id2);
+    sigmaT[i]->pickInState(id1, id2);
+    // Correction factor for tHat rescaling in massive kinematics.
+    if (needMasses[i]) sigmaTval[i] *= sigmaT[i]->sHBetaMPI() / sHat;
+    sigmaTsum += sigmaTval[i];
 
     // u-channel-sampling contribution.
-    if (sHat > sHatMin[i]) {
-      sigmaU[i]->set2KinMPI( x1, x2, sHat, uHat, tHat,
-        alpS, alpEM, needMasses[i], m3Fix[i], m4Fix[i]);
-      sigmaUval[i] = sigmaU[i]->sigmaHatWrap( id1, id2);
-      sigmaU[i]->pickInState(id1, id2);
-      // Correction factor for tHat rescaling in massive kinematics.
-      if (needMasses[i]) sigmaUval[i] *= sigmaU[i]->sHBetaMPI() / sHat;
-      sigmaUsum += sigmaUval[i];
-    }
+    sigmaU[i]->set2KinMPI( x1, x2, sHat, uHat, tHat,
+      alpS, alpEM, needMasses[i], m3Fix[i], m4Fix[i]);
+    sigmaUval[i] = sigmaU[i]->sigmaHatWrap( id1, id2);
+    sigmaU[i]->pickInState(id1, id2);
+    // Correction factor for tHat rescaling in massive kinematics.
+    if (needMasses[i]) sigmaUval[i] *= sigmaU[i]->sHBetaMPI() / sHat;
+    sigmaUsum += sigmaUval[i];
 
   // Average of t- and u-channel sampling; corrected for not selected channels.
   }

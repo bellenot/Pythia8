@@ -1,5 +1,5 @@
 // MergingHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -20,20 +20,19 @@ namespace Pythia8 {
 // a warning is printed.
 const double Merging::TMSMISMATCH = 1.5;
 
+// Minimum allowed weight value to prevent division by zero.
+const double Merging::MINWGT = 1e-10;
+
 //--------------------------------------------------------------------------
 
-// Initialise Merging class
+// Initialise Merging class.
 
-void Merging::init(){
-
-  // Reset minimal tms value.
-  tmsNowMin             = infoPtr->eCM();
-
-}
+void Merging::init() {tmsNowMin = infoPtr->eCM();}
 
 //--------------------------------------------------------------------------
 
 // Function to print information.
+
 void Merging::statistics() {
 
   // Recall switch to enfore merging scale cut.
@@ -287,12 +286,19 @@ int Merging::mergeProcessCKKWL( Event& process) {
     // In this case, central merging weight goes into nominal weight, all
     // variations are saved relative to central merging weight
     vector<double> relWgt({1.});
-    for (int iVar = 1; iVar < nWgts; ++iVar)
-      relWgt.push_back(wgt[0] != 0 ? wgt[iVar]/wgt[0] :
-                       std::numeric_limits<double>::infinity());
+    for (int iVar = 1; iVar < nWgts; ++iVar) {
+      relWgt.push_back(wgt[0] != 0 ? wgt[iVar]/wgt[0] : 0.);
+      if (abs(wgt[iVar]) > MINWGT && wgt[0] < MINWGT) {
+        string message="Warning in Merging::mergeProcessCKKWL: Cannot "
+          " normalize merging weight to zero. Try"
+          " Merging:includeWeightInXsection off.";
+        infoPtr->errorMsg(message);
+      }
+    }
     infoPtr->weightContainerPtr->
                     setWeightNominal(infoPtr->weight()*wgt[0]);
     mergingHooksPtr->setWeightCKKWL(relWgt);
+
   }
 
   // Allow merging hooks to veto events from now on.
@@ -453,9 +459,15 @@ int Merging::mergeProcessUMEPS( Event& process) {
     // In this case, central merging weight goes into nominal weight, all
     // variations are saved relative to central merging weight
     vector<double> relWgt({1.});
-    for (int iVar = 1; iVar < nWgts; ++iVar)
-      relWgt.push_back(wgt[0] != 0 ? wgt[iVar]/wgt[0] :
-                       std::numeric_limits<double>::infinity());
+    for (int iVar = 1; iVar < nWgts; ++iVar) {
+      relWgt.push_back(wgt[0] != 0 ? wgt[iVar]/wgt[0] : 0.);
+      if (abs(wgt[iVar]) > MINWGT && wgt[0] < MINWGT) {
+        string message="Warning in Merging::mergeProcessUMEPS: Cannot "
+          " normalize merging weight to zero. Try"
+          " Merging:includeWeightInXsection off.";
+        infoPtr->errorMsg(message);
+      }
+    }
     infoPtr->weightContainerPtr->
       setWeightNominal(infoPtr->weight()*wgt[0]);
     mergingHooksPtr->setWeightCKKWL(relWgt);

@@ -1,5 +1,5 @@
 // HiddenValleyFragmentation.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -214,7 +214,6 @@ bool HiddenValleyFragmentation::fragment(Event& event) {
 
   // Mass used to decide how to fragment system.
   mSys = hvColConfig[0].mass;
-
   // HV-string fragmentation when enough mass to produce >= 3 HV-mesons.
   if (mSys > 3.5 * mhvMeson) {
     if (!hvStringFrag.fragment( 0, hvColConfig, hvEvent)) return false;

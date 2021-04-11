@@ -1,5 +1,5 @@
 // PhaseSpace.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -610,6 +610,50 @@ private:
   double xMaxAbsSum, xSecSgnSum, sigmaSgn;
   vector<int>    idProc;
   vector<double> xMaxAbsProc;
+
+};
+
+//==========================================================================
+
+// Rambo flat phase-space generator.
+
+// This is an implementation of the Rambo phase-space generator as
+// presented in A New Monte Carlo Treatment Of Multiparticle Phase
+// Space At High-Energies, R. Kleiss, W.J. Stirling, S.D. Ellis, CPC40
+// (1986) 359.
+
+class Rambo {
+
+ public:
+
+  // Deafult constructor.
+  Rambo() { rndmPtr=nullptr; isInitPtr=false;}
+
+  // Initializing constructor.
+  Rambo(Rndm* rndmPtrIn) { initPtr(rndmPtrIn); }
+
+  // Destructor.
+  virtual ~Rambo() {}
+
+  // Initialize pointers.
+  void initPtr(Rndm* rndmPtrIn) {rndmPtr = rndmPtrIn; isInitPtr = true;}
+
+  // Rambo phase space generator. Generates nOut uniformly distributed
+  // massless 4-vectors with sqrt(s) = eCM. Output in pOut.
+  double genPoint(double eCM,int nOut,vector<Vec4>& pOut);
+
+  // Massive generalisation, weights NOT 1 anymore - literal implementation
+  // of original RAMBO paper by Ellis, Kleiss and Stirling. Number of particles
+  // determined from size of mIn vector.
+  double genPoint(double eCM,vector<double> mIn,vector<Vec4>& pOut);
+
+ private:
+
+  // Is initialized.
+  bool isInitPtr;
+
+  // Pointer to the random number generator.
+  Rndm*  rndmPtr;
 
 };
 

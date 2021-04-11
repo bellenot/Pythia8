@@ -1,5 +1,5 @@
 // Basics.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -453,23 +453,33 @@ ostream& operator<<(ostream& os, const Vec4& v) {
 
 //--------------------------------------------------------------------------
 
-// The invariant mass of two four-vectors.
+// The invariant mass of one or more four-vectors.
+
+double m(const Vec4& v1) {
+  double s = m2(v1); return (s >= 0) ? sqrt(s) : -sqrt(-s);}
 
 double m(const Vec4& v1, const Vec4& v2) {
-  double m2 = pow2(v1.tt + v2.tt) - pow2(v1.xx + v2.xx)
-     - pow2(v1.yy + v2.yy) - pow2(v1.zz + v2.zz);
-  return (m2 > 0.) ? sqrt(m2) : 0.;
-}
+  double s = m2(v1, v2); return (s > 0.) ? sqrt(s) : 0.;}
 
 //--------------------------------------------------------------------------
 
-// The squared invariant mass of two four-vectors.
+// The squared invariant mass of one or more four-vectors.
+
+double m2(const Vec4& v1) {
+  return pow2(v1.tt) - pow2(v1.xx) - pow2(v1.yy) - pow2(v1.zz);}
 
 double m2(const Vec4& v1, const Vec4& v2) {
-  double m2 = pow2(v1.tt + v2.tt) - pow2(v1.xx + v2.xx)
-     - pow2(v1.yy + v2.yy) - pow2(v1.zz + v2.zz);
-  return m2;
-}
+  return pow2(v1.tt + v2.tt) - pow2(v1.xx + v2.xx)
+     - pow2(v1.yy + v2.yy) - pow2(v1.zz + v2.zz);}
+
+double m2(const Vec4& v1, const Vec4& v2, const Vec4& v3) {
+  return pow2(v1.tt + v2.tt + v3.tt) - pow2(v1.xx + v2.xx + v3.xx)
+    - pow2(v1.yy + v2.yy + v3.yy) - pow2(v1.zz + v2.zz + v3.zz);}
+
+double m2(const Vec4& v1, const Vec4& v2, const Vec4& v3, const Vec4& v4) {
+  return pow2(v1.tt + v2.tt + v3.tt + v4.tt)
+    - pow2(v1.xx + v2.xx + v3.xx + v4.xx) - pow2(v1.yy + v2.yy + v3.yy + v4.yy)
+    - pow2(v1.zz + v2.zz + v3.zz + v4.zz);}
 
 //--------------------------------------------------------------------------
 
@@ -531,6 +541,13 @@ double costheta(const Vec4& v1, const Vec4& v2) {
   cthe = max(-1., min(1., cthe));
   return cthe;
 }
+
+//--------------------------------------------------------------------------
+
+// Cosine of the opening angle between two particles.
+
+double costheta(double e1, double e2, double m1, double m2, double s12) {
+  return (2.0*e1*e2 - s12)/(2.0*sqrt(e1*e1 - m1*m1)*sqrt(e2*e2 - m2*m2));}
 
 //--------------------------------------------------------------------------
 
@@ -651,7 +668,7 @@ pair<Vec4,Vec4> getTwoPerpendicular(const Vec4& v1, const Vec4& v2) {
 
   // One perpendicular vector from three-dimensional cross-product.
   Vec4 nPerp( cross3(v1,v2) );
-  double TINY = std::numeric_limits<double>::epsilon();
+  double TINY = numeric_limits<double>::epsilon();
   if ( abs(nPerp.pAbs()) < TINY) {
     Vec4 aux;
     if (v1.px() != 0.)      aux.p(v1.yy,v1.px(),v1.pz(),v1.e());
@@ -981,7 +998,7 @@ const char NUMBER[] = {'0', '1', '2', '3', '4', '5',
 
 //--------------------------------------------------------------------------
 
-  // Create a histogram that is the plot of the given function.
+// Create a histogram that is the plot of the given function.
 
 Hist Hist::plotFunc(function<double(double)> f, string titleIn,
     int nBinIn, double xMinIn, double xMaxIn, bool logXIn) {
@@ -1340,6 +1357,40 @@ double Hist::getBinContent(int iBin) const {
 
 }
 
+// Return the lower edge of the bin.
+
+double Hist::getBinEdge(int iBin) const {
+
+  if (iBin > 0 && iBin <= nBin + 1)
+    return linX ? xMin + (iBin - 1) * dx : xMin * pow(10., (iBin - 1) * dx);
+  else return numeric_limits<double>::quiet_NaN();
+
+}
+
+// Return the width of the bin.
+
+double Hist::getBinWidth(int iBin) const {
+
+  if (iBin > 0 && iBin <= nBin)
+    return linX ? dx : xMin * (pow(10., dx) - 1) * pow(10., (iBin - 1) * dx);
+  else return numeric_limits<double>::infinity();
+
+}
+
+//--------------------------------------------------------------------------
+
+// Return bin contents and edges.
+
+vector<double> Hist::getBinContents() const {return res;}
+
+vector<double> Hist::getBinEdges() const {
+
+  vector<double> edges(nBin + 1);
+  for (int ix = 0; ix <= nBin; ++ix) edges[ix] = getBinEdge(ix + 1);
+  return edges;
+
+}
+
 //--------------------------------------------------------------------------
 
 // Check whether another histogram has same size and limits.
@@ -1349,6 +1400,19 @@ bool Hist::sameSize(const Hist& h) const {
   if (nBin == h.nBin && abs(xMin - h.xMin) < TOLERANCE * dx &&
     abs(xMax - h.xMax) < TOLERANCE * dx) return true;
   else return false;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Take an arbitrary function of bin contents.
+
+void Hist::takeFunc(function<double(double)> func) {
+
+  for (int ix = 0; ix < nBin; ++ix) res[ix] = func(res[ix]);
+  under  = func(under);
+  inside = func(inside);
+  over   = func(over);
 
 }
 
@@ -1364,22 +1428,9 @@ void Hist::takeLog(bool tenLog) {
     if (res[ix] > Hist::TINY && res[ix] < yMin ) yMin = res[ix];
   yMin *= 0.8;
 
-  // Take 10-logarithm bin by bin, but ensure positivity.
-  if (tenLog) {
-    for (int ix = 0; ix < nBin; ++ix)
-      res[ix] = log10( max( yMin, res[ix]) );
-    under  =  log10( max( yMin, under) );
-    inside =  log10( max( yMin, inside) );
-    over   =  log10( max( yMin, over) );
-
-  // Take natural logarithm bin by bin, but ensure positivity.
-  } else {
-    for (int ix = 0; ix < nBin; ++ix)
-      res[ix] = log( max( yMin, res[ix]) );
-    under  =  log( max( yMin, under) );
-    inside =  log( max( yMin, inside) );
-    over   =  log( max( yMin, over) );
-  }
+  // Take base 10 or natural logarithm bin by bin, but ensure positivity.
+  takeFunc([yMin, tenLog](double x) {
+      return tenLog ? log10( max( yMin, x) ) : log( max( yMin, x) );});
 
 }
 
@@ -1387,28 +1438,31 @@ void Hist::takeLog(bool tenLog) {
 
 // Take square root of contents bin by bin; set 0 for negative content.
 
-void Hist::takeSqrt() {
-
-  for (int ix = 0; ix < nBin; ++ix) res[ix] = sqrtpos(res[ix]);
-  under  = sqrtpos(under);
-  inside = sqrtpos(inside);
-  over   = sqrtpos(over);
-
-}
+void Hist::takeSqrt() {takeFunc(sqrtpos);}
 
 //--------------------------------------------------------------------------
 
 // Normalize bin contents to given sum, by default including overflow bins.
 
-void Hist::normalize( double sum, bool alsoOverflow) {
+void Hist::normalize(double f, bool overflow) {
+  *this *= f / (overflow ? (under + inside + over) : inside);
+}
 
-  double norm = (alsoOverflow) ? sum / (under + inside + over) : sum / inside;
-  for (int ix = 0; ix < nBin; ++ix) res[ix] *= norm;
-  under  *= norm;
-  inside *= norm;
-  over   *= norm;
-  sumxw  *= norm;
+//--------------------------------------------------------------------------
 
+// Normalize bin contents to given area, by default including overflow bins.
+
+void Hist::normalizeIntegral(double f, bool overflow) {
+  normalizeSpectrum(f / (overflow ? (under + inside + over) : inside));
+}
+
+//--------------------------------------------------------------------------
+
+// Scale each bin content by 1 / (wtSum * bin width).
+
+void Hist::normalizeSpectrum(double wtSum) {
+  for (int ix = 0; ix < nBin; ++ix)
+    res[ix] /= wtSum * getBinWidth(ix + 1);
 }
 
 //--------------------------------------------------------------------------
@@ -1446,10 +1500,10 @@ Hist& Hist::operator-=(const Hist& h) {
 
 Hist& Hist::operator*=(const Hist& h) {
   if (!sameSize(h)) return *this;
-  nFill   += h.nFill;
+  nFill  += h.nFill;
   under  *= h.under;
   inside *= h.inside;
-  over *= h.over;
+  over   *= h.over;
   for (int ix = 0; ix < nBin; ++ix) res[ix] *= h.res[ix];
   return *this;
 }

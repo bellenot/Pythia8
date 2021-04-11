@@ -66,6 +66,22 @@ functions: <code>m</code>, <code>m2</code>, <code>dot3</code>,
 <code>RRapPhi</code>, <code>REtaPhi</code></li> 
 </ul> 
  
+There are some idiosyncrasies when working with standard template 
+library classes. One of the notable examples are maps with keys as 
+strings. In many cases, it is useful to be able to access the settings 
+maps from the <code>Settings</code> class of a <code>Pythia</code> 
+instance. Rather than calling something like 
+<code>getFlagMap()</code>, <code>getFlagMap("")</code> must be called 
+so the interface knows how to map the keys. A full working example is 
+given below. 
+<pre> 
+import pythia8 
+pythia = pythia8.Pythia("", False) 
+settings = pythia.settings 
+flags = settings.getFlagMap("") 
+for key, val in settings.getFlagMap("").items(): print(key) 
+</pre> 
+ 
 The following points highlight some of the features of the interface. 
 <ul> 
 <li>Documentation through the built-in help function in Python 
@@ -198,4 +214,4 @@ interface is as follows.
  
 </chapter> 
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 

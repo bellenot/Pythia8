@@ -1,5 +1,5 @@
 // LowEnergySigma.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -47,10 +47,6 @@ public:
   // process to execute. Returns false if no processes are available.
   bool sigmaPartial(int idA, int idB, double eCM, double mA, double mB,
     vector<int>& procsOut, vector<double>& sigmasOut);
-  double sigmaPartial(int idAIn, int idBIn, double eCMIn,
-    vector<int>& procsOut, vector<double>& sigmasOut) {
-    double mA0 = particleDataPtr->m0(idAIn), mB0 = particleDataPtr->m0(idBIn);
-    return sigmaPartial(idAIn, idBIn, eCMIn, mA0, mB0, procsOut, sigmasOut); }
 
   // Picks a process randomly according to their partial cross sections.
   int pickProcess(int idA, int idB, double eCM, double mA, double mB);
@@ -121,6 +117,8 @@ private:
 
 };
 
-}
+//==========================================================================
 
-#endif
+} // end namespace Pythia8
+
+#endif // Pythia8_LowEnergySigma_H

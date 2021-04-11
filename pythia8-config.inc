@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # pythia8-config is a part of the PYTHIA event generator.
-# Copyright (C) 2018 Torbjorn Sjostrand.
+# Copyright (C) 2021 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, October 2014 - November 2017.
@@ -57,7 +57,6 @@ Available options.
              Note: this option automatically invokes DIR/bin/root-config to set 
              the ROOT lib/ and include/ paths. To set your ROOT paths manually
              instead, use --with-root-lib=DIR and --with-root-include=DIR.
-  yoda     : Lightweight histogramming package for use with RIVET.
   gzip     : Enable reading of GZIPPED files using the libz library.
   python   : Interface to use PYTHIA in Python.
   mg5mes   : MadGraph matrix element plugins for parton showers.

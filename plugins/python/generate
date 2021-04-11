@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (C) 2020 Torbjorn Sjostrand.
+# Copyright (C) 2021 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, August 2019.
@@ -62,11 +62,15 @@ function configure_base() {
 +include <Pythia8/BeamShape.h>
 +include <pybind11/stl.h>
 +include <pybind11/complex.h>
+-function Pythia8::isfinite
+-function Pythia8::isinf
+-function Pythia8::isnan
 -class Pythia8::Writer
 +binder std::multiset REMOVE
 +binder std::complex REMOVE
 +binder std::vector REMOVE
 +binder std::map REMOVE
++binder std::unordered_map REMOVE
 +default_member_lvalue_reference_return_value_policy pybind11::return_value_policy::reference
 BLOCKTEXT
 }
@@ -212,6 +216,9 @@ sed -i.sed '/cl.def_readwrite("osLHEF"/d' $BINDER_SRC/*.cpp
 sed -i.sed '/cl.def("closeFile"/d' $BINDER_SRC/*.cpp
 rm -f $BINDER_SRC/*tcc.cpp $BINDER_SRC/*tcc_*.cpp
 
+# Fix namespace for hashed "std" classes.
+sed -i.sed "s/hash<string>/hash<std::string>/g" $BINDER_SRC/*.cpp
+
 # Remove locale bindings.
 sed -i.sed '/bind_std_locale_classes/d' $BINDER_SRC/*.cpp
 rm -rf $BINDER_SRC/locale_classes*.cpp
@@ -231,7 +238,7 @@ sed -i.sed "s/$OLD/$NEW/g" $BINDER_SRC/pythia8.cpp
 
 # Include the module documentation.
 cat > $BINDER_DOC << BLOCKTEXT
-Copyright (C) 2019 Torbjorn Sjostrand.
+Copyright (C) 2021 Torbjorn Sjostrand.
 PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 Please respect the MCnet Guidelines, see GUIDELINES for details.
 

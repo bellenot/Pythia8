@@ -1,5 +1,5 @@
 // SigmaTotal.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -55,7 +55,7 @@ public:
   double sigTot, rhoOwn, sigEl, bEl, sigTotCou, sigElCou;
 
   // Differential elastic cross section, d(sigma_el) / dt.
-  virtual double dsigmaEl( double , bool = false, bool = true) {return 0.;}
+  virtual double dsigmaEl( double , bool = false, bool = false) {return 0.;}
 
   // Calculate integrated diffractive cross sections.
   // Usage: calcDiff(  idAin, idBin, sIn, mAin, mBin).
@@ -252,7 +252,7 @@ public:
   virtual bool calcTotEl( int idAin, int idBin, double , double , double);
 
   // Differential elastic cross section.
-  virtual double dsigmaEl( double t, bool useCoulomb = false, bool = true);
+  virtual double dsigmaEl( double t, bool useCoulomb = false, bool = false);
 
   // Calculate integrated diffractive cross sections.
   virtual bool calcDiff(  int , int , double sIn, double , double ) {
@@ -308,7 +308,7 @@ public:
     double mBin);
 
   // Differential elastic cross section.
-  virtual double dsigmaEl( double t, bool useCoulomb = false, bool = true);
+  virtual double dsigmaEl( double t, bool useCoulomb = false, bool = false);
 
   // Calculate integrated diffractive cross sections.
   virtual bool calcDiff(  int idAin, int idBin, double sIn, double mAin,
@@ -375,7 +375,7 @@ public:
   virtual bool calcTotEl( int idAin, int idBin, double sIn, double , double );
 
   // Differential elastic cross section.
-  virtual double dsigmaEl(double t, bool useCoulomb = false, bool = true);
+  virtual double dsigmaEl(double t, bool useCoulomb = false, bool = false);
 
   // Calculate integrated diffractive cross sections.
   virtual bool calcDiff(  int , int , double sIn, double , double );
@@ -534,7 +534,7 @@ public:
   virtual bool calcTotEl( int idAin, int idBin, double sIn, double , double );
 
   // Differential elastic cross section.
-  virtual double dsigmaEl( double t, bool useCoulomb = false, bool = true) {
+  virtual double dsigmaEl( double t, bool useCoulomb = false, bool = false) {
     return facEl * pow2(abs(amplitude( t, useCoulomb))); }
 
 private:

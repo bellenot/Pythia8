@@ -1,10 +1,11 @@
 // main200.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// This is a simple test program to run Z decays at LEP I, with some basic
-// event shapes, spectra, and multiplicity counts.
+// Simple example of the VINCIA (or DIRE) shower model(s), on Z decays at
+// LEP I, with some basic event shapes, spectra, and multiplicity counts.
+// Also useful as a basic test of the respective final-state showers.
 
 // Authors: Peter Skands <peter.skands@monash.edu>
 
@@ -89,13 +90,8 @@ int main() {
 
   //************************************************************************
 
-  // EVENT GENERATION LOOP
-  // Generation, event-by-event printout, analysis, and storage
-
-  // (Optionally) re-initialize random number engine before event loop
-  const int initseed = settings.mode("Random:seed");
-  pythia.rndm.init(initseed);
-
+  // EVENT GENERATION LOOP.
+  // Generation, event-by-event printout, analysis, and histogramming.
 
   // Counter for negative-weight events
   double weight=1.0;
@@ -227,7 +223,7 @@ int main() {
   //************************************************************************
 
   // POST-RUN FINALIZATION
-  // Normalization, Statistics, Output
+  // Normalization, Statistics, Output.
 
   //Normalize histograms to effective number of positive-weight events.
   double normFac=1.0/sumWeights;
@@ -246,7 +242,7 @@ int main() {
   histX2Gluon    *= normFac;
   histX2Quark    *= normFac;
 
-  // Print a few histograms
+  // Print a few histograms.
   cout<<histNPartons<<endl;
   if (nGammaSum > 0) cout<<histNGamma<<endl;
   cout<<histNCharged<<endl;
@@ -264,7 +260,7 @@ int main() {
   cout<<histMCC<<endl;
   cout<<histMBB<<endl;
 
-  // Print out Vincia end-of-run information
+  // Print out end-of-run information.
   pythia.stat();
 
   cout<<endl;

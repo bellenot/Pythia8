@@ -1,5 +1,5 @@
 // DireMergingHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2021 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1267,8 +1267,6 @@ void DireMergingHooks::init(){
   // Abuse init to store and restore state of MergingHooks.
   if (isInit)   { store();   isInit = false; isStored = true;  return;}
   if (isStored) { restore(); isInit = true;  isStored = false; return;}
-
-  isInit = isStored = false;
 
   // Get core process from user input. Return if no process was selected.
   processSave           = settingsPtr->word("Merging:Process");

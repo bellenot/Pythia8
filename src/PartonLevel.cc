@@ -1,5 +1,5 @@
 // PartonLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 // Hard diffraction added by Christine Rasmussen.
@@ -79,14 +79,16 @@ bool PartonLevel::init( TimeShowerPtr timesDecPtrIn,
   hasGammaB          = false;
   beamAisGamma       = (beamAPtr != 0) ? beamAPtr->isGamma() : false;
   beamBisGamma       = (beamBPtr != 0) ? beamBPtr->isGamma() : false;
+  bool beamAisHadron = (beamAPtr != 0) ? beamAPtr->isHadron() : false;
+  bool beamBisHadron = (beamBPtr != 0) ? beamBPtr->isHadron() : false;
   beamAhasResGamma   = (beamAPtr != 0) ? beamAPtr->hasResGamma() : false;
   beamBhasResGamma   = (beamBPtr != 0) ? beamBPtr->hasResGamma() : false;
   beamHasResGamma    = (gammaMode < 4) && beamHasGamma;
   isGammaHadronDir   = false;
 
   // Simplify initialization when only unresolved photons.
-  bool isAgamBhad    = (beamAisGamma || beamAhasGamma) && beamBPtr->isHadron();
-  bool isBgamAhad    = (beamBisGamma || beamBhasGamma) && beamAPtr->isHadron();
+  bool isAgamBhad    = (beamAisGamma || beamAhasGamma) && beamBisHadron;
+  bool isBgamAhad    = (beamBisGamma || beamBhasGamma) && beamAisHadron;
   bool isAgamBgam    = (beamAisGamma || beamAhasGamma)
                     && (beamBisGamma || beamBhasGamma);
   bool onlyDirGamma =  ( gammaMode == 4 || ( gammaMode == 3 && isAgamBhad )
@@ -112,6 +114,7 @@ bool PartonLevel::init( TimeShowerPtr timesDecPtrIn,
 
   // Initialise trial shower switch.
   doTrial            = useAsTrial;
+  doEnhanceTrial     = settings.flag("Enhancements:doEnhanceTrial");
   // Merging initialization.
   bool hasMergingHooks = (mergingHooksPtr != 0);
   canRemoveEvent       = !doTrial && hasMergingHooks
@@ -131,6 +134,9 @@ bool PartonLevel::init( TimeShowerPtr timesDecPtrIn,
   doFSRduringProcess = FSR && FSRinProcess &&  interleaveFSR;
   doFSRafterProcess  = FSR && FSRinProcess && !interleaveFSR;
   doFSRinResonances  = FSR && settings.flag("PartonLevel:FSRinResonances");
+  // Only do interleaved resonance decays if FSR is part of process.
+  doInterleaveResDec = doFSRduringProcess
+    && settings.flag("TimeShower:interleaveResDec");
 
   // Flags for colour reconnection.
   doReconnect        = settings.flag("ColourReconnection:reconnect");
@@ -202,7 +208,8 @@ bool PartonLevel::init( TimeShowerPtr timesDecPtrIn,
     doMPIinit        = false;
     doMPIgmgm        = false;
   }
-  if (hasTwoLeptonBeams && hasPointLeptons) {
+  if ( (hasTwoLeptonBeams && hasPointLeptons)
+       || (beamAPtr->isUnresolved() && beamBPtr->isUnresolved()) ) {
     doISR            = false;
     doRemnants       = false;
   }
@@ -322,6 +329,7 @@ bool PartonLevel::next( Event& process, Event& event) {
   isSingleDiff      = isDiff && !isDoubleDiff  && !isCentralDiff;
   isNonDiff         = infoPtr->isNonDiffractive();
   isElastic         = infoPtr->isElastic();
+  iDS               = 0;
 
   // Default values for what is to come with diffraction.
   isHardDiffA       = false;
@@ -350,23 +358,17 @@ bool PartonLevel::next( Event& process, Event& event) {
   hasGammaA         = (beamAPtr != 0) ? beamAPtr->getGammaMode() > 0 : false;
   hasGammaB         = (beamBPtr != 0) ? beamBPtr->getGammaMode() > 0 : false;
 
-  // Save current photon mode when mixing processes.
-  gammaModeEvent = gammaMode;
-  if ( hasGammaA || hasGammaB ) {
-    if (beamAPtr->getGammaMode() < 2 && beamBPtr->getGammaMode() < 2)
-      gammaModeEvent = 1;
-    if (beamAPtr->getGammaMode() < 2 && beamBPtr->getGammaMode() == 2)
-      gammaModeEvent = 2;
-    if (beamAPtr->getGammaMode() == 2 && beamBPtr->getGammaMode() < 2)
-      gammaModeEvent = 3;
-    if (beamAPtr->getGammaMode() == 2 && beamBPtr->getGammaMode() == 2)
-      gammaModeEvent = 4;
-  }
+  // Obtain current modes for photon beams when beam pointers exists.
+  int gammaModeA = (beamAPtr != 0) ? beamAPtr->getGammaMode() : 0;
+  int gammaModeB = (beamBPtr != 0) ? beamBPtr->getGammaMode() : 0;
+
+  // Save the current photon mode when mixing processes.
+  saveGammaModeEvent(gammaModeA, gammaModeB);
 
   // Check if direct-photon + hadron to set hard system correctly.
   isGammaHadronDir = !(hasGammaA || hasGammaB) ? false :
-    ( (beamAPtr->getGammaMode() == 2) && (beamBPtr->getGammaMode() == 0) )
-    || ( (beamAPtr->getGammaMode() == 0) && (beamBPtr->getGammaMode() == 2) );
+    ( (gammaModeA == 2) && (gammaModeB == 0) )
+    || ( (gammaModeA == 0) && (gammaModeB == 2) );
 
   // Set up gamma+gamma/p subcollision. May fail due to extreme kinematics.
   if (beamHasGamma) {
@@ -473,9 +475,6 @@ bool PartonLevel::next( Event& process, Event& event) {
     mergingHooksPtr->storeWeights(infoPtr->weightContainerPtr->
         weightsMerging.weightValues);
 
-  // Reset event weight coming from enhanced branchings.
-  if (userHooksPtr != 0) userHooksPtr->setEnhancedEventWeight(1.);
-
   // Loop to set up diffractive system if run with MPI veto.
   for (int iHardDiffLoop = 1; iHardDiffLoop <= nHardDiffLoop;
     ++iHardDiffLoop) {
@@ -487,7 +486,6 @@ bool PartonLevel::next( Event& process, Event& event) {
     infoPtr->setCounter(21);
 
   // Classification of diffractive system: 1 = A, 2 = B, 3 = central.
-  iDS = 0;
   if (isDiffA || isDiffB) iDS = (iHardLoop == 2 || !isResolvedA) ? 2 : 1;
   if (isDiffC) iDS = 3;
 
@@ -561,8 +559,8 @@ bool PartonLevel::next( Event& process, Event& event) {
     }
 
     // Check matching of process scale to maximum ISR/FSR/MPI scales.
-    double Q2Fac       = infoPtr->Q2Fac();
-    double Q2Ren       = infoPtr->Q2Ren();
+    double Q2Fac       = infoPtr->Q2Fac(iDS);
+    double Q2Ren       = infoPtr->Q2Ren(iDS);
     bool limitPTmaxISR = (doISR)
       ? spacePtr->limitPTmax( event, Q2Fac, Q2Ren) : false;
     bool limitPTmaxFSR = (doFSRduringProcess)
@@ -597,7 +595,7 @@ bool PartonLevel::next( Event& process, Event& event) {
       mergingHooksPtr->setShowerStartingScales( doTrial,
         (canRemoveEvent || canRemoveEmission), pTscaleRad, process, pTmaxFSR,
         limitPTmaxFSR, pTmaxISR, limitPTmaxISR, pTmaxMPI, limitPTmaxMPI );
-    double pTmax    = max( pTmaxMPI, max( pTmaxISR, pTmaxFSR) );
+    double pTmax    = max( {pTmaxMPI, pTmaxISR, pTmaxFSR} );
     pTsaveMPI       = pTmaxMPI;
     pTsaveISR       = pTmaxISR;
     pTsaveFSR       = pTmaxFSR;
@@ -641,20 +639,23 @@ bool PartonLevel::next( Event& process, Event& event) {
 
       // Potentially increase shower stopping scale for trial showers, to
       // avoid accumulating low-pT emissions (and weights thereof)
+      // (Interleaved resonance decays, if on, are regarded as part of FSR.)
       if ( hasMergingHooks && doTrial)
         pTgen = max( pTgen, mergingHooksPtr->getShowerStoppingScale() );
-
-      double pTtimes = (doFSRduringProcess)
-        ? timesPtr->pTnext( event, pTmaxFSR, pTgen, isFirstTrial, doTrial)
-        : -1.;
+      double pTtimes = (doFSRduringProcess) ?
+        timesPtr->pTnext( event, pTmaxFSR, pTgen, isFirstTrial, doTrial) : -1.;
       pTgen = max( pTgen, pTtimes);
+      // Allow shower model to have own definition of resonance-decay scales.
+      double pTresDec = (doInterleaveResDec) ?
+        timesDecPtr->pTnextResDec() : -1.;
+      pTgen = max( pTgen, pTresDec);
       // No MPIs for unresolved photons.
-      double pTmulti = (doMPI && !unresolvedGamma)
-        ? multiPtr->pTnext( pTmaxMPI, pTgen, event) : -1.;
+      double pTmulti = (doMPI && !unresolvedGamma) ?
+        multiPtr->pTnext( pTmaxMPI, pTgen, event) : -1.;
       pTgen = max( pTgen, pTmulti);
-      double pTspace = (doISR)
-        ? spacePtr->pTnext( event, pTmaxISR, pTgen, nRad, doTrial) : -1.;
-      double pTnow = max( pTtimes, max( pTmulti, pTspace));
+      double pTspace = (doISR) ?
+        spacePtr->pTnext( event, pTmaxISR, pTgen, nRad, doTrial) : -1.;
+      double pTnow = max( {pTtimes, pTresDec, pTmulti, pTspace} );
 
       // Update information.
       infoPtr->setPTnow( pTnow);
@@ -674,7 +675,7 @@ bool PartonLevel::next( Event& process, Event& event) {
       }
 
       // Do a multiparton interaction (if allowed).
-      if (pTmulti > 0. && pTmulti > pTspace && pTmulti > pTtimes) {
+      if (pTmulti > 0. && pTmulti > max( {pTspace, pTtimes, pTresDec} )) {
         infoPtr->addCounter(23);
         if (multiPtr->scatter( event)) {
           typeLatest = 1;
@@ -708,7 +709,7 @@ bool PartonLevel::next( Event& process, Event& event) {
       }
 
       // Do an initial-state emission (if allowed).
-      else if (pTspace > 0. && pTspace > pTtimes) {
+      else if (pTspace > 0. && pTspace > max( pTtimes, pTresDec) ) {
         infoPtr->addCounter(24);
 
         // If MPIs, construct the gamma->qqbar branching in beamRemnants.
@@ -743,7 +744,7 @@ bool PartonLevel::next( Event& process, Event& event) {
       }
 
       // Do a final-state emission (if allowed).
-      else if (pTtimes > 0.) {
+      else if (pTtimes > 0. && pTtimes > pTresDec) {
         infoPtr->addCounter(25);
         if (timesPtr->branch( event, true)) {
           typeLatest = 3;
@@ -767,6 +768,23 @@ bool PartonLevel::next( Event& process, Event& event) {
         pTmaxISR = min( min(pTtimes,pTmaxFSR), pTmaxISR);
         pTmaxFSR = min(pTtimes, pTmaxFSR);
         pTmax    = pTtimes;
+      }
+
+      // Do one (or more) interleaved resonance decay(s).
+      else if (pTresDec > 0.) {
+        infoPtr->addCounter(26);
+        if (timesDecPtr->resonanceShower(process, event, iPosBefShow,
+            pTresDec)) {
+          typeLatest = 4;
+          iSysNow = timesDecPtr->system();
+          if (doISR) spacePtr->update( iSysNow, event, true);
+        }
+
+        // Set maximal scales for next pT to pick.
+        pTmaxMPI = min(pTresDec, pTmaxMPI);
+        pTmaxISR = min(pTresDec, pTmaxISR);
+        pTmaxFSR = min(pTresDec, pTmaxFSR);
+        pTmax    = pTresDec;
       }
 
       // If no pT scales above zero then nothing to be done.
@@ -866,7 +884,15 @@ bool PartonLevel::next( Event& process, Event& event) {
       // Handle potential merging veto.
       if ( canRemoveEvent && nISRhard + nFSRhard == 1 ) {
         // Simply check, and possibly reset weights.
-        mergingHooksPtr->doVetoStep( process, event );
+        bool mergingVeto =  mergingHooksPtr->doVetoStep( process, event );
+        // For merging with Vincia, we want to stop the shower here.
+        if (mergingHooksPtr->usesVincia() && mergingVeto) {
+          // Increase counter of vetoed events in main shower.
+          mergingHooksPtr->addVetoInMainShower();
+          // This was a deliberate merging veto.
+          doMergingVeto = true;
+          return false;
+        }
       }
 
     // End loop evolution down in pT from hard pT scale.
@@ -945,7 +971,15 @@ bool PartonLevel::next( Event& process, Event& event) {
         // Handle potential merging veto.
         if ( canRemoveEvent && nISRhard + nFSRhard == 1 ) {
           // Simply check, and possibly reset weights.
-          mergingHooksPtr->doVetoStep( process, event );
+          bool mergingVeto =  mergingHooksPtr->doVetoStep( process, event );
+          // For merging with Vincia, we want to stop the shower here.
+          if (mergingHooksPtr->usesVincia() && mergingVeto) {
+            // Increase counter of vetoed in events in main shower.
+            mergingHooksPtr->addVetoInMainShower();
+            // This was a deliberate merging veto.
+            doMergingVeto = true;
+            return false;
+          }
         }
 
         // Keep on evolving until nothing is left to be done.
@@ -1574,6 +1608,12 @@ void PartonLevel::setupHardSys( Event& process, Event& event) {
     }
   }
 
+  // Allow shower model to set up anything it needs at process level.
+  if (timesPtr != nullptr)
+    timesPtr->prepareProcess( process, event, iPosBefShow);
+  if (timesDecPtr != timesPtr && timesDecPtr != nullptr)
+    timesDecPtr->prepareProcess( process, event, iPosBefShow);
+
   // Done.
 }
 
@@ -1637,6 +1677,12 @@ void PartonLevel::setupShowerSys( Event& process, Event& event) {
       event.appendJunction( process.getJunction(iJun));
     }
   }
+
+  // Allow shower model to set up anything it needs at process level.
+  if (timesPtr != nullptr)
+    timesPtr->prepareProcess( process, event, iPosBefShow);
+  if (timesDecPtr != timesPtr && timesDecPtr != nullptr)
+    timesDecPtr->prepareProcess( process, event, iPosBefShow);
 
   // Done.
 }
@@ -1955,17 +2001,21 @@ void PartonLevel::setupHardDiff( Event& process) {
   beamAPtr->newPzE(  pzDiff, eDiffA);
   beamBPtr->newPzE( -pzDiff, eDiffB);
 
-  // Beams not found in normal slots 1 and 2.
+  // Beams not found in normal slots 1 and 2, index for diffractive system.
   int beamOffset = 4 + gammaOffset;
-  int beamRemnOffset = (isHardDiffB) ? 2 : 1;
+  iDS = (isHardDiffB) ? 2 : 1;
 
   // Reassign beam pointers in other classes.
   timesPtr->reassignBeamPtrs( beamAPtr, beamBPtr, beamOffset);
   timesDecPtr->reassignBeamPtrs( beamAPtr, beamBPtr, beamOffset);
   spacePtr->reassignBeamPtrs( beamAPtr, beamBPtr, beamOffset);
-  remnants.reassignBeamPtrs(  beamAPtr, beamBPtr, beamRemnOffset);
+  remnants.reassignBeamPtrs(  beamAPtr, beamBPtr, iDS);
   if (colourReconnectionPtr)
     colourReconnectionPtr->reassignBeamPtrs(  beamAPtr, beamBPtr);
+
+  // Change the location of process information to the current diffractive
+  // system.
+  infoPtr->reassignDiffSystem(0, iDS);
 
   // Reassign multiparton interactions pointer to right object.
   if      (isHardDiffA) multiPtr = &multiSDA;
@@ -2441,6 +2491,30 @@ void PartonLevel::leaveResolvedLeptonGamma( Event& process, Event& event,
 
 //--------------------------------------------------------------------------
 
+// Set the per-event mode for gamma/hadron+gamma interactions.
+// Use same conventions as with the Photon:ProcessType parameter.
+
+void PartonLevel::saveGammaModeEvent( int gammaModeA, int gammaModeB) {
+
+  // Start with the global mode.
+  gammaModeEvent = gammaMode;
+
+  // Derive the mode for the current event from the beam modes.
+  if ( hasGammaA || hasGammaB ) {
+    if (gammaModeA < 2 && gammaModeB < 2)
+      gammaModeEvent = 1;
+    if (gammaModeA < 2 && gammaModeB == 2)
+      gammaModeEvent = 2;
+    if (gammaModeA == 2 && gammaModeB < 2)
+      gammaModeEvent = 3;
+    if (gammaModeA == 2 && gammaModeB == 2)
+      gammaModeEvent = 4;
+  }
+
+}
+
+//--------------------------------------------------------------------------
+
 // Remove the copies of the beam photon from the event record.
 
 void PartonLevel::cleanEventFromGamma( Event& event) {
@@ -2509,12 +2583,13 @@ void PartonLevel::cleanEventFromGamma( Event& event) {
 
 //--------------------------------------------------------------------------
 
-// Handle showers in successive resonance decays.
+// Handle any resonance decays not already done during interleaved evolution.
+// Includes sequential decays and showers inside the resonance systems.
 
 bool PartonLevel::resonanceShowers( Event& process, Event& event,
   bool skipForR) {
 
-  // Prepare to start over from beginning for R-hadron decays.
+  // For R-hadron decays, prepare to start over from beginning.
   if (allowRH) {
     if (skipForR) {
       nHardDoneRHad = nHardDone;
@@ -2525,15 +2600,14 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
   }
 
   // Isolate next system to be processed, if anything remains.
-  int nRes    = 0;
   int nFSRres = 0;
   // Number of desired branchings, negative value means no restriction.
   int nBranchMax = (doTrial) ? nTrialEmissions : -1;
   // Vector to tell which junctions have already been copied
   vector<int> iJunCopied;
 
+  // Start from the last parton we are sure we have processed.
   while (nHardDone < process.size()) {
-    ++nRes;
     int iBegin = nHardDone;
 
     // In first call (skipForR = true) skip over daughters
@@ -2565,6 +2639,7 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
     int iHardMother      = process[iBegin].mother1();
     Particle& hardMother = process[iHardMother];
     int iBefMother       = iPosBefShow[iHardMother];
+    // Reset daughters if not added to event yet.
     if (event[iBefMother].daughter1() >= event.size())
       event[iBefMother].daughters( 0, 0);
     int iAftMother       = event[iBefMother].iBotCopyId();
@@ -2574,6 +2649,13 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
       if (iTraceRHadron > 0) iAftMother = iTraceRHadron;
     }
     Particle& aftMother  = event[iAftMother];
+
+    // Skip if this decay was already processed during shower evolution.
+    if ( (!aftMother.isFinal() && aftMother.daughter1() != 0)
+      || (iAftMother == 0 && hardMother.status() != -21) ) {
+      ++nHardDone;
+      continue;
+    }
 
     // From now on mother counts as decayed.
     aftMother.statusNeg();
@@ -2598,9 +2680,14 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
     }
 
     // Extract next partons from hard event into normal event record.
+    // Check if this was a shower branching (e.g., if input process-level
+    // event was already showered); if so, do not add resonance shower here.
     vector<bool> doCopyJun;
+    bool alreadyShowered = false;
     for (int i = iBegin; i < process.size(); ++i) {
       if (process[i].mother1() != iHardMother) break;
+      if (process[i].statusAbs() >= 40 && process[i].statusAbs() <= 59)
+        alreadyShowered = true;
       int iNow = event.append( process[i] );
       iPosBefShow[i] = iNow;
       Particle& now = event.back();
@@ -2691,6 +2778,9 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
       iJunCopied.push_back(iJun);
     }
 
+    // Only add shower if not already done.
+    if (alreadyShowered) continue;
+
     // Reset pT of last branching
     pTLastBranch = 0.0;
 
@@ -2774,7 +2864,15 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
         // Handle potential merging veto.
         if ( canRemoveEvent && nFSRhard == 1 ) {
           // Simply check, and possibly reset weights.
-          mergingHooksPtr->doVetoStep( process, event, true );
+          bool mergingVeto =  mergingHooksPtr->doVetoStep( process, event );
+          // For merging with Vincia, we want to stop the shower here.
+          if (mergingHooksPtr->usesVincia() && mergingVeto) {
+            // Increase counter of vetoed in events in main shower.
+            mergingHooksPtr->addVetoInMainShower();
+            // This was a deliberate merging veto.
+            doMergingVeto = true;
+            return false;
+          }
         }
 
       // Keep on evolving until nothing is left to be done.
@@ -2792,18 +2890,28 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
 //--------------------------------------------------------------------------
 
 // Perform decays and showers of W and Z emitted in shower.
+// Assumes decay channel and kinematics not yet selected.
+// Note: this method is specific to SimpleShower.
 
 bool PartonLevel::wzDecayShowers( Event& event) {
 
   // Identify W/Z produced by a parton shower.
-  for (int iWZ = 0; iWZ < event.size(); ++iWZ)
-  if (event[iWZ].isFinal()
-    && (event[iWZ].id() == 23 || event[iWZ].idAbs() == 24) ) {
+  for (int iWZ = 0; iWZ < event.size(); ++iWZ) {
 
     // Do nothing if particle should not be decayed.
+    if (!event[iWZ].isFinal()) continue;
     if ( event[iWZ].canDecay() && event[iWZ].mayDecay()
       && event[iWZ].isResonance() ) ;
     else continue;
+
+    // Check for any non-W/Z resonances and issue warning.
+    if (event[iWZ].id() != 23 && event[iWZ].idAbs() != 24) {
+      stringstream ss;
+      ss << event[iWZ].id();
+      infoPtr->errorMsg("Warning in PartonLevel::wzDecayShowers: "
+        "found undecayed resonance","id = "+ss.str());
+      continue;
+    }
 
     int iWZtop = event[iWZ].iTopCopy();
     int typeWZ = 0;

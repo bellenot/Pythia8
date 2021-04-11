@@ -1,5 +1,5 @@
 // LesHouches.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -533,8 +533,10 @@ public:
 
 private:
 
-  // Pointers to process event record and further information.
-  Event*   processPtr;
+  // Pointer to process event record.
+  Event* processPtr;
+
+  // Constant info pointer, explicitly overwrites member from LHAup base class.
   const Info* infoPtr;
 
 };
@@ -575,8 +577,10 @@ private:
   // Pointer to event that should be printed.
   Event* eventPtr;
 
-  // Pointer to settings and info objects.
+  // Constant info pointer, explicitly overwrites member from LHAup base class.
   const Info* infoPtr;
+
+  // Pointer to settings and info objects.
   Settings* settingsPtr;
   ParticleData* particleDataPtr;
 

@@ -1,5 +1,5 @@
 // ShowerMEsMadgraph.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Peter Skands, Stefan Prestel, Philip Ilten, Torbjorn
+// Copyright (C) 2021 Peter Skands, Stefan Prestel, Philip Ilten, Torbjorn
 // Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -71,7 +71,7 @@ bool ShowerMEsMadgraph::initVincia() {
 
   // Check if pointers initialized.
   verbose = settingsPtr->mode("Vincia:verbose");
-  if (verbose > normal) printOut("ShowerMEsMadgraph::init", "...");
+  if (verbose > NORMAL) printOut("ShowerMEsMadgraph::init", "begin", dashLen);
   if (!isInitPtr) {
     printOut("ShowerMEsMadgraph::init",
              "Cannot initialize, pointers not set.");
@@ -79,17 +79,17 @@ bool ShowerMEsMadgraph::initVincia() {
   }
   isInit = true;
 
-  // Set colour depth (TODO: via "Vincia:matchingFullColour").
-  colourDepth = 1;
+  // Set colour depth.
+  colourDepth = 0.;
 
   // Create new model instance.
-  if (verbose >= quiteloud) printOut("ShowerMEsMadgraph::init",
-    "   setting MG C++ masses, widths, couplings...");
+  if (verbose >= REPORT) printOut("ShowerMEsMadgraph::init",
+    "setting MG5 C++ masses, widths, couplings...");
   if (modelPtr != nullptr) delete modelPtr;
   modelPtr = new PARS();
   modelPtr->setIndependentParameters(particleDataPtr,coupSMPtr,slhaPtr);
   modelPtr->setIndependentCouplings();
-  if (verbose >= quiteloud) {
+  if (verbose >= DEBUG) {
     modelPtr->printIndependentParameters();
     modelPtr->printIndependentCouplings();
   }
@@ -112,10 +112,16 @@ bool ShowerMEsMadgraph::initVincia() {
   modelPtr->setDependentCouplings();
 
   // Construct Madgraph process library.
-  if (verbose >= superdebug) printOut("ShowerMEsMadgraph::init()",
+  if (verbose >= DEBUG) printOut("ShowerMEsMadgraph::init()",
       "   attempting to construct lib");
   if (libPtr != nullptr) delete libPtr;
   libPtr = new PY8MEs_namespace::PY8MEs(modelPtr);
+  // Set whether to include averaging and symmetry factors.
+  //TODO: could be read in from flags.
+  libPtr->seProcessesIncludeSymmetryFactors(false);
+  libPtr->seProcessesIncludeHelicityAveragingFactors(false);
+  libPtr->seProcessesIncludeColorAveragingFactors(false);
+
   return true;
 
 }
@@ -134,7 +140,7 @@ bool ShowerMEsMadgraph::hasProcessVincia(vector<int> idIn, vector<int> idOut,
 
 PY8MEs_namespace::PY8ME* ShowerMEsMadgraph::getProcess(
   vector<int> idIn, vector<int> idOut, set<int> sChan) {
-    if (verbose >= superdebug) {
+    if (verbose >= DEBUG) {
       cout << " ShowerMEsMadgraph::getProcess(): checking for process";
       for (int i = 0; i < (int)idIn.size(); ++i) cout << " " << idIn[i];
       cout << " > ";
@@ -245,7 +251,7 @@ double ShowerMEsMadgraph::me2Vincia(vector<Particle> state, int nIn) {
     // Remove the particle whose helicities have been summed over.
     i9.pop_back();
   }
-  if (verbose >= superdebug) {
+  if (verbose >= DEBUG) {
     cout << " in = ";
     for (int i = 0; i < (int)idIn.size(); ++i) cout << idIn[i] << " ";
     cout << "   out = ";

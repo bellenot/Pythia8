@@ -1,5 +1,5 @@
 // VinciaCommon.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2021 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -23,16 +23,100 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
                   PartonVertexPtr partonVertexPtrIn,
                   WeightContainer* weightContainerPtrIn) {
 
+  // Verbosity output.
+  verbose = settingsPtr->mode("Vincia:verbose");
+  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+
+  // Create diagnostics pointer.
+  diagnosticsPtr = make_shared<VinciaDiagnostics>();
+  diagnosticsPtr->initPtr(infoPtr);
+  if (verbose >= REPORT) diagnosticsPtr->start(__METHOD_NAME__);
+
   // Clear Vincia's register of PhysicsBase objects
   subObjects.clear();
 
-  // Set and register merging pointers
-  mergingPtr = mrgPtrIn;
-  if ( mergingPtr ) registerSubObject(*mergingPtr);
-  mergingHooksPtr = mrgHooksPtrIn;
-  if ( mergingHooksPtr ) registerSubObject(*mergingHooksPtr);
+  bool vinciaOn   = (settingsPtr->mode("PartonShowers:model") == 2);
+  doMerging       = settingsPtr->flag("Merging:doMerging");
+  doMerging       = ( doMerging && vinciaOn );
 
-  // Create and register VinciaFSR and VinciaISR instances
+  if (doMerging) {
+    // Set and register merging pointers
+    mergingHooksPtr = make_shared<VinciaMergingHooks>();
+    registerSubObject(*mergingHooksPtr);
+    mrgHooksPtrIn = mergingHooksPtr;
+    mergingPtr = make_shared<VinciaMerging>();
+    registerSubObject(*mergingPtr);
+    mrgPtrIn = mergingPtr;
+
+    // Initialise Vincia's mergingHookPtr.
+    mergingHooksPtr->init();
+
+    if (!mergingHooksPtr->initSuccess()) {
+      string msg= "MergingHooks initialisation failed.";
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+      return false;
+    }
+
+    // Create Vincia's own userhook.
+    shared_ptr<MergeResScaleHook> mergeResHookPtr =
+      make_shared<MergeResScaleHook>(mergingHooksPtr);
+
+    // Update userHooksPtr.
+    if ( !userHooksPtr ) {
+      userHooksPtr = mergeResHookPtr;
+    }
+    else {
+      shared_ptr<UserHooksVector> uhv =
+        dynamic_pointer_cast<UserHooksVector>(userHooksPtr);
+      if ( !uhv ) {
+        uhv = make_shared<UserHooksVector>();
+        uhv->hooks.push_back(userHooksPtr);
+        userHooksPtr = uhv;
+      }
+      uhv->hooks.push_back(mergeResHookPtr);
+    }
+
+    // Update infoPtr's pointer to userhooks.
+    infoPtr->userHooksPtr = userHooksPtr;
+  }
+
+  // Set weightContainerPtr and tell weightContainer where to find our weights.
+  weightContainerPtr = weightContainerPtrIn;
+  if (vinciaOn) weightContainerPtr->weightsShowerPtr = &vinWeights;
+
+  // Create EW/QED Shower module(s).
+  int ewMode = settingsPtr->mode("Vincia:EWmode");
+  // Create the QED and EW shower pointers.
+  ewShowerPtr      = std::make_shared<VinciaEW>();
+  qedShowerHardPtr = std::make_shared<VinciaQED>();
+  qedShowerSoftPtr = std::make_shared<VinciaQED>();
+
+  if (vinciaOn && ewMode >= 3 && settingsPtr->flag("Vincia:EWOverlapVeto")) {
+    // Initialize the overlap veto
+    shared_ptr<VinciaEWVetoHook> EWvetoPtr = make_shared<VinciaEWVetoHook>();
+    registerSubObject(*EWvetoPtr);
+    EWvetoPtr->init(dynamic_pointer_cast<VinciaEW>(ewShowerPtr));
+
+    // Update userHooksPtr.
+    if ( !userHooksPtr ) {
+      userHooksPtr = EWvetoPtr;
+    }
+    else {
+      shared_ptr<UserHooksVector> uhv =
+        dynamic_pointer_cast<UserHooksVector>(userHooksPtr);
+      if ( !uhv ) {
+        uhv = make_shared<UserHooksVector>();
+        uhv->hooks.push_back(userHooksPtr);
+        userHooksPtr = uhv;
+      }
+      uhv->hooks.push_back(EWvetoPtr);
+    }
+
+    // Update infoPtr's pointer to userhooks.
+    infoPtr->userHooksPtr = userHooksPtr;
+  }
+
+  // Create and register VinciaFSR and VinciaISR instances.
   timesPtr = make_shared<VinciaFSR>() ;
   registerSubObject(*timesPtr);
   spacePtr = make_shared<VinciaISR>() ;
@@ -41,30 +125,30 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
 
   // Set pointers in showers.
   timesPtr->initPtrs( mergingHooksPtr, partonVertexPtrIn,
-    weightContainerPtrIn);
+    weightContainerPtr);
   spacePtr->initPtrs( mergingHooksPtr, partonVertexPtrIn,
-    weightContainerPtrIn);
+    weightContainerPtr);
 
-  // Verbosity level.
-  setVerbose(settingsPtr->mode("Vincia:verbose"));
-  if (verbose >= quiteloud) printOut(__METHOD_NAME__, "setting pointers...");
+  // Pass verbose settings to members
+  setVerbose(verbose);
+  if (verbose >= REPORT) printOut(__METHOD_NAME__,
+    "setting Vincia pointers...");
 
   // Init FSR shower pointers and default settings, beyond those set
   // by the non-virtual TimeShower::initPtr().
-  timesPtr->initVinciaPtrs(&colour,spacePtr,&qedShower,&mecs,
-    &resolution, &vinCom,&vinWeights);
+  timesPtr->initVinciaPtrs(&colour, spacePtr, &mecs,
+    &resolution, &vinCom, &vinWeights);
+  timesPtr->setDiagnosticsPtr(diagnosticsPtr);
 
   // Init ISR shower pointers and default settings, beyond those set
   // by the non-virtual SpaceShower::initPtr().
-  spacePtr->initVinciaPtrs(&colour,timesPtr,&qedShower,&mecs,
-    &resolution, &vinCom,&vinWeights);
+  spacePtr->initVinciaPtrs(&colour, timesPtr, &mecs,
+    &resolution, &vinCom, &vinWeights);
+  spacePtr->setDiagnosticsPtr(diagnosticsPtr);
 
   // FSR and ISR antenna sets.
   antennaSetFSR.initPtr(infoPtr, &dglap);
   antennaSetISR.initPtr(infoPtr, &dglap);
-
-  // QED Shower module.
-  qedShower.initPtr(infoPtr, &vinCom);
 
   // Hand antenna set pointers to shower and matching objects.
   timesPtr->initAntPtr(&antennaSetFSR);
@@ -73,6 +157,8 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
 
   // Set SLHA pointer
   slhaPtr = coupSUSYPtr->slhaPtr;
+  if (slhaPtr == nullptr)
+    printOut(__METHOD_NAME__, "Warning: SLHA pointer is null pointer.");
 
   // Load the matrix element correction plugin.
   string melib = settingsPtr->word("Vincia:MEplugin");
@@ -80,16 +166,35 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
     mg5mes = ShowerMEsPlugin("libpythia8mg5" + melib + ".so");
 
   // Pass pointers on to objects that require them.
-  resolution.initPtr(settingsPtr);
   rambo.initPtr(rndmPtr);
   vinCom.initPtr(infoPtr);
+  resolution.initPtr(settingsPtr, infoPtr, &vinCom);
   mg5mes.initPtrVincia(infoPtr, slhaPtr, &vinCom);
-  mecs.initPtr(infoPtr, &mg5mes, &vinCom);
+  mecs.initPtr(infoPtr, &mg5mes, &vinCom, &resolution);
   colour.initPtr(infoPtr);
   vinWeights.initPtr(infoPtr, &vinCom);
 
+  // Initialize pointers in EW shower modules.
+  // Set EW/QED Shower module in timesPtr and spacePtr.
+  // QED shower for hard interaction + resonance decays.
+  qedShowerHardPtr->initPtr(infoPtr, &vinCom);
+  timesPtr->setQEDShowerHardPtr(qedShowerHardPtr);
+  spacePtr->setQEDShowerHardPtr(qedShowerHardPtr);
+
+  // QED shower for MPI and hadronisation.
+  qedShowerSoftPtr->initPtr(infoPtr, &vinCom);
+  timesPtr->setQEDShowerSoftPtr(qedShowerSoftPtr);
+  spacePtr->setQEDShowerSoftPtr(qedShowerSoftPtr);
+
+  // Electroweak shower.
+  ewShowerPtr->initPtr(infoPtr, &vinCom);
+  // Save some information on resonances locally,
+  // and modify particleDataPtr if doing resonance decays.
+  if (ewMode >= 3) ewShowerPtr->load();
+  timesPtr->setEWShowerPtr(ewShowerPtr);
+  spacePtr->setEWShowerPtr(ewShowerPtr);
+
   // Now set tune parameters
-  bool vinciaOn = settingsPtr->mode("PartonShowers:model") == 2;
   int baseTune = settingsPtr->mode("Vincia:Tune");
   if (vinciaOn && baseTune >= 0) {
     // Store user-specified settings before overwriting with tune parameters
@@ -106,20 +211,37 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
     }
   }
 
-  // Initialise Vincia auxiliary classes (showers initialised by Pythia)
+  // If Vincia is on, allow to override some Pythia settings by
+  // Vincia-specific ones.
+  if (vinciaOn) {
+    // PartonLevel only checks TimeShower:interleaveResDec, so set that to
+    // agree with the corresponding Vincia flag.
+    bool interleaveResDec = settingsPtr->flag("Vincia:interleaveResDec");
+    settingsPtr->flag("TimeShower:interleaveResDec",interleaveResDec);
+  }
+
+  // Initialise Vincia auxiliary classes (showers initialised by Pythia).
   vinCom.init();
   resolution.init();
   colour.init();
-  vinWeights.init();
+  vinWeights.init( doMerging );
 
-  // MECs depend on Pythia/SLHA Couplings
+  // MECs depend on Pythia/SLHA Couplings.
   mecs.init();
+  if (!mecs.isInitialised()) {
+    infoPtr->errorMsg("Error in " + __METHOD_NAME__
+      + ": MECs could not be initialised.");
+    return false;
+  }
 
   // Print VINCIA header and list of parameters
-  if (verbose >= 1 && vinciaOn) timesPtr->header();
+  if (verbose >= NORMAL && vinciaOn) timesPtr->header();
 
-  // Verbose output
-  if(verbose >= veryloud) printOut(__METHOD_NAME__, "end --------------");
+  // Diagnostics
+  if (verbose >= REPORT) diagnosticsPtr->stop(__METHOD_NAME__);
+
+  // Verbose output.
+  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
   return true;
 
 }
@@ -133,8 +255,8 @@ bool Vincia::initTune(int iTune) {
   // iTune = 0 : default Vincia tune from Pythia 8.302
   if (iTune == 0) {
     // Z fractions in string breaks
-    settingsPtr->parm("StringZ:aLund            ", 0.55 );
-    settingsPtr->parm("StringZ:bLund            ", 0.78 );
+    settingsPtr->parm("StringZ:aLund            ", 0.45 );
+    settingsPtr->parm("StringZ:bLund            ", 0.80 );
     settingsPtr->parm("StringZ:aExtraDiquark    ", 0.90 );
     // Z fractions for heavy quarks
     settingsPtr->parm("StringZ:rFactC           ", 1.15 );
@@ -191,11 +313,17 @@ void Vincia::setVerbose(int verboseIn) {
   vinCom.setVerbose(verboseIn);
   resolution.setVerbose(verboseIn);
   timesPtr->setVerbose(verboseIn);
-  qedShower.setVerbose(verboseIn);
   spacePtr->setVerbose(verboseIn);
   colour.setVerbose(verboseIn);
   mg5mes.setVerboseVincia(verboseIn);
   mecs.setVerbose(verboseIn);
+  if (doMerging) {
+    mergingHooksPtr->setVerbose(verboseIn);
+    mergingPtr->setVerbose(verboseIn);
+  }
+  if (ewShowerPtr != nullptr) ewShowerPtr->setVerbose(verboseIn);
+  if (qedShowerHardPtr != nullptr) qedShowerHardPtr->setVerbose(verboseIn);
+  if (qedShowerSoftPtr != nullptr) qedShowerSoftPtr->setVerbose(verboseIn);
 
 }
 

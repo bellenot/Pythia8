@@ -4,7 +4,7 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main155.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -38,6 +38,10 @@ int main(int argc, char* argv[]) {
   int idB = argc == 3 ? atoi(argv[2]) : pythia.mode("Main:spareMode2");
   double eMin = pythia.parm("Main:spareParm1");
   double eMax = pythia.parm("Main:spareParm2");
+  if (eMin < pythia.particleData.m0(idA) + pythia.particleData.m0(idB)) {
+    eMin = pythia.particleData.m0(idA) + pythia.particleData.m0(idB);
+    cout << "Warning, setting eMin to nominal mass sum of " << eMin << ".\n";
+  }
 
   int nBin = 300;
 

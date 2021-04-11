@@ -1,5 +1,5 @@
 // PartonDistributions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -2372,10 +2372,10 @@ void GRVpiL::xfUpdate(int , double x, double Q2) {
 
 void PomFix::init() {
 
-  normGluon = GammaReal(PomGluonA + PomGluonB + 2.)
-            / (GammaReal(PomGluonA + 1.) * GammaReal(PomGluonB + 1.));
-  normQuark = GammaReal(PomQuarkA + PomQuarkB + 2.)
-            / (GammaReal(PomQuarkA + 1.) * GammaReal(PomQuarkB + 1.));
+  normGluon = gammaReal(PomGluonA + PomGluonB + 2.)
+            / (gammaReal(PomGluonA + 1.) * gammaReal(PomGluonB + 1.));
+  normQuark = gammaReal(PomQuarkA + PomQuarkB + 2.)
+            / (gammaReal(PomQuarkA + 1.) * gammaReal(PomQuarkB + 1.));
 
 }
 
@@ -2797,10 +2797,13 @@ void Lepton::xfUpdate(int id, double x, double Q2) {
   // Photons with restricted virtuality.
   double sCM = infoPtr->s();
   double m2s = 4 * m2Lep / sCM;
-  double Q2minGamma = 2. * m2Lep * pow2(x)
-    / ( 1. - x - m2s + sqrt(1. - m2s) * sqrt( pow2(1. - x) - m2s ) );
-  xgamma = (0.5 * ALPHAEM / M_PI) * (1. + pow2(1. - x))
-         * log( Q2maxGamma / Q2minGamma );
+  if (pow2(1. - x) - m2s <= 0.) xgamma = 0.;
+  else {
+    double Q2minGamma = 2. * m2Lep * pow2(x)
+      / ( 1. - x - m2s + sqrt(1. - m2s) * sqrt( pow2(1. - x) - m2s ) );
+    xgamma = (Q2minGamma < Q2maxGamma) ? (0.5 * ALPHAEM / M_PI)
+      * (1. + pow2(1. - x)) * log( Q2maxGamma / Q2minGamma ) : 0.;
+  }
 
   // idSav = 9 to indicate that all flavours reset.
   idSav = 9;

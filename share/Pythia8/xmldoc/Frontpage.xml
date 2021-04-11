@@ -87,8 +87,6 @@ e-mail: ilkka.m.helenius@jyu.fi
 <b>Philip Ilten</b><br/> 
 Department of Physics, University of Cincinnati, 
 Cincinnati, OH 45221, USA<br/> 
-and School of Physics and Astronomy, University of Birmingham, 
-Birmingham, B152 2TT, UK<br/> 
 e-mail: philten@cern.ch 
  
 <p/> 
@@ -111,10 +109,10 @@ S&ouml;lvegatan 14A, SE-223 62 Lund, Sweden<br/>
 e-mail: stefan.prestel@thep.lu.se 
  
 <p/> 
-<b>Christine O. Rasmussen</b><br/> 
-Department of Astronomy and Theoretical Physics, Lund University, 
-S&ouml;lvegatan 14A, SE-223 62 Lund, Sweden<br/> 
-e-mail: christine.rasmussen@thep.lu.se 
+<b>Christian Preuss</b><br/> 
+School of Physics and Astronomy, Monash University, PO Box 27, 3800 Melbourne, 
+Australia<br/> 
+e-mail: christian.preuss@monash.edu 
  
 <p/> 
 <b>Torbj&ouml;rn Sj&ouml;strand</b><br/> 
@@ -133,6 +131,12 @@ e-mail: peter.skands@monash.edu
 Department of Astronomy and Theoretical Physics, Lund University, 
 S&ouml;lvegatan 14A, SE-223 62 Lund, Sweden<br/> 
 e-mail: marius.utheim@thep.lu.se 
+ 
+<p/> 
+<b>Rob Verheyen</b><br/> 
+Department of Physics and Astronomy, University College London, Gower St, 
+Bloomsbury, London WC1E 6BT, UK<br/> 
+e-mail: r.verheyen@ucl.ac.uk 
  
 <h3>Former authors</h3> 
  
@@ -195,7 +199,6 @@ additional work by <b>O. Mattelaer</b>.
 <b>M. Ritzmann</b>. 
 <br/>Final-state sector showers in Vincia by <b>J. Lopez-Villarejo</b>. 
 <br/>Helicity-dependence in Vincia by <b>A. Larkoski</b>. 
-<br/>QED and Electroweak showers in Vincia by <b>R. Verheyen</b>. 
 <br/>Interleaved resonance showers and work on 
 sector merging and QED+EW showers in Vincia by <b>H. Brooks</b>. 
 <br/> 
@@ -203,6 +206,92 @@ sector merging and QED+EW showers in Vincia by <b>H. Brooks</b>.
 <br/><b>Note</b>: in several cases modifications have been made to 
 the original code, in order to integrate it with PYTHIA. In these cases 
 the blame for any mistakes has to rest with the regular authors. 
+ 
+<h3>Contact</h3> 
+ 
+<h4>New version alerts</h4> 
+ 
+If you want to be alerted whenever a new public version is released, 
+you can subscribe on 
+<a href="http://www.hepforge.org/lists/listinfo/pythia8-announce"> 
+  pythia8-announce</a>. Expect a 
+handful of such messages per year. There is no fixed schedule; new 
+versions can appear either because a sufficient amount of changes have 
+been accumulated over time, or because some crucial new feature or bug 
+fix prompts action. 
+ 
+<h4>Bug reports and physics questions</h4> 
+ 
+No code is perfect, and we rely on PYTHIA users to report suspect 
+behaviour to us. We are starting to collect common questions and 
+problems with our <a 
+href="https://gitlab.com/Pythia8/releases/-/issues" 
+target="_blank">issue tracker</a>. Please check this resource first for 
+answered questions. New questions and issues can be either opened with 
+a freely available <a href="https://gitlab.com/users/sign_up" 
+target="_blank">gitlab.com account</a> or emailing us at 
+<a href="mailto:authors@pythia.org">authors@pythia.org</a> where no 
+account is required. To help us in the subsequent debugging efforts, 
+however, it is helpful if you can present your case in as clear terms 
+as possible. A convenient path is the following. 
+<ul> 
+<li>Users often combine PYTHIA with a set of other libraries in their 
+studies, and then problems originally attributed to PYTHIA usually 
+turn out to be located somewhere else. Therefore, check that the 
+problem remains if no other libraries are being used. If you want to 
+file a report that involves other libraries please have a <b>very</b> 
+convincing case that the problem is in PYTHIA to be taken 
+seriously.</li> 
+<li>Make sure you use a clean copy of PYTHIA, not one that has 
+been subject to "local modifications" by parties unknown. Also 
+make sure it is a recent one - you may have encountered a true bug, 
+but one already solved in the current version. If uncertain, 
+pick up a new copy directly from the PYTHIA webpage, and create a 
+new cleanly compiled PYTHIA library code.</li> 
+<li>Write a simple standalone main program <code>mymainNN.cc</code>, 
+with <code>NN</code> between 00 and 99, that demonstrates the 
+claimed bug. Feel free to use some of the existing sample main programs 
+<code>share/Pythia8/examples/mainNN.cc</code> as templates.</li> 
+<li>Put the <code>mymainNN.cc</code> program in the 
+<code>share/Pythia8/examples</code> subdirectory and run it from there 
+(<code>make mymainNN</code> followed by <code>./mymainNN</code>).</li> 
+<li>Now, systematically peel away all irrelevant code in the main 
+program, so that only code really needed to reproduce and document 
+the bug remains. Where explanations in the code would be helpful, 
+do add comments in English.</li> 
+<li>Send the main program, with a description what is the problem 
+and whatever guesses you may have about a probable cause.</li> 
+</ul> 
+ 
+<p/> 
+Note, the email <a 
+href="mailto:authors@pythia.org">authors@pythia.org</a> should always 
+be used when contacting the authors as it allows us to coordinate 
+replies. You may also include the individual addresses of authors that 
+are relevant for a specific issue. Never contact several persons 
+independently on the same topic, thereby potentially leading to 
+doublework. Abuse will have consequences. 
+ 
+<p/> 
+When responding to emails from us at 
+<a href="mailto:authors@pythia.org">authors@pythia.org</a>, reply 
+directly to the email, which has a unique return address of the form 
+<code>incoming+&lt;hash&gt;@incoming.gitlab.com</code>, and not 
+<a href="mailto:authors@pythia.org">authors@pythia.org</a>. Please 
+consider allowing your correspondence to be made publicly available to 
+other users via our <a 
+href="https://gitlab.com/Pythia8/releases/-/issues" 
+target="_blank">issue tracker</a>, by replying at any point with your 
+express permission, e.g. "this correspondence can be made public". 
+ 
+<p/> 
+Do note that the major collaborations, such as ATLAS and CMS, have 
+their own Monte Carlo support groups, with a lot of experience in 
+solving typical issues, many of which are related to the setups and 
+interfaces created inside the collaborations. If you are a member of a 
+major collaboration you please turn to these groups in the first 
+place, and only turn to us when it has been confirmed as a true 
+problem going beyond the local installation. 
  
 <h3>Licence</h3> 
  
@@ -220,4 +309,4 @@ Copyright &copy; 2019 Torbj&ouml;rn Sj&ouml;strand
  
 </chapter> 
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 

@@ -1,5 +1,5 @@
 // Info.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -162,12 +162,12 @@ void Info::list() const {
 // Event weights and accumulated weight.
 
 double Info::weight(int iWeight) const {
-  double weightNominal = weightContainerPtr->weightNominal;
-  double wt = (iWeight <= 0 ||
-      iWeight >= int(weightContainerPtr->weightsPS.getWeightsSize()))
-    ? weightNominal :
-      weightContainerPtr->weightsPS.getWeightsValue(iWeight)*weightNominal;
-  return wt;
+  double wt = weightContainerPtr->weightNominal;
+  if (iWeight < 0 ||
+    iWeight >= int(weightContainerPtr->weightsShowerPtr->getWeightsSize()))
+    return wt;
+  else
+    return wt * weightContainerPtr->weightsShowerPtr->getWeightsValue(iWeight);
 }
 
 double Info::weightSum() const {
@@ -405,7 +405,7 @@ unsigned int Info::getWeightsDetailedSize() const {
 double Info::getWeightsDetailedValue(string n) const {
   if (weights_detailed->empty()
     || weights_detailed->find(n) == weights_detailed->end())
-    return std::numeric_limits<double>::quiet_NaN();
+    return numeric_limits<double>::quiet_NaN();
   return (*weights_detailed)[n];
 }
 
@@ -436,7 +436,7 @@ unsigned int Info::getWeightsCompressedSize() const {
 
 double Info::getWeightsCompressedValue(unsigned int n) const {
   if (weights_compressed->empty() || weights_compressed->size() < n+1)
-    return std::numeric_limits<double>::quiet_NaN();
+    return numeric_limits<double>::quiet_NaN();
   return (*weights_compressed)[n];
 }
 
@@ -467,8 +467,8 @@ string Info::getScalesValue(bool doRemoveWhitespace) const {
 }
 
 double Info::getScalesAttribute(string key) const {
-  if (!scales) return std::numeric_limits<double>::quiet_NaN();
-  double res = std::numeric_limits<double>::quiet_NaN();
+  if (!scales) return numeric_limits<double>::quiet_NaN();
+  double res = numeric_limits<double>::quiet_NaN();
   if ( key == "muf") {
     res = scales->muf;
   } else if ( key == "mur") {
@@ -485,6 +485,39 @@ double Info::getScalesAttribute(string key) const {
 }
 
 //--------------------------------------------------------------------------
+
+// Move process information to an another diffractive system.
+
+void Info::reassignDiffSystem( int iDSold, int iDSnew) {
+  id1Save[iDSnew]       = id1Save[iDSold];       id1Save[iDSold]       = 0;
+  id2Save[iDSnew]       = id2Save[iDSold];       id2Save[iDSold]       = 0;
+  x1Save[iDSnew]        = x1Save[iDSold];        x1Save[iDSold]        = 0.;
+  x2Save[iDSnew]        = x2Save[iDSold];        x2Save[iDSold]        = 0.;
+  id1pdfSave[iDSnew]    = id1pdfSave[iDSold];    id1pdfSave[iDSold]    = 0;
+  id2pdfSave[iDSnew]    = id2pdfSave[iDSold];    id2pdfSave[iDSold]    = 0;
+  x1pdfSave[iDSnew]     = x1pdfSave[iDSold];     x1pdfSave[iDSold]     = 0.;
+  x2pdfSave[iDSnew]     = x2pdfSave[iDSold];     x2pdfSave[iDSold]     = 0.;
+  pdf1Save[iDSnew]      = pdf1Save[iDSold];      pdf1Save[iDSold]      = 0.;
+  pdf2Save[iDSnew]      = pdf2Save[iDSold];      pdf2Save[iDSold]      = 0.;
+  Q2RenSave[iDSnew]     = Q2RenSave[iDSold];     Q2RenSave[iDSold]     = 0.;
+  Q2FacSave[iDSnew]     = Q2FacSave[iDSold];     Q2FacSave[iDSold]     = 0.;
+  alphaEMSave[iDSnew]   = alphaEMSave[iDSold];   alphaEMSave[iDSold]   = 0.;
+  alphaSSave[iDSnew]    = alphaSSave[iDSold];    alphaSSave[iDSold]    = 0.;
+  scalupSave[iDSnew]    = scalupSave[iDSold];    scalupSave[iDSold]    = 0.;
+  sH[iDSnew]            = sH[iDSold];            sH[iDSold]            = 0.;
+  tH[iDSnew]            = tH[iDSold];            tH[iDSold]            = 0.;
+  uH[iDSnew]            = uH[iDSold];            uH[iDSold]            = 0.;
+  pTH[iDSnew]           = pTH[iDSold];           pTH[iDSold]           = 0.;
+  m3H[iDSnew]           = m3H[iDSold];           m3H[iDSold]           = 0.;
+  m4H[iDSnew]           = m4H[iDSold];           m4H[iDSold]           = 0.;
+  thetaH[iDSnew]        = thetaH[iDSold];        thetaH[iDSold]        = 0.;
+  phiH[iDSnew]          = phiH[iDSold];          phiH[iDSold]          = 0.;
+  hasSubSave[iDSnew]    = hasSubSave[iDSold];    hasSubSave[iDSold]    = false;
+  nameSubSave[iDSnew]   = nameSubSave[iDSold];   nameSubSave[iDSold]   = "";
+  codeSubSave[iDSnew]   = codeSubSave[iDSold];   codeSubSave[iDSold]   = 0;
+  nFinalSubSave[iDSnew] = nFinalSubSave[iDSold]; nFinalSubSave[iDSold] = 0;
+}
+
 //==========================================================================
 
 // Class for loading plugin libraries at run time.
@@ -532,7 +565,6 @@ Plugin::Symbol Plugin::symbol(string symName) {
     return sym;
 
 }
-
 
 //==========================================================================
 

@@ -1,5 +1,5 @@
 // HadronWidths.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -74,7 +74,7 @@ bool HadronWidths::init(string path) {
 bool HadronWidths::init(istream& stream) {
 
   string line;
-
+  entries.clear();
   while (getline(stream, line)) {
 
     string word1;
@@ -84,10 +84,10 @@ bool HadronWidths::init(istream& stream) {
     if (word1 == "<width") {
       completeTag(stream, line);
 
-      int id    = intAttributeValue(line, "id");
+      int id = intAttributeValue(line, "id");
 
       if (entries.find(id) != entries.end()) {
-        infoPtr->errorMsg( "Error in HadronWidths::readXML: "
+        infoPtr->errorMsg( "Error in HadronWidths::init: "
           "resonance is defined more than once",
           std::to_string(id));
         continue;
@@ -236,7 +236,7 @@ bool HadronWidths::check() {
   }
 
   for (auto& entry : *particleDataPtr) {
-    if (entry.second.varWidth() && !hasData(entry.first)) {
+    if (entry.second->varWidth() && !hasData(entry.first)) {
       infoPtr->errorMsg("Warning in HadronWidths::check: "
         "particle uses mass dependent width, but width is not defined",
         std::to_string(entry.first));
@@ -289,8 +289,8 @@ vector<int> HadronWidths::getResonances() const {
 
 bool HadronWidths::hasResonances(int idA, int idB) const {
 
-  ParticleDataEntry* entryA = particleDataPtr->findParticle(idA);
-  ParticleDataEntry* entryB = particleDataPtr->findParticle(idB);
+  ParticleDataEntryPtr entryA = particleDataPtr->findParticle(idA);
+  ParticleDataEntryPtr entryB = particleDataPtr->findParticle(idB);
   if (!entryA || !entryB) {
     infoPtr->errorMsg("Error in HadronWidths::possibleResonances: "
       "invalid input particle ids");
@@ -321,8 +321,8 @@ bool HadronWidths::hasResonances(int idA, int idB) const {
 vector<int> HadronWidths::possibleResonances(int idA, int idB) const {
 
   vector<int> resonances;
-  ParticleDataEntry* entryA = particleDataPtr->findParticle(idA);
-  ParticleDataEntry* entryB = particleDataPtr->findParticle(idB);
+  ParticleDataEntryPtr entryA = particleDataPtr->findParticle(idA);
+  ParticleDataEntryPtr entryB = particleDataPtr->findParticle(idB);
   if (!entryA || !entryB) {
     infoPtr->errorMsg("Error in HadronWidths::possibleResonances: "
       "invalid input particle ids");
@@ -637,7 +637,7 @@ bool HadronWidths::pickMasses(int idA, int idB, double eCM,
 double HadronWidths::widthCalc(int id, double m) const {
 
   // Get particle entry.
-  ParticleDataEntry* entry = particleDataPtr->findParticle(id);
+  ParticleDataEntryPtr entry = particleDataPtr->findParticle(id);
   if (entry == nullptr) {
     infoPtr->errorMsg("Error in HadronWidths::widthCalc: "
       "particle not found", to_string(id));
@@ -659,7 +659,7 @@ double HadronWidths::widthCalc(int id, int prodA, int prodB, double m) const {
 
   // Find particle entry.
   pair<int, int> key = getKey(id, prodA, prodB);
-  ParticleDataEntry* entry = particleDataPtr->findParticle(id);
+  ParticleDataEntryPtr entry = particleDataPtr->findParticle(id);
   if (entry == nullptr)
     return 0.;
 
@@ -688,7 +688,7 @@ double HadronWidths::widthCalc(int id, Pythia8::DecayChannel& channel,
   double m) const {
 
   // Get particle entry.
-  ParticleDataEntry* entry = particleDataPtr->findParticle(id);
+  ParticleDataEntryPtr entry = particleDataPtr->findParticle(id);
   if (entry == nullptr) {
     infoPtr->errorMsg("Error in HadronWidths::widthCalc: "
       "particle not found", to_string(id));
@@ -701,10 +701,10 @@ double HadronWidths::widthCalc(int id, Pythia8::DecayChannel& channel,
   // Only two-body decays can have mass-dependent width.
   if (channel.multiplicity() != 2)
     return channel.bRatio();
-  auto& prodA = *particleDataPtr->findParticle(channel.product(0));
-  auto& prodB = *particleDataPtr->findParticle(channel.product(1));
+  auto prodA = particleDataPtr->findParticle(channel.product(0));
+  auto prodB = particleDataPtr->findParticle(channel.product(1));
 
-  if (m < prodA.mMin() + prodB.mMin())
+  if (m < prodA->mMin() + prodB->mMin())
     return 0.;
 
   // Get two-body angular momentum.
@@ -730,8 +730,8 @@ double HadronWidths::widthCalc(int id, Pythia8::DecayChannel& channel,
   if (pM0 <= 0 || pM0S <= 0) {
     infoPtr->errorMsg("Error in HadronWidths::widthCalc: "
       "on-shell decay is not possible",
-      to_string(id) + " --> " + to_string(prodA.id())
-       + " " + to_string(prodB.id()));
+      to_string(id) + " --> " + to_string(prodA->id())
+       + " " + to_string(prodB->id()));
       return NAN;
   }
 
@@ -746,7 +746,7 @@ double HadronWidths::widthCalc(int id, Pythia8::DecayChannel& channel,
 bool HadronWidths::parameterize(int id, int precision) {
 
   // Get particle entry and validate input.
-  ParticleDataEntry* entry = particleDataPtr->findParticle(id);
+  ParticleDataEntryPtr entry = particleDataPtr->findParticle(id);
 
   if (entry == nullptr) {
     infoPtr->errorMsg("Error in HadronWidths::parameterize: "
@@ -840,14 +840,14 @@ static double pCMS(double eCM, double mA, double mB) {
 
 // Get total available phase space, integrating over mass-dependent widths.
 
-double HadronWidths::psSize(double eCM, ParticleDataEntry& prodA,
-  ParticleDataEntry& prodB, double lType) const {
+double HadronWidths::psSize(double eCM, ParticleDataEntryPtr prodA,
+  ParticleDataEntryPtr prodB, double lType) const {
 
   // Store some important values.
-  int idA      = prodA.id(), idB = prodB.id();
-  double m0A   = prodA.m0(), m0B = prodB.m0();
-  double mMinA = prodA.mMin(), mMinB = prodB.mMin();
-  double mMaxA = prodA.mMax(), mMaxB = prodB.mMax();
+  int idA      = prodA->id(), idB = prodB->id();
+  double m0A   = prodA->m0(), m0B = prodB->m0();
+  double mMinA = prodA->mMin(), mMinB = prodB->mMin();
+  double mMaxA = prodA->mMax(), mMaxB = prodB->mMax();
   bool varA = mMaxA > mMinA, varB = mMaxB > mMinB;
 
   if (eCM < mMinA + mMinB)
@@ -930,20 +930,20 @@ bool HadronWidths::parameterizeRecursive(int id, int precision) {
     return true;
 
   // Get particle entry.
-  ParticleDataEntry& entry = *particleDataPtr->findParticle(id);
+  ParticleDataEntryPtr entry = particleDataPtr->findParticle(id);
 
   // Iterate over all two-body channels.
-  for (int iChannel = 0; iChannel < entry.sizeChannels(); ++iChannel) {
-    DecayChannel& channel = entry.channel(iChannel);
+  for (int iChannel = 0; iChannel < entry->sizeChannels(); ++iChannel) {
+    DecayChannel& channel = entry->channel(iChannel);
     if (channel.multiplicity() == 2) {
-      auto& prodA = *particleDataPtr->findParticle(channel.product(0));
-      auto& prodB = *particleDataPtr->findParticle(channel.product(1));
+      auto prodA = particleDataPtr->findParticle(channel.product(0));
+      auto prodB = particleDataPtr->findParticle(channel.product(1));
 
       // Recursive call to parameterize decay product widths if necessary.
-      if (prodA.varWidth() && !hasData(prodA.id()))
-        if (!parameterizeRecursive(prodA.id(), precision)) return false;
-      if (prodB.varWidth() && !hasData(prodB.id()))
-        if (!parameterizeRecursive(prodB.id(), precision)) return false;
+      if (prodA->varWidth() && !hasData(prodA->id()))
+        if (!parameterizeRecursive(prodA->id(), precision)) return false;
+      if (prodB->varWidth() && !hasData(prodB->id()))
+        if (!parameterizeRecursive(prodB->id(), precision)) return false;
     }
   }
 
@@ -960,17 +960,17 @@ bool HadronWidths::parameterizeRecursive(int id, int precision) {
 void HadronWidths::parameterizeAll(int precision) {
 
   // Get all particles with varWidth from particle database.
-  vector<ParticleDataEntry*> variableWidthEntries;
+  vector<ParticleDataEntryPtr> variableWidthEntries;
   for (auto& mapEntry : *particleDataPtr) {
-    ParticleDataEntry& entry = mapEntry.second;
-    if (entry.varWidth())
-      variableWidthEntries.push_back(&entry);
+    ParticleDataEntryPtr entry = mapEntry.second;
+    if (entry->varWidth())
+      variableWidthEntries.push_back(entry);
   }
 
   // Clear existing data and parameterize new data.
   entries.clear();
 
-  for (ParticleDataEntry* entry : variableWidthEntries) {
+  for (ParticleDataEntryPtr entry : variableWidthEntries) {
     if (!parameterizeRecursive(entry->id(), precision)) {
       infoPtr->errorMsg("Abort from HadronWidths::parameterizeAll: "
         "parameterization failed");

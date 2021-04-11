@@ -263,6 +263,9 @@ consecutive LHEF. Input settings can e.g be stored in
 <code>main44.cc</code> is basically a carbon copy, but uses HepMC2 
 instead, for comparison.</li> 
  
+<li><code>main46.cc</code> : an example illustrating the generation of 
+HepMC events using the HDF5 LHA format (LHAHDF5).</li> 
+ 
 <li><code>main48.cc</code> : demonstrates how to use 
 the <code>EvtGenDecays</code> class provided 
 by <code>include/Pythia8Plugins/EvtGen.h</code> to perform decays 
@@ -306,20 +309,20 @@ would then be decayed isotropically by PYTHIA, but this example
 shows how one could do better. Some input in <code>main62.cmnd</code>. 
 </li> 
  
-<li><code>main63.cc</code> : exemplifies how a user hook can be used 
-to enhance the rate of rare emissions in the shower.</li> 
+<li><code>main63.cc</code> : exemplifies how rare emissions can be 
+enhanced in the shower.</li> 
  
-<li><code>main64.cc</code> : examplifies how LHEF version 3 events can 
+<li><code>main64.cc</code> : exemplifies how LHEF version 3 events can 
 be written on an external file.</li> 
  
-<li><code>main68.cc</code> : examplifies hard diffraction in the 
+<li><code>main68.cc</code> : exemplifies hard diffraction in the 
 context of a photon-inside-lepton beam, like a HERA.</li> 
  
-<li><code>main69.cc</code> : examplifies how to generate all relevant 
+<li><code>main69.cc</code> : exemplifies how to generate all relevant 
 contributions for charged particle spectra in photon-photon and 
 photon-proton collisions. </li> 
  
-<li><code>main70.cc</code> : examplifies how to provide an external 
+<li><code>main70.cc</code> : exemplifies how to provide an external 
 photon flux for photo-production processes. </li> 
  
 <li><code>main71.cc</code> : an example how the FastJet jet finding 
@@ -463,6 +466,9 @@ generate ridge effects.</li>
 <li><code>main102.cc</code> : shows how flavour production is changed 
 in the rope hadronization framework.</li> 
  
+<li><code>main103.cc</code> : shows how to use a filter to select a 
+specific final state from resonance decays.</li> 
+ 
 <li><code>main111.cc</code> : simple pp collisions as in 
 <code>main01.cc</code>, but using the Angantyr model for Heavy Ion 
 collisions. Also shows how Rivet analyses can be set up easily using 
@@ -499,10 +505,11 @@ low-energy cross sections, specifically the contribution from resonances.
 <li><code>main156.cc</code> : perform parameterization of hadron widths and 
 output the resulting tables.</li> 
  
-<li><code>main200.cc</code> : Basic VINCIA example program for 
-hadronic Z decays at LEP.</li> 
+<li><code>main200.cc</code> : simple example of the VINCIA (or DIRE) 
+shower model(s), on Z decays at LEP I, with some basic event shapes, 
+spectra, and multiplicity counts.</li> 
  
-<li><code>main201.cc</code> : Comparison of VINCIA and Pythia on 
+<li><code>main201.cc</code> : comparison of VINCIA and Pythia on 
 inclusive jets at LHC, with option to run the two generators in 
 parallel using OpenMP.</li> 
  
@@ -510,14 +517,29 @@ parallel using OpenMP.</li>
 LHC, with measurement of run time and options to switch various shower and 
 MPI/hadronisation components on/off via command file.</li> 
  
-<li><code>main300.cc</code> : Allows to steer Pythia from the command 
+<li><code>main203.cc</code> : VINCIA setup for electroweak shower off 
+high-pT dijets at LHC. The VINCIA EW shower requires hard-process 
+partons with assigned helicities. This is done via Pythia's 
+MG5 matrix-element interface, which this example also shows how to 
+build and link. 
+</li> 
+ 
+<li><code>main280.cc</code> : do CKKW-L merging with the VINCIA sector 
+shower with HepMC2 output to use in RIVET analyses. Also redirects all 
+Pythia output to a log file to reduce terminal output.</li> 
+ 
+<li><code>main300.cc</code> : allows to steer Pythia from the command 
 line and can produce HepMC files and allows for OpenMP 
 parallelization. More documentation can be obtained by executing 
 <code>./main300 --help</code>. The input file main300.cmnd further 
 illustrates the use of DIRE.</li> 
  
+<li><code>main333.cc</code> : illustrates the use of UserHooks to veto 
+events after hadronization, but before any subsequent processes such 
+as rescattering or Bose-Einstein.</li> 
+ 
 </ul> 
  
 </chapter> 
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 

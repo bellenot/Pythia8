@@ -1,5 +1,5 @@
 // Weights.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -20,6 +20,7 @@ namespace Pythia8 {
 
 // Function to return processed weights to weight container, e.g. if
 // weights should be combined before proceeding.
+
 void WeightsBase::collectWeightValues(vector<double>& outputWeights,
   double norm) {
   for (int iwt=1; iwt < getWeightsSize(); ++iwt) {
@@ -32,6 +33,7 @@ void WeightsBase::collectWeightValues(vector<double>& outputWeights,
 //--------------------------------------------------------------------------
 
 // Similar function to return processed weight names.
+
 void WeightsBase::collectWeightNames(vector<string>& outputNames) {
   for (int iwt=1; iwt < getWeightsSize(); ++iwt) {
     string name  = getWeightsName(iwt);
@@ -46,22 +48,24 @@ void WeightsBase::collectWeightNames(vector<string>& outputNames) {
 
 //--------------------------------------------------------------------------
 
-// Reset all internal values
+// Reset all internal values.
+
 void WeightsSimpleShower::clear() {
   for (size_t i=0; i < weightValues.size(); ++i) weightValues[i] = 1.;
 }
 
 //--------------------------------------------------------------------------
 
-// Initialize shower weights
-void WeightsSimpleShower::init( bool doMerging ) {
+// Initialize shower weights.
+
+void WeightsSimpleShower::init(bool doMerging ) {
 
   // Empty weight vector, relevant to avoid double init of ISR variations
   weightValues.resize(0);
   weightNames.resize(0);
   mergingVarNames.resize(0);
   // Remember the nominal weight, since this might be needed for splitting
-  // enhancement hanlding.
+  // enhancement handling.
   bookWeight("Baseline");
 
   // Force shower variations if needed by merging but not requested by user
@@ -87,19 +91,18 @@ void WeightsSimpleShower::init( bool doMerging ) {
 //--------------------------------------------------------------------------
 
 // Store the current event information.
+
 void WeightsSimpleShower::bookVectors(vector<double> weights,
-                                      vector<string> names) {
-
+  vector<string> names) {
   replaceWhitespace(names);
-
-  for (size_t i=0; i < weights.size(); ++i) bookWeight(names[i], weights[i]);
-
+  for (size_t i = 0; i < weights.size(); ++i) bookWeight(names[i], weights[i]);
 }
 
 //--------------------------------------------------------------------------
 
 // Replace whitespace with underscore in wieght names, so that the names
 // transferred to HepMC do not contain whitespace.
+
 void WeightsSimpleShower::replaceWhitespace( vector<string>& namesIn) {
   vector<string> ret;
   for (size_t i=0; i < namesIn.size(); ++i) {
@@ -112,23 +115,9 @@ void WeightsSimpleShower::replaceWhitespace( vector<string>& namesIn) {
 
 //--------------------------------------------------------------------------
 
-// Functions to set values of weights.
-void WeightsSimpleShower::reweightValueByIndex(int iPos, double val) {
-  weightValues[iPos] *= val;
-}
+// Uncertainty variations initialization.
 
-//--------------------------------------------------------------------------
-
-void WeightsSimpleShower::reweightValueByName(string name, double val) {
-  // Use existing functions: Find index of name, then set by index.
-  int iPos = findIndexOfName(name);
-  reweightValueByIndex(iPos, val);
-}
-
-//--------------------------------------------------------------------------
-
-// Uncertainty variations initialization
-void WeightsSimpleShower::initAutomatedVariationGroups(bool isISR) {
+void WeightsSimpleShower::initWeightGroups(bool isISR) {
   vector<string> variationListIn = infoPtr->settingsPtr->
     wvec("UncertaintyBands:List");
   size_t vNames = weightNames.size();
@@ -208,7 +197,8 @@ void WeightsSimpleShower::initAutomatedVariationGroups(bool isISR) {
 
 //--------------------------------------------------------------------------
 
-// Return weight group name
+// Return weight group name.
+
 string WeightsSimpleShower::getGroupName(int iGN) const {
   string tmpString("Null");
   if( iGN < 0 || iGN >= externalVariationsSize )
@@ -218,7 +208,8 @@ string WeightsSimpleShower::getGroupName(int iGN) const {
 
 //--------------------------------------------------------------------------
 
-// Return weight group value
+// Return weight group value.
+
 double WeightsSimpleShower::getGroupWeight(int iGW) const {
   double tempWeight(1.0);
   if( iGW < 0 || iGW >= externalVariationsSize )
@@ -231,18 +222,22 @@ double WeightsSimpleShower::getGroupWeight(int iGW) const {
 
 //--------------------------------------------------------------------------
 
-// Return list of atomic weight variations to be performed by shower
-vector<string> WeightsSimpleShower::getUniqueShowerVars() {
-  // Get uncertainty variations from Settings (as list of strings to parse).
-  vector<string> uVars = infoPtr->settingsPtr->wvec("UncertaintyBands:List");
-  size_t varSize = uVars.size();
-  vector<string> uniqueVars;
+// Initialise list of atomic uncertainty variations to be done by shower
+// from list specified by uVars.
 
-  // Parse each string in uVars to look for recognized keywords.
-  for (size_t iWeight = 0; iWeight < varSize; ++iWeight) {
+bool WeightsSimpleShower::initUniqueShowerVars() {
+
+  // Reset saved list of uncertainty variations.
+  uniqueShowerVars.clear();
+
+  // Parse each string in uVars list to look for recognized keywords.
+  vector<string> uVarsListIn = infoPtr->settingsPtr->
+    wvec("UncertaintyBands:List");
+  size_t size = uVarsListIn.size();
+  for (size_t iWeight = 0; iWeight < size; ++iWeight) {
     // Convert to lowercase (to be case-insensitive). Also remove
     // extra spaces, so everything is mapped to "key=value"
-    string uVarString = toLower(uVars[iWeight]);
+    string uVarString = toLower(uVarsListIn[iWeight]);
     while (uVarString.find(" ") == 0) uVarString.erase( 0, 1);
     int iEnd = uVarString.find(" ", 0);
     uVarString.erase(0,iEnd+1);
@@ -250,11 +245,11 @@ vector<string> WeightsSimpleShower::getUniqueShowerVars() {
       iEnd = uVarString.find_first_of(" ", 0);
       if( iEnd<0 ) iEnd = uVarString.length();
       string insertString = uVarString.substr(0,iEnd);
-      if( uniqueVars.size() == 0 ) {
-        uniqueVars.push_back(insertString);
-      } else if ( find(uniqueVars.begin(), uniqueVars.end(), insertString)
-      == uniqueVars.end() ) {
-        uniqueVars.push_back(insertString);
+      if( uniqueShowerVars.size() == 0 ) {
+        uniqueShowerVars.push_back(insertString);
+      } else if ( find(uniqueShowerVars.begin(), uniqueShowerVars.end(),
+          insertString) == uniqueShowerVars.end() ) {
+        uniqueShowerVars.push_back(insertString);
       }
       uVarString.erase(0,iEnd+1);
     }
@@ -263,11 +258,68 @@ vector<string> WeightsSimpleShower::getUniqueShowerVars() {
   // Also attach weights needed for merging
   for (vector<string> mergingVariation: mergingVarNames) {
     for (string varString: mergingVariation) {
-      uniqueVars.push_back(varString);
+      uniqueShowerVars.push_back(varString);
     }
   }
 
-  return uniqueVars;
+  if (uniqueShowerVars.size() == 0) return false;
+  else return true;
+}
+
+//--------------------------------------------------------------------------
+
+// Extract those variations that match a specified list of keys.
+
+vector<string> WeightsSimpleShower::getUniqueShowerVars(vector<string> keys) {
+
+  // Define return vector and return immediately if nothing to do.
+  vector<string> uniqueVarsNow;
+  size_t sizeAll = uniqueShowerVars.size();
+  if (keys.size() == 0 || sizeAll == 0) return uniqueVarsNow;
+
+  // Parse each string in uniqueShowerVars to look for recognized keywords.
+  for (string uVarString: uniqueShowerVars) {
+    int firstEqual = uVarString.find_first_of("=");
+    string testString = uVarString.substr(0, firstEqual);
+    // does the key match an fsr one?
+    if( find(keys.begin(), keys.end(), testString) != keys.end() ) {
+      if( uniqueVarsNow.size() == 0 ) {
+        uniqueVarsNow.push_back(uVarString);
+      } else if ( find(uniqueVarsNow.begin(), uniqueVarsNow.end(), uVarString)
+      == uniqueVarsNow.end() ) {
+        uniqueVarsNow.push_back(uVarString);
+      }
+    }
+  }
+  return uniqueVarsNow;
+}
+
+//--------------------------------------------------------------------------
+
+// Initialise list of enhancement factors to be applied to shower trials.
+
+bool WeightsSimpleShower::initEnhanceFactors() {
+
+  // Get uncertainty variations from Settings (as list of strings to parse).
+  vector<string> listIn = infoPtr->settingsPtr->
+    wvec("EnhancedSplittings:List");
+  if (listIn.size() == 0) return false;
+
+  string delim = "=";
+  // Parse each string in list to look for recognized keywords.
+  for ( auto &word : listIn ) {
+    auto end = word.find(delim);
+    string name = word.substr(0,end);
+    string value = word.substr(end+1);
+    name.erase(remove_if(name.begin(),name.end(),isspace),name.end());
+    value.erase(remove_if(value.begin(),value.end(),isspace),value.end());
+    double rvalue;
+    istringstream iss(value);
+    iss >> rvalue;
+    pair<string,double> t(name,rvalue);
+    enhanceFactors.insert(t);
+  }
+  return true;
 }
 
 //--------------------------------------------------------------------------
@@ -282,69 +334,61 @@ vector<double> WeightsSimpleShower::getMuRWeightVector() {
       int index = findIndexOfName(mergingVarNames[iVarComb][iVar]);
       if (index != -1) ret[iVarComb] *= getWeightsValue(index);
     }
-    // Normalize... even though variations should be relative
-    ret[iVarComb] /= getWeightsValue(0);
   }
+  // Insert central shower weight
+  ret.insert(ret.begin(),getWeightsValue(0));
   return ret;
 }
 
 //--------------------------------------------------------------------------
 
-// Collect shower weight names
+// Collect shower weight names.
+
 void WeightsSimpleShower::collectWeightNames(vector<string>& outputNames) {
-  for (int iwt=1; iwt < getWeightsSize(); ++iwt) {
-    string name  = getWeightsName(iwt);
-    outputNames.push_back("AUX_"+name);
-  }
-  for (int iwtGrp = 1; iwtGrp < nVariationGroups(); ++iwtGrp) {
-    string name = getGroupName(iwtGrp);
-    outputNames.push_back("AUX_"+name);
-  }
-  return;
+  for (int iwt=1; iwt < getWeightsSize(); ++iwt)
+    outputNames.push_back("AUX_" + getWeightsName(iwt));
+  for (int iwtGrp = 1; iwtGrp < nWeightGroups(); ++iwtGrp)
+    outputNames.push_back("AUX_" + getGroupName(iwtGrp));
 }
 
 //--------------------------------------------------------------------------
 
-// Collect shower weight values
+// Collect shower weight values.
+
 void WeightsSimpleShower::collectWeightValues(vector<double>& outputWeights,
   double norm) {
-  for (int iwt=1; iwt < getWeightsSize(); ++iwt) {
-    double value = getWeightsValue(iwt)*norm;
-    outputWeights.push_back(value);
-  }
-  for (int iwtGrp = 1; iwtGrp < nVariationGroups(); ++iwtGrp) {
-    double value = getGroupWeight(iwtGrp)*norm;
-    outputWeights.push_back(value);
-  }
-  return;
+  for (int iwt=1; iwt < getWeightsSize(); ++iwt)
+    outputWeights.push_back(getWeightsValue(iwt)*norm);
+  for (int iwtGrp = 1; iwtGrp < nWeightGroups(); ++iwtGrp)
+    outputWeights.push_back(getGroupWeight(iwtGrp)*norm);
 }
 
 //==========================================================================
 
 // WeightsLHEF class.
 
+//--------------------------------------------------------------------------
+
 // Reset all internal values;
-void WeightsLHEF::clear() {
-  weightValues.resize(0);
-  weightNames.resize(0);
-}
+
+void WeightsLHEF::clear() {weightValues.resize(0); weightNames.resize(0);}
 
 //--------------------------------------------------------------------------
 
 // Store the current event information.
-void WeightsLHEF::bookVectors(vector<double> weights_detailed_vecIn,
-  vector<string> weights_detailed_name_vecIn){
-  weightValues = weights_detailed_vecIn;
-  // Normalize values relative to eventWeightLHEF
+
+void WeightsLHEF::bookVectors(vector<double> weights, vector<string> names) {
+  weightValues = weights;
+  // Normalize values relative to eventWeightLHEF.
   double norm = 1./infoPtr->eventWeightLHEF;
-  for (double& value: weightValues)
-    value *= norm;
-  weightNames  = weightnames_lhef2hepmc(weights_detailed_name_vecIn);
+  for (double& value: weightValues) value *= norm;
+  weightNames = convertNames(names);
 }
 
 //--------------------------------------------------------------------------
 
 // Function to return processed weights to weight container.
+
 void WeightsLHEF::collectWeightValues(vector<double>& ret, double norm) {
 
   // Attach the LHEF weights, starting with well-defined MUF and MUR
@@ -371,12 +415,13 @@ void WeightsLHEF::collectWeightValues(vector<double>& ret, double norm) {
 //--------------------------------------------------------------------------
 
 // Function to return processed weight names to weight container.
+
 void WeightsLHEF::collectWeightNames(vector<string>& ret) {
 
   // Attach the LHEF weights, starting with well-defined MUF and MUR
   // variations, and then followed by any other LHEF weight.
-  for (int iwt=0; iwt < getWeightsSize(); ++iwt) {
-    string name  = getWeightsName(iwt);
+  for (int iwt = 0; iwt < getWeightsSize(); ++iwt) {
+    string name = getWeightsName(iwt);
     if (name.find("MUR") == string::npos || name.find("MUF") == string::npos)
       continue;
     ret.push_back("AUX_"+name);
@@ -387,20 +432,18 @@ void WeightsLHEF::collectWeightNames(vector<string>& ret) {
       continue;
     ret.push_back("AUX_"+name);
   }
-
-  // Done.
-  return;
 }
+
 
 //--------------------------------------------------------------------------
 
 // Convert weight names in MadGraph5 convention to the convention outlined
-// in https://arxiv.org/pdf/1405.1067.pdf, page  162ff.
-vector<string> WeightsLHEF::weightnames_lhef2hepmc(
-  vector<string> weights_detailed_name_vecIn) {
+// in https://arxiv.org/pdf/1405.1067.pdf, page 162ff.
+
+vector<string> WeightsLHEF::convertNames(vector<string> names) {
   vector<string> ret;
-  for (size_t i=0; i < weights_detailed_name_vecIn.size(); ++i) {
-    string name=weights_detailed_name_vecIn[i];
+  for (size_t i = 0; i < names.size(); ++i) {
+    string name = names[i];
     if (name=="1001") name="MUR1.0_MUF1.0";
     if (name=="1002") name="MUR1.0_MUF2.0";
     if (name=="1003") name="MUR1.0_MUF0.5";
@@ -418,13 +461,14 @@ vector<string> WeightsLHEF::weightnames_lhef2hepmc(
 //--------------------------------------------------------------------------
 
 // Identify muR (and muF) variations in LHEF weights. This mapping is needed
-// to later combine with the respective shower and merging weights
-void WeightsLHEF::identifyVariationsFromLHAinit( map<string,LHAweight>
-  *init_weightsIn ) {
+// to later combine with the respective shower and merging weights.
+
+void WeightsLHEF::identifyVariationsFromLHAinit(map<string, LHAweight>*
+  weights) {
   muRvars.clear();
   int index = 0;
   for (map<string,LHAweight>::const_iterator it =
-        init_weightsIn->begin(); it != init_weightsIn->end(); ++it) {
+        weights->begin(); it != weights->end(); ++it) {
     string cont = it->second.contents;
     double muR = 0, muF = 0;
     // Go through all tags of one weight
@@ -448,7 +492,7 @@ void WeightsLHEF::identifyVariationsFromLHAinit( map<string,LHAweight>
       if (muR && muF) break;
       // Also stop if end of contents reached
       if (cont.find_first_of(" ") == string::npos) break;
-    }
+      }
     // For now, only save muR values for corresponding muF=1.
     if (muF == 1.) muRvars[index] = muR;
     ++index;
@@ -461,7 +505,8 @@ void WeightsLHEF::identifyVariationsFromLHAinit( map<string,LHAweight>
 
 //--------------------------------------------------------------------------
 
-// Reset all internal values;
+// Reset all internal values.
+
 void WeightsMerging::clear() {
   for (size_t i=0; i < weightValues.size(); ++i) {
     weightValues[i] = 1.;
@@ -477,7 +522,8 @@ void WeightsMerging::clear() {
 
 //--------------------------------------------------------------------------
 
-// Initialize merging weights
+// Initialize merging weights.
+
 void WeightsMerging::init() {
 
   // Reset weight vectors
@@ -491,7 +537,6 @@ void WeightsMerging::init() {
 
   // Initialization of all required variation weights done in MergingHooks.cc
   bookWeight("MUR1.0_MUF1.0", 1., 0.);
-
   isNLO = (infoPtr->settingsPtr->flag("Merging:doUNLOPSLoop") ||
            infoPtr->settingsPtr->flag("Merging:doUNLOPSSubtNLO") ||
            infoPtr->settingsPtr->flag("Merging:doNL3LOOP") );
@@ -500,6 +545,7 @@ void WeightsMerging::init() {
 //--------------------------------------------------------------------------
 
 // Function to create a new, synchronized, pair of weight name and value.
+
 void WeightsMerging::bookWeight(string name, double value, double valueFirst) {
   weightNames.push_back(name);
   weightValues.push_back(value);
@@ -509,9 +555,8 @@ void WeightsMerging::bookWeight(string name, double value, double valueFirst) {
 //--------------------------------------------------------------------------
 
 // Store the current event information.
-void WeightsMerging::bookVectors(vector<double> weights, vector<string> names){
 
-  // Reset weight vectors
+void WeightsMerging::bookVectors(vector<double> weights, vector<string> names){
   weightValues.resize(0);
   weightNames.resize(0);
   weightValuesFirst.resize(0);
@@ -519,20 +564,17 @@ void WeightsMerging::bookVectors(vector<double> weights, vector<string> names){
   weightValuesPC.resize(0);
   weightValuesFirstP.resize(0);
   weightValuesFirstPC.resize(0);
-
-  for (size_t i=0; i < weights.size(); ++i) bookWeight(names[i],
-                                                       weights[i], 0.);
-
+  for (size_t i=0; i < weights.size(); ++i)
+    bookWeight(names[i], weights[i], 0.);
 }
 
 //--------------------------------------------------------------------------
 
 // Store the current event information, including first order weights for
 // NLO merging.
+
 void WeightsMerging::bookVectors(vector<double> weights,
                     vector<double> weightsFirst, vector<string> names) {
-
-  // Reset weight vectors
   weightValues.resize(0);
   weightNames.resize(0);
   weightValuesFirst.resize(0);
@@ -540,16 +582,15 @@ void WeightsMerging::bookVectors(vector<double> weights,
   weightValuesPC.resize(0);
   weightValuesFirstP.resize(0);
   weightValuesFirstPC.resize(0);
-
-  for (size_t i=0; i < weights.size(); ++i) bookWeight(names[i],
-                                            weights[i], weightsFirst[i]);
-
+  for (size_t i=0; i < weights.size(); ++i)
+    bookWeight(names[i], weights[i], weightsFirst[i]);
 }
 
 //--------------------------------------------------------------------------
 
 // Functions to set values of weights. Does not apply to first order weights or
 // scheme variation weights.
+
 void WeightsMerging::reweightValueByIndex(int iPos, double val) {
   weightValues[iPos] *= val;
 }
@@ -558,59 +599,55 @@ void WeightsMerging::reweightValueByIndex(int iPos, double val) {
 
 // Reweigth merging weights by name. Does not apply to first order weights or
 // scheme variation weights.
+
 void WeightsMerging::reweightValueByName(string name, double val) {
-  // Use existing functions: Find index of name, then set by index.
-  int iPos = findIndexOfName(name);
-  reweightValueByIndex(iPos, val);
-}
+  reweightValueByIndex(findIndexOfName(name), val);}
 
 //--------------------------------------------------------------------------
 
 // Functions to set values of first order weights. Does not apply to scheme
 // variation weights.
+
 void WeightsMerging::setValueFirstByIndex(int iPos, double val) {
-  weightValuesFirst[iPos] = val;
-}
+  weightValuesFirst[iPos] = val;}
 
 //--------------------------------------------------------------------------
 
 // Set values of first order weights by name. Does not apply to scheme
 // variation weights.
+
 void WeightsMerging::setValueFirstByName(string name, double val) {
-  // Use existing functions: Find index of name, then set by index.
-  int iPos = findIndexOfName(name);
-  setValueFirstByIndex(iPos, val);
-}
+  setValueFirstByIndex(findIndexOfName(name), val);}
 
 //--------------------------------------------------------------------------
 
 // Set values as whole vector.
+
 void WeightsMerging::setValueVector(vector<double> valueVector) {
-  weightValues = valueVector;
-}
+  weightValues = valueVector;}
 
 //--------------------------------------------------------------------------
 
-// Set first order weight values as vector
+// Set first order weight values as vector.
+
 void WeightsMerging::setValueFirstVector(vector<double> valueFirstVector) {
-  weightValuesFirst = valueFirstVector;
-}
+  weightValuesFirst = valueFirstVector;}
 
 //--------------------------------------------------------------------------
 
 // Function telling merging which muR variations to perform, read from
 // Merging:muRfactors setting.
+
 vector<double> WeightsMerging::getMuRVarFactors() {
-  vector<double> ret = infoPtr->settingsPtr->pvec("Merging:muRfactors");
-  return ret;
-}
+  return infoPtr->settingsPtr->pvec("Merging:muRfactors");}
 
 //--------------------------------------------------------------------------
 
 // Function to return processed weights to weight container.
+
 void WeightsMerging::collectWeightValues(vector<double>& ret, double norm) {
-  vector<double> showerWeights = infoPtr->weightContainerPtr->weightsPS.
-                                  getMuRWeightVector();
+  vector<double> showerWeights =
+    infoPtr->weightContainerPtr->weightsSimpleShower.getMuRWeightVector();
   for (int iwt=1; iwt < getWeightsSize(); ++iwt) {
     double value = getWeightsValue(iwt)*norm;
     if (getWeightsValue(0) != 0 ) value /= getWeightsValue(0);
@@ -628,7 +665,7 @@ void WeightsMerging::collectWeightValues(vector<double>& ret, double norm) {
           getWeightsValue(muRVarLHEFindex[iwt]);
     }
     // Combine with corresponding shower weight
-    value *= showerWeights[iwt-1];
+    value *= showerWeights[iwt];
     ret.push_back(value);
   }
 
@@ -671,6 +708,7 @@ void WeightsMerging::collectWeightValues(vector<double>& ret, double norm) {
 //--------------------------------------------------------------------------
 
 // Similar function to return processed weight names.
+
 void WeightsMerging::collectWeightNames(vector<string>& outputNames) {
   for (int iwt=1; iwt < getWeightsSize(); ++iwt) {
     string name  = getWeightsName(iwt);
@@ -686,13 +724,13 @@ void WeightsMerging::collectWeightNames(vector<string>& outputNames) {
       outputNames.push_back(namePC);
     }
   }
-
   return;
 }
 
 //--------------------------------------------------------------------------
 
-// Set up mapping between LHEF variations and
+// Set up mapping between LHEF variations and weights.
+
 void WeightsMerging::setLHEFvariationMapping() {
   if (!isNLO) return;
   map<int,double> muRvarsLHEF = infoPtr->weightContainerPtr->weightsLHEF.
@@ -714,17 +752,18 @@ void WeightsMerging::setLHEFvariationMapping() {
 
 //--------------------------------------------------------------------------
 
-// Set nominala weight
+// Set nominal weight.
+
 void WeightContainer::setWeightNominal(double weightNow) {
-  weightNominal = weightNow;
-}
+  weightNominal = weightNow;}
 
 //--------------------------------------------------------------------------
 
 // Assemble nominal weight, including nominal parton shower and merging weight.
 // PS and Merging weight variations are stored relative to this return value.
+
 double WeightContainer::collectWeightNominal() {
-  return weightNominal * weightsPS.getWeightsValue(0)
+  return weightNominal * weightsShowerPtr->getWeightsValue(0)
                        * weightsMerging.getWeightsValue(0);
 }
 
@@ -732,36 +771,34 @@ double WeightContainer::collectWeightNominal() {
 //--------------------------------------------------------------------------
 
 // Functions to retrieve the stored information.
+
 int WeightContainer::numberOfWeights() {
-  // Get total number of merging weights
+  // Get total number of merging weights.
   int nMergingWeights = weightsMerging.getWeightsSize() - 1;
   if (weightsMerging.weightValuesP.size())
     nMergingWeights += 2*weightsMerging.weightValuesP.size();
-  // Get total number of shower weights
-  int nShowerWeights = weightsPS.getWeightsSize()
-                     + weightsPS.nVariationGroups()
-                     - 2;
-  // One nominal weight + variations. -1 for all since 0th component goes
-  // into nominal weight.
+  // Get total number of shower weights.
+  int nShowerWeights       = weightsShowerPtr->getWeightsSize() - 1;
+  int nShowerWeightGroups  = weightsShowerPtr->nWeightGroups() > 0 ?
+    weightsShowerPtr->nWeightGroups() - 1 : 0;
   if (doSuppressAUXweights) return 1 + nMergingWeights;
   else return (1 + weightsLHEF.getWeightsSize()
-                 + nShowerWeights + nMergingWeights);
+                 + nShowerWeights + nShowerWeightGroups + nMergingWeights);
 }
 
 double WeightContainer::weightValueByIndex(int key) {
-  vector<double> values = weightValueVector();
-  return values[key];
+  return weightValueVector()[key];
 }
 
 string WeightContainer::weightNameByIndex(int key) {
-  vector<string> names = weightNameVector();
-  return names[key];
+  return weightNameVector()[key];
 }
 
 //--------------------------------------------------------------------------
 
 // Function to return the vector of weight values, combining all weights from
 // all subcategories.
+
 vector<double> WeightContainer::weightValueVector() {
   vector<double> ret;
 
@@ -772,7 +809,8 @@ vector<double> WeightContainer::weightValueVector() {
   // Let all weights attach the relative weight values to the return vector.
   // Second argument allows for normalization.
   if (!doSuppressAUXweights) weightsLHEF.collectWeightValues(ret,collWgtNom);
-  if (!doSuppressAUXweights) weightsPS.collectWeightValues(ret,collWgtNom);
+  if (!doSuppressAUXweights)
+    weightsShowerPtr->collectWeightValues(ret,collWgtNom);
   weightsMerging.collectWeightValues(ret,collWgtNom);
 
   // Done
@@ -784,6 +822,7 @@ vector<double> WeightContainer::weightValueVector() {
 
 // Function to return the vector of weight names, combining all names from
 // all subcategories, cf. weightValueVector function.
+
 vector<string> WeightContainer::weightNameVector() {
   vector<string> ret;
 
@@ -792,7 +831,7 @@ vector<string> WeightContainer::weightNameVector() {
 
   // Let all weights attach the weight names to the return vector.
   if (!doSuppressAUXweights) weightsLHEF.collectWeightNames(ret);
-  if (!doSuppressAUXweights) weightsPS.collectWeightNames(ret);
+  if (!doSuppressAUXweights) weightsShowerPtr->collectWeightNames(ret);
   weightsMerging.collectWeightNames(ret);
 
   // Done
@@ -803,16 +842,18 @@ vector<string> WeightContainer::weightNameVector() {
 //--------------------------------------------------------------------------
 
 // Reset all members to default status.
+
 void WeightContainer::clear() {
   weightNominal = 1.;
   weightsLHEF.clear();
-  weightsPS.clear();
+  weightsShowerPtr->clear();
   weightsMerging.clear();
 }
 
 //--------------------------------------------------------------------------
 
-// Reset total cross section estimate
+// Reset total cross section estimate.
+
 void WeightContainer::clearTotal() {
   if (sigmaTotal.size()) {
     sigmaTotal = vector<double>(sigmaTotal.size(),0.);
@@ -822,19 +863,23 @@ void WeightContainer::clearTotal() {
 
 //--------------------------------------------------------------------------
 
-// Function to set Pointers in weight classes
+// Function to set Pointers in weight classes.
+
 void WeightContainer::initPtrs(Info* infoPtrIn) {
   infoPtr = infoPtrIn;
+  // Default pointer to shower weights = weightsSimpleShower.
+  weightsShowerPtr = &weightsSimpleShower;
   weightsLHEF.setPtrs(infoPtrIn);
-  weightsPS.setPtrs(infoPtrIn);
+  weightsShowerPtr->setPtrs(infoPtrIn);
   weightsMerging.setPtrs(infoPtrIn);
 }
 
 //--------------------------------------------------------------------------
 
-// Function to initialize weight classes
+// Function to initialize weight classes.
+
 void WeightContainer::init( bool doMerging ) {
-  weightsPS.init(doMerging);
+  weightsShowerPtr->init(doMerging);
   weightsMerging.init();
   doSuppressAUXweights = infoPtr->settingsPtr->
     flag("Weights:suppressAUX");
@@ -846,7 +891,8 @@ void WeightContainer::init( bool doMerging ) {
 
 //--------------------------------------------------------------------------
 
-// Initialize accumulation of cross section
+// Initialize accumulation of cross section.
+
 void WeightContainer::initXsecVec() {
   if (!xsecIsInit) {
     sigmaTotal = vector<double>(weightNameVector().size(),0.);
@@ -859,47 +905,39 @@ void WeightContainer::initXsecVec() {
 
 //--------------------------------------------------------------------------
 
-// Return cross section for current sample
-vector<double> WeightContainer::getSampleXsec() {
-  vector<double> ret;
-  for (double sigma: sigmaSample)
-    ret.push_back(sigma);
-  return ret;
-}
+// Return cross section for current sample.
+
+vector<double> WeightContainer::getSampleXsec() {return sigmaSample;}
 
 //--------------------------------------------------------------------------
 
-// Return cross section error for current sample
+// Return cross section error for current sample.
+
 vector<double> WeightContainer::getSampleXsecErr() {
   vector<double> ret;
-  for (double error: errorSample)
-    ret.push_back(sqrt(error));
+  for (double error: errorSample) ret.push_back(sqrt(error));
   return ret;
 }
 
 //--------------------------------------------------------------------------
 
-// Return cross section estimate for total run
-vector<double> WeightContainer::getTotalXsec() {
-  vector<double> ret;
-  for (double sigma: sigmaTotal)
-    ret.push_back(sigma);
-  return ret;
-}
+// Return cross section estimate for total run.
+
+vector<double> WeightContainer::getTotalXsec() {return sigmaTotal;}
 
 //--------------------------------------------------------------------------
 
-// Return cross section error estimate for total run
+// Return cross section error estimate for total run.
 vector<double> WeightContainer::getTotalXsecErr() {
   vector<double> ret;
-  for (double error: errorTotal)
-    ret.push_back(sqrt(error));
+  for (double error: errorTotal) ret.push_back(sqrt(error));
   return ret;
 }
 //--------------------------------------------------------------------------
 
 // Accumulate cross section for all weights. Provide cross section estimate
 // for whole sample if lhaStrategy != 4 or -4.
+
 void WeightContainer::accumulateXsec(double norm) {
   if (!xsecIsInit) initXsecVec();
   vector<double> weights = weightValueVector();

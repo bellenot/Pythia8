@@ -1,5 +1,5 @@
 // main93.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -17,13 +17,12 @@
 
 #include "Pythia8/Pythia.h"
 #include "Pythia8/HeavyIons.h"
-
-#include "Pythia8Plugins/HepMC2.h"
 #include "Pythia8Plugins/Pythia8Rivet.h"
+#include "main93.h"
+#include <chrono>
 #ifdef PY8ROOT
 #include "TTree.h"
 #include "TFile.h"
-#include "main93.h"
 #endif
 
 using namespace Pythia8;
@@ -75,6 +74,7 @@ int main(int argc, char* argv[]) {
       "OUTRivet.yoda.\n"
       "\t -n NEVENTS\n\t\t Number of events.\n"
       "\t -l \n\t\t Silence the splash screen.\n"
+      "\t -t \n\t\t Time event generation.\n"
         << endl;
      cout << "Additional options in cmnd file:\n"
        "A few extra commands can be added to the cmnd file, compared "
@@ -136,6 +136,9 @@ int main(int argc, char* argv[]) {
   // Set individual output prefix.
   if(ip.hasOption("-o")) out = ip.getOption("-o");
 
+  bool takeTime = false;
+  if (ip.hasOption("-t")) takeTime = true;
+
   int nev = -1;
   // Command line number of event, overrides the one set in input .cmnd file.
   if(ip.hasOption("-n")) nev = stoi(ip.getOption("-n"));
@@ -149,6 +152,10 @@ int main(int argc, char* argv[]) {
   // Direct cout back.
   cout.rdbuf(sBuf);
 
+  // UserHooks wrapper
+  auto userHooksWrapper = make_shared<UserHooksWrapper>();
+  userHooksWrapper->additionalSettings(&pythia.settings);
+  pythia.setUserHooksPtr(userHooksWrapper);
   // Some extra parameters.
   pythia.settings.addFlag("Main:writeHepMC",false);
   pythia.settings.addFlag("Main:writeRoot",false);
@@ -181,13 +188,11 @@ int main(int argc, char* argv[]) {
   const vector<string> rAnalyses = pythia.settings.wvec("Main:analyses");
   const vector<string> rPreload = pythia.settings.wvec("Main:preload");
   int nError = pythia.mode("Main:timesAllowErrors");
-  bool countErrors = (nError > 0 ? true : false);
+  const bool countErrors = (nError > 0 ? true : false);
   // HepMC conversion object.
-  HepMC::Pythia8ToHepMC ToHepMC;
-  HepMC::IO_GenEvent* hepmcIO;
+  Pythia8ToHepMC ToHepMC;
   if (hepmc)
-    hepmcIO = new HepMC::IO_GenEvent((out == "" ? "pythia.hepmc"
-      : out + ".hepmc"),ios::out);
+    ToHepMC.setNewFile((out == "" ? "pythia.hepmc" : out + ".hepmc"));
   // Rivet initialization.
   Pythia8Rivet rivet(pythia,(out == "" ? "Rivet.yoda" : out + ".yoda"));
   rivet.ignoreBeams(ignoreBeams);
@@ -200,15 +205,24 @@ int main(int argc, char* argv[]) {
     else {
       string an = analysis.substr(0,pos);
       analysis.erase(0, pos + 1);
-      pos = analysis.find(":");
-      string par = analysis.substr(0,pos);
-      size_t pos2 = par.find("->");
-      if (pos2 == string::npos){
-         cout << "Error in main93: malformed parameter " << par << endl;
+      vector<string> pKeys;
+      vector<string> pVals;
+      while (analysis.find("->") != string::npos) {
+        pos = analysis.find(":");
+        string par = analysis.substr(0,pos);
+        size_t pos2 = par.find("->");
+        if (pos2 == string::npos){
+           cout << "Error in main93: malformed parameter " << par << endl;
+        }
+        string pKey = par.substr(0,pos2);
+        string pVal = par.substr(pos2+2,par.length());
+        pKeys.push_back(pKey);
+        pVals.push_back(pVal);
+        analysis.erase(0,par.length()+1);
       }
-      string pKey = par.substr(0,pos2);
-      string pVal = par.substr(pos2+2,par.length());
-      rivet.addAnalysis(an+":"+pKey+"="+pVal);
+      for (int j = 0, N = pKeys.size(); j < N; ++j)
+        an += ":"+pKeys[j]+"="+pVals[j];
+      rivet.addAnalysis(an);
     }
   }
   for(int i = 0, N = rPreload.size(); i < N; ++i)
@@ -253,7 +267,9 @@ int main(int argc, char* argv[]) {
     cout << "Warning in main93: Rivet analyses initialized, but runRivet "
          << "set to off." << endl;
   // Loop over events.
+  auto startAllEvents = std::chrono::high_resolution_clock::now();
   for ( int iEvent = 0; iEvent < nEvent; ++iEvent ) {
+    auto startThisEvent = std::chrono::high_resolution_clock::now();
     if ( !pythia.next() ) {
       if (countErrors && --nError < 0) {
         pythia.stat();
@@ -265,32 +281,18 @@ int main(int argc, char* argv[]) {
       }
       continue;
     }
-    if (runRivet) rivet();
+    auto stopThisEvent = std::chrono::high_resolution_clock::now();
+    auto eventTime = std::chrono::duration_cast<std::chrono::milliseconds>
+      (stopThisEvent - startThisEvent);
+    double tt = eventTime.count();
+    if (runRivet) {
+      if (takeTime) rivet.addAttribute("EventTime", tt);
+      rivet();
+    }
     if (hepmc) {
-      HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
-      const Info* pInfo = &pythia.info;
-      if ( pInfo && pInfo->hiInfo ) {
-      HepMC::HeavyIon ion;
-      ion.set_Ncoll_hard(pInfo->hiInfo->nCollNDTot());
-      ion.set_Ncoll(pInfo->hiInfo->nAbsProj() +
-                    pInfo->hiInfo->nDiffProj() +
-                    pInfo->hiInfo->nAbsTarg() +
-                    pInfo->hiInfo->nDiffTarg() -
-                    pInfo->hiInfo->nCollND() -
-                    pInfo->hiInfo->nCollDD());
-      ion.set_Npart_proj(pInfo->hiInfo->nAbsProj() +
-                         pInfo->hiInfo->nDiffProj());
-      ion.set_Npart_targ(pInfo->hiInfo->nAbsTarg() +
-                         pInfo->hiInfo->nDiffTarg());
-      ion.set_impact_parameter(pInfo->hiInfo->b());
-      hepmcevt->set_heavy_ion(ion);
+      ToHepMC.writeNextEvent(pythia);
     }
 
-
-      ToHepMC.fill_next_event( pythia, hepmcevt);
-      (*hepmcIO) << hepmcevt;
-      delete hepmcevt;
-    }
     #ifdef PY8ROOT
     if (root) {
       // If we want to write a root file, the event must be skimmed here.
@@ -308,8 +310,6 @@ int main(int argc, char* argv[]) {
     }
     #endif
     }
-  if(hepmc) delete hepmcIO;
-
   pythia.stat();
   #ifdef PY8ROOT
   if (root) {
@@ -319,6 +319,16 @@ int main(int argc, char* argv[]) {
    delete re;
   }
   #endif
+  auto stopAllEvents = std::chrono::high_resolution_clock::now();
+  auto durationAll = std::chrono::duration_cast<std::chrono::milliseconds>
+    (stopAllEvents - startAllEvents);
+  if (takeTime) {
+    cout << " \n *-------  Generation time  -----------------------*\n";
+    cout << " | Event generation, analysis and writing to files  |\n";
+    cout << " | took: " << double(durationAll.count()) << " ms or " <<
+      double(durationAll.count())/double(nEvent) << " ms per event     |\n";
+    cout << " *-------------------------------------------------*\n";
+  }
   // Put cout back in its place.
   if (doLog) cout.rdbuf(oldCout);
   return 0;

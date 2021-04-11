@@ -1,5 +1,5 @@
 // main45.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -12,7 +12,11 @@
 // Note: both main44.cc and main45.cc can use the same main44.cmnd input card.
 
 #include "Pythia8/Pythia.h"
+#ifndef HEPMC2
 #include "Pythia8Plugins/HepMC3.h"
+#else
+#include "Pythia8Plugins/HepMC2.h"
+#endif
 #include <unistd.h>
 
 using namespace Pythia8;
@@ -39,9 +43,8 @@ int main( int argc, char* argv[] ){
   pythia.readFile(argv[1],0);
 
   // Interface for conversion from Pythia8::Event to HepMC one.
-  HepMC3::Pythia8ToHepMC3 toHepMC;
   // Specify file where HepMC events will be stored.
-  HepMC3::WriterAscii ascii_io(argv[2]);
+  Pythia8ToHepMC toHepMC(argv[2]);
 
   // Allow abort of run if many errors.
   int  nAbort  = pythia.mode("Main:timesAllowErrors");
@@ -55,8 +58,6 @@ int main( int argc, char* argv[] ){
   int nRuns = pythia.mode("Main:numberOfSubruns");
 
   double sigmaTotal(0.), errorTotal(0.);
-
-  bool wroteRunInfo = false;
 
   // Loop over subruns with varying number of jets.
   for (int iRuns = 0; iRuns < nRuns; ++iRuns) {
@@ -90,20 +91,8 @@ int main( int argc, char* argv[] ){
       // Do not print zero-weight events.
       if ( evtweight == 0. ) continue;
 
-      // Create a GenRunInfo object with the necessary weight names and write
-      // them to the HepMC3 file only once.
-      if (!wroteRunInfo) {
-        shared_ptr<HepMC3::GenRunInfo> genRunInfo;
-        genRunInfo = make_shared<HepMC3::GenRunInfo>();
-        vector<string> weight_names = pythia.info.weightNameVector();
-        genRunInfo->set_weight_names(weight_names);
-        ascii_io.set_run_info(genRunInfo);
-        ascii_io.write_run_info();
-        wroteRunInfo = true;
-      }
-
-      // Construct new empty HepMC event.
-      HepMC3::GenEvent hepmcevt;
+      // Inform HepMC about the naming oc the weights..
+      toHepMC.setWeightNames(pythia.info.weightNameVector());
 
       // Work with weighted (LHA strategy=-4) events.
       double normhepmc = 1.;
@@ -115,22 +104,17 @@ int main( int argc, char* argv[] ){
 
       // Set event weight
       //hepmcevt.weights().push_back(evtweight*normhepmc);
-      // Fill HepMC event
-      toHepMC.fill_next_event( pythia, &hepmcevt );
+      // Fill a new HepMC event
+      toHepMC.fillNextEvent( pythia );
       // Add the weight of the current event to the cross section.
       sigmaTotal  += evtweight*normhepmc;
       sigmaSample += evtweight*normhepmc;
       errorTotal  += pow2(evtweight*normhepmc);
       errorSample += pow2(evtweight*normhepmc);
       // Report cross section to hepmc
-      shared_ptr<HepMC3::GenCrossSection> xsec;
-      xsec = make_shared<HepMC3::GenCrossSection>();
-      // First add object to event, then set cross section. This order ensures
-      // that the lengths of the cross section and the weight vector agree.
-      hepmcevt.set_cross_section( xsec );
-      xsec->set_cross_section( sigmaTotal*1e9, pythia.info.sigmaErr()*1e9 );
+      toHepMC.setXSec( sigmaTotal*1e9, pythia.info.sigmaErr()*1e9 );
       // Write the HepMC event to file. Done with it.
-      ascii_io.write_event(hepmcevt);
+      toHepMC.writeEvent();
 
     } // end loop over events to generate.
     if (doAbort) break;

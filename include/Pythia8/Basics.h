@@ -1,5 +1,5 @@
 // Basics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -57,10 +57,12 @@ public:
   double pz() const {return zz;}
   double e() const {return tt;}
   double& operator[](int i) {
-    if      (i == 1) return xx;
-    else if (i == 2) return yy;
-    else if (i == 3) return zz;
-    else             return tt;
+    switch(i) {
+      case 1: return xx;
+      case 2: return yy;
+      case 3: return zz;
+      default: return tt;
+    }
   }
   double mCalc() const {double temp = tt*tt - xx*xx - yy*yy - zz*zz;
     return (temp >= 0.) ? sqrt(temp) : -sqrt(-temp);}
@@ -78,8 +80,14 @@ public:
   double thetaXZ() const {return atan2(xx,zz);}
   double pPos() const {return tt + zz;}
   double pNeg() const {return tt - zz;}
-  double rap() const {return 0.5 * log( (tt + zz) / (tt - zz) );}
+  double rap() const {
+    double txyz = (tt > 0.) ? tt : sqrt(xx*xx + yy*yy + zz*zz);
+    if (zz >= txyz) return 20.;
+    if (zz <= -txyz) return -20.;
+    return 0.5 * log( (txyz + zz) / (txyz - zz) );}
   double eta() const {double xyz = sqrt(xx*xx + yy*yy + zz*zz);
+    if (zz >= xyz) return 20.;
+    if (zz <= -xyz) return -20.;
     return 0.5 * log( (xyz + zz) / (xyz - zz) );}
 
   // Member functions that perform operations.
@@ -135,9 +143,14 @@ public:
     return isfinite(v.tt) && isfinite(v.xx) && isfinite(v.yy)
       && isfinite(v.zz);}
 
-  // Invariant mass of a pair and its square.
+  // Invariant mass and its square.
+  friend double m(const Vec4& v1);
   friend double m(const Vec4& v1, const Vec4& v2);
+  friend double m2(const Vec4& v1);
   friend double m2(const Vec4& v1, const Vec4& v2);
+  friend double m2(const Vec4& v1, const Vec4& v2, const Vec4& v3);
+  friend double m2(const Vec4& v1, const Vec4& v2, const Vec4& v3,
+                   const Vec4& v4);
 
   // Scalar and cross product of 3-vector parts.
   friend double dot3(const Vec4& v1, const Vec4& v2);
@@ -186,9 +199,14 @@ private:
 inline Vec4 operator*(double f, const Vec4& v1)
   {Vec4 v = v1; return v *= f;}
 
-// Invariant mass of a pair and its square.
+// Invariant mass and its square.
+double m(const Vec4& v1);
 double m(const Vec4& v1, const Vec4& v2);
+double m2(const Vec4& v1);
 double m2(const Vec4& v1, const Vec4& v2);
+double m2(const Vec4& v1, const Vec4& v2, const Vec4& v3);
+double m2(const Vec4& v1, const Vec4& v2, const Vec4& v3,
+          const Vec4& v4);
 
 // Scalar and cross product of 3-vector parts.
 double dot3(const Vec4& v1, const Vec4& v2);
@@ -200,6 +218,7 @@ Vec4 cross4(const Vec4& a, const Vec4& b, const Vec4& c);
 // theta is polar angle between v1 and v2.
 double theta(const Vec4& v1, const Vec4& v2);
 double costheta(const Vec4& v1, const Vec4& v2);
+double costheta(double e1, double e2, double m1, double m2, double s12);
 
 // phi is azimuthal angle between v1 and v2 around z axis.
 double phi(const Vec4& v1, const Vec4& v2);
@@ -506,6 +525,18 @@ public:
   // Return content of specific bin: 0 gives underflow and nBin+1 overflow.
   double getBinContent(int iBin) const;
 
+  // Return the lower edge of the bin.
+  double getBinEdge(int iBin) const;
+
+  // Return the width of the bin.
+  double getBinWidth(int iBin) const;
+
+  // Return bin contents.
+  vector<double> getBinContents() const;
+
+  // Return bin edges.
+  vector<double> getBinEdges() const;
+
   // Return number of entries.
   int getEntries(bool alsoNonFinite = true) const {
     return alsoNonFinite ? nNonFinite + nFill : nFill; }
@@ -513,14 +544,23 @@ public:
   // Check whether another histogram has same size and limits.
   bool sameSize(const Hist& h) const ;
 
+  // Take an arbitrary function of bin contents.
+  void takeFunc(function<double(double)> func);
+
   // Take logarithm (base 10 or e) of bin contents.
-  void takeLog(bool tenLog = true) ;
+  void takeLog(bool tenLog = true);
 
   // Take square root of bin contents.
-  void takeSqrt() ;
+  void takeSqrt();
 
-  // Normalize bin contents to given sum, by default including overflow bins.
-  void normalize( double sum = 1., bool alsoOverflow = true) ;
+  // Normalize sum of bin contents to value, with or without overflow bins.
+  void normalize(double f = 1, bool overflow = true) ;
+
+  // Normalize sum of bin areas to value, with or without overflow bins.
+  void normalizeIntegral(double f = 1, bool overflow = true);
+
+  // Scale each bin content by 1 / (wtSum * bin width).
+  void normalizeSpectrum(double wtSum);
 
   // Operator overloading with member functions
   Hist& operator+=(const Hist& h) ;
@@ -653,4 +693,4 @@ private:
 
 } // end namespace Pythia8
 
-#endif // end Pythia8_Basics_H
+#endif // Pythia8_Basics_H

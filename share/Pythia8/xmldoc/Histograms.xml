@@ -203,6 +203,21 @@ where the latter is the simpler one. The <code>main51.cc</code> example
 illustrates that the <ei>x</ei> scale can be chosen logarithmically, 
 by using an optional last argument when histograms are booked. 
  
+<p/> 
+Alternatively, it also straight forward to produce histograms direcly 
+through the <aloc href="PythonInterface">Python interface</aloc> using 
+the <code>binEdges</code> and <code>binContents</code> methods of the 
+<code>Hist</code> class. 
+<pre> 
+  import pythia8, random 
+  from matplotlib import pyplot 
+  hst = pythia8.Hist("log", 100, 0.1, 4, True) 
+  for i in range(0, int(1e6)): hst.Fill(random.gauss(0, 1)) 
+  pyplot.hist(hst.getBinEdges()[:-1], hst.getBinEdges(), 
+               weights = hst.getBinContents(), 
+               histtype = "step", label = hst.getTitle()) 
+</pre> 
+ 
 <h3>The methods</h3> 
  
 We here collect a more complete and formal overview of the methods. 
@@ -407,6 +422,24 @@ return the value in bin <code>iBin</code>, ranging from 1 through
 <code>numberOfBins + 1</code> for overflow. 
 </method> 
  
+<method name="double Hist::getBinEdge(int iBin)"> 
+return the lower edge of bin <code>iBin</code>, ranging from 1 through 
+<code>numberOfBins</code>. 
+</method> 
+ 
+<method name="double Hist::getBinWidth(int iBin)"> 
+return the width of bin <code>iBin</code>, ranging from 1 through 
+<code>numberOfBins</code>. 
+</method> 
+ 
+<method name="vector&lt;double&gt; Hist::getBinContents()"> 
+return the bin contents. 
+</method> 
+ 
+<method name="vector&lt;double&gt; Hist::getBinEdges()"> 
+return the bin edges. 
+</method> 
+ 
 <method name="int Hist::getEntries(bool alsoNonFinite = true)"> 
 return the number of entries, i.e. the number of time that 
 <code>fill(...)</code> has been called. If <code>alsoNonFinite</code> 
@@ -416,6 +449,12 @@ is false, then entries that are infinity or NaN are ignored.
 <method name="bool Hist::sameSize(const Hist&amp; h)"> 
 checks that the number of bins and upper and lower limits are the 
 same as in the histogram in the argument. 
+</method> 
+ 
+<method name="void Hist::takeFunc(function&lt;double(double)&gt; func)"> 
+pass an arbitrary function that takes as an argument a 
+<code>double</code> and returns a <code>double</code>. This function 
+is applied to the current contents bin by bin. 
 </method> 
  
 <method name="void Hist::takeLog(bool tenLog = true)"> 
@@ -430,17 +469,42 @@ take square root of current contents bin by bin, with negative contents
 set to zero. 
 </method> 
  
-<method name="void Hist::normalize( double sum = 1., 
-bool alsoOverflow = true)"> 
+<method name="void Hist::normalize( double f = 1., 
+bool overflow = true)"> 
 Rescale the histogram to a given sum of all bin contents, where 
 <argument name="sum" default="1."> 
 is the intended sum of all bin contents after rescaling, and 
 </argument> 
-<argument name="alsoOverflow" default="on"> 
+<argument name="overflow" default="on"> 
 includes the underflow and overflow bins in the definition of the 
 original area to be rescaled, or not. Either way, the under/overflow 
 are always rescaled by the same factor as the histogram proper. 
 </argument> 
+</method> 
+ 
+<method name="void Hist::normalizeIntegral( double f = 1., 
+bool alsoOverflow = true)"> 
+Rescale the histogram so that it integrates to the value given by 
+<argument name="f" default="1."/>. This is the appropriate 
+normalization if the histogram represents a probability 
+distribution. The argument <argument name="overflow" default="on"/> 
+specifies whether the underflow and overflow bins in the definition of 
+the original area to be rescaled, or not. Either way, the 
+under/overflow are always rescaled by the same factor, except the bin 
+width, as the histogram proper. Bin widths are handled for both linear 
+and log plots. 
+</method> 
+ 
+<method name="void Hist::normalizeSpectrum( double wtSum)"> 
+Rescale the histogram by a factor <code>1/(wtSum * dx)</code> where 
+<code>dx</code> is the bin width. This is the appropriate 
+renormalization if the histogram represents a spectrum on the form 
+<ei>(1/N_{ev}) dN/dx</ei>. <argument name="wtSum" default="1."/> is 
+the total weight of the events, which if events are unweighted is just 
+the total number of successfully generated events. the under/overflow 
+are always rescaled by the same factor, except the bin width, as the 
+histogram proper. Bin widths are handled for both linear and log 
+plots. 
 </method> 
  
 <method name="Hist&amp; Hist::operator+=(const Hist&amp; h)"> 
@@ -650,4 +714,4 @@ is almost the same, the exception being that the two compulsory arguments
  
 </chapter> 
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 

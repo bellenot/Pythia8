@@ -1,5 +1,5 @@
 // SigmaTotal.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -932,7 +932,7 @@ bool SigmaSaSDL::calcDiff(  int idAin, int idBin, double sIn, double mAin,
     mResXB          = mA + mRes0;
     sResXB          = pow2(mResXB);
     double sRMavgXB = mResXB * mMinXB;
-    double sRMlogXB = log(1. + sResXB/sMinXB);
+    double sRMlogXB = log1p(sResXB/sMinXB);
     double sMaxXB   = CSD[iSD][0] * s + CSD[iSD][1];
     double BcorrXB  = CSD[iSD][2] + CSD[iSD][3] / s;
     sum1  = log( (2.*bB + alP2 * log(s/sMinXB))
@@ -946,7 +946,7 @@ bool SigmaSaSDL::calcDiff(  int idAin, int idBin, double sIn, double mAin,
     mResAX          = mB + mRes0;
     sResAX          = pow2(mResAX);
     double sRMavgAX = mResAX * mMinAX;
-    double sRMlogAX = log(1. + sResAX/sMinAX);
+    double sRMlogAX = log1p(sResAX/sMinAX);
     double sMaxAX   = CSD[iSD][4] * s + CSD[iSD][5];
     double BcorrAX  = CSD[iSD][6] + CSD[iSD][7] / s;
     sum1  = log( (2.*bA + alP2 * log(s/sMinAX))
@@ -1022,7 +1022,7 @@ bool SigmaSaSDL::calcDiff(  int idAin, int idBin, double sIn, double mAin,
       mResXB          = mAtmp[iA] + mRes0;
       sResXB          = pow2(mResXB);
       double sRMavgXB = mResXB * mMinXB;
-      double sRMlogXB = log(1. + sResXB/sMinXB);
+      double sRMlogXB = log1p(sResXB/sMinXB);
       double sMaxXB   = CSD[iSD][0] * s + CSD[iSD][1];
       double BcorrXB  = CSD[iSD][2] + CSD[iSD][3] / s;
       double bBNow    = BHAD[iHadBtmp[iA]];
@@ -1039,7 +1039,7 @@ bool SigmaSaSDL::calcDiff(  int idAin, int idBin, double sIn, double mAin,
       mResAX          = mBtmp[iA] + mRes0;
       sResAX          = pow2(mResAX);
       double sRMavgAX = mResAX * mMinAX;
-      double sRMlogAX = log(1. + sResAX/sMinAX);
+      double sRMlogAX = log1p(sResAX/sMinAX);
       double sMaxAX   = CSD[iSD][4] * s + CSD[iSD][5];
       double BcorrAX  = CSD[iSD][6] + CSD[iSD][7] / s;
       double bANow    = BHAD[iHadAtmp[iA]];
@@ -1119,7 +1119,7 @@ bool SigmaSaSDL::calcDiff(  int idAin, int idBin, double sIn, double mAin,
       mResXB          = mAtmp[iA] + mRes0;
       sResXB          = pow2(mResXB);
       double sRMavgXB = mResXB * mMinXB;
-      double sRMlogXB = log(1. + sResXB/sMinXB);
+      double sRMlogXB = log1p(sResXB/sMinXB);
       double sMaxXB   = CSD[iSD][0] * s + CSD[iSD][1];
       double BcorrXB  = CSD[iSD][2] + CSD[iSD][3] / s;
       double bBNow    = BHAD[iHadBtmp[iB]];
@@ -1136,7 +1136,7 @@ bool SigmaSaSDL::calcDiff(  int idAin, int idBin, double sIn, double mAin,
       mResAX          = mBtmp[iB] + mRes0;
       sResAX          = pow2(mResAX);
       double sRMavgAX = mResAX * mMinAX;
-      double sRMlogAX = log(1. + sResAX/sMinAX);
+      double sRMlogAX = log1p(sResAX/sMinAX);
       double sMaxAX   = CSD[iSD][4] * s + CSD[iSD][5];
       double BcorrAX  = CSD[iSD][6] + CSD[iSD][7] / s;
       double bANow    = BHAD[iHadAtmp[iA]];

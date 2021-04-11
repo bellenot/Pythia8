@@ -219,6 +219,21 @@ where the latter is the simpler one. The <code>main51.cc</code> example
 illustrates that the <i>x</i> scale can be chosen logarithmically, 
 by using an optional last argument when histograms are booked. 
  
+<p/> 
+Alternatively, it also straight forward to produce histograms direcly 
+through the <a href="PythonInterface.html" target="page">Python interface</a> using 
+the <code>binEdges</code> and <code>binContents</code> methods of the 
+<code>Hist</code> class. 
+<pre> 
+  import pythia8, random 
+  from matplotlib import pyplot 
+  hst = pythia8.Hist("log", 100, 0.1, 4, True) 
+  for i in range(0, int(1e6)): hst.Fill(random.gauss(0, 1)) 
+  pyplot.hist(hst.getBinEdges()[:-1], hst.getBinEdges(), 
+               weights = hst.getBinContents(), 
+               histtype = "step", label = hst.getTitle()) 
+</pre> 
+ 
 <a name="section3"></a> 
 <h3>The methods</h3> 
  
@@ -442,19 +457,48 @@ return the value in bin <code>iBin</code>, ranging from 1 through
    
  
 <a name="anchor30"></a>
+<p/><strong> double Hist::getBinEdge(int iBin) &nbsp;</strong> <br/>
+return the lower edge of bin <code>iBin</code>, ranging from 1 through 
+<code>numberOfBins</code>. 
+   
+ 
+<a name="anchor31"></a>
+<p/><strong> double Hist::getBinWidth(int iBin) &nbsp;</strong> <br/>
+return the width of bin <code>iBin</code>, ranging from 1 through 
+<code>numberOfBins</code>. 
+   
+ 
+<a name="anchor32"></a>
+<p/><strong> vector&lt;double&gt; Hist::getBinContents() &nbsp;</strong> <br/>
+return the bin contents. 
+   
+ 
+<a name="anchor33"></a>
+<p/><strong> vector&lt;double&gt; Hist::getBinEdges() &nbsp;</strong> <br/>
+return the bin edges. 
+   
+ 
+<a name="anchor34"></a>
 <p/><strong> int Hist::getEntries(bool alsoNonFinite = true) &nbsp;</strong> <br/>
 return the number of entries, i.e. the number of time that 
 <code>fill(...)</code> has been called. If <code>alsoNonFinite</code> 
 is false, then entries that are infinity or NaN are ignored. 
    
  
-<a name="anchor31"></a>
+<a name="anchor35"></a>
 <p/><strong> bool Hist::sameSize(const Hist&amp; h) &nbsp;</strong> <br/>
 checks that the number of bins and upper and lower limits are the 
 same as in the histogram in the argument. 
    
  
-<a name="anchor32"></a>
+<a name="anchor36"></a>
+<p/><strong> void Hist::takeFunc(function&lt;double(double)&gt; func) &nbsp;</strong> <br/>
+pass an arbitrary function that takes as an argument a 
+<code>double</code> and returns a <code>double</code>. This function 
+is applied to the current contents bin by bin. 
+   
+ 
+<a name="anchor37"></a>
 <p/><strong> void Hist::takeLog(bool tenLog = true) &nbsp;</strong> <br/>
 by default take 10-logarithm of current contents bin by bin. With 
 optional argument <code>false</code> instead take <i>e</i>-logarithm 
@@ -462,109 +506,135 @@ of contents bin by bin. If to be used, then right before the
 histogram is output. 
    
  
-<a name="anchor33"></a>
+<a name="anchor38"></a>
 <p/><strong> void Hist::takeSqrt() &nbsp;</strong> <br/>
 take square root of current contents bin by bin, with negative contents 
 set to zero. 
    
  
-<a name="anchor34"></a>
-<p/><strong> void Hist::normalize( double sum = 1., bool alsoOverflow = true) &nbsp;</strong> <br/>
+<a name="anchor39"></a>
+<p/><strong> void Hist::normalize( double f = 1., bool overflow = true) &nbsp;</strong> <br/>
 Rescale the histogram to a given sum of all bin contents, where 
 <br/><code>argument</code><strong> sum </strong> (<code>default = <strong>1.</strong></code>) :  
 is the intended sum of all bin contents after rescaling, and 
    
-<br/><code>argument</code><strong> alsoOverflow </strong> (<code>default = <strong>on</strong></code>) :  
+<br/><code>argument</code><strong> overflow </strong> (<code>default = <strong>on</strong></code>) :  
 includes the underflow and overflow bins in the definition of the 
 original area to be rescaled, or not. Either way, the under/overflow 
 are always rescaled by the same factor as the histogram proper. 
    
    
  
-<a name="anchor35"></a>
+<a name="anchor40"></a>
+<p/><strong> void Hist::normalizeIntegral( double f = 1., bool alsoOverflow = true) &nbsp;</strong> <br/>
+Rescale the histogram so that it integrates to the value given by 
+<br/><code>argument</code><strong> f </strong> (<code>default = <strong>1.</strong></code>) : . This is the appropriate 
+normalization if the histogram represents a probability 
+distribution. The argument <br/><code>argument</code><strong> overflow </strong> (<code>default = <strong>on</strong></code>) :  
+specifies whether the underflow and overflow bins in the definition of 
+the original area to be rescaled, or not. Either way, the 
+under/overflow are always rescaled by the same factor, except the bin 
+width, as the histogram proper. Bin widths are handled for both linear 
+and log plots. 
+   
+ 
+<a name="anchor41"></a>
+<p/><strong> void Hist::normalizeSpectrum( double wtSum) &nbsp;</strong> <br/>
+Rescale the histogram by a factor <code>1/(wtSum * dx)</code> where 
+<code>dx</code> is the bin width. This is the appropriate 
+renormalization if the histogram represents a spectrum on the form 
+<i>(1/N_{ev}) dN/dx</i>. <br/><code>argument</code><strong> wtSum </strong> (<code>default = <strong>1.</strong></code>) :  is 
+the total weight of the events, which if events are unweighted is just 
+the total number of successfully generated events. the under/overflow 
+are always rescaled by the same factor, except the bin width, as the 
+histogram proper. Bin widths are handled for both linear and log 
+plots. 
+   
+ 
+<a name="anchor42"></a>
 <p/><strong> Hist&amp; Hist::operator+=(const Hist&amp; h) &nbsp;</strong> <br/>
    
-<a name="anchor36"></a>
+<a name="anchor43"></a>
 <strong> Hist&amp; Hist::operator-=(const Hist&amp; h) &nbsp;</strong> <br/>
 adds or subtracts the current histogram by the contents of the 
 histogram in the argument if <code>sameSize(...)</code> is true, 
 else does nothing. 
    
  
-<a name="anchor37"></a>
+<a name="anchor44"></a>
 <p/><strong> Hist&amp; Hist::operator*=(const Hist&amp; h) &nbsp;</strong> <br/>
    
-<a name="anchor38"></a>
+<a name="anchor45"></a>
 <strong> Hist&amp; Hist::operator/=(const Hist&amp; h) &nbsp;</strong> <br/>
 multiplies or divides the current histogram by the contents of the 
 histogram in the argument if <code>sameSize(...)</code> is true, 
 else does nothing. 
    
  
-<a name="anchor39"></a>
+<a name="anchor46"></a>
 <p/><strong> Hist&amp; Hist::operator+=(double f) &nbsp;</strong> <br/>
    
-<a name="anchor40"></a>
+<a name="anchor47"></a>
 <strong> Hist&amp; Hist::operator-=(double f) &nbsp;</strong> <br/>
 adds or subtracts each bin content by the common offset <i>f</i>. 
    
  
-<a name="anchor41"></a>
+<a name="anchor48"></a>
 <p/><strong> Hist&amp; Hist::operator*=(double f) &nbsp;</strong> <br/>
    
-<a name="anchor42"></a>
+<a name="anchor49"></a>
 <strong> Hist&amp; Hist::operator*=(double f) &nbsp;</strong> <br/>
 multiplies or divides each bin content by the common factor <i>f</i>. 
    
  
-<a name="anchor43"></a>
+<a name="anchor50"></a>
 <p/><strong> friend Hist operator+(double f, const Hist&amp; h1) &nbsp;</strong> <br/>
    
-<a name="anchor44"></a>
+<a name="anchor51"></a>
 <strong> friend Hist operator+(const Hist&amp; h1, double f) &nbsp;</strong> <br/>
    
-<a name="anchor45"></a>
+<a name="anchor52"></a>
 <strong> friend Hist operator+(const Hist&amp; h1, const Hist h2) &nbsp;</strong> <br/>
 add a constant to a histogram or two histograms to each other, bin by bin. 
    
  
-<a name="anchor46"></a>
+<a name="anchor53"></a>
 <p/><strong> friend Hist operator-(double f, const Hist&amp; h1) &nbsp;</strong> <br/>
    
-<a name="anchor47"></a>
+<a name="anchor54"></a>
 <strong> friend Hist operator-(const Hist&amp; h1, double f) &nbsp;</strong> <br/>
    
-<a name="anchor48"></a>
+<a name="anchor55"></a>
 <strong> friend Hist operator-(const Hist&amp; h1, const Hist h2) &nbsp;</strong> <br/>
 subtract a histogram from a constant, a constant from a histogram, 
 or two histograms from each other, bin by bin. 
    
  
-<a name="anchor49"></a>
+<a name="anchor56"></a>
 <p/><strong> friend Hist operator*(double f, const Hist&amp; h1) &nbsp;</strong> <br/>
    
-<a name="anchor50"></a>
+<a name="anchor57"></a>
 <strong> friend Hist operator*(const Hist&amp; h1, double f) &nbsp;</strong> <br/>
    
-<a name="anchor51"></a>
+<a name="anchor58"></a>
 <strong> friend Hist operator*(const Hist&amp; h1, const Hist h2) &nbsp;</strong> <br/>
 multiply a constant by a histogram or two histograms by each other, 
 bin by bin. 
    
  
-<a name="anchor52"></a>
+<a name="anchor59"></a>
 <p/><strong> friend Hist operator/(double f, const Hist&amp; h1) &nbsp;</strong> <br/>
    
-<a name="anchor53"></a>
+<a name="anchor60"></a>
 <strong> friend Hist operator/(const Hist&amp; h1, double f) &nbsp;</strong> <br/>
    
-<a name="anchor54"></a>
+<a name="anchor61"></a>
 <strong> friend Hist operator/(const Hist&amp; h1, const Hist h2) &nbsp;</strong> <br/>
 divide a constant by a histogram, a histogram by a constant, 
 or two histograms by each other, bin by bin. 
    
  
-<a name="anchor55"></a>
+<a name="anchor62"></a>
 <p/><strong> HistPlot::HistPlot(string pythonName) &nbsp;</strong> <br/>
 create a file to which successively Python commands can be written. 
 <br/><code>argument</code><strong> pythonName </strong>  :  
@@ -574,7 +644,7 @@ defined below will be drawn and output.
    
    
  
-<a name="anchor56"></a>
+<a name="anchor63"></a>
 <p/><strong> void HistPlot::frame( string frameName, string title = &quot;&quot;, string xLabel = &quot;&quot;, string yLabel = &quot;&quot;, double xSize = 8., double ySize = 6.) &nbsp;</strong> <br/>
 command to open a frame where successive histograms can be added and 
 plotted. 
@@ -604,7 +674,7 @@ interpreted by the Pyplot package. A backslash \ needs to be doubled to \\,
 however, since else it will be intepreted as an escape sequence. 
    
  
-<a name="anchor57"></a>
+<a name="anchor64"></a>
 <p/><strong> void HistPlot::add(const Hist& hist, string style = &quot;h&quot;, string legend = &quot;void&quot;) &nbsp;</strong> <br/>
 add a histogram to the current plot frame, where 
 <br/><code>argument</code><strong> hist </strong>  :  
@@ -627,7 +697,7 @@ above.
    
    
  
-<a name="anchor58"></a>
+<a name="anchor65"></a>
 <p/><strong> void HistPlot::addFile(string file, string style = &quot;o&quot;, string legend = &quot;void&quot;, string xyerr = &quot;&quot;) &nbsp;</strong> <br/>
 add data in an already existing file to the current plot frame, where 
 <br/><code>argument</code><strong> file </strong>  :  
@@ -666,7 +736,7 @@ should contain the row <code>1.0 2.0 0.5 0.2 -0.5</code> and the value of
 <code>xyerr</code> might be <code>"xY"</code>. 
    
  
-<a name="anchor59"></a>
+<a name="anchor66"></a>
 <p/><strong> void HistPlot::plot( bool logY = false, bool logX = false) &nbsp;</strong> <br/>
 write the Pyplot commands for the current frame, as defined by the input 
 from the two methods above, and additionally write the data files needed 
@@ -688,14 +758,14 @@ first presumably being much more commonly used than the second.
    
    
  
-<a name="anchor60"></a>
+<a name="anchor67"></a>
 <p/><strong> void HistPlot::plot( double xMin, double xMax, double yMin, double yMax, bool logY = false, bool logX = false) &nbsp;</strong> <br/>
 a variant of the <code>plot</code> method above, where the <i>x</i> 
 and <i>y</i> ranges of the plot frame can be set by hand instead of 
 calculated from the histogram information. 
    
  
-<a name="anchor61"></a>
+<a name="anchor68"></a>
 <p/><strong> void HistPlot::plotFrame( string frameName, const Hist& hist, string title = &quot;&quot;, string xLabel = &quot;&quot;, string yLabel = &quot;&quot;, string style = &quot;h&quot;, string legend = &quot;void&quot;, bool logY = false) &nbsp;</strong> <br/>
 is an omnibus version combining the three above methods when only a single 
 histogram is to be plotted in a frame. The arguments and their meaning is 
@@ -707,4 +777,4 @@ is almost the same, the exception being that the two compulsory arguments
 </body>
 </html>
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 

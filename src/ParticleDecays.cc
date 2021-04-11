@@ -1,5 +1,5 @@
 // ParticleDecays.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2020 Torbjorn Sjostrand.
+// Copyright (C) 2021 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -127,6 +127,15 @@ bool ParticleDecays::decay( int iDec, Event& event) {
   if (decayer.isResonance()) {
     infoPtr->errorMsg("Warning in ParticleDecays::decay: "
       "resonance left undecayed");
+    return true;
+  }
+
+  // Check for zero-mass particles.
+  if (decayer.m() <= 0.0) {
+    stringstream ss;
+    ss << "with ID = " << decayer.id();
+    infoPtr->errorMsg("Warning in ParticleDecays::decay: "
+      "cannot decay zero-mass particle", ss.str());
     return true;
   }
 
@@ -895,6 +904,7 @@ bool ParticleDecays::dalitzKinematics(Event& event) {
     // Reconstruct required rotations and boosts backwards.
     Vec4 pDec    = decayer.p();
     int  iGam    = (meMode < 13) ? mult - 1 : 2 - iDal;
+    Vec4 qGam    = event[iProd[iGam]].p();
     Vec4 pGam    = event[iProd[iGam]].p();
     pGam.bstback( pDec, decayer.m() );
     double phiGam = pGam.phi();
@@ -923,17 +933,13 @@ bool ParticleDecays::dalitzKinematics(Event& event) {
     double pY       = pGamAbs * sinTheta * sin(phi);
     double pZ       = pGamAbs * cosTheta;
     double eA       = sqrt( mA*mA + pGamAbs*pGamAbs);
-    double eB       = sqrt( mB*mB + pGamAbs*pGamAbs);
     prodA.p(  pX,  pY,  pZ, eA);
-    prodB.p( -pX, -pY, -pZ, eB);
 
     // Boost to lab frame.
     prodA.bst( pGam, mGam);
-    prodB.bst( pGam, mGam);
     prodA.rot( thetaGam, phiGam);
-    prodB.rot( thetaGam, phiGam);
     prodA.bst( pDec, decayer.m() );
-    prodB.bst( pDec, decayer.m() );
+    prodB.p(qGam - prodA.p());
   }
 
   // Done.

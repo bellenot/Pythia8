@@ -27,6 +27,14 @@ requires space-time information on hadron production vertices to be set, as
 obtained with <code>Fragmentation:setVertices = on</code> and optionally also 
 <code>PartonVertex:setVertex = on</code>. 
  
+In some studies not all events are of interest, for example if studying 
+jet production and no jets with sufficently high <ei>pT</ei> are produced. 
+In those cases, it is possible to save a significant amount of time by 
+vetoing the event before rescattering has take place, by overriding the 
+<code>canVetoAfterHadronization</code> and 
+<code>doVetoAfterHadronization</code> methods of the 
+<aloc href="UserHooks">UserHooks</aloc> class. 
+ 
 <p/> 
 Technically, the processes here are the same as used in the 
 <aloc href="QCDLowEnergyProcesses">Low-energy QCD Processes</aloc> 
@@ -226,4 +234,4 @@ specified stream or file.
  
 </chapter> 
  
-<!-- Copyright (C) 2020 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 
