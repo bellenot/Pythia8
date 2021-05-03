@@ -71,13 +71,13 @@ class Dire : public ShowerModel {
   // Flexible-use call at the beginning of each event in pythia.next().
   // Currently not used, but should be used for clearing some internal
   // bookkeeping that is otherewise reset in shower prepare functions.
-  void beginEvent() {
+  void onBeginEvent() override {
     return;
   }
 
   // Flexible-use call at the end of each event in pythia.next().
   // Currently only to accumulate shower weights.
-  void endEvent(PhysicsBase::Status status) {
+  void onEndEvent(PhysicsBase::Status status) override {
     // No finalize in case of failure.
     if (status == INCOMPLETE) return;
     // Update the event weight by the Dire shower weight when relevant.
@@ -94,7 +94,8 @@ class Dire : public ShowerModel {
 
   // Initialization function called before beams are set up.
   // Currently only to register objects as PhysicsBase (=initialize ptrs).
-  bool init(MergingPtr, MergingHooksPtr, PartonVertexPtr, WeightContainer*) {
+  bool init(MergingPtr, MergingHooksPtr, PartonVertexPtr, WeightContainer*)
+    override {
     subObjects.clear();
     if (mergingHooksPtr) {
       registerSubObject(*mergingHooksPtr);
@@ -110,18 +111,18 @@ class Dire : public ShowerModel {
 
   // Initialization function called after beams are set up, used as main
   // initialization.
-  bool initAfterBeams();
+  bool initAfterBeams() override;
 
   void initTune();
   void initShowersAndWeights();
   void setup(BeamParticle* beamA, BeamParticle* beamB);
   void printBanner();
 
-  TimeShowerPtr  getTimeShower() const   { return timesPtr; }
-  TimeShowerPtr  getTimeDecShower() const { return timesDecPtr; }
-  SpaceShowerPtr getSpaceShower() const   { return spacePtr; }
-  MergingHooksPtr getMergingHooks() const { return mergingHooksPtr; }
-  MergingPtr getMerging() const           { return mergingPtr; }
+  TimeShowerPtr  getTimeShower() const override    { return timesPtr; }
+  TimeShowerPtr  getTimeDecShower() const override { return timesDecPtr; }
+  SpaceShowerPtr getSpaceShower() const override   { return spacePtr; }
+  MergingHooksPtr getMergingHooks() const override { return mergingHooksPtr; }
+  MergingPtr getMerging() const override           { return mergingPtr; }
 
   MergingHooksPtr pythiaMergingHooksPtr;
   PartonVertexPtr partonVertexPtr;

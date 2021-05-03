@@ -9,6 +9,8 @@
 
 namespace Pythia8 {
 
+using namespace VinciaConstants;
+
 //==========================================================================
 
 // The VinciaWeights class.

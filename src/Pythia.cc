@@ -30,7 +30,7 @@ namespace Pythia8 {
 
 // The current Pythia (sub)version number, to agree with XML version.
 const double Pythia::VERSIONNUMBERHEAD = PYTHIA_VERSION;
-const double Pythia::VERSIONNUMBERCODE = 8.304;
+const double Pythia::VERSIONNUMBERCODE = 8.305;
 
 //--------------------------------------------------------------------------
 
@@ -549,6 +549,17 @@ bool Pythia::init() {
     || doUNLOPSLoop || doUNLOPSSubt || doUNLOPSSubtNLO || doXSectionEst;
   doMerging = doMerging || settings.flag("Merging:doMerging");
 
+  // If not using Vincia, Merging:Process must not be enclosed in {}.
+  if (doMerging && showerModel != 2) {
+    string mergingProc = settings.word("Merging:Process");
+    if (mergingProc.front()=='{' && mergingProc.back() == '}') {
+      stringstream ss;
+      ss<<"Invalid Merging:Process for PartonShower:Model = "<<showerModel;
+      infoPrivate.errorMsg("Abort from Pythia::init: "+ss.str());
+      return false;
+    }
+  }
+
   // Set/Reset the weights
   weightContainer.initPtrs(&infoPrivate);
   weightContainer.init(doMerging);
@@ -870,9 +881,9 @@ bool Pythia::init() {
     if ( showerModel == 2 ) showerModelPtr = make_shared<Vincia>();
     else if (showerModel == 3 ) showerModelPtr = make_shared<Dire>();
     else showerModelPtr = make_shared<SimpleShowerModel>();
-    // Register shower model as physicsBase object (also sets pointers)
-    registerPhysicsBase(*showerModelPtr);
   }
+  // Register shower model as physicsBase object (also sets pointers)
+  registerPhysicsBase(*showerModelPtr);
 
   // Initialise shower model
   if ( !showerModelPtr->init(mergingPtr, mergingHooksPtr,

@@ -552,7 +552,6 @@ void HardProcess::translateLHEFString( string LHEpath){
 // Currently, the input string has to be in MadEvent notation
 
 void HardProcess::translateProcessString( string process){
-
   vector <int> incom;
   vector <int> inter;
   vector <int> outgo;

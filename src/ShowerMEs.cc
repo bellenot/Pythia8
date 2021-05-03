@@ -43,7 +43,7 @@ bool ShowerMEs::selectHelicitiesVincia(vector<Particle>& state, int nIn,
 
   // Get the matrix element (automatically sums over any h=9 particles).
   double me2sum = me2Vincia(state, nIn);
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     cout << " ShowerMEs::selectHelicities(): "
          << scientific << me2sum << endl;
 
@@ -77,7 +77,7 @@ bool ShowerMEs::selectHelicitiesVincia(vector<Particle>& state, int nIn,
 
   // Set helicity configuration.
   for (int i = 0; i < (int)state.size(); ++i) state[i].pol(hSelected[i]);
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     cout << " ShowerMEs::selectHelicities(): selected " <<
       makeLabelVincia(hSelected, nIn, false) << endl;
   return true;

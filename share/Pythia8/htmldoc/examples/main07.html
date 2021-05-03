@@ -113,13 +113,15 @@ int main() {
   // End of event loop.
   }
 
-  // Final statistics and histograms.
+  // Final statistics.
   pythia.stat();
-  eGamma *= 2.5 / nEvent;
-  eE     *= 2.5 / nEvent;
-  eP     *= 2.5 / nEvent;
-  eNu    *= 2.5 / nEvent;
-  eRest  *= 2.5 / nEvent;
+
+  // Divide histograms by bin width, and normalize by 1/nEvent.
+  eGamma.normalizeSpectrum(nEvent);
+  eE.normalizeSpectrum(nEvent);
+  eP.normalizeSpectrum(nEvent);
+  eNu.normalizeSpectrum(nEvent);
+  eRest.normalizeSpectrum(nEvent);
   cout << eGamma << eE << eP << eNu << eRest;
 
   // Write Python code that can generate a PDF file with the spectra.

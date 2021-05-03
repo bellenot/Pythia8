@@ -846,7 +846,7 @@ vector<string> WeightContainer::weightNameVector() {
 void WeightContainer::clear() {
   weightNominal = 1.;
   weightsLHEF.clear();
-  weightsShowerPtr->clear();
+  if (weightsShowerPtr != nullptr) weightsShowerPtr->clear();
   weightsMerging.clear();
 }
 

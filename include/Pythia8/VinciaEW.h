@@ -1,3 +1,11 @@
+// VinciaEW.h is a part of the PYTHIA event generator.
+// Copyright (C) 2021 Peter Skands, Torbjorn Sjostrand.
+// PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
+// Please respect the MCnet Guidelines, see GUIDELINES for details.
+
+// This file contains the EW antenna-shower class and auxiliary
+// classes. Main author is Rob Verheyen.
+
 #ifndef Pythia8_VinciaEW_H
 #define Pythia8_VinciaEW_H
 
@@ -369,7 +377,7 @@ public:
   void initISRSplit(bool va, int id1, int id2, int pol,
     const double& mA, const double& maIn, const double& mjIn) {
     ma = maIn; mj = mjIn; mA2 = pow2(mA); ma2 = pow2(ma); mj2 = pow2(mj);
-    initCoup(va, id1, id2, pol, mA > NANO);}
+    initCoup(va, id1, id2, pol, mA > VinciaConstants::NANO);}
 
   // Check for zero denominator in an ISR splitting kernel.
   bool zdenISRSplit(const string& method, const double& Q2, const double& z,
@@ -832,7 +840,7 @@ public:
       // Initialise and if success, store.
       if (ant.init(event, iMot, iRec, iSysSav, it->second, settingsPtr)) {
         antVec.push_back(move(ant));
-        if (verbose >= DEBUG) {
+        if (verbose >= VinciaConstants::DEBUG) {
           stringstream ss;
           ss << "Added EW antenna with iEv = "
              << iMot << " and iRec = "<< iRec<< " in system "<< iSysSav;
@@ -865,25 +873,29 @@ public:
   // Accept a trial.
   bool acceptTrial(Event &event) {
     bool passed = antTrial->acceptTrial(event);
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, passed ? "Passed veto" : "Vetoed branching");
     return passed;}
 
   // Update an event.
   void updateEvent(Event &event) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__, "begin", VinciaConstants::dashLen);
     if (antTrial != nullptr) antTrial->updateEvent(event);
     else infoPtr->errorMsg("Error in " + __METHOD_NAME__,
       ": trial doesn't exist!");
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);}
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__, "end", VinciaConstants::dashLen);}
 
   // Update parton systems.
   void updatePartonSystems(Event &event) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__, "begin", VinciaConstants::dashLen);
     if (antTrial!=nullptr) antTrial->updatePartonSystems(event);
     else infoPtr->errorMsg("Error in " + __METHOD_NAME__,
       ": trial doesn't exist!");
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);}
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__, "end", VinciaConstants::dashLen);}
 
   // Print the antennas.
   void printAntennae() {
@@ -1003,10 +1015,12 @@ public:
 
   // Update EW shower system each time something has changed.
   void update(Event &event, int iSysIn) override {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__, "begin", VinciaConstants::dashLen);
     if (iSysIn != ewSystem.system()) return;
     else ewSystem.buildSystem(event);
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);}
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__, "end", VinciaConstants::dashLen);}
 
   // Set verbose level.
   void setVerbose(int verboseIn) override {
@@ -1026,31 +1040,36 @@ public:
 
   // Check veto.
   bool acceptTrial(Event& event) override {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__, "begin", VinciaConstants::dashLen);
     bool success = false;
     if (ewSystem.hasTrial()) success = ewSystem.acceptTrial(event);
     else infoPtr->errorMsg("Error in " + __METHOD_NAME__,
       ": trial doesn't exist!");
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__, "end", VinciaConstants::dashLen);
     return success;}
 
   // Update event after branching accepted.
   void updateEvent(Event& event) override {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__, "begin", VinciaConstants::dashLen);
     if (ewSystem.hasTrial()) ewSystem.updateEvent(event);
     else infoPtr->errorMsg("Error in " + __METHOD_NAME__,
       ": trial doesn't exist!");
-    if (verbose >=DEBUG) {
+    if (verbose >=VinciaConstants::DEBUG) {
       printOut(__METHOD_NAME__,"Event after update:"); event.list();
-      printOut(__METHOD_NAME__, "end", dashLen);}}
+      printOut(__METHOD_NAME__, "end", VinciaConstants::dashLen);}}
 
   // Update partonSystems after branching accepted.
   void updatePartonSystems(Event& event) override {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__, "begin", VinciaConstants::dashLen);
     if (ewSystem.hasTrial()) ewSystem.updatePartonSystems(event);
     else infoPtr->errorMsg("Error in " + __METHOD_NAME__,
       ": trial doesn't exist!");
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);}
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__, "end", VinciaConstants::dashLen);}
 
   // Clear EW system.
   void clear(int) override {

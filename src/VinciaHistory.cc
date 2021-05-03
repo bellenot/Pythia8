@@ -11,6 +11,7 @@
 
 namespace Pythia8 {
 
+using namespace VinciaConstants;
 
 //==========================================================================
 
@@ -558,43 +559,75 @@ void HistoryNode::setClusterList(shared_ptr<VinciaMergingHooks>
   if (verboseIn >= DEBUG) printOut(__METHOD_NAME__,"begin", dashLen);
 
   if (!isInitPtr) {
-    if (verboseIn >= NORMAL) {
-      string msg = ": pointers were not initialised";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
-    }
+    string msg = ": pointers were not initialised";
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__+msg);
     return;
+  }
+
+  // Print state to be clustered.
+  if (verboseIn >= DEBUG) {
+    string msg = "Setting cluster list for event:";
+    printOut(__METHOD_NAME__, msg);
+    state.list();
   }
 
   // We can only have a single clusterable chain for resonances.
   if (hasRes && clusterableChains.size() > 1) {
-    if (verboseIn >= NORMAL) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-        ": More than one clusterable chain in resonance decay.");
-    }
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__,
+      ": More than one clusterable chain in resonance decay.");
     return;
   }
 
-  // Find candidate clusterings and qqbar pairs.
-  vector<VinciaClustering> candidates;
-  int nQ=0;
-  int nQbar=0;
+  // For hard process in VBF, we need at least two (beam) chains.
+  bool doVBF = vinMergingHooksPtr->doMergeInVBF();
+  if (!hasRes && doVBF && clusterableChains.size() < 2) {
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__+
+      ": Less than two quark lines in VBF process.");
+    return;
+  }
+
   // Loop over all chains.
   for (int iChain(0); iChain<(int)clusterableChains.size(); ++iChain) {
+    // For VBF, need one quark pair per line.
+    int nMinQQbarNow = doVBF ? 1 : nMinQQbar;
+
     // Fetch current chain and check whether we want to consider it.
     vector<int> clusChain = clusterableChains.at(iChain);
-    // Loop over particles in current chain.
+
+    // If this chain has less than three particles, nothing more to be done.
+    if (clusChain.size() < 3) continue;
+
+    // Find candidate clusterings and qqbar pairs.
+    vector<VinciaClustering> candidates;
+    int nQ(0), nQbar(0);
+
+    // Count quarks and antiquarks in this chain.
     for (int iPtcl(0); iPtcl<(int)clusChain.size(); ++iPtcl) {
-      // Count quarks and antiquarks.
-      bool jInitial = !state[clusChain.at(iPtcl)].isFinal();
       if (state[clusChain.at(iPtcl)].isQuark()) {
         int colType = state[clusChain.at(iPtcl)].colType();
-        if (jInitial) colType *=-1;
-        if (colType==1) nQ++;
-        else nQbar++;
+        if (!state[clusChain.at(iPtcl)].isFinal()) colType *=-1;
+        if (colType==1) ++nQ;
+        else ++nQbar;
       }
-      // If this chain has less than three particles, nothing more to be done.
-      if (clusChain.size() < 3) continue;
+    }
+    if (nQ!=nQbar) {
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__+
+        ": Number of quarks / antiquarks does not match");
+      return;
+    }
+    int nQQbarNow = nQ;
+    if (nQQbarNow<nMinQQbarNow) {
+      string msg = "";
+      if (verboseIn >= DEBUG)
+        msg = "Expected " + to_string(nMinQQbarNow) + ", have "
+          + to_string(nQQbarNow);
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__+
+        ": Not enough quarks in colour chains", msg, true);
+      return;
+    }
 
+    // Loop over particles in current chain.
+    for (int iPtcl(0); iPtcl<(int)clusChain.size(); ++iPtcl) {
       // Fetch children of this clustering.
       int child1 = (iPtcl == 0 ? clusChain.back() : clusChain[iPtcl-1]);
       int child2 = clusChain[iPtcl];
@@ -609,7 +642,7 @@ void HistoryNode::setClusterList(shared_ptr<VinciaMergingHooks>
       }
 
       // Don't cluster emissions into the initial state...
-      if (!jInitial) {
+      if (state[child2].isFinal()) {
         // Set information about children (masses and invariants).
         VinciaClustering thisClus;
         thisClus.setChildren(state, child1, child2, child3);
@@ -709,166 +742,149 @@ void HistoryNode::setClusterList(shared_ptr<VinciaMergingHooks>
         }
       }
     }
-  }
-  if (nQ!=nQbar) {
-    if (verboseIn >= NORMAL) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-        ": Number of quarks / antiquarks do not match");
-    }
-    return;
-  }
-  int nQQbarNow=nQ;
-  if (nQQbarNow<nMinQQbar) {
-    if (verboseIn >= NORMAL) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-        ": Not enough quarks in colour chains");
-    }
-    return;
-  }
 
-  // Print state to be clustered.
-  if (verboseIn >= DEBUG) {
-    string msg = "Event to be clustered:";
-    printOut(__METHOD_NAME__, msg);
-    state.list();
-  }
+    // Now loop over candidate clusterings.
+    for (auto itClus = candidates.begin();
+      itClus!=candidates.end(); ++itClus) {
 
-  // Loop over candidate clusterings.
-  auto itClus = candidates.begin();
-  for( ; itClus!=candidates.end(); ++itClus) {
+      int child1 = itClus->child1;
+      int child2 = itClus->child2;
+      int child3 = itClus->child3;
 
-    int child1 = itClus->child1;
-    int child2 = itClus->child2;
-    int child3 = itClus->child3;
-
-    if (verboseIn >= DEBUG) {
+      if (verboseIn >= DEBUG) {
         stringstream msg;
         msg << "Considering clustering: "
             << child1 <<" "<< child2<<" "<<child3;
         printOut(__METHOD_NAME__,msg.str());
-    }
-
-    // Find all antennae that can produce this post-branching state.
-    vector<VinciaClustering> clusterings;
-    clusterings = vinComPtr->findAntennae(state, child1, child2, child3);
-    if (clusterings.size() == 0) {
-      if (verboseIn >= NORMAL) {
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-          ": No antenna found. Clustering will be skipped.");
       }
-      continue;
-    }
 
-    // Loop over all histories for this post-branching state
-    // and save corresponding clusterings.
-    for (int iHist(0); iHist<(int)clusterings.size(); ++iHist) {
-      // Fetch information about antenna function.
-      bool isFSR = clusterings.at(iHist).isFSR;
-      enum AntFunType antFunType = clusterings.at(iHist).antFunType;
+      // Skip clusterings of resonances.
+      if (state[child2].isResonance()) {
+        if (verboseIn >= DEBUG)
+          printOut(__METHOD_NAME__,"Skipping resonance clustering.");
+        continue;
+      }
 
-      // Check whether we are allowed to do this clustering.
-      bool quarkClustering = false;
-      if (isFSR) {
-        // Is FF on?
-        if (!vinMergingHooksPtr->canClusFF()) {
+      // Find all antennae that can produce this post-branching state.
+      vector<VinciaClustering> clusterings;
+      clusterings = vinComPtr->findAntennae(state, child1, child2, child3);
+      if (clusterings.size() == 0) {
+        infoPtr->errorMsg("Error in "+__METHOD_NAME__+
+          ": No antenna found. Clustering will be skipped.");
+        continue;
+      }
+
+      // Loop over all histories for this post-branching state
+      // and save corresponding clusterings.
+      for (int iHist(0); iHist<(int)clusterings.size(); ++iHist) {
+        // Fetch information about antenna function.
+        bool isFSR = clusterings.at(iHist).isFSR;
+        enum AntFunType antFunType = clusterings.at(iHist).antFunType;
+
+        // Check whether we are allowed to do this clustering.
+        bool quarkClustering = false;
+        if (isFSR) {
+          // Is FF on?
+          if (!vinMergingHooksPtr->canClusFF()) {
+            if (verboseIn >= DEBUG) {
+              printOut(__METHOD_NAME__,
+                "Skipping FF clustering (turned off in shower).");
+            }
+            continue;
+          }
+
+          // Skip RF clusterings for now.
+          // TODO: merging in RF
+          if (antFunType == QQemitRF || antFunType == QGemitRF ||
+              antFunType == XGsplitRF ) {
+            if (verboseIn >= REPORT) {
+              printOut(__METHOD_NAME__,
+                "Skipping RF clustering (not yet supported).");
+            }
+            continue;
+          }
+          if (antFunType == GXsplitFF) quarkClustering = true;
+          AntennaFunction* antPtr= antSetFSRptr->getAntFunPtr(antFunType);
+          if (antPtr==nullptr) {
+            if (verboseIn >= NORMAL) {
+              stringstream msg;
+              msg << " (antFunType = " << antFunType << ")";
+              infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Non-existent "
+                "antenna", msg.str());
+            }
+            continue;
+          }
+          clusterings.at(iHist).kMapType = antPtr->kineMap();
+        } else {
+          // Is II on?
+          if (clusterings.at(iHist).isII() &&
+            !vinMergingHooksPtr->canClusII()) {
+            if (verboseIn >= DEBUG) {
+              printOut(__METHOD_NAME__,
+                "Skipping II clustering (turned off in shower).");
+            }
+            continue;
+          }
+
+          // Is IF on?
+          if (clusterings.at(iHist).isIF() &&
+            !vinMergingHooksPtr->canClusIF()) {
+            if (verboseIn >= DEBUG) {
+              printOut(__METHOD_NAME__,
+                "Skipping IF clustering (turned off in shower).");
+            }
+            continue;
+          }
+
+          if (antFunType == XGsplitIF || antFunType == GXconvIF ||
+              antFunType == GXconvII) quarkClustering = true;
+        }
+        // Check if we have enough quarks left.
+        if (quarkClustering && nQQbarNow == nMinQQbarNow) {
+          if (verboseIn >= DEBUG)
+            printOut(__METHOD_NAME__,"Skipping quark clustering");
+          continue;
+        }
+
+        // Initialise vectors of invariants and masses.
+        if (!clusterings.at(iHist).initInvariantAndMassVecs()) {
           if (verboseIn >= DEBUG) {
-            printOut(__METHOD_NAME__,
-              "Skipping FF clustering (turned off in shower).");
+            stringstream msg;
+            msg << "No phase space left for clustering."
+                << " Will be skipped.";
+            printOut(__METHOD_NAME__, msg.str());
           }
           continue;
         }
 
-        // Skip RF clusterings for now.
-        // TODO: merging in RF
-        if (antFunType == QQemitRF || antFunType == QGemitRF ||
-          antFunType == XGsplitRF ) {
-          if (verboseIn >= REPORT) {
-            printOut(__METHOD_NAME__,
-              "Skipping RF clustering (not yet supported).");
-          }
-          continue;
-        }
-        if (antFunType == GXsplitFF) {
-          quarkClustering = true;
-        }
-        AntennaFunction* antPtr= antSetFSRptr->getAntFunPtr(antFunType);
-        if (antPtr==nullptr) {
+        // Calculate sector resolution variable for this clustering.
+        if (calcResolution(clusterings.at(iHist)) < 0.) {
           if (verboseIn >= NORMAL) {
             stringstream msg;
-            msg << ": Antenna " << antFunType << " doesn't exist!";
-            infoPtr->errorMsg("Error in "+__METHOD_NAME__, msg.str());
-          }
-          continue;
-        }
-        clusterings.at(iHist).kMapType = antPtr->kineMap();
-      }
-      else {
-        // Is II on?
-        if (clusterings.at(iHist).isII() && !vinMergingHooksPtr->canClusII()) {
-          if (verboseIn >= DEBUG) {
-            printOut(__METHOD_NAME__,
-              "Skipping II clustering (turned off in shower).");
+            msg << "Sector resolution is negative."
+                << " Will ignore clustering!";
+            printOut(__METHOD_NAME__, msg.str()+" ("
+              +num2str(clusterings.at(iHist).Q2res)+")");
           }
           continue;
         }
 
-        // Is IF on?
-        if (clusterings.at(iHist).isIF() && !vinMergingHooksPtr->canClusIF()) {
-          if (verboseIn >= DEBUG) {
-            printOut(__METHOD_NAME__,
-              "Skipping IF clustering (turned off in shower).");
-          }
-          continue;
-        }
-
-        if (antFunType == XGsplitIF || antFunType == GXconvIF ||
-          antFunType == GXconvII) quarkClustering = true;
-      }
-      // Check if we have enough quarks left.
-      if (quarkClustering && nQQbarNow == nMinQQbar) {
         if (verboseIn >= DEBUG) {
-          printOut(__METHOD_NAME__,"Skipping quark clustering");
+          stringstream ss;
+          int idMother1 = clusterings.at(iHist).idMoth1;
+          int idMother2 = clusterings.at(iHist).idMoth2;
+          ss << "Found viable clustering {" << clusterings.at(iHist).child1
+             << " " << clusterings.at(iHist).child2 << " "
+             << clusterings.at(iHist).child3 << "} to "<< idMother1
+             << " " << idMother2 << " (" << clusterings.at(iHist).getAntName()
+             << ")" <<" with Qres = "<< sqrt(clusterings.at(iHist).Q2res)
+             << " GeV";
+          printOut(__METHOD_NAME__,ss.str());
         }
-        continue;
-      }
 
-      // Initialise vectors of invariants and masses.
-      if (!clusterings.at(iHist).initInvariantAndMassVecs()) {
-        if (verboseIn >= DEBUG) {
-          stringstream msg;
-          msg << "No phase space left for clustering."
-              << " Will be skipped.";
-          printOut(__METHOD_NAME__, msg.str());
-        }
-        continue;
+        // If nothing went wrong, save in cluster list.
+        clusterList[clusterings.at(iHist).Q2res] = clusterings.at(iHist);
       }
-
-      // Calculate sector resolution variable for this clustering.
-      if (calcResolution(clusterings.at(iHist)) < 0.) {
-        if (verboseIn >= NORMAL) {
-          stringstream msg;
-          msg << "Sector resolution is negative."
-              << " Will ignore clustering!";
-          printOut(__METHOD_NAME__, msg.str()+" ("
-            +num2str(clusterings.at(iHist).Q2res)+")");
-        }
-        continue;
-      }
-
-      if (verboseIn >= DEBUG) {
-        stringstream ss;
-        int idMother1 = clusterings.at(iHist).idMoth1;
-        int idMother2 = clusterings.at(iHist).idMoth2;
-        ss << "Found viable clustering {" << clusterings.at(iHist).child1
-           << " " << clusterings.at(iHist).child2 << " "
-           << clusterings.at(iHist).child3 << "} to "<< idMother1
-           << " " << idMother2 << " (" << clusterings.at(iHist).getAntName()
-           << ")" <<" with Q2res = "<< clusterings.at(iHist).Q2res;
-        printOut(__METHOD_NAME__,ss.str());
-      }
-
-      // If nothing went wrong, save in cluster list.
-      clusterList[clusterings.at(iHist).Q2res] = clusterings.at(iHist);
     }
   }
 
@@ -918,10 +934,6 @@ bool HistoryNode::cluster(HistoryNode& nodeNext,
     }
     return false;
   }
-  if (verboseIn >= DEBUG) {
-    stringstream ss;
-    printOut(__METHOD_NAME__,ss.str());
-  }
 
   // Save.
   nodeNext.state = clusEvent;
@@ -951,7 +963,7 @@ bool HistoryNode::doClustering(VinciaClustering& clus, Event& clusEvent,
   if (!isInitPtr) {
     if (verboseIn >= NORMAL) {
       string msg = ": pointers were not initialised";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__+msg);
     }
     return false;
   }
@@ -971,7 +983,7 @@ bool HistoryNode::doClustering(VinciaClustering& clus, Event& clusEvent,
   if (!vinComPtr->clus3to2(clus,state,pClustered)) {
     if (verboseIn >= REPORT) {
       string msg = ": failed to cluster particles";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__+msg);
     }
     return false;
   }
@@ -1049,26 +1061,26 @@ bool HistoryNode::doClustering(VinciaClustering& clus, Event& clusEvent,
   if (clusEvent.size() != state.size()-1) {
     if (verboseIn >= REPORT) {
       string msg = ": Wrong number of particles in clustered event.";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__+msg);
     }
     pass = false;
   } else if (oldToNewIndices[inA] != inA || oldToNewIndices[inB] != inB) {
     if (verboseIn >= REPORT) {
       string msg = ": Initial state particle changed position in";
       msg+= " clustered event.";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__+msg);
     }
     pass = false;
   } else if (sysToOut.size() < 1) {
     if (verboseIn >= REPORT) {
       string msg = ": No parton systems found in clustered event.";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__+msg);
     }
     pass = false;
   } else if (sysToOut[0].first == 0 || sysToOut[0].second == 0) {
     if (verboseIn >= REPORT) {
       string msg = ": No outgoing particles found in clustered event.";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__+msg);
     }
     pass = false;
   }
@@ -1106,7 +1118,7 @@ bool HistoryNode::doClustering(VinciaClustering& clus, Event& clusEvent,
       if (oldToNewIndices.find(iPart)==oldToNewIndices.end()) {
         if (verboseIn >= REPORT) {
           string msg = ": Could not update clustered colour chains";
-          infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+          infoPtr->errorMsg("Error in "+__METHOD_NAME__+msg);
         }
         return false;
       }
@@ -1156,7 +1168,7 @@ VinciaHistory::VinciaHistory(Event &stateIn,
 
   if (vinMergingHooksPtr == nullptr || fsrShowerPtr == nullptr ||
     isrShowerPtr == nullptr) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__,
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__+
       "Could not create history. Is Vincia on?");
     return;
   }
@@ -1211,7 +1223,7 @@ double VinciaHistory::getWeightCKKWL() {
   if (!foundValidHistory) {
     string msg = ": Couldn't find valid history. Abort.";
     if (verbose >= QUIET)
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__, msg);
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__+msg);
     return 0.;
   }
 
@@ -1446,6 +1458,7 @@ double VinciaHistory::getRestartScale() {
 void VinciaHistory::findBestHistory() {
 
   if (verbose >= DEBUG) printOut(__METHOD_NAME__,"begin", dashLen);
+  bool foundIncompleteHistory = false;
   foundValidHistory = false;
   failedMSCut = false;
   ME2guessBest = -NANO;
@@ -1461,17 +1474,35 @@ void VinciaHistory::findBestHistory() {
   }
 
   // Something went wrong.
-  if (nPerms==0) return;
+  if (nPerms==0) {
+    if (verbose >= REPORT) {
+      printOut(__METHOD_NAME__," Warning: no permutations found!");
+      state.list();
+    }
+    return;
+  }
 
   // Loop over all viable colour orderings and find the parton shower
   // history.
   for (unsigned int iPerm=0; iPerm<nPerms; ++iPerm) {
+    // Debug printout.
+    if (verbose >= DEBUG) {
+      printOut(__METHOD_NAME__,"Constructing history for colour flow:");
+      cout << "   Beam chains:";
+      for (const auto& bc : colPerms.at(iPerm).beamChains) {
+        cout << " (";
+        for (const int idx : bc.chainlist) cout << " " << idx;
+        cout << " )";
+      }
+      cout << endl;
+    }
 
     // Find the parton shower history for this permutation.
-    pair<double, HistoryNodes > hPerm = findHistoryPerm(colPerms.at(iPerm));
+    std::tuple<bool, double, HistoryNodes> hPerm =
+      findHistoryPerm(colPerms.at(iPerm));
 
     // For errors we have cleared the event record.
-    if (hPerm.second.size() == 0) {
+    if (std::get<2>(hPerm).size() == 0) {
       if (verbose >= NORMAL) {
         stringstream ss;
         ss << "Warning: history could not be constructed.";
@@ -1480,8 +1511,11 @@ void VinciaHistory::findBestHistory() {
       continue;
     }
 
+    // Check if incomplete.
+    bool isIncomplete = std::get<0>(hPerm);
+
     // Get the PS approx to the matrix element for this history.
-    double ME2guessNow = hPerm.first;
+    double ME2guessNow = std::get<1>(hPerm);
     if (ME2guessNow <= 0. || std::isnan(ME2guessNow) ) {
       if (verbose >= NORMAL) {
         stringstream ss;
@@ -1493,7 +1527,7 @@ void VinciaHistory::findBestHistory() {
     }
 
     // Check merging scale cut.
-    if (!checkMergingCut(hPerm.second)) {
+    if (!checkMergingCut(std::get<2>(hPerm))) {
       if (verbose >= DEBUG) {
         stringstream ss;
         ss << "History failed merging scale cut.";
@@ -1504,22 +1538,26 @@ void VinciaHistory::findBestHistory() {
     }
 
     // Want to select the most singular choice as best so far.
-    if (!foundValidHistory || ME2guessNow > ME2guessBest) {
+    if (!foundValidHistory || ME2guessNow > ME2guessBest
+        || (foundIncompleteHistory && !isIncomplete)
+        || (foundIncompleteHistory && ME2guessNow > ME2guessBest) ) {
       // Save this choice.
       foundValidHistory = true;
       failedMSCut = false;
-      historyBest = hPerm.second;
+      foundIncompleteHistory = isIncomplete;
+      historyBest = std::get<2>(hPerm);
       ME2guessBest = ME2guessNow;
       if (verbose >= DEBUG) {
         stringstream ss;
         ss<<"Saving history with weight: "<< ME2guessBest;
         printOut(__METHOD_NAME__,ss.str());
       }
-    }
+    } else if (verbose >= DEBUG)
+      printOut(__METHOD_NAME__,"Discarding history in favour of saved one.");
 
   }// End loop over all viable colour orderings.
 
-  if (!foundValidHistory && verbose >= REPORT) {
+  if (!foundValidHistory && verbose >= DEBUG) {
     printOut(__METHOD_NAME__,"Did not find any valid history");
     return;
   }
@@ -1540,9 +1578,7 @@ void VinciaHistory::findBestHistory() {
 
 unsigned int VinciaHistory::countPerms() {
 
-  if (verbose >= DEBUG) {
-    printOut(__METHOD_NAME__,"begin", dashLen);
-  }
+  if (verbose >= DEBUG) printOut(__METHOD_NAME__,"begin", dashLen);
 
   // 1.) Find all colour-connected chains of gluons for input event.
   if (!getColChains()) {
@@ -1594,7 +1630,7 @@ unsigned int VinciaHistory::countPerms() {
   }
   if (chargeSum + resChargeSum != 0) {
     if (verbose >= NORMAL) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__+
         ": Chain charges do not balance (with resonances).");
     }
     return 0;
@@ -1606,15 +1642,13 @@ unsigned int VinciaHistory::countPerms() {
     if (verbose >= NORMAL) {
       string msg = ": Failed to extract colour structure";
       msg+=" from hard process";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__+msg);
     }
     return 0;
   }
 
   // Print in DEBUG mode.
-  if (verbose >= DEBUG) {
-    colFlowOrig.print(true);
-  }
+  if (verbose >= DEBUG) colFlowOrig.print(true);
 
   // 4.) Find all permutations compatible with the hard process.
   // Intialise vector of permutations.
@@ -1637,9 +1671,7 @@ unsigned int VinciaHistory::countPerms() {
   }
 
   // Done.
-  if (verbose >= DEBUG) {
-    printOut(__METHOD_NAME__,"end", dashLen);
-  }
+  if (verbose >= DEBUG) printOut(__METHOD_NAME__,"end", dashLen);
 
   // Return the number of viable permutations we found.
   return colPerms.size();
@@ -1716,7 +1748,7 @@ bool VinciaHistory::getColChains() {
     // Error message.
     if (verbose >QUIET) {
       string msg = ": Number of quarks and antiquarks do not match.";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__+msg);
     }
     return false;
   }
@@ -1808,7 +1840,7 @@ bool VinciaHistory::getColChains() {
     // Error message.
     if (verbose >= NORMAL) {
       string msg = ": Incorrect number of colour chains.";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+      infoPtr->errorMsg("Error in "+__METHOD_NAME__+msg);
     }
     return false;
   }
@@ -1985,7 +2017,7 @@ bool VinciaHistory::assignResFromEvent(map<int, map<int,int> >& idCounter,
 
 // Make a single selection in all possible ways.
 
- bool VinciaHistory::assignNext(vector<ColourFlow>& flowsSoFar, bool isRes,
+bool VinciaHistory::assignNext(vector<ColourFlow>& flowsSoFar, bool isRes,
   int id, int cIndexIn) {
 
   if (flowsSoFar.empty()) {
@@ -2125,9 +2157,9 @@ bool VinciaHistory::assignThis(vector< ColourFlow > &flowsSoFar, int id,
     if (itpseudochain==flowNow.pseudochains.end()) {
       if (verbose >= NORMAL) {
         stringstream ss;
-        ss<<": could not find requested pseudochain ";
         ss<<assignIndex;
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__,ss.str());
+        infoPtr->errorMsg("Error in "+__METHOD_NAME__+": could not "
+          "find requested pseudochain ",ss.str());
       }
       return false;
     }
@@ -2231,21 +2263,21 @@ bool VinciaHistory::check(ColourFlow & /*flow*/) {return true;}
 
 // Construct history for a given colour permutation.
 
-pair<double, HistoryNodes> VinciaHistory::findHistoryPerm(ColourFlow& flow) {
+std::tuple<bool,double,HistoryNodes> VinciaHistory::findHistoryPerm(
+  ColourFlow& flow) {
 
   // Initialise the matrix element weight.
   double ME2guess = 1.0;
+  bool   isIncomplete = false;
 
   // First check this is a valid colour flow.
-  if (!check(flow)) {
-    return make_pair(0.,HistoryNodes());
-  }
+  if (!check(flow))
+    return make_tuple(isIncomplete,0.,HistoryNodes());
 
   // Initialise history nodes for each system.
   HistoryNodes sysToHistory = initHistoryNodes(flow);
-  if (sysToHistory.size() == 0) {
-    return make_pair(0.,sysToHistory);
-  }
+  if (sysToHistory.size() == 0)
+    return make_tuple(isIncomplete,0.,sysToHistory);
 
   // Now loop over systems and find histories.
   for(auto itHistory = sysToHistory.begin(); itHistory != sysToHistory.end();
@@ -2264,25 +2296,24 @@ pair<double, HistoryNodes> VinciaHistory::findHistoryPerm(ColourFlow& flow) {
       int nClusterings =
         history.back().getNClusterings(vinMergingHooksPtr,infoPtr,verbose);
       if (nClusterings <= 0) {
-        if (verbose >= DEBUG) {
-          printOut(__METHOD_NAME__,"Couldn't find any clusterings.");
-        }
+        if (verbose >= DEBUG)
+          printOut("VinciaHistory::findHistoryPerm()",
+            "Couldn't find any clusterings.");
         // This is an incomplete history.
         foundIncomplete = true;
         continue;
       }
 
-      if (verbose >= DEBUG) {
-        printOut(__METHOD_NAME__,"Found " + num2str(nClusterings,3)
-          + " clusterings.");
-      }
+      if (verbose >= DEBUG)
+        printOut("VinciaHistory::findHistoryPerm()","Found "
+          + num2str(nClusterings,3) + " clusterings.");
 
       // Perform clustering that corresponds to minimal sector resolution.
       HistoryNode next;
       if (!history.back().cluster(next, infoPtr, verbose)) {
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__,
+        infoPtr->errorMsg("Error in VinciaHistory::findHistoryPerm",
           ": Could not perform clustering");
-        return make_pair(0.,HistoryNodes());
+        return make_tuple(isIncomplete,0.,HistoryNodes());
       }
 
       // Save.
@@ -2291,11 +2322,15 @@ pair<double, HistoryNodes> VinciaHistory::findHistoryPerm(ColourFlow& flow) {
       // Iterate until we hit Born topology (compare to hard process).
     }
 
-    if (verbose >= DEBUG && !foundIncomplete) {
+    if (verbose >= DEBUG) {
       stringstream ss;
-      ss << "Reached Born topology in system " << iSys;
+      if (!foundIncomplete) ss << "Reached Born topology in system " << iSys;
+      else ss << "Found incomplete history in system " << iSys;
       printOut("VinciaHistory::findHistoryPerm()",ss.str());
     }
+
+    // Check if incomplete.
+    if (foundIncomplete) isIncomplete = true;
 
     // Fetch the parton shower weight.
     double ME2guessSys = calcME2guess(history, isResSys);
@@ -2308,13 +2343,13 @@ pair<double, HistoryNodes> VinciaHistory::findHistoryPerm(ColourFlow& flow) {
         ss << "ME2 guess = " << ME2guessSys << " in system " << iSys;
         printOut("VinciaHistory::findHistoryPerm() ",ss.str());
       }
-      return make_pair(ME2guess,HistoryNodes());
+      return make_tuple(isIncomplete,ME2guess,HistoryNodes());
     }
 
   }// End loop over systems.
 
   // Return the sequences of history nodes with corresponding PS weight.
-  return make_pair(ME2guess,sysToHistory);
+  return make_tuple(isIncomplete,ME2guess,sysToHistory);
 
 }
 
@@ -2361,9 +2396,9 @@ bool VinciaHistory::checkMergingCut(HistoryNodes& history) {
 
 HistoryNodes VinciaHistory::initHistoryNodes(ColourFlow& flow) {
 
-  if (verbose >= DEBUG) {
-    printOut(__METHOD_NAME__,"Initialising start nodes for this history");
-  }
+  if (verbose >= DEBUG)
+    printOut("VinciaHistory::initHistoryNodes",
+      "Initialising start nodes for this history");
 
   // Create empty list of histories nodes.
   HistoryNodes histories;
@@ -2500,9 +2535,7 @@ HistoryNodes VinciaHistory::initHistoryNodes(ColourFlow& flow) {
   beamNode.initPtr(vinComPtr,resPtr,antSetFSRptr);
   beamNode.nMinQQbar = vinMergingHooksPtr->getNQPairs() ;
 
-  if (hasBeam) {
-    histories[0] = vector<HistoryNode>(1,beamNode);
-  }
+  if (hasBeam) histories[0] = vector<HistoryNode>(1,beamNode);
 
   // Create history for each hadronically decaying resonance.
   auto itRes = iResToSys.begin();
@@ -2566,9 +2599,8 @@ map<int,vector< vector<int> > > VinciaHistory::getSystems( ColourFlow& flow,
   int iSys=0;
   int nBeamChains = int(flow.beamChains.size());
   // Create entry in systems.
-  if (nBeamChains>0) {
-    systems[iSys]= vector< vector<int> >(nBeamChains,vector<int>());
-  }
+  if (nBeamChains>0)
+    systems[iSys] = vector< vector<int> >(nBeamChains,vector<int>());
   // Loop over pseudochains.
   for( int iChain=0; iChain<nBeamChains; ++iChain) {
     PseudoChain & pschainNow = flow.beamChains.at(iChain);
@@ -2605,7 +2637,7 @@ map<int,vector< vector<int> > > VinciaHistory::getSystems( ColourFlow& flow,
       systems[iSys]= vector< vector<int> >(1,vector<int>());
 
       // Fetch pseudo chain.
-      PseudoChain & pschainNow = itRes->second.at(iCopy);
+      PseudoChain& pschainNow = itRes->second.at(iCopy);
 
       // Loop over all chains in pseudo chain.
       for(int jChain=0; jChain<int(pschainNow.chainlist.size()); ++jChain) {
@@ -2622,7 +2654,7 @@ map<int,vector< vector<int> > > VinciaHistory::getSystems( ColourFlow& flow,
   if (verbose >= DEBUG) {
     stringstream ss;
     ss<< "Found "<<systems.size()<<" systems.";
-    printOut(__METHOD_NAME__,ss.str());
+    printOut("VinciaHistory::getSystems()",ss.str());
   }
   return systems;
 

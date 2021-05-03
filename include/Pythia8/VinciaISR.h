@@ -1383,14 +1383,10 @@ private:
   // Count numbers of quarks and gluons.
   map<int, int> nG, nQQ;
 
-  // Partons present in final state in Born (needed in sector shower).
-  map<int, int> nGBorn;
-  // Each parton system has a map flavour -> number of partons
-  // for each flavour in Born.
-  map<int, map<int, int>> nFlavsBorn;
-
-  // Information about whether to resolve the Born in the sector shower.
+  // Partons present in the Born (needed in sector shower).
+  map<int, bool> savedBorn;
   map<int, bool> resolveBorn;
+  map<int, map<int, int>> nFlavsBorn;
 
   // Flags used in merging
   bool doMerging, isTrialShower, isTrialShowerRes;

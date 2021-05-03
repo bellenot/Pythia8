@@ -313,7 +313,7 @@ private:
   bool check(ColourFlow& flow);
 
   // Construct history for a given colour permutation.
-  pair<double, HistoryNodes> findHistoryPerm(ColourFlow& flow );
+  tuple<bool, double, HistoryNodes> findHistoryPerm(ColourFlow& flow);
 
   // Check if history failed merging scale cut.
   bool checkMergingCut(HistoryNodes& history);

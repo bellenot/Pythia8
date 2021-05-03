@@ -11,6 +11,8 @@
 
 namespace Pythia8 {
 
+using namespace VinciaConstants;
+
 //==========================================================================
 
 // Vincia diagnostics.

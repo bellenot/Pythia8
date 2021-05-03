@@ -11,6 +11,8 @@
 
 namespace Pythia8 {
 
+using namespace VinciaConstants;
+
 //==========================================================================
 
 // Vincia parton shower class.
@@ -35,11 +37,41 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
   // Clear Vincia's register of PhysicsBase objects
   subObjects.clear();
 
-  bool vinciaOn   = (settingsPtr->mode("PartonShowers:model") == 2);
-  doMerging       = settingsPtr->flag("Merging:doMerging");
+  bool vinciaOn     = (settingsPtr->mode("PartonShowers:model") == 2);
+  bool doCutMerging = flag("Merging:doCutBasedMerging");
+  bool doKTMerging  = flag("Merging:doKTMerging");
+  bool doMGMerging  = flag("Merging:doMGMerging");
+  doMerging         = flag("Merging:doMerging");
+  if ((doCutMerging || doKTMerging || doMGMerging) && !doMerging) {
+    doMerging = true;
+    settingsPtr->readString("Merging:doMerging = on");
+  }
   doMerging       = ( doMerging && vinciaOn );
 
+  // Setup Vincia's merging if requested.
   if (doMerging) {
+    // Ensure consistency in settings with merging.
+    if (mode("Vincia:ewMode") > 0) {
+      infoPtr->errorMsg("Warning from "+__METHOD_NAME__+": Switching off"
+        " QED/EW shower. Not yet supported by merging.");
+      settingsPtr->readString("Vincia:ewMode = 0");
+    }
+    if (flag("Vincia:interleaveResDec")) {
+      infoPtr->errorMsg("Warning from "+__METHOD_NAME__+": Switching off"
+        " interleaved resonance decays. Not yet supported by merging.");
+      // Must switch both Vincia and TimeShower flags off, since PartonLevel
+      // uses the TimeShower one.
+      settingsPtr->readString("Vincia:interleaveResDec = off");
+      settingsPtr->readString("TimeShower:interleaveResDec = off");
+    }
+    // TODO this could be fixed relatively easily.
+    if (mode("Vincia:kineMapFFsplit") != 1) {
+      infoPtr->errorMsg("INFO from "+__METHOD_NAME__+": Forcing"
+        " kineMapFFsplit = 1. Others not yet supported"
+        " by merging.");
+      settingsPtr->readString("Vincia:kineMapFFsplit = 1");
+    }
+
     // Set and register merging pointers
     mergingHooksPtr = make_shared<VinciaMergingHooks>();
     registerSubObject(*mergingHooksPtr);
@@ -62,9 +94,8 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
       make_shared<MergeResScaleHook>(mergingHooksPtr);
 
     // Update userHooksPtr.
-    if ( !userHooksPtr ) {
+    if ( !userHooksPtr )
       userHooksPtr = mergeResHookPtr;
-    }
     else {
       shared_ptr<UserHooksVector> uhv =
         dynamic_pointer_cast<UserHooksVector>(userHooksPtr);

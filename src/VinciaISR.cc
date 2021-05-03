@@ -11,6 +11,8 @@
 
 namespace Pythia8 {
 
+using namespace VinciaConstants;
+
 //==========================================================================
 
 // Base class for initial-state trial generators.
@@ -3281,8 +3283,7 @@ bool VinciaISR::branch(Event& event) {
     }
 
     // Check sector veto.
-    minClus = resolutionPtr->findSector(stateNew, nFlavsBorn[iSysWin],
-      nGBorn[iSysWin]);
+    minClus = resolutionPtr->findSector(stateNew, nFlavsBorn[iSysWin]);
     if (verbose >= DEBUG) {
       stringstream ss;
       ss << "Minimal clustering has sector resolution " << minClus.Q2res;
@@ -3948,6 +3949,8 @@ void VinciaISR::clearContainers() {
   partsSav.clear();
   nBranch.clear();
   nBranchISR.clear();
+  nFlavsBorn.clear();
+  resolveBorn.clear();
   nG.clear();
   nQQ.clear();
   initialA.clear();
@@ -5085,7 +5088,7 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
       printOut(__METHOD_NAME__, "selected" + num2str(int(hAant)) +
         " " + num2str(int(hBant)) + "  -> " + num2str(hi) + " " +
         num2str(hj) + " " + num2str(hk) + ", isSwapped = " +
-        bool2str(isSwapped)+"\n");
+        bool2str(isSwapped));
     // Assign helicities (taking swapped invariants into account).
     if (!isSwapped) {
       trialPtr->new1.pol(hi);
@@ -5608,20 +5611,18 @@ bool VinciaISR::checkAntennae(const Event& event) {
 
 void VinciaISR::saveBornState(Event& born, int iSys) {
   // Initialise.
-  nGBorn[iSys] = 0;
+  resolveBorn[iSys] = false;
   map<int, int> nFlavours;
   for (int i(-6); i<=6; ++i) {
-    if (i == 0) continue;
+    if (i == 0) nFlavours[21] = 0;
     nFlavours[i] = 0;
   }
 
   // We want to resolve the Born only when we have a non-QCD coupling in Born.
-  int nGluons = 0;
   int nNonQCD = 0;
   for (int i(0); i<partonSystemsPtr->sizeAll(iSys); ++i) {
     Particle* partonPtr = &born[partonSystemsPtr->getAll(iSys, i)];
-    if (partonPtr->isGluon())
-      nGBorn[iSys]++;
+    if (partonPtr->isGluon()) nFlavours[21]++;
     else if (partonPtr->isQuark()) {
       int idNow = partonPtr->isFinal() ? partonPtr->id() : -partonPtr->id();
       nFlavours[idNow]++;
@@ -5633,7 +5634,6 @@ void VinciaISR::saveBornState(Event& born, int iSys) {
   if (nNonQCD > 0) {
     resolveBorn[iSys] = true;
     nFlavsBorn[iSys] = nFlavours;
-    nGBorn[iSys] = nGluons;
   }
 
   // Print information.
@@ -5641,11 +5641,11 @@ void VinciaISR::saveBornState(Event& born, int iSys) {
     if (resolveBorn[iSys]) {
       printOut(__METHOD_NAME__, "System " + num2str(iSys,2)
         + " with resolved Born configuration:");
-      printOut(__METHOD_NAME__, " 21: "+num2str(nGBorn[iSys],2));
       auto it = nFlavsBorn[iSys].begin();
       for ( ; it != nFlavsBorn[iSys].end(); ++it) {
-        printOut(__METHOD_NAME__, num2str(it->first,3)+": "
-          +num2str(it->second,2));
+        if (it->second != 0)
+          cout << "      " << num2str(it->first,3) << ": "
+               << num2str(it->second,2) << endl;
       }
     } else
       printOut(__METHOD_NAME__,"System " + num2str(iSys,2)
@@ -5658,66 +5658,46 @@ void VinciaISR::saveBornState(Event& born, int iSys) {
 // Save flavour content in Born state for trial shower (in merging).
 
 void VinciaISR::saveBornForTrialShower(Event& born) {
-  // Initialise flavour counters.
-  map<int, int> nFlavoursOut;
-  for (int i(-6); i<=6; ++i) {
-    if (i == 0) continue;
-    nFlavoursOut[i] = 0;
-  }
-
   // Index of system we do the trial shower for.
   // Note: will always be 0 for ISR in merging.
   int iSysTrial = 0;
 
-  // Fetch daughters of beam particles.
-  // NOTE: assumed to be only 2 and to make up the hard process!
-  vector<int> iIn;
-  for (int iPtcl(1); iPtcl<3; ++iPtcl) {
-    if (born[iPtcl].daughter1() != 0)
-      iIn.push_back(born[iPtcl].daughter1());
-    if (born[iPtcl].daughter2() != 0)
-      iIn.push_back(born[iPtcl].daughter2());
-  }
-  if (iIn.size() > 2) {
-    string msg = "Too many incoming partons in hard process.";
-    msg += "Please check your Born event definition.";
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+  // Initialise.
+  resolveBorn[iSysTrial] = false;
+  map<int, int> nFlavours;
+  for (int i(-6); i<=6; ++i) {
+    if (i == 0) nFlavours[21] = 0;
+    nFlavours[i] = 0;
   }
 
-  // Only resolve Born leg if it has a non-QCD vertex.
-  resolveBorn[iSysTrial] = false;
-  nGBorn[iSysTrial] = 0;
-  for (auto& iPtcl : iIn) {
-    // Fetch daughters of current particle.
-    int iDtr1 = born[iPtcl].daughter1();
-    int iDtr2 = born[iPtcl].daughter2();
-    // Check if we want to resolve the Born state.
-    if (iDtr1 != 0) {
-      if (born[iDtr1].isResonance())
-        resolveBorn[iSysTrial] = true;
+  // We want to resolve the Born only when we have a non-QCD coupling in Born.
+  int nNonQCD = 0;
+  for (int i(3); i<born.size(); ++i) {
+    Particle* partonPtr = &born[i];
+    if (partonPtr->isGluon()) nFlavours[21]++;
+    else if (partonPtr->isQuark()) {
+      int idNow = partonPtr->isFinal() ? partonPtr->id() : -partonPtr->id();
+      nFlavours[idNow]++;
     }
-    if (!resolveBorn[iSysTrial] && iDtr2 != 0 && iDtr2 != iDtr1) {
-      if (born[iDtr2].isResonance())
-        resolveBorn[iSysTrial] = true;
-    }
-    // Save flavour if resolving the Born.
-    if (resolveBorn[iSysTrial]) {
-      if (born[iPtcl].isGluon()) nGBorn[iSysTrial]++;
-      else if (born[iPtcl].isQuark()) nFlavoursOut[born[iPtcl].id()]++;
-    }
+    else ++nNonQCD;
   }
-  nFlavsBorn[iSysTrial] = nFlavoursOut;
+
+  // If there are non-QCD partons in the system, resolve Born.
+  if (nNonQCD > 0) {
+    resolveBorn[iSysTrial] = true;
+    nFlavsBorn[iSysTrial] = nFlavours;
+  }
 
   // Print information.
   if (verbose >= DEBUG) {
     if (resolveBorn[iSysTrial]) {
-      printOut(__METHOD_NAME__, "Trial shower system " + num2str(iSysTrial,2)
+      printOut(__METHOD_NAME__, "System " + num2str(iSysTrial,2)
         + " with resolved Born configuration:");
-      printOut(__METHOD_NAME__, " 21: "+num2str(nGBorn[iSysTrial],2));
       auto it = nFlavsBorn[iSysTrial].begin();
       for ( ; it != nFlavsBorn[iSysTrial].end(); ++it) {
-        printOut(__METHOD_NAME__, num2str(it->first,3)+": "
-          +num2str(it->second,2));
+        if (it->second != 0)
+          cout << "      " << num2str(it->first,3) << ": "
+               << num2str(it->second,2) << endl;
       }
     } else
       printOut(__METHOD_NAME__,"System " + num2str(iSysTrial,2)

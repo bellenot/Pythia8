@@ -8,6 +8,8 @@
 
 namespace Pythia8 {
 
+using namespace VinciaConstants;
+
 //==========================================================================
 
 // TrialGenerator base class functions.

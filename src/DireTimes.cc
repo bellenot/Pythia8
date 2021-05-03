@@ -5213,6 +5213,8 @@ void DireTimes::updateAfterFF( int iSysSelNow, int iSysSelRec,
             && event[dip.iRadiator].idAbs() < 10)
             dip.colType = -abs(dip.colType)/2;
 
+          if (dip.colType == 0) dip.iRadiator = iRad;
+
           iDipEndCorr.push_back(i);
         }
 
@@ -5233,6 +5235,8 @@ void DireTimes::updateAfterFF( int iSysSelNow, int iSysSelRec,
             && event[dip.iRadiator].id()    < 0
             && event[dip.iRadiator].idAbs() < 10)
             dip.colType = -1;
+
+          if (dip.colType == 0) dip.iRecoiler = iRad;
 
           iDipEndCorr.push_back(i);
         }
@@ -5257,6 +5261,9 @@ void DireTimes::updateAfterFF( int iSysSelNow, int iSysSelRec,
 
         dip.colType = (event[dip.iRadiator].id() > 0)
                     ? abs(dip.colType) : -abs(dip.colType);
+
+        // Potentially also update recoiler!
+        if ( dip.iRecoiler == iRecBef ) dip.iRecoiler = iRec;
 
         iDipEndCorr.push_back(i);
 

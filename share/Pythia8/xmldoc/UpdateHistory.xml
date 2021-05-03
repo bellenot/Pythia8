@@ -8,10 +8,50 @@ PYTHIA 8.243 version, which was the starting point for PYTHIA
 compatibility. The main change is that C++11 is now assumed. 
 The impact on existing used code should be mild, however. 
  
+<h3>8.305: 03 May 2021</h3> 
+ 
+<ul> 
+<li>Fixed issue that otherwise caused the weights of the Dire 
+parton shower to be erroneously discarded. The fix will impact 
+the results produced with the Dire parton shower model. The 
+results of the previous version should be considered 
+incorrect.</li> 
+ 
+<li>Fixed potential for segfault in <code>Weights.cc</code> if 
+<code>weightsShowerPtr == nullptr</code>.</li> 
+ 
+<li> A number of fixes related to Vincia have been included. 
+<ul> 
+  <li>Bug fixes in Vincia's merging, addressing the issue that 
+  occasionally incomplete histories were accepted while a complete one 
+  was available.</li> 
+  <li>Fixed some small bugs in Vincia's QED shower that could cause 
+  issues when running at very high energies.</li> 
+  <li>Minor namespace fixes. Moved <code>using namespace 
+  VinciaConstants</code> from headers to source files and moved 
+  <code>enum antFunType</code> inside the Pythia8 namespace.</li> 
+  <li>Added default initialisers for data members in several Vincia 
+  classes, to avoid potentially undefined behaviour. Thanks to 
+  V. Zecca.</li> 
+</ul> 
+</li> 
+ 
+<li>Fixed unintentional initial-state radiation from unresolved hadron 
+beams when set with option <code>BeamRemnants:unresolvedHadron</code> 
+which would break up the beam. Minor fix also for cases where two 
+unresolved hadrons.</li> 
+ 
+<li>Added threshold check on low energy cross sections. This fixes a 
+small bug reported by Vittorio Zecca.</li> 
+ 
+<li>Corrected bug in normalization of histograms in 
+<code>main07.cc</code>. Thanks to M. Baker and A. Thamm.</li> 
+</ul> 
+ 
 <h3>8.304: 09 April 2021</h3> 
  
 <ul> 
-<li>Christian Preuss and Rob Rob Verheyen join the author team.</li> 
+<li>Christian Preuss and Rob Verheyen join the author team.</li> 
  
 <li>Christine O. Rasmussen leaves as an active author.</li> 
  

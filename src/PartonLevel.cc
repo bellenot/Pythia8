@@ -208,8 +208,13 @@ bool PartonLevel::init( TimeShowerPtr timesDecPtrIn,
     doMPIinit        = false;
     doMPIgmgm        = false;
   }
-  if ( (hasTwoLeptonBeams && hasPointLeptons)
-       || (beamAPtr->isUnresolved() && beamBPtr->isUnresolved()) ) {
+
+  // No initial-state emissions or remnants for point-like beams.
+  bool hasPointGammaLepton = ( beamAPtr->isUnresolved()
+    && ( beamAisGamma || beamAPtr->isLepton() ) )
+    && ( beamBPtr->isUnresolved()
+    && ( beamBisGamma || beamAPtr->isLepton() ) );
+  if ( (hasTwoLeptonBeams && hasPointLeptons) || hasPointGammaLepton ) {
     doISR            = false;
     doRemnants       = false;
   }

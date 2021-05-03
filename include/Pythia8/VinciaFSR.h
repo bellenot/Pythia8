@@ -61,15 +61,13 @@ public:
 
   // Main base class constructor.
   Brancher(int iSysIn, Event& event, bool sectorShowerIn,
-    vector<int> iIn) {
-    sectorShower = sectorShowerIn;
+vector<int> iIn) : sectorShower(sectorShowerIn) {
     reset(iSysIn, event, iIn);
   }
 
   // Wrapper for 2- and 3-parton parents.
   Brancher(int iSysIn, Event& event, bool sectorShowerIn,
-    int iIn0, int iIn1, int iIn2=0) {
-    sectorShower = sectorShowerIn;
+    int iIn0, int iIn1, int iIn2=0) : sectorShower(sectorShowerIn) {
     reset(iSysIn, event, iIn0, iIn1, iIn2);
   }
 
@@ -227,40 +225,35 @@ public:
 protected:
 
   // Data members for storing information about parent partons.
-  int systemSav;
+  int systemSav{};
   vector<int> iSav, idSav, colTypeSav, hSav, colSav, acolSav;
   vector<int> idPostSav, statPostSav;
   vector<double> mSav, mPostSav;
-  int colTagSav, evTypeSav;
+  int colTagSav{}, evTypeSav{};
 
   // All alphaS information.
-  const EvolutionWindow* evWindowSav;
+  const EvolutionWindow* evWindowSav{};
 
   // Saved antenna mass parameters.
-  double mAntSav, m2AntSav, kallenFacSav, sAntSav;
+  double mAntSav{}, m2AntSav{}, kallenFacSav{}, sAntSav{};
 
   // Data members for storing information about generated trial branching.
-  bool   hasTrialSav;
-  double headroomSav, enhanceSav, q2BegSav, q2NewSav;
+  bool   hasTrialSav{false};
+  double headroomSav{1.}, enhanceSav{1.}, q2BegSav{}, q2NewSav{};
   vector<double> invariantsSav;
 
-  // Find out which branching type we are doing.
-  //   1: QCD emission
-  //   2: QCD splitting
-  //   3: QED emission
-  //   4: QED splitting
-  //   5: QCD resonance emission
-  enum BranchType branchType;
+  // Store which branching type we are doing.
+  enum BranchType branchType{BranchType::Void};
 
   // Index of FF antenna function.
-  enum AntFunType antFunTypeSav;
+  enum AntFunType antFunTypeSav{NoFun};
 
   // If true, flip identities of A and B.
-  bool swapped;
+  bool swapped{false};
 
   // Parameters for the sector shower.
-  bool sectorShower;
-  int iSectorWinner;
+  bool sectorShower{};
+  int iSectorWinner{};
 
 };
 
@@ -894,39 +887,39 @@ private:
   vector<double> getEnhance(int iSys, bool isEmit, double q2Next);
 
   // Flags if initialized and prepared.
-  bool isInit, isPrepared;
+  bool isInit{}, isPrepared{};
 
   // Beam info.
-  double eCMBeamsSav, m2BeamsSav;
+  double eCMBeamsSav{}, m2BeamsSav{};
 
   // Main on/off switches.
-  bool doFF, doRF, doII, doIF, doQED, doWeak;
-  int ewMode, ewModeMPI;
+  bool doFF{}, doRF{}, doII{}, doIF{}, doQED{}, doWeak{};
+  int ewMode{}, ewModeMPI{};
 
   // Parameter setting which kind of 2->4 modifications (if any) are used.
-  int mode2to4;
+  int mode2to4{};
 
   // Shower parameters.
-  bool helicityShower, sectorShower;
-  int evTypeEmit, evTypeSplit, nGluonToQuark;
-  double q2CutoffEmit, q2CutoffSplit;
-  int nFlavZeroMass;
+  bool helicityShower{}, sectorShower{};
+  int evTypeEmit{}, evTypeSplit{}, nGluonToQuark{};
+  double q2CutoffEmit{}, q2CutoffSplit{};
+  int nFlavZeroMass{};
   map<int,int> resSystems;
-  int kMapResEmit;
-  int kMapResSplit;
+  int kMapResEmit{};
+  int kMapResSplit{};
 
   // Factorization scale and shower starting settings.
-  int    pTmaxMatch;
-  double pTmaxFudge, pT2maxFudge, pT2maxFudgeMPI;
+  int    pTmaxMatch{};
+  double pTmaxFudge{}, pT2maxFudge{}, pT2maxFudgeMPI{};
 
   // AlphaS parameters.
-  bool useCMW;
-  int alphaSorder;
-  double alphaSvalue, alphaSmax, alphaSmuFreeze, alphaSmuMin;
-  double aSkMu2Emit, aSkMu2Split;
+  bool useCMW{};
+  int alphaSorder{};
+  double alphaSvalue{}, alphaSmax{}, alphaSmuFreeze{}, alphaSmuMin{};
+  double aSkMu2Emit{}, aSkMu2Split{};
 
   // Calculated alphaS values.
-  double mu2freeze, mu2min;
+  double mu2freeze{}, mu2min{};
 
   // Map of qmin evolution window.
   map<double, EvolutionWindow> evWindowsEmit;
@@ -949,18 +942,18 @@ private:
   map< pair<int, bool>, unsigned int > lookupSplitterFF;
 
   // Current winner.
-  Brancher* winnerQCD;
-  VinciaModulePtr winnerEW;
-  double q2WinSav, pTLastAcceptedSav;
+  Brancher* winnerQCD{};
+  VinciaModulePtr winnerEW{};
+  double q2WinSav{}, pTLastAcceptedSav{};
 
   // Variables set by branch().
-  int iSysWin;
-  enum AntFunType antFunTypeWin;
+  int iSysWin{};
+  enum AntFunType antFunTypeWin{AntFunType::NoFun};
   bool hasWeaklyRadiated{false};
 
   // Index of latest emission (slightly arbritrary for splittings but
   // only used to populate some internal histograms.
-  int iNewSav;
+  int iNewSav{};
 
   // Storage of the post-branching configuration while it is being built.
   vector<Particle> pNew;
@@ -968,14 +961,14 @@ private:
   vector<double> pAccept;
 
   // Colour reconnection parameters.
-  bool doCR, CRjunctions;
+  bool doCR{}, CRjunctions{};
 
   // Enhancement switches and parameters.
-  bool enhanceInHard, enhanceInResDec, enhanceInMPI;
-  double enhanceAll, enhanceBottom, enhanceCharm, enhanceCutoff;
+  bool enhanceInHard{}, enhanceInResDec{}, enhanceInMPI{};
+  double enhanceAll{}, enhanceBottom{}, enhanceCharm{}, enhanceCutoff{};
 
   // Possibility to allow user veto of emission step.
-  bool hasUserHooks, canVetoEmission, canVetoISREmission;
+  bool hasUserHooks{}, canVetoEmission{}, canVetoISREmission{};
 
   // Flags to tell a few basic properties of each parton system.
   map<int, bool> isHardSys, isResonanceSys, polarisedSys, doMECsSys;
@@ -994,14 +987,10 @@ private:
   // Count numbers of quarks and gluons.
   map<int, int> nG, nQ, nLep, nGam;
 
-  // Partons present in final state in Born (needed in sector shower).
-  map<int, int> nGBorn;
-  // Each parton system has a map flavour -> number of partons
-  // for each flavour in Born.
-  map<int, map<int, int>> nFlavsBorn;
-
-  // Information about whether to resolve the Born in the sector shower.
+  // Partons present in the Born (needed in sector shower).
+  map<int, bool> savedBorn;
   map<int, bool> resolveBorn;
+  map<int, map<int, int>> nFlavsBorn;
 
   // Save headroom and enhancement factors for each system for both
   // emission and splitting branchers.
@@ -1016,39 +1005,39 @@ private:
   bool doMerging, isTrialShower, isTrialShowerRes;
 
   // Verbose settings.
-  int verbose;
-  bool headerIsPrinted;
+  int verbose{};
+  bool headerIsPrinted{};
 
   // Diagnostics.
-  shared_ptr<VinciaDiagnostics> diagnosticsPtr;
+  shared_ptr<VinciaDiagnostics> diagnosticsPtr{};
 
   // Debug settings.
-  bool allowforceQuit, forceQuit;
-  int nBranchQuit;
+  bool allowforceQuit{}, forceQuit{};
+  int nBranchQuit{};
 
   // Zeta generators for trial generators.
   ZetaGeneratorSet      zetaGenSetRF;
   ZetaGeneratorSet      zetaGenSetFF;
 
   // Pointers to VINCIA objects.
-  AntennaSetFSR*        antSetPtr;
-  MECs*                 mecsPtr;
-  VinciaColour*         colourPtr;
-  Resolution*           resolutionPtr;
-  shared_ptr<VinciaISR> isrPtr;
-  VinciaCommon*         vinComPtr;
-  VinciaWeights*        weightsPtr;
+  AntennaSetFSR*        antSetPtr{};
+  MECs*                 mecsPtr{};
+  VinciaColour*         colourPtr{};
+  Resolution*           resolutionPtr{};
+  shared_ptr<VinciaISR> isrPtr{};
+  VinciaCommon*         vinComPtr{};
+  VinciaWeights*        weightsPtr{};
 
   // Electroweak shower pointers.
-  VinciaModulePtr       ewShowerPtr;
-  VinciaModulePtr       qedShowerHardPtr;
-  VinciaModulePtr       qedShowerSoftPtr;
+  VinciaModulePtr       ewShowerPtr{};
+  VinciaModulePtr       qedShowerHardPtr{};
+  VinciaModulePtr       qedShowerSoftPtr{};
   // Pointer to either ewShowerPtr or qedShowerHardPtr depending on ewMode.
-  VinciaModulePtr       ewHandlerHard;
+  VinciaModulePtr       ewHandlerHard{};
 
   // Pointer to AlphaS instances.
-  AlphaStrong* aSemitPtr;
-  AlphaStrong* aSsplitPtr;
+  AlphaStrong* aSemitPtr{};
+  AlphaStrong* aSsplitPtr{};
 
   // Settings and member variables for interleaved resonance decays
   bool doFSRinResonances{true}, doInterleaveResDec{true};

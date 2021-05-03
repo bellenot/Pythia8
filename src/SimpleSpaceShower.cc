@@ -629,6 +629,9 @@ double SimpleSpaceShower::pTnext( Event& event, double pTbegAll,
       // If reconstructed back to the beam photon, no further ISR emissions.
       if ( beamNow.isGamma() && !(beamNow.resolvedGamma()) ) continue;
 
+      // Prevent emissions from unresolved beams.
+      if ( beamNow.isUnresolved() ) continue;
+
       // Note dipole mass correction when recoiler is a rescatter.
       m2Rec        = (dipEndNow->normalRecoil) ? 0. : event[iRec].m2();
       m2Dip        = x1Now * x2Now * sCM + m2Rec;

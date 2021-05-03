@@ -20,18 +20,8 @@
 #include "Pythia8/PythiaStdlib.h"
 #include "Pythia8/StandardModel.h"
 
-//==========================================================================
-
-// Enumerator for antenna function types, with "void" member NoFun.
-enum AntFunType { NoFun,
-                  QQemitFF, QGemitFF, GQemitFF, GGemitFF, GXsplitFF,
-                  QQemitRF, QGemitRF, XGsplitRF,
-                  QQemitII, GQemitII, GGemitII, QXsplitII, GXconvII,
-                  QQemitIF, QGemitIF, GQemitIF, GGemitIF, QXsplitIF,
-                  GXconvIF, XGsplitIF };
-
 // Global Vincia constants, defined to live in a Vincia-specific
-// namespace to avoid clashes.
+// namespace to avoid potential clashes with anything else defined in Pythia8.
 namespace VinciaConstants {
 
 // Global numerical precision targets (should be kept within a
@@ -80,8 +70,15 @@ namespace Pythia8 {
 // Forward declaration.
 class VinciaCommon;
 
-// Include namespace with global Vincia constants.
-using namespace VinciaConstants;
+//==========================================================================
+
+// Enumerator for antenna function types, with "void" member NoFun.
+enum AntFunType { NoFun,
+                  QQemitFF, QGemitFF, GQemitFF, GGemitFF, GXsplitFF,
+                  QQemitRF, QGemitRF, XGsplitRF,
+                  QQemitII, GQemitII, GGemitII, QXsplitII, GXconvII,
+                  QQemitIF, QGemitIF, GQemitIF, GGemitIF, QXsplitIF,
+                  GXconvIF, XGsplitIF };
 
 //==========================================================================
 
@@ -225,13 +222,6 @@ class VinciaColour {
 
 public:
 
-  // Constructor.
-
-  VinciaColour() {isInitPtr=false; isInit=false;}
-
-  // Destructor.
-  ~VinciaColour() {}
-
   // Initialize pointers (must be done before init).
   void initPtr(Info* infoPtrIn) {
     infoPtr       = infoPtrIn;
@@ -274,10 +264,10 @@ public:
 private:
 
   // Internal parameters.
-  int inheritMode;
+  int inheritMode{};
 
   // Is initialized.
-  bool isInitPtr, isInit;
+  bool isInitPtr{false}, isInit{false};
 
   // Pointers to PYTHIA 8 objects.
   Info*          infoPtr;
@@ -287,7 +277,7 @@ private:
   Rndm*          rndmPtr;
 
   // Verbose level.
-  int verbose;
+  int verbose{};
 
 };
 
@@ -359,19 +349,17 @@ struct VinciaClustering {
   string getAntName() const;
 
   // Methods to get branching type (currently only 2 -> 3).
-  bool is2to3() const {
-    return true;
-  }
+  bool is2to3() const { return true; }
 
   // Branching daughter information (indices in event record).
-  int child1, child2, child3;
+  int child1{}, child2{}, child3{};
 
   // Antenna information.
-  bool isFSR;
-  AntFunType antFunType;
+  bool isFSR{true};
+  AntFunType antFunType{NoFun};
 
   // Mother ids.
-  int idMoth1, idMoth2;
+  int idMoth1{}, idMoth2{};
 
   // Helicities.
   vector<int> helChildren = {9, 9, 9};
@@ -382,18 +370,18 @@ struct VinciaClustering {
   vector<double> massesMothers;
 
   // Invariants.
-  double saj, sjb, sab;
+  double saj{}, sjb{}, sab{};
   // Vector of invariants (stored as sAB, saj, sjb, sab).
   vector<double> invariants;
 
   // Value of sector resolution variable that this clustering produces.
-  double Q2res;
+  double Q2res{};
 
   // Value of evolution variable that this clustering produces.
-  double Q2evol;
+  double Q2evol{};
 
   // Kinematic map (only used for FF).
-  int kMapType;
+  int kMapType{};
 
 };
 
@@ -432,7 +420,7 @@ public:
   // Optionally resolve Born: avoid clusterings that would not lead
   // to a specified (Born) configuration.
   VinciaClustering findSector(vector<Particle>& state,
-    map<int,int> flavsBorn, int ngBorn);
+    map<int,int> flavsBorn);
   // Find sector with minimal resolution.
   // Optionally avoid sectors that cluster beyond a minimal number
   // of quark pairs or gluons.
@@ -446,8 +434,8 @@ public:
   // given we want to preserve a certain Born configuration.
   // Returns true = vetoed, and false = not vetoed.
   bool sectorVeto(double q2In, vector<Particle>& state,
-    map<int,int> nFlavsBorn, int ngBorn) {
-    VinciaClustering clusMin = findSector(state, nFlavsBorn, ngBorn);
+    map<int,int> nFlavsBorn) {
+    VinciaClustering clusMin = findSector(state, nFlavsBorn);
     if (q2In > clusMin.Q2res) return true;
     else return false;
   }
@@ -567,7 +555,7 @@ public:
   // given we want to resolve a certain Born configuration, i.e.,
   // not cluster more gluons or quark flavours as we had in the Born.
   vector<VinciaClustering> findClusterings(vector<Particle>& state,
-    map<int, int> nFlavsBorn, int ngBorn);
+    map<int, int> nFlavsBorn);
   // Method to find all possible clusterings while retaining a certain
   // minimal number of quark pairs and gluons.
   vector<VinciaClustering> findClusterings(vector<Particle>& state,
@@ -697,19 +685,20 @@ public:
 
   // Public data members: strong coupling in MSbar and CMW schemes,
   // user and default choices,
-  AlphaStrong alphaStrong, alphaStrongCMW, alphaStrongDef, alphaStrongDefCMW;
+  AlphaStrong alphaStrong{}, alphaStrongCMW{}, alphaStrongDef{},
+    alphaStrongDefCMW{};
 
   // Couplings for use in merging.
-  AlphaStrong alphaS;
-  AlphaEM     alphaEM;
-  double mu2freeze, mu2min, alphaSmax;
+  AlphaStrong alphaS{};
+  AlphaEM     alphaEM{};
+  double mu2freeze{}, mu2min{}, alphaSmax{};
 
   // Quark masses.
-  double ms, mc, mb, mt;
-  int nFlavZeroMass;
+  double ms{}, mc{}, mb{}, mt{};
+  int nFlavZeroMass{};
 
   // Checks.
-  double epTolErr, epTolWarn, mTolErr, mTolWarn;
+  double epTolErr{}, epTolWarn{}, mTolErr{}, mTolWarn{};
 
 private:
 
@@ -740,19 +729,20 @@ private:
   // Members.
 
   // Pointers.
-  Info*          infoPtr;
-  Settings*      settingsPtr;
-  ParticleData*  particleDataPtr;
-  Rndm*          rndmPtr;
-  PartonSystems* partonSystemsPtr;
+  Info*          infoPtr{};
+  Settings*      settingsPtr{};
+  ParticleData*  particleDataPtr{};
+  Rndm*          rndmPtr{};
+  PartonSystems* partonSystemsPtr{};
 
   // Counter for output control.
-  int nUnkownPDG, nIncorrectCol, nNAN, nVertex, nChargeCons, nMotDau;
+  int nUnkownPDG{}, nIncorrectCol{}, nNAN{}, nVertex{}, nChargeCons{},
+    nMotDau{};
   vector<int> nUnmatchedMass, nEPcons;
 
   // Internal flags and settings.
   bool isInitPtr{false}, isInit{false};
-  int verbose;
+  int verbose{};
 
 };
 

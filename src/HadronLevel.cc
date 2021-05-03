@@ -679,6 +679,9 @@ void HadronLevel::queueDecResc(Event& event, int iStart,
       double eCM = (pA + pB).mCalc();
       double sigma = lowEnergySigma.sigmaTotal(hadA.id(), hadB.id(), eCM,
         hadA.m(),  hadB.m());
+      if (sigma < LowEnergySigma::TINYSIGMA)
+        continue;
+
       double b2Crit = MB2FMSQ * pow2(FM2MM) * sigma / (impactOpacity * M_PI);
       double pAccept;
       // Sharp edge or Gaussian profile.

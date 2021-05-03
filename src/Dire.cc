@@ -267,6 +267,12 @@ bool Dire::initAfterBeams() {
     settingsPtr->parm("Merging:TMS",0.0);
   }
 
+  // No QED radiation by default until properly validated
+  settingsPtr->flag("TimeShower:QEDshowerByQ",false);
+  settingsPtr->flag("TimeShower:QEDshowerByL",false);
+  settingsPtr->flag("SpaceShower:QEDshowerByQ",false);
+  settingsPtr->flag("SpaceShower:QEDshowerByL",false);
+
   // Setup weight container (after user-defined enhance factors have been read)
   weightsPtr->initPtrs(beamAPtr, beamBPtr, settingsPtr, infoPtr, &direInfo);
   weightsPtr->setup();

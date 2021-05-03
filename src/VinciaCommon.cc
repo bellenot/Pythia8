@@ -11,6 +11,8 @@
 
 namespace Pythia8 {
 
+using namespace VinciaConstants;
+
 //==========================================================================
 
 // The VinciaColour class.
@@ -584,11 +586,27 @@ double Resolution::q2sector(VinciaClustering& clus) {
 // a Born configuration.
 
 VinciaClustering Resolution::findSector(vector<Particle>& state,
-  map<int, int> nFlavsBorn, int ngBorn) {
+  map<int, int> nFlavsBorn) {
 
   // Get all clusterings.
   vector<VinciaClustering> clusterings;
-  clusterings = vinComPtr->findClusterings(state, nFlavsBorn, ngBorn);
+  clusterings = vinComPtr->findClusterings(state, nFlavsBorn);
+
+  // Sanity check.
+  if (clusterings.size() < 1) {
+    if (verbose >= NORMAL)
+      infoPtr->errorMsg("Warning in Resolution::findSector():"
+        " No sector found.");
+    if (verbose >= DEBUG) {
+      printOut(__METHOD_NAME__,"Born flavour list:");
+      for (auto it(nFlavsBorn.begin()); it!=nFlavsBorn.end(); ++it) {
+        if (it->second > 0)
+          cout << "      " << it->first << ": " << it->second << endl;
+      }
+      vinComPtr->list(state);
+    }
+    return VinciaClustering();
+  }
 
   // Return clustering with smallest resolution.
   return getMinSector(clusterings);
@@ -732,8 +750,13 @@ double Resolution::q2sector2to3II(VinciaClustering& clus) {
   return clus.Q2res;
 }
 
+//--------------------------------------------------------------------------
+
+// Find sector with minimal Q2sector in list of clusterings.
+
 VinciaClustering Resolution::getMinSector(
   vector<VinciaClustering>& clusterings) {
+
   // Set starting scale.
   double q2min = 1.e19;
 
@@ -1523,7 +1546,7 @@ double VinciaCommon::getShowerStartingScale(int iSys, const Event& event,
 // a minimum number of quark pairs and gluons in the event.
 
 vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
-  int nqpMin, int ngMin) {
+  int nqpMin, int ) {
 
   // Initialise.
   vector<VinciaClustering> clusterings;
@@ -1531,7 +1554,7 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
   // Dummy flavour map.
   map<int, int> nFlavsBorn;
   for (int i(-6); i<=6; ++i) {
-    if (i == 0) continue;
+    if (i == 0) nFlavsBorn[21] = 0;
     nFlavsBorn[i] = 0;
   }
 
@@ -1544,7 +1567,7 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
   if (nqpNow < nqpMin) return clusterings;
 
   // Find all tentative clusterings.
-  clusterings = findClusterings(state, nFlavsBorn, ngMin);
+  clusterings = findClusterings(state, nFlavsBorn);
 
   // Erase those reducing the number of quark pairs below the minimum.
   // (Only when the current state has the minimum number of quark pairs).
@@ -2053,7 +2076,7 @@ bool VinciaCommon::getMomenta3to2(vector<Vec4>& momNow,
 // retaining a Born configuration).
 
 vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
-  map<int, int> nFlavsBorn, int ngBorn) {
+  map<int, int> nFlavsBorn) {
 
   // Check if we have sufficient information about the flavours in Born.
   if (nFlavsBorn.size() < 12) {
@@ -2061,7 +2084,7 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
       printOut(__METHOD_NAME__, "Will not resolve Born.");
     }
     for (int i(-6); i<=6; ++i) {
-      if (i == 0) continue;
+      if (i == 0) nFlavsBorn[21] = 0;
       nFlavsBorn[i] = 0;
     }
   }
@@ -2074,12 +2097,11 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
   map<int,int> acol2ind;
   map<int, vector<int>> flav2inds;
   vector<int> hels;
-  map<int, int> nFlavsFS;
+  map<int, int> nFlavs;
   for (int i(-6); i<=6; ++i) {
-    if (i == 0) continue;
-    nFlavsFS[i] = 0;
+    if (i == 0) nFlavs[21] = 0;
+    nFlavs[i] = 0;
   }
-  int ngFS = 0;
   for (int iPtcl(0); iPtcl<(int)state.size(); ++iPtcl) {
     Particle thisPtcl = state[iPtcl];
     if (!thisPtcl.isFinal()) {
@@ -2091,9 +2113,11 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
       // Helicity flipped for initial state.
       hels.push_back(-thisPtcl.pol());
       // Initial-state quark treated as antiquark (and vice versa).
-      if (thisPtcl.isQuark()) flav2inds[-thisPtcl.id()].push_back(iPtcl);
-    }
-    else {
+      if (thisPtcl.isQuark()) {
+        flav2inds[-thisPtcl.id()].push_back(iPtcl);
+        nFlavs[-thisPtcl.id()]++;
+      } else if (thisPtcl.isGluon()) nFlavs[21]++;
+    } else {
       if (thisPtcl.col()!=0)
         col2ind[thisPtcl.col()] = iPtcl;
       if (thisPtcl.acol()!=0)
@@ -2101,9 +2125,8 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
       hels.push_back(thisPtcl.pol());
       if (thisPtcl.isQuark()) {
         flav2inds[thisPtcl.id()].push_back(iPtcl);
-        nFlavsFS[thisPtcl.id()]++;
-      }
-      else if (thisPtcl.isGluon()) ++ngFS;
+        nFlavs[thisPtcl.id()]++;
+      } else if (thisPtcl.isGluon()) nFlavs[21]++;
     }
   }
 
@@ -2112,7 +2135,7 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
     // Gluon emission.
     if (state[ij].isGluon() && state[ij].isFinal()) {
       // Check if we are allowed to cluster this gluon.
-      if (ngFS <= ngBorn) continue;
+      if (nFlavs[21] <= nFlavsBorn[21]) continue;
 
       VinciaClustering thisClus;
 
@@ -2212,7 +2235,7 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
           if (ia == ib) continue;
 
           // Check if we are allowed to cluster this flavour.
-          if (nFlavsFS[state[ia].id()] <= nFlavsBorn[state[ia].id()]) continue;
+          if (nFlavs[state[ia].id()] <= nFlavsBorn[state[ia].id()]) continue;
 
           // Get antenna information.
           bool isFSR = false;
@@ -2279,7 +2302,7 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
 
       // From here on, we would reduce the number of quarks, so
       // check if we are allowed to cluster this flavour.
-      if (nFlavsFS[state[ij].id()] <= nFlavsBorn[state[ij].id()]) continue;
+      if (nFlavs[state[ij].id()] <= nFlavsBorn[state[ij].id()]) continue;
 
       // Loop over all same-flavour (anti)quarks.
       vector<int> aList;
@@ -3202,7 +3225,7 @@ bool VinciaCommon::map2to3FFmassless(vector<Vec4>& pThree,
     ss << "m  = " << num2str(mAnt)
          << "   m12 =" << num2str(sqrt(s01))
          << "   m23 =" << num2str(sqrt(s12))
-         << "   m13 =" << num2str(sqrt(s02)) << endl;
+         << "   m13 =" << num2str(sqrt(s02));
     printOut(__METHOD_NAME__,ss.str());
     RotBstMatrix M;
     Vec4 p1cm = pTwo[0];
@@ -3211,11 +3234,9 @@ bool VinciaCommon::map2to3FFmassless(vector<Vec4>& pThree,
     p1cm.rotbst(M);
     p2cm.rotbst(M);
     Vec4 tot = p1cm+p2cm;
-    ss.str(std::string());
-    ss << "Starting dipole in CM\n"
-       << " p1cm = " << p1cm << " p2cm = " << p2cm
-       << " total = " << tot<<endl;
-    printOut(__METHOD_NAME__,ss.str());
+    printOut(__METHOD_NAME__,"Starting dipole in CM");
+    cout << " p1cm = " << p1cm << " p2cm = " << p2cm
+         << " total = " << tot;
   }
 
   // Set up kinematics in rest frame.
@@ -3243,11 +3264,9 @@ bool VinciaCommon::map2to3FFmassless(vector<Vec4>& pThree,
   // Verbose output.
   if (verbose >= DEBUG) {
     Vec4 tot = p1+p2+p3;
-    stringstream ss;
-    ss << "Configuration in CM* (def: 1 along z)\n"
-       << " k1* =  " << p1 << " k2* =  " << p2 << " k3* =  " << p3
-       << " total = " << tot << endl;
-    printOut(__METHOD_NAME__, ss.str());
+    printOut(__METHOD_NAME__,"Configuration in CM* (def: 1 along z)");
+    cout << " k1* =  " << p1 << " k2* =  " << p2 << " k3* =  " << p3
+         << " total = " << tot;
   }
 
   // Choose global rotation around axis perpendicular to event plane.
@@ -3293,7 +3312,7 @@ bool VinciaCommon::map2to3FFmassless(vector<Vec4>& pThree,
              num2str(psi,6));
     printOut(__METHOD_NAME__, "Final momenta in CM:");
     cout << " k1cm = " << p1 << " k2cm = " << p2 << " k3cm = " << p3
-         << " total = " << tot << endl;
+         << " total = " << tot;
   }
 
   // Rotate and boost to lab frame.
@@ -3301,11 +3320,9 @@ bool VinciaCommon::map2to3FFmassless(vector<Vec4>& pThree,
   M.fromCMframe(pTwo[0],pTwo[1]);
   Vec4 total = pTwo[0] + pTwo[1];
   if (verbose >= DEBUG) {
-    stringstream ss;
-    ss << "Boosting to LAB frame "
-       << "defined by\n" << " p1 =   " << pTwo[0] << " p2 =   " << pTwo[1]
-       << " total = " << total;
-    printOut(__METHOD_NAME__,ss.str());
+    printOut(__METHOD_NAME__,"Boosting to LAB frame defined by");
+    cout << " p1 =   " << pTwo[0] << " p2 =   " << pTwo[1]
+         << " total = " << total;
   }
   p1.rotbst(M);
   p2.rotbst(M);
@@ -3314,7 +3331,7 @@ bool VinciaCommon::map2to3FFmassless(vector<Vec4>& pThree,
     Vec4 tot = p1 + p2 + p3 ;
     printOut(__METHOD_NAME__,"Final momenta in LAB");
     cout <<" k1 =   "<<p1<<" k2 =   "<<p2<<" k3 =   "<<p3
-         <<" total = "<<tot<<endl;
+         <<" total = "<<tot;
   }
 
   // Save momenta.
@@ -3714,12 +3731,12 @@ bool VinciaCommon::map2to3IImassive(vector<Vec4>& pNew, vector<Vec4>& pRec,
   }
   if (verbose >= DEBUG) {
     Vec4 total= pOld[0]+pOld[1];
-    cout << " Total In before" << total <<  endl
-         << " Total Out before" << pRecSumBefore <<  endl;
+    cout << " Total In before" << total
+         << " Total Out before" << pRecSumBefore;
     total = pNew[0] + pNew[2] - pNew[1];
-    cout << " Total In After" << total <<  endl
-         << " Total Out After" << pRecSumAfter <<  endl
-         << " Total diff After" << total-pRecSumAfter <<  endl;
+    cout << " Total In After" << total
+         << " Total Out After" << pRecSumAfter
+         << " Total diff After" << total-pRecSumAfter;
   }
   return true;
 
@@ -4736,8 +4753,8 @@ vector<VinciaClustering> VinciaCommon::findAntennae(Event& state,
   }
 
   // Resonance-final branching.
-  else if (state[clus.child1].isResonance()
-    || state[clus.child3].isResonance()) {
+  else if ((state[clus.child1].isResonance() && !state[clus.child1].isFinal())
+    || (state[clus.child3].isResonance() && !state[clus.child3].isFinal())) {
     clus.isFSR = true;
 
     // Always assume clus.child1 is resonance.

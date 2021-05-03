@@ -74,7 +74,7 @@ bool HadronWidths::init(string path) {
 bool HadronWidths::init(istream& stream) {
 
   string line;
-  entries.clear();
+
   while (getline(stream, line)) {
 
     string word1;
@@ -85,8 +85,8 @@ bool HadronWidths::init(istream& stream) {
       completeTag(stream, line);
 
       int id = intAttributeValue(line, "id");
-
-      if (entries.find(id) != entries.end()) {
+      auto entryIter = entries.find(id);
+      if (entryIter != entries.end() && entryIter->second.isUserDefined) {
         infoPtr->errorMsg( "Error in HadronWidths::init: "
           "resonance is defined more than once",
           std::to_string(id));
@@ -104,7 +104,7 @@ bool HadronWidths::init(istream& stream) {
 
       // Insert resonance in entries
       LinearInterpolator widths(left, right, data);
-      entries.emplace(id, HadronWidthEntry{ widths, {} });
+      entries.emplace(id, HadronWidthEntry{ widths, {}, false });
 
       // Insert resonance in signature map
       int signature = getSignature(particleDataPtr->isBaryon(id),
@@ -814,7 +814,8 @@ bool HadronWidths::parameterize(int id, int precision) {
   // Create new or update existing HadronWidthEntry.
   HadronWidthEntry newEntry {
     LinearInterpolator(mMin, mMax, totalWidthData),
-    partialWidths
+    partialWidths,
+    true
   };
   auto iter = entries.find(id);
   if (iter == entries.end())

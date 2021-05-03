@@ -71,7 +71,8 @@ bool ShowerMEsMadgraph::initVincia() {
 
   // Check if pointers initialized.
   verbose = settingsPtr->mode("Vincia:verbose");
-  if (verbose > NORMAL) printOut("ShowerMEsMadgraph::init", "begin", dashLen);
+  if (verbose > VinciaConstants::NORMAL)
+    printOut("ShowerMEsMadgraph::init", "begin", VinciaConstants::dashLen);
   if (!isInitPtr) {
     printOut("ShowerMEsMadgraph::init",
              "Cannot initialize, pointers not set.");
@@ -83,13 +84,13 @@ bool ShowerMEsMadgraph::initVincia() {
   colourDepth = 0.;
 
   // Create new model instance.
-  if (verbose >= REPORT) printOut("ShowerMEsMadgraph::init",
+  if (verbose >= VinciaConstants::REPORT) printOut("ShowerMEsMadgraph::init",
     "setting MG5 C++ masses, widths, couplings...");
   if (modelPtr != nullptr) delete modelPtr;
   modelPtr = new PARS();
   modelPtr->setIndependentParameters(particleDataPtr,coupSMPtr,slhaPtr);
   modelPtr->setIndependentCouplings();
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     modelPtr->printIndependentParameters();
     modelPtr->printIndependentCouplings();
   }
@@ -112,7 +113,7 @@ bool ShowerMEsMadgraph::initVincia() {
   modelPtr->setDependentCouplings();
 
   // Construct Madgraph process library.
-  if (verbose >= DEBUG) printOut("ShowerMEsMadgraph::init()",
+  if (verbose >= VinciaConstants::DEBUG) printOut("ShowerMEsMadgraph::init()",
       "   attempting to construct lib");
   if (libPtr != nullptr) delete libPtr;
   libPtr = new PY8MEs_namespace::PY8MEs(modelPtr);
@@ -140,7 +141,7 @@ bool ShowerMEsMadgraph::hasProcessVincia(vector<int> idIn, vector<int> idOut,
 
 PY8MEs_namespace::PY8ME* ShowerMEsMadgraph::getProcess(
   vector<int> idIn, vector<int> idOut, set<int> sChan) {
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       cout << " ShowerMEsMadgraph::getProcess(): checking for process";
       for (int i = 0; i < (int)idIn.size(); ++i) cout << " " << idIn[i];
       cout << " > ";
@@ -251,7 +252,7 @@ double ShowerMEsMadgraph::me2Vincia(vector<Particle> state, int nIn) {
     // Remove the particle whose helicities have been summed over.
     i9.pop_back();
   }
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     cout << " in = ";
     for (int i = 0; i < (int)idIn.size(); ++i) cout << idIn[i] << " ";
     cout << "   out = ";

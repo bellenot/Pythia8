@@ -65,10 +65,10 @@ main23: $(PYTHIA) main23.cc
 main41 main42 main43 main44 main45 main85 main86 main87 main88 main89 main280:\
 	$(PYTHIA) $$@.cc
 ifeq ($(HEPMC3_USE),true)
-	$(CXX) $@.cc -o $@ $(HEPMC3_INCLUDE) $(CXX_COMMON) $(HEPMC3_LIB)\
+	$(CXX) $@.cc -o $@ $(CXX_COMMON) $(HEPMC3_INCLUDE) $(HEPMC3_LIB)\
 	 -DHEPMC3
 else ifeq ($(HEPMC2_USE),true)
-	$(CXX) $@.cc -o $@ $(HEPMC2_INCLUDE) $(CXX_COMMON) $(HEPMC2_LIB)\
+	$(CXX) $@.cc -o $@ $(CXX_COMMON) $(HEPMC2_INCLUDE) $(HEPMC2_LIB)\
 	 -DHEPMC2
 else
 	$(error Error: $@ requires HEPMC2 or HEPMC3)
@@ -77,12 +77,12 @@ endif
 # MPICH, HDF5, HIGHFIVE, and HepMC2 or HepMC3.
 main46: $(PYTHIA) $$@.cc
 ifeq ($(MPICH_USE)$(HDF5_USE)$(HIGHFIVE_USE)$(HEPMC3_USE),truetruetruetrue)
-	$(MPICH_BIN)mpic++ $@.cc -o $@ -w $(MPICH_INCLUDE) $(HDF5_INCLUDE)\
-	 $(HIGHFIVE_INCLUDE) $(HEPMC3_INCLUDE) $(CXX_COMMON)\
+	$(MPICH_BIN)mpic++ $@.cc -o $@ -w $(CXX_COMMON) $(MPICH_INCLUDE)\
+	 $(HDF5_INCLUDE) $(HIGHFIVE_INCLUDE) $(HEPMC3_INCLUDE)\
 	 $(MPICH_LIB) $(HDF5_LIB) $(HEPMC3_LIB) -DHEPMC3
 else ifeq ($(MPICH_USE)$(HDF5_USE)$(HIGHFIVE_USE)$(HEPMC2_USE),truetruetruetrue)
-	$(MPICH_BIN)mpic++ $@.cc -o $@ -w $(MPICH_INCLUDE) $(HDF5_INCLUDE)\
-	 $(HIGHFIVE_INCLUDE) $(HEPMC2_INCLUDE) $(CXX_COMMON)\
+	$(MPICH_BIN)mpic++ $@.cc -o $@ -w $(CXX_COMMON) $(MPICH_INCLUDE)\
+	 $(HDF5_INCLUDE) $(HIGHFIVE_INCLUDE) $(HEPMC2_INCLUDE)\
 	 $(MPICH_LIB) $(HDF5_LIB) $(HEPMC2_LIB) -DHEPMC2
 else
 	$(error Error: $@ requires MPICH, HDF5, HIGHFIVE, and HEPMC2 or HEPMC3)
@@ -91,7 +91,7 @@ endif
 # EVTGEN.
 main48: $(PYTHIA) $$@.cc
 ifeq ($(EVTGEN_USE)$(HEPMC2_USE),truetrue)
-	$(CXX) $@.cc -o $@ -w $(EVTGEN_INCLUDE) $(CXX_COMMON)\
+	$(CXX) $@.cc -o $@ -w $(CXX_COMMON) $(EVTGEN_INCLUDE)\
 	 -DEVTGEN_PYTHIA -DEVTGEN_EXTERNAL $(EVTGEN_LIB)
 else
 	$(error Error: $@ requires EVTGEN)
@@ -100,7 +100,7 @@ endif
 # FASTJET3.
 main71 main72 main75 main81 main82 main83: $(PYTHIA) $$@.cc
 ifeq ($(FASTJET3_USE),true)
-	$(CXX) $@.cc -o $@ -w $(FASTJET3_INCLUDE) $(CXX_COMMON) $(FASTJET3_LIB)
+	$(CXX) $@.cc -o $@ -w $(CXX_COMMON) $(FASTJET3_INCLUDE) $(FASTJET3_LIB)
 else
 	$(error Error: $@ requires FASTJET3)
 endif
@@ -108,7 +108,7 @@ endif
 # FASTJET3 with recursive tools.
 main74: $(PYTHIA) $$@.cc
 ifeq ($(FASTJET3_USE),true)
-	$(CXX) $@.cc -o $@ -w $(FASTJET3_INCLUDE) $(CXX_COMMON)\
+	$(CXX) $@.cc -o $@ -w $(CXX_COMMON) $(FASTJET3_INCLUDE)\
 	 $(FASTJET3_LIB) -lfastjettools -lRecursiveTools
 else
 	$(error Error: $@ requires FASTJET3)
@@ -117,8 +117,8 @@ endif
 # FASTJET3 and HEPMC3.
 main84: $(PYTHIA) $$@.cc
 ifeq ($(FASTJET3_USE)$(HEPMC3_USE),truetrue)
-	$(CXX) $@.cc -o $@ -w $(FASTJET3_INCLUDE) $(HEPMC3_INCLUDE)\
-	 $(CXX_COMMON) $(FASTJET3_LIB) $(HEPMC3_LIB)
+	$(CXX) $@.cc -o $@ -w $(CXX_COMMON) $(FASTJET3_INCLUDE)\
+	 $(HEPMC3_INCLUDE) $(FASTJET3_LIB) $(HEPMC3_LIB)
 else
 	$(error Error: $@ requires FASTJET3 and HEPMC3)
 endif
@@ -169,7 +169,7 @@ endif
 # HEPMC3.
 main300: $(PYTHIA) $$@.cc
 ifeq ($(HEPMC3_USE),true)
-	$(CXX) $@.cc -o $@ $(HEPMC3_INCLUDE) $(CXX_COMMON) $(HEPMC3_LIB)\
+	$(CXX) $@.cc -o $@ $(CXX_COMMON) $(HEPMC3_INCLUDE) $(HEPMC3_LIB)\
 	 -DHEPMC3
 else
 	$(CXX) $@.cc -o $@ $(CXX_COMMON)

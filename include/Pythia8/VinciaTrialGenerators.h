@@ -16,11 +16,11 @@
 namespace Pythia8 {
 
 // Helpful enums.
-enum class TrialGenType { FF = 1, RF = 2, IF = 3, II = 4 };
+enum class TrialGenType { Void = 0, FF = 1, RF = 2, IF = 3, II = 4 };
 // (Default is used for soft, global, or splittings as appropriate.)
 enum class BranchType { Void = -1, Emit = 0, SplitF = 1, SplitI = 2,
   Conv = 3 };
-enum class Sector { Void = -2, ColI = -1, Default = 0, ColK = 1 };
+enum class Sector { Void = -99, ColI = -1, Default = 0, ColK = 1 };
 
 // Forward declarations.
 class ZetaGenerator;
@@ -32,8 +32,8 @@ class ZetaGeneratorSet;
 
 struct EvolutionWindow {
 
-  int runMode;
-  double alphaSmax, b0, kMu2, lambda2, qMin;
+  int runMode{};
+  double alphaSmax{}, b0{}, kMu2{}, lambda2{}, qMin{};
   map<int, double> mass;
 
 };
@@ -49,7 +49,7 @@ class TrialGenerator {
   // Main constructor.
   TrialGenerator(bool isSectorIn, TrialGenType trialGenTypeIn,
     BranchType branchTypeIn, ZetaGeneratorSet& zetaGenSet)
-    : isInit(false), isSector(isSectorIn), trialGenTypeSav(trialGenTypeIn),
+    : isSector(isSectorIn), trialGenTypeSav(trialGenTypeIn),
         branchType(branchTypeIn) { setupZetaGens(zetaGenSet); }
 
   // Destructor.
@@ -101,7 +101,7 @@ class TrialGenerator {
     Sector sector = Sector::Default);
 
   // True when init succeeds.
-  bool isInit;
+  bool isInit{false};
 
   // Information set at construction.
   const bool isSector;
@@ -109,16 +109,16 @@ class TrialGenerator {
   const BranchType branchType;
 
   // Common prefactors to the trial integral.
-  double kallenFacSav;
-  double Rpdf;
+  double kallenFacSav{1.};
+  double Rpdf{1.};
 
   // Information about the antenna.
-  double sAntSav;
+  double sAntSav{};
   vector<double> massesSav;
 
   // Information about the trial.
-  bool hasTrial;
-  double q2Sav, colFacSav;
+  bool hasTrial{false};
+  double q2Sav{}, colFacSav{};
   const EvolutionWindow* evWindowSav{};
   Sector sectorSav;
 
@@ -317,9 +317,9 @@ class ZetaGenerator {
     const double& Q2In);
 
   // Labels to define this trial generator (set in derived constructors).
-  const TrialGenType trialGenType;
-  const BranchType branchType;
-  const Sector sector;
+  const TrialGenType trialGenType{TrialGenType::Void};
+  const BranchType branchType{BranchType::Void};
+  const Sector sector{Sector::Void};
 
   // Multiplier to convert trial to global.
   const double globalFactSav;

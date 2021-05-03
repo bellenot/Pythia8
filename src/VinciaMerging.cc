@@ -11,6 +11,8 @@
 
 namespace Pythia8 {
 
+using namespace VinciaConstants;
+
 //==========================================================================
 
 // The VinciaMerging class.
@@ -25,13 +27,13 @@ void VinciaMerging::init() {
   verbose = mode("Vincia:verbose");
 
   // Are we doing merging?
-  int showerModel   = mode("PartonShowers:model");
-  bool vinciaOn     = (showerModel == 2 ) ? true : false;
+  bool vinciaOn     = (mode("PartonShowers:model")==2);
   bool sectorShower = flag("Vincia:sectorShower");
   doMerging         = flag("Merging:doMerging");
   doMerging         = ( doMerging && vinciaOn );
   doSectorMerging   = ( doMerging && sectorShower );
 
+  // Check consistency.
   if (doMerging && !doSectorMerging && verbose >= NORMAL) {
     string msg = "Please set Vincia:sectorShower = on ";
     msg += "to perform merging with Vincia.";
@@ -224,7 +226,6 @@ int VinciaMerging::mergeProcessSector(Event& process) {
   // If not merging in resonance systems, remove their decays.
   if (!doMergeRes) {
     newProcess = mergingHooksPtr->bareEvent(newProcess, true);
-
     if (verbose >= DEBUG) {
       string msg = "Process with resonances stripped:";
       printOut(__METHOD_NAME__,msg);
@@ -245,7 +246,6 @@ int VinciaMerging::mergeProcessSector(Event& process) {
     ++nBelowMS;
     ++nTotal;
     // Save the weight of the event for histogramming.
-
     if (!includeWtInXsec)
       mergingHooksPtr->setWeightCKKWL(vector<double>(nWts, 0.));
     else infoPtr->weightContainerPtr->setWeightNominal(0.);
@@ -253,10 +253,8 @@ int VinciaMerging::mergeProcessSector(Event& process) {
   }
 
   if (!history.isValid()) {
-    if (verbose >= NORMAL) {
-      string msg = ": No valid history found.";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
-    }
+    infoPtr->errorMsg("Error in "+__METHOD_NAME__
+      +": No valid history found.");
     ++nAbort;
     return -1;
   }

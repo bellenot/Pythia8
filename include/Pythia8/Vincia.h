@@ -73,7 +73,8 @@ public:
   MergingPtr getMerging() const override { return mergingPtr; }
 
   // End-of-run statistics.
-  void onStat() override { if (verbose >= REPORT) diagnosticsPtr->print(); }
+  void onStat() override {
+    if (verbose >= VinciaConstants::REPORT) diagnosticsPtr->print(); }
 
   // Automatically set verbose level in all members.
   void setVerbose(int verboseIn);

@@ -263,9 +263,12 @@ public:
   // Constructor.
   QEDsplitElemental(Event &event, int iPhotIn, int iSpecIn):
     iPhot(iPhotIn), iSpec(iSpecIn), ariWeight(0) {
-    m2Ant = m2(event[iPhotIn], event[iSpecIn]);
-    sAnt = 2.*event[iPhotIn].p()*event[iSpecIn].p();
-    m2Spec = max(0., event[iSpecIn].m2());}
+    m2Ant = max(VinciaConstants::PICO,
+      m2(event[iPhotIn], event[iSpecIn]));
+    sAnt = max(VinciaConstants::PICO,
+      2.*event[iPhotIn].p()*event[iSpecIn].p());
+    m2Spec = max(0., event[iSpecIn].m2());
+  }
 
   // Kallen function.
   double getKallen() {return m2Ant/(m2Ant - m2Spec);}

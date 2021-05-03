@@ -8,10 +8,11 @@
  
 <h2>Update History</h2> 
 <ol id="toc">
-  <li><a href="#section0">8.304: 09 April 2021</a></li>
-  <li><a href="#section1">8.303: 01 September 2020</a></li>
-  <li><a href="#section2">8.302: 24 April 2020</a></li>
-  <li><a href="#section3">8.301: 30 October 2019</a></li>
+  <li><a href="#section0">8.305: 03 May 2021</a></li>
+  <li><a href="#section1">8.304: 09 April 2021</a></li>
+  <li><a href="#section2">8.303: 01 September 2020</a></li>
+  <li><a href="#section3">8.302: 24 April 2020</a></li>
+  <li><a href="#section4">8.301: 30 October 2019</a></li>
 </ol>
 
  
@@ -22,10 +23,51 @@ compatibility. The main change is that C++11 is now assumed.
 The impact on existing used code should be mild, however. 
  
 <a name="section0"></a> 
+<h3>8.305: 03 May 2021</h3> 
+ 
+<ul> 
+<li>Fixed issue that otherwise caused the weights of the Dire 
+parton shower to be erroneously discarded. The fix will impact 
+the results produced with the Dire parton shower model. The 
+results of the previous version should be considered 
+incorrect.</li> 
+ 
+<li>Fixed potential for segfault in <code>Weights.cc</code> if 
+<code>weightsShowerPtr == nullptr</code>.</li> 
+ 
+<li> A number of fixes related to Vincia have been included. 
+<ul> 
+  <li>Bug fixes in Vincia's merging, addressing the issue that 
+  occasionally incomplete histories were accepted while a complete one 
+  was available.</li> 
+  <li>Fixed some small bugs in Vincia's QED shower that could cause 
+  issues when running at very high energies.</li> 
+  <li>Minor namespace fixes. Moved <code>using namespace 
+  VinciaConstants</code> from headers to source files and moved 
+  <code>enum antFunType</code> inside the Pythia8 namespace.</li> 
+  <li>Added default initialisers for data members in several Vincia 
+  classes, to avoid potentially undefined behaviour. Thanks to 
+  V. Zecca.</li> 
+</ul> 
+</li> 
+ 
+<li>Fixed unintentional initial-state radiation from unresolved hadron 
+beams when set with option <code>BeamRemnants:unresolvedHadron</code> 
+which would break up the beam. Minor fix also for cases where two 
+unresolved hadrons.</li> 
+ 
+<li>Added threshold check on low energy cross sections. This fixes a 
+small bug reported by Vittorio Zecca.</li> 
+ 
+<li>Corrected bug in normalization of histograms in 
+<code>main07.cc</code>. Thanks to M. Baker and A. Thamm.</li> 
+</ul> 
+ 
+<a name="section1"></a> 
 <h3>8.304: 09 April 2021</h3> 
  
 <ul> 
-<li>Christian Preuss and Rob Rob Verheyen join the author team.</li> 
+<li>Christian Preuss and Rob Verheyen join the author team.</li> 
  
 <li>Christine O. Rasmussen leaves as an active author.</li> 
  
@@ -170,7 +212,7 @@ called twice. Now all available cases are looped over, but easy to
 change back to study only one.</li> 
 </ul> 
  
-<a name="section1"></a> 
+<a name="section2"></a> 
 <h3>8.303: 01 September 2020</h3> 
  
 <ul> 
@@ -404,7 +446,7 @@ diffractive systems.</li>
 for diffraction. Thanks to Valentina Zaccolo.</li> 
 </ul> 
  
-<a name="section2"></a> 
+<a name="section3"></a> 
 <h3>8.302: 24 April 2020</h3> 
  
 <ul> 
@@ -499,7 +541,7 @@ with Vincia reverting to the same (in-code) way of setting tune
 presets as Dire and Pythia.</li> 
 </ul> 
  
-<a name="section3"></a> 
+<a name="section4"></a> 
 <h3>8.301: 30 October 2019</h3> 
 <ul> 
 <li>Compilation is done with a new <code>-std=c++11</code> flag.</li> 

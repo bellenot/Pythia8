@@ -569,20 +569,19 @@ bool LowEnergySigma::sigmaPartial(int idAIn, int idBIn, double eCMIn,
   procsOut.clear();
   sigmasOut.clear();
 
-  // sigND is a difference and prone to small numerical imprecisions.
-  if (sigND > 1.0e-9) {
+  if (sigND > TINYSIGMA) {
     procsOut.push_back(1); sigmasOut.push_back(sigND); gotAny = true; }
-  if (sigEl > 0) {
+  if (sigEl > TINYSIGMA) {
     procsOut.push_back(2); sigmasOut.push_back(sigEl); gotAny = true; }
-  if (sigXB > 0) {
+  if (sigXB > TINYSIGMA) {
     procsOut.push_back(3); sigmasOut.push_back(sigXB); gotAny = true; }
-  if (sigAX > 0) {
+  if (sigAX > TINYSIGMA) {
     procsOut.push_back(4); sigmasOut.push_back(sigAX); gotAny = true; }
-  if (sigXX > 0) {
+  if (sigXX > TINYSIGMA) {
     procsOut.push_back(5); sigmasOut.push_back(sigXX); gotAny = true; }
-  if (sigEx > 0) {
+  if (sigEx > TINYSIGMA) {
     procsOut.push_back(7); sigmasOut.push_back(sigEx); gotAny = true; }
-  if (sigAnn > 0) {
+  if (sigAnn > TINYSIGMA) {
     procsOut.push_back(8); sigmasOut.push_back(sigAnn); gotAny = true; }
 
   for (auto resonance : sigRes) {

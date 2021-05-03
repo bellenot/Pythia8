@@ -59,6 +59,9 @@ public:
   bool hasExcitation(int idAIn, int idBIn) const { return (abs(idAIn) == 2212
     || abs(idAIn) == 2112) && (abs(idBIn) == 2212 || abs(idBIn) == 2112); }
 
+  // Cross sections below threshold are assumed numerically equal to zero.
+  static constexpr double TINYSIGMA = 1.e-9;
+
 private:
 
   NucleonExcitations* nucleonExcitationsPtr;

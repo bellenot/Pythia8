@@ -11,6 +11,8 @@
 
 namespace Pythia8 {
 
+using namespace VinciaConstants;
+
 //==========================================================================
 
 // Class for QED emissions.
@@ -108,13 +110,13 @@ void QEDemitElemental::init(Event &event, int xIn, vector<int> iRecoilIn,
   isIA = false;
   isDip = true;
   idx = event[x].id();
-  mx2 = event[x].m2();
+  mx2 = max(0., event[x].m2());
 
   // Compute total recoiler momentum.
   Vec4 pRecoil;
   for (int i = 0; i < (int)iRecoil.size(); i++)
     pRecoil += event[iRecoil[i]].p();
-  my2 = pRecoil.m2Calc();
+  my2 = max(0., pRecoil.m2Calc());
   m2Ant = (pRecoil + event[xIn].p()).m2Calc();
   sAnt = 2*pRecoil*event[xIn].p();
   QQ = 1;

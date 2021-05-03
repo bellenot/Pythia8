@@ -23,10 +23,6 @@ class HadronWidths : public PhysicsBase {
 
 public:
 
-  HadronWidths() = default;
-  HadronWidths(const HadronWidths&) = delete;
-  HadronWidths(HadronWidths&&) = delete;
-
   // Load hadron widths data from an xml file.
   bool init(string path);
   bool init(istream& stream);
@@ -108,6 +104,7 @@ private:
   struct HadronWidthEntry {
     LinearInterpolator width;
     map<pair<int, int>, ResonanceDecayChannel> decayChannels;
+    bool isUserDefined;
   };
 
   // Map from particle id to corresponding HadronWidthEntry.

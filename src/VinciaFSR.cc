@@ -10,6 +10,8 @@
 
 namespace Pythia8 {
 
+using namespace VinciaConstants;
+
 // Max loop counter (for interleaved resonance decays).
 const int VinciaFSR::NLOOPMAX = 10000;
 
@@ -1885,7 +1887,7 @@ void VinciaFSR::prepare(int iSys, Event& event, bool) {
   if (verbose >= DEBUG) {
     printOut(__METHOD_NAME__, "begin (iSys " + num2str(iSys) + ", isPrepared "
       + bool2str(isPrepared) + ", hasInAB " + bool2str(hasInAB) + ", hasInRes "
-      + bool2str(hasInRes), dashLen);
+      + bool2str(hasInRes) + ")", dashLen);
     event.list();
     partonSystemsPtr->list();
   }
@@ -1950,7 +1952,7 @@ void VinciaFSR::prepare(int iSys, Event& event, bool) {
     // Reconstruct lookup tables for existing branchers.
     lookupEmitterFF.clear();
     for (unsigned int i=0; i < emittersFF.size(); ++i) {
-      // Colour, Anticolour
+      // Colour, Anticolour.
       lookupEmitterFF[make_pair(emittersFF[i].i0(),true)] = i;
       lookupEmitterFF[make_pair(emittersFF[i].i1(),false)] = i;
     }
@@ -2008,7 +2010,6 @@ void VinciaFSR::prepare(int iSys, Event& event, bool) {
   nBranch[iSys] = 0;
   nBranchFSR[iSys] = 0;
 
-  //
   stateChangeSys[iSys] = true;
   stateChangeLast      = true;
   iSysWin = iSys;
@@ -3269,22 +3270,20 @@ bool VinciaFSR::check(int iSys, Event &event) {
 
 void VinciaFSR::saveBornState(int iSys, Event& born) {
   // Initialise.
-  nGBorn[iSys] = 0;
+  resolveBorn[iSys] = false;
   map<int, int> nFlavours;
   for (int i(-6); i<=6; ++i) {
-    if (i == 0) continue;
+    if (i == 0) nFlavours[21] = 0;
     nFlavours[i] = 0;
   }
 
   // We want to resolve the Born only when we have a non-QCD coupling in Born.
-  int nGluons = 0;
   int nNonQCD = 0;
   int nIn     = 0;
   for (int i(0); i<partonSystemsPtr->sizeAll(iSys); ++i) {
     Particle* partonPtr = &born[partonSystemsPtr->getAll(iSys, i)];
     if (!partonPtr->isFinal()) ++nIn;
-    if (partonPtr->isGluon())
-      nGBorn[iSys]++;
+    if (partonPtr->isGluon()) nFlavours[partonPtr->id()]++;
     else if (partonPtr->isQuark()) {
       int idNow = partonPtr->isFinal() ? partonPtr->id() : -partonPtr->id();
       nFlavours[idNow]++;
@@ -3298,7 +3297,6 @@ void VinciaFSR::saveBornState(int iSys, Event& born) {
   if (nNonQCD > 0 || nIn == 0) {
     resolveBorn[iSys] = true;
     nFlavsBorn[iSys] = nFlavours;
-    nGBorn[iSys] = nGluons;
   }
 
   // Print information.
@@ -3306,11 +3304,11 @@ void VinciaFSR::saveBornState(int iSys, Event& born) {
     if (resolveBorn[iSys]) {
       printOut(__METHOD_NAME__, "System " + num2str(iSys,2)
         + " with resolved Born configuration:");
-      printOut(__METHOD_NAME__, " 21: "+num2str(nGBorn[iSys],2));
       auto it = nFlavsBorn[iSys].begin();
       for ( ; it != nFlavsBorn[iSys].end(); ++it) {
-        printOut(__METHOD_NAME__, num2str(it->first,3)+": "
-          +num2str(it->second,2));
+        if (it->second != 0)
+          cout << "      " << num2str(it->first,3) << ": "
+               << num2str(it->second,2) << endl;
       }
     } else
       printOut(__METHOD_NAME__,"System " + num2str(iSys,2)
@@ -3323,11 +3321,11 @@ void VinciaFSR::saveBornState(int iSys, Event& born) {
 // Save flavour content of Born state for trial shower (in merging).
 
 void VinciaFSR::saveBornForTrialShower(Event& born) {
-  // Initialise flavour counters.
-  map<int, int> nFlavoursOut;
+  // Initialise.
+  map<int, int> nFlavours;
   for (int i(-6); i<=6; ++i) {
-    if (i == 0) continue;
-    nFlavoursOut[i] = 0;
+    if (i == 0) nFlavours[21] = 0;
+    nFlavours[i] = 0;
   }
 
   // Index of system we do the trial shower for.
@@ -3352,33 +3350,28 @@ void VinciaFSR::saveBornForTrialShower(Event& born) {
       if (!dtr1isQorG && !dtr2isQorG) continue;
       // Otherwise this is our system and we save the Born info.
       resolveBorn[iSysTrial] = true;
-      nGBorn[iSysTrial] = 0;
-      if (born[iDaughter1].isGluon()) nGBorn[iSysTrial]++;
-      else nFlavoursOut[born[iDaughter1].id()]++;
-      if (born[iDaughter2].isGluon()) nGBorn[iSysTrial]++;
-      else nFlavoursOut[born[iDaughter2].id()]++;
+      if (born[iDaughter1].isGluon()) nFlavours[21]++;
+      else nFlavours[born[iDaughter1].id()]++;
+      if (born[iDaughter2].isGluon()) nFlavours[21]++;
+      else nFlavours[born[iDaughter2].id()]++;
       break;
     }
-  }
-  else {
-    resolveBorn[iSysTrial] = false;
-    nGBorn[iSysTrial] = 0;
-  }
-  nFlavsBorn[iSysTrial] = nFlavoursOut;
+  } else resolveBorn[iSysTrial] = false;
+  nFlavsBorn[iSysTrial] = nFlavours;
 
   // Print information.
   if (verbose >= DEBUG) {
     if (resolveBorn[iSysTrial]) {
-      printOut(__METHOD_NAME__, "Trial shower system " + num2str(iSysTrial,2)
+      printOut(__METHOD_NAME__, "System " + num2str(iSysTrial,2)
         + " with resolved Born configuration:");
-      printOut(__METHOD_NAME__, " 21: "+num2str(nGBorn[iSysTrial],2));
       auto it = nFlavsBorn[iSysTrial].begin();
       for ( ; it != nFlavsBorn[iSysTrial].end(); ++it) {
-        printOut(__METHOD_NAME__, num2str(it->first,3)+": "
-          +num2str(it->second,2));
+        if (it->second != 0)
+          cout << "      " << num2str(it->first,3) << ": "
+               << num2str(it->second,2) << endl;
       }
     } else
-      printOut(__METHOD_NAME__,"Trial shower system " + num2str(iSysTrial,2)
+      printOut(__METHOD_NAME__,"System " + num2str(iSysTrial,2)
         + " without resolving the Born configuration");
   }
 }
@@ -3529,6 +3522,8 @@ void VinciaFSR::clearContainers() {
   stateChangeSys.clear();
   nBranch.clear();
   nBranchFSR.clear();
+  nFlavsBorn.clear();
+  resolveBorn.clear();
   mSystem.clear();
   nG.clear();
   nQ.clear();
@@ -4642,8 +4637,7 @@ bool VinciaFSR::acceptTrial(Event& event) {
     }
 
     // Check sector veto.
-    minClus = resolutionPtr->findSector(stateNew, nFlavsBorn[iSysWin],
-      nGBorn[iSysWin]);
+    minClus = resolutionPtr->findSector(stateNew, nFlavsBorn[iSysWin]);
     if (verbose >= DEBUG) {
       stringstream ss;
       ss << "Minimal clustering has sector resolution " << minClus.Q2res;
@@ -4826,7 +4820,7 @@ vector<int> VinciaFSR::genHelicities(AntennaFunction* antFunPtr) {
     if (verbose >= DEBUG)
       printOut(__METHOD_NAME__, "selected"+num2str((int)(hPre[0]))
         + " " + num2str(int(hPre[1])) + "  -> " + num2str(hPost[0]) + " "
-        + num2str(hPost[1]) + " " + num2str(hPost[2]) + "\n");
+        + num2str(hPost[1]) + " " + num2str(hPost[2]));
   }
   return hPost;
 
