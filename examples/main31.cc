@@ -31,7 +31,6 @@ int main() {
   bool loadHooks  = (vetoMode > 0 || MPIvetoMode > 0);
 
   // Add in user hooks for shower vetoing
-  //PowhegHooks *powhegHooks = NULL;
   shared_ptr<PowhegHooks> powhegHooks;
   if (loadHooks) {
 
@@ -100,6 +99,5 @@ int main() {
   cout << endl;
 
   // Done.
-  //if (powhegHooks) delete powhegHooks;
   return 0;
 }

@@ -8,7 +8,6 @@
 
 #include "Pythia8/HeavyIons.h"
 #include "Pythia8/BeamShape.h"
-#include <cassert>
 
 namespace Pythia8 {
 
@@ -273,7 +272,8 @@ bool HeavyIons::isHeavyIon(Settings & settings) {
 
 Angantyr::Angantyr(Pythia & mainPythiaIn)
   : HeavyIons(mainPythiaIn), hasSignal(true),
-    bGenPtr(0), projPtr(0), targPtr(0), collPtr(0), recoilerMode(1), bMode(0) {
+    bGenPtr(0), projPtr(0), targPtr(0), collPtr(0), recoilerMode(1), bMode(0),
+    doAbort(false) {
   selectMB = make_shared<ProcessSelectorHook>();
   selectSASD = make_shared<ProcessSelectorHook>();
   pythia.resize(ALL);
@@ -596,7 +596,12 @@ EventInfo Angantyr::getMBIAS(const SubCollision * coll, int procid) {
   HoldProcess hold(selectMB, procid, bp);
   while ( --itry ) {
     if ( !pythia[MBIAS]->next() ) continue;
-    assert( pythia[MBIAS]->info.code() == procid );
+    if (pythia[MBIAS]->info.code() != procid) {
+      infoPtr->errorMsg("Internal critical error in Angantyr: "
+                          "MBIAS info code not equal to set procid.\n"
+                          "Contact the authors.");
+      doAbort = true;
+    }
     return mkEventInfo(*pythia[MBIAS], *info[MBIAS], coll);
   }
   return EventInfo();
@@ -609,7 +614,12 @@ EventInfo Angantyr::getSASD(const SubCollision * coll, int procid) {
   HoldProcess hold(selectSASD, procid, bp);
   while ( --itry ) {
     if ( !pythia[SASD]->next() ) continue;
-    assert( pythia[SASD]->info.code() == procid );
+    if (pythia[SASD]->info.code() != procid) {
+      infoPtr->errorMsg("Internal critical error in Angantyr: "
+                          "SASD info code not equal to set procid.\n"
+                          "Contact the authors.");
+      doAbort = true;
+    }
     return mkEventInfo(*pythia[SASD], *info[SASD], coll);
   }
   return EventInfo();
@@ -637,7 +647,12 @@ bool Angantyr::genAbs(const multiset<SubCollision> & coll,
       abscoll.push_back(cit);
       if ( bMode > 0 ) {
         EventInfo ie = getND(*cit);
-        assert( ie.code == 101 );
+        if (ie.code != 101) {
+          infoPtr->errorMsg("Internal critical error in Angantyr: "
+                            "ND code not equal to 101.\n"
+                            "Contact the authors.");
+          doAbort = true;
+        }
         ndeve.insert(ie);
       }
       cit->proj->select();
@@ -654,7 +669,12 @@ bool Angantyr::genAbs(const multiset<SubCollision> & coll,
   if ( bMode == 0 ) {
     for ( int i = 0; i < Nabs + Nadd; ++i ) {
       EventInfo ie = getND();
-      assert( ie.code == 101 );
+      if (ie.code != 101) {
+        infoPtr->errorMsg("Internal critical error in Angantyr: "
+                            "ND code not equal to 101.\n"
+                            "Contact the authors.");
+        doAbort = true;
+      }
       ndeve.insert(ie);
     }
   }
@@ -1566,7 +1586,7 @@ bool Angantyr::next() {
 
   int itry = MAXTRY;
 
-  while ( itry-- ) {
+  while ( itry-- && !doAbort) {
 
     // Generate nuclei, impact paramter and nucleon sub-collisions.
     projectile = projPtr->generate();
@@ -1660,10 +1680,12 @@ bool Angantyr::next() {
     return true;
 
   }
-
-  infoPtr->errorMsg("Abort from Angantyr::next: Too many "
-    "attempts to generate a working impact parameter point. "
-    "Consider reducing HeavyIon:bWidth.");
+  if (doAbort)
+    infoPtr->errorMsg("Angantyr was aborted due to a critical error.");
+  else
+    infoPtr->errorMsg("Abort from Angantyr::next: Too many "
+      "attempts to generate a working impact parameter point. "
+      "Consider reducing HeavyIon:bWidth.");
   hiInfo.reject();
   return false;
 

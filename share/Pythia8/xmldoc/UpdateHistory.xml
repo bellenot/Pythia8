@@ -8,6 +8,34 @@ PYTHIA 8.243 version, which was the starting point for PYTHIA
 compatibility. The main change is that C++11 is now assumed. 
 The impact on existing used code should be mild, however. 
  
+<h3>8.306: 28 June 2021</h3> 
+ 
+<ul> 
+<li>Fixed the incorrect scale being set when applying the POWHEG veto, 
+i.e. <code>main31.cc</code>. Note that the number of emissions is 
+correct in 8.303, but is incorrect in 8.304 and 8.305. Thanks to 
+Mikhail Kirsanov.</li> 
+ 
+<li>Fixed repeated initialization causing an ever expanding physics 
+pointer list in the main <code>Pythia</code> class.</li> 
+ 
+<li>Fixed issue for HepMC output from Vincia, which would previously 
+issue warnings about inconsistent mother/daughter relationships, 
+caused by Vincia's antenna-style bookkeeping by which emitted partons 
+have two mothers instead of one. For status codes 43, 51, and 53, the 
+HepMC interface now ignores the second parent, always using just the 
+first one to define the vertex structure. Minor modifications to 
+Vincia's QCD shower to ensure that the first mother is the one that 
+changed colour and hence would be identified with the "radiator" in a 
+collinear context. Analogous modifications in the QED module so the 
+most collinear parent is the first mother. 
+</li> 
+ 
+<li>Removed <code>assert</code> statements from Angantyr.</li> 
+ 
+<li>Shortened Pythia constructor header.</li> 
+</ul> 
+ 
 <h3>8.305: 03 May 2021</h3> 
  
 <ul> 
@@ -128,7 +156,7 @@ charm and bottom end quarks, to allow an increased few-body fraction
 further above threshold. Thanks to Andy Buckley.</li> 
  
 <li> Added <code>ResonanceDecayFilterHook</code> and example <code> 
-main103.cc </code> to demonstrate how to select specific final states 
+main103.cc</code> to demonstrate how to select specific final states 
 from resonance decays.</li> 
  
 <li>Fixed vertex smearing in heavy ion events.</li> 

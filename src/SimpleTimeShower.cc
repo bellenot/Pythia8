@@ -316,12 +316,11 @@ bool SimpleTimeShower::limitPTmax( Event& event, double Q2Fac, double Q2Ren) {
   dopTlimit1 = dopTlimit2 = false;
   int nHeavyCol = 0;
   if (pTmaxMatch == 1) dopTlimit = dopTlimit1 = dopTlimit2 = true;
-
+  else if (pTmaxMatch == 2) dopTlimit = dopTlimit1 = dopTlimit2 = false;
   // Always restrict SoftQCD processes.
   else if (infoPtr->isNonDiffractive() || infoPtr->isDiffractiveA()
     || infoPtr->isDiffractiveB() || infoPtr->isDiffractiveC() )
     dopTlimit = dopTlimit1 = dopTlimit2 = true;
-
   // Look if any quark (u, d, s, c, b), gluon or photon in final state.
   // Also count number of heavy coloured particles, like top.
   else {

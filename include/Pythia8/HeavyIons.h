@@ -384,6 +384,9 @@ private:
   /// Different choices for handling impact parameters.
   int bMode;
 
+  /// Critical internal error, abort the event.
+  bool doAbort;
+
 public:
 
   /// internal class to redirect stdout

@@ -3423,7 +3423,11 @@ bool VinciaISR::branch(Event& event) {
       // iNew3 b inherits mothers of B, daughters are B and j.
       event[iNew3].daughters(iNew2, i2sav);
       // iNew2 j gets a and b as mothers, no daughters.
-      event[iNew2].mothers(iNew1, iNew3);
+      // Ensure mother1 is the one that changed colour (collinear mother),
+      // used eg to determine vertex structure in HepMC output.
+      if (event[iNew3].col() == event[i2sav].col() && event[iNew3].acol()
+        == event[i2sav].acol()) event[iNew2].mothers(iNew1, iNew3);
+      else event[iNew2].mothers(iNew3, iNew1);
 
     // Gluon splitting or conversion in the initial state: side A.
     } else if (!isSwapped) {
@@ -3472,14 +3476,19 @@ bool VinciaISR::branch(Event& event) {
     event[iNew1].mothers(event[i1sav].mother1(), event[i1sav].mother2());
     // Gluon emission.
     if (event[iNew2].id()==21) {
-      // iNew1 a inherits mothers of A, daughters are A and j.
+      // iNew1 a inherits mothers of A, daughters are j and A.
       event[iNew1].daughters(iNew2, i1sav);
-      // i2sav K gets k and j as daughters, keeps its mothers.
+      // i2sav K gets j and k as daughters, keeps its mothers.
       event[i2sav].daughters(iNew2, iNew3);
       // iNew3 k gets K as mother, no daughters.
       event[iNew3].mothers(i2sav, 0);
       // iNew2 j gets a and K as mothers, no daughters.
-      event[iNew2].mothers(i2sav, iNew1);
+      // Ensure mother1 is the one that changed colour (collinear mother),
+      // used eg to determine vertex structure in HepMC output.
+      if (event[i1sav].col() == event[iNew1].col() &&
+        event[i1sav].acol() == event[iNew1].acol())
+        event[iNew2].mothers(i2sav, iNew1);
+      else event[iNew2].mothers(iNew1, i2sav);
 
     // Gluon splitting or conversion in the initial state
     } else if (antFunTypePhys == QXsplitIF || antFunTypePhys == GXconvIF) {

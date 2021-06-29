@@ -10,8 +10,8 @@
 #define Pythia8_Pythia_H
 
 // Version number defined for use in macros and for consistency checks.
-#define PYTHIA_VERSION 8.305
-#define PYTHIA_VERSION_INTEGER 8305
+#define PYTHIA_VERSION 8.306
+#define PYTHIA_VERSION_INTEGER 8306
 
 // Header files for the Pythia class and for what else the user may need.
 #include "Pythia8/Analysis.h"
@@ -335,8 +335,12 @@ private:
   void endEvent(PhysicsBase::Status status);
 
   // Register a PhysicsBase object and give it a pointer to the info object.
-  void registerPhysicsBase(PhysicsBase & pb) { pb.initInfoPtr(infoPrivate);
-    physicsPtrs.push_back(&pb); }
+  void registerPhysicsBase(PhysicsBase &pb) {
+    if (find(physicsPtrs.begin(), physicsPtrs.end(), &pb) != physicsPtrs.end())
+      return;
+    pb.initInfoPtr(infoPrivate);
+    physicsPtrs.push_back(&pb);
+  }
 
   // If new pointers are set in Info propagate this to all
   // PhysicsBase objects.

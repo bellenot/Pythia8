@@ -4877,11 +4877,14 @@ double VinciaFSR::getMEC(int iSys, const Event& event,
 
 //--------------------------------------------------------------------------
 
-// Update the event.
+// Update the event after a QCD FF or RF branching.
 
 bool VinciaFSR::updateEvent(Event& event, ResJunctionInfo& junctionInfoIn) {
 
+  // Append the particles in pNew to event record.
   for (unsigned int i = 0; i < pNew.size(); ++i) event.append(pNew[i]);
+
+  // Set daughter information for each mother and mark mother as decayed.
   map<int, pair<int,int> >::iterator it;
   for (it = winnerQCD->mothers2daughters.begin();
        it != winnerQCD->mothers2daughters.end(); ++it) {
@@ -4894,15 +4897,23 @@ bool VinciaFSR::updateEvent(Event& event, ResJunctionInfo& junctionInfoIn) {
     } else return false;
   }
 
-  // Add mothers to new daughters.
+  // Set mother information for each daughter.
   for (it = winnerQCD->daughters2mothers.begin();
       it != winnerQCD->daughters2mothers.end(); ++it) {
     int daughter = it->first;
     int mother1  = (it->second).first;
     int mother2  = (it->second).second;
-    if (daughter<event.size() && daughter > 0)
-      event[daughter].mothers(mother1, mother2);
-    else return false;
+    // Ensure mother1 is always the one whose colour (or anticolour) flowed
+    // onto the emitted parton. (This determines which mother is used to
+    // define collinear vertex structure eg in HepMC output.)
+    if (daughter<event.size() && daughter > 0) {
+      if (mother2 == 0) event[daughter].mothers(mother1, 0);
+      else if (mother1 == 0) event[daughter].mothers(mother2, 0);
+      else if (event[daughter].col() == event[mother1].col() ||
+        event[daughter].acol() == event[mother1].acol())
+        event[daughter].mothers(mother1, mother2);
+      else event[daughter].mothers(mother2, mother1);
+    } else return false;
   }
 
   // Tell Pythia if we used a colour tag.
@@ -4965,8 +4976,7 @@ bool VinciaFSR::updateEvent(Event& event, ResJunctionInfo& junctionInfoIn) {
           // Get daughter that isn't iNew.
           int m2after=event[m2].daughter1();
           if (m2after==iNew) m2after = event[m2].daughter2();
-          //Check, did this mother change colours or was it the
-          // recoiler?
+          // Did this mother change colours or was it the recoiler?
           int colBef    = event[m2].col();
           int acolBef   = event[m2].acol();
           int colAfter  = event[m2after].col();

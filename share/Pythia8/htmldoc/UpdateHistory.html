@@ -8,11 +8,12 @@
  
 <h2>Update History</h2> 
 <ol id="toc">
-  <li><a href="#section0">8.305: 03 May 2021</a></li>
-  <li><a href="#section1">8.304: 09 April 2021</a></li>
-  <li><a href="#section2">8.303: 01 September 2020</a></li>
-  <li><a href="#section3">8.302: 24 April 2020</a></li>
-  <li><a href="#section4">8.301: 30 October 2019</a></li>
+  <li><a href="#section0">8.306: 28 June 2021</a></li>
+  <li><a href="#section1">8.305: 03 May 2021</a></li>
+  <li><a href="#section2">8.304: 09 April 2021</a></li>
+  <li><a href="#section3">8.303: 01 September 2020</a></li>
+  <li><a href="#section4">8.302: 24 April 2020</a></li>
+  <li><a href="#section5">8.301: 30 October 2019</a></li>
 </ol>
 
  
@@ -23,6 +24,35 @@ compatibility. The main change is that C++11 is now assumed.
 The impact on existing used code should be mild, however. 
  
 <a name="section0"></a> 
+<h3>8.306: 28 June 2021</h3> 
+ 
+<ul> 
+<li>Fixed the incorrect scale being set when applying the POWHEG veto, 
+i.e. <code>main31.cc</code>. Note that the number of emissions is 
+correct in 8.303, but is incorrect in 8.304 and 8.305. Thanks to 
+Mikhail Kirsanov.</li> 
+ 
+<li>Fixed repeated initialization causing an ever expanding physics 
+pointer list in the main <code>Pythia</code> class.</li> 
+ 
+<li>Fixed issue for HepMC output from Vincia, which would previously 
+issue warnings about inconsistent mother/daughter relationships, 
+caused by Vincia's antenna-style bookkeeping by which emitted partons 
+have two mothers instead of one. For status codes 43, 51, and 53, the 
+HepMC interface now ignores the second parent, always using just the 
+first one to define the vertex structure. Minor modifications to 
+Vincia's QCD shower to ensure that the first mother is the one that 
+changed colour and hence would be identified with the "radiator" in a 
+collinear context. Analogous modifications in the QED module so the 
+most collinear parent is the first mother. 
+</li> 
+ 
+<li>Removed <code>assert</code> statements from Angantyr.</li> 
+ 
+<li>Shortened Pythia constructor header.</li> 
+</ul> 
+ 
+<a name="section1"></a> 
 <h3>8.305: 03 May 2021</h3> 
  
 <ul> 
@@ -63,7 +93,7 @@ small bug reported by Vittorio Zecca.</li>
 <code>main07.cc</code>. Thanks to M. Baker and A. Thamm.</li> 
 </ul> 
  
-<a name="section1"></a> 
+<a name="section2"></a> 
 <h3>8.304: 09 April 2021</h3> 
  
 <ul> 
@@ -144,7 +174,7 @@ charm and bottom end quarks, to allow an increased few-body fraction
 further above threshold. Thanks to Andy Buckley.</li> 
  
 <li> Added <code>ResonanceDecayFilterHook</code> and example <code> 
-main103.cc </code> to demonstrate how to select specific final states 
+main103.cc</code> to demonstrate how to select specific final states 
 from resonance decays.</li> 
  
 <li>Fixed vertex smearing in heavy ion events.</li> 
@@ -212,7 +242,7 @@ called twice. Now all available cases are looped over, but easy to
 change back to study only one.</li> 
 </ul> 
  
-<a name="section2"></a> 
+<a name="section3"></a> 
 <h3>8.303: 01 September 2020</h3> 
  
 <ul> 
@@ -446,7 +476,7 @@ diffractive systems.</li>
 for diffraction. Thanks to Valentina Zaccolo.</li> 
 </ul> 
  
-<a name="section3"></a> 
+<a name="section4"></a> 
 <h3>8.302: 24 April 2020</h3> 
  
 <ul> 
@@ -541,7 +571,7 @@ with Vincia reverting to the same (in-code) way of setting tune
 presets as Dire and Pythia.</li> 
 </ul> 
  
-<a name="section4"></a> 
+<a name="section5"></a> 
 <h3>8.301: 30 October 2019</h3> 
 <ul> 
 <li>Compilation is done with a new <code>-std=c++11</code> flag.</li> 
