@@ -1,5 +1,5 @@
 // SimpleTimeShower.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2021 Torbjorn Sjostrand.
+// Copyright (C) 2022 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -402,6 +402,7 @@ int SimpleTimeShower::shower( int iBeg, int iEnd, Event& event, double pTmax,
   pTLastBranch = 0.;
   do {
     double pTtimes = pTnext( event, pTmax, 0.);
+    infoPtr->setPTnow( pTtimes);
 
     // Do a final-state emission (if allowed).
     if (pTtimes > 0.) {
@@ -500,7 +501,6 @@ int SimpleTimeShower::showerQED( int i1, int i2, Event& event, double pTmax) {
       Vec4 pRecBef     = event[iRecBef].p();
 
       // Construct kinematics in dipole rest frame; massless emitter.
-      double pTorig       = sqrt( dipSel->pT2);
       double eRadPlusEmt  = 0.5 * (dipSel->m2Dip + dipSel->m2 - dipSel->m2Rec)
         / dipSel->mDip;
       double e2RadPlusEmt = pow2(eRadPlusEmt);
@@ -518,7 +518,6 @@ int SimpleTimeShower::showerQED( int i1, int i2, Event& event, double pTmax) {
 
       // Kinematics reduction for radiator mass.
       double m2Ratio    = dipSel->m2Rad / dipSel->m2;
-      pTorig           *= 1. - m2Ratio;
       pTcorr           *= 1. - m2Ratio;
       pzRad            += pzEmt * m2Ratio;
       pzEmt            *= 1. - m2Ratio;
@@ -2032,7 +2031,7 @@ double SimpleTimeShower::pTnext( Event& event, double pTbegAll,
     } else if (globalRecoilMode == 2 && isQCD) {
       useLocalRecoilNow = !(globalRecoil && hardSystem
         && nProposed.find(dip.system) != nProposed.end()
-        && nProposed[dip.system]-infoPtr->getCounter(40) == 0);
+        && nProposed[dip.system]-infoPtr->getCounter(40) <= 0);
       int nFinal = 0;
       for (int k = 0; k < int(event.size()); ++k)
         if ( event[k].isFinal() && event[k].colType() != 0) nFinal++;
@@ -2086,7 +2085,7 @@ double SimpleTimeShower::pTnext( Event& event, double pTbegAll,
     // For global recoil, always set the starting scale for first emission.
     bool isFirstWimpy = !useLocalRecoilNow && (pTmaxMatch == 1)
       && nProposed.find(dip.system) != nProposed.end()
-      && (nProposed[dip.system] - infoPtr->getCounter(40) == 0
+      && (nProposed[dip.system] - infoPtr->getCounter(40) <= 0
       || isFirstTrial);
     double muQ        = (infoPtr->scalup() > 0.) ? infoPtr->scalup()
                       : infoPtr->QFac();
@@ -3053,7 +3052,7 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
   } else if (globalRecoilMode == 2 && isQCD) {
     useLocalRecoilNow = !(globalRecoil
       && nProposed.find(dipSel->system) != nProposed.end()
-      && nProposed[dipSel->system] - infoPtr->getCounter(40) == 1);
+      && nProposed[dipSel->system] - infoPtr->getCounter(40) <= 1);
     // Check if global recoil should be used.
     int nFinal = 0;
     for (int i = 0; i < int(event.size()); ++i)
@@ -3279,8 +3278,9 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
     pzEmt             = pzRadPlusEmt - pzRad;
   }
 
-  // Reject g emission where mass effects have reduced pT below cutoff.
-  if (idEmt == 21 && pTorig < pTcolCut) return false;
+  // Reject g/gv emission where mass effects have reduced pT below cutoff.
+  // Separate cut for gv _could_ be added if needed.
+  if ( (idEmt == 21 || idEmt == 4900021) && pTorig < pTcolCut) return false;
 
   // Find rest frame and angles of original dipole.
   RotBstMatrix M;
@@ -3600,6 +3600,10 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
 
   // Return false if we decided to reject this branching. Veto if necessary.
   if ( !acceptEmission ) {
+    // Increment counter to handle counting of rejected emissions.
+    // (used for global recoil tests)
+    infoPtr->addCounter(40);
+
     event.popBack( event.size() - eventSizeOld);
     event[iRadBef].status( iRadStatusV);
     event[iRadBef].daughters( iRadDau1V, iRadDau2V);
@@ -4104,6 +4108,7 @@ bool SimpleTimeShower::resonanceShower(Event& process, Event& event,
     double pTtimes  = (doFSRinResonances) ? pTnext( event, pTmax, pTmerge)
       : -1.;
     double pTresDec = pTnextResDec();
+    infoPtr->setPTnow( max(pTtimes, pTresDec) );
 
     // Do a final-state emission.
     if ( pTtimes > 0. && pTtimes > max( pTresDec, pTmerge) ) {

@@ -260,12 +260,11 @@ parameter. Thus a small number will result in a large saturation.
  
 <a name="anchor11"></a>
 <p/><code>mode&nbsp; </code><strong> BeamRemnants:maxValQuark &nbsp;</strong> 
- (<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)<br/>
+ (<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)<br/>
 The maximum valence quark kind allowed in acceptable incoming beams, 
 for which multiparton interactions are simulated. Default is that hadrons 
-may contain <i>u</i>, <i>d</i> and <i>s</i> quarks, 
-but not <i>c</i> and <i>b</i> ones, since sensible 
-kinematics has not really been worked out for the latter. 
+may contain all quarks except top, but e.g. a change to 3 would also 
+exclude <i>c</i> and <i>b</i> hadrons. 
    
  
 <a name="anchor12"></a>
@@ -384,7 +383,47 @@ a proton that does not break up in the process.
 <br/><code>option </code><strong> 3</strong> :  Both hadronic beams are unresolved.    
    
  
+<p/> 
+Empirically it is known that the leading baryon in the fragmentation 
+region is softer in PYTHIA than in data. The following settings 
+allow the possibility to modify the leading-diquark fragmentation to 
+(partly) address this issue. 
+ 
+<a name="anchor23"></a>
+<p/><code>flag&nbsp; </code><strong> BeamRemnants:forbidPopcorn &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Allows a beam remnant diquark to hadronize to a leading meson or not. 
+If off then a remnant behaves just like in ordinary hadronization, 
+if on, then a diquark will always produce a leading baryon. 
+Has no influence on diquarks not coming from a beam remnant. 
+   
+ 
+<a name="anchor24"></a>
+<p/><code>flag&nbsp; </code><strong> BeamRemnants:hardRemnantBaryon &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Allows a remnant diquark to hadronize to a harder-than-normal baryon, 
+assuming that <code>forbidPopcorn</code> is switched on. Then the next 
+two parameters override the normal <i>a</i> and <i>b</i> of the 
+Lund symmetric fragmentation function. 
+   
+ 
+<a name="anchor25"></a>
+<p/><code>parm&nbsp; </code><strong> BeamRemnants:aRemnantBaryon &nbsp;</strong> 
+ (<code>default = <strong>0.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 2.</code>)<br/>
+For the special hard remnant baryon handling above, this parameter is 
+the power <i>a</i> in the <i>(1-z)^a</i> factor of the fragmentation 
+function. 
+   
+ 
+<a name="anchor26"></a>
+<p/><code>parm&nbsp; </code><strong> BeamRemnants:bRemnantBaryon &nbsp;</strong> 
+ (<code>default = <strong>2.</strong></code>; <code>minimum = 0.5</code>; <code>maximum = 5.</code>)<br/>
+For the special hard remnant baryon handling above, this parameter is 
+the factor <i>b</i> in the <i>exp(-b m_T^2/z</i> factor of the 
+fragmentation function. 
+   
+ 
 </body>
 </html>
  
-<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 

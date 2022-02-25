@@ -1,5 +1,5 @@
 // HeavyIons.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2021 Torbjorn Sjostrand.
+// Copyright (C) 2022 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -516,19 +516,11 @@ bool Angantyr::init() {
   if ( !targPtr->init() ) return false;
   if ( !bGenPtr->init() ) return false;
 
-  string output;
-  if ( hasSignal ) {
-    ostringstream oss;
-    Redirect red(cout, oss);
-    hasSignal = init(SIGPP, "signal process (pp)", 10);
-    output = oss.str();
-  }
+  if ( hasSignal ) hasSignal = init(SIGPP, "signal process (pp)", 10);
   if ( !hasSignal ) {
     if ( print ) cout << " Angantyr Info: No signal process specified. "
-                      << "Assuming minimum bias." << endl;
+                      << "Assuming minimum bias.\n";
   } else {
-      if ( print )
-        cout << output;
       if ( idTargN ) init(SIGPN, "signal process (pn)", 10);
       if ( idProjN ) init(SIGNP, "signal process (np)", 10);
       if ( idProjN && idTargN ) init(SIGNN, "signal process (nn)", 10);
@@ -1212,7 +1204,7 @@ bool Angantyr::addNucleonExcitation(EventInfo & ei, EventInfo & sub,
 
   // Find the ransform to the recoilers and the diffractive combined cms
   pair<RotBstMatrix,RotBstMatrix> R12;
-  if ( !getTransforms(prec, pdiff, pbeam, R12,  ei.code, sub.code) )
+  if ( !getTransforms(prec, pdiff, pbeam, R12) )
     return false;
 
   // Transform the recoilers.
@@ -1292,12 +1284,7 @@ bool Angantyr::addNucleonExcitation(EventInfo & ei, EventInfo & sub,
 
 bool
 Angantyr::getTransforms(Vec4 prec, Vec4 pdiff, const Vec4 & pbeam,
-                      pair<RotBstMatrix,RotBstMatrix> & R12,
-                      int code1, int code2) {
-  code1 += code2;
-  // static ofstream os("testhi.out");
-  // os << "=== " << code1 << "+" << code2 << " ===" << endl;
-  // os << prec << pbeam << pdiff;
+                      pair<RotBstMatrix,RotBstMatrix> & R12) {
   RotBstMatrix Ri;
   Ri.toCMframe(pbeam, prec);
   Vec4 pr1 = prec;
@@ -1306,28 +1293,23 @@ Angantyr::getTransforms(Vec4 prec, Vec4 pdiff, const Vec4 & pbeam,
   pr1.rotbst(Ri);
   pb1.rotbst(Ri);
   pd1.rotbst(Ri);
-  // os << "=>" << endl << pr1 << pb1 << pd1;
   Vec4 pr2 = pr1;
   if ( pd1.pT() >= abs(pr2.pz()) ) {
-    // os << "*** failed to rotate ***" << endl;
     return false;
   }
   double the = asin(pd1.pT()/abs(pr2.pz()));
   RotBstMatrix R1;
   R1.rot(the, pd1.phi());
   pr2.rotbst(R1);
-  // os << "=>" << endl << pr2 << pd1;
 
   double S = (prec + pbeam).m2Calc();
   double mtr2 = pr2.pT2() + pr2.m2Calc();
   double mtd2 = pd1.pT2() + pd1.m2Calc();
   if ( sqrt(S) <= sqrt(mtr2) + sqrt(mtd2) ) {
-    // os << "*** failed to boost ***" << endl;
     return false;
   }
   double z2 = 0.25*(mtr2*mtr2 + (mtd2 - S)*(mtd2 - S) - 2.0*mtr2*(mtd2 + S))/S;
   if ( z2 <= 0.0 ) {
-    // os << "*** failed to boost ***" << endl;
     return false;
   }
   double z = sqrt(z2);
@@ -1343,14 +1325,13 @@ Angantyr::getTransforms(Vec4 prec, Vec4 pdiff, const Vec4 & pbeam,
   pr3.rotbst(R1);
   Vec4 pd3 = pd1;
   pd3.rotbst(R2);
-  // os << "=>" << endl << pr3 << pd3;
+
   RotBstMatrix Rf = Ri;
   Rf.invert();
   Vec4 pr4 = pr3;
   pr4.rotbst(Rf);
   Vec4 pd4 = pd3;
   pd4.rotbst(Rf);
-  // os << "=>" << endl << pr4 << pd4 << pr4 + pd4 << prec + pbeam;
 
   R12.first = R12.second = Ri;
   R12.first.rotbst(R1);
@@ -1359,7 +1340,6 @@ Angantyr::getTransforms(Vec4 prec, Vec4 pdiff, const Vec4 & pbeam,
   R12.second.rotbst(Rf);
   prec.rotbst(R12.first);
   pdiff.rotbst(R12.second);
-  // os << prec << pdiff;
 
   return true;
 

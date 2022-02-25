@@ -220,6 +220,14 @@ with the width set explicitly to zero.)
    
  
 <a name="anchor6"></a>
+<p/><code>flag&nbsp; </code><strong> SLHA:allowOnlyOffShell &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Switch to allow a decay table with only off-shell decays. By default, 
+internal checks require particles to have at least one on-shell decay 
+mode. 
+   
+ 
+<a name="anchor7"></a>
 <p/><code>mode&nbsp; </code><strong> SLHA:meMode &nbsp;</strong> 
  (<code>default = <strong>100</strong></code>; <code>minimum = 100</code>; <code>maximum = 103</code>)<br/>
 This value specifies how threshold, off-shell, and phase-space 
@@ -255,7 +263,7 @@ program.
 <a name="section3"></a> 
 <h3>Internal SLHA Variables</h3> 
  
-<a name="anchor7"></a>
+<a name="anchor8"></a>
 <p/><code>mode&nbsp; </code><strong> SLHA:verbose &nbsp;</strong> 
  (<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
 Controls amount of text output written by the SLHA interface, with a 
@@ -266,7 +274,7 @@ The following variables are used internally by PYTHIA as local copies
 of SLHA information. User changes will generally have no effect, since 
 these variables will be reset by the SLHA reader during initialization. 
  
-<a name="anchor8"></a>
+<a name="anchor9"></a>
 <p/><code>flag&nbsp; </code><strong> SLHA:NMSSM &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 Corresponds to SLHA block MODSEL entry 3. 
@@ -349,4 +357,4 @@ recompute the EW parameters as best suited for the application at hand.
 </body>
 </html>
  
-<!-- Copyright (C) 2021 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 

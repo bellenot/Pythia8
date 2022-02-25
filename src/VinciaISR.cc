@@ -1,5 +1,5 @@
 // VinciaISR.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2021 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2022 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -3904,12 +3904,18 @@ bool VinciaISR::branch(Event& event) {
     return false;
   }
 
-  // When merging, communicate to MergingHooks whether the event may be vetoed
-  // due to this branching.
+  // Merging: is this branching a candidate for a merging veto or not?
   if (doMerging && !isTrialShower) {
     // We only want to veto the event based on the first branching.
-    // Note: in principle, we could veto later emissions here as well.
-    if (nBranch[iSysWin] > 1)
+    // In principle, later emissions could be vetoed as well, but the
+    // current treatment assumes that if the first emission is below the
+    // merging scale, all subsequent ones are too.
+    // This could explicitly be checked by setting nBranchMergingVeto to
+    // a large number.
+    int nBranchMaxMergingVeto = 1;
+
+    // Merging veto should ignore branchings after the first.
+    if (nBranch[iSysWin] > nBranchMaxMergingVeto)
       mergingHooksPtr->doIgnoreStep(true);
   }
 
