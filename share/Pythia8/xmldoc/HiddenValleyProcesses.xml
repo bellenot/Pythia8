@@ -120,10 +120,16 @@ pairs. Mass, total width and branching ratios can be set as convenient.
 <ei>l^+l^-, q qbar &rarr; Zv &rarr; qv qvbar</ei>. 
  
 <p/> 
+Some further scenarios can easily be implemented by a brute-force 
+addition of a new decay channel to an existing particle. An example 
+would be a Higgs portal, where the Higgs can decay into a 
+<ei>qv qvbar</ei> or <ei>gv gv</ei> pair. 
+ 
+<p/> 
 The possibility of a leakage back from the hidden sector will be 
 considered in the Hadronization section below. For the <b>U(1)</b> 
-case the <ei>gammav</ei> acquires a mass and can decay back to a 
-Standard-Model fermion pair, while the <ei>qv</ei> remains invisible. 
+case the <ei>gammav</ei> normally acquires a mass and can decay back to 
+a Standard-Model fermion pair, while the <ei>qv</ei> remains invisible. 
 The <b>SU(N)</b> alternative remains unbroken, so confinement holds 
 and the <ei>gv</ei> is massless. A string like 
 <ei>qv - gv - ... - gv - qvbar</ei> can break by the production of 
@@ -532,9 +538,12 @@ assignments, but is often obvious. For instance,  in a decay
 <ei>Qv &rarr; q + qv</ei> the QCD dipole is between the <ei>q</ei> and 
 the hole after <ei>Qv</ei>, but <ei>qv</ei> becomes the recoiler 
 should a radiation occur, while the role of <ei>q</ei> and <ei>qv</ei> 
-is reversed for HV radiation. 
+is reversed for HV radiation. The selection of recoilers in subsequent 
+emissions is regulated by the <code>TimeShower:recoilToColoured</code> 
+switch within the QCD and HV sectors separately. 
  
-<p/>This also includes matrix-element corrections for a number 
+<p/>This also includes matrix-element corrections to the 
+first/hardest HV emission for a number 
 of decay processes, with colour, spin and mass effects included 
 <ref>Nor01</ref>. They were calculated within the context of the 
 particle content of the MSSM, however, which does not include spin 1 
@@ -542,7 +551,11 @@ particles with unit colour charge. In such cases spin 0 is assumed
 instead. By experience, the main effects come from mass and colour 
 flow anyway, so this is not a bad approximation. (Furthermore the 
 MSSM formulae allow for <ei>gamma_5</ei> factors from wave 
-functions or vertices; these are even less important.) 
+functions or vertices; these are even less important.) There are some 
+processes where no corrections at all are included currently, notably 
+for <ei>gammav</ei> emission in an <ei>Qv &rarr; q + qv</ei> decay. 
+In such cases hard emissions are likely to be overestimated, 
+but by experience not by a big amount. 
  
 <p/>An emitted <ei>gv</ei> can branch in its turn, 
 <ei>gv &rarr; gv + gv</ei>. This radiation may affect momenta 
@@ -632,12 +645,12 @@ The second, more interesting, possibility is relevant for the
 <b>SU(N)</b> scenarios. Here the gauge group remains unbroken, i.e. 
 <ei>gv</ei> is massless, and the partons are confined. Like in 
 QCD, the HV-partons can therefore be arranged in one single 
-HV-colour-ordered chain, with a <ei>qv</ei> in one end, a 
+HV colour-ordered chain, with a <ei>qv</ei> in one end, a 
 <ei>qvbar</ei> in the other, and a varying number of 
 <ei>gv</ei> in between. Each event will only contain (at most) 
 one such string, (i) since perturbative branchings 
 <ei>gv &rarr; qv qvbar</ei> have been neglected, as is a reasonable 
-approximation for QCD, and (ii) since HV-colours are assigned in the 
+approximation for QCD, and (ii) since HV colours are assigned in the 
 <ei>N_C &rarr; infinity</ei> limit, just like in the handling of 
 string fragmentation in QCD. The HV-string can then fragment by the 
 nonperturbative creation of <ei>qv qvbar</ei> pairs, leading to 
@@ -769,6 +782,22 @@ process, normalized to the <ei>qv</ei> mass. This ensures that
 See the normal <aloc href="Fragmentation">fragmentation 
 <ei>pT</ei></aloc> description for conventions for factors of 2. 
 </parm> 
+ 
+<h3>Event information</h3> 
+ 
+For the <b>SU(N)</b> QCD-like scenarios, also the related HV colours 
+are bookkept. The normal colour tag locations cannot be reused, 
+since some particles carry both normal and HV colours. 
+Instead a small vector is located in the <code>Event</code> class, 
+where the HV colour tags can be stored for HV-coloured particles only. 
+This information can be accessed for each particle, see the 
+<aloc href="ParticleProperties">Particle Properties</aloc> page, 
+the <code>Particle::colHV/acolHV/colsHV</code> methods. 
+As a complement to the normal event record, the 
+<code>Event::listHVcols()</code> method lists the particles 
+that have HV colours and which colour tags those carry; see 
+the <aloc href="EventRecord">Event Record</aloc> page. 
+Also some other methods are found there. 
  
 </chapter> 
  

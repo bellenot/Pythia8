@@ -874,6 +874,39 @@ are erased from the event record, mother and daughter indices are
 updated to retain a correct history for the remaining particles. 
 </method> 
  
+<p/> 
+In <aloc href="HiddenValleyProcesses">Hidden Valley</aloc> 
+<b>SU(N)</b> scenarios, HV colour and anticolour tags are 
+assigned to relevant HV-particles. Since some particles may have 
+both regular and HV colour tags, it is not possible to reuse the 
+normal colour slots. (But it is possible to share in the same colour 
+tag enumeration  sequence.) Instead a special vector exists in the 
+event record, where only HV-coloured particles are bookkept by index 
+(in the event record) and colour tags. This vector would not be used 
+in non-HV applications  and therefore takes negligible space, unlike 
+a case where further integers had been introduced for all particles. 
+The particle methods that can be used to access the HV colours are 
+ 
+<method name="int Particle::colHV()"> 
+</method> 
+<methodmore name="int Particle::acolHV()"> 
+return the particle HV colour or anticolour tag, or 0 where 
+there is no such tag. 
+</methodmore> 
+ 
+<method name="int Particle::colHV(int colHV)"> 
+</method> 
+<methodmore name="int Particle::acolHV(int acolHV)"> 
+</methodmore> 
+<methodmore name="int Particle::colsHV(int colHV, int acolHV)"> 
+set the particle HV colour or anticolour tag, or both in one go. 
+</methodmore> 
+ 
+Further methods are found in the 
+<aloc href="EventRecord">Event</aloc> class, notably 
+<code>Event::listHVcols()</code> to list the HV colours that have 
+been assigned. 
+ 
 <h3>Methods that perform operations</h3> 
  
 There are some further methods, some of them inherited from 

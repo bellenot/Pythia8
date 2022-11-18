@@ -46,7 +46,7 @@ MG_CFG="mg5mes.py"
 ################################################################################
 function madgraph() {
     docker run -i -t -v "$MODEL_DIR:/models" -v "$OUTPUT_DIR:$OUTPUT_DIR"\
-     -v "$PWD:$PWD" -w $PWD -u `id -u` --rm pythia8/dev:mg5mes\
+     -v "$PWD:$PWD" -w $PWD -u $(id -u) --rm pythia8/dev:mg5mes\
      --mode=PY8Kernels "$@"
 }
 
@@ -76,14 +76,14 @@ function error() {
 function realpath() {
     DIR=$(dirname $1)
     if [ -d $DIR ]; then cd $DIR; else return; fi
-    TARGET=`basename $1`
+    TARGET=$(basename $1)
     while [ -L "$TARGET" ]; do
-        TARGET=`readlink $TARGET`
+        TARGET=$(readlink $TARGET)
 	DIR=$(dirname $TARGET)
 	if [ -d $DIR ]; then cd $DIR; else return; fi
-        TARGET=`basename $TARGET`
+        TARGET=$(basename $TARGET)
     done
-    DIR=`pwd -P`
+    DIR=$(pwd -P)
     echo "$DIR/$TARGET"
 }
 

@@ -515,6 +515,42 @@ bool Particle::undoDecay() {
 
 //--------------------------------------------------------------------------
 
+// Get and set Hidden Valley colours, referring back to the event.
+
+int Particle::colHV() const {
+  if (evtPtr == nullptr || !(*evtPtr).findIndexHV(index())) return 0;
+  return (*evtPtr).hvCols[(*evtPtr).iIndexHV].colHV;
+}
+
+int Particle::acolHV() const {
+  if (evtPtr == nullptr || !(*evtPtr).findIndexHV(index())) return 0;
+  return (*evtPtr).hvCols[(*evtPtr).iIndexHV].acolHV;
+}
+
+void Particle::colHV(int colHVin) {
+  if (evtPtr == nullptr) return;
+  if ((*evtPtr).findIndexHV(index()))
+    (*evtPtr).hvCols[(*evtPtr).iIndexHV].colHV = colHVin;
+  else (*evtPtr).hvCols.push_back( HVcols(index(), colHVin, 0) );
+}
+
+void Particle::acolHV(int acolHVin) {
+  if (evtPtr == nullptr) return;
+  if ((*evtPtr).findIndexHV(index()))
+    (*evtPtr).hvCols[(*evtPtr).iIndexHV].acolHV = acolHVin;
+  else (*evtPtr).hvCols.push_back( HVcols(index(), 0, acolHVin) );
+}
+
+void Particle::colsHV(int colHVin, int acolHVin) {
+  if (evtPtr == nullptr) return;
+  if ((*evtPtr).findIndexHV(index())) {
+    (*evtPtr).hvCols[(*evtPtr).iIndexHV].colHV = colHVin;
+    (*evtPtr).hvCols[(*evtPtr).iIndexHV].acolHV = acolHVin;
+  } else (*evtPtr).hvCols.push_back( HVcols(index(), colHVin, acolHVin) );
+}
+
+//--------------------------------------------------------------------------
+
 // Particle name, with status but imposed maximum length -> may truncate.
 
 string Particle::nameWithStatus(int maxLen) const {
@@ -610,14 +646,23 @@ Event& Event::operator=( const Event& oldEvent) {
     for (int i = 0; i < oldEvent.sizeJunction(); ++i)
       appendJunction( oldEvent.getJunction(i) );
 
+    // Copy the Hidden Valley colour information.
+    for (int i = 0; i < int(oldEvent.hvCols.size()); ++i)
+      hvCols.push_back( HVcols(oldEvent.hvCols[i].iHV,
+      oldEvent.hvCols[i].colHV, oldEvent.hvCols[i].acolHV) );
+
     // Copy all other values.
-    startColTag         = oldEvent.startColTag;
-    maxColTag           = oldEvent.maxColTag;
-    savedSize           = oldEvent.savedSize;
-    savedJunctionSize   = oldEvent.savedJunctionSize;
-    scaleSave           = oldEvent.scaleSave;
-    scaleSecondSave     = oldEvent.scaleSecondSave;
-    headerList          = oldEvent.headerList;
+    startColTag          = oldEvent.startColTag;
+    iEventHV             = oldEvent.iEventHV;
+    iIndexHV             = oldEvent.iIndexHV;
+    maxColTag            = oldEvent.maxColTag;
+    savedSize            = oldEvent.savedSize;
+    savedJunctionSize    = oldEvent.savedJunctionSize;
+    savedHVcolsSize      = oldEvent.savedHVcolsSize;
+    savedPartonLevelSize = oldEvent.savedPartonLevelSize;
+    scaleSave            = oldEvent.scaleSave;
+    scaleSecondSave      = oldEvent.scaleSecondSave;
+    headerList           = oldEvent.headerList;
 
   // Done.
   }
@@ -836,6 +881,35 @@ void Event::listJunctions() const {
 
 //--------------------------------------------------------------------------
 
+// Print the Hidden Valley colours in an event.
+
+void Event::listHVcols() const {
+
+  cout << "\n -- HV-coloured particles --\n   i      no   colHV  acolHV\n";
+  for (int iv = 0; iv < int(hvCols.size()); ++iv)
+    cout << setw(4) << iv << setw(8) << hvCols[iv].iHV << setw(8)
+         << hvCols[iv].colHV << setw(8) << hvCols[iv].acolHV << "\n";
+  cout << " ---------------------------" << endl;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Find largest Hidden Valley (anti)colour in an event.
+
+int Event::maxHVcols() const {
+
+  int maxHVcoltag = 0;
+  for (int iv = 0; iv < int(hvCols.size()); ++iv) {
+    if (hvCols[iv].colHV > maxHVcoltag) maxHVcoltag = hvCols[iv].colHV;
+    if (hvCols[iv].acolHV > maxHVcoltag) maxHVcoltag = hvCols[iv].acolHV;
+  }
+  return maxHVcoltag;
+
+}
+
+//--------------------------------------------------------------------------
+
 // Operator overloading allows to append one event to an existing one.
 
 Event& Event::operator+=( const Event& addEvent) {
@@ -882,6 +956,15 @@ Event& Event::operator+=( const Event& addEvent) {
 
     // Append junction to summed event.
     appendJunction( tempJ );
+  }
+
+  // Append Hidden Valley colour information.
+  if (addEvent.hasHVcols())
+  for (int i = 1; i < addEvent.size(); ++i) {
+    int colv  = addEvent[i].colHV();
+    int acolv = addEvent[i].acolHV();
+    if (colv > 0 || acolv > 0) hvCols.push_back(
+      HVcols( i + offsetIdx, colv + offsetCol, acolv + offsetCol) );
   }
 
   // Set header that indicates character as sum of events.

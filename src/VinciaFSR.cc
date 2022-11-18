@@ -2928,6 +2928,10 @@ void VinciaFSR::header() {
   // Must be initialised before printing header.
   if (!isInit) return;
 
+  // Avoid printing header on multiple threads.
+  if (settingsPtr->mode("Parallelism:index") > 0)
+    headerIsPrinted = true;
+
   // Avoid printing header several times.
   if (headerIsPrinted) return;
   headerIsPrinted = true;
@@ -3138,8 +3142,8 @@ void VinciaFSR::header() {
          << "arXiv:2106.10987" << endl;
 #endif
   // Pythia 8 main reference.
-  cout << " |    PYTHIA 8        : Sjostrand et al., CPC191(2015)159, "
-       << "arXiv:1410.3012" << endl;
+  cout << " |    PYTHIA 8        : Bierlich et al.,"
+       << " SciPost Phys. Codebases 8-r8.3 (2022), arXiv:2203.11601" << endl;
   cout << " |\n *-------  End VINCIA Initialization  "
        << "----------------------------------------------------*\n\n";
   cout.setf(ios::right);

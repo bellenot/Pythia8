@@ -422,6 +422,10 @@ void SigmaTotOwn::init(Info* infoPtrIn) {
     ap    = 0.06;
     b0    = 5.5;
     a0    = (pomFlux == 6) ? 1.1182 : 1.1110;
+
+  // H1 functional form but with user-supplied values for the parameters.
+  } else if (pomFlux == 8) {
+    b0 = settings.parm("SigmaDiffractive:PomFluxB0");
   }
 
   // b_min for double diffraction, suppression of small gaps, minimal CD mass.
@@ -508,7 +512,7 @@ double SigmaTotOwn::dsigmaSD(double xi, double t, bool , int ) {
           * (A1 * exp((Q + a1) * t) + A2 * exp((Q + a2) * t) );
 
   // H1 Fit A, B.
-  } else if (pomFlux == 6 || pomFlux == 7) {
+  } else if (pomFlux == 6 || pomFlux == 7 || pomFlux == 8) {
     b     = b0 + 2. * ap * yNow;
     wtNow = pow( xi, 2. - 2. * a0) * exp(b * t);
   }
@@ -556,7 +560,7 @@ double SigmaTotOwn::dsigmaDD(double xi1, double xi2, double t, int ) {
     wtNow = pow( xi1 * xi2, 2. - 2. * a0) * exp(Q * t);
 
   // H1 Fit A, B.
-  } else if (pomFlux == 6 || pomFlux == 7) {
+  } else if (pomFlux == 6 || pomFlux == 7 || pomFlux == 8) {
     b     = max( bMinDD, 2. * ap * yNow);
     wtNow = pow( xi1 * xi2, 2. - 2. * a0) * exp(b * t);
   }
@@ -617,7 +621,7 @@ double SigmaTotOwn::dsigmaCD( double xi1, double xi2, double t1, double t2,
           * (A1 * exp((Q2 + a1) * t2) + A2 * exp((Q2 + a2) * t2) );
 
   // H1 Fit A, B.
-  } else if (pomFlux == 6 || pomFlux == 7) {
+  } else if (pomFlux == 6 || pomFlux == 7 || pomFlux == 8) {
     b1    = b0 + 2. * ap * yNow1;
     b2    = b0 + 2. * ap * yNow2;
     wtNow = pow( xi1 * xi2, 2. - 2. * a0) * exp(b1 * t1 + b2 * t2);

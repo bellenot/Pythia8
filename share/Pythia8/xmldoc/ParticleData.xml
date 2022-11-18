@@ -189,7 +189,7 @@ The meaning of the various properties and the format used are explained
 </particle> 
  
 <particle id="6" name="t" antiName="tbar" spinType="2" chargeType="2" colType="1" 
-          m0="171.00000" mWidth="1.40000" mMin="86.00000" mMax="0.00000"> 
+          m0="173.00000" mWidth="1.40000" mMin="86.00000" mMax="0.00000"> 
  <channel onMode="1" bRatio="0.0000300" products="24 1"/> 
  <channel onMode="1" bRatio="0.0017650" products="24 3"/> 
  <channel onMode="1" bRatio="0.9982050" products="24 5"/> 
@@ -3747,7 +3747,7 @@ The meaning of the various properties and the format used are explained
  <channel onMode="1" bRatio="0.0350000" meMode="43" products="2 -3 1 3201"/> 
 </particle> 
  
-<particle id="4124" name="Lambda_c(2625)+" antiName="Lambda_c(2625)-" spinType="4" chargeType="3" colType="0" 
+<particle id="4124" name="Lambda_c(2625)+" antiName="Lambda_c(2625)bar-" spinType="4" chargeType="3" colType="0" 
           m0="2.62810"> 
  <channel onMode="1" bRatio="0.6600000" products="4122 211 -211"/> 
  <channel onMode="1" bRatio="0.3300000" products="4122 111"/> 
@@ -4700,11 +4700,11 @@ The meaning of the various properties and the format used are explained
 </particle> 
  
 <particle id="10553" name="h_1b" spinType="3" chargeType="0" colType="0" 
-          m0="9.89860" mWidth="0.01000" mMin="9.85500" mMax="9.89500"> 
+          m0="9.89860" mWidth="0.01000" mMin="9.85500" mMax="9.94200"> 
  <channel onMode="1" bRatio="1.0000000" meMode="91" products="21 21"/> 
 </particle> 
  
-<particle id="14122" name="Lambda_c(2593)+" antiName="Lambda_c(2593)-" spinType="2" chargeType="3" colType="0" 
+<particle id="14122" name="Lambda_c(2593)+" antiName="Lambda_c(2593)bar-" spinType="2" chargeType="3" colType="0" 
           m0="2.59225" mWidth="0.00260" mMin="2.57000" mMax="2.63000"> 
  <channel onMode="1" bRatio="0.2400000" products="4222 -211"/> 
  <channel onMode="1" bRatio="0.2400000" products="4112 211"/> 
@@ -4967,7 +4967,7 @@ The meaning of the various properties and the format used are explained
  <channel onMode="1" bRatio="0.333333" meMode="3" products="213 -211"/> 
 </particle> 
  
-<particle id="100313" name="K*(1410)0" antiName="K(1410)bar0" 
+<particle id="100313" name="K*(1410)0" antiName="K*(1410)bar0" 
           spinType="3" chargeType="0" colType="0" 
           m0="1.414" mWidth="0.232" mMin="1.00" mMax="2.574" 
           varWidth="on"> 
@@ -4979,7 +4979,7 @@ The meaning of the various properties and the format used are explained
  <channel onMode="1" bRatio="0.014368" meMode="3" products="113 311"/> 
 </particle> 
  
-<particle id="100323" name="K*(1410)+" antiName="K(1410)-" 
+<particle id="100323" name="K*(1410)+" antiName="K*(1410)-" 
           spinType="3" chargeType="3" colType="0" 
           m0="1.414" mWidth="0.232" mMin="1.00" mMax="2.574" 
           varWidth="on"> 
@@ -5077,7 +5077,7 @@ The meaning of the various properties and the format used are explained
  <channel onMode="1" bRatio="0.0160000" meMode="92" products="22 21 21"/> 
 </particle> 
  
-<particle id="102112" name="n(1535)0" antiName="nbar(1535)0" 
+<particle id="102112" name="n(1535)0" antiName="n(1535)bar0" 
           spinType="2" chargeType="0" colType="0" 
           m0="1.530" mWidth="0.150" mMin="1.20" mMax="2.28" 
           varWidth="on"> 
@@ -5092,7 +5092,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.053333" meMode="3" products="202212 -211"/> 
 </particle> 
  
-<particle id="102114" name="n(1520)0" antiName="nbar(1520)0" 
+<particle id="102114" name="n(1520)0" antiName="n(1520)bar0" 
           spinType="4" chargeType="0" colType="0" 
           m0="1.515" mWidth="0.115" mMin="1.30" mMax="2.09" 
           varWidth="on"> 
@@ -5104,7 +5104,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.011236" meMode="4" products="2112 9000221"/> 
 </particle> 
  
-<particle id="102116" name="n(1675)0" antiName="nbar(1675)0" 
+<particle id="102116" name="n(1675)0" antiName="n(1675)bar0" 
           spinType="6" chargeType="0" colType="0" 
           m0="1.675" mWidth="0.150" mMin="1.38" mMax="2.45" 
           varWidth="on"> 
@@ -5140,7 +5140,7 @@ The meaning of the various properties and the format used are explained
  <channel onMode="1" bRatio="0.008687" meMode="3" products="3122 22"/> 
 </particle> 
  
-<particle id="102212" name="p(1535)+" antiName="pbar(1535)-" 
+<particle id="102212" name="p(1535)+" antiName="p(1535)bar-" 
           spinType="2" chargeType="3" colType="0" 
           m0="1.530" mWidth="0.150" mMin="1.20" mMax="2.28" 
           varWidth="on"> 
@@ -5155,7 +5155,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.026667" meMode="3" products="202212 111"/> 
 </particle> 
  
-<particle id="102214" name="p(1520)+" antiName="pbar(1520)-" 
+<particle id="102214" name="p(1520)+" antiName="p(1520)bar-" 
           spinType="4" chargeType="3" colType="0" 
           m0="1.515" mWidth="0.115" mMin="1.30" mMax="2.09" 
           varWidth="on"> 
@@ -5167,7 +5167,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.011236" meMode="4" products="2212 9000221"/> 
 </particle> 
  
-<particle id="102216" name="p(1675)+" antiName="pbar(1675)-" 
+<particle id="102216" name="p(1675)+" antiName="p(1675)bar-" 
           spinType="6" chargeType="3" colType="0" 
           m0="1.675" mWidth="0.150" mMin="1.38" mMax="2.45" 
           varWidth="on"> 
@@ -5341,7 +5341,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.020408" meMode="3" products="202212 -211"/> 
 </particle> 
  
-<particle id="112114" name="n(1700)0" antiName="nbar(1700)0" 
+<particle id="112114" name="n(1700)0" antiName="n(1700)bar0" 
           spinType="4" chargeType="0" colType="0" 
           m0="1.720" mWidth="0.200" mMin="1.40" mMax="2.70" 
           varWidth="on"> 
@@ -5370,7 +5370,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.040816" meMode="3" products="202212 111"/> 
 </particle> 
  
-<particle id="112214" name="p(1700)+" antiName="pbar(1700)-" 
+<particle id="112214" name="p(1700)+" antiName="p(1700)bar-" 
           spinType="4" chargeType="3" colType="0" 
           m0="1.720" mWidth="0.200" mMin="1.40" mMax="2.70" 
           varWidth="on"> 
@@ -5496,7 +5496,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.092593" meMode="3" products="1114 221"/> 
 </particle> 
  
-<particle id="122112" name="n(1650)0" antiName="nbar(1650)0" 
+<particle id="122112" name="n(1650)0" antiName="n(1650)bar0" 
           spinType="2" chargeType="0" colType="0" 
           m0="1.650" mWidth="0.125" mMin="1.30" mMax="2.30" 
           varWidth="on"> 
@@ -5528,7 +5528,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.092593" meMode="3" products="2114 221"/> 
 </particle> 
  
-<particle id="122212" name="p(1650)+" antiName="pbar(1650)-" 
+<particle id="122212" name="p(1650)+" antiName="p(1650)bar-" 
           spinType="2" chargeType="3" colType="0" 
           m0="1.650" mWidth="0.125" mMin="1.30" mMax="2.30" 
           varWidth="on"> 
@@ -5624,7 +5624,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.117647" meMode="4" products="202116 -211"/> 
 </particle> 
  
-<particle id="202112" name="n(1440)0" antiName="nbar(1440)0" 
+<particle id="202112" name="n(1440)0" antiName="n(1440)bar0" 
           spinType="2" chargeType="0" colType="0" 
           m0="1.440" mWidth="0.350" mMin="1.08" mMax="3.20" 
           varWidth="on"> 
@@ -5649,7 +5649,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.058480" meMode="4" products="202212 -211"/> 
 </particle> 
  
-<particle id="202116" name="n(1680)0" antiName="nbar(1680)0" 
+<particle id="202116" name="n(1680)0" antiName="n(1680)bar0" 
           spinType="6" chargeType="0" colType="0" 
           m0="1.685" mWidth="0.120" mMin="1.40" mMax="2.30" 
           varWidth="on"> 
@@ -5674,7 +5674,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.039216" meMode="4" products="202216 -211"/> 
 </particle> 
  
-<particle id="202212" name="p(1440)+" antiName="pbar(1440)-" 
+<particle id="202212" name="p(1440)+" antiName="p(1440)bar-" 
           spinType="2" chargeType="3" colType="0" 
           m0="1.440" mWidth="0.350" mMin="1.1" mMax="3.20" 
           varWidth="on"> 
@@ -5699,7 +5699,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.116959" meMode="4" products="202212 111"/> 
 </particle> 
  
-<particle id="202216" name="p(1680)+" antiName="pbar(1680)-" 
+<particle id="202216" name="p(1680)+" antiName="p(1680)bar-" 
           spinType="6" chargeType="3" colType="0" 
           m0="1.685" mWidth="0.120" mMin="1.40" mMax="2.30" 
           varWidth="on"> 
@@ -5922,7 +5922,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.034483" meMode="4" products="1114 221"/> 
 </particle> 
  
-<particle id="212112" name="n(1710)0" antiName="nbar(1710)0" 
+<particle id="212112" name="n(1710)0" antiName="n(1710)bar0" 
           spinType="2" chargeType="0" colType="0" 
           m0="1.710" mWidth="0.100" mMin="1.45" mMax="2.21" 
           varWidth="on"> 
@@ -5940,7 +5940,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.056667" meMode="3" products="3212 311"/> 
 </particle> 
  
-<particle id="212114" name="n(1720)0" antiName="nbar(1720)0" 
+<particle id="212114" name="n(1720)0" antiName="n(1720)bar0" 
           spinType="4" chargeType="0" colType="0" 
           m0="1.720" mWidth="0.250" mMin="1.35" mMax="3.00" 
           varWidth="on"> 
@@ -5975,7 +5975,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.034483" meMode="4" products="2114 221"/> 
 </particle> 
  
-<particle id="212212" name="p(1710)+" antiName="pbar(1710)-" 
+<particle id="212212" name="p(1710)+" antiName="p(1710)bar-" 
           spinType="2" chargeType="3" colType="0" 
           m0="1.710" mWidth="0.100" mMin="1.45" mMax="2.21" 
           varWidth="on"> 
@@ -5993,7 +5993,7 @@ The meaning of the various properties and the format used are explained
   <channel onMode="1" bRatio="0.113333" meMode="3" products="3222 311"/> 
 </particle> 
  
-<particle id="212214" name="p(1720)+" antiName="pbar(1720)-" 
+<particle id="212214" name="p(1720)+" antiName="p(1720)bar-" 
           spinType="4" chargeType="3" colType="0" 
           m0="1.720" mWidth="0.250" mMin="1.35" mMax="3.00" 
           varWidth="on"> 
@@ -9161,19 +9161,19 @@ The meaning of the various properties and the format used are explained
           m0="500.00000" tau0="1e-05"> 
 </particle> 
  
-<particle id="1006311" name="R-(~t sd0)" antiName="Rbar+(~t sd0)" spinType="1" chargeType="0" colType="0" 
+<particle id="1006311" name="R0(~t sd0)" antiName="Rbar+(~t sd0)" spinType="1" chargeType="0" colType="0" 
           m0="500.00000" tau0="1e-05"> 
 </particle> 
  
-<particle id="1006313" name="R-(~t sd1)" antiName="Rbar+(~t sd1)" spinType="3" chargeType="0" colType="0" 
+<particle id="1006313" name="R0(~t sd1)" antiName="Rbar+(~t sd1)" spinType="3" chargeType="0" colType="0" 
           m0="500.00000" tau0="1e-05"> 
 </particle> 
  
-<particle id="1006321" name="R0(~t su0)" antiName="Rbar0(~t su0)" spinType="1" chargeType="3" colType="0" 
+<particle id="1006321" name="R+(~t su0)" antiName="Rbar0(~t su0)" spinType="1" chargeType="3" colType="0" 
           m0="500.00000" tau0="1e-05"> 
 </particle> 
  
-<particle id="1006323" name="R0(~t su1)" antiName="Rbar0(~t su1)" spinType="3" chargeType="3" colType="0" 
+<particle id="1006323" name="R+(~t su1)" antiName="Rbar0(~t su1)" spinType="3" chargeType="3" colType="0" 
           m0="500.00000" tau0="1e-05"> 
 </particle> 
  
@@ -11193,7 +11193,7 @@ The meaning of the various properties and the format used are explained
           m0="0.00000"> 
 </particle> 
  
-<particle id="9900310" name="K_dif0" antiName="Kbar_dif0" spinType="0" chargeType="0" colType="0" 
+<particle id="9900310" name="K_dif0" antiName="K_difbar0" spinType="0" chargeType="0" colType="0" 
           m0="0.00000"> 
 </particle> 
  
@@ -11241,7 +11241,7 @@ The meaning of the various properties and the format used are explained
           m0="0.00000"> 
 </particle> 
  
-<particle id="9901110" name="Delta_dif-" antiName="Delta_difbar+" spinType="0" chargeType="0" colType="0" 
+<particle id="9901110" name="Delta_dif-" antiName="Delta_difbar+" spinType="0" chargeType="-3" colType="0" 
           m0="0.00000"> 
 </particle> 
  
@@ -11257,7 +11257,7 @@ The meaning of the various properties and the format used are explained
           m0="0.00000"> 
 </particle> 
  
-<particle id="9902220" name="Delta_dif++" antiName="Delta_difbar--" spinType="0" chargeType="0" colType="0" 
+<particle id="9902220" name="Delta_dif++" antiName="Delta_difbar--" spinType="0" chargeType="6" colType="0" 
           m0="0.00000"> 
 </particle> 
  
@@ -11293,15 +11293,15 @@ The meaning of the various properties and the format used are explained
           m0="0.00000"> 
 </particle> 
  
-<particle id="9904120" name="Lambda_cdif+" antiName="Lambda_cdif-" spinType="0" chargeType="3" colType="0" 
+<particle id="9904120" name="Lambda_cdif+" antiName="Lambda_cdifbar-" spinType="0" chargeType="3" colType="0" 
           m0="0.00000"> 
 </particle> 
  
-<particle id="9904130" name="Xi_cdif0" antiName="Xi_cdif0" spinType="0" chargeType="3" colType="0" 
+<particle id="9904130" name="Xi_cdif0" antiName="Xi_cdifbar0" spinType="0" chargeType="0" colType="0" 
           m0="0.00000"> 
 </particle> 
  
-<particle id="9904210" name="Sigma_cdif+" antiName="Sigma_cdifbar-" spinType="0" chargeType="6" colType="0" 
+<particle id="9904210" name="Sigma_cdif+" antiName="Sigma_cdifbar-" spinType="0" chargeType="3" colType="0" 
           m0="0.00000"> 
 </particle> 
  
@@ -11309,7 +11309,7 @@ The meaning of the various properties and the format used are explained
           m0="0.00000"> 
 </particle> 
  
-<particle id="9904230" name="Xi_cdif+" antiName="Xi_cdif0" spinType="0" chargeType="3" colType="0" 
+<particle id="9904230" name="Xi_cdif+" antiName="Xi_cdifbar-" spinType="0" chargeType="3" colType="0" 
           m0="0.00000"> 
 </particle> 
  
@@ -11472,7 +11472,7 @@ The meaning of the various properties and the format used are explained
 </particle> 
  
 <particle id="1000010020" name="2H" antiName="2Hbar" 
-          spinType="1" chargeType="3" colType="0" m0="1.876"> 
+          spinType="1" chargeType="3" colType="0" m0="1.87561"> 
 </particle> 
  
 <particle id="1000020040" name="4He" antiName="4Hebar" 
@@ -11481,6 +11481,10 @@ The meaning of the various properties and the format used are explained
  
 <particle id="1000030060" name="6Li" antiName="6Libar" 
           spinType="1" chargeType="9" colType="0" m0="5.6030512"> 
+</particle> 
+ 
+<particle id="1000040090" name="9Be" antiName="9Bebar" 
+          spinType="2" chargeType="12" colType="0" m0="8.394794"> 
 </particle> 
  
 <particle id="1000060120" name="12C" antiName="12Cbar" 
@@ -11492,15 +11496,31 @@ The meaning of the various properties and the format used are explained
 </particle> 
  
 <particle id="1000080160" name="16O" antiName="16Obar" 
-          spinType="1" chargeType="24" colType="0" m0="14.9031"> 
+          spinType="1" chargeType="24" colType="0" m0="14.899168"> 
 </particle> 
  
-<particle id="1000080160" name="16O" antiName="16Obar" 
-          spinType="1" chargeType="24" colType="0" m0="14.899168"> 
+<particle id="1000130270" name="27Al" antiName="27Albar" 
+          spinType="2" chargeType="39" colType="0" m0="25.13314"> 
+</particle> 
+ 
+<particle id="1000180400" name="40Ar" antiName="40Arbar" 
+          spinType="1" chargeType="54" colType="0" m0="37.22474"> 
+</particle> 
+ 
+<particle id="1000260560" name="56Fe" antiName="56Febar" 
+          spinType="1" chargeType="78" colType="0" m0="52.10306"> 
 </particle> 
  
 <particle id="1000290630" name="63Cu" antiName="63Cubar" 
           spinType="2" chargeType="87" colType="0" m0="58.618646"> 
+</particle> 
+ 
+<particle id="1000360840" name="84Kr" antiName="84Krbar" 
+          spinType="1" chargeType="108" colType="0" m0="78.16307"> 
+</particle> 
+ 
+<particle id="1000471070" name="107Ag" antiName="107Agbar" 
+          spinType="2" chargeType="141" colType="0" m0="99.58145"> 
 </particle> 
  
 <particle id="1000541290" name="129Xe" antiName="129Xebar" 

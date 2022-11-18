@@ -2390,6 +2390,14 @@ bool SimpleSpaceShower::branch( Event& event) {
     int iNewCopy    = event.copy(iOldCopy, statusNew);
     if (statusOld < 0) event[iNewCopy].statusNeg();
     if (iOldCopy == iColPartner) iNewColPartner = iNewCopy;
+
+    // Also copy Hidden Valley colours where relevant.
+    if (event.hasHVcols()) {
+      int colvOld  = event[iOldCopy].colHV();
+      int acolvOld = event[iOldCopy].acolHV();
+      if (colvOld > 0 || acolvOld > 0)
+        event[iNewCopy].colsHV(colvOld, acolvOld);
+    }
   }
 
   // Define colour flow in branching.

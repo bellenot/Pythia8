@@ -8,13 +8,14 @@
  
 <h2>Update History</h2> 
 <ol id="toc">
-  <li><a href="#section0">8.307: 25 February 2022</a></li>
-  <li><a href="#section1">8.306: 28 June 2021</a></li>
-  <li><a href="#section2">8.305: 03 May 2021</a></li>
-  <li><a href="#section3">8.304: 09 April 2021</a></li>
-  <li><a href="#section4">8.303: 01 September 2020</a></li>
-  <li><a href="#section5">8.302: 24 April 2020</a></li>
-  <li><a href="#section6">8.301: 30 October 2019</a></li>
+  <li><a href="#section0">8.308: 16 November 2022</a></li>
+  <li><a href="#section1">8.307: 25 February 2022</a></li>
+  <li><a href="#section2">8.306: 28 June 2021</a></li>
+  <li><a href="#section3">8.305: 03 May 2021</a></li>
+  <li><a href="#section4">8.304: 09 April 2021</a></li>
+  <li><a href="#section5">8.303: 01 September 2020</a></li>
+  <li><a href="#section6">8.302: 24 April 2020</a></li>
+  <li><a href="#section7">8.301: 30 October 2019</a></li>
 </ol>
 
  
@@ -25,6 +26,114 @@ compatibility. The main change is that C++11 is now assumed.
 The impact on existing used code should be mild, however. 
  
 <a name="section0"></a> 
+<h3>8.308: 16 November 2022</h3> 
+ 
+<ul> 
+<li>The <code>HIInfo</code> class now has information about the impact 
+parameter angle between colliding nuclei in the <code>phi()</code> 
+function. In addition the impact parameter positions of the incoming 
+nuclei are now set properly in <code>Particle::vProd()</code>.</li> 
+ 
+<li>A new <code>PythiaCascade</code> wrapper class (in 
+<code>include/Pythia8Plugins</code>) implements the functionality to 
+perform fixed-target hadron-nucleus collisions and decays, as useful 
+for the tracking of cascades is the atmosphere or in solid materials. 
+The code in this class now is set up to handle any target nucleus. The 
+new <code>main184.cc</code> example shows how to use 
+<code>PythiaCascade</code> to track an atmospheric cascade, equivalent 
+to the standalone <code>main183.cc</code>. An even simpler new example 
+is found in <code>main185.cc</code>.</li> 
+ 
+<li>The option to completely forbid popcorn baryon production from the 
+beam remnant has been replaced by the possibility of a continuous 
+suppression, see <code>BeamRemnants:dampPopcorn</code>.</li> 
+ 
+<li> A new option for Pomeron flux has been added to provide more 
+flexibility to modify the shape of the flux.</li> 
+ 
+<li> Modified handling for resolved-lepton remnants so that also 
+lepton-lepton collisions with unequal masses are correctly dealt with.</li> 
+ 
+<li>Explicit bookkeeping of Hidden Valley (HV) colours in <b>SU(N)</b> 
+scenarios has been introduced. These colours can be accessed in the 
+event record, but are not shown by default. This allows for a more 
+robust tracking of HV colours in showers. Notaby a Higgs decay to a 
+pair of HV gluons can now be handled, which used to be impossible. 
+The functionality of the <code>TimeShower:recoilToColoured</code> 
+switch is extended also to apply to the HV colours.</li> 
+ 
+<li>Update to decay method of <code>ParticleDecays</code> class allows 
+for proper showering of leptons produced in Hidden Valley particle 
+decays.</li> 
+ 
+<li>A simple example of Hidden Valley production mechanisms introduced 
+with <code>main171.cc</code>.</li> 
+ 
+<li>Fixed a bug that could block the radiation of HV photons in a 
+broken <b>U(1)</b> scenario, i.e. where the HV photons acquire mass. 
+Affected was radiation in the decay of <i>Fv</i> states, i.e. states 
+with a charge both in the normal and in the HV sector.</li> 
+ 
+<li>Two new ROOT-based example programs, <code>main94.cc</code> and 
+<code>main95.cc</code>, illustrating how to visualize events and jets, 
+respectively, in <i>(y, phi)</i>-space. Thanks to D. Gillberg for 
+contributing these examples.</li> 
+ 
+<li>Added handling of statistical uncertainties to the 
+<code>Hist</code> class, with error propagation in the various 
+histogram operations and friend methods, for both unweighted and 
+weighted events. Updated <code>Hist</code> compatibility for current 
+Matplotlib.</li> 
+ 
+<li>Updated JetMatching to support improved treatment of non-enhanced 
+jets in FxFx merging, see <a href="JetMatching.html" target="page">Jet Merging</a> 
+for more details. The updated treatment also fixes a bug that led to 
+an asymmetric treatment of heavy quarks and the corresponding 
+anti-quarks. Thanks to Rikkert Frederix.</li> 
+ 
+<li>Vincia's tune initialisation has been changed to not override 
+initialization, event-generation, statistics, and main-program 
+settings.</li> 
+ 
+<li>Included particle ID code in error message when a workable decay 
+channel cannot be found in 
+<code>ParticleDecays::decay()</code>. Thanks to K. Pedro for 
+suggesting this.</li> 
+ 
+<li>Added additional protection for Pythia intialization.</li> 
+ 
+<li>Fixed an issue in the <i>tau</i> decays which caused 
+segmentation faults when a <i>tau nu</i> final state is present in 
+the event record without a mother <i>W</i>. Thanks to S. Jeon for 
+reporting the problem.</li> 
+ 
+<li>Corrected several typos in <code>antiName</code> and 
+<code>chargeType</code> properties for particle ID codes for 
+diffractive states (e.g., 9904230) in <code>ParticleData.xml</code>; 
+thanks to A. Verbytskyi, G. Panizzo, and D. Konstantinov.</li> 
+ 
+<li>Updated default top quark mass to 173 GeV (up from 171 GeV) in 
+line with current PDG average (rounded to nearest GeV). Added particle 
+data for a few more nuclei.</li> 
+ 
+<li>Corrected a bug that affected the read-in of RPV couplings via 
+SLHA files. In the erroneous version, a coupling for the third 
+generation in the first index (i.e. 3,i,j) could not be set.</li> 
+ 
+<li>Fixed bug preventing the generation of Python bindings in 
+MacOS. Also fixed external library issue with Makefiles for 
+MacOS.</li> 
+ 
+<li>Updated <code>WeightsBase::getWeightNames</code> to provide RIVET 
+compatible names.</li> 
+ 
+<li>Updating HTML manual and program banner with new manual 
+reference.</li> 
+ 
+<li>Updating affiliation for Christian Bierlich.</li> 
+</ul> 
+ 
+<a name="section1"></a> 
 <h3>8.307: 25 February 2022</h3> 
  
 <ul> 
@@ -200,7 +309,7 @@ events. Thanks to Giancarlo Panizzo and Marvin Flores for reporting
 the issue.</li> 
 </ul> 
  
-<a name="section1"></a> 
+<a name="section2"></a> 
 <h3>8.306: 28 June 2021</h3> 
  
 <ul> 
@@ -232,7 +341,7 @@ most collinear parent is the first mother.
 <li>Shortened Pythia constructor header.</li> 
 </ul> 
  
-<a name="section2"></a> 
+<a name="section3"></a> 
 <h3>8.305: 03 May 2021</h3> 
  
 <ul> 
@@ -273,7 +382,7 @@ small bug reported by Vittorio Zecca.</li>
 <code>main07.cc</code>. Thanks to M. Baker and A. Thamm.</li> 
 </ul> 
  
-<a name="section3"></a> 
+<a name="section4"></a> 
 <h3>8.304: 09 April 2021</h3> 
  
 <ul> 
@@ -422,7 +531,7 @@ called twice. Now all available cases are looped over, but easy to
 change back to study only one.</li> 
 </ul> 
  
-<a name="section4"></a> 
+<a name="section5"></a> 
 <h3>8.303: 01 September 2020</h3> 
  
 <ul> 
@@ -656,7 +765,7 @@ diffractive systems.</li>
 for diffraction. Thanks to Valentina Zaccolo.</li> 
 </ul> 
  
-<a name="section5"></a> 
+<a name="section6"></a> 
 <h3>8.302: 24 April 2020</h3> 
  
 <ul> 
@@ -751,7 +860,7 @@ with Vincia reverting to the same (in-code) way of setting tune
 presets as Dire and Pythia.</li> 
 </ul> 
  
-<a name="section6"></a> 
+<a name="section7"></a> 
 <h3>8.301: 30 October 2019</h3> 
 <ul> 
 <li>Compilation is done with a new <code>-std=c++11</code> flag.</li> 

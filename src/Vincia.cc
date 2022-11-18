@@ -34,7 +34,7 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
   diagnosticsPtr->initPtr(infoPtr);
   if (verbose >= REPORT) diagnosticsPtr->start(__METHOD_NAME__);
 
-  // Clear Vincia's register of PhysicsBase objects
+  // Clear Vincia's register of PhysicsBase objects.
   subObjects.clear();
 
   bool vinciaOn     = (settingsPtr->mode("PartonShowers:model") == 2);
@@ -230,13 +230,20 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
   // Now set tune parameters
   int baseTune = settingsPtr->mode("Vincia:Tune");
   if (vinciaOn && baseTune >= 0) {
-    // Store user-specified settings before overwriting with tune parameters
+    // Store user-specified settings before overwriting with tune parameters.
     vector<string> userSettings = settingsPtr->getReadHistory();
     if (initTune(baseTune)) {
-      // Reapply user settings
+      // Reapply user settings.
       for (int i=0; i<(int)userSettings.size(); ++i) {
         string lineNow      = userSettings[i];
         string lineNowLower = toLower(lineNow);
+        // Ensure no run settings are changed.
+        if (lineNowLower.find("init") != string::npos
+          || lineNowLower.find("next") != string::npos
+          || lineNowLower.find("stat") != string::npos) continue;
+        // Allow Main:spare for development purposes.
+        if (lineNowLower.find("main") != string::npos
+          && lineNowLower.find("main:spare") == string::npos) continue;
         if (lineNowLower.find("tune:ee") == string::npos &&
           lineNowLower.find("tune:pp") == string::npos)
           settingsPtr->readString(lineNow);

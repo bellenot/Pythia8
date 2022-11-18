@@ -94,7 +94,7 @@ private:
   // Generic info for process generation.
   bool   doVarEcm, allowIDAswitch, doSecondHard, doSameCuts, allHardSame,
          noneHardSame, someHardSame, cutsAgree, cutsOverlap, doResDecays,
-         doISR, doMPI, doWt2, switchedID, switchedEcm;
+         doISR, doMPI, doWt2, switchedID, switchedEcm, useHVcols;
   int    startColTag, procType;
   double maxPDFreweight, mHatMin1, mHatMax1, pTHatMin1, pTHatMax1, mHatMin2,
          mHatMax2, pTHatMin2, pTHatMax2, sigmaND, eCMold;

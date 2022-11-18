@@ -30,7 +30,7 @@ namespace Pythia8 {
 
 // The current Pythia (sub)version number, to agree with XML version.
 const double Pythia::VERSIONNUMBERHEAD = PYTHIA_VERSION;
-const double Pythia::VERSIONNUMBERCODE = 8.307;
+const double Pythia::VERSIONNUMBERCODE = 8.308;
 
 //--------------------------------------------------------------------------
 
@@ -1114,7 +1114,8 @@ bool Pythia::init() {
     mergingHooksPtr->setShowerPointer(&partonLevel);
 
   // Alternatively only initialize final-state showers in resonance decays.
-  if ( !doProcessLevel || !doPartonLevel) partonLevel.init(
+  if ( (!doProcessLevel || !doPartonLevel)
+    && (!doNonPert || doSoftQCD) ) partonLevel.init(
     timesDecPtr, nullptr, nullptr, &rHadrons, nullptr,
     partonVertexPtr, stringInteractionsPtr, false);
 
@@ -2648,9 +2649,9 @@ void Pythia::banner() {
        << "                                      |  | \n"
        << " |  |   Christian Bierlich, Nishita Desai, Le"
        << "if Gellersen, Ilkka Helenius, Philip  |  | \n"
-       << " |  |   Ilten, Leif Lönnblad, Stephen Mrenna,"
+       << " |  |   Ilten, Leif Lonnblad, Stephen Mrenna,"
        << " Stefan Prestel, Christian Preuss,    |  | \n"
-       << " |  |   Torbjörn Sjöstrand, Peter Skands, Mar"
+       << " |  |   Torbjorn Sjostrand, Peter Skands, Mar"
        << "ius Utheim and Rob Verheyen.          |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
@@ -2662,18 +2663,12 @@ void Pythia::banner() {
        << "on email at authors@pythia.org.        |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
-       << " |  |   The main program reference is 'An Int"
-       << "roduction to PYTHIA 8.2',             |  | \n"
-       << " |  |   T. Sjöstrand et al, Comput. Phys. Com"
-       << "mun. 191 (2015) 159                   |  | \n"
-       << " |  |   [arXiv:1410.3012 [hep-ph]]           "
-       << "                                      |  | \n"
-       << " |  |                                        "
-       << "                                      |  | \n"
-       << " |  |   The main physics reference is the 'PY"
-       << "THIA 6.4 Physics and Manual',         |  | \n"
-       << " |  |   T. Sjöstrand, S. Mrenna and P. Skands"
-       << ", JHEP05 (2006) 026 [hep-ph/0603175]  |  | \n"
+       << " |  |   The main program reference is C. Bier"
+       << "lich et al,                           |  | \n"
+       << " |  |   'A comprehensive guide to the physics"
+       << " and usage of Pythia 8.3',            |  | \n"
+       << " |  |   SciPost Phys. Codebases 8-r8.3 (2022)"
+       << " [arXiv:2203.11601 [hep-ph]]          |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
        << " |  |   PYTHIA is released under the GNU Gene"
@@ -2688,7 +2683,7 @@ void Pythia::banner() {
        << " when interpreting results.           |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
-       << " |  |   Copyright (C) 2022 Torbjörn Sjöstrand"
+       << " |  |   Copyright (C) 2022 Torbjorn Sjostrand"
        << "                                      |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"

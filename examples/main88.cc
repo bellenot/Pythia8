@@ -26,7 +26,7 @@ using namespace Pythia8;
 
 //==========================================================================
 
-// Example main programm to illustrate UNLOPS merging
+// Example main program to illustrate UNLOPS merging
 
 int main( int argc, char* argv[] ){
 

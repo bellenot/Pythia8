@@ -761,8 +761,13 @@ void SimpleTimeShower::prepare( int iSys, Event& event, bool limitPTmaxIn) {
       // Find Hidden Valley dipole ends.
       bool isHVrad =  (idRadAbs > 4900000 && idRadAbs < 4900007)
                    || (idRadAbs > 4900010 && idRadAbs < 4900017)
+                   || idRad == 4900021
                    || (idRadAbs > 4900100 && idRadAbs < 4900109);
-      if (doHVshower && isHVrad) setupHVdip( iSys, i, event, limitPTmaxIn);
+      if (doHVshower && isHVrad) {
+        if (idRad > 0) setupHVdip( iSys, i,  1, event, limitPTmaxIn);
+        if (idRad < 0 || idRad == 4900021)
+                       setupHVdip( iSys, i, -1, event, limitPTmaxIn);
+      }
 
     // End loop over system final state. Have now found the dipole ends.
     }
@@ -1934,22 +1939,21 @@ void SimpleTimeShower::setupWeakdipExternal(Event& event, bool limitPTmaxIn) {
 
 // Setup a dipole end for a Hidden Valley colour charge.
 
-void SimpleTimeShower::setupHVdip( int iSys, int i, Event& event,
-  bool limitPTmaxIn) {
+void SimpleTimeShower::setupHVdip( int iSys, int i, int colvSign,
+  Event& event, bool limitPTmaxIn) {
 
   // Initial values.
   int iRad    = partonSystemsPtr->getOut(iSys, i);
   int iRec    = 0;
-  int idRad   = event[iRad].id();
   int sizeOut = partonSystemsPtr->sizeOut(iSys);
 
-  // Hidden Valley colour positive for positive id, and vice versa.
-  // Find opposte HV colour in final state of same system.
+  // Find same HV (anti)colour tag in final state of same system.
+  int colvTag = (colvSign > 0) ? event[iRad].colHV() : event[iRad].acolHV();
   for (int j = 0; j < sizeOut; ++j) if (j != i) {
     int iRecNow = partonSystemsPtr->getOut(iSys, j);
-    int idRec   = event[iRecNow].id();
-    if ( (abs(idRec) > 4900000 && abs(idRec) < 4900017)
-      && idRad * idRec < 0) {
+    int colvRecNow =  (colvSign > 0) ? event[iRecNow].acolHV()
+      : event[iRecNow].colHV();
+    if (colvRecNow == colvTag) {
       iRec = iRecNow;
       break;
     }
@@ -1974,7 +1978,7 @@ void SimpleTimeShower::setupHVdip( int iSys, int i, Event& event,
     if (limitPTmaxIn) {
       if (iSys == 0 || (iSys == 1 && twoHard)) pTmax *= pTmaxFudge;
     } else pTmax = 0.5 * m( event[iRad], event[iRec]);
-    int colvType  = (event[iRad].id() > 0) ? 1 : -1;
+    int colvType  = (event[iRad].id() == 4900021) ? 2 * colvSign : colvSign;
     dipEnd.push_back( TimeDipoleEnd( iRad, iRec, pTmax, 0, 0, 0, 0, 0,
       iSys, -1, -1, 0, false, true, colvType) );
   } else infoPtr->errorMsg("Error in SimpleTimeShower::setupHVdip: "
@@ -2522,6 +2526,7 @@ void SimpleTimeShower::pT2nextQED(double pT2begDip, double pT2sel,
     // Determine overestimated z range. Find evolution coefficient.
     zMinAbs = 0.5 - sqrtpos( 0.25 - pT2endDip / dip.m2DipCorr );
     if (zMinAbs < SIMPLIFYROOT) zMinAbs = pT2endDip / dip.m2DipCorr;
+    if (zMinAbs > 0.499) { dip.pT2 = 0.; return; }
     emitCoefTot = alphaEM2pi * chg2 * wtPSgam * log(1. / zMinAbs - 1.);
     // Optionally enhanced branching rate.
     if (canEnhanceETnow) emitCoefTot *= enhanceFactor("fsr:Q2QA");
@@ -3160,6 +3165,14 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
   iSysSel          = dipSel->system;
   int iSysSelRec   = dipSel->systemRec;
 
+  // Prepare for Hidden Valley colour assignment.
+  int colvRad = 0, acolvRad = 0, colvEmt = 0, acolvEmt = 0, colvType = 0;
+  if (event.hasHVcols()) {
+    colvRad  = event[iRadBef].colHV();
+    acolvRad = event[iRadBef].acolHV();
+    colvType = dipSel->colvType;
+  }
+
   // Sometimes need to patch up colType in junction systems.
   int colTypeTmp   = dipSel->colType;
   int colTypeRec   = particleDataPtr->colType( recBef.id() );
@@ -3177,8 +3190,8 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
     if (colTypeRad == -1 && colTypeTmp > 0) colTypeTmp = -colTypeTmp;
   }
 
-  // Default OK for photon, photon_HV or gluon_HV emission.
-  if (dipSel->flavour == 22 || dipSel->flavour == idHV) {
+  // Default OK for photon or photon_HV emission.
+  if (dipSel->flavour == 22 || dipSel->flavour == 4900022) {
   // New colour tag required for gluon emission.
   } else if (dipSel->flavour == 21 && colTypeTmp > 0) {
     colEmt  = colRad;
@@ -3210,6 +3223,15 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
     idRad   = -idEmt;
     if (idEmt < 10) colEmt = event.nextColTag();
     acolRad = colEmt;
+  // New Hidden Valley colour tag for gluon_HV emission.
+  } else if (colvType > 0) {
+    colvEmt  = colvRad;
+    colvRad  = event.nextColTag();
+    acolvEmt = colvRad;
+  } else if (colvType < 0) {
+    acolvEmt = acolvRad;
+    acolvRad = event.nextColTag();
+    colvEmt  = acolvRad;
   }
 
   // Change fermion flavour by W emissions.
@@ -3475,6 +3497,10 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
   int iRad = event.append(rad);
   int iEmt = event.append(emt);
 
+  // Add Hidden Valley colour info where relevant.
+  if (colvRad > 0 || acolvRad > 0) event[iRad].colsHV( colvRad, acolvRad);
+  if (colvEmt > 0 || acolvEmt > 0) event[iEmt].colsHV( colvEmt, acolvEmt);
+
   // Allow setting of new parton production vertex.
   if (doPartonVertex) partonVertexPtr->vertexFSR( iEmt, event);
 
@@ -3492,6 +3518,13 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
       event[iRec].mothers( iRecMot1V, iRecMot2V);
       if (iRecMot1V == beamOff1) event[beamOff1].daughter1( iRec);
       if (iRecMot1V == beamOff2) event[beamOff2].daughter1( iRec);
+    }
+
+    // Add Hidden Valley colour info where relevant.
+    if (event.hasHVcols()) {
+      int colvRec  = event[iRecBef].colHV();
+      int acolvRec = event[iRecBef].acolHV();
+      if (colvRec > 0 || acolvRec > 0) event[iRec].colsHV(colvRec, acolvRec);
     }
 
   // Global recoil: need to find relevant rotation+boost for recoilers:
@@ -3835,8 +3868,13 @@ bool SimpleTimeShower::branch( Event& event, bool isInterleaved) {
       dipEnd[i].iRecoiler = iEmt;
       dipEnd[i].pTmax     = pTsel;
     }
-    int colvType = (dipSel->colvType > 0) ? 2 : -2 ;
-    dipEnd.push_back( TimeDipoleEnd(iEmt, iRec, pTsel,
+    colvType = (dipSel->colvType > 0) ? 2 : -2 ;
+    // When recoiler was un-HV-coloured particle, in resonance decays,
+    // assign recoil to HV-coloured particle.
+    int iRecMod = iRec;
+    if (recoilToColoured && inResonance && event[iRec].colHV() == 0
+      && event[iRec].acolHV() == 0) iRecMod = iRad;
+    dipEnd.push_back( TimeDipoleEnd(iEmt, iRecMod, pTsel,
       0, 0, 0, 0, isrTypeSave, iSysSel, 0, -1, 0, false, true, colvType) );
     dipEnd.back().systemRec = iSysSelRec;
     dipEnd.push_back( TimeDipoleEnd(iEmt, iRad, pTsel,
@@ -4987,6 +5025,7 @@ void SimpleTimeShower::findMEtype( Event& event, TimeDipoleEnd& dip) {
     dip.MEtype = 0;
 
     // For H -> gg -> ggg we found that DGLAP kernels do better than eikonal.
+    // The same should apply for Hidden-Valley gluons.
     if (dau1Type == 4 && dau2Type == 4) return;
 
     // Find mother type.
@@ -5164,13 +5203,13 @@ int SimpleTimeShower::findMEparticle( int id, bool isHiddenColour) {
   int spinType = particleDataPtr->spinType(id);
 
   // For hidden valley particle treat HV colour as normal one.
-  // Note: no need to assign gv/gammav since not in ME.
   if (isHiddenColour) {
     colType = 0;
     int idAbs = abs(id);
     if (  (idAbs > 4900000 && idAbs < 4900007)
        || (idAbs > 4900010 && idAbs < 4900017)
        || (idAbs > 4900100 && idAbs < 4900109) ) colType = 1;
+    if (id == 4900021) colType = 2;
   }
 
   // Find particle type from colour and spin.
@@ -5263,6 +5302,10 @@ double SimpleTimeShower::findMEcorr(TimeDipoleEnd* dip, Particle& rad,
   double r1      = rad.m() / eCMME;
   double r2      = partner.m() / eCMME;
   double r3      = 0.;
+
+  // Currently Hidden Valley case 30 does give negative numbers,
+  // which suggests a bug. Skip ME correction for now.
+  if (MEkind == 30 && brokenHVsym) return 1.;
 
   // Evaluate kinematics for Hidden Valley with massive gamma_v.
   double gammavCorr = 1.;
@@ -6054,6 +6097,7 @@ double SimpleTimeShower::calcMEcorr( int kind, int combiIn, double mixIn,
       break;
 
     // Dv -> qv d.
+    // Warning: current expression gives a negative answer, so is not used!
     case 30:
       rLO = ps*(1.-r1s+r2s+2.*r2);
       rFO = ( 0.5*r3s + 2.*r1q + 0.5*r2s*r3s + r2*r3s - 2.*r1s
@@ -6319,7 +6363,7 @@ void SimpleTimeShower::list() const {
        << setw(5) << dipEnd[i].colType     << setw(5) << dipEnd[i].chgType
        << setw(5) << dipEnd[i].gamType     << setw(5) << dipEnd[i].weakType
        << setw(5) << dipEnd[i].isOctetOnium
-       << setw(5) << dipEnd[i].isHiddenValley << setw(5) << dipEnd[i].isrType
+       << setw(5) << dipEnd[i].colvType    << setw(5) << dipEnd[i].isrType
        << setw(5) << dipEnd[i].system      << setw(5) << dipEnd[i].systemRec
        << setw(5) << dipEnd[i].MEtype      << setw(7) << dipEnd[i].iMEpartner
        << setw(8) << dipEnd[i].MEmix       << setw(5) << dipEnd[i].MEorder

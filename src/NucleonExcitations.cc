@@ -552,7 +552,7 @@ double NucleonExcitations::psSize(double eCM, ParticleDataEntry& prodA,
     return result;
   else {
     infoPtr->errorMsg("Error in HadronWidths::psSize: Unable to integrate");
-    return NAN;
+    return numeric_limits<double>::quiet_NaN();
   }
 }
 

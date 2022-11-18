@@ -282,8 +282,8 @@ bool HiddenValleyFragmentation::fragment(Event& event) {
   // Extract HV-particles from event to hvEvent. Done if none found.
   if (!extractHVevent(event)) return true;
 
-  // Assign HV-colours to hidden partons.
-  if (!assignHVevent()) return false;
+  // Trace HV-colours of hidden partons.
+  if (!traceHVcols()) return false;
 
   // Store found string system. Analyze its properties.
   if (!hvColConfig.insert(ihvParton, hvEvent)) return false;
@@ -342,11 +342,12 @@ bool HiddenValleyFragmentation::extractHVevent(Event& event) {
       int iHV = hvEvent.append( event[i]);
       // Convert HV-gluons into normal ones so as to use normal machinery.
       if (event[i].id() ==  4900021) hvEvent[iHV].id(21);
+      // Convert HV-colours into normal ones for the same reason.
+      hvEvent[iHV].cols( event[i].colHV(), event[i].acolHV());
       // Second mother points back to position in complete event;
       // otherwise construct the HV history inside hvEvent.
       hvEvent[iHV].mothers( 0, i);
       hvEvent[iHV].daughters( 0, 0);
-      hvEvent[iHV].cols( 0, 0);
       int iMother = event[i].mother1();
       for (int iHVM = 1; iHVM < hvEvent.size(); ++iHVM)
       if (hvEvent[iHVM].mother2() == iMother) {
@@ -365,97 +366,37 @@ bool HiddenValleyFragmentation::extractHVevent(Event& event) {
 
 //--------------------------------------------------------------------------
 
-// Assign HV-colours to the partons in the extracted HV-event.
+// Trace HV-colour order of partons in the extracted HV-event.
 
-bool HiddenValleyFragmentation::assignHVevent() {
+bool HiddenValleyFragmentation::traceHVcols() {
 
-  // Initial colour - anticolour parton pair.
-  hvEvent.initColTag();
-  int colBeg = hvEvent.nextColTag();
-  for (int iHV = 1; iHV < hvOldSize; ++iHV)
-  if (hvEvent[iHV].mother1() == 0) {
-    if (hvEvent[iHV].id() > 0) hvEvent[iHV].cols( colBeg, 0);
-    else                       hvEvent[iHV].cols( 0, colBeg);
-  }
-
-  // Trace colours through full history.
-  for (int iRad = 1; iRad < hvOldSize; ++iRad) {
-    int iRadBef   = hvEvent[iRad].mother1();
-    int statusRad = hvEvent[iRad].statusAbs();
-    int iEmt      = iRad + 1;
-
-    // Skip initial partons that already had colours assigned.
-    if (hvEvent[iRad].col() != 0 || hvEvent[iRad].acol() != 0) {
-      continue;
-
-    // Copy of particle by resonance decay, recoil from normal sector,
-    // beam-remnant recoil or pre-hadronization ordering.
-    } else if (statusRad == 23 || statusRad == 52
-      || (statusRad == 51 && (iEmt == hvOldSize
-      || hvEvent[iEmt].statusAbs() != 51
-      || hvEvent[iEmt].mother1() != iRadBef))
-      || (statusRad > 60 && statusRad < 80) ) {
-      hvEvent[iRad].cols( hvEvent[iRadBef].col(), hvEvent[iRadBef].acol());
-
-    // Dipole branching (iRadBef, iRecBef) -> (iRad, iEmt) + (iEmt, iRec).
-    } else if (iEmt < hvOldSize && statusRad == 51
-      && hvEvent[iEmt].statusAbs() == 51
-      && hvEvent[iEmt].mother1() == iRadBef) {
-      int iRec    = iRad + 2;
-      int iRecBef = (iRec < hvOldSize && hvEvent[iRec].statusAbs() == 52)
-        ? hvEvent[iRec].mother1() : 0;
-
-      // Find whether colour or anticolour end of dipole is radiating.
-      int colBef  = hvEvent[iRadBef].col();
-      int acolBef = hvEvent[iRadBef].acol();
-      int colType = 0;
-      if (acolBef == 0) colType = 1;
-      else if (colBef == 0) colType = -1;
-      else if (iRecBef > 0 && hvEvent[iRecBef].acol() == colBef) colType = 1;
-      else if (iRecBef > 0 && hvEvent[iRecBef].col() == acolBef) colType = -1;
-      // Recoil in normal sector: trace up to qv/Qv or qvbar/QvBar.
-      else {
-        int iUp = hvEvent[iRadBef].mother1();
-        while (iUp > 0 && hvEvent[iUp].id() == hvEvent[iRad].id())
-          iUp = hvEvent[iUp].mother1();
-        if (iUp > 0) colType = (hvEvent[iUp].id() > 0) ? 1 : -1;
-      }
-
-      // Set new colours of radiator and emitted. Error checks.
-      int colNew  = hvEvent.nextColTag();
-      if (colType == 1) {
-        hvEvent[iRad].cols( colNew, acolBef);
-        hvEvent[iEmt].cols( colBef, colNew);
-      } else if (colType == -1) {
-        hvEvent[iRad].cols( colBef, colNew);
-        hvEvent[iEmt].cols( colNew, acolBef);
-      } else {
-        infoPtr->errorMsg("Error in HiddenValleyFragmentation::extractHVevent:"
-        " failed to assign dipole colours");
-        return false;
-      }
-      ++iRad;
-    } else {
-      infoPtr->errorMsg("Error in HiddenValleyFragmentation::extractHVevent:"
-      " failed to assign other colours");
-      return false;
-    }
-  }
-
-  // Pick up the colour end.
+  // Pick up the colour end of an open string.
   int colNow = 0;
   for (int iHV = 1; iHV < hvOldSize; ++iHV)
   if (hvEvent[iHV].isFinal() && hvEvent[iHV].acol() == 0) {
     ihvParton.push_back( iHV);
     colNow = hvEvent[iHV].col();
+    break;
   }
 
-  // Trace colour by colour until reached anticolour end.
+  // If closed gluon loop then pick up first final parton.
+  if (colNow == 0) for (int iHV = 1; iHV < hvOldSize; ++iHV)
+  if (hvEvent[iHV].isFinal()) {
+    ihvParton.push_back( iHV);
+    colNow = hvEvent[iHV].col();
+    break;
+  }
+
+  // Trace colour by colour until reached anticolour end or run full circle.
   while (colNow > 0) {
     for (int iHV = 1; iHV < hvOldSize; ++iHV)
     if (hvEvent[iHV].isFinal() && hvEvent[iHV].acol() == colNow) {
       ihvParton.push_back( iHV);
       colNow = hvEvent[iHV].col();
+      break;
+    }
+    if (ihvParton.back() == ihvParton.front()) {
+      ihvParton.pop_back();
       break;
     }
   }

@@ -28,11 +28,12 @@
 
 void bind_Pythia8_Basics_2(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
-	{ // Pythia8::HistPlot file:Pythia8/Basics.h line:651
+	{ // Pythia8::HistPlot file:Pythia8/Basics.h line:710
 		pybind11::class_<Pythia8::HistPlot, std::shared_ptr<Pythia8::HistPlot>> cl(M("Pythia8"), "HistPlot", "");
 		pybind11::handle cl_type = cl;
 
-		cl.def( pybind11::init<std::string>(), pybind11::arg("pythonName") );
+		cl.def( pybind11::init( [](class std::basic_string<char> const & a0){ return new Pythia8::HistPlot(a0); } ), "doc" , pybind11::arg("pythonName"));
+		cl.def( pybind11::init<std::string, bool>(), pybind11::arg("pythonName"), pybind11::arg("useLegacyIn") );
 
 		cl.def("frame", [](Pythia8::HistPlot &o, class std::basic_string<char> const & a0) -> void { return o.frame(a0); }, "", pybind11::arg("frameIn"));
 		cl.def("frame", [](Pythia8::HistPlot &o, class std::basic_string<char> const & a0, class std::basic_string<char> const & a1) -> void { return o.frame(a0, a1); }, "", pybind11::arg("frameIn"), pybind11::arg("titleIn"));

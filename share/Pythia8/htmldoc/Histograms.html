@@ -49,8 +49,9 @@ been omitted in this case.
 <p/> 
 A set of overloaded operators have been defined, so that histograms 
 can be added, subtracted, divided or multiplied by each other. Then the 
-contents are modified accordingly bin by bin. Thus the relative 
-deviation between two histograms <code>data</code> and 
+contents (and associated statistical errors) are modified accordingly 
+bin by bin. Thus the relative deviation between two histograms 
+<code>data</code> and 
 <code>theory</code> can be found as 
 <pre> 
   diff = (data - theory) / (data + theory); 
@@ -121,19 +122,38 @@ or more precisely in the range 342.5 to 347.5.
  
 <p/> 
 The printout also provides some other information, such as the 
-number of entries, i.e. how many times the histogram has been filled, 
-the total weight inside the histogram, the total weight in underflow 
-and overflow, and the mean value and root-mean-square width (disregarding 
-underflow and overflow). The mean and width assumes that all the 
-contents is in the middle of the respective bin. This is especially 
-relevant when you plot a integer quantity, such as a multiplicity. 
+number of entries, i.e. how many times the histogram has been filled 
+(including both underflow and overflow), the total weight inside the 
+histogram (excluding underflow and overflow), the total weight in underflow 
+and overflow, and the statistical power of the contents inside the 
+histogram expressed in terms of 
+<i>nEffective = ( sum ( w ) )^2 / ( sum w^2 )</i>. For an 
+unweighted histogram, the latter is equal to the number of entries 
+(excluding underflow and overflow), while for one filled with 
+varying weights, it is less than that. 
+ 
+<p/> 
+Also printed are the mean value, median, and root-mean-square width 
+(RMS). (Further moments about the mean can be computed via dedicated 
+getter methods, see below.) If <code>doStats == true</code> then 
+statistical errors are also printed, summed in quadrature with an 
+estimate of the error due to the finite bin granularity (calculated as 
+the difference with respect to unbinned estimates of the same quantities). 
+ 
+<p/> 
+In the printout, the moments and the median all disregard underflow 
+and overflow and assume that all the contents is in the middle of the 
+respective bin (with the median using a linear interpolation inside the median 
+bin). This is especially relevant when you plot an integer quantity, 
+such as a multiplicity. 
 Then it makes sense to book with limits that are half-integers, e.g. 
 <pre> 
    Hist multMPI( "number of multiparton interactions", 20, -0.5, 19.5); 
 </pre> 
 so that the bins are centered at 0, 1, 2, ..., respectively.  This also 
 avoids ambiguities which bin gets to be filled if entries are 
-exactly at the border between two bins. Also note that the 
+exactly at the border between two bins. 
+Also note that the 
 <code>fill( xValue)</code> method automatically performs a cast 
 to double precision where necessary, i.e. <code>xValue</code> 
 can be an integer. 
@@ -245,7 +265,7 @@ declare a histogram, but does not define it.
    
  
 <a name="anchor2"></a>
-<p/><strong> Hist::Hist(string title, int numberOfBins, double xMin, double xMax, bool logX = false) &nbsp;</strong> <br/>
+<p/><strong> Hist::Hist(string title, int numberOfBins, double xMin, double xMax, bool logX = false, bool doStats = false) &nbsp;</strong> <br/>
 declare and define a histogram, where 
 <br/><code>argument</code><strong> title </strong>  :  
 is a string with the title of the histogram at output, 
@@ -265,6 +285,12 @@ gives a logarithmic <i>x</i> scale between <code>xMin</code> and
 <code>xMax</code> if set <code>true</code>. Note that then 
 <code>xMin</code> must be above 1e-20 so as to stay with positive 
 numbers. 
+   
+<br/><code>argument</code><strong> doStats </strong>  :  
+  decides whether statistics allowing unbinned higher moments to be 
+  calculated are saved (up to n = 7) and also whether the histogram summary 
+  printout via the <code>&lt;&lt;</code> operator includes 
+  <i>+/-</i> uncertainty estimates on the Mean, Median, and RMS values. 
    
    
  
@@ -288,7 +314,7 @@ except that the original histogram title is retained.
    
  
 <a name="anchor6"></a>
-<p/><strong> void Hist::book(string title, int numberOfBins, double xMin, double xMax, bool logXIn = false) &nbsp;</strong> <br/>
+<p/><strong> void Hist::book(string title, int numberOfBins, double xMin, double xMax, bool logXIn = false, bool doStatsIn = false) &nbsp;</strong> <br/>
 define a histogram that previously was only declared; 
 see above for the meaning of the arguments. 
    
@@ -336,13 +362,13 @@ The Pyplot interface will display correct values, however.
    
  
 <a name="anchor12"></a>
-<p/><strong> void Hist::table(ostream&amp; os = cout, bool printOverUnder = false, bool xMidBin = true) &nbsp;</strong> <br/>
+<p/><strong> void Hist::table(ostream&amp; os = cout, bool printOverUnder = false, bool xMidBin = true, bool printError = true) &nbsp;</strong> <br/>
    
 <a name="anchor13"></a>
-<strong> void Hist::table(string fileName, bool printOverUnder = false, bool xMidBin = true) &nbsp;</strong> <br/>
-print a two-column table, where the first column gives the center of 
-each bin and the second one the corresponding bin contents. The table 
-may be useful for plotting e.g. with Gnuplot. 
+<strong> void Hist::table(string fileName, bool printOverUnder = false, bool xMidBin = true, bool printError = true) &nbsp;</strong> <br/>
+print a three-column table, where the first column gives the center of 
+each bin, the second one the corresponding bin contents, and the bin 
+errors. The table may be useful for plotting e.g. with Gnuplot. 
 <br/>The desired output stream or file name can be provided as argument. 
 The former is more flexible (e.g., it allows easy append to an existing 
 file), whereas the latter is simpler for the case that each histogram 
@@ -353,26 +379,23 @@ coordinates for these are placed as if corresponding to same-size bins
 just below or above the regular histogram bins.) 
 <br/>An optional <code>xMidBin = false</code> argument will have the 
 <i>x</i> value at the beginning of each bin printed, rather than the 
-default midpoint value. 
+default midpoint value. Finally, the optional <code>printError = 
+false</code> will force the values in the third column to be zero. 
    
  
 <a name="anchor14"></a>
-<p/><strong> void Hist::rivetTable(ostream&amp; os = cout, bool printError = false) &nbsp;</strong> <br/>
+<p/><strong> void Hist::rivetTable(ostream&amp; os = cout, bool printError = true) &nbsp;</strong> <br/>
    
 <a name="anchor15"></a>
-<strong> void Hist::rivetTable(string fileName, bool printError = false) &nbsp;</strong> <br/>
+<strong> void Hist::rivetTable(string fileName, bool printError = true) &nbsp;</strong> <br/>
 print a five-column table, where the first two columns give the lower 
 and upper borders of each bin, the third one the bin contents, and the 
 fourth and fifth the error (up and down) associated with the contents. 
 This format matches the one that Rivet uses for its histograms. 
 The choice between the two methods is the same as above for the 
 <code>table</code> methods. 
-<br/>The error bins are put to zero by default, since the PYTHIA 
-histogramming is not sophisticated enough to compensate for rescalings 
-or other operations, or for weighted events. With the optional 
-<code>printError = true</code> the error will be taken as the 
-square root of the bin content, as is relevant if this content has 
-the same unit weight for each entry to it. 
+<br/>With the optional <code>printError = false</code> the errors will 
+be output as zero. 
    
  
 <a name="anchor16"></a>
@@ -463,55 +486,134 @@ zero content) in any of the bins inside the histogram.
    
  
 <a name="anchor31"></a>
+<p/><strong> double getXMean(bool unbinned=true) &nbsp;</strong> <br/>
+   
+<a name="anchor32"></a>
+<strong> double getXMeanErr(bool unbinned=true) &nbsp;</strong> <br/>
+Return mean in X and error on mean, either unbinned from saved weight 
+sums (default) or explicitly from the histogram bins <code>(unbinned = 
+false)</code>. 
+In the latter case, the error estimate includes a measure of the error 
+due to the finite bin granularity, calculated as the difference between 
+the binned and unbinned values and summed in quadrature with the 
+statistical error. 
+   
+ 
+<a name="anchor33"></a>
+<p/><strong> double getXMedian(bool includeOverUnder=true) &nbsp;</strong> <br/>
+   
+<a name="anchor34"></a>
+<strong> double getXMedianErr(bool unbinned=true) &nbsp;</strong> <br/>
+Return median in X and its statistical error, ignoring underflow and 
+ overflow (default) or including them <code>(includeOverUnder = 
+ true)</code>. By default, the reported error includes the same granularity 
+ estimate as for the mean value (and also computed using the mean, not the 
+ median), but this can be switched off <code>(unbinned = false)</code>. 
+   
+ 
+<a name="anchor35"></a>
+<p/><strong> double getYMean() &nbsp;</strong> <br/>
+Return the average value in Y, calculated as the sum of weights inside 
+the histogram range divided by the number of times it was filled. 
+   
+ 
+<a name="anchor36"></a>
+<p/><strong> double getXRMN(int n=2, bool unbinned=true) &nbsp;</strong> <br/>
+   
+<a name="anchor37"></a>
+<strong> double getXRMNErr(int n=2, bool unbinned=true) &nbsp;</strong> <br/>
+Return the <i>n</i>'th root of the <i>n</i>'th moment about the mean, 
+<i>&lt; (x - &lt;x&gt;)^n &gt;</i>, and its estimated statistical error. 
+The default value <i>n = 2</i> corresponds to the standard root-mean-square 
+width. Up to <i>n = 6</i>, both unbinned and binned moments can 
+be calculated. For <i>n >= 7</i>, and for all error estimates, only 
+binned calculations are available. Note that (unlike ROOT), the error 
+estimates do not assume normal distributions. If <code>unbinned = 
+false</code> an estimate of the bin granularity error is added in 
+quadrature to the statistical error (up to <i>n = 6</i>, beyond 
+which the bin granularity error is not estimated). 
+   
+ 
+<a name="anchor38"></a>
+<p/><strong> double getXRMS(bool unbinned=true) &nbsp;</strong> <br/>
+   
+<a name="anchor39"></a>
+<strong> double getXRMSErr(bool unbinned=true) &nbsp;</strong> <br/>
+Wrapper of <code>getXRMN()</code> to return the root-mean-square 
+width (aka the root of the second central moment, aka the 
+root-mean-square deviation about the mean), and its error. If <code>unbinned = 
+false</code> an estimate of the bin granularity error is added in 
+quadrature to the statistical error. 
+   
+ 
+<a name="anchor40"></a>
 <p/><strong> double Hist::getBinContent(int iBin) &nbsp;</strong> <br/>
 return the value in bin <code>iBin</code>, ranging from 1 through 
 <code>numberOfBins</code>, with <code>0</code> for underflow and 
 <code>numberOfBins + 1</code> for overflow. 
    
  
-<a name="anchor32"></a>
+<a name="anchor41"></a>
 <p/><strong> double Hist::getBinEdge(int iBin) &nbsp;</strong> <br/>
 return the lower edge of bin <code>iBin</code>, ranging from 1 through 
 <code>numberOfBins</code>. 
    
  
-<a name="anchor33"></a>
+<a name="anchor42"></a>
 <p/><strong> double Hist::getBinWidth(int iBin) &nbsp;</strong> <br/>
 return the width of bin <code>iBin</code>, ranging from 1 through 
 <code>numberOfBins</code>. 
    
  
-<a name="anchor34"></a>
+<a name="anchor43"></a>
 <p/><strong> vector&lt;double&gt; Hist::getBinContents() &nbsp;</strong> <br/>
 return the bin contents. 
    
  
-<a name="anchor35"></a>
+<a name="anchor44"></a>
 <p/><strong> vector&lt;double&gt; Hist::getBinEdges() &nbsp;</strong> <br/>
 return the bin edges. 
    
  
-<a name="anchor36"></a>
+<a name="anchor45"></a>
 <p/><strong> int Hist::getEntries(bool alsoNonFinite = true) &nbsp;</strong> <br/>
 return the number of entries, i.e. the number of time that 
 <code>fill(...)</code> has been called. If <code>alsoNonFinite</code> 
 is false, then entries that are infinity or NaN are ignored. 
    
  
-<a name="anchor37"></a>
+<a name="anchor46"></a>
+<p/><strong> double Hist::getWeightSum(bool alsoOverUnder = true) &nbsp;</strong> <br/>
+  return the sum of weights with which the histogram was filled. The 
+  output of this method only differs from that of 
+  <code>getEntries()</code> above if non-unity weights were used when 
+  the histogram was filled. If <code>alsoOverUnder</code> is true, then 
+  the overflow and underflow bins are included in the weight sum, 
+  otherwise not. 
+   
+ 
+<a name="anchor47"></a>
+<p/><strong> double Hist::getNEffective() &nbsp;</strong> <br/>
+ Return effective entries (for weighted histograms = number 
+ of equivalent unweighted events for same statistical power), 
+ calculated as <i>(sum(w))^2 / sum(w^2)</i>. 
+   
+ 
+ 
+<a name="anchor48"></a>
 <p/><strong> bool Hist::sameSize(const Hist&amp; h) &nbsp;</strong> <br/>
 checks that the number of bins and upper and lower limits are the 
 same as in the histogram in the argument. 
    
  
-<a name="anchor38"></a>
+<a name="anchor49"></a>
 <p/><strong> void Hist::takeFunc(function&lt;double(double)&gt; func) &nbsp;</strong> <br/>
 pass an arbitrary function that takes as an argument a 
 <code>double</code> and returns a <code>double</code>. This function 
 is applied to the current contents bin by bin. 
    
  
-<a name="anchor39"></a>
+<a name="anchor50"></a>
 <p/><strong> void Hist::takeLog(bool tenLog = true) &nbsp;</strong> <br/>
 by default take 10-logarithm of current contents bin by bin. With 
 optional argument <code>false</code> instead take <i>e</i>-logarithm 
@@ -519,13 +621,13 @@ of contents bin by bin. If to be used, then right before the
 histogram is output. 
    
  
-<a name="anchor40"></a>
+<a name="anchor51"></a>
 <p/><strong> void Hist::takeSqrt() &nbsp;</strong> <br/>
 take square root of current contents bin by bin, with negative contents 
 set to zero. 
    
  
-<a name="anchor41"></a>
+<a name="anchor52"></a>
 <p/><strong> void Hist::normalize( double f = 1., bool overflow = true) &nbsp;</strong> <br/>
 Rescale the histogram to a given sum of all bin contents, where 
 <br/><code>argument</code><strong> sum </strong> (<code>default = <strong>1.</strong></code>) :  
@@ -538,7 +640,7 @@ are always rescaled by the same factor as the histogram proper.
    
    
  
-<a name="anchor42"></a>
+<a name="anchor53"></a>
 <p/><strong> void Hist::normalizeIntegral( double f = 1., bool alsoOverflow = true) &nbsp;</strong> <br/>
 Rescale the histogram so that it integrates to the value given by 
 <br/><code>argument</code><strong> f </strong> (<code>default = <strong>1.</strong></code>) : . This is the appropriate 
@@ -551,113 +653,118 @@ width, as the histogram proper. Bin widths are handled for both linear
 and log plots. 
    
  
-<a name="anchor43"></a>
+<a name="anchor54"></a>
 <p/><strong> void Hist::normalizeSpectrum( double wtSum) &nbsp;</strong> <br/>
 Rescale the histogram by a factor <code>1/(wtSum * dx)</code> where 
 <code>dx</code> is the bin width. This is the appropriate 
 renormalization if the histogram represents a spectrum on the form 
 <i>(1/N_{ev}) dN/dx</i>. <br/><code>argument</code><strong> wtSum </strong> (<code>default = <strong>1.</strong></code>) :  is 
 the total weight of the events, which if events are unweighted is just 
-the total number of successfully generated events. the under/overflow 
+the total number of successfully generated events. The under/overflow 
 are always rescaled by the same factor, except the bin width, as the 
 histogram proper. Bin widths are handled for both linear and log 
 plots. 
    
  
-<a name="anchor44"></a>
+<a name="anchor55"></a>
 <p/><strong> Hist&amp; Hist::operator+=(const Hist&amp; h) &nbsp;</strong> <br/>
    
-<a name="anchor45"></a>
+<a name="anchor56"></a>
 <strong> Hist&amp; Hist::operator-=(const Hist&amp; h) &nbsp;</strong> <br/>
 adds or subtracts the current histogram by the contents of the 
 histogram in the argument if <code>sameSize(...)</code> is true, 
 else does nothing. 
    
  
-<a name="anchor46"></a>
+<a name="anchor57"></a>
 <p/><strong> Hist&amp; Hist::operator*=(const Hist&amp; h) &nbsp;</strong> <br/>
    
-<a name="anchor47"></a>
+<a name="anchor58"></a>
 <strong> Hist&amp; Hist::operator/=(const Hist&amp; h) &nbsp;</strong> <br/>
 multiplies or divides the current histogram by the contents of the 
 histogram in the argument if <code>sameSize(...)</code> is true, 
 else does nothing. 
    
  
-<a name="anchor48"></a>
+<a name="anchor59"></a>
 <p/><strong> Hist&amp; Hist::operator+=(double f) &nbsp;</strong> <br/>
    
-<a name="anchor49"></a>
+<a name="anchor60"></a>
 <strong> Hist&amp; Hist::operator-=(double f) &nbsp;</strong> <br/>
 adds or subtracts each bin content by the common offset <i>f</i>. 
    
  
-<a name="anchor50"></a>
+<a name="anchor61"></a>
 <p/><strong> Hist&amp; Hist::operator*=(double f) &nbsp;</strong> <br/>
    
-<a name="anchor51"></a>
+<a name="anchor62"></a>
 <strong> Hist&amp; Hist::operator*=(double f) &nbsp;</strong> <br/>
 multiplies or divides each bin content by the common factor <i>f</i>. 
    
  
-<a name="anchor52"></a>
+<a name="anchor63"></a>
 <p/><strong> friend Hist operator+(double f, const Hist&amp; h1) &nbsp;</strong> <br/>
    
-<a name="anchor53"></a>
+<a name="anchor64"></a>
 <strong> friend Hist operator+(const Hist&amp; h1, double f) &nbsp;</strong> <br/>
    
-<a name="anchor54"></a>
+<a name="anchor65"></a>
 <strong> friend Hist operator+(const Hist&amp; h1, const Hist h2) &nbsp;</strong> <br/>
 add a constant to a histogram or two histograms to each other, bin by bin. 
    
  
-<a name="anchor55"></a>
+<a name="anchor66"></a>
 <p/><strong> friend Hist operator-(double f, const Hist&amp; h1) &nbsp;</strong> <br/>
    
-<a name="anchor56"></a>
+<a name="anchor67"></a>
 <strong> friend Hist operator-(const Hist&amp; h1, double f) &nbsp;</strong> <br/>
    
-<a name="anchor57"></a>
+<a name="anchor68"></a>
 <strong> friend Hist operator-(const Hist&amp; h1, const Hist h2) &nbsp;</strong> <br/>
 subtract a histogram from a constant, a constant from a histogram, 
 or two histograms from each other, bin by bin. 
    
  
-<a name="anchor58"></a>
+<a name="anchor69"></a>
 <p/><strong> friend Hist operator*(double f, const Hist&amp; h1) &nbsp;</strong> <br/>
    
-<a name="anchor59"></a>
+<a name="anchor70"></a>
 <strong> friend Hist operator*(const Hist&amp; h1, double f) &nbsp;</strong> <br/>
    
-<a name="anchor60"></a>
+<a name="anchor71"></a>
 <strong> friend Hist operator*(const Hist&amp; h1, const Hist h2) &nbsp;</strong> <br/>
 multiply a constant by a histogram or two histograms by each other, 
 bin by bin. 
    
  
-<a name="anchor61"></a>
+<a name="anchor72"></a>
 <p/><strong> friend Hist operator/(double f, const Hist&amp; h1) &nbsp;</strong> <br/>
    
-<a name="anchor62"></a>
+<a name="anchor73"></a>
 <strong> friend Hist operator/(const Hist&amp; h1, double f) &nbsp;</strong> <br/>
    
-<a name="anchor63"></a>
+<a name="anchor74"></a>
 <strong> friend Hist operator/(const Hist&amp; h1, const Hist h2) &nbsp;</strong> <br/>
 divide a constant by a histogram, a histogram by a constant, 
 or two histograms by each other, bin by bin. 
    
  
-<a name="anchor64"></a>
-<p/><strong> HistPlot::HistPlot(string pythonName) &nbsp;</strong> <br/>
+<a name="anchor75"></a>
+<p/><strong> HistPlot::HistPlot(string pythonName, bool useLegacy = true) &nbsp;</strong> <br/>
 create a file to which successively Python commands can be written. 
 <br/><code>argument</code><strong> pythonName </strong>  :  
 the name of the Python code file will become <code>pythonName.py</code>. 
 When later executed with <code>python pythonName.py</code> the frames 
 defined below will be drawn and output. 
    
+<br/><code>argument</code><strong> useLegacy </strong>  :  
+A parameter necessary for compatibility with older versions of Matplotlib. 
+For Matplotlib version 3.2 and earlier, this argument must be false; 
+for version 3.5 or later, it must be true. 
+   
    
  
-<a name="anchor65"></a>
+<a name="anchor76"></a>
 <p/><strong> void HistPlot::frame( string frameName, string title = &quot;&quot;, string xLabel = &quot;&quot;, string yLabel = &quot;&quot;, double xSize = 8., double ySize = 6.) &nbsp;</strong> <br/>
 command to open a frame where successive histograms can be added and 
 plotted. 
@@ -687,7 +794,7 @@ interpreted by the Pyplot package. A backslash \ needs to be doubled to \\,
 however, since else it will be intepreted as an escape sequence. 
    
  
-<a name="anchor66"></a>
+<a name="anchor77"></a>
 <p/><strong> void HistPlot::add(const Hist& hist, string style = &quot;h&quot;, string legend = &quot;void&quot;) &nbsp;</strong> <br/>
 add a histogram to the current plot frame, where 
 <br/><code>argument</code><strong> hist </strong>  :  
@@ -710,7 +817,7 @@ above.
    
    
  
-<a name="anchor67"></a>
+<a name="anchor78"></a>
 <p/><strong> void HistPlot::addFile(string file, string style = &quot;o&quot;, string legend = &quot;void&quot;, string xyerr = &quot;&quot;) &nbsp;</strong> <br/>
 add data in an already existing file to the current plot frame, where 
 <br/><code>argument</code><strong> file </strong>  :  
@@ -749,7 +856,7 @@ should contain the row <code>1.0 2.0 0.5 0.2 -0.5</code> and the value of
 <code>xyerr</code> might be <code>"xY"</code>. 
    
  
-<a name="anchor68"></a>
+<a name="anchor79"></a>
 <p/><strong> void HistPlot::plot( bool logY = false, bool logX = false) &nbsp;</strong> <br/>
 write the Pyplot commands for the current frame, as defined by the input 
 from the two methods above, and additionally write the data files needed 
@@ -764,21 +871,21 @@ By default a linear or logarithmic <i>x</i> scale is used depending on
 how the histograms were booked, i.e. by default linear, and this should 
 not be overridden. For the case that the only input comes from 
 <code>addFile</code> commands, however, this option gives the possibility 
-to pick a logarithimic <i>x</i> scale instead of the default linear one. 
+to pick a logarithmic <i>x</i> scale instead of the default linear one. 
 (Presumably you would then use the <code>plot</code>variant below.) 
 Note the confusing order of the two arguments, which is caused by the 
 first presumably being much more commonly used than the second. 
    
    
  
-<a name="anchor69"></a>
+<a name="anchor80"></a>
 <p/><strong> void HistPlot::plot( double xMin, double xMax, double yMin, double yMax, bool logY = false, bool logX = false) &nbsp;</strong> <br/>
 a variant of the <code>plot</code> method above, where the <i>x</i> 
 and <i>y</i> ranges of the plot frame can be set by hand instead of 
 calculated from the histogram information. 
    
  
-<a name="anchor70"></a>
+<a name="anchor81"></a>
 <p/><strong> void HistPlot::plotFrame( string frameName, const Hist& hist, string title = &quot;&quot;, string xLabel = &quot;&quot;, string yLabel = &quot;&quot;, string style = &quot;h&quot;, string legend = &quot;void&quot;, bool logY = false) &nbsp;</strong> <br/>
 is an omnibus version combining the three above methods when only a single 
 histogram is to be plotted in a frame. The arguments and their meaning is 

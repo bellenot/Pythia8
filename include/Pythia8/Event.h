@@ -207,6 +207,13 @@ public:
   bool isFinalPartonLevel() const;
   bool undoDecay();
 
+  // Get and set Hidden Valley colours, referring back to the event.
+  int  colHV() const;
+  int  acolHV() const;
+  void colHV(int colHVin);
+  void acolHV(int acolHVin);
+  void colsHV(int colHVin, int acolHVin);
+
   // Further output, based on a pointer to a ParticleDataEntry object.
   string name()      const {
     return (pdePtr != 0) ? pdePtr->name(idSave) : " ";}
@@ -376,6 +383,24 @@ private:
 
 //==========================================================================
 
+// The HVcols class stores Hidden Valley colours for HV-coloured particles.
+
+class HVcols {
+
+public:
+
+  // Default constructor and constructor with standard input.
+  HVcols() : iHV(0), colHV(0), acolHV(0) { }
+  HVcols( int iHVin, int colHVin, int acolHVin) : iHV(iHVin),
+    colHV(colHVin), acolHV(acolHVin) {}
+
+  // Index of HV-particle and its HV-colour and HV-anticolour.
+  int iHV, colHV, acolHV;
+
+};
+
+//==========================================================================
+
 // The Event class holds all info on the generated event.
 
 class Event {
@@ -384,8 +409,8 @@ public:
 
   // Constructors.
   Event(int capacity = 100) : startColTag(100), maxColTag(100),
-    savedSize(0), savedJunctionSize(0), savedPartonLevelSize(0),
-    scaleSave(0.), scaleSecondSave(0.),
+    savedSize(0), savedJunctionSize(0), savedHVcolsSize(0),
+    savedPartonLevelSize(0), scaleSave(0.), scaleSecondSave(0.),
     headerList("----------------------------------------"),
     particleDataPtr(0) { entry.reserve(capacity); }
   Event& operator=(const Event& oldEvent);
@@ -400,10 +425,10 @@ public:
   // Clear event record.
   void clear() {entry.resize(0); maxColTag = startColTag;
     savedPartonLevelSize = 0; scaleSave = 0.; scaleSecondSave = 0.;
-    clearJunctions();}
+    clearJunctions(); clearHV();}
   void free() {vector<Particle>().swap(entry); maxColTag = startColTag;
     savedPartonLevelSize = 0; scaleSave = 0.; scaleSecondSave = 0.;
-    clearJunctions();}
+    clearJunctions(); clearHV();}
 
   // Clear event record, and set first particle empty.
   void reset() {clear(); append(90, -11, 0, 0, 0., 0., 0., 0., 0.);}
@@ -584,6 +609,17 @@ public:
   // List any junctions in the event; for debug mainly.
   void listJunctions() const;
 
+  // Tell whether event has Hidden Valley colours stored.
+  bool hasHVcols() const {return (hvCols.size() > 0);}
+
+  // List any Hidden Valley colours. Find largest HV colour.
+  void listHVcols() const;
+  int  maxHVcols()  const;
+
+  // Save or restore the size of the HV-coloured list (throwing at the end).
+  void saveHVcolsSize() {savedHVcolsSize = hvCols.size();}
+  void restoreHVcolsSize() {hvCols.resize(savedHVcolsSize);}
+
   // Save event record size at Parton Level, i.e. before hadronization.
   void savePartonLevelSize() {savedPartonLevelSize = entry.size();}
 
@@ -610,11 +646,25 @@ private:
   // The explicit use of Pythia8:: qualifier patches a limitation in ROOT.
   vector<Pythia8::Junction> junction;
 
+  // The list of Hidden-Valley-coloured partons.
+  // The explicit use of Pythia8:: qualifier patches a limitation in ROOT.
+  vector<Pythia8::HVcols> hvCols;
+
+  // Find index in Hidden Valley list for a particle in the event record.
+  bool findIndexHV(int iIn) { if (iIn > 0 && iIn == iEventHV) return true;
+    for (int i = 0; i < int(hvCols.size()); ++i) if (hvCols[i].iHV == iIn)
+      {iEventHV = iIn; iIndexHV = i; return true; }
+    return false; }
+  int iEventHV, iIndexHV;
+
+  // Clear the list of Hidden Valley colours. Reset indices.
+  void clearHV() {hvCols.resize(0); iEventHV = -1; iIndexHV = -1;}
+
   // The maximum colour tag of the event so far.
   int maxColTag;
 
   // Saved entry and junction list sizes, for simple restoration.
-  int savedSize, savedJunctionSize, savedPartonLevelSize;
+  int savedSize, savedJunctionSize, savedHVcolsSize, savedPartonLevelSize;
 
   // The scale of the event; linear quantity in GeV.
   double scaleSave, scaleSecondSave;

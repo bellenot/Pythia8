@@ -36,10 +36,9 @@ inbuilt PDF,  as outlined in the
 HepMC dependence can be removed by erasing the code allowing for HepMC 
 output. 
  
-<p/> Please note that a detailed tutorial on merging in Pythia is available 
-from 
-<a href="https://pythia.org/download/pdf/mergingworksheet8160.pdf"> 
-https://pythia.org/download/pdf/mergingworksheet8160.pdf</a>. 
+<p/> The attached PDF file <a href="../pdfdoc/merging8160.pdf"> 
+PYTHIA 8 Merging Tutorial</a> provides a detailed albeit somewhat outdated 
+walk through of merging in Pythia. 
  
 <p/> Three very short LHE files (<code>w+_production_lhc_0.lhe</code>, 
 <code>w+_production_lhc_1.lhe</code>, <code>w+_production_lhc_2.lhe</code>) 

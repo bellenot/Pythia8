@@ -451,28 +451,34 @@ class Hist {
 public:
 
   // Constructors, including copy constructors.
-  Hist() : titleSave(""), nBin(), nFill(), nNonFinite(),
-    xMin(), xMax(), linX(), dx(), under(), inside(), over(), sumxw()
+  Hist() : titleSave(""), nBin(), nFill(), nNonFinite(), xMin(),
+    xMax(), linX(), doStats(), dx(), under(), inside(), over(), sumxNw()
     { }
   Hist(string titleIn, int nBinIn = 100, double xMinIn = 0.,
-    double xMaxIn = 1., bool logXIn = false) : nBin(), nFill(), nNonFinite(),
-    xMin(), xMax(), linX(), dx(), under(), inside(), over(), sumxw()
-    { book(titleIn, nBinIn, xMinIn, xMaxIn, logXIn); }
+    double xMaxIn = 1., bool logXIn = false, bool doStatsIn = false) :
+    nBin(), nFill(), nNonFinite(), xMin(), xMax(), linX(), doStats(), dx(),
+      under(), inside(), over(), sumxNw()
+  { book(titleIn, nBinIn, xMinIn, xMaxIn, logXIn, doStatsIn); }
   Hist(const Hist& h)
     : titleSave(h.titleSave), nBin(h.nBin), nFill(h.nFill),
       nNonFinite(h.nNonFinite), xMin(h.xMin), xMax(h.xMax), linX(h.linX),
-      dx(h.dx), under(h.under), inside(h.inside), over(h.over),
-      sumxw(h.sumxw), res(h.res) { }
+      doStats(h.doStats), dx(h.dx), under(h.under), inside(h.inside),
+      over(h.over), res(h.res), res2(h.res2), sumxNw() {
+    for (int i = 0; i < nMoments; ++i) sumxNw[i] = h.sumxNw[i];
+  }
   Hist(string titleIn, const Hist& h)
     : titleSave(titleIn), nBin(h.nBin), nFill(h.nFill),
       nNonFinite(h.nNonFinite), xMin(h.xMin), xMax(h.xMax), linX(h.linX),
-      dx(h.dx), under(h.under), inside(h.inside), over(h.over),
-      sumxw(h.sumxw), res(h.res) { }
+      doStats(h.doStats), dx(h.dx), under(h.under), inside(h.inside),
+      over(h.over), res(h.res), res2(h.res2), sumxNw() {
+    for (int i = 0; i < nMoments; ++i) sumxNw[i] = h.sumxNw[i];
+  }
   Hist& operator=(const Hist& h) { if(this != &h) {
     nBin = h.nBin; nFill = h.nFill; nNonFinite = h.nNonFinite; xMin = h.xMin;
-    xMax = h.xMax; linX = h.linX; dx = h.dx; under = h.under;
-    inside = h.inside; over = h.over; sumxw = h.sumxw;
-    res = h.res; } return *this; }
+    xMax = h.xMax; linX = h.linX; doStats = h.doStats; dx = h.dx;
+    under = h.under; inside = h.inside; over = h.over;
+    for (int i = 0; i < nMoments; ++i) sumxNw[i] = h.sumxNw[i];
+    res = h.res; res2 = h.res2; } return *this; }
 
   // Create a histogram that is the plot of the given function.
   static Hist plotFunc(function<double(double)> f, string titleIn,
@@ -480,7 +486,7 @@ public:
 
   // Book a histogram.
   void book(string titleIn = "  ", int nBinIn = 100, double xMinIn = 0.,
-    double xMaxIn = 1., bool logXIn = false) ;
+    double xMaxIn = 1., bool logXIn = false, bool doStatsIn = false) ;
 
   // Set title of a histogram.
   void title(string titleIn = "  ") {titleSave = titleIn; }
@@ -494,14 +500,16 @@ public:
   // Print a histogram with overloaded << operator.
   friend ostream& operator<<(ostream& os, const Hist& h) ;
 
-  // Print histogram contents as a table (e.g. for Gnuplot, Rivet or Pyplot).
+  // Print histogram contents as a table (e.g. for Gnuplot, Rivet or Pyplot),
+  // optionally with statistical errors.
   void table(ostream& os = cout, bool printOverUnder = false,
-    bool xMidBin = true) const ;
+    bool xMidBin = true, bool printError = false) const ;
   void table(string fileName, bool printOverUnder = false,
-    bool xMidBin = true) const { ofstream streamName(fileName.c_str());
-    table(streamName, printOverUnder, xMidBin);}
-  void rivetTable(ostream& os = cout, bool printError = false) const ;
-  void rivetTable(string fileName, bool printError = false) const {
+    bool xMidBin = true, bool printError = false) const {
+    ofstream streamName(fileName.c_str());
+    table(streamName, printOverUnder, xMidBin, printError);}
+  void rivetTable(ostream& os = cout, bool printError = true) const ;
+  void rivetTable(string fileName, bool printError = true) const {
     ofstream streamName(fileName.c_str()); rivetTable(streamName, printError);}
   void pyplotTable(ostream& os = cout, bool isHist = true) const ;
   void pyplotTable(string fileName, bool isHist = true) const {
@@ -512,7 +520,7 @@ public:
   void fillTable(string fileName) { ifstream streamName(fileName.c_str());
     fillTable(streamName);}
 
-  // Print a table out of two histograms with same x axis.
+  // Print a table out of two histograms with same x axis (no errors printed).
   friend void table(const Hist& h1, const Hist& h2, ostream& os,
     bool printOverUnder, bool xMidBin) ;
   friend void table(const Hist& h1, const Hist& h2, string fileName,
@@ -540,8 +548,42 @@ public:
       if (yAbs > 1e-20 && yAbs < yAbsMin) yAbsMin = yAbs; }
     return yAbsMin;}
 
-  double getXMean() const { return sumxw / inside; }
+  // Return <X> and error on <X>, unbinned from saved weight sums (default)
+  // or directly from the histogram bins (unbinned = false). In the latter
+  // case, the error estimate includes the difference between the binned and
+  // unbinned value summed in quadrature with the statistical error, as a
+  // measure of bin granularity error.
+  double getXMean(bool unbinned=true) const;
+  double getXMeanErr(bool unbinned=true) const;
+
+  // Return Median in X and its statistical error, ignoring underflow and
+  // overflow (default) or including them (includeOverUnder = true). By
+  // default, error includes granularity estimate obtained by comparing binned
+  // vs unbinned mean value, but this can be switched off (unbinned = false).
+  double getXMedian(bool includeOverUnder=false) const;
+  double getXMedianErr(bool unbinned=true) const;
+
+  // Return average <Y> value.
   double getYMean() const { return inside / nFill; }
+
+  // Return RMS and equivalent n'th roots of n'th moments about the mean,
+  // and their error estimates. Up to n = 6, both unbinned and binned moments
+  // can be calculated. For n >= 7, and for all error estimates, only
+  // binned values are available. Note that (unlike ROOT), the error estimates
+  // do not assume normal distributions.
+  // RMN(2) = RMS is the standard root-mean-square deviation from the mean.
+  // RMN(3) is the cube root of the mean-cube deviation,
+  //         cbrt(<(x - <x>)^3>). It is sensitive to single-sided tails,
+  //         as are characteristic of many particle-physics distributions.
+  // RMN(4) adds sensitivity to double-sided long tails (eg BW vs
+  //         Gaussian), and further sensitivity to long single-sided ones.
+  // Etc.
+  double getXRMN(int n=2, bool unbinned=true) const;
+  double getXRMS(bool unbinned=true) const {return getXRMN(2, unbinned);}
+
+  double getXRMNErr(int n=2, bool unbinned=true) const;
+  double getXRMSErr(bool unbinned=true) const {
+    return getXRMNErr(2, unbinned);}
 
   // Return content of specific bin: 0 gives underflow and nBin+1 overflow.
   double getBinContent(int iBin) const;
@@ -550,7 +592,7 @@ public:
   double getBinEdge(int iBin) const;
 
   // Return the width of the bin.
-  double getBinWidth(int iBin) const;
+  double getBinWidth(int iBin=1) const;
 
   // Return bin contents.
   vector<double> getBinContents() const;
@@ -561,6 +603,19 @@ public:
   // Return number of entries.
   int getEntries(bool alsoNonFinite = true) const {
     return alsoNonFinite ? nNonFinite + nFill : nFill; }
+
+  // Return sum of weights.
+  double getWeightSum(bool alsoOverUnder = true) const {
+    return alsoOverUnder ? inside + over + under : inside; }
+
+  // Return effective entries (for weighted histograms = number
+  // of equivalent unweighted events for same statistical power).
+  double getNEffective() const {
+    double sumw2 = 0.;
+    for (int ix = 0; ix < nBin; ++ix) sumw2 += res2[ix];
+    if (sumw2 <= Hist::TINY) return 0.;
+    else return pow2(sumxNw[0]) / sumw2;
+  }
 
   // Check whether another histogram has same size and limits.
   bool sameSize(const Hist& h) const ;
@@ -618,9 +673,13 @@ private:
   string titleSave;
   int    nBin, nFill, nNonFinite;
   double xMin, xMax;
-  bool   linX;
-  double dx, under, inside, over, sumxw;
-  vector<double> res;
+  bool   linX, doStats;
+  double dx, under, inside, over;
+  vector<double> res, res2;
+
+  // Sum x^N w, for different powers N, for calculation of unbinned moments.
+  static constexpr int nMoments = 7;
+  double sumxNw[nMoments];
 
 };
 
@@ -653,7 +712,8 @@ class HistPlot {
 public:
 
   // Constructor requires name of Python program (and adds .py).
-  HistPlot(string pythonName) : nFrame(), nTable() {
+  HistPlot(string pythonName, bool useLegacyIn = false)
+    : nFrame(), nTable(), useLegacy(useLegacyIn) {
     toPython.open( (pythonName + ".py").c_str() );
     toPython << "from matplotlib import pyplot as plt" << endl
              << "from matplotlib.backends.backend_pdf import PdfPages" << endl;
@@ -707,6 +767,9 @@ private:
   string   frameName, framePrevious, title, xLabel, yLabel, fileName, tmpFig;
   vector<Hist> histos;
   vector<string> styles, legends, files, fileStyles, fileLegends, filexyerr;
+
+  // If true, use old linthreshy matplotlib parameter (removed in 3.5.0)
+  bool useLegacy;
 
 };
 

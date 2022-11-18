@@ -145,12 +145,12 @@ private:
 
   // Initialization data, read from Settings.
   bool   closePacking, setVertices, constantTau, smearOn,
-         traceColours, forbidPopcorn, hardRemn;
+         traceColours,  hardRemn;
   int    hadronVertex;
   double stopMass, stopNewFlav, stopSmear, eNormJunction,
          eBothLeftJunction, eMaxLeftJunction, eMinLeftJunction,
          mJoin, bLund, pT20, xySmear, maxSmear, maxTau, kappaVtx, mc, mb,
-         aRemn, bRemn;
+         dampPopcorn, aRemn, bRemn;
 
   // Data members.
   bool   hasJunction, isClosed;

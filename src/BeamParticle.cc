@@ -207,9 +207,9 @@ void BeamParticle::newValenceContent() {
   // An eta or eta' oscillates between d dbar, u ubar and s sbar.
   else if (idBeam == 221 || idBeam == 331) {
     // Probability of getting d quark.
-    double p = (idBeam == 221) ? 0.2 : 0.3;
+    double prob = (idBeam == 221) ? 0.2 : 0.3;
     double r = rndmPtr->flat();
-    int idq = (r < p) ? 1 : (r < 2 * p) ? 2 : 3;
+    int idq = (r < prob) ? 1 : (r < 2 * prob) ? 2 : 3;
     setValenceContent(idq, -idq);
 
   // pi0-like and omega-like hadrons oscillate between d dbar and u ubar.

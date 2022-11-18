@@ -101,12 +101,17 @@ void HardDiffraction::init(BeamParticle* beamAPtrIn,
     }
     if (nGap < 1.) nGap = 1.;
     normPom = cflux/nGap;
-  } else if (pomFlux == 6 || pomFlux == 7) {
+  } else if (pomFlux == 6 || pomFlux == 7 || pomFlux == 8) {
     // Has fixed values of eps and alpha' to get normalisation correct
-    ap = 0.06;
-    b0 = 5.5;
-    if (pomFlux == 6) a0 = 1.1182;
-    else a0 = 1.1110;
+    if (pomFlux == 6 || pomFlux == 7) {
+      ap = 0.06;
+      b0 = 5.5;
+      if (pomFlux == 6) a0 = 1.1182;
+      else a0 = 1.1110;
+    // pomFlux == 8 => H1 functional form but with user-supplied parameters.
+    } else if (pomFlux == 8) {
+      b0 = parm("SigmaDiffractive:PomFluxB0");
+    }
     double xNorm = 0.003;
     double b     = b0 + 2. * ap * log(1./xNorm);
     double mMin  = (isGammaA || isGammaB) ? RHOMASS : PROTONMASS;
@@ -293,7 +298,7 @@ double HardDiffraction::xfPom(double xIn) {
   // H1 Fit A, B Pomeron flux, see Eur. Phys. J. C48 (2006) 715, ibid. 749
   // flux = normPom * exp(B_Pom*t)/x^(2*\alpha(t)-1)
   // => x * flux = normPom * exp(B_Pom * t) / x^(2*\alpha(t)-2)
-  else if (pomFlux == 6 || pomFlux == 7) {
+  else if (pomFlux == 6 || pomFlux == 7 || pomFlux == 8) {
     double b = b0 + 2. * ap * log(1./x);
     xFlux    = normPom * exp(log(1./x) * ( 2.*a0 - 2.));
     xFlux   *= (exp(b*tMax) - exp(b*tMin))/b;
@@ -370,7 +375,7 @@ double HardDiffraction::pickTNow(double xIn) {
   }
 
   // H1 Pomeron flux, see Eur. Phys. J. C48 (2006) 715, ibid. 749
-  else if (pomFlux == 6 || pomFlux == 7){
+  else if (pomFlux == 6 || pomFlux == 7 || pomFlux == 8){
     double b = b0 + 2. * ap * log(1./xIn);
     tTmp     = log( rndm * exp(b*tMin) + (1. - rndm) * exp(b*tMax))/b;
   }
@@ -420,7 +425,7 @@ double HardDiffraction::xfPomWithT(double xIn, double tIn) {
   }
 
   // H1 Pomeron flux, see Eur. Phys. J. C48 (2006) 715, ibid. 749
-  else if (pomFlux == 6 || pomFlux == 7)
+  else if (pomFlux == 6 || pomFlux == 7 || pomFlux == 8)
     xFlux = normPom * exp(b0*t)/pow(x, 2. * (a0 + ap*t) - 2.);
 
   // Done

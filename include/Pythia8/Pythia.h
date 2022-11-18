@@ -10,8 +10,8 @@
 #define Pythia8_Pythia_H
 
 // Version number defined for use in macros and for consistency checks.
-#define PYTHIA_VERSION 8.307
-#define PYTHIA_VERSION_INTEGER 8307
+#define PYTHIA_VERSION 8.308
+#define PYTHIA_VERSION_INTEGER 8308
 
 // Header files for the Pythia class and for what else the user may need.
 #include "Pythia8/Analysis.h"
@@ -218,7 +218,9 @@ public:
 
   // Generate only a single timelike shower as in a decay.
   int forceTimeShower( int iBeg, int iEnd, double pTmax, int nBranchMax = 0)
-    {  partonSystems.clear(); infoPrivate.setScalup( 0, pTmax);
+    { if (!isInit) { infoPrivate.errorMsg("Error in Pythia::forceTimeShower: "
+      "Pythia is not properly initialized"); return 0; }
+      partonSystems.clear(); infoPrivate.setScalup( 0, pTmax);
     return timesDecPtr->shower( iBeg, iEnd, event, pTmax, nBranchMax); }
 
   // Generate only the hadronization/decay stage.
@@ -233,6 +235,8 @@ public:
 
   // Do a low-energy collision between two hadrons in the event record.
   bool doLowEnergyProcess(int i1, int i2, int procTypeIn) {
+    if (!isInit) { infoPrivate.errorMsg("Error in Pythia::doLowEnergyProcess: "
+      "Pythia is not properly initialized"); return false; }
     return hadronLevel.doLowEnergyProcess( i1, i2, procTypeIn, event); }
 
   // Get total cross section for two hadrons in the event record or standalone.
@@ -244,6 +248,8 @@ public:
       particleData.m0(id2), mixLoHi); }
   double getSigmaTotal(int id1, int id2, double eCM12, double m1, double m2,
     int mixLoHi = 0) {
+    if (!isInit) { infoPrivate.errorMsg("Error in Pythia::getSigmaTotal: "
+      "Pythia is not properly initialized"); return 0.; }
     return sigmaCmb.sigmaTotal(id1, id2, eCM12, m1, m2, mixLoHi); }
 
   // Get partial (elastic, diffractive, nondiffractive, ...) cross sections
@@ -256,8 +262,11 @@ public:
     int mixLoHi = 0) { return getSigmaPartial(id1, id2, eCM12,
       particleData.m0(id1), particleData.m0(id2), procTypeIn, mixLoHi); }
   double getSigmaPartial(int id1, int id2, double eCM12, double m1,
-    double m2, int procTypeIn, int mixLoHi = 0) { return
-    sigmaCmb.sigmaPartial(id1, id2, eCM12, m1, m2, procTypeIn, mixLoHi);}
+    double m2, int procTypeIn, int mixLoHi = 0) {
+    if (!isInit) { infoPrivate.errorMsg("Error in Pythia::getSigmaPartial: "
+      "Pythia is not properly initialized"); return 0.; }
+    return sigmaCmb.sigmaPartial(id1, id2, eCM12, m1, m2, procTypeIn, mixLoHi);
+  }
 
   // List the current Les Houches event.
   void LHAeventList() { if (lhaUpPtr != 0) lhaUpPtr->listEvent();}

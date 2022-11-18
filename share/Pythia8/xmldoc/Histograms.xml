@@ -35,8 +35,9 @@ been omitted in this case.
 <p/> 
 A set of overloaded operators have been defined, so that histograms 
 can be added, subtracted, divided or multiplied by each other. Then the 
-contents are modified accordingly bin by bin. Thus the relative 
-deviation between two histograms <code>data</code> and 
+contents (and associated statistical errors) are modified accordingly 
+bin by bin. Thus the relative deviation between two histograms 
+<code>data</code> and 
 <code>theory</code> can be found as 
 <pre> 
   diff = (data - theory) / (data + theory); 
@@ -106,19 +107,38 @@ or more precisely in the range 342.5 to 347.5.
  
 <p/> 
 The printout also provides some other information, such as the 
-number of entries, i.e. how many times the histogram has been filled, 
-the total weight inside the histogram, the total weight in underflow 
-and overflow, and the mean value and root-mean-square width (disregarding 
-underflow and overflow). The mean and width assumes that all the 
-contents is in the middle of the respective bin. This is especially 
-relevant when you plot a integer quantity, such as a multiplicity. 
+number of entries, i.e. how many times the histogram has been filled 
+(including both underflow and overflow), the total weight inside the 
+histogram (excluding underflow and overflow), the total weight in underflow 
+and overflow, and the statistical power of the contents inside the 
+histogram expressed in terms of 
+<ei>nEffective = ( sum ( w ) )^2 / ( sum w^2 )</ei>. For an 
+unweighted histogram, the latter is equal to the number of entries 
+(excluding underflow and overflow), while for one filled with 
+varying weights, it is less than that. 
+ 
+<p/> 
+Also printed are the mean value, median, and root-mean-square width 
+(RMS). (Further moments about the mean can be computed via dedicated 
+getter methods, see below.) If <code>doStats == true</code> then 
+statistical errors are also printed, summed in quadrature with an 
+estimate of the error due to the finite bin granularity (calculated as 
+the difference with respect to unbinned estimates of the same quantities). 
+ 
+<p/> 
+In the printout, the moments and the median all disregard underflow 
+and overflow and assume that all the contents is in the middle of the 
+respective bin (with the median using a linear interpolation inside the median 
+bin). This is especially relevant when you plot an integer quantity, 
+such as a multiplicity. 
 Then it makes sense to book with limits that are half-integers, e.g. 
 <pre> 
    Hist multMPI( "number of multiparton interactions", 20, -0.5, 19.5); 
 </pre> 
 so that the bins are centered at 0, 1, 2, ..., respectively.  This also 
 avoids ambiguities which bin gets to be filled if entries are 
-exactly at the border between two bins. Also note that the 
+exactly at the border between two bins. 
+Also note that the 
 <code>fill( xValue)</code> method automatically performs a cast 
 to double precision where necessary, i.e. <code>xValue</code> 
 can be an integer. 
@@ -227,7 +247,7 @@ declare a histogram, but does not define it.
 </method> 
  
 <method name="Hist::Hist(string title, int numberOfBins, double xMin, 
-double xMax, bool logX = false)"> 
+double xMax, bool logX = false, bool doStats = false)"> 
 declare and define a histogram, where 
 <argument name="title"> 
 is a string with the title of the histogram at output, 
@@ -248,6 +268,12 @@ gives a logarithmic <ei>x</ei> scale between <code>xMin</code> and
 <code>xMin</code> must be above 1e-20 so as to stay with positive 
 numbers. 
 </argument> 
+<argument name="doStats"> 
+  decides whether statistics allowing unbinned higher moments to be 
+  calculated are saved (up to n = 7) and also whether the histogram summary 
+  printout via the <code>&lt;&lt;</code> operator includes 
+  <ei>+/-</ei> uncertainty estimates on the Mean, Median, and RMS values. 
+</argument> 
 </method> 
  
 <method name="Hist::Hist(const Hist&amp; h)"> 
@@ -267,7 +293,7 @@ except that the original histogram title is retained.
 </method> 
  
 <method name="void Hist::book(string title, int numberOfBins, 
-double xMin, double xMax, bool logXIn = false)"> 
+double xMin, double xMax, bool logXIn = false, bool doStatsIn = false)"> 
 define a histogram that previously was only declared; 
 see above for the meaning of the arguments. 
 </method> 
@@ -312,13 +338,13 @@ The Pyplot interface will display correct values, however.
 </method> 
  
 <method name="void Hist::table(ostream&amp; os = cout, 
-bool printOverUnder = false, bool xMidBin = true)"> 
+bool printOverUnder = false, bool xMidBin = true, bool printError = true)"> 
 </method> 
 <methodmore name="void Hist::table(string fileName, 
-bool printOverUnder = false, bool xMidBin = true)"> 
-print a two-column table, where the first column gives the center of 
-each bin and the second one the corresponding bin contents. The table 
-may be useful for plotting e.g. with Gnuplot. 
+bool printOverUnder = false, bool xMidBin = true, bool printError = true)"> 
+print a three-column table, where the first column gives the center of 
+each bin, the second one the corresponding bin contents, and the bin 
+errors. The table may be useful for plotting e.g. with Gnuplot. 
 <br/>The desired output stream or file name can be provided as argument. 
 The former is more flexible (e.g., it allows easy append to an existing 
 file), whereas the latter is simpler for the case that each histogram 
@@ -329,26 +355,23 @@ coordinates for these are placed as if corresponding to same-size bins
 just below or above the regular histogram bins.) 
 <br/>An optional <code>xMidBin = false</code> argument will have the 
 <ei>x</ei> value at the beginning of each bin printed, rather than the 
-default midpoint value. 
+default midpoint value. Finally, the optional <code>printError = 
+false</code> will force the values in the third column to be zero. 
 </methodmore> 
  
 <method name="void Hist::rivetTable(ostream&amp; os = cout, 
-bool printError = false)"> 
+bool printError = true)"> 
 </method> 
 <methodmore name="void Hist::rivetTable(string fileName, 
-bool printError = false)"> 
+bool printError = true)"> 
 print a five-column table, where the first two columns give the lower 
 and upper borders of each bin, the third one the bin contents, and the 
 fourth and fifth the error (up and down) associated with the contents. 
 This format matches the one that Rivet uses for its histograms. 
 The choice between the two methods is the same as above for the 
 <code>table</code> methods. 
-<br/>The error bins are put to zero by default, since the PYTHIA 
-histogramming is not sophisticated enough to compensate for rescalings 
-or other operations, or for weighted events. With the optional 
-<code>printError = true</code> the error will be taken as the 
-square root of the bin content, as is relevant if this content has 
-the same unit weight for each entry to it. 
+<br/>With the optional <code>printError = false</code> the errors will 
+be output as zero. 
 </methodmore> 
  
 <method name="void Hist::pyplotTable(ostream&amp; os = cout, 
@@ -427,6 +450,58 @@ returns the smallest absolute value (above 1e-20, to sidestep bins with
 zero content) in any of the bins inside the histogram. 
 </method> 
  
+<method name="double getXMean(bool unbinned=true)"> 
+</method> 
+<methodmore name="double getXMeanErr(bool unbinned=true)"> 
+Return mean in X and error on mean, either unbinned from saved weight 
+sums (default) or explicitly from the histogram bins <code>(unbinned = 
+false)</code>. 
+In the latter case, the error estimate includes a measure of the error 
+due to the finite bin granularity, calculated as the difference between 
+the binned and unbinned values and summed in quadrature with the 
+statistical error. 
+</methodmore> 
+ 
+<method name="double getXMedian(bool includeOverUnder=true)"> 
+</method> 
+<methodmore name="double getXMedianErr(bool unbinned=true)"> 
+Return median in X and its statistical error, ignoring underflow and 
+ overflow (default) or including them <code>(includeOverUnder = 
+ true)</code>. By default, the reported error includes the same granularity 
+ estimate as for the mean value (and also computed using the mean, not the 
+ median), but this can be switched off <code>(unbinned = false)</code>. 
+</methodmore> 
+ 
+<method name="double getYMean()"> 
+Return the average value in Y, calculated as the sum of weights inside 
+the histogram range divided by the number of times it was filled. 
+</method> 
+ 
+<method name="double getXRMN(int n=2, bool unbinned=true)"> 
+</method> 
+<methodmore name="double getXRMNErr(int n=2, bool unbinned=true)"> 
+Return the <ei>n</ei>'th root of the <ei>n</ei>'th moment about the mean, 
+<ei>&lt; (x - &lt;x&gt;)^n &gt;</ei>, and its estimated statistical error. 
+The default value <ei>n = 2</ei> corresponds to the standard root-mean-square 
+width. Up to <ei>n = 6</ei>, both unbinned and binned moments can 
+be calculated. For <ei>n >= 7</ei>, and for all error estimates, only 
+binned calculations are available. Note that (unlike ROOT), the error 
+estimates do not assume normal distributions. If <code>unbinned = 
+false</code> an estimate of the bin granularity error is added in 
+quadrature to the statistical error (up to <ei>n = 6</ei>, beyond 
+which the bin granularity error is not estimated). 
+</methodmore> 
+ 
+<method name="double getXRMS(bool unbinned=true)"> 
+</method> 
+<methodmore name="double getXRMSErr(bool unbinned=true)"> 
+Wrapper of <code>getXRMN()</code> to return the root-mean-square 
+width (aka the root of the second central moment, aka the 
+root-mean-square deviation about the mean), and its error. If <code>unbinned = 
+false</code> an estimate of the bin granularity error is added in 
+quadrature to the statistical error. 
+</methodmore> 
+ 
 <method name="double Hist::getBinContent(int iBin)"> 
 return the value in bin <code>iBin</code>, ranging from 1 through 
 <code>numberOfBins</code>, with <code>0</code> for underflow and 
@@ -456,6 +531,22 @@ return the number of entries, i.e. the number of time that
 <code>fill(...)</code> has been called. If <code>alsoNonFinite</code> 
 is false, then entries that are infinity or NaN are ignored. 
 </method> 
+ 
+<method name="double Hist::getWeightSum(bool alsoOverUnder = true)"> 
+  return the sum of weights with which the histogram was filled. The 
+  output of this method only differs from that of 
+  <code>getEntries()</code> above if non-unity weights were used when 
+  the histogram was filled. If <code>alsoOverUnder</code> is true, then 
+  the overflow and underflow bins are included in the weight sum, 
+  otherwise not. 
+</method> 
+ 
+<method name="double Hist::getNEffective()"> 
+ Return effective entries (for weighted histograms = number 
+ of equivalent unweighted events for same statistical power), 
+ calculated as <ei>(sum(w))^2 / sum(w^2)</ei>. 
+</method> 
+ 
  
 <method name="bool Hist::sameSize(const Hist&amp; h)"> 
 checks that the number of bins and upper and lower limits are the 
@@ -512,7 +603,7 @@ Rescale the histogram by a factor <code>1/(wtSum * dx)</code> where
 renormalization if the histogram represents a spectrum on the form 
 <ei>(1/N_{ev}) dN/dx</ei>. <argument name="wtSum" default="1."/> is 
 the total weight of the events, which if events are unweighted is just 
-the total number of successfully generated events. the under/overflow 
+the total number of successfully generated events. The under/overflow 
 are always rescaled by the same factor, except the bin width, as the 
 histogram proper. Bin widths are handled for both linear and log 
 plots. 
@@ -581,12 +672,17 @@ divide a constant by a histogram, a histogram by a constant,
 or two histograms by each other, bin by bin. 
 </methodmore> 
  
-<method name="HistPlot::HistPlot(string pythonName)"> 
+<method name="HistPlot::HistPlot(string pythonName, bool useLegacy = true)"> 
 create a file to which successively Python commands can be written. 
 <argument name="pythonName"> 
 the name of the Python code file will become <code>pythonName.py</code>. 
 When later executed with <code>python pythonName.py</code> the frames 
 defined below will be drawn and output. 
+</argument> 
+<argument name="useLegacy"> 
+A parameter necessary for compatibility with older versions of Matplotlib. 
+For Matplotlib version 3.2 and earlier, this argument must be false; 
+for version 3.5 or later, it must be true. 
 </argument> 
 </method> 
  
@@ -698,7 +794,7 @@ By default a linear or logarithmic <ei>x</ei> scale is used depending on
 how the histograms were booked, i.e. by default linear, and this should 
 not be overridden. For the case that the only input comes from 
 <code>addFile</code> commands, however, this option gives the possibility 
-to pick a logarithimic <ei>x</ei> scale instead of the default linear one. 
+to pick a logarithmic <ei>x</ei> scale instead of the default linear one. 
 (Presumably you would then use the <code>plot</code>variant below.) 
 Note the confusing order of the two arguments, which is caused by the 
 first presumably being much more commonly used than the second. 

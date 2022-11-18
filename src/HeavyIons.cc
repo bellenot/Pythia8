@@ -1435,6 +1435,10 @@ bool Angantyr::buildEvent(list<EventInfo> & subevents,
     etmp.append(targPtr->produceIon(true));
     etmp[0].p(etmp[1].p() + etmp[2].p());
     etmp[0].m(etmp[0].mCalc());
+    double bx = 0.5*FM2MM*hiInfo.b()*cos(hiInfo.phi());
+    double by = 0.5*FM2MM*hiInfo.b()*sin(hiInfo.phi());
+    etmp[1].vProd( bx,  by, 0.0, 0.0);
+    etmp[2].vProd(-bx, -by, 0.0, 0.0);
 
     // Start with the signal event(s)
     if ( hasSignal ) {
@@ -1576,7 +1580,7 @@ bool Angantyr::next() {
     Vec4 bvec = bGenPtr->generate(bweight);
     double T = 0.0;
     subColls = collPtr->getCollisions(projectile, target, bvec, T);
-    hiInfo.addAttempt(T, bvec.pT(), bweight);
+    hiInfo.addAttempt(T, bvec.pT(), bvec.phi(), bweight);
     hiInfo.subCollisionsPtr(&subColls);
     if ( flag("Angantyr:GlauberOnly") ) return true;
     if ( subColls.empty() ) continue;

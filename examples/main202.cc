@@ -57,7 +57,6 @@ int main() {
   start = clock();
 
   // Begin event loop. Generate event. Abort if error.
-  double sumWeights = 0.;
   for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
 
     if (!pythia.next()) {
@@ -68,7 +67,6 @@ int main() {
 
     // Check for weights
     double weight = pythia.info.weight();
-    sumWeights += weight;
 
     // Count number of final-state particles.
     // Also count photons and electrons, to test QED.

@@ -60,9 +60,13 @@ public:
   // and access those through non-virtual getters.
   // Note: NOT opting for a map data structure, since information will anyway
   // have to be serialized in output.
+  // Change weight names for compatibility with Rivet by replacing colons
+  // with full stops.
   string getWeightsName(int iPos) const  {
     string name = iPos >= 0
       && iPos < (int)weightNames.size() ? weightNames[iPos] : "";
+    if (name.find(":") != string::npos)
+      replace(name.begin(), name.end(), ':', '.');
     return name == "" ? to_string(iPos) : name;}
   virtual double getWeightsValue(int iPos) const { return weightValues[iPos]; }
   int getWeightsSize() const { return weightValues.size(); }

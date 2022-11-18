@@ -108,17 +108,17 @@ The scale <ei>m_half</ei> in the equation above, defining the
 half-way point between low-mass and high-mass subsystems. 
 (Kinematics construction can easily fail if a system is assigned 
 a primordial <ei>kT</ei> value higher than its mass, so the 
-mass-dampening is intended to reduce some troubles later on.) 
+mass-damping is intended to reduce some troubles later on.) 
 </parm> 
  
 <parm name="BeamRemnants:reducedKTatHighY" default="0.5" min="0." max="1."> 
 For a system of mass <ei>m</ei> and energy <ei>E</ei> the 
-dampening factor <ei>y_damp</ei> above is defined as 
+damping factor <ei>y_damp</ei> above is defined as 
 <ei>y_damp = pow( E/m, r_red)</ei>, where <ei>r_red</ei> is the 
 current parameter. The effect is to reduce the primordial <ei>kT</ei> 
 of low-mass systems extra much if they are at large rapidities (recall 
 that <ei>E/m = cosh(y)</ei> before <ei>kT</ei> is added). The reason 
-for this dampening is purely technical, and for reasonable values 
+for this damping is purely technical, and for reasonable values 
 should not have dramatic consequences overall. 
 </parm> 
  
@@ -131,7 +131,7 @@ to beam-remnant partons.
 A net <ei>kT</ei> imbalance is obtained from the vector sum of the 
 primordial <ei>kT</ei> values of all initiators and all beam remnants. 
 This quantity is compensated by a shift shared equally between 
-all partons, except that the dampening factor <ei>m / (m_half + m)</ei> 
+all partons, except that the damping factor <ei>m / (m_half + m)</ei> 
 is again used to suppress the role of small-mass systems. 
  
 <p/> 
@@ -329,12 +329,13 @@ region is softer in PYTHIA than in data. The following settings
 allow the possibility to modify the leading-diquark fragmentation to 
 (partly) address this issue. 
  
-<flag name="BeamRemnants:forbidPopcorn" default="off"> 
-Allows a beam remnant diquark to hadronize to a leading meson or not. 
-If off then a remnant behaves just like in ordinary hadronization, 
-if on, then a diquark will always produce a leading baryon. 
-Has no influence on diquarks not coming from a beam remnant. 
-</flag> 
+<parm name="BeamRemnants:dampPopcorn" default="1." min="0." max="1."> 
+Controls whether a beam remnant diquark can hadronize to a leading meson 
+(by the popcorn mechanism) or not. If 1 then a remnant behaves just like 
+in ordinary hadronization, while if 0 then a diquark will always produce 
+a leading baryon. Intermediate values will interpolate between these two 
+extremes. Has no influence on diquarks not coming from a beam remnant. 
+</parm> 
  
 <flag name="BeamRemnants:hardRemnantBaryon" default="off"> 
 Allows a remnant diquark to hadronize to a harder-than-normal baryon, 

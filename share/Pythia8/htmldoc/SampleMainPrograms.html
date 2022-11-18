@@ -235,6 +235,9 @@ with different event weights.</li>
 <code>main37.cc</code>, where additionally it is shown how to extract 
 many different kinds of LHEF version 3.0 information.</li> 
  
+<li><code>main39.py</code> : standalone Python code that parses the XML 
+particle database and displays data for a requested particle.</li> 
+ 
 <li><code>main41.cc</code> : similar to <code>main01</code>, except 
 that the event record is output in the HepMC event record 
 format. Requires that HepMC3 is properly linked. Note that the 
@@ -470,6 +473,15 @@ ROOT output, <a href="RIVETusage.html" target="page">RIVET Usage</a> for
 information about RIVET and <a href="HepMCInterface.html" target="page">HepMC 
 Interface</a> for information about HepMC.</li> 
  
+<li><code>main94.cc</code> : use ROOT to visualize the particles 
+produced by Pythia in (y,phi)-space.</li> 
+ 
+<li><code>main95.cc</code> : use ROOT to visualize different jet 
+algoritms in (y,phi)-space. The jet clustering is done with FastJet. 
+The produced figure was used in the article "50 years of Quantum 
+Chromodynamics" in celebration of the 50th anniversary of QCD 
+(EPJC).</li> 
+ 
 <li><code>main101.cc</code> : shows how the string shoving mechanism, 
 part of the rope hadronization framework, can be set up and used to 
 generate ridge effects.</li> 
@@ -529,6 +541,9 @@ of how the code works.</li>
 <li><code>main163.cc</code> : perform analyses in parallel using the 
 <code>Parallelism:processAsync</code> setting.</li> 
  
+<li><code>main171.cc</code> : three scenarios for Hidden Valley particle 
+production, with a selection of further possible variations.</li> 
+ 
 <li><code>main181.cc</code> : plot PDFs for a large number of hadrons.</li> 
  
 <li><code>main182.cc</code> : test switching between hadron beams on an 
@@ -536,6 +551,14 @@ event-by-event basis. Compare running times for different scenarios.</li>
  
 <li><code>main183.cc</code> : simple example of how Pythia can be used to 
 simulate a basic hadronic cascade in the atmosphere.</li> 
+ 
+<li><code>main184.cc</code> : as <code>main183.cc</code>, but using the 
+<code>PythiaCascade</code> class to perform the separate collisions or decays, 
+while the bookkeeping of the cascade evolution remains in the main 
+program.</li> 
+ 
+<li><code>main185.cc</code> : an even simpler example of one collision 
+or decay at a time, as performed in <code>PythiaCascade</code>.</li> 
  
 <li><code>main200.cc</code> : simple example of the VINCIA (or DIRE) 
 shower model(s), on Z decays at LEP I, with some basic event shapes, 

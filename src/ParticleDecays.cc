@@ -328,9 +328,8 @@ bool ParticleDecays::decay( int iDec, Event& event) {
     // Else remove unused daughters and return failure.
     } else {
       if (hasStored) event.popBack(mult);
-      infoPtr->errorMsg("Error in ParticleDecays::decay: "
-        "failed to find workable decay channel");
-
+      infoPtr->errorMsg("Error in ParticleDecays::decay: failed to find "
+        "workable decay channel", "for id = " + to_string(idDec));
       return false;
     }
 
@@ -354,6 +353,8 @@ bool ParticleDecays::decay( int iDec, Event& event) {
     }
   }
 
+  bool checkForHadronization = false;
+
   // In a decay explicitly to partons then optionally do a shower,
   // and always flag that partonic system should be fragmented.
   if (hasPartons && keepPartons && doFSRinDecays)
@@ -361,15 +362,25 @@ bool ParticleDecays::decay( int iDec, Event& event) {
 
   // Photon radiation implemented only for two-body decay to leptons.
   else if (doGammaRad && mult == 2 && event[iProd[1]].isLepton()
-  && event[iProd[2]].isLepton())
+  && event[iProd[2]].isLepton()) {
     timesDecPtr->showerQED( iProd[1], iProd[2], event, mProd[0]);
+    checkForHadronization = true;
 
   // For Hidden Valley particles also allow leptons to shower.
-  else if (event[iDec].idAbs() > 4900000 && event[iDec].idAbs() < 5000000
+  } else if (event[iDec].idAbs() > 4900000 && event[iDec].idAbs() < 5000000
   && doFSRinDecays && mult == 2 && event[iProd[1]].isLepton()) {
     event[iProd[1]].scale(mProd[0]);
     event[iProd[2]].scale(mProd[0]);
     timesDecPtr->shower( iProd[1], iProd.back(), event, mProd[0]);
+    checkForHadronization = true;
+  }
+  if( checkForHadronization ) {
+    for(int i = iProd.back()+1; i < event.size(); ++i ) {
+      if( event[i].status() > 0  && event[i].colType() != 0 ) {
+        hasPartons = keepPartons = true;
+        break;
+      }
+    }
   }
 
   // Done.

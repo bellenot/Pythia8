@@ -68,10 +68,10 @@ bool ResonanceDecays::next( Event& process, int iDecNow) {
 
       // Prepare decay selection.
       if (!decayer.particleDataEntry().preparePick(id0, m0, idIn)) {
-        ostringstream osWarn;
-        osWarn << "for id = " << id0;
+        ostringstream extra;
+        extra << "for id = " << id0;
         infoPtr->errorMsg("Error in ResonanceDecays::next:"
-          " no open decay channel", osWarn.str());
+          " no open decay channel", extra.str());
         return false;
       }
 
@@ -101,10 +101,8 @@ bool ResonanceDecays::next( Event& process, int iDecNow) {
 
       // Failed to find acceptable decays.
       if (!foundChannel) {
-        ostringstream osWarn;
-        osWarn << "for id = " << id0;
-        infoPtr->errorMsg("Error in ResonanceDecays::next:"
-          " failed to find workable decay channel", osWarn.str());
+        infoPtr->errorMsg("Error in ResonanceDecays::next: failed to find "
+          "workable decay channel", "for id = " + to_string(id0));
         return false;
       }
 

@@ -16,16 +16,19 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 //            <a href="../ExampleKeywords.html#cosmic+ray+cascade">Cosmic&nbsp;ray&nbsp;cascade</a>
 //            <a href="../ExampleKeywords.html#switch+beam">Switch&nbsp;beam</a>
 //            <a href="../ExampleKeywords.html#switch+collision+energy">Switch&nbsp;collision&nbsp;energy</a>
-//            <a href="../ExampleKeywords.html#arxiv:2108.03481+[hep-ph]">arXiv:2108.03481&nbsp;[hep&#8209;ph]</a>
+
+// This example is based on work from Eur. Phys. J. C82 (2022) 21 and
+// arXiv:2108.03481 [hep-ph]. This example demonstrates the production
+// of atmospheric showers.
 
 #include "Pythia8/Pythia.h"
 using namespace Pythia8;
 
 //==========================================================================
 
-// Note: when a hadron interacts with a medium particle, the latter is added
-// to the event record. This program uses these additional status codes for
-// target particles in the medium:
+// Note: when a hadron interacts with a medium particle, the latter is
+// added to the event record. This program uses these additional
+// status codes for target particles in the medium:
 //  181: the first (or only) target nucleon in a collision.
 //  182: nucleons from further subcollisions with the same target nucleus.
 
@@ -94,7 +97,8 @@ int main() {
   // Number of events per case. Only do a few since each shower is so big.
   int nEvent = 5;
 
-  // Main Pythia object for managing the cascade evolution and particle decays.
+  // Main Pythia object for managing the cascade evolution and
+  // particle decays.
   Pythia pythiaMain;
   Event& eventMain = pythiaMain.event;
   Rndm& rndm = pythiaMain.rndm;
@@ -187,10 +191,12 @@ int main() {
       // Invariant mass of particle with a p/n nucleon in atmosphere.
       int idNow     = hadNow.id();
       Vec4 pNow     = hadNow.p();
+      double mNow   = hadNow.m();
       double eCMNow = (pNow + Vec4(0, 0, 0, mp)).mCalc();
 
       // Get hadron-nucleon cross section.
-      double sigmaNow = pythiaColl.getSigmaTotal(idNow, 2212, eCMNow);
+      double sigmaNow = pythiaColl.getSigmaTotal(
+        idNow, 2212, eCMNow, mNow, mp);
 
       // If the cross section vanishes, decay is the only option.
       if (sigmaNow <= 0.) {
@@ -198,17 +204,19 @@ int main() {
         continue;
       }
 
-      // Average number of hadron-nucleon collisions in a hadron-nitrogen one.
+      // Average number of hadron-nucleon collisions in a
+      // hadron-nitrogen one.
       double nCollAvg = (sigmaNow < 31.) ? 1. + 0.017 * sigmaNow
                       : 1.2 + 0.0105 * sigmaNow;
       double probMore = 1. - 1. / nCollAvg;
 
-      // Medium density is expressed in terms of nucleons per volume, so if
-      // collisions are clustered to nuclei then sigma must be compensated.
+      // Medium density is expressed in terms of nucleons per volume,
+      // so if collisions are clustered to nuclei then sigma must be
+      // compensated.
       if (config.doHeavyIon) sigmaNow /= nCollAvg;
 
       // Calculate potential interaction vertex, depending on medium.
-      Vec4 vInt;
+      Vec4 vInt( 0., 0., -1., 0.);
       Vec4 dirNow = pNow / pNow.pAbs();
       // Exponential atmosphere.
       if (config.doExponential) {
@@ -290,8 +298,9 @@ int main() {
           0., 0., 0., mp, mp);
         eventMain[iNuc].vProdAdd(vInt);
 
-        // Insert secondary produced particles (but skip intermediate partons)
-        // into main event record and shift to correct production vertex.
+        // Insert secondary produced particles (but skip intermediate
+        // partons) into main event record and shift to correct
+        // production vertex.
         sizeOld = eventMain.size();
         for (int iSub = 3; iSub < eventColl.size(); ++iSub) {
           if (!eventColl[iSub].isFinal()) continue;
@@ -317,6 +326,7 @@ int main() {
 
     // Begin analysis. Loop over all particles to find interaction depths.
     for (Particle& h : eventMain) {
+      if (h.status() == -12) continue;
       double depthProd = config.getDepth(h.zProd());
       double depthDec  = config.getDepth(h.isFinal() ? 0. : h.zDec());
 
@@ -364,7 +374,8 @@ int main() {
     nnue[iCase] .book("", 100, 0., depthMax);
     nnumu[iCase].book("", 100, 0., depthMax);
 
-    // Integrate production minus depletion to find particle number by depth.
+    // Integrate production minus depletion to find particle number by
+    // depth.
     double nHadSum = 0., nMuonSum = 0., nnueSum = 0., nnumuSum = 0.;
     for (int i = 1; i <= 100; ++i) {
       double depthNow = depthMax * (i - 0.5) / 100.;
@@ -388,28 +399,28 @@ int main() {
   }
 
   // Normalize and plot histograms.
-  HistPlot plt("main183plot");
-  plt.frame("out183plot", "Atmospheric depth of p/n interactions",
+  HistPlot plt("plot183");
+  plt.frame("fig183", "Atmospheric depth of p/n interactions",
     "$X$ (g/cm$^2$)", "$(1/n_{ev}) dn_{int}/dX$", 6.4, 4.8);
   for (int iCase = 0; iCase < nCases; ++iCase)
     plt.add(nInt[iCase], "-,"+col[iCase], configurations[iCase].legend);
   plt.plot(true);
-  plt.frame("out183plot", "Number of hadrons at depth",
+  plt.frame("", "Number of hadrons at depth",
     "$X$ (g/cm$^2$)", "$(1/n_{ev}) \\int_0^{X} dn_{had}$", 6.4, 4.8);
   for (int iCase = 0; iCase < nCases; ++iCase)
     plt.add(nHad[iCase], "-,"+col[iCase], configurations[iCase].legend);
   plt.plot(true);
-  plt.frame("out183plot", "Number of muons at depth",
+  plt.frame("", "Number of muons at depth",
     "$X$ (g/cm$^2$)", "$(1/n_{ev}) \\int_0^{X} dn_{\\mu}$", 6.4, 4.8);
   for (int iCase = 0; iCase < nCases; ++iCase)
     plt.add(nMuon[iCase], "-,"+col[iCase], configurations[iCase].legend);
   plt.plot(true);
-  plt.frame("out183plot", "Number of e neutrinos at depth",
+  plt.frame("", "Number of e neutrinos at depth",
     "$X$ (g/cm$^2$)", "$(1/n_{ev}) \\int_0^{X} dn_{\\nu_e}$", 6.4, 4.8);
   for (int iCase = 0; iCase < nCases; ++iCase)
     plt.add(nnue[iCase], "-,"+col[iCase], configurations[iCase].legend);
   plt.plot(true);
-  plt.frame("out183plot", "Number of mu neutrinos at depth",
+  plt.frame("", "Number of mu neutrinos at depth",
     "$X$ (g/cm$^2$)", "$(1/n_{ev}) \\int_0^{X} dn_{\\nu_\\mu}$", 6.4, 4.8);
   for (int iCase = 0; iCase < nCases; ++iCase)
     plt.add(nnumu[iCase], "-,"+col[iCase], configurations[iCase].legend);

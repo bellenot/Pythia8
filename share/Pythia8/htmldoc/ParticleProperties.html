@@ -998,6 +998,44 @@ are erased from the event record, mother and daughter indices are
 updated to retain a correct history for the remaining particles. 
    
  
+<p/> 
+In <a href="HiddenValleyProcesses.html" target="page">Hidden Valley</a> 
+<b>SU(N)</b> scenarios, HV colour and anticolour tags are 
+assigned to relevant HV-particles. Since some particles may have 
+both regular and HV colour tags, it is not possible to reuse the 
+normal colour slots. (But it is possible to share in the same colour 
+tag enumeration  sequence.) Instead a special vector exists in the 
+event record, where only HV-coloured particles are bookkept by index 
+(in the event record) and colour tags. This vector would not be used 
+in non-HV applications  and therefore takes negligible space, unlike 
+a case where further integers had been introduced for all particles. 
+The particle methods that can be used to access the HV colours are 
+ 
+<a name="anchor106"></a>
+<p/><strong> int Particle::colHV() &nbsp;</strong> <br/>
+   
+<a name="anchor107"></a>
+<strong> int Particle::acolHV() &nbsp;</strong> <br/>
+return the particle HV colour or anticolour tag, or 0 where 
+there is no such tag. 
+   
+ 
+<a name="anchor108"></a>
+<p/><strong> int Particle::colHV(int colHV) &nbsp;</strong> <br/>
+   
+<a name="anchor109"></a>
+<strong> int Particle::acolHV(int acolHV) &nbsp;</strong> <br/>
+   
+<a name="anchor110"></a>
+<strong> int Particle::colsHV(int colHV, int acolHV) &nbsp;</strong> <br/>
+set the particle HV colour or anticolour tag, or both in one go. 
+   
+ 
+Further methods are found in the 
+<a href="EventRecord.html" target="page">Event</a> class, notably 
+<code>Event::listHVcols()</code> to list the HV colours that have 
+been assigned. 
+ 
 <a name="section5"></a> 
 <h3>Methods that perform operations</h3> 
  
@@ -1005,64 +1043,64 @@ There are some further methods, some of them inherited from
 <code>Vec4</code>, to modify the properties of a particle. 
 They are of little interest to the normal user. 
  
-<a name="anchor106"></a>
+<a name="anchor111"></a>
 <p/><strong> void Particle::rescale3(double fac) &nbsp;</strong> <br/>
 multiply the three-momentum components by <code>fac</code>. 
    
  
-<a name="anchor107"></a>
+<a name="anchor112"></a>
 <p/><strong> void Particle::rescale4(double fac) &nbsp;</strong> <br/>
 multiply the four-momentum components by <code>fac</code>. 
    
  
-<a name="anchor108"></a>
+<a name="anchor113"></a>
 <p/><strong> void Particle::rescale5(double fac) &nbsp;</strong> <br/>
 multiply the four-momentum components and the mass by <code>fac</code>. 
    
  
-<a name="anchor109"></a>
+<a name="anchor114"></a>
 <p/><strong> void Particle::rot(double theta, double phi) &nbsp;</strong> <br/>
 rotate three-momentum and production vertex by these polar and azimuthal 
 angles. 
    
  
-<a name="anchor110"></a>
+<a name="anchor115"></a>
 <p/><strong> void Particle::bst(double betaX, double betaY, double betaZ) &nbsp;</strong> <br/>
 boost four-momentum and production vertex by this three-vector. 
    
  
-<a name="anchor111"></a>
+<a name="anchor116"></a>
 <p/><strong> void Particle::bst(double betaX, double betaY, double betaZ, double gamma) &nbsp;</strong> <br/>
 as above, but also input the <i>gamma</i> value, to reduce roundoff errors. 
    
  
-<a name="anchor112"></a>
+<a name="anchor117"></a>
 <p/><strong> void Particle::bst(const Vec4& pBst) &nbsp;</strong> <br/>
 boost four-momentum and production vertex by 
 <i>beta = (px/e, py/e, pz/e)</i>. 
    
  
-<a name="anchor113"></a>
+<a name="anchor118"></a>
 <p/><strong> void Particle::bst(const Vec4& pBst, double mBst) &nbsp;</strong> <br/>
 as above, but also use <i>gamma> = e/m</i> to reduce roundoff errors. 
    
  
-<a name="anchor114"></a>
+<a name="anchor119"></a>
 <p/><strong> void Particle::bstback(const Vec4& pBst) &nbsp;</strong> <br/>
    
-<a name="anchor115"></a>
+<a name="anchor120"></a>
 <strong> void Particle::bstback(const Vec4& pBst, double mBst) &nbsp;</strong> <br/>
 as above, but with sign of boost flipped. 
    
  
-<a name="anchor116"></a>
+<a name="anchor121"></a>
 <p/><strong> void Particle::rotbst(const RotBstMatrix& M, bool boostVertex = true) &nbsp;</strong> <br/>
 combined rotation and boost of the four-momentum and production vertex. 
 If the optional second argument is false only the four-momentum is 
 boosted, and not the production vertex. 
    
  
-<a name="anchor117"></a>
+<a name="anchor122"></a>
 <p/><strong> void Particle::offsetHistory( int minMother, int addMother, int minDaughter, int addDaughter)) &nbsp;</strong> <br/>
 add a positive offset to the mother and daughter indices, i.e. 
 if <code>mother1</code> is above <code>minMother</code> then 
@@ -1071,7 +1109,7 @@ if <code>daughter1</code> is above <code>minDaughter</code> then
 <code>addDaughter</code> is added to it, same with <code>daughter2</code>. 
    
  
-<a name="anchor118"></a>
+<a name="anchor123"></a>
 <p/><strong> void Particle::offsetCol( int addCol) &nbsp;</strong> <br/>
 add a positive offset to colour indices, i.e. if <code>col</code> is 
 positive then <code>addCol</code> is added to it, same with <code>acol</code>. 
@@ -1083,42 +1121,42 @@ positive then <code>addCol</code> is added to it, same with <code>acol</code>.
 Normally a user would not need to create new particles. However, if 
 necessary, the following constructors and methods may be of interest. 
  
-<a name="anchor119"></a>
+<a name="anchor124"></a>
 <p/><strong> Particle::Particle() &nbsp;</strong> <br/>
 constructs an empty particle, i.e. where all properties have been set 0 
 or equivalent. 
    
  
-<a name="anchor120"></a>
+<a name="anchor125"></a>
 <p/><strong> Particle::Particle(int id, int status = 0, int mother1 = 0, int mother2 = 0, int daughter1 = 0, int daughter2 = 0, int col = 0, int acol = 0, double px = 0., double py = 0., double pz = 0., double e = 0., double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
 constructs a particle with the input properties provided, and non-provided 
 ones set 0 (9 for <code>pol</code>). 
    
  
-<a name="anchor121"></a>
+<a name="anchor126"></a>
 <p/><strong> Particle::Particle(int id, int status, int mother1, int mother2, int daughter1, int daughter2, int col, int acol, Vec4 p, double m = 0., double scale = 0., double pol = 9.) &nbsp;</strong> <br/>
 constructs a particle with the input properties provided, and non-provided 
 ones set 0 (9 for <code>pol</code>). 
    
  
-<a name="anchor122"></a>
+<a name="anchor127"></a>
 <p/><strong> Particle::Particle(const Particle& pt) &nbsp;</strong> <br/>
 constructs an particle that is a copy of the input one. 
    
  
-<a name="anchor123"></a>
+<a name="anchor128"></a>
 <p/><strong> Particle& Particle::operator=(const Particle& pt) &nbsp;</strong> <br/>
 copies the input particle. 
    
  
-<a name="anchor124"></a>
+<a name="anchor129"></a>
 <p/><strong> void Particle::setEvtPtr(Event* evtPtr) &nbsp;</strong> <br/>
 sets the pointer to the <code>Event</code> object the particle 
 belongs to. This method is automatically called when a particle 
 is appended to an event record. Also calls <code>setPDEPtr</code> below. 
    
  
-<a name="anchor125"></a>
+<a name="anchor130"></a>
 <p/><strong> void Particle::setPDEPtr(ParticleDataEntry* pdePtr = 0) &nbsp;</strong> <br/>
 sets the pointer to the <code>ParticleDataEntry</code> object of the 
 particle, based on its current <code>id</code> code. If the particle 

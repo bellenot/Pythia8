@@ -89,7 +89,6 @@ int main() {
     SlowJet slowJet( -1, radius, pTjetMin, etaMax, nSel, 1);
 
     // Begin event loop.
-    double sumWeights = 0.;
     for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
 
       // Generate event.
@@ -102,7 +101,6 @@ int main() {
 
       // Check for weights
       double weight = pythia.info.weight();
-      sumWeights += weight;
 
       // Analyze Slowet jet properties. List first few.
       slowJet. analyze( pythia.event );

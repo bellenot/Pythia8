@@ -518,6 +518,7 @@ bool PartonLevel::next( Event& process, Event& event) {
   if (isDiff) {
     event.saveSize();
     event.saveJunctionSize();
+    event.saveHVcolsSize();
 
     // Allow special treatment of diffractive systems.
     setupResolvedDiff( process);
@@ -1065,6 +1066,7 @@ bool PartonLevel::next( Event& process, Event& event) {
     else {
       event.restoreSize();
       event.restoreJunctionSize();
+      event.restoreHVcolsSize();
     }
     beamAPtr->clear();
     beamBPtr->clear();
@@ -1529,6 +1531,13 @@ void PartonLevel::setupHardSys( Event& process, Event& event) {
       event[j].daughters(0, 0);
     }
 
+    // Copy Hidden Valley colours where relevant.
+    if (process.hasHVcols()) {
+      int colv  = process[i].colHV();
+      int acolv = process[i].acolHV();
+      if (colv > 0 || acolv > 0) event[j].colsHV( colv, acolv);
+    }
+
     // Complete task of copying hard subsystem into event record.
     ++nHardDone;
   }
@@ -1595,10 +1604,12 @@ void PartonLevel::setupHardSys( Event& process, Event& event) {
 
   // Update event colour tag to maximum in whole process.
   int maxColTag = 0;
-  for (int i = 0; i < process.size(); ++ i) {
+  for (int i = 0; i < process.size(); ++i) {
     if (process[i].col() > maxColTag) maxColTag = process[i].col();
     if (process[i].acol() > maxColTag) maxColTag = process[i].acol();
   }
+  // Also account for Hidden Valley colours before saving.
+  if (process.hasHVcols()) maxColTag = max( maxColTag, process.maxHVcols());
   event.initColTag(maxColTag);
 
   // Copy junctions from process to event.
@@ -1653,6 +1664,13 @@ void PartonLevel::setupShowerSys( Event& process, Event& event) {
     if (process[i].mother1() > 0) break;
     int j = event.append(process[i]);
     iPosBefShow[i] = i;
+
+    // Copy Hidden Valley colours where relevant.
+    if (process.hasHVcols()) {
+      int colv  = process[i].colHV();
+      int acolv = process[i].acolHV();
+      if (colv > 0 || acolv > 0) event[j].colsHV( colv, acolv);
+    }
 
     // Currently outgoing ones should not count as decayed.
     if (event[j].status() == -22) {
@@ -2627,7 +2645,7 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
     int iBegin = nHardDone;
 
     // In first call (skipForR = true) skip over daughters
-    // of resonances that should form R-hadrons
+    // of resonances that should form R-hadrons.
     if (allowRH) {
       if (skipForR) {
         bool comesFromR = false;
@@ -2685,6 +2703,16 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
     RotBstMatrix M;
     M.bst( hardMother.p(), aftMother.p());
 
+    // Save Hidden Valley colours where relevant.
+    int colvBef = 0, acolvBef = 0, colvAft = 0, acolvAft = 0,
+        colvNow = 0, acolvNow = 0;
+    if (process.hasHVcols()) {
+      colvBef  = process[iHardMother].colHV();
+      acolvBef = process[iHardMother].acolHV();
+      colvAft  = event[iAftMother].colHV();
+      acolvAft = event[iAftMother].acolHV();
+    }
+
     // New colour reconnection can not handle late resonance decay
     // of coloured particles so abort event.
     if ( (colBef != 0 || acolBef != 0) && doReconnect && reconnectMode == 1
@@ -2707,6 +2735,14 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
       int iNow = event.append( process[i] );
       iPosBefShow[i] = iNow;
       Particle& now = event.back();
+
+      // Copy Hidden Valley colours where relevant.
+      if (process.hasHVcols()) {
+        colvNow  = process[i].colHV();
+        acolvNow = process[i].acolHV();
+        if (colvNow > 0 || acolvNow > 0)
+          event[iNow].colsHV( colvNow, acolvNow);
+      }
 
       // Currently outgoing ones should not count as decayed.
       if (now.status() == -22) {
@@ -2766,6 +2802,12 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
       if (now.col() == -acolBef) now.col( -acolAft);
       if (now.acol() == -colBef) now.acol( -colAft);
       now.rotbst( M);
+
+      // Update Hidden Valley colours.
+      if (colvNow > 0 || acolvNow > 0) {
+        if (colvNow == colvBef) event[iNow].colHV( colvAft);
+        if (acolvNow == acolvBef) event[iNow].acolHV( acolvAft);
+      }
 
       // Update vertex information.
       if (now.hasVertex()) now.vProd( event[iAftMother].vDec() );

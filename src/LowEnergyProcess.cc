@@ -108,7 +108,7 @@ bool LowEnergyProcess::collide( int i1, int i2, int typeIn, Event& event,
   // Check that class is initialized and that incoming are hadrons.
   if (!isInit) {
     infoPtr->errorMsg("Error in LowEnergyProcess::collide: "
-      "not initialized!");
+      "not properly initialized");
     return false;
   }
   if (!event[i1].isHadron() || !event[i2].isHadron()) return false;

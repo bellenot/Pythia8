@@ -1014,8 +1014,9 @@ int HIInfo::addTargetNucleon(const Nucleon & n) {
 // Collect statistics for attemted and accepted impact paramet point
 // in an event.
 
-void HIInfo::addAttempt(double T, double bin, double bweight) {
+void HIInfo::addAttempt(double T, double bin, double phiin, double bweight) {
   bSave = bin;
+  phiSave = phiin;
   nCollSave = nProjSave = nTargSave = vector<int>(10, 0);
   nFailSave = 0;
   weightSave = bweight;

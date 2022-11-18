@@ -360,24 +360,34 @@ bool BeamRemnants::setKinematics( Event& event) {
   // Simple handling of lepton-lepton scattering.
   // For resolved leptons add either photon or scattered lepton as a remnant.
   if (beamA.isLepton() && beamB.isLepton()) {
-    if (!beamA.isUnresolvedLepton()) {
-      int idRemn    = event[event[1].daughter1()].id() == event[1].id()
-                    ? 22 : beamA.id();
-      double mRemn  = particleDataPtr->m0(idRemn);
-      double eRemn  = max(0., event[1].e() - event[event[1].daughter1()].e());
-      double pzRemn = sqrtpos( pow2(eRemn) - pow2(mRemn) );
-      event.append( idRemn, 63, 1, 0, 0, 0, 0, 0, 0., 0., pzRemn, eRemn,
-                    mRemn);
-    }
-    if (!beamB.isUnresolvedLepton()) {
-      int idRemn    = event[event[2].daughter1()].id() == event[2].id()
-                    ? 22 : beamB.id();
-      double mRemn  = particleDataPtr->m0(idRemn);
-      double eRemn  = max(0., event[2].e() - event[event[2].daughter1()].e());
-      double pzRemn = sqrtpos( pow2(eRemn) - pow2(mRemn) );
-      event.append( idRemn, 63, 2, 0, 0, 0, 0, 0, 0., 0., -pzRemn, eRemn,
-                    mRemn);
-    }
+
+    // Nothing to do if leptons are unresolved.
+    if (beamA.isUnresolvedLepton() && beamB.isUnresolvedLepton()) return true;
+
+    // Remaining four-momentum for remnants, split on the two sides.
+    int iDauA     = event[1].daughter1();
+    int idRemnA   = (event[iDauA].id() == event[1].id()) ? 22 : event[1].id();
+    double mRemnA = (idRemnA == 22) ? 0. : event[1].m();
+    int iDauB     = event[2].daughter1();
+    int idRemnB   = (event[iDauB].id() == event[2].id()) ? 22 : event[2].id();
+    double mRemnB = (idRemnB == 22) ? 0. : event[2].m();
+    Vec4 pRemn    = event[1].p() + event[2].p()
+                   - event[iDauA].p() - event[iDauB].p();
+    Vec4 pRemnA   = 0.5 * (pRemn.e() + pRemn.pz()) * Vec4( 0., 0.,  1., 1.);
+    Vec4 pRemnB   = 0.5 * (pRemn.e() - pRemn.pz()) * Vec4( 0., 0., -1., 1.);
+    // Introduction of masses can fail if not enough energy left for remnants.
+    if (mRemnA > 0. || mRemnB > 0.)
+      if (!pShift( pRemnA, pRemnB, mRemnA, mRemnB)) {
+        infoPtr->errorMsg("Error in BeamRemnants::setKinematics:"
+                          " no momentum left for lepton beam remnants");
+        return false;
+      }
+
+    // Append beam remnants where applicable.
+    if (!beamA.isUnresolvedLepton())
+      event.append( idRemnA, 63, 1, 0, 0, 0, 0, 0, pRemnA, mRemnA);
+    if (!beamB.isUnresolvedLepton())
+      event.append( idRemnB, 63, 2, 0, 0, 0, 0, 0, pRemnB, mRemnB);
     return true;
   }
 
@@ -870,6 +880,13 @@ bool BeamRemnants::setKinematics( Event& event) {
         event[iABcopy].rotbst(Msys[iSys], false);
         partonSystemsPtr->setOut(iSys, iMem, iABcopy);
         pSumOut   += event[iABcopy].p();
+        // Copy any Hidden Valley colours.
+        if (event.hasHVcols()) {
+          int colvcopy  = event[iAB].colHV();
+          int acolvcopy = event[iAB].acolHV();
+          if (colvcopy > 0 || acolvcopy > 0)
+            event[iABcopy].colsHV( colvcopy, acolvcopy);
+        }
       }
     }
 

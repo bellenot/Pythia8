@@ -652,7 +652,7 @@ void StringFragmentation::init(StringFlav* flavSelPtrIn,
   closePacking    = flag("StringPT:closePacking");
 
   // Optionally hard baryon in beam remnant handling.
-  forbidPopcorn   = flag("BeamRemnants:forbidPopcorn");
+  dampPopcorn     = parm("BeamRemnants:dampPopcorn");
   hardRemn        = flag("BeamRemnants:hardRemnantBaryon");
   aRemn           = parm("BeamRemnants:aRemnantBaryon");
   bRemn           = parm("BeamRemnants:bRemnantBaryon");
@@ -773,12 +773,14 @@ bool StringFragmentation::fragment( int iSub, ColConfig& colConfig,
 
       // Check whether to use special hard diquark handling in beam remnant.
       bool forbidPopcornNow = false;
-      if (forbidPopcorn && !hasJunction && (nowEnd.hadSoFar == 0)) {
+      if (dampPopcorn < 1. && !hasJunction && (nowEnd.hadSoFar == 0)) {
         int iNow = (fromPos) ? iPos : iNeg;
         if (event[iNow].isDiquark()) {
-          bool motherInBeam = (event[iNow].statusAbs() == 63);
-          bool grannyInBeam = (event[event[iNow].mother1()].statusAbs() == 63);
-          if (motherInBeam || grannyInBeam) forbidPopcornNow = true;
+          int iMother = iNow;
+          while (event[iMother].statusAbs() / 10 == 7)
+            iMother = event[iMother].mother1();
+          if (event[iMother].statusAbs() == 63
+            && rndmPtr->flat() > dampPopcorn) forbidPopcornNow = true;
         }
       }
 

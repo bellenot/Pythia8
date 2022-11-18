@@ -60,7 +60,7 @@ bool ProcessLevel::init( bool doLHA, SLHAinterface* slhaInterfacePtrIn,
   beamHasGamma     = beamA2gamma || beamB2gamma;
   gammaMode        = settings.mode("Photon:ProcessType");
 
-  // initialize gammaKinematics when relevant.
+  // Initialize gammaKinematics when relevant.
   if (beamHasGamma)
     gammaKin.init();
 
@@ -88,6 +88,9 @@ bool ProcessLevel::init( bool doLHA, SLHAinterface* slhaInterfacePtrIn,
   switchedID  = false;
   switchedEcm = false;
   eCMold      = eCM;
+
+  // Check whether Hidden Valley colours may be used.
+  useHVcols   = (settings.mode("HiddenValley:Ngauge") > 1);
 
   // Options to allow second hard interaction and resonance decays.
   doSecondHard   = settings.flag("SecondHard:generate");
@@ -1459,7 +1462,7 @@ void ProcessLevel::findJunctions( Event& junEvent) {
 }
 //--------------------------------------------------------------------------
 
-// Check that colours match up.
+// Check that colours match up. Also add Hidden Valley colours where relevant.
 
 bool ProcessLevel::checkColours( Event& process) {
 
@@ -1587,9 +1590,60 @@ bool ProcessLevel::checkColours( Event& process) {
 
   }
 
-  // Error message if problem found. Done.
+  // Error message if problem found.
   if (!physical) infoPtr->errorMsg("Error in ProcessLevel::checkColours: "
                    "unphysical colour flow");
+
+  // Find any HV-coloured Hidden Valley particle.
+  if (useHVcols) {
+  vector<int> iHV;
+    for (int i = 0; i < process.size(); ++i) {
+      int idAbs = process[i].idAbs();
+      if ( (idAbs > 4900000 && idAbs < 4900007)
+        || (idAbs > 4900010 && idAbs < 4900017) || idAbs == 4900021
+        || (idAbs > 4900100 && idAbs < 4900109) ) iHV.push_back( i);
+    }
+
+    // Study HV production and decays, and find when HV (anti)colours.
+    if (iHV.size() > 0) {
+      int i, idNow, motherNow, iMother, iSister, iM, colv, acolv;
+      for (int iv = 0; iv < int(iHV.size()); ++iv) {
+        i = iHV[iv];
+        idNow = process[i].id();
+
+        // Find if matching sister pair or mother-daughter relation.
+        motherNow = process[i].mother1();
+        iMother   = -1;
+        iSister   = -1;
+        for (int ivM = 0; ivM < iv; ++ivM) {
+          iM = iHV[ivM];
+          if (motherNow == iM) iMother = ivM;
+          if (motherNow == process[iM].mother1()) iSister = ivM;
+        }
+
+        // Assign HV-colours assuming simple relationships, or else new labels.
+        if (iMother >= 0) {
+          colv  = process[iHV[iMother]].colHV();
+          acolv = process[iHV[iMother]].acolHV();
+         } else if (iSister >= 0) {
+          colv  = process[iHV[iSister]].acolHV();
+          acolv = process[iHV[iSister]].colHV();
+        } else {
+          bool hasColv  = (idNow > 4900000 && idNow < 4900007)
+            || (idNow > 4900010 && idNow < 4900017) || idNow == 4900021
+            || (idNow > 4900100 && idNow < 4900109);
+          bool hasAcolv = (-idNow > 4900000 && -idNow < 4900007)
+            || (-idNow > 4900010 && -idNow < 4900017) || idNow == 4900021
+            || (-idNow > 4900100 && -idNow < 4900109);
+          colv  = (hasColv)  ? process.nextColTag() : 0;
+          acolv = (hasAcolv) ? process.nextColTag() : 0;
+        }
+        process[i].colsHV(colv, acolv);
+      }
+    }
+  }
+
+  // Done.
   return physical;
 
 }

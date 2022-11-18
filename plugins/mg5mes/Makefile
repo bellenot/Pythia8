@@ -56,7 +56,7 @@ $(PYTHIA):
 
 # Build the objects.
 $(LOCAL_TMP)/%/$(WRAPPER).o: $(TOP_INCLUDE)/Pythia8Plugins/$(WRAPPER).h
-	PARS=`basename $*/Parameters_*.h`;\
+	PARS=$(shell basename $*/Parameters_*.h);\
 	 $(CXX) -x c++ $< -o $@ -c -DPARS=$${PARS%.h} $(OBJ_COMMON) -I$*
 $(LOCAL_TMP)/%.o: %.cc
 	$(CXX) $< -o $@ -c $(OBJ_COMMON)

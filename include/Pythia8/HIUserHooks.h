@@ -800,6 +800,11 @@ public:
     return bSave;
   }
 
+  /// The impact parameter angle.
+  double phi() const {
+    return phiSave;
+  }
+
   /// The Monte Carlo integrated total cross section in the current run.
   double sigmaTot() const {
     return sigmaTotSave/millibarn;
@@ -853,7 +858,7 @@ public:
   /// current event.
   int nCollDD() const { return nCollSave[4]; }
 
-  /// The number of separate double diffractive sub collisions in the
+  /// The number of separate central diffractive sub collisions in the
   /// current event.
   int nCollCD() const { return nCollSave[5]; }
 
@@ -913,7 +918,7 @@ private:
 
   /// Register a tried impact parameter point giving the total elastic
   /// amplitude, the impact parameter and impact parameter generation weight.
-  void addAttempt(double T, double bin, double bweight);
+  void addAttempt(double T, double bin, double phiin, double bweight);
 
   /// Reweight event for whatever reason.
   void reweight(double w) {
@@ -945,6 +950,7 @@ private:
 
   /// Impact parameter.
   double bSave;
+  double phiSave;
 
   /// Cross section estimates.
   long NSave, NAccSave;

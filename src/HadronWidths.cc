@@ -732,7 +732,7 @@ double HadronWidths::widthCalc(int id, Pythia8::DecayChannel& channel,
       "on-shell decay is not possible",
       to_string(id) + " --> " + to_string(prodA->id())
        + " " + to_string(prodB->id()));
-      return NAN;
+      return numeric_limits<double>::quiet_NaN();
   }
 
   // Return mass-dependent partial width.
@@ -916,7 +916,7 @@ double HadronWidths::psSize(double eCM, ParticleDataEntryPtr prodA,
     return result;
   else {
     infoPtr->errorMsg("Error in HadronWidths::psSize: Unable to integrate");
-    return NAN;
+    return numeric_limits<double>::quiet_NaN();
   }
 }
 

@@ -158,7 +158,7 @@ vector<long> PythiaParallel::run(long nEvents,
   int numThreadsNow = nEvents > numThreads ? numThreads : int(nEvents);
   long nShowCount = settings.mode("Next:numberCount");
 
-  mutex eventCounterMutex, callbackMutex;
+  mutex callbackMutex;
   vector<long> eventsPerThread(numThreadsNow);
   atomic<long> nStartedEvents(0);
   atomic<long> nFinishedEvents(0);

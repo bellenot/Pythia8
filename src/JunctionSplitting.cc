@@ -404,7 +404,7 @@ bool JunctionSplitting::splitJunChains(Event& event) {
       event.appendJunction(1, col1, col2, col3);
     }
 
-    // Find junctions if we have more colours than anti colours
+    // Find junctions if we have more anti colours than colours
     while (acols.size() > cols.size()) {
       int i1 = int(rndmPtr->flat() *acols.size());
       int acol1 = acols[i1];

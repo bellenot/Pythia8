@@ -168,8 +168,8 @@ private:
   // Extract HV-particles from event to hvEvent.
   bool extractHVevent(Event& event);
 
-  // Assign HV-colours to hidden partons.
-  bool assignHVevent();
+  // Trace HV-colours of HV-partons.
+  bool traceHVcols();
 
   // Collapse of low-mass system to one HV-meson.
   bool collapseToMeson();

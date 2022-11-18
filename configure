@@ -162,7 +162,7 @@ function configure_package() {
 	    else PKG_CFG[1]=$PKG_DIR; fi
 	    PKG_CFG[1]=$(cd ${PKG_CFG[1]} 2> /dev/null && pwd -P)
 	elif $PKG_EXE $PKG_BIN &> /dev/null && [ -z "$PKG_DIR" ] &&
-	   [ -n "$PKG_BIN" ]; then PKG_CFG[1]=$($PKG_EXE $PKG_BIN)
+	   [ -n "$PKG_BIN" ]; then PKG_CFG[1]=$($PKG_EXE $PKG_BIN 2> /dev/null)
 	fi
     fi
     if [ -z "${PKG_CFG[2]}" ]; then
@@ -170,7 +170,7 @@ function configure_package() {
 	    if [ -d "$PKG_DIR/include" ]; then PKG_CFG[2]=$PKG_DIR/include
 	    else PKG_CFG[2]=$PKG_DIR; fi
 	elif $PKG_EXE $PKG_INC &> /dev/null && [ -z "$PKG_DIR" ] &&
-	   [ -n "$PKG_INC" ]; then PKG_CFG[2]=$($PKG_EXE $PKG_INC)
+	   [ -n "$PKG_INC" ]; then PKG_CFG[2]=$($PKG_EXE $PKG_INC 2> /dev/null)
 	fi
     fi
     if [ -z "${PKG_CFG[3]}" ]; then
@@ -178,7 +178,7 @@ function configure_package() {
 	    if [ -d "$PKG_DIR/lib" ]; then PKG_CFG[3]=$PKG_DIR/lib
 	    else PKG_CFG[3]=$PKG_DIR; fi
 	elif $PKG_EXE $PKG_LIB &> /dev/null && [ -z "$PKG_DIR" ] &&
-	   [ -n "$PKG_LIB" ]; then PKG_CFG[3]=$($PKG_EXE $PKG_LIB)
+	   [ -n "$PKG_LIB" ]; then PKG_CFG[3]=$($PKG_EXE $PKG_LIB 2> /dev/null)
 	fi
     fi
 

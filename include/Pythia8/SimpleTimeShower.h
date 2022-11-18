@@ -252,7 +252,8 @@ private:
     bool limitPTmaxIn = true);
   // Special setup for weak dipoles if already specified in info ptr.
   void setupWeakdipExternal(Event& event, bool limitPTmaxIn = true);
-  void setupHVdip( int iSys, int i, Event& event, bool limitPTmaxIn = true);
+  void setupHVdip( int iSys, int i, int colvType, Event& event,
+    bool limitPTmaxIn = true);
 
   // Evolve a QCD dipole end.
   void pT2nextQCD( double pT2begDip, double pT2sel, TimeDipoleEnd& dip,

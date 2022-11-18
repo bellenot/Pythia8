@@ -57,8 +57,16 @@ $(PYTHIA):
 main%: $(PYTHIA) main%.cc
 	$(CXX) $@.cc -o $@ $(CXX_COMMON)
 
+# User-written examples for tutorials, without external dependencies.
+mymain%: $(PYTHIA) mymain%.cc
+	$(CXX) $@.cc -o $@ $(CXX_COMMON)
+
+# Internally used tests, without external dependencies.
+test%: $(PYTHIA) test%.cc
+	$(CXX) $@.cc -o $@ $(CXX_COMMON)
+
 # MixMax (remove warnings).
-main23: $(PYTHIA) main23.cc
+main23: $(PYTHIA) $$@.cc
 	$(CXX) $@.cc -o $@ -w $(CXX_COMMON)
 
 # HEPMC2 or HEPMC3 (use HEPMC3 if both).
@@ -126,7 +134,7 @@ endif
 # ROOT libraries generated via CINT.
 main%.so: main%Dct.cc
 	$(CXX) $< -o $@ -w $(CXX_SHARED) $(CXX_COMMON)\
-	 $(ROOT_LIB) `$(ROOT_CONFIG) --cflags`
+	 $(ROOT_LIB) $(shell $(ROOT_CONFIG) --cflags)
 main%Dct.cc: main%.h main%LinkDef.h
 ifeq ($(ROOT_USE),true)
 	$(ROOT_BIN)rootcint -f $@ -I$(PREFIX_INCLUDE) $^
@@ -134,34 +142,45 @@ else
 	$(error Error: $@ requires ROOT)
 endif
 
-# ROOT (turn off all warnings for readability).
-main91: $(PYTHIA) $$@.cc
+# General ROOT examples without other external dependencies. 
+main91 main94: $(PYTHIA) $$@.cc
 ifeq ($(ROOT_USE),true)
 	$(CXX) $@.cc -o $@ -w $(CXX_COMMON) $(ROOT_LIB)\
-	 `$(ROOT_CONFIG) --cflags --glibs`
+	 $(shell $(ROOT_CONFIG) --cflags --glibs)
 else
 	$(error Error: $@ requires ROOT)
 endif
+
+# Specific rule for main92. 
 main92: $(PYTHIA) $$@.cc main92.so
 	$(CXX) $@.cc main92.so -o $@ -w $(CXX_COMMON) -Wl,-rpath,./\
-	 `$(ROOT_CONFIG) --cflags --glibs`
+	 $(shell $(ROOT_CONFIG) --cflags --glibs)
 
 # RIVET with optional ROOT (if RIVET, use C++14).
 main93: $(PYTHIA) $$@.cc $(if $(filter true,$(ROOT_USE)),main93.so)
 ifeq ($(RIVET_USE),true)
 	$(CXX) $@.cc -o $@ -w $(CXX_COMMON:c++11=c++14) -Wl,-rpath,./\
 	 $(if $(filter true,$(ROOT_USE)),main93.so -DPY8ROOT\
-         $(ROOT_LIB) `$(ROOT_CONFIG) --cflags --glibs`)\
-	 $(RIVET_RPATH) `$(RIVET_BIN)$(RIVET_CONFIG) --cppflags --libs`
+         $(ROOT_LIB) $(shell $(ROOT_CONFIG) --cflags --glibs))\
+	 $(RIVET_RPATH) $(shell $(RIVET_BIN)$(RIVET_CONFIG) --cppflags --libs)
 else
 	$(error Error: $@ requires RIVET)
+endif
+
+# ROOT with FastJet. 
+main95: $(PYTHIA) $$@.cc 
+ifeq ($(ROOT_USE)$(FASTJET3_USE),truetrue)
+	$(CXX) $@.cc -o $@ -w $(CXX_COMMON) $(FASTJET3_INCLUDE)\
+         $(FASTJET3_LIB) $(ROOT_LIB) $(shell $(ROOT_CONFIG) --cflags --glibs)
+else	
+	$(error Error: $@ requires ROOT and FASTJET3)
 endif
 
 # RIVET (if RIVET use C++14).
 main111: $(PYTHIA) $$@.cc
 ifeq ($(RIVET_USE),true)
-	$(CXX) $@.cc -o $@ -w $(CXX_COMMON:c++11=c++14) -DRIVET \
-	 `$(RIVET_BIN)$(RIVET_CONFIG) --cppflags --libs` $(RIVET_RPATH)
+	$(CXX) $@.cc -o $@ -w $(CXX_COMMON:c++11=c++14) -DRIVET\
+	 $(shell $(RIVET_BIN)$(RIVET_CONFIG) --cppflags --libs) $(RIVET_RPATH)
 else
 	$(CXX) $@.cc -o $@ -w $(CXX_COMMON)
 endif
@@ -174,14 +193,6 @@ ifeq ($(HEPMC3_USE),true)
 else
 	$(CXX) $@.cc -o $@ $(CXX_COMMON)
 endif
-
-# User-written examples for tutorials, without external dependencies.
-mymain%: $(PYTHIA) mymain%.cc
-	$(CXX) $@.cc -o $@ $(CXX_COMMON)
-
-# Internally used tests, without external dependencies.
-test%: $(PYTHIA) test%.cc
-	$(CXX) $@.cc -o $@ $(CXX_COMMON)
 
 # Clean.
 clean:
