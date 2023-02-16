@@ -1,5 +1,5 @@
 // Basics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -269,7 +269,7 @@ public:
   void bstback(const Vec4&);
   void bst(const Vec4&, const Vec4&);
   void toCMframe(const Vec4&, const Vec4&);
-  void fromCMframe(const Vec4&, const Vec4&);
+  void fromCMframe(const Vec4&, const Vec4&, bool flip = false);
   void toSameVframe(const Vec4&, const Vec4&);
   void fromSameVframe(const Vec4&, const Vec4&);
   void rotbst(const RotBstMatrix&);
@@ -324,10 +324,12 @@ inline RotBstMatrix fromCMframe(const Vec4& p) {
 inline RotBstMatrix toCMframe(const Vec4& p1, const Vec4& p2) {
   RotBstMatrix tmp; tmp.toCMframe(p1, p2); return tmp; }
 
-// Get a RotBstMatrix from rest frame of p1 and p2, where p1 is along
-// the z-axis.
-inline RotBstMatrix fromCMframe(const Vec4& p1, const Vec4& p2) {
-  RotBstMatrix tmp; tmp.fromCMframe(p1, p2); return tmp; }
+// Get a RotBstMatrix from rest frame of p1 and p2, where p1 is
+// assumed by default to be along the z-axis. The flip option
+// handles the case when p1 is along the negative z-axis.
+inline RotBstMatrix fromCMframe(const Vec4& p1, const Vec4& p2,
+  bool flip = false) {
+  RotBstMatrix tmp; tmp.fromCMframe(p1, p2, flip); return tmp; }
 
 // Get a RotBstMatrix to rest frame of ptot where pz is along the
 // z-axis and pxz is in the xz-plane with positive x.
@@ -417,6 +419,13 @@ public:
 
   // Pick one option among  vector of (positive) probabilities.
   int pick(const vector<double>& prob) ;
+
+  // Randomly shuffle a vector, standard Fisher-Yates algorithm.
+  template<typename T>
+  void shuffle(vector<T>& vec) {
+    for (int i = vec.size() - 1; i > 0; --i)
+      swap(vec[i], vec[floor(flat() * (i + 1))]);
+  }
 
   // Save or read current state to or from a binary file.
   bool dumpState(string fileName);

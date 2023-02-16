@@ -4,21 +4,21 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main153.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Authors:
-//            <a href="mailto:marius.utheim@thep.lu.se">Marius Utheim</a>
+//            <a href="mailto:marius.m.utheim@jyu.fi">Marius Utheim</a>
 
 // Keywords:
 //            <a href="../ExampleKeywords.html#low+energy">Low&nbsp;energy</a>
 
 // Simple illustration how to generate events at low energies.
 // Outputs number of primary hadrons produced in the low energy interaction,
-// as well as cos(theta) distribution of 2 -> 2 processes (if any).
+// as well as cos(theta) distribution of 2 -&gt; 2 processes (if any).
 
-#include "Pythia8/Pythia.h"
+#include &quot;Pythia8/Pythia.h&quot;
 using namespace Pythia8;
 
 //--------------------------------------------------------------------------
@@ -27,31 +27,31 @@ int main() {
 
   // Initialize Pythia.
   Pythia pythia;
-  pythia.readFile("main153.cmnd");
+  pythia.readFile(&quot;main153.cmnd&quot;);
   if (!pythia.init()) {
-    cout << " Pythia failed to initialize." << endl;
+    cout &lt;&lt; &quot; Pythia failed to initialize.&quot; &lt;&lt; endl;
     return -1;
   }
 
   // Histograms.
-  Hist multPrim("n_primary",   9,  1., 10.);
-  Hist thetaEl("cos(theta) for 2 -> 2 processes", 100, -1.,  1.);
+  Hist multPrim(&quot;n_primary&quot;,   9,  1., 10.);
+  Hist thetaEl(&quot;cos(theta) for 2 -&gt; 2 processes&quot;, 100, -1.,  1.);
 
   // Generate events and print statistics.
-  int nEvent = pythia.mode("Main:numberOfEvents");
+  int nEvent = pythia.mode(&quot;Main:numberOfEvents&quot;);
   int nSuccess = 0;
-  for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
+  for (int iEvent = 0; iEvent &lt; nEvent; ++iEvent) {
 
     if (!pythia.next())
       continue;
 
-    Event& ev = pythia.event;
+    Event&amp; ev = pythia.event;
     nSuccess += 1;
 
     // Fill number of primary hadrons.
     int nPrimary = 0;
-    for (auto& particle : ev)
-      if (particle.isHadron() && particle.statusAbs() / 10 == 15)
+    for (auto&amp; particle : ev)
+      if (particle.isHadron() &amp;&amp; particle.statusAbs() / 10 == 15)
         nPrimary += 1;
     multPrim.fill(nPrimary);
 
@@ -60,18 +60,18 @@ int main() {
       int in1 = ev[1].id(), in2 = ev[2].id();
       int out1 = ev[ev.size() - 2].id(), out2 = ev[ev.size() - 1].id();
 
-      if ( (in1 == out1 && in2 == out2) || (in1 == out2 && in2 == out1) )
+      if ( (in1 == out1 &amp;&amp; in2 == out2) || (in1 == out2 &amp;&amp; in2 == out1) )
         thetaEl.fill(cos(ev[ev.size() - 1].theta()));
     }
   }
 
   // Plot histograms and statistics.
   multPrim /= nSuccess;
-  cout << multPrim;
+  cout &lt;&lt; multPrim;
 
-  if (thetaEl.getEntries() > 0) {
+  if (thetaEl.getEntries() &gt; 0) {
     thetaEl *= 50. / thetaEl.getEntries();
-    cout << thetaEl;
+    cout &lt;&lt; thetaEl;
   }
 
   pythia.stat();

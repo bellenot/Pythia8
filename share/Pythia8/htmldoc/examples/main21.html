@@ -4,7 +4,7 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main21.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -15,18 +15,18 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 // It illustrates how to feed in a single particle (including a resonance)
 // or a toy parton-level configurations.
 
-#include "Pythia8/Pythia.h"
+#include &quot;Pythia8/Pythia.h&quot;
 using namespace Pythia8;
 
 //==========================================================================
 
 // Single-particle gun. The particle must be a colour singlet.
 // Input: flavour, energy, direction (theta, phi).
-// If theta < 0 then random choice over solid angle.
-// Optional final argument to put particle at rest => E = m.
+// If theta &lt; 0 then random choice over solid angle.
+// Optional final argument to put particle at rest =&gt; E = m.
 
 void fillParticle(int id, double ee, double thetaIn, double phiIn,
-  Event& event, ParticleData& pdt, Rndm& rndm, bool atRest = false,
+  Event&amp; event, ParticleData&amp; pdt, Rndm&amp; rndm, bool atRest = false,
   bool hasLifetime = false) {
 
   // Reset event record to allow for new event.
@@ -44,7 +44,7 @@ void fillParticle(int id, double ee, double thetaIn, double phiIn,
 
   // Angles as input or uniform in solid angle.
   double cThe, sThe, phi;
-  if (thetaIn >= 0.) {
+  if (thetaIn &gt;= 0.) {
     cThe = cos(thetaIn);
     sThe = sin(thetaIn);
     phi  = phiIn;
@@ -67,8 +67,8 @@ void fillParticle(int id, double ee, double thetaIn, double phiIn,
 
 // Simple method to do the filling of partons into the event record.
 
-void fillPartons(int type, double ee, Event& event, ParticleData& pdt,
-  Rndm& rndm) {
+void fillPartons(int type, double ee, Event&amp; event, ParticleData&amp; pdt,
+  Rndm&amp; rndm) {
 
   // Reset event record to allow for new event.
   event.reset();
@@ -120,7 +120,7 @@ void fillPartons(int type, double ee, Event& event, ParticleData& pdt,
       double cosThetaMin =0.;
 
       // Add a few gluons (almost) at random.
-      for (int nglu = 0; nglu < 5; ++nglu) {
+      for (int nglu = 0; nglu &lt; 5; ++nglu) {
         int iq = 1 + int( 2.99999 * rndm.flat() );
         double px, py, pz, e, prod;
         do {
@@ -132,7 +132,7 @@ void fillPartons(int type, double ee, Event& event, ParticleData& pdt,
           pz = e * cThe;
           prod = ( px * pQ[iq].px() + py * pQ[iq].py() + pz * pQ[iq].pz() )
             / e;
-        } while (prod < cosThetaMin);
+        } while (prod &lt; cosThetaMin);
         int colNew = 104 + nglu;
         event.append( 21, 23, 1, 0, 0, 0, colNew, colNow[iq],
           px, py, pz, e, 0.);
@@ -144,13 +144,13 @@ void fillPartons(int type, double ee, Event& event, ParticleData& pdt,
     }
 
   // Information on a q q qbar qbar dijunction system, to be hadronized.
-  } else if (type >= 6) {
+  } else if (type &gt;= 6) {
 
     // The two fictitious beam remnant particles; needed for junctions.
     event.append( 2212, -12, 0, 0, 3, 5, 0, 0, 0., 0., ee, ee, 0.);
     event.append(-2212, -12, 0, 0, 6, 8, 0, 0, 0., 0., ee, ee, 0.);
 
-    // Opening angle between "diquark" legs.
+    // Opening angle between &quot;diquark&quot; legs.
     double theta = 0.2;
     double cThe = cos(theta);
     double sThe = sin(theta);
@@ -211,7 +211,7 @@ int main() {
   // 12 = q qbar plus parton shower.
   // 13 = g g plus parton shower.
   // It is easy to edit the line below to only study one of them.
-  for (int type = 0; type < 14; ++type) {
+  for (int type = 0; type &lt; 14; ++type) {
 
     // Set particle species and energy for single-particle gun.
     int    idGun  = (type == 0) ? 15 : 25;
@@ -233,57 +233,57 @@ int main() {
 
     // Generator; shorthand for event and particleData.
     Pythia pythia;
-    Event& event      = pythia.event;
-    ParticleData& pdt = pythia.particleData;
+    Event&amp; event      = pythia.event;
+    ParticleData&amp; pdt = pythia.particleData;
 
     // Key requirement: switch off ProcessLevel, and thereby also PartonLevel.
-    pythia.readString("ProcessLevel:all = off");
+    pythia.readString(&quot;ProcessLevel:all = off&quot;);
 
     // Avoid the standard scrutiny of mother/daughter relations.
     // But note that other event checks are done below.
-    pythia.readString("Check:event = off");
+    pythia.readString(&quot;Check:event = off&quot;);
 
     // Optionally switch off resonance decays.
-    //pythia.readString("ProcessLevel:resonanceDecays = off");
+    //pythia.readString(&quot;ProcessLevel:resonanceDecays = off&quot;);
 
     // For type = 12 and 13 showers are done by forceTimeShower,
     // so should not be done a second time.
     if (type == 12 || type == 13)
-      pythia.readString("PartonLevel:FSRinResonances = off");
+      pythia.readString(&quot;PartonLevel:FSRinResonances = off&quot;);
 
     // Optionally switch off ordinary decays.
-    //pythia.readString("HadronLevel:Decay = off");
+    //pythia.readString(&quot;HadronLevel:Decay = off&quot;);
 
     // Switch off automatic event listing in favour of manual.
-    pythia.readString("Next:numberShowInfo = 0");
-    pythia.readString("Next:numberShowProcess = 0");
-    pythia.readString("Next:numberShowEvent = 0");
+    pythia.readString(&quot;Next:numberShowInfo = 0&quot;);
+    pythia.readString(&quot;Next:numberShowProcess = 0&quot;);
+    pythia.readString(&quot;Next:numberShowEvent = 0&quot;);
 
     // Set true to also see space-time information in event listings.
     bool showScaleAndVertex = (type == 0) ? true : false;
 
     // Initialize.
-    cout << "\n Now begin type = " << type << endl;
+    cout &lt;&lt; &quot;\n Now begin type = &quot; &lt;&lt; type &lt;&lt; endl;
     pythia.init();
 
     // Book histograms.
-    Hist epCons("deviation from energy-momentum conservation",100,0.,1e-4);
-    Hist chgCons("deviation from charge conservation",57,-9.5,9.5);
-    Hist nFinal("final particle multiplicity",100,-0.5,99.5);
-    Hist dnparticledp("dn/dp for particles",100,0.,ee);
-    Hist status85("multiplicity status code 85",50,-0.5,49.5);
-    Hist status86("multiplicity status code 86",50,-0.5,49.5);
-    Hist status83("multiplicity status code 83",50,-0.5,49.5);
-    Hist status84("multiplicity status code 84",50,-0.5,49.5);
-    Hist dndtheta("particle flow in event plane",100,-M_PI,M_PI);
-    Hist dedtheta("energy flow in event plane",100,-M_PI,M_PI);
-    Hist dpartondtheta("parton flow in event plane",100,-M_PI,M_PI);
-    Hist dndyAnti("dn/dy primaries antijunction",100, -10., 10.);
-    Hist dndyJun("dn/dy primaries junction",100, -10., 10.);
-    Hist dndySum("dn/dy all primaries",100, -10., 10.);
+    Hist epCons(&quot;deviation from energy-momentum conservation&quot;,100,0.,1e-4);
+    Hist chgCons(&quot;deviation from charge conservation&quot;,57,-9.5,9.5);
+    Hist nFinal(&quot;final particle multiplicity&quot;,100,-0.5,99.5);
+    Hist dnparticledp(&quot;dn/dp for particles&quot;,100,0.,ee);
+    Hist status85(&quot;multiplicity status code 85&quot;,50,-0.5,49.5);
+    Hist status86(&quot;multiplicity status code 86&quot;,50,-0.5,49.5);
+    Hist status83(&quot;multiplicity status code 83&quot;,50,-0.5,49.5);
+    Hist status84(&quot;multiplicity status code 84&quot;,50,-0.5,49.5);
+    Hist dndtheta(&quot;particle flow in event plane&quot;,100,-M_PI,M_PI);
+    Hist dedtheta(&quot;energy flow in event plane&quot;,100,-M_PI,M_PI);
+    Hist dpartondtheta(&quot;parton flow in event plane&quot;,100,-M_PI,M_PI);
+    Hist dndyAnti(&quot;dn/dy primaries antijunction&quot;,100, -10., 10.);
+    Hist dndyJun(&quot;dn/dy primaries junction&quot;,100, -10., 10.);
+    Hist dndySum(&quot;dn/dy all primaries&quot;,100, -10., 10.);
 
     // Begin of event loop.
-    for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
+    for (int iEvent = 0; iEvent &lt; nEvent; ++iEvent) {
 
       // Set up single particle, with random direction in solid angle.
       if (type == 0 || type == 11) fillParticle( idGun, eeGun, -1., 0.,
@@ -306,12 +306,12 @@ int main() {
 
       // Generate events. Quit if failure.
       if (!pythia.next()) {
-        cout << " Event generation aborted prematurely, owing to error!\n";
+        cout &lt;&lt; &quot; Event generation aborted prematurely, owing to error!\n&quot;;
         break;
       }
 
       // List first few events.
-      if (iEvent < nList) {
+      if (iEvent &lt; nList) {
         event.list(showScaleAndVertex);
         // Also list junctions.
         event.listJunctions();
@@ -329,19 +329,19 @@ int main() {
       int n84 = 0;
 
       // Loop over all particles.
-      for (int i = 0; i < event.size(); ++i) {
+      for (int i = 0; i &lt; event.size(); ++i) {
         int status = event[i].statusAbs();
 
         // Find any unrecognized particle codes.
         int id = event[i].id();
         if (id == 0 || !pdt.isParticle(id))
-          cout << " Error! Unknown code id = " << id << "\n";
+          cout &lt;&lt; &quot; Error! Unknown code id = &quot; &lt;&lt; id &lt;&lt; &quot;\n&quot;;
 
         // Find particles with E-p mismatch.
         double eCalc = event[i].eCalc();
-        if (abs(eCalc/event[i].e() - 1.) > 1e-6) cout << " e mismatch, i = "
-          << i << " e_nominal = " << event[i].e() << " e-from-p = "
-          << eCalc << " m-from-e " << event[i].mCalc() << "\n";
+        if (abs(eCalc/event[i].e() - 1.) &gt; 1e-6) cout &lt;&lt; &quot; e mismatch, i = &quot;
+          &lt;&lt; i &lt;&lt; &quot; e_nominal = &quot; &lt;&lt; event[i].e() &lt;&lt; &quot; e-from-p = &quot;
+          &lt;&lt; eCalc &lt;&lt; &quot; m-from-e &quot; &lt;&lt; event[i].mCalc() &lt;&lt; &quot;\n&quot;;
 
         // Parton flow in event plane.
         if (status == 71 || status == 72) {
@@ -356,9 +356,9 @@ int main() {
         if (status == 84) ++n84;
 
         // Flow of primary hadrons in the event plane.
-        if (status > 80 && status < 90) {
+        if (status &gt; 80 &amp;&amp; status &lt; 90) {
           double eAbs = event[i].e();
-          if (eAbs < 0.) {cout << " e < 0 line " << i; event.list();}
+          if (eAbs &lt; 0.) {cout &lt;&lt; &quot; e &lt; 0 line &quot; &lt;&lt; i; event.list();}
           double thetaXZ = event[i].thetaXZ();
           dndtheta.fill(thetaXZ);
           dedtheta.fill(thetaXZ, eAbs);
@@ -366,9 +366,9 @@ int main() {
           // Rapidity distribution of primary hadrons.
           double y = event[i].y();
           dndySum.fill(y);
-          if (type >= 6) {
+          if (type &gt;= 6) {
             int motherId = event[event[i].mother1()].id();
-            if (motherId > 0 ) dndyJun.fill(event[i].y());
+            if (motherId &gt; 0 ) dndyJun.fill(event[i].y());
             else dndyAnti.fill(event[i].y());
           }
         }
@@ -393,18 +393,18 @@ int main() {
       status86.fill(n86);
       status83.fill(n83);
       status84.fill(n84);
-      if (epDev > 1e-3  || abs(chargeSum) > 0.1) event.list();
+      if (epDev &gt; 1e-3  || abs(chargeSum) &gt; 0.1) event.list();
 
     // End of event loop.
     }
 
     // Print statistics and histograms.
     pythia.stat();
-    cout << epCons << chgCons << nFinal << dnparticledp
-         << dndtheta << dedtheta << dpartondtheta << dndySum;
-    if (type >= 4) cout << status85 << status86 << status83
-         << status84;
-    if (type >= 6) cout << dndyJun << dndyAnti;
+    cout &lt;&lt; epCons &lt;&lt; chgCons &lt;&lt; nFinal &lt;&lt; dnparticledp
+         &lt;&lt; dndtheta &lt;&lt; dedtheta &lt;&lt; dpartondtheta &lt;&lt; dndySum;
+    if (type &gt;= 4) cout &lt;&lt; status85 &lt;&lt; status86 &lt;&lt; status83
+         &lt;&lt; status84;
+    if (type &gt;= 6) cout &lt;&lt; dndyJun &lt;&lt; dndyAnti;
 
 
   // End of type loop and done.

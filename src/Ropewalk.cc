@@ -1,5 +1,5 @@
 // Ropewalk.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -431,8 +431,8 @@ struct Exc {
 
 // The constructor.
 Exc(double yIn, double m0In, int iIn, int jIn, int kIn, RopeDipole* dip1In,
-  RopeDipole* dip2In) : y(yIn), m0(m0In), i(iIn), j(jIn), k(kIn), pp1(NULL),
-  pp2(NULL), dip1(dip1In), dip2(dip2In) { }
+  RopeDipole* dip2In) : y(yIn), m0(m0In), i(iIn), j(jIn), k(kIn), pp1(nullptr),
+  pp2(nullptr), dip1(dip1In), dip2(dip2In) { }
 
 // Set pointers to the two excitation particles.
 void setParticlePtrs(Particle* p1, Particle* p2) {

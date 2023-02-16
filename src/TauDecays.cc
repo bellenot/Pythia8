@@ -1,5 +1,5 @@
 // TauDecays.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2023 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -173,8 +173,8 @@ bool TauDecays::decay(int idxOut1, Event& event) {
     else if (!out2.canDecay()) correlated = false;
     else if (!out2.mayDecay()) correlated = false;
     // Check partner not EW showered, set decay matrix otherwise.
-    else if (!out2.isFinal() && out2.statusAbs() > 40
-      && out2.statusAbs() < 60) {
+    else if (!out2.isFinal() && (out2.daughter1() < out1.index()
+        || (out2.statusAbs() > 40 && out2.statusAbs() < 60))) {
       correlated = false;
       out2.D = out2.rho;
     }

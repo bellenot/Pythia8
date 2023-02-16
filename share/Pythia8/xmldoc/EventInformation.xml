@@ -519,50 +519,8 @@ provide the new Pomeron-hadron ones.
  
 <h3>Cross sections</h3> 
  
-Here are the currently available methods related to the event sample 
-as a whole, for the default value <code>i = 0</code>, and otherwise for 
-the specific process code provided as argument. This is the number 
-obtained with <code>Info::code()</code>, while the further subdivision 
-given by <code>Info::codeSub()</code> is not bookkept. While continuously 
-updated during the run, it is recommended only to study these properties 
-at the end of the event generation, when the full statistics is available. 
-The individual process results are not available if a 
-<aloc href="SecondHardProcess">second hard process</aloc> has been 
-chosen, but can be gleaned from the <code>pythia.stat()</code> output. 
- 
-<method name="vector&lt;int&gt; Info::codesHard()"> 
-returns a vector with all the process codes set up for the current run, 
-i.e. the valid nonzero arguments for the five methods below. 
-</method> 
- 
-<method name="string Info::nameProc(int i = 0)"> 
-returns the process name for process code <code>i</code>. 
-</method> 
- 
-<method name="long Info::nTried(int i = 0)"> 
-</method> 
-<methodmore name="long Info::nSelected(int i = 0)"> 
-</methodmore> 
-<methodmore name="long Info::nAccepted(int i = 0)"> 
-the total number of tried phase-space points, selected hard processes 
-and finally accepted events, summed over all allowed processes 
-(<code>i = 0</code>) or for the given process. 
-The first number is only intended for a study of the phase-space selection 
-efficiency. The last two numbers usually only disagree if the user introduces 
-some veto during the event-generation process; then the former is the number 
-of acceptable events found by PYTHIA and the latter the number that also 
-were approved by the user. If you set a <aloc href="SecondHardProcess"> 
-second hard process</aloc> there may also be a mismatch. 
-</methodmore> 
- 
-<method name="double Info::sigmaGen(int i = 0)"> 
-</method> 
-<methodmore name="double Info::sigmaErr(int i = 0)"> 
-the estimated cross section and its estimated error, 
-summed over all allowed processes (<code>i = 0</code>) or for the given 
-process, in units of mb. The numbers refer to the accepted event sample 
-above, i.e. after any user veto. 
-</methodmore> 
+Dedicated documentation describes the details of 
+<aloc href="CrossSectionsAndWeights">cross sections and weights</aloc>. 
  
 <h3>Loop counters</h3> 
  
@@ -770,97 +728,97 @@ in millibarns.
 the error in the inelastic non-diffractive cross section. 
 </method> 
  
-<method name="long nAttempts()"> 
+<method name="long HIInfo::nAttempts()"> 
 the number of attempted impact parameter points. 
 </method> 
  
-<method name="long nAccepted()"> 
+<method name="long HIInfo::nAccepted()"> 
 the number of accepted impact parameter points (resulting in actual events). 
 </method> 
  
-<method name="int nCollTot()"> 
+<method name="int HIInfo::nCollTot()"> 
 the number of separate sub-collisions in the current event. 
 </method> 
  
-<method name="int nCollND()"> 
+<method name="int HIInfo::nCollND()"> 
 the number of separate fully non-diffractive sub-collisions in the 
 current event. 
 </method> 
  
-<method name="int nCollNDTot()"> 
+<method name="int HIInfo::nCollNDTot()"> 
 the total number of non-diffractive NN-collisions in the current 
 event. 
 </method> 
  
-<method name="int nCollSDP()"> 
+<method name="int HIInfo::nCollSDP()"> 
 the number of separate single diffractive projectile nucleon excitation 
 sub-collisions in the current event. 
 </method> 
  
-<method name="int nCollSDT()"> 
+<method name="int HIInfo::nCollSDT()"> 
 the number of separate single diffractive target nucleon excitation 
 sub-collisions in the current event. 
 </method> 
  
-<method name="int nCollDD()"> 
+<method name="int HIInfo::nCollDD()"> 
 the number of separate double diffractive excitation sub-collisions in 
 the current event. 
 </method> 
  
-<method name="int nCollCD()"> 
+<method name="int HIInfo::nCollCD()"> 
 the number of separate central diffractive excitation sub-collisions in 
 the current event. 
 </method> 
  
-<method name="int nCollEL()"> 
+<method name="int HIInfo::nCollEL()"> 
 the number of separate elastic sub-collisions in 
 the current event. 
 </method> 
  
-<method name="int nPartProj()"> 
+<method name="int HIInfo::nPartProj()"> 
 number of interacting projectile nucleons in the current event. 
 </method> 
  
-<method name="int nAbsProj()"> 
+<method name="int HIInfo::nAbsProj()"> 
 number of absorptively wounded projectile nucleons in the current event. 
 </method> 
  
-<method name="int nDiffProj()"> 
+<method name="int HIInfo::nDiffProj()"> 
 number of diffrectively wounded projectile nucleons in the current event. 
 </method> 
  
-<method name="int nELProj()"> 
+<method name="int HIInfo::nELProj()"> 
 number of elastically scattered projectile nucleons in the current event. 
 </method> 
  
-<method name="int nPartTarg()"> 
+<method name="int HIInfo::nPartTarg()"> 
 number of interacting target nucleons in the current event. 
 </method> 
  
-<method name="int nAbsTarg()"> 
+<method name="int HIInfo::nAbsTarg()"> 
 number of absorptively wounded target nucleons in the current event. 
 </method> 
  
-<method name="int nDiffTarg()"> 
+<method name="int HIInfo::nDiffTarg()"> 
 number of diffrectively wounded target nucleons in the current event. 
 </method> 
  
-<method name="int nELTarg()"> 
+<method name="int HIInfo::nELTarg()"> 
 number of elastically scattered target nucleons in the current event. 
 </method> 
  
-<method name="int nFail()"> 
+<method name="int HIInfo::nFail()"> 
 number of failed nucleon excitations in the current event. 
 </method> 
  
-<method name="weight()"> 
+<method name="double HIInfo::weight()"> 
 the weight of the current event. 
 </method> 
  
-<method name="weightSum()"> 
+<method name="double HIInfo::weightSum()"> 
 the sum of weights of the events generated so far. 
 </method> 
  
 </chapter> 
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

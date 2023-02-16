@@ -1,11 +1,11 @@
 # main39.py is a part of the PYTHIA event generator.
-# Copyright (C) 2022 Torbjorn Sjostrand.
+# Copyright (C) 2023 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 # Authors: Philip Ilten <philten@cern.ch>.
 
-# Keywords: particle data; Python
+# Keywords: particle data; python
 
 # This provides a simple Python class which reads and parses the Pythia 8
 # particle database, without requiring the Pythia 8 Python bindings.

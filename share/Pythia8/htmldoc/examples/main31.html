@@ -4,7 +4,7 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main31.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -13,11 +13,11 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 //            <a href="../ExampleKeywords.html#merging">Merging</a>
 //            <a href="../ExampleKeywords.html#powheg">Powheg</a>
 
-// Example how to perform merging with POWHEG-BOX events,
+// Example how to perform matching with POWHEG-BOX events,
 // based on the code found in include/Pythia8Plugins/PowhegHooks.h.
 
-#include "Pythia8/Pythia.h"
-#include "Pythia8Plugins/PowhegHooks.h"
+#include &quot;Pythia8/Pythia.h&quot;
+#include &quot;Pythia8Plugins/PowhegHooks.h&quot;
 using namespace Pythia8;
 
 //==========================================================================
@@ -28,32 +28,40 @@ int main() {
   Pythia pythia;
 
   // Load configuration file
-  pythia.readFile("main31.cmnd");
+  pythia.readFile(&quot;main31.cmnd&quot;);
 
-  // Read in main settings
-  int nEvent      = pythia.settings.mode("Main:numberOfEvents");
-  int nError      = pythia.settings.mode("Main:timesAllowErrors");
-  // Read in key POWHEG merging settings
-  int vetoMode    = pythia.settings.mode("POWHEG:veto");
-  int MPIvetoMode = pythia.settings.mode("POWHEG:MPIveto");
-  bool loadHooks  = (vetoMode > 0 || MPIvetoMode > 0);
+  // Read in main settings.
+  int nEvent      = pythia.settings.mode(&quot;Main:numberOfEvents&quot;);
+  int nError      = pythia.settings.mode(&quot;Main:timesAllowErrors&quot;);
+  // Read in key POWHEG matching settings.
+  int vetoMode    = pythia.settings.mode(&quot;POWHEG:veto&quot;);
+  int MPIvetoMode = pythia.settings.mode(&quot;POWHEG:MPIveto&quot;);
+  bool loadHooks  = (vetoMode &gt; 0 || MPIvetoMode &gt; 0);
+  // Read in shower settings.
+  int showerModel = pythia.settings.mode(&quot;PartonShowers:model&quot;);
 
-  // Add in user hooks for shower vetoing
-  shared_ptr<PowhegHooks> powhegHooks;
+  // Add in user hooks for shower vetoing.
+  shared_ptr&lt;PowhegHooks&gt; powhegHooks;
   if (loadHooks) {
 
-    // Set ISR and FSR to start at the kinematical limit
-    if (vetoMode > 0) {
-      pythia.readString("SpaceShower:pTmaxMatch = 2");
-      pythia.readString("TimeShower:pTmaxMatch = 2");
+    // Set showers to start at the kinematical limit.
+    if (vetoMode &gt; 0) {
+      if (showerModel == 1 || showerModel == 3) {
+        // Pythia and Dire have separate settings for ISR and FSR.
+        pythia.readString(&quot;SpaceShower:pTmaxMatch = 2&quot;);
+        pythia.readString(&quot;TimeShower:pTmaxMatch = 2&quot;);
+      } else if (showerModel == 2) {
+        // Vincia only has one common setting for both ISR and FSR.
+        pythia.readString(&quot;Vincia:pTmaxMatch = 2&quot;);
+      }
     }
 
-    // Set MPI to start at the kinematical limit
-    if (MPIvetoMode > 0) {
-      pythia.readString("MultipartonInteractions:pTmaxMatch = 2");
+    // Set MPI to start at the kinematical limit.
+    if (MPIvetoMode &gt; 0) {
+      pythia.readString(&quot;MultipartonInteractions:pTmaxMatch = 2&quot;);
     }
 
-    powhegHooks = make_shared<PowhegHooks>();
+    powhegHooks = make_shared&lt;PowhegHooks&gt;();
     pythia.setUserHooksPtr((UserHooksPtr)powhegHooks);
   }
 
@@ -75,9 +83,9 @@ int main() {
       if (pythia.info.atEndOfFile()) break;
 
       // Otherwise count event failure and continue/exit as necessary
-      cout << "Warning: event " << iEvent << " failed" << endl;
+      cout &lt;&lt; &quot;Warning: event &quot; &lt;&lt; iEvent &lt;&lt; &quot; failed&quot; &lt;&lt; endl;
       if (++iError == nError) {
-        cout << "Error: too many event failures.. exiting" << endl;
+        cout &lt;&lt; &quot;Error: too many event failures... exiting&quot; &lt;&lt; endl;
         break;
       }
 
@@ -90,21 +98,21 @@ int main() {
 
     // Update ISR/FSR veto counters
     if (loadHooks) {
-      nISRveto += powhegHooks->getNISRveto();
-      nFSRveto += powhegHooks->getNFSRveto();
+      nISRveto += powhegHooks-&gt;getNISRveto();
+      nFSRveto += powhegHooks-&gt;getNFSRveto();
     }
 
     // If nEvent is set, check and exit loop if necessary
     ++iEvent;
-    if (nEvent != 0 && iEvent == nEvent) break;
+    if (nEvent != 0 &amp;&amp; iEvent == nEvent) break;
 
   } // End of event loop.
 
   // Statistics, histograms and veto information
   pythia.stat();
-  cout << "Number of ISR emissions vetoed: " << nISRveto << endl;
-  cout << "Number of FSR emissions vetoed: " << nFSRveto << endl;
-  cout << endl;
+  cout &lt;&lt; &quot;Number of ISR emissions vetoed: &quot; &lt;&lt; nISRveto &lt;&lt; endl;
+  cout &lt;&lt; &quot;Number of FSR emissions vetoed: &quot; &lt;&lt; nFSRveto &lt;&lt; endl;
+  cout &lt;&lt; endl;
 
   // Done.
   return 0;

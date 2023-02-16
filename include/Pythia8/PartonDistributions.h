@@ -1,5 +1,5 @@
 // PartonDistributions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -284,13 +284,13 @@ public:
   LHAGrid1(int idBeamIn = 2212, string pdfWord = "void",
     string xmlPath = "../share/Pythia8/xmldoc/", Info* infoPtr = 0)
     : PDF(idBeamIn), doExtraPol(false), nx(), nq(), nqSub(), xMin(), xMax(),
-    qMin(), qMax(), pdfVal(), pdfGrid(), pdfSlope(NULL) {
+    qMin(), qMax(), pdfVal(), pdfGrid(), pdfSlope(nullptr) {
     init( pdfWord, xmlPath, infoPtr); };
 
   // Constructor with a stream.
   LHAGrid1(int idBeamIn, istream& is, Info* infoPtr = 0)
     : PDF(idBeamIn), doExtraPol(false), nx(), nq(), nqSub(), xMin(), xMax(),
-    qMin(), qMax(), pdfVal(), pdfGrid(), pdfSlope(NULL) {
+    qMin(), qMax(), pdfVal(), pdfGrid(), pdfSlope(nullptr) {
     init( is, infoPtr); };
 
   // Destructor.

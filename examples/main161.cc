@@ -1,9 +1,9 @@
 // main161.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Marius Utheim <marius.utheim@thep.lu.se>.
+// Authors: Marius Utheim <marius.m.utheim@jyu.fi>.
 
 // Keywords: parallelism;
 
@@ -24,11 +24,11 @@ int main() {
   pythia.init();
   Hist mult("charged multiplicity", 100, -0.5, 799.5);
   // Use PythiaParallel::run to generate the specified number of events.
-  pythia.run(10000, [&](Pythia& pythiaNow) {
+  pythia.run(10000, [&](Pythia* pythiaPtr) {
     // Find number of all final charged particles and fill histogram.
     int nCharged = 0;
-    for (int i = 0; i < pythiaNow.event.size(); ++i)
-      if (pythiaNow.event[i].isFinal() && pythiaNow.event[i].isCharged())
+    for (int i = 0; i < pythiaPtr->event.size(); ++i)
+      if (pythiaPtr->event[i].isFinal() && pythiaPtr->event[i].isCharged())
         ++nCharged;
     mult.fill( nCharged );
     // End of event loop. Statistics. Histogram. Done.

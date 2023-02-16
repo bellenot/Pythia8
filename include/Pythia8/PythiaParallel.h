@@ -1,5 +1,5 @@
 // PythiaParallel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Marius Utheim, Torbjorn Sjostrand.
+// Copyright (C) 2023 Marius Utheim, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -39,23 +39,23 @@ public:
 
   // Initialize all Pythia objects.
   bool init();
-  bool init(function<bool(Pythia&)> additionalSetup);
+  bool init(function<bool(Pythia*)> additionalSetup);
 
   // Perform the specified action for each Pythia instance.
-  void foreach(function<void(Pythia&)> action);
+  void foreach(function<void(Pythia*)> action);
 
   // Perform the specified action for each instance in parallel.
-  void foreachAsync(function<void(Pythia&)> action);
+  void foreachAsync(function<void(Pythia*)> action);
 
   // Write final statistics, combining errors from each Pythia instance.
   void stat() { pythiaHelper.stat(); }
 
-  // Run Pythia objects.
-  vector<long> run(long nEvents, function<void(Pythia& pythia)> callback);
-  vector<long> run(function<void(Pythia& pythia)> callback) {
+  // Generate events in parallel.
+  vector<long> run(long nEvents, function<void(Pythia*)> callback);
+  vector<long> run(function<void(Pythia*)> callback) {
     return run(settings.mode("Main:numberOfEvents"), callback); }
 
-  // Pythia object used for loading data
+  // Pythia object used for loading data.
   Pythia pythiaHelper;
 
   // Weighted average of the generated cross section for each Pythia instance.
@@ -64,18 +64,22 @@ public:
   // Sum of weights from all Pythia instances.
   double weightSum() const { return weightSumSave; }
 
+  // The settings that will be used to initialize Pythia instances.
+  Settings& settings;
+
+  // The particle database that will be used to initialize Pythia instances.
+  ParticleData& particleData;
+
 private:
+
+  // Info object used for logging.
+  Info& info;
 
   // Negative integer to denote that no subrun has been set.
   static constexpr int SUBRUNDEFAULT = -999;
 
   // Flag if initialized.
   bool isInit = false;
-
-  // Shorthand references to pythiaHelper members.
-  Info& info;
-  Settings& settings;
-  ParticleData& particleData;
 
   // Sum of weights and weighted cross section.
   double weightSumSave, sigmaGenSave;
@@ -87,9 +91,6 @@ private:
 
   // Internal Pythia objects.
   vector<unique_ptr<Pythia> > pythiaObjects;
-
-  // Check for lines that mark the beginning or end of commented section.
-  int readCommented(string line);
 
 };
 

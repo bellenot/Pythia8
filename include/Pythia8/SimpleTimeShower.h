@@ -1,5 +1,5 @@
 // SimpleTimeShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -83,26 +83,28 @@ public:
     doPhiPolAsymHard(), doInterleave(), doInterleaveResDec(),
     allowBeamRecoil(), dampenBeamRecoil(), recoilToColoured(),
     useFixedFacScale(), allowRescatter(), canVetoEmission(), doHVshower(),
-    brokenHVsym(), globalRecoil(), useLocalRecoilNow(), doSecondHard(),
-    hasUserHooks(), singleWeakEmission(), alphaSuseCMW(), vetoWeakJets(),
-    allowMPIdipole(), weakExternal(), recoilDeadCone(), doDipoleRecoil(),
-    doPartonVertex(), pTmaxMatch(), pTdampMatch(), alphaSorder(),
-    alphaSnfmax(), nGluonToQuark(), weightGluonToQuark(), alphaEMorder(),
-    nGammaToQuark(), nGammaToLepton(), nCHV(), idHV(), alphaHVorder(),
-    nMaxGlobalRecoil(), weakMode(), pTdampFudge(), mc(), mb(), m2c(), m2b(),
-    renormMultFac(), factorMultFac(), fixedFacScale2(), alphaSvalue(),
-    alphaS2pi(), Lambda3flav(), Lambda4flav(), Lambda5flav(), Lambda3flav2(),
-    Lambda4flav2(), Lambda5flav2(), scaleGluonToQuark(), extraGluonToQuark(),
-    pTcolCutMin(), pTcolCut(), pT2colCut(), pTchgQCut(), pT2chgQCut(),
-    pTchgLCut(), pT2chgLCut(), pTweakCut(), pT2weakCut(), mMaxGamma(),
-    m2MaxGamma(), octetOniumFraction(), octetOniumColFac(), mZ(), gammaZ(),
-    thetaWRat(), mW(), gammaW(), CFHV(), nFlavHV(), alphaHVfix(), LambdaHV(),
+    brokenHVsym(), setLambdaHV(), globalRecoil(), useLocalRecoilNow(),
+    doSecondHard(), hasUserHooks(), singleWeakEmission(), alphaSuseCMW(),
+    vetoWeakJets(), allowMPIdipole(), weakExternal(), recoilDeadCone(),
+    doDipoleRecoil(), doPartonVertex(), pTmaxMatch(), pTdampMatch(),
+    alphaSorder(), alphaSnfmax(), nGluonToQuark(), weightGluonToQuark(),
+    alphaEMorder(), nGammaToQuark(), nGammaToLepton(), nCHV(), nFlavHV(),
+    idHV(), alphaHVorder(), nMaxGlobalRecoil(), weakMode(), pTdampFudge(),
+    mc(), mb(), m2c(), m2b(), renormMultFac(), factorMultFac(),
+    fixedFacScale2(), alphaSvalue(), alphaS2pi(), Lambda3flav(),
+    Lambda4flav(), Lambda5flav(), Lambda3flav2(), Lambda4flav2(),
+    Lambda5flav2(), scaleGluonToQuark(), extraGluonToQuark(), pTcolCutMin(),
+    pTcolCut(), pT2colCut(), pTchgQCut(), pT2chgQCut(), pTchgLCut(),
+    pT2chgLCut(), pTweakCut(), pT2weakCut(), mMaxGamma(), m2MaxGamma(),
+    octetOniumFraction(), octetOniumColFac(), mZ(), gammaZ(), thetaWRat(),
+    mW(), gammaW(), CFHV(), alphaHVfix(), alphaHVref(), LambdaHV(),
     pThvCut(), pT2hvCut(), mHV(), pTmaxFudgeMPI(), weakEnhancement(),
     vetoWeakDeltaR2(), twoHard(), dopTlimit1(), dopTlimit2(), dopTdamp(),
     pT2damp(), kRad(), kEmt(), pdfScale2(), doTrialNow(), canEnhanceEmission(),
     canEnhanceTrial(), canEnhanceET(), doUncertaintiesNow(), dipSel(),
     iDipSel(), nHard(), nFinalBorn(), nMaxGlobalBranch(), nGlobal(),
-    globalRecoilMode(), limitMUQ(), weakHardSize() { beamOffset = 0;}
+    globalRecoilMode(), limitMUQ(), weakHardSize() { beamOffset = 0; pdfMode = 0;
+    useSystems = true; }
 
   // Destructor.
   virtual ~SimpleTimeShower() override {}
@@ -180,12 +182,23 @@ public:
   // Provide the pT scale of the last branching in the above shower.
   virtual double pTLastInShower() override {return pTLastBranch;}
 
+  // Functions to directly extract the probability of no emission between two
+  // scales. These functions are not used in the Pythia core code, but can be
+  // used by external programs to interface with the shower directly.
+  double noEmissionProbability( double pTbegAll, double pTendAll, double m2dip,
+    int id, int type, double s = -1., double x = -1.) override;
+  double pTnext( vector<TimeDipoleEnd> dipEnds, Event event, double pTbegAll,
+    double pTendAll, double m2dip, int id, int type, double s = -1.,
+    double x = -1.);
+  int pdfMode;
+  bool useSystems;
+
 private:
 
   // Constants: could only be changed in the code itself.
   static const double MCMIN, MBMIN, SIMPLIFYROOT, XMARGIN, XMARGINCOMB,
-         TINYPDF, LARGEM2, THRESHM2, LAMBDA3MARGIN, WEAKPSWEIGHT, WG2QEXTRA,
-         REJECTFACTOR, PROBLIMIT;
+         TINYPDF, LARGEM2, THRESHM2, LAMBDA3MARGIN1ORD, LAMBDA3MARGIN2ORD,
+         WEAKPSWEIGHT, WG2QEXTRA, REJECTFACTOR, PROBLIMIT;
   static const int NLOOPMAX;
   // Rescatter: try to fix up recoil between systems
   static const bool   FIXRESCATTER, VETONEGENERGY;
@@ -202,26 +215,28 @@ private:
          doMEafterFirst, doPhiPolAsym, doPhiPolAsymHard, doInterleave,
          doInterleaveResDec, allowBeamRecoil, dampenBeamRecoil,
          recoilToColoured, useFixedFacScale, allowRescatter, canVetoEmission,
-         doHVshower, brokenHVsym, globalRecoil, useLocalRecoilNow,
+         doHVshower, brokenHVsym, setLambdaHV, globalRecoil, useLocalRecoilNow,
          doSecondHard, hasUserHooks, singleWeakEmission, alphaSuseCMW,
          vetoWeakJets, allowMPIdipole, weakExternal, recoilDeadCone,
          doDipoleRecoil, doPartonVertex;
+  int    pdfModeSave;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaSnfmax, nGluonToQuark,
          weightGluonToQuark, alphaEMorder, nGammaToQuark, nGammaToLepton,
-         nCHV, idHV, alphaHVorder, nMaxGlobalRecoil, weakMode;
+         nCHV, nFlavHV, idHV, alphaHVorder, nMaxGlobalRecoil, weakMode;
   double pTdampFudge, mc, mb, m2c, m2b, renormMultFac, factorMultFac,
          fixedFacScale2, alphaSvalue, alphaS2pi, Lambda3flav, Lambda4flav,
          Lambda5flav, Lambda3flav2, Lambda4flav2, Lambda5flav2,
          scaleGluonToQuark, extraGluonToQuark, pTcolCutMin, pTcolCut,
          pT2colCut, pTchgQCut, pT2chgQCut, pTchgLCut, pT2chgLCut,
          pTweakCut, pT2weakCut, mMaxGamma, m2MaxGamma, octetOniumFraction,
-         octetOniumColFac, mZ, gammaZ, thetaWRat, mW, gammaW, CFHV, nFlavHV,
-         alphaHVfix, LambdaHV, pThvCut, pT2hvCut, mHV, pTmaxFudgeMPI,
-         weakEnhancement, vetoWeakDeltaR2;
+         octetOniumColFac, mZ, gammaZ, thetaWRat, mW, gammaW, CFHV,
+         alphaHVfix, alphaHVref, LambdaHV, pThvCut, pT2hvCut, mHV,
+         pTmaxFudgeMPI, weakEnhancement, vetoWeakDeltaR2;
 
-  // alphaStrong and alphaEM calculations.
+  // alphaStrong, alphaEM and alpha_HV calculations.
   AlphaStrong alphaS;
   AlphaEM     alphaEM;
+  AlphaSUN    alphaHV;
 
   // Weak matrix elements used for corrections both of ISR and FSR.
   SimpleWeakShowerMEs  simpleWeakShowerMEs;

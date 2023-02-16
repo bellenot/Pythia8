@@ -105,7 +105,7 @@ The actual value is then regulated by the running to the scale
 <i>pT^2</i>, at which it is evaluated 
 <a name="anchor3"></a>
 <p/><code>mode&nbsp; </code><strong> MultipartonInteractions:alphaSorder &nbsp;</strong> 
- (<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
+ (<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
 The order at which <i>alpha_strong</i> runs at scales away from 
 <i>m_Z</i>. 
 <br/><code>option </code><strong> 0</strong> : zeroth order, i.e. <i>alpha_strong</i> is kept 
@@ -114,6 +114,8 @@ fixed.
 <br/><code>option </code><strong> 2</strong> : second order. Since other parts of the code do 
 not go to second order there is no strong reason to use this option, 
 but there is also nothing wrong with it.   
+<br/><code>option </code><strong> 3</strong> : third order, with the same comment as for second 
+order. The expression in the 2006 RPP is used here.   
    
  
 <p/> 
@@ -744,4 +746,4 @@ interactions.
 </body>
 </html>
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

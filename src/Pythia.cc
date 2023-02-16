@@ -1,5 +1,5 @@
 // Pythia.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -30,7 +30,7 @@ namespace Pythia8 {
 
 // The current Pythia (sub)version number, to agree with XML version.
 const double Pythia::VERSIONNUMBERHEAD = PYTHIA_VERSION;
-const double Pythia::VERSIONNUMBERCODE = 8.308;
+const double Pythia::VERSIONNUMBERCODE = 8.309;
 
 //--------------------------------------------------------------------------
 
@@ -497,7 +497,13 @@ bool Pythia::init() {
     if ( !heavyIonsPtr ) heavyIonsPtr = make_shared<Angantyr>(*this);
     registerPhysicsBase(*heavyIonsPtr);
     if ( hiHooksPtr ) heavyIonsPtr->setHIUserHooksPtr(hiHooksPtr);
-    if ( !heavyIonsPtr->init() ) doHeavyIons = false;
+    if ( !heavyIonsPtr->init() ) {
+      doHeavyIons = false;
+      isInit = false;
+      infoPrivate.errorMsg("Abort from Pythia::init: The heavy ion model"
+      "failed to initialize. Double check sanity of settings");
+      return false;
+    }
   }
 
   // Master choice of shower model.
@@ -627,7 +633,8 @@ bool Pythia::init() {
     boostType = 2;
     string lhefHeader  = word("Beams:LHEFheader");
     bool   readHeaders = flag("Beams:readLHEFheaders");
-    bool   setScales   = flag("Beams:setProductionScalesFromLHEF");
+    bool   setScales   = flag("Beams:setProductionScalesFromLHEF")
+      || flag("Beams:setDipoleShowerStartingScalesFromLHEF");
     bool   skipInit    = flag("Beams:newLHEFsameInit");
     int    nSkipAtInit = mode("Beams:nSkipLHEFatInit");
 
@@ -640,7 +647,7 @@ bool Pythia::init() {
       else if (!useExternal) {
         // Header is optional, so use NULL pointer to indicate no value.
         const char* cstring2 = (lhefHeader == "void")
-          ? NULL : lhefHeader.c_str();
+          ? nullptr : lhefHeader.c_str();
         lhaUpPtr = make_shared<LHAupLHEF>(&infoPrivate, cstring1, cstring2,
           readHeaders, setScales);
       }
@@ -1396,7 +1403,6 @@ bool Pythia::initKinematics() {
     // Find boost to rest frame.
     betaZ  = (pzA + pzB) / (eA + eB);
     gammaZ = (eA + eB) / eCM;
-    if (abs(betaZ) < 1e-10) boostType = 1;
   }
 
   // Completely general beam directions: find CM energy.
@@ -2370,6 +2376,8 @@ void Pythia::nextKinematics() {
     pAnow = Vec4( 0., 0.,  sqrtpos( eA*eA - mA*mA), eA);
     pBnow = Vec4( 0., 0., -sqrtpos( eB*eB - mB*mB), eB);
     eCM   = (pAnow + pBnow).mCalc();
+    betaZ  = (pAnow.pz() + pBnow.pz()) / (eA + eB);
+    gammaZ = (eA + eB) / eCM;
 
   // Variable three-momenta stored and energy calculated.
   } else if (frameType == 3) {
@@ -2683,7 +2691,7 @@ void Pythia::banner() {
        << " when interpreting results.           |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
-       << " |  |   Copyright (C) 2022 Torbjorn Sjostrand"
+       << " |  |   Copyright (C) 2023 Torbjorn Sjostrand"
        << "                                      |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"

@@ -154,6 +154,11 @@ particles at the specified eCM and with the specified masses.
 pick one option among vector of (positive) probabilities. 
 </method> 
  
+<method name="void Rndm::shuffle(vector&lt;T&gt;&amp; vec)"> 
+randomly shuffle a vector of objects (<code>type T</code>, i.e. any type, 
+templated method) according to the Fisher-Yates algorithm. 
+</method> 
+ 
 <method name="bool Rndm::dumpState(string fileName)"> 
 save the current state of the random number generator to a binary 
 file. This involves two integers and 100 double-precision numbers. 
@@ -189,4 +194,4 @@ to give a random number between 0 and 1.
  
 </chapter> 
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

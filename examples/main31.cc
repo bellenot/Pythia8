@@ -1,11 +1,11 @@
 // main31.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Keywords: matching; merging; powheg;
 
-// Example how to perform merging with POWHEG-BOX events,
+// Example how to perform matching with POWHEG-BOX events,
 // based on the code found in include/Pythia8Plugins/PowhegHooks.h.
 
 #include "Pythia8/Pythia.h"
@@ -22,25 +22,33 @@ int main() {
   // Load configuration file
   pythia.readFile("main31.cmnd");
 
-  // Read in main settings
+  // Read in main settings.
   int nEvent      = pythia.settings.mode("Main:numberOfEvents");
   int nError      = pythia.settings.mode("Main:timesAllowErrors");
-  // Read in key POWHEG merging settings
+  // Read in key POWHEG matching settings.
   int vetoMode    = pythia.settings.mode("POWHEG:veto");
   int MPIvetoMode = pythia.settings.mode("POWHEG:MPIveto");
   bool loadHooks  = (vetoMode > 0 || MPIvetoMode > 0);
+  // Read in shower settings.
+  int showerModel = pythia.settings.mode("PartonShowers:model");
 
-  // Add in user hooks for shower vetoing
+  // Add in user hooks for shower vetoing.
   shared_ptr<PowhegHooks> powhegHooks;
   if (loadHooks) {
 
-    // Set ISR and FSR to start at the kinematical limit
+    // Set showers to start at the kinematical limit.
     if (vetoMode > 0) {
-      pythia.readString("SpaceShower:pTmaxMatch = 2");
-      pythia.readString("TimeShower:pTmaxMatch = 2");
+      if (showerModel == 1 || showerModel == 3) {
+        // Pythia and Dire have separate settings for ISR and FSR.
+        pythia.readString("SpaceShower:pTmaxMatch = 2");
+        pythia.readString("TimeShower:pTmaxMatch = 2");
+      } else if (showerModel == 2) {
+        // Vincia only has one common setting for both ISR and FSR.
+        pythia.readString("Vincia:pTmaxMatch = 2");
+      }
     }
 
-    // Set MPI to start at the kinematical limit
+    // Set MPI to start at the kinematical limit.
     if (MPIvetoMode > 0) {
       pythia.readString("MultipartonInteractions:pTmaxMatch = 2");
     }
@@ -69,7 +77,7 @@ int main() {
       // Otherwise count event failure and continue/exit as necessary
       cout << "Warning: event " << iEvent << " failed" << endl;
       if (++iError == nError) {
-        cout << "Error: too many event failures.. exiting" << endl;
+        cout << "Error: too many event failures... exiting" << endl;
         break;
       }
 

@@ -8,6 +8,103 @@ PYTHIA 8.243 version, which was the starting point for PYTHIA
 compatibility. The main change is that C++11 is now assumed. 
 The impact on existing used code should be mild, however. 
  
+<h3>8.309: 16 February 2023</h3> 
+ 
+<ul> 
+<li>New functionality for aMC@NLO-Delta matching with a reduced number 
+of negative-weight events is introduced. This includes the possibility to 
+directly call shower Sudakov factors from a runtime interface to 
+Madgraph5_aMC@NLO. See documentation of new flag 
+<code>Merging:runtimeAMCATNLOInterface</code> on 
+<aloc href="CKKWLMerging">Merging</aloc> page for further info and 
+references.</li> 
+ 
+<li>The <code>PowhegHooks</code> now work with all three shower models 
+and automatically switch between the simple shower, Vincia, and Dire 
+based on the <code>PartonShowers:model</code> mode. 
+In addition, the option to set <code>POWHEG:nFinal = -1</code> has 
+been ported from 8.244 to allow the use of event files with a variable 
+number of real emissions.</li> 
+ 
+<li>The Angantyr model for ion collisions has been updated with 
+several possible nuclear geometries, suitable for light nuclei. 
+It is now possible to select a harmonic oscillator shell model for 
+nuclei with A &lt;= 16, and a Hulthen potential for deuterons. It is 
+also possible to read a nuclear configuration from an external file, 
+format given in the manual.</li> 
+ 
+<li>The documentation for ion collisions at 
+<aloc href="HeavyIons">Heavy Ions</aloc> in the HTML manual has been 
+extended.</li> 
+ 
+<li>Allow scattered lepton to appear in different positions of the event 
+record for remnant handling in externally generated DIS processes.</li> 
+ 
+<li>Enable generation of externally generated hard processes for 
+direct photoproduction.</li> 
+ 
+<li>The Hidden Valley scenarios have now been updated with options 
+that allow a second- or third-order running coupling in the shower, 
+see further 
+<aloc href="HiddenValleyProcesses">Hidden Valley Processes</aloc>. 
+A new <code>AlphaSUN</code> class implements the running for an 
+arbitrary <b>SU(N)</b> gauge group, neglecting flavour 
+thresholds. Thanks to Joshua Lockyer and Suchita Kulkarni for code 
+contributions.</li> 
+ 
+<li>Equation (9.5) in the 2006 RPP <ref>Yao06</ref> has erroneously 
+been taken as a second-order <ei>alpha_strong</ei> expression, 
+while actually it is a third-order one. This has been corrected, 
+with separate second- and third-order options now available for 
+matrix elements and showers. In practice the difference between 
+second- and third-order running is minor, and furthermore first-order 
+is default throughout.</li> 
+ 
+<li>Updated <code>fjcore</code> to version <ei>v3.4.0</ei> with minor 
+modifications to remove compiler warnings. This version is compiled 
+with limited thread safety, which is sufficient if "each thread is 
+independently processing an event" and should have "essentially no 
+speed overhead". For more details see the 
+<a href="https://fastjet.fr/all-releases.html">fjcore 
+documentation</a>. Thanks to Matteo Cacciari, Gavin Salam and Gregory 
+Soyez.</li> 
+ 
+<li>The <code>PythiaParallel</code> framework can now be used in the 
+Python interface, see <code>main162</code>. This required some small 
+changes to <code>PythiaParallel</code>, where callback functions now 
+pass a <code>Pythia</code> instance by pointer rather than 
+reference.</li> 
+ 
+<li>The <a href="../pdfdoc/worksheet8309.pdf" target="page">Worksheet</a> 
+has been updated and somewhat expanded.</li> 
+ 
+<li>Minor fix in the new color reconnection to protect against 
+out-of-bounds memory access.</li> 
+ 
+<li>Fixed a bug where changing beam energies with 
+<code>Beams:frameType = 2</code> gives wrong energies.</li> 
+ 
+<li>A fix for overestimate of photon flux from nuclei when applying 
+<ei>PDF:beam2gammaApprox = 2</ei> to make sure that the two applied 
+approximations separated at <ei>PDF:gammaFluxApprox2xCut</ei> match.</li> 
+ 
+<li>Fixed a bug related to boosts for initial-final dipoles when 
+performing parton showers.</li> 
+ 
+<li>Fixed an issue with <ei>tau</ei> decays interacting with the weak 
+shower. Thanks to Mattia Di Mauro for reporting the issue.</li> 
+ 
+<li>A templated method to shuffle contents of a vector, called 
+<code>shuffle</code>, has been added to the 
+<aloc href="RandomNumbers">Random numbers</aloc> machinery.</li> 
+ 
+<li>Small bug fix to avoid segmentation fault when parsing ALPGEN 
+input.</li> 
+ 
+<li>Tiny fix in <code>HepMC3</code> header to avoid compiler warnings 
+with GCC 12.2.</li> 
+</ul> 
+ 
 <h3>8.308: 16 November 2022</h3> 
  
 <ul> 
@@ -39,7 +136,7 @@ lepton-lepton collisions with unequal masses are correctly dealt with.</li>
 <li>Explicit bookkeeping of Hidden Valley (HV) colours in <b>SU(N)</b> 
 scenarios has been introduced. These colours can be accessed in the 
 event record, but are not shown by default. This allows for a more 
-robust tracking of HV colours in showers. Notaby a Higgs decay to a 
+robust tracking of HV colours in showers. Notably a Higgs decay to a 
 pair of HV gluons can now be handled, which used to be impossible. 
 The functionality of the <code>TimeShower:recoilToColoured</code> 
 switch is extended also to apply to the HV colours.</li> 
@@ -82,7 +179,7 @@ channel cannot be found in
 <code>ParticleDecays::decay()</code>. Thanks to K. Pedro for 
 suggesting this.</li> 
  
-<li>Added additional protection for Pythia intialization.</li> 
+<li>Added additional protection for Pythia initialization.</li> 
  
 <li>Fixed an issue in the <ei>tau</ei> decays which caused 
 segmentation faults when a <ei>tau nu</ei> final state is present in 
@@ -121,7 +218,7 @@ reference.</li>
 <li>New option with interpolation between the low-energy hadronic 
 cross sections, used for rescattering, and the more traditional 
 SaS/DL cross sections, used at high energies. The latter framework 
-has also been extended to include many more collinding hadron 
+has also been extended to include many more colliding hadron 
 pairs. The <code>Pythia::getSigmaTotal</code> and 
 <code>Pythia::getSigmaPartial</code> methods give the user direct 
 access to these cross sections. These extend and replace the 
@@ -158,7 +255,7 @@ initialization and storage of required coefficients. See further
 <li>Improved tracing of hidden-valley colours through a hidden-valley shower 
 evolution history, thereby avoiding problems for some topologies.</li> 
 <li>Introduced the possibility to bookkeep individual HV hadron types, 
-in particular HV-mesons, and thereby manange masses and decay 
+in particular HV-mesons, and thereby manage masses and decay 
 properties. The default remains the simpler scheme, where only a smaller set 
 of HV-hadron properties need to be defined. The detailed scenario also 
 involves a mass-dependent handling of the joining of hadronization chains, 
@@ -270,7 +367,7 @@ initializatoin.</li>
 <li>Fixed memory leaks in the <code>ColourReconnection</code> class.</li> 
  
 <li>Fixed some recent compiler warnings and errors; thanks to Mattias 
-Ellert</li> 
+Ellert.</li> 
  
 <li>Removed the deprecated <code>SubCollisionModel</code> called 
 <code>MultiRadial</code> from the heavy ion machinery.</li> 
@@ -1019,4 +1116,4 @@ so desired.</li>
  
 </chapter> 
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

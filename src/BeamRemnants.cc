@@ -1,5 +1,5 @@
 // BeamRemnants.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1016,23 +1016,49 @@ bool BeamRemnants::setOneRemnKinematics( Event& event) {
   // Identify remnant-side hadronic four-momentum and scattered lepton if DIS.
   int iLepScat = isDIS ? (beamOther[0].iPos() + 2) : -1;
 
-  // Definition of scattered lepton more intricate in the presence of QED
-  // radiation. For now, define highest energy lepton as scattered.
-  int iLepOut = particleDataPtr->isLepton(beamAPtr->id())
-              ? iBeamA + 2 + 2 : iBeamB + 2 + 2;
-  if ( !beamOther.isGamma()
-    && (iLepScat > event.size()-1
-    || !event[iLepOut].isLepton()
-    || !event[iLepScat].isLepton()
-    || !event[iLepScat].isFinal())) {
+  // In case of externally generated events the outgoing leptons might
+  // be found from different locations. Currently rely on highest-energy.
+  // Notice that isLepton also accounts for neutrinos.
+  if (infoPtr->isLHA() && isDIS) {
     double eMax = -1.0;
     for (int i = event.size()-1; i > 0 ; --i) {
-      if ( event[i].isFinal()
-        && event[iLepOut].id() == event[i].id()
-        && event[i].e() > eMax) {
+      if ( event[i].isFinal() && particleDataPtr->isLepton(event[i].id())
+           && event[i].e() > eMax) {
         iLepScat = i;
         eMax = event[i].e();
         break;
+      }
+    }
+
+    // Return error if no final-state leptons (neutrinos) found.
+    if (eMax < 0.) {
+      infoPtr->errorMsg("Error in BeamRemnants::setOneRemnKinematics:"
+                        "scattered lepton (neutrino) not found!");
+      return false;
+    }
+
+  // Rely on fixed locations in case of internally generated DIS events.
+  // Could be combined with the above treatment.
+  } else {
+
+    // Definition of scattered lepton more intricate in the presence of QED
+    // radiation. For now, define highest energy lepton as scattered.
+    int iLepOut = particleDataPtr->isLepton(beamAPtr->id())
+                ? iBeamA + 2 + 2 : iBeamB + 2 + 2;
+    if ( !beamOther.isGamma()
+         && (iLepScat > event.size()-1
+             || !event[iLepOut].isLepton()
+             || !event[iLepScat].isLepton()
+             || !event[iLepScat].isFinal())) {
+      double eMax = -1.0;
+      for (int i = event.size()-1; i > 0 ; --i) {
+        if ( event[i].isFinal()
+             && event[iLepOut].id() == event[i].id()
+             && event[i].e() > eMax) {
+          iLepScat = i;
+          eMax = event[i].e();
+          break;
+        }
       }
     }
   }

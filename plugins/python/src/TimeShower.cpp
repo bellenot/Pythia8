@@ -55,6 +55,7 @@
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
+#include <pybind11/functional.h>
 
 
 #ifndef BINDER_PYBIND11_TYPE_CASTER
@@ -435,6 +436,19 @@ struct PyCallBack_Pythia8_TimeShower : public Pythia8::TimeShower {
 		}
 		return TimeShower::enhanceFactor(a0);
 	}
+	double noEmissionProbability(double a0, double a1, double a2, int a3, int a4, double a5, double a6) override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::TimeShower *>(this), "noEmissionProbability");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1, a2, a3, a4, a5, a6);
+			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
+				static pybind11::detail::overload_caster_t<double> caster;
+				return pybind11::detail::cast_ref<double>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<double>(std::move(o));
+		}
+		return TimeShower::noEmissionProbability(a0, a1, a2, a3, a4, a5, a6);
+	}
 	void onInitInfoPtr() override { 
 		pybind11::gil_scoped_acquire gil;
 		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::TimeShower *>(this), "onInitInfoPtr");
@@ -801,6 +815,19 @@ struct PyCallBack_Pythia8_SpaceShower : public Pythia8::SpaceShower {
 		}
 		return SpaceShower::enhanceFactor(a0);
 	}
+	double noEmissionProbability(double a0, double a1, double a2, int a3, int a4, double a5, double a6) override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::SpaceShower *>(this), "noEmissionProbability");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1, a2, a3, a4, a5, a6);
+			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
+				static pybind11::detail::overload_caster_t<double> caster;
+				return pybind11::detail::cast_ref<double>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<double>(std::move(o));
+		}
+		return SpaceShower::noEmissionProbability(a0, a1, a2, a3, a4, a5, a6);
+	}
 	void onInitInfoPtr() override { 
 		pybind11::gil_scoped_acquire gil;
 		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::SpaceShower *>(this), "onInitInfoPtr");
@@ -925,6 +952,7 @@ void bind_Pythia8_TimeShower(std::function< pybind11::module &(std::string const
 		cl.def("allowedSplitting", (bool (Pythia8::TimeShower::*)(const class Pythia8::Event &, int, int)) &Pythia8::TimeShower::allowedSplitting, "C++: Pythia8::TimeShower::allowedSplitting(const class Pythia8::Event &, int, int) --> bool", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("getRecoilers", (class std::vector<int, class std::allocator<int> > (Pythia8::TimeShower::*)(const class Pythia8::Event &, int, int, std::string)) &Pythia8::TimeShower::getRecoilers, "C++: Pythia8::TimeShower::getRecoilers(const class Pythia8::Event &, int, int, std::string) --> class std::vector<int, class std::allocator<int> >", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("enhanceFactor", (double (Pythia8::TimeShower::*)(const std::string &)) &Pythia8::TimeShower::enhanceFactor, "C++: Pythia8::TimeShower::enhanceFactor(const std::string &) --> double", pybind11::arg("name"));
+		cl.def("noEmissionProbability", (double (Pythia8::TimeShower::*)(double, double, double, int, int, double, double)) &Pythia8::TimeShower::noEmissionProbability, "C++: Pythia8::TimeShower::noEmissionProbability(double, double, double, int, int, double, double) --> double", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("assign", (class Pythia8::TimeShower & (Pythia8::TimeShower::*)(const class Pythia8::TimeShower &)) &Pythia8::TimeShower::operator=, "C++: Pythia8::TimeShower::operator=(const class Pythia8::TimeShower &) --> class Pythia8::TimeShower &", pybind11::return_value_policy::reference, pybind11::arg(""));
 	}
 	{ // Pythia8::DecayHandler file:Pythia8/ParticleDecays.h line:31
@@ -994,6 +1022,7 @@ void bind_Pythia8_TimeShower(std::function< pybind11::module &(std::string const
 		cl.def("allowedSplitting", (bool (Pythia8::SpaceShower::*)(const class Pythia8::Event &, int, int)) &Pythia8::SpaceShower::allowedSplitting, "C++: Pythia8::SpaceShower::allowedSplitting(const class Pythia8::Event &, int, int) --> bool", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("getRecoilers", (class std::vector<int, class std::allocator<int> > (Pythia8::SpaceShower::*)(const class Pythia8::Event &, int, int, std::string)) &Pythia8::SpaceShower::getRecoilers, "C++: Pythia8::SpaceShower::getRecoilers(const class Pythia8::Event &, int, int, std::string) --> class std::vector<int, class std::allocator<int> >", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("enhanceFactor", (double (Pythia8::SpaceShower::*)(const std::string &)) &Pythia8::SpaceShower::enhanceFactor, "C++: Pythia8::SpaceShower::enhanceFactor(const std::string &) --> double", pybind11::arg("name"));
+		cl.def("noEmissionProbability", (double (Pythia8::SpaceShower::*)(double, double, double, int, int, double, double)) &Pythia8::SpaceShower::noEmissionProbability, "C++: Pythia8::SpaceShower::noEmissionProbability(double, double, double, int, int, double, double) --> double", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("assign", (class Pythia8::SpaceShower & (Pythia8::SpaceShower::*)(const class Pythia8::SpaceShower &)) &Pythia8::SpaceShower::operator=, "C++: Pythia8::SpaceShower::operator=(const class Pythia8::SpaceShower &) --> class Pythia8::SpaceShower &", pybind11::return_value_policy::reference, pybind11::arg(""));
 	}
 }

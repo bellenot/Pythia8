@@ -17,6 +17,7 @@
 #include <Pythia8/PhaseSpace.h>
 #include <Pythia8/PhysicsBase.h>
 #include <Pythia8/Pythia.h>
+#include <Pythia8/PythiaParallel.h>
 #include <Pythia8/ResonanceWidths.h>
 #include <Pythia8/Settings.h>
 #include <Pythia8/SharedPointers.h>
@@ -29,6 +30,7 @@
 #include <Pythia8/UserHooks.h>
 #include <Pythia8/Weights.h>
 #include <functional>
+#include <ios>
 #include <istream>
 #include <iterator>
 #include <map>
@@ -36,6 +38,7 @@
 #include <ostream>
 #include <set>
 #include <sstream> // __str__
+#include <streambuf>
 #include <string>
 #include <utility>
 #include <vector>
@@ -49,6 +52,7 @@
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
+#include <pybind11/functional.h>
 
 
 #ifndef BINDER_PYBIND11_TYPE_CASTER
@@ -694,8 +698,37 @@ struct PyCallBack_Pythia8_HeavyIons_InfoGrabber : public Pythia8::HeavyIons::Inf
 	}
 };
 
-void bind_Pythia8_HeavyIons(std::function< pybind11::module &(std::string const &namespace_) > &M)
+void bind_Pythia8_PythiaParallel(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
+	{ // Pythia8::PythiaParallel file:Pythia8/PythiaParallel.h line:18
+		pybind11::class_<Pythia8::PythiaParallel, std::shared_ptr<Pythia8::PythiaParallel>> cl(M("Pythia8"), "PythiaParallel", "");
+		pybind11::handle cl_type = cl;
+
+		cl.def( pybind11::init( [](){ return new Pythia8::PythiaParallel(); } ), "doc" );
+		cl.def( pybind11::init( [](class std::basic_string<char> const & a0){ return new Pythia8::PythiaParallel(a0); } ), "doc" , pybind11::arg("xmlDir"));
+		cl.def( pybind11::init<std::string, bool>(), pybind11::arg("xmlDir"), pybind11::arg("printBanner") );
+
+		cl.def("readString", [](Pythia8::PythiaParallel &o, class std::basic_string<char> const & a0) -> bool { return o.readString(a0); }, "", pybind11::arg("setting"));
+		cl.def("readString", (bool (Pythia8::PythiaParallel::*)(std::string, bool)) &Pythia8::PythiaParallel::readString, "C++: Pythia8::PythiaParallel::readString(std::string, bool) --> bool", pybind11::arg("setting"), pybind11::arg("warn"));
+		cl.def("readFile", [](Pythia8::PythiaParallel &o, class std::basic_string<char> const & a0) -> bool { return o.readFile(a0); }, "", pybind11::arg("fileName"));
+		cl.def("readFile", [](Pythia8::PythiaParallel &o, class std::basic_string<char> const & a0, bool const & a1) -> bool { return o.readFile(a0, a1); }, "", pybind11::arg("fileName"), pybind11::arg("warn"));
+		cl.def("readFile", (bool (Pythia8::PythiaParallel::*)(std::string, bool, int)) &Pythia8::PythiaParallel::readFile, "C++: Pythia8::PythiaParallel::readFile(std::string, bool, int) --> bool", pybind11::arg("fileName"), pybind11::arg("warn"), pybind11::arg("subrun"));
+		cl.def("readFile", (bool (Pythia8::PythiaParallel::*)(std::string, int)) &Pythia8::PythiaParallel::readFile, "C++: Pythia8::PythiaParallel::readFile(std::string, int) --> bool", pybind11::arg("fileName"), pybind11::arg("subrun"));
+		cl.def("readFile", [](Pythia8::PythiaParallel &o) -> bool { return o.readFile(); }, "");
+		cl.def("readFile", [](Pythia8::PythiaParallel &o, class std::basic_istream<char> & a0) -> bool { return o.readFile(a0); }, "", pybind11::arg("is"));
+		cl.def("readFile", [](Pythia8::PythiaParallel &o, class std::basic_istream<char> & a0, bool const & a1) -> bool { return o.readFile(a0, a1); }, "", pybind11::arg("is"), pybind11::arg("warn"));
+		cl.def("readFile", (bool (Pythia8::PythiaParallel::*)(class std::basic_istream<char> &, bool, int)) &Pythia8::PythiaParallel::readFile, "C++: Pythia8::PythiaParallel::readFile(class std::basic_istream<char> &, bool, int) --> bool", pybind11::arg("is"), pybind11::arg("warn"), pybind11::arg("subrun"));
+		cl.def("readFile", (bool (Pythia8::PythiaParallel::*)(class std::basic_istream<char> &, int)) &Pythia8::PythiaParallel::readFile, "C++: Pythia8::PythiaParallel::readFile(class std::basic_istream<char> &, int) --> bool", pybind11::arg("is"), pybind11::arg("subrun"));
+		cl.def("init", (bool (Pythia8::PythiaParallel::*)()) &Pythia8::PythiaParallel::init, "C++: Pythia8::PythiaParallel::init() --> bool");
+		cl.def("init", (bool (Pythia8::PythiaParallel::*)(class std::function<bool (class Pythia8::Pythia *)>)) &Pythia8::PythiaParallel::init, "C++: Pythia8::PythiaParallel::init(class std::function<bool (class Pythia8::Pythia *)>) --> bool", pybind11::arg("additionalSetup"));
+		cl.def("foreach", (void (Pythia8::PythiaParallel::*)(class std::function<void (class Pythia8::Pythia *)>)) &Pythia8::PythiaParallel::foreach, "C++: Pythia8::PythiaParallel::foreach(class std::function<void (class Pythia8::Pythia *)>) --> void", pybind11::arg("action"));
+		cl.def("foreachAsync", (void (Pythia8::PythiaParallel::*)(class std::function<void (class Pythia8::Pythia *)>)) &Pythia8::PythiaParallel::foreachAsync, "C++: Pythia8::PythiaParallel::foreachAsync(class std::function<void (class Pythia8::Pythia *)>) --> void", pybind11::arg("action"));
+		cl.def("stat", (void (Pythia8::PythiaParallel::*)()) &Pythia8::PythiaParallel::stat, "C++: Pythia8::PythiaParallel::stat() --> void");
+		cl.def("run", (class std::vector<long, class std::allocator<long> > (Pythia8::PythiaParallel::*)(long, class std::function<void (class Pythia8::Pythia *)>)) &Pythia8::PythiaParallel::run, pybind11::call_guard<pybind11::gil_scoped_release>(), "C++: Pythia8::PythiaParallel::run(long, class std::function<void (class Pythia8::Pythia *)>) --> class std::vector<long, class std::allocator<long> >", pybind11::arg("nEvents"), pybind11::arg("callback"));
+		cl.def("run", (class std::vector<long, class std::allocator<long> > (Pythia8::PythiaParallel::*)(class std::function<void (class Pythia8::Pythia *)>)) &Pythia8::PythiaParallel::run, pybind11::call_guard<pybind11::gil_scoped_release>(), "C++: Pythia8::PythiaParallel::run(class std::function<void (class Pythia8::Pythia *)>) --> class std::vector<long, class std::allocator<long> >", pybind11::arg("callback"));
+		cl.def("sigmaGen", (double (Pythia8::PythiaParallel::*)() const) &Pythia8::PythiaParallel::sigmaGen, "C++: Pythia8::PythiaParallel::sigmaGen() const --> double");
+		cl.def("weightSum", (double (Pythia8::PythiaParallel::*)() const) &Pythia8::PythiaParallel::weightSum, "C++: Pythia8::PythiaParallel::weightSum() const --> double");
+	}
 	{ // Pythia8::HeavyIons file:Pythia8/HeavyIons.h line:31
 		pybind11::class_<Pythia8::HeavyIons, std::shared_ptr<Pythia8::HeavyIons>, PyCallBack_Pythia8_HeavyIons> cl(M("Pythia8"), "HeavyIons", "");
 		pybind11::handle cl_type = cl;

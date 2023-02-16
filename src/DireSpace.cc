@@ -1,5 +1,5 @@
 // DireSpace.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2023 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -341,7 +341,6 @@ bool DireSpace::limitPTmax( Event& event, double, double) {
   // Find whether to limit pT. Begin by user-set cases.
   bool dopTlimit = false;
   dopTlimit1 = dopTlimit2 = false;
-  int nHeavyCol = 0;
   if (pTmaxMatch == 1) dopTlimit = dopTlimit1 = dopTlimit2 = true;
 
   // Always restrict SoftQCD processes.
@@ -358,8 +357,6 @@ bool DireSpace::limitPTmax( Event& event, double, double) {
       else if (n21 == 0) {
         int idAbs = event[i].idAbs();
         if (idAbs <= 5 || idAbs == 21 || idAbs == 22) dopTlimit1 = true;
-        if ( (event[i].col() != 0 || event[i].acol() != 0)
-          && idAbs > 5 && idAbs != 21 ) ++nHeavyCol;
       } else if (n21 == 2) {
         int idAbs = event[i].idAbs();
         if (idAbs <= 5 || idAbs == 21 || idAbs == 22) dopTlimit2 = true;
@@ -592,11 +589,9 @@ void DireSpace::setupQCDdip( int iSys, int side, int colTag, int colSign,
 
   // Force maximal pT to LHEF scales tag value.
   double mups = infoPtr->getScalesAttribute("mups");
-  if ( abs(event[iRad].status()) > 20
+  if (!isnan(mups) && abs(event[iRad].status()) > 20
     && abs(event[iRad].status()) < 24
-    && settingsPtr->flag("Beams:setProductionScalesFromLHEF")
-    && !isnan(mups) )
-    pTmax = mups;
+    && settingsPtr->flag("Beams:setProductionScalesFromLHEF")) pTmax = mups;
 
   int colType  = (event[iRad].id() == 21) ? 2 * colSign : colSign;
   dipEnd.push_back( DireSpaceEnd( iSys, side, iRad, iPartner, pTmax, colType,
@@ -785,12 +780,10 @@ void DireSpace::saveSiblings(const Event& state, int iSys) {
     if (iSys > -1 && iSystem != iSys) continue;
 
     vector<int> q, qb, g;
-    int sizeSystem(partonSystemsPtr->sizeAll(iSystem)), nFinal(0);
+    int sizeSystem(partonSystemsPtr->sizeAll(iSystem));
     for ( int i = 0; i < sizeSystem; ++i) {
 
       int iPos = partonSystemsPtr->getAll(iSystem, i);
-      if ( state[iPos].isFinal()) nFinal++;
-
       if (!state[iPos].isFinal()
           && state[iPos].mother1() != 1
           && state[iPos].mother1() != 2) continue;
@@ -2499,7 +2492,7 @@ bool DireSpace::inAllowedPhasespace( int kinType, double z, double pT2,
     double kT2  = zbar*(1.-zbar)*m2r - (1-zbar)*saj - zbar*m2e;
 
     // Disallow kinematically impossible transverse momentum.
-    if (kT2 < 0. || isnan(kT2)) return false;
+    if (isnan(kT2) || kT2 < 0.) return false;
 
   // splitType ==-2 -> Massive 1->3 II
   } else {
@@ -2531,7 +2524,7 @@ bool DireSpace::inAllowedPhasespace( int kinType, double z, double pT2,
     double kT2  = zbar*(1.-zbar)*m2a - (1-zbar)*m2ai - zbar*m2i;
 
     // Disallow kinematically impossible transverse momentum.
-    if (kT2 < 0. || isnan(kT2)) return false;
+    if (isnan(kT2) || kT2 < 0.) return false;
 
     // Check "second" step.
     double m2rec = m2ai;
@@ -2553,7 +2546,7 @@ bool DireSpace::inAllowedPhasespace( int kinType, double z, double pT2,
     kT2         = zbar*(1.-zbar)*sij - (1.-zbar)*m2rad - zbar*m2emt;
 
     // Not possible to construct kinematics if kT2 < 0.0
-    if (kT2 < 0. || isnan(kT2)) return false;
+    if (isnan(kT2) || kT2 < 0.) return false;
 
   }
 
@@ -2995,7 +2988,7 @@ bool DireSpace::pT2nextQCD_II( double pT2begDip, double pT2sel,
     // More last resort.
     if (hasPDFdau && idDaughter == 21 && pdfScale2 == pT2min && pdfRatio>50.)
       pdfRatio = 0.;
-    if (isinf(pdfRatio) || isnan(pdfRatio)) pdfRatio = 0.;
+    if (isnan(pdfRatio) || isinf(pdfRatio)) pdfRatio = 0.;
 
     fullWeightNow  *= pdfRatio*jacobian;
 
@@ -3607,7 +3600,7 @@ bool DireSpace::pT2nextQCD_IF( double pT2begDip, double pT2sel,
 
     // More last resort.
     if (idDaughter == 21 && pdfScale2 < 1.01 && pdfRatio > 50.) pdfRatio = 0.;
-    if (std::isinf(pdfRatio) || std::isnan(pdfRatio)) pdfRatio = 0.;
+    if (isnan(pdfRatio) || isinf(pdfRatio)) pdfRatio = 0.;
 
     fullWeightNow  *= pdfRatio;
     for ( unordered_map<string,double>::iterator it = fullWeightsNow.begin();
@@ -4502,7 +4495,7 @@ bool DireSpace::branch_II( Event& event, bool trial,
     double kT2  = zbar*(1.-zbar)*m2a - (1-zbar)*m2ai - zbar*m2i;
 
     // Disallow kinematically impossible transverse momentum.
-    if (kT2 < 0. || isnan(kT2)) physical = false;
+    if (isnan(kT2) || kT2 < 0.) physical = false;
 
     // Now construct radiator in lab frame.
     Vec4 pa = (paj_tilde - m2aij/gABC(q2,m2aij,m2k)*pb_tilde)
@@ -5477,7 +5470,7 @@ bool DireSpace::branch_IF( Event& event, bool trial,
       double kT2  = zbar*(1.-zbar)*saj - (1-zbar)*m2e - zbar*m2r;
 
       // Disallow kinematically impossible transverse momentum.
-      if (kT2 < 0. || isnan(kT2)) physical = false;
+      if (isnan(kT2) || kT2 < 0.) physical = false;
 
       // Now construct recoiler in lab frame.
       Vec4 pRec( (pk_tilde - q*pk_tilde/q2*q)
@@ -5734,7 +5727,7 @@ bool DireSpace::branch_IF( Event& event, bool trial,
       double kT2   = zbar*(1.-zbar)*s_i_jk - (1-zbar)*m2i - zbar*m2jk;
 
       // Disallow kinematically impossible transverse momentum.
-      if (kT2 < 0. || isnan(kT2)) physical = false;
+      if (isnan(kT2) || kT2 < 0.) physical = false;
 
       // Now construct radiator in lab frame.
       Vec4 pa( ( pa12_tilde - 0.5*(q2-m2Bef-m2k)/q2par * qpar )
@@ -5998,7 +5991,7 @@ bool DireSpace::branch_IF( Event& event, bool trial,
       double kT2  = zbar*(1.-zbar)*m2ai - (1-zbar)*m2i - zbar*m2a;
 
       // Disallow kinematically impossible transverse momentum.
-      if (kT2 < 0. || isnan(kT2)) physical = false;
+      if (isnan(kT2) || kT2 < 0.) physical = false;
 
       // Now construct recoiler in lab frame.
       Vec4 pjk( (pb_tilde - q*pb_tilde/q2*q)
@@ -6548,7 +6541,6 @@ pair <Event, pair<int,int> > DireSpace::clustered_internal( const Event& state,
   outState.scaleSecond(mu);
   bool radAppended = false;
   bool recAppended = false;
-  int size = int(outState.size());
   // Save position of radiator in new event record
   int radPos(0), recPos(0);
 
@@ -6565,7 +6557,6 @@ pair <Event, pair<int,int> > DireSpace::clustered_internal( const Event& state,
     for(int i=0; i < int(state.size()); ++i)
       if (state[i].mother1() == 1) in1 =i;
     outState.append( state[in1] );
-    size++;
   }
   // Append second incoming particle
   if ( RecBefore.mother1() == 2) {
@@ -6581,7 +6572,6 @@ pair <Event, pair<int,int> > DireSpace::clustered_internal( const Event& state,
       if (state[i].mother1() == 2) in2 =i;
 
     outState.append( state[in2] );
-    size++;
   }
 
   // Append new recoiler if not done already

@@ -1,5 +1,5 @@
 // HIUserHooks.h is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -29,7 +29,7 @@ namespace Pythia8 {
 
 class Pythia;
 
-/// Forward declaration.
+// Forward declaration.
 class EventInfo;
 
 //==========================================================================
@@ -54,10 +54,10 @@ using namespace HIUnits;
 
 //==========================================================================
 
-/// The Nucleon class represent a nucleon in a nucleus. It has an id
-/// number (proton or neutron) an impact parameter position (absolute
-/// and relative to the nucleus center), a status and a state to be
-/// defined and used by a SubCollisionModel.
+// The Nucleon class represents a nucleon in a nucleus. It has an id
+// number (proton or neutron) an impact parameter position (absolute
+// and relative to the nucleus center), a status and a state to be
+// defined and used by a SubCollisionModel.
 
 class Nucleon {
 
@@ -65,113 +65,113 @@ class Nucleon {
 
 public:
 
-  /// Enum for specifying the status of a nucleon.
+  // Enum for specifying the status of a nucleon.
   enum Status {
-    UNWOUNDED = 0,  ///< The nucleon is not wounded.
-    ELASTIC = 1,    ///< The nucleon is elastically scattered.
-    DIFF = 2,       ///< The nucleon is diffractively wounded.
-    ABS = 3         ///< The nucleon is absorptively wounded.
+    UNWOUNDED = 0,  // The nucleon is not wounded.
+    ELASTIC = 1,    // The nucleon is elastically scattered.
+    DIFF = 2,       // The nucleon is diffractively wounded.
+    ABS = 3         // The nucleon is absorptively wounded.
   };
 
-  /// The state of a nucleon is a general vector of doubles.
+  // The state of a nucleon is a general vector of doubles.
   typedef vector<double> State;
 
-  /// The constuctor takes a particle id and a position in impact
-  /// parameter relative to the nucleus center as arguments.
+  // The constuctor takes a particle id and a position in impact
+  // parameter relative to the nucleus center as arguments.
   Nucleon(int idIn = 0, int indexIn = 0, const Vec4 & pos = Vec4())
     : idSave(idIn), indexSave(indexIn), nPosSave(pos), bPosSave(pos),
       statusSave(UNWOUNDED),eventp(0), isDone(0) {}
 
-  /// Accessor functions:
+  // Accessor functions:
 
-  /// The nucleon type.
+  // The particle id of the nucleon.
   int id() const { return idSave; }
 
-  /// The nucleon type.
+  // The index of the nucleon in the nucleus.
   int index() const { return indexSave; }
 
-  /// The position of this nucleon relative to the nucleus center.
+  // The position of this nucleon relative to the nucleus center.
   const Vec4 & nPos() const { return nPosSave; }
 
-  /// The absolute position in impact parameter space.
+  // The absolute position in impact parameter space.
   const Vec4 & bPos() const { return bPosSave; }
 
-  /// Shift the absolute position in impact parameter space.
-  const Vec4 & bShift(const Vec4 & bvec) { return bPosSave += bvec; }
+  // Shift the absolute position in impact parameter space.
+  void bShift(const Vec4 & bvec) { bPosSave += bvec; }
 
-  /// The status.
+  // The status of the nucleon.
   Status status() const { return statusSave; }
 
-  /// Check if nucleon has been assigned.
+  // Check if nucleon has been assigned.
   bool done() const { return isDone; }
 
-  /// The event this nucleon is assigned to.
+  // The event this nucleon is assigned to.
   EventInfo * event() const { return eventp; }
 
-  /// The physical state of the incoming nucleon.
+  // The physical state of the incoming nucleon.
   const State & state() const { return stateSave; }
 
-  /// Return an alternative state.
+  // Return an alternative state.
   const State & altState(int i = 0) {
     static State nullstate;
     return i < int(altStatesSave.size())? altStatesSave[i]: nullstate;
   }
 
-  /// Manipulating functions:
+  // Manipulating functions:
 
-  /// Set the status.
+  // Set the status.
   void status(Status s) { statusSave = s; }
 
-  /// Set the physical state.
+  // Set the physical state.
   void state(State s) { stateSave = s; }
 
-  /// Add an alternative state.
+  // Add an alternative state.
   void addAltState(State s) { altStatesSave.push_back(s); }
 
-  /// Select an event for this nucleon.
+  // Select an event for this nucleon.
   void select(EventInfo & evp, Status s) {
     eventp = &evp;
     isDone = true;
     status(s);
   }
 
-  /// Select this nucleon to be assigned to an event.
+  // Select this nucleon to be assigned to an event.
   void select() { isDone = true; }
 
-  /// Print out debugging information.
+  // Print out debugging information.
   void debug();
 
 private:
 
-  /// The type of nucleon.
+  // The type of nucleon.
   int idSave;
 
-  /// The index of this nucleon.
+  // The index of this nucleon.
   int indexSave;
 
-  /// The position in impact parameter relative to the nucleus center.
+  // The position in impact parameter relative to the nucleus center.
   Vec4 nPosSave;
 
-  /// The absolute position in impact parameter.
+  // The absolute position in impact parameter.
   Vec4 bPosSave;
 
-  /// The status.
+  // The status.
   Status statusSave;
 
-  /// The state of this nucleon.
+  // The state of this nucleon.
   State stateSave;
 
-  /// Alternative states to be used to understand fluctuations in the
-  /// state of this nucleon.
+  // Alternative states to be used to understand fluctuations in the
+  // state of this nucleon.
   vector<State> altStatesSave;
 
-  /// Pointer to the even this nucleon ends up in.
+  // Pointer to the event this nucleon ends up in.
   EventInfo * eventp;
 
-  /// True if this nuclein has been assigned to an event.
+  // True if this nucleon has been assigned to an event.
   bool isDone;
 
-  /// Reset the states and status.
+  // Reset the states and status.
   void reset() {
     statusSave = UNWOUNDED;
     altStatesSave.clear();
@@ -184,26 +184,26 @@ private:
 
 //==========================================================================
 
-/// SubCollision represents a possible collision between a projectile
-/// and a target Nucleon.
+// SubCollision represents a possible collision between a projectile
+// and a target Nucleon.
 
 class SubCollision {
 
 public:
 
-  /// This defines the type of a bunary nucleon collison.
-  enum Type {
-    NONE,       ///< This is not a collision.
-    ELASTIC,    ///< This is an elastic scattering
-    SDEP,       ///< The projectile is diffractively excited.
-    SDET,       ///< The target is diffractively excited.
-    DDE,        ///< Both projectile and target are diffractively excited.
-    CDE,        ///< Both excited but with central diffraction.
-    ABS         ///< This is an absorptive (non-diffractive) collision.
+  // This defines the type of a binary nucleon collison.
+  enum CollisionType {
+    NONE,       //< This is not a collision.
+    ELASTIC,    //< This is an elastic scattering
+    SDEP,       //< The projectile is diffractively excited.
+    SDET,       //< The target is diffractively excited.
+    DDE,        //< Both projectile and target are diffractively excited.
+    CDE,        //< Both excited but with central diffraction.
+    ABS         //< This is an absorptive (non-diffractive) collision.
   };
 
   SubCollision(Nucleon & projIn, Nucleon & targIn,
-               double bIn, double bpIn, Type typeIn)
+               double bIn, double bpIn, CollisionType typeIn)
     : proj(&projIn), targ(&targIn), b(bIn), bp(bpIn), type(typeIn) {}
 
   SubCollision()
@@ -222,51 +222,50 @@ public:
   // The projectile nucleon.
   Nucleon * proj;
 
-  /// The target nucleon.
+  // The target nucleon.
   Nucleon * targ;
 
-  /// The impact parameter distance between the nucleons in femtometer.
+  // The impact parameter distance between the nucleons in femtometer.
   double b;
 
-  /// The impact parameter distance between the nucleons scaled like
-  /// in Pythia to have unit average for non-diffractive collisions.
+  // The impact parameter distance between the nucleons scaled like
+  // in Pythia to have unit average for non-diffractive collisions.
   double bp;
 
-  /// The type of collison.
-  mutable Type type;
+  // The type of collision.
+  CollisionType type;
 
 };
 
 //==========================================================================
 
-/// This class generates the impact parameter distribution of nucleons
-/// in a nucleus.
+// This class generates the impact parameter distribution of nucleons
+// in a nucleus.
 
 class NucleusModel {
 
 public:
 
-  /// Default constructor giving the nucleis id and an optional
-  /// raduis (in femtometer).
-  NucleusModel()
-    : idSave(0), ISave(0), ASave(0), ZSave(0), LSave(0), RSave(0.0),
-      settingsPtr(0), particleDataPtr(0), rndPtr(0) {}
+  // Default constructor giving the nucleus id and an optional
+  // radius (in femtometer).
+  NucleusModel() : isProj(true), idSave(0), ISave(0), ASave(0),
+     ZSave(0), LSave(0), RSave(0.0), settingsPtr(0),
+     particleDataPtr(0), rndmPtr(0) {}
 
-  /// Virtual destructor.
+  // Virtual destructor.
   virtual ~NucleusModel() {}
 
-  /// Init method.
-  void initPtr(int idIn, Settings & settingsIn,
-               ParticleData & particleDataIn, Rndm & rndIn);
+  // Init method.
+  void initPtr(int idIn, bool isProjIn, Info& infoIn);
   virtual bool init();
 
-  virtual Particle produceIon(bool istarg);
+  virtual Particle produceIon();
 
-  /// Generate a vector of nucleons according to the implemented model
-  /// for a nucleus given by the PDG number.
+  // Generate a vector of nucleons according to the implemented model
+  // for a nucleus given by the PDG number.
   virtual vector<Nucleon> generate() const = 0;
 
-  /// Accessor functions.
+  // Accessor functions.
   int id() const { return idSave; }
   int I() const { return ISave; }
   int A() const { return ASave; }
@@ -276,67 +275,147 @@ public:
 
 protected:
 
-  /// The nucleus.
+  // Projectile or target
+  bool isProj;
+
+  // The nucleus.
   int idSave;
 
-  /// Cache information about the nucleus.
+  // Cache information about the nucleus.
   int ISave, ASave, ZSave, LSave;
 
-  /// The estimate of the nucleus radius.
+  // The estimate of the nucleus radius.
   double RSave;
 
-  /// Pointers to useful objects.
-  Settings * settingsPtr;
-  ParticleData * particleDataPtr;
-  Rndm * rndPtr;
+  // Pointers to useful objects.
+  Info* infoPtr;
+  Settings* settingsPtr;
+  ParticleData* particleDataPtr;
+  Rndm* rndmPtr;
 
 };
 
 //==========================================================================
 
-/// A general Woods-Saxon distributed nucleus.
+// A nucleus model defined by an external file to be read in, containing
+// x,y,z coordinates of the nucleons.
 
-class WoodsSaxonModel: public NucleusModel {
+class ExternalNucleusModel : public NucleusModel {
 
 public:
 
-  /// The default constructor needs a nucleus id, a radius, R, and a
-  /// "skin width", a (both length in femtometers).
-  WoodsSaxonModel(): aSave(0.0), intlo(0.0),
-                    inthi0(0.0), inthi1(0.0), inthi2(0.0) {}
+  ExternalNucleusModel() : fName(""), doShuffle(true), nUsed(0) {}
 
-  /// Accessor functions:
-  double a() const { return aSave; }
+  // Initialize class. Read in file to buffer.
+  bool init() override;
 
-protected:
+  // Generate a vector of nucleons according to the implemented model
+  // for a nucleus given by the PDG number.
+  vector<Nucleon> generate() const override;
 
-  /// Generate the position of a single nucleon. (The time component
-  /// is always zero).
-  Vec4 generateNucleon() const;
+private:
 
-  /// Virtual destructor.
-  virtual ~WoodsSaxonModel() {}
+  // The filename to read from.
+  string fName;
 
-  /// Setup the generation with a given nucleus radius, R, and a "skin
-  /// width", a (both length in femtometers).
-  virtual bool init() {
-    intlo = R()*R()*R()/3.0;
-    inthi0 = a()*R()*R();
-    inthi1 = 2.0*a()*a()*R();
-    inthi2 = 2.0*a()*a()*a();
-    return NucleusModel::init();
+  // Shuffle configurations.
+  bool doShuffle;
+
+  // The read nucleon configurations. Time component is always zero.
+  mutable vector<vector<Vec4> > nucleonPositions;
+
+  // The number of configurations used so far.
+  mutable size_t nUsed;
+};
+
+//==========================================================================
+
+// A NucleusModel which allows for a hard core, optionally a Gaussian
+// hard core. This is an abstract class intended as a base class for
+// models with this functionality.
+
+class HardCoreModel : public NucleusModel {
+
+public:
+
+  HardCoreModel() : useHardCore(), gaussHardCore(), hardCoreRadius(0.9) {}
+
+  // Abstract destructor.
+  virtual ~HardCoreModel() { }
+
+  // Initialize the parameters for hard core generation.
+  // To be called in init() in derived classes.
+  void initHardCore();
+
+  // Get the radius of the hard core. If using a Gaussian hard core, the
+  // radius is distributed according to a 1D Gaussian.
+  double rSample() const {
+    if (gaussHardCore) return hardCoreRadius * abs(rndmPtr->gauss());
+    return hardCoreRadius;
+
   }
 
 protected:
 
-  /// The nucleus radius, skin depth parameter, and hard core nucleon
-  /// radius..
+  // Use the hard core or not.
+  bool useHardCore;
+
+  // Use a Gaussian hard core.
+  bool gaussHardCore;
+
+  // The radius or width of the hard core.
+  double hardCoreRadius;
+
+};
+
+//==========================================================================
+
+// A general Woods-Saxon distributed nucleus.
+
+class WoodsSaxonModel : public HardCoreModel {
+
+public:
+
+  // Virtual destructor.
+  virtual ~WoodsSaxonModel() {}
+
+  // The default constructor needs a nucleus id, a radius, R, and a
+  // "skin width", a (both length in femtometers).
+  WoodsSaxonModel(): aSave(0.0), intlo(0.0),
+                    inthi0(0.0), inthi1(0.0), inthi2(0.0) {}
+
+  // Initialize parameters.
+  bool init() override;
+
+  // Generate all the nucleons.
+  vector<Nucleon> generate() const override;
+
+  // Accessor functions:
+  double a() const { return aSave; }
+
+protected:
+
+  // Generate the position of a single nucleon. (The time component
+  // is always zero).
+  Vec4 generateNucleon() const;
+
+  // Calculate overestimates for sampling.
+  void overestimates() {
+    intlo = R()*R()*R()/3.0;
+    inthi0 = a()*R()*R();
+    inthi1 = 2.0*a()*a()*R();
+    inthi2 = 2.0*a()*a()*a();
+  }
+
+protected:
+
+  // The nucleus radius, skin depth parameter, and hard core nucleon radius.
   double aSave;
 
 private:
 
-  /// Cashed integrals over the different parts of the over estimating
-  /// functions.
+  // Cashed integrals over the different parts of the over estimating
+  // functions.
   double intlo, inthi0, inthi1, inthi2;
 
 };
@@ -344,127 +423,244 @@ private:
 
 //==========================================================================
 
-/// The GLISSANDOModel has a specific parameteraization of a
-/// Wood-Saxon potential for A>16 and is described in asXiv:1310.5475
-/// [nucl-th].
+// The GLISSANDOModel is a specific parameterization of a Woods-Saxon
+// potential for A>16. It is described in arXiv:1310.5475 [nucl-th].
 
-class GLISSANDOModel: public WoodsSaxonModel {
+class GLISSANDOModel : public WoodsSaxonModel {
 
 public:
 
-  /// Default constructor.
-  GLISSANDOModel(): RhSave(0.0), gaussHardCore(false) {}
+  // Default constructor.
+  GLISSANDOModel() {}
 
-  /// Virtual destructor.
+  // Virtual destructor.
   virtual ~GLISSANDOModel() {}
 
-  /// Initialize.
-  bool init();
-
-  /// Generate a vector of nucleons according to the implemented model
-  /// for a nucleus given by the PDG number.
-  virtual vector<Nucleon> generate() const;
-
-  /// Accessor functions.
-  double Rh() const { return RhSave; }
-
-  double RhGauss() const { return RhSave*abs(rndPtr->gauss()); };
-
-private:
-
-  /// The hard core radius;
-  double RhSave;
-
-  /// Option to use a Gaussian hard core instead of a sharp one.
-  bool gaussHardCore;
+  // Initialize.
+  bool init() override;
 
 };
 
 //==========================================================================
 
-/// Forward Declarations
+// A Harmonic-Oscillator Shell model for light nuclei.
+
+class HOShellModel : public HardCoreModel {
+
+public:
+
+  // Default constructor.
+  HOShellModel(): nucleusChR(), protonChR(), C2() {}
+
+  // Destructor.
+  virtual ~HOShellModel() {}
+
+  // Initialize, set up parameters.
+  virtual bool init() override;
+
+  // Generate a vector of nucleons according to the implemented model
+  // for a nucleus given by the PDG number.
+  virtual vector<Nucleon> generate() const override;
+
+protected:
+
+  // Generate the position of a single nucleon. (The time component
+  // is always zero).
+  virtual Vec4 generateNucleon() const;
+
+  // The density function.
+  double rho(double r) const {
+    double pref = 4./(pow(sqrt(M_PI * C2),3)) * (1 + (A() - 4.)/6. * r*r/C2);
+    return pref * exp(-r*r / C2);
+  };
+
+  // Nucleus charge radius.
+  double nucleusChR;
+
+  // Nucleon charge radius.
+  double protonChR;
+
+  // C2 parameter.
+  double C2;
+
+  // Maximum rho for these parameters.
+  double rhoMax;
+
+};
+
+//==========================================================================
+
+// The Hulthen potential for deuterons.
+
+class HulthenModel : public NucleusModel {
+
+public:
+
+  // Default constructor.
+  HulthenModel(): hA(), hB() {}
+
+  // Virtual destructor.
+  virtual ~HulthenModel() {}
+
+  virtual bool init() override;
+
+  // Generate a vector of nucleons according to the Hulthen potential.
+  virtual vector<Nucleon> generate() const override;
+
+protected:
+
+  // The (normalized) density function.
+  double rho(double r) const {
+    double pref = (2*hA*hB*(hA + hB))/pow2(hA - hB);
+    double exps = exp(-2.*hA*r) + exp(-2.*hB*r) - 2.*exp(-(hA+hB)*r);
+    return pref * exps;
+  };
+
+  // Parameters of the Hulthen model.
+  double hA;
+  double hB;
+
+};
+
+//==========================================================================
+
+// A Gaussian distribution for light nuclei.
+
+class GaussianModel : public HardCoreModel {
+
+public:
+
+  // Default constructor.
+  GaussianModel(): nucleusChR() {}
+
+  // Destructor.
+  virtual ~GaussianModel() {}
+
+  virtual bool init() override;
+
+  // Generate a vector of nucleons according to the implemented model
+  // for a nucleus given by the PDG number.
+  virtual vector<Nucleon> generate() const override;
+
+protected:
+
+  // Generate the position of a single nucleon. (The time component
+  // is always zero).
+  virtual Vec4 generateNucleon() const;
+
+  // Nucleus charge radius.
+  double nucleusChR;
+
+};
+
+//==========================================================================
+
+// A model for nuclei clustered in smaller nuclei.
+
+class ClusterModel : public HardCoreModel {
+
+public:
+  // Contructor.
+  ClusterModel() {}
+
+  // Virtual destructor.
+  virtual ~ClusterModel() { }
+
+  // Initialize parameters.
+  virtual bool init() override;
+
+  // Generate a vector of nucleons. Note that this model
+  // is only implemented for XX, YY ZZ.
+  virtual vector<Nucleon> generate() const override;
+
+private:
+
+  // The model to generate clusters from.
+  unique_ptr<NucleusModel> nModelPtr;
+};
+
+//==========================================================================
+
+// Forward Declarations
 class SubCollisionModel;
 class NucleusModel;
 
-/// ImpactParameterGenerator is able to generate a specific impact
-/// parameter together with a weight such that aweighted average over
-/// any quantity X(b) corresponds to the infinite integral over d^2b
-/// X(b). This base class gives a Gaussian profile, d^2b exp(-b^2/2w^2).
+// ImpactParameterGenerator is able to generate a specific impact
+// parameter together with a weight such that aweighted average over
+// any quantity X(b) corresponds to the infinite integral over d^2b
+// X(b). This base class gives a Gaussian profile, d^2b exp(-b^2/2w^2).
 
 class ImpactParameterGenerator {
 
 public:
 
-  /// The default constructor takes a gneral width (in femtometers) as
-  /// argument.
+  // The default constructor takes a gneral width (in femtometers) as
+  // argument.
   ImpactParameterGenerator()
     : widthSave(0.0), collPtr(0), projPtr(0), targPtr(0),
-      settingsPtr(0), rndPtr(0) {}
+      settingsPtr(0), rndmPtr(0) {}
 
-   /// Virtual destructor.
+   // Virtual destructor.
   virtual ~ImpactParameterGenerator() {}
 
-  /// Virtual init method.
+  // Virtual init method.
   virtual bool init();
-  void initPtr(SubCollisionModel & collIn,
-               NucleusModel & projIn,
-               NucleusModel & targIn,
-               Settings & settingsIn,
-               Rndm & rndIn);
+  void initPtr(Info & infoIn, SubCollisionModel & collIn,
+    NucleusModel & projIn, NucleusModel & targIn);
 
-  /// Return a new impact parameter and set the corresponding weight
-  /// provided.
+  // Return a new impact parameter and set the corresponding weight provided.
   virtual Vec4 generate(double & weight) const;
 
-  /// Set the width (in femtometers).
+  // Set the width (in femtometers).
   void width(double widthIn) { widthSave = widthIn; }
 
-  /// Get the width.
+  // Get the width.
   double width() const { return widthSave; }
 
 private:
 
-  /// The width of a distribution.
+  // The width of a distribution.
   double widthSave;
 
 protected:
 
-  /// Info from the controlling HeavyIons object
+  // Info from the controlling HeavyIons object
+  Info * infoPtr;
   SubCollisionModel * collPtr;
   NucleusModel * projPtr;
   NucleusModel * targPtr;
   Settings * settingsPtr;
-  Rndm * rndPtr;
+  Rndm * rndmPtr;
 
 };
 
 
 //==========================================================================
 
-/// The SubCollisionModel is is able to model the collision between two
-/// nucleons to tell which type of collision has occurred. The model
-/// may manipulate the corresponing state of the nucleons.
+// The SubCollisionModel is is able to model the collision between two
+// nucleons to tell which type of collision has occurred. The model
+// may manipulate the corresponding state of the nucleons.
 
 class SubCollisionModel {
 
 public:
 
-  /// Internal class to report cross section estimates.
+  // Internal class to report cross section estimates.
   struct SigEst {
-    /// The cross sections (tot, nd, dd, sdp, sdt, cd, el, bslope).
+    // The cross sections (tot, nd, dd, sdp, sdt, cd, el, bslope).
     vector<double> sig;
 
-    /// The extimated error (squared)
+    // The estimated error (squared)
     vector<double> dsig2;
 
-    /// Which cross sections were actually fitted
+    // Which cross sections were actually fitted
     vector<bool> fsig;
 
-    /// The estimate of the average (and squared error) impact
-    /// parameter for inelastic non-diffractive collisions.
+    // The estimate of the average (and squared error) impact
+    // parameter for inelastic non-diffractive collisions.
     double avNDb, davNDb2;
 
-    /// Constructor for zeros.
+    // Constructor for zeros.
     SigEst(): sig(8, 0.0), dsig2(8, 0.0), fsig(8, false),
               avNDb(0.0), davNDb2(0.0) {}
 
@@ -472,93 +668,91 @@ public:
 
 public:
 
-  /// The default constructor is empty.
+  // The default constructor is empty.
   SubCollisionModel(): sigTarg(8, 0.0), sigErr(8, 0.05), NInt(100000),
     NGen(20), NPop(20), sigFuzz(0.2), fitPrint(true), avNDb(1.0*femtometer),
-    projPtr(), targPtr(), sigTotPtr(), settingsPtr(), infoPtr(), rndPtr() {}
+    projPtr(), targPtr(), sigTotPtr(), settingsPtr(), infoPtr(), rndmPtr() {}
 
-  /// Virtual destructor,
+  // Virtual destructor.
   virtual ~SubCollisionModel() {}
 
-  /// Virtual init method.
+  // Virtual init method.
   virtual bool init();
 
   void initPtr(NucleusModel & projIn, NucleusModel & targIn,
                SigmaTotal & sigTotIn, Settings & settingsIn,
-               Info & infoIn, Rndm & rndIn) {
+               Info & infoIn, Rndm & rndmIn) {
     projPtr = &projIn;
     targPtr = &targIn;
     sigTotPtr = &sigTotIn;
     settingsPtr = &settingsIn;
     infoPtr = &infoIn;
-    rndPtr = & rndIn;
+    rndmPtr = & rndmIn;
   }
 
-  /// Take two vectors of Nucleons and an impact parameter vector and
-  /// produce the corrsponding sub-collisions. Note that states of the
-  /// nucleons may be changed. The function in this abstract base
-  /// class will reset the nucleon states for convenience. The
-  /// sub-collisions are ordered in the impact parameter distance
-  /// between the nucleons. The T-variable will be set to the summed
-  /// elastic amplityde.
+  // Take two vectors of Nucleons and an impact parameter vector and
+  // produce the corrsponding sub-collisions. Note that states of the
+  // nucleons may be changed. The function in this abstract base
+  // class will reset the nucleon states for convenience. The
+  // sub-collisions are ordered in the impact parameter distance
+  // between the nucleons. The T-variable will be set to the summed
+  // elastic amplitude.
   virtual multiset<SubCollision> getCollisions(vector<Nucleon> & proj,
                                                vector<Nucleon> & targ,
                                                const Vec4 & bvec,
                                                double & T) = 0;
 
-  /// Access the nucleon-nucleon cross sections assumed
-  /// for this model.
+  // Access the nucleon-nucleon cross sections assumed
+  // for this model.
 
-  /// The total cross section.
-  double sigTot() const {
-    return sigTarg[0];
-  }
+  // The total cross section.
+  double sigTot() const { return sigTarg[0]; }
 
-  /// The total cross section.
+  // The elastic cross section.
   double sigEl() const { return sigTarg[6]; }
 
-  /// The central diffractive excitation cross section.
+  // The central diffractive excitation cross section.
   double sigCDE() const { return sigTarg[5]; }
 
-  /// The single diffractive excitation cross section (both sides summed).
+  // The single diffractive excitation cross section (both sides summed).
   double sigSDE() const { return sigTarg[3] + sigTarg[4]; }
 
-  /// The single diffractive excitation cross section (excited projectile).
+  // The single diffractive excitation cross section (excited projectile).
   double sigSDEP() const { return sigTarg[3]; }
 
-  /// The single diffractive excitation cross section (excited target).
+  // The single diffractive excitation cross section (excited target).
   double sigSDET() const { return sigTarg[4]; }
 
-  /// The double diffractive excitation cross section.
+  // The double diffractive excitation cross section.
   double sigDDE() const { return sigTarg[2]; }
 
-  /// The non-diffractive (absorptive) cross section.
+  // The non-diffractive (absorptive) cross section.
   double sigND() const { return sigTarg[1]; }
 
-  /// The elastic b-slope parameter.
+  // The elastic b-slope parameter.
   double bSlope() const { return sigTarg[7]; }
 
-  /// Calculate the cross sections for the given set of parameters.
+  // Calculate the cross sections for the given set of parameters.
   virtual SigEst getSig() const {
     return SigEst();
   }
 
-  /// Return the average non-diffractive impact parameter.
+  // Return the average non-diffractive impact parameter.
   double avNDB() const {
     return avNDb;
   }
 
-  /// Calculate the Chi2 for the given cross section estimates.
+  // Calculate the Chi2 for the given cross section estimates.
   double Chi2(const SigEst & sigs, int npar) const;
 
-  /// Use a simlified genetic algorithm to fit the parameters.
+  // Use a simplified genetic algorithm to fit the parameters.
   virtual bool evolve();
 
-  /// Set the parameters of this model.
+  // Set the parameters of this model.
   virtual void setParm(const vector<double> &) {}
 
-  /// Return the current parameters and the minimum and maximum
-  /// allowed values for the parameters of this model.
+  // Return the current parameters and the minimum and maximum
+  // allowed values for the parameters of this model.
   virtual vector<double> getParm() const {
     return vector<double>();
   }
@@ -571,53 +765,52 @@ public:
 
 private:
 
-  /// The nucleon-nucleon cross sections targets for this model
-  /// (tot, nd, dd, sdp, sdt, cd, el, bslope) and the required precision.
+  // The nucleon-nucleon cross sections targets for this model
+  // (tot, nd, dd, sdp, sdt, cd, el, bslope) and the required precision.
   vector<double> sigTarg, sigErr;
 
 protected:
 
-  /// The parameters stearing the fitting of internal parameters to
-  /// the different nucleon-nucleon cross sections.
+  // The parameters stearing the fitting of internal parameters to
+  // the different nucleon-nucleon cross sections.
   int NInt, NGen, NPop;
   double sigFuzz;
   bool fitPrint;
 
-  /// The estimated average impact parameter distance (in femtometer)
-  /// for absorptive collisions.
+  // The estimated average impact parameter distance (in femtometer)
+  // for absorptive collisions.
   double avNDb;
 
-  /// Info from the controlling HeavyIons object
+  // Info from the controlling HeavyIons object
   NucleusModel * projPtr;
   NucleusModel * targPtr;
   SigmaTotal * sigTotPtr;
   Settings * settingsPtr;
   Info * infoPtr;
-  Rndm * rndPtr;
+  Rndm * rndmPtr;
 
 };
 
 
 //==========================================================================
 
-/// The most naive sub-collision model, asuming static nucleons and
-/// the absorptive cross section equal to the total inelastic. No
-///  fluctuations, meaning no diffraction.
+// The most naive sub-collision model, assuming static nucleons and
+// an absorptive cross section equal to the total inelastic. No
+// fluctuations, meaning no diffraction.
 
-class BlackSubCollisionModel: public SubCollisionModel {
+class BlackSubCollisionModel : public SubCollisionModel {
 
 public:
 
-  /// The default constructor simply lists the nucleon-nucleon cross
-  /// sections.
+  // The default constructor simply lists the nucleon-nucleon cross sections.
   BlackSubCollisionModel() {}
 
-  /// Virtual destructor,
+  // Virtual destructor.
   virtual ~BlackSubCollisionModel() {}
 
-  /// Take two vectors of Nucleons and an impact parameter vector and
-  /// produce the corrsponding sub-collisions. Note that states of the
-  /// nucleons may be changed.
+  // Take two vectors of Nucleons and an impact parameter vector and
+  // produce the corrsponding sub-collisions. Note that states of the
+  // nucleons may be changed.
   virtual multiset<SubCollision>
   getCollisions(vector<Nucleon> & proj, vector<Nucleon> & targ,
                 const Vec4 & bvec, double & T);
@@ -626,24 +819,23 @@ public:
 
 //==========================================================================
 
-/// A very simple sub-collision model, asuming static nucleons and
-/// just assuring that the individual nucleon-nucleon cross sections
-/// are preserved.
+// A very simple sub-collision model, assuming static nucleons and
+// just assuring that the individual nucleon-nucleon cross sections
+// are preserved.
 
-class NaiveSubCollisionModel: public SubCollisionModel {
+class NaiveSubCollisionModel : public SubCollisionModel {
 
 public:
 
-  /// The default constructor simply lists the nucleon-nucleon cross
-  /// sections.
+  // The default constructor simply lists the nucleon-nucleon cross sections.
   NaiveSubCollisionModel() {}
 
-  /// Virtual destructor,
+  // Virtual destructor.
   virtual ~NaiveSubCollisionModel() {}
 
-  /// Take two vectors of Nucleons and an impact parameter vector and
-  /// produce the corrsponding sub-collisions. Note that states of the
-  /// nucleons may be changed.
+  // Take two vectors of Nucleons and an impact parameter vector and
+  // produce the corrsponding sub-collisions. Note that states of the
+  // nucleons may be changed.
   virtual multiset<SubCollision>
   getCollisions(vector<Nucleon> & proj, vector<Nucleon> & targ,
                 const Vec4 & bvec, double & T);
@@ -652,32 +844,31 @@ public:
 
 //==========================================================================
 
-/// A more complicated model where each nucleon has a fluctuating
-/// "radius" according to a Strikman-inspired distribution.
+// A sub-collision model where each nucleon has a fluctuating
+// "radius" according to a Strikman-inspired distribution.
 
-class DoubleStrikman: public SubCollisionModel {
+class DoubleStrikman : public SubCollisionModel {
 
 public:
 
-  /// The default constructor simply lists the nucleon-nucleon cross
-  /// sections.
+  // The default constructor simply lists the nucleon-nucleon cross sections.
   DoubleStrikman(int modein = 0)
     : r0(0.0), k0(4.0), sigd(75.0), alpha(0.5), opacityMode(modein) {}
 
-  /// Virtual destructor,
+  // Virtual destructor.
   virtual ~DoubleStrikman() {}
 
-  /// Take two vectors of Nucleons and an impact parameter vector and
-  /// produce the corrsponding sub-collisions. Note that states of the
-  /// nucleons may be changed.
+  // Take two vectors of Nucleons and an impact parameter vector and
+  // produce the corrsponding sub-collisions. Note that states of the
+  // nucleons may be changed.
   virtual multiset<SubCollision>
   getCollisions(vector<Nucleon> & proj, vector<Nucleon> & targ,
                 const Vec4 & bvec, double & T);
 
-  /// Generate a random number according to a Gamma-distribution.
+  // Generate a random number according to a Gamma-distribution.
   double gamma() const;
 
-  /// The opacity of the collision at a given sigma.
+  // The opacity of the collision at a given sigma.
   double opacity(double sig) const {
     // *** THINK *** maybe sig/sigd?
     sig /= sigd;
@@ -686,8 +877,8 @@ public:
       pow(-expm1(-1.0/sig), alpha): 1.0;
   }
 
-  /// Return the elastic amplitude for a projectile and target state
-  /// and the impact parameter between the corresponding nucleons.
+  // Return the elastic amplitude for a projectile and target state
+  // and the impact parameter between the corresponding nucleons.
   double Tpt(const Nucleon::State & p,
              const Nucleon::State & t, double b) const {
     double sig = M_PI*pow2(p[0] + t[0]);
@@ -695,14 +886,14 @@ public:
     return sig/grey > b*b*2.0*M_PI? grey: 0.0;
   }
 
-  /// Calculate the cross sections for the given set of parameters.
+  // Calculate the cross sections for the given set of parameters.
   SigEst getSig() const;
 
-  /// Set the parameters of this model.
+  // Set the parameters of this model.
   virtual void setParm(const vector<double> &);
 
-  /// Return the current parameters and the minimum and maximum
-  /// allowed values for the parameters of this model.
+  // Return the current parameters and the minimum and maximum
+  // allowed values for the parameters of this model.
   virtual vector<double> getParm() const;
   virtual vector<double> minParm() const;
   virtual vector<double> maxParm() const;
@@ -719,19 +910,19 @@ public:
 
 protected:
 
-  /// The average radius of the nucleon.
+  // The average radius of the nucleon.
   double r0;
 
-  /// The power in the Gamma distribution.
+  // The power in the Gamma distribution.
   double k0;
 
-  /// Saturation scale of the nucleus.
+  // Saturation scale of the nucleus.
   double sigd;
 
-  /// Power of the saturation scale
+  // Power of the saturation scale
   double alpha;
 
-  /// Optional mode for opacity.
+  // Optional mode for opacity.
   int opacityMode;
 
 };
@@ -745,40 +936,40 @@ class EventInfo {
 
 public:
 
-  /// Empty constructor.
+  // Empty constructor.
   EventInfo(): code(0), ordering(-1.0), coll(0), ok(false) {}
 
-  /// The Event object.
+  // The Event object.
   Event event;
 
   // The corresponding Info object.
   Info info;
 
-  /// The code for the subprocess.
+  // The code for the subprocess.
   int code;
 
-  /// The ordering variable of this event.
+  // The ordering variable of this event.
   double ordering;
   bool operator<(const EventInfo & ei) const {
     return ordering < ei.ordering;
   }
 
-  /// The associated SubCollision object.
+  // The associated SubCollision object.
   const SubCollision * coll;
 
-  /// Is the event properly generated?
+  // Is the event properly generated?
   bool ok;
 
-  /// Which projectile and target nucleons are included and where are
-  /// they placed?
+  // Which projectile and target nucleons are included and where are
+  // they placed?
   map<Nucleon *, pair<int,int> > projs, targs;
 
 };
 
 //==========================================================================
 
-/// Class for collecting info about a Heavy Ion run and its produced
-/// events.
+// Class for collecting info about a Heavy Ion run and its produced
+// events.
 
 class HIInfo {
 
@@ -787,140 +978,138 @@ public:
   friend class HeavyIons;
   friend class Angantyr;
 
-  /// Constructor.
+  // Constructor.
   HIInfo()
     : idProjSave(0), idTargSave(0), bSave(0.0), NSave(0), NAccSave(0),
       sigmaTotSave(0.0), sigmaNDSave(0.0), sigErr2TotSave(0.0),
       sigErr2NDSave(0.0), weightSave(0.0), weightSumSave(0.0),
       nCollSave(10, 0), nProjSave(10, 0), nTargSave(10, 0), nFailSave(0),
-      subColsPtr(NULL) {}
+      subColsPtr(nullptr) {}
 
-  /// The impact-parameter distance in the current event.
+  // The impact-parameter distance in the current event.
   double b() const {
     return bSave;
   }
 
-  /// The impact parameter angle.
+  // The impact parameter angle.
   double phi() const {
     return phiSave;
   }
 
-  /// The Monte Carlo integrated total cross section in the current run.
+  // The Monte Carlo integrated total cross section in the current run.
   double sigmaTot() const {
     return sigmaTotSave/millibarn;
   }
 
-  /// The estimated statistical error on sigmaTot().
+  // The estimated statistical error on sigmaTot().
   double sigmaTotErr() const {
     return sqrt(sigErr2TotSave/max(1.0, double(NSave)))/millibarn;
   }
 
-  /// The Monte Carlo integrated non-diffractive cross section in the
-  /// current run.
+  // The Monte Carlo integrated non-diffractive cross section in the
+  // current run.
   double sigmaND() const {
     return sigmaNDSave/millibarn;
   }
 
-  /// The estimated statistical error on sigmaND().
+  // The estimated statistical error on sigmaND().
   double sigmaNDErr() const {
     return sqrt(sigErr2NDSave/max(1.0, double(NSave)));
   }
 
-  /// The number of attempted impact parameter points.
+  // The number of attempted impact parameter points.
   long nAttempts() const {
     return NSave;
   }
 
-  /// The number of produced events.
+  // The number of produced events.
   long nAccepted() const {
     return NAccSave;
   }
 
-  /// The total number of separate sub-collisions.
+  // The total number of separate sub-collisions.
   int nCollTot() const { return nCollSave[0]; }
 
-  /// The number of separate non-diffractive sub collisions in the
-  /// current event.
+  // The number of separate non-diffractive sub collisions in the
+  // current event.
   int nCollND() const { return nCollSave[1]; }
 
-  /// The total number of non-diffractive sub collisions in the current event.
+  // The total number of non-diffractive sub collisions in the current event.
   int nCollNDTot() const { return nProjSave[1] + nTargSave[1] - nCollSave[1]; }
 
-  /// The number of separate single diffractive projectile excitation
-  /// sub collisions in the current event.
+  // The number of separate single diffractive projectile excitation
+  // sub collisions in the current event.
   int nCollSDP() const { return nCollSave[2]; }
 
-  /// The number of separate single diffractive target excitation sub
-  /// collisions in the current event.
+  // The number of separate single diffractive target excitation sub
+  // collisions in the current event.
   int nCollSDT() const { return nCollSave[3]; }
 
-  /// The number of separate double diffractive sub collisions in the
-  /// current event.
+  // The number of separate double diffractive sub collisions in the
+  // current event.
   int nCollDD() const { return nCollSave[4]; }
 
-  /// The number of separate central diffractive sub collisions in the
-  /// current event.
+  // The number of separate central diffractive sub collisions in the
+  // current event.
   int nCollCD() const { return nCollSave[5]; }
 
-  /// The number of separate elastic sub collisions.
+  // The number of separate elastic sub collisions.
   int nCollEL() const { return nCollSave[6]; }
 
-  /// The number of interacting projectile nucleons in the current
-  /// event.
+  // The number of interacting projectile nucleons in the current event.
   int nPartProj() const { return nProjSave[0]; }
 
-  /// The number of absorptively wounded projectile nucleons in the
-  /// current event.
+  // The number of absorptively wounded projectile nucleons in the
+  // current event.
   int nAbsProj() const { return nProjSave[1]; }
 
-  /// The number of diffractively wounded projectile nucleons in the
-  /// current event.
+  // The number of diffractively wounded projectile nucleons in the
+  // current event.
   int nDiffProj() const { return nProjSave[2]; }
 
-  /// The number of elastically scattered projectile nucleons in the
-  /// current event.
+  // The number of elastically scattered projectile nucleons in the
+  // current event.
   int nElProj() const { return nProjSave[3]; }
 
-  /// The number of interacting projectile nucleons in the current
-  /// event.
+  // The number of interacting projectile nucleons in the current
+  // event.
   int nPartTarg() const { return nTargSave[0]; }
 
-  /// The number of absorptively wounded projectile nucleons in the
-  /// current event.
+  // The number of absorptively wounded projectile nucleons in the
+  // current event.
   int nAbsTarg() const { return nTargSave[1]; }
 
-  /// The number of diffractively wounded projectile nucleons in the
-  /// current event.
+  // The number of diffractively wounded projectile nucleons in the
+  // current event.
   int nDiffTarg() const { return nTargSave[2]; }
 
-  /// The number of elastically scattered projectile nucleons in the
-  /// current event.
+  // The number of elastically scattered projectile nucleons in the
+  // current event.
   int nElTarg() const { return nTargSave[3]; }
 
-  /// The weight for this collision.
+  // The weight for this collision.
   double weight() const { return weightSave; }
 
-  /// The sum of weights of the produced events.
+  // The sum of weights of the produced events.
   double weightSum() const { return weightSumSave; }
 
-  /// The number of failed nuclon excitations in the current event.
+  // The number of failed nuclon excitations in the current event.
   int nFail() const {
     return nFailSave;
   }
 
-  /// Register a failed nucleon excitation.
+  // Register a failed nucleon excitation.
   void failedExcitation() {
     ++nFailSave;
   }
 
- /// The number of separate non-diffractive collisions.
 private:
 
-  /// Register a tried impact parameter point giving the total elastic
-  /// amplitude, the impact parameter and impact parameter generation weight.
+  // Register a tried impact parameter point giving the total elastic
+  // amplitude, the impact parameter and impact parameter generation weight.
   void addAttempt(double T, double bin, double phiin, double bweight);
 
-  /// Reweight event for whatever reason.
+  // Reweight event for whatever reason.
   void reweight(double w) {
     weightSave *= w;
   }
@@ -934,31 +1123,31 @@ private:
   // Accept an event and update statistics in info.
   void accept();
 
-  /// Reject an attmpted event.
+  // Reject an attmpted event.
   void reject() {}
 
-  /// Register a full sub collision.
+  // Register a full sub collision.
   int addSubCollision(const SubCollision & c);
 
-  /// Register a participating projectile/target nucleon.
+  // Register a participating projectile/target nucleon.
   int addProjectileNucleon(const Nucleon & n);
   int addTargetNucleon(const Nucleon & n);
 
 
-  /// Id of the colliding nuclei.
+  // Id of the colliding nuclei.
   int idProjSave, idTargSave;
 
-  /// Impact parameter.
+  // Impact parameter.
   double bSave;
   double phiSave;
 
-  /// Cross section estimates.
+  // Cross section estimates.
   long NSave, NAccSave;
   double sigmaTotSave, sigmaNDSave, sigErr2TotSave, sigErr2NDSave;
   double weightSave, weightSumSave;
 
-  /// Number of collisions and paricipants. See accessor functions for
-  /// indices.
+  // Number of collisions and paricipants. See accessor functions for
+  // indices.
   vector<int> nCollSave, nProjSave, nTargSave;
 
   // Map of primary processes and the number of events and the sum of
@@ -991,69 +1180,69 @@ private:
 
 //==========================================================================
 
-/// This is the heavy ion user hooks class which in the future may be
-/// used inside a Pythia object to generate heavy ion collisons. For
-/// now it is used outside Pythia and requires access to a number of
-/// Pythia objects.
+// This is the heavy ion user hooks class which in the future may be
+// used inside a Pythia object to generate heavy ion collisons. For
+// now it is used outside Pythia and requires access to a number of
+// Pythia objects.
 
 class HIUserHooks {
 
 public:
 
-  /// The default constructor is empty.
+  // The default constructor is empty.
   HIUserHooks(): idProjSave(0), idTargSave(0) {}
 
-  /// Virtual destructor.
+  // Virtual destructor.
   virtual ~HIUserHooks() {}
 
-  /// Initialize this user hook.
+  // Initialize this user hook.
   virtual void init(int idProjIn, int idTargIn) {
     idProjSave = idProjIn;
     idTargSave = idTargIn;
   }
 
-  /// A user-supplied impact parameter generator.
+  // A user-supplied impact parameter generator.
   virtual bool hasImpactParameterGenerator() const { return false; }
   virtual ImpactParameterGenerator * impactParameterGenerator() const {
     return 0; }
 
-  /// A suser-supplied NucleusModel for the projectile and target.
+  // A user-supplied NucleusModel for the projectile and target.
   virtual bool hasProjectileModel() const { return false; }
   virtual NucleusModel * projectileModel() const { return 0; }
   virtual bool hasTargetModel() const { return false; }
   virtual NucleusModel * targetModel() const { return 0; }
 
-  /// A user-supplied SubCollisionModel for generating nucleon-nucleon
-  /// subcollisions.
+  // A user-supplied SubCollisionModel for generating nucleon-nucleon
+  // subcollisions.
   virtual bool hasSubCollisionModel() { return false; }
-  virtual SubCollisionModel * subCollisionModel() { return 0; }
+  virtual SubCollisionModel * subCollisionModel() { return nullptr; }
 
-  /// A user-supplied ordering of events in (inverse) hardness.
+  // A user-supplied ordering of events in (inverse) hardness.
   virtual bool hasEventOrdering() const { return false; }
   virtual double eventOrdering(const Event &, const Info &) { return -1; }
 
-  /// A user-supplied method for fixing up proton-neutron mismatch in
-  /// generated beams.
+  // A user-supplied method for fixing up proton-neutron mismatch in
+  // generated beams.
   virtual bool canFixIsoSpin() const { return false; }
   virtual bool fixIsoSpin(EventInfo &) { return false; }
 
-  /// A user-supplied method for shifting the event in impact parameter space.
+  // A user-supplied method for shifting the event in impact parameter space.
   virtual bool canShiftEvent() const { return false; }
   virtual EventInfo & shiftEvent(EventInfo & ei) const { return ei; }
 
-  /// A user-supplied method of adding a diffractive excitation event
-  /// to another event, optionally connecting their colours.
+  // A user-supplied method of adding a diffractive excitation event
+  // to another event, optionally connecting their colours.
   bool canAddNucleonExcitation() const { return false; }
   bool addNucleonExcitation(EventInfo &, EventInfo &, bool) const {
     return false; }
 
-  /// A user supplied wrapper around the Pythia::forceHadronLevel()
+  // A user supplied wrapper around the Pythia::forceHadronLevel()
   virtual bool canForceHadronLevel() const { return false; }
   virtual bool forceHadronLevel(Pythia &) { return false; }
 
-  /// A user-supplied way of finding the remnants of an
-  /// non-diffrcative pp collision (on the target side if tside is
-  /// true) to be used to give momentum when adding.
+  // A user-supplied way of finding the remnants of an
+  // non-diffrcative pp collision (on the target side if tside is
+  // true) to be used to give momentum when adding.
   virtual bool canFindRecoilers() const { return false; }
   virtual vector<int>
   findRecoilers(const Event &, bool /* tside */, int /* beam */, int /* end */,
@@ -1063,8 +1252,8 @@ public:
 
 protected:
 
-  /// Information set in the init() function.
-  /// The PDG id of the projectile and target nuclei.
+  // Information set in the init() function.
+  // The PDG id of the projectile and target nuclei.
   int idProjSave, idTargSave;
 
 };

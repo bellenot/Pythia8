@@ -1,5 +1,5 @@
 // PythiaStdlib.h is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -70,7 +70,6 @@ static void __attribute__((constructor)) raisefpe() {
 namespace Pythia8 {
 
 // Generic utilities and mathematical functions.
-using std::move;
 using std::swap;
 using std::max;
 using std::min;
@@ -179,6 +178,10 @@ constexpr double pow8(const double& x) {return x*x*x*x*x*x*x*x;}
 
 // Avoid problem with negative square root argument (from roundoff).
 inline double sqrtpos(const double& x) {return sqrt( max( 0., x));}
+
+// Explicitly return NaN if negative square root argument, without FPE.
+inline double sqrtnan(const double& x) {
+  return x > 0 ? sqrt(x) : numeric_limits<double>::quiet_NaN(); }
 
 // Restrinct value to lie in specified range.
 inline double clamp(const double& x, const double& xmin, const double& xmax) {

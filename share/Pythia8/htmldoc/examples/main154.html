@@ -4,12 +4,12 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main154.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Authors:
-//            <a href="mailto:marius.utheim@thep.lu.se">Marius Utheim</a>
+//            <a href="mailto:marius.m.utheim@jyu.fi">Marius Utheim</a>
 
 // Keywords:
 //            <a href="../ExampleKeywords.html#rescattering">Rescattering</a>
@@ -18,7 +18,7 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 
 // Calculate all cross sections for the specified process.
 
-#include "Pythia8/Pythia.h"
+#include &quot;Pythia8/Pythia.h&quot;
 using namespace Pythia8;
 
 //--------------------------------------------------------------------------
@@ -27,83 +27,83 @@ int main(int argc, char* argv[]) {
 
   // Initialize Pythia.
   Pythia pythia;
-  pythia.readFile("main154.cmnd");
+  pythia.readFile(&quot;main154.cmnd&quot;);
   if (!pythia.init()) {
-    cout << " Pythia failed to initialize." << endl;
+    cout &lt;&lt; &quot; Pythia failed to initialize.&quot; &lt;&lt; endl;
     return 1;
   }
 
-  int idA = argc == 3 ? atoi(argv[1]) : pythia.mode("Main:spareMode1");
-  int idB = argc == 3 ? atoi(argv[2]) : pythia.mode("Main:spareMode2");
-  double eMin = pythia.parm("Main:spareParm1");
-  double eMax = pythia.parm("Main:spareParm2");
-  if (eMin < pythia.particleData.m0(idA) + pythia.particleData.m0(idB)) {
+  int idA = argc == 3 ? atoi(argv[1]) : pythia.mode(&quot;Main:spareMode1&quot;);
+  int idB = argc == 3 ? atoi(argv[2]) : pythia.mode(&quot;Main:spareMode2&quot;);
+  double eMin = pythia.parm(&quot;Main:spareParm1&quot;);
+  double eMax = pythia.parm(&quot;Main:spareParm2&quot;);
+  if (eMin &lt; pythia.particleData.m0(idA) + pythia.particleData.m0(idB)) {
     eMin = pythia.particleData.m0(idA) + pythia.particleData.m0(idB);
-    cout << "Warning, setting eMin to nominal mass sum of " << eMin << ".\n";
+    cout &lt;&lt; &quot;Warning, setting eMin to nominal mass sum of &quot; &lt;&lt; eMin &lt;&lt; &quot;.\n&quot;;
   }
 
   int nBin = 300;
 
-  ParticleData& particleData = pythia.particleData;
+  ParticleData&amp; particleData = pythia.particleData;
 
-  HistPlot plt("main154plot");
-  plt.frame("out154plot", "Cross section for " + particleData.name(idA)
-    + " + " + particleData.name(idB), "$\\sqrt{s}$ (GeV)", "$\\sigma$ (mb)");
+  HistPlot plt(&quot;main154plot&quot;);
+  plt.frame(&quot;out154plot&quot;, &quot;Cross section for &quot; + particleData.name(idA)
+    + &quot; + &quot; + particleData.name(idB), &quot;$\\sqrt{s}$ (GeV)&quot;, &quot;$\\sigma$ (mb)&quot;);
 
   // Basic cross sections: non-diffractive, elastic and diffractive.
   Hist sigND = Hist::plotFunc(
-    [&](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 1); },
-    "Non-diffractive", nBin, eMin, eMax);
-  plt.add(sigND, "-");
+    [&amp;](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 1); },
+    &quot;Non-diffractive&quot;, nBin, eMin, eMax);
+  plt.add(sigND, &quot;-&quot;);
 
   Hist sigEla = Hist::plotFunc(
-    [&](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 2); },
-    "Elastic", nBin, eMin, eMax);
-  plt.add(sigEla, "-");
+    [&amp;](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 2); },
+    &quot;Elastic&quot;, nBin, eMin, eMax);
+  plt.add(sigEla, &quot;-&quot;);
 
   Hist sigSD = Hist::plotFunc(
-    [&](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 3)
+    [&amp;](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 3)
                            + pythia.getSigmaPartial(idA, idB, eCM, 4); },
-    "Single diffractive", nBin, eMin, eMax);
-  plt.add(sigSD, "-");
+    &quot;Single diffractive&quot;, nBin, eMin, eMax);
+  plt.add(sigSD, &quot;-&quot;);
 
   Hist sigDD = Hist::plotFunc(
-    [&](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 5); },
-    "Double diffractive", nBin, eMin, eMax);
-  plt.add(sigDD, "-");
+    [&amp;](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 5); },
+    &quot;Double diffractive&quot;, nBin, eMin, eMax);
+  plt.add(sigDD, &quot;-&quot;);
 
   // Add nucleon excitation cross section for NN.
   if ((abs(idA) == 2212 || abs(idA) == 2112)
-   && (abs(idB) == 2212 || abs(idB) == 2112)
-   && idA * idB > 0) {
+   &amp;&amp; (abs(idB) == 2212 || abs(idB) == 2112)
+   &amp;&amp; idA * idB &gt; 0) {
     Hist sigEx = Hist::plotFunc(
-      [&](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 7); },
-      "Excitation", nBin, eMin, eMax);
-    plt.add(sigEx, "-");
+      [&amp;](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 7); },
+      &quot;Excitation&quot;, nBin, eMin, eMax);
+    plt.add(sigEx, &quot;-&quot;);
   }
 
   // Add annihilation cross section of baryon-antibaryon.
-  if (idA * idB < 0 && particleData.isBaryon(idA)
-                    && particleData.isBaryon(idB)) {
+  if (idA * idB &lt; 0 &amp;&amp; particleData.isBaryon(idA)
+                    &amp;&amp; particleData.isBaryon(idB)) {
     Hist sigAnn = Hist::plotFunc(
-      [&](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 8); },
-      "Annihilation", nBin, eMin, eMax);
-    plt.add(sigAnn, "-");
+      [&amp;](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 8); },
+      &quot;Annihilation&quot;, nBin, eMin, eMax);
+    plt.add(sigAnn, &quot;-&quot;);
   }
 
   // Add resonance cross sections if applicable.
   if (pythia.hadronWidths.hasResonances(idA, idB)) {
     Hist sigRes = Hist::plotFunc(
-      [&](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 9); },
-      "Resonant", nBin, eMin, eMax);
-    plt.add(sigRes, "-");
+      [&amp;](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 9); },
+      &quot;Resonant&quot;, nBin, eMin, eMax);
+    plt.add(sigRes, &quot;-&quot;);
   }
 
   // Add total cross section at the end.
   Hist sigTot = Hist::plotFunc(
-    [&](double eCM) { return pythia.getSigmaTotal(idA, idB, eCM); },
-    "Total", nBin, eMin, eMax);
-  plt.add(sigTot, "k-");
+    [&amp;](double eCM) { return pythia.getSigmaTotal(idA, idB, eCM); },
+    &quot;Total&quot;, nBin, eMin, eMax);
+  plt.add(sigTot, &quot;k-&quot;);
 
   // Plot.
   plt.plot();

@@ -1,5 +1,5 @@
 // SharedPointers.h is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -39,6 +39,9 @@ typedef shared_ptr<HIUserHooks> HIUserHooksPtr;
 
 class LHAup;
 typedef shared_ptr<LHAup> LHAupPtr;
+
+class LHEF3FromPythia8;
+typedef shared_ptr<LHEF3FromPythia8> LHEF3FromPythia8Ptr;
 
 class Merging;
 typedef shared_ptr<Merging> MergingPtr;

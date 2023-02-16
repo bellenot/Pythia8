@@ -1,5 +1,5 @@
 // Info.h is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -422,7 +422,7 @@ public:
 
   // Externally set event tag auxiliary information.
   void setEventAttribute(string key, string value, bool doOverwrite = true) {
-    if (eventAttributes == NULL) {
+    if (eventAttributes == nullptr) {
       eventAttributes = new map<string,string>();
       hasOwnEventAttributes = true;
     }

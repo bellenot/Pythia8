@@ -4,13 +4,13 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main184.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Authors:
-//            <a href="mailto:marius.utheim@thep.lu.se">Marius Utheim</a>
-//            <a href="mailto:torbjorn.sjostrand@thep.lu.se">Torbjorn Sjostrand</a>
+//            <a href="mailto:marius.m.utheim@jyu.fi">Marius Utheim</a>
+//            <a href="mailto:torbjorn.sjostrand@hep.lu.se">Torbjorn Sjostrand</a>
 
 // Keywords:
 //            <a href="../ExampleKeywords.html#cosmic+ray+cascade">Cosmic&nbsp;ray&nbsp;cascade</a>
@@ -25,8 +25,8 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 // Reminder: for vertex Vec4 the components are labelled (px, py, pz,
 // e), but actually represent (x, y, z, t) values.
 
-#include "Pythia8/Pythia.h"
-#include "Pythia8Plugins/PythiaCascade.h"
+#include &quot;Pythia8/Pythia.h&quot;
+#include &quot;Pythia8Plugins/PythiaCascade.h&quot;
 
 using namespace Pythia8;
 
@@ -87,15 +87,15 @@ struct Configuration {
 
 int main() {
 
-  // Set up four different "atmospheres" to compare.
+  // Set up four different &quot;atmospheres&quot; to compare.
   constexpr int nCases = 4;
-  vector<Configuration> configurations = {
-    { "Uniform p/n atmosphere",                false, false, 0.,       0.2 },
-    { "Uniform nitrogen",                      false, true,  0.,       0.2 },
-    { "Exponential nitrogen",                  true,  true,  0.,       0.2 },
-    { "Exponential nitrogen at 45$^{\\circ}$", true,  true,  M_PI / 4, 0.2 },
+  vector&lt;Configuration&gt; configurations = {
+    { &quot;Uniform p/n atmosphere&quot;,                false, false, 0.,       0.2 },
+    { &quot;Uniform nitrogen&quot;,                      false, true,  0.,       0.2 },
+    { &quot;Exponential nitrogen&quot;,                  true,  true,  0.,       0.2 },
+    { &quot;Exponential nitrogen at 45$^{\\circ}$&quot;, true,  true,  M_PI / 4, 0.2 },
   };
-  vector<string> col = { "r", "b", "k", "g" };
+  vector&lt;string&gt; col = { &quot;r&quot;, &quot;b&quot;, &quot;k&quot;, &quot;g&quot; };
 
   // Energy of primary incident proton (in GeV).
   double pPri = 1e6;
@@ -110,32 +110,32 @@ int main() {
   // See the PythiaCascade.h file for documentation, such as init() arguments,
   // notably whether a previous *.mpi file can and should be reused.
   PythiaCascade pythiaCascade;
-  Rndm& rndm = pythiaCascade.rndm();
+  Rndm&amp; rndm = pythiaCascade.rndm();
   double mp = pythiaCascade.particleData().m0(2212);
   pythiaCascade.init(pPri + mp);
 
   // Event record for full cascade evolution.
   Event eventMain;
-  eventMain.init( "Full cascade event", &pythiaCascade.particleData());
+  eventMain.init( &quot;Full cascade event&quot;, &amp;pythiaCascade.particleData());
 
   // Book histograms.
   double depthMax = 1.5 * rhoAir * H;
   Hist nInt[nCases], diffHad[nCases], diffMuon[nCases], prodnue[nCases],
        prodnumu[nCases];
-  for (int iCase = 0; iCase < nCases; ++iCase) {
-    nInt[iCase].book("depth of interactions",            100, 0., depthMax);
-    diffHad[iCase].book("hadron production-decay depth", 100, 0., depthMax);
-    diffMuon[iCase].book("muon production-decay depth",  100, 0., depthMax);
-    prodnue[iCase].book("nu_e production depth",         100, 0., depthMax);
-    prodnumu[iCase].book("nu_mu production depth",       100, 0., depthMax);
+  for (int iCase = 0; iCase &lt; nCases; ++iCase) {
+    nInt[iCase].book(&quot;depth of interactions&quot;,            100, 0., depthMax);
+    diffHad[iCase].book(&quot;hadron production-decay depth&quot;, 100, 0., depthMax);
+    diffMuon[iCase].book(&quot;muon production-decay depth&quot;,  100, 0., depthMax);
+    prodnue[iCase].book(&quot;nu_e production depth&quot;,         100, 0., depthMax);
+    prodnumu[iCase].book(&quot;nu_mu production depth&quot;,       100, 0., depthMax);
   }
 
   // Begin loops over cases and events.
-  for (int iCase = 0; iCase < nCases; ++iCase)
-  for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
+  for (int iCase = 0; iCase &lt; nCases; ++iCase)
+  for (int iEvent = 0; iEvent &lt; nEvent; ++iEvent) {
 
     // Four-momentum of incoming initiator.
-    Configuration& config = configurations[iCase];
+    Configuration&amp; config = configurations[iCase];
     double pxPri = 0.;
     double pyPri = pPri * sin(config.zenithAngle);
     double pzPri = pPri * cos(config.zenithAngle);
@@ -154,8 +154,8 @@ int main() {
     eventMain[1].zProd(heightNow);
 
     // Loop over particles (usually hadrons) in the main event record.
-    for (int iHad = 1; iHad < eventMain.size(); ++iHad) {
-      Particle& hadNow = eventMain[iHad];
+    for (int iHad = 1; iHad &lt; eventMain.size(); ++iHad) {
+      Particle&amp; hadNow = eventMain[iHad];
       int idNow        = hadNow.id();
       Vec4 pNow        = hadNow.p();
       double mNow      = hadNow.m();
@@ -163,15 +163,15 @@ int main() {
       bool mustDecayNow    = false;
 
       // Skip already fragmented/decayed or upwards-moving particles.
-      if (!hadNow.isFinal() || hadNow.pz() > 0.) continue;
+      if (!hadNow.isFinal() || hadNow.pz() &gt; 0.) continue;
 
       // Find decay vertex for unstable hadrons. (Below ground if no decay.)
       Vec4 vDec = hadNow.canDecay() ? hadNow.vDec() : Vec4( 0., 0., -1., 0.);
-      bool canDecayNow = hadNow.canDecay() && vDec.pz() > 0.;
+      bool canDecayNow = hadNow.canDecay() &amp;&amp; vDec.pz() &gt; 0.;
 
       // Low energy hadrons should not interact with medium.
       // Decay non-hadrons or low-energy ones if decay happens above ground.
-      if (!hadNow.isHadron() || eNow - mNow < config.eKinMin) {
+      if (!hadNow.isHadron() || eNow - mNow &lt; config.eKinMin) {
         if (canDecayNow) mustDecayNow = true;
         else continue;
       }
@@ -195,7 +195,7 @@ int main() {
           sigmaNow /= Anow;
 
           // If the cross section vanishes, decay is the only option.
-          if (sigmaNow <= 0.) {
+          if (sigmaNow &lt;= 0.) {
             if (canDecayNow) mustDecayNow = true;
             else continue;
           }
@@ -221,16 +221,16 @@ int main() {
         }
 
         // Done if hadron reaches surface before both interaction and decay.
-        if (vInt.pz() < 0. && !canDecayNow) continue;
+        if (vInt.pz() &lt; 0. &amp;&amp; !canDecayNow) continue;
 
         // Do decay if it happens first.
-        if (vDec.pz() > vInt.pz()) mustDecayNow = true;
+        if (vDec.pz() &gt; vInt.pz()) mustDecayNow = true;
       }
 
       // Do decay or collision. Empty event means failure, so skip,
       // which could lead to unintended punch-through of a particle.
       int sizeSave    = eventMain.size();
-      Event& eventTmp = (mustDecayNow)
+      Event&amp; eventTmp = (mustDecayNow)
                       ? pythiaCascade.nextDecay(idNow, pNow, mNow, vDec)
                       : pythiaCascade.nextColl( Znow, Anow, vInt);
       if (eventTmp.size() == 0) continue;
@@ -247,9 +247,9 @@ int main() {
       eventMain[sizeSave].mothers( iHad, iHad);
 
       // Stop generation if event record extremely long.
-      if (eventMain.size() > maxSize) {
-        cout << " Error: maximum event size exceeded for iCase = "
-             << iCase << " and iEvent = " << iEvent << endl;
+      if (eventMain.size() &gt; maxSize) {
+        cout &lt;&lt; &quot; Error: maximum event size exceeded for iCase = &quot;
+             &lt;&lt; iCase &lt;&lt; &quot; and iEvent = &quot; &lt;&lt; iEvent &lt;&lt; endl;
         break;
       }
 
@@ -257,7 +257,7 @@ int main() {
     }
 
     // Begin analysis. Loop over all particles to find interaction depths.
-    for (Particle& h : eventMain) {
+    for (Particle&amp; h : eventMain) {
       if (h.status() == -12) continue;
       double depthProd = config.getDepth(h.zProd());
       double depthDec  = config.getDepth(h.isFinal() ? 0. : h.zDec());
@@ -267,7 +267,7 @@ int main() {
         nInt[iCase].fill(depthProd);
       }
       // Otherwise, track depths where particles are created/destroyed.
-      else if (h.e() - h.m() > config.eKinMin) {
+      else if (h.e() - h.m() &gt; config.eKinMin) {
         if (h.isHadron()) {
           if (h.isFinal())
             diffHad[iCase].fill(depthProd, 1.);
@@ -299,17 +299,17 @@ int main() {
 
   // Book histograms.
   Hist nHad[nCases], nMuon[nCases], nnue[nCases], nnumu[nCases];
-  for (int iCase = 0; iCase < nCases; ++iCase) {
-    nHad[iCase] .book("", 100, 0., depthMax);
-    nMuon[iCase].book("", 100, 0., depthMax);
-    nnue[iCase] .book("", 100, 0., depthMax);
-    nnumu[iCase].book("", 100, 0., depthMax);
+  for (int iCase = 0; iCase &lt; nCases; ++iCase) {
+    nHad[iCase] .book(&quot;&quot;, 100, 0., depthMax);
+    nMuon[iCase].book(&quot;&quot;, 100, 0., depthMax);
+    nnue[iCase] .book(&quot;&quot;, 100, 0., depthMax);
+    nnumu[iCase].book(&quot;&quot;, 100, 0., depthMax);
 
     // Integrate production minus depletion to find particle number by depth.
     double nHadSum = 0., nMuonSum = 0., nnueSum = 0., nnumuSum = 0.;
-    for (int i = 1; i <= 100; ++i) {
+    for (int i = 1; i &lt;= 100; ++i) {
       double depthNow = depthMax * (i - 0.5) / 100.;
-      if (depthNow > configurations[iCase].getDepth(0.)) break;
+      if (depthNow &gt; configurations[iCase].getDepth(0.)) break;
       nHadSum  += diffHad[iCase] .getBinContent(i);
       nMuonSum += diffMuon[iCase].getBinContent(i);
       nnueSum  += prodnue[iCase] .getBinContent(i);
@@ -329,31 +329,31 @@ int main() {
   }
 
   // Normalize and plot histograms.
-  HistPlot plt("plot184");
-  plt.frame("fig184", "Atmospheric depth of p/n interactions",
-    "$X$ (g/cm$^2$)", "$(1/n_{ev}) dn_{int}/dX$", 6.4, 4.8);
-  for (int iCase = 0; iCase < nCases; ++iCase)
-    plt.add(nInt[iCase], "-,"+col[iCase], configurations[iCase].legend);
+  HistPlot plt(&quot;plot184&quot;);
+  plt.frame(&quot;fig184&quot;, &quot;Atmospheric depth of p/n interactions&quot;,
+    &quot;$X$ (g/cm$^2$)&quot;, &quot;$(1/n_{ev}) dn_{int}/dX$&quot;, 6.4, 4.8);
+  for (int iCase = 0; iCase &lt; nCases; ++iCase)
+    plt.add(nInt[iCase], &quot;-,&quot;+col[iCase], configurations[iCase].legend);
   plt.plot(true);
-  plt.frame("", "Number of hadrons at depth",
-    "$X$ (g/cm$^2$)", "$(1/n_{ev}) \\int_0^{X} dn_{had}$", 6.4, 4.8);
-  for (int iCase = 0; iCase < nCases; ++iCase)
-    plt.add(nHad[iCase], "-,"+col[iCase], configurations[iCase].legend);
+  plt.frame(&quot;&quot;, &quot;Number of hadrons at depth&quot;,
+    &quot;$X$ (g/cm$^2$)&quot;, &quot;$(1/n_{ev}) \\int_0^{X} dn_{had}$&quot;, 6.4, 4.8);
+  for (int iCase = 0; iCase &lt; nCases; ++iCase)
+    plt.add(nHad[iCase], &quot;-,&quot;+col[iCase], configurations[iCase].legend);
   plt.plot(true);
-  plt.frame("", "Number of muons at depth",
-    "$X$ (g/cm$^2$)", "$(1/n_{ev}) \\int_0^{X} dn_{\\mu}$", 6.4, 4.8);
-  for (int iCase = 0; iCase < nCases; ++iCase)
-    plt.add(nMuon[iCase], "-,"+col[iCase], configurations[iCase].legend);
+  plt.frame(&quot;&quot;, &quot;Number of muons at depth&quot;,
+    &quot;$X$ (g/cm$^2$)&quot;, &quot;$(1/n_{ev}) \\int_0^{X} dn_{\\mu}$&quot;, 6.4, 4.8);
+  for (int iCase = 0; iCase &lt; nCases; ++iCase)
+    plt.add(nMuon[iCase], &quot;-,&quot;+col[iCase], configurations[iCase].legend);
   plt.plot(true);
-  plt.frame("", "Number of e neutrinos at depth",
-    "$X$ (g/cm$^2$)", "$(1/n_{ev}) \\int_0^{X} dn_{\\nu_e}$", 6.4, 4.8);
-  for (int iCase = 0; iCase < nCases; ++iCase)
-    plt.add(nnue[iCase], "-,"+col[iCase], configurations[iCase].legend);
+  plt.frame(&quot;&quot;, &quot;Number of e neutrinos at depth&quot;,
+    &quot;$X$ (g/cm$^2$)&quot;, &quot;$(1/n_{ev}) \\int_0^{X} dn_{\\nu_e}$&quot;, 6.4, 4.8);
+  for (int iCase = 0; iCase &lt; nCases; ++iCase)
+    plt.add(nnue[iCase], &quot;-,&quot;+col[iCase], configurations[iCase].legend);
   plt.plot(true);
-  plt.frame("", "Number of mu neutrinos at depth",
-    "$X$ (g/cm$^2$)", "$(1/n_{ev}) \\int_0^{X} dn_{\\nu_\\mu}$", 6.4, 4.8);
-  for (int iCase = 0; iCase < nCases; ++iCase)
-    plt.add(nnumu[iCase], "-,"+col[iCase], configurations[iCase].legend);
+  plt.frame(&quot;&quot;, &quot;Number of mu neutrinos at depth&quot;,
+    &quot;$X$ (g/cm$^2$)&quot;, &quot;$(1/n_{ev}) \\int_0^{X} dn_{\\nu_\\mu}$&quot;, 6.4, 4.8);
+  for (int iCase = 0; iCase &lt; nCases; ++iCase)
+    plt.add(nnumu[iCase], &quot;-,&quot;+col[iCase], configurations[iCase].legend);
   plt.plot(true);
 
 }

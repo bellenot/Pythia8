@@ -1,11 +1,33 @@
+#include <Pythia8/Basics.h>
+#include <Pythia8/Event.h>
+#include <Pythia8/HIUserHooks.h>
+#include <Pythia8/HeavyIons.h>
+#include <Pythia8/Info.h>
+#include <Pythia8/LesHouches.h>
+#include <Pythia8/Merging.h>
+#include <Pythia8/MergingHooks.h>
+#include <Pythia8/ParticleData.h>
+#include <Pythia8/ParticleDecays.h>
+#include <Pythia8/PartonDistributions.h>
+#include <Pythia8/PartonVertex.h>
+#include <Pythia8/PhaseSpace.h>
+#include <Pythia8/Pythia.h>
+#include <Pythia8/ResonanceWidths.h>
+#include <Pythia8/Settings.h>
+#include <Pythia8/SharedPointers.h>
+#include <Pythia8/ShowerModel.h>
+#include <Pythia8/SigmaProcess.h>
+#include <Pythia8/UserHooks.h>
 #include <array>
 #include <functional>
+#include <istream>
 #include <iterator>
 #include <memory>
 #include <sstream> // __str__
 #include <stdexcept>
 #include <string>
 #include <tuple>
+#include <vector>
 
 #include <pybind11/pybind11.h>
 #include <functional>
@@ -16,6 +38,7 @@
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
+#include <pybind11/functional.h>
 
 
 #ifndef BINDER_PYBIND11_TYPE_CASTER

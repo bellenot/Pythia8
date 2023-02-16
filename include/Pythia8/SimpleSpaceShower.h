@@ -1,5 +1,5 @@
 // SimpleSpaceShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -94,11 +94,11 @@ public:
     thetaWRat(), mW(), gammaW(), weakMaxWt(), vetoWeakDeltaR2(), sideA(),
     twoHard(), dopTlimit1(), dopTlimit2(), dopTdamp(),  tChannel(),
     doUncertaintiesNow(), iNow(), iRec(), idDaughter(), nRad(), idResFirst(),
-    idResSecond(), xDaughter(), x1Now(), x2Now(), m2ColPair(), mColPartner(),
-    m2ColPartner(), m2Dip(), m2Rec(), pT2damp(), pTbegRef(), pdfScale2(),
-    doTrialNow(), canEnhanceEmission(), canEnhanceTrial(), canEnhanceET(),
-    iDipNow(), iSysNow(), dipEndNow(), iDipSel(), dipEndSel() {
-    beamOffset = 0;}
+    idResSecond(), xDaughter(), x1Now(), x2Now(),
+    m2ColPair(), mColPartner(), m2ColPartner(), m2Dip(), m2Rec(), pT2damp(),
+    pTbegRef(), pdfScale2(), doTrialNow(), canEnhanceEmission(),
+    canEnhanceTrial(), canEnhanceET(), iDipNow(), iSysNow(), dipEndNow(),
+    iDipSel(), dipEndSel() { beamOffset = 0; pdfMode = 0; }
 
   // Destructor.
   virtual ~SimpleSpaceShower() override {}
@@ -150,6 +150,16 @@ public:
   // Potential enhancement factor of pTmax scale for hardest emission.
   virtual double enhancePTmax() const override {return pTmaxFudge;}
 
+  // Functions to directly extract the probability of no emission between two
+  // scales. These functions are not used in the Pythia core code, but can be
+  // used by external programs to interface with the shower directly.
+  double noEmissionProbability( double pTbegAll, double pTendAll, double m2dip,
+    int id, int type, double s = -1., double x = -1.) override;
+  double pTnext( vector<SpaceDipoleEnd> dipEnds, Event event, double pTbegAll,
+    double pTendAll, double m2dip, int id, int type, double s = -1.,
+    double x = -1.);
+  int pdfMode;
+
 private:
 
   // Constants: could only be changed in the code itself.
@@ -172,6 +182,7 @@ private:
          doSecondHard, canVetoEmission, hasUserHooks, alphaSuseCMW,
          singleWeakEmission, vetoWeakJets, weakExternal, doRapidityOrderMPI,
          doMPI, doDipoleRecoil, doPartonVertex;
+  int    pdfModeSave;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaSnfmax, alphaEMorder,
          nQuarkIn, enhanceScreening, weakMode, pT0paramMode;
   double pTdampFudge, mc, mb, m2c, m2b, renormMultFac, factorMultFac,

@@ -4,6 +4,9 @@
  
 <dl> 
  
+<refit>Adl75</refit> 
+<dd>R. Adler, T.K. Das, A.F. Filho, Phys. Rev. C16 (1977) 1231</dd> 
+ 
 <refit>Ali10</refit> 
 <dd>S. Alioli, P. Nason, C. Oleari, E. Re, JHEP 1006 (2010) 043, 
 [arXiv:1002.2581 [hep-ph]]</dd> 
@@ -18,7 +21,7 @@ Z. Phys. C45 (1989) 109</dd>
  
 <refit>Alv99</refit> 
 <dd>L. Alvero, J.C. Collins, J. Terron and J.J. Whitmore, 
-Phys. Rev.  D59 (1999) 074022 [hep-ph/9805268]</dd> 
+Phys. Rev. D59 (1999) 074022 [hep-ph/9805268]</dd> 
  
 <refit>Alv13</refit> 
 <dd>M. Alvioli, M. Strikman, Phys. Lett. B722 (2013) 347</dd> 
@@ -351,6 +354,10 @@ P. Torrielli, Phys.Lett. B701 (2011) 427 [arXiv:1104.5613 [hep-ph]]</dd>
 <dd>R. Frederix, S. Frixione, JHEP 1212 (2012) 061 
 [arXiv:1209.6215 [hep-ph]]</dd> 
  
+<refit>Fre20</refit> 
+<dd>R. Frederix, S. Frixione, S. Prestel and P. Torrielli, JHEP 07 (2020) 238 
+  [arXiv:2002.12716[hep-ph]]</dd> 
+ 
 <refit>Fre21</refit> 
 <dd>R. Frederix, I. Tsinikos, JHEP 11 (2021) 029 
 [arXiv:2108.07826 [hep-ph]]</dd> 
@@ -418,6 +425,9 @@ P. Torrielli, Phys.Lett. B701 (2011) 427 [arXiv:1104.5613 [hep-ph]]</dd>
 Nucl. Phys. B487 (1997) 27 and private communication; 
 <br/>G. Barenboim, K. Huitu, J. Maalampi and M. Raidal, 
 Phys. Lett. B394 (1997) 132</dd> 
+ 
+<refit>Hul42</refit> 
+<dd>L. Hulth&eacute;n, Ark. Mat. Astron. Fys. A28 (1942) No 5</dd> 
  
 <refit>Hum83</refit> 
 <dd>B. Humpert and P. Mery, Z. Phys. C20 (1983) 83</dd> 
@@ -556,12 +566,20 @@ Chin.Phys. C40 (2016) 100001</dd>
 <dd>C. Peterson, D. Schlatter, I. Schmitt and P. Zerwas, 
 Phys. Rev. D27 (1983) 105</dd> 
  
+<refit>Pro07</refit> 
+<dd>G.M. Prosperi, M. Raciti, and C. Simolo, Progress in Particle 
+and Nuclear Physics 58.2 (2007) 387-438 [hep-ph/0607209]</dd> 
+ 
 <refit>Qia02</refit> 
 <dd>C. Qiao, Phys. Rev. D66 (2002) 057504</dd> 
  
 <refit>Ras16</refit> 
 <dd>C.O. Rasmussen and T. Sj&ouml;strand, JHEP 02 (2016) 142 
 [arXiv:1512.05525 [hep-ph]]</dd> 
+ 
+<refit>Rit97</refit> 
+<dd>T. van Ritbergen, J. A. M. Vermaseren and S.A. Larin, 
+Phys. Lett. B400 (1997) 379 [hep-ph/9701390]</dd> 
  
 <refit>Riz08</refit> 
 <dd>T. G. Rizzo, Phys. Lett. B665 (2008) 361</dd> 
@@ -672,4 +690,4 @@ J. Phys. G33 (2006) 1</dd>
  
 </chapter> 
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

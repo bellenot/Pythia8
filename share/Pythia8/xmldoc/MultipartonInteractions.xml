@@ -88,7 +88,7 @@ picked equal to the one used in CTEQ 5L.
 The actual value is then regulated by the running to the scale 
 <ei>pT^2</ei>, at which it is evaluated 
 <modepick name="MultipartonInteractions:alphaSorder" default="1" 
-min="0" max="2"> 
+min="0" max="3"> 
 The order at which <ei>alpha_strong</ei> runs at scales away from 
 <ei>m_Z</ei>. 
 <option value="0">zeroth order, i.e. <ei>alpha_strong</ei> is kept 
@@ -97,6 +97,8 @@ fixed.</option>
 <option value="2">second order. Since other parts of the code do 
 not go to second order there is no strong reason to use this option, 
 but there is also nothing wrong with it.</option> 
+<option value="3">third order, with the same comment as for second 
+order. The expression in the 2006 RPP is used here.</option> 
 </modepick> 
  
 <p/> 
@@ -689,4 +691,4 @@ interactions.
  
 </chapter> 
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

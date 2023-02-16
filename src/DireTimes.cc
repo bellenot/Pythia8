@@ -1,5 +1,5 @@
 // DireTimes.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2023 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -349,7 +349,6 @@ bool DireTimes::limitPTmax( Event& event, double, double) {
   // Find whether to limit pT. Begin by user-set cases.
   bool dopTlimit = false;
   dopTlimit1 = dopTlimit2 = false;
-  int nHeavyCol = 0;
   if      (pTmaxMatch == 1) dopTlimit = dopTlimit1 = dopTlimit2 = true;
 
   // Always restrict SoftQCD processes.
@@ -366,8 +365,6 @@ bool DireTimes::limitPTmax( Event& event, double, double) {
       else if (n21 == 0) {
         int idAbs = event[i].idAbs();
         if (idAbs <= 5 || idAbs == 21 || idAbs == 22) dopTlimit1 = true;
-        if ( (event[i].col() != 0 || event[i].acol() != 0)
-          && idAbs > 5 && idAbs != 21 ) ++nHeavyCol;
       } else if (n21 == 2) {
         int idAbs = event[i].idAbs();
         if (idAbs <= 5 || idAbs == 21 || idAbs == 22) dopTlimit2 = true;
@@ -2905,13 +2902,15 @@ bool DireTimes::inAllowedPhasespace( int kinType, double z, double pT2,
 
     // Calculate derived variables.
     double sij  = yCS * (q2 - m2s) + (1.-yCS)*(m2r+m2e);
-    double zbar = (q2-sij-m2s) / bABC(q2,sij,m2s)
+    double babc = bABC(q2,sij,m2s);
+    if (babc == 0) return false;
+    double zbar = (q2-sij-m2s) / babc
                 * (zCS - m2s/gABC(q2,sij,m2s)
                         *(sij + m2r - m2e)/(q2-sij-m2s));
     double kT2  = zbar*(1.-zbar)*sij - (1.-zbar)*m2r - zbar*m2e;
 
     // Not possible to construct kinematics if kT2 < 0.0
-    if (kT2 < 0. || isnan(kT2)) return false;
+    if (isnan(kT2) || kT2 < 0.) return false;
 
     // Get yCS-boundaries.
     double mu2Rad = m2r/q2;
@@ -2974,7 +2973,7 @@ bool DireTimes::inAllowedPhasespace( int kinType, double z, double pT2,
     double kT2  = zbar*(1.-zbar)*sij - (1.-zbar)*m2ai - zbar*m2j;
 
     // Not possible to construct kinematics if kT2 < 0.0
-    if (kT2 < 0. || isnan(kT2)) return false;
+    if (isnan(kT2) || kT2 < 0.) return false;
 
     // Get yCS-boundaries.
     double mu2Rad = m2ai/q2_1;
@@ -3020,7 +3019,7 @@ bool DireTimes::inAllowedPhasespace( int kinType, double z, double pT2,
                        *(sij + m2a - m2i)/(q2_2-sij-m2k));
     kT2  = zbar*(1.-zbar)*sij - (1.-zbar)*m2a - zbar*m2i;
 
-    if (kT2 < 0. || isnan(kT2)) return false;
+    if (isnan(kT2) || kT2 < 0.) return false;
 
   // Extremely conservative technical cut-off on z for final-final splittings.
   } else if (splitType == 3) {
@@ -3073,12 +3072,13 @@ bool DireTimes::inAllowedPhasespace( int kinType, double z, double pT2,
     double pijpa_tilde = m2dip - m2r - m2e + m2RadBef;
     double pijpa     = pijpa_tilde/xCDST;
     double mu2RadBef = m2RadBef/pijpa;
-    double muRad     = sqrt(m2r/pijpa);
-    double muEmt     = sqrt(m2e/pijpa);
+    double muRad     = sqrtnan(m2r/pijpa);
+    double muEmt     = sqrtnan(m2e/pijpa);
     double xCSmaxMassive = 1. + mu2RadBef - pow2(muRad + muEmt);
 
     // Forbidden emission if outside allowed x range for given pT2.
-    if ( xCDST < xOld || xCDST > xCSmaxMassive) return false;
+    if (isnan(xCDST) || isnan(xCSmaxMassive) || xCDST < xOld ||
+      xCDST > xCSmaxMassive) return false;
 
     // Get zCS-boundaries.
     double nu2Rad = m2r/m2dip;
@@ -3162,7 +3162,7 @@ bool DireTimes::inAllowedPhasespace( int kinType, double z, double pT2,
     double kT2  = zbar*(1.-zbar)*sij - (1.-zbar)*m2a - zbar*m2i;
 
     // Not possible to construct second step if kT2 < 0.0
-    if (kT2 < 0. || isnan(kT2)) return false;
+    if (isnan(kT2) || kT2 < 0.) return false;
 
   // Extremely conservative technical z-cut-off for final-initial splittings.
   } else if (splitType ==-3) {
@@ -4058,7 +4058,7 @@ bool DireTimes::pT2nextQCD_FI(double pT2begDip, double pT2sel,
     // More last resort.
     if ( idRecoiler == 21 && pdfScale2 == pT2colCut
       && pdfRatio > 50.) pdfRatio = 0.;
-    if (std::isinf(pdfRatio) || std::isnan(pdfRatio)) pdfRatio = 0.;
+    if (isnan(pdfRatio) || isinf(pdfRatio)) pdfRatio = 0.;
 
     fullWeightNow  *= pdfRatio*jacobian;
 
@@ -6562,7 +6562,7 @@ pair < Vec4, Vec4 > DireTimes::decayWithOnshellRec( double zCS, double yCS,
   double kT2  = zbar*(1.-zbar)*sij - (1.-zbar)*m2RadAft - zbar*m2EmtAft;
 
   bool physical = true;
-  if (kT2 < 0. || isnan(kT2)) physical = false;
+  if (isnan(kT2) || kT2 < 0.) physical = false;
   if (abs(kT2) < 1e-9) kT2 = 0.0;
 
   // Construct left-over dipole momentum by momentum conservation.
@@ -6608,7 +6608,7 @@ pair <Vec4, Vec4> DireTimes::decayWithOffshellRec( double zCS, double yCS,
 
   // Not possible to construct kinematics if kT2 < 0.0
   bool physical = true;
-  if (kT2 < 0. || isnan(kT2)) physical = false;
+  if (isnan(kT2) || kT2 < 0.) physical = false;
 
   // Construct left-over dipole momentum by momentum conservation.
   Vec4 pij(q-pRadBef);
@@ -6744,7 +6744,6 @@ pair <Event, pair<int,int> > DireTimes::clustered_internal( const Event& state,
   outState.scaleSecond(mu);
   bool radAppended = false;
   bool recAppended = false;
-  int size = int(outState.size());
   // Save position of radiator in new event record
   int radPos(0), recPos(0);
 
@@ -6761,7 +6760,6 @@ pair <Event, pair<int,int> > DireTimes::clustered_internal( const Event& state,
     for(int i=0; i < int(state.size()); ++i)
       if (state[i].mother1() == 1) in1 =i;
     outState.append( state[in1] );
-    size++;
   }
   // Append second incoming particle
   if ( RecBefore.mother1() == 2) {
@@ -6777,7 +6775,6 @@ pair <Event, pair<int,int> > DireTimes::clustered_internal( const Event& state,
       if (state[i].mother1() == 2) in2 =i;
 
     outState.append( state[in2] );
-    size++;
   }
 
   // Append new recoiler if not done already

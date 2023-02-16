@@ -1,5 +1,5 @@
 // MergingHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -2103,6 +2103,10 @@ void MergingHooks::init(){
   // Flag to only do phase space cut.
   doEstimateXSection   =  flag("Merging:doXSectionEstimate");
 
+  // Flag to check if we have an aMC@NLO runtime interface.
+  doRuntimeAMCATNLOInterfaceSave
+    = settingsPtr->flag("Merging:runtimeAMCATNLOInterface");
+
   // Flag to check if merging weight should directly be included in the cross
   // section.
   includeWGTinXSECSave = flag("Merging:includeWeightInXsection");
@@ -2176,8 +2180,9 @@ void MergingHooks::init(){
 
   // Information on the shower cut-off scale
   pT0ISRSave            = parm("SpaceShower:pT0Ref");
-  pTcutSave             = parm("SpaceShower:pTmin");
-  pTcutSave             = max(pTcutSave,pT0ISRSave);
+  pTminISRSave          = parm("SpaceShower:pTmin");
+  pTminFSRSave          = parm("TimeShower:pTmin");
+  pTcutSave             = max(pTminISRSave,pT0ISRSave);
 
   // Information on renormalization scale variations
   muRVarFactors = infoPtr->weightContainerPtr->weightsMerging.
@@ -3053,25 +3058,17 @@ bool MergingHooks::isFirstEmission(const Event& event ) {
   int nFinalQuarks   = 0;
   int nFinalGluons   = 0;
   int nFinalLeptons  = 0;
-  int nFinalBosons   = 0;
   int nFinalPhotons  = 0;
-  int nFinalOther    = 0;
   for( int i=0; i < event.size(); ++i) {
     if (event[i].isFinal() && isInHard(i, event) ){
       if ( event[i].isLepton())
         nFinalLeptons++;
-      if ( event[i].id()    == 23
-        || event[i].idAbs() == 24
-        || event[i].id()    == 25)
-        nFinalBosons++;
       if (  event[i].id()   == 22)
         nFinalPhotons++;
       if ( event[i].isQuark())
         nFinalQuarks++;
       if ( event[i].isGluon())
         nFinalGluons++;
-      if ( !event[i].isDiquark() )
-        nFinalOther++;
     }
   }
 

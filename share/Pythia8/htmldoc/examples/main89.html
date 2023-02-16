@@ -4,12 +4,12 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main89.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Authors:
-//            <a href="mailto:stefan.prestel@thep.lu.se">Stefan Prestel</a>
+//            Stefan Prestel
 
 // Keywords:
 //            <a href="../ExampleKeywords.html#matching">Matching</a>
@@ -42,18 +42,18 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 // where main89.cmnd supplies the commands and hepmcout89.dat is the
 // output file. This example requires HepMC2 or HepMC3.
 
-#include "Pythia8/Pythia.h"
+#include &quot;Pythia8/Pythia.h&quot;
 #ifndef HEPMC2
-#include "Pythia8Plugins/HepMC3.h"
+#include &quot;Pythia8Plugins/HepMC3.h&quot;
 #else
-#include "Pythia8Plugins/HepMC2.h"
+#include &quot;Pythia8Plugins/HepMC2.h&quot;
 #endif
 
 // Include UserHooks for Jet Matching.
-#include "Pythia8Plugins/CombineMatchingInput.h"
+#include &quot;Pythia8Plugins/CombineMatchingInput.h&quot;
 // Include UserHooks for randomly choosing between integrated and
 // non-integrated treatment for unitarised merging.
-#include "Pythia8Plugins/aMCatNLOHooks.h"
+#include &quot;Pythia8Plugins/aMCatNLOHooks.h&quot;
 
 using namespace Pythia8;
 
@@ -65,24 +65,24 @@ int main( int argc, char* argv[] ){
 
   // Check that correct number of command-line arguments
   if (argc != 3) {
-    cerr << " Unexpected number of command-line arguments ("<<argc<<"). \n"
-         << " You are expected to provide the arguments" << endl
-         << " 1. Input file for settings" << endl
-         << " 2. Output file for HepMC events" << endl
-         << " Program stopped. " << endl;
+    cerr &lt;&lt; &quot; Unexpected number of command-line arguments (&quot;&lt;&lt;argc&lt;&lt;&quot;). \n&quot;
+         &lt;&lt; &quot; You are expected to provide the arguments&quot; &lt;&lt; endl
+         &lt;&lt; &quot; 1. Input file for settings&quot; &lt;&lt; endl
+         &lt;&lt; &quot; 2. Output file for HepMC events&quot; &lt;&lt; endl
+         &lt;&lt; &quot; Program stopped. &quot; &lt;&lt; endl;
     return 1;
   }
 
   Pythia pythia;
 
   // New setting to allow processing of multiple input LHEFs.
-  pythia.settings.addMode("LHEFInputs:nSubruns",0,true,false,0,100);
+  pythia.settings.addMode(&quot;LHEFInputs:nSubruns&quot;,0,true,false,0,100);
 
   // Input parameters:
   pythia.readFile(argv[1],0);
 
   // Deactivate AUX_ weight output
-  pythia.readString("Weights:suppressAUX = on");
+  pythia.readString(&quot;Weights:suppressAUX = on&quot;);
 
   // Interface for conversion from Pythia8::Event to HepMC one.
   // Specify file where HepMC events will be stored.
@@ -95,45 +95,45 @@ int main( int argc, char* argv[] ){
   toHepMC.set_store_proc(false);
 
   // Check if jet matching should be applied.
-  bool doMatch   = pythia.settings.flag("JetMatching:merge");
+  bool doMatch   = pythia.settings.flag(&quot;JetMatching:merge&quot;);
 
   // Check if internal merging should be applied.
-  bool doMerge   = !(pythia.settings.word("Merging:Process").compare("void")
+  bool doMerge   = !(pythia.settings.word(&quot;Merging:Process&quot;).compare(&quot;void&quot;)
     == 0);
 
   // Currently, only one scheme at a time is allowed.
-  if (doMatch && doMerge) {
-    cerr << " Jet matching and merging cannot be used simultaneously.\n"
-         << " Program stopped.";
+  if (doMatch &amp;&amp; doMerge) {
+    cerr &lt;&lt; &quot; Jet matching and merging cannot be used simultaneously.\n&quot;
+         &lt;&lt; &quot; Program stopped.&quot;;
   }
 
   // Get number of subruns.
-  int nMerge = pythia.mode("LHEFInputs:nSubruns");
+  int nMerge = pythia.mode(&quot;LHEFInputs:nSubruns&quot;);
   bool doMatchMerge = true;
   if (nMerge == 0) { nMerge = 1; doMatchMerge = false; }
 
   // Number of events. Negative numbers mean all events in the LHEF will be
   // used.
-  long nEvent = pythia.settings.mode("Main:numberOfEvents");
-  if (nEvent < 1) nEvent = 1000;
+  long nEvent = pythia.settings.mode(&quot;Main:numberOfEvents&quot;);
+  if (nEvent &lt; 1) nEvent = 1000;
 
   // For jet matching, initialise the respective user hooks code.
-  //shared_ptr<UserHooks> matching;
+  //shared_ptr&lt;UserHooks&gt; matching;
 
   // Allow to set the number of addtional partons dynamically.
-  shared_ptr<amcnlo_unitarised_interface> setting;
+  shared_ptr&lt;amcnlo_unitarised_interface&gt; setting;
   if ( doMerge ) {
     // Store merging scheme.
-    int scheme = ( pythia.settings.flag("Merging:doUMEPSTree")
-                || pythia.settings.flag("Merging:doUMEPSSubt")) ?
+    int scheme = ( pythia.settings.flag(&quot;Merging:doUMEPSTree&quot;)
+                || pythia.settings.flag(&quot;Merging:doUMEPSSubt&quot;)) ?
                 1 :
-                 ( ( pythia.settings.flag("Merging:doUNLOPSTree")
-                || pythia.settings.flag("Merging:doUNLOPSSubt")
-                || pythia.settings.flag("Merging:doUNLOPSLoop")
-                || pythia.settings.flag("Merging:doUNLOPSSubtNLO")) ?
+                 ( ( pythia.settings.flag(&quot;Merging:doUNLOPSTree&quot;)
+                || pythia.settings.flag(&quot;Merging:doUNLOPSSubt&quot;)
+                || pythia.settings.flag(&quot;Merging:doUNLOPSLoop&quot;)
+                || pythia.settings.flag(&quot;Merging:doUNLOPSSubtNLO&quot;)) ?
                 2 :
                 0 );
-    setting = make_shared<amcnlo_unitarised_interface>(scheme);
+    setting = make_shared&lt;amcnlo_unitarised_interface&gt;(scheme);
     pythia.setUserHooksPtr(setting);
   }
 
@@ -141,18 +141,18 @@ int main( int argc, char* argv[] ){
   CombineMatchingInput combined;
   if (doMatch) combined.setHook(pythia);
 
-  vector<double> xss;
+  vector&lt;double&gt; xss;
 
   // Allow usage also for non-matched configuration.
   if(!doMatchMerge) {
     // Loop over subruns with varying number of jets.
-    for (int iMerge = 0; iMerge < nMerge; ++iMerge) {
+    for (int iMerge = 0; iMerge &lt; nMerge; ++iMerge) {
       // Read in file for current subrun and initialize.
       pythia.readFile(argv[1], iMerge);
       // Initialise.
       pythia.init();
       // Start generation loop
-      while( pythia.info.nSelected() < nEvent ){
+      while( pythia.info.nSelected() &lt; nEvent ){
         // Generate next event
         if( !pythia.next() ) {
           if ( pythia.info.atEndOfFile() ) break;
@@ -163,19 +163,19 @@ int main( int argc, char* argv[] ){
       pythia.stat();
       xss.push_back(pythia.info.sigmaGen());
     }
-    pythia.info.weightContainerPtr->clearTotal();
+    pythia.info.weightContainerPtr-&gt;clearTotal();
   }
 
   // Allow abort of run if many errors.
-  int  nAbort  = pythia.mode("Main:timesAllowErrors");
+  int  nAbort  = pythia.mode(&quot;Main:timesAllowErrors&quot;);
   int  iAbort  = 0;
   bool doAbort = false;
 
-  cout << endl << endl << endl;
-  cout << "Start generating events" << endl;
+  cout &lt;&lt; endl &lt;&lt; endl &lt;&lt; endl;
+  cout &lt;&lt; &quot;Start generating events&quot; &lt;&lt; endl;
 
   // Loop over subruns with varying number of jets.
-  for (int iMerge = 0; iMerge < nMerge; ++iMerge) {
+  for (int iMerge = 0; iMerge &lt; nMerge; ++iMerge) {
 
     // Read in name of LHE file for current subrun and initialize.
     pythia.readFile(argv[1], iMerge);
@@ -185,18 +185,18 @@ int main( int argc, char* argv[] ){
 
     // Get the inclusive x-section by summing over all process x-sections.
     double xs = 0.;
-    for (int i=0; i < pythia.info.nProcessesLHEF(); ++i)
+    for (int i=0; i &lt; pythia.info.nProcessesLHEF(); ++i)
       xs += pythia.info.sigmaLHEF(i);
 
     if (!doMatchMerge) xs = xss[iMerge];
 
     // Start generation loop
-    while( pythia.info.nSelected() < nEvent ){
+    while( pythia.info.nSelected() &lt; nEvent ){
 
       // Generate next event
       if( !pythia.next() ) {
         if ( pythia.info.atEndOfFile() ) break;
-        else if (++iAbort > nAbort) {doAbort = true; break;}
+        else if (++iAbort &gt; nAbort) {doAbort = true; break;}
         else continue;
       }
 
@@ -209,7 +209,7 @@ int main( int argc, char* argv[] ){
       if ( evtweight == 0. ) continue;
 
       // Do not print broken / empty events
-      if (pythia.event.size() < 3) continue;
+      if (pythia.event.size() &lt; 3) continue;
 
       // Work with weighted (LHA strategy=-4) events.
       double norm = 1.;
@@ -219,7 +219,7 @@ int main( int argc, char* argv[] ){
       else
         norm = xs / double(1e9*nEvent);
 
-      pythia.info.weightContainerPtr->accumulateXsec(norm);
+      pythia.info.weightContainerPtr-&gt;accumulateXsec(norm);
 
       // Copy the weight names to HepMC.
       toHepMC.setWeightNames(pythia.info.weightNameVector());
@@ -236,25 +236,25 @@ int main( int argc, char* argv[] ){
     pythia.stat();
 
     // Get cross section statistics for sample.
-    double sigmaSample = pythia.info.weightContainerPtr->getSampleXsec()[0];
-    double errorSample = pythia.info.weightContainerPtr->getSampleXsecErr()[0];
+    double sigmaSample = pythia.info.weightContainerPtr-&gt;getSampleXsec()[0];
+    double errorSample = pythia.info.weightContainerPtr-&gt;getSampleXsecErr()[0];
 
-    cout << endl << " Contribution of sample " << iMerge
-         << " to the inclusive cross section : "
-         << scientific << setprecision(8)
-         << sigmaSample << "  +-  " << errorSample  << endl;
+    cout &lt;&lt; endl &lt;&lt; &quot; Contribution of sample &quot; &lt;&lt; iMerge
+         &lt;&lt; &quot; to the inclusive cross section : &quot;
+         &lt;&lt; scientific &lt;&lt; setprecision(8)
+         &lt;&lt; sigmaSample &lt;&lt; &quot;  +-  &quot; &lt;&lt; errorSample  &lt;&lt; endl;
   }
-  cout << endl << endl << endl;
+  cout &lt;&lt; endl &lt;&lt; endl &lt;&lt; endl;
 
   // Get cross section statistics for total run.
-  double sigmaTotal = pythia.info.weightContainerPtr->getTotalXsec()[0];
-  double errorTotal = pythia.info.weightContainerPtr->getSampleXsecErr()[0];
+  double sigmaTotal = pythia.info.weightContainerPtr-&gt;getTotalXsec()[0];
+  double errorTotal = pythia.info.weightContainerPtr-&gt;getSampleXsecErr()[0];
   if (doAbort)
-    cout << " Run was not completed owing to too many aborted events" << endl;
+    cout &lt;&lt; &quot; Run was not completed owing to too many aborted events&quot; &lt;&lt; endl;
   else
-    cout << "Inclusive cross section: " << scientific << setprecision(8)
-         << sigmaTotal << "  +-  " << errorTotal << " mb " << endl;
-  cout << endl << endl << endl;
+    cout &lt;&lt; &quot;Inclusive cross section: &quot; &lt;&lt; scientific &lt;&lt; setprecision(8)
+         &lt;&lt; sigmaTotal &lt;&lt; &quot;  +-  &quot; &lt;&lt; errorTotal &lt;&lt; &quot; mb &quot; &lt;&lt; endl;
+  cout &lt;&lt; endl &lt;&lt; endl &lt;&lt; endl;
 
   // Done
   return 0;

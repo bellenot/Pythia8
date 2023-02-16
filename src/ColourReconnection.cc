@@ -1,5 +1,5 @@
 // ColourReconnection.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -317,10 +317,10 @@ bool ColourReconnection::nextNew( Event& event, int iFirst) {
 
       // Store all dipoles connected to the chosen dipole.
       usedDipoles.clear();
-      storeUsedDips(dipTrials.back());
+      if (dipTrials.size()) storeUsedDips(dipTrials.back());
 
       // Do the reconnection.
-      doDipoleTrial(dipTrials.back());
+      if (dipTrials.size()) doDipoleTrial(dipTrials.back());
 
       // Sort the used dipoles and remove copies of the same.
       sort(usedDipoles.begin(), usedDipoles.end());
@@ -376,18 +376,27 @@ bool ColourReconnection::nextNew( Event& event, int iFirst) {
 
         // Find all dipoles connected to the reconnection.
         usedDipoles.clear();
-        storeUsedDips(junTrials.back());
+        if (junTrials.size()) storeUsedDips(junTrials.back());
 
-        // Do the reconnection.
-        doJunctionTrial(event, junTrials.back());
+        // Do the reconnection. Issue warning in case of failure.
+        if (junTrials.size()) {
+          if (!doJunctionTrial(event, junTrials.back())) {
+            infoPtr->errorMsg("Warning in ColourReconnection::nextNew:"
+              "Junction reconnection failed.");
+          }
+        }
 
         // Sort the used dipoles and remove copies of the same.
         sort(usedDipoles.begin(), usedDipoles.end());
-        for (int i = 0;i < int(usedDipoles.size() - 1); ++i)
-          if (usedDipoles[i] == usedDipoles[i + 1]) {
-            usedDipoles.erase(usedDipoles.begin() + i);
-            i--;
-          }
+        vector<int> eraseDipoles;
+        for (int i = 0; i < int(usedDipoles.size() - 1); ++i) {
+          if (usedDipoles[i] == usedDipoles[i + 1])
+            eraseDipoles.push_back(i+1);
+        }
+        // Step backwards to preserve indexing.
+        for (int iEra = int(eraseDipoles.size() - 1); iEra >= 0; --iEra) {
+          usedDipoles.erase(usedDipoles.begin() + eraseDipoles[iEra]);
+        }
 
         // Update lists.
         updateJunctionTrials();
@@ -1188,10 +1197,10 @@ void ColourReconnection::singleJunction(ColourDipolePtr dip1,
   // Check that reconnection is allowed by time dilation.
   if (!checkTimeDilation(dip1, dip2, dip3)) return;
 
-  double lambdaDiff = getLambdaDiff(dip1, dip2, dip3, 0, 3);
+  double lambdaDiff = getLambdaDiff(dip1, dip2, dip3, nullptr, 3);
 
   if (lambdaDiff > MINIMUMGAINJUN) {
-    TrialReconnection junTrial(dip1, dip2, dip3, 0, 3, lambdaDiff);
+    TrialReconnection junTrial(dip1, dip2, dip3, nullptr, 3, lambdaDiff);
     junTrials.insert(lower_bound(junTrials.begin(), junTrials.end(), junTrial,
                                  cmpTrials), junTrial);
   }
@@ -2929,16 +2938,22 @@ void ColourReconnection::doDipoleTrial(TrialReconnection& trial) {
 
 void ColourReconnection::updateDipoleTrials() {
 
-  // Remove any dipTrials that contains an used dipole.
-  for (int i = 0; i < int(dipTrials.size()); ++i)
+  // Identify (and then erase) any junTrials that contain a used dipole.
+  vector<int> eraseTrials;
+  // Remove any dipTrials that contains a used dipole.
+  for (int i = 0; i < int(dipTrials.size()); ++i) {
     for (int j = 0;j < 2; ++j) {
       if (binary_search(usedDipoles.begin(), usedDipoles.end(),
-                       dipTrials[i].dips[j]) ) {
-        dipTrials.erase(dipTrials.begin() + i);
-        i--;
+          dipTrials[i].dips[j]) ) {
+        eraseTrials.push_back(i);
         break;
       }
     }
+  }
+  // Erase (stepping backwards to preserve indexing).
+  for (int iEra = int(eraseTrials.size()) - 1; iEra >= 0; --iEra) {
+    dipTrials.erase(dipTrials.begin() + eraseTrials[iEra]);
+  }
 
   // Make list of active dipoles.
   vector<ColourDipolePtr> activeDipoles;
@@ -2960,16 +2975,21 @@ void ColourReconnection::updateDipoleTrials() {
 
 void ColourReconnection::updateJunctionTrials() {
 
- // Remove any junTrials that contains an used dipole.
-  for (int i = 0; i < int(junTrials.size()); ++i)
+  // Identify (and then erase) any junTrials that contain a used dipole.
+  vector<int> eraseTrials;
+  for (int i = 0; i < int(junTrials.size()); ++i) {
     for (int j = 0; j < 4; ++j) {
       if (binary_search(usedDipoles.begin(), usedDipoles.end(),
-                       junTrials[i].dips[j]) ) {
-        junTrials.erase(junTrials.begin() + i);
-        i--;
+          junTrials[i].dips[j]) ) {
+        eraseTrials.push_back(i);
         break;
       }
     }
+  }
+  // Erase (stepping backwards to preserve indexing).
+  for (int iEra = int(eraseTrials.size()) - 1; iEra >= 0; --iEra) {
+    junTrials.erase(junTrials.begin() + eraseTrials[iEra]);
+  }
 
   // Make list of active dipoles.
   vector<ColourDipolePtr> activeDipoles;
@@ -2996,15 +3016,19 @@ void ColourReconnection::updateJunctionTrials() {
 
 // Change colour structure to describe the reconnection in juncTrial.
 
-void ColourReconnection::doJunctionTrial(Event& event,
+bool ColourReconnection::doJunctionTrial(Event& event,
   TrialReconnection& juncTrial) {
 
-  int jtMode = juncTrial.mode;
   // If trial mode is 3 (three dipoles -> 2 junctions) use its own update.
+  int jtMode = juncTrial.mode;
   if (jtMode == 3) {
-    doTripleJunctionTrial(event, juncTrial);
-    return;
+    return doTripleJunctionTrial(event, juncTrial);
   }
+
+  // Check dipoles: must have 4.
+  if (juncTrial.dips.size() < 4) return false;
+  for (int iDip = 0; iDip < 4; ++iDip)
+    if (juncTrial.dips[iDip] == nullptr) return false;
 
   // Store dipoles and numbers for easier acces.
   ColourDipolePtr dip1 = juncTrial.dips[0];
@@ -3359,14 +3383,21 @@ void ColourReconnection::doJunctionTrial(Event& event,
   usedDipoles.push_back(dipoles[iActive3]);
 
   // Done.
+  return true;
+
 }
 
 //--------------------------------------------------------------------------
 
 // Change colour structure if it is three dipoles forming a junction system.
 
-void ColourReconnection::doTripleJunctionTrial(Event& event,
+bool ColourReconnection::doTripleJunctionTrial(Event& event,
   TrialReconnection& juncTrial) {
+
+  // Check dipoles: must have 3.
+  if (juncTrial.dips.size() < 3) return false;
+  for (int iDip = 0; iDip < 3; ++iDip)
+    if (juncTrial.dips[iDip] == nullptr) return false;
 
   // store information for easier acces.
   ColourDipolePtr dip1 = juncTrial.dips[0];
@@ -3511,6 +3542,8 @@ void ColourReconnection::doTripleJunctionTrial(Event& event,
   usedDipoles.push_back(dipoles[iActive3]);
 
   // Done.
+  return true;
+
 }
 
 //--------------------------------------------------------------------------

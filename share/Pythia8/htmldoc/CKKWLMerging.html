@@ -51,9 +51,9 @@ inbuilt PDF,  as outlined in the
 HepMC dependence can be removed by erasing the code allowing for HepMC 
 output. 
  
-<p/> The attached PDF file <a href="../pdfdoc/merging8160.pdf"> 
-PYTHIA 8 Merging Tutorial</a> provides a detailed albeit somewhat outdated 
-walk through of merging in Pythia. 
+<p/> The attached <a href="../pdfdoc/worksheet8309.pdf"> 
+PYTHIA 8.3 Worksheet</a> contains a Section 6 that walks you through 
+the basics of setting up a merging in PYTHIA. 
  
 <p/> Three very short LHE files (<code>w+_production_lhc_0.lhe</code>, 
 <code>w+_production_lhc_1.lhe</code>, <code>w+_production_lhc_2.lhe</code>) 
@@ -1452,7 +1452,17 @@ the event weight <code>Info::weight()</code>, the merging weight
 by <code>Info::sigmaGen()</code> includes the effect of CKKW-L merging. 
    
  
+<a name="anchor58"></a>
+<p/><code>flag&nbsp; </code><strong> Merging:runtimeAMCATNLOInterface &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+This setting should only be touched by experts. 
+If on, then the merging machinery will only be used to generate and 
+extract information necessary for the runtime interface of Pythia and aMC@NLO. 
+This is usually done via runtime calls by aMC@NLO. Read further details about 
+the method in [<a href="Bibliography.html#refFre20" target="page">Fre20</a>]. 
+   
+ 
 </body>
 </html>
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

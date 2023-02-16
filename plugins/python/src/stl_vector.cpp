@@ -73,6 +73,7 @@
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
+#include <pybind11/functional.h>
 
 
 #ifndef BINDER_PYBIND11_TYPE_CASTER
@@ -84,6 +85,8 @@
 
 void bind_std_stl_vector(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
+	// std::vector file:bits/stl_vector.h line:214
+
 	// std::vector file:bits/stl_vector.h line:214
 
 	// std::vector file:bits/stl_vector.h line:214

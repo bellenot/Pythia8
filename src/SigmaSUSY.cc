@@ -1,5 +1,5 @@
 // SigmaSUSY.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -73,7 +73,7 @@ double Sigma2SUSY::weightDecay( Event& process, int iResBeg, int iResEnd) {
 
       Sigma2qqbar2chi0chi0 localDecay(idmo,iddau,0);
       localDecay.initInfoPtr(*infoPtr);
-      localDecay.init(NULL, NULL);
+      localDecay.init(nullptr, nullptr);
       localDecay.initProc();
       localDecay.alpEM = 1;
       localDecay.id1 = process[iF].id();

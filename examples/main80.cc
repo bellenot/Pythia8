@@ -1,9 +1,9 @@
 // main80.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Stefan Prestel <stefan.prestel@thep.lu.se>.
+// Authors: Stefan Prestel.
 
 // Keywords: merging; leading order;
 
@@ -54,9 +54,9 @@ int main() {
       // Get CKKWL weight of current event. Histogram and accumulate it.
       double evtweight = pythia.info.weight();
       double weight    = pythia.info.mergingWeight();
+      weight      *= evtweight;
       weightNow.fill( weight);
 
-      weight      *= evtweight;
       sigmaSample += weight;
 
       // Do nothing for vanishing weight (event record might not be filled)

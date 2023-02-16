@@ -1,5 +1,5 @@
 // PythiaCascade.h is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 // Author: Torbjorn Sjostrand.
@@ -499,7 +499,8 @@ const double PythiaCascade::tabA[] = {1, 2, 4, 9, 12, 14, 16, 27, 40, 56,
 const double PythiaCascade::tabOffset[] = {0., 0.03, 0.08, 0.15, 0.20, 0.20,
   0.20, 0.26, 0.30, 0.34, 0.40, 0.40, 0.40, 0.50, 0.50, 0.60};
 const double PythiaCascade::tabSlope[] = {0., 0.0016, 0.0033, 0.0075, 0.0092,
-  0.0105, 0.012, 0.017, 0.022, 0.027, 0.028, 0.034, 0.040, 0.044, 0.055, 0.055};
+  0.0105, 0.012, 0.017, 0.022, 0.027, 0.028, 0.034, 0.040, 0.044, 0.055,
+  0.055};
 const double PythiaCascade::tabSlopeLo[] = {0., 0.0031, 0.0073, 0.015, 0.0192,
   0.0205, 0.022, 0.03, 0.037, 0.044, 0.048, 0.054, 0.06, 0.069, 0.08, 0.085};
 

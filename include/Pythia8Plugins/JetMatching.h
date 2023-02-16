@@ -1,5 +1,5 @@
 // JetMatching.h is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -87,8 +87,8 @@ class JetMatching : virtual public UserHooks {
 public:
 
   // Constructor and destructor
- JetMatching() : cellJet(NULL), slowJet(NULL), slowJetHard(NULL),
-    hjSlowJet(NULL) {}
+ JetMatching() : cellJet(nullptr), slowJet(nullptr), slowJetHard(nullptr),
+    hjSlowJet(nullptr) {}
  ~JetMatching() {
     if (cellJet) delete cellJet;
     if (slowJet) delete slowJet;
@@ -276,7 +276,7 @@ class JetMatchingMadgraph : virtual public JetMatching {
 public:
 
   // Constructor and destructor
-  JetMatchingMadgraph() : slowJetDJR(NULL) { }
+  JetMatchingMadgraph() : slowJetDJR(nullptr) { }
   ~JetMatchingMadgraph() { if (slowJetDJR) delete slowJetDJR; }
 
   // Initialisation
@@ -1139,21 +1139,21 @@ inline bool JetMatchingMadgraph::initAfterBeams() {
   jetAlgorithm = 2;
   slowJetPower = 1;
   slowJet = new SlowJet(slowJetPower, coneRadius, eTjetMin,
-    etaJetMaxAlgo, 2, 2, NULL, false);
+    etaJetMaxAlgo, 2, 2, nullptr, false);
 
   // For FxFx, also initialise jet algorithm to define matrix element jets.
   // Currently, this only supports the kT-algorithm in SlowJet.
   // Use the QCD distance measure by default.
   slowJetHard = new SlowJet(slowJetPower, coneRadius, qCutME,
-    etaJetMaxAlgo, 2, 2, NULL, false);
+    etaJetMaxAlgo, 2, 2, nullptr, false);
 
   // To access the DJR's
   slowJetDJR = new SlowJet(slowJetPower, coneRadius, qCutME,
-    etaJetMaxAlgo, 2, 2, NULL, false);
+    etaJetMaxAlgo, 2, 2, nullptr, false);
 
   // A special version of SlowJet to handle heavy and other partons
   hjSlowJet = new HJSlowJet(slowJetPower, coneRadius, 0.0,
-    100.0, 1, 2, NULL, false, true);
+    100.0, 1, 2, nullptr, false, true);
 
   // Setup local event records
   eventProcessOrig.init("(eventProcessOrig)", particleDataPtr);

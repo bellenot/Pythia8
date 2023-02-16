@@ -4,7 +4,7 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main78.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -20,7 +20,7 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 // Main program to demonstrate how to generate different types of
 // photon-initiated dilepton events in proton-proton collisions.
 
-#include "Pythia8/Pythia.h"
+#include &quot;Pythia8/Pythia.h&quot;
 
 using namespace Pythia8;
 
@@ -32,18 +32,18 @@ int main() {
   Pythia pythia;
 
   // Decrease the output.
-  pythia.readString("Init:showChangedSettings = off");
-  pythia.readString("Init:showChangedParticleData = off");
-  pythia.readString("Next:numberCount = 1000");
-  pythia.readString("Next:numberShowInfo = 0");
-  pythia.readString("Next:numberShowProcess = 1");
-  pythia.readString("Next:numberShowEvent = 1");
+  pythia.readString(&quot;Init:showChangedSettings = off&quot;);
+  pythia.readString(&quot;Init:showChangedParticleData = off&quot;);
+  pythia.readString(&quot;Next:numberCount = 1000&quot;);
+  pythia.readString(&quot;Next:numberShowInfo = 0&quot;);
+  pythia.readString(&quot;Next:numberShowProcess = 1&quot;);
+  pythia.readString(&quot;Next:numberShowEvent = 1&quot;);
 
   // Beam parameters.
-  pythia.readString("Beams:frameType = 1");
-  pythia.readString("Beams:eCM = 13000");
-  pythia.readString("Beams:idA = 2212");
-  pythia.readString("Beams:idB = 2212");
+  pythia.readString(&quot;Beams:frameType = 1&quot;);
+  pythia.readString(&quot;Beams:eCM = 13000&quot;);
+  pythia.readString(&quot;Beams:idA = 2212&quot;);
+  pythia.readString(&quot;Beams:idB = 2212&quot;);
 
   // Four possible contributions: double-dissociative = 1;
   // single-dissociative on side A (B) = 2 (3); elastic-elastic = 4.
@@ -52,33 +52,33 @@ int main() {
   // Enable elastic photon beams according to processType above.
   // For dissociative beams photons from PDFs (NNPDF2.3 by default) are used.
   if ( processType == 4 || processType == 3 )
-    pythia.readString("PDF:beamA2gamma = on");
+    pythia.readString(&quot;PDF:beamA2gamma = on&quot;);
   if ( processType == 4 || processType == 2 )
-    pythia.readString("PDF:beamB2gamma = on");
+    pythia.readString(&quot;PDF:beamB2gamma = on&quot;);
 
   // Need to use virtuality dependent photon flux to obtain realistic
   // acoplanarity distribution also for elastic-elastic case.
-  pythia.readString("PDF:Proton2gammaSet = 2");
+  pythia.readString(&quot;PDF:Proton2gammaSet = 2&quot;);
 
   // Set outgoing lepton-pair id and switch on relevant process.
   int idLep = 13;
-  if      (idLep == 11) pythia.readString("PhotonCollision:gmgm2ee = on");
-  else if (idLep == 13) pythia.readString("PhotonCollision:gmgm2mumu = on");
+  if      (idLep == 11) pythia.readString(&quot;PhotonCollision:gmgm2ee = on&quot;);
+  else if (idLep == 13) pythia.readString(&quot;PhotonCollision:gmgm2mumu = on&quot;);
 
   // Need to prepare for MPIs only for double-dissociative production.
-  if ( processType != 1 ) pythia.readString("PartonLevel:MPI = off");
+  if ( processType != 1 ) pythia.readString(&quot;PartonLevel:MPI = off&quot;);
 
   // Use dipole shower as appropriate for the case where no colour connection
   // between remnants.
-  pythia.readString("SpaceShower:dipoleRecoil = on");
-  pythia.readString("SpaceShower:pTmaxMatch = 2");
-  pythia.readString("SpaceShower:pTdampMatch = 1");
+  pythia.readString(&quot;SpaceShower:dipoleRecoil = on&quot;);
+  pythia.readString(&quot;SpaceShower:pTmaxMatch = 2&quot;);
+  pythia.readString(&quot;SpaceShower:pTdampMatch = 1&quot;);
 
   // Kinematical cuts.
-  pythia.readString("PhaseSpace:mHatMin = 10.0");
+  pythia.readString(&quot;PhaseSpace:mHatMin = 10.0&quot;);
 
   // Initialize the histogram for acoplanarity.
-  Hist acoHist("Acoplanarity of the lepton pair", 30, 0.0, 0.06);
+  Hist acoHist(&quot;Acoplanarity of the lepton pair&quot;, 30, 0.0, 0.06);
 
   // Initialize the generator.
   pythia.init();
@@ -87,7 +87,7 @@ int main() {
   int nEvent = 10000;
 
   // Begin event loop. Skip if fails.
-  for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
+  for (int iEvent = 0; iEvent &lt; nEvent; ++iEvent) {
 
     // Generate next event.
     if (!pythia.next()) continue;
@@ -97,7 +97,7 @@ int main() {
 
     // Find the final muons (last ones in the event record).
     int iPosPlus = 0, iPosMinus = 0;
-    for (int i = 0; i < pythia.event.size();++i) {
+    for (int i = 0; i &lt; pythia.event.size();++i) {
       if (pythia.event[i].id() == idLep) iPosPlus = i;
       if (pythia.event[i].id() == -idLep) iPosMinus = i;
     }
@@ -122,7 +122,7 @@ int main() {
   acoHist *= sigmaNorm;
 
   // Print histogram.
-  cout << acoHist;
+  cout &lt;&lt; acoHist;
 
   // Done.
   return 0;

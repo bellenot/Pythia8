@@ -1,5 +1,5 @@
 // HIUserHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -20,12 +20,13 @@ namespace Pythia8 {
 
 // Initialise base class, passing pointers to important objects.
 
-void NucleusModel::initPtr(int idIn, Settings & settingsIn,
-                           ParticleData & particleDataIn, Rndm & rndIn) {
+void NucleusModel::initPtr(int idIn, bool isProjIn, Info& infoIn) {
+  isProj = isProjIn;
   idSave = idIn;
-  settingsPtr = &settingsIn;
-  particleDataPtr = &particleDataIn;
-  rndPtr = &rndIn;
+  infoPtr = &infoIn;
+  settingsPtr = infoIn.settingsPtr;
+  particleDataPtr = infoIn.particleDataPtr;
+  rndmPtr = infoIn.rndmPtr;
   int decomp = abs(idSave);
   ISave = decomp%10;
   decomp /= 10;
@@ -57,14 +58,13 @@ bool NucleusModel::init() {
 // Produce a proper particle corresponding to the nucleus handled by
 // this NucleusModel.
 
-Particle NucleusModel::produceIon(bool istarg) {
-  double e = max(A(), 1)*(istarg? settingsPtr->parm("Beams:eB"):
-                               settingsPtr->parm("Beams:eA"));
+Particle NucleusModel::produceIon() {
+  double e = max(A(), 1) * settingsPtr->parm(isProj ? "Beams:eA" : "Beams:eB");
   double m = particleDataPtr->m0(id());
   Particle p(id(), -12);
   double pz = sqrt(max(e*e - m*m, 0.0));
   int daughter = 3;
-  if ( istarg ) {
+  if ( !isProj ) {
     pz = -pz;
     daughter = 4;
   }
@@ -76,94 +76,171 @@ Particle NucleusModel::produceIon(bool istarg) {
 
 //==========================================================================
 
+// ExternalNucleusModel reads in the configuration from a file.
+
+//--------------------------------------------------------------------------
+
+// Initialize, read in the file, shuffle the configurations.
+
+bool ExternalNucleusModel::init() {
+  // Read settings.
+
+  // File to read.
+  fName = isProj ? settingsPtr->word("HeavyIonA:NucleusFile")
+                 : settingsPtr->word("HeavyIonB:NucleusFile");
+
+  // Do shuffling.
+  doShuffle = isProj ? settingsPtr->flag("HeavyIonA:Shuffle")
+                     : settingsPtr->flag("HeavyIonB:Shuffle");
+
+  // Read the file.
+  ifstream ifs(fName);
+  if (!ifs.is_open()) {
+    infoPtr->errorMsg("Abort from ExternalNucleusModel::init: "
+      "could not open file", fName);
+    return false;
+  }
+  for (string line; getline(ifs, line); ) {
+    // Remove comment lines.
+    if (line.find("#") != std::string::npos) continue;
+    stringstream ss(line);
+    vector<double> positions;
+    for (double coord; ss >> coord; )
+      positions.push_back(coord);
+    // Check malformed line.
+    if (positions.size() != size_t(3 * A())) {
+      infoPtr->errorMsg("Abort from ExternalNucleusModel::init: "
+        "number of entries on each line must be 3 x A", fName);
+      return false;
+    }
+    else {
+      vector<Vec4> tmp;
+      for (int i = 0; i < A(); ++i)
+        tmp.push_back(Vec4(positions[3 * i],
+          positions[3 * i + 1], positions[3 * i + 2]));
+      nucleonPositions.push_back(tmp);
+    }
+  }
+  ifs.close();
+
+  if (nucleonPositions.size() == 0) {
+    infoPtr->errorMsg("Abort from ExternalNucleusModel::init: "
+      "no entries found");
+    return false;
+  }
+
+  if (doShuffle) rndmPtr->shuffle(nucleonPositions);
+  return NucleusModel::init();
+}
+
+//--------------------------------------------------------------------------
+
+// Generate a vector of nucleons.
+
+vector<Nucleon> ExternalNucleusModel::generate() const {
+  int sign = id() > 0? 1: -1;
+  int pid = sign*2212;
+  int nid = sign*2112;
+  vector<Nucleon> nucleons;
+
+  // Get the next nucleon
+  vector<Vec4> nucleus = nucleonPositions[nUsed];
+  int Np = Z();
+  int Nn = A() - Z();
+  for (int i = 0; i < A(); ++i) {
+    if ( int(rndmPtr->flat()*(Np + Nn)) >= Np ) {
+      --Nn;
+      nucleons[i] = Nucleon(nid, i, nucleus[i]);
+    } else {
+      --Np;
+      nucleons[i] = Nucleon(pid, i, nucleus[i]);
+    }
+  }
+
+  // Update position in list of nucleons.
+  if (++nUsed == nucleonPositions.size()) {
+    nUsed = 0;
+    if (doShuffle) rndmPtr->shuffle(nucleonPositions);
+  }
+
+  return nucleons;
+}
+
+
+//==========================================================================
+
+// HardCoreModel is a base class for models implementing a hard core.
+
+//--------------------------------------------------------------------------
+
+// Init the hard core parameters. To be called in init() in derived classes.
+void HardCoreModel::initHardCore() {
+  useHardCore = (isProj ? settingsPtr->flag("HeavyIonA:HardCore")
+                        : settingsPtr->flag("HeavyIonB:HardCore"));
+  hardCoreRadius = (isProj ? settingsPtr->parm("HeavyIonA:HardCoreRadius")
+                           : settingsPtr->parm("HeavyIonB:HardCoreRadius"));
+  gaussHardCore = (isProj ? settingsPtr->flag("HeavyIonA:GaussHardCore")
+                          : settingsPtr->flag("HeavyIonB:GaussHardCore"));
+}
+
+//==========================================================================
+
 // WoodsSaxonModel is a subclass of NucleusModel and implements a
 // general Wood-Saxon distributed nucleus.
 
 //--------------------------------------------------------------------------
 
-// Place a nucleon inside a nucleus.
+// Initialize.
+bool WoodsSaxonModel::init() {
+  if (A() == 0) return true;
 
+  // Initialize hard core.
+  initHardCore();
+
+  // In the basic Woods-Saxon model we get parameters directly from settings.
+  RSave = settingsPtr->parm(isProj ? "HeavyIonA:WSR" : "HeavyIonB:WSR");
+  aSave = settingsPtr->parm(isProj ? "HeavyIonA:WSa" : "HeavyIonB:WSa");
+
+  // Calculate the overestimates.
+  overestimates();
+  return NucleusModel::init();
+}
+
+// Place a nucleon inside a nucleus.
 Vec4 WoodsSaxonModel::generateNucleon() const {
 
   while ( true ) {
     double r = R();
-    double sel = rndPtr->flat()*(intlo + inthi0 + inthi1 + inthi2);
-    if ( sel > intlo ) r -= a()*log(rndPtr->flat());
-    if ( sel > intlo + inthi0 ) r -= a()*log(rndPtr->flat());
-    if ( sel > intlo + inthi0 + inthi1 )  r -= a()*log(rndPtr->flat());
+    double sel = rndmPtr->flat()*(intlo + inthi0 + inthi1 + inthi2);
+    if ( sel > intlo ) r -= a()*log(rndmPtr->flat());
+    if ( sel > intlo + inthi0 ) r -= a()*log(rndmPtr->flat());
+    if ( sel > intlo + inthi0 + inthi1 )  r -= a()*log(rndmPtr->flat());
     if ( sel <= intlo ) {
-      r = R()*pow(rndPtr->flat(), 1.0/3.0);
-      if ( rndPtr->flat()*(1.0 + exp((r - R())/a())) > 1.0 ) continue;
+      r = R()*pow(rndmPtr->flat(), 1.0/3.0);
+      if ( rndmPtr->flat()*(1.0 + exp((r - R())/a())) > 1.0 ) continue;
     } else
-      if ( rndPtr->flat()*(1.0 + exp((r - R())/a())) > exp((r - R())/a()) )
+      if ( rndmPtr->flat()*(1.0 + exp((r - R())/a())) > exp((r - R())/a()) )
         continue;
 
-    double costhe = 2.0*rndPtr->flat() - 1.0;
+    double costhe = 2.0*rndmPtr->flat() - 1.0;
     double sinthe = sqrt(max(1.0 - costhe*costhe, 0.0));
-    double phi = 2.0*M_PI*rndPtr->flat();
+    double phi = 2.0*M_PI*rndmPtr->flat();
 
     return Vec4(r*sinthe*cos(phi), r*sinthe*sin(phi), r*costhe);
-
   }
-
   return Vec4();
-
-}
-
-//==========================================================================
-
-// GLISSANDOModel is a subclass of NucleusModel and implements a
-// general Wood-Saxon distributed nucleus with hard cores and specialy
-// fitted parameters.
-
-//--------------------------------------------------------------------------
-
-// Initialize parameters.
-
-bool GLISSANDOModel::init() {
-  if ( A() == 0 ) return true;
-  gaussHardCore = settingsPtr->flag("HeavyIon:gaussHardCore");
-  if ( settingsPtr->isFlag("HI:hardCore") ) {
-    if ( settingsPtr->flag("HI:hardCore") ) {
-      RhSave = 0.9*femtometer;
-      RSave = (1.1*pow(double(A()),1.0/3.0) -
-               0.656*pow(double(A()),-1.0/3.0))*femtometer;
-      aSave = 0.459*femtometer;
-    } else {
-      RSave = (1.12*pow(double(A()),1.0/3.0) -
-               0.86*pow(double(A()),-1.0/3.0))*femtometer;
-      aSave = 0.54*femtometer;
-    }
-    return WoodsSaxonModel::init();
-  }
-  if ( settingsPtr->flag("HeavyIon:WSHardCore") ) {
-    RhSave = settingsPtr->parm("HeavyIon:WSRh");
-    RSave = (1.1*pow(double(A()),1.0/3.0) -
-             0.656*pow(double(A()),-1.0/3.0))*femtometer;
-    aSave = 0.459*femtometer;
-  } else {
-    RSave = (1.12*pow(double(A()),1.0/3.0) -
-             0.86*pow(double(A()),-1.0/3.0))*femtometer;
-    aSave = 0.54*femtometer;
-  }
-  if ( settingsPtr->parm("HeavyIon:WSR") > 0.0 )
-      RSave = settingsPtr->parm("HeavyIon:WSR");
-  if ( settingsPtr->parm("HeavyIon:WSa") > 0.0 )
-      aSave = settingsPtr->parm("HeavyIon:WSa");
-
-  return WoodsSaxonModel::init();
-
 }
 
 //--------------------------------------------------------------------------
 
-// Place a nucleon inside a nucleus.
+// Generate all nucleons in a nucleus.
 
-vector<Nucleon> GLISSANDOModel::generate() const {
+vector<Nucleon> WoodsSaxonModel::generate() const {
   int sign = id() > 0? 1: -1;
   int pid = sign*2212;
   int nid = sign*2112;
   vector<Nucleon> nucleons;
+
   if ( A() == 0 ) {
     nucleons.push_back(Nucleon(id(), 0, Vec4()));
     return nucleons;
@@ -180,9 +257,11 @@ vector<Nucleon> GLISSANDOModel::generate() const {
     while ( true ) {
       Vec4 pos = generateNucleon();
       bool overlap = false;
-      for ( int i = 0, N = positions.size(); i < N && !overlap; ++i )
-        if ( (positions[i] - pos).pAbs() < (gaussHardCore ? RhGauss() : Rh()) )
-          overlap = true;
+      if (useHardCore) {
+        for (int i = 0, N = positions.size(); i < N && !overlap; ++i ) {
+          if ((positions[i] - pos).pAbs() < rSample() ) overlap = true;
+        }
+      }
       if ( overlap ) continue;
       positions.push_back(pos);
       cms += pos;
@@ -197,7 +276,176 @@ vector<Nucleon> GLISSANDOModel::generate() const {
   for ( int i = 0, N= positions.size(); i < N; ++i ) {
     Vec4 pos(positions[i].px() - cms.px(),
                  positions[i].py() - cms.py());
-    if ( int(rndPtr->flat()*(Np + Nn)) >= Np ) {
+    if ( int(rndmPtr->flat()*(Np + Nn)) >= Np ) {
+      --Nn;
+      nucleons[i] = Nucleon(nid, i, pos);
+    } else {
+      --Np;
+      nucleons[i] = Nucleon(pid, i, pos);
+    }
+  }
+  return nucleons;
+}
+
+//==========================================================================
+
+// GLISSANDOModel is a special case of the WoodsSaxon model with specific
+// parameters. The nuclear radius is calculated from A().
+
+//--------------------------------------------------------------------------
+
+// Initialize parameters.
+
+bool GLISSANDOModel::init() {
+  if ( A() == 0 ) return true;
+
+  // Initialize hard core.
+  initHardCore();
+
+  // There are no parameters to be read.
+  if (useHardCore) {
+    RSave = (1.1*pow(double(A()),1.0/3.0) -
+             0.656*pow(double(A()),-1.0/3.0))*femtometer;
+    aSave = 0.459*femtometer;
+  } else {
+    RSave = (1.12*pow(double(A()),1.0/3.0) -
+             0.86*pow(double(A()),-1.0/3.0))*femtometer;
+    aSave = 0.54*femtometer;
+  }
+
+  // Calculate overestimates.
+  overestimates();
+  return NucleusModel::init();
+
+}
+
+//==========================================================================
+
+// HOShellModel is derived from of NucleusModel and implements a
+// harmonic oscilator shell model with option for hard cores. Suitable for
+// nuclei with 4 <= A <= 16.
+
+//--------------------------------------------------------------------------
+
+// Initialize parameters.
+
+bool HOShellModel::init() {
+  if ( A() == 0 ) return true;
+
+  // Initialize hard core parameters in base class.
+  initHardCore();
+
+  // Proton charge radius
+  protonChR = isProj ? settingsPtr->parm("HeavyIonA:HOProtonChargeRadius")
+                     : settingsPtr->parm("HeavyIonB:HOProtonChargeRadius");
+  // Possible custom nuclear charge radius
+  nucleusChR = isProj ? settingsPtr->parm("HeavyIonA:HONuclearChargeRadius")
+                      : settingsPtr->parm("HeavyIonB:HONuclearChargeRadius");
+
+  // If not changed, use defaults for a set of nuclei.
+  if (nucleusChR == 0.) {
+    // Helium-4
+    if (A() == 4 && Z() == 2) nucleusChR = (useHardCore ? 2.45 : 2.81);
+    // Lithium-6
+    else if (A() == 6 && Z() == 3) nucleusChR = (useHardCore ? 6.4 : 6.7);
+    // Berylium-7
+    else if (A() == 7 && Z() == 4) nucleusChR = (useHardCore ? 6.69 : 7.00);
+    // Lithium-8
+    else if (A() == 8 && Z() == 3) nucleusChR = (useHardCore ? 5.1 : 5.47);
+    // Berylium-9
+    else if (A() == 9 && Z() == 4) nucleusChR = (useHardCore ? 6.0 : 6.35);
+    // Boron-10
+    else if (A() == 10 && Z() == 5) nucleusChR = (useHardCore ? 5.5 : 5.89);
+    // Boron-11
+    else if (A() == 11 && Z() == 5) nucleusChR = (useHardCore ? 5.36 : 5.79);
+    // Carbon-12
+    else if (A() == 12 && Z() == 6) nucleusChR = (useHardCore ? 5.66 : 6.10);
+    // Carbon-13
+    else if (A() == 13 && Z() == 6) nucleusChR = (useHardCore ? 5.6 : 6.06);
+    // Nitrogen-14
+    else if (A() == 14 && Z() == 7) nucleusChR = (useHardCore ? 6.08 : 6.54);
+    // Nitrogen-15
+    else if (A() == 15 && Z() == 7) nucleusChR = (useHardCore ? 6.32 : 6.79);
+    // Oxygen-16
+    else if (A() == 16 && Z() == 8) nucleusChR = (useHardCore ? 6.81 : 7.29);
+    else {
+      infoPtr->errorMsg("Error in HOShellModel:init: "
+        "default parameters are not defined for this nucleus",
+        "(with id=" + to_string(idSave) + ")");
+      return false;
+    }
+  }
+  // Calculate C2 prefactor.
+  C2 = 1./(5./2. - 4./A()) * (nucleusChR - protonChR);
+  rhoMax = A() < 10 ? rho(0) : rho( (sqrt((A() - 10)*sqrt(C2))/sqrt(A() - 4)));
+  NucleusModel::init();
+  return true;
+}
+
+//--------------------------------------------------------------------------
+
+// Generate the position of a single nucleon.
+
+Vec4 HOShellModel::generateNucleon() const {
+  double r = -1;
+  do {
+    r = -C2 * log(rndmPtr->flat());
+  } while (rndmPtr->flat() * 14./8. * rhoMax * exp(-r/C2) > rho(r) );
+
+
+  double costhe = 2.0*rndmPtr->flat() - 1.0;
+  double sinthe = sqrt(max(1.0 - costhe*costhe, 0.0));
+  double phi = 2.0*M_PI*rndmPtr->flat();
+
+  return Vec4(r*sinthe*cos(phi), r*sinthe*sin(phi), r*costhe);
+}
+
+//--------------------------------------------------------------------------
+
+// Generate all the nucleons.
+
+vector<Nucleon> HOShellModel::generate() const {
+  int sign = id() > 0? 1: -1;
+  int pid = sign*2212;
+  int nid = sign*2112;
+  vector<Nucleon> nucleons;
+
+  if ( A() == 0 ) {
+    nucleons.push_back(Nucleon(id(), 0, Vec4()));
+    return nucleons;
+  }
+  if ( A() == 1 ) {
+    if ( Z() == 1 ) nucleons.push_back(Nucleon(pid, 0, Vec4()));
+    else  nucleons.push_back(Nucleon(nid, 0, Vec4()));
+    return nucleons;
+  }
+
+  Vec4 cms;
+  vector<Vec4> positions;
+  while ( int(positions.size()) < A() ) {
+    while ( true ) {
+      Vec4 pos = generateNucleon();
+      bool overlap = false;
+      if (useHardCore) {
+        for ( int i = 0, N = positions.size(); i < N && !overlap; ++i ) {
+          if ( (positions[i] - pos).pAbs() < rSample() ) overlap = true;
+        }
+      }
+      if ( overlap ) continue;
+      positions.push_back(pos);
+      cms += pos;
+      break;
+    }
+  }
+
+  cms /= A();
+  nucleons.resize(A());
+  int Np = Z();
+  int Nn = A() - Z();
+  for ( int i = 0, N= positions.size(); i < N; ++i ) {
+    Vec4 pos(positions[i].px() - cms.px(),
+                 positions[i].py() - cms.py());
+    if ( int(rndmPtr->flat()*(Np + Nn)) >= Np ) {
       --Nn;
       nucleons[i] = Nucleon(nid, i, pos);
     } else {
@@ -207,7 +455,222 @@ vector<Nucleon> GLISSANDOModel::generate() const {
   }
 
   return nucleons;
+}
 
+//==========================================================================
+
+// The Hulthen model for deuterons.
+
+//--------------------------------------------------------------------------
+
+// Initialize parameters.
+
+bool HulthenModel::init() {
+  if (! (A() == 2 && Z() == 1)) {
+    infoPtr->errorMsg("Abort from HulthenModel::init: "
+      "the Hulthen distribution is only valid for deuterons");
+    return false;
+  }
+  // Note: Hulthen model has no hard core option.
+
+  hA = isProj ? settingsPtr->parm("HeavyIonA:HulthenA")
+              : settingsPtr->parm("HeavyIonB:HulthenA");
+
+  hB = isProj ? settingsPtr->parm("HeavyIonA:HulthenB")
+              : settingsPtr->parm("HeavyIonB:HulthenB");
+
+  // Test that b > a.
+  if (hB < hA) {
+    infoPtr->errorMsg("Abort from HulthenModel::init: "
+      "you must have HeavyIonX:HulthenB > HeavyIonX:HulthenA");
+    return false;
+  }
+  return true;
+}
+
+//--------------------------------------------------------------------------
+
+// Generate all the nucleons.
+
+vector<Nucleon> HulthenModel::generate() const {
+  int sign = id() > 0? 1: -1;
+  int pid = sign*2212;
+  int nid = sign*2112;
+  vector<Nucleon> nucleons;
+
+  Vec4 cms;
+
+  // Put one at (0,0,0).
+  Vec4 posA(0, 0, 0);
+
+  // Find the distance between the nucleons.
+  double r;
+  do {
+    r = -hB * log(1. - rndmPtr->flat())/2./hA;
+  } while (rndmPtr->flat() * exp(-2.*hA*r/hB) > rho(r));
+  // Add the other one on a sphere around the first one.
+  double costhe = 2.0*rndmPtr->flat() - 1.0;
+  double sinthe = sqrt(max(1.0 - costhe*costhe, 0.0));
+  double phi = 2.0*M_PI*rndmPtr->flat();
+
+  Vec4 posB(r*sinthe*cos(phi), r*sinthe*sin(phi), r*costhe);
+  cms += posB;
+  cms /= A();
+  nucleons.resize(A());
+
+  // Add them to the vector.
+  bool nFirst = (rndmPtr->flat() < 0.5);
+  nucleons[0] = Nucleon((nFirst ? pid : nid), 0, Vec4(posA.px() - cms.px(),
+      posA.py() - cms.py()));
+    nucleons[1] = Nucleon((nFirst ? nid : pid), 0, Vec4(posB.px() - cms.px(),
+      posB.py() - cms.py()));
+  return nucleons;
+}
+
+//==========================================================================
+
+// A Gaussian distribution for light nuclei.
+
+//--------------------------------------------------------------------------
+
+// Initialize parameters.
+
+bool GaussianModel::init() {
+
+  if ( A() == 0 ) return true;
+
+  // Initialize hard core.
+  initHardCore();
+
+  // A single parameter.
+  nucleusChR = isProj ? settingsPtr->parm("HeavyIonA:GaussianChargeRadius")
+                      : settingsPtr->parm("HeavyIonB:GaussianChargeRadius");
+
+  return true;
+}
+
+//--------------------------------------------------------------------------
+
+// Generate the position of a single nucleon.
+
+Vec4 GaussianModel::generateNucleon() const {
+  double r;
+  do {
+    r = nucleusChR * rndmPtr->gauss();
+  }
+  while(r > 4 * nucleusChR);
+  double costhe = 2.0*rndmPtr->flat() - 1.0;
+  double sinthe = sqrt(max(1.0 - costhe*costhe, 0.0));
+  double phi = 2.0*M_PI*rndmPtr->flat();
+
+  return Vec4(r*sinthe*cos(phi), r*sinthe*sin(phi), r*costhe);
+}
+
+//--------------------------------------------------------------------------
+
+// Generate all the nucleons.
+
+vector<Nucleon> GaussianModel::generate() const {
+  int sign = id() > 0? 1: -1;
+  int pid = sign*2212;
+  int nid = sign*2112;
+  vector<Nucleon> nucleons;
+
+  if ( A() == 0 ) {
+    nucleons.push_back(Nucleon(id(), 0, Vec4()));
+    return nucleons;
+  }
+  if ( A() == 1 ) {
+    if ( Z() == 1 ) nucleons.push_back(Nucleon(pid, 0, Vec4()));
+    else  nucleons.push_back(Nucleon(nid, 0, Vec4()));
+    return nucleons;
+  }
+
+  Vec4 cms;
+  vector<Vec4> positions;
+  while ( int(positions.size()) < A() ) {
+    while ( true ) {
+      Vec4 pos = generateNucleon();
+      bool overlap = false;
+      if (useHardCore) {
+        for ( int i = 0, N = positions.size(); i < N && !overlap; ++i )
+          if ( (positions[i] - pos).pAbs() < abs(rndmPtr->gauss())
+            *hardCoreRadius ) overlap = true;
+      }
+      if ( overlap ) continue;
+      positions.push_back(pos);
+      cms += pos;
+      break;
+    }
+  }
+
+  cms /= A();
+  nucleons.resize(A());
+  int Np = Z();
+  int Nn = A() - Z();
+  for ( int i = 0, N = positions.size(); i < N; ++i ) {
+    Vec4 pos(positions[i].px() - cms.px(), positions[i].py() - cms.py());
+    if ( int(rndmPtr->flat()*(Np + Nn)) >= Np ) {
+      --Nn;
+      nucleons[i] = Nucleon(nid, i, pos);
+    } else {
+      --Np;
+      nucleons[i] = Nucleon(pid, i, pos);
+    }
+  }
+
+  return nucleons;
+}
+
+//==========================================================================
+
+// ClusterModel generates nucleons clustered in smaller nucleons.
+
+//--------------------------------------------------------------------------
+
+// Initialize. Check if this nucleon is implemented
+
+bool ClusterModel::init() {
+
+  // Initialize hard core.
+  initHardCore();
+  // So far only use this model for 4He
+  vector<int> implemented = {1000020040};
+  bool isImplemented = false;
+  for (int i = 0, N = implemented.size(); i < N; ++i) {
+    if (id() == implemented[i]) {
+      isImplemented = true;
+      break;
+    }
+  }
+  if (!isImplemented) {
+    infoPtr->errorMsg("Abort from ClusterModel::init: "
+      "nucleus has no valid cluster model",
+      "(for id=" + to_string(id()) + ")");
+    return false;
+  }
+
+  // Set up the internal nucleus model for clusters.
+  // Hulthen
+  nModelPtr = unique_ptr<HulthenModel>();
+  nModelPtr->initPtr(1000010020, isProj, *infoPtr);
+  nModelPtr->init();
+
+  return true;
+}
+
+//--------------------------------------------------------------------------
+
+// Generate the nucleons.
+
+vector<Nucleon> ClusterModel::generate() const {
+  vector<Nucleon> ret;
+  auto h1 = nModelPtr->generate();
+  auto h2 = nModelPtr->generate();
+  ret.insert(ret.end(), h1.begin(), h1.end());
+  ret.insert(ret.end(), h2.begin(), h2.end());
+
+  return ret;
 }
 
 //==========================================================================
@@ -218,16 +681,14 @@ vector<Nucleon> GLISSANDOModel::generate() const {
 
 // Initialise base class, passing pointers to important objects.
 
-void ImpactParameterGenerator::initPtr(SubCollisionModel & collIn,
-                                       NucleusModel & projIn,
-                                       NucleusModel & targIn,
-                                       Settings & settingsIn,
-                                       Rndm & rndIn) {
+void ImpactParameterGenerator::initPtr(Info & infoIn,
+  SubCollisionModel & collIn, NucleusModel & projIn, NucleusModel & targIn) {
+  infoPtr = &infoIn;
+  settingsPtr = infoIn.settingsPtr;
+  rndmPtr = infoIn.rndmPtr;
   collPtr = &collIn;
   projPtr = &projIn;
   targPtr = &targIn;
-  settingsPtr = &settingsIn;
-  rndPtr = &rndIn;
 
 }
 
@@ -246,8 +707,8 @@ bool ImpactParameterGenerator::init() {
     double RA = max(Rp, projPtr->R());
     double RB = max(Rp, targPtr->R());
     widthSave = RA + RB + 2.0*Rp;
-    cout << " HeavyIon Info: Initializing impact parameter generator "
-         << "with width " << widthSave/femtometer << " fm." << endl;
+    infoPtr->errorMsg("Info from ImpactParameterGenerator::init: "
+      "initializing with width " + to_string(widthSave/femtometer) + " fm");
   }
 
   return true;
@@ -258,8 +719,8 @@ bool ImpactParameterGenerator::init() {
 // Generate an impact parameter according to a gaussian distribution.
 
 Vec4 ImpactParameterGenerator::generate(double & weight) const {
-  double b = sqrt(-2.0*log(rndPtr->flat()))*width();
-  double phi = 2.0*M_PI*rndPtr->flat();
+  double b = sqrt(-2.0*log(rndmPtr->flat()))*width();
+  double phi = 2.0*M_PI*rndmPtr->flat();
   weight = 2.0*M_PI*width()*width()*exp(0.5*b*b/(width()*width()));
   return Vec4(b*sin(phi), b*cos(phi), 0.0, 0.0);
 }
@@ -289,7 +750,8 @@ bool SubCollisionModel::init() {
   NPop = settingsPtr->mode("HeavyIon:SigFitNPop");
   sigErr = settingsPtr->pvec("HeavyIon:SigFitErr");
   sigFuzz = settingsPtr->parm("HeavyIon:SigFitFuzz");
-  fitPrint = settingsPtr->flag("HeavyIon:SigFitPrint");
+  fitPrint = settingsPtr->flag("HeavyIon:SigFitPrint") &&
+    !settingsPtr->flag("Print:quiet");
   // preliminarily set average non-diffractive impact parameter as if
   // black disk.
   avNDb = 2.0*sqrt(sigTarg[1]/M_PI)*
@@ -356,8 +818,11 @@ bool SubCollisionModel::evolve() {
   if ( dim == 0 ) return true;
 
   if ( fitPrint ) {
-    cout << " *------ HeavyIon fitting of SubCollisionModel to "
-         << "cross sections ------* " << endl;
+    string edge = settingsPtr->flag("HeavyIon:showInit") ? "|" : "*";
+    cout << " " + edge + "------ HeavyIon fitting of SubCollisionModel to "
+         << "cross sections ------" + edge + "\n"
+         << " |                                                               "
+         << "      |" << endl;
     printTarget("Total", sigTarg[0]/millibarn, sigErr[0]);
     printTarget("non-diffractive", sigTarg[1]/millibarn, sigErr[1]);
     printTarget("XX diffractive", sigTarg[2]/millibarn, sigErr[2]);
@@ -377,7 +842,7 @@ bool SubCollisionModel::evolve() {
     pop[0][j] = max(minp[j], min(def[j], maxp[j]));
   for ( int i = 1; i < NPop; ++i )
     for ( int j = 0; j < dim; ++j )
-      pop[i][j] = minp[j] + rndPtr->flat()*(maxp[j] - minp[j]);
+      pop[i][j] = minp[j] + rndmPtr->flat()*(maxp[j] - minp[j]);
 
   // Now we evolve our population for a number of generations.
   for ( int igen = 0; igen < NGen; ++igen ) {
@@ -410,19 +875,19 @@ bool SubCollisionModel::evolve() {
 
     for ( int i = 1; i < NPop; ++i ) {
       pop[i] = (++it)->second;
-      if ( it->first > rndPtr->flat()*chi2max ) {
+      if ( it->first > rndmPtr->flat()*chi2max ) {
         // Kill this individual and create a new one.
         for ( int j = 0; j < dim; ++j )
-          pop[i][j] = minp[j] + rndPtr->flat()*(maxp[j] - minp[j]);
+          pop[i][j] = minp[j] + rndmPtr->flat()*(maxp[j] - minp[j]);
       } else {
         // Pick one of the better parameter sets and move this closer.
-        int ii = int(rndPtr->flat()*i);
+        int ii = int(rndmPtr->flat()*i);
         for ( int j = 0; j < dim; ++j ) {
           double d = pop[ii][j] - it->second[j];
           double pl = max(minp[j], min(it->second[j] - sigFuzz*d, maxp[j]));
           double pu = max(minp[j], min(it->second[j] +
                                        (1.0 + sigFuzz)*d, maxp[j]));
-          pop[i][j] = pl + rndPtr->flat()*(pu - pl);
+          pop[i][j] = pl + rndmPtr->flat()*(pu - pl);
         }
       }
     }
@@ -598,7 +1063,7 @@ getCollisions(vector<Nucleon> & proj, vector<Nucleon> & targ,
         ret.insert(SubCollision(p, t, b, b/avNDb, SubCollision::DDE));
       }
       else if ( b < sqrt((sigND() + sigSDE() + sigDDE())/M_PI) ) {
-         if ( sigSDEP() > rndPtr->flat()*sigSDE() ) {
+         if ( sigSDEP() > rndmPtr->flat()*sigSDE() ) {
           ret.insert(SubCollision(p, t, b, b/avNDb, SubCollision::SDEP));
         } else {
           ret.insert(SubCollision(p, t, b, b/avNDb, SubCollision::SDET));
@@ -783,14 +1248,14 @@ double DoubleStrikman::gamma() const {
   int k = int(k0);
   double del = k0 - k;
   double x = 0.0;
-  for ( int i = 0; i < k; ++i ) x += -log(rndPtr->flat());
+  for ( int i = 0; i < k; ++i ) x += -log(rndmPtr->flat());
 
   if ( del == 0.0 ) return x*r0;
 
   while ( true ) {
-    double U = rndPtr->flat();
-    double V = rndPtr->flat();
-    double W = rndPtr->flat();
+    double U = rndmPtr->flat();
+    double V = rndmPtr->flat();
+    double W = rndmPtr->flat();
 
     double xi = 0.0;
     if ( U <= e/(e+del) ) {
@@ -854,7 +1319,7 @@ getCollisions(vector<Nucleon> & proj, vector<Nucleon> & targ,
   multiset<SubCollision> ret =
     SubCollisionModel::getCollisions(proj, targ, bvec, T);
 
-  /// Assign two states to each nucleon
+  // Assign two states to each nucleon.
   for ( int ip = 0, Np = proj.size(); ip < Np; ++ip ) {
     proj[ip].state(Nucleon::State(1, gamma()));
     proj[ip].addAltState(Nucleon::State(1, gamma()));
@@ -886,7 +1351,7 @@ getCollisions(vector<Nucleon> & proj, vector<Nucleon> & targ,
       double PND11 = 1.0 - pow2(S11);
       // First and most important, check if this is an absorptive
       // scattering.
-      if ( PND11 > rndPtr->flat() ) {
+      if ( PND11 > rndmPtr->flat() ) {
         ret.insert(SubCollision(p, t, b, b/avNDb, SubCollision::ABS));
         continue;
       }
@@ -902,8 +1367,8 @@ getCollisions(vector<Nucleon> & proj, vector<Nucleon> & targ,
       double PWt12 = 1.0 - S11*S12;
       shuffle(PND11, PND12, PWt11, PWt12);
 
-      bool wt = ( PWt11 - PND11 > (1.0 - PND11)*rndPtr->flat() );
-      bool wp = ( PWp11 - PND11 > (1.0 - PND11)*rndPtr->flat() );
+      bool wt = ( PWt11 - PND11 > (1.0 - PND11)*rndmPtr->flat() );
+      bool wp = ( PWp11 - PND11 > (1.0 - PND11)*rndmPtr->flat() );
       if ( wt && wp ) {
         ret.insert(SubCollision(p, t, b, b/avNDb, SubCollision::DDE));
         continue;
@@ -935,8 +1400,8 @@ getCollisions(vector<Nucleon> & proj, vector<Nucleon> & targ,
 
       double PEL = (T12*T21 + T11*T22)/2.0;
       shuffel(PEL, PNW11, PNW12, PNW21, PNW22);
-      if ( PEL > PNW11*rndPtr->flat() ) {
-        if ( sigCDE() > rndPtr->flat()*(sigCDE() + sigEl()) )
+      if ( PEL > PNW11*rndmPtr->flat() ) {
+        if ( sigCDE() > rndmPtr->flat()*(sigCDE() + sigEl()) )
           ret.insert(SubCollision(p, t, b, b/avNDb, SubCollision::CDE));
         else
           ret.insert(SubCollision(p, t, b, b/avNDb, SubCollision::ELASTIC));

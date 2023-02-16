@@ -1,5 +1,5 @@
 // MergingHooks.h is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -192,7 +192,9 @@ public:
     doUNLOPSSubtNLOSave(false),
     doUMEPSTreeSave(false),
     doUMEPSSubtSave(false),
-    doEstimateXSection(false), applyVeto(),
+    doEstimateXSection(false),
+    doRuntimeAMCATNLOInterfaceSave(false),
+    applyVeto(),
     doRemoveDecayProducts(false), muMISave(), kFactor0jSave(), kFactor1jSave(),
     kFactor2jSave(), tmsValueSave(), tmsValueNow(), DparameterSave(),
     nJetMaxSave(), nJetMaxNLOSave(),
@@ -358,6 +360,10 @@ public:
   bool doUNLOPSSubtNLO() { return doUNLOPSSubtNLOSave;}
   bool doUNLOPSMerging() { return (doUNLOPSTreeSave || doUNLOPSLoopSave
                              || doUNLOPSSubtSave || doUNLOPSSubtNLOSave); }
+
+  // Function to determine if we have a runtime interface to aMC@NLO.
+  bool doRuntimeAMCATNLOInterface() { return doRuntimeAMCATNLOInterfaceSave;}
+
   // Return the number clustering steps that have actually been done.
   int nRecluster() { return nReclusterSave;}
 
@@ -381,13 +387,11 @@ public:
   bool allowEffectiveVertex( vector<int> in, vector<int> out) {
     if ( getProcessString().compare("ta+ta->jj") == 0
       || getProcessString().compare("ta-ta+>jj") == 0 ) {
-      int nInFermions(0), nOutFermions(0), nOutBosons(0);
+      int nInFermions(0), nOutFermions(0);
       for (int i=0; i < int(in.size()); ++i)
         if (abs(in[i])<20) nInFermions++;
-      for (int i=0; i < int(out.size()); ++i) {
+      for (int i=0; i < int(out.size()); ++i)
         if (abs(out[i])<20) nOutFermions++;
-        if (abs(out[i])>20) nOutBosons++;
-      }
       return (nInFermions%2==0 && nOutFermions%2==0);
     }
     return false;
@@ -520,7 +524,7 @@ public:
 
   double scaleSeparationFactorSave, nonJoinedNormSave,
          fsrInRecNormSave, herwigAcollFSRSave, herwigAcollISRSave,
-         pT0ISRSave, pTcutSave;
+         pT0ISRSave, pTcutSave, pTminISRSave, pTminFSRSave;
   bool   doNL3TreeSave, doNL3LoopSave, doNL3SubtSave;
   bool   doUNLOPSTreeSave, doUNLOPSLoopSave, doUNLOPSSubtSave,
          doUNLOPSSubtNLOSave;
@@ -529,7 +533,13 @@ public:
   // Flag to only do phase space cut, rejecting events below the tms cut.
   bool   doEstimateXSection;
 
-  bool applyVeto;
+  // Flag for runtime aMC@NLO interface. Needed for aMC@NLO-Delta.
+  bool   doRuntimeAMCATNLOInterfaceSave;
+
+  // Flag for postponing event vetos. If false, events are not vetoed
+  // based on the merging scale in CKKW-L merging, but have to be
+  // vetoed by the user in the main program.
+  bool   applyVeto;
 
   // Save input event in case decay products need to be detached.
   Event inputEvent;

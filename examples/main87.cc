@@ -1,11 +1,12 @@
 // main87.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
+// Authors: Stefan Prestel.
+
 // Keywords: merging; NLO; NL3; hepmc;
 
-// This program is written by Stefan Prestel.
 // It illustrates how to do NL3 merging, see the Matrix Element
 // Merging page in the online manual. An example command is
 //     ./main87 main87.cmnd w_production hepmcout87.dat

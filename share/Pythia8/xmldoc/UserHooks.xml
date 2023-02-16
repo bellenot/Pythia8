@@ -239,7 +239,7 @@ particles in slots 5 through 4 + N, and thereafter recursively the
 resonance decay chains, if any. Use the method 
 <code>omitResonanceDecays(...)</code> if you want to skip these 
 decay chains. There are exceptions to this structure, 
-for <aloc href="QCDProcesses">soft QCD processes</aloc> (where 
+for <aloc href="QCDSoftProcesses">soft QCD processes</aloc> (where 
 the partonic process may not yet have been selected at this stage), 
 and when a <aloc href="SecondHardProcess">second hard process</aloc> has 
 been requested (where two hard processes are bookkept). In general 
@@ -1051,8 +1051,8 @@ collisions. Note that it does not modify the
 <aloc href="MultipartonInteractions"> 
   <code>MultipartonInteractions:bProfile</code></aloc> used in the MPI 
   machinery, and that currently it will only affect the 
-  <aloc href="QCDProcesses"> 
-  <code>SoftQCD</code></aloc> processes. 
+  <code><aloc href="QCDSoftProcesses">SoftQCD</aloc></code> 
+ processes. 
 </method> 
  
  
@@ -1082,4 +1082,4 @@ occurs.
  
 </chapter> 
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

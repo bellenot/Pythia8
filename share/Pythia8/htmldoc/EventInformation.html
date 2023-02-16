@@ -650,57 +650,8 @@ provide the new Pomeron-hadron ones.
 <a name="section12"></a> 
 <h3>Cross sections</h3> 
  
-Here are the currently available methods related to the event sample 
-as a whole, for the default value <code>i = 0</code>, and otherwise for 
-the specific process code provided as argument. This is the number 
-obtained with <code>Info::code()</code>, while the further subdivision 
-given by <code>Info::codeSub()</code> is not bookkept. While continuously 
-updated during the run, it is recommended only to study these properties 
-at the end of the event generation, when the full statistics is available. 
-The individual process results are not available if a 
-<a href="SecondHardProcess.html" target="page">second hard process</a> has been 
-chosen, but can be gleaned from the <code>pythia.stat()</code> output. 
- 
-<a name="anchor93"></a>
-<p/><strong> vector&lt;int&gt; Info::codesHard() &nbsp;</strong> <br/>
-returns a vector with all the process codes set up for the current run, 
-i.e. the valid nonzero arguments for the five methods below. 
-   
- 
-<a name="anchor94"></a>
-<p/><strong> string Info::nameProc(int i = 0) &nbsp;</strong> <br/>
-returns the process name for process code <code>i</code>. 
-   
- 
-<a name="anchor95"></a>
-<p/><strong> long Info::nTried(int i = 0) &nbsp;</strong> <br/>
-   
-<a name="anchor96"></a>
-<strong> long Info::nSelected(int i = 0) &nbsp;</strong> <br/>
-   
-<a name="anchor97"></a>
-<strong> long Info::nAccepted(int i = 0) &nbsp;</strong> <br/>
-the total number of tried phase-space points, selected hard processes 
-and finally accepted events, summed over all allowed processes 
-(<code>i = 0</code>) or for the given process. 
-The first number is only intended for a study of the phase-space selection 
-efficiency. The last two numbers usually only disagree if the user introduces 
-some veto during the event-generation process; then the former is the number 
-of acceptable events found by PYTHIA and the latter the number that also 
-were approved by the user. If you set a <a href="SecondHardProcess.html" target="page"> 
-second hard process</a> there may also be a mismatch. 
-   
- 
-<a name="anchor98"></a>
-<p/><strong> double Info::sigmaGen(int i = 0) &nbsp;</strong> <br/>
-   
-<a name="anchor99"></a>
-<strong> double Info::sigmaErr(int i = 0) &nbsp;</strong> <br/>
-the estimated cross section and its estimated error, 
-summed over all allowed processes (<code>i = 0</code>) or for the given 
-process, in units of mb. The numbers refer to the accepted event sample 
-above, i.e. after any user veto. 
-   
+Dedicated documentation describes the details of 
+<a href="CrossSectionsAndWeights.html" target="page">cross sections and weights</a>. 
  
 <a name="section13"></a> 
 <h3>Loop counters</h3> 
@@ -711,7 +662,7 @@ so that one can keep track of how the event generation is progressing.
 This may be especially useful in the context of the 
 <code><a href="UserHooks.html" target="page">User Hooks</a></code> facility. 
  
-<a name="anchor100"></a>
+<a name="anchor93"></a>
 <p/><strong> int Info::getCounter(int i) &nbsp;</strong> <br/>
 the method that gives you access to the value of the various loop 
 counters. 
@@ -818,7 +769,7 @@ that therefore are free to use, with the help of the two methods below.
    
    
  
-<a name="anchor101"></a>
+<a name="anchor94"></a>
 <p/><strong> void Info::setCounter(int i, int value = 0) &nbsp;</strong> <br/>
 set the above counters to a given value. Only to be used by you 
 for the unassigned counters 40 - 49. 
@@ -829,7 +780,7 @@ normally the default value is what you want.
    
    
  
-<a name="anchor102"></a>
+<a name="anchor95"></a>
 <p/><strong> void Info::addCounter(int i, int value = 0) &nbsp;</strong> <br/>
 increase the above counters by a given amount. Only to be used by you 
 for the unassigned counters 40 - 49. 
@@ -846,27 +797,27 @@ normally the default value is what you want.
 The following methods are mainly intended for internal use, 
 e.g. for matrix-element matching. 
  
-<a name="anchor103"></a>
+<a name="anchor96"></a>
 <p/><strong> void Info::hasHistory(bool hasHistoryIn) &nbsp;</strong> <br/>
    
-<a name="anchor104"></a>
+<a name="anchor97"></a>
 <strong> bool Info::hasHistory() &nbsp;</strong> <br/>
 set/get knowledge whether the likely shower history of an event 
 has been traced. 
    
  
-<a name="anchor105"></a>
+<a name="anchor98"></a>
 <p/><strong> void Info::zNowISR(bool zNowIn) &nbsp;</strong> <br/>
    
-<a name="anchor106"></a>
+<a name="anchor99"></a>
 <strong> double Info::zNowISR() &nbsp;</strong> <br/>
 set/get value of <i>z</i> in latest ISR branching. 
    
  
-<a name="anchor107"></a>
+<a name="anchor100"></a>
 <p/><strong> void Info::pT2NowISR(bool pT2NowIn) &nbsp;</strong> <br/>
    
-<a name="anchor108"></a>
+<a name="anchor101"></a>
 <strong> double Info::pT2NowISR() &nbsp;</strong> <br/>
 set/get value of <i>pT^2</i> in latest ISR branching. 
    
@@ -896,150 +847,150 @@ pointer <code>Info::hiInfo</code> to a special <code>HIInfo</code>
 object. The information stored there is typically related to the 
 Glauber modelling of the nucleons in a nuclei. 
  
-<a name="anchor109"></a>
+<a name="anchor102"></a>
 <p/><strong> double HIInfo::b() &nbsp;</strong> <br/>
 the impact parameter in femtometers. 
    
  
-<a name="anchor110"></a>
+<a name="anchor103"></a>
 <p/><strong> double HIInfo::phi() &nbsp;</strong> <br/>
 the impact parameter angle. 
    
  
-<a name="anchor111"></a>
+<a name="anchor104"></a>
 <p/><strong> double HIInfo::sigmaTot() &nbsp;</strong> <br/>
 the total cross section from the Glauber calculation in millibarns. 
    
  
-<a name="anchor112"></a>
+<a name="anchor105"></a>
 <p/><strong> double HIInfo::sigmaTotErr() &nbsp;</strong> <br/>
 the error in the total cross section. 
    
  
-<a name="anchor113"></a>
+<a name="anchor106"></a>
 <p/><strong> double HIInfo::sigmaND() &nbsp;</strong> <br/>
 the inelastic non-diffractive  cross section from the Glauber calculation 
 in millibarns. 
    
  
-<a name="anchor114"></a>
+<a name="anchor107"></a>
 <p/><strong> double HIInfo::sigmaNDErr() &nbsp;</strong> <br/>
 the error in the inelastic non-diffractive cross section. 
    
  
-<a name="anchor115"></a>
-<p/><strong> long nAttempts() &nbsp;</strong> <br/>
+<a name="anchor108"></a>
+<p/><strong> long HIInfo::nAttempts() &nbsp;</strong> <br/>
 the number of attempted impact parameter points. 
    
  
-<a name="anchor116"></a>
-<p/><strong> long nAccepted() &nbsp;</strong> <br/>
+<a name="anchor109"></a>
+<p/><strong> long HIInfo::nAccepted() &nbsp;</strong> <br/>
 the number of accepted impact parameter points (resulting in actual events). 
    
  
-<a name="anchor117"></a>
-<p/><strong> int nCollTot() &nbsp;</strong> <br/>
+<a name="anchor110"></a>
+<p/><strong> int HIInfo::nCollTot() &nbsp;</strong> <br/>
 the number of separate sub-collisions in the current event. 
    
  
-<a name="anchor118"></a>
-<p/><strong> int nCollND() &nbsp;</strong> <br/>
+<a name="anchor111"></a>
+<p/><strong> int HIInfo::nCollND() &nbsp;</strong> <br/>
 the number of separate fully non-diffractive sub-collisions in the 
 current event. 
    
  
-<a name="anchor119"></a>
-<p/><strong> int nCollNDTot() &nbsp;</strong> <br/>
+<a name="anchor112"></a>
+<p/><strong> int HIInfo::nCollNDTot() &nbsp;</strong> <br/>
 the total number of non-diffractive NN-collisions in the current 
 event. 
    
  
-<a name="anchor120"></a>
-<p/><strong> int nCollSDP() &nbsp;</strong> <br/>
+<a name="anchor113"></a>
+<p/><strong> int HIInfo::nCollSDP() &nbsp;</strong> <br/>
 the number of separate single diffractive projectile nucleon excitation 
 sub-collisions in the current event. 
    
  
-<a name="anchor121"></a>
-<p/><strong> int nCollSDT() &nbsp;</strong> <br/>
+<a name="anchor114"></a>
+<p/><strong> int HIInfo::nCollSDT() &nbsp;</strong> <br/>
 the number of separate single diffractive target nucleon excitation 
 sub-collisions in the current event. 
    
  
-<a name="anchor122"></a>
-<p/><strong> int nCollDD() &nbsp;</strong> <br/>
+<a name="anchor115"></a>
+<p/><strong> int HIInfo::nCollDD() &nbsp;</strong> <br/>
 the number of separate double diffractive excitation sub-collisions in 
 the current event. 
    
  
-<a name="anchor123"></a>
-<p/><strong> int nCollCD() &nbsp;</strong> <br/>
+<a name="anchor116"></a>
+<p/><strong> int HIInfo::nCollCD() &nbsp;</strong> <br/>
 the number of separate central diffractive excitation sub-collisions in 
 the current event. 
    
  
-<a name="anchor124"></a>
-<p/><strong> int nCollEL() &nbsp;</strong> <br/>
+<a name="anchor117"></a>
+<p/><strong> int HIInfo::nCollEL() &nbsp;</strong> <br/>
 the number of separate elastic sub-collisions in 
 the current event. 
    
  
-<a name="anchor125"></a>
-<p/><strong> int nPartProj() &nbsp;</strong> <br/>
+<a name="anchor118"></a>
+<p/><strong> int HIInfo::nPartProj() &nbsp;</strong> <br/>
 number of interacting projectile nucleons in the current event. 
    
  
-<a name="anchor126"></a>
-<p/><strong> int nAbsProj() &nbsp;</strong> <br/>
+<a name="anchor119"></a>
+<p/><strong> int HIInfo::nAbsProj() &nbsp;</strong> <br/>
 number of absorptively wounded projectile nucleons in the current event. 
    
  
-<a name="anchor127"></a>
-<p/><strong> int nDiffProj() &nbsp;</strong> <br/>
+<a name="anchor120"></a>
+<p/><strong> int HIInfo::nDiffProj() &nbsp;</strong> <br/>
 number of diffrectively wounded projectile nucleons in the current event. 
    
  
-<a name="anchor128"></a>
-<p/><strong> int nELProj() &nbsp;</strong> <br/>
+<a name="anchor121"></a>
+<p/><strong> int HIInfo::nELProj() &nbsp;</strong> <br/>
 number of elastically scattered projectile nucleons in the current event. 
    
  
-<a name="anchor129"></a>
-<p/><strong> int nPartTarg() &nbsp;</strong> <br/>
+<a name="anchor122"></a>
+<p/><strong> int HIInfo::nPartTarg() &nbsp;</strong> <br/>
 number of interacting target nucleons in the current event. 
    
  
-<a name="anchor130"></a>
-<p/><strong> int nAbsTarg() &nbsp;</strong> <br/>
+<a name="anchor123"></a>
+<p/><strong> int HIInfo::nAbsTarg() &nbsp;</strong> <br/>
 number of absorptively wounded target nucleons in the current event. 
    
  
-<a name="anchor131"></a>
-<p/><strong> int nDiffTarg() &nbsp;</strong> <br/>
+<a name="anchor124"></a>
+<p/><strong> int HIInfo::nDiffTarg() &nbsp;</strong> <br/>
 number of diffrectively wounded target nucleons in the current event. 
    
  
-<a name="anchor132"></a>
-<p/><strong> int nELTarg() &nbsp;</strong> <br/>
+<a name="anchor125"></a>
+<p/><strong> int HIInfo::nELTarg() &nbsp;</strong> <br/>
 number of elastically scattered target nucleons in the current event. 
    
  
-<a name="anchor133"></a>
-<p/><strong> int nFail() &nbsp;</strong> <br/>
+<a name="anchor126"></a>
+<p/><strong> int HIInfo::nFail() &nbsp;</strong> <br/>
 number of failed nucleon excitations in the current event. 
    
  
-<a name="anchor134"></a>
-<p/><strong> weight() &nbsp;</strong> <br/>
+<a name="anchor127"></a>
+<p/><strong> double HIInfo::weight() &nbsp;</strong> <br/>
 the weight of the current event. 
    
  
-<a name="anchor135"></a>
-<p/><strong> weightSum() &nbsp;</strong> <br/>
+<a name="anchor128"></a>
+<p/><strong> double HIInfo::weightSum() &nbsp;</strong> <br/>
 the sum of weights of the events generated so far. 
    
  
 </body>
 </html>
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

@@ -1,5 +1,5 @@
 // ProcessContainer.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -128,23 +128,45 @@ bool ProcessContainer::init(bool isFirst, ResonanceDecays* resDecaysPtrIn,
   // Store the state of photon beams using inFlux: 0 = not a photon beam;
   // 1 = resolved photon; 2 = unresolved photon. Resolved photon unless
   // expcilitly an initiator or if beam unresolved and in-state not defined.
+  // In case of externally provided Les Houches events rely currently on
+  // flag for the process type as not expected to be mixed between different
+  // event classes.
   string inState = sigmaProcessPtr->inFlux();
   beamAgammaMode = 0;
   beamBgammaMode = 0;
   gammaModeEvent = 0;
   if ( beamAPtr->isGamma() || beamAhasGamma ) {
-    if (isLHA) beamAgammaMode = beamAPtr->isUnresolved() ? 2 : 1;
-    else if ( inState == "gmg" || inState == "gmq" || inState == "gmf"
-        || inState == "gmgm" )
+    if (isLHA) {
+      if (beamAPtr->isGamma()) {
+        beamAgammaMode = beamAPtr->isUnresolved() ? 2 : 1;
+      } else if (beamAhasGamma) {
+        if (mode("Photon:ProcessType") == 3 || mode("Photon:ProcessType") == 4)
+          beamAgammaMode = 2;
+        else beamAgammaMode = 1;
+      }
+    } else if ( inState == "gmg" || inState == "gmq" || inState == "gmf"
+                || inState == "gmgm" ) {
       beamAgammaMode = 2;
-    else beamAgammaMode = 1;
+    } else {
+      beamAgammaMode = 1;
+    }
   }
   if ( beamBPtr->isGamma() || beamBhasGamma ) {
-    if (isLHA) beamBgammaMode = beamBPtr->isUnresolved() ? 2 : 1;
-    else if ( inState == "ggm" || inState == "qgm" || inState == "fgm"
-        || inState == "gmgm" )
+    if (isLHA) {
+      if (beamBPtr->isGamma()) {
+        beamBgammaMode = beamBPtr->isUnresolved() ? 2 : 1;
+      } else if (beamBhasGamma) {
+        if (mode("Photon:ProcessType") == 2 || mode("Photon:ProcessType") == 4)
+          beamBgammaMode = 2;
+        else beamBgammaMode = 1;
+      }
+
+    } else if ( inState == "ggm" || inState == "qgm" || inState == "fgm"
+                || inState == "gmgm" ) {
       beamBgammaMode = 2;
-    else beamBgammaMode = 1;
+    } else {
+      beamBgammaMode = 1;
+    }
   }
 
   // Save the photon modes and propagate further.
@@ -276,7 +298,6 @@ bool ProcessContainer::trialProcess() {
         wtPDF  = 1.;
         wtFlux = 1.;
       }
-
     }
 
     // Flag to check if more events should be generated.
@@ -835,6 +856,13 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       if (scaleShow >= 0.0) scaleNow = scaleShow;
 
       // Store Les Houches Accord partons. Boost to CM frame if not already.
+      // Possibly an offset for mother/daugther list in photoproduction.
+      if (nOffsetGamma > 0) {
+        mother1 += nOffsetGamma;
+        if(mother2 > 0)   mother2 += nOffsetGamma;
+        if(daughter1 > 0) daughter1 += nOffsetGamma;
+        if(daughter2 > 0) daughter2 += nOffsetGamma;
+      }
       int iNow = process.append( id, status, mother1, mother2, daughter1,
         daughter2, col1, col2, Vec4(px, py, pz, e), m, scaleNow, pol);
       if (isAsymLHA) process[iNow].bst( 0., 0., -betazLHA);
@@ -951,6 +979,7 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
     }
 
     // Reassign momenta and masses for incoming partons.
+    // Possible offset in photoproduction.
     if (matchInOut && !twoHard) {
       Vec4 pSumOut;
       for (int iF = 0; iF < iFinalSz; ++iF)
@@ -964,12 +993,12 @@ bool ProcessContainer::constructProcess( Event& process, bool isHardest) {
       }
       e1 = min( e1, 0.5 * process[0].e());
       e2 = min( e2, 0.5 * process[0].e());
-      process[3].pz( e1);
-      process[3].e(  e1);
-      process[3].m(  0.);
-      process[4].pz(-e2);
-      process[4].e(  e2);
-      process[4].m(  0.);
+      process[3 + nOffsetGamma].pz( e1);
+      process[3 + nOffsetGamma].e(  e1);
+      process[3 + nOffsetGamma].m(  0.);
+      process[4 + nOffsetGamma].pz(-e2);
+      process[4 + nOffsetGamma].e(  e2);
+      process[4 + nOffsetGamma].m(  0.);
     }
   }
 

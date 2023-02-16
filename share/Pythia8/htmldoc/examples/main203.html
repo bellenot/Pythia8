@@ -4,14 +4,14 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main203.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Example showing how to run Vincia's electroweak shower, for the example
-// process pp > dijets (with pThat >= 2000 GeV) at eCM = 14000 GeV.
+// Example showing how to run Vincia&apos;s electroweak shower, for the example
+// process pp &gt; dijets (with pThat &gt;= 2000 GeV) at eCM = 14000 GeV.
 // The Vincia EW shower requires hard-process partons with assigned
-// helicities. This is done via Pythia's MG5 matrix-element interface.
+// helicities. This is done via Pythia&apos;s MG5 matrix-element interface.
 
 // Requires Pythia to be configured using the --with-mg5mes option.
 // For example (in main pythia83 directory): ./configure --with-mg5mes
@@ -28,7 +28,7 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 //            <a href="../ExampleKeywords.html#weak+showers">Weak&nbsp;showers</a>
 
 // Include Pythia8 header(s) and namespace.
-#include "Pythia8/Pythia.h"
+#include &quot;Pythia8/Pythia.h&quot;
 using namespace Pythia8;
 
 // Main Program
@@ -48,32 +48,32 @@ int main() {
   //**********************************************************************
 
   // Shorthands
-  Event& event = pythia.event;
+  Event&amp; event = pythia.event;
 
   // Define settings common to all runs.
   // We will print the event record ourselves (with helicities)
-  pythia.readString("Next:numberShowEvent  = 0");
+  pythia.readString(&quot;Next:numberShowEvent  = 0&quot;);
 
   // Beams and CM energy.
-  pythia.readString("Beams:idA  =  2212");
-  pythia.readString("Beams:idB  =  2212");
-  pythia.readString("Beams:eCM = 14000.0");
-  pythia.readString("Next:numberCount = 100");
+  pythia.readString(&quot;Beams:idA  =  2212&quot;);
+  pythia.readString(&quot;Beams:idB  =  2212&quot;);
+  pythia.readString(&quot;Beams:eCM = 14000.0&quot;);
+  pythia.readString(&quot;Next:numberCount = 100&quot;);
 
   // Process and MG5 library (see plugins/mg5mes/).
-  pythia.readString("HardQCD:all = on");
-  pythia.readString("PhaseSpace:pThatMin = 2000.0");
-  pythia.readString("Vincia:mePlugin = procs_qcd_sm");
+  pythia.readString(&quot;HardQCD:all = on&quot;);
+  pythia.readString(&quot;PhaseSpace:pThatMin = 2000.0&quot;);
+  pythia.readString(&quot;Vincia:mePlugin = procs_qcd_sm&quot;);
 
   // VINCIA settings
-  pythia.readString("PartonShowers:model   = 2");
-  pythia.readString("Vincia:helicityShower = on");
-  pythia.readString("Vincia:ewMode         = 3");
-  pythia.readString("Vincia:verbose        = 1");
+  pythia.readString(&quot;PartonShowers:model   = 2&quot;);
+  pythia.readString(&quot;Vincia:helicityShower = on&quot;);
+  pythia.readString(&quot;Vincia:ewMode         = 3&quot;);
+  pythia.readString(&quot;Vincia:verbose        = 1&quot;);
 
   // Switch off MPI and hadronisation (to speed things up).
-  pythia.readString("PartonLevel:MPI = off");
-  pythia.readString("HadronLevel:all = off");
+  pythia.readString(&quot;PartonLevel:MPI = off&quot;);
+  pythia.readString(&quot;HadronLevel:all = off&quot;);
 
   // Initialize
   if(!pythia.init()) { return EXIT_FAILURE; }
@@ -82,9 +82,9 @@ int main() {
   double nGamSum   = 0.0;
   double nWeakSum  = 0.0;
   double nFinalSum = 0.0;
-  Hist histNFinal("nFinal", 100, -0.5, 99.5);
-  Hist histNGam("nPhotons", 20, -0.5, 19.5);
-  Hist histNWeak("nWeakBosons", 10, -0.5, 9.5);
+  Hist histNFinal(&quot;nFinal&quot;, 100, -0.5, 99.5);
+  Hist histNGam(&quot;nPhotons&quot;, 20, -0.5, 19.5);
+  Hist histNWeak(&quot;nWeakBosons&quot;, 10, -0.5, 9.5);
 
   //************************************************************************
 
@@ -97,16 +97,16 @@ int main() {
 
   // Begin event loop
   int iAbort = 0;
-  for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
+  for (int iEvent = 0; iEvent &lt; nEvent; ++iEvent) {
 
     bool aborted = !pythia.next();
     if(aborted){
       event.list();
-      if (++iAbort < nAbort){
+      if (++iAbort &lt; nAbort){
         continue;
       }
-      cout << " Event generation aborted prematurely, owing to error!\n";
-      cout<< "Event number was : "<<iEvent<<endl;
+      cout &lt;&lt; &quot; Event generation aborted prematurely, owing to error!\n&quot;;
+      cout&lt;&lt; &quot;Event number was : &quot;&lt;&lt;iEvent&lt;&lt;endl;
       break;
     }
 
@@ -121,12 +121,12 @@ int main() {
     double nFinal = 0;
     double nWeak  = 0;
     double nGam   = 0;
-    for (int i=5;i<event.size();i++) {
+    for (int i=5;i&lt;event.size();i++) {
       // Count up final-state charged hadrons
       if (event[i].isFinal()) {
         ++nFinal;
         // Final-state photons that are not from hadron decays
-        if (event[i].id() == 22 && event[i].status() < 90) ++nGam;
+        if (event[i].id() == 22 &amp;&amp; event[i].status() &lt; 90) ++nGam;
       }
       // Weak bosons (not counting hard process)
       else if (event[i].idAbs() == 23 || event[i].idAbs() == 24) {
@@ -154,14 +154,14 @@ int main() {
   // Normalization.
   double normFac = 1./sumWeights;
 
-  cout<< histNWeak << histNGam << histNFinal;
+  cout&lt;&lt; histNWeak &lt;&lt; histNGam &lt;&lt; histNFinal;
 
-  cout<<endl;
-  cout<<fixed;
-  cout<< " <nFinal>   = "<<num2str(nFinalSum * normFac)<<endl;
-  cout<< " <nPhotons> = "<<num2str(nGamSum * normFac)<<endl;
-  cout<< " <nZW>      = "<<num2str(nWeakSum * normFac)<<endl;
-  cout<<endl;
+  cout&lt;&lt;endl;
+  cout&lt;&lt;fixed;
+  cout&lt;&lt; &quot; &lt;nFinal&gt;   = &quot;&lt;&lt;num2str(nFinalSum * normFac)&lt;&lt;endl;
+  cout&lt;&lt; &quot; &lt;nPhotons&gt; = &quot;&lt;&lt;num2str(nGamSum * normFac)&lt;&lt;endl;
+  cout&lt;&lt; &quot; &lt;nZW&gt;      = &quot;&lt;&lt;num2str(nWeakSum * normFac)&lt;&lt;endl;
+  cout&lt;&lt;endl;
 
   // Done.
   return 0;

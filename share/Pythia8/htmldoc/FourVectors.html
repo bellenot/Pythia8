@@ -537,10 +537,14 @@ with <i>p_1</i> along the <i>+z</i> axis.
    
  
 <a name="anchor86"></a>
-<p/><strong> void RotBstMatrix::fromCMframe(const Vec4& p1, const Vec4& p2) &nbsp;</strong> <br/>
+<p/><strong> void RotBstMatrix::fromCMframe(const Vec4& p1, const Vec4& p2, bool flip = false) &nbsp;</strong> <br/>
 rotate and boost from the rest frame of <i>p_1</i> and <i>p_2</i>, 
 with <i>p_1</i> along the <i>+z</i> axis, to the actual frame of 
-<i>p_1</i> and <i>p_2</i>, i.e. the inverse of the above. 
+<i>p_1</i> and <i>p_2</i>, i.e. the inverse of the above. The 
+option <code>flip</code> handles the case when <i>p_1</i> is along 
+the <i>-z</i> axis in the rest frame. This is accomplished by 
+performing the rotation for <i>p_2</i> and negating the rotational 
+part. 
    
  
 <a name="anchor87"></a>
@@ -626,10 +630,13 @@ rotation to the rest frame of <i>p_1</i> and <i>p_2</i>, with
    
  
 <a name="anchor101"></a>
-<p/><strong> RotBstMatrix fromCMframe(const Vec4& p1, const Vec4& p2) &nbsp;</strong> <br/>
+<p/><strong> RotBstMatrix fromCMframe(const Vec4& p1, const Vec4& p2, bool flip = false) &nbsp;</strong> <br/>
 Return a <code>RotBstMatrix</code> corresponding to a boost and 
 rotation from the rest frame of <i>p_1</i> and <i>p_2</i>, with 
-<i>p_1</i> along the <i>+z</i> axis. 
+<i>p_1</i> along the <i>+z</i> axis. The option <code>flip</code> 
+handles the case when <i>p_1</i> is along the <i>-z</i> axis in 
+the rest frame. This is accomplished by performing the rotation for 
+<i>p_2</i> and negating the rotational part. 
    
  
 <a name="anchor102"></a>
@@ -652,4 +659,4 @@ when in the rest frame.
 </body>
 </html>
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

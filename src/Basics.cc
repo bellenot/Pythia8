@@ -1,5 +1,5 @@
 // Basics.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -833,16 +833,22 @@ void RotBstMatrix::toCMframe(const Vec4& p1, const Vec4& p2) {
 //--------------------------------------------------------------------------
 
 // Rotation and boost that transforms from rest frame of p1 and p2
-// with p1 along +z axis to actual frame of p1 and p2. (Inverse of above.)
+// with p1 by default along +z axis to actual frame of p1 and p2. (Inverse of
+// above.) The option flip handles the case when p1 is along the -z axis in
+// the rest frame. This is accomplished by performing the rotation for
+// p2 and negating the rotational part.
 
-void RotBstMatrix::fromCMframe(const Vec4& p1, const Vec4& p2) {
+void RotBstMatrix::fromCMframe(const Vec4& p1, const Vec4& p2, bool flip) {
   Vec4 pSum = p1 + p2;
-  Vec4 dir  = p1;
+  Vec4 dir  = (flip) ? p2 : p1;
   dir.bstback(pSum);
   double theta = dir.theta();
   double phi   = dir.phi();
   rot(0., -phi);
   rot(theta, phi);
+  if (flip)
+    for (int i = 1; i <= 3; ++i)
+      for (int j = 1; j <= 3; ++j) M[i][j] *= -1;
   bst(pSum);
 }
 

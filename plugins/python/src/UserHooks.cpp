@@ -58,6 +58,7 @@
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
+#include <pybind11/functional.h>
 
 
 #ifndef BINDER_PYBIND11_TYPE_CASTER
@@ -1097,7 +1098,7 @@ void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const 
 		pybind11::class_<Pythia8::MergingHooks, std::shared_ptr<Pythia8::MergingHooks>, PyCallBack_Pythia8_MergingHooks> cl(M("Pythia8"), "MergingHooks", "");
 		pybind11::handle cl_type = cl;
 
-		{ // Pythia8::MergingHooks::IndividualWeights file:Pythia8/MergingHooks.h line:592
+		{ // Pythia8::MergingHooks::IndividualWeights file:Pythia8/MergingHooks.h line:602
 			auto & enclosing_class = cl;
 			pybind11::class_<Pythia8::MergingHooks::IndividualWeights, std::shared_ptr<Pythia8::MergingHooks::IndividualWeights>> cl(enclosing_class, "IndividualWeights", "");
 			pybind11::handle cl_type = cl;
@@ -1151,6 +1152,8 @@ void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const 
 		cl.def_readwrite("herwigAcollISRSave", &Pythia8::MergingHooks::herwigAcollISRSave);
 		cl.def_readwrite("pT0ISRSave", &Pythia8::MergingHooks::pT0ISRSave);
 		cl.def_readwrite("pTcutSave", &Pythia8::MergingHooks::pTcutSave);
+		cl.def_readwrite("pTminISRSave", &Pythia8::MergingHooks::pTminISRSave);
+		cl.def_readwrite("pTminFSRSave", &Pythia8::MergingHooks::pTminFSRSave);
 		cl.def_readwrite("doNL3TreeSave", &Pythia8::MergingHooks::doNL3TreeSave);
 		cl.def_readwrite("doNL3LoopSave", &Pythia8::MergingHooks::doNL3LoopSave);
 		cl.def_readwrite("doNL3SubtSave", &Pythia8::MergingHooks::doNL3SubtSave);
@@ -1161,6 +1164,7 @@ void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const 
 		cl.def_readwrite("doUMEPSTreeSave", &Pythia8::MergingHooks::doUMEPSTreeSave);
 		cl.def_readwrite("doUMEPSSubtSave", &Pythia8::MergingHooks::doUMEPSSubtSave);
 		cl.def_readwrite("doEstimateXSection", &Pythia8::MergingHooks::doEstimateXSection);
+		cl.def_readwrite("doRuntimeAMCATNLOInterfaceSave", &Pythia8::MergingHooks::doRuntimeAMCATNLOInterfaceSave);
 		cl.def_readwrite("applyVeto", &Pythia8::MergingHooks::applyVeto);
 		cl.def_readwrite("inputEvent", &Pythia8::MergingHooks::inputEvent);
 		cl.def_readwrite("resonances", &Pythia8::MergingHooks::resonances);
@@ -1248,6 +1252,7 @@ void bind_Pythia8_UserHooks(std::function< pybind11::module &(std::string const 
 		cl.def("doUNLOPSSubt", (bool (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::doUNLOPSSubt, "C++: Pythia8::MergingHooks::doUNLOPSSubt() --> bool");
 		cl.def("doUNLOPSSubtNLO", (bool (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::doUNLOPSSubtNLO, "C++: Pythia8::MergingHooks::doUNLOPSSubtNLO() --> bool");
 		cl.def("doUNLOPSMerging", (bool (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::doUNLOPSMerging, "C++: Pythia8::MergingHooks::doUNLOPSMerging() --> bool");
+		cl.def("doRuntimeAMCATNLOInterface", (bool (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::doRuntimeAMCATNLOInterface, "C++: Pythia8::MergingHooks::doRuntimeAMCATNLOInterface() --> bool");
 		cl.def("nRecluster", (int (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::nRecluster, "C++: Pythia8::MergingHooks::nRecluster() --> int");
 		cl.def("nRequested", (int (Pythia8::MergingHooks::*)()) &Pythia8::MergingHooks::nRequested, "C++: Pythia8::MergingHooks::nRequested() --> int");
 		cl.def("isFirstEmission", (bool (Pythia8::MergingHooks::*)(const class Pythia8::Event &)) &Pythia8::MergingHooks::isFirstEmission, "C++: Pythia8::MergingHooks::isFirstEmission(const class Pythia8::Event &) --> bool", pybind11::arg("event"));

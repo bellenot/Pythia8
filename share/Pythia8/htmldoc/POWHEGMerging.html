@@ -157,9 +157,14 @@ recommended values described above.
  
 <a name="anchor1"></a>
 <p/><code>mode&nbsp; </code><strong> POWHEG:nFinal &nbsp;</strong> 
- (<code>default = <strong>2</strong></code>; <code>minimum = 1</code>)<br/>
+ (<code>default = <strong>-1</strong></code>; <code>minimum = -1</code>)<br/>
 Number of outgoing particles of POWHEG Born level process, 
 i.e. not counting additional POWHEG radiation. 
+The negative default value is interpreted as the instruction to ignore 
+final state particle count conditions, as is e.g. necessary when the 
+POWHEG-BOX code includes a variable number of additional emission (on top of 
+the Born process) into the input events. Note that for this negative default 
+value, only <code>POWHEG:pThard = 0</code> is allowed. 
    
  
 <a name="anchor2"></a>
@@ -265,4 +270,4 @@ Treatment of non-QCD radiation.
 </body>
 </html>
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

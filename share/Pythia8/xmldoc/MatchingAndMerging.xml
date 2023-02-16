@@ -260,9 +260,10 @@ has be identical to <code>Merging:TMS</code> in the Pythia inputs.
 consecutively, and will automatically assign if an event will be used as 
 "standard" event or as "subtractive" contribution. Example UNLOPS 
 settings can be found in <code>main89umeps.cmnd</code>. Please 
-consult <aloc href="UNLOPSMerging">UMEPS merging</aloc> and 
+consult <aloc href="NLOMerging">NLO Merging</aloc>, 
+<aloc href="UMEPSMerging">UMEPS merging</aloc>, and 
 <aloc href="CKKWLMerging">CKKW-L merging</aloc> for more details. 
  
 </chapter> 
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

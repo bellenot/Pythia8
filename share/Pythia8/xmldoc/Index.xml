@@ -113,7 +113,7 @@ Hard Processes</button>
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <aidx href="Variations">Automated Variations and Enhanced Emissions</aidx> 
 <br/> 
-<aidx href="Vincia">Antenna Showers (VINCIA)</aidx><br/> 
+<aidx href="Vincia">Antenna Showers (Vincia)</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <aidx href="VinciaQCD">QCD Showers</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
@@ -140,7 +140,7 @@ Hard Processes</button>
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <aidx href="CKKWLMerging">CKKW-L Merging</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
-<aidx href="VinciaMerging">MESS Merging (VINCIA)</aidx><br/> 
+<aidx href="VinciaMerging">MESS Merging (Vincia)</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <aidx href="UMEPSMerging">UMEPS Merging</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
@@ -219,7 +219,7 @@ Hard Processes</button>
 <button class="expand" style="font-size:20px;">Separate Documents</button> 
 <div class="panel"> 
 <a href="../pdfdoc/pythia8300.pdf" target="page">Introduction</a><br/> 
-<a href="../pdfdoc/worksheet8300.pdf" target="page">Worksheet</a> 
+<a href="../pdfdoc/worksheet8309.pdf" target="page">Worksheet</a> 
 </div> 
  
 <button class="expandAll" style="font-size:20px;">All</button> 
@@ -227,4 +227,4 @@ Hard Processes</button>
 <script src="Expand.js"></script> 
 </chapter> 
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

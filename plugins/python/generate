@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (C) 2022 Torbjorn Sjostrand.
+# Copyright (C) 2023 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, August 2019.
@@ -30,7 +30,8 @@ Configuration options.
 --debug     : Do not remove generated files.
 BLOCKTEXT
 OPTIONS="-h --h -help --help --part --full --user --debug"
-CLASSES="Pythia Event Vec4 RotBstMatrix Particle ParticleData ParticleDataEntry DecayChannel Info Settings Flag Mode Parm Word FVec MVec PVec WVec Rndm PDF DecayHandler RndmEngine UserHooks MergingHooks BeamShape SigmaProcess TimeShower SpaceShower HeavyIons PartonVertex Hist HistPlot SlowJet SlowJetHook"
+CLASSES="Pythia PythiaParallel Event Vec4 RotBstMatrix Particle ParticleData ParticleDataEntry DecayChannel Info Settings Flag Mode Parm Word FVec MVec PVec WVec Rndm PDF DecayHandler RndmEngine UserHooks MergingHooks BeamShape SigmaProcess TimeShower SpaceShower HeavyIons PartonVertex Hist HistPlot SlowJet SlowJetHook"
+GILS="PythiaParallel::run"
 FUNCTIONS="m m2 dot3 cross3 cross4 theta costheta phi cosphi RRapPhi REtaPhi"
 PYTHIA_INCLUDE="../../include"
 BINDER_INCLUDE="include"
@@ -62,6 +63,7 @@ function configure_base() {
 +include <Pythia8/BeamShape.h>
 +include <pybind11/stl.h>
 +include <pybind11/complex.h>
++include <pybind11/functional.h>
 -function Pythia8::isfinite
 -function Pythia8::isinf
 -function Pythia8::isnan
@@ -184,6 +186,7 @@ done
     
 # Create the master header file.
 echo "#include <Pythia8/Pythia.h>" > $BINDER_HPP
+echo "#include <Pythia8/PythiaParallel.h>" > $BINDER_HPP
 echo "#include <Pythia8/HIUserHooks.h>" >> $BINDER_HPP
 echo "#include <Pythia8/HeavyIons.h>" >> $BINDER_HPP
 
@@ -236,9 +239,16 @@ OLD='modules.find(namespace_)'
 NEW='modules.find(namespace_ != "std" ? "" : "std")'
 sed -i.sed "s/$OLD/$NEW/g" $BINDER_SRC/pythia8.cpp
 
+# Allow multi-threading with GIL release.
+for GIL in $GILS; do
+    OLD=$GIL', "'
+    NEW=$GIL', pybind11::call_guard<pybind11::gil_scoped_release>(), "'
+    sed -i.sed "s/$OLD/$NEW/g" $BINDER_SRC/*.cpp
+done
+
 # Include the module documentation.
 cat > $BINDER_DOC << BLOCKTEXT
-Copyright (C) 2022 Torbjorn Sjostrand.
+Copyright (C) 2023 Torbjorn Sjostrand.
 PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 Please respect the MCnet Guidelines, see GUIDELINES for details.
 

@@ -182,6 +182,12 @@ pick one option among vector of (positive) probabilities.
    
  
 <a name="anchor13"></a>
+<p/><strong> void Rndm::shuffle(vector&lt;T&gt;&amp; vec) &nbsp;</strong> <br/>
+randomly shuffle a vector of objects (<code>type T</code>, i.e. any type, 
+templated method) according to the Fisher-Yates algorithm. 
+   
+ 
+<a name="anchor14"></a>
 <p/><strong> bool Rndm::dumpState(string fileName) &nbsp;</strong> <br/>
 save the current state of the random number generator to a binary 
 file. This involves two integers and 100 double-precision numbers. 
@@ -189,13 +195,13 @@ Intended for debug purposes. Note that binary files may be
 platform-dependent and thus not transportable. 
    
  
-<a name="anchor14"></a>
+<a name="anchor15"></a>
 <p/><strong> bool Rndm::readState(string fileName) &nbsp;</strong> <br/>
 set the state of the random number generator by reading in a binary 
 file saved by the above command. Comments as above. 
    
  
-<a name="anchor15"></a>
+<a name="anchor16"></a>
 <p/><strong> RndmState Rndm::getState() &nbsp;</strong> <br/>
 save the current state of the random number generator as a 
 <code>struct RndmState</code>. This can then later be used within the 
@@ -204,14 +210,14 @@ It circumvents the intermediate file of <code>dumpState</code>,
 but cannot be saved for a later run. 
    
  
-<a name="anchor16"></a>
+<a name="anchor17"></a>
 <p/><strong> void Rndm::setState(RndmState&amp; state) &nbsp;</strong> <br/>
 set the state of the random number generator by reading in a 
 <code>struct RndmState</code> saved by the above command. 
 Comments as above. 
    
  
-<a name="anchor17"></a>
+<a name="anchor18"></a>
 <p/><strong> virtual double RndmEngine::flat() &nbsp;</strong> <br/>
 if you want to construct an external random number generator 
 (or generator interface) then you must implement this method 
@@ -222,4 +228,4 @@ to give a random number between 0 and 1.
 </body>
 </html>
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

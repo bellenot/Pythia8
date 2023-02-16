@@ -4,12 +4,12 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main151.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Authors:
-//            <a href="mailto:torbjorn.sjostrand@thep.lu.se">Torbjorn Sjostrand</a>
+//            <a href="mailto:torbjorn.sjostrand@hep.lu.se">Torbjorn Sjostrand</a>
 
 // Keywords:
 //            <a href="../ExampleKeywords.html#rescattering">Rescattering</a>
@@ -20,7 +20,7 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 // specifically the simplified one used for low-energy collisions in
 // rescattering with the full-fledged standard based on an MPI framework.
 
-#include "Pythia8/Pythia.h"
+#include &quot;Pythia8/Pythia.h&quot;
 using namespace Pythia8;
 
 //--------------------------------------------------------------------------
@@ -34,47 +34,47 @@ int main() {
   int pick = 1;
 
   // Histograms.
-  Hist multCh0("n_charged(e_CM), simple",      32, 1., 10000., true);
-  Hist multCh1("n_charged(e_CM), interpolate", 32, 1., 10000., true);
-  Hist multCh2("n_charged(e_CM), full MPI",    32, 1., 10000., true);
+  Hist multCh0(&quot;n_charged(e_CM), simple&quot;,      32, 1., 10000., true);
+  Hist multCh1(&quot;n_charged(e_CM), interpolate&quot;, 32, 1., 10000., true);
+  Hist multCh2(&quot;n_charged(e_CM), full MPI&quot;,    32, 1., 10000., true);
 
   // Loop over the three scenarios at fifteen energies.
-  for (int ic = 0; ic < 3; ++ic) {
+  for (int ic = 0; ic &lt; 3; ++ic) {
 
     // First scenario: low-energy handling asin rescattering.
     // Second scenario: variable-energy interpolating description.
-    if (ic < 2) {
+    if (ic &lt; 2) {
 
       // Create Pythia instance and set it up.
       Pythia pythia;
-      Event& event = pythia.event;
-      pythia.readString("Beams:allowVariableEnergy = on");
-      pythia.readString("Beams:eCM = 10000.");
+      Event&amp; event = pythia.event;
+      pythia.readString(&quot;Beams:allowVariableEnergy = on&quot;);
+      pythia.readString(&quot;Beams:eCM = 10000.&quot;);
       // A raised eMinPert recovers the simple framework below new value.
-      if (ic == 0) pythia.readString("Beams:eMinPert = 9900.");
+      if (ic == 0) pythia.readString(&quot;Beams:eMinPert = 9900.&quot;);
       // Switch on all processes, nondiffractive or single diffractive.
       if (pick == 0) {
-        pythia.readString("LowEnergyQCD:all = on");
-        pythia.readString("SoftQCD:all = on");
+        pythia.readString(&quot;LowEnergyQCD:all = on&quot;);
+        pythia.readString(&quot;SoftQCD:all = on&quot;);
       } else if (pick == 1) {
-        pythia.readString("LowEnergyQCD:nonDiffractive = on");
-        pythia.readString("SoftQCD:nonDiffractive = on");
+        pythia.readString(&quot;LowEnergyQCD:nonDiffractive = on&quot;);
+        pythia.readString(&quot;SoftQCD:nonDiffractive = on&quot;);
       } else {
-        pythia.readString("LowEnergyQCD:singleDiffractiveXB = on");
-        pythia.readString("LowEnergyQCD:singleDiffractiveAX = on");
-        pythia.readString("SoftQCD:singleDiffractive = on");
+        pythia.readString(&quot;LowEnergyQCD:singleDiffractiveXB = on&quot;);
+        pythia.readString(&quot;LowEnergyQCD:singleDiffractiveAX = on&quot;);
+        pythia.readString(&quot;SoftQCD:singleDiffractive = on&quot;);
       }
       pythia.init();
 
       // Iterate over thirty energies.
-      for (int ie = 2; ie < 32; ++ie) {
+      for (int ie = 2; ie &lt; 32; ++ie) {
         double eCM = pow( 10., (ie + 0.5) / 8.);
         pythia.setKinematics(eCM);
 
         // Generate events. Update charged multiplicity.
         long nSuccess = 0;
         long nCharged = 0;
-        for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
+        for (int iEvent = 0; iEvent &lt; nEvent; ++iEvent) {
           if (!pythia.next()) continue;
           ++nSuccess;
           nCharged += event.nFinal(true);
@@ -86,22 +86,22 @@ int main() {
 
     // Third scenario: full generation energy by energy (only above 10 GeV).
     } else {
-      for (int ie = 8; ie < 32; ++ie) {
+      for (int ie = 8; ie &lt; 32; ++ie) {
         double eCM = pow( 10., (ie + 0.5) / 8.);
 
         // Create Pythia instance and set it up.
         Pythia pythia;
-        Event& event = pythia.event;
-        if (pick == 0) pythia.readString("SoftQCD:all = on");
-        else if (pick == 1)  pythia.readString("SoftQCD:nonDiffractive = on");
-        else pythia.readString("SoftQCD:singleDiffractive = on");
-        pythia.settings.parm("Beams:eCM", eCM);
+        Event&amp; event = pythia.event;
+        if (pick == 0) pythia.readString(&quot;SoftQCD:all = on&quot;);
+        else if (pick == 1)  pythia.readString(&quot;SoftQCD:nonDiffractive = on&quot;);
+        else pythia.readString(&quot;SoftQCD:singleDiffractive = on&quot;);
+        pythia.settings.parm(&quot;Beams:eCM&quot;, eCM);
         pythia.init();
 
         // Generate events. Update charged multiplicity.
         long nSuccess = 0;
         long nCharged = 0;
-        for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
+        for (int iEvent = 0; iEvent &lt; nEvent; ++iEvent) {
           if (!pythia.next()) continue;
           ++nSuccess;
           nCharged += event.nFinal(true);
@@ -112,13 +112,13 @@ int main() {
   }
 
   // Plot histograms.
-  cout << multCh0 << multCh1 << multCh2;
-  HistPlot hpl("main151plot");
-  hpl.frame("out151plot", "Rise of charged multiplicity with energy",
-    "eCM", "<n_charged>");
-  hpl.add( multCh0, "-", "low-energy model");
-  hpl.add( multCh1, "-", "interpolation");
-  hpl.add( multCh2, "-", "high-energy model");
+  cout &lt;&lt; multCh0 &lt;&lt; multCh1 &lt;&lt; multCh2;
+  HistPlot hpl(&quot;main151plot&quot;);
+  hpl.frame(&quot;out151plot&quot;, &quot;Rise of charged multiplicity with energy&quot;,
+    &quot;eCM&quot;, &quot;&lt;n_charged&gt;&quot;);
+  hpl.add( multCh0, &quot;-&quot;, &quot;low-energy model&quot;);
+  hpl.add( multCh1, &quot;-&quot;, &quot;interpolation&quot;);
+  hpl.add( multCh2, &quot;-&quot;, &quot;high-energy model&quot;);
   hpl.plot();
 
   // Done.

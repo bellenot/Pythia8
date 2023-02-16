@@ -17,6 +17,10 @@ Next:numberShowProcess = 1
 Next:numberShowEvent = 1
 Main:timesAllowErrors = 10
 
+! Choose the shower model to match the POWHEG events to.
+! 1:simple shower, 2:VINCIA, 3:DIRE.
+PartonShowers:model = 1
+
 ! List changed settings or particle data.
 Init:showChangedSettings = on
 Init:showChangedParticleData = off
@@ -24,9 +28,9 @@ Init:showChangedParticleData = off
 ! Input file.
 Beams:frameType = 4
 ! t tbar pair production.
-#Beams:LHEF = powheg-hvq.lhe
+Beams:LHEF = powheg-hvq.lhe
 ! QCD 2- and 3-jet events.
-Beams:LHEF = powheg-dijets.lhe
+#Beams:LHEF = powheg-dijets.lhe
 
 ! Number of outgoing particles of POWHEG Born level process
 ! (i.e. not counting additional POWHEG radiation)

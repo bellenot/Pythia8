@@ -4,11 +4,11 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main46.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Author: Christian T Preuss <christian.preuss@monash.edu>
+// Author: Christian T Preuss &lt;christian.preuss@monash.edu&gt;
 
 // Keywords:
 //            <a href="../ExampleKeywords.html#hdf5+file">HDF5&nbsp;file</a>
@@ -20,12 +20,12 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 // files instead. Example usage is:
 //     ./main46 main46.cmnd ttbar.hdf5 main46.hepmc
 
-#include "Pythia8/Pythia.h"
-#include "Pythia8Plugins/LHAHDF5.h"
+#include &quot;Pythia8/Pythia.h&quot;
+#include &quot;Pythia8Plugins/LHAHDF5.h&quot;
 #ifndef HEPMC2
-#include "Pythia8Plugins/HepMC3.h"
+#include &quot;Pythia8Plugins/HepMC3.h&quot;
 #else
-#include "Pythia8Plugins/HepMC2.h"
+#include &quot;Pythia8Plugins/HepMC2.h&quot;
 #endif
 
 using namespace Pythia8;
@@ -37,11 +37,11 @@ using namespace Pythia8;
 int main(int argc, char* argv[]) {
 
   // Input sanity check
-  if (argc < 4) {
-    cout << "ERROR: Not enough arguments provided" << endl << endl
-         << "Usage:\n\t" << argv[0]
-         << "  COMMAND.cmnd INPUT.hdf5 OUTPUT.hepmc [OFFSET]"
-         << endl << endl;
+  if (argc &lt; 4) {
+    cout &lt;&lt; &quot;ERROR: Not enough arguments provided&quot; &lt;&lt; endl &lt;&lt; endl
+         &lt;&lt; &quot;Usage:\n\t&quot; &lt;&lt; argv[0]
+         &lt;&lt; &quot;  COMMAND.cmnd INPUT.hdf5 OUTPUT.hepmc [OFFSET]&quot;
+         &lt;&lt; endl &lt;&lt; endl;
     return EXIT_FAILURE;
   }
 
@@ -49,8 +49,8 @@ int main(int argc, char* argv[]) {
   string cmndFile = argv[1];
   ifstream isCmnd(cmndFile);
   if (!isCmnd) {
-    cerr << " File " << cmndFile << " was not found. \n"
-         << " Program stopped! " << endl;
+    cerr &lt;&lt; &quot; File &quot; &lt;&lt; cmndFile &lt;&lt; &quot; was not found. \n&quot;
+         &lt;&lt; &quot; Program stopped! &quot; &lt;&lt; endl;
     return EXIT_FAILURE;
   }
 
@@ -58,8 +58,8 @@ int main(int argc, char* argv[]) {
   string hdf5File = argv[2];
   ifstream isH5(hdf5File);
   if (!isH5) {
-    cerr << " File " << hdf5File << " was not found. \n"
-         << " Program stopped! " << endl;
+    cerr &lt;&lt; &quot; File &quot; &lt;&lt; hdf5File &lt;&lt; &quot; was not found. \n&quot;
+         &lt;&lt; &quot; Program stopped! &quot; &lt;&lt; endl;
     return EXIT_FAILURE;
   }
 
@@ -67,27 +67,27 @@ int main(int argc, char* argv[]) {
   string hepMCFile = argv[3];
 
   // Optionally: skip events.
-  size_t eventOffset = (argc > 4) ? atoi(argv[4]) : 0;
+  size_t eventOffset = (argc &gt; 4) ? atoi(argv[4]) : 0;
 
   // PYTHIA.
   Pythia pythia;
 
   // Settings.
   pythia.readFile(cmndFile);
-  pythia.settings.mode("Beams:frameType", 5);
+  pythia.settings.mode(&quot;Beams:frameType&quot;, 5);
 
   // Shorthands.
-  int nEvents  = pythia.settings.mode("Main:numberOfEvents");
-  int nAbort   = pythia.mode("Main:timesAllowErrors");
+  int nEvents  = pythia.settings.mode(&quot;Main:numberOfEvents&quot;);
+  int nAbort   = pythia.mode(&quot;Main:timesAllowErrors&quot;);
 
   // HDF5.
   HighFive::File file(hdf5File, HighFive::File::ReadOnly);
 
   // Create an LHAup object that can access relevant information in pythia.
   size_t readSize    = size_t(nEvents);
-  string version     = pythia.settings.word("LHAHDF5:version");
-  shared_ptr<LHAupH5> lhaUpPtr =
-    make_shared<LHAupH5>(&file, eventOffset, readSize, version);
+  string version     = pythia.settings.word(&quot;LHAHDF5:version&quot;);
+  shared_ptr&lt;LHAupH5&gt; lhaUpPtr =
+    make_shared&lt;LHAupH5&gt;(&amp;file, eventOffset, readSize, version);
 
   // HepMC.
   Pythia8::Pythia8ToHepMC toHepMC(hepMCFile);
@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
 
   // Initialise.
   if (!pythia.init()) {
-    cout << " Failed to initialise Pythia. Program stopped." << endl;
+    cout &lt;&lt; &quot; Failed to initialise Pythia. Program stopped.&quot; &lt;&lt; endl;
     return EXIT_FAILURE;
   }
 
@@ -107,23 +107,23 @@ int main(int argc, char* argv[]) {
   bool doAbort = false;
 
   // Cross section and error.
-  cout << "Start generating events.\n";
+  cout &lt;&lt; &quot;Start generating events.\n&quot;;
   double sigmaSample(0.), errorSample(0.);
 
   // Get the inclusive x-section by summing over all process x-sections.
   double xs = 0.;
-  for (int i=0; i < pythia.info.nProcessesLHEF(); ++i)
+  for (int i=0; i &lt; pythia.info.nProcessesLHEF(); ++i)
     xs += pythia.info.sigmaLHEF(i);
 
   // Loop over events.
-  while(pythia.info.nSelected() < nEvents) {
+  while(pythia.info.nSelected() &lt; nEvents) {
     // Generate next event.
     if( !pythia.next() ) {
       ++iAbort;
       if ( pythia.info.atEndOfFile() ) break;
-      else if (iAbort > nAbort) {
-        cout <<  " Aborting event generation after "
-             << iAbort << " failed events." << endl;
+      else if (iAbort &gt; nAbort) {
+        cout &lt;&lt;  &quot; Aborting event generation after &quot;
+             &lt;&lt; iAbort &lt;&lt; &quot; failed events.&quot; &lt;&lt; endl;
         break;
       } else continue;
     }
@@ -145,13 +145,13 @@ int main(int argc, char* argv[]) {
   pythia.stat();
 
   // Finalise cross section.
-  double norm = 1./double(1.e9*lhaUpPtr->getTrials());
+  double norm = 1./double(1.e9*lhaUpPtr-&gt;getTrials());
   if (abs(pythia.info.lhaStrategy()) == 3) norm *= xs;
   sigmaSample *= norm;
   errorSample = sqrt(errorSample)*norm;
 
-  cout << " sigma = (" << scientific << setprecision(8)
-       << sigmaSample << "  +-  " << errorSample << ") mb\n";
+  cout &lt;&lt; &quot; sigma = (&quot; &lt;&lt; scientific &lt;&lt; setprecision(8)
+       &lt;&lt; sigmaSample &lt;&lt; &quot;  +-  &quot; &lt;&lt; errorSample &lt;&lt; &quot;) mb\n&quot;;
 
   // Done
   return 0;

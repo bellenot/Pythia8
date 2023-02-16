@@ -19,7 +19,7 @@ of the form <code>libpythia8mg5PLUGIN.so</code> in the Pythia library
 directory where <code>PLUGIN</code> is the name of the plugin. A 
 specific plugin is set via <code>Vincia:MEplugin = 
 PLUGIN</code>. Further details on generating custom plugins can be 
-found in <aloc href="Madgraph5Processes">Madgraph5 Processes</aloc>. 
+found in <aloc href="MadGraph5Processes">Madgraph5 Processes</aloc>. 
 Setting <code>modeMECs</code> to <code>-1</code> instead turns any use 
 of matrix elements off completely.  Setting the respective 
 <code>maxMECs</code> switches to <code>-1</code> only turns off the 
@@ -81,3 +81,5 @@ allows to use matrix elements to select helicities at Born level.
 </modepick> 
  
 </chapter> 
+ 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

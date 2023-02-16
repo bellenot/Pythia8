@@ -370,7 +370,7 @@ matrix element + parton shower merging, you can call
       pythia.setMergingHooksPtr( mergingHooksPtr); 
 </pre> 
 where <code>mergingHooksPtr</code> derives from the 
-<code><aloc href="MatrixElementMerging">MergingHooks</aloc></code> base class. 
+<code><aloc href="CKKWLMerging">MergingHooks</aloc></code> base class. 
 </li> 
  
 <p/> 
@@ -1324,4 +1324,4 @@ see <aloc href="AdvancedUsage">here</aloc> for further details.
  
 </chapter> 
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

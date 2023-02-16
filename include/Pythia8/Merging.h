@@ -1,5 +1,5 @@
 // Merging.h is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -35,8 +35,8 @@ class Merging : public PhysicsBase {
 public:
 
   // Constructor.
-  Merging() :  PhysicsBase(), trialPartonLevelPtr(), mergingHooksPtr(),
-    tmsNowMin() {}
+  Merging() : PhysicsBase(), lhaPtr(nullptr), trialPartonLevelPtr(),
+    mergingHooksPtr(), tmsNowMin() {}
 
   // Destructor.
   virtual ~Merging(){}
@@ -56,6 +56,23 @@ public:
 
   // Function to steer different merging prescriptions.
   virtual int mergeProcess( Event& process);
+
+  // Runtime interface functions for communication with aMCatNLO
+  // Function to retrieve shower scale information (to be used to set
+  // scales in aMCatNLO-LHEF-production.
+  virtual void getStoppingInfo(double scales[100][100],
+    double masses[100][100]);
+
+  // Function to retrieve if any of the shower scales would not have been
+  // possible to produce by Pythia.
+  virtual void getDeadzones(bool dzone[100][100]);
+
+  // Function to generate Sudakov factors for MCatNLO-Delta.
+  virtual double generateSingleSudakov (double pTbegAll, double pTendAll,
+    double m2dip, int idA, int type, double s = -1., double x = -1.);
+
+  LHEF3FromPythia8Ptr lhaPtr;
+  void setLHAPtr(LHEF3FromPythia8Ptr lhaUpIn) { lhaPtr = lhaUpIn; }
 
 protected:
 
@@ -89,6 +106,31 @@ protected:
 
   // Function to apply the merging scale cut on an input event.
   bool cutOnProcess( Event& process);
+
+  // Clear all information stored in the runtime interface to aMCatNLO.
+  void clearInfos() {
+    stoppingScalesSave.clear();
+    mDipSave.clear();
+    radSave.clear();
+    emtSave.clear();
+    recSave.clear();
+    isInDeadzone.clear();
+  }
+
+  // Store all information required for the runtime interface to aMCatNLO.
+  int clusterAndStore(Event& process);
+
+  // Helper function to be able to extract all shower scales by checking
+  // all dipoles. Relevant only to runtime aMC@NLO interface.
+  void getDipoles( int iRad, int colTag, int colSign,
+    const Event& event, vector<pair<int,int> >& dipEnds);
+
+  // Saved information about shower stopping scales, dipole masses,
+  // dipole ends, and whether or not a clustering is in the shower
+  // deadzone. Relevant only to runtime aMC@NLO interface.
+  vector<double> stoppingScalesSave, mDipSave;
+  vector<int> radSave, emtSave, recSave;
+  vector<bool> isInDeadzone;
 
 };
 

@@ -1,9 +1,9 @@
 // main162.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Marius Utheim <marius.utheim@thep.lu.se>.
+// Authors: Marius Utheim <marius.m.utheim@jyu.fi>.
 
 // Keywords: parallelism; charged multiplicity;
 
@@ -45,11 +45,11 @@ int main() {
   pythia.run(
     // This defines a lambda function that acts as a callback.
     // This function is called for each event generated.
-    // The argument is the Pythia instance that generated the event.
-    [&](Pythia& pythiaNow) {
+    // The argument is a pointer to the instance that generated the event.
+    [&](Pythia* pythiaPtr) {
 
-      // pythiaNow gives a reference to the instance that generated the event.
-      Event& event = pythiaNow.event;
+      // pythiaPtr gives a reference to the instance that generated the event.
+      Event& event = pythiaPtr->event;
 
       // Find number of all final charged particles and fill histogram.
       int nCharged = 0;

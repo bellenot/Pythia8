@@ -1,5 +1,5 @@
 # Makefile is a part of the PYTHIA event generator.
-# Copyright (C) 2022 Torbjorn Sjostrand.
+# Copyright (C) 2023 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, October 2014 - November 2017.
@@ -94,6 +94,8 @@ Makefile.inc:
 # PYTHIA.
 $(LOCAL_TMP)/Pythia.o: $(LOCAL_SRC)/Pythia.cc Makefile.inc
 	$(CXX) $< -o $@ -c $(OBJ_COMMON) -DXMLDIR=\"$(PREFIX_SHARE)/xmldoc\"
+$(LOCAL_TMP)/FJcore.o: $(LOCAL_SRC)/FJcore.cc
+	$(CXX) $< -o $@ -c $(OBJ_COMMON) -DFJCORE_HAVE_LIMITED_THREAD_SAFETY
 $(LOCAL_TMP)/Streams.o: $(LOCAL_SRC)/Streams.cc Makefile.inc
 	$(CXX) $< -o $@ -c $(OBJ_COMMON)
 $(LOCAL_TMP)/%.o: $(LOCAL_SRC)/%.cc

@@ -1,5 +1,5 @@
 // DireHistory.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2023 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -277,21 +277,6 @@ DireHistory::DireHistory( int depthIn,
     << stringFlavs(state) << " found? " << hasMEweight << " ME "
     << MECnum << endl;
   }
-
-  int na=0, nf = 0;
-  for ( int i = 0; i < int(state.size()); ++i ) {
-    if ( state[i].status() > 0 ) nf++;
-    if ( state[i].status() > 0 && state[i].idAbs() == 22) na++;
-  }
-
-  // Check if more steps should be taken.
-  int nfqq = 0, nfhh = 0, nfgg = 0;
-  for ( int i = 0; i < int(state.size()); ++i )
-    if ( state[i].status() > 0) {
-      if ( state[i].idAbs() < 10) nfqq++;
-      if ( state[i].idAbs() == 21) nfgg++;
-      if ( state[i].idAbs() == 25) nfhh++;
-    }
 
   // If no clusterings were found, the recursion is done and we
   // register this node.
@@ -1153,10 +1138,6 @@ void DireHistory::getStartingConditions( const double RN, Event& outState ) {
 
   // Update the lowest order process.
   if (!selected->mother) {
-    int nFinal = 0;
-    for(int i=0; i < int(state.size()); ++i)
-      if ( state[i].isFinal()) nFinal++;
-
     if (nSteps == 0) {
       double startingScale = hardStartScale(state);
       state.scale(startingScale);
@@ -3058,7 +3039,7 @@ vector<double> DireHistory::doTrialShower( PartonLevel* trial, int type,
   // Set output.
   double wt            = 1.;
   vector <double> wtv(createvector<double>(1.)(1.)(1.));
-  int nFSRtry(0), nISRtry(0), nMPItry(0);
+  int nFSRtry(0), nISRtry(0);
 
   while (true) {
 
@@ -3108,7 +3089,7 @@ vector<double> DireHistory::doTrialShower( PartonLevel* trial, int type,
     double pTtrial   = trial->pTLastInShower();
     int typeTrial    = trial->typeLastInShower();
 
-    if      (typeTrial == 1) nMPItry++;
+    if      (typeTrial == 1) {}
     else if (typeTrial == 2) nISRtry++;
     else                     nFSRtry++;
 
@@ -5452,11 +5433,6 @@ bool DireHistory::allowedClustering( int rad, int emt, int rec, int partner,
         ||(event[i].idAbs() > 2000010 && event[i].idAbs() < 2000020) ))
       nFinalEW++;
 
-  int nFinalH = 0;
-  for(int i=0; i < int(event.size()); ++i)
-    if ( event[i].isFinal() && event[i].id() == 25)
-      nFinalH++;
-
   // Check if event after potential clustering contains an even
   // number of quarks and/or antiquarks
   // (otherwise no electroweak vertex could be formed!)
@@ -7126,23 +7102,20 @@ bool DireHistory::mayHaveEffectiveVertex( string process, vector<int> in,
 
   if ( process.compare("ta+ta->jj") == 0
     || process.compare("ta-ta+>jj") == 0 ) {
-    int nInFermions(0), nOutFermions(0), nOutBosons(0);
+    int nInFermions(0), nOutFermions(0);
     for (int i=0; i < int(in.size()); ++i)
       if (abs(in[i])<20) nInFermions++;
-    for (int i=0; i < int(out.size()); ++i) {
+    for (int i=0; i < int(out.size()); ++i)
       if (abs(out[i])<20) nOutFermions++;
-      if (abs(out[i])>20) nOutBosons++;
-    }
     return (nInFermions%2==0 && nOutFermions%2==0);
   }
 
-  int nInG(0), nOutZ(0), nOutWp(0), nOutWm(0), nOutH(0), nOutA(0), nOutG(0);
+  int nInG(0), nOutWp(0), nOutWm(0), nOutH(0), nOutA(0), nOutG(0);
   for (int i=0; i < int(in.size()); ++i)
     if (in[i]==21) nInG++;
   for (int i=0; i < int(out.size()); ++i) {
     if (out[i] == 21) nOutG++;
     if (out[i] == 22) nOutA++;
-    if (out[i] == 23) nOutZ++;
     if (out[i] == 24) nOutWp++;
     if (out[i] ==-24) nOutWm++;
     if (out[i] == 25) nOutH++;

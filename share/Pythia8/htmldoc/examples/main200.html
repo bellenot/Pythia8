@@ -4,7 +4,7 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main200.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -21,7 +21,7 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 //            <a href="../ExampleKeywords.html#electron-positron">Electron&#8209;positron</a>
 
 // Include Pythia8 header(s) and namespace.
-#include "Pythia8/Pythia.h"
+#include &quot;Pythia8/Pythia.h&quot;
 using namespace Pythia8;
 
 // Main Program
@@ -33,21 +33,21 @@ int main() {
   Pythia pythia;
 
   // Read user settings from file
-  pythia.readFile("main200.cmnd");
+  pythia.readFile(&quot;main200.cmnd&quot;);
 
   //************************************************************************
 
   // Shorthands
-  Event& event = pythia.event;
-  Settings& settings = pythia.settings;
+  Event&amp; event = pythia.event;
+  Settings&amp; settings = pythia.settings;
 
   // Extract settings to be used in the main program.
-  int    nEvent     = settings.mode("Main:numberOfEvents");
-  int    nAbort     = settings.mode("Main:timesAllowErrors");
-  bool   vinciaOn   = settings.mode("PartonShowers:model") == 2;
-  bool   helicityOn = vinciaOn && settings.flag("Vincia:helicityShower");
+  int    nEvent     = settings.mode(&quot;Main:numberOfEvents&quot;);
+  int    nAbort     = settings.mode(&quot;Main:timesAllowErrors&quot;);
+  bool   vinciaOn   = settings.mode(&quot;PartonShowers:model&quot;) == 2;
+  bool   helicityOn = vinciaOn &amp;&amp; settings.flag(&quot;Vincia:helicityShower&quot;);
   int    iEventPri  = -1;
-  double eCM        = settings.parm("Beams:eCM");
+  double eCM        = settings.parm(&quot;Beams:eCM&quot;);
 
   //************************************************************************
 
@@ -63,7 +63,7 @@ int main() {
   //************************************************************************
 
   // Define PYTHIA histograms
-  // Rootlink: to use ROOT instead, HIST -> TH1F ("tag",...)
+  // Rootlink: to use ROOT instead, HIST -&gt; TH1F (&quot;tag&quot;,...)
 
   // Number of quarks, partons, and charged particles
   double nQsum      = 0.0;
@@ -74,26 +74,26 @@ int main() {
   double nBottomSum = 0.0;
   double nBaryonSum = 0.0;
   double nGammaSum  = 0.0;
-  Hist histNQuarks("nQuarks", 50, -0.5, 49.5);
-  Hist histNPartons("nPartons", 100, -0.5, 99.5);
-  Hist histNCharged("nCharged", 100, -1.0, 199.0);
-  Hist histNGamma("nPhotons", 50, -0.5, 49.5);
-  Hist histXStrange("Ln(x) for strange quarks", 25, -5.0, 0.0);
-  Hist histXCharm("Ln(x) for charm quarks", 25, -5.0, 0.0);
-  Hist histXBottom("Ln(x) for bottom quarks", 25, -5.0, 0.0);
-  Hist histMSS("Invariant mass of s-sbar pairs",50,0.,10.);
-  Hist histMCC("Invariant mass of c-cbar pairs",50,0.,25.);
-  Hist histMBB("Invariant mass of b-bbar pairs",50,0.,50.);
-  Hist histX1("Ln(x) for 1st branching (QCD)",100,-7.5,0.0);
-  Hist histX1Gamma("Ln(x) for 1st branching (QED)",100,-7.5,0.0);
-  Hist histX2Gluon("Ln(x) for 2nd branching (gluons)",100,-7.5,0.0);
-  Hist histX2Quark("Ln(x) for 2nd branching (quarks)",100,-7.5,0.0);
+  Hist histNQuarks(&quot;nQuarks&quot;, 50, -0.5, 49.5);
+  Hist histNPartons(&quot;nPartons&quot;, 100, -0.5, 99.5);
+  Hist histNCharged(&quot;nCharged&quot;, 100, -1.0, 199.0);
+  Hist histNGamma(&quot;nPhotons&quot;, 50, -0.5, 49.5);
+  Hist histXStrange(&quot;Ln(x) for strange quarks&quot;, 25, -5.0, 0.0);
+  Hist histXCharm(&quot;Ln(x) for charm quarks&quot;, 25, -5.0, 0.0);
+  Hist histXBottom(&quot;Ln(x) for bottom quarks&quot;, 25, -5.0, 0.0);
+  Hist histMSS(&quot;Invariant mass of s-sbar pairs&quot;,50,0.,10.);
+  Hist histMCC(&quot;Invariant mass of c-cbar pairs&quot;,50,0.,25.);
+  Hist histMBB(&quot;Invariant mass of b-bbar pairs&quot;,50,0.,50.);
+  Hist histX1(&quot;Ln(x) for 1st branching (QCD)&quot;,100,-7.5,0.0);
+  Hist histX1Gamma(&quot;Ln(x) for 1st branching (QED)&quot;,100,-7.5,0.0);
+  Hist histX2Gluon(&quot;Ln(x) for 2nd branching (gluons)&quot;,100,-7.5,0.0);
+  Hist histX2Quark(&quot;Ln(x) for 2nd branching (quarks)&quot;,100,-7.5,0.0);
 
   // Thrust, C, and D parameters
   int nBinsShapes=100;
-  Hist histT("1-T",nBinsShapes, 0.0, 0.5);
-  Hist histC("C",nBinsShapes,0.0,1.0);
-  Hist histD("D",nBinsShapes,0.0,1.0);
+  Hist histT(&quot;1-T&quot;,nBinsShapes, 0.0, 0.5);
+  Hist histC(&quot;C&quot;,nBinsShapes,0.0,1.0);
+  Hist histD(&quot;D&quot;,nBinsShapes,0.0,1.0);
   double wHistT=nBinsShapes/0.5;
   double wHistCD=nBinsShapes/1.0;
 
@@ -108,16 +108,16 @@ int main() {
 
   // Begin event loop
   int iAbort = 0;
-  for (int iEvent = 0; iEvent < nEvent; ++iEvent) {
+  for (int iEvent = 0; iEvent &lt; nEvent; ++iEvent) {
 
     bool aborted = !pythia.next();
     if(aborted){
       event.list();
-      if (++iAbort < nAbort){
+      if (++iAbort &lt; nAbort){
         continue;
       }
-      cout << " Event generation aborted prematurely, owing to error!\n";
-      cout<< "Event number was : "<<iEvent<<endl;
+      cout &lt;&lt; &quot; Event generation aborted prematurely, owing to error!\n&quot;;
+      cout&lt;&lt; &quot;Event number was : &quot;&lt;&lt;iEvent&lt;&lt;endl;
       break;
     }
 
@@ -140,10 +140,10 @@ int main() {
     int nStrangeBorn = (event[6].idAbs() == 3) ? 2 : 0;
     int nCharmBorn   = (event[6].idAbs() == 4) ? 2 : 0;
     int nBottomBorn  = (event[6].idAbs() == 5) ? 2 : 0;
-    vector<int> iStrange;
-    vector<int> iCharm;
-    vector<int> iBottom;
-    for (int i=1;i<event.size();i++) {
+    vector&lt;int&gt; iStrange;
+    vector&lt;int&gt; iCharm;
+    vector&lt;int&gt; iBottom;
+    for (int i=1;i&lt;event.size();i++) {
       // Plot x distributions of first two emissions
       if (i == 9) {
         if (event[i].id() != 22)
@@ -154,14 +154,14 @@ int main() {
       if (i == 12) {
         if (event[i].id() == 21)
           histX2Gluon.fill(log(2*event[i].pAbs()/eCM),weight);
-        else if (event[i].idAbs() < 10)
+        else if (event[i].idAbs() &lt; 10)
           histX2Quark.fill(log(2*event[i].pAbs()/eCM),weight);
       }
       // Count up final-state charged hadrons
-      if (event[i].isCharged() && event[i].status() > 80) nc++;
+      if (event[i].isCharged() &amp;&amp; event[i].status() &gt; 80) nc++;
       // Find last parton-level partons
       int iDau1 = event[i].daughter1();
-      if (iDau1 == 0 || abs(event[iDau1].status()) > 80) {
+      if (iDau1 == 0 || abs(event[iDau1].status()) &gt; 80) {
         // Count up partons and quarks
         if (event[i].isQuark() || event[i].isGluon()) np++;
         if (event[i].id() == 22) nGam++;
@@ -169,7 +169,7 @@ int main() {
         if (event[i].idAbs() == 3) {
           nStrange++;
           histXStrange.fill(log(2*event[i].pAbs()/eCM),weight);
-          for (int j=0; j<(int)iStrange.size(); ++j) {
+          for (int j=0; j&lt;(int)iStrange.size(); ++j) {
             double m2qq = m2(event[i],event[iStrange[j]]);
             histMSS.fill(sqrt(m2qq),weight);
           }
@@ -178,7 +178,7 @@ int main() {
         if (event[i].idAbs() == 4) {
           nCharm++;
           histXCharm.fill(log(2*event[i].pAbs()/eCM),weight);
-          for (int j=0; j<(int)iCharm.size(); ++j) {
+          for (int j=0; j&lt;(int)iCharm.size(); ++j) {
             double m2qq = m2(event[i],event[iCharm[j]]);
             histMCC.fill(sqrt(m2qq),weight);
           }
@@ -187,16 +187,16 @@ int main() {
         if (event[i].idAbs() == 5) {
           nBottom++;
           histXBottom.fill(log(2*event[i].pAbs()/eCM),weight);
-          for (int j=0; j<(int)iBottom.size(); ++j) {
+          for (int j=0; j&lt;(int)iBottom.size(); ++j) {
             double m2qq = m2(event[i],event[iBottom[j]]);
             histMBB.fill(sqrt(m2qq),weight);
           }
           iBottom.push_back(i);
         }
       }
-      if (event[i].isHadron() && event[i].isFinal()) {
+      if (event[i].isHadron() &amp;&amp; event[i].isFinal()) {
         int idAbs = abs(event[i].id());
-        if (idAbs > 1000 && idAbs < 10000) nBaryonSum++;
+        if (idAbs &gt; 1000 &amp;&amp; idAbs &lt; 10000) nBaryonSum++;
       }
     }
     histNQuarks.fill(0.5*nq,weight);
@@ -216,7 +216,7 @@ int main() {
     histT.fill(1.0-Thr.thrust(),wHistT*weight);
 
     // Histogram Linear Sphericity values
-    if (np >= 2.0) {
+    if (np &gt;= 2.0) {
       SphLin.analyze( event );
       double evC=3*(SphLin.eigenValue(1)*SphLin.eigenValue(2)
                     + SphLin.eigenValue(2)*SphLin.eigenValue(3)
@@ -252,37 +252,37 @@ int main() {
   histX2Quark    *= normFac;
 
   // Print a few histograms.
-  cout<<histNPartons<<endl;
-  if (nGammaSum > 0) cout<<histNGamma<<endl;
-  cout<<histNCharged<<endl;
-  cout<<histT<<endl;
-  cout<<histC<<endl;
-  cout<<histD<<endl;
-  cout<<histX1<<endl;
-  cout<<histX1Gamma<<endl;
-  cout<<histX2Gluon<<endl;
-  cout<<histX2Quark<<endl;
-  cout<<histXStrange<<endl;
-  cout<<histXCharm<<endl;
-  cout<<histXBottom<<endl;
-  cout<<histMSS<<endl;
-  cout<<histMCC<<endl;
-  cout<<histMBB<<endl;
+  cout&lt;&lt;histNPartons&lt;&lt;endl;
+  if (nGammaSum &gt; 0) cout&lt;&lt;histNGamma&lt;&lt;endl;
+  cout&lt;&lt;histNCharged&lt;&lt;endl;
+  cout&lt;&lt;histT&lt;&lt;endl;
+  cout&lt;&lt;histC&lt;&lt;endl;
+  cout&lt;&lt;histD&lt;&lt;endl;
+  cout&lt;&lt;histX1&lt;&lt;endl;
+  cout&lt;&lt;histX1Gamma&lt;&lt;endl;
+  cout&lt;&lt;histX2Gluon&lt;&lt;endl;
+  cout&lt;&lt;histX2Quark&lt;&lt;endl;
+  cout&lt;&lt;histXStrange&lt;&lt;endl;
+  cout&lt;&lt;histXCharm&lt;&lt;endl;
+  cout&lt;&lt;histXBottom&lt;&lt;endl;
+  cout&lt;&lt;histMSS&lt;&lt;endl;
+  cout&lt;&lt;histMCC&lt;&lt;endl;
+  cout&lt;&lt;histMBB&lt;&lt;endl;
 
   // Print out end-of-run information.
   pythia.stat();
 
-  cout<<endl;
-  cout<<fixed;
-  cout<< " <nGluonSplit> = "<<num2str(nQsum * normFac-1.0)<<endl;
-  cout<< " <nG->SS>      = "<<num2str(nStrangeSum * normFac / 2.)<<endl;
-  cout<< " <nG->CC>      = "<<num2str(nCharmSum * normFac / 2.)<<endl;
-  cout<< " <nG->BB>      = "<<num2str(nBottomSum * normFac / 2.)<<endl;
-  cout<< " <nPartons>    = "<<num2str(nPsum * normFac)<<endl;
-  cout<< " <nPhotons>    = "<<num2str(nGammaSum * normFac)<<endl;
-  cout<< " <nCharged>    = "<<num2str(nCsum * normFac)<<endl;
-  cout<< " <nBaryons>    = "<<num2str(nBaryonSum * normFac)<<endl;
-  cout<<endl;
+  cout&lt;&lt;endl;
+  cout&lt;&lt;fixed;
+  cout&lt;&lt; &quot; &lt;nGluonSplit&gt; = &quot;&lt;&lt;num2str(nQsum * normFac-1.0)&lt;&lt;endl;
+  cout&lt;&lt; &quot; &lt;nG-&gt;SS&gt;      = &quot;&lt;&lt;num2str(nStrangeSum * normFac / 2.)&lt;&lt;endl;
+  cout&lt;&lt; &quot; &lt;nG-&gt;CC&gt;      = &quot;&lt;&lt;num2str(nCharmSum * normFac / 2.)&lt;&lt;endl;
+  cout&lt;&lt; &quot; &lt;nG-&gt;BB&gt;      = &quot;&lt;&lt;num2str(nBottomSum * normFac / 2.)&lt;&lt;endl;
+  cout&lt;&lt; &quot; &lt;nPartons&gt;    = &quot;&lt;&lt;num2str(nPsum * normFac)&lt;&lt;endl;
+  cout&lt;&lt; &quot; &lt;nPhotons&gt;    = &quot;&lt;&lt;num2str(nGammaSum * normFac)&lt;&lt;endl;
+  cout&lt;&lt; &quot; &lt;nCharged&gt;    = &quot;&lt;&lt;num2str(nCsum * normFac)&lt;&lt;endl;
+  cout&lt;&lt; &quot; &lt;nBaryons&gt;    = &quot;&lt;&lt;num2str(nBaryonSum * normFac)&lt;&lt;endl;
+  cout&lt;&lt;endl;
 
   // Done.
   return 0;

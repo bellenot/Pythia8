@@ -1,5 +1,5 @@
 // PartonDistributions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -3894,24 +3894,26 @@ double EPAexternal::sampleXgamma(double xMinIn) {
   // Sample with photon flux for nuclei.
   } else if (approxMode == 2) {
 
-    // Calculate the integrals of over estimates.
-    double integral1tmp = xMinSample < xCut ? norm1 / (1. - xPow)
+    // Calculate the integrals of over estimates, either only above
+    // the cut value or with both contributions.
+    bool xBelowCut = xMinSample < xCut;
+    double xMinCut = xBelowCut ? xCut : xMinSample;
+    double integral1tmp = xBelowCut ? norm1 / (1. - xPow)
       * ( pow(xCut, 1. - xPow) - pow(xMinSample, 1. - xPow) ) : 0.;
     double integral2tmp = norm2 * 0.5 / bmhbarc
-      * ( exp(-2. * bmhbarc * xMinSample) - exp(-2. * bmhbarc) );
-    double integral1Frac = integral1tmp / (integral1tmp + integral2tmp);
+      * ( exp(-2. * bmhbarc * xMinCut) - exp(-2. * bmhbarc) );
 
     // Select the sampling region.
-    int samplingRegion = 1;
-    if ( xMinSample > xCut || integral1Frac < rndmPtr->flat() )
-      samplingRegion = 2;
+    double integral1Frac = integral1tmp / (integral1tmp + integral2tmp);
+    int samplingRegion = ( !xBelowCut || integral1Frac < rndmPtr->flat() )
+      ? 2 : 1;
 
-    // Sample x.
+    // Sample x value according to the selected approximation region.
     double xGm = (samplingRegion == 1)
       ? pow( pow(xMinSample,1. - xPow) + rndmPtr->flat()
       * ( pow(xCut, 1. - xPow) - pow(xMinSample, 1. - xPow) ), 1./(1. - xPow))
-      : -0.5 / bmhbarc * log( exp(-2. * bmhbarc * xMinSample) - rndmPtr->flat()
-      * ( exp(-2. * bmhbarc * xMinSample) -  exp(-2. * bmhbarc) ) );
+      : -0.5 / bmhbarc * log( exp(-2. * bmhbarc * xMinCut) - rndmPtr->flat()
+      * ( exp(-2. * bmhbarc * xMinCut) -  exp(-2. * bmhbarc) ) );
     return xGm;
   }
 

@@ -4,7 +4,7 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main181.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -17,17 +17,17 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 
 // Plots parton distribution functions for the specified hadrons and partons.
 
-#include "Pythia8/Pythia.h"
+#include &quot;Pythia8/Pythia.h&quot;
 
 using namespace Pythia8;
 
 // This struct defines which partons and hadrons should be shown in a plot.
 struct PlotCase {
-  vector<int> partonIds, hadronIds;
+  vector&lt;int&gt; partonIds, hadronIds;
 };
 
 // These cases are the ones that will be plotted.
-vector<PlotCase> plotCases = {
+vector&lt;PlotCase&gt; plotCases = {
  { { 2, 1, -1, -2 }, { 2212, 2112 } },
  { { 2, 1 }, { 1114, 2114, 2214, 2224 } },
  { { 3, 2, 1 }, { 3112, 3212, 3222 } },
@@ -43,7 +43,7 @@ vector<PlotCase> plotCases = {
 constexpr double Q2 = 100.;
 
 // Each curve is shifted up by a small amount to help separate the curves.
-// Set this to 0 to plot the "correct" PDFs.
+// Set this to 0 to plot the &quot;correct&quot; PDFs.
 constexpr double dOffset = 0.002;
 double offset;
 
@@ -55,32 +55,32 @@ int main() {
 
   // Initialization.
   Pythia pythia;
-  pythia.readString("ProcessLevel:all = off");
+  pythia.readString(&quot;ProcessLevel:all = off&quot;);
 
   // Use the following settings to use SU21 PDF sets for p/pi:
-  //pythia.readString("PDF:pSet = 24");
-  //pythia.readString("PDF:piSet = 3");
+  //pythia.readString(&quot;PDF:pSet = 24&quot;);
+  //pythia.readString(&quot;PDF:piSet = 3&quot;);
   pythia.init();
 
   // Loop over and plot the cases.
-  HistPlot plt("main181plot");
+  HistPlot plt(&quot;main181plot&quot;);
   for (auto plotCase : plotCases) {
 
     // Loop over each hadron and plot full contents.
     if (showFull) {
-      plt.frame("out181plot", "PDF comparison", "x", "x f(x)");
+      plt.frame(&quot;out181plot&quot;, &quot;PDF comparison&quot;, &quot;x&quot;, &quot;x f(x)&quot;);
       offset = 0.;
       for (int id : plotCase.hadronIds) {
         PDFPtr pdf = pythia.getPDFPtr(id);
         if (!pdf) {
-          cout << "Failed to get PDF pointer for " << id << endl;
+          cout &lt;&lt; &quot;Failed to get PDF pointer for &quot; &lt;&lt; id &lt;&lt; endl;
           return -1;
         }
         for (int q : plotCase.partonIds) {
-          Hist h = Hist::plotFunc([&](double x) {
-            return offset + pdf->xf(q, x, Q2);
-            }, to_string(q) + "/" + to_string(id), 100, 0., 1.);
-          plt.add(h, "-");
+          Hist h = Hist::plotFunc([&amp;](double x) {
+            return offset + pdf-&gt;xf(q, x, Q2);
+            }, to_string(q) + &quot;/&quot; + to_string(id), 100, 0., 1.);
+          plt.add(h, &quot;-&quot;);
           offset += dOffset;
         }
       }
@@ -89,19 +89,19 @@ int main() {
 
     // Loop over each hadron and plot valence contents.
     if (showValence) {
-      plt.frame("out181plot", "Valence PDF comparison", "x", "x v(x)");
+      plt.frame(&quot;out181plot&quot;, &quot;Valence PDF comparison&quot;, &quot;x&quot;, &quot;x v(x)&quot;);
       offset = 0.;
       for (int id : plotCase.hadronIds) {
         PDFPtr pdf = pythia.getPDFPtr(id);
         if (!pdf) {
-          cout << "Failed to get PDF pointer for " << id << endl;
+          cout &lt;&lt; &quot;Failed to get PDF pointer for &quot; &lt;&lt; id &lt;&lt; endl;
           return -1;
         }
         for (int q : plotCase.partonIds) {
-          Hist h = Hist::plotFunc([&](double x) {
-            return offset + pdf->xfVal(q, x, Q2);
-            }, to_string(q) + "/" + to_string(id), 100, 0., 1.);
-          plt.add(h, "-");
+          Hist h = Hist::plotFunc([&amp;](double x) {
+            return offset + pdf-&gt;xfVal(q, x, Q2);
+            }, to_string(q) + &quot;/&quot; + to_string(id), 100, 0., 1.);
+          plt.add(h, &quot;-&quot;);
           offset += dOffset;
         }
       }
@@ -110,18 +110,18 @@ int main() {
 
     // Loop over each hadron and plot sea contents.
     if (showSea) {
-      plt.frame("out181plot", "Sea PDF comparison", "x", "x s(x)");
+      plt.frame(&quot;out181plot&quot;, &quot;Sea PDF comparison&quot;, &quot;x&quot;, &quot;x s(x)&quot;);
       offset = 0.;
       for (int id : plotCase.hadronIds) {
         PDFPtr pdf = pythia.getPDFPtr(id);
         if (!pdf) {
-          cout << "Failed to get PDF pointer for " << id << endl;
+          cout &lt;&lt; &quot;Failed to get PDF pointer for &quot; &lt;&lt; id &lt;&lt; endl;
           return -1;
         }
         for (int q : plotCase.partonIds) {
-          plt.add(Hist::plotFunc([&](double x) {
-            return offset + pdf->xfSea(q, x, Q2);
-          }, to_string(q) + "/" + to_string(id), 100, 0., 1.), "-");
+          plt.add(Hist::plotFunc([&amp;](double x) {
+            return offset + pdf-&gt;xfSea(q, x, Q2);
+          }, to_string(q) + &quot;/&quot; + to_string(id), 100, 0., 1.), &quot;-&quot;);
           offset += dOffset;
         }
       }

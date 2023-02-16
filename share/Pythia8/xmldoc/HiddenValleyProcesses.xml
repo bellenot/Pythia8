@@ -564,37 +564,69 @@ effect relative to the primary emission of the <ei>gv</ei>.
  
 <p/>While the default model has a fixed Hidden Valley coupling 
 <ei> alpha_HV</ei>, some further work <ref>Scw15</ref> has considered 
-the impact of a running coupling. This is included as an option. 
+the impact of a running coupling. This is included as options at 
+the one-, two- and three-loop level. Beta functions up three-loop 
+and definitions of higher-order Lambda follow <ref>Rit97</ref>, 
+<ref>Yao06</ref> and <ref>Pro07</ref>. The running is handled by the 
+<code>AlphaSUN</code> class, for lack of better alternatives put in 
+the <code>StandardModel.h</code> and <code>StandardModel.cc</code> files, 
+and are documented on the 
+<aloc href="StandardModelParameters">Standard-Model Parameters</aloc> 
+page. 
  
 <flag name="HiddenValley:FSR" default="off"> 
 switch on final-state shower of <ei>gv</ei> or <ei>gammav</ei> 
 in a HV production process. 
 </flag> 
  
-<modepick name="HiddenValley:alphaOrder" default="0" min="0" max="1"> 
-Order at which <ei>alpha_HV</ei> runs, 
+<modepick name="HiddenValley:alphaOrder" default="0" min="0" max="3"> 
+Order at which <ei>alpha_HV</ei> runs. This switch has no function for 
+the <b>U(1)</b> case, where <ei>alpha_HV</ei> is always fixed, but only 
+for the <b>SU(N)</b> ones. For a running <ei>alpha_HV</ei> it is 
+possible either to set the <ei>alpha_HV</ei> value at a reference scale 
+or to set a <ei>Lambda</ei> scale, see further the next four entries. 
 <option value="0">zeroth order, i.e. <ei>alpha_HV</ei> is kept 
-fixed at the value <ei>alphaFSR</ei>.</option> 
-<option value="1">first order,</option> with the beta function based 
-on <ei>Ngauge</ei> and <ei>Nflav</ei>. This option can not be used for 
-the <b>U(1)</b> case, but only for the <b>SU(N)</b> ones. 
+fixed at the value <ei>alphaFSR</ei> below.</option> 
+<option value="1">first order, with the beta function based 
+on <ei>Ngauge</ei> and <ei>Nflav</ei>. </option> 
+<option value="2">second order, with the beta function based 
+on <ei>Ngauge</ei> and <ei>Nflav</ei>. </option> 
+<option value="3">third order, with the beta function based 
+on <ei>Ngauge</ei> and <ei>Nflav</ei>. </option> 
 </modepick> 
  
 <parm name="HiddenValley:alphaFSR" default="0.1" min="0.0"> 
-fixed <ei>alpha_HV</ei> scale of <ei>gv/gammav</ei> emission, used 
-when <code>HiddenValley:alphaOrder = 0</code>, but not used when 
-it is <code>= 1</code>). It corresponds to 
-<ei>alpha_strong</ei> of QCD or <ei>alpha_em</ei> of QED. For 
-shower branchings such as <ei>Dv &rarr; Dv + gv</ei> the coupling is 
-multiplied by <ei>C_F = (N^2 - 1) / (2 * N)</ei> for an 
-<b>SU(N)</b> group and for <ei>gv &rarr; gv + gv</ei> by <ei>N</ei>. 
+The <ei>alpha_HV</ei> coupling strength of <ei>gv/gammav</ei> emissions. 
+When <code>HiddenValley:alphaOrder = 0</code>, or for a <b>U(1)</b> 
+scenario, this value is fixed. For an <b>SU(N)</b> model with 
+<code>alphaOrder</code> above zero, i.e. when <ei>alpha_HV</ei> 
+runs, it is the value at the reference scale below. It corresponds to 
+<ei>alpha_strong</ei> of QCD or <ei>alpha_em</ei> of QED. For shower 
+branchings such as <ei>Dv &rarr; Dv + gv</ei> the coupling is multiplied 
+by <ei>C_F = (N^2 - 1) / (2 * N)</ei> for an <b>SU(N)</b> group and 
+for <ei>gv &rarr; gv + gv</ei> by <ei>N</ei>. 
 </parm> 
  
-<parm name="HiddenValley:Lambda" default="0.4" min="0.1"> 
+<parm name="HiddenValley:alphaFSRrefScale" default="91.188" min="0.0"> 
+A reference scale, where the <code>HiddenValley:alphaFSR</code> value 
+above is defined, in case of a running coupling. Default value is the 
+<ei>Z^0</ei> mass, by analogy with QCD, but it can be picked to 
+whatever is convenient.</parm> 
+ 
+<flag name="HiddenValley:setLambda" default="off"> 
+By default an <code>HiddenValley:alphaFSR</code> value is defined 
+at a reference scale, as outlined above, and then converted to a 
+<ei>Lambda_HV</ei> scale for usage in the relevant running-coupling 
+expressions. If <code>setLambda</code> is on, instead the 
+<ei>Lambda_HV</ei> value can be set directly below. 
+</flag> 
+ 
+<parm name="HiddenValley:Lambda" default="0.4" min="0.01"> 
 the <ei>Lambda_HV</ei> parameter used for the case of a running 
-(first order) <ei>alpha_HV(Q^2) = 12 * pi / ((11 * Ngauge - 2 * nFlav) 
-* ln(Q^2 / Lambda_HV^2) </ei>, 
-i.e. when <code>HiddenValley:alphaOrder = 1</code>. 
+<ei>alpha_HV(Q^2)</ei> when <code>HiddenValley:setLambda = on</code>. 
+This <ei>Lambda_HV</ei> is used in the respective one-, two- or 
+three-loop <ei>alpha_HV(Q^2)</ei> expression, depending on 
+<code>HiddenValley:alphaOrder</code>. 
 </parm> 
  
 <parm name="HiddenValley:pTminFSR" default="0.44" min="0.1"> 
@@ -801,4 +833,4 @@ Also some other methods are found there.
  
 </chapter> 
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

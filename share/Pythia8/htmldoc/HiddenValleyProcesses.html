@@ -645,7 +645,15 @@ effect relative to the primary emission of the <i>gv</i>.
  
 <p/>While the default model has a fixed Hidden Valley coupling 
 <i> alpha_HV</i>, some further work [<a href="Bibliography.html#refScw15" target="page">Scw15</a>] has considered 
-the impact of a running coupling. This is included as an option. 
+the impact of a running coupling. This is included as options at 
+the one-, two- and three-loop level. Beta functions up three-loop 
+and definitions of higher-order Lambda follow [<a href="Bibliography.html#refRit97" target="page">Rit97</a>], 
+[<a href="Bibliography.html#refYao06" target="page">Yao06</a>] and [<a href="Bibliography.html#refPro07" target="page">Pro07</a>]. The running is handled by the 
+<code>AlphaSUN</code> class, for lack of better alternatives put in 
+the <code>StandardModel.h</code> and <code>StandardModel.cc</code> files, 
+and are documented on the 
+<a href="StandardModelParameters.html" target="page">Standard-Model Parameters</a> 
+page. 
  
 <a name="anchor33"></a>
 <p/><code>flag&nbsp; </code><strong> HiddenValley:FSR &nbsp;</strong> 
@@ -656,37 +664,65 @@ in a HV production process.
  
 <a name="anchor34"></a>
 <p/><code>mode&nbsp; </code><strong> HiddenValley:alphaOrder &nbsp;</strong> 
- (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 1</code>)<br/>
-Order at which <i>alpha_HV</i> runs, 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
+Order at which <i>alpha_HV</i> runs. This switch has no function for 
+the <b>U(1)</b> case, where <i>alpha_HV</i> is always fixed, but only 
+for the <b>SU(N)</b> ones. For a running <i>alpha_HV</i> it is 
+possible either to set the <i>alpha_HV</i> value at a reference scale 
+or to set a <i>Lambda</i> scale, see further the next four entries. 
 <br/><code>option </code><strong> 0</strong> : zeroth order, i.e. <i>alpha_HV</i> is kept 
-fixed at the value <i>alphaFSR</i>.   
-<br/><code>option </code><strong> 1</strong> : first order,   with the beta function based 
-on <i>Ngauge</i> and <i>Nflav</i>. This option can not be used for 
-the <b>U(1)</b> case, but only for the <b>SU(N)</b> ones. 
+fixed at the value <i>alphaFSR</i> below.   
+<br/><code>option </code><strong> 1</strong> : first order, with the beta function based 
+on <i>Ngauge</i> and <i>Nflav</i>.    
+<br/><code>option </code><strong> 2</strong> : second order, with the beta function based 
+on <i>Ngauge</i> and <i>Nflav</i>.    
+<br/><code>option </code><strong> 3</strong> : third order, with the beta function based 
+on <i>Ngauge</i> and <i>Nflav</i>.    
    
  
 <a name="anchor35"></a>
 <p/><code>parm&nbsp; </code><strong> HiddenValley:alphaFSR &nbsp;</strong> 
  (<code>default = <strong>0.1</strong></code>; <code>minimum = 0.0</code>)<br/>
-fixed <i>alpha_HV</i> scale of <i>gv/gammav</i> emission, used 
-when <code>HiddenValley:alphaOrder = 0</code>, but not used when 
-it is <code>= 1</code>). It corresponds to 
-<i>alpha_strong</i> of QCD or <i>alpha_em</i> of QED. For 
-shower branchings such as <i>Dv &rarr; Dv + gv</i> the coupling is 
-multiplied by <i>C_F = (N^2 - 1) / (2 * N)</i> for an 
-<b>SU(N)</b> group and for <i>gv &rarr; gv + gv</i> by <i>N</i>. 
+The <i>alpha_HV</i> coupling strength of <i>gv/gammav</i> emissions. 
+When <code>HiddenValley:alphaOrder = 0</code>, or for a <b>U(1)</b> 
+scenario, this value is fixed. For an <b>SU(N)</b> model with 
+<code>alphaOrder</code> above zero, i.e. when <i>alpha_HV</i> 
+runs, it is the value at the reference scale below. It corresponds to 
+<i>alpha_strong</i> of QCD or <i>alpha_em</i> of QED. For shower 
+branchings such as <i>Dv &rarr; Dv + gv</i> the coupling is multiplied 
+by <i>C_F = (N^2 - 1) / (2 * N)</i> for an <b>SU(N)</b> group and 
+for <i>gv &rarr; gv + gv</i> by <i>N</i>. 
    
  
 <a name="anchor36"></a>
-<p/><code>parm&nbsp; </code><strong> HiddenValley:Lambda &nbsp;</strong> 
- (<code>default = <strong>0.4</strong></code>; <code>minimum = 0.1</code>)<br/>
-the <i>Lambda_HV</i> parameter used for the case of a running 
-(first order) <i>alpha_HV(Q^2) = 12 * pi / ((11 * Ngauge - 2 * nFlav) 
-* ln(Q^2 / Lambda_HV^2) </i>, 
-i.e. when <code>HiddenValley:alphaOrder = 1</code>. 
-   
+<p/><code>parm&nbsp; </code><strong> HiddenValley:alphaFSRrefScale &nbsp;</strong> 
+ (<code>default = <strong>91.188</strong></code>; <code>minimum = 0.0</code>)<br/>
+A reference scale, where the <code>HiddenValley:alphaFSR</code> value 
+above is defined, in case of a running coupling. Default value is the 
+<i>Z^0</i> mass, by analogy with QCD, but it can be picked to 
+whatever is convenient.   
  
 <a name="anchor37"></a>
+<p/><code>flag&nbsp; </code><strong> HiddenValley:setLambda &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+By default an <code>HiddenValley:alphaFSR</code> value is defined 
+at a reference scale, as outlined above, and then converted to a 
+<i>Lambda_HV</i> scale for usage in the relevant running-coupling 
+expressions. If <code>setLambda</code> is on, instead the 
+<i>Lambda_HV</i> value can be set directly below. 
+   
+ 
+<a name="anchor38"></a>
+<p/><code>parm&nbsp; </code><strong> HiddenValley:Lambda &nbsp;</strong> 
+ (<code>default = <strong>0.4</strong></code>; <code>minimum = 0.01</code>)<br/>
+the <i>Lambda_HV</i> parameter used for the case of a running 
+<i>alpha_HV(Q^2)</i> when <code>HiddenValley:setLambda = on</code>. 
+This <i>Lambda_HV</i> is used in the respective one-, two- or 
+three-loop <i>alpha_HV(Q^2)</i> expression, depending on 
+<code>HiddenValley:alphaOrder</code>. 
+   
+ 
+<a name="anchor39"></a>
 <p/><code>parm&nbsp; </code><strong> HiddenValley:pTminFSR &nbsp;</strong> 
  (<code>default = <strong>0.44</strong></code>; <code>minimum = 0.1</code>)<br/>
 lowest allowed <i>pT</i> of emission. Should be greater than 
@@ -790,14 +826,14 @@ behaviour. This does not mean that deviations from this set should
 not be explored, or that other scaling rules could be preferred 
 within alternative scenarios. These parameters are as follows. 
  
-<a name="anchor38"></a>
+<a name="anchor40"></a>
 <p/><code>flag&nbsp; </code><strong> HiddenValley:fragment &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 switch on string fragmentation of the HV partonic system. 
 Only relevant for <b>SU(N)</b> scenarios. 
    
  
-<a name="anchor39"></a>
+<a name="anchor41"></a>
 <p/><code>mode&nbsp; </code><strong> HiddenValley:nFlav &nbsp;</strong> 
  (<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 8</code>)<br/>
 number of different flavours assumed to exist in the hadronization 
@@ -806,7 +842,7 @@ produced HV-mesons being flavour-diagonal and capable to decay back
 to Standard Model particles. 
    
  
-<a name="anchor40"></a>
+<a name="anchor42"></a>
 <p/><code>flag&nbsp; </code><strong> HiddenValley:separateFlav &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 By the choice of <code>nFlav</code> above, a wide set of HV-mesons 
@@ -819,7 +855,7 @@ plus optionally a <code>Deltav</code> baryon, which greatly simplifies
 the task of defining masses, decay modes, and branching ratios. 
    
  
-<a name="anchor41"></a>
+<a name="anchor43"></a>
 <p/><code>parm&nbsp; </code><strong> HiddenValley:probDiquark &nbsp;</strong> 
  (<code>default = <strong>0.</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)<br/>
 probability that the string breaks by "diquark-antidiquark" production 
@@ -832,7 +868,7 @@ for bigger gauge groups. It cannot be trusted for <b>SU(2)</b>,
 so it may be better to keep it zero there as well. 
    
  
-<a name="anchor42"></a>
+<a name="anchor44"></a>
 <p/><code>pvec&nbsp; </code><strong> HiddenValley:probFlav &nbsp;</strong> 
  (<code>default = <strong>{1.,1.,1.,1.,1.,1.,1.,1.}</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)<br/>
 production suppression at a string break for either of the 
@@ -845,7 +881,7 @@ positions are not used, but they should still be set to ensure
 consistent handling. 
    
  
-<a name="anchor43"></a>
+<a name="anchor45"></a>
 <p/><code>parm&nbsp; </code><strong> HiddenValley:probVector &nbsp;</strong> 
  (<code>default = <strong>0.75</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)<br/>
 fraction of HV-mesons that are assigned spin 1 (vector), with the 
@@ -854,7 +890,7 @@ spin <i>1/2</i> and the mass splitting is small, spin counting
 predicts that <i>3/4</i> of the mesons should have spin 1. 
    
  
-<a name="anchor44"></a>
+<a name="anchor46"></a>
 <p/><code>parm&nbsp; </code><strong> HiddenValley:probKeepEta1 &nbsp;</strong> 
  (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.</code>; <code>maximum = 1.</code>)<br/>
 multiplicative factor suppressing the production rate of the diagonal 
@@ -862,14 +898,14 @@ pseudoscalar meson with the largest code, for now assumed to be the
 <i>eta_1</i> flavour-singlet state of the multiplet. 
    
  
-<a name="anchor45"></a>
+<a name="anchor47"></a>
 <p/><code>parm&nbsp; </code><strong> HiddenValley:aLund &nbsp;</strong> 
  (<code>default = <strong>0.3</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)<br/>
 The <i>a</i> parameter of the Lund symmetric fragmentation function. 
 See the normal <a href="Fragmentation.html" target="page">fragmentation 
 function</a> description for the shape of this function.   
  
-<a name="anchor46"></a>
+<a name="anchor48"></a>
 <p/><code>parm&nbsp; </code><strong> HiddenValley:bmqv2 &nbsp;</strong> 
  (<code>default = <strong>0.8</strong></code>; <code>minimum = 0.2</code>; <code>maximum = 2.0</code>)<br/>
 The <i>b</i> parameter of the Lund symmetric fragmentation function, 
@@ -878,7 +914,7 @@ that the fragmentation function keeps the same shape when the
 <i>qv</i> mass is changed (neglecting transverse momenta). 
    
  
-<a name="anchor47"></a>
+<a name="anchor49"></a>
 <p/><code>parm&nbsp; </code><strong> HiddenValley:rFactqv &nbsp;</strong> 
  (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 2.0</code>)<br/>
 <i>r_qv</i>, i.e. the Bowler correction factor to the Lund symmetric 
@@ -886,7 +922,7 @@ fragmentation function, which could be made weaker or stronger than
 its natural value. 
    
  
-<a name="anchor48"></a>
+<a name="anchor50"></a>
 <p/><code>parm&nbsp; </code><strong> HiddenValley:sigmamqv &nbsp;</strong> 
  (<code>default = <strong>0.5</strong></code>; <code>minimum = 0.0</code>)<br/>
 the width <i>sigma</i> of transverse momenta in the HV fragmentation 
@@ -916,4 +952,4 @@ Also some other methods are found there.
 </body>
 </html>
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

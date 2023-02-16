@@ -1,9 +1,9 @@
 // main163.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Marius Utheim <marius.utheim@thep.lu.se>.
+// Authors: Marius Utheim <marius.m.utheim@jyu.fi>.
 
 // Keywords: parallelism;
 
@@ -38,12 +38,12 @@ int main() {
   mutex histMutex;
 
   // Generate events.
-  pythia.run([&](Pythia& pythiaNow) {
+  pythia.run([&](Pythia* pythiaPtr) {
 
     // Find number of all final charged particles and fill histogram.
     int nCharged = 0;
-    for (int i = 0; i < pythiaNow.event.size(); ++i)
-      if (pythiaNow.event[i].isFinal() && pythiaNow.event[i].isCharged())
+    for (int i = 0; i < pythiaPtr->event.size(); ++i)
+      if (pythiaPtr->event[i].isFinal() && pythiaPtr->event[i].isCharged())
         ++nCharged;
 
     // Simulate a slow analysis by delaying for 20 milliseconds.

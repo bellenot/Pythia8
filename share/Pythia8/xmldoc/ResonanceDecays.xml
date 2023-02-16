@@ -136,7 +136,7 @@ it is because you <i>want</i> to study secondary vertices.
 How to interface those decays to a detector simulation program then 
 is another story, to be solved separately. Do note that a special 
 treatment is needed for coloured long-lived resonances, that form 
-<aloc href="Rhadrons">R-hadrons</aloc>, and where charge and flavour 
+<aloc href="RHadrons">R-hadrons</aloc>, and where charge and flavour 
 may change between the production and decay vertices. 
  
 <h3>Special properties and methods for resonances</h3> 
@@ -387,4 +387,4 @@ documentation on the available settings can by found in the
  
 </chapter> 
  
-<!-- Copyright (C) 2022 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

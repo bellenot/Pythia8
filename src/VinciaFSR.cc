@@ -1,5 +1,5 @@
 // VinciaFSR.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -2762,7 +2762,6 @@ bool VinciaFSR::resonanceShower(Event& process, Event& event,
 
   // Begin evolution down in pT, allowing for nested resonance decays.
   if (pTmax > pTmerge) {
-    int nBranchNow = 0;
     int nLoop = 0;
     do {
 
@@ -2774,7 +2773,7 @@ bool VinciaFSR::resonanceShower(Event& process, Event& event,
 
       // Do a final-state emission.
       if ( pTtimes > 0. && pTtimes > max( pTresDec, pTmerge) ) {
-        if (branch(event)) ++nBranchNow;
+        branch(event);
         pTmax = pTtimes;
       }
 
@@ -3129,7 +3128,7 @@ void VinciaFSR::header() {
   // Vincia Weak shower.
   else if (ewMode == 3) {
     cout << " |    VINCIA EW       : Brooks, Skands, Verheyen, "
-         << "arXiv:2108.10786" << endl;
+         << "SciPost Phys. 12 (2022) 3, 101 arXiv:2108.10786" << endl;
   }
   // Vincia Merging.
   if (doMerging) {
@@ -3143,7 +3142,7 @@ void VinciaFSR::header() {
 #endif
   // Pythia 8 main reference.
   cout << " |    PYTHIA 8        : Bierlich et al.,"
-       << " SciPost Phys. Codebases 8-r8.3 (2022), arXiv:2203.11601" << endl;
+       << " SciPost Phys. Codebases 8-r8.3 (2022) arXiv:2203.11601" << endl;
   cout << " |\n *-------  End VINCIA Initialization  "
        << "----------------------------------------------------*\n\n";
   cout.setf(ios::right);
@@ -4714,15 +4713,6 @@ bool VinciaFSR::acceptTrial(Event& event) {
     pMEC = getMEC(iSysWin, event, stateNew, minClus);
   }
   pAccept[0] *= pMEC;
-
-  // Count number of shower-type partons (for diagnostics and headroom
-  // factors).
-  int nQbef(0), nGbef(0), nBbef(0);
-  for (int i = 0; i < partonSystemsPtr->sizeOut(iSysWin); ++i) {
-    if (event[partonSystemsPtr->getOut(iSysWin,i)].id() == 21) ++nGbef;
-    else if (event[partonSystemsPtr->getOut(iSysWin,i)].idAbs() <= 4) ++nQbef;
-    else if (event[partonSystemsPtr->getOut(iSysWin,i)].idAbs() == 5) ++nBbef;
-  }
 
   // Print MC violations.
   if (doMEC && verbose >= DEBUG) {

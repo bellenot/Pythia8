@@ -4,7 +4,7 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-python">
 # main39.py is a part of the PYTHIA event generator.
-# Copyright (C) 2022 Torbjorn Sjostrand.
+# Copyright (C) 2023 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -20,26 +20,26 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 
 #==========================================================================
 class ParticleData:
-    """
-    The 'ParticleData' class stores the necessary information to
+    &quot;&quot;&quot;
+    The &apos;ParticleData&apos; class stores the necessary information to
     define a particle.
-    """
+    &quot;&quot;&quot;
 
     #----------------------------------------------------------------------
-    def __init__(self, id = 0, name = "", m0 = 0, tau0 = float("inf"),
+    def __init__(self, id = 0, name = &quot;&quot;, m0 = 0, tau0 = float(&quot;inf&quot;),
                  spinType = 0, chargeType = 0, colType = 0,
-                 mWidth = 0, mMin = 0, mMax = float("inf"), varWidth = False,
-                 antiName = ""):
-        """
-        Initialize the class with the following: 'id' is the particle ID
-        number, 'name' the name, 'm0' the mass in GeV, 'tau0' the
-        proper lifetime in mm/c, 'spinType' twice the particle spin,
-        'chargeType' is three times the electromagnetic chargeType,
-        'colType' is the colType type, 'mWidth' is the particle width
-        in GeV, 'mMin' is the minimum mass in GeV, 'mMax' is the
-        maximum mass in GeV, 'varWidth' is a flag if variable width
-        should be used, and 'antiName' is a dummy argument not used.
-        """
+                 mWidth = 0, mMin = 0, mMax = float(&quot;inf&quot;), varWidth = False,
+                 antiName = &quot;&quot;):
+        &quot;&quot;&quot;
+        Initialize the class with the following: &apos;id&apos; is the particle ID
+        number, &apos;name&apos; the name, &apos;m0&apos; the mass in GeV, &apos;tau0&apos; the
+        proper lifetime in mm/c, &apos;spinType&apos; twice the particle spin,
+        &apos;chargeType&apos; is three times the electromagnetic chargeType,
+        &apos;colType&apos; is the colType type, &apos;mWidth&apos; is the particle width
+        in GeV, &apos;mMin&apos; is the minimum mass in GeV, &apos;mMax&apos; is the
+        maximum mass in GeV, &apos;varWidth&apos; is a flag if variable width
+        should be used, and &apos;antiName&apos; is a dummy argument not used.
+        &quot;&quot;&quot;
         self.id = int(id)
         self.name = str(name)
         self.m0 = float(m0)
@@ -50,89 +50,89 @@ class ParticleData:
         self.mWidth = float(mWidth)
         self.mMin = float(mMin)
         self.mMax = float(mMax)
-        self.varWidth = varWidth == "on"
+        self.varWidth = varWidth == &quot;on&quot;
         self.anti = antiName if antiName else None
         self.n = tuple([(self.id/pow(10, i)) % 10 for i in range(10)])
-        if self.mMax == 0: self.mMax = float("inf")
+        if self.mMax == 0: self.mMax = float(&quot;inf&quot;)
         
     #----------------------------------------------------------------------
-    def isQuark(self): return 0 < abs(self.id) < 10
-    def isDiquark(self): return 1000 < abs(self.id) < 10000
+    def isQuark(self): return 0 &lt; abs(self.id) &lt; 10
+    def isDiquark(self): return 1000 &lt; abs(self.id) &lt; 10000
     def isBaryon(self):
         id = abs(self.id)
         return not (
-            id <= 1000 or 1000000 <= id <= 9000000 or id >= 9900000 or
+            id &lt;= 1000 or 1000000 &lt;= id &lt;= 9000000 or id &gt;= 9900000 or
             self.n[0] == 0 or self.n[1] == 0 or self.n[2] == 0 or
             self.n[3] == 0)
     def isMeson(self):
         id = abs(self.id)
         if id == 130 or id == 310: return True
         return not (
-            id <= 100 or 1000000 <= id <= 9000000 or id >= 9900000 or
+            id &lt;= 100 or 1000000 &lt;= id &lt;= 9000000 or id &gt;= 9900000 or
             self.n[0] == 0 or self.n[1] == 0 or self.n[2] == 0 or
             self.n[3] != 0)
-    def isNucleus(self): return abs(self.id) > 1000000000
+    def isNucleus(self): return abs(self.id) &gt; 1000000000
         
     #----------------------------------------------------------------------
     def __str__(self):
-        """
+        &quot;&quot;&quot;
         Return a string to print of this particle data.
-        """
-        return ("%10s: %s\n"*9 + "%10s: %s") % (
-            "id", self.id, "name", self.name, "m0", self.m0,
-            "tau0", self.tau0, "spinType", self.spinType, "chargeType",
-            self.chargeType, "colType", self.colType, "mWidth", self.mWidth,
-            "mMin", self.mMin, "mMax", self.mMax)
+        &quot;&quot;&quot;
+        return (&quot;%10s: %s\n&quot;*9 + &quot;%10s: %s&quot;) % (
+            &quot;id&quot;, self.id, &quot;name&quot;, self.name, &quot;m0&quot;, self.m0,
+            &quot;tau0&quot;, self.tau0, &quot;spinType&quot;, self.spinType, &quot;chargeType&quot;,
+            self.chargeType, &quot;colType&quot;, self.colType, &quot;mWidth&quot;, self.mWidth,
+            &quot;mMin&quot;, self.mMin, &quot;mMax&quot;, self.mMax)
     
 #==========================================================================
 class ParticleDatabase(dict):
-    """
-    The 'ParticleDatabase' initializes and stores the 'ParticleData' for
-    all particles in the 'ParticleData.xml' file from Pythia 8.
-    """
+    &quot;&quot;&quot;
+    The &apos;ParticleDatabase&apos; initializes and stores the &apos;ParticleData&apos; for
+    all particles in the &apos;ParticleData.xml&apos; file from Pythia 8.
+    &quot;&quot;&quot;
 
     #----------------------------------------------------------------------
     def __init__(self, xmlfile = None):
-        """
-        Read in the particle data from the XML file 'xmlfile'.
-        """
+        &quot;&quot;&quot;
+        Read in the particle data from the XML file &apos;xmlfile&apos;.
+        &quot;&quot;&quot;
         # Find the XML file, if not provided.
         if xmlfile == None:
             try:
-                cfg = open("Makefile.inc")
+                cfg = open(&quot;Makefile.inc&quot;)
                 for line in cfg:
-                    if line.startswith("PREFIX_SHARE="):
-                        xmlfile = line.split("=", 1)[-1].strip(); break
+                    if line.startswith(&quot;PREFIX_SHARE=&quot;):
+                        xmlfile = line.split(&quot;=&quot;, 1)[-1].strip(); break
                 cfg.close()
             except:
                 import os
                 xmlfile = os.path.dirname(os.path.abspath(__file__))
-                xmlfile += "/../share/Pythia8"
-            xmlfile += "/xmldoc/ParticleData.xml"
+                xmlfile += &quot;/../share/Pythia8&quot;
+            xmlfile += &quot;/xmldoc/ParticleData.xml&quot;
         
         # Instantiate the base class and open the XML file.
         dict.__init__(self)
         xml = open(xmlfile)
         # Loop over the file.
-        pstr = ""
+        pstr = &quot;&quot;
         for line in xml:
             line = line.strip()
-            if line.startswith("<particle"): pstr = line
+            if line.startswith(&quot;&lt;particle&quot;): pstr = line
             elif pstr:
-                pstr += " " + line
-                if line.endswith(">"):
+                pstr += &quot; &quot; + line
+                if line.endswith(&quot;&gt;&quot;):
                     self.add(pstr)
-                    pstr = ""
+                    pstr = &quot;&quot;
         xml.close()
 
     #----------------------------------------------------------------------
     def add(self, pstr):
-        """
+        &quot;&quot;&quot;
         Parses the XML for a particle and adds it to the database.
-        """
+        &quot;&quot;&quot;
         import shlex
         # Create the dictionary.
-        pdct = {pair.split("=", 1)[0]: pair.split("=", 1)[1] for pair
+        pdct = {pair.split(&quot;=&quot;, 1)[0]: pair.split(&quot;=&quot;, 1)[1] for pair
                 in shlex.split(pstr[9:-1])}
         # Add the particle.
         pdat = ParticleData(**pdct)
@@ -140,20 +140,20 @@ class ParticleDatabase(dict):
         self[pdat.name] = pdat
         # Add the anti-particle if it exists, flip ID and charge.
         if pdat.anti:
-            pdct["name"] = pdat.anti
-            pdct["id"] = -pdat.id
-            pdct["chargeType"] = -pdat.chargeType
+            pdct[&quot;name&quot;] = pdat.anti
+            pdct[&quot;id&quot;] = -pdat.id
+            pdct[&quot;chargeType&quot;] = -pdat.chargeType
             adat = ParticleData(**pdct)
             self[adat.id], self[adat.name] = adat, adat
             pdat.anti, adat.anti = adat, pdat
 
 #==========================================================================
 from sys import argv
-if __name__== "__main__":
+if __name__== &quot;__main__&quot;:
     
     # Parse particle request.
-    if len(argv) < 2:
-        print("Usage:\n  python main39.py <particle id/name>")
+    if len(argv) &lt; 2:
+        print(&quot;Usage:\n  python main39.py &lt;particle id/name&gt;&quot;)
         exit(1)
     try:
         key = int(argv[1])
@@ -165,5 +165,5 @@ if __name__== "__main__":
     try:
         print(pdb[key])
     except KeyError:
-        print("Particle id or name not found: " + argv[1])
+        print(&quot;Particle id or name not found: &quot; + argv[1])
 </code></pre></body></html>

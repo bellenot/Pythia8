@@ -1,5 +1,5 @@
 // DireMerging.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2023 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -144,8 +144,8 @@ void DireMerging::storeInfos() {
 
 //--------------------------------------------------------------------------
 
-void DireMerging::getStoppingInfo(double scales [100][100],
-  double masses [100][100]) {
+void DireMerging::getStoppingInfo(double scales[100][100],
+  double masses[100][100]) {
 
   int posOffest=2;
   for (unsigned int i=0; i < radSave.size(); ++i){
@@ -155,7 +155,9 @@ void DireMerging::getStoppingInfo(double scales [100][100],
 
 }
 
-double DireMerging::generateSingleSudakov ( double pTbegAll,
+//--------------------------------------------------------------------------
+
+double DireMerging::generateSingleSudakov(double pTbegAll,
   double pTendAll, double m2dip, int idA, int type, double s, double x) {
   return isr->noEmissionProbability( pTbegAll, pTendAll, m2dip, idA,
     type, s, x);
@@ -502,10 +504,9 @@ int DireMerging::mergeProcess(Event& process){
       = settingsPtr->mode("Merging:nRequested");
 
     if (doMEM) {
-      int nFinal(0), nQuarks(0), nGammas(0);
+      int nFinal(0), nQuarks(0);
       for (int i=0; i < newp.size(); ++i) {
         if (newp[i].idAbs() <   7) nQuarks++;
-        if (newp[i].idAbs() == 22) nGammas++;
         if (newp[i].isFinal()) nFinal++;
       }
       settingsPtr->mode("DireSpace:nFinalMax",nFinal-1);
@@ -968,12 +969,10 @@ int DireMerging::mergeProcessUMEPS( Event& process) {
 
   // Set QCD 2->2 starting scale different from arbitrary scale in LHEF!
   // --> Set to minimal mT of partons.
-  int nFinal = 0;
   double muf = process[0].e();
   for ( int i=0; i < process.size(); ++i )
   if ( process[i].isFinal()
     && (process[i].colType() != 0 || process[i].id() == 22 ) ) {
-    nFinal++;
     muf = min( muf, abs(process[i].mT()) );
   }
 

@@ -1,5 +1,5 @@
 // History.h is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -58,10 +58,14 @@ public:
   // The recoiler before the splitting.
   int recBef;
 
+  // Map between particle positions in the clustered states -> particle
+  // positions in unclustered real-emission state.
+  map<int,int> iPosInMother;
+
   // Default constructor
   Clustering() : emitted(0), emittor(0), recoiler(0), partner(0), pTscale(),
     flavRadBef(0), spinRad(9), spinEmt(9), spinRec(9), spinRadBef(9),
-    radBef(0), recBef(0) {}
+    radBef(0), recBef(0), iPosInMother() {}
 
   // Default destructor
   ~Clustering(){}
@@ -73,17 +77,18 @@ public:
     pTscale(inSystem.pTscale), flavRadBef(inSystem.flavRadBef),
     spinRad(inSystem.spinRad), spinEmt(inSystem.spinEmt),
     spinRec(inSystem.spinRec), spinRadBef(inSystem.spinRad),
-    radBef(inSystem.radBef), recBef(inSystem.recBef) {}
+    radBef(inSystem.radBef), recBef(inSystem.recBef),
+    iPosInMother(inSystem.iPosInMother) {}
 
   // Constructor with input
   Clustering( int emtIn, int radIn, int recIn, int partnerIn,
     double pTscaleIn, int flavRadBefIn = 0, int spinRadIn = 9,
     int spinEmtIn = 9, int spinRecIn = 9, int spinRadBefIn = 9,
-    int radBefIn = 0, int recBefIn = 0)
+    int radBefIn = 0, int recBefIn = 0, map<int,int> posIn = map<int,int>())
     : emitted(emtIn), emittor(radIn), recoiler(recIn), partner(partnerIn),
       pTscale(pTscaleIn), flavRadBef(flavRadBefIn), spinRad(spinRadIn),
       spinEmt(spinEmtIn), spinRec(spinRecIn), spinRadBef(spinRadBefIn),
-      radBef(radBefIn), recBef(recBefIn) {}
+      radBef(radBefIn), recBef(recBefIn), iPosInMother(posIn) {}
 
   // Function to return pythia pT scale of clustering
   double pT() const { return pTscale; }

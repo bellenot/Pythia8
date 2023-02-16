@@ -1,5 +1,5 @@
 // SpaceShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -152,6 +152,12 @@ public:
     if ( it == enhanceISR.end() ) return 1.;
     return it->second;
   }
+
+  // Functions to directly extract the probability of no emission between two
+  // scales. This functions is not used in the Pythia core code, but can be
+  // used by external programs to interface with the shower directly.
+  virtual double noEmissionProbability( double, double, double, int, int,
+    double, double) { return 1.; }
 
   // Pointer to MergingHooks object for NLO merging.
   MergingHooksPtr  mergingHooksPtr{};

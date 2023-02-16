@@ -4,12 +4,12 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main155.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Torbjorn Sjostrand.
+// Copyright (C) 2023 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Authors:
-//            <a href="mailto:marius.utheim@thep.lu.se">Marius Utheim</a>
+//            <a href="mailto:marius.m.utheim@jyu.fi">Marius Utheim</a>
 
 // Keywords:
 //            <a href="../ExampleKeywords.html#rescattering">Rescattering</a>
@@ -19,7 +19,7 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 
 // Calculate and plot resonance cross sections for the specified process.
 
-#include "Pythia8/Pythia.h"
+#include &quot;Pythia8/Pythia.h&quot;
 using namespace Pythia8;
 
 //--------------------------------------------------------------------------
@@ -28,58 +28,58 @@ int main(int argc, char* argv[]) {
 
   // Initialize Pythia.
   Pythia pythia;
-  pythia.readFile("main155.cmnd");
+  pythia.readFile(&quot;main155.cmnd&quot;);
   if (!pythia.init()) {
-    cout << " Pythia failed to initialize." << endl;
+    cout &lt;&lt; &quot; Pythia failed to initialize.&quot; &lt;&lt; endl;
     return -1;
   }
 
-  int idA = argc == 3 ? atoi(argv[1]) : pythia.mode("Main:spareMode1");
-  int idB = argc == 3 ? atoi(argv[2]) : pythia.mode("Main:spareMode2");
-  double eMin = pythia.parm("Main:spareParm1");
-  double eMax = pythia.parm("Main:spareParm2");
-  if (eMin < pythia.particleData.m0(idA) + pythia.particleData.m0(idB)) {
+  int idA = argc == 3 ? atoi(argv[1]) : pythia.mode(&quot;Main:spareMode1&quot;);
+  int idB = argc == 3 ? atoi(argv[2]) : pythia.mode(&quot;Main:spareMode2&quot;);
+  double eMin = pythia.parm(&quot;Main:spareParm1&quot;);
+  double eMax = pythia.parm(&quot;Main:spareParm2&quot;);
+  if (eMin &lt; pythia.particleData.m0(idA) + pythia.particleData.m0(idB)) {
     eMin = pythia.particleData.m0(idA) + pythia.particleData.m0(idB);
-    cout << "Warning, setting eMin to nominal mass sum of " << eMin << ".\n";
+    cout &lt;&lt; &quot;Warning, setting eMin to nominal mass sum of &quot; &lt;&lt; eMin &lt;&lt; &quot;.\n&quot;;
   }
 
   int nBin = 300;
 
   // Get possible resonances.
-  vector<int> resonances = pythia.hadronWidths.possibleResonances(idA, idB);
+  vector&lt;int&gt; resonances = pythia.hadronWidths.possibleResonances(idA, idB);
 
   if (resonances.size() == 0) {
-    cout << "No resonances for input particles " << idA << " " << idB << endl;
+    cout &lt;&lt; &quot;No resonances for input particles &quot; &lt;&lt; idA &lt;&lt; &quot; &quot; &lt;&lt; idB &lt;&lt; endl;
     return -1;
   }
 
   // Define plot.
-  HistPlot plt("main155plot");
-  plt.frame("out155plot", "", "$\\sqrt{s}$ [GeV]", "$\\sigma$ [mb]");
+  HistPlot plt(&quot;main155plot&quot;);
+  plt.frame(&quot;out155plot&quot;, &quot;&quot;, &quot;$\\sqrt{s}$ [GeV]&quot;, &quot;$\\sigma$ [mb]&quot;);
 
   // Plot all resonances.
   for (int res : resonances) {
-    Hist sigRes = Hist::plotFunc( [&](double eCM) {
+    Hist sigRes = Hist::plotFunc( [&amp;](double eCM) {
       return pythia.getSigmaPartial(idA, idB, eCM, res);
     }, pythia.particleData.name(res), nBin, eMin, eMax);
 
-    plt.add(sigRes, "-");
+    plt.add(sigRes, &quot;-&quot;);
   }
 
   // Add total and miscellaneous cross sections at the end.
   Hist sigTot = Hist::plotFunc(
-    [&](double eCM) {
+    [&amp;](double eCM) {
       // type == 0 is equivalent to getSigmaTotal.
       return pythia.getSigmaPartial(idA, idB, eCM, 0); },
-    "Total", nBin, eMin, eMax);
+    &quot;Total&quot;, nBin, eMin, eMax);
   Hist sigTotRes = Hist::plotFunc(
-    [&](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 9); },
-    "Sum of resonances", nBin, eMin, eMax);
+    [&amp;](double eCM) { return pythia.getSigmaPartial(idA, idB, eCM, 9); },
+    &quot;Sum of resonances&quot;, nBin, eMin, eMax);
   Hist sigOther = sigTot - sigTotRes;
 
-  plt.add(sigTotRes, "-");
-  plt.add(sigOther, "-", "Other");
-  plt.add(sigTot, "k-");
+  plt.add(sigTotRes, &quot;-&quot;);
+  plt.add(sigOther, &quot;-&quot;, &quot;Other&quot;);
+  plt.add(sigTot, &quot;k-&quot;);
 
   // Plot.
   plt.plot();

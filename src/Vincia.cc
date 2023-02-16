@@ -1,5 +1,5 @@
 // VinciaCommon.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2022 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -31,7 +31,7 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
 
   // Create diagnostics pointer.
   diagnosticsPtr = make_shared<VinciaDiagnostics>();
-  diagnosticsPtr->initPtr(infoPtr);
+  diagnosticsPtr->initInfoPtr(*infoPtr);
   if (verbose >= REPORT) diagnosticsPtr->start(__METHOD_NAME__);
 
   // Clear Vincia's register of PhysicsBase objects.

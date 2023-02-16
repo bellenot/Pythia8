@@ -60,17 +60,18 @@ function which performs the necessary analysis on the events. In this
 example, an event multiplicity histogram is filled. 
 <pre> 
     Hist mult("mult", 100, -0.5, 799.5); 
-    pythia.run(10000, [&amp;](Pythia&amp; pythiaNow) { 
+    pythia.run(10000, [&amp;](Pythia* pythiaPtr) { 
       int nFinal = 0; 
-      for (int i = 0; i &lt; pythiaNow.event.size(); ++i) 
-        if (pythiaNow.event[i].isFinal()) ++nFinal; 
+      for (int i = 0; i &lt; pythiaPtr-&gt;event.size(); ++i) 
+        if (pythiaPtr-&gt;event[i].isFinal()) ++nFinal; 
       mult.fill( nFinal ); 
     }); 
 </pre> 
-Here the syntax <code>[&amp;](Pythia&amp; pythiaNow)</code> may be 
-unfamiliar. This is a <ie>lambda</ie> function with no arguments but 
-that passes all the current variabls in scope, i.e. the 
-<code>mult</code> histogram object. 
+Here the syntax <code>[&amp;](Pythia* pythiaPtr)</code> may be 
+unfamiliar. It defines a <ie>lambda</ie> function that takes a pointer to a 
+<code>Pythia</code> object as an argument. The <code>[&amp;]</code> indicates 
+that all local variables used by the lambda function (in this case only the 
+<code>mult</code> histogram object) are passed by reference. 
 </li> 
  
 </ol> 
@@ -84,10 +85,10 @@ The specific features are documented below, and examples are given in
 <code>main204</code>. 
  
 <a name="anchor1"></a>
-<p/><strong> vector&lt;long&gt; PythiaParallel::run(long nEvents, function&lt;void(Pythia&amp;)&gt; callback) &nbsp;</strong> <br/>
+<p/><strong> vector&lt;long&gt; PythiaParallel::run(long nEvents, function&lt;void(Pythia*)&gt; callback) &nbsp;</strong> <br/>
    
 <a name="anchor2"></a>
-<strong> vector&lt;long&gt; PythiaParallel::run( function&lt;void(Pythia&amp;)&gt; callback) &nbsp;</strong> <br/>
+<strong> vector&lt;long&gt; PythiaParallel::run( function&lt;void(Pythia*)&gt; callback) &nbsp;</strong> <br/>
 this is the main method of <code>PythiaParallel</code>, analogous to 
 <code>Pythia::next</code>. The method generates <code>nEvents</code> 
 events in parallel, distributing the tasks automatically to different 
@@ -95,8 +96,9 @@ events in parallel, distributing the tasks automatically to different
 specified, <code>Main:numberOfEvents</code> is used instead. 
  
 The <code>callback</code> is a function that will be called when each 
-event is generated. It receives the <code>Pythia</code> instance that 
-generated the event as an argument, and the event can then be accessed 
+event is generated. It takes a pointer to the <code>Pythia</code> 
+instance that generated the event as an argument, 
+and the event can then be accessed 
 through <code>Pythia::event</code>. If an event fails to generate 
 successfully, it will not be passed to the callback. 
  
@@ -116,24 +118,26 @@ requested number of events.
 <p/><strong> bool PythiaParallel::init() &nbsp;</strong> <br/>
    
 <a name="anchor4"></a>
-<strong> bool PythiaParallel::init( function&lt;void(Pythia&amp;)&gt; customInit) &nbsp;</strong> <br/>
+<strong> bool PythiaParallel::init( function&lt;void(Pythia*)&gt; customInit) &nbsp;</strong> <br/>
 initialize each <code>Pythia</code> instance and returns whether successful. 
 <br/><code>argument</code><strong> customInit </strong>  :  
 If specified, this function will be called for each 
 <code>Pythia</code> instance after it has been constructed and its 
 settings have been set, but before calling <code>Pythia::init</code>. 
+This can be useful for example for setting a <code>UserHooks</code> object 
+on each instance. 
    
    
  
 <a name="anchor5"></a>
-<p/><strong> void PythiaParallel::foreach(function&lt;void(Pythia&amp;)&gt; action) &nbsp;</strong> <br/>
+<p/><strong> void PythiaParallel::foreach(function&lt;void(Pythia*)&gt; action) &nbsp;</strong> <br/>
 perform the specified action for each <code>Pythia</code> instance. 
 This can be useful for doing custom finalization on each instance, e.g. 
 combining histograms. 
    
  
 <a name="anchor6"></a>
-<p/><strong> void PythiaParallel::foreachAsync( function&lt;void(Pythia&amp;)&gt; action) &nbsp;</strong> <br/>
+<p/><strong> void PythiaParallel::foreachAsync( function&lt;void(Pythia*)&gt; action) &nbsp;</strong> <br/>
 as <code>PythiaParallel::foreach</code>, but the actions are performed 
 for all <code>Pythia</code> instances in parallel. 
    
