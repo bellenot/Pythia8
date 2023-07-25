@@ -3,10 +3,10 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Marius Utheim <marius.m.utheim@jyu.fi>.
-//          Torbjorn Sjostrand <torbjorn.sjostrand@hep.lu.se>.
+// Authors: Marius Utheim <marius.m.utheim@jyu.fi>;
+//          Torbjorn Sjostrand <torbjorn.sjostrand@hep.lu.se>
 
-// Keywords: cosmic ray cascade; switch beam; switch collision energy;
+// Keywords: cosmic ray cascade; switch beam; switch collision energy
 
 // This example is based on work from Eur. Phys. J. C82 (2022) 21 and
 // arXiv:2108.03481 [hep-ph]. This program illustrates how the

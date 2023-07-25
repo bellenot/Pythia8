@@ -3,14 +3,14 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
+// Authors: Peter Skands <peter.skands@monash.edu>
+
+// Keywords: Vincia; Dire; top
+
 // This test program is a basic check of Vincia showers for pp > tt at LHC.
 // Also illustrates how various components of Vincia can be switched on/off
 // in a command file, and measures the run time (eg to compare options
 // and/or compare with Pythia).
-
-// Authors: Peter Skands <peter.skands@monash.edu>
-
-// Keywords: Vincia; Dire; top;
 
 #include <time.h>
 #include "Pythia8/Pythia.h"

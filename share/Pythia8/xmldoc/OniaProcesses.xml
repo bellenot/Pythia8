@@ -186,7 +186,7 @@ Code 401.
  
 <fvec name="Charmonium:gg2ccbar(3S1)[3S1(1)]gm" default="{off,off}"> 
 Colour-singlet production of <ei>3S1</ei> charmonium states via 
-<ei>g g &rarr; ccbar[3S1(1)] g</ei> with a hard <ei>gamma</ei>. 
+<ei>g g &rarr; ccbar[3S1(1)] gamma</ei>. 
 Code 441. 
 </fvec> 
  
@@ -240,7 +240,7 @@ Code 409.
  
 <fvec name="Charmonium:qqbar2ccbar(3S1)[3PJ(8)]g" default="{off,off}"> 
 Colour-octet production of <ei>3S1</ei> charmonium states via 
-<ei>q qbar &rarr; ccbar[3SJ(8)] g</ei>. 
+<ei>q qbar &rarr; ccbar[3PJ(8)] g</ei>. 
 Code 410. 
 </fvec> 
  
@@ -451,7 +451,7 @@ Code 501.
  
 <fvec name="Bottomonium:gg2bbbar(3S1)[3S1(1)]gm" default="{off,off,off}"> 
 Colour-singlet production of <ei>3S1</ei> bottomonium states via 
-<ei>g g &rarr; ccbar[3S1(1)] g</ei> with a hard <ei>gamma</ei>. 
+<ei>g g &rarr; ccbar[3S1(1)] gamma</ei>. 
 Code 551. 
 </fvec> 
  
@@ -505,7 +505,7 @@ Code 509.
  
 <fvec name="Bottomonium:qqbar2bbbar(3S1)[3PJ(8)]g" default="{off,off,off}"> 
 Colour-octet production of <ei>3S1</ei> bottomonium states via 
-<ei>q qbar &rarr; bbbar[3SJ(8)] g</ei>. 
+<ei>q qbar &rarr; bbbar[3PJ(8)] g</ei>. 
 Code 510. 
 </fvec> 
  

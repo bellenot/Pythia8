@@ -3,7 +3,7 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Keywords: B decays; hadronization;
+// Keywords: B decays; hadronization
 
 // This is a simple test program.
 // It illustrates how either

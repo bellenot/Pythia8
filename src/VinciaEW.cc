@@ -176,8 +176,7 @@ complex AmpCalculator::spinProd(int pol, const Vec4& k1, const Vec4& k2) {
 
   // Check if k1 or k2 accidentally align with the direction of basis vectors.
   if ( ( (k2.e() - k2.px()==0.) || (k1.e() - k1.px()==0.) ) ) {
-    infoPtr->errorMsg("Warning in " + __METHOD_NAME__, ": momentum aligned"
-                      " exactly with basis direction.");
+    loggerPtr->WARNING_MSG("momentum aligned exactly with basis direction");
     return complex(0.,0.);
   }
 
@@ -197,10 +196,10 @@ complex AmpCalculator::spinProd(int pol, const Vec4& k1, const Vec4& k2) {
 
   // Check result is valid.
   if (isnan(double(sNow.real())) || isnan(double(sNow.imag()))) {
-    infoPtr->errorMsg("Warning in " + __METHOD_NAME__, ": NAN encountered.");
+    loggerPtr->WARNING_MSG("nan encountered");
     return complex(0.,0.);
   } else if (isinf(double(sNow.real())) || isinf(double(sNow.imag()))) {
-    infoPtr->errorMsg("Warning in " + __METHOD_NAME__, ": INF encountered.");
+    loggerPtr->WARNING_MSG("inf encountered");
     return complex(0.,0.);
   }
   return sNow;
@@ -236,9 +235,9 @@ Vec4 AmpCalculator::spinProdFlat(
   if (p1*k1 == 0) {
     if (p1.mCalc()/p1.e() > MILLI) {
       stringstream ss;
-      ss << ": zero denominator in flattening slashed momentum "
+      ss << "zero denominator in flattening slashed momentum "
          << "num = " << 0.5*p1.m2Calc() << " denom = " << p1*k1;
-      infoPtr->errorMsg("Error in " + method, ss.str());
+      loggerPtr->errorMsg(method, ss.str());
     }
     return p1;
   } else return p1 - 0.5*p1.m2Calc()/(p1*k1)*k1;
@@ -292,13 +291,13 @@ void AmpCalculator::initFSRAmp(bool va, int id1, int id2, int pol,
 bool AmpCalculator::zdenFSRAmp(const string& method, const Vec4& pi,
   const Vec4& pj, bool check) {
   if (check || (fsrQ2.real() == 0 && fsrQ2.imag() == 0)) {
-    if (verbose >= NORMAL) {
+    if (verbose >= Logger::NORMAL) {
       stringstream ss;
       ss << "zero denominator encountered."
          << "\n    wij =" << wij << " wi = " << wi << "  wj2 = " << wj2
          << "\n    mj = " << mj  << " Q2 = " << fsrQ2
          << "\n    pi = " << pi  << "    pj = " << pj;
-      infoPtr->errorMsg("Warning in " + method + ": ", ss.str());
+      loggerPtr->warningMsg(method, ss.str());
     } return true;
   } else return false;
 }
@@ -338,13 +337,13 @@ void AmpCalculator::initISRAmp(bool va, int id1, int id2, int pol,
 bool AmpCalculator::zdenISRAmp(const string& method, const Vec4& pa,
   const Vec4& pj, bool check) {
   if (check || isrQ2 == 0) {
-    if (verbose >= NORMAL) {
+    if (verbose >= Logger::NORMAL) {
       stringstream ss;
       ss << "zero denominator encountered."
          << "\n    waj =" << waj << " wa = " << wa << "  wj2 = " << wj2
          << "\n    mj = " << mj  << " Q2 = " << isrQ2
          << "\n    pa = " << pa  << "    pj = " << pj;
-      infoPtr->errorMsg("Warning in " + method + ": ", ss.str());
+      loggerPtr->warningMsg(method, ss.str());
     } return true;
   } else return false;
 }
@@ -1176,11 +1175,10 @@ vector<AntWrapper> AmpCalculator::branchKernelFF(Vec4 pi, Vec4 pj, int idMot,
   // Square amplitudes and check size.
   vector<AntWrapper> ants;
   for (int i = 0; i < (int)amps.size(); i++) ants.push_back(amps[i].norm());
-  if (ants.size() == 0 && verbose >= NORMAL) {
-    stringstream ss;
-    ss << ": antenna vector is empty.\n"
-       << "    idMot = " << idMot << "  idi = " << idi << "  idj = " << idj;
-    infoPtr->errorMsg("Warning in " + __METHOD_NAME__, ss.str());
+  if (ants.size() == 0) {
+    loggerPtr->WARNING_MSG("antenna vector is empty",
+      "\n    idMot = " + to_string(idMot)
+      + "  idi = " + to_string(idi) + "  idj = " + to_string(idj));
   }
   return ants;
 
@@ -1206,11 +1204,10 @@ vector<AntWrapper> AmpCalculator::branchKernelII(Vec4 pa, Vec4 pj, int idA,
   // Square amplitudes and check size.
   vector<AntWrapper> ants;
   for (int i = 0; i < (int)amps.size(); i++)  ants.push_back(amps[i].norm());
-  if (ants.size() == 0 && verbose >= NORMAL) {
-    stringstream ss;
-    ss << ": antenna vector is empty.\n"
-       << "    idA = " << idA << "  ida = " << ida << "  idj = " << idj;
-    infoPtr->errorMsg("Warning in " + __METHOD_NAME__, ss.str());
+  if (ants.size() == 0) {
+    loggerPtr->WARNING_MSG("antenna vector is empty",
+      "\n    idA = " + to_string(idA)
+      + "  ida = " + to_string(ida) + "  idj = " + to_string(idj));
   }
   return ants;
 
@@ -1725,12 +1722,10 @@ vector<AntWrapper> AmpCalculator::antFuncII(double Q2, double xA, double xj,
 bool AmpCalculator::zdenFSRSplit(const string& method, const double& Q2,
   const double& z, bool check) {
   if (check || z == 0 || z == 1 || Q2 == 0) {
-    if (verbose >= NORMAL) {
-      stringstream ss;
-      ss << ": zero denominator encountered.\n"
-         << "   z = " << z << " Q2  = " << Q2 << " mj = " << mj;
-      infoPtr->errorMsg("Warning in " + method, ss.str());
-    } return true;
+    loggerPtr->warningMsg(method, "zero denominator encountered",
+      "\n   z = " + to_string(z) + " Q2  = " + to_string(Q2)
+      + " mj = " + to_string(mj));
+    return true;
   }
   Q4 = pow2(Q2);
   Q2til = Q2 + mMot2 - mj2/(1-z) - mi2/z;
@@ -1744,12 +1739,10 @@ bool AmpCalculator::zdenFSRSplit(const string& method, const double& Q2,
 bool AmpCalculator::zdenISRSplit(const string& method, const double& Q2,
   const double& z, bool flip, bool check) {
   if (check || z == 0 || z == 1 || Q2 == 0) {
-    if (verbose >= NORMAL) {
-      stringstream ss;
-      ss << ": zero denominator encountered.\n"
-         << "   z = " << z << " Q2  = " << Q2 << " mj = " << mj;
-      infoPtr->errorMsg("Warning in " + method, ss.str());
-    } return true;
+    loggerPtr->warningMsg(method, "zero denominator encountered",
+      "\n   z = " + to_string(z) + " Q2  = " + to_string(Q2)
+      + " mj = " + to_string(mj));
+    return true;
   }
   Q4 = pow2(Q2);
   Q2til = flip ? Q2 + mA2 - ma2/z - mj2/(1-z) : Q2 - mA2 + ma2*z - mj2*z/(1-z);
@@ -2343,13 +2336,13 @@ double AmpCalculator::getPartialWidth(int idMot, int idi, int idj,
     // Check if width dropped below zero.
     if (partialWidth < 0) return 0;
   } else {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__, ": attempted to compute "
-                      "partial width for non-resonant state");
+    loggerPtr->ERROR_MSG(
+      "attempted to compute partial width for non-resonant state");
     return 0;
   }
 
   // Return.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Computed partial width for "
        << idMot << " -> (" << idi << ", " << idj << ") mMot = " << mMot
@@ -2401,13 +2394,13 @@ double AmpCalculator::getTotalWidth(int idMot, double mMot, int polMot) {
     for (int i=11; i<17; i++)
       totalWidth += getPartialWidth(25, i, i, mMot, 0);
   } else {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__, ": attempted to compute "
-                      "total width for non-resonant state.");
+    loggerPtr->ERROR_MSG(
+      "attempted to compute total width for non-resonant state");
     return 0;
   }
 
   // Return.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Computed total width for " << idMot <<
       " m = " << mMot << " width = " << totalWidth;
@@ -2452,7 +2445,7 @@ double AmpCalculator::getBreitWignerOverestimate(int id, double m, int pol) {
 
 double AmpCalculator::sampleMass(int id, int pol) {
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Generating mass for a " << id;
     printOut(__METHOD_NAME__, ss.str());}
@@ -2463,16 +2456,16 @@ double AmpCalculator::sampleMass(int id, int pol) {
     double m0(dataPtr->mass(abs(id))), m02(pow2(m0)),
       width0(dataPtr->width(abs(id), pol));
 
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "On-shell mass is " << m0;
       printOut(__METHOD_NAME__, ss.str());}
 
     // Get parameters for the overestimates.
     if (cBW.find(id) == cBW.end()) {
-      infoPtr->errorMsg("Warning in " + __METHOD_NAME__,
-                        ": no overestimate for resonance available.");
-      return m0;}
+      loggerPtr->WARNING_MSG("no overestimate for resonance available");
+      return m0;
+    }
 
     vector<double> cBWNow = cBW[id];
     // Compute the normalizations of the two components
@@ -2498,14 +2491,14 @@ double AmpCalculator::sampleMass(int id, int pol) {
       // Check if the overestimate was right.
       if (pAccept > 1) {
         stringstream ss;
-        ss << ": Breit-Wigner overestimate failed with "
+        ss << "Breit-Wigner overestimate failed with "
            << "id = " << id << " m2 = " << m2 << " p = " << BWreal
            << " " << BWover;
-        infoPtr->errorMsg("Warning in " + __METHOD_NAME__, ss.str());
+        loggerPtr->WARNING_MSG(ss.str());
       }
     } while(rndmPtr->flat() > pAccept);
 
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Returning sampled mass m2 = " << m2;
       printOut(__METHOD_NAME__, ss.str());
@@ -2514,7 +2507,7 @@ double AmpCalculator::sampleMass(int id, int pol) {
 
   // Otherwise just return the pole mass.
   } else {
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Returning on-shell mass m = " << dataPtr->mass(id);
       printOut(__METHOD_NAME__, ss.str());
@@ -2531,7 +2524,7 @@ double AmpCalculator::sampleMass(int id, int pol) {
 void AmpCalculator::applyBosonInterferenceFactor(Event &event, int XYEv,
   Vec4 pi, Vec4 pj, int idi, int idj, int poli, int polj) {
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     event.list();
     stringstream ss;
     ss << "Computing interference factor for "
@@ -2555,14 +2548,14 @@ void AmpCalculator::applyBosonInterferenceFactor(Event &event, int XYEv,
     idY = 25;
     widthX = getTotalWidth(23, (pi + pj).mCalc(), polXY);
     widthY = getTotalWidth(25, (pi + pj).mCalc(), polXY);
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "splitter is longitudinal");
   } else {
     idX = 23;
     idY = 22;
     widthX = getTotalWidth(23, (pi + pj).mCalc(), polXY);
     widthY = 0;
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "splitter is transverse");
   }
 
@@ -2575,7 +2568,7 @@ void AmpCalculator::applyBosonInterferenceFactor(Event &event, int XYEv,
     mX, widthX, polXY, poli, polj);
   complex MYsplit = branchAmpFSR(pi, pj, idY, idi, idj,
     mY, widthY, polXY, poli, polj);
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "Split amplitudes");
     stringstream ss;
     ss << "M((" << idX << ", " << polXY << ") -> " << idi << ", "
@@ -2599,7 +2592,7 @@ void AmpCalculator::applyBosonInterferenceFactor(Event &event, int XYEv,
       int idCluWith  = event[iCluWithEv].id();
       int polCluWith = event[iCluWithEv].pol();
       Vec4 pCluWith  = event[iCluWithEv].p();
-      if (verbose >= DEBUG) {
+      if (verbose >= VinciaConstants::DEBUG) {
         stringstream ss;
         ss << "Considering clustering with "
            << iCluWithEv << " which is a " << idCluWith;
@@ -2632,7 +2625,7 @@ void AmpCalculator::applyBosonInterferenceFactor(Event &event, int XYEv,
 
             nClusterings++;
 
-            if (verbose >= DEBUG) {
+            if (verbose >= VinciaConstants::DEBUG) {
               printOut(__METHOD_NAME__, "Emission amplitudes");
               stringstream ss;
               ss << "M((" << idCluTo << ", " << polCluTo << ") -> "
@@ -2670,7 +2663,7 @@ void AmpCalculator::applyBosonInterferenceFactor(Event &event, int XYEv,
 
             nClusterings++;
 
-            if (verbose >= DEBUG) {
+            if (verbose >= VinciaConstants::DEBUG) {
               printOut(__METHOD_NAME__, "Emission amplitudes");
               stringstream ss;
               ss << "M((" << idCluTo << ", " << polCluTo << ") -> "
@@ -2695,7 +2688,7 @@ void AmpCalculator::applyBosonInterferenceFactor(Event &event, int XYEv,
 
   // Get total weight.
   double weight = facNumerator/facDenominator;
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Interference weight " << weight;
     printOut(__METHOD_NAME__, ss.str());
@@ -2714,11 +2707,11 @@ bool AmpCalculator::polarise(vector<Particle> &state) {
   // TODO: Some check for state[0].
   if (!isInit) return false;
   if (state.size() != 3) {
-    if (verbose >= REPORT) infoPtr->errorMsg("Error in " + __METHOD_NAME__ +
-      ": tried to polarise invalid resonance decay.");
+    loggerPtr->ERROR_MSG("tried to polarise invalid resonance decay");
     return false;
   }
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
+    dashLen);
 
   // This must be a resonance decay: require one incoming particle.
   if (state[0].isFinal() || !state[1].isFinal()) return false;
@@ -2755,7 +2748,7 @@ bool AmpCalculator::polarise(vector<Particle> &state) {
     brKer = branchKernelFF(state[1].p(), state[2].p(), state[0].id(),
       state[1].id(), state[2].id(), state[0].mCalc(), width, state[0].pol());
 
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, "Relative final-state polarization weights");
   map<double,pair<int,int> > brKerCumulative;
   double brKerSum = 0;
@@ -2763,7 +2756,7 @@ bool AmpCalculator::polarise(vector<Particle> &state) {
     brKerSum += brKer[iPol].val;
     brKerCumulative.insert({brKerSum, make_pair(brKer[iPol].poli,
       brKer[iPol].polj)});
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "pols = (";
       if (flipped) ss << brKer[iPol].polj << ", " << brKer[iPol].poli;
@@ -2777,8 +2770,7 @@ bool AmpCalculator::polarise(vector<Particle> &state) {
   double brKerPolSelect = rndmPtr->flat() * brKerSum;
   auto polIterator = brKerCumulative.upper_bound(brKerPolSelect);
   if (polIterator == brKerCumulative.end()) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-      ": logic error cumulative sum < aHelSum");
+    loggerPtr->ERROR_MSG("logic error cumulative sum < aHelSum");
     return false;
   }
   if (flipped) {
@@ -2788,7 +2780,8 @@ bool AmpCalculator::polarise(vector<Particle> &state) {
     state[1].pol((polIterator->second).first);
     state[2].pol((polIterator->second).second);
   }
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "end",
+    dashLen);
   return true;
 
 }
@@ -2803,7 +2796,7 @@ bool AmpCalculator::polarise(vector<Particle> &state) {
 // Update a parton system.
 
 void EWAntenna::updatePartonSystems(Event&) {
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Updating system " << iSys;
     printOut(__METHOD_NAME__, ss.str());
@@ -2830,7 +2823,7 @@ void EWAntenna::updatePartonSystems(Event&) {
     // Save sHat if we set it.
     if (shat > 0.) partonSystemsPtr->setSHat(iSys, shat);
   }
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "Parton systems after update: ");
     partonSystemsPtr->list();
   }
@@ -2846,16 +2839,16 @@ bool EWAntenna::selectChannel(int idx, const double& cSum, const
   auto it = cSumSoFar.upper_bound(cSum * rndmPtr->flat());
   if (it == cSumSoFar.end()) {
     stringstream ss;
-    ss << ": logic error - c"
+    ss << "logic error - c"
        << idx << "SumSoFar < c" << idx << "Sum.";
-    infoPtr->errorMsg("Error in " +__METHOD_NAME__, ss.str());
+    loggerPtr->ERROR_MSG(ss.str());
     return false;
   }
   brTrial = &brVec[it->second];
   idi = brTrial->idi; idj = brTrial->idj;
   mi2 = pow2(ampCalcPtr->dataPtr->mass(idi));
   mj2 = pow2(ampCalcPtr->dataPtr->mass(idj));
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Selected channel is "
        << idMot << " -> (" << idi << ", " << idj << ")";
@@ -2934,13 +2927,13 @@ double EWAntennaFF::generateTrial(double q2Start, double q2End,
   double alphaIn) {
   if (infoPtr->getAbortPartonLevel()) return 0.;
   if (hasTrial) {
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Returning saved trial for " << iMot << " = "<< q2Trial;
       printOut(__METHOD_NAME__, ss.str());}
     return q2Trial;
   }
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "--- Generating trial scale for " << iMot << " ---";
     printOut(__METHOD_NAME__, ss.str());
@@ -2968,7 +2961,7 @@ double EWAntennaFF::generateTrial(double q2Start, double q2End,
   double w1 = alpha*Iz1*c1Sum*mAnt2/sqrtKallen/4./M_PI;
   double w2 = alpha*Iz2*c2Sum*mAnt2/sqrtKallen/4./M_PI;
   double w3 = alpha*Iz3*c3Sum*mMot2*mAnt2/sqrtKallen/4./M_PI;
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "q2Start " << q2StartLocal << " q2End " << q2End;
     printOut(__METHOD_NAME__, ss.str());
@@ -2989,7 +2982,7 @@ double EWAntennaFF::generateTrial(double q2Start, double q2End,
   q2Trial = 0;
   if (c0Sum > NANO) {
     double q2_0 = q2StartLocal*pow(rndmPtr->flat(), 1./w0);
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Generating q2Trial from c0: " << q2_0;
       printOut(__METHOD_NAME__, ss.str());
@@ -3008,7 +3001,7 @@ double EWAntennaFF::generateTrial(double q2Start, double q2End,
   // Generate scale from c1.
   if (c1Sum > NANO) {
     double q2_1 = q2StartLocal*pow(rndmPtr->flat(), 1./w1);
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Generating q2Trial from c1: " << q2_1;
       printOut(__METHOD_NAME__, ss.str());
@@ -3033,7 +3026,7 @@ double EWAntennaFF::generateTrial(double q2Start, double q2End,
     do {
       q2_2 = q2_2*pow(rndmPtr->flat(), 1./w2);
       if (q2_2 < q2End) break;
-      if (verbose >= DEBUG) {
+      if (verbose >= VinciaConstants::DEBUG) {
         stringstream ss;
         ss << "Generating q2Trial from c2: " << q2_2;
         printOut(__METHOD_NAME__, ss.str());
@@ -3063,7 +3056,7 @@ double EWAntennaFF::generateTrial(double q2Start, double q2End,
   // Generate scale from c3.
   if (c3Sum > NANO) {
     double q2_3 = w3*q2StartLocal/(w3 - q2StartLocal*log(rndmPtr->flat()));
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Generating q2Trial from c3: " << q2_3;
       printOut(__METHOD_NAME__, ss.str());
@@ -3080,14 +3073,14 @@ double EWAntennaFF::generateTrial(double q2Start, double q2End,
   }
 
   // Return trial.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Generated q2Trial = "
        << q2Trial <<" zTrial = " << zTrial << " sijTrial = " << sijTrial
        << " sjkTrial = "<< sjkTrial;
     printOut(__METHOD_NAME__, ss.str());
   }
-  if (isnan(zTrial)) q2Trial = zTrial = sijTrial = sjkTrial = 0;
+  if (isnan(zTrial)) q2Trial = 0;
   return q2Trial;
 
 }
@@ -3106,7 +3099,7 @@ bool EWAntennaFF::acceptTrial(Event &event) {
   double mi(ampCalcPtr->dataPtr->mass(idi)),
     mj(ampCalcPtr->dataPtr->mass(idj)), mi2(pow2(mi)), mj2(pow2(mj)),
     sij(sijTrial), sjk(sjkTrial), sik(mAnt2 - sij - sjk - mi2 - mj2 - mRec2);
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Branching is ("
        << idMot << ", " << polMot << ") ->" << idi << ", " << idj;
@@ -3119,7 +3112,7 @@ bool EWAntennaFF::acceptTrial(Event &event) {
   if (sij < 0 || sjk < 0 || sik < 0 || sqrt(mAnt2) < mi + mj + mRec ||
     sij*sjk*sik - pow2(sij)*mRec2 - pow2(sik)*mj2 - pow2(sjk)*mi2
     + 4*mi2*mj2*mRec2 < 0) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Outside phase space: On-shell phase space");
     return false;
   }
@@ -3150,8 +3143,8 @@ bool EWAntennaFF::acceptTrial(Event &event) {
   for (int i = 0; i < (int)aPhys.size(); i++) {
     double aNow = aPhys[i].val;
     if (isnan(aNow) || isinf(aNow)) {
-      string msg(": amplitude is " + string(isnan(aNow) ? "NAN" : "infinite"));
-      infoPtr->errorMsg("Error in " + __METHOD_NAME__, msg + ".");
+      string msg("amplitude is " + string(isnan(aNow) ? "NAN" : "infinite"));
+      loggerPtr->ERROR_MSG(msg);
       infoPtr->setAbortPartonLevel(true);
       return false;
     }
@@ -3164,12 +3157,12 @@ bool EWAntennaFF::acceptTrial(Event &event) {
   // Check if veto probability is ok.
   if (pAccept > 1) {
     stringstream ss;
-    ss << ": incorrect overestimate ("
+    ss << "incorrect overestimate ("
        << idMot << ", " << polMot << ") -> " << idi << ", " << idj << ": "
        << aPhysSum/aTrial;
-    infoPtr->errorMsg("Warning in " + __METHOD_NAME__, ss.str());
+    loggerPtr->WARNING_MSG(ss.str());
   }
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Accepting with probability " << pAccept;
     printOut(__METHOD_NAME__, ss.str());}
@@ -3177,7 +3170,8 @@ bool EWAntennaFF::acceptTrial(Event &event) {
   // Accept/Reject step.
   double rAccept  = rndmPtr->flat();
   if ( rAccept > pAccept) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "Failed to pass veto.");
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+      "Failed to pass veto.");
     return false;
   }
 
@@ -3185,8 +3179,7 @@ bool EWAntennaFF::acceptTrial(Event &event) {
   double aSelect = rndmPtr->flat() * aPhysSum;
   auto it = aPhysCumulative.upper_bound(aSelect);
   if (it == aPhysCumulative.end()) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-                      ": logic error - cumulative sum < aPhysSum");
+    loggerPtr->ERROR_MSG("logic error - cumulative sum < aPhysSum");
     return false;
   }
   poliTrial = aPhys[it->second].poli;
@@ -3208,7 +3201,8 @@ bool EWAntennaFF::acceptTrial(Event &event) {
     || sqrt(mAnt2) < miKin + mjKin + mRec ||
     sijKin*sjk*sik - pow2(sijKin)*mRec2 - pow2(sik)*mj2Kin
     - pow2(sjk)*mi2Kin + 4*mi2Kin*mj2Kin*mRec2 < 0) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "Outside phase space.");
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+      "Outside phase space.");
     return false;
   }
 
@@ -3219,8 +3213,7 @@ bool EWAntennaFF::acceptTrial(Event &event) {
     double q2Offshelli = fabs(mi2Kin - mi2Onshell);
     double q2Offshellj = fabs(mj2Kin - mj2Onshell);
     if (q2Trial < q2Offshelli || q2Trial < q2Offshellj) {
-      infoPtr->errorMsg("Warning in " + __METHOD_NAME__,
-                        ": final-state resonance too far offshell.");
+      loggerPtr->WARNING_MSG("final-state resonance too far offshell");
       return false;
     }
   }
@@ -3235,7 +3228,7 @@ bool EWAntennaFF::acceptTrial(Event &event) {
 
   // Do kinematics and return.
   if (!vinComPtr->map2to3FF(pNew, pOld, kMapFinal, invariants, phi, masses)) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__,"Failed to generate kinematics.");
     return false;
   }
@@ -3245,7 +3238,8 @@ bool EWAntennaFF::acceptTrial(Event &event) {
     ampCalcPtr->applyBosonInterferenceFactor(event,
       iMot, pNew[0], pNew[1], idi, idj, poliTrial, poljTrial);
   // Branching accepted!
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "Branching accepted!");
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+    "Branching accepted!");
   return true;
 
 }
@@ -3255,7 +3249,8 @@ bool EWAntennaFF::acceptTrial(Event &event) {
 // Update an event.
 
 void EWAntennaFF::updateEvent(Event &event) {
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "Updating event");
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+    "Updating event");
 
   // Clear information for replacing later in partonSystems.
   iReplace.clear();
@@ -3351,7 +3346,7 @@ double EWAntennaFFres::generateTrial(double q2Start, double q2End,
 
   // If the offshellness is above the current shower scale, decay immediately.
   if (q2Dec > q2Start) {
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Decaying resonance with"
          << "q2Dec = " << q2Dec << " > q2Start = " << q2Start;
@@ -3364,7 +3359,7 @@ double EWAntennaFFres::generateTrial(double q2Start, double q2End,
   // If this is a resonance decay without recoiler or if ewMatchMode
   // == 1, decay immediately.
   if (doDecayOnly || bwMatchMode == 1) {
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Returning q2Dec = " << q2Dec;
       printOut(__METHOD_NAME__, ss.str());}
@@ -3384,7 +3379,7 @@ double EWAntennaFFres::generateTrial(double q2Start, double q2End,
 
   // Check if the trial scale is above the cutoff.
   if (q2Trial < q2EndLocal) {
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "q2Trial = "
          << q2Trial << " is smaller than q2EndLocal = " << q2EndLocal;
@@ -3412,8 +3407,7 @@ bool EWAntennaFFres::acceptTrial(Event &event) {
     // Force the decay. Always return true afterwards.
     if (genForceDecay(event)) return true;
     else {
-      infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-        ": failed to force resonance decay.");
+      loggerPtr->ERROR_MSG("failed to force resonance decay");
       infoPtr->setAbortPartonLevel(true);
       return false;
     }
@@ -3429,7 +3423,7 @@ bool EWAntennaFFres::acceptTrial(Event &event) {
 
       // Veto to add the suppression factor.
       if (rndmPtr->flat() > pAccept) {
-        if (verbose >= DEBUG)
+        if (verbose >= VinciaConstants::DEBUG)
           printOut(__METHOD_NAME__, "Failed BW-matching veto.");
         return false;
       }
@@ -3446,7 +3440,8 @@ bool EWAntennaFFres::acceptTrial(Event &event) {
 // Update an event.
 
 void EWAntennaFFres::updateEvent(Event &event) {
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "Adding branching to event");
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+    "Adding branching to event");
 
   // Clear information for replacing later in partonSystems.
   iReplace.clear();
@@ -3521,7 +3516,7 @@ void EWAntennaFFres::updateEvent(Event &event) {
 // Generate the kinematics and channel for decays below matching scale.
 
 bool EWAntennaFFres::genForceDecay(Event &event) {
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Performing non-shower resonance decay."
        << " IdI = " << idMot << " q2Dec = " << q2Dec;
@@ -3560,7 +3555,7 @@ bool EWAntennaFFres::genForceDecay(Event &event) {
     // Add partial width.
     if (isOn) totWidthOffshell +=
       ampCalcPtr->getPartialWidth(idMot, idi, idj, pMot.mCalc(), polMot);
-    else if (verbose >= DEBUG) {
+    else if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << " Channel "
          << idMot << " -> " << idi << " " << idj
@@ -3574,8 +3569,7 @@ bool EWAntennaFFres::genForceDecay(Event &event) {
 
   // Check if there is at least a single decay channel.
   if (totWidthOffshell == 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-      "No phase space available for decay");
+    loggerPtr->ERROR_MSG("no phase space available for decay");
     infoPtr->setAbortPartonLevel(true);
     return false;
   }
@@ -3590,8 +3584,7 @@ bool EWAntennaFFres::genForceDecay(Event &event) {
     auto widthIterator =
       partialWidthCumulatives.upper_bound(partialWidthSelect);
     if (widthIterator == partialWidthCumulatives.end()) {
-      infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-        ": logic error - cumulative sum < total Width");
+      loggerPtr->ERROR_MSG("logic error - cumulative sum < total Width");
       return false;
     }
 
@@ -3611,7 +3604,7 @@ bool EWAntennaFFres::genForceDecay(Event &event) {
     y0 = m02/m2;
   } while (kallenFunction(1,yi,yj) < 0 || yi + yj > 1);
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Selected channel ("
        << brTrial->idMot << " - > " << brTrial->idi << ", " << brTrial->idj
@@ -3664,7 +3657,7 @@ bool EWAntennaFFres::genForceDecay(Event &event) {
       r2 = -(v2 + a2)*(1 - yi + yj)*(1 + yi - yj);
     }
   }
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "Determining the angular distribution of "
       "the decay");
     stringstream ss;
@@ -3680,8 +3673,7 @@ bool EWAntennaFFres::genForceDecay(Event &event) {
   if (r0 > rOver)           {rOver = r0;}
   if (r0 - r1 + r2 > rOver) {rOver = r0 - r1 + r2;}
   if (rOver == 0.) {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": failed to set overestimate.");
+    loggerPtr->ERROR_MSG("failed to set overestimate");
     infoPtr->setAbortPartonLevel(true);
     return false;
   }
@@ -3692,13 +3684,12 @@ bool EWAntennaFFres::genForceDecay(Event &event) {
     cosTheta = 2.*rndmPtr->flat() - 1.;
     pAccept  = max(0., (r0 + r1*cosTheta + r2*pow2(cosTheta))/rOver);
     if (isinf(pAccept)) {
-      infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-        ": pAccept is infinite.");
+      loggerPtr->ERROR_MSG("pAccept is infinite");
       infoPtr->setAbortPartonLevel(true);
       return false;
     }
     if (pAccept > 1. || pAccept < 0.) {
-      if (verbose >= NORMAL) {
+      if (verbose >= Logger::NORMAL) {
         stringstream ss;
         ss << "Failed to determine overestimate. P = " << pAccept;
         printOut(__METHOD_NAME__, ss.str());}
@@ -3709,11 +3700,10 @@ bool EWAntennaFFres::genForceDecay(Event &event) {
   // Fetch the momenta for this decay channel.
   double theta = acos(cosTheta);
   if (!vinComPtr->map1to2RF(pNew, pMot, mi, mj, theta, phi)) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-      ": failed kinematics while phase space is open");
+    loggerPtr->ERROR_MSG("failed kinematics while phase space is open");
     return false;
   }
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Decay product momenta " << pNew[0] << pNew[1];
     printOut(__METHOD_NAME__, ss.str());}
@@ -3728,8 +3718,7 @@ bool EWAntennaFFres::genForceDecay(Event &event) {
   poliTrial = state[1].pol();
   poljTrial = state[2].pol();
   if (poliTrial == 9 || poljTrial == 9)
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": failed to polarize a decay.");
+    loggerPtr->ERROR_MSG("failed to polarize decay");
 
   // Special case for top decays.
   // Redistribute the W mass using the Breit-Wigner.
@@ -3746,8 +3735,7 @@ bool EWAntennaFFres::genForceDecay(Event &event) {
 
     // Redo the kinematics.
     if (!vinComPtr->map1to2RF(pNew, pMot, mi, mj, theta, phi)) {
-      infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-        ": failed kinematics while phase space is open.");
+      loggerPtr->ERROR_MSG("failed kinematics while phase space is open");
       return false;
     }
   }
@@ -3817,10 +3805,11 @@ bool EWAntennaII::init(Event &event, int iMotIn, int iRecIn, int iSysIn,
 
 double EWAntennaII::generateTrial(double q2Start, double q2End,
   double alphaIn) {
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
+    dashLen);
   if (infoPtr->getAbortPartonLevel()) return 0;
   if (hasTrial) {
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Returning saved trial for "
          << iMot << " = " << q2Trial;
@@ -3834,14 +3823,16 @@ double EWAntennaII::generateTrial(double q2Start, double q2End,
 
   // Cutoff value is the same as for FF, but it is not kinematically identical.
   if (q2End > q2Start) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "Already below cutoff.");
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+      "Already below cutoff.");
     return q2Trial;
   }
 
   // Zeta boundaries.
   double zMin(0), zMax(0);
   if (shh == 0. || sAnt >= shh) {
-    if (verbose >=DEBUG) printOut(__METHOD_NAME__,"Phase space is closed.");
+    if (verbose >=VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+      "Phase space is closed.");
     return 0.;
   }
 
@@ -3865,15 +3856,15 @@ double EWAntennaII::generateTrial(double q2Start, double q2End,
     zMax = (shh - sAnt + sqrt(pow2(shh - sAnt) - 4.*q2End*shh))/2./shh;
   }
   if (zMax==1.0 || zMax==0. || zMin==1.0 || zMin==0.) {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": seta limits outside acceptable range.");
+    loggerPtr->ERROR_MSG("seta limits outside acceptable range");
     infoPtr->setAbortPartonLevel(true);
     return 0.;
   }
 
   // Check if there is any phase space available.
   if (zMin > zMax) {
-    if (verbose >=DEBUG) printOut(__METHOD_NAME__,"Phase space is closed.");
+    if (verbose >=VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+      "Phase space is closed.");
     return 0.;
   }
 
@@ -3901,7 +3892,7 @@ double EWAntennaII::generateTrial(double q2Start, double q2End,
   } while(rndmPtr->flat() > pAccept && q2Trial > q2End);
 
   // Return.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Generating q2Trial from c: " << q2Trial;
     printOut(__METHOD_NAME__, ss.str());
@@ -3926,7 +3917,7 @@ bool EWAntennaII::acceptTrial(Event &event) {
 
   // Check if I is A or B
   bool isIA = pMot.pz() > 0;
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "sAnt = " << sAnt << " sij = " << sij
        << " sjk = " << sjk << " sik = " << sik;
@@ -3934,7 +3925,7 @@ bool EWAntennaII::acceptTrial(Event &event) {
 
   // Check on-shell phase space.
   if (sij < 0 || sjk < 0 || sik < 0 || sik*sij*sjk - pow2(sik)*mj2 < 0) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Outside phase space: Negative invariants");
     return false;
   }
@@ -3946,7 +3937,7 @@ bool EWAntennaII::acceptTrial(Event &event) {
   // Get new initial-state momentum fractions.
   double xi = ei/(sqrt(shh)/2.);
   double xk = ek/(sqrt(shh)/2.);
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "New momentum fractions " << xi << " " << xk;
     printOut(__METHOD_NAME__, ss.str());}
@@ -3971,7 +3962,7 @@ bool EWAntennaII::acceptTrial(Event &event) {
 
   // Set headroom of 2% in accordance with the rest of Vincia.
   if (eaUsed > 0.98*sqrt(shh)/2. || ebUsed > 0.98*sqrt(shh)/2.) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__,"eaUsed or ebUsed too high: veto. ");
     return false;
   }
@@ -4008,8 +3999,8 @@ bool EWAntennaII::acceptTrial(Event &event) {
   for (int i = 0; i < (int)aPhys.size(); i++) {
     double aNow = aPhys[i].val;
     if (isnan(aNow) || isinf(aNow)) {
-      string msg(": amplitude is " + string(isnan(aNow) ? "NAN" : "infinite"));
-      infoPtr->errorMsg("Error in " + __METHOD_NAME__, msg + ".");
+      string msg("amplitude is " + string(isnan(aNow) ? "NAN" : "infinite"));
+      loggerPtr->ERROR_MSG(msg);
       infoPtr->setAbortPartonLevel(true);
       return false;
     }
@@ -4021,7 +4012,7 @@ bool EWAntennaII::acceptTrial(Event &event) {
 
   // Add antenna ratio.
   pAccept *= aPhysSum/aTrial;
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Rpdf = " << Rpdf << " aPhys/aTrial = "
        << aPhysSum/aTrial << " pAccept = " << pAccept;
@@ -4030,24 +4021,25 @@ bool EWAntennaII::acceptTrial(Event &event) {
   // Check if the veto probability is valid.
   if (pAccept > 1) {
     stringstream ss;
-    ss << ": incorrect overestimate ("
+    ss << "incorrect overestimate ("
        << idMot << ", " << polMot << ") -> " << idi << ", " << idj
        << ": aPhys/aTrial = " << aPhysSum/aTrial << " Rpdf = " << Rpdf;
-    infoPtr->errorMsg("Warning in " + __METHOD_NAME__, ss.str());
+    loggerPtr->WARNING_MSG(ss.str());
   }
 
   // Perform veto.
   if (rndmPtr->flat() > pAccept) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,"Failed to pass veto.");
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+      "Failed to pass veto.");
     return false;
-  } else if (verbose >= DEBUG) printOut(__METHOD_NAME__, "Passed veto.");
+  } else if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+    "Passed veto.");
 
   // Branching accepted! Now select a spin state.
   double aSelect = rndmPtr->flat() * aPhysSum;
   auto it = aPhysCumulative.upper_bound(aSelect);
   if (it == aPhysCumulative.end()) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-      ": logic erro -: cumulative sum < aPhysSum");
+    loggerPtr->ERROR_MSG("logic error - cumulative sum < aPhysSum");
     return false;
   }
   poliTrial = aPhys[it->second].poli;
@@ -4058,7 +4050,7 @@ bool EWAntennaII::acceptTrial(Event &event) {
   double mj2Kin = pow2(mjKin);
   double sikKin = sAnt + sij + sjk - mj2Kin;
   if (sikKin*sij*sjk - pow2(sikKin)*mj2Kin < 0) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Outside phase space: Off-shell");
     return false;
   }
@@ -4093,7 +4085,7 @@ bool EWAntennaII::acceptTrial(Event &event) {
   // Kinematics and return.
   if (!vinComPtr->map2to3II(pNew, pRecVec, pOld, sAnt, sij, sjk, sikKin, phi,
       mj2Kin)) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__,"Failed to generate kinematics.");
     return false;
   }
@@ -4212,7 +4204,7 @@ void EWAntennaII::updatePartonSystems(Event &event) {
 bool EWSystem::buildSystem(Event &event) {
 
   // Verbose output.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Building system " << iSysSav;
     printOut(__METHOD_NAME__, ss.str());
@@ -4223,7 +4215,7 @@ bool EWSystem::buildSystem(Event &event) {
   clearAntennae();
   if (partonSystemsPtr->hasInAB(iSysSav) && !resDecOnlySav) {
     // Set up initial antennae.
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Setting up initial antennae");
 
     // Get initial state particles.
@@ -4232,13 +4224,9 @@ bool EWSystem::buildSystem(Event &event) {
 
     // Check if the initial state is polarized.
     if (event[indexA].pol() == 9 || event[indexB].pol() == 9) {
-      if (verbose >= DEBUG) event.list();
-      if (verbose >= REPORT) {
-        stringstream ss;
-        ss << ": cannot build EW system  (iSysSav "
-           << iSysSav << ") - incoming parton(s) do not have helicities.";
-        infoPtr->errorMsg("Warning in " + __METHOD_NAME__, ss.str());
-      }
+      if (verbose >= VinciaConstants::DEBUG) event.list();
+      loggerPtr->WARNING_MSG("cannot build EW system "
+        + to_string(iSysSav) + "; incoming parton(s) do not have helicities");
       clearAntennae();
       return false;
     }
@@ -4256,8 +4244,8 @@ bool EWSystem::buildSystem(Event &event) {
     int idAbs = event[i].idAbs();
     if (resDecOnlySav && !ampCalcPtr->dataPtr->isRes(idAbs)) continue;
     if (!event[i].isFinal()) {
-      infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": partonSystems "
-        "corrupted (non-final outgoing parton)");
+      loggerPtr->WARNING_MSG(
+        "partonSystems corrupted (non-final outgoing parton)");
       continue;
     }
     // Make sure the state is polarized (ignore gluons).
@@ -4265,8 +4253,8 @@ bool EWSystem::buildSystem(Event &event) {
       if (resDecOnlySav) {
         // Force select random polarisation.
         stringstream ss; ss<<idAbs;
-        infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": assigning "
-          +"random polarisation for decaying resonance.","id = "+ss.str());
+        loggerPtr->WARNING_MSG("assigning "
+          "random polarisation for decaying resonance.","id = "+ss.str());
         // Spin 0:
         if (idAbs == 25) {
           event[i].pol(0.);
@@ -4284,12 +4272,12 @@ bool EWSystem::buildSystem(Event &event) {
           else event[i].pol(1);
         }
       } else {
-        if (verbose >= DEBUG) event.list();
-        if (verbose >= REPORT) {
+        if (verbose >= VinciaConstants::DEBUG) event.list();
+        if (verbose >= Logger::REPORT) {
           stringstream ss;
-          ss << ": cannot build EW system (iSysSav "
-             << iSysSav << ") - outgoing parton(s) do not have helicities.";
-          infoPtr->errorMsg("Warning in " + __METHOD_NAME__, ss.str());
+          ss << "cannot build EW system (iSysSav "
+             << iSysSav << ") - outgoing parton(s) do not have helicities";
+          loggerPtr->WARNING_MSG(ss.str());
         }
         clearAntennae();
         return false;
@@ -4302,23 +4290,23 @@ bool EWSystem::buildSystem(Event &event) {
   if (indexFinal.size() == 0) return true;
 
   // Set up final antennae. If there is only one final state particle.
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, "Finding recoilers for final antennae");
   if (indexFinal.size() == 1) {
     int iEv(indexFinal[0]), idAbs(event[iEv].idAbs());
     // Check if it is a resonance. In that case it can only decay.
     if (ampCalcPtr->dataPtr->isRes(idAbs)) {
-      if (verbose >= DEBUG)
+      if (verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__, "Resonance without recoilers");
       EWAntennaFFres antRes;
       addAntenna(antRes, antVecRes,event,iEv,0,brMapResonance);
     // Otherwise don't do anything.
-    } else  if (verbose >= DEBUG)
+    } else  if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "No recoilers available");
     return true;
   // If two final state particles.
   } else if (indexFinal.size() == 2) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Single recoiler available");
     int iEv(indexFinal[0]), jEv(indexFinal[1]);
     if (!resDecOnlySav) {
@@ -4341,7 +4329,7 @@ bool EWSystem::buildSystem(Event &event) {
       // (as these still have to decay).
       if (lastWasBelowCut && !ampCalcPtr->dataPtr->isRes(idi)) continue;
       if (resDecOnlySav && !ampCalcPtr->dataPtr->isRes(idi)) continue;
-      if (verbose >= DEBUG) {
+      if (verbose >= VinciaConstants::DEBUG) {
         stringstream ss;
         ss << "Searching for recoiler for "
            << iEv << " which is a " << idi;
@@ -4363,7 +4351,7 @@ bool EWSystem::buildSystem(Event &event) {
 
         // Don't recoil against yourself.
         if (jEv == iEv) {continue;}
-        if (verbose >= DEBUG) {
+        if (verbose >= VinciaConstants::DEBUG) {
           stringstream ss;
           ss << "  Candidate " << jEv << " which is a " << idj;
           printOut(__METHOD_NAME__, ss.str());}
@@ -4396,7 +4384,7 @@ bool EWSystem::buildSystem(Event &event) {
 
         // This is a vector of all possible clusterings of idi and idj.
         vector<pair<int, int> > cluVec = cluIt->second;
-        if (verbose >= DEBUG) {
+        if (verbose >= VinciaConstants::DEBUG) {
           stringstream ss;
           ss << "  Found " << cluVec.size() << " clusterings.";
           printOut(__METHOD_NAME__, ss.str());}
@@ -4418,14 +4406,14 @@ bool EWSystem::buildSystem(Event &event) {
           else {
             if (idiCluster == 0 || idjCluster == 0 ||
               abs(poliCluster)> 1 || abs(poljCluster)>1 ) {
-              if (verbose >= NORMAL) {
+              if (verbose >= Logger::NORMAL) {
                 stringstream ss;
-                ss << ": failed to set clustering ids / pols:"
+                ss << "failed to set clustering ids / pols:"
                    << " idiCluster = " << idiCluster
                    << " idjCluster = " << idjCluster
                    << " poliCluster = " << poliCluster
                    << " poljCluster = " << poljCluster;
-                infoPtr->errorMsg("Warning in " + __METHOD_NAME__, ss.str());
+                loggerPtr->WARNING_MSG(ss.str());
               }
               aNew = 0.;
             } else{
@@ -4435,7 +4423,7 @@ bool EWSystem::buildSystem(Event &event) {
             }
           }
           aSum += aNew;
-          if (verbose >= DEBUG) {
+          if (verbose >= VinciaConstants::DEBUG) {
             stringstream ss;
             ss << "    Clustered to ("
                << cluVec[k].first << ", " << cluVec[k].second << ") a = "
@@ -4456,8 +4444,7 @@ bool EWSystem::buildSystem(Event &event) {
       int jEvRecoiler;
       // If there were no clusterings and no backups, we panic.
       if (jEvCluster.size() == 0 && jEvBackup.size() == 0) {
-        infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-          ": unable to find a recoiler");
+        loggerPtr->ERROR_MSG("unable to find a recoiler");
         return false;
       }
 
@@ -4469,8 +4456,7 @@ bool EWSystem::buildSystem(Event &event) {
         double aClusSelect = aTotalSum*rndmPtr->flat();
         auto it = aSumSoFar.upper_bound(aClusSelect);
         if (it == aSumSoFar.end()) {
-          infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-            ": logic error: aSumSoFar < aTotalSum");
+          loggerPtr->ERROR_MSG("logic error: aSumSoFar < aTotalSum");
           return false;
         }
         jEvRecoiler = it->second;
@@ -4485,7 +4471,7 @@ bool EWSystem::buildSystem(Event &event) {
   }
 
   // Return.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "Printing system"); printAntennae();}
   return true;
 
@@ -4496,7 +4482,7 @@ bool EWSystem::buildSystem(Event &event) {
 // Generate the next Q2.
 
 double EWSystem::q2Next(double q2Start,double q2End) {
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "begin (with " << antVecFinal.size() << " FF radiators, "
        << antVecInitial.size() << " II radiators, and " << antVecRes.size()
@@ -4523,17 +4509,18 @@ double EWSystem::q2Next(double q2Start,double q2End) {
 
   // Did we abort?
   if (infoPtr->getAbortPartonLevel()) {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__, ": abort was called");
+    loggerPtr->ERROR_MSG("abort was called");
     return 0.;
   }
-  if (verbose >= DEBUG && hasTrial() &&
+  if (verbose >= VinciaConstants::DEBUG && hasTrial() &&
     (q2Trial > q2Cut || lastWasResonanceDecay() )) {
     stringstream ss;
     ss << "Winner has particle I = " << antTrial->getIndexMot()
        << " with scale q2 = " << q2Trial;
     printOut(__METHOD_NAME__, ss.str());
   }
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "end",
+    dashLen);
   return q2Trial;
 
 }
@@ -4597,17 +4584,16 @@ bool VinciaEW::prepare(int iSysIn, Event &event, bool isBelowHadIn) {
 
   // Sanity check.
   if (!doEW) return false;
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
+    dashLen);
 
   // Prepare system
   if (!ewSystem.prepare(event, iSysIn, q2minSav, isBelowHadIn)) {
-    if (verbose >= REPORT) {
-      infoPtr->errorMsg("Warning in " + __METHOD_NAME__+": failed "
-        "to prepare EW shower system.");
-    }
+    loggerPtr->WARNING_MSG("failed to prepare EW shower system");
     return false;
   }
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "end",
+    dashLen);
   return true;
 }
 
@@ -4635,15 +4621,15 @@ void VinciaEW::load() {
   doBosonInterference = settingsPtr->flag("Vincia:doBosonicInterference");
 
   // Load possible EW branchings from XML.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "Loading EW branchings.");
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+    "Loading EW branchings.");
   if (!readFile(settingsPtr->word("xmlPath") + "VinciaEW.xml")) {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": failed to read XML file.");
+    loggerPtr->ERROR_MSG("failed to read XML file");
     return;
   }
 
   // In DEBUG mode, print and check for doubles between Final and Res maps.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "Successfully read XML file.");
     unordered_map<pair<int, int>, vector<EWBranching> >::iterator itFin, itRes;
     for (itFin = brMapFinal.begin(); itFin != brMapFinal.end(); itFin++) {
@@ -4659,8 +4645,8 @@ void VinciaEW::load() {
           int idi(brVecFinal[i].idi), idj(brVecFinal[i].idj);
           for (int j = 0; j < (int)brVecResonance.size(); j++) {
             if (idi == brVecResonance[j].idi && idj == brVecResonance[j].idj) {
-              infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-                ": duplicates between Final and Resonance shower.");
+              loggerPtr->ERROR_MSG(
+                "duplicates between final and resonance shower");
               return;
             }
           }
@@ -4681,13 +4667,13 @@ void VinciaEW::load() {
 double VinciaEW::q2Next(Event&, double q2Start, double q2End) {
 
   if (!doEW) return 0.0;
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "begin (with " << ewSystem.nBranchers() << " branchers)";
     printOut(__METHOD_NAME__, ss.str(), dashLen);
   }
   q2Trial = ewSystem.q2Next(q2Start,q2End);
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "q2Trial = " << num2str(q2Trial);
     printOut(__METHOD_NAME__, ss.str());
@@ -4755,11 +4741,11 @@ bool VinciaEW::readFile(string file)  {
 
   ifstream is(file.c_str());
   if (!is.good()) {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": couldn't open XML file" + file);
+    loggerPtr->ERROR_MSG("failed to open XML file" + file);
     return false;
   }
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "Reading file " + file);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+    "Reading file " + file);
 
   string line;
   bool foundBranching = false;
@@ -4783,8 +4769,7 @@ bool VinciaEW::readFile(string file)  {
         foundBranching = false;
         // Closed XML bracket: now process string.
         if (!readLine(branch.str())) {
-          infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-            ": couldn't read line:\n" + branch.str());
+          loggerPtr->ERROR_MSG("failed to read line:\n" + branch.str());
           return false;
         }
         // Clear stream.
@@ -4819,8 +4804,7 @@ bool VinciaEW::readLine(string line)  {
       cluMapFinal, headroomFinal, true);
     else return true;
   } else {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": unknown EW branch type in database.");
+    loggerPtr->ERROR_MSG("unknown EW branch type in database");
     return false;
   }
 }
@@ -4832,18 +4816,15 @@ bool VinciaEW::readLine(string line)  {
 bool VinciaEW::attributeValue(string line, string attribute, string& val) {
   size_t iBegAttri = line.find(attribute);
   if (iBegAttri > line.length()) {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": could not find attribute " + attribute);
+    loggerPtr->ERROR_MSG("failed to find attribute " + attribute);
     return false;}
   size_t iBegQuote = line.find('"', iBegAttri + 1);
   if (iBegQuote > line.length()) {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": could not extract value for attribute " + attribute);
+    loggerPtr->ERROR_MSG("failed to extract value for attribute " + attribute);
     return false;}
   size_t iEndQuote = line.find('"', iBegQuote + 1);
   if (iEndQuote > line.length()) {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": could not extract value for attribute " + attribute);
+    loggerPtr->ERROR_MSG("failed to extract value for attribute " + attribute);
     return false;}
   val = line.substr(iBegQuote + 1, iEndQuote - iBegQuote - 1);
   return true;
@@ -4979,19 +4960,18 @@ bool VinciaEWVetoHook::doVetoISREmission(int sizeOld, const Event& event,
 
   // Was this an emission in an MPI/Resonance system? -> don't veto.
   if (iSys > 0) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Emission in MPI system: pass");
     return false;
   }
 
   // Obtain information about last branching.
   if (!setLastISREmission(sizeOld, event)) {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": could not classify last ISR emission");
+    loggerPtr->ERROR_MSG("failed to classify last ISR emission");
     return false;
   }
   bool doVeto = doVetoEmission(sizeOld, event, iSys);
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
     ": ISR emission " + string(doVeto ?" vetoed." : "passed."));
   return doVeto;
 
@@ -5006,26 +4986,25 @@ bool VinciaEWVetoHook::doVetoFSREmission(int sizeOld, const Event &event,
 
   // If this is a resonance decay? -> don't veto.
   if (inResonance) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Emission in resonance decay system: pass");
     return false;
   }
 
   // Was this an emission in an MPI/Resonance system? -> don't veto.
   if (iSys > 0) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Emission in MPI system: pass");
     return false;
   }
 
   // Obtain information about last branching.
   if (!setLastFSREmission(sizeOld, event)) {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": could not classify last FSR emission");
+    loggerPtr->ERROR_MSG("failed to classify last FSR emission");
     return false;
   }
   bool doVeto = doVetoEmission(sizeOld, event, iSys);
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
     ": FSR emission " + string(doVeto ?" vetoed." : "passed."));
   return doVeto;
 
@@ -5048,7 +5027,7 @@ bool VinciaEWVetoHook::doVetoEmission(int sizeOld, const Event& event,
   if (lastIsQCD) {
     double ewWinnerkT2 = findEWScale(sizeOld, event, iSys);
     if (ewWinnerkT2 > 0 && lastkT2 > ewWinnerkT2) doVeto = true;
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Last emission was QCD with kT2 = "
          << lastkT2 << " comparing to lowest EW clustering kT2 = "
@@ -5058,14 +5037,14 @@ bool VinciaEWVetoHook::doVetoEmission(int sizeOld, const Event& event,
   } else {
     double qcdWinnerkT2 = findQCDScale(sizeOld, event, iSys);
     if (qcdWinnerkT2 > 0 && lastkT2 > qcdWinnerkT2) doVeto = true;
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Last emission was EW with kT2 = "
          << lastkT2 << " comparing to lowest QCD clustering kT2 = "
          << qcdWinnerkT2;
       printOut(__METHOD_NAME__, ss.str());}
   }
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, doVeto ? "Veto emission." : "Pass.");
   return doVeto;
 
@@ -5151,8 +5130,7 @@ double VinciaEWVetoHook::findQCDScale(int sizeOld, const Event& event,
 
   // Number of colour lines should match.
   if (acolToIndex.size() != colToIndex.size()) {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": unmatched colour lines.");
+    loggerPtr->ERROR_MSG("unmatched colour lines");
     return -1.;
   }
   double kT2Smallest = numeric_limits<double>::max();
@@ -5173,8 +5151,7 @@ double VinciaEWVetoHook::findQCDScale(int sizeOld, const Event& event,
 
     // Found an unmatched color index.
     else {
-      infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-        ": unmatched colour lines.");
+      loggerPtr->ERROR_MSG("unmatched colour lines");
       return -1.;
     }
 
@@ -5305,8 +5282,8 @@ double VinciaEWVetoHook::findEWScale(int sizeOld, const Event& event,
 double VinciaEWVetoHook::ktMeasure(const Event &event, int indexi, int indexj,
   double mMot2) {
   if(indexi >= event.size() || indexj > event.size()) {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": could not find clustering candidates in event record !");
+    loggerPtr->ERROR_MSG(
+      "failed to find clustering candidates in event record");
     return -1;
   }
   Vec4 pi(event[indexi].p()), pj(event[indexj].p());
@@ -5335,11 +5312,9 @@ double VinciaEWVetoHook::findktQCD(const Event& event, int indexi,
 
   // Check if it is a QCD emission.
   if (!event[indexi].isQuark() && !event[indexi].isGluon())
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": expected a QCD branching.");
+    loggerPtr->ERROR_MSG("expected a QCD branching");
   if (!event[indexj].isQuark() && !event[indexj].isGluon())
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": expected a QCD branching.");
+    loggerPtr->ERROR_MSG("expected a QCD branching");
 
   // Check if I was a gluon.
   double mMot2 = 0;
@@ -5412,8 +5387,7 @@ bool VinciaEWVetoHook::setLastFSREmission(int sizeOld, const Event &event) {
   }
 
   if (status51.size() != 2) {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": unexpected number of status 51 in last branching.");
+    loggerPtr->ERROR_MSG("unexpected number of status 51 in last branching");
     return false;
   }
 
@@ -5446,7 +5420,7 @@ bool VinciaEWVetoHook::setLastFSREmission(int sizeOld, const Event &event) {
     }
   // Don't know what this is.
   } else {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__, ": unknown branching.");
+    loggerPtr->ERROR_MSG("unknown branching");
     return false;
   }
   return true;
@@ -5468,8 +5442,7 @@ bool VinciaEWVetoHook::setLastISREmission(int sizeOld, const Event& event){
     else if(event[iPart].status() == 44) status44.push_back(iPart);
   }
   if (iEmit == 0){
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": could not find emission in event record.");
+    loggerPtr->ERROR_MSG("failed to find emission in event record");
     return false;
   }
 
@@ -5488,8 +5461,7 @@ bool VinciaEWVetoHook::setLastISREmission(int sizeOld, const Event& event){
       rad1 = status41[0];
       // Check status 44.
       if (status44.size() == 0) {
-        infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-          ": wrong number of status 44 in event record.");
+        loggerPtr->ERROR_MSG("wrong number of status 44 in event record");
         return false;
       }
       // Loop over outgoing until find colour connected leg
@@ -5502,14 +5474,13 @@ bool VinciaEWVetoHook::setLastISREmission(int sizeOld, const Event& event){
           rad2 = radNow; break;}
       }
     } else {
-      infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-        ": wrong number of status 41 in event record.");
+      loggerPtr->ERROR_MSG("wrong number of status 41 in event record");
       return false;
     }
 
     if (rad1 == 0 || rad2 == 0) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-        ": couldn't identify radiators of gluon in event record.");
+      loggerPtr->ERROR_MSG(
+        "failed to identify radiators of gluon in event record");
       return false;
     }
 
@@ -5523,8 +5494,7 @@ bool VinciaEWVetoHook::setLastISREmission(int sizeOld, const Event& event){
     // Check if mother is a gluon or quark or something else.
     int moth = event[iEmit].mother1();
     if (moth == 0) {
-      infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-        ": couldn't mother of quark emission.");
+      loggerPtr->ERROR_MSG("failed to find mother of quark emission");
       return false;
     }
 
@@ -5541,13 +5511,11 @@ bool VinciaEWVetoHook::setLastISREmission(int sizeOld, const Event& event){
         lastIsQCD = true;
         lastkT2 = findktQCD(event, iEmit, moth);
       } else {
-        infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-          ": unknown branching.");
+        loggerPtr->ERROR_MSG("unknown branching");
         return false;
       }
     } else {
-      infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-        ": unknown branching.");
+      loggerPtr->ERROR_MSG("unknown branching");
       return false;
     }
   // Must be an EW emission otherwise.
@@ -5556,13 +5524,11 @@ bool VinciaEWVetoHook::setLastISREmission(int sizeOld, const Event& event){
     if (status41.size() == 1) {
       lastkT2 = ktMeasure(event, status41[0], iEmit, 0);
     } else {
-      infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-        ": wrong number of status 41 in event record.");
+      loggerPtr->ERROR_MSG("wrong number of status 41 in event record");
       return false;
     }
   } else {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": unknown branching.");
+    loggerPtr->ERROR_MSG("unknown branching");
     return false;
   }
   return true;

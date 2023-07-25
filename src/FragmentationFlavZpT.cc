@@ -588,8 +588,7 @@ void StringFlav::init() {
         }
       }
       if (int(possibleHadronIDs.size()) < 1)
-        infoPtr->errorMsg("Error in StringFlav::init: no possible "
-          "hadrons found");
+        loggerPtr->ERROR_MSG("no possible hadrons found");
       possibleHadrons[idIn] = possibleHadronIDs;
     }
 
@@ -697,8 +696,7 @@ void StringFlav::init() {
           int Q1 = ( (abs(ID2)/1000) % 10 );
           int Q2 = ( (abs(ID2)/100)  % 10 );
           if (Q1 > 5 || Q2 > 5) {
-            infoPtr->errorMsg("Error in StringFlav::init: invalid quark "
-                              "content flavours for diquark");
+            loggerPtr->ERROR_MSG("invalid quark content flavours for diquark");
             continue;
           }
           int diqSpin = ( ((abs(ID2) % 10) == 1) ? 0 : 1 );
@@ -807,8 +805,7 @@ void StringFlav::init() {
           }
         }
         if (int(possibleHadronsNew.size()) < 1)
-          infoPtr->errorMsg("Error in StringFlav::init: no possible "
-            "hadrons found for last two");
+          loggerPtr->ERROR_MSG("no possible hadrons found for last two");
         // Save.
         possibleRatePrefacsLast[inPair] = possibleRatePrefacsNew;
         possibleHadronsLast[inPair]     = possibleHadronsNew;
@@ -966,8 +963,7 @@ FlavContainer StringFlav::pickThermal(FlavContainer& flavOld,
   vector< pair<int,int> > possibleHadronsNow = possibleHadrons[idIn];
   int nPossHads = int(possibleHadronsNow.size());
   if (nPossHads < 1) {
-    infoPtr->errorMsg("Error in StringFlav::pickThermal: no possible "
-      "hadrons found");
+    loggerPtr->ERROR_MSG("no possible hadrons found");
     return 0;
   }
 
@@ -1237,8 +1233,7 @@ int StringFlav::combineLastThermal(FlavContainer& flav1, FlavContainer& flav2,
   vector< pair<int,int> > possibleHadronsNow = possibleHadronsLast[inPr];
   int nPossHads = int(possibleHadronsNow.size());
   if (nPossHads < 1) {
-    infoPtr->errorMsg("Error in StringFlav::combineLastThermal: no "
-      "possible hadrons found for last two");
+    loggerPtr->ERROR_MSG("no possible hadrons found for last two");
     return 0;
   }
 
@@ -1393,8 +1388,8 @@ void StringZ::init() {
   // Alternative parameterisation of Lund FF using average z(rho) instead of b.
   if (flag("StringZ:deriveBLund")) {
     if (!deriveBLund()) {
-      infoPtr->errorMsg("Error in StringZ::init: Derivation of b parameter "
-        " failed. Reverting to default.");
+      loggerPtr->ERROR_MSG(
+        "derivation of b parameter failed. Reverting to default");
       settingsPtr->resetParm("StringZ:bLund");
     }
   }
@@ -1461,7 +1456,7 @@ bool StringZ::deriveBLund() {
       // If outside range, tell user but force anyway so fits can see
       // behaviour.
       msg << " accepted (forced)";
-      infoPtr->errorMsg("Warning in StringZ::deriveBLund", msg.str());
+      loggerPtr->WARNING_MSG(msg.str());
       settingsPtr->parm("StringZ:bLund", bNow, true);
     }
 

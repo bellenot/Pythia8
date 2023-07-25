@@ -5,7 +5,7 @@
 
 // Author: Christian T Preuss <christian.preuss@monash.edu>
 
-// Keywords: merging; leading order; CKKW-L; hepmc; vincia;
+// Keywords: merging; leading order; CKKW-L; hepmc; vincia
 
 // This is a test program to run Pythia merging and  write HepMC2 files,
 // written for Vincia sector merging, see the Sector Merging page in

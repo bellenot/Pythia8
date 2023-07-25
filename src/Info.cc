@@ -27,14 +27,6 @@ const double Info::CONVERTMB2PB = 1e9;
 
 //--------------------------------------------------------------------------
 
-// Initialize settings for error printing.
-
-void Info::init() {
-  printErrors = settingsPtr->flag("Print:errors");
-}
-
-//--------------------------------------------------------------------------
-
 // List (almost) all information currently set.
 
 void Info::list() const {
@@ -190,84 +182,6 @@ vector<int> Info::codesHard() {
     nTryEntry != nTryM.end(); ++nTryEntry)
       codesNow.push_back( nTryEntry->first );
   return codesNow;
-}
-
-//--------------------------------------------------------------------------
-
-// Print a message the first few times. Insert in database.
-
-void Info::errorMsg(string messageIn, string extraIn, bool showAlways) {
-
-  // Recover number of times message occured. Also inserts new string.
-  int times = messages[messageIn];
-  ++messages[messageIn];
-
-  // Print message the first time.
-  if ((times == 0 || showAlways) && printErrors) cout << " PYTHIA "
-    << messageIn << " " << extraIn << endl;
-
-}
-
-//--------------------------------------------------------------------------
-
-// Add all errors from the other Info object to the counts of this object.
-
-void Info::errorCombine(const Info& other) {
-  for (pair<string, int> messageEntry : other.messages)
-    messages[messageEntry.first] += messageEntry.second;
-}
-
-//--------------------------------------------------------------------------
-
-// Provide total number of errors/aborts/warnings experienced to date.
-
-int Info::errorTotalNumber() const {
-
-  int nTot = 0;
-  for (pair<string, int> messageEntry : messages)
-    nTot += messageEntry.second;
-  return nTot;
-
-}
-
-//--------------------------------------------------------------------------
-
-// Print statistics on errors/aborts/warnings.
-
-void Info::errorStatistics() const {
-
-  // Header.
-  cout << "\n *-------  PYTHIA Error and Warning Messages Statistics  "
-       << "----------------------------------------------------------* \n"
-       << " |                                                       "
-       << "                                                          | \n"
-       << " |  times   message                                      "
-       << "                                                          | \n"
-       << " |                                                       "
-       << "                                                          | \n";
-
-  // Loop over all messages
-  map<string, int>::const_iterator messageEntry = messages.begin();
-  if (messageEntry == messages.end())
-    cout << " |      0   no errors or warnings to report              "
-         << "                                                          | \n";
-  while (messageEntry != messages.end()) {
-    // Message printout.
-    string temp = messageEntry->first;
-    int len = temp.length();
-    temp.insert( len, max(0, 102 - len), ' ');
-    cout << " | " << setw(6) << messageEntry->second << "   "
-         << temp << " | \n";
-    ++messageEntry;
-  }
-
-  // Done.
-  cout << " |                                                       "
-       << "                                                          | \n"
-       << " *-------  End PYTHIA Error and Warning Messages Statistics"
-       << "  ------------------------------------------------------* "
-       << endl;
-
 }
 
 //--------------------------------------------------------------------------
@@ -531,54 +445,6 @@ void Info::reassignDiffSystem( int iDSold, int iDSnew) {
   nameSubSave[iDSnew]   = nameSubSave[iDSold];   nameSubSave[iDSold]   = "";
   codeSubSave[iDSnew]   = codeSubSave[iDSold];   codeSubSave[iDSold]   = 0;
   nFinalSubSave[iDSnew] = nFinalSubSave[iDSold]; nFinalSubSave[iDSold] = 0;
-}
-
-//==========================================================================
-
-// Class for loading plugin libraries at run time.
-
-//--------------------------------------------------------------------------
-
-// Constructor, with library name and info pointer.
-
-Plugin::Plugin(string nameIn, Info *infoPtrIn) {
-  name = nameIn;
-  infoPtr = infoPtrIn;
-  libPtr = dlopen(nameIn.c_str(), RTLD_LAZY);
-  const char* cerror = dlerror();
-  string serror(cerror == nullptr ? "" : cerror);
-  dlerror();
-  if (serror.size()) {
-    errorMsg("Error in Plugin::Plugin: " + serror);
-    libPtr = nullptr;
-  }
-
-}
-
-//--------------------------------------------------------------------------
-
-// Destructor.
-
-Plugin::~Plugin() {
-  if (libPtr != nullptr) dlclose(libPtr);
-  dlerror();
-
-}
-
-//--------------------------------------------------------------------------
-
-// Access plugin library symbols.
-
-Plugin::Symbol Plugin::symbol(string symName) {
-    Symbol sym(0);
-    const char* error(0);
-    if (libPtr == nullptr) return sym;
-    sym = (Symbol)dlsym(libPtr, symName.c_str());
-    error = dlerror();
-    if (error) errorMsg("Error in Plugin::symbol: " + string(error));
-    dlerror();
-    return sym;
-
 }
 
 //==========================================================================

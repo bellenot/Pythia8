@@ -3,9 +3,9 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Christian Bierlich <christian.bierlich@hep.lu.se>.
+// Authors: Christian Bierlich <christian.bierlich@hep.lu.se>
 
-// Keywords: hadronization; colour reconnection; string shoving;
+// Keywords: hadronization; colour reconnection; string shoving
 
 // This program provides a demonstration of the string shoving model supplied
 // in the Rope Hadronization framework. It produces four histograms

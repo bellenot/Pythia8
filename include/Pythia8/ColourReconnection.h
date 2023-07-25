@@ -59,8 +59,13 @@ public:
 
   // Printing function, mainly intended for debugging.
   void list();
+  long index{0};
 
 };
+
+// Comparison operator by index for two dipole pointers.
+inline bool operator<(const ColourDipolePtr& d1, const ColourDipolePtr& d2) {
+  return ( d1 && d2 ? d1->index < d2->index : !d1 );}
 
 //==========================================================================
 
@@ -193,6 +198,26 @@ private:
 
   // List of current dipoles.
   vector<ColourDipolePtr> dipoles, usedDipoles;
+
+  // Last used dipole index, used for sorting.
+  int dipoleIndex{0};
+
+  // Add a dipole and increment index.
+  void addDipole(int colIn = 0, int iColIn = 0, int iAcolIn = 0,
+    int colReconnectionIn = 0, bool isJunIn = false, bool isAntiJunIn = false,
+    bool isActiveIn = true, bool isRealIn = false) {
+    dipoles.push_back(make_shared<ColourDipole>(colIn, iColIn, iAcolIn,
+        colReconnectionIn, isJunIn, isAntiJunIn, isActiveIn, isRealIn));
+    dipoles.back()->index = ++dipoleIndex;
+  }
+
+  // Add a dipole and increment index.
+  void addDipole(const ColourDipole& dipole) {
+    dipoles.push_back(make_shared<ColourDipole>(dipole));
+    dipoles.back()->index = ++dipoleIndex;
+  }
+
+  // Lists of particles, junctions and trials.
   vector<ColourJunction> junctions;
   vector<ColourParticle> particles;
   vector<TrialReconnection> junTrials, dipTrials;

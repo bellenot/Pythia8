@@ -104,7 +104,7 @@ void PartonVertex::vertexMPI( int iBeg, int nAdd, double bNowIn,
   bHalf = 0.5 * bNow;
   if (modeVertex < 2) {
     if (bHalf > 0.95 * rProton) {
-      infoPtr->errorMsg("Warning in PartonVertex::vertexMPI: large b value");
+      loggerPtr->WARNING_MSG("large b value");
       bHalf = 0.95 * rProton;
     }
     xMax   = rProton - bHalf;
@@ -205,8 +205,7 @@ void PartonVertex::vertexHadrons( int nBefFrag, Event& event) {
     && event[iFirst].acol() * event[iLast].acol() == 0) {
   } else if (iNotG.size() == 0 || iNotG.size() == 3) {
   } else {
-    infoPtr->errorMsg("Error in PartonVertex::vertexHadrons: "
-      "unknown colour topology not handled");
+    loggerPtr->ERROR_MSG("unknown colour topology not handled");
     return;
   }
 
@@ -280,8 +279,7 @@ void PartonVertex::vertexHadrons( int nBefFrag, Event& event) {
   else if (iOrdSys[2] == 5 && iOrdSys[0] + iOrdSys[1] < 4)
     iOrdSys[2] = 3 - iOrdSys[0] - iOrdSys[1];
   else {
-    infoPtr->errorMsg("Warning in PartonVertex::vertexHadrons: "
-      "unidentified junction topology not handled");
+    loggerPtr->WARNING_MSG("unidentified junction topology not handled");
     return;
   }
 

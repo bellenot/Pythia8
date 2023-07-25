@@ -184,8 +184,8 @@ void DireTimes::init( BeamParticle* beamAPtrIn,
     pTcolCut         = LAMBDA3MARGIN * Lambda3flav / sqrt(renormMultFac);
     ostringstream newPTcolCut;
     newPTcolCut << fixed << setprecision(3) << pTcolCut;
-    infoPtr->errorMsg("Warning in DireTimes::init: pTmin too low",
-                      ", raised to " + newPTcolCut.str() );
+    loggerPtr->WARNING_MSG("pTmin too low",
+      ", raised to " + newPTcolCut.str() );
     infoPtr->setTooLowPTmin(true);
   }
   pT2colCut          = pow2(pTcolCut);
@@ -402,8 +402,7 @@ void DireTimes::finalize( Event& event ) {
     decays[decays.size()-1].mother1(0);
     processLevel.nextDecays(decays);
     if (decays.size() < 3) {
-      infoPtr->errorMsg("Error in DireTimes::finalize: "
-              "Failed to decay shower-induced resonance");
+      loggerPtr->ERROR_MSG("failed to decay shower-induced resonance");
       continue;
     }
     // Attach decay products to event.
@@ -795,15 +794,14 @@ void DireTimes::rescatterUpdate( int iSys, Event& event) {
               setupQCDdip(dipNow.system, iRadNow, event[iRad].col(), 1,
                           event, dipNow.isOctetOnium, true);
             else
-              infoPtr->errorMsg("Warning in DireTimes::rescatterUpdate: "
-              "failed to locate radiator in system");
+              loggerPtr->WARNING_MSG("failed to locate radiator in system");
 
             dipNow.colType = 0;
             dipNow.chgType = 0;
             dipNow.gamType = 0;
 
-            infoPtr->errorMsg("Warning in DireTimes::rescatterUpdate: "
-            "failed to locate new recoiling colour partner");
+            loggerPtr->WARNING_MSG(
+              "failed to locate new recoiling colour partner");
           }
 
         // Anticolour dipole: recoil in final state, initial state or new.
@@ -843,15 +841,15 @@ void DireTimes::rescatterUpdate( int iSys, Event& event) {
               setupQCDdip(dipNow.system, iRadNow, event[iRad].acol(), -1,
                           event, dipNow.isOctetOnium, true);
             else
-              infoPtr->errorMsg("Warning in DireTimes::rescatterUpdate: "
-              "failed to locate radiator in system");
+              loggerPtr->WARNING_MSG(
+                "failed to locate radiator in system");
 
             dipNow.colType = 0;
             dipNow.chgType = 0;
             dipNow.gamType = 0;
 
-            infoPtr->errorMsg("Warning in DireTimes::rescatterUpdate: "
-            "failed to locate new recoiling colour partner");
+            loggerPtr->WARNING_MSG(
+              "failed to locate new recoiling colour partner");
           }
         }
       }
@@ -1139,8 +1137,7 @@ void DireTimes::setupQCDdip( int iSys, int i, int colTag, int colSign,
 
   // Check for failure to locate any recoiler
   if ( nRec <= 0 ) {
-    infoPtr->errorMsg("Error in DireTimes::setupQCDdip: "
-                      "failed to locate any recoiling partner");
+    loggerPtr->ERROR_MSG("failed to locate any recoiling partner");
     return;
   }
 
@@ -1226,7 +1223,6 @@ void DireTimes::setupDecayDip( int iSys, int iRad, const Event& event,
                 - event[iRecNow].m() * event[iRad].m();
     if (ppNow < ppMin) {
       iRec  = iRecNow;
-      ppMin = ppNow;
     }
   }
 
@@ -1849,8 +1845,7 @@ double DireTimes::pTnext( Event& event, double pTbegAll, double pTendAll,
 
     // Do not try splitting if the corrected dipole mass is negative.
     if (dip.m2DipCorr < 0.) {
-      infoPtr->errorMsg("Warning in DireTimes::pTnext: "
-      "negative dipole mass.");
+      loggerPtr->WARNING_MSG("negative dipole mass");
       continue;
     }
 
@@ -3288,7 +3283,6 @@ bool DireTimes::pT2nextQCD_FF(double pT2begDip, double pT2sel,
   // Begin evolution loop towards smaller pT values.
   do {
 
-    wt          = 0.;
     double tnow = (!forceBranching) ? dip.pT2 : pT2begDip;
     // Reset emission properties.
     dip.z        = -1.0;
@@ -3302,7 +3296,7 @@ bool DireTimes::pT2nextQCD_FF(double pT2begDip, double pT2sel,
 
     // Force exit if non-Sudakov style forced branching is stuck.
     if (forceBranching && nContinue >= nContinueMax) {
-      wt = 0.0; dip.pT2 = tnow = 0.;
+      wt = 0.0; dip.pT2 = 0.;
       break;
     }
 
@@ -3366,7 +3360,7 @@ bool DireTimes::pT2nextQCD_FF(double pT2begDip, double pT2sel,
     tnow  = tNextQCD( &dip, emitCoefTot, tnow, pT2endDip, pT2freeze,
       (forceBranching ? -1 : 1));
     if (tnow < 0.) {
-      wt = 0.0; dip.pT2 = tnow = 0.;
+      wt = 0.0; dip.pT2 = 0.;
       double R0 = emitCoefTot*rndmPtr->flat();
       if (!newOverestimates.empty()) {
         if (newOverestimates.lower_bound(R0) == newOverestimates.end())
@@ -3381,7 +3375,7 @@ bool DireTimes::pT2nextQCD_FF(double pT2begDip, double pT2sel,
     dip.pT2      = tnow;
 
     // Abort evolution if below cutoff scale, or below another branching.
-    if ( tnow < pT2endDip ) { dip.pT2 = tnow = 0.; break; }
+    if ( tnow < pT2endDip ) { dip.pT2 = 0.; break; }
 
     // Try user-defined splittings first.
     double R = emitCoefTot*rndmPtr->flat();
@@ -3585,8 +3579,8 @@ bool DireTimes::pT2nextQCD_FF(double pT2begDip, double pT2sel,
         scaleOverheadFactor(splittingNowName, 2.);
       double rescale = fullWeightNow/auxWeightNow * 1.15;
       auxWeightNow *= rescale;
-      infoPtr->errorMsg("Info in DireTimes::pT2nextQCD_FF: Found large "
-                        "acceptance weight for " + splittingNowName);
+      loggerPtr->INFO_MSG(
+        "found large acceptance weight for " + splittingNowName);
     }
 
     wt = fullWeightNow/auxWeightNow;
@@ -3694,8 +3688,6 @@ bool DireTimes::pT2nextQCD_FI(double pT2begDip, double pT2sel,
   bool   hasTinyPDFdau  = false;
   do {
 
-    wt          = 0.;
-    //double tnow = dip.pT2;
     double tnow = (!forceBranching) ? dip.pT2 : pT2begDip;
     dip.z       = -1.;
     dip.xa      = -1.;
@@ -3705,7 +3697,7 @@ bool DireTimes::pT2nextQCD_FI(double pT2begDip, double pT2sel,
 
     // Force exit if non-Sudakov style forced branching is stuck.
     if (forceBranching && nContinue >= nContinueMax) {
-      wt = 0.0; dip.pT2 = tnow = 0.;
+      wt = 0.0; dip.pT2 = 0.;
       break;
     }
 
@@ -3761,8 +3753,7 @@ bool DireTimes::pT2nextQCD_FI(double pT2begDip, double pT2sel,
     // (Example: if all PDF's = 0 below Q_0, except for c/b companion.)
     if (hasTinyPDFdau) ++loopTinyPDFdau;
     if (hasPDFrec && loopTinyPDFdau > MAXLOOPTINYPDF) {
-      infoPtr->errorMsg("Warning in DireTimes::pT2nextQCD_FI: "
-      "small daughter PDF");
+      loggerPtr->WARNING_MSG("small daughter PDF");
       dip.pT2 = 0.0;
       return false;
     }
@@ -3808,7 +3799,7 @@ bool DireTimes::pT2nextQCD_FI(double pT2begDip, double pT2sel,
     tnow  = tNextQCD( &dip, emitCoefTot, tnow, pT2endDip, pT2freeze,
       (forceBranching ? -1 : 1));
     if (tnow < 0.) {
-      wt = 0.0; dip.pT2 = tnow = 0.;
+      wt = 0.0; dip.pT2 = 0.;
       double R0 = emitCoefTot*rndmPtr->flat();
       if (!newOverestimates.empty()) {
         if (newOverestimates.lower_bound(R0) == newOverestimates.end())
@@ -3839,7 +3830,7 @@ bool DireTimes::pT2nextQCD_FI(double pT2begDip, double pT2sel,
     }
 
     // Abort evolution if below cutoff scale, or below another branching.
-    if ( tnow < pT2endDip ) { dip.pT2 = tnow = 0.; break; }
+    if ( tnow < pT2endDip ) { dip.pT2 = 0.; break; }
 
     // Try user-defined splittings first.
     double R = emitCoefTot*rndmPtr->flat();
@@ -4152,8 +4143,8 @@ bool DireTimes::pT2nextQCD_FI(double pT2begDip, double pT2sel,
       //mustFindRange = true;
       double rescale = fullWeightNow/auxWeightNow * 1.15;
       auxWeightNow *= rescale;
-      infoPtr->errorMsg("Info in DireTimes::pT2nextQCD_FI: Found large "
-                        "acceptance weight for " + splittingNowName);
+      loggerPtr->INFO_MSG(
+        "found large acceptance weight for " + splittingNowName);
     }
 
     wt = fullWeightNow/auxWeightNow;
@@ -4238,9 +4229,6 @@ double DireTimes::tNextQCD( DireTimesEnd*, double overestimateInt,
   } else if (tOld > m2c) {
     b0       = 25./6.;
     Lambda2  = Lambda4flav2;
-  } else {
-    b0       = 27./6.;
-    Lambda2  = Lambda3flav2;
   }
   // A change of renormalization scale expressed by a change of Lambda.
   Lambda2 /= renormMultFac;
@@ -4364,10 +4352,6 @@ bool DireTimes::branch_FF( Event& event, bool trial,
   if (split->useForBranching) { pT2 = psp["pT2"]; z = psp["z"]; }
 
   double m2Dip  = (!trial) ? dipSel->m2Dip : split->kinematics()->m2Dip;
-  // Calculate CS variables.
-  double yCS    = pT2/m2Dip / (1.-z);
-  double zCS    = ( 1. - z - pT2/m2Dip - pow2(1.-z) )
-                / ( 1. - z - pT2/m2Dip);
 
   // Get flavour of splitting.
   int flavour = (!trial) ? dipSel->flavour : split->emtAft()->id;
@@ -4491,8 +4475,8 @@ bool DireTimes::branch_FF( Event& event, bool trial,
 
   // Calculate CS variables.
   double kappa2 = pT2/Q2;
-  yCS           = kappa2 / (1.-z);
-  zCS           = ( 1. - z - kappa2 - pow2(1.-z) ) / ( 1. - z - kappa2);
+  double yCS    = kappa2 / (1.-z);
+  double zCS    = ( 1. - z - kappa2 - pow2(1.-z) ) / ( 1. - z - kappa2);
   double m2Emt  = m2e;
   double m2Rad  = m2r;
   double sai    = (!trial) ? dipSel->sa1 : split->kinematics()->sai;
@@ -4546,7 +4530,6 @@ bool DireTimes::branch_FF( Event& event, bool trial,
     }
     m2aij = m2Bef;
     m2ai  = sai + m2a + m2i;
-    Q2    = m2Dip + m2aij + m2k - m2ai - m2j - m2k;
     yCS   = pT2/(q2 - m2ai - m2j - m2k) * xa / z;
     zCS   = z / (xa*(1-yCS)) * (q2 - m2aij - m2k) / (q2 - m2ai - m2j - m2k);
     m2Emt = m2Rad;
@@ -4568,16 +4551,15 @@ bool DireTimes::branch_FF( Event& event, bool trial,
 
   // Not possible to construct kinematics if kT2 < 0.0
   if (kT2 < 0.) {
-    infoPtr->errorMsg("Warning in DireTimes::branch_FF: Reject state "
-      "with kinematically forbidden kT^2.");
+    loggerPtr->WARNING_MSG("reject state with kinematically forbidden kT^2");
     physical = false;
   }
 
   // NaN kT2 can happen for a 1->3 splitting in which the g->QQ~ produces
   // massive quarks Q.
   if (kT2!=kT2 || abs(kT2-kT2) > 1e5) {
-    infoPtr->errorMsg("Warning in DireTimes::branch_FF: Reject state "
-      "with not-a-number kT^2 for branching " + name);
+    loggerPtr->WARNING_MSG(
+      "reject state with not-a-number kT^2 for branching " + name);
     physical = false;
   }
 
@@ -4897,13 +4879,13 @@ bool DireTimes::branch_FF( Event& event, bool trial,
 
     // Calculate CS variables.
     m2Emt      = m2e;
-    m2Rad      = m2e;
+    m2Rad      = m2r;
     if (split->useForBranching) {
       m2Rad = split->kinematics()->m2RadAft;
       m2Emt = split->kinematics()->m2EmtAft2;
     }
     zCS        = xa;
-    yCS = (m2ai-m2Emt-m2Rad) / (m2ai-m2Emt-m2Rad + 2.*pa1*pRec);
+    yCS = (m2Bef - m2Emt - m2Rad) / (m2Bef - m2Emt - m2Rad + 2.*pa1*pRec);
 
     // Calculate derived variables.
     sij  = yCS * (q2 - m2s) + (1.-yCS)*(m2Rad+m2Emt);
@@ -5022,8 +5004,8 @@ bool DireTimes::branch_FF( Event& event, bool trial,
 
   if ( physical && !trial && !doMECreject
     && !validMotherDaughter(event)) {
-    infoPtr->errorMsg("Error in DireTimes::branch_FF: Mother-daughter "
-                      "relations after branching not valid.");
+    loggerPtr->ERROR_MSG(
+      "mother-daughter relations after branching not valid");
     physical = false;
   }
 
@@ -5441,9 +5423,7 @@ bool DireTimes::branch_FI( Event& event, bool trial,
   double m2Dip  = (!trial) ? dipSel->m2Dip : split->kinematics()->m2Dip;
 
   // Calculate CS variables.
-  double kappa2 = pT2/m2Dip;
   double zCS    = z;
-  double xCS    = 1 - kappa2/(1.-z);
 
   // Get flavour of splitting.
   int flavour = (!trial) ? dipSel->flavour : split->emtAft()->id;
@@ -5554,8 +5534,8 @@ bool DireTimes::branch_FI( Event& event, bool trial,
   double Q2 = m2Dip - m2Bef + m2r + m2e;
 
   // Calculate CS variables.
-  kappa2       =  pT2/Q2;
-  xCS          = 1 - kappa2/(1.-z);
+  double kappa2       =  pT2/Q2;
+  double xCS          = 1 - kappa2/(1.-z);
   double m2Emt = m2e;
   double m2Rad = m2r;
   double sai   = (!trial) ? dipSel->sa1 : split->kinematics()->sai;
@@ -5612,7 +5592,6 @@ bool DireTimes::branch_FI( Event& event, bool trial,
       m2j = split->kinematics()->m2EmtAft2;
     }
     m2ai  = sai + m2a + m2i;
-    Q2    = m2Dip - m2Bef + m2ai + m2j + m2s;
     zCS   = z / xa;
     xCS   = (q2 - m2ai - m2j - m2s)
           / (q2 - m2ai - m2j - m2s - pT2 * xa/z);
@@ -5639,16 +5618,15 @@ bool DireTimes::branch_FI( Event& event, bool trial,
   // Not possible to construct kinematics if kT2 < 0.0
 
   if (kT2 < 0.) {
-    infoPtr->errorMsg("Warning in DireTimes::branch_FI: Reject state "
-      "with kinematically forbidden kT^2.");
+    loggerPtr->WARNING_MSG("reject state with kinematically forbidden kT^2");
     physical = false;
   }
 
   // NaN kT2 can happen for a 1->3 splitting in which the g->QQ~ produces
   // massive quarks Q.
   if (physical && (kT2!=kT2 || abs(kT2-kT2) > 1e5) ) {
-    infoPtr->errorMsg("Warning in DireTimes::branch_FI: Reject state "
-      "with not-a-number kT^2 for branching " + name);
+    loggerPtr->WARNING_MSG(
+      "reject state with not-a-number kT^2 for branching " + name);
     physical = false;
   }
 
@@ -5705,8 +5683,8 @@ bool DireTimes::branch_FI( Event& event, bool trial,
     kT2  = zbar*(1.-zbar)*sij - (1.-zbar)*m2Rad - zbar*m2Emt;
 
     if (kT2 > 0. ) {
-      if (!trial) infoPtr->errorMsg("Info in DireTimes::branch_FI: "
-        "Recued state with previously forbidden kT^2.");
+      if (!trial) loggerPtr->INFO_MSG(
+        "recued state with previously forbidden kT^2");
       physical = true;
     }
 
@@ -5742,8 +5720,7 @@ bool DireTimes::branch_FI( Event& event, bool trial,
   // New: Return if the x-value for the incoming recoiler is nonsense.
   if ( physical && particleDataPtr->colType(event[iRecBef].id()) != 0
     && 2.*pRec.e()/event[0].m() > 1. ) {
-    infoPtr->errorMsg("Error in DireTimes::branch_FI: "
-            "Larger than unity Bjorken x value");
+    loggerPtr->ERROR_MSG("larger than unity Bjorken x value");
     physical = false;
   }
 
@@ -5883,8 +5860,8 @@ bool DireTimes::branch_FI( Event& event, bool trial,
       beamRec[iSysSelRec].iPos(iRec);
       beamRec[iSysSelRec].x(xm);
       if (beamRec.xMax(-1) < 0.0) {
-        if (!trial) infoPtr->errorMsg("Warning in DireTimes::branch_FI: "
-          "used up beam momentum; discard splitting.");
+        if (!trial)
+          loggerPtr->WARNING_MSG("used up beam momentum; discard splitting");
         physical = false;
       }
       // Restore old beams.
@@ -5985,7 +5962,7 @@ bool DireTimes::branch_FI( Event& event, bool trial,
 
     // Calculate CS variables.
     m2Emt      = m2e;
-    m2Rad      = m2e;
+    m2Rad      = m2r;
 
     if (split->useForBranching) {
       m2Rad = split->kinematics()->m2RadAft;
@@ -5993,7 +5970,7 @@ bool DireTimes::branch_FI( Event& event, bool trial,
     }
 
     zCS        = xa;
-    double yCS = (m2ai - m2Emt - m2Rad) / (m2ai - m2Emt - m2Rad + 2.*pa1*pb);
+    double yCS = (m2Bef - m2Emt - m2Rad) / (m2Bef - m2Emt - m2Rad + 2.*pa1*pb);
 
     // Calculate derived variables.
     sij  = yCS * (q2 - m2s) + (1.-yCS)*(m2Rad+m2Emt);
@@ -6004,16 +5981,15 @@ bool DireTimes::branch_FI( Event& event, bool trial,
 
     // Not possible to construct kinematics if kT2 < 0.0
     if (kT2 < 0.) {
-      infoPtr->errorMsg("Warning in DireTimes::branch_FI: Reject state "
-        "with kinematically forbidden kT^2.");
+      loggerPtr->WARNING_MSG("reject state with kinematically forbidden kT^2");
       physical = false;
     }
 
     // NaN kT2 can happen for a 1->3 splitting in which the g->QQ~ produces
     // massive quarks Q.
     if (physical && (kT2!=kT2 || abs(kT2-kT2) > 1e5) ) {
-      infoPtr->errorMsg("Warning in DireTimes::branch_FI: Reject state "
-        "with not-a-number kT^2 for branching " + name);
+      loggerPtr->WARNING_MSG(
+        "reject state with not-a-number kT^2 for branching " + name);
       physical = false;
     }
 
@@ -6028,8 +6004,8 @@ bool DireTimes::branch_FI( Event& event, bool trial,
       beamRec[iSysSelRec].iPos(iRec);
       beamRec[iSysSelRec].x(xm);
       if (beamRec.xMax(-1) < 0.0) {
-        if (!trial) infoPtr->errorMsg("Warning in DireTimes::branch_FI: "
-          "used up beam momentum; discard splitting.");
+        if (!trial)
+          loggerPtr->WARNING_MSG("used up beam momentum; discard splitting");
         physical = false;
       }
       // Restore old beams.
@@ -6113,8 +6089,8 @@ bool DireTimes::branch_FI( Event& event, bool trial,
       beamRec[iSysSelRec].iPos(iNew);
       beamRec[iSysSelRec].x(xNew);
       if (beamRec.xMax(-1) < 0.0) {
-        if (!trial) infoPtr->errorMsg("Warning in DireTimes::branch_FI: "
-          "used up beam momentum; discard splitting.");
+        if (!trial)
+          loggerPtr->WARNING_MSG("used up beam momentum; discard splitting");
         physical = false;
       }
       // Restore old beams.
@@ -6183,8 +6159,8 @@ bool DireTimes::branch_FI( Event& event, bool trial,
   // Check if mother-daughter relations are correctly set. Check only
   // possible if no MPI are present.
   if ( physical && !trial && !doMECreject && !validMotherDaughter(event)) {
-    infoPtr->errorMsg("Error in DireTimes::branch_FI: Mother-daughter "
-                      "relations after branching not valid.");
+    loggerPtr->ERROR_MSG(
+      "mother-daughter relations after branching not valid");
     physical = false;
   }
 

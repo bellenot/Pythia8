@@ -47,7 +47,7 @@ public:
   virtual ~PhaseSpace() {}
 
   // Perform simple initialization and store pointers.
-  void init(bool isFirst, SigmaProcess* sigmaProcessPtrIn);
+  void init(bool isFirst, SigmaProcessPtr sigmaProcessPtrIn);
 
   // Switch to new beam particle identities; for similar hadrons only.
   void updateBeamIDs() { idAold = idA; idBold = idB; idA = beamAPtr->id();
@@ -166,7 +166,7 @@ protected:
                       SHATMINZ, PT2RATMINZ, WTCORRECTION[11];
 
   // Pointer to cross section.
-  SigmaProcess* sigmaProcessPtr;
+  SigmaProcessPtr sigmaProcessPtr;
 
   // Pointer to LHAup for generating external events.
   LHAupPtr      lhaUpPtr;

@@ -3,9 +3,9 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Ilkka Helenius <ilkka.m.helenius@jyu.fi>.
+// Authors: Ilkka Helenius <ilkka.m.helenius@jyu.fi>
 
-// Keywords: photon beam; UPC; photoproduction; exclusive;
+// Keywords: photon beam; UPC; photoproduction; exclusive
 
 // Main program to demonstrate how to generate different types of
 // photon-initiated dilepton events in proton-proton collisions.

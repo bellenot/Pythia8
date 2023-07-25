@@ -190,21 +190,19 @@ specify which histogram to write to.
 Note that the user should not write to this setting directly. 
 </mode> 
  
-<flag name="Parallelism:balanceLoad" default="off"> 
-By turning this flag on, each <code>Pythia</code> instance will all 
-produce the same number of events, &#177;1 if the number of threads 
-does not evenly divide the number of events. If the flag is off, then 
-each instance will instead generate events until the desired number 
-has been generated. This can be significantly more efficient if the 
-event generation time can vary significantly (e.g. as it does in 
-central vs. peripheral heavy ion collisions), but one disadvantage is 
-that the number of events generated per instance is random and can 
-vary between runs. Since each instance has its own random seed, this 
-means that the final statistics might vary slightly between 
-runs. Thus, this flag should be set on to ensure that repeated runs 
-will generate the exact same statistics, which can be useful for 
-testing purposes. Even if this flag is on, events might still be 
-processed in different orders between runs. 
+<flag name="Parallelism:balanceLoad" default="on"> 
+By default, the event generation is divided evenly between the 
+<code>Pythia</code> instances. This way, each instance will generate 
+the same number of events each run with their respective seeds, so that 
+the final statistics will be exactly the same between runs (except events 
+might be processed in a different order). 
+ 
+By turning this flag off, instead each <code>Pythia</code> instance will 
+generate events until the desired number has been generated. Thus, different 
+runs might result in slightly different statistics, even with the exact 
+same input settings. The advantage of this is that it can be significantly 
+more efficient if the event generation time can vary significantly (e.g. as 
+it does in central vs. peripheral heavy ion collisions). 
 </flag> 
  
 </chapter> 

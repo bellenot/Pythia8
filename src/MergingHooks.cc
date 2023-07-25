@@ -2521,7 +2521,7 @@ bool MergingHooks::doVetoStep( const Event& process, const Event& event,
     // possibly veto was recorded.
     // Only allow revoking the veto for diboson processes, with resonant
     // electroweak bosons
-    bool check =  (nHardInLeptons() == 0)&& (nHardOutLeptons() == 2)
+    bool check =  (nHardInLeptons() == 0) && (nHardOutLeptons() == 2)
                && (nHardOutPartons() == 2);
 
     // For current purpose only!!!
@@ -3802,8 +3802,7 @@ double MergingHooks::rhoPythia(const Event& event, int rad, int emt, int rec,
 
   // ee flavour sensitive cut
   if (false) {
-    infoPtr->errorMsg("Warning in MergingHooks::rhoPythia: Using flavour "
-        " sensitive pythia pT merging cut.");
+    loggerPtr->WARNING_MSG("using flavour sensitive Pythia pT merging cut");
     if (Type == 1 && abs(flavEmt) < 7 && flavEmt != -flavRad) allowed = false;
   }
   // Store masses both after and prior to emission.

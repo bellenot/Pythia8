@@ -180,6 +180,7 @@ DireHistory::DireHistory( int depthIn,
       beamB(beamBIn),
       particleDataPtr(particleDataPtrIn),
       infoPtr(infoPtrIn),
+      loggerPtr(infoPtrIn->loggerPtr),
       showers(showersIn),
       fsr(fsrIn),
       isr(isrIn),
@@ -443,8 +444,10 @@ bool DireHistory::projectOntoDesiredHistories() {
         generationMin = it->second->generation;
         deepest = it->second;
       }
-    if (deepest->mother) deepest->mother->setProbabilities();
-    if (deepest->mother) deepest->mother->setEffectiveScales();
+    if (deepest != nullptr && deepest->mother)
+      deepest->mother->setProbabilities();
+    if (deepest != nullptr && deepest->mother)
+      deepest->mother->setEffectiveScales();
 
   }
 
@@ -512,8 +515,6 @@ double DireHistory::weightMOPS(PartonLevel* trial, AlphaStrong * /*as*/,
   vector<double> couplwt(createvector<double>(1.)(1.)(1.));
   if (nZero) couplwt = selected->weightCouplingsDenominator();
   for (size_t i=0; i < ret.size(); ++i) ret[i] *= couplwt[i];
-  nZero = false;
-  for (size_t i=0; i < ret.size(); ++i) if (abs(ret[i]) > 1e-12) nZero = true;
 
   double coupwt = couplEffective/couplwt.front();
 
@@ -596,22 +597,18 @@ double DireHistory::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
   AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN) {
 
   if ( mergingHooksPtr->canCutOnRecState() && !foundAllowedPath ) {
-    string message="Warning in DireHistory::weightTREE: No allowed history";
-    message+=" found. Using disallowed history.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG(
+      "no allowed history found. Using disallowed history");
   }
 
   if ( mergingHooksPtr->orderHistories() && !foundOrderedPath ) {
-    string message="Warning in DireHistory::weightTREE: No ordered history";
-    message+=" found. Using unordered history.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG(
+      "no ordered history found. Using unordered history");
   }
   if ( mergingHooksPtr->canCutOnRecState()
     && mergingHooksPtr->orderHistories()
     && !foundAllowedPath && !foundOrderedPath ) {
-    string message="Warning in DireHistory::weightTREE: No allowed or ordered";
-    message+=" history found.";
-    infoPtr->errorMsg(message);
+    loggerPtr->ERROR_MSG("no allowed or ordered history found");
   }
 
   // Read alpha_S in ME calculation and maximal scale (eCM)
@@ -723,9 +720,8 @@ double DireHistory::weightTREE(PartonLevel* trial, AlphaStrong * asFSR,
 double DireHistory::weightLOOP(PartonLevel* trial, double RN ) {
 
   if ( mergingHooksPtr->canCutOnRecState() && !foundAllowedPath ) {
-    string message="Warning in DireHistory::weightLOOP: No allowed history";
-    message+=" found. Using disallowed history.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG(
+      "no allowed history found. Using disallowed history");
   }
 
   // Select a path of clusterings
@@ -3121,7 +3117,6 @@ vector<double> DireHistory::doTrialShower( PartonLevel* trial, int type,
 
     // Done if evolution scale has fallen below minimum
     if ( pTtrial < minScale ) {
-      wt     *= wtShower.second;
       wtv[0] *= wtShower.second;
       wtv[1] *= wt_isr_1.second*wt_fsr_1.second;
       wtv[2] *= wt_isr_2.second*wt_fsr_2.second;
@@ -3160,9 +3155,11 @@ vector<double> DireHistory::doTrialShower( PartonLevel* trial, int type,
       BeamParticle* beam = (particleDataPtr->isHadron(beamA.id())) ? &beamA
                          : (particleDataPtr->isHadron(beamB.id())) ? &beamB
                                                         : nullptr;
-      double m2cPhys     = (usePDFalphas) ? pow2(max(0.,beam->mQuarkPDF(4)))
+      double m2cPhys     = (usePDFalphas && beam != nullptr) ?
+                           pow2(max(0.,beam->mQuarkPDF(4)))
                          : mergingHooksPtr->AlphaS_ISR()->muThres2(4);
-      double m2bPhys     = (usePDFalphas) ? pow2(max(0.,beam->mQuarkPDF(5)))
+      double m2bPhys     = (usePDFalphas && beam != nullptr) ?
+                           pow2(max(0.,beam->mQuarkPDF(5)))
                          : mergingHooksPtr->AlphaS_ISR()->muThres2(5);
       if ( event[iEmt].idAbs() == 4 && minScale < sqrt(m2cPhys)
         && pTtrial > (1. - MCWINDOW)*sqrt(m2cPhys)
@@ -3960,9 +3957,8 @@ double DireHistory::hardProcessME( const Event& event ) {
     }
 
     else {
-      string message="Warning in DireHistory::hardProcessME: Only Z/W are";
-      message+=" supported as 2->1 processes. Skipping history.";
-      infoPtr->errorMsg(message);
+      loggerPtr->WARNING_MSG(
+        "only Z/W are supported as 2->1 processes. Skipping history");
       return 0;
     }
   }
@@ -6738,7 +6734,6 @@ double DireHistory::pdfFactor( const Event&, const Event& e, const int type,
     // the weight, since it will drop out anyway.
     int sideSplit = ( e[iRecAft].pz() > 0.) ? 1 : -1;
     double pdfDen1, pdfDen2, pdfNum1, pdfNum2;
-    pdfDen1 = pdfDen2 = pdfNum1 = pdfNum2 = 1.;
     if ( sideSplit == 1 ) {
       pdfDen1 = (!hasPDFBef) ? 1.0 : (useSummedPDF)
               ? beamA.xf(flavBef, xBef, pow2(mu))
@@ -6784,7 +6779,6 @@ double DireHistory::pdfFactor( const Event&, const Event& e, const int type,
     // the weight, since it will drop out anyway.
     int sideSplit = ( e[iRadAft].pz() > 0.) ? 1 : -1;
     double pdfDen1, pdfDen2, pdfNum1, pdfNum2;
-    pdfDen1 = pdfDen2 = pdfNum1 = pdfNum2 = 1.;
     if ( sideSplit == 1 ) {
       pdfDen1 = (!hasPDFBef) ? 1.0 : (useSummedPDF)
               ? beamA.xf(flavBef, xBef, pow2(mu))

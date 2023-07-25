@@ -1817,9 +1817,6 @@ bool DireMergingHooks::doVetoStep( const Event& process, const Event& event,
     bool check =  (nHardInLeptons() == 0)&& (nHardOutLeptons() == 2)
                && (nHardOutPartons() == 2);
 
-    // For current purpose only!!!
-    check = false;
-
     // For hadronic resonance decays at hadron colliders, do not veto
     // events with a hard emission of the resonance decay products,
     // since such states are not included in the matrix element
@@ -1974,14 +1971,8 @@ int DireMergingHooks::getNumberOfClusteringSteps(const Event& event,
         || event[i].idAbs() == 25 ) )
       nFinalBosons++;
 
-  // Save sum of all final state particles
-  int nFinal = nFinalPartons + nFinalLeptons
-             + 2*(nFinalBosons - nHardOutBosons() );
-
   // Return the difference to the core process outgoing particles
-  int nsteps = nFinal - nHardOutPartons() - nHardOutLeptons();
-
-  nsteps =  nFinalPartons     + nFinalLeptons     + nFinalBosons
+  int nsteps =  nFinalPartons     + nFinalLeptons     + nFinalBosons
          - (nHardOutPartons() + nHardOutLeptons() + nHardOutBosons());
 
   // For inclusive handling, the number of reclustering steps

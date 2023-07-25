@@ -107,6 +107,7 @@ public:
   Info*     infoPtr{};
   Rndm*     rndmPtr{};
   Settings* settingsPtr{};
+  Logger*   loggerPtr{};
 
   // Use m or pT evolution for collinear singularities.
   bool useMevolSav;

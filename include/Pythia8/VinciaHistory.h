@@ -166,13 +166,13 @@ class HistoryNode {
 
   // Set clusterList.
   int getNClusterings(shared_ptr<VinciaMergingHooks> vinMergingHooksPtr,
-    Info* infoPtr, int verboseIn);
+    Logger* loggerPtr, int verboseIn);
   void setClusterList(shared_ptr<VinciaMergingHooks> vinMergingHooksPtr,
-    Info* infoPtr, int verboseIn);
+    Logger* loggerPtr, int verboseIn);
 
   // Perform the clusterings according to the resolution criterion.
   bool cluster(HistoryNode& nodeClus,
-    Info* infoPtr, int verboseIn);
+    Logger* loggerPtr, int verboseIn);
 
   // Get energy fractions (used in PDF ratios).
   double xA() const {return 2. * state[3].e() / state[0].e();}
@@ -213,7 +213,7 @@ class HistoryNode {
 
   // Perform a clustering.
   bool doClustering(VinciaClustering& clus, Event& clusEvent,
-    vector<vector<int>>& clusChains, Info* infoPtr, int verboseIn);
+    vector<vector<int>>& clusChains, Logger* loggerPtr, int verboseIn);
 
   // Methods to calculate resolution and evolution scales.
   double calcResolution(VinciaClustering& clusIn) {
@@ -373,6 +373,7 @@ private:
 
   // Other Pythia pointers.
   Info* infoPtr{};
+  Logger* loggerPtr{};
 
   // Vincia pointers.
   shared_ptr<VinciaFSR> fsrShowerPtr{};

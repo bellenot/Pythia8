@@ -3,15 +3,15 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
+// Authors: Peter Skands <peter.skands@monash.edu>
+
+// Keywords: Vincia; Dire; OpenMP
+
 // This is a simple test program to compare Pythia and Vincia on
 // inclusive jet rates at the LHC, for a sample with pThat > 100 GeV.
 // Also illustrates simple use of OpenMP (if enabled) to run two instances
 // of Pythia in parallel, here initialised for Pythia and Vincia shower
 // models respectively.
-
-// Authors: Peter Skands <peter.skands@monash.edu>
-
-// Keywords: Vincia; Dire; OpenMP;
 
 #include "Pythia8/Pythia.h"
 using namespace Pythia8;

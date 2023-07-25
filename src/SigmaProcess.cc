@@ -396,8 +396,7 @@ bool SigmaProcess::initFlux() {
 
   // Unrecognized fluxType is bad sign. Else done.
   else {
-    infoPtr->errorMsg("Error in SigmaProcess::initFlux: "
-    "unrecognized inFlux type", fluxType);
+    loggerPtr->ERROR_MSG("unrecognized inFlux type", fluxType);
     return false;
   }
 

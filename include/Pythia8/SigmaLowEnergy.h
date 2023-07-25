@@ -60,6 +60,9 @@ public:
   bool hasExcitation(int idAIn, int idBIn) const { return (abs(idAIn) == 2212
     || abs(idAIn) == 2112) && (abs(idBIn) == 2212 || abs(idBIn) == 2112); }
 
+  // Update the list of internal resonances.
+  void updateResonances();
+
   // Cross sections below threshold are assumed numerically equal to zero.
   static constexpr double TINYSIGMA = 1.e-9;
 
@@ -76,6 +79,9 @@ private:
 
   // Mode for calculating total cross sections for pi pi and pi K.
   bool useSummedResonances;
+
+  // List of hadron pairs that are allowed to form resonances.
+  set<pair<int, int> > resonatingPairs;
 
   // Current configuration.
   int idA, idB;
@@ -115,7 +121,7 @@ private:
   // LowEnergyProcess should have access to nqEffAQM for slope in t.
   friend class LowEnergyProcess;
 
-  // Check which cross sections contain explicit resonances.
+// Check whether the current configuration allows for explicit resonances.
   bool hasExplicitResonances() const;
   double meltpoint(int idX, int idM) const;
 

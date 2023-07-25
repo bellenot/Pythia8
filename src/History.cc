@@ -107,6 +107,7 @@ History::History( int depthIn,
       beamB(beamBIn),
       particleDataPtr(particleDataPtrIn),
       infoPtr(infoPtrIn),
+      loggerPtr(infoPtrIn->loggerPtr),
       showers(showersIn),
       coupSMPtr(coupSMPtrIn),
       probMaxSave(-1.),
@@ -309,21 +310,17 @@ vector<double> History::weightCKKWL(PartonLevel* trial, AlphaStrong * asFSR,
   AlphaStrong * asISR, AlphaEM * aemFSR, AlphaEM * aemISR, double RN) {
 
   if ( mergingHooksPtr->canCutOnRecState() && !foundAllowedPath ) {
-    string message="Warning in History::weightCKKWL: No allowed history";
-    message+=" found. Using disallowed history.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG(
+      "no allowed history found. Using disallowed history");
   }
   if ( mergingHooksPtr->orderHistories() && !foundOrderedPath ) {
-    string message="Warning in History::weightCKKWL: No ordered history";
-    message+=" found. Using unordered history.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG(
+      "no ordered history found. Using unordered history");
   }
   if ( mergingHooksPtr->canCutOnRecState()
     && mergingHooksPtr->orderHistories()
     && !foundAllowedPath && !foundOrderedPath ) {
-    string message="Warning in History::weightCKKWL: No allowed or ordered";
-    message+=" history found.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG("no allowed or ordered history found");
   }
 
   // Read alpha_S in ME calculation and maximal scale (eCM)
@@ -411,9 +408,8 @@ vector<double> History::weightCKKWL(PartonLevel* trial, AlphaStrong * asFSR,
 vector<double> History::weightNL3Loop(PartonLevel* trial, double RN ) {
 
   if ( mergingHooksPtr->canCutOnRecState() && !foundAllowedPath ) {
-    string message="Warning in History::weightNL3Loop: No allowed history";
-    message+=" found. Using disallowed history.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG(
+      "no allowed history found. Using disallowed history");
   }
 
   // Select a path of clusterings
@@ -605,21 +601,17 @@ vector<double> History::weightUNLOPSTree(PartonLevel* trial, AlphaStrong*
     int depthIn) {
 
   if ( mergingHooksPtr->canCutOnRecState() && !foundAllowedPath ) {
-    string message="Warning in History::weightUNLOPSTree: No allowed";
-    message+=" history found. Using disallowed history.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG(
+      "no allowed history found. Using disallowed history");
   }
   if ( mergingHooksPtr->orderHistories() && !foundOrderedPath ) {
-    string message="Warning in History::weightUNLOPSTree: No ordered";
-    message+=" history found. Using unordered history.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG(
+      "no ordered history found. Using unordered history");
   }
   if ( mergingHooksPtr->canCutOnRecState()
     && mergingHooksPtr->orderHistories()
     && !foundAllowedPath && !foundOrderedPath ) {
-    string message="Warning in History::weightUNLOPSTree: No allowed or";
-    message+=" ordered history found.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG("no allowed or ordered history found");
   }
 
   // Read alpha_S in ME calculation and maximal scale (eCM)
@@ -1408,8 +1400,8 @@ double History::getSingleWeakProb(vector<int> &mode, vector<Vec4> &mom,
         * coupSMPtr->V2CKMid(abs(clusterIn.flavRadBef),
         mother->state[clusterIn.emittor].idAbs());
     else {
-      infoPtr->errorMsg("Warning in History::getSingleWeakProb: "
-        "Spin not properly configurated. Skipping history");
+      loggerPtr->WARNING_MSG(
+        "spin not properly configurated. Skipping history");
       return 0.0;
     }
   } else if (mother->state[clusterIn.emitted].idAbs() == 23) {
@@ -1421,14 +1413,13 @@ double History::getSingleWeakProb(vector<int> &mode, vector<Vec4> &mom,
       weakCoupling = 4.*M_PI*pow2(coupSMPtr->lf( abs(clusterIn.flavRadBef)))
         / (coupSMPtr->sin2thetaW() * coupSMPtr->cos2thetaW()) ;
     else {
-      infoPtr->errorMsg("Warning in History::getSingleWeakProb: "
-        "Spin not properly configurated. Skipping history");
+      loggerPtr->WARNING_MSG(
+        "spin not properly configurated. Skipping history");
       return 0.0;
     }
   } else {
-    infoPtr->errorMsg("Warning in History::getSingleWeakProb: "
-        "Did not emit W/Z. Skipping history.");
-      return 0.0;
+    loggerPtr->WARNING_MSG("did not emit W/Z. Skipping history");
+    return 0.0;
   }
 
   // Find and store kinematics (e.g. z, pT, k1, k3).
@@ -1543,9 +1534,8 @@ double History::getSingleWeakProb(vector<int> &mode, vector<Vec4> &mom,
         localProb = simpleWeakShowerMEs.getMEqq2qqZ( pIn1, pIn2, p3, p2, p1)
           / simpleWeakShowerMEs.getMEqq2qq( sHat, tHat, uHat, true);
       else {
-        string message="Warning in History::getSingleWeakProb: Wrong";
-        message+=" mode setup. Setting probability for path to zero.";
-        infoPtr->errorMsg(message);
+        loggerPtr->WARNING_MSG(
+          "wrong mode setup. Setting probability for path to zero");
       }
 
       // Split matrix element according to propagaters.
@@ -1637,9 +1627,8 @@ double History::getSingleWeakProb(vector<int> &mode, vector<Vec4> &mom,
         localProb = simpleWeakShowerMEs.getMEqq2qqZ(pIn1, pIn2, p3, p2, p1)
           / simpleWeakShowerMEs.getMEqq2qq(sHat, tHat, uHat, false);
       else {
-        string message="Warning in History::getSingleWeakProb: Wrong";
-        message+=" mode setup. Setting probability for path to zero.";
-        infoPtr->errorMsg(message);
+        loggerPtr->WARNING_MSG(
+          "wrong mode setup. Setting probability for path to zero");
       }
 
       // Split of ME into an ISR part and FSR part.
@@ -2338,8 +2327,8 @@ bool History::trimHistories() {
       it->second->remove();
   }
   // Project onto desired / undesired branches.
-  double sumold, sumnew, sumprob, mismatch;
-  sumold = sumnew = sumprob = mismatch = 0.;
+  double sumold, sumnew, mismatch;
+  sumold = mismatch = 0.;
   // Loop through all constructed paths and store allowed paths.
   // Skip undesired paths.
   for ( map<double, History*>::iterator it = paths.begin();
@@ -2385,7 +2374,7 @@ bool History::keepHistory() {
     // Tag unordered paths for removal. Include scale of hard 2->2 process
     // into the ordering definition.
     double maxScale = hardFacScale(state);
-    return keepPath = isOrderedPath( maxScale );
+    return isOrderedPath( maxScale );
   }
 
   // Set starting scale to mass of Drell-Yan for 2->1.
@@ -2395,15 +2384,13 @@ bool History::keepHistory() {
       if (state[i].isFinal()) pSum += state[i].p();
     return isOrderedPath( pSum.mCalc());
   }
-
   keepPath = isOrderedPath( infoPtr->eCM() );
 
   // More stringent criterion.
   //keepPath = allIntermediateAboveRhoMS( mergingHooksPtr->tms() );
 
   // Do not keep extremely unlikely paths.
-  if (probMax() > 0. && abs(prob) < 1e-10*probMax()) keepPath=false;
-
+  if (probMax() > 0. && abs(prob) < 1e-10*probMax()) keepPath = false;
 
   //Done
   return keepPath;
@@ -4219,8 +4206,6 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
               continue;
             }
 
-            // Reset partner
-            iPartner = 0;
             // Find recoiler by colour
             iRec = FindCol(col,iRad,EmtTag,event,2,true);
             // In initial state splitting has final state colour partner,
@@ -4247,8 +4232,6 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
 
           if (acl > 0) {
 
-            // Reset partner
-            iPartner = 0;
             // Find recoiler by colour
             iRec = FindCol(acl,iRad,EmtTag,event,1,true);
             // In initial state splitting has final state colour partner,
@@ -4271,8 +4254,6 @@ vector<Clustering> History::findQCDTriple (int EmtTagIn, int colTopIn,
               continue;
             }
 
-            // Reset partner
-            iPartner = 0;
             // Find recoiler by colour
             iRec = FindCol(acl,iRad,EmtTag,event,2,true);
             // In initial state splitting has final state colour partner,
@@ -5066,8 +5047,6 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
               continue;
             }
 
-            // Reset partner
-            iPartner = 0;
             // Find recoiler by colour
             iRec = FindCol(col,iRad,EmtTag,event,2,true);
             // In initial state splitting has final state colour partner,
@@ -5099,8 +5078,6 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
 
           if (acl > 0) {
 
-            // Reset partner
-            iPartner = 0;
             // Find recoiler by colour
             iRec = FindCol(acl,iRad,EmtTag,event,1,true);
             // In initial state splitting has final state colour partner,
@@ -5129,8 +5106,6 @@ vector<Clustering> History::findSQCDTriple (int EmtTagIn, int colTopIn,
               continue;
             }
 
-            // Reset partner
-            iPartner = 0;
             // Find recoiler by colour
             iRec = FindCol(acl,iRad,EmtTag,event,2,true);
             // In initial state splitting has final state colour partner,
@@ -5484,9 +5459,8 @@ double History::getProb(const Clustering & SystemIn) {
     } else if (mergingHooksPtr->pickByPoPT2()) {
       fac = 1./(pT1sq + pT0sq);
     } else {
-      string message="Error in History::getProb: Scheme for calculating";
-      message+=" shower splitting probability is undefined.";
-      infoPtr->errorMsg(message);
+      loggerPtr->ERROR_MSG(
+        "scheme for calculating shower splitting probability is undefined");
     }
 
     // Calculate shower splitting probability:
@@ -5626,9 +5600,7 @@ double History::getProb(const Clustering & SystemIn) {
 
     // Print error if no kernel calculated
     } else {
-      string message = "Error in History::getProb: Splitting kernel"
-        " undefined in ISR in clustering.";
-      infoPtr->errorMsg(message);
+      loggerPtr->ERROR_MSG("splitting kernel undefined in ISR in clustering");
     }
 
     // If corrected pT below zero in ISR, put probability to zero
@@ -5719,9 +5691,8 @@ double History::getProb(const Clustering & SystemIn) {
     } else if (mergingHooksPtr->pickByPoPT2()) {
       fac = 1. / pT1sq;
     } else {
-      string message="Error in History::getProb: Scheme for calculating";
-      message+=" shower splitting probability is undefined.";
-      infoPtr->errorMsg(message);
+      loggerPtr->ERROR_MSG(
+        "scheme for calculating shower splitting probability is undefined");
     }
     // Calculate shower splitting probability:
     // Splitting functions*normalization*ME reweighting factors
@@ -5808,9 +5779,7 @@ double History::getProb(const Clustering & SystemIn) {
 
     // Print error if no kernel calculated
     } else {
-      string message="Error in History::getProb: Splitting kernel undefined";
-      message+=" in FSR clustering.";
-      infoPtr->errorMsg(message);
+      loggerPtr->ERROR_MSG("splitting kernel undefined in FSR clustering");
     }
 
     if (mergingHooksPtr->includeRedundant()) {
@@ -5831,9 +5800,7 @@ double History::getProb(const Clustering & SystemIn) {
 
     // Done for FSR
   } else {
-    string message="Error in History::getProb: Radiation could not be";
-    message+=" interpreted as FSR or ISR.";
-    infoPtr->errorMsg(message);
+    loggerPtr->ERROR_MSG("radiation could not be interpreted as FSR or ISR");
   }
 
   if (mergingHooksPtr->doWeakClustering()) {
@@ -6051,9 +6018,8 @@ double History::hardProcessME( const Event& event ) {
       return preFac * bwW;
     }
     else {
-      string message="Warning in History::hardProcessME: Only Z/W are";
-      message+=" supported as 2->1 processes. Skipping history.";
-      infoPtr->errorMsg(message);
+      loggerPtr->WARNING_MSG(
+        "only Z/W are supported as 2->1 processes. Skipping history");
       return 0;
     }
   }
@@ -8921,10 +8887,8 @@ double History::pdfFactor( const Event& event, const int type,
     double xDaughter = 2.*event[iDaughter].e() / event[0].e();
 
     // Calculate PDF ratios
-
     int sideSplit = ( event[iMother].pz() > 0.) ? 1 : -1;
     double pdfDen1, pdfDen2, pdfNum1, pdfNum2;
-    pdfDen1 = pdfDen2 = pdfNum1 = pdfNum2 = 1.;
     if ( sideSplit == 1 ) {
       // Find PDFs
       pdfDen1 = max(1e-15,beamA.xfISR(0, flavDaughter, xDaughter, pow2(mu)) );

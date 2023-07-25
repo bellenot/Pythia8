@@ -3,9 +3,9 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Marius Utheim <marius.m.utheim@jyu.fi>.
+// Authors: Marius Utheim <marius.m.utheim@jyu.fi>
 
-// Keywords: rescattering; low energy; cross sections;
+// Keywords: rescattering; low energy; cross sections
 
 // Calculate all cross sections for the specified process.
 

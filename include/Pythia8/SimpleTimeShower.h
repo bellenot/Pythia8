@@ -15,6 +15,9 @@
 
 namespace Pythia8 {
 
+// Forward declaration of SplitOnia;
+class SplitOnia;
+
 //==========================================================================
 
 // Data on radiating dipole ends; only used inside SimpleTimeShower class.
@@ -26,44 +29,49 @@ public:
   // Constructors.
   TimeDipoleEnd() : iRadiator(-1), iRecoiler(-1), pTmax(0.), colType(0),
     chgType(0), gamType(0), weakType(0), isrType(0), system(0), systemRec(0),
-    MEtype(0), iMEpartner(-1), weakPol(0), isOctetOnium(false),
-    isHiddenValley(false), colvType(0), MEmix(0.), MEorder(true),
-    MEsplit(true), MEgluinoRec(false), isFlexible(false), hasJunction(false),
-    flavour(), iAunt(), mRad(), m2Rad(), mRec(), m2Rec(), mDip(), m2Dip(),
-    m2DipCorr(), pT2(), m2(), z(), mFlavour(), asymPol(), flexFactor(),
-    pAccept() { }
+    MEtype(0), iMEpartner(-1), weakPol(0), oniumType(0), isHiddenValley(false),
+    colvType(0), MEmix(0.), MEorder(true), MEsplit(true), MEgluinoRec(false),
+    isFlexible(false), hasJunction(false), flavour(), iAunt(),
+    mRad(), m2Rad(), mRec(), m2Rec(), mDip(), m2Dip(), m2DipCorr(), pT2(),
+    m2(), z(), mFlavour(), asymPol(), flexFactor(), pAccept() {}
   TimeDipoleEnd(int iRadiatorIn, int iRecoilerIn, double pTmaxIn = 0.,
     int colIn = 0, int chgIn = 0, int gamIn = 0, int weakTypeIn = 0,
     int isrIn = 0, int systemIn = 0, int MEtypeIn = 0, int iMEpartnerIn = -1,
-    int weakPolIn = 0, bool isOctetOniumIn = false,
+    int weakPolIn = 0, int oniumTypeIn = 0,
     bool isHiddenValleyIn = false, int colvTypeIn = 0, double MEmixIn = 0.,
     bool MEorderIn = true, bool MEsplitIn = true, bool MEgluinoRecIn = false,
     bool isFlexibleIn = false, bool hasJunctionIn = false) :
     iRadiator(iRadiatorIn), iRecoiler(iRecoilerIn), pTmax(pTmaxIn),
     colType(colIn), chgType(chgIn), gamType(gamIn), weakType(weakTypeIn),
     isrType(isrIn), system(systemIn), systemRec(systemIn), MEtype(MEtypeIn),
-    iMEpartner(iMEpartnerIn), weakPol(weakPolIn), isOctetOnium(isOctetOniumIn),
+    iMEpartner(iMEpartnerIn), weakPol(weakPolIn), oniumType(oniumTypeIn),
     isHiddenValley(isHiddenValleyIn), colvType(colvTypeIn), MEmix(MEmixIn),
     MEorder (MEorderIn), MEsplit(MEsplitIn), MEgluinoRec(MEgluinoRecIn),
-    isFlexible(isFlexibleIn), hasJunction(hasJunctionIn), flavour(), iAunt(),
-    mRad(), m2Rad(), mRec(), m2Rec(), mDip(), m2Dip(), m2DipCorr(), pT2(),
-    m2(), z(), mFlavour(), asymPol(), flexFactor(), pAccept()  { }
+    isFlexible(isFlexibleIn), hasJunction(hasJunctionIn),
+    flavour(), iAunt(), mRad(), m2Rad(), mRec(), m2Rec(), mDip(), m2Dip(),
+    m2DipCorr(), pT2(), m2(), z(), mFlavour(), asymPol(), flexFactor(),
+    pAccept() {}
 
   // Basic properties related to dipole and matrix element corrections.
   int    iRadiator, iRecoiler;
   double pTmax;
   int    colType, chgType, gamType, weakType, isrType, system, systemRec,
-         MEtype, iMEpartner, weakPol;
-  bool   isOctetOnium, isHiddenValley;
+         MEtype, iMEpartner, weakPol, oniumType;
+  bool   isHiddenValley;
   int    colvType;
   double MEmix;
   bool   MEorder, MEsplit, MEgluinoRec, isFlexible;
   bool   hasJunction;
 
+
   // Properties specific to current trial emission.
   int    flavour, iAunt;
   double mRad, m2Rad, mRec, m2Rec, mDip, m2Dip, m2DipCorr,
          pT2, m2, z, mFlavour, asymPol, flexFactor, pAccept;
+  double m2A{0}, m2B{0}, m2C{0}, m2gg{-1};
+
+  // Pointer to an onium emission object, if present.
+  shared_ptr<SplitOnia> emissionPtr{};
 
 };
 
@@ -81,13 +89,13 @@ public:
     doQEDshowerByOther(), doQEDshowerByGamma(), doWeakShower(),
     doMEcorrections(), doMEextended(), doMEafterFirst(), doPhiPolAsym(),
     doPhiPolAsymHard(), doInterleave(), doInterleaveResDec(),
-    allowBeamRecoil(), dampenBeamRecoil(), recoilToColoured(),
-    useFixedFacScale(), allowRescatter(), canVetoEmission(), doHVshower(),
-    brokenHVsym(), setLambdaHV(), globalRecoil(), useLocalRecoilNow(),
-    doSecondHard(), hasUserHooks(), singleWeakEmission(), alphaSuseCMW(),
-    vetoWeakJets(), allowMPIdipole(), weakExternal(), recoilDeadCone(),
-    doDipoleRecoil(), doPartonVertex(), pTmaxMatch(), pTdampMatch(),
-    alphaSorder(), alphaSnfmax(), nGluonToQuark(), weightGluonToQuark(),
+    allowBeamRecoil(), dampenBeamRecoil(), useFixedFacScale(),
+    allowRescatter(), canVetoEmission(), doHVshower(), brokenHVsym(),
+    setLambdaHV(), globalRecoil(), useLocalRecoilNow(), doSecondHard(),
+    hasUserHooks(), singleWeakEmission(), alphaSuseCMW(), vetoWeakJets(),
+    allowMPIdipole(), weakExternal(), recoilDeadCone(), doDipoleRecoil(),
+    doPartonVertex(), pTmaxMatch(), pTdampMatch(), alphaSorder(),
+    alphaSnfmax(), nGluonToQuark(), weightGluonToQuark(), recoilStrategyRF(),
     alphaEMorder(), nGammaToQuark(), nGammaToLepton(), nCHV(), nFlavHV(),
     idHV(), alphaHVorder(), nMaxGlobalRecoil(), weakMode(), pTdampFudge(),
     mc(), mb(), m2c(), m2b(), renormMultFac(), factorMultFac(),
@@ -96,15 +104,15 @@ public:
     Lambda5flav2(), scaleGluonToQuark(), extraGluonToQuark(), pTcolCutMin(),
     pTcolCut(), pT2colCut(), pTchgQCut(), pT2chgQCut(), pTchgLCut(),
     pT2chgLCut(), pTweakCut(), pT2weakCut(), mMaxGamma(), m2MaxGamma(),
-    octetOniumFraction(), octetOniumColFac(), mZ(), gammaZ(), thetaWRat(),
+    mZ(), gammaZ(), thetaWRat(),
     mW(), gammaW(), CFHV(), alphaHVfix(), alphaHVref(), LambdaHV(),
     pThvCut(), pT2hvCut(), mHV(), pTmaxFudgeMPI(), weakEnhancement(),
     vetoWeakDeltaR2(), twoHard(), dopTlimit1(), dopTlimit2(), dopTdamp(),
     pT2damp(), kRad(), kEmt(), pdfScale2(), doTrialNow(), canEnhanceEmission(),
     canEnhanceTrial(), canEnhanceET(), doUncertaintiesNow(), dipSel(),
     iDipSel(), nHard(), nFinalBorn(), nMaxGlobalBranch(), nGlobal(),
-    globalRecoilMode(), limitMUQ(), weakHardSize() { beamOffset = 0; pdfMode = 0;
-    useSystems = true; }
+    globalRecoilMode(), limitMUQ(), weakHardSize() { beamOffset = 0;
+    pdfMode = 0; useSystems = true; }
 
   // Destructor.
   virtual ~SimpleTimeShower() override {}
@@ -197,8 +205,9 @@ private:
 
   // Constants: could only be changed in the code itself.
   static const double MCMIN, MBMIN, SIMPLIFYROOT, XMARGIN, XMARGINCOMB,
-         TINYPDF, LARGEM2, THRESHM2, LAMBDA3MARGIN1ORD, LAMBDA3MARGIN2ORD,
-         WEAKPSWEIGHT, WG2QEXTRA, REJECTFACTOR, PROBLIMIT;
+         WTRATIOMAX,TINYPDF, LARGEM2, THRESHM2, LAMBDA3MARGIN1ORD,
+         LAMBDA3MARGIN2ORD,WEAKPSWEIGHT, WG2QEXTRA, REJECTFACTOR,
+         PROBLIMIT;
   static const int NLOOPMAX;
   // Rescatter: try to fix up recoil between systems
   static const bool   FIXRESCATTER, VETONEGENERGY;
@@ -214,22 +223,23 @@ private:
          doQEDshowerByGamma, doWeakShower, doMEcorrections, doMEextended,
          doMEafterFirst, doPhiPolAsym, doPhiPolAsymHard, doInterleave,
          doInterleaveResDec, allowBeamRecoil, dampenBeamRecoil,
-         recoilToColoured, useFixedFacScale, allowRescatter, canVetoEmission,
-         doHVshower, brokenHVsym, setLambdaHV, globalRecoil, useLocalRecoilNow,
+         useFixedFacScale, allowRescatter, canVetoEmission, doHVshower,
+         brokenHVsym, setLambdaHV, globalRecoil, useLocalRecoilNow,
          doSecondHard, hasUserHooks, singleWeakEmission, alphaSuseCMW,
          vetoWeakJets, allowMPIdipole, weakExternal, recoilDeadCone,
          doDipoleRecoil, doPartonVertex;
   int    pdfModeSave;
   int    pTmaxMatch, pTdampMatch, alphaSorder, alphaSnfmax, nGluonToQuark,
-         weightGluonToQuark, alphaEMorder, nGammaToQuark, nGammaToLepton,
-         nCHV, nFlavHV, idHV, alphaHVorder, nMaxGlobalRecoil, weakMode;
+         weightGluonToQuark, recoilStrategyRF, alphaEMorder, nGammaToQuark,
+         nGammaToLepton, nCHV, nFlavHV, idHV, alphaHVorder, nMaxGlobalRecoil,
+         weakMode;
   double pTdampFudge, mc, mb, m2c, m2b, renormMultFac, factorMultFac,
          fixedFacScale2, alphaSvalue, alphaS2pi, Lambda3flav, Lambda4flav,
          Lambda5flav, Lambda3flav2, Lambda4flav2, Lambda5flav2,
          scaleGluonToQuark, extraGluonToQuark, pTcolCutMin, pTcolCut,
          pT2colCut, pTchgQCut, pT2chgQCut, pTchgLCut, pT2chgLCut,
-         pTweakCut, pT2weakCut, mMaxGamma, m2MaxGamma, octetOniumFraction,
-         octetOniumColFac, mZ, gammaZ, thetaWRat, mW, gammaW, CFHV,
+         pTweakCut, pT2weakCut, mMaxGamma, m2MaxGamma,
+         mZ, gammaZ, thetaWRat, mW, gammaW, CFHV,
          alphaHVfix, alphaHVref, LambdaHV, pThvCut, pT2hvCut, mHV,
          pTmaxFudgeMPI, weakEnhancement, vetoWeakDeltaR2;
 
@@ -270,6 +280,9 @@ private:
   void setupHVdip( int iSys, int i, int colvType, Event& event,
     bool limitPTmaxIn = true);
 
+  // Special setup for onium.
+  void regenerateOniumDipoles(Event & event);
+
   // Evolve a QCD dipole end.
   void pT2nextQCD( double pT2begDip, double pT2sel, TimeDipoleEnd& dip,
     Event& event);
@@ -284,6 +297,10 @@ private:
 
   // Evolve a Hidden Valley dipole end.
   void pT2nextHV( double pT2begDip, double pT2sel, TimeDipoleEnd& dip,
+    Event& );
+
+  // Evolve an onium dipole end.
+  void pT2nextOnium( double pT2begDip, double pT2sel, TimeDipoleEnd& dip,
     Event& );
 
   // Find kind of QCD ME correction.
@@ -340,11 +357,16 @@ private:
   vector<int> weak2to2lines;
   int weakHardSize;
 
-  // Settings and member variables for interleaved resonance decays
+  // Settings and member variables for interleaved resonance decays.
   bool doFSRinResonances{};
   int resDecScaleChoice{-1}, iHardResDecSav{}, nRecurseResDec{};
   vector<int> idResDecSav;
   vector<double> pTresDecSav;
+
+  // Onium emissions.
+  bool doOniumShower{false};
+  vector<SplitOniaPtr> oniumEmissions;
+  set<double> oniumThresholds;
 
 };
 

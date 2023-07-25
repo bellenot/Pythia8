@@ -225,11 +225,9 @@ bool integrateGauss(double& resultOut, function<double(double)> f,
 
     // Precision in this bin not OK, subdivide.
     } else {
-      if (1.0 + c*abs(zDel) == 1.0) {
-        // Cannot subdivide further at double precision. Fail.
-        result = 0.0 ;
+      // Cannot subdivide further at double precision. Fail.
+      if (1.0 + c*abs(zDel) == 1.0)
         return false;
-      }
       zHi = zMid;
       nextbin = true;
     }
@@ -431,6 +429,30 @@ double kallenFunction(const double x, const double y, const double z) {
 
 //==========================================================================
 
+// Generate linearly spaced points.
+
+vector<double> linSpace(int nPts, double xMin, double xMax) {
+  double dx = (xMax - xMin) / (nPts - 1);
+  vector<double> result(nPts);
+  for (size_t i = 0; i < result.size(); ++i)
+    result[i] = xMin + i * dx;
+  return result;
+}
+
+//==========================================================================
+
+// Generate logarithmically spaced points.
+
+vector<double> logSpace(int nPts, double xMin, double xMax) {
+  double rx = pow(xMax / xMin, 1. / (nPts - 1));
+  vector<double> result(nPts);
+  for (size_t i = 0; i < result.size(); ++i)
+    result[i] = xMin * pow(rx, i);
+  return result;
+}
+
+//==========================================================================
+
 // LinearInterpolator class.
 // Used to interpolate between values in linearly spaced data.
 
@@ -440,8 +462,12 @@ double kallenFunction(const double x, const double y, const double z) {
 
 double LinearInterpolator::operator()(double xIn) const {
 
-  if (xIn == rightSave)
-    return ysSave.back();
+  if (ysSave.size() == 0)
+    return numeric_limits<double>::quiet_NaN();
+  if (ysSave.size() == 1)
+    return ysSave[0];
+  if (xIn < leftSave || xIn > rightSave)
+    return 0.;
 
   // Select interpolation bin.
   double t = (xIn - leftSave) / (rightSave - leftSave);
@@ -474,6 +500,50 @@ Hist LinearInterpolator::plot(string title, double xMin, double xMax) const {
 
   for (int i = 0; i < nBins; ++i) {
     double x = xMin + dxNow * (0.5 + i);
+    result.fill(x, operator()(x));
+  }
+
+  return result;
+}
+
+//==========================================================================
+
+// LinearInterpolator class.
+// Used to interpolate between values in linearly spaced data.
+
+//--------------------------------------------------------------------------
+
+// Operator to get interpolated value at the specified point.
+
+double LogInterpolator::operator()(double xIn) const {
+
+  if (ysSave.size() == 0)
+    return numeric_limits<double>::quiet_NaN();
+  if (ysSave.size() == 1)
+    return ysSave[0];
+  if (xIn < leftSave || xIn > rightSave)
+    return 0.;
+
+  // Select interpolation bin.
+  double t = log(xIn / leftSave) / log(rxSave);
+  int j = floor(t);
+  double s = t - j;
+
+  return pow(ysSave[j], 1 - s) * pow(ysSave[j + 1], s);
+}
+
+//--------------------------------------------------------------------------
+
+// Plot the data points of this LogInterpolator in a histogram.
+
+Hist LogInterpolator::plot(string title, int nBins,
+  double xMin, double xMax) const {
+
+  double drNow = pow(xMax / xMin, 1. / nBins);
+  Hist result(title, nBins, xMin / sqrt(drNow), xMax * sqrt(drNow), true);
+
+  for (int i = 0; i < nBins; ++i) {
+    double x = xMin * pow(drNow, 0.5 + i);
     result.fill(x, operator()(x));
   }
 

@@ -234,10 +234,11 @@ class VinciaHardProcess : public HardProcess {
  public:
 
   // Constructor.
-  VinciaHardProcess(Info* infoPtrIn, int verboseIn, bool resolveDecaysIn,
+  VinciaHardProcess(Logger* loggerPtrIn, int verboseIn, bool resolveDecaysIn,
     bool doHEFTIn, bool doVBFIn) :
-    verbose(verboseIn), infoPtr(infoPtrIn), resolveDecays(resolveDecaysIn),
-      doHEFT(doHEFTIn), doVBF(doVBFIn), isInit(false) {defineMultiparticles();}
+    verbose(verboseIn), loggerPtr(loggerPtrIn),
+      resolveDecays(resolveDecaysIn), doHEFT(doHEFTIn), doVBF(doVBFIn),
+      isInit(false) {defineMultiparticles();}
 
   // Initialise process.
   void initOnProcess(string process, ParticleData* particleData) override;
@@ -301,8 +302,8 @@ private:
   // Verbosity.
   int verbose;
 
-  // Pointer to info in Pythia.
-  Info* infoPtr{};
+  // Logger object.
+  Logger* loggerPtr{};
 
   // Flag to control how resonances are handled.
   bool resolveDecays;

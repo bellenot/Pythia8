@@ -23,7 +23,7 @@ class WidthFunction {
 public:
 
   // Constructor and destructor.
-  WidthFunction() : infoPtr(), particleDataPtr(), coupSMPtr(), coupSUSYPtr(),
+  WidthFunction() : particleDataPtr(), loggerPtr(), coupSMPtr(), coupSUSYPtr(),
     idRes(), idInt(), id1(), id2(), id3(), id4(), mRes(),
     mInt(), gammaInt(), m1(), m2(), m3(), m4() { };
   virtual ~WidthFunction() { };
@@ -37,8 +37,8 @@ public:
 
 protected:
 
-  Info*         infoPtr;
   ParticleData* particleDataPtr;
+  Logger*       loggerPtr;
   CoupSM*       coupSMPtr;
   CoupSUSY*     coupSUSYPtr;
   int idRes, idInt, id1, id2, id3, id4;

@@ -422,8 +422,7 @@ bool HiddenValleyFragmentation::collapseToMeson() {
 
   // If too low mass then cannot do anything. Should not happen.
   if (mSys < 1.001 * mhvLight) {
-    infoPtr->errorMsg("Error in HiddenValleyFragmentation::collapseToMeson:"
-      " too low mass to do anything");
+    loggerPtr->ERROR_MSG("too low mass to do anything");
     return false;
   }
 

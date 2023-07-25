@@ -3,10 +3,10 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Leif Lonnblad <leif.lonnblad@hep.lu.se>.
+// Authors: Leif Lonnblad <leif.lonnblad@hep.lu.se>
 
 // Keywords: heavy ions; charged multiplicity; centrality;
-// angantyr;
+//           angantyr
 
 // This test program will generate Pb-Pb collisions at
 // sqrt(S_NN)=2.76TeV using the Angantyr model for Heavy Ion

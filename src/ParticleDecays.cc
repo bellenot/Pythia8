@@ -125,17 +125,15 @@ bool ParticleDecays::decay( int iDec, Event& event) {
 
   // Do not allow resonance decays (beyond handling capability).
   if (decayer.isResonance()) {
-    infoPtr->errorMsg("Warning in ParticleDecays::decay: "
-      "resonance left undecayed");
+    loggerPtr->WARNING_MSG("resonance left undecayed",
+      "with id = " + to_string(decayer.id()));
     return true;
   }
 
   // Check for zero-mass particles.
   if (decayer.m() <= 0.0) {
-    stringstream ss;
-    ss << "with ID = " << decayer.id();
-    infoPtr->errorMsg("Warning in ParticleDecays::decay: "
-      "cannot decay zero-mass particle", ss.str());
+    loggerPtr->WARNING_MSG("cannot decay zero-mass particle",
+      "with id = " + to_string(decayer.id()));
     return true;
   }
 
@@ -328,8 +326,8 @@ bool ParticleDecays::decay( int iDec, Event& event) {
     // Else remove unused daughters and return failure.
     } else {
       if (hasStored) event.popBack(mult);
-      infoPtr->errorMsg("Error in ParticleDecays::decay: failed to find "
-        "workable decay channel", "for id = " + to_string(idDec));
+      loggerPtr->ERROR_MSG("failed to find workable decay channel",
+        "for id = " + to_string(idDec));
       return false;
     }
 
@@ -540,8 +538,7 @@ bool ParticleDecays::twoBody(Event& event) {
 
     // Break out of loop if no sensible ME weight.
     if(loop > NTRYMEWT) {
-      infoPtr->errorMsg("ParticleDecays::twoBody: "
-        "caught in infinite ME weight loop");
+      loggerPtr->ERROR_MSG("caught in infinite ME weight loop");
       wtME = abs(wtMEmax);
     }
 
@@ -819,14 +816,12 @@ bool ParticleDecays::dalitzMass() {
   if (mDiff < mSafety) return false;
   if (idProd[mult - 1] + idProd[mult] != 0
     || mProd[mult - 1] != mProd[mult]) {
-    infoPtr->errorMsg("Error in ParticleDecays::dalitzMass:"
-    " inconsistent flavour/mass assignments");
+    loggerPtr->ERROR_MSG("inconsistent flavour/mass assignments");
     return false;
   }
   if ( meMode == 13 && (idProd[1] + idProd[2] != 0
     || mProd[1] != mProd[2]) ) {
-    infoPtr->errorMsg("Error in ParticleDecays::dalitzMass:"
-    " inconsistent flavour/mass assignments");
+    loggerPtr->ERROR_MSG("inconsistent flavour/mass assignments");
     return false;
   }
 
@@ -877,8 +872,8 @@ bool ParticleDecays::dalitzMass() {
       wtPAbs = sqrtpos( pow2(1. - (s12 + s34)/ s0)
         - 4. * s12 * s34 / (s0 * s0) );
       wtAll = wt12 * wt34 * pow3(wtPAbs);
-      if (wtAll > 1.) infoPtr->errorMsg(
-        "Error in ParticleDecays::dalitzMass: weight > 1");
+      if (wtAll > 1.)
+        loggerPtr->ERROR_MSG("weight > 1");
     } while (wtAll < rndmPtr->flat());
 
     // Store results in preparation for doing a two-body decay.

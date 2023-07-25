@@ -200,15 +200,14 @@ private:
     nGlu = iGlu.size();
     nCol = colMap.size();
     if (int(acolMap.size()) != nCol) {
-      infoPtr->errorMsg("Error in MBReconUserHooks: map sizes do not match");
+      loggerPtr->ERROR_MSG("map sizes do not match");
       return false;
     }
     map<int, int>::iterator colM = colMap.begin();
     map<int, int>::iterator acolM = acolMap.begin();
     for (int iCol = 0; iCol < nCol; ++iCol) {
       if (colM->first != acolM->first) {
-        infoPtr->errorMsg("Error in MBReconUserHooks: map elements"
-          " do not match");
+        loggerPtr->ERROR_MSG("map elements do not match");
         return false;
       }
       ++colM;
@@ -799,7 +798,7 @@ private:
       + abs(tqrkDiff.pz()) + abs(tqrkDiff.e()) + abs(tbarDiff.px())
       + abs(tbarDiff.py()) + abs(tbarDiff.pz()) + abs(tqrkDiff.e());
     if (totErr > pTolerance) {
-      infoPtr->errorMsg("Error in TopReconUserHooks::checkClassification");
+      loggerPtr->ERROR_MSG("Error in t/tbar daughter search");
       cout << "\n Error in t/tbar daughter search: \n t    difference "
            << tqrkDiff << " tbar difference "<< tbarDiff;
       listClassification();

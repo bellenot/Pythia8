@@ -3,9 +3,9 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Christine O. Rasmussen.
+// Authors: Christine O Rasmussen
 
-// Keywords: diffraction; z production;
+// Keywords: diffraction; z production
 
 // The y, pT, x_Pomeron and t distributions for forward Z bosons at the LHC,
 // within the hard diffraction framework for an inclusive event sample.

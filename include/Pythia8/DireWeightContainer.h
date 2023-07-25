@@ -194,7 +194,7 @@ public:
 
   // MG5 matrix element access.
   string card;
-  ExternalMEsPlugin matrixElements;
+  ExternalMEsPtr matrixElements{};
   bool hasMEs;
 
   bool hasME(vector <int> in_pdgs = vector<int>(),

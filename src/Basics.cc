@@ -24,10 +24,10 @@ namespace Pythia8 {
 
 // Method to pass in pointer for external random number generation.
 
-bool Rndm::rndmEnginePtr( RndmEngine* rndmEngPtrIn) {
+bool Rndm::rndmEnginePtr( RndmEnginePtr rndmEngPtrIn) {
 
   // Save pointer.
-  if (rndmEngPtrIn == 0) return false;
+  if (rndmEngPtrIn == nullptr) return false;
   rndmEngPtr      = rndmEngPtrIn;
   useExternalRndm = true;
 
@@ -116,6 +116,36 @@ double Rndm::flat() {
    } while (uni <= 0. || uni >= 1.);
   return uni;
 
+}
+
+//--------------------------------------------------------------------------
+
+// Generate a random number according to a Gamma-distribution.
+
+double Rndm::gamma(double k0, double r0) {
+  int k = int(k0);
+
+  double x = 0.0;
+  for ( int i = 0; i < k; ++i ) x += -log(flat());
+
+  double del = k0 - k;
+  if ( del == 0.0 ) return x*r0;
+
+  while ( true ) {
+    double U = flat();
+    double V = flat();
+    double W = flat();
+
+    double xi = 0.0;
+    if ( U <= M_E / (M_E + del) ) {
+      xi = pow(V, 1.0/del);
+      if ( W <= std::exp(-xi) ) return r0*(x + xi);
+    } else {
+      xi = 1.0 - log(V);
+      if ( W <= pow(xi, del - 1.0) ) return r0*(x + xi);
+    }
+  }
+  return 0.0;
 }
 
 //--------------------------------------------------------------------------
@@ -1529,14 +1559,13 @@ double Hist::getXMedian(bool includeOverUnder) const {
     if (abs(under) > 0.5 * wtSumTot) return xMin;
     else if (abs(over) > 0.5 * wtSumTot) return xMax;
   }
-  double xmedian  = xMin;
   for (int ix = 0; ix < nBin ; ++ix) {
     double wtSumOld = wtSumNow;
     wtSumNow += abs(res[ix]);
     if (wtSumNow > 0.5 * wtSumTot) {
       double frac = (0.5*wtSumTot - wtSumOld)/(wtSumNow - wtSumOld);
-      return xmedian = (linX) ? xMin + (ix + frac) * dx
-        : xMin * pow( 10., (ix + frac) * dx);
+      return (linX) ? xMin + (ix + frac) * dx
+                    : xMin * pow( 10., (ix + frac) * dx);
     }
   }
   // Should not arrive here. Safe return in any case.

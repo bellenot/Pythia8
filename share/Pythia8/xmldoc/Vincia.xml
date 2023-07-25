@@ -611,24 +611,10 @@ sector shower, the <code>octetPartitioning</code> is forced to
 &alpha;=1, to ensure positivity of the antenna function and as there 
 is no sensible meaning of the parameter anymore.</parm> 
  
-<h4>Verbose Level</h4> 
-<modepick name="Vincia:verbose" default="1" min="-1" max="3"> 
-Level of detail of information written to standard output on what goes 
-on inside <code>VINCIA</code>. 
-<option value="-1">No runtime output.</option> 
-<option value="0">Quiet. Errors and (important) warnings are 
-printed.</option> 
-<option value="1">Normal. All warnings and error messages are 
-printed, but no additional diagnostic output is given. Standard 
-initialisation and summary information is also printed.</option> 
-<option value="2">Report. Enhanced runtime output. As for =1, but 
-additional diagnostic information is printed, especially 
-when/where errors occur, and additional self-consistency checks may 
-be performed. Full initialisation and summary information is 
-printed.</option> 
-<option value="3">Debug. This level is solely intended to assist 
-authors for debugging purposes.</option> 
-</modepick> 
+<h4>Debugging</h4> 
+<flag name="Vincia:debug" default="off"> 
+This flag is solely intended to assist authors for debugging purposes. 
+</flag> 
  
 <h4>Numerical Checks</h4> 
  

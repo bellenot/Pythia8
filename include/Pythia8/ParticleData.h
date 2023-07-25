@@ -204,9 +204,6 @@ public:
     currentBRSum = oldPDE.currentBRSum; resonancePtr = 0;
     particleDataPtr = 0; } return *this; }
 
-  // Destructor: delete any ResonanceWidths object.
-  ~ParticleDataEntry();
-
   // Initialization of some particle flags.
   void setDefaults();
 
@@ -334,6 +331,7 @@ public:
   bool   isMeson()        const;
   bool   isBaryon()       const;
   bool   isOnium()        const;
+  bool   isExotic()       const;
 
   // Intermediate octet ccbar or bbar states in colour-octet model.
   bool   isOctetHadron()  const {return idSave >= 9940000
@@ -367,8 +365,9 @@ public:
   DecayChannel& pickChannel();
 
   // Access methods stored in ResonanceWidths.
-  void   setResonancePtr(ResonanceWidths* resonancePtrIn);
-  ResonanceWidths* getResonancePtr() {return resonancePtr;}
+  void   setResonancePtr(ResonanceWidthsPtr resonancePtrIn) {
+    resonancePtr = resonancePtrIn;}
+  ResonanceWidthsPtr getResonancePtr() {return resonancePtr;}
   void   resInit(Info* infoPtrIn);
   double resWidth(int idSgn, double mHat, int idIn = 0,
     bool openOnly = false, bool setBR = false);
@@ -406,7 +405,7 @@ private:
   double currentBRSum;
 
   // Pointer to ResonanceWidths object; only used for some particles.
-  ResonanceWidths* resonancePtr;
+  ResonanceWidthsPtr resonancePtr;
 
   // Pointer to the full particle data table.
   ParticleData* particleDataPtr;
@@ -458,8 +457,8 @@ public:
 
   // Initialize pointers.
   void initPtrs(Info* infoPtrIn) {infoPtr = infoPtrIn;
-    settingsPtr = infoPtr->settingsPtr; rndmPtr = infoPtr->rndmPtr;
-    coupSMPtr = infoPtr->coupSMPtr;}
+    settingsPtr = infoPtr->settingsPtr; loggerPtr = infoPtr->loggerPtr;
+    rndmPtr = infoPtr->rndmPtr; coupSMPtr = infoPtr->coupSMPtr;}
 
   // Read in database from specific file.
   bool init(string startFile = "../share/Pythia8/xmldoc/ParticleData.xml") {
@@ -477,7 +476,7 @@ public:
     return (xmlFormat) ? readXML(startFile) : readFF(startFile);}
 
   // Initialize pointers, normal Breit-Wigners and special resonances.
-  void initWidths(vector<ResonanceWidths*> resonancePtrs);
+  void initWidths(vector<ResonanceWidthsPtr> resonancePtrs);
 
   // Read and process or list whole (or part of) database from/to an XML file.
   bool readXML(string inFile, bool reset = true) ;
@@ -765,6 +764,9 @@ public:
   bool isOnium(int idIn) const {
     const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->isOnium() : false ; }
+  bool isExotic(int idIn) const {
+    const ParticleDataEntryPtr ptr = findParticle(idIn);
+    return ( ptr ) ? ptr->isExotic() : false ; }
   bool isOctetHadron(int idIn) const {
     const ParticleDataEntryPtr ptr = findParticle(idIn);
     return ( ptr ) ? ptr->isOctetHadron() : false ; }
@@ -784,7 +786,7 @@ public:
     if ( ptr ) ptr->rescaleBR(newSumBR); }
 
   // Access methods stored in ResonanceWidths.
-  void setResonancePtr(int idIn, ResonanceWidths* resonancePtrIn) {
+  void setResonancePtr(int idIn, ResonanceWidthsPtr resonancePtrIn) {
     ParticleDataEntryPtr ptr = findParticle(idIn);
     if ( ptr ) ptr->setResonancePtr( resonancePtrIn);}
   void resInit(int idIn) {
@@ -833,6 +835,9 @@ private:
 
   // Pointer to the settings database.
   Settings* settingsPtr;
+
+  // Pointer to logger.
+  Logger*   loggerPtr;
 
   // Pointer to the random number generator.
   Rndm*     rndmPtr;

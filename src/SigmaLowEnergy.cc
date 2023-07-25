@@ -9,6 +9,7 @@
 
 #include "Pythia8/MathTools.h"
 #include "Pythia8/SigmaLowEnergy.h"
+#include "Pythia8/UserHooks.h"
 
 namespace Pythia8 {
 
@@ -329,9 +330,37 @@ void SigmaLowEnergy::init(NucleonExcitations* nucleonExcitationsPtrIn) {
   mPi            = particleDataPtr->m0(211);
   mK             = particleDataPtr->m0(321);
 
-  // Store pointer
+  // Store pointer.
   nucleonExcitationsPtr = nucleonExcitationsPtrIn;
 
+  // Fill explicit resonances.
+  updateResonances();
+
+}
+
+//--------------------------------------------------------------------------
+
+// Update the list of internal resonances.
+
+void SigmaLowEnergy::updateResonances() {
+  for (int iRes : hadronWidthsPtr->getResonances()) {
+    ParticleDataEntryPtr entry = particleDataPtr->findParticle(iRes);
+    if (!entry) {
+      loggerPtr->ERROR_MSG("resonance id is not a particle", to_string(iRes));
+      continue;
+    }
+
+    for (int iChannel = 0; iChannel < entry->sizeChannels(); ++iChannel) {
+      DecayChannel &channel = entry->channel(iChannel);
+      if ( channel.multiplicity() == 2
+        && particleDataPtr->isHadron(channel.product(0))
+        && particleDataPtr->isHadron(channel.product(1)) ) {
+        // Use setConfig to ensure canonical ordering.
+        setConfig(channel.product(0), channel.product(1), 0, 0, 0);
+        resonatingPairs.insert(make_pair(idA, idB));
+      }
+    }
+  }
 }
 
 //--------------------------------------------------------------------------
@@ -343,8 +372,8 @@ double SigmaLowEnergy::sigmaTotal(int idAIn, int idBIn, double eCMIn,
 
   // Energy cannot be less than the hadron masses.
   if (eCMIn <= mAIn + mBIn) {
-    infoPtr->errorMsg("Error in SigmaLowEnergy::sigmaTotal: nominal masses "
-      "are higher than total energy", "for " + to_string(idAIn) + " "
+    loggerPtr->ERROR_MSG("nominal masses are higher than total energy",
+      "for " + to_string(idAIn) + " "
       + to_string(idBIn) + " @ " + to_string(eCMIn));
     return 0.;
   }
@@ -359,6 +388,10 @@ double SigmaLowEnergy::sigmaTotal(int idAIn, int idBIn, double eCMIn,
 
   // Fix particle ordering.
   setConfig(idAIn, idBIn, eCMIn, mAIn, mBIn);
+
+  // Get custom cross section if applicable.
+  if (userHooksPtr && userHooksPtr->canSetLowEnergySigma(idAIn, idBIn))
+    return userHooksPtr->doSetLowEnergySigma(idAIn, idBIn, eCMIn, mAIn, mBIn);
 
   // Special handling for pi pi and pi K cross sections
   if (!useSummedResonances && eCM < 1.42) {
@@ -393,8 +426,8 @@ double SigmaLowEnergy::sigmaPartial(int idAIn, int idBIn, double eCMIn,
 
   // Energy cannot be less than the hadron masses.
   if (eCMIn <= mAIn + mBIn) {
-    infoPtr->errorMsg("Error in SigmaLowEnergy::sigmaPartial: nominal masses "
-      "are higher than total energy", "for " + to_string(idAIn) + " "
+    loggerPtr->ERROR_MSG("nominal masses are higher than total energy",
+      "for " + to_string(idAIn) + " "
       + to_string(idBIn) + " @ " + to_string(eCMIn));
     return 0.;
   }
@@ -518,8 +551,8 @@ bool SigmaLowEnergy::sigmaPartial(int idAIn, int idBIn, double eCMIn,
 
   // Give warning if sigmaND is very negative.
   if (sigND < -0.1) {
-    infoPtr->errorMsg("Warning in SigmaLowEnergy::sigmaPartial: sum of "
-      "partial sigmas is larger than total sigma", " for " + to_string(idA)
+    loggerPtr->WARNING_MSG("sum of partial sigmas is larger than total sigma",
+      " for " + to_string(idA)
       + " + " + to_string(idB) + " @ " + to_string(eCM) + " GeV");
   }
 
@@ -638,9 +671,7 @@ int SigmaLowEnergy::pickResonance(int idAIn, int idBIn, double eCMIn) {
   }
 
   // Pick resonance at random.
-  int resPick = ids[rndmPtr->pick(sigmas)];
-  // Change to antiparticle if the canonical ordering changed signs.
-  return (didFlipSign) ? particleDataPtr->antiId(resPick) : resPick;
+  return ids[rndmPtr->pick(sigmas)];
 
 }
 
@@ -828,7 +859,7 @@ void SigmaLowEnergy::calcTot() {
     if (eCM < meltpoint(idA, idB))
       sigTot = sigResTot + elasticAQM();
     else
-      sigTot = totalAQM();
+      sigTot = max(totalAQM(), sigResTot + elasticAQM());
   }
 
   // Last resort: use AQM.
@@ -842,7 +873,7 @@ void SigmaLowEnergy::calcTot() {
 // Calculate all resonance cross sections.
 
 void SigmaLowEnergy::calcRes() {
-  for (auto idR : hadronWidthsPtr->possibleResonances(idA, idB)) {
+  for (auto idR : hadronWidthsPtr->getResonances(idA, idB)) {
     double sigResNow = calcRes(idR);
     if (sigResNow > 0.) {
       if (didFlipSign) idR = particleDataPtr->antiId(idR);
@@ -866,23 +897,24 @@ double SigmaLowEnergy::calcRes(int idR) const {
       return 0.;
   }
 
-  double gammaR = hadronWidthsPtr->width(idR, eCM);
-  double brR    = hadronWidthsPtr->br(idR, idA, idB, eCM);
-
-  if (gammaR == 0. || brR == 0.)
-    return 0.;
-
-    // Find particle entries
+  // Find particle entries.
   auto entryR = particleDataPtr->findParticle(idR);
   auto entryA = particleDataPtr->findParticle(idA);
   auto entryB = particleDataPtr->findParticle(idB);
 
   if (entryR == nullptr || entryA == nullptr || entryB == nullptr) {
-    infoPtr->errorMsg("Error in HadronWidths::sigmaResonant: particle does "
-      "not exist", to_string(idR) + " --> " + to_string(idA) + " "
+    loggerPtr->ERROR_MSG("particle does not exist",
+      to_string(idR) + " --> " + to_string(idA) + " "
       + to_string(idB));
     return 0.;
    }
+
+  // Get total width and branching ratio.
+  double gammaR = hadronWidthsPtr->width(idR, eCM);
+  double brR = hadronWidthsPtr->br(idR, idA, idB, eCM);
+
+  if (gammaR == 0. || brR == 0.)
+    return 0.;
 
   // Calculate the resonance sigma
   double s = pow2(eCM), mA0 = entryA->m0(), mB0 = entryB->m0();
@@ -1032,8 +1064,8 @@ void SigmaLowEnergy::calcDiff() {
     mResXBsave, mResAXsave, sum1, sum2, sum3, sum4, sMinXB, sMaxXB, sResXB,
     sRMavgXB, sRMlogXB, BcorrXB, sMinAX, sMaxAX, sResAX, sRMavgAX, sRMlogAX,
     BcorrAX, y0min, sLog, Delta0, sMaxXX, sLogUp, sLogDn, BcorrXX;
-  sCM = bA = bB = sum1 = sum2 = sum3 = sum4 = 0.;
-  scaleA = scaleB = scaleC = 1.;
+  sum2 = sum3 = sum4 = 0.;
+  scaleA = scaleB = 1.;
   double eCMsave = eCMNow;
 
   // Quark content, stripped of spin and radial and orbital excitations.
@@ -1139,7 +1171,7 @@ void SigmaLowEnergy::calcDiff() {
   // Smooth interpolation of diffractive cross sections at low energies.
   bool lowE   = (eCMNow < ECMMIN);
   if (lowE) {
-    eCMNow       = ECMMIN;
+    eCMNow    = ECMMIN;
     sCM       = eCMNow * eCMNow;
   }
 
@@ -1390,55 +1422,11 @@ double SigmaLowEnergy::elasticAQM() const {
 
 //--------------------------------------------------------------------------
 
-// Check which cross sections contain explicit resonances.
+// Check whether the current configuration allows for explicit resonances.
 
 bool SigmaLowEnergy::hasExplicitResonances() const {
-
-  // N has explicit resonances with pi, Kbar, eta and omega.
-  if (idA == 2212 || idA == 2112)
-    return abs(idB) == 211 || idB == 111 || idB == -321 || idB == -311
-        || idB == 221 || idB == 223;
-
-  // pi+pi0, pi+pi-, pi0pi0 and pi0pi-.
-  if (idA == 211 && (idB == 111 || idB == -211))
-    return true;
-  if (idA == 111 && idB == 111)
-    return true;
-
-  // K pi and K Kbar.
-  if (idA == 321)
-    return idB == 111 || idB == -211 || idB == -321 || idB == -311;
-  if (idA == 311)
-    return idB == 111 || idB == 211  || idB == -321 || idB == -311;
-
-  // Sigma+ and Sigma- can have resonances with pi and Kbar,
-  // and always have resonances with K.
-  if (idA == 3222)
-    return idB == 111 || idB == -211 || idB == -321
-        || idB == 321 || idB == 311;
-  if (idA == 3112)
-    return idB == 111 || idB == 211  || idB == -311
-        || idB == 321 || idB == 311;
-
-  // Sigma0/Lambda have resonances with all pi, K and Kbar.
-  if (idA == 3212 || idA == 3122)
-    return idB == 211 || idB == 111 || idB == -211
-        || idB == 321 || idB == 311 || idB == -321 || idB == -311;
-
-  // Xi0 and Xi- can have resonances with pi.
-  // They can in principle have resonances with K/Kbar, but
-  //   1) Omega resonances are not implemented, and
-  //   2) Sigma* -> Xi+K branching ratios are very small.
-  if (idA == 3322)
-    return idB == 111 || idB == -211;
-  if (idA == 3312)
-    return idB == 111 || idB == 211;
-
-  // No further combinations have implemented resonances.
-  return false;
-
+  return resonatingPairs.find({idA, idB}) != resonatingPairs.end();
 }
-
 
 //--------------------------------------------------------------------------
 
@@ -1580,7 +1568,7 @@ double SigmaCombined::sigmaPartial(int id1, int id2, double eCM12,
     return 0.;
 
   // Resonances can only use low energy.
-  if (type > 9) {
+  if (abs(type) > 9) {
     if (mixLoHi == 1)
       return 0.;
     else

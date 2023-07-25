@@ -69,8 +69,8 @@ bool BeamRemnants::init( PartonVertexPtr partonVertexPtrIn,
 
   // Check that remnant model and colour reconnection model work together.
   if (remnantMode == 1 && reconnectMode == 0) {
-    infoPtr->errorMsg("Abort from BeamRemnants::init: The remnant model"
-      " and colour reconnection model does not work together");
+    loggerPtr->ABORT_MSG(
+      "the remnant model and colour reconnection model do not work together");
     return false;
   }
 
@@ -106,16 +106,14 @@ bool BeamRemnants::add( Event& event, int iFirst, bool doDiffCR) {
   for (int i = 0; i < beamAPtr->size(); ++i) {
     int j = (*beamAPtr)[i].iPos();
     if ((*beamAPtr)[i].id() != event[j].id()) {
-      infoPtr->errorMsg("Error in BeamRemnants::add: "
-        "event and beam flavours do not match");
+      loggerPtr->ERROR_MSG("event and beam (A) flavours do not match");
       return false;
     }
   }
   for (int i = 0; i < beamBPtr->size(); ++i) {
     int j =  (*beamBPtr)[i].iPos();
     if ((*beamBPtr)[i].id() != event[j].id()) {
-      infoPtr->errorMsg("Error in BeamRemnants::add: "
-        "event and beam flavours do not match");
+      loggerPtr->ERROR_MSG("event and beam (B) flavours do not match");
       return false;
     }
   }
@@ -184,7 +182,7 @@ bool BeamRemnants::add( Event& event, int iFirst, bool doDiffCR) {
     (*beamAPtr) = beamAsave;
     (*beamBPtr) = beamBsave;
     (*partonSystemsPtr) = partonSystemsSave;
-    infoPtr->errorMsg("Error in BeamRemnants::add: "
+    loggerPtr->ERROR_MSG(
       "failed to find physical colour state after colour reconnection");
     return false;
   }
@@ -203,8 +201,7 @@ bool BeamRemnants::addOld( Event& event) {
   // Start all over if fails (in option where junctions not allowed).
   if ( !beamAPtr->remnantFlavours(event, isDIS)
     || !beamBPtr->remnantFlavours(event, isDIS) ) {
-    infoPtr->errorMsg("Error in BeamRemnants::add:"
-      " remnant flavour setup failed");
+    loggerPtr->ERROR_MSG("remnant flavour setup failed");
     return false;
   }
 
@@ -249,14 +246,13 @@ bool BeamRemnants::addOld( Event& event) {
     for (int i = oldSize; i < event.size(); ++i)
       event[i].cols( colSave[i - oldSize], acolSave[i - oldSize] );
     event.restoreJunctionSize();
-    infoPtr->errorMsg("Warning in BeamRemnants::addOld:"
-      " colour tracing failed; will try again");
+    loggerPtr->WARNING_MSG("colour tracing failed; will try again");
   }
 
   // If no solution after several tries then failed.
   if (!physical) {
-    infoPtr->errorMsg("Error in BeamRemnants::addOld:"
-      " colour tracing failed after several attempts");
+    loggerPtr->ERROR_MSG("colour tracing failed after "
+      +to_string(NTRYCOLMATCH)+" attempts");
     return false;
   }
 
@@ -332,8 +328,7 @@ bool BeamRemnants::addNew( Event& event) {
 
   // Return if it was not possible to find physical colour structure.
   if (!beamRemnantFound) {
-    infoPtr->errorMsg("Error in BeamRemnants::addNew: "
-        "failed to find physical colour structure");
+    loggerPtr->ERROR_MSG("failed to find physical colour structure");
     // Restore event to previous state.
     event = eventSave;
     (*beamAPtr) = beamAsave;
@@ -378,8 +373,7 @@ bool BeamRemnants::setKinematics( Event& event) {
     // Introduction of masses can fail if not enough energy left for remnants.
     if (mRemnA > 0. || mRemnB > 0.)
       if (!pShift( pRemnA, pRemnB, mRemnA, mRemnB)) {
-        infoPtr->errorMsg("Error in BeamRemnants::setKinematics:"
-                          " no momentum left for lepton beam remnants");
+        loggerPtr->ERROR_MSG("no momentum left for lepton beam remnants");
         return false;
       }
 
@@ -418,8 +412,7 @@ bool BeamRemnants::setKinematics( Event& event) {
          && beamA.xMax(-1) <= 0.) ||
        ( !(beamB.isLepton() || (beamBisGamma && !gammaBResolved) )
          && beamB.xMax(-1) <= 0.) ) {
-    infoPtr->errorMsg("Error in BeamRemnants::setKinematics:"
-      " no momentum left for beam remnants");
+    loggerPtr->ERROR_MSG("no momentum left for beam remnants");
     return false;
   }
 
@@ -467,10 +460,8 @@ bool BeamRemnants::setKinematics( Event& event) {
   for (int iSys = 0; iSys < nSys; ++iSys) {
     // Safety check. All parton systems now remaining should be 2->N.
     if (!partonSystemsPtr->hasInAB(iSys)) {
-      stringstream ss;
-      ss << "iSys = "<<iSys;
-      infoPtr->errorMsg("Error in BeamRemnants::setKinematics:"
-        " Encountered parton system without beam partons.",ss.str());
+      loggerPtr->ERROR_MSG("encountered parton system without beam partons",
+        "iSys = " + to_string(iSys));
       return false;
     }
     double kTwidthNow = 0.;
@@ -685,8 +676,8 @@ bool BeamRemnants::setKinematics( Event& event) {
       if (allowRescatter
          && (event[iA].pPos() / beamA[iSys].pPos() < 0
          ||  event[iB].pNeg() / beamB[iSys].pNeg() < 0) ) {
-        infoPtr->errorMsg("Warning in BeamRemnants::setKinematics:"
-          " change in lightcone momentum sign; retrying kinematics");
+        loggerPtr->WARNING_MSG(
+          "change in lightcone momentum sign; retrying kinematics");
         physical = false;
         break;
       }
@@ -838,8 +829,8 @@ bool BeamRemnants::setKinematics( Event& event) {
 
   // If no solution after ten tries then failed.
   if (!physical) {
-    infoPtr->errorMsg("Error in BeamRemnants::setKinematics:"
-      " kinematics construction failed");
+    loggerPtr->ERROR_MSG("kinematics construction failed after "
+    "retrying "+to_string(NTRYKINMATCH)+" times" );
     return false;
   }
 
@@ -926,8 +917,8 @@ bool BeamRemnants::setKinematics( Event& event) {
     w2Rem    = wPosRem * wNegRem;
     if ( wPosRem < 0. || wNegRem < 0.
       || sqrtpos(w2Rem) < sqrt(w2Beam[0]) + sqrt(w2Beam[1])) {
-      infoPtr->errorMsg("Error in BeamRemnants::setKinematics:"
-        " kinematics construction failed owing to recoil mismatch");
+      loggerPtr->ERROR_MSG(
+        "kinematics construction failed owing to recoil mismatch");
       return false;
     }
   }
@@ -997,8 +988,7 @@ bool BeamRemnants::setOneRemnKinematics( Event& event) {
   // Check first that event contains a reasonable number of particles
   // as a safety measure to avoid calling container out of its range.
   if (event.size() < 4) {
-    infoPtr->errorMsg("Error in BeamRemnants::setOneRemnKinematics:"
-      " unexpected number of particles in the event record");
+    loggerPtr->ERROR_MSG("unexpected number of particles in event record");
     return false;
   }
 
@@ -1019,22 +1009,15 @@ bool BeamRemnants::setOneRemnKinematics( Event& event) {
   // In case of externally generated events the outgoing leptons might
   // be found from different locations. Currently rely on highest-energy.
   // Notice that isLepton also accounts for neutrinos.
+  double eMax = 0;
   if (infoPtr->isLHA() && isDIS) {
-    double eMax = -1.0;
+    eMax = -1.0;
     for (int i = event.size()-1; i > 0 ; --i) {
       if ( event[i].isFinal() && particleDataPtr->isLepton(event[i].id())
            && event[i].e() > eMax) {
         iLepScat = i;
         eMax = event[i].e();
-        break;
       }
-    }
-
-    // Return error if no final-state leptons (neutrinos) found.
-    if (eMax < 0.) {
-      infoPtr->errorMsg("Error in BeamRemnants::setOneRemnKinematics:"
-                        "scattered lepton (neutrino) not found!");
-      return false;
     }
 
   // Rely on fixed locations in case of internally generated DIS events.
@@ -1045,22 +1028,25 @@ bool BeamRemnants::setOneRemnKinematics( Event& event) {
     // radiation. For now, define highest energy lepton as scattered.
     int iLepOut = particleDataPtr->isLepton(beamAPtr->id())
                 ? iBeamA + 2 + 2 : iBeamB + 2 + 2;
-    if ( !beamOther.isGamma()
-         && (iLepScat > event.size()-1
-             || !event[iLepOut].isLepton()
-             || !event[iLepScat].isLepton()
-             || !event[iLepScat].isFinal())) {
-      double eMax = -1.0;
+    if ( !beamOther.isGamma() && (iLepScat > event.size() - 1
+        || !event[iLepOut].isLepton() || !event[iLepScat].isLepton()
+        || !event[iLepScat].isFinal())) {
+      eMax = -1.0;
       for (int i = event.size()-1; i > 0 ; --i) {
         if ( event[i].isFinal()
              && event[iLepOut].id() == event[i].id()
              && event[i].e() > eMax) {
           iLepScat = i;
           eMax = event[i].e();
-          break;
         }
       }
     }
+  }
+
+  // Return error if no final-state leptons (neutrinos) found.
+  if (eMax < 0.) {
+    loggerPtr->ERROR_MSG("scattered lepton (neutrino) not found");
+    return false;
   }
 
   // In the presence of QED radiation from the beam particles, we should now
@@ -1181,8 +1167,7 @@ bool BeamRemnants::setOneRemnKinematics( Event& event) {
     // Boost back event.
     MtoHadRest.invert();
     event.rotbst( MtoHadRest);
-    infoPtr->errorMsg("Error in BeamRemnants::setOneRemnKinematics:"
-      " too big beam remnant invariant mass");
+    loggerPtr->ERROR_MSG("beam remnant invariant mass too large");
     return false;
   }
 
@@ -1338,16 +1323,14 @@ bool BeamRemnants::checkColours( Event& event) {
     if ( (id > 0 && id < 9 && (col <= 0 || acol != 0) )
       || (id < 0 && id > -9 && (col != 0 || acol <= 0) )
       || (id == 21 && (col <= 0 || acol <= 0) ) ) {
-      infoPtr->errorMsg("Error in BeamRemnants::checkColours: "
-        "q/qbar/g has wrong colour slots set");
+      loggerPtr->ERROR_MSG("wrong colour tags set for q/qbar/g");
       return false;
     }
 
     // Sextets must have one positive and one negative tag
     if ( (colType == 3 && (col <= 0 || acol >= 0))
          || (colType == -3 && (col >= 0 || acol <= 0)) ) {
-      infoPtr->errorMsg("Error in BeamRemnants::checkColours: "
-                        "sextet has wrong colours");
+      loggerPtr->ERROR_MSG("sextet has wrong colour tags");
     }
 
     // Save colours/anticolours, and position of colour singlet gluons.
@@ -1406,8 +1389,7 @@ bool BeamRemnants::checkColours( Event& event) {
     int col = colList[iCol];
     for (int iCol2 = iCol + 1; iCol2 < int(colList.size()); ++iCol2)
     if (colList[iCol2] == col) {
-      infoPtr->errorMsg("Warning in BeamRemnants::checkColours:"
-        " colour appears twice");
+      loggerPtr->WARNING_MSG("colour appears twice");
       if (!ALLOWCOLOURTWICE) return false;
     }
   }
@@ -1415,8 +1397,7 @@ bool BeamRemnants::checkColours( Event& event) {
     int acol = acolList[iAcol];
     for (int iAcol2 = iAcol + 1; iAcol2 < int(acolList.size()); ++iAcol2)
     if (acolList[iAcol2] == acol) {
-      infoPtr->errorMsg("Warning in BeamRemnants::checkColours:"
-        " anticolour appears twice");
+      loggerPtr->WARNING_MSG("anti-colour appears twice");
       if (!ALLOWCOLOURTWICE) return false;
     }
   }
@@ -1495,8 +1476,7 @@ bool BeamRemnants::checkColours( Event& event) {
 
   // Repair step - sometimes needed when rescattering allowed.
   if (colList.size() > 0 || acolList.size() > 0) {
-    infoPtr->errorMsg("Warning in BeamRemnants::checkColours:"
-      " need to repair unmatched colours");
+    loggerPtr->WARNING_MSG("need to repair unmatched colours");
   }
   while (colList.size() > 0 && acolList.size() > 0) {
 

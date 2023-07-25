@@ -3,9 +3,9 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Torbjorn Sjostrand <torbjorn.sjostrand@hep.lu.se>.
+// Authors: Torbjorn Sjostrand <torbjorn.sjostrand@hep.lu.se>
 
-// Keywords: rescattering; low energy; pT spectra;
+// Keywords: rescattering; low energy; pT spectra
 
 // Compare multiplicities and hadron spectra with and without rescattering,
 // the former with or without rescattering between nearest string neighbours.

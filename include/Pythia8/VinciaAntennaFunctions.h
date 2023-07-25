@@ -187,6 +187,7 @@ protected:
   ParticleData* particleDataPtr{};
   Settings*     settingsPtr{};
   Rndm*         rndmPtr{};
+  Logger*       loggerPtr{};
 
   // Pointer to VINCIA DGLAP class.
   DGLAP* dglapPtr{};
@@ -1173,6 +1174,7 @@ private:
   ParticleData* particleDataPtr{};
   Settings*     settingsPtr{};
   Rndm*         rndmPtr{};
+  Logger*       loggerPtr{};
 
   // Pointer to VINCIA DGLAP class.
   DGLAP* dglapPtr{};
@@ -1238,6 +1240,7 @@ private:
   ParticleData* particleDataPtr{};
   Settings*     settingsPtr{};
   Rndm*         rndmPtr{};
+  Logger*       loggerPtr{};
 
   // Pointer to VINCIA DGLAP class
   DGLAP* dglapPtr{};
@@ -1263,7 +1266,7 @@ public:
   virtual ~MECs() {};
 
   // Initialize pointers.
-  void initPtr(Info* infoPtrIn, ExternalMEsPlugin* mg5mesPtrIn,
+  void initPtr(Info* infoPtrIn, ExternalMEsPtr mg5mesPtrIn,
     VinciaCommon* vinComPtrIn, Resolution* resPtrIn);
 
   // Initialize pointers to antenna sets.
@@ -1362,9 +1365,10 @@ private:
   Info*              infoPtr;
   Rndm*              rndmPtr;
   ParticleData*      particleDataPtr;
+  Logger*            loggerPtr;
   PartonSystems*     partonSystemsPtr;
   Settings*          settingsPtr;
-  ExternalMEsPlugin* mg5mesPtr;
+  ExternalMEsPtr     mg5mesPtr;
 
   // Pointers to VINCIA objects.
   Resolution*    resolutionPtr;

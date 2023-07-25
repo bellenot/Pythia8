@@ -25,6 +25,7 @@ void TrialGeneratorISR::initPtr(Info* infoPtrIn) {
   infoPtr     = infoPtrIn;
   rndmPtr     = infoPtr->rndmPtr;
   settingsPtr = infoPtr->settingsPtr;
+  loggerPtr   = infoPtr->loggerPtr;
 }
 
 //--------------------------------------------------------------------------
@@ -178,7 +179,7 @@ double TrialGeneratorISR::getS1j(double Qt2, double zeta, double sAB) {
   if (zeta < 0) return getSj2(Qt2, -zeta, sAB);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   return Qt2/zeta;
@@ -190,7 +191,7 @@ double TrialGeneratorISR::getSj2(double Qt2, double zeta, double sAB) {
   if (zeta < 0) return getS1j(Qt2,-zeta,sAB);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   return (Qt2 + sAB*zeta)/(1.0 - zeta);
@@ -212,7 +213,7 @@ double TrialGeneratorISR::trialPDFratio(BeamParticle*, BeamParticle*,
 
 bool TrialGeneratorISR::checkInit() {
   if (isInit) return true;
-  infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Not initialized");
+  loggerPtr->ERROR_MSG("not initialised");
   return false;
 }
 
@@ -335,7 +336,7 @@ double TrialIIGCollA::getS1j(double Qt2, double zeta, double sAB) {
   if (zeta < 0) return getSj2(Qt2,-zeta,sAB);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   return Qt2*(1.0+zeta)/(zeta-Qt2/sAB);
@@ -348,7 +349,7 @@ double TrialIIGCollA::getSj2(double Qt2, double zeta, double sAB) {
   if (zeta < 0) return getS1j(Qt2,-zeta,sAB);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   return zeta*sAB;
@@ -507,7 +508,7 @@ double TrialIISplitA::getS1j(double Qt2, double zeta, double sAB) {
   if (zeta < 0) return getSj2(Qt2, -zeta, sAB);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   double saj = Qt2*(1.0 + zeta)/(zeta - Qt2/sAB);
@@ -521,7 +522,7 @@ double TrialIISplitA::getSj2(double Qt2, double zeta, double sAB) {
   if (zeta < 0) return getS1j(Qt2, -zeta, sAB);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   double sjb = zeta*sAB;
@@ -665,7 +666,7 @@ double TrialIIConvA::getS1j(double Qt2, double zeta, double sAB) {
   if (zeta < 0) return getSj2(Qt2, -zeta, sAB);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   double saj = Qt2*(1.0 + zeta)/(zeta - Qt2/sAB);
@@ -680,7 +681,7 @@ double TrialIIConvA::getSj2(double Qt2, double zeta, double sAB) {
   if (zeta < 0) return getS1j(Qt2, -zeta, sAB);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   double sjb = zeta*sAB;
@@ -844,7 +845,7 @@ double TrialIFSoft::getS1j(double Qt2, double zeta, double sAK) {
   if (zeta < 0) return getSj2(Qt2, -zeta, sAK);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   return Qt2*zeta/(zeta - 1.0);
@@ -858,7 +859,7 @@ double TrialIFSoft::getSj2(double Qt2, double zeta, double sAK) {
 
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   return sAK*(zeta - 1.0);
@@ -1019,7 +1020,7 @@ double TrialIFGCollA::getS1j(double Qt2, double zeta, double sAK) {
   if (zeta < 0) return getSj2(Qt2,-zeta,sAK);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   return Qt2*zeta/(zeta - 1.0);
@@ -1032,7 +1033,7 @@ double TrialIFGCollA::getSj2(double Qt2, double zeta, double sAK) {
   if (zeta < 0) return getS1j(Qt2,-zeta,sAK);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   return sAK*(zeta - 1.0);
@@ -1166,8 +1167,7 @@ double TrialIFGCollK::getS1j(double Qt2, double zeta, double sAK) {
   if (zeta < 0) return getSj2(Qt2,-zeta,sAK);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Eror in "+__METHOD_NAME__+
-      ": s1j out of range");
+    loggerPtr->ERROR_MSG("s1j out of range");
     return 0.;
   }
   // Formulated in terms of dimensionless invariants.
@@ -1183,8 +1183,7 @@ double TrialIFGCollK::getSj2(double Qt2, double zeta, double sAK) {
   if (zeta < 0) return getS1j(Qt2,-zeta,sAK);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Eror in "+__METHOD_NAME__+
-      ": sj2 out of range");
+    loggerPtr->ERROR_MSG("sj2 out of range");
     return 0.;
   }
   double sjk = Qt2/zeta;
@@ -1339,7 +1338,7 @@ double TrialIFSplitA::getS1j(double Qt2, double zeta, double sAK) {
   if (zeta < 0) return getSj2(Qt2, -zeta, sAK);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   double saj = Qt2;
@@ -1354,7 +1353,7 @@ double TrialIFSplitA::getSj2(double Qt2, double zeta, double sAK) {
   if (zeta < 0) return getS1j(Qt2, -zeta, sAK);
   // Sanity check
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   double sjk = sAK*(zeta - 1.0);
@@ -1489,7 +1488,7 @@ double TrialIFSplitK::getS1j(double Qt2, double zeta, double sAK) {
   if (zeta < 0) return getSj2(Qt2, -zeta, sAK);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   double saj = Qt2+zeta*sAK;
@@ -1504,7 +1503,7 @@ double TrialIFSplitK::getSj2(double Qt2, double zeta, double sAK) {
   if (zeta < 0) return getS1j(Qt2,-zeta,sAK);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   double sjk = Qt2;
@@ -1636,7 +1635,7 @@ double TrialIFConvA::getS1j(double Qt2, double zeta, double sAK) {
   if (zeta < 0) return getSj2(Qt2, -zeta, sAK);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   double saj = Qt2;
@@ -1651,7 +1650,7 @@ double TrialIFConvA::getSj2(double Qt2, double zeta, double sAK) {
   if (zeta < 0) return getS1j(Qt2,-zeta,sAK);
   // Sanity check.
   if (Qt2 < 0. || zeta <= 0.) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": unphysical input");
+    loggerPtr->ERROR_MSG("unphysical input");
     return 0.;
   }
   double sjk = sAK*(zeta - 1.0);
@@ -1960,7 +1959,8 @@ void BranchElementalISR::list(bool header, bool footer) const {
 void VinciaISR::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
 
   // Check if already initialized.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
 
   // Verbose level.
   verbose         = settingsPtr->mode("Vincia:verbose");
@@ -1977,7 +1977,7 @@ void VinciaISR::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
   beamAPtr = beamAPtrIn;
   beamBPtr = beamBPtrIn;
   if (beamAPtr->pz() < 0)
-    infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": beamA has pz < 0");
+    loggerPtr->WARNING_MSG("beamA has pz < 0");
 
   // Assume all events in same run have same beam-beam energies.
   m2BeamsSav   = m2(beamAPtr->p(), beamBPtr->p());
@@ -2039,8 +2039,8 @@ void VinciaISR::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
       insideBounds = false;
   }
   if (!insideBounds) {
-    infoPtr->errorMsg("Warning in"+__METHOD_NAME__+": PDF QMin scale is "
-      "above ISR shower cutoff.","PDFs will be treated as frozen below QMin.");
+    loggerPtr->WARNING_MSG("PDF QMin scale is above ISR shower cutoff;"
+      " PDFs will be treated as frozen below QMin");
   }
 
   // Set shower alphaS pointer.
@@ -2101,7 +2101,7 @@ void VinciaISR::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
     }
     for (int i = 0; i < (int)masses.size(); i++) {
       (i == 0 ? mb : mc) = masses[i];
-      if (verbose >= REPORT)
+      if (verbose >= Logger::REPORT)
         printOut(__METHOD_NAME__, "Found " + num2str(masses[i]) +
           (i==0 ? " as b mass." : " as c mass."));
     }
@@ -2181,15 +2181,16 @@ void VinciaISR::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
   TINYPDF        = pow(10, -10);
 
   // Initialise the ISR antenna functions.
-  if (verbose >= REPORT)
+  if (verbose >= Logger::REPORT)
     printOut(__METHOD_NAME__,"initializing antenna set");
   antSetPtr->init();
 
   // Print VINCIA header and list of parameters, call issued by ISR
   // since we are initialised last.
-  if (verbose >= NORMAL) fsrPtr->header();
+  if (verbose >= Logger::NORMAL) fsrPtr->header();
   isInit = true;
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "end", dashLen);
 
 }
 
@@ -2231,12 +2232,12 @@ void VinciaISR::prepare( int iSys, Event& event, bool) {
   // Check if we are supposed to do anything.
   if (!(doII || doIF)) return;
   if (infoPtr->getAbortPartonLevel()) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Aborting.");
+    loggerPtr->ERROR_MSG("aborting");
     return;
   }
 
   // Verbose output.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "begin", dashLen);
     stringstream ss;
     ss << "Preparing system " << iSys;
@@ -2333,7 +2334,7 @@ void VinciaISR::prepare( int iSys, Event& event, bool) {
 
   // Then see if we should colourise this conf.
   colourPtr->colourise(iSys, event);
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "Event after colourise:");
     event.list();
     printOut(__METHOD_NAME__,"Making colour maps");
@@ -2381,7 +2382,7 @@ void VinciaISR::prepare( int iSys, Event& event, bool) {
     if (col == 0 || i1 == 0 || i2 == 0) continue;
     // Exclude final-final antennae.
     if ((event[i1].isFinal()) && (event[i2].isFinal())) continue;
-    if (verbose >= DEBUG ) {
+    if (verbose >= VinciaConstants::DEBUG ) {
       stringstream ss;
       ss <<"Creating antenna between ";
       ss << i1 << " , " << i2 << " col = " << col;
@@ -2426,7 +2427,7 @@ void VinciaISR::prepare( int iSys, Event& event, bool) {
 
   // Sanity check.
   if ((int)branchElementals.size() == sizeOld) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "did not find any antennae: exiting.");
     return;
   }
@@ -2435,7 +2436,7 @@ void VinciaISR::prepare( int iSys, Event& event, bool) {
   setStartScale(iSys,event);
 
   isPrepared=true;
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     list();
     printOut(__METHOD_NAME__, "end", dashLen);
   }
@@ -2450,9 +2451,9 @@ void VinciaISR::update( int iSys, Event& event, bool) {
   // Skip if the branching system has no incoming partons.
   if (!(doII || doIF) || !isPrepared) return;
   if (!partonSystemsPtr->hasInAB(iSys)) return;
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "begin", dashLen);
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Updating iSys: " << iSys;
       printOut(__METHOD_NAME__, ss.str());
@@ -2465,10 +2466,9 @@ void VinciaISR::update( int iSys, Event& event, bool) {
   int inA = partonSystemsPtr->getInA(iSys);
   int inB = partonSystemsPtr->getInB(iSys);
   if (inA <= 0 || inB <= 0 ) {
-    stringstream ss;
-    ss << "in system " << iSys << " inA = " << inA << " inB = " << inB;
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": Incoming particles nonpositive",ss.str());
+    loggerPtr->ERROR_MSG("incoming particles nonpositive",
+      "in system " + to_string(iSys) + " inA = " + to_string(inA)
+      + " inB = " + to_string(inB));
     return;
   }
 
@@ -2487,7 +2487,7 @@ void VinciaISR::update( int iSys, Event& event, bool) {
     if (i1 <= 0) continue;
     // Save to colour maps.
     if (i1 > event.size()) {
-      if (verbose >= DEBUG) {
+      if (verbose >= VinciaConstants::DEBUG) {
         event.list();
         cout << " iSys = " << iSys << " / nSys = "
              << partonSystemsPtr->sizeSys()
@@ -2526,20 +2526,19 @@ void VinciaISR::update( int iSys, Event& event, bool) {
     int antCol = antIt->col();
     int i1 = antIt->geti1();
     int i2 = antIt->geti2();
-    int i1New = i1;
-    int i2New = i2;
+    int i1New, i2New;
 
     // Sanity check. We don't destroy colour lines.
     // Antenna colour should not have disappeared.
     if (indexOfAcol.find(antCol) == indexOfAcol.end()) {
-      if (verbose >= NORMAL) infoPtr->errorMsg("Warning in "+__METHOD_NAME__
-        +": Could not find antenna colour in list of anti-colour indices.");
+      loggerPtr->WARNING_MSG(
+        "could not find antenna colour in list of anti-colour indices");
       foundColour = false;
       doRemove = true;
     }
     if (indexOfCol.find(antCol) == indexOfCol.end()) {
-      if (verbose >= NORMAL) infoPtr->errorMsg("Warning in "+__METHOD_NAME__
-        +": Could not find antenna colour in list of colour indices.");
+      loggerPtr->WARNING_MSG(
+        "could not find antenna colour in list of colour indices");
       foundColour = false;
       doRemove = true;
     }
@@ -2566,10 +2565,9 @@ void VinciaISR::update( int iSys, Event& event, bool) {
           if (event[i1New].isFinal() && event[i1New].mother1()==inA &&
               event[inA].id()==22) QEDbackwards=true;
           // Otherwise we dont't know about this case.
-          if (!QEDbackwards && verbose >= NORMAL) {
-            infoPtr->errorMsg("Warning in "+__METHOD_NAME__
-              +": Could not find iA in II antenna! Removing.");
-          }
+          if (!QEDbackwards)
+            loggerPtr->WARNING_MSG(
+              "could not find iA in II antenna; removing");
           doRemove=true;
         }
 
@@ -2580,10 +2578,9 @@ void VinciaISR::update( int iSys, Event& event, bool) {
           if (event[i2New].isFinal() && event[i2New].mother1() == inB &&
              event[inB].id() == 22) QEDbackwards = true;
           // Otherwise we dont't know about this case.
-          if (!QEDbackwards && verbose >= NORMAL) {
-            infoPtr->errorMsg("Warning in "+__METHOD_NAME__+
-              ": Could not find iB in II antenna! Removing.");
-          }
+          if (!QEDbackwards)
+            loggerPtr->WARNING_MSG(
+              "could not find iB in II antenna; removing");
           doRemove=true;
         }
 
@@ -2613,10 +2610,9 @@ void VinciaISR::update( int iSys, Event& event, bool) {
           if (event[i1New].isFinal() && event[i1New].mother1() == inX &&
             event[inX].id() == 22) QEDbackwards = true;
           // Otherwise we dont't know about this case.
-          if (!QEDbackwards && verbose >= NORMAL) {
-            infoPtr->errorMsg("Warning in "+__METHOD_NAME__
-              +": Could not find inA/inB in IF antenna! Removing.");
-          }
+          if (!QEDbackwards)
+            loggerPtr->WARNING_MSG(
+              "could not find inA/inB in IF antenna; removing");
           doRemove = true;
         }
 
@@ -2648,22 +2644,19 @@ void VinciaISR::update( int iSys, Event& event, bool) {
     int colNow = colIt->first;
     int i1Now = colIt->second;
     if (indexOfAcol.find(colNow) == indexOfAcol.end()) {
-      if (verbose >= NORMAL) {
-        stringstream ss;
-        ss << " Colour tag = " << colNow << " event index: " << i1Now;
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Unmatched colour index. Aborting.",ss.str());
-        infoPtr->setAbortPartonLevel(true);
-        return;
-      }
+      stringstream ss;
+      ss << "(colour tag = " << colNow << " event index: " << i1Now << ")";
+      loggerPtr->ERROR_MSG("unmatched colour index; aborting",ss.str());
+      infoPtr->setAbortPartonLevel(true);
+      return;
     } else {
       int i2Now=indexOfAcol[colNow];
       if (i1Now <=0 || i2Now <= 0) {
-        if (verbose >= NORMAL) infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Colour tag attached to impossible event index!");
+        loggerPtr->ERROR_MSG(
+          "colour tag attached to impossible event index");
         // Exclude final-final antennae.
       } else if (!event[i1Now].isFinal() || !event[i2Now].isFinal()) {
-        if (verbose >= DEBUG) {
+        if (verbose >= VinciaConstants::DEBUG) {
           stringstream ss;
           ss<<"Creating antenna between ";
           ss << i1Now << " , " << i2Now <<" col = "<< colNow;
@@ -2690,9 +2683,7 @@ void VinciaISR::update( int iSys, Event& event, bool) {
 
   // There was an unmatched colour line.
   if (indexOfAcol.size() > 0) {
-    if (verbose >= NORMAL)
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Unmatched anticolour index!");
+    loggerPtr->ERROR_MSG("unmatched anticolour index");
     infoPtr->setAbortPartonLevel(true);
     return;
   }
@@ -2710,20 +2701,19 @@ void VinciaISR::update( int iSys, Event& event, bool) {
 
   // Sanity check.
   if (branchElementals.size() <= 0) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut("VinciaISR::update", "did not find any antennae: exiting.");
     return;
   }
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     if (!checkAntennae(event)) {
       list();
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Failed checkAntennae. Aborting.");
+      loggerPtr->ERROR_MSG("failed checkAntennae; aborting");
       infoPtr->setAbortPartonLevel(true);
       return;
     }
   }
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     list();
     printOut(__METHOD_NAME__, "end", dashLen);
   }
@@ -2742,7 +2732,7 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
   if (branchElementals.size() <= 0) return 0.0;
 
   // Verbose output.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "begin", dashLen);
     stringstream ss;
     ss << "(re)starting evolution between pTevolBegAll = "
@@ -2751,7 +2741,7 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
   }
 
   // Diagnostics
-  if (verbose >= REPORT) diagnosticsPtr->start(__METHOD_NAME__);
+  if (verbose >= Logger::REPORT) diagnosticsPtr->start(__METHOD_NAME__);
 
   // Checks: skipped ants (q[MPI/FSR] > qISR), qEnd < all cutoffs, no ants.
   bool allSkipped        = true;
@@ -2769,7 +2759,7 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
 
   // Loop over antennae (in all currently existing parton systems).
   unsigned int nAnt = branchElementals.size();
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss <<"Looping over " << nAnt << " antennae.";
     printOut(__METHOD_NAME__, ss.str());
@@ -2790,7 +2780,7 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
     // Check if we are skipping this kind of antenna.
     if (isII && !doII) continue;
     else if (!isII && !doIF) continue;
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Processing antenna ";
       ss << iAnt+1 << " / " << nAnt;
@@ -2833,7 +2823,7 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
       // Check if any phase space still open.
       if ((qBeginNow <= cutoffScale) || (qBeginNow <= qEndNow)) {
         // Verbose output.
-        if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+        if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
             "skipping this trial since qBeginNow = " + num2str(qBeginNow) +
             " cutoffScale = " + num2str(cutoffScale) +
             " qEndNow = " + num2str(qEndNow));
@@ -2866,7 +2856,7 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
           double logRescue = ((double)(trialPtr->getNshouldRescue(indx))) /
             ((double)(nRescue));
           headroomFac *= pow(10.0,-logRescue);
-          if (verbose >= DEBUG){
+          if (verbose >= VinciaConstants::DEBUG){
             stringstream ss;
             ss << "Applying rescue mechanism, nShouldRescue = "
                << trialPtr->getNshouldRescue(indx)
@@ -2973,7 +2963,7 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
           trialPtr->saveTrial(indx, qTmp, qTrial, zMinNow, zMaxNow, colFac,
             facAlphaS, pdfRatioFlav, trialFlav, extraMassPDFfactor,
             headroomFac, enhanceFac);
-          if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+          if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
               "Using vanishing pdfs towards the mass threshold for id1 " +
               num2str(id1) + " and id2 " + num2str(id2));
 
@@ -3032,7 +3022,7 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
           }
         }
         else if (qMinNow < qWin || qMinNow < qTrialMax) {
-          if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+          if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
               "stopping evolution, already found scale that is bigger");
           acceptRegion = true;
           trialPtr->renewTrial(indx);
@@ -3063,7 +3053,7 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
       indxWin   = indxMax;
       iSysWin   = iSys;
     }
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "qTrialMax = " << qTrialMax;
       if (indxMax >= 0)
@@ -3078,13 +3068,13 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
 
   // If non-zero branching scale found: continue.
   if ((qWin > qEndAll) && (qWin > 0.0)) {
-    if (verbose >= DEBUG && winnerPtr != nullptr) {
+    if (verbose >= VinciaConstants::DEBUG && winnerPtr != nullptr) {
       stringstream ss;
       ss<<"Winner at scale qWin = ";
       ss << qWin << " trial type "
          << winnerPtr->trialGenPtrsSav[indxWin]->name();
       printOut(__METHOD_NAME__, ss.str());
-      if (verbose >= DEBUG && winnerPtr != nullptr) {
+      if (verbose >= VinciaConstants::DEBUG && winnerPtr != nullptr) {
         ss.str("pdf ratio ");
         ss << winnerPtr->getPDFratioTrial(indxWin)
            << " col1 = " << event[winnerPtr->i1sav].col()
@@ -3097,7 +3087,7 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
   } else {
     qWin = 0.0;
     // Check if qEnd < all cutoffs.
-    if (qEndsmallerCutoff && verbose >= DEBUG) {
+    if (qEndsmallerCutoff && verbose >= VinciaConstants::DEBUG) {
       printOut(__METHOD_NAME__, "=== All trials now below cutoff "
         "qEndAll = " + num2str(qEndAll, 3) + ".");
       printOut(__METHOD_NAME__,"Final configuration was:");
@@ -3108,7 +3098,7 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
   // Check if we have a heavy quark in the initial state left.
   bool forceSplitNow = false;
   if ((!allSkipped) && heavyQuarkLeft(max(qWin,qEndAll))) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__,
         "Going to force a splitting! qWin was " + num2str(qWin) +
         " with id1 = " + num2str(winnerPtr->id1sav) +
@@ -3118,17 +3108,16 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
     winnerPtr->forceSplittingSav = true;
     forceSplitNow = true;
   } else if (winnerPtr != nullptr) winnerPtr->forceSplittingSav = false;
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     list();
     printOut(__METHOD_NAME__, "end", dashLen);
   }
 
   // Diagnostics.
-  if (verbose >= REPORT) diagnosticsPtr->stop(__METHOD_NAME__);
+  if (verbose >= Logger::REPORT) diagnosticsPtr->stop(__METHOD_NAME__);
 
   if (qWin > pTevolBegAll && !forceSplitNow) {
-    infoPtr->errorMsg("Warning in "+__METHOD_NAME__
-      +": Generated scale > pTevolBegAll. Returning 0.");
+    loggerPtr->WARNING_MSG("generated scale > pTevolBegAll; returning 0");
     return 0.;
   }
 
@@ -3145,10 +3134,11 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
 bool VinciaISR::branch(Event& event) {
 
   // System of index of the winner and extract current QE scales.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
 
   // Diagnostics
-  if (verbose >= REPORT) diagnosticsPtr->start(__METHOD_NAME__);
+  if (verbose >= Logger::REPORT) diagnosticsPtr->start(__METHOD_NAME__);
 
   int iTrial     = indxWin;
   double qNew    = winnerPtr->getTrialScale(iTrial);
@@ -3161,7 +3151,7 @@ bool VinciaISR::branch(Event& event) {
   // gluon splitting/conversion in the initial state.
 
   // Count up global number of attempted trials.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Processing Branching at scale Q = " << qNew;
     printOut(__METHOD_NAME__, ss.str());
@@ -3182,7 +3172,7 @@ bool VinciaISR::branch(Event& event) {
   bool forceSplitting = false;
   if (winnerPtr->forceSplittingSav) {
     forceSplitting = true;
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Forcing a splitting at q = " << qNew;
       printOut(__METHOD_NAME__, ss.str());
@@ -3196,7 +3186,7 @@ bool VinciaISR::branch(Event& event) {
       q2new = q2max;
       qNew  = sqrt(q2new);
       winnerPtr->scaleSav[iTrial] = 0.99*qNew;
-      if (verbose >= DEBUG ) {
+      if (verbose >= VinciaConstants::DEBUG ) {
         stringstream ss;
         ss << "adjusted scale to q = " << qNew;
         printOut(__METHOD_NAME__,ss.str());
@@ -3208,9 +3198,9 @@ bool VinciaISR::branch(Event& event) {
   if (!generateKinematics(event, winnerPtr, recoilers)) {
     // Mark this trial as "used", will need to generate a new one..
     winnerPtr->renewTrial(iTrial);
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Branching outside of phase space.");
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(kinematics)");
     return false;
   }
@@ -3272,11 +3262,10 @@ bool VinciaISR::branch(Event& event) {
     double q2sectorThis = resolutionPtr->q2sector(thisClus);
     // Sanity check.
     if (q2sectorThis < 0.) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-        "Negative sector resolution");
+      loggerPtr->ERROR_MSG("negative sector resolution");
       return false;
     }
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Branching has sector resolution " << q2sectorThis;
       printOut(__METHOD_NAME__, ss.str());
@@ -3284,7 +3273,7 @@ bool VinciaISR::branch(Event& event) {
 
     // Check sector veto.
     minClus = resolutionPtr->findSector(stateNew, nFlavsBorn[iSysWin]);
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Minimal clustering has sector resolution " << minClus.Q2res;
       printOut(__METHOD_NAME__, ss.str());
@@ -3294,9 +3283,9 @@ bool VinciaISR::branch(Event& event) {
     if (isVetoed) {
       // Mark this trial as "used", will need to generate a new one.
       winnerPtr->renewTrial(iTrial);
-      if (verbose >= DEBUG)
+      if (verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__, "Branching rejected (outside of sector).");
-      if (verbose >= REPORT)
+      if (verbose >= Logger::REPORT)
         diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(sector)");
       return false;
     }
@@ -3306,12 +3295,12 @@ bool VinciaISR::branch(Event& event) {
   vector<Particle> parts = vinComPtr->makeParticleList(iSysWin, event);
   if (!forceSplitting)
     if (!checkHeavyQuarkPhaseSpace(parts,iSysWin)) {
-      if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+      if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
           "branching rejected because phase space after branching "
           "does not allow forced splittings");
       // Mark this trial as "used", will need to generate a new one.
       winnerPtr->renewTrial(iTrial);
-      if (verbose >= REPORT)
+      if (verbose >= Logger::REPORT)
         diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(HQPS)");
       return false;
     }
@@ -3333,9 +3322,9 @@ bool VinciaISR::branch(Event& event) {
     // Reject and mark as "used", will need to generate a new trial.
     if (!isMassiveQsplit) {
       winnerPtr->renewTrial(iTrial);
-      if (verbose >= DEBUG)
+      if (verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__,"Branching is below cutoff: reject.");
-      if (verbose >= REPORT)
+      if (verbose >= Logger::REPORT)
         diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(cutoff)");
       return false;
     }
@@ -3347,9 +3336,9 @@ bool VinciaISR::branch(Event& event) {
     if (!acceptTrial(event, winnerPtr)) {
       // Mark this trial as "used", will need to generate a new one.
       winnerPtr->renewTrial(iTrial);
-      if (verbose >= DEBUG)
+      if (verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__,"Trial rejected (failed acceptTrial)");
-      if (verbose >= REPORT)
+      if (verbose >= Logger::REPORT)
         diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(acceptTrial)");
       return false;
     }
@@ -3388,7 +3377,7 @@ bool VinciaISR::branch(Event& event) {
   if ( event[i1sav].pol() != 9 && event[i2sav].pol() != 9 &&
        (event[iNew1].pol() == 9 || event[iNew2].pol() == 9 ||
         event[iNew3].pol() == 9)) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Depolarizing parton state");
 
     // Depolarise parton state (except the branching mothers, which
@@ -3531,15 +3520,15 @@ bool VinciaISR::branch(Event& event) {
   if (canVetoEmission)
     if (userHooksPtr->doVetoISREmission(sizeOld, event, iSysWin)) {
       event = evtOld;
-      if (verbose >= DEBUG)
+      if (verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__, "Branching vetoed by user.");
-      if (verbose >= REPORT)
+      if (verbose >= Logger::REPORT)
         diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(userVeto)");
       return false;
     }
 
   // Everything accepted.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "Branching accepted.");
     event.list();
     printOut(__METHOD_NAME__, "PartonSystems before update:");
@@ -3562,7 +3551,7 @@ bool VinciaISR::branch(Event& event) {
     event[partonSystemsPtr->getInB(iSysWin)].p()).m2Calc();
   partonSystemsPtr->setSHat(iSysWin, shat);
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "PartonSystems after update:");
     partonSystemsPtr->list();
   }
@@ -3650,7 +3639,7 @@ bool VinciaISR::branch(Event& event) {
     eBeamAUsed += initialA[i].e();
     eBeamBUsed += initialB[i].e();
   }
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, "Updating dipole-antenna(e)");
 
   // Updates of the branched antennae. The BranchElemental that
@@ -3875,11 +3864,10 @@ bool VinciaISR::branch(Event& event) {
     }
   }
 
-  if (verbose >= DEBUG && !checkAntennae(event)) {
-    infoPtr->errorMsg("Warning in "+__METHOD_NAME__
-      +": Failed checkAntennae. Aborting.");
+  if (verbose >= VinciaConstants::DEBUG && !checkAntennae(event)) {
+    loggerPtr->WARNING_MSG("failed checkAntennae; aborting");
     infoPtr->setAbortPartonLevel(true);
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(checkAntennae)");
     return false;
   }
@@ -3895,11 +3883,10 @@ bool VinciaISR::branch(Event& event) {
   }
 
   // Check the event after each branching.
-  if (verbose >= REPORT && !vinComPtr->showerChecks(event, true)){
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+
-      ": Failed shower checks. Aborting.");
+  if (verbose >= Logger::REPORT && !vinComPtr->showerChecks(event, true)){
+    loggerPtr->ERROR_MSG("failed shower checks; aborting");
     infoPtr->setAbortPartonLevel(true);
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(showerChecks)");
     return false;
   }
@@ -3919,14 +3906,15 @@ bool VinciaISR::branch(Event& event) {
       mergingHooksPtr->doIgnoreStep(true);
   }
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     event.list();
     list();
     printOut(__METHOD_NAME__, "end", dashLen);
   }
 
   // Diagnostics.
-  if (verbose >= REPORT) diagnosticsPtr->stop(__METHOD_NAME__,"accept");
+  if (verbose >= Logger::REPORT)
+    diagnosticsPtr->stop(__METHOD_NAME__,"accept");
 
   return true;
 
@@ -3984,7 +3972,7 @@ void VinciaISR::setStartScale(int iSys, Event& event) {
   // Hard Process System.
   else if (isHardSys[iSys]) {
     // Hard system: start at phase-space maximum or factorisation scale.
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Setting ISR starting scale for hard system");
     // pTmaxMatch = 1 : always start at QF (modulo kFudge).
     if (pTmaxMatch == 1) Q2hat[iSys] = pT2maxFudge * infoPtr->Q2Fac();
@@ -4007,7 +3995,7 @@ void VinciaISR::setStartScale(int iSys, Event& event) {
 
   // MPI systems.
   else {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Setting ISR starting scale of MPI system");
     // Set starting scale for MPI systems: min of incoming parton scales.
     // Find positions of incoming colliding partons.
@@ -4015,7 +4003,7 @@ void VinciaISR::setStartScale(int iSys, Event& event) {
     int in2 = partonSystemsPtr->getInB(iSys);
     Q2hat[iSys] = pT2maxFudgeMPI
       * pow2(min(event[in1].scale(),event[in2].scale()));
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
         "Renewing all trials since we got non-hard system!");
     for (int iAnt = 0; iAnt < (int)branchElementals.size(); ++iAnt)
       if (branchElementals[iAnt].system != iSys)
@@ -4256,13 +4244,8 @@ bool VinciaISR::heavyQuarkLeft(double qTrial) {
       indxWin    = splitGenTndex;
       foundQuark = foundQuarkNow;
     } else if (foundQuarkNow) {
-      if (verbose >= QUIET) {
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__+
-          ": Found heavy quark but no splitting trial generator.",
-          "Not going to force a splitting.");
-        trialPtr->list();
-        cout << "     Current scale = " << qTrial << endl;
-      }
+      loggerPtr->ERROR_MSG("found heavy quark but no splitting "
+        "trial generator; not going to force a splitting");
     }
   }
   return foundQuark;
@@ -4277,7 +4260,8 @@ bool VinciaISR::generateKinematicsII(Event& event,
   BranchElementalISR* trialPtr, vector<Vec4>& pRec) {
 
   // Basic info about trial function and scale
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
   int iTrial     = indxWin;
   if (iTrial < 0) return false;
   double qNew    = trialPtr->getTrialScale(iTrial);
@@ -4304,9 +4288,9 @@ bool VinciaISR::generateKinematicsII(Event& event,
   // Generate zeta variable, work out saj, sjb and check initial energies.
   double saj, sjb;
   if (!trialPtr->genTrialInvariants(saj, sjb, 0.0, iTrial)) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "z outside physical range, returning.");
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(kinematics)");
     trialPtr->nHull++;
     return false;
@@ -4316,11 +4300,11 @@ bool VinciaISR::generateKinematicsII(Event& event,
   double sAB = trialPtr->sAnt();
   double sab = sAB + saj + sjb;
   if (sab > m2BeamsSav) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "sab > shh = " + num2str(m2BeamsSav)
         + ", returning.");
     trialPtr->nHull++;
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(sab)");
     return false;
   }
@@ -4402,10 +4386,10 @@ bool VinciaISR::generateKinematicsII(Event& event,
   double eOldA = event[trialPtr->i1sav].e();
   double eNewA = eOldA / zA;
   if (eNewA > eaMax && !forceSplitting) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "xa > 1, returning.");
     trialPtr->nHull++;
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(xa>1)");
     return false;
   }
@@ -4416,17 +4400,17 @@ bool VinciaISR::generateKinematicsII(Event& event,
   double eOldB = event[trialPtr->i2sav].e();
   double eNewB = eOldB / zB;
   if (eNewB > ebMax && !forceSplitting) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "xb > 1, returning.");
     trialPtr->nHull++;
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(xb>1)");
     return false;
   }
 
   // Lowering saj and sjb until success.
   if ( (eNewA > eaMax || eNewB > ebMax) && forceSplitting) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Forced splitting, lowering saj and sjb.");
     bool take     = false;
     do {
@@ -4454,9 +4438,10 @@ bool VinciaISR::generateKinematicsII(Event& event,
   pOld.push_back(event[trialPtr->i2sav].p());
   if (!forceSplitting &&
       !vinComPtr->map2to3II(pNew, pRec, pOld, sAB, saj, sjb, sab, phi, m2j)) {
-    if (verbose >= DEBUG ) printOut(__METHOD_NAME__, "Failed map2to3II.");
+    if (verbose >= VinciaConstants::DEBUG )
+      printOut(__METHOD_NAME__, "Failed map2to3II.");
     trialPtr->nHull++;
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(map2to3II)");
     return false;
   }
@@ -4468,7 +4453,7 @@ bool VinciaISR::generateKinematicsII(Event& event,
   trialPtr->new1.pol(9);
   trialPtr->new2.pol(9);
   trialPtr->new3.pol(9);
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "Printing pre-branching momenta");
     for (int i = 0; i < 2; i++) cout << "  " << pOld[i];
     printOut(__METHOD_NAME__, "Printing post-branching momenta and recoiler");
@@ -4478,9 +4463,10 @@ bool VinciaISR::generateKinematicsII(Event& event,
 
   // Sanity check that z < 1.
   if (pNew[0].e() < eOldA || pNew[2].e() < eOldB) {
-    if (verbose >= DEBUG ) printOut(__METHOD_NAME__, "Z > 1.");
+    if (verbose >= VinciaConstants::DEBUG )
+      printOut(__METHOD_NAME__, "Z > 1.");
     trialPtr->nHull++;
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(z>1)");
     return false;
   }
@@ -4493,7 +4479,7 @@ bool VinciaISR::generateKinematicsII(Event& event,
   int idNewA = trialPtr->new1.id();
   double xOldA = eOldA / eBeamA;
   double xNewA = eNewA / eBeamA;
-  if (verbose >= REPORT && !beamAPtr->insideBounds(xNewA, PDFscale))
+  if (verbose >= Logger::REPORT && !beamAPtr->insideBounds(xNewA, PDFscale))
     printf("%s::PDFratio {xa,Q2a} outside boundaries\n",
       trialGenPtr->name().c_str());
   double pdfRatioA =
@@ -4505,7 +4491,7 @@ bool VinciaISR::generateKinematicsII(Event& event,
   int idNewB = trialPtr->new3.id();
   double xOldB = eOldB / eBeamB;
   double xNewB = eNewB / eBeamB;
-  if (verbose >= REPORT && !beamBPtr->insideBounds(xNewB, PDFscale))
+  if (verbose >= Logger::REPORT && !beamBPtr->insideBounds(xNewB, PDFscale))
     printf("%s::PDFratio {xb,Q2b} outside boundaries\n",
       trialGenPtr->name().c_str());
   double pdfRatioB =
@@ -4516,7 +4502,8 @@ bool VinciaISR::generateKinematicsII(Event& event,
   // knowledge of which is the next global colour tag available in the
   // event.
   trialPtr->addPDF(iTrial, pdfRatioA*pdfRatioB);
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "end", dashLen);
   return true;
 
 }
@@ -4529,7 +4516,8 @@ bool VinciaISR::generateKinematicsIF(Event& event,
   BranchElementalISR* trialPtr, vector<Vec4>& pRec) {
 
   // Basic info about trial function and scale.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
   int iTrial       = indxWin;
   if (iTrial < 0) return false;
   double qNew      = trialPtr->getTrialScale(iTrial);
@@ -4552,7 +4540,7 @@ bool VinciaISR::generateKinematicsIF(Event& event,
     trialPtr->zMaxSav[iTrial] =
       trialPtr->trialGenPtrsSav[iTrial]->getZmax(q2new, trialPtr->sAnt(),
         trialPtr->e1sav, eBeamUsed);
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__,"Note: this is a forced splitting");
   }
 
@@ -4562,20 +4550,20 @@ bool VinciaISR::generateKinematicsIF(Event& event,
   double sAK = trialPtr->sAnt();
   bool pass = trialPtr->genTrialInvariants(saj, sjk, eBeamUsed, iTrial);
   if (!pass) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "z outside physical range, returning.");
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(kinematics)");
     trialPtr->nHull++;
     return false;
   }
 
   // Self-consistency check.
-  if (verbose >= NORMAL) {
+  if (verbose >= Logger::NORMAL) {
     double sAntSav = trialPtr->sAnt();
     double sCheck  = 2 * event[trialPtr->i1sav].p()*event[trialPtr->i2sav].p();
     if (abs(sAntSav - sCheck) > NANO) {
-      if (verbose >= DEBUG) event.list();
+      if (verbose >= VinciaConstants::DEBUG) event.list();
       list();
       cout << " sAK doesn't look preserved sAnt = " << sAntSav << " sCheck = "
            << sCheck << endl;
@@ -4629,7 +4617,7 @@ bool VinciaISR::generateKinematicsIF(Event& event,
     trialPtr->new1.m(0.0);
     trialPtr->new2.m(mj);
     trialPtr->new3.m(mk);
-    if (verbose == DEBUG) {
+    if (verbose == VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Gluon backwards evolving to id = " << idConv
          << " idK = " << idK
@@ -4713,8 +4701,9 @@ bool VinciaISR::generateKinematicsIF(Event& event,
       m2Kold, m2j, m2k);
   }
   if (!pass && !forceSplitting) {
-    if (verbose >= DEBUG ) printOut(__METHOD_NAME__, "Failed map2to3IF.");
-    if (verbose >= REPORT)
+    if (verbose >= VinciaConstants::DEBUG )
+      printOut(__METHOD_NAME__, "Failed map2to3IF.");
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(map2to3IF)");
     trialPtr->nHull++;
     return false;
@@ -4724,7 +4713,7 @@ bool VinciaISR::generateKinematicsIF(Event& event,
   double eBeam = (is1A ? eBeamA : eBeamB);
   double eBeamUsedNow = eBeamUsed - pOld[0].e() + pNew[0].e();
   if (eBeamUsedNow > 0.98*eBeam) {
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(x>1)");
     trialPtr->nHull++;
     return false;
@@ -4738,7 +4727,7 @@ bool VinciaISR::generateKinematicsIF(Event& event,
   trialPtr->new1.pol(9);
   trialPtr->new2.pol(9);
   trialPtr->new3.pol(9);
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "Printing pre-branching momenta");
     for (int i = 0; i < 2; i++) cout << "  " << pOld[i];
     printOut(__METHOD_NAME__, "Printing post-branching momenta and recoiler");
@@ -4758,13 +4747,13 @@ bool VinciaISR::generateKinematicsIF(Event& event,
   double xOld = eOld / eBeam;
   double eNew = pNew[0].e();
   double xNew = eNew / eBeam;
-  if (verbose >= REPORT && !beamPtr->insideBounds(xNew, PDFscale))
+  if (verbose >= Logger::REPORT && !beamPtr->insideBounds(xNew, PDFscale))
     printf("%s::PDFratio {x,Q2} outside boundaries\n",
       trialGenPtr->name().c_str());
   double newPDF   = beamPtr->xfISR(iSysWin,idNew,xNew,PDFscale);
   // Check PDF > 0; otherwise reject trial.
   if (newPDF < 0.) {
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(PDF<0)");
     trialPtr->nHull++;
     return false;
@@ -4773,7 +4762,7 @@ bool VinciaISR::generateKinematicsIF(Event& event,
   double pdfRatio = max(newPDF,TINYPDF) / max(oldPDF,TINYPDF);
 
   // Verbose output if old PDF does not make sense.
-  if (oldPDF <= 0.0 && verbose >= DEBUG) {
+  if (oldPDF <= 0.0 && verbose >= VinciaConstants::DEBUG) {
     cout << "  PDF ratio = " << num2str(pdfRatio)
          << " for idOld = " << idOld << " idNew = " << idNew
          << " xOld = " << num2str(xOld) << " xNew = " << num2str(xNew)
@@ -4811,21 +4800,20 @@ bool VinciaISR::generateKinematicsIF(Event& event,
     eBeamNow = eBeamB;
   }
   if ((eNew+eAotherSys) > 0.98*eBeamNow) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
         "Energy of incoming partons exceed beam energy, returning.");
     // Lowering sjk (splitting orderd in saj) until success.
     if (forceSplitting) {
-      if (verbose >= DEBUG)
+      if (verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__, "Forced splitting, lowering sjk.");
       eNew  = (0.98*eBeamNow - eAotherSys);
       sjk = sAK*(eNew-eOld)/eOld;
       // This should not happen.
       if (sjk <= 0.001) {
         if (sjk <= 0.0) sjk = pow(10.0,-10.0);
-        if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+        if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
             "Need to choose sjk = "+  num2str(sjk) + " probably due to MPI");
       }
-      eNew = eOld*(sAK+sjk)/sAK;
       sak  = sAK + sjk - saj + m2j + m2k -m2Kold;
       if (sak <= 0.0) {
         sak = 1.0;
@@ -4838,7 +4826,7 @@ bool VinciaISR::generateKinematicsIF(Event& event,
       qNew  = sqrt(q2new);
       trialPtr->scaleSav[iTrial] = qNew;
     } else {
-      if (verbose >= REPORT)
+      if (verbose >= Logger::REPORT)
         diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(x>1)");
       trialPtr->nHull++;
       return false;
@@ -4856,9 +4844,9 @@ bool VinciaISR::generateKinematicsIF(Event& event,
     double mMin23 = vinComPtr->mHadMin(trialPtr->new2.id(),
       trialPtr->new3.id());
     if (sjk < pow2(1.01*mMin23)) {
-      if (verbose >= DEBUG)
+      if (verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__, "=== Branching Vetoed. m23 < 1.01*mMes.");
-      if (verbose >= REPORT)
+      if (verbose >= Logger::REPORT)
         diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(cutoff)");
       trialPtr->nHadr++;
       return false;
@@ -4868,7 +4856,8 @@ bool VinciaISR::generateKinematicsIF(Event& event,
   // Note, colour flow is not assigned here, since this requires
   // knowledge of which is the next global colour tag available in the
   // event.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "end", dashLen);
   return true;
 
 }
@@ -4881,10 +4870,12 @@ bool VinciaISR::generateKinematicsIF(Event& event,
 bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
 
   // Basic info about trial function and scale
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
   int iTrial = indxWin;
   if (iTrial < 0) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "iTrial < 0 ");
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__, "iTrial < 0 ");
     return false;
   }
   double qNew    = trialPtr->getTrialScale(iTrial);
@@ -4934,7 +4925,7 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
   // probability. (Trials only enhanced for enhanceFac > 1.)
   if (enhanceFac > 1.0 && qNew <= enhanceCutoff) {
     if ( rndmPtr->flat() > 1./enhanceFac ) {
-      if (verbose >= DEBUG)
+      if (verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__, "Trial vetoed at enhancement stage.");
       return false;
     }
@@ -4972,7 +4963,7 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
   // Define pointer antennae.
   AntennaFunctionIX* antFunPtr = getAntFunPtr(antFunTypePhys);
   // Compute spin-summed antenna function.
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, "Evaluating antenna function and PDF ratio");
   double helSum;
   // Unpolarised case: ignore parent helicities.
@@ -4980,13 +4971,11 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
   // Polarised case: use parent helicities.
   else helSum = antFunPtr->antFun(invariants, mNew, helBef, helUnpol);
   if (helSum < 0.) {
-    if (verbose >= REPORT) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__+
-        "Negative Antenna Function.","antFunType = "+num2str(antFunTypePhys));
-    }
+    loggerPtr->ERROR_MSG("negative antenna function",
+      "antFunType = "+num2str(antFunTypePhys));
     return false;
   }
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__,"helSum  = "+num2str(helSum));
 
   // Store (partial) helicity sum.
@@ -5001,10 +4990,10 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
 
   // Starting value for accept probability = Physical/Trial.
   Paccept[0] = antPhys*PDFphys/antPDFtrialSum;
-  if (verbose >= NORMAL && Paccept[0] > 1.05 && qNew > 2.0)
-    infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": pAccept > 1");
-  if (verbose >= DEBUG ||
-    (verbose >= REPORT && Paccept[0] > 1.05 && qNew > 2.0) ) {
+  if (Paccept[0] > 1.05 && qNew > 2.0)
+    loggerPtr->WARNING_MSG("pAccept > 1");
+  if (verbose >= VinciaConstants::DEBUG ||
+    (verbose >= Logger::REPORT && Paccept[0] > 1.05 && qNew > 2.0) ) {
     if (nTrialTerms == 1) {
       printOut(__METHOD_NAME__, "Single trial:");
       cout << "   TrialGenerator= " << trialGenPtr->name() << endl;
@@ -5085,7 +5074,7 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
           vector<int> helNow {hi, hj, hk};
           aHel = antFunPtr->antFun(invariants, mNew, helBef, helNow);
           randHel -= aHel;
-          if (verbose >= DEBUG) {
+          if (verbose >= VinciaConstants::DEBUG) {
             stringstream ss;
             ss<< "antPhys("<< hAant <<" " << hBant
               <<"  -> "<<  hi << " " << hj << " "<< hk << ") = " << aHel
@@ -5099,7 +5088,7 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
       }
       if (randHel < 0.) break;
     }
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "selected" + num2str(int(hAant)) +
         " " + num2str(int(hBant)) + "  -> " + num2str(hi) + " " +
         num2str(hj) + " " + num2str(hk) + ", isSwapped = " +
@@ -5128,8 +5117,8 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
   // number of flavors active at mu, whereas the number of flavors in
   // the trial integral is controlled by the value of the trial scale.
   double alphaTrial = trialPtr->getAlphaTrial(iTrial);
-  if (std::isnan(alphaTrial) && verbose >= NORMAL) printOut(__METHOD_NAME__,
-    "alphaStrial is NaN");
+  if (std::isnan(alphaTrial) && verbose >= Logger::NORMAL)
+    printOut(__METHOD_NAME__, "alphaStrial is NaN");
   if (alphaTrial != alphaTrial) printOut(__METHOD_NAME__,
     "alphaStrial is != alphaStrial");
   double mu2 = pow2(qNew);
@@ -5142,8 +5131,8 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
   double mu2Usr    = max(mu2min, mu2freeze + mu2*kMu2Usr);
   // alphaS values.
   double alphaSusr = min(alphaSmax, alphaSptr->alphaS(mu2Usr));
-  if (verbose >= DEBUG ||
-      (verbose >= REPORT && alphaTrial < alphaSusr)) {
+  if (verbose >= VinciaConstants::DEBUG ||
+      (verbose >= Logger::REPORT && alphaTrial < alphaSusr)) {
     stringstream ss;
     ss << "alphaTrial = " << alphaTrial << ", alphaSusr = " << alphaSusr
        << " at q = " << qNew << ", Trial Generator " << trialGenPtr->name();
@@ -5163,8 +5152,8 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
   bool doMEC  = doMECsSys[iSys];
   double pMEC = 1.0;
   if (doMEC) {
-    // DEBUG output.
-    if (verbose >= DEBUG) {
+    // VinciaConstants::DEBUG output.
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Trying matrix element correction for system "
          << iSysWin << " (" << nBranch[iSysWin]+1 << ". branching).";
@@ -5179,12 +5168,12 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
   Paccept[0] *= pMEC;
 
   // Print MC violations.
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, " Trial Paccept = " + num2str(Paccept[0]));
   bool violation  = (Paccept[0] > 1.0 + NANO);
   bool negPaccept = (Paccept[0] < 0.0);
   if (violation || negPaccept) {
-    if (verbose >= REPORT ) {
+    if (verbose >= Logger::REPORT ) {
       stringstream ss;
       if (doMEC) ss << "Paccept (shower and ME, order = ";
       else ss << "Paccept (shower, order = ";
@@ -5193,7 +5182,7 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
       printOut(__METHOD_NAME__, ss.str());
       if (extraMassPDFfactor != 1.0)
         printOut(__METHOD_NAME__, " == Note: PDFs close to mass threshold");
-      if (verbose >= REPORT || Paccept[0] > 100.0) {
+      if (verbose >= Logger::REPORT || Paccept[0] > 100.0) {
         if (doMEC) cout <<" MEC factor = " << pMEC << endl;
         cout << (isII ? " AB -> ajb = " : " AK -> ajk = ") << trialPtr->id1sav
              << " " << trialPtr->id2sav << " -> " << trialPtr->new1.id() << " "
@@ -5203,7 +5192,7 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
                " mjk")<<" = "<<sqrt(m2(trialPtr->new2.p()+trialPtr->new3.p()))
              << (isII ? " mAB" : " mAK") << " = " << sqrt(S12)<<endl;
       }
-      if (verbose >= DEBUG) trialPtr->list();
+      if (verbose >= VinciaConstants::DEBUG) trialPtr->list();
       if (Paccept[0] > 100.0) {
         int    nResc        = trialPtr->getNshouldRescue(iTrial);
         double PDFphysTrial = trialPtr->physPDFratioSav[iTrial]/
@@ -5230,25 +5219,26 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
 
     // Count up number of vetoed branchings.
     trialPtr->nVeto++;
-    if (verbose >= DEBUG ) {
+    if (verbose >= VinciaConstants::DEBUG ) {
       printOut(__METHOD_NAME__, "Branching vetoed.");
-      if (verbose >= DEBUG) {
+      if (verbose >= VinciaConstants::DEBUG) {
         stringstream ss;
         ss << "Paccept = " << Paccept[0] << " Enhancefac = " << enhanceFac;
         printOut(__METHOD_NAME__, ss.str());
       }
     }
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"trialVeto(pAccept)");
     return false;
   }
-  else if (verbose >= DEBUG)
+  else if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, "Trial accepted.");
 
   // Enhancement.
   if (enhanceFac != 1.0)
     weightsPtr->scaleWeightEnhanceAccept(enhanceFac);
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end ", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "end ", dashLen);
   return true;
 
 }
@@ -5507,8 +5497,7 @@ bool VinciaISR::checkAntennae(const Event& event) {
     if (!partonSystemsPtr->hasInAB(iSysNow)) {
       stringstream ss;
       ss << "iSysNow = " << iSysNow;
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__+
-        ": No incoming particles in system.",ss.str());
+      loggerPtr->ERROR_MSG("no incoming particles in system",ss.str());
       return false;
     } else{
       inA = partonSystemsPtr->getInA(iSysNow);
@@ -5518,8 +5507,8 @@ bool VinciaISR::checkAntennae(const Event& event) {
       stringstream ss;
       ss << "iSysNow = " << iSysNow
          << ". inA = " << inA << " inB = " << inB;
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__+
-        ": Non-positive incoming particles in system.", ss.str());
+      loggerPtr->ERROR_MSG("non-positive incoming particles in system",
+        ss.str());
       return false;
     }
 
@@ -5532,14 +5521,12 @@ bool VinciaISR::checkAntennae(const Event& event) {
       if (i1 != inA) {
         stringstream ss;
         ss << "iSysNow = "<<iSysNow<<". i1  = " << i1;
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__+
-          ": i1 not incoming in system.", ss.str());
+        loggerPtr->ERROR_MSG("i1 not incoming in system", ss.str());
         return false;
       } else if (i2 != inB) {
         stringstream ss;
         ss << "iSysNow = "<<iSysNow<<". i2  = " << i2;
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__+
-          ": i2 not incoming in system.", ss.str());
+        loggerPtr->ERROR_MSG("i2 not incoming in system", ss.str());
         return false;
       }
       nIIAntInSys[iSysNow]++;
@@ -5548,23 +5535,20 @@ bool VinciaISR::checkAntennae(const Event& event) {
       if (!event[i2].isFinal()) {
         stringstream ss;
         ss << "iSysNow = "<<iSysNow<<". i2  = " << i2;
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__+
-          ": i2 not outgoing in system.", ss.str());
+        loggerPtr->ERROR_MSG("i2 not outgoing in system", ss.str());
         return false;
       }
       // IF with 1 = I from A.
       if (ibrancher->is1A() && i1 != inA) {
         stringstream ss;
         ss << "iSysNow = "<<iSysNow<<". i1  = " << i1;
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__+
-          ": i1 not incoming from A in system.", ss.str());
+        loggerPtr->ERROR_MSG("i1 not incoming from A in system", ss.str());
         return false;
         // IF with 1 = I from B.
       } else if (!ibrancher->is1A() && i1 != inB) {
         stringstream ss;
         ss << "iSysNow = "<<iSysNow<<". i1  = " << i1;
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__+
-          ": i1 not incoming from B in system.", ss.str());
+        loggerPtr->ERROR_MSG("i1 not incoming from B in system", ss.str());
         return false;
       }
       nIFAntInSys[iSysNow]++;
@@ -5591,8 +5575,7 @@ bool VinciaISR::checkAntennae(const Event& event) {
     if (nAntEnds < nEndsExpected) {
       stringstream ss;
       ss << "iSys = " << iSysTest;
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__+
-        ": Too few initial antennae in system",ss.str());
+      loggerPtr->ERROR_MSG("too few initial antennae in system",ss.str());
       cout << "colType A: " << event[inA].colType()
            << " colType B: " << event[inB].colType()
            << " nEnds: "  << nAntEnds
@@ -5604,8 +5587,7 @@ bool VinciaISR::checkAntennae(const Event& event) {
     } else if (nAntEnds > nEndsExpected) {
       stringstream ss;
       ss << "iSys = " << iSysTest;
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__+
-        ": Too many initial antennae in system.",ss.str());
+      loggerPtr->ERROR_MSG("too many initial antennae in system",ss.str());
       cout << "colType A: " << event[inA].colType()
            << " colType B: " << event[inB].colType()
            << " nEnds: "  << nAntEnds
@@ -5652,7 +5634,7 @@ void VinciaISR::saveBornState(Event& born, int iSys) {
   }
 
   // Print information.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     if (resolveBorn[iSys]) {
       printOut(__METHOD_NAME__, "System " + num2str(iSys,2)
         + " with resolved Born configuration:");
@@ -5704,7 +5686,7 @@ void VinciaISR::saveBornForTrialShower(Event& born) {
   }
 
   // Print information.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     if (resolveBorn[iSysTrial]) {
       printOut(__METHOD_NAME__, "System " + num2str(iSysTrial,2)
         + " with resolved Born configuration:");

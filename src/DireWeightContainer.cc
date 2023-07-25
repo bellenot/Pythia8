@@ -9,6 +9,7 @@
 #include "Pythia8/DireWeightContainer.h"
 #include "Pythia8/DireSpace.h"
 #include "Pythia8/DireTimes.h"
+#include "Pythia8/Plugins.h"
 
 namespace Pythia8 {
 
@@ -29,14 +30,16 @@ void DireWeightContainer::setup() {
   string mePlugin = settingsPtr->word("Dire:MEplugin");
   if (mePlugin.size() > 0) {
     if (!hasMEs) {
-      matrixElements = ExternalMEsPlugin("libpythia8mg5" + mePlugin + ".so");
+      matrixElements = make_plugin<ExternalMEs>(
+        "libpythia8mg5" + mePlugin + ".so", "ExternalMEsMadgraph",
+        nullptr, settingsPtr, infoPtr->loggerPtr);
     }
-    hasMEs = matrixElements.initDire(infoPtr,card);
+    hasMEs = matrixElements != nullptr ?
+      matrixElements->initDire(infoPtr, card) : false;
   }
 
   // Initialize additional user-defined enhancements of splitting kernel
   // overestimates.
-  //int sizeNames = 48;
   int sizeNames = 100;
   const char* names[] = {
     // QCD FSR
@@ -491,17 +494,17 @@ double DireWeightContainer::getTrialEnhancement( double pT2key ) {
 //--------------------------------------------------------------------------
 
 bool DireWeightContainer::hasME(const Event& event) {
-  if (hasMEs) return matrixElements.isAvailable(event);
+  if (hasMEs) return matrixElements->isAvailable(event);
   return false;
 }
 
 bool DireWeightContainer::hasME(vector <int> in_pdgs, vector<int> out_pdgs) {
-  if (hasMEs) return matrixElements.isAvailable(in_pdgs, out_pdgs);
+  if (hasMEs) return matrixElements->isAvailable(in_pdgs, out_pdgs);
   return false;
 }
 
 double DireWeightContainer::getME(const Event& event) {
-  if (hasMEs) return matrixElements.calcME2(event);
+  if (hasMEs) return matrixElements->calcME2(event);
   return 0.0;
 }
 

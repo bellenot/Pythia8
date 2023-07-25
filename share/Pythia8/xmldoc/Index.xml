@@ -35,8 +35,10 @@
 <aidx href="MasterSwitches">Master Switches</aidx><br/> 
 <aidx href="RandomNumberSeed">Random-Number Seed</aidx><br/> 
 <aidx href="Tunes">Tunes</aidx><br/> 
+<aidx href="Logging">Logging and Diagnostics</aidx><br/> 
 <aidx href="ErrorChecks">Error Checks</aidx><br/> 
 <aidx href="Parallelism">Parallelism</aidx><br/> 
+<aidx href="Plugins">Plugins</aidx><br/> 
 </div> 
  
 <button class="expand" style="font-size:20px;">Beams</button> 
@@ -108,6 +110,8 @@ Hard Processes</button>
 <aidx href="TimelikeShowers">Timelike Showers</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <aidx href="SpacelikeShowers">Spacelike Showers</aidx><br/> 
+&nbsp;&nbsp;--&nbsp;&nbsp; 
+<aidx href="OniaShowers">Onia Showers</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <aidx href="WeakShowers">Weak Showers</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 

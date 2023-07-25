@@ -130,7 +130,7 @@ void VinciaWeights::init( bool doMergingIn ) {
     }
   }
 
-  if (uncertaintyBands && (verbose >= REPORT)) {
+  if (uncertaintyBands && (verbose >= Logger::REPORT)) {
     printOut("VinciaWeights", "List of variations, keywords and values:");
     for (int i = 0; i < (int)varLabels.size(); i++) {
       cout << "  " << varLabels[i] << " : ";

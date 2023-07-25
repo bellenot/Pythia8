@@ -82,8 +82,9 @@ public:
   // Destructor.
   virtual ~LHAup() {}
 
-  // Set info pointer.
-  void setPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;}
+  // Set pointers.
+  void setPtr(Info* infoPtrIn) {infoPtr = infoPtrIn;
+    loggerPtr = infoPtrIn->loggerPtr;}
 
   // Method to be used for LHAupLHEF derived class.
   virtual void newEventFile(const char*) {}
@@ -215,6 +216,7 @@ protected:
 
   // Pointer to various information on the generation.
   Info* infoPtr;
+  Logger* loggerPtr;
 
   // Input beam info.
   void setBeamA(int idIn, double eIn, int pdfGroupIn = 0, int pdfSetIn = 0)
@@ -472,38 +474,6 @@ private:
 
   // Flag to set particle production scales or not.
   bool setScalesFromLHEF, hasExtFileStream, hasExtHeaderStream;
-
-};
-
-//==========================================================================
-
-// A derived class to be loaded as a plugin library.
-class Pythia;
-class LHAupPlugin : public LHAup {
-
-public:
-
-  // Constructor and destructor.
-  LHAupPlugin(string nameIn = "", Pythia *pythiaPtr = nullptr);
-  ~LHAupPlugin();
-
-  // Routine for doing the job of setting initialization info.
-  bool setInit() override {
-    return lhaPtr != nullptr ? lhaPtr->setInit() : false;}
-  // Routine for doing the job of setting info on next event.
-  bool setEvent(int idProcIn = 0) override {
-    return lhaPtr != nullptr ? lhaPtr->setEvent(idProcIn) : false;}
-
-private:
-
-  // Typedefs of the hooks used to access the plugin.
-  typedef LHAup* NewLHAup(Pythia*);
-  typedef void DeleteLHAup(LHAup*);
-
-  // The loaded MEs object, plugin library, and plugin name.
-  LHAup     *lhaPtr;
-  PluginPtr  libPtr;
-  string     name;
 
 };
 

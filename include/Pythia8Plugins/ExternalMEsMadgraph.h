@@ -13,6 +13,7 @@
 
 // Include Pythia headers.
 #include "Pythia8/ExternalMEs.h"
+#include "Pythia8/Plugins.h"
 
 // Include Madgraph PY8MEs plugin headers.
 #include "PY8ME.h"
@@ -28,8 +29,8 @@ class ExternalMEsMadgraph : public ExternalMEs {
 public:
 
   // Constructor.
-  ExternalMEsMadgraph() {isInitPtr = false; isInit = false;
-    libPtr = nullptr; modelPtr = nullptr;}
+  ExternalMEsMadgraph(Pythia*, Settings*, Logger*) {
+    isInitPtr = false; isInit = false; libPtr = nullptr; modelPtr = nullptr;}
 
   // Destructor.
   ~ExternalMEsMadgraph() {if (libPtr != nullptr) delete libPtr;
@@ -37,7 +38,7 @@ public:
 
   // Initialisers.
   bool init() override;
-  bool initVincia() override;
+  bool initVincia(Info* infoPtrIn) override;
   bool initDire(Info*, string card) override;
 
   // Methods to check availability of matrix elements.
@@ -72,15 +73,15 @@ private:
 
 bool ExternalMEsMadgraph::init() {return true;}
 
-bool ExternalMEsMadgraph::initVincia() {
+bool ExternalMEsMadgraph::initVincia(Info* infoPtrIn) {
 
   // Check if pointers initialized.
+  initPtrs(infoPtrIn);
   int verbose = settingsPtr->mode("Vincia:verbose");
   if (verbose > 1)
     cout << " (ExternalMEsMadgraph::init()) begin -------" << endl;
   if (!isInitPtr) {
-    infoPtr->errorMsg("Error in ExternalMEsMadgraph::init:"
-      " Cannot initialize, pointers not set.");
+    loggerPtr->ERROR_MSG("cannot initialize, pointers not set");
     return false;
   }
   isInit = true;
@@ -356,15 +357,10 @@ void ExternalMEsMadgraph::fillLists(const vector<Particle>& state,
 
 //--------------------------------------------------------------------------
 
-// Define external handles to the plugin for dynamic loading.
+// Declare the plugin.
 
-extern "C" {
-
-  ExternalMEsMadgraph* newExternalMEs() {return new ExternalMEsMadgraph();}
-
-  void deleteExternalMEs(ExternalMEsMadgraph* mes) {delete mes;}
-
-}
+PYTHIA8_PLUGIN_CLASS(ExternalMEs, ExternalMEsMadgraph, false, false, false)
+PYTHIA8_PLUGIN_VERSIONS(PYTHIA_VERSION_INTEGER)
 
 //==========================================================================
 

@@ -3,9 +3,9 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Mikhail Kirsanov <Mikhail.Kirsanov@cern.ch>.
+// Authors: Mikhail Kirsanov <Mikhail.Kirsanov@cern.ch>
 
-// Keywords: basic usage; hepmc;
+// Keywords: basic usage; hepmc
 
 // This program illustrates how HepMC can be interfaced to Pythia8.
 // It studies the charged multiplicity distribution at the LHC.

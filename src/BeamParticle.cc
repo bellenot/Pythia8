@@ -892,8 +892,7 @@ bool BeamParticle::remnantFlavours(Event& event, bool isDIS) {
   // For DIS allow collapse to one colour singlet hadron.
   if (isHadronBeam && isDIS && size() > 2 && resolved[0].id() != 21) {
     if (size() != 4) {
-      infoPtr->errorMsg("Error in BeamParticle::remnantFlavours: "
-        "unexpected number of beam remnants for DIS");
+      loggerPtr->ERROR_MSG("unexpected number of beam remnants for DIS");
       return false;
     }
 
@@ -905,8 +904,7 @@ bool BeamParticle::remnantFlavours(Event& event, bool isDIS) {
     // Combine to new hadron flavour.
     int idHad = flavSelPtr->combineId( resolved[i12].id(), resolved[3].id() );
     if (idHad == 0) {
-      infoPtr->errorMsg("Error in BeamParticle::remnantFlavours: "
-        "failed to combine hadron for DIS");
+      loggerPtr->ERROR_MSG("failed to combine hadron for DIS");
       return false;
     }
 
@@ -1088,8 +1086,7 @@ bool BeamParticle::remnantColours(Event& event, vector<int>& colFrom,
 
   // Any other nonvanishing values indicate failure.
   } else if (colList.size() > 0 || acolList.size() > 0) {
-    infoPtr->errorMsg("Error in BeamParticle::remnantColours: "
-      "leftover unmatched colours");
+    loggerPtr->ERROR_MSG("leftover unmatched colours");
     return false;
   }
 
@@ -1948,8 +1945,7 @@ bool BeamParticle::remnantFlavoursNew(Event& event) {
 
   // Need to end in a colour singlet.
   if (cols.size() != 0 || acols.size() != 0) {
-    infoPtr->errorMsg("Error in BeamParticle::RemnantFlavours: "
-      "Colour not conserved in beamRemnants");
+    loggerPtr->ERROR_MSG("colour not conserved in beamRemnants");
     return false;
   }
 
@@ -2033,8 +2029,7 @@ int BeamParticle::findSingleCol(Event& event, bool isAcol,
   }
 
   // Return 0 if no particle was found.
-  infoPtr->errorMsg("Error in BeamParticle::findSingleCol: "
-                    "could not find matching anti colour");
+  loggerPtr->ERROR_MSG("could not find matching anti-colour");
   return 0;
 }
 

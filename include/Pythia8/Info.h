@@ -12,6 +12,7 @@
 
 #include "Pythia8/Basics.h"
 #include "Pythia8/LHEF3.h"
+#include "Pythia8/Logger.h"
 #include "Pythia8/PythiaStdlib.h"
 #include "Pythia8/SharedPointers.h"
 #include "Pythia8/Weights.h"
@@ -22,6 +23,7 @@ namespace Pythia8 {
 class Settings;
 class ParticleData;
 class Rndm;
+class BeamSetup;
 class CoupSM;
 class CoupSUSY;
 class BeamParticle;
@@ -62,20 +64,14 @@ public:
 
   // Set pointers to other class objects.
   void setPtrs(Settings* settingsPtrIn, ParticleData* particleDataPtrIn,
-    Rndm* rndmPtrIn, CoupSM* coupSMPtrIn, CoupSUSY* coupSUSYPtrIn,
-    BeamParticle* beamAPtrIn,    BeamParticle* beamBPtrIn,
-    BeamParticle* beamPomAPtrIn, BeamParticle*  beamPomBPtrIn,
-    BeamParticle* beamGamAPtrIn, BeamParticle*  beamGamBPtrIn,
-    BeamParticle* beamVMDAPtrIn, BeamParticle*  beamVMDBPtrIn,
+    Logger* loggerPtrIn, Rndm* rndmPtrIn, BeamSetup* beamSetupIn,
+    CoupSM* coupSMPtrIn, CoupSUSY* coupSUSYPtrIn,
     PartonSystems* partonSystemsPtrIn, SigmaTotal* sigmaTotPtrIn,
     SigmaCombined* sigmaCmbPtrIn, HadronWidths* hadronWidthsPtrIn,
     WeightContainer* weightContainerPtrIn) {
     settingsPtr = settingsPtrIn; particleDataPtr = particleDataPtrIn;
-    rndmPtr = rndmPtrIn; coupSMPtr = coupSMPtrIn; coupSUSYPtr = coupSUSYPtrIn;
-    beamAPtr    = beamAPtrIn;    beamBPtr    = beamBPtrIn;
-    beamPomAPtr = beamPomAPtrIn; beamPomBPtr = beamPomBPtrIn;
-    beamGamAPtr = beamGamAPtrIn; beamGamBPtr = beamGamBPtrIn;
-    beamVMDAPtr = beamVMDAPtrIn; beamVMDBPtr = beamVMDBPtrIn;
+    loggerPtr = loggerPtrIn; rndmPtr = rndmPtrIn; beamSetupPtr = beamSetupIn;
+    coupSMPtr = coupSMPtrIn; coupSUSYPtr = coupSUSYPtrIn;
     partonSystemsPtr = partonSystemsPtrIn; sigmaTotPtr = sigmaTotPtrIn;
     sigmaCmbPtr = sigmaCmbPtrIn; hadronWidthsPtr = hadronWidthsPtrIn;
     weightContainerPtr = weightContainerPtrIn; }
@@ -86,23 +82,18 @@ public:
   // Pointer to the particle data table.
   ParticleData*  particleDataPtr{};
 
+  // Pointer to the logger.
+  Logger*        loggerPtr{};
+
   // Pointer to the random number generator.
   Rndm*          rndmPtr{};
+
+  // Pointers to beam configuration.
+  BeamSetup*     beamSetupPtr{};
 
   // Pointers to Standard Model and Beyond SM couplings.
   CoupSM*        coupSMPtr{};
   CoupSUSY*      coupSUSYPtr{};
-
-  // Pointers to the two incoming beams and to Pomeron, photon or VMD
-  // beam-inside-beam cases.
-  BeamParticle*  beamAPtr{};
-  BeamParticle*  beamBPtr{};
-  BeamParticle*  beamPomAPtr{};
-  BeamParticle*  beamPomBPtr{};
-  BeamParticle*  beamGamAPtr{};
-  BeamParticle*  beamGamBPtr{};
-  BeamParticle*  beamVMDAPtr{};
-  BeamParticle*  beamVMDBPtr{};
 
   // Pointer to information on subcollision parton locations.
   PartonSystems* partonSystemsPtr{};
@@ -122,9 +113,6 @@ public:
   HIInfo*        hiInfo{};
 
   WeightContainer* weightContainerPtr{};
-
-  // Initialize settings for error printing.
-  void   init();
 
   // Listing of most available information on current event.
   void   list() const;
@@ -301,22 +289,6 @@ public:
   // Set or increase the value stored in a counter.
   void   setCounter( int i, int value = 0) {counters[i]  = value;}
   void   addCounter( int i, int value = 1) {counters[i] += value;}
-
-  // Reset to empty map of error messages.
-  void   errorReset() {messages.clear();}
-
-  // Print a message the first few times. Insert in database.
-  void   errorMsg(string messageIn, string extraIn = " ",
-    bool showAlways = false);
-
-  // Add all errors from the other Info object to the count of this object.
-  void   errorCombine(const Info& other);
-
-  // Provide total number of errors/aborts/warnings experienced to date.
-  int    errorTotalNumber() const;
-
-  // Print statistics on errors/aborts/warnings.
-  void   errorStatistics() const;
 
   // Set initialization warning flag when too low pTmin in ISR/FSR/MPI.
   void   setTooLowPTmin(bool lowPTminIn) {lowPTmin = lowPTminIn;}
@@ -497,6 +469,10 @@ public:
   void setWeak2to2lines(vector<int> weak2to2linesIn)
     {weak2to2lines = weak2to2linesIn;}
 
+  // Check if onia is included in showers (used for MPI process setup).
+  void setOniumShower(bool oniumShowerIn) {oniumShower = oniumShowerIn;}
+  bool getOniumShower() const {return oniumShower;}
+
   // From here on what used to be the private part of the class.
 
   // Allow conversion from mb to pb.
@@ -551,30 +527,11 @@ public:
   // Vector of various loop counters.
   int    counters[50];
 
-  // Map for all error messages.
-  map<string, int> messages;
-
-  // Whether error messages should be printed the first time the error occurs.
-  bool printErrors;
-
   // Map for LHEF headers.
   map<string, string> headers;
 
   // Strings for complete header block and event comments.
   string headerBlock{}, eventComments{};
-
-  // Map for plugin libraries.
-  map<string, PluginPtr> plugins;
-
-  // Load a plugin library.
-  PluginPtr plugin(string nameIn) {
-    map<string, PluginPtr>::iterator pluginItr = plugins.find(nameIn);
-    if (pluginItr == plugins.end()) {
-      PluginPtr pluginPtr = make_shared<Plugin>(nameIn, this);
-      plugins[nameIn] = pluginPtr;
-      return pluginPtr;
-    } else return pluginItr->second;
-  };
 
   // Set info on the two incoming beams: only from Pythia class.
   void setBeamIDs( int idAin, int idBin) { idASave = idAin; idBSave = idBin;}
@@ -744,10 +701,11 @@ public:
     {hasUnresBeams = hasUnresBeamsIn;}
   void setHasPomPsystem(bool hasPomPsysIn) {hasPomPsys = hasPomPsysIn;}
 
-  // Variables for weak shower setup.
+  // Variables for weak and onia shower setup.
   vector<int> weakModes, weak2to2lines;
   vector<Vec4> weakMomenta;
   vector<pair<int, int> > weakDipoles;
+  bool oniumShower{false};
 
   int numberOfWeights() const {
     return weightContainerPtr->numberOfWeights(); }
@@ -759,48 +717,6 @@ public:
     return weightContainerPtr->weightValueVector(); }
   vector<string> weightNameVector() const {
     return weightContainerPtr->weightNameVector(); }
-
-};
-
-//==========================================================================
-
-// Class for loading plugin libraries at run time.
-
-class Plugin {
-
-public:
-
-  // Constructor.
-  Plugin(string nameIn = "", Info *infoPtrIn = nullptr);
-
-  // Destructor.
-  ~Plugin();
-
-  // Return if the plugin is loaded.
-  bool isLoaded() {return libPtr != nullptr;}
-
-  // Symbol from the plugin library.
-  typedef void (*Symbol)();
-
-  // Access plugin library symbols.
-  Symbol symbol(string symName);
-
-protected:
-
-  // Small routine for error printout, depending on infoPtr existing or not.
-  void errorMsg(string errMsg) {
-    if (infoPtr != nullptr) infoPtr->errorMsg(errMsg);
-    else cout << errMsg << endl;
-  }
-
- private:
-
-  // Pointer to info.
-  Info  *infoPtr;
-  // The loaded plugin library.
-  void  *libPtr;
-  // The plugin library name.
-  string name;
 
 };
 

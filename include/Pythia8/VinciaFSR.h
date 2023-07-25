@@ -131,19 +131,20 @@ vector<int> iIn) : sectorShower(sectorShowerIn) {
 
   // Generate a new Q2 scale.
   virtual double genQ2(int evTypeIn, double Q2MaxNow, Rndm* rndmPtr,
-    Info* infoPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
+    Logger* loggerPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
     vector<double> headroomIn, vector<double> enhanceFacIn,
     int verboseIn) = 0;
 
   // Generate complementary invariant(s) for saved trial. Return false
   // if no physical kinematics possible. Base class returns false.
   virtual bool genInvariants(vector<double>& invariants, Rndm*, int,
-    Info* /*infoPtr*/) {
+    Logger*) {
     invariants.clear(); return false;}
 
   // Compute antPhys/antTrial, given an input value for antPhys. Base
   // class returns 0.
-  virtual double pAccept(const double, Info* /*infoPtr*/, int = 0) {return 0.;}
+  virtual double pAccept(const double, Logger* /*loggerPtr*/, int = 0) {
+    return 0.;}
 
   // Compute pT scale of trial branching.
   virtual double getpTscale();
@@ -286,19 +287,20 @@ public:
 
   // Generate a new Q2 value, soft-eikonal 2/yij/yjk implementation.
   double genQ2(int evTypeIn, double Q2MaxNow, Rndm* rndmPtr,
-    Info* infoPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
+    Logger* loggerPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
     vector<double> headroomIn, vector<double> enhanceFacIn,int verboseIn);
 
   // Generate invariants. Method to generate complementary
   // invariant(s) for saved trial scale for gluon emission. Return
   // false if no physical kinematics possible.
   virtual bool genInvariants(vector<double>& invariants, Rndm* rndmPtr,
-    int verboseIn, Info* /*infoPtr*/);
+    int verboseIn, Logger* loggerPtr);
 
   // Compute antPhys/antTrial for gluon emissions, given
   // antPhys. Note, antPhys should be normalised to include charge and
   // coupling factors.
-  virtual double pAccept(const double antPhys, Info* infoPtr, int verboseIn);
+  virtual double pAccept(const double antPhys, Logger* loggerPtr,
+    int verboseIn);
 
   // Return the maximum Q2.
   double getQ2Max(int evType);
@@ -363,18 +365,19 @@ public:
   // Generate a new Q2 scale (collinear 1/(2q2) implementation) with
   // constant trial alphaS.
   double genQ2(int evTypeIn, double Q2MaxNow, Rndm* rndmPtr,
-    Info* infoPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
+    Logger* loggerPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
     vector<double> headroomIn, vector<double> enhanceFacIn,int verboseIn);
 
   // Generate complementary invariant(s) for saved trial scale for
   // gluon splitting. Return false if no physical kinematics possible.
   virtual bool genInvariants(vector<double>& invariants, Rndm* rnmdPtr,
-    int verboseIn, Info* /*infoPtr*/);
+    int verboseIn, Logger* loggerPtr);
 
   // Compute antPhys/antTrial for gluon splittings, given antPhys.
   // Note, antPhys should be normalised to include charge and coupling
   // factors.
-  virtual double pAccept(const double antPhys, Info* infoPtr, int verboseIn);
+  virtual double pAccept(const double antPhys, Logger* loggerPtr,
+    int verboseIn);
 
   // Getter and setter methods.
   double getQ2Max(int evType);
@@ -506,18 +509,18 @@ public:
 
   // Generate a new Q2 scale.
   double genQ2(int evTypeIn, double Q2MaxNow, Rndm* rndmPtr,
-    Info* infoPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
+    Logger* loggerPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
     vector<double> headroomIn, vector<double> enhanceFacIn,
     int verboseIn) override;
 
   // Generate complementary invariant(s) for saved trial scale. Return
   // false if no physical kinematics possible.
   bool genInvariants(vector<double>& invariants,Rndm* rndmPtr,
-    int verboseIn, Info* /*infoPtr*/) override;
+    int verboseIn, Logger* loggerPtr) override;
 
   // Compute antPhys/antTrial, given antPhys. Note, antPhys should be
   // normalised to include charge and coupling factors.
-  double pAccept(const double, Info* infoPtr, int verboseIn) override;
+  double pAccept(const double, Logger* loggerPtr, int verboseIn) override;
 
 };
 
@@ -558,7 +561,7 @@ public:
 
   // Generate a new Q2 scale.
   double genQ2(int evTypeIn, double Q2MaxNow, Rndm* rndmPtr,
-    Info* infoPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
+    Logger* loggerPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
     vector<double> headroomIn, vector<double> enhanceFacIn,
     int verboseIn) override;
 

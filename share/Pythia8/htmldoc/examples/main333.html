@@ -43,7 +43,7 @@ public:
         return false;
     }
     // This info message will be printed in the stat summary.
-    infoPtr-&gt;errorMsg(&quot;Info: Event vetoed by HadronUserHooks&quot;);
+    loggerPtr-&gt;INFO_MSG(&quot;event vetoed by HadronUserHooks&quot;);
     // If no trigger particle is found, veto the event.
     return true;
   }

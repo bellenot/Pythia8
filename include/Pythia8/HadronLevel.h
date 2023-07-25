@@ -52,7 +52,9 @@ public:
   // Initialize HadronLevel classes as required.
   bool init( TimeShowerPtr timesDecPtr, RHadrons* rHadronsPtrIn,
     DecayHandlerPtr decayHandlePtr, vector<int> handledParticles,
-    StringIntPtr stringInteractionsPtrIn, PartonVertexPtr partonVertexPtrIn);
+    StringIntPtr stringInteractionsPtrIn, PartonVertexPtr partonVertexPtrIn,
+    SigmaLowEnergy& sigmaLowEnergyIn,
+    NucleonExcitations& nucleonExcitationsIn);
 
   // Get pointer to StringFlav instance (needed by BeamParticle).
   StringFlav* getStringFlavPtr() {return &flavSel;}
@@ -78,8 +80,7 @@ public:
   // Special routine to do a low-energy hadron-hadron scattering.
   bool doLowEnergyProcess(int i1, int i2, int procTypeIn, Event& event) {
     if (!lowEnergyProcess.collide( i1, i2, procTypeIn, event)) {
-      infoPtr->errorMsg("Error in HadronLevel::doLowEnergyProcess: "
-        "Low energy collision failed");
+      loggerPtr->ERROR_MSG("low energy collision failed");
       return false;
     }
     return true;
@@ -98,8 +99,6 @@ protected:
     registerSubObject(ministringFrag);
     registerSubObject(decays);
     registerSubObject(lowEnergyProcess);
-    registerSubObject(sigmaLowEnergy);
-    registerSubObject(nucleonExcitations);
     registerSubObject(boseEinstein);
     registerSubObject(hiddenvalleyFrag);
     registerSubObject(junctionSplitting);
@@ -189,10 +188,10 @@ private:
   double impactOpacity{};
 
   // Cross sections for low-energy processes.
-  SigmaLowEnergy sigmaLowEnergy;
+  SigmaLowEnergy* sigmaLowEnergyPtr = {};
 
   // Nucleon excitations data.
-  NucleonExcitations nucleonExcitations = {};
+  NucleonExcitations* nucleonExcitationsPtr = {};
 
   // Class for event geometry for Rope Hadronization. Production vertices.
   StringRepPtr stringRepulsionPtr;

@@ -3,9 +3,9 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Ilkka Helenius <ilkka.m.helenius@jyu.fi>.
+// Authors: Ilkka Helenius <ilkka.m.helenius@jyu.fi>
 
-// Keywords: photon beam; DIS; UPC; heavy ions; photoproduction;
+// Keywords: photon beam; DIS; UPC; heavy ions; photoproduction
 
 // Main program to demonstrate how to define a photon flux and use that
 // to generate charged-particle pT spectra in photo-production processes.

@@ -52,10 +52,15 @@ double lambertW (const double x);
 // Kallen function.
 double kallenFunction(const double x, const double y, const double z);
 
+// Generate linearly or logarithmically spaced points.
+vector<double> linSpace(int nPts, double xMin, double xMax);
+vector<double> logSpace(int nPts, double xMin, double xMax);
+
 //==========================================================================
 
 // LinearInterpolator class.
 // Used to interpolate between values in linearly spaced data.
+// The interpolation uses the arithmetic mean.
 
 class LinearInterpolator {
 
@@ -86,6 +91,50 @@ private:
 
   // Data members
   double leftSave, rightSave;
+  vector<double> ysSave;
+
+};
+
+//==========================================================================
+
+// LogInterpolator class.
+// Used to interpolate between values in logarithmically spaced data.
+// The interpolation uses the geometric mean.
+
+class LogInterpolator {
+
+public:
+
+  // Default constructor.
+  LogInterpolator() = default;
+
+  // Constructor.
+  LogInterpolator(double leftIn, double rightIn, vector<double> ysIn)
+    : leftSave(leftIn), rightSave(rightIn), ysSave(ysIn) {
+      if (ysIn.size() <= 1)
+        rxSave = numeric_limits<double>::quiet_NaN();
+      else
+        rxSave = pow(rightSave / leftSave, 1. / (ysSave.size() - 1));
+    }
+
+  // Function to get y-values of interpolation data.
+  const vector<double>& data() const { return ysSave; }
+
+  // x-values are logarithmically spaced on the interpolation region.
+  double left()  const { return leftSave; }
+  double right() const { return rightSave; }
+  double rx()    const { return rxSave; }
+
+  // Operator to get interpolated value at the specified point.
+  double operator()(double x) const;
+
+  // Plot the data points of this LogInterpolator in a histogram.
+  Hist plot(string title, int nBins, double xMin, double xMax) const;
+
+private:
+
+  // Data members.
+  double leftSave, rightSave, rxSave;
   vector<double> ysSave;
 
 };

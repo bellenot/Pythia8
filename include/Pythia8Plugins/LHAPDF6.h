@@ -9,7 +9,9 @@
 #define Pythia8_LHAPDF6_H
 
 #include "Pythia8/PartonDistributions.h"
+#include "Pythia8/Plugins.h"
 #include "LHAPDF/LHAPDF.h"
+#include <mutex>
 
 namespace Pythia8 {
 
@@ -32,7 +34,10 @@ public:
 
   // Access a PDF set.
   ::LHAPDF::PDF *operator[](unsigned int member) {
-    if (!pdfs[member]) pdfs[member] = info.mkPDF(member);
+    if (!pdfs[member]) {
+      lock_guard<mutex> lck (mtx);
+      pdfs[member] = info.mkPDF(member);
+    }
     return pdfs[member];
   }
 
@@ -42,9 +47,11 @@ public:
   // PDF sets and info.
   ::LHAPDF::PDFSet info;
   vector< ::LHAPDF::PDF* > pdfs;
+  static mutex mtx;
 
 };
 
+mutex PdfSets::mtx;
 
 //==========================================================================
 
@@ -55,9 +62,17 @@ class LHAPDF6 : public PDF {
 public:
 
   // Constructor.
-  LHAPDF6(int idBeamIn, string setName, int member, int)
-    : PDF(idBeamIn), pdf(nullptr), extrapol(false)
-    { init(setName, member); }
+  LHAPDF6(Pythia*, Settings* settingsPtr, Logger*) :
+    PDF(), pdf(nullptr), extrapol(false) {
+    if (settingsPtr == nullptr) return;
+    sSymmetric(settingsPtr->flag("LHAPDF:sSymmetric"));
+    cSymmetric(settingsPtr->flag("LHAPDF:cSymmetric"));
+    bSymmetric(settingsPtr->flag("LHAPDF:bSymmetric"));
+  }
+
+  // Initialization of PDF set.
+  bool init(int idBeamIn, string setName, int member, Logger* loggerPtr)
+    override;
 
   // Allow extrapolation beyond boundaries (not implemented).
   void setExtrapolate(bool extrapolIn) {extrapol = extrapolIn;}
@@ -69,9 +84,6 @@ private:
   ::LHAPDF::PDF *pdf;
   ::LHAPDF::Extrapolator *ext;
   bool extrapol;
-
-  // Initialization of PDF set.
-  void init(string setName, int member);
 
   // Update parton densities.
   void xfUpdate(int id, double x, double Q2);
@@ -119,26 +131,29 @@ const double LHAPDF6::PDFMINVALUE = 1e-10;
 
 // Initialize a parton density function from LHAPDF6.
 
-void LHAPDF6::init(string setName, int member) {
+bool LHAPDF6::init(int idBeamIn, string setName, int member,
+  Logger* loggerPtr) {
+  idBeam = idBeamIn;
+  idBeamAbs = abs(idBeamIn);
   isSet = false;
 
-
-  // Find the PDF set.
-  int id = ::LHAPDF::lookupLHAPDFID(setName, 0);
-  if (id < 0) {
-    cout << "Error in LHAPDF6::init: unknown PDF "
-         << setName << endl;
-    return;
+  // Find the PDF set. Note, LHAPDF aborts if the PDF does not exist,
+  // which we avoid with this try/catch statement. Ideally, we would
+  // check with :LHAPDF::lookupLHAPDFID, but this is not thread safe.
+  try {
+    pdfs = PdfSets(setName);
+  } catch (const std::exception &e) {
+    loggerPtr->ERROR_MSG("unknown PDF " + setName);
+    return false;
   }
-  pdfs = PdfSets(setName);
+
+  // Find the PDF member.
   if (pdfs.size() == 0) {
-    cout << "Error in LHAPDF6::init: could not initialize PDF "
-         << setName << endl;
-    return;
+    loggerPtr->ERROR_MSG("could not initialize PDF " + setName);
+    return false;
   } else if (member >= pdfs.size()) {
-    cout << "Error in LHAPDF6::init: " << setName
-         << " does not contain requested member" << endl;
-    return;
+    loggerPtr->ERROR_MSG(setName + " does not contain requested member");
+    return false;
   }
   pdf = pdfs[member];
   isSet = true;
@@ -155,8 +170,8 @@ void LHAPDF6::init(string setName, int member) {
   mcPDFSave = pdf->info().get_entry_as<double>("MCharm");
   msPDFSave = pdf->info().get_entry_as<double>("MStrange");
   mbPDFSave = pdf->info().get_entry_as<double>("MBottom");
-
   nMembersSave  = pdf->info().get_entry_as<int>("NumMembers");
+  return true;
 
 }
 
@@ -165,6 +180,7 @@ void LHAPDF6::init(string setName, int member) {
 // Give the parton distribution function set from LHAPDF6.
 
 void LHAPDF6::xfUpdate(int, double x, double Q2) {
+  if (!isSet) return;
 
   // Freeze at boundary value if PDF is evaluated outside the fit region.
   if (x < xMin && !extrapol) x = xMin;
@@ -197,6 +213,7 @@ void LHAPDF6::xfUpdate(int, double x, double Q2) {
 
 void LHAPDF6::calcPDFEnvelope(int idNow, double xNow, double Q2NowIn,
   int valSea) {
+  if (!isSet) return;
 
   // Freeze at boundary value if PDF is evaluated outside the fit region.
   double x1 = (xNow < xMin && !extrapol) ? xMin : xNow;
@@ -232,6 +249,7 @@ void LHAPDF6::calcPDFEnvelope(int idNow, double xNow, double Q2NowIn,
 
 void LHAPDF6::calcPDFEnvelope(pair<int,int> idNows, pair<double,double> xNows,
   double Q2NowIn, int valSea) {
+  if (!isSet) return;
 
   // Freeze at boundary value if PDF is evaluated outside the fit region.
   double x1 = (xNows.first < xMin && !extrapol) ? xMin : xNows.first;
@@ -280,16 +298,10 @@ void LHAPDF6::calcPDFEnvelope(pair<int,int> idNows, pair<double,double> xNows,
 
 //--------------------------------------------------------------------------
 
-// Define external handles to the plugin for dynamic loading.
+// Declare the plugin.
 
-extern "C" {
-
-  LHAPDF6* newPDF(int idBeamIn, string setName, int member) {
-    return new LHAPDF6(idBeamIn, setName, member, 1);}
-
-  void deletePDF(LHAPDF6* pdf) {delete pdf;}
-
-}
+PYTHIA8_PLUGIN_CLASS(PDF, LHAPDF6, false, false, false)
+PYTHIA8_PLUGIN_VERSIONS(PYTHIA_VERSION_INTEGER)
 
 //==========================================================================
 

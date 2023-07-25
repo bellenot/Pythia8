@@ -53,9 +53,10 @@ endif
 
 # POWHEG (needs directory that contains just POWHEG binaries and scripts).
 ifeq ($(POWHEG_USE),true)
-  ifneq ($(POWHEG_BIN),./)
-    TARGETS+=$(patsubst $(POWHEG_BIN)%,$(LOCAL_LIB)/libpythia8powheg%.so,\
-             $(wildcard $(POWHEG_BIN)*))
+  TARGETS+=$(LOCAL_LIB)/libpythia8powhegHooks.so
+  ifneq ($(POWHEG_BIN),.)
+    TARGETS+=$(patsubst $(POWHEG_BIN)lib%.so,\
+	     $(LOCAL_LIB)/libpythia8powheg%.so,$(wildcard $(POWHEG_BIN)*))
   endif
 endif
 
@@ -114,15 +115,20 @@ $(LOCAL_LIB)/libpythia8lhapdf%.so: $(LOCAL_TMP)/LHAPDF%Plugin.o\
 	$(CXX) $< -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME)$(notdir $@)\
 	 $(LHAPDF$*_LIB) -lLHAPDF -Llib -lpythia8
 
-# POWHEG (exclude any executable ending with sh).
+# POWHEG.
 $(LOCAL_TMP)/LHAPowheg.o: $(LOCAL_INCLUDE)/Pythia8Plugins/LHAPowheg.h
 	$(CXX) -x c++ $< -o $@ -c -MD -w $(CXX_COMMON)
-$(LOCAL_LIB)/libpythia8powheg%sh.so: $(POWHEG_BIN)%sh;
-$(LOCAL_LIB)/libpythia8powheg%.so: $(POWHEG_BIN)% $(LOCAL_TMP)/LHAPowheg.o\
+$(LOCAL_TMP)/PowhegHooks.o: $(LOCAL_INCLUDE)/Pythia8Plugins/PowhegHooks.h
+	$(CXX) -x c++ $< -o $@ -c -MD -w $(CXX_COMMON)
+$(LOCAL_LIB)/libpythia8powheg%.so: $(POWHEG_BIN)lib%.so\
+	$(LOCAL_TMP)/LHAPowheg.o $(LOCAL_LIB)/libpythia8$(LIB_SUFFIX)
+	$(CXX) $(LOCAL_TMP)/LHAPowheg.o -o $@ $(CXX_COMMON) $(CXX_SHARED)\
+	 $(CXX_SONAME)$(notdir $@) -Llib -lpythia8\
+	 -Wl,-rpath,../lib:$(POWHEG_BIN) -L$(POWHEG_BIN) -l$*
+$(LOCAL_LIB)/libpythia8powhegHooks.so: $(LOCAL_TMP)/PowhegHooks.o\
 	$(LOCAL_LIB)/libpythia8$(LIB_SUFFIX)
-	ln -s $< $(notdir $<); $(CXX) $(notdir $<) $(LOCAL_TMP)/LHAPowheg.o\
-	 -o $@ $(CXX_COMMON) $(CXX_SHARED) -Llib -lpythia8\
-	 $(CXX_SONAME)$(notdir $@) -Wl,-rpath,$(POWHEG_BIN); rm $(notdir $<)
+	$(CXX) $< -o $@ $(CXX_COMMON) $(CXX_SHARED) $(CXX_SONAME)$(notdir $@)\
+	 -Llib -lpythia8
 
 # MG5 matrix element plugins.
 mg5mes:

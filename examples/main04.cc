@@ -4,7 +4,7 @@
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Keywords: basic usage; command file; cross sections; minimum bias;
-// diffraction;
+//           diffraction
 
 // This is a simple test program.
 // It illustrates how to generate and study "total cross section" processes,

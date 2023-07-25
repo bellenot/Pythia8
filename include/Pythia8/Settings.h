@@ -17,7 +17,7 @@
 #ifndef Pythia8_Settings_H
 #define Pythia8_Settings_H
 
-#include "Pythia8/Info.h"
+#include "Pythia8/Logger.h"
 #include "Pythia8/PythiaStdlib.h"
 
 namespace Pythia8 {
@@ -197,11 +197,11 @@ class Settings {
 public:
 
   // Constructor.
-  Settings() : infoPtr(), isInit(false), readingFailedSave(false),
+  Settings() : loggerPtr(), isInit(false), readingFailedSave(false),
     lineSaved(false) {}
 
-  // Initialize Info pointer.
-  void initPtrs(Info* infoPtrIn) {infoPtr = infoPtrIn;}
+  // Initialize Logger pointer.
+  void initPtrs(Logger* loggerPtrIn) {loggerPtr = loggerPtrIn;}
 
   // Read in database from specific file.
   bool init(string startFile = "../share/Pythia8/xmldoc/Index.xml",
@@ -215,6 +215,9 @@ public:
 
   // Read in one update from a single line.
   bool readString(string line, bool warn = true) ;
+
+  // Register the settings from a plugin library.
+  bool registerPluginLibrary(string libName, string startFile = "");
 
   // Write updates or everything to user-defined file or to stream.
   bool writeFile(string toFile, bool writeAll = false) ;
@@ -354,8 +357,8 @@ public:
 
  private:
 
-  // Pointer to various information on the generation.
-  Info* infoPtr;
+  // Pointer to logger.
+  Logger* loggerPtr;
 
   // Map for bool flags.
   map<string, Flag> flags;
@@ -380,6 +383,9 @@ public:
 
   // Map for vectors of string.
   map<string, WVec> wvecs;
+
+  // Set of loaded plugin libraries.
+  set<string> pluginLibraries;
 
   // Flags that initialization has been performed; whether any failures.
   bool isInit, readingFailedSave;

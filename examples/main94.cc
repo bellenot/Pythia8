@@ -3,13 +3,13 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
+// Authors: Dag Gillberg <dag.gillberg@cern.ch>
+
+// Keywords: root; event display
+
 // This is a program that uses ROOT to visualize the particles produced by
 // Pythia. Particles are drawn in (y, phi)-space to depict the E/p flow.
 // A pdf file is produced with multiple pages showing WH->qqbb events.
-
-// Author: Dag Gillberg <dag.gillberg@cern.ch>
-
-// Keywords: root; event display;
 
 #include "Pythia8/Pythia.h"
 #include "TCanvas.h"

@@ -99,7 +99,7 @@ void VinciaHardProcess::initOnProcess(string process,
   ParticleData* particleData) {
 
   initLookup(particleData);
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, "Processing raw string " + process);
 
   // 1) Preprocessing. Remove leading "{".
@@ -112,16 +112,14 @@ void VinciaHardProcess::initOnProcess(string process,
   // 2) Split into incoming and outgoing.
   vector<string> inWords, outWords;
   if (!splitProcess(process, inWords, outWords)) {
-    if (verbose >= NORMAL) infoPtr->errorMsg("Error in " + __METHOD_NAME__
-      +": failed to split process.");
+    loggerPtr->ERROR_MSG("failed to split process");
     return;
   }
   if (!getParticles(particleData, inWords, outWords)) {
-    if (verbose >= NORMAL) infoPtr->errorMsg("Error in " + __METHOD_NAME__
-      +": failed to save hard process.");
+    loggerPtr->ERROR_MSG("failed to save hard process");
     return;
   }
-  if (verbose >= NORMAL) list();
+  if (verbose >= Logger::NORMAL) list();
   isInit = true;
 
 }
@@ -183,7 +181,7 @@ void VinciaHardProcess::getColourStructure(ColourStructure& colStructNow) {
       }
     }
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Found "<< colRes.size() << " coloured resonances";
     printOut(__METHOD_NAME__, ss.str());
@@ -224,14 +222,14 @@ void VinciaHardProcess::getColourStructure(ColourStructure& colStructNow) {
             daughter->isCol())
             colStructNow.coloured.push_back(daughter);
         // Just print a warning.
-        } else infoPtr->errorMsg("Error in "+__METHOD_NAME__
-            +": can't handle particle: " + daughter->name());
+        } else
+          loggerPtr->ERROR_MSG("cannot handle particle: " + daughter->name());
       }
     // Just pretend it is stable.
     } else colStructNow.coloured.push_back(resPtrNow);
   }
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Found " << uncolRes.size() << " uncoloured resonances";
     printOut(__METHOD_NAME__, ss.str());
@@ -339,8 +337,7 @@ void VinciaHardProcess::getColourStructure(ColourStructure& colStructNow) {
 
   colStructNow.nQQbarPairs = 0;
   if (nQ == nQbar) colStructNow.nQQbarPairs = nQ;
-  else infoPtr->errorMsg("Warning in " + __METHOD_NAME__
-    +": inconsistent number of quarks.");
+  else loggerPtr->WARNING_MSG("inconsistent number of quarks");
   colStructNow.nColoured = nQ + nQbar + nG;
 
   // Set minimum number of quark pairs.
@@ -510,7 +507,7 @@ void VinciaHardProcess::initLookup(ParticleData* particleData) {
     // Get next ID.
     next=particleData->nextId(next);
   }
-  if (verbose >= REPORT) listLookup();
+  if (verbose >= Logger::REPORT) listLookup();
 
 }
 
@@ -552,8 +549,7 @@ bool VinciaHardProcess::splitProcess(string process, vector<string>& inWords,
       stop = outString.find_last_of(")");
       if (start > outString.length() - 1 || stop == outString.length()
         || start>stop) {
-        if (verbose >= NORMAL) infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": unclosed bracket!");
+        loggerPtr->ERROR_MSG("unclosed bracket");
         return false;
       }
 
@@ -590,8 +586,7 @@ bool VinciaHardProcess::splitProcess(string process, vector<string>& inWords,
 
       // Did we reach end of string before we closed all brackets?
       if (nClose != nOpen) {
-        if (verbose >= NORMAL) infoPtr->errorMsg("Error in " + __METHOD_NAME__
-          +": unclosed bracket");
+        loggerPtr->ERROR_MSG("unclosed bracket");
         return false;
       }
       length = stop-start;
@@ -669,12 +664,10 @@ bool VinciaHardProcess::getParticles(ParticleData* particleDataPtr,
   vector<string> inWords, vector<string> outWords, int levelNow,
   vector<ParticleLocator>& mothersIn, vector<ParticleLocator>& mothersNow) {
   if (levelNow == 0 && inWords.size() != 2) {
-    if (verbose >= NORMAL) infoPtr->errorMsg("Error in " + __METHOD_NAME__
-      +": expect exactly two beam particles!");
+    loggerPtr->ERROR_MSG("expect exactly two beam particles");
     return false;
   } else if (levelNow > 0 && inWords.size() != 1) {
-    if (verbose >= NORMAL) infoPtr->errorMsg("Error in " + __METHOD_NAME__
-      +": please specify resonances one at a time.");
+    loggerPtr->ERROR_MSG("please specify resonances one at a time");
     return false;
   }
 
@@ -692,8 +685,7 @@ bool VinciaHardProcess::getParticles(ParticleData* particleDataPtr,
   // Check if we should resolve decays.
   int levelNext = levelNow + 1;
   if (levelNext > 1 && !resolveDecays) {
-    if (verbose >= NORMAL) infoPtr->errorMsg("Warning in " + __METHOD_NAME__
-      +": ignoring resonance decay information.");
+    loggerPtr->WARNING_MSG("ignoring resonance decay information");
     // Exit early.
     return true;
   }
@@ -720,8 +712,7 @@ bool VinciaHardProcess::getParticles(ParticleData* particleDataPtr,
 
   // If this is a resonance decay, check how many daughters we found.
   if (levelNext > 1 && daughters.size() != 2 ) {
-    if (verbose >= NORMAL) infoPtr->errorMsg("Error in " + __METHOD_NAME__
-      +": resonances should decay to exactly two particles.");
+    loggerPtr->ERROR_MSG("resonances should decay to exactly two particles");
     return false;
   }
 
@@ -754,29 +745,28 @@ bool VinciaHardProcess::addParticle(ParticleData* particleDataPtr, int level,
   } else if (lookupIDfromName.find(name) != lookupIDfromName.end()) {
     pid = lookupIDfromName[name];
     pData = particleDataPtr->findParticle(pid);
-    if ( pData == nullptr) {
-      if (verbose >= NORMAL) infoPtr->errorMsg("Error in " + __METHOD_NAME__
-        +": Mismatch between Particle Database and "
-        "VinciaHardProcess database.");
+    if (pData == nullptr) {
+      loggerPtr->ERROR_MSG("mismatch between particle database and "
+        "VinciaHardProcess database");
       return false;
     }
     isRes = pData->isResonance();
   } else {
-    if (verbose >= NORMAL) infoPtr->errorMsg("Error in " + __METHOD_NAME__
-        +": Particle '" + name + "' could not be found in database.");
+    loggerPtr->ERROR_MSG("particle '" + name
+        + "' not found in database");
     return false;
   }
 
   if (isIncoming) {
     // Check if incoming is a beam particle.
     if (level == 0 && !isBeamID(pid)) {
-      if (verbose >= NORMAL) infoPtr->errorMsg("Error in " + __METHOD_NAME__
-        +": Particle '" + name + "' is not an allowed beam particle.");
+      loggerPtr->ERROR_MSG("particle '" + name
+        + "' is not an allowed beam particle");
       return false;
     // Otherwise it should be a resonance.
     } else if (level > 0 && !isRes) {
-      if (verbose >= NORMAL) infoPtr->errorMsg("Error in " + __METHOD_NAME__
-        +": Particle '" + name + "' is not a known resonance.");
+      loggerPtr->ERROR_MSG("particle '" + name
+        + "' is not a known resonance");
       return false;
     }
   }
@@ -800,8 +790,8 @@ void VinciaMergingHooks::init() {
 
   // Safety check.
   if (settingsPtr->mode("PartonShowers:model") != 2) {
-    infoPtr->errorMsg("Warning in " + __METHOD_NAME__+": do not use "
-      "VinciaMergingHooks without setting PartonShowers:model = 2");
+    loggerPtr->WARNING_MSG(
+      "do not use VinciaMergingHooks without setting PartonShowers:model = 2");
     return;
   }
 
@@ -842,15 +832,14 @@ void VinciaMergingHooks::init() {
   doHEFT                = settingsPtr->flag("Vincia:MergeHEFT");
   doVBF                 = settingsPtr->flag("Vincia:MergeVBF");
 
-  if (nJetMaxSave == 0 && ( nJetMaxResSave == 0 || nMergeResSys == 0)) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": no additional jets were "
-      "requested, set Merging:nJetMax or Vincia:MergeNJetMaxRes with "
-      "Vincia:MergeNResSys = on");
+  if (nJetMaxSave == 0 && (nJetMaxResSave == 0 || nMergeResSys == 0)) {
+    loggerPtr->ERROR_MSG(
+      "no additional jets were requested, set Merging:nJetMax or "
+      "Vincia:MergeNJetMaxRes with Vincia:MergeNResSys = on");
     return;
   }
   if (processSave == "void" || processSave == "") {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": user did not set "
-      "process string.");
+    loggerPtr->ERROR_MSG("process string not set");
     return;
   }
 
@@ -858,19 +847,18 @@ void VinciaMergingHooks::init() {
   int kineMapFFsplit = settingsPtr->mode("Vincia:kineMapFFsplit");
   if (kineMapFFsplit != 1) {
     stringstream ss;
-    ss << ": inverse of Vincia:kineMapFFsplit = "
-       << kineMapFFsplit << " is not currently available, "
-       << " set Vincia:kineMapFFsplit = 1 to do merging.";
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+ss.str());
+    ss << "inverse of Vincia:kineMapFFsplit = "
+       << kineMapFFsplit << " is not currently available";
+    loggerPtr->ERROR_MSG(ss.str(),
+      "set Vincia:kineMapFFsplit = 1 to do merging");
     return;
   }
 
   // TODO: for now can't do merging for polarised.
   bool helicityShower = settingsPtr->flag("Vincia:helicityShower");
   if (helicityShower) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": currently merging is "
-      "not available for helicity showers, set Vincia:helicityShower = off "
-      "to do merging.");
+    loggerPtr->ERROR_MSG("currently merging is not available for "
+      "helicity showers","set Vincia:helicityShower = off to do merging");
     return;
   }
 
@@ -885,8 +873,8 @@ void VinciaMergingHooks::init() {
     nWgts += muRVarFactors.size();
   }
   if (doVariations) {
-    infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": automated "
-      "renormalisation scale variations are not yet supported by Vincia.");
+    loggerPtr->WARNING_MSG("automated renormalisation scale variations"
+      " are not yet supported by Vincia");
     muRVarFactors.clear();
     nWgts = 1;
   }
@@ -915,7 +903,7 @@ void VinciaMergingHooks::init() {
   doRemoveDecayProducts = !doMergeRes;
 
   // Initialise hard process.
-  vinHardProcessPtr = new VinciaHardProcess(infoPtr, verbose, doMergeRes,
+  vinHardProcessPtr = new VinciaHardProcess(loggerPtr, verbose, doMergeRes,
     doHEFT, doVBF);
   hardProcess  = vinHardProcessPtr;
   hardProcess->initOnProcess(processSave,particleDataPtr);
@@ -923,8 +911,8 @@ void VinciaMergingHooks::init() {
   // Extract the colour structure of the hard process
   // - the main thing we actually care about!
   if (!setColourStructure()) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Colour structure of "
-      "hard process could not be initialised.");
+    loggerPtr->ERROR_MSG("colour structure of hard process could not "
+      "be initialised");
     return;
   }
 
@@ -990,7 +978,7 @@ bool VinciaMergingHooks::doVetoStep(const Event&, const Event& event,
   // If so, veto if the event is above the merging scale.
   bool doVeto = doIgnoreStepSave ? false : isAboveMS(event);
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Event " << (doVeto ? "vetoed" : "not vetoed")
        << (doIgnoreStepSave ? " (ignored step)." : ".");
@@ -1032,7 +1020,7 @@ bool VinciaMergingHooks::isAboveMS(const Event& event) {
   }
   // Otherwise check whether we are above the merging scale.
   double tNow = tmsNow(event);
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "tNow = " << tNow << " and tMS = " << tmsCut();
     printOut(__METHOD_NAME__,ss.str());
@@ -1124,8 +1112,7 @@ ColourStructure VinciaMergingHooks::getColourStructure() {
     hasColStruct = true;
     return colStructSav;
   } else {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": hard process pointer is null.");
+    loggerPtr->ERROR_MSG("hard process pointer is null");
     return ColourStructure();
   }
 }
@@ -1140,19 +1127,17 @@ bool VinciaMergingHooks::setColourStructure() {
     if (!vinHardProcessPtr->initSuccess()) return false;
     vinHardProcessPtr->getColourStructure(colStructSav);
     if (getNResHad() != nMergeResSys) {
-      infoPtr->errorMsg("Error in " + __METHOD_NAME__+": Mismatch in "
-        "settings Vincia:MergeNJetMaxRes and Merging:Process");
+      loggerPtr->ERROR_MSG("mismatch in settings Vincia:MergeNJetMaxRes "
+        "and Merging:Process");
       return false;
     }
     if (getNResHad() == 0 && getNChainsMax() == 0) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__+": No colour in "
-        "specified Merging:Process");
+      loggerPtr->ERROR_MSG("no colour in specified Merging:Process");
       return false;
     }
     hasColStruct = true;
-    if (verbose >= NORMAL) printColStruct();
-  } else infoPtr->errorMsg("Error in "+__METHOD_NAME__
-    +": Hard process pointer is null");
+    if (verbose >= Logger::NORMAL) printColStruct();
+  } else loggerPtr->ERROR_MSG("hard process pointer is null");
   return hasColStruct;
 }
 

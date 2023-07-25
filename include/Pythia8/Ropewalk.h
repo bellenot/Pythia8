@@ -107,7 +107,7 @@ public:
   // The RopeDipole constructor makes sure that d1 is always the colored
   // end and d2 the anti-colored.
   RopeDipole(RopeDipoleEnd d1In, RopeDipoleEnd d2In, int iSubIn,
-    Info* infoPtrIn);
+    Logger* loggerPtrIn);
 
   // Insert an excitation on dipole, if not already there.
   void addExcitation(double ylab, Particle* ex);
@@ -199,7 +199,7 @@ private:
   map<double, Particle*> excitations;
 
   bool isHadronized;
-  Info* infoPtr;
+  Logger* loggerPtr;
 
 };
 

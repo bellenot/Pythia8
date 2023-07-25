@@ -1,10 +1,13 @@
 #include <Pythia8/Basics.h>
-#include <Pythia8/BeamParticle.h>
+#include <Pythia8/BeamSetup.h>
+#include <Pythia8/BeamShape.h>
 #include <Pythia8/Event.h>
 #include <Pythia8/FragmentationFlavZpT.h>
 #include <Pythia8/HadronWidths.h>
 #include <Pythia8/Info.h>
 #include <Pythia8/LHEF3.h>
+#include <Pythia8/LesHouches.h>
+#include <Pythia8/Logger.h>
 #include <Pythia8/ParticleData.h>
 #include <Pythia8/PartonDistributions.h>
 #include <Pythia8/PartonSystems.h>
@@ -23,6 +26,7 @@
 #include <map>
 #include <memory>
 #include <ostream>
+#include <set>
 #include <sstream> // __str__
 #include <string>
 #include <utility>
@@ -32,7 +36,6 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
-#include <Pythia8/HIUserHooks.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -49,7 +52,7 @@
 
 void bind_Pythia8_Info(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
-	{ // Pythia8::Info file:Pythia8/Info.h line:43
+	{ // Pythia8::Info file:Pythia8/Info.h line:45
 		pybind11::class_<Pythia8::Info, std::shared_ptr<Pythia8::Info>> cl(M("Pythia8"), "Info", "");
 		pybind11::handle cl_type = cl;
 
@@ -151,18 +154,15 @@ void bind_Pythia8_Info(std::function< pybind11::module &(std::string const &name
 		cl.def_readwrite("mVMDBSave", &Pythia8::Info::mVMDBSave);
 		cl.def_readwrite("scaleVMDASave", &Pythia8::Info::scaleVMDASave);
 		cl.def_readwrite("scaleVMDBSave", &Pythia8::Info::scaleVMDBSave);
-		cl.def_readwrite("messages", &Pythia8::Info::messages);
-		cl.def_readwrite("printErrors", &Pythia8::Info::printErrors);
 		cl.def_readwrite("headers", &Pythia8::Info::headers);
 		cl.def_readwrite("headerBlock", &Pythia8::Info::headerBlock);
 		cl.def_readwrite("eventComments", &Pythia8::Info::eventComments);
-		cl.def_readwrite("plugins", &Pythia8::Info::plugins);
 		cl.def_readwrite("weakModes", &Pythia8::Info::weakModes);
 		cl.def_readwrite("weak2to2lines", &Pythia8::Info::weak2to2lines);
 		cl.def_readwrite("weakMomenta", &Pythia8::Info::weakMomenta);
 		cl.def_readwrite("weakDipoles", &Pythia8::Info::weakDipoles);
+		cl.def_readwrite("oniumShower", &Pythia8::Info::oniumShower);
 		cl.def("assign", (class Pythia8::Info & (Pythia8::Info::*)(const class Pythia8::Info &)) &Pythia8::Info::operator=, "C++: Pythia8::Info::operator=(const class Pythia8::Info &) --> class Pythia8::Info &", pybind11::return_value_policy::reference, pybind11::arg(""));
-		cl.def("init", (void (Pythia8::Info::*)()) &Pythia8::Info::init, "C++: Pythia8::Info::init() --> void");
 		cl.def("list", (void (Pythia8::Info::*)() const) &Pythia8::Info::list, "C++: Pythia8::Info::list() const --> void");
 		cl.def("idA", (int (Pythia8::Info::*)() const) &Pythia8::Info::idA, "C++: Pythia8::Info::idA() const --> int");
 		cl.def("idB", (int (Pythia8::Info::*)() const) &Pythia8::Info::idB, "C++: Pythia8::Info::idB() const --> int");
@@ -319,13 +319,6 @@ void bind_Pythia8_Info(std::function< pybind11::module &(std::string const &name
 		cl.def("setCounter", (void (Pythia8::Info::*)(int, int)) &Pythia8::Info::setCounter, "C++: Pythia8::Info::setCounter(int, int) --> void", pybind11::arg("i"), pybind11::arg("value"));
 		cl.def("addCounter", [](Pythia8::Info &o, int const & a0) -> void { return o.addCounter(a0); }, "", pybind11::arg("i"));
 		cl.def("addCounter", (void (Pythia8::Info::*)(int, int)) &Pythia8::Info::addCounter, "C++: Pythia8::Info::addCounter(int, int) --> void", pybind11::arg("i"), pybind11::arg("value"));
-		cl.def("errorReset", (void (Pythia8::Info::*)()) &Pythia8::Info::errorReset, "C++: Pythia8::Info::errorReset() --> void");
-		cl.def("errorMsg", [](Pythia8::Info &o, class std::basic_string<char> const & a0) -> void { return o.errorMsg(a0); }, "", pybind11::arg("messageIn"));
-		cl.def("errorMsg", [](Pythia8::Info &o, class std::basic_string<char> const & a0, class std::basic_string<char> const & a1) -> void { return o.errorMsg(a0, a1); }, "", pybind11::arg("messageIn"), pybind11::arg("extraIn"));
-		cl.def("errorMsg", (void (Pythia8::Info::*)(std::string, std::string, bool)) &Pythia8::Info::errorMsg, "C++: Pythia8::Info::errorMsg(std::string, std::string, bool) --> void", pybind11::arg("messageIn"), pybind11::arg("extraIn"), pybind11::arg("showAlways"));
-		cl.def("errorCombine", (void (Pythia8::Info::*)(const class Pythia8::Info &)) &Pythia8::Info::errorCombine, "C++: Pythia8::Info::errorCombine(const class Pythia8::Info &) --> void", pybind11::arg("other"));
-		cl.def("errorTotalNumber", (int (Pythia8::Info::*)() const) &Pythia8::Info::errorTotalNumber, "C++: Pythia8::Info::errorTotalNumber() const --> int");
-		cl.def("errorStatistics", (void (Pythia8::Info::*)() const) &Pythia8::Info::errorStatistics, "C++: Pythia8::Info::errorStatistics() const --> void");
 		cl.def("setTooLowPTmin", (void (Pythia8::Info::*)(bool)) &Pythia8::Info::setTooLowPTmin, "C++: Pythia8::Info::setTooLowPTmin(bool) --> void", pybind11::arg("lowPTminIn"));
 		cl.def("setValence", (void (Pythia8::Info::*)(bool, bool)) &Pythia8::Info::setValence, "C++: Pythia8::Info::setValence(bool, bool) --> void", pybind11::arg("isVal1In"), pybind11::arg("isVal2In"));
 		cl.def("hasHistory", (void (Pythia8::Info::*)(bool)) &Pythia8::Info::hasHistory, "C++: Pythia8::Info::hasHistory(bool) --> void", pybind11::arg("hasHistoryIn"));
@@ -388,7 +381,8 @@ void bind_Pythia8_Info(std::function< pybind11::module &(std::string const &name
 		cl.def("setWeakDipoles", (void (Pythia8::Info::*)(class std::vector<struct std::pair<int, int>, class std::allocator<struct std::pair<int, int> > >)) &Pythia8::Info::setWeakDipoles, "C++: Pythia8::Info::setWeakDipoles(class std::vector<struct std::pair<int, int>, class std::allocator<struct std::pair<int, int> > >) --> void", pybind11::arg("weakDipolesIn"));
 		cl.def("setWeakMomenta", (void (Pythia8::Info::*)(class std::vector<class Pythia8::Vec4, class std::allocator<class Pythia8::Vec4> >)) &Pythia8::Info::setWeakMomenta, "C++: Pythia8::Info::setWeakMomenta(class std::vector<class Pythia8::Vec4, class std::allocator<class Pythia8::Vec4> >) --> void", pybind11::arg("weakMomentaIn"));
 		cl.def("setWeak2to2lines", (void (Pythia8::Info::*)(class std::vector<int, class std::allocator<int> >)) &Pythia8::Info::setWeak2to2lines, "C++: Pythia8::Info::setWeak2to2lines(class std::vector<int, class std::allocator<int> >) --> void", pybind11::arg("weak2to2linesIn"));
-		cl.def("plugin", (class std::shared_ptr<class Pythia8::Plugin> (Pythia8::Info::*)(std::string)) &Pythia8::Info::plugin, "C++: Pythia8::Info::plugin(std::string) --> class std::shared_ptr<class Pythia8::Plugin>", pybind11::arg("nameIn"));
+		cl.def("setOniumShower", (void (Pythia8::Info::*)(bool)) &Pythia8::Info::setOniumShower, "C++: Pythia8::Info::setOniumShower(bool) --> void", pybind11::arg("oniumShowerIn"));
+		cl.def("getOniumShower", (bool (Pythia8::Info::*)() const) &Pythia8::Info::getOniumShower, "C++: Pythia8::Info::getOniumShower() const --> bool");
 		cl.def("setBeamIDs", (void (Pythia8::Info::*)(int, int)) &Pythia8::Info::setBeamIDs, "C++: Pythia8::Info::setBeamIDs(int, int) --> void", pybind11::arg("idAin"), pybind11::arg("idBin"));
 		cl.def("setBeamA", (void (Pythia8::Info::*)(int, double, double, double)) &Pythia8::Info::setBeamA, "C++: Pythia8::Info::setBeamA(int, double, double, double) --> void", pybind11::arg("idAin"), pybind11::arg("pzAin"), pybind11::arg("eAin"), pybind11::arg("mAin"));
 		cl.def("setBeamB", (void (Pythia8::Info::*)(int, double, double, double)) &Pythia8::Info::setBeamB, "C++: Pythia8::Info::setBeamB(int, double, double, double) --> void", pybind11::arg("idBin"), pybind11::arg("pzBin"), pybind11::arg("eBin"), pybind11::arg("mBin"));

@@ -28,6 +28,9 @@ typedef shared_ptr<DecayHandler> DecayHandlerPtr;
 class DipoleSwingBase;
 typedef shared_ptr<DipoleSwingBase> DipSwingPtr;
 
+class ExternalMEs;
+typedef shared_ptr<ExternalMEs> ExternalMEsPtr;
+
 class FragmentationModifierBase;
 typedef shared_ptr<FragmentationModifierBase> FragModPtr;
 
@@ -58,14 +61,26 @@ typedef shared_ptr<ParticleDataEntry> ParticleDataEntryPtr;
 class PDF;
 typedef shared_ptr<PDF> PDFPtr;
 
-class Plugin;
-typedef shared_ptr<Plugin> PluginPtr;
+class PhaseSpace;
+typedef shared_ptr<PhaseSpace> PhaseSpacePtr;
+
+class ResonanceWidths;
+typedef shared_ptr<ResonanceWidths> ResonanceWidthsPtr;
+
+class RndmEngine;
+typedef shared_ptr<RndmEngine> RndmEnginePtr;
 
 class ShowerModel;
 typedef shared_ptr<ShowerModel> ShowerModelPtr;
 
+class SigmaProcess;
+typedef shared_ptr<SigmaProcess> SigmaProcessPtr;
+
 class SpaceShower;
 typedef shared_ptr<SpaceShower> SpaceShowerPtr;
+
+class SplitOnia;
+typedef shared_ptr<SplitOnia> SplitOniaPtr;
 
 class StringInteractions;
 typedef shared_ptr<StringInteractions> StringIntPtr;
@@ -81,6 +96,9 @@ typedef shared_ptr<UserHooks> UserHooksPtr;
 
 class VinciaModule;
 typedef shared_ptr<VinciaModule> VinciaModulePtr;
+
+class ZetaGenerator;
+typedef shared_ptr<ZetaGenerator> ZetaGeneratorPtr;
 
 //==========================================================================
 

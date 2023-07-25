@@ -3,6 +3,10 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
+// Authors: Peter Skands <peter.skands@monash.edu>
+
+// Keywords: madgraph; Vincia; weak showers
+
 // Example showing how to run Vincia's electroweak shower, for the example
 // process pp > dijets (with pThat >= 2000 GeV) at eCM = 14000 GeV.
 // The Vincia EW shower requires hard-process partons with assigned
@@ -13,10 +17,6 @@
 
 // Note: emitted weak bosons decay inclusively; it would be up to the user
 // themselves to filter events with decays to specific channels if desired.
-
-// Authors: Peter Skands <peter.skands@monash.edu>
-
-// Keywords: madgraph; Vincia; weak showers;
 
 // Include Pythia8 header(s) and namespace.
 #include "Pythia8/Pythia.h"
@@ -60,7 +60,7 @@ int main() {
   pythia.readString("PartonShowers:model   = 2");
   pythia.readString("Vincia:helicityShower = on");
   pythia.readString("Vincia:ewMode         = 3");
-  pythia.readString("Vincia:verbose        = 1");
+  pythia.readString("Print:verbosity       = 2");
 
   // Switch off MPI and hadronisation (to speed things up).
   pythia.readString("PartonLevel:MPI = off");

@@ -24,9 +24,9 @@ class ColourTracing {
 public:
 
   // Constructor.
-  ColourTracing() : infoPtr() {}
+  ColourTracing() : loggerPtr() {}
 
-  void init( Info* infoPtrIn) {infoPtr = infoPtrIn;}
+  void init(Logger* loggerPtrIn) {loggerPtr = loggerPtrIn;}
 
   // Setup the colour lists.
   bool setupColList(Event& event);
@@ -48,8 +48,8 @@ private:
 
    vector<int> iColEnd, iAcolEnd, iColAndAcol;
 
-  // Pointer to various information on the generation.
-  Info* infoPtr;
+  // Pointer to logger.
+  Logger* loggerPtr;
 
 };
 

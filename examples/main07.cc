@@ -3,7 +3,7 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Keywords: two-body decay; astroparticle; python; matplotlib;
+// Keywords: two-body decay; astroparticle; python; matplotlib
 
 // Illustration how to generate various two-body channels from
 // astroparticle processes, e.g. neutralino annihilation or decay.
@@ -53,10 +53,10 @@ int main() {
   Pythia pythia;
 
   // A class to generate the fictitious resonance initial state.
-  SigmaProcess* sigma1GenRes = new Sigma1GenRes();
+  SigmaProcessPtr sigma1GenRes = make_shared<Sigma1GenRes>();
 
   // Hand pointer to Pythia.
-  pythia.setSigmaPtr( sigma1GenRes);
+  pythia.addSigmaPtr( sigma1GenRes);
 
   // Read in the rest of the settings and data from a separate file.
   pythia.readFile("main07.cmnd");
@@ -131,6 +131,5 @@ int main() {
   hpl.plot( true);
 
   // Done.
-  delete sigma1GenRes;
   return 0;
 }

@@ -180,8 +180,8 @@ bool BoseEinstein::shiftEvent( Event& event) {
   // Error if no convergence, and then return without doing BE shift.
   // However, not grave enough to kill event, so return true.
   if ( abs(eSumShifted - eSumOriginal) > COMPRELERR * eSumOriginal ) {
-    infoPtr->errorMsg("Warning in BoseEinstein::shiftEvent: "
-      "no consistent BE shift topology found, so skip BE");
+    loggerPtr->WARNING_MSG(
+      "No consistent BE shift topology found; skipping BE");
     return true;
   }
 

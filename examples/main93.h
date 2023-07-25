@@ -57,7 +57,7 @@ public:
 class RootEvent {
 public:
 
-  bool init(const Info* infoPtr) {
+  bool init(const Pythia8::Info* infoPtr) {
     tracks.clear();
     // An event level cut on eg. impact parameter, number of
     // MPIs etc. can be implemented here.

@@ -131,13 +131,17 @@ else
 	$(error Error: $@ requires FASTJET3 and HEPMC3)
 endif
 
+# Plugin libraries.
+lib%.so: %.cc $(PYTHIA)
+	$(CXX) $< -o $@ -w $(CXX_COMMON) $(CXX_SHARED) -Wl,--no-as-needed
+
 # ROOT libraries generated via CINT.
-main%.so: main%Dct.cc
-	$(CXX) $< -o $@ -w $(CXX_SHARED) $(CXX_COMMON)\
+main%.so: main%Dct.cc main%.h
+	$(CXX) $^ -o $@ -DPY8ROOT -w $(CXX_SHARED) $(CXX_COMMON)\
 	 $(ROOT_LIB) $(shell $(ROOT_CONFIG) --cflags)
 main%Dct.cc: main%.h main%LinkDef.h
 ifeq ($(ROOT_USE),true)
-	$(ROOT_BIN)rootcint -f $@ -I$(PREFIX_INCLUDE) $^
+	$(ROOT_BIN)rootcint -f $@ -DPY8ROOT -I$(PREFIX_INCLUDE) $^
 else
 	$(error Error: $@ requires ROOT)
 endif
@@ -150,11 +154,6 @@ ifeq ($(ROOT_USE),true)
 else
 	$(error Error: $@ requires ROOT)
 endif
-
-# Specific rule for main92. 
-main92: $(PYTHIA) $$@.cc main92.so
-	$(CXX) $@.cc main92.so -o $@ -w $(CXX_COMMON) -Wl,-rpath,./\
-	 $(shell $(ROOT_CONFIG) --cflags --glibs)
 
 # RIVET with optional ROOT (if RIVET, use C++14).
 main93: $(PYTHIA) $$@.cc $(if $(filter true,$(ROOT_USE)),main93.so)

@@ -195,7 +195,7 @@ void SimpleSpaceShower::init( BeamParticle* beamAPtrIn,
     pTmin         = pTminAbs;
     ostringstream newPTmin;
     newPTmin << fixed << setprecision(3) << pTmin;
-    infoPtr->errorMsg("Warning in SpaceShower::init: pTmin too low",
+    loggerPtr->WARNING_MSG("pTmin too low",
                       ", raised to " + newPTmin.str() );
     infoPtr->setTooLowPTmin(true);
   }
@@ -272,15 +272,15 @@ void SimpleSpaceShower::init( BeamParticle* beamAPtrIn,
   canEnhanceEmission = flag("Enhancements:doEnhance");
   canEnhanceTrial    = flag("Enhancements:doEnhanceTrial");
   if (canEnhanceEmission && canEnhanceTrial) {
-    infoPtr->errorMsg("Error in SimpleSpaceShower::init: Enhance for both "
-    "actual and trial emissions not possible. Both switched off.");
+    loggerPtr->ERROR_MSG(
+      "enhance for both actual and trial emissions not possible;"
+      " both switched off");
     canEnhanceEmission = false;
     canEnhanceTrial    = false;
   }
 
   if ((canEnhanceEmission || canEnhanceTrial) && !initEnhancements()) {
-    infoPtr->errorMsg("Error in SimpleSpaceShower::init: Initialization of "
-    "enhanced emissions failed.");
+    loggerPtr->ERROR_MSG("Initialization of enhanced emissions failed");
     canEnhanceEmission = canEnhanceTrial = false;
   }
 
@@ -940,8 +940,7 @@ void SimpleSpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
   double xMaxAbs      = beam.xMax(iSysNow);
   double zMinAbs      = xDaughter / xMaxAbs;
   if (pdfMode == 0 && xMaxAbs < 0.) {
-    infoPtr->errorMsg("Warning in SimpleSpaceShower::pT2nextQCD: "
-      "xMaxAbs negative");
+    loggerPtr->WARNING_MSG("xMaxAbs negative");
     return;
   }
 
@@ -1020,7 +1019,6 @@ void SimpleSpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
 
   // Set default values for enhanced emissions.
   bool isEnhancedQ2QG, isEnhancedG2QQ, isEnhancedQ2GQ, isEnhancedG2GG;
-  isEnhancedQ2QG = isEnhancedG2QQ = isEnhancedQ2GQ = isEnhancedG2GG = false;
   double enhanceNow = 1.;
   string nameNow = "";
   bool canEnhanceETnow = canEnhanceET;
@@ -1040,8 +1038,7 @@ void SimpleSpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
     // (Example: if all PDF's = 0 below Q_0, except for c/b companion.)
     if (hasTinyPDFdau) ++loopTinyPDFdau;
     if (pdfMode == 0 && loopTinyPDFdau > MAXLOOPTINYPDF) {
-      infoPtr->errorMsg("Warning in SimpleSpaceShower::pT2nextQCD: "
-      "small daughter PDF");
+      loggerPtr->WARNING_MSG("small daughter PDF");
       return;
     }
 
@@ -1531,8 +1528,8 @@ void SimpleSpaceShower::pT2nextQCD( double pT2begDip, double pT2endDip) {
     }
 
     // Check that valence step does not cause problem.
-    if (wt > 1. && pT2 > PT2MINWARN) infoPtr->errorMsg("Warning in "
-      "SimpleSpaceShower::pT2nextQCD: weight above unity");
+    if (wt > 1. && pT2 > PT2MINWARN)
+      loggerPtr->WARNING_MSG("weight above unity");
 
   // Iterate until acceptable pT (or have fallen below pTmin).
   } while (wt < rndmPtr->flat()) ;
@@ -1574,8 +1571,7 @@ void SimpleSpaceShower::pT2nearThreshold( BeamParticle& beam,
   double xPDFmotherOld = beam.xfISR(iSysNow, 21, xDaughter, pdfScale2);
   // Check that xPDF is not vanishing.
   if ( xPDFmotherOld < TINYPDF ) {
-    infoPtr->errorMsg("Error in SimpleSpaceShower::pT2nearThreshold: "
-      "xPDF = 0");
+    loggerPtr->ERROR_MSG("xPDF = 0");
     return;
   }
 
@@ -1602,8 +1598,7 @@ void SimpleSpaceShower::pT2nearThreshold( BeamParticle& beam,
 
     // Check that not caught in infinite loop with impossible kinematics.
     if (++loop > 100) {
-      infoPtr->errorMsg("Error in SimpleSpaceShower::pT2nearThreshold: "
-        "stuck in loop");
+      loggerPtr->ERROR_MSG("stuck in loop");
       return;
     }
 
@@ -1707,8 +1702,7 @@ void SimpleSpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
   double xMaxAbs  = (isLeptonBeam) ? LEPTONXMAX : beam.xMax(iSysNow);
   double zMinAbs  = xDaughter / xMaxAbs;
   if (xMaxAbs < 0.) {
-    infoPtr->errorMsg("Warning in SimpleSpaceShower::pT2nextQED: "
-    "xMaxAbs negative");
+    loggerPtr->WARNING_MSG("xMaxAbs negative");
     return;
   }
 
@@ -1878,8 +1872,7 @@ void SimpleSpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
 
         // Check that gamma -> q qbar step does not cause problem.
         if (wt > 1. && pT2 > PT2MINWARN){
-          infoPtr->errorMsg("Warning in SimpleSpaceShower::pT2nextQED: "
-            "weight above unity");
+          loggerPtr->WARNING_MSG("weight above unity");
         }
 
       // f -> f gamma splittings
@@ -2052,8 +2045,7 @@ void SimpleSpaceShower::pT2nextQED( double pT2begDip, double pT2endDip) {
       // Bad sign if repeated looping with small daughter PDF, so fail.
       if (hasTinyPDFdau) ++loopTinyPDFdau;
       if (loopTinyPDFdau > MAXLOOPTINYPDF) {
-        infoPtr->errorMsg("Warning in SimpleSpaceShower::pT2nextQED: "
-          "small daughter PDF");
+        loggerPtr->WARNING_MSG("small daughter PDF");
         return;
       }
 
@@ -2260,8 +2252,7 @@ void SimpleSpaceShower::pT2nextWeak( double pT2begDip, double pT2endDip) {
   double xMaxAbs  = (isLeptonBeam) ? LEPTONXMAX : beam.xMax(iSysNow);
   double zMinAbs  = xDaughter / xMaxAbs;
   if (xMaxAbs < 0.) {
-    infoPtr->errorMsg("Warning in SimpleSpaceShower::pT2nextWeak: "
-      "xMaxAbs negative");
+    loggerPtr->WARNING_MSG("xMaxAbs negative");
     return;
   }
 
@@ -2300,7 +2291,6 @@ void SimpleSpaceShower::pT2nextWeak( double pT2begDip, double pT2endDip) {
 
   // Set default values for enhanced emissions.
   bool isEnhancedQ2QW;
-  isEnhancedQ2QW = false;
   double enhanceNow = 1.;
   bool canEnhanceETnow = canEnhanceET;
   string nameNow = "";
@@ -2357,8 +2347,7 @@ void SimpleSpaceShower::pT2nextWeak( double pT2begDip, double pT2endDip) {
   double xPDFdaughter = beam.xfISR(iSysNow, idDaughter, xDaughter, pdfScale2);
   if (xPDFdaughter < TINYPDF) {
     if (abs(idDaughter) == 1 || abs(idDaughter) == 2 || abs(idDaughter) == 21)
-      infoPtr->errorMsg("Warning in SimpleSpaceShower::pT2nextWeak: "
-        "very small PDF");
+      loggerPtr->WARNING_MSG("very small PDF");
     return;
   }
 
@@ -2507,8 +2496,8 @@ void SimpleSpaceShower::pT2nextWeak( double pT2begDip, double pT2endDip) {
     }
 
     // Warn if too big weight.
-    if (wt > 1.) infoPtr->errorMsg("Warning in SimpleSpaceShower::pT2next"
-      "Weak: weight is above unity.");
+    if (wt > 1.)
+      loggerPtr->WARNING_MSG("weight is above unity");
 
     if (wt > 0. && canEnhanceETnow && isEnhancedQ2QW ) {
       dipEndNow->pAccept = wt;
@@ -2959,8 +2948,7 @@ bool SimpleSpaceShower::branch( Event& event) {
         event[iDaughter].p(), event[iRecoiler].p(), p1, p2, sister.p());
       if (wt > weakMaxWt) {
         weakMaxWt = wt;
-        infoPtr->errorMsg("Warning in SimpleSpaceShower::Branch: "
-          "weight is above unity for weak emission.");
+        loggerPtr->WARNING_MSG("weight is above unity for weak emission");
       }
 
       // If weighting fails then restore event record to state before emission.
@@ -3046,10 +3034,7 @@ bool SimpleSpaceShower::branch( Event& event) {
         event[iP1].id() == - event[iP2].id()) {
       double dij = min(pP1.pT2(),pP2.pT2())
         * pow2(RRapPhi(pP1,pP2))/vetoWeakDeltaR2;
-      if (dij < d) {
-        d = dij;
-        cut = true;
-      }
+      if (dij < d) cut = true;
     }
 
     // Clean up event if the emission should be removed.
@@ -3372,7 +3357,7 @@ bool SimpleSpaceShower::branch( Event& event) {
     //            rescattered parton to change sign. If this happens, tell
     //            parton level to try again.
     if (momFac < 0.0) {
-      infoPtr->errorMsg("Warning in SimpleSpaceShower::branch: "
+      loggerPtr->WARNING_MSG(
         "change in lightcone momentum sign; retrying parton level");
       rescatterFail = true;
       return false;
@@ -3415,8 +3400,7 @@ bool SimpleSpaceShower::branch( Event& event) {
   // Check that beam momentum not used up by rescattered-system boosts.
   if ( ( beamAPtr->xMax(-1) < 0.0 && !(beamAPtr->isUnresolved()) )
     || ( beamBPtr->xMax(-1) < 0.0 && !(beamBPtr->isUnresolved()) ) ) {
-    infoPtr->errorMsg("Warning in SimpleSpaceShower::branch: "
-      "used up beam momentum; retrying parton level");
+    loggerPtr->WARNING_MSG("used up beam momentum; retrying parton level");
     rescatterFail = true;
     return false;
   }
@@ -3795,8 +3779,7 @@ void SimpleSpaceShower::calcUncertainties(bool accept, double pAccept,
       if (denom < REJECTFACTOR) {
         stringstream message;
         message << iWeight;
-        infoPtr->errorMsg("Warning in SimpleSpaceShower: reject denom for"
-          " iWeight = ", message.str());
+        loggerPtr->WARNING_MSG("reject denom","for iWeight = "+message.str());
       }
       // Force reweighting factor > 0.
       double reWtFail = max(0.01, (1. - uVarFac[iWeight] * pAccept / enhance )

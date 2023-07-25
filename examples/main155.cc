@@ -3,9 +3,9 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Marius Utheim <marius.m.utheim@jyu.fi>.
+// Authors: Marius Utheim <marius.m.utheim@jyu.fi>
 
-// Keywords: rescattering; low energy; cross sections; resonances;
+// Keywords: rescattering; low energy; cross sections; resonances
 
 // Calculate and plot resonance cross sections for the specified process.
 
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
   int nBin = 300;
 
   // Get possible resonances.
-  vector<int> resonances = pythia.hadronWidths.possibleResonances(idA, idB);
+  set<int> resonances = pythia.hadronWidths.getResonances(idA, idB);
 
   if (resonances.size() == 0) {
     cout << "No resonances for input particles " << idA << " " << idB << endl;

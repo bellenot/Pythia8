@@ -16,6 +16,7 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 // October 2017: updated to test external LHAPDF6 vs internal LHAGrid1.
 
 #include &quot;Pythia8/Pythia.h&quot;
+#include &quot;Pythia8/Plugins.h&quot;
 
 using namespace Pythia8;
 
@@ -63,14 +64,15 @@ double integrate(PDFPtr nowPDF, double Q2) {
 int main() {
 
   // Info member for possible error printouts etc.
-  Info info;
+  Logger logger;
 
   // Pointers to external LHAPDF6 and internal LHAGrid1 PDF packages,
   // for the same  NNPDF3.1 QCD+QED NNLOPDF set, the central member.
-  PDFPtr extPDF = make_shared&lt;LHAPDF&gt;
-    ( 2212, &quot;LHAPDF6:NNPDF31_nnlo_as_0118_luxqed&quot;, &amp;info);
+  PDFPtr extPDF = make_plugin&lt;PDF&gt;(&quot;libpythia8lhapdf6.so&quot;, &quot;LHAPDF6&quot;);
+  extPDF-&gt;init(2212, &quot;NNPDF31_nnlo_as_0118_luxqed&quot;, 0, &amp;logger);
+  if (!extPDF) return 1;
   PDFPtr intPDF = make_shared&lt;LHAGrid1&gt;
-    ( 2212, &quot;20&quot;, &quot;../share/Pythia8/pdfdata/&quot;, &amp;info);
+    ( 2212, &quot;20&quot;, &quot;../share/Pythia8/pdfdata/&quot;, &amp;logger);
 
   // Alternative: compare two Pomeron PDF&apos;s. Boost second by factor 2.
   //PDF* extPDF = new PomFix( 990, -0.2, 2.5, 0., 3., 0.4, 0.5);

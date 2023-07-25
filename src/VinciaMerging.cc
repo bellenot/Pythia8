@@ -34,7 +34,7 @@ void VinciaMerging::init() {
   doSectorMerging   = ( doMerging && sectorShower );
 
   // Check consistency.
-  if (doMerging && !doSectorMerging && verbose >= NORMAL) {
+  if (doMerging && !doSectorMerging && verbose >= Logger::NORMAL) {
     string msg = "Please set Vincia:sectorShower = on ";
     msg += "to perform merging with Vincia.";
     printOut(__METHOD_NAME__,msg);
@@ -79,7 +79,7 @@ void VinciaMerging::init() {
 
 void VinciaMerging::statistics() {
 
-  if (doMerging && verbose >= NORMAL) {
+  if (doMerging && verbose >= Logger::NORMAL) {
     int nVetoInMain = mergingHooksPtr->getNumberVetoedInMainShower();
     int nc1 = 0, nc2 = 0;
     cout << endl;
@@ -131,8 +131,8 @@ void VinciaMerging::statistics() {
     cout << "|" << endl;
     cout << " |                                                       "
          << "                                                          | \n";
-    // For REPORT, print computing times.
-    if (verbose >= REPORT) {
+    // For Logger::REPORT, print computing times.
+    if (verbose >= Logger::REPORT) {
       cout << " | CPU time to construct histories:                      "
            << "                                                          | \n";
       auto it = historyCompTime.begin();
@@ -162,7 +162,8 @@ void VinciaMerging::statistics() {
 
 int VinciaMerging::mergeProcess(Event& process) {
 
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
   int vetoCode = 1;
 
   // If we just want to calculate the cross section,
@@ -172,8 +173,7 @@ int VinciaMerging::mergeProcess(Event& process) {
       = dynamic_pointer_cast<VinciaMergingHooks>(mergingHooksPtr);
     // Check whether we have a pointer to Vincia's own MergingHooks object now.
     if (!vinMergingHooksPtr) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Could not fetch Vincia's MergingHooks pointer.");
+      loggerPtr->ERROR_MSG("failed to fetch Vincia's MergingHooks pointer");
       vetoCode = -1;
     } else {
       // Check whether event is above merging scale.
@@ -186,7 +186,8 @@ int VinciaMerging::mergeProcess(Event& process) {
   }
   // Could add other types of merging here in future?
   // E.g. merging for regular shower.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "end", dashLen);
   return vetoCode;
 
 }
@@ -199,7 +200,7 @@ int VinciaMerging::mergeProcess(Event& process) {
 int VinciaMerging::mergeProcessSector(Event& process) {
 
   bool doVeto = false;
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "begin", dashLen);
     string msg = "Raw process:";
     printOut(__METHOD_NAME__,msg);
@@ -217,8 +218,7 @@ int VinciaMerging::mergeProcessSector(Event& process) {
   // Insert resonances in event record if needed.
   if (doInsertRes) {
     if (!insertResonances(newProcess)) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Could not insert resonances in event record.");
+      loggerPtr->ERROR_MSG("failed to insert resonances in event record");
       return -1;
     }
   }
@@ -226,7 +226,7 @@ int VinciaMerging::mergeProcessSector(Event& process) {
   // If not merging in resonance systems, remove their decays.
   if (!doMergeRes) {
     newProcess = mergingHooksPtr->bareEvent(newProcess, true);
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       string msg = "Process with resonances stripped:";
       printOut(__METHOD_NAME__,msg);
       newProcess.list();
@@ -253,8 +253,7 @@ int VinciaMerging::mergeProcessSector(Event& process) {
   }
 
   if (!history.isValid()) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": No valid history found.");
+    loggerPtr->ERROR_MSG("no valid history found");
     ++nAbort;
     return -1;
   }
@@ -263,11 +262,8 @@ int VinciaMerging::mergeProcessSector(Event& process) {
   int nClus = history.getNClusterSteps();
   if (nClus > nMaxJets) {
     // Something went wrong.
-    if (verbose >= NORMAL) {
-      string msg = ": Multiplicity exceeded expected maximum.";
-      msg += " Please check.";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__+msg);
-    }
+    loggerPtr->ERROR_MSG(
+      "multiplicity exceeded expected maximum; please check");
     return -1;
   }
   nTotalByMult[nClus]++;
@@ -282,7 +278,7 @@ int VinciaMerging::mergeProcessSector(Event& process) {
   wts[0] = history.getWeightCKKWL();
   // Check that the weight is non-vanishing.
   if (wts[0] <= MICRO) wts[0] = 0.;
-  if (verbose>=DEBUG) {
+  if (verbose>=VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "CKKW-L weight is " << wts[0];
     printOut(__METHOD_NAME__,ss.str());
@@ -313,7 +309,8 @@ int VinciaMerging::mergeProcessSector(Event& process) {
       nAbort++;
       nTotalByMult[nClus]--;
       nTotal--;
-      if (verbose >= REPORT) printOut(__METHOD_NAME__,"Aborting merging");
+      if (verbose >= Logger::REPORT)
+        printOut(__METHOD_NAME__,"Aborting merging");
       return -1;
     }
     nVetoByMult[nClus]++;
@@ -338,13 +335,14 @@ int VinciaMerging::mergeProcessSector(Event& process) {
     // Tell MergingHooks whether we should veto the first emission.
     bool vetoFirst = (nClus < nMaxJets) ? true : false;
     mergingHooksPtr->doIgnoreStep(!vetoFirst);
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Shower restart scale: "
         +num2str(process.scale())+", can veto first step: "
         +(mergingHooksPtr->canVetoStep() ? " yes" : "  no"));
   }
 
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "end", dashLen);
   return (doVeto) ? 0 : 1;
 
 }
@@ -379,10 +377,10 @@ bool VinciaMerging::insertResonances(Event& process) {
   if (nLepPos == 0 && nLepNeg == 0 && nLepNeutral == 0) return true;
   // Currently, we can deal with only a single lepton pair.
   else if (nLepPos + nLepNeg + nLepNeutral > 2) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": Cannot insert resonances for more than one lepton pair.");
+    loggerPtr->ERROR_MSG(
+      "cannot insert resonances for more than one lepton pair");
     return false;
-  } else if (verbose >= DEBUG) {
+  } else if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Found " << nLepNeutral << " neutral, " << nLepPos << " positive, "
        << nLepNeg << " negative final state leptons.";
@@ -395,8 +393,7 @@ bool VinciaMerging::insertResonances(Event& process) {
   shared_ptr<VinciaMergingHooks> vinMergingHooksPtr
     = dynamic_pointer_cast<VinciaMergingHooks>(mergingHooksPtr);
   if (!vinMergingHooksPtr) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": Could not fetch VinciaMergingHooks pointer.");
+    loggerPtr->ERROR_MSG("failed to fetch VinciaMergingHooks pointer");
     return false;
   }
 
@@ -409,8 +406,7 @@ bool VinciaMerging::insertResonances(Event& process) {
     // Check which neutral resonance is specified in the hard process.
     int nResNeutral = vinMergingHooksPtr->getNResNeutralUndecayed();
     if (nResNeutral != 1) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Could not match event record to hard process.");
+      loggerPtr->ERROR_MSG("failed to match event record to hard process");
       return false;
     }
 
@@ -426,8 +422,7 @@ bool VinciaMerging::insertResonances(Event& process) {
     // Check which positive resonance is specified in the hard process.
     int nResPos = vinMergingHooksPtr->getNResPlusUndecayed();
     if (nResPos != 1) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Could not match event record to hard process.");
+      loggerPtr->ERROR_MSG("failed to match event record to hard process");
       return false;
     }
 
@@ -443,8 +438,7 @@ bool VinciaMerging::insertResonances(Event& process) {
     // Check which positive resonance is specified in the hard process.
     int nResNeg = vinMergingHooksPtr->getNResMinusUndecayed();
     if (nResNeg != 1) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Could not match event record to hard process.");
+      loggerPtr->ERROR_MSG("failed to match event record to hard process");
       return false;
     }
 
@@ -457,8 +451,8 @@ bool VinciaMerging::insertResonances(Event& process) {
     resonance = Particle(idRes, -22, 3, 4, iLep1, iLep2,
       0, 0, pRes, mRes, mRes);
   } else {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": Could not reconstruct resonance from final-state leptons.");
+    loggerPtr->ERROR_MSG(
+      "failed to reconstruct resonance from final-state leptons");
     return false;
   }
 
@@ -489,8 +483,7 @@ bool VinciaMerging::insertResonances(Event& process) {
     // Set process to new process.
     process = newProcess;
   } else {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": Could not find leptons in event record.");
+    loggerPtr->ERROR_MSG("failed to find leptons in event record");
     return false;
   }
   return true;

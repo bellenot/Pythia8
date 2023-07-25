@@ -139,7 +139,7 @@ mesons. For this kind of scenarios it makes sense to assume that
 It is possible to build a rather sophisticated hidden sector 
 by trivial extensions of the HV flavour content. In most contexts 
 this would be overkill, since much of the finer details would not 
-be observable in our sectior. The default therefore is a simplified 
+be observable in our sector. The default therefore is a simplified 
 treatment. 
  
 <h4>Hidden Valley hadrons in a simple setup</h4> 
@@ -200,7 +200,7 @@ expect a production rate too small to be of any relevance. The current
 handling therefore aims at <b>SU(3)</b> applications. (But if you 
 imagine a low production rate of triquarks, with net anticolour, 
 then the program will run also for <b>SU(4)</b>.) Again, in the 
-sprit of simplicity, one baryon is introduced in the default scenario: 
+spirit of simplicity, one baryon is introduced in the default scenario: 
 <br/><code>Deltav</code>, identity 4901114, an HV-baryon, assumed to be 
 stable. Normally one would expect a spin 1/2 baryon to be the lightest, 
 but spin 3/2 here goes together with bookkeeping as if there is only 
@@ -242,7 +242,7 @@ type, whatever implicit association you make for this state. More generally,
 it is possible to have both mass-degenerate and non-degenerate scenarios, 
 where in either it is useful to be able to set properties of some mesons 
 separately. All nondiagonal mesons of a multiplet are also assumed to be 
-identical and stable by default, although this can be modifed as desired. 
+identical and stable by default, although this can be modified as desired. 
 While the <code>separateFlav = on</code> option gives more freedom, it also 
 comes with the need for a more detailed setup, with up to 72 different 
 meson states that can be given individual properties. (With 8 flavours 
@@ -338,7 +338,7 @@ relation is that
 <eq> 
  m_ij = m_i + m_j + K * &lt;sigma_i * sigma_j&gt; / (m_i * m_j) 
 </eq> 
-where <ei>m_i, m_j</ei> are the constituent qark masses and 
+where <ei>m_i, m_j</ei> are the constituent quark masses and 
 <ei>m_ij</ei> the meson one. The <ei>&lt;sigma_i * sigma_j&gt;</ei> 
 factor is the spin-spin expectation value, 1 for a vector and -3 for 
 a pseudoscalar. Even without knowing the constant <ei>K</ei> one thus 

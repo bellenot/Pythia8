@@ -57,8 +57,11 @@ pythia.readString("Main:numberOfEvents = 10000")
 mult = pythia8.Hist("charged multiplicity", 100, -0.5, 799.5)
 
 # This will create and initialize each underlying Pythia instance.
-pythia.init(lambda pythiaNow:
-            print(pythiaNow.settings.mode("Parallelism:index")))
+def init(pythiaNow):
+    print("Initializing Pythia with index %i."
+          % pythiaNow.settings.mode("Parallelism:index"))
+    return pythiaNow.init()
+pythia.init(init)
 
 # Generate events. Note, any type of function can be passed to this method,
 # as long as the function takes an 'Pythia' object as the argument.

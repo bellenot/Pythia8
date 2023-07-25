@@ -79,6 +79,9 @@ protected:
   // Pointer to the particle data table.
   ParticleData*  particleDataPtr  = {};
 
+  // Pointer to logger.
+  Logger*        loggerPtr        = {};
+
   // Pointer to the hadron widths data table
   HadronWidths*  hadronWidthsPtr  = {};
 
@@ -91,6 +94,7 @@ protected:
 
   // Pointers to the two incoming beams and to Pomeron, photon or VMD
   // beam-inside-beam cases.
+  BeamSetup*     beamSetupPtr     = {};
   BeamParticle*  beamAPtr         = {};
   BeamParticle*  beamBPtr         = {};
   BeamParticle*  beamPomAPtr      = {};

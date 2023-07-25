@@ -41,9 +41,9 @@ class ProcessContainer : public PhysicsBase {
 public:
 
   // Constructor.
-  ProcessContainer(SigmaProcess* sigmaProcessPtrIn = 0,
-    bool externalPtrIn = false, PhaseSpace* phaseSpacePtrIn = 0) :
-      sigmaProcessPtr(sigmaProcessPtrIn), externalPtr(externalPtrIn),
+  ProcessContainer(SigmaProcessPtr sigmaProcessPtrIn = 0,
+    PhaseSpacePtr phaseSpacePtrIn = 0) :
+      sigmaProcessPtr(sigmaProcessPtrIn),
       phaseSpacePtr(phaseSpacePtrIn), resDecaysPtr(), gammaKinPtr(),
       matchInOut(), idRenameBeams(), setLifetime(), setQuarkMass(),
       setLeptonMass(), idNewM(), mRecalculate(), mNewM(), isLHA(), isNonDiff(),
@@ -57,10 +57,6 @@ public:
       beamHasGamma(), beamAgammaMode(), beamBgammaMode(), gammaModeEvent(),
       approximatedGammaFlux(), nTryRequested(), nSelRequested(),
       nAccRequested(), sigmaTemp(), sigma2Temp(), normVar3() {}
-
-  // Destructor. Do not destroy external sigmaProcessPtr.
-  ~ProcessContainer() {delete phaseSpacePtr;
-    if (!externalPtr) delete sigmaProcessPtr;}
 
   // Initialize phase space and counters.
   bool init(bool isFirst, ResonanceDecays* resDecaysPtrIn,
@@ -166,11 +162,10 @@ private:
   static const int N12SAMPLE, N3SAMPLE;
 
   // Pointer to the subprocess matrix element. Mark if external.
-  SigmaProcess*    sigmaProcessPtr;
-  bool             externalPtr;
+  SigmaProcessPtr  sigmaProcessPtr;
 
   // Pointer to the phase space generator.
-  PhaseSpace*      phaseSpacePtr;
+  PhaseSpacePtr    phaseSpacePtr;
 
   // Pointer to ResonanceDecays object for sequential resonance decays.
   ResonanceDecays* resDecaysPtr;

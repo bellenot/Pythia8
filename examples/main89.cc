@@ -3,10 +3,10 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Stefan Prestel.
+// Authors: Stefan Prestel
 
 // Keywords: matching; merging; leading order; NLO; powheg; madgraph; aMC@NLO;
-// CKKW-L; UMEPS; NL3; UNLOPS; FxFx; MLM; userhooks; LHE file; hepmc;
+//           CKKW-L; UMEPS; NL3; UNLOPS; FxFx; MLM; userhooks; LHE file; hepmc
 
 // This program illustrates how to do run PYTHIA with LHEF input, allowing a
 // sample-by-sample generation of

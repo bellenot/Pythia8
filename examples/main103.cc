@@ -5,7 +5,7 @@
 
 // Authors: Steve Mrenna <mrenna@fnal.gov>
 
-// Keywords: command file; user hook;
+// Keywords: command file; user hook
 
 // This is a simple test program.
 // It illustrates how to filter resonance decay products to obtain a certain

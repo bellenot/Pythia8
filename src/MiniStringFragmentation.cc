@@ -71,8 +71,7 @@ bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig,
   // Junction topologies not yet considered - is very rare.
   iParton  = colConfig[iSub].iParton;
   if (iParton.front() < 0) {
-    infoPtr->errorMsg("Error in MiniStringFragmentation::fragment: "
-      "very low-mass junction topologies not yet handled");
+    loggerPtr->ERROR_MSG("very low-mass junction topologies not yet handled");
     return false;
   }
 
@@ -106,8 +105,7 @@ bool MiniStringFragmentation::fragment(int iSub, ColConfig& colConfig,
   }
 
   // Else complete failure.
-  infoPtr->errorMsg("Error in MiniStringFragmentation::fragment: "
-      "no 1- or 2-body state found above mass threshold");
+  loggerPtr->ERROR_MSG("no 1- or 2-body state found above mass threshold");
   return false;
 
 }
@@ -170,9 +168,8 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event,
     int idTmp2 = (flav2.id % 1000) / 100;
     int idTmp3 = flav1.id / 1000;
     int idTmp4 = (flav1.id % 1000) / 100;
+
     // If findLowMass, select smallest mSum pairing, otherwise pick random one.
-    idHad1 = 0;
-    idHad2 = 0;
     int idHad13, idHad14, idHad23, idHad24;
     do {
       if (findLowMass) {
@@ -250,8 +247,7 @@ bool MiniStringFragmentation::ministring2two( int nTry, Event& event,
         * Vec4( sthe * sin(phi), sthe * cos(phi), cthe, 0.);
     pSum1 += delta;
     pSum2 -= delta;
-    infoPtr->errorMsg("Warning in MiniStringFragmentation::ministring2two: "
-      "random axis needed to break tie");
+    loggerPtr->WARNING_MSG("random axis needed to break tie");
   }
 
   // Set up a string region based on the two effective endpoints.
@@ -554,8 +550,8 @@ void MiniStringFragmentation::setHadronVertices(Event& event,
         longitudinal[i] = v1 + (pNegMass / mHad) * (v2 - v1);
         if (longitudinal[i].m2Calc()
            < -1e-8 * max(1., pow2(longitudinal[i].e())))
-           infoPtr->errorMsg("Warning in MiniStringFragmentation::set"
-             "Vertices: negative tau^2 for endpoint massive correction");
+           loggerPtr->WARNING_MSG(
+             "negative tau^2 for endpoint massive correction");
       }
 
       // Add mass offset for all breakup points.

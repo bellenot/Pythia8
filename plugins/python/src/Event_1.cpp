@@ -15,7 +15,6 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
-#include <Pythia8/HIUserHooks.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -32,16 +31,16 @@
 
 void bind_Pythia8_Event_1(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
-	// Pythia8::m(const class Pythia8::Particle &, const class Pythia8::Particle &) file:Pythia8/Event.h line:325
+	// Pythia8::m(const class Pythia8::Particle &, const class Pythia8::Particle &) file:Pythia8/Event.h line:327
 	M("Pythia8").def("m", (double (*)(const class Pythia8::Particle &, const class Pythia8::Particle &)) &Pythia8::m, "C++: Pythia8::m(const class Pythia8::Particle &, const class Pythia8::Particle &) --> double", pybind11::arg("pp1"), pybind11::arg("pp2"));
 
-	// Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &) file:Pythia8/Event.h line:326
+	// Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &) file:Pythia8/Event.h line:328
 	M("Pythia8").def("m2", (double (*)(const class Pythia8::Particle &, const class Pythia8::Particle &)) &Pythia8::m2, "C++: Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &) --> double", pybind11::arg("pp1"), pybind11::arg("pp2"));
 
-	// Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &, const class Pythia8::Particle &) file:Pythia8/Event.h line:327
+	// Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &, const class Pythia8::Particle &) file:Pythia8/Event.h line:329
 	M("Pythia8").def("m2", (double (*)(const class Pythia8::Particle &, const class Pythia8::Particle &, const class Pythia8::Particle &)) &Pythia8::m2, "C++: Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &, const class Pythia8::Particle &) --> double", pybind11::arg("pp1"), pybind11::arg("pp2"), pybind11::arg("pp3"));
 
-	{ // Pythia8::Event file:Pythia8/Event.h line:406
+	{ // Pythia8::Event file:Pythia8/Event.h line:408
 		pybind11::class_<Pythia8::Event, std::shared_ptr<Pythia8::Event>> cl(M("Pythia8"), "Event", "");
 		pybind11::handle cl_type = cl;
 

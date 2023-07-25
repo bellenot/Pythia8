@@ -214,11 +214,11 @@ bool TauDecays::decay(int idxOut1, Event& event) {
       particles[0] = HelicityParticle(22, -22, idxIn1, idxIn2, idxOut1,
         idxOut2, 0, 0, p, p.mCalc(), 0, particleDataPtr);
       hardME = hmeGamma2TwoFermions.initChannel(particles);
-      infoPtr->errorMsg("Warning in TauDecays::decay: unknown correlated "
-                        "tau production, assuming from unpolarized photon");
+      loggerPtr->WARNING_MSG(
+        "unknown correlated tau production, assuming from unpolarized photon");
     } else {
-      infoPtr->errorMsg("Warning in TauDecays::decay: unknown uncorrelated "
-                        "tau production, assuming unpolarized");
+      loggerPtr->WARNING_MSG(
+        "unknown uncorrelated tau production, assuming unpolarized");
     }
   }
 
@@ -246,11 +246,9 @@ bool TauDecays::decay(int idxOut1, Event& event) {
     double decayWeightMax = decayME->decayWeightMax(children);
     accepted = (rndmPtr->flat() < decayWeight / decayWeightMax);
     if (decayWeight > decayWeightMax)
-      infoPtr->errorMsg("Warning in TauDecays::decay: maximum "
-        "decay weight exceeded in tau decay");
+      loggerPtr->WARNING_MSG("maximum decay weight exceeded in tau decay");
     if (tries > NTRYDECAY) {
-      infoPtr->errorMsg("Warning in TauDecays::decay: maximum "
-        "number of decay attempts exceeded");
+      loggerPtr->WARNING_MSG("maximum number of decay attempts exceeded");
       break;
     }
     ++tries;
@@ -280,11 +278,10 @@ bool TauDecays::decay(int idxOut1, Event& event) {
       double decayWeightMax = decayME->decayWeightMax(children);
       accepted = (rndmPtr->flat() < decayWeight / decayWeightMax);
       if (decayWeight > decayWeightMax)
-        infoPtr->errorMsg("Warning in TauDecays::decay: maximum "
-          "decay weight exceeded in correlated tau decay");
+        loggerPtr->WARNING_MSG(
+          "maximum decay weight exceeded in correlated tau decay");
       if (tries > NTRYDECAY) {
-        infoPtr->errorMsg("Warning in TauDecays::decay: maximum "
-          "number of decay attempts exceeded");
+        loggerPtr->WARNING_MSG("maximum number of decay attempts exceeded");
         break;
       }
       ++tries;

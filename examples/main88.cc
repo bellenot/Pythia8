@@ -3,9 +3,9 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Stefan Prestel.
+// Authors: Stefan Prestel
 
-// Keywords: merging; NLO; UNLOPS; hepmc;
+// Keywords: merging; NLO; UNLOPS; hepmc
 
 // It illustrates how to do UNLOPS merging, see the Matrix Element
 // Merging page in the online manual. An example command is

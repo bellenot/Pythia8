@@ -3,7 +3,7 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Keywords: matching; merging; powheg;
+// Keywords: matching; merging; powheg
 
 // Example how to perform matching with POWHEG-BOX events,
 // based on the code found in include/Pythia8Plugins/PowhegHooks.h.

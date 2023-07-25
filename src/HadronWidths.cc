@@ -59,8 +59,7 @@ bool HadronWidths::init(string path) {
 
   ifstream stream(path);
   if (!stream.is_open()) {
-    infoPtr->errorMsg( "Error in HadronWidths::init: "
-        "unable to open file");
+    loggerPtr->ERROR_MSG("unable to open file");
     return false;
   }
 
@@ -87,8 +86,7 @@ bool HadronWidths::init(istream& stream) {
       int id = intAttributeValue(line, "id");
       auto entryIter = entries.find(id);
       if (entryIter != entries.end() && entryIter->second.isUserDefined) {
-        infoPtr->errorMsg( "Error in HadronWidths::init: "
-          "resonance is defined more than once",
+        loggerPtr->ERROR_MSG("resonance is defined more than once",
           std::to_string(id));
         continue;
       }
@@ -125,7 +123,7 @@ bool HadronWidths::init(istream& stream) {
 
       auto entryIter = entries.find(id);
       if (entryIter == entries.end()) {
-        infoPtr->errorMsg( "Error in HadronWidths::readXML: "
+        loggerPtr->ERROR_MSG(
           "got partial width for a particle with undefined total width",
           std::to_string(id));
         continue;
@@ -158,6 +156,28 @@ bool HadronWidths::init(istream& stream) {
     }
   }
 
+  // Search for newly added particles.
+  for (auto& pdtEntry : *particleDataPtr) {
+    int id = pdtEntry.first;
+    ParticleDataEntryPtr pdt = pdtEntry.second;
+    auto iter = entries.find(id);
+    // Parameterize particle if it is not yet listed and has variable width.
+    if (iter == entries.end() && pdt->varWidth()) {
+      // Check that has a resonance decay channel, i.e. into two hadrons.
+      for (int iChannel = 0; iChannel < pdt->sizeChannels(); ++iChannel) {
+        DecayChannel& channel = pdt->channel(iChannel);
+        if (channel.multiplicity() == 2
+         && particleDataPtr->isHadron(channel.product(0))
+         && particleDataPtr->isHadron(channel.product(1)) ) {
+          loggerPtr->INFO_MSG("parameterizing new resonance",
+            to_string(id), true);
+          parameterize(id);
+          break;
+        }
+      }
+    }
+  }
+
   // Done.
   return true;
 }
@@ -175,61 +195,57 @@ bool HadronWidths::check() {
 
     // Check that entry id actually corresponds to a particle.
     if (!particleDataPtr->isParticle(id)) {
-      infoPtr->errorMsg("Error in HadronWidths::check: "
-        "resonance is not a particle", std::to_string(id));
+      loggerPtr->ERROR_MSG("resonance is not a particle", to_string(id));
       return false;
     }
 
     // Check that entry id is positive (antiparticles are handled by symmetry).
     if (id < 0) {
-      infoPtr->errorMsg("Error in HadronWidths::check: "
-        "resonance is an antiparticle", std::to_string(id));
+      loggerPtr->ERROR_MSG("resonance is an anti-particle", to_string(id));
       return false;
     }
 
     // Check that entry id is hadron.
     if (!particleDataPtr->isHadron(id)) {
-      infoPtr->errorMsg("Error in HadronWidths::check: "
-        "resonance is not a hadron", std::to_string(id));
+      loggerPtr->ERROR_MSG("resonance is not a hadron", to_string(id));
       return false;
     }
 
     // Check that mass boundaries are same in particle entry and widths entry.
     if (particleDataPtr->mMin(id) < entry.width.left()) {
-      infoPtr->errorMsg("Warning in HadronWidths::check: "
-        "inconsistent lower mass bound", std::to_string(id));
+      loggerPtr->WARNING_MSG("inconsistent lower mass bound",
+        to_string(id));
     }
     if (particleDataPtr->mMax(id) > entry.width.right()) {
-      infoPtr->errorMsg("Warning in HadronWidths::check: "
-        "inconsistent upper mass bound", std::to_string(id));
+      loggerPtr->WARNING_MSG("inconsistent upper mass bound",
+        to_string(id));
     }
 
     // Check that all decay channels make sense.
     for (auto channelPair : entry.decayChannels) {
       ResonanceDecayChannel& channel = channelPair.second;
       int idA = channel.prodA, idB = channel.prodB;
-      string channelStr = std::to_string(id) + " --> "
-          + std::to_string(idA) + " + " + std::to_string(idB);
+      string channelStr = to_string(id) + " --> "
+          + to_string(idA) + " + " + to_string(idB);
 
       // Check that decay product ids actually correspond to particles.
       for (int idProd : { idA, idB })
       if (!particleDataPtr->isParticle(idProd)) {
-        infoPtr->errorMsg("Error in HadronWidths::check: "
-          "decay product is not a particle", std::to_string(idProd));
+        loggerPtr->ERROR_MSG("decay product is not a particle",
+          to_string(idProd));
         return false;
       }
       // Check that lType makes sense.
       if (channel.lType <= 0) {
-        infoPtr->errorMsg("Error in HadronWidths::check: "
-          "decay channel does not specify a valid lType", channelStr);
+        loggerPtr->ERROR_MSG("decay channel does not specify a valid lType",
+          channelStr);
         return false;
       }
 
       // Check that decay conserves charge.
       if (particleDataPtr->chargeType(idA) + particleDataPtr->chargeType(idB)
         != particleDataPtr->chargeType(id)) {
-        infoPtr->errorMsg("Error in HadronWidths::check: "
-          "decay does not conserve charge", channelStr);
+        loggerPtr->ERROR_MSG("decay does not conserve charge", channelStr);
         return false;
       }
     }
@@ -237,9 +253,9 @@ bool HadronWidths::check() {
 
   for (auto& entry : *particleDataPtr) {
     if (entry.second->varWidth() && !hasData(entry.first)) {
-      infoPtr->errorMsg("Warning in HadronWidths::check: "
+      loggerPtr->WARNING_MSG(
         "particle uses mass dependent width, but width is not defined",
-        std::to_string(entry.first));
+        to_string(entry.first));
     }
   }
 
@@ -258,10 +274,8 @@ pair<int, int> HadronWidths::getKey(int& idR, int idA, int idB) const {
     idB = particleDataPtr->antiId(idB);
   }
 
-  if (abs(idA) < abs(idB))
-    return { idB, idA };
-  else
-    return { idA, idB };
+  if (abs(idA) < abs(idB) || (idA == -idB && idA < 0)) return {idB, idA};
+  else return {idA, idB};
 }
 
 //--------------------------------------------------------------------------
@@ -269,20 +283,9 @@ pair<int, int> HadronWidths::getKey(int& idR, int idA, int idB) const {
 // Get signature of system based on total baryon number and electric charge.
 
 int HadronWidths::getSignature(int baryonNumber, int charge) const {
-  return 100 * baryonNumber
-       +  10 * ((charge >= 0) ? charge : (10 + charge));
+  return 100 * baryonNumber + 10 * abs(charge);
 }
 
-//--------------------------------------------------------------------------
-
-// Get a list of all implemented resonances.
-
-vector<int> HadronWidths::getResonances() const {
-  vector<int> resonances;
-  for (auto& p : entries)
-    resonances.push_back(p.first);
-  return resonances;
-}
 //--------------------------------------------------------------------------
 
 // Get whether the specified incoming particles can form a resonance.
@@ -292,8 +295,7 @@ bool HadronWidths::hasResonances(int idA, int idB) const {
   ParticleDataEntryPtr entryA = particleDataPtr->findParticle(idA);
   ParticleDataEntryPtr entryB = particleDataPtr->findParticle(idB);
   if (!entryA || !entryB) {
-    infoPtr->errorMsg("Error in HadronWidths::possibleResonances: "
-      "invalid input particle ids");
+    loggerPtr->ERROR_MSG("invalid input particle ids");
     return false;
   }
 
@@ -306,9 +308,11 @@ bool HadronWidths::hasResonances(int idA, int idB) const {
     return false;
 
   // For resonances that matches signature, check that decay channel exists.
-  for (int res : iter->second)
-    if (canDecay(res, idA, idB))
+  for (int idR : iter->second) {
+    if ( canDecay(idR, idA, idB)
+      || (particleDataPtr->hasAnti(idR) && canDecay(-idR, idA, idB)) )
       return true;
+  }
 
   // No resonances found.
   return false;
@@ -316,17 +320,25 @@ bool HadronWidths::hasResonances(int idA, int idB) const {
 
 //--------------------------------------------------------------------------
 
+// Get all implemented resonances.
+
+set<int> HadronWidths::getResonances() const {
+  set<int> resonances;
+  for (auto& p : entries) resonances.insert(p.first);
+  return resonances;
+}
+
+//--------------------------------------------------------------------------
+
 // Get resonances that can be formed by the specified incoming particles.
 
-vector<int> HadronWidths::possibleResonances(int idA, int idB) const {
+set<int> HadronWidths::getResonances(int idA, int idB) const {
 
-  vector<int> resonances;
   ParticleDataEntryPtr entryA = particleDataPtr->findParticle(idA);
   ParticleDataEntryPtr entryB = particleDataPtr->findParticle(idB);
   if (!entryA || !entryB) {
-    infoPtr->errorMsg("Error in HadronWidths::possibleResonances: "
-      "invalid input particle ids");
-    return resonances;
+    loggerPtr->ERROR_MSG("invalid input particle ids");
+    return set<int>();
   }
 
   // Get signature for system and look only for resonances that matches it.
@@ -335,17 +347,21 @@ vector<int> HadronWidths::possibleResonances(int idA, int idB) const {
   int signature = getSignature(baryonNumber, charge);
   auto iter = signatureToParticles.find(signature);
   if (iter == signatureToParticles.end())
-    return vector<int>();
+    return set<int>();
 
   // For resonances that matches signature, check that decay channel exists.
-  for (int res : iter->second)
-    if (canDecay(res, idA, idB))
-      resonances.push_back(res);
+  set<int> resonances;
+  for (int idR : iter->second) {
+    if (canDecay(idR, idA, idB))
+      resonances.insert(idR);
+    if (particleDataPtr->hasAnti(idR) && canDecay(-idR, idA, idB))
+      resonances.insert(-idR);
+  }
 
   // For pi0pi0 and pi+pi-, add f0(500) explicitly.
   if ( (idA == 111 && idB == 111)
     || (abs(idA) == 211 && abs(idB) == 211 && idA * idB < 0) )
-    resonances.push_back(9000221);
+    resonances.insert(9000221);
 
   // Done.
   return resonances;
@@ -357,11 +373,13 @@ vector<int> HadronWidths::possibleResonances(int idA, int idB) const {
 
 bool HadronWidths::canDecay(int idR, int idA, int idB) const {
 
+  // Get key and flip idR if necessary.
+  pair<int, int> key = getKey(idR, idA, idB);
+
   auto entryIter = entries.find(idR);
   if (entryIter == entries.end())
     return false;
 
-  pair<int, int> key = getKey(idR, idA, idB);
   auto channelIter = entryIter->second.decayChannels.find(key);
   return channelIter != entryIter->second.decayChannels.end();
 }
@@ -371,9 +389,30 @@ bool HadronWidths::canDecay(int idR, int idA, int idB) const {
 // Get the total width of the specified particle at the specified mass.
 
 double HadronWidths::width(int id, double m) const {
+
+  // Find particle data entry.
+  ParticleDataEntryPtr entry = particleDataPtr->findParticle(id);
+  if (!entry) {
+    loggerPtr->ERROR_MSG("particle does not exist", to_string(id));
+    return 0.;
+  }
+
+  // Check that mass is within range.
+  if (m < entry->mMin() || m > entry->mMax())
+    return 0.;
+
+  // If particle is not resonance, use Breit-Wigner width.
+  if (!entry->varWidth())
+    return entry->mWidth();
+
+  // For resonances, get width from parameterization.
   auto iter = entries.find(abs(id));
-  return (iter != entries.end()) ? iter->second.width(m)
-       : particleDataPtr->mWidth(id);
+  if (iter == entries.end()) {
+    loggerPtr->WARNING_MSG("particle is resonance, but is not parameterized",
+      to_string(id));
+    return entry->mWidth();
+  }
+  return iter->second.width(m);
 }
 
 //--------------------------------------------------------------------------
@@ -382,11 +421,32 @@ double HadronWidths::width(int id, double m) const {
 
 double HadronWidths::partialWidth(int idR, int idA, int idB, double m) const {
 
-  auto entryIter = entries.find(idR);
-  if (entryIter == entries.end())
+  // Get key and flip idR if necessary.
+  pair<int, int> key = getKey(idR, idA, idB);
+
+  // Find particle data entry.
+  ParticleDataEntryPtr entry = particleDataPtr->findParticle(idR);
+  if (!entry) {
+    loggerPtr->ERROR_MSG("particle does not exist", to_string(idR));
+    return 0.;
+  }
+
+  // Check that mass is within range.
+  if (m < entry->mMin() || m > entry->mMax())
     return 0.;
 
-  pair<int, int> key = getKey(idR, idA, idB);
+  // If particle is not resonance, use Breit-Wigner width.
+  if (!particleDataPtr->varWidth(idR))
+    return particleDataPtr->mWidth(idR) * br(idR, idA, idB, m);
+
+  // For resonances, get width from parameterization.
+  auto entryIter = entries.find(idR);
+  if (entryIter == entries.end()) {
+    loggerPtr->WARNING_MSG("particle is resonance, but is not parameterized",
+      to_string(idR));
+    return 0.;
+  }
+
   auto channelIter = entryIter->second.decayChannels.find(key);
   if (channelIter == entryIter->second.decayChannels.end())
     return 0.;
@@ -401,31 +461,63 @@ double HadronWidths::partialWidth(int idR, int idA, int idB, double m) const {
 
 double HadronWidths::br(int idR, int idA, int idB, double m) const {
 
-  auto entryIter = entries.find(idR);
-  if (entryIter == entries.end())
+  // Get key and flip idR if necessary.
+  pair<int, int> key = getKey(idR, idA, idB);
+
+  // Find particle data entry.
+  ParticleDataEntryPtr entry = particleDataPtr->findParticle(idR);
+  if (!entry) {
+    loggerPtr->ERROR_MSG("particle does not exist", to_string(idR));
+    return 0.;
+  }
+
+  // Check that mass is within range.
+  if (m < entry->mMin() || m > entry->mMax())
     return 0.;
 
-  pair<int, int> key = getKey(idR, idA, idB);
+  // If particle is not resonance, get BR from particle database.
+  if (!entry->varWidth()) {
+    for (int iChannel = 0; iChannel < entry->sizeChannels(); ++iChannel) {
+      DecayChannel& channel = entry->channel(iChannel);
+      if (channel.multiplicity() != 2)
+        continue;
+      if ( (channel.product(0) == idA && channel.product(1) == idB)
+        || (channel.product(0) == idB && channel.product(1) == idA) )
+        return channel.bRatio() * entry->mWidth();
+    }
+
+    // If resonance cannot decay into A B, return 0.
+    return 0.;
+  }
+
+  // For resonances, get branching ratio from parameterization.
+  auto entryIter = entries.find(idR);
+  if (entryIter == entries.end()) {
+    loggerPtr->WARNING_MSG("particle is resonance, but is not parameterized",
+      to_string(idR));
+    return 0.;
+  }
+
   auto channelIter = entryIter->second.decayChannels.find(key);
   if (channelIter == entryIter->second.decayChannels.end())
     return 0.;
 
-  double widthNow = entryIter->second.width(m);
-  if (widthNow == 0.)
+  double widthTotal = entryIter->second.width(m);
+  if (widthTotal == 0.)
     return 0.;
   else
     return (m <= channelIter->second.mThreshold) ? 0.
-          : channelIter->second.partialWidth(m) / widthNow;
+          : channelIter->second.partialWidth(m) / widthTotal;
 }
 
 //--------------------------------------------------------------------------
 
-// Get the mass distribution density for the particle at the specified mass.
+// Get the mass distribution density for the particle at the specified mass,
+// using the Breit-Wigner formula with a mass-dependent width.
 
 double HadronWidths::mDistr(int id, double m) const  {
-  auto iter = entries.find(abs(id));
-  double w = (iter == entries.end()) ? particleDataPtr->mWidth(id)
-           : iter->second.width(m);
+  double w = width(id, m);
+  if (w == 0) return 0.;
   double m0 = particleDataPtr->m0(id);
   return 0.5 / M_PI * w / (pow2(m - m0) + 0.25 * w * w);
 }
@@ -433,61 +525,91 @@ double HadronWidths::mDistr(int id, double m) const  {
 //--------------------------------------------------------------------------
 
 // Pick a decay channel for the specified particle, together with phase
-// space configuration. Returns whether successful.
+// space configuration. If successful, the results are written to the
+// output arguments.
 
 bool HadronWidths::pickDecay(int idDec, double m, int& idAOut, int& idBOut,
     double& mAOut, double& mBOut) {
 
-  // Find table entry for decaying particle.
+  // Find particle data entry for decaying particle.
+  ParticleDataEntryPtr pdEntry = particleDataPtr->findParticle(idDec);
+  if (!pdEntry) {
+    loggerPtr->ERROR_MSG("particle not found", to_string(idDec));
+    return false;
+  }
+
+  // If antiparticle, flip the resonance and then later flip decay products.
   bool isAnti = (idDec < 0);
   if (isAnti) idDec = -idDec;
+
+  // Find table entry for decaying particle.
   auto entriesIter = entries.find(idDec);
   if (entriesIter == entries.end()) {
-    infoPtr->errorMsg("Error in HadronWidths::pickDecay: "
-      "particle not found", std::to_string(idDec));
+    loggerPtr->ERROR_MSG("particle is not parameterized", to_string(idDec));
     return false;
   }
   HadronWidthEntry& entry = entriesIter->second;
 
-  // Pick decay channel.
-  vector<pair<int, int>> prodsList;
-  vector<double> sigmas;
+  // Get list of channels that are currently on.
+  vector<ResonanceDecayChannel*> channelsList;
+  vector<double> branchingRates;
   bool gotAny = false;
   for (auto& channel : entry.decayChannels) {
+
+    // Check that channel is open at this mass.
     if (m <= channel.second.mThreshold)
       continue;
-    double sigma = channel.second.partialWidth(m);
-    if (sigma > 0.) {
+
+    // Check that channel is on in the particle database.
+    int prodA = channel.first.first, prodB = channel.first.second;
+    bool isOn = false;
+    for (int iChannel = 0; iChannel < pdEntry->sizeChannels(); ++iChannel) {
+      DecayChannel& pdChannel = pdEntry->channel(iChannel);
+      if (pdChannel.multiplicity() != 2) continue;
+      int pdProdA = pdChannel.product(0), pdProdB = pdChannel.product(1);
+      if ( (pdProdA == prodA && pdProdB == prodB)
+        || (pdProdB == prodA && pdProdA == prodB) ) {
+        isOn = (pdChannel.onMode() == 1)
+            || (pdChannel.onMode() == 2 && idDec == pdEntry->id())
+            || (pdChannel.onMode() == 3 && idDec == pdEntry->antiId());
+        break;
+      }
+    }
+    if (!isOn)
+      continue;
+
+    // If channel is on, add to list if width is positive.
+    double widthNow = channel.second.partialWidth(m);
+    if (widthNow > 0.) {
       gotAny = true;
-      prodsList.push_back(channel.first);
-      sigmas.push_back(sigma);
+      channelsList.push_back(&channel.second);
+      branchingRates.push_back(widthNow);
     }
   }
+
+  // If no channels are on, the decay fails.
   if (!gotAny) {
-     infoPtr->errorMsg("Error in HadronWidths::pickDecay: "
-       "no channels have positive widths",
+     loggerPtr->ERROR_MSG("no channels have positive widths",
        "for " + to_string(idDec) + " @ " + to_string(m) + " GeV");
     return false;
   }
 
-  // Select decay products. Check spin type of decay.
-  pair<int, int> prods = prodsList[rndmPtr->pick(sigmas)];
-  int idA = prods.first;
-  int idB = prods.second;
-  int lType = entry.decayChannels.at(prods).lType;
+  auto* channelNow = channelsList[rndmPtr->pick(branchingRates)];
+  int prodA = channelNow->prodA;
+  int prodB = channelNow->prodB;
 
-  // Select masses of decay products.
+  // Pick masses of decay products.
   double mA, mB;
-  if (!pickMasses(idA, idB, m, mA, mB, lType)) {
-    infoPtr->errorMsg("Error in HadronWidths::pickDecay: failed to pick "
-      "masses", "for " + to_string(idDec) + " --> " + to_string(idA)
-      + " + " + to_string(idB) + " @ " + to_string(m));
+  if (!pickMasses(prodA, prodB, m, mA, mB, channelNow->lType)) {
+    loggerPtr->ERROR_MSG("failed to pick masses",
+      "for " + to_string(idDec) + " --> " + to_string(prodA)
+      + " + " + to_string(prodB) + " @ " + to_string(m));
     return false;
   }
 
-  // Done.
-  idAOut = isAnti ? particleDataPtr->antiId(idA) : idA;
-  idBOut = isAnti ? particleDataPtr->antiId(idB) : idB;
+  // Write output values and done.
+  idAOut = isAnti ? particleDataPtr->antiId(prodA) : prodA;
+  idBOut = isAnti ? particleDataPtr->antiId(prodB) : prodB;
   mAOut = mA;
   mBOut = mB;
   return true;
@@ -512,14 +634,13 @@ bool HadronWidths::pickMasses(int idA, int idB, double eCM,
   double mAMin = particleDataPtr->mMin(idA);
   double mBMin = particleDataPtr->mMin(idB);
   if (mAMin + mBMin >=  eCM) {
-    infoPtr->errorMsg("Error in HadronWidths::pickMasses: "
-      "energy is smaller than minimum masses");
+    loggerPtr->ERROR_MSG("energy is smaller than minimum masses");
     return false;
   }
 
   if (lType <= 0) {
-    infoPtr->errorMsg("Error in HadronWidths::pickMasses: "
-      "invalid angular momentum", "2l+1 = " + to_string(lType));
+    loggerPtr->ERROR_MSG("invalid angular momentum",
+      "2l+1 = " + to_string(lType));
     return false;
   }
 
@@ -541,8 +662,8 @@ bool HadronWidths::pickMasses(int idA, int idB, double eCM,
   if (hasVarWidthA) {
     auto iterA = entries.find( abs(idA) );
     if (iterA == entries.end()) {
-      infoPtr->errorMsg("Error in HadronWidths::pickMasses: "
-        "mass distribution for particle is not defined", std::to_string(idA));
+      loggerPtr->ERROR_MSG("mass distribution for particle is not defined",
+        to_string(idA));
       return false;
     }
     entryA = &iterA->second;
@@ -553,8 +674,8 @@ bool HadronWidths::pickMasses(int idA, int idB, double eCM,
   if (hasVarWidthB) {
     auto iterB = entries.find( abs(idB) );
     if (iterB == entries.end()) {
-      infoPtr->errorMsg("Error in HadronWidths::pickMasses: "
-        "mass distribution for particle is not defined", std::to_string(idB));
+      loggerPtr->ERROR_MSG("mass distribution for particle is not defined",
+        to_string(idB));
       return false;
     }
     entryB = &iterB->second;
@@ -612,15 +733,14 @@ bool HadronWidths::pickMasses(int idA, int idB, double eCM,
     if (lType > 0) wtTot *= pow(p2Ratio, 0.5 * lType);
     if (wtTot > rndmPtr->flat()) {
       // Give warning message only for more severe cases
-      if (4 * i > 3 * MAXLOOP) infoPtr->errorMsg("Warning in HadronWidths::"
-        "pickMasses: angular momentum and running widths not used");
+      if (4 * i > 3 * MAXLOOP)
+      loggerPtr->WARNING_MSG("angular momentum and running widths not used");
       return true;
     }
   }
 
   // Last resort: pick masses within limits known to work, without weight.
-  infoPtr->errorMsg("Warning in HadronWidths::pickMasses: "
-   "using last-resort simplified description");
+  loggerPtr->WARNING_MSG("using last-resort simplified description");
   double mSpanNorm = (eCM - mAMin - mBMin) / (gammaAFix + gammaBFix);
   mAOut = mAMin + rndmPtr->flat() * mSpanNorm * gammaAFix;
   mBOut = mBMin + rndmPtr->flat() * mSpanNorm * gammaBFix;
@@ -636,18 +756,19 @@ bool HadronWidths::pickMasses(int idA, int idB, double eCM,
 
 double HadronWidths::widthCalc(int id, double m) const {
 
-  // Get particle entry.
+  // Find particle data entry.
   ParticleDataEntryPtr entry = particleDataPtr->findParticle(id);
   if (entry == nullptr) {
-    infoPtr->errorMsg("Error in HadronWidths::widthCalc: "
-      "particle not found", to_string(id));
+    loggerPtr->ERROR_MSG("particle not found", to_string(id));
     return 0.;
   }
+  if (m < entry->mMin() || m > entry->mMax())
+    return 0.;
 
   // Sum contributions from all channels.
   double w = 0.;
-  for (int iChan = 0; iChan < entry->sizeChannels(); ++iChan)
-    w += widthCalc(id, entry->channel(iChan), m);
+  for (int iChannel = 0; iChannel < entry->sizeChannels(); ++iChannel)
+    w += widthCalc(id, entry->channel(iChannel), m);
   return w;
 }
 
@@ -657,15 +778,15 @@ double HadronWidths::widthCalc(int id, double m) const {
 
 double HadronWidths::widthCalc(int id, int prodA, int prodB, double m) const {
 
-  // Find particle entry.
+  // Find particle data entry.
   pair<int, int> key = getKey(id, prodA, prodB);
   ParticleDataEntryPtr entry = particleDataPtr->findParticle(id);
   if (entry == nullptr)
     return 0.;
 
   // Search for the matching decay channel.
-  for (int iChan = 0; iChan < entry->sizeChannels(); ++iChan) {
-    DecayChannel& channel = entry->channel(iChan);
+  for (int iChannel = 0; iChannel < entry->sizeChannels(); ++iChannel) {
+    DecayChannel& channel = entry->channel(iChannel);
     if (channel.multiplicity() > 2)
       continue;
     if ( (channel.product(0) == key.first && channel.product(1) == key.second)
@@ -674,8 +795,7 @@ double HadronWidths::widthCalc(int id, int prodA, int prodB, double m) const {
   }
 
   // Decay channel not found.
-  infoPtr->errorMsg("Error in HadronWidths::widthCalc: "
-    "decay channel not found",
+  loggerPtr->ERROR_MSG("decay channel not found",
     to_string(id) + " --> " + to_string(prodA) + " " + to_string(prodB));
   return 0.;
 }
@@ -687,27 +807,26 @@ double HadronWidths::widthCalc(int id, int prodA, int prodB, double m) const {
 double HadronWidths::widthCalc(int id, Pythia8::DecayChannel& channel,
   double m) const {
 
-  // Get particle entry.
+  // Find particle data entry.
   ParticleDataEntryPtr entry = particleDataPtr->findParticle(id);
   if (entry == nullptr) {
-    infoPtr->errorMsg("Error in HadronWidths::widthCalc: "
-      "particle not found", to_string(id));
+    loggerPtr->ERROR_MSG("particle not found", to_string(id));
     return 0.;
   }
+  if (m < entry->mMin() || m > entry->mMax())
+    return 0.;
 
-  // Store nominal mass and partial width.
-  double m0 = entry->m0(), gamma0 = channel.bRatio() * entry->mWidth();
-
-  // Only two-body decays can have mass-dependent width.
+  // Multibody channels cannot have mass-dependent widths.
   if (channel.multiplicity() != 2)
-    return channel.bRatio();
+    return entry->mWidth() * channel.bRatio();
+
+  // Find particle data entries for decay products.
   auto prodA = particleDataPtr->findParticle(channel.product(0));
   auto prodB = particleDataPtr->findParticle(channel.product(1));
-
   if (m < prodA->mMin() + prodB->mMin())
     return 0.;
 
-  // Get two-body angular momentum.
+  // Get angular momentum for the outgoing two-body system.
   int lType;
   if (channel.meMode() >= 3 && channel.meMode() <= 7)
     lType = 2 * (channel.meMode() - 3) + 1;
@@ -725,23 +844,24 @@ double HadronWidths::widthCalc(int id, Pythia8::DecayChannel& channel,
     return 0.;
 
   // Calculate phase space at on-shell mass.
+  double m0 = entry->m0();
   double pM0  = psSize(m0, prodA, prodB, lType);
   double pM0S = psSize(m0, prodA, prodB, lType - 1);
   if (pM0 <= 0 || pM0S <= 0) {
-    infoPtr->errorMsg("Error in HadronWidths::widthCalc: "
-      "on-shell decay is not possible",
+    loggerPtr->ERROR_MSG("on-shell decay is not possible",
       to_string(id) + " --> " + to_string(prodA->id())
        + " " + to_string(prodB->id()));
-      return numeric_limits<double>::quiet_NaN();
+    return numeric_limits<double>::quiet_NaN();
   }
 
-  // Return mass-dependent partial width.
+  // Return mass-dependent partial width, using UrQMD approach.
+  double gamma0 = channel.bRatio() * entry->mWidth();
   return gamma0 * (m0 / m) * (pM / pM0) * 1.2 / (1. + 0.2 * pMS / pM0S);
 }
 
 //--------------------------------------------------------------------------
 
-// Regenerate parameterization for the specified particle.
+// Regenerate parameterization for particle and its decay products if needed.
 
 bool HadronWidths::parameterize(int id, int precision) {
 
@@ -749,38 +869,72 @@ bool HadronWidths::parameterize(int id, int precision) {
   ParticleDataEntryPtr entry = particleDataPtr->findParticle(id);
 
   if (entry == nullptr) {
-    infoPtr->errorMsg("Error in HadronWidths::parameterize: "
-      "particle does not exist", to_string(id));
+    loggerPtr->ERROR_MSG("particle does not exist", to_string(id));
     return false;
   }
   if (precision <= 1) {
-    infoPtr->errorMsg("Error in HadronWidths::parameterize: "
-      "precision must be at least 2");
+    loggerPtr->ERROR_MSG("precision must be at least 2");
     return false;
   }
   if (entry->mMin() >= entry->mMax()) {
-    infoPtr->errorMsg("Error in HadronWidths::parameterize: "
-      "particle has fixed mass", to_string(id));
+    loggerPtr->ERROR_MSG("particle has fixed mass", to_string(id));
     return false;
   }
-
   if (!entry->varWidth())
-    infoPtr->errorMsg("Warning in HadronWidths::parameterize: "
-      "particle does not have mass-dependent width", to_string(id));
+    loggerPtr->WARNING_MSG("particle does not have mass-dependent width",
+      to_string(id));
 
+  // Do recursive parameterization (no validation checks in recursive calls)
+  return parameterizeRecursive(id, precision);
+}
+
+//--------------------------------------------------------------------------
+
+// Generate parameterization for particle and its decay products if needed.
+
+bool HadronWidths::parameterizeRecursive(int id, int precision) {
+
+  // End recursion if data has already been generated.
+  if (hasData(id))
+    return true;
+
+  // Get particle entry.
+  ParticleDataEntryPtr entry = particleDataPtr->findParticle(id);
+
+  // Check whether any decay products must be parameterized first.
+  for (int iChannel = 0; iChannel < entry->sizeChannels(); ++iChannel) {
+    DecayChannel& channel = entry->channel(iChannel);
+    if (channel.multiplicity() == 2) {
+      auto prodA = particleDataPtr->findParticle(channel.product(0));
+      auto prodB = particleDataPtr->findParticle(channel.product(1));
+
+      // Recursive call to parameterize decay product widths if necessary.
+      if (prodA->varWidth() && !hasData(prodA->id()))
+        if (!parameterizeRecursive(prodA->id(), precision)) return false;
+      if (prodB->varWidth() && !hasData(prodB->id()))
+        if (!parameterizeRecursive(prodB->id(), precision)) return false;
+    }
+  }
+
+  // Perform the actual parameterization of this particle.
   map<pair<int, int>, ResonanceDecayChannel> partialWidths;
   vector<double> totalWidthData(precision);
 
   double mMin = entry->mMin(), mMax = entry->mMax();
   double dm = (mMax - mMin) / (precision - 1);
+  entry->rescaleBR(1.0);
 
   // Parameterize all channels.
-  for (int iChan = 0; iChan < entry->sizeChannels(); ++iChan) {
+  for (int iChannel = 0; iChannel < entry->sizeChannels(); ++iChannel) {
+    DecayChannel& channel = entry->channel(iChannel);
 
-    // Mass-dependent width is not defined for multibody channels.
-    DecayChannel& channel = entry->channel(iChan);
-    if (channel.multiplicity() != 2)
+    // For multibody channels, mass-dependent widths are not defined,
+    // but they should still count towards the total width.
+    if (channel.multiplicity() != 2) {
+      for (double& dataPoint : totalWidthData)
+        dataPoint += entry->mWidth() * channel.bRatio();
       continue;
+    }
 
     // Create key to put decay products in canonical order.
     pair<int, int> key = getKey(id, channel.product(0), channel.product(1));
@@ -818,8 +972,17 @@ bool HadronWidths::parameterize(int id, int precision) {
     true
   };
   auto iter = entries.find(id);
-  if (iter == entries.end())
+  if (iter == entries.end()) {
     entries.emplace(id, newEntry);
+
+    // If particle is new, insert it in signature index.
+    int signature = getSignature(entry->isBaryon(), entry->chargeType(id));
+    auto signatureIter = signatureToParticles.find(signature);
+    if (signatureIter == signatureToParticles.end())
+      signatureToParticles.emplace(signature, vector<int> { id });
+    else
+      signatureIter->second.push_back(id);
+  }
   else
     entries[id] = newEntry;
 
@@ -915,43 +1078,9 @@ double HadronWidths::psSize(double eCM, ParticleDataEntryPtr prodA,
   if (success)
     return result;
   else {
-    infoPtr->errorMsg("Error in HadronWidths::psSize: Unable to integrate");
+    loggerPtr->ERROR_MSG("unable to integrate");
     return numeric_limits<double>::quiet_NaN();
   }
-}
-
-//--------------------------------------------------------------------------
-
-// Generate parameterization for particle and its decay products if needed.
-
-bool HadronWidths::parameterizeRecursive(int id, int precision) {
-
-  // End recursion if data has already been generated.
-  if (hasData(id))
-    return true;
-
-  // Get particle entry.
-  ParticleDataEntryPtr entry = particleDataPtr->findParticle(id);
-
-  // Iterate over all two-body channels.
-  for (int iChannel = 0; iChannel < entry->sizeChannels(); ++iChannel) {
-    DecayChannel& channel = entry->channel(iChannel);
-    if (channel.multiplicity() == 2) {
-      auto prodA = particleDataPtr->findParticle(channel.product(0));
-      auto prodB = particleDataPtr->findParticle(channel.product(1));
-
-      // Recursive call to parameterize decay product widths if necessary.
-      if (prodA->varWidth() && !hasData(prodA->id()))
-        if (!parameterizeRecursive(prodA->id(), precision)) return false;
-      if (prodB->varWidth() && !hasData(prodB->id()))
-        if (!parameterizeRecursive(prodB->id(), precision)) return false;
-    }
-  }
-
-  // Perform the actual parameterization of this particle.
-  infoPtr->errorMsg("Info from HadronWidths::parameterizeAll: "
-    "parameterizing", to_string(id), true);
-  return parameterize(id, precision);
 }
 
 //--------------------------------------------------------------------------
@@ -972,9 +1101,10 @@ void HadronWidths::parameterizeAll(int precision) {
   entries.clear();
 
   for (ParticleDataEntryPtr entry : variableWidthEntries) {
+    loggerPtr->INFO_MSG("parameterizing resonance",
+      to_string(entry->id()), true);
     if (!parameterizeRecursive(entry->id(), precision)) {
-      infoPtr->errorMsg("Abort from HadronWidths::parameterizeAll: "
-        "parameterization failed");
+      loggerPtr->ABORT_MSG("parameterization failed");
       return;
     }
   }

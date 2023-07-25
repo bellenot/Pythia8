@@ -178,6 +178,22 @@ at TeV Colliders, Les Houches, France, 21 May - 1 Jun 2001
 <dd>G. Bozzi, B. Fuks, B. Herrmann, M. Klasen, Nucl. Phys. B787 (2007) 1 
 [arXiv:0704.1826 [hep-ph]]</dd> 
  
+<refit>Bra93</refit> 
+<dd>E. Braaten and T.C. Yuan, Phys. Rev. Lett. 71 (1993) 1673 
+[hep-ph/9303205]</dd> 
+ 
+<refit>Bra93a</refit> 
+<dd>E. Braaten, K. Cheung and T.C. Yuan, Phys. Rev. D48 (1993) 4230 
+[hep-ph/9302307]</dd> 
+ 
+<refit>Bra94</refit> 
+<dd>E. Braaten and T.C. Yuan, Phys. Rev. D50 (1994) 3176 
+[hep-ph/9403401]</dd> 
+ 
+<refit>Bra95</refit> 
+<dd>E. Braaten and T.C. Yuan, Phys. Rev. D52 (1995) 6627 
+[hep-ph/9507398]</dd> 
+ 
 <refit>Bro09</refit> 
 <dd>W. Broniowski M. Rybczynski and P. Bozek, Comput. Phys. Commun. 
 180 (2009) 69 [arXiv:0710.5731 [nucl-th]]</dd> 
@@ -266,6 +282,9 @@ JHEP 04 (2014) 115 [arXiv:1401.5238 [hep-ph]]</dd>
  
 <refit>CMS14</refit> 
 <dd>CMS Collaboration, CMS PAS GEN-14-001, arXiv:1512.00815</dd> 
+ 
+<refit>Coo23</refit> 
+<dd>N. Cooke, P. Ilten, L. L&ouml;nnblad, S. Mrenna, to be published</dd> 
  
 <refit>Cor03</refit> 
 <dd>F. Cornet, P. Jankowski, M. Krawczyk and A. Lorca, Phys. Rev. D68 (2003) 
@@ -440,6 +459,9 @@ Tau2012, Nagoya, Japan, 17-21 September 2012
 <refit>Ilt14</refit> 
 <dd>P. Ilten, Ph.D. thesis, arXiv:1401.4902 [hep-ex] 
 </dd> 
+ 
+<refit>Ilt21</refit> 
+<dd>P. Ilten and M. Utheim, Eur. Phys. J. A58 (2022) 1</dd> 
  
 <refit>Ing85</refit> 
 <dd>G.Ingelman and P. Schlein, Phys. Lett. B152 (1985) 256</dd> 
@@ -681,6 +703,9 @@ CERN-2005-014, p. 575 [hep-ph/0508110]</dd>
 <refit>Yao06</refit> 
 <dd>Particle Data Group, W.-M. Yao et al., 
 J. Phys. G33 (2006) 1</dd> 
+ 
+<refit>Yua94</refit> 
+<dd>T.C. Yuan, Phys. Rev. D50 (1994) 5664 [hep-ph/9405348]</dd> 
  
 <refit>Yua98</refit> 
 <dd>F. Yuan, C. Qiao and K. Chao, Phys. Rev. D59 (1998) 014009 

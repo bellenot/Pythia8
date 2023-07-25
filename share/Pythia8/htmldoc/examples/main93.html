@@ -33,6 +33,7 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 #include &quot;main93.h&quot;
 #include &lt;chrono&gt;
 #ifdef PY8ROOT
+#include &quot;TSystem.h&quot;
 #include &quot;TTree.h&quot;
 #include &quot;TFile.h&quot;
 #endif
@@ -269,6 +270,7 @@ int main(int argc, char* argv[]) {
                 &quot;linked Root installation.&quot; &lt;&lt; endl;
         return 1;
    #else
+   gSystem-&gt;Load(&quot;main93.so&quot;);
    string op = (out == &quot;&quot; ? &quot;pythia.root&quot; : out + &quot;.root&quot;);
    file = TFile::Open(op.c_str(),&quot;recreate&quot; );
    re = new RootEvent();

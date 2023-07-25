@@ -785,8 +785,7 @@ inline bool LHAupAlpgen::addResonances() {
         flav = (flav > 0) ? 24 : (flav < 0) ? -24 : 23;
         if (flav != myParticles[i].idPart) {
           if (infoPtr)
-            infoPtr->errorMsg("Error in LHAupAlpgen::addResonance: "
-                "resonance does not match decay products");
+            loggerPtr->ERROR_MSG("resonance does not match decay products");
           return false;
         }
 
@@ -841,8 +840,7 @@ inline bool LHAupAlpgen::addResonances() {
           // Error if wrong flavour
           if (wrongFlavour) {
             if (infoPtr)
-              infoPtr->errorMsg("Error in LHAupAlpgen::addResonance: "
-                  "resonance does not match decay products");
+              loggerPtr->ERROR_MSG("resonance does not match decay products");
             return false;
           }
         }

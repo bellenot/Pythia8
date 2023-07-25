@@ -42,21 +42,19 @@ successful.
    
  
 <a name="anchor2"></a>
-<p/><strong> vector&lt;int&gt; HadronWidths::getResonances() &nbsp;</strong> <br/>
-gets a list of the implemented resonance particles. 
-   
- 
-<a name="anchor3"></a>
-<p/><strong> vector&lt;int&gt; HadronWidths::hasResonances(int idA, int idB) &nbsp;</strong> <br/>
+<p/><strong> set&lt;int&gt; HadronWidths::hasResonances(int idA, int idB) &nbsp;</strong> <br/>
 returns whether the two specified incoming particles can form 
 resonances. 
    
  
+<a name="anchor3"></a>
+<p/><strong> set&lt;int&gt; HadronWidths::getResonances() &nbsp;</strong> <br/>
+   
 <a name="anchor4"></a>
-<p/><strong> vector&lt;int&gt; HadronWidths::getPossibleResonances(int idA, int idB) &nbsp;</strong> <br/>
-gets a list of resonances that could possibly be formed by the 
-specified incoming particles. That is, all resonance particles that 
-has data and can decay into those particles. 
+<strong> set&lt;int&gt; HadronWidths::getResonances(int idA, int idB) &nbsp;</strong> <br/>
+gets a list of the implemented resonance particles. If <code>idA</code> and 
+<code>idB</code> are specified, it instead returns a list of resonances that 
+can be formed by those particles. 
    
  
 <a name="anchor5"></a>
@@ -84,15 +82,13 @@ returned instead.
 <a name="anchor9"></a>
 <strong> double HadronWidths::br(int id, int prodA, int prodB, double m) &nbsp;</strong> <br/>
 returns the mass-dependent partial width or branching ratio of the decay 
-<i>R &rarr; A + B</i>. If parameterized data does not exist for that decay 
-channel, both methods will return zero. 
+<i>R &rarr; A + B</i>. 
    
  
 <a name="anchor10"></a>
 <p/><strong> double HadronWidths::mDistr(int id, double m) &nbsp;</strong> <br/>
 gives the mass distribution density for the specified particle. This is given 
-by a Breit-Wigner function, using the mass-dependent width. If the 
-mass-dependent width is not available, it uses the nominal width instead. 
+by a Breit-Wigner function, using the mass-dependent width. 
    
  
 <a name="anchor11"></a>

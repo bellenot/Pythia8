@@ -30,14 +30,14 @@ public:
   // Check whether input data is valid and matches particle data.
   bool check();
 
-  // Get a list of all implemented resonances.
-  vector<int> getResonances() const;
-
   // Get whether the specified incoming particles can form a resonance.
   bool hasResonances(int idA, int idB) const;
 
+  // Get all implemented resonances.
+  set<int> getResonances() const;
+
   // Get resonances that can be formed by the specified incoming particles.
-  vector<int> possibleResonances(int idA, int idB) const;
+  set<int> getResonances(int idA, int idB) const;
 
   // Returns whether the specified particle is handled by HadronWidths.
   bool hasData(int id) const {
@@ -75,11 +75,13 @@ public:
   // Calculate partial width of the particle without using interpolation.
   double widthCalc(int id, int prodA, int prodB, double m) const;
 
-  // Regenerate parameterization for the specified particle.
-  bool parameterize(int id, int precision);
+  // Regenerate parameterization for particle, using the specified number of
+  // interpolation points. If needed, its decay products are automatically
+  // parameterized as well.
+  bool parameterize(int id, int precision = 50);
 
   // Regenerate parameterization for all particles.
-  void parameterizeAll(int precision);
+  void parameterizeAll(int precision = 50);
 
   // Write all width data to an xml file.
   bool save(ostream& stream) const;
@@ -126,7 +128,7 @@ private:
   // Calculate partial width of the particle without using interpolation.
   double widthCalc(int id, DecayChannel& channel, double m) const;
 
-  // Generate parameterization for particle and its decay products if needed.
+  // Recursive method for parameterization.
   bool parameterizeRecursive(int id, int precision);
 
 };

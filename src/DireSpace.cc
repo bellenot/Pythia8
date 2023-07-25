@@ -204,8 +204,8 @@ void DireSpace::init( BeamParticle* beamAPtrIn,
     pTmin         = pTminAbs;
     ostringstream newPTmin;
     newPTmin << fixed << setprecision(3) << pTmin;
-    infoPtr->errorMsg("Warning in DireSpace::init: pTmin too low",
-                      ", raised to " + newPTmin.str() );
+    loggerPtr->WARNING_MSG("the parameter pTmin is too low,",
+       " raised to " + newPTmin.str() );
     infoPtr->setTooLowPTmin(true);
   }
 
@@ -567,8 +567,7 @@ void DireSpace::setupQCDdip( int iSys, int side, int colTag, int colSign,
 
   // Check for failure to locate any recoiler
   if ( iPartner == 0 ) {
-    infoPtr->errorMsg("Error in DireSpace::setupQCDdip: "
-                      "failed to locate any recoiling partner");
+    loggerPtr->ERROR_MSG("failed to locate any recoiling partner");
     return;
   }
 
@@ -2585,9 +2584,6 @@ void DireSpace::alphasReweight(double, double talpha, int iSys,
   }
   talpha = max(talpha, pT2min);
 
-  double scale       = talpha*renormMultFacNow;
-  scale              = max(scale, pT2min);
-
   // Get current alphaS value.
   double asPT2piCorr  = alphasNow(talpha, renormMultFacNow, iSys);
 
@@ -2654,8 +2650,7 @@ bool DireSpace::pT2nextQCD_II( double pT2begDip, double pT2sel,
   double zMinAbs     = xDaughter;
 
   if (usePDF && xMaxAbs < 0.) {
-    infoPtr->errorMsg("Warning in DireSpace::pT2nextQCD_II: "
-    "xMaxAbs negative");
+    loggerPtr->ERROR_MSG("kinematics failure, xMaxAbs negative");
     return false;
   }
 
@@ -2752,8 +2747,7 @@ bool DireSpace::pT2nextQCD_II( double pT2begDip, double pT2sel,
     // (Example: if all PDF's = 0 below Q_0, except for c/b companion.)
     if (hasTinyPDFdau) ++loopTinyPDFdau;
     if (hasPDFdau && loopTinyPDFdau > MAXLOOPTINYPDF) {
-      infoPtr->errorMsg("Warning in DireSpace::pT2nextQCD: "
-      "small daughter PDF");
+      loggerPtr->ERROR_MSG("PDF error, small daughter PDF");
       dip.pT2 = 0.0;
       return false;
     }
@@ -3085,8 +3079,8 @@ bool DireSpace::pT2nextQCD_II( double pT2begDip, double pT2sel,
         << " and z=" << znow << "\t(PDF ratio=" << pdfRatio << ")" << endl;
       double rescale = fullWeightNow/auxWeightNow * 1.15;
       auxWeightNow *= rescale;
-      infoPtr->errorMsg("Info in DireSpace::pT2nextQCD_II: Found large "
-                        "acceptance weight for " + splittingNowName);
+      loggerPtr->INFO_MSG(
+        "found large acceptance weight for " + splittingNowName);
     }
 
     wt = fullWeightNow/auxWeightNow;
@@ -3188,8 +3182,7 @@ bool DireSpace::pT2nextQCD_IF( double pT2begDip, double pT2sel,
   Vec4 pOther(event[iOther].p());
 
   if (usePDF && xMaxAbs < 0.) {
-    infoPtr->errorMsg("Warning in DireSpace::pT2nextQCD_IF: "
-    "xMaxAbs negative");
+    loggerPtr->ERROR_MSG("kinematics error, xMaxAbs negative");
     return false;
   }
 
@@ -3281,8 +3274,7 @@ bool DireSpace::pT2nextQCD_IF( double pT2begDip, double pT2sel,
     // (Example: if all PDF's = 0 below Q_0, except for c/b companion.)
     if (hasTinyPDFdau) ++loopTinyPDFdau;
     if ( hasPDFdau && loopTinyPDFdau > MAXLOOPTINYPDF) {
-      infoPtr->errorMsg("Warning in DireSpace::pT2nextQCD_IF: "
-      "small daughter PDF");
+      loggerPtr->ERROR_MSG("PDF error, small daughter PDF");
       dip.pT2 = 0.0;
       return false;
     }
@@ -3698,8 +3690,8 @@ bool DireSpace::pT2nextQCD_IF( double pT2begDip, double pT2sel,
       double rescale = fullWeightNow/auxWeightNow * 1.15;
       auxWeightNow *= rescale;
       needNewPDF = true;
-      infoPtr->errorMsg("Info in DireSpace::pT2nextQCD_IF: Found large "
-                        "acceptance weight for " + splittingNowName);
+      loggerPtr->INFO_MSG("found large acceptance weight "
+        "for " + splittingNowName);
     }
 
     wt = fullWeightNow/auxWeightNow;
@@ -3793,9 +3785,6 @@ double DireSpace::tNextQCD( DireSpaceEnd*, double overestimateInt,
   } else if (tOld > m2c) {
     b0       = 25./6.;
     Lambda2  = Lambda4flav2;
-  } else {
-    b0       = 27./6.;
-    Lambda2  = Lambda3flav2;
   }
   // A change of renormalization scale expressed by a change of Lambda.
   Lambda2 /= renormMultFac;
@@ -4239,9 +4228,8 @@ bool DireSpace::branch_II( Event& event, bool trial,
 
     // Not possible to construct kinematics if kT2 < 0.0
     if (kT2 < 0.) {
-      if (printWarnings)
-        infoPtr->errorMsg("Warning in DireSpace::branch_II: Reject state "
-                          "with kinematically forbidden kT^2.");
+      if (printWarnings) loggerPtr->WARNING_MSG(
+        "rejecting state with kinematically forbidden kT^2");
       physical = false;
     }
 
@@ -4290,9 +4278,8 @@ bool DireSpace::branch_II( Event& event, bool trial,
       nTries++;
       if (nTries > 100
        || (nTries > 1 && split->useForBranching)) {
-        if (printWarnings)
-          infoPtr->errorMsg("Warning in DireSpace::branch_II: Could not "
-                               "set up state after branching, thus reject.");
+        if (printWarnings) loggerPtr->WARNING_MSG(
+            "could not set up state after branching, thus rejecting");
         physical = false; break;
       }
 
@@ -4409,8 +4396,8 @@ bool DireSpace::branch_II( Event& event, bool trial,
       (*beamAPtr)[iSysSelNow].iPos(iAnew);
       (*beamAPtr)[iSysSelNow].x(xAnew);
       if (beamAPtr->xMax(-1) < 0.0) {
-        if (!trial) infoPtr->errorMsg("Warning in DireSpace::branch_II: "
-          "used up beam momentum; discard splitting.");
+        if (!trial) loggerPtr->WARNING_MSG(
+          "used up beam A momentum; discarding splitting");
         physical = false;
       }
       // Restore old beams.
@@ -4422,8 +4409,8 @@ bool DireSpace::branch_II( Event& event, bool trial,
       (*beamBPtr)[iSysSelNow].iPos(iBnew);
       (*beamBPtr)[iSysSelNow].x(xBnew);
       if (beamBPtr->xMax(-1) < 0.0) {
-        if (!trial) infoPtr->errorMsg("Warning in DireSpace::branch_II: "
-          "used up beam momentum; discard splitting.");
+        if (!trial) loggerPtr->WARNING_MSG(
+          "used up beam B momentum; discarding splitting");
         physical = false;
       }
       // Restore old beams.
@@ -4578,18 +4565,16 @@ bool DireSpace::branch_II( Event& event, bool trial,
 
     // Not possible to construct kinematics if kT2 < 0.0
     if (kT2 < 0.) {
-      if (printWarnings)
-        infoPtr->errorMsg("Warning in DireSpace::branch_II: Reject state "
-                          "with kinematically forbidden kT^2.");
+      if (printWarnings) loggerPtr->WARNING_MSG(
+        "rejecting state with kinematically forbidden kT^2");
       physical = false;
     }
 
     // NaN kT2 can happen for a 1->3 splitting in which the g->QQ~ produces
     // massive quarks Q.
     if (physical && (kT2!=kT2 || abs(kT2-kT2) > 1e5) ) {
-      if (printWarnings)
-        infoPtr->errorMsg("Warning in DireSpace::branch_II: Reject state "
-                          "with not-a-number kT^2 for branching " + name);
+      if (printWarnings) loggerPtr->WARNING_MSG(
+        "rejecting state with not-a-number kT^2 for branching " + name);
       physical = false;
     }
 
@@ -4704,8 +4689,8 @@ bool DireSpace::branch_II( Event& event, bool trial,
       (*beamAPtr)[iSysSelNow].iPos(iAnew);
       (*beamAPtr)[iSysSelNow].x(xAnew);
       if (beamAPtr->xMax(-1) < 0.0) {
-        if (!trial) infoPtr->errorMsg("Warning in DireSpace::branch_II: "
-          "used up beam momentum; discard splitting.");
+        if (!trial) loggerPtr->WARNING_MSG(
+          "used up beam A momentum; discarding splitting");
         physical = false;
       }
       // Restore old beams.
@@ -4717,8 +4702,8 @@ bool DireSpace::branch_II( Event& event, bool trial,
       (*beamBPtr)[iSysSelNow].iPos(iBnew);
       (*beamBPtr)[iSysSelNow].x(xBnew);
       if (beamBPtr->xMax(-1) < 0.0) {
-        if (!trial) infoPtr->errorMsg("Warning in DireSpace::branch_II: "
-          "used up beam momentum; discard splitting.");
+        if (!trial) loggerPtr->WARNING_MSG(
+          "used up beam B momentum; discarding splitting");
         physical = false;
       }
       // Restore old beams.
@@ -4769,9 +4754,8 @@ bool DireSpace::branch_II( Event& event, bool trial,
   // possible if no MPI are present.
   if ( physical && !trial && !doMECreject
     && !validMotherDaughter(event)) {
-    if (printWarnings)
-      infoPtr->errorMsg("Error in DireSpace::branch_II: Mother-daughter "
-                        "relations after branching not valid.");
+    if (printWarnings) loggerPtr->ERROR_MSG(
+      "mother-daughter relations after branching not valid");
     physical = false;
   }
 
@@ -5342,9 +5326,8 @@ bool DireSpace::branch_IF( Event& event, bool trial,
       double kT2   = zbar*(1.-zbar)*sjk - (1-zbar)*m2e - zbar*m2s;
 
       if (kT2 < 0.) {
-        if (printWarnings)
-          infoPtr->errorMsg("Warning in DireSpace::branch_IF: Reject state "
-                            "with kinematically forbidden kT^2.");
+        if (printWarnings) loggerPtr->WARNING_MSG(
+          "rejecting state with kinematically forbidden kT^2");
         physical = false;
       }
 
@@ -5371,10 +5354,8 @@ bool DireSpace::branch_IF( Event& event, bool trial,
         // Give up after too many tries.
         nTries++;
         if (nTries > 100) {
-          if (printWarnings)
-            infoPtr->errorMsg
-              ("Warning in DireSpace::branch_IF: Could not set up"
-                              " state after branching, thus reject.");
+          if (printWarnings) loggerPtr->WARNING_MSG(
+              "could not set up state after branching, thus rejecting");
           physical = false; break;
         }
 
@@ -5590,8 +5571,8 @@ bool DireSpace::branch_IF( Event& event, bool trial,
       (*beamAPtr)[iSysSelNow].iPos(iAnew);
       (*beamAPtr)[iSysSelNow].x(xAnew);
       if (beamAPtr->xMax(-1) < 0.0) {
-        if (!trial) infoPtr->errorMsg("Warning in DireSpace::branch_IF: "
-          "used up beam momentum; discard splitting.");
+        if (!trial) loggerPtr->WARNING_MSG(
+          "used up beam A momentum; discarding splitting");
         physical = false;
       }
       // Restore old beams.
@@ -5603,8 +5584,8 @@ bool DireSpace::branch_IF( Event& event, bool trial,
       (*beamBPtr)[iSysSelNow].iPos(iBnew);
       (*beamBPtr)[iSysSelNow].x(xBnew);
       if (beamBPtr->xMax(-1) < 0.0) {
-        if (!trial) infoPtr->errorMsg("Warning in DireSpace::branch_IF: "
-          "used up beam momentum; discard splitting.");
+        if (!trial) loggerPtr->WARNING_MSG(
+          "used up beam B momentum; discarding splitting");
         physical = false;
       }
       // Restore old beams.
@@ -5791,7 +5772,6 @@ bool DireSpace::branch_IF( Event& event, bool trial,
       // Allow splitting kernel to overwrite phase space variables.
       if (split->useForBranching) { phiFF = psp["phi2"]; }
 
-      double q2tot = q2;
       // Construct FF dipole momentum.
       q.p(pai - pjk);
       q2 = q.m2Calc();
@@ -5813,18 +5793,16 @@ bool DireSpace::branch_IF( Event& event, bool trial,
 
       // Not possible to construct kinematics if kT2 < 0.0
       if (kT2 < 0.) {
-        if (printWarnings)
-          infoPtr->errorMsg("Warning in DireSpace::branch_IF: Reject state "
-                            "with kinematically forbidden kT^2.");
+        if (printWarnings) loggerPtr->WARNING_MSG(
+          "rejecting state with kinematically forbidden kT^2");
         physical = false;
       }
 
       // NaN kT2 can happen for a 1->3 splitting in which the g->QQ~ produces
       // massive quarks Q.
       if (physical && (kT2!=kT2 || abs(kT2-kT2) > 1e5) ) {
-        if (printWarnings)
-          infoPtr->errorMsg("Warning in DireSpace::branch_IF: Reject state "
-                            "with not-a-number kT^2 for branching " + name);
+        if (printWarnings) loggerPtr->WARNING_MSG(
+          "reject state with not-a-number kT^2 for branching " + name);
         physical = false;
       }
 
@@ -5859,35 +5837,6 @@ bool DireSpace::branch_IF( Event& event, bool trial,
         || !validMomentum( newRecoiler1.p(), event[iNewRecoiler1].id(), 1))
         physical = false;
 
-      // Check invariants.
-      if ( false ) {
-        double saix(2.*pa*pi), sakx(2.*pa*pk), sajx(2.*pa*pj), sikx(2.*pi*pk),
-               sjkx(2.*pj*pk), sijx(2.*pi*pj);
-        double pptt = (sajx-sijx)*(sakx-sikx)/(saix+sajx+sakx);
-        double ssaaii = saix;
-        double zzaa = -q2tot/ ( saix + sajx + sakx  );
-        double xxaa = (sakx-sikx) / ( saix + sajx + sakx );
-        if ( physical &&
-             (abs(pptt-pT2) > 1e-5 || abs(ssaaii-sai) > 1e-5 ||
-              abs(zzaa-za) > 1e-5  || abs(xxaa-xa) > 1e-5) ){
-          cout << "Error in branch_IF: Invariant masses after branching do "
-               << "not match chosen values." << endl;
-          cout << "Chosen:    "
-               << " Q2 " << q2tot
-               << " pT2 " << pT2
-               << " sai " << sai
-               << " za " << z
-               << " xa " << xa << endl;
-          cout << "Generated: "
-               << " Q2 " << saix+sajx+sakx-sijx-sikx-sjkx
-               << " pT2 " << pptt
-               << " sai " << ssaaii
-               << " za " << zzaa
-               << " xa " << xxaa << endl;
-          physical = false;
-        }
-      }
-
       // Test that enough beam momentum remains.
       int iOther  = getInB(iSysSelNow);
       if (side == 2) iOther = getInA(iSysSelNow);
@@ -5906,8 +5855,8 @@ bool DireSpace::branch_IF( Event& event, bool trial,
         (*beamAPtr)[iSysSelNow].iPos(iAnew);
         (*beamAPtr)[iSysSelNow].x(xAnew);
         if (beamAPtr->xMax(-1) < 0.0) {
-          if (!trial) infoPtr->errorMsg("Warning in DireSpace::branch_II: "
-            "used up beam momentum; discard splitting.");
+          if (!trial) loggerPtr->WARNING_MSG(
+            "used up beam A momentum; discarding splitting");
           physical = false;
         }
         // Restore old beams.
@@ -5919,8 +5868,8 @@ bool DireSpace::branch_IF( Event& event, bool trial,
         (*beamBPtr)[iSysSelNow].iPos(iBnew);
         (*beamBPtr)[iSysSelNow].x(xBnew);
         if (beamBPtr->xMax(-1) < 0.0) {
-          if (!trial) infoPtr->errorMsg("Warning in DireSpace::branch_II: "
-            "used up beam momentum; discard splitting.");
+          if (!trial) loggerPtr->WARNING_MSG(
+            "used up beam B momentum; discarding splitting");
           physical = false;
         }
         // Restore old beams.
@@ -6112,18 +6061,16 @@ bool DireSpace::branch_IF( Event& event, bool trial,
 
       // Not possible to construct kinematics if kT2 < 0.0
       if (kT2 < 0.) {
-        if (printWarnings)
-          infoPtr->errorMsg("Warning in DireSpace::branch_IF: Reject state "
-                            "with kinematically forbidden kT^2.");
+        if (printWarnings) loggerPtr->WARNING_MSG(
+          "rejecting state with kinematically forbidden kT^2");
         physical = false;
       }
 
       // NaN kT2 can happen for a 1->3 splitting in which the g->QQ~ produces
       // massive quarks Q.
       if (physical && (kT2!=kT2 || abs(kT2-kT2) > 1e5) ) {
-        if (printWarnings)
-          infoPtr->errorMsg("Warning in DireSpace::branch_IF: Reject state "
-                            "with not-a-number kT^2 for branching " + name);
+        if (printWarnings) loggerPtr->WARNING_MSG(
+          "rejecting state with not-a-number kT^2 for branching " + name);
         physical = false;
       }
 
@@ -6240,9 +6187,8 @@ bool DireSpace::branch_IF( Event& event, bool trial,
   // Check if mother-daughter relations are correctly set. Check only
   // possible if no MPI are present.
   if ( physical && !trial && !doMECreject && !validMotherDaughter(event)) {
-    if (printWarnings)
-      infoPtr->errorMsg("Error in DireSpace::branch_IF: Mother-daughter "
-                        "relations after branching not valid.");
+    if (printWarnings) loggerPtr->ERROR_MSG(
+      "mother-daughter relations after branching not valid");
     physical = false;
   }
 

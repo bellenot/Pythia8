@@ -38,14 +38,14 @@ how to generate further ones.
  
 <p/> 
 MG5 ME plugin loading must first of all be enabled, by passing the 
-flag <code>--enable-mg5mes</code> to the Pythia 
+flag <code>--with-mg5mes</code> to the Pythia 
 <code>configure</code> script. This ensures that the MG5 ME plugin 
 libraries are compiled during the <code>make</code> stage and thus 
 that they will be available at runtime. 
  
 <p/> 
 Optionally, a custom directory path, 
-<code>--enable-mg5mes=DIR</code>, can be provided to tell Pythia to look 
+<code>--with-mg5mes=DIR</code>, can be provided to tell Pythia to look 
 for user-generated matrix-element plugins in a non-standard 
 location. 
  
@@ -76,7 +76,7 @@ which plugin library to load, for Dire and Vincia, respectively.
 The same libraries are compatible between Dire and Vincia and are named as 
 <code>libpythia8mg5PLUGIN.so</code> where <code>PLUGIN</code> is 
 one of the matrix-element folders specified by the path optionally 
-passed to <code>--enable-mg5mes=DIR</code>. 
+passed to <code>--with-mg5mes=DIR</code>. 
  
  
 <h4>How to generate further MadGraph5 matrix-element plugins</h4> 

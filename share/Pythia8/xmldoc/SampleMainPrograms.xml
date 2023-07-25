@@ -232,6 +232,10 @@ many different kinds of LHEF version 3.0 information.</li>
 <li><code>main39.py</code> : standalone Python code that parses the XML 
 particle database and displays data for a requested particle.</li> 
  
+<li><code>main40.cc</code> : calculates the inclusive branching fractions 
+for the Standard Model Higgs into quarkonia using the LETO timelike parton 
+shower.</li> 
+ 
 <li><code>main41.cc</code> : similar to <code>main01</code>, except 
 that the event record is output in the HepMC event record 
 format. Requires that HepMC3 is properly linked. Note that the 
@@ -454,9 +458,6 @@ MLM, <code>main89umeps.cmnd</code> for UMEPS, and
 histogramming in a program that for the rest is structured like a 
 normal PYTHIA run.</li> 
  
-<li><code>main92.cc</code> : shows how PYTHIA events can be stored as 
-ROOT trees.</li> 
- 
 <li><code>main93.cc</code> : streamlined event generation with 
 possibility to output ROOT files, output HepMC files and run RIVET 
 analyses, all by specifying output modes in a cmnd file, where also 
@@ -523,6 +524,13 @@ resonances.</li>
  
 <li><code>main156.cc</code> : perform parameterization of hadron 
 widths and output the resulting tables.</li> 
+ 
+<li><code>main157.cc</code> : generate tetraquarks from the 
+rescattering of a <ei>D0</ei> and <ei>Dbar*0</ei> beam.</li> 
+ 
+<li><code>main158.cc</code> : generate tetraquarks from the 
+rescattering of <ei>D0</ei> and <ei>Dbar*0</ei> mesons produced in LHC 
+events.</li> 
  
 <li><code>main161.cc</code> : gives an example of 
 <code>PythiaParallelism</code> usage. This program is equivalent to 

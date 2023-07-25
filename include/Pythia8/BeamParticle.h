@@ -379,12 +379,12 @@ public:
 
   // Set and get the state (resolved and/or unresolved) of photon beam.
   void resolvedGamma(bool isResolved) { isResolvedGamma = isResolved; }
-  bool resolvedGamma()                { return isResolvedGamma; }
+  bool resolvedGamma() const          { return isResolvedGamma; }
   void setGammaMode(int gammaModeIn);
-  int  getGammaMode()                 { return gammaMode; }
-  bool isResolvedUnresolved()         { return isResUnres; }
+  int  getGammaMode() const           { return gammaMode; }
+  bool isResolvedUnresolved() const   { return isResUnres; }
   void initGammaInBeam()              { initGammaBeam = true; }
-  bool gammaInBeam()                  { return initGammaBeam; }
+  bool gammaInBeam() const            { return initGammaBeam; }
 
   // Set state of VMD inside gamma.
   void setVMDstate(bool isVMDIn, int idIn, double mIn, double scaleIn,

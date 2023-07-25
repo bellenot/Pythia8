@@ -3,7 +3,7 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Keywords: basic usage; jet finding; slowjet; celljet;
+// Keywords: basic usage; jet finding; slowjet; celljet
 
 // This is a simple test program.
 // It studies jet production at the LHC, using SlowJet and CellJet.

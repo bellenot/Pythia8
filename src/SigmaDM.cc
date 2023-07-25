@@ -22,7 +22,7 @@ namespace Pythia8 {
 void Sigma1ffbar2Zp2XX::initProc() {
 
   // Store mass and width for propagator, and couplings.
-  kinMix    = parm("Zp:kineticMixing");
+  kinMix    = flag("Zp:kineticMixing");
   mRes      = particleDataPtr->m0(55);
   GammaRes  = particleDataPtr->mWidth(55);
   m2Res     = mRes*mRes;

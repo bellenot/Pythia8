@@ -116,14 +116,6 @@ const double ParticleDataEntry::CONSTITUENTMASSTABLE[10]
 
 //--------------------------------------------------------------------------
 
-// Destructor: delete any ResonanceWidths object.
-
-ParticleDataEntry::~ParticleDataEntry() {
-  if (resonancePtr != nullptr) delete resonancePtr;
-}
-
-//--------------------------------------------------------------------------
-
 // Set initial default values for some quantities.
 
 void ParticleDataEntry::setDefaults() {
@@ -167,6 +159,7 @@ void ParticleDataEntry::setDefaults() {
 
 bool ParticleDataEntry::isHadron() const {
 
+  if (isExotic()) return true;
   if (idSave <= 100 || (idSave >= 1000000 && idSave <= 9000000)
     || idSave >= 9900000) return false;
   if (idSave == 130 || idSave == 310) return true;
@@ -178,31 +171,49 @@ bool ParticleDataEntry::isHadron() const {
 
 //--------------------------------------------------------------------------
 
-// Find out if a particle is a meson.
-// Only covers normal hadrons, not e.g. R-hadrons.
+// Find out if a particle is a meson. Covers normal hadrons and exotic
+// hadrons with baryon number 0, but not e.g. R-hadrons.
 
 bool ParticleDataEntry::isMeson() const {
 
   if (idSave <= 100 || (idSave >= 1000000 && idSave <= 9000000)
     || idSave >= 9900000) return false;
+
+  // K_S and K_L are special.
   if (idSave == 130 || idSave == 310) return true;
-  if (idSave%10 == 0 || (idSave/10)%10 == 0 || (idSave/100)%10 == 0
-    || (idSave/1000)%10 != 0) return false;
+
+  // Check that id has non-zero spin type and at least two quarks.
+  if (idSave%10 == 0 || (idSave/10)%10 == 0 || (idSave/100)%10 == 0)
+    return false;
+
+  // If id has three quarks, return true only for tetraquarks.
+  if ((idSave/1000)%10 != 0)
+    return idSave / 1000000 == 9
+        && (idSave/10000)%10 != 0 && (idSave/100000)%10 == 0;
+
+  // Otherwise it is a meson.
   return true;
 
 }
 
 //--------------------------------------------------------------------------
 
-// Find out if a particle is a baryon.
-// Only covers normal hadrons, not e.g. R-hadrons.
+// Find out if a particle is a baryon. Covers normal hadrons and exotic
+// hadrons with baryon number 1, but not e.g. R-hadrons.
 
 bool ParticleDataEntry::isBaryon() const {
 
   if (idSave <= 1000 || (idSave >= 1000000 && idSave <= 9000000)
     || idSave >= 9900000) return false;
+
+  // Check that id has non-zero spin type and three quarks.
   if (idSave%10 == 0 || (idSave/10)%10 == 0 || (idSave/100)%10 == 0
     || (idSave/1000)%10 == 0) return false;
+
+  // Catch pentaquarks of the form 9qqqqqs.
+  if (idSave / 1000000 == 9 && (idSave / 10000)%10 != 0)
+    return (idSave / 100000)%10 != 0;
+
   return true;
 
 }
@@ -220,6 +231,20 @@ bool ParticleDataEntry::isOnium() const {
   if ((idSave/1000)%10 != 0) return false;
   return true;
 
+}
+
+//--------------------------------------------------------------------------
+
+// Find out if particle is exotic hadron. Internally this is used to
+// determine whether a particle can rescatter.
+
+bool ParticleDataEntry::isExotic() const {
+  return (idSave / 1000000 == 9) && idSave < 10000000
+      && idSave % 10 != 0
+      && (idSave / 10    ) % 10 != 0
+      && (idSave / 100   ) % 10 != 0
+      && (idSave / 1000  ) % 10 != 0
+      && (idSave / 10000 ) % 10 != 0;
 }
 
 //--------------------------------------------------------------------------
@@ -363,16 +388,14 @@ void ParticleDataEntry::initBWmass() {
   mThr = (bRatSum == 0.) ? 0. : mThrSum / bRatSum;
 
   // Switch off Breit-Wigner if very close to threshold.
-  if (mThr + NARROWMASS > m0Save && !isResonanceSave) {
+  if (mThr + NARROWMASS > m0Save && !isResonanceSave && !varWidthSave) {
     modeBWnow = 0;
     bool knownProblem = false;
     for (int i = 0; i < 3; ++i) if (idSave == KNOWNNOWIDTH[i])
       knownProblem = true;
     if (!knownProblem) {
-      ostringstream osWarn;
-      osWarn << "for id = " << idSave;
-      particleDataPtr->infoPtr->errorMsg("Warning in ParticleDataEntry::"
-        "initBWmass: switching off width", osWarn.str(), true);
+      particleDataPtr->loggerPtr->WARNING_MSG("switching off width",
+        "for id = " + to_string(idSave), true);
     }
   }
 
@@ -532,13 +555,6 @@ DecayChannel& ParticleDataEntry::pickChannel() {
 // Access methods stored in ResonanceWidths. Could have been
 // inline in .h, except for problems with forward declarations.
 
-void ParticleDataEntry::setResonancePtr(
-  ResonanceWidths* resonancePtrIn) {
-  if (resonancePtr == resonancePtrIn) return;
-  if (resonancePtr != nullptr) delete resonancePtr;
-  resonancePtr = resonancePtrIn;
-}
-
 void ParticleDataEntry::resInit(Info* infoPtr) {
   if (resonancePtr != nullptr) resonancePtr->init(infoPtr);
 }
@@ -648,14 +664,14 @@ void ParticleData::initCommon() {
 // of normal hadrons and the ResonanceWidths of resonances. For the latter
 // the order of initialization is essential to get secondary widths right.
 
-void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
+void ParticleData::initWidths( vector<ResonanceWidthsPtr> resonancePtrs) {
 
   // Initialize some common data (but preserve history of read statements).
   initCommon();
 
   // Pointer to database and Breit-Wigner mass initialization for each
   // particle.
-  ResonanceWidths* resonancePtr = nullptr;
+  ResonanceWidthsPtr resonancePtr = nullptr;
   for (auto pdtEntry = pdt.begin(); pdtEntry != pdt.end(); ++pdtEntry) {
     ParticleDataEntryPtr pdtNow = pdtEntry->second;
     pdtNow->initBWmass();
@@ -667,149 +683,149 @@ void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
 
   // Begin set up new resonance objects.
   // Z0, W+- and top are almost always needed.
-  resonancePtr = new ResonanceGmZ(23);
+  resonancePtr = make_shared<ResonanceGmZ>(23);
   setResonancePtr( 23, resonancePtr);
-  resonancePtr = new ResonanceW(24);
+  resonancePtr = make_shared<ResonanceW>(24);
   setResonancePtr( 24, resonancePtr);
-  resonancePtr = new ResonanceTop(6);
+  resonancePtr = make_shared<ResonanceTop>(6);
   setResonancePtr(  6, resonancePtr);
 
   // Higgs in SM.
   if (!settingsPtr->flag("Higgs:useBSM")) {
-    resonancePtr = new ResonanceH(0, 25);
+    resonancePtr = make_shared<ResonanceH>(0, 25);
     setResonancePtr( 25, resonancePtr);
 
   // Higgses in BSM.
   } else {
-    resonancePtr = new ResonanceH(1, 25);
+    resonancePtr = make_shared<ResonanceH>(1, 25);
     setResonancePtr( 25, resonancePtr);
-    resonancePtr = new ResonanceH(2, 35);
+    resonancePtr = make_shared<ResonanceH>(2, 35);
     setResonancePtr( 35, resonancePtr);
-    resonancePtr = new ResonanceH(3, 36);
+    resonancePtr = make_shared<ResonanceH>(3, 36);
     setResonancePtr( 36, resonancePtr);
-    resonancePtr = new ResonanceHchg(37);
+    resonancePtr = make_shared<ResonanceHchg>(37);
     setResonancePtr( 37, resonancePtr);
-    resonancePtr = new ResonanceH(4, 45);
+    resonancePtr = make_shared<ResonanceH>(4, 45);
     setResonancePtr( 45, resonancePtr);
-    resonancePtr = new ResonanceH(5, 46);
+    resonancePtr = make_shared<ResonanceH>(5, 46);
     setResonancePtr( 46, resonancePtr);
   }
 
   // A fourth generation: b', t', tau', nu'_tau.
-  resonancePtr = new ResonanceFour(7);
+  resonancePtr = make_shared<ResonanceFour>(7);
   setResonancePtr( 7, resonancePtr);
-  resonancePtr = new ResonanceFour(8);
+  resonancePtr = make_shared<ResonanceFour>(8);
   setResonancePtr( 8, resonancePtr);
-  resonancePtr = new ResonanceFour(17);
+  resonancePtr = make_shared<ResonanceFour>(17);
   setResonancePtr( 17, resonancePtr);
-  resonancePtr = new ResonanceFour(18);
+  resonancePtr = make_shared<ResonanceFour>(18);
   setResonancePtr( 18, resonancePtr);
 
   // New gauge bosons: Z', W', R.
-  resonancePtr = new ResonanceZprime(32);
+  resonancePtr = make_shared<ResonanceZprime>(32);
   setResonancePtr( 32, resonancePtr);
-  resonancePtr = new ResonanceWprime(34);
+  resonancePtr = make_shared<ResonanceWprime>(34);
   setResonancePtr( 34, resonancePtr);
-  resonancePtr = new ResonanceRhorizontal(41);
+  resonancePtr = make_shared<ResonanceRhorizontal>(41);
   setResonancePtr( 41, resonancePtr);
 
   // A leptoquark.
-  resonancePtr = new ResonanceLeptoquark(42);
+  resonancePtr = make_shared<ResonanceLeptoquark>(42);
   setResonancePtr( 42, resonancePtr);
 
   // Mediators for Dark Matter.
-  resonancePtr = new ResonanceS(54);
+  resonancePtr = make_shared<ResonanceS>(54);
   setResonancePtr( 54, resonancePtr);
-  resonancePtr = new ResonanceZp(55);
+  resonancePtr = make_shared<ResonanceZp>(55);
   setResonancePtr( 55, resonancePtr);
-  resonancePtr = new ResonanceSl(56);
+  resonancePtr = make_shared<ResonanceSl>(56);
   setResonancePtr( 56, resonancePtr);
-  resonancePtr = new ResonanceCha(57);
+  resonancePtr = make_shared<ResonanceCha>(57);
   setResonancePtr( 57, resonancePtr);
-  resonancePtr = new ResonanceDM2(58);
+  resonancePtr = make_shared<ResonanceDM2>(58);
   setResonancePtr( 58, resonancePtr);
-  resonancePtr = new ResonanceChaD(59);
+  resonancePtr = make_shared<ResonanceChaD>(59);
   setResonancePtr( 59, resonancePtr);
 
   // 93 = Z0copy and 94 = W+-copy used to pick decay channels
   // for W/Z production in parton showers.
-  resonancePtr = new ResonanceGmZ(93);
+  resonancePtr = make_shared<ResonanceGmZ>(93);
   setResonancePtr( 93, resonancePtr);
-  resonancePtr = new ResonanceW(94);
+  resonancePtr = make_shared<ResonanceW>(94);
   setResonancePtr( 94, resonancePtr);
 
   // Supersymmetry:
   //  - Squarks;
   for(int i = 1; i < 7; i++){
-    resonancePtr = new ResonanceSquark(1000000 + i);
+    resonancePtr = make_shared<ResonanceSquark>(1000000 + i);
     setResonancePtr( 1000000 + i, resonancePtr);
-    resonancePtr = new ResonanceSquark(2000000 + i);
+    resonancePtr = make_shared<ResonanceSquark>(2000000 + i);
     setResonancePtr( 2000000 + i, resonancePtr);
   }
 
   //  - Sleptons and sneutrinos;
   for(int i = 1; i < 7; i++){
-    resonancePtr = new ResonanceSlepton(1000010 + i);
+    resonancePtr = make_shared<ResonanceSlepton>(1000010 + i);
     setResonancePtr( 1000010 + i, resonancePtr);
-    resonancePtr = new ResonanceSlepton(2000010 + i);
+    resonancePtr = make_shared<ResonanceSlepton>(2000010 + i);
     setResonancePtr( 2000010 + i, resonancePtr);
   }
 
   // - Gluino;
-  resonancePtr = new ResonanceGluino(1000021);
+  resonancePtr = make_shared<ResonanceGluino>(1000021);
   setResonancePtr( 1000021, resonancePtr);
 
   // - Charginos;
-  resonancePtr = new ResonanceChar(1000024);
+  resonancePtr = make_shared<ResonanceChar>(1000024);
   setResonancePtr( 1000024, resonancePtr);
-  resonancePtr = new ResonanceChar(1000037);
+  resonancePtr = make_shared<ResonanceChar>(1000037);
   setResonancePtr( 1000037, resonancePtr);
 
   // - Neutralinos.
   if (isResonance(1000022)) {
-    resonancePtr = new ResonanceNeut(1000022);
+    resonancePtr = make_shared<ResonanceNeut>(1000022);
     setResonancePtr( 1000022, resonancePtr);
   }
-  resonancePtr = new ResonanceNeut(1000023);
+  resonancePtr = make_shared<ResonanceNeut>(1000023);
   setResonancePtr( 1000023, resonancePtr);
-  resonancePtr = new ResonanceNeut(1000025);
+  resonancePtr = make_shared<ResonanceNeut>(1000025);
   setResonancePtr( 1000025, resonancePtr);
-  resonancePtr = new ResonanceNeut(1000035);
+  resonancePtr = make_shared<ResonanceNeut>(1000035);
   setResonancePtr( 1000035, resonancePtr);
-  resonancePtr = new ResonanceNeut(1000045);
+  resonancePtr = make_shared<ResonanceNeut>(1000045);
   setResonancePtr( 1000045, resonancePtr);
 
   // Excited quarks and leptons.
   for (int i = 1; i < 7; ++i) {
-    resonancePtr = new ResonanceExcited(4000000 + i);
+    resonancePtr = make_shared<ResonanceExcited>(4000000 + i);
     setResonancePtr( 4000000 + i, resonancePtr);
   }
   for (int i = 11; i < 17; ++i) {
-    resonancePtr = new ResonanceExcited(4000000 + i);
+    resonancePtr = make_shared<ResonanceExcited>(4000000 + i);
     setResonancePtr( 4000000 + i, resonancePtr);
   }
 
   // An excited graviton/gluon in extra-dimensional scenarios.
-  resonancePtr = new ResonanceGraviton(5100039);
+  resonancePtr = make_shared<ResonanceGraviton>(5100039);
   setResonancePtr( 5100039, resonancePtr);
-  resonancePtr = new ResonanceKKgluon(5100021);
+  resonancePtr = make_shared<ResonanceKKgluon>(5100021);
   setResonancePtr( 5100021, resonancePtr);
 
   // A left-right-symmetric scenario with new righthanded neutrinos,
   // righthanded gauge bosons and doubly charged Higgses.
-  resonancePtr = new ResonanceNuRight(9900012);
+  resonancePtr = make_shared<ResonanceNuRight>(9900012);
   setResonancePtr( 9900012, resonancePtr);
-  resonancePtr = new ResonanceNuRight(9900014);
+  resonancePtr = make_shared<ResonanceNuRight>(9900014);
   setResonancePtr( 9900014, resonancePtr);
-  resonancePtr = new ResonanceNuRight(9900016);
+  resonancePtr = make_shared<ResonanceNuRight>(9900016);
   setResonancePtr( 9900016, resonancePtr);
-  resonancePtr = new ResonanceZRight(9900023);
+  resonancePtr = make_shared<ResonanceZRight>(9900023);
   setResonancePtr( 9900023, resonancePtr);
-  resonancePtr = new ResonanceWRight(9900024);
+  resonancePtr = make_shared<ResonanceWRight>(9900024);
   setResonancePtr( 9900024, resonancePtr);
-  resonancePtr = new ResonanceHchgchgLeft(9900041);
+  resonancePtr = make_shared<ResonanceHchgchgLeft>(9900041);
   setResonancePtr( 9900041, resonancePtr);
-  resonancePtr = new ResonanceHchgchgRight(9900042);
+  resonancePtr = make_shared<ResonanceHchgchgRight>(9900042);
   setResonancePtr( 9900042, resonancePtr);
 
   // Attach user-defined external resonances and do basic initialization.
@@ -836,7 +852,7 @@ void ParticleData::initWidths( vector<ResonanceWidths*> resonancePtrs) {
 
     // Set up a simple default object for uninitialized resonances.
     if (pdtNow->isResonance() && pdtNow->getResonancePtr() == nullptr) {
-      resonancePtr = new ResonanceGeneric(idNow);
+      resonancePtr = make_shared<ResonanceGeneric>(idNow);
       setResonancePtr( idNow, resonancePtr);
     }
 
@@ -931,8 +947,7 @@ bool ParticleData::loadXML(istream& is, bool reset) {
 
   // Check that instream is OK.
   if (!is.good()) {
-    infoPtr->errorMsg("Error in ParticleData::readXML:"
-      " did not find data");
+    loggerPtr->ERROR_MSG("did not find data");
     return false;
   }
 
@@ -1050,15 +1065,13 @@ bool ParticleData::processXML(bool reset) {
       prodStream >> prod0 >> prod1 >> prod2 >> prod3 >> prod4 >> prod5
                  >> prod6 >> prod7;
       if (prod0 == 0) {
-        infoPtr->errorMsg("Error in ParticleData::readXML:"
-                          " incomplete decay channel", line);
+        loggerPtr->ERROR_MSG("incomplete decay channel", line);
         return false;
       }
 
       // Store new channel (if particle already known).
       if (particlePtr == nullptr) {
-        infoPtr->errorMsg("Error in ParticleData::readXML:"
-                          " orphan decay channel", line);
+        loggerPtr->ERROR_MSG("orphan decay channel", line);
         return false;
       }
       particlePtr->addChannel(onMode, bRatio, meMode, prod0, prod1,
@@ -1160,8 +1173,7 @@ bool ParticleData::readFF(istream& is, bool reset) {
   }
 
   if (!is.good()) {
-    infoPtr->errorMsg("Error in ParticleData::readFF:"
-      " did not find stream");
+    loggerPtr->ERROR_MSG("did not find stream");
     return false;
   }
 
@@ -1198,8 +1210,7 @@ bool ParticleData::readFF(istream& is, bool reset) {
 
       // Error printout if something went wrong.
       if (!readLine) {
-        infoPtr->errorMsg("Error in ParticleData::readFF:"
-          " incomplete particle", line);
+        loggerPtr->ERROR_MSG("incomplete particle", line);
         return false;
       }
 
@@ -1225,8 +1236,7 @@ bool ParticleData::readFF(istream& is, bool reset) {
       // Read in data from stream. Need at least one decay product.
       readLine >> onMode >> bRatio >> meMode >> prod0;
       if (!readLine) {
-        infoPtr->errorMsg("Error in ParticleData::readFF:"
-          " incomplete decay channel", line);
+        loggerPtr->ERROR_MSG("incomplete decay channel", line);
         return false;
       }
       readLine >> prod1 >> prod2 >> prod3 >> prod4 >> prod5
@@ -1234,8 +1244,7 @@ bool ParticleData::readFF(istream& is, bool reset) {
 
       // Store new channel.
       if (particlePtr == nullptr) {
-        infoPtr->errorMsg("Error in ParticleData::readFF:"
-          " orphan decay channel", line);
+        loggerPtr->ERROR_MSG("orphan decay channel", line);
         return false;
       }
       particlePtr->addChannel(onMode, bRatio, meMode, prod0, prod1,

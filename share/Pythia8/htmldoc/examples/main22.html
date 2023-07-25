@@ -249,13 +249,13 @@ int main() {
   // above channels. Hand in pointer to Pythia.
   // Note: Pythia will automatically delete this pointer,
   // along with all other resonances.
-  ResonanceWidths* resonanceTheta = new ResonanceTheta(663);
-  pythia.setResonancePtr(resonanceTheta);
+  ResonanceWidthsPtr resonanceTheta = make_shared&lt;ResonanceTheta&gt;(663);
+  pythia.addResonancePtr(resonanceTheta);
 
   // Create instance of a class to generate the q qbar -&gt; Theta process
   // from an external matrix element. Hand in pointer to Pythia.
-  SigmaProcess* sigma1Theta = new Sigma1qqbar2Theta();
-  pythia.setSigmaPtr(sigma1Theta);
+  SigmaProcessPtr sigma1Theta = make_shared&lt;Sigma1qqbar2Theta&gt;();
+  pythia.addSigmaPtr(sigma1Theta);
 
   // Optionally only compare cross sections.
   //pythia.readString(&quot;PartonLevel:all = off&quot;);
@@ -287,7 +287,6 @@ int main() {
   cout &lt;&lt; mTheta;
 
   // Done.
-  delete sigma1Theta;
   return 0;
 }
 </code></pre></body></html>

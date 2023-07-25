@@ -3,7 +3,7 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Keywords: basic usage; fastjet; slowjet; jet finding;
+// Keywords: basic usage; fastjet; slowjet; jet finding
 
 // This is a simple test program.
 // It compares SlowJet, FJcore and FastJet, showing that they

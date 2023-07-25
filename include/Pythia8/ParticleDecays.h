@@ -45,6 +45,9 @@ public:
   virtual bool chainDecay(vector<int>& , vector<int>& , vector<double>& ,
     vector<Vec4>& , int , const Event& ) {return false;}
 
+  // A virtual method, to return the particles the handler should decay.
+  virtual vector<int> handledParticles() {return {};}
+
 };
 
 //==========================================================================

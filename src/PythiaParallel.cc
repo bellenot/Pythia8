@@ -20,7 +20,7 @@ namespace Pythia8 {
 
 PythiaParallel::PythiaParallel(string xmlDir, bool printBanner)
   : pythiaHelper(xmlDir, printBanner), settings(pythiaHelper.settings),
-    particleData(pythiaHelper.particleData), info(pythiaHelper.infoPrivate)
+    particleData(pythiaHelper.particleData), logger(pythiaHelper.logger)
 { }
 
 //--------------------------------------------------------------------------
@@ -30,8 +30,7 @@ PythiaParallel::PythiaParallel(string xmlDir, bool printBanner)
 bool PythiaParallel::readFile(string fileName, bool warn, int subrun) {
   ifstream is(fileName);
   if (!is.good()) {
-    info.errorMsg("Error in PythiaParallel::readFile: "
-                  "did not find file", fileName);
+    logger.ERROR_MSG("did not find file", fileName);
     return false;
   }
   // Hand over real work to next method.
@@ -40,8 +39,7 @@ bool PythiaParallel::readFile(string fileName, bool warn, int subrun) {
 
 bool PythiaParallel::readFile(istream& is, bool warn, int subrun) {
   if (isInit) {
-    info.errorMsg("Error in PythiaParallel::readFile: "
-      "cannot change further settings after constructing");
+    logger.ERROR_MSG("cannot change further settings after constructing");
     return false;
   }
   return pythiaHelper.readFile(is, warn, subrun);
@@ -58,27 +56,26 @@ bool PythiaParallel::init() {
 bool PythiaParallel::init(function<bool(Pythia*)> customInit) {
 
   // Initialize error printing.
-  info.init();
+  logger.init(settings);
 
   // Read settings.
   int hardwareThreads = thread::hardware_concurrency();
   numThreads = settings.mode("Parallelism:numThreads");
   if (numThreads == 1)
-    info.errorMsg("Warning in PythiaParallel::init: "
-      "running on single thread");
+    logger.WARNING_MSG("running on single thread");
   else if (numThreads == 0) {
     if (hardwareThreads == 0) {
-      info.errorMsg("Error in PythiaParallel::init: cannot get "
-        "hardware_concurrency, numThreads must be set manually");
+      logger.ABORT_MSG(
+        "cannot get hardware_concurrency, numThreads must be set manually");
       return false;
     }
     numThreads = hardwareThreads;
     settings.mode("Parallelism:numThreads", hardwareThreads);
-    info.errorMsg("Info in PythiaParallel::init: "
-      "detected number of hardware threads", to_string(hardwareThreads));
+    logger.INFO_MSG("detected number of hardware threads",
+      to_string(hardwareThreads));
   }
   else if (numThreads > hardwareThreads) {
-    info.errorMsg("Warning in PythiaParallel::init: "
+    logger.WARNING_MSG(
       "requested numThreads is larger than hardware_concurrency",
       to_string(hardwareThreads));
   }
@@ -127,15 +124,14 @@ bool PythiaParallel::init(function<bool(Pythia*)> customInit) {
 
   // Set initialization.
   if (!initSuccess) {
-    info.errorMsg("Abort from PythiaParallel::init: "
-      "failed to initialize all Pythia objects");
+    logger.ABORT_MSG("failed to initialize all Pythia objects");
     return false;
   }
   isInit = true;
 
   // Print warning message and return.
-  info.errorMsg("Warning in PythiaParallel: experimental feature, "
-    "please send feedback to authors@pythia.org");
+  logger.WARNING_MSG(
+    "experimental feature, please send feedback to authors@pythia.org");
   return true;
 
 }
@@ -148,13 +144,12 @@ vector<long> PythiaParallel::run(long nEvents,
   function<void(Pythia* pythiaPtr)> callback) {
 
   if (!isInit) {
-    info.errorMsg("Abort from PythiaParallel::run: not initialized");
+    logger.ABORT_MSG("not initialized");
     return vector<long>();
   }
 
   if (nEvents < numThreads)
-    info.errorMsg("Warning in PythiaParallel::run: "
-      "more threads than events have been specified");
+    logger.WARNING_MSG("more threads than events have been specified");
   int numThreadsNow = nEvents > numThreads ? numThreads : int(nEvents);
   long nShowCount = settings.mode("Next:numberCount");
 
@@ -218,7 +213,7 @@ vector<long> PythiaParallel::run(long nEvents,
   // Wait for each thread to finish.
   for (int iPythia = 0; iPythia < numThreadsNow; ++iPythia) {
     threads[iPythia].join();
-    info.errorCombine(pythiaObjects[iPythia]->info);
+    logger.errorCombine(pythiaObjects[iPythia]->logger);
 
     double weightSumNow = pythiaObjects[iPythia]->info.weightSum();
     weightSumSave += weightSumNow;
@@ -238,7 +233,7 @@ vector<long> PythiaParallel::run(long nEvents,
 void PythiaParallel::foreach(function<void(Pythia*)> action) {
 
   if (!isInit) {
-    info.errorMsg("Error in PythiaParallel::foreach: not initialized");
+    logger.ERROR_MSG("not initialized");
     return;
   }
 
@@ -253,7 +248,7 @@ void PythiaParallel::foreach(function<void(Pythia*)> action) {
 void PythiaParallel::foreachAsync(function<void(Pythia*)> action) {
 
   if (!isInit) {
-    info.errorMsg("Error in PythiaParallel::foreach: not initialized");
+    logger.ERROR_MSG("not initialized");
     return;
   }
 

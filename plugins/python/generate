@@ -31,7 +31,7 @@ Configuration options.
 BLOCKTEXT
 OPTIONS="-h --h -help --help --part --full --user --debug"
 CLASSES="Pythia PythiaParallel Event Vec4 RotBstMatrix Particle ParticleData ParticleDataEntry DecayChannel Info Settings Flag Mode Parm Word FVec MVec PVec WVec Rndm PDF DecayHandler RndmEngine UserHooks MergingHooks BeamShape SigmaProcess TimeShower SpaceShower HeavyIons PartonVertex Hist HistPlot SlowJet SlowJetHook"
-GILS="PythiaParallel::run"
+GILS="PythiaParallel::init PythiaParallel::run"
 FUNCTIONS="m m2 dot3 cross3 cross4 theta costheta phi cosphi RRapPhi REtaPhi"
 PYTHIA_INCLUDE="../../include"
 BINDER_INCLUDE="include"
@@ -58,7 +58,6 @@ function binder() {
 function configure_base() {
     cat > $BINDER_CFG << BLOCKTEXT
 +include <Pythia8/UserHooks.h>
-+include <Pythia8/HIUserHooks.h>
 +include <Pythia8/HeavyIons.h>
 +include <Pythia8/BeamShape.h>
 +include <pybind11/stl.h>
@@ -187,7 +186,6 @@ done
 # Create the master header file.
 echo "#include <Pythia8/Pythia.h>" > $BINDER_HPP
 echo "#include <Pythia8/PythiaParallel.h>" > $BINDER_HPP
-echo "#include <Pythia8/HIUserHooks.h>" >> $BINDER_HPP
 echo "#include <Pythia8/HeavyIons.h>" >> $BINDER_HPP
 
 # Generate the bindings.
@@ -238,6 +236,11 @@ sed -i.sed '/{"", "Pythia8"},/d' $BINDER_SRC/pythia8.cpp
 OLD='modules.find(namespace_)'
 NEW='modules.find(namespace_ != "std" ? "" : "std")'
 sed -i.sed "s/$OLD/$NEW/g" $BINDER_SRC/pythia8.cpp
+
+# Something.
+OLD='overload_caster_t'
+NEW='override_caster_t'
+sed -i.sed "s/$OLD/$NEW/g" $BINDER_SRC/*.cpp
 
 # Allow multi-threading with GIL release.
 for GIL in $GILS; do
@@ -305,6 +308,18 @@ BLOCKTEXT
 BINDER_TXT=$(awk -v ORS='\\\\n' '1' $BINDER_DOC)
 sed -i.sed "s|root_module.doc() = .*;|root_module.doc() = \"$BINDER_TXT\";|g" \
     $BINDER_SRC/pythia8.cpp
+
+# Write the Python version helper code.
+cat > $BINDER_SRC/version.cpp << BLOCKTEXT
+#include <Python.h>
+#include <iostream>
+int main() {
+  std::string include("2.9.2");
+  if (PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION > 5) include = "2.10.4"; 
+  std::cout << include << "\n";
+  return 0;
+}
+BLOCKTEXT
 
 # Clean up.
 if [ "$DEBUG_SET" != true ]; then

@@ -1,8 +1,9 @@
 #include <Pythia8/Basics.h>
-#include <Pythia8/BeamParticle.h>
+#include <Pythia8/BeamSetup.h>
 #include <Pythia8/HadronWidths.h>
 #include <Pythia8/Info.h>
 #include <Pythia8/LHEF3.h>
+#include <Pythia8/Logger.h>
 #include <Pythia8/ParticleData.h>
 #include <Pythia8/PartonSystems.h>
 #include <Pythia8/ResonanceWidths.h>
@@ -12,6 +13,7 @@
 #include <Pythia8/StandardModel.h>
 #include <Pythia8/SusyCouplings.h>
 #include <Pythia8/Weights.h>
+#include <cwchar>
 #include <functional>
 #include <ios>
 #include <istream>
@@ -29,7 +31,6 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
-#include <Pythia8/HIUserHooks.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -46,7 +47,7 @@
 
 void bind_Pythia8_ParticleData_1(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
-	{ // Pythia8::ParticleData file:Pythia8/ParticleData.h line:423
+	{ // Pythia8::ParticleData file:Pythia8/ParticleData.h line:422
 		pybind11::class_<Pythia8::ParticleData, std::shared_ptr<Pythia8::ParticleData>> cl(M("Pythia8"), "ParticleData", "");
 		pybind11::handle cl_type = cl;
 
@@ -60,6 +61,7 @@ void bind_Pythia8_ParticleData_1(std::function< pybind11::module &(std::string c
 		cl.def("init", (bool (Pythia8::ParticleData::*)(class std::basic_istream<char> &)) &Pythia8::ParticleData::init, "C++: Pythia8::ParticleData::init(class std::basic_istream<char> &) --> bool", pybind11::arg("is"));
 		cl.def("reInit", [](Pythia8::ParticleData &o, class std::basic_string<char> const & a0) -> bool { return o.reInit(a0); }, "", pybind11::arg("startFile"));
 		cl.def("reInit", (bool (Pythia8::ParticleData::*)(std::string, bool)) &Pythia8::ParticleData::reInit, "C++: Pythia8::ParticleData::reInit(std::string, bool) --> bool", pybind11::arg("startFile"), pybind11::arg("xmlFormat"));
+		cl.def("initWidths", (void (Pythia8::ParticleData::*)(class std::vector<class std::shared_ptr<class Pythia8::ResonanceWidths>, class std::allocator<class std::shared_ptr<class Pythia8::ResonanceWidths> > >)) &Pythia8::ParticleData::initWidths, "C++: Pythia8::ParticleData::initWidths(class std::vector<class std::shared_ptr<class Pythia8::ResonanceWidths>, class std::allocator<class std::shared_ptr<class Pythia8::ResonanceWidths> > >) --> void", pybind11::arg("resonancePtrs"));
 		cl.def("readXML", [](Pythia8::ParticleData &o, class std::basic_string<char> const & a0) -> bool { return o.readXML(a0); }, "", pybind11::arg("inFile"));
 		cl.def("readXML", (bool (Pythia8::ParticleData::*)(std::string, bool)) &Pythia8::ParticleData::readXML, "C++: Pythia8::ParticleData::readXML(std::string, bool) --> bool", pybind11::arg("inFile"), pybind11::arg("reset"));
 		cl.def("listXML", (void (Pythia8::ParticleData::*)(std::string)) &Pythia8::ParticleData::listXML, "C++: Pythia8::ParticleData::listXML(std::string) --> void", pybind11::arg("outFile"));
@@ -187,12 +189,14 @@ void bind_Pythia8_ParticleData_1(std::function< pybind11::module &(std::string c
 		cl.def("isMeson", (bool (Pythia8::ParticleData::*)(int) const) &Pythia8::ParticleData::isMeson, "C++: Pythia8::ParticleData::isMeson(int) const --> bool", pybind11::arg("idIn"));
 		cl.def("isBaryon", (bool (Pythia8::ParticleData::*)(int) const) &Pythia8::ParticleData::isBaryon, "C++: Pythia8::ParticleData::isBaryon(int) const --> bool", pybind11::arg("idIn"));
 		cl.def("isOnium", (bool (Pythia8::ParticleData::*)(int) const) &Pythia8::ParticleData::isOnium, "C++: Pythia8::ParticleData::isOnium(int) const --> bool", pybind11::arg("idIn"));
+		cl.def("isExotic", (bool (Pythia8::ParticleData::*)(int) const) &Pythia8::ParticleData::isExotic, "C++: Pythia8::ParticleData::isExotic(int) const --> bool", pybind11::arg("idIn"));
 		cl.def("isOctetHadron", (bool (Pythia8::ParticleData::*)(int) const) &Pythia8::ParticleData::isOctetHadron, "C++: Pythia8::ParticleData::isOctetHadron(int) const --> bool", pybind11::arg("idIn"));
 		cl.def("heaviestQuark", (int (Pythia8::ParticleData::*)(int) const) &Pythia8::ParticleData::heaviestQuark, "C++: Pythia8::ParticleData::heaviestQuark(int) const --> int", pybind11::arg("idIn"));
 		cl.def("baryonNumberType", (int (Pythia8::ParticleData::*)(int) const) &Pythia8::ParticleData::baryonNumberType, "C++: Pythia8::ParticleData::baryonNumberType(int) const --> int", pybind11::arg("idIn"));
 		cl.def("nQuarksInCode", (int (Pythia8::ParticleData::*)(int, int) const) &Pythia8::ParticleData::nQuarksInCode, "C++: Pythia8::ParticleData::nQuarksInCode(int, int) const --> int", pybind11::arg("idIn"), pybind11::arg("idQIn"));
 		cl.def("rescaleBR", [](Pythia8::ParticleData &o, int const & a0) -> void { return o.rescaleBR(a0); }, "", pybind11::arg("idIn"));
 		cl.def("rescaleBR", (void (Pythia8::ParticleData::*)(int, double)) &Pythia8::ParticleData::rescaleBR, "C++: Pythia8::ParticleData::rescaleBR(int, double) --> void", pybind11::arg("idIn"), pybind11::arg("newSumBR"));
+		cl.def("setResonancePtr", (void (Pythia8::ParticleData::*)(int, class std::shared_ptr<class Pythia8::ResonanceWidths>)) &Pythia8::ParticleData::setResonancePtr, "C++: Pythia8::ParticleData::setResonancePtr(int, class std::shared_ptr<class Pythia8::ResonanceWidths>) --> void", pybind11::arg("idIn"), pybind11::arg("resonancePtrIn"));
 		cl.def("resInit", (void (Pythia8::ParticleData::*)(int)) &Pythia8::ParticleData::resInit, "C++: Pythia8::ParticleData::resInit(int) --> void", pybind11::arg("idIn"));
 		cl.def("resWidth", [](Pythia8::ParticleData &o, int const & a0, double const & a1) -> double { return o.resWidth(a0, a1); }, "", pybind11::arg("idIn"), pybind11::arg("mHat"));
 		cl.def("resWidth", [](Pythia8::ParticleData &o, int const & a0, double const & a1, int const & a2) -> double { return o.resWidth(a0, a1, a2); }, "", pybind11::arg("idIn"), pybind11::arg("mHat"), pybind11::arg("idInFlav"));

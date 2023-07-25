@@ -22,6 +22,7 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 #include &lt;ctime&gt;
 
 #include &quot;Pythia8/Pythia.h&quot;
+#include &quot;Pythia8/Plugins.h&quot;
 
 using namespace Pythia8;
 
@@ -194,12 +195,15 @@ int main() {
   // Second part of study, as simple extra check:
   // Begin fill shape of effective PDF at typical MPI Q2 = 10 scale:
   // F_effective(x) = (9/4) x*g(x) + Sum_i (x*q_i(x) + x*qbar_i(x)).
-  Info info;
+  Logger logger;
   double Q2 = 10.;
   // Current default is NNPDF2.3 QCD+QED LO alpha_s(M_Z) = 0.130.
   PDFPtr oldPDF = make_shared&lt;LHAGrid1&gt;(
-    2212, &quot;NNPDF23_lo_as_0130_qed_0000.dat&quot;, pdfPath, &amp;info);
-  PDFPtr newPDF = make_shared&lt;LHAPDF&gt;(2212, pdfSet, &amp;info);
+    2212, &quot;NNPDF23_lo_as_0130_qed_0000.dat&quot;, pdfPath, &amp;logger);
+  PDFPtr newPDF = make_plugin&lt;PDF&gt;(
+    &quot;libpythia8lhapdf&quot; + pdfSet.substr(6, 1) + &quot;.so&quot;, pdfSet.substr(0, 7));
+  if (newPDF == nullptr) return -1;
+  else newPDF-&gt;init(2212, pdfSet.substr(8), 0, &amp;logger);
 
   // Histograms.
   Hist effFlinOld(&quot;F_effective( x, Q2 = 10) old&quot;, 100 , 0., 1.);

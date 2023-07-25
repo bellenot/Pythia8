@@ -3,9 +3,9 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Marius Utheim <marius.m.utheim@jyu.fi>.
+// Authors: Marius Utheim <marius.m.utheim@jyu.fi>
 
-// Keywords: parallelism; charged multiplicity;
+// Keywords: parallelism; charged multiplicity
 
 // This is a simple test program to illustrate the usage of PythiaParallel.
 // The program is equivalent to main01, but in parallel.

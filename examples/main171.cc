@@ -5,7 +5,7 @@
 
 // Authors: Torbjorn Sjostrand <torbjorn.sjostrand@hep.lu.se>
 
-// Keywords: Hidden Valley;
+// Keywords: Hidden Valley
 
 // Test of Hidden Valley production in a few different channels.
 

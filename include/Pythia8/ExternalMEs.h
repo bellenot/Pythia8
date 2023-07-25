@@ -31,26 +31,26 @@ class ExternalMEs {
 
 public:
 
-  // Constructor, destructor, and assignment.
-  ExternalMEs() = default;
-  ~ExternalMEs() = default;
+  // Destructor.
+  virtual ~ExternalMEs() = default;
 
   // Initialisers for pointers.
-  virtual void initPtrs(Info* infoPtrIn, SusyLesHouches* slhaPtrIn = nullptr);
+  virtual void initPtrs(Info* infoPtrIn);
 
   // Initialisers.
-  virtual bool init() = 0;
-  virtual bool initVincia() = 0;
-  virtual bool initDire(Info* infoPtrIn, string card) = 0;
+  virtual bool init() {return false;}
+  virtual bool initVincia(Info* /*infoPtrIn*/) {return false;}
+  virtual bool initDire(Info* /*infoPtrIn*/, string /*card*/) {return false;}
 
   // Methods to check availability of matrix elements.
-  virtual bool isAvailable(vector<int> idIn, vector<int> idOut) = 0;
-  virtual bool isAvailable(const Pythia8::Event& event) = 0;
-  virtual bool isAvailable(const vector<Particle>& state) = 0;
+  virtual bool isAvailable(vector<int> /*idIn*/, vector<int> /*idOut*/) {
+    return false;}
+  virtual bool isAvailable(const Pythia8::Event& /*event*/) {return false;}
+  virtual bool isAvailable(const vector<Particle>& /*state*/) {return false;}
 
   // Calculate the matrix element squared for a particle state.
-  virtual double calcME2(const vector<Particle>& state) = 0;
-  virtual double calcME2(const Event& event) = 0;
+  virtual double calcME2(const vector<Particle>& /*state*/) {return 0;}
+  virtual double calcME2(const Event& /*event*/) {return 0;}
 
   // Setters.
   virtual void setColourMode(int colModeIn) {
@@ -70,9 +70,7 @@ public:
   virtual bool includeSymmetryFac() {return inclSymFac;}
   virtual bool includeHelicityAvgFac() {return inclHelAvgFac;}
   virtual bool includeColourAvgFac() {return inclColAvgFac;}
-
-  // Saved list of helicity components for last ME evaluated.
-  map<vector<int>, double> me2hel;
+  virtual map<vector<int>, double> getHelicityAmplitudes() {return me2hel;}
 
 protected:
 
@@ -88,6 +86,9 @@ protected:
   // Colour mode (0: strict LC, 1: LC, 2: LC sum, 3: FC).
   int colMode{1};
 
+  // Saved list of helicity components for last ME evaluated.
+  map<vector<int>, double> me2hel;
+
   // Helicity mode (0: explicit helicity sum, 1: implicit helicity sum).
   int helMode{1};
 
@@ -96,6 +97,7 @@ protected:
 
   // Pointers to VINCIA and Pythia 8 objects.
   Info*           infoPtr{};
+  Logger*         loggerPtr{};
   CoupSM*         coupSMPtr{};
   ParticleData*   particleDataPtr{};
   Rndm*           rndmPtr{};
@@ -104,88 +106,6 @@ protected:
 
   // Is initialized.
   bool isInitPtr{false}, isInit{false};
-
-};
-
-//==========================================================================
-
-// Interface to external matrix elements.
-
-class ExternalMEsPlugin : public ExternalMEs {
-
-public:
-
-  // Constructor and destructor.
-  ExternalMEsPlugin(const ExternalMEsPlugin &me) : ExternalMEs(),
-    mesPtr(nullptr), libPtr(nullptr), name(me.name) {}
-  ExternalMEsPlugin(string nameIn = "") : ExternalMEs(), mesPtr(nullptr),
-    libPtr(nullptr), name(nameIn) {}
-  ~ExternalMEsPlugin();
-  ExternalMEsPlugin &operator=(const ExternalMEsPlugin &me) {
-    mesPtr = nullptr; libPtr = nullptr; name = me.name; return *this;}
-
-  // Initialisers for pointers.
-  void initPtrs(Info* infoPtrIn, SusyLesHouches* slhaPtrIn = nullptr) override;
-
-  // Initialisers.
-  bool init() override;
-  bool initVincia() override;
-  bool initDire(Info* infoPtrIn, string card) override;
-
-  // Methods to check availability of matrix elements.
-  virtual bool isAvailable(vector<int> idIn, vector<int> idOut) override {
-    return mesPtr != nullptr ? mesPtr->isAvailable(idIn, idOut) : false;}
-  virtual bool isAvailable(const Pythia8::Event& event) override {
-    return mesPtr != nullptr ? mesPtr->isAvailable(event) : false;}
-  virtual bool isAvailable(const vector<Particle>& state) override {
-    return mesPtr != nullptr ? mesPtr->isAvailable(state) : false;}
-
-  // Calculate the matrix element squared for a particle state.
-  double calcME2(const vector<Particle>& state) override {
-    return mesPtr != nullptr ? mesPtr->calcME2(state) : -1;}
-  virtual double calcME2(const Event& event) override {
-    return mesPtr != nullptr ? mesPtr->calcME2(event) : -1;}
-
-  // Get previously calculated results.
-  map<vector<int>, double> getHelicityAmplitudes() {
-    return mesPtr != nullptr ? mesPtr-> me2hel : map<vector<int>, double>();}
-
-  // Setters.
-  void setColourMode(int colModeIn) override {
-    if (mesPtr != nullptr) mesPtr->setColourMode(colModeIn);}
-  void setHelicityMode(int helModeIn) override {
-    if (mesPtr != nullptr) mesPtr->setHelicityMode(helModeIn);}
-  void setIncludeSymmetryFac(bool doInclIn) override {
-    if (mesPtr != nullptr) mesPtr->setIncludeSymmetryFac(doInclIn);}
-  void setIncludeHelicityAvgFac(bool doInclIn) override {
-    if (mesPtr != nullptr)
-      mesPtr->setIncludeHelicityAvgFac(doInclIn);}
-  void setIncludeColourAvgFac(bool doInclIn) override {
-    if (mesPtr != nullptr) mesPtr->setIncludeColourAvgFac(doInclIn);}
-
-  // Getters.
-  int colourMode() override {
-    return mesPtr != nullptr ? mesPtr->colourMode() : 0;}
-  int helicityMode() override {
-    return mesPtr != nullptr ? mesPtr->helicityMode() : 0;}
-  bool includeSymmetryFac() override {
-    return mesPtr != nullptr ? mesPtr->includeSymmetryFac() : false;}
-  bool includeHelicityAvgFac() override {
-    return mesPtr != nullptr ? mesPtr->includeHelicityAvgFac() : false;}
-  bool includeColourAvgFac() override {
-    return mesPtr != nullptr ? mesPtr->includeColourAvgFac() : false;}
-
-
-private:
-
-  // Typedefs of the hooks used to access the plugin.
-  typedef ExternalMEs* NewExternalMEs();
-  typedef void DeleteExternalMEs(ExternalMEs*);
-
-  // The loaded MEs object, plugin library, and plugin name.
-  ExternalMEs *mesPtr;
-  PluginPtr  libPtr;
-  string     name;
 
 };
 
@@ -201,7 +121,7 @@ class HelicitySampler {
   ~HelicitySampler() = default;
 
   // Initialise pointers to required Pythia objects.
-  void initPtrs(ExternalMEsPlugin* mePluginPtrIn, Rndm* rndmPtrIn) {
+  void initPtrs(ExternalMEsPtr mePluginPtrIn, Rndm* rndmPtrIn) {
     mePluginPtr = mePluginPtrIn;
     rndmPtr     = rndmPtrIn;
     isInitPtr   = true;}
@@ -212,7 +132,7 @@ class HelicitySampler {
  private:
 
   // Pointers to Pythia objects.
-  ExternalMEsPlugin* mePluginPtr;
+  ExternalMEsPtr mePluginPtr;
   Rndm* rndmPtr;
 
   // Flag whether we have all pointers.

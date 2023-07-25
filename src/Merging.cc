@@ -526,9 +526,8 @@ int Merging::mergeProcessCKKWL( Event& process) {
   // criterion.
   bool enforceCutOnLHE  = flag("Merging:enforceCutOnLHE");
   if ( enforceCutOnLHE && applyCut && tmsnow < tmsval && tmsnow >= 0. ) {
-    string message="Warning in Merging::mergeProcessCKKWL: Les Houches Event";
-    message+=" fails merging scale cut. Reject event.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG(
+      "Les Houches Event fails merging scale cut. Rejecting event");
     if (!includeWGT) mergingHooksPtr->
                        setWeightCKKWL(vector<double>(nWgts, 0.));
     if ( includeWGT) infoPtr->weightContainerPtr->setWeightNominal(0.);
@@ -557,9 +556,7 @@ int Merging::mergeProcessCKKWL( Event& process) {
     ( mergingHooksPtr->doWeakClustering() && nFinalP == 2 && nFinalW == 0 );
 
   if ( !complete ) {
-    string message="Warning in Merging::mergeProcessCKKWL: No clusterings";
-    message+=" found. History incomplete.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG("no clusterings found. History incomplete");
   }
 
   // Calculate CKKWL weight:
@@ -595,10 +592,8 @@ int Merging::mergeProcessCKKWL( Event& process) {
     for (int iVar = 1; iVar < nWgts; ++iVar) {
       relWgt.push_back(wgt[0] != 0 ? wgt[iVar]/wgt[0] : 0.);
       if (abs(wgt[iVar]) > MINWGT && wgt[0] < MINWGT) {
-        string message="Warning in Merging::mergeProcessCKKWL: Cannot "
-          " normalize merging weight to zero. Try"
-          " Merging:includeWeightInXsection off.";
-        infoPtr->errorMsg(message);
+        loggerPtr->WARNING_MSG("cannot normalize merging weight to zero.",
+          "try Merging:includeWeightInXsection off");
       }
     }
     infoPtr->weightContainerPtr->
@@ -705,9 +700,8 @@ int Merging::mergeProcessUMEPS( Event& process) {
   // criterion.
   bool enforceCutOnLHE  = flag("Merging:enforceCutOnLHE");
   if ( enforceCutOnLHE && applyCut && tmsnow < tmsval ) {
-    string message="Warning in Merging::mergeProcessUMEPS: Les Houches Event";
-    message+=" fails merging scale cut. Reject event.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG(
+      "Les Houches Event fails merging scale cut. Rejecting event");
     if (!includeWGT) mergingHooksPtr->setWeightCKKWL(vector<double>(nWgts,0.));
     if ( includeWGT) infoPtr->weightContainerPtr->setWeightNominal(0.);
     if (applyVeto) return -1;
@@ -768,10 +762,8 @@ int Merging::mergeProcessUMEPS( Event& process) {
     for (int iVar = 1; iVar < nWgts; ++iVar) {
       relWgt.push_back(wgt[0] != 0 ? wgt[iVar]/wgt[0] : 0.);
       if (abs(wgt[iVar]) > MINWGT && wgt[0] < MINWGT) {
-        string message="Warning in Merging::mergeProcessUMEPS: Cannot "
-          " normalize merging weight to zero. Try"
-          " Merging:includeWeightInXsection off.";
-        infoPtr->errorMsg(message);
+        loggerPtr->WARNING_MSG("cannot normalize merging weight to zero",
+          "try Merging:includeWeightInXsection off");
       }
     }
     infoPtr->weightContainerPtr->
@@ -876,9 +868,8 @@ int Merging::mergeProcessNL3( Event& process) {
   bool enforceCutOnLHE  = flag("Merging:enforceCutOnLHE");
   if ( enforceCutOnLHE && nSteps > 0 && nSteps == nRequested
     && tmsnow < tmsval ) {
-    string message="Warning in Merging::mergeProcessNL3: Les Houches Event";
-    message+=" fails merging scale cut. Reject event.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG(
+      "Les Houches Event fails merging scale cut. Rejecting event");
     mergingHooksPtr->setWeightCKKWL(vector<double>(nWgts, 0.));
     mergingHooksPtr->setWeightFIRST(vector<double>(nWgts, 0.));
     return -1;
@@ -1112,9 +1103,8 @@ int Merging::mergeProcessUNLOPS( Event& process) {
   // removed. In this case, reject this event, since it will be handled in
   // lower-multiplicity samples.
   if (nSteps < nRequested) {
-    string message="Warning in Merging::mergeProcessUNLOPS: Les Houches Event";
-    message+=" after removing decay products does not contain enough partons.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG("not enough partons in LHE after removing"
+    " decay products");
     mergingHooksPtr->setWeightCKKWL(vector<double>(nWgts,0.));
     mergingHooksPtr->setWeightFIRST(vector<double>(nWgts,0.));
     if (doSchemeVariation) {
@@ -1150,9 +1140,8 @@ int Merging::mergeProcessUNLOPS( Event& process) {
   bool enforceCutOnLHE  = flag("Merging:enforceCutOnLHE");
   if ( enforceCutOnLHE && applyCut && nSteps == nRequested
     && tmsnow < tmsval ) {
-    string message="Warning in Merging::mergeProcessUNLOPS: Les Houches";
-    message+=" Event fails merging scale cut. Reject event.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG(
+      "Les Houches Event fails merging scale cut. Rejecting event");
     mergingHooksPtr->setWeightCKKWL(vector<double>(nWgts,0.));
     mergingHooksPtr->setWeightFIRST(vector<double>(nWgts,0.));
     if (doSchemeVariation) {
@@ -1222,9 +1211,8 @@ int Merging::mergeProcessUNLOPS( Event& process) {
     double tnowNew  = mergingHooksPtr->tmsNow( dummy );
     // Veto if underlying Born kinematics do not pass merging scale cut.
     if ( enforceCutOnLHE && nRequested > 0 && tnowNew < tmsval ) {
-      string message="Warning in Merging::mergeProcessUNLOPS: Les Houches";
-      message+=" Event fails merging scale cut. Reject event.";
-      infoPtr->errorMsg(message);
+      loggerPtr->WARNING_MSG(
+        "Les Houches Event fails merging scale cut. Rejecting event");
       mergingHooksPtr->setWeightCKKWL(vector<double>(nWgts,0.));
       mergingHooksPtr->setWeightFIRST(vector<double>(nWgts,0.));
       if (doSchemeVariation) {
@@ -1550,9 +1538,8 @@ bool Merging::cutOnProcess( Event& process) {
   // Now enfore merging scale cut if the event did not pass the merging scale
   // criterion.
   if ( nSteps > 0 && nSteps == nRequested && tmsnow < tmsval ) {
-    string message="Warning in Merging::cutOnProcess: Les Houches Event";
-    message+=" fails merging scale cut. Reject event.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG(
+      "Les Houches Event fails merging scale cut. Rejecting event");
     return true;
   }
 
@@ -1576,9 +1563,7 @@ bool Merging::cutOnProcess( Event& process) {
     ( mergingHooksPtr->doWeakClustering() && nFinalP == 2 && nFinalW == 0 );
 
   if ( !complete ) {
-    string message="Warning in Merging::cutOnProcess: No clusterings";
-    message+=" found. History incomplete.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG("No clusterings found. History incomplete");
   }
 
   // Done if no real-emission jets are present.
@@ -1597,9 +1582,8 @@ bool Merging::cutOnProcess( Event& process) {
   double tnowNew = mergingHooksPtr->tmsNow( dummy );
   // Veto if underlying Born kinematics do not pass merging scale cut.
   if ( nRequested > 0 && tnowNew < tmsval ) {
-    string message = "Warning in Merging::cutOnProcess: Les Houches Event";
-    message += " fails merging scale cut. Reject event.";
-    infoPtr->errorMsg(message);
+    loggerPtr->WARNING_MSG(
+      "Les Houches Event fails merging scale cut. Rejecting event");
     return true;
   }
 

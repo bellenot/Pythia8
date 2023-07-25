@@ -24,18 +24,15 @@ void SLHAinterface::init( bool& useSLHAcouplings,
 
   // Check if SUSY couplings need to be read in
   if( !initSLHA())
-    infoPtr->errorMsg("Error in SLHAinterface::init: "
-      "Could not read SLHA file");
+    loggerPtr->ERROR_MSG("Could not read SLHA file");
 
   // Reset any particle-related user settings.
   string line;
-  string warnPref = "Warning in SLHAinterface::init: ";
   while (getline(particleDataBuffer, line)
     && settingsPtr->flag("SLHA:allowUserOverride")) {
     bool pass = particleDataPtr->readString(line, true);
-    if (!pass) infoPtr->errorMsg(warnPref + "Unable to process line "
-      + line);
-    else infoPtr->errorMsg(warnPref + "Overwriting SLHA by " + line);
+    if (!pass) loggerPtr->WARNING_MSG("Unable to process line " + line);
+    else loggerPtr->WARNING_MSG("Overwriting SLHA by " + line);
   }
 
   // SLHA sets isSUSY flag to tell us if there was an SLHA SUSY spectrum
@@ -57,11 +54,6 @@ void SLHAinterface::init( bool& useSLHAcouplings,
 // Initialize SUSY Les Houches Accord data.
 
 bool SLHAinterface::initSLHA() {
-
-  // Error and warning prefixes for this method
-  string errPref  = "Error in SLHAinterface::initSLHA: ";
-  string warnPref = "Warning in SLHAinterface::initSLHA: ";
-  string infoPref = "Info from SLHAinterface::initSLHA: ";
 
   // Initial and settings values.
   int    ifailLHE          = 1;
@@ -115,7 +107,7 @@ bool SLHAinterface::initSLHA() {
 
   // In case of problems, print error and fail init.
   if (ifailSpc != 0) {
-    infoPtr->errorMsg(errPref + "problem reading SLHA file", slhaFile);
+    loggerPtr->ERROR_MSG("problem reading SLHA file", slhaFile);
     return false;
   } else {
     coupSUSYPtr->isSUSY = true;
@@ -128,12 +120,10 @@ bool SLHAinterface::initSLHA() {
   if (ifailSpc == 1) {
     // no SUSY, but MASS ok
     coupSUSYPtr->isSUSY = false;
-    infoPtr->errorMsg(infoPref +
-      "No MODSEL found, keeping internal SUSY switched off");
+    loggerPtr->INFO_MSG("No MODSEL found, keeping internal SUSY switched off");
   } else if (ifailSpc >= 2) {
     // no SUSY, but problems
-    infoPtr->errorMsg(warnPref +
-      "No MASS or MODSEL blocks found.");
+    loggerPtr->WARNING_MSG("No MASS or MODSEL blocks found");
     coupSUSYPtr->isSUSY = false;
   }
   // ifail = 0 : MODSEL found, spectrum OK
@@ -142,8 +132,8 @@ bool SLHAinterface::initSLHA() {
     slha.listSpectrum(0);
   }
   else if (ifailSpc < 0) {
-    infoPtr->errorMsg(warnPref + "Problem with SLHA spectrum.",
-      "\n Only using masses and switching off SUSY.");
+    loggerPtr->WARNING_MSG("Problem with SLHA spectrum",
+      "\n Only using masses and switching off SUSY");
     settingsPtr->flag("SUSY:all", false);
     coupSUSYPtr->isSUSY = false;
     slha.listSpectrum(ifailSpc);
@@ -319,7 +309,7 @@ bool SLHAinterface::initSLHA() {
       ostringstream idCode;
       idCode << id;
       if (particleDataPtr->isParticle(id)) {
-        infoPtr->errorMsg(warnPref + "ignoring QNUMBERS", "for id = "
+        loggerPtr->WARNING_MSG("ignoring QNUMBERS", "for id = "
           + idCode.str() + " (already exists)", true);
       } else {
         // Note: qnumbers entries stored internally as doubles to allow for
@@ -372,8 +362,8 @@ bool SLHAinterface::initSLHA() {
   }
   // Inform user that BSM particles should ideally be assigned id codes > 1M
   if (foundLowCode)
-    infoPtr->errorMsg(warnPref
-      + "using QNUMBERS for id codes < 1000000 may clash with SM.");
+    loggerPtr->WARNING_MSG(
+      "using QNUMBERS for id codes < 1000000 may clash with SM");
 
   // Import mass spectrum.
   double minMassSM = settingsPtr->parm("SLHA:minMassSM");
@@ -413,7 +403,7 @@ bool SLHAinterface::initSLHA() {
         if( tmpPtr == nullptr ) {
           ostringstream idCode;
           idCode << id;
-          infoPtr->errorMsg(infoPref + " attempting to set properties",
+          loggerPtr->INFO_MSG("attempting to set properties",
             "for unknown id = {" + idCode.str() + "}", true);
           continue;
         }
@@ -440,7 +430,7 @@ bool SLHAinterface::initSLHA() {
         if (i != 0) idImport +=",";
         idImport += idCode.str();
       }
-      infoPtr->errorMsg(infoPref + "importing MASS entries","for id = {"
+      loggerPtr->INFO_MSG("importing MASS entries","for id = {"
         + idImport + "}", true);
     }
     if (ignoreMassM0.size() >= 1) {
@@ -451,7 +441,7 @@ bool SLHAinterface::initSLHA() {
         if (i != 0) idIgnore +=",";
         idIgnore += idCode.str();
       }
-      infoPtr->errorMsg(warnPref + "ignoring MASS entries", "for id = {"
+      loggerPtr->WARNING_MSG("ignoring MASS entries", "for id = {"
         + idIgnore + "}" + " (m0 < SLHA:minMassSM)", true);
     }
   }
@@ -494,7 +484,7 @@ bool SLHAinterface::initSLHA() {
     double widRes         = abs(slhaTable->getWidth());
     double pythiaMinWidth = settingsPtr->parm("ResonanceWidths:minWidth");
     if (widRes > 0. && widRes < pythiaMinWidth) {
-      infoPtr->errorMsg(warnPref + "forcing width = 0 ","for id = "
+      loggerPtr->WARNING_MSG("forcing width = 0 ","for id = "
         + idCode.str() + " (width < ResonanceWidths:minWidth)" , true);
       widRes = 0.0;
     }
@@ -546,10 +536,10 @@ bool SLHAinterface::initSLHA() {
       double brat      = slhaChannel.getBrat();
       vector<int> idDa = slhaChannel.getIdDa();
       if (idDa.size() >= 9) {
-        infoPtr->errorMsg(errPref + "max number of DECAY products is 8 ",
+        loggerPtr->ERROR_MSG("max number of DECAY products is 8 ",
           "for id = "+idCode.str(), true);
       } else if (idDa.size() <= 1) {
-        infoPtr->errorMsg(errPref + "min number of DECAY products is 2 ",
+        loggerPtr->ERROR_MSG("min number of DECAY products is 2 ",
           "for id = "+idCode.str(), true);
       }
       else {
@@ -574,7 +564,7 @@ bool SLHAinterface::initSLHA() {
           for (int jDa=0; jDa<nDa; ++jDa) errCode<<" "<<idDa[jDa];
           // Could mass fluctuations at all give the needed deltaM ?
           if (abs(deltaM) > 100. * sqrt(widSqSum)) {
-            infoPtr->errorMsg(warnPref + "switched off DECAY mode",
+            loggerPtr->WARNING_MSG("switched off DECAY mode",
               ": " + errCode.str()+" (too far off shell)",true);
             onMode = 0;
           }
@@ -582,11 +572,11 @@ bool SLHAinterface::initSLHA() {
           else {
             // Ignore user-selected meMode
             if (meModeNow != 100) {
-              infoPtr->errorMsg(warnPref + "adding off shell DECAY mode",
+              loggerPtr->WARNING_MSG("adding off shell DECAY mode",
                 ": "+errCode.str()+" (forced meMode = 100)",true);
               meModeNow = 100;
             } else {
-              infoPtr->errorMsg(warnPref + "adding off shell DECAY mode",
+              loggerPtr->WARNING_MSG("adding off shell DECAY mode",
                 errCode.str(), true);
             }
           }
@@ -620,7 +610,7 @@ bool SLHAinterface::initSLHA() {
       if (i != 0) idImport +=",";
       idImport += idCode.str();
     }
-    infoPtr->errorMsg(infoPref + "importing DECAY tables","for id = {"
+    loggerPtr->INFO_MSG("importing DECAY tables","for id = {"
       + idImport + "}", true);
   }
   if (ignoreDecayM0.size() >= 1) {
@@ -631,7 +621,7 @@ bool SLHAinterface::initSLHA() {
       if (i != 0) idIgnore +=",";
       idIgnore += idCode.str();
     }
-    infoPtr->errorMsg(warnPref + "ignoring DECAY tables", "for id = {"
+    loggerPtr->WARNING_MSG("ignoring DECAY tables", "for id = {"
       + idIgnore + "}" + " (m0 < SLHA:minMassSM)", true);
   }
   if (ignoreDecayBR.size() >= 1) {
@@ -642,7 +632,7 @@ bool SLHAinterface::initSLHA() {
       if (i != 0) idIgnore +=",";
       idIgnore += idCode.str();
     }
-    infoPtr->errorMsg(warnPref + "ignoring empty DECAY tables", "for id = {"
+    loggerPtr->WARNING_MSG("ignoring empty DECAY tables", "for id = {"
       + idIgnore + "}" + " (total width provided but no Branching Ratios)",
       true);
   }
@@ -661,7 +651,7 @@ bool SLHAinterface::initSLHA() {
     double m0(particlePtr->m0()), wid(particlePtr->mWidth());
     // Always set massless particles stable.
     if (m0 <= 0.0 && (wid > 0.0 || particlePtr->mayDecay())) {
-      infoPtr->errorMsg(warnPref + "massless particle forced stable",
+      loggerPtr->WARNING_MSG("massless particle forced stable",
         " id = " + to_string(id), true);
       particlePtr->clearChannels();
       particlePtr->setMWidth(0.0);
@@ -704,7 +694,7 @@ bool SLHAinterface::initSLHA() {
         errCode << id <<" ->";
         for (int jDa = 0; jDa < nProd; ++jDa)
           errCode << " " << channel.product(jDa);
-        infoPtr->errorMsg(warnPref + "switched off DECAY mode",
+        loggerPtr->WARNING_MSG("switched off DECAY mode",
           ": " + errCode.str()+" (too far off shell)",true);
         continue;
       }
@@ -723,24 +713,23 @@ bool SLHAinterface::initSLHA() {
     }
     // No channels are open.
     if (!openModeCheck) {
-      infoPtr->errorMsg(
-      warnPref + "particle forced stable"," id = " + to_string(id) +
-      " (no decay channels on)", true);
+      loggerPtr->WARNING_MSG("particle forced stable",
+        " id = " + to_string(id) + " (no decay channels on)", true);
     // Only off-shell channels.
     } else if (mSumMin > m0) {
       // Set particle stable if only off-shell channels and on-shell required.
       if (!allowOnlyOffShell) {
-        infoPtr->errorMsg(
-          warnPref + "particle forced stable"," id = " + to_string(id) +
+        loggerPtr->WARNING_MSG("particle forced stable",
+          " id = " + to_string(id) +
           " (no on-shell decay channels and SLHA::allowOnly"
           "OffShell is false)", true);
         particlePtr->setMWidth(0.0);
         particlePtr->setMayDecay(false);
         continue;
       // Allow decay if only off-shell channels allowed.
-      } else infoPtr->errorMsg(
-        warnPref + "allowing particle with no on-shell decays ",
-        " id = " + to_string(id), true);
+      } else
+        loggerPtr->WARNING_MSG("allowing particle with no on-shell decays",
+          "id = " + to_string(id), true);
     } else {
       // mMin: lower cutoff on Breit-Wigner; see above.
       // Increase minimum if needed to ensure at least one channel on shell
@@ -793,8 +782,7 @@ void SLHAinterface::pythia2slha() {
     id = particleDataPtr->nextId(id);
     ++count;
     if (count > 10000) {
-      infoPtr->errorMsg("Error in SLHAinterface::pythia2slha(): "
-        "encountered infinite loop when saving mass block");
+      loggerPtr->ERROR_MSG("encountered infinite loop when saving mass block");
       break;
     }
   }

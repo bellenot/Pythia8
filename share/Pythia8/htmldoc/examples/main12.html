@@ -66,7 +66,7 @@ int main() {
   int iFile      = 1;
 
   // Begin event loop
-  for (int iEvent = 0; ; ++iEvent) {
+  while (iAbort &lt; nAbort) {
 
     // Generate until none left in input file.
     if (!pythia.next()) {
@@ -81,10 +81,8 @@ int main() {
           continue;
         } else break;
       }
-
-      // First few failures write off as &quot;acceptable&quot; errors, then quit.
-      if (++iAbort &lt; nAbort) continue;
-      break;
+      ++iAbort;
+      continue;
     }
 
     // List first few Les Houches and other events.

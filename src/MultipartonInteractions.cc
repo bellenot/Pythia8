@@ -43,82 +43,76 @@ bool SigmaMultiparton::init(int inState, int processLevel, Info* infoPtr,
   Settings* settingsPtr     = infoPtr->settingsPtr;
 
   // Reset vector sizes (necessary in case of re-initialization).
-  if (sigmaT.size() > 0) {
-    for (int i = 0; i < int(sigmaT.size()); ++i) delete sigmaT[i];
-    sigmaT.resize(0);
-  }
-  if (sigmaU.size() > 0) {
-    for (int i = 0; i < int(sigmaU.size()); ++i) delete sigmaU[i];
-    sigmaU.resize(0);
-  }
+  if (sigmaT.size() > 0) sigmaT.resize(0);
+  if (sigmaU.size() > 0) sigmaU.resize(0);
 
   // Always store mimimal set of processes:QCD 2 -> 2 t-channel.
 
   // Gluon-gluon instate.
   if (inState == 0) {
-    sigmaT.push_back( new Sigma2gg2gg() );
-    sigmaU.push_back( new Sigma2gg2gg() );
+    sigmaT.push_back( make_shared<Sigma2gg2gg>() );
+    sigmaU.push_back( make_shared<Sigma2gg2gg>() );
 
   // Quark-gluon instate.
   } else if (inState == 1) {
-    sigmaT.push_back( new Sigma2qg2qg() );
-    sigmaU.push_back( new Sigma2qg2qg() );
+    sigmaT.push_back( make_shared<Sigma2qg2qg>() );
+    sigmaU.push_back( make_shared<Sigma2qg2qg>() );
 
   // Quark-(anti)quark instate.
   } else {
-    sigmaT.push_back( new Sigma2qq2qq() );
-    sigmaU.push_back( new Sigma2qq2qq() );
+    sigmaT.push_back( make_shared<Sigma2qq2qq>() );
+    sigmaU.push_back( make_shared<Sigma2qq2qq>() );
   }
 
   // Normally store QCD processes to new flavour.
   if (processLevel > 0) {
     if (inState == 0) {
-      sigmaT.push_back( new Sigma2gg2qqbar() );
-      sigmaU.push_back( new Sigma2gg2qqbar() );
-      sigmaT.push_back( new Sigma2gg2QQbar(4, 121) );
-      sigmaU.push_back( new Sigma2gg2QQbar(4, 121) );
-      sigmaT.push_back( new Sigma2gg2QQbar(5, 123) );
-      sigmaU.push_back( new Sigma2gg2QQbar(5, 123) );
+      sigmaT.push_back( make_shared<Sigma2gg2qqbar>() );
+      sigmaU.push_back( make_shared<Sigma2gg2qqbar>() );
+      sigmaT.push_back( make_shared<Sigma2gg2QQbar>(4, 121) );
+      sigmaU.push_back( make_shared<Sigma2gg2QQbar>(4, 121) );
+      sigmaT.push_back( make_shared<Sigma2gg2QQbar>(5, 123) );
+      sigmaU.push_back( make_shared<Sigma2gg2QQbar>(5, 123) );
     } else if (inState == 2) {
-      sigmaT.push_back( new Sigma2qqbar2gg() );
-      sigmaU.push_back( new Sigma2qqbar2gg() );
-      sigmaT.push_back( new Sigma2qqbar2qqbarNew() );
-      sigmaU.push_back( new Sigma2qqbar2qqbarNew() );
-      sigmaT.push_back( new Sigma2qqbar2QQbar(4, 122) );
-      sigmaU.push_back( new Sigma2qqbar2QQbar(4, 122) );
-      sigmaT.push_back( new Sigma2qqbar2QQbar(5, 124) );
-      sigmaU.push_back( new Sigma2qqbar2QQbar(5, 124) );
+      sigmaT.push_back( make_shared<Sigma2qqbar2gg>() );
+      sigmaU.push_back( make_shared<Sigma2qqbar2gg>() );
+      sigmaT.push_back( make_shared<Sigma2qqbar2qqbarNew>() );
+      sigmaU.push_back( make_shared<Sigma2qqbar2qqbarNew>() );
+      sigmaT.push_back( make_shared<Sigma2qqbar2QQbar>(4, 122) );
+      sigmaU.push_back( make_shared<Sigma2qqbar2QQbar>(4, 122) );
+      sigmaT.push_back( make_shared<Sigma2qqbar2QQbar>(5, 124) );
+      sigmaU.push_back( make_shared<Sigma2qqbar2QQbar>(5, 124) );
     }
   }
 
   // Optionally store electroweak processes, mainly photon production.
   if (processLevel > 1) {
     if (inState == 0) {
-      sigmaT.push_back( new Sigma2gg2ggamma() );
-      sigmaU.push_back( new Sigma2gg2ggamma() );
-      sigmaT.push_back( new Sigma2gg2gammagamma() );
-      sigmaU.push_back( new Sigma2gg2gammagamma() );
+      sigmaT.push_back( make_shared<Sigma2gg2ggamma>() );
+      sigmaU.push_back( make_shared<Sigma2gg2ggamma>() );
+      sigmaT.push_back( make_shared<Sigma2gg2gammagamma>() );
+      sigmaU.push_back( make_shared<Sigma2gg2gammagamma>() );
     } else if (inState == 1) {
-      sigmaT.push_back( new Sigma2qg2qgamma() );
-      sigmaU.push_back( new Sigma2qg2qgamma() );
+      sigmaT.push_back( make_shared<Sigma2qg2qgamma>() );
+      sigmaU.push_back( make_shared<Sigma2qg2qgamma>() );
     } else if (inState == 2) {
-      sigmaT.push_back( new Sigma2qqbar2ggamma() );
-      sigmaU.push_back( new Sigma2qqbar2ggamma() );
-      sigmaT.push_back( new Sigma2ffbar2gammagamma() );
-      sigmaU.push_back( new Sigma2ffbar2gammagamma() );
-      sigmaT.push_back( new Sigma2ffbar2ffbarsgm() );
-      sigmaU.push_back( new Sigma2ffbar2ffbarsgm() );
+      sigmaT.push_back( make_shared<Sigma2qqbar2ggamma>() );
+      sigmaU.push_back( make_shared<Sigma2qqbar2ggamma>() );
+      sigmaT.push_back( make_shared<Sigma2ffbar2gammagamma>() );
+      sigmaU.push_back( make_shared<Sigma2ffbar2gammagamma>() );
+      sigmaT.push_back( make_shared<Sigma2ffbar2ffbarsgm>() );
+      sigmaU.push_back( make_shared<Sigma2ffbar2ffbarsgm>() );
     }
     if (inState >= 2) {
-      sigmaT.push_back( new Sigma2ff2fftgmZ() );
-      sigmaU.push_back( new Sigma2ff2fftgmZ() );
-      sigmaT.push_back( new Sigma2ff2fftW() );
-      sigmaU.push_back( new Sigma2ff2fftW() );
+      sigmaT.push_back( make_shared<Sigma2ff2fftgmZ>() );
+      sigmaU.push_back( make_shared<Sigma2ff2fftgmZ>() );
+      sigmaT.push_back( make_shared<Sigma2ff2fftW>() );
+      sigmaU.push_back( make_shared<Sigma2ff2fftW>() );
     }
   }
 
   // Optionally store charmonium and bottomonium production.
-  if (processLevel > 2) {
+  if (processLevel > 2 && !infoPtr->getOniumShower()) {
     SigmaOniaSetup charmonium(infoPtr, 4);
     SigmaOniaSetup bottomonium(infoPtr, 5);
     if (inState == 0) {
@@ -246,7 +240,7 @@ double SigmaMultiparton::sigma( int id1, int id2, double x1, double x2,
 
 // Return one subprocess, picked according to relative cross sections.
 
-SigmaProcess* SigmaMultiparton::sigmaSel() {
+SigmaProcessPtr SigmaMultiparton::sigmaSel() {
 
   // Decide between t- and u-channel-sampled kinematics.
   pickedU = (rndmPtr->flat() * (sigmaTsum + sigmaUsum) < sigmaUsum);
@@ -429,8 +423,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
 
   // No x-dependent impact-parameter profile for diffraction.
   if ((iDiffSys > 0 || flag("Diffraction:doHard")) && bProfile == 4) {
-    infoPtr->errorMsg("Error in MultipartonInteractions::init:"
-      " chosen b profile not allowed for diffraction");
+    loggerPtr->ERROR_MSG("chosen b-profile not allowed for diffraction");
     return false;
   }
 
@@ -543,8 +536,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
   else if  ( (isGammaGamma || isGammaHadron || isHadronGamma) && !hasGamma)
     sigmaTotPtr->calc(infoPtr->idA(), infoPtr->idB(), infoPtr->eCM());
   if (!sigmaTotPtr->hasSigmaTot()) {
-    infoPtr->errorMsg("Error in MultipartonInteractions::init: "
-      "no total cross section");
+    loggerPtr->ERROR_MSG("no total cross section");
     return false;
   }
   bool isNonDiff = (iDiffSys == 0);
@@ -560,8 +552,14 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
   initFile  = word("MultipartonInteractions:initFile");
   int idBsave = infoPtr->idB();
   bool reuseWorked = (reuseInit == 2 || reuseInit == 3) && loadMPIdata();
-  if (!reuseWorked)
-    mpis = vector<MPIInterpolationInfo>(nPDFA);
+  if (!reuseWorked) {
+    if (reuseInit == 2) {
+      loggerPtr->ABORT_MSG("failed to load MPI data");
+      return false;
+    }
+    else
+      mpis = vector<MPIInterpolationInfo>(nPDFA);
+  }
 
   // Loop over multiple beam A initializations if necessary.
   if (!reuseWorked)
@@ -773,8 +771,7 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
 
         // Give up if pT0 and pTmin fall too low.
         if ( max(pT0, pTmin) < max(PT0MIN, Lambda3) ) {
-          infoPtr->errorMsg("Error in MultipartonInteractions::init:"
-            " failed to find acceptable pT0 and pTmin");
+          loggerPtr->ERROR_MSG("failed to find acceptable pT0 and pTmin");
           infoPtr->setTooLowPTmin(true);
           return false;
         }
@@ -840,14 +837,18 @@ bool MultipartonInteractions::init( bool doMPIinit, int iDiffSysIn,
     if (sigmaMaxViol > 1.) {
       ostringstream osWarn;
       osWarn << "by factor " << fixed << setprecision(3) << sigmaMaxViol;
-      infoPtr->errorMsg("Warning in MultipartonInteractions::init:"
-        " maximum increased", osWarn.str());
+      loggerPtr->WARNING_MSG("maximum increased", osWarn.str());
     }
 
   // End of internal initialization. Optionally store outcome for reuse.
   }
 
-  if (reuseInit == 1 || (reuseInit == 3 && !reuseWorked) ) saveMPIdata();
+  if (reuseInit == 1 || (reuseInit == 3 && !reuseWorked) ) {
+    if (saveMPIdata())
+      loggerPtr->INFO_MSG("wrote initialization data to file", initFile);
+    else
+      loggerPtr->ERROR_MSG("failed to write initialization data");
+  }
 
   // Restore to default setup with option 0. Does not apply for Pomeron beam.
   if (nPDFA != 1 && iDiffSys < 2) {
@@ -1007,8 +1008,8 @@ void MultipartonInteractions::pTfirst() {
       // Else pick complete kinematics and evaluate cross-section correction.
       } else {
         WTacc = sigmaPT2scatter(true) / dSigmaApprox;
-        if (WTacc > WTACCWARN) infoPtr->errorMsg("Warning in "
-            "MultipartonInteractions::pTfirst: weight above unity");
+        if (WTacc > WTACCWARN)
+          loggerPtr->WARNING_MSG("weight above unity");
       }
 
     // Loop until acceptable pT and acceptable kinematics.
@@ -1031,8 +1032,8 @@ void MultipartonInteractions::pTfirst() {
         if (bProfile != 4) WTacc *= sudakov( pT2, enhanceB);
 
         // Warn for weight above unity
-        if (WTacc > WTACCWARN) infoPtr->errorMsg("Warning in "
-            "MultipartonInteractions::pTfirst: weight above unity");
+        if (WTacc > WTACCWARN)
+          loggerPtr->WARNING_MSG("weight above unity");
 
       // Loop until acceptable pT and acceptable kinematics.
       } while (WTacc < rndmPtr->flat() || !dSigmaDtSel->final2KinMPI());
@@ -1318,8 +1319,8 @@ double MultipartonInteractions::pTnext( double pTbegAll, double pTendAll,
 
       // Normalize to dSigmaApprox, which was set in fastPT2 above.
       WTacc = (dSigmaScatter + dSigmaRescatter) / dSigmaApprox;
-      if (WTacc > WTACCWARN) infoPtr->errorMsg("Warning in "
-        "MultipartonInteractions::pTnext: weight above unity");
+      if (WTacc > WTACCWARN)
+        loggerPtr->WARNING_MSG("weight above unity");
 
       // Idea suggested by Gosta Gustafson: increased screening in events
       // with large activity can be simulated by pT0_eff = sqrt(n) * pT0.
@@ -1338,8 +1339,8 @@ double MultipartonInteractions::pTnext( double pTbegAll, double pTendAll,
         // Correct enhancement factor and weight
         enhanceBnow = sigmaND / M_PI / fac * exp( - b2now / fac);
         double oWgt = enhanceBnow / enhanceBmax;
-        if (oWgt > 1.0000000001) infoPtr->errorMsg("Warning in Multiparton"
-          "Interactions::pTnext: overlap weight above unity");
+        if (oWgt > 1.0000000001)
+          loggerPtr->WARNING_MSG("overlap weight above unity");
         WTacc *= oWgt;
       }
 
@@ -1542,8 +1543,7 @@ bool MultipartonInteractions::scatter( Event& event) {
       beamBPtr->popBack();
       partonSystemsPtr->popBack();
 
-      infoPtr->errorMsg("Warning in MultipartonInteractions::scatter:"
-          " No room for remnants for given scattering");
+      loggerPtr->WARNING_MSG("no room for remnants for given scattering");
       return false;
     }
   }
@@ -1699,8 +1699,7 @@ bool MultipartonInteractions::saveMPIdata() {
   const char* cstring = initFile.c_str();
   ofstream os(cstring, std::ofstream::app);
   if (!os.good()) {
-    infoPtr->errorMsg("Error in MultipartonInteractions::saveMPIdata:"
-      " could not open file", initFile);
+    loggerPtr->ERROR_MSG("could not open file", initFile);
     return false;
   }
 
@@ -1748,8 +1747,7 @@ bool MultipartonInteractions::loadMPIdata() {
   const char* cstring = initFile.c_str();
   ifstream is(cstring);
   if (!is.good()) {
-    infoPtr->errorMsg("Error in MultipartonInteractions::loadMPIdata:"
-      " could not open file", initFile);
+    loggerPtr->ERROR_MSG("could not open file", initFile);
     return false;
   }
 

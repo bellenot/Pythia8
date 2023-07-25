@@ -7,6 +7,7 @@
 // Virtual interface for external matrix element plugins for parton showers.
 
 #include "Pythia8/ExternalMEs.h"
+#include "Pythia8/SusyCouplings.h"
 
 namespace Pythia8 {
 
@@ -18,13 +19,14 @@ namespace Pythia8 {
 
 // Set pointers to required PYTHIA 8 objects.
 
-void ExternalMEs::initPtrs(Info* infoPtrIn, SusyLesHouches* slhaPtrIn) {
+void ExternalMEs::initPtrs(Info* infoPtrIn) {
   infoPtr         = infoPtrIn;
+  loggerPtr       = infoPtr->loggerPtr;
   coupSMPtr       = infoPtr->coupSMPtr;
   particleDataPtr = infoPtr->particleDataPtr;
   settingsPtr     = infoPtr->settingsPtr;
   rndmPtr         = infoPtr->rndmPtr;
-  slhaPtr         = slhaPtrIn;
+  slhaPtr         = infoPtr->coupSUSYPtr->slhaPtr;
   isInitPtr       = true;
 }
 
@@ -86,87 +88,6 @@ vector<vector<double> > ExternalMEs::fillMoms(const Event& event) const {
     ret.push_back(p_tmp);
   }
   return ret;
-}
-
-//==========================================================================
-
-// Interface to external matrix elements for parton shower matrix
-// element corrections.
-
-//--------------------------------------------------------------------------
-
-// Set pointers to required PYTHIA 8 objects.
-
-void ExternalMEsPlugin::initPtrs(Info* infoPtrIn, SusyLesHouches* slhaPtrIn) {
-  infoPtr         = infoPtrIn;
-  coupSMPtr       = infoPtr->coupSMPtr;
-  particleDataPtr = infoPtr->particleDataPtr;
-  settingsPtr     = infoPtr->settingsPtr;
-  rndmPtr         = infoPtr->rndmPtr;
-  slhaPtr         = slhaPtrIn;
-  isInitPtr       = true;
-  if (mesPtr != nullptr) mesPtr->initPtrs(infoPtrIn, slhaPtrIn);
-}
-
-//--------------------------------------------------------------------------
-
-// Initialise the plugin.
-
-bool ExternalMEsPlugin::init() {
-  // Load the plugin library if needed.
-  if (name.size() == 0) return false;
-  if (libPtr == nullptr) {
-    if (infoPtr != nullptr) libPtr = infoPtr->plugin(name);
-    else libPtr = make_shared<Plugin>(name);
-    if (!libPtr->isLoaded()) return false;
-
-    // Create a new ME.
-    NewExternalMEs* newExternalMEs
-      = (NewExternalMEs*)libPtr->symbol("newExternalMEs");
-    if (!newExternalMEs) return false;
-    mesPtr = newExternalMEs();
-  }
-  return true;
-}
-
-//--------------------------------------------------------------------------
-
-// Initialize the matrix element.
-
-bool ExternalMEsPlugin::initVincia() {
-  if (!init()) return false;
-
-  // Initialize the ME plugin.
-  mesPtr->initPtrs(infoPtr, slhaPtr);
-  return mesPtr->initVincia();
-
-}
-
-//--------------------------------------------------------------------------
-
-// Initialize the matrix element.
-
-bool ExternalMEsPlugin::initDire(Info* infoPtrIn, string card) {
-  infoPtr = infoPtrIn;
-  if (!init()) return false;
-
-  // Initialize the ME plugin.
-  return mesPtr->initDire(infoPtr, card);
-
-}
-
-//--------------------------------------------------------------------------
-
-// Destructor.
-
-ExternalMEsPlugin::~ExternalMEsPlugin() {
-
-  // Delete the MEs pointer.
-  if (mesPtr == nullptr || libPtr == nullptr || !libPtr->isLoaded()) return;
-  DeleteExternalMEs* deleteExternalMEs =
-    (DeleteExternalMEs*)libPtr->symbol("deleteExternalMEs");
-  if (deleteExternalMEs) deleteExternalMEs(mesPtr);
-
 }
 
 //==========================================================================

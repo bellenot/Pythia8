@@ -821,6 +821,72 @@ are finally stacked together, and then hadronised. Finally nucleus
 remnants constructed from the non-interacting nucleans, are added to 
 complete the full nucleaus-nucleus collision. 
  
+<p/> 
+ 
+It is possible to initialize Angantyr to allow changing the beam energy on 
+an event-by-event basis. This is done by setting 
+<code>Beams:allowVariableEnergy = on</code>, then changing the energy using 
+the <code>Pythia::setKinematics</code> methods. 
+When initializing this way, the <code>SubCollisionModel</code> fitting 
+procedure calculates the parameter values at several different energies, 
+using interpolation to get values between these energy points. 
+The following settings are used when variable energies are allowed. 
+<parm name="HeavyIon:varECMMin" default="100" min="10"> 
+The minimum allowed energy. Note that Angantyr is currently not 
+designed to properly handle energies below around 100 GeV. 
+</parm> 
+<parm name="HeavyIon:varECMMax" default="0"> 
+The maximum allowed energy. If it is set to 0, then the largest possible 
+value will be given by the CM energy at which Pythia is initialized. 
+</parm> 
+<mode name="HeavyIon:varECMSigFitNPts" default="5" min="2"> 
+Number of eCM points where the <code>SubCollisionModel</code> are calculated. 
+The points are logarithmically spaced. 
+</mode> 
+<flag name="HeavyIon:varECMStepwiseEvolve" default="on"> 
+If on, at each evolution point, the algorithm will use the generated 
+parameters from the previous point. If off, it start from the default 
+parameter set given by <code>HeavyIon:SigFitDefPar</code> at each point. 
+</flag> 
+<mode name="HeavyIon:varECMSigFitNGen" default="10" min="1"> 
+When performing stepwise evolution, the evolution at each interpolation point 
+starts from the parameters generated at the previous point. This gives a 
+better original estimate, so that fewer generations are necessary to 
+converge. This setting determines the number of generations at each point 
+after the first one. 
+</mode> 
+<modepick name="HeavyIon:SigFitReuseInit" default="0" min="0" max="4"> 
+If set, the parameters calculated from the evolutionary algorithm can be 
+saved/loaded to disk, for faster initialization in subsequent runs. 
+<option value="0">Initialize from scratch every time.</option> 
+<option value="1">Initialize from scratch, then save configuration.</option> 
+<option value="2">Load configuration from file. If the file is not found, 
+initialization fails.</option> 
+<option value="3">Load configuration from file if it exists, otherwise 
+initialize from scratch and save the file.</option> 
+</modepick> 
+<word name="HeavyIon:SigFitInitFile" default="Angantyr.sigfit"> 
+The file where the sigfit configuration is stored. 
+</word> 
+ 
+<mode name="HeavyIon:SasdMpiReuseInit" default="0" min="0" max="3"> 
+This setting is similar to <code>MultipartonInteractions:reuseInit</code>, 
+but pertains to the SASD Pythia subobject used internally by Angantyr. 
+<option value="0">current run is self-contained.</option> 
+<option value="1">MPI initialization is done as usual, but afterwards 
+the results of this initialization are saved on file.</option> 
+<option value="2">initialization data is read in from a file, saved 
+from a previous initialization, thereby saving time. If the file is not 
+found, initialization fails.</option> 
+<option value="3">as option 2, but if the file is not found, it will be 
+generated and saved after normal initialization.</option> 
+</mode> 
+<word name="HeavyIon:SasdMpiInitFile" default="Angantyr.sasd.mpi"> 
+The file name used to store or read MPI initialization data for the SASD 
+Pythia object. It is up to the user to pick a suitable name 
+(including path if relevant) for the case at hand. 
+</word> 
+ 
 </chapter> 
  
 <!-- Copyright (C) 2023 Torbjorn Sjostrand --> 

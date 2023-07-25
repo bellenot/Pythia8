@@ -29,8 +29,9 @@ Configuration options.
 --threads=N : Number of threads to run the examples.
 --skip=SKIP : Examples to skip passed as a string, e.g. "01 02 03".
 --run=MAIN  : Opposite of --skip, only run these mains, e.g. "01 02 03".
+--pre=PRE   : Insert a command before running each main, e.g. a debugger call.
 BLOCKTEXT
-OPTIONS="-h --h -help --threads --skip --run"
+OPTIONS="-h --h -help --threads --skip --run --pre"
 LOGFILE="runmains.log"
 main16="main16.cmnd"
 main42="main42.cmnd hepmcout42.dat"
@@ -82,7 +83,7 @@ function runmains() {
 	if [ "$USE" = false ]; then continue; fi
 	eval ARGS=\$${MAIN}
 	make $MAIN
-	{ time ./$MAIN $ARGS ; } > $MAIN.log 2>&1
+	{ time $PRE ./$MAIN $ARGS ; } > $MAIN.log 2>&1
     done
 }
 

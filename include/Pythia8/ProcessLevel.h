@@ -45,7 +45,7 @@ public:
 
   // Initialization.
   bool init(bool doLHAin, SLHAinterface* slhaInterfacePtrIn,
-    vector<SigmaProcess*>& sigmaPtrs, vector<PhaseSpace*>& phaseSpacePtrs);
+    vector<SigmaProcessPtr>& sigmaPtrs, vector<PhaseSpacePtr>& phaseSpacePtrs);
 
   // Store or replace Les Houches pointer.
   void setLHAPtr( LHAupPtr lhaUpPtrIn) {lhaUpPtr = lhaUpPtrIn;

@@ -49,6 +49,15 @@ hadronization setup that is used in both cases. The two play different
 functions, however, either representing the primary collision as there 
 or secondary rescattering collisions as here. 
  
+An important part of rescattering is resonance formation. Resonance hadrons 
+are labelled as such by setting <code>varWidth = on</code>. Such particles 
+can then form as resonances through all of their two-body hadronic decay 
+channels. Newly added particles with <code>varWidth = on</code> will 
+automatically be detected upon initialization. As a practical example, 
+a version of this framework was used to calculate the production of 
+prompt tetraquark and pentaquark production at the LHC, assuming a 
+molecular state model. See [<a href="Bibliography.html#refIlt21" target="page">Ilt21</a>] for details. 
+ 
 <p/> 
 The implementation is rather sophisticated for rescattering at low 
 energies, where the vast majority of interactions occur. It is less 

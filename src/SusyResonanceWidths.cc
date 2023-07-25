@@ -56,10 +56,9 @@ bool SUSYResonanceWidths::allowCalc(){
 
   // Else we should do the calculation; set available channels
   bool done = getChannels(idRes);
-  stringstream idStream;
-  idStream << "ID = " << idRes ;
-  if (!done)  infoPtr->errorMsg("Error in SusyResonanceWidths::allowcalc: "
-    "unable to reset decay table.", idStream.str(), true);
+  if (!done)
+    loggerPtr->ERROR_MSG("unable to reset decay table",
+      "ID = " + to_string(idRes), true);
   return done;
 }
 

@@ -5,8 +5,8 @@
 
 // Authors: Torbjorn Sjostrand <torbjorn.sjostrand@hep.lu.se>
 
-// Keywords: switch beam; switch collision energy; reuse MPI initialization.
-// arXiv:2108.03481 [hep-ph]
+// Keywords: switch beam; switch collision energy; reuse MPI initialization;
+//           arXiv:2108.03481 [hep-ph]
 
 // Test that events behave as intended when incoming beam is switched
 // within one Pythia instance, and also that intermediate storage of

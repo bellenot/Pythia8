@@ -70,8 +70,7 @@ bool ResonanceDecays::next( Event& process, int iDecNow) {
       if (!decayer.particleDataEntry().preparePick(id0, m0, idIn)) {
         ostringstream extra;
         extra << "for id = " << id0;
-        infoPtr->errorMsg("Error in ResonanceDecays::next:"
-          " no open decay channel", extra.str());
+        loggerPtr->ERROR_MSG("no open decay channel", extra.str());
         return false;
       }
 
@@ -101,8 +100,8 @@ bool ResonanceDecays::next( Event& process, int iDecNow) {
 
       // Failed to find acceptable decays.
       if (!foundChannel) {
-        infoPtr->errorMsg("Error in ResonanceDecays::next: failed to find "
-          "workable decay channel", "for id = " + to_string(id0));
+        loggerPtr->ERROR_MSG("failed to find workable decay channel",
+          "for id = " + to_string(id0));
         return false;
       }
 
@@ -430,8 +429,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
       iAtriplet.push_back(i);
       iAtriplet.push_back(i);
     } else {
-      infoPtr->errorMsg("Error in ResonanceDecays::pickColours:"
-        " unknown colour type encountered");
+      loggerPtr->ERROR_MSG("unknown colour type encountered");
       return false;
     }
   }
@@ -520,8 +518,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
 
   // If colours and anticolours do not match now then unphysical.
   if (nCol != nAcol) {
-    infoPtr->errorMsg("Error in ResonanceDecays::pickColours:"
-      " inconsistent colour tags");
+    loggerPtr->ERROR_MSG("inconsistent colour tags");
     return false;
   }
 
@@ -588,8 +585,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
   // Error checks that amount of leftover colours and anticolours match.
   if ( (iTriplet.size() != iAtriplet.size())
     || (col0 != 0 && acol0 == 0) || (col0 == 0 && acol0 != 0) ) {
-    infoPtr->errorMsg("Error in ResonanceDecays::pickColours:"
-      " inconsistent colour tags");
+    loggerPtr->ERROR_MSG("inconsistent colour tags");
     return false;
   }
 
@@ -671,8 +667,7 @@ bool ResonanceDecays::pickColours(int iDec, Event& process) {
 
   // Must now have at least two dipoles (no 1 -> 8 or 8 -> 1).
   if (iDipCol.size() < 2) {
-    infoPtr->errorMsg("Error in ResonanceDecays::pickColours:"
-      " inconsistent colour tags");
+    loggerPtr->ERROR_MSG("inconsistent colour tags");
     return false;
   }
 

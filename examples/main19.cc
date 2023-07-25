@@ -3,7 +3,7 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Keywords: beam gas; fixed target; pileup; multi-instance;
+// Keywords: beam gas; fixed target; pileup; multi-instance
 
 // This program runs four instances of Pythia simultaneously,
 // one for signal events, one for pileup background ones, and two

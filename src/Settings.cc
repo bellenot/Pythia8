@@ -6,6 +6,7 @@
 // Function definitions (not found in the header) for the Settings class.
 
 #include "Pythia8/Settings.h"
+#include "Pythia8/Plugins.h"
 
 // Allow string and character manipulation.
 #include <cctype>
@@ -49,8 +50,7 @@ bool Settings::init(string startFile, bool append) {
 
     // Check that instream is OK.
     if (!is.good()) {
-      cout << "\n PYTHIA Error: settings file " << files[i]
-           << " not found" << endl;
+      loggerPtr->ERROR_MSG("settings file " + files[i] + " not found");
       return false;
     }
 
@@ -380,6 +380,9 @@ bool Settings::readString(string line, bool warn) {
   int firstChar = lineNow.find_first_not_of(" \n\t\v\b\r\f\a");
   if (!isalpha(lineNow[firstChar])) return true;
 
+  // Allow the += notation to add to a settings vector.
+  bool append(false);
+
   // Replace an equal sign by a blank to make parsing simpler, except after {.
   size_t iBrace = (lineNow.find_first_of("{") == string::npos) ? lineNow.size()
     : lineNow.find_first_of("{");
@@ -387,6 +390,10 @@ bool Settings::readString(string line, bool warn) {
     && lineNow.find_first_of("=") < iBrace) {
     int firstEqual = lineNow.find_first_of("=");
     lineNow.replace(firstEqual, 1, " ");
+    if ( lineNow[firstEqual-1] == '+' ) {
+      lineNow[firstEqual-1] = ' ';
+      append = true;
+    }
   }
 
   // Get first word of a line.
@@ -411,35 +418,16 @@ bool Settings::readString(string line, bool warn) {
   else if (isPVec(name)) inDataBase = 7;
   else if (isWVec(name)) inDataBase = 8;
 
-  // For backwards compatibility: old (parts of) names mapped onto new ones.
-  // This code currently has no use, but is partly preserved for the day
-  // it may be needed again.
-  /*
-  if (inDataBase == 0) {
-    bool retry = false;
-    string nameLower = toLower(name);
-    if (!retry && nameLower.find("minbias") != string::npos) {
-      int firstMB = nameLower.find_first_of("minbias");
-      name.replace(firstMB, 7, "nonDiffractive");
-      retry = true;
-    }
-    if (retry) {
-      if      (isFlag(name)) inDataBase = 1;
-      else if (isMode(name)) inDataBase = 2;
-      else if (isParm(name)) inDataBase = 3;
-      else if (isWord(name)) inDataBase = 4;
-      else if (isFVec(name)) inDataBase = 5;
-      else if (isMVec(name)) inDataBase = 6;
-      else if (isPVec(name)) inDataBase = 7;
-      else if (isWVec(name)) inDataBase = 8;
-    }
-  }
-  */
-
   // Warn and done if not in database.
   if (inDataBase == 0) {
     if (warn) cout << "\n PYTHIA Error: input string not found in settings"
       << " databases::\n   " << line << endl;
+    readingFailedSave = true;
+    return false;
+  }
+  if (append && inDataBase < 5  ) {
+    if (warn) cout << "\n PYTHIA Error: the += notation is only"
+                   <<" valid for vector settings:\n   " << line << endl;
     readingFailedSave = true;
     return false;
   }
@@ -473,7 +461,6 @@ bool Settings::readString(string line, bool warn) {
       return false;
     }
   }
-
 
   // If string begins with { then find matching } and extract contents.
   if (valueString[0] == '{') {
@@ -539,6 +526,11 @@ bool Settings::readString(string line, bool warn) {
       readingFailedSave = true;
       return false;
     }
+    if (append) {
+      vector<bool> old = fvec(name);
+      old.insert(old.end(), value.begin(), value.end());
+      value = old;
+    }
     fvec(name, value, force);
 
   // Update mvec map.
@@ -551,6 +543,11 @@ bool Settings::readString(string line, bool warn) {
         << " not meaningful:\n   " << line << endl;
       readingFailedSave = true;
       return false;
+    }
+    if (append) {
+      vector<int> old = mvec(name);
+      old.insert(old.end(), value.begin(), value.end());
+      value = old;
     }
     mvec(name, value, force);
 
@@ -565,6 +562,11 @@ bool Settings::readString(string line, bool warn) {
       readingFailedSave = true;
       return false;
     }
+    if (append) {
+      vector<double> old = pvec(name);
+      old.insert(old.end(), value.begin(), value.end());
+      value = old;
+    }
     pvec(name, value, force);
 
   // Update wvec map.
@@ -577,6 +579,11 @@ bool Settings::readString(string line, bool warn) {
         << " not meaningful:\n   " << line << endl;
       readingFailedSave = true;
       return false;
+    }
+    if (append) {
+      vector<string> old = wvec(name);
+      old.insert(old.end(), value.begin(), value.end());
+      value = old;
     }
     wvec(name, value, force);
   }
@@ -594,6 +601,51 @@ bool Settings::readString(string line, bool warn) {
 
 //--------------------------------------------------------------------------
 
+// Load a plugin library, and register any settings.
+
+bool Settings::registerPluginLibrary(string libName, string startFile) {
+
+  // Check if already loaded.
+  if (pluginLibraries.find(libName) != pluginLibraries.end()) return false;
+  pluginLibraries.insert(libName);
+
+  // Load the plugin library.
+  shared_ptr<void> libPtr = dlopen_plugin(libName, loggerPtr);
+  if (libPtr == nullptr) return false;
+
+  // Check if XML index has been specified.
+  if (startFile == "") {
+    auto xmlIndex = dlsym_plugin<const char*()>(libPtr, "RETURN_XML");
+    if (dlerror() == nullptr) startFile = xmlIndex();
+  }
+
+  // Find the path to the XML, first PYTHIA8CONTRIB, then Pythia XML path.
+  const char* envPath = getenv("PYTHIA8CONTRIB");
+  string xmlPath = envPath ? envPath : "";
+  if (xmlPath.length() && xmlPath[xmlPath.length() - 1] != '/') xmlPath += "/";
+  ifstream xmlFile((xmlPath + startFile).c_str());
+  if (!xmlFile.good()) {
+    xmlFile.close();
+    xmlPath = word("xmlPath") + "../../";
+    xmlFile.open((xmlPath + startFile).c_str());
+    if (!xmlFile.good()) xmlPath = "";
+  }
+  xmlFile.close();
+
+  // Load the XML files, if specified.
+  if (startFile != "") init(xmlPath + startFile, true);
+
+  // Load the settings registration symbol.
+  auto registerSettings =
+    dlsym_plugin<void(Settings*)>(libPtr, "REGISTER_SETTINGS");
+  if (dlerror() != nullptr) return false;
+  registerSettings(this);
+  return true;
+
+}
+
+//--------------------------------------------------------------------------
+
 // Write updates or everything to user-defined file.
 
 bool Settings::writeFile(string toFile, bool writeAll) {
@@ -602,8 +654,7 @@ bool Settings::writeFile(string toFile, bool writeAll) {
   const char* cstring = toFile.c_str();
   ofstream os(cstring);
   if (!os) {
-    infoPtr->errorMsg("Error in Settings::writeFile:"
-      " could not open file", toFile);
+    loggerPtr->ERROR_MSG("could not open file", toFile);
     return false;
   }
 
@@ -1423,49 +1474,49 @@ void Settings::resetAll() {
 
 bool Settings::flag(string keyIn) {
   if (isFlag(keyIn)) return flags[toLower(keyIn)].valNow;
-  infoPtr->errorMsg("Error in Settings::flag: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return false;
 }
 
 int Settings::mode(string keyIn) {
   if (isMode(keyIn)) return modes[toLower(keyIn)].valNow;
-  infoPtr->errorMsg("Error in Settings::mode: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return 0;
 }
 
 double Settings::parm(string keyIn) {
   if (isParm(keyIn)) return parms[toLower(keyIn)].valNow;
-  infoPtr->errorMsg("Error in Settings::parm: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return 0.;
 }
 
 string Settings::word(string keyIn) {
   if (isWord(keyIn)) return words[toLower(keyIn)].valNow;
-  infoPtr->errorMsg("Error in Settings::word: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return " ";
 }
 
 vector<bool> Settings::fvec(string keyIn) {
   if (isFVec(keyIn)) return fvecs[toLower(keyIn)].valNow;
-  infoPtr->errorMsg("Error in Settings::fvec: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return vector<bool>(1, false);
 }
 
 vector<int> Settings::mvec(string keyIn) {
   if (isMVec(keyIn)) return mvecs[toLower(keyIn)].valNow;
-  infoPtr->errorMsg("Error in Settings::mvec: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return vector<int>(1, 0);
 }
 
 vector<double> Settings::pvec(string keyIn) {
   if (isPVec(keyIn)) return pvecs[toLower(keyIn)].valNow;
-  infoPtr->errorMsg("Error in Settings::pvec: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return vector<double>(1, 0.);
 }
 
 vector<string> Settings::wvec(string keyIn) {
   if (isWVec(keyIn)) return wvecs[toLower(keyIn)].valNow;
-  infoPtr->errorMsg("Error in Settings::wvec: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return vector<string>(1, " ");
 }
 
@@ -1475,49 +1526,49 @@ vector<string> Settings::wvec(string keyIn) {
 
 bool Settings::flagDefault(string keyIn) {
   if (isFlag(keyIn)) return flags[toLower(keyIn)].valDefault;
-  infoPtr->errorMsg("Error in Settings::flagDefault: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return false;
 }
 
 int Settings::modeDefault(string keyIn) {
   if (isMode(keyIn)) return modes[toLower(keyIn)].valDefault;
-  infoPtr->errorMsg("Error in Settings::modeDefault: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return 0;
 }
 
 double Settings::parmDefault(string keyIn) {
   if (isParm(keyIn)) return parms[toLower(keyIn)].valDefault;
-  infoPtr->errorMsg("Error in Settings::parmDefault: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return 0.;
 }
 
 string Settings::wordDefault(string keyIn) {
   if (isWord(keyIn)) return words[toLower(keyIn)].valDefault;
-  infoPtr->errorMsg("Error in Settings::wordDefault: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return " ";
 }
 
 vector<bool> Settings::fvecDefault(string keyIn) {
   if (isFVec(keyIn)) return fvecs[toLower(keyIn)].valDefault;
-  infoPtr->errorMsg("Error in Settings::fvecDefault: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return vector<bool>(1, false);
 }
 
 vector<int> Settings::mvecDefault(string keyIn) {
   if (isMVec(keyIn)) return mvecs[toLower(keyIn)].valDefault;
-  infoPtr->errorMsg("Error in Settings::mvecDefault: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return vector<int>(1, 0);
 }
 
 vector<double> Settings::pvecDefault(string keyIn) {
   if (isPVec(keyIn)) return pvecs[toLower(keyIn)].valDefault;
-  infoPtr->errorMsg("Error in Settings::pvecDefault: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return vector<double>(1, 0.);
 }
 
 vector<string> Settings::wvecDefault(string keyIn) {
   if (isWVec(keyIn)) return wvecs[toLower(keyIn)].valDefault;
-  infoPtr->errorMsg("Error in Settings::wvecDefault: unknown key", keyIn);
+  loggerPtr->ERROR_MSG("unknown key", keyIn);
   return vector<string>(1, " ");
 }
 
@@ -1727,6 +1778,10 @@ void Settings::wvec(string keyIn, vector<string> nowIn, bool force) {
       wvecNow.valNow.push_back(*now);
   }
   else if (force) addWVec(keyIn, nowIn);
+  // Register settings from plugin libraries immediately.
+  if (toLower(keyIn) == "init:plugins")
+    for (string lib : nowIn)
+      registerPluginLibrary(lib.substr(0, lib.find("::")));
 }
 
 //--------------------------------------------------------------------------

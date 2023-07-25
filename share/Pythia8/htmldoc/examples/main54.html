@@ -21,6 +21,7 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 // There seem to be differences when instead comparing with LHAPDF6.
 
 #include &quot;Pythia8/Pythia.h&quot;
+#include &quot;Pythia8/Plugins.h&quot;
 using namespace Pythia8;
 
 int main() {
@@ -34,7 +35,7 @@ int main() {
   // Access the PDFs.
   int idBeamIn = 2212;
   string pdfPath = pythia.settings.word(&quot;xmlPath&quot;) + &quot;../pdfdata&quot;;
-  Info info;
+  Logger logger;
 
   // Grid of studied points.
   string xpdf[] = {&quot;x*g&quot;,&quot;x*d&quot;,&quot;x*u&quot;,&quot;x*s&quot;};
@@ -55,11 +56,15 @@ int main() {
     // Constructor for LHAPDF.
     if (iFitIn == 3) setName = &quot;NNPDF23_nlo_as_0119_qed&quot;;
     if (iFitIn == 4) setName = &quot;NNPDF23_nnlo_as_0119_qed&quot;;
-    LHAPDF pdfs_nnpdf_lha( idBeamIn, &quot;LHAPDF6:&quot; + setName, &amp;info);
+    PDFPtr pdfs_nnpdf_lha =
+      make_plugin&lt;PDF&gt;(&quot;libpythia8lhapdf6.so&quot;, &quot;LHAPDF6&quot;);
+    if (pdfs_nnpdf_lha == nullptr) return -1;
+    pdfs_nnpdf_lha-&gt;init(idBeamIn, setName, 0, &amp;logger);
     cout &lt;&lt; &quot;\n PDF set = &quot; &lt;&lt; setName &lt;&lt; &quot; \n&quot; &lt;&lt; endl;
 
     // Constructor for internal PDFs.
-    LHAGrid1 pdfs_nnpdf( idBeamIn, setName + &quot;_0000.dat&quot;, pdfPath, &amp;info);
+    LHAGrid1 pdfs_nnpdf(
+      idBeamIn, setName + &quot;_0000.dat&quot;, pdfPath, &amp;logger);
 
     // Check quarks and gluons.
     cout &lt;&lt; setprecision(6);
@@ -69,7 +74,7 @@ int main() {
         cout &lt;&lt; &quot;   x \t     Pythia8\t   LHAPDF\t   diff(%) &quot; &lt;&lt; endl;
         for (int ix = 0; ix &lt; 2; ix++) {
           double a = pdfs_nnpdf.xf( f, xlha[ix], Q2[iq]);
-          double b = pdfs_nnpdf_lha.xf( f, xlha[ix], Q2[iq]);
+          double b = pdfs_nnpdf_lha-&gt;xf( f, xlha[ix], Q2[iq]);
           double diff = b != 0 ? 1e2 * abs((a-b)/b) :
             std::numeric_limits&lt;double&gt;::infinity();
           cout &lt;&lt; scientific &lt;&lt; xlha[ix] &lt;&lt; &quot; &quot; &lt;&lt; a &lt;&lt; &quot; &quot; &lt;&lt; b
@@ -85,7 +90,7 @@ int main() {
       cout &lt;&lt; &quot;   x \t     Pythia8\t   LHAPDF\t   diff(%) &quot; &lt;&lt; endl;
       for (int ix = 0; ix &lt; 2; ix++) {
         double a = pdfs_nnpdf.xf( 22, xlha[ix], Q2[iq]);
-        double b = pdfs_nnpdf_lha.xf( 22, xlha[ix], Q2[iq]);
+        double b = pdfs_nnpdf_lha-&gt;xf( 22, xlha[ix], Q2[iq]);
         double diff = b != 0 ? 1e2 * abs((a-b)/b) :
           std::numeric_limits&lt;double&gt;::infinity();
         cout &lt;&lt; scientific &lt;&lt; xlha[ix] &lt;&lt; &quot; &quot; &lt;&lt; a &lt;&lt; &quot; &quot; &lt;&lt; b
@@ -116,7 +121,7 @@ int main() {
         double qq2 = 2.0 * pow(1e6 / 2.0, double(iq)/nq);
         for (int ix = 0; ix &lt; nx; ix++) {
           double xx = 1e-6 * pow( 9e-1 / 1e-6, double(ix)/nx);
-          pdfs_nnpdf_lha.xf(f,xx,qq2);
+          pdfs_nnpdf_lha-&gt;xf(f,xx,qq2);
         }
       }
     }

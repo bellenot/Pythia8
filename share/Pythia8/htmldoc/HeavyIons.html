@@ -964,6 +964,90 @@ are finally stacked together, and then hadronised. Finally nucleus
 remnants constructed from the non-interacting nucleans, are added to 
 complete the full nucleaus-nucleus collision. 
  
+<p/> 
+ 
+It is possible to initialize Angantyr to allow changing the beam energy on 
+an event-by-event basis. This is done by setting 
+<code>Beams:allowVariableEnergy = on</code>, then changing the energy using 
+the <code>Pythia::setKinematics</code> methods. 
+When initializing this way, the <code>SubCollisionModel</code> fitting 
+procedure calculates the parameter values at several different energies, 
+using interpolation to get values between these energy points. 
+The following settings are used when variable energies are allowed. 
+<a name="anchor83"></a>
+<p/><code>parm&nbsp; </code><strong> HeavyIon:varECMMin &nbsp;</strong> 
+ (<code>default = <strong>100</strong></code>; <code>minimum = 10</code>)<br/>
+The minimum allowed energy. Note that Angantyr is currently not 
+designed to properly handle energies below around 100 GeV. 
+   
+<a name="anchor84"></a>
+<p/><code>parm&nbsp; </code><strong> HeavyIon:varECMMax &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>)<br/>
+The maximum allowed energy. If it is set to 0, then the largest possible 
+value will be given by the CM energy at which Pythia is initialized. 
+   
+<a name="anchor85"></a>
+<p/><code>mode&nbsp; </code><strong> HeavyIon:varECMSigFitNPts &nbsp;</strong> 
+ (<code>default = <strong>5</strong></code>; <code>minimum = 2</code>)<br/>
+Number of eCM points where the <code>SubCollisionModel</code> are calculated. 
+The points are logarithmically spaced. 
+   
+<a name="anchor86"></a>
+<p/><code>flag&nbsp; </code><strong> HeavyIon:varECMStepwiseEvolve &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+If on, at each evolution point, the algorithm will use the generated 
+parameters from the previous point. If off, it start from the default 
+parameter set given by <code>HeavyIon:SigFitDefPar</code> at each point. 
+   
+<a name="anchor87"></a>
+<p/><code>mode&nbsp; </code><strong> HeavyIon:varECMSigFitNGen &nbsp;</strong> 
+ (<code>default = <strong>10</strong></code>; <code>minimum = 1</code>)<br/>
+When performing stepwise evolution, the evolution at each interpolation point 
+starts from the parameters generated at the previous point. This gives a 
+better original estimate, so that fewer generations are necessary to 
+converge. This setting determines the number of generations at each point 
+after the first one. 
+   
+<a name="anchor88"></a>
+<p/><code>mode&nbsp; </code><strong> HeavyIon:SigFitReuseInit &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)<br/>
+If set, the parameters calculated from the evolutionary algorithm can be 
+saved/loaded to disk, for faster initialization in subsequent runs. 
+<br/><code>option </code><strong> 0</strong> : Initialize from scratch every time.   
+<br/><code>option </code><strong> 1</strong> : Initialize from scratch, then save configuration.   
+<br/><code>option </code><strong> 2</strong> : Load configuration from file. If the file is not found, 
+initialization fails.   
+<br/><code>option </code><strong> 3</strong> : Load configuration from file if it exists, otherwise 
+initialize from scratch and save the file.   
+   
+<a name="anchor89"></a>
+<p/><code>word&nbsp; </code><strong> HeavyIon:SigFitInitFile &nbsp;</strong> 
+ (<code>default = <strong>Angantyr.sigfit</strong></code>)<br/>
+The file where the sigfit configuration is stored. 
+   
+ 
+<a name="anchor90"></a>
+<p/><code>mode&nbsp; </code><strong> HeavyIon:SasdMpiReuseInit &nbsp;</strong> 
+ (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
+This setting is similar to <code>MultipartonInteractions:reuseInit</code>, 
+but pertains to the SASD Pythia subobject used internally by Angantyr. 
+<br/><code>option </code><strong> 0</strong> : current run is self-contained.   
+<br/><code>option </code><strong> 1</strong> : MPI initialization is done as usual, but afterwards 
+the results of this initialization are saved on file.   
+<br/><code>option </code><strong> 2</strong> : initialization data is read in from a file, saved 
+from a previous initialization, thereby saving time. If the file is not 
+found, initialization fails.   
+<br/><code>option </code><strong> 3</strong> : as option 2, but if the file is not found, it will be 
+generated and saved after normal initialization.   
+   
+<a name="anchor91"></a>
+<p/><code>word&nbsp; </code><strong> HeavyIon:SasdMpiInitFile &nbsp;</strong> 
+ (<code>default = <strong>Angantyr.sasd.mpi</strong></code>)<br/>
+The file name used to store or read MPI initialization data for the SASD 
+Pythia object. It is up to the user to pick a suitable name 
+(including path if relevant) for the case at hand. 
+   
+ 
 </body>
 </html>
  

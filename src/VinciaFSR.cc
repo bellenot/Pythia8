@@ -220,7 +220,7 @@ void BrancherEmitFF::initBrancher(ZetaGeneratorSet& zetaGenSet) {
 // Generate a new Q2 value, soft-eikonal 2/yij/yjk implementation.
 
 double BrancherEmitFF::genQ2(int evTypeIn, double q2BegIn, Rndm* rndmPtr,
-  Info* infoPtr, const EvolutionWindow* evWindowIn, double colFacIn,
+  Logger* loggerPtr, const EvolutionWindow* evWindowIn, double colFacIn,
   vector<double> headroomIn, vector<double> enhanceIn,
   int verboseIn) {
 
@@ -239,13 +239,12 @@ double BrancherEmitFF::genQ2(int evTypeIn, double q2BegIn, Rndm* rndmPtr,
 
   // Generate Q2 and save winning sector.
   q2NewSav = trialGenPtr->genQ2(q2BegSav,rndmPtr,evWindowIn,
-    colFacSav,wtNow,infoPtr,verboseIn);
+    colFacSav,wtNow,loggerPtr,verboseIn);
   iSectorWinner   = trialGenPtr->getSector();
 
   // Sanity checks.
   if (q2NewSav > q2BegIn) {
-    string msg = ": Generated q2New > q2BegIn. Returning 0.";
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+    loggerPtr->ERROR_MSG("generated q2New > q2BegIn; returning 0");
     q2NewSav = 0.;
   }
   if (q2NewSav > 0.) {
@@ -261,7 +260,7 @@ double BrancherEmitFF::genQ2(int evTypeIn, double q2BegIn, Rndm* rndmPtr,
 // Generate invariants.
 
 bool BrancherEmitFF::genInvariants(vector<double>& invariants,
-  Rndm* rndmPtr, int verboseIn, Info* infoPtr) {
+  Rndm* rndmPtr, int verboseIn, Logger* loggerPtr) {
 
   // Clear output vector, check if we have a sensible q2New scale.
   invariants.clear();
@@ -271,8 +270,8 @@ bool BrancherEmitFF::genInvariants(vector<double>& invariants,
   if (evTypeSav == 1) {
     //TODO: better overestimate for constant trial alphaS?
     if (!trialGenPtr->genInvariants(sAntSav,setmPostVec(),
-        invariantsSav,rndmPtr, infoPtr, verboseIn)) {
-      if (verboseIn >= DEBUG) {
+        invariantsSav,rndmPtr, loggerPtr, verboseIn)) {
+      if (verboseIn >= VinciaConstants::DEBUG) {
         printOut(__METHOD_NAME__,"Trial failed.");
       }
       return false;
@@ -294,7 +293,7 @@ bool BrancherEmitFF::genInvariants(vector<double>& invariants,
 
 // Compute antPhys / antTrial for gluon emissions, given antPhys.
 
-double BrancherEmitFF::pAccept(const double antPhys, Info* infoPtr,
+double BrancherEmitFF::pAccept(const double antPhys, Logger* loggerPtr,
   int verboseIn) {
 
   // pT evolution.
@@ -302,16 +301,9 @@ double BrancherEmitFF::pAccept(const double antPhys, Info* infoPtr,
     double antTrial = trialGenPtr->aTrial(invariantsSav,mPostSav,
       verboseIn);
     antTrial *= headroomSav;
-    if (verboseIn>=DEBUG) {
-      if (antTrial==0.) {
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Trial antenna is zero.");
-      }
-      if (std::isnan(antTrial)) {
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +"Trial antenna not a number");
-      }
-    }
+    if (antTrial==0.) loggerPtr->ERROR_MSG("trial antenna is zero");
+    if (std::isnan(antTrial))
+      loggerPtr->ERROR_MSG("trial antenna not a number");
 
     return antPhys/antTrial;
   }
@@ -448,7 +440,7 @@ void BrancherSplitFF::initBrancher(ZetaGeneratorSet& zetaGenSet,
 // Generate a new Q2 value .
 
 double BrancherSplitFF::genQ2(int evTypeIn, double q2BegIn,
-  Rndm* rndmPtr, Info* infoPtr, const EvolutionWindow* evWindowIn,
+  Rndm* rndmPtr, Logger* loggerPtr, const EvolutionWindow* evWindowIn,
   double colFac, vector<double> headroomFlav,
   vector<double> enhanceFlav, int verboseIn) {
 
@@ -467,10 +459,8 @@ double BrancherSplitFF::genQ2(int evTypeIn, double q2BegIn,
   vector<double> wtFlav;
   unsigned int nFlav = headroomFlav.size();
   if (nFlav != enhanceFlav.size()) {
-    if (verboseIn >=NORMAL) {
-      string msg = ": inconsistent size of headroom and enhancement vectors.";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
-    }
+      loggerPtr->ERROR_MSG(
+        "inconsistent size of headroom and enhancement vectors");
     return 0.;
   }
 
@@ -490,7 +480,7 @@ double BrancherSplitFF::genQ2(int evTypeIn, double q2BegIn,
   if (evTypeSav == 1) {
     // Generate Q2 and save winning sector.
     q2NewSav = trialGenPtr->genQ2(q2BegSav, rndmPtr, evWindowIn,
-      colFac, wtSum, infoPtr, verboseIn);
+      colFac, wtSum, loggerPtr, verboseIn);
     iSectorWinner = trialGenPtr->getSector();
   }
 
@@ -509,15 +499,13 @@ double BrancherSplitFF::genQ2(int evTypeIn, double q2BegIn,
     }
   }
   if (q2NewSav > q2BegIn) {
-    string msg = ": Generated q2New > q2Beg. Returning 0.";
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+    loggerPtr->ERROR_MSG("generated q2New > q2Beg; returning 0");
     q2NewSav = 0.;
   }
 
   // Sanity checks.
   if (q2NewSav > q2BegIn) {
-    string msg = ": Generated q2New > q2BegIn. Returning 0.";
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+    loggerPtr->ERROR_MSG("generated q2New > q2BegIn; returning 0");
     q2NewSav = 0.;
   }
   if (q2NewSav > 0.) {
@@ -535,7 +523,7 @@ double BrancherSplitFF::genQ2(int evTypeIn, double q2BegIn,
 // for gluon splitting. Return false if no physical kinematics possible.
 
 bool BrancherSplitFF::genInvariants(vector<double>& invariants,
-  Rndm* rndmPtr, int verboseIn, Info* infoPtr) {
+  Rndm* rndmPtr, int verboseIn, Logger* loggerPtr) {
 
   // Clear output vector, and check if we have a sensible q2New scale.
   invariants.clear();
@@ -544,8 +532,8 @@ bool BrancherSplitFF::genInvariants(vector<double>& invariants,
   // pT evolution.
   if (evTypeSav == 1) {
     if (!trialGenPtr->genInvariants(sAntSav,setmPostVec(),invariants,rndmPtr,
-        infoPtr, verboseIn)) {
-      if (verboseIn >= DEBUG) {
+        loggerPtr, verboseIn)) {
+      if (verboseIn >= VinciaConstants::DEBUG) {
         printOut(__METHOD_NAME__,"Trial Failed.");
       }
       return false;
@@ -572,7 +560,7 @@ bool BrancherSplitFF::genInvariants(vector<double>& invariants,
 // Note, antPhys should be normalised to include charge and coupling
 // factors.
 
-double BrancherSplitFF::pAccept(const double antPhys, Info* infoPtr,
+double BrancherSplitFF::pAccept(const double antPhys, Logger* loggerPtr,
   int verboseIn) {
 
   // pT evolution.
@@ -580,16 +568,9 @@ double BrancherSplitFF::pAccept(const double antPhys, Info* infoPtr,
     double antTrial = trialGenPtr->aTrial(invariantsSav,mPostSav,
       verboseIn);
     antTrial *= headroomSav;
-    if (verboseIn>=DEBUG) {
-      if (antTrial==0.) {
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-          "Trial antenna is zero.");
-      }
-      if (std::isnan(antTrial)) {
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-          "Trial antenna not a number");
-      }
-    }
+    if (antTrial==0.) loggerPtr->ERROR_MSG("trial antenna is zero");
+    if (std::isnan(antTrial))
+      loggerPtr->ERROR_MSG("trial antenna not a number");
 
     return antPhys/antTrial;
   }
@@ -780,7 +761,7 @@ bool BrancherRF::vetoPhSpPoint(const vector<double>& invariants,
   // Common sense: saj, sjk > 0. Not an error for splitters - mass
   // effects can make negative and push outside generated phase space.
   if (saj<0. || sjk<0.) {
-    if (verboseIn >= DEBUG) {
+    if (verboseIn >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Negative invariants. saj = " << saj << " sjk = " << sjk;
       printOut(__METHOD_NAME__, ss.str());
@@ -791,7 +772,7 @@ bool BrancherRF::vetoPhSpPoint(const vector<double>& invariants,
   // On-shell X condition.
   double invDiff = ma*ma + mj*mj + mk*mk - saj - sak + sjk - mAK*mAK;
   if (invDiff > MILLI) {
-    if (verboseIn >= DEBUG)
+    if (verboseIn >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Failed on-shell AK condition.");
     return true;
   }
@@ -799,13 +780,13 @@ bool BrancherRF::vetoPhSpPoint(const vector<double>& invariants,
   // On-shell j,k conditions.
   double Ek = sak/(2.0*ma);
   if (Ek*Ek < mk*mk) {
-    if (verboseIn >= DEBUG)
+    if (verboseIn >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Failed on-shell k condition.");
     return true;
   }
   double Ej = saj/(2.0*ma);
   if (Ej*Ej < mj*mj) {
-    if (verboseIn >= DEBUG)
+    if (verboseIn >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Failed on-shell j condition.");
     return true;
   }
@@ -813,7 +794,7 @@ bool BrancherRF::vetoPhSpPoint(const vector<double>& invariants,
   // When |cosTheta| < 1.
   double cosTheta = costheta(Ej,Ek,mj,mk,sjk);
   if (abs(cosTheta) > 1.0) {
-    if (verboseIn >= DEBUG)
+    if (verboseIn >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Failed cos theta condition.");
     return true;
   }
@@ -823,7 +804,7 @@ bool BrancherRF::vetoPhSpPoint(const vector<double>& invariants,
   double det = saj*sjk*sak - saj*saj*mk*mk - sjk*sjk*ma*ma - sak*sak*mj*mj
     + 4.0*ma*ma*mj*mj*mk*mk;
   if (det <= 0.) {
-    if (verboseIn >= DEBUG)
+    if (verboseIn >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Gram det < 0 : Outside phase space");
   }
   return false;
@@ -1015,7 +996,7 @@ bool BrancherEmitRF::getNewParticles(Event& event, vector<Vec4> momIn,
 // Generate a new Q2 scale.
 
 double BrancherEmitRF::genQ2(int, double Q2MaxNow, Rndm* rndmPtr,
-  Info* infoPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
+  Logger* loggerPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
   vector<double> headroomIn, vector<double> enhanceIn,
   int verboseIn) {
 
@@ -1026,14 +1007,13 @@ double BrancherEmitRF::genQ2(int, double Q2MaxNow, Rndm* rndmPtr,
   double wtNow = headroomSav * enhanceSav;
 
   q2NewSav = trialGenPtr->genQ2(Q2MaxNow,rndmPtr,evWindowPtrIn,
-    colFac,wtNow,infoPtr,verboseIn);
+    colFac,wtNow,loggerPtr,verboseIn);
 
   iSectorWinner = trialGenPtr->getSector();
 
   // Sanity checks.
   if (q2NewSav > Q2MaxNow) {
-    string msg = ": Generated q2New > q2BegIn. Returning 0.";
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+    loggerPtr->ERROR_MSG("generated q2New > q2BegIn; returning 0");
     q2NewSav = 0.;
   }
   if (q2NewSav > 0.) {
@@ -1051,7 +1031,7 @@ double BrancherEmitRF::genQ2(int, double Q2MaxNow, Rndm* rndmPtr,
 // false if no physical kinematics possible.
 
 bool BrancherEmitRF::genInvariants(vector<double>& invariants,Rndm* rndmPtr,
-  int verboseIn, Info* infoPtr) {
+  int verboseIn, Logger* loggerPtr) {
 
   // Initialise and check we have a generated q2.
   invariants.clear();
@@ -1059,8 +1039,8 @@ bool BrancherEmitRF::genInvariants(vector<double>& invariants,Rndm* rndmPtr,
   if (q2NewSav <= 0.) return false;
 
   if (!trialGenPtr->genInvariants(sAK,setmPostVec(),invariantsSav,rndmPtr,
-      infoPtr, verboseIn)) {
-    if (verboseIn >= DEBUG) {
+      loggerPtr, verboseIn)) {
+    if (verboseIn >= VinciaConstants::DEBUG) {
       printOut(__METHOD_NAME__,"Trial failed.");
     }
     return false;
@@ -1068,7 +1048,7 @@ bool BrancherEmitRF::genInvariants(vector<double>& invariants,Rndm* rndmPtr,
 
   // Veto if the point is outside the available phase space.
   if (vetoPhSpPoint(invariantsSav, verboseIn)) {
-    if (verboseIn >= DEBUG) {
+    if (verboseIn >= VinciaConstants::DEBUG) {
       printOut(__METHOD_NAME__,"Outside phase space.");
     }
     return false;
@@ -1081,22 +1061,14 @@ bool BrancherEmitRF::genInvariants(vector<double>& invariants,Rndm* rndmPtr,
 
 // Compute antPhys/antTrial, given antPhys.
 
-double BrancherEmitRF::pAccept(const double antPhys, Info* infoPtr,
+double BrancherEmitRF::pAccept(const double antPhys, Logger* loggerPtr,
   int verboseIn) {
 
   double antTrial = trialGenPtr->aTrial(invariantsSav,mPostSav,
     verboseIn);
   antTrial *= headroomSav;
-  if (verboseIn>=DEBUG) {
-    if (antTrial==0.) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-        "Trial antenna is zero.");
-    }
-    if (std::isnan(antTrial)) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-        "Trial antenna not a number");
-    }
-  }
+  if (antTrial==0.) loggerPtr->ERROR_MSG("trial antenna is zero");
+  if (std::isnan(antTrial)) loggerPtr->ERROR_MSG("trial antenna not a number");
 
   return antPhys/antTrial;
 
@@ -1247,7 +1219,7 @@ bool BrancherSplitRF::getNewParticles(Event& event, vector<Vec4> momIn,
 // Generate a new Q2 scale.
 
 double BrancherSplitRF::genQ2(int, double Q2MaxNow, Rndm* rndmPtr,
-  Info* infoPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
+  Logger* loggerPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
   vector<double> headroomIn, vector<double> enhanceIn, int verboseIn) {
 
   // Total splitting weight summed over flavours
@@ -1255,10 +1227,8 @@ double BrancherSplitRF::genQ2(int, double Q2MaxNow, Rndm* rndmPtr,
   vector<double> wtFlav;
   unsigned int nFlav = headroomIn.size();
   if (nFlav != enhanceIn.size()) {
-    if (verboseIn >= NORMAL) {
-      string msg = ": Headroom and enhancement vectors have different sizes.";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__+msg);
-    }
+    loggerPtr->ERROR_MSG(
+      "headroom and enhancement vectors have different sizes");
     return 0.;
   }
   for (unsigned int iFlav = 0; iFlav < nFlav; ++iFlav) {
@@ -1268,12 +1238,11 @@ double BrancherSplitRF::genQ2(int, double Q2MaxNow, Rndm* rndmPtr,
   }
 
   q2NewSav = trialGenPtr->genQ2(Q2MaxNow,rndmPtr,evWindowPtrIn,
-    colFac,wtSum,infoPtr,verboseIn);
+    colFac,wtSum,loggerPtr,verboseIn);
 
   // Sanity check.
   if (q2NewSav > Q2MaxNow) {
-    string msg = ": Generated q2New > q2BegIn. Returning 0.";
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__,msg);
+    loggerPtr->ERROR_MSG("generated q2New > q2BegIn; returning 0");
     q2NewSav = 0.;
   }
 
@@ -1293,14 +1262,13 @@ double BrancherSplitRF::genQ2(int, double Q2MaxNow, Rndm* rndmPtr,
     }
 
     // Debugging.
-    if (verboseIn >= DEBUG) {
+    if (verboseIn >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Selected splitting flavour: " << idFlavSav;
       printOut(__METHOD_NAME__, ss.str());
     }
     if (q2NewSav > Q2MaxNow) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-        "Generated impossible Q2");
+      loggerPtr->ERROR_MSG("generated impossible Q2");
       q2NewSav = -1.;
     }
     hasTrialSav = true;
@@ -1323,7 +1291,8 @@ void VinciaFSR::init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
   if (isInit)
     return;
   verbose = settingsPtr->mode("Vincia:verbose");
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin --------------");
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+    "begin --------------");
   allowforceQuit = false;
   forceQuit = false;
   nBranchQuit = -1;
@@ -1377,8 +1346,8 @@ void VinciaFSR::init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
   // Global flag for helicity dependence.
   helicityShower = settingsPtr->flag("Vincia:helicityShower");
   if (doWeak && !helicityShower) {
-    infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": switching "
-      "on helicityShower (required for ewMode = 3).");
+    loggerPtr->WARNING_MSG(
+      "switching on helicityShower (required for ewMode = 3)");
     settingsPtr->flag("Vincia:helicityShower", true);
     helicityShower = true;
     isrPtr->helicityShower = true;
@@ -1446,7 +1415,7 @@ void VinciaFSR::init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
   pT2maxFudgeMPI = pow2(settingsPtr->parm("Vincia:pTmaxFudgeMPI"));
 
   // Initialize the FSR antenna functions.
-  if (verbose >= REPORT)
+  if (verbose >= Logger::REPORT)
     printOut(__METHOD_NAME__, "initializing antenna set");
   antSetPtr->init();
   kMapResEmit  = settingsPtr->mode("Vincia:kineMapRFemit");
@@ -1454,9 +1423,10 @@ void VinciaFSR::init( BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
 
   // All OK.
   isInit=true;
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "end",
+    dashLen);
 
-  if (verbose >= QUIET)  header();
+  if (verbose >= Logger::NORMAL)  header();
 }
 
 //--------------------------------------------------------------------------
@@ -1497,13 +1467,14 @@ int VinciaFSR::shower(int iBeg, int iEnd, Event& event, double pTmax,
   int nBranchMax) {
 
   // Verbose output.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin" , dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin" ,
+    dashLen);
 
   // Add new system, automatically with two empty beam slots.
   int iSys = partonSystemsPtr->addSys();
 
   // Verbose output.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
       "preparing to shower. System no. " + num2str(iSys));
 
   // Loop over allowed range to find all final-state particles.
@@ -1549,7 +1520,7 @@ int VinciaFSR::showerQED(int iBeg, int iEnd, Event& event, double pTmax) {
 
   // Check if we are supposed to do anything.
   if (!doQED || infoPtr->getAbortPartonLevel()) return 0;
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "begin", dashLen);
     event.list();
   }
@@ -1592,7 +1563,7 @@ int VinciaFSR::showerQED(int iBeg, int iEnd, Event& event, double pTmax) {
 int VinciaFSR::showerQEDafterRemnants(Event& event) {
   // Check if we are supposed to do anything.
   if (!doQED || infoPtr->getAbortPartonLevel()) return 0;
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "begin", dashLen);
     event.list();
   }
@@ -1613,8 +1584,7 @@ int VinciaFSR::showerQEDafterRemnants(Event& event) {
     double nLoop = 0;
     while (q2 > q2min) {
       if (++nLoop >= 1000) {
-        infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": "
-          "stuck in infinite loop");
+        loggerPtr->WARNING_MSG("stuck in infinite loop");
         break;
       }
       q2 = qedShowerSoftPtr->q2Next(event, q2, q2min);
@@ -1628,7 +1598,7 @@ int VinciaFSR::showerQEDafterRemnants(Event& event) {
       }
     }
     // Move post-remnant-shower partons back into their respective systems.
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss; ss<<" showered remnant iSysRem = "<<iSysRem;
       printOut(__METHOD_NAME__,ss.str());
       event.list();
@@ -1669,7 +1639,7 @@ int VinciaFSR::showerQEDafterRemnants(Event& event) {
     // If QED shower did not do anything, the updated post-remnant system
     // will only have remnant partons in it. Remove it if no partons left.
     if (partonSystemsPtr->sizeOut(iSysRem) == 0) partonSystemsPtr->popBack();
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       printOut(__METHOD_NAME__,"updated parton systems");
       partonSystemsPtr->list();
     }
@@ -1677,7 +1647,7 @@ int VinciaFSR::showerQEDafterRemnants(Event& event) {
 
   // Force decays of any left-over resonances from the weak shower.
   if (doWeak) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
       "Checking for leftover resonances");
     ewShowerPtr->clear();
     ewShowerPtr->prepare(0, event, true);
@@ -1695,7 +1665,8 @@ int VinciaFSR::showerQEDafterRemnants(Event& event) {
     }
   }
 
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "end",
+    dashLen);
   return nBranchNow;
 }
 
@@ -1708,7 +1679,8 @@ int VinciaFSR::showerQEDafterRemnants(Event& event) {
 void VinciaFSR::prepareProcess( Event& process, Event& event,
   vector<int>& iBefShower) {
 
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__,"begin",dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
+    dashLen);
 
   // Signal that prepare() should treat this as a new event.
   isPrepared = false;
@@ -1807,8 +1779,9 @@ void VinciaFSR::prepareProcess( Event& process, Event& event,
             break;
           }
           // Else print warning that something unexpected happened.
-          else infoPtr->errorMsg("Error in "+__METHOD_NAME__+": "
-            "inconsistent state size after helicity selection");
+          else
+            loggerPtr->ERROR_MSG(
+              "inconsistent state size after helicity selection");
         }
       }
     }
@@ -1819,9 +1792,9 @@ void VinciaFSR::prepareProcess( Event& process, Event& event,
         // Consistency checks.
         int iHard = iProcess[i];
         if (state[i].id() != process[iHard].id()) {
-          infoPtr->errorMsg("Error in "+__METHOD_NAME__+": "
+          loggerPtr->ERROR_MSG(
             "state does not match process after helicity selection");
-          if (verbose >= DEBUG) process.list();
+          if (verbose >= VinciaConstants::DEBUG) process.list();
           return;
         }
         // Copy pol() to process.
@@ -1831,30 +1804,30 @@ void VinciaFSR::prepareProcess( Event& process, Event& event,
           && iBefShower[iHard] != 0) {
           int iEvent = iBefShower[iHard];
           if (state[i].id() != event[iEvent].id()) {
-            infoPtr->errorMsg("Error in "+__METHOD_NAME__+": "
+            loggerPtr->ERROR_MSG(
               "state does not match event after helicity selection");
-            if (verbose >= DEBUG) process.list();
+            if (verbose >= VinciaConstants::DEBUG) process.list();
             return;
           }
           event[iEvent].pol(state[i].pol());
         }
       }
     } else {
-      infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": "
-        "failed to assign helicities for hard process");
-      if (verbose >= DEBUG) process.list();
+      loggerPtr->WARNING_MSG("failed to assign helicities for hard process");
+      if (verbose >= VinciaConstants::DEBUG) process.list();
       return;
     }
 
     // Verbose output. Print new process-level and event-level event records
     // with helicity assignments.
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       process.list(true);
       event.list(true);
     }
   }
 
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__,"end",dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "end",
+    dashLen);
 
   // Finished.
   return;
@@ -1872,20 +1845,19 @@ void VinciaFSR::prepare(int iSys, Event& event, bool) {
   // Check if we are supposed to do anything
   if (!(doFF || doRF)) return;
   if (infoPtr->getAbortPartonLevel()) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": Received abort from PartonLevel().","Aborting.");
+    loggerPtr->ERROR_MSG("Received abort from PartonLevel; aborting");
     return;
   }
 
   // Last chance to print header if not done already.
-  if (!headerIsPrinted && verbose >= NORMAL) header();
+  if (!headerIsPrinted && verbose >= Logger::NORMAL) header();
 
   // Resetting for each new event (or non-interleaved decay of a resonance
   // or hadron) to be showered.
   bool hasInRes = partonSystemsPtr->hasInRes(iSys);
   bool hasInAB  = partonSystemsPtr->hasInAB(iSys);
   // Print event and antenna list before cleanup.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "begin (iSys " + num2str(iSys) + ", isPrepared "
       + bool2str(isPrepared) + ", hasInAB " + bool2str(hasInAB) + ", hasInRes "
       + bool2str(hasInRes) + ")", dashLen);
@@ -1929,7 +1901,7 @@ void VinciaFSR::prepare(int iSys, Event& event, bool) {
   } else {
 
     // Verbose output.
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       printOut(__METHOD_NAME__, "QCD antenna list before cleanup:", dashLen);
       list();
     }
@@ -1986,7 +1958,7 @@ void VinciaFSR::prepare(int iSys, Event& event, bool) {
     }
 
     // Verbose output.
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       printOut(__METHOD_NAME__, "QCD antenna list after cleanup:", dashLen);
       list();
     }
@@ -1996,7 +1968,7 @@ void VinciaFSR::prepare(int iSys, Event& event, bool) {
   // Allow to quit after a certain number of emissions per event (just
   // for testing).
   if (forceQuit) {
-    if (verbose >= REPORT) printOut(__METHOD_NAME__,
+    if (verbose >= Logger::REPORT) printOut(__METHOD_NAME__,
       "User forced quit early");
     return;
   }
@@ -2052,7 +2024,8 @@ void VinciaFSR::prepare(int iSys, Event& event, bool) {
   }
 
   // Set up QCD antennae.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "Finding branchers...");
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+    "Finding branchers...");
   if (doFF || doRF) {
     // In merging, allow to only generate emissions inside resonance systems.
     if (isTrialShowerRes && !isResonanceSys[iSys]) {
@@ -2088,7 +2061,7 @@ void VinciaFSR::prepare(int iSys, Event& event, bool) {
         qedShowerHardPtr->prepare(iSys, event, false);
         ewHandlerHard = qedShowerHardPtr;
       }
-      if (verbose >= DEBUG) {
+      if (verbose >= VinciaConstants::DEBUG) {
         string msg = "ewHandlerHard = ";
         if (ewHandlerHard == ewShowerPtr) msg += "EW";
         else msg += "QED";
@@ -2105,7 +2078,7 @@ void VinciaFSR::prepare(int iSys, Event& event, bool) {
 
   // Let others know we got to the end.
   isPrepared = true;
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "QCD antenna list after prepare:", dashLen);
     list();
     printOut(__METHOD_NAME__, "end", dashLen);
@@ -2121,9 +2094,9 @@ void VinciaFSR::update( int iSys, Event& event, bool) {
 
   // Do nothing if not prepared for FSR.
   if (!isPrepared) return;
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "begin", dashLen);
-    if (verbose >= DEBUG) event.list();
+    if (verbose >= VinciaConstants::DEBUG) event.list();
   }
 
   // Update any EW branchers in system.
@@ -2139,8 +2112,8 @@ void VinciaFSR::update( int iSys, Event& event, bool) {
 
   // Sanity check
   if (isResonanceSys[iSys]) {
-    if (verbose >=NORMAL) infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": Update called unexpectedly in resonance shower.","Exiting.");
+    loggerPtr->ERROR_MSG(
+      "update called unexpectedly in resonance shower; exiting");
     return;
   }
 
@@ -2184,7 +2157,6 @@ void VinciaFSR::update( int iSys, Event& event, bool) {
       // Update emitter (and update pointer if location changed).
       emittersFF[i] = BrancherEmitFF(brancherPtr->system(), event,
         sectorShower, iNew0, iNew1, zetaGenSetFF);
-      brancherPtr = &emittersFF[i];
 
       // Update lookup map and erase old keys.
       pair<int,bool> key = make_pair(iOld0, true);
@@ -2226,7 +2198,7 @@ void VinciaFSR::update( int iSys, Event& event, bool) {
     int i1 = antFF[i].second; // i1/iNew[2] is anticolour.
     // Don't include II or IF antennae.
     if (!event[i0].isFinal() || !event[i1].isFinal()) continue;
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Creating antenna between " << i0 << " , " << i1
          << " col = " << event[i0].col();
@@ -2245,19 +2217,18 @@ void VinciaFSR::update( int iSys, Event& event, bool) {
 
   // Sanity check.
   if (emittersFF.size() + splittersFF.size() <= 0) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "WARNING: Did not find any QCD antennae");
     return;
   }
   if (!check(iSysWin, event)) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": failed to update antennae");
+    loggerPtr->ERROR_MSG("failed to update antennae");
     list();
-    if (verbose >= DEBUG) printLookup();
+    if (verbose >= VinciaConstants::DEBUG) printLookup();
     infoPtr->setAbortPartonLevel(true);
     return;
   }
-  if (verbose >=DEBUG) {
+  if (verbose >=VinciaConstants::DEBUG) {
     list();
     printLookup();
     printOut(__METHOD_NAME__, "end", dashLen);
@@ -2275,17 +2246,17 @@ double VinciaFSR::pTnext(Event& event, double pTevolBegAll,
   // Check if we are supposed to do anything.
   if (infoPtr->getAbortPartonLevel() || !isPrepared) return 0.;
   if (forceQuit) {
-    if (verbose >= REPORT) printOut(__METHOD_NAME__,
+    if (verbose >= Logger::REPORT) printOut(__METHOD_NAME__,
       "User forced quit early");
     return 0.;
   }
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     cout<<endl;
     printOut(__METHOD_NAME__, "begin", dashLen);
   }
 
   // Profiling.
-  if (verbose >= REPORT) diagnosticsPtr->start(__METHOD_NAME__);
+  if (verbose >= Logger::REPORT) diagnosticsPtr->start(__METHOD_NAME__);
 
   // Denote VINCIA scales by "q", PYTHIA ones by "pTevol".
   double q2Begin  = pow2(pTevolBegAll);
@@ -2315,16 +2286,16 @@ double VinciaFSR::pTnext(Event& event, double pTevolBegAll,
   // Generate next resonance gluon-emission trial and compare to current qWin.
   if (doRF && emittersRF.size() > 0) {
     // For now, issue a warning that merging in RF systems is not validated.
-    if (isTrialShower) infoPtr->errorMsg("Warning in "+__METHOD_NAME__
-      +": Merging in coloured-resonance systems not validated!");
+    if (isTrialShower) loggerPtr->WARNING_MSG(
+      "merging in coloured-resonance systems not validated");
     if ( !q2NextEmitResQCD(q2Begin, q2EndAll) ) return 0.;
   }
 
   // Generate nex resonance gluon-splitting trial and compare to current qWin.
   if (doRF && splittersRF.size() > 0) {
     // For now, issue a warning that merging in RF systems is not validated.
-    if (isTrialShower) infoPtr->errorMsg("Warning in "+__METHOD_NAME__
-      +": Merging in coloured-resonance systems not validated!");
+    if (isTrialShower) loggerPtr->WARNING_MSG(
+      "merging in coloured-resonance systems not validated");
     if ( !q2NextSplitResQCD(q2Begin, q2EndAll) ) return 0.;
   }
 
@@ -2339,7 +2310,7 @@ double VinciaFSR::pTnext(Event& event, double pTevolBegAll,
     }
     // QED emissions in MPI systems (only if we are not in a resonance decay)
     if (nRecurseResDec == 0 && qedShowerSoftPtr->nBranchers() >= 1) {
-      if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+      if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
         "Generating QED off MPI");
       double q2EWmpi = qedShowerSoftPtr->q2Next(event, q2Begin, q2EndAll);
       if (q2EWmpi > q2EW) {
@@ -2348,10 +2319,7 @@ double VinciaFSR::pTnext(Event& event, double pTevolBegAll,
       }
     }
     if (q2EW > q2Begin+NANO) {
-      stringstream ss;
-      ss << "q2Begin = "<<q2Begin<<" q2EW = " << q2EW;
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Genereated q2EW > q2Begin.",ss.str());
+      loggerPtr->ERROR_MSG("genereated q2EW > q2Begin");
       infoPtr->setAbortPartonLevel(true);
       return 0.;
     }
@@ -2370,7 +2338,7 @@ double VinciaFSR::pTnext(Event& event, double pTevolBegAll,
 
   // If non-zero branching scale found: continue.
   if (winnerQCD != nullptr && q2WinSav > q2EndAll) {
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << " QCD Winner at scale qWinNow = "
          <<  sqrt(q2WinSav)
@@ -2380,7 +2348,7 @@ double VinciaFSR::pTnext(Event& event, double pTevolBegAll,
     }
   }
   else if (winnerEW != nullptr && q2WinSav > 0.) {
-   if (verbose >= DEBUG) {
+   if (verbose >= VinciaConstants::DEBUG) {
      stringstream ss;
      ss << "=== EW Winner at scale qWinNow = "
         << sqrt(q2WinSav);
@@ -2394,7 +2362,7 @@ double VinciaFSR::pTnext(Event& event, double pTevolBegAll,
     q2WinSav  = 0.0;
     winnerQCD = nullptr;
     winnerEW  = nullptr;
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       printOut(__METHOD_NAME__,
         "=== No FSR trial branchings above cutoff");
       event.list();
@@ -2402,9 +2370,10 @@ double VinciaFSR::pTnext(Event& event, double pTevolBegAll,
   }
 
   // Profiling.
-  if (verbose >= REPORT) diagnosticsPtr->stop(__METHOD_NAME__);
+  if (verbose >= Logger::REPORT) diagnosticsPtr->stop(__METHOD_NAME__);
 
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "end",
+    dashLen);
   return (q2WinSav > 0) ? sqrt(q2WinSav) : 0.0;
 
 }
@@ -2416,10 +2385,11 @@ double VinciaFSR::pTnext(Event& event, double pTevolBegAll,
 bool VinciaFSR::branch(Event& event, bool ) {
 
   // Verbose output.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
+    dashLen);
 
   // Diagnostics.
-  if (verbose >= REPORT) diagnosticsPtr->start(__METHOD_NAME__);
+  if (verbose >= Logger::REPORT) diagnosticsPtr->start(__METHOD_NAME__);
 
   // Initialise info on this branching.
   hasWeaklyRadiated = false;
@@ -2432,7 +2402,7 @@ bool VinciaFSR::branch(Event& event, bool ) {
     // overall event has the same number of parton systems as before,
     // which have all been evolved down to the current evolution scale.
     if (!branchEW(event)) {
-      if (verbose >= REPORT)
+      if (verbose >= Logger::REPORT)
         diagnosticsPtr->stop(__METHOD_NAME__,"veto(branchEW)");
       return false;
     }
@@ -2444,7 +2414,7 @@ bool VinciaFSR::branch(Event& event, bool ) {
 
     // Do the QCD branching.
     if (!branchQCD(event)) {
-      if (verbose >= REPORT)
+      if (verbose >= Logger::REPORT)
         diagnosticsPtr->stop(__METHOD_NAME__,"veto(branchQCD)");
       return false;
     }
@@ -2456,10 +2426,12 @@ bool VinciaFSR::branch(Event& event, bool ) {
   pTLastAcceptedSav       = sqrt(q2WinSav);
 
   // Diagnostics.
-  if (verbose >= REPORT) diagnosticsPtr->stop(__METHOD_NAME__,"accept");
+  if (verbose >= Logger::REPORT)
+    diagnosticsPtr->stop(__METHOD_NAME__,"accept");
 
   // Done.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "end",
+    dashLen);
   return true;
 
 }
@@ -2478,7 +2450,8 @@ bool VinciaFSR::resonanceShower(Event& process, Event& event,
   vector<int>& iPosBefShow, double pTmerge) {
 
   // Verbose output.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin" , dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin" ,
+    dashLen);
 
   // Keep track of how many times resonanceShower has called itself.
   ++nRecurseResDec;
@@ -2647,10 +2620,10 @@ bool VinciaFSR::resonanceShower(Event& process, Event& event,
 
   // Sanity check.
   if (iSysMot <= -1) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": "
-      "could not identify upstream system for resonance decay");
-    if (verbose >= REPORT) {
-      if (verbose >= DEBUG) event.list();
+    loggerPtr->ERROR_MSG(
+      "failed to identify upstream system for resonance decay");
+    if (verbose >= Logger::REPORT) {
+      if (verbose >= VinciaConstants::DEBUG) event.list();
       partonSystemsPtr->list();
       cout<<" iMother = "<<iMother<<endl;
     }
@@ -2717,7 +2690,7 @@ bool VinciaFSR::resonanceShower(Event& process, Event& event,
           // Consistency check.
           if (iResBeg+j >= (int)stateMot.size() ||
             stateMot[iResBeg+j].id() != event[iEvent].id()) {
-            infoPtr->errorMsg("Error in "+__METHOD_NAME__+": "
+            loggerPtr->ERROR_MSG(
               "daughter mismatch after helicity selection (stateMot)");
             break;
           } else event[iEvent].pol(stateMot[iResBeg + j].pol());
@@ -2734,17 +2707,13 @@ bool VinciaFSR::resonanceShower(Event& process, Event& event,
           // Consistency check.
           if (j+1 >= (int)stateRes.size() ||
             stateRes[1+j].id() != event[iEvent].id()) {
-            infoPtr->errorMsg("Error in "+__METHOD_NAME__+": "
+            loggerPtr->ERROR_MSG(
               "daughter mismatch after helicity selection (stateRes)");
             break;
           } else event[iEvent].pol(stateRes[1 + j].pol());
         }
-      } else {
-        if (verbose >= REPORT) {
-          infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": "
-            +"could not assign daughter helicities");
-        }
-      }
+      } else
+        loggerPtr->WARNING_MSG("failed to assign daughter helicities");
     }
   }
 
@@ -2754,7 +2723,7 @@ bool VinciaFSR::resonanceShower(Event& process, Event& event,
   // For now, just do pure showers.
   prepare(iSysRes, event, false);
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "pTmax = "<<pTmax<<" pTmerge = "<<pTmerge;
     printOut(__METHOD_NAME__, ss.str());
@@ -2789,8 +2758,7 @@ bool VinciaFSR::resonanceShower(Event& process, Event& event,
 
       // Check loop counter to avoid infinite loop.
       if (++nLoop >= NLOOPMAX) {
-        infoPtr->errorMsg("Error in VinciaFSR::resonanceShower: "
-          "infinite loop");
+        loggerPtr->ERROR_MSG("infinite loop");
         break;
       }
 
@@ -3042,7 +3010,7 @@ void VinciaFSR::header() {
   }
 
   // Print header information about antenna functions.
-  if (verbose >= NORMAL) {
+  if (verbose >= Logger::NORMAL) {
     cout<<" |\n"
         <<" | AntennaFunctions:         "
         <<"                      chargeFactor   kineMap"<<endl;
@@ -3160,28 +3128,22 @@ bool VinciaFSR::check(int iSys, Event &event) {
     // If specific iSys requested, only check that system.
     if (iSys >= 0 && emittersFF[i].system() != iSys) continue;
     if (!event[emittersFF[i].i0()].isFinal()) {
-      if (verbose >= REPORT) {
+      if (verbose >= Logger::REPORT) {
         event.list();
         list();
       }
-      if (verbose >= NORMAL) {
-        ss << "EmitterFF " << i
-           << " i0 = " << emittersFF[i].i0() << " not final.";
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Failed to update emitterFF (not final).", ss.str());
-      }
+      loggerPtr->ERROR_MSG("failed to update emitterFF (not final)",
+        "(EmitterFF " + to_string(i)
+        + ", i0 = " + to_string(emittersFF[i].i0()) + ")");
       return false;
     } else if (!event[emittersFF[i].i1()].isFinal()) {
-      if (verbose >= REPORT) {
+      if (verbose >= Logger::REPORT) {
         event.list();
         list();
       }
-      if (verbose >= NORMAL) {
-        ss << "EmitterFF " << i
-           << " i1 = " << emittersFF[i].i1() << " not final.";
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Failed to update emitterFF (not final).", ss.str());
-      }
+      loggerPtr->ERROR_MSG("failed to update emitterFF (not final)",
+        "(EmitterFF " + to_string(i)
+        + ", i1 = " + to_string(emittersFF[i].i1()) + ")");
       return false;
     }
   }
@@ -3189,28 +3151,22 @@ bool VinciaFSR::check(int iSys, Event &event) {
   for (int i = 0; i < (int)splittersFF.size(); ++i) {
     if (iSys >= 0 && splittersFF[i].system() != iSys) continue;
     if (!event[splittersFF[i].i0()].isFinal()) {
-      if (verbose >= REPORT) {
+      if (verbose >= Logger::REPORT) {
         event.list();
         list();
       }
-      if (verbose >= NORMAL) {
-        ss << "SplitterFF " << i
-           << " i0 = " << splittersFF[i].i0() << " not final.";
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Failed to update splitterFF (not final).", ss.str());
-      }
+      loggerPtr->ERROR_MSG("failed to update splitterFF (not final)",
+        "(SplitterFF " + to_string(i)
+        + " i0 = " + to_string(splittersFF[i].i0()) + ")");
       return false;
     } else if (!event[splittersFF[i].i1()].isFinal()) {
-      if (verbose >= REPORT) {
+      if (verbose >= Logger::REPORT) {
         event.list();
         list();
       }
-      if (verbose >= NORMAL) {
-        ss << "SplitterFF " << i
-           << " i1 = " << splittersFF[i].i1() << " not final.";
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Failed to update splitterFF (not final).", ss.str());
-      }
+      loggerPtr->ERROR_MSG("failed to update splitterFF (not final)",
+        "(SplitterFF " + to_string(i)
+        + ", i1 = " + to_string(splittersFF[i].i1()) + ")");
       return false;
     }
   }
@@ -3224,26 +3180,20 @@ bool VinciaFSR::check(int iSys, Event &event) {
       iFin = emittersRF[i].i0();
     }
     if (!event[abs(iFin)].isFinal()) {
-      if (verbose >= REPORT) {
+      if (verbose >= Logger::REPORT) {
         event.list();
         list();
       }
-      if (verbose >= NORMAL) {
-        ss << "EmitterRF " << i << " iF = " << iFin << " not final.";
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Failed to update emitterRF (not final).", ss.str());
-      }
+      loggerPtr->ERROR_MSG("failed to update emitterRF (not final)",
+        "(EmitterRF " + to_string(i) + ", iF = " + to_string(iFin) + ")");
       return false;
     } else if (event[abs(iRes)].isFinal()) {
-      if (verbose >= REPORT) {
+      if (verbose >= Logger::REPORT) {
         event.list();
         list();
       }
-      if (verbose >= NORMAL) {
-        ss << "EmitterRF " << i << " iR = " << iRes << " not incoming.";
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Failed to update emitterRF (not final).", ss.str());
-      }
+      loggerPtr->ERROR_MSG("failed to update emitterRF (not final)",
+        "(EmitterRF " + to_string(i) + ", iR = " + to_string(iRes) + ")");
       return false;
     }
   }
@@ -3257,30 +3207,24 @@ bool VinciaFSR::check(int iSys, Event &event) {
       iFin = splittersRF[i].i0();
     }
     if (!event[abs(iFin)].isFinal()) {
-      if (verbose >= REPORT) {
+      if (verbose >= Logger::REPORT) {
         event.list();
         list();
       }
-      if (verbose >= NORMAL) {
-        ss << "SplitterRF " << i << " iF = " << iFin << " not final.";
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Failed to update splitterRF (not final).", ss.str());
-      }
+      loggerPtr->ERROR_MSG("failed to update splitterRF (not final)",
+        "(SplitterRF " + to_string(i) + ", iF = " + to_string(iFin) + ")");
       return false;
     } else if (event[abs(iRes)].isFinal()) {
-      if (verbose >= REPORT) {
+      if (verbose >= Logger::REPORT) {
         event.list();
         list();
       }
-      if (verbose >= NORMAL) {
-        ss << "SplitterRF " << i << " iR = " << iRes << " not incoming.";
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Failed to update splitterRF (not final).", ss.str());
-      }
+      loggerPtr->ERROR_MSG("failed to update splitterRF (not final)",
+        "(SplitterRF " + to_string(i) + ", iR = " + to_string(iRes) + ")");
       return false;
     }
   }
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, "Passed all checks on antennae");
   return true;
 
@@ -3322,7 +3266,7 @@ void VinciaFSR::saveBornState(int iSys, Event& born) {
   }
 
   // Print information.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     if (resolveBorn[iSys]) {
       printOut(__METHOD_NAME__, "System " + num2str(iSys,2)
         + " with resolved Born configuration:");
@@ -3382,7 +3326,7 @@ void VinciaFSR::saveBornForTrialShower(Event& born) {
   nFlavsBorn[iSysTrial] = nFlavours;
 
   // Print information.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     if (resolveBorn[iSysTrial]) {
       printOut(__METHOD_NAME__, "System " + num2str(iSysTrial,2)
         + " with resolved Born configuration:");
@@ -3561,8 +3505,7 @@ bool VinciaFSR::setupQCDantennae(int iSys, Event& event) {
 
   // Sanity check.
   if (partonSystemsPtr == nullptr) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": partonSystems pointer is nullptr!");
+    loggerPtr->ERROR_MSG("PartonSystems pointer is null");
     return false;
   }
   // Check that iSys is a valid value.
@@ -3700,16 +3643,16 @@ bool VinciaFSR::setupQCDantennae(int iSys, Event& event) {
               junctionInfo[iSys].iEndQuark=newPart;
               junctionInfo[iSys].iEndColTag=colNow;
             } else {
-              infoPtr->errorMsg("Error in "+__METHOD_NAME__
-                +": Resonance involved in junction that cannot be traced");
+              loggerPtr->ERROR_MSG(
+                "resonance involved in junction that cannot be traced");
               hasResJunction[iSys] = false;
               break;
             }
           }
           if (event[junctionInfo[iSys].iEndQuark].col() == 0 ||
             !event[junctionInfo[iSys].iEndQuark].isFinal()) {
-            infoPtr->errorMsg("Error in "+__METHOD_NAME__
-              +": Failed to find end quark in resonance junction");
+            loggerPtr->ERROR_MSG(
+              "failed to find end quark in resonance junction");
             hasResJunction[iSys] = false;
             break;
           }
@@ -3732,7 +3675,7 @@ bool VinciaFSR::setupQCDantennae(int iSys, Event& event) {
   }
 
   // Sanity checks.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     if (emittersRF.size() + splittersRF.size() +
       emittersFF.size() + splittersFF.size() <= 0)
       printOut(__METHOD_NAME__, "did not find any QCD branchers");
@@ -3762,7 +3705,7 @@ void VinciaFSR::setStartScale(int iSys, Event& event) {
 
   // Hard system: start at phase-space maximum or factorisation scale.
   } else if (isHardSys[iSys]) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Setting FSR starting scale for hard system");
     // pTmaxMatch = 1 : always start at QF (modulo kFudge).
     if (pTmaxMatch == 1) Q2hat[iSys] = pT2maxFudge * infoPtr->Q2Fac();
@@ -3782,7 +3725,7 @@ void VinciaFSR::setStartScale(int iSys, Event& event) {
       else Q2hat[iSys] = m2BeamsSav;
     }
   } else if (nIn == 2) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Setting FSR starting scale of MPI system");
     // Set starting scale for MPI systems: min of incoming parton
     // scales. Find positions of incoming colliding partons.
@@ -3803,41 +3746,45 @@ void VinciaFSR::setStartScale(int iSys, Event& event) {
 // components.
 
 bool VinciaFSR::q2NextEmitResQCD(const double q2Begin, const double q2End) {
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
+    dashLen);
   double q2EndNow = max(q2End, q2CutoffEmit);
   bool gen = q2NextQCD<BrancherEmitRF>(emittersRF, evWindowsEmit,
     evTypeEmit, q2Begin, q2EndNow, true);
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, "end", dashLen);
   return gen;
 }
 
 bool VinciaFSR::q2NextSplitResQCD(const double q2Begin, const double q2End) {
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
+    dashLen);
   double q2EndNow = max(q2End, q2CutoffSplit);
   bool gen = q2NextQCD<BrancherSplitRF>(splittersRF, evWindowsSplit,
     evTypeSplit, q2Begin, q2EndNow, false);
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__,"end", dashLen);
   return gen;
 }
 
 bool VinciaFSR::q2NextEmitQCD(const double q2Begin, const double q2End) {
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
+    dashLen);
   double q2EndNow = max(q2End, q2CutoffEmit);
   bool gen = q2NextQCD<BrancherEmitFF>(emittersFF, evWindowsEmit, evTypeEmit,
     q2Begin, q2EndNow, true);
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__,"end", dashLen);
   return gen;
 }
 
 bool VinciaFSR::q2NextSplitQCD(const double q2Begin, const double q2End) {
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
+    dashLen);
   double q2EndNow = max(q2End, q2CutoffSplit);
   bool gen = q2NextQCD<BrancherSplitFF>(splittersFF, evWindowsSplit,
     evTypeSplit, q2Begin, q2EndNow, false);
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__,"end", dashLen);
   return gen;
 }
@@ -3851,14 +3798,14 @@ template <class Brancher> bool VinciaFSR::q2NextQCD(
   const int evType, const double q2Begin, const double q2End, bool isEmit) {
 
   // Sanity check
-  if (verbose  >= DEBUG) {
+  if (verbose  >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "qBegin = " << num2str(sqrt(q2Begin))
        << " GeV, with "<<brancherVec.size()<<" branchers.";
     printOut(__METHOD_NAME__, ss.str());
   }
   if (q2Begin <= q2End) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "q2Begin below cutoff. Nothing to do.");
     return true;
   } else if (!isEmit && nGluonToQuark == 0) return true;
@@ -3868,7 +3815,7 @@ template <class Brancher> bool VinciaFSR::q2NextQCD(
   for (typename vector<Brancher>::iterator ibrancher = brancherVec.begin();
        ibrancher!=brancherVec.end(); ++ibrancher) {
     iAnt++;
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Brancher " << iAnt <<" / " << brancherVec.size();
       printOut(__METHOD_NAME__,ss.str());
@@ -3882,7 +3829,7 @@ template <class Brancher> bool VinciaFSR::q2NextQCD(
     // Check if there is any phase space left for current antenna.
     double Q2MaxNow = min(q2Begin, ibrancher->getQ2Max(evType));
     if (Q2MaxNow < q2End) {
-      if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+      if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
           "No phase space left for current brancher, continuing.");
       continue;
     }
@@ -3891,20 +3838,20 @@ template <class Brancher> bool VinciaFSR::q2NextQCD(
     double q2Next = 0.;
     if (ibrancher->hasTrial()) {
       q2Next = ibrancher->q2Trial();
-      if (verbose >= DEBUG) {
+      if (verbose >= VinciaConstants::DEBUG) {
         stringstream ss;
         ss << "Retrieving saved trial Q=" << sqrt(q2Next);
         printOut(__METHOD_NAME__, ss.str());
       }
     // Else generate new trial scale.
     } else {
-      if (verbose >= DEBUG)
+      if (verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__, "Generating new trial");
 
       // Fetch system and colour factor for current brancher.
       int iSys   = ibrancher->system();
       double colFac = getAntFunPtr(ibrancher->antFunTypePhys())->chargeFac();
-      if (verbose >= DEBUG) {
+      if (verbose >= VinciaConstants::DEBUG) {
         stringstream ss;
         ss << "Starting shower for current brancher at Q=" << sqrt(Q2MaxNow);
         printOut(__METHOD_NAME__, ss.str());
@@ -3918,7 +3865,7 @@ template <class Brancher> bool VinciaFSR::q2NextQCD(
       map<double, EvolutionWindow>::const_reverse_iterator itWindowNow(it);
 
       // Go through regions.
-      if (verbose >= DEBUG)
+      if (verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__, "Looping over Q2 windows...");
       while(itWindowNow != evWindows.rend()) {
 
@@ -3930,12 +3877,12 @@ template <class Brancher> bool VinciaFSR::q2NextQCD(
         vector<double> headroomVec = getHeadroom(iSys, isEmit, Q2MaxNow);
         vector<double> enhanceVec = getEnhance(iSys, isEmit, Q2MaxNow);
         double Q2NextWindow = ibrancher->genQ2(evType, Q2MaxNow, rndmPtr,
-          infoPtr, windowPtr, colFac, headroomVec, enhanceVec, verbose);
+          loggerPtr, windowPtr, colFac, headroomVec, enhanceVec, verbose);
         if (Q2NextWindow < 0.) {
           infoPtr->setAbortPartonLevel(true);
           return false;
         }
-        if (verbose >= DEBUG) {
+        if (verbose >= VinciaConstants::DEBUG) {
           stringstream ss;
           ss << "Generated QNextWindow = " << sqrt(Q2NextWindow)
              << " (QMinWindow = " << itWindowNow->first << " )";
@@ -3947,7 +3894,7 @@ template <class Brancher> bool VinciaFSR::q2NextQCD(
           q2Next=Q2NextWindow;
           break;
         } else {
-          if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+          if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
               "QNext below window threshold. Continuing to next window.");
         }
         // Else go straight to next window.
@@ -3955,7 +3902,7 @@ template <class Brancher> bool VinciaFSR::q2NextQCD(
         // Increment reverse iterator (go down in scale).
         itWindowNow++;
       } // End loop over evolution windows.
-      if (verbose >= DEBUG && itWindowNow == evWindows.rend())
+      if (verbose >= VinciaConstants::DEBUG && itWindowNow == evWindows.rend())
         printOut(__METHOD_NAME__, "Out of windows. Continuing to "
           "next brancher.");
     } // End generate new trial for this antenna.
@@ -3968,7 +3915,7 @@ template <class Brancher> bool VinciaFSR::q2NextQCD(
   } // End loop over QCD antennae.
 
   // Done.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss<<"qWin = "<< sqrt(q2WinSav);
     printOut(__METHOD_NAME__,ss.str());
@@ -3987,10 +3934,11 @@ bool VinciaFSR::branchQCD(Event& event) {
   if (!(doFF || doRF)) return false;
 
   // Verbose output
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
+    dashLen);
 
   // Profiling.
-  if (verbose >= REPORT) diagnosticsPtr->start(__METHOD_NAME__);
+  if (verbose >= Logger::REPORT) diagnosticsPtr->start(__METHOD_NAME__);
 
   iSysWin                 = winnerQCD->system();
   stateChangeLast         = false;
@@ -4003,9 +3951,9 @@ bool VinciaFSR::branchQCD(Event& event) {
   // If this is a resonance shower, branching must be in the parton system
   // that was added last.
   if (nRecurseResDec >= 1 && iSysWin != partonSystemsPtr->sizeSys()-1 ) {
-    infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": vetoing trial "
-      "branching outside resonance shower system");
-    if (verbose >= REPORT)
+    loggerPtr->WARNING_MSG(
+      "vetoing trial branching outside resonance shower system");
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"veto(not in res system)");
     return false;
   }
@@ -4016,9 +3964,9 @@ bool VinciaFSR::branchQCD(Event& event) {
   // Decide whether to accept the trial.
   // Store new particles in pNew if keeping.
   if (!acceptTrial(event)) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
       "Trial rejected (failed acceptTrial)");
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"veto(acceptTrial)");
     return false;
   }
@@ -4031,9 +3979,8 @@ bool VinciaFSR::branchQCD(Event& event) {
   const int sizeOld = event.size();
   if (hasResJunction[iSysWin]) junctionInfoCopy=junctionInfo[iSysWin];
   if (!updateEvent(event,junctionInfoCopy)) {
-    if (verbose >= REPORT) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Failed to update event");
+    if (verbose >= Logger::REPORT) {
+      loggerPtr->ERROR_MSG("failed to update event");
       diagnosticsPtr->stop(__METHOD_NAME__,"veto(updateEvent)");
     }
     // restore backup event
@@ -4046,7 +3993,7 @@ bool VinciaFSR::branchQCD(Event& event) {
   if (canVetoEmission) {
     if (userHooksPtr->doVetoFSREmission(sizeOld, event,
         iSysWin, isResonanceSys[iSysWin])) {
-      if (verbose >= REPORT) printOut(__METHOD_NAME__,
+      if (verbose >= Logger::REPORT) printOut(__METHOD_NAME__,
         "Trial rejected (failed UserHooks::doVetoFSREmission)");
       // restore backup event
       event = oldEvent;
@@ -4060,12 +4007,11 @@ bool VinciaFSR::branchQCD(Event& event) {
 
   // Update antennae.
   if (!updateAntennae(event)) {
-    if (verbose >= REPORT)
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": Failed to update branchers");
+    if (verbose >= Logger::REPORT)
+      loggerPtr->ERROR_MSG("failed to update branchers");
     //Something went wrong.
     infoPtr->setAbortPartonLevel(true);
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"veto(updateAntennae)");
     return false;
   }
@@ -4076,10 +4022,10 @@ bool VinciaFSR::branchQCD(Event& event) {
   nBranchFSR[iSysWin]++;
 
   // Check the event after each branching.
-  if (verbose >= REPORT && !vinComPtr->showerChecks(event, false)) {
-    infoPtr->errorMsg("Error in"+__METHOD_NAME__+": Failed shower checks");
+  if (verbose >= Logger::REPORT && !vinComPtr->showerChecks(event, false)) {
+    loggerPtr->ERROR_MSG("failed shower checks");
     infoPtr->setAbortPartonLevel(true);
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"veto(showerChecks)");
     return false;
   }
@@ -4111,7 +4057,7 @@ bool VinciaFSR::branchQCD(Event& event) {
   if (allowforceQuit) {
     if (nBranchFSR[iSysWin] >= nBranchQuit && nBranchQuit >0) {
       forceQuit=true;
-      if (verbose >= REPORT) {
+      if (verbose >= Logger::REPORT) {
         stringstream ss;
         ss<<"User forced quit after "<<nBranchQuit<<" emissions.";
         printOut(__METHOD_NAME__,ss.str());
@@ -4120,10 +4066,12 @@ bool VinciaFSR::branchQCD(Event& event) {
   }
 
   // Profiling.
-  if (verbose >= REPORT) diagnosticsPtr->stop(__METHOD_NAME__,"accept");
+  if (verbose >= Logger::REPORT)
+    diagnosticsPtr->stop(__METHOD_NAME__,"accept");
 
   // Verbose output
-  if (verbose >=DEBUG) printOut(__METHOD_NAME__,"end", dashLen);
+  if (verbose >=VinciaConstants::DEBUG) printOut(__METHOD_NAME__,"end",
+    dashLen);
 
   // Done/
   return true;
@@ -4137,11 +4085,12 @@ bool VinciaFSR::branchQCD(Event& event) {
 bool VinciaFSR::branchEW(Event& event) {
 
   // EW veto step.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
+    dashLen);
   int sizeOld  = event.size();
   double pTnow = sqrt(q2WinSav);
   if (winnerEW->acceptTrial(event)) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "EW trial accepted. About to update.");
 
     // Make a backup of the event to update (user may want to veto!).
@@ -4155,7 +4104,7 @@ bool VinciaFSR::branchEW(Event& event) {
 
     if (canVetoISREmission && isInitial) {
       if (userHooksPtr->doVetoISREmission(sizeOld, event, iSysWin)) {
-        if (verbose >= REPORT) printOut(__METHOD_NAME__,
+        if (verbose >= Logger::REPORT) printOut(__METHOD_NAME__,
           "Trial rejected (failed UserHooks::doVetoISREmission)");
         event = oldEvent;
         return false;
@@ -4165,7 +4114,7 @@ bool VinciaFSR::branchEW(Event& event) {
       bool isResonanceDecay = winnerEW->lastIsResonanceDecay();
       if (userHooksPtr->doVetoFSREmission(sizeOld, event,
           iSysWin, isResonanceDecay)) {
-        if (verbose >= REPORT) printOut(__METHOD_NAME__,
+        if (verbose >= Logger::REPORT) printOut(__METHOD_NAME__,
           "Trial rejected (failed UserHooks::doVetoFSREmission)");
         event = oldEvent;
         return false;
@@ -4197,8 +4146,7 @@ bool VinciaFSR::branchEW(Event& event) {
       winnerEW->clear(iSysWin);
       // Do resonance shower (includes updates post-shower).
       if (!resonanceShower(dummy, event, iPosRes, pTnow)) {
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__+
-          ": resonanceShower() returned false. Aborting.");
+        loggerPtr->ERROR_MSG("resonanceShower returned false; aborting");
         event = oldEvent;
         infoPtr->setAbortPartonLevel(true);
         return false;
@@ -4212,16 +4160,15 @@ bool VinciaFSR::branchEW(Event& event) {
       winnerEW->update(event, iSysWin);
       // Update QCD radiators.
       if (!updateAfterEW(event, sizeOld)) {
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__+
-          ": failed to update QCD branchers. Aborting.");
+        loggerPtr->ERROR_MSG("failed to update QCD branchers; aborting");
         event = oldEvent;
         infoPtr->setAbortPartonLevel(true);
         return false;
       }
     }
 
-    // Check PartonSystems in REPORT mode.
-    if (verbose >= REPORT) {
+    // Check PartonSystems in Logger::REPORT mode.
+    if (verbose >= Logger::REPORT) {
       if (partonSystemsPtr->hasInAB(iSysWin)) {
         int inA = partonSystemsPtr->getInA(iSysWin);
         int inB = partonSystemsPtr->getInB(iSysWin);
@@ -4229,15 +4176,14 @@ bool VinciaFSR::branchEW(Event& event) {
           stringstream ss;
           ss << "iSysWin = "<<iSysWin << " non-positive. inA = "<< inA
              << " inB = " << inB;
-          infoPtr->errorMsg("Error in "+__METHOD_NAME__
-            +": Non-positive incoming parton.", ss.str());
+          loggerPtr->ERROR_MSG("non-positive incoming parton", ss.str());
           infoPtr->setAbortPartonLevel(true);
           return false;
         } else if (event[inA].mother1() > 2 || event[inB].mother1() > 2) {
           stringstream ss;
           ss << "iSysWin = "<<iSysWin;
-          infoPtr->errorMsg("Error in "+__METHOD_NAME__
-            +": Failed to update incoming particles after QED branching.",
+          loggerPtr->ERROR_MSG(
+            "failed to update incoming particles after QED branching",
             ss.str());
           infoPtr->setAbortPartonLevel(true);
           return false;
@@ -4253,12 +4199,14 @@ bool VinciaFSR::branchEW(Event& event) {
   }
   // Else EW trial failed.
   else {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "EW trial failed");
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+      "EW trial failed");
     return false;
   }
 
   // Done.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "end",
+    dashLen);
   return true;
 
 }
@@ -4268,7 +4216,8 @@ bool VinciaFSR::branchEW(Event& event) {
 // Update systems of QCD antennae after a QED or EW branching.
 
 bool VinciaFSR::updateAfterEW(Event& event, int sizeOld) {
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
+    dashLen);
   iSysWin = winnerEW->sysWin();
 
   // Create colour-anticolour map for post-branching partons.
@@ -4328,8 +4277,7 @@ bool VinciaFSR::updateAfterEW(Event& event, int sizeOld) {
     if (event[moth1].statusAbs() == 57) moth1 = event[moth1].mother1();
     colouredrecoilers.push_back(make_pair(moth1, i1));
   } else if (status51coloured.size() > 2) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": Too many status 51 particles");
+    loggerPtr->ERROR_MSG("too many status 51 particles");
     infoPtr->setAbortPartonLevel(true);
     return false;
   }
@@ -4347,19 +4295,17 @@ bool VinciaFSR::updateAfterEW(Event& event, int sizeOld) {
   if (isResonanceSys[iSysWin]) {
     if (!updateEmittersRF(iSysWin, event,
         partonSystemsPtr->getInRes(iSysWin))) {
-      if (verbose >= NORMAL)
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Failed updateEmittersRF");
+      if (verbose >= Logger::NORMAL)
+        loggerPtr->ERROR_MSG("failed updateEmittersRF");
       return false;
     }
   }
 
   // Check all FF branchers are final-state.
   if (!check(iSysWin, event)) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": Failed to update branchers");
+    loggerPtr->ERROR_MSG("failed to update branchers");
     list();
-    if (verbose >= DEBUG) printLookup();
+    if (verbose >= VinciaConstants::DEBUG) printLookup();
     infoPtr->setAbortPartonLevel(true);
     return false;
   }
@@ -4383,14 +4329,13 @@ bool VinciaFSR::updateAfterEW(Event& event, int sizeOld) {
       else if (event[d2].isQuark() && event[d2].col() > 0)
         junctionInfo[iSysWin].iEndQuark = d2;
       else {
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Couldn't update junction information");
+        loggerPtr->ERROR_MSG("failed to update junction information");
         return false;
       }
     }
   }
 
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, "end", dashLen);
 
   return true;
@@ -4405,7 +4350,7 @@ bool VinciaFSR::rejectEarly(AntennaFunction* &antFunPtr, bool doMEC) {
 
   bool reject = true;
   if (winnerQCD->getBranchType() == BranchType::Void) {
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       printOut(__METHOD_NAME__, "Warning: could not identify branching type");
     return reject;
   }
@@ -4419,7 +4364,7 @@ bool VinciaFSR::rejectEarly(AntennaFunction* &antFunPtr, bool doMEC) {
   if (winnerQCD->enhanceFac() > 1.0 &&
       winnerQCD->q2Trial() <= pow2(enhanceCutoff)) {
     if (rndmPtr->flat() > 1./winnerQCD->enhanceFac()) {
-      if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+      if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
           "Trial rejected (enhance applied below enhanceCutoff)");
       return reject;
     }
@@ -4430,10 +4375,10 @@ bool VinciaFSR::rejectEarly(AntennaFunction* &antFunPtr, bool doMEC) {
   // Generate post-branching invariants. Can check some vetos already
   // at this level, without full kinematics.
   vector<double> invariants;
-  if (!winnerQCD->genInvariants(invariants, rndmPtr, verbose, infoPtr)) {
-    if (verbose >= DEBUG)
+  if (!winnerQCD->genInvariants(invariants, rndmPtr, verbose, loggerPtr)) {
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Trial rejected (failed genInvariants)");
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"veto(genInvariants)");
     return reject;
   }
@@ -4444,7 +4389,7 @@ bool VinciaFSR::rejectEarly(AntennaFunction* &antFunPtr, bool doMEC) {
     // Factor 4 roughly matches n(g->bb) for massive b quarks.
     double facM = 4;
     if (invariants[1] < facM*pow2(particleDataPtr->m0(winnerQCD->idNew()))) {
-      if (verbose >= REPORT)
+      if (verbose >= Logger::REPORT)
         diagnosticsPtr->stop(__METHOD_NAME__,"veto(mQQ)");
       return reject;
     }
@@ -4466,9 +4411,9 @@ bool VinciaFSR::rejectEarly(AntennaFunction* &antFunPtr, bool doMEC) {
       // uncertainty variations for pure-shower branchings. We also
       // may want to take into account if there was an enhancement
       // applied to this branching.
-      if (verbose >= DEBUG)
+      if (verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__, "Trial rejected (failed R<pAccept)");
-      if (verbose >= REPORT)
+      if (verbose >= Logger::REPORT)
         diagnosticsPtr->stop(__METHOD_NAME__,"veto(pAccept)");
       // Reweighting to account for enhancement factor (reject).
       double enhanceFac = winnerQCD->enhanceFac();
@@ -4495,7 +4440,7 @@ double VinciaFSR::getAntFunPhys(AntennaFunction* &antFunPtr) {
   // Set antenna function pointer and check if this antenna is "on".
   antFunPtr = getAntFunPtr(antFunTypeWin);
   if (antFunPtr->chargeFac() <= 0.) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Trial rejected (chargeFac <= 0)");
     return 0.;
   }
@@ -4525,8 +4470,7 @@ double VinciaFSR::getAntFunPhys(AntennaFunction* &antFunPtr) {
   vector<int> hPost(nPre+1,9);
   double antPhys = antFunPtr->antFun(invariants, mPost, hPre, hPost);
   if (antPhys < 0.) {
-    if (verbose >= REPORT) infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": Negative Antenna Function.", num2str(antFunTypeWin));
+    loggerPtr->ERROR_MSG("negative antenna function", num2str(antFunTypeWin));
     return 0.;
   }
 
@@ -4542,8 +4486,8 @@ double VinciaFSR::getAntFunPhys(AntennaFunction* &antFunPtr) {
 // Calculate acceptance probability.
 
 double VinciaFSR::pAcceptCalc(double antPhys) {
-  double prob = winnerQCD->pAccept(antPhys,infoPtr,verbose);
-  if (verbose >= DEBUG)
+  double prob = winnerQCD->pAccept(antPhys,loggerPtr,verbose);
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__,"Shower pAccept = " + num2str(prob));
   return prob;
 }
@@ -4570,7 +4514,7 @@ bool VinciaFSR::genFullKinematics(int kineMap, Event event,
   if (isRF) {
     if (!vinComPtr->map2toNRF(pPost, pPre, winnerQCD->posR(),
           winnerQCD->posF(), invariants,phi,mPost)) {
-      if (verbose >= DEBUG)
+      if (verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__, "Trial rejected (failed map2toNRF)");
       return false;
     }
@@ -4579,19 +4523,17 @@ bool VinciaFSR::genFullKinematics(int kineMap, Event event,
     if (nPre == 2 && nPost == 3) {
       if (!vinComPtr->map2to3FF(pPost, pPre, kineMap, invariants, phi,
           mPost)) {
-        if (verbose >=  DEBUG)
+        if (verbose >=  VinciaConstants::DEBUG)
           printOut(__METHOD_NAME__, "Trial rejected (failed map2to3)");
         return false;
       }
     // 2->4 kinematics
     } else if (nPre == 2 && nPost == 4) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": 2->4 kinematics map not implemented yet");
+      loggerPtr->ERROR_MSG("2->4 kinematics map not implemented yet");
       return false;
     // 3->4 kinematics
     } else if (nPre == 3 && nPost == 4) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": 3->4 kinematics map not implemented yet");
+      loggerPtr->ERROR_MSG("3->4 kinematics map not implemented yet");
       return false;
     }
   }
@@ -4606,7 +4548,7 @@ bool VinciaFSR::genFullKinematics(int kineMap, Event event,
 bool VinciaFSR::acceptTrial(Event& event) {
 
   // Diagnostics.
-  if (verbose >= REPORT) diagnosticsPtr->start(__METHOD_NAME__);
+  if (verbose >= Logger::REPORT) diagnosticsPtr->start(__METHOD_NAME__);
 
   bool doMEC  = doMECsSys[iSysWin];
   AntennaFunction* antFunPtr;
@@ -4614,12 +4556,12 @@ bool VinciaFSR::acceptTrial(Event& event) {
   // Check to see if we veto early before generating full kinematics,
   // i.e. just based on invariants.
   if (rejectEarly(antFunPtr,doMEC)) {
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"veto(rejectEarly)");
     return false;
   }
   if (!getNewParticles(event,antFunPtr,pNew)) {
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"veto(getNewParticles)");
     return false;
   }
@@ -4656,11 +4598,10 @@ bool VinciaFSR::acceptTrial(Event& event) {
     double q2sectorThis = resolutionPtr->q2sector(thisClus);
     // Sanity check.
     if (q2sectorThis < 0.) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-        "Negative sector resolution");
+      loggerPtr->ERROR_MSG("negative sector resolution");
       return false;
     }
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Branching has sector resolution " << q2sectorThis;
       printOut(__METHOD_NAME__, ss.str());
@@ -4668,7 +4609,7 @@ bool VinciaFSR::acceptTrial(Event& event) {
 
     // Check sector veto.
     minClus = resolutionPtr->findSector(stateNew, nFlavsBorn[iSysWin]);
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Minimal clustering has sector resolution " << minClus.Q2res;
       printOut(__METHOD_NAME__, ss.str());
@@ -4676,13 +4617,13 @@ bool VinciaFSR::acceptTrial(Event& event) {
     bool isVetoed = resolutionPtr->sectorVeto(minClus, thisClus);
     // Failed sector veto.
     if (isVetoed) {
-      if (verbose >= DEBUG)
+      if (verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__, "Branching rejected (outside of sector)");
-      if (verbose >= REPORT)
+      if (verbose >= Logger::REPORT)
         diagnosticsPtr->stop(__METHOD_NAME__,"veto(sector)");
       return false;
     }
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Branching inside of sector");
   }
 
@@ -4690,7 +4631,7 @@ bool VinciaFSR::acceptTrial(Event& event) {
   vector<Particle> stateOld;
   if (!isrPtr->checkHeavyQuarkPhaseSpace(stateOld,iSysWin)) {
     stateOld = vinComPtr->makeParticleList(iSysWin, event);
-    if (verbose >= REPORT) {
+    if (verbose >= Logger::REPORT) {
       printOut(__METHOD_NAME__, "Trial rejected (failed "
         "checkHeavyQuarkPhaseSpace)");
       diagnosticsPtr->stop(__METHOD_NAME__,"veto(HQPS)");
@@ -4702,8 +4643,8 @@ bool VinciaFSR::acceptTrial(Event& event) {
   // Note: currently only implemented for the sector shower.
   double pMEC = 1.;
   if (doMEC) {
-    // DEBUG output.
-    if (verbose >= DEBUG) {
+    // VinciaConstants::DEBUG output.
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Trying matrix element correction for system "
          << iSysWin << " (" << nBranch[iSysWin]+1 << ". branching).";
@@ -4715,45 +4656,47 @@ bool VinciaFSR::acceptTrial(Event& event) {
   pAccept[0] *= pMEC;
 
   // Print MC violations.
-  if (doMEC && verbose >= DEBUG) {
+  if (doMEC && verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << " MEC pAccept = " << pAccept[0];
     printOut(__METHOD_NAME__, ss.str());
   }
-  if (verbose >= REPORT) {
+  if (verbose >= Logger::REPORT) {
     bool violation  = (pAccept[0] > 1.0 + NANO);
     bool negPaccept = (pAccept[0] < 0.0);
-    if (violation) infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": pAccept > 1");
-    if (negPaccept) infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": pAccept < 0");
+    if (violation) loggerPtr->ERROR_MSG("pAccept > 1");
+    if (negPaccept) loggerPtr->ERROR_MSG("pAccept < 0");
     //Print more info for bad cases.
-    if ((violation || negPaccept) && verbose >= DEBUG) winnerQCD->list();
+    if ((violation || negPaccept) && verbose >= VinciaConstants::DEBUG)
+      winnerQCD->list();
   }
 
   // Enhance factors < 1 (radiation inhibition) treated by modifying pAccept.
   const double enhanceFac = winnerQCD->enhanceFac();
   if (rndmPtr->flat() > min(1.0,enhanceFac)*pAccept[0]) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__ , "Trial rejected at veto "
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__ ,
+      "Trial rejected at veto "
         "step. wPhys/wTrial = " + num2str(pAccept[0])
         + " * enhanceFac = "+num2str(enhanceFac));
 
     // Reweighting to account for enhancement factor (reject).
     if (enhanceFac != 1.0)
       weightsPtr->scaleWeightEnhanceReject(pAccept[0],enhanceFac);
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"veto(pAccept)");
     return false;
 
   } else {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__, "Trial accepted");
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+      "Trial accepted");
 
     // Reweighting to account for enhancement factor (accept).
     if (enhanceFac != 1.0) weightsPtr->scaleWeightEnhanceAccept(enhanceFac);
   }
 
   // Diagnostics
-  if (verbose >= REPORT) diagnosticsPtr->stop(__METHOD_NAME__,"accept");
+  if (verbose >= Logger::REPORT)
+    diagnosticsPtr->stop(__METHOD_NAME__,"accept");
 
   return true;
 }
@@ -4767,18 +4710,17 @@ bool VinciaFSR::getNewParticles(Event& event, AntennaFunction* antFunPtr,
 
   // Generate full kinematics.
   if (antFunPtr == nullptr) {
-    if (verbose >= NORMAL)
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": antFunPtr is null pointer");
+    if (verbose >= Logger::NORMAL)
+      loggerPtr->ERROR_MSG("antFunPtr is null");
     return false;
   }
   newParts.clear();
   vector<Vec4> pPost;
   int maptype = antFunPtr->kineMap();
   if (!genFullKinematics(maptype, event, pPost)) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Failed to generate kinematics");
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       diagnosticsPtr->stop(__METHOD_NAME__,"veto(kinematics)");
     return false;
   }
@@ -4786,17 +4728,13 @@ bool VinciaFSR::getNewParticles(Event& event, AntennaFunction* antFunPtr,
   // Generate new helicities.
   vector<int> hPost = genHelicities(antFunPtr);
   if (pPost.size() != hPost.size()) {
-    if (verbose >= NORMAL) {
-      stringstream ss;
-      ss << " pPost.size() = "
-         << pPost.size() <<"  hPost.size() = " << hPost.size();
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Wrong size containers.", ss.str());
-    }
+    loggerPtr->ERROR_MSG("wrong size containers",
+      "(pPost.size() = " + to_string(pPost.size())
+      + ", hPost.size() = " + to_string(hPost.size())+")");
     return false;
   } else if (!winnerQCD->getNewParticles(event, pPost, hPost, newParts,
       rndmPtr, colourPtr)) {
-    if (verbose >= REPORT)
+    if (verbose >= Logger::REPORT)
       printOut(__METHOD_NAME__, "Failed to generate new particles");
     return false;
   } else return true;
@@ -4828,7 +4766,8 @@ vector<int> VinciaFSR::genHelicities(AntennaFunction* antFunPtr) {
         hPost[2] = ( (iHel/4)%2 )*2 -1;
         aHel = antFunPtr->antFun(invariants, mPost, hPre, hPost);
         randHel -= aHel;
-        if (verbose >= DEBUG) printOut(__METHOD_NAME__, "antPhys(" +
+        if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+          "antPhys(" +
             num2str(int(hPre[0])) + " " + num2str(int(hPre[1])) + "  -> " +
             num2str(hPost[0]) + " " + num2str(hPost[1]) + " " +
             num2str(hPost[2]) + ") = " + num2str(aHel) + ", m(IK,ij,jk) = " +
@@ -4838,7 +4777,7 @@ vector<int> VinciaFSR::genHelicities(AntennaFunction* antFunPtr) {
         if (randHel < 0.) break;
       }
     }
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "selected"+num2str((int)(hPre[0]))
         + " " + num2str(int(hPre[1])) + "  -> " + num2str(hPost[0]) + " "
         + num2str(hPost[1]) + " " + num2str(hPost[2]));
@@ -4858,17 +4797,15 @@ double VinciaFSR::getMEC(int iSys, const Event& event,
 
   // Check if post-branching state is set.
   if (statePost.size() == 0) {
-    if (verbose >= NORMAL)
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-        ": Post-branching state not set in system " + num2str(iSysWin,2));
+    loggerPtr->ERROR_MSG("post-branching state not set in system "
+      + num2str(iSysWin,2));
     return mec;
   }
 
   // Matrix elemnt corrections for the global shower not implemented.
   if (!sectorShower) {
-    if (verbose >= NORMAL)
-      infoPtr->errorMsg("Warning in "+__METHOD_NAME__,
-        ": Matrix element corrections not implemented for global shower");
+    loggerPtr->WARNING_MSG(
+      "matrix element corrections not implemented for global shower");
     return mec;
   }
 
@@ -4879,16 +4816,12 @@ double VinciaFSR::getMEC(int iSys, const Event& event,
   mec = mecsPtr->getMECSector(iSys, stateNow, statePost, thisClus);
   // Sanity check.
   if (mec < 0.) {
-    if (verbose >= NORMAL) {
-      stringstream ss;
-      ss << ": Negative matrix element correction factor";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__+ss.str(),
-        "("+num2str(mec,6)+")", true);
-    }
+    loggerPtr->ERROR_MSG("negative matrix element correction factor",
+      "("+num2str(mec,6)+")", true);
     return 1.;
   }
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Found matrix element correction factor " << mec;
     printOut(__METHOD_NAME__, ss.str());
@@ -4949,8 +4882,8 @@ bool VinciaFSR::updateEvent(Event& event, ResJunctionInfo& junctionInfoIn) {
   if (hasResJunction[iSysWin]) {
     vector<int>* colours = &junctionInfoIn.colours;
     if (!event[junctionInfoIn.iEndQuark].isQuark()) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Can't update junction. iEndQuark is not a quark!");
+      loggerPtr->ERROR_MSG("Failed to update junction;"
+        " iEndQuark is not a quark");
       hasResJunction[iSysWin]=false;
       return false;
     }
@@ -5012,8 +4945,8 @@ bool VinciaFSR::updateEvent(Event& event, ResJunctionInfo& junctionInfoIn) {
       if (event[iNew].col() == colLeft) colNew = event[iNew].acol();
       else colNew = event[iNew].col();
       if (colNew == 0) {
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Couldn't find colour for updating junction info");
+        loggerPtr->ERROR_MSG("Failed to find colour for "
+          "updating junction info");
         return false;
       }
 
@@ -5034,8 +4967,7 @@ bool VinciaFSR::updateEvent(Event& event, ResJunctionInfo& junctionInfoIn) {
           junctionInfoIn.iEndQuark  = d2;
           junctionInfoIn.iEndColTag = event[d2].col();
         } else {
-          infoPtr->errorMsg("Error in "+__METHOD_NAME__
-            +": Couldn't update junction");
+          loggerPtr->ERROR_MSG("failed to update junction");
           return false;
         }
         // Update junction.
@@ -5044,7 +4976,7 @@ bool VinciaFSR::updateEvent(Event& event, ResJunctionInfo& junctionInfoIn) {
       }
     }
   }
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "Succesfully updated event after emission");
     event.list();
   }
@@ -5059,7 +4991,7 @@ bool VinciaFSR::updateEvent(Event& event, ResJunctionInfo& junctionInfoIn) {
 void VinciaFSR::updatePartonSystems() {
 
   // List parton systems.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "Parton systems before update: ");
     partonSystemsPtr->list();
   }
@@ -5107,7 +5039,7 @@ void VinciaFSR::updatePartonSystems() {
       }
     }
   }
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "Parton systems after update: ");
     partonSystemsPtr->list();
   }
@@ -5420,13 +5352,14 @@ void VinciaFSR::removeSplitterFF(int iRemove) {
 
 bool VinciaFSR::updateEmittersRF(int iSysRes, Event& event, int iRes) {
 
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
+    dashLen);
 
   // Colour information of resonance. Return if colour singlet.
   int resCol      = event[iRes].col();
   int resACol     = event[iRes].acol();
   if (resCol == 0 && resACol == 0) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "end (resonance is colour singlet)", dashLen);
     return true;
   }
@@ -5449,7 +5382,7 @@ bool VinciaFSR::updateEmittersRF(int iSysRes, Event& event, int iRes) {
     if (iOut != colPartner && iOut != acolPartner)
       daughters.push_back(iOut);
   }
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "col partner = " << colPartner << " acol partner = " << acolPartner;
     printOut(__METHOD_NAME__,ss.str());
@@ -5477,7 +5410,7 @@ bool VinciaFSR::updateEmittersRF(int iSysRes, Event& event, int iRes) {
     unsigned int posRes(0), posPartner(1);
     updateEmittersRF(iSysRes,event,resSysAll,posRes,posPartner,false);
   }
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, "end", dashLen);
 
   return true;
@@ -5493,7 +5426,7 @@ void VinciaFSR::updateEmittersRF(int iSysRes, Event& event,
   bool isCol) {
 
   if (posRes >= resSysAll.size() || posPartner >= resSysAll.size()) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Invalid positions");
+    loggerPtr->ERROR_MSG("invalid positions");
     infoPtr->setAbortPartonLevel(true);
     return;
   }
@@ -5604,13 +5537,12 @@ void VinciaFSR::updateEmittersRF(int iSysRes, Event& event,
 
 bool VinciaFSR::updateAntennae(Event& event) {
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "begin", dashLen);
-    if (verbose >= DEBUG) printLookup();
+    if (verbose >= VinciaConstants::DEBUG) printLookup();
   }
   if (winnerQCD == nullptr) {
-    if (verbose >= NORMAL) infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": winnerQCD is null pointer");
+    loggerPtr->ERROR_MSG("winnerQCD is null pointer");
     return false;
   }
 
@@ -5789,22 +5721,20 @@ bool VinciaFSR::updateAntennae(Event& event) {
   if (isResonanceSys[iSysWin]) {
     if (!updateEmittersRF(iSysWin, event,
         partonSystemsPtr->getInRes(iSysWin))) {
-      if (verbose >= NORMAL)
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Failed updateEmittersRF");
+      loggerPtr->ERROR_MSG("failed updateEmittersRF");
       return false;
     }
   }
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     list();
     printLookup();
   }
   if (!check(iSysWin, event)) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__
-      +": Failed to update branchers");
+    loggerPtr->ERROR_MSG("failed to update branchers");
     return false;
   }
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "end", dashLen);
   return true;
 
 }

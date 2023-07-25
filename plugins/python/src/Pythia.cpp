@@ -1,13 +1,13 @@
 #include <Pythia8/Basics.h>
-#include <Pythia8/BeamParticle.h>
-#include <Pythia8/Event.h>
-#include <Pythia8/GammaKinematics.h>
-#include <Pythia8/HIUserHooks.h>
+#include <Pythia8/BeamSetup.h>
+#include <Pythia8/BeamShape.h>
+#include <Pythia8/HIInfo.h>
 #include <Pythia8/HadronWidths.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/Info.h>
 #include <Pythia8/LHEF3.h>
 #include <Pythia8/LesHouches.h>
+#include <Pythia8/Logger.h>
 #include <Pythia8/Merging.h>
 #include <Pythia8/MergingHooks.h>
 #include <Pythia8/ParticleData.h>
@@ -18,9 +18,7 @@
 #include <Pythia8/PhaseSpace.h>
 #include <Pythia8/Pythia.h>
 #include <Pythia8/ResonanceWidths.h>
-#include <Pythia8/SLHAinterface.h>
 #include <Pythia8/Settings.h>
-#include <Pythia8/SharedPointers.h>
 #include <Pythia8/ShowerModel.h>
 #include <Pythia8/SigmaLowEnergy.h>
 #include <Pythia8/SigmaProcess.h>
@@ -29,6 +27,7 @@
 #include <Pythia8/SusyCouplings.h>
 #include <Pythia8/UserHooks.h>
 #include <Pythia8/Weights.h>
+#include <cwchar>
 #include <functional>
 #include <ios>
 #include <istream>
@@ -46,7 +45,6 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
-#include <Pythia8/HIUserHooks.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -63,7 +61,7 @@
 
 void bind_Pythia8_Pythia(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
-	{ // Pythia8::Pythia file:Pythia8/Pythia.h line:69
+	{ // Pythia8::Pythia file:Pythia8/Pythia.h line:71
 		pybind11::class_<Pythia8::Pythia, std::shared_ptr<Pythia8::Pythia>> cl(M("Pythia8"), "Pythia", "");
 		pybind11::handle cl_type = cl;
 
@@ -91,11 +89,10 @@ void bind_Pythia8_Pythia(std::function< pybind11::module &(std::string const &na
 		cl.def_readwrite("heavyIonsPtr", &Pythia8::Pythia::heavyIonsPtr);
 		cl.def_readwrite("hiHooksPtr", &Pythia8::Pythia::hiHooksPtr);
 		cl.def_readwrite("hadronWidths", &Pythia8::Pythia::hadronWidths);
-		cl.def_readwrite("beamA", &Pythia8::Pythia::beamA);
-		cl.def_readwrite("beamB", &Pythia8::Pythia::beamB);
 		cl.def("checkVersion", (bool (Pythia8::Pythia::*)()) &Pythia8::Pythia::checkVersion, "C++: Pythia8::Pythia::checkVersion() --> bool");
 		cl.def("readString", [](Pythia8::Pythia &o, class std::basic_string<char> const & a0) -> bool { return o.readString(a0); }, "", pybind11::arg(""));
-		cl.def("readString", (bool (Pythia8::Pythia::*)(std::string, bool)) &Pythia8::Pythia::readString, "C++: Pythia8::Pythia::readString(std::string, bool) --> bool", pybind11::arg(""), pybind11::arg("warn"));
+		cl.def("readString", [](Pythia8::Pythia &o, class std::basic_string<char> const & a0, bool const & a1) -> bool { return o.readString(a0, a1); }, "", pybind11::arg(""), pybind11::arg("warn"));
+		cl.def("readString", (bool (Pythia8::Pythia::*)(std::string, bool, int)) &Pythia8::Pythia::readString, "C++: Pythia8::Pythia::readString(std::string, bool, int) --> bool", pybind11::arg(""), pybind11::arg("warn"), pybind11::arg("subrun"));
 		cl.def("readFile", [](Pythia8::Pythia &o, class std::basic_string<char> const & a0) -> bool { return o.readFile(a0); }, "", pybind11::arg("fileName"));
 		cl.def("readFile", [](Pythia8::Pythia &o, class std::basic_string<char> const & a0, bool const & a1) -> bool { return o.readFile(a0, a1); }, "", pybind11::arg("fileName"), pybind11::arg("warn"));
 		cl.def("readFile", (bool (Pythia8::Pythia::*)(std::string, bool, int)) &Pythia8::Pythia::readFile, "C++: Pythia8::Pythia::readFile(std::string, bool, int) --> bool", pybind11::arg("fileName"), pybind11::arg("warn"), pybind11::arg("subrun"));
@@ -124,13 +121,16 @@ void bind_Pythia8_Pythia(std::function< pybind11::module &(std::string const &na
 		cl.def("setPDFBPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::PDF>)) &Pythia8::Pythia::setPDFBPtr, "C++: Pythia8::Pythia::setPDFBPtr(class std::shared_ptr<class Pythia8::PDF>) --> bool", pybind11::arg("pdfBPtrIn"));
 		cl.def("setPhotonFluxPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::PDF>, class std::shared_ptr<class Pythia8::PDF>)) &Pythia8::Pythia::setPhotonFluxPtr, "C++: Pythia8::Pythia::setPhotonFluxPtr(class std::shared_ptr<class Pythia8::PDF>, class std::shared_ptr<class Pythia8::PDF>) --> bool", pybind11::arg("photonFluxAIn"), pybind11::arg("photonFluxBIn"));
 		cl.def("setLHAupPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::LHAup>)) &Pythia8::Pythia::setLHAupPtr, "C++: Pythia8::Pythia::setLHAupPtr(class std::shared_ptr<class Pythia8::LHAup>) --> bool", pybind11::arg("lhaUpPtrIn"));
+		cl.def("setDecayPtr", [](Pythia8::Pythia &o, class std::shared_ptr<class Pythia8::DecayHandler> const & a0) -> bool { return o.setDecayPtr(a0); }, "", pybind11::arg("decayHandlePtrIn"));
 		cl.def("setDecayPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::DecayHandler>, class std::vector<int, class std::allocator<int> >)) &Pythia8::Pythia::setDecayPtr, "C++: Pythia8::Pythia::setDecayPtr(class std::shared_ptr<class Pythia8::DecayHandler>, class std::vector<int, class std::allocator<int> >) --> bool", pybind11::arg("decayHandlePtrIn"), pybind11::arg("handledParticlesIn"));
-		cl.def("setRndmEnginePtr", (bool (Pythia8::Pythia::*)(class Pythia8::RndmEngine *)) &Pythia8::Pythia::setRndmEnginePtr, "C++: Pythia8::Pythia::setRndmEnginePtr(class Pythia8::RndmEngine *) --> bool", pybind11::arg("rndmEnginePtrIn"));
+		cl.def("setRndmEnginePtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::RndmEngine>)) &Pythia8::Pythia::setRndmEnginePtr, "C++: Pythia8::Pythia::setRndmEnginePtr(class std::shared_ptr<class Pythia8::RndmEngine>) --> bool", pybind11::arg("rndmEnginePtrIn"));
 		cl.def("setUserHooksPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::UserHooks>)) &Pythia8::Pythia::setUserHooksPtr, "C++: Pythia8::Pythia::setUserHooksPtr(class std::shared_ptr<class Pythia8::UserHooks>) --> bool", pybind11::arg("userHooksPtrIn"));
 		cl.def("addUserHooksPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::UserHooks>)) &Pythia8::Pythia::addUserHooksPtr, "C++: Pythia8::Pythia::addUserHooksPtr(class std::shared_ptr<class Pythia8::UserHooks>) --> bool", pybind11::arg("userHooksPtrIn"));
 		cl.def("setMergingPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::Merging>)) &Pythia8::Pythia::setMergingPtr, "C++: Pythia8::Pythia::setMergingPtr(class std::shared_ptr<class Pythia8::Merging>) --> bool", pybind11::arg("mergingPtrIn"));
 		cl.def("setMergingHooksPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::MergingHooks>)) &Pythia8::Pythia::setMergingHooksPtr, "C++: Pythia8::Pythia::setMergingHooksPtr(class std::shared_ptr<class Pythia8::MergingHooks>) --> bool", pybind11::arg("mergingHooksPtrIn"));
 		cl.def("setBeamShapePtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::BeamShape>)) &Pythia8::Pythia::setBeamShapePtr, "C++: Pythia8::Pythia::setBeamShapePtr(class std::shared_ptr<class Pythia8::BeamShape>) --> bool", pybind11::arg("beamShapePtrIn"));
+		cl.def("setResonancePtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::ResonanceWidths>)) &Pythia8::Pythia::setResonancePtr, "C++: Pythia8::Pythia::setResonancePtr(class std::shared_ptr<class Pythia8::ResonanceWidths>) --> bool", pybind11::arg("resonancePtrIn"));
+		cl.def("addResonancePtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::ResonanceWidths>)) &Pythia8::Pythia::addResonancePtr, "C++: Pythia8::Pythia::addResonancePtr(class std::shared_ptr<class Pythia8::ResonanceWidths>) --> bool", pybind11::arg("resonancePtrIn"));
 		cl.def("setShowerModelPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::ShowerModel>)) &Pythia8::Pythia::setShowerModelPtr, "C++: Pythia8::Pythia::setShowerModelPtr(class std::shared_ptr<class Pythia8::ShowerModel>) --> bool", pybind11::arg("showerModelPtrIn"));
 		cl.def("setHeavyIonsPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::HeavyIons>)) &Pythia8::Pythia::setHeavyIonsPtr, "C++: Pythia8::Pythia::setHeavyIonsPtr(class std::shared_ptr<class Pythia8::HeavyIons>) --> bool", pybind11::arg("heavyIonsPtrIn"));
 		cl.def("setHIHooks", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::HIUserHooks>)) &Pythia8::Pythia::setHIHooks, "C++: Pythia8::Pythia::setHIHooks(class std::shared_ptr<class Pythia8::HIUserHooks>) --> bool", pybind11::arg("hiHooksPtrIn"));
@@ -169,6 +169,10 @@ void bind_Pythia8_Pythia(std::function< pybind11::module &(std::string const &na
 		cl.def("getSigmaPartial", (double (Pythia8::Pythia::*)(int, int, double, int, int)) &Pythia8::Pythia::getSigmaPartial, "C++: Pythia8::Pythia::getSigmaPartial(int, int, double, int, int) --> double", pybind11::arg("id1"), pybind11::arg("id2"), pybind11::arg("eCM12"), pybind11::arg("procTypeIn"), pybind11::arg("mixLoHi"));
 		cl.def("getSigmaPartial", [](Pythia8::Pythia &o, int const & a0, int const & a1, double const & a2, double const & a3, double const & a4, int const & a5) -> double { return o.getSigmaPartial(a0, a1, a2, a3, a4, a5); }, "", pybind11::arg("id1"), pybind11::arg("id2"), pybind11::arg("eCM12"), pybind11::arg("m1"), pybind11::arg("m2"), pybind11::arg("procTypeIn"));
 		cl.def("getSigmaPartial", (double (Pythia8::Pythia::*)(int, int, double, double, double, int, int)) &Pythia8::Pythia::getSigmaPartial, "C++: Pythia8::Pythia::getSigmaPartial(int, int, double, double, double, int, int) --> double", pybind11::arg("id1"), pybind11::arg("id2"), pybind11::arg("eCM12"), pybind11::arg("m1"), pybind11::arg("m2"), pybind11::arg("procTypeIn"), pybind11::arg("mixLoHi"));
+		cl.def("getPDFPtr", [](Pythia8::Pythia &o, int const & a0) -> std::shared_ptr<class Pythia8::PDF> { return o.getPDFPtr(a0); }, "", pybind11::arg("idIn"));
+		cl.def("getPDFPtr", [](Pythia8::Pythia &o, int const & a0, int const & a1) -> std::shared_ptr<class Pythia8::PDF> { return o.getPDFPtr(a0, a1); }, "", pybind11::arg("idIn"), pybind11::arg("sequence"));
+		cl.def("getPDFPtr", [](Pythia8::Pythia &o, int const & a0, int const & a1, class std::basic_string<char> const & a2) -> std::shared_ptr<class Pythia8::PDF> { return o.getPDFPtr(a0, a1, a2); }, "", pybind11::arg("idIn"), pybind11::arg("sequence"), pybind11::arg("beam"));
+		cl.def("getPDFPtr", (class std::shared_ptr<class Pythia8::PDF> (Pythia8::Pythia::*)(int, int, std::string, bool)) &Pythia8::Pythia::getPDFPtr, "C++: Pythia8::Pythia::getPDFPtr(int, int, std::string, bool) --> class std::shared_ptr<class Pythia8::PDF>", pybind11::arg("idIn"), pybind11::arg("sequence"), pybind11::arg("beam"), pybind11::arg("resolved"));
 		cl.def("LHAeventList", (void (Pythia8::Pythia::*)()) &Pythia8::Pythia::LHAeventList, "C++: Pythia8::Pythia::LHAeventList() --> void");
 		cl.def("LHAeventSkip", (bool (Pythia8::Pythia::*)(int)) &Pythia8::Pythia::LHAeventSkip, "C++: Pythia8::Pythia::LHAeventSkip(int) --> bool", pybind11::arg("nSkip"));
 		cl.def("stat", (void (Pythia8::Pythia::*)()) &Pythia8::Pythia::stat, "C++: Pythia8::Pythia::stat() --> void");
@@ -176,10 +180,6 @@ void bind_Pythia8_Pythia(std::function< pybind11::module &(std::string const &na
 		cl.def("mode", (int (Pythia8::Pythia::*)(std::string)) &Pythia8::Pythia::mode, "C++: Pythia8::Pythia::mode(std::string) --> int", pybind11::arg("key"));
 		cl.def("parm", (double (Pythia8::Pythia::*)(std::string)) &Pythia8::Pythia::parm, "C++: Pythia8::Pythia::parm(std::string) --> double", pybind11::arg("key"));
 		cl.def("word", (std::string (Pythia8::Pythia::*)(std::string)) &Pythia8::Pythia::word, "C++: Pythia8::Pythia::word(std::string) --> std::string", pybind11::arg("key"));
-		cl.def("getPDFPtr", [](Pythia8::Pythia &o, int const & a0) -> std::shared_ptr<class Pythia8::PDF> { return o.getPDFPtr(a0); }, "", pybind11::arg("idIn"));
-		cl.def("getPDFPtr", [](Pythia8::Pythia &o, int const & a0, int const & a1) -> std::shared_ptr<class Pythia8::PDF> { return o.getPDFPtr(a0, a1); }, "", pybind11::arg("idIn"), pybind11::arg("sequence"));
-		cl.def("getPDFPtr", [](Pythia8::Pythia &o, int const & a0, int const & a1, class std::basic_string<char> const & a2) -> std::shared_ptr<class Pythia8::PDF> { return o.getPDFPtr(a0, a1, a2); }, "", pybind11::arg("idIn"), pybind11::arg("sequence"), pybind11::arg("beam"));
-		cl.def("getPDFPtr", (class std::shared_ptr<class Pythia8::PDF> (Pythia8::Pythia::*)(int, int, std::string, bool)) &Pythia8::Pythia::getPDFPtr, "C++: Pythia8::Pythia::getPDFPtr(int, int, std::string, bool) --> class std::shared_ptr<class Pythia8::PDF>", pybind11::arg("idIn"), pybind11::arg("sequence"), pybind11::arg("beam"), pybind11::arg("resolved"));
 		cl.def("infoPython", (class Pythia8::Info (Pythia8::Pythia::*)()) &Pythia8::Pythia::infoPython, "C++: Pythia8::Pythia::infoPython() --> class Pythia8::Info");
 	}
 }

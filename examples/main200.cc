@@ -3,13 +3,13 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
+// Authors: Peter Skands <peter.skands@monash.edu>
+
+// Keywords: Vincia; Dire; electron-positron
+
 // Simple example of the VINCIA (or DIRE) shower model(s), on Z decays at
 // LEP I, with some basic event shapes, spectra, and multiplicity counts.
 // Also useful as a basic test of the respective final-state showers.
-
-// Authors: Peter Skands <peter.skands@monash.edu>
-
-// Keywords: Vincia; Dire; electron-positron;
 
 // Include Pythia8 header(s) and namespace.
 #include "Pythia8/Pythia.h"

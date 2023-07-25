@@ -3,11 +3,11 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Stefan Ask <authors@pythia.org>
+// Authors: Stefan Ask
 
 // Contact: Nishita Desai <nishita.desai@tifr.res.in>
 
-// Keywords: extra dimensions; BSM;
+// Keywords: extra dimensions; BSM
 
 // This is a test program for the extra dimensions processes.
 

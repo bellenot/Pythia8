@@ -63,6 +63,15 @@ public:
   // Usage: doVetoProcessLevel( process).
   virtual bool doVetoProcessLevel(Event& ) {return false;}
 
+  // Possibility to set low energy cross sections.
+  // Usage: canSetLowEnergySigma(idA, idB).
+  virtual bool canSetLowEnergySigma(int, int) const {return false;}
+
+  // Set low energy cross sections for ids where canSetLowEnergySigma is true.
+  // Usage: doSetLowEnergySigma(idA, idB, eCM, mA, mB).
+  virtual double doSetLowEnergySigma(int, int, double, double, double) const {
+    return 0.;}
+
   // Possibility to veto resonance decay chain.
   virtual bool canVetoResonanceDecays() {return false;}
 
@@ -313,17 +322,17 @@ public:
       if (hooks[i]->canSetImpactParameter()) ++nCanSetImpactParameter;
     }
     if (nCanSetResonanceScale > 1) {
-      infoPtr->errorMsg("Error in UserHooksVector::initAfterBeams "
+      loggerPtr->ERROR_MSG(
         "multiple UserHooks with canSetResonanceScale() not allowed");
       return false;
     }
     if (nCanChangeFragPar > 1) {
-      infoPtr->errorMsg("Error in UserHooksVector::initAfterBeams "
+      loggerPtr->ERROR_MSG(
         "multiple UserHooks with canChangeFragPar() not allowed");
       return false;
     }
     if (nCanSetImpactParameter > 1) {
-      infoPtr->errorMsg("Error in UserHooksVector::initAfterBeams "
+      loggerPtr->ERROR_MSG(
         "multiple UserHooks with canSetImpactParameter() not allowed");
       return false;
     }
@@ -628,6 +637,27 @@ public:
     return false;
   }
 
+  // Set initial ends of a string to be fragmented. This is done once
+  // for each string. Note that the second string end may be zero in
+  // case we are hadronising a string piece leading to a junction.
+  virtual void setStringEnds( const StringEnd* pos, const StringEnd* neg,
+    vector<int> iPart) {
+    for ( int i = 0, N = hooks.size(); i < N; ++i )
+      hooks[i]->setStringEnds( pos, neg, iPart);
+  }
+
+  // Do change fragmentation parameters.
+  // Input: flavPtr, zPtr, pTPtr, idEnd, m2Had, iParton and posEnd (or
+  // negEnd).
+  virtual bool doChangeFragPar( StringFlav* sfIn, StringZ* zIn,
+    StringPT* ptIn, int idIn, double mIn, vector<int> parIn,
+    const StringEnd* endIn) {
+    for ( int i = 0, N = hooks.size(); i < N; ++i )
+      if ( hooks[i]->canChangeFragPar()
+           && hooks[i]->doChangeFragPar(sfIn, zIn, ptIn, idIn,
+                                     mIn, parIn, endIn) ) return true;
+    return false;}
+
   // Do a veto on a hadron just before it is added to the final state.
   virtual bool doVetoFragmentation(Particle p, const StringEnd* nowEnd) {
     for ( int i = 0, N = hooks.size(); i < N; ++i )
@@ -641,6 +671,23 @@ public:
     for ( int i = 0, N = hooks.size(); i < N; ++i )
       if ( hooks[i]->canChangeFragPar()
         && hooks[i]->doVetoFragmentation(p1, p2, e1, e2) ) return true;
+    return false;
+  }
+
+  // Possibility to veto an event after hadronization based on event
+  // contents. Works as an early trigger to avoid running the time
+  // consuming rescattering process on uninteresting events.
+  virtual bool canVetoAfterHadronization() {
+    for ( int i = 0, N = hooks.size(); i < N; ++i )
+      if ( hooks[i]->canVetoAfterHadronization() ) return true;
+    return false;
+  }
+
+  // Do the actual veto after hadronization.
+  virtual bool doVetoAfterHadronization(const Event& e) {
+    for ( int i = 0, N = hooks.size(); i < N; ++i )
+      if ( hooks[i]->canVetoAfterHadronization()
+        && hooks[i]->doVetoAfterHadronization(e) ) return true;
     return false;
   }
 

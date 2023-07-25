@@ -37,6 +37,7 @@ public:
     settingsPtr     = infoPtr->settingsPtr;
     particleDataPtr = infoPtr->particleDataPtr;
     rndmPtr         = infoPtr->rndmPtr;
+    loggerPtr       = infoPtr->loggerPtr;
     coupSMPtr       = infoPtr->coupSMPtr;
     coupSUSYPtr     = infoPtr->coupSUSYPtr;
 }
@@ -59,6 +60,7 @@ public:
   Settings*            settingsPtr;
   ParticleData*        particleDataPtr;
   Rndm*                rndmPtr;
+  Logger*              loggerPtr;
 
   // SM couplings and SLHA derived couplings class.
   CoupSM*              coupSMPtr;

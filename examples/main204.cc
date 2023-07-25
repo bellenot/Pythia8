@@ -3,16 +3,16 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
+// Authors: Marius Utheim <marius.r.utheim@jyu.fi>
+//          Peter Skands <peter.skands@monash.edu>
+
+// Keywords: Vincia; Dire; parallelism
+
 // This is a simple test program to compare Pythia and Vincia on
 // inclusive jet rates at the LHC, for a sample with pThat > 100 GeV.
 // This program is equivalent to main201, but uses the built-in parallelism
 // framework to generate events in parallel, instead of running two Pythia
 // instances in parallel with OpenMP.
-
-// Authors: Marius Utheim <marius.r.utheim@jyu.fi>,
-//          Peter Skands <peter.skands@monash.edu>
-
-// Keywords: Vincia; Dire; parallelism;
 
 #include "Pythia8/Pythia.h"
 #include "Pythia8/PythiaParallel.h"
@@ -58,7 +58,7 @@ int main() {
       // Switch to VINCIA shower model
       pythia.readString("PartonShowers:Model = 2");
       // Output in parallel is not possible.
-      pythia.readString("Vincia:verbose = -1");
+      pythia.readString("Print:verbosity = 0");
     }
     // Initialise generator for this run
     if(!pythia.init()) {continue;}

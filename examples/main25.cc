@@ -3,7 +3,7 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Keywords: basic usage; hadronization; LHE file;
+// Keywords: basic usage; hadronization; LHE file
 
 // This is a simple test program.
 // It illustrates how Les Houches Event File input can be used in Pythia8.

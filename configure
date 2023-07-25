@@ -345,7 +345,7 @@ configure_package "LHAPDF5" "/afs/cern.ch/sw/lcg/releases/MCGenerators/lhapdf"\
     "lhapdf-config" "" "--incdir" "--libdir" "" "" "LHAPDF" ""
 configure_package "LHAPDF6" "/afs/cern.ch/sw/lcg/releases/MCGenerators/lhapdf6"\
     "lhapdf-config" "" "--incdir" "--libdir" "" "LHAPDF/LHAPDF.h" "LHAPDF" ""
-configure_package "POWHEG" "" "" "" "" "" "hvq" "" "" ""
+configure_package "POWHEG" "" "" "" "" "" "" "" "hvq" ""
 configure_package "RIVET" "" "rivet-config" "" "--includedir"\
     "--libdir" "rivet-config" "Rivet/Rivet.hh" "Rivet" ""
 configure_package "ROOT" "/afs/cern.ch/sw/lcg/releases/ROOT" "root-config"\

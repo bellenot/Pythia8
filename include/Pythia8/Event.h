@@ -266,6 +266,8 @@ public:
     return (pdePtr != 0) ? pdePtr->isParton() : false;}
   bool   isHadron()  const {
     return (pdePtr != 0) ? pdePtr->isHadron() : false;}
+  bool   isExotic()  const {
+    return (pdePtr != 0) ? pdePtr->isExotic() : false;}
   ParticleDataEntry& particleDataEntry() const {return *pdePtr;}
 
   // Member functions that perform operations.
@@ -441,6 +443,9 @@ public:
   Particle& front()   {return entry.front();}
   Particle& at(int i) {return entry.at(i);}
   Particle& back()    {return entry.back();}
+  const Particle& front()   const {return entry.front();}
+  const Particle& at(int i) const {return entry.at(i);}
+  const Particle& back()    const {return entry.back();}
 
   // Implement iterators for the particle array.
   vector<Pythia8::Particle>::iterator begin() { return entry.begin(); }

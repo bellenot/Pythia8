@@ -8,6 +8,140 @@ PYTHIA 8.243 version, which was the starting point for PYTHIA
 compatibility. The main change is that C++11 is now assumed. 
 The impact on existing used code should be mild, however. 
  
+<h3>8.310: 25 July 2023</h3> 
+ 
+<ul> 
+<li>Naomi Cooke joins the author team.</li> 
+ 
+<li>Production of quarkonia is now available via the simple timelike shower, 
+see <aloc href="OniaShowers">Onia Showers</aloc> for details.</li> 
+ 
+<li>Added a new feature that allows producing user-defined resonances in 
+hadronic rescattering. Newly added particles can be produced as resonances 
+if they set <code>varWidth = on</code>. Examples of this are shown in 
+<code>main157</code> and <code>main158</code>.</li> 
+ 
+<li>A number of changes have been made to the heavy ion 
+machinery.</li> 
+<ul> 
+<li>Variable energies can now be used in Angantyr. This is done by 
+setting <code>Beams:allowVariableEnergy = on</code> and using the 
+<code>Pythia::setKinematics</code> methods. In addition Angantyr can 
+now handle all <code>Beams:frameType</code> options.</li> 
+<li>MPI initialization reuse has now been enabled for heavy ions. The 
+<code>MultipartonInteractions:reuseInit</code> and 
+<code>MultipartonInteractions:initFile</code> parameters control 
+whether the MBIAS Pythia object will reuse MPIs. In addition, the 
+<code>HeavyIon:SasdMpiReuseInit</code> and 
+<code>HeavyIon:SasdMpiInitFile</code> parameters do the same thing for 
+the SASD Pythia object.</li> 
+<li>The parameters calculated from the evolutionary algorithm can also 
+be saved to file. This is controlled with the 
+<code>HeavyIon:SigFitReuseInit</code> and 
+<code>HeavyIon:SigFitInitFile</code> settings.</li> 
+<li>The <code>HIUserHooks</code> source has been split into 
+<code>HIInfo</code>, <code>HINucleusModel</code>, and 
+<code>HISubCollisionModel</code>.</li> 
+<li>Some code is offloaded to new classes <code>Nucleus</code> and 
+<code>SubCollisionSet</code>, simplifying <code>HeavyIons.cc</code>.</li> 
+<li>Simplified the output for the Angantyr procedure for fitting 
+nucleon cross sections.</li> 
+</ul> 
+ 
+<li>Included possibility to sample intermediate photon virtuality also 
+for externally provided events using built-in photon flux for 
+protons.</li> 
+ 
+<li>Included possibility to generate DIS events with a (anti-)neutrino 
+beam.</li> 
+ 
+<li>The <code>TopRecoilHook</code>, formerly available separately, 
+has now been integrated into the <code>SimpleTimeShower</code>. See 
+further the <aloc href="TimelikeShowers">TimeShower:recoilStrategyRF</aloc> 
+switch, which replaces and extends the old 
+<code>TimeShower:recoilToColoured</code> flag. In top decays the 
+radiation pattern in the new option is reweighted to have top as 
+recoiler in case the relevant colour line connects to it.</li> 
+</ul> 
+ 
+<li>Introduced a new use plugin system, see 
+<aloc href="Plugins">Plugins</aloc> for details. This system is currently 
+experimental and feedback is welcome. As part of this new system, a 
+few changes have been made to how user provided classes are passed to 
+a <code>Pythia></code> object for consistency.</li> 
+<ul> 
+<li>The arguments to the <code>setSigmaPtr</code> method are now 
+shared pointers. Additionally, <code>addSigmaPtr</code> has been 
+introduced with the previous behaviour of <code>setSigmaPtr</code>, 
+and the new <code>setSigmaPtr</code> overrides all previously added 
+pointers.</li> 
+<li>A similar change has been made for the 
+<code>setResonancePtr</code> method with the addition of the 
+<code>addResonancePtr</code> method.</li> 
+</ul> 
+ 
+<li>The new <code>Logger</code> class now handles printing such as 
+initialization information and diagnostic messages. For more information 
+about this class, see the <aloc href="Logging">Logging</aloc> page.</li> 
+ 
+<li>The new <code>BeamSetup</code> class has been introduced to handle the 
+beam configuration, including initializing and changing beam identities, 
+kinematics and parton distributions. This is a structural change that 
+simplifies the code in the <code>Pythia</code> class, but does not 
+introduce any functional changes.</li> 
+ 
+<li>Modified interface to <code>LHAPDF6</code> to allow for 
+multi-threading. Thanks to Christopher Jones for the report.</li> 
+ 
+<li>Updated the Python interface to use <code>pybind11</code> version 
+2.10.4 which is compatible with Python 3.11. Thanks to Mattias Ellert 
+and David Runge for reporting the incompatibility and maintaining the 
+Fedora and Arch Linux packages. Note, this version is not compatible 
+with Python versions 3.5 and below, and so version 2.9.2 of 
+<code>pybind11</code> is used automatically for these versions.</li> 
+ 
+<li>Fix for the Python interface working with <code>gcc13</code>, thanks 
+to Dmitri Konstantinov.</li> 
+ 
+<li>Fixed a bug in the Python interface which prevented 
+<code>main162.py</code> from running correctly when passing a custom 
+function for initialization.</li> 
+ 
+<li>Updated the <ei>Lambda_b0</ei> lifetime to <ei>c*tau = 0.44 
+mm</ei>. The value was rounded to two significant digits since PDG 
+and HFLAV do not quite agree to three digits. Thanks to A. Rossi for 
+pointing out the previous default value (<ei>0.369 mm</ei>) was 
+outdated.</li> 
+ 
+<li>Included several small fixes in response to running an LLVM static 
+code analysis, thanks to Michal Kreps.</li> 
+ 
+<li>Fixed out-of-range access when calling <code>Hist::getYMin</code> 
+and <code>Hist::getYMax</code> for a histogram that has not been 
+booked.</li> 
+ 
+<li>Fixed <code>BeamRemnants:unresolvedHadron</code> option that was 
+broken and had no effect since 8.307</li> 
+ 
+<li>Removed use of <code>simple-template-id</code>s in 
+<code>SusyLesHouches.h</code> to make compliant with 
+<code>C++20</code>. Thanks to Jonas Hahnfeld.</li> 
+ 
+<li>Fixed dipole sorting behaviour in <code>ColourReconnection</code> 
+which resulted in an ordering that depended on the current memory 
+state of the program.</li> 
+ 
+<li>Changed the default for <code>Parallelism:balanceLoad</code> to 
+<code>on</code> and updated the documentation. This ensures each 
+thread will always generate the same number of events.</li> 
+ 
+<li>Added the <code>+=</code> notation for settings vectors, as well 
+as the <code>include = fileName</code> directive, which allows for 
+additional settings files to be directly read in.</li> 
+ 
+<li>Fixed a bug in the bookkeeping the number of hadrons in the string 
+fragmentation.</li> 
+ 
 <h3>8.309: 16 February 2023</h3> 
  
 <ul> 

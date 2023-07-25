@@ -5,7 +5,7 @@
 
 // Author: Christian T Preuss <christian.preuss@monash.edu>
 
-// Keywords: HDF5 file; lheh5; hepmc;
+// Keywords: HDF5 file; lheh5; hepmc
 
 // This program (main46.cc) illustrates how a HDF5 event file can be
 // used by Pythia8. See main44.cc and main45.cc for how to use LHE

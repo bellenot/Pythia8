@@ -17,7 +17,7 @@
 #else
 #include "Pythia8Plugins/HepMC3.h"
 #endif
-#include "Pythia8/HIUserHooks.h"
+#include "Pythia8/HIInfo.h"
 #include <set>
 #include <vector>
 #include <string>

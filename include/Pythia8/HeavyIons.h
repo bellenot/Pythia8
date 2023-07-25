@@ -12,7 +12,7 @@
 #ifndef Pythia8_HeavyIons_H
 #define Pythia8_HeavyIons_H
 
-#include "Pythia8/HIUserHooks.h"
+#include "Pythia8/HIInfo.h"
 #include "Pythia8/PhysicsBase.h"
 
 namespace Pythia8 {
@@ -35,7 +35,7 @@ public:
   // The constructor needs a reference to the main Pythia object to
   // which it will belong. A HeavyIons object cannot belong to more
   // than one main Pythia object.
-  HeavyIons(Pythia & mainPythiaIn)
+  HeavyIons(Pythia& mainPythiaIn)
     : mainPythiaPtr(&mainPythiaIn), HIHooksPtr(0),
       pythia(vector<Pythia*>(1, &mainPythiaIn)) {
   }
@@ -57,25 +57,34 @@ public:
   // return immediately with the return value of this function.
   virtual bool next() = 0;
 
-  // Static function to alow Pythia to duplicate some setting names
+  // Static function to allow Pythia to duplicate some setting names
   // to be used for secondary Pythia objects.
-  static void addSpecialSettings(Settings & settings);
+  static void addSpecialSettings(Settings& settings);
 
   // Return true if the beams in the Primary Pythia object contains
   // heavy ions.
-  static bool isHeavyIon(Settings & settings);
+  static bool isHeavyIon(Settings& settings);
 
   // Possibility to pass in pointer for special heavy ion user hooks.
   bool setHIUserHooksPtr(HIUserHooksPtr userHooksPtrIn) {
     HIHooksPtr = userHooksPtrIn; return true;
   }
 
-protected:
+  // Set beam kinematics.
+  virtual bool setKinematics(double /*eCMIn*/) {
+    loggerPtr->ERROR_MSG("method not implemented for this heavy ion model");
+    return false; }
+  virtual bool setKinematics(double /*eAIn*/, double /*eBIn*/) {
+    loggerPtr->ERROR_MSG("method not implemented for this heavy ion model");
+    return false; }
+  virtual bool setKinematics(double, double, double, double, double, double) {
+    loggerPtr->ERROR_MSG("method not implemented for this heavy ion model");
+    return false; }
+  virtual bool setKinematics(Vec4, Vec4) {
+    loggerPtr->ERROR_MSG("method not implemented for this heavy ion model");
+    return false; }
 
-  // Subclasses will probably use several Pythia object and this
-  // helper function will sum up all warnings and errors of these and
-  // add them to the main Pythia object, prefixing them with a tag.
-  void sumUpMessages(Info & in, string tag, const Info * other);
+protected:
 
   // Update the cross section in the main Pythia Info object using
   // information in the hiInfo object.
@@ -86,14 +95,14 @@ protected:
   // set up to generated a hard signal process, this function can be
   // used to clear all selected processes in a clone of the main
   // Pythia object.
-  void clearProcessLevel(Pythia & pyt);
+  void clearProcessLevel(Pythia& pyt);
 
   // Duplicate setting on the form match: to settings on the form HImatch:
-  static void setupSpecials(Settings & settings, string match);
+  static void setupSpecials(Settings& settings, string match);
 
   // Copy settings on the form HImatch: to the corresponding match:
   // in the given Pythia object.
-  static void setupSpecials(Pythia & p, string match);
+  static void setupSpecials(Pythia& p, string match);
 
   // This is the pointer to the main Pythia object to which this
   // object is assigned.
@@ -166,7 +175,7 @@ public:
   // The constructor needs a reference to the main Pythia object to
   // which it will belong. A Angantyr object cannot belong to more
   // than one main Pythia object.
-  Angantyr(Pythia & mainPythiaIn);
+  Angantyr(Pythia& mainPythiaIn);
 
   virtual ~Angantyr();
 
@@ -179,24 +188,25 @@ public:
   // Set UserHooks for specific (or ALL) internal Pythia objects.
   bool setUserHooksPtr(PythiaObject sel, UserHooksPtr userHooksPtrIn);
 
-  // Iterate over nucleons.
-  vector<Nucleon>::iterator projBegin() {
-   return projectile.begin();
-  }
-  vector<Nucleon>::iterator targBegin() {
-   return target.begin();
-  }
-  vector<Nucleon>::iterator projEnd() {
-   return projectile.end();
-  }
-  vector<Nucleon>::iterator targEnd() {
-   return target.end();
-  }
+  // Set beam kinematics.
+  bool setKinematics(double eCMIn) override;
+  bool setKinematics(double eAIn, double eBIn) override;
+  bool setKinematics(double, double, double, double, double, double) override;
+  bool setKinematics(Vec4, Vec4) override;
+  bool setKinematics();
+
+  // Make sure the correct information is available irrespective of frame type.
+  void unifyFrames();
+
+  void banner(int idProj, int idTarg) const;
 
 protected:
 
   virtual void onInitInfoPtr() override {
     registerSubObject(sigtot); }
+
+  // Figure out what beams the user want.
+  void setBeamKinematics(int idA, int idB);
 
   // Initiaize a specific Pythia object and optionally run a number
   // of events to get a handle of the cross section.
@@ -206,78 +216,77 @@ protected:
   EventInfo mkEventInfo(Pythia &, Info &, const SubCollision * coll = 0);
 
   // Generate events from the internal Pythia oblects;
-  EventInfo getSignal(const SubCollision & coll);
+  EventInfo getSignal(const SubCollision& coll);
   EventInfo getND() { return getMBIAS(0, 101); }
-  EventInfo getND(const SubCollision & coll) { return getMBIAS(&coll, 101); }
-  EventInfo getEl(const SubCollision & coll) { return getMBIAS(&coll, 102); }
-  EventInfo getSDP(const SubCollision & coll) { return getMBIAS(&coll, 103); }
-  EventInfo getSDT(const SubCollision & coll) { return getMBIAS(&coll, 104); }
-  EventInfo getDD(const SubCollision & coll) { return getMBIAS(&coll, 105); }
-  EventInfo getCD(const SubCollision & coll) { return getMBIAS(&coll, 106); }
-  EventInfo getSDabsP(const SubCollision & coll)
+  EventInfo getND(const SubCollision& coll) { return getMBIAS(&coll, 101); }
+  EventInfo getEl(const SubCollision& coll) { return getMBIAS(&coll, 102); }
+  EventInfo getSDP(const SubCollision& coll) { return getMBIAS(&coll, 103); }
+  EventInfo getSDT(const SubCollision& coll) { return getMBIAS(&coll, 104); }
+  EventInfo getDD(const SubCollision& coll) { return getMBIAS(&coll, 105); }
+  EventInfo getCD(const SubCollision& coll) { return getMBIAS(&coll, 106); }
+  EventInfo getSDabsP(const SubCollision& coll)
     { return getSASD(&coll, 103); }
-  EventInfo getSDabsT(const SubCollision & coll)
+  EventInfo getSDabsT(const SubCollision& coll)
     { return getSASD(&coll, 104); }
   EventInfo getMBIAS(const SubCollision * coll, int procid);
   EventInfo getSASD(const SubCollision * coll, int procid);
-  bool genAbs(const multiset<SubCollision> & coll,
-              list<EventInfo> & subevents);
-  void addSASD(const multiset<SubCollision> & coll);
-  bool addDD(const multiset<SubCollision> & coll, list<EventInfo> & subevents);
-  bool addSD(const multiset<SubCollision> & coll, list<EventInfo> & subevents);
-  void addSDsecond(const multiset<SubCollision> & coll);
-  bool addCD(const multiset<SubCollision> & coll, list<EventInfo> & subevents);
-  void addCDsecond(const multiset<SubCollision> & coll);
-  bool addEL(const multiset<SubCollision> & coll, list<EventInfo> & subevents);
-  void addELsecond(const multiset<SubCollision> & coll);
-  bool buildEvent(list<EventInfo> & subevents,
-                  const vector<Nucleon> & proj,
-                  const vector<Nucleon> & targ);
 
-  bool setupFullCollision(EventInfo & ei, const SubCollision & coll,
-                          Nucleon::Status ptype, Nucleon::Status ttype);
-  bool isRemnant(const EventInfo & ei, int i, int past = 1 ) const {
+  bool genAbs(SubCollisionSet& subCollisions, list<EventInfo>& subEvents);
+  void addSASD(const SubCollisionSet& subCollisions);
+  bool addDD(const SubCollisionSet& subCollisions, list<EventInfo>& subEvents);
+  bool addSD(const SubCollisionSet& subCollisions, list<EventInfo>& subEvents);
+  void addSDsecond(const SubCollisionSet& subCollisions);
+  bool addCD(const SubCollisionSet& subCollisions, list<EventInfo>& subEvents);
+  void addCDsecond(const SubCollisionSet& subCollisions);
+  bool addEL(const SubCollisionSet& subCollisions, list<EventInfo>& subEvents);
+  void addELsecond(const SubCollisionSet& subCollisions);
+
+  bool buildEvent(list<EventInfo>& subEvents,
+    const Nucleus& proj, const Nucleus& targ);
+
+  bool setupFullCollision(EventInfo& ei, const SubCollision& coll,
+    Nucleon::Status projStatus, Nucleon::Status targStatus);
+  bool isRemnant(const EventInfo& ei, int i, int past = 1 ) const {
     int statNow = ei.event[i].status()*past;
     if ( statNow == 63 ) return true;
     if ( statNow > 70 && statNow < 80 )
       return isRemnant(ei, ei.event[i].mother1(), -1);
     return false;
   }
-  bool fixIsoSpin(EventInfo & ei);
-  EventInfo & shiftEvent(EventInfo & ei);
-  static int getBeam(Event & ev, int i);
+  bool fixIsoSpin(EventInfo& ei);
+  EventInfo& shiftEvent(EventInfo& ei);
+  static int getBeam(Event& ev, int i);
 
   // Generate a single diffractive
   bool nextSASD(int proc);
 
   // Add a diffractive event to an exsisting one. Optionally connect
   // the colours of the added event to the original.
-  bool addNucleonExcitation(EventInfo & orig, EventInfo & add,
+  bool addNucleonExcitation(EventInfo& orig, EventInfo& add,
                             bool colConnect = false);
 
   // Find the recoilers in the current event to conserve energy and
   // momentum in addNucleonExcitation.
-  vector<int> findRecoilers(const Event & e, bool tside, int beam, int end,
-                            const Vec4 & pdiff, const Vec4 & pbeam);
+  vector<int> findRecoilers(const Event& e, bool tside, int beam, int end,
+                            const Vec4& pdiff, const Vec4& pbeam);
 
   // Add a sub-event to the final event record.
-  void addSubEvent(Event & evnt, Event & sub);
-  static void addJunctions(Event & evnt, Event & sub, int coloff);
+  void addSubEvent(Event& evnt, Event& sub);
+  static void addJunctions(Event& evnt, Event& sub, int coloff);
 
   // Add a nucleus remnant to the given event. Possibly introducing
   // a new particle type.
-  bool addNucleusRemnants(const vector<Nucleon> & proj,
-                          const vector<Nucleon> & targ);
+  bool addNucleusRemnants(const Nucleus& proj, const Nucleus& targ);
 
 public:
 
   // Helper function to construct two transformations that would give
   // the vectors p1 and p2 the total four momentum of p1p + p2p.
   static bool
-  getTransforms(Vec4 p1, Vec4 p2, const Vec4 & p1p,
-                pair<RotBstMatrix,RotBstMatrix> & R12);
-  static double mT2(const Vec4 & p) { return p.pPos()*p.pNeg(); }
-  static double mT(const Vec4 & p) { return sqrt(max(mT2(p), 0.0)); }
+  getTransforms(Vec4 p1, Vec4 p2, const Vec4& p1p,
+                pair<RotBstMatrix,RotBstMatrix>& R12);
+  static double mT2(const Vec4& p) { return p.pPos()*p.pNeg(); }
+  static double mT(const Vec4& p) { return sqrt(max(mT2(p), 0.0)); }
 
 private:
 
@@ -354,28 +363,36 @@ private:
   static const int MAXTRY = 999;
   static const int MAXEVSAVE = 999;
 
-  // Projectile and target nucleons for current collision.
-  vector<Nucleon> projectile;
-  vector<Nucleon> target;
-
   // All subcollisions in current collision.
-  multiset<SubCollision> subColls;
+  SubCollisionSet subColls;
 
   // Flag set if there is a specific signal process specified beyond
   // minimum bias.
   bool hasSignal;
 
+  // Whether to do hadronization and hadron level effects.
+  bool doHadronLevel;
+
+  // Flag to determine whether to do single diffractive test.
+  bool doSDTest;
+
+  // Flag to determine whether to do only Glauber modelling.
+  bool glauberOnly;
+
   // The impact parameter generator.
-  ImpactParameterGenerator * bGenPtr;
+  shared_ptr<ImpactParameterGenerator> bGenPtr;
 
   // The underlying nucleus model for generating nuclons inside the
   // projectile and target nucleus.
-  NucleusModel * projPtr;
-  NucleusModel * targPtr;
+  shared_ptr<NucleusModel> projPtr;
+  shared_ptr<NucleusModel> targPtr;
 
   // The underlying SubCollisionModel for generating nucleon-nucleon
   // subcollisions.
-  SubCollisionModel * collPtr;
+  shared_ptr<SubCollisionModel> collPtr;
+
+  // Flag to indicate whether variable energy is enabled.
+  bool doVarECM;
 
   // Different choices in choosing recoilers when adding
   // diffractively excited nucleon.

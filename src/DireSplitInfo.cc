@@ -381,7 +381,7 @@ string DireSingleColChain::listPos() const {
 void DireSingleColChain::print() const {
   int i    = 0;
   int length = size();
-  int max  = length;
+  int max = length % 2 == 0 ? length : length - 1;
 
   // first line: positions
   for (i=0; i<length; i++) {
@@ -390,7 +390,6 @@ void DireSingleColChain::print() const {
   cout << endl;
   // second line: color-anticolor connections (horizontal)
   i   = 0;
-  max = (length%2 == 0 ? length : length-1);
   while (i < max) {
     if (i == 0) cout << "  ";
     if (i < max-1) cout << (i%2 == 0 ? " _____________" : "      ");

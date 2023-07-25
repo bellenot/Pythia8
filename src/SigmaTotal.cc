@@ -177,7 +177,7 @@ bool SigmaTotal::calc(int idA, int idB, double eCM) {
   double mA  = particleDataPtr->m0(idModA);
   double mB  = particleDataPtr->m0(idModB);
   if (eCM < mA + mB + MMIN) {
-    infoPtr->errorMsg("Error in SigmaTotal::calc: too low energy");
+    loggerPtr->ERROR_MSG("too low energy");
     return false;
   }
 
@@ -221,10 +221,10 @@ bool SigmaTotal::calc(int idA, int idB, double eCM) {
   sigND = sigTotTmp - sigTotElPtr->sigEl - sigDiffPtr->sigXB
         - sigDiffPtr->sigAX - sigDiffPtr->sigXX - sigDiffPtr->sigAXB;
   if (sigND < 0.) {
-    infoPtr->errorMsg("Error in SigmaTotal::init: sigND < 0");
+    loggerPtr->ERROR_MSG("sigND < 0");
     return false;
-  } else if (sigND < 0.4 * sigTotTmp) infoPtr->errorMsg("Warning in "
-    "SigmaTotal::init: sigND suspiciously low");
+  } else if (sigND < 0.4 * sigTotTmp)
+    loggerPtr->WARNING_MSG("sigND suspiciously low");
 
   // Done.
   isCalc = true;

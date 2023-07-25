@@ -129,8 +129,8 @@ void Sigma2SUSY::setPointers(string processIn){
 
   // If still not initialised, print warning
   if(!coupSUSYPtr->isInit) {
-    infoPtr->errorMsg("Warning from " + processIn + "::setPointers"
-      ,"; Unable to initialise Susy Couplings. ");
+    loggerPtr->warningMsg(processIn + "::setPointers",
+      "Unable to initialise Susy Couplings. ");
 
   }
 
@@ -2315,8 +2315,8 @@ void Sigma1qq2antisquark::initProc(){
   if (!coupSUSYPtr->isInit) coupSUSYPtr->initSUSY(slhaPtr, infoPtr);
 
   // If still not initialised, print warning
-  if(!coupSUSYPtr->isInit) infoPtr->errorMsg("Warning from qq2antisquark"
-     "::setPointers", "; Unable to initialise Susy Couplings.");
+  if(!coupSUSYPtr->isInit)
+    loggerPtr->WARNING_MSG("Unable to initialise Susy Couplings.");
 
 
   //Construct name of the process from lambda'' couplings

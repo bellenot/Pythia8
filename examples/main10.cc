@@ -3,7 +3,7 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Keywords: userhooks; jet finding; anti-kT; process veto;
+// Keywords: userhooks; jet finding; anti-kT; process veto
 
 // Example how you can use UserHooks to trace pT spectrum through program,
 // and veto undesirable jet multiplicities.

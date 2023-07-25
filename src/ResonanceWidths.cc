@@ -42,6 +42,7 @@ bool ResonanceWidths::init(Info* infoPtrIn) {
   infoPtr         = infoPtrIn;
   settingsPtr     = infoPtr->settingsPtr;
   particleDataPtr = infoPtr->particleDataPtr;
+  loggerPtr       = infoPtr->loggerPtr;
   coupSMPtr       = infoPtr->coupSMPtr;
   coupSUSYPtr     = infoPtr->coupSUSYPtr;
 
@@ -57,8 +58,7 @@ bool ResonanceWidths::init(Info* infoPtrIn) {
   ParticleDataEntryPtr particleShr = particlePtr.lock();
   if (particleShr == nullptr) return false;
   if (particleShr->id() == 0) {
-    infoPtr->errorMsg("Error in ResonanceWidths::init:"
-      " unknown resonance identity code");
+    loggerPtr->ERROR_MSG("unknown resonance identity code");
     return false;
   }
 
@@ -77,8 +77,8 @@ bool ResonanceWidths::init(Info* infoPtrIn) {
   if (mRes < MASSMIN) {
     ostringstream idCode;
     idCode << idRes;
-    infoPtr->errorMsg("Error in ResonanceWidths::init:"
-      " resonance mass too small", "for id = " + idCode.str(), true);
+    loggerPtr->ERROR_MSG("resonance mass too small",
+      "for id = " + idCode.str(), true);
     return false;
   }
 
@@ -128,10 +128,8 @@ bool ResonanceWidths::init(Info* infoPtrIn) {
 
     // Warn if not relevant meMode.
     if ( meMode < 0 || meMode > 103 || (isGeneric && meMode < 100) ) {
-      stringstream ssIdRes;
-      ssIdRes << "for " << idRes;
-      infoPtr->errorMsg("Error in ResonanceWidths::init:"
-        " resonance meMode not acceptable", ssIdRes.str());
+      loggerPtr->ERROR_MSG("resonance meMode not acceptable",
+        "for " + to_string(idRes));
     }
 
     // Channels with meMode < 100 must be implemented in derived classes.
@@ -1973,14 +1971,12 @@ void ResonanceLeptoquark::initConstants() {
   int id1Now = particleShr->channel(0).product(0);
   int id2Now = particleShr->channel(0).product(1);
   if (id1Now < 1 || id1Now > 6) {
-    infoPtr->errorMsg("Error in ResonanceLeptoquark::init:"
-      " unallowed input quark flavour reset to u");
+    loggerPtr->ERROR_MSG("unallowed input quark flavour reset to u");
     id1Now   = 2;
     particleShr->channel(0).product(0, id1Now);
   }
   if (abs(id2Now) < 11 || abs(id2Now) > 16) {
-    infoPtr->errorMsg("Error in ResonanceLeptoquark::init:"
-      " unallowed input lepton flavour reset to e-");
+    loggerPtr->ERROR_MSG("unallowed input lepton flavour reset to e-");
     id2Now   = 11;
     particleShr->channel(0).product(1, id2Now);
   }

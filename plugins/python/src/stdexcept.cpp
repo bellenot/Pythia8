@@ -1,6 +1,8 @@
 #include <Pythia8/Basics.h>
+#include <Pythia8/BeamShape.h>
 #include <Pythia8/Event.h>
-#include <Pythia8/HIUserHooks.h>
+#include <Pythia8/HIInfo.h>
+#include <Pythia8/HINucleusModel.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/Info.h>
 #include <Pythia8/LesHouches.h>
@@ -14,7 +16,6 @@
 #include <Pythia8/Pythia.h>
 #include <Pythia8/ResonanceWidths.h>
 #include <Pythia8/Settings.h>
-#include <Pythia8/SharedPointers.h>
 #include <Pythia8/ShowerModel.h>
 #include <Pythia8/SigmaProcess.h>
 #include <Pythia8/UserHooks.h>
@@ -33,7 +34,6 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
-#include <Pythia8/HIUserHooks.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -58,7 +58,7 @@ struct PyCallBack_std_runtime_error : public std::runtime_error {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>();
 			if (pybind11::detail::cast_is_temporary_value_reference<const char *>::value) {
-				static pybind11::detail::overload_caster_t<const char *> caster;
+				static pybind11::detail::override_caster_t<const char *> caster;
 				return pybind11::detail::cast_ref<const char *>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<const char *>(std::move(o));

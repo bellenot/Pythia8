@@ -42,7 +42,7 @@ ProcessLevel::~ProcessLevel() {
 // Main routine to initialize generation process.
 
 bool ProcessLevel::init( bool doLHA, SLHAinterface* slhaInterfacePtrIn,
-  vector<SigmaProcess*>& sigmaPtrs, vector<PhaseSpace*>& phaseSpacePtrs) {
+  vector<SigmaProcessPtr>& sigmaPtrs, vector<PhaseSpacePtr>& phaseSpacePtrs) {
 
   // Store other input pointers.
   slhaInterfacePtr = slhaInterfacePtrIn;
@@ -108,7 +108,7 @@ bool ProcessLevel::init( bool doLHA, SLHAinterface* slhaInterfacePtrIn,
   // Second interaction not to be combined with biased phase space.
   if (doSecondHard && userHooksPtr != 0
   && userHooksPtr->canBiasSelection()) {
-    infoPtr->errorMsg("Error in ProcessLevel::init: "
+    loggerPtr->ERROR_MSG(
       "cannot combine second interaction with biased phase space");
     return false;
   }
@@ -148,14 +148,14 @@ bool ProcessLevel::init( bool doLHA, SLHAinterface* slhaInterfacePtrIn,
   if (sigmaPtrs.size() > 0) {
     for (int iSig = 0; iSig < int(sigmaPtrs.size()); ++iSig) {
       containerPtrs.push_back( new ProcessContainer(sigmaPtrs[iSig],
-        true, phaseSpacePtrs[iSig]) );
+        phaseSpacePtrs[iSig]) );
       containerPtrs.back()->initInfoPtr(*infoPtr);
     }
   }
 
   // Append single container for Les Houches processes, if any.
   if (doLHA) {
-    SigmaProcess* sigmaPtr = new SigmaLHAProcess();
+    SigmaProcessPtr sigmaPtr = make_shared<SigmaLHAProcess>();
     containerPtrs.push_back( new ProcessContainer(sigmaPtr) );
     containerPtrs.back()->initInfoPtr(*infoPtr);
 
@@ -166,8 +166,7 @@ bool ProcessLevel::init( bool doLHA, SLHAinterface* slhaInterfacePtrIn,
 
   // If no processes found then refuse to do anything.
   if ( int(containerPtrs.size()) == 0) {
-    infoPtr->errorMsg("Error in ProcessLevel::init: "
-      "no process switched on");
+    loggerPtr->ERROR_MSG("no process switched on");
     return false;
   }
 
@@ -183,8 +182,7 @@ bool ProcessLevel::init( bool doLHA, SLHAinterface* slhaInterfacePtrIn,
       }
     }
     if (!bias2Sel) {
-      infoPtr->errorMsg("Error in ProcessLevel::init: "
-        "requested event weighting not possible");
+      loggerPtr->ERROR_MSG("requested event weighting not possible");
       return false;
     }
   }
@@ -196,7 +194,7 @@ bool ProcessLevel::init( bool doLHA, SLHAinterface* slhaInterfacePtrIn,
 
   // If SUSY processes requested but no SUSY couplings present
   if (hasSUSY && !coupSUSYPtr->isSUSY) {
-    infoPtr->errorMsg("Error in ProcessLevel::init: "
+    loggerPtr->ERROR_MSG(
       "SUSY process switched on but no SUSY couplings found");
     return false;
   }
@@ -218,8 +216,7 @@ bool ProcessLevel::init( bool doLHA, SLHAinterface* slhaInterfacePtrIn,
   if (doSecondHard) {
     setupContainers.init2(container2Ptrs, infoPtr);
     if ( int(container2Ptrs.size()) == 0) {
-      infoPtr->errorMsg("Error in ProcessLevel::init: "
-        "no second hard process switched on");
+      loggerPtr->ERROR_MSG("no second hard process switched on");
       return false;
     }
     for (int i2 = 0; i2 < int(container2Ptrs.size()); ++i2)
@@ -314,12 +311,11 @@ bool ProcessLevel::init( bool doLHA, SLHAinterface* slhaInterfacePtrIn,
 
   // If sum of maxima vanishes then refuse to do anything.
   if ( numberOn == 0  || sigmaMaxSum <= 0.) {
-    infoPtr->errorMsg("Error in ProcessLevel::init: "
-      "all processes have vanishing cross sections");
+    loggerPtr->ERROR_MSG("all processes have vanishing cross sections");
     return false;
   }
   if ( doSecondHard && (number2On == 0  || sigma2MaxSum <= 0.) ) {
-    infoPtr->errorMsg("Error in ProcessLevel::init: "
+    loggerPtr->ERROR_MSG(
       "all second hard processes have vanishing cross sections");
     return false;
   }
@@ -686,8 +682,7 @@ bool ProcessLevel::nextOne( Event& process) {
         if (containerPtrs[iC]->code() == 100 + procType)
           iContainer = iC;
         if (iContainer == -1) {
-          infoPtr->errorMsg("Error in ProcessLevel::nextOne: "
-          "requested procType unavailable");
+          loggerPtr->ERROR_MSG("requested procType unavailable");
           continue;
         }
       }
@@ -725,8 +720,7 @@ bool ProcessLevel::nextOne( Event& process) {
     // Retry process for unphysical states.
     for (int i =1; i < process.size(); ++i)
       if (process[i].e() < 0.) {
-        infoPtr->errorMsg("Error in ProcessLevel::nextOne: "
-          "Constructed particle with negative energy.");
+        loggerPtr->ERROR_MSG("constructed particle with negative energy");
         physical = false;
       }
 
@@ -911,8 +905,8 @@ bool ProcessLevel::nextTwo( Event& process) {
       // Hit-and-miss to compensate for PDF weights. Catch maximum violation.
       wtPdfSame *= wtViol1 * wtViol2 / maxPDFreweight;
       if (doWt2) infoPtr->setWeight( max( 1., wtPdfSame), 0 );
-      if (wtPdfSame > 1.) infoPtr->errorMsg("Warning in ProcessLevel::next"
-        "Two: joint PDF correction gives weight above unity");
+      if (wtPdfSame > 1.) loggerPtr->WARNING_MSG(
+        "joint PDF correction gives weight above unity");
       if (wtPdfSame < rndmPtr->flat()) continue;
 
       // If come this far then acceptable event.
@@ -1094,14 +1088,11 @@ bool ProcessLevel::roomForRemnants() {
       ++nTry;
       if (nTry == maxTry) {
         if ( abs(id1) == 5 || abs(id2) == 5 ) {
-          infoPtr->errorMsg("Warning in ProcessLevel::roomForRemnants: "
-            "No room for bottom quarks in beam remnants");
+          loggerPtr->WARNING_MSG("no room for bottom quarks in beam remnants");
         } else if ( abs(id1) == 4 || abs(id2) == 4 ) {
-          infoPtr->errorMsg("Warning in ProcessLevel::roomForRemnants: "
-            "No room for charm quarks in beam remnants");
+          loggerPtr->WARNING_MSG("no room for charm quarks in beam remnants");
         } else {
-          infoPtr->errorMsg("Warning in ProcessLevel::roomForRemnants: "
-            "No room for light quarks in beam remnants");
+          loggerPtr->WARNING_MSG("no room for light quarks in beam remnants");
         }
         break;
       }
@@ -1142,14 +1133,11 @@ bool ProcessLevel::roomForRemnants() {
     physical = ( (m1 + m2) < mTRem );
     if (physical == false) {
       if ( abs(id1) == 5 || abs(id2) == 5 ) {
-        infoPtr->errorMsg("Warning in ProcessLevel::roomForRemnants: "
-          "No room for bottom quarks in beam remnants");
+        loggerPtr->WARNING_MSG("no room for bottom quarks in beam remnants");
       } else if ( abs(id1) == 4 || abs(id2) == 4 ) {
-        infoPtr->errorMsg("Warning in ProcessLevel::roomForRemnants: "
-          "No room for charm quarks in beam remnants");
+        loggerPtr->WARNING_MSG("no room for charm quarks in beam remnants");
       } else {
-        infoPtr->errorMsg("Warning in ProcessLevel::roomForRemnants: "
-          "No room for light quarks in beam remnants");
+        loggerPtr->WARNING_MSG("no room for light quarks in beam remnants");
       }
     }
   }
@@ -1332,8 +1320,7 @@ void ProcessLevel::findJunctions( Event& junEvent) {
     if (colVertex.size() == 3 && acolVertex.size() == 0) kindJun = 1;
     else if (colVertex.size() == 0 && acolVertex.size() == 3) kindJun = 2;
     else {
-      infoPtr->errorMsg("Error in ProcessLevel::findJunctions: "
-                        "N(unmatched (anti)colour tags) != 3");
+      loggerPtr->ERROR_MSG("N(unmatched (anti)colour tags) != 3");
       return;
     }
 
@@ -1347,8 +1334,8 @@ void ProcessLevel::findJunctions( Event& junEvent) {
       int col  = it->first;
       int iCol = it->second;
       // Step across final-state gluons (if they come from ISR => kindJun += 2)
+      int colNow;
       int iColNow = iCol;
-      int colNow  = col;
       int nLoop   = 0;
       while (junEvent[iColNow].isFinal() && junEvent[iColNow].id() == 21) {
         colNow = (kindJun % 2 == 1) ? junEvent[iColNow].acol()
@@ -1372,8 +1359,7 @@ void ProcessLevel::findJunctions( Event& junEvent) {
         }
         // Check for infinite loop
         if (nLoop > (int)junEvent.size()) {
-          infoPtr->errorMsg("Error in ProcessLevel::findJunctions: "
-                            "failed to trace across final-state gluons");
+          loggerPtr->ERROR_MSG("failed to trace across final-state gluons");
           iColNow = iCol;
           break;
         }
@@ -1517,8 +1503,7 @@ bool ProcessLevel::checkColours( Event& process) {
 
   // Warn and give up if particles did not have the expected colours.
   if (!physical) {
-    infoPtr->errorMsg("Error in ProcessLevel::checkColours: "
-      "incorrect colour assignment");
+    loggerPtr->ERROR_MSG("incorrect colour assignment");
     return false;
   }
 
@@ -1591,8 +1576,7 @@ bool ProcessLevel::checkColours( Event& process) {
   }
 
   // Error message if problem found.
-  if (!physical) infoPtr->errorMsg("Error in ProcessLevel::checkColours: "
-                   "unphysical colour flow");
+  if (!physical) loggerPtr->ERROR_MSG("unphysical colour flow");
 
   // Find any HV-coloured Hidden Valley particle.
   if (useHVcols) {

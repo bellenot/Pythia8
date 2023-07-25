@@ -3,9 +3,9 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Marius Utheim <marius.m.utheim@jyu.fi>.
+// Authors: Marius Utheim <marius.m.utheim@jyu.fi>
 
-// Keywords: hadron widths;
+// Keywords: hadron widths
 
 // Code to create parameterization tables for hadron widths.
 // Useful if resonances are added or particle properties are changed.

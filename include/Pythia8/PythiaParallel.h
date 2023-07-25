@@ -72,11 +72,8 @@ public:
 
 private:
 
-  // Info object used for logging.
-  Info& info;
-
-  // Negative integer to denote that no subrun has been set.
-  static constexpr int SUBRUNDEFAULT = -999;
+  // Object used for logging.
+  Logger& logger;
 
   // Flag if initialized.
   bool isInit = false;

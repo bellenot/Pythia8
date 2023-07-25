@@ -112,6 +112,9 @@ protected:
   // Pointer to the particle data table.
   ParticleData* particleDataPtr;
 
+  // Pointer to the logger.
+  Logger*       loggerPtr;
+
   // Pointers to Standard Model and SUSY couplings.
   CoupSM*       coupSMPtr;
   CoupSUSY*     coupSUSYPtr;

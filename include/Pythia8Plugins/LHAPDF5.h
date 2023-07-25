@@ -9,6 +9,7 @@
 #define Pythia8_LHAPDF5_H
 
 #include "Pythia8/PartonDistributions.h"
+#include "Pythia8/Plugins.h"
 
 namespace Pythia8 {
 
@@ -139,17 +140,22 @@ class LHAPDF5 : public PDF {
 public:
 
   // Constructor.
-  LHAPDF5(int idBeamIn, string setName, int member,  int nSetIn = -1) :
-  PDF(idBeamIn), doExtraPol(false), nSet(nSetIn)
-    { init(setName, member); isPhoton = (idBeamIn == 22) ? true : false; }
+  LHAPDF5(Pythia*, Settings* settingsPtr, Logger*) :
+    PDF(), doExtraPol(false) {
+    if (settingsPtr == nullptr) return;
+    sSymmetric(settingsPtr->flag("LHAPDF:sSymmetric"));
+    cSymmetric(settingsPtr->flag("LHAPDF:cSymmetric"));
+    bSymmetric(settingsPtr->flag("LHAPDF:bSymmetric"));
+  }
+
+  // Initialization of PDF set.
+  bool init(int idBeamIn, string setName, int member, Logger* loggerPtr)
+    override;
 
   // Allow extrapolation beyond boundaries. This is optional.
   void setExtrapolate(bool extrapol);
 
 private:
-
-  // Initialization of PDF set.
-  void init(string setName, int member);
 
   // Update all PDF values.
   void xfUpdate(int , double x, double Q2);
@@ -167,7 +173,13 @@ private:
 
 // Initialize a parton density function from LHAPDF5.
 
-void LHAPDF5::init(string setName, int member) {
+bool LHAPDF5::init(int idBeamIn, string setName, int member,
+  Logger* loggerPtr) {
+  idBeam = idBeamIn;
+  idBeamAbs = abs(idBeamIn);
+  isPhoton = idBeamIn == 22;
+  nSet = LHAPDF5Interface::findNSet(setName, member);
+  if (nSet == -1) nSet = LHAPDF5Interface::freeNSet();
 
   // If already initialized then need not do anything further.
   LHAPDF5Interface::LHAPDFInfo initializedInfo =
@@ -175,7 +187,8 @@ void LHAPDF5::init(string setName, int member) {
   string initializedSetName   = initializedInfo.name;
   int    initializedMember    = initializedInfo.member;
   hasPhoton                   = initializedInfo.photon;
-  if (setName == initializedSetName && member == initializedMember) return;
+  if (setName == initializedSetName && member == initializedMember)
+    return true;
 
   // Initialize set. If first character is '/' then assume that name
   // is given with path, else not.
@@ -200,6 +213,7 @@ void LHAPDF5::init(string setName, int member) {
   initializedInfo.member = member;
   initializedInfo.photon = hasPhoton;
   if (nSet > 0) LHAPDF5Interface::initializedSets[nSet] = initializedInfo;
+  return true;
 
 }
 
@@ -270,19 +284,10 @@ void LHAPDF5::xfUpdate(int, double x, double Q2) {
 
 //--------------------------------------------------------------------------
 
-// Define external handles to the plugin for dynamic loading.
+// Declare the plugin.
 
-extern "C" {
-
-  LHAPDF5* newPDF(int idBeamIn, string setName, int member) {
-    int nSet = LHAPDF5Interface::findNSet(setName, member);
-    if (nSet == -1) nSet = LHAPDF5Interface::freeNSet();
-    return new LHAPDF5(idBeamIn, setName, member, nSet);
-  }
-
-  void deletePDF(LHAPDF5* pdf) {delete pdf;}
-
-}
+PYTHIA8_PLUGIN_CLASS(PDF, LHAPDF5, false, false, false)
+PYTHIA8_PLUGIN_VERSIONS(PYTHIA_VERSION_INTEGER)
 
 //==========================================================================
 

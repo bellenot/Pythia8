@@ -3,9 +3,9 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Marius Utheim <marius.m.utheim@jyu.fi>.
+// Authors: Marius Utheim <marius.m.utheim@jyu.fi>
 
-// Keywords: parallelism;
+// Keywords: parallelism
 
 // This is a simple test program to illustrate the usage of PythiaParallel.
 // This program illustrates how to perform both event generation and

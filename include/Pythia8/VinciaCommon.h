@@ -45,18 +45,8 @@ const double NC = 3.0;
 // Mathematical constants (Euler–Mascheroni constant).
 const double gammaE = 0.577215664901532860606512090082402431042;
 
-// Verbosity levels.
-// Suppress all output.
-const int SILENT     = -1;
-// Errors and (important) warnings only.
-const int QUIET      =  0;
-// Normal verbosity.
-const int NORMAL     =  1;
-// Highest user-level verbosity, including some diagnostics especially
-// when/where errors occur, but not massive event-by-event output.
-const int REPORT     =  2;
-// Debug verbosity level.
-const int DEBUG      =  3;
+// Verbosity levels. Vincia has one more level (debug) beyond report.
+const int DEBUG  = 4;
 
 // Padding length for dashes in standardised Vincia verbose output.
 const int dashLen    = 50;
@@ -398,6 +388,7 @@ public:
     VinciaCommon* vinComPtrIn) {
     settingsPtr = settingsPtrIn;
     infoPtr     = infoPtrIn;
+    loggerPtr   = infoPtrIn->loggerPtr;
     vinComPtr   = vinComPtrIn;
     isInitPtr   = true;
   }
@@ -482,6 +473,7 @@ private:
   // Pointer to PYTHIA 8 settings database.
   Settings* settingsPtr{};
   Info* infoPtr{};
+  Logger* loggerPtr{};
 
   // Pointer to VinciaCommon.
   VinciaCommon* vinComPtr{};
@@ -508,6 +500,7 @@ public:
     infoPtr          = infoPtrIn;
     particleDataPtr  = infoPtr->particleDataPtr;
     settingsPtr      = infoPtr->settingsPtr;
+    loggerPtr        = infoPtr->loggerPtr;
     rndmPtr          = infoPtr->rndmPtr;
     partonSystemsPtr = infoPtr->partonSystemsPtr;
     isInitPtr        = true;
@@ -733,6 +726,7 @@ private:
   Settings*      settingsPtr{};
   ParticleData*  particleDataPtr{};
   Rndm*          rndmPtr{};
+  Logger*        loggerPtr{};
   PartonSystems* partonSystemsPtr{};
 
   // Counter for output control.

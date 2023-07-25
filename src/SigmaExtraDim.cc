@@ -1186,8 +1186,7 @@ void Sigma2gg2LEDUnparticleg::initProc() {
     eDconstantTerm *= pow2(eDlambda) / tmpLS;
   } else {
     eDconstantTerm = 0;
-    infoPtr->errorMsg("Error in Sigma2gg2LEDUnparticleg::initProc: "
-                      "Incorrect spin value (turn process off)!");
+    loggerPtr->ERROR_MSG("Incorrect spin value (turn process off)!");
   }
 
 }
@@ -1355,8 +1354,7 @@ void Sigma2qg2LEDUnparticleq::initProc() {
     eDconstantTerm *= pow2(eDlambda);
   } else {
     eDconstantTerm = 0;
-    infoPtr->errorMsg("Error in Sigma2qg2LEDUnparticleq::initProc: "
-                      "Incorrect spin value (turn process off)!");
+    loggerPtr->ERROR_MSG("Incorrect spin value (turn process off)!");
   }
 
 
@@ -1536,8 +1534,7 @@ void Sigma2qqbar2LEDUnparticleg::initProc() {
     eDconstantTerm *= pow2(eDlambda);
   } else {
     eDconstantTerm = 0;
-    infoPtr->errorMsg("Error in Sigma2qqbar2LEDUnparticleg::initProc: "
-                      "Incorrect spin value (turn process off)!");
+    loggerPtr->ERROR_MSG("Incorrect spin value (turn process off)!");
   }
 
 }
@@ -2187,12 +2184,10 @@ void Sigma2ffbar2LEDgammagamma::initProc() {
   // Note: SM contribution still generated.
   if ( !(eDspin==0 || eDspin==2) ) {
     eDlambda2chi = 0;
-    infoPtr->errorMsg("Error in Sigma2ffbar2LEDgammagamma::initProc: "
-                      "Incorrect spin value (turn process off)!");
+    loggerPtr->ERROR_MSG("Incorrect spin value (turn process off)!");
   } else if ( !eDgraviton && (eDdU >= 2)) {
     eDlambda2chi = 0;
-    infoPtr->errorMsg("Error in Sigma2ffbar2LEDgammagamma::initProc: "
-                      "This process requires dU < 2 (turn process off)!");
+    loggerPtr->ERROR_MSG("This process requires dU < 2 (turn process off)!");
   }
 
 }
@@ -2321,12 +2316,10 @@ void Sigma2gg2LEDgammagamma::initProc() {
   // Model parameter check (if not applicable, sigma = 0).
   if ( !(eDspin==0 || eDspin==2) ) {
     eDlambda2chi = 0;
-    infoPtr->errorMsg("Error in Sigma2gg2LEDgammagamma::initProc: "
-                      "Incorrect spin value (turn process off)!");
+    loggerPtr->ERROR_MSG("Incorrect spin value (turn process off)!");
   } else if ( !eDgraviton && (eDdU >= 2)) {
     eDlambda2chi = 0;
-    infoPtr->errorMsg("Error in Sigma2gg2LEDgammagamma::initProc: "
-                      "This process requires dU < 2 (turn process off)!");
+    loggerPtr->ERROR_MSG("This process requires dU < 2 (turn process off)!");
   }
 
 }
@@ -2449,12 +2442,10 @@ void Sigma2ffbar2LEDllbar::initProc() {
   // Note: SM contribution still generated.
   if ( !(eDspin==1 || eDspin==2) ) {
     eDlambda2chi = 0;
-    infoPtr->errorMsg("Error in Sigma2ffbar2LEDllbar::initProc: "
-                      "Incorrect spin value (turn process off)!");
+    loggerPtr->ERROR_MSG("Incorrect spin value (turn process off)!");
   } else if ( !eDgraviton && (eDdU >= 2)) {
     eDlambda2chi = 0;
-    infoPtr->errorMsg("Error in Sigma2ffbar2LEDllbar::initProc: "
-                      "This process requires dU < 2 (turn process off)!");
+    loggerPtr->ERROR_MSG("This process requires dU < 2 (turn process off)!");
   }
 
 }
@@ -2681,12 +2672,10 @@ void Sigma2gg2LEDllbar::initProc() {
   // Model parameter check (if not applicable, sigma = 0).
   if ( !(eDspin==2) ) {
     eDlambda2chi = 0;
-    infoPtr->errorMsg("Error in Sigma2gg2LEDllbar::initProc: "
-                      "Incorrect spin value (turn process off)!");
+    loggerPtr->ERROR_MSG("Incorrect spin value (turn process off)!");
   } else if ( !eDgraviton && (eDdU >= 2)) {
     eDlambda2chi = 0;
-    infoPtr->errorMsg("Error in Sigma2gg2LEDllbar::initProc: "
-                      "This process requires dU < 2 (turn process off)!");
+    loggerPtr->ERROR_MSG("This process requires dU < 2 (turn process off)!");
   }
 
 }

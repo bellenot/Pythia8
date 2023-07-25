@@ -37,7 +37,7 @@ OBJECTS=$(addprefix $(LOCAL_TMP)/,$(patsubst %.cc,%.o,$(wildcard */*.cc)))
 TARGETS=$(patsubst %/,$(TOP_LIB)/libpythia8mg5%.so,$(LOCAL_DIRS))
 
 ################################################################################
-# RULES: Definition of the rules used to build the Python interface.
+# RULES: Definition of the rules used to build the MG5 ME interface.
 ################################################################################
 
 # Rules without physical targets.

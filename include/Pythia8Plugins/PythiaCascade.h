@@ -199,8 +199,7 @@ public:
 
     // Cannot handle hadrons above maximum energy set at initialization.
     if (pNowIn.e() > eMax) {
-      infoHere.errorMsg( "Error in PythiaCascade::sigmaSetuphN: "
-        "too high energy");
+      logger.ERROR_MSG("too high energy");
       return false;
     }
 
@@ -214,8 +213,8 @@ public:
     eCMNow = (pNow + Vec4(0, 0, 0, mp)).mCalc();
     sigmaNow = pythiaColl.getSigmaTotal(idNow, 2212, eCMNow, mNow, mp);
     if (sigmaNow <= 0.) {
-      if (eCMNow - mNow - mp > eKinMin) infoHere.errorMsg(
-        "Error in PythiaCascade::sigmaSetuphN: vanishing cross section");
+      if (eCMNow - mNow - mp > eKinMin)
+        logger.ERROR_MSG("vanishing cross section");
        return false;
     }
 
@@ -234,8 +233,7 @@ public:
 
     // Restrict to allowed range 1 <= A <= 208.
     if (A < 1 || A > 208) {
-      infoHere.errorMsg("Error in PythiaCascade::sigmahA: "
-        "A is outside of valid range (1 <= A <= 208)");
+      logger.ERROR_MSG("A is outside of valid range (1 <= A <= 208)");
       return 0.;
     }
 
@@ -262,8 +260,7 @@ public:
 
     // Restrict to allowed range 1 <= A <= 208.
     if (Anow < 1 || Anow > 208) {
-      infoHere.errorMsg("Error in PythiaCascade::nextColl: "
-        "A is outside of valid range (1 <= A <= 208)");
+      logger.ERROR_MSG("A is outside of valid range (1 <= A <= 208)");
       return eventMain;
     }
 
@@ -444,7 +441,7 @@ public:
   void stat() {
     pythiaMain.stat();
     pythiaColl.stat();
-    infoHere.errorStatistics();
+    logger.errorStatistics();
   }
 
   //--------------------------------------------------------------------------
@@ -465,8 +462,8 @@ private:
   // above.
   Pythia pythiaMain, pythiaColl;
 
-  // Info instance for errors in this class.
-  Info   infoHere;
+  // Logger instance for errors in this class.
+  Logger logger;
 
   // Save quantities.
   bool   listFinal, rapidDecays;

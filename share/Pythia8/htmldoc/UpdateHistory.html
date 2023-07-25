@@ -8,15 +8,16 @@
  
 <h2>Update History</h2> 
 <ol id="toc">
-  <li><a href="#section0">8.309: 16 February 2023</a></li>
-  <li><a href="#section1">8.308: 16 November 2022</a></li>
-  <li><a href="#section2">8.307: 25 February 2022</a></li>
-  <li><a href="#section3">8.306: 28 June 2021</a></li>
-  <li><a href="#section4">8.305: 03 May 2021</a></li>
-  <li><a href="#section5">8.304: 09 April 2021</a></li>
-  <li><a href="#section6">8.303: 01 September 2020</a></li>
-  <li><a href="#section7">8.302: 24 April 2020</a></li>
-  <li><a href="#section8">8.301: 30 October 2019</a></li>
+  <li><a href="#section0">8.310: 25 July 2023</a></li>
+  <li><a href="#section1">8.309: 16 February 2023</a></li>
+  <li><a href="#section2">8.308: 16 November 2022</a></li>
+  <li><a href="#section3">8.307: 25 February 2022</a></li>
+  <li><a href="#section4">8.306: 28 June 2021</a></li>
+  <li><a href="#section5">8.305: 03 May 2021</a></li>
+  <li><a href="#section6">8.304: 09 April 2021</a></li>
+  <li><a href="#section7">8.303: 01 September 2020</a></li>
+  <li><a href="#section8">8.302: 24 April 2020</a></li>
+  <li><a href="#section9">8.301: 30 October 2019</a></li>
 </ol>
 
  
@@ -27,6 +28,141 @@ compatibility. The main change is that C++11 is now assumed.
 The impact on existing used code should be mild, however. 
  
 <a name="section0"></a> 
+<h3>8.310: 25 July 2023</h3> 
+ 
+<ul> 
+<li>Naomi Cooke joins the author team.</li> 
+ 
+<li>Production of quarkonia is now available via the simple timelike shower, 
+see <a href="OniaShowers.html" target="page">Onia Showers</a> for details.</li> 
+ 
+<li>Added a new feature that allows producing user-defined resonances in 
+hadronic rescattering. Newly added particles can be produced as resonances 
+if they set <code>varWidth = on</code>. Examples of this are shown in 
+<code>main157</code> and <code>main158</code>.</li> 
+ 
+<li>A number of changes have been made to the heavy ion 
+machinery.</li> 
+<ul> 
+<li>Variable energies can now be used in Angantyr. This is done by 
+setting <code>Beams:allowVariableEnergy = on</code> and using the 
+<code>Pythia::setKinematics</code> methods. In addition Angantyr can 
+now handle all <code>Beams:frameType</code> options.</li> 
+<li>MPI initialization reuse has now been enabled for heavy ions. The 
+<code>MultipartonInteractions:reuseInit</code> and 
+<code>MultipartonInteractions:initFile</code> parameters control 
+whether the MBIAS Pythia object will reuse MPIs. In addition, the 
+<code>HeavyIon:SasdMpiReuseInit</code> and 
+<code>HeavyIon:SasdMpiInitFile</code> parameters do the same thing for 
+the SASD Pythia object.</li> 
+<li>The parameters calculated from the evolutionary algorithm can also 
+be saved to file. This is controlled with the 
+<code>HeavyIon:SigFitReuseInit</code> and 
+<code>HeavyIon:SigFitInitFile</code> settings.</li> 
+<li>The <code>HIUserHooks</code> source has been split into 
+<code>HIInfo</code>, <code>HINucleusModel</code>, and 
+<code>HISubCollisionModel</code>.</li> 
+<li>Some code is offloaded to new classes <code>Nucleus</code> and 
+<code>SubCollisionSet</code>, simplifying <code>HeavyIons.cc</code>.</li> 
+<li>Simplified the output for the Angantyr procedure for fitting 
+nucleon cross sections.</li> 
+</ul> 
+ 
+<li>Included possibility to sample intermediate photon virtuality also 
+for externally provided events using built-in photon flux for 
+protons.</li> 
+ 
+<li>Included possibility to generate DIS events with a (anti-)neutrino 
+beam.</li> 
+ 
+<li>The <code>TopRecoilHook</code>, formerly available separately, 
+has now been integrated into the <code>SimpleTimeShower</code>. See 
+further the <a href="TimelikeShowers.html" target="page">TimeShower:recoilStrategyRF</a> 
+switch, which replaces and extends the old 
+<code>TimeShower:recoilToColoured</code> flag. In top decays the 
+radiation pattern in the new option is reweighted to have top as 
+recoiler in case the relevant colour line connects to it.</li> 
+</ul> 
+ 
+<li>Introduced a new use plugin system, see 
+<a href="Plugins.html" target="page">Plugins</a> for details. This system is currently 
+experimental and feedback is welcome. As part of this new system, a 
+few changes have been made to how user provided classes are passed to 
+a <code>Pythia></code> object for consistency.</li> 
+<ul> 
+<li>The arguments to the <code>setSigmaPtr</code> method are now 
+shared pointers. Additionally, <code>addSigmaPtr</code> has been 
+introduced with the previous behaviour of <code>setSigmaPtr</code>, 
+and the new <code>setSigmaPtr</code> overrides all previously added 
+pointers.</li> 
+<li>A similar change has been made for the 
+<code>setResonancePtr</code> method with the addition of the 
+<code>addResonancePtr</code> method.</li> 
+</ul> 
+ 
+<li>The new <code>Logger</code> class now handles printing such as 
+initialization information and diagnostic messages. For more information 
+about this class, see the <a href="Logging.html" target="page">Logging</a> page.</li> 
+ 
+<li>The new <code>BeamSetup</code> class has been introduced to handle the 
+beam configuration, including initializing and changing beam identities, 
+kinematics and parton distributions. This is a structural change that 
+simplifies the code in the <code>Pythia</code> class, but does not 
+introduce any functional changes.</li> 
+ 
+<li>Modified interface to <code>LHAPDF6</code> to allow for 
+multi-threading. Thanks to Christopher Jones for the report.</li> 
+ 
+<li>Updated the Python interface to use <code>pybind11</code> version 
+2.10.4 which is compatible with Python 3.11. Thanks to Mattias Ellert 
+and David Runge for reporting the incompatibility and maintaining the 
+Fedora and Arch Linux packages. Note, this version is not compatible 
+with Python versions 3.5 and below, and so version 2.9.2 of 
+<code>pybind11</code> is used automatically for these versions.</li> 
+ 
+<li>Fix for the Python interface working with <code>gcc13</code>, thanks 
+to Dmitri Konstantinov.</li> 
+ 
+<li>Fixed a bug in the Python interface which prevented 
+<code>main162.py</code> from running correctly when passing a custom 
+function for initialization.</li> 
+ 
+<li>Updated the <i>Lambda_b0</i> lifetime to <i>c*tau = 0.44 
+mm</i>. The value was rounded to two significant digits since PDG 
+and HFLAV do not quite agree to three digits. Thanks to A. Rossi for 
+pointing out the previous default value (<i>0.369 mm</i>) was 
+outdated.</li> 
+ 
+<li>Included several small fixes in response to running an LLVM static 
+code analysis, thanks to Michal Kreps.</li> 
+ 
+<li>Fixed out-of-range access when calling <code>Hist::getYMin</code> 
+and <code>Hist::getYMax</code> for a histogram that has not been 
+booked.</li> 
+ 
+<li>Fixed <code>BeamRemnants:unresolvedHadron</code> option that was 
+broken and had no effect since 8.307</li> 
+ 
+<li>Removed use of <code>simple-template-id</code>s in 
+<code>SusyLesHouches.h</code> to make compliant with 
+<code>C++20</code>. Thanks to Jonas Hahnfeld.</li> 
+ 
+<li>Fixed dipole sorting behaviour in <code>ColourReconnection</code> 
+which resulted in an ordering that depended on the current memory 
+state of the program.</li> 
+ 
+<li>Changed the default for <code>Parallelism:balanceLoad</code> to 
+<code>on</code> and updated the documentation. This ensures each 
+thread will always generate the same number of events.</li> 
+ 
+<li>Added the <code>+=</code> notation for settings vectors, as well 
+as the <code>include = fileName</code> directive, which allows for 
+additional settings files to be directly read in.</li> 
+ 
+<li>Fixed a bug in the bookkeeping the number of hadrons in the string 
+fragmentation.</li> 
+ 
+<a name="section1"></a> 
 <h3>8.309: 16 February 2023</h3> 
  
 <ul> 
@@ -124,7 +260,7 @@ input.</li>
 with GCC 12.2.</li> 
 </ul> 
  
-<a name="section1"></a> 
+<a name="section2"></a> 
 <h3>8.308: 16 November 2022</h3> 
  
 <ul> 
@@ -232,7 +368,7 @@ reference.</li>
 <li>Updating affiliation for Christian Bierlich.</li> 
 </ul> 
  
-<a name="section2"></a> 
+<a name="section3"></a> 
 <h3>8.307: 25 February 2022</h3> 
  
 <ul> 
@@ -408,7 +544,7 @@ events. Thanks to Giancarlo Panizzo and Marvin Flores for reporting
 the issue.</li> 
 </ul> 
  
-<a name="section3"></a> 
+<a name="section4"></a> 
 <h3>8.306: 28 June 2021</h3> 
  
 <ul> 
@@ -440,7 +576,7 @@ most collinear parent is the first mother.
 <li>Shortened Pythia constructor header.</li> 
 </ul> 
  
-<a name="section4"></a> 
+<a name="section5"></a> 
 <h3>8.305: 03 May 2021</h3> 
  
 <ul> 
@@ -481,7 +617,7 @@ small bug reported by Vittorio Zecca.</li>
 <code>main07.cc</code>. Thanks to M. Baker and A. Thamm.</li> 
 </ul> 
  
-<a name="section5"></a> 
+<a name="section6"></a> 
 <h3>8.304: 09 April 2021</h3> 
  
 <ul> 
@@ -630,7 +766,7 @@ called twice. Now all available cases are looped over, but easy to
 change back to study only one.</li> 
 </ul> 
  
-<a name="section6"></a> 
+<a name="section7"></a> 
 <h3>8.303: 01 September 2020</h3> 
  
 <ul> 
@@ -864,7 +1000,7 @@ diffractive systems.</li>
 for diffraction. Thanks to Valentina Zaccolo.</li> 
 </ul> 
  
-<a name="section7"></a> 
+<a name="section8"></a> 
 <h3>8.302: 24 April 2020</h3> 
  
 <ul> 
@@ -959,7 +1095,7 @@ with Vincia reverting to the same (in-code) way of setting tune
 presets as Dire and Pythia.</li> 
 </ul> 
  
-<a name="section8"></a> 
+<a name="section9"></a> 
 <h3>8.301: 30 October 2019</h3> 
 <ul> 
 <li>Compilation is done with a new <code>-std=c++11</code> flag.</li> 

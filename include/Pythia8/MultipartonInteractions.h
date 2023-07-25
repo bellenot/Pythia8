@@ -42,11 +42,6 @@ public:
     sigmaTsum(), sigmaUsum(), pickOther(), pickedU(), particleDataPtr(),
     rndmPtr() {}
 
-  // Destructor.
-  ~SigmaMultiparton() {
-    for (int i = 0; i < int(sigmaT.size()); ++i) delete sigmaT[i];
-    for (int i = 0; i < int(sigmaU.size()); ++i) delete sigmaU[i];}
-
   // Initialize list of processes.
   bool init(int inState, int processLevel, Info* infoPtr,
     BeamParticle* beamAPtr, BeamParticle* beamBPtr);
@@ -65,7 +60,7 @@ public:
   bool pickedOther() {return pickOther;}
 
   // Return one subprocess, picked according to relative cross sections.
-  SigmaProcess* sigmaSel();
+  SigmaProcessPtr sigmaSel();
   bool swapTU() {return pickedU;}
 
   // Return code or name of a specified process, for statistics table.
@@ -84,7 +79,7 @@ private:
   vector<double> m3Fix, m4Fix, sHatMin;
 
   // Vector of process list, one for t-channel and one for u-channel.
-  vector<SigmaProcess*> sigmaT, sigmaU;
+  vector<SigmaProcessPtr> sigmaT, sigmaU;
 
   // Values of cross sections in process list above.
   vector<double> sigmaTval, sigmaUval;
@@ -261,7 +256,7 @@ private:
   double pT2Save, x1Save, x2Save, sHatSave, tHatSave, uHatSave,
          alpSsave, alpEMsave, pT2FacSave, pT2RenSave, xPDF1nowSave,
          xPDF2nowSave, scaleLimitPTsave;
-  SigmaProcess *dSigmaDtSelSave;
+  SigmaProcessPtr dSigmaDtSelSave;
 
   // vsc1, vsc2:     for minimum-bias events with trial interaction, store
   //                 decision on whether hard interaction was valence or sea.
@@ -317,7 +312,7 @@ private:
   // Collections of parton-level 2 -> 2 cross sections. Selected one.
   SigmaMultiparton  sigma2gg, sigma2qg, sigma2qqbarSame, sigma2qq;
   SigmaMultiparton* sigma2Sel;
-  SigmaProcess*  dSigmaDtSel;
+  SigmaProcessPtr   dSigmaDtSel;
 
   // Statistics on generated 2 -> 2 processes.
   map<int, int>  nGen;

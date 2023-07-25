@@ -56,6 +56,10 @@ $(PYTHIA):
 # Auto-dependencies.
 -include $(LOCAL_TMP)/*.d
 
+# Python version.
+$(LOCAL_TMP)/version: $(LOCAL_SRC)/version.cpp
+	$(CXX) $< -o $@ $(PYTHON_INCLUDE)
+
 # Build the headers.
 $(LOCAL_INCLUDE)/Pythia8%.h: $(TOP_INCLUDE)/Pythia8%.h
 	@mkdir -p $(dir $@)
@@ -64,8 +68,11 @@ $(LOCAL_INCLUDE)/Pythia8%.h: $(TOP_INCLUDE)/Pythia8%.h
 	"Info infoPython() {return Info(infoPrivate);}/g" > $@
 
 # Build the objects.
-$(LOCAL_TMP)/%.o: $(LOCAL_SRC)/%.cpp
-	$(CXX) $< -o $@ -c $(OBJ_COMMON) 
+$(LOCAL_TMP)/%.o: $(LOCAL_SRC)/%.cpp $(LOCAL_TMP)/version
+	$(eval OBJ_COMMON=-MD $(CXX_COMMON) -Iinclude\
+	 -Iinclude/$(shell $(LOCAL_TMP)/version) $(PYTHON_INCLUDE)\
+	 -w -fpermissive)
+	$(CXX) $< -o $@ -c $(OBJ_COMMON)
 
 # Build the library.
 $(TOP_LIB)/pythia8.so: $(PYTHIA) $(HEADERS) $(OBJECTS)

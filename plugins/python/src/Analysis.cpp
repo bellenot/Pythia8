@@ -1,11 +1,12 @@
 #include <Pythia8/Analysis.h>
 #include <Pythia8/Basics.h>
-#include <Pythia8/BeamParticle.h>
+#include <Pythia8/BeamSetup.h>
 #include <Pythia8/Event.h>
 #include <Pythia8/FragmentationFlavZpT.h>
 #include <Pythia8/HadronWidths.h>
 #include <Pythia8/Info.h>
 #include <Pythia8/LHEF3.h>
+#include <Pythia8/Logger.h>
 #include <Pythia8/MathTools.h>
 #include <Pythia8/ParticleData.h>
 #include <Pythia8/PartonDistributions.h>
@@ -33,7 +34,6 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
-#include <Pythia8/HIUserHooks.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -58,7 +58,7 @@ struct PyCallBack_Pythia8_SlowJetHook : public Pythia8::SlowJetHook {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1, a2, a3);
 			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
-				static pybind11::detail::overload_caster_t<bool> caster;
+				static pybind11::detail::override_caster_t<bool> caster;
 				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<bool>(std::move(o));
@@ -77,7 +77,7 @@ struct PyCallBack_Pythia8_SlowJet : public Pythia8::SlowJet {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>();
 			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
-				static pybind11::detail::overload_caster_t<bool> caster;
+				static pybind11::detail::override_caster_t<bool> caster;
 				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<bool>(std::move(o));
@@ -90,7 +90,7 @@ struct PyCallBack_Pythia8_SlowJet : public Pythia8::SlowJet {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>();
 			if (pybind11::detail::cast_is_temporary_value_reference<void>::value) {
-				static pybind11::detail::overload_caster_t<void> caster;
+				static pybind11::detail::override_caster_t<void> caster;
 				return pybind11::detail::cast_ref<void>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<void>(std::move(o));
@@ -99,7 +99,7 @@ struct PyCallBack_Pythia8_SlowJet : public Pythia8::SlowJet {
 	}
 };
 
-// Pythia8::PDF file:Pythia8/PartonDistributions.h line:50
+// Pythia8::PDF file:Pythia8/PartonDistributions.h line:49
 struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 	using Pythia8::PDF::PDF;
 
@@ -109,7 +109,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
 			if (pybind11::detail::cast_is_temporary_value_reference<void>::value) {
-				static pybind11::detail::overload_caster_t<void> caster;
+				static pybind11::detail::override_caster_t<void> caster;
 				return pybind11::detail::cast_ref<void>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<void>(std::move(o));
@@ -122,7 +122,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
 			if (pybind11::detail::cast_is_temporary_value_reference<void>::value) {
-				static pybind11::detail::overload_caster_t<void> caster;
+				static pybind11::detail::override_caster_t<void> caster;
 				return pybind11::detail::cast_ref<void>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<void>(std::move(o));
@@ -135,7 +135,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1);
 			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
-				static pybind11::detail::overload_caster_t<bool> caster;
+				static pybind11::detail::override_caster_t<bool> caster;
 				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<bool>(std::move(o));
@@ -148,7 +148,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
@@ -161,7 +161,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
@@ -174,7 +174,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>();
 			if (pybind11::detail::cast_is_temporary_value_reference<int>::value) {
-				static pybind11::detail::overload_caster_t<int> caster;
+				static pybind11::detail::override_caster_t<int> caster;
 				return pybind11::detail::cast_ref<int>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<int>(std::move(o));
@@ -187,7 +187,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1, a2, a3);
 			if (pybind11::detail::cast_is_temporary_value_reference<void>::value) {
-				static pybind11::detail::overload_caster_t<void> caster;
+				static pybind11::detail::override_caster_t<void> caster;
 				return pybind11::detail::cast_ref<void>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<void>(std::move(o));
@@ -200,7 +200,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1, a2, a3);
 			if (pybind11::detail::cast_is_temporary_value_reference<void>::value) {
-				static pybind11::detail::overload_caster_t<void> caster;
+				static pybind11::detail::override_caster_t<void> caster;
 				return pybind11::detail::cast_ref<void>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<void>(std::move(o));
@@ -213,7 +213,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>();
 			if (pybind11::detail::cast_is_temporary_value_reference<struct Pythia8::PDF::PDFEnvelope>::value) {
-				static pybind11::detail::overload_caster_t<struct Pythia8::PDF::PDFEnvelope> caster;
+				static pybind11::detail::override_caster_t<struct Pythia8::PDF::PDFEnvelope> caster;
 				return pybind11::detail::cast_ref<struct Pythia8::PDF::PDFEnvelope>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<struct Pythia8::PDF::PDFEnvelope>(std::move(o));
@@ -226,7 +226,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1);
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
@@ -239,7 +239,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
@@ -252,7 +252,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
 			if (pybind11::detail::cast_is_temporary_value_reference<int>::value) {
-				static pybind11::detail::overload_caster_t<int> caster;
+				static pybind11::detail::override_caster_t<int> caster;
 				return pybind11::detail::cast_ref<int>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<int>(std::move(o));
@@ -265,7 +265,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
@@ -278,7 +278,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>();
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
@@ -291,7 +291,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
 			if (pybind11::detail::cast_is_temporary_value_reference<void>::value) {
-				static pybind11::detail::overload_caster_t<void> caster;
+				static pybind11::detail::override_caster_t<void> caster;
 				return pybind11::detail::cast_ref<void>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<void>(std::move(o));
@@ -304,7 +304,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1, a2);
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
@@ -317,7 +317,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1, a2);
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
@@ -330,7 +330,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1, a2);
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
@@ -343,7 +343,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>();
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
@@ -356,7 +356,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>();
 			if (pybind11::detail::cast_is_temporary_value_reference<bool>::value) {
-				static pybind11::detail::overload_caster_t<bool> caster;
+				static pybind11::detail::override_caster_t<bool> caster;
 				return pybind11::detail::cast_ref<bool>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<bool>(std::move(o));
@@ -369,7 +369,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>();
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
@@ -382,7 +382,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>();
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
@@ -395,7 +395,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
@@ -408,12 +408,25 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
 		}
 		return PDF::sampleQ2gamma(a0);
+	}
+	double fluxQ2dependence(double a0) override { 
+		pybind11::gil_scoped_acquire gil;
+		pybind11::function overload = pybind11::get_overload(static_cast<const Pythia8::PDF *>(this), "fluxQ2dependence");
+		if (overload) {
+			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
+			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
+				static pybind11::detail::override_caster_t<double> caster;
+				return pybind11::detail::cast_ref<double>(std::move(o), caster);
+			}
+			else return pybind11::detail::cast_safe<double>(std::move(o));
+		}
+		return PDF::fluxQ2dependence(a0);
 	}
 	double xfMax(int a0, double a1, double a2) override { 
 		pybind11::gil_scoped_acquire gil;
@@ -421,7 +434,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1, a2);
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
@@ -434,7 +447,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1, a2);
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
@@ -447,7 +460,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0);
 			if (pybind11::detail::cast_is_temporary_value_reference<void>::value) {
-				static pybind11::detail::overload_caster_t<void> caster;
+				static pybind11::detail::override_caster_t<void> caster;
 				return pybind11::detail::cast_ref<void>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<void>(std::move(o));
@@ -460,7 +473,7 @@ struct PyCallBack_Pythia8_PDF : public Pythia8::PDF {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>(a0, a1, a2);
 			if (pybind11::detail::cast_is_temporary_value_reference<void>::value) {
-				static pybind11::detail::overload_caster_t<void> caster;
+				static pybind11::detail::override_caster_t<void> caster;
 				return pybind11::detail::cast_ref<void>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<void>(std::move(o));
@@ -549,11 +562,11 @@ void bind_Pythia8_Analysis(std::function< pybind11::module &(std::string const &
 		cl.def("clusterFJ", (bool (Pythia8::SlowJet::*)()) &Pythia8::SlowJet::clusterFJ, "C++: Pythia8::SlowJet::clusterFJ() --> bool");
 		cl.def("assign", (class Pythia8::SlowJet & (Pythia8::SlowJet::*)(const class Pythia8::SlowJet &)) &Pythia8::SlowJet::operator=, "C++: Pythia8::SlowJet::operator=(const class Pythia8::SlowJet &) --> class Pythia8::SlowJet &", pybind11::return_value_policy::reference, pybind11::arg(""));
 	}
-	{ // Pythia8::PDF file:Pythia8/PartonDistributions.h line:50
+	{ // Pythia8::PDF file:Pythia8/PartonDistributions.h line:49
 		pybind11::class_<Pythia8::PDF, std::shared_ptr<Pythia8::PDF>, PyCallBack_Pythia8_PDF> cl(M("Pythia8"), "PDF", "");
 		pybind11::handle cl_type = cl;
 
-		{ // Pythia8::PDF::PDFEnvelope file:Pythia8/PartonDistributions.h line:98
+		{ // Pythia8::PDF::PDFEnvelope file:Pythia8/PartonDistributions.h line:102
 			auto & enclosing_class = cl;
 			pybind11::class_<Pythia8::PDF::PDFEnvelope, std::shared_ptr<Pythia8::PDF::PDFEnvelope>> cl(enclosing_class, "PDFEnvelope", "");
 			pybind11::handle cl_type = cl;
@@ -631,6 +644,7 @@ void bind_Pythia8_Analysis(std::function< pybind11::module &(std::string const &
 		cl.def("getXhadr", (double (Pythia8::PDF::*)()) &Pythia8::PDF::getXhadr, "C++: Pythia8::PDF::getXhadr() --> double");
 		cl.def("sampleXgamma", (double (Pythia8::PDF::*)(double)) &Pythia8::PDF::sampleXgamma, "C++: Pythia8::PDF::sampleXgamma(double) --> double", pybind11::arg(""));
 		cl.def("sampleQ2gamma", (double (Pythia8::PDF::*)(double)) &Pythia8::PDF::sampleQ2gamma, "C++: Pythia8::PDF::sampleQ2gamma(double) --> double", pybind11::arg(""));
+		cl.def("fluxQ2dependence", (double (Pythia8::PDF::*)(double)) &Pythia8::PDF::fluxQ2dependence, "C++: Pythia8::PDF::fluxQ2dependence(double) --> double", pybind11::arg(""));
 		cl.def("xfMax", (double (Pythia8::PDF::*)(int, double, double)) &Pythia8::PDF::xfMax, "C++: Pythia8::PDF::xfMax(int, double, double) --> double", pybind11::arg("id"), pybind11::arg("x"), pybind11::arg("Q2"));
 		cl.def("xfSame", (double (Pythia8::PDF::*)(int, double, double)) &Pythia8::PDF::xfSame, "C++: Pythia8::PDF::xfSame(int, double, double) --> double", pybind11::arg("id"), pybind11::arg("x"), pybind11::arg("Q2"));
 		cl.def("setVMDscale", [](Pythia8::PDF &o) -> void { return o.setVMDscale(); }, "");
@@ -642,8 +656,6 @@ void bind_Pythia8_Analysis(std::function< pybind11::module &(std::string const &
 		cl.def("cSymmetric", (void (Pythia8::PDF::*)(bool)) &Pythia8::PDF::cSymmetric, "C++: Pythia8::PDF::cSymmetric(bool) --> void", pybind11::arg("cSymmetricIn"));
 		cl.def("bSymmetric", (void (Pythia8::PDF::*)(bool)) &Pythia8::PDF::bSymmetric, "C++: Pythia8::PDF::bSymmetric(bool) --> void", pybind11::arg("bSymmetricIn"));
 		cl.def("xfUpdate", (void (Pythia8::PDF::*)(int, double, double)) &Pythia8::PDF::xfUpdate, "C++: Pythia8::PDF::xfUpdate(int, double, double) --> void", pybind11::arg("id"), pybind11::arg("x"), pybind11::arg("Q2"));
-		cl.def("printErr", [](Pythia8::PDF &o, class std::basic_string<char> const & a0) -> void { return o.printErr(a0); }, "", pybind11::arg("errMsg"));
-		cl.def("printErr", (void (Pythia8::PDF::*)(std::string, class Pythia8::Info *)) &Pythia8::PDF::printErr, "C++: Pythia8::PDF::printErr(std::string, class Pythia8::Info *) --> void", pybind11::arg("errMsg"), pybind11::arg("infoPtr"));
 		cl.def("xfRaw", (double (Pythia8::PDF::*)(int) const) &Pythia8::PDF::xfRaw, "C++: Pythia8::PDF::xfRaw(int) const --> double", pybind11::arg("id"));
 		cl.def("isValence", (bool (Pythia8::PDF::*)(int) const) &Pythia8::PDF::isValence, "C++: Pythia8::PDF::isValence(int) const --> bool", pybind11::arg("id"));
 		cl.def("assign", (class Pythia8::PDF & (Pythia8::PDF::*)(const class Pythia8::PDF &)) &Pythia8::PDF::operator=, "C++: Pythia8::PDF::operator=(const class Pythia8::PDF &) --> class Pythia8::PDF &", pybind11::return_value_policy::reference, pybind11::arg(""));

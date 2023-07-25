@@ -3,7 +3,7 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Keywords: parton distribution; photon beam;
+// Keywords: parton distribution; photon beam
 
 // Example how to set up the simulation of isotropic QED gamma + gamma
 // production at 750 GeV by modifying gamma + gamma -> H -> gamma + gamma.

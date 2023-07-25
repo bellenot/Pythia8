@@ -17,7 +17,7 @@
 
 #include <vector>
 #include "Pythia8/Pythia.h"
-#include "Pythia8/HIUserHooks.h"
+#include "Pythia8/HIInfo.h"
 #include "HepMC3/GenVertex.h"
 #include "HepMC3/GenParticle.h"
 #include "HepMC3/GenEvent.h"

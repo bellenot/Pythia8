@@ -1,16 +1,6 @@
-#include <Pythia8/Basics.h>
-#include <Pythia8/BeamParticle.h>
-#include <Pythia8/HadronWidths.h>
-#include <Pythia8/Info.h>
-#include <Pythia8/LHEF3.h>
-#include <Pythia8/ParticleData.h>
-#include <Pythia8/PartonSystems.h>
+#include <Pythia8/Logger.h>
 #include <Pythia8/Settings.h>
-#include <Pythia8/SigmaLowEnergy.h>
-#include <Pythia8/SigmaTotal.h>
-#include <Pythia8/StandardModel.h>
-#include <Pythia8/SusyCouplings.h>
-#include <Pythia8/Weights.h>
+#include <cwchar>
 #include <functional>
 #include <ios>
 #include <istream>
@@ -28,7 +18,6 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
-#include <Pythia8/HIUserHooks.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -197,7 +186,6 @@ void bind_Pythia8_Settings(std::function< pybind11::module &(std::string const &
 
 		cl.def( pybind11::init( [](){ return new Pythia8::Settings(); } ) );
 		cl.def( pybind11::init( [](Pythia8::Settings const &o){ return new Pythia8::Settings(o); } ) );
-		cl.def("initPtrs", (void (Pythia8::Settings::*)(class Pythia8::Info *)) &Pythia8::Settings::initPtrs, "C++: Pythia8::Settings::initPtrs(class Pythia8::Info *) --> void", pybind11::arg("infoPtrIn"));
 		cl.def("init", [](Pythia8::Settings &o) -> bool { return o.init(); }, "");
 		cl.def("init", [](Pythia8::Settings &o, class std::basic_string<char> const & a0) -> bool { return o.init(a0); }, "", pybind11::arg("startFile"));
 		cl.def("init", (bool (Pythia8::Settings::*)(std::string, bool)) &Pythia8::Settings::init, "C++: Pythia8::Settings::init(std::string, bool) --> bool", pybind11::arg("startFile"), pybind11::arg("append"));
@@ -207,6 +195,8 @@ void bind_Pythia8_Settings(std::function< pybind11::module &(std::string const &
 		cl.def("reInit", (bool (Pythia8::Settings::*)(std::string)) &Pythia8::Settings::reInit, "C++: Pythia8::Settings::reInit(std::string) --> bool", pybind11::arg("startFile"));
 		cl.def("readString", [](Pythia8::Settings &o, class std::basic_string<char> const & a0) -> bool { return o.readString(a0); }, "", pybind11::arg("line"));
 		cl.def("readString", (bool (Pythia8::Settings::*)(std::string, bool)) &Pythia8::Settings::readString, "C++: Pythia8::Settings::readString(std::string, bool) --> bool", pybind11::arg("line"), pybind11::arg("warn"));
+		cl.def("registerPluginLibrary", [](Pythia8::Settings &o, class std::basic_string<char> const & a0) -> bool { return o.registerPluginLibrary(a0); }, "", pybind11::arg("libName"));
+		cl.def("registerPluginLibrary", (bool (Pythia8::Settings::*)(std::string, std::string)) &Pythia8::Settings::registerPluginLibrary, "C++: Pythia8::Settings::registerPluginLibrary(std::string, std::string) --> bool", pybind11::arg("libName"), pybind11::arg("startFile"));
 		cl.def("writeFile", [](Pythia8::Settings &o, class std::basic_string<char> const & a0) -> bool { return o.writeFile(a0); }, "", pybind11::arg("toFile"));
 		cl.def("writeFile", (bool (Pythia8::Settings::*)(std::string, bool)) &Pythia8::Settings::writeFile, "C++: Pythia8::Settings::writeFile(std::string, bool) --> bool", pybind11::arg("toFile"), pybind11::arg("writeAll"));
 		cl.def("writeFile", [](Pythia8::Settings &o) -> bool { return o.writeFile(); }, "");

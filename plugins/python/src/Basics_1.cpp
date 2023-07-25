@@ -1,4 +1,5 @@
 #include <Pythia8/Basics.h>
+#include <cwchar>
 #include <functional>
 #include <ios>
 #include <istream>
@@ -16,7 +17,6 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
-#include <Pythia8/HIUserHooks.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -31,7 +31,7 @@
 	PYBIND11_MAKE_OPAQUE(std::shared_ptr<void>);
 #endif
 
-// Pythia8::RndmEngine file:Pythia8/Basics.h line:351
+// Pythia8::RndmEngine file:Pythia8/Basics.h line:352
 struct PyCallBack_Pythia8_RndmEngine : public Pythia8::RndmEngine {
 	using Pythia8::RndmEngine::RndmEngine;
 
@@ -41,21 +41,21 @@ struct PyCallBack_Pythia8_RndmEngine : public Pythia8::RndmEngine {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>();
 			if (pybind11::detail::cast_is_temporary_value_reference<double>::value) {
-				static pybind11::detail::overload_caster_t<double> caster;
+				static pybind11::detail::override_caster_t<double> caster;
 				return pybind11::detail::cast_ref<double>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<double>(std::move(o));
 		}
-		pybind11::pybind11_fail("Tried to call pure virtual function \"RndmEngine::flat\"");
+		return RndmEngine::flat();
 	}
 };
 
 void bind_Pythia8_Basics_1(std::function< pybind11::module &(std::string const &namespace_) > &M)
 {
-	// Pythia8::costheta(double, double, double, double, double) file:Pythia8/Basics.h line:221
+	// Pythia8::costheta(double, double, double, double, double) file:Pythia8/Basics.h line:222
 	M("Pythia8").def("costheta", (double (*)(double, double, double, double, double)) &Pythia8::costheta, "C++: Pythia8::costheta(double, double, double, double, double) --> double", pybind11::arg("e1"), pybind11::arg("e2"), pybind11::arg("m1"), pybind11::arg("m2"), pybind11::arg("s12"));
 
-	{ // Pythia8::RotBstMatrix file:Pythia8/Basics.h line:250
+	{ // Pythia8::RotBstMatrix file:Pythia8/Basics.h line:251
 		pybind11::class_<Pythia8::RotBstMatrix, std::shared_ptr<Pythia8::RotBstMatrix>> cl(M("Pythia8"), "RotBstMatrix", "");
 		pybind11::handle cl_type = cl;
 
@@ -89,15 +89,15 @@ void bind_Pythia8_Basics_1(std::function< pybind11::module &(std::string const &
 
 		cl.def("__str__", [](Pythia8::RotBstMatrix const &o) -> std::string { std::ostringstream s; s << o; return s.str(); } );
 	}
-	{ // Pythia8::RndmEngine file:Pythia8/Basics.h line:351
+	{ // Pythia8::RndmEngine file:Pythia8/Basics.h line:352
 		pybind11::class_<Pythia8::RndmEngine, std::shared_ptr<Pythia8::RndmEngine>, PyCallBack_Pythia8_RndmEngine> cl(M("Pythia8"), "RndmEngine", "");
 		pybind11::handle cl_type = cl;
 
-		cl.def( pybind11::init( [](){ return new PyCallBack_Pythia8_RndmEngine(); } ) );
+		cl.def( pybind11::init( [](){ return new Pythia8::RndmEngine(); }, [](){ return new PyCallBack_Pythia8_RndmEngine(); } ) );
 		cl.def("flat", (double (Pythia8::RndmEngine::*)()) &Pythia8::RndmEngine::flat, "C++: Pythia8::RndmEngine::flat() --> double");
 		cl.def("assign", (class Pythia8::RndmEngine & (Pythia8::RndmEngine::*)(const class Pythia8::RndmEngine &)) &Pythia8::RndmEngine::operator=, "C++: Pythia8::RndmEngine::operator=(const class Pythia8::RndmEngine &) --> class Pythia8::RndmEngine &", pybind11::return_value_policy::reference, pybind11::arg(""));
 	}
-	{ // Pythia8::Rndm file:Pythia8/Basics.h line:384
+	{ // Pythia8::Rndm file:Pythia8/Basics.h line:385
 		pybind11::class_<Pythia8::Rndm, std::shared_ptr<Pythia8::Rndm>> cl(M("Pythia8"), "Rndm", "");
 		pybind11::handle cl_type = cl;
 
@@ -105,7 +105,7 @@ void bind_Pythia8_Basics_1(std::function< pybind11::module &(std::string const &
 		cl.def( pybind11::init<int>(), pybind11::arg("seedIn") );
 
 		cl.def( pybind11::init( [](Pythia8::Rndm const &o){ return new Pythia8::Rndm(o); } ) );
-		cl.def("rndmEnginePtr", (bool (Pythia8::Rndm::*)(class Pythia8::RndmEngine *)) &Pythia8::Rndm::rndmEnginePtr, "C++: Pythia8::Rndm::rndmEnginePtr(class Pythia8::RndmEngine *) --> bool", pybind11::arg("rndmEngPtrIn"));
+		cl.def("rndmEnginePtr", (bool (Pythia8::Rndm::*)(class std::shared_ptr<class Pythia8::RndmEngine>)) &Pythia8::Rndm::rndmEnginePtr, "C++: Pythia8::Rndm::rndmEnginePtr(class std::shared_ptr<class Pythia8::RndmEngine>) --> bool", pybind11::arg("rndmEngPtrIn"));
 		cl.def("init", [](Pythia8::Rndm &o) -> void { return o.init(); }, "");
 		cl.def("init", (void (Pythia8::Rndm::*)(int)) &Pythia8::Rndm::init, "C++: Pythia8::Rndm::init(int) --> void", pybind11::arg("seedIn"));
 		cl.def("flat", (double (Pythia8::Rndm::*)()) &Pythia8::Rndm::flat, "C++: Pythia8::Rndm::flat() --> double");
@@ -113,12 +113,13 @@ void bind_Pythia8_Basics_1(std::function< pybind11::module &(std::string const &
 		cl.def("xexp", (double (Pythia8::Rndm::*)()) &Pythia8::Rndm::xexp, "C++: Pythia8::Rndm::xexp() --> double");
 		cl.def("gauss", (double (Pythia8::Rndm::*)()) &Pythia8::Rndm::gauss, "C++: Pythia8::Rndm::gauss() --> double");
 		cl.def("gauss2", (struct std::pair<double, double> (Pythia8::Rndm::*)()) &Pythia8::Rndm::gauss2, "C++: Pythia8::Rndm::gauss2() --> struct std::pair<double, double>");
+		cl.def("gamma", (double (Pythia8::Rndm::*)(double, double)) &Pythia8::Rndm::gamma, "C++: Pythia8::Rndm::gamma(double, double) --> double", pybind11::arg("k0"), pybind11::arg("r0"));
 		cl.def("phaseSpace2", (struct std::pair<class Pythia8::Vec4, class Pythia8::Vec4> (Pythia8::Rndm::*)(double, double, double)) &Pythia8::Rndm::phaseSpace2, "C++: Pythia8::Rndm::phaseSpace2(double, double, double) --> struct std::pair<class Pythia8::Vec4, class Pythia8::Vec4>", pybind11::arg("eCM"), pybind11::arg("m1"), pybind11::arg("m2"));
 		cl.def("pick", (int (Pythia8::Rndm::*)(const class std::vector<double, class std::allocator<double> > &)) &Pythia8::Rndm::pick, "C++: Pythia8::Rndm::pick(const class std::vector<double, class std::allocator<double> > &) --> int", pybind11::arg("prob"));
 		cl.def("dumpState", (bool (Pythia8::Rndm::*)(std::string)) &Pythia8::Rndm::dumpState, "C++: Pythia8::Rndm::dumpState(std::string) --> bool", pybind11::arg("fileName"));
 		cl.def("readState", (bool (Pythia8::Rndm::*)(std::string)) &Pythia8::Rndm::readState, "C++: Pythia8::Rndm::readState(std::string) --> bool", pybind11::arg("fileName"));
 	}
-	{ // Pythia8::Hist file:Pythia8/Basics.h line:458
+	{ // Pythia8::Hist file:Pythia8/Basics.h line:461
 		pybind11::class_<Pythia8::Hist, std::shared_ptr<Pythia8::Hist>> cl(M("Pythia8"), "Hist", "");
 		pybind11::handle cl_type = cl;
 

@@ -940,6 +940,9 @@ private:
   // Info object to have access to all information read from LHE file
   Info* infoPtr;
 
+  // Logger object.
+  Logger* loggerPtr;
+
   // Class for calculation weak shower ME.
   SimpleWeakShowerMEs weakShowerMEs;
 

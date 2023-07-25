@@ -6,7 +6,7 @@
 // Authors: Boris Blok <blok@physics.technion.ac.il>
 //          Paolo Gunnellini <Paolo.Gunnellini@cern.ch>
 
-// Keywords: MPI; DPS;
+// Keywords: MPI; DPS
 
 // The program calculates the 4 jet DPS cross section as a function of
 // standard observables according to the model described in

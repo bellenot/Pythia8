@@ -896,8 +896,8 @@ private:
     sumBadBranches(), foundOrderedPath(), foundStronglyOrderedPath(),
     foundAllowedPath(), foundCompletePath(), scale(), nextInInput(), prob(),
     iReclusteredOld(), iReclusteredNew(), doInclude(), mergingHooksPtr(),
-    particleDataPtr(), infoPtr(), showers(), coupSMPtr(), sumScalarPT(),
-    probMaxSave(), depth(), minDepthSave() {}
+    particleDataPtr(), infoPtr(), loggerPtr(), showers(), coupSMPtr(),
+    sumScalarPT(), probMaxSave(), depth(), minDepthSave() {}
 
   // The copy-constructor is private.
   History(const History &) {}
@@ -916,6 +916,9 @@ private:
 
   // Info object to have access to all information read from LHE file
   Info* infoPtr;
+
+  // Logger object.
+  Logger* loggerPtr;
 
   // Class for calculation weak shower ME.
   SimpleWeakShowerMEs simpleWeakShowerMEs;

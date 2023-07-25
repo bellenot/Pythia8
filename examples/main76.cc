@@ -5,7 +5,7 @@
 
 // Authors: Nishita Desai <nishita.desai@tifr.res.in>
 
-// Keywords: basic usage; BSM; supersymmetry;
+// Keywords: basic usage; BSM; supersymmetry
 
 // This is a simple test program.
 // It illustrates how to run SUSY processes in Pythia8.

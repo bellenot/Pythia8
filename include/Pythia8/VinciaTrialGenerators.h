@@ -65,11 +65,12 @@ class TrialGenerator {
   // Generate the next trial scale.
   virtual double genQ2(double Q2MaxNow, Rndm* rndmPtr,
     const EvolutionWindow* evWindowPtrIn, double colFac,
-    double wtIn, Info* infoPtr, int verboseIn);
+    double wtIn, Logger* loggerPtr, int verboseIn);
 
   // Get the invariants.
   virtual bool genInvariants(double sAnt, const vector<double>& masses,
-    vector<double>& invariants, Rndm* rndmPtr, Info* infoPtr, int verboseIn);
+    vector<double>& invariants, Rndm* rndmPtr, Logger* loggerPtr,
+    int verboseIn);
 
   // Calculate the trial based on invariants and saved quantities.
   virtual double aTrial(vector<double>& invariants,
@@ -124,7 +125,7 @@ class TrialGenerator {
 
   // Map from sector to the correct zeta generator.
   // (note these live inside a ZetaGeneratorSet)
-  map<Sector, ZetaGenerator*> zetaGenPtrs;
+  map<Sector, ZetaGeneratorPtr> zetaGenPtrs;
 
   // Map from sector to the corresponding zeta phase-space limits.
   map<Sector, pair<double, double>> zetaLimits;
@@ -217,11 +218,8 @@ class ZetaGeneratorSet {
   // Construct all zeta generators for a given type.
   ZetaGeneratorSet(TrialGenType trialGenTypeIn);
 
-  // Clear list.
-  ~ZetaGeneratorSet();
-
   // Get ptr to ZetaGenerator for a sector.
-  ZetaGenerator* getZetaGenPtr(BranchType branchType, Sector sectIn);
+  ZetaGeneratorPtr getZetaGenPtr(BranchType branchType, Sector sectIn);
 
   TrialGenType getTrialGenType() {return trialGenTypeSav;}
 
@@ -229,9 +227,9 @@ class ZetaGeneratorSet {
 
   const TrialGenType trialGenTypeSav;
 
-  void addGenerator(ZetaGenerator* zGenPtr);
+  void addGenerator(ZetaGeneratorPtr zGenPtr);
 
-  map<pair<BranchType, Sector>, ZetaGenerator*> zetaGenPtrs;
+  map<pair<BranchType, Sector>, ZetaGeneratorPtr> zetaGenPtrs;
 
 };
 
@@ -271,7 +269,7 @@ class ZetaGenerator {
   // Set the invariants for the current value of the evolution variables.
   virtual void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) = 0;
+    Logger* loggerPtr, int verboseIn) = 0;
 
   // Evaluate the trial antenna given invariants and masses.
   virtual double aTrial(const vector<double>& invariants,
@@ -312,8 +310,8 @@ class ZetaGenerator {
   virtual double inverseZetaIntegral(double Iz, double gammaPDF = 1.) = 0;
 
   // Check if invariants are valid.
-  bool valid(const string& method, Info* infoPtr, int verbose, double zIn);
-  bool valid(const string& method, Info* infoPtr, int verbose, double zIn,
+  bool valid(const string& method, Logger* loggerPtr, int verbose, double zIn);
+  bool valid(const string& method, Logger* loggerPtr, int verbose, double zIn,
     const double& Q2In);
 
   // Labels to define this trial generator (set in derived constructors).
@@ -348,7 +346,7 @@ class ZGenFFEmitSoft : public ZetaGenerator {
     double xA = 1., double xB = 1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
@@ -381,7 +379,7 @@ class ZGenFFEmitColI: public ZetaGenerator {
     double xA = 1., double xB = 1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
@@ -413,7 +411,7 @@ class ZGenFFEmitColK : public ZetaGenerator {
     double xA = 1., double xB = 1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
@@ -445,7 +443,7 @@ class ZGenFFSplit : public ZetaGenerator {
     double xA = 1., double xB = 1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
@@ -481,7 +479,7 @@ class ZGenRFEmitSoft : public ZetaGenerator {
     double xA = 1., double xB = 1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
@@ -512,7 +510,7 @@ class ZGenRFEmitSoftAlt : public ZetaGenerator {
     double xA=1., double xB=1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses ) override;
   bool isActive(enum AntFunType antFunType) override {
@@ -544,7 +542,7 @@ class ZGenRFEmitColK : public ZetaGenerator {
     double xA = 1., double xB = 1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial( const vector<double>& invariants,
     const vector<double>& masses ) override;
   bool isActive(enum AntFunType antFunType) override {
@@ -576,7 +574,7 @@ class ZGenRFSplit : public ZetaGenerator {
     double xA = 1., double xB = 1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses ) override;
   bool isActive(enum AntFunType antFunType) override {
@@ -612,7 +610,7 @@ class ZGenIFEmitSoft : public ZetaGenerator {
     double xA = 1., double xB = 1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {return
@@ -645,7 +643,7 @@ class ZGenIFEmitColA : public ZetaGenerator {
     double xA = 1., double xB = 1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
@@ -676,7 +674,7 @@ class ZGenIFEmitColK : public ZetaGenerator {
     double xA=1., double xB=1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {return
@@ -708,7 +706,7 @@ class ZGenIFSplitA: public ZetaGenerator {
     double xA = 1., double xB = 1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial( const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
@@ -740,7 +738,7 @@ class ZGenIFSplitK : public ZetaGenerator {
     double xA = 1., double xB = 1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double> & invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
@@ -772,7 +770,7 @@ class ZGenIFConv : public ZetaGenerator {
     double xA = 1., double xB = 1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
@@ -808,7 +806,7 @@ class ZGenIIEmitSoft : public ZetaGenerator {
     double xA = 1., double xB = 1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
@@ -841,7 +839,7 @@ class ZGenIIEmitCol : public ZetaGenerator {
     double xA = 1., double xB = 1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses ) override;
   bool isActive(enum AntFunType antFunType) override {
@@ -873,7 +871,7 @@ class ZGenIISplit : public ZetaGenerator {
     double xA = 1., double xB = 1.) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
@@ -906,7 +904,7 @@ class ZGenIIConv : public ZetaGenerator {
   double getConstFactor(double sAnt, const vector<double>& masses) override;
   void genInvariants(double Q2In, double zIn, double sAnt,
     const vector<double>& masses, vector<double>& invariants,
-    Info* infoPtr, int verboseIn) override;
+    Logger* loggerPtr, int verboseIn) override;
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {

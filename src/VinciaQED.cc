@@ -135,7 +135,7 @@ double QEDemitElemental::generateTrial(Event &event, double q2Start,
   if (!isInit) return 0.;
 
   if (hasTrial) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Elemental has a trial already.");
     return q2Sav;
   }
@@ -149,7 +149,7 @@ double QEDemitElemental::generateTrial(Event &event, double q2Start,
     // Adjust starting scale.
     q2Start = min(q2Start, sAnt/4.);
     if (q2Start < q2Low) {
-      if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+      if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
         "No phase space for FF in this window.");
       return 0.;
     }
@@ -227,7 +227,7 @@ double QEDemitElemental::generateTrial(Event &event, double q2Start,
     // Adjust starting scale.
     q2Start = min(q2Start, sAnt*(exMax - ex)/ex);
     if (q2Start < q2Low) {
-      if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+      if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
         "No phase space for IF in this window.");
       return 0.;
     }
@@ -285,7 +285,7 @@ double QEDemitElemental::generateTrial(Event &event, double q2Start,
     // Adjust starting scale.
     q2Start = min(q2Start, pow2(shh-sAnt)/shh/4.);
     if (q2Start < q2Low) {
-      if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+      if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
         "No phase space for II in this window.");
       return 0.;
     }
@@ -429,7 +429,8 @@ double QEDemitElemental::generateTrial(Event &event, double q2Start,
   if (q2TrialNow > q2Low) {
     hasTrial = true;
     q2Sav = q2TrialNow;
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,"Generated a new trial.");
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__,"Generated a new trial.");
   }
   return q2TrialNow;
 }
@@ -446,6 +447,7 @@ void QEDsystem::initPtr(Info* infoPtrIn, ParticleData* particleDataPtrIn,
   PartonSystems* partonSystemsPtrIn, Rndm* rndmPtrIn,
   Settings* settingsPtrIn, VinciaCommon* vinComPtrIn) {
   infoPtr = infoPtrIn;
+  loggerPtr = infoPtr->loggerPtr;
   particleDataPtr = particleDataPtrIn;
   partonSystemsPtr = partonSystemsPtrIn;
   rndmPtr = rndmPtrIn;
@@ -462,7 +464,7 @@ void QEDsystem::updatePartonSystems() {
 
   if (partonSystemsPtr == nullptr) return;
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss(" Updating iSys = ");
     ss <<iSys<<" sizeSys = " << partonSystemsPtr->sizeSys();
     printOut(__METHOD_NAME__, ss.str());
@@ -542,12 +544,13 @@ void QEDemitSystem::prepare(int iSysIn, Event &event, double q2CutIn,
   bool isBelowHadIn, vector<double> evolutionWindowsIn, AlphaEM alIn) {
 
   if (!isInit) {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__, ": not initialised.");
+    loggerPtr->ERROR_MSG("not initialised");
     return;
   }
 
   // Verbose output.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
 
   // Input.
   iSys = iSysIn;
@@ -561,8 +564,9 @@ void QEDemitSystem::prepare(int iSysIn, Event &event, double q2CutIn,
   buildSystem(event);
 
   // Done.
-  if (verbose >= DEBUG) print();
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) print();
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "end", dashLen);
 
 }
 
@@ -573,7 +577,8 @@ void QEDemitSystem::prepare(int iSysIn, Event &event, double q2CutIn,
 void QEDemitSystem::buildSystem(Event &event) {
 
   // Verbose output.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
 
   // Clear previous antennae.
   eleVec.clear();
@@ -641,8 +646,7 @@ void QEDemitSystem::buildSystem(Event &event) {
       double nLoop = 0;
       do {
         if (++nLoop > 10000) {
-          infoPtr->errorMsg("Error in "+__METHOD_NAME__+": caught in "
-            "infinite loop");
+          loggerPtr->ERROR_MSG("caught in infinite loop");
           break;
         }
         int colTag = event[iEv].col();
@@ -654,8 +658,7 @@ void QEDemitSystem::buildSystem(Event &event) {
           }
         }
         if (iEv == iPseudoVec.back()) {
-          infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-            ": colour tracing failed.");
+          loggerPtr->ERROR_MSG("colour tracing failed");
           break;
         }
         iPseudoVec.push_back(iEv);
@@ -762,9 +765,8 @@ void QEDemitSystem::buildSystem(Event &event) {
     }
 
     if (chargeTypeTot != 0) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Charge not conserved above hadronization scale");
-      if (verbose >= REPORT) {
+      loggerPtr->ERROR_MSG("charge not conserved above hadronization scale");
+      if (verbose >= Logger::REPORT) {
         printOut(__METHOD_NAME__, "Printing events and systems");
         event.list();
         partonSystemsPtr->list();
@@ -865,7 +867,7 @@ void QEDemitSystem::buildSystem(Event &event) {
       for (int j = 0; j < i; j++) cMat += max(eleMat[i][j].QQ, 0.);
   }
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__,"end (nEmitters(II+IF+RF+FF) ="
       + num2str((int)eleVec.size())+" (pairs) + "+num2str((int)eleMat.size())
       + " (multipole))");
@@ -880,11 +882,12 @@ void QEDemitSystem::buildSystem(Event &event) {
 double QEDemitSystem::q2Next(Event &event, double q2Start) {
   // Don't do anything if empty!
   if (eleVec.size() == 0 && eleMat.size()==0 ) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,"Nothing to do.");
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__,"Nothing to do.");
     return 0.;
   }
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss<<"Starting evolution at q2Start = "<<q2Start;
     printOut(__METHOD_NAME__,ss.str());
@@ -892,7 +895,8 @@ double QEDemitSystem::q2Next(Event &event, double q2Start) {
 
   // Check if qTrial is below the cutoff.
   if (q2Start < q2Cut || evolutionWindows.size() == 0) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,"Below cutoff.");
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__,"Below cutoff.");
     return 0;
   }
 
@@ -901,14 +905,14 @@ double QEDemitSystem::q2Next(Event &event, double q2Start) {
   while (iEvol >= 1 && q2Start <= evolutionWindows[iEvol]) iEvol--;
   double q2Low = evolutionWindows[iEvol];
   if (q2Low < 0)
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Evolution window < 0");
+    loggerPtr->ERROR_MSG("Evolution window < 0");
   double q2Trial = 0;
 
   // Generate a scale.
   double alphaMax = al.alphaEM(q2Start);
 
   // Pull scales from eleVec.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss<<"Looping over "<<eleVec.size()<< " emit pairing elementals.";
     printOut(__METHOD_NAME__,ss.str());
@@ -925,7 +929,7 @@ double QEDemitSystem::q2Next(Event &event, double q2Start) {
 
   // Pull scales from eleMat.
   for (int i = 0; i < (int)eleMat.size(); i++) {
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss<<"Looping over "<<eleMat[i].size()<<" coherent elementals.";
       printOut(__METHOD_NAME__,ss.str());
@@ -942,7 +946,7 @@ double QEDemitSystem::q2Next(Event &event, double q2Start) {
   }
 
   // Verbose output.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss<<"Generated a new trial = "<< q2Trial;
     ss<<" in window = "<<iEvol << " (q2Low = "<<q2Low<<" )";
@@ -952,11 +956,11 @@ double QEDemitSystem::q2Next(Event &event, double q2Start) {
   // Check if evolution window was crossed.
   if (q2Trial < q2Low) {
     if (iEvol == 0) {
-      if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+      if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
         "Dropped below QED cutoff.");
       return 0;
     }
-    else if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+    else if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
       "Trial was below window lower bound. Try again. ");
     // Reset all trials.
     for (int i = 0; i < (int)eleVec.size(); i++) eleVec[i].hasTrial = false;
@@ -966,7 +970,7 @@ double QEDemitSystem::q2Next(Event &event, double q2Start) {
   }
 
   // Otherwise return trial scale.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__,"Done");
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,"Done");
   return q2Trial;
 
 }
@@ -977,7 +981,8 @@ double QEDemitSystem::q2Next(Event &event, double q2Start) {
 
 bool QEDemitSystem::acceptTrial(Event &event) {
 
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
   // Mark trial as used.
   eleTrial->hasTrial = false;
 
@@ -1113,8 +1118,7 @@ bool QEDemitSystem::acceptTrial(Event &event) {
 
     // Check if nothing got messed up along the way.
     if (pRec.size() != iRec.size()) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": inconsistent recoilers in RF kinematics.");
+      loggerPtr->ERROR_MSG("inconsistent recoilers in RF kinematics");
       return false;
     }
   }
@@ -1220,10 +1224,9 @@ bool QEDemitSystem::acceptTrial(Event &event) {
       stringstream ss1;
       ss1 << "at q = " << sqrt(eleTrial->q2Sav)
           <<" GeV,  ratio = " << aPhysNow/aTrialNow;
-      infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": incorrect "
-        +"overestimate (dipole)",ss1.str());
+      loggerPtr->WARNING_MSG("incorrect overestimate (dipole)",ss1.str());
 
-      if (verbose >= DEBUG) {
+      if (verbose >= VinciaConstants::DEBUG) {
         stringstream ss2, ss3;
         if (eleTrial->isFF) ss2 << "Antenna is FF";
         if (eleTrial->isIF) ss2 << "Antenna is IF";
@@ -1298,8 +1301,7 @@ bool QEDemitSystem::acceptTrial(Event &event) {
       stringstream ss1;
       ss1 << "at q = " << sqrt(eleTrial->q2Sav)
           << " GeV,  ratio = " << aPhysFull/aTrialFull;
-      infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": incorrect "
-        +"overestimate (multipole)",ss1.str());
+      loggerPtr->WARNING_MSG("incorrect overestimate (multipole)",ss1.str());
     }
     // Add antenna veto.
     pVeto *= aPhysFull/aTrialFull;
@@ -1323,7 +1325,7 @@ bool QEDemitSystem::acceptTrial(Event &event) {
   }
 
   // Done.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     event.list();
     partonSystemsPtr->list();
     printOut(__METHOD_NAME__,"end", dashLen);
@@ -1801,10 +1803,11 @@ void QEDsplitSystem::prepare(int iSysIn, Event &event, double q2CutIn,
   bool isBelowHadIn, vector<double> evolutionWindowsIn, AlphaEM alIn) {
 
   if (!isInit) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Not initialised.");
+    loggerPtr->ERROR_MSG("Not initialised");
     return;
   }
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
 
   // Input.
   iSys = iSysIn;
@@ -1837,7 +1840,7 @@ void QEDsplitSystem::prepare(int iSysIn, Event &event, double q2CutIn,
   buildSystem(event);
 
   // Done.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     print();
     printOut(__METHOD_NAME__, "end", dashLen);
   }
@@ -1851,7 +1854,8 @@ void QEDsplitSystem::prepare(int iSysIn, Event &event, double q2CutIn,
 void QEDsplitSystem::buildSystem(Event &event) {
 
   // Verbose output.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
 
   // Get rid of saved trial and clear all antennae.
   hasTrial = false;
@@ -1917,7 +1921,7 @@ void QEDsplitSystem::buildSystem(Event &event) {
     }
   }
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__,"end (nComb(Gam+Rec) ="
       + num2str((int)eleVec.size())+")");
   }
@@ -1932,14 +1936,14 @@ double QEDsplitSystem::q2Next(Event &event, double q2Start) {
 
   // Return saved trial if we have one.
   if (hasTrial) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__,"Returning saved trial.");
     return q2Trial;
   }
 
   // Check if there are any photons left.
   if (eleVec.size() == 0) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__,"No photons, can't generate a splitting.");
     return 0.;
   }
@@ -1948,7 +1952,8 @@ double QEDsplitSystem::q2Next(Event &event, double q2Start) {
 
   // Check if qTrial is below the cutoff.
   if (q2Trial <= q2Cut) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,"Below cutoff.");
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__,"Below cutoff.");
     return 0.;
   }
 
@@ -1984,11 +1989,11 @@ double QEDsplitSystem::q2Next(Event &event, double q2Start) {
   // Check if evolution window was crossed.
   if (q2Trial <= q2Low) {
     if (iEvol == 0) {
-      if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+      if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
         "Dropped below QED cutoff.");
       return 0.;
     }
-    else if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+    else if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
       "Trial was below window lower bound. Try again. ");
     return q2Next(event, q2Low);
   }
@@ -2024,7 +2029,7 @@ double QEDsplitSystem::q2Next(Event &event, double q2Start) {
 
   // Done.
   hasTrial = true;
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__,"Done");
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,"Done");
   return q2Trial;
 
 }
@@ -2035,7 +2040,8 @@ double QEDsplitSystem::q2Next(Event &event, double q2Start) {
 
 bool QEDsplitSystem::acceptTrial(Event &event) {
 
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
   // Mark trial as used.
   hasTrial = false;
 
@@ -2050,7 +2056,7 @@ bool QEDsplitSystem::acceptTrial(Event &event) {
 
   // Safety check.
   if (iPhot > event.size() || iSpec > event.size()) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": inconsistent parent(s).");
+    loggerPtr->ERROR_MSG("inconsistent parent(s)");
     return false;
   }
 
@@ -2096,7 +2102,8 @@ bool QEDsplitSystem::acceptTrial(Event &event) {
       masses)) return false;
 
   // Done.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__,"end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__,"end", dashLen);
   return true;
 }
 
@@ -2208,10 +2215,11 @@ void QEDconvSystem::prepare(int iSysIn, Event &event, double q2CutIn,
   bool isBelowHadIn, vector<double> evolutionWindowsIn, AlphaEM alIn) {
 
   if (!isInit) {
-    infoPtr->errorMsg("Error in "+__METHOD_NAME__+": Not initialised.");
+    loggerPtr->ERROR_MSG("not initialised");
     return;
   }
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
 
   // Input.
   iSys = iSysIn;
@@ -2248,7 +2256,8 @@ void QEDconvSystem::prepare(int iSysIn, Event &event, double q2CutIn,
   buildSystem(event);
 
   // Done.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "end", dashLen);
 
 }
 
@@ -2268,7 +2277,7 @@ void QEDconvSystem::buildSystem(Event &event) {
   isBPhot = event[iB].id() == 22;
   s = (event[iA].p() + event[iB].p()).m2Calc();
 
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, " convA =" + bool2str(isAPhot)
       +", convB =" + bool2str(isBPhot));
   }
@@ -2283,13 +2292,13 @@ double QEDconvSystem::q2Next(Event &event, double q2Start) {
 
   // Return saved trial if we have one.
   if (hasTrial) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
       "Returning saved trial.");
     return q2Trial;
   }
   // Check if there are any initial-state photons.
   if (!isAPhot && !isBPhot) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
       "No initial-state photons, so can't generate a conversion.");
     return 0.;
   }
@@ -2310,7 +2319,8 @@ double QEDconvSystem::q2Next(Event &event, double q2Start) {
 
   // Check if qTrial is below the cutoff.
   if (q2Trial <= q2Cut) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,"Below cutoff.");
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__,"Below cutoff.");
     return 0.;
   }
 
@@ -2323,7 +2333,8 @@ double QEDconvSystem::q2Next(Event &event, double q2Start) {
   double zPlus = shh/s;
   double zMin = 1 + q2Low/s;
   if (zPlus < zMin) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,"Phase space closed");
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__,"Phase space closed");
     return 0.;
   }
   double Iz = log(zPlus/zMin);
@@ -2331,7 +2342,8 @@ double QEDconvSystem::q2Next(Event &event, double q2Start) {
 
   // If no antennae are active, don't generate new scale.
   if (totWeight < NANO) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,"Below cutoff.");
+    if (verbose >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__,"Below cutoff.");
     return 0.;
   }
 
@@ -2347,11 +2359,11 @@ double QEDconvSystem::q2Next(Event &event, double q2Start) {
   // Check if evolution window was crossed.
   if (q2Trial < q2Low) {
     if (iEvol==0) {
-      if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+      if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
         "Dropped below QED cutoff.");
       return 0.;
     }
-    else if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+    else if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
       "Trial was below window lower bound. Try again. ");
     return q2Next(event, q2Low);
   }
@@ -2375,7 +2387,8 @@ double QEDconvSystem::q2Next(Event &event, double q2Start) {
 
 bool QEDconvSystem::acceptTrial(Event &event) {
 
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
   // Mark trial as used.
   hasTrial = false;
 
@@ -2482,8 +2495,7 @@ bool QEDconvSystem::acceptTrial(Event &event) {
     stringstream ss;
     ss << "at q = "<<sqrt(q2Trial)<<" GeV,  id = " << idTrial
        << ",  ratio = " << Rpdf/Rhat[idTrial];
-    infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": incorrect PDF "
-      +"overestimate",ss.str());
+    loggerPtr->WARNING_MSG("incorrect PDF overestimate",ss.str());
   }
 
   // Pdf ratio veto probability.
@@ -2495,7 +2507,8 @@ bool QEDconvSystem::acceptTrial(Event &event) {
   }
 
   // Done.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__,"end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__,"end", dashLen);
   return true;
 }
 
@@ -2598,7 +2611,8 @@ void QEDconvSystem::updateEvent(Event &event) {
   }
 
   // Done.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "end", dashLen);
 
 }
 
@@ -2626,6 +2640,7 @@ void VinciaQED::initPtr(Info* infoPtrIn, VinciaCommon* vinComPtrIn) {
   partonSystemsPtr = infoPtr->partonSystemsPtr;
   rndmPtr          = infoPtr->rndmPtr;
   settingsPtr      = infoPtr->settingsPtr;
+  loggerPtr        = infoPtr->loggerPtr;
   vinComPtr        = vinComPtrIn;
 
   // Initialise the empty templates we use to make new QED shower systems.
@@ -2698,7 +2713,7 @@ bool VinciaQED::prepare(int iSysIn, Event &event, bool isBelowHad) {
   if (!doQED) return false;
 
   // Verbose output
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "begin", dashLen);
     stringstream ss;
     ss << "Preparing system " << iSysIn;
@@ -2711,7 +2726,7 @@ bool VinciaQED::prepare(int iSysIn, Event &event, bool isBelowHad) {
   // If below hadronization scale or this is resonance system,
   // clear information about any other systems.
   if ( iSysIn == -1 || isBelowHad || partonSystemsPtr->hasInRes(iSysIn)) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
       "clearing previous QED systems");
     clear();
   }
@@ -2743,7 +2758,7 @@ bool VinciaQED::prepare(int iSysIn, Event &event, bool isBelowHad) {
       if (!event[i].isFinal()) continue;
       partonSystemsPtr->addOut(iSysIn, i);
     }
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       printOut(__METHOD_NAME__,"Created new parton system for post-remnant "
         "QED showering:");
       partonSystemsPtr->list();
@@ -2763,8 +2778,7 @@ bool VinciaQED::prepare(int iSysIn, Event &event, bool isBelowHad) {
   }
   if (forceClear) {
     clear();
-    infoPtr->errorMsg("Warning in "+__METHOD_NAME__
-    +": cleared inconsistent list of QED systems.");
+    loggerPtr->WARNING_MSG("cleared inconsistent list of QED systems");
   }
 
   // Add and prepare new system for initial- and final-state photon emissions.
@@ -2783,7 +2797,8 @@ bool VinciaQED::prepare(int iSysIn, Event &event, bool isBelowHad) {
     evolutionWindows,al);
 
   // Done.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__,"end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__,"end", dashLen);
   return true;
 
 }
@@ -2795,7 +2810,7 @@ bool VinciaQED::prepare(int iSysIn, Event &event, bool isBelowHad) {
 void VinciaQED::update(Event &event, int iSys) {
 
   // Find index of the system.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "begin (iSys"+num2str(iSys,2)+")", dashLen);
   }
 
@@ -2807,7 +2822,7 @@ void VinciaQED::update(Event &event, int iSys) {
     convSystems[iSys].buildSystem(event);
 
   // Done.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     event.list();
     printOut(__METHOD_NAME__, "end", dashLen);
   }
@@ -2827,7 +2842,7 @@ double VinciaQED::q2Next(Event &event, double q2Start, double) {
   if (!doQED) return 0.0;
 
   // Verbose output.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__, "begin", dashLen);
     stringstream ss;
     ss << "q2Start = " << q2Start
@@ -2840,7 +2855,7 @@ double VinciaQED::q2Next(Event &event, double q2Start, double) {
 
   // Emissions.
   if (doEmission && emitSystems.size() >= 1) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
       "Generating QED emissions.");
     q2NextSystem(emitSystems,event,q2Start);
   }
@@ -2848,20 +2863,21 @@ double VinciaQED::q2Next(Event &event, double q2Start, double) {
   // Splittings (no point trying if starting scale is below electron mass).
   if (q2Start < pow2(2*particleDataPtr->m0(11))) splitSystems.clear();
   else if (nGammaToLepton + nGammaToQuark > 0 && splitSystems.size() >= 1) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
       "Generating QED splittings.");
     q2NextSystem(splitSystems,event,q2Start);
   }
 
   // Conversions.
   if (doConvertGamma && convSystems.size() >= 1) {
-    if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+    if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
       "Generating QED conversions.");
     q2NextSystem(convSystems,event,q2Start);
   }
 
   // Done.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "end", dashLen);
   return q2Trial;
 
 }
@@ -2873,14 +2889,15 @@ double VinciaQED::q2Next(Event &event, double q2Start, double) {
 bool VinciaQED::acceptTrial(Event &event) {
 
   // Verbose output.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
   bool accept = false;
 
   // Delegate.
   if (qedTrialSysPtr) accept = qedTrialSysPtr->acceptTrial(event);
 
   // Done.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     string result = (accept) ? "accept" : "reject";
     printOut(__METHOD_NAME__, "end ("+result+")", dashLen);
   }
@@ -2895,13 +2912,15 @@ bool VinciaQED::acceptTrial(Event &event) {
 void VinciaQED::updateEvent(Event &event) {
 
   // Verbose output.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__,"begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__,"begin", dashLen);
 
   // Delegate.
   if (qedTrialSysPtr != nullptr) qedTrialSysPtr->updateEvent(event);
 
   // Done.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__,"end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__,"end", dashLen);
 
   return;
 
@@ -2914,13 +2933,15 @@ void VinciaQED::updateEvent(Event &event) {
 void VinciaQED::updatePartonSystems(Event&) {
 
   // Verbose output.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__,"begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__,"begin", dashLen);
 
   // Delegate.
   if (qedTrialSysPtr!=nullptr) qedTrialSysPtr->updatePartonSystems();
 
   // Done.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__,"end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__,"end", dashLen);
   return;
 
 }
@@ -2933,7 +2954,7 @@ template <class T> void VinciaQED::q2NextSystem(
   map<int, T>& systemList, Event& event, double q2Start) {
 
   // Loop over all QED systems.
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Looping over " << systemList.size()
        << " QED systems (q2start=" << q2Start << ")";

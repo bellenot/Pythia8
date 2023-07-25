@@ -159,6 +159,7 @@ public:
     partonSystemsPtr = infoPtr->partonSystemsPtr;
     rndmPtr          = infoPtr->rndmPtr;
     settingsPtr      = infoPtr->settingsPtr;
+    loggerPtr        = infoPtr->loggerPtr;
     alphaPtr         = alphaPtrIn;
     alphaSPtr        = alphaSPtrIn;
     isInitPtr        = true;
@@ -277,9 +278,9 @@ public:
   // Report helicity combination error for an FF antenna function.
   void hmsgFFAnt(int polMot, int poli, int polj) {
     stringstream ss;
-    ss << ": helicity combination was not found:\n    "
+    ss << "helicity combination was not found:\n    "
        << "polMot = " << polMot << " poli = " << poli << " polj = " << polj;
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__, ss.str());}
+    loggerPtr->ERROR_MSG(ss.str());}
 
   // Initialize an II antenna function.
   void initIIAnt(int id1, int id2, int pol, const double& Q2,
@@ -289,9 +290,9 @@ public:
   // Report helicity combination error for an II antenna function.
   void hmsgIIAnt(int polA, int pola, int polj) {
     stringstream ss;
-    ss << ": helicity combination was not found:\n    "
+    ss << "helicity combination was not found:\n    "
        << "polA = " << polA << " pola = " << pola << " polj = " << polj;
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__, ss.str());}
+    loggerPtr->ERROR_MSG(ss.str());}
 
   // FF Antenna functions for branching process I (K) -> i j (k).
   // Q2 is the offshellness of I.
@@ -369,9 +370,9 @@ public:
   // Report helicty combination error for an FSR splitting kernel.
   void hmsgFSRSplit(int polMot, int poli, int polj) {
     stringstream ss;
-    ss << ": helicity combination was not found:\n    "
+    ss << "helicity combination was not found:\n    "
        << "polMot = " << polMot << " poli = " << poli << " polj = " << polj;
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__, ss.str());}
+    loggerPtr->ERROR_MSG(ss.str());}
 
   // Initialize an ISR splitting kernel.
   void initISRSplit(bool va, int id1, int id2, int pol,
@@ -386,9 +387,9 @@ public:
   // Report helicty combination error for an ISR splitting kernel.
   void hmsgISRSplit(int polA, int pola, int polj) {
     stringstream ss;
-    ss << ": helicity combination was not found:\n    "
+    ss << "helicity combination was not found:\n    "
        << "polA = " << polA << " pola = " << pola << " polj = " << polj;
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__, ss.str());}
+    loggerPtr->ERROR_MSG(ss.str());}
 
   // Final-state splitting kernels.
   double ftofvFSRSplit(double Q2, double z, int idMot, int idi, int idj,
@@ -511,6 +512,7 @@ private:
   PartonSystems* partonSystemsPtr{};
   Rndm* rndmPtr{};
   Settings* settingsPtr{};
+  Logger* loggerPtr{};
   AlphaEM* alphaPtr{};
   AlphaStrong* alphaSPtr{};
 
@@ -574,6 +576,7 @@ class EWAntenna {
     AmpCalculator* ampCalcPtrIn) {
     infoPtr          = infoPtrIn;
     rndmPtr          = infoPtr->rndmPtr;
+    loggerPtr        = infoPtr->loggerPtr;
     partonSystemsPtr = infoPtr->partonSystemsPtr;
     vinComPtr        = vinComPtrIn;
     alphaPtr         = alphaPtrIn;
@@ -652,6 +655,7 @@ protected:
   EWBranching* brTrial{};
   Info* infoPtr{};
   Rndm* rndmPtr{};
+  Logger* loggerPtr{};
   PartonSystems* partonSystemsPtr{};
   VinciaCommon* vinComPtr{};
   AlphaEM* alphaPtr{};
@@ -796,6 +800,7 @@ public:
     partonSystemsPtr = infoPtr->partonSystemsPtr;
     rndmPtr          = infoPtr->rndmPtr;
     settingsPtr      = infoPtr->settingsPtr;
+    loggerPtr        = infoPtr->loggerPtr;
     vinComPtr = vinComPtrIn;
     al = alIn;}
 
@@ -882,8 +887,7 @@ public:
     if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "begin", VinciaConstants::dashLen);
     if (antTrial != nullptr) antTrial->updateEvent(event);
-    else infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": trial doesn't exist!");
+    else loggerPtr->ERROR_MSG("trial doesn't exist!");
     if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "end", VinciaConstants::dashLen);}
 
@@ -892,8 +896,7 @@ public:
     if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "begin", VinciaConstants::dashLen);
     if (antTrial!=nullptr) antTrial->updatePartonSystems(event);
-    else infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": trial doesn't exist!");
+    else loggerPtr->ERROR_MSG("trial doesn't exist!");
     if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "end", VinciaConstants::dashLen);}
 
@@ -946,6 +949,7 @@ private:
   PartonSystems* partonSystemsPtr{};
   Rndm* rndmPtr{};
   Settings* settingsPtr{};
+  Logger* loggerPtr{};
   VinciaCommon* vinComPtr{};
   AlphaEM* al{};
 
@@ -993,6 +997,7 @@ public:
   void initPtr(Info* infoPtrIn, VinciaCommon* vinComPtrIn) override {
     infoPtr = infoPtrIn;
     particleDataPtr  = infoPtr->particleDataPtr;
+    loggerPtr        = infoPtr->loggerPtr;
     partonSystemsPtr = infoPtr->partonSystemsPtr;
     rndmPtr          = infoPtr->rndmPtr;
     settingsPtr      = infoPtr->settingsPtr;
@@ -1044,8 +1049,7 @@ public:
       printOut(__METHOD_NAME__, "begin", VinciaConstants::dashLen);
     bool success = false;
     if (ewSystem.hasTrial()) success = ewSystem.acceptTrial(event);
-    else infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": trial doesn't exist!");
+    else loggerPtr->ERROR_MSG("trial doesn't exist!");
     if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "end", VinciaConstants::dashLen);
     return success;}
@@ -1055,8 +1059,7 @@ public:
     if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "begin", VinciaConstants::dashLen);
     if (ewSystem.hasTrial()) ewSystem.updateEvent(event);
-    else infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": trial doesn't exist!");
+    else loggerPtr->ERROR_MSG("trial doesn't exist!");
     if (verbose >=VinciaConstants::DEBUG) {
       printOut(__METHOD_NAME__,"Event after update:"); event.list();
       printOut(__METHOD_NAME__, "end", VinciaConstants::dashLen);}}
@@ -1066,8 +1069,7 @@ public:
     if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "begin", VinciaConstants::dashLen);
     if (ewSystem.hasTrial()) ewSystem.updatePartonSystems(event);
-    else infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-      ": trial doesn't exist!");
+    else loggerPtr->ERROR_MSG("trial doesn't exist!");
     if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "end", VinciaConstants::dashLen);}
 
@@ -1131,8 +1133,8 @@ private:
     if (!attributeValue(line, attribute, valString)) return false;
     istringstream valStream(valString);
     if ( !(valStream >> val) ) {
-      infoPtr->errorMsg("Error in " + __METHOD_NAME__,
-        ": failed to store attribute " + attribute + " " + valString);
+      loggerPtr->ERROR_MSG("failed to store attribute "
+        + attribute + " " + valString);
       return false;
     } else return true;
   }

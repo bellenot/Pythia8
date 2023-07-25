@@ -64,8 +64,7 @@ bool NucleonExcitations::init(string path) {
 
   ifstream stream(path);
   if (!stream.is_open()) {
-    infoPtr->errorMsg( "Error in NucleonExcitations::init: "
-        "unable to open file", path);
+    loggerPtr->ERROR_MSG("unable to open file", path);
     return false;
   }
 
@@ -84,8 +83,7 @@ bool NucleonExcitations::init(istream& stream) {
   // Read header info.
   string line;
   if (!getline(stream, line)) {
-    infoPtr->errorMsg("Error in NucleonExcitations::init: "
-      "unable to read file");
+    loggerPtr->ERROR_MSG("unable to read file");
     return false;
   }
 
@@ -93,7 +91,7 @@ bool NucleonExcitations::init(istream& stream) {
   istringstream(line) >> word1;
 
   if (word1 != "<header") {
-    infoPtr->errorMsg("Error in NucleonExcitations::init: header missing");
+    loggerPtr->ERROR_MSG("header missing");
     return false;
   }
   completeTag(stream, line);
@@ -162,8 +160,7 @@ bool NucleonExcitations::check() {
     for (int mask : { excitationChannel.maskA, excitationChannel.maskB })
     for (int id : { mask + 2210, mask + 2110 })
     if (!particleDataPtr->isParticle(id)) {
-      infoPtr->errorMsg("Error in HadronWidths::check: "
-        "excitation is not a particle", std::to_string(id));
+      loggerPtr->ERROR_MSG("excitation is not a particle", to_string(id));
       return false;
     }
   }
@@ -180,8 +177,7 @@ bool NucleonExcitations::pickExcitation(int idA, int idB, double eCM,
   // Excitations are available only for nucleons.
   if (!(abs(idA) == 2112 || abs(idA) == 2212)
    || !(abs(idB) == 2112 || abs(idB) == 2212)) {
-    infoPtr->errorMsg("Error in NucleonExcitations:pickExcitation: "
-      "excitations are only available for NN collisions");
+    loggerPtr->ERROR_MSG("excitations are only available for NN collisions");
     return false;
   }
 
@@ -217,8 +213,7 @@ bool NucleonExcitations::pickExcitation(int idA, int idB, double eCM,
   // Pick masses.
   double mCtmp, mDtmp;
   if (!hadronWidthsPtr->pickMasses(idCtmp, idDtmp, eCM, mCtmp, mDtmp)) {
-    infoPtr->errorMsg("Error in NucleonExcitations::pickExcitation: "
-      "failed picking masses",
+    loggerPtr->ERROR_MSG("failed picking masses",
       "(for " + to_string(idA) + " + " + to_string(idB) + " --> "
       + to_string(idCtmp) + " + " + to_string(idDtmp) + ")");
     return false;
@@ -375,8 +370,7 @@ double NucleonExcitations::sigmaCalc(double eCM, int maskC, int maskD) const {
 bool NucleonExcitations::parameterizeAll(int precision, double threshold) {
 
   if (precision <= 1){
-    infoPtr->errorMsg("Error in NucleonExcitations::parameterizeAll: "
-      "precision must be at least 2");
+    loggerPtr->ERROR_MSG("precision must be at least 2");
     return false;
   }
 
@@ -390,8 +384,8 @@ bool NucleonExcitations::parameterizeAll(int precision, double threshold) {
     return hadronWidthsPtr->mDistr(2214, m);
   }, particleDataPtr->mMin(2214), particleDataPtr->mMax(2214));
   if (!valid) {
-    infoPtr->errorMsg("Abort from NucleonExcitations::parameterizeAll: "
-        "unable to integrate excitation mass distribution", "2214");
+    loggerPtr->ABORT_MSG(
+      "unable to integrate excitation mass distribution", "2214");
     return false;
   }
   scaleFactorD *= 4;
@@ -401,8 +395,7 @@ bool NucleonExcitations::parameterizeAll(int precision, double threshold) {
   for (auto maskEx : getExcitationMasks()) {
 
     int idEx = 2210 + maskEx;
-    infoPtr->errorMsg("Info from NucleonExcitations::parameterizeAll: "
-      "parameterizing", to_string(idEx), true);
+    loggerPtr->INFO_MSG("parameterizing", to_string(idEx), true);
 
     // Define helpful variables for the current excitation.
     ParticleDataEntryPtr entry = particleDataPtr->findParticle(idEx);
@@ -416,8 +409,8 @@ bool NucleonExcitations::parameterizeAll(int precision, double threshold) {
     }, entry->mMin(), entry->mMax());
 
     if (!valid) {
-      infoPtr->errorMsg("Abort from NucleonExcitations::parameterizeAll: "
-        "unable to integrate excitation mass distribution", to_string(idEx));
+      loggerPtr->ABORT_MSG("unable to integrate excitation mass distribution",
+        to_string(idEx));
       return false;
     }
     scaleFactorEx *= entry->spinType();
@@ -551,7 +544,7 @@ double NucleonExcitations::psSize(double eCM, ParticleDataEntry& prodA,
   if (success)
     return result;
   else {
-    infoPtr->errorMsg("Error in HadronWidths::psSize: Unable to integrate");
+    loggerPtr->ERROR_MSG("unable to integrate");
     return numeric_limits<double>::quiet_NaN();
   }
 }

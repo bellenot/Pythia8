@@ -3,7 +3,7 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Keywords: analysis; tuning; uncertainty bands;
+// Keywords: analysis; tuning; uncertainty bands
 
 // Illustrate how to set up automatic uncertainty band calculations.
 

@@ -5,8 +5,7 @@
 
 // Authors: Marius Utheim <marius.m.utheim@jyu.fi>
 
-// Keywords: PDFs;
-// arXiv:2108.03481 [hep-ph]
+// Keywords: PDFs; arXiv:2108.03481 [hep-ph]
 
 // Plots parton distribution functions for the specified hadrons and partons.
 

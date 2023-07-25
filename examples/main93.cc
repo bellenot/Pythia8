@@ -3,10 +3,10 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Christian Bierlich <christian.bierlich@hep.lu.se>.
+// Authors: Christian Bierlich <christian.bierlich@hep.lu.se>
 
 // Keywords: analysis; hepmc; command file; command line option; root; rivet;
-// tuning;
+//           tuning
 
 // Streamlined event generation with possibility to output ROOT files,
 // output HepMC files and run RIVET analyses, all by specifying output modes
@@ -21,6 +21,7 @@
 #include "main93.h"
 #include <chrono>
 #ifdef PY8ROOT
+#include "TSystem.h"
 #include "TTree.h"
 #include "TFile.h"
 #endif
@@ -257,6 +258,7 @@ int main(int argc, char* argv[]) {
                 "linked Root installation." << endl;
         return 1;
    #else
+   gSystem->Load("main93.so");
    string op = (out == "" ? "pythia.root" : out + ".root");
    file = TFile::Open(op.c_str(),"recreate" );
    re = new RootEvent();

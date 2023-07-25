@@ -20,7 +20,7 @@ using namespace VinciaConstants;
 
 void TrialGenerator::addGenerator(ZetaGeneratorSet& zetaGenSet,
   Sector sector) {
-  ZetaGenerator* zGenPtr = zetaGenSet.getZetaGenPtr(branchType,sector);
+  ZetaGeneratorPtr zGenPtr = zetaGenSet.getZetaGenPtr(branchType, sector);
   if (zGenPtr != nullptr) zetaGenPtrs[sector] = zGenPtr;
 }
 
@@ -35,22 +35,22 @@ void TrialGenerator::setupZetaGens(ZetaGeneratorSet& zetaGenSet) {
 
   // Sector shower: add one generator per sector (if it exists).
   if (isSector) {
-    addGenerator(zetaGenSet,Sector::ColI);
-    addGenerator(zetaGenSet,Sector::Default);
-    addGenerator(zetaGenSet,Sector::ColK);
+    addGenerator(zetaGenSet, Sector::ColI);
+    addGenerator(zetaGenSet, Sector::Default);
+    addGenerator(zetaGenSet, Sector::ColK);
   } else if (trialGenTypeSav == TrialGenType::FF ||
     trialGenTypeSav == TrialGenType::RF) {
     // For global FF and RF only one generator needed.
     addGenerator(zetaGenSet);
   } else if (trialGenTypeSav == TrialGenType::IF) {
     // For global IF need two generators (initial-state leg sectorised).
-    addGenerator(zetaGenSet,Sector::ColI);
-    addGenerator(zetaGenSet,Sector::Default);
+    addGenerator(zetaGenSet, Sector::ColI);
+    addGenerator(zetaGenSet, Sector::Default);
   } else if (trialGenTypeSav == TrialGenType::II) {
     // For global II need three generators (initial-state legs sectorised).
-    addGenerator(zetaGenSet,Sector::ColI);
-    addGenerator(zetaGenSet,Sector::Default);
-    addGenerator(zetaGenSet,Sector::ColK);
+    addGenerator(zetaGenSet, Sector::ColI);
+    addGenerator(zetaGenSet, Sector::Default);
+    addGenerator(zetaGenSet, Sector::ColK);
   }
   isInit = true;
 
@@ -80,7 +80,7 @@ void TrialGenerator::reset(double Q2min, double s,
   for (auto iGen = zetaGenPtrs.begin(); iGen!= zetaGenPtrs.end(); ++iGen) {
 
     Sector sectorNow = iGen->first;
-    ZetaGenerator* zGenPtr = iGen->second;
+    ZetaGeneratorPtr zGenPtr = iGen->second;
 
     // Check if this sector is active and save.
     bool isActive = zGenPtr != nullptr && zGenPtr->isActive(antFunType);
@@ -103,15 +103,15 @@ void TrialGenerator::reset(double Q2min, double s,
 
 double TrialGenerator::genQ2(double Q2MaxNow, Rndm* rndmPtr,
   const EvolutionWindow* evWindowPtrIn, double colFac,
-  double wtIn, Info* infoPtr, int verboseIn) {
+  double wtIn, Logger* loggerPtr, int verboseIn) {
 
   if (!isInit) {
-    if (verboseIn >= NORMAL) infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-        "Trial generator is not initialised!");
+    loggerPtr->ERROR_MSG("trial generator not initialised");
     return 0.;
   }
   if (hasTrial) {
-    if (verboseIn >= DEBUG) printOut(__METHOD_NAME__,"Returning saved trial.");
+    if (verboseIn >= VinciaConstants::DEBUG)
+      printOut(__METHOD_NAME__,"Returning saved trial.");
     return q2Sav;
   }
 
@@ -133,11 +133,12 @@ double TrialGenerator::genQ2(double Q2MaxNow, Rndm* rndmPtr,
   double q2MinNow = pow2(evWindowPtrIn->qMin);
 
   // Loop over sectors (generators).
-  if (verboseIn >= DEBUG) printOut(__METHOD_NAME__,"Looping over sectors...");
+  if (verboseIn >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__,"Looping over sectors...");
   for (auto iGen = zetaGenPtrs.begin(); iGen!= zetaGenPtrs.end(); ++iGen) {
 
     Sector sectorNow = iGen->first;
-    ZetaGenerator* zGenPtr = iGen->second;
+    ZetaGeneratorPtr zGenPtr = iGen->second;
 
     // Skip inactive sectors.
     if (!isActiveSector[sectorNow]) continue;
@@ -157,7 +158,7 @@ double TrialGenerator::genQ2(double Q2MaxNow, Rndm* rndmPtr,
 
     // Check if phase space is closed.
     if (kernel<=0.) {
-      if (verboseIn >= DEBUG)
+      if (verboseIn >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__,"Phase space is closed.");
       continue;
     }
@@ -210,9 +211,8 @@ double TrialGenerator::genQ2(double Q2MaxNow, Rndm* rndmPtr,
 
       // Safety check.
       if (q2Sector > Q2MaxNow) {
-        if (verboseIn >= DEBUG) {
-          infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-            "Generated impossible Q2");
+        if (verboseIn >= VinciaConstants::DEBUG) {
+          loggerPtr->ERROR_MSG("generated impossible Q2");
           cout << "   evolution mode = " << evWindowPtrIn->runMode << endl
                << "   prefactor = " << prefactor << " kernel = " << kernel
                << "   ln(R) =  " << lnR << endl
@@ -220,7 +220,7 @@ double TrialGenerator::genQ2(double Q2MaxNow, Rndm* rndmPtr,
                << evWindowPtrIn->lambda2 << endl;
         }
         q2Sector = -1.;
-      } else if (verboseIn >= DEBUG) {
+      } else if (verboseIn >= VinciaConstants::DEBUG) {
         stringstream ss;
         ss << "Generated a new trial with Q2 = "
            << q2Sector << " in Sector: " << int(sectorNow);
@@ -237,7 +237,7 @@ double TrialGenerator::genQ2(double Q2MaxNow, Rndm* rndmPtr,
     }
   }
 
-  if (verboseIn >= DEBUG) {
+  if (verboseIn >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Winner now: Q2 = " << q2Sav << " ( " << sqrt(q2Sav)
        << ") in sector: " << int(sectorSav);
@@ -253,11 +253,13 @@ double TrialGenerator::genQ2(double Q2MaxNow, Rndm* rndmPtr,
 // Get the invariants.
 
 bool TrialGenerator::genInvariants(double sAnt, const vector<double>& masses,
-  vector<double>& invariants, Rndm* rndmPtr, Info* infoPtr, int verboseIn) {
+  vector<double>& invariants, Rndm* rndmPtr, Logger* loggerPtr,
+  int verboseIn) {
 
   if(!isInit) return false;
 
-  if (verboseIn >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verboseIn >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "begin", dashLen);
 
   if (q2Sav > 0. && zetaGenPtrs.find(sectorSav) != zetaGenPtrs.end()
     && zetaLimits.find(sectorSav) != zetaLimits.end()) {
@@ -277,7 +279,7 @@ bool TrialGenerator::genInvariants(double sAnt, const vector<double>& masses,
       zetaGenPtrs[sectorSav]->getzMax(q2Sav, sAnt, masses, 1., 1.);
     // Check if we generated a physical zeta, now that we know Q2.
     if (zetaNow < zetaMinPhys || zetaNow > zetaMaxPhys) {
-      if (verboseIn >= DEBUG) {
+      if (verboseIn >= VinciaConstants::DEBUG) {
         stringstream ss;
         ss << "Generated zeta outside of physical limits: "
            << num2str(zetaNow,5) << " [" << num2str(zetaMinPhys,5)
@@ -287,7 +289,7 @@ bool TrialGenerator::genInvariants(double sAnt, const vector<double>& masses,
       }
       return false;
     }
-    if (verboseIn >= DEBUG) {
+    if (verboseIn >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Generated zeta = " << zetaNow
          << " in [" << zMin << "," << zMax << "]";
@@ -296,9 +298,9 @@ bool TrialGenerator::genInvariants(double sAnt, const vector<double>& masses,
 
     // Calculate invariants from q2 and zeta.
     zetaGenPtrs[sectorSav]->genInvariants(q2Sav,zetaNow,sAnt,
-      masses,invariants,infoPtr,verboseIn);
+      masses,invariants,loggerPtr,verboseIn);
     if (invariants.size()==4) {
-      if (verboseIn >= DEBUG) {
+      if (verboseIn >= VinciaConstants::DEBUG) {
         stringstream ss;
         ss<< "with sAnt = "<< invariants[0]
           << "  =>  s01 = "<< invariants[1]
@@ -309,7 +311,7 @@ bool TrialGenerator::genInvariants(double sAnt, const vector<double>& masses,
       }
       return true;
     } else {
-      if (verboseIn >= DEBUG) {
+      if (verboseIn >= VinciaConstants::DEBUG) {
         printOut(__METHOD_NAME__,
           "Warning: fewer than 4 invariants were generated!");
         printOut(__METHOD_NAME__, "return false", dashLen);
@@ -317,7 +319,7 @@ bool TrialGenerator::genInvariants(double sAnt, const vector<double>& masses,
       return false;
     }
   } else {
-    if (verboseIn >= DEBUG) printOut(__METHOD_NAME__,
+    if (verboseIn >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
       "return false", dashLen);
     return false;
   }
@@ -348,7 +350,7 @@ double TrialGenerator::aTrial(vector<double>& invariants,
   antTrial *= alphaSTrial;
 
   // Print.
-  if (verboseIn >= DEBUG) {
+  if (verboseIn >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "colour factor =" << colFacSav;
     printOut(__METHOD_NAME__,ss.str());
@@ -378,7 +380,7 @@ double TrialGenerator::aTrialStrip(vector<double>& invariants,
 
     // Add contribution from this sector.
     double aNow = itSector->second->aTrial(invariants,masses);
-    if (verboseIn >= DEBUG) {
+    if (verboseIn >= VinciaConstants::DEBUG) {
       itSector->second->print();
       stringstream ss;
       ss << "aTrial = "<< aNow;
@@ -479,28 +481,28 @@ void TrialGeneratorRF::calcKallenFac(double sAK,
 ZetaGeneratorSet::ZetaGeneratorSet(TrialGenType trialGenTypeIn) :
   trialGenTypeSav(trialGenTypeIn) {
   if (trialGenTypeIn == TrialGenType::FF) {
-    addGenerator(new ZGenFFEmitSoft());
-    addGenerator(new ZGenFFEmitColI());
-    addGenerator(new ZGenFFEmitColK());
-    addGenerator(new ZGenFFSplit());
+    addGenerator(make_shared<ZGenFFEmitSoft>());
+    addGenerator(make_shared<ZGenFFEmitColI>());
+    addGenerator(make_shared<ZGenFFEmitColK>());
+    addGenerator(make_shared<ZGenFFSplit>());
   } else if (trialGenTypeIn == TrialGenType::RF) {
-    addGenerator(new ZGenRFEmitSoft());
+    addGenerator(make_shared<ZGenRFEmitSoft>());
     // Uncomment for alternative zeta choice for soft sector.
     // addGenerator(new ZGenRFEmitSoftAlt());
-    addGenerator(new ZGenRFEmitColK());
-    addGenerator(new ZGenRFSplit());
+    addGenerator(make_shared<ZGenRFEmitColK>());
+    addGenerator(make_shared<ZGenRFSplit>());
   } else if (trialGenTypeIn == TrialGenType::IF) {
-    addGenerator(new ZGenIFEmitSoft());
-    addGenerator(new ZGenIFEmitColA());
-    addGenerator(new ZGenIFEmitColK());
-    addGenerator(new ZGenIFSplitA());
-    addGenerator(new ZGenIFSplitK());
-    addGenerator(new ZGenIFConv());
+    addGenerator(make_shared<ZGenIFEmitSoft>());
+    addGenerator(make_shared<ZGenIFEmitColA>());
+    addGenerator(make_shared<ZGenIFEmitColK>());
+    addGenerator(make_shared<ZGenIFSplitA>());
+    addGenerator(make_shared<ZGenIFSplitK>());
+    addGenerator(make_shared<ZGenIFConv>());
   } else if (trialGenTypeIn == TrialGenType::II) {
-    addGenerator(new ZGenIIEmitSoft());
-    addGenerator(new ZGenIIEmitCol());
-    addGenerator(new ZGenIISplit());
-    addGenerator(new ZGenIIConv());
+    addGenerator(make_shared<ZGenIIEmitSoft>());
+    addGenerator(make_shared<ZGenIIEmitCol>());
+    addGenerator(make_shared<ZGenIISplit>());
+    addGenerator(make_shared<ZGenIIConv>());
   } else {
     string msg = "Unrecognised parent type.";
     printOut(__METHOD_NAME__,msg);
@@ -509,20 +511,9 @@ ZetaGeneratorSet::ZetaGeneratorSet(TrialGenType trialGenTypeIn) :
 
 //--------------------------------------------------------------------------
 
-// Destructor.
-
-ZetaGeneratorSet::~ZetaGeneratorSet() {
-  for (auto it = zetaGenPtrs.begin(); it!=zetaGenPtrs.end(); ++it) {
-    delete(it->second);
-    zetaGenPtrs.erase(it->first);
-  }
-}
-
-//--------------------------------------------------------------------------
-
 // Get ptr to ZetaGenerator for a sector.
 
-ZetaGenerator* ZetaGeneratorSet::getZetaGenPtr(BranchType branchType,
+ZetaGeneratorPtr ZetaGeneratorSet::getZetaGenPtr(BranchType branchType,
   Sector sectIn) {
   pair<BranchType, Sector> key = make_pair(branchType,sectIn);
   if (zetaGenPtrs.find(key)!= zetaGenPtrs.end()) return zetaGenPtrs[key];
@@ -533,7 +524,7 @@ ZetaGenerator* ZetaGeneratorSet::getZetaGenPtr(BranchType branchType,
 
 // Save generator if it is the correct parent type.
 
-void ZetaGeneratorSet::addGenerator(ZetaGenerator* zGenPtr) {
+void ZetaGeneratorSet::addGenerator(ZetaGeneratorPtr zGenPtr) {
   if (zGenPtr->getTrialGenType() == trialGenTypeSav) {
     const BranchType btype = zGenPtr->getBranchType();
     const Sector sector = zGenPtr->getSector();
@@ -590,33 +581,33 @@ void ZetaGenerator::print() {
 
 // Check if invariants are valid.
 
-bool ZetaGenerator::valid(const string& method, Info* infoPtr, int verbose,
+bool ZetaGenerator::valid(const string& method, Logger* loggerPtr, int verbose,
   double zIn) {
   if (zIn == 0.) {
-    if (verbose >= DEBUG && infoPtr != nullptr)
-      infoPtr->errorMsg("Error in " + method, ": zeta is zero.");
+    if (verbose >= VinciaConstants::DEBUG && loggerPtr != nullptr)
+      loggerPtr->errorMsg(method, "zeta is zero");
     return false;
   } else if (zIn == 1.) {
-    if (verbose >= DEBUG && infoPtr != nullptr)
-      infoPtr->errorMsg("Error in " + method, ": zeta is unity.");
+    if (verbose >= VinciaConstants::DEBUG && loggerPtr != nullptr)
+      loggerPtr->errorMsg(method, "zeta is unity");
     return false;
   }
   return true;
 }
 
-bool ZetaGenerator::valid(const string& method, Info* infoPtr, int verbose,
+bool ZetaGenerator::valid(const string& method, Logger* loggerPtr, int verbose,
   double zIn, const double& Q2In) {
   if (zIn == 0) {
-    if (verbose >= DEBUG && infoPtr != nullptr)
-      infoPtr->errorMsg("Error in " + method, ": zeta is zero.");
+    if (verbose >= VinciaConstants::DEBUG && loggerPtr != nullptr)
+      loggerPtr->errorMsg(method, "zeta is zero");
     return false;
   } else if (zIn < 0.) {
-    if (verbose >= DEBUG && infoPtr != nullptr)
-        infoPtr->errorMsg("Error in "+ method, ": zeta is negative.");
+    if (verbose >= VinciaConstants::DEBUG && loggerPtr != nullptr)
+        loggerPtr->errorMsg(method, "zeta is negative");
     return false;
   } else if (Q2In < 0.) {
-    if (verbose >= DEBUG && infoPtr != nullptr) infoPtr->errorMsg(
-      "Error in "+ method, ": trial Q2 is negative");
+    if (verbose >= VinciaConstants::DEBUG && loggerPtr != nullptr)
+      loggerPtr->errorMsg(method, "trial Q2 is negative");
     return false;
   }
   return true;
@@ -652,8 +643,8 @@ double ZGenFFEmitSoft::getzMax(double Q2, double sAnt, const vector<double>&,
 
 void ZGenFFEmitSoft::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>&, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn)) {
     invariants.clear(); return;}
   double xT  = Q2In / sAnt;
   double yij = sqrt(xT) * exp(-zIn);
@@ -700,8 +691,8 @@ double ZGenFFEmitColI::getzMax(double Q2, double sAnt,
 
 void ZGenFFEmitColI::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>&, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn)) {
     invariants.clear(); return;}
   double yjk = zIn;
   double sjk = yjk * sAnt;
@@ -748,8 +739,8 @@ double ZGenFFEmitColK::getzMax(double Q2, double sAnt,
 
 void ZGenFFEmitColK::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>&, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn)) {
     invariants.clear(); return;}
   double yij = zIn;
   double sij = yij * sAnt;
@@ -796,8 +787,8 @@ double ZGenFFSplit::getzMax(double Q2, double sAnt,
 
 void ZGenFFSplit::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>& masses, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn, Q2In)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn, Q2In)) {
     invariants.clear(); return;}
   double mj2  = (masses.size()>=3 ? pow2(masses[1]) : 0.);
   double sij  = Q2In/zIn - 2.*mj2;
@@ -857,8 +848,8 @@ double ZGenRFEmitSoft::getzMax(double, double sAnt,
 
 void ZGenRFEmitSoft::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>&, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn)) {
     invariants.clear(); return;}
   double yjk = 1. - 1./zIn;
   double saj = Q2In/yjk;
@@ -901,8 +892,8 @@ double ZGenRFEmitSoftAlt::getzMax(double Q2, double sAnt,
 
 void ZGenRFEmitSoftAlt::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>&, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn)) {
     invariants.clear(); return;}
   double yaj = zIn;
   double sjk = Q2In/yaj;
@@ -945,8 +936,8 @@ double ZGenRFEmitColK::getzMax(double Q2, double sAnt,
 
 void ZGenRFEmitColK::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>&, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn)) {
     invariants.clear(); return;}
   double yaj = zIn;
   double sjk = Q2In/yaj;
@@ -991,8 +982,8 @@ double ZGenRFSplit::getzMax(double Q2, double sAnt, const vector<double>&,
 
 void ZGenRFSplit::genInvariants(double Q2In, double zIn, double sAK,
   const vector<double>& masses, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn, Q2In)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn, Q2In)) {
     invariants.clear(); return;}
   double yaj = zIn;
   double m2q = masses.size()>=2 ? pow2(masses[1]) : 0.;
@@ -1050,8 +1041,8 @@ double ZGenIFEmitSoft::getzMax(double, double,
 
 void ZGenIFEmitSoft::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>&, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn)) {
     invariants.clear(); return;}
   double saj = Q2In / zIn;
   double yjk = zIn;
@@ -1118,8 +1109,8 @@ double ZGenIFEmitColA::getzMax(double, double,
 
 void ZGenIFEmitColA::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>&, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn)) {
     invariants.clear(); return;}
   double saj = Q2In / zIn;
   double yjk = zIn;
@@ -1184,8 +1175,8 @@ double ZGenIFEmitColK::getzMax(double, double, const vector<double>&,
 
 void ZGenIFEmitColK::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>&, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn)) {
     invariants.clear(); return;}
   double yaj = zIn;
   double sjk = Q2In / zIn;
@@ -1246,8 +1237,8 @@ double ZGenIFSplitA::getzMax(double, double sAnt,
 
 void ZGenIFSplitA::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>& masses, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn)) {
     invariants.clear(); return;}
   double muj2 = (masses.size() >= 3 ? pow2(masses.at(1)) / sAnt : 0.);
   double saj  = Q2In / zIn;
@@ -1310,8 +1301,8 @@ double ZGenIFSplitK::getzMax(double, double,
 
 void ZGenIFSplitK::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>& masses, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn)) {
     invariants.clear(); return;}
   double mj2 = (masses.size() >= 3 ? pow2(masses.at(1)) : 0.);
   double sjk = Q2In / zIn - 2.*mj2;
@@ -1376,8 +1367,8 @@ double ZGenIFConv::getzMax(double, double,
 
 void ZGenIFConv::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>& masses, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn)) {
     invariants.clear(); return;}
   double mj2 = (masses.size() >= 3 ? pow2(masses.at(1)) : 0.);
   double saj = Q2In / zIn + mj2;
@@ -1450,8 +1441,8 @@ double ZGenIIEmitSoft::getzMax(double Q2, double sAnt,
 
 void ZGenIIEmitSoft::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>&, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn)) {
     invariants.clear(); return;}
   double saj = Q2In / zIn;
   // Note: zeta = yjb = 1 implies saj = -sAB, so won't happen.
@@ -1514,8 +1505,8 @@ double ZGenIIEmitCol::getzMax(double Q2, double sAnt,
 
 void ZGenIIEmitCol::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>&, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn)) {
     invariants.clear(); return;}
   double saj = Q2In / zIn;
   // Note: zeta = yjb = 1 implies saj = -sAB, so won't happen.
@@ -1578,8 +1569,8 @@ double ZGenIISplit::getzMax(double Q2, double sAnt,
 
 void ZGenIISplit::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>&, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn, Q2In)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn, Q2In)) {
     invariants.clear(); return;}
   double saj = Q2In / zIn;
   // Note: zeta = yjb = 1 implies saj = -sAB, so won't happen.
@@ -1643,8 +1634,8 @@ double ZGenIIConv::getConstFactor(double sAnt,
 
 void ZGenIIConv::genInvariants(double Q2In, double zIn, double sAnt,
   const vector<double>& masses, vector<double>& invariants,
-  Info* infoPtr, int verboseIn) {
-  if (!valid(__METHOD_NAME__, infoPtr, verboseIn, zIn)) {
+  Logger* loggerPtr, int verboseIn) {
+  if (!valid(__METHOD_NAME__, loggerPtr, verboseIn, zIn)) {
     invariants.clear(); return;}
   double mj2 = masses.size() >= 3 ? pow2(masses.at(2)) : 0.;
   double saj = Q2In / zIn + mj2;

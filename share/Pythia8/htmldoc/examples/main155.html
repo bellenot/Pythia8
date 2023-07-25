@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
   int nBin = 300;
 
   // Get possible resonances.
-  vector&lt;int&gt; resonances = pythia.hadronWidths.possibleResonances(idA, idB);
+  set&lt;int&gt; resonances = pythia.hadronWidths.getResonances(idA, idB);
 
   if (resonances.size() == 0) {
     cout &lt;&lt; &quot;No resonances for input particles &quot; &lt;&lt; idA &lt;&lt; &quot; &quot; &lt;&lt; idB &lt;&lt; endl;

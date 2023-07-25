@@ -74,7 +74,7 @@ public:
 
   // End-of-run statistics.
   void onStat() override {
-    if (verbose >= VinciaConstants::REPORT) diagnosticsPtr->print(); }
+    if (verbose >= Logger::REPORT) diagnosticsPtr->print(); }
 
   // Automatically set verbose level in all members.
   void setVerbose(int verboseIn);
@@ -90,7 +90,7 @@ public:
   MECs                  mecs{};
 
   // Auxiliary objects.
-  ExternalMEsPlugin     mg5mes{};
+  ExternalMEsPtr        mg5mes{};
   Rambo                 rambo{};
 
   // Vectors of antenna functions.

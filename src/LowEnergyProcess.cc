@@ -107,8 +107,7 @@ bool LowEnergyProcess::collide( int i1, int i2, int typeIn, Event& event,
 
   // Check that class is initialized and that incoming are hadrons.
   if (!isInit) {
-    infoPtr->errorMsg("Error in LowEnergyProcess::collide: "
-      "not properly initialized");
+    loggerPtr->ERROR_MSG("not properly initialized");
     return false;
   }
   if (!event[i1].isHadron() || !event[i2].isHadron()) return false;
@@ -168,8 +167,7 @@ bool LowEnergyProcess::collide( int i1, int i2, int typeIn, Event& event,
   if (type >= 1 && type <= 8 && type != 6) code = type;
   else if (abs(type) > 100) code = 9;
   else {
-    infoPtr->errorMsg( "Error in LowEnergyProcess::collide: "
-      "invalid process type", std::to_string(type));
+    loggerPtr->ERROR_MSG("invalid process type", std::to_string(type));
     return false;
   }
 
@@ -187,8 +185,7 @@ bool LowEnergyProcess::collide( int i1, int i2, int typeIn, Event& event,
   // Hadronize new strings if necessary.
   if (code == 1 || code == 3 || code == 4 || code == 5 || code == 8) {
     if (!simpleHadronization()) {
-      infoPtr->errorMsg( "Error in LowEnergyProcess::collide: "
-        "hadronization failed");
+      loggerPtr->ERROR_MSG("hadronization failed");
       return false;
     }
   }
@@ -363,8 +360,7 @@ bool LowEnergyProcess::eldiff() {
   double mAmax = eCM - mBmin;
   double mBmax = eCM - mAmin;
   if (mAmin + mBmin > eCM) {
-    infoPtr->errorMsg("Error in LowEnergyProcess::eldiff: "
-      "too low invariant mass for diffraction",
+    loggerPtr->ERROR_MSG("too low invariant mass for diffraction",
       "for " + to_string(id1) + " " + to_string(id2)
       + " with type=" + to_string(type) + " @ " + to_string(eCM) + " GeV");
     return false;
@@ -396,8 +392,7 @@ bool LowEnergyProcess::eldiff() {
   do {
     failT = false;
     if (++loopT == MAXLOOP) {
-      infoPtr->errorMsg("Error in LowEnergyProcess::eldiff: "
-        "failed to construct valid kinematics (t)");
+      loggerPtr->ERROR_MSG("failed to construct valid kinematics (t)");
       return false;
     }
 
@@ -408,8 +403,7 @@ bool LowEnergyProcess::eldiff() {
     do {
       failM = false;
       if (++loopM == MAXLOOP) {
-        infoPtr->errorMsg("Error in LowEnergyProcess::eldiff: "
-          "failed to construct valid kinematics (m)");
+        loggerPtr->ERROR_MSG("failed to construct valid kinematics (m)");
         return false;
       }
       double redStep = (loopM < 10) ? 1. : exp( -MASSREDUCERATE * (loopM - 9));
@@ -519,8 +513,7 @@ bool LowEnergyProcess::eldiff() {
   double theta = asin( min(1., sinTheta));
   if (cosTheta < 0.) theta = M_PI - theta;
   if (!std::isfinite(theta)) {
-    infoPtr->errorMsg("Error in LowEnergyProcess::eldiff: "
-      "t is not finite");
+    loggerPtr->ERROR_MSG("t is not finite");
     return false;
   }
   double phi      = 2. * M_PI * rndmPtr->flat();
@@ -598,8 +591,7 @@ bool LowEnergyProcess::annihilation() {
   // Check that indeed baryon-antibaryon collision.
   if (!isBaryon1 || !isBaryon2
     || (id1 > 0 ? 1 : -1) * (id2 > 0 ? 1 : -1) > 0) {
-    infoPtr->errorMsg( "Error in LowEnergyProcess::annihilation: "
-      "not a baryon-antibaryon incoming pair",
+    loggerPtr->ERROR_MSG("not a baryon-antibaryon incoming pair",
       std::to_string(id1) + " + " + std::to_string(id2));
     return false;
   }
@@ -623,8 +615,7 @@ bool LowEnergyProcess::annihilation() {
 
   // Return if no annihilation possible.
   if (iqPair.size() == 0) {
-    infoPtr->errorMsg( "Error in LowEnergyProcess::annihilation: "
-      "flavour content does not allow annihilation");
+    loggerPtr->ERROR_MSG("flavour content does not allow annihilation");
     return false;
   }
 
@@ -685,7 +676,7 @@ bool LowEnergyProcess::annihilation() {
   do {
     do {
       if (++loop == MAXLOOP) {
-        infoPtr->errorMsg( "Error in LowEnergyProcess::annihilation: "
+        loggerPtr->ERROR_MSG(
           "failed to find working kinematics configuration");
         return false;
       }
@@ -844,7 +835,7 @@ bool LowEnergyProcess::twoBody() {
   double mH1, mH2;
   if ( (particleDataPtr->mMin(idH1) + particleDataPtr->mMin(idH2) >= eCM)
     || !hadronWidthsPtr->pickMasses(idH1, idH2, eCM, mH1, mH2)) {
-    infoPtr->errorMsg("Warning in LowEnergyProcess::twoBody: "
+    loggerPtr->WARNING_MSG(
       "below mass threshold, defaulting to elastic collision");
     idH1 = id1;
     idH2 = id2;

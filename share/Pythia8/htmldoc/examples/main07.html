@@ -62,10 +62,10 @@ int main() {
   Pythia pythia;
 
   // A class to generate the fictitious resonance initial state.
-  SigmaProcess* sigma1GenRes = new Sigma1GenRes();
+  SigmaProcessPtr sigma1GenRes = make_shared&lt;Sigma1GenRes&gt;();
 
   // Hand pointer to Pythia.
-  pythia.setSigmaPtr( sigma1GenRes);
+  pythia.addSigmaPtr( sigma1GenRes);
 
   // Read in the rest of the settings and data from a separate file.
   pythia.readFile(&quot;main07.cmnd&quot;);
@@ -140,7 +140,6 @@ int main() {
   hpl.plot( true);
 
   // Done.
-  delete sigma1GenRes;
   return 0;
 }
 </code></pre></body></html>

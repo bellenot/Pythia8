@@ -33,22 +33,19 @@ run a check to validate the loaded hadron widths data. Returns whether
 successful. 
 </method> 
  
-<method name="vector&lt;int&gt; HadronWidths::getResonances()"> 
-gets a list of the implemented resonance particles. 
-</method> 
- 
-<method 
-name="vector&lt;int&gt; HadronWidths::hasResonances(int idA, int idB)"> 
+<method name="set&lt;int&gt; HadronWidths::hasResonances(int idA, int idB)"> 
 returns whether the two specified incoming particles can form 
 resonances. 
 </method> 
  
-<method name="vector&lt;int&gt; HadronWidths::getPossibleResonances(int idA, 
-int idB)"> 
-gets a list of resonances that could possibly be formed by the 
-specified incoming particles. That is, all resonance particles that 
-has data and can decay into those particles. 
+<method name="set&lt;int&gt; HadronWidths::getResonances()"> 
 </method> 
+<methodmore name="set&lt;int&gt; HadronWidths::getResonances(int idA, 
+int idB)"> 
+gets a list of the implemented resonance particles. If <code>idA</code> and 
+<code>idB</code> are specified, it instead returns a list of resonances that 
+can be formed by those particles. 
+</methodmore> 
  
 <method name="bool HadronWidths::hasData(int id)"> 
 returns whether mass-dependent widths have been parameterized for the 
@@ -72,14 +69,12 @@ int prodA, int prodB, double m)">
 <methodmore name="double HadronWidths::br(int id, 
 int prodA, int prodB, double m)"> 
 returns the mass-dependent partial width or branching ratio of the decay 
-<ei>R &rarr; A + B</ei>. If parameterized data does not exist for that decay 
-channel, both methods will return zero. 
+<ei>R &rarr; A + B</ei>. 
 </methodmore> 
  
 <method name="double HadronWidths::mDistr(int id, double m)"> 
 gives the mass distribution density for the specified particle. This is given 
-by a Breit-Wigner function, using the mass-dependent width. If the 
-mass-dependent width is not available, it uses the nominal width instead. 
+by a Breit-Wigner function, using the mass-dependent width. 
 </method> 
  
 <method name="bool HadronWidths::pickMasses(int idA, int idB, double eCM, 

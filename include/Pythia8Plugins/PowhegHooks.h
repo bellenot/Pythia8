@@ -16,6 +16,7 @@
 
 // Includes
 #include "Pythia8/Pythia.h"
+#include "Pythia8/Plugins.h"
 
 namespace Pythia8 {
 
@@ -27,8 +28,9 @@ class PowhegHooks : public UserHooks {
 
 public:
 
-  // Constructor and destructor.
+  // Constructors and destructor.
   PowhegHooks() {}
+  PowhegHooks(Pythia*, Settings*, Logger*) {}
   ~PowhegHooks() {}
 
   //--------------------------------------------------------------------------
@@ -113,7 +115,7 @@ public:
 
     // Can get negative pT for massive splittings.
     if (pTnow < 0.) {
-      infoPtr->errorMsg("Warning in PowhegHooks::pTpythia: negative pT");
+      loggerPtr->WARNING_MSG("negative pT");
       return -1.;
     }
 
@@ -136,8 +138,7 @@ public:
     int iMoth1 = event[i1].mother1();
     int iMoth2 = event[i2].mother1();
     if (iMoth1 == 0 || iMoth2 == 0) {
-      infoPtr->errorMsg("Abort from PowhegHooks::pTVincia:"
-        " could not find mothers of particles");
+      loggerPtr->ABORT_MSG("could not find mothers of particles");
       exit(1);
     }
 
@@ -166,8 +167,7 @@ public:
       // II.
       sMax = 2.*p1*p2;
     } else {
-      infoPtr->errorMsg("Abort from PowhegHooks:pTVincia:"
-        " could not determine branching type");
+      loggerPtr->ABORT_MSG("could not determine branching type");
       exit(1);
     }
 
@@ -176,7 +176,7 @@ public:
 
     // Sanity check.
     if (pT2now < 0.) {
-      infoPtr->errorMsg("Warning in PowhegHooks::pTVincia: negative pT");
+      loggerPtr->WARNING_MSG("negative pT");
       return -1.;
     }
 
@@ -224,14 +224,13 @@ public:
       const double sab =  2.*rad.p()*rec.p();
       pT2 = sai*sbi/sab*(sai+sbi+sab)/sab;
     } else {
-      infoPtr->errorMsg("Abort from PowhegHooks::pTdire:"
-        " could not determine branching type");
+      loggerPtr->ABORT_MSG("could not determine branching type");
       exit(1);
     }
 
     // Sanity check.
     if (pT2 < 0.) {
-      infoPtr->errorMsg("Warning in PowhegHooks::pTdire: negative pT");
+      loggerPtr->WARNING_MSG("negative pT");
       return -1.;
     }
 
@@ -268,7 +267,7 @@ public:
 
     // Check result.
     if (pTnow < 0.) {
-      infoPtr->errorMsg("Warning in PowhegHooks::pTpowheg: negative pT");
+      loggerPtr->WARNING_MSG("negative pT");
       return -1.;
     }
 
@@ -441,8 +440,7 @@ public:
       }
       // Extra check that we have the correct final state
       if (count != nFinal && count != nFinal + 1) {
-        infoPtr->errorMsg("Abort from PowhegHooks:doVetoMPIStep:"
-          " wrong number of final state particles in event");
+        loggerPtr->ABORT_MSG("wrong number of final state particles in event");
         exit(1);
       }
       // Flag if POWHEG radiation present and index
@@ -477,10 +475,8 @@ public:
     // all other incoming and outgoing partons, with the minimal value taken.
     } else if (pThardMode == 1) {
       if (nFinal < 0) {
-        string message = "Warning in PowhegHooks::doVetoMPIStep:";
-        message += " pThard == 1 not available for nFinal == -1, reset "
-          "pThard = 0.";
-        infoPtr->errorMsg(message);
+        loggerPtr->WARNING_MSG(
+          "pThard == 1 not available for nFinal == -1, reset pThard = 0.");
         pThardMode = 0;
         pThard = infoPtr->scalup();
       } else {
@@ -492,10 +488,8 @@ public:
     // taken.
     } else if (pThardMode == 2) {
       if (nFinal < 0) {
-        string message = "Warning in PowhegHooks:doVetoMPIStep:";
-        message += " pThard == 2 not available for nFinal == -1, reset "
-          "pThard = 0.";
-        infoPtr->errorMsg(message);
+        loggerPtr->WARNING_MSG(
+          "pThard == 2 not available for nFinal == -1, reset pThard = 0.");
         pThardMode = 0;
         pThard = infoPtr->scalup();
       } else {
@@ -553,8 +547,7 @@ public:
       if (iRadAft != -1 && iEmt != -1 && iRecAft != -1) break;
     }
     if (iRadAft == -1 || iEmt == -1 || iRecAft == -1) {
-      infoPtr->errorMsg("Abort from PowhegHooks::doVetoISREmission:"
-        " could not find ISR emission");
+      loggerPtr->ABORT_MSG("could not find ISR emission");
       exit(1);
     }
 
@@ -619,8 +612,7 @@ public:
         e[iEmt].status() != 51 || e[iRadAft].status() != 51) stop = true;
     }
     if (stop) {
-      infoPtr->errorMsg("Abort from PowhegHooks::doVetoFSREmission:"
-        " could not find FSR emission");
+      loggerPtr->ABORT_MSG("could not find FSR emission");
       exit(1);
     }
 
@@ -715,6 +707,13 @@ public:
   unsigned long int nISRveto, nFSRveto;
 
 };
+
+//--------------------------------------------------------------------------
+
+// Declare the plugin.
+
+PYTHIA8_PLUGIN_CLASS(UserHooks, PowhegHooks, false, false, false)
+PYTHIA8_PLUGIN_VERSIONS(PYTHIA_VERSION_INTEGER)
 
 //==========================================================================
 

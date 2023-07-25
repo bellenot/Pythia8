@@ -159,8 +159,7 @@ bool HardDiffraction::isDiffractive( int iBeamIn, int partonIn,
 
   // Return false if value of inclusive PDF is zero.
   if (xfInc < TINYPDF) {
-    infoPtr->errorMsg("Warning in HardDiffraction::isDiffractive: "
-      "inclusive PDF is zero");
+    loggerPtr->WARNING_MSG("inclusive PDF is zero");
     return false;
   }
 
@@ -174,10 +173,7 @@ bool HardDiffraction::isDiffractive( int iBeamIn, int partonIn,
 
   // Warn if the estimated function exceeds the inclusive PDF.
   if (xfEst > xfInc) {
-    ostringstream msg;
-    msg << ", id = " << parton;
-    infoPtr->errorMsg("Warning in HardDiffraction::isDiffractive: "
-      "weight above unity", msg.str());
+    loggerPtr->WARNING_MSG("weight above unity", ", id = "+to_string(parton));
   }
   // Discard if estimate/inclusive PDF is less than random number.
   if (xfEst < rndmPtr->flat() * xfInc) return false;
@@ -196,8 +192,7 @@ bool HardDiffraction::isDiffractive( int iBeamIn, int partonIn,
     ? 0.5 * (m2Diff + m2DiffA - m2DiffB) / mDiff
     : 0.5 * (m2Diff + m2DiffB - m2DiffA) / mDiff;
   if ( 1. - x / xNow < POMERONMASS / eDiff) {
-    infoPtr->errorMsg("Warning in HardDiffraction::isDiffractive: "
-    "No momentum left for beam remnant.");
+    loggerPtr->WARNING_MSG("no momentum left for beam remnant");
     return false;
   }
 
@@ -206,8 +201,7 @@ bool HardDiffraction::isDiffractive( int iBeamIn, int partonIn,
             ? RHOMASS : PROTONMASS;
   double m4 = mDiff;
   if (m3 + m4 + DIFFMASSMARGIN >= infoPtr->eCM()) {
-    infoPtr->errorMsg("Warning in HardDiffraction::isDiffractive: "
-    "Too high diffractive mass.");
+    loggerPtr->WARNING_MSG("too high diffractive mass");
     return false;
   }
 

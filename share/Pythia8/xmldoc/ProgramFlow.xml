@@ -5,7 +5,7 @@
 Recall that, to first order, the event generation process can be 
 subdivided into three stages: 
 <ol> 
-<li>Initializaion.</li> 
+<li>Initialization.</li> 
 <li>The event loop.</li> 
 <li>Finishing.</li> 
 </ol> 
@@ -389,25 +389,28 @@ where <code>beamShapePtr</code> derives from the
 <li> 
 If you want to implement a cross section of your own, you can use 
 <pre> 
-      pythia.setSigmaPtr( sigmaPtr ); 
+      pythia.addSigmaPtr( sigmaPtr ); 
 </pre> 
 or, optionally, 
 <pre> 
-      pythia.setSigmaPtr( sigmaPtr, phaseSpacePtr ); 
+      pythia.addSigmaPtr( sigmaPtr, phaseSpacePtr ); 
 </pre> 
-where <code>sigmaPtr</code> is of type <code>SigmaProcess*</code> 
-and <code>phaseSpacePtr</code> is of type <code>PhaseSpace*</code>. 
-When only the cross-section expression is provided, the built-in 
-phase-space selection machinery will be used. Then <code>sigmaPtr</code> 
-must be an instance of a class derived from one of the 
-<code>Sigma1Process</code>, <code>Sigma2Process</code> and 
-<code>Sigma3Process</code> classes for 1-, 2- and 3- particle production, 
-in their turn derived from 
+where <code>sigmaPtr</code> is a shared pointer of type 
+<code>SigmaProcess</code> and <code>phaseSpacePtr</code> is a shared 
+pointer of type <code>PhaseSpace</code>. When only the cross-section 
+expression is provided, the built-in phase-space selection machinery 
+will be used. Then <code>sigmaPtr</code> must be an instance of a 
+class derived from one of the <code>Sigma1Process</code>, 
+<code>Sigma2Process</code> and <code>Sigma3Process</code> classes for 
+1-, 2- and 3- particle production, in their turn derived from 
 <code><aloc href="SemiInternalProcesses">SigmaProcess</aloc></code>. 
 When you supply your own phase-space generator there is no fundamental 
-limit on the complexity of the process. 
-This call can be used repeatedly to hand in several different processes, 
-mixing ones with and ones without their own phase-space generators. 
+limit on the complexity of the process.  This call can be used 
+repeatedly to hand in several different processes, mixing ones with 
+and without their own phase-space generators. To reset the user provided 
+cross sections to a single cross section, the 
+<code>setSigmaPtr</code> method can be called, using the same 
+arguments as <code>addSigmaPtr</code>. 
 </li> 
  
 <p/> 
@@ -416,15 +419,18 @@ If your cross section contains the production of a new resonance
 with known analytical expression for all the relevant partial widths, 
 you can make this resonance available to the program with 
 <pre> 
-      pythia.setResonancePtr( resonancePtr); 
+      pythia.addResonancePtr( resonancePtr); 
 </pre> 
-where <code>resonancePtr</code> of type <code>ResonanceWidths*</code> 
-is an instance of a class derived from the 
-<code><aloc href="SemiInternalResonances">ResonanceWidths</aloc></code> 
-base class. In addition you need to add the particle to the normal 
-<aloc href="ParticleDataScheme">particle and decay database</aloc>. 
-This procedure can be used repeatedly to hand in several different 
-resonances. 
+where <code>resonancePtr</code> is a shared pointer of type 
+<code>ResonanceWidths</code>, and is an instance of a class derived 
+from the 
+<code><aloc href="SemiInternalResonances">ResonanceWidths</aloc></code> base 
+class. In addition you need to add the particle to the normal 
+<aloc  href="ParticleDataScheme">particle and decay database</aloc>. This 
+procedure can be used repeatedly to hand in several different 
+resonances. To reset the user provided resonance widths to a single 
+pointer, the method <code>setResonancePtr</code> can be used instead, 
+with the same arguments as <code>addResonancePtr</code>. 
 </li> 
  
 <p/> 
@@ -441,7 +447,7 @@ class <code>TimeShower</code>, <code>spacePtr</code> of the class
 <code>SpaceShower</code>, <code>mergingPtr</code> of the class 
 <code>Merging</code>, and <code>mergingHooksPtr</code> of the class 
 <code>MergingHooks</code>. It is also possible to get back a pointer 
-to the parton shower machhinery and perform diagnostics. 
+to the parton shower machinery and perform diagnostics. 
 <pre> 
       pythia.getShowerModelPtr(); 
 </pre> 
@@ -835,32 +841,39 @@ must be instantiated by you in your program.
 <note>Note:</note> The method currently always returns true. 
 </method> 
  
-<method name="bool Pythia::setSigmaPtr( SigmaProcess* sigmaPtr, 
-PhaseSpace* phaseSpacePtrIn = 0)"> 
+<method name="bool Pythia::setSigmaPtr( SigmaProcessPtr sigmaPtr, 
+PhaseSpacePtr phaseSpacePtrIn = 0)"> 
 offers the possibility to link your own implementation of a process 
 and its cross section, to make it a part of the normal process 
 generation machinery, without having to recompile the 
 <code>Pythia</code> library itself.  The rules for constructing your 
 own class from the <code>SigmaProcess</code> base class are described 
-<aloc href="SemiInternalProcesses">here</aloc>. You may call this 
-routine repeatedly, to add as many new processes as you wish. 
+<aloc href="SemiInternalProcesses">here</aloc>. Calling this method 
+removes any previously user provided processes. To add multiple 
+processes, use <code>addSigmaPtr</code>. 
 <argument name="sigmaPtr"> 
-pointer to a <code>SigmaProcess</code>-derived object. This object 
-must be instantiated by you in your program. 
+shared pointer to a <code>SigmaProcess</code>-derived object. 
 </argument> 
 <argument name="phaseSpacePtr"> 
-pointer to a <code>PhaseSpace</code>-derived object. When not provided 
-the internal phase-space selection machinery wll be used. Then 
-<code>sigmaPtr</code> should be an instance of a class derived from 
-one of the <code>Sigma1Process</code>, <code>Sigma2Process</code> and 
-<code>Sigma3Process</code> classes for 1-, 2- and 3- particle production, 
-in their turn derived from <code>SigmaProcess</code>. 
-When provided, this object must be instantiated by you in your program. 
+shared pointer to a <code>PhaseSpace</code>-derived object. When not 
+provided the internal phase-space selection machinery will be 
+used. Then <code>sigmaPtr</code> should be an instance of a class 
+derived from one of the <code>Sigma1Process</code>, 
+<code>Sigma2Process</code> and <code>Sigma3Process</code> classes for 
+1-, 2- and 3- particle production, in their turn derived from 
+<code>SigmaProcess</code>. 
 </argument> 
 <note>Note:</note> The method currently always returns true. 
 </method> 
  
-<method name="bool Pythia::setResonancePtr( ResonanceWidths* resonancePtr)"> 
+<method name="bool Pythia::addSigmaPtr( SigmaProcessPtr sigmaPtr, 
+PhaseSpacePtr phaseSpacePtrIn = 0)"> 
+offers the possibility to add further processes, see 
+<code>setSigmaPtr</code> above for further information. 
+<note>Note:</note> The method currently always returns true. 
+</method> 
+ 
+<method name="bool Pythia::setResonancePtr( ResonanceWidthsPtr resonancePtr)"> 
 offers the possibility to link your own implementation of the 
 calculation of partial resonance widths, to make it a part of the 
 normal process generation machinery, without having to recompile the 
@@ -868,13 +881,20 @@ normal process generation machinery, without having to recompile the
 resonances to be handled internally, when combined with new particle 
 data. Note that the decay of normal hadrons cannot be modeled here; 
 this is for New Physics resonances. The rules for constructing your 
-own class from the <code>ResonanceWidths</code> base class are described 
-<aloc href="SemiInternalResonances">here</aloc>. You may call this 
-routine repeatedly, to add as many new resonances as you wish. 
+own class from the <code>ResonanceWidths</code> base class are 
+described <aloc href="SemiInternalResonances">here</aloc>. Calling 
+this method removes any previously user provided resonances. To add as 
+many new resonances as you wish, instead call 
+<code>addResonancePtr</code> repeatedly. 
 <argument name="resonancePtr"> 
-pointer to a <code>ResonanceWidths</code>-derived object. This object 
-must be instantiated by you in your program. 
+shared pointer to a <code>ResonanceWidths</code>-derived object. 
 </argument> 
+<note>Note:</note> The method currently always returns true. 
+</method> 
+ 
+<method name="bool Pythia::addResonancePtr( ResonanceWidthsPtr resonancePtr)"> 
+offers the possibility to add further resonances, see 
+<code>setResonancePtr</code> above for further information. 
 <note>Note:</note> The method currently always returns true. 
 </method> 
  
@@ -1102,7 +1122,7 @@ where either first or second hadron is broken up, (5) double diffractive,
 (7) excitation, (8) annihilation and (9) resonant. It is also possible to 
 specify the formation of a specific resonance by setting 
 <code>procType</code> to the id of that particle. No perturbative stage 
-is applied in either case, as relevent at low energies. It can be used 
+is applied in either case, as relevant at low energies. It can be used 
 e.g. to model <aloc href="HadronicRescattering">Hadronic Rescattering</aloc> 
 in the final state, where partial cross sections are first calculated 
 to provide the relevant mix of different collision types. This method 

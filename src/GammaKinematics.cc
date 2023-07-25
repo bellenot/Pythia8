@@ -233,8 +233,7 @@ bool GammaKinematics::deriveKin(double xGamma, double Q2gamma,
   // Check that physical values for kT (very rarely fails if ever but may
   // cause numerical issues).
   if ( kT2gamma < 0. ) {
-    infoPtr->errorMsg("Error in gammaKinematics::sampleKTgamma: "
-                      "unphysical kT value.");
+    loggerPtr->ERROR_MSG("unphysical kT value");
     return false;
   }
 

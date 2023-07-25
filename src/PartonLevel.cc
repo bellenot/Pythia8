@@ -76,15 +76,15 @@ bool PartonLevel::init( TimeShowerPtr timesDecPtrIn,
   beamBhasGamma      = settings.flag("PDF:beamB2gamma");
   sampleQ2gamma      = settings.flag("Photon:sampleQ2");
   beamHasGamma       = (beamAhasGamma || beamBhasGamma)
-                     && (beamAPtr != 0) && (beamBPtr != 0);
+                     && (beamAPtr != nullptr) && (beamBPtr != nullptr);
   hasGammaA          = false;
   hasGammaB          = false;
-  beamAisGamma       = (beamAPtr != 0) ? beamAPtr->isGamma() : false;
-  beamBisGamma       = (beamBPtr != 0) ? beamBPtr->isGamma() : false;
-  bool beamAisHadron = (beamAPtr != 0) ? beamAPtr->isHadron() : false;
-  bool beamBisHadron = (beamBPtr != 0) ? beamBPtr->isHadron() : false;
-  beamAhasResGamma   = (beamAPtr != 0) ? beamAPtr->hasResGamma() : false;
-  beamBhasResGamma   = (beamBPtr != 0) ? beamBPtr->hasResGamma() : false;
+  beamAisGamma       = (beamAPtr != nullptr) ? beamAPtr->isGamma() : false;
+  beamBisGamma       = (beamBPtr != nullptr) ? beamBPtr->isGamma() : false;
+  bool beamAisHadron = (beamAPtr != nullptr) ? beamAPtr->isHadron() : false;
+  bool beamBisHadron = (beamBPtr != nullptr) ? beamBPtr->isHadron() : false;
+  beamAhasResGamma   = (beamAPtr != nullptr) ? beamAPtr->hasResGamma() : false;
+  beamBhasResGamma   = (beamBPtr != nullptr) ? beamBPtr->hasResGamma() : false;
   beamHasResGamma    = (gammaMode < 4) && beamHasGamma;
   isGammaHadronDir   = false;
 
@@ -119,7 +119,7 @@ bool PartonLevel::init( TimeShowerPtr timesDecPtrIn,
   doTrial            = useAsTrial;
   doEnhanceTrial     = settings.flag("Enhancements:doEnhanceTrial");
   // Merging initialization.
-  bool hasMergingHooks = (mergingHooksPtr != 0);
+  bool hasMergingHooks = (mergingHooksPtr != nullptr);
   canRemoveEvent       = !doTrial && hasMergingHooks
     && ( mergingHooksPtr->doCKKWLMerging() || mergingHooksPtr->doNL3Merging());
   canRemoveEmission    = !doTrial && hasMergingHooks
@@ -156,19 +156,19 @@ bool PartonLevel::init( TimeShowerPtr timesDecPtrIn,
   allowRH            = settings.flag("RHadrons:allow");
 
   // Possibility to allow user veto during evolution.
-  canVetoPT          = (userHooksPtr != 0)
+  canVetoPT          = (userHooksPtr != nullptr)
                      ? userHooksPtr->canVetoPT()   : false;
   pTvetoPT           = (canVetoPT)
                      ? userHooksPtr->scaleVetoPT() : -1.;
-  canVetoStep        = (userHooksPtr != 0)
+  canVetoStep        = (userHooksPtr != nullptr)
                      ? userHooksPtr->canVetoStep() : false;
   nVetoStep          = (canVetoStep)
                      ? userHooksPtr->numberVetoStep() : -1;
-  canVetoMPIStep     = (userHooksPtr != 0)
+  canVetoMPIStep     = (userHooksPtr != nullptr)
                      ? userHooksPtr->canVetoMPIStep() : false;
   nVetoMPIStep       = (canVetoMPIStep)
                      ? userHooksPtr->numberVetoMPIStep() : -1;
-  canVetoEarly       = (userHooksPtr != 0)
+  canVetoEarly       = (userHooksPtr != nullptr)
                      ? userHooksPtr->canVetoPartonLevelEarly() : false;
 
   // Settings for vetoing of QCD emission for Drell-Yan weak boson production.
@@ -176,15 +176,15 @@ bool PartonLevel::init( TimeShowerPtr timesDecPtrIn,
   vetoWeakDeltaR2    = pow2(settings.parm("WeakShower:vetoWeakDeltaR"));
 
   // Possibility to set maximal shower scale in resonance decays.
-  canSetScale        = (userHooksPtr != 0)
+  canSetScale        = (userHooksPtr != nullptr)
                      ? userHooksPtr->canSetResonanceScale() : false;
 
   // Possibility to reconnect specifically for resonance decays.
-  canReconResSys     = (userHooksPtr != 0)
+  canReconResSys     = (userHooksPtr != nullptr)
                      ? userHooksPtr->canReconnectResonanceSystems() : false;
 
   // Done with initialization only for FSR in resonance decays.
-  if (beamAPtr == 0 || beamBPtr == 0) return true;
+  if (beamAPtr == nullptr || beamBPtr == nullptr) return true;
 
   // Make sure that photons are in resolved mode when mixing with unresolved
   // before initializing MPIs.
@@ -230,13 +230,6 @@ bool PartonLevel::init( TimeShowerPtr timesDecPtrIn,
   // Set info and initialize the respective program elements.
   if (timesPtr) timesPtr->init( beamAPtr, beamBPtr);
   if (doISR && spacePtr) spacePtr->init( beamAPtr, beamBPtr);
-
-  // Remove an existing MPI initialization file if to create a new one.
-  if (mode("MultipartonInteractions:reuseInit") == 1) {
-    string cppstring = word("MultipartonInteractions:initFile");
-    const char* cstring = cppstring.c_str();
-    remove( cstring);
-  }
 
   // Initialize normal nondiffractive MPIs.
   doMPIMB  =  multiMB.init( doMPIinit, 0, beamAPtr, beamBPtr, partonVertexPtr);
@@ -371,12 +364,12 @@ bool PartonLevel::next( Event& process, Event& event) {
   beamHasResGamma   = beamAhasResGamma || beamBhasResGamma;
 
   // Save if photoproduction from either side.
-  hasGammaA         = (beamAPtr != 0) ? beamAPtr->getGammaMode() > 0 : false;
-  hasGammaB         = (beamBPtr != 0) ? beamBPtr->getGammaMode() > 0 : false;
+  hasGammaA = (beamAPtr != nullptr) ? beamAPtr->getGammaMode() > 0 : false;
+  hasGammaB = (beamBPtr != nullptr) ? beamBPtr->getGammaMode() > 0 : false;
 
   // Obtain current modes for photon beams when beam pointers exists.
-  int gammaModeA = (beamAPtr != 0) ? beamAPtr->getGammaMode() : 0;
-  int gammaModeB = (beamBPtr != 0) ? beamBPtr->getGammaMode() : 0;
+  int gammaModeA = (beamAPtr != nullptr) ? beamAPtr->getGammaMode() : 0;
+  int gammaModeB = (beamBPtr != nullptr) ? beamBPtr->getGammaMode() : 0;
 
   // Save the current photon mode when mixing processes.
   saveGammaModeEvent(gammaModeA, gammaModeB);
@@ -395,10 +388,12 @@ bool PartonLevel::next( Event& process, Event& event) {
   if (doHardDiff) {
 
     // Switch for the diffractive side to be considered.
-    bool checkSideA = (hardDiffSide < 2) && (beamBPtr->isHadron() ||
-      ((beamBisGamma || beamBhasGamma) && beamBPtr->getGammaMode() == 1));
-    bool checkSideB = (hardDiffSide%2 == 0) && (beamAPtr->isHadron() ||
-      ((beamAisGamma || beamAhasGamma) && beamAPtr->getGammaMode() == 1));
+    bool checkSideA = (hardDiffSide < 2) &&
+      ((beamBPtr != nullptr && beamBPtr->isHadron()) ||
+        ((beamBisGamma || beamBhasGamma) && beamBPtr->getGammaMode() == 1));
+    bool checkSideB = (hardDiffSide%2 == 0) &&
+      ((beamAPtr != nullptr && beamAPtr->isHadron()) ||
+        ((beamAisGamma || beamAhasGamma) && beamAPtr->getGammaMode() == 1));
 
     // Preliminary decision based on diffractive-to-inclusive PDF ratio.
     // If Pomeron taken from side A(=1), then B is the diffractive system.
@@ -486,7 +481,7 @@ bool PartonLevel::next( Event& process, Event& event) {
   int nBranchMax     = (doTrial) ? nTrialEmissions : -1;
 
   // Store merging weight.
-  bool hasMergingHooks = (mergingHooksPtr != 0);
+  bool hasMergingHooks = (mergingHooksPtr != nullptr);
   if ( hasMergingHooks && canRemoveEvent )
     mergingHooksPtr->storeWeights(infoPtr->weightContainerPtr->
         weightsMerging.weightValues);
@@ -612,10 +607,10 @@ bool PartonLevel::next( Event& process, Event& event) {
       mergingHooksPtr->setShowerStartingScales( doTrial,
         (canRemoveEvent || canRemoveEmission), pTscaleRad, process, pTmaxFSR,
         limitPTmaxFSR, pTmaxISR, limitPTmaxISR, pTmaxMPI, limitPTmaxMPI );
-    double pTmax    = max( {pTmaxMPI, pTmaxISR, pTmaxFSR} );
-    pTsaveMPI       = pTmaxMPI;
-    pTsaveISR       = pTmaxISR;
-    pTsaveFSR       = pTmaxFSR;
+    double pTmax;
+    pTsaveMPI = pTmaxMPI;
+    pTsaveISR = pTmaxISR;
+    pTsaveFSR = pTmaxFSR;
 
     // Prepare the classes to begin the generation.
     if (doMPI) multiPtr->prepare( event, pTmaxMPI, (iHardDiffLoop == 2) );
@@ -866,10 +861,7 @@ bool PartonLevel::next( Event& process, Event& event) {
           if (abs(id2) == 21 || abs(id3) == 21 || id2 == - id3) {
             double dij = min(p2.pT2(),p3.pT2())
               * pow2(RRapPhi(p2,p3)) / vetoWeakDeltaR2;
-            if (dij < d) {
-              d = dij;
-              cut = false;
-            }
+            if (dij < d) cut = false;
           }
 
           // Veto event if it does not belong to Drell-Yan production.
@@ -1117,8 +1109,7 @@ bool PartonLevel::next( Event& process, Event& event) {
       else event = eventSave;
     }
     if (!colCorrect) {
-      infoPtr->errorMsg("Error in PartonLevel::next: "
-        "Colour reconnection failed.");
+      loggerPtr->ERROR_MSG("colour reconnection failed");
       return false;
     }
   }
@@ -1163,8 +1154,7 @@ bool PartonLevel::next( Event& process, Event& event) {
       else event = eventSave;
     }
     if (!colCorrect) {
-      infoPtr->errorMsg("Error in PartonLevel::next: "
-        "Colour reconnection failed.");
+      loggerPtr->ERROR_MSG("colour reconnection failed");
       return false;
     }
   }
@@ -2145,8 +2135,9 @@ bool PartonLevel::setupResolvedLeptonGamma( Event& process) {
   double m2GmGm = pow2(mGmGm);
 
   // Massless photons here, virtualities added after parton level evolution.
-  double m2Gamma1 = hasGammaA ? 0. : pow2(beamAPtr->m());
-  double m2Gamma2 = hasGammaB ? 0. : pow2(beamBPtr->m());
+  double m2Gamma1(0), m2Gamma2(0);
+  if (!hasGammaA && beamAPtr != nullptr) m2Gamma1 = pow2(beamAPtr->m());
+  if (!hasGammaB && beamBPtr != nullptr) m2Gamma2 = pow2(beamBPtr->m());
 
   // Derive the new momenta in the CM frame of the gamma-gamma system.
   double eGamA    = 0.5 * (m2GmGm + m2Gamma1 - m2Gamma2) / mGmGm;
@@ -2280,9 +2271,9 @@ void PartonLevel::leaveResolvedLeptonGamma( Event& process, Event& event,
 
     // Separate treatment for 2 -> 1 processes with two direct gammas
     // to preserve sampled invariant mass. Corresponds to the usual
-    // beam remnant handling.
-    if ( (infoPtr->nFinal() == 1) && (gammaModeEvent == 4)
-      && hasGammaA && hasGammaB ) {
+    // beam remnant handling. Same for externally provided events.
+    if ( ( (infoPtr->nFinal() == 1) || infoPtr->isLHA() )
+      && (gammaModeEvent == 4) && hasGammaA && hasGammaB ) {
 
       // Save the virtualities and transverse mometum of the photons.
       mGamma1     = -sqrt( beamAPtr->Q2Gamma());
@@ -2717,7 +2708,7 @@ bool PartonLevel::resonanceShowers( Event& process, Event& event,
     // of coloured particles so abort event.
     if ( (colBef != 0 || acolBef != 0) && doReconnect && reconnectMode == 1
       && forceResonanceCR && !earlyResDec) {
-      infoPtr->errorMsg("Abort from PartonLevel::resonanceShower: "
+      loggerPtr->ABORT_MSG(
         "new CR can't handle separate CR for coloured resonance decays");
       infoPtr->setAbortPartonLevel(true);
       return false;
@@ -2965,10 +2956,8 @@ bool PartonLevel::wzDecayShowers( Event& event) {
 
     // Check for any non-W/Z resonances and issue warning.
     if (event[iWZ].id() != 23 && event[iWZ].idAbs() != 24) {
-      stringstream ss;
-      ss << event[iWZ].id();
-      infoPtr->errorMsg("Warning in PartonLevel::wzDecayShowers: "
-        "found undecayed resonance","id = "+ss.str());
+      loggerPtr->WARNING_MSG("found undecayed resonance",
+        "id = " + to_string(event[iWZ].id()));
       continue;
     }
 
@@ -2996,8 +2985,7 @@ bool PartonLevel::wzDecayShowers( Event& event) {
       // Identify fermion after W/Z emission.
       vector<int>  iSisters = event[iWZtop].sisterList();
       if (iSisters.size() != 1) {
-        infoPtr->errorMsg("Error in PartonLevel::wzDecayShowers: "
-          "Not able to find a single sister particle");
+        loggerPtr->ERROR_MSG("not able to find a single sister particle");
         return false;
       }
       int iEmitter = iSisters[0];
@@ -3013,8 +3001,7 @@ bool PartonLevel::wzDecayShowers( Event& event) {
       pEmitter.rotbst( MtoNew);
       pEmitter.rotbst( MtoRest);
       if (event[iWZtop + 1].statusAbs() != 52) {
-        infoPtr->errorMsg("Error in PartonLevel::wzDecayShowers: "
-          "Found wrong recoiler");
+        loggerPtr->ERROR_MSG("found wrong recoiler");
         return false;
       }
       Vec4 pRecoiler = event[iWZtop + 1].p();
@@ -3138,8 +3125,7 @@ bool PartonLevel::wzDecayShowers( Event& event) {
         wt =  0.;
         for (int i = 0; i < 9; ++i) wt += con[i] * wtValues[i];
         if (wt > wtMax || wt < 0.) {
-          infoPtr->errorMsg("Error in PartonLevel::wzDecayShowers: "
-          "wt bigger than wtMax or less than zero");
+          loggerPtr->ERROR_MSG("wt bigger than wtMax or less than zero");
           return false;
         }
       } while (wt < wtMax * rndmPtr->flat());
@@ -3176,8 +3162,7 @@ bool PartonLevel::wzDecayShowers( Event& event) {
       if (event[iMother + 1].statusAbs() == 42) iRecoiler = iMother + 1;
       else if (event[iMother - 1].statusAbs() == 42) iRecoiler = iMother - 1;
       else {
-        infoPtr->errorMsg("Error in PartonLevel::wzDecayShowers: "
-          "Found wrong recoiler");
+        loggerPtr->ERROR_MSG("found wrong recoiler");
         return false;
       }
 
@@ -3302,8 +3287,7 @@ bool PartonLevel::wzDecayShowers( Event& event) {
         wt =  0.;
         for (int i = 0; i < 9; ++i) wt += con[i] * wtValues[i];
         if (wt > wtMax || wt < 0.) {
-          infoPtr->errorMsg("Error in PartonLevel::wzDecayShowers: "
-            "wt bigger than wtMax or less than zero");
+          loggerPtr->ERROR_MSG("wt bigger than wtMax or less than zero");
           return false;
         }
       } while (wt < wtMax * rndmPtr->flat());

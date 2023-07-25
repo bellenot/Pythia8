@@ -3,9 +3,9 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Keywords: hadronization; colour reconnection; rope hadronization;
+// Authors: Christian Bierlich <christian.bierlich@hep.lu.se>
 
-// Authors: Christian Bierlich <christian.bierlich@hep.lu.se>.
+// Keywords: hadronization; colour reconnection; rope hadronization
 
 // This program provides a demonstration of the flavour rope model supplied
 // in the Rope Hadronization framework. It produces four histograms

@@ -33,8 +33,8 @@ void PDF::resetValenceContent() {
   else if (idBeam == 22)
     setValenceContent(22, 0, 0);
 
-  // Lepton.
-  else if (idBeamAbs == 11 || idBeamAbs == 13 || idBeamAbs == 15)
+  // Lepton and neutrino.
+  else if (idBeamAbs > 10 && idBeamAbs < 17)
     setValenceContent(idBeam, 0, 0);
 
   // Pomeron is treated as pi0-like.
@@ -111,7 +111,7 @@ double PDF::xfRaw(int id) const {
   if (id == -4) return xcbar;
   if (id ==  5) return xb;
   if (id == -5) return xbbar;
-  if ((id == 11 || id == 13 || id == 15) && id == idBeam) return xlepton;
+  if ( (id > 10 && id < 17) && id == idBeam) return xlepton;
   return 0.;
 }
 
@@ -137,8 +137,8 @@ double PDF::xf(int id, double x, double Q2) {
     return max(0., xfRaw(idAbs));
   }
 
-  // Lepton beam.
-  if (idBeamAbs == 11 || idBeamAbs == 13 || idBeamAbs == 15) {
+  // Lepton or neutrino beam, only charged leptons may emit photons.
+  if (idBeamAbs > 10 && idBeamAbs < 17) {
     if (hasGammaInLepton) {
       if (idAbs ==  1) return max(0., xd);
       if (idAbs ==  2) return max(0., xu);
@@ -146,9 +146,9 @@ double PDF::xf(int id, double x, double Q2) {
       if (idAbs ==  4) return max(0., xc);
       if (idAbs ==  5) return max(0., xb);
       return 0.;
-    }
-    else
+    } else {
       return (id == idBeam) ? max(0., xlepton) : 0.;
+    }
   }
 
   // Nuclear beam.
@@ -247,8 +247,8 @@ double PDF::xfVal(int id, double x, double Q2) {
   if (id == 0 || id == 21 || id == 22)
     return 0.;
 
-  // For lepton beams, the valence is the lepton content itself.
-  if (idBeamAbs == 11 || idBeamAbs == 13 || idBeamAbs == 15)
+  // For lepton and neutrino beams, the valence is the lepton content itself.
+  if (idBeamAbs > 10 && idBeamAbs < 17)
     return (id == idBeam) ? max(0., xlepton) : 0.;
 
   // Nuclear PDFs are not yet defined.
@@ -396,96 +396,6 @@ double PDF::xfSea(int id, double x, double Q2) {
 
 //==========================================================================
 
-// LHAPDF plugin interface.
-
-//--------------------------------------------------------------------------
-
-// Constructor.
-
-LHAPDF::LHAPDF(int idIn, string pSet, Info* infoPtrIn,
-  Settings* settingsPtrIn) :
-  pdfPtr(nullptr), infoPtr(infoPtrIn), libPtr(nullptr) {
-  isSet = false;
-
-  // Determine the plugin library name.
-  if (pSet.size() < 8) {
-    printErr("Error in LHAPDF::LHAPDF: invalid pSet " + pSet, infoPtr);
-    return;
-  }
-  name = pSet.substr(0, 7);
-  if (name != "LHAPDF5" && name != "LHAPDF6") {
-    printErr("Error in LHAPDF::LHAPDF: invalid pSet " + pSet, infoPtr);
-    return;
-  }
-  name = "libpythia8lhapdf" + name.substr(6) + ".so";
-  if (infoPtr != nullptr) libPtr = infoPtr->plugin(name);
-  else libPtr = make_shared<Plugin>(name);
-  if (!libPtr->isLoaded()) return;
-
-  // Determine the PDF set and member.
-  string   set = pSet.substr(8);
-  int      mem = 0;
-  size_t   pos = set.find_last_of("/");
-  if (pos != string::npos) {
-    istringstream memStream(set.substr(pos + 1));
-    memStream >> mem;
-  }
-  set = set.substr(0, pos);
-
-  // Load the PDF.
-  NewPDF* newPDF = (NewPDF*)libPtr->symbol("newPDF");
-  if (!newPDF) return;
-  pdfPtr = newPDF(idIn, set, mem, infoPtr);
-  if (settingsPtrIn != nullptr) {
-    pdfPtr->sSymmetric(settingsPtrIn->flag("LHAPDF:sSymmetric"));
-    pdfPtr->cSymmetric(settingsPtrIn->flag("LHAPDF:cSymmetric"));
-    pdfPtr->bSymmetric(settingsPtrIn->flag("LHAPDF:bSymmetric"));
-  }
-  isSet = true;
-
-}
-
-//--------------------------------------------------------------------------
-
-// Update parton densities.
-
-void LHAPDF::xfUpdate(int id, double x, double Q2) {
-  if (pdfPtr != nullptr) {
-    pdfPtr->xfUpdate(id, x, Q2);
-    xu      = pdfPtr->xu;
-    xd      = pdfPtr->xd;
-    xs      = pdfPtr->xs;
-    xubar   = pdfPtr->xubar;
-    xdbar   = pdfPtr->xdbar;
-    xsbar   = pdfPtr->xsbar;
-    xc      = pdfPtr->xc;
-    xb      = pdfPtr->xb;
-    xcbar   = pdfPtr->xcbar;
-    xbbar   = pdfPtr->xbbar;
-    xg      = pdfPtr->xg;
-    xlepton = pdfPtr->xlepton;
-    xgamma  = pdfPtr->xgamma;
-  }
-
-  // idSav = 9 to indicate that all flavours reset.
-  idSav  = 9;
-}
-
-//--------------------------------------------------------------------------
-
-// Destructor.
-
-LHAPDF::~LHAPDF() {
-  if (pdfPtr == nullptr || !libPtr->isLoaded()) return;
-
-  // Delete the PDF.
-  DeletePDF* deletePDF = (DeletePDF*)libPtr->symbol("deletePDF");
-  if (deletePDF) deletePDF(pdfPtr);
-
-}
-
-//==========================================================================
-
 // The LHAGrid1 class.
 // Codes to read files in the LHAPDF6 lhagrid1 format,
 // assuming that the same x grid is used for all Q subgrids.
@@ -495,7 +405,7 @@ LHAPDF::~LHAPDF() {
 
 // Initialize PDF: select data file and open stream.
 
-void LHAGrid1::init(string pdfWord, string pdfdataPath, Info* infoPtr) {
+void LHAGrid1::init(string pdfWord, string pdfdataPath, Logger* loggerPtr) {
 
   // Identify whether file number or name.
   if (pdfWord.length() > 9 && toLower(pdfWord).substr(0,9) == "lhagrid1:")
@@ -550,13 +460,13 @@ void LHAGrid1::init(string pdfWord, string pdfdataPath, Info* infoPtr) {
   // Open files from which grids should be read in.
   ifstream is( dataFile.c_str() );
   if (!is.good()) {
-    printErr("Error in LHAGrid1::init: did not find data file", infoPtr);
+    printErr("LHAGrid1::init", "did not find data file", loggerPtr);
     isSet = false;
     return;
   }
 
   // Initialization with a stream.
-  init( is, infoPtr);
+  init( is, loggerPtr);
   is.close();
 
 }
@@ -565,11 +475,11 @@ void LHAGrid1::init(string pdfWord, string pdfdataPath, Info* infoPtr) {
 
 // Initialize PDF: read in data grid from stream and set up interpolation.
 
-void LHAGrid1::init(istream& is, Info* infoPtr) {
+void LHAGrid1::init(istream& is, Logger* loggerPtr) {
 
   // Check that data stream is available.
   if (!is.good()) {
-    printErr("Error in LHAGrid1::init: cannot read from stream", infoPtr);
+    printErr("LHAGrid1::init", "cannot read from stream", loggerPtr);
     isSet = false;
     return;
   }
@@ -585,7 +495,7 @@ void LHAGrid1::init(istream& is, Info* infoPtr) {
   do getline( is, line);
   while (line.find("---") == string::npos);
   if (!is.good()) {
-    printErr("Error in LHAGrid1::init: could not read data file", infoPtr);
+    printErr("LHAGrid1::init", "could not read data file", loggerPtr);
     isSet = false;
     return;
   }
@@ -608,8 +518,7 @@ void LHAGrid1::init(istream& is, Info* infoPtr) {
       int ixc = -1;
       while (isx >> xNow)
       if ( abs(log(xNow) - lnxGrid[++ixc]) > 1e-5) {
-        printErr("Error in LHAGrid1::init: mismatched subgrid x spacing",
-          infoPtr);
+        printErr("LHAGrid1::init", "mismatched subgrid x spacing", loggerPtr);
         isSet = false;
         return;
       }
@@ -626,8 +535,7 @@ void LHAGrid1::init(istream& is, Info* infoPtr) {
     }
     if (nqSub > 1) {
       if (abs(qGrid[nq] / qGrid[nq-1] - 1.) > 1e-5) {
-        printErr("Error in LHAGrid1::init: mismatched subgrid Q borders",
-          infoPtr);
+        printErr("LHAGrid1::init", "mismatched subgrid Q borders", loggerPtr);
         isSet = false;
         return;
       }
@@ -1199,7 +1107,7 @@ const double MSTWpdf::qqInit[49] = {0., 1.0, 1.25, 1.5, 0., 0., 2.5, 3.2,
 
 // Initialize PDF: select data file and open stream.
 
-void MSTWpdf::init(int iFitIn, string pdfdataPath, Info* infoPtr) {
+void MSTWpdf::init(int iFitIn, string pdfdataPath, Logger* loggerPtr) {
 
   // Choice of fit among possibilities.
   iFit = iFitIn;
@@ -1215,13 +1123,13 @@ void MSTWpdf::init(int iFitIn, string pdfdataPath, Info* infoPtr) {
   // Open data file.
   ifstream data_file( (pdfdataPath + fileName).c_str() );
   if (!data_file.good()) {
-    printErr("Error in MSTWpdf::init: did not find data file ", infoPtr);
+    printErr("MSTWpdf::init", "did not find data file", loggerPtr);
     isSet = false;
     return;
   }
 
   // Initialization with a stream.
-  init(data_file, infoPtr);
+  init(data_file, loggerPtr);
   data_file.close();
 
 }
@@ -1230,11 +1138,11 @@ void MSTWpdf::init(int iFitIn, string pdfdataPath, Info* infoPtr) {
 
 // Initialize PDF: read in data grid from stream and set up interpolation.
 
-void MSTWpdf::init(istream& data_file, Info* infoPtr) {
+void MSTWpdf::init(istream& data_file, Logger* loggerPtr) {
 
   // Check that data stream is available.
   if (!data_file.good()) {
-    printErr("Error in MSTWpdf::init: cannot read from stream", infoPtr);
+    printErr("MSTWpdf::init", "cannot read from stream", loggerPtr);
     isSet = false;
     return;
   }
@@ -1296,12 +1204,12 @@ void MSTWpdf::init(istream& data_file, Info* infoPtr) {
 
   // Check that the heavy quark masses are sensible.
   if (mc2 < qq[3] || mc2 > qq[6]) {
-    printErr("Error in MSTWpdf::init: invalid mCharm", infoPtr);
+    printErr("MSTWpdf::init", "invalid mCharm", loggerPtr);
     isSet = false;
     return;
   }
   if (mb2 < qq[13] || mb2 > qq[16]) {
-    printErr("Error in MSTWpdf::init: invalid mBottom", infoPtr);
+    printErr("MSTWpdf::init", "invalid mBottom", loggerPtr);
     isSet = false;
     return;
   }
@@ -1310,7 +1218,7 @@ void MSTWpdf::init(istream& data_file, Info* infoPtr) {
   // with future grids where, for example, a photon distribution
   // might be provided (cf. the MRST2004QED PDFs).
   if (nExtraFlavours < 0 || nExtraFlavours > 1) {
-    printErr("Error in MSTWpdf::init: invalid nExtraFlavours", infoPtr);
+    printErr("MSTWpdf::init", "invalid nExtraFlavours", loggerPtr);
     isSet = false;
     return;
   }
@@ -1333,8 +1241,7 @@ void MSTWpdf::init(istream& data_file, Info* infoPtr) {
       else
         f[12][n][m] = 0.; // photon
       if (data_file.eof()) {
-        printErr("Error in MSTWpdf::init: could not read data stream",
-          infoPtr);
+        printErr("MSTWpdf::init", "could not read data stream", loggerPtr);
         isSet = false;
         return;
       }
@@ -1343,7 +1250,7 @@ void MSTWpdf::init(istream& data_file, Info* infoPtr) {
   // Check that ALL the file contents have been read in.
   data_file >> dtemp;
   if (!data_file.eof()) {
-    printErr("Error in MSTWpdf::init: could not read data stream", infoPtr);
+    printErr("MSTWpdf::init", "could not read data stream", loggerPtr);
     isSet = false;
     return;
   }
@@ -1813,7 +1720,7 @@ const double CTEQ6pdf::XPOWER = 0.3;
 
 // Initialize PDF: select data file and open stream.
 
-void CTEQ6pdf::init(int iFitIn, string pdfdataPath, Info* infoPtr) {
+void CTEQ6pdf::init(int iFitIn, string pdfdataPath, Logger* loggerPtr) {
 
   // Choice of fit among possibilities.
   iFit = iFitIn;
@@ -1837,13 +1744,13 @@ void CTEQ6pdf::init(int iFitIn, string pdfdataPath, Info* infoPtr) {
   // Open data file.
   ifstream pdfgrid( (pdfdataPath + fileName).c_str() );
   if (!pdfgrid.good()) {
-    printErr("Error in CTEQ6pdf::init: did not find data file", infoPtr);
+    printErr("CTEQ6pdf::init", "did not find data file", loggerPtr);
     isSet = false;
     return;
   }
 
   // Initialization with a stream.
-  init( pdfgrid, isPdsGrid, infoPtr);
+  init( pdfgrid, isPdsGrid, loggerPtr);
   pdfgrid.close();
 
 }
@@ -1852,11 +1759,11 @@ void CTEQ6pdf::init(int iFitIn, string pdfdataPath, Info* infoPtr) {
 
 // Initialize PDF: read in data grid from stream and set up interpolation.
 
-void CTEQ6pdf::init(istream& pdfgrid, bool isPdsGrid, Info* infoPtr) {
+void CTEQ6pdf::init(istream& pdfgrid, bool isPdsGrid, Logger* loggerPtr) {
 
   // Check that data stream is available.
   if (!pdfgrid.good()) {
-    printErr("Error in CTEQ6pdf::init: cannot read from stream", infoPtr);
+    printErr("CTEQ6pdf::init", "cannot read from stream", loggerPtr);
     isSet = false;
     return;
   }
@@ -2252,8 +2159,7 @@ void ProtonPoint::xfUpdate(int , double x, double /*Q2*/ ) {
   // Check wheter in the allowed kinematic region.
   double fgm = 0.;
   if (phiMax < phiMin) {
-    printErr("Error in ProtonPoint::xfUpdate: phiMax - phiMin < 0!",
-      infoPtr);
+    printErr("ProtonPoint::xfUpdate", "phiMax - phiMin < 0!", loggerPtr);
   } else {
     // Corresponds to: x*f(x)
     fgm = (ALPHAEM / M_PI) * (1 - x) * (phiMax - phiMin);
@@ -2340,6 +2246,14 @@ void Proton2gammaDZ::xfUpdate(int , double x, double Q2 ) {
   // idSav = 9 to indicate that all flavours reset.
   idSav = 9;
 
+}
+
+//--------------------------------------------------------------------------
+
+// Provide dependence on virtuality for sampling accepted events.
+
+double Proton2gammaDZ::fluxQ2dependence(double Q2) {
+  return 1. / ( Q2 * pow4(1. + Q2 / Q20) );
 }
 
 //==========================================================================
@@ -2596,7 +2510,7 @@ void PomFix::xfUpdate(int , double x, double) {
 
 // Initialize PDF: select data file and open stream.
 
-void PomH1FitAB::init( int iFit, string pdfdataPath, Info* infoPtr) {
+void PomH1FitAB::init( int iFit, string pdfdataPath, Logger* loggerPtr) {
 
   // Open files from which grids should be read in.
   if (pdfdataPath[ pdfdataPath.length() - 1 ] != '/') pdfdataPath += "/";
@@ -2605,13 +2519,13 @@ void PomH1FitAB::init( int iFit, string pdfdataPath, Info* infoPtr) {
   if (iFit == 2) dataFile = "pomH1FitB.data";
   ifstream is( (pdfdataPath + dataFile).c_str() );
   if (!is.good()) {
-    printErr("Error in PomH1FitAB::init: did not find data file", infoPtr);
+    printErr("PomH1FitAB::init", "did not find data file", loggerPtr);
     isSet = false;
     return;
   }
 
   // Initialization with a stream.
-  init( is, infoPtr );
+  init( is, loggerPtr );
   is.close();
 
 }
@@ -2620,11 +2534,11 @@ void PomH1FitAB::init( int iFit, string pdfdataPath, Info* infoPtr) {
 
 // Initialize PDF: read in data grid from stream and set up interpolation.
 
-void PomH1FitAB::init( istream& is, Info* infoPtr) {
+void PomH1FitAB::init( istream& is, Logger* loggerPtr) {
 
   // Check that data stream is available.
   if (!is.good()) {
-    printErr("Error in PomH1FitAB::init: cannot read from stream", infoPtr);
+    printErr("PomH1FitAB::init", "cannot read from stream", loggerPtr);
     isSet = false;
     return;
   }
@@ -2651,8 +2565,7 @@ void PomH1FitAB::init( istream& is, Info* infoPtr) {
 
   // Check for errors during read-in of file.
   if (!is) {
-    printErr("Error in PomH1FitAB::init: could not read data stream",
-      infoPtr);
+    printErr("PomH1FitAB::init", "could not read data stream", loggerPtr);
     isSet = false;
     return;
   }
@@ -2730,19 +2643,19 @@ void PomH1FitAB::xfUpdate(int , double x, double Q2) {
 
 // Initialize PDF: select data file and open stream.
 
-void PomH1Jets::init( int , string pdfdataPath, Info* infoPtr) {
+void PomH1Jets::init( int , string pdfdataPath, Logger* loggerPtr) {
 
   // Open files from which grids should be read in.
   if (pdfdataPath[ pdfdataPath.length() - 1 ] != '/') pdfdataPath += "/";
   ifstream is( (pdfdataPath + "pomH1Jets.data").c_str() );
   if (!is.good()) {
-    printErr("Error in PomH1Jets::init: did not find data file", infoPtr);
+    printErr("PomH1Jets::init", "did not find data file", loggerPtr);
     isSet = false;
     return;
   }
 
   // Initialization with a stream.
-  init( is, infoPtr);
+  init( is, loggerPtr);
   is.close();
 
 }
@@ -2751,11 +2664,11 @@ void PomH1Jets::init( int , string pdfdataPath, Info* infoPtr) {
 
 // Initialize PDF: read in data grid from stream and set up interpolation.
 
-void PomH1Jets::init( istream& is, Info* infoPtr) {
+void PomH1Jets::init( istream& is, Logger* loggerPtr) {
 
   // Check that data stream is available.
   if (!is.good()) {
-    printErr("Error in PomH1Jets::init: cannot read from stream", infoPtr);
+    printErr("PomH1Jets::init", "cannot read from stream", loggerPtr);
     isSet = false;
     return;
   }
@@ -2792,7 +2705,7 @@ void PomH1Jets::init( istream& is, Info* infoPtr) {
 
   // Check for errors during read-in of files.
   if (!is) {
-    printErr("Error in PomH1Jets::init: could not read data file", infoPtr);
+    printErr("PomH1Jets::init", "could not read data file", loggerPtr);
     isSet = false;
     return;
   }
@@ -2897,7 +2810,7 @@ void PomHISASD::xfUpdate(int, double x, double Q2) {
 
   // Check that pomeron momentum fraction is available.
   if ( xPomNow < 0.0 || xPomNow > 1.0 || !pPDFPtr )
-    printErr("Error in PomHISASD::xfUpdate: no xPom available.", infoPtr);
+    printErr("PomHISASD::xfUpdate", "no xPom available", loggerPtr);
 
   double xx = xPomNow * x;
   double fac = newfac * pow(1.0 - x, hixpow) / log(1.0 / xx);
@@ -3715,6 +3628,7 @@ void EPAexternal::init() {
 
   // Select which overestimate is used for sampling.
   approxMode = settingsPtr->mode("PDF:beam2gammaApprox");
+  isLHA      = (settingsPtr->mode("Beams:frameType") > 3);
 
   // Approximation suited for lepton beams.
   if (approxMode == 1) {
@@ -3924,6 +3838,51 @@ double EPAexternal::sampleXgamma(double xMinIn) {
 
 //--------------------------------------------------------------------------
 
+// Sample the virtuality for the photon, either based on the estimate
+// to be corrected later, or for integrated flux (accepted events)
+// where oversampling has already been corrected.
+
+double EPAexternal::sampleQ2gamma(double Q2minIn) {
+
+  // Sample value for the intermediate photon according to the flux.
+  // If externally generated (LHE) event, use the approximation.
+  // Notice that in the former case sample from the whole phase space
+  // but in the latter start with lower limit provided as an argument.
+  double Q2now = 0.;
+  if ( !isLHA ) {
+    Q2now = Q2min * pow(Q2max / Q2min, rndmPtr->flat());
+  } else {
+    int nTries(1e5), nTry(0);
+    while (nTry < nTries) {
+
+      // Sample from 1./Q^2 to start with, correct for actual Q2 dependence.
+      Q2now = Q2minIn * pow(Q2max / Q2minIn, rndmPtr->flat());
+      double Q2accurate = gammaFluxPtr->fluxQ2dependence(Q2now);
+      double weight = Q2accurate * Q2now;
+
+      // Check first that a finite value obtained,
+      // then check whether value to be accepted and exit.
+      if (weight == 0.) {
+        printErr("EPAexternal::sampleQ2gamma", "Invalid overestimate",
+          loggerPtr);
+        return 0.;
+      }
+      if (weight > rndmPtr->flat()) break;
+      else ++nTry;
+    }
+
+    // Check number of tries.
+    if (nTry >= nTries) {
+      printErr("EPAexternal::sampleQ2gamma", "Maximum tries reached",
+        loggerPtr);
+      return 0.;
+    }
+  }
+  return Q2now;
+}
+
+//--------------------------------------------------------------------------
+
 // Return integrated over-estimate for photon flux to approximate soft
 // cross sections.
 
@@ -3971,7 +3930,7 @@ void nPDF::initNPDF(int idBeamIn, PDFPtr protonPDFPtrIn) {
 void nPDF::xfUpdate(int id, double x, double Q2) {
 
   if (protonPDFPtr == 0) {
-    printErr("Error in nPDF: No free proton PDF pointer set.");
+    printErr("nPDF::xfUpdate", "No free proton PDF pointer set.");
     return;
   }
 
@@ -4040,8 +3999,7 @@ void EPS09::init(int iOrderIn, int iSetIn, string pdfdataPath) {
   // Open grid file.
   ifstream fileStream( gridFile.c_str() );
   if (!fileStream.good()) {
-    printErr("Error in EPS09::init: did not find grid file " + gridFile,
-             infoPtr);
+    printErr("EPS09::init", "did not find grid file " + gridFile, loggerPtr);
     isSet = false;
     return;
   }
@@ -4211,8 +4169,7 @@ void EPPS16::init(int iSetIn, string pdfdataPath) {
   // Open grid file.
   ifstream fileStream( gridFile.c_str() );
   if (!fileStream.good()) {
-    printErr("Error in EPPS16::init: did not find grid file " + gridFile,
-             infoPtr);
+    printErr("EPPS16::init", "did not find grid file " + gridFile, loggerPtr);
     isSet = false;
     return;
   }

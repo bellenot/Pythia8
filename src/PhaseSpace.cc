@@ -85,7 +85,7 @@ const double PhaseSpace::WTCORRECTION[11] = { 1., 1., 1.,
 
 // Perform simple initialization and store pointers.
 
-void PhaseSpace::init(bool isFirst, SigmaProcess* sigmaProcessPtrIn) {
+void PhaseSpace::init(bool isFirst, SigmaProcessPtr sigmaProcessPtrIn) {
 
   // Store input pointers for future use.
   sigmaProcessPtr = sigmaProcessPtrIn;
@@ -254,10 +254,10 @@ void PhaseSpace::decayKinematics( Event& process) {
 
     // Evaluate matrix element and decide whether to keep kinematics.
     double decWt = sigmaProcessPtr->weightDecay( process, iResBeg, iResEnd);
-    if (decWt < 0.) infoPtr->errorMsg("Warning in PhaseSpace::decay"
-      "Kinematics: negative angular weight");
-    if (decWt > 1.) infoPtr->errorMsg("Warning in PhaseSpace::decay"
-      "Kinematics: angular weight above unity");
+    if (decWt < 0.)
+      loggerPtr->WARNING_MSG("negative angular weight");
+    if (decWt > 1.)
+      loggerPtr->WARNING_MSG("angular weight above unity");
     while (decWt < rndmPtr->flat() ) {
 
       // Find resonances for which to redo decay angles.
@@ -276,10 +276,10 @@ void PhaseSpace::decayKinematics( Event& process) {
 
       // Ready to allow new test of matrix element.
       decWt = sigmaProcessPtr->weightDecay( process, iResBeg, iResEnd);
-      if (decWt < 0.) infoPtr->errorMsg("Warning in PhaseSpace::decay"
-        "Kinematics: negative angular weight");
-      if (decWt > 1.) infoPtr->errorMsg("Warning in PhaseSpace::decay"
-        "Kinematics: angular weight above unity");
+      if (decWt < 0.)
+        loggerPtr->WARNING_MSG("negative angular weight");
+      if (decWt > 1.)
+        loggerPtr->WARNING_MSG("angular weight above unity");
     }
 
   // End loop over sets of sister resonances/partons.
@@ -555,13 +555,11 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3) {
 
   // Check resonances have non-zero widths.
   if (!is2 && !is3 && idResA != 0 && GammaResA == 0.) {
-    infoPtr->errorMsg("Error in PhaseSpace::setupSampling123: "
-                      "zero-width resonance ", to_string(idResA), true);
+    loggerPtr->ERROR_MSG("zero-width resonance ", to_string(idResA), true);
     return false;
   }
   if (!is2 && !is3 && idResB != 0 && GammaResB == 0.) {
-    infoPtr->errorMsg("Error in PhaseSpace::setupSampling123: "
-                      "zero-width resonance ", to_string(idResB), true);
+    loggerPtr->ERROR_MSG("zero-width resonance ", to_string(idResB), true);
     return false;
   }
 
@@ -640,10 +638,10 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3) {
         }
 
         // Allow possibility for user to modify cross section. (3body??)
-        if (canModifySigma) sigmaTmp
-           *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
-        if (canBiasSelection) sigmaTmp
-           *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, false);
+        if (canModifySigma) sigmaTmp *= userHooksPtr->multiplySigmaBy(
+          sigmaProcessPtr.get(), this, false);
+        if (canBiasSelection) sigmaTmp *= userHooksPtr->biasSelectionBy(
+          sigmaProcessPtr.get(), this, false);
         if (canBias2Sel) sigmaTmp *= pow( pTH / bias2SelRef, bias2SelPow);
 
         // Check if current maximum exceeded.
@@ -795,10 +793,10 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3) {
         }
 
         // Allow possibility for user to modify cross section. (3body??)
-        if (canModifySigma) sigmaTmp
-           *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
-        if (canBiasSelection) sigmaTmp
-           *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, false);
+        if (canModifySigma) sigmaTmp *= userHooksPtr->multiplySigmaBy(
+          sigmaProcessPtr.get(), this, false);
+        if (canBiasSelection) sigmaTmp *= userHooksPtr->biasSelectionBy(
+          sigmaProcessPtr.get(), this, false);
         if (canBias2Sel) sigmaTmp *= pow( pTH / bias2SelRef, bias2SelPow);
 
         // Optional printout. Protect against negative cross section.
@@ -955,10 +953,10 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3) {
             }
 
             // Allow possibility for user to modify cross section.
-            if (canModifySigma) sigmaTmp
-              *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, false);
-            if (canBiasSelection) sigmaTmp
-              *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, false);
+            if (canModifySigma) sigmaTmp *= userHooksPtr->multiplySigmaBy(
+              sigmaProcessPtr.get(), this, false);
+            if (canBiasSelection) sigmaTmp *= userHooksPtr->biasSelectionBy(
+              sigmaProcessPtr.get(), this, false);
             if (canBias2Sel) sigmaTmp *= pow( pTH / bias2SelRef, bias2SelPow);
 
             // Optional printout. Protect against negative cross section.
@@ -1078,17 +1076,16 @@ bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent) {
   }
 
   // Allow possibility for user to modify cross section.
-  if (canModifySigma) sigmaNw
-    *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, inEvent);
-  if (canBiasSelection) sigmaNw
-    *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, inEvent);
+  if (canModifySigma) sigmaNw *= userHooksPtr->multiplySigmaBy(
+    sigmaProcessPtr.get(), this, inEvent);
+  if (canBiasSelection) sigmaNw *= userHooksPtr->biasSelectionBy(
+    sigmaProcessPtr.get(), this, inEvent);
   if (canBias2Sel) sigmaNw *= pow( pTH / bias2SelRef, bias2SelPow);
 
   // Check if maximum violated.
   newSigmaMx = false;
   if (sigmaNw > sigmaMx) {
-    infoPtr->errorMsg("Warning in PhaseSpace2to2tauyz::trialKin: "
-      "maximum for cross section violated");
+    loggerPtr->WARNING_MSG("maximum for cross section violated");
 
     // Violation strategy 1: increase maximum (always during initialization).
     if (increaseMaximum || !inEvent) {
@@ -1116,8 +1113,8 @@ bool PhaseSpace::trialKin123(bool is2, bool is3, bool inEvent) {
 
   // Check if negative cross section.
   if (sigmaNw < sigmaNeg) {
-    infoPtr->errorMsg("Warning in PhaseSpace2to2tauyz::trialKin:"
-      " negative cross section set 0", "for " +  sigmaProcessPtr->name() );
+    loggerPtr->WARNING_MSG("negative cross section set 0",
+      "for " +  sigmaProcessPtr->name() );
     sigmaNeg = sigmaNw;
 
     // Optional printout of (all) violations.
@@ -2109,8 +2106,7 @@ bool PhaseSpace2to2tauyz::finalKin() {
 
   // Check that phase space still open after new mass assignment.
   if (m3 + m4 + MASSMARGIN > mHat) {
-    infoPtr->errorMsg("Warning in PhaseSpace2to2tauyz::finalKin: "
-      "failed after mass assignment");
+    loggerPtr->WARNING_MSG("failed after mass assignment");
     return false;
   }
   p2Abs = 0.25 * (pow2(sH - s3 - s4) - 4. * s3 * s4) / sH;
@@ -2486,14 +2482,10 @@ double PhaseSpace2to2tauyz::weightGammaPDFApprox(){
   }
 
   // For photon-hadron case do not reweight the hadron side.
-  if ( !(beamAPtr->gammaInBeam()) || beamAPtr->getGammaMode() == 2 ) {
+  if ( !(beamAPtr->gammaInBeam()) || beamAPtr->getGammaMode() == 2 )
     x1GammaHadr = -1.;
-    x1Gamma     = -1.;
-  }
-  if ( !(beamBPtr->gammaInBeam()) || beamBPtr->getGammaMode() == 2 ) {
+  if ( !(beamBPtr->gammaInBeam()) || beamBPtr->getGammaMode() == 2 )
     x2GammaHadr = -1.;
-    x2Gamma     = -1.;
-  }
 
   // Calculate the over-estimated PDF convolution and the current one.
   double sigmaOver = sigmaProcessPtr->sigmaPDF(false, false, true,
@@ -2657,8 +2649,7 @@ bool PhaseSpace2to2elastic::trialKin( bool, bool ) {
 
     // Calculate the total weight and warn if unphysical weight.
     wt *= wtSigma * gammaKinPtr->weight();
-    if ( wt > 1. ) infoPtr->errorMsg("Warning in PhaseSpace2to2elastic::"
-      "trialKin: weight above unity");
+    if ( wt > 1. ) loggerPtr->WARNING_MSG("weight above unity");
 
     // Correct for over-estimated cross section and x_gamma limits.
     if ( wt < rndmPtr->flat() ) return false;
@@ -2728,8 +2719,7 @@ bool PhaseSpace2to2elastic::trialKin( bool, bool ) {
   do {
     ++loop;
     if (loop == NTRY) {
-      infoPtr->errorMsg("Error in PhaseSpace2to2elastic::trialKin: "
-        " quit after repeated tries");
+      loggerPtr->ERROR_MSG("quit after repeated tries");
       return false;
     }
     rNow = rndmPtr->flat() * sigNormSum;
@@ -2743,8 +2733,8 @@ bool PhaseSpace2to2elastic::trialKin( bool, bool ) {
            + sigNorm2 * bSlope2 * exp( bSlope2 * (tH - tUpp));
     if (useCoulomb) sigEst += sigNorm3 * (-tUpp) / pow2(tH);
   } while (tH < tLow || sigNow < sigEst * rndmPtr->flat());
-  if (sigNow > 1.01 * sigEst) infoPtr->errorMsg("Warning in "
-    "PhaseSpace2to2elastic::trialKin: cross section maximum violated");
+  if (sigNow > 1.01 * sigEst)
+    loggerPtr->WARNING_MSG("cross section maximum violated");
 
   if (!hasVMD){
     // Careful reconstruction of scattering angle.
@@ -3015,8 +3005,8 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
 
     // Calculate the total weight and warn if unphysical weight.
     wt *= wtSigma * gammaKinPtr->weight();
-    if ( wt > 1. ) infoPtr->errorMsg("Warning in PhaseSpace2to2diffractive"
-      "::trialKin: weight above unity");
+    if ( wt > 1. )
+      loggerPtr->WARNING_MSG("weight above unity");
 
     // Correct for over-estimated cross section and x_gamma limits.
     if ( wt < rndmPtr->flat() ) return false;
@@ -3065,8 +3055,7 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
     // Loop over attempts to set up masses and t consistently.
     for (int loop = 0; ; ++loop) {
       if (loop == NTRY) {
-        infoPtr->errorMsg("Error in PhaseSpace2to2diffractive::trialKin: "
-          " quit after repeated tries");
+        loggerPtr->ERROR_MSG("quit after repeated tries");
         return false;
       }
 
@@ -3116,8 +3105,8 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
                 : ( (step == 1) ? sigMax : MAXFUDGET * tWeight );
 
       // Check for maximum violations. Possibly break out of the loop.
-      if (sigNow > sigMaxNow) infoPtr->errorMsg("Error in PhaseSpace2to2"
-        "diffractive::trialKin: maximum cross section violated");
+      if (sigNow > sigMaxNow)
+        loggerPtr->ERROR_MSG("maximum cross section violated");
       if (sigNow > rndmPtr->flat() * sigMaxNow) break;
 
     // End of loops over tries and steps.
@@ -3300,8 +3289,7 @@ bool PhaseSpace2to3diffractive::trialKin( bool, bool ) {
     // Loop over attempts to set up xi1, xi2, t1, t2 consistently.
     for (int loop = 0; ; ++loop) {
       if (loop == NTRY) {
-        infoPtr->errorMsg("Error in PhaseSpace2to3diffractive::trialKin: "
-        " quit after repeated tries");
+        loggerPtr->ERROR_MSG("quit after repeated tries");
         return false;
       }
 
@@ -3350,8 +3338,8 @@ bool PhaseSpace2to3diffractive::trialKin( bool, bool ) {
                 : ( (step == 1) ? sigMax : MAXFUDGET * tWeight1 * tWeight2 );
 
       // Check for maximum violations. Possibly break out of the loop.
-      if (sigNow > sigMaxNow) infoPtr->errorMsg("Error in PhaseSpace2to3"
-        "diffractive::trialKin: maximum cross section violated");
+      if (sigNow > sigMaxNow)
+        loggerPtr->ERROR_MSG("maximum cross section violated");
       if (sigNow > rndmPtr->flat() * sigMaxNow) break;
 
     // End of loops over tries and steps.
@@ -3495,8 +3483,8 @@ bool PhaseSpace2to2nondiffractive::trialKin( bool, bool) {
 
     // Calculate the total weight and warn if unphysical weight.
     wt *= wtSigma * gammaKinPtr->weight();
-    if ( wt > 1. ) infoPtr->errorMsg("Warning in "
-      "PhaseSpace2to2nondiffractive::trialKin: weight above unity");
+    if ( wt > 1. )
+      loggerPtr->WARNING_MSG("weight above unity");
 
     // Correct for over-estimated cross section and x_gamma limits.
     if ( wt < rndmPtr->flat() ) return false;
@@ -3658,8 +3646,7 @@ bool PhaseSpace2to3tauycyl::finalKin() {
 
   // Check that phase space still open after new mass assignment.
   if (m3 + m4 + m5 + MASSMARGIN > mHat) {
-    infoPtr->errorMsg("Warning in PhaseSpace2to3tauycyl::finalKin: "
-      "failed after mass assignment");
+    loggerPtr->WARNING_MSG("failed after mass assignment");
     return false;
   }
 
@@ -3756,8 +3743,7 @@ bool PhaseSpace2to3yyycyl::setupSampling() {
   pT5Max = pTHat5Max;
   if (pT5Max < pT5Min) pT5Max = 0.5 * eCM;
   if (pT5Max > pT3Max || pT5Min > pT3Min || pT3Min + 2. * pT5Min > eCM) {
-    infoPtr->errorMsg("Error in PhaseSpace2to3yyycyl::setupSampling: "
-    "inconsistent pT limits in 3-body phase space");
+    loggerPtr->ERROR_MSG("inconsistent pT limits in 3-body phase space");
     return false;
   }
 
@@ -3853,8 +3839,7 @@ bool PhaseSpace2to3yyycyl::trialKin(bool inEvent, bool) {
   pT5Max = pTHat5Max;
   if (pT5Max < pT5Min) pT5Max = 0.5 * eCM;
   if (pT5Max > pT3Max || pT5Min > pT3Min || pT3Min + 2. * pT5Min > eCM) {
-    infoPtr->errorMsg("Error in PhaseSpace2to3yyycyl::trialKin: "
-    "inconsistent pT limits in 3-body phase space");
+    loggerPtr->ERROR_MSG("inconsistent pT limits in 3-body phase space");
     return false;
   }
 
@@ -3933,17 +3918,16 @@ bool PhaseSpace2to3yyycyl::trialKin(bool inEvent, bool) {
   sigmaNw *= flux * yRng * pTRng / WTy;
 
   // Allow possibility for user to modify cross section.
-  if (canModifySigma) sigmaNw
-    *= userHooksPtr->multiplySigmaBy( sigmaProcessPtr, this, inEvent);
-  if (canBiasSelection) sigmaNw
-    *= userHooksPtr->biasSelectionBy( sigmaProcessPtr, this, inEvent);
+  if (canModifySigma) sigmaNw *= userHooksPtr->multiplySigmaBy(
+    sigmaProcessPtr.get(), this, inEvent);
+  if (canBiasSelection) sigmaNw *= userHooksPtr->biasSelectionBy(
+    sigmaProcessPtr.get(), this, inEvent);
   if (canBias2Sel) sigmaNw *= pow( pTH / bias2SelRef, bias2SelPow);
 
   // Check if maximum violated.
   newSigmaMx = false;
   if (sigmaNw > sigmaMx) {
-    infoPtr->errorMsg("Warning in PhaseSpace2to3yyycyl::trialKin: "
-      "maximum for cross section violated");
+    loggerPtr->WARNING_MSG("maximum for cross section violated");
 
     // Violation strategy 1: increase maximum (always during initialization).
     if (increaseMaximum || !inEvent) {
@@ -3971,8 +3955,8 @@ bool PhaseSpace2to3yyycyl::trialKin(bool inEvent, bool) {
 
   // Check if negative cross section.
   if (sigmaNw < sigmaNeg) {
-    infoPtr->errorMsg("Warning in PhaseSpace2to3yyycyl::trialKin:"
-      " negative cross section set 0", "for " +  sigmaProcessPtr->name() );
+    loggerPtr->WARNING_MSG("negative cross section set 0",
+      "for " + sigmaProcessPtr->name() );
     sigmaNeg = sigmaNw;
 
     // Optional printout of (all) violations.
@@ -4035,10 +4019,8 @@ bool PhaseSpaceLHA::setupSampling() {
   strategy = lhaUpPtr->strategy();
   stratAbs = abs(strategy);
   if (strategy == 0 || stratAbs > 4) {
-    ostringstream stratCode;
-    stratCode << strategy;
-    infoPtr->errorMsg("Error in PhaseSpaceLHA::setupSampling: unknown "
-      "Les Houches Accord weighting stategy", stratCode.str());
+    loggerPtr->ERROR_MSG("unknown Les Houches Accord weighting stategy",
+      to_string(strategy));
     return false;
   }
 
@@ -4057,13 +4039,11 @@ bool PhaseSpaceLHA::setupSampling() {
 
     // Check for inconsistencies between strategy and stored values.
     if ( (strategy == 1 || strategy == 2) && xMax < 0.) {
-      infoPtr->errorMsg("Error in PhaseSpaceLHA::setupSampling: "
-        "negative maximum not allowed");
+      loggerPtr->ERROR_MSG("negative maximum not allowed");
       return false;
     }
     if ( ( strategy == 2 || strategy == 3) && xSec < 0.) {
-      infoPtr->errorMsg("Error in PhaseSpaceLHA::setupSampling: "
-        "negative cross section not allowed");
+      loggerPtr->ERROR_MSG("negative cross section not allowed");
       return false;
     }
 

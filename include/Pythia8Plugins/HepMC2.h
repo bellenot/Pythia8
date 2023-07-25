@@ -25,7 +25,7 @@
 #include "HepMC/GenEvent.h"
 #include "HepMC/Units.h"
 #include "Pythia8/Pythia.h"
-#include "Pythia8/HIUserHooks.h"
+#include "Pythia8/HIInfo.h"
 
 namespace HepMC {
 

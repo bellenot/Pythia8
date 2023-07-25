@@ -278,12 +278,9 @@ int AntennaFunction::initHel(vector<int>* helBef, vector<int>* helNew) {
   if (hj != 1 && hj != -1 && hj != 9) physHel = false;
   if (hk != 1 && hk != -1 && hk != 9) physHel = false;
   if (!physHel) {
-    if (verbose >= NORMAL) {
-      stringstream ss;
-      ss << hA << " " << hB << " -> " << hi << " " << hj << " " << hk;
-      infoPtr->errorMsg("Warning in "+__METHOD_NAME__+
-        ": unphysical helicity configuration.",ss.str());
-    }
+    loggerPtr->WARNING_MSG("unphysical helicity configuration",
+      to_string(hA) + " " + to_string(hB) + " -> "
+      + to_string(hi) + " " + to_string(hj) + " " + to_string(hk));
     return 0;
   }
 
@@ -329,11 +326,9 @@ bool AntennaFunction::check() {
       double ratio = ant/eik;
       if (abs(ratio - 1.) >= 0.001) {
         isOK = false;
-        if (verbose >= QUIET) {
-          infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": Failed eikonal.",
-            "("+num2str(iTest,1) + ")");
-        }
-      } else if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+        loggerPtr->WARNING_MSG("Failed eikonal",
+          "("+num2str(iTest,1) + ")");
+      } else if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
         vinciaName() + " OK (eikonal " + num2str(iTest, 1) + ")");
     }
   }
@@ -434,19 +429,19 @@ bool AntennaFunction::check() {
         // Require better than 5% agreement unless dominated by nonsingular.
         if (abs(ratio-1.) >= 0.05 && abs(ant1 - AP1) > 10.) {
           isOK = false;
-          if (verbose >= NORMAL) {
+          if (verbose >= Logger::NORMAL) {
             printOut(__METHOD_NAME__, "WARNING:" + vinciaName() +
              " FAILED (collinear ij " + num2str(iTest,1) + " " +
              helString+" )");
           }
-          if (verbose >= REPORT) {
+          if (verbose >= Logger::REPORT) {
             cout << setprecision(6);
             printOut(__METHOD_NAME__, "    ant  = " + num2str(ant1, 9) +
               " y1 = " + num2str(y1, 9) +" y2 = " + num2str(y2, 9));
             printOut(__METHOD_NAME__, "    P(z) = "+num2str(AP1, 9) +
               "  zi = " + num2str(zA(invariants1), 9));
           }
-        } else if (verbose >= DEBUG) {
+        } else if (verbose >= VinciaConstants::DEBUG) {
           printOut(__METHOD_NAME__, vinciaName() + " OK (collinear ij " +
             num2str(iTest, 1) + " " + helString + " )");
         }
@@ -457,19 +452,19 @@ bool AntennaFunction::check() {
         double ratio = ant2/AP2;
         if (abs(ratio - 1.) >= 0.05 && abs(ant2 - AP2) > 10.) {
           isOK = false;
-          if (verbose >= QUIET) {
+          if (verbose >= Logger::NORMAL) {
             printOut(__METHOD_NAME__, "WARNING:" + vinciaName() +
               " FAILED (collinear jk " + num2str(iTest, 1) + " " +
               helString + " )");
           }
-          if (verbose >= REPORT) {
+          if (verbose >= Logger::REPORT) {
             cout << setprecision(6);
             printOut(__METHOD_NAME__, "    ant  = " + num2str(ant2, 9) +
               " y1 = "+num2str(y2, 9) + " y2 = " + num2str(y1, 9));
             printOut(__METHOD_NAME__, "    P(z) = " + num2str(AP2, 9) +
               "  zk = " + num2str(zB(invariants1), 9));
           }
-        } else if (verbose >= DEBUG) {
+        } else if (verbose >= VinciaConstants::DEBUG) {
           printOut(__METHOD_NAME__, vinciaName() + " OK (collinear jk "
             + num2str(iTest, 1) + " " + helString+" )");
         }
@@ -501,7 +496,7 @@ bool AntennaFunction::check() {
       // Check positivity (strict).
       if (ant < 0.) {
         isPositive = false;
-        if (verbose >= REPORT) {
+        if (verbose >= Logger::REPORT) {
           printOut(__METHOD_NAME__, "ERROR:" + vinciaName() + " ant("
             + num2str(y1, 9) + "," + num2str(y2, 9) + " ; " + helString
             + ") = " + num2str(ant) + " < 0");
@@ -515,20 +510,20 @@ bool AntennaFunction::check() {
     isOK = isOK && isPositive;
 
     // Verbose output.
-    if (!isPositive && verbose >= QUIET)
+    if (!isPositive && verbose >= Logger::NORMAL)
       printOut(__METHOD_NAME__, "ERROR:" + vinciaName() +
         " (ant < 0 encountered " + helString + " )");
-    else if (isPositive && !isZero && verbose >= DEBUG)
+    else if (isPositive && !isZero && verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, vinciaName() + " OK (is positive "
         + helString + " )");
     if (!isZero) {
       if (hasDeadZone) {
-        if ( (!sectorShower && verbose >= QUIET)
-          || (sectorShower && verbose >= DEBUG) )
+        if ( (!sectorShower && verbose >= Logger::NORMAL)
+          || (sectorShower && verbose >= VinciaConstants::DEBUG) )
         printOut(__METHOD_NAME__, "WARNING:" + vinciaName()
           + " (dead zone encountered " + helString+" )");
       }
-      else if (verbose >= DEBUG)
+      else if (verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__, vinciaName() + " OK (no dead zones "
           + helString + " )");
     }
@@ -546,10 +541,11 @@ bool AntennaFunction::check() {
 
 void AntennaFunction::initPtr(Info* infoPtrIn, DGLAP* dglapPtrIn) {
 
-  infoPtr      = infoPtrIn;
+  infoPtr         = infoPtrIn;
   particleDataPtr = infoPtr->particleDataPtr;
   settingsPtr     = infoPtr->settingsPtr;
   rndmPtr         = infoPtr->rndmPtr;
+  loggerPtr       = infoPtr->loggerPtr;
   dglapPtr        = dglapPtrIn;
   isInitPtr       = true;
   isInit          = false;
@@ -1315,11 +1311,11 @@ bool AntennaFunctionIX::check() {
         double ratio = ant/eik;
         if (abs(ratio - 1.0) >= 0.001) {
           isOK = false;
-          if (verbose >= QUIET)
+          if (verbose >= Logger::NORMAL)
             printOut(__METHOD_NAME__,"WARNING:" + vinciaName() + " FAILED "
               "(eikonal " + num2str(iTest, 1) + " and sAB = " +
               num2str((int)sqrt(sAB[isAB])) + "^2)");
-        } else if (verbose >= DEBUG) {
+        } else if (verbose >= VinciaConstants::DEBUG) {
           printOut(__METHOD_NAME__,vinciaName() + " OK (eikonal "
             + num2str(iTest, 1) + " and sAB = "
             + num2str((int)sqrt(sAB[isAB])) + "^2)");
@@ -1404,11 +1400,11 @@ bool AntennaFunctionIX::check() {
           // Require better than 5% agreement unless dominated by non-singular.
           if (fabs(ratio - 1.0) >= 0.05 && fabs(ant1 - AP1) > 10.) {
             isOK = false;
-            if (verbose >= NORMAL)
+            if (verbose >= Logger::NORMAL)
               printOut(__METHOD_NAME__,"WARNING: " + vinciaName() + " FAILED "
                 + "(collinear aj " + num2str(iTest, 1) + " and sAB = " +
                 num2str((int)sqrt(sAB[isAB])) + "^2)");
-            if (verbose >= REPORT) {
+            if (verbose >= Logger::REPORT) {
               cout << setprecision(6);
               printOut(__METHOD_NAME__, "    (" + helString + ")");
               printOut(__METHOD_NAME__, "    ant  = " + num2str(ant1, 9)
@@ -1416,7 +1412,7 @@ bool AntennaFunctionIX::check() {
               printOut(__METHOD_NAME__, "    P(z) = " + num2str(AP1, 9)
                 + "  z = " + num2str(zs1, 9));
             }
-          } else if (verbose >= DEBUG)
+          } else if (verbose >= VinciaConstants::DEBUG)
             printOut(__METHOD_NAME__, vinciaName() + " OK (collinear aj "
               + num2str(iTest, 1) + " and sAB = "
               + num2str((int)sqrt(sAB[isAB])) + "^2)");
@@ -1426,11 +1422,11 @@ bool AntennaFunctionIX::check() {
           // Require better than 5% agreement unless dominated by non-singular.
           if (fabs(ratio - 1.0) >= 0.05 && abs(ant2 - AP2) > 10.) {
             isOK = false;
-            if (verbose >= NORMAL)
+            if (verbose >= Logger::NORMAL)
               printOut(__METHOD_NAME__,"WARNING: " + vinciaName() + " FAILED "
                 + "(collinear jb " + num2str(iTest, 1) + " and sAB = " +
                 num2str((int)sqrt(sAB[isAB])) + "^2)");
-            if (verbose >= REPORT) {
+            if (verbose >= Logger::REPORT) {
               cout << setprecision(6);
               printOut(__METHOD_NAME__, "    (" + helString + ")");
               printOut(__METHOD_NAME__, "    ant  = " + num2str(ant2, 9)
@@ -1438,7 +1434,7 @@ bool AntennaFunctionIX::check() {
               printOut(__METHOD_NAME__, "    P(z) = " + num2str(AP2, 9)
                 + "  z = " + num2str(zs1, 9));
             }
-          } else if (verbose >= DEBUG)
+          } else if (verbose >= VinciaConstants::DEBUG)
             printOut(__METHOD_NAME__, vinciaName() + " OK (collinear jb "
               + num2str(iTest, 1) + " and sAB = "
               + num2str((int)sqrt(sAB[isAB])) + "^2)");
@@ -1474,7 +1470,7 @@ bool AntennaFunctionIX::check() {
       // Check positivity (strict).
       if (ant <= 0.0) {
         isPositive = false;
-        if (verbose >= REPORT)
+        if (verbose >= Logger::REPORT)
           printOut(__METHOD_NAME__, "ERROR: " + vinciaName() + " ant("
             + num2str((int)sqrt(saj)) + "^2," + num2str((int)sqrt(sjb)) + "^2,"
             + num2str((int)sqrt(sABnow)) + "^2 ; " + helString + ") = "
@@ -1488,20 +1484,20 @@ bool AntennaFunctionIX::check() {
     isOK = isOK && isPositive;
 
     // Verbose output
-    if (!isPositive && verbose >= QUIET)
+    if (!isPositive && verbose >= Logger::NORMAL)
       printOut(__METHOD_NAME__, "ERROR: " + vinciaName()
         + " (ant < 0 encountered " + helString + " )");
-    else if (isPositive && !isZero && verbose >= DEBUG)
+    else if (isPositive && !isZero && verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, vinciaName() + " OK (is positive "
         + helString + " )");
     if (!isZero) {
       if (hasDeadZone) {
-        if ( (!sectorShower && verbose >= QUIET)
-          || (sectorShower && verbose >= REPORT) )
+        if ( (!sectorShower && verbose >= Logger::NORMAL)
+          || (sectorShower && verbose >= Logger::REPORT) )
         printOut(__METHOD_NAME__, "WARNING:" + vinciaName()
           + " (dead zone encountered " + helString+" )");
       }
-      else if (verbose >= DEBUG)
+      else if (verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__, vinciaName() + " OK (no dead zones "
           + helString+" )");
     }
@@ -2230,12 +2226,12 @@ bool AntennaFunctionIF::check() {
           double ratio = ant/eik;
           if (abs(ratio - 1.0) >= 0.001) {
             isOK = false;
-            if (verbose >= NORMAL) printOut(vinciaName() + ":check",
+            if (verbose >= Logger::NORMAL) printOut(vinciaName() + ":check",
                 "WARNING: FAILED (eikonal " + num2str(iTest, 1) +
                 " and sAK = " + num2str((int)sqrt(sAK[isAK])) + "^2)");
-          } else if (verbose >= DEBUG) printOut(vinciaName() + ":check",
-              "OK (eikonal " + num2str(iTest, 1) + " and sAK = " +
-              num2str((int)sqrt(sAK[isAK])) + "^2)");
+          } else if (verbose >= VinciaConstants::DEBUG) printOut(vinciaName()
+            + ":check", "OK (eikonal " + num2str(iTest, 1) + " and sAK = " +
+            num2str((int)sqrt(sAK[isAK])) + "^2)");
         }
       }
     }
@@ -2338,11 +2334,11 @@ bool AntennaFunctionIF::check() {
             // by non-singular.
             if (fabs(ratio - 1.0) >= 0.05 && fabs(ant1 - AP1) > 10.) {
               isOK = false;
-              if (verbose >= NORMAL)
+              if (verbose >= Logger::NORMAL)
                 printOut(__METHOD_NAME__, "WARNING: " + vinciaName()
                   + " FAILED (collinear aj " + num2str(iTest, 1)
                   + " and sAK = " + num2str((int)sqrt(sAK[isAK])) + "^2)");
-              if (verbose >= REPORT) {
+              if (verbose >= Logger::REPORT) {
                 cout << setprecision(6);
                 printOut(__METHOD_NAME__, "    (" + helString + ")");
                 printOut(__METHOD_NAME__, "    ant  = " + num2str(ant1, 9)
@@ -2350,7 +2346,7 @@ bool AntennaFunctionIF::check() {
                 printOut(__METHOD_NAME__, "    P(z) = " + num2str(AP1, 9)
                   + "  z = " + num2str(zs1, 9));
               }
-            } else if (verbose >= DEBUG)
+            } else if (verbose >= VinciaConstants::DEBUG)
                 printOut(__METHOD_NAME__, vinciaName() + " OK (collinear aj "
                   + num2str(iTest, 1) + " and sAK = "
                   + num2str((int)sqrt(sAK[isAK])) + "^2)");
@@ -2361,11 +2357,11 @@ bool AntennaFunctionIF::check() {
             // by non-singular.
             if (fabs(ratio - 1.0) >= 0.05 && fabs(ant2 - AP2) > 10.) {
               isOK = false;
-              if (verbose >= NORMAL)
+              if (verbose >= Logger::NORMAL)
                 printOut(__METHOD_NAME__, "WARNING: " + vinciaName()
                   + " FAILED (collinear jk " + num2str(iTest, 1)
                   + " and sAK = " + num2str((int)sqrt(sAK[isAK])) + "^2)");
-              if (verbose >= REPORT) {
+              if (verbose >= Logger::REPORT) {
                 cout << setprecision(6);
                 printOut(__METHOD_NAME__, "    (" + helString + ")");
                 printOut(__METHOD_NAME__, "    ant  = " + num2str(ant2, 9)
@@ -2373,7 +2369,7 @@ bool AntennaFunctionIF::check() {
                 printOut(__METHOD_NAME__, "    P(z) = " + num2str(AP2, 9)
                   + "  z = " + num2str(zs1, 9));
               }
-            } else if (verbose >= DEBUG)
+            } else if (verbose >= VinciaConstants::DEBUG)
                 printOut(__METHOD_NAME__, vinciaName() + " OK (collinear jk "
                   + num2str(iTest, 1) + " and sAK = "
                   + num2str((int)sqrt(sAK[isAK])) + "^2)");
@@ -2404,7 +2400,7 @@ bool AntennaFunctionIF::check() {
         // Check positivity (strict).
         if (ant < 0.0) {
           isPositive = false;
-          if (verbose >= REPORT)
+          if (verbose >= Logger::REPORT)
             printOut(__METHOD_NAME__, "ERROR: " + vinciaName() + " ant("
               + num2str(sAKnow) + ","
               + num2str(saj/(sAKnow+sjk)) + ","
@@ -2427,20 +2423,20 @@ bool AntennaFunctionIF::check() {
       isOK = isOK && isPositive;
 
       // Verbose output.
-      if (!isPositive && verbose >= QUIET)
+      if (!isPositive && verbose >= Logger::NORMAL)
         printOut(__METHOD_NAME__, "ERROR: " + vinciaName()
           + " (ant < 0 encountered " + helString + " )");
-      else if (isPositive && !isZero && verbose >= DEBUG)
+      else if (isPositive && !isZero && verbose >= VinciaConstants::DEBUG)
         printOut(__METHOD_NAME__, vinciaName() + " OK (is positive "
           + helString + " )");
       if (!isZero) {
         if (hasDeadZone) {
-          if ( (!sectorShower && verbose >= QUIET)
-            || (sectorShower && verbose >= REPORT) )
+          if ( (!sectorShower && verbose >= Logger::NORMAL)
+            || (sectorShower && verbose >= Logger::REPORT) )
             printOut(__METHOD_NAME__, "WARNING:" + vinciaName()
               + " (dead zone encountered " + helString+" )");
         }
-        else if (verbose >= DEBUG)
+        else if (verbose >= VinciaConstants::DEBUG)
           printOut(__METHOD_NAME__, vinciaName() + " OK (no dead zones "
             + helString+" )");
       }
@@ -2480,7 +2476,7 @@ bool AntennaFunctionIF::checkRes() {
     // Check ratio.
     double ratio= antNow/antSoft;
     if (abs(ratio - 1.) >= 0.001) {
-      if (verbose >= QUIET) {
+      if (verbose >= Logger::NORMAL) {
         stringstream ss;
         ss << "WARNING:" + vinciaName() << " FAILED soft eikonal: ratio to "
            << "soft = " << ratio;
@@ -2488,7 +2484,7 @@ bool AntennaFunctionIF::checkRes() {
       }
       return false;
     }
-    else if (verbose >= DEBUG)
+    else if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, vinciaName() + " OK (soft eikonal)");
   }
 
@@ -2503,15 +2499,14 @@ bool AntennaFunctionIF::checkRes() {
     // Get dimensionful invariants.
     vector<double> invariants;
     if (!getTestInvariants(invariants, masses, yaj, yjk)) {
-      if (verbose >= NORMAL) infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Failed to get test invariants!");
+      loggerPtr->ERROR_MSG("failed to get test invariants");
       return false;
     }
 
     // Are we still in the available phase space?
     double gramdet = gramDet(invariants, masses);
     if (gramdet<0.) {
-      if (verbose >= DEBUG) printOut(__METHOD_NAME__,
+      if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
         vinciaName() + " not in phase space. Continue.");
       break;
     }
@@ -2526,17 +2521,17 @@ bool AntennaFunctionIF::checkRes() {
       double ratio = antNow/AP;
       // Require better than 1% agreement unless dominated by nonsingular.
       if (abs(ratio - 1.) >= 0.01 && abs(antNow - AP) > 10.) {
-        if (verbose >= NORMAL)
+        if (verbose >= Logger::NORMAL)
           printOut(__METHOD_NAME__, "WARNING:" + vinciaName() +
             "Failed (collinear ij " + num2str(iTest, 1)+" )");
-        if (verbose >= REPORT) cout << setprecision(6) << "    ant  = "
+        if (verbose >= Logger::REPORT) cout << setprecision(6) << "    ant  = "
               << num2str(antNow, 9) << " yaj = " << num2str(yaj, 9)
               << " yjk = " << num2str(yjk, 9) << " " << endl << "    P(z) = "
               << num2str(AP, 9) << endl;
         return false;
       }
-      else if (verbose >= DEBUG) printOut(__METHOD_NAME__, vinciaName()
-        + " OK (collinear ij " + num2str(iTest, 1) + " )");
+      else if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+        vinciaName() + " OK (collinear ij " + num2str(iTest, 1) + " )");
     }
   }
   return true;
@@ -3577,7 +3572,7 @@ void AntennaSetFSR::init() {
   }
   verbose = settingsPtr->mode("Vincia:verbose");
   if (isInit) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Already initialized antenna set.");
     return;
   }
@@ -3604,7 +3599,7 @@ void AntennaSetFSR::init() {
   antFunPtrs[XGsplitRF] = sectorShower?
     static_cast<AntennaFunction*>(new AntXGsplitRFsec()) :
     static_cast<AntennaFunction*>(new AntXGsplitRF());
-  if (verbose >= REPORT)
+  if (verbose >= Logger::REPORT)
     printOut(__METHOD_NAME__, "Defined new antFunPtrs");
 
   // Loop through antFunPtrs and initialize.
@@ -3622,13 +3617,11 @@ void AntennaSetFSR::init() {
 
     // Everything OK?
     if (pass) {
-      if (verbose >= REPORT) printOut(__METHOD_NAME__,
+      if (verbose >= Logger::REPORT) printOut(__METHOD_NAME__,
         "Added to antenna list: " + antFunPtr->vinciaName());
     }
-    else if (verbose >= QUIET)
-      infoPtr->errorMsg("Warning in "+__METHOD_NAME__+": "
-        +antFunPtr->vinciaName()+" added to antenna list"
-        +" (but one or more consistency checks failed).");
+    else
+      loggerPtr->WARNING_MSG("one or more consistency checks failed");
   }
   isInit = true;
 
@@ -3659,6 +3652,7 @@ void AntennaSetISR::initPtr(Info* infoPtrIn, DGLAP* dglapPtrIn) {
   particleDataPtr = infoPtr->particleDataPtr;
   settingsPtr     = infoPtr->settingsPtr;
   rndmPtr         = infoPtr->rndmPtr;
+  loggerPtr       = infoPtr->loggerPtr;
   dglapPtr        = dglapPtrIn;
   isInitPtr       = true;
 
@@ -3677,7 +3671,7 @@ void AntennaSetISR::init() {
   }
   verbose = settingsPtr->mode("Vincia:verbose");
   if (isInit) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Already initialized antenna set.");
     return;
   }
@@ -3713,13 +3707,12 @@ void AntennaSetISR::init() {
     if (settingsPtr->flag("Vincia:checkAntennae"))
       pass = pass && antFunPtr->check();
 
-    // DEBUG info.
+    // VinciaConstants::DEBUG info.
     if (pass) {
-      if (verbose >= DEBUG) printOut(__METHOD_NAME__, "Added to antenna list: "
-        + antFunPtr->vinciaName());
-    } else if (verbose >= QUIET)
-      infoPtr->errorMsg("Warning in "+__METHOD_NAME__
-        +": one or more consistency checks failed.");
+      if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
+        "Added to antenna list: " + antFunPtr->vinciaName());
+    } else
+      loggerPtr->WARNING_MSG("one or more consistency checks failed");
   }
   isInit = true;
 
@@ -3745,7 +3738,7 @@ vector<enum AntFunType> AntennaSetISR::getAntFunTypes () {
 
 // Initialize pointers.
 
-void MECs::initPtr(Info* infoPtrIn, ExternalMEsPlugin* mg5mesPtrIn,
+void MECs::initPtr(Info* infoPtrIn, ExternalMEsPtr mg5mesPtrIn,
   VinciaCommon* vinComPtrIn, Resolution* resPtrIn) {
 
   infoPtr          = infoPtrIn;
@@ -3753,6 +3746,7 @@ void MECs::initPtr(Info* infoPtrIn, ExternalMEsPlugin* mg5mesPtrIn,
   partonSystemsPtr = infoPtr->partonSystemsPtr;
   rndmPtr          = infoPtr->rndmPtr;
   settingsPtr      = infoPtr->settingsPtr;
+  loggerPtr        = infoPtr->loggerPtr;
   mg5mesPtr        = mg5mesPtrIn;
   vinComPtr        = vinComPtrIn;
   resolutionPtr    = resPtrIn;
@@ -3766,7 +3760,7 @@ void MECs::initPtr(Info* infoPtrIn, ExternalMEsPlugin* mg5mesPtrIn,
 
 void MECs::init() {
 
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, "begin", dashLen);
 
   // MEC settings.
@@ -3792,20 +3786,18 @@ void MECs::init() {
   // Sanity checks.
   // MECs currently not supported.
   if (modeMECs > 0) {
-    stringstream ss;
-    ss << ": Matrix element corretions not yet supported.";
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__ + ss.str());
+    loggerPtr->ERROR_MSG("matrix-element corretions not yet supported");
     isInit = false;
     return;
   }
 
   // Initialise MG5 interface
-  if (mg5mesPtr->initVincia()) {
+  if (mg5mesPtr != nullptr && mg5mesPtr->initVincia(infoPtr)) {
     //TODO fix colour depth in MG5 interface.
     mg5mesPtr->setColourMode(1);
   } else {
-    if (verbose >= REPORT) printOut(__METHOD_NAME__,
-      "Could not initialise VinciaMG5MEs interface.");
+    if (verbose >= Logger::REPORT) printOut(__METHOD_NAME__,
+      "Could not initialise VinciaMG5MEs interface");
     // Check if we wanted to do matching.
     if (modeMECs > 0) {
       // Abort. We should not try to do anything.
@@ -3825,7 +3817,7 @@ void MECs::init() {
   helSampler.initPtrs(mg5mesPtr, rndmPtr);
 
   isInit = true;
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, "end", dashLen);
 }
 
@@ -3864,7 +3856,7 @@ bool MECs::prepare(const int iSys, Event& event) {
     if (event[iNow].isQuark() || event[iNow].isGluon())
       sysToBornMultQCD[iSys]++;
   }
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Saved Born with " << nOut << " outgoing particles"
        << " and " << sysToBornMultQCD[iSys] << " QCD particles.";
@@ -3874,14 +3866,11 @@ bool MECs::prepare(const int iSys, Event& event) {
   // When using relative matching scale, save hard scale.
   if (!matchingScaleIsAbs) {
     if (!saveHardScale(iSys, event)) {
-      if (verbose >= NORMAL) {
-        stringstream ss;
-        ss << "Could not save hard scale for system " << iSys;
-        infoPtr->errorMsg("Error in " + __METHOD_NAME__ + ss.str());
-      }
+      loggerPtr->ERROR_MSG("failed to save hard scale for system "
+        +to_string(iSys));
       return false;
     }
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Saved hard scale " << sqrt(sysToHardScale[iSys])
          << " GeV for system " << iSys << ".";
@@ -3904,7 +3893,7 @@ bool MECs::prepare(const int iSys, Event& event) {
 
 bool MECs::polarise(const int iSys, Event& event, bool force) {
 
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, "begin", dashLen);
 
   // First check if we should be doing anything at all.
@@ -3952,7 +3941,7 @@ bool MECs::polarise(const int iSys, Event& event, bool force) {
   }
 
   // Verbose output (showing polarisations).
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     event.list(true);
     printOut(__METHOD_NAME__, "end", dashLen);
   }
@@ -3966,7 +3955,8 @@ bool MECs::polarise(const int iSys, Event& event, bool force) {
 
 bool MECs::polarise(vector<Particle>& state, bool force) {
 
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
+    dashLen);
 
   if (state.size() <= 2) return false;
 
@@ -4010,7 +4000,7 @@ bool MECs::doMEC(int iSys, int nBranch) {
 
   // If we switched off MECs completely, return here.
   if (modeMECs < 0) {
-    if (verbose >= DEBUG)
+    if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "MECs switched off.");
     return false;
   }
@@ -4032,7 +4022,7 @@ bool MECs::doMEC(int iSys, int nBranch) {
     else if (iSys == 1) if (nBranch <= maxMECsMPI) return true;
   }
 
-  if (verbose >= DEBUG)
+  if (verbose >= VinciaConstants::DEBUG)
     printOut(__METHOD_NAME__, "No MECs at this order.");
 
   // If nobody said yes by now, return the sad news.
@@ -4056,7 +4046,7 @@ bool MECs::meAvailable(int iSys, const Event& event) {
   for (int i = 0; i < partonSystemsPtr->sizeOut(iSys); ++i)
     idOut.push_back(event[partonSystemsPtr->getOut(iSys, i)].id());
   bool avail = mg5mesPtr->isAvailable(idIn, idOut);
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "Matrix element for ";
     for (auto& i : idIn) ss << i << " ";
@@ -4096,18 +4086,8 @@ double MECs::getME2(const int iSys, const Event& event) {
 double MECs::getMECSector(int iSys, const vector<Particle>& stateNow,
   const vector<Particle>& statePost, VinciaClustering& clus) {
 
-  // Sanity check.
-  if (statePost.size() != stateNow.size() + 1) {
-    stringstream ss;
-    ss << "Matrix element corrections for direct 2->"
-       << 2 + statePost.size() - stateNow.size() << " not yet implemented.";
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__, ss.str());
-    hasME2post[iSys] = false;
-    return 1.;
-  }
-
-  // DEBUG output.
-  if (verbose >= DEBUG) {
+  // VinciaConstants::DEBUG output.
+  if (verbose >= VinciaConstants::DEBUG) {
     printOut(__METHOD_NAME__,"Computing MEC factor for:");
     vinComPtr->list(statePost, "Post Branching", false);
     vinComPtr->list(stateNow, "Current");
@@ -4115,15 +4095,13 @@ double MECs::getMECSector(int iSys, const vector<Particle>& stateNow,
 
   // Check whether we have matrix elements for the two states.
   if (!meAvailable(stateNow)) {
-    stringstream ss;
-    ss << ": Matrix element for current configuration not available.";
-    infoPtr->errorMsg("Warning in " + __METHOD_NAME__ + ss.str());
+    loggerPtr->WARNING_MSG(
+      "matrix element for current configuration not available");
     return 1.;
   }
   if (!meAvailable(statePost)) {
-    stringstream ss;
-    ss << ": Matrix element for post-branching configuration not available.";
-    infoPtr->errorMsg("Warning in " + __METHOD_NAME__ + ss.str());
+    loggerPtr->WARNING_MSG(
+      "matrix element for post-branching configuration not available");
     hasME2post[iSys] = false;
     return 1.;
   }
@@ -4131,7 +4109,7 @@ double MECs::getMECSector(int iSys, const vector<Particle>& stateNow,
   // Check whether we are below IR cutoff.
   double qNow = sqrt(resolutionPtr->q2evol(clus));
   if (qNow < matchingIRcutoff) {
-    if (verbose >= DEBUG) {
+    if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Evolution scale pT = " << qNow
          << " below IR cutoff (" << matchingIRcutoff << ").";
@@ -4147,37 +4125,35 @@ double MECs::getMECSector(int iSys, const vector<Particle>& stateNow,
     wMatch = getMatchReg(iSys, clus);
     // Sanity checks.
     if (wMatch < 0.) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Negative matching weight",
-        ": ("+num2str(wMatch,6)+")");
+      loggerPtr->ERROR_MSG("negative matching weight",
+        "("+num2str(wMatch,6)+")");
       return 1.;
     }
     if (wMatch > 1.) {
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Matching weight above unity",
-        ": ("+num2str(wMatch,6)+")");
+      loggerPtr->ERROR_MSG("matching weight above unity",
+        "("+num2str(wMatch,6)+")");
       return 1.;
     }
 
     // Check whether we want to calculate a MEC.
     if (wMatch == 0.) {
-      if (verbose >= DEBUG)
-        printOut(__METHOD_NAME__, "Below matching scale. No MEC calculated.");
+      if (verbose >= VinciaConstants::DEBUG)
+        printOut(__METHOD_NAME__, "below matching scale; no MEC calculated");
       hasME2post[iSys] = false;
       return 1.;
     }
-    else if (verbose >= DEBUG) {
+    else if (verbose >= VinciaConstants::DEBUG) {
       string reg = " (cutoff)";
       if (matchingRegShape == 1) reg = " (sigmoid regulator)";
       else if (matchingRegShape == 2) reg = " (linear regulator)";
       else if (matchingRegShape == 3) reg = " (logarithmic regulator)";
       stringstream ss;
-      ss << "Matching weight: " << wMatch << reg;
+      ss << "matching weight: " << wMatch << reg;
       printOut(__METHOD_NAME__, ss.str());
     }
   }
-  else if (verbose >= DEBUG)
-    printOut(__METHOD_NAME__, "Not regularising this order.");
+  else if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "not regularising this order");
 
   // Get number of incoming particles.
   bool isResDec = partonSystemsPtr->hasInRes(iSys);
@@ -4187,16 +4163,14 @@ double MECs::getMECSector(int iSys, const vector<Particle>& stateNow,
   me2post[iSys] = getME2(statePost, nIn);
   // Sanity check.
   if (me2post[iSys] <= 0.) {
-    if (verbose >= NORMAL)
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Negative post-branching matrix element squared.");
+    loggerPtr->ERROR_MSG("negative post-branching matrix element squared");
     hasME2post[iSys] = false;
     return 1.;
   }
-  else if (verbose >= DEBUG) {
+  else if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
-    ss << "Calculated new post-branching ME2 in system "
-       << iSys << " (ME2 = " << num2str(me2post[iSys],9) << ").";
+    ss << "calculated new post-branching ME2 in system "
+       << iSys << " (ME2 = " << num2str(me2post[iSys],9) << ")";
     printOut(__METHOD_NAME__, ss.str());
   }
   hasME2post[iSys] = true;
@@ -4207,23 +4181,21 @@ double MECs::getMECSector(int iSys, const vector<Particle>& stateNow,
     me2now[iSys] = getME2(stateNow, nIn);
     // Sanity check.
     if (me2now[iSys] <= 0.) {
-      if (verbose >= NORMAL)
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__
-          +": Negative matrix element squared.");
+      loggerPtr->ERROR_MSG("negative matrix element squared");
       return 1.;
     }
-    else if (verbose >= DEBUG) {
+    else if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
-      ss << "Calculated new ME2 for current state in system "
-         << iSys << " (ME2 = " << num2str(me2now[iSys],9) << ").";
+      ss << "calculated new ME2 for current state in system "
+         << iSys << " (ME2 = " << num2str(me2now[iSys],9) << ")";
       printOut(__METHOD_NAME__, ss.str());
     }
     hasME2now[iSys] = true;
   }
-  else if (verbose >= DEBUG) {
+  else if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
-    ss << "Using saved ME2 for current state in system "
-       << iSys << " (ME2 = " << num2str(me2now[iSys],9) << ").";
+    ss << "using saved ME2 for current state in system "
+       << iSys << " (ME2 = " << num2str(me2now[iSys],9) << ")";
     printOut(__METHOD_NAME__, ss.str());
   }
 
@@ -4231,16 +4203,13 @@ double MECs::getMECSector(int iSys, const vector<Particle>& stateNow,
   double ant = getAntApprox(clus);
   // Sanity check.
   if (ant <= 0.) {
-    if (verbose >= NORMAL)
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Negative antenna function",
-        " ("+clus.getAntName()+" = "+num2str(ant,6)+")", true);
+    loggerPtr->ERROR_MSG("negative antenna function");
     return 1.;
   }
-  else if (verbose >= DEBUG) {
+  else if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
-    ss << "Antenna function in system "
-       << iSys << " (ant = " << num2str(ant,6) << ").";
+    ss << "antenna function in system "
+       << iSys << " (ant = " << num2str(ant,6) << ")";
     printOut(__METHOD_NAME__, ss.str());
   }
 
@@ -4249,15 +4218,13 @@ double MECs::getMECSector(int iSys, const vector<Particle>& stateNow,
   double wCol = getColWeight(statePost);
   // Sanity check.
   if (wCol < 0.) {
-    if (verbose >= NORMAL)
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__
-        +": Negative colour weight.");
+    loggerPtr->ERROR_MSG("negative colour weight");
     return 1.;
   }
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
-    ss << "Colour weight: " << wCol
-       << (matchingFullColour == 1 ? " (Vincia Colour)." : " (LC).");
+    ss << "colour weight: " << wCol
+       << (matchingFullColour == 1 ? " (Vincia Colour)" : " (LC)");
     printOut(__METHOD_NAME__, ss.str());
   }
 
@@ -4279,11 +4246,11 @@ double MECs::getMECSector(int iSys, const vector<Particle>& stateNow,
 // Upon branching, save last post-branching ME2.
 
 void MECs::hasBranched(int iSys) {
-  // DEBUG print out.
-  if (verbose >= DEBUG) {
+  // VinciaConstants::DEBUG print out.
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
-    ss << "Saving last post-branching ME2 as current one (ME2 = "
-       << num2str(me2post[iSys],9) << ").";
+    ss << "saving last post-branching ME2 as current one (ME2 = "
+       << num2str(me2post[iSys],9) << ")";
     printOut(__METHOD_NAME__, ss.str());
   }
 
@@ -4330,7 +4297,7 @@ void MECs::header() {
       else
         cout << " |                 matchingScale (Ratio) = "
              << num2str(matchingScale, 9) << endl;
-      if (verbose >= REPORT)
+      if (verbose >= Logger::REPORT)
         cout << " |                 regShape              = "
              << num2str(matchingRegShape, 9) << endl;
       cout << " |                 IR cutoff             = "
@@ -4391,10 +4358,10 @@ double MECs::getMatchReg(int iSys, const VinciaClustering& clus) {
   // Get current scale.
   double q2Now = clus.Q2evol;
   if (!matchingScaleIsAbs) q2Now /= sysToHardScale[iSys];
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "MEC requested at scale qNow = "
-       << sqrt(q2Now) << (matchingScaleIsAbs ? " GeV." : " (relative).");
+       << sqrt(q2Now) << (matchingScaleIsAbs ? " GeV" : " (relative)");
     printOut(__METHOD_NAME__, ss.str());
   }
 
@@ -4424,12 +4391,7 @@ double MECs::getMatchReg(int iSys, const VinciaClustering& clus) {
   // ...implement other shapes here.
 
   // No supported regulator shape requested.
-  if (verbose >= NORMAL) {
-    stringstream ss;
-    ss << ": Unsupported matching regulator shape "
-       << matchingRegShape << " requested.";
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__ + ss.str());
-  }
+  loggerPtr->ERROR_MSG("unsupported matching regulator shape");
   return 0.;
 }
 
@@ -4443,21 +4405,15 @@ double MECs::getAntApprox(const VinciaClustering& clus) {
 
   // Sanity check: are invariants, masses, and helicities set?
   if (clus.invariants.size() < 3) {
-    if (verbose >= NORMAL)
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-        ": Post-branching invariants not set in clustering.");
+    loggerPtr->ERROR_MSG("post-branching invariants not set in clustering");
     return ant;
   }
   if (clus.massesChildren.size() < 3) {
-    if (verbose >= NORMAL)
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-        ": Post-branching masses not set in clustering.");
+    loggerPtr->ERROR_MSG("post-branching masses not set in clustering");
     return ant;
   }
   if (clus.helChildren.size() < 3) {
-    if (verbose >= NORMAL)
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-        ": Post-branching helicities not set in clustering.");
+    loggerPtr->ERROR_MSG("post-branching helicities not set in clustering");
     return ant;
   }
 
@@ -4465,10 +4421,8 @@ double MECs::getAntApprox(const VinciaClustering& clus) {
   if (clus.isFSR) {
     AntennaFunction* antFunPtr = getAntFunPtrFSR(clus.antFunType);
     if (antFunPtr == nullptr) {
-      if (verbose >= NORMAL)
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-          ": Unknown FSR antenna function with index "
-          + num2str(clus.antFunType,2));
+      loggerPtr->ERROR_MSG("unknown FSR antenna function with index "
+        + num2str(clus.antFunType,2));
       return ant;
     }
     ant = antFunPtr->antFun(clus.invariants, clus.massesChildren,
@@ -4479,10 +4433,8 @@ double MECs::getAntApprox(const VinciaClustering& clus) {
   else {
     AntennaFunction* antFunPtr = getAntFunPtrISR(clus.antFunType);
     if (antFunPtr == nullptr) {
-      if (verbose >= NORMAL)
-        infoPtr->errorMsg("Error in "+__METHOD_NAME__,
-          ": Unknown ISR antenna function with index "
-          + num2str(clus.antFunType,2));
+      loggerPtr->ERROR_MSG("unknown ISR antenna function with index "
+        + num2str(clus.antFunType,2));
       return ant;
     }
     ant = antFunPtr->antFun(clus.invariants, clus.massesChildren,
@@ -4505,7 +4457,7 @@ double MECs::getColWeight(const vector<Particle>& state) {
   // Get FC colour summed ME2.
   // Second argument tells MG5 to sum over all colour configurations.
   double me2FC = getME2(state, true);
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
   }
 
@@ -4514,7 +4466,7 @@ double MECs::getColWeight(const vector<Particle>& state) {
   mg5mesPtr->setColourMode(0);
   double me2LC = getME2(state, true);
   mg5mesPtr->setColourMode(1);
-  if (verbose >= DEBUG) {
+  if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "ME2(LC) = " << me2LC
        << ", ME2(FC) = " << me2FC

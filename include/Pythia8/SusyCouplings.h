@@ -33,7 +33,7 @@ public:
     isLLE(false), isLQD(false), isUDD(false), mWpole(), wWpole(), mZpole(),
     wZpole(), mW(), mZ(), sin2W(), sinW(), cosW(), tanb(), cosb(), sinb(),
     muHiggs(), alphaHiggs(), mAHiggs(), LqqZ(), RqqZ(), LllZ(), RllZ(),
-    rvLLE(), rvLQD(), rvUDD(), slhaPtr(), infoPtr(), settingsPtr(),
+    rvLLE(), rvLQD(), rvUDD(), slhaPtr(), loggerPtr(), settingsPtr(),
     particleDataPtr(), coupSMPtr() {}
 
   // Initialize
@@ -161,8 +161,8 @@ public:
 
 private:
 
-  // Pointer to the info class
-  Info*          infoPtr;
+  // Pointer to logger.
+  Logger*        loggerPtr;
 
   // Pointer to the settings database.
   Settings*      settingsPtr;

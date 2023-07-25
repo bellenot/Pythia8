@@ -3,9 +3,9 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Steve Mrenna <mrenna@fnal.gov>.
+// Authors: Steve Mrenna <mrenna@fnal.gov>
 
-// Keywords: event record; pythia 6; analysis;
+// Keywords: event record; pythia 6; analysis
 
 // Example how to create a copy of the event record, where the original one
 // is translated to another format, to meet various analysis needs.

@@ -134,8 +134,7 @@ bool LHAup::openLHEF(string fileNameIn) {
   const char* cstring = fileName.c_str();
   osLHEF.open(cstring, ios::out | ios::trunc);
   if (!osLHEF) {
-    infoPtr->errorMsg("Error in LHAup::openLHEF:"
-      " could not open file", fileName);
+    loggerPtr->ERROR_MSG("could not open file", fileName);
     return false;
   }
 
@@ -434,8 +433,7 @@ bool LHAup::setInitLHEF(istream& is, bool readHeaders) {
               // Also check for forgotten close tag: next-to-last element
             } else if (keyVec.size() >= 2
                        && tag == "/" + keyVec[keyVec.size()-2]) {
-              infoPtr->errorMsg("Warning in LHAup::setInitLHEF:"
-                                " corrupt LHEF end tag",keyVec.back());
+              loggerPtr->WARNING_MSG("corrupt LHEF end tag",keyVec.back());
               keyVec.pop_back();
               keyVec.pop_back();
               newKey = true;
@@ -838,8 +836,7 @@ bool LHAupLHEF::setInitLHEF( istream & isIn, bool readHead ) {
               // Also check for forgotten close tag: next-to-last element
             } else if (keyVec.size() >= 2
                        && tag == "/" + keyVec[keyVec.size()-2]) {
-              infoPtr->errorMsg("Warning in LHAupLHEF::setInitLHEF:"
-                                " corrupt LHEF end tag",keyVec.back());
+              loggerPtr->WARNING_MSG("corrupt LHEF end tag",keyVec.back());
               keyVec.pop_back();
               keyVec.pop_back();
               newKey = true;
@@ -1099,44 +1096,6 @@ bool LHAupLHEF::setNewEventLHEF() {
 
   // Reading worked.
   return true;
-
-}
-
-//==========================================================================
-
-// LHAupPlugin class.
-
-//--------------------------------------------------------------------------
-
-// Constructor.
-
-LHAupPlugin::LHAupPlugin(string nameIn, Pythia *pythiaPtr) :
-  LHAup(), lhaPtr(nullptr), libPtr(nullptr), name(nameIn) {
-
-  // Load the plugin library if needed.
-  if (infoPtr != nullptr)
-    libPtr = const_cast<Info&>(pythiaPtr->info).plugin(name);
-  else libPtr = make_shared<Plugin>(name);
-  if (!libPtr->isLoaded()) return;
-
-  // Create a new LHAup.
-  NewLHAup* newLHAup = (NewLHAup*)libPtr->symbol("newLHAup");
-  if (!newLHAup) return;
-  lhaPtr = newLHAup(pythiaPtr);
-
-}
-
-//--------------------------------------------------------------------------
-
-// Destructor.
-
-LHAupPlugin::~LHAupPlugin() {
-
-  // Delete the LHAup pointer.
-  if (lhaPtr == nullptr || !libPtr->isLoaded()) return;
-  DeleteLHAup* deleteLHAup =
-    (DeleteLHAup*)libPtr->symbol("deleteLHAup");
-  if (deleteLHAup) deleteLHAup(lhaPtr);
 
 }
 

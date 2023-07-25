@@ -126,7 +126,7 @@ hadron level.
 Master switch for addition of beam remnants; on/off = true/false. 
 Only intended for very special applications, and cannot be used to 
 generate complete events. Specifically, unlike the other switches above, 
-the program will complain and possibly crash unlike you also set 
+the program will complain and possibly crash unless you also set 
 <code>HadronLevel:all = off</code> and <code>Check:event = off</code>. 
 </flag> 
  
@@ -191,37 +191,6 @@ Master switch for the production of deuterons and anti-deuterons in an
 event; on/off = true/false. Further options are found 
 <aloc href="DeuteronProduction">here</aloc>. 
 </flag> 
- 
-<h3>Printing</h3> 
- 
-<flag name="Print:errors" default="on"> 
-If on, error messages are printed to <code>cout</code> the first time each 
-of them occurs. 
-</flag> 
- 
-<flag name="Print:quiet" default="off"> 
-Can be set on to avoid the printing during program execution, to the 
-largest extent possible. This flag acts by setting the relevant values 
-for <code>Init:showProcesses</code>, 
-<code>Init:showMultipartonInteractions</code>, 
-<code>Init:showChangedSettings</code>, 
-<code>Init:showAllSettings</code>, 
-<code>Init:showChangedParticleData</code>, 
-<code>Init:showChangedResonanceData</code>, 
-<code>Init:showAllParticleData</code>, 
-<code>Init:showOneParticleData</code>, 
-<code>Next:numberCount</code>, 
-<code>Next:numberShowLHA</code>, 
-<code>Next:numberShowInfo</code>, 
-<code>Next:numberShowProcess</code>, 
-<code>Next:numberShowEvent</code>, and 
-<code>Print:errors</code>. 
-The change is to off or 0 for <code>Print:quiet = on</code>, 
-and restores to the respective default value for <code>= off</code>. 
-Those changes take effect immediately, so individual settings can be 
-changed afterwards. 
-</flag> 
- 
  
 </chapter> 
  

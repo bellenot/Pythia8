@@ -3,9 +3,9 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Ilkka Helenius <ilkka.m.helenius@jyu.fi>.
+// Authors: Ilkka Helenius <ilkka.m.helenius@jyu.fi>
 
-// Keywords: photon beam; photoproduction; photon-photon;
+// Keywords: photon beam; photoproduction; photon-photon
 
 // Main program to generate charged hadron spectra from photon-initiated
 // hard processes, by combining sub-runs with direct or resolved photons

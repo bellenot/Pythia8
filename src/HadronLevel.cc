@@ -55,7 +55,8 @@ const double HadronLevel::MTINY = 0.1;
 
 bool HadronLevel::init( TimeShowerPtr timesDecPtr, RHadrons* rHadronsPtrIn,
   DecayHandlerPtr decayHandlePtr, vector<int> handledParticles,
-  StringIntPtr stringInteractionsPtrIn, PartonVertexPtr partonVertexPtrIn) {
+  StringIntPtr stringInteractionsPtrIn, PartonVertexPtr partonVertexPtrIn,
+  SigmaLowEnergy& sigmaLowEnergyIn, NucleonExcitations& nucleonExcitationsIn) {
 
   // Store other input pointers.
   rHadronsPtr     = rHadronsPtrIn;
@@ -106,28 +107,19 @@ bool HadronLevel::init( TimeShowerPtr timesDecPtr, RHadrons* rHadronsPtrIn,
   // Initialize particle decays.
   decays.init(timesDecPtr, &flavSel, decayHandlePtr, handledParticles);
 
-  // Initialize nucleon excitations.
-  string dataFile = word("xmlPath") + "NucleonExcitations.dat";
-  if (!nucleonExcitations.init(dataFile)) {
-    infoPtr->errorMsg("Abort from HadronLevel::init: "
-      "nucleon excitation data unavailable");
-    return false;
-  }
-
   // Initialize low-energy framework.
+  sigmaLowEnergyPtr = &sigmaLowEnergyIn;
+  nucleonExcitationsPtr = &nucleonExcitationsIn;
   lowEnergyProcess.init( &flavSel, &stringFrag, &ministringFrag,
-    &sigmaLowEnergy, &nucleonExcitations);
-
-  // Initialize low-energy cross sections.
-  sigmaLowEnergy.init( &nucleonExcitations);
+    &sigmaLowEnergyIn, &nucleonExcitationsIn);
 
   // Initialize rescattering settings if applicable.
   if (doRescatter) {
 
     // Break if conflicting settings.
     if (doBoseEinstein) {
-      infoPtr->errorMsg("Error in HadronLevel::init: "
-        "Rescattering and Bose-Einstein cannot be on at the same time");
+      loggerPtr->ERROR_MSG(
+        "rescattering and Bose-Einstein cannot be on at the same time");
       return false;
     }
 
@@ -160,7 +152,7 @@ bool HadronLevel::init( TimeShowerPtr timesDecPtr, RHadrons* rHadronsPtrIn,
   rHadronsPtr->fragPtrs( &flavSel, &zSel);
 
   // Initialize the colour tracing class.
-  colTrace.init(infoPtr);
+  colTrace.init(loggerPtr);
 
   // Initialize the junction splitting class.
   junctionSplitting.init();
@@ -191,8 +183,7 @@ bool HadronLevel::next( Event& event) {
 
   // Remove junction structures.
   if (!junctionSplitting.checkColours(event)) {
-    infoPtr->errorMsg("Error in HadronLevel::next: "
-        "failed colour/junction check");
+    loggerPtr->ERROR_MSG("failed colour/junction check");
     return false;
   }
 
@@ -235,8 +226,7 @@ bool HadronLevel::next( Event& event) {
         iParton.resize(0);
         colConfig.clear();
         if (!findSinglets( event)) {
-          infoPtr->errorMsg("Error in HadronLevel::next: "
-            "ropes: failed 2nd singlet tracing.");
+          loggerPtr->ERROR_MSG("ropes: failed 2nd singlet tracing.");
           return false;
         }
       }
@@ -310,8 +300,7 @@ bool HadronLevel::next( Event& event) {
   } while (decaysCausedHadronization);
 
   if (userHooksPtr && !userHooksPtr->onEndHadronLevel(*this, event)) {
-    infoPtr->errorMsg("Error in HadronLevel::next: "
-      "user event onEndHadronLevel failed");
+    loggerPtr->ERROR_MSG("user event onEndHadronLevel failed");
     return false;
   }
 
@@ -377,9 +366,9 @@ int HadronLevel::pickLowEnergyProcess(int idA, int idB, double eCM,
 
     // If all processes are on, just call SigmaLowEnergy directly.
   if (doNonPertAll) {
-    procType = sigmaLowEnergy.pickProcess(idA, idB, eCM, mA, mB);
+    procType = sigmaLowEnergyPtr->pickProcess(idA, idB, eCM, mA, mB);
     if (procType == 0) {
-      infoPtr->errorMsg("Error in HadronLevel::pickLowEnergyProcess: "
+      loggerPtr->ERROR_MSG(
         "no available processes for specified particles and energy");
       return 0;
     }
@@ -393,20 +382,21 @@ int HadronLevel::pickLowEnergyProcess(int idA, int idB, double eCM,
     vector<int> procs;
     vector<double> sigmas;
     for (int proc : nonPertProc) {
-      double sigma = sigmaLowEnergy.sigmaPartial(idA, idB, eCM, mA, mB, proc);
+      double sigma = sigmaLowEnergyPtr->sigmaPartial(
+        idA, idB, eCM, mA, mB, proc);
       if (sigma > 0.) {
         procs.push_back(proc);
         sigmas.push_back(sigma);
       } else {
-        infoPtr->errorMsg("Warning in HadronLevel::pickLowEnergyProcess: "
+        loggerPtr->WARNING_MSG(
           "a process with zero cross section was explicitly turned on",
-          std::to_string(proc));
+          to_string(proc));
       }
     }
 
     // Error if no processes has a positive cross section. Else pick process.
     if (procs.size() == 0) {
-      infoPtr->errorMsg("Error in HadronLevel::pickLowEnergyProcess: "
+      loggerPtr->ERROR_MSG(
         "no processes with positive cross sections have been turned on");
       return 0;
     }
@@ -415,9 +405,9 @@ int HadronLevel::pickLowEnergyProcess(int idA, int idB, double eCM,
 
   // Pick specific resonance for proc == 9.
   if (procType == 9) {
-    procType = sigmaLowEnergy.pickResonance(idA, idB, eCM);
+    procType = sigmaLowEnergyPtr->pickResonance(idA, idB, eCM);
     if (procType == 0) {
-      infoPtr->errorMsg("Error in Pythia::nextNonPert: "
+      loggerPtr->ERROR_MSG(
         "no available resonances for the given particles and energy");
       return 0;
     }
@@ -604,12 +594,12 @@ bool HadronLevel::rescatter(Event& event) {
       Particle& hadA = event[node.i1];
       Particle& hadB = event[node.i2];
       double eCM = (hadA.p() + hadB.p()).mCalc();
-      int procType = sigmaLowEnergy.pickProcess(hadA.id(), hadB.id(), eCM,
+      int procType = sigmaLowEnergyPtr->pickProcess(hadA.id(), hadB.id(), eCM,
         hadA.m(),  hadB.m());
       if (procType == 0) {
-        infoPtr->errorMsg("Error in HadronLevel::next: "
-          "no available rescattering processes", to_string(hadA.id())
-          + " + " + to_string(hadB.id()) + " @ " + to_string(eCM));
+        loggerPtr->ERROR_MSG("no available rescattering processes",
+          to_string(hadA.id()) + " + " + to_string(hadB.id())
+          + " @ " + to_string(eCM));
         continue;
       }
       if (!lowEnergyProcess.collide(node.i1, node.i2, procType, event,
@@ -652,7 +642,7 @@ void HadronLevel::queueDecResc(Event& event, int iStart,
   // Loop over all existing or newly added hadrons.
   for (int iFirst = iStart; iFirst < event.size(); ++iFirst) {
     Particle& hadA = event[iFirst];
-    if (!hadA.isFinal() || !hadA.isHadron()) continue;
+    if (!hadA.isFinal() || !hadA.isHadron() || hadA.isExotic()) continue;
 
     // Queue hadrons that should decay.
     if (doDecay && hadA.canDecay() && hadA.mayDecay()
@@ -671,7 +661,7 @@ void HadronLevel::queueDecResc(Event& event, int iStart,
     // Loop over a second existing hadron to study all pairs.
     for (int iSecond = 0; iSecond < iFirst; ++iSecond) {
       Particle& hadB = event[iSecond];
-      if (!hadB.isFinal() || !hadB.isHadron()) continue;
+      if (!hadB.isFinal() || !hadB.isHadron() || hadB.isExotic()) continue;
 
       // Early skip if particles are moving away from each other.
       if (scatterQuickCheck && dot3( hadB.p() / hadB.e() - hadA.p() / hadA.e(),
@@ -741,7 +731,7 @@ void HadronLevel::queueDecResc(Event& event, int iStart,
 
       // Calculate sigma and abort if impact parameter is too large.
       double eCM = (pA + pB).mCalc();
-      double sigma = sigmaLowEnergy.sigmaTotal(hadA.id(), hadB.id(), eCM,
+      double sigma = sigmaLowEnergyPtr->sigmaTotal(hadA.id(), hadB.id(), eCM,
         hadA.m(),  hadB.m());
       if (sigma < SigmaLowEnergy::TINYSIGMA)
         continue;
@@ -766,8 +756,11 @@ void HadronLevel::queueDecResc(Event& event, int iStart,
       displacedB.rotbst(frame);
 
       // Queue hadron pair that should rescatter.
-      queue.push( PriorityNode(iFirst, iSecond, origin, displacedA,
-        displacedB) );
+      if (isfinite(origin))
+        queue.push( PriorityNode(iFirst, iSecond, origin, displacedA,
+          displacedB) );
+      else
+        loggerPtr->ERROR_MSG("got non-finite rescattering vertex");
     }
   }
 }

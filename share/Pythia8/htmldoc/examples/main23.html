@@ -255,11 +255,8 @@ int main() {
 
     // A class to do random numbers externally. Hand pointer to Pythia.
     // You can provide four 32-bit unsigned integers to set random sequence.
-    RndmEngine* rndm;
-    if (iRNG == 1) {
-      rndm = new MixMaxRndm( 0, 0, 0, 123);
-      pythia.setRndmEnginePtr(rndm);
-    }
+    if (iRNG == 1)
+      pythia.setRndmEnginePtr(make_shared&lt;MixMaxRndm&gt;( 0, 0, 0, 123));
 
     // Two classes to do the two PDFs externally. Hand pointers to Pythia.
     PDFPtr pdfAPtr = make_shared&lt;Scaling&gt;(2212);
@@ -326,9 +323,6 @@ int main() {
     pythia.stat();
     cout &lt;&lt; eCM &lt;&lt; pXsum &lt;&lt; pYsum &lt;&lt; pZsum &lt;&lt; pZind
          &lt;&lt; vtxX &lt;&lt; vtxY &lt;&lt; vtxZ &lt;&lt; vtxT &lt;&lt; vtxZT;
-
-    // Remove created classes.
-    if (iRNG == 1) delete rndm;
 
     // Check time; end of loop over random number generators. Done.
     clock_t stop = clock();

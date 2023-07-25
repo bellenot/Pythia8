@@ -13,7 +13,6 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
-#include <Pythia8/HIUserHooks.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -38,7 +37,7 @@ struct PyCallBack_Pythia8_Particle : public Pythia8::Particle {
 		if (overload) {
 			auto o = overload.operator()<pybind11::return_value_policy::reference>();
 			if (pybind11::detail::cast_is_temporary_value_reference<int>::value) {
-				static pybind11::detail::overload_caster_t<int> caster;
+				static pybind11::detail::override_caster_t<int> caster;
 				return pybind11::detail::cast_ref<int>(std::move(o), caster);
 			}
 			else return pybind11::detail::cast_safe<int>(std::move(o));
@@ -236,6 +235,7 @@ void bind_Pythia8_Event(std::function< pybind11::module &(std::string const &nam
 		cl.def("isDiquark", (bool (Pythia8::Particle::*)() const) &Pythia8::Particle::isDiquark, "C++: Pythia8::Particle::isDiquark() const --> bool");
 		cl.def("isParton", (bool (Pythia8::Particle::*)() const) &Pythia8::Particle::isParton, "C++: Pythia8::Particle::isParton() const --> bool");
 		cl.def("isHadron", (bool (Pythia8::Particle::*)() const) &Pythia8::Particle::isHadron, "C++: Pythia8::Particle::isHadron() const --> bool");
+		cl.def("isExotic", (bool (Pythia8::Particle::*)() const) &Pythia8::Particle::isExotic, "C++: Pythia8::Particle::isExotic() const --> bool");
 		cl.def("particleDataEntry", (class Pythia8::ParticleDataEntry & (Pythia8::Particle::*)() const) &Pythia8::Particle::particleDataEntry, "C++: Pythia8::Particle::particleDataEntry() const --> class Pythia8::ParticleDataEntry &", pybind11::return_value_policy::reference);
 		cl.def("rescale3", (void (Pythia8::Particle::*)(double)) &Pythia8::Particle::rescale3, "C++: Pythia8::Particle::rescale3(double) --> void", pybind11::arg("fac"));
 		cl.def("rescale4", (void (Pythia8::Particle::*)(double)) &Pythia8::Particle::rescale4, "C++: Pythia8::Particle::rescale4(double) --> void", pybind11::arg("fac"));

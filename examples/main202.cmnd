@@ -10,6 +10,7 @@ Next:numberShowInfo = 0            ! print event information n times
 Next:numberShowProcess = 0         ! print hard process n times
 Next:numberShowEvent = 1           ! print event record n times
 Main:timesAllowErrors = 0
+Print:verbosity = 3
 
 !Process info
 Beams:eCM = 7000.
@@ -35,4 +36,3 @@ Vincia:doIF    = on
 Vincia:doFF    = on
 Vincia:doRF    = on
 Vincia:ewMode  = 2
-Vincia:verbose = 2

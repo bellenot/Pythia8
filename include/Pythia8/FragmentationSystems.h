@@ -62,7 +62,7 @@ class ColConfig {
 public:
 
   // Constructor.
-  ColConfig() : infoPtr(), flavSelPtr(), mJoin(), mJoinJunction(),
+  ColConfig() : loggerPtr(), flavSelPtr(), mJoin(), mJoinJunction(),
     mStringMin() {singlets.resize(0);}
 
   // Initialize and save pointers.
@@ -73,6 +73,7 @@ public:
 
   // Overload index operator to access separate colour singlets.
   ColSinglet& operator[](int iSub) {return singlets[iSub];}
+  const ColSinglet& operator[](int iSub) const {return singlets[iSub];}
 
   // Clear contents.
   void clear() {singlets.resize(0);}
@@ -107,8 +108,8 @@ private:
   // Constants: could only be changed in the code itself.
   static const double CONSTITUENTMASS;
 
-  // Pointer to various information on the generation.
-  Info*       infoPtr;
+  // Pointer to logger.
+  Logger* loggerPtr;
 
   // Pointer to class for flavour generation.
   StringFlav* flavSelPtr;
@@ -162,7 +163,7 @@ public:
   void setUp(Vec4 p1, Vec4 p2, int col1, int col2, bool isMassless = false);
 
   // Construct a four-momentum from (x+, x-, px, py).
-  Vec4 pHad( double xPosIn, double xNegIn, double pxIn, double pyIn)
+  Vec4 pHad( double xPosIn, double xNegIn, double pxIn, double pyIn) const
     { return xPosIn * pPos + xNegIn * pNeg + pxIn * eX + pyIn * eY; }
 
   // Project a four-momentum onto (x+, x-, px, py). Read out projection.
@@ -190,7 +191,7 @@ public:
     iMax(), mJoin(), m2Join() {}
 
   // Set up system from parton list.
-  void setUp(vector<int>& iSys, Event& event);
+  void setUp(const vector<int>& iSys, const Event& event);
 
   // Calculate string region from (iPos, iNeg) pair.
   int iReg( int iPos, int iNeg) const
@@ -200,9 +201,9 @@ public:
   StringRegion& region(int iPos, int iNeg) {return system[iReg(iPos, iNeg)];}
 
   // Reference to low string region specified either by iPos or iNeg.
-  StringRegion& regionLowPos(int iPos) {
+  const StringRegion& regionLowPos(int iPos) const {
     return system[iReg(iPos, iMax - iPos)]; }
-  StringRegion& regionLowNeg(int iNeg) {
+  const StringRegion& regionLowNeg(int iNeg) const {
     return system[iReg(iMax - iNeg, iNeg)]; }
 
   // Main content: a vector with all the string regions of the system.
@@ -224,8 +225,11 @@ class StringVertex {
 public:
 
   // Constructors.
-  StringVertex(bool fromPosIn = true, int iRegPosIn = 0,
-    int iRegNegIn = 0, double xRegPosIn = 0., double xRegNegIn = 0.)
+  StringVertex() : fromPos(false), iRegPos(0), iRegNeg(0),
+    xRegPos(0.), xRegNeg(0.) { }
+
+  StringVertex(bool fromPosIn, int iRegPosIn,
+    int iRegNegIn, double xRegPosIn, double xRegNegIn)
     : fromPos(fromPosIn), iRegPos(iRegPosIn), iRegNeg(iRegNegIn),
     xRegPos(xRegPosIn), xRegNeg(xRegNegIn) { }
 
@@ -236,6 +240,12 @@ public:
   StringVertex& operator = (const StringVertex& v) {if (this != &v)
     {fromPos = v.fromPos; iRegPos = v.iRegPos; iRegNeg = v.iRegNeg;
     xRegPos = v.xRegPos; xRegNeg = v.xRegNeg;} return *this; }
+
+  // Save values.
+  void store(bool fromPosIn, int iRegPosIn, int iRegNegIn,
+    double xRegPosIn, double xRegNegIn) {
+    fromPos = fromPosIn; iRegPos = iRegPosIn; iRegNeg = iRegNegIn;
+    xRegPos = xRegPosIn; xRegNeg = xRegNegIn; }
 
   // Variable members.
   bool fromPos;

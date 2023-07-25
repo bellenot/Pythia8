@@ -32,43 +32,21 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 // have been built.
 
 #include &quot;Pythia8/Pythia.h&quot;
-#include &quot;Pythia8Plugins/PowhegProcs.h&quot;
 
 using namespace Pythia8;
 
 int main() {
 
-  Pythia pythia;
-
-  // The constructor PowhegProcs(process name, pythia, run directory,
-  // PDF filename, use Pythia random) where run directory by default
-  // is ./powhegrun, the PDF filename is empty, and using Pythia
-  // random is true. If using native PDFs rather than LHAPDF, the PDF
-  // filename is the full name of the PDF file to copy to the run
-  // directory.
-  PowhegProcs procs(&amp;pythia, &quot;hvq&quot;);
-
-  // The PowhegProcs class automatically sets the Pythia user hooks to
-  // an instance of PowhegHooks. However, this can be modified to a
-  // user chosen set of hooks (or null).
-  // pythia-&gt;setUserHooksPtr(userHooksPtr);
-
-  // Pythia and the POWHEG user hooks must still be configured, here
+  // PYTHIA and the POWHEG user hooks must still be configured, here
   // this is done via main33.cmnd. These settings are sensible
   // defaults, but Powheg:nFinal is dependent upon the POWHEG matrix
   // element being used and so must be changed as appropriate.
-  pythia.readFile(&quot;main33.cmnd&quot;);
+  Pythia pythia;
+  pythia.readString(
+    &quot;Init:plugins = {libpythia8powheghvq.so::LHAupPowheg::main33.cmnd,&quot;
+    &quot;libpythia8powhegHooks.so::PowhegHooks::main33.cmnd}&quot;);
 
-  // The commands readFile and readString are used to configure the
-  // POWHEG matrix element. If a setting is repeated a warning is
-  // issued and the most recent setting is used.
-  procs.readFile(&quot;main33.pwhg&quot;);
-
-  // This init call must be made before PYTHIA is initialized. It
-  // copies the POWHEG input and PDF file to the POWHEG run directory.
-  procs.init();
-
-  // Initialize Pythia, based on the specified settings.
+  // Initialize PYTHIA, based on the specified settings.
   pythia.init();
 
   // Run PYTHIA. The random numbers are taken from the associated

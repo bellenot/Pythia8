@@ -3924,7 +3924,7 @@ The meaning of the various properties and the format used are explained
 </particle> 
  
 <particle id="5122" name="Lambda_b0" antiName="Lambda_bbar0" spinType="2" chargeType="0" colType="0" 
-          m0="5.61940" tau0="3.69000e-01"> 
+          m0="5.61940" tau0="4.40000e-01"> 
  <channel onMode="1" bRatio="0.0546000" meMode="22" products="-12 11 4122"/> 
  <channel onMode="1" bRatio="0.0096000" meMode="22" products="-12 11 4124"/> 
  <channel onMode="1" bRatio="0.0128000" meMode="22" products="-12 11 14122"/> 
@@ -11361,6 +11361,11 @@ The meaning of the various properties and the format used are explained
           m0="0.00000"> 
 </particle> 
  
+<particle id="9940001" name="eta_c[3S1(8)]" spinType="1" chargeType="0" colType="2" 
+          m0="3.18100" mWidth="0.0" mMin="3.18100" mMax="3.18100"> 
+ <channel onMode="1" bRatio="1.0000000" products="441 21"/> 
+</particle> 
+ 
 <particle id="9940003" name="J/psi[3S1(8)]" spinType="3" chargeType="0" colType="2" 
           m0="3.29692" mWidth="0.0" mMin="3.29692" mMax="3.29692"> 
  <channel onMode="1" bRatio="1.0000000" products="443 21"/> 
@@ -11409,6 +11414,11 @@ The meaning of the various properties and the format used are explained
 <particle id="9942103" name="psi(2S)[3PJ(8)]" spinType="3" chargeType="0" colType="2" 
           m0="3.88611" mWidth="0.0" mMin="3.88611" mMax="3.88611"> 
  <channel onMode="1" bRatio="1.0000000" products="100443 21"/> 
+</particle> 
+ 
+<particle id="9950001" name="eta_b[3S1(8)]" spinType="1" chargeType="0" colType="2" 
+          m0="9.60000" mWidth="0.0" mMin="9.60000" mMax="9.60000"> 
+ <channel onMode="1" bRatio="1.0000000" products="551 21"/> 
 </particle> 
  
 <particle id="9950003" name="Upsilon[3S1(8)]" spinType="3" chargeType="0" colType="2" 

@@ -8,6 +8,14 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
+// Authors:
+//            <a href="mailto:peter.skands@monash.edu">Peter Skands</a>
+
+// Keywords:
+//            <a href="../ExampleKeywords.html#madgraph">Madgraph</a>
+//            <a href="../ExampleKeywords.html#vincia">Vincia</a>
+//            <a href="../ExampleKeywords.html#weak+showers">Weak&nbsp;showers</a>
+
 // Example showing how to run Vincia&apos;s electroweak shower, for the example
 // process pp &gt; dijets (with pThat &gt;= 2000 GeV) at eCM = 14000 GeV.
 // The Vincia EW shower requires hard-process partons with assigned
@@ -18,14 +26,6 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 
 // Note: emitted weak bosons decay inclusively; it would be up to the user
 // themselves to filter events with decays to specific channels if desired.
-
-// Authors:
-//            <a href="mailto:peter.skands@monash.edu">Peter Skands</a>
-
-// Keywords:
-//            <a href="../ExampleKeywords.html#madgraph">Madgraph</a>
-//            <a href="../ExampleKeywords.html#vincia">Vincia</a>
-//            <a href="../ExampleKeywords.html#weak+showers">Weak&nbsp;showers</a>
 
 // Include Pythia8 header(s) and namespace.
 #include &quot;Pythia8/Pythia.h&quot;
@@ -69,7 +69,7 @@ int main() {
   pythia.readString(&quot;PartonShowers:model   = 2&quot;);
   pythia.readString(&quot;Vincia:helicityShower = on&quot;);
   pythia.readString(&quot;Vincia:ewMode         = 3&quot;);
-  pythia.readString(&quot;Vincia:verbose        = 1&quot;);
+  pythia.readString(&quot;Print:verbosity       = 2&quot;);
 
   // Switch off MPI and hadronisation (to speed things up).
   pythia.readString(&quot;PartonLevel:MPI = off&quot;);

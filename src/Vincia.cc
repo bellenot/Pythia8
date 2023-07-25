@@ -8,6 +8,7 @@
 #include "Pythia8/Vincia.h"
 #include "Pythia8/Merging.h"
 #include "Pythia8/MergingHooks.h"
+#include "Pythia8/Plugins.h"
 
 namespace Pythia8 {
 
@@ -25,14 +26,20 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
                   PartonVertexPtr partonVertexPtrIn,
                   WeightContainer* weightContainerPtrIn) {
 
-  // Verbosity output.
-  verbose = settingsPtr->mode("Vincia:verbose");
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "begin", dashLen);
+  // Verbosity output. Allow local debug level, else just use Print:verbosity.
+  verbose = flag("Vincia:debug") ? VinciaConstants::DEBUG :
+    mode("Print:verbosity");
+  settingsPtr->addMode("Vincia:verbose",verbose,true,true,0,
+    VinciaConstants::DEBUG);
+  if (verbose >= VinciaConstants::DEBUG) {
+    settingsPtr->mode("Print:verbosity",VinciaConstants::DEBUG);
+    printOut(__METHOD_NAME__, "begin", dashLen);
+  }
 
   // Create diagnostics pointer.
   diagnosticsPtr = make_shared<VinciaDiagnostics>();
   diagnosticsPtr->initInfoPtr(*infoPtr);
-  if (verbose >= REPORT) diagnosticsPtr->start(__METHOD_NAME__);
+  if (verbose >= Logger::REPORT) diagnosticsPtr->start(__METHOD_NAME__);
 
   // Clear Vincia's register of PhysicsBase objects.
   subObjects.clear();
@@ -52,15 +59,17 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
   if (doMerging) {
     // Ensure consistency in settings with merging.
     if (mode("Vincia:ewMode") > 2) {
-      infoPtr->errorMsg("Warning from "+__METHOD_NAME__+": Reverting to"
-        " default QED mode. EW shower not yet supported by merging.");
+      loggerPtr->WARNING_MSG(
+        "reverting to default QED mode;"
+        " EW shower not yet supported by merging");
       // Use readString so change is reapplied after Vincia tune setting.
       int ewModeDef = settingsPtr->modeDefault("Vincia:ewMode");
       settingsPtr->readString("Vincia:ewMode = "+to_string(ewModeDef));
     }
     if (flag("Vincia:interleaveResDec")) {
-      infoPtr->errorMsg("Warning from "+__METHOD_NAME__+": Switching off"
-        " interleaved resonance decays. Not yet supported by merging.");
+      loggerPtr->WARNING_MSG(
+        "switching off interleaved resonance decays;"
+        " not yet supported by merging.");
       // Must switch both Vincia and TimeShower flags off, since PartonLevel
       // uses the TimeShower one.
       settingsPtr->readString("Vincia:interleaveResDec = off");
@@ -68,9 +77,8 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
     }
     // TODO this could be fixed relatively easily.
     if (mode("Vincia:kineMapFFsplit") != 1) {
-      infoPtr->errorMsg("Info from "+__METHOD_NAME__+": Forcing"
-        " kineMapFFsplit = 1. Others not yet supported"
-        " by merging.");
+      loggerPtr->WARNING_MSG("forcing kineMapFFsplit = 1; "
+        "others not yet supported by merging");
       settingsPtr->readString("Vincia:kineMapFFsplit = 1");
     }
 
@@ -86,8 +94,7 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
     mergingHooksPtr->init();
 
     if (!mergingHooksPtr->initSuccess()) {
-      string msg= ": MergingHooks initialisation failed.";
-      infoPtr->errorMsg("Error in "+__METHOD_NAME__+msg);
+      loggerPtr->ERROR_MSG("initialisation of MergingHooks failed");
       return false;
     }
 
@@ -164,7 +171,7 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
 
   // Pass verbose settings to members
   setVerbose(verbose);
-  if (verbose >= REPORT) printOut(__METHOD_NAME__,
+  if (verbose >= Logger::REPORT) printOut(__METHOD_NAME__,
     "setting Vincia pointers...");
 
   // Init FSR shower pointers and default settings, beyond those set
@@ -196,14 +203,17 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
   // Load the matrix element correction plugin.
   string melib = settingsPtr->word("Vincia:MEplugin");
   if (melib.size() > 0)
-    mg5mes = ExternalMEsPlugin("libpythia8mg5" + melib + ".so");
+    mg5mes = make_plugin<ExternalMEs>(
+      "libpythia8mg5" + melib + ".so", "ExternalMEsMadgraph",
+      nullptr, settingsPtr, loggerPtr);
+  if (mg5mes == nullptr) mg5mes = make_shared<ExternalMEs>();
 
   // Pass pointers on to objects that require them.
   rambo.initPtr(rndmPtr);
   vinCom.initPtr(infoPtr);
   resolution.initPtr(settingsPtr, infoPtr, &vinCom);
-  mg5mes.initPtrs(infoPtr, slhaPtr);
-  mecs.initPtr(infoPtr, &mg5mes, &vinCom, &resolution);
+  if (mg5mes != nullptr) mg5mes->initPtrs(infoPtr);
+  mecs.initPtr(infoPtr, mg5mes, &vinCom, &resolution);
   colour.initPtr(infoPtr);
   vinWeights.initPtr(infoPtr, &vinCom);
 
@@ -269,19 +279,19 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
   // MECs depend on Pythia/SLHA Couplings.
   mecs.init();
   if (!mecs.isInitialised()) {
-    infoPtr->errorMsg("Error in " + __METHOD_NAME__
-      + ": MECs could not be initialised.");
+    loggerPtr->ERROR_MSG("failed to initialise MECs");
     return false;
   }
 
   // Print VINCIA header and list of parameters
-  if (verbose >= NORMAL && vinciaOn) timesPtr->header();
+  if (verbose >= Logger::NORMAL && vinciaOn) timesPtr->header();
 
   // Diagnostics
-  if (verbose >= REPORT) diagnosticsPtr->stop(__METHOD_NAME__);
+  if (verbose >= Logger::REPORT) diagnosticsPtr->stop(__METHOD_NAME__);
 
   // Verbose output.
-  if (verbose >= DEBUG) printOut(__METHOD_NAME__, "end", dashLen);
+  if (verbose >= VinciaConstants::DEBUG)
+    printOut(__METHOD_NAME__, "end", dashLen);
   return true;
 
 }
@@ -350,6 +360,8 @@ bool Vincia::initTune(int iTune) {
 void Vincia::setVerbose(int verboseIn) {
 
   verbose = verboseIn;
+  if (verboseIn < VinciaConstants::DEBUG) loggerPtr->setVerbosity(verbose+1);
+  else loggerPtr->setVerbosity(verboseIn);
   vinCom.setVerbose(verboseIn);
   resolution.setVerbose(verboseIn);
   timesPtr->setVerbose(verboseIn);

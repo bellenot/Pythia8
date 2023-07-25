@@ -10,6 +10,7 @@ Next:numberCount                = 100
 Next:numberShowProcess          = 0
 Init:showChangedParticleData    = off
 Main:timesAllowErrors           = 10
+Print:verbosity                 = 2
 
 ! MPI, Hadronisation, etc.
 PartonLevel:MPI                 = off
@@ -23,7 +24,6 @@ UncertaintyBands:doVariations   = off
 ! Vincia settings.
 PartonShowers:model             = 2     ! turn on Vincia
 Vincia:sectorShower             = on    ! turn on sector shower
-Vincia:verbose                  = 1
 Vincia:doFF                     = on
 Vincia:doIF                     = on
 Vincia:doII                     = on

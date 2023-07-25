@@ -3,7 +3,7 @@
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Keywords: basic usage; electron-positron; event shapes; jet finding;
+// Keywords: basic usage; electron-positron; event shapes; jet finding
 
 // This is a simple test program.
 // It studies event properties of LEP1 events.

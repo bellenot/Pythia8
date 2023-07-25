@@ -46,17 +46,15 @@ int main() {
     pythia.init();
 
     // Begin infinite event loop - to be exited at end of file.
-    for (int iEvent = 0; ; ++iEvent) {
+    while (iAbort &lt; nAbort) {
 
       // Generate next event.
       if (!pythia.next()) {
 
         // Leave event loop if at end of file.
         if (pythia.info.atEndOfFile()) break;
-
-        // First few failures write off as &quot;acceptable&quot; errors, then quit.
-        if (++iAbort &lt; nAbort) continue;
-        break;
+        ++iAbort;
+        continue;
       }
 
       // Sum up final charged multiplicity and fill in histogram.
