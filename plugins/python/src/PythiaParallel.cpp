@@ -52,6 +52,7 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
+#include <Pythia8/SplittingsOnia.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -215,7 +216,7 @@ struct PyCallBack_Pythia8_HeavyIons : public Pythia8::HeavyIons {
 	}
 };
 
-// Pythia8::HeavyIons::InfoGrabber file:Pythia8/HeavyIons.h line:132
+// Pythia8::HeavyIons::InfoGrabber file:Pythia8/HeavyIons.h line:139
 struct PyCallBack_Pythia8_HeavyIons_InfoGrabber : public Pythia8::HeavyIons::InfoGrabber {
 	using Pythia8::HeavyIons::InfoGrabber::InfoGrabber;
 
@@ -811,11 +812,48 @@ void bind_Pythia8_PythiaParallel(std::function< pybind11::module &(std::string c
 		cl.def("sigmaGen", (double (Pythia8::PythiaParallel::*)() const) &Pythia8::PythiaParallel::sigmaGen, "C++: Pythia8::PythiaParallel::sigmaGen() const --> double");
 		cl.def("weightSum", (double (Pythia8::PythiaParallel::*)() const) &Pythia8::PythiaParallel::weightSum, "C++: Pythia8::PythiaParallel::weightSum() const --> double");
 	}
+	{ // Pythia8::HIInfo file:Pythia8/HIInfo.h line:27
+		pybind11::class_<Pythia8::HIInfo, std::shared_ptr<Pythia8::HIInfo>> cl(M("Pythia8"), "HIInfo", "");
+		pybind11::handle cl_type = cl;
+
+		cl.def( pybind11::init( [](){ return new Pythia8::HIInfo(); } ) );
+		cl.def( pybind11::init( [](Pythia8::HIInfo const &o){ return new Pythia8::HIInfo(o); } ) );
+		cl.def("b", (double (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::b, "C++: Pythia8::HIInfo::b() const --> double");
+		cl.def("phi", (double (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::phi, "C++: Pythia8::HIInfo::phi() const --> double");
+		cl.def("sigmaTot", (double (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::sigmaTot, "C++: Pythia8::HIInfo::sigmaTot() const --> double");
+		cl.def("sigmaTotErr", (double (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::sigmaTotErr, "C++: Pythia8::HIInfo::sigmaTotErr() const --> double");
+		cl.def("sigmaND", (double (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::sigmaND, "C++: Pythia8::HIInfo::sigmaND() const --> double");
+		cl.def("sigmaNDErr", (double (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::sigmaNDErr, "C++: Pythia8::HIInfo::sigmaNDErr() const --> double");
+		cl.def("avNDb", (double (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::avNDb, "C++: Pythia8::HIInfo::avNDb() const --> double");
+		cl.def("nAttempts", (long (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nAttempts, "C++: Pythia8::HIInfo::nAttempts() const --> long");
+		cl.def("nAccepted", (long (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nAccepted, "C++: Pythia8::HIInfo::nAccepted() const --> long");
+		cl.def("nCollTot", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nCollTot, "C++: Pythia8::HIInfo::nCollTot() const --> int");
+		cl.def("nCollND", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nCollND, "C++: Pythia8::HIInfo::nCollND() const --> int");
+		cl.def("nCollNDTot", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nCollNDTot, "C++: Pythia8::HIInfo::nCollNDTot() const --> int");
+		cl.def("nCollSDP", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nCollSDP, "C++: Pythia8::HIInfo::nCollSDP() const --> int");
+		cl.def("nCollSDT", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nCollSDT, "C++: Pythia8::HIInfo::nCollSDT() const --> int");
+		cl.def("nCollDD", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nCollDD, "C++: Pythia8::HIInfo::nCollDD() const --> int");
+		cl.def("nCollCD", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nCollCD, "C++: Pythia8::HIInfo::nCollCD() const --> int");
+		cl.def("nCollEL", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nCollEL, "C++: Pythia8::HIInfo::nCollEL() const --> int");
+		cl.def("nPartProj", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nPartProj, "C++: Pythia8::HIInfo::nPartProj() const --> int");
+		cl.def("nAbsProj", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nAbsProj, "C++: Pythia8::HIInfo::nAbsProj() const --> int");
+		cl.def("nDiffProj", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nDiffProj, "C++: Pythia8::HIInfo::nDiffProj() const --> int");
+		cl.def("nElProj", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nElProj, "C++: Pythia8::HIInfo::nElProj() const --> int");
+		cl.def("nPartTarg", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nPartTarg, "C++: Pythia8::HIInfo::nPartTarg() const --> int");
+		cl.def("nAbsTarg", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nAbsTarg, "C++: Pythia8::HIInfo::nAbsTarg() const --> int");
+		cl.def("nDiffTarg", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nDiffTarg, "C++: Pythia8::HIInfo::nDiffTarg() const --> int");
+		cl.def("nElTarg", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nElTarg, "C++: Pythia8::HIInfo::nElTarg() const --> int");
+		cl.def("weight", (double (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::weight, "C++: Pythia8::HIInfo::weight() const --> double");
+		cl.def("weightSum", (double (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::weightSum, "C++: Pythia8::HIInfo::weightSum() const --> double");
+		cl.def("nFail", (int (Pythia8::HIInfo::*)() const) &Pythia8::HIInfo::nFail, "C++: Pythia8::HIInfo::nFail() const --> int");
+		cl.def("failedExcitation", (void (Pythia8::HIInfo::*)()) &Pythia8::HIInfo::failedExcitation, "C++: Pythia8::HIInfo::failedExcitation() --> void");
+		cl.def("assign", (class Pythia8::HIInfo & (Pythia8::HIInfo::*)(const class Pythia8::HIInfo &)) &Pythia8::HIInfo::operator=, "C++: Pythia8::HIInfo::operator=(const class Pythia8::HIInfo &) --> class Pythia8::HIInfo &", pybind11::return_value_policy::reference, pybind11::arg(""));
+	}
 	{ // Pythia8::HeavyIons file:Pythia8/HeavyIons.h line:31
 		pybind11::class_<Pythia8::HeavyIons, std::shared_ptr<Pythia8::HeavyIons>, PyCallBack_Pythia8_HeavyIons> cl(M("Pythia8"), "HeavyIons", "");
 		pybind11::handle cl_type = cl;
 
-		{ // Pythia8::HeavyIons::InfoGrabber file:Pythia8/HeavyIons.h line:132
+		{ // Pythia8::HeavyIons::InfoGrabber file:Pythia8/HeavyIons.h line:139
 			auto & enclosing_class = cl;
 			pybind11::class_<Pythia8::HeavyIons::InfoGrabber, std::shared_ptr<Pythia8::HeavyIons::InfoGrabber>, PyCallBack_Pythia8_HeavyIons_InfoGrabber, Pythia8::UserHooks> cl(enclosing_class, "InfoGrabber", "");
 			pybind11::handle cl_type = cl;
@@ -827,12 +865,12 @@ void bind_Pythia8_PythiaParallel(std::function< pybind11::module &(std::string c
 
 		cl.def( pybind11::init<class Pythia8::Pythia &>(), pybind11::arg("mainPythiaIn") );
 
-		cl.def_readwrite("sigtot", &Pythia8::HeavyIons::sigtot);
+		cl.def_readwrite("hiInfo", &Pythia8::HeavyIons::hiInfo);
+		cl.def_readwrite("sigTotNN", &Pythia8::HeavyIons::sigTotNN);
 		cl.def_readwrite("HIHooksPtr", &Pythia8::HeavyIons::HIHooksPtr);
 		cl.def_readwrite("pythia", &Pythia8::HeavyIons::pythia);
 		cl.def_readwrite("pythiaNames", &Pythia8::HeavyIons::pythiaNames);
 		cl.def_readwrite("info", &Pythia8::HeavyIons::info);
-		cl.def_readwrite("hiInfo", &Pythia8::HeavyIons::hiInfo);
 		cl.def("init", (bool (Pythia8::HeavyIons::*)()) &Pythia8::HeavyIons::init, "C++: Pythia8::HeavyIons::init() --> bool");
 		cl.def("next", (bool (Pythia8::HeavyIons::*)()) &Pythia8::HeavyIons::next, "C++: Pythia8::HeavyIons::next() --> bool");
 		cl.def_static("addSpecialSettings", (void (*)(class Pythia8::Settings &)) &Pythia8::HeavyIons::addSpecialSettings, "C++: Pythia8::HeavyIons::addSpecialSettings(class Pythia8::Settings &) --> void", pybind11::arg("settings"));
@@ -842,11 +880,11 @@ void bind_Pythia8_PythiaParallel(std::function< pybind11::module &(std::string c
 		cl.def("setKinematics", (bool (Pythia8::HeavyIons::*)(double, double)) &Pythia8::HeavyIons::setKinematics, "C++: Pythia8::HeavyIons::setKinematics(double, double) --> bool", pybind11::arg(""), pybind11::arg(""));
 		cl.def("setKinematics", (bool (Pythia8::HeavyIons::*)(double, double, double, double, double, double)) &Pythia8::HeavyIons::setKinematics, "C++: Pythia8::HeavyIons::setKinematics(double, double, double, double, double, double) --> bool", pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""), pybind11::arg(""));
 		cl.def("setKinematics", (bool (Pythia8::HeavyIons::*)(class Pythia8::Vec4, class Pythia8::Vec4)) &Pythia8::HeavyIons::setKinematics, "C++: Pythia8::HeavyIons::setKinematics(class Pythia8::Vec4, class Pythia8::Vec4) --> bool", pybind11::arg(""), pybind11::arg(""));
+		cl.def("stat", (void (Pythia8::HeavyIons::*)()) &Pythia8::HeavyIons::stat, "C++: Pythia8::HeavyIons::stat() --> void");
 		cl.def("updateInfo", (void (Pythia8::HeavyIons::*)()) &Pythia8::HeavyIons::updateInfo, "C++: Pythia8::HeavyIons::updateInfo() --> void");
 		cl.def("clearProcessLevel", (void (Pythia8::HeavyIons::*)(class Pythia8::Pythia &)) &Pythia8::HeavyIons::clearProcessLevel, "C++: Pythia8::HeavyIons::clearProcessLevel(class Pythia8::Pythia &) --> void", pybind11::arg("pyt"));
 		cl.def_static("setupSpecials", (void (*)(class Pythia8::Settings &, std::string)) &Pythia8::HeavyIons::setupSpecials, "C++: Pythia8::HeavyIons::setupSpecials(class Pythia8::Settings &, std::string) --> void", pybind11::arg("settings"), pybind11::arg("match"));
 		cl.def_static("setupSpecials", (void (*)(class Pythia8::Pythia &, std::string)) &Pythia8::HeavyIons::setupSpecials, "C++: Pythia8::HeavyIons::setupSpecials(class Pythia8::Pythia &, std::string) --> void", pybind11::arg("p"), pybind11::arg("match"));
-		cl.def("stat", (void (Pythia8::HeavyIons::*)()) &Pythia8::HeavyIons::stat, "C++: Pythia8::HeavyIons::stat() --> void");
 		cl.def("assign", (class Pythia8::HeavyIons & (Pythia8::HeavyIons::*)(const class Pythia8::HeavyIons &)) &Pythia8::HeavyIons::operator=, "C++: Pythia8::HeavyIons::operator=(const class Pythia8::HeavyIons &) --> class Pythia8::HeavyIons &", pybind11::return_value_policy::reference, pybind11::arg(""));
 	}
 }

@@ -17,6 +17,7 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
+#include <Pythia8/SplittingsOnia.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -119,7 +120,7 @@ void bind_Pythia8_Basics_1(std::function< pybind11::module &(std::string const &
 		cl.def("dumpState", (bool (Pythia8::Rndm::*)(std::string)) &Pythia8::Rndm::dumpState, "C++: Pythia8::Rndm::dumpState(std::string) --> bool", pybind11::arg("fileName"));
 		cl.def("readState", (bool (Pythia8::Rndm::*)(std::string)) &Pythia8::Rndm::readState, "C++: Pythia8::Rndm::readState(std::string) --> bool", pybind11::arg("fileName"));
 	}
-	{ // Pythia8::Hist file:Pythia8/Basics.h line:461
+	{ // Pythia8::Hist file:Pythia8/Basics.h line:473
 		pybind11::class_<Pythia8::Hist, std::shared_ptr<Pythia8::Hist>> cl(M("Pythia8"), "Hist", "");
 		pybind11::handle cl_type = cl;
 
@@ -165,9 +166,11 @@ void bind_Pythia8_Basics_1(std::function< pybind11::module &(std::string const &
 		cl.def("rivetTable", (void (Pythia8::Hist::*)(std::string, bool) const) &Pythia8::Hist::rivetTable, "C++: Pythia8::Hist::rivetTable(std::string, bool) const --> void", pybind11::arg("fileName"), pybind11::arg("printError"));
 		cl.def("pyplotTable", [](Pythia8::Hist const &o) -> void { return o.pyplotTable(); }, "");
 		cl.def("pyplotTable", [](Pythia8::Hist const &o, class std::basic_ostream<char> & a0) -> void { return o.pyplotTable(a0); }, "", pybind11::arg("os"));
-		cl.def("pyplotTable", (void (Pythia8::Hist::*)(std::ostream &, bool) const) &Pythia8::Hist::pyplotTable, "C++: Pythia8::Hist::pyplotTable(std::ostream &, bool) const --> void", pybind11::arg("os"), pybind11::arg("isHist"));
+		cl.def("pyplotTable", [](Pythia8::Hist const &o, class std::basic_ostream<char> & a0, bool const & a1) -> void { return o.pyplotTable(a0, a1); }, "", pybind11::arg("os"), pybind11::arg("isHist"));
+		cl.def("pyplotTable", (void (Pythia8::Hist::*)(std::ostream &, bool, bool) const) &Pythia8::Hist::pyplotTable, "C++: Pythia8::Hist::pyplotTable(std::ostream &, bool, bool) const --> void", pybind11::arg("os"), pybind11::arg("isHist"), pybind11::arg("printError"));
 		cl.def("pyplotTable", [](Pythia8::Hist const &o, class std::basic_string<char> const & a0) -> void { return o.pyplotTable(a0); }, "", pybind11::arg("fileName"));
-		cl.def("pyplotTable", (void (Pythia8::Hist::*)(std::string, bool) const) &Pythia8::Hist::pyplotTable, "C++: Pythia8::Hist::pyplotTable(std::string, bool) const --> void", pybind11::arg("fileName"), pybind11::arg("isHist"));
+		cl.def("pyplotTable", [](Pythia8::Hist const &o, class std::basic_string<char> const & a0, bool const & a1) -> void { return o.pyplotTable(a0, a1); }, "", pybind11::arg("fileName"), pybind11::arg("isHist"));
+		cl.def("pyplotTable", (void (Pythia8::Hist::*)(std::string, bool, bool) const) &Pythia8::Hist::pyplotTable, "C++: Pythia8::Hist::pyplotTable(std::string, bool, bool) const --> void", pybind11::arg("fileName"), pybind11::arg("isHist"), pybind11::arg("printError"));
 		cl.def("fillTable", [](Pythia8::Hist &o) -> void { return o.fillTable(); }, "");
 		cl.def("fillTable", (void (Pythia8::Hist::*)(class std::basic_istream<char> &)) &Pythia8::Hist::fillTable, "C++: Pythia8::Hist::fillTable(class std::basic_istream<char> &) --> void", pybind11::arg("is"));
 		cl.def("fillTable", (void (Pythia8::Hist::*)(std::string)) &Pythia8::Hist::fillTable, "C++: Pythia8::Hist::fillTable(std::string) --> void", pybind11::arg("fileName"));

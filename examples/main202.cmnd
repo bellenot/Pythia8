@@ -24,10 +24,9 @@ Top:gg2ttbar = on
 ! Switch on/off FSR, ISR, hadronization, and event checks
 PartonLevel:FSR = on
 PartonLevel:ISR = on
-PartonLevel:MPI = on
-HadronLevel:all = on
+PartonLevel:MPI = off
+HadronLevel:all = off
 PartonLevel:Remnants = on
-!Check:event = on
 
 ! VINCIA settings
 PartonShowers:Model = 2
@@ -36,3 +35,9 @@ Vincia:doIF    = on
 Vincia:doFF    = on
 Vincia:doRF    = on
 Vincia:ewMode  = 2
+
+! Settings for (damped) Power Showers vs Wimpy Showers.
+SpaceShower:pTmaxMatch  = 2 ! 0: dynamic (def), 1: force wimpy, 2: force power
+SpaceShower:pTdampMatch = 1 ! 0: no dampening, 1: damped
+Vincia:pTmaxMatch       = 2 ! 0: dynamic (def), 1: force wimpy, 2: force power
+Vincia:pTdampMatch      = 1 ! 0: no dampening, 1: damped

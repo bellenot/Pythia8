@@ -1,9 +1,9 @@
 // main280.cc is a part of PYTHIA 8.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Author: Christian T Preuss <christian.preuss@monash.edu>
+// Author: Christian T Preuss <preuss@uni-wuppertal.de>
 
 // Keywords: merging; leading order; CKKW-L; hepmc; vincia
 

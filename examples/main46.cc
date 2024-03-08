@@ -1,9 +1,9 @@
 // main46.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Author: Christian T Preuss <christian.preuss@monash.edu>
+// Author: Christian T Preuss <preuss@uni-wuppertal.de>
 
 // Keywords: HDF5 file; lheh5; hepmc
 
@@ -13,7 +13,9 @@
 //     ./main46 main46.cmnd ttbar.hdf5 main46.hepmc
 
 #include "Pythia8/Pythia.h"
-#include "Pythia8Plugins/LHAHDF5.h"
+
+// To use v0/v1 of LHAHDF5, include "Pythia8Plugins/LHAHDF5.h" instead.
+#include "Pythia8Plugins/LHAHDF5v2.h"
 #ifndef HEPMC2
 #include "Pythia8Plugins/HepMC3.h"
 #else
@@ -77,9 +79,13 @@ int main(int argc, char* argv[]) {
 
   // Create an LHAup object that can access relevant information in pythia.
   size_t readSize    = size_t(nEvents);
-  string version     = pythia.settings.word("LHAHDF5:version");
-  shared_ptr<LHAupH5> lhaUpPtr =
-    make_shared<LHAupH5>(&file, eventOffset, readSize, version);
+  shared_ptr<LHAupH5v2> lhaUpPtr =
+    make_shared<LHAupH5v2>(&file, eventOffset, readSize, true);
+
+  // If using v0/v1 of LHAHDF5, then use the following.
+  // string version     = pythia.settings.word("LHAHDF5:version");
+  // shared_ptr<LHAupH5> lhaUpPtr =
+  //   make_shared<LHAupH5>(&file, eventOffset, readSize, version);
 
   // HepMC.
   Pythia8::Pythia8ToHepMC toHepMC(hepMCFile);
@@ -137,7 +143,7 @@ int main(int argc, char* argv[]) {
   pythia.stat();
 
   // Finalise cross section.
-  double norm = 1./double(1.e9*lhaUpPtr->getTrials());
+  double norm = 1./double(1.e9*lhaUpPtr->nTrials());
   if (abs(pythia.info.lhaStrategy()) == 3) norm *= xs;
   sigmaSample *= norm;
   errorSample = sqrt(errorSample)*norm;

@@ -1,5 +1,5 @@
 // Pythia.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -24,7 +24,7 @@ namespace Pythia8 {
 
 // The current Pythia (sub)version number, to agree with XML version.
 const double Pythia::VERSIONNUMBERHEAD = PYTHIA_VERSION;
-const double Pythia::VERSIONNUMBERCODE = 8.310;
+const double Pythia::VERSIONNUMBERCODE = 8.311;
 
 //--------------------------------------------------------------------------
 
@@ -717,32 +717,6 @@ bool Pythia::init() {
     return false;
   }
 
-  // Turn off central diffraction for VMD processes.
-  if (doVMDsideA || doVMDsideB) {
-    if (doCentralDiff) {
-      logger.WARNING_MSG(
-        "central diffractive events not implemented for gamma + p/gamma");
-      return false;
-    }
-    if (doSoftQCDall) {
-      logger.WARNING_MSG(
-        "central diffractive events not implemented for gamma + p/gamma");
-      settings.flag("SoftQCD:all", false);
-      settings.flag("SoftQCD:elastic", true);
-      settings.flag("SoftQCD:nonDiffractive", true);
-      settings.flag("SoftQCD:singleDiffractive", true);
-      settings.flag("SoftQCD:doubleDiffractive", true);
-    }
-    if (doSoftQCDinel) {
-      logger.WARNING_MSG(
-        "central diffractive events not implemented for gamma + p/gamma");
-      settings.flag("SoftQCD:inelastic", false);
-      settings.flag("SoftQCD:nonDiffractive", true);
-      settings.flag("SoftQCD:singleDiffractive", true);
-      settings.flag("SoftQCD:doubleDiffractive", true);
-    }
-  }
-
   // Check that combinations of settings are allowed; change if not.
   checkSettings();
 
@@ -860,8 +834,34 @@ bool Pythia::init() {
   if (!beamSetup.initBeams(doNonPert, flavSelPtr)) return false;
 
   // Spread information on beam switching from beamSetup.
- if ( beamSetup.allowIDAswitch)
-   partonLevel.initSwitchID( beamSetup.idAList);
+  if ( beamSetup.allowIDAswitch)
+    partonLevel.initSwitchID( beamSetup.idAList);
+
+  // Turn off central diffraction for VMD processes.
+  if (beamSetup.getVMDsideA() || beamSetup.getVMDsideB()) {
+    if (doCentralDiff) {
+      logger.WARNING_MSG(
+        "central diffractive events not implemented for gamma + p/gamma");
+      return false;
+    }
+    if (doSoftQCDall) {
+      logger.WARNING_MSG(
+        "central diffractive events not implemented for gamma + p/gamma");
+      settings.flag("SoftQCD:all", false);
+      settings.flag("SoftQCD:elastic", true);
+      settings.flag("SoftQCD:nonDiffractive", true);
+      settings.flag("SoftQCD:singleDiffractive", true);
+      settings.flag("SoftQCD:doubleDiffractive", true);
+    }
+    if (doSoftQCDinel) {
+      logger.WARNING_MSG(
+        "central diffractive events not implemented for gamma + p/gamma");
+      settings.flag("SoftQCD:inelastic", false);
+      settings.flag("SoftQCD:nonDiffractive", true);
+      settings.flag("SoftQCD:singleDiffractive", true);
+      settings.flag("SoftQCD:doubleDiffractive", true);
+    }
+  }
 
   // Send info/pointers to process level for initialization.
   if ( doProcessLevel ) {
@@ -1113,23 +1113,25 @@ bool Pythia::next(int procType) {
     || beamSetup.doVertexSpread) beamSetup.nextKinematics();
 
   // Simplified special treatment for low-energy nonperturbative collisions.
-  double eMinPertNow = eMinPert
-    + 2. * max( 0., particleData.m0(beamSetup.idA) - particleData.m0(2212))
-    + 2. * max( 0., particleData.m0(beamSetup.idB) - particleData.m0(2212));
-  double pertRate = (beamSetup.eCM - eMinPertNow) / eWidthPert;
-  if ( (doNonPert && !doSoftQCD)
-    || ( beamSetup.doVarEcm && pertRate < 10
-      && (pertRate <= 0 || exp( -pertRate ) > rndm.flat())) ) {
-    bool nextNP = nextNonPert();
+  if (doLowEnergy) {
+    double eMinPertNow = eMinPert
+      + 2. * max( 0., particleData.m0(beamSetup.idA) - particleData.m0(2212))
+      + 2. * max( 0., particleData.m0(beamSetup.idB) - particleData.m0(2212));
+    double pertRate = (beamSetup.eCM - eMinPertNow) / eWidthPert;
+    if ( (doNonPert && !doSoftQCD)
+      || ( beamSetup.doVarEcm && pertRate < 10
+        && (pertRate <= 0 || exp( -pertRate ) > rndm.flat())) ) {
+      bool nextNP = nextNonPert();
 
-    // Optionally check final event for problems.
-    if (nextNP && checkEvent && !check()) {
-      logger.ERROR_MSG("check of event revealed problems");
-      endEvent(PhysicsBase::CHECK_FAILED);
-      return false;
+      // Optionally check final event for problems.
+      if (nextNP && checkEvent && !check()) {
+        logger.ERROR_MSG("check of event revealed problems");
+        endEvent(PhysicsBase::CHECK_FAILED);
+        return false;
+      }
+      endEvent(nextNP ? PhysicsBase::COMPLETE : PhysicsBase::LOWENERGY_FAILED);
+      return nextNP;
     }
-    endEvent(nextNP ? PhysicsBase::COMPLETE : PhysicsBase::LOWENERGY_FAILED);
-    return nextNP;
   }
 
   // Outer loop over hard processes; only relevant for user-set vetoes.
@@ -1556,7 +1558,8 @@ bool Pythia::forceHadronLevel(bool findJunctions) {
 
     // Allow up to ten tries for CR.
     for (int iTry = 0; iTry < NTRY; ++ iTry) {
-      if ( colourReconnectionPtr ) colourReconnectionPtr->next(event, 0);
+      if ( stringInteractionsPtr->getColourReconnections() )
+         stringInteractionsPtr->getColourReconnections()->next(event, 0);
       if (junctionSplitting.checkColours(event)) {
         colCorrect = true;
         break;
@@ -1812,13 +1815,13 @@ void Pythia::banner() {
        << " consisting of:                       |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
-       << " |  |   Christian Bierlich, Naomi Cooke, Nish"
-       << "ita Desai, Leif Gellersen,            |  | \n"
-       << " |  |   Ilkka Helenius, Philip Ilten, Leif Lo"
-       << "nnblad, Stephen Mrenna,               |  | \n"
-       << " |  |   Stefan Prestel, Christian Preuss, Tor"
+       << " |  |   Javira Altmann, Christian Bierlich, N"
+       << "aomi Cooke, Nishita Desai,            |  | \n"
+       << " |  |   Leif Gellersen, Ilkka Helenius, Phili"
+       << "p Ilten, Leif Lonnblad,               |  | \n"
+       << " |  |   Stephen Mrenna, Christian Preuss, Tor"
        << "bjorn Sjostrand, Peter Skands,        |  | \n"
-       << " |  |   Marius Utheim and Rob Verheyen.      "
+       << " |  |   Marius Utheim, and Rob Verheyen.     "
        << "                                      |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
@@ -1850,7 +1853,7 @@ void Pythia::banner() {
        << " when interpreting results.           |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"
-       << " |  |   Copyright (C) 2023 Torbjorn Sjostrand"
+       << " |  |   Copyright (C) 2024 Torbjorn Sjostrand"
        << "                                      |  | \n"
        << " |  |                                        "
        << "                                      |  | \n"

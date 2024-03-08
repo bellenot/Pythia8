@@ -388,19 +388,41 @@ factors in <code>EnhancedSplittings:List</code> will be used to rescale
 the splitting probabilities. 
    
  
+<p/> 
+This parameter can be used to reduce fluctuations in weighted events 
+similar to the case of parton shower variations discussed above.  A 
+larger factor reduces fluctuations at the cost of a longer generation 
+time. The default parameters chosen are a compromise between time and 
+fluctuations. Note, this oversampling is multiplicative to that for 
+variations, so some care should be taken when applying both 
+enhancements and variations. 
+<a name="anchor14"></a>
+<p/><code>parm&nbsp; </code><strong> Enhancements:overSampleFSR &nbsp;</strong> 
+ (<code>default = <strong>3.0</strong></code>; <code>minimum = 1.0</code>; <code>maximum = 10.0</code>)<br/>
+The QCD FSR Sudakov is artificially increased by this factor. The increase 
+is compensated for in the veto algorithm for enhancements. 
+   
+ 
+<p/> 
 The list of desired enhancements should be passed to Pythia in the form of 
 a single <a href="SettingsScheme.html" target="page">"vector of strings"</a>, defined as 
 follows: 
-<a name="anchor14"></a>
+<a name="anchor15"></a>
 <p/><code>wvec&nbsp; </code><strong> EnhancedSplittings:List &nbsp;</strong> 
  (<code>default = <strong>{isr:Q2QA=50.,isr:Q2AQ=50.,fsr:Q2QA=50.0}</strong></code>)<br/>
 Currently, the following input names are recognized by the PYTHIA 
 showers, and can thus be used to enhance the respective 
-splittings. 
+splittings. Specific heavy-flavour branchings for <i>g &rarr; c + 
+cbar</i> and <i>g &rarr; b + bbar</i> are available for the 
+timelike shower (FSR QCD branching) but not for the spacelike shower 
+(ISR QCD branchings). In principle these specific ISR QCD branchings 
+should not be needed, as already most of the heavy-flavour initial 
+state processes can already be explicitly enabled. 
 <p/> 
 ISR QCD branchings: 
 <br/><code>isr:G2GG</code> for <i>g &rarr; g + g</i>, 
 <br/><code>isr:G2QQ</code> for <i>g &rarr; q + qbar</i>, 
+with <i>q</i> a light quark, 
 <br/><code>isr:Q2QG</code> for <i>q &rarr; q + g</i>, 
 <br/><code>isr:Q2GQ</code> for <i>q &rarr; g + q</i>; 
 <p/> 
@@ -416,6 +438,8 @@ FSR QCD branchings:
 <br/><code>fsr:G2GG</code> for <i>g &rarr; g + g</i>, 
 <br/><code>fsr:G2QQ</code> for <i>g &rarr; q + qbar</i> 
 with <i>q</i> a light quark, 
+<br/><code>fsr:G2CC</code> for <i>g &rarr; c + cbar</i>, 
+<br/><code>fsr:G2BB</code> for <i>g &rarr; b + bbar</i>, 
 <br/><code>fsr:Q2QG</code> for <i>q &rarr; q + g</i>; 
 <p/> 
 FSR QED branchings: 
@@ -461,7 +485,7 @@ instead given by small but non-vanishing event weights. This can have
 advantages, since all events of an input sample will be retained. 
 Pythia allows users to enhance trial emissions by using the following 
 setting. 
-<a name="anchor15"></a>
+<a name="anchor16"></a>
 <p/><code>flag&nbsp; </code><strong> Enhancements:doEnhanceTrial &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 Master switch to perform enhanced trial splittings, which are used in 
@@ -482,4 +506,4 @@ page for more details.
 </body>
 </html>
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

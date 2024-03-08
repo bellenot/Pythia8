@@ -81,7 +81,7 @@ this ratio, i.e. the philosophy introduced in <ref>Ben87</ref>.
 processes are available. The code required for merging the PYTHIA 
 showers with POWHEG input can be found in 
 <code>include/Pythia8Plugins/PowHegHooks.h</code>, and is further 
-described on a <aloc href="POWHEGMerging">separate page</aloc>.  A 
+described on a <aloc href="POWHEGMatching">separate page</aloc>.  A 
 user example is found in <code>examples/main31</code>.</li> 
  
 <li>The other traditional approach for NLO calculations is the MC@NLO 
@@ -266,4 +266,4 @@ consult <aloc href="NLOMerging">NLO Merging</aloc>,
  
 </chapter> 
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

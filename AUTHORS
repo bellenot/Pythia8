@@ -1,4 +1,5 @@
 AUTHORS:
+Javira Altmann <javira.altmann@monash.edu>
 Christian Bierlich <christian.bierlich@hep.lu.se>
 Naomi Cooke <naomi.cooke@cern.ch>
 Nishita Desai <desai@theory.tifr.res.in>
@@ -7,7 +8,6 @@ Ilkka Helenius <ilkka.m.helenius@jyu.fi>
 Philip Ilten <philten@cern.ch>
 Leif Lonnblad <leif.lonnblad@hep.lu.se>
 Stephen Mrenna <mrenna@fnal.gov>
-Stefan Prestel <stefan.prestel@hep.lu.se>
 Christian Preuss <cpreuss@phys.ethz.ch>
 Torbjorn Sjostrand <torbjorn.sjostrand@hep.lu.se>
 Peter Skands <peter.skands@monash.edu>
@@ -19,4 +19,5 @@ Stefan Ask
 Jesper Roy Christiansen
 Richard Corke
 Nadine Fischer
+Stefan Prestel 
 Christine O. Rasmussen

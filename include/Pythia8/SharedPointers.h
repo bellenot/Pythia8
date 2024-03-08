@@ -1,5 +1,5 @@
 // SharedPointers.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -15,6 +15,9 @@ namespace Pythia8 {
 
 class BeamShape;
 typedef shared_ptr<BeamShape> BeamShapePtr;
+
+class Brancher;
+typedef shared_ptr<Brancher> BrancherPtr;
 
 class ColourDipole;
 typedef shared_ptr<ColourDipole> ColourDipolePtr;

@@ -1,5 +1,5 @@
 // Info.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -159,17 +159,50 @@ void Info::list() const {
 
 // Event weights and accumulated weight.
 
-double Info::weight(int iWeight) const {
+double Info::weight(int iWgt) const {
   double wt = weightContainerPtr->weightNominal;
-  if (iWeight < 0 ||
-    iWeight >= int(weightContainerPtr->weightsShowerPtr->getWeightsSize()))
-    return wt;
-  else
-    return wt * weightContainerPtr->weightsShowerPtr->getWeightsValue(iWeight);
+  int nShower = weightContainerPtr->weightsShowerPtr->getWeightsSize();
+  int nFrag   = weightContainerPtr->weightsFragmentation.getWeightsSize();
+  if (iWgt < 0 || iWgt >= nShower + nFrag) return wt;
+  if (iWgt < nShower) return wt * weightContainerPtr->
+    weightsShowerPtr->getWeightsValue(iWgt);
+  else return wt * weightContainerPtr->
+    weightsFragmentation.getWeightsValue(iWgt - nShower + 1);
+}
+
+string Info::weightLabel(int iWgt) const {
+  int nShower = weightContainerPtr->weightsShowerPtr->getWeightsSize();
+  int nFrag   = weightContainerPtr->weightsFragmentation.getWeightsSize();
+  if (iWgt < 0 || iWgt >= nShower + nFrag) return "Null";
+  if (iWgt < nShower) return weightContainerPtr->
+    weightsShowerPtr->getWeightsName(iWgt);
+  else return weightContainerPtr->
+    weightsFragmentation.getWeightsName(iWgt - nShower + 1);
 }
 
 double Info::weightSum() const {
   return (abs(lhaStrategySave) == 4) ? CONVERTMB2PB * wtAccSum : wtAccSum;
+}
+
+string Info::getGroupName(int iGN) const {
+  int nShower = weightContainerPtr->weightsShowerPtr->nWeightGroups();
+  int nFrag   = weightContainerPtr->weightsFragmentation.nWeightGroups();
+  if (iGN < 0 || iGN >= nShower + nFrag) return "Null";
+  if (iGN < nShower) return weightContainerPtr->
+    weightsShowerPtr->getGroupName(iGN);
+  else return weightContainerPtr->
+    weightsFragmentation.getGroupName(iGN - nShower);
+}
+
+double Info::getGroupWeight(int iGW) const {
+  double wt = weightContainerPtr->weightNominal;
+  int nShower = weightContainerPtr->weightsShowerPtr->nWeightGroups();
+  int nFrag   = weightContainerPtr->weightsFragmentation.nWeightGroups();
+  if (iGW < 0 || iGW >= nShower + nFrag) return wt;
+  if (iGW < nShower) return wt * weightContainerPtr->
+    weightsShowerPtr->getGroupWeight(iGW);
+  else return wt * weightContainerPtr->
+    weightsFragmentation.getGroupWeight(iGW - nShower);
 }
 
 //--------------------------------------------------------------------------

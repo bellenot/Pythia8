@@ -4,12 +4,12 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main113.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Authors:
-//            <a href="mailto:leif.lonnblad@hep.lu.se">Leif Lonnblad</a>
+//            <a href="mailto:leif.lonnblad@fysik.lu.se">Leif Lonnblad</a>
 
 // Keywords:
 //            <a href="../ExampleKeywords.html#heavy+ions">Heavy&nbsp;ions</a>
@@ -50,13 +50,12 @@ int main() {
   pythia.readString(&quot;Beams:eCM = 2760.0&quot;);
   pythia.readString(&quot;Beams:frameType = 1&quot;);
 
-  // Initialize the Angantyr model to fit the total and semi-includive
+  // Initialize the Angantyr model to fit the total and semi-inclusive
   // cross sections in Pythia within some tolerance.
   pythia.readString(&quot;HeavyIon:SigFitErr = &quot;
                     &quot;0.02,0.02,0.1,0.05,0.05,0.0,0.1,0.0&quot;);
-  // These parameters are typicall suitable for sqrt(S_NN)=5TeV
-  pythia.readString(&quot;HeavyIon:SigFitDefPar = &quot;
-                    &quot;17.24,2.15,0.33,0.0,0.0,0.0,0.0,0.0&quot;);
+  // These parameters are typically suitable for sqrt(S_NN)=5TeV
+  pythia.readString(&quot;HeavyIon:SigFitDefPar = 2.15,17.24,0.33&quot;);
   // A simple genetic algorithm is run for 20 generations to fit the
   // parameters.
   pythia.readString(&quot;HeavyIon:SigFitNGen = 20&quot;);

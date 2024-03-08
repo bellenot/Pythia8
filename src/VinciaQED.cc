@@ -1,5 +1,5 @@
 // VinciaQED.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2024 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -550,7 +550,7 @@ void QEDemitSystem::prepare(int iSysIn, Event &event, double q2CutIn,
 
   // Verbose output.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
 
   // Input.
   iSys = iSysIn;
@@ -566,7 +566,7 @@ void QEDemitSystem::prepare(int iSysIn, Event &event, double q2CutIn,
   // Done.
   if (verbose >= VinciaConstants::DEBUG) print();
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
 
 }
 
@@ -578,7 +578,7 @@ void QEDemitSystem::buildSystem(Event &event) {
 
   // Verbose output.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
 
   // Clear previous antennae.
   eleVec.clear();
@@ -982,7 +982,7 @@ double QEDemitSystem::q2Next(Event &event, double q2Start) {
 bool QEDemitSystem::acceptTrial(Event &event) {
 
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
   // Mark trial as used.
   eleTrial->hasTrial = false;
 
@@ -1328,7 +1328,7 @@ bool QEDemitSystem::acceptTrial(Event &event) {
   if (verbose >= VinciaConstants::DEBUG) {
     event.list();
     partonSystemsPtr->list();
-    printOut(__METHOD_NAME__,"end", dashLen);
+    printOut(__METHOD_NAME__,"end", DASHLEN);
   }
   return true;
 
@@ -1360,6 +1360,8 @@ void QEDemitSystem::updateEvent(Event &event) {
     Particle newPhoton(22, 51, 0, 0, 0, 0, 0, 0, pPhot);
     Particle newPartx = event[x];
     newPartx.p(px);
+    // Shower may occur at a displaced vertex, or for unstable particle.
+    if (newPartx.hasVertex()) newPhoton.vProd( event[x].vProd() );
 
     // Add to event and save updates to be done on PartonSystems later.
     int xNew = event.append(newPartx);
@@ -1400,6 +1402,9 @@ void QEDemitSystem::updateEvent(Event &event) {
     Particle newPhoton(22, 51, 0, 0, 0, 0, 0, 0, pPhot);
     Particle newParty = event[y];
     newParty.p(py);
+
+    // Shower may occur at a displaced vertex, or for unstable particle.
+    if (newParty.hasVertex()) newPhoton.vProd( newParty.vProd() );
 
     // Add branched particles to event.
     int yNew;
@@ -1447,6 +1452,15 @@ void QEDemitSystem::updateEvent(Event &event) {
     newPartx.p(px);
     Particle newParty = event[y];
     newParty.p(py);
+
+    // Shower may occur at a displaced vertex, or for unstable particle.
+    if (sxj < syj) {
+      if ( newPartx.hasVertex() ) newPhoton.vProd( newPartx.vProd() );
+      else if ( newParty.hasVertex() ) newPhoton.vProd( newParty.vProd() );
+    } else {
+      if ( newParty.hasVertex() ) newPhoton.vProd( newParty.vProd() );
+      else if ( newPartx.hasVertex() ) newPhoton.vProd( newPartx.vProd() );
+    }
 
     // Add branched particles to event.
     int xNew, yNew;
@@ -1807,7 +1821,7 @@ void QEDsplitSystem::prepare(int iSysIn, Event &event, double q2CutIn,
     return;
   }
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
 
   // Input.
   iSys = iSysIn;
@@ -1842,7 +1856,7 @@ void QEDsplitSystem::prepare(int iSysIn, Event &event, double q2CutIn,
   // Done.
   if (verbose >= VinciaConstants::DEBUG) {
     print();
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
   }
 
 }
@@ -1855,7 +1869,7 @@ void QEDsplitSystem::buildSystem(Event &event) {
 
   // Verbose output.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
 
   // Get rid of saved trial and clear all antennae.
   hasTrial = false;
@@ -2041,7 +2055,7 @@ double QEDsplitSystem::q2Next(Event &event, double q2Start) {
 bool QEDsplitSystem::acceptTrial(Event &event) {
 
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
   // Mark trial as used.
   hasTrial = false;
 
@@ -2103,7 +2117,7 @@ bool QEDsplitSystem::acceptTrial(Event &event) {
 
   // Done.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"end", dashLen);
+    printOut(__METHOD_NAME__,"end", DASHLEN);
   return true;
 }
 
@@ -2130,6 +2144,17 @@ void QEDsplitSystem::updateEvent(Event &event) {
   partSpecNew.mothers(iSpec, iSpec);
   partSpecNew.p(pNew[2]);
   partSpecNew.statusCode(52);
+
+  // Shower may occur at a displaced vertex, or for unstable particle.
+  if ( event[iPhot].hasVertex() ) {
+    partFermNew.vProd( event[iPhot].vProd() );
+    partAFermNew.vProd( event[iPhot].vProd() );
+  }
+  double tau0 = particleDataPtr->tau0( abs(idTrial) );
+  if (tau0 > 0.) {
+    partFermNew.tau( tau0 * rndmPtr->exp() );
+    partAFermNew.tau( tau0 * rndmPtr->exp() );
+  }
 
   // Change the event - add new particles.
   int iFermNew  = event.append(partFermNew);
@@ -2193,9 +2218,9 @@ void QEDconvSystem::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn,
   // Set trial pdf ratios.
   Rhat[1]  = 77;  Rhat[-1] = 63;
   Rhat[2]  = 140; Rhat[-2] = 65;
-  Rhat[3]  = 30;  Rhat[-3] = 30;
-  Rhat[4]  = 22;  Rhat[-4] = 30;
-  Rhat[5]  = 15;  Rhat[-5] = 16;
+  Rhat[3]  = 60;  Rhat[-3] = 60;
+  Rhat[4]  = 44;  Rhat[-4] = 60;
+  Rhat[5]  = 30;  Rhat[-5] = 32;
 
   // Constants.
   TINYPDF = 1.0e-10;
@@ -2219,7 +2244,7 @@ void QEDconvSystem::prepare(int iSysIn, Event &event, double q2CutIn,
     return;
   }
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
 
   // Input.
   iSys = iSysIn;
@@ -2257,7 +2282,7 @@ void QEDconvSystem::prepare(int iSysIn, Event &event, double q2CutIn,
 
   // Done.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
 
 }
 
@@ -2388,7 +2413,7 @@ double QEDconvSystem::q2Next(Event &event, double q2Start) {
 bool QEDconvSystem::acceptTrial(Event &event) {
 
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
   // Mark trial as used.
   hasTrial = false;
 
@@ -2508,7 +2533,7 @@ bool QEDconvSystem::acceptTrial(Event &event) {
 
   // Done.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"end", dashLen);
+    printOut(__METHOD_NAME__,"end", DASHLEN);
   return true;
 }
 
@@ -2599,20 +2624,26 @@ void QEDconvSystem::updateEvent(Event &event) {
   // Check if photon is in beam a or b
   bool isPhotA = (iPhotTrial == iA) ? true : false;
   if (isPhotA) {
-    beam1[iSys].update(iBeamNew, event[iBeamNew].id(),
-      event[iBeamNew].e()/beam1.e());
-    beam2[iSys].update(iSpecNew, event[iSpecNew].id(),
-      event[iSpecNew].e()/beam2.e());
+    double x1 = event[iBeamNew].e()/beam1.e();
+    double x2 = event[iSpecNew].e()/beam2.e();
+    beam1[iSys].update(iBeamNew, event[iBeamNew].id(), x1);
+    beam2[iSys].update(iSpecNew, event[iSpecNew].id(), x2);
+    // Redo choice of valence/sea/companion kind.
+    beam1.xfISR(iSys, event[iBeamNew].id(), x1, q2Trial );
+    beam1.pickValSeaComp();
   } else {
-    beam1[iSys].update(iSpecNew, event[iSpecNew].id(),
-      event[iSpecNew].e()/beam1.e());
-    beam2[iSys].update(iBeamNew, event[iBeamNew].id(),
-      event[iBeamNew].e()/beam2.e());
+    double x1 = event[iSpecNew].e()/beam1.e();
+    double x2 = event[iBeamNew].e()/beam2.e();
+    beam1[iSys].update(iSpecNew, event[iSpecNew].id(), x1);
+    beam2[iSys].update(iBeamNew, event[iBeamNew].id(), x2);
+    // Redo choice of valence/sea/companion kind.
+    beam2.xfISR(iSys, event[iBeamNew].id(), x2, q2Trial );
+    beam2.pickValSeaComp();
   }
 
   // Done.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
 
 }
 
@@ -2714,7 +2745,7 @@ bool VinciaQED::prepare(int iSysIn, Event &event, bool isBelowHad) {
 
   // Verbose output
   if (verbose >= VinciaConstants::DEBUG) {
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
     stringstream ss;
     ss << "Preparing system " << iSysIn;
     printOut(__METHOD_NAME__,ss.str());
@@ -2798,7 +2829,7 @@ bool VinciaQED::prepare(int iSysIn, Event &event, bool isBelowHad) {
 
   // Done.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"end", dashLen);
+    printOut(__METHOD_NAME__,"end", DASHLEN);
   return true;
 
 }
@@ -2811,7 +2842,7 @@ void VinciaQED::update(Event &event, int iSys) {
 
   // Find index of the system.
   if (verbose >= VinciaConstants::DEBUG) {
-    printOut(__METHOD_NAME__, "begin (iSys"+num2str(iSys,2)+")", dashLen);
+    printOut(__METHOD_NAME__, "begin (iSys"+num2str(iSys,2)+")", DASHLEN);
   }
 
   if (emitSystems.find(iSys) != emitSystems.end())
@@ -2824,7 +2855,7 @@ void VinciaQED::update(Event &event, int iSys) {
   // Done.
   if (verbose >= VinciaConstants::DEBUG) {
     event.list();
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
   }
 }
 
@@ -2843,7 +2874,7 @@ double VinciaQED::q2Next(Event &event, double q2Start, double) {
 
   // Verbose output.
   if (verbose >= VinciaConstants::DEBUG) {
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
     stringstream ss;
     ss << "q2Start = " << q2Start
        << " doEmit = " << bool2str(doEmission)
@@ -2877,7 +2908,7 @@ double VinciaQED::q2Next(Event &event, double q2Start, double) {
 
   // Done.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
   return q2Trial;
 
 }
@@ -2890,7 +2921,7 @@ bool VinciaQED::acceptTrial(Event &event) {
 
   // Verbose output.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
   bool accept = false;
 
   // Delegate.
@@ -2899,7 +2930,7 @@ bool VinciaQED::acceptTrial(Event &event) {
   // Done.
   if (verbose >= VinciaConstants::DEBUG) {
     string result = (accept) ? "accept" : "reject";
-    printOut(__METHOD_NAME__, "end ("+result+")", dashLen);
+    printOut(__METHOD_NAME__, "end ("+result+")", DASHLEN);
   }
   return accept;
 
@@ -2913,14 +2944,14 @@ void VinciaQED::updateEvent(Event &event) {
 
   // Verbose output.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"begin", dashLen);
+    printOut(__METHOD_NAME__,"begin", DASHLEN);
 
   // Delegate.
   if (qedTrialSysPtr != nullptr) qedTrialSysPtr->updateEvent(event);
 
   // Done.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"end", dashLen);
+    printOut(__METHOD_NAME__,"end", DASHLEN);
 
   return;
 
@@ -2934,14 +2965,14 @@ void VinciaQED::updatePartonSystems(Event&) {
 
   // Verbose output.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"begin", dashLen);
+    printOut(__METHOD_NAME__,"begin", DASHLEN);
 
   // Delegate.
   if (qedTrialSysPtr!=nullptr) qedTrialSysPtr->updatePartonSystems();
 
   // Done.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"end", dashLen);
+    printOut(__METHOD_NAME__,"end", DASHLEN);
   return;
 
 }

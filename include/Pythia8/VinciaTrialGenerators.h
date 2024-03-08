@@ -1,5 +1,5 @@
 // VinciaTrialGenerators.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2024 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -48,15 +48,15 @@ class TrialGenerator {
 
   // Main constructor.
   TrialGenerator(bool isSectorIn, TrialGenType trialGenTypeIn,
-    BranchType branchTypeIn, ZetaGeneratorSet& zetaGenSet)
+    BranchType branchTypeIn, ZetaGeneratorSet* zetaGenSet)
     : isSector(isSectorIn), trialGenTypeSav(trialGenTypeIn),
         branchType(branchTypeIn) { setupZetaGens(zetaGenSet); }
 
   // Destructor.
-    virtual ~TrialGenerator() = default;
+  virtual ~TrialGenerator() = default;
 
   // Set pointers to zetaGenerators.
-  void setupZetaGens(ZetaGeneratorSet& zetaGenSet);
+  void setupZetaGens(ZetaGeneratorSet* zetaGenSet);
 
   // Re-calculate the current zeta limits and integrals.
   virtual void reset(double Q2min, double s, const vector<double> & masses,
@@ -98,7 +98,7 @@ class TrialGenerator {
   // Calculate the PDF ratio.
   virtual void calcRpdf(const vector<double>&) {Rpdf = 1.0;}
 
-  void addGenerator(ZetaGeneratorSet& zetaGenSet,
+  void addGenerator(ZetaGeneratorSet* zetaGenSet,
     Sector sector = Sector::Default);
 
   // True when init succeeds.
@@ -146,10 +146,11 @@ class TrialGeneratorFF : public TrialGenerator {
 
  public:
 
-  // Default constructor.
+  // Default constructor/destructor.
   TrialGeneratorFF(bool isSectorIn, BranchType branchTypeIn,
-    ZetaGeneratorSet& zetaGenSet) : TrialGenerator(isSectorIn,
+    ZetaGeneratorSet* zetaGenSet) : TrialGenerator(isSectorIn,
       TrialGenType::FF, branchTypeIn, zetaGenSet) {;}
+  ~TrialGeneratorFF() = default;
 
  private:
 
@@ -165,10 +166,11 @@ class TrialGeneratorRF : public TrialGenerator{
 
  public:
 
-  // Default constructor.
+  // Default constructor/destructor.
   TrialGeneratorRF(bool isSectorIn, BranchType branchTypeIn,
-    ZetaGeneratorSet& zetaGenSet) : TrialGenerator(isSectorIn,
+    ZetaGeneratorSet* zetaGenSet) : TrialGenerator(isSectorIn,
       TrialGenType::RF, branchTypeIn, zetaGenSet) {;}
+  ~TrialGeneratorRF() = default;
 
  private:
 
@@ -184,10 +186,11 @@ class TrialGeneratorIF : public TrialGenerator {
 
  public:
 
-  // Default constructor.
+  // Default constructor/destructor.
   TrialGeneratorIF(bool isSectorIn, BranchType branchTypeIn,
-    ZetaGeneratorSet& zetaGenSet) : TrialGenerator(isSectorIn,
+    ZetaGeneratorSet* zetaGenSet) : TrialGenerator(isSectorIn,
       TrialGenType::IF, branchTypeIn, zetaGenSet) {;}
+  ~TrialGeneratorIF() = default;
 
 };
 
@@ -199,10 +202,11 @@ class TrialGeneratorII : public TrialGenerator {
 
  public:
 
-  // Default constructor.
+  // Default constructor/destructor.
   TrialGeneratorII(bool isSectorIn, BranchType branchTypeIn,
-    ZetaGeneratorSet& zetaGenSet) : TrialGenerator(isSectorIn,
+    ZetaGeneratorSet* zetaGenSet) : TrialGenerator(isSectorIn,
       TrialGenType::II, branchTypeIn, zetaGenSet) {;}
+  ~TrialGeneratorII() = default;
 
 };
 
@@ -217,6 +221,9 @@ class ZetaGeneratorSet {
 
   // Construct all zeta generators for a given type.
   ZetaGeneratorSet(TrialGenType trialGenTypeIn);
+
+  // Destructor.
+  ~ZetaGeneratorSet() = default;
 
   // Get ptr to ZetaGenerator for a sector.
   ZetaGeneratorPtr getZetaGenPtr(BranchType branchType, Sector sectIn);
@@ -335,9 +342,10 @@ class ZGenFFEmitSoft : public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenFFEmitSoft() : ZetaGenerator(TrialGenType::FF , BranchType::Emit,
     Sector::Default, 1.0) {;}
+  ~ZGenFFEmitSoft() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
@@ -350,8 +358,8 @@ class ZGenFFEmitSoft : public ZetaGenerator {
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType == QQemitFF || antFunType == QGemitFF ||
-      antFunType == GQemitFF || antFunType == GGemitFF;}
+    return antFunType == QQEmitFF || antFunType == QGEmitFF ||
+      antFunType == GQEmitFF || antFunType == GGEmitFF;}
 
  private:
 
@@ -368,9 +376,10 @@ class ZGenFFEmitColI: public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenFFEmitColI() : ZetaGenerator(TrialGenType::FF, BranchType::Emit,
     Sector::ColI,1.0) {;}
+  ~ZGenFFEmitColI() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt,const vector<double>& masses,
@@ -383,7 +392,7 @@ class ZGenFFEmitColI: public ZetaGenerator {
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType == GQemitFF || antFunType == GGemitFF;}
+    return antFunType == GQEmitFF || antFunType == GGEmitFF;}
 
  private:
 
@@ -400,9 +409,10 @@ class ZGenFFEmitColK : public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenFFEmitColK() : ZetaGenerator(TrialGenType::FF, BranchType::Emit,
     Sector::ColK, 1.0) {;}
+  ~ZGenFFEmitColK() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt,const vector<double>& masses,
@@ -415,7 +425,7 @@ class ZGenFFEmitColK : public ZetaGenerator {
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType == QGemitFF || antFunType == GGemitFF;}
+    return antFunType == QGEmitFF || antFunType == GGEmitFF;}
 
  private:
 
@@ -432,9 +442,10 @@ class ZGenFFSplit : public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenFFSplit() : ZetaGenerator(TrialGenType::FF , BranchType::SplitF,
     Sector::Default, 0.5) {;}
+  ~ZGenFFSplit() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
@@ -447,7 +458,7 @@ class ZGenFFSplit : public ZetaGenerator {
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType == GXsplitFF;}
+    return antFunType == GXSplitFF;}
 
  private:
 
@@ -468,9 +479,10 @@ class ZGenRFEmitSoft : public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenRFEmitSoft() : ZetaGenerator(TrialGenType::RF, BranchType::Emit,
     Sector::Default, 1.0) {;}
+  ~ZGenRFEmitSoft() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
@@ -483,7 +495,7 @@ class ZGenRFEmitSoft : public ZetaGenerator {
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType == QQemitRF || antFunType == QGemitRF;}
+    return antFunType == QQEmitRF || antFunType == QGEmitRF;}
 
  private:
 
@@ -499,9 +511,10 @@ class ZGenRFEmitSoftAlt : public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenRFEmitSoftAlt() : ZetaGenerator(TrialGenType::RF, BranchType::Emit,
     Sector::Default, 1.0) {;}
+  ~ZGenRFEmitSoftAlt() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
@@ -514,7 +527,7 @@ class ZGenRFEmitSoftAlt : public ZetaGenerator {
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses ) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType == QQemitRF || antFunType == QGemitRF;}
+    return antFunType == QQEmitRF || antFunType == QGEmitRF;}
 
  private:
 
@@ -531,9 +544,10 @@ class ZGenRFEmitColK : public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenRFEmitColK() : ZetaGenerator(TrialGenType::RF, BranchType::Emit,
     Sector::ColK, 1.0) {;}
+  ~ZGenRFEmitColK() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
@@ -546,7 +560,7 @@ class ZGenRFEmitColK : public ZetaGenerator {
   double aTrial( const vector<double>& invariants,
     const vector<double>& masses ) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType == QGemitRF;}
+    return antFunType == QGEmitRF;}
 
  private:
 
@@ -563,9 +577,10 @@ class ZGenRFSplit : public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenRFSplit() : ZetaGenerator(TrialGenType::RF, BranchType::SplitF,
     Sector::Default, 0.5) {;}
+  ~ZGenRFSplit() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
@@ -578,7 +593,7 @@ class ZGenRFSplit : public ZetaGenerator {
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses ) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType == XGsplitRF;}
+    return antFunType == XGSplitRF;}
 
  private:
 
@@ -599,9 +614,10 @@ class ZGenIFEmitSoft : public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenIFEmitSoft() :
     ZetaGenerator(TrialGenType::IF, BranchType::Emit, Sector::Default, 1.0) {;}
+  ~ZGenIFEmitSoft() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
@@ -614,8 +630,8 @@ class ZGenIFEmitSoft : public ZetaGenerator {
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {return
-      antFunType == QQemitIF || antFunType == QGemitIF ||
-      antFunType == GQemitIF || antFunType == GGemitIF;}
+      antFunType == QQEmitIF || antFunType == QGEmitIF ||
+      antFunType == GQEmitIF || antFunType == GGEmitIF;}
 
  private:
 
@@ -632,9 +648,10 @@ class ZGenIFEmitColA : public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenIFEmitColA() :
     ZetaGenerator(TrialGenType::IF, BranchType::Emit, Sector::ColI, 1.0) {;}
+  ~ZGenIFEmitColA() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
@@ -647,7 +664,7 @@ class ZGenIFEmitColA : public ZetaGenerator {
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType  == GQemitIF || antFunType == GGemitIF;}
+    return antFunType  == GQEmitIF || antFunType == GGEmitIF;}
 
  private:
 
@@ -664,9 +681,10 @@ class ZGenIFEmitColK : public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenIFEmitColK() : ZetaGenerator(TrialGenType::IF, BranchType::Emit,
     Sector::ColK, 1.0) {;}
+  ~ZGenIFEmitColK() = default;
 
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
     double xA=1., double xB=1.) override;
@@ -678,7 +696,7 @@ class ZGenIFEmitColK : public ZetaGenerator {
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {return
-      antFunType == QGemitIF || antFunType == GGemitIF;}
+      antFunType == QGEmitIF || antFunType == GGEmitIF;}
 
  private:
 
@@ -695,9 +713,10 @@ class ZGenIFSplitA: public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenIFSplitA() : ZetaGenerator(TrialGenType::IF, BranchType::SplitI,
     Sector::Default, 1.) {;}
+  ~ZGenIFSplitA() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
@@ -710,7 +729,7 @@ class ZGenIFSplitA: public ZetaGenerator {
   double aTrial( const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType == QXsplitIF;}
+    return antFunType == QXConvIF;}
 
  private:
 
@@ -727,9 +746,10 @@ class ZGenIFSplitK : public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenIFSplitK() : ZetaGenerator(TrialGenType::IF, BranchType::SplitF,
     Sector::Default, .5) {;}
+  ~ZGenIFSplitK() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
@@ -742,7 +762,7 @@ class ZGenIFSplitK : public ZetaGenerator {
   double aTrial(const vector<double> & invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType == XGsplitIF;}
+    return antFunType == XGSplitIF;}
 
  private:
 
@@ -759,9 +779,10 @@ class ZGenIFConv : public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenIFConv() : ZetaGenerator(TrialGenType::IF, BranchType::Conv,
     Sector::Default, 1.) {;}
+  ~ZGenIFConv() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
@@ -774,7 +795,7 @@ class ZGenIFConv : public ZetaGenerator {
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType == GXconvIF;}
+    return antFunType == GXConvIF;}
 
  private:
 
@@ -795,9 +816,10 @@ class ZGenIIEmitSoft : public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenIIEmitSoft() : ZetaGenerator(TrialGenType::II, BranchType::Emit,
     Sector::Default, 1.0) {;}
+  ~ZGenIIEmitSoft() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
@@ -810,8 +832,8 @@ class ZGenIIEmitSoft : public ZetaGenerator {
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType == QQemitII || antFunType == GQemitII ||
-      antFunType == GGemitII;}
+    return antFunType == QQEmitII || antFunType == GQEmitII ||
+      antFunType == GGEmitII;}
 
  private:
 
@@ -828,9 +850,10 @@ class ZGenIIEmitCol : public ZetaGenerator {
 
  public:
 
-  // Constructor
+  // Constructor/destructor.
   ZGenIIEmitCol() : ZetaGenerator(TrialGenType::II, BranchType::Emit,
     Sector::ColI, 1.0) {;}
+  ~ZGenIIEmitCol() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
@@ -843,7 +866,7 @@ class ZGenIIEmitCol : public ZetaGenerator {
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses ) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType  == GQemitII || antFunType == GGemitII;}
+    return antFunType  == GQEmitII || antFunType == GGEmitII;}
 
  private:
 
@@ -860,9 +883,10 @@ class ZGenIISplit : public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenIISplit() : ZetaGenerator(TrialGenType::II, BranchType::SplitI,
     Sector::Default, 1.) {;}
+  ~ZGenIISplit() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
@@ -875,7 +899,7 @@ class ZGenIISplit : public ZetaGenerator {
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType == QXsplitII;}
+    return antFunType == QXConvII;}
 
  private:
 
@@ -892,9 +916,10 @@ class ZGenIIConv : public ZetaGenerator {
 
  public:
 
-  // Constructor.
+  // Constructor/destructor.
   ZGenIIConv() : ZetaGenerator(TrialGenType::II, BranchType::Conv,
     Sector::Default, 1.) {;}
+  ~ZGenIIConv() = default;
 
   // Overridden methods.
   double getzMin(double Q2,double sAnt, const vector<double>& masses,
@@ -908,7 +933,7 @@ class ZGenIIConv : public ZetaGenerator {
   double aTrial(const vector<double>& invariants,
     const vector<double>& masses) override;
   bool isActive(enum AntFunType antFunType) override {
-    return antFunType == GXconvII;}
+    return antFunType == GXConvII;}
 
  private:
 

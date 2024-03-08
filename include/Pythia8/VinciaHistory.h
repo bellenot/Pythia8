@@ -1,5 +1,5 @@
 // VinciaHistory.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -147,7 +147,7 @@ class HistoryNode {
     double scaleIn) : HistoryNode() {
     state = stateIn;
     clusterableChains = chainsIn;
-    QevolNow = scaleIn;
+    qEvolNow = scaleIn;
     hasRes = false;
     iRes = 0;
     idRes = 0;
@@ -187,10 +187,10 @@ class HistoryNode {
   int colTypeB() const {return state[4].colType();}
 
   // Get evolution scale (used in trial shower).
-  double getEvolNow() const {return QevolNow;}
+  double getEvolNow() const {return qEvolNow;}
 
   // Setter methods.
-  void setEvolScale(double scaleIn) {QevolNow = scaleIn;}
+  void setEvolScale(double scaleIn) {qEvolNow = scaleIn;}
 
   // Current state.
   Event state;
@@ -231,7 +231,7 @@ class HistoryNode {
   bool isInitPtr;
 
   // The value of the evolution scale.
-  double QevolNow;
+  double qEvolNow;
 
   // List of next possible clusterings.
   // Map is from corresponding resolution criterion.

@@ -10,8 +10,10 @@
 #include <Pythia8/ResonanceWidths.h>
 #include <Pythia8/SLHAinterface.h>
 #include <Pythia8/SigmaProcess.h>
+#include <functional>
 #include <istream>
 #include <iterator>
+#include <map>
 #include <memory>
 #include <ostream>
 #include <sstream>
@@ -24,6 +26,7 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
+#include <Pythia8/SplittingsOnia.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>

@@ -1,5 +1,5 @@
-// main203.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// main205.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -8,7 +8,7 @@
 // Keywords: madgraph; Vincia; weak showers
 
 // Example showing how to run Vincia's electroweak shower, for the example
-// process pp > dijets (with pThat >= 2000 GeV) at eCM = 14000 GeV.
+// process ee > gamma*/Z > neutrinos at eCM = 1000 GeV.
 // The Vincia EW shower requires hard-process partons with assigned
 // helicities. This is done via Pythia's MG5 matrix-element interface.
 
@@ -46,23 +46,25 @@ int main() {
   pythia.readString("Next:numberShowEvent  = 0");
 
   // Beams and CM energy.
-  pythia.readString("Beams:idA  =  2212");
-  pythia.readString("Beams:idB  =  2212");
-  pythia.readString("Beams:eCM = 14000.0");
+  pythia.readString("Beams:idA  =   11");
+  pythia.readString("Beams:idB  =  -11");
+  pythia.readString("Beams:eCM = 10000.0");
   pythia.readString("Next:numberCount = 100");
 
   // Process and MG5 library (see plugins/mg5mes/).
-  pythia.readString("HardQCD:all = on");
-  pythia.readString("PhaseSpace:pThatMin = 2000.0");
-  pythia.readString("Vincia:mePlugin = procs_qcd_sm");
+  pythia.readString("WeakSingleBoson:ffbar2gmZ = on");
+  pythia.readString("23:onMode = off");
+  pythia.readString("23:onIfAny = 12");
+  pythia.readString("Vincia:mePlugin = procs_ew_sm-ckm");
 
   // VINCIA settings
   pythia.readString("PartonShowers:model   = 2");
   pythia.readString("Vincia:helicityShower = on");
   pythia.readString("Vincia:ewMode         = 3");
-  pythia.readString("Print:verbosity       = 2");
 
-  // Switch off MPI and hadronisation (to speed things up).
+  // Switch off ISR and MPI.
+  pythia.readString("PDF:lepton = off");
+  pythia.readString("PartonLevel:ISR = off");
   pythia.readString("PartonLevel:MPI = off");
   pythia.readString("HadronLevel:all = off");
 
@@ -83,7 +85,7 @@ int main() {
   // Generation, event-by-event printout, analysis, and histogramming.
 
   // Counter for negative-weight events
-  double weight=1.0;
+  double weight = 1.0;
   double sumWeights = 0.0;
 
   // Begin event loop
@@ -92,7 +94,7 @@ int main() {
 
     bool aborted = !pythia.next();
     if(aborted){
-      event.list();
+      event.list(true);
       if (++iAbort < nAbort){
         continue;
       }
@@ -112,7 +114,7 @@ int main() {
     double nFinal = 0;
     double nWeak  = 0;
     double nGam   = 0;
-    for (int i=5;i<event.size();i++) {
+    for (int i = 5;i<event.size();i++) {
       // Count up final-state charged hadrons
       if (event[i].isFinal()) {
         ++nFinal;
@@ -126,9 +128,9 @@ int main() {
         nWeak += 0.5;
       }
     }
-    histNWeak.fill(nWeak,weight);
-    histNFinal.fill(nFinal,weight);
-    histNGam.fill(nGam,weight);
+    histNWeak.fill(nWeak, weight);
+    histNFinal.fill(nFinal, weight);
+    histNGam.fill(nGam, weight);
     nGamSum   += nGam * weight;
     nWeakSum  += nWeak * weight;
     nFinalSum += nFinal * weight;

@@ -176,7 +176,7 @@ closer to the PYTHIA 6 conventions.</li>
  
 <li><code>main31.cc</code> : exemplifies an improved matching of 
 parton showers to LHEF-style input based on the 
-<aloc href="POWHEGMerging">POWHEG approach</aloc>. The 
+<aloc href="POWHEGMatching">POWHEG approach</aloc>. The 
 <code>main31.cmnd</code> allows to switch between several different 
 matching options. It also allows to select input process, in this case 
 either for the POWHEG-hvq program applied to top pair production 
@@ -571,20 +571,39 @@ spectra, and multiplicity counts.</li>
  
 <li><code>main201.cc</code> : comparison of VINCIA and Pythia on 
 inclusive jets at LHC, with option to run the two generators in 
-parallel using OpenMP.</li> 
+parallel using OpenMP. See <code>main204.cc</code> for how to do this 
+with the Parallelism framework.</li> 
  
 <li><code>main202.cc</code> : VINCIA setup for ttbar production at 
 LHC, with measurement of run time and options to switch various shower 
-and MPI/hadronisation components on/off via command file.</li> 
+and MPI/hadronization components on/off via command file.</li> 
  
-<li><code>main203.cc</code> : VINCIA setup for electroweak shower off 
-high-pT dijets at LHC. The VINCIA EW shower requires hard-process 
-partons with assigned helicities. This is done via Pythia's MG5 
-matrix-element interface, which this example also shows how to build 
-and link.</li> 
  
 <li><code>main204.cc</code> : demonstrates the example of 
-<code>main201</code> using parallelism framework.</li> 
+<code>main201</code> using the Parallelism framework.</li> 
+ 
+<li><code>main205.cc</code> : VINCIA setup for electroweak shower off 
+a fictitious process for <ei>Z</ei> decay to neutrinos at high 
+mass. (In the absence of a weak shower, these would not shower at 
+all.) The VINCIA EW shower requires hard-process partons with 
+assigned helicities. This is done via Pythia's MG5 matrix-element 
+interface, which must be compiled and linked (using <code>configure 
+--with-mg5mes</code>).</li> 
+ 
+<li><code>main206.cc</code> : previously <code>main203.cc</code> 
+VINCIA setup for electroweak shower off high-pT dijets at the LHC. The 
+VINCIA EW shower requires hard-process partons with assigned 
+helicities. This is done via Pythia's MG5 matrix-element interface, 
+which must be compiled and linked (using <code>configure 
+--with-mg5mes</code>).</li> 
+ 
+<li><code>main207.cc</code> : VINCIA electroweak showers off an LHEF 
+file for dark-matter annihilation. The VINCIA EW shower requires 
+hard-process partons with assigned helicities. In this example, these 
+are read in from the LHEF file.</li> 
+ 
+<li><code>main208.cc</code> : VINCIA setup for double-dissociative 
+photon-initiated gamma gamma &rarr; mu+ mu- at LHC.</li> 
  
 <li><code>main280.cc</code> : do CKKW-L merging with the VINCIA sector 
 shower with HepMC2 output to use in RIVET analyses. Also redirects all 
@@ -596,6 +615,13 @@ parallelization. More documentation can be obtained by executing
 <code>./main300 --help</code>. The input file main300.cmnd further 
 illustrates the use of DIRE.</li> 
  
+<li><code>main301.cc</code> : demonstrates the use of in-situ 
+hadronization reweighting for variations of both kinematic and flavor 
+hadronization parameters. The output compares multiplicity 
+distributions from the default parameters to the reweighted output 
+with the varied parameters and the output using the varied parameters 
+without reweighting.</li> 
+ 
 <li><code>main333.cc</code> : illustrates the use of UserHooks to veto 
 events after hadronization, but before any subsequent processes such 
 as rescattering or Bose-Einstein.</li> 
@@ -604,4 +630,4 @@ as rescattering or Bose-Einstein.</li>
  
 </chapter> 
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

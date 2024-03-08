@@ -1,5 +1,5 @@
 // BeamSetup.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -88,6 +88,10 @@ public:
 
   // Initialize kinematics and PDFs of beams.
   bool initBeams(bool doNonPertIn, StringFlav* flavSelPtr);
+
+  // Return whether VMD states sampled.
+  bool getVMDsideA() { return doVMDsideA; }
+  bool getVMDsideB() { return doVMDsideB; }
 
   // Clear all beams.
   void clear();

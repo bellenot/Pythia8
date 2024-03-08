@@ -136,7 +136,7 @@ Hard Processes</button>
 <div class="panel"> 
 <aidx href="MatchingAndMerging">Matching and Merging</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
-<aidx href="POWHEGMerging">POWHEG Matching</aidx><br/> 
+<aidx href="POWHEGMatching">POWHEG Matching</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <aidx href="aMCatNLOMatching">aMC@NLO Matching</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
@@ -163,7 +163,7 @@ Hard Processes</button>
 <aidx href="ExternalDecays">External Decays</aidx><br/> 
 </div> 
  
-<button class="expand" style="font-size:20px;">Hadronisation</button> 
+<button class="expand" style="font-size:20px;">Hadronization</button> 
 <div class="panel"> 
 <aidx href="BeamRemnants">Beam Remnants</aidx><br/> 
 <aidx href="ColourReconnection">Colour Reconnection</aidx><br/> 
@@ -171,7 +171,11 @@ Hard Processes</button>
 &nbsp;&nbsp;--&nbsp;&nbsp; 
 <aidx href="FlavourSelection">Flavour Selection</aidx><br/> 
 &nbsp;&nbsp;--&nbsp;&nbsp; 
+<aidx href="HadronizationVariations">Hadronization Variations</aidx><br/> 
+&nbsp;&nbsp;--&nbsp;&nbsp; 
 <aidx href="RopeHadronization">Rope Hadronization</aidx><br/> 
+&nbsp;&nbsp;--&nbsp;&nbsp; 
+<aidx href="ClosePacking">Close Packing</aidx><br/> 
 <aidx href="PartonVertexInformation">Parton Vertex Information</aidx><br/> 
 <aidx href="HadronVertexInformation">Hadron Vertex Information</aidx><br/> 
 <aidx href="HadronicRescattering">Hadronic Rescattering</aidx><br/> 
@@ -231,4 +235,4 @@ Hard Processes</button>
 <script src="Expand.js"></script> 
 </chapter> 
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

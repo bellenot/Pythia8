@@ -1,5 +1,5 @@
 // HISubCollisionModel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -95,7 +95,7 @@ public:
   // Reset the subcollisions.
   bool empty() const { return subCollisionsSave.empty(); }
 
-
+  // The summed elastic amplitude.
   double T() const { return TSave; }
 
   // Iterators over the subcollisions.
@@ -157,7 +157,7 @@ public:
   static shared_ptr<SubCollisionModel> create(int model);
 
   // Virtual init method.
-  virtual bool init(double eCMIn);
+  virtual bool init(int idAIn, int idBIn, double eCMIn);
 
   // Initialize the pointers.
   void initPtr(NucleusModel & projIn, NucleusModel & targIn,
@@ -172,59 +172,50 @@ public:
     loggerPtr = infoIn.loggerPtr;
   }
 
-  // Take two vectors of nucleons and an impact parameter vector and
-  // produce the corrsponding sub-collisions. Note that states of the
-  // nucleons may be changed. The function in this abstract base
-  // class will reset the nucleon states for convenience. The
-  // sub-collisions are ordered in the impact parameter distance
-  // between the nucleons. The T-variable will be set to the summed
-  // elastic amplitude.
-  virtual SubCollisionSet getCollisions(Nucleus& proj, Nucleus& targ) = 0;
-
   // Access the nucleon-nucleon cross sections assumed
   // for this model.
 
-  // The total cross section.
+  // The target total nucleon-nucleon cross section.
   double sigTot() const { return sigTarg[0]; }
 
-  // The elastic cross section.
+  // The target elastic cross section.
   double sigEl() const { return sigTarg[6]; }
 
-  // The central diffractive excitation cross section.
+  // The target central diffractive excitation cross section.
   double sigCDE() const { return sigTarg[5]; }
 
-  // The single diffractive excitation cross section (both sides summed).
+  // The target single diffractive excitation cross section (both sides).
   double sigSDE() const { return sigTarg[3] + sigTarg[4]; }
 
-  // The single diffractive excitation cross section (excited projectile).
+  // The target single diffractive excitation cross section (projectile).
   double sigSDEP() const { return sigTarg[3]; }
 
-  // The single diffractive excitation cross section (excited target).
+  // The target single diffractive excitation cross section (target).
   double sigSDET() const { return sigTarg[4]; }
 
-  // The double diffractive excitation cross section.
+  // The target double diffractive excitation cross section.
   double sigDDE() const { return sigTarg[2]; }
 
-  // The non-diffractive (absorptive) cross section.
+  // The target non-diffractive (absorptive) cross section.
   double sigND() const { return sigTarg[1]; }
 
-  // The elastic b-slope parameter.
+  // The target elastic b-slope parameter.
   double bSlope() const { return sigTarg[7]; }
-
-  // Update internally stored cross sections.
-  void updateSig();
-
-  // Calculate the cross sections for the given set of parameters.
-  virtual SigEst getSig() const { return SigEst(); }
 
   // Return the average non-diffractive impact parameter.
   double avNDB() const { return avNDb; }
 
+  // Update internally stored cross sections.
+  void updateSig();
+
   // Calculate the Chi2 for the given cross section estimates.
   double Chi2(const SigEst & sigs, int npar) const;
 
-  // Use a simplified genetic algorithm to fit the parameters.
-  virtual bool evolve(int nGenerations, double eCM);
+  // Set beam kinematics.
+  void setKinematics(double eCMIn);
+
+  // Use a genetic algorithm to fit the parameters.
+  bool evolve(int nGenerations, double eCM);
 
   // Get the number of free parameters for the model.
   int nParms() const { return parmSave.size(); }
@@ -236,18 +227,23 @@ public:
   }
 
   // Get the current parameters of this model.
-  vector<double> getParm() const {
-    return parmSave;
-  }
+  vector<double> getParm() const { return parmSave; }
 
   // Get the minimum allowed parameter values for this model.
   virtual vector<double> minParm() const = 0;
 
+  // Get the default parameter values for this model.
+  virtual vector<double> defParm() const = 0;
+
   // Get the maximum allowed parameter values for this model.
   virtual vector<double> maxParm() const = 0;
 
-  // Set beam kinematics.
-  void setKinematics(double eCMIn);
+  // Take two nuclei and produce the corresponding subcollisions. The states
+  // of the nucleons may be changed if fluctuations are allowed by the model.
+  virtual SubCollisionSet getCollisions(Nucleus& proj, Nucleus& targ) = 0;
+
+  // Calculate the cross sections for the given set of parameters.
+  virtual SigEst getSig() const = 0;
 
 private:
 
@@ -288,6 +284,7 @@ protected:
   Logger* loggerPtr;
 
   // For variable energies.
+  int idASave, idBSave;
   bool doVarECM;
   double eMin{}, eMax{};
   int eCMPts;
@@ -309,15 +306,24 @@ public:
   BlackSubCollisionModel() : SubCollisionModel(0) {}
 
   // Virtual destructor.
-  virtual ~BlackSubCollisionModel() {}
+  virtual ~BlackSubCollisionModel() override {}
 
   // Get the minimum and maximum allowed parameter values for this model.
   vector<double> minParm() const override { return vector<double>(); }
+  vector<double> defParm() const override { return vector<double>(); }
   vector<double> maxParm() const override { return vector<double>(); }
 
-  // Take two vectors of Nucleons and an impact parameter vector and
-  // produce the corrsponding sub-collisions. Note that states of the
-  // nucleons may be changed.
+  // Get cross sections used by this model.
+  virtual SigEst getSig() const override {
+    SigEst s;
+    s.sig[0] = sigTot();
+    s.sig[1] = sigND();
+    s.sig[6] = s.sig[0] - s.sig[1];
+    s.sig[7] = bSlope();
+    return s;
+  }
+
+  // Take two nuclei and return the corresponding sub-collisions.
   virtual SubCollisionSet getCollisions(Nucleus& proj, Nucleus& targ) override;
 
 };
@@ -336,67 +342,74 @@ public:
   NaiveSubCollisionModel() : SubCollisionModel(0) {}
 
   // Virtual destructor.
-  virtual ~NaiveSubCollisionModel() {}
+  virtual ~NaiveSubCollisionModel() override {}
 
   // Get the minimum and maximum allowed parameter values for this model.
   vector<double> minParm() const override { return vector<double>(); }
+  vector<double> defParm() const override { return vector<double>(); }
   vector<double> maxParm() const override { return vector<double>(); }
 
-  // Take two vectors of Nucleons and an impact parameter vector and
-  // produce the corrsponding sub-collisions. Note that states of the
-  // nucleons may be changed.
+  // Get cross sections used by this model.
+  virtual SigEst getSig() const override {
+    SigEst s;
+    s.sig[0] = sigTot();
+    s.sig[1] = sigND();
+    s.sig[3] = sigSDEP();
+    s.sig[4] = sigSDET();
+    s.sig[2] = sigDDE();
+    s.sig[6] = sigEl();
+    s.sig[7] = bSlope();
+    return s;
+  }
+
+  // Take two nuclei and return the corresponding sub-collisions.
   virtual SubCollisionSet getCollisions(Nucleus& proj, Nucleus& targ) override;
 
 };
 
 //==========================================================================
 
-// A sub-collision model where each nucleon has a fluctuating
-// "radius" according to a Strikman-inspired distribution.
+// A base class for sub-collision models where each nucleon has a
+// fluctuating "radius". The base model has two parameters, sigd and alpha,
+// which are used for opacity calculations. Subclasses may have additional
+// parameters to describe the radius distributions of that specific model.
 
-class DoubleStrikmanSubCollisionModel : public SubCollisionModel {
+class FluctuatingSubCollisionModel : public SubCollisionModel {
 
 public:
 
   // The default constructor simply lists the nucleon-nucleon cross sections.
-  DoubleStrikmanSubCollisionModel(int modein = 0) : SubCollisionModel(3),
-    sigd(parmSave[0]), k0(parmSave[1]), alpha(parmSave[2]),
-    opacityMode(modein) {}
+  FluctuatingSubCollisionModel(int nParmIn, int modein)
+    : SubCollisionModel(nParmIn + 2),
+      sigd(parmSave[nParmIn]), alpha(parmSave[nParmIn + 1]),
+      opacityMode(modein) {}
 
   // Virtual destructor.
-  virtual ~DoubleStrikmanSubCollisionModel() {}
+  virtual ~FluctuatingSubCollisionModel() override {}
 
-  // Take two vectors of Nucleons and an impact parameter vector and
-  // produce the corrsponding sub-collisions. Note that states of the
-  // nucleons may be changed.
+  // Take two nuclei and pick specific states for each nucleon,
+  // then get the corresponding sub-collisions.
   virtual SubCollisionSet getCollisions(Nucleus& proj, Nucleus& targ) override;
 
   // Calculate the cross sections for the given set of parameters.
-  SigEst getSig() const override;
+  virtual SigEst getSig() const override;
 
-  // Get the minimum and maximum allowed parameter values for this model.
-  vector<double> minParm() const override { return {  1.0,  0.01, 0.0 }; }
-  vector<double> maxParm() const override { return { 60.0, 60.00, 20.0 }; }
+protected:
+
+  // Pick a radius for the nucleon, depending on the specific model.
+  virtual double pickRadiusProj() const = 0;
+  virtual double pickRadiusTarg() const = 0;
 
 private:
 
   // Saturation scale of the nucleus.
   double& sigd;
 
-  // The power in the Gamma distribution.
-  double& k0;
-
   // Power of the saturation scale
   double& alpha;
 
   // Optional mode for opacity.
   int opacityMode;
-
-  // Return the average radius deduced from other parameters and
-  // the toal cross section.
-  double r0() const {
-    return sqrt(sigTot() / (M_PI * (2.0 * k0 + 4.0 * k0 * k0)));
-  }
 
   // The opacity of the collision at a given sigma.
   double opacity(double sig) const {
@@ -415,14 +428,43 @@ private:
     return sig/grey > b*b*2.0*M_PI? grey: 0.0;
   }
 
-  // Helper functions.
-  static void shuffle(double PND1, double PND2,
-                      double & PW1, double & PW2);
-  static void shuffle(double & PEL11, double P11,
-                      double P12, double P21, double P22);
-  static double pnw(double PWp, double PWt, double PND) {
-    return ( 1.0 - PWp <= 0.0 || 1.0 - PWt <= 0.0 )?
-      0.0: (1.0 - PWp)*(1.0 - PWt)/(1.0 - PND);
+};
+
+//==========================================================================
+
+// A sub-collision model where each nucleon has a fluctuating
+// "radius" according to a Strikman-inspired distribution.
+
+class DoubleStrikmanSubCollisionModel : public FluctuatingSubCollisionModel {
+
+public:
+
+  // The default constructor simply lists the nucleon-nucleon cross sections.
+  DoubleStrikmanSubCollisionModel(int modeIn = 0)
+    : FluctuatingSubCollisionModel(1, modeIn), k0(parmSave[0]) {}
+
+  // Virtual destructor.
+  virtual ~DoubleStrikmanSubCollisionModel() override {}
+
+  // Get the minimum and maximum allowed parameter values for this model.
+  vector<double> minParm() const override { return {  0.01,  1.0,  0.0  }; }
+  vector<double> defParm() const override { return {  2.15, 17.24, 0.33 }; }
+  vector<double> maxParm() const override { return { 60.00, 60.0, 20.0  }; }
+
+protected:
+
+  double pickRadiusProj() const override { return rndmPtr->gamma(k0, r0()); }
+  double pickRadiusTarg() const override { return rndmPtr->gamma(k0, r0()); }
+
+private:
+
+  // The power in the Gamma distribution.
+  double& k0;
+
+  // Return the average radius deduced from other parameters and
+  // the total cross section.
+  double r0() const {
+    return sqrt(sigTot() / (M_PI * (2.0 * k0 + 4.0 * k0 * k0)));
   }
 
 };
@@ -480,6 +522,57 @@ protected:
   Rndm* rndmPtr;
   Logger* loggerPtr;
 
+};
+
+//==========================================================================
+
+// A sub-collision model where each nucleon fluctuates independently
+// according to a log-normal distribution. Nucleons in the projectile and
+// target may fluctuate according to different parameters, which is relevant
+// e.g. for hadron-ion collisions with generic hadron species.
+
+class LogNormalSubCollisionModel : public FluctuatingSubCollisionModel {
+
+public:
+
+  // The default constructor simply lists the nucleon-nucleon cross sections.
+  LogNormalSubCollisionModel(int modeIn = 0)
+    : FluctuatingSubCollisionModel(4, modeIn),
+    kProj(parmSave[0]), kTarg(parmSave[1]),
+    rProj(parmSave[2]), rTarg(parmSave[3]) {}
+
+  // Virtual destructor.
+  virtual ~LogNormalSubCollisionModel() {}
+
+  //virtual SigEst getSig() const override;
+
+  // Get the minimum and maximum allowed parameter values for this model.
+  vector<double> minParm() const override {
+    return { 0.01, 0.01, 0.10, 0.10,  1.00, 0.00 }; }
+  vector<double> defParm() const override {
+    return { 1.00, 1.00, 0.54, 0.54, 17.24, 0.33 }; }
+  vector<double> maxParm() const override {
+    return { 2.00, 2.00, 4.00, 4.00, 20.00, 2.00 }; }
+
+protected:
+
+  double pickRadiusProj() const override { return pickRadius(kProj, rProj); }
+  double pickRadiusTarg() const override { return pickRadius(kTarg, rTarg); }
+
+private:
+
+  // The standard deviation of each log-normal distribution.
+  double& kProj;
+  double& kTarg;
+
+  // The mean radius of each nucleon.
+  double& rProj;
+  double& rTarg;
+
+  double pickRadius(double k0, double r0) const {
+    double logSig = log(M_PI * pow2(r0)) + k0 * rndmPtr->gauss();
+    return sqrt(exp(logSig) / M_PI);
+  }
 };
 
 //==========================================================================

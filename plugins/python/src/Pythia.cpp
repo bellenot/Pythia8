@@ -45,6 +45,7 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
+#include <Pythia8/SplittingsOnia.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -137,6 +138,7 @@ void bind_Pythia8_Pythia(std::function< pybind11::module &(std::string const &na
 		cl.def("getHeavyIonsPtr", (class std::shared_ptr<class Pythia8::HeavyIons> (Pythia8::Pythia::*)()) &Pythia8::Pythia::getHeavyIonsPtr, "C++: Pythia8::Pythia::getHeavyIonsPtr() --> class std::shared_ptr<class Pythia8::HeavyIons>");
 		cl.def("getBeamShapePtr", (class std::shared_ptr<class Pythia8::BeamShape> (Pythia8::Pythia::*)()) &Pythia8::Pythia::getBeamShapePtr, "C++: Pythia8::Pythia::getBeamShapePtr() --> class std::shared_ptr<class Pythia8::BeamShape>");
 		cl.def("getShowerModelPtr", (class std::shared_ptr<class Pythia8::ShowerModel> (Pythia8::Pythia::*)()) &Pythia8::Pythia::getShowerModelPtr, "C++: Pythia8::Pythia::getShowerModelPtr() --> class std::shared_ptr<class Pythia8::ShowerModel>");
+		cl.def("getLHAupPtr", (class std::shared_ptr<class Pythia8::LHAup> (Pythia8::Pythia::*)()) &Pythia8::Pythia::getLHAupPtr, "C++: Pythia8::Pythia::getLHAupPtr() --> class std::shared_ptr<class Pythia8::LHAup>");
 		cl.def("setPartonVertexPtr", (bool (Pythia8::Pythia::*)(class std::shared_ptr<class Pythia8::PartonVertex>)) &Pythia8::Pythia::setPartonVertexPtr, "C++: Pythia8::Pythia::setPartonVertexPtr(class std::shared_ptr<class Pythia8::PartonVertex>) --> bool", pybind11::arg("partonVertexPtrIn"));
 		cl.def("init", (bool (Pythia8::Pythia::*)()) &Pythia8::Pythia::init, "C++: Pythia8::Pythia::init() --> bool");
 		cl.def("next", (bool (Pythia8::Pythia::*)()) &Pythia8::Pythia::next, "C++: Pythia8::Pythia::next() --> bool");

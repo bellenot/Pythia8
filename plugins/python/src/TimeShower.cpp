@@ -51,6 +51,7 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
+#include <Pythia8/SplittingsOnia.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -920,6 +921,7 @@ void bind_Pythia8_TimeShower(std::function< pybind11::module &(std::string const
 		cl.def_readwrite("cNSpTmin", &Pythia8::TimeShower::cNSpTmin);
 		cl.def_readwrite("uVarpTmin2", &Pythia8::TimeShower::uVarpTmin2);
 		cl.def_readwrite("overFactor", &Pythia8::TimeShower::overFactor);
+		cl.def_readwrite("overFactorEnhance", &Pythia8::TimeShower::overFactorEnhance);
 		cl.def_readwrite("varG2GGmuRfac", &Pythia8::TimeShower::varG2GGmuRfac);
 		cl.def_readwrite("varQ2QGmuRfac", &Pythia8::TimeShower::varQ2QGmuRfac);
 		cl.def_readwrite("varG2QQmuRfac", &Pythia8::TimeShower::varG2QQmuRfac);

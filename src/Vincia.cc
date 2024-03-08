@@ -1,5 +1,5 @@
 // VinciaCommon.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2024 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -33,7 +33,7 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
     VinciaConstants::DEBUG);
   if (verbose >= VinciaConstants::DEBUG) {
     settingsPtr->mode("Print:verbosity",VinciaConstants::DEBUG);
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
   }
 
   // Create diagnostics pointer.
@@ -291,7 +291,7 @@ bool Vincia::init(MergingPtr mrgPtrIn, MergingHooksPtr mrgHooksPtrIn,
 
   // Verbose output.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
   return true;
 
 }

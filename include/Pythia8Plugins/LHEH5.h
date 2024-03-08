@@ -50,12 +50,9 @@
 #include <vector>
 #include <unistd.h>
 
-// MPI includes.
-#include <mpi.h>
-
 // HighFive includes.
-#include "highfive/H5File.hpp"
-#include "highfive/H5DataSet.hpp"
+#include "H5File.hpp"
+#include "H5DataSet.hpp"
 
 using namespace HighFive;
 

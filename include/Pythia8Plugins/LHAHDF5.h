@@ -1,5 +1,5 @@
 // LHAHDF5.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 // Author: Christian Preuss, January 2021.
@@ -26,7 +26,7 @@ class LHAupH5 : public Pythia8::LHAup {
 
   LHAupH5(HighFive::File* h5fileIn, size_t firstEventIn, size_t readSizeIn,
     string versionIn = "") :
-    nTrials(0), nRead(0), isOldFormat(h5fileIn->exist("/index")),
+    nTrialsSav(0), nRead(0), isOldFormat(h5fileIn->exist("/index")),
     particleSav(h5fileIn->getGroup("particle")),
     eventSav(h5fileIn->getGroup("event")),
     initSav(h5fileIn->getGroup("init")),
@@ -102,7 +102,7 @@ class LHAupH5 : public Pythia8::LHAup {
   bool setInit() override;
   bool setEvent(int idProc=0) override;
   void forceStrategy(int strategyIn) {setStrategy(strategyIn);}
-  size_t getTrials() {return nTrials;}
+  size_t nTrials() {return nTrialsSav;}
 
  private:
 
@@ -117,7 +117,7 @@ class LHAupH5 : public Pythia8::LHAup {
   LHEH5::Events2 lheEvts2Sav;
 
   // Info for reader.
-  size_t         readSizeSav, firstEventSav, nTrials;
+  size_t         readSizeSav, firstEventSav, nTrialsSav;
   int            npLOSav, npNLOSav;
   bool           valid, isOldFormat, hasMultiWts;
   string         versionSav;
@@ -194,14 +194,14 @@ bool LHAupH5::setEvent(int idProc) {
   LHEH5::EventHeader evtHeader = !isOldFormat ?
     lheEvts2Sav.mkEventHeader(nRead) : lheEvtsSav.mkEventHeader(nRead);
   weightsSav = evtHeader.weights;
-  nTrials += evtHeader.trials;
+  nTrialsSav += evtHeader.trials;
   // Skip zero-weight events, but add trials.
   while (weightsSav[0] == 0. && nRead < readSizeSav - 1) {
     ++nRead;
     evtHeader  = !isOldFormat ?
       lheEvts2Sav.mkEventHeader(nRead) : lheEvtsSav.mkEventHeader(nRead);
     weightsSav = evtHeader.weights;
-    nTrials   += evtHeader.trials;
+    nTrialsSav   += evtHeader.trials;
   }
   // Communicate event weight to Info.
   infoPtr->weightContainerPtr->setWeightNominal( weightsSav[0] );

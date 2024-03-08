@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copyright (C) 2023 Torbjorn Sjostrand.
+# Copyright (C) 2024 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, August 2019.
@@ -30,7 +30,7 @@ Configuration options.
 --debug     : Do not remove generated files.
 BLOCKTEXT
 OPTIONS="-h --h -help --help --part --full --user --debug"
-CLASSES="Pythia PythiaParallel Event Vec4 RotBstMatrix Particle ParticleData ParticleDataEntry DecayChannel Info Settings Flag Mode Parm Word FVec MVec PVec WVec Rndm PDF DecayHandler RndmEngine UserHooks MergingHooks BeamShape SigmaProcess TimeShower SpaceShower HeavyIons PartonVertex Hist HistPlot SlowJet SlowJetHook"
+CLASSES="Pythia PythiaParallel Event Vec4 RotBstMatrix Particle ParticleData ParticleDataEntry DecayChannel Info HIInfo Settings Flag Mode Parm Word FVec MVec PVec WVec Rndm PDF DecayHandler RndmEngine UserHooks MergingHooks BeamShape SigmaProcess TimeShower SpaceShower HeavyIons PartonVertex Hist HistPlot SlowJet SlowJetHook"
 GILS="PythiaParallel::init PythiaParallel::run"
 FUNCTIONS="m m2 dot3 cross3 cross4 theta costheta phi cosphi RRapPhi REtaPhi"
 PYTHIA_INCLUDE="../../include"
@@ -58,6 +58,7 @@ function binder() {
 function configure_base() {
     cat > $BINDER_CFG << BLOCKTEXT
 +include <Pythia8/UserHooks.h>
++include <Pythia8/SplittingsOnia.h>
 +include <Pythia8/HeavyIons.h>
 +include <Pythia8/BeamShape.h>
 +include <pybind11/stl.h>
@@ -67,9 +68,11 @@ function configure_base() {
 -function Pythia8::isinf
 -function Pythia8::isnan
 -class Pythia8::Writer
+-class Pythia8::Logger
 +binder std::multiset REMOVE
 +binder std::complex REMOVE
 +binder std::vector REMOVE
++binder std::set REMOVE
 +binder std::map REMOVE
 +binder std::unordered_map REMOVE
 +default_member_lvalue_reference_return_value_policy pybind11::return_value_policy::reference
@@ -237,7 +240,7 @@ OLD='modules.find(namespace_)'
 NEW='modules.find(namespace_ != "std" ? "" : "std")'
 sed -i.sed "s/$OLD/$NEW/g" $BINDER_SRC/pythia8.cpp
 
-# Something.
+# Necessary for newer versions of pybind11.
 OLD='overload_caster_t'
 NEW='override_caster_t'
 sed -i.sed "s/$OLD/$NEW/g" $BINDER_SRC/*.cpp
@@ -249,9 +252,15 @@ for GIL in $GILS; do
     sed -i.sed "s/$OLD/$NEW/g" $BINDER_SRC/*.cpp
 done
 
+# Fix compilation of postypes.cpp for 32-bit versions of Python.
+OLD='long'
+NEW='std::streamoff'
+sed -i.sed "s/$OLD/$NEW/g" $BINDER_SRC/postypes.cpp
+
+
 # Include the module documentation.
 cat > $BINDER_DOC << BLOCKTEXT
-Copyright (C) 2023 Torbjorn Sjostrand.
+Copyright (C) 2024 Torbjorn Sjostrand.
 PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 Please respect the MCnet Guidelines, see GUIDELINES for details.
 

@@ -195,6 +195,21 @@ how this can be done is shown in <code>main163.cc</code>.
    
  
 <a name="anchor12"></a>
+<p/><code>flag&nbsp; </code><strong> Parallelism:doNext &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+By default, <code>PythiaParallel</code> generates events, then passes the 
+<code>Pythia</code> object to the callback function. If this flag is turned 
+off, the event is not automatically generated before calling the callback, 
+so that the user is responsible for calling <code>Pythia::next</code>. 
+This can be useful for example if you want to change the energy on an 
+event-by-event basis, or otherwise want to do checks at the beginning of 
+the event loop before performing the actual generation. 
+ 
+If this flag is off, you must also set 
+<code>Parallelism:processAsync = on</code>. If it is off, 
+   
+ 
+<a name="anchor13"></a>
 <p/><code>mode&nbsp; </code><strong> Parallelism:index &nbsp;</strong> 
  (<code>default = <strong>-1</strong></code>)<br/>
 When a <code>Pythia</code> instance is passed to the callback function in 
@@ -207,7 +222,7 @@ specify which histogram to write to.
 Note that the user should not write to this setting directly. 
    
  
-<a name="anchor13"></a>
+<a name="anchor14"></a>
 <p/><code>flag&nbsp; </code><strong> Parallelism:balanceLoad &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 By default, the event generation is divided evenly between the 

@@ -1,5 +1,5 @@
 // Info.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -223,22 +223,16 @@ public:
   double weightSum()          const;
   double lhaStrategy()        const {return lhaStrategySave;}
 
-  // Further access to uncertainty weights: number and labels
-  int nWeights() const
-    { return weightContainerPtr->weightsShowerPtr->getWeightsSize(); }
-  string weightLabel(int iWeight) const {
-    return weightContainerPtr->weightsShowerPtr->getWeightsName(iWeight);
-    }
-
-  int    nWeightGroups() const { return weightContainerPtr->
-      weightsShowerPtr->nWeightGroups(); }
-  string getGroupName(int iGN) const {
-    return weightContainerPtr->weightsShowerPtr->getGroupName(iGN);
-  }
-  double getGroupWeight(int iGW) const {
-    return weightContainerPtr->weightsShowerPtr->getGroupWeight(iGW)
-      *weightContainerPtr->weightNominal;
-  }
+  // Further access to uncertainty weights: number and labels.
+  int    nWeights() const {
+    return weightContainerPtr->weightsShowerPtr->getWeightsSize() +
+      weightContainerPtr->weightsFragmentation.getWeightsSize() - 1;}
+  string weightLabel(int iWgt) const;
+  int    nWeightGroups() const {return weightContainerPtr->
+      weightsShowerPtr->nWeightGroups() + weightContainerPtr->
+      weightsFragmentation.nWeightGroups();}
+  string getGroupName(int iGN) const;
+  double getGroupWeight(int iGW) const;
 
   // Number of times other steps have been carried out.
   int    nISR()               const {return nISRSave;}
@@ -275,13 +269,54 @@ public:
 
   // Cross section estimate, optionally process by process.
   vector<int> codesHard();
-  string nameProc(int i = 0)  const {return (i == 0) ? "sum"
-    : ( (procNameM.at(i) == "") ? "unknown process" : procNameM.at(i) );}
-  long   nTried(int i = 0)    const {return (i == 0) ? nTry : nTryM.at(i);}
-  long   nSelected(int i = 0) const {return (i == 0) ? nSel : nSelM.at(i);}
-  long   nAccepted(int i = 0) const {return (i == 0) ? nAcc : nAccM.at(i);}
-  double sigmaGen(int i = 0)  const {return (i == 0) ? sigGen : sigGenM.at(i);}
-  double sigmaErr(int i = 0)  const {return (i == 0) ? sigErr : sigErrM.at(i);}
+
+  // Name of the specified process.
+  string nameProc(int i = 0)  const {
+    if (i == 0) return "sum";
+    auto itr = procNameM.find(i);
+    if (itr != procNameM.end()) return itr->second;
+    loggerPtr->ERROR_MSG("process code not found", to_string(i));
+    return "unknown process";}
+
+  // The number of phase-space points tried.
+  long   nTried(int i = 0) const {
+    if (i == 0) return nTry;
+    auto itr = nTryM.find(i);
+    if (itr != nTryM.end()) return itr->second;
+    loggerPtr->ERROR_MSG("process code not found", to_string(i));
+    return 0;}
+
+  // The number of selected hard processes.
+  long   nSelected(int i = 0) const {
+    if (i == 0) return nSel;
+    auto itr = nSelM.find(i);
+    if (itr != nSelM.end()) return itr->second;
+    loggerPtr->ERROR_MSG("process code not found", to_string(i));
+    return 0;}
+
+  // The number of accepted events.
+  long   nAccepted(int i = 0) const {
+    if (i == 0) return nAcc;
+    auto itr = nAccM.find(i);
+    if (itr != nAccM.end()) return itr->second;
+    loggerPtr->ERROR_MSG("process code not found", to_string(i));
+    return 0;}
+
+  // The estimated cross-section in units of mb.
+  double sigmaGen(int i = 0)  const {
+    if (i == 0) return sigGen;
+    auto itr = sigGenM.find(i);
+    if (itr != sigGenM.end()) return itr->second;
+    loggerPtr->ERROR_MSG("process code not found", to_string(i));
+    return 0;}
+
+  // The uncertainty on the estimated cross-section in units of mb.
+  double sigmaErr(int i = 0)  const {
+    if (i == 0) return sigErr;
+    auto itr = sigErrM.find(i);
+    if (itr != sigErrM.end()) return itr->second;
+    //loggerPtr->ERROR_MSG("process code not found", to_string(code));
+    return 0;}
 
   // Counters for number of loops in various places.
   int    getCounter( int i)   const {return counters[i];}

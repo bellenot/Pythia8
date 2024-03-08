@@ -1,5 +1,5 @@
 // ExternalMEs.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Stefan Prestel, Philip Ilten, Torbjorn
+// Copyright (C) 2024 Peter Skands, Stefan Prestel, Philip Ilten, Torbjorn
 // Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -32,6 +32,7 @@ class ExternalMEs {
 public:
 
   // Destructor.
+  ExternalMEs() = default;
   virtual ~ExternalMEs() = default;
 
   // Initialisers for pointers.
@@ -42,15 +43,21 @@ public:
   virtual bool initVincia(Info* /*infoPtrIn*/) {return false;}
   virtual bool initDire(Info* /*infoPtrIn*/, string /*card*/) {return false;}
 
-  // Methods to check availability of matrix elements.
+  // Methods to check availability of matrix elements for list of in/out
+  // ID codes, an event (ignoring any event entries before iBeg), or a vector
+  // of particles.
   virtual bool isAvailable(vector<int> /*idIn*/, vector<int> /*idOut*/) {
     return false;}
-  virtual bool isAvailable(const Pythia8::Event& /*event*/) {return false;}
+  virtual bool isAvailable(const Event& /*event*/) {return false;}
+  virtual bool isAvailable(const Event& /*event*/, const int /*iBeg*/) {
+    return false;}
   virtual bool isAvailable(const vector<Particle>& /*state*/) {return false;}
 
-  // Calculate the matrix element squared for a particle state.
+  // Calculate the matrix element squared for a particle state or event
+  // (ignoring any event entries before iBeg).
   virtual double calcME2(const vector<Particle>& /*state*/) {return 0;}
-  virtual double calcME2(const Event& /*event*/) {return 0;}
+  virtual double calcME2(const Event& /*event*/, const int /*iBeg*/) {
+    return 0;}
 
   // Setters.
   virtual void setColourMode(int colModeIn) {
@@ -74,14 +81,15 @@ public:
 
 protected:
 
-  // Fill a vector of IDs.
-  void fillIds(const Event& event, vector<int>& in, vector<int>& out) const;
-  // Fill a vector of momenta.
-  void fillMoms(const Event& event, vector<Vec4>& p) const;
-  // Fill a vector of colors.
-  void fillCols(const Event& event, vector<int>& colors) const;
-  // Return the momenta.
-  vector<vector<double> > fillMoms(const Event& event) const;
+  // Fill a vector of IDs, from an event, starting from entry i = iBeg.
+  void fillIds(const Event& event, vector<int>& in, vector<int>& out,
+    int iBeg = 3) const;
+  // Fill a vector of momenta, from an event, starting from entry i = iBeg.
+  void fillMoms(const Event& event, vector<Vec4>& p, int iBeg = 3) const;
+  // Fill a vector of colors, from an event, starting from entry i = iBeg.
+  void fillCols(const Event& event, vector<int>& colors, int iBeg = 3) const;
+  // Return the momenta, from an event, starting from entry i = iBeg.
+  vector<vector<double> > fillMoms(const Event& event, int iBeg = 3) const;
 
   // Colour mode (0: strict LC, 1: LC, 2: LC sum, 3: FC).
   int colMode{1};

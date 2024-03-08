@@ -1,5 +1,5 @@
 // VinciaQED.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2024 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -474,8 +474,8 @@ public:
   // Set verbosity level.
   virtual void setVerbose(int verboseIn) {verbose = verboseIn;}
 
-  // Clear everything.
-  virtual void clear(int iSys=-1) = 0;
+  // Clear everything (optionally for specific system).
+  virtual void clear(int iSys = -1) = 0;
 
   // Generate a trial scale.
   virtual double q2Next(Event &event, double q2Start, double q2End) = 0;

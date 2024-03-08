@@ -1,5 +1,5 @@
 // PythiaStdlib.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -104,6 +104,9 @@ using std::multiset;
 using std::list;
 using std::tuple;
 using std::function;
+using std::fill;
+using std::end;
+using std::begin;
 
 // Input/output streams.
 using std::cin;
@@ -202,6 +205,15 @@ string toLower(const string& name, bool trim = true);
 // Variant of above, with in-place replacement.
 inline void toLowerRep(string& name, bool trim = true) {
   name = toLower( name, trim);}
+
+// Convert a boolean to a string.
+inline string toString(bool val) {return val ? "on" : "off";}
+
+// Convert an integer to a string.
+inline string toString(int val) {return to_string(val);}
+
+// Convert a double to a string.
+string toString(double val);
 
 //==========================================================================
 

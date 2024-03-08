@@ -1,5 +1,5 @@
 // VinciaTrialGenerators.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2024 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -18,9 +18,9 @@ using namespace VinciaConstants;
 
 // Add a zeta generator for a given sector.
 
-void TrialGenerator::addGenerator(ZetaGeneratorSet& zetaGenSet,
+void TrialGenerator::addGenerator(ZetaGeneratorSet* zetaGenSet,
   Sector sector) {
-  ZetaGeneratorPtr zGenPtr = zetaGenSet.getZetaGenPtr(branchType, sector);
+  ZetaGeneratorPtr zGenPtr = zetaGenSet->getZetaGenPtr(branchType, sector);
   if (zGenPtr != nullptr) zetaGenPtrs[sector] = zGenPtr;
 }
 
@@ -28,10 +28,10 @@ void TrialGenerator::addGenerator(ZetaGeneratorSet& zetaGenSet,
 
 // Initialise the zeta generators.
 
-void TrialGenerator::setupZetaGens(ZetaGeneratorSet& zetaGenSet) {
+void TrialGenerator::setupZetaGens(ZetaGeneratorSet* zetaGenSet) {
 
   // Check for incompatible type.
-  if (zetaGenSet.getTrialGenType() != trialGenTypeSav) return;
+  if (zetaGenSet->getTrialGenType() != trialGenTypeSav) return;
 
   // Sector shower: add one generator per sector (if it exists).
   if (isSector) {
@@ -259,7 +259,7 @@ bool TrialGenerator::genInvariants(double sAnt, const vector<double>& masses,
   if(!isInit) return false;
 
   if (verboseIn >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
 
   if (q2Sav > 0. && zetaGenPtrs.find(sectorSav) != zetaGenPtrs.end()
     && zetaLimits.find(sectorSav) != zetaLimits.end()) {
@@ -285,7 +285,7 @@ bool TrialGenerator::genInvariants(double sAnt, const vector<double>& masses,
            << num2str(zetaNow,5) << " [" << num2str(zetaMinPhys,5)
            << ", " << num2str(zetaMaxPhys,5) << "].";
         printOut(__METHOD_NAME__, ss.str());
-        printOut(__METHOD_NAME__, "return false", dashLen);
+        printOut(__METHOD_NAME__, "return false", DASHLEN);
       }
       return false;
     }
@@ -307,20 +307,20 @@ bool TrialGenerator::genInvariants(double sAnt, const vector<double>& masses,
           << "  s12 = "<< invariants[2]
           << "  s02 = "<< invariants[3];
         printOut(__METHOD_NAME__,ss.str());
-        printOut(__METHOD_NAME__, "end", dashLen);
+        printOut(__METHOD_NAME__, "end", DASHLEN);
       }
       return true;
     } else {
       if (verboseIn >= VinciaConstants::DEBUG) {
         printOut(__METHOD_NAME__,
           "Warning: fewer than 4 invariants were generated!");
-        printOut(__METHOD_NAME__, "return false", dashLen);
+        printOut(__METHOD_NAME__, "return false", DASHLEN);
       }
       return false;
     }
   } else {
     if (verboseIn >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
-      "return false", dashLen);
+      "return false", DASHLEN);
     return false;
   }
 
@@ -488,7 +488,7 @@ ZetaGeneratorSet::ZetaGeneratorSet(TrialGenType trialGenTypeIn) :
   } else if (trialGenTypeIn == TrialGenType::RF) {
     addGenerator(make_shared<ZGenRFEmitSoft>());
     // Uncomment for alternative zeta choice for soft sector.
-    // addGenerator(new ZGenRFEmitSoftAlt());
+    // addGenerator(make_shared<ZGenRFEmitSoftAlt>());
     addGenerator(make_shared<ZGenRFEmitColK>());
     addGenerator(make_shared<ZGenRFSplit>());
   } else if (trialGenTypeIn == TrialGenType::IF) {
@@ -515,9 +515,7 @@ ZetaGeneratorSet::ZetaGeneratorSet(TrialGenType trialGenTypeIn) :
 
 ZetaGeneratorPtr ZetaGeneratorSet::getZetaGenPtr(BranchType branchType,
   Sector sectIn) {
-  pair<BranchType, Sector> key = make_pair(branchType,sectIn);
-  if (zetaGenPtrs.find(key)!= zetaGenPtrs.end()) return zetaGenPtrs[key];
-  else return nullptr;
+  return zetaGenPtrs[make_pair(branchType,sectIn)];
 }
 
 //--------------------------------------------------------------------------
@@ -528,8 +526,7 @@ void ZetaGeneratorSet::addGenerator(ZetaGeneratorPtr zGenPtr) {
   if (zGenPtr->getTrialGenType() == trialGenTypeSav) {
     const BranchType btype = zGenPtr->getBranchType();
     const Sector sector = zGenPtr->getSector();
-    auto key = make_pair(btype,sector);
-    zetaGenPtrs[key] = zGenPtr;
+    zetaGenPtrs[make_pair(btype, sector)] = zGenPtr;
   }
 }
 

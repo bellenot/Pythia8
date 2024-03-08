@@ -1,5 +1,5 @@
 // TauDecays.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Philip Ilten, Torbjorn Sjostrand.
+// Copyright (C) 2024 Philip Ilten, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -393,7 +393,7 @@ bool TauDecays::externalMechanism(Event &event) {
     else if (abs(mediator.id()) == 23 || abs(mediator.id()) == 32)
       hardME = hmeZ2TwoFermions.initChannel(particles);
     else if (abs(mediator.id()) == 24 || abs(mediator.id()) == 34)
-      hardME = hmeZ2TwoFermions.initChannel(particles);
+      hardME = hmeW2TwoFermions.initChannel(particles);
     else if (abs(mediator.id()) == 25 || abs(mediator.id()) == 35 ||
              abs(mediator.id()) == 36 || abs(mediator.id()) == 37)
       hardME = hmeHiggs2TwoFermions.initChannel(particles);

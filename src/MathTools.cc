@@ -1,5 +1,5 @@
 // MathTools.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -460,7 +460,7 @@ vector<double> logSpace(int nPts, double xMin, double xMax) {
 
 // Operator to get interpolated value at the specified point.
 
-double LinearInterpolator::operator()(double xIn) const {
+double LinearInterpolator::at(double xIn) const {
 
   if (ysSave.size() == 0)
     return numeric_limits<double>::quiet_NaN();
@@ -500,10 +500,50 @@ Hist LinearInterpolator::plot(string title, double xMin, double xMax) const {
 
   for (int i = 0; i < nBins; ++i) {
     double x = xMin + dxNow * (0.5 + i);
-    result.fill(x, operator()(x));
+    result.fill(x, at(x));
   }
 
   return result;
+}
+
+//--------------------------------------------------------------------------
+
+// Sample a random number distributed as given by this LinearInterpolator.
+
+double LinearInterpolator::sample(Rndm& rndm) const {
+
+  for (double y : ysSave)
+    if (y < 0)
+      return numeric_limits<double>::quiet_NaN();
+
+  double dxNow = dx();
+  double integral = 0.5 * dxNow * (ysSave.front() + ysSave.back());
+  for (size_t i = 1; i < ysSave.size() - 1; ++i)
+    integral += dxNow * ysSave[i];
+  double threshold = integral * rndm.flat();
+
+  for (size_t i = 0; i < ysSave.size() - 1; ++i) {
+    double intBin = 0.5 * dxNow * (ysSave[i] + ysSave[i + 1]);
+    if (threshold > intBin)
+      threshold -= intBin;
+    else {
+      double At = threshold / intBin;
+      double yi = ysSave[i];
+      double dy = ysSave[i + 1] - ysSave[i];
+
+      double t;
+      // For very small dy, assume flat area.
+      if (abs(dy) < 1e-6)
+        t = At;
+      // Otherwise use standard abc formula
+      else
+        t = (-yi + sqrt(pow2(yi) + 2 * At * dy * intBin / dxNow)) / dy;
+
+      return leftSave + dxNow * (i + t);
+    }
+  }
+
+  return ysSave.back();
 }
 
 //==========================================================================
@@ -515,7 +555,7 @@ Hist LinearInterpolator::plot(string title, double xMin, double xMax) const {
 
 // Operator to get interpolated value at the specified point.
 
-double LogInterpolator::operator()(double xIn) const {
+double LogInterpolator::at(double xIn) const {
 
   if (ysSave.size() == 0)
     return numeric_limits<double>::quiet_NaN();
@@ -544,7 +584,7 @@ Hist LogInterpolator::plot(string title, int nBins,
 
   for (int i = 0; i < nBins; ++i) {
     double x = xMin * pow(drNow, 0.5 + i);
-    result.fill(x, operator()(x));
+    result.fill(x, at(x));
   }
 
   return result;

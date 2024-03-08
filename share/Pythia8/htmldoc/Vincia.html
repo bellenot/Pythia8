@@ -10,15 +10,13 @@
 <ol id="toc">
   <li><a href="#section0">Overview</a></li>
   <li><a href="#section1">Matching and Merging with VINCIA</a></li>
-  <li><a href="#section2">Main Shower Switches</a></li>
-  <li><a href="#section3">Shower Starting Scales</a></li>
-  <li><a href="#section4">Kinematics and Recoils</a></li>
-  <li><a href="#section5">Evolution with Enhanced (Biased) Kernels</a></li>
-  <li><a href="#section6">Interleaved Resonance Decays</a></li>
-  <li><a href="#section7">Further Shower Settings</a></li>
-  <li><a href="#section8">VINCIA Tunes</a></li>
-  <li><a href="#section9">Expert Settings</a></li>
-  <li><a href="#section10">References</a></li>
+  <li><a href="#section2">Main Shower Switches and Starting Scales</a></li>
+  <li><a href="#section3">Kinematics and Recoils</a></li>
+  <li><a href="#section4">Interleaved Resonance Decays</a></li>
+  <li><a href="#section5">Further Shower Settings</a></li>
+  <li><a href="#section6">VINCIA Tunes</a></li>
+  <li><a href="#section7">Expert Settings</a></li>
+  <li><a href="#section8">References</a></li>
 </ol>
 
  
@@ -120,17 +118,19 @@ Settings for VINCIA's merging are described
 <p/> 
 VINCIA also provides dedicated hooks for vetoed showers in POWHEG NLO matching 
 with input from the POWHEG-BOX program, attempting to correct for the mismatch 
-between the ordering variables in POWHEG-BOX and VINCIA. They are contained in 
-<code>include/Pythia8Plugins/PowhegHooksVincia.h</code>. The usage is the same 
-as for Pythia's <code>PowhegHooks</code> and described 
-<a href="POWHEGMerging.html" target="page">here</a>. 
-To use VINCIA with POWHEG-BOX input an existing main program 
-(e.g. <code>main31.cc</code>) that uses 
-POWHEG-BOX+Pythia can be adapted by replacing every occurence of 
-<code>PowhegHooks</code> with <code>PowhegHooksVincia</code>. 
+between the ordering variables in POWHEG-BOX and VINCIA. They are 
+contained in the same file 
+<code>include/Pythia8Plugins/PowhegHooks.h</code> as the standard 
+PYTHIA POWHEG hooks, and the usage is the same as for Pythia's 
+<code>PowhegHooks</code>, described <a href="POWHEGMatching.html" target="page">here</a>. 
+Any existing main program (e.g. <code>main31.cc</code>) that uses 
+POWHEG-BOX+Pythia can be adapted to use VINCIA with POWHEG-BOX, simply 
+by changing the shower model and setting 
+<code>Vincia:pTmaxMatch = 2</code> and <code>Vincia:pTdampMatch = 3</code> 
+as recommended <a href="POWHEGMatching.html" target="page">here</a>. 
  
 <a name="section2"></a> 
-<h3>Main Shower Switches</h3> 
+<h3>Main Shower Switches and Starting Scales</h3> 
  
 <a name="anchor1"></a>
 <p/><code>mode&nbsp; </code><strong> Vincia:nFlavZeroMass &nbsp;</strong> 
@@ -188,8 +188,7 @@ expect it to be almost entirely degenerate with variations of
 nonsingular terms. 
    
  
-<a name="section3"></a> 
-<h3>Shower Starting Scales</h3> 
+<h4>Vincia Shower Starting Scales</h4> 
  
 <p/> 
 Similarly to PYTHIA, for processes that include at least one quark, 
@@ -204,15 +203,19 @@ anologous to the <code>SpaceShower:PTmaxMatch</code> option in PYTHIA.
 <a name="anchor5"></a>
 <p/><code>mode&nbsp; </code><strong> Vincia:pTmaxMatch &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
-<br/><code>option </code><strong> 0</strong> : Showers off processes that include at least one 
+<br/><code>option </code><strong> 0</strong> : Showers off hard processes that include at least one 
 final-state quark, gluon, or photon, are started at the factorisation 
-scale, while processes that do not include any such partons are 
-started at the phase-space maximum.   
+scale (wimpy showers), while processes that do not include any such 
+partons are started at the phase-space maximum (power showers). Note 
+that only partons that can be emitted by showers are included in this 
+counting, hence top quarks are not included for 
+<code>Vincia:nGluonToQuark &lt; = 5</code>.   
 <br/><code>option </code><strong> 1</strong> : Showers are always started at the factorisation 
-scale.   
-<br/><code>option </code><strong> 2</strong> : Showers are always started at the phase-space 
-maximum. This option is not recommended for physics runs as it will 
-lead to unphysical double counting in many cases.   
+scale (wimpy showers).   
+<br/><code>option </code><strong> 2</strong> : Showers off hard processes are always started at the 
+phase-space maximum (power showers). This option is not recommended 
+for physics runs as it will lead to unphysical double counting in many 
+cases.   
    
  
 <p/> 
@@ -229,13 +232,53 @@ factorisation scale:
 Same as above but for MPI systems, affecting the underlying event. 
    
  
+<a name="anchor8"></a>
+<p/><code>mode&nbsp; </code><strong> Vincia:pTdampMatch &nbsp;</strong> 
+ (<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 4</code>)<br/>
+For any systems that are treated with power showers, a dampening 
+factor may be applied to dampen radiation above a given scale. 
+<br/><code>option </code><strong> 0</strong> : emissions go up to the kinematical limit, 
+with no special dampening.   
+<br/><code>option </code><strong> 1</strong> : emissions go up to the kinematical limit, 
+but dampened by a factor <i>k^2 Q^2_fac/(pT^2 + k^2 Q^2_fac)</i>, 
+where <i>Q_fac</i> is the factorization scale and <i>k</i> is a 
+multiplicative fudge factor stored in <code>pTdampFudge</code> 
+below.   
+<br/><code>option </code><strong> 2</strong> : emissions go up to the kinematical limit, 
+but dampened by a factor <i>k^2 Q^2_scale/(pT^2 + k^2 Q^2_scale)</i>, 
+where <i>Q_scale</i> is the geometric mean of the 
+<code>scale</code> properties for the incoming partons for the given 
+system. Note the interpretation of this option differs from that for 
+the analogous value in the Simple Shower.   
+<br/><code>option </code><strong> 3</strong> : as option 1, but in addition to the standard requirements 
+for dampening it is further necessary to have at least two top or 
+beyond-the-Standard-Model coloured particles in the final state. 
+Examples include <i>t tbar</i> and <i>squark gluino</i> 
+production.   
+<br/><code>option </code><strong> 4</strong> : as option 2, but in addition to the standard requirements 
+for dampening it is further necessary to have at least two top or 
+beyond-the-Standard-Model coloured particles in the final state. 
+Examples include <i>t tbar</i> and <i>squark gluino</i> 
+production.   
+   
+ 
+<a name="anchor9"></a>
+<p/><code>parm&nbsp; </code><strong> Vincia:pTdampFudge &nbsp;</strong> 
+ (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 4.0</code>)<br/>
+In cases above where a dampening is imposed at around a specific Q 
+scale, this parameter allows the <i>pT</i> scale of dampening of 
+radiation by a half to be shifted by this factor relative to the 
+default scale. This number ought to be in the neighbourhood of unity, 
+but variations away from this value could do better in some processes. 
+   
+ 
 <p/> 
 Note that for any (combination of) choices that result in ISR showers 
 not using the factorisation scale as the starting scale, the generated 
 Sudakov factor will effectively produce leftover PDF ratios in the 
 exclusive cross sections produced by the shower. 
  
-<a name="section4"></a> 
+<a name="section3"></a> 
 <h3>Kinematics and Recoils</h3> 
  
 <p/> 
@@ -326,7 +369,7 @@ function (since the momenta in the global map always become unphysical
 for saj > sAK). 
  
 <p/> 
-<a name="anchor8"></a>
+<a name="anchor10"></a>
 <p/><code>mode&nbsp; </code><strong> Vincia:kineMapIF &nbsp;</strong> 
  (<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 3</code>)<br/>
 <br/><code>option </code><strong> 1</strong> : Local recoil map.   
@@ -348,7 +391,7 @@ invariants, while the other map would give physical momenta. In such
 cases, one has to choose whether the given phase-space point should be 
 vetoed, or whether the other map should be allowed to be used instead 
 to construct the kinematics. 
-<a name="anchor9"></a>
+<a name="anchor11"></a>
 <p/><code>flag&nbsp; </code><strong> Vincia:kineMapIFretry &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 <br/><code>option </code><strong> off</strong> : If the map selected according to the probabilistic 
@@ -362,7 +405,7 @@ vetoed.
  
 <h4>Kinematics and Recoils for FF Antennae </h4> 
  
-<a name="anchor10"></a>
+<a name="anchor12"></a>
 <p/><code>mode&nbsp; </code><strong> Vincia:kineMapFFemit &nbsp;</strong> 
  (<code>default = <strong>3</strong></code>; <code>minimum = 1</code>; <code>maximum = 3</code>)<br/>
 Selects which method to use for choosing the Euler angle for the 
@@ -401,7 +444,7 @@ whole family of kinematics maps. For experts, the specific choice
 made here corresponds to using <i>r=sij/(sij+sjk)</i> in the 
 definition of the map.)   
    
-<a name="anchor11"></a>
+<a name="anchor13"></a>
 <p/><code>mode&nbsp; </code><strong> Vincia:kineMapFFsplit &nbsp;</strong> 
  (<code>default = <strong>2</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
 Selects which method to use for choosing the Euler angle for the 
@@ -429,7 +472,7 @@ definition of the map.)
  
 <h4>Kinematics and Recoils for RF Antennae </h4> 
  
-<a name="anchor12"></a>
+<a name="anchor14"></a>
 <p/><code>mode&nbsp; </code><strong> Vincia:kineMapRFemit &nbsp;</strong> 
  (<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)<br/>
 There is only one choice of kinematics map for resonance emissions. 
@@ -441,7 +484,7 @@ the resonance to always take the full recoil. E.g. in t->bW the
 recoiler is always the W. This is equivalent to setting 
 TimeShower:recoilToColoured = off for Pythia.   
    
-<a name="anchor13"></a>
+<a name="anchor15"></a>
 <p/><code>mode&nbsp; </code><strong> Vincia:kineMapRFsplit &nbsp;</strong> 
  (<code>default = <strong>1</strong></code>; <code>minimum = 1</code>; <code>maximum = 2</code>)<br/>
 Same as above, but for R-g splittings. 
@@ -453,78 +496,7 @@ recoiler is always the W. This is equivalent to setting
 TimeShower:recoilToColoured = off for Pythia.   
    
  
-<a name="section5"></a> 
-<h3>Evolution with Enhanced (Biased) Kernels</h3> 
- 
-<p/> 
-VINCIA's shower evolution can be biased to populate the multi-jet 
-phase space more efficiently and/or enhance the rate of rare processes 
-such as <i>g&rarr;bb</i> and <i>g&rarr;cc</i> splittings. It is 
-also possible to inhibit radiation (e.g., to focus on Sudakov 
-regions), by choosing enhancement factors smaller than unity. When 
-these options are used, it is important to note that the event weights 
-will be modified, reflecting that some types of events (e.g., multijet 
-events, or events with gluon splittings to heavy quarks) will be 
-"overrepresented" statistically, and others (events with few jets, or 
-events with no gluon splittings to heavy quarks) 
-underrepresented. Averages and histograms will therefore only be 
-correct if computed using the correct weight for each generated 
-event. A description and proof of the algorithm can be found in 
-[<a href="Bibliography.html#refMS16" target="page">MS16</a>]. Note that care has been taken to ensure that the 
-weights remain positive definite; under normal circumstances, VINCIA's 
-enhancement algorithm should not result in any negative weights. 
- 
-<a name="anchor14"></a>
-<p/><code>flag&nbsp; </code><strong> Vincia:enhanceInHardProcess &nbsp;</strong> 
- (<code>default = <strong>on</strong></code>)<br/>
-This flag controls whether the enhancement factors are applied to 
-shower branchings in the hard-process system.   
- 
-<a name="anchor15"></a>
-<p/><code>flag&nbsp; </code><strong> Vincia:enhanceInResonanceDecays &nbsp;</strong> 
- (<code>default = <strong>on</strong></code>)<br/>
-This flag controls whether the enhancement factors are applied to 
-shower branchings inside resonance-decay systems (like Z/W/H decays) 
-that are treated as factorised from the hard process.   
- 
-<a name="anchor16"></a>
-<p/><code>flag&nbsp; </code><strong> Vincia:enhanceInMPIshowers &nbsp;</strong> 
- (<code>default = <strong>off</strong></code>)<br/>
-This flag controls whether the enhancement factors are applied to 
-shower branchings in MPI systems.   
- 
-<a name="anchor17"></a>
-<p/><code>parm&nbsp; </code><strong> Vincia:enhanceFacAll &nbsp;</strong> 
- (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.01</code>; <code>maximum = 100.0</code>)<br/>
-This enhancement factor is applied as a multiplicative factor common 
-to all antenna functions, increasing the likelihood of all shower 
-branchings by the same amount. Values greater than unity thus more 
-frequently yields "busy" events, with many shower branchings. Values 
-smaller than unity suppress additional branchings, yielding more 
-Sudakov-like events.   
- 
-<a name="anchor18"></a>
-<p/><code>parm&nbsp; </code><strong> Vincia:enhanceFacBottom &nbsp;</strong> 
- (<code>default = <strong>1.0</strong></code>; <code>minimum = 1.0</code>; <code>maximum = 100.0</code>)<br/>
-This enhances the probability for all branchings that increase the 
-number of bottom quarks (i.e., FSR <i>g&rarr;bb</i> splittings and 
-the corresponding ISR flavour-excitation process). Note: this factor 
-is applied on top of <code>Vincia:biasAll</code>.   
- 
-<a name="anchor19"></a>
-<p/><code>parm&nbsp; </code><strong> Vincia:enhanceFacCharm &nbsp;</strong> 
- (<code>default = <strong>1.0</strong></code>; <code>minimum = 1.0</code>; <code>maximum = 100.0</code>)<br/>
-Same as <code>Vincia:enhanceFacBottom</code> but for charm quarks. 
-Note: this factor is applied on top of <code>Vincia:biasAll</code>.   
- 
-<a name="anchor20"></a>
-<p/><code>parm&nbsp; </code><strong> Vincia:enhanceCutoff &nbsp;</strong> 
- (<code>default = <strong>10.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1000.0</code>)<br/>
-Do not apply enhancement factors to branchings below this 
-scale. Intended to be used to focus on enhancements of hard branchings 
-only.   
- 
-<a name="section6"></a> 
+<a name="section4"></a> 
 <h3>Interleaved Resonance Decays</h3> 
  
 <p/> 
@@ -534,7 +506,7 @@ equivalent option for Pythia's
 <a href="TimelikeShowers.html" target="page">TimelikeShowers</a>). In VINCIA, this 
 setting is controlled by the following switch: 
  
-<a name="anchor21"></a>
+<a name="anchor16"></a>
 <p/><code>flag&nbsp; </code><strong> Vincia:interleaveResDec &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 When this flag is set to <code>on</code>, decays of hard-process 
@@ -558,7 +530,7 @@ by VINCIA's electroweak shower), the evolution scale at which these
 decays are performed (including showers and any nested resonance 
 decays at higher scales) is controlled by the following choice: 
  
-<a name="anchor22"></a>
+<a name="anchor17"></a>
 <p/><code>mode&nbsp; </code><strong> Vincia:resDecScaleChoice &nbsp;</strong> 
  (<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
 <br/><code>option </code><strong> 0</strong> : Resonance decays are assigned a fixed scale equal to 
@@ -577,7 +549,7 @@ implies, e.g., that the decay of a resonance which has <i>m = m0 &pm;
 )</i>.   
    
  
-<a name="section7"></a> 
+<a name="section5"></a> 
 <h3>Further Shower Settings</h3> 
  
 <ul> 
@@ -589,19 +561,19 @@ are described <a href="VinciaEW.html" target="page">here</a>.</li>
 are described <a href="VinciaMECs.html" target="page">here</a>.</li> 
 </ul> 
  
-<a name="section8"></a> 
+<a name="section6"></a> 
 <h3>VINCIA Tunes</h3> 
  
 <p/> 
 <b>VINCIA has its own</b> set of dedicated tune presets, which can be 
 specified by the user. 
  
-<a name="anchor23"></a>
+<a name="anchor18"></a>
 <p/><code>mode&nbsp; </code><strong> Vincia:Tune &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = -1</code>; <code>maximum = 0</code>)<br/>
 <br/><code>option </code><strong> -1</strong> : None. No VINCIA-specific tune parameter settings 
 will be used during initialisation.   
-<br/><code>option </code><strong> 0</strong> : Hadronisation and MPI parameters optimised for use 
+<br/><code>option </code><strong> 0</strong> : Hadronization and MPI parameters optimised for use 
 with the VINCIA shower model, used as default VINCIA parameters since 
 PYTHIA 8.302.   
    
@@ -627,10 +599,10 @@ some responsibility on the part of the user.
  
 <p/> 
 <b>As a guideline,</b> the main parameters that need to be properly 
-tuned are the non-perturbative hadronisation parameters used in 
+tuned are the non-perturbative hadronization parameters used in 
 PYTHIA's string fragmentation model. Since PYTHIA and VINCIA treat 
 soft radiation somewhat differently, there can be important 
-differences between the two in the soft region that the hadronisation 
+differences between the two in the soft region that the hadronization 
 model will not re-absorb automatically and which therefore only a 
 retuning can address. 
  
@@ -655,7 +627,7 @@ alphaS values ~ 0.13 - 0.14. When explicit NLO corrections are
 included for the relevant observable(s), values comparable to other 
 NLO extractions should result, around 0.12. 
  
-<a name="section9"></a> 
+<a name="section7"></a> 
 <h3>Expert Settings</h3> 
  
 <b>Importante Note:</b> the parameters in this section are intended 
@@ -676,7 +648,7 @@ value of "half" the gluon splitting function on its finite end.  For
 sector showers, this parameter has no effect, as the collinear 
 singularities are combined within a single antenna function. 
  
-<a name="anchor24"></a>
+<a name="anchor19"></a>
 <p/><code>parm&nbsp; </code><strong> Vincia:octetPartitioning &nbsp;</strong> 
  (<code>default = <strong>0.0</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
 Gluon-collinear &alpha; parameter. Only used for final-final global 
@@ -690,7 +662,7 @@ sector shower, the <code>octetPartitioning</code> is forced to
 is no sensible meaning of the parameter anymore.   
  
 <h4>Debugging</h4> 
-<a name="anchor25"></a>
+<a name="anchor20"></a>
 <p/><code>flag&nbsp; </code><strong> Vincia:debug &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 This flag is solely intended to assist authors for debugging purposes. 
@@ -698,7 +670,7 @@ This flag is solely intended to assist authors for debugging purposes.
  
 <h4>Numerical Checks</h4> 
  
-<a name="anchor26"></a>
+<a name="anchor21"></a>
 <p/><code>flag&nbsp; </code><strong> Vincia:CheckAntennae &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 By default, VINCIA checks antenna functions for positivity and absence 
@@ -706,14 +678,14 @@ of dead zones. Switch to control whether to perform antenna
 self-consistency checks or not. 
    
  
-<a name="anchor27"></a>
+<a name="anchor22"></a>
 <p/><code>mode&nbsp; </code><strong> Vincia:nPointsCheck &nbsp;</strong> 
  (<code>default = <strong>1000</strong></code>; <code>minimum = 0</code>; <code>maximum = 1e6</code>)<br/>
 Number of random points to check each antenna functions for 
 positivity. 
    
  
-<a name="anchor28"></a>
+<a name="anchor23"></a>
 <p/><code>parm&nbsp; </code><strong> Vincia:deadZoneAvoidance &nbsp;</strong> 
  (<code>default = <strong>0.0001</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
 During initialisation, warnings are issued if any antenna functions 
@@ -735,7 +707,7 @@ step.
 Automated uncertainty bands are not available in this version of 
 the VINCIA code. 
  
-<a name="section10"></a> 
+<a name="section8"></a> 
 <h3>References</h3> 
  
 <p/> 
@@ -792,4 +764,4 @@ elements.</li>
 </body>
 </html>
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

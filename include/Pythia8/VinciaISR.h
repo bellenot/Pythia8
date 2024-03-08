@@ -1,5 +1,5 @@
 // VinciaISR.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2024 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1189,7 +1189,7 @@ public:
     else return alphaSptr->Lambda6();}
 
   // Add trial functions to a BranchElemental.
-  void resetTrialGenerators(BranchElementalISR* trial);
+  void resetTrialGenerators(shared_ptr<BranchElementalISR> trial);
 
   // Method to check if a gluon splitting in the initial state (to get
   // rid of heavy quarks) is still possible after the current
@@ -1248,25 +1248,26 @@ private:
     double qMinNow);
 
   // Generate trial branching kinematics and check physical phase space
-  bool generateKinematics(Event& event, BranchElementalISR* trialPtr,
-    vector<Vec4>& pRec) {
+  bool generateKinematics(Event& event,
+    shared_ptr<BranchElementalISR> trialPtr, vector<Vec4>& pRec) {
     return ( trialPtr->isII()
       ? generateKinematicsII(event, trialPtr, pRec)
       : generateKinematicsIF(event, trialPtr, pRec) ); }
 
   // Generate kinematics (II) and set flavours and masses.
-  bool generateKinematicsII(Event& event, BranchElementalISR* trialPtr,
-    vector<Vec4>& pRec);
+  bool generateKinematicsII(Event& event,
+    shared_ptr<BranchElementalISR> trialPtr, vector<Vec4>& pRec);
 
   // Generate kinematics (IF) and set flavours and masses.
-  bool generateKinematicsIF(Event& event, BranchElementalISR* trialPtr,
-    vector<Vec4>& pRec);
+  bool generateKinematicsIF(Event& event,
+    shared_ptr<BranchElementalISR> trialPtr, vector<Vec4>& pRec);
 
   // Main trial accept function.
-  bool acceptTrial(const Event& event, BranchElementalISR* winnerPtr);
+  bool acceptTrial(const Event& event,
+    shared_ptr<BranchElementalISR> winnerPtr);
 
   // Method to assign colour flow.
-  bool assignColourFlow(Event& event, BranchElementalISR* trialPtr);
+  bool assignColourFlow(Event& event, shared_ptr<BranchElementalISR> trialPtr);
 
   // Initialised.
   bool isInit;
@@ -1289,13 +1290,13 @@ private:
   // Shower parameters.
   bool helicityShower, sectorShower, convGluonToQuarkI, convQuarkToGluonI;
   bool kineMapIFretry;
-  int nGluonToQuarkI, nGluonToQuarkF;
+  int nGluonToQuark;
   double cutoffScaleII, cutoffScaleIF;
   int nFlavZeroMass;
 
-  // Factorization scale and shower starting settings.
-  int    pTmaxMatch;
-  double pTmaxFudge, pT2maxFudge, pT2maxFudgeMPI;
+  // Shower starting-scale settings.
+  int    pTmaxMatch{}, pTdampMatch{};
+  double pTmaxFudge{}, pT2maxFudge{}, pT2maxFudgeMPI{}, pTdampFudge{};
 
   // AlphaS parameters.
   bool useCMW;
@@ -1354,24 +1355,26 @@ private:
   vector<double> regMinScalesNow;
 
   // Vector of dipoles (with trial branchings, 4 at most).
-  vector<BranchElementalISR > branchElementals;
+  vector<shared_ptr<BranchElementalISR> > branchElementals;
 
   // Current winner.
-  BranchElementalISR* winnerPtr{};
+  shared_ptr<BranchElementalISR> winnerPtr{};
   int indxWin;
   int iSysWin;
   vector<Particle> stateNew;
   VinciaClustering minClus;
 
   // Flags to tell a few basic properties of each parton system.
-  map<int, bool> isHardSys, isResonanceSys, polarisedSys, doMECsSys;
+  map<int, bool> isHardSys{}, isResonanceSys{}, polarisedSys{}, doMECsSys{};
 
   // Saved particle state and number in event record.
-  map<int, vector< Particle > > partsSav;
-  map<int, vector< int      > > indexSav;
+  map<int, vector< Particle > > partsSav{};
+  map<int, vector< int      > > indexSav{};
 
   // Save initial ISR starting scale system by system.
-  map<int, double> Q2hat;
+  map<int, double> q2Hat{};
+  vector<bool> doPTlimit{}, doPTdamp{};
+  map<int, double> pT2damp{};
 
   // Count the number of branchings in the system.
   map<int, int> nBranch, nBranchISR;

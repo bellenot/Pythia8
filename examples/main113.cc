@@ -1,9 +1,9 @@
 // main113.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Authors: Leif Lonnblad <leif.lonnblad@hep.lu.se>
+// Authors: Leif Lonnblad <leif.lonnblad@fysik.lu.se>
 
 // Keywords: heavy ions; charged multiplicity; centrality;
 //           angantyr
@@ -41,13 +41,12 @@ int main() {
   pythia.readString("Beams:eCM = 2760.0");
   pythia.readString("Beams:frameType = 1");
 
-  // Initialize the Angantyr model to fit the total and semi-includive
+  // Initialize the Angantyr model to fit the total and semi-inclusive
   // cross sections in Pythia within some tolerance.
   pythia.readString("HeavyIon:SigFitErr = "
                     "0.02,0.02,0.1,0.05,0.05,0.0,0.1,0.0");
-  // These parameters are typicall suitable for sqrt(S_NN)=5TeV
-  pythia.readString("HeavyIon:SigFitDefPar = "
-                    "17.24,2.15,0.33,0.0,0.0,0.0,0.0,0.0");
+  // These parameters are typically suitable for sqrt(S_NN)=5TeV
+  pythia.readString("HeavyIon:SigFitDefPar = 2.15,17.24,0.33");
   // A simple genetic algorithm is run for 20 generations to fit the
   // parameters.
   pythia.readString("HeavyIon:SigFitNGen = 20");

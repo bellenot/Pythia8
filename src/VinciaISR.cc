@@ -1,5 +1,5 @@
 // VinciaISR.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2024 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -1147,8 +1147,8 @@ double TrialIFGCollK::getZmax(double /*Qt2*/, double sAK, double eA,
   // This is justified as a value close yaj->1 is always in the
   // aj-collinear sector, where it will be vetoed.
   //TODO A better solution would still be nice, though.
-  double Q2cut = 1.;
-  return 1./(1.+xA*Q2cut/sAK);
+  double q2cut = 1.;
+  return 1./(1.+xA*q2cut/sAK);
 }
 
 double TrialIFGCollK::getZmin(double Qt2, double sAK, double eA,
@@ -1862,13 +1862,13 @@ bool BranchElementalISR::genTrialInvariants(double& s1j, double& sj2,
   // Check physical phase space (note, this only checks massless hull)
   // (Use absolute z value since negative z values are used to
   // indicate swapped invariants for mD ordering).
-  double Q2E = pow2(scaleSav[iGen]);
-  if (abs(z) < trialGenPtrsSav[iGen]->getZmin(Q2E,sAntSav,e1sav,eBeamUsed) ||
-      abs(z) > trialGenPtrsSav[iGen]->getZmax(Q2E,sAntSav,e1sav,eBeamUsed))
+  double q2E = pow2(scaleSav[iGen]);
+  if (abs(z) < trialGenPtrsSav[iGen]->getZmin(q2E,sAntSav,e1sav,eBeamUsed) ||
+      abs(z) > trialGenPtrsSav[iGen]->getZmax(q2E,sAntSav,e1sav,eBeamUsed))
     return false;
   // Convert to s1j, sj2.
-  s1j = trialGenPtrsSav[iGen]->getS1j(Q2E,z,sAntSav);
-  sj2 = trialGenPtrsSav[iGen]->getSj2(Q2E,z,sAntSav);
+  s1j = trialGenPtrsSav[iGen]->getS1j(q2E,z,sAntSav);
+  sj2 = trialGenPtrsSav[iGen]->getSj2(q2E,z,sAntSav);
   return true;
 
 }
@@ -1960,7 +1960,7 @@ void VinciaISR::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
 
   // Check if already initialized.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
 
   // Verbose level.
   verbose         = settingsPtr->mode("Vincia:verbose");
@@ -1990,8 +1990,7 @@ void VinciaISR::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
   canVetoEmission = (hasUserHooks && userHooksPtr->canVetoISREmission());
 
   // Number of active quark flavours.
-  nGluonToQuarkI    = settingsPtr->mode("Vincia:nGluonToQuark");
-  nGluonToQuarkF    = settingsPtr->mode("Vincia:nGluonToQuark");
+  nGluonToQuark     = settingsPtr->mode("Vincia:nGluonToQuark");
   convGluonToQuarkI = settingsPtr->flag("Vincia:convertGluonToQuark");
   convQuarkToGluonI = settingsPtr->flag("Vincia:convertQuarkToGluon");
 
@@ -2023,7 +2022,7 @@ void VinciaISR::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
   cutoffScaleII = settingsPtr->parm("Vincia:cutoffScaleII");
   cutoffScaleIF = settingsPtr->parm("Vincia:cutoffScaleIF");
 
-  // Check PDF Q2min value and issue warning if above ISR cutoff scale(s)
+  // Check PDF q2min value and issue warning if above ISR cutoff scale(s)
   double xTest = 0.1;
   bool insideBounds = true;
   if (beamAPtr->isHadron()) {
@@ -2168,17 +2167,22 @@ void VinciaISR::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
   // Clear containers.
   clearContainers();
 
-  // Rescue levels.
+  // Rescue levels and failsafe parameters.
   doRescue  = true;
   nRescue   = 100;
   rescueMin = 1.0e-6;
+  TINYPDF        = pow(10, -10);
 
-  // Initialize factorization scale and parameters for shower starting scale.
+  // Initialize parameters for shower starting scale.
   pTmaxMatch     = settingsPtr->mode("Vincia:pTmaxMatch");
   pTmaxFudge     = settingsPtr->parm("Vincia:pTmaxFudge");
   pT2maxFudge    = pow2(pTmaxFudge);
   pT2maxFudgeMPI = pow2(settingsPtr->parm("Vincia:pTmaxFudgeMPI"));
-  TINYPDF        = pow(10, -10);
+  pTdampMatch    = settingsPtr->mode("Vincia:pTdampMatch");
+  pTdampFudge    = settingsPtr->parm("Vincia:pTdampFudge");
+  doPTlimit.clear();
+  doPTdamp.clear();
+  pT2damp.clear();
 
   // Initialise the ISR antenna functions.
   if (verbose >= Logger::REPORT)
@@ -2190,7 +2194,7 @@ void VinciaISR::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
   if (verbose >= Logger::NORMAL) fsrPtr->header();
   isInit = true;
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
 
 }
 
@@ -2198,28 +2202,96 @@ void VinciaISR::init(BeamParticle* beamAPtrIn, BeamParticle* beamBPtrIn) {
 
 // Method to determine if max pT limit should be imposed on first emission.
 
-bool VinciaISR::limitPTmax(Event& event, double, double) {
+bool VinciaISR::limitPTmax(Event& event, double q2Fac, double) {
 
-  // Check if limiting pT of first emission.
-  if (pTmaxMatch == 1) return true;
-  else if (pTmaxMatch == 2) return false;
+  // Initialise for wimpy showers.
+  bool doPTlimitAll = true;
 
-  // Always restrict SoftQCD processes.
-  else if (infoPtr->isNonDiffractive() || infoPtr->isDiffractiveA() ||
-           infoPtr->isDiffractiveB() || infoPtr->isDiffractiveC())
-    return true;
-
-  // Look if jets or photons in final state of hard system (iSys = 0).
-  else {
-    const int iSysHard = 0;
-    for (int i = 0; i < partonSystemsPtr->sizeOut(iSysHard); ++i) {
-      int idAbs = event[partonSystemsPtr->getOut(iSysHard, i)].idAbs();
-      if (idAbs <= 5 || idAbs == 21 || idAbs == 22) return true;
-      else if (idAbs == 6 && nGluonToQuarkF == 6) return true;
-    }
-    // If no QCD/QED partons detected, allow to go to phase-space maximum.
-    return false;
+  // Verbose output
+  if (verbose >= VinciaConstants::DEBUG) {
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
   }
+
+  // Check if limiting pT of first emission in each system.
+  doPTlimit.clear();
+  doPTdamp.clear();
+  pT2damp.clear();
+  for (int iSys = 0; iSys < partonSystemsPtr->sizeSys(); ++iSys) {
+    // Initialise for wimpy showers as default, then check if should modify.
+    doPTlimit.push_back(true);
+    doPTdamp.push_back(false);
+    bool isHard = partonSystemsPtr->hasInAB(iSys) &&
+      event[partonSystemsPtr->getInA(iSys)].status() == -21;
+    bool hasHeavyCol = false;
+    // Force wimpy showers.
+    if (pTmaxMatch == 1 || !isHard) doPTlimit[iSys] = true;
+    // Also always restrict all systems for processes of SoftQCD type.
+    else if (infoPtr->isNonDiffractive() || infoPtr->isDiffractiveA() ||
+      infoPtr->isDiffractiveB() || infoPtr->isDiffractiveC())
+      doPTlimit[iSys] = true;
+    // Force power showers for hard system(s); MPI still wimpy.
+    else if (pTmaxMatch == 2) {
+      doPTlimit[iSys] = false;
+      for (int iP = 0; iP < partonSystemsPtr->sizeOut(iSys); ++iP) {
+        int i = partonSystemsPtr->getOut(iSys, iP);
+        if (event[i].idAbs() > max(5, nGluonToQuark) &&
+          event[i].colType() != 0) hasHeavyCol = true;
+      }
+    }
+    // Check if there are jets, photons, or heavy quarks in final state.
+    else {
+      // Look if jets, photons, and heavy coloured particles in final states
+      // of each system. (Top is counted as heavy unless g->ttbar is allowed.)
+      bool hasJet = false;
+      for (int iP = 0; iP < partonSystemsPtr->sizeOut(iSys); ++iP) {
+        int i     = partonSystemsPtr->getOut(iSys, iP);
+        int idAbs = event[i].idAbs();
+        if (idAbs <= max(5, nGluonToQuark) || idAbs == 21 || idAbs == 22)
+          hasJet = true;
+        else if (event[i].colType() != 0) hasHeavyCol = true;
+      }
+      // If no QCD/QED partons detected, allow to go to phase-space maximum.
+      if (!hasJet) doPTlimit[iSys] = false;
+      else doPTlimit[iSys] = true;
+    }
+
+    // For power showers, check if dampening should be applied.
+    if (!doPTlimit[iSys] && pTdampMatch >= 1) {
+      // Use the input factorisation-scale argument, or compute as geometric
+      // mean of the system's incoming A and B "scale" values.
+      double q2Scale = (pTdampMatch == 1 || pTdampMatch == 3) ? q2Fac :
+        event[partonSystemsPtr->getInA(iSys)].scale() *
+        event[partonSystemsPtr->getInB(iSys)].scale();
+      if ( pTdampMatch == 1 || pTdampMatch == 2 || hasHeavyCol ) {
+        doPTdamp[iSys] = true;
+        pT2damp[iSys] = pow2(pTdampFudge) * q2Scale;
+      }
+    }
+
+    // General pTlimitHard is AND of the individual ones.
+    doPTlimitAll = doPTlimitAll && doPTlimit[iSys];
+
+  // Verbose output
+  if (verbose >= VinciaConstants::DEBUG) {
+    string limitString = "iSys = " + to_string(iSys) + " doPTlimit = "
+      + bool2str(doPTlimit[iSys]);
+    if ( !doPTlimit[iSys] )
+      limitString += " doPTdamp = " + bool2str(doPTdamp[iSys]);
+    if ( doPTdamp[iSys] )
+      limitString += " pTdamp[iSys] = " + to_string( sqrt(pT2damp[iSys]) );
+    printOut(__METHOD_NAME__, limitString );
+  }
+
+
+  } // End loop over systems.
+
+  // Verbose output
+  if (verbose >= VinciaConstants::DEBUG) {
+    printOut(__METHOD_NAME__, "end", DASHLEN);
+  }
+
+  // Return true/false.
+  return doPTlimitAll;
 
 }
 
@@ -2238,7 +2310,7 @@ void VinciaISR::prepare( int iSys, Event& event, bool) {
 
   // Verbose output.
   if (verbose >= VinciaConstants::DEBUG) {
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
     stringstream ss;
     ss << "Preparing system " << iSys;
     printOut(__METHOD_NAME__, ss.str());
@@ -2291,7 +2363,7 @@ void VinciaISR::prepare( int iSys, Event& event, bool) {
   hasPrepared[iSys] = true;
 
   // We don't have a starting scale for this system yet.
-  Q2hat[iSys] = 0.0;
+  q2Hat[iSys] = 0.0;
   // After prepare we always have zero branchings.
   nBranch[iSys] = 0;
   nBranchISR[iSys] = 0;
@@ -2403,9 +2475,10 @@ void VinciaISR::prepare( int iSys, Event& event, bool) {
     }
 
     // Store trial QCD antenna and add trial generators depending on type.
-    BranchElementalISR trial(iSys, event, i1, i2, col, isVal1, isVal2);
-    resetTrialGenerators(&trial);
-    trial.renewTrial();
+    auto trial = make_shared<BranchElementalISR>(
+      iSys, event, i1, i2, col, isVal1, isVal2);
+    resetTrialGenerators(trial);
+    trial->renewTrial();
     branchElementals.push_back(trial);
   }
 
@@ -2438,7 +2511,7 @@ void VinciaISR::prepare( int iSys, Event& event, bool) {
   isPrepared=true;
   if (verbose >= VinciaConstants::DEBUG) {
     list();
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
   }
 }
 
@@ -2452,7 +2525,7 @@ void VinciaISR::update( int iSys, Event& event, bool) {
   if (!(doII || doIF) || !isPrepared) return;
   if (!partonSystemsPtr->hasInAB(iSys)) return;
   if (verbose >= VinciaConstants::DEBUG) {
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
     if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
       ss << "Updating iSys: " << iSys;
@@ -2516,16 +2589,16 @@ void VinciaISR::update( int iSys, Event& event, bool) {
 
   // Loop over the antennae, and look for changed ones.
   // Start from back so that if we remove one it won't mess up loop
-  for (vector<BranchElementalISR>::iterator antIt = branchElementals.end() - 1;
+  for (auto antIt = branchElementals.end() - 1;
        antIt != branchElementals.begin() - 1; --antIt) {
     // Only check antennae in same system.
-    if (antIt->system != iSys) continue;
+    if ((*antIt)->system != iSys) continue;
     bool doUpdate = false;
     bool doRemove = false;
     bool foundColour=true;
-    int antCol = antIt->col();
-    int i1 = antIt->geti1();
-    int i2 = antIt->geti2();
+    int antCol = (*antIt)->col();
+    int i1 = (*antIt)->geti1();
+    int i2 = (*antIt)->geti2();
     int i1New, i2New;
 
     // Sanity check. We don't destroy colour lines.
@@ -2544,7 +2617,7 @@ void VinciaISR::update( int iSys, Event& event, bool) {
     }
     if (foundColour) {
       // Initial-initial antennae.
-      if (antIt->isII()) {
+      if ((*antIt)->isII()) {
 
         // Fetch up to date i1.
         // Check if i1 attached on colour or anticolour end of dipole.
@@ -2602,7 +2675,7 @@ void VinciaISR::update( int iSys, Event& event, bool) {
         else i2New = indexOfAcol[antCol];
 
         //Check if i1New is still incoming.
-        int inX = antIt->is1A() ? inA : inB;
+        int inX = (*antIt)->is1A() ? inA : inB;
         if (i1New != inX) {
 
           // Check if QED backwards evolution.
@@ -2623,9 +2696,9 @@ void VinciaISR::update( int iSys, Event& event, bool) {
 
       // Recompute antenna mass.
       if (doUpdate) {
-        antIt->reset(iSys, event, i1New,i2New, antCol,
-          antIt->isVal1(), antIt->isVal2());
-        resetTrialGenerators(&(*antIt));
+        (*antIt)->reset(iSys, event, i1New,i2New, antCol,
+          (*antIt)->isVal1(), (*antIt)->isVal2());
+        resetTrialGenerators(*antIt);
       }
       indexOfAcol.erase(antCol);
       indexOfCol.erase(antCol);
@@ -2671,10 +2744,10 @@ void VinciaISR::update( int iSys, Event& event, bool) {
 
         // Store trial QCD antenna and add trial generators depending
         // on type.
-        BranchElementalISR trial(iSys, event, i1Now, i2Now, colNow, isVal1,
-          isVal2);
-        resetTrialGenerators(&trial);
-        trial.renewTrial();
+        auto trial = make_shared<BranchElementalISR>(iSys, event, i1Now, i2Now,
+          colNow, isVal1, isVal2);
+        resetTrialGenerators(trial);
+        trial->renewTrial();
         branchElementals.push_back(trial);
       }
       indexOfAcol.erase(colNow);
@@ -2694,7 +2767,7 @@ void VinciaISR::update( int iSys, Event& event, bool) {
   if (doMECsSys[iSys] && !mecsPtr->doMEC(iSys, nBranch[iSys]+1)) {
     doMECsSys[iSys] = false;
     for (int i = 0; i < (int)branchElementals.size(); i++) {
-      BranchElementalISR* trial = &branchElementals[i];
+      shared_ptr<BranchElementalISR> trial = branchElementals[i];
       if (trial->system == iSys) trial->renewTrial();
     }
   }
@@ -2715,7 +2788,7 @@ void VinciaISR::update( int iSys, Event& event, bool) {
   }
   if (verbose >= VinciaConstants::DEBUG) {
     list();
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
   }
 
 }
@@ -2733,7 +2806,7 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
 
   // Verbose output.
   if (verbose >= VinciaConstants::DEBUG) {
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
     stringstream ss;
     ss << "(re)starting evolution between pTevolBegAll = "
        << num2str(pTevolBegAll) << " and pTevolEndAll = " << pTevolEndAll;
@@ -2766,9 +2839,9 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
   }
   for (unsigned int iAnt = 0; iAnt < nAnt; iAnt++) {
     // Shorthand for this antenna.
-    BranchElementalISR* trialPtr = &branchElementals[iAnt];
+    shared_ptr<BranchElementalISR> trialPtr = branchElementals[iAnt];
     int iSys = trialPtr->system;
-    double qMax = min(qOld, sqrt(Q2hat[iSys]));
+    double qMax = min(qOld, sqrt(q2Hat[iSys]));
     double s12  = trialPtr->sAnt();
     int id1     = trialPtr->id1sav;
     int id2     = trialPtr->id2sav;
@@ -2882,15 +2955,15 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
         // Set color factor for trial.
         double colFac = getAntFunPtr(antFunTypePhys)->chargeFac();
         int nF        = getNf(iRegion);
-        if (antFunTypePhys == XGsplitIF) colFac *= min(nF,nGluonToQuarkF);
+        if (antFunTypePhys == XGSplitIF) colFac *= min(nF,nGluonToQuark);
 
         // Effective renormalization-scale prefactor.
         double kR = aSkMu2EmitI;
-        if (antFunTypePhys == QXsplitII || antFunTypePhys == QXsplitIF)
+        if (antFunTypePhys == QXConvII || antFunTypePhys == QXConvIF)
           kR = aSkMu2SplitI;
-        else if (antFunTypePhys == GXconvII || antFunTypePhys == GXconvIF)
+        else if (antFunTypePhys == GXConvII || antFunTypePhys == GXConvIF)
           kR = aSkMu2Conv;
-        else if (antFunTypePhys == XGsplitIF) kR = aSkMu2SplitF;
+        else if (antFunTypePhys == XGSplitIF) kR = aSkMu2SplitF;
         kR = sqrt(kR);
 
         // Check if we should use running alphaS.
@@ -2904,11 +2977,11 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
         // Flavours to check.
         for (int i = 0; i < (5 - nFlavZeroMass); i++) {
           if ((abs(id1) == 5 - i) && (iRegion == 3 - i)) {
-            if ((antFunTypePhys == QXsplitII && !swapped) ||
-                (antFunTypePhys == QXsplitIF) ) idCheck = 5 - i;
+            if ((antFunTypePhys == QXConvII && !swapped) ||
+                (antFunTypePhys == QXConvIF) ) idCheck = 5 - i;
           }
           if (isII && (abs(id2) == 5-i) && (iRegion == 3-i)) {
-            if (antFunTypePhys == QXsplitII && swapped) idCheck = 5-i;
+            if (antFunTypePhys == QXConvII && swapped) idCheck = 5-i;
           }
         }
         bool usePDFmassThreshold = (idCheck > 0);
@@ -2925,10 +2998,10 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
             // At the trial level, all gluon splittings and
             // conversions enhanced by max(enhanceCharm,
             // enhanceBottom).
-            if (min(nF,nGluonToQuarkF) >= 4 && antFunTypePhys == XGsplitIF)
+            if (min(nF,nGluonToQuark) >= 4 && antFunTypePhys == XGSplitIF)
               enhanceFac *= max(enhanceCharm, enhanceBottom);
-            else if ( nGluonToQuarkI >= 4 &&
-              (antFunTypePhys == GXconvII || antFunTypePhys == GXconvIF))
+            else if ( nGluonToQuark >= 4 &&
+              (antFunTypePhys == GXConvII || antFunTypePhys == GXConvIF))
               enhanceFac *= max(enhanceCharm,enhanceBottom);
           }
         }
@@ -2946,7 +3019,7 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
           double qTmp = qTrial;
           // Add extra headroom, should really be multiplying trial PDF
           // ratio.
-          headroomFac *= (antFunTypePhys == QXsplitII ? 2.0 : 1.3);
+          headroomFac *= (antFunTypePhys == QXConvII ? 2.0 : 1.3);
           // Overestimate.
           double mu2eff    = mu2min + pow2(kR*qMinNow);
           // alphaS for overestimate.
@@ -3110,7 +3183,7 @@ double VinciaISR::pTnext(Event& event, double pTevolBegAll,
   } else if (winnerPtr != nullptr) winnerPtr->forceSplittingSav = false;
   if (verbose >= VinciaConstants::DEBUG) {
     list();
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
   }
 
   // Diagnostics.
@@ -3135,7 +3208,7 @@ bool VinciaISR::branch(Event& event) {
 
   // System of index of the winner and extract current QE scales.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
 
   // Diagnostics
   if (verbose >= Logger::REPORT) diagnosticsPtr->start(__METHOD_NAME__);
@@ -3244,7 +3317,7 @@ bool VinciaISR::branch(Event& event) {
     // Save clustering and compute sector resolution for it.
     enum AntFunType antFunTypeWin = winnerPtr->antFunTypePhys(indxWin);
     VinciaClustering thisClus;
-    // Set children correctly.
+    // Set daughters correctly.
     int indA, indB;
     if (isII) {
       indA = isSwapped ? 2 : 0;
@@ -3255,7 +3328,7 @@ bool VinciaISR::branch(Event& event) {
       indA = is2Initial ? 2 : 0;
       indB = is2Initial ? 0 : 2;
     }
-    thisClus.setChildren(ptclsPost,indA,1,indB);
+    thisClus.setDaughters(ptclsPost,indA,1,indB);
     thisClus.setMothers(winnerPtr->id1sav,winnerPtr->id2sav);
     thisClus.setAntenna(false,antFunTypeWin);
     thisClus.initInvariantAndMassVecs();
@@ -3275,7 +3348,7 @@ bool VinciaISR::branch(Event& event) {
     minClus = resolutionPtr->findSector(stateNew, nFlavsBorn[iSysWin]);
     if (verbose >= VinciaConstants::DEBUG) {
       stringstream ss;
-      ss << "Minimal clustering has sector resolution " << minClus.Q2res;
+      ss << "Minimal clustering has sector resolution " << minClus.q2res;
       printOut(__METHOD_NAME__, ss.str());
     }
     bool isVetoed = resolutionPtr->sectorVeto(minClus, thisClus);
@@ -3311,9 +3384,9 @@ bool VinciaISR::branch(Event& event) {
   // Check only if we don't force a splitting.
   if (!forceSplitting && sqrt(q2new) < cutoffScale) {
     bool isMassiveQsplit = false;
-    if (antFunTypePhys == QXsplitIF)
+    if (antFunTypePhys == QXConvIF)
       isMassiveQsplit = (abs(winnerPtr->id1sav) > nFlavZeroMass);
-    else if (antFunTypePhys == QXsplitII) {
+    else if (antFunTypePhys == QXConvII) {
       isMassiveQsplit = ( isSwapped
         ? (abs(winnerPtr->id2sav) > nFlavZeroMass)
         : (abs(winnerPtr->id1sav) > nFlavZeroMass) );
@@ -3480,7 +3553,7 @@ bool VinciaISR::branch(Event& event) {
       else event[iNew2].mothers(iNew1, i2sav);
 
     // Gluon splitting or conversion in the initial state
-    } else if (antFunTypePhys == QXsplitIF || antFunTypePhys == GXconvIF) {
+    } else if (antFunTypePhys == QXConvIF || antFunTypePhys == GXConvIF) {
       // iNew1 a inherits mothers of A, daughters are A and j.
       event[iNew1].daughters(iNew2, i1sav);
       // i2sav K gets k as daughter, keeps its mothers.
@@ -3602,7 +3675,7 @@ bool VinciaISR::branch(Event& event) {
   // Update antennae due to recoil.
   if (iRecNew.size() >= 1)
     for (int iAnt = 0; iAnt < (int)branchElementals.size(); ++iAnt) {
-      BranchElementalISR* antPtr = &branchElementals[iAnt];
+      shared_ptr<BranchElementalISR> antPtr = branchElementals[iAnt];
       // No recoil outside system.
       if (antPtr->system != iSysWin) continue;
       int i2  = antPtr->i2sav;
@@ -3613,8 +3686,8 @@ bool VinciaISR::branch(Event& event) {
     }
 
   // Update number of gluons and quark pairs.
-  if (antFunTypePhys == GXconvII || antFunTypePhys == GXconvIF ||
-      antFunTypePhys == XGsplitIF) {
+  if (antFunTypePhys == GXConvII || antFunTypePhys == GXConvIF ||
+      antFunTypePhys == XGSplitIF) {
     nG[iSysWin] -= 1;
     ++nQQ[iSysWin];
   } else ++nG[iSysWin];
@@ -3662,8 +3735,9 @@ bool VinciaISR::branch(Event& event) {
     if (isII) {
       col = ((event[iNew3].col() == event[iNew2].col()) ?
         event[iNew2].col() : event[iNew2].acol());
-      BranchElementalISR newTrial(iSysWin,event,iNew3,iNew2,col,isValN3,false);
-      resetTrialGenerators(&newTrial);
+      auto newTrial = make_shared<BranchElementalISR>(iSysWin,event,iNew3,
+        iNew2,col,isValN3,false);
+      resetTrialGenerators(newTrial);
       // Decide whether the new antenna corresponds to the colour or
       // anticolour tag of the newly emitted gluon. Save
       // branchelemental.
@@ -3671,7 +3745,7 @@ bool VinciaISR::branch(Event& event) {
     }
 
   // Gluon splitting in the initial state:
-  } else if (antFunTypePhys == QXsplitII || antFunTypePhys == QXsplitIF) {
+  } else if (antFunTypePhys == QXConvII || antFunTypePhys == QXConvIF) {
     // Old antenna should now and add an IF antenna. Decide whether
     // this antenna corresponds to gluon colour or anticolour.
     int col;
@@ -3689,15 +3763,15 @@ bool VinciaISR::branch(Event& event) {
     int iSplitGluon = (isSwapped ? iNew3 : iNew1);
     col = ((event[iSplitGluon].col() == event[iNew2].col()) ?
       event[iNew2].col() : event[iNew2].acol() );
-    BranchElementalISR newTrial(iSysWin,event,iSplitGluon,iNew2,col,
-      false,false);
-    resetTrialGenerators(&newTrial);
+    auto newTrial = make_shared<BranchElementalISR>(iSysWin,event,iSplitGluon,
+      iNew2,col, false,false);
+    resetTrialGenerators(newTrial);
     // Update colour, old1 is gluon, so both col and acol != 0. Save
     // branchelemental,
     branchElementals.push_back(newTrial);
 
   // Gluon conversion in the initial state.
-  } else if (antFunTypePhys == GXconvII || antFunTypePhys == GXconvIF) {
+  } else if (antFunTypePhys == GXConvII || antFunTypePhys == GXConvIF) {
     // Update branched antenna, check IS or FS quark carry ant colour.
     int iFSQ     = iNew2;
     int colFSQ   = ( event[iFSQ].id() > 0 ? event[iFSQ].col()
@@ -3732,7 +3806,7 @@ bool VinciaISR::branch(Event& event) {
 
     // Can only find one ant with old gluon, as winner already updated.
     for (int iAnt = 0; iAnt < (int)branchElementals.size(); iAnt++) {
-      BranchElementalISR* antPtr = &branchElementals[iAnt];
+      shared_ptr<BranchElementalISR> antPtr = branchElementals[iAnt];
       // Only look inside same system.
       if (antPtr->system != iSysWin) continue;
       if (antPtr->i1sav == iConvGluon) {
@@ -3749,7 +3823,7 @@ bool VinciaISR::branch(Event& event) {
   }
 
   // Gluon splitting in the final state.
-  else if (antFunTypePhys == XGsplitIF) {
+  else if (antFunTypePhys == XGSplitIF) {
     // Keep the old antenna (iNew2 as emission and iNew1 as initial
     // partner) which is IF, no new one created. Update colour, old2
     // is quark so if col2 !=0 that's antenna colour
@@ -3760,7 +3834,7 @@ bool VinciaISR::branch(Event& event) {
     resetTrialGenerators(winnerPtr);
     // And check the other antenna i2sav was involved: has to be IF.
     for (int iAnt = 0; iAnt < (int)branchElementals.size(); ++iAnt) {
-      BranchElementalISR* antPtr = &branchElementals[iAnt];
+      shared_ptr<BranchElementalISR> antPtr = branchElementals[iAnt];
       // Skip antennae not in same system.
       if (antPtr->system != iSysWin) continue;
       // Map i2sav to iNew3.
@@ -3775,7 +3849,7 @@ bool VinciaISR::branch(Event& event) {
 
   // Updates of the other antennae.
   for (int iAnt = 0; iAnt < (int)branchElementals.size(); ++iAnt) {
-    BranchElementalISR* antPtr = &branchElementals[iAnt];
+    shared_ptr<BranchElementalISR> antPtr = branchElementals[iAnt];
 
     // Only look inside same system.
     if (antPtr->system != iSysWin) continue;
@@ -3829,7 +3903,7 @@ bool VinciaISR::branch(Event& event) {
 
   // Sanity check: Kick out any FF antenna we might have created.
   for (int iAnt = 0; iAnt < (int)branchElementals.size(); ++iAnt) {
-    BranchElementalISR* antPtr = &branchElementals[iAnt];
+    shared_ptr<BranchElementalISR> antPtr = branchElementals[iAnt];
     if (event[antPtr->i1sav].isFinal() && event[antPtr->i2sav].isFinal())
       branchElementals.erase(branchElementals.begin() + iAnt);
   }
@@ -3837,12 +3911,12 @@ bool VinciaISR::branch(Event& event) {
   // Renew trials in all other systems since pdfs changed.
   for (int iAnt = 0; iAnt < (int)branchElementals.size(); ++iAnt) {
     // Skip same system.
-    if (branchElementals[iAnt].system == iSysWin) continue;
+    if (branchElementals[iAnt]->system == iSysWin) continue;
     // Reset rescue counter.
-    branchElementals[iAnt].resetRescue();
-    if (isII || (is1A && branchElementals[iAnt].is1A()) ||
-        (!is1A && !branchElementals[iAnt].is1A()))
-      branchElementals[iAnt].renewTrial();
+    branchElementals[iAnt]->resetRescue();
+    if (isII || (is1A && branchElementals[iAnt]->is1A()) ||
+        (!is1A && !branchElementals[iAnt]->is1A()))
+      branchElementals[iAnt]->renewTrial();
   }
 
   // Count the number of branchings in the system.
@@ -3858,11 +3932,14 @@ bool VinciaISR::branch(Event& event) {
     // If going from ME corrected order to uncorrected one, renew trials.
     if (!doMECsSys[iSysWin]) {
       for (int i = 0; i < (int)branchElementals.size(); i++) {
-        BranchElementalISR* trial = &branchElementals[i];
+        shared_ptr<BranchElementalISR> trial = branchElementals[i];
         if (trial->system == iSysWin) trial->renewTrial();
       }
     }
   }
+
+  // Ensure any damped power showers are only applied to hardest emission.
+  if (iSysWin < (int)doPTdamp.size()) doPTdamp[iSysWin] = false;
 
   if (verbose >= VinciaConstants::DEBUG && !checkAntennae(event)) {
     loggerPtr->WARNING_MSG("failed checkAntennae; aborting");
@@ -3909,7 +3986,7 @@ bool VinciaISR::branch(Event& event) {
   if (verbose >= VinciaConstants::DEBUG) {
     event.list();
     list();
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
   }
 
   // Diagnostics.
@@ -3943,7 +4020,7 @@ void VinciaISR::initVinciaPtrs(
 void VinciaISR::clearContainers() {
   hasPrepared.clear();
   branchElementals.clear();
-  Q2hat.clear();
+  q2Hat.clear();
   isHardSys.clear();
   isResonanceSys.clear();
   polarisedSys.clear();
@@ -3967,7 +4044,10 @@ void VinciaISR::clearContainers() {
 void VinciaISR::setStartScale(int iSys, Event& event) {
 
   // Resonance and hadron decay systems: no ISR.
-  if (!partonSystemsPtr->hasInAB(iSys)) Q2hat[iSys] = 0.0;
+  if (!partonSystemsPtr->hasInAB(iSys)) {
+    q2Hat[iSys] = 0.0;
+    return;
+  }
 
   // Hard Process System.
   else if (isHardSys[iSys]) {
@@ -3975,21 +4055,21 @@ void VinciaISR::setStartScale(int iSys, Event& event) {
     if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__, "Setting ISR starting scale for hard system");
     // pTmaxMatch = 1 : always start at QF (modulo kFudge).
-    if (pTmaxMatch == 1) Q2hat[iSys] = pT2maxFudge * infoPtr->Q2Fac();
+    if (pTmaxMatch == 1) q2Hat[iSys] = pT2maxFudge * infoPtr->Q2Fac();
     // pTmaxMatch = 2 : always start at eCM.
-    else if (pTmaxMatch == 2) Q2hat[iSys] = m2BeamsSav;
+    else if (pTmaxMatch == 2) q2Hat[iSys] = m2BeamsSav;
     // Else check if this event has final-state jets or photons.
     else {
       bool hasRad = false;
       for (int i = 0; i < partonSystemsPtr->sizeOut(iSys); ++i) {
-        int idAbs = event[partonSystemsPtr->getOut(iSys,i)].idAbs();
+        int idAbs = event[partonSystemsPtr->getOut(iSys, i)].idAbs();
         if (idAbs <= 5 || idAbs == 21 || idAbs == 22) hasRad = true;
-        if (idAbs == 6 && nGluonToQuarkF == 6) hasRad = true;
+        if (idAbs == 6 && nGluonToQuark == 6) hasRad = true;
         if (hasRad) break;
       }
       // If no QCD/QED partons detected, allow to go to phase-space maximum.
-      if (hasRad) Q2hat[iSys] = pT2maxFudge * infoPtr->Q2Fac();
-      else Q2hat[iSys] = m2BeamsSav;
+      if (hasRad) q2Hat[iSys] = pT2maxFudge * infoPtr->Q2Fac();
+      else q2Hat[iSys] = m2BeamsSav;
     }
   }
 
@@ -4001,13 +4081,13 @@ void VinciaISR::setStartScale(int iSys, Event& event) {
     // Find positions of incoming colliding partons.
     int in1 = partonSystemsPtr->getInA(iSys);
     int in2 = partonSystemsPtr->getInB(iSys);
-    Q2hat[iSys] = pT2maxFudgeMPI
+    q2Hat[iSys] = pT2maxFudgeMPI
       * pow2(min(event[in1].scale(),event[in2].scale()));
     if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__,
         "Renewing all trials since we got non-hard system!");
     for (int iAnt = 0; iAnt < (int)branchElementals.size(); ++iAnt)
-      if (branchElementals[iAnt].system != iSys)
-        branchElementals[iAnt].renewTrial();
+      if (branchElementals[iAnt]->system != iSys)
+        branchElementals[iAnt]->renewTrial();
   }
 }
 
@@ -4015,7 +4095,7 @@ void VinciaISR::setStartScale(int iSys, Event& event) {
 
 // Add trial functions to a BranchElemental.
 
-void VinciaISR::resetTrialGenerators(BranchElementalISR* trial) {
+void VinciaISR::resetTrialGenerators(shared_ptr<BranchElementalISR> trial) {
 
   // Reset.
   trial->clearTrialGenerators();
@@ -4036,10 +4116,10 @@ void VinciaISR::resetTrialGenerators(BranchElementalISR* trial) {
   if (isII) {
     // QQbar.
     if ( colType1abs == 1 && colType2abs == 1 ) {
-      antFunTypePhys = QQemitII;
+      antFunTypePhys = QQEmitII;
       if (getAntFunPtr(antFunTypePhys)->chargeFac() > 0.)
         trial->addTrialGenerator(antFunTypePhys, false, &trialIISoft);
-      antFunTypePhys = QXsplitII;
+      antFunTypePhys = QXConvII;
       if (convQuarkToGluonI &&
         getAntFunPtr(antFunTypePhys)->chargeFac() > 0.) {
         if (!isVal1) trial->addTrialGenerator(antFunTypePhys, false,
@@ -4049,13 +4129,13 @@ void VinciaISR::resetTrialGenerators(BranchElementalISR* trial) {
       }
     // GG.
     } else if ( colType1abs == 2 && colType2abs == 2 ) {
-      antFunTypePhys = GGemitII;
+      antFunTypePhys = GGEmitII;
       if (getAntFunPtr(antFunTypePhys)->chargeFac() > 0.) {
         trial->addTrialGenerator(antFunTypePhys, false, &trialIISoft);
         trial->addTrialGenerator(antFunTypePhys, false, &trialIIGCollA);
         trial->addTrialGenerator(antFunTypePhys, false, &trialIIGCollB);
       }
-      antFunTypePhys = GXconvII;
+      antFunTypePhys = GXConvII;
       if (convGluonToQuarkI &&
         getAntFunPtr(antFunTypePhys)->chargeFac() > 0.) {
         trial->addTrialGenerator(antFunTypePhys, false, &trialIIConvA);
@@ -4063,29 +4143,29 @@ void VinciaISR::resetTrialGenerators(BranchElementalISR* trial) {
       }
     // QG.
     } else if ( colType1abs == 1 && colType2abs == 2 ) {
-      antFunTypePhys = GQemitII;
+      antFunTypePhys = GQEmitII;
       if (getAntFunPtr(antFunTypePhys)->chargeFac() > 0.) {
         trial->addTrialGenerator(antFunTypePhys, true, &trialIISoft);
         trial->addTrialGenerator(antFunTypePhys, true, &trialIIGCollB);
       }
-      antFunTypePhys = GXconvII;
+      antFunTypePhys = GXConvII;
       if (convGluonToQuarkI && getAntFunPtr(antFunTypePhys)->chargeFac() > 0.)
         trial->addTrialGenerator(antFunTypePhys, true, &trialIIConvB);
-      antFunTypePhys = QXsplitII;
+      antFunTypePhys = QXConvII;
       if (convQuarkToGluonI && getAntFunPtr(antFunTypePhys)->chargeFac() > 0.)
         if (!isVal1) trial->addTrialGenerator(antFunTypePhys, false,
           &trialIISplitA);
     // GQ.
     } else if ( colType1abs == 2 && colType2abs == 1 ) {
-      antFunTypePhys = GQemitII;
+      antFunTypePhys = GQEmitII;
       if (getAntFunPtr(antFunTypePhys)->chargeFac() > 0.) {
         trial->addTrialGenerator(antFunTypePhys, false, &trialIISoft);
         trial->addTrialGenerator(antFunTypePhys, false, &trialIIGCollA);
       }
-      antFunTypePhys = GXconvII;
+      antFunTypePhys = GXConvII;
       if (convGluonToQuarkI && getAntFunPtr(antFunTypePhys)->chargeFac() > 0.)
         trial->addTrialGenerator(antFunTypePhys, false, &trialIIConvA);
-      antFunTypePhys = QXsplitII;
+      antFunTypePhys = QXConvII;
       if (convQuarkToGluonI && getAntFunPtr(antFunTypePhys)->chargeFac() > 0.)
         if (!isVal2) trial->addTrialGenerator(antFunTypePhys, true,
           &trialIISplitB);
@@ -4095,7 +4175,7 @@ void VinciaISR::resetTrialGenerators(BranchElementalISR* trial) {
   } else {
     // QQ.
     if ( colType1abs == 1 && colType2abs == 1 ) {
-      antFunTypePhys = QQemitIF;
+      antFunTypePhys = QQEmitIF;
       if (getAntFunPtr(antFunTypePhys)->chargeFac() > 0.) {
         // Use different trial generator for valence quarks.
         if (!isVal1)
@@ -4103,13 +4183,13 @@ void VinciaISR::resetTrialGenerators(BranchElementalISR* trial) {
         else
           trial->addTrialGenerator(antFunTypePhys, !is1A, &trialVFSoft);
       }
-      antFunTypePhys = QXsplitIF;
+      antFunTypePhys = QXConvIF;
       if (convQuarkToGluonI && getAntFunPtr(antFunTypePhys)->chargeFac() > 0.)
         if (!isVal1) trial->addTrialGenerator(antFunTypePhys, !is1A,
           &trialIFSplitA);
     // GG.
     } else if ( colType1abs == 2 && colType2abs == 2 ) {
-      antFunTypePhys = GGemitIF;
+      antFunTypePhys = GGEmitIF;
       if (getAntFunPtr(antFunTypePhys)->chargeFac() > 0.) {
         trial->addTrialGenerator(antFunTypePhys, !is1A, &trialIFSoft);
         trial->addTrialGenerator(antFunTypePhys, !is1A, &trialIFGCollA);
@@ -4117,26 +4197,26 @@ void VinciaISR::resetTrialGenerators(BranchElementalISR* trial) {
         if (sectorShower)
           trial->addTrialGenerator(antFunTypePhys, !is1A, &trialIFGCollK);
       }
-      antFunTypePhys = XGsplitIF;
-      if (id2 == 21 && nGluonToQuarkF > 0 &&
+      antFunTypePhys = XGSplitIF;
+      if (id2 == 21 && nGluonToQuark > 0 &&
         getAntFunPtr(antFunTypePhys)->chargeFac()>0.)
         trial->addTrialGenerator(antFunTypePhys, !is1A, &trialIFSplitK);
-      antFunTypePhys = GXconvIF;
+      antFunTypePhys = GXConvIF;
       if (convGluonToQuarkI && getAntFunPtr(antFunTypePhys)->chargeFac() > 0.)
         trial->addTrialGenerator(antFunTypePhys, !is1A, &trialIFConvA);
     // GQ.
     } else if ( colType1abs == 2 && colType2abs == 1 ) {
-      antFunTypePhys = GQemitIF;
+      antFunTypePhys = GQEmitIF;
       if (getAntFunPtr(antFunTypePhys)->chargeFac() > 0.) {
         trial->addTrialGenerator(antFunTypePhys, !is1A, &trialIFSoft);
         trial->addTrialGenerator(antFunTypePhys, !is1A, &trialIFGCollA);
       }
-      antFunTypePhys = GXconvIF;
+      antFunTypePhys = GXConvIF;
       if (convGluonToQuarkI && getAntFunPtr(antFunTypePhys)->chargeFac() > 0.)
         trial->addTrialGenerator(antFunTypePhys, !is1A, &trialIFConvA);
     // QG.
     } else if ( colType1abs == 1 && colType2abs == 2 ) {
-      antFunTypePhys = QGemitIF;
+      antFunTypePhys = QGEmitIF;
       if (getAntFunPtr(antFunTypePhys)->chargeFac() > 0.) {
         if (!isVal1)
           trial->addTrialGenerator(antFunTypePhys, !is1A, &trialIFSoft);
@@ -4146,22 +4226,22 @@ void VinciaISR::resetTrialGenerators(BranchElementalISR* trial) {
         if (sectorShower)
           trial->addTrialGenerator(antFunTypePhys, !is1A, &trialIFGCollK);
       }
-      antFunTypePhys = XGsplitIF;
-      if (id2 == 21 && nGluonToQuarkF > 0 &&
+      antFunTypePhys = XGSplitIF;
+      if (id2 == 21 && nGluonToQuark > 0 &&
         getAntFunPtr(antFunTypePhys)->chargeFac()>0.)
         trial->addTrialGenerator(antFunTypePhys, !is1A, &trialIFSplitK);
-      antFunTypePhys = QXsplitIF;
+      antFunTypePhys = QXConvIF;
       if (convQuarkToGluonI && getAntFunPtr(antFunTypePhys)->chargeFac() > 0.)
         if (!isVal1) trial->addTrialGenerator(antFunTypePhys, !is1A,
           &trialIFSplitA);
     // GOctetOnium.
     } else if ( id1 == 21 && isOctetOnium2 ) {
-      antFunTypePhys = GXconvIF;
+      antFunTypePhys = GXConvIF;
       if (convGluonToQuarkI && getAntFunPtr(antFunTypePhys)->chargeFac() > 0.)
         trial->addTrialGenerator(antFunTypePhys, !is1A, &trialIFConvA);
     // QOctetOnium.
     } else if ( colType1abs == 1 && isOctetOnium2 ) {
-      antFunTypePhys = QXsplitIF;
+      antFunTypePhys = QXConvIF;
       if (convQuarkToGluonI && getAntFunPtr(antFunTypePhys)->chargeFac() > 0.)
         if (!isVal1) trial->addTrialGenerator(antFunTypePhys, !is1A,
           &trialIFSplitA);
@@ -4182,7 +4262,7 @@ double VinciaISR::getHeadroomFac(int iSys, enum AntFunType antFunTypePhys,
   if (doMECsSys[iSys] && mecsPtr->doMEC(iSys,nBranch[iSys] + 1)) {
     headroomFac = 4.;
     // Gluon splitting MECs may require larger overestimates.
-    if (antFunTypePhys == XGsplitIF) headroomFac *= 1.5;
+    if (antFunTypePhys == XGSplitIF) headroomFac *= 1.5;
     // Helicity-dependent MECs may require larger headroom.
     if (helicityShower && polarisedSys[iSys]) headroomFac *= 1.5;
   // Headroom factors for pure shower.
@@ -4202,7 +4282,7 @@ bool VinciaISR::heavyQuarkLeft(double qTrial) {
   bool foundQuark = false;
   // Loop over antennae.
   for (int iAnt = 0; iAnt < (int)branchElementals.size(); ++iAnt) {
-    BranchElementalISR* trialPtr = &branchElementals[iAnt];
+    shared_ptr<BranchElementalISR> trialPtr = branchElementals[iAnt];
     int iSys    = trialPtr->system;
     int id1     = abs(trialPtr->id1sav);
     int id2     = abs(trialPtr->id2sav);
@@ -4215,8 +4295,8 @@ bool VinciaISR::heavyQuarkLeft(double qTrial) {
         foundQuarkNow = true;
         // Find the index of the trial generator for splitting.
         for (int indx = 0; indx < (int)trialPtr->nTrialGenerators(); ++indx) {
-          if ( (trialPtr->antFunTypePhys(indx) == QXsplitIF) ||
-            (trialPtr->antFunTypePhys(indx) == QXsplitII) ) {
+          if ( (trialPtr->antFunTypePhys(indx) == QXConvIF) ||
+            (trialPtr->antFunTypePhys(indx) == QXConvII) ) {
             splitGenTndex = indx;
             trialPtr->scaleSav[indx] = mass;
           }
@@ -4231,7 +4311,7 @@ bool VinciaISR::heavyQuarkLeft(double qTrial) {
         foundQuarkNow = true;
         // Find the index of the trial generator for splitting.
         for (int indx = 0; indx < (int)trialPtr->nTrialGenerators(); ++indx) {
-          if (trialPtr->antFunTypePhys(indx) == QXsplitII) {
+          if (trialPtr->antFunTypePhys(indx) == QXConvII) {
             splitGenTndex = indx;
             trialPtr->scaleSav[indx] = mass;
           }
@@ -4257,11 +4337,11 @@ bool VinciaISR::heavyQuarkLeft(double qTrial) {
 // Generate kinematics (II) and set flavours and masses.
 
 bool VinciaISR::generateKinematicsII(Event& event,
-  BranchElementalISR* trialPtr, vector<Vec4>& pRec) {
+  shared_ptr<BranchElementalISR> trialPtr, vector<Vec4>& pRec) {
 
   // Basic info about trial function and scale
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
   int iTrial     = indxWin;
   if (iTrial < 0) return false;
   double qNew    = trialPtr->getTrialScale(iTrial);
@@ -4312,11 +4392,11 @@ bool VinciaISR::generateKinematicsII(Event& event,
   // Set flavors and masses.
   double mj=0.;
   // Flavour for gluon backwards evolving to (anti)quark.
-  int idConv = (antFunTypePhys == GXconvII) ? trialPtr->getTrialFlav() : 0;
+  int idConv = (antFunTypePhys == GXConvII) ? trialPtr->getTrialFlav() : 0;
 
   // Gluon emission: inherit parent flavors and add middle gluon.
-  if (antFunTypePhys == QQemitII || antFunTypePhys == GQemitII ||
-      antFunTypePhys == GGemitII) {
+  if (antFunTypePhys == QQEmitII || antFunTypePhys == GQEmitII ||
+      antFunTypePhys == GGEmitII) {
     trialPtr->new1.id(idA);
     trialPtr->new2.id(21);
     trialPtr->new3.id(idB);
@@ -4325,7 +4405,7 @@ bool VinciaISR::generateKinematicsII(Event& event,
     trialPtr->new3.m(0.0);
 
   // Gluon splitting in the initial state:
-  } else if (antFunTypePhys == QXsplitII) {
+  } else if (antFunTypePhys == QXConvII) {
     // Side A splitting.
     if (!isSwapped) {
       trialPtr->new1.id(21);
@@ -4351,7 +4431,7 @@ bool VinciaISR::generateKinematicsII(Event& event,
     }
 
   // Gluon conversion in the initial state (idConv contains flavour)
-  } else if (antFunTypePhys == GXconvII) {
+  } else if (antFunTypePhys == GXConvII) {
     // Final-state leg assigned on-shell mass.
     mj = (abs(idConv) <= nFlavZeroMass) ? 0.0 :
       particleDataPtr->m0(abs(idConv));
@@ -4503,7 +4583,7 @@ bool VinciaISR::generateKinematicsII(Event& event,
   // event.
   trialPtr->addPDF(iTrial, pdfRatioA*pdfRatioB);
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
   return true;
 
 }
@@ -4513,11 +4593,11 @@ bool VinciaISR::generateKinematicsII(Event& event,
 // Generate kinematics (IF) and set flavours and masses.
 
 bool VinciaISR::generateKinematicsIF(Event& event,
-  BranchElementalISR* trialPtr, vector<Vec4>& pRec) {
+  shared_ptr<BranchElementalISR> trialPtr, vector<Vec4>& pRec) {
 
   // Basic info about trial function and scale.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
   int iTrial       = indxWin;
   if (iTrial < 0) return false;
   double qNew      = trialPtr->getTrialScale(iTrial);
@@ -4572,14 +4652,14 @@ bool VinciaISR::generateKinematicsIF(Event& event,
 
   // Set flavors and masses.
   // Flavour for gluon backwards evolving to (anti)quark
-  int idConv = (antFunTypePhys == GXconvIF) ? trialPtr->getTrialFlav() : 0;
+  int idConv = (antFunTypePhys == GXConvIF) ? trialPtr->getTrialFlav() : 0;
   double mj=0.;
   double mk=0.;
   double mKold= event[trialPtr->i2sav].m();
 
   // Gluon emission: inherit parent flavors and add middle gluon.
-  if (antFunTypePhys == QQemitIF || antFunTypePhys == QGemitIF ||
-      antFunTypePhys == GQemitIF || antFunTypePhys == GGemitIF) {
+  if (antFunTypePhys == QQEmitIF || antFunTypePhys == QGEmitIF ||
+      antFunTypePhys == GQEmitIF || antFunTypePhys == GGEmitIF) {
     // Set ID codes.
     trialPtr->new1.id(idA);
     trialPtr->new2.id(21);
@@ -4591,7 +4671,7 @@ bool VinciaISR::generateKinematicsIF(Event& event,
     trialPtr->new3.m(mk);
 
   // Gluon splitting in the initial state.
-  } else if (antFunTypePhys == QXsplitIF) {
+  } else if (antFunTypePhys == QXConvIF) {
     // Set ID codes.
     trialPtr->new1.id(21);
     trialPtr->new2.id(-idA);
@@ -4605,7 +4685,7 @@ bool VinciaISR::generateKinematicsIF(Event& event,
     trialPtr->new3.m(mk);
 
   // Gluon conversion in the initial state.
-  } else if (antFunTypePhys == GXconvIF) {
+  } else if (antFunTypePhys == GXConvIF) {
     // Set ID codes.
     trialPtr->new1.id(idConv);
     trialPtr->new2.id(idConv);
@@ -4626,9 +4706,9 @@ bool VinciaISR::generateKinematicsIF(Event& event,
     }
 
   // Gluon splitting in the final state.
-  } else if (antFunTypePhys == XGsplitIF) {
+  } else if (antFunTypePhys == XGSplitIF) {
     // Set flavor of splitting.
-    double nF       = min((int)trialPtr->getColFac(iTrial),nGluonToQuarkF);
+    double nF       = min((int)trialPtr->getColFac(iTrial),nGluonToQuark);
     int splitFlavor = int(rndmPtr->flat() * nF) + 1;
     // Check phase space: sQQ = q2new > 4m^2.
     int nFmax       = (int)nF;
@@ -4677,7 +4757,7 @@ bool VinciaISR::generateKinematicsIF(Event& event,
   // Decide whether to use local map 100% of the time or allow probabilistic
   // selection of global map.
   bool useLocalMap = (kineMap == 1);
-  if (kineMap == 2 && antFunTypePhys == XGsplitIF) useLocalMap = true;
+  if (kineMap == 2 && antFunTypePhys == XGSplitIF) useLocalMap = true;
   if (saj >= sAK) useLocalMap = true;
   if (!useLocalMap) {
     // Make probabilistic choice between global and local maps.
@@ -4857,7 +4937,7 @@ bool VinciaISR::generateKinematicsIF(Event& event,
   // knowledge of which is the next global colour tag available in the
   // event.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
   return true;
 
 }
@@ -4867,11 +4947,12 @@ bool VinciaISR::generateKinematicsIF(Event& event,
 // Main method to decide whether to accept or reject a trial branching after
 // full branching kinematics have been constructed.
 
-bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
+bool VinciaISR::acceptTrial(const Event& event,
+  shared_ptr<BranchElementalISR> trialPtr) {
 
   // Basic info about trial function and scale
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
   int iTrial = indxWin;
   if (iTrial < 0) {
     if (verbose >= VinciaConstants::DEBUG)
@@ -5123,10 +5204,10 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
     "alphaStrial is != alphaStrial");
   double mu2 = pow2(qNew);
   double kMu2Usr = aSkMu2EmitI;
-  if (antFunTypePhys == XGsplitIF) kMu2Usr = aSkMu2SplitF;
-  else if (antFunTypePhys == QXsplitIF || antFunTypePhys == QXsplitII)
+  if (antFunTypePhys == XGSplitIF) kMu2Usr = aSkMu2SplitF;
+  else if (antFunTypePhys == QXConvIF || antFunTypePhys == QXConvII)
     kMu2Usr = aSkMu2SplitI;
-  else if (antFunTypePhys == GXconvIF || antFunTypePhys == GXconvII)
+  else if (antFunTypePhys == GXConvIF || antFunTypePhys == GXConvII)
     kMu2Usr = aSkMu2Conv;
   double mu2Usr    = max(mu2min, mu2freeze + mu2*kMu2Usr);
   // alphaS values.
@@ -5164,6 +5245,9 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
     // and set in VinciaISR::branch(). Different to VinciaFSR!
     //TODO implement a method getMEC() in VinciaISR? Or move to MECs class?
     pMEC = fsrPtr->getMEC(iSysWin, event, stateNew, minClus);
+  } else if ( iSysWin < (int)doPTdamp.size() && doPTdamp[iSysWin] ) {
+    // Else optionally apply pT dampening factor.
+    pMEC = pT2damp[iSysWin] / ( pow2(qNew) + pT2damp[iSysWin]);
   }
   Paccept[0] *= pMEC;
 
@@ -5238,7 +5322,7 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
   if (enhanceFac != 1.0)
     weightsPtr->scaleWeightEnhanceAccept(enhanceFac);
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "end ", dashLen);
+    printOut(__METHOD_NAME__, "end ", DASHLEN);
   return true;
 
 }
@@ -5248,7 +5332,8 @@ bool VinciaISR::acceptTrial(const Event& event, BranchElementalISR* trialPtr) {
 // Paint a trialPtr with colour-flow information,
 // according to the type of branching.
 
-bool VinciaISR::assignColourFlow(Event& event, BranchElementalISR* trialPtr) {
+bool VinciaISR::assignColourFlow(Event& event,
+  shared_ptr<BranchElementalISR> trialPtr) {
 
   // Basic info about trial function and old partons.
   bool usedColTag = false;
@@ -5307,8 +5392,8 @@ bool VinciaISR::assignColourFlow(Event& event, BranchElementalISR* trialPtr) {
     }
 
   // Gluon splitting in the initial state: side A.
-  } else if ((antFunTypePhys == QXsplitII && !isSwapped) ||
-    antFunTypePhys == QXsplitIF) {
+  } else if ((antFunTypePhys == QXConvII && !isSwapped) ||
+    antFunTypePhys == QXConvIF) {
     // II new1 G -> old1 Q/QB (enters hard process) + new2 QB/Q and
     //    new3   -> old2 as recoiler
     // Note, use lastColTag here, if branching accepted we tell
@@ -5333,7 +5418,7 @@ bool VinciaISR::assignColourFlow(Event& event, BranchElementalISR* trialPtr) {
   }
 
   // Gluon splitting in the initial state: side B.
-  else if (antFunTypePhys == QXsplitII && isSwapped) {
+  else if (antFunTypePhys == QXConvII && isSwapped) {
     // II new3 G -> old2 Q/QB (enters hard process) + new2 QB/Q and
     //    new1   -> old1 as recoiler
     // Note, use lastColTag here, if branching accepted we tell
@@ -5358,8 +5443,8 @@ bool VinciaISR::assignColourFlow(Event& event, BranchElementalISR* trialPtr) {
   }
 
   // Gluon convsersion in the initial state: side A.
-  else if ((antFunTypePhys == GXconvII && !isSwapped) ||
-    antFunTypePhys == GXconvIF) {
+  else if ((antFunTypePhys == GXConvII && !isSwapped) ||
+    antFunTypePhys == GXConvIF) {
     // II new1 Q/QB -> old1 G (enters hard process) + new2 Q/QB and
     //    new3      -> old2 as recoiler
     // Quark.
@@ -5380,7 +5465,7 @@ bool VinciaISR::assignColourFlow(Event& event, BranchElementalISR* trialPtr) {
   }
 
   // Gluon conversion in the initial state: side B.
-  else if (antFunTypePhys == GXconvII && isSwapped) {
+  else if (antFunTypePhys == GXConvII && isSwapped) {
     // II new3 Q/QB -> old2 G (enters hard process) + new2 Q/QB and
     //    new1      -> old1 as recoiler
     // Quark.
@@ -5401,7 +5486,7 @@ bool VinciaISR::assignColourFlow(Event& event, BranchElementalISR* trialPtr) {
   }
 
   // Gluon splitting in the final state.
-  else if ( antFunTypePhys == XGsplitIF) {
+  else if ( antFunTypePhys == XGSplitIF) {
     // IF old2 G -> new3 QB/Q + new2 Q/QB and
     //    new1   -> old1 as recoiler
     // Quark.
@@ -5450,15 +5535,15 @@ bool VinciaISR::checkHeavyQuarkPhaseSpace(vector<Particle> parts, int) {
           continue;
         Particle colPartner = parts[i];
         double sHqCp        = m2(heavyQuark, colPartner);
-        double Q2max        = 0.0;
+        double q2max        = 0.0;
         if (colPartner.isFinal())
-          Q2max = trialIFSplitA.getQ2max(sHqCp, colPartner.e(), is1A ?
+          q2max = trialIFSplitA.getQ2max(sHqCp, colPartner.e(), is1A ?
             eBeamAUsed : eBeamBUsed);
         else
-          Q2max = trialIISplitA.getQ2max(sHqCp, colPartner.e(), is1A ?
+          q2max = trialIISplitA.getQ2max(sHqCp, colPartner.e(), is1A ?
             eBeamAUsed : eBeamBUsed);
         // Phase space limit is below the mass.
-        if (sqrt(Q2max) < mass) return false;
+        if (sqrt(q2max) < mass) return false;
         if (colPartner.isFinal()) {
           // Check for energy exceeding beam energy.
           double eA       = heavyQuark.e();
@@ -5485,12 +5570,10 @@ bool VinciaISR::checkAntennae(const Event& event) {
 
   map<int,int> nIIAntInSys;
   map<int,int> nIFAntInSys;
-  for (vector<BranchElementalISR >::iterator ibrancher =
-         branchElementals.begin(); ibrancher!= branchElementals.end();
-       ++ibrancher) {
-    int i1 = ibrancher->geti1();
-    int i2 = ibrancher->geti2();
-    int iSysNow = ibrancher->getSystem();
+  for (auto& brancher : branchElementals) {
+    int i1 = brancher->geti1();
+    int i2 = brancher->geti2();
+    int iSysNow = brancher->getSystem();
     int inA = 0;
     int inB = 0;
 
@@ -5517,7 +5600,7 @@ bool VinciaISR::checkAntennae(const Event& event) {
       nIIAntInSys[iSysNow] = 0;
     if (nIFAntInSys.find(iSysNow)==nIFAntInSys.end())
       nIFAntInSys[iSysNow] = 0;
-    if (ibrancher->isII()) {
+    if (brancher->isII()) {
       if (i1 != inA) {
         stringstream ss;
         ss << "iSysNow = "<<iSysNow<<". i1  = " << i1;
@@ -5539,13 +5622,13 @@ bool VinciaISR::checkAntennae(const Event& event) {
         return false;
       }
       // IF with 1 = I from A.
-      if (ibrancher->is1A() && i1 != inA) {
+      if (brancher->is1A() && i1 != inA) {
         stringstream ss;
         ss << "iSysNow = "<<iSysNow<<". i1  = " << i1;
         loggerPtr->ERROR_MSG("i1 not incoming from A in system", ss.str());
         return false;
         // IF with 1 = I from B.
-      } else if (!ibrancher->is1A() && i1 != inB) {
+      } else if (!brancher->is1A() && i1 != inB) {
         stringstream ss;
         ss << "iSysNow = "<<iSysNow<<". i1  = " << i1;
         loggerPtr->ERROR_MSG("i1 not incoming from B in system", ss.str());
@@ -5708,11 +5791,11 @@ void VinciaISR::saveBornForTrialShower(Event& born) {
 
 void VinciaISR::list() const {
   for (int iAnt = 0; iAnt < (int)branchElementals.size(); ++iAnt)
-    if (branchElementals.size() == 1) branchElementals[iAnt].list(true, true);
-    else if ( iAnt == 0 ) branchElementals[iAnt].list(true, false);
+    if (branchElementals.size() == 1) branchElementals[iAnt]->list(true, true);
+    else if ( iAnt == 0 ) branchElementals[iAnt]->list(true, false);
     else if ( iAnt == int(branchElementals.size()) - 1 )
-      branchElementals[iAnt].list(false, true);
-    else branchElementals[iAnt].list();
+      branchElementals[iAnt]->list(false, true);
+    else branchElementals[iAnt]->list();
 }
 
 //==========================================================================

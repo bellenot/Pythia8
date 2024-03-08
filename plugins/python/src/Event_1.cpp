@@ -3,18 +3,22 @@
 #include <Pythia8/Info.h>
 #include <Pythia8/ParticleData.h>
 #include <Pythia8/ResonanceWidths.h>
+#include <functional>
 #include <istream>
 #include <iterator>
+#include <map>
 #include <memory>
 #include <ostream>
 #include <sstream> // __str__
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <pybind11/pybind11.h>
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
+#include <Pythia8/SplittingsOnia.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -40,7 +44,7 @@ void bind_Pythia8_Event_1(std::function< pybind11::module &(std::string const &n
 	// Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &, const class Pythia8::Particle &) file:Pythia8/Event.h line:329
 	M("Pythia8").def("m2", (double (*)(const class Pythia8::Particle &, const class Pythia8::Particle &, const class Pythia8::Particle &)) &Pythia8::m2, "C++: Pythia8::m2(const class Pythia8::Particle &, const class Pythia8::Particle &, const class Pythia8::Particle &) --> double", pybind11::arg("pp1"), pybind11::arg("pp2"), pybind11::arg("pp3"));
 
-	{ // Pythia8::Event file:Pythia8/Event.h line:408
+	{ // Pythia8::Event file:Pythia8/Event.h line:453
 		pybind11::class_<Pythia8::Event, std::shared_ptr<Pythia8::Event>> cl(M("Pythia8"), "Event", "");
 		pybind11::handle cl_type = cl;
 
@@ -138,6 +142,8 @@ void bind_Pythia8_Event_1(std::function< pybind11::module &(std::string const &n
 		cl.def("saveHVcolsSize", (void (Pythia8::Event::*)()) &Pythia8::Event::saveHVcolsSize, "C++: Pythia8::Event::saveHVcolsSize() --> void");
 		cl.def("restoreHVcolsSize", (void (Pythia8::Event::*)()) &Pythia8::Event::restoreHVcolsSize, "C++: Pythia8::Event::restoreHVcolsSize() --> void");
 		cl.def("savePartonLevelSize", (void (Pythia8::Event::*)()) &Pythia8::Event::savePartonLevelSize, "C++: Pythia8::Event::savePartonLevelSize() --> void");
+		cl.def("clearStringBreaks", (void (Pythia8::Event::*)()) &Pythia8::Event::clearStringBreaks, "C++: Pythia8::Event::clearStringBreaks() --> void");
 		cl.def("__iadd__", (class Pythia8::Event & (Pythia8::Event::*)(const class Pythia8::Event &)) &Pythia8::Event::operator+=, "C++: Pythia8::Event::operator+=(const class Pythia8::Event &) --> class Pythia8::Event &", pybind11::return_value_policy::reference, pybind11::arg("addEvent"));
+		cl.def("particles", (const class std::vector<class Pythia8::Particle, class std::allocator<class Pythia8::Particle> > * (Pythia8::Event::*)() const) &Pythia8::Event::particles, "C++: Pythia8::Event::particles() const --> const class std::vector<class Pythia8::Particle, class std::allocator<class Pythia8::Particle> > *", pybind11::return_value_policy::automatic);
 	}
 }

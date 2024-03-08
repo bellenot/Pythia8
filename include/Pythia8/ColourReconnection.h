@@ -1,5 +1,5 @@
 // ColourReconnection.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -165,12 +165,12 @@ public:
 
   // Constructor
   ColourReconnection() : allowJunctions(), sameNeighbourCol(),
-    singleReconOnly(), lowerLambdaOnly(), nSys(), nReconCols(), swap1(),
-    swap2(), reconnectMode(), flipMode(), timeDilationMode(), eCM(), sCM(),
-    pT0(), pT20Rec(), pT0Ref(), ecmRef(), ecmPow(), reconnectRange(), m0(),
-    m0sqr(), m2Lambda(), fracGluon(), dLambdaCut(), timeDilationPar(),
-    timeDilationParGeV(), tfrag(), blowR(), blowT(), rHadron(), kI(),
-    nColMove() {}
+    singleReconOnly(), lowerLambdaOnly(), allowDiqJunCR(), nSys(),
+    nReconCols(), swap1(), swap2(), reconnectMode(), flipMode(),
+    timeDilationMode(), eCM(), sCM(), pT0(), pT20Rec(), pT0Ref(), ecmRef(),
+    ecmPow(), reconnectRange(), m0(), mPseudo(), m2Lambda(), fracGluon(),
+    dLambdaCut(), timeDilationPar(), timeDilationParGeV(), tfrag(), blowR(),
+    blowT(), rHadron(), kI(), dipMaxDist(), nColMove() {}
 
   // Initialization.
   bool init();
@@ -190,11 +190,13 @@ private:
 
   // Variables needed.
   bool   allowJunctions, sameNeighbourCol, singleReconOnly, lowerLambdaOnly;
+  bool   allowDiqJunCR;
   int    nSys, nReconCols, swap1, swap2, reconnectMode, flipMode,
          timeDilationMode;
   double eCM, sCM, pT0, pT20Rec, pT0Ref, ecmRef, ecmPow, reconnectRange,
-         m0, m0sqr, m2Lambda, fracGluon, dLambdaCut, timeDilationPar,
+         m0, mPseudo, m2Lambda, fracGluon, dLambdaCut, timeDilationPar,
          timeDilationParGeV, tfrag, blowR, blowT, rHadron, kI;
+  double dipMaxDist;
 
   // List of current dipoles.
   vector<ColourDipolePtr> dipoles, usedDipoles;
@@ -309,6 +311,19 @@ private:
 
   // Calculate the invariant mass of a dipole.
   double mDip(ColourDipolePtr dip);
+
+  // Find a vertex of the (anti)-colour side of the dipole. If
+  // connected to a junction, recurse using the other junction
+  // dipoles.
+  Vec4 getVProd(ColourDipolePtr dip, bool anti) const;
+
+  // Find an average vertex of the (anti)-colour sides of the dipoles
+  // connected to the given junction (not incuding the given dipole).
+  Vec4 getVProd(int iJun, ColourDipolePtr dip, bool anti) const;
+
+  // Check that the distance between the impact parameter centers of
+  // the dipoles are within the allowed range of dipMaxDist.
+  bool checkDist(ColourDipolePtr dip1, ColourDipolePtr dip2);
 
   // Find the neighbour to anti colour side. Return false if the dipole is
   // connected to a junction or the new particle has a junction inside of it.

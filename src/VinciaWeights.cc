@@ -1,5 +1,5 @@
 // VinciaWeights.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2024 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -65,27 +65,27 @@ void VinciaWeights::init( bool doMergingIn ) {
 
   // Convert antFunTypePhys to keyword.
   antFunTypeToKeyFSR.clear();
-  antFunTypeToKeyFSR[QQemitFF]  = "emit";
-  antFunTypeToKeyFSR[QGemitFF]  = "emit";
-  antFunTypeToKeyFSR[GQemitFF]  = "emit";
-  antFunTypeToKeyFSR[GGemitFF]  = "emit";
-  antFunTypeToKeyFSR[GXsplitFF] = "split";
-  antFunTypeToKeyFSR[QQemitRF]  = "emit";
-  antFunTypeToKeyFSR[QGemitRF]  = "emit";
-  antFunTypeToKeyFSR[XGsplitRF] = "split";
+  antFunTypeToKeyFSR[QQEmitFF]  = "emit";
+  antFunTypeToKeyFSR[QGEmitFF]  = "emit";
+  antFunTypeToKeyFSR[GQEmitFF]  = "emit";
+  antFunTypeToKeyFSR[GGEmitFF]  = "emit";
+  antFunTypeToKeyFSR[GXSplitFF] = "split";
+  antFunTypeToKeyFSR[QQEmitRF]  = "emit";
+  antFunTypeToKeyFSR[QGEmitRF]  = "emit";
+  antFunTypeToKeyFSR[XGSplitRF] = "split";
   antFunTypeToKeyISR.clear();
-  antFunTypeToKeyISR[QQemitII]  = "emit";
-  antFunTypeToKeyISR[GQemitII]  = "emit";
-  antFunTypeToKeyISR[GGemitII]  = "emit";
-  antFunTypeToKeyISR[QXsplitII] = "split";
-  antFunTypeToKeyISR[GXconvII]  = "conv";
-  antFunTypeToKeyISR[QQemitIF]  = "emit";
-  antFunTypeToKeyISR[QGemitIF]  = "emit";
-  antFunTypeToKeyISR[GQemitIF]  = "emit";
-  antFunTypeToKeyISR[GGemitIF]  = "emit";
-  antFunTypeToKeyISR[QXsplitIF] = "split";
-  antFunTypeToKeyISR[GXconvIF]  = "conv";
-  antFunTypeToKeyISR[XGsplitIF] = "split";
+  antFunTypeToKeyISR[QQEmitII]  = "emit";
+  antFunTypeToKeyISR[GQEmitII]  = "emit";
+  antFunTypeToKeyISR[GGEmitII]  = "emit";
+  antFunTypeToKeyISR[QXConvII] = "split";
+  antFunTypeToKeyISR[GXConvII]  = "conv";
+  antFunTypeToKeyISR[QQEmitIF]  = "emit";
+  antFunTypeToKeyISR[QGEmitIF]  = "emit";
+  antFunTypeToKeyISR[GQEmitIF]  = "emit";
+  antFunTypeToKeyISR[GGEmitIF]  = "emit";
+  antFunTypeToKeyISR[QXConvIF] = "split";
+  antFunTypeToKeyISR[GXConvIF]  = "conv";
+  antFunTypeToKeyISR[XGSplitIF] = "split";
 
   // Clean up the names of requested variations.
   for (int i = 0; i < (int)varLabels.size(); i++) {

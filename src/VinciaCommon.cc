@@ -1,5 +1,5 @@
 // VinciaCommon.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2024 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -487,39 +487,39 @@ double Resolution::q2evol(VinciaClustering& clus) {
     }
     // Fetch masses.
     double ma2 = 0., mr2 = 0., mb2 = 0.;
-    if (clus.massesChildren.size() >= 3) {
-      ma2 = pow2(clus.massesChildren.at(0));
-      mr2 = pow2(clus.massesChildren.at(1));
-      mb2 = pow2(clus.massesChildren.at(2));
+    if (clus.mDau.size() >= 3) {
+      ma2 = pow2(clus.mDau.at(0));
+      mr2 = pow2(clus.mDau.at(1));
+      mb2 = pow2(clus.mDau.at(2));
     }
     double mA2 = 0., mB2 = 0.;
-    if (clus.massesMothers.size() >= 2) {
-      mA2 = pow2(clus.massesMothers.at(0));
-      mB2 = pow2(clus.massesMothers.at(1));
+    if (clus.mMot.size() >= 2) {
+      mA2 = pow2(clus.mMot.at(0));
+      mB2 = pow2(clus.mMot.at(1));
     }
 
     // Final-Final configuration.
     if (clus.isFF()) {
       double mar2 = sar + ma2 + mr2;
       double mrb2 = srb + mr2 + mb2;
-      clus.Q2evol = (mar2 - mA2) * (mrb2 - mB2) / sAB;
-      return clus.Q2evol;
+      clus.q2evol = (mar2 - mA2) * (mrb2 - mB2) / sAB;
+      return clus.q2evol;
     }
 
     // Initial-Final/Resonance-Final configuration.
     if (clus.isIF() || clus.isRF()) {
       double mar2 = -sar + ma2 + mr2;
       double mrb2 = srb + mb2 + mr2;
-      clus.Q2evol = (mA2 - mar2) * (mrb2 - mB2) / (sar + sab);
-      return clus.Q2evol;
+      clus.q2evol = (mA2 - mar2) * (mrb2 - mB2) / (sar + sab);
+      return clus.q2evol;
     }
 
     // Initial-Initial configuration.
     if (clus.isII()) {
       double mar2 = -sar + ma2 + mr2;
       double mrb2 = -srb + mb2 + mr2;
-      clus.Q2evol = (mA2 - mar2) * (mB2 - mrb2) / sab;
-      return clus.Q2evol;
+      clus.q2evol = (mA2 - mar2) * (mB2 - mrb2) / sab;
+      return clus.q2evol;
     }
   }
   // Implement other branchings here.
@@ -628,13 +628,13 @@ VinciaClustering Resolution::findSector(vector<Particle>& state, int nqpMin,
 bool Resolution::sectorVeto(const VinciaClustering& clusMin,
   const VinciaClustering& clus) {
   // Sanity check: always veto if NANs.
-  if (std::isnan(clusMin.Q2res) || std::isnan(clus.Q2res))
+  if (std::isnan(clusMin.q2res) || std::isnan(clus.q2res))
     return true;
 
   // Check resolution scales.
   // Note: in principle, we could implement a random choice here,
   // when the two scales are two close.
-  if (clus.Q2res <= clusMin.Q2res) return false;
+  if (clus.q2res <= clusMin.q2res) return false;
   return true;
 }
 
@@ -652,16 +652,16 @@ double Resolution::q2sector2to3FF(VinciaClustering& clus) {
   double sIK = clus.invariants[0];
   double sij = clus.invariants[1];
   double sjk = clus.invariants[2];
-  double mj2 = pow2(clus.massesChildren[1]);
+  double mj2 = pow2(clus.mDau[1]);
 
   // Gluon splitting.
-  // Note: it is assumed that the splitting was I -> ij (as in GXsplitFF).
-  if (clus.antFunType == GXsplitFF)
-    clus.Q2res = (sij + 2.*mj2) * sqrt((sjk + mj2)/sIK);
+  // Note: it is assumed that the splitting was I -> ij (as in GXSplitFF).
+  if (clus.antFunType == GXSplitFF)
+    clus.q2res = (sij + 2.*mj2) * sqrt((sjk + mj2)/sIK);
   // Gluon emission.
-  else clus.Q2res = sij*sjk/sIK;
+  else clus.q2res = sij*sjk/sIK;
 
-  return clus.Q2res;
+  return clus.q2res;
 }
 
 //--------------------------------------------------------------------------
@@ -674,16 +674,16 @@ double Resolution::q2sector2to3RF(VinciaClustering& clus) {
   double saj = clus.invariants[1];
   double sjk = clus.invariants[2];
   double sak = clus.invariants[3];
-  double mj2 = pow2(clus.massesChildren[1]);
+  double mj2 = pow2(clus.mDau[1]);
 
   // Gluon splitting.
-  // Note: it is assumed that the splitting was J -> jk (as in XGsplitRF).
-  if (clus.antFunType == XGsplitRF)
-    clus.Q2res = (sjk + 2.*mj2) * sqrt((saj - mj2)/(saj + sak));
+  // Note: it is assumed that the splitting was J -> jk (as in XGSplitRF).
+  if (clus.antFunType == XGSplitRF)
+    clus.q2res = (sjk + 2.*mj2) * sqrt((saj - mj2)/(saj + sak));
   // Gluon emission.
-  else clus.Q2res = saj*sjk/(saj + sak);
+  else clus.q2res = saj*sjk/(saj + sak);
 
-  return clus.Q2res;
+  return clus.q2res;
 }
 
 //--------------------------------------------------------------------------
@@ -696,24 +696,24 @@ double Resolution::q2sector2to3IF(VinciaClustering& clus) {
   double saj = clus.invariants[1];
   double sjk = clus.invariants[2];
   double sak = clus.invariants[3];
-  double mj2 = pow2(clus.massesChildren[1]);
+  double mj2 = pow2(clus.mDau[1]);
 
   // Initial-state gluon splitting.
-  // Note: it is assumed that the splitting was a -> Aj (as in QXsplitIF).
-  if (clus.antFunType == QXsplitIF)
-    clus.Q2res = saj * sqrt((sjk + mj2)/(saj + sak));
+  // Note: it is assumed that the splitting was a -> Aj (as in QXConvIF).
+  if (clus.antFunType == QXConvIF)
+    clus.q2res = saj * sqrt((sjk + mj2)/(saj + sak));
   // (Initial-state) Quark conversion.
-  // Note: it is assumed that the conversion was a -> Aj (as in GXconvIF).
-  else if (clus.antFunType == GXconvIF)
-    clus.Q2res = (saj - 2.*mj2) * sqrt((sjk + mj2)/(saj + sak));
+  // Note: it is assumed that the conversion was a -> Aj (as in GXConvIF).
+  else if (clus.antFunType == GXConvIF)
+    clus.q2res = (saj - 2.*mj2) * sqrt((sjk + mj2)/(saj + sak));
   // Final-state gluon splitting.
-  // Note: it is assumed that the splitting was J -> jk (as in XGsplitIF).
-  else if (clus.antFunType == XGsplitIF)
-    clus.Q2res = (sjk + 2.*mj2) * sqrt((saj - mj2)/(saj + sak));
+  // Note: it is assumed that the splitting was J -> jk (as in XGSplitIF).
+  else if (clus.antFunType == XGSplitIF)
+    clus.q2res = (sjk + 2.*mj2) * sqrt((saj - mj2)/(saj + sak));
   // Gluon emission.
-  else clus.Q2res = saj*sjk/(saj + sak);
+  else clus.q2res = saj*sjk/(saj + sak);
 
-  return clus.Q2res;
+  return clus.q2res;
 }
 
 //--------------------------------------------------------------------------
@@ -726,26 +726,26 @@ double Resolution::q2sector2to3II(VinciaClustering& clus) {
   double saj = clus.invariants[1];
   double sjb = clus.invariants[2];
   double sab = clus.invariants[3];
-  double mj  = clus.massesChildren[1];
+  double mj  = clus.mDau[1];
   double mj2 = (mj != 0.) ? 0. : pow2(mj);
 
   // (Initial-state) Gluon splitting.
-  // Note: it is assumed that the splitting was a -> Aj (as in QXsplitII).
-  if (clus.antFunType == QXsplitII)
-    clus.Q2res = (saj - 2.*mj2) * sqrt((sjb - mj2)/sab);
+  // Note: it is assumed that the splitting was a -> Aj (as in QXConvII).
+  if (clus.antFunType == QXConvII)
+    clus.q2res = (saj - 2.*mj2) * sqrt((sjb - mj2)/sab);
   // (Initial-state) Quark conversion.
-  // Note: it is assumed that the conversion was a -> Aj (as in GXconvII).
-  else if (clus.antFunType == GXconvII)
-    clus.Q2res = saj * sqrt((sjb - mj2)/sab);
+  // Note: it is assumed that the conversion was a -> Aj (as in GXConvII).
+  else if (clus.antFunType == GXConvII)
+    clus.q2res = saj * sqrt((sjb - mj2)/sab);
   // Gluon emission.
-  else clus.Q2res = saj*sjb/sab;
+  else clus.q2res = saj*sjb/sab;
 
-  return clus.Q2res;
+  return clus.q2res;
 }
 
 //--------------------------------------------------------------------------
 
-// Find sector with minimal Q2sector in list of clusterings.
+// Find sector with minimal q2sector in list of clusterings.
 
 VinciaClustering Resolution::getMinSector(
   vector<VinciaClustering>& clusterings) {
@@ -761,11 +761,11 @@ VinciaClustering Resolution::getMinSector(
     if (verbose >= VinciaConstants::DEBUG)
       printOut(__METHOD_NAME__,
         " Sector " + num2str(iClu, 2) + ": q2res = "
-        + num2str(clus->Q2res, 6)
+        + num2str(clus->q2res, 6)
         + " (q2min = " + num2str(q2min, 6) + ")");
-    if (clus->Q2res < q2min) {
+    if (clus->q2res < q2min) {
       clusMin = *clus;
-      q2min = clusMin.Q2res;
+      q2min = clusMin.q2res;
     }
   }
   return clusMin;
@@ -872,27 +872,27 @@ VinciaClustering Resolution::getMinSector(
 
 //--------------------------------------------------------------------------
 
-// Set information based on current state and indices of children.
+// Set information based on current state and indices of daughters.
 
-void VinciaClustering::setChildren(Event& state, int child1In,
-  int child2In, int child3In) {
+void VinciaClustering::setDaughters(const Event& state, int dau1In,
+  int dau2In, int dau3In) {
 
-  // Store indices of children.
-  child1 = child1In;
-  child2 = child2In;
-  child3 = child3In;
+  // Store indices of daughters.
+  dau1 = dau1In;
+  dau2 = dau2In;
+  dau3 = dau3In;
 
   setInvariantsAndMasses(state);
 
 }
 
-void VinciaClustering::setChildren(vector<Particle>& state, int child1In,
-  int child2In, int child3In) {
+void VinciaClustering::setDaughters(const vector<Particle>& state, int dau1In,
+  int dau2In, int dau3In) {
 
-  // Store indices of children.
-  child1 = child1In;
-  child2 = child2In;
-  child3 = child3In;
+  // Store indices of daughters.
+  dau1 = dau1In;
+  dau2 = dau2In;
+  dau3 = dau3In;
 
   setInvariantsAndMasses(state);
 }
@@ -900,36 +900,36 @@ void VinciaClustering::setChildren(vector<Particle>& state, int child1In,
 //--------------------------------------------------------------------------
 
 bool VinciaClustering::initInvariantAndMassVecs() {
-  // Save masses of children.
-  double ma = massesChildren[0];
-  double mj = massesChildren[1];
-  double mb = massesChildren[2];
+  // Save masses of daughters.
+  double ma = mDau[0];
+  double mj = mDau[1];
+  double mb = mDau[2];
 
   // Calculate sAB and masses of mothers according to configuration.
   double mA = -1., mB = -1.;
   double sAB = -1.;
   if (isFSR) {
     // Final-final gluon splitting.
-    if (antFunType == GXsplitFF) {
+    if (antFunType == GXSplitFF) {
       mA = 0.;
       mB = mb;
       sAB = saj + sab + sjb + pow2(ma) + pow2(mj);
     }
     // Final-final gluon emission.
-    else if (antFunType == QQemitFF || antFunType == QGemitFF ||
-      antFunType == GQemitFF || antFunType == GGemitFF) {
+    else if (antFunType == QQEmitFF || antFunType == QGEmitFF ||
+      antFunType == GQEmitFF || antFunType == GGEmitFF) {
       mA = ma;
       mB = mb;
       sAB = saj + sab + sjb;
     }
     // Resonance-final gluon splitting.
-    else if (antFunType == XGsplitRF) {
+    else if (antFunType == XGSplitRF) {
       mA = ma;
       mB = 0.;
       sAB = saj + sab - sjb - pow2(mj) - pow2(mb);
     }
     // Resonance-final gluon emission.
-    else if (antFunType == QQemitRF || antFunType == QGemitRF) {
+    else if (antFunType == QQEmitRF || antFunType == QGEmitRF) {
       mA = ma;
       mB = mb;
       sAB = saj + sab - sjb;
@@ -937,45 +937,45 @@ bool VinciaClustering::initInvariantAndMassVecs() {
   }
   else {
     // IF initial-state gluon splitting.
-    if (antFunType == QXsplitIF) {
+    if (antFunType == QXConvIF) {
       mA = mj;
       mB = mb;
       sAB = saj + sab - sjb - pow2(ma);
     }
     // IF quark conversion.
-    else if (antFunType == GXconvIF) {
+    else if (antFunType == GXConvIF) {
       mA = 0.;
       mB = mb;
       sAB = saj + sab - sjb - pow2(ma) - pow2(mj);
     }
     // IF final-state gluon splitting.
-    else if (antFunType == XGsplitIF){
+    else if (antFunType == XGSplitIF){
       mA = ma;
       mB = 0.;
       sAB = saj + sab - sjb - pow2(mj) - pow2(mb);
     }
     // IF gluon emission.
-    else if (antFunType == QQemitIF || antFunType == QGemitIF ||
-      antFunType == GQemitIF || antFunType == GGemitIF) {
+    else if (antFunType == QQEmitIF || antFunType == QGEmitIF ||
+      antFunType == GQEmitIF || antFunType == GGEmitIF) {
       mA = ma;
       mB = mb;
       sAB = saj + sab - sjb;
     }
     // II initial-state gluon splitting.
-    else if (antFunType == QXsplitII) {
+    else if (antFunType == QXConvII) {
       mA = mj;
       mB = mb;
       sAB = sab - saj - sjb + pow2(ma);
     }
     // II quark conversion.
-    else if (antFunType == GXconvII) {
+    else if (antFunType == GXConvII) {
       mA = 0.;
       mB = mb;
       sAB = sab - saj - sjb + pow2(ma) + pow2(mj);
     }
     // II Gluon emission.
-    else if (antFunType == QQemitII || antFunType == GQemitII ||
-      antFunType == GGemitII) {
+    else if (antFunType == QQEmitII || antFunType == GQEmitII ||
+      antFunType == GGEmitII) {
       mA = ma;
       mB = mb;
       sAB = sab - saj - sjb;
@@ -993,41 +993,41 @@ bool VinciaClustering::initInvariantAndMassVecs() {
   invariants.push_back(saj);
   invariants.push_back(sjb);
   invariants.push_back(sab);
-  massesMothers.clear();
-  massesMothers.push_back(mA);
-  massesMothers.push_back(mB);
+  mMot.clear();
+  mMot.push_back(mA);
+  mMot.push_back(mB);
 
   return true;
 }
 
 //--------------------------------------------------------------------------
 
-void VinciaClustering::setInvariantsAndMasses(Event& state) {
+void VinciaClustering::setInvariantsAndMasses(const Event& state) {
   // Save masses.
-  massesChildren.clear();
-  massesChildren.push_back(max(0., state[child1].m()));
-  massesChildren.push_back(max(0., state[child2].m()));
-  massesChildren.push_back(max(0., state[child3].m()));
+  mDau.clear();
+  mDau.push_back(max(0., state[dau1].m()));
+  mDau.push_back(max(0., state[dau2].m()));
+  mDau.push_back(max(0., state[dau3].m()));
 
   // Calculate invariants.
-  saj = 2. * state[child1].p() * state[child2].p();
-  sjb = 2. * state[child2].p() * state[child3].p();
-  sab = 2. * state[child1].p() * state[child3].p();
+  saj = 2. * state[dau1].p() * state[dau2].p();
+  sjb = 2. * state[dau2].p() * state[dau3].p();
+  sab = 2. * state[dau1].p() * state[dau3].p();
 }
 
 //--------------------------------------------------------------------------
 
-void VinciaClustering::setInvariantsAndMasses(vector<Particle>& state) {
+void VinciaClustering::setInvariantsAndMasses(const vector<Particle>& state) {
   // Save masses.
-  massesChildren.clear();
-  massesChildren.push_back(max(0., state[child1].m()));
-  massesChildren.push_back(max(0., state[child2].m()));
-  massesChildren.push_back(max(0., state[child3].m()));
+  mDau.clear();
+  mDau.push_back(max(0., state[dau1].m()));
+  mDau.push_back(max(0., state[dau2].m()));
+  mDau.push_back(max(0., state[dau3].m()));
 
   // Calculate invariants.
-  saj = 2. * state[child1].p() * state[child2].p();
-  sjb = 2. * state[child2].p() * state[child3].p();
-  sab = 2. * state[child1].p() * state[child3].p();
+  saj = 2. * state[dau1].p() * state[dau2].p();
+  sjb = 2. * state[dau2].p() * state[dau3].p();
+  sab = 2. * state[dau1].p() * state[dau3].p();
 }
 
 //--------------------------------------------------------------------------
@@ -1036,29 +1036,29 @@ void VinciaClustering::setInvariantsAndMasses(vector<Particle>& state) {
 
 string VinciaClustering::getAntName() const {
   if (isFSR) {
-    if (antFunType == QQemitFF) return "QQEmitFF";
-    if (antFunType == QGemitFF) return "QGEmitFF";
-    if (antFunType == GQemitFF) return "GQEmitFF";
-    if (antFunType == GGemitFF) return "GGEmitFF";
-    if (antFunType == GXsplitFF) return "GXsplitFF";
-    if (antFunType == QQemitRF) return "QQEmitRF";
-    if (antFunType == QGemitRF) return "QGEmitRF";
-    if (antFunType == XGsplitRF) return "XGsplitRF";
+    if (antFunType == QQEmitFF) return "QQEmitFF";
+    if (antFunType == QGEmitFF) return "QGEmitFF";
+    if (antFunType == GQEmitFF) return "GQEmitFF";
+    if (antFunType == GGEmitFF) return "GGEmitFF";
+    if (antFunType == GXSplitFF) return "GXSplitFF";
+    if (antFunType == QQEmitRF) return "QQEmitRF";
+    if (antFunType == QGEmitRF) return "QGEmitRF";
+    if (antFunType == XGSplitRF) return "XGSplitRF";
     return "noVinciaName";
   }
   else {
-    if (antFunType == QQemitII) return "QQEmitII";
-    if (antFunType == GQemitII) return "GQEmitII";
-    if (antFunType == GGemitII) return "GGEmitII";
-    if (antFunType == QXsplitII) return "QXsplitII";
-    if (antFunType == GXconvII) return "GXconvII";
-    if (antFunType == QQemitIF) return "QQEmitIF";
-    if (antFunType == QGemitIF) return "QGEmitIF";
-    if (antFunType == GQemitIF) return "GQEmitIF";
-    if (antFunType == GGemitIF) return "GGEmitIF";
-    if (antFunType == QXsplitIF) return "QXsplitIF";
-    if (antFunType == GXconvIF) return "GXconvIF";
-    if (antFunType == XGsplitIF) return "XGsplitIF";
+    if (antFunType == QQEmitII) return "QQEmitII";
+    if (antFunType == GQEmitII) return "GQEmitII";
+    if (antFunType == GGEmitII) return "GGEmitII";
+    if (antFunType == QXConvII) return "QXConvII";
+    if (antFunType == GXConvII) return "GXConvII";
+    if (antFunType == QQEmitIF) return "QQEmitIF";
+    if (antFunType == QGEmitIF) return "QGEmitIF";
+    if (antFunType == GQEmitIF) return "GQEmitIF";
+    if (antFunType == GGEmitIF) return "GGEmitIF";
+    if (antFunType == QXConvIF) return "QXConvIF";
+    if (antFunType == GXConvIF) return "GXConvIF";
+    if (antFunType == XGSplitIF) return "XGSplitIF";
     return "noVinciaName";
   }
 }
@@ -1202,7 +1202,7 @@ bool VinciaCommon::showerChecks(Event& event, bool ISR) {
   if (verbose < Logger::REPORT) return true;
 
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   // First check if this event has any beams.
   bool hasBeams = false;
@@ -1484,15 +1484,15 @@ double VinciaCommon::getShowerStartingScale(int iSys, const Event& event,
     iFS.push_back(i);
   }
   if (qMaxMatch == 1 || (qMaxMatch == 0 && hasFSpartons) ) {
-    double Q2facSav = sbbSav;
-    double Q2facFix  = settingsPtr->parm("SigmaProcess:factorFixScale");
-    double Q2facMult = settingsPtr->parm("SigmaProcess:factorMultFac");
+    double q2facSav = sbbSav;
+    double q2facFix  = settingsPtr->parm("SigmaProcess:factorFixScale");
+    double q2facMult = settingsPtr->parm("SigmaProcess:factorMultFac");
 
     // Ask Pythia about 2 -> 1 scale.
     if (nOut == 1) {
       int factorScale1 = settingsPtr->mode("SigmaProcess:factorScale1");
-      Q2facSav = ( factorScale1 == 1 ? Q2facMult*event[iFS[0]].m2Calc() :
-        Q2facFix );
+      q2facSav = ( factorScale1 == 1 ? q2facMult*event[iFS[0]].m2Calc() :
+        q2facFix );
 
     // Ask Pythia about 2 -> 2 scale.
     } else if (iFS.size() == 2) {
@@ -1500,13 +1500,13 @@ double VinciaCommon::getShowerStartingScale(int iSys, const Event& event,
       double mT21 = event[iFS[0]].mT2(), mT22 = event[iFS[1]].mT2();
       double sHat = m2(event[iFS[0]], event[iFS[1]]);
       double tHat = m2(event[3], event[iFS[0]]);
-      if (factorScale2 == 1) Q2facSav = min(mT21, mT22);
-      else if (factorScale2 == 2) Q2facSav = sqrt(mT21*mT22);
-      else if (factorScale2 == 3) Q2facSav = 0.5*(mT21+mT22);
-      else if (factorScale2 == 4) Q2facSav = sHat;
-      else if (factorScale2 == 5) Q2facSav = Q2facFix;
-      else if (factorScale2 == 6) Q2facSav = abs(-tHat);
-      if (factorScale2 != 5) Q2facSav *= Q2facMult;
+      if (factorScale2 == 1) q2facSav = min(mT21, mT22);
+      else if (factorScale2 == 2) q2facSav = sqrt(mT21*mT22);
+      else if (factorScale2 == 3) q2facSav = 0.5*(mT21+mT22);
+      else if (factorScale2 == 4) q2facSav = sHat;
+      else if (factorScale2 == 5) q2facSav = q2facFix;
+      else if (factorScale2 == 6) q2facSav = abs(-tHat);
+      if (factorScale2 != 5) q2facSav *= q2facMult;
 
     // Ask Pythia about 2 -> 3 scale.
     } else if (iFS.size() == 3) {
@@ -1517,17 +1517,17 @@ double VinciaCommon::getShowerStartingScale(int iSys, const Event& event,
       double mT2min2 = max(max(min(mT21, mT22), min(mT21, mT23)),
         min(mT22, mT23));
       double sHat    = m2(event[iFS[0]], event[iFS[1]], event[iFS[2]]);
-      if (factorScale3 == 1) Q2facSav = mT2min1;
-      else if (factorScale3 == 2) Q2facSav = sqrt(mT2min1*mT2min2);
-      else if (factorScale3 == 3) Q2facSav = pow(mT21*mT22*mT23, 1.0/3.0);
-      else if (factorScale3 == 4) Q2facSav = (mT21+mT22+mT23)/3.0;
-      else if (factorScale3 == 5) Q2facSav = sHat;
-      else if (factorScale3 == 6) Q2facSav = Q2facFix;
-      if (factorScale3 != 6) Q2facSav *= Q2facMult;
+      if (factorScale3 == 1) q2facSav = mT2min1;
+      else if (factorScale3 == 2) q2facSav = sqrt(mT2min1*mT2min2);
+      else if (factorScale3 == 3) q2facSav = pow(mT21*mT22*mT23, 1.0/3.0);
+      else if (factorScale3 == 4) q2facSav = (mT21+mT22+mT23)/3.0;
+      else if (factorScale3 == 5) q2facSav = sHat;
+      else if (factorScale3 == 6) q2facSav = q2facFix;
+      if (factorScale3 != 6) q2facSav *= q2facMult;
 
     // Unknown, leave as is, all emissions allowed now.
     } else {;}
-    return q2maxFudge*Q2facSav;
+    return q2maxFudge*q2facSav;
   }
   return sbbSav;
 
@@ -1538,8 +1538,8 @@ double VinciaCommon::getShowerStartingScale(int iSys, const Event& event,
 // Find all possible clusterings for given configuration while retaining
 // a minimum number of quark pairs and gluons in the event.
 
-vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
-  int nqpMin, int ) {
+vector<VinciaClustering> VinciaCommon::findClusterings(
+  const vector<Particle>& state, int nqpMin, int ) {
 
   // Initialise.
   vector<VinciaClustering> clusterings;
@@ -1569,16 +1569,16 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
     while (itClus != clusterings.end()) {
       VinciaClustering clus = *itClus;
       if (clus.isFSR) {
-        if (clus.antFunType == GXsplitFF || clus.antFunType == XGsplitRF) {
+        if (clus.antFunType == GXSplitFF || clus.antFunType == XGSplitRF) {
           clusterings.erase(itClus);
         }
         else ++itClus;
       }
       else {
-        // Note: no QXsplit, as this leaves the total number of
+        // Note: no QXSplit, as this leaves the total number of
         // quark pairs invariant.
-        if (clus.antFunType == GXconvIF || clus.antFunType == GXconvII
-          || clus.antFunType == XGsplitIF)
+        if (clus.antFunType == GXConvIF || clus.antFunType == GXConvII
+          || clus.antFunType == XGSplitIF)
           clusterings.erase(itClus);
         else ++itClus;
       }
@@ -1592,10 +1592,10 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
 
 bool VinciaCommon::isValidClustering(const VinciaClustering& clus,
   const Event& event, int verboseIn) {
-  // Fetch children.
-  const Particle* a = &event[clus.child1];
-  const Particle* j = &event[clus.child2];
-  const Particle* b = &event[clus.child3];
+  // Fetch daughters.
+  const Particle* a = &event[clus.dau1];
+  const Particle* j = &event[clus.dau2];
+  const Particle* b = &event[clus.dau3];
 
   // Do not consider emissions into the initial state.
   if (!j->isFinal()) return false;
@@ -1679,7 +1679,7 @@ bool VinciaCommon::isValidClustering(const VinciaClustering& clus,
     // If nothing was found, return false.
     if (!foundValid) return false;
   }
-  // For gluon emissions, child2 should be colour-connected with 1 and 3.
+  // For gluon emissions, dau2 should be colour-connected with 1 and 3.
   else {
     if (!ajColCon || !jbColCon)
       return false;
@@ -1698,10 +1698,10 @@ bool VinciaCommon::clus3to2(const VinciaClustering& clus,
 
   pClustered.clear();
 
-  // Save indices of children in event.
-  int ia = clus.child1;
-  int ij = clus.child2;
-  int ib = clus.child3;
+  // Save indices of daughters in event.
+  int ia = clus.dau1;
+  int ij = clus.dau2;
+  int ib = clus.dau3;
 
   //TODO polarisations.
   int polA = 9;
@@ -1741,17 +1741,17 @@ bool VinciaCommon::clus3to2(const VinciaClustering& clus,
 
   // Initialise clustered particles (momenta are set in loop below).
   Particle pAnew = state.at(ia);
-  pAnew.id(clus.idMoth1);
+  pAnew.id(clus.idMot1);
   pAnew.cols(colA, acolA);
   pAnew.pol(polA);
-  pAnew.setPDEPtr(particleDataPtr->findParticle(clus.idMoth1));
-  pAnew.m(clus.massesMothers.at(0));
+  pAnew.setPDEPtr(particleDataPtr->findParticle(clus.idMot1));
+  pAnew.m(clus.mMot.at(0));
   Particle pBnew = state.at(ib);
-  pBnew.id(clus.idMoth2);
+  pBnew.id(clus.idMot2);
   pBnew.cols(colB, acolB);
   pBnew.pol(polB);
-  pBnew.m(clus.massesMothers.at(1));
-  pBnew.setPDEPtr(particleDataPtr->findParticle(clus.idMoth2));
+  pBnew.m(clus.mMot.at(1));
+  pBnew.setPDEPtr(particleDataPtr->findParticle(clus.idMot2));
 
   // Set list of clustered particles with new momenta.
   int iOffset = 0;
@@ -1783,10 +1783,10 @@ bool VinciaCommon::clus3to2(const VinciaClustering& clus, const Event& event,
 
   pClustered.clear();
 
-  // Save indices of children in event.
-  int iaEvt = clus.child1;
-  int ijEvt = clus.child2;
-  int ibEvt = clus.child3;
+  // Save indices of daughters in event.
+  int iaEvt = clus.dau1;
+  int ijEvt = clus.dau2;
+  int ibEvt = clus.dau3;
 
   //TODO polarisations.
   int polA = 9;
@@ -1827,17 +1827,17 @@ bool VinciaCommon::clus3to2(const VinciaClustering& clus, const Event& event,
 
   // Initialise clustered particles (momenta are set in loop below).
   Particle pAnew = event[iaEvt];
-  pAnew.id(clus.idMoth1);
+  pAnew.id(clus.idMot1);
   pAnew.cols(colA, acolA);
   pAnew.pol(polA);
-  pAnew.m(clus.massesMothers.at(0));
-  pAnew.setPDEPtr(particleDataPtr->findParticle(clus.idMoth1));
+  pAnew.m(clus.mMot.at(0));
+  pAnew.setPDEPtr(particleDataPtr->findParticle(clus.idMot1));
   Particle pBnew = event[ibEvt];
-  pBnew.id(clus.idMoth2);
+  pBnew.id(clus.idMot2);
   pBnew.cols(colB, acolB);
   pBnew.pol(polB);
-  pBnew.m(clus.massesMothers.at(1));
-  pBnew.setPDEPtr(particleDataPtr->findParticle(clus.idMoth2));
+  pBnew.m(clus.mMot.at(1));
+  pBnew.setPDEPtr(particleDataPtr->findParticle(clus.idMot2));
 
   // Set list of clustered particles with new momenta.
   int iOffset = 0;
@@ -1882,14 +1882,14 @@ bool VinciaCommon::getCols3to2(const Particle* a, const Particle* j,
   int acolB = 0;
   if (clus.isFSR) {
     // Final-final gluon splitting.
-    if (clus.antFunType == GXsplitFF) {
+    if (clus.antFunType == GXSplitFF) {
       colA = jIsAntiQ ? a->col() : j->col();
       acolA = jIsAntiQ ? j->acol() : a->acol();
       colB = b->col();
       acolB = b->acol();
     }
     // Resonance-final gluon splitting.
-    else if (clus.antFunType == XGsplitRF) {
+    else if (clus.antFunType == XGSplitRF) {
       colA = a->col();
       acolA = a->acol();
       colB = jIsAntiQ ? b->col() : j->col();
@@ -1897,7 +1897,7 @@ bool VinciaCommon::getCols3to2(const Particle* a, const Particle* j,
     }
     // Gluon emission.
     else {
-      // Choose to annihilate colour pair of child2 and child3.
+      // Choose to annihilate colour pair of dau2 and dau3.
       colA = a->col();
       acolA = a->acol();
       // Note: by construction, b and j are always in the final state.
@@ -1913,15 +1913,15 @@ bool VinciaCommon::getCols3to2(const Particle* a, const Particle* j,
   }
   else {
     // Initial-state gluon splitting.
-    if (clus.antFunType == QXsplitII || clus.antFunType == QXsplitIF) {
+    if (clus.antFunType == QXConvII || clus.antFunType == QXConvIF) {
       colA = jIsAntiQ ? a->col() : 0;
       acolA = jIsAntiQ ? 0 : a->acol();
       colB = b->col();
       acolB = b->acol();
     }
     // Quark conversion.
-    else if (clus.antFunType == GXconvII || clus.antFunType == GXconvIF) {
-      // Find out whether children have been swapped to not have "emissions
+    else if (clus.antFunType == GXConvII || clus.antFunType == GXConvIF) {
+      // Find out whether daughters have been swapped to not have "emissions
       // into the initial state", cf. setClusterlist in VinciaHistory.
       if (j->id() == a->id()
         && !a->isFinal() ) { // && !ajColCon) {
@@ -1944,7 +1944,7 @@ bool VinciaCommon::getCols3to2(const Particle* a, const Particle* j,
       }
     }
     // Final-state gluon splitting.
-    else if (clus.antFunType == XGsplitIF) {
+    else if (clus.antFunType == XGSplitIF) {
       colA = a->col();
       acolA = a->acol();
       colB = jIsAntiQ ? b->col() : j->col();
@@ -1952,10 +1952,10 @@ bool VinciaCommon::getCols3to2(const Particle* a, const Particle* j,
     }
     // Gluon emission.
     else {
-      // Choose to annihilate colour pair of child1 and child2.
+      // Choose to annihilate colour pair of dau1 and dau2.
       colB  = b->col();
       acolB = b->acol();
-      // Child1 is definitely initial and child2 final.
+      // Dau1 is definitely initial and dau2 final.
       if (a->col() == j->col()) {
         colA  = j->acol();
         acolA = a->acol();
@@ -1990,20 +1990,20 @@ bool VinciaCommon::getMomenta3to2(vector<Vec4>& momNow,
   momClus.clear();
 
   // Fetch indices.
-  int ia = clus.child1-iOffset;
-  int ij = clus.child2-iOffset;
-  int ib = clus.child3-iOffset;
+  int ia = clus.dau1-iOffset;
+  int ij = clus.dau2-iOffset;
+  int ib = clus.dau3-iOffset;
 
   // Fetch masses (for clarity).
-  double mj = clus.massesChildren.at(1);
-  double mk = clus.massesChildren.at(2);
-  double mA = clus.massesMothers.at(0);
-  double mB = clus.massesMothers.at(1);
+  double mj = clus.mDau.at(1);
+  double mk = clus.mDau.at(2);
+  double mA = clus.mMot.at(0);
+  double mB = clus.mMot.at(1);
 
   // Cluster momenta according to antenna function.
   if (clus.isFSR) {
     // Use antenna index to identify resonance-final branchings.
-    if (clus.antFunType >= QQemitRF) {
+    if (clus.antFunType >= QQEmitRF) {
       if (!map3to2RF(momClus, momNow, ia, ij, ib, mB))
         return false;
     }
@@ -2015,7 +2015,7 @@ bool VinciaCommon::getMomenta3to2(vector<Vec4>& momNow,
   }
   else {
     // Use antenna index to identify initial-final branchings.
-    if (clus.antFunType >= QQemitIF) {
+    if (clus.antFunType >= QQEmitIF) {
       if (!map3to2IF(momClus, momNow, ia, ij, ib, mj, mk, mB))
         return false;
     }
@@ -2034,8 +2034,8 @@ bool VinciaCommon::getMomenta3to2(vector<Vec4>& momNow,
 // Find all possible clusterings for given configuration (optionally while
 // retaining a Born configuration).
 
-vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
-  map<int, int> nFlavsBorn) {
+vector<VinciaClustering> VinciaCommon::findClusterings(
+  const vector<Particle>& state, map<int, int> nFlavsBorn) {
 
   // Check if we have sufficient information about the flavours in Born.
   if (nFlavsBorn.size() < 12) {
@@ -2101,7 +2101,7 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
       // Get colour-connected partners.
       int ia = col2ind[state[ij].acol()];
       int ib = acol2ind[state[ij].col()];
-      thisClus.setChildren(state, ia, ij, ib);
+      thisClus.setDaughters(state, ia, ij, ib);
       thisClus.setMothers(state[ia].id(), state[ib].id());
 
       // Get antenna function information.
@@ -2114,52 +2114,52 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
       // Final-final.
       if (aIsFinal && bIsFinal) {
         isFSR = true;
-        if (aIsGluon && bIsGluon) antFunType = GGemitFF;
-        else if (aIsGluon && !bIsGluon) antFunType = GQemitFF;
-        else if (!aIsGluon && bIsGluon) antFunType = QGemitFF;
-        else antFunType = QQemitFF;
+        if (aIsGluon && bIsGluon) antFunType = GGEmitFF;
+        else if (aIsGluon && !bIsGluon) antFunType = GQEmitFF;
+        else if (!aIsGluon && bIsGluon) antFunType = QGEmitFF;
+        else antFunType = QQEmitFF;
       }
       // Resonance-final.
       else if (state[ia].isResonance() && bIsFinal) {
         isFSR = true;
-        if (bIsGluon) antFunType = QGemitRF;
-        else antFunType = QQemitRF;
+        if (bIsGluon) antFunType = QGEmitRF;
+        else antFunType = QQEmitRF;
       }
       // Final-resonance: swap ia and ib.
       else if (aIsFinal && state[ib].isResonance()) {
         thisClus.swap13();
         isFSR = true;
-        if (bIsGluon) antFunType = QGemitRF;
-        else antFunType = QQemitRF;
+        if (bIsGluon) antFunType = QGEmitRF;
+        else antFunType = QQEmitRF;
       }
       // Initial-final.
       else if (!aIsFinal && bIsFinal) {
         isFSR = false;
-        if (aIsGluon && bIsGluon) antFunType = GGemitIF;
-        else if (aIsGluon && !bIsGluon) antFunType = GQemitIF;
-        else if (!aIsGluon && bIsGluon) antFunType = QGemitIF;
-        else antFunType = QQemitIF;
+        if (aIsGluon && bIsGluon) antFunType = GGEmitIF;
+        else if (aIsGluon && !bIsGluon) antFunType = GQEmitIF;
+        else if (!aIsGluon && bIsGluon) antFunType = QGEmitIF;
+        else antFunType = QQEmitIF;
       }
       // Final-initial: swap ia and ib.
       else if (aIsFinal && !bIsFinal) {
         thisClus.swap13();
         swap(aIsGluon, bIsGluon);
         isFSR = false;
-        if (aIsGluon && bIsGluon) antFunType = GGemitIF;
-        else if (aIsGluon && !bIsGluon) antFunType = GQemitIF;
-        else if (!aIsGluon && bIsGluon) antFunType = QGemitIF;
-        else antFunType = QQemitIF;
+        if (aIsGluon && bIsGluon) antFunType = GGEmitIF;
+        else if (aIsGluon && !bIsGluon) antFunType = GQEmitIF;
+        else if (!aIsGluon && bIsGluon) antFunType = QGEmitIF;
+        else antFunType = QQEmitIF;
       }
       // Initial-initial.
       else {
         isFSR = false;
-        if (aIsGluon && bIsGluon) antFunType = GGemitII;
-        else if (aIsGluon && !bIsGluon) antFunType = GQemitII;
+        if (aIsGluon && bIsGluon) antFunType = GGEmitII;
+        else if (aIsGluon && !bIsGluon) antFunType = GQEmitII;
         else if (!aIsGluon && bIsGluon) {
           thisClus.swap13();
-          antFunType = GQemitII;
+          antFunType = GQEmitII;
         }
-        else antFunType = QQemitII;
+        else antFunType = QQEmitII;
       }
 
       // Save clustering to list of all clusterings.
@@ -2199,11 +2199,11 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
           // Get antenna information.
           bool isFSR = false;
           enum AntFunType antFunType =
-            state[ib].isFinal() ? GXconvIF : GXconvII;
+            state[ib].isFinal() ? GXConvIF : GXConvII;
 
           // Append clustering to list.
           VinciaClustering thisClus;
-          thisClus.setChildren(state, ij, ia, ib);
+          thisClus.setDaughters(state, ij, ia, ib);
           thisClus.setMothers(21, state[ib].id());
           thisClus.setAntenna(isFSR, antFunType);
           if (!thisClus.initInvariantAndMassVecs()) {
@@ -2240,11 +2240,11 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
         // Get antenna information.
         bool isFSR = false;
         enum AntFunType antFunType =
-          state[iRec].isFinal() ? QXsplitIF : QXsplitII;
+          state[iRec].isFinal() ? QXConvIF : QXConvII;
 
         // Append clustering to list.
         VinciaClustering thisClus;
-        thisClus.setChildren(state, ia, ij, iRec);
+        thisClus.setDaughters(state, ia, ij, iRec);
         thisClus.setMothers(-state[ij].id(), state[iRec].id());
         thisClus.setAntenna(isFSR, antFunType);
         if (!thisClus.initInvariantAndMassVecs()) {
@@ -2282,7 +2282,7 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
           // Final-final gluon splitting.
           if (state[ib].isFinal()) {
             isFSR = true;
-            antFunType  = GXsplitFF;
+            antFunType  = GXSplitFF;
             idA   = 21;
             idB   = state[ib].id();
           }
@@ -2290,7 +2290,7 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
           else if (state[ib].isResonance()) {
             swap(ia, ib);
             isFSR = true;
-            antFunType  = XGsplitRF;
+            antFunType  = XGSplitRF;
             idA   = state[ia].id();
             idB   = 21;
           }
@@ -2298,7 +2298,7 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
           else {
             swap(ia, ib);
             isFSR = false;
-            antFunType  = XGsplitIF;
+            antFunType  = XGSplitIF;
             idA   = state[ia].id();
             idB   = 21;
           }
@@ -2309,14 +2309,14 @@ vector<VinciaClustering> VinciaCommon::findClusterings(vector<Particle>& state,
           idA   = 21;
           idB   = state[ib].id();
           // Initial-final quark conversion.
-          if (state[ib].isFinal()) antFunType  = GXconvIF;
+          if (state[ib].isFinal()) antFunType  = GXConvIF;
           // Initial-initial quark conversion.
-          else antFunType = GXconvII;
+          else antFunType = GXConvII;
         }
 
         // Append clustering to list.
         VinciaClustering thisClus;
-        thisClus.setChildren(state, ia, ij, ib);
+        thisClus.setDaughters(state, ia, ij, ib);
         thisClus.setMothers(idA, idB);
         thisClus.setAntenna(isFSR, antFunType);
         if (!thisClus.initInvariantAndMassVecs()) {
@@ -2363,7 +2363,7 @@ bool VinciaCommon::map3to2FFmassless(vector<Vec4>& pClu, vector<Vec4> pIn,
   int kMapType, int a, int r, int b) {
 
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   // Intialize and sanity check.
   pClu = pIn;
@@ -2520,11 +2520,11 @@ bool VinciaCommon::map3to2FFmassless(vector<Vec4>& pClu, vector<Vec4> pIn,
 // input of masses mI and mK for the first and second parent
 // particles.
 
-bool VinciaCommon::map3to2FFmassive(vector<Vec4>& pClu, vector<Vec4> pIn,
+bool VinciaCommon::map3to2FFmassive(vector<Vec4>& pClu, const vector<Vec4> pIn,
   int kMapType, double mI, double mK, int a, int r, int b) {
 
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   // If both parent masses are negligible and all the momenta are
   // measure off-shellness normalised to average energy of the partons
@@ -2654,7 +2654,7 @@ bool VinciaCommon::map3to2FFmassive(vector<Vec4>& pClu, vector<Vec4> pIn,
 
 // Inverse kinematic map for the resonance-final antenna.
 
-bool VinciaCommon::map3to2RF(vector<Vec4>& pClu, vector<Vec4>& pIn,
+bool VinciaCommon::map3to2RF(vector<Vec4>& pClu, const vector<Vec4>& pIn,
   int a, int r, int b, double mK){
 
   // 1) Extract momenta.
@@ -2744,7 +2744,7 @@ bool VinciaCommon::map3to2RF(vector<Vec4>& pClu, vector<Vec4>& pIn,
 // Implementations of IF clustering maps for massive partons.
 // NOTE: particle A and a are assumed massless (no initial-state masses).
 
-bool VinciaCommon::map3to2IF(vector<Vec4>& pClu, vector<Vec4>& pIn,
+bool VinciaCommon::map3to2IF(vector<Vec4>& pClu, const vector<Vec4>& pIn,
   int a, int r, int b, double mj, double mk, double mK) {
 
   // Initialise and sanity check.
@@ -2808,7 +2808,7 @@ bool VinciaCommon::map3to2IF(vector<Vec4>& pClu, vector<Vec4>& pIn,
 // Implementations of II clustering maps for massive partons.
 // NOTE: particle A, a, B, and b are assumed massless.
 
-bool VinciaCommon::map3to2II(vector<Vec4>& pClu, vector<Vec4>& pIn,
+bool VinciaCommon::map3to2II(vector<Vec4>& pClu, const vector<Vec4>& pIn,
   bool doBoost, int a, int r, int b, double mj) {
 
   // Initialisation and sanity check.
@@ -2888,7 +2888,7 @@ bool VinciaCommon::map2to3FFmassive(vector<Vec4>& pThree,
   double phi, vector<double> masses) {
 
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   // Check for ultrarelativistic particles.
   // Gluon/Photon splitting assumed to happen on legs 01 with 2 as recoiler.
@@ -3157,7 +3157,7 @@ bool VinciaCommon::map2to3FFmassless(vector<Vec4>& pThree,
   double phi) {
 
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   // Antenna invariant mass.
   double m2Ant = m2(pTwo[0], pTwo[1]);
@@ -3318,7 +3318,7 @@ bool VinciaCommon::map2to3RF(vector<Vec4>& pThree, vector<Vec4> pTwo,
   vector<double> masses) {
 
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   // Get momenta and boost to lab frame.
   if (pTwo.size() != 2) {
@@ -3485,7 +3485,7 @@ bool VinciaCommon::map2toNRF(vector<Vec4>& pAfter, vector<Vec4> pBefore,
   vector<double> masses) {
 
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   pAfter.clear();
 
@@ -3558,7 +3558,7 @@ bool VinciaCommon::map2to3IImassive(vector<Vec4>& pNew, vector<Vec4>& pRec,
   double phi, double mj2) {
 
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   // Do massive mapping.
   pNew.clear();
@@ -3677,12 +3677,12 @@ bool VinciaCommon::map2to3IImassive(vector<Vec4>& pNew, vector<Vec4>& pRec,
   }
   if (verbose >= VinciaConstants::DEBUG) {
     Vec4 total = pOld[0]+pOld[1];
-    cout << " Total In before" << total
-         << " Total Out before" << pRecSumBefore;
+    cout << " Total In  Before " << total
+         << " Total Out Before " << pRecSumBefore;
     total = pNew[0] + pNew[2] - pNew[1];
-    cout << " Total In After" << total
-         << " Total Out After" << pRecSumAfter
-         << " Total diff After" << total-pRecSumAfter;
+    cout << " Total In  After  " << total
+         << " Total Out After  " << pRecSumAfter
+         << "  In - Out After  " << total-pRecSumAfter;
   }
   return true;
 
@@ -3697,7 +3697,7 @@ bool VinciaCommon::map2to3IImassless(vector<Vec4>& pNew, vector<Vec4>& pRec,
   double phi) {
 
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   pNew.clear();
   pNew.resize(3);
@@ -3811,12 +3811,12 @@ bool VinciaCommon::map2to3IImassless(vector<Vec4>& pNew, vector<Vec4>& pRec,
 // 2->3 kinematics map for local recoils, for general mj,mk. Assumes
 // partons from proton explicitly massless
 
-bool VinciaCommon::map2to3IFlocal(vector<Vec4>& pNew, vector<Vec4>& pOld,
+bool VinciaCommon::map2to3IFlocal(vector<Vec4>& pNew, const vector<Vec4>& pOld,
   double sAK, double saj, double sjk, double sak, double phi,
   double mK2, double mj2, double mk2) {
 
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   pNew.clear();
   pNew.resize(3);
@@ -3860,7 +3860,7 @@ bool VinciaCommon::map2to3IFlocal(vector<Vec4>& pNew, vector<Vec4>& pOld,
   pTrans.bst(pSum);
 
   // Check if pT was properly boosted, allow 0.1% difference.
-  if (pTrans*pOld[0] > pOld[0][0]*1e-3 || pTrans*pOld[1] > pOld[1][0]*1e-3) {
+  if (pTrans*pOld[0] > pOld[0].e()*1e-3 || pTrans*pOld[1] > pOld[1].e()*1e-3) {
     loggerPtr->ERROR_MSG("transverse momentum not transverse after boost");
     return false;
   }
@@ -3929,12 +3929,12 @@ bool VinciaCommon::map2to3IFlocal(vector<Vec4>& pNew, vector<Vec4>& pOld,
 // partons from proton explicitly massless.
 
 bool VinciaCommon::map2to3IFglobal(vector<Vec4>& pNew,
-  vector<Vec4>& pRec, vector<Vec4>& pOld, Vec4 &pB,
+  vector<Vec4>& pRec, const vector<Vec4>& pOld, const Vec4 &pB,
   double sAK, double saj, double sjk, double sak, double phi,
   double mK2, double mj2, double mk2) {
 
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   pNew.clear();
   pNew.resize(3);
@@ -4239,7 +4239,7 @@ bool VinciaCommon::onShellCM(Vec4& p1, Vec4& p2, double m1, double m2,
   double tol) {
 
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   double s1     = pow2(m1);
   double s2     = pow2(m2);
@@ -4289,7 +4289,7 @@ bool VinciaCommon::onShellCM(Vec4& p1, Vec4& p2, double m1, double m2,
 bool VinciaCommon::mapToMassless(int iSys, Event& event, bool makeNewCopies) {
 
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   // Start by making new copies, if requested to do so.
   if (makeNewCopies) {
@@ -4542,32 +4542,32 @@ vector<Particle> VinciaCommon::makeParticleList(const int iSys,
 //--------------------------------------------------------------------------
 
 // Based on current state, find all antennae
-// for this branching and swap children if needed.
+// for this branching and swap daughters if needed.
 
 vector<VinciaClustering> VinciaCommon::findAntennae(Event& state,
   int i1, int i2, int i3) {
   // Initialise.
   vector<VinciaClustering> clusterings;
   VinciaClustering clus;
-  clus.setChildren(state, i1, i2, i3);
+  clus.setDaughters(state, i1, i2, i3);
 
   // Final-final branching.
-  if (state[clus.child1].isFinal() && state[clus.child3].isFinal()) {
+  if (state[clus.dau1].isFinal() && state[clus.dau3].isFinal()) {
     clus.isFSR = true;
 
     // Gluon emission.
-    if (state[clus.child2].isGluon()) {
-      if (state[clus.child1].isGluon()) {
-        if (state[clus.child3].isGluon()) clus.antFunType = GGemitFF;
-        else clus.antFunType = GQemitFF;
+    if (state[clus.dau2].isGluon()) {
+      if (state[clus.dau1].isGluon()) {
+        if (state[clus.dau3].isGluon()) clus.antFunType = GGEmitFF;
+        else clus.antFunType = GQEmitFF;
       }
       else {
-        if (state[clus.child3].isGluon()) clus.antFunType = QGemitFF;
-        else clus.antFunType = QQemitFF;
+        if (state[clus.dau3].isGluon()) clus.antFunType = QGEmitFF;
+        else clus.antFunType = QQEmitFF;
       }
 
       // No flavour change for gluon emissions.
-      clus.setMothers(state[clus.child1].id(), state[clus.child3].id());
+      clus.setMothers(state[clus.dau1].id(), state[clus.dau3].id());
 
       // Save.
       clusterings.push_back(clus);
@@ -4576,19 +4576,19 @@ vector<VinciaClustering> VinciaCommon::findAntennae(Event& state,
     // Gluon splitting.
     else {
       // Check colour connection to find out who is splitting.
-      bool colCon12 = colourConnected(state[clus.child1], state[clus.child2]);
-      bool colCon23 = colourConnected(state[clus.child2], state[clus.child3]);
+      bool colCon12 = colourConnected(state[clus.dau1], state[clus.dau2]);
+      bool colCon23 = colourConnected(state[clus.dau2], state[clus.dau3]);
       if (colCon12 && !colCon23) {
         clus.swap13();
         std::swap(colCon12, colCon23);
       }
       // Check flavours.
-      if (state[clus.child1].id() == -state[clus.child2].id()) {
+      if (state[clus.dau1].id() == -state[clus.dau2].id()) {
         // Check colour connection.
         if (!colCon12 && colCon23) {
-          // Children 1 and 2 are clustered to a gluon.
-          clus.antFunType = GXsplitFF;
-          clus.setMothers(21, state[clus.child3].id());
+          // Daughters 1 and 2 are clustered to a gluon.
+          clus.antFunType = GXSplitFF;
+          clus.setMothers(21, state[clus.dau3].id());
 
           // Save.
           clusterings.push_back(clus);
@@ -4598,22 +4598,22 @@ vector<VinciaClustering> VinciaCommon::findAntennae(Event& state,
   }
 
   // Initial-initial branching.
-  else if (!state[clus.child1].isFinal() && !state[clus.child3].isFinal()) {
+  else if (!state[clus.dau1].isFinal() && !state[clus.dau3].isFinal()) {
     clus.isFSR = false;
 
     // Gluon emission.
-    if (state[clus.child2].isGluon()) {
-      if (state[clus.child1].isGluon()) {
-        if (state[clus.child3].isGluon()) clus.antFunType = GGemitII;
-        else clus.antFunType = GQemitII;
+    if (state[clus.dau2].isGluon()) {
+      if (state[clus.dau1].isGluon()) {
+        if (state[clus.dau3].isGluon()) clus.antFunType = GGEmitII;
+        else clus.antFunType = GQEmitII;
       }
       else {
-        if (state[clus.child3].isGluon()) clus.antFunType = GQemitII;
-        else clus.antFunType = QQemitII;
+        if (state[clus.dau3].isGluon()) clus.antFunType = GQEmitII;
+        else clus.antFunType = QQEmitII;
       }
 
       // No flavour change for gluon emissions.
-      clus.setMothers(state[clus.child1].id(), state[clus.child3].id());
+      clus.setMothers(state[clus.dau1].id(), state[clus.dau3].id());
 
       // Save.
       clusterings.push_back(clus);
@@ -4621,72 +4621,72 @@ vector<VinciaClustering> VinciaCommon::findAntennae(Event& state,
 
     // For splittings, we can have more than one antenna.
     else {
-      // Quark conversion of clus.child1.
-      if (state[clus.child2].id() == state[clus.child1].id()) {
+      // Quark conversion of clus.dau1.
+      if (state[clus.dau2].id() == state[clus.dau1].id()) {
         // Check that the colour connection is sensible, otherwise skip.
-        bool colCon12 = colourConnected(state[clus.child1],
-          state[clus.child2]);
-        bool colCon23 = colourConnected(state[clus.child2],
-          state[clus.child3]);
-        bool colCon13 = colourConnected(state[clus.child1],
-          state[clus.child3]);
+        bool colCon12 = colourConnected(state[clus.dau1],
+          state[clus.dau2]);
+        bool colCon23 = colourConnected(state[clus.dau2],
+          state[clus.dau3]);
+        bool colCon13 = colourConnected(state[clus.dau1],
+          state[clus.dau3]);
         if (!colCon12 && (colCon23 || colCon13)) {
-          // Children 1 and 2 are clustered to a gluon.
-          clus.setMothers(21, state[clus.child3].id());
-          clus.antFunType = GXconvII;
+          // Daughters 1 and 2 are clustered to a gluon.
+          clus.setMothers(21, state[clus.dau3].id());
+          clus.antFunType = GXConvII;
 
           // Save.
           clusterings.push_back(clus);
         }
       }
-      // Quark conversion of clus.child3.
-      if (state[clus.child2].id() == state[clus.child3].id()) {
-        // Swap children.
+      // Quark conversion of clus.dau3.
+      if (state[clus.dau2].id() == state[clus.dau3].id()) {
+        // Swap daughters.
         clus.swap13();
 
         // Check that the colour connection is sensible, otherwise skip.
-        bool colCon12 = colourConnected(state[clus.child1],
-          state[clus.child2]);
-        bool colCon23 = colourConnected(state[clus.child2],
-          state[clus.child3]);
-        bool colCon13 = colourConnected(state[clus.child1],
-          state[clus.child3]);
+        bool colCon12 = colourConnected(state[clus.dau1],
+          state[clus.dau2]);
+        bool colCon23 = colourConnected(state[clus.dau2],
+          state[clus.dau3]);
+        bool colCon13 = colourConnected(state[clus.dau1],
+          state[clus.dau3]);
         if (!colCon12 && (colCon23 || colCon13)) {
-          // Now children 1 and 2 are clustered to a gluon.
-          clus.setMothers(21, state[clus.child3].id());
-          clus.antFunType = GXconvII;
+          // Now daughters 1 and 2 are clustered to a gluon.
+          clus.setMothers(21, state[clus.dau3].id());
+          clus.antFunType = GXConvII;
 
           // Save.
           clusterings.push_back(clus);
         }
       }
 
-      // Gluon splitting of clus.child1.
-      if (state[clus.child1].isGluon()) {
+      // Gluon splitting of clus.dau1.
+      if (state[clus.dau1].isGluon()) {
         // Check that the colour connection is sensible, otherwise skip.
-        if (colourConnected(state[clus.child1], state[clus.child2])
-          && colourConnected(state[clus.child1], state[clus.child3])) {
-          // Children 1 and 2 are clustered to quark of anti-flavour of 2.
-          // Child 3 does not change flavour.
-          clus.setMothers(-state[clus.child2].id(), state[clus.child3].id());
-          clus.antFunType = QXsplitII;
+        if (colourConnected(state[clus.dau1], state[clus.dau2])
+          && colourConnected(state[clus.dau1], state[clus.dau3])) {
+          // Daughters 1 and 2 are clustered to quark of anti-flavour of 2.
+          // Dau 3 does not change flavour.
+          clus.setMothers(-state[clus.dau2].id(), state[clus.dau3].id());
+          clus.antFunType = QXConvII;
 
           // Save.
           clusterings.push_back(clus);
         }
       }
-      // Gluon splitting of clus.child3.
-      if (state[clus.child3].isGluon()) {
-        // Swap children.
+      // Gluon splitting of clus.dau3.
+      if (state[clus.dau3].isGluon()) {
+        // Swap daughters.
         clus.swap13();
 
         // Check that the colour connection is sensible, otherwise skip.
-        if (colourConnected(state[clus.child1], state[clus.child2])
-          && colourConnected(state[clus.child1], state[clus.child3])) {
-          // Children 1 and 2 are clustered to quark of anti-flavour of 2.
-          // Child 3 does not change flavour.
-          clus.setMothers(-state[clus.child2].id(), state[clus.child3].id());
-          clus.antFunType = QXsplitII;
+        if (colourConnected(state[clus.dau1], state[clus.dau2])
+          && colourConnected(state[clus.dau1], state[clus.dau3])) {
+          // Daughters 1 and 2 are clustered to quark of anti-flavour of 2.
+          // Dau 3 does not change flavour.
+          clus.setMothers(-state[clus.dau2].id(), state[clus.dau3].id());
+          clus.antFunType = QXConvII;
 
           // Save.
           clusterings.push_back(clus);
@@ -4696,34 +4696,34 @@ vector<VinciaClustering> VinciaCommon::findAntennae(Event& state,
   }
 
   // Resonance-final branching.
-  else if ((state[clus.child1].isResonance() && !state[clus.child1].isFinal())
-    || (state[clus.child3].isResonance() && !state[clus.child3].isFinal())) {
+  else if ((state[clus.dau1].isResonance() && !state[clus.dau1].isFinal())
+    || (state[clus.dau3].isResonance() && !state[clus.dau3].isFinal())) {
     clus.isFSR = true;
 
-    // Always assume clus.child1 is resonance.
-    if (!state[clus.child1].isResonance()) clus.swap13();
+    // Always assume clus.dau1 is resonance.
+    if (!state[clus.dau1].isResonance()) clus.swap13();
 
     // Resonance always stays the same.
-    int idA = state[clus.child1].id();
+    int idA = state[clus.dau1].id();
 
     // Gluon emission.
-    if (state[clus.child2].isGluon()) {
-      if (state[clus.child3].isGluon()) clus.antFunType = QGemitRF;
-      else clus.antFunType = QQemitRF;
+    if (state[clus.dau2].isGluon()) {
+      if (state[clus.dau3].isGluon()) clus.antFunType = QGEmitRF;
+      else clus.antFunType = QQEmitRF;
 
       // No flavour change for gluon emissions.
-      clus.setMothers(idA, state[clus.child3].id());
+      clus.setMothers(idA, state[clus.dau3].id());
 
       // Save.
       clusterings.push_back(clus);
     }
     else {
-      clus.antFunType = XGsplitRF;
+      clus.antFunType = XGSplitRF;
 
       // Explicitly check colour connection.
-      if (!colourConnected(state[clus.child2], state[clus.child3])
-        && colourConnected(state[clus.child2], state[clus.child1])) {
-        // Children 2 and 3 get clustered to a gluon.
+      if (!colourConnected(state[clus.dau2], state[clus.dau3])
+        && colourConnected(state[clus.dau2], state[clus.dau1])) {
+        // Daughters 2 and 3 get clustered to a gluon.
         clus.setMothers(idA, 21);
 
         // Save.
@@ -4736,22 +4736,22 @@ vector<VinciaClustering> VinciaCommon::findAntennae(Event& state,
   else {
     clus.isFSR = false;
 
-    // Always assume child1 is in the initial state.
-    if (state[clus.child1].isFinal()) clus.swap13();
+    // Always assume dau1 is in the initial state.
+    if (state[clus.dau1].isFinal()) clus.swap13();
 
     // Gluon emission.
-    if (state[clus.child2].isGluon()) {
-      if (state[clus.child1].isGluon()) {
-        if (state[clus.child3].isGluon()) clus.antFunType = GGemitIF;
-        else clus.antFunType = GQemitIF;
+    if (state[clus.dau2].isGluon()) {
+      if (state[clus.dau1].isGluon()) {
+        if (state[clus.dau3].isGluon()) clus.antFunType = GGEmitIF;
+        else clus.antFunType = GQEmitIF;
       }
       else {
-        if (state[clus.child3].isGluon()) clus.antFunType = QGemitIF;
-        else clus.antFunType = QQemitIF;
+        if (state[clus.dau3].isGluon()) clus.antFunType = QGEmitIF;
+        else clus.antFunType = QQEmitIF;
       }
 
       // No flavour change for gluon emissions.
-      clus.setMothers(state[clus.child1].id(), state[clus.child3].id());
+      clus.setMothers(state[clus.dau1].id(), state[clus.dau3].id());
 
       // Save.
       clusterings.push_back(clus);
@@ -4759,42 +4759,42 @@ vector<VinciaClustering> VinciaCommon::findAntennae(Event& state,
     // For gluon splittings, we have more than one antenna.
     else {
       // Gluon splitting in the final state.
-      if (state[clus.child2].id() == -state[clus.child3].id()
-        && !colourConnected(state[clus.child2], state[clus.child3])) {
-        // Children 2 and 3 are clustered to a gluon.
-        clus.setMothers(state[clus.child1].id(), 21);
-        clus.antFunType = XGsplitIF;
+      if (state[clus.dau2].id() == -state[clus.dau3].id()
+        && !colourConnected(state[clus.dau2], state[clus.dau3])) {
+        // Daughters 2 and 3 are clustered to a gluon.
+        clus.setMothers(state[clus.dau1].id(), 21);
+        clus.antFunType = XGSplitIF;
 
         // Save.
         clusterings.push_back(clus);
       }
       // Gluon splitting in the initial state.
-      if (state[clus.child1].isGluon()) {
+      if (state[clus.dau1].isGluon()) {
         // Check that the colour connection is sensible, skip otherwise.
-        if (colourConnected(state[clus.child1], state[clus.child2])
-          && colourConnected(state[clus.child1], state[clus.child3])) {
-          // Children 1 and 2 are clustered to quark of anti-flavour of 2.
-          // Child 3 does not change flavour.
-          clus.setMothers(-state[clus.child2].id(), state[clus.child3].id());
-          clus.antFunType = QXsplitIF;
+        if (colourConnected(state[clus.dau1], state[clus.dau2])
+          && colourConnected(state[clus.dau1], state[clus.dau3])) {
+          // Daughters 1 and 2 are clustered to quark of anti-flavour of 2.
+          // Dau 3 does not change flavour.
+          clus.setMothers(-state[clus.dau2].id(), state[clus.dau3].id());
+          clus.antFunType = QXConvIF;
 
           // Save.
           clusterings.push_back(clus);
         }
       }
       // Quark conversion (in the initial state).
-      if (state[clus.child2].id() == state[clus.child1].id()) {
+      if (state[clus.dau2].id() == state[clus.dau1].id()) {
         // Check that the colour connection is sensible, skip otherwise.
-        bool colCon12 = colourConnected(state[clus.child1],
-          state[clus.child2]);
-        bool colCon23 = colourConnected(state[clus.child2],
-          state[clus.child3]);
-        bool colCon13 = colourConnected(state[clus.child1],
-          state[clus.child3]);
+        bool colCon12 = colourConnected(state[clus.dau1],
+          state[clus.dau2]);
+        bool colCon23 = colourConnected(state[clus.dau2],
+          state[clus.dau3]);
+        bool colCon13 = colourConnected(state[clus.dau1],
+          state[clus.dau3]);
         if (!colCon12 && (colCon23 || colCon13)) {
-          // Children 1 and 2 are clustered to a gluon.
-          clus.setMothers(21, state[clus.child3].id());
-          clus.antFunType = GXconvIF;
+          // Daughters 1 and 2 are clustered to a gluon.
+          clus.setMothers(21, state[clus.dau3].id());
+          clus.antFunType = GXConvIF;
 
           // Save.
           clusterings.push_back(clus);
@@ -4896,8 +4896,8 @@ void VinciaCommon::list(const vector<VinciaClustering>& clusterings,
   cout << "  Clusterings:" << endl;
   for (int i(0); i<nTot; ++i) {
     VinciaClustering c = clusterings.at(i);
-    cout << "    Sector " << i << ": " << num2str(c.child1, 3) << " "
-         << num2str(c.child2, 3) << " " << num2str(c.child3, 3)
+    cout << "    Sector " << i << ": " << num2str(c.dau1, 3) << " "
+         << num2str(c.dau2, 3) << " " << num2str(c.dau3, 3)
          << " (" << c.getAntName() << ")" << endl;
   }
   cout << endl;

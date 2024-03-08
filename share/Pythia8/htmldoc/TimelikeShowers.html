@@ -664,7 +664,7 @@ to correct the emission probability to the internal matrix elements.
 The internal ME options do not cover any cases relevant for a multibody 
 recoiler anyway, so no guarantees are given what prescription would 
 come to be used. Instead, without ME corrections,  a process-independent 
-emission rate is obtained, and  <a href="UserHooks.html" target="page">user hooks</a> 
+emission rate is obtained, and <a href="UserHooks.html" target="page">user hooks</a> 
 can provide the desired process-specific rejection factors. 
  
 <a name="section3"></a> 
@@ -734,6 +734,25 @@ play a central role.
    
  
 <a name="anchor34"></a>
+<p/><code>flag&nbsp; </code><strong> TimeShower:skipFirstMECinHardProc &nbsp;</strong> 
+ (<code>default = <strong>off</strong></code>)<br/>
+Allow control of matrix element corrections (MECs) in the hard 
+process. By default, a matching is made between the final state of a 
+hard process and the suite of decay MECs.  When this option is "on", 
+no MEC is used until after the first emission. This allows 
+compatability with various NLO-correct merging schemes. 
+   
+ 
+<a name="anchor35"></a>
+<p/><code>mvec&nbsp; </code><strong> TimeShower:skipFirstMECinResDecIDs &nbsp;</strong> 
+ (<code>default = <strong>{}</strong></code>)<br/>
+Allow control of matrix element corrections (MECs) in resonance 
+decays, similarly to the treatment of the hard process. See above 
+explanation. Only those resonance with the listed PDG identifiers are 
+affected. 
+   
+ 
+<a name="anchor36"></a>
 <p/><code>mode&nbsp; </code><strong> TimeShower:weightGluonToQuark &nbsp;</strong> 
  (<code>default = <strong>4</strong></code>; <code>minimum = 1</code>; <code>maximum = 8</code>)<br/>
 Different options to assign kinematics distributions and weights 
@@ -766,7 +785,7 @@ rather than the normal <i>alpha_s(pT^2)</i>.
 rather than the normal <i>alpha_s(pT^2)</i>.   
    
  
-<a name="anchor35"></a>
+<a name="anchor37"></a>
 <p/><code>parm&nbsp; </code><strong> TimeShower:scaleGluonToQuark &nbsp;</strong> 
  (<code>default = <strong>1.0</strong></code>; <code>minimum = 0.25</code>; <code>maximum = 1.0</code>)<br/>
 Extra scale parameter <i>k</i> for 
@@ -775,20 +794,20 @@ Extra scale parameter <i>k</i> for
 alike. 
    
  
-<a name="anchor36"></a>
+<a name="anchor38"></a>
 <p/><code>flag&nbsp; </code><strong> TimeShower:phiPolAsym &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 Azimuthal asymmetry induced by gluon polarization; on/off = true/false. 
    
  
-<a name="anchor37"></a>
+<a name="anchor39"></a>
 <p/><code>flag&nbsp; </code><strong> TimeShower:phiPolAsymHard &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 Extend the above azimuthal asymmetry (if on) also back to gluons produced 
 in the hard process itself, where feasible; on/off = true/false. 
    
  
-<a name="anchor38"></a>
+<a name="anchor40"></a>
 <p/><code>flag&nbsp; </code><strong> TimeShower:recoilDeadCone &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 For topologies where a gluon recoils against a massive quark (or another 
@@ -807,7 +826,7 @@ are not affected; the absence of a soft singularity implies that there
 is hardly any radiation into the recoiler hemisphere anyway. 
    
  
-<a name="anchor39"></a>
+<a name="anchor41"></a>
 <p/><code>mode&nbsp; </code><strong> TimeShower:recoilStrategyRF &nbsp;</strong> 
  (<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
 In the decays of coloured resonances, notably <i>t &rarr; b W</i>, it 
@@ -866,7 +885,7 @@ option 1 instead each newly emitted photon becomes the new recoiler.
    
    
  
-<a name="anchor40"></a>
+<a name="anchor42"></a>
 <p/><code>flag&nbsp; </code><strong> TimeShower:useFixedFacScale &nbsp;</strong> 
  (<code>default = <strong>off</strong></code>)<br/>
 Allow the possibility to use a fixed factorization scale, set by 
@@ -874,14 +893,14 @@ the <code>parm</code> below. This option is unphysical and only
 intended for toy-model and debug studies. 
    
  
-<a name="anchor41"></a>
+<a name="anchor43"></a>
 <p/><code>parm&nbsp; </code><strong> TimeShower:fixedFacScale &nbsp;</strong> 
  (<code>default = <strong>100.</strong></code>; <code>minimum = 1.</code>)<br/>
 The fixed factorization scale, in GeV, that would be used in the 
 evaluation of parton densities if the <code>flag</code> above is on. 
    
  
-<a name="anchor42"></a>
+<a name="anchor44"></a>
 <p/><code>mode&nbsp; </code><strong> TimeShower:pdfMode &nbsp;</strong> 
  (<code>default = <strong>0</strong></code>; <code>minimum = 0</code>; <code>maximum = 2</code>)<br/>
 This setting should not be touched by non-experts. Deviating 
@@ -911,14 +930,14 @@ There are several possibilities you can use to switch on or off selected
 branching types in the shower. These should normally not be touched. 
 Their main function is for cross-checks. 
  
-<a name="anchor43"></a>
+<a name="anchor45"></a>
 <p/><code>flag&nbsp; </code><strong> TimeShower:QCDshower &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 Allow a QCD shower, i.e. branchings <i>q &rarr; q g</i>, 
 <i>g &rarr; g g</i> and <i>g &rarr; q qbar</i>; on/off = true/false. 
    
  
-<a name="anchor44"></a>
+<a name="anchor46"></a>
 <p/><code>mode&nbsp; </code><strong> TimeShower:nGluonToQuark &nbsp;</strong> 
  (<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)<br/>
 Number of allowed quark flavours in <i>g &rarr; q qbar</i> branchings 
@@ -926,21 +945,21 @@ Number of allowed quark flavours in <i>g &rarr; q qbar</i> branchings
 <i>g &rarr; b bbar</i>, etc. 
    
  
-<a name="anchor45"></a>
+<a name="anchor47"></a>
 <p/><code>flag&nbsp; </code><strong> TimeShower:QEDshowerByQ &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 Allow quarks to radiate photons, i.e. branchings <i>q &rarr; q gamma</i>; 
 on/off = true/false. 
    
  
-<a name="anchor46"></a>
+<a name="anchor48"></a>
 <p/><code>flag&nbsp; </code><strong> TimeShower:QEDshowerByL &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 Allow leptons to radiate photons, i.e. branchings <i>l &rarr; l gamma</i>; 
 on/off = true/false. 
    
  
-<a name="anchor47"></a>
+<a name="anchor49"></a>
 <p/><code>flag&nbsp; </code><strong> TimeShower:QEDshowerByOther &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 Allow charged resonances to radiate photons, i.e. branchings 
@@ -948,7 +967,7 @@ Allow charged resonances to radiate photons, i.e. branchings
 also allow the W boson to radiate. 
    
  
-<a name="anchor48"></a>
+<a name="anchor50"></a>
 <p/><code>flag&nbsp; </code><strong> TimeShower:QEDshowerByGamma &nbsp;</strong> 
  (<code>default = <strong>on</strong></code>)<br/>
 Allow photons to branch into lepton or quark pairs, i.e. branchings 
@@ -956,15 +975,15 @@ Allow photons to branch into lepton or quark pairs, i.e. branchings
 on/off = true/false. 
    
  
-<a name="anchor49"></a>
+<a name="anchor51"></a>
 <p/><code>mode&nbsp; </code><strong> TimeShower:nGammaToQuark &nbsp;</strong> 
  (<code>default = <strong>5</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)<br/>
 Number of allowed quark flavours in <i>gamma &rarr; q qbar</i> branchings 
 (phase space permitting). A change to 4 would exclude 
-<i>g &rarr; b bbar</i>, etc. 
+<i>gamma &rarr; b bbar</i>, etc. 
    
  
-<a name="anchor50"></a>
+<a name="anchor52"></a>
 <p/><code>mode&nbsp; </code><strong> TimeShower:nGammaToLepton &nbsp;</strong> 
  (<code>default = <strong>3</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
 Number of allowed lepton flavours in <i>gamma &rarr; l+ l-</i> branchings 
@@ -973,7 +992,27 @@ Number of allowed lepton flavours in <i>gamma &rarr; l+ l-</i> branchings
 <i>gamma &rarr; mu+ mu-</i>. 
    
  
+<a name="anchor53"></a>
+<p/><code>flag&nbsp; </code><strong> TimeShower:recoilToColoured &nbsp;</strong> 
+ (<code>default = <strong>on</strong></code>)<br/>
+In the decays of coloured resonances, say <i>t &rarr; b W</i>, it is not 
+possible to set up dipoles with matched colours. Originally the 
+<i>b</i> radiator therefore has <i>W</i> as recoiler, and that 
+choice is unique. Once a gluon has been radiated, however, it is 
+possible either to have the unmatched colour (inherited by the gluon) 
+still recoiling against the <i>W</i> (<code>off</code>), or else 
+let it recoil against the <i>b</i> also for this dipole 
+(<code>on</code>). Before version 8.160 the former was the only 
+possibility, which could give unphysical radiation patterns. It is 
+kept as an option to check backwards compatibility. The same issue 
+exists for QED radiation, but obviously is less significant. Consider 
+the example <i>W &rarr; e nu</i>, where originally the <i>nu</i> 
+takes the recoil. In the old (<code>off</code>) scheme the <i>nu</i> 
+would remain recoiler, while in the new (<code>on</code>) instead 
+each newly emitted photon becomes the new recoiler. 
+   
+ 
 </body>
 </html>
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

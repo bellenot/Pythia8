@@ -1,5 +1,5 @@
 // ExternalMEs.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Stefan Prestel, Philip Ilten, Torbjorn
+// Copyright (C) 2024 Peter Skands, Stefan Prestel, Philip Ilten, Torbjorn
 // Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -35,11 +35,11 @@ void ExternalMEs::initPtrs(Info* infoPtrIn) {
 // Fill a vector of IDs.
 
 void ExternalMEs::fillIds(const Event& event, vector<int>& in,
-  vector<int>& out) const {
-  in.push_back(event[3].id());
-  in.push_back(event[4].id());
-  for (int i = 4; i < event.size(); ++i) {
-    if ( event[i].isFinal() ) out.push_back(event[i].id());
+  vector<int>& out, int iBeg) const {
+  // Start at i = iBeg, and go to end of event.
+  for (int i = iBeg; i < event.size(); ++i) {
+    if ( !event[i].isFinal() ) in.push_back(event[i].id());
+    else out.push_back( event[i].id() );
   }
 }
 
@@ -47,26 +47,22 @@ void ExternalMEs::fillIds(const Event& event, vector<int>& in,
 
 // Fill a vector of momenta.
 
-void ExternalMEs::fillMoms(const Event& event, vector<Vec4>& p) const {
-  p.push_back(event[3].p());
-  p.push_back(event[4].p());
-  for (int i = 4; i < event.size(); ++i) {
-    if ( event[i].isFinal() ) p.push_back(event[i].p());
-  }
+void ExternalMEs::fillMoms(const Event& event, vector<Vec4>& p, int iBeg)
+  const {
+  // Start at i = iBeg, and go to end of event.
+  for (int i = iBeg; i < event.size(); ++i) p.push_back(event[i].p());
 }
 
 //--------------------------------------------------------------------------
 
 // Fill a vector of colors.
 
-void ExternalMEs::fillCols(const Event& event, vector<int>& colors) const {
-  colors.push_back(event[3].col()); colors.push_back(event[3].acol());
-  colors.push_back(event[4].col()); colors.push_back(event[4].acol());
-  for (int i = 4; i < event.size(); ++i) {
-    if ( event[i].isFinal() ) {
-      colors.push_back(event[i].col());
-      colors.push_back(event[i].acol());
-    }
+void ExternalMEs::fillCols(const Event& event, vector<int>& colors, int iBeg)
+  const {
+  // Start at i = iBeg, and go to end of event.
+  for (int i = iBeg; i < event.size(); ++i) {
+    colors.push_back(event[i].col());
+    colors.push_back(event[i].acol());
   }
 }
 
@@ -75,9 +71,10 @@ void ExternalMEs::fillCols(const Event& event, vector<int>& colors) const {
 
 // Return the momenta.
 
-vector<vector<double> > ExternalMEs::fillMoms(const Event& event) const {
+vector<vector<double> > ExternalMEs::fillMoms(const Event& event, int iBeg)
+  const {
   vector<Vec4> p;
-  fillMoms(event, p);
+  fillMoms(event, p, iBeg);
   vector< vector<double> > ret;
   for (int i = 0; i < int(p.size()); i++ ) {
     vector<double> p_tmp(4, 0.);

@@ -1,5 +1,5 @@
 // BeamSetup.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -704,6 +704,10 @@ void BeamSetup::boostAndVertex( Event& process, Event& event, bool toLab,
       else if (boostType == 3) event.rotbst(MtoCM);
     }
   }
+
+  // Fix energy from mass and three-momentum, to patch up large boosts.
+  for (int i = 1; i < event.size(); ++i)
+    event[i].e( sqrtpos(event[i].m2() + event[i].pAbs2()) );
 
   // Set production vertex; assumes particles are in lab frame and at origin.
   if (setVertex && doVertexSpread) {

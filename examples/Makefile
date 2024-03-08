@@ -1,5 +1,5 @@
 # Makefile is a part of the PYTHIA event generator.
-# Copyright (C) 2023 Torbjorn Sjostrand.
+# Copyright (C) 2024 Torbjorn Sjostrand.
 # PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 # Please respect the MCnet Guidelines, see GUIDELINES for details.
 # Author: Philip Ilten, September 2014.
@@ -25,15 +25,26 @@ ifneq ("$(wildcard ../lib/libpythia8.*)","")
   PREFIX_LIB=../lib
   PREFIX_INCLUDE=../include
 endif
-CXX_COMMON:=-I$(PREFIX_INCLUDE) $(CXX_COMMON) $(GZIP_LIB)
+CXX_COMMON:=$(OBJ_COMMON) -I$(PREFIX_INCLUDE) $(CXX_COMMON) $(GZIP_LIB)
 CXX_COMMON+= -L$(PREFIX_LIB) -Wl,-rpath,$(PREFIX_LIB) -lpythia8 -ldl
 PYTHIA=$(PREFIX_LIB)/libpythia8$(LIB_SUFFIX)
 
-# Fix missing runtime paths from RIVET.
+# Fix missing runtime paths from RIVET and determine C++ standard used.
 ifeq ($(RIVET_USE),true)
   COMMA=,
   RIVET_LPATH=$(filter -L%,$(shell $(RIVET_BIN)$(RIVET_CONFIG) --ldflags))
   RIVET_RPATH=$(subst -L,-Wl$(COMMA)-rpath$(COMMA),$(RIVET_LPATH))
+  RIVET_FLAGS=-DRIVET
+  RIVET_VERSION=$(shell $(RIVET_BIN)$(RIVET_CONFIG) --version)
+  RIVET_CSTD=c++14
+  ifeq ("4.0.0","$(word 1, $(sort 4.0.0 $(RIVET_VERSION)))")
+    RIVET_CSTD=c++17
+  endif
+  DTAGS=$(shell echo "int main(){}" | $(CXX) -Wl,--disable-new-dtags -o \
+     /dev/null -xc - 2>&1)
+  ifeq ($(DTAGS),)
+    RIVET_FLAGS+= -Wl,--disable-new-dtags
+  endif
 endif
 
 ################################################################################
@@ -82,16 +93,16 @@ else
 	$(error Error: $@ requires HEPMC2 or HEPMC3)
 endif
 
-# MPICH, HDF5, HIGHFIVE, and HepMC2 or HepMC3.
+# HDF5, HIGHFIVE, and HepMC2 or HepMC3.
 main46: $(PYTHIA) $$@.cc
-ifeq ($(MPICH_USE)$(HDF5_USE)$(HIGHFIVE_USE)$(HEPMC3_USE),truetruetruetrue)
-	$(MPICH_BIN)mpic++ $@.cc -o $@ -w $(CXX_COMMON) $(MPICH_INCLUDE)\
+ifeq ($(HDF5_USE)$(HIGHFIVE_USE)$(HEPMC3_USE),truetruetrue)
+	$(CXX) $@.cc -o $@ -w $(CXX_COMMON)\
 	 $(HDF5_INCLUDE) $(HIGHFIVE_INCLUDE) $(HEPMC3_INCLUDE)\
-	 $(MPICH_LIB) $(HDF5_LIB) $(HEPMC3_LIB) -DHEPMC3
-else ifeq ($(MPICH_USE)$(HDF5_USE)$(HIGHFIVE_USE)$(HEPMC2_USE),truetruetruetrue)
-	$(MPICH_BIN)mpic++ $@.cc -o $@ -w $(CXX_COMMON) $(MPICH_INCLUDE)\
+	 $(HDF5_LIB) $(HEPMC3_LIB) -DHEPMC3
+else ifeq ($(HDF5_USE)$(HIGHFIVE_USE)$(HEPMC2_USE),truetruetrue)
+	$(CXX) $@.cc -o $@ -w $(CXX_COMMON) $(MPICH_INCLUDE)\
 	 $(HDF5_INCLUDE) $(HIGHFIVE_INCLUDE) $(HEPMC2_INCLUDE)\
-	 $(MPICH_LIB) $(HDF5_LIB) $(HEPMC2_LIB) -DHEPMC2
+	 $(HDF5_LIB) $(HEPMC2_LIB) -DHEPMC2
 else
 	$(error Error: $@ requires MPICH, HDF5, HIGHFIVE, and HEPMC2 or HEPMC3)
 endif
@@ -136,8 +147,8 @@ lib%.so: %.cc $(PYTHIA)
 	$(CXX) $< -o $@ -w $(CXX_COMMON) $(CXX_SHARED) -Wl,--no-as-needed
 
 # ROOT libraries generated via CINT.
-main%.so: main%Dct.cc main%.h
-	$(CXX) $^ -o $@ -DPY8ROOT -w $(CXX_SHARED) $(CXX_COMMON)\
+main%.so: main%Dct.cc
+	$(CXX) $< -o $@ -DPY8ROOT -w $(CXX_SHARED) $(CXX_COMMON)\
 	 $(ROOT_LIB) $(shell $(ROOT_CONFIG) --cflags)
 main%Dct.cc: main%.h main%LinkDef.h
 ifeq ($(ROOT_USE),true)
@@ -158,10 +169,10 @@ endif
 # RIVET with optional ROOT (if RIVET, use C++14).
 main93: $(PYTHIA) $$@.cc $(if $(filter true,$(ROOT_USE)),main93.so)
 ifeq ($(RIVET_USE),true)
-	$(CXX) $@.cc -o $@ -w $(CXX_COMMON:c++11=c++14) -Wl,-rpath,./\
+	$(CXX) $@.cc -o $@ -w $(CXX_COMMON:c++11=$(RIVET_CSTD)) -Wl,-rpath,./\
 	 $(if $(filter true,$(ROOT_USE)),main93.so -DPY8ROOT\
-         $(ROOT_LIB) $(shell $(ROOT_CONFIG) --cflags --glibs))\
-	 $(RIVET_RPATH) $(shell $(RIVET_BIN)$(RIVET_CONFIG) --cppflags --libs)
+         $(ROOT_LIB) $(shell $(ROOT_CONFIG) --cflags --glibs)) $(RIVET_FLAGS)\
+         $(RIVET_RPATH) $(shell $(RIVET_BIN)$(RIVET_CONFIG) --cppflags --libs)
 else
 	$(error Error: $@ requires RIVET)
 endif
@@ -178,7 +189,8 @@ endif
 # RIVET (if RIVET use C++14).
 main111: $(PYTHIA) $$@.cc
 ifeq ($(RIVET_USE),true)
-	$(CXX) $@.cc -o $@ -w $(CXX_COMMON:c++11=c++14) -DRIVET\
+	@echo $(RIVET_VERSION)
+	$(CXX) $@.cc -o $@ -w $(CXX_COMMON:c++11=$(RIVET_CSTD)) $(RIVET_FLAGS)\
 	 $(shell $(RIVET_BIN)$(RIVET_CONFIG) --cppflags --libs) $(RIVET_RPATH)
 else
 	$(CXX) $@.cc -o $@ -w $(CXX_COMMON)

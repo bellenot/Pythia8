@@ -1,5 +1,5 @@
 // VinciaAntennaFunctions.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2024 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -200,14 +200,14 @@ protected:
 
 //==========================================================================
 
-// Class AntQQemitFF, final-final antenna function.
+// Class AntQQEmitFF, final-final antenna function.
 
-class AntQQemitFF : public AntennaFunction {
+class AntQQEmitFF : public AntennaFunction {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:QQemitFF";};
+  virtual string vinciaName() const {return "Vincia:QQEmitFF";};
 
   // Functions needed by soft- and collinear-limit checks (AB -> 0i 1j 2k).
   virtual int idA() const {return 1;}
@@ -227,14 +227,14 @@ public:
 
 //==========================================================================
 
-// Class AntQGemitFF, final-final antenna function.
+// Class AntQGEmitFF, final-final antenna function.
 
-class AntQGemitFF : public AntennaFunction {
+class AntQGEmitFF : public AntennaFunction {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:QGemitFF";};
+  virtual string vinciaName() const {return "Vincia:QGEmitFF";};
 
   // Parton types (AB -> 0i 1j 2k): needed by soft- and collinear-limit checks.
   virtual int idA() const {return 1;}
@@ -253,21 +253,21 @@ public:
 
 //==========================================================================
 
-// Class AntGQemitFF, final-final antenna function.
+// Class AntGQEmitFF, final-final antenna function.
 
-class AntGQemitFF : public AntQGemitFF {
+class AntGQEmitFF : public AntQGEmitFF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:GQemitFF";};
+  virtual string vinciaName() const {return "Vincia:GQEmitFF";};
 
   // Parton types (AB -> 0i 1j 2k): needed by soft- and collinear-limit checks.
   virtual int idA() const {return 21;}
   virtual int idB() const {return -1;}
   virtual int id1() const {return 21;}
 
-  // The antenna function [GeV^-2] (derived from AntQGemit by swapping).
+  // The antenna function [GeV^-2] (derived from AntQGEmit by swapping).
   virtual double antFun(vector<double> invariants,
     vector<double> mNew, vector<int> helBef, vector<int> helNew);
 
@@ -279,14 +279,14 @@ public:
 
 //==========================================================================
 
-// Class AntGQemitFF, final-final antenna function.
+// Class AntGQEmitFF, final-final antenna function.
 
-class AntGGemitFF : public AntennaFunction {
+class AntGGEmitFF : public AntennaFunction {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName()    const {return "Vincia:GGemitFF";};
+  virtual string vinciaName()    const {return "Vincia:GGEmitFF";};
 
   // Parton types (AB -> 0i 1j 2k): needed by soft- and collinear-limit checks.
   virtual int idA()    const {return 21;}
@@ -305,14 +305,14 @@ public:
 
 //==========================================================================
 
-// Class AntGXsplitFF, final-final antenna function.
+// Class AntGXSplitFF, final-final antenna function.
 
-class AntGXsplitFF : public AntennaFunction {
+class AntGXSplitFF : public AntennaFunction {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const {return "Vincia:GXsplitFF";};
+  virtual string vinciaName() const {return "Vincia:GXSplitFF";};
 
   // Parton types (AB -> 0i 1j 2k): needed by soft- and collinear-limit checks.
   virtual int idA() const {return 21;}
@@ -331,17 +331,17 @@ public:
 
 //==========================================================================
 
-// Class AntQQemitFFsec, sector final-final antenna function, identical
+// Class AntQQEmitFFsec, sector final-final antenna function, identical
 // to global one.
 
-class AntQQemitFFsec : public AntQQemitFF {};
+class AntQQEmitFFsec : public AntQQEmitFF {};
 
 //==========================================================================
 
-// Class AntQGemitFFsec, sector final-final antenna function, explicit
-// symmetrisation of AntQGemitFF.
+// Class AntQGEmitFFsec, sector final-final antenna function, explicit
+// symmetrisation of AntQGEmitFF.
 
-class AntQGemitFFsec : public AntQGemitFF {
+class AntQGEmitFFsec : public AntQGEmitFF {
 
 public:
 
@@ -353,10 +353,10 @@ public:
 
 //==========================================================================
 
-// Class AntGQemitFFsec, sector final-final antenna function, explicit
-// symmetrisation of AntGQemitFF.
+// Class AntGQEmitFFsec, sector final-final antenna function, explicit
+// symmetrisation of AntGQEmitFF.
 
-class AntGQemitFFsec : public AntQGemitFFsec {
+class AntGQEmitFFsec : public AntQGEmitFFsec {
 
 public:
 
@@ -365,7 +365,7 @@ public:
   virtual int idB() const {return -1;}
   virtual int id1() const {return 21;}
 
-  // The antenna function [GeV^-2] (derived from AntQGemitFFsec by swapping).
+  // The antenna function [GeV^-2] (derived from AntQGEmitFFsec by swapping).
   virtual double antFun(vector<double> invariants,
     vector<double> mNew, vector<int> helBef, vector<int> helNew);
 
@@ -377,10 +377,10 @@ public:
 
 //==========================================================================
 
-// Class AntGGemitFFsec, sector final-final antenna function, explicit
-// symmetrisation of AntGGemitFF.
+// Class AntGGEmitFFsec, sector final-final antenna function, explicit
+// symmetrisation of AntGGEmitFF.
 
-class AntGGemitFFsec : public AntGGemitFF {
+class AntGGEmitFFsec : public AntGGEmitFF {
 
 public:
 
@@ -392,10 +392,10 @@ public:
 
 //==========================================================================
 
-// Class AntGXsplitFFsec, sector final-final antenna function, explicit
-// symmetrisation of AntGXsplitFF.
+// Class AntGXSplitFFsec, sector final-final antenna function, explicit
+// symmetrisation of AntGXSplitFF.
 
-class AntGXsplitFFsec : public AntGXsplitFF {
+class AntGXSplitFFsec : public AntGXSplitFF {
 
  public:
 
@@ -447,14 +447,14 @@ public:
 
 //==========================================================================
 
-// Class AntQQemitII, initial-initial antenna function.
+// Class AntQQEmitII, initial-initial antenna function.
 
-class AntQQemitII : public AntennaFunctionIX {
+class AntQQEmitII : public AntennaFunctionIX {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const override {return "Vincia:QQemitII";}
+  virtual string vinciaName() const override {return "Vincia:QQEmitII";}
 
   // Parton types AB -> 0a 1j 2b with A,B,a,b initial and j final.
   virtual int idA() const override {return 1;}
@@ -475,14 +475,14 @@ public:
 
 //==========================================================================
 
-// Class AntGQemitII, initial-initial antenna function.
+// Class AntGQEmitII, initial-initial antenna function.
 
-class AntGQemitII : public AntennaFunctionIX {
+class AntGQEmitII : public AntennaFunctionIX {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const override {return "Vincia:GQemitII";}
+  virtual string vinciaName() const override {return "Vincia:GQEmitII";}
 
   // Parton types AB -> 0a 1j 2b with A,B,a,b initial and j final.
   virtual int idA() const override {return 21;}
@@ -503,14 +503,14 @@ public:
 
 //==========================================================================
 
-// Class AntGGemitII, initial-initial antenna function.
+// Class AntGGEmitII, initial-initial antenna function.
 
-class AntGGemitII : public AntennaFunctionIX {
+class AntGGEmitII : public AntennaFunctionIX {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const override {return "Vincia:GGemitII";}
+  virtual string vinciaName() const override {return "Vincia:GGEmitII";}
 
   // Parton types AB -> 0a 1j 2b with A,B,a,b initial and j final.
   virtual int idA() const override {return 21;}
@@ -531,16 +531,16 @@ public:
 
 //==========================================================================
 
-// Class AntQXsplitII, initial-initial antenna function. splitting is in
+// Class AntQXConvII, initial-initial antenna function. splitting is in
 // the forwards sense, i.e. quark backwards evolving to a gluon and
 // emitting an antiquark in the final state.
 
-class AntQXsplitII : public AntennaFunctionIX {
+class AntQXConvII : public AntennaFunctionIX {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const override { return "Vincia:QXsplitII";}
+  virtual string vinciaName() const override { return "Vincia:QXConvII";}
 
   // Parton types AB -> 0a 1j 2b with A,B, a,b initial and j final.
   virtual int idA() const override {return 1;}
@@ -564,15 +564,15 @@ public:
 
 //==========================================================================
 
-// Class AntGXconvII, initial-initial antenna function. Gluon evolves
+// Class AntGXConvII, initial-initial antenna function. Gluon evolves
 // backwards into a quark and emits a quark in the final state.
 
-class AntGXconvII : public AntennaFunctionIX {
+class AntGXConvII : public AntennaFunctionIX {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const override {return "Vincia:GXconvII";}
+  virtual string vinciaName() const override {return "Vincia:GXConvII";}
 
   // Parton types AB -> 0a 1j 2b with A,B,a,b initial and j final.
   virtual int idA() const override {return 21;}
@@ -597,7 +597,7 @@ public:
 //==========================================================================
 
 // Class AntennaFunctionIF, base class for IF/RF antenna functions
-// which implements AntQQemitIF. Derived classes are for global
+// which implements AntQQEmitIF. Derived classes are for global
 // initial-final and resonance-final antenna functions. The method
 // isRFant() distinguishes between the two.
 
@@ -670,14 +670,14 @@ protected:
 
 //==========================================================================
 
-// Class AntQQemitIF, initial-final antenna function.
+// Class AntQQEmitIF, initial-final antenna function.
 
-class AntQQemitIF : public AntennaFunctionIF {
+class AntQQEmitIF : public AntennaFunctionIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const override { return "Vincia:QQemitIF";}
+  virtual string vinciaName() const override { return "Vincia:QQEmitIF";}
 
   // Parton types AB -> 0a 1j 2b with A,a initial and B,b,j final.
   virtual int idA() const override {return 1;}
@@ -704,14 +704,14 @@ public:
 
 //==========================================================================
 
-// Class AntQGemitIF, initial-final antenna function.
+// Class AntQGEmitIF, initial-final antenna function.
 
-class AntQGemitIF : public AntennaFunctionIF {
+class AntQGEmitIF : public AntennaFunctionIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const override {return "Vincia:QGemitIF";}
+  virtual string vinciaName() const override {return "Vincia:QGEmitIF";}
 
   // Parton types AB -> 0a 1j 2b with A,a initial and B,b,j final.
   virtual int idA() const override {return 1;}
@@ -732,14 +732,14 @@ public:
 
 //==========================================================================
 
-// Class AntGQemitIF, initial-final antenna function.
+// Class AntGQEmitIF, initial-final antenna function.
 
-class AntGQemitIF : public AntennaFunctionIF {
+class AntGQEmitIF : public AntennaFunctionIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const override {return "Vincia:GQemitIF";}
+  virtual string vinciaName() const override {return "Vincia:GQEmitIF";}
 
   // Parton types AB -> 0a 1j 2b with A,a initial and B,b,j final.
   virtual int idA() const override {return 21;}
@@ -760,14 +760,14 @@ public:
 
 //==========================================================================
 
-// Class AntGGemitIF, initial-final antenna function.
+// Class AntGGEmitIF, initial-final antenna function.
 
-class AntGGemitIF : public AntennaFunctionIF {
+class AntGGEmitIF : public AntennaFunctionIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const override {return "Vincia:GGemitIF";}
+  virtual string vinciaName() const override {return "Vincia:GGEmitIF";}
 
   // Parton types AB -> 0a 1j 2b with A,a initial and B,b,j final.
   virtual int idA() const override {return 21;}
@@ -788,16 +788,16 @@ public:
 
 //==========================================================================
 
-// Class AntQXsplitIF, initial-final antenna function. splitting is in
+// Class AntQXConvIF, initial-final antenna function. splitting is in
 // the forwards sense, i.e. quark backwards evolving to a gluon and
 // emitting an antiquark in the final state.
 
-class AntQXsplitIF : public AntennaFunctionIF {
+class AntQXConvIF : public AntennaFunctionIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const override {return "Vincia:QXsplitIF";}
+  virtual string vinciaName() const override {return "Vincia:QXConvIF";}
 
   // Parton types AB -> 0a 1j 2b with A,a initial and B,b,j final.
   virtual int idA() const override {return 1;}
@@ -820,15 +820,15 @@ public:
 
 //==========================================================================
 
-// Class AntGXconvIF, initial-final antenna function. Gluon evolves
+// Class AntGXConvIF, initial-final antenna function. Gluon evolves
 // backwards into a quark and emits a quark in the final state.
 
-class AntGXconvIF : public AntennaFunctionIF {
+class AntGXConvIF : public AntennaFunctionIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const override {return "Vincia:GXconvIF";}
+  virtual string vinciaName() const override {return "Vincia:GXConvIF";}
 
   // Parton types AB -> 0a 1j 2b with A,a initial and B,b,j final.
   virtual int idA() const override {return 21;}
@@ -852,15 +852,15 @@ public:
 
 //==========================================================================
 
-// Class AntXGsplitIF, initial-final antenna function. Gluon splitting in
+// Class AntXGSplitIF, initial-final antenna function. Gluon splitting in
 // the final state.
 
-class AntXGsplitIF : public AntennaFunctionIF {
+class AntXGSplitIF : public AntennaFunctionIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  virtual string vinciaName() const override {return "Vincia:XGsplitIF";}
+  virtual string vinciaName() const override {return "Vincia:XGSplitIF";}
 
   // Parton types AB -> 0a 1j 2b with A,a initial and B,b,j final.
   virtual int idA() const override {return 0;}
@@ -884,13 +884,13 @@ public:
 
 //==========================================================================
 
-// Class AntQGemitIFsec, derived class for sector initial-final antenna
+// Class AntQGEmitIFsec, derived class for sector initial-final antenna
 // function. Note only the final-state leg needs to be symmetrised,
 // as the global IF functions already contain sector terms on their
 // initial-state legs to account for the absence of "emission into the
 // initial state".
 
-class AntQGemitIFsec : public AntQGemitIF {
+class AntQGEmitIFsec : public AntQGEmitIF {
 
 public:
 
@@ -902,9 +902,9 @@ public:
 
 //==========================================================================
 
-// Class AntGGemitIFsec, sector initial-final antenna function.
+// Class AntGGEmitIFsec, sector initial-final antenna function.
 
-class AntGGemitIFsec : public AntGGemitIF {
+class AntGGEmitIFsec : public AntGGEmitIF {
 
 public:
 
@@ -916,10 +916,10 @@ public:
 
 //==========================================================================
 
-// Class AntXGsplitIFsec, sector initial-final antenna function. Gluon
+// Class AntXGSplitIFsec, sector initial-final antenna function. Gluon
 // splitting in the final state.
 
-class AntXGsplitIFsec : public AntXGsplitIF {
+class AntXGSplitIFsec : public AntXGSplitIF {
 
 public:
 
@@ -931,14 +931,14 @@ public:
 
 //==========================================================================
 
-// Class AntQQemitRF, resonance-final antenna function.
+// Class AntQQEmitRF, resonance-final antenna function.
 
-class AntQQemitRF : public AntQQemitIF {
+class AntQQEmitRF : public AntQQEmitIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  string vinciaName() const override {return "Vincia:QQemitRF";}
+  string vinciaName() const override {return "Vincia:QQEmitRF";}
 
   // Parton types AB -> ijk with A,i initial and B,k,j final.
   int idA() const override {return 6;}
@@ -969,14 +969,14 @@ public:
 
 //==========================================================================
 
-// Class AntQGemitRF, resonance-final antenna function.
+// Class AntQGEmitRF, resonance-final antenna function.
 
-class AntQGemitRF : public AntQGemitIF {
+class AntQGEmitRF : public AntQGEmitIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  string vinciaName() const override {return "Vincia:QGemitRF";}
+  string vinciaName() const override {return "Vincia:QGEmitRF";}
 
   // Parton types AB -> ijk with A,i initial and B,k,j final.
   int idA() const override {return 6;}
@@ -1006,14 +1006,14 @@ public:
 
 //==========================================================================
 
-// Class AntQGemitRF, resonance-final antenna function.
+// Class AntQGEmitRF, resonance-final antenna function.
 
-class AntQGemitRFsec : public AntQGemitIFsec {
+class AntQGEmitRFsec : public AntQGEmitIFsec {
 
 public:
 
   // Names (remember to redefine both for each inherited class).
-  string vinciaName() const override {return "Vincia:QGemitRF";}
+  string vinciaName() const override {return "Vincia:QGEmitRF";}
 
   // Parton types AB -> ijk with A,i initial and B,k,j final.
   int idA() const override {return 6;}
@@ -1043,14 +1043,14 @@ public:
 
 //==========================================================================
 
-// Class AntXGsplitRF, resonance-final antenna function.
+// Class AntXGSplitRF, resonance-final antenna function.
 
-class AntXGsplitRF : public AntXGsplitIF {
+class AntXGSplitRF : public AntXGSplitIF {
 
 public:
 
   // Names (remember to redefine both for each inherited class)
-  string vinciaName() const override {return "Vincia:XGsplitRF";}
+  string vinciaName() const override {return "Vincia:XGSplitRF";}
 
   // Mark that this function does not have a zA collinear limit.
   double zA(vector<double>) override {return -1;}
@@ -1081,14 +1081,14 @@ public:
 
 //==========================================================================
 
-// Class AntXGsplitRF, resonance-final antenna function.
+// Class AntXGSplitRF, resonance-final antenna function.
 
-class AntXGsplitRFsec : public AntXGsplitIFsec {
+class AntXGSplitRFsec : public AntXGSplitIFsec {
 
 public:
 
   // Names (remember to redefine both for each inherited class)
-  string vinciaName() const override {return "Vincia:XGsplitRF";}
+  string vinciaName() const override {return "Vincia:XGSplitRF";}
 
   // Mark that this function does not have a zA collinear limit.
   double zA(vector<double>) override {return -1;}
@@ -1152,7 +1152,7 @@ public:
   // Get list of all AntFunTypes contained in this set.
   vector<enum AntFunType> getAntFunTypes();
 
-  // Get Vincia name, e.g. "Vincia:QQemitFF".
+  // Get Vincia name, e.g. "Vincia:QQEmitFF".
   string vinciaName(enum AntFunType antFunType) {
     return exists(antFunType) ? antFunPtrs[antFunType]->vinciaName() :
       "noVinciaName";}
@@ -1218,7 +1218,7 @@ class AntennaSetISR {
   // Get list of all AntFunTypes contained in this set.
   vector<enum AntFunType> getAntFunTypes();
 
-  // Get Vincia name, e.g. "Vincia:QQemitII".
+  // Get Vincia name, e.g. "Vincia:QQEmitII".
   string vinciaName(enum AntFunType antFunType) {
     return exists(antFunType) ? antFunPtrs[antFunType]->vinciaName()
       : "noVinciaName";}

@@ -75,6 +75,7 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
+#include <Pythia8/SplittingsOnia.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -104,6 +105,8 @@ void bind_std_stl_vector(std::function< pybind11::module &(std::string const &na
 	// std::vector file:bits/stl_vector.h line:214
 
 	// std::vector file:bits/stl_bvector.h line:541
+
+	// std::vector file:bits/stl_vector.h line:214
 
 	// std::vector file:bits/stl_vector.h line:214
 

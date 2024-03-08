@@ -1,5 +1,5 @@
 // Settings.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -319,11 +319,11 @@ public:
   // Change current value, respecting limits.
   void flag(string keyIn, bool nowIn, bool force = false);
   bool mode(string keyIn, int nowIn, bool force = false);
-  void parm(string keyIn, double nowIn, bool force = false);
+  bool parm(string keyIn, double nowIn, bool force = false);
   void word(string keyIn, string nowIn, bool force = false);
   void fvec(string keyIn, vector<bool> nowIn, bool force = false);
-  void mvec(string keyIn, vector<int> nowIn, bool force = false);
-  void pvec(string keyIn, vector<double> nowIn, bool force = false);
+  bool mvec(string keyIn, vector<int> nowIn, bool force = false);
+  bool pvec(string keyIn, vector<double> nowIn, bool force = false);
   void wvec(string keyIn, vector<string> nowIn, bool force = false);
 
   // Methods kept for backwards compatability with 8.223 and earlier.

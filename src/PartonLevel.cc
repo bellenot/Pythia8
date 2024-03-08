@@ -1,5 +1,5 @@
 // PartonLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 // Hard diffraction added by Christine Rasmussen.
@@ -41,7 +41,6 @@ bool PartonLevel::init( TimeShowerPtr timesDecPtrIn,
   rHadronsPtr           = rHadronsPtrIn;
   mergingHooksPtr       = mergingHooksPtrIn;
   partonVertexPtr       = partonVertexPtrIn;
-  colourReconnectionPtr = stringInteractionsPtrIn->getColourReconnections();
 
   // Reference to Settings.
   Settings& settings = *settingsPtr;
@@ -145,6 +144,8 @@ bool PartonLevel::init( TimeShowerPtr timesDecPtrIn,
   doReconnect        = settings.flag("ColourReconnection:reconnect");
   reconnectMode      = settings.mode("ColourReconnection:mode");
   forceResonanceCR   = settings.flag("ColourReconnection:forceResonance");
+  if (doReconnect) colourReconnectionPtr =
+    stringInteractionsPtrIn->getColourReconnections();
 
   // Some other flags.
   doRemnants         = settings.flag("PartonLevel:Remnants");
@@ -224,8 +225,10 @@ bool PartonLevel::init( TimeShowerPtr timesDecPtrIn,
 
   // For ND events in lepton->gamma events no need to initialize MPIs for l+l-.
   doNDgamma = false;
-  if (beamHasResGamma)         doMPIinit = false;
   if (beamHasResGamma && doND) doNDgamma = true;
+  if (onlyDirGamma)            doMPIinit = false;
+  bool doMPIinitSave = doMPIinit;
+  if (beamHasResGamma)         doMPIinit = false;
 
   // Set info and initialize the respective program elements.
   if (timesPtr) timesPtr->init( beamAPtr, beamBPtr);
@@ -240,15 +243,17 @@ bool PartonLevel::init( TimeShowerPtr timesDecPtrIn,
     || hardDiffSide == 1) && beamBPtr->getGammaMode() < 2 ) ) {
     BeamParticle* tmpBeamA = (beamAhasGamma) ? beamGamAPtr : beamAPtr;
     if (infoPtr->isVMDstateA()) tmpBeamA = beamVMDAPtr;
-    doMPISDA = multiSDA.init( !onlyDirGamma, 1, tmpBeamA, beamPomBPtr,
-      partonVertexPtr, (beamAisGamma || beamAhasGamma) );
+    if (beamHasResGamma) doMPIinit = doMPIinitSave;
+    doMPISDA = multiSDA.init( doMPIinit, 1, tmpBeamA,
+      beamPomBPtr, partonVertexPtr, (beamAisGamma || beamAhasGamma) );
   }
   if (doSD || doDD || doSQ || ( doHardDiff && (hardDiffSide == 0
     || hardDiffSide == 2) && beamAPtr->getGammaMode() < 2 ) ) {
     BeamParticle* tmpBeamB = (beamBhasGamma) ? beamGamBPtr : beamBPtr;
     if (infoPtr->isVMDstateB()) tmpBeamB = beamVMDBPtr;
-    doMPISDB = multiSDB.init( !onlyDirGamma, 2, beamPomAPtr, tmpBeamB,
-      partonVertexPtr, (beamBisGamma || beamBhasGamma) );
+    if (beamHasResGamma) doMPIinit = doMPIinitSave;
+    doMPISDB = multiSDB.init( doMPIinit, 2, beamPomAPtr,
+      tmpBeamB, partonVertexPtr, (beamBisGamma || beamBhasGamma) );
   }
   if (doCD || doSQ) doMPICD = multiCD.init( doMPIinit, 3, beamPomAPtr,
     beamPomBPtr, partonVertexPtr);
@@ -280,6 +285,11 @@ bool PartonLevel::init( TimeShowerPtr timesDecPtrIn,
         partonVertexPtr, true);
     }
     doMPIMB = doMPIgmgm;
+
+  // Make sure that initialization does not fail because MPI not initialized
+  // for primary beams emitting photon beam.
+  } else if (beamHasResGamma && doMPIinit) {
+    doMPIMB = true;
   }
 
   // Succeeded, or not.

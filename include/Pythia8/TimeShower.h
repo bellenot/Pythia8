@@ -1,5 +1,5 @@
 // TimeShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -211,7 +211,7 @@ protected:
   bool   doUncertainties{}, uVarMuSoftCorr{}, uVarMPIshowers{},
          noResVariations{}, noProcVariations{};
   int    nUncertaintyVariations{}, nVarQCD{}, uVarNflavQ{};
-  double dASmax{}, cNSpTmin{}, uVarpTmin2{}, overFactor{};
+  double dASmax{}, cNSpTmin{}, uVarpTmin2{}, overFactor{}, overFactorEnhance{};
   map<int,double> varG2GGmuRfac, varQ2QGmuRfac, varG2QQmuRfac, varX2XGmuRfac,
                   varG2GGcNS, varQ2QGcNS, varG2QQcNS, varX2XGcNS;
   map<int,double>* varPDFplus;

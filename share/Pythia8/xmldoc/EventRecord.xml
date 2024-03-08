@@ -51,6 +51,10 @@ returns a (<code>const</code>) reference to the <ei>i</ei>'th particle
 in the event record, which can be used to get (or set) all the 
 <aloc href="ParticleProperties">properties</aloc> of this particle. 
 </methodmore> 
+<methodmore name="const vector&lt;Particle&gt;* particles()"> 
+alternatively, this method directly returns the (<code>const</code>) vector 
+of particles stored in the event. 
+</methodmore> 
  
 <method name="Particle& Event::front()"> 
 </method> 
@@ -449,4 +453,4 @@ It is intended to be accessed only by experts, such as implementors of
  
 </chapter> 
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

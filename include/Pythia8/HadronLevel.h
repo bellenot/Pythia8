@@ -1,5 +1,5 @@
 // HadronLevel.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -113,7 +113,7 @@ private:
   // Initialization data, read from Settings.
   bool doHadronize{}, doDecay{}, doPartonVertex{}, doBoseEinstein{},
     doDeuteronProd{}, allowRH{}, closePacking{}, doNonPertAll{};
-  double mStringMin{}, eNormJunction{}, widthSepBE{}, widthSepRescatter{};
+  double mStringMin{}, pNormJunction{}, widthSepBE{}, widthSepRescatter{};
   vector<int> nonPertProc{};
 
   // Configuration of colour-singlet systems.
@@ -129,6 +129,9 @@ private:
 
   // The generator class for special low-mass string fragmentation.
   MiniStringFragmentation ministringFrag;
+
+  // Try ministring fragmentation also if normal fails.
+  bool tryMiniAfterFailedFrag{};
 
   // The generator class for normal decays.
   ParticleDecays decays;
@@ -203,6 +206,11 @@ private:
   // Calculate the rapidity for string ends, protected against too large y.
   double yMax(Particle pIn, double mTiny) {
     double temp = log( ( pIn.e() + abs(pIn.pz()) ) / max( mTiny, pIn.mT()) );
+    return (pIn.pz() > 0) ? temp : -temp; }
+  double yMax(Vec4 pIn, double mTiny) {
+    double mTemp = pIn.m2Calc() + pIn.pT2();
+    mTemp = (mTemp >= 0.) ? sqrt(mTemp) : -sqrt(-mTemp);
+    double temp = log( ( pIn.e() + abs(pIn.pz()) ) / max( mTiny, mTemp) );
     return (pIn.pz() > 0) ? temp : -temp; }
 
 };

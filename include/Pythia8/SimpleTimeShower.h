@@ -1,5 +1,5 @@
 // SimpleTimeShower.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -280,6 +280,10 @@ private:
   void setupHVdip( int iSys, int i, int colvType, Event& event,
     bool limitPTmaxIn = true);
 
+  // Apply ME corrections for a specific subsystem.
+  bool applyMECorrections(const Event& event, TimeDipoleEnd* dipBranch,
+    int iSysBranch);
+
   // Special setup for onium.
   void regenerateOniumDipoles(Event & event);
 
@@ -362,6 +366,10 @@ private:
   int resDecScaleChoice{-1}, iHardResDecSav{}, nRecurseResDec{};
   vector<int> idResDecSav;
   vector<double> pTresDecSav;
+
+  // Settings and containers for control of MECs.
+  bool skipFirstMECinHardProc;
+  vector<int> skipFirstMECinResDecIDs{};
 
   // Onium emissions.
   bool doOniumShower{false};

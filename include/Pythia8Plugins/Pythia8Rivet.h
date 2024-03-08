@@ -1,5 +1,5 @@
 // Pythia8Rivet.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -11,7 +11,19 @@
 #include "Rivet/AnalysisHandler.hh"
 #include "Rivet/Tools/RivetPaths.hh"
 #include "Rivet/Config/RivetConfig.hh"
-// Figure out from Rivet which HepMC version it's using.
+
+// Check that a proper version code is available (wrong for 4.0.0).
+#if RIVET_VERSION_CODE - 1 == -1
+#define RIVET_VERSION_CODE 40000
+#endif
+
+// Deterine which Rivet version is used. If beyond 4, require HepMC3.
+#if RIVET_VERSION_CODE >= 40000
+#define RIVET_ENABLE_HEPMC_3
+#define PYTHIA_USING_RIVET_4
+#endif
+
+// Set the version of HepMC being used (either from Rivet or set above).
 #ifndef RIVET_ENABLE_HEPMC_3
 #include "Pythia8Plugins/HepMC2.h"
 #else
@@ -75,6 +87,7 @@ public:
   void init() {
     if ( rivet ) return;
     rivet = new Rivet::AnalysisHandler(rname);
+#ifndef PYTHIA_USING_RIVET_4
     rivet->setIgnoreBeams(igBeam);
     if (nDump > 0) {
       if (dumpFile == "")
@@ -82,6 +95,15 @@ public:
       else
         rivet->dump(dumpFile, nDump);
     }
+#else
+    rivet->setCheckBeams(!igBeam);
+    if (nDump > 0) {
+      if (dumpFile == "")
+        rivet->setFinalizePeriod(filename, nDump);
+      else
+        rivet->setFinalizePeriod(dumpFile, nDump);
+    }
+#endif
     initpath();
     for(int i = 0, N = preloads.size(); i < N; ++i)
       rivet->readData(preloads[i]);

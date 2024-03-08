@@ -1,5 +1,5 @@
 // MathTools.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -79,13 +79,18 @@ public:
   double left()  const { return leftSave; }
   double right() const { return rightSave; }
   double dx()    const { return (rightSave - leftSave) / (ysSave.size() - 1); }
+  double xi(int i) const { return leftSave + i * dx(); }
 
-  // Operator to get interpolated value at the specified point.
-  double operator()(double x) const;
+  // Get interpolated value at the specified point.
+  double at(double x) const;
+  double operator()(double x) const { return at(x); }
 
   // Plot the data points of this LinearInterpolator in a histogram.
   Hist plot(string title) const;
   Hist plot(string title, double xMin, double xMax) const;
+
+  // Sample a random number distributed as given by this LinearInterpolator.
+  double sample(Rndm& rndm) const;
 
 private:
 
@@ -125,8 +130,9 @@ public:
   double right() const { return rightSave; }
   double rx()    const { return rxSave; }
 
-  // Operator to get interpolated value at the specified point.
-  double operator()(double x) const;
+  // Get interpolated value at the specified point.
+  double at(double x) const;
+  double operator()(double x) const { return at(x); }
 
   // Plot the data points of this LogInterpolator in a histogram.
   Hist plot(string title, int nBins, double xMin, double xMax) const;

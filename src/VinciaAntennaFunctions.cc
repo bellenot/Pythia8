@@ -1,5 +1,5 @@
 // VinciaAntennaFunctions.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2024 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -202,9 +202,9 @@ bool AntennaFunction::init() {
   // Verbosity level.
   verbose = settingsPtr->mode("Vincia:verbose");
   // Charge factor
-  // (Use same charge factor for AntQGemit and AntGQemit)
-  if (vinciaName() == "Vincia:GQemitFF")
-    chargeFacSav = settingsPtr->parm("Vincia:QGemitFF:chargeFactor");
+  // (Use same charge factor for AntQGEmit and AntGQEmit)
+  if (vinciaName() == "Vincia:GQEmitFF")
+    chargeFacSav = settingsPtr->parm("Vincia:QGEmitFF:chargeFactor");
   else
     chargeFacSav = settingsPtr->parm(vinciaName() + ":chargeFactor");
   if (chargeFacSav < 0.) chargeFacSav = 0.0;
@@ -592,13 +592,13 @@ string AntennaFunction::id2str(int id) const {
 
 //==========================================================================
 
-// Class AntQQemitFF, final-final antenna function.
+// Class AntQQEmitFF, final-final antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntQQemitFF::antFun(vector<double> invariants, vector<double> masses,
+double AntQQEmitFF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
 
   // Make sure we have enough invariants.
@@ -694,7 +694,7 @@ double AntQQemitFF::antFun(vector<double> invariants, vector<double> masses,
 // Function to give Altarelli-Parisi limits of this antenna.
 // Defined as PI/sij + PK/sjk, i.e. equivalent to antennae.
 
-double AntQQemitFF::AltarelliParisi(vector<double> invariants,
+double AntQQEmitFF::AltarelliParisi(vector<double> invariants,
   vector<double>, vector<int> helBef, vector<int> helNew) {
 
   int h0Now = helNew[0];
@@ -712,13 +712,13 @@ double AntQQemitFF::AltarelliParisi(vector<double> invariants,
 
 //==========================================================================
 
-// Class AntQGemitFF, final-final antenna function.
+// Class AntQGEmitFF, final-final antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntQGemitFF::antFun(vector<double> invariants, vector<double> masses,
+double AntQGEmitFF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
 
   // Make sure we have enough invariants.
@@ -810,7 +810,7 @@ double AntQGemitFF::antFun(vector<double> invariants, vector<double> masses,
 
 // Function to give Altarelli-Parisi limits of this antenna.
 
-double AntQGemitFF::AltarelliParisi(vector<double> invariants,
+double AntQGEmitFF::AltarelliParisi(vector<double> invariants,
   vector<double>, vector<int> helBef, vector<int> helNew) {
 
   int h0Now = helNew[0];
@@ -831,20 +831,20 @@ double AntQGemitFF::AltarelliParisi(vector<double> invariants,
 
 //==========================================================================
 
-// Class AntGQemitFF, final-final antenna function.
+// Class AntGQEmitFF, final-final antenna function.
 
 //--------------------------------------------------------------------------
 
-// The antenna function [GeV^-2] (derived from AntQGemit by swapping).
+// The antenna function [GeV^-2] (derived from AntQGEmit by swapping).
 
-double AntGQemitFF::antFun(vector<double> invariants,
+double AntGQEmitFF::antFun(vector<double> invariants,
   vector<double> mNew, vector<int> helBef, vector<int> helNew) {
 
   swap(invariants[1], invariants[2]);
   swap(mNew[0], mNew[2]);
   swap(helBef[0], helBef[1]);
   swap(helNew[0], helNew[2]);
-  return AntQGemitFF::antFun(invariants, mNew, helBef, helNew);
+  return AntQGEmitFF::antFun(invariants, mNew, helBef, helNew);
 
 }
 
@@ -852,7 +852,7 @@ double AntGQemitFF::antFun(vector<double> invariants,
 
 // Function to give Altarelli-Parisi limits of this antenna.
 
-double AntGQemitFF::AltarelliParisi(vector<double> invariants,
+double AntGQEmitFF::AltarelliParisi(vector<double> invariants,
   vector<double>, vector<int> helBef, vector<int> helNew) {
 
   int h0Now = helNew[0];
@@ -873,13 +873,13 @@ double AntGQemitFF::AltarelliParisi(vector<double> invariants,
 
 //==========================================================================
 
-// Class AntGGemitFF, final-final antenna function.
+// Class AntGGEmitFF, final-final antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntGGemitFF::antFun(vector<double> invariants, vector<double>,
+double AntGGEmitFF::antFun(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
 
   // Make sure we have enough invariants.
@@ -953,7 +953,7 @@ double AntGGemitFF::antFun(vector<double> invariants, vector<double>,
 
 // Function to give Altarelli-Parisi limits of this antenna.
 
-double AntGGemitFF::AltarelliParisi(vector<double> invariants,
+double AntGGEmitFF::AltarelliParisi(vector<double> invariants,
   vector<double>, vector<int> helBef, vector<int> helNew) {
 
   int h0Now = helNew[0];
@@ -974,13 +974,13 @@ double AntGGemitFF::AltarelliParisi(vector<double> invariants,
 
 //==========================================================================
 
-// Class AntGXsplitFF, final-final antenna function.
+// Class AntGXSplitFF, final-final antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntGXsplitFF::antFun(vector<double> invariants, vector<double> masses,
+double AntGXSplitFF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
 
   // Make sure we have enough invariants.
@@ -1058,7 +1058,7 @@ double AntGXsplitFF::antFun(vector<double> invariants, vector<double> masses,
 
 // Function to give Altarelli-Parisi limits of this antenna.
 
-double AntGXsplitFF::AltarelliParisi(vector<double> invariants,
+double AntGXSplitFF::AltarelliParisi(vector<double> invariants,
   vector<double>, vector<int> helBef, vector<int> helNew) {
 
   int h0Now = helNew[0];
@@ -1075,18 +1075,18 @@ double AntGXsplitFF::AltarelliParisi(vector<double> invariants,
 
 //==========================================================================
 
-// Class AntQGemitFFsec, sector final-final antenna function, explicit
-// symmetrisation of AntQGemitFF.
+// Class AntQGEmitFFsec, sector final-final antenna function, explicit
+// symmetrisation of AntQGEmitFF.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntQGemitFFsec::antFun(vector<double> invariants,
+double AntQGEmitFFsec::antFun(vector<double> invariants,
   vector<double> mNew, vector<int> helBef, vector<int> helNew) {
 
   // Check if helicity vectors empty.
-  double ant = AntQGemitFF::antFun(invariants, mNew, helBef, helNew);
+  double ant = AntQGEmitFF::antFun(invariants, mNew, helBef, helNew);
   if (helBef.size() < 2) {helBef.push_back(9); helBef.push_back(9);}
   if (helNew.size() < 3) {
     helNew.push_back(9); helNew.push_back(9); helNew.push_back(9);}
@@ -1110,7 +1110,7 @@ double AntQGemitFFsec::antFun(vector<double> invariants,
     vector<int> helSym = helNew;
     helSym[1] = helNew[2];
     helSym[2] = helNew[1];
-    ant += AntQGemitFF::antFun(invariantsSym, mNew, helBef, helSym);
+    ant += AntQGEmitFF::antFun(invariantsSym, mNew, helBef, helSym);
   }
 
   // Subleading colour correction has to be applied after symmetrisation.
@@ -1123,21 +1123,21 @@ double AntQGemitFFsec::antFun(vector<double> invariants,
 
 //==========================================================================
 
-// Class AntGQemitFFsec, sector final-final antenna function, explicit
-// symmetrisation of AntGQemitFF.
+// Class AntGQEmitFFsec, sector final-final antenna function, explicit
+// symmetrisation of AntGQEmitFF.
 
 //--------------------------------------------------------------------------
 
-// The antenna function [GeV^-2] (derived from AntQGemitFFsec by swapping).
+// The antenna function [GeV^-2] (derived from AntQGEmitFFsec by swapping).
 
-double AntGQemitFFsec::antFun(vector<double> invariants,
+double AntGQEmitFFsec::antFun(vector<double> invariants,
   vector<double> mNew, vector<int> helBef, vector<int> helNew) {
 
   swap(invariants[1], invariants[2]);
   swap(mNew[0], mNew[2]);
   swap(helBef[0], helBef[1]);
   swap(helNew[0], helNew[2]);
-  return AntQGemitFFsec::antFun(invariants, mNew, helBef, helNew);
+  return AntQGEmitFFsec::antFun(invariants, mNew, helBef, helNew);
 
 }
 
@@ -1145,7 +1145,7 @@ double AntGQemitFFsec::antFun(vector<double> invariants,
 
 // Function to give Altarelli-Parisi limits of this antenna.
 
-double AntGQemitFFsec::AltarelliParisi(vector<double> invariants,
+double AntGQEmitFFsec::AltarelliParisi(vector<double> invariants,
   vector<double>, vector<int> helBef, vector<int> helNew) {
 
   int h0Now = helNew[0];
@@ -1166,18 +1166,18 @@ double AntGQemitFFsec::AltarelliParisi(vector<double> invariants,
 
 //==========================================================================
 
-// Class GGemitFFsec, sector final-final antenna function, explicit
-// symmetrisation of AntGGemitFF.
+// Class GGEmitFFsec, sector final-final antenna function, explicit
+// symmetrisation of AntGGEmitFF.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntGGemitFFsec::antFun(vector<double> invariants, vector<double> mNew,
+double AntGGEmitFFsec::antFun(vector<double> invariants, vector<double> mNew,
   vector<int> helBef, vector<int> helNew) {
 
   // Check if helicity vectors empty
-  double ant = AntGGemitFF::antFun(invariants, mNew, helBef, helNew);
+  double ant = AntGGEmitFF::antFun(invariants, mNew, helBef, helNew);
   if (helBef.size() < 2) {helBef.push_back(9); helBef.push_back(9);}
   if (helNew.size() < 3) {
     helNew.push_back(9); helNew.push_back(9); helNew.push_back(9);}
@@ -1192,7 +1192,7 @@ double AntGGemitFFsec::antFun(vector<double> invariants, vector<double> mNew,
     helSym[0] = helNew[1];
     helSym[1] = helNew[0];
     invariantsSym[2] = s02 + sectorDampSav * invariants[1];
-    ant += AntGGemitFF::antFun(invariantsSym, mNew, helBef, helSym);
+    ant += AntGGEmitFF::antFun(invariantsSym, mNew, helBef, helSym);
   }
 
   // Check if j has same helicity as parent gluon 1.
@@ -1204,7 +1204,7 @@ double AntGGemitFFsec::antFun(vector<double> invariants, vector<double> mNew,
     helSym[1] = helNew[2];
     helSym[2] = helNew[1];
     invariantsSym[1] = s02 + sectorDampSav * invariants[2];
-    ant += AntGGemitFF::antFun(invariantsSym, mNew, helBef, helSym);
+    ant += AntGGEmitFF::antFun(invariantsSym, mNew, helBef, helSym);
   }
   return ant;
 
@@ -1212,16 +1212,16 @@ double AntGGemitFFsec::antFun(vector<double> invariants, vector<double> mNew,
 
 //==========================================================================
 
-// Class AntGXsplitFFsec, sector final-final antenna function, explicit
-// symmetrisation of AntGXsplitFF.
+// Class AntGXSplitFFsec, sector final-final antenna function, explicit
+// symmetrisation of AntGXSplitFF.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2] (just 2*global).
 
-double AntGXsplitFFsec::antFun(vector<double> invariants, vector<double> mNew,
+double AntGXSplitFFsec::antFun(vector<double> invariants, vector<double> mNew,
   vector<int> helBef, vector<int> helNew) {
-  return 2*AntGXsplitFF::antFun(invariants,mNew,helBef,helNew);}
+  return 2*AntGXSplitFF::antFun(invariants,mNew,helBef,helNew);}
 
 //==========================================================================
 
@@ -1508,13 +1508,13 @@ bool AntennaFunctionIX::check() {
 
 //==========================================================================
 
-// Class AntQQemitII, initial-initial antenna function.
+// Class AntQQEmitII, initial-initial antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntQQemitII::antFun(vector<double> invariants, vector<double> masses,
+double AntQQEmitII::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
 
   // Invariants.
@@ -1607,7 +1607,7 @@ double AntQQemitII::antFun(vector<double> invariants, vector<double> masses,
 
 // AP splitting kernel for collinear limit checks, P(z)/Q2.
 
-double AntQQemitII::AltarelliParisi(vector<double> invariants, vector<double>,
+double AntQQEmitII::AltarelliParisi(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
 
   double sAB = invariants[0];
@@ -1643,13 +1643,13 @@ double AntQQemitII::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //==========================================================================
 
-// Class AntGQemitII, initial-initial antenna function.
+// Class AntGQEmitII, initial-initial antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntGQemitII::antFun(vector<double> invariants, vector<double> masses,
+double AntGQEmitII::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
 
   // Invariants and helicities.
@@ -1742,7 +1742,7 @@ double AntGQemitII::antFun(vector<double> invariants, vector<double> masses,
 
 // AP splitting kernel for collinear limit checks, P(z)/Q2.
 
-double AntGQemitII::AltarelliParisi(vector<double> invariants,
+double AntGQEmitII::AltarelliParisi(vector<double> invariants,
   vector<double>, vector<int> helBef, vector<int> helNew) {
 
   double sAB = invariants[0];
@@ -1779,13 +1779,13 @@ double AntGQemitII::AltarelliParisi(vector<double> invariants,
 
 //==========================================================================
 
-// Class AntGGemitII, initial-initial antenna function.
+// Class AntGGEmitII, initial-initial antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntGGemitII::antFun(vector<double> invariants, vector<double>,
+double AntGGEmitII::antFun(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
 
   // Invariants and helicities.
@@ -1867,7 +1867,7 @@ double AntGGemitII::antFun(vector<double> invariants, vector<double>,
 
 // AP splitting kernel, P(z)/Q2.
 
-double AntGGemitII::AltarelliParisi(vector<double> invariants, vector<double>,
+double AntGGEmitII::AltarelliParisi(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
 
   double sAB = invariants[0];
@@ -1902,13 +1902,13 @@ double AntGGemitII::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //==========================================================================
 
-// Class AntQXsplitII, initial-initial antenna function.
+// Class AntQXConvII, initial-initial antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntQXsplitII::antFun(vector<double> invariants, vector<double> masses,
+double AntQXConvII::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
 
   // Invariants and helicities.
@@ -1983,7 +1983,7 @@ double AntQXsplitII::antFun(vector<double> invariants, vector<double> masses,
 
 // AP splitting kernel, P(z)/Q2.
 
-double AntQXsplitII::AltarelliParisi(vector<double> invariants, vector<double>,
+double AntQXConvII::AltarelliParisi(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
 
   double sAB = invariants[0];
@@ -2013,13 +2013,13 @@ double AntQXsplitII::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //==========================================================================
 
-// Class AntGXconvII, initial-initial antenna function.
+// Class AntGXConvII, initial-initial antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntGXconvII::antFun(vector<double> invariants, vector<double> masses,
+double AntGXConvII::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
 
   // Invariants and helicities.
@@ -2096,7 +2096,7 @@ double AntGXconvII::antFun(vector<double> invariants, vector<double> masses,
 
 // AP splitting kernel, P(z)/Q2.
 
-double AntGXconvII::AltarelliParisi(vector<double> invariants, vector<double>,
+double AntGXConvII::AltarelliParisi(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
 
   double sAB = invariants[0];
@@ -2129,7 +2129,7 @@ double AntGXconvII::AltarelliParisi(vector<double> invariants, vector<double>,
 //==========================================================================
 
 // Class AntennaFunctionIF, base class for IF antenna functions which
-// implements AntQQemitIF.
+// implements AntQQEmitIF.
 
 //--------------------------------------------------------------------------
 
@@ -2581,13 +2581,13 @@ double AntennaFunctionIF::antFunCollLimit(vector<double> invariants,
 
 //==========================================================================
 
-// Class AntQQemitIF, initial-final antenna function.
+// Class AntQQEmitIF, initial-final antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntQQemitIF::antFun(vector<double> invariants, vector<double> masses,
+double AntQQEmitIF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
 
   // Invariants and helicities.
@@ -2680,7 +2680,7 @@ double AntQQemitIF::antFun(vector<double> invariants, vector<double> masses,
 
 // The AP kernel, P(z)/Q2.
 
-double AntQQemitIF::AltarelliParisi(vector<double> invariants, vector<double>,
+double AntQQEmitIF::AltarelliParisi(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
 
   double sAK = invariants[0];
@@ -2719,13 +2719,13 @@ double AntQQemitIF::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //==========================================================================
 
-// Class AntQGemitIF, initial-final antenna function.
+// Class AntQGEmitIF, initial-final antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntQGemitIF::antFun(vector<double> invariants, vector<double> masses,
+double AntQGEmitIF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
 
   // Invariants and helicities.
@@ -2810,7 +2810,7 @@ double AntQGemitIF::antFun(vector<double> invariants, vector<double> masses,
 
 // The AP kernel, P(z)/Q2.
 
-double AntQGemitIF::AltarelliParisi(vector<double> invariants, vector<double>,
+double AntQGEmitIF::AltarelliParisi(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
 
   double sAK = invariants[0];
@@ -2848,13 +2848,13 @@ double AntQGemitIF::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //==========================================================================
 
-// Class AntGQemitIF, initial-final antenna function.
+// Class AntGQEmitIF, initial-final antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntGQemitIF::antFun(vector<double> invariants, vector<double> masses,
+double AntGQEmitIF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
 
   // Invariants and helicities.
@@ -2945,7 +2945,7 @@ double AntGQemitIF::antFun(vector<double> invariants, vector<double> masses,
 
 // The AP kernel, P(z)/Q2.
 
-double AntGQemitIF::AltarelliParisi(vector<double> invariants, vector<double>,
+double AntGQEmitIF::AltarelliParisi(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
 
   double sAK = invariants[0];
@@ -2984,13 +2984,13 @@ double AntGQemitIF::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //==========================================================================
 
-// Class AntGGemitIF, initial-final antenna function.
+// Class AntGGEmitIF, initial-final antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntGGemitIF::antFun(vector<double> invariants, vector<double>,
+double AntGGEmitIF::antFun(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
 
   // Invariants and helicities.
@@ -3061,7 +3061,7 @@ double AntGGemitIF::antFun(vector<double> invariants, vector<double>,
 
 // The AP kernel, P(z)/Q2.
 
-double AntGGemitIF::AltarelliParisi(vector<double> invariants, vector<double>,
+double AntGGEmitIF::AltarelliParisi(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
 
   double sAK = invariants[0];
@@ -3097,13 +3097,13 @@ double AntGGemitIF::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //==========================================================================
 
-// Class AntQXsplitIF, initial-final antenna function.
+// Class AntQXConvIF, initial-final antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntQXsplitIF::antFun(vector<double> invariants, vector<double> masses,
+double AntQXConvIF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
 
   // Invariants and helicities.
@@ -3178,7 +3178,7 @@ double AntQXsplitIF::antFun(vector<double> invariants, vector<double> masses,
 
 // The AP kernel, P(z)/Q2.
 
-double AntQXsplitIF::AltarelliParisi(vector<double> invariants, vector<double>,
+double AntQXConvIF::AltarelliParisi(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
 
   double sAK = invariants[0];
@@ -3207,13 +3207,13 @@ double AntQXsplitIF::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //==========================================================================
 
-// Class AntGXconvIF, initial-final antenna function.
+// Class AntGXConvIF, initial-final antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntGXconvIF::antFun(vector<double> invariants, vector<double> masses,
+double AntGXConvIF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
 
   // Invariants and helicities.
@@ -3289,7 +3289,7 @@ double AntGXconvIF::antFun(vector<double> invariants, vector<double> masses,
 
 // The AP kernel, P(z)/Q2.
 
-double AntGXconvIF::AltarelliParisi(vector<double> invariants, vector<double>,
+double AntGXConvIF::AltarelliParisi(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
 
   double sAK = invariants[0];
@@ -3320,14 +3320,14 @@ double AntGXconvIF::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //==========================================================================
 
-// Class AntXGsplitIF, initial-final antenna function. Gluon splitting in
+// Class AntXGSplitIF, initial-final antenna function. Gluon splitting in
 // the final state.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntXGsplitIF::antFun(vector<double> invariants, vector<double> masses,
+double AntXGSplitIF::antFun(vector<double> invariants, vector<double> masses,
   vector<int> helBef, vector<int> helNew) {
 
   // Invariants and helicities
@@ -3403,7 +3403,7 @@ double AntXGsplitIF::antFun(vector<double> invariants, vector<double> masses,
 
 // The AP kernel, P(z)/Q2.
 
-double AntXGsplitIF::AltarelliParisi(vector<double> invariants, vector<double>,
+double AntXGSplitIF::AltarelliParisi(vector<double> invariants, vector<double>,
   vector<int> helBef, vector<int> helNew) {
 
   double sAK = invariants[0];
@@ -3430,18 +3430,18 @@ double AntXGsplitIF::AltarelliParisi(vector<double> invariants, vector<double>,
 
 //==========================================================================
 
-// Class AntQGemitIFsec, derived class for sector initial-final antenna
+// Class AntQGEmitIFsec, derived class for sector initial-final antenna
 // functions.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntQGemitIFsec::antFun(vector<double> invariants,
+double AntQGEmitIFsec::antFun(vector<double> invariants,
   vector<double> mNew, vector<int> helBef, vector<int> helNew) {
 
   // Check if helicity vectors empty.
-  double ant = AntQGemitIF::antFun(invariants, mNew, helBef, helNew);
+  double ant = AntQGEmitIF::antFun(invariants, mNew, helBef, helNew);
   if (helBef.size() < 2) {helBef.push_back(9); helBef.push_back(9);}
   if (helNew.size() < 3) {
     helNew.push_back(9); helNew.push_back(9); helNew.push_back(9);}
@@ -3466,7 +3466,7 @@ double AntQGemitIFsec::antFun(vector<double> invariants,
     vector<int> helSym = helNew;
     helSym[1] = helNew[2];
     helSym[2] = helNew[1];
-    ant += AntQGemitIF::antFun(invariantsSym, mNew, helBef, helSym);
+    ant += AntQGEmitIF::antFun(invariantsSym, mNew, helBef, helSym);
 
     // Ensure positivity over all of phase space.
     ant += 1./sAK * (yak + yjk);
@@ -3483,17 +3483,17 @@ double AntQGemitIFsec::antFun(vector<double> invariants,
 
 //==========================================================================
 
-// Class AntGGemitIFsec, sector initial-final antenna function.
+// Class AntGGEmitIFsec, sector initial-final antenna function.
 
 //--------------------------------------------------------------------------
 
 // The antenna function [GeV^-2].
 
-double AntGGemitIFsec::antFun(vector<double> invariants,
+double AntGGEmitIFsec::antFun(vector<double> invariants,
   vector<double> mNew, vector<int> helBef, vector<int> helNew) {
 
   // Check if helicity vectors empty.
-  double ant = AntGGemitIF::antFun(invariants, mNew, helBef, helNew);
+  double ant = AntGGEmitIF::antFun(invariants, mNew, helBef, helNew);
   if (helBef.size() < 2) {helBef.push_back(9); helBef.push_back(9);}
   if (helNew.size() < 3) {
     helNew.push_back(9); helNew.push_back(9); helNew.push_back(9);}
@@ -3517,7 +3517,7 @@ double AntGGemitIFsec::antFun(vector<double> invariants,
     vector<int> helSym = helNew;
     helSym[1] = helNew[2];
     helSym[2] = helNew[1];
-    ant += AntGGemitIF::antFun(invariantsSym, mNew, helBef, helSym);
+    ant += AntGGEmitIF::antFun(invariantsSym, mNew, helBef, helSym);
 
     // Ensure positivity over all of phase space.
     ant += 1./sAK * (yak + yjk);
@@ -3529,16 +3529,16 @@ double AntGGemitIFsec::antFun(vector<double> invariants,
 
 //==========================================================================
 
-// Class AntXGsplitIFsec, sector initial-final antenna function. Gluon
+// Class AntXGSplitIFsec, sector initial-final antenna function. Gluon
 // splitting in the final state.
 
 //--------------------------------------------------------------------------
 
 // The antenna function, just 2*global [GeV^-2].
 
-double AntXGsplitIFsec::antFun(vector<double> invariants, vector<double> mNew,
+double AntXGSplitIFsec::antFun(vector<double> invariants, vector<double> mNew,
   vector<int> helBef, vector<int> helNew) {
-  return 2*AntXGsplitIF::antFun(invariants,mNew,helBef,helNew);}
+  return 2*AntXGSplitIF::antFun(invariants,mNew,helBef,helNew);}
 
 //==========================================================================
 
@@ -3580,25 +3580,25 @@ void AntennaSetFSR::init() {
   // Create antenna objects (in map, so indices don't have to be consecutive).
   antFunPtrs.clear();
   bool sectorShower = settingsPtr->flag("Vincia:sectorShower");
-  antFunPtrs[QQemitFF] = sectorShower ? new AntQQemitFFsec() :
-    new AntQQemitFF();
-  antFunPtrs[QGemitFF] = sectorShower ? new AntQGemitFFsec() :
-    new AntQGemitFF();
-  antFunPtrs[GQemitFF] = sectorShower ?
-    static_cast<AntennaFunction*>(new AntGQemitFFsec()) :
-    static_cast<AntennaFunction*>(new AntGQemitFF());
-  antFunPtrs[GGemitFF] = sectorShower ? new AntGGemitFFsec() :
-    new AntGGemitFF();
-  antFunPtrs[GXsplitFF]= sectorShower ? new AntGXsplitFFsec() :
-    new AntGXsplitFF();
+  antFunPtrs[QQEmitFF] = sectorShower ? new AntQQEmitFFsec() :
+    new AntQQEmitFF();
+  antFunPtrs[QGEmitFF] = sectorShower ? new AntQGEmitFFsec() :
+    new AntQGEmitFF();
+  antFunPtrs[GQEmitFF] = sectorShower ?
+    static_cast<AntennaFunction*>(new AntGQEmitFFsec()) :
+    static_cast<AntennaFunction*>(new AntGQEmitFF());
+  antFunPtrs[GGEmitFF] = sectorShower ? new AntGGEmitFFsec() :
+    new AntGGEmitFF();
+  antFunPtrs[GXSplitFF]= sectorShower ? new AntGXSplitFFsec() :
+    new AntGXSplitFF();
   // Add RF antenna functions.
-  antFunPtrs[QQemitRF] = new AntQQemitRF();
-  antFunPtrs[QGemitRF] = sectorShower ?
-    static_cast<AntennaFunction*>(new AntQGemitRFsec()) :
-    static_cast<AntennaFunction*>(new AntQGemitRF());
-  antFunPtrs[XGsplitRF] = sectorShower?
-    static_cast<AntennaFunction*>(new AntXGsplitRFsec()) :
-    static_cast<AntennaFunction*>(new AntXGsplitRF());
+  antFunPtrs[QQEmitRF] = new AntQQEmitRF();
+  antFunPtrs[QGEmitRF] = sectorShower ?
+    static_cast<AntennaFunction*>(new AntQGEmitRFsec()) :
+    static_cast<AntennaFunction*>(new AntQGEmitRF());
+  antFunPtrs[XGSplitRF] = sectorShower?
+    static_cast<AntennaFunction*>(new AntXGSplitRFsec()) :
+    static_cast<AntennaFunction*>(new AntXGSplitRF());
   if (verbose >= Logger::REPORT)
     printOut(__METHOD_NAME__, "Defined new antFunPtrs");
 
@@ -3678,21 +3678,21 @@ void AntennaSetISR::init() {
 
   // Create antenna objects.
   bool sectorShower = settingsPtr->flag("Vincia:sectorShower");
-  antFunPtrs[QQemitII]  = new AntQQemitII();
-  antFunPtrs[GQemitII]  = new AntGQemitII();
-  antFunPtrs[GGemitII]  = new AntGGemitII();
-  antFunPtrs[QXsplitII] = new AntQXsplitII();
-  antFunPtrs[GXconvII]  = new AntGXconvII();
-  antFunPtrs[QQemitIF]  = new AntQQemitIF();
-  antFunPtrs[QGemitIF]  = sectorShower ? new AntQGemitIFsec() :
-    new AntQGemitIF();
-  antFunPtrs[GQemitIF]  = new AntGQemitIF();
-  antFunPtrs[GGemitIF]  = sectorShower ? new AntGGemitIFsec() :
-    new AntGGemitIF();
-  antFunPtrs[QXsplitIF] = new AntQXsplitIF();
-  antFunPtrs[GXconvIF]  = new AntGXconvIF();
-  antFunPtrs[XGsplitIF] = sectorShower ? new AntXGsplitIFsec() :
-    new AntXGsplitIF();
+  antFunPtrs[QQEmitII]  = new AntQQEmitII();
+  antFunPtrs[GQEmitII]  = new AntGQEmitII();
+  antFunPtrs[GGEmitII]  = new AntGGEmitII();
+  antFunPtrs[QXConvII] = new AntQXConvII();
+  antFunPtrs[GXConvII]  = new AntGXConvII();
+  antFunPtrs[QQEmitIF]  = new AntQQEmitIF();
+  antFunPtrs[QGEmitIF]  = sectorShower ? new AntQGEmitIFsec() :
+    new AntQGEmitIF();
+  antFunPtrs[GQEmitIF]  = new AntGQEmitIF();
+  antFunPtrs[GGEmitIF]  = sectorShower ? new AntGGEmitIFsec() :
+    new AntGGEmitIF();
+  antFunPtrs[QXConvIF] = new AntQXConvIF();
+  antFunPtrs[GXConvIF]  = new AntGXConvIF();
+  antFunPtrs[XGSplitIF] = sectorShower ? new AntXGSplitIFsec() :
+    new AntXGSplitIF();
 
   // Loop through antFunPtrs and initialize.
   for (auto antFunPtrIt = antFunPtrs.begin(); antFunPtrIt != antFunPtrs.end();
@@ -3761,7 +3761,7 @@ void MECs::initPtr(Info* infoPtrIn, ExternalMEsPtr mg5mesPtrIn,
 void MECs::init() {
 
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
 
   // MEC settings.
   verbose            = settingsPtr->mode("Vincia:verbose");
@@ -3818,7 +3818,7 @@ void MECs::init() {
 
   isInit = true;
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
 }
 
 //--------------------------------------------------------------------------
@@ -3894,7 +3894,7 @@ bool MECs::prepare(const int iSys, Event& event) {
 bool MECs::polarise(const int iSys, Event& event, bool force) {
 
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
 
   // First check if we should be doing anything at all.
   if (partonSystemsPtr->hasInAB(iSys)) {
@@ -3943,7 +3943,7 @@ bool MECs::polarise(const int iSys, Event& event, bool force) {
   // Verbose output (showing polarisations).
   if (verbose >= VinciaConstants::DEBUG) {
     event.list(true);
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
   }
 
   // All is well.
@@ -3956,7 +3956,7 @@ bool MECs::polarise(const int iSys, Event& event, bool force) {
 bool MECs::polarise(vector<Particle>& state, bool force) {
 
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   if (state.size() <= 2) return false;
 
@@ -4356,7 +4356,7 @@ bool MECs::doRegMatch(int iSys, const vector<Particle>& state) {
 double MECs::getMatchReg(int iSys, const VinciaClustering& clus) {
 
   // Get current scale.
-  double q2Now = clus.Q2evol;
+  double q2Now = clus.q2evol;
   if (!matchingScaleIsAbs) q2Now /= sysToHardScale[iSys];
   if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
@@ -4408,11 +4408,11 @@ double MECs::getAntApprox(const VinciaClustering& clus) {
     loggerPtr->ERROR_MSG("post-branching invariants not set in clustering");
     return ant;
   }
-  if (clus.massesChildren.size() < 3) {
+  if (clus.mDau.size() < 3) {
     loggerPtr->ERROR_MSG("post-branching masses not set in clustering");
     return ant;
   }
-  if (clus.helChildren.size() < 3) {
+  if (clus.helDau.size() < 3) {
     loggerPtr->ERROR_MSG("post-branching helicities not set in clustering");
     return ant;
   }
@@ -4425,8 +4425,8 @@ double MECs::getAntApprox(const VinciaClustering& clus) {
         + num2str(clus.antFunType,2));
       return ant;
     }
-    ant = antFunPtr->antFun(clus.invariants, clus.massesChildren,
-      clus.helMothers, clus.helChildren);
+    ant = antFunPtr->antFun(clus.invariants, clus.mDau,
+      clus.helMot, clus.helDau);
     ant *= antFunPtr->chargeFac();
   }
   // ISR antenna.
@@ -4437,8 +4437,8 @@ double MECs::getAntApprox(const VinciaClustering& clus) {
         + num2str(clus.antFunType,2));
       return ant;
     }
-    ant = antFunPtr->antFun(clus.invariants, clus.massesChildren,
-      clus.helMothers, clus.helChildren);
+    ant = antFunPtr->antFun(clus.invariants, clus.mDau,
+      clus.helMot, clus.helDau);
     ant *= antFunPtr->chargeFac();
   }
 

@@ -1,5 +1,5 @@
 // MergingHooks.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -2519,13 +2519,7 @@ bool MergingHooks::doVetoStep( const Event& process, const Event& event,
 
     // Nothing to check if pTsave was not stored, i.e. no emission to
     // possibly veto was recorded.
-    // Only allow revoking the veto for diboson processes, with resonant
-    // electroweak bosons
-    bool check =  (nHardInLeptons() == 0) && (nHardOutLeptons() == 2)
-               && (nHardOutPartons() == 2);
-
-    // For current purpose only!!!
-    check = false;
+    bool check = false;
 
     // For hadronic resonance decays at hadron colliders, do not veto
     // events with a hard emission of the resonance decay products,

@@ -36,6 +36,7 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
+#include <Pythia8/SplittingsOnia.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -277,7 +278,7 @@ void bind_Pythia8_Info(std::function< pybind11::module &(std::string const &name
 		cl.def("weightSum", (double (Pythia8::Info::*)() const) &Pythia8::Info::weightSum, "C++: Pythia8::Info::weightSum() const --> double");
 		cl.def("lhaStrategy", (double (Pythia8::Info::*)() const) &Pythia8::Info::lhaStrategy, "C++: Pythia8::Info::lhaStrategy() const --> double");
 		cl.def("nWeights", (int (Pythia8::Info::*)() const) &Pythia8::Info::nWeights, "C++: Pythia8::Info::nWeights() const --> int");
-		cl.def("weightLabel", (std::string (Pythia8::Info::*)(int) const) &Pythia8::Info::weightLabel, "C++: Pythia8::Info::weightLabel(int) const --> std::string", pybind11::arg("iWeight"));
+		cl.def("weightLabel", (std::string (Pythia8::Info::*)(int) const) &Pythia8::Info::weightLabel, "C++: Pythia8::Info::weightLabel(int) const --> std::string", pybind11::arg("iWgt"));
 		cl.def("nWeightGroups", (int (Pythia8::Info::*)() const) &Pythia8::Info::nWeightGroups, "C++: Pythia8::Info::nWeightGroups() const --> int");
 		cl.def("getGroupName", (std::string (Pythia8::Info::*)(int) const) &Pythia8::Info::getGroupName, "C++: Pythia8::Info::getGroupName(int) const --> std::string", pybind11::arg("iGN"));
 		cl.def("getGroupWeight", (double (Pythia8::Info::*)(int) const) &Pythia8::Info::getGroupWeight, "C++: Pythia8::Info::getGroupWeight(int) const --> double", pybind11::arg("iGW"));

@@ -4,11 +4,11 @@
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
 // main46.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
-// Author: Christian T Preuss &lt;christian.preuss@monash.edu&gt;
+// Author: Christian T Preuss &lt;preuss@uni-wuppertal.de&gt;
 
 // Keywords:
 //            <a href="../ExampleKeywords.html#hdf5+file">HDF5&nbsp;file</a>
@@ -21,7 +21,9 @@ Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 //     ./main46 main46.cmnd ttbar.hdf5 main46.hepmc
 
 #include &quot;Pythia8/Pythia.h&quot;
-#include &quot;Pythia8Plugins/LHAHDF5.h&quot;
+
+// To use v0/v1 of LHAHDF5, include &quot;Pythia8Plugins/LHAHDF5.h&quot; instead.
+#include &quot;Pythia8Plugins/LHAHDF5v2.h&quot;
 #ifndef HEPMC2
 #include &quot;Pythia8Plugins/HepMC3.h&quot;
 #else
@@ -85,9 +87,13 @@ int main(int argc, char* argv[]) {
 
   // Create an LHAup object that can access relevant information in pythia.
   size_t readSize    = size_t(nEvents);
-  string version     = pythia.settings.word(&quot;LHAHDF5:version&quot;);
-  shared_ptr&lt;LHAupH5&gt; lhaUpPtr =
-    make_shared&lt;LHAupH5&gt;(&amp;file, eventOffset, readSize, version);
+  shared_ptr&lt;LHAupH5v2&gt; lhaUpPtr =
+    make_shared&lt;LHAupH5v2&gt;(&amp;file, eventOffset, readSize, true);
+
+  // If using v0/v1 of LHAHDF5, then use the following.
+  // string version     = pythia.settings.word(&quot;LHAHDF5:version&quot;);
+  // shared_ptr&lt;LHAupH5&gt; lhaUpPtr =
+  //   make_shared&lt;LHAupH5&gt;(&amp;file, eventOffset, readSize, version);
 
   // HepMC.
   Pythia8::Pythia8ToHepMC toHepMC(hepMCFile);
@@ -145,7 +151,7 @@ int main(int argc, char* argv[]) {
   pythia.stat();
 
   // Finalise cross section.
-  double norm = 1./double(1.e9*lhaUpPtr-&gt;getTrials());
+  double norm = 1./double(1.e9*lhaUpPtr-&gt;nTrials());
   if (abs(pythia.info.lhaStrategy()) == 3) norm *= xs;
   sigmaSample *= norm;
   errorSample = sqrt(errorSample)*norm;

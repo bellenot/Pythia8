@@ -1,5 +1,5 @@
 // HISubCollisionModel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -83,6 +83,8 @@ shared_ptr<SubCollisionModel> SubCollisionModel::create(int model) {
     case 1: return make_shared<DoubleStrikmanSubCollisionModel>();
     case 2: return make_shared<DoubleStrikmanSubCollisionModel>(1);
     case 3: return make_shared<BlackSubCollisionModel>();
+    case 4: return make_shared<LogNormalSubCollisionModel>();
+    case 5: return make_shared<LogNormalSubCollisionModel>(1);
     default: return nullptr;
   }
 }
@@ -92,7 +94,11 @@ shared_ptr<SubCollisionModel> SubCollisionModel::create(int model) {
 // Initialize the base class. Subclasses should consider calling this
 // in overriding functions.
 
-bool SubCollisionModel::init(double eCMIn) {
+bool SubCollisionModel::init(int idAIn, int idBIn, double eCMIn) {
+
+  // Store input.
+  idASave = idAIn;
+  idBSave = idBIn;
 
   // Read basic settings.
   NInt = settingsPtr->mode("HeavyIon:SigFitNInt");
@@ -102,8 +108,18 @@ bool SubCollisionModel::init(double eCMIn) {
   fitPrint = settingsPtr->flag("HeavyIon:SigFitPrint");
   impactFudge = settingsPtr->parm("Angantyr:impactFudge");
   doVarECM = settingsPtr->flag("Beams:allowVariableEnergy");
-  eMin = eMax = eCMIn;
-  if (doVarECM) eMin = settingsPtr->parm("HeavyIon:varECMMin");
+  if (doVarECM) {
+    eMin = settingsPtr->parm("HeavyIon:varECMMin");
+    eMax = settingsPtr->parm("HeavyIon:varECMMax");
+    if (eMax == 0)
+      eMax = eCMIn;
+    else if (eMax < eCMIn) {
+      loggerPtr->ERROR_MSG("maximum energy is lower than requested eCM");
+      return false;
+    }
+  }
+  else
+    eMin = eMax = eCMIn;
   updateSig();
 
   // If there are parameters, no further initialization is necessary.
@@ -131,7 +147,7 @@ bool SubCollisionModel::init(double eCMIn) {
   // Set parameters at the correct kinematics.
   setKinematics(eCMIn);
 
-  // Set avNDb.
+  // Set initial avNDb
   avNDb = getSig().avNDb * impactFudge;
 
   // Save parameters to disk, if requested.
@@ -156,6 +172,20 @@ bool SubCollisionModel::genParms() {
   vector<double> defaultParms = settingsPtr->pvec("HeavyIon:SigFitDefPar");
   if ( settingsPtr->isPVec("HI:SigFitDefPar") )
     defaultParms = settingsPtr->pvec("HI:SigFitDefPar");
+  if (defaultParms.size() == 0)
+    defaultParms = defParm();
+  if (int(defaultParms.size()) < nParms()) {
+    loggerPtr->ERROR_MSG("too few parameters have been specified",
+      "(expected " + to_string(nParms())
+      + ", got " + to_string(defaultParms.size()) + ")");
+    return false;
+  }
+  if (int(defaultParms.size()) > nParms()) {
+    loggerPtr->WARNING_MSG("too many parameters have been specified",
+      "(expected " + to_string(nParms())
+      + ", got " + to_string(defaultParms.size()) + ")");
+    defaultParms.resize(nParms());
+  }
   setParm(defaultParms);
 
   // If nGen is zero, there is nothing to do, just use the default parameters.
@@ -217,7 +247,7 @@ bool SubCollisionModel::genParms() {
   for (int i = eCMPts - 2; i >= 0; --i) {
     // Update to correct eCM.
     double eNow = eCMs[i];
-    sigTotPtr->calc(2212, 2212, eNow);
+    sigTotPtr->calc(idASave, idBSave, eNow);
     updateSig();
 
     // Alternatively reset to default parameters (mostly for debug purposes).
@@ -247,7 +277,8 @@ bool SubCollisionModel::genParms() {
          << endl << endl;
   }
   // Reset cross section and parameters to their eCM values.
-  sigTotPtr->calc(2212, 2212, eMax);
+  sigTotPtr->calc(idASave, idBSave, eMax);
+  updateSig();
   setParm(defaultParms);
 
   // Store parameter values as logarithmic interpolators.
@@ -282,6 +313,7 @@ bool SubCollisionModel::saveParms(string fileName) const {
 
   // Each line corresponds to one parameter.
   for (int iParm = 0; iParm < nParms(); ++iParm) {
+    stream << setprecision(14);
     for (double val : subCollParms[iParm].data())
       stream << val << " ";
     stream << endl;
@@ -635,14 +667,48 @@ getCollisions(Nucleus& proj, Nucleus& targ) {
 
 //--------------------------------------------------------------------------
 
-// Anonymous helper functions to simplify calculating elastic
-// amplitudes.
+// Helper functions to get the correct average elastic and wounded
+// cross sections for fluctuating models.
 
-namespace {
-inline double el(double s1, double s2, double u1, double u2) {
-  return s1/u1 > s2/u2? s2*u1: s1*u2;
+static void shuffle(double PND1, double PND2, double & PW1, double & PW2) {
+  if ( PND1 > PW1 ) {
+    PW2 += PW1 - PND1;
+    PW1 = PND1;
+    return;
+  }
+  if ( PND2 > PW2 ) {
+    PW1 += PW2 - PND2;
+    PW2 = PND2;
+    return;
+  }
 }
 
+static void shuffle(double & PEL11, double P11,
+                    double P12, double P21, double P22) {
+  double PEL12 = PEL11, PEL21 = PEL11, PEL22 = PEL11;
+  map<double, double *> ord;
+  ord[P11] = &PEL11;
+  ord[P12] = &PEL12;
+  ord[P21] = &PEL21;
+  ord[P22] = &PEL22;
+  map<double, double *>::iterator next = ord.begin();
+  map<double, double *>::iterator prev = next++;
+  while ( next != ord.end() ) {
+    if ( *prev->second > prev->first ) {
+      *next->second += *prev->second - prev->first;
+      *prev->second = prev->first;
+    }
+    prev = next++;
+  }
+}
+
+static double pnw(double PWp, double PWt, double PND) {
+  return ( 1.0 - PWp <= 0.0 || 1.0 - PWt <= 0.0 )?
+    0.0: (1.0 - PWp)*(1.0 - PWt)/(1.0 - PND);
+}
+
+static double el(double s1, double s2, double u1, double u2) {
+  return s1/u1 > s2/u2? s2*u1: s1*u2;
 }
 
 //--------------------------------------------------------------------------
@@ -650,14 +716,14 @@ inline double el(double s1, double s2, double u1, double u2) {
 // Numerically estimate the cross sections corresponding to the
 // current parameter setting.
 
-SubCollisionModel::SigEst DoubleStrikmanSubCollisionModel::getSig() const {
+SubCollisionModel::SigEst FluctuatingSubCollisionModel::getSig() const {
 
   SigEst s;
   for ( int n = 0; n < NInt; ++n ) {
-    double rp1 = rndmPtr->gamma(k0, r0());
-    double rp2 = rndmPtr->gamma(k0, r0());
-    double rt1 = rndmPtr->gamma(k0, r0());
-    double rt2 = rndmPtr->gamma(k0, r0());
+    double rp1 = pickRadiusProj();
+    double rp2 = pickRadiusProj();
+    double rt1 = pickRadiusTarg();
+    double rt2 = pickRadiusTarg();
     double s11 = pow2(rp1 + rt1)*M_PI;
     double s12 = pow2(rp1 + rt2)*M_PI;
     double s21 = pow2(rp2 + rt1)*M_PI;
@@ -704,8 +770,6 @@ SubCollisionModel::SigEst DoubleStrikmanSubCollisionModel::getSig() const {
     s.sig[7] += pow2(s11)/u11;
     s.dsig2[7] += pow2(pow2(s11)/u11);
 
-
-
   }
 
   s.sig[0] /= double(NInt);
@@ -750,59 +814,21 @@ SubCollisionModel::SigEst DoubleStrikmanSubCollisionModel::getSig() const {
 
 //--------------------------------------------------------------------------
 
-// Helper functions to get the correct average elastic and wounded
-// cross sections.
-
-void DoubleStrikmanSubCollisionModel::shuffle(double PND1, double PND2,
-                             double & PW1, double & PW2) {
-  if ( PND1 > PW1 ) {
-    PW2 += PW1 - PND1;
-    PW1 = PND1;
-    return;
-  }
-  if ( PND2 > PW2 ) {
-    PW1 += PW2 - PND2;
-    PW2 = PND2;
-    return;
-  }
-}
-
-void DoubleStrikmanSubCollisionModel::shuffle(double & PEL11, double P11,
-                             double P12, double P21, double P22) {
-  double PEL12 = PEL11, PEL21 = PEL11, PEL22 = PEL11;
-  map<double, double *> ord;
-  ord[P11] = &PEL11;
-  ord[P12] = &PEL12;
-  ord[P21] = &PEL21;
-  ord[P22] = &PEL22;
-  map<double, double *>::iterator next = ord.begin();
-  map<double, double *>::iterator prev = next++;
-  while ( next != ord.end() ) {
-    if ( *prev->second > prev->first ) {
-      *next->second += *prev->second - prev->first;
-      *prev->second = prev->first;
-    }
-    prev = next++;
-  }
-}
-
-//--------------------------------------------------------------------------
-
 // Main function returning the possible sub-collisions.
 
-SubCollisionSet DoubleStrikmanSubCollisionModel::
+SubCollisionSet FluctuatingSubCollisionModel::
 getCollisions(Nucleus& proj, Nucleus& targ) {
 
   multiset<SubCollision> ret;
 
   // Assign two states to each nucleon.
   for (Nucleon& p : proj) {
-    p.state({ rndmPtr->gamma(k0, r0()) });
-    p.addAltState({ rndmPtr->gamma(k0, r0()) });
+    p.state({ pickRadiusProj() });
+    p.addAltState({ pickRadiusProj() });
   }
   for (Nucleon& t : targ) {
-    t.state({ rndmPtr->gamma(k0, r0()) });
-    t.addAltState({ rndmPtr->gamma(k0, r0()) });
+    t.state({ pickRadiusTarg() });
+    t.addAltState({ pickRadiusTarg() });
   }
 
   // The factorising S-matrix.

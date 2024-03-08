@@ -1,10 +1,10 @@
-<html><head><title>main203</title>
+<html><head><title>main206</title>
 <link rel="stylesheet" type="text/css" href="../pythia.css"/>
-<link rel="shortcut icon" href="../pythia32.gif"/></head><body><h2>main203</h2>
+<link rel="shortcut icon" href="../pythia32.gif"/></head><body><h2>main206</h2>
 Back to <a href="../ExampleKeywords.html" target="page">index.</a>
 <pre><code class="language-c++">
-// main203.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// main206.cc is a part of the PYTHIA event generator.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -92,7 +92,7 @@ int main() {
   // Generation, event-by-event printout, analysis, and histogramming.
 
   // Counter for negative-weight events
-  double weight=1.0;
+  double weight = 1.0;
   double sumWeights = 0.0;
 
   // Begin event loop
@@ -121,7 +121,7 @@ int main() {
     double nFinal = 0;
     double nWeak  = 0;
     double nGam   = 0;
-    for (int i=5;i&lt;event.size();i++) {
+    for (int i = 5;i&lt;event.size();i++) {
       // Count up final-state charged hadrons
       if (event[i].isFinal()) {
         ++nFinal;
@@ -135,9 +135,9 @@ int main() {
         nWeak += 0.5;
       }
     }
-    histNWeak.fill(nWeak,weight);
-    histNFinal.fill(nFinal,weight);
-    histNGam.fill(nGam,weight);
+    histNWeak.fill(nWeak, weight);
+    histNFinal.fill(nFinal, weight);
+    histNGam.fill(nGam, weight);
     nGamSum   += nGam * weight;
     nWeakSum  += nWeak * weight;
     nFinalSum += nFinal * weight;

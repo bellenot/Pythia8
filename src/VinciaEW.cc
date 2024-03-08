@@ -1,5 +1,5 @@
 // VinciaEW.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2024 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -2711,7 +2711,7 @@ bool AmpCalculator::polarise(vector<Particle> &state) {
     return false;
   }
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   // This must be a resonance decay: require one incoming particle.
   if (state[0].isFinal() || !state[1].isFinal()) return false;
@@ -2781,7 +2781,7 @@ bool AmpCalculator::polarise(vector<Particle> &state) {
     state[2].pol((polIterator->second).second);
   }
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "end",
-    dashLen);
+    DASHLEN);
   return true;
 
 }
@@ -3806,7 +3806,7 @@ bool EWAntennaII::init(Event &event, int iMotIn, int iRecIn, int iSysIn,
 double EWAntennaII::generateTrial(double q2Start, double q2End,
   double alphaIn) {
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
   if (infoPtr->getAbortPartonLevel()) return 0;
   if (hasTrial) {
     if (verbose >= VinciaConstants::DEBUG) {
@@ -3896,7 +3896,7 @@ double EWAntennaII::generateTrial(double q2Start, double q2End,
     stringstream ss;
     ss << "Generating q2Trial from c: " << q2Trial;
     printOut(__METHOD_NAME__, ss.str());
-    printOut(__METHOD_NAME__, "end", dashLen);}
+    printOut(__METHOD_NAME__, "end", DASHLEN);}
   return q2Trial;
 
 }
@@ -4487,7 +4487,7 @@ double EWSystem::q2Next(double q2Start,double q2End) {
     ss << "begin (with " << antVecFinal.size() << " FF radiators, "
        << antVecInitial.size() << " II radiators, and " << antVecRes.size()
        << " resonance decays)";
-    printOut(__METHOD_NAME__, ss.str(), dashLen);}
+    printOut(__METHOD_NAME__, ss.str(), DASHLEN);}
 
   // Generate a scale, clear saved trial information.
   double alphaMax = al->alphaEM(q2Start);
@@ -4520,7 +4520,7 @@ double EWSystem::q2Next(double q2Start,double q2End) {
     printOut(__METHOD_NAME__, ss.str());
   }
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "end",
-    dashLen);
+    DASHLEN);
   return q2Trial;
 
 }
@@ -4585,7 +4585,7 @@ bool VinciaEW::prepare(int iSysIn, Event &event, bool isBelowHadIn) {
   // Sanity check.
   if (!doEW) return false;
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "begin",
-    dashLen);
+    DASHLEN);
 
   // Prepare system
   if (!ewSystem.prepare(event, iSysIn, q2minSav, isBelowHadIn)) {
@@ -4593,7 +4593,7 @@ bool VinciaEW::prepare(int iSysIn, Event &event, bool isBelowHadIn) {
     return false;
   }
   if (verbose >= VinciaConstants::DEBUG) printOut(__METHOD_NAME__, "end",
-    dashLen);
+    DASHLEN);
   return true;
 }
 
@@ -4670,14 +4670,14 @@ double VinciaEW::q2Next(Event&, double q2Start, double q2End) {
   if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "begin (with " << ewSystem.nBranchers() << " branchers)";
-    printOut(__METHOD_NAME__, ss.str(), dashLen);
+    printOut(__METHOD_NAME__, ss.str(), DASHLEN);
   }
   q2Trial = ewSystem.q2Next(q2Start,q2End);
   if (verbose >= VinciaConstants::DEBUG) {
     stringstream ss;
     ss << "q2Trial = " << num2str(q2Trial);
     printOut(__METHOD_NAME__, ss.str());
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
   }
   return q2Trial;
 }

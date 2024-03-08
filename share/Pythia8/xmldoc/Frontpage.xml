@@ -68,10 +68,16 @@ self-study.
 <h3>Authors</h3> 
  
 <p/> 
+<b>Javira Altmann</b><br/> 
+School of Physics and Astronomy, Monash University, PO Box 27, 3800 Melbourne, 
+Australia<br/> 
+e-mail: javira.altmann@monash.edu 
+ 
+<p/> 
 <b>Christian Bierlich</b><br/> 
 Department of Physics, Lund University, 
 Box 118, SE-221 00 Lund, Sweden<br/> 
-e-mail: christian.bierlich@hep.lu.se 
+e-mail: christian.bierlich@fysik.lu.se 
  
 <p/> 
 <b>Naomi Cooke</b><br/> 
@@ -89,7 +95,7 @@ e-mail: desai@theory.tifr.res.in
 <b>Leif Gellersen</b><br/> 
 Department of Physics, Lund University, 
 Box 118, SE-221 00 Lund, Sweden<br/> 
-e-mail: leif.gellersen@hep.lu.se 
+e-mail: leif.gellersen@fysik.lu.se 
  
 <p/> 
 <b>Ilkka Helenius</b><br/> 
@@ -107,7 +113,7 @@ e-mail: philten@cern.ch
 <b>Leif L&ouml;nnblad</b><br/> 
 Department of Physics, Lund University, 
 Box 118, SE-221 00 Lund, Sweden<br/> 
-e-mail: leif.lonnblad@hep.lu.se 
+e-mail: leif.lonnblad@fysik.lu.se 
  
 <p/> 
 <b>Stephen Mrenna</b><br/> 
@@ -115,12 +121,6 @@ Computing Division, Simulations Group,
 Fermi National Accelerator Laboratory, 
 MS 234, Batavia, IL 60510, USA<br/> 
 e-mail: mrenna@fnal.gov 
- 
-<p/> 
-<b>Stefan Prestel</b><br/> 
-Department of Physics, Lund University, 
-Box 118, SE-221 00 Lund, Sweden<br/> 
-e-mail: stefan.prestel@hep.lu.se 
  
 <p/> 
 <b>Christian Preuss</b><br/> 
@@ -132,7 +132,7 @@ e-mail: cpreuss@phys.ethz.ch
 <b>Torbj&ouml;rn Sj&ouml;strand</b><br/> 
 Department of Physics, Lund University, 
 Box 118, SE-221 00 Lund, Sweden<br/> 
-e-mail: torbjorn.sjostrand@hep.lu.se 
+e-mail: torbjorn.sjostrand@fysik.lu.se 
  
 <p/> 
 <b>Peter Skands</b><br/> 
@@ -161,6 +161,8 @@ e-mail: r.verheyen@ucl.ac.uk
 <p/><b>Richard Corke</b> 
  
 <p/><b>Nadine Fischer</b> 
+ 
+<p/><b>Stefan Prestel</b> 
  
 <p/><b>Christine O. Rasmussen</b> 
  
@@ -215,8 +217,10 @@ additional work by <b>O. Mattelaer</b>.
 <br/>Helicity-dependence in Vincia by <b>A. Larkoski</b>. 
 <br/>Interleaved resonance showers and work on 
 MESS merging and QED+EW showers in Vincia by <b>H. Brooks</b>. 
-<br/>Plugin framework by the <b><a href="https://gitlab.com/uchep/mlhad"> 
-MLhad team</a></b>. 
+<br/>Plugin and hadronization reweighting framework by the <b><a 
+href="https://uchep.gitlab.io/mlhad-docs/">MLhad team</a></b>. 
+<br/>Mini-junction string improvements and additions to the QCD-based colour 
+reconnection model by <b>Harsh Shah</b>. 
 <br/> 
  
 <br/><b>Note</b>: in several cases modifications have been made to 
@@ -320,8 +324,8 @@ for Event Generator Authors and Users.
  
 <p/> 
 The program and the documentation is 
-Copyright &copy; 2023 Torbj&ouml;rn Sj&ouml;strand 
+Copyright &copy; 2024 Torbj&ouml;rn Sj&ouml;strand 
  
 </chapter> 
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

@@ -1,5 +1,5 @@
 // FragmentationFlavZpT.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -30,14 +30,14 @@ double LundFFRaw(double z, double a, double b, double c, double mT2) {
 double LundFFAvg(double a, double b, double c,
   double mT2, double tol = 1.e-6) {
 
-  // Checks whether the integration succeeded
+  // Checks whether the integration succeeded.
   bool check;
 
   // Define lundFF as a function of only z, fixing a, b, c, mT2 as parameters
-  // Note that c must be captured by reference, since it is modified later
+  // Note that c must be captured by reference, since it is modified later.
   auto lundFF = [=, &c](double z) { return LundFFRaw(z, a, b, c, mT2); };
 
-  // Get denominator
+  // Get denominator.
   double denominator = 1.;
   check = integrateGauss(denominator, lundFF, 0, 1, tol);
   if (!check || denominator <= 0.) return -1.;
@@ -79,20 +79,11 @@ const double StringFlav::baryonCGDec[6]
 
 void StringFlav::init() {
 
-  // Save pointers.
   // Basic parameters for generation of new flavour.
   probQQtoQ       = parm("StringFlav:probQQtoQ");
   probStoUD       = parm("StringFlav:probStoUD");
   probSQtoQQ      = parm("StringFlav:probSQtoQQ");
   probQQ1toQQ0    = parm("StringFlav:probQQ1toQQ0");
-
-  // Parameters derived from above.
-  probQandQQ      = 1. + probQQtoQ;
-  probQandS       = 2. + probStoUD;
-  probQandSinQQ   = 2. + probSQtoQQ * probStoUD;
-  probQQ1corr     = 3. * probQQ1toQQ0;
-  probQQ1corrInv  = 1. / probQQ1corr;
-  probQQ1norm     = probQQ1corr / (1. + probQQ1corr);
 
   // Spin parameters for combining two quarks to a diquark.
   vector<double> pQQ1tmp = settingsPtr->pvec("StringFlav:probQQ1toQQ0join");
@@ -189,131 +180,25 @@ void StringFlav::init() {
   widthPreDiquark  = parm("StringPT:widthPreDiquark");
   useWidthPre      = (widthPreStrange > 1.0) || (widthPreDiquark > 1.0);
 
-  // Enhanded-rate prefactor for MPIs and/or nearby string pieces.
-  closePacking     = flag("StringPT:closePacking");
-  exponentMPI      = parm("StringPT:expMPI");
-  exponentNSP      = parm("StringPT:expNSP");
+  // Enhanced-rate prefactor for MPIs and/or nearby string pieces.
+  closePacking       = flag("ClosePacking:doClosePacking");
+  closePackingFacPT2 = pow2( parm("ClosePacking:facPT") );
+  qqKappa            = flag("ClosePacking:qqKappa");
+  closePackingFacQQ2 = pow2(parm("ClosePacking:facQQ"));
+  exponentMPI        = parm("ClosePacking:expMPI");
+  exponentNSP        = parm("ClosePacking:expNSP");
 
-  // Begin calculation of derived parameters for baryon production.
+  // Save "vacuum" parameters for closepacking init() function.
+  probStoUDSav    = probStoUD;
+  probQQtoQSav    = probQQtoQ;
+  probSQtoQQSav   = probSQtoQQ;
+  probQQ1toQQ0Sav = probQQ1toQQ0;
+  alphaQQSav      = (1. + 2. * probSQtoQQ * probStoUD + 9. * probQQ1toQQ0
+    + 6. * probSQtoQQ * probQQ1toQQ0 * probStoUD
+    + 3. * probQQ1toQQ0 * pow2(probSQtoQQ * probStoUD)) / (2. + probStoUD);
 
-  // Enumerate distinguishable diquark types (in diquark first is popcorn q).
-  enum Diquark {ud0, ud1, uu1, us0, su0, us1, su1, ss1};
-
-  // Maximum SU(6) weight by diquark type.
-  double barCGMax[8];
-  barCGMax[ud0] = baryonCGMax[0];
-  barCGMax[ud1] = baryonCGMax[4];
-  barCGMax[uu1] = baryonCGMax[2];
-  barCGMax[us0] = baryonCGMax[0];
-  barCGMax[su0] = baryonCGMax[0];
-  barCGMax[us1] = baryonCGMax[4];
-  barCGMax[su1] = baryonCGMax[4];
-  barCGMax[ss1] = baryonCGMax[2];
-
-  // Diquark SU(6) survival = Sum_quark (quark tunnel weight) * SU(6).
-  double dMB[8];
-  dMB[ud0] = 2. * baryonCGSum[0] + probStoUD * baryonCGSum[1];
-  dMB[ud1] = 2. * baryonCGSum[4] + probStoUD * baryonCGSum[5];
-  dMB[uu1] = baryonCGSum[2] + (1. + probStoUD) * baryonCGSum[3];
-  dMB[us0] = (1. + probStoUD) * baryonCGSum[0] + baryonCGSum[1];
-  dMB[su0] = dMB[us0];
-  dMB[us1] = (1. + probStoUD) * baryonCGSum[4] + baryonCGSum[5];
-  dMB[su1] = dMB[us1];
-  dMB[ss1] = probStoUD * baryonCGSum[2] + 2. * baryonCGSum[3];
-  for (int i = 1; i < 8; ++i) dMB[i] = dMB[i] / dMB[0];
-
-  // Tunneling factors for diquark production; only half a pair = sqrt.
-  double probStoUDroot    = sqrt(probStoUD);
-  double probSQtoQQroot   = sqrt(probSQtoQQ);
-  double probQQ1toQQ0root = sqrt(probQQ1toQQ0);
-  double qBB[8];
-  qBB[ud1] = probQQ1toQQ0root;
-  qBB[uu1] = probQQ1toQQ0root;
-  qBB[us0] = probSQtoQQroot;
-  qBB[su0] = probStoUDroot * probSQtoQQroot;
-  qBB[us1] = probQQ1toQQ0root * qBB[us0];
-  qBB[su1] = probQQ1toQQ0root * qBB[su0];
-  qBB[ss1] = probStoUDroot * pow2(probSQtoQQroot) * probQQ1toQQ0root;
-
-  // spin * (vertex factor) * (half-tunneling factor above).
-  double qBM[8];
-  qBM[ud1] = 3. * qBB[ud1];
-  qBM[uu1] = 6. * qBB[uu1];
-  qBM[us0] = probStoUD * qBB[us0];
-  qBM[su0] = qBB[su0];
-  qBM[us1] = probStoUD * 3. * qBB[us1];
-  qBM[su1] = 3. * qBB[su1];
-  qBM[ss1] = probStoUD * 6. * qBB[ss1];
-
-  // Combine above two into total diquark weight for q -> B Bbar.
-  for (int i = 1; i < 8; ++i) qBB[i] = qBB[i] * qBM[i];
-
-  // Suppression from having strange popcorn meson.
-  qBM[us0] *= popcornSmeson;
-  qBM[us1] *= popcornSmeson;
-  qBM[ss1] *= popcornSmeson;
-
-  // Suppression for a heavy quark of a diquark to fit into a baryon
-  // on the other side of popcorn meson: (0) s/u for q -> B M;
-  // (1) s/u for rank 0 diquark su -> M B; (2) ditto for s -> c/b.
-  double uNorm = 1. + qBM[ud1] + qBM[uu1] + qBM[us0] + qBM[us1];
-  scbBM[0] = (2. * (qBM[su0] + qBM[su1]) + qBM[ss1]) / uNorm;
-  scbBM[1] = scbBM[0] * popcornSpair * qBM[su0] / qBM[us0];
-  scbBM[2] = (1. + qBM[ud1]) * (2. + qBM[us0]) / uNorm;
-
-  // Include maximum of Clebsch-Gordan coefficients.
-  for (int i = 1; i < 8; ++i) dMB[i] *= qBM[i];
-  for (int i = 1; i < 8; ++i) qBM[i] *= barCGMax[i] / barCGMax[0];
-  for (int i = 1; i < 8; ++i) qBB[i] *= barCGMax[i] / barCGMax[0];
-
-  // Popcorn fraction for normal diquark production.
-  double qNorm = uNorm * popcornRate / 3.;
-  double sNorm = scbBM[0] * popcornSpair;
-  popFrac = qNorm * (1. + qBM[ud1] + qBM[uu1] + qBM[us0] + qBM[us1]
-    + sNorm * (qBM[su0] + qBM[su1] + 0.5 * qBM[ss1])) / (1. +  qBB[ud1]
-    + qBB[uu1] + 2. * (qBB[us0] + qBB[us1]) + 0.5 * qBB[ss1]);
-
-  // Popcorn fraction for rank 0 diquarks, depending on number of s quarks.
-  popS[0] = qNorm * qBM[ud1] / qBB[ud1];
-  popS[1] = qNorm * 0.5 * (qBM[us1] / qBB[us1]
-    + sNorm * qBM[su1] / qBB[su1]);
-  popS[2] = qNorm * sNorm * qBM[ss1] / qBB[ss1];
-
-  // Recombine diquark weights to flavour and spin ratios. Second index:
-  // 0 = s/u popcorn quark ratio.
-  // 1, 2 = s/u ratio for vertex quark if popcorn quark is u/d or s.
-  // 3 = q/q' vertex quark ratio if popcorn quark is light and = q.
-  // 4, 5, 6 = (spin 1)/(spin 0) ratio for su, us and ud.
-
-  // Case 0: q -> B B.
-  dWT[0][0] = (2. * (qBB[su0] + qBB[su1]) + qBB[ss1])
-    / (1. + qBB[ud1] + qBB[uu1] + qBB[us0] + qBB[us1]);
-  dWT[0][1] = 2. * (qBB[us0] + qBB[us1]) / (1. + qBB[ud1] + qBB[uu1]);
-  dWT[0][2] = qBB[ss1] / (qBB[su0] + qBB[su1]);
-  dWT[0][3] = qBB[uu1] / (1. + qBB[ud1] + qBB[uu1]);
-  dWT[0][4] = qBB[su1] / qBB[su0];
-  dWT[0][5] = qBB[us1] / qBB[us0];
-  dWT[0][6] = qBB[ud1];
-
-  // Case 1: q -> B M B.
-  dWT[1][0] = (2. * (qBM[su0] + qBM[su1]) + qBM[ss1])
-    / (1. + qBM[ud1] + qBM[uu1] + qBM[us0] + qBM[us1]);
-  dWT[1][1] = 2. * (qBM[us0] + qBM[us1]) / (1. + qBM[ud1] + qBM[uu1]);
-  dWT[1][2] = qBM[ss1] / (qBM[su0] + qBM[su1]);
-  dWT[1][3] = qBM[uu1] / (1. + qBM[ud1] + qBM[uu1]);
-  dWT[1][4] = qBM[su1] / qBM[su0];
-  dWT[1][5] = qBM[us1] / qBM[us0];
-  dWT[1][6] = qBM[ud1];
-
-  // Case 2: qq -> M B; diquark inside chain.
-  dWT[2][0] = (2. * (dMB[su0] + dMB[su1]) + dMB[ss1])
-    / (1. + dMB[ud1] + dMB[uu1] + dMB[us0] + dMB[us1]);
-  dWT[2][1] = 2. * (dMB[us0] + dMB[us1]) / (1. + dMB[ud1] + dMB[uu1]);
-  dWT[2][2] = dMB[ss1] / (dMB[su0] + dMB[su1]);
-  dWT[2][3] = dMB[uu1] / (1. + dMB[ud1] + dMB[uu1]);
-  dWT[2][4] = dMB[su1] / dMB[su0];
-  dWT[2][5] = dMB[us1] / dMB[us0];
-  dWT[2][6] = dMB[ud1];
+  // Calculate derived parameters.
+  initDerived();
 
   // Use thermal model?
   thermalModel = flag("StringPT:thermalModel");
@@ -822,6 +707,42 @@ void StringFlav::init() {
 
 //--------------------------------------------------------------------------
 
+// Initialise parameters when using close packing.
+
+void StringFlav::init(double kappaRatio, double strangeFac, double probQQmod) {
+
+  double kappaInvRatio   = 1. / pow(kappaRatio, 2*exponentNSP);
+
+  // Altered probabilities with close packing.
+  probStoUD    = pow(probStoUDSav, kappaInvRatio * (1 - strangeFac));
+  probSQtoQQ   = pow(probSQtoQQSav, kappaInvRatio);
+  probQQ1toQQ0 = pow(probQQ1toQQ0Sav, kappaInvRatio);
+  probQQtoQ    = probQQtoQSav;
+
+  // If allowing effective kappa to enhance baryon production, do this.
+  if (qqKappa) {
+    double alphaQQ = 1. + 2. * probSQtoQQ * probStoUD + 9. * probQQ1toQQ0
+      + 6. * probSQtoQQ * probQQ1toQQ0 * probStoUD
+      + 3. * probQQ1toQQ0 * pow2(probSQtoQQ * probStoUD);
+    alphaQQ  *= 1. / (2 + probStoUD);
+    // Diquark scaling power controlled by closePackingFacQQ.
+    double kappaRatioQQ    = 1. + closePackingFacQQ2 * ( kappaRatio - 1.);
+    double kappaInvRatioQQ = 1. / pow(kappaRatioQQ, 2*exponentNSP);
+    probQQtoQ = alphaQQ * pow( (probQQtoQSav / alphaQQSav ), kappaInvRatioQQ);
+  }
+
+  // Probability of a diquark being formed can scale with the probability
+  // of a fluctuation on a string to not connect (and break) a nearby string.
+  // for x probability of reconnection,
+  // probability of diquark survival scales with 1/2 * [(1-x)^nG + (1-x)^nB]
+  probQQtoQ = probQQmod * probQQtoQ;
+
+  // Calculate derived parameters.
+  initDerived();
+}
+
+//--------------------------------------------------------------------------
+
 // Pick a new flavour (including diquarks) given an incoming one for
 // Gaussian pTq^2 distribution.
 
@@ -863,7 +784,8 @@ FlavContainer StringFlav::pickGauss(FlavContainer& flavOld, bool allowPop) {
     if ( (flavOld.id > 0 && flavOld.id < 9) || flavOld.id < -1000 )
       flavNew.id = -flavNew.id;
 
-    // Done for simple-quark case.
+    // Caclulate variations, then done for simple-quark case.
+    variations(abs(flavNew.id), true, doOldBaryon);
     return flavNew;
   }
 
@@ -905,11 +827,12 @@ FlavContainer StringFlav::pickGauss(FlavContainer& flavOld, bool allowPop) {
     if ((1. + spinWT) * rndmPtr->flat() < 1.) spin = 1;
   }
 
-  // Form outgoing diquark. Done.
+  // Form outgoing diquark. Calculate variations. Done.
   flavNew.id = 1000 * max(flavNew.idVtx, flavNew.idPop)
     + 100 * min(flavNew.idVtx, flavNew.idPop) + spin;
   if ( (flavOld.id < 0 && flavOld.id > -9) || flavOld.id > 1000 )
     flavNew.id = -flavNew.id;
+  variations(abs(flavNew.id), false, doOldBaryon);
   return flavNew;
 
 }
@@ -923,7 +846,7 @@ FlavContainer StringFlav::pickGauss(FlavContainer& flavOld, bool allowPop) {
 // First return value is hadron ID, second new (di)quark ID.
 
 FlavContainer StringFlav::pickThermal(FlavContainer& flavOld,
-  double pT, double nNSP) {
+  double pT, double kappaRatio) {
 
   // Initial values for new flavour.
   FlavContainer flavNew;
@@ -935,10 +858,10 @@ FlavContainer StringFlav::pickThermal(FlavContainer& flavOld,
   // Temperature increase to work against asymmetry. Apply for
   // s/c/b and diquarks.
   if (idInAbs > 2) temprNow *= tempPreFactor;
-  // Enhanded-rate prefactor for MPIs and/or nearby string pieces.
+  // Enhanced-rate prefactor for MPIs and/or nearby string pieces.
   if (closePacking) {
     temprNow     *= pow(max(1.0,double(infoPtr->nMPI())), exponentMPI);
-    temprNow     *= pow(max(1.0,nNSP), exponentNSP);
+    temprNow     *= pow(max(1.0,kappaRatio), exponentNSP);
   }
   // Get Gaussian width in case of mT2 suppression.
   double sigmaNow = sigmaHad;
@@ -950,10 +873,10 @@ FlavContainer StringFlav::pickThermal(FlavContainer& flavOld,
                     particleDataPtr->nQuarksInCode(idIn,3) );
   }
 
-  // Enhanded-rate prefactor for MPIs and/or nearby string pieces.
+  // Enhanced-rate prefactor for MPIs and/or nearby string pieces.
   if (closePacking) {
     sigmaNow     *= pow(max(1.0,double(infoPtr->nMPI())), exponentMPI);
-    sigmaNow     *= pow(max(1.0,nNSP), exponentNSP);
+    sigmaNow     *= pow(max(1.0,kappaRatio), exponentNSP);
   }
 
   // Get the list of allowed hadrons and constituents for that
@@ -1135,6 +1058,53 @@ int StringFlav::combine(FlavContainer& flav1, FlavContainer& flav2) {
 
 //--------------------------------------------------------------------------
 
+// Combine three (di-)quark flavours into two hadrons.
+// Note that at least one of the id's must be a diquark.
+
+pair<int,int> StringFlav::combineDiquarkJunction(int id1, int id2, int id3) {
+
+  // Order the junction ends in an increasing |id| sequence.
+  if (abs(id1) > abs(id2)) swap(id1, id2);
+  if (abs(id2) > abs(id3)) swap(id2, id3);
+  if (abs(id1) > abs(id2)) swap(id1, id2);
+
+  // If the first is a diquark then all are diquarks. Then split the first.
+  // Combine its two quarks with the other diquarks into two baryons.
+  int id1a = id1/1000;
+  int id1b = (id1/100) % 10;
+  int id2a = id2;
+  int id2b = id3;
+
+  // Otherwise the first is an antiquark. If the second is a diquark, also the
+  // third is it. Then split the second. Let one of its quarks form a meson
+  // with the first antiquark, and the other a baryon with the third diquark.
+  if ( id1a == 0) {
+    id1a = id2/1000;
+    id1b = (id2/100) % 10;
+    id2a = id1;
+    id2b = id3;
+  }
+
+  // Finally, if the first two are antiquarks, then split the third diquark
+  // and form two mesons.
+  if ( id1a == 0) {
+    id1a = id3/1000;
+    id1b = (id3/100) % 10;
+    id2a = id1;
+    id2b = id2;
+  }
+
+  // If there was no diquark to split something is wrong.
+  if (id1a == 0) return {0, 0};
+
+  // Randomize the flavours of the split diquark and return the two hadrons.
+  if (rndmPtr->flat() < 0.5) swap(id1a, id1b);
+  return {combineId(id1a, id2a), combineId(id1b, id2b)};
+
+}
+
+//---------------------------------------------------------------------------
+
 // Combine two flavours (including diquarks) to produce the lightest hadron
 // allowed for that flavour content. No popcorn flavours.
 
@@ -1191,7 +1161,7 @@ int StringFlav::combineToLightest( int id1, int id2) {
 // called in case of combining the two remaining flavours into last hadron.
 
 int StringFlav::combineLastThermal(FlavContainer& flav1, FlavContainer& flav2,
-  double pT, double nNSP) {
+  double pT, double kappaRatio) {
 
   // Decide randomly on whether to treat flav1 or flav2 as incoming.
   int idIn[2]    = { flav1.id, flav2.id };
@@ -1204,10 +1174,10 @@ int StringFlav::combineLastThermal(FlavContainer& flav1, FlavContainer& flav2,
   // s/c/b and diquarks.
   if (idInAbs > 2) temprNow *= tempPreFactor;
 
-  // Enhanded-rate prefactor for MPIs and/or nearby string pieces.
+  // Enhanced-rate prefactor for MPIs and/or nearby string pieces.
   if (closePacking) {
     temprNow     *= pow(max(1.0,double(infoPtr->nMPI())), exponentMPI);
-    temprNow     *= pow(max(1.0,nNSP), exponentNSP);
+    temprNow     *= pow(max(1.0,kappaRatio), exponentNSP);
   }
 
   // Get Gaussian width in case of mT2 suppression.
@@ -1219,10 +1189,10 @@ int StringFlav::combineLastThermal(FlavContainer& flav1, FlavContainer& flav2,
                     particleDataPtr->nQuarksInCode(idInAbs,3) );
   }
 
-  // Enhanded-rate prefactor for MPIs and/or nearby string pieces.
+  // Enhanced-rate prefactor for MPIs and/or nearby string pieces.
   if (closePacking) {
     sigmaNow     *= pow(max(1.0,double(infoPtr->nMPI())), exponentMPI);
-    sigmaNow     *= pow(max(1.0,nNSP), exponentNSP);
+    sigmaNow     *= pow(max(1.0,kappaRatio), exponentNSP);
   }
 
   // Get the list of allowed hadrons and constituents for that combination
@@ -1346,6 +1316,193 @@ int StringFlav::makeDiquark(int id1, int id2, int idHad) {
   // Combined diquark code.
   int idNewAbs = 1000 * idMax + 100 * idMin + 2 * spin + 1;
   return (id1 > 0) ? idNewAbs : -idNewAbs;
+
+}
+
+//--------------------------------------------------------------------------
+
+// Initialise the derived parameters.
+
+void StringFlav::initDerived() {
+
+  // Parameters derived from init calls.
+  probQandQQ      = 1. + probQQtoQ;
+  probQandS       = 2. + probStoUD;
+  probQandSinQQ   = 2. + probSQtoQQ * probStoUD;
+  probQQ1corr     = 3. * probQQ1toQQ0;
+  probQQ1corrInv  = 1. / probQQ1corr;
+  probQQ1norm     = probQQ1corr / (1. + probQQ1corr);
+
+  // Enumerate distinguishable diquark types (in diquark first is popcorn q).
+  enum Diquark {ud0, ud1, uu1, us0, su0, us1, su1, ss1};
+
+  // Maximum SU(6) weight by diquark type.
+  barCGMax[ud0] = baryonCGMax[0];
+  barCGMax[ud1] = baryonCGMax[4];
+  barCGMax[uu1] = baryonCGMax[2];
+  barCGMax[us0] = baryonCGMax[0];
+  barCGMax[su0] = baryonCGMax[0];
+  barCGMax[us1] = baryonCGMax[4];
+  barCGMax[su1] = baryonCGMax[4];
+  barCGMax[ss1] = baryonCGMax[2];
+
+  // Diquark SU(6) survival = Sum_quark (quark tunnel weight) * SU(6).
+  double dMB[8];
+  dMB[ud0] = 2. * baryonCGSum[0] + probStoUD * baryonCGSum[1];
+  dMB[ud1] = 2. * baryonCGSum[4] + probStoUD * baryonCGSum[5];
+  dMB[uu1] = baryonCGSum[2] + (1. + probStoUD) * baryonCGSum[3];
+  dMB[us0] = (1. + probStoUD) * baryonCGSum[0] + baryonCGSum[1];
+  dMB[su0] = dMB[us0];
+  dMB[us1] = (1. + probStoUD) * baryonCGSum[4] + baryonCGSum[5];
+  dMB[su1] = dMB[us1];
+  dMB[ss1] = probStoUD * baryonCGSum[2] + 2. * baryonCGSum[3];
+  for (int i = 1; i < 8; ++i) dMB[i] = dMB[i] / dMB[0];
+
+  // Tunneling factors for diquark production; only half a pair = sqrt.
+  double probStoUDroot    = sqrt(probStoUD);
+  double probSQtoQQroot   = sqrt(probSQtoQQ);
+  double probQQ1toQQ0root = sqrt(probQQ1toQQ0);
+  double qBB[8];
+  qBB[ud1] = probQQ1toQQ0root;
+  qBB[uu1] = probQQ1toQQ0root;
+  qBB[us0] = probSQtoQQroot;
+  qBB[su0] = probStoUDroot * probSQtoQQroot;
+  qBB[us1] = probQQ1toQQ0root * qBB[us0];
+  qBB[su1] = probQQ1toQQ0root * qBB[su0];
+  qBB[ss1] = probStoUDroot * pow2(probSQtoQQroot) * probQQ1toQQ0root;
+
+  // spin * (vertex factor) * (half-tunneling factor above).
+  double qBM[8];
+  qBM[ud1] = 3. * qBB[ud1];
+  qBM[uu1] = 6. * qBB[uu1];
+  qBM[us0] = probStoUD * qBB[us0];
+  qBM[su0] = qBB[su0];
+  qBM[us1] = probStoUD * 3. * qBB[us1];
+  qBM[su1] = 3. * qBB[su1];
+  qBM[ss1] = probStoUD * 6. * qBB[ss1];
+
+  // Combine above two into total diquark weight for q -> B Bbar.
+  for (int i = 1; i < 8; ++i) qBB[i] = qBB[i] * qBM[i];
+
+  // Suppression from having strange popcorn meson.
+  qBM[us0] *= popcornSmeson;
+  qBM[us1] *= popcornSmeson;
+  qBM[ss1] *= popcornSmeson;
+
+  // Suppression for a heavy quark of a diquark to fit into a baryon
+  // on the other side of popcorn meson: (0) s/u for q -> B M;
+  // (1) s/u for rank 0 diquark su -> M B; (2) ditto for s -> c/b.
+  double uNorm = 1. + qBM[ud1] + qBM[uu1] + qBM[us0] + qBM[us1];
+  scbBM[0] = (2. * (qBM[su0] + qBM[su1]) + qBM[ss1]) / uNorm;
+  scbBM[1] = scbBM[0] * popcornSpair * qBM[su0] / qBM[us0];
+  scbBM[2] = (1. + qBM[ud1]) * (2. + qBM[us0]) / uNorm;
+
+  // Include maximum of Clebsch-Gordan coefficients.
+  for (int i = 1; i < 8; ++i) dMB[i] *= qBM[i];
+  for (int i = 1; i < 8; ++i) qBM[i] *= barCGMax[i] / barCGMax[0];
+  for (int i = 1; i < 8; ++i) qBB[i] *= barCGMax[i] / barCGMax[0];
+
+  // Popcorn fraction for normal diquark production.
+  double qNorm = uNorm * popcornRate / 3.;
+  double sNorm = scbBM[0] * popcornSpair;
+  popFrac = qNorm * (1. + qBM[ud1] + qBM[uu1] + qBM[us0] + qBM[us1]
+    + sNorm * (qBM[su0] + qBM[su1] + 0.5 * qBM[ss1])) / (1. +  qBB[ud1]
+    + qBB[uu1] + 2. * (qBB[us0] + qBB[us1]) + 0.5 * qBB[ss1]);
+
+  // Popcorn fraction for rank 0 diquarks, depending on number of s quarks.
+  popS[0] = qNorm * qBM[ud1] / qBB[ud1];
+  popS[1] = qNorm * 0.5 * (qBM[us1] / qBB[us1]
+    + sNorm * qBM[su1] / qBB[su1]);
+  popS[2] = qNorm * sNorm * qBM[ss1] / qBB[ss1];
+
+  // Recombine diquark weights to flavour and spin ratios. Second index:
+  // 0 = s/u popcorn quark ratio.
+  // 1, 2 = s/u ratio for vertex quark if popcorn quark is u/d or s.
+  // 3 = q/q' vertex quark ratio if popcorn quark is light and = q.
+  // 4, 5, 6 = (spin 1)/(spin 0) ratio for su, us and ud.
+
+  // Case 0: q -> B B.
+  dWT[0][0] = (2. * (qBB[su0] + qBB[su1]) + qBB[ss1])
+    / (1. + qBB[ud1] + qBB[uu1] + qBB[us0] + qBB[us1]);
+  dWT[0][1] = 2. * (qBB[us0] + qBB[us1]) / (1. + qBB[ud1] + qBB[uu1]);
+  dWT[0][2] = qBB[ss1] / (qBB[su0] + qBB[su1]);
+  dWT[0][3] = qBB[uu1] / (1. + qBB[ud1] + qBB[uu1]);
+  dWT[0][4] = qBB[su1] / qBB[su0];
+  dWT[0][5] = qBB[us1] / qBB[us0];
+  dWT[0][6] = qBB[ud1];
+
+  // Case 1: q -> B M B.
+  dWT[1][0] = (2. * (qBM[su0] + qBM[su1]) + qBM[ss1])
+    / (1. + qBM[ud1] + qBM[uu1] + qBM[us0] + qBM[us1]);
+  dWT[1][1] = 2. * (qBM[us0] + qBM[us1]) / (1. + qBM[ud1] + qBM[uu1]);
+  dWT[1][2] = qBM[ss1] / (qBM[su0] + qBM[su1]);
+  dWT[1][3] = qBM[uu1] / (1. + qBM[ud1] + qBM[uu1]);
+  dWT[1][4] = qBM[su1] / qBM[su0];
+  dWT[1][5] = qBM[us1] / qBM[us0];
+  dWT[1][6] = qBM[ud1];
+
+  // Case 2: qq -> M B; diquark inside chain.
+  dWT[2][0] = (2. * (dMB[su0] + dMB[su1]) + dMB[ss1])
+    / (1. + dMB[ud1] + dMB[uu1] + dMB[us0] + dMB[us1]);
+  dWT[2][1] = 2. * (dMB[us0] + dMB[us1]) / (1. + dMB[ud1] + dMB[uu1]);
+  dWT[2][2] = dMB[ss1] / (dMB[su0] + dMB[su1]);
+  dWT[2][3] = dMB[uu1] / (1. + dMB[ud1] + dMB[uu1]);
+  dWT[2][4] = dMB[su1] / dMB[su0];
+  dWT[2][5] = dMB[us1] / dMB[us0];
+  dWT[2][6] = dMB[ud1];
+
+}
+
+//--------------------------------------------------------------------------
+
+// Calculate the flavor variations.
+
+void StringFlav::variations(int idIn, bool early, bool noChoice) {
+
+  if (infoPtr->weightContainerPtr->weightsFragmentation.
+    weightParms[WeightsFragmentation::Flav].empty()) return;
+  int idPop = idIn / 1000;
+  int idVtx = (idIn-idPop*1000) / 100;
+  int spin  = idIn - idPop*1000 - idVtx*100;
+
+  // Loop over the variation parameters.
+  WeightsFragmentation &wgts = infoPtr->weightContainerPtr->
+    weightsFragmentation;
+  for (auto &parms : wgts.weightParms[WeightsFragmentation::Flav]) {
+    const vector<double> &vals = parms.first;
+    int iWgt = parms.second;
+    double wgt = 1.0;
+    // No diquark break from a diquark mother
+    if( !noChoice ) wgt = (1. + probQQtoQ) / (1. + vals[5]);
+    // If early is true, this is a quark-pair.
+    if (early) {
+      wgt *= (2. + probStoUD) / (2. + vals[6]);
+      // Include additional factor for s quark.
+      if (idIn == 3) wgt *= vals[6] / probStoUD;
+      wgts.reweightValueByIndex(iWgt, wgt);
+      continue;
+    }
+    // Additional pieces for diquark probabilities.
+    if( vals[5] > 0.0 ) wgt *= vals[5] / probQQtoQ;
+    wgt *= (2. + dWT[0][0]) / (2. + vals[0]);
+    if (idPop > 2) wgt *= vals[0] / dWT[0][0];
+    if (idPop < 3) {
+      wgt *= (2. + dWT[0][1]) / (2. + vals[1]);
+      if (idVtx > 2) wgt *= vals[1] / dWT[0][1];
+    } else {
+      wgt *= (2. + dWT[0][2]) / (2. + vals[2]);
+      if (idVtx > 2) wgt *= vals[2] / dWT[0][2] ;
+    }
+    if (idPop < 3 && idVtx < 3) {
+        if (idPop == idVtx) wgt *= vals[3] / dWT[0][3];
+        else wgt *= (1. - vals[3]) / (1. - dWT[0][3]);
+    }
+    if (idPop != idVtx) {
+      wgt *= (1. + dWT[0][6]) / (1. + vals[4]);
+      if (spin > 1) wgt *= vals[4] / dWT[0][6];
+    }
+    wgts.reweightValueByIndex(iWgt, wgt);
+  }
 
 }
 
@@ -1521,8 +1678,31 @@ double StringZ::zFrag( int idOld, int idNew, double mT2) {
   if (idFrag == 4) cShape += rFactC * bNow * mc2;
   if (idFrag == 5) cShape += rFactB * bNow * mb2;
   if (idFrag >  5) cShape += rFactH * bNow * mT2;
-  return zLund( aShape, bShape, cShape);
+  if (!infoPtr->weightContainerPtr->weightsFragmentation.
+    weightParms[WeightsFragmentation::Z].empty())
+    return zLund(aShape, bShape, cShape, 10, bNow, idFrag, isOldSQuark,
+      isNewSQuark, isOldDiquark, isNewDiquark);
+  else return zLund( aShape, bShape, cShape);
 
+}
+
+//--------------------------------------------------------------------------
+
+// Determine the maximum for zLund.
+
+double StringZ::zLundMax( double a, double b, double c) {
+  // Normalization for Lund fragmentation function so that f <= 1.
+  // Special cases for a = 0 and a = c.
+  bool aIsZero = (a < AFROMZERO);
+  bool aIsC = (abs(a - c) < AFROMC);
+
+  // Determine position of maximum.
+  double zMax;
+  if (aIsZero) zMax = (c > b) ? b / c: 1.;
+  else if (aIsC) zMax = b / (b + c);
+  else { zMax = 0.5 * (b + c - sqrt( pow2(b - c) + 4. * a * b)) / (c - a);
+    if (zMax > 0.9999 && b > 100.) zMax = min(zMax, 1. - a / b); }
+  return zMax;
 }
 
 //--------------------------------------------------------------------------
@@ -1533,7 +1713,11 @@ double StringZ::zFrag( int idOld, int idNew, double mT2) {
 // f(z) = exp( a * ln( (1 - z) / (1 - z_max) ) + b * (1/z_max - 1/z)
 //           + c * ln(z_max/z) ).
 
-double StringZ::zLund( double a, double b, double c) {
+// The arguments beginning with head are only needed for reweighting.
+
+double StringZ::zLund( double a, double b, double c,
+  double head, double bNow, int idFrag, bool isOldSQuark, bool isNewSQuark,
+  bool isOldDiquark, bool isNewDiquark) {
 
   // Special cases for c = 1, a = 0 and a = c.
   bool cIsUnity = (abs( c - 1.) < CFROMUNITY);
@@ -1586,6 +1770,7 @@ double StringZ::zLund( double a, double b, double c) {
   double z = 0.5;
   double fPrel = 1.;
   double fVal = 1.;
+  bool   accept = false;
   do {
     // Choice of z flat good enough for distribution peaked in the middle;
     // if not this z can be reused as a random number in general.
@@ -1608,11 +1793,71 @@ double StringZ::zLund( double a, double b, double c) {
 
     // Evaluate actual f(z) (if in physical range) and correct.
     if (z > 0 && z < 1) {
+      double fRnd = rndmPtr->flat();
       double fExp = b * (1. / zMax - 1. / z)+ c * log(zMax / z);
       if (!aIsZero) fExp += a * log( (1. - z) / (1. - zMax) );
       fVal = exp( max( -EXPMAX, min( EXPMAX, fExp) ) ) ;
-    } else fVal = 0.;
-  } while (fVal < rndmPtr->flat() * fPrel);
+      double fPrb = fVal / (fPrel * head);
+      accept = fPrb > fRnd;
+
+      // Loop over the variation parameters.
+      WeightsFragmentation &wgts = infoPtr->weightContainerPtr->
+        weightsFragmentation;
+      for (auto &parms : wgts.weightParms[WeightsFragmentation::Z]) {
+        const vector<double>& vals = parms.first;
+        int iWgt = parms.second;
+
+        // Skip non-standard c, b, or h.
+        if (vals[0] < 0 && ((idFrag == 4 && useNonStandC) ||
+            (idFrag == 5 && useNonStandB) || (idFrag > 5 && useNonStandH)))
+          break;
+
+        // Determine the varied a, b, and c parameters.
+        double ap = vals[0] > 0 ? vals[0] : a ;
+        if (isOldSQuark)  ap += aExtraSQuark;
+        if (isOldDiquark) ap += aExtraDiquark;
+        double bp = vals[1] > 0 ? vals[1] : bNow;
+        // Determine position of the maximum. Assuming that no
+        // special options are being used, i.e bShape = bLund. This
+        // is because b is scaled by mT2.
+        double bpin = bp / bNow * b;
+
+        // When b is changed, so is c.
+        double rFactmsq = 0.;
+        if (idFrag == 4) rFactmsq = (vals[2] > 0 ? vals[2] : rFactC)*mc2;
+        else if (idFrag == 5) rFactmsq = (vals[3] > 0 ? vals[3] : rFactB)*mb2;
+        double cp = 1 + rFactmsq * bp;
+        if (isOldSQuark)  cp -= aExtraSQuark;
+        if (isNewSQuark)  cp += aExtraSQuark;
+        if (isOldDiquark) cp -= aExtraDiquark;
+        if (isNewDiquark) cp += aExtraDiquark;
+
+        // Determine the new position of maximum.
+        double zMax0 = zLundMax(ap, bpin, cp);
+        // Recalculate the coefficients.
+        double aCoefp = log( (1. - z) / (1. - zMax0));
+        double bCoefp = (1. / zMax0 - 1. / z);
+        double cCoefp = log(zMax0 / z);
+        double fVar = bpin * bCoefp + cp * cCoefp;
+        if (ap >= AFROMZERO) fVar += ap * aCoefp;
+        double fValp = exp(max( -EXPMAX, min(EXPMAX, fVar)));
+
+        // Determine the weight and reduce if necessary.
+        double wgt = min(fValp/fVal, head);
+        if( wgt*fPrb > 1 ) {
+          stringstream msg;
+          msg << "proposed variation in zFrag is too extreme for "
+              << "parameters " << fixed << setprecision(2) << vals[0]
+              << setw(5) << vals[1] << setw(5) << vals[2] << setw(5)
+              << vals[3] << ";  weight reduced.";
+          loggerPtr->WARNING_MSG(msg.str());
+          wgt = 0.95 / fPrb;
+        }
+        wgts.reweightValueByIndex(iWgt, accept ? wgt :
+          (1. - wgt*fPrb)/(1. - fPrb));
+      }
+    }
+  } while (!accept);
 
   // Done.
   return z;
@@ -1696,10 +1941,10 @@ void StringPT::init() {
   // Upper estimate of thermal spectrum: fraction at x = pT_quark/T < 1.
   fracSmallX       = 0.6 / (0.6 + (1.2/0.9) * exp(-0.9));
 
-  // Enhanded-width prefactor for MPIs and/or nearby string pieces.
-  closePacking     = flag("StringPT:closePacking");
-  exponentMPI      = parm("StringPT:expMPI");
-  exponentNSP      = parm("StringPT:expNSP");
+  // Enhanced-width prefactor for MPIs and/or nearby string pieces.
+  closePacking     = flag("ClosePacking:doClosePacking");
+  exponentMPI      = parm("ClosePacking:expMPI");
+  exponentNSP      = parm("ClosePacking:expNSP");
 
   // Parameter for pT suppression in MiniStringFragmentation.
   sigma2Had        = 2. * pow2( max( SIGMAMIN, sigma) );
@@ -1711,17 +1956,17 @@ void StringPT::init() {
 // Generate quark pT according to fitting functions, such that
 // hadron pT is generated according to exp(-pT/T) d^2pT.
 
-pair<double, double> StringPT::pxyThermal(int idIn, double nNSP) {
+pair<double, double> StringPT::pxyThermal(int idIn, double kappaRatio) {
 
   double temprNow = temperature;
   // Temperature increase to work against asymmetry. Apply for
   // s/c/b and diquarks.
   if (abs(idIn) > 2) temprNow *= tempPreFactor;
 
-  // Enhanded-width prefactor for MPIs and/or nearby string pieces.
+  // Enhanced-width prefactor for MPIs and/or nearby string pieces.
   if (closePacking) {
     temprNow *= pow(max(1.0,double(infoPtr->nMPI())), exponentMPI);
-    temprNow *= pow(max(1.0,nNSP), exponentNSP);
+    temprNow *= pow(max(1.0,kappaRatio), exponentNSP);
   }
 
   // Pick x = pT_quark/T according to K_{1/4}(x)/x^{1/4} * x dx.
@@ -1747,26 +1992,42 @@ pair<double, double> StringPT::pxyThermal(int idIn, double nNSP) {
 // Generate Gaussian pT such that <p_x^2> = <p_x^2> = sigma^2 = width^2/2,
 // but with small fraction multiplied up to a broader spectrum.
 
-pair<double, double> StringPT::pxyGauss(int idIn, double nNSP) {
+pair<double, double> StringPT::pxyGauss(int idIn, double kappaRatio) {
 
-  // Normal (classical) width selection.
+  // Normal (classical) width selection and factor for sigma variations.
   double sigma = sigmaQ;
-  if (rndmPtr->flat() < enhancedFraction) sigma *= enhancedWidth;
+  double mult = 1.;
+  if (rndmPtr->flat() < enhancedFraction) mult = enhancedWidth;
 
   // Prefactor for strange quarks and diquarks.
   if (useWidthPre) {
-    if (abs(idIn) > 10) sigma *= widthPreDiquark;
-    sigma *= pow(widthPreStrange, particleDataPtr->nQuarksInCode(idIn, 3) );
+    if (abs(idIn) > 10) mult *= widthPreDiquark;
+    mult *= pow(widthPreStrange, particleDataPtr->nQuarksInCode(idIn, 3) );
   }
 
-  // Enhanded-width prefactor for MPIs and/or nearby string pieces.
+  // Enhanced-width prefactor for MPIs and/or nearby string pieces.
   if (closePacking) {
-    sigma *= pow(max(1.0,double(infoPtr->nMPI())), exponentMPI);
-    sigma *= pow(max(1.0,nNSP), exponentNSP);
+    mult *= pow(max(1.0,double(infoPtr->nMPI())), exponentMPI);
+    double kappaRatioPT2 = closePackingFacPT2 * (kappaRatio - 1) + 1;
+    mult *= pow(max(1.0, kappaRatioPT2), exponentNSP);
   }
+  sigma *= mult;
 
   // Generate (p_x, p_y) pair.
   pair<double, double> gauss2 = rndmPtr->gauss2();
+
+  // Calculate the weights from the variations.
+  WeightsFragmentation &wgts = infoPtr->weightContainerPtr->
+    weightsFragmentation;
+  if (!wgts.weightParms[WeightsFragmentation::PT].empty()) {
+    double pre = -0.5*(pow2(gauss2.first) + pow2(gauss2.second));
+    for (auto &parms : wgts.weightParms[WeightsFragmentation::PT]) {
+      double ratio =  pow2(sigma / (parms.first[0] * mult/sqrt(2.)));
+      wgts.reweightValueByIndex(parms.second, ratio*exp(pre*(ratio - 1.)));
+    }
+  }
+
+  // Return the result.
   return pair<double, double>(sigma * gauss2.first, sigma * gauss2.second);
 
 }

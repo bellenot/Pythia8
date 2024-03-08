@@ -1,5 +1,5 @@
 // Settings.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -493,7 +493,7 @@ bool Settings::readString(string line, bool warn) {
     }
     if (!mode(name, value, force)) {
       if (warn) cout << "\n PYTHIA Error: variable recognized, but its value"
-        << " non-existing option:\n   " << line << endl;
+        << " is out of range:\n   " << line << endl;
       readingFailedSave = true;
       return false;
     }
@@ -509,7 +509,12 @@ bool Settings::readString(string line, bool warn) {
       readingFailedSave = true;
       return false;
     }
-    parm(name, value, force);
+    if (!parm(name, value, force)) {
+      if (warn) cout << "\n PYTHIA Error: variable recognized, but its value"
+        << " is out of range:\n   " << line << endl;
+      readingFailedSave = true;
+      return false;
+    }
 
   // Update word map.
   } else if (inDataBase == 4)  {
@@ -549,7 +554,12 @@ bool Settings::readString(string line, bool warn) {
       old.insert(old.end(), value.begin(), value.end());
       value = old;
     }
-    mvec(name, value, force);
+    if (!mvec(name, value, force)) {
+      if (warn) cout << "\n PYTHIA Error: variable recognized, but its value"
+        << " is out of range:\n   " << line << endl;
+      readingFailedSave = true;
+      return false;
+    }
 
   // Update pvec map.
   } else if (inDataBase == 7) {
@@ -567,7 +577,12 @@ bool Settings::readString(string line, bool warn) {
       old.insert(old.end(), value.begin(), value.end());
       value = old;
     }
-    pvec(name, value, force);
+    if (!pvec(name, value, force)) {
+      if (warn) cout << "\n PYTHIA Error: variable recognized, but its value"
+        << " is out of range:\n   " << line << endl;
+      readingFailedSave = true;
+      return false;
+    }
 
   // Update wvec map.
   } else if (inDataBase == 8) {
@@ -701,11 +716,10 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
       && ( pvecEntry == pvecs.end() || flagEntry->first < pvecEntry->first )
       && ( wvecEntry == wvecs.end() || flagEntry->first < wvecEntry->first )
       ) {
-      string state[2] = {"off", "on"};
       bool valNow = flagEntry->second.valNow;
       bool valDefault = flagEntry->second.valDefault;
       if ( writeAll || valNow != valDefault )
-        os << flagEntry->second.name << " = " << state[valNow] << "\n";
+        os << flagEntry->second.name << " = " + toString(valNow) + "\n";
       ++flagEntry;
 
     // Else check if mode is next, and if so print it.
@@ -720,7 +734,7 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
       int valNow = modeEntry->second.valNow;
       int valDefault = modeEntry->second.valDefault;
       if ( writeAll || valNow != valDefault )
-        os << modeEntry->second.name << " = " << valNow << "\n";
+        os << modeEntry->second.name << " = " + toString(valNow) + "\n";
       ++modeEntry;
 
     // Else check if parm is next, and if so print it; fixed or scientific.
@@ -733,16 +747,8 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
       ) {
       double valNow = parmEntry->second.valNow;
       double valDefault = parmEntry->second.valDefault;
-      if ( writeAll || valNow != valDefault ) {
-        os  << parmEntry->second.name << " = ";
-        if ( valNow == 0. ) os << fixed << setprecision(1);
-        else if ( abs(valNow) < 0.001 ) os << scientific << setprecision(4);
-        else if ( abs(valNow) < 0.1 ) os << fixed << setprecision(7);
-        else if ( abs(valNow) < 1000. ) os << fixed << setprecision(5);
-        else if ( abs(valNow) < 1000000. ) os << fixed << setprecision(3);
-        else os << scientific << setprecision(4);
-        os << valNow << "\n";
-      }
+      if ( writeAll || valNow != valDefault )
+        os  << parmEntry->second.name << " = " + toString(valNow) + "\n";
       ++parmEntry;
 
     // Else check if word is next, and if so print it.
@@ -755,7 +761,7 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
       string valNow = wordEntry->second.valNow;
       string valDefault = wordEntry->second.valDefault;
       if ( writeAll || valNow != valDefault )
-        os << wordEntry->second.name << " = " << valNow << "\n";
+        os << wordEntry->second.name << " = " + valNow + "\n";
       ++wordEntry;
 
     // Else check if fvec is next, and if so print it.
@@ -764,15 +770,14 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
       && ( pvecEntry == pvecs.end() || fvecEntry->first < pvecEntry->first )
       && ( wvecEntry == wvecs.end() || fvecEntry->first < wvecEntry->first )
       ) {
-      string state[2] = {"off", "on"};
       vector<bool> valNow = fvecEntry->second.valNow;
       vector<bool> valDefault = fvecEntry->second.valDefault;
       if ( writeAll || valNow != valDefault ) {
         os  << fvecEntry->second.name << " = {";
         if (valNow.size() > 0) {
           for (vector<bool>::iterator val = valNow.begin();
-               val != --valNow.end(); ++val) os << state[*val] << ",";
-          os << state[*(--valNow.end())] << "}\n";
+               val != --valNow.end(); ++val) os << toString(*val) + ",";
+          os << toString(*(--valNow.end())) + "}\n";
         } else os << "}\n";
       }
       ++fvecEntry;
@@ -788,8 +793,8 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
         os  << mvecEntry->second.name << " = {";
         if (valNow.size() > 0) {
           for (vector<int>::iterator val = valNow.begin();
-               val != --valNow.end(); ++val) os << *val << ",";
-          os << *(--valNow.end()) << "}\n";
+               val != --valNow.end(); ++val) os << toString(*val) + ",";
+          os << toString(*(--valNow.end())) + "}\n";
         } else os << "}\n";
       }
       ++mvecEntry;
@@ -804,15 +809,8 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
         os  << pvecEntry->second.name << " = {";
         if (valNow.size() > 0) {
           for (vector<double>::iterator val = valNow.begin();
-               val != --valNow.end(); ++val) {
-            if ( *val == 0. ) os << fixed << setprecision(1);
-            else if ( abs(*val) < 0.001 ) os << scientific << setprecision(4);
-            else if ( abs(*val) < 0.1 ) os << fixed << setprecision(7);
-            else if ( abs(*val) < 1000. ) os << fixed << setprecision(5);
-            else if ( abs(*val) < 1000000. ) os << fixed << setprecision(3);
-            else os << scientific << setprecision(4);
-            os << *val << ",";
-          } os << *(--valNow.end()) << "}\n";
+               val != --valNow.end(); ++val) os << toString(*val) + ",";
+          os << toString(*(--valNow.end())) + "}\n";
         } else os << "}\n";
       }
       ++pvecEntry;
@@ -825,8 +823,8 @@ bool Settings::writeFile(ostream& os, bool writeAll) {
         if (valNow.size() > 0) {
         os  << wvecEntry->second.name << " = {";
         for (vector<string>::iterator val = valNow.begin();
-             val != --valNow.end(); ++val) os << *val << ",";
-        os << *(--valNow.end()) << "}\n";
+             val != --valNow.end(); ++val) os << *val + ",";
+        os << *(--valNow.end()) + "}\n";
         } else os << "}\n";
       }
       ++wvecEntry;
@@ -1689,36 +1687,37 @@ bool Settings::mode(string keyIn, int nowIn, bool force) {
   if (isMode(keyIn)) {
     string keyLower = toLower(keyIn);
     Mode& modeNow = modes[keyLower];
-    // For modepick and modefix fail if values are outside range.
-    if (!force && modeNow.optOnly
-      && (nowIn < modeNow.valMin || nowIn > modeNow.valMax) ) return false;
-    if (!force && modeNow.hasMin && nowIn < modeNow.valMin)
-      modeNow.valNow = modeNow.valMin;
-    else if (!force && modeNow.hasMax && nowIn > modeNow.valMax)
-      modeNow.valNow = modeNow.valMax;
+    // Fail if values are outside range.
+    if (!force && ((modeNow.hasMin && nowIn < modeNow.valMin)
+                || (modeNow.hasMax && nowIn > modeNow.valMax)) ) {
+      loggerPtr->ERROR_MSG("value is out of range", keyIn, true);
+      return false;
+    }
     else modeNow.valNow = nowIn;
     // Tune:ee and Tune:pp each trigger a whole set of changes.
     if (keyLower == "tune:ee") initTuneEE( modeNow.valNow);
     if (keyLower == "tune:pp") initTunePP( modeNow.valNow);
   }
-  else if (force) {
+  else if (force)
     addMode(keyIn, nowIn, false, false, 0, 0);
-  }
+
   return true;
 }
 
-void Settings::parm(string keyIn, double nowIn, bool force) {
+bool Settings::parm(string keyIn, double nowIn, bool force) {
   if (isParm(keyIn)) {
     Parm& parmNow = parms[toLower(keyIn)];
-    if (!force && parmNow.hasMin && nowIn < parmNow.valMin)
-      parmNow.valNow = parmNow.valMin;
-    else if (!force && parmNow.hasMax && nowIn > parmNow.valMax)
-      parmNow.valNow = parmNow.valMax;
+    if (!force && ((parmNow.hasMin && nowIn < parmNow.valMin)
+                || (parmNow.hasMax && nowIn > parmNow.valMax)) ) {
+      loggerPtr->ERROR_MSG("value is out of range", keyIn, true);
+      return false;
+    }
     else parmNow.valNow = nowIn;
   }
-  else if (force) {
+  else if (force)
     addParm(keyIn, nowIn, false, false, 0., 0.);
-  }
+
+  return true;
 }
 
 void Settings::word(string keyIn, string nowIn, bool force) {
@@ -1734,39 +1733,48 @@ void Settings::fvec(string keyIn, vector<bool> nowIn, bool force) {
         now != nowIn.end(); now++)
       fvecNow.valNow.push_back(*now);
   }
-  else if (force) addFVec(keyIn, nowIn);
+  else if (force)
+    addFVec(keyIn, nowIn);
 }
 
-void Settings::mvec(string keyIn, vector<int> nowIn, bool force) {
+bool Settings::mvec(string keyIn, vector<int> nowIn, bool force) {
   if (isMVec(keyIn)) {
     MVec& mvecNow = mvecs[toLower(keyIn)];
     mvecNow.valNow.clear();
     for (vector<int>::iterator now = nowIn.begin();
         now != nowIn.end(); now++) {
-      if (!force && mvecNow.hasMin && *now < mvecNow.valMin)
-        mvecNow.valNow.push_back(mvecNow.valMin);
-      else if (!force && mvecNow.hasMax && *now > mvecNow.valMax)
-        mvecNow.valNow.push_back(mvecNow.valMax);
+      if (!force && ((mvecNow.hasMin && *now < mvecNow.valMin)
+                  || (mvecNow.hasMax && *now > mvecNow.valMax)) ) {
+        loggerPtr->ERROR_MSG("value is out of range", keyIn, true);
+        return false;
+      }
       else mvecNow.valNow.push_back(*now);
     }
   }
-  else if (force) addMVec(keyIn, nowIn, false, false, 0, 0);
+  else if (force)
+    addMVec(keyIn, nowIn, false, false, 0, 0);
+
+  return true;
 }
 
-void Settings::pvec(string keyIn, vector<double> nowIn, bool force) {
+bool Settings::pvec(string keyIn, vector<double> nowIn, bool force) {
   if (isPVec(keyIn)) {
     PVec& pvecNow = pvecs[toLower(keyIn)];
     pvecNow.valNow.clear();
     for (vector<double>::iterator now = nowIn.begin();
         now != nowIn.end(); now++) {
-      if (!force && pvecNow.hasMin && *now < pvecNow.valMin)
-        pvecNow.valNow.push_back(pvecNow.valMin);
-      else if (!force && pvecNow.hasMax && *now > pvecNow.valMax)
-        pvecNow.valNow.push_back(pvecNow.valMax);
+      if (!force && ((pvecNow.hasMin && *now < pvecNow.valMin)
+                  || (pvecNow.hasMax && *now > pvecNow.valMax)) ) {
+        loggerPtr->ERROR_MSG("value is out of range", keyIn, true);
+        return false;
+      }
       else pvecNow.valNow.push_back(*now);
     }
   }
-  else if (force) addPVec(keyIn, nowIn, false, false, 0., 0.);
+  else if (force)
+    addPVec(keyIn, nowIn, false, false, 0., 0.);
+
+  return true;
 }
 
 void Settings::wvec(string keyIn, vector<string> nowIn, bool force) {

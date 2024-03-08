@@ -1,5 +1,5 @@
 // SigmaTotal.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -222,8 +222,9 @@ private:
   // Initialization data, normally only set once.
   bool   isCalc, ispp;
 
-  int    modeTotEl, modeTotElNow, modeDiff, modeDiffNow, idAbsA, idAbsB;
-  double s, sigND;
+  int    modeTotEl, modeTotElNow, modeDiff, modeDiffNow, idAbsA, idAbsB,
+         idAOld, idBOld, modeTotElOld, modeDiffOld;
+  double s, sigND, eCMOld;
 
   // Pointer to class that handles total and elastic cross sections.
   SigmaTotAux*  sigTotElPtr;

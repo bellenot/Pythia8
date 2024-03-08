@@ -1,5 +1,5 @@
 // SLHAinterface.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // Main authors of this file: N. Desai, P. Skands
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -407,6 +407,13 @@ bool SLHAinterface::initSLHA() {
             "for unknown id = {" + idCode.str() + "}", true);
           continue;
         }
+        // Catch multiple re-inits of SLHA data
+        if ( mass != particleDataPtr-> m0(id) && (
+          ( particleDataPtr->hasChangedMMin(id) &&
+          particleDataPtr->mMin(id) > mass ) ||
+          ( particleDataPtr->hasChangedMMax(id) &&
+          particleDataPtr->mMax(id) < mass ) ) )
+          particleDataPtr->findParticle(id)->setHasChanged(false);
         particleDataPtr->m0(id,mass);
         idModified[id] = true;
         idMass.push_back(make_pair(id,mass));
@@ -733,7 +740,9 @@ bool SLHAinterface::initSLHA() {
     } else {
       // mMin: lower cutoff on Breit-Wigner; see above.
       // Increase minimum if needed to ensure at least one channel on shell
-      double mMin = max(mSumMin, particlePtr->mMin());
+      double mMin1 = particlePtr->mMin();
+      double mMin0 = (mMin1 < m0 ) ? mMin1 : min(m0-0.5*wid,0.5*m0);
+      double mMin = max(mSumMin, mMin0);
       particlePtr->setMMin(mMin);
     }
   }

@@ -1,5 +1,5 @@
 // Weights.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -40,12 +40,22 @@ public:
   friend class History;
   friend class PartonLevel;
 
-  // Reset all internal values;
-  virtual void clear() {}
+  // Initialize the weights.
+  virtual void init() {weightValues.resize(0); weightNames.resize(0);
+    bookWeight("Baseline");}
+  virtual void init(bool) {}
 
-  // Store the current event information.
-  virtual void bookVectors(vector<double> /*weights*/,
-    vector<string> /*names*/) {}
+  // Reset all internal values.
+  virtual void clear() {fill(weightValues.begin(), weightValues.end(), 1.);}
+
+  // Store the current event information (replace whitespace with underscore
+  // for HepMC).
+  virtual void bookVectors(vector<double> weights, vector<string> names) {
+    for (int i = 0; i < (int)weights.size(); ++i) {
+      replace(names[i].begin(), names[i].end(), ' ', '_');
+      bookWeight(names[i], weights[i]);
+    }
+  }
 
   // Function to return processed weights to weight container, e.g. if
   // weights should be combined before proceeding.
@@ -115,6 +125,9 @@ public:
 
 protected:
 
+  // Parse a WVec of variations into a dictionary.
+  void parse(string wvecKey, map<string, map<string, double> > &dct);
+
   // Weight values and names.
   vector<double> weightValues;
   vector<string> weightNames;
@@ -133,7 +146,7 @@ class WeightsShower : public WeightsBase {
 public:
 
   // Initialize weights (more can be booked at any time)
-  virtual void init(bool) {}
+  void init(bool) override {}
 
   // Weight "groups" (combinations of one or more unique weights).
   virtual void initWeightGroups(bool = false) {}
@@ -154,12 +167,6 @@ public:
   // Initialize weights (more can be booked at any time)
   void init( bool doMerging) override;
 
-  // Reset all internal values;
-  void clear() override;
-
-  // Store the current event information.
-  void bookVectors(vector<double> weights, vector<string> names) override;
-
   // Functions to return processed weights to weight container, e.g. if
   // weights should be combined before proceeding.
   void collectWeightNames(vector<string>& outputNames) override;
@@ -175,9 +182,6 @@ public:
   // Return group weight (want to integrate this in weightValueVector?)
   double getGroupWeight(int iGW) const override;
   int    nWeightGroups() const override { return externalVariations.size(); }
-
-  // Replace whitespace with underscore.
-  void replaceWhitespace(vector<string>& namesIn);
 
   // Initialise list of atomic weight variations to be performed by shower.
   bool initUniqueShowerVars();
@@ -237,20 +241,20 @@ public:
   friend class WeightContainer;
 
   // Initialize weights (more can be booked at any time)
-  void init();
+  void init() override;
 
   // Reset all internal values;
-  void clear();
+  void clear() override;
 
   // Function to create a new, synchronized, pair of weight name and value.
   void bookWeight(string name, double value, double valueFirst);
 
   // Store the current event information.
-  void bookVectors(vector<double> weights, vector<string> names);
+  void bookVectors(vector<double> weights, vector<string> names) override;
   void bookVectors(vector<double> weights, vector<double> weightsFirst,
             vector<string> names);
   // Modified weight getter to include first order weight
-  double getWeightsValue(int iPos) const {
+  double getWeightsValue(int iPos) const override {
     return weightValues[iPos] - weightValuesFirst[iPos]; }
   // Also add getters for UNLOPS-P and -PC schemes
   double getWeightsValueP(int iPos) const {
@@ -259,8 +263,8 @@ public:
     return weightValuesPC[iPos] - weightValuesFirstPC[iPos]; }
 
   // Functions to set values of weights.
-  void reweightValueByIndex(int iPos, double val);
-  void reweightValueByName(string name, double val);
+  void reweightValueByIndex(int iPos, double val) override;
+  void reweightValueByName(string name, double val) override;
 
   // Functions to set values of first order weights.
   void setValueFirstByIndex(int iPos, double val);
@@ -277,11 +281,11 @@ public:
   void setLHEFvariationMapping();
 
   // Function to collect weight names.
-  void collectWeightNames(vector<string>& outputNames);
+  void collectWeightNames(vector<string>& outputNames) override;
 
   // Function collecting weight values.
   void collectWeightValues(vector<double>& outputWeights,
-     double norm = 1.);
+     double norm = 1.) override;
 
 protected:
 
@@ -304,7 +308,7 @@ protected:
 
 // This is a short example class to collect information on Les Houches
 // Event weights into a container class that can be part of Weight,
-// which in turn is part of InfoHub.
+// which in turn is part of Info.
 
 class WeightsLHEF : public WeightsBase {
 
@@ -343,9 +347,49 @@ protected:
 
 //==========================================================================
 
+// This is class to collect information on fragmentation weighting,
+// and is in turn part of Info.
+
+class WeightsFragmentation : public WeightsBase {
+
+public:
+
+  // Initialize the weights.
+  void init() override;
+
+  int nWeightGroups() const {return externalGroupNames.size();}
+
+  string getGroupName(int iGN) const {return iGN < 0 || iGN >= nWeightGroups()
+      ? "Null" : externalGroupNames[iGN];}
+
+  // Return group weight.
+  double getGroupWeight(int iGW) const {
+    if (iGW < 0 || iGW >= nWeightGroups()) return 1.0;
+    double wgt(1.);
+    for (const int &iWgt : externalMap[iGW]) wgt *= getWeightsValue(iWgt);
+    return wgt;}
+
+  // Functions to return processed weights to weight container, e.g. if
+  // weights should be combined before proceeding.
+  void collectWeightNames(vector<string>& outputNames) override;
+  void collectWeightValues(vector<double>& outputWeights,
+    double norm = 1.) override;
+
+  // Vectors for weight group handling.
+  vector<map<vector<double>, int> > weightParms{};
+  vector<string>       externalGroupNames{};
+  vector<vector<int> > externalMap{};
+
+  // Factorization indices.
+  enum FactIndex{Z, Flav, PT};
+
+};
+
+//==========================================================================
+
 // This is a container class to collect all event generation weight
-// information into a wrapper which is in turn is part of InfoHub. In this
-// way, we could avoid cluttering InfoHub.
+// information into a wrapper which is in turn is part of Info. In this
+// way, we could avoid cluttering Info.
 
 class WeightContainer {
 
@@ -372,6 +416,12 @@ public:
 
   // Merging weights.
   WeightsMerging       weightsMerging{};
+
+  // Fragmentation weights.
+  WeightsFragmentation weightsFragmentation{};
+
+  // Userhooks weights.
+  WeightsBase          weightsUserHooks{};
 
   // Functions to retrieve information stored in the subcategory members.
   int numberOfWeights();

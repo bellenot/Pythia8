@@ -1,5 +1,5 @@
 // VinciaFSR.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2024 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -130,7 +130,7 @@ vector<int> iIn) : sectorShower(sectorShowerIn) {
   enum AntFunType antFunTypePhys()   const {return antFunTypeSav;}
 
   // Generate a new Q2 scale.
-  virtual double genQ2(int evTypeIn, double Q2MaxNow, Rndm* rndmPtr,
+  virtual double genQ2(int evTypeIn, double q2MaxNow, Rndm* rndmPtr,
     Logger* loggerPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
     vector<double> headroomIn, vector<double> enhanceFacIn,
     int verboseIn) = 0;
@@ -268,7 +268,7 @@ public:
 
   // Create branch elemental for antenna(e) with parents in iIn.
   BrancherEmitFF(int iSysIn, Event& event, bool sectorShowerIn,
-    vector<int> iIn, ZetaGeneratorSet& zetaGenSet) :
+    vector<int> iIn, ZetaGeneratorSet* zetaGenSet) :
     Brancher(iSysIn, event, sectorShowerIn, iIn) {
     // Initialise derived-class members and set up trial generator.
     initBrancher(zetaGenSet);
@@ -276,17 +276,17 @@ public:
 
   // Wrapper to provide simple 2-parton systems as parents.
   BrancherEmitFF(int iSysIn, Event& event, bool sectorShowerIn,
-    int iIn0, int iIn1, ZetaGeneratorSet& zetaGenSet) :
+    int iIn0, int iIn1, ZetaGeneratorSet* zetaGenSet) :
     Brancher(iSysIn, event, sectorShowerIn, iIn0, iIn1) {
     // Initialise derived-class members and set up trial generator.
     initBrancher(zetaGenSet);
   }
 
   // Method to initialise members specific to BrancherEmitFF.
-  void initBrancher(ZetaGeneratorSet& zetaGenSet);
+  void initBrancher(ZetaGeneratorSet* zetaGenSet);
 
   // Generate a new Q2 value, soft-eikonal 2/yij/yjk implementation.
-  double genQ2(int evTypeIn, double Q2MaxNow, Rndm* rndmPtr,
+  double genQ2(int evTypeIn, double q2MaxNow, Rndm* rndmPtr,
     Logger* loggerPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
     vector<double> headroomIn, vector<double> enhanceFacIn,int verboseIn);
 
@@ -334,7 +334,7 @@ public:
 
   // Create branch elemental for antenna(e) with parents in iIn.
   BrancherSplitFF(int iSysIn, Event& event, bool sectorShowerIn,
-    vector<int> iIn, ZetaGeneratorSet& zetaGenSet) :
+    vector<int> iIn, ZetaGeneratorSet* zetaGenSet) :
     Brancher(iSysIn, event, sectorShowerIn, iIn) {
     // Initialise derived-class members and set up trial generator.
     initBrancher(zetaGenSet);
@@ -344,14 +344,14 @@ public:
   // is the anticolour or colour side of the gluon that participates
   // in the antenna (used to decide pTj or pTi measure).
   BrancherSplitFF(int iSysIn, Event& event, bool sectorShowerIn, int iIn0,
-    int iIn1, bool col2acol, ZetaGeneratorSet& zetaGenSet) :
+    int iIn1, bool col2acol, ZetaGeneratorSet* zetaGenSet) :
     Brancher(iSysIn, event, sectorShowerIn, iIn0, iIn1) {
     // Initialise derived-class members and set up trial generator.
     initBrancher(zetaGenSet, col2acol);
   }
 
   // Method to initialise data members specific to BrancherSplitFF.
-  void initBrancher(ZetaGeneratorSet& zetaGenSet, bool col2acolIn=true);
+  void initBrancher(ZetaGeneratorSet* zetaGenSet, bool col2acolIn=true);
 
   // Method to check if it is the colour (false) or anticolour (true)
   // side of the gluon that is splitting, corresponding to the quark
@@ -364,7 +364,7 @@ public:
 
   // Generate a new Q2 scale (collinear 1/(2q2) implementation) with
   // constant trial alphaS.
-  double genQ2(int evTypeIn, double Q2MaxNow, Rndm* rndmPtr,
+  double genQ2(int evTypeIn, double q2MaxNow, Rndm* rndmPtr,
     Logger* loggerPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
     vector<double> headroomIn, vector<double> enhanceFacIn,int verboseIn);
 
@@ -418,15 +418,15 @@ public:
 
   // RF branchers have a different initBrancher structure.
   virtual void initRF(Event& event, vector<int> allIn,
-    unsigned int posResIn, unsigned int posFIn, double Q2cut,
-    ZetaGeneratorSet& zetaGenSet) = 0;
+    unsigned int posResIn, unsigned int posFIn, double q2cut,
+    ZetaGeneratorSet* zetaGenSet) = 0;
 
   // Reset the brancher.
   void resetRF(int iSysIn, Event& event, vector<int> allIn,
-    unsigned int posResIn, unsigned int posFIn, double Q2cut,
-    ZetaGeneratorSet& zetaGenSet) {
+    unsigned int posResIn, unsigned int posFIn, double q2cut,
+    ZetaGeneratorSet* zetaGenSet) {
     reset(iSysIn, event, allIn);
-    initRF(event, allIn, posResIn, posFIn, Q2cut, zetaGenSet);
+    initRF(event, allIn, posResIn, posFIn, q2cut, zetaGenSet);
   }
 
   // Setter methods that are common for all derived RF classes.
@@ -438,7 +438,7 @@ public:
   int posF() const {return int(posFinal);}
 
   // Return maximum Q2.
-  double getQ2Max(int evType) {return evType == 1 ? Q2MaxSav : 0.;}
+  double getQ2Max(int evType) {return evType == 1 ? q2MaxSav : 0.;}
 
 protected:
 
@@ -462,7 +462,7 @@ protected:
   double sAK{};
 
   // Max Q2 for this brancher, still an overestimate.
-  double Q2MaxSav{};
+  double q2MaxSav{};
   double colFacSav{};
   // Store whether the colour flow is from R to F (e.g. t -> bW+) or F
   // to R (e.g. tbar -> bbarW-).
@@ -485,18 +485,18 @@ public:
   // Constructor.
   BrancherEmitRF(int iSysIn, Event& event, bool sectorShowerIn,
     vector<int> allIn, unsigned int posResIn, unsigned int posFIn,
-    double Q2cut, ZetaGeneratorSet& zetaGenSet) :
+    double q2cut, ZetaGeneratorSet* zetaGenSet) :
     BrancherRF(iSysIn, event, sectorShowerIn, allIn) {
     // Initialise derived-class members and set up trial generator.
-    initBrancher(event, allIn, posResIn, posFIn, Q2cut, zetaGenSet);
+    initBrancher(event, allIn, posResIn, posFIn, q2cut, zetaGenSet);
   }
 
   // Method to initialise data members specific to BrancherEmitRF.
   void initBrancher(Event& event, vector<int> allIn, unsigned int posResIn,
-    unsigned int posFIn, double Q2cut, ZetaGeneratorSet& zetaGenSet);
+    unsigned int posFIn, double q2cut, ZetaGeneratorSet* zetaGenSet);
   void initRF(Event& event, vector<int> allIn, unsigned int posResIn,
-    unsigned int posFIn, double Q2cut, ZetaGeneratorSet& zetaGenSet) override {
-    initBrancher(event, allIn, posResIn, posFIn, Q2cut, zetaGenSet);}
+    unsigned int posFIn, double q2cut, ZetaGeneratorSet* zetaGenSet) override {
+    initBrancher(event, allIn, posResIn, posFIn, q2cut, zetaGenSet);}
 
   // Setter methods.
   vector<double> setmPostVec() override;
@@ -508,7 +508,7 @@ public:
     vector<Particle> &pNew, Rndm* rndmPtr, VinciaColour*) override;
 
   // Generate a new Q2 scale.
-  double genQ2(int evTypeIn, double Q2MaxNow, Rndm* rndmPtr,
+  double genQ2(int evTypeIn, double q2MaxNow, Rndm* rndmPtr,
     Logger* loggerPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
     vector<double> headroomIn, vector<double> enhanceFacIn,
     int verboseIn) override;
@@ -537,18 +537,18 @@ public:
   // Constructor.
   BrancherSplitRF(int iSysIn, Event& event, bool sectorShowerIn,
     vector<int> allIn, unsigned int posResIn, unsigned int posFIn,
-    double Q2cut, ZetaGeneratorSet& zetaGenSet) :
+    double q2cut, ZetaGeneratorSet* zetaGenSet) :
     BrancherRF(iSysIn, event, sectorShowerIn, allIn) {
     // Initialise derived-class members and set up trial generator.
-    initBrancher(event, allIn, posResIn, posFIn, Q2cut, zetaGenSet);
+    initBrancher(event, allIn, posResIn, posFIn, q2cut, zetaGenSet);
   }
 
   // Method to initialise data members specific to BrancherSplitRF.
   void initBrancher(Event& event, vector<int> allIn, unsigned int posResIn,
-    unsigned int posFIn, double Q2cut, ZetaGeneratorSet& zetaGenSet);
+    unsigned int posFIn, double q2cut, ZetaGeneratorSet* zetaGenSet);
   void initRF(Event& event, vector<int> allIn, unsigned int posResIn,
-    unsigned int posFIn, double Q2cut, ZetaGeneratorSet& zetaGenSet) override {
-    initBrancher(event, allIn, posResIn, posFIn, Q2cut, zetaGenSet);}
+    unsigned int posFIn, double q2cut, ZetaGeneratorSet* zetaGenSet) override {
+    initBrancher(event, allIn, posResIn, posFIn, q2cut, zetaGenSet);}
 
   // Setter methods.
   vector<double> setmPostVec() override;
@@ -560,7 +560,7 @@ public:
     vector<int> hIn, vector<Particle>& pNew, Rndm*, VinciaColour*) override;
 
   // Generate a new Q2 scale.
-  double genQ2(int evTypeIn, double Q2MaxNow, Rndm* rndmPtr,
+  double genQ2(int evTypeIn, double q2MaxNow, Rndm* rndmPtr,
     Logger* loggerPtr, const EvolutionWindow* evWindowPtrIn, double colFac,
     vector<double> headroomIn, vector<double> enhanceFacIn,
     int verboseIn) override;
@@ -608,11 +608,9 @@ public:
   // Force reset at beginning of each event.
   void onBeginEvent() override { isPrepared = false; }
 
-  // Possible limitation of first emission (TimeShower, last two
-  // arguments purely dummy in Vincia implementation). Determines if
-  // max pT limit should be imposed on first emission. Note, not set
-  // up to handle Pythia's explicit DPS processes yet.
-  bool limitPTmax(Event& event, double Q2Fac = 0., double Q2Ren = 0.) override;
+  // Determines if max pT limit should be imposed on first emission.
+  // Note: in Vincia, the second argument is purely dummy.
+  bool limitPTmax(Event& event, double q2Fac, double q2Ren) override;
 
   // Top-level routine to do a full time-like shower in resonance
   // decay (TimeShower).
@@ -799,7 +797,7 @@ private:
   }
 
   // Template method for generating the next Q2 for a generic Brancher.
-  template <class Brancher> bool q2NextQCD( vector<Brancher> &brancherVec,
+  template <class T> bool q2NextQCD( vector<shared_ptr<T> > &brancherVec,
     const map<double, EvolutionWindow>& evWindows, const int evType,
     const double q2Begin, const double q2End, bool isEmit);
 
@@ -880,8 +878,8 @@ private:
   // Update systems of QCD antennae after an EW/QED branching.
   bool updateAfterEW(Event& event, int sizeOld);
   // Print a brancher lookup.
-  void printLookup(map< pair<int, bool>, unsigned int >& lookupEmitter,
-    string name);
+  void printLookup(unordered_map< pair<int, bool>, unsigned int>&
+    lookupEmitter, string name);
   // Print the brancher lookup maps.
   void printLookup();
   // Calculate the headroom factor.
@@ -912,8 +910,8 @@ private:
   int kMapResSplit{};
 
   // Factorization scale and shower starting settings.
-  int    pTmaxMatch{};
-  double pTmaxFudge{}, pT2maxFudge{}, pT2maxFudgeMPI{};
+  int    pTmaxMatch{}, pTdampMatch{};
+  double pTmaxFudge{}, pT2maxFudge{}, pT2maxFudgeMPI{}, pTdampFudge{};
 
   // AlphaS parameters.
   bool useCMW{};
@@ -929,23 +927,23 @@ private:
   map<double, EvolutionWindow> evWindowsSplit;
 
   // Lists of different types of antennae.
-  vector<BrancherEmitRF> emittersRF;
-  vector<BrancherSplitRF> splittersRF;
-  vector<BrancherEmitFF> emittersFF;
-  vector<BrancherSplitFF> splittersFF;
+  vector< shared_ptr<BrancherEmitRF> >  emittersRF;
+  vector< shared_ptr<BrancherEmitFF> >  emittersFF;
+  vector< shared_ptr<BrancherSplitRF> > splittersRF;
+  vector< shared_ptr<BrancherSplitFF> > splittersFF;
 
   // Look up resonance emitter, bool switches between R (true) or F
   // (false), n.b. multiply resonance index by sign of colour index
   // involved in branching to avoid a multiple-valued map.
-  map< pair<int, bool>, unsigned int > lookupEmitterRF;
-  map< pair<int, bool>, unsigned int > lookupSplitterRF;
+  unordered_map< pair<int, bool>, unsigned int> lookupEmitterRF{};
+  unordered_map< pair<int, bool>, unsigned int> lookupSplitterRF{};
   // Look up emitter, bool switches between col and anticol end
-  map< pair<int, bool>, unsigned int > lookupEmitterFF;
+  unordered_map< pair<int, bool>, unsigned int> lookupEmitterFF{};
   // Lookup splitter, bool switches between splitter and recoiler.
-  map< pair<int, bool>, unsigned int > lookupSplitterFF;
+  unordered_map< pair<int, bool>, unsigned int> lookupSplitterFF{};
 
   // Current winner.
-  Brancher* winnerQCD{};
+  BrancherPtr winnerQCD{};
   VinciaModulePtr winnerEW{};
   double q2WinSav{}, pTLastAcceptedSav{};
 
@@ -974,12 +972,14 @@ private:
   bool hasUserHooks{}, canVetoEmission{}, canVetoISREmission{};
 
   // Flags to tell a few basic properties of each parton system.
-  map<int, bool> isHardSys, isResonanceSys, polarisedSys, doMECsSys;
-  map<int, bool> stateChangeSys;
+  map<int, bool> isHardSys{}, isResonanceSys{}, polarisedSys{}, doMECsSys{};
+  map<int, bool> stateChangeSys{};
   bool stateChangeLast;
 
   // Save initial FSR starting scale system by system.
-  map<int, double> Q2hat;
+  map<int, double> q2Hat{};
+  vector<bool> doPTlimit{}, doPTdamp{};
+  map<int, double> pT2damp{};
 
   // Count the number of branchings in the system.
   map<int, int> nBranch, nBranchFSR;
@@ -997,8 +997,8 @@ private:
 
   // Save headroom and enhancement factors for each system for both
   // emission and splitting branchers.
-  map< pair<int, pair<bool,bool> > , vector<double> > headroomSav;
-  map< pair<int, pair<bool,bool> > , vector<double> > enhanceSav;
+  unordered_map<pair<int, pair<bool,bool> >, vector<double> > headroomSav;
+  unordered_map<pair<int, pair<bool,bool> >, vector<double> > enhanceSav;
 
   // Information about resonances that participate in junctions.
   map<int, bool> hasResJunction;

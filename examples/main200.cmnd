@@ -7,7 +7,7 @@
 Beams:eCM =  91.188                ! CM energy of collision
 Beams:idA =  11                    ! e-
 Beams:idB = -11                    ! e+
-Main:numberOfEvents   = 1000      ! number of events to generate
+Main:numberOfEvents   = 4000      ! number of events to generate
 Next:numberCount      = 100        ! print message every n events
 Next:numberShowEvent  = 1          ! print event record n times
 Main:timesAllowErrors = 1
@@ -27,4 +27,4 @@ SpaceShower:QEDshowerByL = off
 ! 4) VINCIA settings
 PartonShowers:model   = 2   ! 1:old showers, 2:vincia, 3:dire
 Vincia:sectorShower   = on  ! whether the sector shower should be used
-Vincia:ewMode         = 0   ! 0:no EW, 1: QED dipoles, 2: QED multiples, 3: EW.
+Vincia:ewMode         = 2   ! 0: off, 1: QED dipoles, 2: QED multipoles, 3: EW.

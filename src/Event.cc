@@ -1,5 +1,5 @@
 // Event.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -28,8 +28,10 @@ const double Particle::TINY = 1e-20;
 // Set pointer to the particle data species of the particle.
 
 void Particle::setPDEPtr(ParticleDataEntryPtr pdePtrIn) {
-  pdePtr = pdePtrIn; if (pdePtrIn != nullptr || evtPtr == nullptr) return;
-  pdePtr = (*evtPtr).particleDataPtr->particleDataEntryPtr( idSave);}
+  if (pdePtrIn || evtPtr == nullptr)
+    pdePtr = pdePtrIn;
+  else if (evtPtr && evtPtr->particleDataPtr)
+    pdePtr = evtPtr->particleDataPtr->particleDataEntryPtr( idSave);}
 
 //--------------------------------------------------------------------------
 

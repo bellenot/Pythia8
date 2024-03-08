@@ -912,9 +912,9 @@ that <code>main85.cc</code> assumes the naming
 convention <ei>name_tree_#nAdditionalJets.lhe</ei>. All settings can 
 be included though the input file, so that <code>main85.cc</code> does not 
 have to be changed explicitly. <code>main85.cc</code> first switches off 
-showers, multiparton interactions and hadronisation, and estimates the cross 
+showers, multiparton interactions and hadronization, and estimates the cross 
 sections (after enforcing the merging scale cut) of samples for different 
-numbers of additional jets. Then, showers, MPI and hadronisation are switched 
+numbers of additional jets. Then, showers, MPI and hadronization are switched 
 on again, and the CKKW-L merging procedure is performed. Events will be read 
 in a decreasing sequence of jet multiplicities, which also means that e.g. 
 events with two additional partons in the LHE file will be printed to the 
@@ -1346,4 +1346,4 @@ the method in <ref>Fre20</ref>.
  
 </chapter> 
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

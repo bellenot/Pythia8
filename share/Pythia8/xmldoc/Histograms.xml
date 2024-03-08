@@ -180,10 +180,12 @@ where the second argument tells how each histogram will be plotted.
 Default is histogram style, "h", but the values can also be connected 
 with full lines "-", dashed ones "--", or dash-dotted ones "-.", or 
 plotted as points "." or crosses "x", to mention some of the many 
-options offered by Pyplot. Here you can also specify the colour, 
-separated by a comma from the line style, to override the normal 
-colour cycle. The most common colours can be given just as a single 
-letter, such as "r", "g", "b", but a more extensive 
+options offered by Pyplot. As alternative to "h", the argument "e" can 
+be specified which provides the same style as "h" but with error bars 
+included. You can also specify the colour, separated by a comma from 
+the line style, to override the normal colour cycle. The most common 
+colours can be given just as a single letter, such as "r", "g", "b", 
+but a more extensive 
 <a href="https://matplotlib.org/examples/color/named_colors.html"> 
 colour palette</a> allow finetuning to nuances such as "orange", 
 "gold", "darkgreen", "royalblue", "crimson", and so on. 
@@ -725,12 +727,13 @@ is the name of the histogram to be plotted,
 </argument> 
 <argument name="style"> 
 tells how the histogram data will be represented in the figure, where 
-default "h" is histogram style, "-" full lines, "--" dashed ones, 
-"-." dash-dotted ones, "." points, "o" circles, "+" and "x" crosses, 
-"*" stars, and so on as described in the Pyplot manual; additionally a 
-colour may also be specified as described earlier, separated by a comma 
-from the symbol; either of both can be used, e.g. "h,r", ",magenta", 
-"+,", "--" or just ""; and 
+default "h" is histogram style, "-" full lines, "--" dashed ones, "-." 
+dash-dotted ones, "." points, "o" circles, "+" and "x" crosses, "*" 
+stars, and so on as described in the Pyplot manual; alternatively to 
+"h" the argument "e" can be specified which will include error bars on 
+the histogram; additionally a colour may also be specified as 
+described earlier, separated by a comma from the symbol; either of 
+both can be used, e.g. "h,r", ",magenta", "+,", "--" or just ""; and 
 </argument> 
 <argument name="legend"> 
 is the text written in association with the plotting symbol, where the 
@@ -821,4 +824,4 @@ is almost the same, the exception being that the two compulsory arguments
  
 </chapter> 
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

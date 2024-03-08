@@ -594,7 +594,7 @@ to correct the emission probability to the internal matrix elements.
 The internal ME options do not cover any cases relevant for a multibody 
 recoiler anyway, so no guarantees are given what prescription would 
 come to be used. Instead, without ME corrections,  a process-independent 
-emission rate is obtained, and  <aloc href="UserHooks">user hooks</aloc> 
+emission rate is obtained, and <aloc href="UserHooks">user hooks</aloc> 
 can provide the desired process-specific rejection factors. 
  
 <h3>Weak showers</h3> 
@@ -648,6 +648,21 @@ switched on. Switching off this option currently does not take effect
 for a few rare types of secondary branchings, where ME corrections 
 play a central role. 
 </flag> 
+ 
+<flag name="TimeShower:skipFirstMECinHardProc" default="off"> 
+Allow control of matrix element corrections (MECs) in the hard 
+process. By default, a matching is made between the final state of a 
+hard process and the suite of decay MECs.  When this option is "on", 
+no MEC is used until after the first emission. This allows 
+compatability with various NLO-correct merging schemes. 
+</flag> 
+ 
+<mvec name="TimeShower:skipFirstMECinResDecIDs" default="{}"> 
+Allow control of matrix element corrections (MECs) in resonance 
+decays, similarly to the treatment of the hard process. See above 
+explanation. Only those resonance with the listed PDG identifiers are 
+affected. 
+</mvec> 
  
 <modepick name="TimeShower:weightGluonToQuark" default="4" min="1" max="8"> 
 Different options to assign kinematics distributions and weights 
@@ -844,7 +859,7 @@ on/off = true/false.
 <modeopen name="TimeShower:nGammaToQuark" default="5" min="0" max="5"> 
 Number of allowed quark flavours in <ei>gamma &rarr; q qbar</ei> branchings 
 (phase space permitting). A change to 4 would exclude 
-<ei>g &rarr; b bbar</ei>, etc. 
+<ei>gamma &rarr; b bbar</ei>, etc. 
 </modeopen> 
  
 <modeopen name="TimeShower:nGammaToLepton" default="3" min="0" max="3"> 
@@ -854,6 +869,24 @@ Number of allowed lepton flavours in <ei>gamma &rarr; l+ l-</ei> branchings
 <ei>gamma &rarr; mu+ mu-</ei>. 
 </modeopen> 
  
+<flag name="TimeShower:recoilToColoured" default="on"> 
+In the decays of coloured resonances, say <ei>t &rarr; b W</ei>, it is not 
+possible to set up dipoles with matched colours. Originally the 
+<ei>b</ei> radiator therefore has <ei>W</ei> as recoiler, and that 
+choice is unique. Once a gluon has been radiated, however, it is 
+possible either to have the unmatched colour (inherited by the gluon) 
+still recoiling against the <ei>W</ei> (<code>off</code>), or else 
+let it recoil against the <ei>b</ei> also for this dipole 
+(<code>on</code>). Before version 8.160 the former was the only 
+possibility, which could give unphysical radiation patterns. It is 
+kept as an option to check backwards compatibility. The same issue 
+exists for QED radiation, but obviously is less significant. Consider 
+the example <ei>W &rarr; e nu</ei>, where originally the <ei>nu</ei> 
+takes the recoil. In the old (<code>off</code>) scheme the <ei>nu</ei> 
+would remain recoiler, while in the new (<code>on</code>) instead 
+each newly emitted photon becomes the new recoiler. 
+</flag> 
+ 
 </chapter> 
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

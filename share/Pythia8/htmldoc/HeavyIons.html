@@ -509,10 +509,11 @@ up to eight parameters.
  
 <a name="anchor40"></a>
 <p/><code>pvec&nbsp; </code><strong> HeavyIon:SigFitDefPar &nbsp;</strong> 
- (<code>default = <strong>{17.24,2.15,0.33,0.0,0.0,0.0,0.0,0.0}</strong></code>)<br/>
+ (<code>default = <strong>{}</strong></code>)<br/>
 These are the default values of the parameters of the 
 <code>SubCollisionModel</code> in Angantyr. They will be used as 
-starting point when fitting to the inclusive nucleon cross sections. 
+starting point when fitting to the inclusive nucleon cross sections. If left 
+empty, the values will be set to the model default. 
    
  
 <p/> 
@@ -525,7 +526,7 @@ is picked.  Eight different cross sections may be fitted to but it is
 possible to select only some of them: 
 <a name="anchor41"></a>
 <p/><code>pvec&nbsp; </code><strong> HeavyIon:SigFitErr &nbsp;</strong> 
- (<code>default = <strong>{0.02,0.02,0.1,0.05,0.05,0.0,0.1,0.0}</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
+ (<code>default = <strong>{0.02,0.02,0.1,0.05,0.05,0.0,0.1,0.15}</strong></code>; <code>minimum = 0.0</code>; <code>maximum = 1.0</code>)<br/>
 The relative error assumed in the calculation of goodness of fit 
 corresponding to the different cross sections fitted to. The cross 
 sections are obtained from the 
@@ -729,12 +730,12 @@ The default model in PYTHIA is called Angantyr and is inspired by the
 old Fritiof model [<a href="Bibliography.html#refAnd86" target="page">And86</a>] with improvements described in 
 [<a href="Bibliography.html#refBie16a" target="page">Bie16a</a>]. The main idea is to stack parton level events, 
 corresponding to individual nucleon-nucleon sub-collisions, on top of 
-each other and hadronise them together.<br/> 
+each other and hadronize them together.<br/> 
 <p/> 
 <strong>Please note:</strong> <br/> 
 <ul> 
 <li>Although it is possible to use 
-<a href="RopeHadronization.html" target="page">Rope Hadronisation</a> in heavy ion 
+<a href="RopeHadronization.html" target="page">Rope Hadronization</a> in heavy ion 
 collisions, these two modules have 
 not yet been validated to work properly together.  Also the parameters 
 in the model have not been properly tuned, so the results from running 
@@ -766,7 +767,7 @@ further documentation of this routine.
  
 <a name="anchor74"></a>
 <p/><code>mode&nbsp; </code><strong> Angantyr:CollisionModel &nbsp;</strong> 
- (<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 3</code>)<br/>
+ (<code>default = <strong>1</strong></code>; <code>minimum = 0</code>; <code>maximum = 5</code>)<br/>
 The Angantyr model has a couple of option for the 
 <code>SubCollisionModel</code>. 
 <br/><code>option </code><strong> 0</strong> :  
@@ -782,6 +783,15 @@ opacity.
    
 <br/><code>option </code><strong> 3</strong> :  
 Black disks with no fluctuations, ie. no diffraction. 
+   
+<br/><code>option </code><strong> 4</strong> :  
+Model with fluctuations where the projectile and target can have different 
+parameters, relevant for hadron-nucleon collisions. Note that this option 
+requires much longer initialization time than option 1. Our studies indicate 
+that option 1 is sufficiently precise in most cases. 
+   
+<br/><code>option </code><strong> 5</strong> :  
+As option 4, but different treatment of opacity. 
    
    
  
@@ -960,7 +970,7 @@ distribution is used.
 After all absorptive sub-collisions have been dealt with, the 
 diffractive and elastic sub-collisions are dealt with in a similar 
 way. In the end there will be a number of parton level events which 
-are finally stacked together, and then hadronised. Finally nucleus 
+are finally stacked together, and then hadronized. Finally nucleus 
 remnants constructed from the non-interacting nucleans, are added to 
 complete the full nucleaus-nucleus collision. 
  
@@ -1051,4 +1061,4 @@ Pythia object. It is up to the user to pick a suitable name
 </body>
 </html>
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

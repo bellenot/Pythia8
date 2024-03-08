@@ -1,5 +1,5 @@
 // main202.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -47,9 +47,18 @@ int main() {
   else if (showerModel == 3) modelName = "Dire";
   double scale = 1;
   if (hadronisation) scale = 4;
-  Hist hNFinal(modelName + " nFinal",100,-0.5,double(scale*200.-0.5));
-  Hist hNGam(modelName + " nPhotons",100,-0.5,double(scale*100.-0.5));
-  Hist hNEle(modelName + " nElectrons",100,-0.5,99.5);
+  // Include stat uncertainties on histograms (last argument = true).
+  Hist hNFinal(modelName + " nFinal", 100, -0.5, double(scale*200.-0.5),
+    false, true);
+  Hist hNGam(modelName + " nPhotons", 100, -0.5, double(scale*100.-0.5),
+    false, true);
+  Hist hNEle(modelName + " nElectrons", 100, -0.5, 99.5, false , true);
+  Hist pTt(modelName + " pT(t)", 100, 0.1, 500., true, true);
+  Hist yt(modelName + " y(t)", 20, -5.0, 5.0, false, true);
+  Hist mt(modelName + " m(t)", 100, 150.0, 200.0, false, true);
+  Hist pTtt(modelName + " pT(tt)", 100, 0.1, 500., true, true);
+  Hist ytt(modelName + " y(tt)", 20, -5.0, 5.0, false, true);
+  Hist mtt(modelName + " m(tt)", 100, 0.0, 1000.0, false, true);
 
   // Measure the cpu runtime.
   clock_t start, stop;
@@ -68,12 +77,27 @@ int main() {
     // Check for weights
     double weight = pythia.info.weight();
 
+    // Find final copies of t and tbar.
+    int i1 = event[5].iBotCopyId();
+    int i2 = event[6].iBotCopyId();
+    pTt.fill(event[i1].pT(), 0.5);
+    yt.fill(event[i1].y(), 0.5);
+    mt.fill(event[i1].m(), 0.5);
+    pTt.fill(event[i2].pT(), 0.5);
+    yt.fill(event[i2].y(), 0.5);
+    mt.fill(event[i2].m(), 0.5);
+    // Form 4-vector of final ttbar system.
+    Vec4 pSum = event[i1].p() + event[i2].p();
+    pTtt.fill(pSum.pT());
+    ytt.fill(pSum.rap());
+    mtt.fill(pSum.mCalc());
+
     // Count number of final-state particles.
     // Also count photons and electrons, to test QED.
     double nFinal = 0;
     double nGam   = 0;
     double nEle   = 0;
-    for (int i=1; i<event.size(); ++i) {
+    for (int i = 1; i<event.size(); ++i) {
       if (!event[i].isFinal()) continue;
       nFinal++;
       if (event[i].idAbs() == 22) ++nGam;
@@ -91,7 +115,9 @@ int main() {
 
   // Statistics. Histograms.
   pythia.stat();
-  cout<<hNFinal<<hNGam<<hNEle;
+  cout << hNFinal << hNGam << hNEle;
+  cout << yt << mt << pTt << endl;
+  cout << ytt << mtt << pTtt << endl;
 
   // Print runtime
   cout << "\n" << "|----------------------------------------|" << endl;

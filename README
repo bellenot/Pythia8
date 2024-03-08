@@ -45,9 +45,8 @@
      --enable-optdebug : turns on debugging flags but allow optimization.
      --lcg=PLATFORM : allows you to specify the platform assumed for
          compilation, which also affects the assumed location of the
-         libraries below; default is x86_64-slc5-gcc43-opt while other
-         supported values for name include slc4_ia32_gcc34,
-         slc4_amd64_gcc34 and slc3_ia32_gcc323 (deprecated).
+         libraries below; default is x86_64-centos7-gcc11-opt.
+     --lcg-version=VER : specify the LCG version to use.
      --prefix=DIR : absolute path to a directory where the "bin",
          "lib", "include", and "share" directories will be copied, by
          a "gmake install" command subsequent to the "gmake" one.
@@ -228,8 +227,7 @@
        POWHEGBOX make structure accordingly.
    RIVET) A toolkit for comparing MC and data,
         https://rivet.hepforge.org/, used in "examples/main93.cc" and
-       "examples/main111.cc". The RIVET package requires FASTJET3,
-       HEPMC2, and YODA.
+       "examples/main111.cc".
    ROOT) The ROOT HEP package used for data analysis and
        visualization, http://root.cern.ch. This package is only used
        for the "examples/main9[1,2].cc" examples and is optional for
@@ -281,11 +279,12 @@ builds of PYTHIA (e.g. for inclusion in shared Makefiles), a pythia8-config
 script is installed into PREFIX_BIN/bin by the "make install" build
 target. A typical usage of this script is as follows:
 
-g++ myprog.cc -o myprog `pythia8-config --cppflags --libs`
+g++ myprog.cc -o myprog `pythia8-config --cxxflags --libs`
 
-The --cppflags option to this script makes pythia8-config write out
-the necessary -I flags corresponding to the installed headers, and
---libs adds the required -L and -l flags.
+The --cxxflags option to this script makes pythia8-config write out
+the necessary compiler flags, i.e. --std=c++11 or -pthread, and -I flags
+corresponding to the installed headers, and --libs adds the required
+-L and -l flags.
 
 The pythia8-config script may also be used at runtime to generate the
 data directory environment variable if needed, e.g.:

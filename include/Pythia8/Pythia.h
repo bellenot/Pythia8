@@ -1,5 +1,5 @@
 // Pythia.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -10,8 +10,8 @@
 #define Pythia8_Pythia_H
 
 // Version number defined for use in macros and for consistency checks.
-#define PYTHIA_VERSION 8.310
-#define PYTHIA_VERSION_INTEGER 8310
+#define PYTHIA_VERSION 8.311
+#define PYTHIA_VERSION_INTEGER 8311
 
 // Header files for the Pythia class and for what else the user may need.
 #include "Pythia8/Analysis.h"
@@ -214,6 +214,9 @@ public:
 
   // Possibility to get the pointer to the parton-shower model.
   ShowerModelPtr getShowerModelPtr() { return showerModelPtr; }
+
+  // Possibility to get the pointer to the LHA accessor.
+  LHAupPtr getLHAupPtr() { return lhaUpPtr; }
 
   // Possibility to pass in pointer for setting of parton space-time vertices.
   bool setPartonVertexPtr( PartonVertexPtr partonVertexPtrIn)
@@ -419,9 +422,9 @@ private:
   bool   doProcessLevel = {}, doPartonLevel = {}, doHadronLevel = {},
          doLowEnergy = {}, doSoftQCDall = {}, doSoftQCDinel = {},
          doCentralDiff = {}, doDiffraction = {}, doSoftQCD = {},
-         doVMDsideA = {}, doVMDsideB = {}, doHardDiff = {}, doResDec = {},
-         doFSRinRes = {}, decayRHadrons = {}, doPartonVertex = {},
-         abortIfVeto = {}, checkEvent = {}, checkHistory = {}, doNonPert = {};
+         doHardDiff = {}, doResDec = {}, doFSRinRes = {}, decayRHadrons = {},
+         doPartonVertex = {}, abortIfVeto = {}, checkEvent = {},
+         checkHistory = {}, doNonPert = {};
   int    nErrList = {};
   double epTolErr = {}, epTolWarn = {}, mTolErr = {}, mTolWarn = {};
 

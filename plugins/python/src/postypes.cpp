@@ -6,6 +6,7 @@
 #include <functional>
 #include <string>
 #include <Pythia8/UserHooks.h>
+#include <Pythia8/SplittingsOnia.h>
 #include <Pythia8/HeavyIons.h>
 #include <Pythia8/BeamShape.h>
 #include <pybind11/stl.h>
@@ -27,13 +28,13 @@ void bind_std_postypes(std::function< pybind11::module &(std::string const &name
 		pybind11::handle cl_type = cl;
 
 		cl.def( pybind11::init( [](){ return new std::fpos<__mbstate_t>(); } ) );
-		cl.def( pybind11::init<long>(), pybind11::arg("__off") );
+		cl.def( pybind11::init<std::streamoff>(), pybind11::arg("__off") );
 
 		cl.def( pybind11::init( [](std::fpos<__mbstate_t> const &o){ return new std::fpos<__mbstate_t>(o); } ) );
-		cl.def("__iadd__", (class std::fpos<__mbstate_t> & (std::fpos<__mbstate_t>::*)(long)) &std::fpos<__mbstate_t>::operator+=, "C++: std::fpos<__mbstate_t>::operator+=(long) --> class std::fpos<__mbstate_t> &", pybind11::return_value_policy::reference, pybind11::arg("__off"));
-		cl.def("__isub__", (class std::fpos<__mbstate_t> & (std::fpos<__mbstate_t>::*)(long)) &std::fpos<__mbstate_t>::operator-=, "C++: std::fpos<__mbstate_t>::operator-=(long) --> class std::fpos<__mbstate_t> &", pybind11::return_value_policy::reference, pybind11::arg("__off"));
-		cl.def("__add__", (class std::fpos<__mbstate_t> (std::fpos<__mbstate_t>::*)(long) const) &std::fpos<__mbstate_t>::operator+, "C++: std::fpos<__mbstate_t>::operator+(long) const --> class std::fpos<__mbstate_t>", pybind11::arg("__off"));
-		cl.def("__sub__", (class std::fpos<__mbstate_t> (std::fpos<__mbstate_t>::*)(long) const) &std::fpos<__mbstate_t>::operator-, "C++: std::fpos<__mbstate_t>::operator-(long) const --> class std::fpos<__mbstate_t>", pybind11::arg("__off"));
-		cl.def("__sub__", (long (std::fpos<__mbstate_t>::*)(const class std::fpos<__mbstate_t> &) const) &std::fpos<__mbstate_t>::operator-, "C++: std::fpos<__mbstate_t>::operator-(const class std::fpos<__mbstate_t> &) const --> long", pybind11::arg("__other"));
+		cl.def("__iadd__", (class std::fpos<__mbstate_t> & (std::fpos<__mbstate_t>::*)(std::streamoff)) &std::fpos<__mbstate_t>::operator+=, "C++: std::fpos<__mbstate_t>::operator+=(std::streamoff) --> class std::fpos<__mbstate_t> &", pybind11::return_value_policy::reference, pybind11::arg("__off"));
+		cl.def("__isub__", (class std::fpos<__mbstate_t> & (std::fpos<__mbstate_t>::*)(std::streamoff)) &std::fpos<__mbstate_t>::operator-=, "C++: std::fpos<__mbstate_t>::operator-=(std::streamoff) --> class std::fpos<__mbstate_t> &", pybind11::return_value_policy::reference, pybind11::arg("__off"));
+		cl.def("__add__", (class std::fpos<__mbstate_t> (std::fpos<__mbstate_t>::*)(std::streamoff) const) &std::fpos<__mbstate_t>::operator+, "C++: std::fpos<__mbstate_t>::operator+(std::streamoff) const --> class std::fpos<__mbstate_t>", pybind11::arg("__off"));
+		cl.def("__sub__", (class std::fpos<__mbstate_t> (std::fpos<__mbstate_t>::*)(std::streamoff) const) &std::fpos<__mbstate_t>::operator-, "C++: std::fpos<__mbstate_t>::operator-(std::streamoff) const --> class std::fpos<__mbstate_t>", pybind11::arg("__off"));
+		cl.def("__sub__", (std::streamoff (std::fpos<__mbstate_t>::*)(const class std::fpos<__mbstate_t> &) const) &std::fpos<__mbstate_t>::operator-, "C++: std::fpos<__mbstate_t>::operator-(const class std::fpos<__mbstate_t> &) const --> std::streamoff", pybind11::arg("__other"));
 	}
 }

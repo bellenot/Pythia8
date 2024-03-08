@@ -1,5 +1,5 @@
 // DireWeightContainer.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Stefan Prestel, Torbjorn Sjostrand.
+// Copyright (C) 2024 Stefan Prestel, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -494,7 +494,7 @@ double DireWeightContainer::getTrialEnhancement( double pT2key ) {
 //--------------------------------------------------------------------------
 
 bool DireWeightContainer::hasME(const Event& event) {
-  if (hasMEs) return matrixElements->isAvailable(event);
+  if (hasMEs) return matrixElements->isAvailable(event, 0);
   return false;
 }
 
@@ -504,7 +504,7 @@ bool DireWeightContainer::hasME(vector <int> in_pdgs, vector<int> out_pdgs) {
 }
 
 double DireWeightContainer::getME(const Event& event) {
-  if (hasMEs) return matrixElements->calcME2(event);
+  if (hasMEs) return matrixElements->calcME2(event, 0);
   return 0.0;
 }
 

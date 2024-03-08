@@ -1,5 +1,5 @@
 // SigmaTotal.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -152,6 +152,13 @@ void SigmaTotal::init() {
   modeTotEl  = mode("SigmaTotal:mode");
   modeDiff   = mode("SigmaDiffractive:mode");
 
+  // Default values to trigger initalization at next step.
+  idAOld = 0;
+  idBOld = 0;
+  eCMOld = 0.;
+  modeTotElOld = -1;
+  modeDiffOld  = -1;
+
 }
 
 //--------------------------------------------------------------------------
@@ -159,6 +166,10 @@ void SigmaTotal::init() {
 // Calculate, or recalculate for new beams or new energy.
 
 bool SigmaTotal::calc(int idA, int idB, double eCM) {
+
+  // Check if nothing changed since before.
+  if (idA == idAOld && idB == idBOld && eCM == eCMOld
+    && sigTotElPtr != nullptr && sigDiffPtr != nullptr) return true;
 
   // Initial values.
   isCalc = ispp = false;
@@ -194,26 +205,32 @@ bool SigmaTotal::calc(int idA, int idB, double eCM) {
   ispp = (idAbsA == 2212 && idAbsB == 2212 && idA * idB > 0);
 
   // Set up pointer to class that handles total and elastic cross sections.
-  if (sigTotElPtr) delete sigTotElPtr;
-  if      (modeTotElNow == 0) sigTotElPtr = new SigmaTotOwn();
-  else if (modeTotElNow == 1) sigTotElPtr = new SigmaSaSDL();
-  else if (modeTotElNow == 2) sigTotElPtr = new SigmaMBR();
-  else if (modeTotElNow == 3) sigTotElPtr = new SigmaABMST();
-  else                        sigTotElPtr = new SigmaRPP();
+  if (modeTotElOld != modeTotElNow || sigTotElPtr == NULL) {
+    if (sigTotElPtr != nullptr) delete sigTotElPtr;
+    if      (modeTotElNow == 0) sigTotElPtr = new SigmaTotOwn();
+    else if (modeTotElNow == 1) sigTotElPtr = new SigmaSaSDL();
+    else if (modeTotElNow == 2) sigTotElPtr = new SigmaMBR();
+    else if (modeTotElNow == 3) sigTotElPtr = new SigmaABMST();
+    else                        sigTotElPtr = new SigmaRPP();
+    sigTotElPtr->init(infoPtr);
+    modeTotElOld = modeTotElNow;
+  }
 
   // Initialize and calculate for selected total/elastic class.
-  sigTotElPtr->init(infoPtr);
   if ( !sigTotElPtr->calcTotEl( idA, idB, s, mA, mB) ) return false;
 
   // Set up pointer to class that handles diffractive cross sections.
-  if (sigDiffPtr) delete sigDiffPtr;
-  if      (modeDiffNow == 0) sigDiffPtr = new SigmaTotOwn();
-  else if (modeDiffNow == 1) sigDiffPtr = new SigmaSaSDL();
-  else if (modeDiffNow == 2) sigDiffPtr = new SigmaMBR();
-  else                       sigDiffPtr = new SigmaABMST();
+  if (modeDiffOld != modeDiffNow || sigDiffPtr == nullptr) {
+    if (sigDiffPtr != nullptr) delete sigDiffPtr;
+    if      (modeDiffNow == 0) sigDiffPtr = new SigmaTotOwn();
+    else if (modeDiffNow == 1) sigDiffPtr = new SigmaSaSDL();
+    else if (modeDiffNow == 2) sigDiffPtr = new SigmaMBR();
+    else                       sigDiffPtr = new SigmaABMST();
+    sigDiffPtr->init(infoPtr);
+    modeDiffOld = modeDiffNow;
+  }
 
   // Initialize and calculate for selected diffractive class.
-  sigDiffPtr->init(infoPtr);
   if ( !sigDiffPtr->calcDiff( idA, idB, s, mA, mB) ) return false;
 
   // Inelastic nondiffractive by unitarity.
@@ -225,6 +242,11 @@ bool SigmaTotal::calc(int idA, int idB, double eCM) {
     return false;
   } else if (sigND < 0.4 * sigTotTmp)
     loggerPtr->WARNING_MSG("sigND suspiciously low");
+
+  // Save values to avoid unnecessary duplication.
+  idAOld = idA;
+  idBOld = idB;
+  eCMOld = eCM;
 
   // Done.
   isCalc = true;

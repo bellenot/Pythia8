@@ -98,16 +98,18 @@ Settings for VINCIA's merging are described
 <p/> 
 VINCIA also provides dedicated hooks for vetoed showers in POWHEG NLO matching 
 with input from the POWHEG-BOX program, attempting to correct for the mismatch 
-between the ordering variables in POWHEG-BOX and VINCIA. They are contained in 
-<code>include/Pythia8Plugins/PowhegHooksVincia.h</code>. The usage is the same 
-as for Pythia's <code>PowhegHooks</code> and described 
-<aidx href="POWHEGMerging">here</aidx>. 
-To use VINCIA with POWHEG-BOX input an existing main program 
-(e.g. <code>main31.cc</code>) that uses 
-POWHEG-BOX+Pythia can be adapted by replacing every occurence of 
-<code>PowhegHooks</code> with <code>PowhegHooksVincia</code>. 
+between the ordering variables in POWHEG-BOX and VINCIA. They are 
+contained in the same file 
+<code>include/Pythia8Plugins/PowhegHooks.h</code> as the standard 
+PYTHIA POWHEG hooks, and the usage is the same as for Pythia's 
+<code>PowhegHooks</code>, described <aidx href="POWHEGMatching">here</aidx>. 
+Any existing main program (e.g. <code>main31.cc</code>) that uses 
+POWHEG-BOX+Pythia can be adapted to use VINCIA with POWHEG-BOX, simply 
+by changing the shower model and setting 
+<code>Vincia:pTmaxMatch = 2</code> and <code>Vincia:pTdampMatch = 3</code> 
+as recommended <aidx href="POWHEGMatching">here</aidx>. 
  
-<h3>Main Shower Switches</h3> 
+<h3>Main Shower Switches and Starting Scales</h3> 
  
 <modepick name="Vincia:nFlavZeroMass" default="4" min="2" max="6"> 
 Controls the number of flavours that will be treated as massless by 
@@ -157,7 +159,7 @@ expect it to be almost entirely degenerate with variations of
 nonsingular terms. 
 </parm> 
  
-<h3>Shower Starting Scales</h3> 
+<h4>Vincia Shower Starting Scales</h4> 
  
 <p/> 
 Similarly to PYTHIA, for processes that include at least one quark, 
@@ -170,15 +172,19 @@ space. This behaviour can be changed by the following option, which is
 anologous to the <code>SpaceShower:PTmaxMatch</code> option in PYTHIA. 
  
 <modepick name="Vincia:pTmaxMatch" default="0" min="0" max="2"> 
-<option value="0">Showers off processes that include at least one 
+<option value="0">Showers off hard processes that include at least one 
 final-state quark, gluon, or photon, are started at the factorisation 
-scale, while processes that do not include any such partons are 
-started at the phase-space maximum.</option> 
+scale (wimpy showers), while processes that do not include any such 
+partons are started at the phase-space maximum (power showers). Note 
+that only partons that can be emitted by showers are included in this 
+counting, hence top quarks are not included for 
+<code>Vincia:nGluonToQuark &lt; = 5</code>.</option> 
 <option value="1">Showers are always started at the factorisation 
-scale.</option> 
-<option value="2">Showers are always started at the phase-space 
-maximum. This option is not recommended for physics runs as it will 
-lead to unphysical double counting in many cases.</option> 
+scale (wimpy showers).</option> 
+<option value="2">Showers off hard processes are always started at the 
+phase-space maximum (power showers). This option is not recommended 
+for physics runs as it will lead to unphysical double counting in many 
+cases.</option> 
 </modepick> 
  
 <p/> 
@@ -189,6 +195,42 @@ factorisation scale:
 <parm name="Vincia:pTmaxFudge" default="1.0" min="0.1" max="10.0"></parm> 
 <parm name="Vincia:pTmaxFudgeMPI" default="1.0" min="0.1" max="10.0"> 
 Same as above but for MPI systems, affecting the underlying event. 
+</parm> 
+ 
+<modepick name="Vincia:pTdampMatch" default="3" min="0" max="4"> 
+For any systems that are treated with power showers, a dampening 
+factor may be applied to dampen radiation above a given scale. 
+<option value="0">emissions go up to the kinematical limit, 
+with no special dampening.</option> 
+<option value="1">emissions go up to the kinematical limit, 
+but dampened by a factor <ei>k^2 Q^2_fac/(pT^2 + k^2 Q^2_fac)</ei>, 
+where <ei>Q_fac</ei> is the factorization scale and <ei>k</ei> is a 
+multiplicative fudge factor stored in <code>pTdampFudge</code> 
+below.</option> 
+<option value="2">emissions go up to the kinematical limit, 
+but dampened by a factor <ei>k^2 Q^2_scale/(pT^2 + k^2 Q^2_scale)</ei>, 
+where <ei>Q_scale</ei> is the geometric mean of the 
+<code>scale</code> properties for the incoming partons for the given 
+system. Note the interpretation of this option differs from that for 
+the analogous value in the Simple Shower.</option> 
+<option value="3">as option 1, but in addition to the standard requirements 
+for dampening it is further necessary to have at least two top or 
+beyond-the-Standard-Model coloured particles in the final state. 
+Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> 
+production.</option> 
+<option value="4">as option 2, but in addition to the standard requirements 
+for dampening it is further necessary to have at least two top or 
+beyond-the-Standard-Model coloured particles in the final state. 
+Examples include <ei>t tbar</ei> and <ei>squark gluino</ei> 
+production.</option> 
+</modepick> 
+ 
+<parm name="Vincia:pTdampFudge" default="1.0" min="0.25" max="4.0"> 
+In cases above where a dampening is imposed at around a specific Q 
+scale, this parameter allows the <ei>pT</ei> scale of dampening of 
+radiation by a half to be shifted by this factor relative to the 
+default scale. This number ought to be in the neighbourhood of unity, 
+but variations away from this value could do better in some processes. 
 </parm> 
  
 <p/> 
@@ -402,62 +444,6 @@ recoiler is always the W. This is equivalent to setting
 TimeShower:recoilToColoured = off for Pythia.</option> 
 </modepick> 
  
-<h3>Evolution with Enhanced (Biased) Kernels</h3> 
- 
-<p/> 
-VINCIA's shower evolution can be biased to populate the multi-jet 
-phase space more efficiently and/or enhance the rate of rare processes 
-such as <ei>g&rarr;bb</ei> and <ei>g&rarr;cc</ei> splittings. It is 
-also possible to inhibit radiation (e.g., to focus on Sudakov 
-regions), by choosing enhancement factors smaller than unity. When 
-these options are used, it is important to note that the event weights 
-will be modified, reflecting that some types of events (e.g., multijet 
-events, or events with gluon splittings to heavy quarks) will be 
-"overrepresented" statistically, and others (events with few jets, or 
-events with no gluon splittings to heavy quarks) 
-underrepresented. Averages and histograms will therefore only be 
-correct if computed using the correct weight for each generated 
-event. A description and proof of the algorithm can be found in 
-<ref>MS16</ref>. Note that care has been taken to ensure that the 
-weights remain positive definite; under normal circumstances, VINCIA's 
-enhancement algorithm should not result in any negative weights. 
- 
-<flag name="Vincia:enhanceInHardProcess" default="on"> 
-This flag controls whether the enhancement factors are applied to 
-shower branchings in the hard-process system.</flag> 
- 
-<flag name="Vincia:enhanceInResonanceDecays" default="on"> 
-This flag controls whether the enhancement factors are applied to 
-shower branchings inside resonance-decay systems (like Z/W/H decays) 
-that are treated as factorised from the hard process.</flag> 
- 
-<flag name="Vincia:enhanceInMPIshowers" default="off"> 
-This flag controls whether the enhancement factors are applied to 
-shower branchings in MPI systems.</flag> 
- 
-<parm name="Vincia:enhanceFacAll" default="1.0" min="0.01" max="100.0"> 
-This enhancement factor is applied as a multiplicative factor common 
-to all antenna functions, increasing the likelihood of all shower 
-branchings by the same amount. Values greater than unity thus more 
-frequently yields "busy" events, with many shower branchings. Values 
-smaller than unity suppress additional branchings, yielding more 
-Sudakov-like events.</parm> 
- 
-<parm name="Vincia:enhanceFacBottom" default="1.0" min="1.0" max="100.0"> 
-This enhances the probability for all branchings that increase the 
-number of bottom quarks (i.e., FSR <ei>g&rarr;bb</ei> splittings and 
-the corresponding ISR flavour-excitation process). Note: this factor 
-is applied on top of <code>Vincia:biasAll</code>.</parm> 
- 
-<parm name="Vincia:enhanceFacCharm" default="1.0" min="1.0" max="100.0"> 
-Same as <code>Vincia:enhanceFacBottom</code> but for charm quarks. 
-Note: this factor is applied on top of <code>Vincia:biasAll</code>.</parm> 
- 
-<parm name="Vincia:enhanceCutoff" default="10.0" min="0.0" max="1000.0"> 
-Do not apply enhancement factors to branchings below this 
-scale. Intended to be used to focus on enhancements of hard branchings 
-only.</parm> 
- 
 <h3>Interleaved Resonance Decays</h3> 
  
 <p/> 
@@ -526,7 +512,7 @@ specified by the user.
 <modepick name="Vincia:Tune" default="0" min="-1" max="0"> 
 <option value="-1">None. No VINCIA-specific tune parameter settings 
 will be used during initialisation.</option> 
-<option value="0">Hadronisation and MPI parameters optimised for use 
+<option value="0">Hadronization and MPI parameters optimised for use 
 with the VINCIA shower model, used as default VINCIA parameters since 
 PYTHIA 8.302.</option> 
 </modepick> 
@@ -552,10 +538,10 @@ some responsibility on the part of the user.
  
 <p/> 
 <b>As a guideline,</b> the main parameters that need to be properly 
-tuned are the non-perturbative hadronisation parameters used in 
+tuned are the non-perturbative hadronization parameters used in 
 PYTHIA's string fragmentation model. Since PYTHIA and VINCIA treat 
 soft radiation somewhat differently, there can be important 
-differences between the two in the soft region that the hadronisation 
+differences between the two in the soft region that the hadronization 
 model will not re-absorb automatically and which therefore only a 
 retuning can address. 
  
@@ -704,4 +690,4 @@ elements.</li>
  
 </chapter> 
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

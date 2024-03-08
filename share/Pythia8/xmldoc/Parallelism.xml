@@ -179,6 +179,19 @@ is responsible for preventing race conditions, possibly by using
 how this can be done is shown in <code>main163.cc</code>. 
 </flag> 
  
+<flag name="Parallelism:doNext" default="on"> 
+By default, <code>PythiaParallel</code> generates events, then passes the 
+<code>Pythia</code> object to the callback function. If this flag is turned 
+off, the event is not automatically generated before calling the callback, 
+so that the user is responsible for calling <code>Pythia::next</code>. 
+This can be useful for example if you want to change the energy on an 
+event-by-event basis, or otherwise want to do checks at the beginning of 
+the event loop before performing the actual generation. 
+ 
+If this flag is off, you must also set 
+<code>Parallelism:processAsync = on</code>. If it is off, 
+</flag> 
+ 
 <mode name="Parallelism:index" default="-1"> 
 When a <code>Pythia</code> instance is passed to the callback function in 
 <code>PythiaParallel::run</code>, this setting will contain an index that is 

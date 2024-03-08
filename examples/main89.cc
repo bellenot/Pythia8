@@ -1,9 +1,11 @@
 // main89.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Authors: Stefan Prestel
+
+// Contact: Christian Preuss <preuss@uni-wuppertal.de>
 
 // Keywords: matching; merging; leading order; NLO; powheg; madgraph; aMC@NLO;
 //           CKKW-L; UMEPS; NL3; UNLOPS; FxFx; MLM; userhooks; LHE file; hepmc

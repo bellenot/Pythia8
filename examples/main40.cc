@@ -1,11 +1,11 @@
 // main40.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
 // Authors: Philip Ilten <philten@cern.ch>
 //          Naomi Cooke <naomi.cooke@cern.ch>
-//          Leif Lonnblad <leif.lonnblad@hep.lu.se>
+//          Leif Lonnblad <leif.lonnblad@fysik.lu.se>
 //          Steve Mrenna <mrenna@fnal.gov>
 
 // Keywords: onia

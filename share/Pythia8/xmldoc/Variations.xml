@@ -351,6 +351,21 @@ factors in <code>EnhancedSplittings:List</code> will be used to rescale
 the splitting probabilities. 
 </flag> 
  
+<p/> 
+This parameter can be used to reduce fluctuations in weighted events 
+similar to the case of parton shower variations discussed above.  A 
+larger factor reduces fluctuations at the cost of a longer generation 
+time. The default parameters chosen are a compromise between time and 
+fluctuations. Note, this oversampling is multiplicative to that for 
+variations, so some care should be taken when applying both 
+enhancements and variations. 
+<parm name="Enhancements:overSampleFSR" default="3.0" min="1.0" 
+max="10.0"> 
+The QCD FSR Sudakov is artificially increased by this factor. The increase 
+is compensated for in the veto algorithm for enhancements. 
+</parm> 
+ 
+<p/> 
 The list of desired enhancements should be passed to Pythia in the form of 
 a single <aloc href="SettingsScheme">"vector of strings"</aloc>, defined as 
 follows: 
@@ -358,11 +373,17 @@ follows:
 default="{isr:Q2QA=50.,isr:Q2AQ=50.,fsr:Q2QA=50.0}"> 
 Currently, the following input names are recognized by the PYTHIA 
 showers, and can thus be used to enhance the respective 
-splittings. 
+splittings. Specific heavy-flavour branchings for <ei>g &rarr; c + 
+cbar</ei> and <ei>g &rarr; b + bbar</ei> are available for the 
+timelike shower (FSR QCD branching) but not for the spacelike shower 
+(ISR QCD branchings). In principle these specific ISR QCD branchings 
+should not be needed, as already most of the heavy-flavour initial 
+state processes can already be explicitly enabled. 
 <p/> 
 ISR QCD branchings: 
 <br/><code>isr:G2GG</code> for <ei>g &rarr; g + g</ei>, 
 <br/><code>isr:G2QQ</code> for <ei>g &rarr; q + qbar</ei>, 
+with <ei>q</ei> a light quark, 
 <br/><code>isr:Q2QG</code> for <ei>q &rarr; q + g</ei>, 
 <br/><code>isr:Q2GQ</code> for <ei>q &rarr; g + q</ei>; 
 <p/> 
@@ -378,6 +399,8 @@ FSR QCD branchings:
 <br/><code>fsr:G2GG</code> for <ei>g &rarr; g + g</ei>, 
 <br/><code>fsr:G2QQ</code> for <ei>g &rarr; q + qbar</ei> 
 with <ei>q</ei> a light quark, 
+<br/><code>fsr:G2CC</code> for <ei>g &rarr; c + cbar</ei>, 
+<br/><code>fsr:G2BB</code> for <ei>g &rarr; b + bbar</ei>, 
 <br/><code>fsr:Q2QG</code> for <ei>q &rarr; q + g</ei>; 
 <p/> 
 FSR QED branchings: 
@@ -441,4 +464,4 @@ page for more details.
  
 </chapter> 
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

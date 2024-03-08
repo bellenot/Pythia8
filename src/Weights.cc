@@ -1,5 +1,5 @@
 // Weights.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -8,7 +8,7 @@
 #include "Pythia8/Info.h"
 #include "Pythia8/Settings.h"
 #include "Pythia8/Weights.h"
-#include <limits>
+#include "Pythia8/FragmentationFlavZpT.h"
 
 namespace Pythia8 {
 
@@ -23,11 +23,8 @@ namespace Pythia8 {
 
 void WeightsBase::collectWeightValues(vector<double>& outputWeights,
   double norm) {
-  for (int iwt=1; iwt < getWeightsSize(); ++iwt) {
-    double value = getWeightsValue(iwt)*norm;
-    outputWeights.push_back(value);
-  }
-  return;
+  for (int iWgt = 1; iWgt < getWeightsSize(); ++iWgt)
+    outputWeights.push_back(norm*getWeightsValue(iWgt));
 }
 
 //--------------------------------------------------------------------------
@@ -35,11 +32,33 @@ void WeightsBase::collectWeightValues(vector<double>& outputWeights,
 // Similar function to return processed weight names.
 
 void WeightsBase::collectWeightNames(vector<string>& outputNames) {
-  for (int iwt=1; iwt < getWeightsSize(); ++iwt) {
-    string name  = getWeightsName(iwt);
-    outputNames.push_back(name);
+  for (int iWgt = 1; iWgt < getWeightsSize(); ++iWgt)
+    outputNames.push_back(getWeightsName(iWgt));
+}
+
+//--------------------------------------------------------------------------
+
+// Parse a WVec of variations into a weight group map.
+
+void WeightsBase::parse(string wvecKey,
+  map<string, map<string, double> > &dct) {
+  for (string &line : infoPtr->settingsPtr->wvec(wvecKey)) {
+
+    // Skip blank lines and remove leading spaces.
+    line = toLower(line);
+    if (line.empty()) continue;
+
+    // Separate line by spaces, and read key/value pairs.
+    string group, word;
+    stringstream sline(line);
+    while (getline(sline, word, ' ')) {
+      if (group.empty()) {group = toLower(word); continue;}
+      size_t token = word.find("=");
+      if (token == string::npos) continue;
+      string val = toLower(word.substr(token + 1));
+      dct[group][toLower(word.substr(0, token))] = stod(val);
+    }
   }
-  return;
 }
 
 //==========================================================================
@@ -48,25 +67,13 @@ void WeightsBase::collectWeightNames(vector<string>& outputNames) {
 
 //--------------------------------------------------------------------------
 
-// Reset all internal values.
-
-void WeightsSimpleShower::clear() {
-  for (size_t i=0; i < weightValues.size(); ++i) weightValues[i] = 1.;
-}
-
-//--------------------------------------------------------------------------
-
 // Initialize shower weights.
 
 void WeightsSimpleShower::init(bool doMerging ) {
 
-  // Empty weight vector, relevant to avoid double init of ISR variations
-  weightValues.resize(0);
-  weightNames.resize(0);
+  // Call base initialization.
+  WeightsBase::init();
   mergingVarNames.resize(0);
-  // Remember the nominal weight, since this might be needed for splitting
-  // enhancement handling.
-  bookWeight("Baseline");
 
   // Force shower variations if needed by merging but not requested by user
   if (!infoPtr->settingsPtr->flag("UncertaintyBands:doVariations") &&
@@ -81,36 +88,11 @@ void WeightsSimpleShower::init(bool doMerging ) {
   if (doMerging)
     for (double fac: infoPtr->weightContainerPtr->weightsMerging.
         getMuRVarFactors()) {
-          string stringfsr = "fsr:murfac=" + std::to_string(fac);
-          string stringisr = "isr:murfac=" + std::to_string(fac);
+          string stringfsr = "fsr:murfac=" + to_string(fac);
+          string stringisr = "isr:murfac=" + to_string(fac);
           mergingVarNames.push_back({stringfsr,stringisr});
     }
 
-}
-
-//--------------------------------------------------------------------------
-
-// Store the current event information.
-
-void WeightsSimpleShower::bookVectors(vector<double> weights,
-  vector<string> names) {
-  replaceWhitespace(names);
-  for (size_t i = 0; i < weights.size(); ++i) bookWeight(names[i], weights[i]);
-}
-
-//--------------------------------------------------------------------------
-
-// Replace whitespace with underscore in wieght names, so that the names
-// transferred to HepMC do not contain whitespace.
-
-void WeightsSimpleShower::replaceWhitespace( vector<string>& namesIn) {
-  vector<string> ret;
-  for (size_t i=0; i < namesIn.size(); ++i) {
-    string name=namesIn[i];
-    replace(name.begin(), name.end(), ' ', '_');
-    ret.push_back(name);
-    namesIn[i] = name;
-  }
 }
 
 //--------------------------------------------------------------------------
@@ -200,9 +182,7 @@ void WeightsSimpleShower::initWeightGroups(bool isISR) {
 // Return weight group name.
 
 string WeightsSimpleShower::getGroupName(int iGN) const {
-  string tmpString("Null");
-  if( iGN < 0 || iGN >= externalVariationsSize )
-    return tmpString;
+  if (iGN < 0 || iGN >= externalVariationsSize) return "Null";
   return externalGroupNames[iGN];
 }
 
@@ -369,7 +349,7 @@ void WeightsSimpleShower::collectWeightValues(vector<double>& outputWeights,
 
 //--------------------------------------------------------------------------
 
-// Reset all internal values;
+// Reset all internal values.
 
 void WeightsLHEF::clear() {weightValues.resize(0); weightNames.resize(0);}
 
@@ -747,6 +727,122 @@ void WeightsMerging::setLHEFvariationMapping() {
 
 //==========================================================================
 
+// WeightsFragmentation class.
+
+//--------------------------------------------------------------------------
+
+// Fragmentation variations initialization.
+
+void WeightsFragmentation::init() {
+  WeightsBase::init();
+  weightParms.clear();
+  externalGroupNames.clear();
+  externalMap.clear();
+
+  // Initialize a flavor selector.
+  StringFlav flavSel;
+  flavSel.initInfoPtr(*infoPtr);
+
+  // Read weight groups into a dictionary.
+  map<string, map<string, double> > weightGroups;
+  parse("VariationFrag:list", weightGroups);
+
+  // Define the ordering of the parameters and key mapping.
+  vector<vector< pair<string, string> > > keyOrder = {
+    {{"frag:alund", "StringZ:aLund"}, {"frag:blund", "StringZ:bLund"},
+     {"frag:rfactc",  "StringZ:rFactC"}, {"frag:rfactb", "StringZ:rFactB"}},
+    {{"frag:xi", "StringFlav:ProbQQtoQ"}, {"frag:rho", "StringFlav:ProbStoUD"},
+     {"frag:x", "StringFlav:ProbSQtoQQ"},
+     {"frag:y", "StringFlav:ProbQQ1toQQ0"}},
+    {{"frag:ptsigma", "StringPT:sigma"}}};
+  weightParms.resize(keyOrder.size());
+
+  // Create a map from variation keys to standard keys.
+  vector<map<string, string> > keyMap(keyOrder.size());
+  for (int iFac = 0; iFac < (int)keyOrder.size(); ++iFac)
+    for (auto &key : keyOrder[iFac]) keyMap[iFac][key.first] = key.second;
+
+  // Store the baseline parameters.
+  Settings *settingsPtr = infoPtr->settingsPtr;
+  vector<map<string, double> > baseParms(3);
+  for (int iFac = 0; iFac < (int)keyMap.size(); ++iFac)
+    for(auto &key : keyMap[iFac])
+      baseParms[iFac][key.first] = settingsPtr->parm(key.second);
+
+  // Loop over the groups and determine the parameter variations.
+  for (auto &group : weightGroups) {
+
+    // Set the parameter variations for a group.
+    externalGroupNames.push_back(group.first);
+    vector<map<string, double> > varParms = baseParms;
+    for (auto &var : group.second) {
+      for (int iFac = 0; iFac < (int)varParms.size(); ++iFac) {
+        auto itr = varParms[iFac].find(var.first);
+        if (itr != varParms[iFac].end()) {itr->second = var.second; break;}
+      }
+    }
+
+    // Map the group parameters to factorized parameters.
+    externalMap.push_back({});
+    for (int iFac = 0; iFac < (int)keyMap.size(); ++iFac) {
+      if (varParms[iFac] == baseParms[iFac]) continue;
+      string name;
+      vector<double> key;
+
+      // Transform flavor parameters if needed.
+      if (iFac == Flav) {
+        for (auto &var : varParms[iFac])
+          settingsPtr->parm(keyMap[Flav][var.first], var.second, true);
+        flavSel.init();
+        for (auto &iParm : vector<int>{0, 1, 2, 3, 6})
+          key.push_back(flavSel.getFlavourSpinRatios(0, iParm));
+        for (auto &var : baseParms[iFac])
+          settingsPtr->parm(keyMap[Flav][var.first], var.second, true);
+      }
+
+      // Set the standard parameters.
+      for (auto &var : keyOrder[iFac]) {
+        double val = varParms[iFac][var.first];
+        key.push_back(val);
+        name += var.first + "=" + toString(val) + "+";
+      }
+
+      // Check if this is a new factorized variation.
+      auto parm = weightParms[iFac].insert({key, weightValues.size()});
+      externalMap.back().push_back(parm.first->second);
+      if (!parm.second) continue;
+      weightValues.push_back(1.);
+      weightNames.push_back(name.substr(0, name.size() - 1));
+    }
+  }
+
+}
+
+//--------------------------------------------------------------------------
+
+// Collect shower weight names.
+
+void WeightsFragmentation::collectWeightNames(vector<string>& outputNames) {
+  for (int iWgt = 1; iWgt < getWeightsSize(); ++iWgt)
+    outputNames.push_back("AUX_" + getWeightsName(iWgt));
+  for (int iWG = 0; iWG < nWeightGroups(); ++iWG)
+    outputNames.push_back("AUX_" + getGroupName(iWG));
+}
+
+//--------------------------------------------------------------------------
+
+// Collect shower weight values.
+
+void WeightsFragmentation::collectWeightValues(vector<double>& outputWeights,
+  double norm) {
+  for (int iWgt = 1; iWgt < getWeightsSize(); ++iWgt)
+    outputWeights.push_back(getWeightsValue(iWgt)*norm);
+  for (int iWG = 0; iWG < nWeightGroups(); ++iWG)
+    outputWeights.push_back(getGroupWeight(iWG)*norm);
+}
+
+//==========================================================================
+
 // The WeightContainer class.
 
 //--------------------------------------------------------------------------
@@ -763,7 +859,8 @@ void WeightContainer::setWeightNominal(double weightNow) {
 
 double WeightContainer::collectWeightNominal() {
   return weightNominal * weightsShowerPtr->getWeightsValue(0)
-                       * weightsMerging.getWeightsValue(0);
+                       * weightsMerging.getWeightsValue(0)
+                       * weightsFragmentation.getWeightsValue(0);
 }
 
 
@@ -772,17 +869,7 @@ double WeightContainer::collectWeightNominal() {
 // Functions to retrieve the stored information.
 
 int WeightContainer::numberOfWeights() {
-  // Get total number of merging weights.
-  int nMergingWeights = weightsMerging.getWeightsSize() - 1;
-  if (weightsMerging.weightValuesP.size())
-    nMergingWeights += 2*weightsMerging.weightValuesP.size();
-  // Get total number of shower weights.
-  int nShowerWeights       = weightsShowerPtr->getWeightsSize() - 1;
-  int nShowerWeightGroups  = weightsShowerPtr->nWeightGroups() > 0 ?
-    weightsShowerPtr->nWeightGroups() - 1 : 0;
-  if (doSuppressAUXweights) return 1 + nMergingWeights;
-  else return (1 + weightsLHEF.getWeightsSize()
-                 + nShowerWeights + nShowerWeightGroups + nMergingWeights);
+  return weightValueVector().size();
 }
 
 double WeightContainer::weightValueByIndex(int key) {
@@ -807,12 +894,15 @@ vector<double> WeightContainer::weightValueVector() {
 
   // Let all weights attach the relative weight values to the return vector.
   // Second argument allows for normalization.
-  if (!doSuppressAUXweights) weightsLHEF.collectWeightValues(ret,collWgtNom);
-  if (!doSuppressAUXweights)
+  if (!doSuppressAUXweights) {
+    weightsLHEF.collectWeightValues(ret,collWgtNom);
     weightsShowerPtr->collectWeightValues(ret,collWgtNom);
+    weightsFragmentation.collectWeightValues(ret,collWgtNom);
+  }
+  weightsUserHooks.collectWeightValues(ret,collWgtNom);
   weightsMerging.collectWeightValues(ret,collWgtNom);
 
-  // Done
+  // Done.
   return ret;
 
 }
@@ -829,11 +919,15 @@ vector<string> WeightContainer::weightNameVector() {
   ret.push_back("Weight");
 
   // Let all weights attach the weight names to the return vector.
-  if (!doSuppressAUXweights) weightsLHEF.collectWeightNames(ret);
-  if (!doSuppressAUXweights) weightsShowerPtr->collectWeightNames(ret);
+  if (!doSuppressAUXweights) {
+    weightsLHEF.collectWeightNames(ret);
+    weightsShowerPtr->collectWeightNames(ret);
+    weightsFragmentation.collectWeightNames(ret);
+  }
+  weightsUserHooks.collectWeightNames(ret);
   weightsMerging.collectWeightNames(ret);
 
-  // Done
+  // Done.
   return ret;
 
 }
@@ -846,6 +940,8 @@ void WeightContainer::clear() {
   weightNominal = 1.;
   weightsLHEF.clear();
   if (weightsShowerPtr != nullptr) weightsShowerPtr->clear();
+  weightsFragmentation.clear();
+  weightsUserHooks.clear();
   weightsMerging.clear();
 }
 
@@ -870,6 +966,8 @@ void WeightContainer::initPtrs(Info* infoPtrIn) {
   weightsShowerPtr = &weightsSimpleShower;
   weightsLHEF.setPtrs(infoPtrIn);
   weightsShowerPtr->setPtrs(infoPtrIn);
+  weightsFragmentation.setPtrs(infoPtrIn);
+  weightsUserHooks.setPtrs(infoPtrIn);
   weightsMerging.setPtrs(infoPtrIn);
 }
 
@@ -879,6 +977,8 @@ void WeightContainer::initPtrs(Info* infoPtrIn) {
 
 void WeightContainer::init( bool doMerging ) {
   weightsShowerPtr->init(doMerging);
+  weightsFragmentation.init();
+  weightsUserHooks.init();
   weightsMerging.init();
   doSuppressAUXweights = infoPtr->settingsPtr->
     flag("Weights:suppressAUX");

@@ -1,5 +1,5 @@
 // Basics.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -401,7 +401,7 @@ public:
   double flat() ;
 
   // Generate random numbers according to exp(-x).
-  double exp() { return -log(flat()) ;}
+  double exp() ;
 
   // Generate random numbers according to x * exp(-x).
   double xexp() { return -log(flat() * flat()) ;}
@@ -424,11 +424,7 @@ public:
   int pick(const vector<double>& prob) ;
 
   // Randomly shuffle a vector, standard Fisher-Yates algorithm.
-  template<typename T>
-  void shuffle(vector<T>& vec) {
-    for (int i = vec.size() - 1; i > 0; --i)
-      swap(vec[i], vec[floor(flat() * (i + 1))]);
-  }
+  template<typename T> void shuffle(vector<T>& vec);
 
   // Save or read current state to or from a binary file.
   bool dumpState(string fileName);
@@ -440,6 +436,22 @@ public:
 
   // The default seed, i.e. the Marsaglia-Zaman random number sequence.
   static constexpr int DEFAULTSEED = 19780503;
+
+#ifdef RNGDEBUG
+  // Random number methods used for debugging only.
+  double flatDebug(string loc, string file, int line);
+  double xexpDebug(string loc, string file, int line);
+  double gaussDebug(string loc, string file, int line);
+  pair<double, double> gauss2Debug(string loc, string file, int line);
+  double gammaDebug(string loc, string file, int line, double k0, double r0);
+  pair<Vec4, Vec4> phaseSpace2Debug(string loc, string file, int line,
+    double eCM, double m1, double m2);
+
+  // Static members for debugging to print call file location or filter.
+  static bool debugNow, debugLocation, debugIndex;
+  static int debugPrecision, debugCall;
+  static set<string> debugStarts, debugEnds, debugContains, debugMatches;
+#endif
 
 private:
 
@@ -523,9 +535,11 @@ public:
   void rivetTable(ostream& os = cout, bool printError = true) const ;
   void rivetTable(string fileName, bool printError = true) const {
     ofstream streamName(fileName.c_str()); rivetTable(streamName, printError);}
-  void pyplotTable(ostream& os = cout, bool isHist = true) const ;
-  void pyplotTable(string fileName, bool isHist = true) const {
-    ofstream streamName(fileName.c_str()); pyplotTable(streamName, isHist);}
+  void pyplotTable(ostream& os = cout, bool isHist = true,
+    bool printError = false) const ;
+  void pyplotTable(string fileName, bool isHist = true,
+    bool printError = false) const {ofstream streamName(fileName.c_str());
+    pyplotTable(streamName, isHist, printError);}
 
   // Fill contents of a two-column (x,y) table, e.g. written by table() above.
   void fillTable(istream& is = cin);
@@ -791,6 +805,29 @@ private:
   bool useLegacy;
 
 };
+
+//==========================================================================
+
+// Methods used for debugging random number sequences.
+
+#ifdef RNGDEBUG
+#define flat() flatDebug(__METHOD_NAME__, __FILE__, __LINE__)
+#define xexp() xexpDebug(__METHOD_NAME__, __FILE__, __LINE__)
+#define gauss() gaussDebug(__METHOD_NAME__, __FILE__, __LINE__)
+#define gamma(...) gammaDebug(__METHOD_NAME__, __FILE__, __LINE__, __VA_ARGS__)
+#define phaseSpace2(...) phaseSpace2Debug(__METHOD_NAME__, __FILE__, __LINE__,\
+    __VA_ARGS__)
+#endif
+
+//==========================================================================
+
+// Randomly shuffle a vector, standard Fisher-Yates algorithm.
+// This must be defined after possible RNG debugging.
+
+template<typename T> void Rndm::shuffle(vector<T>& vec) {
+  for (int i = vec.size() - 1; i > 0; --i)
+    swap(vec[i], vec[floor(flat() * (i + 1))]);
+}
 
 //==========================================================================
 

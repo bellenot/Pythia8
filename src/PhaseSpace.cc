@@ -1,5 +1,5 @@
 // PhaseSpace.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -847,7 +847,7 @@ bool PhaseSpace::setupSampling123(bool is2, bool is3) {
     double yVal = 0.5;
     double zVal = 0.5;
     int iGrid;
-    double varVal, varNew, deltaVar, marginVar, sigGrid[3];
+    double varVal, varNew, deltaVar, marginVar, sigGrid[3]{};
 
     // Starting point and step size in parameter space.
     for (int iRepeat = 0; iRepeat < 2; ++iRepeat) {
@@ -2629,6 +2629,10 @@ bool PhaseSpace2to2elastic::trialKin( bool, bool ) {
     }
   }
 
+  // Reset cross section machinery to new conditions.
+  if (idA != idAold || idB != idBold || doEnergySpread)
+    sigmaTotPtr->calc( idA, idB, eCM);
+
   // Sample kinematics for gamma+gamma(hadron) sub-event and reject
   // to account for over sampling.
   if (hasGamma) {
@@ -2982,6 +2986,10 @@ bool PhaseSpace2to2diffractive::trialKin( bool, bool ) {
     lambda12 = sqrtpos( pow2( s - s1 - s2) - 4. * s1 * s2 );
   }
 
+  // Reset cross section machinery to new conditions.
+  if (idA != idAold || idB != idBold || doEnergySpread)
+    sigmaTotPtr->calc( idA, idB, eCM);
+
   // Sample kinematics for gamma+gamma(hadron) sub-event and reject
   // to account for over sampling.
   if (hasGamma) {
@@ -3269,6 +3277,10 @@ bool PhaseSpace2to3diffractive::trialKin( bool, bool ) {
     eCM = infoPtr->eCM();
     s   = eCM * eCM;
   }
+
+  // Reset cross section machinery to new conditions.
+  if (idA != idAold || idB != idBold || doEnergySpread)
+    sigmaTotPtr->calc( idA, idB, eCM);
 
   // Trivial kinematics of incoming hadrons.
   pAbs = 0.5 * sqrtpos( pow2( s - s1 - s2) - 4. * s1 * s2 ) / eCM;

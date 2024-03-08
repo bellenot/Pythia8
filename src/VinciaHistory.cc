@@ -1,5 +1,5 @@
 // VinciaHistory.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -557,7 +557,7 @@ int HistoryNode::getNClusterings(shared_ptr<VinciaMergingHooks>
 void HistoryNode::setClusterList(shared_ptr<VinciaMergingHooks>
   vinMergingHooksPtr, Logger* loggerPtr, int verboseIn) {
   if (verboseIn >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"begin", dashLen);
+    printOut(__METHOD_NAME__,"begin", DASHLEN);
 
   if (!isInitPtr) {
     loggerPtr->ERROR_MSG("pointers not initialised");
@@ -624,24 +624,24 @@ void HistoryNode::setClusterList(shared_ptr<VinciaMergingHooks>
 
     // Loop over particles in current chain.
     for (int iPtcl(0); iPtcl<(int)clusChain.size(); ++iPtcl) {
-      // Fetch children of this clustering.
-      int child1 = (iPtcl == 0 ? clusChain.back() : clusChain[iPtcl-1]);
-      int child2 = clusChain[iPtcl];
-      int child3 = (iPtcl == (int)(clusChain.size()-1) ?
+      // Fetch daughters of this clustering.
+      int dau1 = (iPtcl == 0 ? clusChain.back() : clusChain[iPtcl-1]);
+      int dau2 = clusChain[iPtcl];
+      int dau3 = (iPtcl == (int)(clusChain.size()-1) ?
         clusChain.front() : clusChain[iPtcl+1]);
 
       if (verboseIn >= VinciaConstants::DEBUG) {
         stringstream msg;
         msg << "Candidate clustering: "
-            << child1 <<" "<< child2<<" "<<child3;
+            << dau1 <<" "<< dau2<<" "<<dau3;
         printOut(__METHOD_NAME__, msg.str());
       }
 
       // Don't cluster emissions into the initial state...
-      if (state[child2].isFinal()) {
-        // Set information about children (masses and invariants).
+      if (state[dau2].isFinal()) {
+        // Set information about daughters (masses and invariants).
         VinciaClustering thisClus;
-        thisClus.setChildren(state, child1, child2, child3);
+        thisClus.setDaughters(state, dau1, dau2, dau3);
         // Make sure we only add sensible clusterings to the list.
         if (vinComPtr->isValidClustering(thisClus, state, verboseIn)) {
           candidates.push_back(thisClus);
@@ -652,22 +652,22 @@ void HistoryNode::setClusterList(shared_ptr<VinciaMergingHooks>
           }
         }
       }
-      // ...but include colour partners of initial-state quarks in GXconv...
-      else if (state[child2].isQuark()) {
+      // ...but include colour partners of initial-state quarks in GXConv...
+      else if (state[dau2].isQuark()) {
         // Fetch colour connection.
         bool colCon12
-          = vinComPtr->colourConnected(state[child1],state[child2]);
+          = vinComPtr->colourConnected(state[dau1],state[dau2]);
         bool colCon23
-          = vinComPtr->colourConnected(state[child2],state[child3]);
-        if (state[child2].id() == state[child1].id()) {
-          if (state[child1].isFinal()) {
+          = vinComPtr->colourConnected(state[dau2],state[dau3]);
+        if (state[dau2].id() == state[dau1].id()) {
+          if (state[dau1].isFinal()) {
             // Check colour connection:
             // 1 and 2 must not be connected, 2 and 3 must be connected.
             if (!colCon12 && colCon23) {
               // Convention is that j is always in the final state,
-              // so we swap the order of child1 and child2.
+              // so we swap the order of dau1 and dau2.
               VinciaClustering thisClus;
-              thisClus.setChildren(state, child2, child1, child3);
+              thisClus.setDaughters(state, dau2, dau1, dau3);
               // Make sure we only add sensible clusterings to the list.
               if (vinComPtr->isValidClustering(thisClus, state, verboseIn)) {
                 candidates.push_back(thisClus);
@@ -680,15 +680,15 @@ void HistoryNode::setClusterList(shared_ptr<VinciaMergingHooks>
             }
           }
         }
-        if (state[child2].id() == state[child3].id()) {
-          if (state[child3].isFinal()) {
+        if (state[dau2].id() == state[dau3].id()) {
+          if (state[dau3].isFinal()) {
             // Check colour connection:
             // 2 and 3 must not be connected, 1 and 2 must be connected.
             if (!colCon23 && colCon12) {
               // Convention is that j is always in the final state,
-              // so we swap the order of child2 and child3.
+              // so we swap the order of dau2 and dau3.
               VinciaClustering thisClus;
-              thisClus.setChildren(state, child1, child3, child2);
+              thisClus.setDaughters(state, dau1, dau3, dau2);
               // Make sure we only add sensible clusterings to the list.
               if (vinComPtr->isValidClustering(thisClus, state, verboseIn)) {
                 candidates.push_back(thisClus);
@@ -702,15 +702,15 @@ void HistoryNode::setClusterList(shared_ptr<VinciaMergingHooks>
           }
         }
       }
-      // ...and colour partners of initial-state gluons in QXsplit.
-      else if (state[child2].isGluon()) {
+      // ...and colour partners of initial-state gluons in QXConv.
+      else if (state[dau2].isGluon()) {
         // If both colour-connected partners are quarks, we either encountered
         // it already or will encounter it later.
-        if (state[child1].isQuark() && !state[child3].isQuark()) {
+        if (state[dau1].isQuark() && !state[dau3].isQuark()) {
           // Convention is that j is always in the final state,
-          // so we swap the order of child1 and child2.
+          // so we swap the order of dau1 and dau2.
           VinciaClustering thisClus;
-          thisClus.setChildren(state, child2, child1, child3);
+          thisClus.setDaughters(state, dau2, dau1, dau3);
           // Make sure we only add sensible clusterings to the list.
           if (vinComPtr->isValidClustering(thisClus, state, verboseIn)) {
             candidates.push_back(thisClus);
@@ -721,11 +721,11 @@ void HistoryNode::setClusterList(shared_ptr<VinciaMergingHooks>
             }
           }
         }
-        else if (!state[child1].isQuark() && state[child3].isQuark()) {
+        else if (!state[dau1].isQuark() && state[dau3].isQuark()) {
           // Convention is that j is always in the final state,
-          // so we swap the order of child3 and child2.
+          // so we swap the order of dau3 and dau2.
           VinciaClustering thisClus;
-          thisClus.setChildren(state, child1, child3, child2);
+          thisClus.setDaughters(state, dau1, dau3, dau2);
           // Make sure we only add sensible clusterings to the list.
           if (vinComPtr->isValidClustering(thisClus, state, verboseIn)) {
             candidates.push_back(thisClus);
@@ -743,19 +743,19 @@ void HistoryNode::setClusterList(shared_ptr<VinciaMergingHooks>
     for (auto itClus = candidates.begin();
       itClus!=candidates.end(); ++itClus) {
 
-      int child1 = itClus->child1;
-      int child2 = itClus->child2;
-      int child3 = itClus->child3;
+      int dau1 = itClus->dau1;
+      int dau2 = itClus->dau2;
+      int dau3 = itClus->dau3;
 
       if (verboseIn >= VinciaConstants::DEBUG) {
         stringstream msg;
         msg << "Considering clustering: "
-            << child1 <<" "<< child2<<" "<<child3;
+            << dau1 <<" "<< dau2<<" "<<dau3;
         printOut(__METHOD_NAME__,msg.str());
       }
 
       // Skip clusterings of resonances.
-      if (state[child2].isResonance()) {
+      if (state[dau2].isResonance()) {
         if (verboseIn >= VinciaConstants::DEBUG)
           printOut(__METHOD_NAME__,"Skipping resonance clustering.");
         continue;
@@ -763,7 +763,7 @@ void HistoryNode::setClusterList(shared_ptr<VinciaMergingHooks>
 
       // Find all antennae that can produce this post-branching state.
       vector<VinciaClustering> clusterings;
-      clusterings = vinComPtr->findAntennae(state, child1, child2, child3);
+      clusterings = vinComPtr->findAntennae(state, dau1, dau2, dau3);
       if (clusterings.size() == 0) {
         loggerPtr->ERROR_MSG("no antenna found; clustering will be skipped");
         continue;
@@ -804,7 +804,7 @@ void HistoryNode::setClusterList(shared_ptr<VinciaMergingHooks>
               "performing unvalidated resonance-final clustering");
           }
 
-          if (antFunType == GXsplitFF) quarkClustering = true;
+          if (antFunType == GXSplitFF) quarkClustering = true;
           AntennaFunction* antPtr= antSetFSRptr->getAntFunPtr(antFunType);
           if (antPtr==nullptr) {
             loggerPtr->ERROR_MSG("Non-existent antenna",
@@ -833,8 +833,8 @@ void HistoryNode::setClusterList(shared_ptr<VinciaMergingHooks>
             continue;
           }
 
-          if (antFunType == XGsplitIF || antFunType == GXconvIF ||
-              antFunType == GXconvII) quarkClustering = true;
+          if (antFunType == XGSplitIF || antFunType == GXConvIF ||
+              antFunType == GXConvII) quarkClustering = true;
         }
         // Check if we have enough quarks left.
         if (quarkClustering && nQQbarNow == nMinQQbarNow) {
@@ -861,32 +861,32 @@ void HistoryNode::setClusterList(shared_ptr<VinciaMergingHooks>
             msg << "Sector resolution is negative."
                 << " Will ignore clustering!";
             printOut(__METHOD_NAME__, msg.str()+" ("
-              +num2str(clusterings.at(iHist).Q2res)+")");
+              +num2str(clusterings.at(iHist).q2res)+")");
           }
           continue;
         }
 
         if (verboseIn >= VinciaConstants::DEBUG) {
           stringstream ss;
-          int idMother1 = clusterings.at(iHist).idMoth1;
-          int idMother2 = clusterings.at(iHist).idMoth2;
-          ss << "Found viable clustering {" << clusterings.at(iHist).child1
-             << " " << clusterings.at(iHist).child2 << " "
-             << clusterings.at(iHist).child3 << "} to "<< idMother1
+          int idMother1 = clusterings.at(iHist).idMot1;
+          int idMother2 = clusterings.at(iHist).idMot2;
+          ss << "Found viable clustering {" << clusterings.at(iHist).dau1
+             << " " << clusterings.at(iHist).dau2 << " "
+             << clusterings.at(iHist).dau3 << "} to "<< idMother1
              << " " << idMother2 << " (" << clusterings.at(iHist).getAntName()
-             << ")" <<" with Qres = "<< sqrt(clusterings.at(iHist).Q2res)
+             << ")" <<" with Qres = "<< sqrt(clusterings.at(iHist).q2res)
              << " GeV";
           printOut(__METHOD_NAME__,ss.str());
         }
 
         // If nothing went wrong, save in cluster list.
-        clusterList[clusterings.at(iHist).Q2res] = clusterings.at(iHist);
+        clusterList[clusterings.at(iHist).q2res] = clusterings.at(iHist);
       }
     }
   }
 
   if (verboseIn >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"end", dashLen);
+    printOut(__METHOD_NAME__,"end", DASHLEN);
   return;
 
 }
@@ -955,9 +955,9 @@ bool HistoryNode::doClustering(VinciaClustering& clus, Event& clusEvent,
   }
 
   // Note the changed particles.
-  int iaEvt = clus.child1;
-  int ijEvt = clus.child2;
-  int ibEvt = clus.child3;
+  int iaEvt = clus.dau1;
+  int ijEvt = clus.dau2;
+  int ibEvt = clus.dau3;
 
   if (verboseIn >= VinciaConstants::DEBUG) {
     stringstream ss;
@@ -1420,7 +1420,7 @@ double VinciaHistory::getRestartScale() {
 void VinciaHistory::findBestHistory() {
 
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"begin", dashLen);
+    printOut(__METHOD_NAME__,"begin", DASHLEN);
   bool foundIncompleteHistory = false;
   foundValidHistory = false;
   failedMSCut = false;
@@ -1538,7 +1538,7 @@ void VinciaHistory::findBestHistory() {
     stringstream ss;
     ss<<"Best history has weight: "<< ME2guessBest;
     printOut(__METHOD_NAME__,ss.str());
-    printOut(__METHOD_NAME__,"end", dashLen);
+    printOut(__METHOD_NAME__,"end", DASHLEN);
   }
 }
 
@@ -1550,7 +1550,7 @@ void VinciaHistory::findBestHistory() {
 unsigned int VinciaHistory::countPerms() {
 
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"begin", dashLen);
+    printOut(__METHOD_NAME__,"begin", DASHLEN);
 
   // 1.) Find all colour-connected chains of gluons for input event.
   if (!getColChains()) {
@@ -1638,7 +1638,7 @@ unsigned int VinciaHistory::countPerms() {
 
   // Done.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"end", dashLen);
+    printOut(__METHOD_NAME__,"end", DASHLEN);
 
   // Return the number of viable permutations we found.
   return colPerms.size();
@@ -1850,7 +1850,7 @@ bool VinciaHistory::assignResChains(map<int, map<int,int>>& idCounter,
   vector<ColourFlow>& flowsSoFar) {
 
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"begin", dashLen);
+    printOut(__METHOD_NAME__,"begin", DASHLEN);
 
   if (flowsSoFar.empty()) {
     if (verbose >= VinciaConstants::DEBUG) {
@@ -1902,7 +1902,7 @@ bool VinciaHistory::assignResChains(map<int, map<int,int>>& idCounter,
   }// Finished loop over charge index.
 
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"end", dashLen);
+    printOut(__METHOD_NAME__,"end", DASHLEN);
 
   // Done!
   if (flowsSoFar.empty()) return false;
@@ -2159,7 +2159,7 @@ bool VinciaHistory::assignThis(vector< ColourFlow > &flowsSoFar, int id,
 bool VinciaHistory::assignBeamChains(vector<ColourFlow>& flowsSoFar) {
 
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"begin", dashLen);
+    printOut(__METHOD_NAME__,"begin", DASHLEN);
 
   if (flowsSoFar.empty()) {
     if (verbose >= VinciaConstants::DEBUG) {
@@ -2207,7 +2207,7 @@ bool VinciaHistory::assignBeamChains(vector<ColourFlow>& flowsSoFar) {
     flowsSoFar=completed;
   }
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__,"end", dashLen);
+    printOut(__METHOD_NAME__,"end", DASHLEN);
 
   // Done!
   if (flowsSoFar.empty()) return false;
@@ -2743,12 +2743,12 @@ double VinciaHistory::calcME2Born(const HistoryNode & bornNode, bool isRes) {
   int nIn = 0;
   if (isRes) {
     // Fetch particles.
-    vector<int> children = bornNode.clusterableChains.back();
-    int iRes = born[children.front()].mother1();
+    vector<int> daughters = bornNode.clusterableChains.back();
+    int iRes = born[daughters.front()].mother1();
     parts.push_back(born[iRes]);
-    auto itChild = children.begin();
-    for( ; itChild!= children.end(); ++itChild) {
-      parts.push_back(born[*itChild]);
+    auto itDau = daughters.begin();
+    for( ; itDau!= daughters.end(); ++itDau) {
+      parts.push_back(born[*itDau]);
     }
     nIn = 1;
   } else {
@@ -2807,7 +2807,7 @@ double VinciaHistory::calcAntFun(const VinciaClustering& clusNow) {
 
   // Pass invariants and masses to evaluate antFun.
   double antFun = antFunPtr->antFun(clusNow.invariants,
-    clusNow.massesChildren);
+    clusNow.mDau);
   return antFun;
 
 }
@@ -2879,7 +2879,7 @@ double VinciaHistory::calcAlphaSRatio(const HistoryNode& node) {
     double kMu2 = 0.;
     double mu2 = 0.;
     // AlphaS for gluon splittings.
-    if (antFunType == GXsplitFF || antFunType == XGsplitRF) {
+    if (antFunType == GXSplitFF || antFunType == XGSplitRF) {
       // Set kFactor as in shower.
       kMu2 = fsrShowerPtr->aSkMu2Split;
       mu2 = max(fsrShowerPtr->mu2min,
@@ -2897,11 +2897,11 @@ double VinciaHistory::calcAlphaSRatio(const HistoryNode& node) {
   } else {
     // Set kFactor as in shower.
     double kMu2 = isrShowerPtr->aSkMu2EmitI;
-    if (antFunType == XGsplitIF)
+    if (antFunType == XGSplitIF)
       kMu2 = isrShowerPtr->aSkMu2SplitF;
-    else if (antFunType == QXsplitIF || antFunType == QXsplitII)
+    else if (antFunType == QXConvIF || antFunType == QXConvII)
       kMu2 = isrShowerPtr->aSkMu2SplitI;
-    else if (antFunType == GXconvIF || antFunType == GXconvII)
+    else if (antFunType == GXConvIF || antFunType == GXConvII)
       kMu2 = isrShowerPtr->aSkMu2Conv;
     double mu2 = max(isrShowerPtr->mu2min,
       isrShowerPtr->mu2freeze + kMu2 * pT2next);

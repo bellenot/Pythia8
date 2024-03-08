@@ -1,5 +1,5 @@
 // PhysicsBase.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -46,6 +46,10 @@ public:
   int    mode(string key) const {return settingsPtr->mode(key);}
   double parm(string key) const {return settingsPtr->parm(key);}
   string word(string key) const {return settingsPtr->word(key);}
+  vector<bool>   fvec(string key) const {return settingsPtr->fvec(key);}
+  vector<int>    mvec(string key) const {return settingsPtr->mvec(key);}
+  vector<double> pvec(string key) const {return settingsPtr->pvec(key);}
+  vector<string> wvec(string key) const {return settingsPtr->wvec(key);}
 
 protected:
 

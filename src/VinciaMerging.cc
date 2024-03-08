@@ -1,5 +1,5 @@
 // VinciaMerging.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -163,7 +163,7 @@ void VinciaMerging::statistics() {
 int VinciaMerging::mergeProcess(Event& process) {
 
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
   int vetoCode = 1;
 
   // If we just want to calculate the cross section,
@@ -187,7 +187,7 @@ int VinciaMerging::mergeProcess(Event& process) {
   // Could add other types of merging here in future?
   // E.g. merging for regular shower.
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
   return vetoCode;
 
 }
@@ -201,7 +201,7 @@ int VinciaMerging::mergeProcessSector(Event& process) {
 
   bool doVeto = false;
   if (verbose >= VinciaConstants::DEBUG) {
-    printOut(__METHOD_NAME__, "begin", dashLen);
+    printOut(__METHOD_NAME__, "begin", DASHLEN);
     string msg = "Raw process:";
     printOut(__METHOD_NAME__,msg);
     process.list();
@@ -342,7 +342,7 @@ int VinciaMerging::mergeProcessSector(Event& process) {
   }
 
   if (verbose >= VinciaConstants::DEBUG)
-    printOut(__METHOD_NAME__, "end", dashLen);
+    printOut(__METHOD_NAME__, "end", DASHLEN);
   return (doVeto) ? 0 : 1;
 
 }

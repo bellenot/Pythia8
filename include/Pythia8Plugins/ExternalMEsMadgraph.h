@@ -1,5 +1,5 @@
 // ExternalMEsMadgraph.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Stefan Prestel, Philip Ilten, Torbjorn
+// Copyright (C) 2024 Peter Skands, Stefan Prestel, Philip Ilten, Torbjorn
 // Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
@@ -23,6 +23,7 @@ namespace Pythia8 {
 
 //==========================================================================
 
+// External matrix element class specifically for MadGraph.
 
 class ExternalMEsMadgraph : public ExternalMEs {
 
@@ -44,11 +45,12 @@ public:
   // Methods to check availability of matrix elements.
   bool isAvailable(vector<int> idIn, vector<int> idOut) override;
   bool isAvailable(const Pythia8::Event& event) override;
+  bool isAvailable(const Pythia8::Event& event, int iBeg = 3) override;
   bool isAvailable(const vector<Particle>& state) override;
 
   // Get the matrix element squared for a particle state.
   double calcME2(const vector<Particle>& state) override;
-  double calcME2(const Event& event) override;
+  double calcME2(const Event& event, const int iBeg = 3) override;
 
 private:
 
@@ -137,6 +139,10 @@ bool ExternalMEsMadgraph::initVincia(Info* infoPtrIn) {
 
 }
 
+//--------------------------------------------------------------------------
+
+// Initialise the Madgraph model, parameters, and couplings for use in Dire.
+
 bool ExternalMEsMadgraph::initDire(Info*, string card) {
 
   // Redirect output so that Dire can print MG5 initialization.
@@ -187,6 +193,17 @@ bool ExternalMEsMadgraph::isAvailable(const Event& event) {
   return (query != nullptr);
 }
 
+bool ExternalMEsMadgraph::isAvailable(const Event& event, const int iBeg) {
+
+  vector <int> in, out;
+  fillIds(event, in, out, iBeg);
+  set<int> req_s_channels;
+
+  PY8MEs_namespace::PY8ME* query
+    = libPtr->getProcess(in, out, req_s_channels);
+  return (query != nullptr);
+}
+
 bool ExternalMEsMadgraph::isAvailable(const vector<Particle>& state) {
 
   vector <int> idIn, idOut;
@@ -212,21 +229,21 @@ double ExternalMEsMadgraph::calcME2(const vector<Particle>& state) {
   vector<vector<double>> pn;
   fillLists(state, idIn, idOut, hels, cols, pn);
   int nIn = idIn.size();
-  if (nIn <= 0) return -1.;
-  else if (state.size() - nIn < 1) return -1.;
+  if (nIn <= 0 || state.size() - nIn < 1) return -1.;
 
   return calcME2(idIn, idOut, pn, hels, cols);
 
 }
 
-double ExternalMEsMadgraph::calcME2(const Pythia8::Event& event) {
+double ExternalMEsMadgraph::calcME2(const Pythia8::Event& event,
+  const int iBeg) {
 
   // Prepare lists.
   vector<int> in, out;
-  fillIds(event, in, out);
+  fillIds(event, in, out, iBeg);
   vector<int> cols;
-  fillCols(event, cols);
-  vector< vector<double> > pvec = fillMoms(event);
+  fillCols(event, cols, iBeg);
+  vector< vector<double> > pvec = fillMoms(event, iBeg);
   vector<int> helicities;
 
   return calcME2(in, out, pvec, helicities, cols);

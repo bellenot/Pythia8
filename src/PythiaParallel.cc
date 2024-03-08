@@ -1,5 +1,5 @@
 // PythiaParallel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Marius Utheim, Torbjorn Sjostrand.
+// Copyright (C) 2024 Marius Utheim, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -81,6 +81,12 @@ bool PythiaParallel::init(function<bool(Pythia*)> customInit) {
   }
   processAsync = settings.flag("Parallelism:processAsync");
   balanceLoad  = settings.flag("Parallelism:balanceLoad");
+  doNext       = settings.flag("Parallelism:doNext");
+
+  if (!doNext && !processAsync) {
+    logger.WARNING_MSG(
+      "setting both doNext and processAsync to off prevents parallelism");
+  }
 
   // Set seeds.
   vector<int> seeds = settings.mvec("Parallelism:seeds");
@@ -178,7 +184,7 @@ vector<long> PythiaParallel::run(long nEvents,
       else if (nStartedEvents++ >= nEvents) break;
 
       // Generate the event.
-      bool success = pythiaPtr->next();
+      bool success = !doNext || pythiaPtr->next();
 
       // Increment counter for number of generated events.
       // Note the use of printf for thread safety.

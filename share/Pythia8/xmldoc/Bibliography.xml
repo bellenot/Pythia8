@@ -149,7 +149,7 @@ arXiv:1507.02091 [hep-ph]</dd>
 <dd>C. Bierlich, G. Gustafson and L. L&ouml;nnblad, JHEP 1610 (2016) 139 
  [arXiv:1607.04434 [hep-ph]]</dd> 
  
-<dt>Bie16b</dt> 
+<refit>Bie16b</refit> 
 <dd>C. Bierlich, G. Gustafson and L. L&ouml;nnblad, LU-TP-16-64, 
 arXiv:1612.05132 [hep-ph]</dd> 
  
@@ -159,6 +159,10 @@ arXiv:1612.05132 [hep-ph]</dd>
 <refit>Bie17</refit> 
 <dd>C. Bierlich, G. Gustafson and L. L&ouml;nnblad, Phys.Lett B779 (2018) 
 58-63, arXiv:1710.09725 [hep-ph]</dd> 
+ 
+<refit>Bie23</refit> 
+<dd>C. Bierlich, P. Ilten, T. Menzo, S. Mrenna, M. Wilkinson, 
+A. Youssef and J. Zupan, arXiv:2308.13459 [hep-ph]</dd> 
  
 <refit>Bij01</refit> 
 <dd>J. Bijnens et al., Phys. Lett. B503 (2001) 341</dd> 
@@ -715,4 +719,4 @@ J. Phys. G33 (2006) 1</dd>
  
 </chapter> 
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

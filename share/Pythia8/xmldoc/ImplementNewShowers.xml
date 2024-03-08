@@ -252,7 +252,7 @@ not the default value.
  
 <method name="virtual int TimeShower::showerQEDafterRemnants( Event& event)"> 
  Optional method to add QED showers after beam remnants have been added 
- but before hadronisation. 
+ but before hadronization. 
  It is called from the very end of <code>PartonLevel::next()</code>, 
  after the main perturbative evolution has finished and all beam 
  remnants have been added. 
@@ -782,4 +782,4 @@ possible allowed recoilers in the input event.
  
 </chapter> 
  
-<!-- Copyright (C) 2023 Torbjorn Sjostrand --> 
+<!-- Copyright (C) 2024 Torbjorn Sjostrand --> 

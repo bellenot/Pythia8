@@ -1,5 +1,5 @@
 // VinciaCommon.h is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Peter Skands, Torbjorn Sjostrand.
+// Copyright (C) 2024 Peter Skands, Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -46,10 +46,10 @@ const double NC = 3.0;
 const double gammaE = 0.577215664901532860606512090082402431042;
 
 // Verbosity levels. Vincia has one more level (debug) beyond report.
-const int DEBUG  = 4;
+const int DEBUG   = 4;
 
 // Padding length for dashes in standardised Vincia verbose output.
-const int dashLen    = 50;
+const int DASHLEN = 80;
 
 }
 
@@ -64,11 +64,11 @@ class VinciaCommon;
 
 // Enumerator for antenna function types, with "void" member NoFun.
 enum AntFunType { NoFun,
-                  QQemitFF, QGemitFF, GQemitFF, GGemitFF, GXsplitFF,
-                  QQemitRF, QGemitRF, XGsplitRF,
-                  QQemitII, GQemitII, GGemitII, QXsplitII, GXconvII,
-                  QQemitIF, QGemitIF, GQemitIF, GGemitIF, QXsplitIF,
-                  GXconvIF, XGsplitIF };
+                  QQEmitFF, QGEmitFF, GQEmitFF, GGEmitFF, GXSplitFF,
+                  QQEmitRF, QGEmitRF, XGSplitRF,
+                  QQEmitII, GQEmitII, GGEmitII, QXConvII, GXConvII,
+                  QQEmitIF, QGEmitIF, GQEmitIF, GGEmitIF, QXConvIF,
+                  GXConvIF, XGSplitIF };
 
 //==========================================================================
 
@@ -277,15 +277,15 @@ private:
 
 struct VinciaClustering {
 
-  // Set information about children from current event and children indices.
-  void setChildren(Event& state, int child1In, int child2In, int child3In);
-  void setChildren(vector<Particle>& state, int child1In, int child2In,
-    int child3In);
+  // Set information about daughters from current event and daughters indices.
+  void setDaughters(const Event& state, int dau1In, int dau2In, int dau3In);
+  void setDaughters(const vector<Particle>& state, int dau1In, int dau2In,
+    int dau3In);
 
   // Set mother particle ids.
-  void setMothers(int idMoth1In, int idMoth2In) {
-    idMoth1 = idMoth1In;
-    idMoth2 = idMoth2In;
+  void setMothers(int idMot1In, int idMot2In) {
+    idMot1 = idMot1In;
+    idMot2 = idMot2In;
   }
 
   // Set antenna information.
@@ -298,18 +298,18 @@ struct VinciaClustering {
   bool initInvariantAndMassVecs();
 
   // Set invariants and masses.
-  void setInvariantsAndMasses(Event& state);
-  void setInvariantsAndMasses(vector<Particle>& state);
+  void setInvariantsAndMasses(const Event& state);
+  void setInvariantsAndMasses(const vector<Particle>& state);
 
   // Swap 1 <-> 3, including information about parents.
   void swap13() {
-    swap(child1,child3);
-    swap(idMoth1,idMoth2);
+    swap(dau1,dau3);
+    swap(idMot1,idMot2);
     swap(saj,sjb);
-    if (massesChildren.size() == 3)
-      swap(massesChildren[0],massesChildren[2]);
-    if (massesMothers.size() == 2)
-      swap(massesMothers[0],massesMothers[1]);
+    if (mDau.size() == 3)
+      swap(mDau[0],mDau[2]);
+    if (mMot.size() == 2)
+      swap(mMot[0],mMot[1]);
     if (invariants.size() == 3) {
       swap(invariants[1],invariants[2]);
     }
@@ -318,22 +318,22 @@ struct VinciaClustering {
   // Methods to get antenna type.
   bool isFF() const {
     if (!isFSR) return false;
-    else if (antFunType >= QQemitFF && antFunType < QQemitRF) return true;
+    else if (antFunType >= QQEmitFF && antFunType < QQEmitRF) return true;
     else return false;
   }
   bool isRF() const {
     if (!isFSR) return false;
-    else if (antFunType >= QQemitRF && antFunType < QQemitII) return true;
+    else if (antFunType >= QQEmitRF && antFunType < QQEmitII) return true;
     else return false;
   }
   bool isII() const {
     if (isFSR) return false;
-    else if (antFunType >= QQemitII && antFunType < QQemitIF) return true;
+    else if (antFunType >= QQEmitII && antFunType < QQEmitIF) return true;
     return false;
   }
   bool isIF() const {
     if (isFSR) return false;
-    else if (antFunType >= QQemitIF) return true;
+    else if (antFunType >= QQEmitIF) return true;
     else return false;
   }
   string getAntName() const;
@@ -342,22 +342,22 @@ struct VinciaClustering {
   bool is2to3() const { return true; }
 
   // Branching daughter information (indices in event record).
-  int child1{}, child2{}, child3{};
+  int dau1{}, dau2{}, dau3{};
 
   // Antenna information.
   bool isFSR{true};
   AntFunType antFunType{NoFun};
 
   // Mother ids.
-  int idMoth1{}, idMoth2{};
+  int idMot1{}, idMot2{};
 
   // Helicities.
-  vector<int> helChildren = {9, 9, 9};
-  vector<int> helMothers = {9, 9};
+  vector<int> helDau = {9, 9, 9};
+  vector<int> helMot = {9, 9};
 
   // Masses.
-  vector<double> massesChildren;
-  vector<double> massesMothers;
+  vector<double> mDau;
+  vector<double> mMot;
 
   // Invariants.
   double saj{}, sjb{}, sab{};
@@ -365,10 +365,10 @@ struct VinciaClustering {
   vector<double> invariants;
 
   // Value of sector resolution variable that this clustering produces.
-  double Q2res{};
+  double q2res{};
 
   // Value of evolution variable that this clustering produces.
-  double Q2evol{};
+  double q2evol{};
 
   // Kinematic map (only used for FF).
   int kMapType{};
@@ -418,7 +418,7 @@ public:
   VinciaClustering findSector(vector<Particle>& state,
     int nqpMin = 0, int ngMin = 0);
 
-  // Find sector with minimal Q2sector in list of clusterings.
+  // Find sector with minimal q2sector in list of clusterings.
   VinciaClustering getMinSector(vector<VinciaClustering>& clusterings);
 
   // Sector veto to check whether given value of resolution is minimal,
@@ -427,7 +427,7 @@ public:
   bool sectorVeto(double q2In, vector<Particle>& state,
     map<int,int> nFlavsBorn) {
     VinciaClustering clusMin = findSector(state, nFlavsBorn);
-    if (q2In > clusMin.Q2res) return true;
+    if (q2In > clusMin.q2res) return true;
     else return false;
   }
   bool sectorVeto(const VinciaClustering& clusMin,
@@ -547,11 +547,11 @@ public:
   // Method to find all possible clusterings for a given system,
   // given we want to resolve a certain Born configuration, i.e.,
   // not cluster more gluons or quark flavours as we had in the Born.
-  vector<VinciaClustering> findClusterings(vector<Particle>& state,
+  vector<VinciaClustering> findClusterings(const vector<Particle>& state,
     map<int, int> nFlavsBorn);
   // Method to find all possible clusterings while retaining a certain
   // minimal number of quark pairs and gluons.
-  vector<VinciaClustering> findClusterings(vector<Particle>& state,
+  vector<VinciaClustering> findClusterings(const vector<Particle>& state,
     int nqpMin = 0, int ngMin = 0);
 
   // Check if clustering is sensible, i.e., corresponds to an existing antenna.
@@ -570,19 +570,19 @@ public:
     const VinciaClustering& clus, int iOffset = 0);
 
   // 3->2 clustering maps.
-  bool map3to2FF(vector<Vec4>& pClu, vector<Vec4> pIn,
+  bool map3to2FF(vector<Vec4>& pClu, const vector<Vec4> pIn,
     int kMapType, int a=0, int r=1, int b=2, double mI=0.0, double mK=0.0) {
     if (mI == 0. && mK == 0.)
       return map3to2FFmassless(pClu, pIn, kMapType, a, r, b);
     else
       return map3to2FFmassive(pClu, pIn, kMapType, mI, mK, a, r, b);
   }
-  bool map3to2RF(vector<Vec4>& pClu, vector<Vec4>& pIn, int a=0,
+  bool map3to2RF(vector<Vec4>& pClu, const vector<Vec4>& pIn, int a=0,
     int r=1, int b=2, double mK = 0.);
-  bool map3to2IF(vector<Vec4>& pClu, vector<Vec4>& pIn,
+  bool map3to2IF(vector<Vec4>& pClu, const vector<Vec4>& pIn,
     int a = 0, int r = 1, int b = 2,
     double mj = 0., double mk = 0., double mK = 0.);
-  bool map3to2II(vector<Vec4>& pClu, vector<Vec4>& pIn, bool doBoost,
+  bool map3to2II(vector<Vec4>& pClu, const vector<Vec4>& pIn, bool doBoost,
     int a = 0, int r = 2, int b = 1, double mj = 0.);
 
   // 2->3 kinematics maps for FF branchings. Original implementations;
@@ -610,22 +610,22 @@ public:
 
   // 2->3 kinematics maps for IF branchings. General massive case
   // implemented by Verheyen.
-  bool map2to3IFlocal(vector<Vec4>& pNew, vector<Vec4>& pOld,
+  bool map2to3IFlocal(vector<Vec4>& pNew, const vector<Vec4>& pOld,
     double sOldAK, double saj, double sjk, double sak, double phi,
     double m2oldK, double m2j, double m2k);
   bool map2to3IFglobal(vector<Vec4>& pNew, vector<Vec4>& pRec,
-    vector<Vec4>& pOld, Vec4 &pB,
+    const vector<Vec4>& pOld, const Vec4 &pB,
     double sAK, double saj, double sjk, double sak, double phi,
     double mK2, double mj2, double mk2);
 
   // Resonance decay kinematic maps.
-  bool map2toNRF(vector<Vec4>& pAfter, vector<Vec4> pBefore,
+  bool map2toNRF(vector<Vec4>& pAfter, const vector<Vec4> pBefore,
     unsigned int posR, unsigned int posF,
-    vector<double> invariants,double phi,
-    vector<double> masses);
+    const vector<double> invariants, double phi,
+    const vector<double> masses);
 
   // 1->2 decay map for (already offshell) resonance decay
-  bool map1to2RF(vector<Vec4>& pNew, Vec4 pRes, double m1,
+  bool map1to2RF(vector<Vec4>& pNew, const Vec4 pRes, double m1,
     double m2, double theta, double phi);
 
   // Check if 2-particle system is on-shell and rescale if not.
@@ -657,8 +657,8 @@ public:
   // Method to find all antennae that can produce a branching.
   //   IN: indices of clustering in event, where i2 is the emission.
   //  OUT: vector of VinciaClusterings.
-  // Also swap children to match antenna function convention if needed
-  // (e.g. for GXsplitFF, when child2 and child3 form the quark pair).
+  // Also swap daughters to match antenna function convention if needed
+  // (e.g. for GXSplitFF, when dau2 and dau3 form the quark pair).
   vector<VinciaClustering> findAntennae(Event& state, int i1, int i2, int i3);
 
   // Check whether two particles are colour connected.
@@ -698,9 +698,9 @@ private:
   // Functions.
 
   // Special cases of 3 -> 2 maps.
-  bool map3to2FFmassive(vector<Vec4>& pClu, vector<Vec4> pIn,
+  bool map3to2FFmassive(vector<Vec4>& pClu, const vector<Vec4> pIn,
     int kMapType, double mI, double mK, int a=0, int r=1, int b=2);
-  bool map3to2FFmassless(vector<Vec4>& pClu, vector<Vec4> pIn,
+  bool map3to2FFmassless(vector<Vec4>& pClu, const vector<Vec4> pIn,
     int kMapType, int a=0, int r=1, int b=2);
 
   // Special cases of 2 -> 3 maps.
@@ -715,9 +715,9 @@ private:
   bool map2to3IImassless(vector<Vec4>& pNew, vector<Vec4>& pRec,
     vector<Vec4>& pOld, double sAB, double saj, double sjb, double sab,
     double phi);
-  bool map2to3RF(vector<Vec4>& pThree, vector<Vec4> pTwo,
-    vector<double> invariants,double phi,
-    vector<double> masses);
+  bool map2to3RF(vector<Vec4>& pThree, const vector<Vec4> pTwo,
+    const vector<double> invariants, double phi,
+    const vector<double> masses);
 
   // Members.
 

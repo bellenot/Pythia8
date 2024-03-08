@@ -1,5 +1,5 @@
 // History.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -9217,6 +9217,8 @@ void History::reverseBoostISR(Vec4& pMother, Vec4& pSister, Vec4& pPartner,
 // (Only enabled if W reclustering is used).
 bool History::isQCD2to2(const Event& event) {
 
+  if (!mergingHooksPtr->doWeakClustering()) return false;
+
   int nFinalPartons = 0, nFinal = 0;;
   for (int i = 0;i < event.size();++i)
     if (event[i].isFinal()) {
@@ -9235,6 +9237,8 @@ bool History::isQCD2to2(const Event& event) {
 // Check if an event reclustered into a 2 -> 1 Drell-Yan.
 // (Only enabled if W reclustering is used).
 bool History::isEW2to1(const Event& event) {
+
+  if (!mergingHooksPtr->doWeakClustering()) return false;
 
   int nVector = 0;
   for (int i = 0;i < event.size();++i) {

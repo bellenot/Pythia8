@@ -1,5 +1,5 @@
 // HadronLevel.cc is a part of the PYTHIA event generator.
-// Copyright (C) 2023 Torbjorn Sjostrand.
+// Copyright (C) 2024 Torbjorn Sjostrand.
 // PYTHIA is licenced under the GNU GPL v2 or later, see COPYING for details.
 // Please respect the MCnet Guidelines, see GUIDELINES for details.
 
@@ -71,8 +71,11 @@ bool HadronLevel::init( TimeShowerPtr timesDecPtr, RHadrons* rHadronsPtrIn,
   // Boundary mass between string and ministring handling.
   mStringMin      = parm("HadronLevel:mStringMin");
 
+  // Try ministring fragmentation also if normal fails.
+  tryMiniAfterFailedFrag = flag("MiniStringFragmentation:tryAfterFailedFrag");
+
   // For junction processing.
-  eNormJunction   = parm("StringFragmentation:eNormJunction");
+  pNormJunction   = parm("StringFragmentation:pNormJunction");
 
   // Allow R-hadron formation.
   allowRH         = flag("RHadrons:allow");
@@ -85,7 +88,7 @@ bool HadronLevel::init( TimeShowerPtr timesDecPtr, RHadrons* rHadronsPtrIn,
   doPartonVertex  = flag("PartonVertex:setVertex");
 
   // Need string density information be collected?
-  closePacking    = flag("StringPT:closePacking");
+  closePacking    = flag("ClosePacking:doClosePacking");
 
   // Initialize string interactions (Ropewalk and Flavour Ropes) if present.
   fragmentationModifierPtr =
@@ -168,6 +171,9 @@ bool HadronLevel::init( TimeShowerPtr timesDecPtr, RHadrons* rHadronsPtrIn,
 
 bool HadronLevel::next( Event& event) {
 
+  // Clear the fragmentation weights.
+  infoPtr->weightContainerPtr->weightsFragmentation.clear();
+
   // Store current event size to mark Parton Level content.
   event.savePartonLevelSize();
 
@@ -235,6 +241,9 @@ bool HadronLevel::next( Event& event) {
       if (fragmentationModifierPtr)
         fragmentationModifierPtr->initEvent(event, colConfig);
 
+      // MiniStringFragmentation needs to know if the event is diffractive.
+      bool isDiff = infoPtr->isDiffractiveA() || infoPtr->isDiffractiveB();
+
       // Process all colour singlet (sub)systems.
       for (int iSub = 0; iSub < colConfig.size(); ++iSub) {
 
@@ -243,15 +252,25 @@ bool HadronLevel::next( Event& event) {
         int nBefFrag = event.size();
 
         // String fragmentation of each colour singlet (sub)system.
+        // If fails optionally try ministring fragmentation.
         if ( colConfig[iSub].massExcess > mStringMin ) {
-          if (!stringFrag.fragment( iSub, colConfig, event)) return false;
+          if (!stringFrag.fragment( iSub, colConfig, event)) {
+            if (!tryMiniAfterFailedFrag) return false;
+            loggerPtr->ERROR_MSG("string fragmentation failed, "
+              "trying ministring fragmetation instead");
+            if (!ministringFrag.fragment(iSub, colConfig, event, isDiff)) {
+              loggerPtr->ERROR_MSG("also ministring fragmentation failed "
+                "after failed normal fragmentation");
+              return false;
+            }
+          }
 
-        // Low-mass string treated separately. Tell if diffractive system.
+        // Low-mass string treated separately.
         } else {
-          bool isDiff = infoPtr->isDiffractiveA()
-                     || infoPtr->isDiffractiveB();
-          if (!ministringFrag.fragment( iSub, colConfig, event, isDiff))
-            return false;
+          if (!ministringFrag.fragment( iSub, colConfig, event, isDiff)) {
+            loggerPtr->ERROR_MSG("ministring fragmentation failed");
+              return false;
+          }
         }
 
         // Displace hadron vertices transversely from parton MPI + shower.
@@ -508,7 +527,7 @@ bool HadronLevel::findSinglets(Event& event, bool keepJunctions) {
 
 //--------------------------------------------------------------------------
 
-// Extract rapidity pairs of string pieces.
+// Extract rapidity pairs of string pieces. Store in form [yCol, yAcol].
 
 vector< vector< pair<double,double> > > HadronLevel::rapidityPairs(
   Event& event) {
@@ -519,23 +538,58 @@ vector< vector< pair<double,double> > > HadronLevel::rapidityPairs(
     vector< pair<double,double> > rapsNow;
     vector<int> iPartons = colConfig[iSub].iParton;
 
-    // Special treatment for junction systems.
+    // Special treatment of junctions.
+    // Should not have unprocessed multi-junction systems at this point.
     if (colConfig[iSub].hasJunction) {
-      // Pick smallest and largest rapidity parton.
-      double ymi = 1e10;
-      double yma = -1e10;
-      for (int iP = 0; iP < int(iPartons.size()); iP++) {
-        int iQ = iPartons[iP];
-        if (iQ < 0) continue;
-        if (event[iQ].id() == 21) continue;
-        double yNow = yMax(event[iQ], MTINY);
-        if (yNow > yma) yma = yNow;
-        if (yNow < ymi) ymi = yNow;
-      }
-      rapsNow.push_back( make_pair(ymi, yma) );
 
-    // Normal strings. For closed gluon loop include first-last pair.
-    } else {
+      // Loop through iPartons and define junction legs.
+      int legBeg[3] = { 0, 0, 0};
+      int legEnd[3] = { 0, 0, 0};
+      int leg = -1;
+      for (int i = 0; i < int(iPartons.size()); ++i) {
+        if (iPartons[i] < 0) {
+          if (leg == 2) break;
+          legBeg[++leg] = i + 1;
+        }
+        else legEnd[leg] = i;
+      }
+
+      // Check if a junction or antijunction to determine flux direction.
+      bool antiJunc = ( event[iPartons[legEnd[0]]].colType() < 0 ) ? 1 : 0;
+
+      // Special treatment for the junction. Look at first parton on
+      // each leg and construct colourflow of type q --> q <-- q.
+      double yJun[3];
+      for (int i = 0; i < 3; ++i)
+        yJun[i] = yMax(event[iPartons[legBeg[i]]], MTINY);
+      int iMin = (yJun[0] < yJun[1]) ? 0 : 1;
+      int iMax = 1 - iMin;
+      if (yJun[2] < min(yJun[0], yJun[1])) iMin = 2;
+      else if (yJun[2] > max(yJun[0], yJun[1])) iMax = 2;
+      int iMid = 3 - iMin - iMax;
+      if (antiJunc) {
+        rapsNow.push_back( make_pair(yJun[iMid], yJun[iMin]) );
+        rapsNow.push_back( make_pair(yJun[iMid], yJun[iMax]) );
+      } else {
+        rapsNow.push_back( make_pair(yJun[iMin], yJun[iMid]) );
+        rapsNow.push_back( make_pair(yJun[iMax], yJun[iMid]) );
+      }
+
+      // Do standard treatment on other partons on junction legs.
+      for (int i = 0; i < 3; ++i) {
+        for (int j = legBeg[i]; j < legEnd[i] - 1; ++j) {
+          int i1 = iPartons[j];
+          int i2 = iPartons[j + 1];
+          double y1  = yMax(event[i1], MTINY);
+          double y2  = yMax(event[i2], MTINY);
+          if (!antiJunc) swap(y1, y2);
+          rapsNow.push_back( make_pair(y1, y2) );
+        }
+      }
+    }
+
+    // Normal string treatment.
+    else {
       int size = int(iPartons.size());
       int end  = size - (colConfig[iSub].isClosed ? 0 : 1);
       for (int iP = 0; iP < end; iP++) {
@@ -543,9 +597,11 @@ vector< vector< pair<double,double> > > HadronLevel::rapidityPairs(
         int    i2  = iPartons[(iP+1)%size];
         double y1  = yMax(event[i1], MTINY);
         double y2  = yMax(event[i2], MTINY);
-        double ymi = min(y1, y2);
-        double yma = max(y1, y2);
-        rapsNow.push_back( make_pair(ymi, yma) );
+
+        // Check flux direction of current string piece and store accordingly.
+        if (event[i1].col() == event[i2].acol() && event[i1].col() != 0)
+          rapsNow.push_back( make_pair(y1, y2) );
+        else rapsNow.push_back( make_pair(y2, y1) );
       }
     }
     rapPairs.push_back(rapsNow);
