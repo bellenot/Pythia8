@@ -32,8 +32,10 @@
 #include <list>
 #include <functional>
 
+#ifndef _MSC_VER
 // Stdlib header file for dynamic library loading.
 #include <dlfcn.h>
+#endif
 
 // Stdlib header file for input and output.
 #include <iostream>

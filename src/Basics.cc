@@ -217,6 +217,7 @@ double Rndm::flat() {
 // Generate a random number according to a Gamma-distribution.
 
 double Rndm::gamma(double k0, double r0) {
+  const double M_E = 0.0005109989;
   int k = int(k0);
 
   double x = 0.0;

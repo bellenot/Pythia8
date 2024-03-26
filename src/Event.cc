@@ -85,7 +85,7 @@ double Particle::y(double mCut, RotBstMatrix& M) const {
 // Method to find the index of the particle in the event record.
 
 int Particle::index() const { if (evtPtr == 0) return -1;
-  return (long(this) - long(&((*evtPtr)[0]))) / sizeof(Particle);
+  return (intptr_t(this) - intptr_t(&((*evtPtr)[0]))) / sizeof(Particle);
 }
 
 //--------------------------------------------------------------------------

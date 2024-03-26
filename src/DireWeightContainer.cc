@@ -317,10 +317,10 @@ void DireWeightContainer::eraseRejectWeight( double pT2key, string varKey) {
 double DireWeightContainer::getAcceptWeight( double pT2key, string varKey) {
   unordered_map<string, map<ulong, DirePSWeight> >::iterator it0 =
     acceptWeight.find( varKey );
-  if ( it0 == acceptWeight.end() ) return 0./0.;
+  if ( it0 == acceptWeight.end() ) return INFINITY;
   map<ulong, DirePSWeight>::iterator it =
     acceptWeight[varKey].find( key(pT2key) );
-  if ( it == acceptWeight[varKey].end() ) return 0./0.;
+  if ( it == acceptWeight[varKey].end() ) return INFINITY;
   return it->second.weight();
 }
 
@@ -330,10 +330,10 @@ double DireWeightContainer::getAcceptWeight( double pT2key, string varKey) {
 double DireWeightContainer::getRejectWeight( double pT2key, string varKey) {
   unordered_map<string, map<ulong, DirePSWeight> >::iterator it0 =
     rejectWeight.find( varKey );
-  if ( it0 == rejectWeight.end() ) return 0./0.;
+  if ( it0 == rejectWeight.end() ) return INFINITY;
   map<ulong, DirePSWeight>::iterator it =
     rejectWeight[varKey].find( key(pT2key) );
-  if ( it == rejectWeight[varKey].end() ) return 0./0.;
+  if ( it == rejectWeight[varKey].end() ) return INFINITY;
   return it->second.weight();
 }
 

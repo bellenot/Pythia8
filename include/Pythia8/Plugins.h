@@ -9,6 +9,7 @@
 #define Pythia8_Plugins_H
 
 #include "Pythia8/Pythia.h"
+#include "Pythia8/Win32defs.h"
 
 // Allow the use of dlopen without warnings for some GCC versions.
 #if defined (__GNUC__) && ((__GNUC__ + 0) < 5)

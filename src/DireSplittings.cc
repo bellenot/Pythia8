@@ -41,7 +41,7 @@ void DireSplitting::init() {
 
 double DireSplitting::getKernel(string key) {
   unordered_map<string, double>::iterator it = kernelVals.find(key);
-  if ( it == kernelVals.end() ) return 0./0.;
+  if ( it == kernelVals.end() ) return INFINITY;
   return it->second;
 }
 
